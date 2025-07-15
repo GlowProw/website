@@ -19,7 +19,7 @@ export default class Conf {
 
     // 初始配置
     async initConf() {
-        let confs = await import('/public/config/requestConf.json');
+        let confs = await import('../../../public/config/requestConf.json');
         this.CONF = Object.assign(
             this.CONF,
             {...confs}

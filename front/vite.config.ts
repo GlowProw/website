@@ -8,7 +8,6 @@ import Fonts from 'unplugin-fonts/vite'
 import { defineConfig } from 'vite'
 import { fileURLToPath, URL } from 'node:url'
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     Vue({
@@ -52,17 +51,11 @@ export default defineConfig({
     '/api': {
       target: 'http://localhost:3000',
       changeOrigin: true,
-      rewrite: (path) => path.replace(/^\/api/, ''),
+      // rewrite: (path) => path.replace(/^\/api/, ''),
       // 如果需要，可以添加更多配置
       // secure: false, // 如果是https，可能需要这个
       // ws: true // 代理websockets
     }
   },
-  css: {
-    preprocessorOptions: {
-      sass: {
-        api: 'modern-compiler',
-      },
-    },
-  },
+
 })

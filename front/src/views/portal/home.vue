@@ -1,12 +1,12 @@
-<script setup>
+<script setup lang="ts">
 </script>
 
 <template>
   <div>
     <div class="portal-banner">
       <div class="portal-banner-looping-video">
-        <video autoplay="" playsinline=""
-               muted="" loop="" type="video/mp4"
+        <video autoplay playsinline
+               muted loop type="video/mp4"
                src="http://cdn.hommk.com/pcgame/ubi2015/img/gamezone/sb/full/skullandbones-year2-loop.mp4"></video>
       </div>
 

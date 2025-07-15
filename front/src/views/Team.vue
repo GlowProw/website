@@ -9,7 +9,14 @@ const authStore = useAuthStore(),
     router = useRouter(),
     ws = new WebSocket(`ws://localhost:3001`);
 
-const teams = ref([])
+interface Teams {
+  username: string
+  expiresAt: number
+  createdAt: number
+  description: string
+}
+
+const teams:Teams[] = ref([])
 const player = ref('')
 const description = ref('')
 const tags = ref([])
@@ -19,6 +26,7 @@ const isSessionReconnection = ref(false)
 
 onMounted(() => {
   getTeams();
+  initWss();
 })
 
 /**
@@ -53,60 +61,65 @@ const pushTeamInfo = async () => {
   ws.send(JSON.stringify(message));
 }
 
-// --- WebSocket 事件处理 ---
-ws.onopen = function (event) {
-  if (authStore.isLogin) {
-    ws.send(JSON.stringify({type: 'authenticate', payload: {token: authStore.user.token}}));
-  }
-};
+/**
+ * WebSocket
+ */
+const initWss = () => {
+  ws.onopen = function (event) {
+    if (authStore.isLogin) {
+      ws.send(JSON.stringify({type: 'authenticate', payload: {token: authStore.user.token}}));
+    }
+  };
 
-ws.onmessage = function (event) {
-  const data = JSON.parse(event.data);
-  teams.value = []
+  ws.onmessage = function (event) {
+    const data = JSON.parse(event.data);
+    teams.value = []
 
-  switch (data.type) {
-    case 'new_team_up':
-    case 'team_up_expired':
-      getTeams()
-      break;
-    case 'publish_rate_limit':
-      break;
-    case 'auth_failed':
-      authStore.logout()
-      router.push('/account/login')
-      break;
-    case 'error':
-      console.error(data.message)
-      break;
-  }
-  //
-  // if (data.type === 'new_team_up') {
-  //   // 当有新组队发布时，重新获取列表以确保排序和筛选是最新的
-  //   getTeams();
-  // } else if (data.type === 'team_up_expired') {
-  //   // 当组队过期或取消时，重新获取列表
-  //   getTeams();
-  // } else if (data.type === 'publish_rate_limit') {
-  //   // publishMessageDiv.className = 'error-message';
-  //   // publishMessageDiv.textContent = data.payload.message;
-  // } else if (data.type === 'auth_failed') {
-  //   // loginMessageDiv.className = 'error-message';
-  //   // loginMessageDiv.textContent = data.message + " 请重新登录。";
-  //   // clearAuthData(); // 清除无效的 Token
-  //   router.push('/account/login')
-  // } else if (data.type === 'error') {
-  //
-  // }
-};
+    switch (data.type) {
+      case 'new_team_up':
+      case 'team_up_expired':
+        getTeams()
+        break;
+      case 'publish_rate_limit':
+        break;
+      case 'auth_failed':
+        authStore.logout()
+        router.push('/account/login')
+        break;
+      case 'error':
+        console.error(data.message)
+        break;
+    }
+    //
+    // if (data.type === 'new_team_up') {
+    //   // 当有新组队发布时，重新获取列表以确保排序和筛选是最新的
+    //   getTeams();
+    // } else if (data.type === 'team_up_expired') {
+    //   // 当组队过期或取消时，重新获取列表
+    //   getTeams();
+    // } else if (data.type === 'publish_rate_limit') {
+    //   // publishMessageDiv.className = 'error-message';
+    //   // publishMessageDiv.textContent = data.payload.message;
+    // } else if (data.type === 'auth_failed') {
+    //   // loginMessageDiv.className = 'error-message';
+    //   // loginMessageDiv.textContent = data.message + " 请重新登录。";
+    //   // clearAuthData(); // 清除无效的 Token
+    //   router.push('/account/login')
+    // } else if (data.type === 'error') {
+    //
+    // }
+  };
 
-ws.onclose = function (event) {
-  isSessionReconnection.value = true;
-};
+  ws.onclose = function (event) {
+    isSessionReconnection.value = true;
+    console.warn(event)
+  };
 
-ws.onerror = function (error) {
-  isSessionReconnection.value = true;
-};
-
+  ws.onerror = function (error) {
+    isSessionReconnection.value = true;
+    console.error(error)
+  };
+}
 </script>
 
 <template>
