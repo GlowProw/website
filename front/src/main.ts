@@ -12,7 +12,6 @@ import {createPinia} from 'pinia'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 // Styles
-import 'unfonts.css'
 import 'vuetify/styles';
 import './assets/styles/index.css'
 import {aliases, mdi} from 'vuetify/iconsets/mdi'; // 可选：图标支持
