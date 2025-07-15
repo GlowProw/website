@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>组队系统 (带搜索和排序)</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        #auth-section { margin-bottom: 20px; padding: 15px; border: 1px solid #ccc; background-color: #f9f9f9; }
+        #auth-status { font-weight: bold; margin-bottom: 10px; }
+        #auth-status.logged-in { color: green; }
+        #auth-status.anonymous { color: orange; }
+
+        #search-sort-section { margin-bottom: 20px; padding: 15px; border: 1px solid #ccc; background-color: #f9f9f9; }
+        #search-sort-section label, #search-sort-section input, #search-sort-section select, #search-sort-section button {
+            margin-right: 10px;
+            margin-bottom: 5px;
+        }
+
+        #messages { border: 1px solid #ccc; padding: 10px; min-height: 200px; margin-bottom: 20px; }
+        .team-up-item {
+            border: 1px solid #eee;
+            padding: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .team-up-content { flex-grow: 1; }
+        .team-up-actions button { margin-left: 10px; padding: 5px 10px; cursor: pointer; }
+        .expired { text-decoration: line-through; color: #999; }
+        .hidden { display: none; }
+
+        .error-message { color: red; margin-top: 5px; }
+        .success-message { color: green; margin-top: 5px; }
+    </style>
+</head>
+<body>
+<h1>组队信息</h1>
+
+<div id="auth-section">
+    <h2>用户认证</h2>
+    <div id="auth-status">当前状态: 匿名用户</div>
+    <form id="register-form">
+        <h3>注册</h3>
+        <label for="reg-username">用户名:</label><br>
+        <input type="text" id="reg-username" required><br><br>
+        <label for="reg-password">密码:</label><br>
+        <input type="password" id="reg-password" required><br><br>
+        <button type="submit">注册</button>
+        <div id="register-message" class="message"></div>
+    </form>
+
+    <form id="login-form">
+        <h3>登录</h3>
+        <label for="login-username">用户名:</label><br>
+        <input type="text" id="login-username" required><br><br>
+        <label for="login-password">密码:</label><br>
+        <input type="password" id="login-password" required><br><br>
+        <button type="submit">登录</button>
+        <div id="login-message" class="message"></div>
+    </form>
+    <button id="logout-button" class="hidden">注销</button>
+</div>
+
+<div id="search-sort-section">
+    <h2>检索和排序</h2>
+    <label for="search-keyword">关键词:</label>
+    <input type="text" id="search-keyword" placeholder="搜索名称或标签">
+    <label for="sort-by">排序:</label>
+    <select id="sort-by">
+        <option value="expires">按过期时间 (默认)</option>
+        <option value="recent">按最近发布</option>
+    </select>
+    <button id="apply-filters-button">应用</button>
+</div>
+
+<h2>发布新组队</h2>
+<p id="rate-limit-info">发布频率: 匿名用户 1 小时/条, 注册用户 5 分钟/条。</p>
+<form id="publish-form">
+    <label for="team-playe">ID:</label><br>
+    <input type="text" id="team-name" required><br><br>
+    <label for="team-description">描述:</label><br>
+    <textarea id="team-description" rows="4" required></textarea><br><br>
+    <label for="team-tags">标签 (用逗号分隔):</label><br>
+    <input type="text" id="team-tags" placeholder="例如: pve,pvp,日常"><br><br>
+    <label for="expire-minutes">过期时间 (分钟):</label><br>
+    <input type="number" id="expire-minutes" value="60" min="1" required><br><br>
+    <button type="submit">发布</button>
+    <div id="publish-message" class="message"></div>
+</form>
+
+<div id="messages"></div>
+
+<script>
+    const httpServerPort = 3000;
+    const wsServerPort = 3001;
+
+    const ws = new WebSocket(`ws://localhost:${wsServerPort}`);
+    const messagesDiv = document.getElementById('messages');
+    const publishForm = document.getElementById('publish-form');
+    const teamUpElements = new Map();
+
+    const authStatusDiv = document.getElementById('auth-status');
+    const registerForm = document.getElementById('register-form');
+    const loginForm = document.getElementById('login-form');
+    const logoutButton = document.getElementById('logout-button');
+    const registerMessageDiv = document.getElementById('register-message');
+    const loginMessageDiv = document.getElementById('login-message');
+    const publishMessageDiv = document.getElementById('publish-message');
+    const rateLimitInfo = document.getElementById('rate-limit-info');
+
+    const searchKeywordInput = document.getElementById('search-keyword');
+    const sortBySelect = document.getElementById('sort-by');
+    const applyFiltersButton = document.getElementById('apply-filters-button');
+
+    let currentUser = null;
+
+    // --- 认证相关函数 ---
+    function saveAuthData(data) {
+        localStorage.setItem('userToken', data.token);
+        localStorage.setItem('userId', data.userId);
+        localStorage.setItem('username', data.username);
+        currentUser = { userId: data.userId, username: data.username, token: data.token };
+        updateAuthUI();
+    }
+
+    function clearAuthData() {
+        localStorage.removeItem('userToken');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('username');
+        currentUser = null;
+        updateAuthUI();
+    }
+
+    function loadAuthData() {
+        const token = localStorage.getItem('userToken');
+        const userId = localStorage.getItem('userId');
+        const username = localStorage.getItem('username');
+        if (token && userId && username) {
+            currentUser = { userId, username, token };
+        } else {
+            currentUser = null;
+        }
+        updateAuthUI();
+    }
+
+    function updateAuthUI() {
+        if (currentUser) {
+            authStatusDiv.textContent = `当前状态: 已登录 - ${currentUser.username}`;
+            authStatusDiv.className = 'logged-in';
+            registerForm.classList.add('hidden');
+            loginForm.classList.add('hidden');
+            logoutButton.classList.remove('hidden');
+            rateLimitInfo.textContent = '发布频率: 注册用户 5 分钟/条。';
+        } else {
+            authStatusDiv.textContent = `当前状态: 匿名用户`;
+            authStatusDiv.className = 'anonymous';
+            registerForm.classList.remove('hidden');
+            loginForm.classList.remove('hidden');
+            logoutButton.classList.add('hidden');
+            rateLimitInfo.textContent = '发布频率: 匿名用户 1 小时/条。';
+        }
+        // 登录状态改变后重新加载组队列表
+        fetchTeamUps();
+    }
+
+    // --- WebSocket 事件处理 ---
+    ws.onopen = function(event) {
+        console.log('WebSocket 连接已建立');
+        loadAuthData(); // 尝试从 localStorage 加载认证信息
+        // 登录成功或页面加载时，通过 HTTP API 获取初始数据
+        // WebSocket 仅用于实时更新
+        if (currentUser && currentUser.token) {
+            ws.send(JSON.stringify({ type: 'authenticate', payload: { token: currentUser.token } }));
+        }
+    };
+
+    ws.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        console.log('收到服务器消息:', data);
+        publishMessageDiv.textContent = ''; // 清空之前的发布消息
+
+        if (data.type === 'new_team_up') {
+            // 当有新组队发布时，重新获取列表以确保排序和筛选是最新的
+            fetchTeamUps();
+        } else if (data.type === 'team_up_expired') {
+            // 当组队过期或取消时，重新获取列表
+            fetchTeamUps();
+        } else if (data.type === 'publish_rate_limit') {
+            publishMessageDiv.className = 'error-message';
+            publishMessageDiv.textContent = data.payload.message;
+        }
+        else if (data.type === 'auth_failed') {
+            loginMessageDiv.className = 'error-message';
+            loginMessageDiv.textContent = data.message + " 请重新登录。";
+            clearAuthData(); // 清除无效的 Token
+        }
+        else if (data.type === 'error') {
+            if (data.message === '发布失败') {
+                publishMessageDiv.className = 'error-message';
+                publishMessageDiv.textContent = data.message;
+            } else if (data.message.includes('取消失败') || data.message.includes('无权')) {
+                alert('取消失败: ' + data.message);
+            } else {
+                messagesDiv.innerHTML += `<p style="color: red;"><strong>错误: ${data.message}</strong></p>`;
+            }
+        }
+    };
+
+    ws.onclose = function(event) {
+        console.log('WebSocket 连接已关闭', event);
+        messagesDiv.innerHTML += '<p><strong>连接已断开，请刷新页面重试。</strong></p>';
+    };
+
+    ws.onerror = function(error) {
+        console.error('WebSocket 错误:', error);
+        messagesDiv.innerHTML += '<p style="color: red;"><strong>连接错误！</strong></p>';
+    };
+
+    // --- 认证表单提交处理 ---
+    registerForm.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const username = document.getElementById('reg-username').value;
+        const password = document.getElementById('reg-password').value;
+
+        try {
+            const response = await fetch(`http://localhost:${httpServerPort}/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await response.json();
+            registerMessageDiv.textContent = data.message;
+            registerMessageDiv.className = response.ok ? 'success-message' : 'error-message';
+            if (response.ok) {
+                registerForm.reset();
+            }
+        } catch (error) {
+            console.error('注册请求失败:', error);
+            registerMessageDiv.textContent = '网络错误，请稍后再试。';
+            registerMessageDiv.className = 'error-message';
+        }
+    });
+
+    loginForm.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const username = document.getElementById('login-username').value;
+        const password = document.getElementById('login-password').value;
+
+        try {
+            const response = await fetch(`http://localhost:${httpServerPort}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await response.json();
+            loginMessageDiv.textContent = data.message;
+            loginMessageDiv.className = response.ok ? 'success-message' : 'error-message';
+            if (response.ok) {
+                loginForm.reset();
+                saveAuthData(data); // 保存 token 和用户信息
+                // 登录成功后重新认证 WebSocket
+                if (ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'authenticate', payload: { token: currentUser.token } }));
+                }
+            }
+        } catch (error) {
+            console.error('登录请求失败:', error);
+            loginMessageDiv.textContent = '网络错误，请稍后再试。';
+            loginMessageDiv.className = 'error-message';
+        }
+    });
+
+    logoutButton.addEventListener('click', function() {
+        clearAuthData();
+        // 注销后，也重新认证 WebSocket 作为匿名用户
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: 'authenticate', payload: { token: null } }));
+        }
+    });
+
+    // --- 发布组队表单提交处理 ---
+    publishForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const player = document.getElementById('team-player').value;
+        const description = document.getElementById('team-description').value;
+        const tagsInput = document.getElementById('team-tags').value;
+        const expireMinutes = parseInt(document.getElementById('expire-minutes').value);
+
+        if (!player || !description || isNaN(expireMinutes)) {
+            publishMessageDiv.className = 'error-message';
+            publishMessageDiv.textContent = '请填写所有必填字段！';
+            return;
+        }
+
+        const tags = tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag !== ''); // 解析标签
+
+        const expiresAt = Date.now() + expireMinutes * 60 * 1000;
+
+        const message = {
+            type: 'publish_team_up',
+            payload: {
+                player,
+                description,
+                tags, // 发送标签
+                expiresAt
+            }
+        };
+        ws.send(JSON.stringify(message));
+
+        publishForm.reset();
+        // 发布成功后，前端主动刷新列表
+        fetchTeamUps();
+    });
+
+    // --- 检索和排序功能 ---
+    applyFiltersButton.addEventListener('click', fetchTeamUps);
+
+    async function fetchTeamUps() {
+        messagesDiv.innerHTML = ''; // 清空当前列表
+        teamUpElements.clear();
+
+        const keyword = searchKeywordInput.value.trim();
+        const sortBy = sortBySelect.value;
+
+        let url = `http://localhost:${httpServerPort}/api/teamups?sortBy=${sortBy}`;
+        if (keyword) {
+            url += `&keyword=${encodeURIComponent(keyword)}`;
+        }
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const teamUps = await response.json();
+            if (teamUps.length === 0) {
+                messagesDiv.innerHTML = '<p>没有找到符合条件的组队信息。</p>';
+            } else {
+                teamUps.forEach(teamUp => displayTeamUp(teamUp));
+            }
+        } catch (error) {
+            console.error('获取组队信息失败:', error);
+            messagesDiv.innerHTML = `<p style="color: red;"><strong>加载组队信息失败: ${error.message}</strong></p>`;
+        }
+    }
+
+
+    // --- 辅助显示函数 ---
+    function displayTeamUp(teamUp) {
+        // 如果已存在且没有被标记为过期，则不重新添加，以避免重复
+        if (teamUpElements.has(teamUp.id) && !teamUpElements.get(teamUp.id).classList.contains('expired')) {
+            return;
+        }
+
+        const div = document.createElement('div');
+        div.className = 'team-up-item';
+        div.id = `team-up-${teamUp.id}`;
+
+        const expiresDate = new Date(teamUp.expiresAt);
+        const createdAtDate = new Date(teamUp.createdAt);
+        const now = Date.now();
+        const isExpired = teamUp.expiresAt <= now;
+
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'team-up-content';
+        contentDiv.innerHTML = `
+                <h3>${teamUp.name} <span class="status">${isExpired ? '(已过期)' : ''}</span></h3>
+                <p><strong>ID:</strong> ${teamUp.id}</p>
+                <p><strong>发布者:</strong> ${teamUp.username || '匿名用户'}</p>
+                <p><strong>描述:</strong> ${teamUp.description}</p>
+                <p><strong>标签:</strong> ${teamUp.tags && teamUp.tags.length > 0 ? teamUp.tags.join(', ') : '无'}</p>
+                <p><strong>发布时间:</strong> ${createdAtDate.toLocaleString()}</p>
+                <p><strong>过期时间:</strong> ${expiresDate.toLocaleString()}</p>
+            `;
+
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'team-up-actions';
+        const cancelButton = document.createElement('button');
+        cancelButton.className = 'cancel-button';
+        cancelButton.textContent = '取消发布';
+        cancelButton.onclick = function() {
+            // 只有发布者本人才能取消
+            if (!currentUser || currentUser.userId !== teamUp.userId) {
+                alert('您只能取消自己发布的组队信息！');
+                return;
+            }
+            if (confirm('确定要取消此组队发布吗？')) {
+                const message = {
+                    type: 'cancel_team_up',
+                    payload: {
+                        id: teamUp.id
+                    }
+                };
+                ws.send(JSON.stringify(message));
+            }
+        };
+
+        // 控制取消按钮的显示：如果已过期、不是当前用户发布、或匿名发布，则隐藏。
+        if (isExpired || (currentUser && currentUser.userId !== teamUp.userId) || !teamUp.userId) {
+            cancelButton.classList.add('hidden');
+        }
+
+        actionsDiv.appendChild(cancelButton);
+        div.appendChild(contentDiv);
+        div.appendChild(actionsDiv);
+
+        // 为了保持排序效果，当收到新组队或更新时，最好重新从API获取并渲染整个列表
+        // 这里为了简化，直接在收到新消息时加到前面。更严谨应清除后重渲染。
+        // messagesDiv.prepend(div);
+        // 实时更新时，将新发布的置顶
+        messagesDiv.insertAdjacentElement('afterbegin', div);
+        teamUpElements.set(teamUp.id, div);
+    }
+
+    // 页面加载时执行
+    window.onload = function() {
+        loadAuthData(); // 加载认证状态
+        fetchTeamUps(); // 初始加载组队列表
+    };
+</script>
+</body>
+</html>
