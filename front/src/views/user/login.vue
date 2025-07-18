@@ -6,7 +6,7 @@ import {useAuthStore} from '../../../stores'
 import {useRouter} from "vue-router";
 
 import Captcha from "../../components/captcha/index.vue";
-import {useRefs} from "vuetify/lib/composables/refs";
+import {api, http} from "../../assets/sripts";
 
 const authStore = useAuthStore(),
     router = useRouter();
@@ -17,7 +17,7 @@ let username = ref(''),
 
 const onLogin = async () => {
 
-  const result = await axios.post('http://localhost:3000/api/login', {
+  const result = await http.post(api['account_login'], {
         username: username.value,
         password: password.value,
         captcha: captcha.value,

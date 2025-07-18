@@ -1,5 +1,5 @@
 {
-  "requestDevelopmentName": "production",
+  "requestDevelopmentName": "development",
   "requestProductionName": "production",
   "child": {
     "development": {
@@ -10,8 +10,8 @@
     },
     "production": {
       "protocol": "http",
-      "host": "localhost:3000",
-      "frontend_host": "localhost:3000",
+      "host": "gz-www.cabbagelol.net:3000",
+      "frontend_host": "gz-www.cabbagelol.net:3000",
       "pathname": "/api/"
     }
   }

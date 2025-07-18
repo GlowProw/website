@@ -27,6 +27,7 @@ export default class Http extends Conf {
         super.initConf();
 
         this.NODE = process.env.NODE_ENV || 'development';
+        console.log(this.NODE)
     }
 
     location = () => {
