@@ -6,11 +6,14 @@ import {User} from "../entity/User";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import {TeamUp} from "../entity/TeamUp";
+import {body as checkbody, validationResult} from "express-validator";
+import verifyCaptcha from "../middleware/captcha";
+import config from "../../config";
 
 dotenv.config();
 
 const router = express.Router();
-const jwtSecret = process.env.JWT_SECRET || 'fallback_secret_key';
+const jwtSecret = config.secret;
 
 router.post('/register', async (req: Request, res: Response) => {
     const {username, password} = req.body;
@@ -34,11 +37,15 @@ router.post('/register', async (req: Request, res: Response) => {
     }
 });
 
-router.post('/login', async (req: Request, res: Response) => {
+router.post('/login', verifyCaptcha, [
+    checkbody("username").isString().trim().isLength({min: 1, max: 40}),
+    checkbody('password').isString().trim().isLength({min: 1, max: 40}),
+], async (req: Request, res: Response) => {
+    const validateErr = validationResult(req);
+    if (!validateErr.isEmpty())
+        return res.status(400).json({error: 1, code: 'login.bad', message: validateErr.array()});
+
     const {username, password} = req.body;
-    if (!username || !password) {
-        return res.status(400).json({code: 111, message: '用户名和密码不能为空'});
-    }
 
     try {
         const userRepository = AppDataSource.getRepository(User);
@@ -109,7 +116,7 @@ router.get('/teamups', async (req: Request, res: Response) => {
         // 格式化输出数据，包含发布者用户名
         const formattedTeamUps = teamUps.map(t => ({
             id: t.id,
-            name: t.name,
+            player: t.player,
             description: t.description,
             tags: t.tags,
             expiresAt: t.expiresAt.getTime(),

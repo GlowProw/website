@@ -6,17 +6,19 @@ import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import router_index from './src/routers/index'
+import user_index from './src/routers/user'
 import AppDataSource from "./src/ormconfig";
 import {cleanExpiredTeamUps} from "./src/routers/team";
 import config from "./config";
+import {generateCaptcha} from "./src/lib/captcha";
+import {captchaRateLimiter} from "./src/middleware/rateLimiter";
 
 try {
     dotenv.config();
 
     const app = express();
-    const httpServerPort = parseInt(process.env.SERVER_PORT || '3000');
-    const jwtSecret = process.env.JWT_SECRET || 'fallback_secret_key';
+    const httpServerPort = parseInt(config.port);
+    const jwtSecret = config.secret;
 
     app.use(cors());
     app.use(bodyParser.urlencoded({extended: false}));
@@ -29,7 +31,7 @@ try {
         res.header('Access-Control-Allow-Headers',
             'Origin, X-Requested-With, Content-Type, Accept, x-access-token' + (config.__DEBUG__ ? ', x-whosdaddy, x-whosdaddy-p' : ''));  // DEBUG
         res.header('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT');
-        res.header('Access-Control-Allow-Credentials', true);
+        res.header('Access-Control-Allow-Credentials', 'true');
         res.header('Cache-Control', "no-cache");
         next();
     });
@@ -58,13 +60,16 @@ try {
         }
     };
 
-    await AppDataSource.initialize();
+    AppDataSource.initialize();
 
     setInterval(cleanExpiredTeamUps, 60 * 1000);
     // console.log('已启动定时任务，每分钟清理过期组队信息');
 
     app.use(authenticateJWT); // 将认证中间件应用于所有请求
-    app.use('/api', router_index);
+    app.get('/api/captcha', captchaRateLimiter, (req, res, next) => {
+        res.status(200).json({success: 1, code: 'captcha.gen', data: generateCaptcha()});
+    });
+    app.use('/api', user_index);
 
     app.use((req, res, next) => {
         res.status(404).json({error: 1, code: 'request.404'});

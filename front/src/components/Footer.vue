@@ -29,6 +29,7 @@
               <b>联系</b>
               <ul>
                 <li><a href="/about">关于</a></li>
+                <li><a href="#">帮助我们翻译</a></li>
               </ul>
             </v-col>
           </v-row>

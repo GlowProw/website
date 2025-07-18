@@ -5,7 +5,6 @@ import jwt from "jsonwebtoken";
 import AppDataSource from "../ormconfig";
 import {User} from "../entity/User";
 import {TeamUp} from "../entity/TeamUp";
-import app from "../../app";
 import dotenv from "dotenv";
 import config from "../../config";
 
@@ -14,10 +13,9 @@ dotenv.config();
 const httpServerPort = parseInt(process.env.SERVER_PORT || '3000');
 const wss = new WebSocketServer({port: httpServerPort + 1});
 const connectedClients: Map<WebSocket, string | null> = new Map();
-const jwtSecret = process.env.JWT_SECRET || 'fallback_secret_key';
+const jwtSecret = config.secret;
 
 wss.on('connection', async function connection(ws) {
-    console.log('新用户连接');
     connectedClients.set(ws, null); // 默认匿名
 
     // 新连接的客户端不再直接通过 WebSocket 请求初始数据，而是通过 HTTP API 获取
@@ -29,7 +27,7 @@ wss.on('connection', async function connection(ws) {
             if (parsedMessage.type === 'authenticate') {
                 const token = parsedMessage.payload.token;
                 if (token) {
-                    jwt.verify(token, jwtSecret, (err, decoded) => {
+                    jwt.verify(token, jwtSecret, (err: any, decoded: any) => {
                         if (!err && decoded && typeof decoded === 'object' && 'userId' in decoded) {
                             connectedClients.set(ws, decoded.userId as string);
                             console.log(`WebSocket 用户 ${decoded.userId} 已认证`);

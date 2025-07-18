@@ -1,13 +1,17 @@
 // tsconfig.json
 {
   "compilerOptions": {
+    "moduleResolution": "node",
     "target": "es2021",
     "module": "commonjs",
     "outDir": "./dist",
-    "rootDir": "./src",
-    "lib": ["es2021", "dom"], // 如果需要 WebSocket 客户端类型，包含 "dom"，否则只需 "es2021"
-    "experimentalDecorators": true, // <--- 必须为 true
-    "emitDecoratorMetadata": true,  // <--- 必须为 true
+    "rootDir": "./",
+    "lib": [
+      "es2021",
+      "dom"
+    ],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -17,5 +21,7 @@
     "src/**/*.ts",
     "ormconfig.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }

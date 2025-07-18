@@ -1,19 +1,26 @@
 <script setup lang="ts">
-import {ref} from "vue";
 import axios from "axios";
+
+import {ref} from "vue";
 import {useAuthStore} from '../../../stores'
 import {useRouter} from "vue-router";
+
+import Captcha from "../../components/captcha/index.vue";
+import {useRefs} from "vuetify/lib/composables/refs";
 
 const authStore = useAuthStore(),
     router = useRouter();
 
-let username = ref('cabbagelol'),
-    password = ref('zsezse');
+let username = ref(''),
+    password = ref(''),
+    captcha = ref({});
 
 const onLogin = async () => {
+
   const result = await axios.post('http://localhost:3000/api/login', {
         username: username.value,
         password: password.value,
+        captcha: captcha.value,
       }),
       d = result.data;
 
@@ -21,6 +28,11 @@ const onLogin = async () => {
     authStore.setAccountToken(d.data)
     router.push('/')
   }
+}
+
+const onCaptchaData = (data: any) => {
+  console.log(data)
+  captcha.value = data;
 }
 </script>
 
@@ -32,10 +44,14 @@ const onLogin = async () => {
           <v-text-field v-model="username"></v-text-field>
           <v-text-field v-model="password"></v-text-field>
 
-          <v-btn @click="onLogin" variant="flat">登陆</v-btn>
-          <v-btn to="/account/register" variant="text">注册</v-btn>
+          <Captcha @getCaptchaData="onCaptchaData" type="svg"></Captcha>
         </v-col>
       </v-row>
+
+      <v-btn-group>
+        <v-btn @click="onLogin" variant="flat">登陆</v-btn>
+        <v-btn to="/account/register" variant="text">注册</v-btn>
+      </v-btn-group>
     </v-card>
   </v-container>
 </template>

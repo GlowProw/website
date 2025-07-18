@@ -47,5 +47,5 @@ const authStore = useAuthStore()
 </template>
 
 <style scoped>
-@import "../assets/styles/header.css";
+@import "../assets/styles/header.less";
 </style>
