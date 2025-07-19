@@ -17,8 +17,8 @@ export default class Conf {
                 "wsPathname": "",
             },
             "production": {
-                "protocol": "https",
-                "wsProtocol": "wss",
+                "protocol": "http",
+                "wsProtocol": "ws",
                 "host": "snb-tool.api.cabbagelol.net",
                 "port": "3000",
                 "wsPort": "3001",
@@ -26,8 +26,8 @@ export default class Conf {
                 "wsPathname": "/ws/",
             },
             "test": {
-                "protocol": "https",
-                "wsProtocol": "wss",
+                "protocol": "http",
+                "wsProtocol": "ws",
                 "host": "snb-tool.api.cabbagelol.net",
                 "port": "3000",
                 "wsPort": "3001",
