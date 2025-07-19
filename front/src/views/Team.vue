@@ -62,7 +62,7 @@ let teams: Teams[] = ref([]),
     player = ref(''),
     description = ref(''),
     tags = ref([]),
-    expiresAt = ref(10),
+    expiresAt: number = ref(60),
 
     // 检索
     teamsLoading = ref(false),
@@ -141,7 +141,7 @@ const pushTeamInfo = async () => {
 
     if (!valid) return;
 
-    const _expiresAt = Date.now() + parseInt(expiresAt.value) * 60 * 1000;
+    const _expiresAt = Date.now() + expiresAt.value * 60 * 1000;
     console.log('_expiresAt', _expiresAt)
 
     const message = {
@@ -373,7 +373,7 @@ const initWss = () => {
                               {{ i.username || t('teamUp.emptyUsername') }}
                             </template>
                             <template v-else>
-                              {{ t('teamUp.emptyUsername')}}
+                              {{ t('teamUp.emptyUsername') }}
                             </template>
                           </b>
                           <v-badge
