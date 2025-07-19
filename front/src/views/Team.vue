@@ -49,7 +49,13 @@ let teams: Teams[] = ref([]),
         {label: t('teamUp.tags.reward'), value: 'reward'},
         {label: t('teamUp.tags.other'), value: 'other'}
       ],
-      time: [{value: 10, label: t('teamUp.time.minutes', {count: 10})}, {value: 30, label: t('teamUp.time.minutes', {count: 30})}, {value: 60, label: t('teamUp.time.minutes', {count: 60})}, {value: 120, label: t('teamUp.time.minutes', {count: 120})}, {value: 60 * 24, label: t('teamUp.time.minutes', {count: 1})}]
+      time: [
+        {value: 10, label: t('teamUp.time.minutes', {count: 10})},
+        {value: 30, label: t('teamUp.time.minutes', {count: 30})},
+        {value: 60, label: t('teamUp.time.minutes', {count: 60})},
+        {value: 120, label: t('teamUp.time.minutes', {count: 120})},
+        {value: 60 * 24, label: t('teamUp.time.day', {count: 1})}
+      ]
     },
     pushModel = ref(false),
     pushLoading = ref(false),
@@ -350,7 +356,7 @@ const initWss = () => {
             <template v-for="(i, index) in teams" :key="index">
               <v-card card border class="card-flavor">
                 <v-row class="pa-5">
-                  <v-col cols="1">
+                  <v-col cols="3" sm="2" md="1" lg="1">
                     <v-avatar class="mr-2 team-icon" size="70">
                       <v-icon
                           icon="mdi-access-point"
@@ -358,11 +364,18 @@ const initWss = () => {
                       ></v-icon>
                     </v-avatar>
                   </v-col>
-                  <v-col cols="11">
+                  <v-col cols="9" sm="9" md="11" lg="11">
                     <div class="mb-2">
                       <v-row justify="end">
                         <v-col>
-                          <b class="mr-3 username">{{ i.username.toString().toUpperCase() || t('teamUp.emptyUsername') }}</b>
+                          <b class="mr-3 username">
+                            <template v-if="i.username">
+                              {{ i.username || t('teamUp.emptyUsername') }}
+                            </template>
+                            <template v-else>
+                              {{ t('teamUp.emptyUsername')}}
+                            </template>
+                          </b>
                           <v-badge
                               v-for="(t,tIndex) in i.tags"
                               :key="tIndex"
@@ -459,7 +472,7 @@ const initWss = () => {
             v-model="pushModel"
             width="100%">
           <v-container>
-            <v-card class="pa-5 mt-10">
+            <v-card class="team pa-5 mt-10">
 
               <v-form ref="pushForm">
                 <v-row>
@@ -467,13 +480,13 @@ const initWss = () => {
                     <div v-if="authStore.isLogin">
                       {{
                         t("teamUp.pushLoginInfo", {
-                          username: authStore.currentUser
-                        })
+                          username: `<a href="/account/login" class="username">${authStore.currentUser}</a>`
+                      })
                       }}
                     </div>
                     <div v-else>
                       <p v-html='t("teamUp.pushLoginInfo", {
-                  username: `<a href="/account/login">${t("teamUp.emptyUsername")}</a>`
+                  username: `<a href="/account/login" class="username">${t("teamUp.emptyUsername")}</a>`
                   })'></p>
                     </div>
                   </v-col>
@@ -538,7 +551,14 @@ const initWss = () => {
   }
 
   .username {
+    color: var(--main-color) !important;
     font-size: 20px;
   }
+}
+</style>
+
+<style>
+.team .username {
+  color: var(--main-color) !important;
 }
 </style>

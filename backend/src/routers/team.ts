@@ -306,8 +306,7 @@ router.get('/teamups', timeUpRateLimiter, [
                 'user.username',
                 db.raw('UNIX_TIMESTAMP(team_up.expiresAt) as expiresAtTimestamp'),
                 db.raw('UNIX_TIMESTAMP(team_up.createdAt) as createdAtTimestamp')
-            )
-            .where('team_up.expiresAt', '>', db.fn.now());
+            );
 
         if (keyword && typeof keyword === 'string') {
             const searchKeyword = `%${keyword.toLowerCase()}%`;
@@ -340,7 +339,7 @@ router.get('/teamups', timeUpRateLimiter, [
             tags: t.tags,
             expiresAt: t.expiresAtTimestamp,
             createdAt: t.createdAtTimestamp,
-            username: t.username || '匿名用户',
+            username: t.username || null,
             userId: t.userId
         }));
 

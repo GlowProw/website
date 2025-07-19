@@ -31,11 +31,11 @@
   "teamUp": {
     "title": "组队搜寻",
     "emptyPlayer": "无",
-    "emptyUsername": "匿名",
+    "emptyUsername": "匿名船长",
     "emptyDescription": "这个人很懒，什么都没写",
     "copyPlayerBtn": "复制",
     "copyPlayerSuccess": "复制成功",
-    "pushLoginInfo": "👋{username} 船长, 组建舰队吧",
+    "pushLoginInfo": "👋 {username}, 组建舰队吧，起航！",
     "form": {
       "player": "玩家id",
       "time": "愿意等待时间",
