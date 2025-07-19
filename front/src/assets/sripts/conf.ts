@@ -32,7 +32,7 @@ export default class Conf {
                 "port": "3000",
                 "wsPort": "3001",
                 "pathname": "/api/",
-                "wsPathname": "/ws/",
+                "wsPathname": "",
             }
         }
     };

@@ -3,8 +3,10 @@ import {ref} from "vue";
 import {useRouter} from "vue-router";
 import Captcha from "../../components/captcha/index.vue";
 import {api, http} from "../../assets/sripts";
+import {useI18n} from "vue-i18n";
 
-const router = useRouter();
+const router = useRouter(),
+    {t} = useI18n();
 
 let messages = ref([]),
     username = ref(''),
@@ -46,24 +48,32 @@ const onCaptchaData = (data: any) => {
 </script>
 
 <template>
-  <v-container class="mt-10">
-    <v-card dense variant="flat" class="mt-10 pa-5">
-      <v-row>
-        <v-col>
-          <v-text-field v-model="username" placeholder="帐号"></v-text-field>
-          <v-text-field v-model="password" placeholder="输入密码"></v-text-field>
+  <div class="background-img-flavor">
+    <v-container class="mt-10 register">
+      <v-card dense variant="flat" class="mt-10 register-box card-flavor">
+        <h1 class="pl-8 pt-5">{{ t('register.title') }}</h1>
 
-          <Captcha @getCaptchaData="onCaptchaData" type="svg"></Captcha>
+        <v-row class="pa-8">
+          <v-col>
+            <v-text-field v-model="username" placeholder="帐号"></v-text-field>
+            <v-text-field v-model="password" placeholder="输入密码"></v-text-field>
+            <Captcha @getCaptchaData="onCaptchaData" type="svg"></Captcha>
+          </v-col>
+        </v-row>
 
-          <v-btn @click="onRegister" :disabled="!username && !password">注册</v-btn>
-        </v-col>
-      </v-row>
-    </v-card>
-  </v-container>
+        <v-btn class="btn-flavor ml-8 mb-5" size="50" @click="onRegister" :disabled="!username && !password">注册</v-btn>
+      </v-card>
+    </v-container>
+  </div>
 
   <v-snackbar-queue v-model="messages"></v-snackbar-queue>
 </template>
 
-<style scoped>
-
+<style scoped lang="less">
+.register {
+  .register-box {
+    max-width: 500px;
+    margin: 30px auto;
+  }
+}
 </style>

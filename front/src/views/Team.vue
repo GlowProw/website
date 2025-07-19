@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {useAuthStore} from "../../stores";
-import {onMounted, ref, useTemplateRef} from "vue";
+import {onMounted, ref} from "vue";
 import {useRouter} from "vue-router";
 import EmptyView from "../components/EmptyView.vue";
 import {api, http, ws} from "../assets/sripts";
@@ -40,34 +40,13 @@ let teams: Teams[] = ref([]),
         ],
       },
       tags: [
-        {
-          label: t('pve'),
-          value: 'pve'
-        },
-        {
-          label: 'pvp',
-          value: 'pvp'
-        },
-        {
-          label: 'timeWander',
-          value: 'timeWander'
-        },
-        {
-          label: 'plotTask',
-          value: 'plotTask'
-        },
-        {
-          label: 'sideQuest',
-          value: 'sideQuest'
-        },
-        {
-          label: 'reward',
-          value: 'reward'
-        },
-        {
-          label: 'other',
-          value: 'other'
-        }
+        {label: t('teamUp.tags.pve'), value: 'pve'},
+        {label: t('teamUp.tags.pvp'), value: 'pvp'},
+        {label: t('teamUp.tags.timeWander'), value: 'timeWander'},
+        {label: t('teamUp.tags.plotTask'), value: 'plotTask'},
+        {label: t('teamUp.tags.sideQuest'), value: 'sideQuest'},
+        {label: t('teamUp.tags.reward'), value: 'reward'},
+        {label: t('teamUp.tags.other'), value: 'other'}
       ],
       time: [{value: 10, label: t('teamUp.time.minutes', {count: 10})}, {value: 30, label: t('teamUp.time.minutes', {count: 30})}, {value: 60, label: t('teamUp.time.minutes', {count: 60})}, {value: 120, label: t('teamUp.time.minutes', {count: 120})}, {value: 60 * 24, label: t('teamUp.time.minutes', {count: 1})}]
     },
@@ -154,6 +133,7 @@ const pushTeamInfo = async () => {
     if (!valid) return;
 
     const _expiresAt = Date.now() + parseInt(expiresAt.value) * 60 * 1000;
+    console.log('_expiresAt', _expiresAt)
 
     const message = {
       type: 'publish_team_up',
@@ -168,13 +148,27 @@ const pushTeamInfo = async () => {
     pushLoading.value = true;
     ws.client.send(JSON.stringify(message));
 
-    messages.value.push(t('basic.tips.teamUp_pushSuccess'))
-
     pushLoading.value = false;
     pushModel.value = false;
   } finally {
-    onCleanPushInfo()
+
   }
+}
+
+/**
+ * 取消发布
+ */
+const onDeleTeamUp = async (id) => {
+  if (!id) return;
+
+  const message = {
+    type: 'cancel_team_up',
+    payload: {
+      id
+    }
+  };
+
+  ws.client.send(JSON.stringify(message));
 }
 
 /**
@@ -228,10 +222,21 @@ const initWss = () => {
   ws.client.onmessage = function (event: any) {
     const data = JSON.parse(event.data);
     teams.value = []
-    data.code = data.code.replace('.', '_');
+
+    console.log('ws', data);
+
+    if (data.code)
+      data.code = data.code.replaceAll('.', '_');
 
     switch (data.type) {
       case 'new_team_up':
+        messages.value.push(t('basic.tips.teamUp_pushSuccess'));
+        onCleanPushInfo();
+        getTeams();
+        break;
+      case 'cancel_team_up':
+        getTeams();
+        break;
       case 'team_up_expired':
         getTeams()
         break;
@@ -242,7 +247,7 @@ const initWss = () => {
             _remainingTime = data.remainingTime
             break;
           case 'teamUp.account.rateLimit':
-            _remainingTime = Math.ceil(data.remainingTime / 1000 / 60)
+            _remainingTime = Math.ceil((data.remainingTime) / 1000 / 60)
             break;
         }
 
@@ -250,16 +255,20 @@ const initWss = () => {
 
         pushLoading.value = false;
         pushModel.value = false;
+
+        getTeams();
         break;
       case 'auth_failed':
         messages.value.push(t(`basic.tips.${data.code}`))
 
         authStore.logout()
         router.push('/account/login')
+
+        getTeams();
         break;
       case 'error':
         console.error(data.message)
-        messages.value.push(t(`basic.tips.${'teamUp.error'.replace('.', '_')}`, {
+        messages.value.push(t(`basic.tips.${'teamUp.error'.replaceAll('.', '_')}`, {
           context: data.message
         }))
         break;
@@ -268,14 +277,14 @@ const initWss = () => {
 
   ws.client.onclose = function (event: any) {
     console.warn(event)
-    messages.value.push(t(`basic.tips.${'teamUp.error'.replace('.', '_')}`, {
+    messages.value.push(t(`basic.tips.${'teamUp.error'.replaceAll('.', '_')}`, {
       context: 'client -> close'
     }))
   };
 
   ws.client.onerror = function (error: any) {
     console.error(error)
-    messages.value.push(t(`basic.tips.${'teamUp.error'.replace('.', '_')}`, {
+    messages.value.push(t(`basic.tips.${'teamUp.error'.replaceAll('.', '_')}`, {
       context: 'client -> error'
     }))
   };
@@ -283,7 +292,7 @@ const initWss = () => {
 </script>
 
 <template>
-  <div class="background-img-flavor">
+  <div class="background-img-flavor fill-height">
     <Banner>
       <template v-slot:title>
         <h1>{{ t('teamUp.title') }}</h1>
@@ -291,9 +300,17 @@ const initWss = () => {
     </Banner>
 
     <v-container class="team">
-      <v-row class="">
+      <v-row>
         <v-col>
-          <v-btn @click="getTeams" :loading="teamsLoading" variant="elevated">刷新</v-btn>
+          <router-link to="/">
+            <v-icon icon="mdi-home" class="mr-5"></v-icon>
+          </router-link>
+
+
+          <v-btn @click="pushModel = true" class="btn-flavor" variant="elevated">
+            <v-icon icon="mdi-plus"></v-icon>
+            发布组队
+          </v-btn>
         </v-col>
         <v-spacer></v-spacer>
         <v-col cols="3">
@@ -323,7 +340,7 @@ const initWss = () => {
                              mode="manual"
                              @load="onTeamLoad">
             <template v-for="(i, index) in teams" :key="index">
-              <v-card  card border class="card-flavor">
+              <v-card card border class="card-flavor">
                 <v-row class="pa-5">
                   <v-col cols="1">
                     <v-avatar class="mr-2 team-icon" size="70">
@@ -371,7 +388,9 @@ const initWss = () => {
                   </v-col>
                   <v-spacer></v-spacer>
                   <v-col align="right">
-                    <v-btn class="btn-flavor" v-if="isLogin && authStore.user.userId == i.userId">删除</v-btn>
+                    <v-btn class="btn-flavor" @click="onDeleTeamUp(i.id)" v-if="authStore.isLogin && authStore.user.userId == i.userId">
+                      删除
+                    </v-btn>
                   </v-col>
                 </v-row>
               </v-card>
@@ -475,7 +494,7 @@ const initWss = () => {
                         clearable
                         item-title="label"
                         item-value="value"
-                        :hide-no-data="false"
+                        :hide-no-data="true"
                         :items="pushConfig.tags"></v-combobox>
                   </v-col>
                   <v-spacer></v-spacer>

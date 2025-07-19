@@ -1,5 +1,10 @@
 /.idea/
+
+# backend
+/backend/config.ts
 /backend/dist/
 /backend/node_modules/
+
+# front
 /front/dist/
 /front/node_modules/

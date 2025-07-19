@@ -7,26 +7,35 @@ const {t} = useI18n()
 </script>
 
 <template>
-  <v-app class="background-flavor about">
+  <v-app class="background-flavor mt-10 about">
     <div class="background-img-flavor fill-height">
       <v-container class="mt-10">
         <h1 class="btn-flavor">关于我</h1>
         <p>闪光船首的命名，是为社区提供便民服务，永远指引前方</p>
         <v-divider class="mt-5 mb-5"></v-divider>
-        <h3 class="btn-flavor">作者</h3>
-        <ul>
-          <li>@Cabbagelol</li>
-        </ul>
-        <h3 class="btn-flavor">翻译成员</h3>
-        <ul>
-          <li>@Cabbagelol</li>
-        </ul>
-        <h3 class="btn-flavor">来源协议</h3>
-        <ul>
-          <li>闪耀船首主程序，包含前端程序/后端程序，遵循MIT协议</li>
-          <li>闪耀船首数据，碧海黑帆物品/日历等数据，遵循MIT协议</li>
-          <li>闪耀船首翻译数据</li>
-        </ul>
+        <v-row>
+          <v-col sm="12" lg="4">
+            <h3 class="btn-flavor">作者</h3>
+            <ul>
+              <li>@Cabbagelol</li>
+            </ul>
+          </v-col>
+          <v-col sm="12" lg="4">
+            <h3 class="btn-flavor">翻译成员</h3>
+            <ul>
+              <li>@Cabbagelol</li>
+            </ul>
+          </v-col>
+          <v-col sm="12" lg="4">
+            <h3 class="btn-flavor">来源协议</h3>
+            <ul>
+              <li>闪耀船首主程序，包含前端程序/后端程序，遵循MIT协议</li>
+              <li>闪耀船首数据，碧海黑帆物品/日历等数据，遵循MIT协议</li>
+              <li>闪耀船首翻译数据</li>
+            </ul>
+          </v-col>
+        </v-row>
+
         <h3 class="btn-flavor">其他项目</h3>
         <ul>
           <li><a target="_blank" href="https://bfban-app.cabbagelol.net/">BFBAN APP应用</a></li>

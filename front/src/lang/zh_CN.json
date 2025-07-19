@@ -55,6 +55,22 @@
       "other": "其他"
     }
   },
+  "login": {
+    "title": "登陆",
+    "form": {
+      "placeholder": {
+        "username": "输入帐号id",
+        "password": "输入密码"
+      },
+      "label": {
+        "username": "账户id",
+        "password": "密码"
+      }
+    }
+  },
+  "register": {
+    "title": "注册"
+  },
   "captcha": {
     "get": "获得验证码",
     "fresh": "刷新验证码",

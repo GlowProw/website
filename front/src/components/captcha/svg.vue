@@ -17,6 +17,7 @@
           </div>
         </span>
           <div v-else v-html="content"
+               class="captcha-flavor"
                :class="`${captchaTime.count <= 0 ? 'disable': ''}`">
           </div>
           <transition name="fade">
