@@ -31,14 +31,14 @@ export default defineConfig({
     },
     server: {
         port: 8080,
-        // '/api': {
-        //     target: 'http://localhost:3000',
-        //     changeOrigin: true,
-        //     // rewrite: (path) => path.replace(/^\/api/, ''),
-        //     // 如果需要，可以添加更多配置
-        //     // secure: false, // 如果是https，可能需要这个
-        //     // ws: true // 代理websockets
-        // }
+        '/api': {
+            target: 'http://localhost:3000',
+            changeOrigin: true,
+            rewrite: (path) => path.replace(/^\/api/, ''),
+            // 如果需要，可以添加更多配置
+            // secure: false, // 如果是https，可能需要这个
+            // ws: true // 代理websockets
+        }
     },
 
 })

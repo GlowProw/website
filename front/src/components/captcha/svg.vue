@@ -194,6 +194,7 @@ export default {
   justify-items: center;
   align-items: center;
   margin: 0 5px;
+  min-width: 80px;
 
   .captcha-svg-icon {
     display: flex;

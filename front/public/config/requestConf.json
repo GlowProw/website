@@ -4,14 +4,14 @@
   "child": {
     "development": {
       "protocol": "http",
-      "host": "localhost:3000",
-      "frontend_host": "localhost:3000",
+      "host": "localhost",
+      "port": "3000",
       "pathname": "/api/"
     },
     "production": {
       "protocol": "http",
-      "host": "gz-www.cabbagelol.net:3000",
-      "frontend_host": "gz-www.cabbagelol.net:3000",
+      "host": "snb-tool.api.cabbagelol.net",
+      "port": "3000",
       "pathname": "/api/"
     }
   }

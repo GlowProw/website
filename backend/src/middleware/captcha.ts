@@ -5,22 +5,12 @@ import {body as checkbody} from "express-validator";
 
 async function verifyCaptcha(req: any, res: any, next: any) {
     try {
-        if (req.body.SKIP_CAPTCHA === true && config.__DEBUG__) // DEBUG
-            return next();
-
         try {
             switch (req.body.captcha.captchaType || 'svg') {
                 default:
                 case 'svg': {
                     // validation
-                    if (req.body.captcha && typeof req.body.captcha == 'string' && req.body.encryptCaptcha) {
-                        if (!(await checkbody('encryptCaptcha').isBase64().run(req, {dryRun: true})).isEmpty() ||
-                            !(await checkbody('captcha').isAscii().isLength({
-                                min: 4,
-                                max: 4
-                            }).run(req, {dryRun: true})).isEmpty())
-                            return res.status(400).json({error: 1, code: 'captcha.bad'});
-                    } else if (typeof req.body.captcha == 'object' && req.body.captcha.captchaType) {
+                    if (typeof req.body.captcha == 'object' && req.body.captcha.captchaType) {
                         if (!(await checkbody('captcha.encryptCaptcha').isBase64().run(req, {dryRun: true})).isEmpty() ||
                             !(await checkbody('captcha.response').isAscii().isLength({
                                 min: 4,

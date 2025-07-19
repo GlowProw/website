@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {useAuthStore} from "../../stores";
+import Logo from "./Logo.vue";
 
 const authStore = useAuthStore()
 </script>
@@ -13,20 +14,19 @@ const authStore = useAuthStore()
           translate="yes"
           :absolute="true"
           flat>
-        <v-app-bar-title to="/">
-          <v-btn to="/">
-            闪光船首
-          </v-btn>
-        </v-app-bar-title>
 
-        <v-avatar
-            class="hidden-md-and-up"
-            color="grey-darken-1"
-            size="32"
-        ></v-avatar>
+        <Logo></Logo>
+
+        <v-btn variant="text" tile href="https://www.ubisoft.com/en-us/game/skull-and-bones">
+          官网
+          <v-icon icon="mdi-open-in-new"></v-icon>
+        </v-btn>
+        <v-btn variant="text" tile href="https://www.ubisoft.com/en-us/game/skull-and-bones">
+          Wiki
+          <v-icon icon="mdi-open-in-new"></v-icon>
+        </v-btn>
 
         <v-spacer></v-spacer>
-
 
         <v-btn to="/account/home" v-if="authStore.isLogin">
           <v-avatar
@@ -41,7 +41,6 @@ const authStore = useAuthStore()
         </v-btn>
 
       </v-app-bar>
-      <slot name="default"></slot>
     </v-layout>
   </header>
 </template>

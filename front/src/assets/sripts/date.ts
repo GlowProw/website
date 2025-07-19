@@ -3,6 +3,8 @@
  */
 
 export default class Time {
+    DATE;
+
     constructor() {
         this.DATE = new Date()
     }

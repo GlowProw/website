@@ -4,15 +4,17 @@
 import _Conf from './conf';
 import _Api from './api';
 import _Http from './http';
+import _Ws from './ws'
 import _Storage from './storage'
 import _Time from './date';
 
 export const conf = new _Conf();
 export const api = new _Api();
 export const http = new _Http();
+export const ws = new _Ws();
 export const storage = new _Storage();
 export const time = new _Time();
 
 export default {
-    api, conf, storage, time,
+    api, conf, ws, http, storage, time,
 };

@@ -8,6 +8,8 @@ export default class Api {
             "account_login": "login",
             "account_register": "register",
             "captcha": "captcha",
+            "teamups": "teamups",
+            "teamup_statistics": "teamup/statistics"
         };
     }
 }

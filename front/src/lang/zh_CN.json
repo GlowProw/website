@@ -17,6 +17,11 @@
       "reset": "重置",
       "save": "保存",
       "submit": "确认"
+    },
+    "tips": {
+      "teamUp.anonymous.rateLimit": "匿名发布过快，请{remainingTime}小时稍后再试",
+      "teamUp.account.rateLimit": "发布过快，请{remainingTime}分钟后再试",
+      "teamUp.authFailed": "Token 无效或已过期"
     }
   },
   "captcha": {

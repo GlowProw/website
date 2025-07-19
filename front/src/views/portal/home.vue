@@ -1,4 +1,23 @@
 <script setup lang="ts">
+import {onMounted, ref} from "vue";
+import {api, http} from "../../assets/sripts";
+
+let data = ref({
+  teamCount: 0
+})
+
+onMounted(() => {
+  getHomeData();
+})
+
+const getHomeData = async () => {
+  const result = await http.get(api['teamup_statistics'], {})
+
+  if (result.error == 1)
+    Error(result.message)
+
+  data.value.teamCount = result.data.data
+}
 </script>
 
 <template>
@@ -20,7 +39,7 @@
           <v-col>
             <v-card
                 to="/team"
-                subtitle="目前{num}寻求组队"
+                :subtitle="`目前${data?.teamCount || 0}寻求组队`"
                 text="发布或寻找与你计划相同船长出航，面对真正敌人"
                 title="组队寻求"
                 variant="text"

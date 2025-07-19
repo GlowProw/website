@@ -16,6 +16,7 @@ import i18n from './i18n';
 import 'vuetify/styles';
 import './assets/styles/index.less'
 import {aliases, mdi} from 'vuetify/iconsets/mdi'; // 可选：图标支持
+import '@mdi/font/css/materialdesignicons.css'
 
 const vuetify = createVuetify({
     icons: {
@@ -32,6 +33,9 @@ const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
 
 const app = createApp(App)
+
+app.config.globalProperties.$t = i18n.global.t;
+
 app
     .use(router)
     .use(vuetify)

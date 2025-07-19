@@ -4,16 +4,28 @@
 
 export default class Conf {
     CONF = {
-        // 请求地址 [开发]
-        "requestDevelopmentName": "",
-
-        // 请求地址 [生产]
-        "requestProductionName": "",
-
-        "requestTestName": "",
-
-        // 配置列表
-        "child": {}
+        "requestDevelopmentName": "test",
+        "requestProductionName": "production",
+        "child": {
+            "development": {
+                "protocol": "http",
+                "host": "localhost",
+                "port": "3000",
+                "pathname": "/api/"
+            },
+            "production": {
+                "protocol": "http",
+                "host": "snb-tool.api.cabbagelol.net",
+                "port": "3000",
+                "pathname": "/api/"
+            },
+            "test":{
+                "protocol": "http",
+                "host": "snb-tool.api.cabbagelol.net",
+                "port": "3000",
+                "pathname": "/api/"
+            }
+        }
     };
 
 

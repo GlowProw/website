@@ -8,30 +8,25 @@ export default class Http extends Conf {
     DELETE = 'delete';
     //..
 
-    GETURL = {protocol: '', request: '', host: '', pathname: ''};
-    NODE;
+    GETURL = {protocol: '', request: '', host: '', pathname: '', port: ''};
 
     HTTP = http.create({
         timeout: 600000,
-        withCredentials: true,
-        headers: {
-            // 'Content-type': 'application/json',
-        },
-        validateStatus(status) {
-            return status <= 1000;
-        }
     })
 
     constructor() {
         super();
-        super.initConf();
 
         this.NODE = process.env.NODE_ENV || 'development';
-        console.log(this.NODE)
+        console.log('node:', this.NODE, this.CONF)
     }
 
-    location = () => {
-        return new URL(this.globalUrl);
+    get location() {
+        return new URL(this.globalUrl.location);
+    }
+
+    get host() {
+        return this.globalUrl.host
     }
 
     // 获取全局地址
@@ -49,9 +44,18 @@ export default class Http extends Conf {
                     this.GETURL = this.CONF.child[this.CONF.requestDevelopmentName];
                     break;
             }
-            return `${this.GETURL.protocol || 'http'}://${this.GETURL.host}${this.GETURL.pathname}`;
+
+            return {
+                location: `${this.GETURL.protocol || 'http'}://${this.GETURL.host}:${this.GETURL.port}${this.GETURL.pathname}`,
+                host: this.GETURL.host,
+                protocol: this.GETURL.protocol,
+                pathname: this.GETURL.pathname,
+                port: this.GETURL.port,
+            };
         } catch (e) {
-            return ''
+            return {
+                error: 1
+            }
         }
     }
 
@@ -67,7 +71,7 @@ export default class Http extends Conf {
      * @param requestData
      * @returns {Promise<*>}
      */
-    async request(url = '', requestData = {method: this.POST, data: {}, params: {}}) {
+    async request(url = '', requestData = {method: this.POST, data: {}, body: {}, params: {}, headers: {}}) {
         return await this.HTTP({
             url: url,
             headers: {...this.HTTP.headers || {}, ...requestData.headers},
@@ -85,7 +89,7 @@ export default class Http extends Conf {
      * @returns {Promise<AxiosResponse<any>>}
      */
     async post(url, data = {data: {}, params: {}}) {
-        const _url = this.globalUrl + url;
+        const _url = this.globalUrl.location + url;
 
         return await this.request(_url, {
             method: this.POST,
@@ -99,8 +103,8 @@ export default class Http extends Conf {
      * get 请求
      * @returns {Promise<AxiosResponse<any>>}
      */
-    async get(url = '', data = {data: {}, params: {}}) {
-        const _url = this.globalUrl + url;
+    async get(url = '', data = {data: {}, params: {}, headers: {}}) {
+        const _url = this.globalUrl.location + url;
 
         return await this.request(_url, {
             method: this.GET,
@@ -117,7 +121,7 @@ export default class Http extends Conf {
      * @returns {Promise<AxiosResponse<any>>}
      */
     async put(url = '', data = {data: {}, params: {}}) {
-        const _url = this.globalUrl + url;
+        const _url = this.globalUrl.location + url;
 
         return await this.request(_url, {
             method: this.PUT,
@@ -133,7 +137,7 @@ export default class Http extends Conf {
      * @param data
      */
     async delete(url = '', data = {data: {}, params: {}}) {
-        const _url = this.globalUrl + url;
+        const _url = this.globalUrl.location + url;
 
         return await this.request(_url, {
             method: this.DELETE,

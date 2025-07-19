@@ -1,23 +1,47 @@
 <script setup lang="ts">
 import {ref} from "vue";
-import axios from "axios";
 import {useRouter} from "vue-router";
+import Captcha from "../../components/captcha/index.vue";
+import {api, http} from "../../assets/sripts";
 
 const router = useRouter();
 
-let username = ref(''),
-    password = ref('');
+let messages = ref([]),
+    username = ref(''),
+    password = ref(''),
+    captcha = ref({});
 
+/**
+ * 注册
+ */
 const onRegister = async () => {
-  const result = await axios.post('http://localhost:3000/api/register', {
-        username: username.value,
-        password: password.value,
-      }),
-      d = result.data;
+  try {
+    const result = await http.post(api['account_register'], {
+          data: {
+            username: username.value,
+            password: password.value,
+            captcha: captcha.value,
+          }
+        }),
+        d = result.data;
 
-  if (d.code == 0) {
-    router.push('/account/login')
+    if (d.code != 0) {
+      return Error(d.message)
+    }
+
+    await router.push('/account/login')
+  } catch (e) {
+    if (e instanceof Error)
+      messages.value.push(e.message)
   }
+}
+
+/**
+ * 处理验证码数据
+ * @param data
+ */
+const onCaptchaData = (data: any) => {
+  captcha.value = data;
 }
 </script>
 
@@ -28,11 +52,16 @@ const onRegister = async () => {
         <v-col>
           <v-text-field v-model="username" placeholder="帐号"></v-text-field>
           <v-text-field v-model="password" placeholder="输入密码"></v-text-field>
-          <v-btn @click="onRegister">注册</v-btn>
+
+          <Captcha @getCaptchaData="onCaptchaData" type="svg"></Captcha>
+
+          <v-btn @click="onRegister" :disabled="!username && !password">注册</v-btn>
         </v-col>
       </v-row>
     </v-card>
   </v-container>
+
+  <v-snackbar-queue v-model="messages"></v-snackbar-queue>
 </template>
 
 <style scoped>

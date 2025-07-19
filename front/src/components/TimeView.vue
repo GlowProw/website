@@ -81,33 +81,9 @@ export default {
 </script>
 
 <template>
-  <Poptip transfer :trigger="trigger" class="time-view">
-    <u class="spelling time-view time-view-slot">
-      <slot></slot>
-    </u>
-    <Form labelPosition="top" width="100" slot="content" v-if="time" class="time-view-form">
-      <FormItem :label="$t('detail.dateView.primitive')">
-        <Alert show-icon type="info">{{ $t('detail.dateView.primitiveDescription') }}</Alert>
-        <Select v-model="primitiveValue">
-          <Option value="primitive" :label="timeMap.primitive.toString()">
-            <p>primitive value</p>
-            <Input :value="timeMap.primitive.toString()" readonly></Input>
-          </Option>
-          <Option value="primitiveDateString" :label="timeMap.primitiveDateString.toString()">
-            <p>primitive date string value</p>
-            <Input :value="timeMap.primitiveDateString.toString()" readonly></Input>
-          </Option>
-        </Select>
-      </FormItem>
-      <FormItem :label="$t('detail.dateView.localTimeZoneName')">
-        <Tag type="border">{{ timeMap.timeFormatName }}</Tag>
-      </FormItem>
-      <FormItem :label="$t('detail.dateView.localeTime')">
-        <Alert show-icon type="info">{{ $t('detail.dateView.localeTimeDescription') }}</Alert>
-        <Input :value="timeMap.localeDateString.toString()" readonly></Input>
-      </FormItem>
-    </Form>
-  </Poptip>
+  <u class="spelling time-view time-view-slot">
+    <slot></slot>
+  </u>
 </template>
 
 <style scoped lang="less">
