@@ -10,10 +10,11 @@ const {t} = useI18n()
   <v-app class="background-flavor mt-10 about">
     <div class="background-img-flavor fill-height">
       <v-container class="mt-10">
-        <h1 class="btn-flavor">关于我</h1>
+        <h1 class="btn-flavor">关于</h1>
+        <p>这个应用程序遵循MIT开源协议，程序不隶属于碧海黑帆以及ubisoft集团。</p>
         <p>闪光船首的命名，是为社区提供便民服务，永远指引前方</p>
         <v-divider class="mt-5 mb-5"></v-divider>
-        <v-row>
+        <v-row class="mb-5">
           <v-col sm="12" lg="4">
             <h3 class="btn-flavor">作者</h3>
             <ul>
@@ -23,7 +24,19 @@ const {t} = useI18n()
           <v-col sm="12" lg="4">
             <h3 class="btn-flavor">翻译成员</h3>
             <ul>
-              <li>@Cabbagelol</li>
+              <li v-for="(i,index) in [{name: 'cabbagelol', lang: ['zh-CN']}]" :key="index">
+                <v-row align="center">
+                  <v-col>
+                    @{{i.name}}
+                  </v-col>
+                  <v-col>
+                    <v-divider opacity=".6" thickness="1"></v-divider>
+                  </v-col>
+                  <v-col>
+                    {{ i.lang.join(',') }}
+                  </v-col>
+                </v-row>
+              </li>
             </ul>
           </v-col>
           <v-col sm="12" lg="4">
@@ -34,7 +47,16 @@ const {t} = useI18n()
               <li>闪耀船首翻译数据</li>
             </ul>
           </v-col>
+          <v-col sm="12" lg="4">
+            <h3 class="btn-flavor">联系</h3>
+            <p class="opacity-80 mb-2">通过下方可供联系方式找到我(不需广告/SEO需求)</p>
+            <ul>
+              <li>admin@cabbagelol.net</li>
+            </ul>
+          </v-col>
         </v-row>
+
+        <v-divider></v-divider>
 
         <h3 class="btn-flavor">其他项目</h3>
         <ul>

@@ -9,7 +9,6 @@ function generateCaptcha() {
         ignoreChars: 'aoil',
         color: false,
         fontSize: 40,
-        background: '#ffffff',
         noise: 1,
         width: 80,
         height: 40

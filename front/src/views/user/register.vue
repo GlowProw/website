@@ -55,9 +55,13 @@ const onCaptchaData = (data: any) => {
 
         <v-row class="pa-8">
           <v-col>
-            <v-text-field v-model="username" placeholder="帐号"></v-text-field>
-            <v-text-field v-model="password" placeholder="输入密码"></v-text-field>
-            <Captcha @getCaptchaData="onCaptchaData" type="svg"></Captcha>
+            <v-text-field v-model="username"
+                          variant="solo-filled"
+                          placeholder="帐号"></v-text-field>
+            <v-text-field v-model="password"
+                          variant="solo-filled"
+                          placeholder="输入密码"></v-text-field>
+            <Captcha @getCaptchaData="onCaptchaData" type="svg" class="captcha"></Captcha>
           </v-col>
         </v-row>
 
@@ -71,9 +75,17 @@ const onCaptchaData = (data: any) => {
 
 <style scoped lang="less">
 .register {
+  h1 {
+    color: var(--main-color);
+  }
+
   .register-box {
     max-width: 500px;
     margin: 30px auto;
+  }
+
+  .captcha {
+    width: 300px;
   }
 }
 </style>

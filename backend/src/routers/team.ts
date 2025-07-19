@@ -172,9 +172,11 @@ async function addTeamUp(teamUpData: { player: string; description: string; tags
             return;
         }
 
+        if (teamUpData.tags)
+            teamUpData.tags = teamUpData.tags.filter(tag => teamConfig.tags.includes(tag));
+
         const newTeamUp = teamUpRepository.create({
             ...teamUpData,
-            tags: teamUpData.tags.filter(tag => teamConfig.tags.includes(tag)),
             user: user,
             userId: userId
         });
@@ -342,7 +344,7 @@ router.get('/teamups', timeUpRateLimiter, [
             userId: t.userId
         }));
 
-        res.status(200).setHeader('Cache-Control', 'public, max-age=30').json({
+        res.status(200).json({
             success: 1,
             code: 'teamups.success',
             data: formattedTeamUps,

@@ -68,10 +68,12 @@ const onCaptchaData = (data: any) => {
           <v-col>
             <v-text-field v-model="username"
                           name="username"
+                          variant="solo-filled"
                           :label="$t('login.form.label.username')"
                           :placeholder="$t('login.form.placeholder.username')"></v-text-field>
             <v-text-field v-model="password"
                           name="password"
+                          variant="solo-filled"
                           :label="$t('login.form.label.password')"
                           :placeholder="$t('login.form.placeholder.password')"
                           type="password"></v-text-field>
@@ -93,6 +95,10 @@ const onCaptchaData = (data: any) => {
 
 <style scoped>
 .login {
+  h1 {
+    color: var(--main-color);
+  }
+
   .login-card {
     max-width: 500px;
     margin: 30px auto;

@@ -11,7 +11,7 @@ import AppDataSource from "./src/ormconfig";
 import {cleanExpiredTeamUps, router as team_index} from "./src/routers/team";
 import config from "./config";
 import {generateCaptcha} from "./src/lib/captcha";
-import {captchaRateLimiter} from "./src/middleware/rateLimiter";
+import {captchaRateLimiter, limiter} from "./src/middleware/rateLimiter";
 
 try {
     dotenv.config();
@@ -64,7 +64,7 @@ try {
 
     setInterval(cleanExpiredTeamUps, 60 * 1000);
     // console.log('已启动定时任务，每分钟清理过期组队信息');
-    app.set('trust proxy', true);
+    app.set('trust proxy', false).use(limiter);
 
     app.use(authenticateJWT); // 将认证中间件应用于所有请求
     app.get('/api/captcha', captchaRateLimiter, (req, res, next) => {

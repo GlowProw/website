@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-text-field v-model="inputValue" maxlength="4" @change="onChangeValue" :placeholder="$t('captcha.title')">
+    <v-text-field v-model="inputValue" variant="solo-filled" maxlength="4" @change="onChangeValue" :placeholder="$t('captcha.title')">
       <template v-slot:append-inner>
         <div class="captcha-input-append captcha-svg"
              @click="refreshCaptcha"
@@ -197,7 +197,7 @@ export default {
   justify-items: center;
   align-items: center;
   margin: 0 5px;
-  min-width: 90px;
+  min-width: 80px;
 
   .captcha-svg-icon {
     display: flex;
@@ -225,7 +225,7 @@ export default {
     color: #000;
     padding: 0 2px;
     border: 1px solid #000;
-    background-color: #fff;
+    background-color: rgba(242, 242, 242, 0.3);
     border-radius: 5px;
     position: absolute;
     top: 2px;

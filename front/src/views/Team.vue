@@ -8,6 +8,7 @@ import TimeView from "../components/TimeView.vue";
 import {useI18n} from "vue-i18n";
 import type {VForm} from "vuetify/components";
 import Banner from "../components/Banner.vue";
+import Loading from "../components/Loading.vue";
 
 const authStore = useAuthStore(),
     router = useRouter(),
@@ -107,9 +108,11 @@ const getTeams = async (type: getTeamsType = getTeamsType.none) => {
         messages.value.push(t(`basic.tips.${e.response.data.code.replace('.', '_')}`))
       else
         console.error(e)
-      teamsLoading.value = false;
     } finally {
-      teamsLoading.value = false;
+      setTimeout(() => {
+        teamsLoading.value = false
+      }, 1000)
+      // teamsLoading.value = false;
     }
   })
 }
@@ -306,16 +309,22 @@ const initWss = () => {
             <v-icon icon="mdi-home" class="mr-5"></v-icon>
           </router-link>
 
-          <v-btn @click="pushModel = true" class="btn-flavor" variant="elevated">
+          <v-btn @click="pushModel = true" class="btn-flavor mr-1" variant="elevated">
             <v-icon icon="mdi-plus"></v-icon>
             发布组队
+          </v-btn>
+
+          <v-btn @click="getTeams" class="btn-flavor" variant="elevated">
+            <v-icon :class="[
+                teamsLoading ?  'spin-icon-load' : ''
+            ]" icon="mdi-refresh" size="20"/>
           </v-btn>
         </v-col>
         <v-spacer></v-spacer>
         <v-col cols="12" lg="3">
           <v-select v-model="filtering.sortBy"
                     @update:modelValue="onTeamSortBy"
-                    density="compact"
+                    density="comfortable"
                     label="排序"
                     item-title="label"
                     item-value="value"
@@ -323,7 +332,7 @@ const initWss = () => {
           </v-select>
         </v-col>
         <v-col cols="12" lg="3">
-          <v-text-field placeholder="搜索" density="compact" v-model="filtering.keyword">
+          <v-text-field placeholder="搜索" density="comfortable" v-model="filtering.keyword">
             <template v-slot:append-inner>
               <v-btn density="compact" :disabled="!filtering.keyword" icon @click="onSearch">
                 <v-icon icon="mdi-search-web"></v-icon>
@@ -345,7 +354,6 @@ const initWss = () => {
                     <v-avatar class="mr-2 team-icon" size="70">
                       <v-icon
                           icon="mdi-access-point"
-
                           size="50"
                       ></v-icon>
                     </v-avatar>
@@ -393,6 +401,11 @@ const initWss = () => {
                   </v-col>
                 </v-row>
               </v-card>
+            </template>
+            <template v-slot:loading>
+              <v-btn density="comfortable" icon>
+                <Loading :size="42"></Loading>
+              </v-btn>
             </template>
             <template v-slot:load-more="{ props }">
               <v-btn
