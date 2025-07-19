@@ -301,11 +301,10 @@ const initWss = () => {
 
     <v-container class="team">
       <v-row>
-        <v-col>
+        <v-col cols="12" lg="6">
           <router-link to="/">
             <v-icon icon="mdi-home" class="mr-5"></v-icon>
           </router-link>
-
 
           <v-btn @click="pushModel = true" class="btn-flavor" variant="elevated">
             <v-icon icon="mdi-plus"></v-icon>
@@ -313,7 +312,7 @@ const initWss = () => {
           </v-btn>
         </v-col>
         <v-spacer></v-spacer>
-        <v-col cols="3">
+        <v-col cols="12" lg="3">
           <v-select v-model="filtering.sortBy"
                     @update:modelValue="onTeamSortBy"
                     density="compact"
@@ -323,7 +322,7 @@ const initWss = () => {
                     :items="[{value: 'recent', label:'按过期时间 (默认)'},{value: 'expires', label:'按最近发布'}]">
           </v-select>
         </v-col>
-        <v-col>
+        <v-col cols="12" lg="3">
           <v-text-field placeholder="搜索" density="compact" v-model="filtering.keyword">
             <template v-slot:append-inner>
               <v-btn density="compact" :disabled="!filtering.keyword" icon @click="onSearch">
@@ -468,14 +467,14 @@ const initWss = () => {
                 </v-row>
 
                 <v-row>
-                  <v-col cols="3">
+                  <v-col cols="12" lg="3">
                     <v-text-field v-model="player"
                                   variant="filled"
                                   density="compact"
                                   :rules="pushConfig.rules.player"
                                   :placeholder="t('teamUp.form.player')"></v-text-field>
                   </v-col>
-                  <v-col cols="3">
+                  <v-col cols="12" lg="3">
                     <v-select density="compact"
                               v-model="expiresAt"
                               :label="t('teamUp.form.time')"
@@ -484,7 +483,7 @@ const initWss = () => {
                               :items="pushConfig.time">
                     </v-select>
                   </v-col>
-                  <v-col cols="6">
+                  <v-col cols="12" lg="6">
                     <v-combobox
                         label="标签"
                         chips

@@ -3,14 +3,14 @@
 </script>
 
 <template>
-  <div class="portal-banner">
-    <div class="portal-banner-looping-video">
+  <div class="banner">
+    <div class="banner-looping-video">
       <video autoplay playsinline
              muted loop type="video/mp4"
              src="http://cdn.hommk.com/pcgame/ubi2015/img/gamezone/sb/full/skullandbones-year2-loop.mp4"></video>
     </div>
 
-    <v-container class="portal-banner-top">
+    <v-container class="banner-top">
       <div class="title">
         <slot name="title"></slot>
       </div>
@@ -21,12 +21,12 @@
 </template>
 
 <style scoped lang="less">
-.portal-banner {
-  min-height: 200px;
+.banner {
+  min-height: 50px;
   overflow: hidden;
   position: relative;
 
-  .portal-banner-looping-video {
+  .banner-looping-video {
 
     &:after {
       content: "";
@@ -64,7 +64,7 @@
     background-size: cover;
   }
 
-  .portal-banner-top {
+  .banner-top {
     overflow: hidden;
     min-height: 400px;
     display: flex;
@@ -77,6 +77,23 @@
       z-index: 3;
       text-align: center;
       margin-top: 200px;
+    }
+  }
+}
+
+@media screen and (max-width: 980px) {
+  .banner {
+    .banner-looping-video {
+      video {
+        opacity: .7;
+        width: auto;
+        height: 100% !important;
+      }
+    }
+
+    .title {
+      margin-top: 100px !important;
+      margin-bottom: 50px;
     }
   }
 }

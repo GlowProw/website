@@ -36,7 +36,7 @@ const getHomeData = async () => {
         </div>
 
         <v-row>
-          <v-col>
+          <v-col cols="12" sm="12" md="6" lg="3">
             <v-card
                 to="/team"
                 :subtitle="`目前${data?.teamCount || 0}寻求组队`"
@@ -45,7 +45,7 @@ const getHomeData = async () => {
                 variant="text"
             ></v-card>
           </v-col>
-          <v-col>
+          <v-col cols="12" sm="12" md="6" lg="3">
             <v-card
                 disabled
                 text="查看本赛季活动信息"
@@ -56,7 +56,7 @@ const getHomeData = async () => {
               </template>
             </v-card>
           </v-col>
-          <v-col>
+          <v-col cols="12" sm="12" md="6" lg="3">
             <v-card
                 disabled
                 text="所有地图物品清单"
@@ -64,7 +64,7 @@ const getHomeData = async () => {
                 variant="text"
             ></v-card>
           </v-col>
-          <v-col>
+          <v-col cols="12" sm="12" md="6" lg="3">
             <v-card
                 disabled
                 text="陈列物品信息, 检查它们如何获得"
@@ -77,7 +77,7 @@ const getHomeData = async () => {
     </div>
 
     <v-container>
-<!--      1123123-->
+      <!--      1123123-->
     </v-container>
   </div>
 </template>
@@ -93,7 +93,7 @@ const getHomeData = async () => {
     &:after {
       content: "";
       position: absolute;
-      width: 100%;
+      width: 120%;
       height: 100%;
       background: #000;
       opacity: .5;
@@ -101,13 +101,15 @@ const getHomeData = async () => {
 
     video {
       position: absolute;
+      animation: all .25s;
       z-index: 0;
+      opacity: 1;
       left: 50%;
       top: 50%;
       width: 100%;
+      height: auto;
       transform: translate(-50%, -50%);
       min-width: 100%;
-      height: auto;
       min-height: 100%;
       pointer-events: visible;
     }
@@ -138,7 +140,24 @@ const getHomeData = async () => {
       flex: 1;
       z-index: 3;
       text-align: center;
-      margin-top: 200px;
+      margin-top: 150px;
+    }
+  }
+}
+
+@media screen and (max-width: 980px) {
+  .portal-banner {
+    .portal-banner-looping-video {
+      video {
+        opacity: .7;
+        width: auto;
+        height: 100% !important;
+      }
+    }
+
+    .title {
+      margin-top: 100px !important;
+      margin-bottom: 50px;
     }
   }
 }

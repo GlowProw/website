@@ -64,6 +64,7 @@ try {
 
     setInterval(cleanExpiredTeamUps, 60 * 1000);
     // console.log('已启动定时任务，每分钟清理过期组队信息');
+    app.set('trust proxy', true);
 
     app.use(authenticateJWT); // 将认证中间件应用于所有请求
     app.get('/api/captcha', captchaRateLimiter, (req, res, next) => {

@@ -156,16 +156,17 @@ async function addTeamUp(teamUpData: { player: string; description: string; tags
         }
 
         const now = new Date();
-        const minIntervalRegistered = 5 * 60 * 1000; // 5 分钟
+        const minIntervalRegistered = 2 * 60 * 1000; // 2 分钟
 
         if (lastPublishedAt && userId && (now.getTime() - lastPublishedAt.getTime()) < minIntervalRegistered) {
             const timeDiff = now.getTime() - lastPublishedAt.getTime();
+
             console.warn(`用户 ${userId} 发布过快，请 ${Math.ceil((minIntervalRegistered - timeDiff) / 1000 / 60)} 分钟后再试`);
+
             broadcastToClients({
                 type: 'publish_rate_limit',
                 error: 1,
                 code: 'teamUp.account.rateLimit',
-                message: `发布过快，请 ${Math.ceil((minIntervalRegistered - timeDiff) / 1000 / 60)} 分钟后再试`,
                 remainingTime: minIntervalRegistered - timeDiff
             }, userId);
             return;

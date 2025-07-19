@@ -7,9 +7,11 @@
              :style="`cursor: ${captchaTime.count <= 0 ? 'pointer' : 'not-allowed'};height: ${height}`">
         <span v-if="!content" class="tip">
           <template v-if="!disable">
-            {{ $t('captcha.get') }}
             <span v-if="postLoad">
               <v-icon class="spin-icon-load" icon="mdi-refresh" size="20"/>
+            </span>
+            <span v-else>
+               {{ $t('captcha.get') }}
             </span>
           </template>
           <div v-else style="min-width: 80px">
@@ -195,7 +197,7 @@ export default {
   justify-items: center;
   align-items: center;
   margin: 0 5px;
-  min-width: 80px;
+  min-width: 90px;
 
   .captcha-svg-icon {
     display: flex;
@@ -232,7 +234,7 @@ export default {
 
   .tip {
     font-size: 12px;
-    margin: 0 5px;
+    margin: 0 auto;
   }
 }
 </style>

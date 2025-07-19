@@ -4,7 +4,7 @@
 
 export default class Conf {
     CONF = {
-        "requestDevelopmentName": "production",
+        "requestDevelopmentName": "development",
         "requestProductionName": "production",
         "child": {
             "development": {
@@ -17,22 +17,22 @@ export default class Conf {
                 "wsPathname": "",
             },
             "production": {
-                "protocol": "http",
+                "protocol": "https",
                 "wsProtocol": "wss",
                 "host": "snb-tool.api.cabbagelol.net",
                 "port": "3000",
                 "wsPort": "3001",
                 "pathname": "/api/",
-                "wsPathname": "/ws/",
+                "wsPathname": "/ws",
             },
             "test": {
-                "protocol": "http",
-                "wsProtocol": "ws",
+                "protocol": "https",
+                "wsProtocol": "wss",
                 "host": "snb-tool.api.cabbagelol.net",
                 "port": "3000",
                 "wsPort": "3001",
                 "pathname": "/api/",
-                "wsPathname": "",
+                "wsPathname": "/ws",
             }
         }
     };
