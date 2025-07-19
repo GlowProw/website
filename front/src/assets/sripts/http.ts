@@ -18,7 +18,6 @@ export default class Http extends Conf {
         super();
 
         this.NODE = process.env.NODE_ENV || 'development';
-        console.log('node:', this.NODE, this.CONF)
     }
 
     get location() {
@@ -49,8 +48,11 @@ export default class Http extends Conf {
                 location: `${this.GETURL.protocol || 'http'}://${this.GETURL.host}:${this.GETURL.port}${this.GETURL.pathname}`,
                 host: this.GETURL.host,
                 protocol: this.GETURL.protocol,
+                wsProtocol: this.GETURL.wsProtocol,
                 pathname: this.GETURL.pathname,
+                wsPathname: this.GETURL.wsPathname,
                 port: this.GETURL.port,
+                wsPort: this.GETURL.wsPort,
             };
         } catch (e) {
             return {

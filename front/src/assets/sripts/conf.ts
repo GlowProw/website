@@ -4,26 +4,35 @@
 
 export default class Conf {
     CONF = {
-        "requestDevelopmentName": "test",
+        "requestDevelopmentName": "development",
         "requestProductionName": "production",
         "child": {
             "development": {
                 "protocol": "http",
+                "wsProtocol": "ws",
                 "host": "localhost",
                 "port": "3000",
-                "pathname": "/api/"
+                "wsPort": "3001",
+                "pathname": "/api/",
+                "wsPathname": "",
             },
             "production": {
-                "protocol": "http",
+                "protocol": "https",
+                "wsProtocol": "wss",
                 "host": "snb-tool.api.cabbagelol.net",
                 "port": "3000",
-                "pathname": "/api/"
+                "wsPort": "3001",
+                "pathname": "/api/",
+                "wsPathname": "/ws/",
             },
-            "test":{
-                "protocol": "http",
+            "test": {
+                "protocol": "https",
+                "wsProtocol": "wss",
                 "host": "snb-tool.api.cabbagelol.net",
                 "port": "3000",
-                "pathname": "/api/"
+                "wsPort": "3001",
+                "pathname": "/api/",
+                "wsPathname": "/ws/",
             }
         }
     };

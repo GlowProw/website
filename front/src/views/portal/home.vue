@@ -82,7 +82,7 @@ const getHomeData = async () => {
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="less">
 .portal-banner {
   min-height: 500px;
   overflow: hidden;

@@ -19,9 +19,40 @@
       "submit": "确认"
     },
     "tips": {
-      "teamUp.anonymous.rateLimit": "匿名发布过快，请{remainingTime}小时稍后再试",
-      "teamUp.account.rateLimit": "发布过快，请{remainingTime}分钟后再试",
-      "teamUp.authFailed": "Token 无效或已过期"
+      "request_rateLimited": "请求太快力，慢点",
+      "teamUp_pushSuccess": "发布成功",
+      "teamUp_newTeamUp": "船长，有新组队",
+      "teamUp_anonymous_rateLimit": "匿名发布过快，请{remainingTime}小时稍后再试",
+      "teamUp_account_rateLimit": "发布过快，请{remainingTime}分钟后再试",
+      "teamUp_authFailed": "Token 无效或已过期, 重新登陆",
+      "teamUp_error": "通信错误: {context}"
+    }
+  },
+  "teamUp": {
+    "title": "组队搜寻",
+    "emptyPlayer": "无",
+    "emptyUsername": "匿名",
+    "emptyDescription": "这个人很懒，什么都没写",
+    "copyPlayerBtn": "复制",
+    "copyPlayerSuccess": "复制成功",
+    "pushLoginInfo": "👋{username} 船长, 组建舰队吧",
+    "form": {
+      "player": "玩家id",
+      "time": "愿意等待时间",
+      "descriptionPlaceholder": "组队描述，也可以放置你的语音频道"
+    },
+    "time": {
+      "minutes": "{count}分钟",
+      "day": "{count}天"
+    },
+    "tags": {
+      "pve": "生存",
+      "pvp": "玩家战斗",
+      "timeWander": "世界游荡",
+      "plotTask": "剧情任务",
+      "sideQuest": "支线任务",
+      "reward": "悬赏",
+      "other": "其他"
     }
   },
   "captcha": {

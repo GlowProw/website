@@ -9,11 +9,11 @@
           <template v-if="!disable">
             {{ $t('captcha.get') }}
             <span v-if="postLoad">
-<!--              <Icon type="md-refresh spin-icon-load" size="20"/>-->
+              <v-icon class="spin-icon-load" icon="mdi-refresh" size="20"/>
             </span>
           </template>
           <div v-else style="min-width: 80px">
-<!--            <Icon type="md-close" size="20"/>-->
+              <v-icon class="spin-icon-load" icon="mdi-refresh" size="20"/>
           </div>
         </span>
           <div v-else v-html="content"
@@ -21,8 +21,8 @@
           </div>
           <transition name="fade">
             <div v-show="content && captchaTime.count <= 0" class="captcha-svg-icon">
-<!--              <Icon v-if="disable" type="md-close" size="20"/>-->
-<!--              <Icon v-else type="md-refresh" size="20" :class="[postLoad ? 'spin-icon-load' : '']"/>-->
+              <v-icon v-if="disable" icon="mdi-close" size="20"/>
+              <v-icon v-else icon="mdi-refresh" size="20" :class="[postLoad ? 'spin-icon-load' : '']"/>
             </div>
           </transition>
           <div class="count" v-show="captchaTime.count > 0">{{ captchaTime.count }}s</div>

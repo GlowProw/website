@@ -8,8 +8,8 @@ const captchaRateLimiter = rateLimit({
 });
 
 const timeUpRateLimiter = rateLimit({
-    windowMs: 1000,
-    max: 5,
+    windowMs: 3000,
+    max: 2,
     message: {error: 1, code: 'request.rateLimited', message: 'slow down please.'}
 });
 

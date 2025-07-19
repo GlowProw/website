@@ -10,8 +10,8 @@ const authStore = useAuthStore(),
     router = useRouter();
 
 let messages = ref([]),
-    username = ref('cabbagelol'),
-    password = ref('zsezse'),
+    username = ref(''),
+    password = ref(''),
     captcha = ref({});
 
 /**
@@ -19,7 +19,6 @@ let messages = ref([]),
  */
 const onLogin = async () => {
   try {
-    console.log(captcha.value)
     const result = await http.post(api['account_login'], {
           data: {
             username: username.value,

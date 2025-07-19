@@ -25,9 +25,10 @@ const connectedClients: Map<WebSocket, string | null> = new Map();
 const jwtSecret = config.secret;
 
 const teamConfig = {
-    // 时间游荡 剧情任务 悬赏 其他
+    // pve pvp 时间游荡 剧情任务 支线
+    // 悬赏 其他
     tags: [
-        'pve', 'pvp', 'timeWander', 'plotTask',
+        'pve', 'pvp', 'timeWander', 'plotTask', 'sideQuest',
         'reward', 'other'
     ],
     // Xss
@@ -198,11 +199,19 @@ async function addTeamUp(teamUpData: { player: string; description: string; tags
         };
 
         // 广播新组队信息给所有客户端 (以便实时更新)
-        broadcastToClients({type: 'new_team_up', payload});
+        broadcastToClients({
+            type: 'new_team_up',
+            code: 'teamUp.newTeamUp',
+            payload
+        });
 
     } catch (error) {
         console.error('添加组队信息失败:', error);
-        broadcastToClients({type: 'error', message: '发布失败'}, userId);
+        broadcastToClients({
+            type: 'error',
+            code: 'teamUp.error',
+            message: '发布失败'
+        }, userId);
     }
 }
 
@@ -332,8 +341,9 @@ router.get('/teamups', timeUpRateLimiter, [
             userId: t.userId
         }));
 
-        res.status(200).json({
-            code: 0,
+        res.status(200).setHeader('Cache-Control', 'public, max-age=30').json({
+            success: 1,
+            code: 'teamups.success',
             data: formattedTeamUps,
             pagination: {
                 total,
@@ -352,7 +362,7 @@ router.get('/teamup/statistics', timeUpRateLimiter, async (req: Request, res: Re
     try {
         const validateErr = validationResult(req);
         if (!validateErr.isEmpty())
-            return res.status(400).json({error: 1, code: 'teamups.bad', message: validateErr.array()});
+            return res.status(400).json({error: 1, code: 'teamups.statistics.bad', message: validateErr.array()});
 
         let query = db('team_up')
             .leftJoin('user', 'team_up.userId', 'user.id')
@@ -365,8 +375,9 @@ router.get('/teamup/statistics', timeUpRateLimiter, async (req: Request, res: Re
         const totalResult = await totalQuery.first();
         const total = totalResult ? (totalResult as any).total : 0;
 
-        res.status(200).json({
-            code: 0,
+        res.status(200).setHeader('Cache-Control', 'public, max-age=60').json({
+            success: 1,
+            code: 'teamups.statistics.success',
             data: total
         });
     } catch (error) {

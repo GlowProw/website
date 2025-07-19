@@ -21,10 +21,10 @@ const authStore = useAuthStore()
           官网
           <v-icon icon="mdi-open-in-new"></v-icon>
         </v-btn>
-        <v-btn variant="text" tile href="https://www.ubisoft.com/en-us/game/skull-and-bones">
-          Wiki
-          <v-icon icon="mdi-open-in-new"></v-icon>
-        </v-btn>
+<!--        <v-btn variant="text" tile href="https://www.ubisoft.com/en-us/game/skull-and-bones">-->
+<!--          Wiki-->
+<!--          <v-icon icon="mdi-open-in-new"></v-icon>-->
+<!--        </v-btn>-->
 
         <v-spacer></v-spacer>
 
