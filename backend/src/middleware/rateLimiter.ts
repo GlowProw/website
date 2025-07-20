@@ -21,25 +21,25 @@ const limiter = rateLimit({
 
 const captchaRateLimiter = rateLimit({
     windowMs: 1000,
-    max: 5,
+    max: 3,
     message: {error: 1, code: 'request.rateLimited', message: 'slow down please.'}
 });
 
 const timeUpRateLimiter = rateLimit({
     windowMs: 1000,
-    max: 3,
+    max: 1,
     message: {error: 1, code: 'request.rateLimited', message: 'slow down please.'}
 });
 
 const registerRateLimiter = rateLimit({
     windowMs: 1000,
-    max: 5,
+    max: 3,
     message: {error: 1, code: 'request.rateLimited', message: 'slow down please.'}
 });
 
 const loginRateLimiter = rateLimit({
     windowMs: 1000,
-    max: 5,
+    max: 3,
     message: {error: 1, code: 'request.rateLimited', message: 'slow down please.'}
 });
 

@@ -84,9 +84,14 @@ wss.on('connection', async function connection(ws) {
                     // 没有提供 token，视为匿名用户
                 }
             } else if (parsedMessage.type === 'publish_team_up') {
-                const {player, description, expiresAt, tags} = parsedMessage.payload;
+                const {player, description, expiresMinutesAt, tags} = parsedMessage.payload;
                 const userId = connectedClients.get(ws);
-                await addTeamUp({player, description, expiresAt: new Date(expiresAt), tags: tags || []}, userId);
+                await addTeamUp({
+                    player,
+                    description,
+                    expiresAt: new Date(Date.now() + expiresMinutesAt * 60 * 1000),
+                    tags: tags || []
+                }, userId);
             } else if (parsedMessage.type === 'cancel_team_up') {
                 const {id} = parsedMessage.payload;
                 const userId = connectedClients.get(ws);
@@ -261,6 +266,7 @@ function broadcastToClients(message: any, targetUserId: string | null = null) {
 
 async function cleanExpiredTeamUps() {
     try {
+        console.log('执行清理工作')
         const teamUpRepository = AppDataSource.getRepository(TeamUp);
         const expiredTeamUps = await teamUpRepository
             .createQueryBuilder("team_up")
@@ -271,7 +277,7 @@ async function cleanExpiredTeamUps() {
             const expiredIds = expiredTeamUps.map(t => t.id);
             await teamUpRepository.delete(expiredIds);
 
-            console.log(`删除已过期组队信息: ${expiredIds.length} 条`);
+            console.log(`[${new Date().toISOString()}] 删除已过期组队信息: ${expiredIds.length} 条`);
             expiredIds.forEach(id => {
                 broadcastToClients({type: 'team_up_expired', payload: {id}});
             });

@@ -12,6 +12,7 @@ import {cleanExpiredTeamUps, router as team_index} from "./src/routers/team";
 import config from "./config";
 import {generateCaptcha} from "./src/lib/captcha";
 import {captchaRateLimiter, limiter} from "./src/middleware/rateLimiter";
+import cron from "node-cron";
 
 try {
     dotenv.config();
@@ -62,8 +63,8 @@ try {
 
     AppDataSource.initialize();
 
-    setInterval(cleanExpiredTeamUps, 60 * 1000);
-    // console.log('已启动定时任务，每分钟清理过期组队信息');
+    const cleanWork = cron.schedule('* * * * *', cleanExpiredTeamUps);
+    console.log(`已启动定时任务，${cleanWork.getStatus()}`);
     app.set('trust proxy', false).use(limiter);
 
     app.use(authenticateJWT); // 将认证中间件应用于所有请求
