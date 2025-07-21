@@ -5,7 +5,7 @@ import AccountPage from '../src/views/user/Index.vue'
 import LoginPage from '../src/views/user/login.vue'
 import RegisterPage from '../src/views/user/register.vue'
 import DisplayCabinetPage from '../src/views/displayCabinet/Index.vue'
-import DisplayCabinetOverviewPage from '../src/views/DisplayCabinet/Overview.vue'
+import DisplayCabinetOverviewPage from '../src/views/displayCabinet/Overview.vue'
 import ShipsPage from '../src/views/displayCabinet/ships/Index.vue'
 import ShipDetailPage from '../src/views/displayCabinet/ships/Detail.vue'
 
