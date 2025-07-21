@@ -271,6 +271,8 @@ const copyToClipboard = async (content: string) => {
  * WebSocket
  */
 const initWss = () => {
+  ws.start();
+
   ws.client.onopen = function (event: any) {
     if (authStore.isLogin) {
       ws.client.send(

@@ -1,21 +1,29 @@
 <script setup lang="ts">
-import {Ships} from "glow-prow-data";
+import {Ships, Materials} from "glow-prow-data";
 import {Ship} from "glow-prow-data/src/entity/Ships.ts";
+import {Material} from "glow-prow-data/src/entity/Materials.ts";
+
 import ItemSlot from "../../../components/v/ItemSlot.vue";
 import {onMounted, ref} from "vue";
 import EmptyView from "../../../components/EmptyView.vue";
 import {useI18n} from "vue-i18n";
 
 const shipsData: Ship[] = Ships,
-    {t, messages} = useI18n()
+    materialsData: any = Materials,
+    {t} = useI18n()
 
 let shipsCardData = ref({
-  images: {},
-  model: {},
-  panel: {}
-});
+      images: {},
+      model: {},
+      panel: {}
+    }),
+    shipsFilter = ref({
+      type: 'index',
+      key: ''
+    });
 
 onMounted(() => {
+  console.log(materialsData)
   onReady()
 })
 
@@ -24,6 +32,17 @@ const onReady = async () => {
     shipsCardData.value.panel[key] = 0;
     shipsCardData.value.model[key] = false;
     shipsCardData.value.images[key] = new URL(`../../../assets/images/snb/ships/${key}.png`, import.meta.url).href
+  }
+}
+
+const onProcessedData = () => {
+  switch (shipsFilter.value.type) {
+    case 'time':
+      const sortedEntries = Object.entries(shipsData).sort((a, b) => a[1].dateAdded - b[1].dateAdded);
+      return Object.fromEntries(sortedEntries);
+    case 'index':
+    default:
+      return shipsData
   }
 }
 </script>
@@ -38,8 +57,20 @@ const onReady = async () => {
         </div>
       </v-col>
       <v-col cols="12" lg="6" xl="6">
+        <v-row>
+          <v-spacer></v-spacer>
+          <v-col>
+            <v-text-field placeholder="搜索" hide-details variant="underlined" density="comfortable" v-model="shipsFilter.key"></v-text-field>
+          </v-col>
+          <v-col>
+            <v-combobox density="comfortable" hide-details
+                        variant="underlined"
+                        v-model="shipsFilter.type" :items="['time', 'index']"></v-combobox>
+          </v-col>
+        </v-row>
+
         <v-row class="ships-list">
-          <v-col cols="3" v-for="(i,index) in shipsData" :key="index">
+          <v-col cols="3" v-for="(i,index) in onProcessedData()" :key="index">
             <ItemSlot size="150px">
 
               <div @mouseout="shipsCardData.model[i.id] = false" class="w-100 h-100">
@@ -53,10 +84,11 @@ const onReady = async () => {
                     <v-card
                         v-bind="activatorProps"
                         tile
+                        class="pa-3"
                         rounded
                         height="100%"
                         width="100%">
-                      <v-img :src="shipsCardData.images[i.id]"></v-img>
+                      <v-img :src="shipsCardData.images[i.id]" class="pointer-events-none"></v-img>
                     </v-card>
                   </template>
 
@@ -156,13 +188,15 @@ const onReady = async () => {
                             text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
                             title="插槽">
                           <template v-slot:text>
-                            <v-text-field :value="i.slots.attachement[0]" readonly
-                                          hide-details
-                                          variant="underlined" density="compact">
-                              <template v-slot:append-inner>
-                                <p class="text-no-wrap">附件</p>
-                              </template>
-                            </v-text-field>
+                            <template v-if="i.slots.attachement">
+                              <v-text-field :value="i.slots.attachement[0]" readonly
+                                            hide-details
+                                            variant="underlined" density="compact">
+                                <template v-slot:append-inner>
+                                  <p class="text-no-wrap">附件</p>
+                                </template>
+                              </v-text-field>
+                            </template>
 
                             <template v-if="i.slots.frontWeapon">
                               <p class="mt-4">
@@ -295,7 +329,7 @@ const onReady = async () => {
 
                             <template v-if="i.slots.furniture">
                               <p class="mt-4"></p>
-                              <v-text-field :value="i.slots.furniture" readonly
+                              <v-text-field :value="i.slots.furniture[0]" readonly
                                             hide-details
                                             variant="underlined" density="compact">
                                 <template v-slot:append-inner>
@@ -318,7 +352,7 @@ const onReady = async () => {
                         </v-expansion-panel>
                       </v-expansion-panels>
 
-                      <v-btn class="mt-4" density="comfortable">
+                      <v-btn :to="`/display-cabinet/ships/${i.id}`" class="mt-4" density="comfortable">
                         <v-icon icon="mdi-help"></v-icon>
                         详情
                       </v-btn>
@@ -350,6 +384,10 @@ const onReady = async () => {
     transform: scale(1.5);
     right: 0;
     bottom: 15px;
+  }
+
+  .item {
+    pointer-events: none;
   }
 
   .tag-badge {

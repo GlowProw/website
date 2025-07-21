@@ -9,6 +9,10 @@ import DisplayCabinetOverviewPage from '../src/views/displayCabinet/Overview.vue
 import ShipsPage from '../src/views/displayCabinet/ships/Index.vue'
 import ShipDetailPage from '../src/views/displayCabinet/ships/Detail.vue'
 
+import CalendarPage from '../src/views/calendar/Index.vue'
+import CalendarHistoryPage from '../src/views/calendar/History.vue'
+import CalendarHistorysPage from '../src/views/calendar/Historys.vue'
+
 import MapsPage from '../src/views/Map.vue';
 import TeamPage from '../src/views/Team.vue'
 import AboutPage from '../src/views/About.vue'
@@ -68,6 +72,24 @@ const routes = [
                 path: 'ships/:id',
                 name: 'ShipDetail',
                 component: ShipDetailPage,
+            },
+        ]
+    },
+    {
+        path: '/calendar',
+        name: 'Calendar',
+        component: CalendarPage,
+        redirect: '/calendar/history',
+        children: [
+            {
+                path: 'history',
+                name: 'CalendarHistory',
+                component: CalendarHistoryPage,
+            },
+            {
+                path: 'historys',
+                name: 'CalendarHistorys',
+                component: CalendarHistorysPage,
             },
         ]
     },

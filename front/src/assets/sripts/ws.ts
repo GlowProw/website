@@ -16,6 +16,10 @@ export default class Ws {
     private eventListeners: { [K in keyof WebSocketEventMap]?: WebSocketEventMap[K][] } = {};
 
     constructor() {
+
+    }
+
+    public start(): void {
         const url = this.buildWebSocketUrl();
         console.log("WebSocket connecting to:", url);
         this.socket = new WebSocket(url);

@@ -47,7 +47,7 @@ const getHomeData = async () => {
           </v-col>
           <v-col cols="12" sm="12" md="6" lg="3">
             <v-card
-                disabled
+                to="/calendar"
                 text="查看本赛季活动信息"
                 title="活动日落"
                 variant="text">
