@@ -1,11 +1,11 @@
 import {createRouter, createWebHistory} from 'vue-router';
-import PortalMainBasePage from '../src/views/portal/Index'
-import PortalPage from '../src/views/portal/Home'
-import AccountPage from '../src/views/user/Index'
+import PortalMainBasePage from '../src/views/portal/Index.vue'
+import PortalPage from '../src/views/portal/Home.vue'
+import AccountPage from '../src/views/user/Index.vue'
 import LoginPage from '../src/views/user/login.vue'
 import RegisterPage from '../src/views/user/register.vue'
 import DisplayCabinetPage from '../src/views/displayCabinet/Index.vue'
-import DisplayCabinetOverviewPage from '../src/views/DisplayCabinet/Overview'
+import DisplayCabinetOverviewPage from '../src/views/DisplayCabinet/Overview.vue'
 import ShipsPage from '../src/views/displayCabinet/ships/Index.vue'
 import ShipDetailPage from '../src/views/displayCabinet/ships/Detail.vue'
 
