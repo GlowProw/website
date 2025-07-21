@@ -1,15 +1,27 @@
 <script setup lang="ts">
-import {onMounted, ref} from "vue";
+import {onMounted, type Ref, ref} from "vue";
 import {api, http} from "../../assets/sripts";
+import {Seasons} from "glow-prow-data";
+import {Season} from "glow-prow-data/src/entity/Seasons";
+import {useI18n} from "vue-i18n";
+
+const {t} = useI18n()
 
 let data = ref({
-  teamCount: 0
-})
+      teamCount: 0
+    }),
+    seasons: [] = Seasons,
+    // 当前赛季
+    currentlySeason: Ref<Season> = ref(null)
 
 onMounted(() => {
   getHomeData();
+  getCurrentSeason()
 })
 
+/**
+ * 取得首页数据
+ */
 const getHomeData = async () => {
   const result = await http.get(api['teamup_statistics'], {})
 
@@ -17,6 +29,28 @@ const getHomeData = async () => {
     Error(result.message)
 
   data.value.teamCount = result.data.data
+}
+
+/**
+ * 获取当前赛季
+ * @returns {Season | null} 当前赛季，如果不在任何赛季范围内则返回 null
+ */
+const getCurrentSeason = (): Season | null => {
+  const currentDate = new Date();
+  const currentTime = currentDate.getTime();
+
+  for (const seasonId in seasons) {
+    const season = seasons[seasonId];
+    const startDate = new Date(season.startDate).getTime();
+    const endDate = new Date(season.endDate).getTime();
+
+    if (currentTime >= startDate && currentTime <= endDate) {
+      currentlySeason.value = season;
+      return season;
+    }
+  }
+
+  return null;
 }
 </script>
 
@@ -31,53 +65,58 @@ const getHomeData = async () => {
 
       <v-container class="portal-banner-top">
         <div class="title">
-          <h1>第2年2赛季:阵营</h1>
-          <p>阵营争夺</p>
+          <h1 class="btn-flavor pl-10 pr-10 pt-3 pb-3">{{ t(`snb.calendar.${currentlySeason?.id}.name`) }}</h1>
+          <p class="ma-auto mt-4 font-weight-light opacity-80">{{ t(`snb.calendar.${currentlySeason?.id}.description`) }}</p>
         </div>
-
-        <v-row>
-          <v-col cols="12" sm="12" md="6" lg="3">
-            <v-card
-                to="/team"
-                :subtitle="`目前${data?.teamCount || 0}寻求组队`"
-                text="发布或寻找与你计划相同船长出航，面对真正敌人"
-                title="组队寻求"
-                variant="text"
-            ></v-card>
-          </v-col>
-          <v-col cols="12" sm="12" md="6" lg="3">
-            <v-card
-                to="/calendar"
-                text="查看本赛季活动信息"
-                title="活动日落"
-                variant="text">
-              <template v-slot:subtitle>
-                <u><a>武装金币</a></u> + <u><a>船队</a></u> 订阅日历
-              </template>
-            </v-card>
-          </v-col>
-          <v-col cols="12" sm="12" md="6" lg="3">
-            <v-card
-                disabled
-                text="所有地图物品清单"
-                title="地图"
-                variant="text"
-            ></v-card>
-          </v-col>
-          <v-col cols="12" sm="12" md="6" lg="3">
-            <v-card
-                to="/display-cabinet"
-                text="陈列物品信息, 检查它们如何获得"
-                title="展示馆"
-                variant="text"
-            ></v-card>
-          </v-col>
-        </v-row>
       </v-container>
+
+      <div class="portal-season-left-tip opacity-30" v-if="currentlySeason && currentlySeason.alternativeName">
+        本赛季 {{ currentlySeason.alternativeName.toUpperCase() }}
+        <v-divider vertical/>
+        {{ t(`snb.calendar.${currentlySeason?.id}.name`) }}
+      </div>
     </div>
 
     <v-container>
-      <!--      1123123-->
+      <v-row>
+        <v-col cols="12" sm="12" md="6" lg="3">
+          <v-card
+              class="background-flavor"
+              to="/team"
+              :subtitle="`目前${data?.teamCount || 0}寻求组队`"
+              text="发布或寻找与你计划相同船长出航，面对真正敌人"
+              title="组队寻求"
+              variant="text"
+          ></v-card>
+        </v-col>
+        <v-col cols="12" sm="12" md="6" lg="3">
+          <v-card
+              class="background-flavor"
+              to="/calendar"
+              text="查看本赛季活动信息"
+              title="日历"
+              variant="text">
+          </v-card>
+        </v-col>
+        <v-col cols="12" sm="12" md="6" lg="3">
+          <v-card
+              class="background-flavor"
+              disabled
+              text="所有地图物品清单"
+              title="地图"
+              variant="text"
+          ></v-card>
+        </v-col>
+        <v-col cols="12" sm="12" md="6" lg="3">
+          <v-card
+              class="background-flavor"
+              to="/display-cabinet"
+              text="陈列物品信息, 检查它们如何获得"
+              title="展示馆"
+              variant="text"
+          ></v-card>
+        </v-col>
+      </v-row>
     </v-container>
   </div>
 </template>
@@ -129,18 +168,33 @@ const getHomeData = async () => {
   }
 
   .portal-banner-top {
-    overflow: hidden;
-    min-height: 600px;
-    display: flex;
-    align-self: end;
-    flex-direction: column;
-    align-items: center;
+    position: relative;
+    padding-top: 150px;
 
     .title {
-      flex: 1;
-      z-index: 3;
+      bottom: -100%;
       text-align: center;
-      margin-top: 150px;
+      max-width: 43%;
+      margin: 0 auto;
+    }
+  }
+
+  .portal-season-left-tip {
+    position: absolute;
+    top: 100px;
+    left: 20px;
+    writing-mode: vertical-rl;
+    display: flex;
+    flex-flow: row wrap;
+    column-gap: 4px;
+    font-weight: 400;
+    margin-bottom: 20px;
+
+    &:after {
+      bottom: 0;
+      content: "";
+      margin: 0 5px;
+      border-bottom: 1px solid #fff;
     }
   }
 }
@@ -156,8 +210,8 @@ const getHomeData = async () => {
     }
 
     .title {
-      margin-top: 100px !important;
       margin-bottom: 50px;
+      max-width: 80% !important;
     }
   }
 }
