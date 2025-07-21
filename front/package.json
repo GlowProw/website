@@ -1,5 +1,5 @@
 {
-  "name": "untitled",
+  "name": "glow-prow-main",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -15,7 +15,10 @@
     "@fontsource/roboto": "5.2.5",
     "@mdi/font": "^7.4.47",
     "@mdi/js": "^7.4.47",
+    "@skullandbonestools/snbdata": "github:SkullAndBonesTools/SkullAndBonesData",
     "axios": "^1.10.0",
+    "glow-prow-data": "git://github.com/GlowProw/glow-prow-data.git",
+    "glow-prow-data-languages": "git://github.com/GlowProw/glow-prow-data-languages.git",
     "less": "^4.4.0",
     "pinia": "^3.0.3",
     "pinia-plugin-persistedstate": "^4.4.1",
@@ -26,6 +29,8 @@
     "vuetify": "^3.8.1"
   },
   "devDependencies": {
+    "glow-prow-data": "file:~/Code/glow-prow/glow-prow-data",
+    "glow-prow-data-languages": "file:~/Code/glow-prow/glow-prow-data-languages",
     "@skullandbonestools/snbdata": "github:SkullAndBonesTools/SkullAndBonesData",
     "@tsconfig/node22": "^22.0.0",
     "@types/node": "^22.9.0",

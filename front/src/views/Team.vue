@@ -26,10 +26,15 @@ enum getTeamsType {
   load
 }
 
-const isSessionReconnection = ref(false)
 
 let teams: Teams[] = ref([]),
     messages: string[] = ref([]),
+
+    // 服务
+    service = ref({
+      status: 0,
+      loading: false,
+    }),
 
     // 发布
     pushForm = ref<VForm | null>(null),
@@ -64,7 +69,7 @@ let teams: Teams[] = ref([]),
     pushLoading = ref(false),
     player = ref(''),
     description = ref(''),
-    tags = ref([]),
+    tags: [] = ref([]),
     expiresMinutesAt: number = ref(60),
 
     // 检索
@@ -76,9 +81,10 @@ let teams: Teams[] = ref([]),
 
 onMounted(async () => {
   await initWss();
+  await onWss();
   await getTeams();
 
-  getStoragePlayer();
+  readStoragePlayer();
 })
 
 /**
@@ -146,9 +152,6 @@ const pushTeamInfo = async () => {
 
     if (!valid) return;
 
-    // const _expiresAt = Date.now() + expiresAt.value || 10 * 60 * 1000;
-    // console.log('_expiresAt', _expiresAt)
-
     const message = {
       type: 'publish_team_up',
       payload: {
@@ -210,6 +213,9 @@ const onCleanPushInfo = () => {
   tags.value = []
 }
 
+/**
+ * 检索
+ */
 const onSearch = async () => {
   await getTeams();
 }
@@ -218,17 +224,30 @@ const onTeamSortBy = async () => {
   await getTeams();
 }
 
+/**
+ * 发布信息
+ * 处理并储存配置
+ */
 const onStoragePlayer = () => {
   storage.local.set('team_up.push_form', {
     player: player.value,
+    expiresMinutesAt: expiresMinutesAt.value,
+    tags: tags.value,
     description: description.value
   })
 }
 
-const getStoragePlayer = () => {
+/**
+ * 发布信息
+ * 读取配置
+ */
+const readStoragePlayer = () => {
   const pushForm = storage.local.get('team_up.push_form')
+
   if (pushForm.code == 0 && pushForm.data.value) {
     player.value = pushForm.data.value.player
+    expiresMinutesAt.value = pushForm.data.value.expiresMinutesAt
+    tags.value = pushForm.data.value.tags
     description.value = pushForm.data.value.description
   }
 }
@@ -262,8 +281,14 @@ const initWss = () => {
           )
       );
     }
+    service.value.status = 1;
   };
+}
 
+/**
+ * 监听
+ */
+const onWss = () => {
   ws.client.onmessage = function (event: any) {
     const data = JSON.parse(event.data);
     teams.value = []
@@ -319,9 +344,6 @@ const initWss = () => {
         messages.value.push(t(`basic.tips.${data.code}`))
 
         authStore.logout()
-        router.push('/account/login')
-
-        getTeams();
         break;
       case 'error':
         console.error(data.message)
@@ -333,6 +355,7 @@ const initWss = () => {
   };
 
   ws.client.onclose = function (event: any) {
+    service.value.status = -1;
     console.warn(event)
     messages.value.push(t(`basic.tips.${'teamUp.error'.replaceAll('.', '_')}`, {
       context: 'client -> close'
@@ -340,11 +363,28 @@ const initWss = () => {
   };
 
   ws.client.onerror = function (error: any) {
+    service.value.status = -1;
     console.error(error)
     messages.value.push(t(`basic.tips.${'teamUp.error'.replaceAll('.', '_')}`, {
       context: 'client -> error'
     }))
   };
+}
+
+const onWsReconnect = () => {
+  service.value.loading = true;
+  ws.reconnectAttempts = 0;
+
+  ws.handleReconnect(({code}) => {
+    if (code == -1) {
+      service.value.status = -1
+      service.value.loading = false
+      messages.value.push('重连依旧失败')
+    } else if (code == 0) {
+      service.value.status = 1;
+      service.value.loading = false
+    }
+  });
 }
 </script>
 
@@ -358,7 +398,7 @@ const initWss = () => {
 
     <v-container class="team">
       <v-row>
-        <v-col cols="12" lg="6">
+        <v-col cols="12" sm="12" md="6" lg="3" xl="6">
           <router-link to="/">
             <v-icon icon="mdi-home" class="mr-5"></v-icon>
           </router-link>
@@ -373,21 +413,46 @@ const initWss = () => {
                 teamsLoading ?  'spin-icon-load' : ''
             ]" icon="mdi-refresh" size="20"/>
           </v-btn>
+
         </v-col>
-        <v-spacer></v-spacer>
-        <v-col cols="12" lg="3">
+        <v-col cols="12" sm="12" md="6" lg="3" xl="6" class="d-flex justify-md-end">
+          <v-btn class="d-lg-block w-sm-100 w-lg-auto w-xl-auto" variant="tonal">
+            <template v-if="service.status == 1">
+              服务正常
+            </template>
+            <template v-if="service.status == -1">
+              服务断开
+              <v-btn class="ml-2" :loading="service.loading" :disabled="service.loading" density="compact" @click="onWsReconnect">
+                重连
+              </v-btn>
+            </template>
+            <template v-if="service.status == 0">
+              服务未订阅
+              <v-btn class="ml-2" :loading="service.loading" :disabled="service.loading" density="compact" @click="onWsReconnect">
+                连接
+                <v-icon icon="mdi-rotate-right"></v-icon>
+              </v-btn>
+            </template>
+            <v-badge dot offset-x="-10" offset-y="-15" :color="service.status == 1 ? '#2ec70d' : 'red'"></v-badge>
+            <v-divider class="mt-n2 mb-n2 ml-5 mr-3" vertical></v-divider>
+            <v-icon icon="mdi-help-circle-outline" v-tooltip="'此服务向服务器订阅事件，当收到信息则自动更新列表'"></v-icon>
+          </v-btn>
+        </v-col>
+        <v-col cols="12" sm="6" md="12" lg="3" xl="3">
           <v-select v-model="filtering.sortBy"
                     @update:modelValue="onTeamSortBy"
                     density="comfortable"
-                    variant="plain"
+                    variant="solo-filled"
                     label="排序"
+                    hide-details
                     item-title="label"
                     item-value="value"
                     :items="[{value: 'recent', label:'按过期时间 (默认)'},{value: 'expires', label:'按最近发布'}]">
           </v-select>
         </v-col>
-        <v-col cols="12" lg="3">
+        <v-col cols="12" sm="6" md="12" lg="3" xl="3">
           <v-text-field placeholder="搜索"
+                        hide-details
                         variant="solo-filled"
                         density="comfortable" v-model="filtering.keyword">
             <template v-slot:append-inner>
@@ -504,8 +569,16 @@ const initWss = () => {
         </div>
       </template>
       <template v-else-if="teams.length <= 0">
-        <v-card card border class="mt-5">
-          <EmptyView></EmptyView>
+        <v-card card border class="mt-5 pt-5 pb-5">
+          <EmptyView>
+            <div class="mt-5">
+              <v-btn @click="getTeams" class=" btn-flavor" variant="elevated">
+                <v-icon :class="[
+                teamsLoading ?  'spin-icon-load' : ''
+            ]" icon="mdi-refresh" size="20"/>
+              </v-btn>
+            </div>
+          </EmptyView>
         </v-card>
       </template>
 
@@ -533,6 +606,7 @@ const initWss = () => {
 
       <v-fab
           :app="true"
+          :color="`var(--main-color)`"
           location="right bottom"
           size="large"
           @click="pushModel = true"
@@ -588,6 +662,7 @@ const initWss = () => {
                         density="compact"
                         v-model="tags"
                         clearable
+                        @update:modelValue="onStoragePlayer"
                         item-title="label"
                         item-value="value"
                         :hide-no-data="true"
@@ -597,12 +672,11 @@ const initWss = () => {
                 </v-row>
                 <v-textarea :placeholder="t('teamUp.form.descriptionPlaceholder')"
                             :rules="pushConfig.rules.description"
-                            @update:model-value="onStoragePlayer()"
+                            @update:focused="onStoragePlayer"
                             counter="300"
                             v-model="description"></v-textarea>
 
                 <v-row class="mt-4 pa-2">
-                  {{ expiresMinutesAt }}
                   <v-spacer></v-spacer>
                   <v-btn-group border>
                     <v-btn variant="text" width="80" @click="pushModel = false">取消</v-btn>

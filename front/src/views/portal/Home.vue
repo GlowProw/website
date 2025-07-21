@@ -66,7 +66,7 @@ const getHomeData = async () => {
           </v-col>
           <v-col cols="12" sm="12" md="6" lg="3">
             <v-card
-                disabled
+                to="/display-cabinet"
                 text="陈列物品信息, 检查它们如何获得"
                 title="展示馆"
                 variant="text"

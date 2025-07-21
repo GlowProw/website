@@ -1,9 +1,13 @@
 import {createRouter, createWebHistory} from 'vue-router';
-import PortalMainBasePage from '../src/views/portal/index.vue'
-import PortalPage from '../src/views/portal/home.vue'
-import AccountPage from '../src/views/user/index.vue'
+import PortalMainBasePage from '../src/views/portal/Index'
+import PortalPage from '../src/views/portal/Home'
+import AccountPage from '../src/views/user/Index'
 import LoginPage from '../src/views/user/login.vue'
 import RegisterPage from '../src/views/user/register.vue'
+import DisplayCabinetPage from '../src/views/displayCabinet/Index.vue'
+import DisplayCabinetOverviewPage from '../src/views/DisplayCabinet/Overview'
+import ShipsPage from '../src/views/displayCabinet/ships/Index.vue'
+import ShipDetailPage from '../src/views/displayCabinet/ships/Detail.vue'
 
 import MapsPage from '../src/views/Map.vue';
 import TeamPage from '../src/views/Team.vue'
@@ -41,6 +45,29 @@ const routes = [
                 path: '/team',
                 name: 'Team',
                 component: TeamPage,
+            },
+        ]
+    },
+    {
+        path: '/display-cabinet',
+        name: 'DisplayCabinet',
+        component: DisplayCabinetPage,
+        redirect: '/display-cabinet/overview',
+        children: [
+            {
+                path: 'overview',
+                name: 'DisplayCabinetOverview',
+                component: DisplayCabinetOverviewPage,
+            },
+            {
+                path: 'ships',
+                name: 'Ships',
+                component: ShipsPage,
+            },
+            {
+                path: 'ships/:id',
+                name: 'ShipDetail',
+                component: ShipDetailPage,
             },
         ]
     },

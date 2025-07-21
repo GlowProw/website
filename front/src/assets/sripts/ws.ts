@@ -1,4 +1,4 @@
-import { http } from "./index.ts";
+import {http} from "./index.ts";
 
 type WebSocketEventMap = {
     open: (event: Event) => void;
@@ -26,12 +26,15 @@ export default class Ws {
         return `${http.globalUrl.wsProtocol}://${http.host}:${http.globalUrl.wsPort || ''}${http.globalUrl.wsPathname || ''}`;
     }
 
-    private setupEventHandlers(): void {
+    private setupEventHandlers(callback?: void): void {
         this.socket.onopen = (event) => {
             this.isConnected = true;
             this.reconnectAttempts = 0;
             this.emit('open', event);
             console.log("WebSocket connected");
+
+            if (callback)
+                callback({code: 0})
         };
 
         this.socket.onclose = (event) => {
@@ -39,11 +42,17 @@ export default class Ws {
             this.emit('close', event);
             console.log("WebSocket disconnected");
             this.handleReconnect();
+
+            if (callback)
+                callback({code: -1})
         };
 
         this.socket.onerror = (event) => {
             this.emit('error', event);
             console.error("WebSocket error:", event);
+
+            if (callback)
+                callback({code: -1})
         };
 
         this.socket.onmessage = (event) => {
@@ -51,7 +60,7 @@ export default class Ws {
         };
     }
 
-    private handleReconnect(): void {
+    private handleReconnect(callback?: void): void {
         if (this.reconnectAttempts < this.maxReconnectAttempts) {
             this.reconnectAttempts++;
             console.log(`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`);
@@ -59,10 +68,19 @@ export default class Ws {
             setTimeout(() => {
                 const url = this.buildWebSocketUrl();
                 this.socket = new WebSocket(url);
-                this.setupEventHandlers();
+
+                this.setupEventHandlers(({code}) => {
+                    if (callback)
+                        callback({code})
+                });
+
+                if (callback)
+                    callback({code: 0})
             }, this.reconnectInterval);
         } else {
             console.log("Max reconnection attempts reached");
+            if (callback)
+                callback({code: -1})
         }
     }
 

@@ -5,10 +5,10 @@ const {t} = useI18n()
 </script>
 
 <template>
-  <div class="background-flavor">
-    <v-container class="">
-      <v-divider class="ma-0"></v-divider>
-      <footer class="mt-10">
+  <div class="background-flavor footer">
+    <v-divider class="ma-0"></v-divider>
+    <v-container class="pt-0">
+      <footer class="mt-10 mb-10">
         <v-row>
           <v-col cols="12" sm="12" md="6" lg="6">
             <b class="btn-flavor mb-5">{{ t('name') }}</b>
@@ -44,5 +44,7 @@ const {t} = useI18n()
 </template>
 
 <style scoped>
-
+.footer {
+  background-color: #0e0e0e;
+}
 </style>

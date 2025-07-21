@@ -28,6 +28,15 @@
       "teamUp_error": "通信错误: {context}"
     }
   },
+  "displayCabinet": {
+    "title": "船只",
+    "size": {
+      "extraSmall": "超小型",
+      "small": "小型",
+      "medium": "中等",
+      "large": "大型"
+    }
+  },
   "teamUp": {
     "title": "组队搜寻",
     "emptyPlayer": "无",
