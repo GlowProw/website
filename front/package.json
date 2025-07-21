@@ -29,8 +29,6 @@
     "vuetify": "^3.8.1"
   },
   "devDependencies": {
-    "glow-prow-data": "file:~/Code/glow-prow/glow-prow-data",
-    "glow-prow-data-languages": "file:~/Code/glow-prow/glow-prow-data-languages",
     "@skullandbonestools/snbdata": "github:SkullAndBonesTools/SkullAndBonesData",
     "@tsconfig/node22": "^22.0.0",
     "@types/node": "^22.9.0",
