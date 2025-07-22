@@ -84,10 +84,15 @@ const onProcessedData = () => {
                     <v-card
                         v-bind="activatorProps"
                         tile
+                        border
+                        variant="text"
                         class="pa-3"
-                        rounded
                         height="100%"
                         width="100%">
+                      <template v-slot:image>
+                        <img class="pointer-events-none" src="../../../assets/images/portal-banner-background.png">
+                      </template>
+
                       <v-img :src="shipsCardData.images[i.id]" class="pointer-events-none"></v-img>
                     </v-card>
                   </template>

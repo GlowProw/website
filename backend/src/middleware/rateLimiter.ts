@@ -43,10 +43,17 @@ const loginRateLimiter = rateLimit({
     message: {error: 1, code: 'request.rateLimited', message: 'slow down please.'}
 });
 
+const calendarRateLimiter = rateLimit({
+    windowMs: 10000,
+    max: 4,
+    message: {error: 1, code: 'request.rateLimited', message: 'slow down please.'}
+});
+
 export {
     limiter,
     captchaRateLimiter,
     timeUpRateLimiter,
     registerRateLimiter,
     loginRateLimiter,
+    calendarRateLimiter
 }

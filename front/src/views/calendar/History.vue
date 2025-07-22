@@ -3,6 +3,8 @@ import {onMounted, type Ref, ref} from "vue";
 import {useI18n} from "vue-i18n";
 import {Seasons} from "@skullandbonestools/snbdata";
 import type {Season} from "@skullandbonestools/snbdata/dist/daos/seasons";
+import {http} from "../../assets/sripts";
+import Loading from "../../components/Loading.vue";
 
 interface EventOccurrence {
   month: number;
@@ -44,7 +46,7 @@ interface FormattedCalendar {
 
 const {t, te} = useI18n()
 
-let seasons: Season[] = Seasons,
+let seasons: Seasons = Seasons,
 
     // 赛季选择器
     selectSeasonsList = ref(),
@@ -78,7 +80,6 @@ onMounted(async () => {
   // 初始日历列表
   formattedCalendar.value = transformCalendarData(seasonsCalendarEvents.value);
 })
-
 
 /**
  * 处理日历
@@ -138,10 +139,15 @@ function transformCalendarData(calendarData: CalendarData): FormattedCalendar {
  */
 const getCalendarEventData = async () => {
   try {
-    const response = await fetch(`/data/calendar/${currentlySeason.value.id}/index.json`);
-    if (!response.ok) throw new Error('Failed to load data');
+    const result = await http.get('calendar/data', {
+          params: {
+            season: currentlySeason.value.id
+          }
+        }),
+        d = result.data;
+    if (result.error) throw new Error('Failed to load data');
 
-    seasonsCalendarEvents.value = await response.json();
+    seasonsCalendarEvents.value = d.data;
   } catch (err) {
     console.log(err)
     return {}
@@ -183,6 +189,27 @@ const onCheckI18nValue = (key) => {
 };
 
 /**
+ * 订阅日历
+ * @param type
+ * @param season
+ * @param id
+ */
+const onSubscriptionCalendar = (type, season: string, id?: any) => {
+  switch (type) {
+    case 'calendar':
+      onOpenICS('events.ics', season);
+      break;
+    case 'event':
+      onOpenICS('event.ics', season, id);
+      break;
+  }
+}
+
+async function onOpenICS(url, season: string, id?: any) {
+  window.open(`${http.location}calendar/${url}?language=zh_CN&season=${season}&eventId=${id}`);
+}
+
+/**
  * 计算当前赛季剩余天数
  * @returns {number | null} 剩余天数，如果不在赛季内则返回 null
  */
@@ -205,29 +232,41 @@ function getRemainingDays(): number | null {
   <v-container class="calendar mt-10 mb-10">
     <h1 class="btn-flavor ships-title pt-8 pb-8 text-h2">日历</h1>
     <v-row align="end">
-      <v-col v-if="currentlySeason">
+      <v-col v-if="currentlySeason && selectSeasonsValue && selectSeasonsValue.id" cols="6">
         <div class="mt-3">
           <div>
-            <span class="text-amber mr-2 text-h3">{{ t(`snb.calendar.${currentlySeason.id}.name`) || '-' }}</span>
+            <span class="text-amber mr-2 text-h3">{{ t(`snb.calendar.${selectSeasonsValue.id}.name`) || '-' }}</span>
             <span class="mr-2 text-h4">
              剩余 {{ getRemainingDays() }} 天
             </span>
           </div>
           <p class="mt-1" v-if="selectSeasonsValue">{{ selectSeasonsValue.id.toString().toUpperCase() }}</p>
         </div>
-        <p class="mt-2 opacity-80">{{ t(`snb.calendar.${currentlySeason.id}.description`) || '-' }}</p>
+        <p class="mt-2 opacity-80">{{ t(`snb.calendar.${selectSeasonsValue.id}.description`) || '-' }}</p>
       </v-col>
       <v-spacer></v-spacer>
       <div>
-        <v-combobox
-            label="过往赛季"
-            item-value="id"
-            item-title="label"
-            min-width="300px"
-            max-width="300px"
-            v-model="selectSeasonsValue"
-            :items="selectSeasonsList">
-        </v-combobox>
+        <v-btn-group>
+          <v-btn :color="`var(--main-color)`"
+                 @click="onSubscriptionCalendar('calendar', selectSeasonsValue.id)"
+                 min-width="150">
+            订阅日历
+          </v-btn>
+          <v-combobox
+              tile
+              disabled
+              label="过往赛季"
+              variant="solo-filled"
+              density="comfortable"
+              item-value="id"
+              item-title="label"
+              min-width="150px"
+              max-width="300px"
+              v-model="selectSeasonsValue"
+              :items="selectSeasonsList">
+          </v-combobox>
+        </v-btn-group>
+
       </div>
     </v-row>
   </v-container>
@@ -236,7 +275,9 @@ function getRemainingDays(): number | null {
     <div v-for="(month, monthIndex) in formattedCalendar" :key="monthIndex">
       <template v-if="month.eventCount > 0">
         <v-row no-gutters align="center">
-          <v-avatar :color="`var(--main-color)`">{{ month.month }}</v-avatar>
+          <v-avatar size="55" class="font-weight-bold text-h5" :color="`var(--main-color)`" style="color: hsl(from var(--main-color) h s calc(l * 0.3));">
+            {{ month.month }}
+          </v-avatar>
           <v-col>
             <v-divider :color="`var(--main-color)`" :opacity="20"></v-divider>
           </v-col>
@@ -251,16 +292,30 @@ function getRemainingDays(): number | null {
 
               <div class="mr-3 pt-4">
                 <v-card v-for="event in day.events" :key="event" max-width="420" min-width="420" class="pa-2 mb-2 background-flavor">
-                  <v-card border color="#000" class="pa-5">
+                  <v-card border color="hsl(from var(--main-color) h s calc(l * 0.3))">
                     <template v-slot:image>
-                      <img src="../../assets/images/portal-banner-background.png">
+                      <img class="pointer-events-none" src="../../assets/images/portal-banner-background.png">
+                    </template>
+                    <template v-slot:title>
+                      <v-row class="text-lg-body-1" style="min-height: 60px">
+                        <v-col>
+                          <v-icon icon="mdi-calendar-badge"></v-icon>
+                        </v-col>
+                        <v-col align="right">
+                          <v-btn density="compact" @click="onSubscriptionCalendar('event', selectSeasonsValue.id, event.id)">添加到日历</v-btn>
+                        </v-col>
+                      </v-row>
                     </template>
 
-                    <p class="text-amber text-h5"><b> {{ t(`snb.calendar.${currentlySeason.id}.data.${event.id}.name`) }}</b></p>
+                    <div class="bg-black pa-5 background-flavor pointer-events-none">
+                      <p class="text-amber text-h5"><b> {{ t(`snb.calendar.${currentlySeason.id}.data.${event.id}.name`) }}</b></p>
 
-                    <template v-if="onCheckI18nValue(`snb.calendar.${currentlySeason.id}.data.${event.id}.description`).code == 0">
-                      {{ t(`snb.calendar.${currentlySeason.id}.data.${event.id}.description`) }}
-                    </template>
+                      <p class="text-pre-wrap mt-1 opacity-80">
+                        <template v-if="onCheckI18nValue(`snb.calendar.${currentlySeason.id}.data.${event.id}.description`).code == 0">
+                          {{ t(`snb.calendar.${currentlySeason.id}.data.${event.id}.description`) }}
+                        </template>
+                      </p>
+                    </div>
                   </v-card>
                 </v-card>
               </div>
@@ -269,6 +324,11 @@ function getRemainingDays(): number | null {
         </div>
       </template>
     </div>
+  </div>
+  <div class="calendar-line" v-else>
+    <v-card min-height="400" class="ma-auto" variant="text">
+      <Loading size="100" class="mt-50"></Loading>
+    </v-card>
   </div>
 </template>
 
@@ -286,6 +346,10 @@ function getRemainingDays(): number | null {
 
   .calendar-line-day {
     display: flex;
+
+    > div:first-child {
+      margin-left: 80px;
+    }
   }
 }
 </style>

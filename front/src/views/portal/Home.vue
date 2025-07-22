@@ -77,55 +77,77 @@ const getCurrentSeason = (): Season | null => {
       </div>
     </div>
 
-    <v-container>
-      <v-row>
-        <v-col cols="12" sm="12" md="6" lg="3">
-          <v-card
-              class="background-flavor"
-              to="/team"
-              :subtitle="`目前${data?.teamCount || 0}寻求组队`"
-              text="发布或寻找与你计划相同船长出航，面对真正敌人"
-              title="组队寻求"
-              variant="text"
-          ></v-card>
-        </v-col>
-        <v-col cols="12" sm="12" md="6" lg="3">
-          <v-card
-              class="background-flavor"
-              to="/calendar"
-              text="查看本赛季活动信息"
-              title="日历"
-              variant="text">
-          </v-card>
-        </v-col>
-        <v-col cols="12" sm="12" md="6" lg="3">
-          <v-card
-              class="background-flavor"
-              disabled
-              text="所有地图物品清单"
-              title="地图"
-              variant="text"
-          ></v-card>
-        </v-col>
-        <v-col cols="12" sm="12" md="6" lg="3">
-          <v-card
-              class="background-flavor"
-              to="/display-cabinet"
-              text="陈列物品信息, 检查它们如何获得"
-              title="展示馆"
-              variant="text"
-          ></v-card>
-        </v-col>
-      </v-row>
-    </v-container>
+    <div class="background-flavor">
+      <v-container>
+        <v-row>
+          <v-col cols="12" sm="12" md="6" lg="3">
+            <v-card
+                class="background-flavor"
+                to="/team"
+                :subtitle="`目前${data?.teamCount || 0}寻求组队`"
+                text="发布或寻找与你计划相同船长出航，面对真正敌人"
+                title="组队寻求"
+                variant="text"
+            ></v-card>
+          </v-col>
+          <v-col cols="12" sm="12" md="6" lg="3">
+            <v-card
+                class="background-flavor"
+                to="/calendar"
+                text="查看本赛季活动信息"
+                title="日历"
+                variant="text">
+            </v-card>
+          </v-col>
+          <v-col cols="12" sm="12" md="6" lg="3">
+            <v-card
+                to="/maps"
+                class="background-flavor"
+                text="所有地图物品清单"
+                title="地图"
+                variant="text"
+            ></v-card>
+          </v-col>
+          <v-col cols="12" sm="12" md="6" lg="3">
+            <v-card
+                class="background-flavor"
+                to="/display-cabinet"
+                text="陈列物品信息, 检查它们如何获得"
+                title="展示馆"
+                variant="text"
+            ></v-card>
+          </v-col>
+
+          <v-col cols="12" sm="12" md="6" lg="3">
+            <v-card
+                class="background-flavor"
+                disabled
+                text="设计你船，让它到达性能极限，分享给好友"
+                title="船只配装厂"
+                variant="text"
+            ></v-card>
+          </v-col>
+
+          <v-col cols="12" sm="12" md="6" lg="3">
+            <v-card
+                class="background-flavor"
+                disabled
+                text="生成海盗签名图片，分享到社区网站上"
+                title="海盗签名"
+                variant="text"
+            ></v-card>
+          </v-col>
+        </v-row>
+      </v-container>
+    </div>
   </div>
 </template>
 
 <style scoped lang="less">
 .portal-banner {
   min-height: 500px;
-  overflow: hidden;
   position: relative;
+  overflow: hidden;
 
   .portal-banner-looping-video {
 
@@ -163,7 +185,7 @@ const getCurrentSeason = (): Season | null => {
     width: 100%;
     height: 0;
     padding: 10% 0 0;
-    background: url(../../assets/images/portal-banner-background.png) 50% 0 no-repeat;
+    background: url(../../assets/images/portal-banner-background.png) 100% -20px no-repeat;
     background-size: cover;
   }
 

@@ -2,12 +2,12 @@
 {
   "compilerOptions": {
     "moduleResolution": "node",
-    "target": "es2021",
+    "target": "es2022",
     "module": "commonjs",
     "outDir": "./dist",
     "rootDir": "./",
     "lib": [
-      "es2021",
+      "es2022",
       "dom"
     ],
     "experimentalDecorators": true,

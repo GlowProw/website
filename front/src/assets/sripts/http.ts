@@ -1,6 +1,14 @@
 import http from 'axios';
 import Conf from './conf';
 
+interface RequestOptions {
+    method?: Record<string, any>;
+    body?: Record<string, any>;
+    data?: Record<string, any>;
+    params?: Record<string, any>;
+    headers?: Record<string, string>;
+}
+
 export default class Http extends Conf {
     GET = 'get';
     POST = 'post';
@@ -70,17 +78,18 @@ export default class Http extends Conf {
     /**
      * 请求核心
      * @param url
-     * @param requestData
+     * @param options
      * @returns {Promise<*>}
      */
-    async request(url = '', requestData = {method: this.POST, data: {}, body: {}, params: {}, headers: {}}) {
+    async request(url = '', options: RequestOptions = {}) {
+        // @ts-ignore
         return await this.HTTP({
             url: url,
-            headers: {...this.HTTP.headers || {}, ...requestData.headers},
-            method: requestData.method,
-            data: requestData.data,
-            params: requestData.params,
-            body: requestData.body
+            headers: {...this.HTTP.headers || {}, ...options.headers},
+            method: options.method,
+            data: options.data,
+            params: options.params,
+            body: options.body
         });
     }
 
@@ -105,14 +114,14 @@ export default class Http extends Conf {
      * get 请求
      * @returns {Promise<AxiosResponse<any>>}
      */
-    async get(url = '', data = {data: {}, params: {}, headers: {}}) {
+    async get(url = '', options: RequestOptions = {}) {
         const _url = this.globalUrl.location + url;
 
         return await this.request(_url, {
             method: this.GET,
-            headers: data.headers,
-            params: data.params,
-            data: data.data,
+            headers: options.headers,
+            params: options.params,
+            data: options.data,
         });
     }
 

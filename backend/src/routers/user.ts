@@ -1,29 +1,29 @@
-// 注册
 import express, {Request, Response} from "express";
-import dotenv from 'dotenv';
-import AppDataSource from "../ormconfig";
-import {User} from "../entity/User";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import {body as checkbody, validationResult} from "express-validator";
+
+import AppDataSource from "../ormconfig";
+import {User} from "../entity/User";
 import verifyCaptcha from "../middleware/captcha";
 import config from "../../config";
 import {loginRateLimiter, registerRateLimiter} from "../middleware/rateLimiter";
 
-dotenv.config();
-
 const router = express.Router();
-const jwtSecret = config.secret;
 
+/**
+ * 注册
+ */
 router.post('/register', registerRateLimiter, verifyCaptcha, [
     checkbody("username").isString().trim().isLength({min: 1, max: 40}),
     checkbody('password').isString().trim().isLength({min: 1, max: 40}),
+    checkbody('email').optional().isEmail(),
 ], async (req: Request, res: Response) => {
     const validateErr = validationResult(req);
     if (!validateErr.isEmpty())
         return res.status(400).json({error: 1, code: 'register.bad', message: validateErr.array()});
 
-    const {username, password} = req.body;
+    const {username, password, email} = req.body;
 
     try {
         const userRepository = AppDataSource.getRepository(User);
@@ -44,6 +44,9 @@ router.post('/register', registerRateLimiter, verifyCaptcha, [
     }
 });
 
+/**
+ * 登陆
+ */
 router.post('/login', loginRateLimiter, verifyCaptcha, [
     checkbody("username").isString().trim().isLength({min: 1, max: 40}),
     checkbody('password').isString().trim().isLength({min: 1, max: 40}),
@@ -67,7 +70,7 @@ router.post('/login', loginRateLimiter, verifyCaptcha, [
         }
 
         // 密码正确，生成 JWT
-        const token = jwt.sign({userId: user.id, username: user.username}, jwtSecret, {expiresIn: '1h'});
+        const token = jwt.sign({userId: user.id, username: user.username}, config.secret, {expiresIn: '1h'});
 
         res.status(200).json({
             code: 0,
