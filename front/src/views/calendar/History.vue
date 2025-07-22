@@ -5,6 +5,7 @@ import {Seasons} from "@skullandbonestools/snbdata";
 import type {Season} from "@skullandbonestools/snbdata/dist/daos/seasons";
 import {http} from "../../assets/sripts";
 import Loading from "../../components/Loading.vue";
+import CalendarEventSLotWidget from "../../components/v/calendarEventSLotWidget.vue";
 
 interface EventOccurrence {
   month: number;
@@ -232,7 +233,7 @@ function getRemainingDays(): number | null {
   <v-container class="calendar mt-10 mb-10">
     <h1 class="btn-flavor ships-title pt-8 pb-8 text-h2">日历</h1>
     <v-row align="end">
-      <v-col v-if="currentlySeason && selectSeasonsValue && selectSeasonsValue.id" cols="6">
+      <v-col v-if="currentlySeason && selectSeasonsValue && selectSeasonsValue.id" cols="12" sm="12" lg="6">
         <div class="mt-3">
           <div>
             <span class="text-amber mr-2 text-h3">{{ t(`snb.calendar.${selectSeasonsValue.id}.name`) || '-' }}</span>
@@ -245,13 +246,37 @@ function getRemainingDays(): number | null {
         <p class="mt-2 opacity-80">{{ t(`snb.calendar.${selectSeasonsValue.id}.description`) || '-' }}</p>
       </v-col>
       <v-spacer></v-spacer>
-      <div>
+      <v-col>
         <v-btn-group>
-          <v-btn :color="`var(--main-color)`"
-                 @click="onSubscriptionCalendar('calendar', selectSeasonsValue.id)"
-                 min-width="150">
-            订阅日历
-          </v-btn>
+          <v-dialog max-width="500">
+            <template v-slot:activator="{ props: activatorProps }">
+              <v-btn :color="`var(--main-color)`"
+                     v-bind="activatorProps"
+
+                     min-width="150">
+                订阅日历
+              </v-btn>
+            </template>
+
+            <template v-slot:default="{ isActive }">
+              <v-card :title="`订阅 ${t(`snb.calendar.${selectSeasonsValue.id}.name`)}`">
+                <v-card-text class="opacity-80">
+                  下载.ics文件，它是标准格式，通过支持应用打开，应用数据
+                </v-card-text>
+                <div class="w-100 background-flavor pt-4 pb-4">
+                  <p class="text-amber text-h3 text-center">{{ t(`snb.calendar.${selectSeasonsValue.id}.name`) || '-' }}</p>
+                </div>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+
+                  <v-btn
+                      :text="t('basic.button.submit')"
+                      @click="onSubscriptionCalendar('calendar', selectSeasonsValue.id);isActive.value = false"
+                  ></v-btn>
+                </v-card-actions>
+              </v-card>
+            </template>
+          </v-dialog>
           <v-combobox
               tile
               disabled
@@ -267,7 +292,7 @@ function getRemainingDays(): number | null {
           </v-combobox>
         </v-btn-group>
 
-      </div>
+      </v-col>
     </v-row>
   </v-container>
 
@@ -291,33 +316,89 @@ function getRemainingDays(): number | null {
               </v-btn>
 
               <div class="mr-3 pt-4">
-                <v-card v-for="event in day.events" :key="event" max-width="420" min-width="420" class="pa-2 mb-2 background-flavor">
-                  <v-card border color="hsl(from var(--main-color) h s calc(l * 0.3))">
-                    <template v-slot:image>
-                      <img class="pointer-events-none" src="../../assets/images/portal-banner-background.png">
-                    </template>
-                    <template v-slot:title>
-                      <v-row class="text-lg-body-1" style="min-height: 60px">
-                        <v-col>
-                          <v-icon icon="mdi-calendar-badge"></v-icon>
-                        </v-col>
-                        <v-col align="right">
-                          <v-btn density="compact" @click="onSubscriptionCalendar('event', selectSeasonsValue.id, event.id)">添加到日历</v-btn>
-                        </v-col>
-                      </v-row>
-                    </template>
 
-                    <div class="bg-black pa-5 background-flavor pointer-events-none">
-                      <p class="text-amber text-h5"><b> {{ t(`snb.calendar.${currentlySeason.id}.data.${event.id}.name`) }}</b></p>
+                <CalendarEventSLotWidget :data="event" :currentlySeason="currentlySeason" v-for="event in day.events" :key="event">
+                  <template v-slot:header-right-btn>
+                    <v-dialog max-width="500">
+                      <template v-slot:activator="{ props: activatorProps }">
+                        <v-btn density="compact" v-bind="activatorProps"
+                               @click="">添加到日历
+                        </v-btn>
+                      </template>
 
-                      <p class="text-pre-wrap mt-1 opacity-80">
-                        <template v-if="onCheckI18nValue(`snb.calendar.${currentlySeason.id}.data.${event.id}.description`).code == 0">
-                          {{ t(`snb.calendar.${currentlySeason.id}.data.${event.id}.description`) }}
-                        </template>
-                      </p>
-                    </div>
-                  </v-card>
-                </v-card>
+                      <template v-slot:default="{ isActive }">
+                        <v-card :title="t(`snb.calendar.${selectSeasonsValue.id}.data.${event.id}.name`)">
+                          <v-card-text>
+                            单独订阅{{ t(`snb.calendar.${selectSeasonsValue.id}.data.${event.id}.name`) }}所有事件？
+                          </v-card-text>
+                          <div class="w-100 background-flavor pt-4 pb-4">
+                            <CalendarEventSLotWidget class="ma-auto" :data="event" :currentlySeason="currentlySeason"></CalendarEventSLotWidget>
+                          </div>
+
+                          <v-card-actions>
+                            <v-spacer></v-spacer>
+
+                            <v-btn
+                                :text="t('basic.button.submit')"
+                                @click="onSubscriptionCalendar('event', selectSeasonsValue.id, event.id);isActive.value = false"
+                            ></v-btn>
+                          </v-card-actions>
+                        </v-card>
+                      </template>
+                    </v-dialog>
+                  </template>
+                </CalendarEventSLotWidget>
+                <!--                <v-card v-for="event in day.events" :key="event" max-width="420" min-width="420" class="pa-2 mb-2 background-flavor">-->
+                <!--                  <v-card border color="hsl(from var(&#45;&#45;main-color) h s calc(l * 0.3))">-->
+                <!--                    <template v-slot:image>-->
+                <!--                      <img class="pointer-events-none" src="../../assets/images/portal-banner-background.png">-->
+                <!--                    </template>-->
+                <!--                    <template v-slot:title>-->
+                <!--                      <v-row class="text-lg-body-1" style="min-height: 60px">-->
+                <!--                        <v-col>-->
+                <!--                          <v-icon icon="mdi-calendar-badge"></v-icon>-->
+                <!--                        </v-col>-->
+                <!--                        <v-col align="right">-->
+                <!--                          <v-dialog max-width="500">-->
+                <!--                            <template v-slot:activator="{ props: activatorProps }">-->
+                <!--                              <v-btn density="compact" v-bind="activatorProps"-->
+                <!--                                     @click="">添加到日历-->
+                <!--                              </v-btn>-->
+                <!--                            </template>-->
+
+                <!--                            <template v-slot:default="{ isActive }">-->
+                <!--                              <v-card title="">-->
+                <!--                                <v-card-text>-->
+                <!--                                  下载.ics文件，它是标准格式，通过支持应用打开，应用数据-->
+                <!--                                </v-card-text>-->
+
+                <!--                                <v-card-actions>-->
+                <!--                                  <v-spacer></v-spacer>-->
+
+                <!--                                  <v-btn-->
+                <!--                                      :text="t('basic.button.submit')"-->
+                <!--                                      @click="onSubscriptionCalendar('event', selectSeasonsValue.id, event.id);isActive.value = false"-->
+                <!--                                  ></v-btn>-->
+                <!--                                </v-card-actions>-->
+                <!--                              </v-card>-->
+                <!--                            </template>-->
+                <!--                          </v-dialog>-->
+
+                <!--                        </v-col>-->
+                <!--                      </v-row>-->
+                <!--                    </template>-->
+
+                <!--                    <div class="bg-black pa-5 background-flavor pointer-events-none">-->
+                <!--                      <p class="text-amber text-h5"><b> {{ t(`snb.calendar.${currentlySeason.id}.data.${event.id}.name`) }}</b></p>-->
+
+                <!--                      <p class="text-pre-wrap mt-1 opacity-80">-->
+                <!--                        <template v-if="onCheckI18nValue(`snb.calendar.${currentlySeason.id}.data.${event.id}.description`).code == 0">-->
+                <!--                          {{ t(`snb.calendar.${currentlySeason.id}.data.${event.id}.description`) }}-->
+                <!--                        </template>-->
+                <!--                      </p>-->
+                <!--                    </div>-->
+                <!--                  </v-card>-->
+                <!--                </v-card>-->
               </div>
             </template>
           </div>
@@ -349,6 +430,20 @@ function getRemainingDays(): number | null {
 
     > div:first-child {
       margin-left: 80px;
+    }
+  }
+}
+
+@media screen and (max-width: 980px) {
+  .calendar-line {
+    > div:first-child {
+      margin-left: 20px;
+    }
+
+    .calendar-line-day {
+      > div:first-child {
+        margin-left: 0px;
+      }
     }
   }
 }

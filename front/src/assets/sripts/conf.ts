@@ -3,9 +3,11 @@
  */
 
 export default class Conf {
+    static NODE: {};
     CONF = {
         "requestDevelopmentName": "development",
         "requestProductionName": "production",
+        "requestTestName": "test",
         "child": {
             "development": {
                 "protocol": "http",

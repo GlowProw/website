@@ -2,20 +2,21 @@ import http from 'axios';
 import Conf from './conf';
 
 interface RequestOptions {
-    method?: Record<string, any>;
+    method?: HttpMethod;
     body?: Record<string, any>;
     data?: Record<string, any>;
     params?: Record<string, any>;
     headers?: Record<string, string>;
 }
 
-export default class Http extends Conf {
-    GET = 'get';
-    POST = 'post';
-    PUT = 'put';
-    DELETE = 'delete';
-    //..
+enum HttpMethod {
+    GET = 'get',
+    POST = 'post',
+    PUT = 'put',
+    DELETE = 'delete'
+}
 
+export default class Http extends Conf {
     GETURL = {protocol: '', request: '', host: '', pathname: '', port: ''};
 
     HTTP = http.create({
@@ -24,8 +25,8 @@ export default class Http extends Conf {
 
     constructor() {
         super();
-
-        this.NODE = process.env.NODE_ENV || 'development';
+        // @ts-ignore
+        Conf.NODE = process.env.NODE_ENV || 'development';
     }
 
     get location() {
@@ -37,17 +38,24 @@ export default class Http extends Conf {
     }
 
     // 获取全局地址
-    get globalUrl() {
+    get globalUrl() : any {
         try {
-            switch (this.NODE) {
+            if (!this.CONF) {
+                throw Error('not data')
+            }
+
+            switch (Conf.NODE) {
                 case 'production': // 生产
+                    // @ts-ignore
                     this.GETURL = this.CONF.child[this.CONF.requestProductionName];
                     break;
                 case 'staging': // 测试
+                    // @ts-ignore
                     this.GETURL = this.CONF.child[this.CONF.requestTestName];
                     break;
                 case 'development': // 开发
                 default:
+                    // @ts-ignore
                     this.GETURL = this.CONF.child[this.CONF.requestDevelopmentName];
                     break;
             }
@@ -70,8 +78,9 @@ export default class Http extends Conf {
     }
 
     // 配置全局协议头
-    setGlobalHeader(headers) {
+    setGlobalHeader(headers: Map<any, any> | any = {}) {
         if (!headers) return;
+
         this.HTTP.headers = {...this.HTTP.headers, ...headers};
     }
 
@@ -96,29 +105,28 @@ export default class Http extends Conf {
     /**
      * post 请求
      * @param url
-     * @param data
+     * @param options
      * @returns {Promise<AxiosResponse<any>>}
      */
-    async post(url, data = {data: {}, params: {}}) {
+    async post(url: string, options: RequestOptions = {}) {
         const _url = this.globalUrl.location + url;
 
         return await this.request(_url, {
-            method: this.POST,
-            headers: data.headers,
-            params: data.params,
-            data: data.data,
+            method: HttpMethod.POST,
+            headers: options.headers,
+            params: options.params,
+            data: options.data,
         });
     }
 
     /**
      * get 请求
-     * @returns {Promise<AxiosResponse<any>>}
      */
-    async get(url = '', options: RequestOptions = {}) {
+    async get(url: string, options: RequestOptions = {}) {
         const _url = this.globalUrl.location + url;
 
         return await this.request(_url, {
-            method: this.GET,
+            method: HttpMethod.GET,
             headers: options.headers,
             params: options.params,
             data: options.data,
@@ -128,33 +136,33 @@ export default class Http extends Conf {
     /**
      * put 请求
      * @param url
-     * @param data
+     * @param options
      * @returns {Promise<AxiosResponse<any>>}
      */
-    async put(url = '', data = {data: {}, params: {}}) {
+    async put(url: string, options: RequestOptions = {}) {
         const _url = this.globalUrl.location + url;
 
         return await this.request(_url, {
-            method: this.PUT,
-            headers: data.headers,
-            params: data.params,
-            data: data.data,
+            method: HttpMethod.PUT,
+            headers: options.headers,
+            params: options.params,
+            data: options.data,
         });
     }
 
     /**
      * delete 请求
      * @param url
-     * @param data
+     * @param options
      */
-    async delete(url = '', data = {data: {}, params: {}}) {
+    async delete(url: string, options: RequestOptions = {}) {
         const _url = this.globalUrl.location + url;
 
         return await this.request(_url, {
-            method: this.DELETE,
-            headers: data.headers,
-            params: data.params,
-            data: data.data,
+            method: HttpMethod.DELETE,
+            headers: options.headers,
+            params: options.params,
+            data: options.data,
         });
     }
 }
