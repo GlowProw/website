@@ -5,7 +5,7 @@ import {Seasons} from "@skullandbonestools/snbdata";
 import type {Season} from "@skullandbonestools/snbdata/dist/daos/seasons";
 import {http} from "../../assets/sripts";
 import Loading from "../../components/Loading.vue";
-import CalendarEventSLotWidget from "../../components/v/calendarEventSLotWidget.vue";
+import CalendarEventSLotWidget from "../../components/snbWidget/calendarEventSLotWidget.vue";
 
 interface EventOccurrence {
   month: number;

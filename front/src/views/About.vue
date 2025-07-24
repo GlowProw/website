@@ -24,7 +24,7 @@ const {t} = useI18n()
           <v-col sm="12" lg="4">
             <h3 class="btn-flavor">翻译成员</h3>
             <ul>
-              <li v-for="(i,index) in [{name: 'cabbagelol', lang: ['zh-CN']}]" :key="index">
+              <li v-for="(i,index) in [{name: 'cabbagelol', lang: ['zh-CN']},{name: '@教兽', lang: ['en-US', 'zh-CN']}]" :key="index">
                 <v-row align="center">
                   <v-col>
                     @{{i.name}}
@@ -44,6 +44,7 @@ const {t} = useI18n()
             <ul>
               <li>闪耀船首主程序，包含前端程序/后端程序，遵循MIT协议</li>
               <li>闪耀船首数据，碧海黑帆物品/日历等数据，遵循MIT协议</li>
+              <li>闪耀船首资源，碧海黑帆图片材料资源，遵循MIT协议</li>
               <li>闪耀船首翻译数据</li>
             </ul>
           </v-col>
@@ -52,6 +53,7 @@ const {t} = useI18n()
             <p class="opacity-80 mb-2">通过下方可供联系方式找到我(不需广告/SEO需求)</p>
             <ul>
               <li>admin@cabbagelol.net</li>
+              <li>https://cabbagelol.net</li>
             </ul>
           </v-col>
         </v-row>

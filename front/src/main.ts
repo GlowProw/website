@@ -42,3 +42,5 @@ app
     .use(pinia)
     .use(i18n)
     .mount('#app')
+
+export default app

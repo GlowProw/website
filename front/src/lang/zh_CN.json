@@ -35,6 +35,40 @@
       "small": "小型",
       "medium": "中等",
       "large": "大型"
+    },
+    "type": {
+      "consumable": "消耗品",
+      "ammunition": "弹药",
+      "armor": "护甲",
+      "tool": "工具",
+      "chest": "宝箱",
+      "culverin": "长管炮",
+      "longGun": "长枪",
+      "demicannon": "半加农炮",
+      "bombard": "轰击炮",
+      "torpedo": "鱼雷",
+      "ballista": "弩炮",
+      "seaFire": "海火",
+      "mortar": "迫击炮",
+      "rocket": "火箭",
+      "springloader": "弹簧发射器",
+      "offensiveFurniture": "攻击家具",
+      "utilityFurniture": "功能家具",
+      "majorFurniture": "主要家具",
+      "shipUpgrade": "船升级"
+    },
+    "tier": {
+      "0": "一级",
+      "1": "二级",
+      "2": "三级",
+      "4": "四级",
+      "5": "五级",
+      "6": "六级",
+      "7": "七级",
+      "8": "8️⃣级",
+      "9": "久级",
+      "10": "十级",
+      "11": "十一级"
     }
   },
   "teamUp": {

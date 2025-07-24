@@ -1,4 +1,7 @@
 import {createRouter, createWebHistory} from 'vue-router';
+import VueMeta from 'vue-meta'
+import i18n from "../src/i18n.ts";
+
 import PortalMainBasePage from '../src/views/portal/Index.vue'
 import PortalPage from '../src/views/portal/Home.vue'
 import AccountPage from '../src/views/user/Index.vue'
@@ -8,6 +11,8 @@ import DisplayCabinetPage from '../src/views/displayCabinet/Index.vue'
 import DisplayCabinetOverviewPage from '../src/views/displayCabinet/Overview.vue'
 import ShipsPage from '../src/views/displayCabinet/ships/Index.vue'
 import ShipDetailPage from '../src/views/displayCabinet/ships/Detail.vue'
+import ItemsPage from '../src/views/displayCabinet/items/Index.vue'
+import ItemDetailPage from '../src/views/displayCabinet/items/Detail.vue'
 
 import CalendarPage from '../src/views/calendar/Index.vue'
 import CalendarHistoryPage from '../src/views/calendar/History.vue'
@@ -73,6 +78,16 @@ const routes = [
                 name: 'ShipDetail',
                 component: ShipDetailPage,
             },
+            {
+                path: 'items',
+                name: 'Items',
+                component: ItemsPage,
+            },
+            {
+                path: 'item/:id',
+                name: 'ItemDetail',
+                component: ItemDetailPage,
+            },
         ]
     },
     {
@@ -137,6 +152,23 @@ const routes = [
 const router = createRouter({
     history: createWebHistory(), // 使用 History 模式
     routes,
+});
+
+router.beforeEach((to, from, next) => {
+    try {
+        if (to.meta.metaInfo) {
+            let _metainfo = to.meta.metaInfo;
+            if (_metainfo.keywords && i18n.t(_metainfo.keywords) !== _metainfo.keywords) _metainfo.keywords = "bfban,BFBAN," + i18n.t(_metainfo.keywords);
+            else _metainfo.keywords = "bfban,BFBAN";
+            if (_metainfo.title) _metainfo.title = i18n.t(_metainfo.title);
+            else _metainfo.title = "";
+            if (_metainfo.description && i18n.t(_metainfo.description) !== _metainfo.description) _metainfo.description = i18n.t(_metainfo.description);
+            else _metainfo.description = "";
+        }
+    } catch (err) {
+    } finally {
+        next();
+    }
 });
 
 export default router;

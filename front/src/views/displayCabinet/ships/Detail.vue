@@ -1,15 +1,18 @@
 <script setup lang="ts">
 
-import {onMounted, type Ref, ref} from "vue";
+import {onMounted, type Ref, ref, type UnwrapRef} from "vue";
 import {useI18n} from "vue-i18n";
-import {Ship} from "glow-prow-data/src/entity/Ships.ts";
-import {Material} from "glow-prow-data/src/entity/Materials.ts";
 import {Materials, Ships} from "glow-prow-data";
 import {useRoute, useRouter} from "vue-router";
 
 import EmptyView from "../../../components/EmptyView.vue";
-import ItemSlot from "../../../components/v/ItemSlot.vue";
-import ShipSailSpeedWidget from "../../../components/v/shipSailSpeedWidget.vue";
+import ItemSlotBase from "../../../components/snbWidget/ItemSlotBase.vue";
+import ShipSailSpeedWidget from "../../../components/snbWidget/shipSailSpeedWidget.vue";
+import MaterialIconWidget from "../../../components/snbWidget/materialIconWidget.vue";
+import FactionIconWidget from "../../../components/snbWidget/factionIconWidget.vue";
+import ShipWidget from "../../../components/snbWidget/shipWidget.vue";
+
+const shipImages = import.meta.glob('@glow-prow-assets/ships/*.png', {eager: true});
 
 const
     {t} = useI18n(),
@@ -17,28 +20,37 @@ const
     route = useRoute(),
 
     // 船只数据
-    shipsData: Ship[] = Ships,
-    materials: Material[] = Materials,
+    shipsData: Ships = Ships,
+    materials: Materials = Materials,
     // 后期处理所需物品 对应计算 原材料
-    shipRawMaterials: [] = ref([])
+    shipRawMaterials: Ref<UnwrapRef<any[]>, UnwrapRef<any[]> | any[]> = ref([])
 
 let
-    shipDetailPageData = ref({
+    shipDetailPageData: Ref<{ id: string, img: string }> = ref({
       id: 'dhow',
       img: ''
     }),
-    shipDetailData
-        :
-        Ref<Ship> = ref(shipsData['dhow'])
+    shipDetailData: Ref<Ships> = ref(shipsData['dhow']),
+    isShowShipRawList = ref(false);
 
 onMounted(() => {
-  if (!route.params.id) {
+  const {id} = route.params;
+
+  if (!id) {
     router.push('/')
     return;
   }
-  shipDetailData.value = shipsData[route.params.id];
-  shipDetailPageData.value.id = route.params.id;
-  shipDetailPageData.value.img = new URL(`../../../assets/images/snb/ships/${route.params.id}.png`, import.meta.url).href;
+
+  const imageKey = `/node_modules/glow-prow-assets/ships/${id}.png`;
+
+  shipDetailData.value = shipsData[id];
+  shipDetailPageData.value.id = id as string;
+
+  if (shipImages[imageKey]) {
+    shipDetailPageData.value.img = shipImages[imageKey].default;
+  } else {
+    shipDetailPageData.value.img = "";
+  }
 
   onStatisticsRawMaterial()
 })
@@ -51,19 +63,32 @@ const onStatisticsRawMaterial = () => {
       (acc, [key, value]) => {
         if (materials[key]?.raw) {
           Object.entries(materials[key].raw).forEach(([nKey, nValue]) => {
-            acc[nKey] = (acc[nKey] || 0) + nValue * value; // 累加逻辑（可选）
+            acc[nKey] = (acc[nKey] || 0) + nValue * value;
           });
         }
         return acc;
       },
-      {} as Record<string, number>
+      {} as any
   );
 }
 </script>
 
 <template>
+  <v-breadcrumbs class="pt-5">
+    <v-container class="pa-0">
+      <v-breadcrumbs-item to="/">首页</v-breadcrumbs-item>
+      <v-breadcrumbs-divider></v-breadcrumbs-divider>
+      <v-breadcrumbs-item to="/display-cabinet">展示柜</v-breadcrumbs-item>
+      <v-breadcrumbs-divider></v-breadcrumbs-divider>
+      <v-breadcrumbs-item to="/display-cabinet/ships">船只列表</v-breadcrumbs-item>
+      <v-breadcrumbs-divider></v-breadcrumbs-divider>
+      <v-breadcrumbs-item>船只详情</v-breadcrumbs-item>
+    </v-container>
+  </v-breadcrumbs>
+  <v-divider></v-divider>
+
   <div class="ships-detail" v-if="shipDetailPageData.id">
-    <div class="pt-10 ships-detail-header">
+    <div class="ships-detail-header">
       <v-container class="position-relative">
         <v-row>
           <v-col>
@@ -77,22 +102,31 @@ const onStatisticsRawMaterial = () => {
 
         <v-img :src="shipDetailPageData.img"
                inline
-               class="ships-detail-header-img  pointer-events-none"></v-img>
+               class="ships-detail-header-img pointer-events-none"></v-img>
       </v-container>
     </div>
     <div class="background-flavor">
       <v-container>
         <v-row>
-          <v-col cols="12" sm="12" md="8" lg="8">
-
-            <p class="text-pre-wrap mb-4">
-              {{ t(`snb.ships.${shipDetailPageData.id}.description`) }}
-            </p>
-
-            <v-divider></v-divider>
+          <v-col cols="12" sm="12" md="8" lg="8" order="2" order-sm="1">
 
             <v-row>
-              <v-col cols="6">
+              <ItemSlotBase size="150px" class="mr-3">
+                <ShipWidget :id="shipDetailPageData.id" class="pa-2"
+                            :is-click-open-detail="false"
+                            :isShowOpenDetail="false"
+                            :isShowDescription="false"></ShipWidget>
+              </ItemSlotBase>
+              <v-col>
+                <p class="text-pre-wrap mb-4">
+                  {{ t(`snb.ships.${shipDetailPageData.id}.description`) }}
+                </p>
+              </v-col>
+            </v-row>
+            <v-divider class="mt-10 mb-6"></v-divider>
+
+            <v-row>
+              <v-col cols="12" sm="12" lg="6" xl="6">
                 <template v-if="shipDetailData.slots.attachement">
                   <v-text-field :value="shipDetailData.slots.attachement[0]" readonly
                                 hide-details
@@ -250,7 +284,7 @@ const onStatisticsRawMaterial = () => {
                   </v-text-field>
                 </template>
               </v-col>
-              <v-col cols="6">
+              <v-col cols="12" sm="12" lg="6" xl="6">
                 <v-text-field :value="shipDetailData.hitpoints" readonly
                               hide-details
                               variant="underlined" density="compact">
@@ -289,9 +323,9 @@ const onStatisticsRawMaterial = () => {
               <v-col cols="12">
                 <v-divider>材料</v-divider>
               </v-col>
-              <v-col cols="6">
-                <template v-if="shipDetailData.required">
-                  <p class="mt-4"><b>建造所需物品</b></p>
+              <v-col cols="12" sm="12" lg="6" xl="6">
+                <p class="mt-4 mb-2"><b>建造所需物品</b></p>
+                <template v-if="shipDetailData.required && Object.keys(shipDetailData.required).length > 0">
                   <div v-for="([key, value], rIndex) in Object.entries(shipDetailData.required)"
                        :key="rIndex">
                     <v-text-field
@@ -301,44 +335,83 @@ const onStatisticsRawMaterial = () => {
                         variant="underlined"
                         density="compact">
                       <template v-slot:append-inner>
-                        <p class="text-no-wrap">{{ key }}</p>
+                        <div class="text-right">
+                          <p class="text-no-wrap">{{ t(`snb.materials.${key}.name`) }}</p>
+                          <p class="text-no-wrap mt-n2 opacity-30" v-if="route.query.debug">{{ key }}</p>
+                        </div>
                       </template>
                       <template v-slot:prepend>
-                        <ItemSlot :size="10" class="pa-0">
-                          <img src="../../../assets/images/loading.gif" width="20px" height="20px">
-                        </ItemSlot>
+                        <MaterialIconWidget :id="key" item-type="items"></MaterialIconWidget>
                       </template>
                     </v-text-field>
                   </div>
                 </template>
+                <template v-else>
+                  <EmptyView></EmptyView>
+                </template>
               </v-col>
-              <v-col cols="6">
-                <p class="mt-4"><b>原材料</b></p>
-                <div v-for="([key, value], rIndex) in Object.entries(shipRawMaterials)"
-                     :key="rIndex">
-                  <v-text-field
-                      :value="value"
-                      readonly
-                      hide-details
-                      variant="underlined"
-                      density="compact">
-                    <template v-slot:append-inner>
-                      <p class="text-no-wrap">{{ key }}</p>
-                    </template>
-                    <template v-slot:prepend>
-                      <ItemSlot :size="10" class="pa-0">
-                        <img src="../../../assets/images/loading.gif" width="20px" height="20px">
-                      </ItemSlot>
-                    </template>
-                  </v-text-field>
-                </div>
-              </v-col>
-              <v-col>
+              <v-col cols="12" sm="12" lg="6" xl="6">
+                <v-row class="mt-4 mb-1">
+                  <p><b>原材料</b></p>
+                  <v-spacer></v-spacer>
+                  <v-btn density="compact" icon @click="isShowShipRawList = !isShowShipRawList" v-if="Object.keys(shipRawMaterials).length > 0">
+                    <v-icon :icon="`mdi-menu-${isShowShipRawList ? 'down' : 'up'}`"></v-icon>
+                  </v-btn>
+                </v-row>
+                <template v-if="Object.entries(shipRawMaterials).length > 0">
+                  <div v-for="([key, value], rIndex) in Object.entries(shipRawMaterials)"
+                       :key="rIndex">
+                    <v-text-field
+                        :value="value"
+                        readonly
+                        hide-details
+                        variant="underlined"
+                        density="compact">
+                      <template v-slot:append-inner>
+                        <div class="text-right">
+                          <p class="text-no-wrap">{{ t(`snb.materials.${key}.name`) }}</p>
+                          <p class="text-no-wrap mt-n2 opacity-30" v-if="route.query.debug">{{ key }}</p>
+                        </div>
+                      </template>
+                      <template v-slot:prepend>
+                        <MaterialIconWidget :id="key" item-type="items"></MaterialIconWidget>
+                        <FactionIconWidget :name="materials[key].faction"
+                                           v-if="materials[key].faction"
+                                           size="20px"></FactionIconWidget>
+                      </template>
+                    </v-text-field>
+
+                    <ul class="ml-10 raw-list" v-if="!isShowShipRawList">
+                      <li v-for="(rawKey,rawValue) in materials[key].raw" :key="rawKey" class="ml-10">
+                        <v-text-field
+                            :value="value"
+                            readonly
+                            hide-details
+                            variant="underlined"
+                            density="compact">
+                          <template v-slot:append-inner>
+                            <div class="text-right">
+                              <p class="text-no-wrap">{{ t(`snb.materials.${rawValue}.name`) }}</p>
+                            </div>
+                          </template>
+                          <template v-slot:prepend>
+                            <MaterialIconWidget :id="rawValue.toString()" item-type="items"></MaterialIconWidget>
+                            <FactionIconWidget :name="materials[key].faction"
+                                               v-if="materials[key].faction"
+                                               size="20px"></FactionIconWidget>
+                          </template>
+                        </v-text-field>
+                      </li>
+                    </ul>
+                  </div>
+                </template>
+                <template v-else>
+                  <EmptyView></EmptyView>
+                </template>
               </v-col>
             </v-row>
           </v-col>
-          <v-col cols="12" sm="12" md="4" lg="4">
-
+          <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
             <v-card class="mb-4 pl-3">
               <v-text-field :value="shipDetailData.bySeason || 'none'" readonly
                             hide-details
@@ -359,9 +432,9 @@ const onStatisticsRawMaterial = () => {
                 <p class="text-no-wrap">蓝图</p>
               </template>
               <template v-slot:append>
-                <ItemSlot :size="10" class="pa-0">
-                  <img src="../../../assets/images/loading.gif" width="20px" height="20px">
-                </ItemSlot>
+                <ItemSlotBase :size="10" class="pa-0">
+                  <img src="@/assets/images/loading.gif" width="20px" height="20px">
+                </ItemSlotBase>
               </template>
             </v-text-field>
             <v-text-field :value="shipDetailData.requiredRank || 'none'" readonly
@@ -401,7 +474,6 @@ const onStatisticsRawMaterial = () => {
             </v-card>
           </v-col>
         </v-row>
-
       </v-container>
     </div>
   </div>
@@ -425,7 +497,7 @@ const onStatisticsRawMaterial = () => {
       width: 100%;
       height: 0;
       padding: 10% 0 0;
-      background: url(/src/assets/images/portal-banner-background.png) 50% 0 no-repeat;
+      background: url(@/assets/images/portal-banner-background.png) 50% 0 no-repeat;
       background-size: cover;
     }
 
@@ -436,6 +508,10 @@ const onStatisticsRawMaterial = () => {
       width: 300px;
       min-height: 300px;
     }
+  }
+
+  .raw-list {
+    list-style-type: none !important;
   }
 }
 </style>

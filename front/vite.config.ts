@@ -12,12 +12,17 @@ export default defineConfig({
         Vuetify({autoImport: true}),
     ],
     optimizeDeps: {
-        exclude: ['vuetify'],
+        exclude: ['vuetify', 'glow-prow-assets'],
     },
     define: {'process.env': {}},
+    build: {
+        assetsDir: 'static/images',
+    },
     resolve: {
         alias: {
-            '@': path.resolve(__dirname, './src') // 确保路径正确
+            // import assets
+            '@glow-prow-assets': path.resolve(__dirname, 'node_modules/glow-prow-assets'),
+            '@': path.resolve(__dirname, './src')
         },
         extensions: [
             '.js',
@@ -31,14 +36,13 @@ export default defineConfig({
     },
     server: {
         port: 8080,
-        '/api': {
-            target: 'http://localhost:3000',
-            changeOrigin: true,
-            rewrite: (path) => path.replace(/^\/api/, ''),
-            // 如果需要，可以添加更多配置
-            // secure: false, // 如果是https，可能需要这个
-            // ws: true // 代理websockets
+        proxy: {
+            "/api": {
+                target: 'http://localhost:3000',
+                changeOrigin: true,
+                rewrite: (path: any) => path.replace(/^\/api/, ''),
+            }
         }
-    },
 
+    },
 })
