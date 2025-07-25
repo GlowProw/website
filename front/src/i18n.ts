@@ -12,7 +12,7 @@ import {storage} from "./assets/sripts";
 
 const i18n = createI18n({
     legacy: false,
-    locale: storage.local.get('lang').data.value.value || language.default || 'zh-CN',
+    locale: storage.local.get('lang')?.data?.value?.value || language.default || 'zh-CN',
     fallbackLocale: 'zh-CN',
     messages: {
         'zh-CN': Object.assign(zh_CN_local, {'snb': zh_CN_snb}),
