@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {useAuthStore} from "../../stores";
-import {onMounted, ref, triggerRef} from "vue";
+import {onMounted, type Ref, ref, triggerRef, type UnwrapRef} from "vue";
 import {useRouter} from "vue-router";
 import EmptyView from "../components/EmptyView.vue";
 import {api, http, storage, ws} from "../assets/sripts";
@@ -9,6 +9,7 @@ import {useI18n} from "vue-i18n";
 import type {VForm} from "vuetify/components";
 import Banner from "../components/Banner.vue";
 import Loading from "../components/Loading.vue";
+import Team from "./Team.vue";
 
 const authStore = useAuthStore(),
     router = useRouter(),
@@ -27,8 +28,8 @@ enum getTeamsType {
 }
 
 
-let teams: Teams[] = ref([]),
-    messages: string[] = ref([]),
+let teams: Ref<Team[]> = ref([]),
+    messages: Ref<string[]> = ref([]),
 
     // 服务
     service = ref({
@@ -69,8 +70,8 @@ let teams: Teams[] = ref([]),
     pushLoading = ref(false),
     player = ref(''),
     description = ref(''),
-    tags: [] = ref([]),
-    expiresMinutesAt: number = ref(60),
+    tags: Ref<UnwrapRef<any[]>, UnwrapRef<any[]> | any[]> = ref([]),
+    expiresMinutesAt: Ref<UnwrapRef<number>, UnwrapRef<number> | number> = ref(60),
 
     // 检索
     teamsLoading = ref(false),
@@ -82,7 +83,7 @@ let teams: Teams[] = ref([]),
 onMounted(async () => {
   await initWss();
   await onWss();
-  await getTeams();
+  await getTeams(getTeamsType.none);
 
   readStoragePlayer();
 })
@@ -91,8 +92,8 @@ onMounted(async () => {
  * 获取组队列表
  */
 const getTeams = async (type: getTeamsType = getTeamsType.none) => {
-  let _teams = teams;
-  return new Promise<P>(async resolve => {
+  let _teams: any = teams;
+  return new Promise<any>(async resolve => {
     try {
       teamsLoading.value = true;
 
@@ -138,7 +139,7 @@ const getTeams = async (type: getTeamsType = getTeamsType.none) => {
  * 虚拟列表加载
  */
 const onTeamLoad = async ({done}) => {
-  await getTeams('load')
+  await getTeams(getTeamsType.load)
   done('ok')
 }
 
@@ -195,9 +196,9 @@ const onDeleTeamUp = async (id) => {
   };
 
   if (ws.connected) {
-    messages.value.push(t('basic.tips.teamUp.error'), {
+    messages.value.push(t('basic.tips.teamUp.error', {
       context: '取消发布失败，丢失服务器信号'
-    })
+    }))
     return
   }
 
@@ -217,11 +218,11 @@ const onCleanPushInfo = () => {
  * 检索
  */
 const onSearch = async () => {
-  await getTeams();
+  await getTeams(getTeamsType.none);
 }
 
 const onTeamSortBy = async () => {
-  await getTeams();
+  await getTeams(getTeamsType.none);
 }
 
 /**
@@ -305,13 +306,13 @@ const onWss = () => {
         messages.value.push(t('basic.tips.teamUp_pushSuccess'));
 
         onCleanPushInfo();
-        getTeams();
+        getTeams(getTeamsType.none);
 
         pushLoading.value = false;
         pushModel.value = false;
         break;
       case 'cancel_team_up':
-        getTeams();
+        getTeams(getTeamsType.none);
         break;
       case 'team_up_expired':
         // const idToRemove = data.payload.id;
@@ -340,7 +341,7 @@ const onWss = () => {
         pushLoading.value = false;
         pushModel.value = false;
 
-        getTeams();
+        getTeams(getTeamsType.none);
         break;
       case 'auth_failed':
         messages.value.push(t(`basic.tips.${data.code}`))
@@ -410,7 +411,7 @@ const onWsReconnect = () => {
             发布组队
           </v-btn>
 
-          <v-btn @click="getTeams" class=" btn-flavor" variant="elevated">
+          <v-btn @click="getTeams(getTeamsType.none)" class=" btn-flavor" variant="elevated">
             <v-icon :class="[
                 teamsLoading ?  'spin-icon-load' : ''
             ]" icon="mdi-refresh" size="20"/>
@@ -574,7 +575,7 @@ const onWsReconnect = () => {
         <v-card card border class="mt-5 pt-5 pb-5">
           <EmptyView>
             <div class="mt-5">
-              <v-btn @click="getTeams" class=" btn-flavor" variant="elevated">
+              <v-btn @click="getTeams(getTeamsType.none)" class=" btn-flavor" variant="elevated">
                 <v-icon :class="[
                 teamsLoading ?  'spin-icon-load' : ''
             ]" icon="mdi-refresh" size="20"/>

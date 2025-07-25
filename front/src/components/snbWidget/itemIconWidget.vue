@@ -2,7 +2,7 @@
 
 import Loading from "../Loading.vue";
 import {onMounted, type Ref, ref} from "vue";
-import {Item, Items} from "../../../../../glow-prow-data/src/entity/Items.ts";
+import {Item, Items} from "glow-prow-data/src/entity/Items.ts";
 import {useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {i18n} from "../../assets/sripts";
