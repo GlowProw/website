@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import type {Ship} from "glow-prow-data/src/entity/Ships.ts";
-import {onMounted, ref, watch} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 
 let simulationValue = ref(1),
     simulationArray = ref([]);
@@ -18,9 +18,9 @@ onMounted(() => {
 })
 
 // 分段
-const ticks = () => {
-  return this.data.sailSpeed
-}
+const ticks = computed(() => {
+  return Object.keys(props.data.sailSpeed) || []
+})
 </script>
 
 <template>
@@ -37,7 +37,6 @@ const ticks = () => {
           :max="simulationArray.length - 1"
           :ticks="ticks"
           v-model="simulationValue"
-          show-ticks="always"
           hide-details
           step="1"
           tick-size="4">

@@ -28,15 +28,27 @@
       "teamUp_error": "通信错误: {context}"
     }
   },
+  "portal": {
+    "title": "首页"
+  },
   "displayCabinet": {
-    "title": "船只",
+    "title": "展示柜",
+    "description": "",
     "size": {
       "extraSmall": "超小型",
       "small": "小型",
       "medium": "中等",
       "large": "大型"
     },
+    "rarity": {
+      "common": "常见",
+      "uncommon": "不常见",
+      "rare": "少见",
+      "epic": "史诗",
+      "legendary": "传奇"
+    },
     "type": {
+      "undefined": "无",
       "consumable": "消耗品",
       "ammunition": "弹药",
       "armor": "护甲",
@@ -69,6 +81,20 @@
       "9": "久级",
       "10": "十级",
       "11": "十一级"
+    },
+    "items": {
+      "title": "物品列表",
+      "description": "物品列表"
+    },
+    "item": {
+      "title": "物品详情"
+    },
+    "ships": {
+      "title": "船只",
+      "description": "船只列表"
+    },
+    "ship": {
+      "title": "船详情"
     }
   },
   "teamUp": {
@@ -113,6 +139,11 @@
   },
   "register": {
     "title": "注册"
+  },
+  "footer": {
+    "basic": {
+      "description": ""
+    }
   },
   "captcha": {
     "get": "获得验证码",

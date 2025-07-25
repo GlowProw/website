@@ -1,12 +1,13 @@
 <script setup lang="ts">
 
 import ItemSlotBase from "../../../components/snbWidget/ItemSlotBase.vue";
-import {onMounted, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import {Items} from "glow-prow-data/src/entity/Items.ts";
 import {useI18n} from "vue-i18n";
 import Loading from "../../../components/Loading.vue";
 import {useRoute} from "vue-router";
 import ItemIconWidget from "../../../components/snbWidget/itemIconWidget.vue";
+import EmptyView from "../../../components/EmptyView.vue";
 
 const assets_ammunitions = import.meta.glob('@glow-prow-assets/items/ammunitions/*', {eager: true}),
     assets_weapons = import.meta.glob('@glow-prow-assets/items/weapons/*', {eager: true}),
@@ -43,10 +44,31 @@ let itemsCardData = ref({
     itemsRarityImages = ref({}),
     itemsFilter = ref({
       type: 'index',
-      key: '',
+      keyValue: '',
+      inputWidgetKeyValue: '',
       page: 1,
       limit: 50
     });
+
+/**
+ * 处理数据
+ */
+const onProcessedData = computed(() => {
+      let originalData = Object.values(itemsData.value),
+          resultData = [],
+          searchValue = itemsFilter.value.keyValue
+
+      if (!searchValue)
+        return itemsData;
+
+      if (searchValue)
+        resultData = originalData
+            .filter(i => i.id.indexOf(searchValue) >= 0 || t(`snb.items.${i.id}.name`).indexOf(searchValue) >= 0)
+            .slice(0, 30)
+
+      return resultData;
+    }),
+    isSearching = computed(() => itemsFilter.value.keyValue)
 
 onMounted(() => {
   onReady()
@@ -107,30 +129,13 @@ const onLoad = ({done}) => {
     done('ok');
   }
 }
-//
-// /**
-//  * 处理数据
-//  */
-// const onProcessedData = computed(() => {
-//   let data = Object.values(itemsData)
-//
-//   // switch (itemsFilter.value.type) {
-//   //   case 'time':
-//   //     const sortedEntries = Object.entries(itemsData).sort((a, b) => a[1].dateAdded - b[1].dateAdded);
-//   //     return Object.fromEntries(sortedEntries);
-//   //   case 'index':
-//   //   default:
-//   //     return itemsData
-//   // }
-//   const d = data.slice(
-//       0,
-//       (itemsFilter.value.page * itemsFilter.value.limit) + itemsFilter.value.limit
-//   );
-//
-//   console.log(d.length)
-//
-//   return d
-// })
+
+/**
+ * 检索
+ */
+const onSearchItem = () => {
+  itemsFilter.value.keyValue = itemsFilter.value.inputWidgetKeyValue;
+}
 
 </script>
 
@@ -139,41 +144,77 @@ const onLoad = ({done}) => {
     <v-container class="pa-0">
       <v-breadcrumbs-item to="/">首页</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item to="/display-cabinet">展示柜</v-breadcrumbs-item>
+      <v-breadcrumbs-item to="/display-cabinet">{{ t('displayCabinet.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item>物品列表</v-breadcrumbs-item>
+      <v-breadcrumbs-item>{{ t('displayCabinet.items.title') }}</v-breadcrumbs-item>
     </v-container>
   </v-breadcrumbs>
   <v-divider></v-divider>
   <v-container>
     <v-row>
-      <v-col cols="12" lg="12" xl="12">
-        <h1 class="btn-flavor ships-title">物品</h1>
-        <div class="w-75">
+      <v-col cols="12" lg="6" xl="6">
+        <h1 class="btn-flavor ships-title">{{ t('displayCabinet.items.title') }}</h1>
+        <div class="w-75 mt-2">
+          {{ t('displayCabinet.items.description') }}
         </div>
       </v-col>
-      <v-col cols="12" lg="12" xl="12">
+      <v-col cols="12" lg="6" xl="6">
         <v-row>
-          <v-spacer></v-spacer>
           <v-col>
-            <v-text-field placeholder="搜索" hide-details variant="underlined" density="comfortable" v-model="itemsFilter.key"></v-text-field>
-          </v-col>
-          <v-col>
-            <v-combobox density="comfortable" hide-details
-                        variant="underlined"
-                        v-model="itemsFilter.type" :items="['time', 'index']"></v-combobox>
+            <v-text-field placeholder="搜索" hide-details
+                          variant="solo-filled"
+                          density="comfortable"
+                          clearable
+                          @keydown.enter="onSearchItem"
+                          v-model="itemsFilter.inputWidgetKeyValue">
+              <template v-slot:append-inner>
+                <v-btn @click="onSearchItem">搜索</v-btn>
+              </template>
+            </v-text-field>
           </v-col>
         </v-row>
       </v-col>
     </v-row>
   </v-container>
-  <v-infinite-scroll
-      class="mb-10"
-      :items="itemsData"
-      @load="onLoad">
+
+  <template v-if="!isSearching">
+    <v-infinite-scroll
+        class="mb-10"
+        :items="itemsData"
+        @load="onLoad">
+      <v-container>
+        <v-row class="item-list">
+          <div v-for="(i,index) in itemsData" :key="index">
+            <template v-if="route.query.debug">
+              {{ i.id }}
+            </template>
+
+            <ItemSlotBase size="99px">
+              <ItemIconWidget :id="i.id"></ItemIconWidget>
+            </ItemSlotBase>
+          </div>
+        </v-row>
+      </v-container>
+      <template v-slot:empty></template>
+      <template v-slot:loading>
+        <v-btn density="comfortable" icon>
+          <Loading :size="42"></Loading>
+        </v-btn>
+      </template>
+      <template v-slot:load-more="{ props }">
+        <v-btn
+            icon="mdi-refresh"
+            size="small"
+            variant="text"
+            v-bind="props"
+        ></v-btn>
+      </template>
+    </v-infinite-scroll>
+  </template>
+  <template v-else>
     <v-container>
       <v-row class="item-list">
-        <div v-for="(i,index) in itemsData" :key="index">
+        <div v-for="(i,index) in onProcessedData" :key="index">
           <template v-if="route.query.debug">
             {{ i.id }}
           </template>
@@ -182,23 +223,13 @@ const onLoad = ({done}) => {
             <ItemIconWidget :id="i.id"></ItemIconWidget>
           </ItemSlotBase>
         </div>
+
+        <v-card border class="w-100" v-if="onProcessedData.length <= 0">
+          <EmptyView></EmptyView>
+        </v-card>
       </v-row>
     </v-container>
-    <template v-slot:empty></template>
-    <template v-slot:loading>
-      <v-btn density="comfortable" icon>
-        <Loading :size="42"></Loading>
-      </v-btn>
-    </template>
-    <template v-slot:load-more="{ props }">
-      <v-btn
-          icon="mdi-refresh"
-          size="small"
-          variant="text"
-          v-bind="props"
-      ></v-btn>
-    </template>
-  </v-infinite-scroll>
+  </template>
 </template>
 
 <style scoped lang="less">

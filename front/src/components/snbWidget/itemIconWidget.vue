@@ -5,6 +5,7 @@ import {onMounted, type Ref, ref} from "vue";
 import {Item, Items} from "../../../../../glow-prow-data/src/entity/Items.ts";
 import {useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
+import {i18n} from "../../assets/sripts";
 
 const assets_ammunitions = import.meta.glob('@glow-prow-assets/items/ammunitions/*', {eager: true}),
     assets_weapons = import.meta.glob('@glow-prow-assets/items/weapons/*', {eager: true}),
@@ -26,7 +27,7 @@ const assetsImages = {
   ...assets_tools, ...assets_shipsUpgrades, ...assets_items
 };
 const rarityImages = import.meta.glob('@/assets/images/item-rarity-*.png', {eager: true});
-const props = withDefaults(defineProps<{ id: string,isShowOpenDetail: boolean, isOpenDetail: boolean }>(), {
+const props = withDefaults(defineProps<{ id: string, isShowOpenDetail?: boolean, isOpenDetail?: boolean }>(), {
   id: null,
   isShowOpenDetail: true,
   isOpenDetail: true,
@@ -126,7 +127,14 @@ const onReady = async () => {
       <div class="demo-reel-header pa-10 position-relative" :class="[
                     `item-card-header-rarity-${i.rarity}`
                 ]">
-        <h1><b>{{ t(`snb.items.${i.id}.name`) }}</b></h1>
+        <h1 class="font-weight-bold">
+          {{
+            i18n.asString([
+              `snb.items.${i.id}.name`,
+              `snb.items.${i18n.sanitizeString(i.id).cleaned}.name`
+            ])
+          }}
+        </h1>
         <p class="mb-1">{{ i.id }}</p>
 
         <v-badge inline color="transparent" class="badge-flavor text-center tag-badge pl-4 mr-2">{{ t(`displayCabinet.type.${i.type}`) }}</v-badge>

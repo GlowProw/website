@@ -6,7 +6,7 @@ import {Ships} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 import type {Ship} from "glow-prow-data/src/entity/Ships.ts";
 
-const props = withDefaults(defineProps<{ id: string, isClickOpenDetail, isShowOpenDetail: boolean, isShowDescription: boolean }>(), {
+const props = withDefaults(defineProps<{ id: string, isClickOpenDetail?: boolean, isShowOpenDetail?: boolean, isShowDescription?: boolean }>(), {
       id: 'dhow',
       isClickOpenDetail: true,
       isShowOpenDetail: true,
@@ -76,7 +76,7 @@ const onReady = async () => {
           <h1><b>{{ t(`snb.ships.${props.id}.name`) }}</b></h1>
           <p class="mb-1">{{ props.id }}</p>
 
-          <v-badge inline color="transparent" class="badge-flavor text-center tag-badge pl-3">{{ t(`displayCabinet.size.${i.size}`) }}</v-badge>
+          <v-badge inline color="transparent" class="badge-flavor text-center tag-badge pl-3" v-if="i.size">{{ t(`displayCabinet.size.${i.size}`) }}</v-badge>
 
           <v-img :src="shipsData.images[props.id]" class="right-show-item-image position-absolute w-33"></v-img>
         </div>

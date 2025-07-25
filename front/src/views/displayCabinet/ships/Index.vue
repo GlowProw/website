@@ -61,11 +61,11 @@ const onProcessedData = () => {
 <template>
   <v-breadcrumbs class="pt-5">
     <v-container class="pa-0">
-      <v-breadcrumbs-item to="/">首页</v-breadcrumbs-item>
+      <v-breadcrumbs-item to="/">{{t('portal.title')}}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item to="/display-cabinet">展示柜</v-breadcrumbs-item>
+      <v-breadcrumbs-item to="/display-cabinet">{{t('displayCabinet.title')}}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item>船只列表</v-breadcrumbs-item>
+      <v-breadcrumbs-item>{{ t('displayCabinet.ships.title')}}</v-breadcrumbs-item>
     </v-container>
   </v-breadcrumbs>
   <v-divider></v-divider>

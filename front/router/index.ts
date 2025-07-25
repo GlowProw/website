@@ -1,5 +1,4 @@
 import {createRouter, createWebHistory} from 'vue-router';
-import VueMeta from 'vue-meta'
 import i18n from "../src/i18n.ts";
 
 import PortalMainBasePage from '../src/views/portal/Index.vue'
@@ -13,6 +12,7 @@ import ShipsPage from '../src/views/displayCabinet/ships/Index.vue'
 import ShipDetailPage from '../src/views/displayCabinet/ships/Detail.vue'
 import ItemsPage from '../src/views/displayCabinet/items/Index.vue'
 import ItemDetailPage from '../src/views/displayCabinet/items/Detail.vue'
+import ItemCategoryDetailPage from '../src/views/displayCabinet/items/Category.vue'
 
 import CalendarPage from '../src/views/calendar/Index.vue'
 import CalendarHistoryPage from '../src/views/calendar/History.vue'
@@ -88,6 +88,11 @@ const routes = [
                 name: 'ItemDetail',
                 component: ItemDetailPage,
             },
+            {
+                path: 'item/category/:name',
+                name: 'ItemCategoryDetail',
+                component: ItemCategoryDetailPage,
+            }
         ]
     },
     {

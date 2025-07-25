@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import {onMounted, type Ref, ref, type UnwrapRef} from "vue";
+import {computed, onMounted, type Ref, ref, type UnwrapRef} from "vue";
 import {useI18n} from "vue-i18n";
 import {Materials, Ships} from "glow-prow-data";
 import {useRoute, useRouter} from "vue-router";
@@ -11,6 +11,7 @@ import ShipSailSpeedWidget from "../../../components/snbWidget/shipSailSpeedWidg
 import MaterialIconWidget from "../../../components/snbWidget/materialIconWidget.vue";
 import FactionIconWidget from "../../../components/snbWidget/factionIconWidget.vue";
 import ShipWidget from "../../../components/snbWidget/shipWidget.vue";
+import PerksWidget from "../../../components/snbWidget/perksWidget.vue";
 
 const shipImages = import.meta.glob('@glow-prow-assets/ships/*.png', {eager: true});
 
@@ -26,12 +27,16 @@ const
     shipRawMaterials: Ref<UnwrapRef<any[]>, UnwrapRef<any[]> | any[]> = ref([])
 
 let
-    shipDetailPageData: Ref<{ id: string, img: string }> = ref({
+    shipDetailPageData: Ref<{ id: string, img: string, loading: boolean }> = ref({
       id: 'dhow',
-      img: ''
+      img: '',
+      loading: false
     }),
     shipDetailData: Ref<Ships> = ref(shipsData['dhow']),
-    isShowShipRawList = ref(false);
+    isShowShipRawList = ref(false),
+
+    // 蓝图
+    bluePrint = computed(() => t(`snb.locations.${shipDetailData.value?.blueprint}`));
 
 onMounted(() => {
   const {id} = route.params;
@@ -40,6 +45,8 @@ onMounted(() => {
     router.push('/')
     return;
   }
+
+  shipDetailPageData.value.loading = true;
 
   const imageKey = `/node_modules/glow-prow-assets/ships/${id}.png`;
 
@@ -53,6 +60,8 @@ onMounted(() => {
   }
 
   onStatisticsRawMaterial()
+
+  shipDetailPageData.value.loading = false;
 })
 
 /**
@@ -76,18 +85,18 @@ const onStatisticsRawMaterial = () => {
 <template>
   <v-breadcrumbs class="pt-5">
     <v-container class="pa-0">
-      <v-breadcrumbs-item to="/">首页</v-breadcrumbs-item>
+      <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item to="/display-cabinet">展示柜</v-breadcrumbs-item>
+      <v-breadcrumbs-item to="/display-cabinet">{{ t('displayCabinet.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item to="/display-cabinet/ships">船只列表</v-breadcrumbs-item>
+      <v-breadcrumbs-item to="/display-cabinet/ships">{{ t('displayCabinet.ships.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item>船只详情</v-breadcrumbs-item>
+      <v-breadcrumbs-item>{{ t('displayCabinet.ship.title') }}</v-breadcrumbs-item>
     </v-container>
   </v-breadcrumbs>
   <v-divider></v-divider>
 
-  <div class="ships-detail" v-if="shipDetailPageData.id">
+  <div class="ships-detail" v-if="shipDetailPageData.id && !shipDetailPageData.loading">
     <div class="ships-detail-header">
       <v-container class="position-relative">
         <v-row>
@@ -95,7 +104,7 @@ const onStatisticsRawMaterial = () => {
             <h1 class="text-amber text-h2">{{ t(`snb.ships.${shipDetailPageData.id}.name`) }}</h1>
             <p class="mt-2 mb-3">{{ shipDetailPageData.id || 'none' }}</p>
 
-            <v-badge inline color="transparent" class="badge-flavor text-center tag-badge pl-3">{{ t(`displayCabinet.size.${shipsData[shipDetailPageData.id].size}`) }}</v-badge>
+            <v-badge inline color="transparent" class="badge-flavor text-center tag-badge pl-3" v-if="shipsData[shipDetailPageData.id].size">{{ t(`displayCabinet.size.${shipsData[shipDetailPageData.id].size}`) }}</v-badge>
           </v-col>
           <v-spacer></v-spacer>
         </v-row>
@@ -412,8 +421,8 @@ const onStatisticsRawMaterial = () => {
             </v-row>
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
-            <v-card class="mb-4 pl-3">
-              <v-text-field :value="shipDetailData.bySeason || 'none'" readonly
+            <v-card class="mb-4 pl-3" v-if="shipDetailData.bySeason">
+              <v-text-field :value="t(`snb.seasons.${shipDetailData.bySeason}`) || 'none'" readonly
                             hide-details
                             variant="solo-filled">
                 <template v-slot:prepend>
@@ -425,18 +434,20 @@ const onStatisticsRawMaterial = () => {
               </v-text-field>
             </v-card>
 
-            <v-text-field :value="shipDetailData.blueprint" readonly
-                          hide-details
-                          variant="underlined" density="compact">
-              <template v-slot:append-inner>
-                <p class="text-no-wrap">蓝图</p>
-              </template>
-              <template v-slot:append>
-                <ItemSlotBase :size="10" class="pa-0">
-                  <img src="@/assets/images/loading.gif" width="20px" height="20px">
-                </ItemSlotBase>
-              </template>
-            </v-text-field>
+            <template v-if="bluePrint">
+              <v-text-field :value="bluePrint" readonly
+                            hide-details
+                            variant="underlined" density="compact">
+                <template v-slot:append-inner>
+                  <p class="text-no-wrap">蓝图</p>
+                </template>
+                <template v-slot:append>
+                  <ItemSlotBase :size="10" class="pa-0">
+                    <v-icon icon="mdi-book"></v-icon>
+                  </ItemSlotBase>
+                </template>
+              </v-text-field>
+            </template>
             <v-text-field :value="shipDetailData.requiredRank || 'none'" readonly
                           hide-details
                           variant="underlined" density="compact">
@@ -459,19 +470,10 @@ const onStatisticsRawMaterial = () => {
               </template>
             </v-text-field>
 
-            <v-card class="mt-5 pa-5">
-              <template v-if="shipDetailData.perks.length > 0">
-                <div v-for="(p, pIndex) in shipDetailData.perks" :key="pIndex" class="mb-4">
-                  <p class="text-amber"><b>
-                    {{ t(`snb.ships.${shipDetailData.id}.perks.${p}.title`) }}
-                  </b></p>
-                  <p class="opacity-80 text-pre-wrap mt-1" v-html="t(`snb.ships.${shipDetailData.id}.perks.${p}.description`)"></p>
-                </div>
-              </template>
-              <template v-else>
-                <EmptyView></EmptyView>
-              </template>
-            </v-card>
+            <template v-if="shipDetailData.perks">
+              <p class="mt-5 mb-1 font-weight-bold">词条 ({{ shipDetailData.perks.length || 0 }})</p>
+              <PerksWidget :data="shipDetailData"></PerksWidget>
+            </template>
           </v-col>
         </v-row>
       </v-container>

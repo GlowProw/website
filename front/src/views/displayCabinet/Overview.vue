@@ -25,6 +25,5 @@
 
 <style scoped lang="less">
 .overview {
-  min-height: 100%;
 }
 </style>
