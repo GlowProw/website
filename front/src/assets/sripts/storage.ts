@@ -7,9 +7,8 @@ import {time} from "./index";
 export default class Storage {
     STORAGENAME = `snb.${process.env.NODE_ENV}:`;
 
-    constructor(data = {name}) {
-        if (data.name)
-            this.STORAGENAME = data.name;
+    constructor() {
+        return this
     }
 
     get session() {
@@ -20,7 +19,7 @@ export default class Storage {
              * @param value
              * @returns {{code: number, data: {time: number, value: *}}}
              */
-            set: (name, value) => {
+            set: (name: string, value: any): { code: number; data: { time: number; value: any; }; } => {
                 let data = {value, time: time.update().nowTimeStamp};
                 sessionStorage.setItem(this.STORAGENAME + name, JSON.stringify(data));
                 return {code: 0, data};
@@ -30,11 +29,11 @@ export default class Storage {
              * @param name
              * @returns {{code: number, data: any}}
              */
-            get: (name) => {
-                let data = JSON.parse(
+            get: (name: string): { code: number; data?: any; } => {
+                let data: any | null = JSON.parse(
                     sessionStorage.getItem(this.STORAGENAME + name)
                 );
-                let result = {code: 0, data};
+                let result: { code: number } = {code: 0, data: data};
                 if (data == null || data === '' || data === undefined) {
                     result = {code: -1}
                 }
@@ -43,14 +42,14 @@ export default class Storage {
             /**
              * session 删除
              */
-            rem: (name) => {
+            rem: (name: string) => {
                 sessionStorage.removeItem(this.STORAGENAME + name)
             },
             /**
              * get sessionStorage Keys
              * @returns {*}
              */
-            keys: () => {
+            keys: (): any => {
                 return sessionStorage.keys()
             }
         }
@@ -68,7 +67,7 @@ export default class Storage {
              * @param value
              * @returns {{code: number, data: {time: number, value: *}}}
              */
-            set: (name, value) => {
+            set: (name: string, value: any): { code: number; data: { time: number; value: any; }; } => {
                 let data = {value, time: time.update().nowTimeStamp}
                 localStorage.setItem(this.STORAGENAME + name, JSON.stringify(data));
 
@@ -79,11 +78,11 @@ export default class Storage {
              * @param name
              * @returns {{code: number, data: any}}
              */
-            get: (name) => {
-                let data = JSON.parse(
+            get: (name: string): { code: number; data?: any; } => {
+                let data: any | null = JSON.parse(
                     localStorage.getItem(this.STORAGENAME + name)
                 );
-                let result = {code: 0, data};
+                let result: { code: number } = {code: 0, data};
                 if (data == null || data === '' || data === undefined) {
                     result = {code: -1}
                 }
@@ -92,14 +91,14 @@ export default class Storage {
             /**
              * session 删除
              */
-            rem: (name) => {
+            rem: (name: string) => {
                 localStorage.removeItem(this.STORAGENAME + name);
             },
             /**
              * get sessionStorage Keys
              * @returns {*}
              */
-            keys: () => {
+            keys: (): any => {
                 return localStorage.keys()
             }
         }

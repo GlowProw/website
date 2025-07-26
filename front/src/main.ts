@@ -13,8 +13,8 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import i18n from './i18n';
 
 // Styles
-import 'vuetify/styles';
-import './assets/styles/index.less'
+import '@/assets/styles/index.less'
+import 'vuetify/styles/main.css';
 import {aliases, mdi} from 'vuetify/iconsets/mdi'; // 可选：图标支持
 import '@mdi/font/css/materialdesignicons.css'
 

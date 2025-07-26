@@ -1,0 +1,703 @@
+{
+  "f": {
+    "dhow": {
+      "attachementSlotCount": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "furnitureSlotCount": {
+      },
+      "weaponsSlotCount": {
+      }
+    },
+    "bedar": {
+      "weaponsSlotCount": [
+        {
+          "gunSlotCount": 4
+        },
+        {
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        }
+      ],
+      "furnitureSlotCount": {
+        "2": 5,
+        "3": 5,
+        "4": 5,
+        "5": 6,
+        "6": 6,
+        "7": 6
+      }
+    },
+    "hulk": {
+      "attachementSlotCount": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "furnitureSlotCount": [
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6
+      ],
+      "weaponsSlotCount": [
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        }
+      ]
+    },
+    "cutter": {
+      "attachementSlotCount": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "furnitureSlotCount": [
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6
+      ],
+      "weaponsSlotCount": {
+        "1": {
+          "gunSlotCount": 4
+        },
+        "2": {
+          "gunSlotCount": 4
+        },
+        "3": {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        "4": {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        "5": {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        "6": {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        "7": {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        }
+      }
+    },
+    "barge": {
+      "attachementSlotCount": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "furnitureSlotCount": [
+        3,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6
+      ],
+      "weaponsSlotCount": [
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        }
+      ]
+    },
+    "sloop": {
+      "attachementSlotCount": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "furnitureSlotCount": [
+        3,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6
+      ],
+      "weaponsSlotCount": [
+        {
+          "gunSlotCount": 4
+        },
+        {
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        }
+      ]
+    },
+    "padewakang": {
+      "attachementSlotCount": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "furnitureSlotCount": [
+        4,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6
+      ],
+      "weaponsSlotCount": [
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        }
+      ]
+    },
+    "snow": {
+      "attachementSlotCount": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "furnitureSlotCount": [
+        4,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6
+      ],
+      "weaponsSlotCount": [
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        }
+      ]
+    },
+    "brigantine": {
+      "attachementSlotCount": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "furnitureSlotCount": [
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6
+      ],
+      "weaponsSlotCount": [
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        }
+      ]
+    },
+    "sambuk": {
+      "attachementSlotCount": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "furnitureSlotCount": [
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6
+      ],
+      "weaponsSlotCount": [
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        }
+      ]
+    },
+    "barque": {
+      "attachementSlotCount": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "furnitureSlotCount": [
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6
+      ],
+      "weaponsSlotCount": [
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        }
+      ]
+    },
+    "battleJunk": {
+      "attachementSlotCount": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "furnitureSlotCount": [
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6
+      ],
+      "weaponsSlotCount": [
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        }
+      ]
+    },
+    "garuda": {
+      "attachementSlotCount": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "furnitureSlotCount": [
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6
+      ],
+      "weaponsSlotCount": [
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        }
+      ]
+    },
+    "brig": {
+      "attachementSlotCount": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "furnitureSlotCount": [
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6
+      ],
+      "weaponsSlotCount": [
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        }
+      ]
+    },
+    "frigate": {
+      "attachementSlotCount": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "furnitureSlotCount": [
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6
+      ],
+      "weaponsSlotCount": [
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        }
+      ]
+    }
+  }
+}

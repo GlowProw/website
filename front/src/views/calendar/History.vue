@@ -219,17 +219,30 @@ async function onOpenICS(url, season: string, id?: any) {
  * @returns {number | null} 剩余天数，如果不在赛季内则返回 null
  */
 function getRemainingDays(): number | null {
-  const currentSeason = getCurrentSeason();
-  if (!currentSeason) return null;
+  let targetDate = seasons[selectSeasonsValue.value.id].endDate
 
-  const currentDate = new Date();
-  const endDate = new Date(currentSeason.endDate);
+  const endDate = new Date(targetDate);
+  if (isNaN(endDate.getTime())) {
+    console.error("Invalid date:", targetDate);
+    return 0;
+  }
 
-  // 计算剩余毫秒数，并转换为天数
-  const remainingTime = endDate.getTime() - currentDate.getTime();
-  const remainingDays = Math.ceil(remainingTime / (1000 * 60 * 60 * 24));
+  const now = new Date();
+  const currentDate = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+  );
+  const targetPureDate = new Date(
+      endDate.getFullYear(),
+      endDate.getMonth(),
+      endDate.getDate()
+  );
 
-  return remainingDays;
+  const remainingMs = targetPureDate.getTime() - currentDate.getTime();
+  const remainingDays = Math.floor(remainingMs / 86400000);
+
+  return remainingDays >= 0 ? remainingDays : 0;
 }
 </script>
 

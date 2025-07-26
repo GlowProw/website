@@ -98,7 +98,7 @@ export default class Http extends Conf {
             method: options.method,
             data: options.data,
             params: options.params,
-            body: options.body
+            body: options.body,
         });
     }
 

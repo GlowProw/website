@@ -1,5 +1,4 @@
-import {createRouter, createWebHistory} from 'vue-router';
-import i18n from "../src/i18n.ts";
+import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router';
 
 import PortalMainBasePage from '../src/views/portal/Index.vue'
 import PortalPage from '../src/views/portal/Home.vue'
@@ -18,13 +17,32 @@ import CalendarPage from '../src/views/calendar/Index.vue'
 import CalendarHistoryPage from '../src/views/calendar/History.vue'
 import CalendarHistorysPage from '../src/views/calendar/Historys.vue'
 
+import AssemblePage from '../src/views/assembly/Index.vue'
+import AssembleWorkshopPage from '../src/views/assembly/workshop/Index.vue'
+import AssemblePublishPage from '../src/views/assembly/Publish.vue'
+import AssemblyBrowsePage from '../src/views/assembly/Browse.vue'
+import AssemblyDetailPage from '../src/views/assembly/Detail.vue'
+
 import MapsPage from '../src/views/Map.vue';
 import TeamPage from '../src/views/Team.vue'
 import AboutPage from '../src/views/About.vue'
 import AchievementPage from '../src/views/Achievement.vue'
 import NotFoundPage from '../src/views/NotFound.vue';
+import {useI18n} from "vue-i18n";
+import {useAuthStore} from "../stores";
 
-const routes = [
+
+const isLoginBeforeEnter = function (to: any, from: any, next) {
+    const authStore = useAuthStore()
+
+    if (authStore.user) {
+        next();
+    } else {
+        next({path: '/account/login', query: {backUrl: to.fullPath}});
+    }
+}
+
+const routes: Readonly<RouteRecordRaw[]> = [
     {
         path: '/',
         name: 'BasePortal',
@@ -39,6 +57,7 @@ const routes = [
                 path: '/account/home',
                 name: 'accountHome',
                 component: AccountPage,
+                beforeEnter: isLoginBeforeEnter
             },
             {
                 path: '/account/login',
@@ -113,6 +132,36 @@ const routes = [
             },
         ]
     },
+    {
+        path: '/assembly',
+        name: 'Assembly',
+        component: AssemblePage,
+        redirect: '/assembly/browse',
+        children: [
+            {
+                path: 'workshop',
+                name: 'AssemblyWorkshop',
+                component: AssembleWorkshopPage,
+                beforeEnter: isLoginBeforeEnter
+            },
+            {
+                path: 'publish/:uid',
+                name: 'publishAssembly',
+                component: AssemblePublishPage,
+                beforeEnter: isLoginBeforeEnter
+            },
+            {
+                path: 'browse',
+                name: 'AssemblyBrowse',
+                component: AssemblyBrowsePage
+            },
+            {
+                path: ':uid/detail',
+                name: 'AssemblyDetail',
+                component: AssemblyDetailPage
+            }
+        ]
+    },
 
     {
         path: '/maps',
@@ -130,22 +179,6 @@ const routes = [
         component: AchievementPage
     },
 
-    // 嵌套路由示例
-    // {
-    //     path: '/user/:id',
-    //     name: 'User',
-    //     component: () => import('../views/User.vue'), // 懒加载组件
-    //     children: [
-    //         {
-    //             path: 'profile', // 匹配 /user/:id/profile
-    //             component: () => import('../views/UserProfile.vue'),
-    //         },
-    //         {
-    //             path: 'posts', // 匹配 /user/:id/posts
-    //             component: () => import('../views/UserPosts.vue'),
-    //         },
-    //     ],
-    // },
     // 404 路由（必须放在最后）
     {
         path: '/:pathMatch(.*)*',
@@ -155,20 +188,22 @@ const routes = [
 ];
 
 const router = createRouter({
-    history: createWebHistory(), // 使用 History 模式
+    history: createWebHistory(),
     routes,
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
     try {
+        const {t} = useI18n();
+
         if (to.meta.metaInfo) {
-            let _metainfo = to.meta.metaInfo;
-            if (_metainfo.keywords && i18n.t(_metainfo.keywords) !== _metainfo.keywords) _metainfo.keywords = "bfban,BFBAN," + i18n.t(_metainfo.keywords);
-            else _metainfo.keywords = "bfban,BFBAN";
-            if (_metainfo.title) _metainfo.title = i18n.t(_metainfo.title);
-            else _metainfo.title = "";
-            if (_metainfo.description && i18n.t(_metainfo.description) !== _metainfo.description) _metainfo.description = i18n.t(_metainfo.description);
-            else _metainfo.description = "";
+            let metaInfo: any = to.meta.metaInfo;
+            if (metaInfo.keywords && t(metaInfo.keywords) !== metaInfo.keywords) metaInfo.keywords = "Glow Prow," + t(metaInfo.keywords);
+            else metaInfo.keywords = "bfban,BFBAN";
+            if (metaInfo.title) metaInfo.title = t(metaInfo.title);
+            else metaInfo.title = "";
+            if (metaInfo.description && t(metaInfo.description) !== metaInfo.description) metaInfo.description = t(metaInfo.description);
+            else metaInfo.description = "";
         }
     } catch (err) {
     } finally {

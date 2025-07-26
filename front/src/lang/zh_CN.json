@@ -69,18 +69,9 @@
       "majorFurniture": "主要家具",
       "shipUpgrade": "船升级"
     },
-    "tier": {
-      "0": "一级",
-      "1": "二级",
-      "2": "三级",
-      "4": "四级",
-      "5": "五级",
-      "6": "六级",
-      "7": "七级",
-      "8": "8️⃣级",
-      "9": "久级",
-      "10": "十级",
-      "11": "十一级"
+    "tier": "{num}级",
+    "category": {
+      "title": "分类"
     },
     "items": {
       "title": "物品列表",
@@ -94,7 +85,11 @@
       "description": "船只列表"
     },
     "ship": {
-      "title": "船详情"
+      "title": "船详情",
+      "frontWeapon": "前方武器",
+      "leftSideWeapon": "左侧武器",
+      "rightSideWeapon": "右侧武器",
+      "aftWeapon": "后方武器"
     }
   },
   "teamUp": {
@@ -121,7 +116,12 @@
       "plotTask": "剧情任务",
       "sideQuest": "支线任务",
       "reward": "悬赏",
+      "fortressRaiding": "要塞掠夺",
       "other": "其他"
+    }
+  },
+  "assembly": {
+    "workshop": {
     }
   },
   "login": {

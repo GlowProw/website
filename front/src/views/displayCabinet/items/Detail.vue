@@ -13,12 +13,16 @@ import FactionIconWidget from "../../../components/snbWidget/factionIconWidget.v
 import {Materials} from "glow-prow-data";
 import ItemModificationWidget from "../../../components/snbWidget/itemModificationWidget.vue";
 import PerksWidget from "../../../components/snbWidget/perksWidget.vue";
-import {i18n} from "../../../assets/sripts";
+
+import {useI18nUtils} from "../../../assets/sripts/i18nUtil.ts";
+import ItemInputWidget from "../../../components/snbWidget/itemInputWidget.vue";
+import TimeView from "../../../components/TimeView.vue";
 
 const
     {t} = useI18n(),
     router = useRouter(),
     route = useRoute(),
+    {asArray, asString, sanitizeString} = useI18nUtils(),
 
     // 物品数据
     itemsData: Items = Items,
@@ -26,20 +30,25 @@ const
     // 后期处理所需物品 对应计算 原材料
     itemRawMaterials: Ref<UnwrapRef<any[]>, UnwrapRef<any[]> | any[]> = ref([])
 
-// materials: Materials = Materials,
-// 后期处理所需物品 对应计算 原材料
-// shipRawMaterials: Ref<UnwrapRef<any[]>, UnwrapRef<any[]> | any[]> = ref([])
-
-let
-    itemDetailPageData: Ref<{ id: string, img: string }> = ref({
-      id: 'dhow',
-      img: ''
-    }),
-    itemDetailData: Ref<Item | null> = ref(null),
+let itemDetailData: Ref<Item | null> = ref(null),
     isShowShipRawList = ref(false),
 
-    // 射速
-    bluePrint = computed(() => t(`snb.locations.${itemDetailData.value?.blueprint}`)),
+    DPS = computed(() => {
+      const {damagePerShot, rateOfFire, reloadSpeed} = itemDetailData.value;
+      return Math.round(damagePerShot / ((rateOfFire * 0.001) + (reloadSpeed * 0.001)))
+    }),
+    DPSWithPerks = computed(() => {
+      const {damageMitigation} = itemDetailData.value;
+      return DPS / damageMitigation?.piercing || 0
+    }),
+    DamagePerShotWithPerks = computed(() => 0),
+    getTitle = computed(() => {
+      return asString([
+        `snb.items.${itemDetailData.value?.id}.name`,
+        `snb.items.${sanitizeString(itemDetailData.value!.id).cleaned}.name`
+      ])
+    }),
+    bluePrint = computed(() => itemDetailData.value?.blueprint ? t(`snb.locations.${itemDetailData.value?.blueprint}`) : null),
     rateFire = computed(() => 1),
     dpsWithPerksArmed = computed(() => {
       return itemDetailData.value?.damagePerShot + 1;
@@ -67,7 +76,7 @@ onMounted(() => {
  * 处理计算必要材料对应原材料
  */
 const onStatisticsRawMaterial = () => {
-  if (itemDetailData.value.required)
+  if (itemDetailData.value?.required)
     itemRawMaterials.value = Object.entries(itemDetailData.value.required).reduce(
         (acc, [key, value]) => {
           if (materials[key]?.raw) {
@@ -95,33 +104,29 @@ const onStatisticsRawMaterial = () => {
     </v-container>
   </v-breadcrumbs>
   <v-divider></v-divider>
-
   <div class="items-detail" v-if="itemDetailData && itemDetailData.id">
     <div class="items-detail-header">
       <v-container class="position-relative">
-
-        <v-row>
+        <v-row class="mt-5">
           <v-col>
-            <h1 class="text-amber text-h2">{{
-                i18n.asString([
-                  `snb.items.${itemDetailData.id}.name`,
-                  `snb.items.${i18n.sanitizeString(itemDetailData.id).cleaned}.name`
-                ])
-              }}</h1>
+            <h1 class="text-amber text-h2">{{ getTitle }}</h1>
             <p class="mt-2 mb-3">id: {{ itemDetailData.id || 'none' }}</p>
 
             <router-link :to="`/display-cabinet/item/category/${itemDetailData.type}`">
               <v-badge inline color="transparent"
                        class="badge-flavor text-center tag-badge pl-4">
-                {{ t(`displayCabinet.type.${itemDetailData.type}`) }}
+                {{ t(`displayCabinet.type.${itemDetailData.type}`) || '' }}
               </v-badge>
             </router-link>
 
-            <v-badge inline color="transparent" class="badge-flavor text-center tag-badge pl-4 ml-2" v-if="itemDetailData.tier">{{ t(`displayCabinet.tier.${itemDetailData.tier}`) }}</v-badge>
+            <v-badge inline color="transparent" class="badge-flavor text-center tag-badge pl-4 ml-2" v-if="itemDetailData.tier">{{ t(`displayCabinet.tier`, {num: itemDetailData.tier}) }}</v-badge>
             <v-badge inline color="transparent" class="badge-flavor text-center tag-badge pl-4 ml-2" v-if="itemDetailData.rarity">{{ t(`displayCabinet.rarity.${itemDetailData.rarity}`) }}</v-badge>
 
           </v-col>
           <v-spacer></v-spacer>
+          <v-col align="right">
+            <v-btn>分享</v-btn>
+          </v-col>
         </v-row>
       </v-container>
     </div>
@@ -135,9 +140,10 @@ const onStatisticsRawMaterial = () => {
               </ItemSlotBase>
               <v-col>
                 <p class="text-pre-wrap mb-4">
-                  <span v-for="(i ,index) in i18n.asArray([
+                  <span v-for="(i ,index) in asArray([
                       `snb.items.${itemDetailData.id}.description`,
-                      `snb.items.${itemDetailData.id}.description.general`
+                      `snb.items.${itemDetailData.id}.description.general`,
+                      `snb.items.${sanitizeString(itemDetailData.id).cleaned}.description.general`
                     ])" :key="index">
                     {{ i }}
                   </span>
@@ -151,30 +157,69 @@ const onStatisticsRawMaterial = () => {
                 <template v-if="route.query.debug">
                   {{ itemDetailData }}
                 </template>
-                <v-text-field :value="itemDetailData.weight" readonly
-                              hide-details
-                              variant="underlined" density="compact">
-                  <template v-slot:append-inner>
-                    <p class="text-no-wrap">重量</p>
-                  </template>
-                </v-text-field>
+                <template v-if="itemDetailData.id">
+                  <v-text-field :value="itemDetailData.id" readonly
+                                hide-details
+                                variant="underlined" density="compact">
+                    <template v-slot:append-inner>
+                      <p class="text-no-wrap">ID</p>
+                    </template>
+                  </v-text-field>
+                </template>
+                <template v-if="itemDetailData.tier">
+                  <v-text-field :value="itemDetailData.tier" readonly
+                                hide-details
+                                variant="underlined" density="compact">
+                    <template v-slot:append-inner>
+                      <p class="text-no-wrap">Tier</p>
+                    </template>
+                  </v-text-field>
+                </template>
+                <template v-if="itemDetailData.weight">
+                  <v-text-field :value="itemDetailData.weight" readonly
+                                hide-details
+                                variant="underlined" density="compact">
+                    <template v-slot:append-inner>
+                      <p class="text-no-wrap">重量</p>
+                    </template>
+                  </v-text-field>
+                </template>
               </v-col>
               <v-col cols="12" sm="12" lg="6" xl="6">
+
                 <template v-if="itemDetailData.projectilesPerShot">
                   <v-text-field :value="itemDetailData.projectilesPerShot" readonly
                                 hide-details
                                 variant="underlined" density="compact">
                     <template v-slot:append-inner>
-                      <p class="text-no-wrap">弹匣尺寸</p>
+                      <p class="text-no-wrap">单发伤害</p>
                     </template>
                   </v-text-field>
                 </template>
-                <template v-if="dpsWithPerksArmed">
-                  <v-text-field :value="dpsWithPerksArmed" readonly
+                <template v-if="itemDetailData.rateOfFire">
+                  <v-text-field :value="itemDetailData.rateOfFire * .001" readonly
                                 hide-details
                                 variant="underlined" density="compact">
                     <template v-slot:append-inner>
-                      <p class="text-no-wrap">DPS </p>
+                      <p class="text-no-wrap">开火间隔 (s) </p>
+                    </template>
+                  </v-text-field>
+                </template>
+                <template v-if="DPS">
+                  <v-text-field :value="DPS" readonly
+                                hide-details
+                                variant="underlined" density="compact">
+                    <template v-slot:append-inner>
+                      <p class="text-no-wrap">DPS (Damage per Second) </p>
+                    </template>
+                  </v-text-field>
+                </template>
+                <template v-if="DPSWithPerks">
+                  <v-text-field :value="DPSWithPerks" readonly
+                                hide-details
+                                variant="underlined" density="compact">
+                    <template v-slot:append-inner>
+                      <p class="text-no-wrap">DPS with Perks</p>
                     </template>
                   </v-text-field>
                 </template>
@@ -183,18 +228,51 @@ const onStatisticsRawMaterial = () => {
                                 hide-details
                                 variant="underlined" density="compact">
                     <template v-slot:append-inner>
-                      <p class="text-no-wrap">每次射击的伤害</p>
+                      <p class="text-no-wrap">单发损伤</p>
                     </template>
                   </v-text-field>
                 </template>
-                <!--                {{ itemDetailData.damageMitigation }}-->
-                <!--                <v-text-field :value="itemDetailData.damageMitigation" readonly-->
-                <!--                              hide-details-->
-                <!--                              variant="underlined" density="compact">-->
-                <!--                  <template v-slot:append-inner>-->
-                <!--                    <p class="text-no-wrap">Damage per Shot with Perks </p>-->
-                <!--                  </template>-->
-                <!--                </v-text-field>-->
+                <template v-if="DamagePerShotWithPerks">
+                  <v-text-field :value="DamagePerShotWithPerks" readonly
+                                hide-details
+                                variant="underlined" density="compact">
+                    <template v-slot:append-inner>
+                      <p class="text-no-wrap">Damage per Shot with Perks</p>
+                    </template>
+                  </v-text-field>
+                </template>
+                <template v-if="typeof itemDetailData.damageMitigation == 'string'">
+                  <v-text-field :value="itemDetailData.damageMitigation" readonly
+                                hide-details
+                                variant="underlined" density="compact">
+                    <template v-slot:append-inner>
+                      <p class="text-no-wrap">damage Mitigation</p>
+                    </template>
+                  </v-text-field>
+                </template>
+                <template v-if="typeof itemDetailData.damageMitigation == 'object'">
+                  <p class="mb-2"><b>
+                    <v-icon icon="mdi-shield" size="18" class="mr-2"></v-icon>
+                    损害减轻</b></p>
+                  <v-text-field :value="dmV"
+                                v-for="([dmK,dmV],dmIndex) in Object.entries(itemDetailData.damageMitigation)"
+                                :key="dmV"
+                                :class="[dmV ? '' : 'opacity-30']"
+                                readonly
+                                hide-details
+                                variant="underlined"
+                                density="compact">
+                    <template v-slot:append-inner>
+                      <p class="text-no-wrap">{{ t(`snb.perks.${dmK}.name`) }}</p>
+                    </template>
+                    <template v-slot:append>
+                      <ItemSlotBase size="30px">
+                        <ItemIconWidget :id="dmK"></ItemIconWidget>
+                      </ItemSlotBase>
+                    </template>
+                  </v-text-field>
+                </template>
+
                 <template v-if="itemDetailData.reloadSpeed">
                   <v-text-field :value="itemDetailData.reloadSpeed / 1000" readonly
                                 hide-details
@@ -250,7 +328,9 @@ const onStatisticsRawMaterial = () => {
                   </div>
                 </template>
                 <template v-else>
-                  <EmptyView></EmptyView>
+                  <v-card border>
+                    <EmptyView></EmptyView>
+                  </v-card>
                 </template>
               </v-col>
               <v-col cols="12" sm="12" lg="6" xl="6">
@@ -309,7 +389,15 @@ const onStatisticsRawMaterial = () => {
                   </div>
                 </template>
                 <template v-else>
-                  <EmptyView></EmptyView>
+                  <v-card border>
+                    <EmptyView></EmptyView>
+                  </v-card>
+                </template>
+              </v-col>
+              <v-col cols="12">
+                <template v-if="itemDetailData && itemDetailData.id">
+                  <p class="mt-5 mb-3 font-weight-bold">可安装模组</p>
+                  <ItemModificationWidget :id="itemDetailData.id" :type="itemDetailData.type"></ItemModificationWidget>
                 </template>
               </v-col>
             </v-row>
@@ -359,10 +447,13 @@ const onStatisticsRawMaterial = () => {
                 <template v-slot:append-inner>
                   <p class="text-no-wrap">分数</p>
                 </template>
+                <template v-slot:prepend>
+                  <img src="../../../assets/images/snb/icon-gearScore.png" width="25px" height="25px">
+                </template>
               </v-text-field>
             </template>
             <template v-if="itemDetailData.rarity">
-              <v-text-field :value="itemDetailData.rarity || 'none'" readonly
+              <v-text-field :value="t(`displayCabinet.rarity.${itemDetailData.rarity}`) || 'none'" readonly
                             hide-details
                             variant="underlined" density="compact">
                 <template v-slot:append-inner>
@@ -370,29 +461,33 @@ const onStatisticsRawMaterial = () => {
                 </template>
               </v-text-field>
             </template>
-            <v-text-field :value="itemDetailData.dateAdded" readonly
-                          hide-details
-                          variant="underlined" density="compact">
+
+            <ItemInputWidget>
+              <TimeView class="mt-1" :time="itemDetailData.dateAdded">
+                {{itemDetailData.dateAdded.toLocaleString()}}
+              </TimeView>
               <template v-slot:append-inner>
                 <p class="text-no-wrap">添加日期</p>
               </template>
-            </v-text-field>
-            <v-text-field :value="itemDetailData.lastUpdated" readonly
-                          hide-details
-                          variant="underlined" density="compact">
+              <template v-slot:prepend>
+                <v-icon icon="mdi-calendar-range"></v-icon>
+              </template>
+            </ItemInputWidget>
+            <ItemInputWidget>
+              <TimeView class="mt-1" :time="itemDetailData.lastUpdated">
+                {{itemDetailData.lastUpdated.toLocaleString()}}
+              </TimeView>
+              <template v-slot:prepend>
+                <v-icon icon="mdi-calendar-range"></v-icon>
+              </template>
               <template v-slot:append-inner>
                 <p class="text-no-wrap">更新日期</p>
               </template>
-            </v-text-field>
+            </ItemInputWidget>
 
             <template v-if="itemDetailData.perks">
               <p class="mt-5 mb-1 font-weight-bold">词条 ({{ itemDetailData.perks.length || 0 }})</p>
               <PerksWidget :data="itemDetailData"></PerksWidget>
-            </template>
-
-            <template v-if="itemDetailData && itemDetailData.variants && itemDetailData.variants != {}">
-              <p class="mt-5 mb-1 font-weight-bold">可安装模组</p>
-              <ItemModificationWidget :id="itemDetailData.id" :type="itemDetailData.type"></ItemModificationWidget>
             </template>
           </v-col>
         </v-row>

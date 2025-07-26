@@ -5,7 +5,10 @@ import {onMounted, type Ref, ref} from "vue";
 import {Item, Items} from "glow-prow-data/src/entity/Items.ts";
 import {useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
-import {i18n} from "../../assets/sripts";
+import {useI18nUtils} from "../../assets/sripts/i18nUtil.ts";
+
+const {asArray, asString, sanitizeString} = useI18nUtils()
+
 
 const assets_ammunitions = import.meta.glob('@glow-prow-assets/items/ammunitions/*', {eager: true}),
     assets_weapons = import.meta.glob('@glow-prow-assets/items/weapons/*', {eager: true}),
@@ -37,7 +40,7 @@ const items: Items = Items,
     {t} = useI18n()
 
 let itemsCardData = ref({
-      images: {},
+      iconsSrc: {},
       model: {},
       panel: {},
     }),
@@ -76,9 +79,9 @@ const onReady = async () => {
     itemsCardData.value.model[key] = false;
 
     if (imageMap[key]) {
-      itemsCardData.value.images[key] = imageMap[key].default;
+      itemsCardData.value.iconsSrc[key] = imageMap[key].default;
     } else {
-      itemsCardData.value.images[key] = '';
+      itemsCardData.value.iconsSrc[key] = '';
     }
   }
 
@@ -97,7 +100,7 @@ const onReady = async () => {
       <v-card
           width="100%"
           v-bind="activatorProps"
-          class="pa-2 ma-1"
+          class="ma-1"
           :to="isOpenDetail ? `/display-cabinet/item/${i.id}` : null"
           :class="[
               `item-card-header-rarity-${i.rarity}`
@@ -106,13 +109,14 @@ const onReady = async () => {
           <img :src="itemsRarityImages[i.rarity]" width="100%" height="100%" class="opacity-30">
         </template>
 
-        <v-img :src="itemsCardData.images[i.id]" width="100%" height="100%">
+        <v-img
+            :src="itemsCardData.iconsSrc[i.id] || 'none'" cover width="100%" height="100%">
           <template v-slot:error>
-            <div class="d-flex justify-center align-center h-100">
-              <v-card-actions class="text-left">
+            <div class="fill-height repeating-gradient d-flex justify-center align-center h-100">
+              <div>
                 <v-icon icon="mdi-error"></v-icon>
                 <p class="text-no-wrap">{{ t(`snb.items.${i.id}.name`) }}</p>
-              </v-card-actions>
+              </div>
             </div>
           </template>
           <template v-slot:placeholder>
@@ -129,26 +133,29 @@ const onReady = async () => {
                 ]">
         <h1 class="font-weight-bold">
           {{
-            i18n.asString([
+            asString([
               `snb.items.${i.id}.name`,
-              `snb.items.${i18n.sanitizeString(i.id).cleaned}.name`
+              `snb.items.${sanitizeString(i.id).cleaned}.name`
             ])
           }}
         </h1>
         <p class="mb-1">{{ i.id }}</p>
 
-        <v-badge inline color="transparent" class="badge-flavor text-center tag-badge pl-4 mr-2">{{ t(`displayCabinet.type.${i.type}`) }}</v-badge>
-        <v-badge inline color="transparent" class="badge-flavor text-center tag-badge pl-4" v-if="i.tier">{{ t(`displayCabinet.tier.${i.tier}`) }}</v-badge>
+        <router-link :to="`/display-cabinet/item/category/${i.type}`">
+          <v-badge inline color="transparent" class="badge-flavor text-center tag-badge pl-4 mr-2" v-if="i.type">{{ t(`displayCabinet.type.${i.type}`) }}</v-badge>
+        </router-link>
 
-        <div class="right-show-item-image position-absolute w-33">
-          <v-img :src="itemsCardData.images[i.id]" class="item-mirror-image"></v-img>
+        <v-badge inline color="transparent" class="badge-flavor text-center tag-badge pl-4" v-if="i.tier">{{ t(`displayCabinet.tier`) || i.tier }}</v-badge>
+
+        <div class="right-show-item-image pointer-events-none position-absolute w-33">
+          <v-img :src="itemsCardData.iconsSrc[i.id]" class="item-mirror-image"></v-img>
         </div>
 
         <template v-if="i.rarity">
-          <img :src="itemsRarityImages[i.rarity]" width="100%" height="100%" class="rarity opacity-20">
+          <img :src="itemsRarityImages[i.rarity]" width="100%" height="100%" class="pointer-events-none rarity opacity-20">
         </template>
       </div>
-      <div class="demo-reel-content pa-5 background-flavor overflow-auto">
+      <div class="demo-reel-content pl-10 pr-10 pb-5 background-flavor overflow-auto">
         <template v-if="route.query.debug">
           {{ i }}
         </template>

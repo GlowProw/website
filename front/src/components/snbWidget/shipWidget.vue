@@ -5,6 +5,7 @@ import {onMounted, type Ref, ref} from "vue";
 import {Ships} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 import type {Ship} from "glow-prow-data/src/entity/Ships.ts";
+import PerksWidget from "./perksWidget.vue";
 
 const props = withDefaults(defineProps<{ id: string, isClickOpenDetail?: boolean, isShowOpenDetail?: boolean, isShowDescription?: boolean }>(), {
       id: 'dhow',
@@ -52,6 +53,8 @@ const onReady = async () => {
                min-width="450"
                max-width="450"
                interactive
+               :offset="[30,10]"
+               location="right top"
                content-class="pa-0" target="cursor">
       <template v-slot:activator="{ props: activatorProps }">
         <v-card
@@ -64,7 +67,7 @@ const onReady = async () => {
             height="100%"
             width="100%">
           <template v-slot:image>
-            <img class="pointer-events-none" src="@/assets/images/portal-banner-background.png">
+<!--            <img class="pointer-events-none" src="@/assets/images/portal-banner-background.png">-->
           </template>
 
           <v-img :src="shipsData.images[props.id]" class="pointer-events-none"></v-img>
@@ -76,7 +79,7 @@ const onReady = async () => {
           <h1><b>{{ t(`snb.ships.${props.id}.name`) }}</b></h1>
           <p class="mb-1">{{ props.id }}</p>
 
-          <v-badge inline color="transparent" class="badge-flavor text-center tag-badge pl-3" v-if="i.size">{{ t(`displayCabinet.size.${i.size}`) }}</v-badge>
+          <v-badge inline color="transparent" class="badge-flavor text-center tag-badge pl-3" v-if="i && i.size">{{ t(`displayCabinet.size.${i.size}`) }}</v-badge>
 
           <v-img :src="shipsData.images[props.id]" class="right-show-item-image position-absolute w-33"></v-img>
         </div>
@@ -151,14 +154,7 @@ const onReady = async () => {
             <v-expansion-panel
                 title="词条">
               <template v-slot:text>
-                <template v-if="i.perks.length > 0">
-                  <div v-for="(p, pIndex) in i.perks" :key="pIndex" class="mb-4">
-                    <p class="text-amber"><b>
-                      {{ t(`snb.ships.${props.id}.perks.${p}.title`) }}
-                    </b></p>
-                    <p class="opacity-80 text-pre-wrap mt-1" v-html="t(`snb.ships.${props.id}.perks.${p}.description`)"></p>
-                  </div>
-                </template>
+                <PerksWidget class="mt-n0 ml-n4 mr-n4" :data="i" v-if="i.perks.length > 0"></PerksWidget>
                 <template v-else>
                   <EmptyView></EmptyView>
                 </template>

@@ -9,37 +9,12 @@ import {useRoute} from "vue-router";
 import ItemIconWidget from "../../../components/snbWidget/itemIconWidget.vue";
 import EmptyView from "../../../components/EmptyView.vue";
 
-const assets_ammunitions = import.meta.glob('@glow-prow-assets/items/ammunitions/*', {eager: true}),
-    assets_weapons = import.meta.glob('@glow-prow-assets/items/weapons/*', {eager: true}),
-    assets_armors = import.meta.glob('@glow-prow-assets/items/armors/*', {eager: true}),
-    assets_majorFurnitures = import.meta.glob('@glow-prow-assets/items/majorFurnitures/*', {eager: true}),
-    assets_offensiveFurnitures = import.meta.glob('@glow-prow-assets/items/offensiveFurnitures/*', {eager: true}),
-    assets_utilityFurnitures = import.meta.glob('@glow-prow-assets/items/utilityFurnitures/*.*', {eager: true}),
-    assets_consumables = import.meta.glob('@glow-prow-assets/items/consumables/*', {eager: true}),
-    assets_torpedos = import.meta.glob('@glow-prow-assets/items/weapons/torpedos/*', {eager: true}),
-    assets_longGuns = import.meta.glob('@glow-prow-assets/items/weapons/longGuns/*', {eager: true}),
-    assets_tools = import.meta.glob('@glow-prow-assets/items/tools/*', {eager: true}),
-    assets_shipsUpgrades = import.meta.glob('@glow-prow-assets/ships/upgrades/*', {eager: true}),
-    assets_items = import.meta.glob('@glow-prow-assets/items/*', {eager: true});
-
-const assetsImages = {
-  ...assets_ammunitions, ...assets_weapons, ...assets_armors,
-  ...assets_majorFurnitures, ...assets_utilityFurnitures, ...assets_offensiveFurnitures,
-  ...assets_consumables, ...assets_torpedos, ...assets_longGuns,
-  ...assets_tools, ...assets_shipsUpgrades, ...assets_items
-};
 const rarityImages = import.meta.glob('@/assets/images/item-rarity-*.png', {eager: true});
 const items: Items = Items,
     route = useRoute(),
     {t} = useI18n()
 
-
-let itemsCardData = ref({
-      images: {},
-      model: {},
-      panel: {},
-    }),
-    itemsData: any = ref([]),
+let itemsData: any = ref([]),
     raritys: string[] = ["common", "uncommon", "rare", "epic", "legendary"],
     itemsRarityImages = ref({}),
     itemsFilter = ref({
@@ -76,33 +51,12 @@ onMounted(() => {
 })
 
 const onReady = async () => {
-  const imageMap = {};
-  for (const path in assetsImages) {
-    const key = path.split('/').pop()
-        ?.toString()
-        .replace('.webp', '')
-        .replace('.png', '');
-    imageMap[key] = assetsImages[path];
-  }
-
   // 稀有度背景
   for (let key in raritys) {
     const imageKey = `/src/assets/images/item-rarity-${raritys[key]}.png`;
 
     if (rarityImages[imageKey]) {
       itemsRarityImages.value[raritys[key]] = rarityImages[imageKey].default;
-    }
-  }
-
-  // 物品图
-  for (let key in items) {
-    itemsCardData.value.panel[key] = 0;
-    itemsCardData.value.model[key] = false;
-
-    if (imageMap[key]) {
-      itemsCardData.value.images[key] = imageMap[key].default;
-    } else {
-      itemsCardData.value.images[key] = '';
     }
   }
 }

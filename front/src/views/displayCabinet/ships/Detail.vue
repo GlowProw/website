@@ -36,7 +36,7 @@ let
     isShowShipRawList = ref(false),
 
     // 蓝图
-    bluePrint = computed(() => t(`snb.locations.${shipDetailData.value?.blueprint}`));
+    bluePrint = computed(() => shipDetailData.value.blueprint ? t(`snb.locations.${shipDetailData.value?.blueprint}`) : null);
 
 onMounted(() => {
   const {id} = route.params;
@@ -99,7 +99,7 @@ const onStatisticsRawMaterial = () => {
   <div class="ships-detail" v-if="shipDetailPageData.id && !shipDetailPageData.loading">
     <div class="ships-detail-header">
       <v-container class="position-relative">
-        <v-row>
+        <v-row class="mt-5">
           <v-col>
             <h1 class="text-amber text-h2">{{ t(`snb.ships.${shipDetailPageData.id}.name`) }}</h1>
             <p class="mt-2 mb-3">{{ shipDetailPageData.id || 'none' }}</p>
@@ -128,7 +128,7 @@ const onStatisticsRawMaterial = () => {
               </ItemSlotBase>
               <v-col>
                 <p class="text-pre-wrap mb-4">
-                  {{ t(`snb.ships.${shipDetailPageData.id}.description`) }}
+                  {{ t(`snb.ships.${shipDetailPageData.id}.description.general`) }}
                 </p>
               </v-col>
             </v-row>

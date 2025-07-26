@@ -56,6 +56,7 @@ let teams: Ref<Team[]> = ref([]),
         {label: t('teamUp.tags.plotTask'), value: 'plotTask'},
         {label: t('teamUp.tags.sideQuest'), value: 'sideQuest'},
         {label: t('teamUp.tags.reward'), value: 'reward'},
+        {label: t('teamUp.tags.fortressRaiding'), value: 'fortressRaiding'},
         {label: t('teamUp.tags.other'), value: 'other'}
       ],
       time: [

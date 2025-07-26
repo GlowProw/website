@@ -120,8 +120,8 @@ const getCurrentSeason = (): Season | null => {
 
           <v-col cols="12" sm="12" md="6" lg="3">
             <v-card
+                to="/assembly"
                 class="background-flavor"
-                disabled
                 text="设计你船，让它到达性能极限，分享给好友"
                 title="船只配装厂"
                 variant="text"

@@ -6,17 +6,18 @@ import _Api from './api';
 import _Http from './http';
 import _Ws from './ws'
 import _Storage from './storage'
+import {StorageAssembly as _StorageAssembly} from './storage_assembly'
 import _Time from './date';
-import _I18n from './i18n'
 
 export const conf = new _Conf();
 export const api = new _Api();
 export const http = new _Http();
 export const ws = new _Ws();
 export const storage = new _Storage();
+export const storageAssembly = new _StorageAssembly()
 export const time = new _Time();
-export const i18n = new _I18n();
 
 export default {
-    api, conf, ws, http, storage, time, i18n
+    api, conf, ws, http,
+    storage, storageAssembly, time
 };

@@ -1,5 +1,5 @@
 {
-  "default": "zh_CN",
+  "default": "en-US",
   "child": [
     {
       "label": "简体中文",
