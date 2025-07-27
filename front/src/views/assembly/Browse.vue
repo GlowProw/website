@@ -85,13 +85,6 @@ watch(list, (newList) => {
                     class="card-flavor mb-5 ml-n10 mr-n10"
                     :readonly="true"
                     :ref="(el) => { if (el) widgetRefs[index] = el }">
-                  <template v-slot:image>
-                    <v-img
-                        style="position: relative;z-index: 2;"
-                        class=" workshop-ships-show-image pointer-events-none"
-                        src="/Users/cabbagelol/Desktop/835f1991017f393b685a275d9a342e56.jpeg"
-                        width="100%"/>
-                  </template>
                 </AssemblyShowWidget>
               </AssemblyTouring>
             </v-card>

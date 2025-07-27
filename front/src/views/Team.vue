@@ -113,11 +113,9 @@ const getTeams = async (type: getTeamsType = getTeamsType.none) => {
 
       switch (type) {
         case 0:
-        case getTeamsType.none:
           _teams.value = d.data || [];
           break;
         case 1:
-        case getTeamsType.load:
           _teams.value.push(...d.data)
           break;
       }
