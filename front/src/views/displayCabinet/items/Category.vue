@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import {useRoute} from "vue-router";
-import {Items} from "../../../../../../glow-prow-data/src/entity/Items.ts";
+import {Items} from "glow-prow-data/src/entity/Items.ts";
 import {computed, onMounted, ref} from "vue";
 import ItemSlotBase from "../../../components/snbWidget/ItemSlotBase.vue";
 import EmptyView from "../../../components/EmptyView.vue";

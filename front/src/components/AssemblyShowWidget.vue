@@ -8,9 +8,9 @@ import ItemSlotBase from "./snbWidget/ItemSlotBase.vue";
 import EmptyView from "./EmptyView.vue";
 import ShipWidget from "./snbWidget/shipWidget.vue";
 
-import {Ships} from "../../../../glow-prow-data";
-import {Item, Items} from "../../../../glow-prow-data/src/entity/Items.ts";
-import {Ship} from "../../../../glow-prow-data/src/entity/Ships.ts";
+import {Ships} from "glow-prow-data";
+import {Item, Items} from "glow-prow-data/src/entity/Items.ts";
+import {Ship} from "glow-prow-data/src/entity/Ships.ts";
 import shipSlotMapping from "../../public/config/shipsConfig.json";
 
 const poops = withDefaults(defineProps<{ readonly?: boolean }>(), {
