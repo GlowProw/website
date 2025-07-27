@@ -4,7 +4,6 @@ import {WebSocket, WebSocketServer} from "ws";
 import {validationResult} from "express-validator";
 import express, {Request, Response} from "express";
 import {query as checkquery} from "express-validator/lib/middlewares/validation-chain-builders";
-import xss from "xss";
 
 import AppDataSource from "../ormconfig";
 import {Users} from "../entity/Users";
@@ -17,11 +16,12 @@ import db from "../../mysql";
 import {verifyJWT} from "../middleware/auth";
 import {verifyJWTToken} from "../lib/auth";
 import {RequestHasAccount} from "../types/auth";
+import {sanitizeRichText} from "../lib/content";
 
 // 定义路由
 const router = express.Router();
 
-const httpServerPort: number = parseInt(config.port || '3000'),          // 服务器端口配置
+const httpServerPort: number = (config.port || 3000),          // 服务器端口配置
     wss = new WebSocketServer({port: httpServerPort + 1})                // WebSocket服务器端口（HTTP端口+1）
 
 // 存储已连接的客户端（WebSocket实例与用户ID的映射）
@@ -34,28 +34,6 @@ const teamConfig = {
         'pve', 'pvp', 'timeWander', 'plotTask', 'sideQuest',
         'reward', 'fortressRaiding', 'other'
     ],
-    // XSS过滤配置
-    xss: {
-        whiteList: {
-            a: ["href", "title", "target"],
-            b: [],
-            br: [],
-            div: [],
-            hr: [],
-            i: [],
-            img: ["src", "alt", "style", "title", "width", "height"],
-            li: [],
-            oi: [],
-            ul: [],
-            p: [],
-            span: [],
-            strong: [],
-            u: [],
-            video: ["autoplay", "controls", "crossorigin", "loop", "muted", "playsinline", "poster", "preload", "src", "height", "width"],
-        },
-        css: false,
-        allowCommentTag: false,
-    }
 }
 
 /**
@@ -348,15 +326,6 @@ async function cleanExpiredTeamUps() {
     } catch (error) {
         logger.error('清理过期组队信息失败:', error);
     }
-}
-
-/**
- * 富文本输入处理（XSS过滤）
- * @param content 输入内容
- * @returns 安全处理后的内容
- */
-function sanitizeRichText(content: string): string {
-    return xss(content, teamConfig.xss);
 }
 
 /**

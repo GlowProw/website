@@ -1,23 +1,27 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
-import {onMounted, type Ref, ref} from "vue";
+import {computed, nextTick, onMounted, type Ref, ref} from "vue";
 import {useRoute, useRouter} from "vue-router";
 
-import {storageAssembly} from "../../../assets/sripts";
+import {api, http, storageAssembly} from "../../../assets/sripts";
 
 import ZoomableCanvas from "../../../components/ZoomableCanvas.vue"
 import AssemblyShowWidget from "../../../components/AssemblyShowWidget.vue";
 import {StorageAssemblyType} from "../../../assets/sripts/storage_assembly";
 import {v6 as uuidv6} from "uuid";
+import {useHttpToken} from "../../../assets/sripts/httpUtil";
+import {useAuthStore} from "../../../../stores";
 
 const {t} = useI18n(),
     route = useRoute(),
-    router = useRouter()
+    router = useRouter(),
+    httpToken = useHttpToken(),
+    authStore = useAuthStore()
 
 let
     messages: Ref<string[]> = ref([]),
 
-    assemblyWorkshopData = ref({}),
+    assemblyDetailData = ref({}),
     assemblyWorkshopRef = ref(null),                      // 配装工作区
     assemblyWorkshopZoomableAreaRef = ref(null),          // 配装缩放
     assemblyWorkshopShareRef = ref(null),                 // 配装分享配装展示，只读
@@ -29,14 +33,56 @@ let
       description: ''
     })                                // 分享数据，包含配置集和分享数据
 
+
+let isEditModel = computed(() => {
+      switch (route.name) {
+        case 'AssemblyEdit':
+          return true
+        default:
+        case 'AssemblyWorkshop':
+          return false
+      }
+    }),
+    isAssemblyByUser = computed(() => authStore.user.userId == shareData.value.userId)
+
 onMounted(() => {
+  if (isEditModel)
+    getAssemblyDetail()
 })
 
+/**
+ * 获取配装详情
+ */
+const getAssemblyDetail = async () => {
+  const {uid} = route.params;
+
+  console.log(route.params)
+
+  const result = await http.get(api['assembly_item'], {
+        params: {
+          uuid: uid,
+        },
+      }),
+      d = result.data;
+
+  if (d.error == 1)
+    return;
+
+  assemblyDetailData.value = d.data;
+  shareData.value = d.data;
+
+  nextTick(() => {
+    assemblyWorkshopRef.value.onLoadJson(d.data.assembly)
+  })
+}
 
 /**
  * 保存草稿
  */
 const onSaveAssemblyDraft = () => {
+  if (!isAssemblyByUser)
+    return;
+
   let uid: string = uuidv6();
 
   onSaveAssembly(StorageAssemblyType.Draft, uid)
@@ -45,15 +91,32 @@ const onSaveAssemblyDraft = () => {
 }
 
 /**
+ * 编辑保存
+ */
+const onSaveAssemblyEdit = () => {
+  if (!isAssemblyByUser)
+    return;
+
+  const {uuid} = assemblyDetailData.value;
+  const saveResult = onSaveAssembly(StorageAssemblyType.Data, uuid)
+
+  if (saveResult.code == 0 && uuid)
+    router.push(`/assembly/edit/${uuid}`)
+}
+
+/**
  * 已发布数据
  */
 const onSaveAssemblyPublish = () => {
+  if (!isAssemblyByUser)
+    return;
+
   const saveResult = onSaveAssembly(StorageAssemblyType.Data)
 
-  console.log(saveResult)
   if (saveResult.code == 0)
     router.push(`/assembly/publish/${saveResult.uid}`)
 }
+
 
 /**
  * 写入本地
@@ -93,18 +156,24 @@ const onSaveAssembly = (type: StorageAssemblyType, uid?: string) => {
   </v-breadcrumbs>
   <v-divider></v-divider>
   <v-container>
-    <v-row>
+    <v-row align="end">
       <v-col>
-        <h1>{{ isSharePreview ? '预览' : '编辑' }}</h1>
-        <p class="opacity-80" v-if="!isSharePreview">创建配置</p>
+        <h1>{{ !isEditModel ? '创建' : '编辑' }}</h1>
+        <p class="opacity-80">
+          <template v-if="!isEditModel">创建配置</template>
+          <template v-else>编辑配装 <u><b>{{ assemblyDetailData.name || 'none' }}</b></u></template>
+        </p>
       </v-col>
       <v-col cols="auto">
         <v-btn-group>
-          <v-btn @click="onSaveAssemblyDraft">
+          <v-btn @click="onSaveAssemblyDraft" v-if="!isEditModel">
             保存草稿
           </v-btn>
-          <v-btn :color="`var(--main-color)`" @click="onSaveAssemblyPublish">
+          <v-btn :color="`var(--main-color)`" :disabled="!isAssemblyByUser" @click="onSaveAssemblyPublish" v-if="!isEditModel">
             创建
+          </v-btn>
+          <v-btn :color="`var(--main-color)`" :disabled="!isAssemblyByUser" @click="onSaveAssemblyEdit" v-if="isEditModel">
+            保存
           </v-btn>
         </v-btn-group>
       </v-col>

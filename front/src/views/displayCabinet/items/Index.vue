@@ -15,6 +15,7 @@ const items: Items = Items,
     {t} = useI18n()
 
 let itemsData: any = ref([]),
+    exceedingItemsCount = ref(0),
     raritys: string[] = ["common", "uncommon", "rare", "epic", "legendary"],
     itemsRarityImages = ref({}),
     itemsFilter = ref({
@@ -36,13 +37,19 @@ const onProcessedData = computed(() => {
       if (!searchValue)
         return itemsData;
 
-      if (searchValue)
-        resultData = originalData
-            .filter(i => i.id.indexOf(searchValue) >= 0 || t(`snb.items.${i.id}.name`).indexOf(searchValue) >= 0)
-            .slice(0, 30)
+      if (searchValue) {
+        const filteredData = originalData.filter(i =>
+            i.id.indexOf(searchValue) >= 0 ||
+            t(`snb.items.${i.id}.name`).indexOf(searchValue) >= 0
+        );
+
+        resultData = filteredData.slice(0, maximumSearchCount);
+        exceedingItemsCount.value = Math.max(filteredData.length - maximumSearchCount, 0);
+      }
 
       return resultData;
     }),
+    maximumSearchCount = 30,
     isSearching = computed(() => itemsFilter.value.keyValue)
 
 onMounted(() => {
@@ -120,6 +127,7 @@ const onSearchItem = () => {
                           density="comfortable"
                           clearable
                           @keydown.enter="onSearchItem"
+                          @click:clear="onSearchItem"
                           v-model="itemsFilter.inputWidgetKeyValue">
               <template v-slot:append-inner>
                 <v-btn @click="onSearchItem">搜索</v-btn>
@@ -167,6 +175,10 @@ const onSearchItem = () => {
   </template>
   <template v-else>
     <v-container>
+      <template v-if="exceedingItemsCount > 0" >
+        <v-alert class="w-100 mb-5" type="warning" variant="tonal">超出搜索显示最大{{ maximumSearchCount }}，剩余{{ exceedingItemsCount }}已节流,可以再精准填写关键词</v-alert>
+      </template>
+
       <v-row class="item-list">
         <div v-for="(i,index) in onProcessedData" :key="index">
           <template v-if="route.query.debug">

@@ -104,7 +104,9 @@ router.get('/events.ics', calendarRateLimiter, [
         const currentYear = new Date().getFullYear(); // 获取当前年份
 
         // 遍历所有事件
-        for (const event of Object.values(gameEventsData.events)) {
+        for (const e of Object.values(gameEventsData.events)) {
+            let event: any = e;
+
             // 遍历每个事件的所有发生日期
             for (const occurrence of event.occurrences) {
                 // 创建事件开始日期 (月份是0-based所以要减1)

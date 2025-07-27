@@ -9,6 +9,7 @@ import {createApp} from 'vue'
 import router from "../router";
 import {createVuetify} from 'vuetify';
 import {createPinia} from 'pinia'
+import Vue3Disqus from "vue3-disqus";
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import i18n from './i18n';
 
@@ -41,6 +42,9 @@ app
     .use(vuetify)
     .use(pinia)
     .use(i18n)
+    .use(Vue3Disqus, {
+        shortname: "glow-prow"
+    })
     .mount('#app')
 
 export default app

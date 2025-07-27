@@ -52,7 +52,7 @@ watch(list, (newList) => {
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
       <v-breadcrumbs-item to="/assembly">{{ t('assembly.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item>{{ t('assembly.workshop.browse.title') }}</v-breadcrumbs-item>
+      <v-breadcrumbs-item>{{ t('assembly.browse.title') }}</v-breadcrumbs-item>
     </v-container>
   </v-breadcrumbs>
   <v-divider></v-divider>
@@ -79,7 +79,7 @@ watch(list, (newList) => {
                 </v-btn>
               </v-col>
             </v-row>
-            <v-card class="card-flavor" :to="`/assembly/browse/${item.id}/detail`">
+            <v-card class="card-flavor" :to="`/assembly/browse/${item.uuid}/detail`">
               <AssemblyTouring>
                 <AssemblyShowWidget
                     class="card-flavor mb-5 ml-n10 mr-n10"

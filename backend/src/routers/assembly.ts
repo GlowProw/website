@@ -1,21 +1,23 @@
 import express, {Response} from "express";
 import {body as checkbody, query as checkquery, validationResult} from "express-validator";
-import verifyCaptcha from "../middleware/captcha";
 import logger from "../../logger";
 import db from "../../mysql";
 import {verifyJWT} from "../middleware/auth";
+import {v6 as uuidv6} from "uuid"
+import {sanitizeRichText} from "../lib/content";
 
 const router = express.Router();
+const assemblyConfig = {
+    nameMaxLength: 140,
+    descriptionMaxLength: 500
+}
 
-/**
- * 发布
- */
 /**
  * 发布配装
  */
 router.post('/publish', verifyJWT, [
-    checkbody("name").isString().trim().isLength({min: 1, max: 140}),
-    checkbody('description').optional().isString().trim().isLength({min: 1, max: 500}),
+    checkbody("name").isString().trim().isLength({min: 1, max: assemblyConfig.nameMaxLength}),
+    checkbody('description').optional().isString().trim().isLength({min: 1, max: assemblyConfig.descriptionMaxLength}),
     checkbody('data').isJSON(),
     checkbody('localUid').optional(),
 ], async (req: any, res: Response) => {
@@ -59,6 +61,7 @@ router.post('/publish', verifyJWT, [
         const assemblyData = {
             name,
             description,
+            uuid: uuidv6(),
             data: JSON.stringify(parsedData), // 确保数据是字符串格式存储
             userId: req.user.id, // 假设req.user包含当前用户信息
             createdTime: db.fn.now(),
@@ -91,8 +94,7 @@ router.post('/publish', verifyJWT, [
         logger.error('publish error:', error);
         res.status(500).json({
             code: 500,
-            message: 'publish.error',
-            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+            message: 'publish.error'
         });
     }
 });
@@ -115,13 +117,9 @@ router.get('/list', [
         const pageSize = req.query.pageSize || 20;
 
         let query = db('assembly').select(
-            'id',
-            'name',
-            'description',
-            'createdTime',
-            'updatedTime',
-            'userId',
-            'data'
+            'id', 'uuid', 'name', 'description',
+            'createdTime', 'updatedTime',
+            'userId', 'data'
         );
 
         if (userId) {
@@ -140,7 +138,7 @@ router.get('/list', [
             : db('assembly').count('id as count');
 
         const totalResult = await totalQuery.first();
-        const total = totalResult ? totalResult.count : 0;
+        const total = totalResult ? totalResult.count as number : 0;
 
         res.status(200).json({
             code: 0,
@@ -162,33 +160,39 @@ router.get('/list', [
 
 /**
  * 编辑配装
+ * 路由: POST /edit
+ * 参数:
+ *   - id: 配装id
+ *   - name
+ *   - description
+ *   - data
  */
-router.post('/edit', verifyCaptcha, [
-    checkbody('id').isString().trim().isLength({min: 1}),
-    checkbody("name").optional().isString().trim().isLength({min: 1, max: 40}),
-    checkbody('description').optional().isString().trim().isLength({min: 1, max: 40}),
-    checkbody('data').optional().isJSON(),
+router.post('/edit', verifyJWT, [
+    checkbody('uuid').isString().trim().isLength({min: 1}),
+    checkbody("name").isString().trim().isLength({min: 1, max: assemblyConfig.nameMaxLength}),
+    checkbody('description').optional().isString().trim().isLength({min: 1, max: assemblyConfig.descriptionMaxLength}),
+    checkbody('data').isJSON(),
 ], async (req: any, res: Response) => {
     try {
         const validateErr = validationResult(req);
         if (!validateErr.isEmpty())
-            return res.status(400).json({error: 1, code: 'update.bad', message: validateErr.array()});
+            return res.status(400).json({error: 1, code: 'edit.bad', message: validateErr.array()});
 
-        const {id} = req.params;
-        const {name, description, data} = req.body;
+        const {uuid, name, description, data} = req.body;
 
         // 检查配装是否存在
         const assembly = await db('assembly')
-            .where('id', id)
+            .where('uuid', uuid)
+            .andWhere('userId', req.user.id)
             .first();
 
         if (!assembly) {
-            return res.status(404).json({code: 404, message: 'assembly.not_found'});
+            return res.status(404).json({code: 404, message: 'edit.notFound'});
         }
 
         // 检查用户是否有权限编辑 (假设req.user中包含当前用户信息)
-        if (assembly.userID !== req.user.id) {
-            return res.status(403).json({code: 403, message: 'update.forbidden'});
+        if (assembly.userId !== req.user.id) {
+            return res.status(403).json({code: 403, message: 'edit.forbidden'});
         }
 
         // 构建更新数据
@@ -196,41 +200,45 @@ router.post('/edit', verifyCaptcha, [
             updatedTime: db.fn.now()
         };
 
-        if (name) updateData.name = name;
-        if (description) updateData.description = description;
+        if (name) updateData.name = sanitizeRichText(name);
+        if (description) updateData.description = sanitizeRichText(description);
         if (data) updateData.data = data;
 
         // 执行更新
         await db('assembly')
-            .where('id', id)
+            .where('uuid', uuid)
+            .andWhere('userId', req.user.id)
             .update(updateData);
 
-        res.status(200).json({code: 0, message: 'update.ok'});
+        res.status(200).json({code: 0, message: 'edit.ok'});
     } catch (error) {
         logger.error('update error:', error);
-        res.status(500).json({code: 500, message: 'update.error'});
+        res.status(500).json({code: 500, message: 'edit.error'});
     }
 });
 
 /**
  * 获取配装详情
+ * 路由: GET /item
+ * 参数:
+ *   - id: 配装id
  */
 router.get('/item', [
-    checkquery('id').isString().trim().isLength({min: 1}),
+    checkquery('uuid').isString().trim().isLength({min: 1}),
 ], async (req: any, res: Response) => {
     try {
         const validateErr = validationResult(req);
         if (!validateErr.isEmpty())
             return res.status(400).json({error: 1, code: 'detail.bad', message: validateErr.array()});
 
-        const {id} = req.query;
+        const {uuid} = req.query;
 
         const assembly = await db('assembly')
             .join('users', 'assembly.userId', 'users.id')
-            .where('assembly.id', id)
+            .where('assembly.uuid', uuid)
             .select(
-                'users.username',
-                'assembly.id', 'assembly.userId', 'assembly.name', 'assembly.description',
+                'users.username', 'users.id as userId',
+                'assembly.uuid', 'assembly.userId', 'assembly.name', 'assembly.description',
                 'assembly.createdTime', 'assembly.updatedTime', 'assembly.data as assembly'
             )
             .first();
@@ -252,19 +260,20 @@ router.get('/item', [
 /**
  * 删除配装
  */
-router.post('/delete', [
-    checkbody('id').isString().trim().isLength({min: 1}),
+router.post('/delete', verifyJWT, [
+    checkbody('uuid').isString().trim().isLength({min: 1}),
 ], async (req: any, res: Response) => {
     try {
         const validateErr = validationResult(req);
         if (!validateErr.isEmpty())
             return res.status(400).json({error: 1, code: 'delete.bad', message: validateErr.array()});
 
-        const {id} = req.params;
+        const {uuid} = req.body;
 
         // 检查配装是否存在
         const assembly = await db('assembly')
-            .where('id', id)
+            .where('uuid', uuid)
+            .andWhere('userId', req.user.id)
             .first();
 
         if (!assembly) {
@@ -272,13 +281,13 @@ router.post('/delete', [
         }
 
         // 检查用户是否有权限删除
-        if (assembly.userID !== req.user.id) {
+        if (assembly.userId !== req.user.id) {
             return res.status(403).json({code: 403, message: 'delete.forbidden'});
         }
 
         // 执行删除
         await db('assembly')
-            .where('id', id)
+            .where('uuid', uuid)
             .delete();
 
         res.status(200).json({code: 0, message: 'delete.ok'});

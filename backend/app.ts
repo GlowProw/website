@@ -19,6 +19,7 @@ import {cleanExpiredTeamUps, router as team_index} from "./src/routers/team";
 import user_index from './src/routers/user'
 import calendar_index from './src/routers/calendar'
 import assembly_index from './src/routers/assembly'
+import links_index from './src/routers/likes'
 
 try {
     dotenv.config();
@@ -80,6 +81,7 @@ try {
     app.use('/api', user_index, team_index);
     app.use('/api/calendar', calendar_index);
     app.use('/api/assembly', assembly_index);
+    app.use('/api/likes', links_index)
 
     app.use((req, res, next) => {
         res.status(404).json({error: 1, code: 'request.404'});

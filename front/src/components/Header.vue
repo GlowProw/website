@@ -16,6 +16,8 @@ const authStore = useAuthStore()
           flat>
 
         <Logo></Logo>
+        <div class="mr-5">BETA</div>
+        <v-divider vertical></v-divider>
 
         <v-btn variant="text" tile href="https://www.ubisoft.com/en-us/game/skull-and-bones">
           官网

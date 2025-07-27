@@ -121,7 +121,18 @@
     }
   },
   "assembly": {
+    "title": "配装厂",
     "workshop": {
+      "title": "工作站"
+    },
+    "detail": {
+      "title": "配装详情"
+    },
+    "browse": {
+      "title": "配装分享集"
+    },
+    "publish": {
+      "title": "发布"
     }
   },
   "login": {

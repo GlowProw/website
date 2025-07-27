@@ -110,7 +110,7 @@ const onStatisticsRawMaterial = () => {
         <v-row class="mt-5">
           <v-col>
             <h1 class="text-amber text-h2">{{ getTitle }}</h1>
-            <p class="mt-2 mb-3">id: {{ itemDetailData.id || 'none' }}</p>
+            <p class="mt-2 mb-3"><v-icon icon="mdi-identifier" /> {{ itemDetailData.id || 'none' }}</p>
 
             <router-link :to="`/display-cabinet/item/category/${itemDetailData.type}`">
               <v-badge inline color="transparent"

@@ -102,7 +102,7 @@ const onStatisticsRawMaterial = () => {
         <v-row class="mt-5">
           <v-col>
             <h1 class="text-amber text-h2">{{ t(`snb.ships.${shipDetailPageData.id}.name`) }}</h1>
-            <p class="mt-2 mb-3">{{ shipDetailPageData.id || 'none' }}</p>
+            <p class="mt-2 mb-3"><v-icon icon="mdi-identifier" /> {{ shipDetailPageData.id || 'none' }}</p>
 
             <v-badge inline color="transparent" class="badge-flavor text-center tag-badge pl-3" v-if="shipsData[shipDetailPageData.id].size">{{ t(`displayCabinet.size.${shipsData[shipDetailPageData.id].size}`) }}</v-badge>
           </v-col>

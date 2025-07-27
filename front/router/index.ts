@@ -145,8 +145,20 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 beforeEnter: isLoginBeforeEnter
             },
             {
+                path: 'workshop/:uid/edit',
+                name: 'AssemblyEdit',
+                component: AssembleWorkshopPage,
+                beforeEnter: isLoginBeforeEnter
+            },
+            {
                 path: 'publish/:uid',
-                name: 'publishAssembly',
+                name: 'PublishAssembly',
+                component: AssemblePublishPage,
+                beforeEnter: isLoginBeforeEnter
+            },
+            {
+                path: 'edit/:uid',
+                name: 'EditAssembly',
                 component: AssemblePublishPage,
                 beforeEnter: isLoginBeforeEnter
             },
@@ -156,7 +168,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 component: AssemblyBrowsePage,
             },
             {
-                path: 'browse/:uid/detail',
+                path: 'browse/:uuid/detail',
                 name: 'AssemblyDetail',
                 component: AssemblyDetailPage
             }

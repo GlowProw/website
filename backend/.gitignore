@@ -1,0 +1,11 @@
+/.idea/
+
+# dir
+node_modules
+dist
+cache
+.locale_cache
+
+# file
+config.ts
+

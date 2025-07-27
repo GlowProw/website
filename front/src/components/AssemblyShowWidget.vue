@@ -540,8 +540,7 @@ defineExpose({
                 <p class="mb-2 font-weight-bold badge-flavor text-center">武装</p>
                 <p class="mb-1">主武器</p>
                 <div class="ml-5 mb-2" v-if="workshopData.data.weaponSlot && workshopData.data.weaponSlot.length > 0" v-for="(i, index) in workshopData.data.weaponSlot" :key="index">
-                  <p class="mb-2 ml-n5 mr-n5 pl-5 title-long-flavor bg-black"
-                     v-if="te(`displayCabinet.ship.${workshopData.data.weaponDirection[index]}`)">
+                  <p class="mb-2 ml-n5 mr-n5 pl-5 title-long-flavor bg-black">
                     <v-select v-if="!readonly" v-model="workshopData.data.weaponDirection[index]"
                               hide-details
                               clearable

@@ -20,13 +20,14 @@ export function useHttpToken() {
         if (authStore.user && authStore.user.token) {
             const token = authStore.user.token;
             if (token != null || token !== '') {
-                const headers = data.headers || {}
-                data = Object.assign(data, {
+                const headers = data?.headers || {}
+                data =  {
+                    ...data,
                     headers: {
                         'x-access-token': token,
                         ...headers
                     }
-                })
+                }
             }
         }
         return data;
