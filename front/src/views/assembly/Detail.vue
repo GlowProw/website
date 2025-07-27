@@ -2,10 +2,9 @@
 
 import AssemblyShowWidget from "../../components/AssemblyShowWidget.vue";
 import {useRoute, useRouter} from "vue-router";
-import {onMounted, ref} from "vue";
+import {nextTick, onMounted, ref} from "vue";
 import {useI18n} from "vue-i18n";
-import {api, storageAssembly} from "../../assets/sripts";
-import {StorageAssemblyType} from "../../assets/sripts/storage_assembly";
+import {api} from "../../assets/sripts";
 import {useHttpToken} from "../../assets/sripts/httpUtil";
 
 const route = useRoute(),
@@ -13,33 +12,40 @@ const route = useRoute(),
     http = useHttpToken(),
     {t} = useI18n()
 
-let publishData = ref({
+let assemblyDetailData = ref({
       name: '',
-      description: ''
+      description: '',
+      username: '',
+      createdTime: Date.now(),
+      updatedTime: Date.now(),
     }),
-    assemblyData = ref(null),
-    assemblyWorkshopRef = ref(null)
+    assemblyDetailRef = ref(null)
 
 onMounted(() => {
-  getAssembly()
+  getAssemblyDetail()
 })
-
 
 /**
  * 获取配装详情
  */
-const getAssembly = async () => {
+const getAssemblyDetail = async () => {
   const {uid} = route.params;
 
-  // const result = await http.post(api['assembly_publish'], {
-  //       data: {
-  //         name: publishData.value.name,
-  //         description: publishData.value.description,
-  //         data: JSON.stringify(assemblyData.value.data.data),
-  //         localUid: uid
-  //       }
-  //     }),
-  //     d = result.result;
+  const result = await http.get(api['assembly_item'], {
+        params: {
+          id: uid,
+        },
+      }),
+      d = result.data;
+
+  if (d.error == 1)
+    return;
+
+  assemblyDetailData.value = d.data;
+
+  nextTick(() => {
+    assemblyDetailRef.value.onLoadJson(d.data.assembly)
+  })
 }
 </script>
 
@@ -50,18 +56,22 @@ const getAssembly = async () => {
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
       <v-breadcrumbs-item to="/assembly">{{ t('assembly.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item to="/assembly/workshop">{{ t('assembly.workshop.title') }}</v-breadcrumbs-item>
-      <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item>{{ t('assembly.workshop.publish.title') }}</v-breadcrumbs-item>
+      <v-breadcrumbs-item>{{ t('assembly.detail.title') }}</v-breadcrumbs-item>
     </v-container>
   </v-breadcrumbs>
   <v-divider></v-divider>
 
-  <!-- Workshop Share Preview S -->
+  <!-- Assembly Preview S -->
   <v-container>
     <div class="ml-n2 mr-n2">
+      <v-text-field
+          v-model="assemblyDetailData.name"
+          readonly
+          variant="underlined">
+      </v-text-field>
+
       <AssemblyShowWidget class="card-flavor mb-5 ml-n10 mr-n10"
-                          ref="assemblyWorkshopRef" :readonly="true">
+                          ref="assemblyDetailRef" :readonly="true">
         <template v-slot:image>
           <v-img
               style="position: relative;z-index: 2;"
@@ -76,35 +86,39 @@ const getAssembly = async () => {
       <v-row>
         <v-col cols="6">
           <v-text-field
-              v-model="publishData.name"
-              label="配置名称"
-              placeholder="配置名称"
+              v-model="assemblyDetailData.username"
+              readonly
               variant="underlined">
-            <template v-slot:details>
-              船长，设置一个酷炫名字，好名字配好船
-            </template>
+          </v-text-field>
+
+          <v-text-field
+              label="创建时间"
+              v-model="assemblyDetailData.createdTime"
+              readonly
+              variant="underlined">
+          </v-text-field>
+
+          <v-text-field
+              label="更新时间"
+              v-model="assemblyDetailData.updatedTime"
+              readonly
+              variant="underlined">
           </v-text-field>
 
           <v-textarea
-              v-model="publishData.description"
+              v-model="assemblyDetailData.description"
+              :rows="10"
               label="描述"
+              readonly
               placeholder="输入描述描述"
               length="500"
               variant="underlined">
-            <template v-slot:details>
-              这是一个可选项，给予描述配置特别之处
-            </template>
           </v-textarea>
-        </v-col>
-        <v-col align="right">
-          <v-btn @click="onPublish">
-            发布
-          </v-btn>
         </v-col>
       </v-row>
     </v-container>
   </v-container>
-  <!-- Workshop Share Preview E -->
+  <!-- Assembly Preview E -->
 </template>
 
 <style scoped lang="less">

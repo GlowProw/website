@@ -32,20 +32,20 @@ export function useHttpToken() {
         return data;
     }
 
-    const post = (url = '', data = {data: {}}) => {
+    const post = (url = '', data?: { data?: {} }) => {
         console.log(token(data))
         return http.post(url, token(data));
     }
 
-    const get = (url = '', data = {data: {}, params: {}}) => {
+    const get = (url = '', data?: { data?: {}, params?: {} }) => {
         return http.get(url, token(data));
     }
 
-    const put = (url = '', data = {data: {}, params: {}}) => {
+    const put = (url = '', data?: { data?: {}, params?: {} }) => {
         return http.put(url, token(data));
     }
 
-    const del = (url = '', data = {data: {}, params: {}}) => {
+    const del = (url = '', data?: { data?: {}, params?: {} }) => {
         return http.delete(url, token(data));
     }
 

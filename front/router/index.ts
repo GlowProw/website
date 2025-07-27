@@ -153,10 +153,10 @@ const routes: Readonly<RouteRecordRaw[]> = [
             {
                 path: 'browse',
                 name: 'AssemblyBrowse',
-                component: AssemblyBrowsePage
+                component: AssemblyBrowsePage,
             },
             {
-                path: ':uid/detail',
+                path: 'browse/:uid/detail',
                 name: 'AssemblyDetail',
                 component: AssemblyDetailPage
             }
