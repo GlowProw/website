@@ -2,17 +2,18 @@
 {
   "compilerOptions": {
     "moduleResolution": "node",
-    "target": "es2022",
-    "module": "commonjs",
+    "target": "es2020",
+    "module": "es2020",
     "outDir": "./dist",
     "rootDir": "./",
     "lib": [
-      "es2022",
+      "es2020",
       "dom"
     ],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "strict": true,
+    "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true

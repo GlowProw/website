@@ -3,7 +3,7 @@ import {Entity, PrimaryGeneratedColumn, Column, OneToMany} from "typeorm";
 import { TeamUp } from "./TeamUp";
 
 @Entity()
-export class User {
+export class Users {
     @PrimaryGeneratedColumn("uuid")
     id: string;
 
@@ -25,6 +25,9 @@ export class User {
         length: 255
     })
     passwordHash: string;
+
+    @Column({type: "int"})
+    valid: number
 
     @Column({ type: "datetime", nullable: true })
     lastPublishedAt: Date | null;

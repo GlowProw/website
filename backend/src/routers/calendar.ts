@@ -12,11 +12,8 @@ import fs from 'fs/promises';
 
 const router = express.Router();
 
-// 获取当前文件路径和目录路径
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// 定义日历数据存储目录路径（从项目根目录下的data/calendar读取）
 const DATA_DIR = path.join(__dirname, '../../data/calendar');
 
 /**
@@ -61,15 +58,11 @@ router.get('/data', [
  * @returns 返回该赛季的事件数据对象
  */
 async function loadGameEventsData(season: string): Promise<any> {
-    // 构建赛季数据文件路径
     const seasonPath = path.join(DATA_DIR, season, 'index.json');
     try {
-        // 异步读取文件内容
         const data = await fs.readFile(seasonPath, 'utf-8');
-        // 解析JSON数据并返回
         return JSON.parse(data);
     } catch (err) {
-        // 如果读取失败，记录错误并返回空对象
         logger.error(`加载赛季数据失败: ${seasonPath}`, err);
         return {events: {}};
     }
@@ -104,7 +97,7 @@ router.get('/events.ics', calendarRateLimiter, [
             name: await i18n.translate(`${season}.name`, language) || '赛季名称',
             url: req.protocol + '://' + req.get('host') + req.originalUrl,
             prodId: {company: 'Ubisoft', product: 'GameEventsCalendar'},
-            ttl: 60 * 60 * 1 // 缓存1小时
+            ttl: 60 * 60 // 缓存1小时
         });
 
         const eventsToAdd: any[] = [];
@@ -186,7 +179,7 @@ router.get('/event.ics', calendarRateLimiter, [
             name: await i18n.translate(`${season}.data.${eventId}.name`, language) || '事件名称',
             url: req.protocol + '://' + req.get('host') + req.originalUrl,
             prodId: {company: 'Ubisoft', product: 'GameEventsCalendar'},
-            ttl: 60 * 60 * 1 // 缓存1小时
+            ttl: 60 * 60 // 缓存1小时
         });
 
         const eventsToAdd: any[] = [];

@@ -4,24 +4,25 @@ import {WebSocket, WebSocketServer} from "ws";
 import {validationResult} from "express-validator";
 import express, {Request, Response} from "express";
 import {query as checkquery} from "express-validator/lib/middlewares/validation-chain-builders";
-import dotenv from "dotenv";
 import xss from "xss";
-import jwt from "jsonwebtoken";
 
 import AppDataSource from "../ormconfig";
-import {User} from "../entity/User";
+import {Users} from "../entity/Users";
 import {TeamUp} from "../entity/TeamUp";
 import logger from "../../logger";
 
 import config from "../../config";
 import {timeUpRateLimiter} from "../middleware/rateLimiter";
 import db from "../../mysql";
+import {verifyJWT} from "../middleware/auth";
+import {verifyJWTToken} from "../lib/auth";
+import {RequestHasAccount} from "../types/auth";
 
 // 定义路由
 const router = express.Router();
 
-const httpServerPort = parseInt(process.env.SERVER_PORT || '3000'),      // 服务器端口配置
-    wss = new WebSocketServer({port: httpServerPort + 1})               // WebSocket服务器端口（HTTP端口+1）
+const httpServerPort: number = parseInt(config.port || '3000'),          // 服务器端口配置
+    wss = new WebSocketServer({port: httpServerPort + 1})                // WebSocket服务器端口（HTTP端口+1）
 
 // 存储已连接的客户端（WebSocket实例与用户ID的映射）
 const connectedClients: Map<WebSocket, string | null> = new Map();
@@ -31,7 +32,7 @@ const teamConfig = {
     // 可用的标签类型
     tags: [
         'pve', 'pvp', 'timeWander', 'plotTask', 'sideQuest',
-        'reward', 'other'
+        'reward', 'fortressRaiding', 'other'
     ],
     // XSS过滤配置
     xss: {
@@ -71,7 +72,7 @@ wss.on('connection', async function connection(ws) {
 
             // 认证消息处理
             if (parsedMessage.type === 'authenticate') {
-                handleAuthentication(ws, parsedMessage);
+                await handleAuthentication(ws, parsedMessage);
             }
             // 发布组队消息处理
             else if (parsedMessage.type === 'publish_team_up') {
@@ -92,9 +93,9 @@ wss.on('connection', async function connection(ws) {
                 await cancelTeamUp(id, userId);
             }
         } catch (error) {
-            console.error('解析或处理 WebSocket 消息失败:', error);
+            logger.error('解析或处理 WebSocket 消息失败:', error);
             if (ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({type: 'error', message: '无效的消息格式或处理失败'}));
+                ws.send(JSON.stringify({type: 'error', code: 'teamup.error', message: 'Invalid message format or processing failure'}));
             }
         }
     });
@@ -117,25 +118,39 @@ wss.on('connection', async function connection(ws) {
  * @param ws WebSocket实例
  * @param message 认证消息
  */
-function handleAuthentication(ws: WebSocket, message: WebSocketMessage) {
+async function handleAuthentication(ws: WebSocket, message: WebSocketMessage) {
     const token = message.payload?.token;
+
+    // 没有提供token，保持匿名状态
     if (!token) {
-        // 没有提供token，保持匿名状态
         return;
     }
 
-    jwt.verify(token, config.secret, (err: any, decoded: any) => {
-        if (!err && decoded && typeof decoded === 'object' && 'userId' in decoded) {
-            connectedClients.set(ws, decoded.userId as string);
-            logger.info(`WebSocket 用户 ${decoded.userId} 已认证`);
-        } else {
-            logger.warn('WebSocket 认证失败:', err);
-            ws.send(JSON.stringify({
-                type: 'auth_failed',
-                code: 'teamUp.authFailed',
-            }));
-        }
-    });
+    let decodedToken: any;
+    try {
+        decodedToken = await verifyJWTToken(token)
+        connectedClients.set(ws, decodedToken.userId as string);
+        logger.info(`WebSocket 用户 ${decodedToken.userId} 已认证`);
+    } catch (err) {
+        logger.warn('WebSocket 认证失败:', err);
+        ws.send(JSON.stringify({
+            type: 'auth_failed',
+            code: 'teamUp.authFailed',
+        }));
+    }
+
+    // jwt.verify(token, config.secret, (err: any, decoded: any) => {
+    //     if (!err && decoded && typeof decoded === 'object' && 'userId' in decoded) {
+    //         connectedClients.set(ws, decoded.userId as string);
+    //         logger.info(`WebSocket 用户 ${decoded.userId} 已认证`);
+    //     } else {
+    //         logger.warn('WebSocket 认证失败:', err);
+    //         ws.send(JSON.stringify({
+    //             type: 'auth_failed',
+    //             code: 'teamUp.authFailed',
+    //         }));
+    //     }
+    // });
 }
 
 /**
@@ -145,22 +160,21 @@ function handleAuthentication(ws: WebSocket, message: WebSocketMessage) {
  */
 async function addTeamUp(teamUpData: TeamUpData, userId: string | null | undefined) {
     try {
-        const userRepository = AppDataSource.getRepository(User);
+        const userRepository = AppDataSource.getRepository(Users);
         const teamUpRepository = AppDataSource.getRepository(TeamUp);
 
-        let user: User | null = null;
+        let user: Users | null = null;
         let lastPublishedAt: Date | null = null;
 
         // 注册用户处理
         if (userId) {
             user = await userRepository.findOneBy({id: userId});
             if (!user) {
-                console.error(`用户 ID ${userId} 不存在`);
+                logger.error(`用户 ID ${userId} 不存在`);
                 broadcastToClients({
                     type: 'error',
                     error: 1,
                     code: 'teamUp.error',
-                    message: '发布失败：用户不存在'
                 }, userId);
                 return;
             }
@@ -178,7 +192,7 @@ async function addTeamUp(teamUpData: TeamUpData, userId: string | null | undefin
                 .getCount();
 
             if (!config.__DEBUG__ && anonymousPostsCount >= 1) {
-                console.warn(`匿名用户发布过快，请 1 小时后再试`);
+                logger.warn(`匿名用户发布过快，请 1 小时后再试`);
                 broadcastToClients({
                     type: 'publish_rate_limit',
                     error: 1,
@@ -195,7 +209,8 @@ async function addTeamUp(teamUpData: TeamUpData, userId: string | null | undefin
 
         if (lastPublishedAt && userId && (now.getTime() - lastPublishedAt.getTime()) < minIntervalRegistered) {
             const timeDiff = now.getTime() - lastPublishedAt.getTime();
-            console.warn(`用户 ${userId} 发布过快，请 ${Math.ceil((minIntervalRegistered - timeDiff) / 1000 / 60)} 分钟后再试`);
+
+            logger.warn(`用户 ${userId} 发布过快，请 ${Math.ceil((minIntervalRegistered - timeDiff) / 1000 / 60)} 分钟后再试`);
 
             broadcastToClients({
                 type: 'publish_rate_limit',
@@ -247,11 +262,11 @@ async function addTeamUp(teamUpData: TeamUpData, userId: string | null | undefin
         });
 
     } catch (error) {
-        console.error('添加组队信息失败:', error);
+        logger.error('发布失败:', error);
         broadcastToClients({
             type: 'error',
+            error: 1,
             code: 'teamUp.error',
-            message: '发布失败'
         }, userId);
     }
 }
@@ -345,7 +360,7 @@ function sanitizeRichText(content: string): string {
 }
 
 /**
- * 组队信息检索API
+ * 组队信息检索
  */
 router.get('/teamups', timeUpRateLimiter, [
     checkquery("page").optional().isInt({min: 1}).toInt(),
@@ -426,12 +441,91 @@ router.get('/teamups', timeUpRateLimiter, [
         });
     } catch (error) {
         logger.error('检索组队信息失败:', error);
-        res.status(500).json({error: 1, code: 'teamups.error', message: '检索组队信息失败'});
+        res.status(500).json({error: 1, code: 'teamups.error'});
     }
 });
 
 /**
- * 组队信息统计API
+ * 获取用户发布组队信息
+ */
+router.post('/my/teamups', timeUpRateLimiter, verifyJWT, [
+    checkquery("page").optional().isInt({min: 1}).toInt(),
+    checkquery("limit").optional().isInt({min: 1, max: 100}).toInt(),
+    checkquery("sortBy").isIn(['recent', 'expires']),
+    checkquery('keyword').optional().isString().isLength({max: 100}).trim(),
+], async (req: RequestHasAccount, res: Response) => {
+    try {
+        const validateErr = validationResult(req);
+        if (!validateErr.isEmpty()) {
+            return res.status(400).json({error: 1, code: 'my.teamups.bad', message: validateErr.array()});
+        }
+
+        const {keyword, sortBy, page = 1, limit = 20} = req.query as {
+            keyword?: string;
+            sortBy: string;
+            page?: number;
+            limit?: number;
+        } | any;
+
+        let query = db('team_up')
+            .leftJoin('user', 'team_up.userId', 'user.id')
+            .where('user.id', req.user.id)
+            .select(
+                'team_up.*',
+                'user.username',
+                db.raw('UNIX_TIMESTAMP(team_up.expiresAt) as expiresAtTimestamp'),
+                db.raw('UNIX_TIMESTAMP(team_up.createdAt) as createdAtTimestamp')
+            );
+
+        // 排序
+        switch (sortBy) {
+            case 'recent':
+                query.orderBy('team_up.createdAt', 'desc');
+                break
+            default:
+                query.orderBy('team_up.expiresAt', 'asc');
+                break;
+        }
+
+        // 分页处理
+        const totalQuery = query.clone().clearSelect().count('* as total');
+        const totalResult = await totalQuery.first();
+        const total = totalResult ? (totalResult as any).total : 0;
+
+        query.limit(limit).offset((page - 1) * limit);
+
+        const teamUps = await query;
+
+        // 格式化响应数据
+        const formattedTeamUps = teamUps.map(t => ({
+            id: t.id,
+            player: t.player,
+            description: t.description,
+            tags: t.tags,
+            expiresAt: t.expiresAtTimestamp,
+            createdAt: t.createdAtTimestamp,
+            username: t.username || null,
+            userId: t.userId
+        }));
+
+        res.status(200).json({
+            success: 1,
+            code: 'my.teamups.success',
+            data: formattedTeamUps,
+            pagination: {
+                total,
+                page: Number(page),
+                limit: Number(limit)
+            }
+        });
+    } catch (error) {
+        logger.error('我读检索组队信息失败:', error);
+        res.status(500).json({error: 1, code: 'teamups.error'});
+    }
+})
+
+/**
+ * 组队信息统计
  */
 router.get('/teamup/statistics', timeUpRateLimiter, async (req: Request, res: Response) => {
     try {
@@ -450,8 +544,8 @@ router.get('/teamup/statistics', timeUpRateLimiter, async (req: Request, res: Re
             data: total
         });
     } catch (error) {
-        logger.error('获取组队统计信息失败:', error);
-        res.status(500).json({error: 1, code: 'teamup.statistics.error', message: '检索组队信息失败'});
+        logger.error('检索组队信息失败:', error);
+        res.status(500).json({error: 1, code: 'teamup.statistics.error'});
     }
 });
 

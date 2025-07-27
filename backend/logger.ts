@@ -1,6 +1,7 @@
 "use strict";
 import process from "process";
 import {inspect} from "util";
+
 import config from "./config";
 
 class Logger {

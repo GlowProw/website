@@ -1,9 +1,12 @@
 {
-  "name": "backend",
+  "name": "glow-prow-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "This is the glow-prow-backen project, which deals with data.",
   "type": "module",
   "main": "app.ts",
+  "engines": {
+    "node": ">=22.17.0"
+  },
   "scripts": {
     "start": "npx tsx app.ts",
     "dev": "npx ts-node-dev app.ts"
@@ -19,11 +22,15 @@
     "express-rate-limit": "^8.0.1",
     "express-validator": "^7.2.1",
     "got": "^14.4.7",
+    "i18next": "^25.3.2",
+    "i18next-fs-backend": "^2.6.0",
+    "ical-generator": "^9.0.0",
     "jsonwebtoken": "^9.0.2",
     "knex": "^3.1.0",
     "mysql": "^2.18.1",
     "mysql2": "^3.14.2",
     "node-cron": "^4.2.1",
+    "node-fetch": "^3.3.2",
     "reflect-metadata": "^0.2.2",
     "socket.io": "^4.8.1",
     "svg-captcha-fixed": "^1.5.2",

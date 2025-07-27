@@ -1,6 +1,6 @@
 // src/entity/TeamUp.ts
 import {Column, Entity, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
-import {User} from "./User"; // 导入 User 实体
+import {Users} from "./Users"; // 导入 User 实体
 
 @Entity()
 export class TeamUp {
@@ -26,10 +26,10 @@ export class TeamUp {
     createdAt: Date;
 
     // 添加用户关联
-    @ManyToOne(() => User, user => user.teamUps, {nullable: true, onDelete: 'SET NULL'})
+    @ManyToOne(() => Users, user => user.teamUps, {nullable: true, onDelete: 'SET NULL'})
         // nullable: true 表示匿名发布时 userId 可以为空
         // onDelete: 'SET NULL' 表示如果用户被删除了，他发布的组队信息对应的 user 字段会被设为 NULL
-    user: User | null; // 关联的用户实体
+    user: Users | null; // 关联的用户实体
 
     @Column({type: "varchar", nullable: true}) // 存储用户ID，方便查询
     userId: string | null;

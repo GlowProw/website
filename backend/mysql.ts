@@ -3,7 +3,7 @@ import knex from "knex";
 import config from "./config";
 
 const db = knex({
-    client: 'mysql',
+    client: "mysql",
     connection: {
         host: config.mysql.host,
         port: config.mysql.port,
@@ -15,7 +15,7 @@ const db = knex({
             if (field.type == 'JSON')
                 return JSON.parse(field.string());
             else if (field.type == 'BIGINT')
-                return parseInt(field.string());    // MAX_INT is around 2^53, be awar of precision lost
+                return parseInt(field.string());  // MAX_INT is around 2^53, be awar of precision lost
             return next();
         }
     },

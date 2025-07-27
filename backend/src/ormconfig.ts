@@ -1,6 +1,6 @@
 import {DataSource} from 'typeorm';
 import {TeamUp} from './entity/TeamUp';
-import {User} from './entity/User';
+import {Users} from './entity/Users';
 import mysql2 from 'mysql2'
 
 import config from "../config";
@@ -15,7 +15,7 @@ const AppDataSource = new DataSource({
     synchronize: config.__DEBUG__, // ⚠️ 生产环境不要用 true，开发环境方便自动创建表结构
     logging: false,
     driver: mysql2,
-    entities: [TeamUp, User],
+    entities: [TeamUp, Users],
     migrations: [],
     subscribers: [],
 });

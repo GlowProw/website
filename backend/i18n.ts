@@ -42,7 +42,7 @@ async function fetchAndCacheTranslations() {
             const data = await response.json();
             await fs.writeFile(cacheFile, JSON.stringify(data, null, 2));
             logger.info(`Successfully updated ${locale} translations`);
-        } catch (error) {
+        } catch (error: any) {
             hasError = true;
             logger.error(`Failed to update ${locale} translations:`, error.message);
 
@@ -66,7 +66,9 @@ async function fetchAndCacheTranslations() {
 }
 
 // 自定义后端 - 从缓存目录加载翻译
-class CustomBackend {
+class Backend {
+    type = ''
+
     constructor() {
         this.type = 'backend';
     }
@@ -94,7 +96,7 @@ async function initI18next() {
     }
 
     return i18next
-        .use(new CustomBackend())
+        .use(new Backend())
         .init({
             lng: config.i18n.defaultLocale,
             fallbackLng: config.i18n.defaultLocale,

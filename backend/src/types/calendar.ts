@@ -5,9 +5,9 @@ export interface GameEventOccurrence {
 
 export interface GameEvent {
     id: string;
-    name?: string; // Optional name, will use id if not provided
+    name?: string;
     description?: string; // Optional description
-    duration: number; // Duration in days
+    duration: number;
     occurrences: GameEventOccurrence[];
 }
 
