@@ -34,7 +34,6 @@ export function useHttpToken() {
     }
 
     const post = (url = '', data?: { data?: {} }) => {
-        console.log(token(data))
         return http.post(url, token(data));
     }
 

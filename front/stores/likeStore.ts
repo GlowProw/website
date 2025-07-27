@@ -22,7 +22,6 @@ export const useLikeStore = defineStore('like', {
 
             const httpToken = useHttpToken()
             const result = await httpToken.get(`likes/check?userId=${userId}&targetType=${targetType}&targetId=${targetId}`);
-            console.log(result)
 
             const {isLiked} = result.data;
 

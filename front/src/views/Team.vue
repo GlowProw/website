@@ -175,7 +175,7 @@ const pushTeamInfo = async () => {
 
     ws.client.send(JSON.stringify(message));
   } catch (e) {
-    console.log(e)
+    console.error(e)
   } finally {
 
   }

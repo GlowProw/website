@@ -1,5 +1,5 @@
 <script setup lang="ts">
-
+import Textarea from "../../components/textarea/index.vue"
 import AssemblyShowWidget from "../../components/AssemblyShowWidget.vue";
 import {useRoute, useRouter} from "vue-router";
 import {computed, onMounted, ref} from "vue";
@@ -17,6 +17,7 @@ const route = useRoute(),
 let publishData = ref({
       name: '',
       description: '',
+      tags: [],
       data: {}
     }),
     dataLoading = ref(false),
@@ -48,6 +49,7 @@ const onLoadData = () => {
 
   if (uid) {
     assemblyData.value = storageAssembly.get(uid as string, StorageAssemblyType.Data)
+
     if (assemblyData && assemblyData.value) {
       assemblyWorkshopRef.value.onLoadJson(assemblyData.value.data.data)
       publishData.value = {
@@ -68,6 +70,8 @@ const onEdit = async () => {
     publishLoading.value = true
 
     let editPublishData: any = publishData.value;
+
+    // 处理数据
     editPublishData.data = JSON.stringify(editPublishData.assembly) // as JSON
 
     const result = await httpToken.post(api['assembly_edit'], {
@@ -103,6 +107,7 @@ const onPublish = async () => {
             name: publishData.value.name,
             description: publishData.value.description,
             data: JSON.stringify(assemblyData.value.data.data),
+            tags: publishData.value.tags.join(','),
             localUid: uid
           }
         }),
@@ -167,18 +172,27 @@ const onPublish = async () => {
             </template>
           </v-text-field>
 
-          <v-textarea
-              v-model="publishData.description"
-              label="描述"
-              placeholder="输入描述描述"
-              length="500"
-              variant="underlined">
-            <template v-slot:details>
-              这是一个可选项，给予描述配置特别之处
-            </template>
-          </v-textarea>
+          <div class="mt-4 font-weight-bold">描述</div>
+          <Textarea class="mt-5 mb-2"
+                    height="400px"
+                    v-model="publishData.description"
+                    placeholder="输入描述描述"></Textarea>
         </v-col>
         <v-col align="right">
+          <v-combobox
+              label="标签"
+              chips
+              multiple
+              v-model="publishData.tags"
+              variant="underlined"
+              clearable
+              item-title="label"
+              item-value="value"
+              :hide-no-data="true">
+            <template v-slot:details>
+              输入标签敲下回车键，即可创建新标签
+            </template>
+          </v-combobox>
         </v-col>
       </v-row>
     </v-container>

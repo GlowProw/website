@@ -96,7 +96,6 @@ export default {
         encryptCaptcha: this.hash,
         response: this.inputValue,
       });
-      console.log(this.inputValue)
     },
     /**
      * 刷新验证码

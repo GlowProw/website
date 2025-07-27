@@ -70,13 +70,15 @@ watch(list, (newList) => {
           <v-col cols="6" v-for="(item, index) in list.data" :key="index" class="card-flavor">
             <v-row class="pt-5 pl-5 pr-5">
               <v-col>
-                <p class="font-weight-bold">{{ item.name }} - {{ item.username }}</p>
-                <p class="opacity-80">{{ item.description }}</p>
+                <router-link :to="`/assembly/browse/${item.uuid}/detail`">
+                  <div class="text-amber text-h4 mb-1 font-weight-bold">{{item.byUsername}}</div>
+                </router-link>
+                <p class="font-weight-bold">{{ item.name }}</p>
               </v-col>
               <v-col cols="auto">
-                <v-btn>
-                  赞
-                </v-btn>
+                <v-card class="badge-flavor pl-5 pr-5" :disabled="item.isLiked">
+                  赞 {{ item.likeCount }}
+                </v-card>
               </v-col>
             </v-row>
             <v-card class="card-flavor" :to="`/assembly/browse/${item.uuid}/detail`">

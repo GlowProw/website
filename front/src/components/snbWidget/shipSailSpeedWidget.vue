@@ -12,10 +12,6 @@ watch(() => props.data, (value) => {
   simulationArray.value = Object.values(value.sailSpeed);
 })
 
-onMounted(() => {
-  // console.log(this.data.sailSpeed)
-  //
-})
 
 // 分段
 const ticks = computed(() => {

@@ -153,7 +153,6 @@ const getCalendarEventData = async () => {
     seasonsCalendarEvents.value = d.data;
     calendarLoading.value = false;
   } catch (err) {
-    console.log(err)
     calendarLoading.value = false;
     return {}
   }

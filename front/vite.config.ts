@@ -4,6 +4,8 @@ import Vuetify, {transformAssetUrls} from 'vite-plugin-vuetify'
 import {defineConfig} from 'vite'
 import path from "path";
 
+import config from "./package.json"
+
 export default defineConfig({
     plugins: [
         Vue({
@@ -17,6 +19,16 @@ export default defineConfig({
     define: {'process.env': {}},
     build: {
         assetsDir: 'static/images',
+        rollupOptions: {
+            output: {
+                assetFileNames: (assetInfo: any) => {
+                    if (/\.(png|jpe?g|gif|svg|webp|avif)$/.test(assetInfo.name)) {
+                        return `assets/[name].${config.name}.[hash][extname]`
+                    }
+                    return `assets/[name].${config.name}.[hash][extname]`
+                }
+            }
+        }
     },
     resolve: {
         alias: {

@@ -10,7 +10,7 @@ import ItemSlotBase from "../../../components/snbWidget/ItemSlotBase.vue";
 import ShipSailSpeedWidget from "../../../components/snbWidget/shipSailSpeedWidget.vue";
 import MaterialIconWidget from "../../../components/snbWidget/materialIconWidget.vue";
 import FactionIconWidget from "../../../components/snbWidget/factionIconWidget.vue";
-import ShipWidget from "../../../components/snbWidget/shipWidget.vue";
+import ShipIconWidget from "../../../components/snbWidget/shipIconWidget.vue";
 import PerksWidget from "../../../components/snbWidget/perksWidget.vue";
 
 const shipImages = import.meta.glob('@glow-prow-assets/ships/*.png', {eager: true});
@@ -121,10 +121,10 @@ const onStatisticsRawMaterial = () => {
 
             <v-row>
               <ItemSlotBase size="150px" class="mr-3">
-                <ShipWidget :id="shipDetailPageData.id" class="pa-2"
+                <ShipIconWidget :id="shipDetailPageData.id" class="pa-2"
                             :is-click-open-detail="false"
                             :isShowOpenDetail="false"
-                            :isShowDescription="false"></ShipWidget>
+                            :isShowDescription="false"></ShipIconWidget>
               </ItemSlotBase>
               <v-col>
                 <p class="text-pre-wrap mb-4">

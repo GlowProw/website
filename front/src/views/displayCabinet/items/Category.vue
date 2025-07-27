@@ -33,7 +33,6 @@ const onProcessedData = computed(() => {
   resultData = originalData
       .filter(i => i.type == route.params.name)
 
-  console.log(resultData)
   return resultData;
 });
 

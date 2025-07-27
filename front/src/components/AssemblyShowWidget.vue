@@ -6,7 +6,7 @@ import {useRoute} from "vue-router";
 import ItemIconWidget from "./snbWidget/itemIconWidget.vue";
 import ItemSlotBase from "./snbWidget/ItemSlotBase.vue";
 import EmptyView from "./EmptyView.vue";
-import ShipWidget from "./snbWidget/shipWidget.vue";
+import ShipIconWidget from "./snbWidget/shipIconWidget.vue";
 
 import {Ships} from "glow-prow-data";
 import {Item, Items} from "glow-prow-data/src/entity/Items.ts";
@@ -35,6 +35,7 @@ let workshopData = ref({
       frigateUpgradeInsertIndex: 0,
       weaponInsertIndex: 0,
       secondaryWeaponInsertIndex: 0,
+      secondaryWeaponSelect: 0,
       shipWorkshopSelect: null,
       shipSelect: null,
       shipFrigateUpgradeSelect: null,
@@ -48,14 +49,14 @@ let workshopData = ref({
         shipFrigateUpgradeList: [],
         shipFrigateUpgradeSlot: null,       // 家具
         shipSlot: null,                     // 船
-        shopUpgradeSlot: null,              // 船 升级配方
+        shipUpgradeSlot: null,              // 船 升级配方
         weaponSlots: [],                    // 武器
         mortarSlots: [],                    // 弹药
         secondaryWeaponSlots: [],           // 副武器
         displaySlots: [],                   // 家具
       } as {
         shipFrigateUpgradeList: [], shipFrigateUpgradeSlot: Item | null, shipSlot: Ship,
-        displaySlots: Item[], weaponSlot: ItemAssemblySave[] | Item[], shopUpgradeSlot: Item | null,
+        displaySlots: Item[], weaponSlot: ItemAssemblySave[] | Item[], shipUpgradeSlot: Item | null,
         secondaryWeaponSlots: Item[],
         weaponDirection: string[]
       }
@@ -75,7 +76,8 @@ let workshopData = ref({
 watch(() => workshopData.value?.data?.shipSlot, (value) => {
   let result = {}
 
-  Object.entries(value.slots).forEach(i => result[i[0]] = i[1][1])
+  if (value && value.slots)
+    Object.entries(value.slots).forEach(i => result[i[0]] = i[1][1])
 
   cache.value.weaponDirection = result;
 })
@@ -93,6 +95,16 @@ let getShipDisplayList = computed(() => {
 
       const d = Object.values(items).filter(i => tag.indexOf(i.type) >= 0);
       cache.value.shipDisplayList = d;
+      return d;
+    }),
+    getSecondaryWeapon = computed(() => {
+      let tag = ['springloader', 'mortar', 'rocket']
+
+      if (cache.value.shipWeaponList.length > 0)
+        return cache.value.shipWeaponList;
+
+      const d = Object.values(items).filter(i => tag.indexOf(i.type) >= 0);
+      cache.value.shipWeaponList = d;
       return d;
     }),
     getShipWeaponList = computed(() => {
@@ -134,6 +146,32 @@ const getOptionalShipWeaponDirection = () => {
     selectedDirections.push(i)
   })
   return getShipWeaponDirection.value.filter(i => selectedDirections.indexOf(i[0]) < 0) || []
+}
+
+/**
+ * 移除插槽
+ * @param type
+ * @param index
+ */
+const onSlotRemove = (type, index?: number) => {
+  switch (type) {
+    case 'ship':
+      workshopData.value.data.shipSlot = null
+      workshopData.value.data.weaponSlot = []
+      workshopData.value.data.displaySlots = []
+      workshopData.value.data.shipFrigateUpgradeSlot = null
+      workshopData.value.data.secondaryWeaponSlots = [];
+      return;
+    case 'weapon':
+      workshopData.value.data.weaponSlot[index] = Item.fromRawData({})
+      break;
+    case 'upgrade':
+      workshopData.value.data.shipFrigateUpgradeSlot = null
+      break;
+    case 'display':
+      workshopData.value.data.displaySlots[index] = Item.fromRawData({})
+      break;
+  }
 }
 
 
@@ -249,6 +287,20 @@ const onSelectWorkshopShip = () => {
 }
 
 /**
+ * 选择副武器
+ */
+const onSelectSecondaryWeapon = () => {
+  if (poops.readonly)
+    return;
+
+  workshopData.value.secondaryWeaponModel = false;
+  if (!workshopData.value.secondaryWeaponSelect)
+    return;
+
+  workshopData.value.data.secondaryWeaponSlots[workshopData.value.secondaryWeaponInsertIndex] = workshopData.value.secondaryWeaponSelect
+}
+
+/**
  * 重制配置
  */
 const onAssemblyClear = () => {
@@ -257,7 +309,7 @@ const onAssemblyClear = () => {
 
   workshopData.value.data.displaySlots = []
   workshopData.value.data.shipFrigateUpgradeSlot = null
-  workshopData.value.data.shopUpgradeSlot = []
+  workshopData.value.data.shipUpgradeSlot = []
 }
 
 /**
@@ -320,9 +372,17 @@ const onLoadJson = (data) => {
   };
 }
 
+/**
+ * 清理
+ */
+const onErasure = () => {
+  onSlotRemove('ship')
+}
+
 defineExpose({
   onExpostJson,
   onLoadJson,
+  onErasure,
 })
 </script>
 
@@ -344,20 +404,40 @@ defineExpose({
                   max-width="450"
                   interactive
                   open-on-click>
-                <template v-slot:activator="{ props }">
+                <template v-slot:activator="{ props: propsSlot }">
                   <ItemSlotBase size="110px" class="pa-2" v-if="!workshopData.data.shipSlot">
-                    <v-card class="w-100 d-flex align-center justify-center" v-bind="props"
+                    <v-card class="w-100 d-flex align-center justify-center" v-bind="propsSlot"
                             :disabled="readonly">
                       <v-icon icon="mdi-plus" size="50"></v-icon>
                     </v-card>
                   </ItemSlotBase>
-                  <ItemSlotBase size="110px" class="pa-2"
-                                :class="[workshopData.data.shipSlot.id ? 'bg-amber' : '']"
-                                v-else>
-                    <v-card class="w-100">
-                      <ShipWidget :id="workshopData.data.shipSlot.id" :isClickOpenDetail="false"/>
+                  <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-else>
+                    <v-card
+                        class="mx-auto"
+                        max-width="344"
+                        v-bind="propsHoverClose">
+
+                      <ItemSlotBase size="110px" class="pa-2"
+                                    v-if="workshopData.data.shipSlot && workshopData.data.shipSlot.id"
+                                    :class="[workshopData.data.shipSlot && workshopData.data.shipSlot.id ? 'bg-amber' : '']">
+                        <v-card class="w-100">
+                          <ShipIconWidget :id="workshopData.data.shipSlot.id" :isClickOpenDetail="false"/>
+                        </v-card>
+                      </ItemSlotBase>
+
+                      <v-overlay
+                          v-if="!readonly"
+                          :model-value="!!isHovering"
+                          class="align-center justify-center"
+                          scrim="#000"
+                          @click="onSlotRemove('ship')"
+                          contained>
+                        <v-icon icon="mdi-close" size="50"></v-icon>
+                      </v-overlay>
                     </v-card>
-                  </ItemSlotBase>
+                  </v-hover>
+
+
                 </template>
                 <v-card v-slot:default>
                   <v-row class="ga-0 pa-2 pb-5">
@@ -374,7 +454,7 @@ defineExpose({
                             :class="[
                                           workshopData.shipSelect ? workshopData.shipSelect!.id == ship!.id ? 'bg-amber' : '' : ''
                                       ]">
-                          <ShipWidget :id="ship.id" :isClickOpenDetail="false"></ShipWidget>
+                          <ShipIconWidget :id="ship.id" :isClickOpenDetail="false"></ShipIconWidget>
                         </ItemSlotBase>
                       </v-badge>
                     </v-col>
@@ -386,7 +466,7 @@ defineExpose({
                 </v-card>
               </v-tooltip>
             </v-col>
-            <v-col class="ml-2">
+            <v-col class="ml-2" cols="auto">
               <!-- 升级部件 -->
               <v-tooltip
                   v-model="workshopData.frigateUpgradeModel"
@@ -399,19 +479,40 @@ defineExpose({
                   interactive
                   open-on-click>
                 <template v-slot:activator="{ props }">
-                  <v-badge :color="`var(--main-color)`" v-if="workshopData.data.shipFrigateUpgradeSlot">
-                    <template v-slot:badge class="d-flex align-center justify-center">
-                      <div class="pt-2 pb-2">
-                        <v-icon icon="mdi-chevron-triple-up mr-1" size="18"></v-icon>
-                        <b>{{ workshopData.data.shipFrigateUpgradeSlot.tier || 0 }}</b>
-                      </div>
-                    </template>
-                    <ItemSlotBase
-                        size="80px" class="pa-1"
-                        :class="[workshopData.data.shipFrigateUpgradeSlot ? 'bg-amber' : '']">
-                      <ItemIconWidget :id="workshopData.data.shipFrigateUpgradeSlot.id" :is-open-detail="false"></ItemIconWidget>
-                    </ItemSlotBase>
-                  </v-badge>
+
+                  <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.shipFrigateUpgradeSlot">
+                    <v-card
+                        class="mx-auto"
+                        max-width="344"
+                        v-bind="propsHoverClose">
+
+                      <v-badge bordered rounded :color="`var(--main-color)`" :offset-x="25" :offset-y="63" class="d-flex">
+                        <template v-slot:badge class="d-flex align-center justify-center">
+                          <div class="pt-2 pb-2">
+                            <v-icon icon="mdi-chevron-triple-up mr-1"></v-icon>
+                            <b>{{ workshopData.data.shipFrigateUpgradeSlot.tier || 0 }}</b>
+                          </div>
+                        </template>
+                        <ItemSlotBase
+                            size="80px" class="pa-1"
+                            :class="[workshopData.data.shipFrigateUpgradeSlot ? 'bg-amber' : '']">
+                          <ItemIconWidget :id="workshopData.data.shipFrigateUpgradeSlot.id" :is-open-detail="false"></ItemIconWidget>
+                        </ItemSlotBase>
+                      </v-badge>
+
+                      <v-overlay
+                          v-if="!readonly"
+                          :model-value="!!isHovering"
+                          class="align-center justify-center"
+                          scrim="#000"
+                          @click="onSlotRemove('upgrade')"
+                          contained>
+                        <v-icon icon="mdi-close" size="40"></v-icon>
+                      </v-overlay>
+                    </v-card>
+                  </v-hover>
+
+
                   <ItemSlotBase size="80px" class="pa-2"
                                 v-if="!workshopData.data.shipFrigateUpgradeSlot && workshopData.data.shipFrigateUpgradeList.length > 0">
                     <v-card class="w-100 d-flex align-center justify-center"
@@ -485,9 +586,24 @@ defineExpose({
                           <v-icon icon="mdi-plus"></v-icon>
                         </v-card>
                       </ItemSlotBase>
-                      <ItemSlotBase size="80px" class="pa-1" v-if="workshopData.data.displaySlots[displayIndex] && workshopData.data.displaySlots[displayIndex].id">
-                        <ItemIconWidget :id="workshopData.data.displaySlots[displayIndex].id"></ItemIconWidget>
-                      </ItemSlotBase>
+
+                      <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-else>
+                        <v-card v-bind="propsHoverClose">
+                          <ItemSlotBase size="80px" class="pa-1" v-if="display && display.id">
+                            <ItemIconWidget :id="display.id"></ItemIconWidget>
+                          </ItemSlotBase>
+
+                          <v-overlay
+                              v-if="!readonly"
+                              :model-value="!!isHovering"
+                              class="align-center justify-center"
+                              scrim="#000"
+                              @click="onSlotRemove('display', displayIndex)"
+                              contained>
+                            <v-icon icon="mdi-close" size="40"></v-icon>
+                          </v-overlay>
+                        </v-card>
+                      </v-hover>
                     </div>
                   </v-col>
                 </v-row>
@@ -541,7 +657,8 @@ defineExpose({
                 <p class="mb-1">主武器</p>
                 <div class="ml-5 mb-2" v-if="workshopData.data.weaponSlot && workshopData.data.weaponSlot.length > 0" v-for="(i, index) in workshopData.data.weaponSlot" :key="index">
                   <p class="mb-2 ml-n5 mr-n5 pl-5 title-long-flavor bg-black">
-                    <v-select v-if="!readonly" v-model="workshopData.data.weaponDirection[index]"
+                    <v-select v-if="!readonly"
+                              v-model="workshopData.data.weaponDirection[index]"
                               hide-details
                               clearable
                               placeholder="选择武器方向"
@@ -558,14 +675,30 @@ defineExpose({
                       </template>
                     </v-select>
                     <template v-else>
-                      {{ t(`displayCabinet.ship.${workshopData.data.weaponDirection[index]}`) }}
+                      <template v-if="workshopData.data.weaponDirection[index]">
+                        {{ t(`displayCabinet.ship.${workshopData.data.weaponDirection[index]}`) }}
+                      </template>
                     </template>
                   </p>
                   <v-row>
-                    <v-col cols="3">
-                      <ItemSlotBase size="80px" class="pa-1" v-if="workshopData.data.weaponSlot[index] && workshopData.data.weaponSlot[index].id">
-                        <ItemIconWidget :id="i.id"></ItemIconWidget>
-                      </ItemSlotBase>
+                    <v-col cols="auto">
+                      <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.weaponSlot[index] && workshopData.data.weaponSlot[index].id">
+                        <div class="position-relative" v-bind="propsHoverClose">
+                          <ItemSlotBase size="80px" class="pa-1">
+                            <ItemIconWidget :id="i.id"></ItemIconWidget>
+                          </ItemSlotBase>
+
+                          <v-overlay
+                              v-if="!readonly"
+                              :model-value="!!isHovering"
+                              class="align-center justify-center"
+                              scrim="#000"
+                              @click="onSlotRemove('weapon', index)"
+                              contained>
+                            <v-icon icon="mdi-close" size="40"></v-icon>
+                          </v-overlay>
+                        </div>
+                      </v-hover>
                       <ItemSlotBase size="80px" class="pa-2" v-else-if="!workshopData.data.weaponDirection[index]">
                         <v-card class="w-100 d-flex align-center justify-center">
                           <v-icon icon="mdi-close-octagon-outline" size="30"></v-icon>
@@ -673,6 +806,40 @@ defineExpose({
                           <v-icon icon="mdi-plus"></v-icon>
                         </v-card>
                       </ItemSlotBase>
+
+                      <v-dialog v-model="workshopData.secondaryWeaponModel"
+                                content-class="pa-0"
+                                max-height="90%"
+                                min-height="300"
+                                min-width="450"
+                                max-width="700">
+                        <v-card v-slot:default>
+                          <b class="font-weight-bold text-h5 pa-5"> 插入副武器</b>
+                          <v-row class="ga-0 pa-2 pb-5">
+                            <v-col cols="2"
+                                   v-for="(secondaryWeapon, secondaryWeaponIndex) in getSecondaryWeapon"
+                                   :key="secondaryWeaponIndex">
+                              <v-badge :color="workshopData.secondaryWeaponSelect ? workshopData.secondaryWeaponSelect!.id == secondaryWeapon!.id ? `var(--main-color)` : 'transparent' : 'transparent'">
+                                <template v-slot:badge>
+                                  <v-icon icon="mdi-check" v-if="workshopData.secondaryWeaponSelect && workshopData.secondaryWeaponSelect!.id == secondaryWeapon!.id"></v-icon>
+                                </template>
+                                <ItemSlotBase
+                                    size="92px" class="pa-1"
+                                    @click="workshopData.secondaryWeaponSelect = secondaryWeapon"
+                                    :class="[
+                                          workshopData.secondaryWeaponSelect ? workshopData.secondaryWeaponSelect!.id == secondaryWeapon!.id ? 'bg-amber' : '' : ''
+                                      ]">
+                                  <ItemIconWidget :id="secondaryWeapon.id" :is-open-detail="false" :is-show-open-detail="false"></ItemIconWidget>
+                                </ItemSlotBase>
+                              </v-badge>
+                            </v-col>
+                          </v-row>
+                        </v-card>
+                        <v-card-actions class="bg-amber">
+                          <v-btn variant="tonal" @click="onSelectSecondaryWeapon" v-if="workshopData.secondaryWeaponSelect">确定</v-btn>
+                          <v-btn variant="tonal" class="ml-1" @click="workshopData.secondaryWeaponModel = false">取消</v-btn>
+                        </v-card-actions>
+                      </v-dialog>
                     </v-col>
                     <v-col class="d-flex align-start">
                       <div class="w-100">
@@ -781,9 +948,10 @@ defineExpose({
 .workshop-ship {
   background-color: #000;
   user-select: none;
+}
 
-  .workshop-ship-interior {
-  }
+.workshop-ship-interior {
+  user-select: none;
 }
 
 .workshop-ships-show-image {

@@ -59,7 +59,6 @@ export default {
      */
     doneVerifies(value) {
       let result = {captchaType: this.captchaType};
-      console.log(value)
 
       switch (this.captchaType) {
         case "turnstile":

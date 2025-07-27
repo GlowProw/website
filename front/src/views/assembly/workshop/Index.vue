@@ -24,10 +24,9 @@ let
     assemblyDetailData = ref({}),
     assemblyWorkshopRef = ref(null),                      // 配装工作区
     assemblyWorkshopZoomableAreaRef = ref(null),          // 配装缩放
-    assemblyWorkshopShareRef = ref(null),                 // 配装分享配装展示，只读
-    assemblyShareShowImage = ref(null),                   // 配装分享配装内图片展示，可自定义背景
 
     isSharePreview = ref(false),                          // 是否处于分享预览
+    isWorkshopFillScreen = ref(false),
     shareData: Ref<any> = ref({
       name: '',
       description: ''
@@ -43,10 +42,10 @@ let isEditModel = computed(() => {
           return false
       }
     }),
-    isAssemblyByUser = computed(() => authStore.user.userId == shareData.value.userId)
+    isAssemblyByUser = computed(() => isEditModel.value ? authStore.user.userId == shareData.value.userId : true)
 
 onMounted(() => {
-  if (isEditModel)
+  if (isEditModel.value)
     getAssemblyDetail()
 })
 
@@ -55,8 +54,6 @@ onMounted(() => {
  */
 const getAssemblyDetail = async () => {
   const {uid} = route.params;
-
-  console.log(route.params)
 
   const result = await http.get(api['assembly_item'], {
         params: {
@@ -71,7 +68,7 @@ const getAssemblyDetail = async () => {
   assemblyDetailData.value = d.data;
   shareData.value = d.data;
 
-  nextTick(() => {
+  await nextTick(() => {
     assemblyWorkshopRef.value.onLoadJson(d.data.assembly)
   })
 }
@@ -130,17 +127,27 @@ const onSaveAssembly = (type: StorageAssemblyType, uid?: string) => {
     data: assemblyWorkshopRef.value.onExpostJson(),
     localCreationTime: now,
     localUpdateTime: now,
-    ...{
-      opinion: {
-        // 'background-src': '',
-        // 'background-image-position': assemblyShareShowImage.value.position
-      }
-    }
   }
 
   const updata = storageAssembly.updata(shareData.value, type, uid);
 
   return updata
+}
+
+/**
+ * 重制画布位置
+ */
+const onWorkshopPos = () => {
+  if (assemblyWorkshopZoomableAreaRef)
+    assemblyWorkshopZoomableAreaRef.value.centerCanvas()
+}
+
+const onWorkshopFullScreen = () => {
+  isWorkshopFillScreen.value = !isWorkshopFillScreen.value;
+}
+
+const onWorkshopDelete = () => {
+  assemblyWorkshopRef.value.onErasure();
 }
 </script>
 
@@ -165,29 +172,30 @@ const onSaveAssembly = (type: StorageAssemblyType, uid?: string) => {
         </p>
       </v-col>
       <v-col cols="auto">
-        <v-btn-group>
-          <v-btn @click="onSaveAssemblyDraft" v-if="!isEditModel">
-            保存草稿
-          </v-btn>
-          <v-btn :color="`var(--main-color)`" :disabled="!isAssemblyByUser" @click="onSaveAssemblyPublish" v-if="!isEditModel">
-            创建
-          </v-btn>
-          <v-btn :color="`var(--main-color)`" :disabled="!isAssemblyByUser" @click="onSaveAssemblyEdit" v-if="isEditModel">
-            保存
-          </v-btn>
-        </v-btn-group>
+        <v-btn class="mr-2" v-if="!isEditModel">
+          加载草稿
+        </v-btn>
+        <v-btn class="mr-2" @click="onSaveAssemblyDraft" v-if="!isEditModel">
+          保存草稿
+        </v-btn>
+        <v-btn :color="`var(--main-color)`" :disabled="!isAssemblyByUser" @click="onSaveAssemblyPublish" v-if="!isEditModel">
+          下一步
+        </v-btn>
+        <v-btn :color="`var(--main-color)`" :disabled="!isAssemblyByUser" @click="onSaveAssemblyEdit" v-if="isEditModel">
+          下一步
+        </v-btn>
       </v-col>
     </v-row>
   </v-container>
 
   <!-- Workshop S -->
-  <div max-width="100%" v-show="!isSharePreview">
+  <div max-width="100%" :class="[isWorkshopFillScreen ? 'fill-screen' : '']" v-show="!isSharePreview">
     <v-row class="mt-1 mb-5">
       <v-col cols="12">
         <v-card class="w-100 card-flavor workshop-ship">
           <ZoomableCanvas
               ref="assemblyWorkshopZoomableAreaRef"
-              style="height: 500px"
+              :style="isWorkshopFillScreen ? 'height: calc(100vh - 100px)' : 'height: 500px'"
               :minScale=".8"
               :max-scale="1.2"
               :boundary="{
@@ -205,8 +213,19 @@ const onSaveAssembly = (type: StorageAssemblyType, uid?: string) => {
             <v-row justify="center">
               <v-col cols="auto">
                 <v-btn density="comfortable"
-                       @click="() => assemblyWorkshopRef.value.centerCanvas()"
+                       @click="onWorkshopPos"
                        icon="mdi-restore"></v-btn>
+
+              </v-col>
+              <v-col cols="auto">
+                <v-btn density="comfortable"
+                       @click="onWorkshopFullScreen"
+                       :icon="`mdi-${!isWorkshopFillScreen ? 'fullscreen' : 'fullscreen-exit'}`"></v-btn>
+              </v-col>
+              <v-col cols="auto">
+                <v-btn density="comfortable"
+                       @click="onWorkshopDelete"
+                       icon="mdi-delete"></v-btn>
               </v-col>
             </v-row>
           </v-container>
@@ -225,5 +244,14 @@ const onSaveAssembly = (type: StorageAssemblyType, uid?: string) => {
   --gradient-end: #000000;
 
   background: linear-gradient(to right, var(--gradient-start), var(--gradient-end), var(--gradient-end));
+}
+
+.fill-screen {
+  position: fixed;
+  z-index: 100;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
 }
 </style>

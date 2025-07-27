@@ -84,7 +84,6 @@ const onCategorizeByGrade = (data): {} => {
  */
 const onIsModPossibleSlot = (data) => {
   for (const i of data.variants) {
-    // console.log(props.type, i.itemType,i.itemType.indexOf(props.type))
     if (i.itemType.indexOf(props.type) > 0)
       return true;
   }

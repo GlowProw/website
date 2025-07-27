@@ -2,13 +2,14 @@
 
 import AssemblyShowWidget from "../../components/AssemblyShowWidget.vue";
 import {useRoute, useRouter} from "vue-router";
-import {nextTick, onMounted, ref} from "vue";
+import {computed, nextTick, onMounted, ref} from "vue";
 import {useI18n} from "vue-i18n";
 import {api} from "../../assets/sripts";
 import {useHttpToken} from "../../assets/sripts/httpUtil";
 import {useAuthStore} from "../../../stores";
 import LikeWidget from "../../components/LikeWidget.vue";
 import {DisqusComments, DisqusCount} from "vue3-disqus";
+import Textarea from "../../components/textarea/index.vue";
 
 const route = useRoute(),
     router = useRouter(),
@@ -19,13 +20,24 @@ const route = useRoute(),
 let assemblyDetailData = ref({
       uuid: '',
       name: '',
+      tags: [],
       description: '',
       username: '',
       createdTime: Date.now(),
       updatedTime: Date.now(),
     }),
     assemblyDetailRef = ref(null),
-    delAssemblyLoading = ref(false)
+    delAssemblyLoading = ref(false),
+    language = computed(() => locale.value.split('-')[0]),
+    sso = ref({
+      // name:   "SampleNews",
+      // button:  "http://example.com/images/samplenews.gif",
+      // icon:     "http://example.com/favicon.png",
+      // url:        "http://example.com/login/",
+      // logout:  "http://example.com/logout/",
+      // width:   "800",
+      // height:  "400"
+    })
 
 onMounted(() => {
   getAssemblyDetail()
@@ -48,6 +60,7 @@ const getAssemblyDetail = async () => {
     return;
 
   assemblyDetailData.value = d.data;
+  assemblyDetailData.value.description = unescape(assemblyDetailData.value.description)
 
   nextTick(() => {
     assemblyDetailRef.value.onLoadJson(d.data.assembly)
@@ -122,7 +135,9 @@ const delAssembly = async () => {
 
         <v-btn to="#commit" class="ml-2">
           <v-icon icon="mdi-comment-outline" class="mr-2"></v-icon>
-          <DisqusCount :identifier="`/assembly/uuid/${assemblyDetailData.uuid}`"></DisqusCount>
+          <DisqusCount :lazy="true"
+                       :language="language"
+                       :identifier="`/assembly/uuid/${assemblyDetailData.uuid}`"></DisqusCount>
         </v-btn>
       </v-toolbar>
 
@@ -137,7 +152,10 @@ const delAssembly = async () => {
       <v-row>
         <v-col cols="12" sm="12" lg="8" xl="4">
           <div id="commit">
-            <DisqusComments :lazy="true" :language="locale.replaceAll('-','_')" :identifier="`/assembly/uuid/${assemblyDetailData.uuid}`"/>
+            <DisqusComments :lazy="true"
+                            :language="language"
+                            :sso-config="sso"
+                            :identifier="`/assembly/uuid/${assemblyDetailData.uuid}`"/>
           </div>
         </v-col>
         <v-col cols="12" sm="12" lg="4" xl="4">
@@ -147,6 +165,12 @@ const delAssembly = async () => {
               readonly
               variant="underlined">
           </v-text-field>
+
+          <div class="ga-2 mb-6">
+            <v-badge color="transparent" dot class="badge-flavor mr-2 pt-1 pb-1 pl-5 pr-5" v-for="(i, index) in assemblyDetailData.tags">
+              {{ i }}
+            </v-badge>
+          </div>
 
           <v-text-field
               label="创建时间"
@@ -162,15 +186,11 @@ const delAssembly = async () => {
               variant="underlined">
           </v-text-field>
 
-          <v-textarea
-              v-model="assemblyDetailData.description"
-              :rows="10"
-              label="描述"
-              readonly
-              placeholder="输入描述描述"
-              length="500"
-              variant="underlined">
-          </v-textarea>
+          <Textarea class="mt-5 mb-2"
+                    height="400px"
+                    :readonly="true"
+                    v-model="assemblyDetailData.description"
+                    placeholder="输入描述描述"></Textarea>
         </v-col>
       </v-row>
     </v-container>

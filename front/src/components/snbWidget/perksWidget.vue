@@ -45,7 +45,6 @@ const getDescription = (key) => {
   const perksName = sanitizeString(key);
   let keys = []
 
-  console.log(perksName.removedNumbers[0])
   let tString: any = [
     `snb.perks.${perksName.cleaned}.name`,
     `snb.items.${perksName.cleaned}.name`,

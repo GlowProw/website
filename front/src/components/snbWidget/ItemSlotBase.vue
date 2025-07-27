@@ -5,9 +5,9 @@ const props = withDefaults(defineProps<{ size: number | string, padding?: number
 </script>
 
 <template>
-  <div :class="`v-item-slot card-flavor pa-${padding}`" :style="`height: ${size}; width: ${size};min-height: ${size}; min-width: ${size}`">
+  <span :class="`v-item-slot card-flavor pa-${padding}`" :style="`height: ${size}; width: ${size};min-height: ${size}; min-width: ${size}`">
     <slot></slot>
-  </div>
+  </span>
 </template>
 
 <style scoped lang="less">

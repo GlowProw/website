@@ -5,7 +5,7 @@ import {Ship} from "glow-prow-data/src/entity/Ships.ts";
 import ItemSlotBase from "../../../components/snbWidget/ItemSlotBase.vue";
 import {onMounted, ref} from "vue";
 import {useI18n} from "vue-i18n";
-import ShipWidget from "../../../components/snbWidget/shipWidget.vue";
+import ShipIconWidget from "../../../components/snbWidget/shipIconWidget.vue";
 
 const shipsData: Ship[] = Ships,
     materialsData: any = Materials,
@@ -92,7 +92,7 @@ const onProcessedData = () => {
 
         <v-row class="ships-list ga-2">
           <ItemSlotBase size="150px" v-for="(i,index) in onProcessedData()" :key="index">
-            <ShipWidget :id="i.id" class="pa-2"></ShipWidget>
+            <ShipIconWidget :id="i.id" class="pa-2"></ShipIconWidget>
           </ItemSlotBase>
         </v-row>
       </v-col>

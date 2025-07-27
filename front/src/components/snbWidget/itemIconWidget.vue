@@ -30,10 +30,16 @@ const assetsImages = {
   ...assets_tools, ...assets_shipsUpgrades, ...assets_items
 };
 const rarityImages = import.meta.glob('@/assets/images/item-rarity-*.png', {eager: true});
-const props = withDefaults(defineProps<{ id: string, isShowOpenDetail?: boolean, isOpenDetail?: boolean }>(), {
-  id: null,
+const props = withDefaults(defineProps<{
+  id: string,
+  isShowOpenDetail?: boolean,
+  isOpenDetail?: boolean,
+  padding?: number
+}>(), {
+  id: 'culverin1',
   isShowOpenDetail: true,
   isOpenDetail: true,
+  padding: 1
 })
 const items: Items = Items,
     route = useRoute(),
@@ -100,9 +106,9 @@ const onReady = async () => {
       <v-card
           width="100%"
           v-bind="activatorProps"
-          class="ma-1"
           :to="isOpenDetail ? `/display-cabinet/item/${i.id}` : null"
           :class="[
+              `ma-${props.padding}`,
               `item-card-header-rarity-${i.rarity}`
           ]">
         <template v-slot:image v-if="i.rarity">
