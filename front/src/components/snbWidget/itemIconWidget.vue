@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import Loading from "../Loading.vue";
-import {onMounted, type Ref, ref} from "vue";
+import {onMounted, type Ref, ref, watch} from "vue";
 import {Item, Items} from "glow-prow-data/src/entity/Items.ts";
 import {useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
@@ -55,6 +55,10 @@ let itemsCardData = ref({
     // 稀有度
     raritys: string[] = ["common", "uncommon", "rare", "epic", "legendary"],
     itemsRarityImages = ref({})
+
+watch(() => props.id, () => {
+  onReady()
+})
 
 onMounted(() => {
   onReady()

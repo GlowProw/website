@@ -6,22 +6,30 @@ import ShipIconWidget from "../../components/snbWidget/shipIconWidget.vue";
 import ItemSlotBase from "../../components/snbWidget/ItemSlotBase.vue";
 import {Ship} from "glow-prow-data/src/entity/Ships.ts";
 import {Item} from "glow-prow-data/src/entity/Items.ts";
+import {onMounted, Ref, ref} from "vue";
 
 let items = Items,
-    ships = Ships
+    ships = Ships,
+    itemsRandomList: Ref<Item[]> = ref([]),
+    shipsRandomList: Ref<Ship[]> = ref([])
+
+onMounted(() => {
+  getItems()
+  getShips()
+})
 
 /**
  * 获取物品
  */
-const getItemsList = (): Item[] => {
-  return getRandomItems(items, 50) as Item[]
+const getItems = () => {
+  itemsRandomList.value = getRandom(items, 50) as Item[]
 }
 
 /**
  * 获取船
  */
-const getShips = (): Ship[] => {
-  return getRandomItems(ships, 5) as Ship[]
+const getShips = () => {
+  shipsRandomList.value = getRandom(ships, 5) as Ship[]
 }
 
 /**
@@ -29,7 +37,7 @@ const getShips = (): Ship[] => {
  * @param obj
  * @param count
  */
-function getRandomItems(obj, count) {
+function getRandom(obj, count) {
   const keys = Object.values(obj);
   const shuffledKeys = [...keys].sort(() => 0.5 - Math.random());
   return shuffledKeys.slice(0, count);
@@ -52,14 +60,20 @@ function getRandomItems(obj, count) {
     <v-row class="fill-height">
       <div class="w-100">
         <v-toolbar class="title-long-flavor bg-black mb-5">
-          <div class="ml-10 font-weight-bold text-amber">船</div>
+          <router-link to="/display-cabinet/ships" class="ml-10 font-weight-bold text-amber">
+            船
+            ({{ Object.keys(ships).length || 0 }})
+          </router-link>
           <v-spacer></v-spacer>
+          <v-btn @click="getShips" class="mr-2" icon density="compact">
+            <v-icon icon="mdi-dice-4-outline"></v-icon>
+          </v-btn>
           <router-link class="mr-10" to="/display-cabinet/ships">
             更多
           </router-link>
         </v-toolbar>
         <v-row>
-          <v-col cols="auto" v-for="(i, index) in getShips()" :key="index">
+          <v-col cols="auto" v-for="(i, index) in shipsRandomList" :key="index">
             <ItemSlotBase size="120px">
               <ShipIconWidget :id="i.id"></ShipIconWidget>
             </ItemSlotBase>
@@ -68,14 +82,20 @@ function getRandomItems(obj, count) {
       </div>
       <div class="mt-10">
         <v-toolbar class="title-long-flavor bg-black mb-5">
-          <div class="ml-10 font-weight-bold text-amber">物品</div>
+          <router-link to="/display-cabinet/items" class="ml-10 font-weight-bold text-amber">
+            物品
+            ({{ Object.keys(items).length || 0 }})
+          </router-link>
           <v-spacer></v-spacer>
+          <v-btn @click="getItems" class="mr-2" icon density="compact">
+            <v-icon icon="mdi-dice-4-outline"></v-icon>
+          </v-btn>
           <router-link class="mr-10" to="/display-cabinet/items">
             更多
           </router-link>
         </v-toolbar>
         <v-row>
-          <v-col cols="auto" v-for="(i, index) in getItemsList()" :key="index">
+          <v-col cols="auto" v-for="(i, index) in itemsRandomList" :key="index">
             <ItemSlotBase size="90px">
               <ItemIconWidget :id="i.id"></ItemIconWidget>
             </ItemSlotBase>

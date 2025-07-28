@@ -114,6 +114,7 @@ const delAssembly = async () => {
 
         <LikeWidget targetType="assembly"
                     class="ml-2"
+                    v-if="authStore.isLogin"
                     :targetId="assemblyDetailData.uuid"
                     :userId="authStore.user.userId">
           <template v-slot:activate>
