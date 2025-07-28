@@ -62,10 +62,10 @@ export default {
     <v-card class="pa-10 card-flavor">
       <v-row>
         <v-col v-for="(i, index) in ships" :key="index">
-          <ItemSlotBase size="80px">
+          <ItemSlotBase size="80px"
+                        @click="onFinish(i.id)">
             <ShipWidget :id="i.id" :is-show-open-detail="false"
-                        :is-click-open-detail="false"
-                        @click.native="onFinish(i.id)"></ShipWidget>
+                        :is-click-open-detail="false"></ShipWidget>
           </ItemSlotBase>
         </v-col>
       </v-row>

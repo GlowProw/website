@@ -39,7 +39,7 @@ export class StorageAssembly {
     updata(data: any, type?: StorageAssemblyType, _uid?: string): { code: number, uid?: string } {
         try {
             let uid: any = _uid || uuidv6(),
-                c_d = {};
+                c_d: any = {};
 
             const d = storage.local.get(this.NAME + type)
 

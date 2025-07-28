@@ -15,8 +15,11 @@ const route = useRoute(),
     httpToken = useHttpToken()
 
 let publishData = ref({
-      name: '',
-      description: '',
+      tags: []
+    } as {
+      uuid: string,
+      name: string,
+      description: string,
       tags: [],
       data: {}
     }),
@@ -89,7 +92,7 @@ const onEdit = async () => {
     if (e instanceof Error)
       messages.value.push(e.message)
   } finally {
-    publishLoading.value = true
+    publishLoading.value = false
   }
 }
 
@@ -177,6 +180,9 @@ const onPublish = async () => {
                     height="400px"
                     v-model="publishData.description"
                     placeholder="输入描述描述"></Textarea>
+          <template v-if="route.query.debug">
+            {{ publishData.description }}
+          </template>
         </v-col>
         <v-col align="right">
           <v-combobox
