@@ -36,7 +36,7 @@ router.post('/register', registerRateLimiter, verifyCaptcha, [
         }
 
         const passwordHash = await bcrypt.hash(password, 10);
-        const newUser = userRepository.create({username, passwordHash});
+        const newUser = userRepository.create({username, passwordHash, email});
 
         await userRepository.save(newUser);
 
