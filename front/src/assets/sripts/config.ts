@@ -2,7 +2,7 @@
  * Conf file
  */
 
-export default class Conf {
+export default class Config {
     static NODE: {};
     CONF = {
         "requestDevelopmentName": "development",

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-
-
 import {onMounted, ref} from "vue";
 import {Modifications} from "glow-prow-data";
 import {useI18n} from "vue-i18n";

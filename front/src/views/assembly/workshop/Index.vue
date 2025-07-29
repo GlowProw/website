@@ -9,14 +9,12 @@ import ZoomableCanvas from "../../../components/ZoomableCanvas.vue"
 import AssemblyShowWidget from "../../../components/AssemblyShowWidget.vue";
 import {StorageAssemblyType} from "../../../assets/sripts/storage_assembly";
 import {v6 as uuidv6} from "uuid";
-import {useHttpToken} from "../../../assets/sripts/httpUtil";
 import {useAuthStore} from "../../../../stores";
 import EmptyView from "../../../components/EmptyView.vue";
 
 const {t} = useI18n(),
     route = useRoute(),
     router = useRouter(),
-    httpToken = useHttpToken(),
     authStore = useAuthStore()
 
 let
@@ -39,7 +37,6 @@ let
       name: '',
       description: ''
     })                                                          // 分享数据，包含配置集和分享数据
-
 
 let isEditModel = computed(() => {
       switch (route.name) {
@@ -326,7 +323,7 @@ const onWorkshopDelete = () => {
         <v-row align="center" class="pa-2">
           草稿
           <v-spacer></v-spacer>
-          <v-btn @click="draftModel = false" :elevation="0" icon="mdi-close"></v-btn>
+          <v-btn @click="draftNewSaveModel = false" :elevation="0" icon="mdi-close"></v-btn>
         </v-row>
       </v-card-title>
       <v-card-item>
@@ -386,6 +383,10 @@ const onWorkshopDelete = () => {
   </v-dialog>
 
   <v-snackbar-queue v-model="messages"></v-snackbar-queue>
+
+  <Vue3IntroStep v-model:show="show" :config="config" ref="myIntroStep">
+
+  </Vue3IntroStep>
 </template>
 
 <style scoped lang="less">
@@ -403,5 +404,11 @@ const onWorkshopDelete = () => {
   right: 0;
   left: 0;
   bottom: 0;
+}
+</style>
+
+<style>
+.introjs-tooltipbuttons {
+  border: none;
 }
 </style>

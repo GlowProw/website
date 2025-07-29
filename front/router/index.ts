@@ -202,6 +202,23 @@ const routes: Readonly<RouteRecordRaw[]> = [
 const router = createRouter({
     history: createWebHistory(),
     routes,
+    scrollBehavior(to, from, savedPosition) {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                if (to.hash) {
+                    resolve({
+                        el: to.hash,
+                        behavior: 'smooth',
+                        top: document.querySelector('header') ? 70 : 0
+                    })
+                } else if (savedPosition) {
+                    resolve(savedPosition)
+                } else {
+                    resolve({ top: 0, behavior: 'smooth' })
+                }
+            }, 300)
+        })
+    }
 });
 
 router.beforeEach((to, _from, next) => {

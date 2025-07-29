@@ -27,7 +27,6 @@ enum getTeamsType {
   load
 }
 
-
 let teams: Ref<Team[]> = ref([]),
     messages: Ref<string[]> = ref([]),
 
@@ -398,7 +397,7 @@ const onWsReconnect = () => {
       </template>
     </Banner>
 
-    <v-container class="team">
+    <v-container class="team pb-10">
       <v-row>
         <v-col cols="12" sm="12" md="6" lg="3" xl="6">
           <router-link to="/">
@@ -583,7 +582,6 @@ const onWsReconnect = () => {
           </EmptyView>
         </v-card>
       </template>
-
 
       <!-- 会话重连 S -->
       <v-dialog max-width="500">

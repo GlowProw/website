@@ -54,5 +54,10 @@ const {t} = useI18n()
 <style scoped>
 .footer {
   background-color: #0e0e0e;
+
+  ul {
+    margin-top: 15px;
+    list-style-type: none;
+  }
 }
 </style>

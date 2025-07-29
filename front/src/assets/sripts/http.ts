@@ -1,32 +1,25 @@
-import http from 'axios';
-import Conf from './conf';
+import http, {type AxiosInstance, type AxiosRequestConfig} from 'axios';
+import Config from './config';
+import type {GetUrlOptions, RequestOptions} from "../types/Http";
 
-interface RequestOptions {
-    method?: HttpMethod;
-    body?: Record<string, any>;
-    data?: Record<string, any>;
-    params?: Record<string, any>;
-    headers?: Record<string, string>;
-}
-
-enum HttpMethod {
+export enum HttpMethod {
     GET = 'get',
     POST = 'post',
     PUT = 'put',
     DELETE = 'delete'
 }
 
-export default class Http extends Conf {
-    GETURL = {protocol: '', request: '', host: '', pathname: '', port: ''};
+export default class Http extends Config {
+    GetUrl: GetUrlOptions = {host: "", pathname: "", port: "", protocol: "", request: "", wsHost: "", wsPathname: "", wsPort: "", wsProtocol: "", wsRequest: ""};
 
-    HTTP = http.create({
+    HTTP: AxiosInstance | AxiosRequestConfig = http.create({
         timeout: 600000,
     })
 
     constructor() {
         super();
         // @ts-ignore
-        Conf.NODE = process.env.NODE_ENV || 'development';
+        Config.NODE = process.env.NODE_ENV || 'development';
     }
 
     get location() {
@@ -38,50 +31,43 @@ export default class Http extends Conf {
     }
 
     // 获取全局地址
-    get globalUrl() : any {
+    get globalUrl(): any {
         try {
             if (!this.CONF) {
                 throw Error('not data')
             }
 
-            switch (Conf.NODE) {
+            switch (Config.NODE) {
                 case 'production': // 生产
                     // @ts-ignore
-                    this.GETURL = this.CONF.child[this.CONF.requestProductionName];
+                    this.GetUrl = this.CONF.child[this.CONF.requestProductionName];
                     break;
                 case 'staging': // 测试
                     // @ts-ignore
-                    this.GETURL = this.CONF.child[this.CONF.requestTestName];
+                    this.GetUrl = this.CONF.child[this.CONF.requestTestName];
                     break;
                 case 'development': // 开发
                 default:
                     // @ts-ignore
-                    this.GETURL = this.CONF.child[this.CONF.requestDevelopmentName];
+                    this.GetUrl = this.CONF.child[this.CONF.requestDevelopmentName];
                     break;
             }
 
             return {
-                location: `${this.GETURL.protocol || 'http'}://${this.GETURL.host}:${this.GETURL.port}${this.GETURL.pathname}`,
-                host: this.GETURL.host,
-                protocol: this.GETURL.protocol,
-                wsProtocol: this.GETURL.wsProtocol,
-                pathname: this.GETURL.pathname,
-                wsPathname: this.GETURL.wsPathname,
-                port: this.GETURL.port,
-                wsPort: this.GETURL.wsPort,
+                location: `${this.GetUrl.protocol || 'http'}://${this.GetUrl.host}:${this.GetUrl.port}${this.GetUrl.pathname}`,
+                host: this.GetUrl.host,
+                protocol: this.GetUrl.protocol,
+                wsProtocol: this.GetUrl.wsProtocol,
+                pathname: this.GetUrl.pathname,
+                wsPathname: this.GetUrl.wsPathname,
+                port: this.GetUrl.port,
+                wsPort: this.GetUrl.wsPort,
             };
         } catch (e) {
             return {
                 error: 1
             }
         }
-    }
-
-    // 配置全局协议头
-    setGlobalHeader(headers: Map<any, any> | any = {}) {
-        if (!headers) return;
-
-        this.HTTP.headers = {...this.HTTP.headers, ...headers};
     }
 
     /**
@@ -94,7 +80,7 @@ export default class Http extends Conf {
         // @ts-ignore
         return await this.HTTP({
             url: url,
-            headers: {...this.HTTP.headers || {}, ...options.headers},
+            headers: options.headers,
             method: options.method,
             data: options.data,
             params: options.params,

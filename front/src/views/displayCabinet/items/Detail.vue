@@ -9,6 +9,7 @@ import ItemIconWidget from "../../../components/snbWidget/itemIconWidget.vue";
 import MaterialIconWidget from "../../../components/snbWidget/materialIconWidget.vue";
 import EmptyView from "../../../components/EmptyView.vue";
 import FactionIconWidget from "../../../components/snbWidget/factionIconWidget.vue";
+import Vue3IntroStep from 'vue3-intro-step'
 
 import {Materials} from "glow-prow-data";
 import ItemModificationWidget from "../../../components/snbWidget/itemModificationWidget.vue";
@@ -17,6 +18,7 @@ import PerksWidget from "../../../components/snbWidget/perksWidget.vue";
 import {useI18nUtils} from "../../../assets/sripts/i18nUtil.ts";
 import ItemInputWidget from "../../../components/snbWidget/itemInputWidget.vue";
 import TimeView from "../../../components/TimeView.vue";
+import ItemDamageTypeWidget from "../../../components/snbWidget/itemDamageTypeWidget.vue";
 
 const
     {t} = useI18n(),
@@ -105,23 +107,24 @@ const onStatisticsRawMaterial = () => {
   </v-breadcrumbs>
   <v-divider></v-divider>
   <div class="items-detail" v-if="itemDetailData && itemDetailData.id">
-    <div class="items-detail-header">
+    <div class="items-detail-header background-dot-grid">
       <v-container class="position-relative">
         <v-row class="mt-5">
           <v-col>
             <h1 class="text-amber text-h2">{{ getTitle }}</h1>
-            <p class="mt-2 mb-3"><v-icon icon="mdi-identifier" /> {{ itemDetailData.id || 'none' }}</p>
+            <p class="mt-2 mb-3">
+              <v-icon icon="mdi-identifier"/>
+              {{ itemDetailData.id || 'none' }}
+            </p>
 
-            <router-link :to="`/display-cabinet/item/category/${itemDetailData.type}`">
-              <v-badge inline color="transparent"
-                       class="badge-flavor text-center tag-badge pl-4">
+            <div class="mt-5 d-flex ga-2">
+              <v-chip class="badge-flavor text-center tag-badge text-black"
+                      :to="`/display-cabinet/item/category/${itemDetailData.type}`">
                 {{ t(`displayCabinet.type.${itemDetailData.type}`) || '' }}
-              </v-badge>
-            </router-link>
-
-            <v-badge inline color="transparent" class="badge-flavor text-center tag-badge pl-4 ml-2" v-if="itemDetailData.tier">{{ t(`displayCabinet.tier`, {num: itemDetailData.tier}) }}</v-badge>
-            <v-badge inline color="transparent" class="badge-flavor text-center tag-badge pl-4 ml-2" v-if="itemDetailData.rarity">{{ t(`displayCabinet.rarity.${itemDetailData.rarity}`) }}</v-badge>
-
+              </v-chip>
+              <v-chip class="badge-flavor text-center tag-badge text-black" v-if="itemDetailData.tier">{{ t(`displayCabinet.tier`, {num: itemDetailData.tier}) }}</v-chip>
+              <v-chip class="badge-flavor text-center tag-badge text-black" v-if="itemDetailData.rarity">{{ t(`displayCabinet.rarity.${itemDetailData.rarity}`) }}</v-chip>
+            </div>
           </v-col>
           <v-spacer></v-spacer>
           <v-col align="right">
@@ -464,7 +467,7 @@ const onStatisticsRawMaterial = () => {
 
             <ItemInputWidget>
               <TimeView class="mt-1" :time="itemDetailData.dateAdded">
-                {{itemDetailData.dateAdded.toLocaleString()}}
+                {{ itemDetailData.dateAdded.toLocaleString() }}
               </TimeView>
               <template v-slot:append-inner>
                 <p class="text-no-wrap">添加日期</p>
@@ -475,7 +478,7 @@ const onStatisticsRawMaterial = () => {
             </ItemInputWidget>
             <ItemInputWidget>
               <TimeView class="mt-1" :time="itemDetailData.lastUpdated">
-                {{itemDetailData.lastUpdated.toLocaleString()}}
+                {{ itemDetailData.lastUpdated.toLocaleString() }}
               </TimeView>
               <template v-slot:prepend>
                 <v-icon icon="mdi-calendar-range"></v-icon>
@@ -484,6 +487,11 @@ const onStatisticsRawMaterial = () => {
                 <p class="text-no-wrap">更新日期</p>
               </template>
             </ItemInputWidget>
+
+            <template v-if="itemDetailData.id">
+              <p class="mt-5 mb-1 font-weight-bold">武器属性</p>
+              <ItemDamageTypeWidget :data="itemDetailData"></ItemDamageTypeWidget>
+            </template>
 
             <template v-if="itemDetailData.perks">
               <p class="mt-5 mb-1 font-weight-bold">词条 ({{ itemDetailData.perks.length || 0 }})</p>

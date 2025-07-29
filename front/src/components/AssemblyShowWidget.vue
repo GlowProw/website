@@ -281,7 +281,7 @@ const onSelectDisplayShip = () => {
       .filter(i => i != undefined)
 
 
-  if (slotAlreadyFurnished.indexOf(workshopData.value.shipDisplaySelect.id) >= 0){
+  if (slotAlreadyFurnished.indexOf(workshopData.value.shipDisplaySelect.id) >= 0) {
     messages.value.push('不可使用已在插槽的物品')
     return;
   }
@@ -413,15 +413,15 @@ defineExpose({
               <v-tooltip
                   v-model="workshopData.shipModel"
                   :open-on-hover="false"
-                  location="bottom left"
                   :offset="[-100, -120]"
+                  location="bottom left"
                   content-class="pa-0"
                   min-width="450"
                   max-width="450"
                   interactive
                   open-on-click>
                 <template v-slot:activator="{ props: propsSlot }">
-                  <ItemSlotBase size="110px" class="pa-2" v-if="!workshopData.data.shipSlot">
+                  <ItemSlotBase id="ship_select" size="110px" class="pa-2" v-if="!workshopData.data.shipSlot">
                     <v-card class="w-100 d-flex align-center justify-center" v-bind="propsSlot"
                             :disabled="readonly">
                       <v-icon icon="mdi-plus" size="50"></v-icon>
@@ -495,15 +495,15 @@ defineExpose({
                   interactive
                   open-on-click>
                 <template v-slot:activator="{ props }">
-
                   <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.shipFrigateUpgradeSlot">
                     <v-card
                         class="mx-auto"
                         max-width="344"
                         v-bind="propsHoverClose">
-
                       <v-badge bordered rounded :color="`var(--main-color)`" :offset-x="25" :offset-y="63" class="d-flex">
-                        <template v-slot:badge class="d-flex align-center justify-center">
+                        <template v-slot:badge
+                                  id="ship_frigate_upgrade_select"
+                                  class="d-flex align-center justify-center">
                           <div class="pt-2 pb-2">
                             <v-icon icon="mdi-chevron-triple-up mr-1"></v-icon>
                             <b>{{ workshopData.data.shipFrigateUpgradeSlot.tier || 0 }}</b>
@@ -576,7 +576,7 @@ defineExpose({
           <div class="">
             <v-row justify="space-around">
               <v-col cols="auto" class="mr-5">
-                <p class="mb-2 font-weight-bold badge-flavor text-center">陈设</p>
+                <p class="mb-2 font-weight-bold badge-flavor text-center text-black">陈设</p>
                 <template v-if="route.query.debug">
                   {{ workshopData.data.displaySlots || [] }}
                 </template>
@@ -665,7 +665,7 @@ defineExpose({
               </v-col>
 
               <v-col>
-                <p class="mb-2 font-weight-bold badge-flavor text-center">武装</p>
+                <p class="mb-2 font-weight-bold badge-flavor text-center text-black">武装</p>
                 <!-- 主武器 -->
                 <p class="mb-1">主武器</p>
                 <div class="ml-5 mb-2" v-if="workshopData.data.weaponSlot && workshopData.data.weaponSlot.length > 0" v-for="(i, index) in workshopData.data.weaponSlot" :key="index">

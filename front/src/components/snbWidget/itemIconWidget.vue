@@ -49,7 +49,7 @@ let itemsCardData = ref({
       model: {},
       panel: {},
     }),
-    i: Ref<Item> = ref({}),
+    i: Ref<Item> = ref(Item.fromRawData({})),
 
     // 稀有度
     raritys: string[] = ["common", "uncommon", "rare", "epic", "legendary"],
@@ -100,6 +100,7 @@ const onReady = async () => {
 
 <template>
   <v-tooltip
+      v-if="i && i.id"
       min-width="450"
       max-width="450"
       interactive

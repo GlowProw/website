@@ -45,24 +45,24 @@ const getDescription = (key) => {
   const perksName = sanitizeString(key);
   let keys = []
 
-  let tString: any = [
-    `snb.perks.${perksName.cleaned}.name`,
-    `snb.items.${perksName.cleaned}.name`,
-    `snb.perks.${perksName.cleaned}.description.${props.data.tier || perksName.removedNumbers[0]}`,
-  ];
-
   if (props.data.type == "shipUpgrade") {
     keys = [
       `snb.perks.${perksName.cleaned}.description.${props.data.tier}`,
       `snb.perks.${perksName.cleaned}.description.general`,
     ]
   } else {
+    let tString: any = [
+      `snb.items.${perksName.cleaned}.name`,
+      `snb.perks.${perksName.cleaned}.name`,
+      `snb.perks.${perksName.cleaned}.description.${perksName.removedNumbers[0]}`,
+    ];
+
     for (let tKey: any of tString) {
       if (te(tKey)) {
         keys = [
           `snb.perks.${key}.description.general`,
           `snb.perks.${perksName.cleaned}.description.general`,
-          `snb.perks.${perksName.cleaned}.description.${perksName.removedNumbers[0] || props.data.tier}`,
+          `snb.perks.${perksName.cleaned}.description.${perksName.removedNumbers[0]}`,
         ]
       }
     }

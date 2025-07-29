@@ -99,7 +99,7 @@ const onStatisticsRawMaterial = () => {
   <v-divider></v-divider>
 
   <div class="ships-detail" v-if="shipDetailPageData.id && !shipDetailPageData.loading">
-    <div class="ships-detail-header">
+    <div class="ships-detail-header background-dot-grid">
       <v-container class="position-relative">
         <v-row class="mt-5">
           <v-col>
