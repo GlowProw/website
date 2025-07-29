@@ -66,6 +66,7 @@ let workshopData = ref({
     // 最大主陈设
     maxMajorDisplayCount = 1,
     hasImageSlot = computed(() => !!slots.image),
+    messages = ref([]),
 
     // 临时缓存
     cache = ref({
@@ -88,14 +89,14 @@ watch(() => workshopData.value?.data?.shipSlot, (value) => {
  * 获取船只陈设列表
  */
 let getShipDisplayList = computed(() => {
-      let tag = ['offensiveFurniture', 'utilityFurniture']
+      let tags = ['offensiveFurniture', 'utilityFurniture']
       if (!hasMajorDisplayUpperLimit.value)
-        tag.push('majorFurniture')
+        tags.push('majorFurniture')
 
       if (cache.value.shipDisplayList.length > 0)
         return cache.value.shipDisplayList;
 
-      const d = Object.values(items).filter(i => tag.indexOf(i.type) >= 0);
+      const d = Object.values(items).filter(i => tags.indexOf(i.type) >= 0);
       cache.value.shipDisplayList = d;
       return d;
     }),
@@ -273,6 +274,17 @@ const onSelectDisplayShip = () => {
   workshopData.value.displayModel = false;
   if (!workshopData.value.shipDisplaySelect)
     return;
+
+  // 已有陈设
+  const slotAlreadyFurnished = workshopData.value.data.displaySlots
+      .map(i => i.id)
+      .filter(i => i != undefined)
+
+
+  if (slotAlreadyFurnished.indexOf(workshopData.value.shipDisplaySelect.id) >= 0){
+    messages.value.push('不可使用已在插槽的物品')
+    return;
+  }
 
   workshopData.value.data.displaySlots[workshopData.value.frigateUpgradeInsertIndex] = workshopData.value.shipDisplaySelect
 }
@@ -638,14 +650,12 @@ defineExpose({
                       </v-col>
                     </v-row>
                   </v-card>
-                  <v-alert class="pa-5 card-flavor bg-red" v-if="hasMajorDisplayUpperLimit">
-                    已到达主陈设上限，将主陈设隐藏
-                  </v-alert>
                   <v-card-actions class="bg-amber">
                     <v-btn variant="tonal" @click="onSelectDisplayShip" v-if="workshopData.shipDisplaySelect">确定</v-btn>
-                    <v-btn variant="tonal" class="ml-1" @click="workshopData.displayModel = false">取消</v-btn>
+                    <v-btn variant="tonal" class="ml-1" @click="workshopData.weaponModel = false">取消</v-btn>
                   </v-card-actions>
                 </v-dialog>
+
                 <ItemSlotBase size="80px" class="pa-2"
                               v-if="workshopData.data.displaySlots.length <= 0">
                   <v-card class="w-100 d-flex align-center justify-center">
@@ -745,8 +755,12 @@ defineExpose({
                         <v-col class="d-flex align-start">
                           <div class="w-100">
                             <v-divider thickness="4" opacity="1" color="#000" class="w-100 mt-2 mb-2"></v-divider>
-                            <p class="opacity-80 text-deck-information">上甲板 <v-chip size="x-small" density="compact" :variant="getDeckInformation(index).top ? 'flat' : 'tonal'">{{ getDeckInformation(index).top || 0 }}</v-chip></p>
-                            <p class="opacity-80 text-deck-information">下甲板 <v-chip size="x-small" density="compact" :variant="getDeckInformation(index).lower ? 'flat' : 'tonal'">{{ getDeckInformation(index).lower || 0 }}</v-chip></p>
+                            <p class="opacity-80 text-deck-information">上甲板
+                              <v-chip size="x-small" density="compact" :variant="getDeckInformation(index).top ? 'flat' : 'tonal'">{{ getDeckInformation(index).top || 0 }}</v-chip>
+                            </p>
+                            <p class="opacity-80 text-deck-information">下甲板
+                              <v-chip size="x-small" density="compact" :variant="getDeckInformation(index).lower ? 'flat' : 'tonal'">{{ getDeckInformation(index).lower || 0 }}</v-chip>
+                            </p>
                           </div>
                         </v-col>
                         <v-col cols="auto">
@@ -799,27 +813,30 @@ defineExpose({
                     <b class="font-weight-bold text-h5 pa-5"> 插入陈设</b>
                     <v-row class="ga-0 pa-2 pb-5">
                       <v-col cols="2"
-                             v-for="(workshop, workshopIndex) in getShipWeaponList"
-                             :key="workshopIndex">
-                        <v-badge :color="workshopData.shipWorkshopSelect ? workshopData.shipWorkshopSelect!.id == workshop!.id ? `var(--main-color)` : 'transparent' : 'transparent'">
+                             v-for="(display, displayIndex) in getShipDisplayList"
+                             :key="displayIndex">
+                        <v-badge :color="workshopData.shipDisplaySelect ? workshopData.shipDisplaySelect!.id == display!.id ? `var(--main-color)` : 'transparent' : 'transparent'">
                           <template v-slot:badge>
-                            <v-icon icon="mdi-check" v-if="workshopData.shipWorkshopSelect && workshopData.shipWorkshopSelect!.id == workshop!.id"></v-icon>
+                            <v-icon icon="mdi-check" v-if="workshopData.shipDisplaySelect && workshopData.shipDisplaySelect!.id == display!.id"></v-icon>
                           </template>
                           <ItemSlotBase
                               size="92px" class="pa-1"
-                              @click="workshopData.shipWorkshopSelect = workshop"
+                              @click="workshopData.shipDisplaySelect = display"
                               :class="[
-                                          workshopData.shipWorkshopSelect ? workshopData.shipWorkshopSelect!.id == workshop!.id ? 'bg-amber' : '' : ''
+                                          workshopData.shipDisplaySelect ? workshopData.shipDisplaySelect!.id == display!.id ? 'bg-amber' : '' : ''
                                       ]">
-                            <ItemIconWidget :id="workshop.id" :is-open-detail="false" :is-show-open-detail="false"></ItemIconWidget>
+                            <ItemIconWidget :id="display.id" :is-open-detail="false" :is-show-open-detail="false"></ItemIconWidget>
                           </ItemSlotBase>
                         </v-badge>
                       </v-col>
                     </v-row>
                   </v-card>
+                  <v-alert class="pa-5 card-flavor bg-red" v-if="hasMajorDisplayUpperLimit">
+                    已到达主陈设上限，将主陈设隐藏
+                  </v-alert>
                   <v-card-actions class="bg-amber">
-                    <v-btn variant="tonal" @click="onSelectWorkshopShip">确定</v-btn>
-                    <v-btn variant="tonal" class="ml-1" @click="workshopData.weaponModel = false">取消</v-btn>
+                    <v-btn variant="tonal" @click="onSelectDisplayShip" v-if="workshopData.shipDisplaySelect">确定</v-btn>
+                    <v-btn variant="tonal" class="ml-1" @click="workshopData.displayModel = false">取消</v-btn>
                   </v-card-actions>
                 </v-dialog>
 
@@ -828,7 +845,7 @@ defineExpose({
                   <v-row align="center">
                     <v-col cols="auto" class="pa-0">
                       <ShipTopDownPerspectiveWidget
-                          :center-center="i.id"
+                          :centerCenter="i && i.id as boolean"
                           class="ml-5"></ShipTopDownPerspectiveWidget>
                     </v-col>
                     <v-divider vertical inset="10" class="ml-3 mr-2"></v-divider>
@@ -957,6 +974,8 @@ defineExpose({
       <div class="background-dot-grid" v-if="hasImageSlot"></div>
     </div>
   </v-row>
+
+  <v-snackbar-queue v-model="messages"></v-snackbar-queue>
 </template>
 
 <style lang="less">
