@@ -161,7 +161,7 @@ watch(list, (newList) => {
       </v-col>
       <v-col cols="12" lg="9">
         <v-row>
-          <v-col cols="6" v-for="(item, index) in list.data"
+          <v-col cols="12" md="12" lg="6" v-for="(item, index) in list.data"
                  :key="index" class="card-flavor"
                  v-if="list.data.length > 0">
             <v-row class="pt-5 pl-5 pr-5">

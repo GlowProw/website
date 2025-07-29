@@ -11,6 +11,7 @@ import LikeWidget from "../../components/LikeWidget.vue";
 import {DisqusComments, DisqusCount} from "vue3-disqus";
 import Textarea from "../../components/textarea/index.vue";
 import Loading from "../../components/Loading.vue";
+import ZoomableCanvas from "../../components/ZoomableCanvas.vue"
 
 const route = useRoute(),
     router = useRouter(),
@@ -66,7 +67,7 @@ const getAssemblyDetail = async () => {
     assemblyDetailData.value.description = unescape(assemblyDetailData.value.description)
 
     await nextTick(() => {
-      assemblyDetailRef.value.onLoadJson(d.data.assembly)
+      assemblyDetailRef.value.onLoadJson(d.data.data || d.data.assembly)
     })
   } finally {
     assemblyLoading.value = false
@@ -112,13 +113,13 @@ const delAssembly = async () => {
 
   <!-- Assembly Preview S -->
   <v-container>
-    <template v-if="assemblyLoading">
+    <div v-show="assemblyLoading">
       <div class="mt-10 mb-10" align="center">
         <Loading size="120"></Loading>
       </div>
-    </template>
+    </div>
 
-    <template v-else>
+    <div v-show="!assemblyLoading">
       <div class="ml-n2 mr-n2">
         <v-toolbar color="" class="bg-transparent">
           <h1 class="text-amber">{{ assemblyDetailData.name || 'none' }}</h1>
@@ -156,10 +157,18 @@ const delAssembly = async () => {
         </v-toolbar>
 
         <v-card class="card-flavor mb-5 ml-n10 mr-n10 ">
-          <AssemblyShowWidget ref="assemblyDetailRef" :readonly="true">
-            <template v-slot:image>
-            </template>
-          </AssemblyShowWidget>
+          <ZoomableCanvas
+              style="height: 600px"
+              :minScale=".8"
+              :max-scale="1.2"
+              :boundary="{
+                left: -1500,
+                right: 1500,
+                top: -500,
+                bottom: 500
+              }">
+            <AssemblyShowWidget ref="assemblyDetailRef" :readonly="true"></AssemblyShowWidget>
+          </ZoomableCanvas>
         </v-card>
       </div>
 
@@ -209,7 +218,7 @@ const delAssembly = async () => {
           </v-col>
         </v-row>
       </div>
-    </template>
+    </div>
   </v-container>
   <!-- Assembly Preview E -->
 </template>
