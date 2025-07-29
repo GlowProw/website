@@ -17,7 +17,7 @@ const assemblyConfig = {
  */
 router.post('/publish', verifyJWT, [
     checkbody("name").isString().trim().isLength({min: 1, max: assemblyConfig.nameMaxLength}),
-    checkbody('description').optional().isString().trim().isLength({min: 1, max: assemblyConfig.descriptionMaxLength}),
+    checkbody('description').optional().isString().trim().isLength({max: assemblyConfig.descriptionMaxLength}),
     checkbody('data').isJSON(),
     checkbody('localUid').optional(),
 ], async (req: any, res: Response) => {
@@ -32,18 +32,15 @@ router.post('/publish', verifyJWT, [
         let parsedData;
         try {
             parsedData = JSON.parse(data);
-            // 这里可以添加对配装数据的具体验证逻辑
-            // 例如检查必须的字段是否存在，格式是否正确等
         } catch (e) {
             return res.status(400).json({
-                code: 400,
-                message: 'publish.invalid_data',
+                error: 1,
+                message: 'publish.invalidData',
                 details: '配装数据必须是有效的JSON格式'
             });
         }
 
         // 检查配装名称是否已存在（可根据需求决定是否需要唯一性检查）
-        console.log(req)
         const existingAssembly = await db('assembly')
             .where('name', name)
             .andWhere('userId', req.user.id) // 只检查当前用户的配装名称
@@ -51,9 +48,8 @@ router.post('/publish', verifyJWT, [
 
         if (existingAssembly) {
             return res.status(400).json({
-                code: 400,
-                message: 'publish.name_exists',
-                details: '您已有一个同名的配装'
+                error: 1,
+                code: 'publish.nameExists',
             });
         }
 
@@ -80,21 +76,17 @@ router.post('/publish', verifyJWT, [
             .first();
 
         res.status(200).json({
-            code: 0,
-            message: 'publish.success',
+            code: 'publish.success',
             data: {
-                id: newAssembly.id,
+                id: newAssembly.uuid,
                 name: newAssembly.name,
-                description: newAssembly.description,
-                createdTime: newAssembly.createdTime,
-                updatedTime: newAssembly.updatedTime
             }
         });
     } catch (error) {
         logger.error('publish error:', error);
         res.status(500).json({
-            code: 500,
-            message: 'publish.error'
+            error: 1,
+            code: 'publish.error'
         });
     }
 });
@@ -103,42 +95,118 @@ router.post('/publish', verifyJWT, [
  * 获取用户配装列表
  */
 router.get('/list', [
-    checkquery('userId').optional().isString().trim(),
+    checkquery('keyword').optional().isString().trim(),
     checkquery('page').optional().isInt({min: 1}).toInt(),
     checkquery('pageSize').optional().isInt({min: 1, max: 100}).toInt(),
+    checkquery('sortField').optional().isIn(['createdTime', 'updatedTime', 'likes']),
+    checkquery('sortOrder').optional().isIn(['asc', 'desc']),
+    checkquery('createdStart').optional().isISO8601(),
+    checkquery('createdEnd').optional().isISO8601(),
+    checkquery('updatedStart').optional().isISO8601(),
+    checkquery('updatedEnd').optional().isISO8601(),
 ], async (req: any, res: Response) => {
     try {
         const validateErr = validationResult(req);
-        if (!validateErr.isEmpty())
+        if (!validateErr.isEmpty()) {
             return res.status(400).json({error: 1, code: 'list.bad', message: validateErr.array()});
+        }
 
-        const {userId} = req.query;
-        const page = req.query.page || 1;
-        const pageSize = req.query.pageSize || 20;
+        const {
+            keyword,
+            page = 1,
+            pageSize = 20,
+            sortField = 'updatedTime',
+            sortOrder = 'desc',
+            createdStart,
+            createdEnd,
+            updatedStart,
+            updatedEnd
+        } = req.query;
 
-        let query = db('assembly').select(
-            'id', 'uuid', 'name', 'description',
-            'createdTime', 'updatedTime',
-            'userId', 'data'
-        );
+        // 基础查询
+        let query = db('assembly')
+            .select(
+                'assembly.id',
+                'assembly.uuid',
+                'assembly.name',
+                'assembly.description',
+                'assembly.createdTime',
+                'assembly.updatedTime',
+                'assembly.userId',
+                'assembly.data',
+                db.raw('(SELECT COUNT(*) FROM likes WHERE targetType = "assembly" AND targetId = assembly.uuid) as likes')
+            )
+            .leftJoin('users', 'assembly.userId', 'users.id');
 
-        if (userId) {
-            query = query.where('userId', userId);
+        // 关键词模糊查询（配装名称或用户名称）
+        if (keyword) {
+            query = query.where(function() {
+                this.where('assembly.name', 'like', `%${keyword}%`)
+                    .orWhere('users.username', 'like', `%${keyword}%`);
+            });
+        }
+
+        // 创建时间范围筛选
+        if (createdStart) {
+            query = query.where('assembly.createdTime', '>=', createdStart);
+        }
+        if (createdEnd) {
+            query = query.where('assembly.createdTime', '<=', createdEnd);
+        }
+
+        // 更新时间范围筛选
+        if (updatedStart) {
+            query = query.where('assembly.updatedTime', '>=', updatedStart);
+        }
+        if (updatedEnd) {
+            query = query.where('assembly.updatedTime', '<=', updatedEnd);
+        }
+
+        // 排序逻辑
+        switch (sortField) {
+            case 'createdTime':
+                query = query.orderBy('assembly.createdTime', sortOrder);
+                break;
+            case 'updatedTime':
+                query = query.orderBy('assembly.updatedTime', sortOrder);
+                break;
+            case 'likes':
+                query = query.orderByRaw(`
+                    (SELECT COUNT(*) FROM likes WHERE targetType = "assembly" AND targetId = assembly.uuid) ${sortOrder}
+                `);
+                break;
         }
 
         // 分页查询
         const assemblies = await query
-            .orderBy('updatedTime', 'desc')
             .offset((page - 1) * pageSize)
             .limit(pageSize);
 
-        // 获取总数
-        const totalQuery = userId
-            ? db('assembly').where('user_id', userId).count('id as count')
-            : db('assembly').count('id as count');
+        // 获取总数（保持相同的筛选条件）
+        let totalQuery = db('assembly')
+            .leftJoin('users', 'assembly.userId', 'users.id');
 
-        const totalResult = await totalQuery.first();
-        const total = totalResult ? totalResult.count as number : 0;
+        if (keyword) {
+            totalQuery = totalQuery.where(function() {
+                this.where('assembly.name', 'like', `%${keyword}%`)
+                    .orWhere('users.username', 'like', `%${keyword}%`)
+            });
+        }
+        if (createdStart) {
+            totalQuery = totalQuery.where('createdTime', '>=', createdStart);
+        }
+        if (createdEnd) {
+            totalQuery = totalQuery.where('createdTime', '<=', createdEnd);
+        }
+        if (updatedStart) {
+            totalQuery = totalQuery.where('updatedTime', '>=', updatedStart);
+        }
+        if (updatedEnd) {
+            totalQuery = totalQuery.where('updatedTime', '<=', updatedEnd);
+        }
+
+        const totalResult = await totalQuery.count('assembly.id as count').first();
+        const total = totalResult ? Number(totalResult.count) : 0;
 
         res.status(200).json({
             code: 0,
@@ -154,7 +222,7 @@ router.get('/list', [
         });
     } catch (error) {
         logger.error('list error:', error);
-        res.status(500).json({code: 500, message: 'list.error'});
+        res.status(500).json({error: 1, code: 'list.error'});
     }
 });
 
@@ -171,6 +239,7 @@ router.post('/edit', verifyJWT, [
     checkbody('uuid').isString().trim().isLength({min: 1}),
     checkbody("name").isString().trim().isLength({min: 1, max: assemblyConfig.nameMaxLength}),
     checkbody('description').optional().isString().trim().isLength({min: 1, max: assemblyConfig.descriptionMaxLength}),
+    checkbody('tags').isArray(),
     checkbody('data').isJSON(),
 ], async (req: any, res: Response) => {
     try {
@@ -178,7 +247,7 @@ router.post('/edit', verifyJWT, [
         if (!validateErr.isEmpty())
             return res.status(400).json({error: 1, code: 'edit.bad', message: validateErr.array()});
 
-        const {uuid, name, description, data} = req.body;
+        const {uuid, name, description, tags, data} = req.body;
 
         // 检查配装是否存在
         const assembly = await db('assembly')
@@ -187,12 +256,12 @@ router.post('/edit', verifyJWT, [
             .first();
 
         if (!assembly) {
-            return res.status(404).json({code: 404, message: 'edit.notFound'});
+            return res.status(404).json({error: 1, code: 'edit.notFound'});
         }
 
         // 检查用户是否有权限编辑 (假设req.user中包含当前用户信息)
         if (assembly.userId !== req.user.id) {
-            return res.status(403).json({code: 403, message: 'edit.forbidden'});
+            return res.status(403).json({error: 1, code: 'edit.forbidden'});
         }
 
         // 构建更新数据
@@ -203,6 +272,7 @@ router.post('/edit', verifyJWT, [
         if (name) updateData.name = sanitizeRichText(name);
         if (description) updateData.description = sanitizeRichText(description);
         if (data) updateData.data = data;
+        if (tags) updateData.tags = JSON.stringify(tags);
 
         // 执行更新
         await db('assembly')
@@ -210,10 +280,10 @@ router.post('/edit', verifyJWT, [
             .andWhere('userId', req.user.id)
             .update(updateData);
 
-        res.status(200).json({code: 0, message: 'edit.ok'});
+        res.status(200).json({code: 'edit.ok'});
     } catch (error) {
         logger.error('update error:', error);
-        res.status(500).json({code: 500, message: 'edit.error'});
+        res.status(500).json({error: 1, code: 'edit.error'});
     }
 });
 
@@ -239,7 +309,7 @@ router.get('/item', [
             .select(
                 'users.username', 'users.id as userId',
                 'assembly.uuid', 'assembly.userId', 'assembly.name', 'assembly.description',
-                'assembly.createdTime', 'assembly.updatedTime', 'assembly.data as assembly'
+                'assembly.createdTime', 'assembly.updatedTime', 'assembly.tags', 'assembly.data as assembly'
             )
             .first();
 
@@ -253,7 +323,7 @@ router.get('/item', [
         });
     } catch (error) {
         logger.error('detail error:', error);
-        res.status(500).json({code: 500, message: 'detail.error'});
+        res.status(500).json({error: 1, code: 'detail.error'});
     }
 });
 
@@ -277,12 +347,12 @@ router.post('/delete', verifyJWT, [
             .first();
 
         if (!assembly) {
-            return res.status(404).json({code: 404, message: 'assembly.notFound'});
+            return res.status(404).json({error: 1, code: 'assembly.notFound'});
         }
 
         // 检查用户是否有权限删除
         if (assembly.userId !== req.user.id) {
-            return res.status(403).json({code: 403, message: 'delete.forbidden'});
+            return res.status(403).json({error: 1, code: 'delete.forbidden'});
         }
 
         // 执行删除
@@ -290,10 +360,10 @@ router.post('/delete', verifyJWT, [
             .where('uuid', uuid)
             .delete();
 
-        res.status(200).json({code: 0, message: 'delete.ok'});
+        res.status(200).json({code: 'delete.ok'});
     } catch (error) {
         logger.error('delete error:', error);
-        res.status(500).json({code: 500, message: 'delete.error'});
+        res.status(500).json({error: 1, code: 'delete.error'});
     }
 });
 

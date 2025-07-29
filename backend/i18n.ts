@@ -1,4 +1,4 @@
-import i18next from 'i18next';
+import i18next, {Module} from 'i18next';
 import config from './config';
 import fs from 'fs/promises';
 import path from 'path';
@@ -56,16 +56,16 @@ async function fetchAndCacheTranslations() {
         }
     }
 
-    // 定期刷新（24小时）
+    // 定期刷新（7d）
     if (!hasError) {
-        setTimeout(fetchAndCacheTranslations, 24 * 60 * 60 * 1000);
+        setTimeout(fetchAndCacheTranslations, 7 * 24 * 60 * 60 * 1000);
     } else {
         // 如果有错误，缩短重试时间（例如1小时后）
         setTimeout(fetchAndCacheTranslations, 60 * 60 * 1000);
     }
 }
 
-// 自定义后端 - 从缓存目录加载翻译
+// 从缓存目录加载翻译
 class Backend {
     type = ''
 
@@ -96,7 +96,7 @@ async function initI18next() {
     }
 
     return i18next
-        .use(new Backend())
+        .use(new Backend() as Module)
         .init({
             lng: config.i18n.defaultLocale,
             fallbackLng: config.i18n.defaultLocale,

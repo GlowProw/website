@@ -15,7 +15,7 @@ const config = {
             oi: [],
             ul: [],
             p: [],
-            span: [],
+            span: ["data-type"],
             strong: [],
             u: [],
             video: ["autoplay", "controls", "crossorigin", "loop", "muted", "playsinline", "poster", "preload", "src", "height", "width"],

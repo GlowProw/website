@@ -21,7 +21,7 @@ import {sanitizeRichText} from "../lib/content";
 // 定义路由
 const router = express.Router();
 
-const httpServerPort: number = (config.port || 3000),          // 服务器端口配置
+const httpServerPort: number = (config.port || 3000) as number,          // 服务器端口配置
     wss = new WebSocketServer({port: httpServerPort + 1})                // WebSocket服务器端口（HTTP端口+1）
 
 // 存储已连接的客户端（WebSocket实例与用户ID的映射）
@@ -352,10 +352,10 @@ router.get('/teamups', timeUpRateLimiter, [
 
         // 构建基础查询
         let query = db('team_up')
-            .leftJoin('user', 'team_up.userId', 'user.id')
+            .leftJoin('users', 'team_up.userId', 'users.id')
             .select(
                 'team_up.*',
-                'user.username',
+                'users.username',
                 db.raw('UNIX_TIMESTAMP(team_up.expiresAt) as expiresAtTimestamp'),
                 db.raw('UNIX_TIMESTAMP(team_up.createdAt) as createdAtTimestamp')
             );
@@ -437,11 +437,11 @@ router.post('/my/teamups', timeUpRateLimiter, verifyJWT, [
         } | any;
 
         let query = db('team_up')
-            .leftJoin('user', 'team_up.userId', 'user.id')
-            .where('user.id', req.user.id)
+            .leftJoin('users', 'team_up.userId', 'users.id')
+            .where('users.id', req.user.id)
             .select(
                 'team_up.*',
-                'user.username',
+                'users.username',
                 db.raw('UNIX_TIMESTAMP(team_up.expiresAt) as expiresAtTimestamp'),
                 db.raw('UNIX_TIMESTAMP(team_up.createdAt) as createdAtTimestamp')
             );
