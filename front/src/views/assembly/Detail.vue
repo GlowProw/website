@@ -10,6 +10,7 @@ import {useAuthStore} from "../../../stores";
 import LikeWidget from "../../components/LikeWidget.vue";
 import {DisqusComments, DisqusCount} from "vue3-disqus";
 import Textarea from "../../components/textarea/index.vue";
+import Loading from "../../components/Loading.vue";
 
 const route = useRoute(),
     router = useRouter(),
@@ -27,6 +28,7 @@ let assemblyDetailData = ref({
       updatedTime: Date.now(),
     }),
     assemblyDetailRef = ref(null),
+    assemblyLoading = ref(false),
     delAssemblyLoading = ref(false),
     language = computed(() => locale.value.split('-')[0]),
     sso = ref({
@@ -47,24 +49,28 @@ onMounted(() => {
  * 获取配装详情
  */
 const getAssemblyDetail = async () => {
-  const {uuid} = route.params;
+  try {
+    const {uuid} = route.params;
+    assemblyLoading.value = true;
+    const result = await http.get(api['assembly_item'], {
+          params: {
+            uuid,
+          },
+        }),
+        d = result.data;
 
-  const result = await http.get(api['assembly_item'], {
-        params: {
-          uuid,
-        },
-      }),
-      d = result.data;
+    if (d.error == 1)
+      return;
 
-  if (d.error == 1)
-    return;
+    assemblyDetailData.value = d.data;
+    assemblyDetailData.value.description = unescape(assemblyDetailData.value.description)
 
-  assemblyDetailData.value = d.data;
-  assemblyDetailData.value.description = unescape(assemblyDetailData.value.description)
-
-  nextTick(() => {
-    assemblyDetailRef.value.onLoadJson(d.data.assembly)
-  })
+    await nextTick(() => {
+      assemblyDetailRef.value.onLoadJson(d.data.assembly)
+    })
+  } finally {
+    assemblyLoading.value = false
+  }
 }
 
 /**
@@ -106,95 +112,104 @@ const delAssembly = async () => {
 
   <!-- Assembly Preview S -->
   <v-container>
-    <div class="ml-n2 mr-n2">
-      <v-toolbar color="" class="bg-transparent">
-        <h1 class="text-amber">{{ assemblyDetailData.name || 'none' }}</h1>
+    <template v-if="assemblyLoading">
+      <div class="mt-10 mb-10" align="center">
+        <Loading size="120"></Loading>
+      </div>
+    </template>
 
-        <v-spacer></v-spacer>
+    <template v-else>
+      <div class="ml-n2 mr-n2">
+        <v-toolbar color="" class="bg-transparent">
+          <h1 class="text-amber">{{ assemblyDetailData.name || 'none' }}</h1>
 
-        <LikeWidget targetType="assembly"
-                    class="ml-2"
-                    v-if="authStore.isLogin"
-                    :targetId="assemblyDetailData.uuid"
-                    :userId="authStore.user.userId">
-          <template v-slot:activate>
-            <v-btn icon="mdi-thumb-up"></v-btn>
+          <v-spacer></v-spacer>
+
+          <LikeWidget targetType="assembly"
+                      class="ml-2"
+                      v-if="authStore.isLogin"
+                      :targetId="assemblyDetailData.uuid"
+                      :userId="authStore.user.userId">
+            <template v-slot:activate>
+              <v-btn icon="mdi-thumb-up"></v-btn>
+            </template>
+            <template v-slot:unActivate>
+              <v-btn icon="mdi-thumb-up-outline"></v-btn>
+            </template>
+          </LikeWidget>
+
+          <template v-if="authStore.isLogin && authStore.user.userId == assemblyDetailData.userId">
+            <v-btn icon="mdi-delete-outline" class="mr-5 text-red" :loading="delAssemblyLoading" @click="delAssembly"></v-btn>
+
+            <v-btn variant="flat" :to="`/assembly/workshop/${assemblyDetailData.uuid}/edit`">
+              <v-icon icon="mdi-pencil" class="mr-2"></v-icon>
+              编辑此配装
+            </v-btn>
           </template>
-          <template v-slot:unActivate>
-            <v-btn icon="mdi-thumb-up-outline"></v-btn>
-          </template>
-        </LikeWidget>
 
-        <template v-if="authStore.isLogin && authStore.user.userId == assemblyDetailData.userId">
-          <v-btn icon="mdi-delete-outline" class="mr-5 text-red" :loading="delAssemblyLoading" @click="delAssembly"></v-btn>
-
-          <v-btn variant="flat" :to="`/assembly/workshop/${assemblyDetailData.uuid}/edit`">
-            <v-icon icon="mdi-pencil" class="mr-2"></v-icon>
-            编辑此配装
+          <v-btn to="#commit" class="ml-2">
+            <v-icon icon="mdi-comment-outline" class="mr-2"></v-icon>
+            <DisqusCount :lazy="true"
+                         :language="language"
+                         :identifier="`/assembly/uuid/${assemblyDetailData.uuid}`"></DisqusCount>
           </v-btn>
-        </template>
+        </v-toolbar>
 
-        <v-btn to="#commit" class="ml-2">
-          <v-icon icon="mdi-comment-outline" class="mr-2"></v-icon>
-          <DisqusCount :lazy="true"
-                       :language="language"
-                       :identifier="`/assembly/uuid/${assemblyDetailData.uuid}`"></DisqusCount>
-        </v-btn>
-      </v-toolbar>
+        <v-card class="card-flavor mb-5 ml-n10 mr-n10 ">
+          <AssemblyShowWidget ref="assemblyDetailRef" :readonly="true">
+            <template v-slot:image>
+            </template>
+          </AssemblyShowWidget>
+        </v-card>
+      </div>
 
-      <AssemblyShowWidget class="card-flavor mb-5 ml-n10 mr-n10"
-                          ref="assemblyDetailRef" :readonly="true">
-        <template v-slot:image>
-        </template>
-      </AssemblyShowWidget>
-    </div>
+      <div>
+        <v-row>
+          <v-col cols="12" sm="12" lg="8" xl="8">
+            <div id="commit">
+              <DisqusComments :lazy="true"
+                              :language="language"
+                              :sso-config="sso"
+                              :identifier="`/assembly/uuid/${assemblyDetailData.uuid}`"/>
+            </div>
+          </v-col>
+          <v-col cols="12" sm="12" lg="4" xl="4">
+            <v-text-field
+                label="作者"
+                v-model="assemblyDetailData.username"
+                readonly
+                variant="underlined">
+            </v-text-field>
 
-    <v-container>
-      <v-row>
-        <v-col cols="12" sm="12" lg="8" xl="8">
-          <div id="commit">
-            <DisqusComments :lazy="true"
-                            :language="language"
-                            :sso-config="sso"
-                            :identifier="`/assembly/uuid/${assemblyDetailData.uuid}`"/>
-          </div>
-        </v-col>
-        <v-col cols="12" sm="12" lg="4" xl="4">
-          <v-text-field
-              label="作者"
-              v-model="assemblyDetailData.username"
-              readonly
-              variant="underlined">
-          </v-text-field>
+            <div class="ga-2 mb-6">
+              <v-badge color="transparent" dot class="badge-flavor mr-2 pt-1 pb-1 pl-5 pr-5" v-for="(i, index) in assemblyDetailData.tags">
+                {{ i }}
+              </v-badge>
+            </div>
 
-          <div class="ga-2 mb-6">
-            <v-badge color="transparent" dot class="badge-flavor mr-2 pt-1 pb-1 pl-5 pr-5" v-for="(i, index) in assemblyDetailData.tags">
-              {{ i }}
-            </v-badge>
-          </div>
+            <v-text-field
+                label="创建时间"
+                v-model="assemblyDetailData.createdTime"
+                readonly
+                variant="underlined">
+            </v-text-field>
 
-          <v-text-field
-              label="创建时间"
-              v-model="assemblyDetailData.createdTime"
-              readonly
-              variant="underlined">
-          </v-text-field>
+            <v-text-field
+                label="更新时间"
+                v-model="assemblyDetailData.updatedTime"
+                readonly
+                variant="underlined">
+            </v-text-field>
 
-          <v-text-field
-              label="更新时间"
-              v-model="assemblyDetailData.updatedTime"
-              readonly
-              variant="underlined">
-          </v-text-field>
-
-          <Textarea class="mt-5 mb-2"
-                    height="400px"
-                    :readonly="true"
-                    v-model="assemblyDetailData.description"
-                    placeholder="输入描述描述"></Textarea>
-        </v-col>
-      </v-row>
-    </v-container>
+            <Textarea class="mt-5 mb-2"
+                      height="400px"
+                      :readonly="true"
+                      v-model="assemblyDetailData.description"
+                      placeholder="输入描述描述"></Textarea>
+          </v-col>
+        </v-row>
+      </div>
+    </template>
   </v-container>
   <!-- Assembly Preview E -->
 </template>

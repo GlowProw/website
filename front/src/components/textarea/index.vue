@@ -4,13 +4,11 @@ import {Editor, EditorContent, EditorOptions} from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import Paragraph from '@tiptap/extension-paragraph'
 import Placeholder from '@tiptap/extension-placeholder'
-import {EmoteNode as EmoteWidget} from './emote/index'
 import {ItemNode as ItemWidget} from './item/index'
 import {ShipNode as ShipWidget} from './ship/index'
 import ShipView from '../ShipView.vue'
 import ItemView from '../ItemView.vue'
 import EmoteView from '../EmoteView.vue'
-import SafeSpan from "./SafeSpan";
 
 interface ToolbarItem {
   list?: any

@@ -38,7 +38,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import {computed, defineComponent, onUnmounted, ref} from 'vue';
 
 export default defineComponent({

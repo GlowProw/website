@@ -1,27 +1,37 @@
 <template>
   <div>
-    <v-text-field v-model="inputValue" variant="solo-filled" maxlength="4" @change="onChangeValue" :placeholder="$t('captcha.title')">
+    <v-text-field
+        v-model="inputValue"
+        variant="solo-filled"
+        maxlength="4"
+        @change="onChangeValue"
+        :placeholder="t('captcha.title')"
+    >
       <template v-slot:append-inner>
-        <div class="captcha-input-append captcha-svg"
-             @click="refreshCaptcha"
-             :style="`cursor: ${captchaTime.count <= 0 ? 'pointer' : 'not-allowed'};height: ${height}`">
-        <span v-if="!content" class="tip">
-          <template v-if="!disable">
-            <span v-if="postLoad">
+        <div
+            class="captcha-input-append captcha-svg"
+            @click="refreshCaptcha"
+            :style="`cursor: ${captchaTime.count <= 0 ? 'pointer' : 'not-allowed'};height: ${height}`"
+        >
+          <span v-if="!content" class="tip">
+            <template v-if="!disable">
+              <span v-if="postLoad">
+                <v-icon class="spin-icon-load" icon="mdi-refresh" size="20"/>
+              </span>
+              <span v-else>
+                {{ t('captcha.get') }}
+              </span>
+            </template>
+            <div v-else style="min-width: 80px">
               <v-icon class="spin-icon-load" icon="mdi-refresh" size="20"/>
-            </span>
-            <span v-else>
-               {{ $t('captcha.get') }}
-            </span>
-          </template>
-          <div v-else style="min-width: 80px">
-              <v-icon class="spin-icon-load" icon="mdi-refresh" size="20"/>
-          </div>
-        </span>
-          <div v-else v-html="content"
-               class="captcha-flavor"
-               :class="`${captchaTime.count <= 0 ? 'disable': ''}`">
-          </div>
+            </div>
+          </span>
+          <div
+              v-else
+              v-html="content"
+              class="captcha-flavor"
+              :class="`${captchaTime.count <= 0 ? 'disable': ''}`"
+          ></div>
           <transition name="fade">
             <div v-show="content && captchaTime.count <= 0" class="captcha-svg-icon">
               <v-icon v-if="disable" icon="mdi-close" size="20"/>
@@ -33,156 +43,168 @@
       </template>
     </v-text-field>
   </div>
-
 </template>
 
-<script>
+<script setup lang="ts">
+import {computed, onMounted, onUnmounted, ref} from 'vue'
+import {useRoute} from 'vue-router'
 import {api, http, storage} from '../../assets/sripts'
+import {useI18n} from "vue-i18n";
 
-export default {
-  props: {
-    id: {
-      type: String,
-      default: '0',
-    },
-    disable: {
-      type: Boolean,
-      default: false,
-    },
-    seconds: {
-      type: Number,
-      default: 60
-    },
-    height: {
-      type: String,
-      default: '40px'
-    }
+const props = defineProps({
+  id: {
+    type: String,
+    default: '0',
   },
-  data() {
-    return {
-      storageSession: storage.session,
-      postLoad: false,
-      hash: "",
-      content: "",
-      inputValue: "",
-      captchaHash: {},
-      captchaTime: {
-        fun: null,
-        count: 0,
-        lock: false,
-      },
-    }
+  disable: {
+    type: Boolean,
+    default: false,
   },
-  created() {
-    let captcha = this.storageSession.get('captcha');
-    if (captcha) {
-      this.captchaHash = captcha.data;
-    } else {
-      this.storageSession.set(`captcha`, {
-        [`${this.id}_${this.$route.name}`]: this.seconds
-      });
-    }
+  seconds: {
+    type: Number,
+    default: 60
   },
-  destroyed() {
-    clearInterval(this.captchaTime.fun);
-    this.captchaTime.fun = null;
-  },
-  methods: {
-    /**
-     * 变动事件
-     */
-    onChangeValue() {
-      this.$emit('callbackDoneVerifies', {
-        encryptCaptcha: this.hash,
-        response: this.inputValue,
-      });
-    },
-    /**
-     * 刷新验证码
-     */
-    async refreshCaptcha() {
-      let captcha = this.storageSession.get('captcha');
-      let that = this;
-
-      try {
-        if (captcha.code <= 0) {
-          captcha = {
-            data: {
-              value: this.seconds,
-            }
-          }
-        }
-
-        if (this.disable || this.postLoad || this.captchaTime.lock) return;
-
-        this.postLoad = true;
-
-        let res = await http.get(api["captcha"], {
-          params: {
-            t: Math.random()
-          }
-        });
-
-        const d = res.data;
-
-        if (d.success === 1) {
-          // 储存验证码hash
-          that.captchaHash = Object.assign({
-            [that.$route.name]: 0
-          });
-
-          this.hash = d.data["hash"];
-          this.content = d.data["content"];
-
-          if (Object.keys(captcha.data.value).indexOf(this.$route.name) >= 0) {
-            // 会话持久对应时间加载
-            this.captchaTime.count = captcha.data.value[this.$route.name];
-          }
-
-          this.capthcaTimeout(this.captchaTime.count || this.seconds || 0)
-        }
-      } finally {
-        setTimeout(function () {
-          that.postLoad = false;
-        }, 800)
-      }
-    },
-    /**
-     * 计时器
-     * @param num
-     */
-    capthcaTimeout(num) {
-      const that = this;
-      let fun;
-
-      if (that.captchaTime.lock) return false;
-
-      that.captchaTime.count = num;
-
-      fun = setInterval(function () {
-        if (that.captchaTime.count <= 0) {
-          clearInterval(fun);
-          that.captchaTime.lock = false;
-          return;
-        }
-        that.captchaTime.count -= 1;
-
-        that.captchaHash = Object.assign({
-          [`${that.id}_${that.$route.name}`]: that.captchaTime.count
-        });
-        that.storageSession.set("captcha", that.captchaHash);
-      }, 1000);
-
-      that.captchaTime.lock = true;
-      return true;
-    }
-  },
-  computed: {
-    // 是否有验证码
-    isCaptcha() {
-      return this.hash && this.content;
-    }
+  height: {
+    type: String,
+    default: '40px'
   }
+})
+
+const emit = defineEmits(['callbackDoneVerifies'])
+
+const route = useRoute()
+const {t} = useI18n()
+const storageSession = storage.session
+
+const postLoad = ref(false)
+const hash = ref("")
+const content = ref("")
+const inputValue = ref("")
+const captchaHash = ref({})
+
+const captchaTime = ref({
+  fun: null,
+  count: 0,
+  lock: false,
+} as {
+  fun: void | number,
+  count: number,
+  lock: boolean
+})
+
+/**
+ * 是否有验证码
+ */
+const isCaptcha = computed(() => {
+  return hash.value && content.value
+})
+
+/**
+ * 初始化
+ */
+onMounted(() => {
+  let captcha = storageSession.get('captcha')
+  if (captcha) {
+    captchaHash.value = captcha.data
+  } else {
+    storageSession.set('captcha', {
+      [`${props.id}_${route.name}`]: props.seconds
+    })
+  }
+})
+
+// 清理定时器
+onUnmounted(() => {
+  clearInterval(captchaTime.value.fun as number)
+  captchaTime.value.fun = null
+})
+
+/**
+ * 变动事件
+ */
+const onChangeValue = () => {
+  emit('callbackDoneVerifies', {
+    encryptCaptcha: hash.value,
+    response: inputValue.value,
+  })
+}
+
+/**
+ * 刷新验证码
+ */
+const refreshCaptcha = async () => {
+  let captcha: any = storageSession.get('captcha')
+
+  try {
+    if (captcha?.code <= 0) {
+      captcha = {
+        data: {
+          value: props.seconds,
+        }
+      }
+    }
+
+    if (props.disable || postLoad.value || captchaTime.value.lock) return
+
+    postLoad.value = true
+
+    const res = await http.get(api["captcha"], {
+      params: {
+        t: Math.random()
+      }
+    })
+
+    const d = res.data
+
+    if (d.success === 1) {
+      // 储存验证码hash
+      captchaHash.value = {
+        [route.name]: 0
+      }
+
+      hash.value = d.data["hash"]
+      content.value = d.data["content"]
+
+      if (captcha?.data?.value && Object.keys(captcha.data.value).includes(route.name as string)) {
+        // 会话持久对应时间加载
+        captchaTime.value.count = captcha.data.value[route.name]
+      }
+
+      captchaTimeout(captchaTime.value.count || props.seconds || 0)
+    }
+  } finally {
+    setTimeout(() => {
+      postLoad.value = false
+    }, 800)
+  }
+}
+
+/**
+ * 计时器
+ * @param {number} num
+ */
+const captchaTimeout = (num) => {
+  if (captchaTime.value.lock) return false
+
+  captchaTime.value.count = num
+  captchaTime.value.lock = true
+
+  captchaTime.value.fun = setInterval(() => {
+    if (captchaTime.value.count <= 0) {
+      clearInterval(captchaTime.value.fun as number)
+      captchaTime.value.lock = false
+      return
+    }
+
+    captchaTime.value.count -= 1
+
+    captchaHash.value = {
+      [`${props.id}_${route.name}`]: captchaTime.value.count
+    }
+    storageSession.set("captcha", captchaHash.value)
+  }, 1000)
+
+  return true
 }
 </script>
 

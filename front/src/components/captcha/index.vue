@@ -1,96 +1,93 @@
-<script>
+<script setup lang="ts">
+import {computed, ref} from 'vue'
+import {useRoute} from 'vue-router'
 import SvgCaptchaWidget from "./svg.vue"
 
+const props = defineProps({
+  id: {
+    type: String,
+    default: '0',
+  },
+  disable: {
+    type: Boolean,
+    default: false,
+  },
+  seconds: {
+    type: Number,
+    default: 60
+  },
+  height: {
+    type: String,
+    default: '40px'
+  },
+  type: {
+    type: String,
+    default: 'turnstile'
+  },
+  size: {
+    type: String,
+    default: 'default',
+  }
+})
+
+const emit = defineEmits(['getCaptchaData'])
+
+const route = useRoute()
+const svgCaptchaRef = ref(null)
+
+const captchaType = computed(() => {
+  return route.query.captcha || props.type
+})
+
 /**
- * 验证器
- * svg:
- * 返回结构: {content: '', hash: '', captchaType: 'svg'}
- * 取值: this.$refs.captcha.hash
- *
- * turnstile:
- * 返回结构: {response: '', captchaType: 'turnstile'}
- * 取值: <Captcha @getCaptchaData="(value) => value" />
+ * 重置验证器
  */
-export default {
-  name: 'Captcha',
-  props: {
-    id: {
-      type: String,
-      default: '0',
-    },
-    disable: {
-      type: Boolean,
-      default: false,
-    },
-    seconds: {
-      type: Number,
-      default: 60
-    },
-    height: {
-      type: String,
-      default: '40px'
-    },
-    type: {
-      type: String,
-      default: 'turnstile'
-    },
-    size: {
-      type: String,
-      default: 'default',
-    }
-  },
-  components: {SvgCaptchaWidget},
-  methods: {
-    /**
-     * 重置验证器
-     */
-    refreshCaptcha() {
-      switch (this.captchaType) {
-        case "svg":
-          this.$refs.svgCaptchaRef.refreshCaptcha();
-          break;
-        default:
-          throw "Unknown captcha type";
-      }
-    },
-    /**
-     * 验证器完成回调
-     * @param string|map value
-     */
-    doneVerifies(value) {
-      let result = {captchaType: this.captchaType};
-
-      switch (this.captchaType) {
-        case "turnstile":
-          result = {...result, response: value};
-          break;
-        case "svg":
-          result = {...result, ...value};
-          break;
-        default:
-          throw "Unknown captcha type";
-      }
-
-      this.$emit('getCaptchaData', result);
-    }
-  },
-  computed: {
-    captchaType() {
-      return this.$route.query.captcha || this.type;
-    }
-  },
+const refreshCaptcha = () => {
+  switch (captchaType.value) {
+    case "svg":
+      svgCaptchaRef.value?.refreshCaptcha()
+      break
+    default:
+      throw "Unknown captcha type"
+  }
 }
+
+/**
+ * 验证器完成回调
+ * @param {string|object} value
+ */
+const doneVerifies = (value: any) => {
+  let result: any = {
+    captchaType: captchaType.value
+  }
+
+  switch (captchaType.value) {
+    case "svg":
+      result = {...result, ...value}
+      break
+    default:
+      throw "Unknown captcha type"
+  }
+
+  emit('getCaptchaData', result)
+}
+
+defineExpose({
+  refreshCaptcha
+})
 </script>
 
 <template>
   <div class="captcha">
-    <SvgCaptchaWidget ref="svgCaptchaRef"
-                      v-if="captchaType === 'svg'"
-                      :id="id"
-                      :seconds="seconds"
-                      :disable="disable"
-                      :size="size"
-                      @callbackDoneVerifies="doneVerifies"></SvgCaptchaWidget>
+    <SvgCaptchaWidget
+        v-if="captchaType === 'svg'"
+        ref="svgCaptchaRef"
+        :id="id"
+        :seconds="seconds"
+        :disable="disable"
+        :size="size"
+        @callbackDoneVerifies="doneVerifies"
+    />
   </div>
 </template>
 

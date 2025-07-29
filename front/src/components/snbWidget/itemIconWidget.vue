@@ -9,7 +9,6 @@ import {useI18nUtils} from "../../assets/sripts/i18nUtil.ts";
 
 const {asArray, asString, sanitizeString} = useI18nUtils()
 
-
 const assets_ammunitions = import.meta.glob('@glow-prow-assets/items/ammunitions/*', {eager: true}),
     assets_weapons = import.meta.glob('@glow-prow-assets/items/weapons/*', {eager: true}),
     assets_armors = import.meta.glob('@glow-prow-assets/items/armors/*', {eager: true}),
