@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {ref} from "vue";
 import {useAuthStore} from '../../../stores'
-import {useRouter} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 
 import Captcha from "../../components/captcha/index.vue";
 import {api, http} from "../../assets/sripts";
@@ -9,6 +9,7 @@ import {useI18n} from "vue-i18n";
 
 const authStore = useAuthStore(),
     router = useRouter(),
+    route = useRoute(),
     {t} = useI18n();
 
 let messages = ref([]),
@@ -40,6 +41,10 @@ const onLogin = async () => {
     }
 
     authStore.setAccountToken(d.data)
+
+    if (route.query.backurl)
+      await router.push(route.query.backurl as string)
+
     await router.push('/')
   } catch (e) {
     if (e instanceof Error)
@@ -69,13 +74,13 @@ const onCaptchaData = (data: any) => {
             <v-text-field v-model="username"
                           name="username"
                           variant="solo-filled"
-                          :label="$t('login.form.label.username')"
-                          :placeholder="$t('login.form.placeholder.username')"></v-text-field>
+                          :label="t('login.form.label.username')"
+                          :placeholder="t('login.form.placeholder.username')"></v-text-field>
             <v-text-field v-model="password"
                           name="password"
                           variant="solo-filled"
-                          :label="$t('login.form.label.password')"
-                          :placeholder="$t('login.form.placeholder.password')"
+                          :label="t('login.form.label.password')"
+                          :placeholder="t('login.form.placeholder.password')"
                           type="password"></v-text-field>
 
             <Captcha @getCaptchaData="onCaptchaData" type="svg" class="captcha"></Captcha>

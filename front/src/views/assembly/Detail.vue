@@ -151,7 +151,7 @@ const delAssembly = async () => {
 
     <v-container>
       <v-row>
-        <v-col cols="12" sm="12" lg="8" xl="4">
+        <v-col cols="12" sm="12" lg="8" xl="8">
           <div id="commit">
             <DisqusComments :lazy="true"
                             :language="language"

@@ -20,7 +20,11 @@ const {t} = useI18n()
               <v-col cols="12" sm="12" md="6" lg="3">
                 <b>服务</b>
                 <ul>
-                  <li>组队寻求</li>
+                  <li><router-link to="/team">组队寻求</router-link> </li>
+                  <li><router-link to="/calendar">日历</router-link></li>
+                  <li><router-link to="/display-cabinet">展示馆</router-link></li>
+                  <li><router-link to="/assembly">配装厂</router-link></li>
+                  <li><router-link to="/maps">地图</router-link></li>
                 </ul>
               </v-col>
               <v-col cols="12" sm="12" md="6" lg="3">

@@ -129,7 +129,17 @@
       "title": "配装详情"
     },
     "browse": {
-      "title": "配装分享集"
+      "title": "配装分享集",
+      "search": "搜索配装创建用户 或 是配装名称",
+      "newAssembly": "创建配装",
+      "filterTitle": "筛选",
+      "filter": {
+        "createdTime": "创建时间",
+        "updatedTime": "更新时间",
+        "likes": "赞",
+        "desc": "正序",
+        "asc": "反序"
+      }
     },
     "publish": {
       "title": "发布"

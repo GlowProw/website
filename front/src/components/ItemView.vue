@@ -15,6 +15,8 @@ export default {
   data() {
     return {
       show: false,
+      items: '',
+      value: ''
     }
   },
   created() {
@@ -59,15 +61,38 @@ export default {
             sticky
             transfer
             footer-hide>
-    <v-card class="pa-10 card-flavor">
+    <v-card class="pl-10 pr-10 pt-10 card-flavor">
       <v-row>
-        <v-col v-for="(i, index) in items" :key="index">
-          <ItemSlotBase size="80px" @click="onFinish(i.id)">
-            <ItemIconWidget :id="i.id"
-                            :is-open-detail="false"></ItemIconWidget>
-          </ItemSlotBase>
-        </v-col>
+        <ItemSlotBase size="60px" v-if="value">
+          <ItemIconWidget :id="value"></ItemIconWidget>
+        </ItemSlotBase>
+        <ItemSlotBase size="60px" class="d-flex justify-center align-center" v-else>
+          <v-icon icon="mdi-close-octagon-outline"/>
+        </ItemSlotBase>
+        <v-combobox
+            v-model="value"
+            v-model:search="value"
+            :hide-no-data="false"
+            :items="Object.values(items)"
+            hide-selected
+            item-value="id"
+            item-title="id"
+            class="ml-4"
+            clearable
+            persistent-hint>
+          <template v-slot:details>
+            请输入id来选中物体，id列表可见
+            <router-link to="/display-cabinet">这里</router-link>
+            <v-icon icon="mdi-share"></v-icon>
+          </template>
+        </v-combobox>
       </v-row>
+
+      <v-card-actions class="mt-4">
+        <v-btn @click="onFinish(value)" block :disabled="!value || !items[value]" class="bg-amber">
+          确定
+        </v-btn>
+      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>

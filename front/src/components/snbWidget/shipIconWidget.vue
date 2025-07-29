@@ -72,11 +72,8 @@ const onReady = async () => {
           :class="`pa-${props.padding} cursor-pointer`"
           height="100%"
           width="100%">
-        <template v-slot:image>
-          <!--            <img class="pointer-events-none" src="@/assets/images/portal-banner-background.png">-->
-        </template>
-
         <v-img :src="shipsData.images[props.id]" class="pointer-events-none"></v-img>
+
       </v-card>
     </template>
 

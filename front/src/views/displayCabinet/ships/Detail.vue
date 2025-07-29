@@ -12,6 +12,8 @@ import MaterialIconWidget from "../../../components/snbWidget/materialIconWidget
 import FactionIconWidget from "../../../components/snbWidget/factionIconWidget.vue";
 import ShipIconWidget from "../../../components/snbWidget/shipIconWidget.vue";
 import PerksWidget from "../../../components/snbWidget/perksWidget.vue";
+import ShipTopDownPerspectiveWidget from "../../../components/snbWidget/shipTopDownPerspectiveWidget.vue";
+import {Ship} from "glow-prow-data/src/entity/Ships.ts";
 
 const shipImages = import.meta.glob('@glow-prow-assets/ships/*.png', {eager: true});
 
@@ -32,7 +34,7 @@ let
       img: '',
       loading: false
     }),
-    shipDetailData: Ref<Ships> = ref(shipsData['dhow']),
+    shipDetailData: Ref<Ship> = ref(shipsData['dhow'] as Ship),
     isShowShipRawList = ref(false),
 
     // 蓝图
@@ -102,7 +104,10 @@ const onStatisticsRawMaterial = () => {
         <v-row class="mt-5">
           <v-col>
             <h1 class="text-amber text-h2">{{ t(`snb.ships.${shipDetailPageData.id}.name`) }}</h1>
-            <p class="mt-2 mb-3"><v-icon icon="mdi-identifier" /> {{ shipDetailPageData.id || 'none' }}</p>
+            <p class="mt-2 mb-3">
+              <v-icon icon="mdi-identifier"/>
+              {{ shipDetailPageData.id || 'none' }}
+            </p>
 
             <v-badge inline color="transparent" class="badge-flavor text-center tag-badge pl-3" v-if="shipsData[shipDetailPageData.id].size">{{ t(`displayCabinet.size.${shipsData[shipDetailPageData.id].size}`) }}</v-badge>
           </v-col>
@@ -122,9 +127,9 @@ const onStatisticsRawMaterial = () => {
             <v-row>
               <ItemSlotBase size="150px" class="mr-3">
                 <ShipIconWidget :id="shipDetailPageData.id" class="pa-2"
-                            :is-click-open-detail="false"
-                            :isShowOpenDetail="false"
-                            :isShowDescription="false"></ShipIconWidget>
+                                :is-click-open-detail="false"
+                                :isShowOpenDetail="false"
+                                :isShowDescription="false"></ShipIconWidget>
               </ItemSlotBase>
               <v-col>
                 <p class="text-pre-wrap mb-4">
@@ -136,6 +141,15 @@ const onStatisticsRawMaterial = () => {
 
             <v-row>
               <v-col cols="12" sm="12" lg="6" xl="6">
+                <template v-if="shipDetailData.id">
+                  <v-text-field :value="shipDetailData.id" readonly
+                                hide-details
+                                variant="underlined" density="compact">
+                    <template v-slot:append-inner>
+                      <p class="text-no-wrap">ID</p>
+                    </template>
+                  </v-text-field>
+                </template>
                 <template v-if="shipDetailData.slots.attachement">
                   <v-text-field :value="shipDetailData.slots.attachement[0]" readonly
                                 hide-details
@@ -145,134 +159,170 @@ const onStatisticsRawMaterial = () => {
                     </template>
                   </v-text-field>
                 </template>
-                <template v-if="shipDetailData.slots.frontWeapon">
-                  <p class="mt-4">
-                    <v-row align="center">
-                      <v-col><b>前武器</b></v-col>
-                      <v-col cols>
-                        <v-divider></v-divider>
+
+                <div class="mt-1">
+                  <template v-if="shipDetailData.slots.frontWeapon">
+                    <v-row>
+                      <v-col cols="auto">
+                        <ShipTopDownPerspectiveWidget :centerTop="true"></ShipTopDownPerspectiveWidget>
                       </v-col>
-                      <v-col align="right">
-                        {{ shipDetailData.slots.frontWeapon[0] }}
-                      </v-col>
-                    </v-row>
-                  </p>
-                  <v-text-field :value="shipDetailData.slots.frontWeapon[1].top" readonly
-                                hide-details
-                                variant="underlined" density="compact">
-                    <template v-slot:append-inner>
-                      <p class="text-no-wrap">顶层甲板</p>
-                    </template>
-                  </v-text-field>
-                  <v-text-field :value="shipDetailData.slots.frontWeapon[1].lower" readonly
-                                hide-details
-                                variant="underlined" density="compact">
-                    <template v-slot:append-inner>
-                      <p class="text-no-wrap">下层甲板</p>
-                    </template>
-                  </v-text-field>
-                </template>
-                <template v-if="shipDetailData.slots.leftSideWeapon">
-                  <p class="mt-4">
-                    <v-row align="center">
-                      <v-col><b>左侧武器</b></v-col>
-                      <v-col cols>
-                        <v-divider></v-divider>
-                      </v-col>
-                      <v-col align="right" v-if="shipDetailData.slots.leftSideWeapon[0]">
-                        {{ shipDetailData.slots.leftSideWeapon[0] }}
+                      <v-col>
+                        <p>
+                          <v-row align="center">
+                            <v-col><b>前武器</b></v-col>
+                            <v-col cols>
+                              <v-divider></v-divider>
+                            </v-col>
+                            <v-col align="right">
+                              {{ shipDetailData.slots.frontWeapon[0] }}
+                            </v-col>
+                          </v-row>
+                        </p>
+                        <v-text-field :value="shipDetailData.slots.frontWeapon[1].top" readonly
+                                      hide-details
+                                      variant="underlined" density="compact">
+                          <template v-slot:append-inner>
+                            <p class="text-no-wrap">顶层甲板</p>
+                          </template>
+                        </v-text-field>
+                        <v-text-field :value="shipDetailData.slots.frontWeapon[1].lower" readonly
+                                      hide-details
+                                      variant="underlined" density="compact">
+                          <template v-slot:append-inner>
+                            <p class="text-no-wrap">下层甲板</p>
+                          </template>
+                        </v-text-field>
                       </v-col>
                     </v-row>
-                  </p>
-                  <v-text-field :value="shipDetailData.slots.leftSideWeapon[1].top" readonly
-                                hide-details
-                                v-if="shipDetailData.slots.leftSideWeapon[1].top"
-                                variant="underlined" density="compact">
-                    <template v-slot:append-inner>
-                      <p class="text-no-wrap">顶层甲板</p>
-                    </template>
-                  </v-text-field>
-                  <v-text-field :value="shipDetailData.slots.leftSideWeapon[1].lower" readonly
-                                hide-details
-                                v-if="shipDetailData.slots.leftSideWeapon[1].lower"
-                                variant="underlined" density="compact">
-                    <template v-slot:append-inner>
-                      <p class="text-no-wrap">下层甲板</p>
-                    </template>
-                  </v-text-field>
-                </template>
-                <template v-if="shipDetailData.slots.rightSideWeapon">
-                  <p class="mt-4">
-                    <v-row align="center">
-                      <v-col><b>右侧武器</b></v-col>
-                      <v-col cols>
-                        <v-divider></v-divider>
+                  </template>
+                  <template v-if="shipDetailData.slots.leftSideWeapon">
+                    <v-row>
+                      <v-col cols="auto">
+                        <ShipTopDownPerspectiveWidget :left="true"></ShipTopDownPerspectiveWidget>
                       </v-col>
-                      <v-col align="right" v-if="shipDetailData.slots.rightSideWeapon[0]">
-                        {{ shipDetailData.slots.rightSideWeapon[0] }}
-                      </v-col>
-                    </v-row>
-                  </p>
-                  <v-text-field :value="shipDetailData.slots.rightSideWeapon[1].top" readonly
-                                hide-details
-                                v-if="shipDetailData.slots.rightSideWeapon[1].top"
-                                variant="underlined" density="compact">
-                    <template v-slot:append-inner>
-                      <p class="text-no-wrap">顶层甲板</p>
-                    </template>
-                  </v-text-field>
-                  <v-text-field :value="shipDetailData.slots.rightSideWeapon[1].lower" readonly
-                                hide-details
-                                v-if="shipDetailData.slots.rightSideWeapon[1].lower"
-                                variant="underlined" density="compact">
-                    <template v-slot:append-inner>
-                      <p class="text-no-wrap">下层甲板</p>
-                    </template>
-                  </v-text-field>
-                </template>
-                <template v-if="shipDetailData.slots.aftWeapon">
-                  <p class="mt-4">
-                    <v-row align="center">
-                      <v-col><b>后置武器</b></v-col>
-                      <v-col cols>
-                        <v-divider></v-divider>
-                      </v-col>
-                      <v-col align="right" v-if="shipDetailData.slots.aftWeapon[0]">
-                        {{ shipDetailData.slots.aftWeapon[0] }}
+                      <v-col>
+                        <p>
+                          <v-row align="center">
+                            <v-col><b>左侧武器</b></v-col>
+                            <v-col cols>
+                              <v-divider></v-divider>
+                            </v-col>
+                            <v-col align="right" v-if="shipDetailData.slots.leftSideWeapon[0]">
+                              {{ shipDetailData.slots.leftSideWeapon[0] }}
+                            </v-col>
+                          </v-row>
+                        </p>
+                        <v-text-field :value="shipDetailData.slots.leftSideWeapon[1].top" readonly
+                                      hide-details
+                                      v-if="shipDetailData.slots.leftSideWeapon[1].top"
+                                      variant="underlined" density="compact">
+                          <template v-slot:append-inner>
+                            <p class="text-no-wrap">顶层甲板</p>
+                          </template>
+                        </v-text-field>
+                        <v-text-field :value="shipDetailData.slots.leftSideWeapon[1].lower" readonly
+                                      hide-details
+                                      v-if="shipDetailData.slots.leftSideWeapon[1].lower"
+                                      variant="underlined" density="compact">
+                          <template v-slot:append-inner>
+                            <p class="text-no-wrap">下层甲板</p>
+                          </template>
+                        </v-text-field>
                       </v-col>
                     </v-row>
-                  </p>
-                  <v-text-field :value="shipDetailData.slots.aftWeapon[1].top" readonly
-                                hide-details
-                                v-if="shipDetailData.slots.aftWeapon[1].top"
-                                variant="underlined" density="compact">
-                    <template v-slot:append-inner>
-                      <p class="text-no-wrap">顶层甲板</p>
-                    </template>
-                  </v-text-field>
-                  <v-text-field :value="shipDetailData.slots.aftWeapon[1].lower" readonly
-                                hide-details
-                                v-if="shipDetailData.slots.aftWeapon[1].lower"
-                                variant="underlined" density="compact">
-                    <template v-slot:append-inner>
-                      <p class="text-no-wrap">下层甲板</p>
-                    </template>
-                  </v-text-field>
-                </template>
+                  </template>
+                  <template v-if="shipDetailData.slots.rightSideWeapon">
+                    <v-row>
+                      <v-col cols="auto">
+                        <ShipTopDownPerspectiveWidget :right="true"></ShipTopDownPerspectiveWidget>
+                      </v-col>
+                      <v-col>
+                        <p>
+                          <v-row align="center">
+                            <v-col><b>右侧武器</b></v-col>
+                            <v-col cols>
+                              <v-divider></v-divider>
+                            </v-col>
+                            <v-col align="right" v-if="shipDetailData.slots.rightSideWeapon[0]">
+                              {{ shipDetailData.slots.rightSideWeapon[0] }}
+                            </v-col>
+                          </v-row>
+                        </p>
+                        <v-text-field :value="shipDetailData.slots.rightSideWeapon[1].top" readonly
+                                      hide-details
+                                      v-if="shipDetailData.slots.rightSideWeapon[1].top"
+                                      variant="underlined" density="compact">
+                          <template v-slot:append-inner>
+                            <p class="text-no-wrap">顶层甲板</p>
+                          </template>
+                        </v-text-field>
+                        <v-text-field :value="shipDetailData.slots.rightSideWeapon[1].lower" readonly
+                                      hide-details
+                                      v-if="shipDetailData.slots.rightSideWeapon[1].lower"
+                                      variant="underlined" density="compact">
+                          <template v-slot:append-inner>
+                            <p class="text-no-wrap">下层甲板</p>
+                          </template>
+                        </v-text-field>
+                      </v-col>
+                    </v-row>
+                  </template>
+                  <template v-if="shipDetailData.slots.aftWeapon">
+                    <v-row>
+                      <v-col cols="auto">
+                        <ShipTopDownPerspectiveWidget :centerDown="true"></ShipTopDownPerspectiveWidget>
+                      </v-col>
+                      <v-col>
+                        <p>
+                          <v-row align="center">
+                            <v-col><b>后置武器</b></v-col>
+                            <v-col cols>
+                              <v-divider></v-divider>
+                            </v-col>
+                            <v-col align="right" v-if="shipDetailData.slots.aftWeapon[0]">
+                              {{ shipDetailData.slots.aftWeapon[0] }}
+                            </v-col>
+                          </v-row>
+                        </p>
+                        <v-text-field :value="shipDetailData.slots.aftWeapon[1].top" readonly
+                                      hide-details
+                                      v-if="shipDetailData.slots.aftWeapon[1].top"
+                                      variant="underlined" density="compact">
+                          <template v-slot:append-inner>
+                            <p class="text-no-wrap">顶层甲板</p>
+                          </template>
+                        </v-text-field>
+                        <v-text-field :value="shipDetailData.slots.aftWeapon[1].lower" readonly
+                                      hide-details
+                                      v-if="shipDetailData.slots.aftWeapon[1].lower"
+                                      variant="underlined" density="compact">
+                          <template v-slot:append-inner>
+                            <p class="text-no-wrap">下层甲板</p>
+                          </template>
+                        </v-text-field>
+                      </v-col>
+                    </v-row>
+                  </template>
+                </div>
 
                 <template v-if="shipDetailData.slots.auxiliaryWeapon">
-                  <p class="mt-4"></p>
-                  <v-text-field :value="shipDetailData.slots.auxiliaryWeapon[0]" readonly
-                                hide-details
-                                variant="underlined" density="compact">
-                    <template v-slot:append-inner>
-                      <p class="text-no-wrap">辅助武器</p>
-                    </template>
-                  </v-text-field>
+                  <v-row>
+                    <v-col cols="auto">
+                      <ShipTopDownPerspectiveWidget :center-center="true"></ShipTopDownPerspectiveWidget>
+                    </v-col>
+                    <v-col>
+                      <v-text-field :value="shipDetailData.slots.auxiliaryWeapon[0]" readonly
+                                    hide-details
+                                    variant="underlined" density="compact">
+                        <template v-slot:append-inner>
+                          <p class="text-no-wrap">辅助武器</p>
+                        </template>
+                      </v-text-field>
+                    </v-col>
+                  </v-row>
                 </template>
 
                 <template v-if="shipDetailData.slots.furniture">
-                  <p class="mt-4"></p>
                   <v-text-field :value="shipDetailData.slots.furniture[0]" readonly
                                 hide-details
                                 variant="underlined" density="compact">
@@ -283,12 +333,11 @@ const onStatisticsRawMaterial = () => {
                 </template>
 
                 <template v-if="shipDetailData.slots.ultimate">
-                  <p class="mt-4"></p>
                   <v-text-field :value="shipDetailData.slots.ultimate[0]" readonly
                                 hide-details
                                 variant="underlined" density="compact">
                     <template v-slot:append-inner>
-                      <p class="text-no-wrap">ultimate</p>
+                      <p class="text-no-wrap">技能</p>
                     </template>
                   </v-text-field>
                 </template>

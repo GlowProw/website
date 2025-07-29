@@ -16,7 +16,7 @@ const authStore = useAuthStore()
           flat>
 
         <Logo></Logo>
-        <div class="mr-5">BETA</div>
+        <v-btn size="x-small" class="mr-5 ml-n3" variant="outlined">BETA</v-btn>
         <v-divider vertical></v-divider>
 
         <v-btn variant="text" tile href="https://www.ubisoft.com/en-us/game/skull-and-bones">

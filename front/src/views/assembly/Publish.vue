@@ -28,6 +28,11 @@ let publishData = ref({
     assemblyData = ref(null),
     assemblyWorkshopRef = ref(null),
     messages = ref([]),
+    formRules = {
+      name: [
+        v => !!v || 'Name is required',
+      ]
+    },
     isEditModel = computed(() => {
       switch (route.name) {
         case 'EditAssembly':
@@ -86,6 +91,7 @@ const onEdit = async () => {
       throw Error(d.message || d.code);
 
     messages.value.push(t(`basic.tips.${d.code}`))
+    storageAssembly.delete(editPublishData.uuid as string, StorageAssemblyType.Data)
     await router.push(`/assembly/browse/${publishData.value.uuid}/detail`)
   } catch (e) {
     console.error(e)
@@ -111,15 +117,17 @@ const onPublish = async () => {
             description: publishData.value.description,
             data: JSON.stringify(assemblyData.value.data.data),
             tags: publishData.value.tags.join(','),
-            localUid: uid
           }
         }),
-        d = result.result;
+        d = result.data;
 
     if (d.error == 1)
       throw Error(d.message || d.code);
 
     messages.value.push(t(`basic.tips.${d.code}`))
+    storageAssembly.delete(uid as string, StorageAssemblyType.Data)
+
+    await router.push(`/assembly/browse/${d.data.id}/detail`)
   } catch (e) {
     console.error(e)
     if (e instanceof Error)
@@ -143,19 +151,27 @@ const onPublish = async () => {
     </v-container>
   </v-breadcrumbs>
   <v-divider></v-divider>
+  <v-container>
+    <v-row align="start">
+      <v-col>
+        <h1>预览</h1>
+        <p class="opacity-80">
+          设置配装信息
+        </p>
+      </v-col>
+      <v-col cols="auto">
+        <v-btn variant="elevated" v-if="isEditModel" @click="router.go(-1)">
+          返回编辑
+        </v-btn>
+        <v-btn variant="elevated" :color="`var(--main-color)`" class="ml-2" :loading="publishLoading" @click="() => isEditModel ? onEdit() : onPublish()">
+          发布
+        </v-btn>
+      </v-col>
+    </v-row>
+  </v-container>
 
   <!-- Workshop Share Preview S -->
   <v-container>
-    <v-toolbar class="bg-transparent">
-      <v-btn variant="elevated" v-if="isEditModel" @click="router.go(-1)">
-        返回编辑
-      </v-btn>
-      <v-spacer></v-spacer>
-      <v-btn variant="elevated" :color="`var(--main-color)`" :loading="publishLoading" @click="() => isEditModel ? onEdit() : onPublish()">
-        发布
-      </v-btn>
-    </v-toolbar>
-
     <div class="ml-n2 mr-n2">
       <AssemblyShowWidget class="card-flavor mb-5 ml-n10 mr-n10"
                           ref="assemblyWorkshopRef" :readonly="true">
@@ -163,44 +179,51 @@ const onPublish = async () => {
     </div>
 
     <v-container>
-      <v-row>
-        <v-col cols="6">
-          <v-text-field
-              v-model="publishData.name"
-              label="配置名称"
-              placeholder="配置名称"
-              variant="underlined">
-            <template v-slot:details>
-              船长，设置一个酷炫名字，好名字配好船
-            </template>
-          </v-text-field>
+      <v-form>
+        <v-row>
+          <v-col cols="12" sm="12" lg="6">
+            <v-text-field
+                v-model="publishData.name"
+                label="配置名称"
+                placeholder="配置名称"
+                :rules="formRules.name"
+                variant="underlined">
+              <template v-slot:details>
+                船长，设置一个酷炫名字，好名字配好船
+              </template>
+            </v-text-field>
+          </v-col>
+          <v-col cols="12" sm="12" lg="6" align="right">
+            <v-combobox
+                label="标签"
+                chips
+                multiple
+                clearable
+                v-model="publishData.tags"
+                variant="underlined"
+                item-title="label"
+                item-value="value"
+                :hide-no-data="true">
+              <template v-slot:details>
+                输入标签敲下回车键，即可创建新标签
+              </template>
+            </v-combobox>
+          </v-col>
+          <v-col cols="12">
+            <div class="mt-4 mb-3 font-weight-bold">描述</div>
 
-          <div class="mt-4 font-weight-bold">描述</div>
-          <Textarea class="mt-5 mb-2"
-                    height="400px"
-                    v-model="publishData.description"
-                    placeholder="输入描述描述"></Textarea>
-          <template v-if="route.query.debug">
-            {{ publishData.description }}
-          </template>
-        </v-col>
-        <v-col align="right">
-          <v-combobox
-              label="标签"
-              chips
-              multiple
-              v-model="publishData.tags"
-              variant="underlined"
-              clearable
-              item-title="label"
-              item-value="value"
-              :hide-no-data="true">
-            <template v-slot:details>
-              输入标签敲下回车键，即可创建新标签
-            </template>
-          </v-combobox>
-        </v-col>
-      </v-row>
+            <v-card class="pl-5 pr-5">
+              <Textarea class="mt-5 mb-2"
+                        height="300px"
+                        v-model="publishData.description"
+                        placeholder="输入描述描述"></Textarea>
+              <template v-if="route.query.debug">
+                {{ publishData.description }}
+              </template>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-form>
     </v-container>
   </v-container>
   <!-- Workshop Share Preview E -->

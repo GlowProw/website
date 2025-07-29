@@ -4,15 +4,23 @@
   "child": {
     "development": {
       "protocol": "http",
-      "host": "localhost",
+      "wsProtocol": "ws",
+      "host": "127.0.0.1",
+      "wsHost": "127.0.0.1",
       "port": "3000",
-      "pathname": "/api/"
+      "wsPort": "3001",
+      "pathname": "/api/",
+      "wsPathname": "/"
     },
     "production": {
-      "protocol": "http",
+      "protocol": "https",
+      "wsProtocol": "wss",
       "host": "snb-tool.api.cabbagelol.net",
+      "wsHost": "snb-tool.api.cabbagelol.net",
       "port": "3000",
-      "pathname": "/api/"
+      "wsPort": "3001",
+      "pathname": "/api/",
+      "wsPathname": "/ws/"
     }
   }
 }

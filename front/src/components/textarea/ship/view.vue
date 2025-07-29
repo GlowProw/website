@@ -1,37 +1,43 @@
-<script>
+<script setup lang="ts">
 import {nodeViewProps, NodeViewWrapper} from "@tiptap/vue-3";
 import ShipIconWidget from "../../snbWidget/shipIconWidget.vue";
+import {useI18n} from "vue-i18n";
 import ItemSlotBase from "../../snbWidget/ItemSlotBase.vue";
 
-export default {
-  props: nodeViewProps,
-  components: {
-    ItemSlotBase,
-    ShipWidget: ShipIconWidget,
-    NodeViewWrapper
-  },
-}
+const props = defineProps(nodeViewProps);
+const {t} = useI18n();
 </script>
 
 <template>
-  <node-view-wrapper ref="shipRoot" :as="'span'" class="ship-icon">
-    <ShipWidget :id="node.attrs.id" :padding="0"></ShipWidget>
-  </node-view-wrapper>
+  <NodeViewWrapper ref="shipRoot" as="span" class="ship-span-box">
+    <ItemSlotBase size="25px" :padding="0" class="ship-icon">
+      <ShipIconWidget :id="props.node.attrs.id" :padding="0" />
+    </ItemSlotBase>
+    <u class="ship-name text-no-wrap">{{ t(`snb.ships.${props.node.attrs.id}.name`) }}</u>
+  </NodeViewWrapper>
 </template>
 
 <style scoped lang="less">
-.ship-icon {
+.ship-span-box {
   position: relative;
   display: inline-flex;
-  width: 25px;
+  width: auto;
   height: 25px;
+  align-items: baseline;
+  gap: 1px;
 
-  > * {
-    position: absolute;
-    top: 6px;
-    left: 0;
-    width: 25px;
-    height: 25px;
+  .ship-icon {
+    position: relative;
+    top: 5px;
+  }
+
+  > .ship-name {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: auto;
+    height: auto;
+    z-index: 1;
   }
 }
 </style>

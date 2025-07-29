@@ -7,28 +7,11 @@ import App from './App.vue'
 
 import {createApp} from 'vue'
 import router from "../router";
-import {createVuetify} from 'vuetify';
 import {createPinia} from 'pinia'
 import Vue3Disqus from "vue3-disqus";
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import i18n from './i18n';
-
-// Styles
-import '@/assets/styles/index.less'
-import 'vuetify/styles/main.css';
-import {aliases, mdi} from 'vuetify/iconsets/mdi'; // 可选：图标支持
-import '@mdi/font/css/materialdesignicons.css'
-
-const vuetify = createVuetify({
-    icons: {
-        defaultSet: 'mdi',
-        aliases,
-        sets: {mdi},
-    },
-    theme: {
-        defaultTheme: 'dark',
-    },
-});
+import vuetify from "./vuetify";
 
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
@@ -39,9 +22,9 @@ app.config.globalProperties.$t = i18n.global.t;
 
 app
     .use(router)
-    .use(vuetify)
     .use(pinia)
     .use(i18n)
+    .use(vuetify)
     .use(Vue3Disqus, {
         shortname: "glow-prow"
     })

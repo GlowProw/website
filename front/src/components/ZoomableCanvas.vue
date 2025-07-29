@@ -1,5 +1,5 @@
 <template>
-  <div class="canvas-container overlapping-circles" ref="container" @wheel.prevent="handleWheel">
+  <div class="canvas-container overlapping-circles" ref="container">
     <div class="canvas-container overlapping-pattern">
       <div
           class="canvas"
@@ -10,6 +10,7 @@
         height: `${contentHeight}px`,
         'pointer-events': isDragging ? 'none' : 'auto'
       }"
+          @wheel.prevent="handleWheel"
           @mousedown="startDrag">
         <div class="content-wrapper content-layer"
              :style="{ pointerEvents: 'auto' }"

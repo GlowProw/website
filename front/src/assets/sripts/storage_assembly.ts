@@ -30,6 +30,27 @@ export class StorageAssembly {
         }
     }
 
+    gets(type: StorageAssemblyType) {
+        try {
+            const d = storage.local.get(this.NAME + type)
+
+            return {
+                code: 0,
+                data: Object.entries(d.data.value).map(i => {
+                    return {
+                        id: i[0],
+                        ...i[1] as {}
+                    }
+                })
+            }
+        } catch (e) {
+            console.error(e)
+            return {
+                code: -1
+            }
+        }
+    }
+
     /**
      * 更新值
      * @param data
@@ -71,9 +92,9 @@ export class StorageAssembly {
             if (d.code != 0)
                 return false
 
-            delete d.data.value.value[id]
+            delete d.data.value[id]
 
-            storage.local.set(this.NAME + type, d)
+            storage.local.set(this.NAME + type, d.data.value)
 
             return true
         } catch (e) {
