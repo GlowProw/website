@@ -6,6 +6,7 @@ import Paragraph from '@tiptap/extension-paragraph'
 import Placeholder from '@tiptap/extension-placeholder'
 import {ItemNode as ItemWidget} from './item/index'
 import {ShipNode as ShipWidget} from './ship/index'
+import {EmoteNode as EmoteWidget} from './emote/index'
 import ShipView from '../ShipView.vue'
 import ItemView from '../ItemView.vue'
 import EmoteView from '../EmoteView.vue'
@@ -143,7 +144,7 @@ onMounted(() => {
       }),
       ItemWidget,
       ShipWidget,
-      // EmoteWidget
+      EmoteWidget
     ],
     onCreate({editor}) {
       editor.options.keyboardShortcuts = {}

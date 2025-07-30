@@ -8,7 +8,26 @@ import {useI18n} from "vue-i18n";
 const router = useRouter(),
     {t} = useI18n();
 
-let messages = ref([]),
+let registerLoading = ref(false),
+    registerRules = ref({
+      username: [
+        v => !!v || '必须填写用户名',
+        v => (v && v.length >= 3 && v.length <= 40) || '长度3-40',
+        v => new RegExp(/^[a-zA-Z0-9_]+$/).test(v) || '用户名格式不正确',
+      ],
+      password: [
+        v => !!v || '必须填写密码',
+        v => (v && v.length >= 8 && v.length <= 60) || '长度8-60',
+      ],
+      email: [
+        v => !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || '邮箱格式不正确'
+      ],
+      captcha: [
+        v => !!v || '必须填写验证码',
+        v => (v && v.length == 4) || '长度4',
+      ]
+    }),
+    messages = ref([]),
     username = ref(''),
     password = ref(''),
     email = ref(''),
@@ -19,6 +38,7 @@ let messages = ref([]),
  */
 const onRegister = async () => {
   try {
+    registerLoading.value = true;
     const result = await http.post(api['account_register'], {
           data: {
             username: username.value,
@@ -29,14 +49,23 @@ const onRegister = async () => {
         }),
         d = result.data;
 
-    if (d.code != 0) {
-      return Error(d.message)
+    if (d.error == 1) {
+      return Error(d)
     }
 
-    await router.push('/account/login')
+    messages.value.push({
+      text: t('basic.tips.register_ok'),
+      color: 'success'
+    });
+
+    setTimeout(async () => {
+      await router.push('/account/login')
+    }, 1000)
   } catch (e) {
     if (e instanceof Error)
-      messages.value.push(e.message)
+      messages.value.push(t(`basic.tips.${e.response.data.code.replace('.', '_')}`))
+  } finally {
+    registerLoading.value = false;
   }
 }
 
@@ -58,14 +87,29 @@ const onCaptchaData = (data: any) => {
         <v-row class="pa-8">
           <v-col>
             <v-text-field v-model="username"
+                          :rules="registerRules.username"
                           variant="solo-filled"
-                          placeholder="帐号"></v-text-field>
+                          min-length="3"
+                          max-length="40"
+                          placeholder="帐号">
+              <template v-slot:details>
+                至少3位到40位，使用a-z/A-Z/0-9/_来注册用户名
+              </template>
+            </v-text-field>
             <v-text-field v-model="password"
+                          :rules="registerRules.password"
                           variant="solo-filled"
-                          placeholder="输入密码"></v-text-field>
+                          min-length="8"
+                          max-length="64"
+                          placeholder="输入密码">
+              <template v-slot:details>
+                至少8位到64位
+              </template>
+            </v-text-field>
             <div class="mb-10 mt-5">
               <p class="mb-2">可选</p>
               <v-text-field v-model="email"
+                            :rules="registerRules.email"
                             label="邮箱"
                             variant="solo-filled"
                             placeholder="输入邮箱地址">
@@ -74,11 +118,13 @@ const onCaptchaData = (data: any) => {
                 </template>
               </v-text-field>
             </div>
-            <Captcha @getCaptchaData="onCaptchaData" type="svg" class="captcha"></Captcha>
+            <Captcha @getCaptchaData="onCaptchaData"
+                     :rules="registerRules.captcha"
+                     type="svg" class="captcha"></Captcha>
           </v-col>
         </v-row>
 
-        <v-btn class="btn-flavor ml-8 mb-5" size="50" @click="onRegister" :disabled="!username && !password">注册</v-btn>
+        <v-btn class="btn-flavor ml-8 mb-5" size="50" :loading="registerLoading" @click="onRegister" :disabled="!username && !password">注册</v-btn>
       </v-card>
     </v-container>
   </div>

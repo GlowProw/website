@@ -128,7 +128,7 @@ const onStatisticsRawMaterial = () => {
               {{ shipDetailPageData.id || 'none' }}
             </p>
 
-            <v-badge inline color="transparent" class="badge-flavor text-center tag-badge pl-3" v-if="shipsData[shipDetailPageData.id].size">{{ t(`displayCabinet.size.${shipsData[shipDetailPageData.id].size}`) }}</v-badge>
+            <v-chip inline class="badge-flavor text-center text-black tag-badge pl-3" v-if="shipsData[shipDetailPageData.id].size">{{ t(`displayCabinet.size.${shipsData[shipDetailPageData.id].size}`) }}</v-chip>
           </v-col>
           <v-spacer></v-spacer>
         </v-row>
@@ -561,7 +561,7 @@ const onStatisticsRawMaterial = () => {
     &:before {
       content: "";
       position: absolute;
-      z-index: 1;
+      z-index: 0;
       bottom: 0;
       left: 0;
       width: 100%;
@@ -573,6 +573,7 @@ const onStatisticsRawMaterial = () => {
 
     .ships-detail-header-img {
       position: absolute;
+      z-index: -1;
       right: 20px;
       bottom: -120px;
       width: 300px;

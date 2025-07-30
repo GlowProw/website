@@ -5,6 +5,7 @@ import {useI18nUtils} from "../../../assets/sripts/i18nUtil";
 
 import ItemSlotBase from "../../snbWidget/ItemSlotBase.vue";
 import ItemIconWidget from "../../snbWidget/itemIconWidget.vue";
+import ItemNameRarity from "../../snbWidget/itemNameRarity.vue"
 
 const props = defineProps(nodeViewProps);
 const {t} = useI18n(),
@@ -16,12 +17,16 @@ const {t} = useI18n(),
     <ItemSlotBase size="25px" :padding="0" class="item-icon">
       <ItemIconWidget :id="node.attrs.id" :padding="0" class="ma-0"></ItemIconWidget>
     </ItemSlotBase>
-    <u class="item-name text-no-wrap">{{
-        asString([
-          `snb.items.${node.attrs.id}.name`,
-          `snb.items.${sanitizeString(node.attrs.id).cleaned}.name`
-        ])
-      }}</u>
+    <ItemNameRarity :id="node.attrs.id" class="item-name text-no-wrap">
+      <u>
+        {{
+          asString([
+            `snb.items.${node.attrs.id}.name`,
+            `snb.items.${sanitizeString(node.attrs.id).cleaned}.name`
+          ])
+        }}
+      </u>
+    </ItemNameRarity>
   </node-view-wrapper>
 </template>
 
@@ -36,7 +41,7 @@ const {t} = useI18n(),
 
   .item-icon {
     position: relative;
-    top: 5px;
+    top: 7px;
   }
 
   > .item-name {

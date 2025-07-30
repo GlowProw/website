@@ -5,6 +5,7 @@
         variant="solo-filled"
         maxlength="4"
         @change="onChangeValue"
+        :rules="rules"
         :placeholder="t('captcha.title')"
     >
       <template v-slot:append-inner>
@@ -52,6 +53,7 @@ import {api, http, storage} from '../../assets/sripts'
 import {useI18n} from "vue-i18n";
 
 const props = defineProps({
+  rules: [],
   id: {
     type: String,
     default: '0',

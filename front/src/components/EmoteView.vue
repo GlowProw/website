@@ -130,13 +130,7 @@ export default {
             sticky
             transfer
             footer-hide>
-        <div class="insert-preview" v-show="isInsertPreview">
-          <EmoteItem :isSpan="false"
-                     :size="24"
-                     :id="`${insertPreview}`"
-                     v-if="insertPreview && pos"></EmoteItem>
-        </div>
-    <v-card class="emote-tab card-flavor pa-10 ma-n10">
+    <v-card class="emote-tab card-enlargement-flavor pa-10 ma-n10">
       <v-tabs v-model="emoteTabValue" size="small">
         <v-tab
             :value="i.name"
@@ -169,12 +163,6 @@ export default {
 }
 
 .emote {
-  .insert-preview {
-    position: absolute;
-    top: -50px;
-    left: 1px;
-  }
-
   .emote-tab {
     margin: -10px -16px -16px -16px;
 

@@ -4,6 +4,7 @@ import {useRoute} from 'vue-router'
 import SvgCaptchaWidget from "./svg.vue"
 
 const props = defineProps({
+  rules: [],
   id: {
     type: String,
     default: '0',
@@ -83,6 +84,7 @@ defineExpose({
         v-if="captchaType === 'svg'"
         ref="svgCaptchaRef"
         :id="id"
+        :rules="rules"
         :seconds="seconds"
         :disable="disable"
         :size="size"
