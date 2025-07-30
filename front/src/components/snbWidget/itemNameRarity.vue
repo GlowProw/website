@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {onMounted, ref, Ref} from "vue";
-import {Item, Items} from "../../../../../glow-prow-data/src/entity/Items";
+import {Item, Items} from "glow-prow-data/src/entity/Items";
 
 const props = defineProps<{ id: string }>()
 
