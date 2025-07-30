@@ -1,4 +1,4 @@
-import http, {type AxiosInstance, type AxiosRequestConfig} from 'axios';
+import http, {type AxiosInstance, type AxiosResponse} from 'axios';
 import Config from './config';
 import type {GetUrlOptions, RequestOptions} from "../types/Http";
 
@@ -12,14 +12,16 @@ export enum HttpMethod {
 export default class Http extends Config {
     GetUrl: GetUrlOptions = {host: "", pathname: "", port: "", protocol: "", request: "", wsHost: "", wsPathname: "", wsPort: "", wsProtocol: "", wsRequest: ""};
 
-    HTTP: AxiosInstance | AxiosRequestConfig = http.create({
-        timeout: 600000,
-    })
+    HTTP: AxiosInstance;
 
     constructor() {
         super();
         // @ts-ignore
         Config.NODE = process.env.NODE_ENV || 'development';
+
+        this.HTTP = http.create({
+            timeout: 600000,
+        });
     }
 
     get location() {
@@ -76,8 +78,7 @@ export default class Http extends Config {
      * @param options
      * @returns {Promise<*>}
      */
-    async request(url = '', options: RequestOptions = {}) {
-        // @ts-ignore
+    async request(url = '', options: RequestOptions = {}): Promise<any> {
         return await this.HTTP({
             url: url,
             headers: options.headers,

@@ -105,7 +105,8 @@ const onPercentage = (data: []): [number, number] => {
 </script>
 
 <template>
-  <v-card border class="mod">
+  <slot name="title" v-if="modData.length >= 0"></slot>
+  <v-card border class="mod" v-if="modData.length >= 0">
     <template v-for="(key, value) in modData" :key="key">
       <v-row class="pl-5 pr-5 pr-0 pt-2 title-long-flavor bg-black" align="center">
         <v-col>

@@ -390,307 +390,309 @@ const onWsReconnect = () => {
 </script>
 
 <template>
-  <div class="background-img-flavor fill-height">
-    <Banner>
-      <template v-slot:title>
-        <h1>{{ t('teamUp.title') }}</h1>
-      </template>
-    </Banner>
+  <div class="background-flavor">
+    <div class="background-img-flavor fill-height">
+      <Banner>
+        <template v-slot:title>
+          <h1>{{ t('teamUp.title') }}</h1>
+        </template>
+      </Banner>
 
-    <v-container class="team pb-10">
-      <v-row>
-        <v-col cols="12" sm="12" md="6" lg="3" xl="6">
-          <router-link to="/">
-            <v-icon icon="mdi-home" class="mr-5"></v-icon>
-          </router-link>
+      <v-container class="team pb-10">
+        <v-row>
+          <v-col cols="12" sm="12" md="6" lg="3" xl="6">
+            <router-link to="/">
+              <v-icon icon="mdi-home" class="mr-5"></v-icon>
+            </router-link>
 
-          <v-btn @click="pushModel = true" class="btn-flavor  mr-1" variant="elevated">
-            <v-icon icon="mdi-plus"></v-icon>
-            发布组队
-          </v-btn>
+            <v-btn @click="pushModel = true" class="btn-flavor  mr-1" variant="elevated">
+              <v-icon icon="mdi-plus"></v-icon>
+              发布组队
+            </v-btn>
 
-          <v-btn @click="getTeams(getTeamsType.none)" class=" btn-flavor" variant="elevated">
-            <v-icon :class="[
+            <v-btn @click="getTeams(getTeamsType.none)" class=" btn-flavor" variant="elevated">
+              <v-icon :class="[
                 teamsLoading ?  'spin-icon-load' : ''
             ]" icon="mdi-refresh" size="20"/>
-          </v-btn>
+            </v-btn>
 
-        </v-col>
-        <v-col cols="12" sm="12" md="6" lg="3" xl="6" class="d-flex justify-md-end">
-          <v-btn class="d-lg-block w-sm-100 w-lg-auto w-xl-auto" variant="tonal">
-            <template v-if="service.status == 1">
-              服务正常
-            </template>
-            <template v-if="service.status == -1">
-              服务断开
-              <v-btn class="ml-2" :loading="service.loading" :disabled="service.loading" density="compact" @click="onWsReconnect">
-                重连
-              </v-btn>
-            </template>
-            <template v-if="service.status == 0">
-              服务未订阅
-              <v-btn class="ml-2" :loading="service.loading" :disabled="service.loading" density="compact" @click="onWsReconnect">
-                连接
-                <v-icon icon="mdi-rotate-right"></v-icon>
-              </v-btn>
-            </template>
-            <v-badge dot offset-x="-10" offset-y="-15" :color="service.status == 1 ? '#2ec70d' : 'red'"></v-badge>
-            <v-divider class="mt-n2 mb-n2 ml-5 mr-3" vertical></v-divider>
-            <v-icon icon="mdi-help-circle-outline" v-tooltip="'此服务向服务器订阅事件，当收到信息则自动更新列表'"></v-icon>
-          </v-btn>
-        </v-col>
-        <v-col cols="12" sm="6" md="12" lg="3" xl="3">
-          <v-select v-model="filtering.sortBy"
-                    @update:modelValue="onTeamSortBy"
-                    density="comfortable"
-                    variant="solo-filled"
-                    label="排序"
-                    hide-details
-                    item-title="label"
-                    item-value="value"
-                    :items="[{value: 'recent', label:'按过期时间 (默认)'},{value: 'expires', label:'按最近发布'}]">
-          </v-select>
-        </v-col>
-        <v-col cols="12" sm="6" md="12" lg="3" xl="3">
-          <v-text-field placeholder="搜索"
-                        hide-details
-                        variant="solo-filled"
-                        density="comfortable" v-model="filtering.keyword">
-            <template v-slot:append-inner>
-              <v-btn density="compact" :disabled="!filtering.keyword" icon @click="onSearch">
-                <v-icon icon="mdi-search-web"></v-icon>
-              </v-btn>
-            </template>
-          </v-text-field>
-        </v-col>
-      </v-row>
+          </v-col>
+          <v-col cols="12" sm="12" md="6" lg="3" xl="6" class="d-flex justify-md-end">
+            <v-btn class="d-lg-block w-sm-100 w-lg-auto w-xl-auto" variant="tonal">
+              <template v-if="service.status == 1">
+                服务正常
+              </template>
+              <template v-if="service.status == -1">
+                服务断开
+                <v-btn class="ml-2" :loading="service.loading" :disabled="service.loading" density="compact" @click="onWsReconnect">
+                  重连
+                </v-btn>
+              </template>
+              <template v-if="service.status == 0">
+                服务未订阅
+                <v-btn class="ml-2" :loading="service.loading" :disabled="service.loading" density="compact" @click="onWsReconnect">
+                  连接
+                  <v-icon icon="mdi-rotate-right"></v-icon>
+                </v-btn>
+              </template>
+              <v-badge dot offset-x="-10" offset-y="-15" :color="service.status == 1 ? '#2ec70d' : 'red'"></v-badge>
+              <v-divider class="mt-n2 mb-n2 ml-5 mr-3" vertical></v-divider>
+              <v-icon icon="mdi-help-circle-outline" v-tooltip="'此服务向服务器订阅事件，当收到信息则自动更新列表'"></v-icon>
+            </v-btn>
+          </v-col>
+          <v-col cols="12" sm="6" md="12" lg="3" xl="3">
+            <v-select v-model="filtering.sortBy"
+                      @update:modelValue="onTeamSortBy"
+                      density="comfortable"
+                      variant="solo-filled"
+                      label="排序"
+                      hide-details
+                      item-title="label"
+                      item-value="value"
+                      :items="[{value: 'recent', label:'按过期时间 (默认)'},{value: 'expires', label:'按最近发布'}]">
+            </v-select>
+          </v-col>
+          <v-col cols="12" sm="6" md="12" lg="3" xl="3">
+            <v-text-field placeholder="搜索"
+                          hide-details
+                          variant="solo-filled"
+                          density="comfortable" v-model="filtering.keyword">
+              <template v-slot:append-inner>
+                <v-btn density="compact" :disabled="!filtering.keyword" icon @click="onSearch">
+                  <v-icon icon="mdi-search-web"></v-icon>
+                </v-btn>
+              </template>
+            </v-text-field>
+          </v-col>
+        </v-row>
 
-      <template v-if="teams.length > 0">
-        <div class="mt-5">
-          <v-infinite-scroll :items="teams.value"
-                             mode="manual"
-                             @load="onTeamLoad">
-            <template v-for="(i, index) in teams" :key="index">
-              <v-card card border class="card-flavor">
-                <v-row class="ma-5">
-                  <v-col cols="3" sm="2" md="1" lg="1">
-                    <v-avatar class="mr-2 team-icon" size="70">
-                      <v-icon
-                          icon="mdi-access-point"
-                          size="50"
-                      ></v-icon>
-                    </v-avatar>
-                  </v-col>
-                  <v-col cols="9" sm="9" md="11" lg="11">
-                    <div class="mb-2">
-                      <v-row align="center">
-                        <v-col cols="8">
-                          <div class="description">
-                            <b class="mr-3 text-emphasis">
-                              {{ i.description || t('teamUp.emptyDescription') }}
-                            </b>
-                          </div>
-                        </v-col>
-                        <v-spacer></v-spacer>
-                        <v-col cols="3" align="right" class="mr-2">
-                          <v-badge
-                              class="badge-flavor teamUp-tag-badge mr-1"
-                              color="transparent"
-                              v-for="(tag,tagIndex) in i.tags"
-                              :key="tagIndex"
-                              :content="t(`teamUp.tags.${tag}`)"
-                              inline
-                          ></v-badge>
-                        </v-col>
+        <template v-if="teams.length > 0">
+          <div class="mt-5">
+            <v-infinite-scroll :items="teams.value"
+                               mode="manual"
+                               @load="onTeamLoad">
+              <template v-for="(i, index) in teams" :key="index">
+                <v-card card border class="card-flavor">
+                  <v-row class="ma-5">
+                    <v-col cols="3" sm="2" md="1" lg="1">
+                      <v-avatar class="mr-2 team-icon" size="70">
+                        <v-icon
+                            icon="mdi-access-point"
+                            size="50"
+                        ></v-icon>
+                      </v-avatar>
+                    </v-col>
+                    <v-col cols="9" sm="9" md="11" lg="11">
+                      <div class="mb-2">
+                        <v-row align="center">
+                          <v-col cols="8">
+                            <div class="description">
+                              <b class="mr-3 text-emphasis">
+                                {{ i.description || t('teamUp.emptyDescription') }}
+                              </b>
+                            </div>
+                          </v-col>
+                          <v-spacer></v-spacer>
+                          <v-col cols="3" align="right" class="mr-2">
+                            <v-badge
+                                class="badge-flavor teamUp-tag-badge mr-1"
+                                color="transparent"
+                                v-for="(tag,tagIndex) in i.tags"
+                                :key="tagIndex"
+                                :content="t(`teamUp.tags.${tag}`)"
+                                inline
+                            ></v-badge>
+                          </v-col>
+                        </v-row>
+                      </div>
+                      <v-row class="pl-2 mb-2 font-weight-light" justify="start" align="center">
+                        <div class="mr-3">
+                          <v-icon icon="mdi-account" class="mr-1" size="17"></v-icon>
+                          <template v-if="i.username">
+                            {{ i.username || t('teamUp.emptyUsername') }}
+                          </template>
+                          <template v-else>
+                            {{ t('teamUp.emptyUsername') }}
+                          </template>
+                        </div>
+                        <div class="mr-3">
+                          <v-icon icon="mdi-calendar-range" class="mr-1" size="17"></v-icon>
+                          <TimeView :time="i.createdAt">
+                            {{ new Date(i.createdAt * 1000).toLocaleString() }}
+                          </TimeView>
+                        </div>
+                        <div>
+                          <v-icon icon="mdi-update" class="mr-1" size="17"></v-icon>
+                          结束
+                          <TimeView :time="i.expiresAt">
+                            {{ new Date(i.expiresAt * 1000).toLocaleString() }}
+                          </TimeView>
+                        </div>
                       </v-row>
-                    </div>
-                    <v-row class="pl-2 mb-2 font-weight-light" justify="start" align="center">
-                      <div class="mr-3">
-                        <v-icon icon="mdi-account" class="mr-1" size="17"></v-icon>
-                        <template v-if="i.username">
-                          {{ i.username || t('teamUp.emptyUsername') }}
+                    </v-col>
+                  </v-row>
+                  <v-divider class="mt-0 mb-0"></v-divider>
+                  <v-row class="pl-10 pr-5" align="center">
+                    <v-col>
+                      <v-text-field langth="10"
+                                    width="300"
+                                    :label="`复制${i.player}，游戏内添加好友`"
+                                    variant="underlined"
+                                    :placeholder="t('teamUp.form.player')"
+                                    :value="i.player || t('teamUp.emptyPlayer')">
+                        <template v-slot:append-inner>
+                          <v-btn density="compact" @click="copyToClipboard(i.player)">{{ t('teamUp.copyPlayerBtn') }}</v-btn>
                         </template>
-                        <template v-else>
-                          {{ t('teamUp.emptyUsername') }}
-                        </template>
-                      </div>
-                      <div class="mr-3">
-                        <v-icon icon="mdi-calendar-range" class="mr-1" size="17"></v-icon>
-                        <TimeView :time="i.createdAt">
-                          {{ new Date(i.createdAt * 1000).toLocaleString() }}
-                        </TimeView>
-                      </div>
-                      <div>
-                        <v-icon icon="mdi-update" class="mr-1" size="17"></v-icon>
-                        结束
-                        <TimeView :time="i.expiresAt">
-                          {{ new Date(i.expiresAt * 1000).toLocaleString() }}
-                        </TimeView>
-                      </div>
-                    </v-row>
-                  </v-col>
-                </v-row>
-                <v-divider class="mt-0 mb-0"></v-divider>
-                <v-row class="pl-10 pr-5" align="center">
-                  <v-col>
-                    <v-text-field langth="10"
-                                  width="300"
-                                  :label="`复制${i.player}，游戏内添加好友`"
-                                  variant="underlined"
-                                  :placeholder="t('teamUp.form.player')"
-                                  :value="i.player || t('teamUp.emptyPlayer')">
-                      <template v-slot:append-inner>
-                        <v-btn density="compact" @click="copyToClipboard(i.player)">{{ t('teamUp.copyPlayerBtn') }}</v-btn>
-                      </template>
-                    </v-text-field>
-                  </v-col>
-                  <v-spacer></v-spacer>
-                  <v-col align="right">
-                    <v-btn class="btn-flavor" @click="onDeleTeamUp(i.id)" v-if="authStore.isLogin && authStore.user.userId == i.userId">
-                      删除
-                    </v-btn>
-                  </v-col>
-                </v-row>
-              </v-card>
-            </template>
-            <template v-slot:loading>
-              <v-btn density="comfortable" icon>
-                <Loading :size="42"></Loading>
-              </v-btn>
-            </template>
-            <template v-slot:load-more="{ props }">
-              <v-btn
-                  icon="mdi-refresh"
-                  size="small"
-                  variant="text"
-                  v-bind="props"
-              ></v-btn>
-            </template>
-          </v-infinite-scroll>
-        </div>
-      </template>
-      <template v-else-if="teams.length <= 0">
-        <v-card card border class="mt-5 pt-5 pb-5">
-          <EmptyView>
-            <div class="mt-5">
-              <v-btn @click="getTeams(getTeamsType.none)" class=" btn-flavor" variant="elevated">
-                <v-icon :class="[
+                      </v-text-field>
+                    </v-col>
+                    <v-spacer></v-spacer>
+                    <v-col align="right">
+                      <v-btn class="btn-flavor" @click="onDeleTeamUp(i.id)" v-if="authStore.isLogin && authStore.user.userId == i.userId">
+                        删除
+                      </v-btn>
+                    </v-col>
+                  </v-row>
+                </v-card>
+              </template>
+              <template v-slot:loading>
+                <v-btn density="comfortable" icon>
+                  <Loading :size="42"></Loading>
+                </v-btn>
+              </template>
+              <template v-slot:load-more="{ props }">
+                <v-btn
+                    icon="mdi-refresh"
+                    size="small"
+                    variant="text"
+                    v-bind="props"
+                ></v-btn>
+              </template>
+            </v-infinite-scroll>
+          </div>
+        </template>
+        <template v-else-if="teams.length <= 0">
+          <v-card card border class="mt-5 pt-5 pb-5">
+            <EmptyView>
+              <div class="mt-5">
+                <v-btn @click="getTeams(getTeamsType.none)" class=" btn-flavor" variant="elevated">
+                  <v-icon :class="[
                 teamsLoading ?  'spin-icon-load' : ''
             ]" icon="mdi-refresh" size="20"/>
-              </v-btn>
-            </div>
-          </EmptyView>
-        </v-card>
-      </template>
-
-      <!-- 会话重连 S -->
-      <v-dialog max-width="500">
-        <template v-slot:default="{ isActive }">
-          <v-card title="Dialog">
-            <v-card-text>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-            </v-card-text>
-
-            <v-card-actions>
-              <v-spacer></v-spacer>
-
-              <v-btn
-                  block
-                  text="Close Dialog"
-                  @click="isActive.value = false"
-              ></v-btn>
-            </v-card-actions>
+                </v-btn>
+              </div>
+            </EmptyView>
           </v-card>
         </template>
-      </v-dialog>
 
-      <v-fab
-          :app="true"
-          :color="`var(--main-color)`"
-          location="right bottom"
-          size="large"
-          @click="pushModel = true"
-          icon>
-        <v-icon>mdi-plus</v-icon>
+        <!-- 会话重连 S -->
+        <v-dialog max-width="500">
+          <template v-slot:default="{ isActive }">
+            <v-card title="Dialog">
+              <v-card-text>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+              </v-card-text>
 
-        <v-dialog
-            location="bottom"
-            v-model="pushModel"
-            width="100%">
-          <v-container>
-            <v-card class="team pa-5 mt-10">
+              <v-card-actions>
+                <v-spacer></v-spacer>
 
-              <v-form ref="pushForm">
-                <v-row>
-                  <v-col>
-                    <div v-if="authStore.isLogin">
-                      <p v-html="t('teamUp.pushLoginInfo', {
+                <v-btn
+                    block
+                    text="Close Dialog"
+                    @click="isActive.value = false"
+                ></v-btn>
+              </v-card-actions>
+            </v-card>
+          </template>
+        </v-dialog>
+
+        <v-fab
+            :app="true"
+            :color="`var(--main-color)`"
+            location="right bottom"
+            size="large"
+            @click="pushModel = true"
+            icon>
+          <v-icon>mdi-plus</v-icon>
+
+          <v-dialog
+              location="bottom"
+              v-model="pushModel"
+              width="100%">
+            <v-container>
+              <v-card class="team pa-5 mt-10">
+
+                <v-form ref="pushForm">
+                  <v-row>
+                    <v-col>
+                      <div v-if="authStore.isLogin">
+                        <p v-html="t('teamUp.pushLoginInfo', {
                       username: `<u class='text-emphasis'>${authStore.currentUser}</u>`
                       })"></p>
-                    </div>
-                    <div v-else>
-                      <p v-html='t("teamUp.pushLoginInfo", {
+                      </div>
+                      <div v-else>
+                        <p v-html='t("teamUp.pushLoginInfo", {
                       username: `<u class="text-emphasis">${t("teamUp.emptyUsername")}</u>`
                       })'></p>
-                    </div>
-                  </v-col>
-                </v-row>
+                      </div>
+                    </v-col>
+                  </v-row>
 
-                <v-row>
-                  <v-col cols="12" lg="3">
-                    <v-text-field v-model="player"
-                                  variant="filled"
-                                  density="compact"
-                                  @update:model-value="onStoragePlayer()"
-                                  :rules="pushConfig.rules.player"
-                                  :placeholder="t('teamUp.form.player')"></v-text-field>
-                  </v-col>
-                  <v-col cols="12" lg="3">
-                    <v-select density="compact"
-                              v-model="expiresMinutesAt"
-                              :label="t('teamUp.form.time')"
-                              item-title="label"
-                              item-value="value"
-                              :items="pushConfig.time">
-                    </v-select>
-                  </v-col>
-                  <v-col cols="12" lg="6">
-                    <v-combobox
-                        label="标签"
-                        chips
-                        multiple
-                        density="compact"
-                        v-model="tags"
-                        clearable
-                        @update:modelValue="onStoragePlayer"
-                        item-title="label"
-                        item-value="value"
-                        :hide-no-data="true"
-                        :items="pushConfig.tags"></v-combobox>
-                  </v-col>
-                  <v-spacer></v-spacer>
-                </v-row>
-                <v-textarea :placeholder="t('teamUp.form.descriptionPlaceholder')"
-                            :rules="pushConfig.rules.description"
-                            @update:focused="onStoragePlayer"
-                            counter="300"
-                            v-model="description"></v-textarea>
+                  <v-row>
+                    <v-col cols="12" lg="3">
+                      <v-text-field v-model="player"
+                                    variant="filled"
+                                    density="compact"
+                                    @update:model-value="onStoragePlayer()"
+                                    :rules="pushConfig.rules.player"
+                                    :placeholder="t('teamUp.form.player')"></v-text-field>
+                    </v-col>
+                    <v-col cols="12" lg="3">
+                      <v-select density="compact"
+                                v-model="expiresMinutesAt"
+                                :label="t('teamUp.form.time')"
+                                item-title="label"
+                                item-value="value"
+                                :items="pushConfig.time">
+                      </v-select>
+                    </v-col>
+                    <v-col cols="12" lg="6">
+                      <v-combobox
+                          label="标签"
+                          chips
+                          multiple
+                          density="compact"
+                          v-model="tags"
+                          clearable
+                          @update:modelValue="onStoragePlayer"
+                          item-title="label"
+                          item-value="value"
+                          :hide-no-data="true"
+                          :items="pushConfig.tags"></v-combobox>
+                    </v-col>
+                    <v-spacer></v-spacer>
+                  </v-row>
+                  <v-textarea :placeholder="t('teamUp.form.descriptionPlaceholder')"
+                              :rules="pushConfig.rules.description"
+                              @update:focused="onStoragePlayer"
+                              counter="300"
+                              v-model="description"></v-textarea>
 
-                <v-row class="mt-4 pa-2">
-                  <v-spacer></v-spacer>
-                  <v-btn-group border>
-                    <v-btn variant="text" width="80" @click="pushModel = false">取消</v-btn>
-                    <v-btn @click="pushTeamInfo" color="#000" width="200" :loading="pushLoading">发布</v-btn>
-                  </v-btn-group>
-                </v-row>
-              </v-form>
-            </v-card>
-          </v-container>
-        </v-dialog>
-      </v-fab>
-    </v-container>
+                  <v-row class="mt-4 pa-2">
+                    <v-spacer></v-spacer>
+                    <v-btn-group border>
+                      <v-btn variant="text" width="80" @click="pushModel = false">取消</v-btn>
+                      <v-btn @click="pushTeamInfo" color="#000" width="200" :loading="pushLoading">发布</v-btn>
+                    </v-btn-group>
+                  </v-row>
+                </v-form>
+              </v-card>
+            </v-container>
+          </v-dialog>
+        </v-fab>
+      </v-container>
 
-    <v-snackbar-queue v-model="messages"></v-snackbar-queue>
+      <v-snackbar-queue v-model="messages"></v-snackbar-queue>
+    </div>
   </div>
 </template>
 

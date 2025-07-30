@@ -3,6 +3,7 @@ import {useLikeStore} from '../../stores/likeStore';
 import {ref, useSlots, watch} from 'vue';
 import Loading from "./Loading.vue";
 import {useI18n} from "vue-i18n";
+import {AxiosError} from "axios";
 
 const props = defineProps({
   targetType: String,             // 如 'assembly', 'comment', 'teamUp'
@@ -35,9 +36,12 @@ const onReady = async () => {
     likeCount.value = await likeStore.getLikeCount(props.targetType, props.targetId);
   } catch (e) {
     console.error(e)
-    messages.value.push(t(`basic.tips.${'like.error'.replaceAll('.', '_')}`, {
-      context: e.message || ''
-    }))
+    messages.value.push({
+      text: t(`basic.tips.${'like.error'.replaceAll('.', '_')}`, {
+        context: e instanceof AxiosError ? e.response.data.code : e.code ||  e.message || ''
+      }),
+      color: 'error'
+    })
   } finally {
     likeLoading.value = false;
   }
@@ -55,9 +59,12 @@ const handleLike = async () => {
     likeCount.value = await likeStore.getLikeCount(props.targetType, props.targetId);
   } catch (e) {
     console.error(e)
-    messages.value.push(t(`basic.tips.${'like.error'.replaceAll('.', '_')}`, {
-      context: e.message || ''
-    }))
+    messages.value.push({
+      text: t(`basic.tips.${'like.error'.replaceAll('.', '_')}`, {
+        context: e instanceof AxiosError ? e.response.data.code : e.code ||  e.message || ''
+      }),
+      color: 'error'
+    })
   } finally {
     likeLoading.value = false;
   }
@@ -66,8 +73,10 @@ const handleLike = async () => {
 
 <template>
   <div @click="handleLike">
-    <Loading size="25px" v-if="likeLoading"></Loading>
-    <template v-else>
+    <v-btn v-if="likeLoading" icon>
+      <Loading size="25px"></Loading>
+    </v-btn>
+    <template v-if="!likeLoading">
       <template v-if="isLiked">
         <slot name="activate"></slot>
       </template>

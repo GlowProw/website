@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import {useI18n} from "vue-i18n";
 
+const {t} = useI18n()
 </script>
 
 <template>
   <router-link to="/" class="logo mr-5">
     <img src="/favicon.svg" class="mr-1 icon"/>
-    <h1 class="name">{{ $t('name') }}</h1>
+    <h1 class="name">{{ t('name') }}</h1>
   </router-link>
 </template>
 

@@ -4,15 +4,48 @@ import {api, http} from "../../assets/sripts";
 import {Seasons} from "glow-prow-data";
 import {Season} from "glow-prow-data/src/entity/Seasons";
 import {useI18n} from "vue-i18n";
+import ItemSlotBase from "../../components/snbWidget/ItemSlotBase.vue";
 
 const {t} = useI18n()
 
 let data = ref({
       teamCount: 0
     }),
-    seasons: [] = Seasons,
+    seasons: Seasons = Seasons,
     // 当前赛季
-    currentlySeason: Ref<Season> = ref(null)
+    currentlySeason: Ref<Season> = ref(null),
+    portalNavs = ref([
+      {
+        title: '组队寻求',
+        description: "发布或寻找与你计划相同船长出航，面对真正敌人",
+        to: '/team'
+      },
+      {
+        title: '日历',
+        description: '查看本赛季活动信息',
+        to: '/calendar'
+      },
+      {
+        title: '地图',
+        description: '所有地图物品清单',
+        to: '/maps'
+      },
+      {
+        title: '展示馆',
+        description: '陈列物品信息, 检查它们如何获得',
+        to: '/display-cabinet'
+      },
+      {
+        title: '船只配装厂',
+        description: '设计你船，让它到达性能极限，分享给好友',
+        to: '/assembly'
+      },
+      {
+        title: '海盗签名(开发中)',
+        description: '生成海盗签名图片，分享到社区网站上',
+        to: ''
+      }
+    ])
 
 onMounted(() => {
   getHomeData();
@@ -56,86 +89,56 @@ const getCurrentSeason = (): Season | null => {
 
 <template>
   <div>
-    <div class="portal-banner">
-      <div class="portal-banner-looping-video">
-        <video autoplay playsinline
-               muted loop type="video/mp4"
-               src="http://cdn.hommk.com/pcgame/ubi2015/img/gamezone/sb/full/skullandbones-year2-loop.mp4"></video>
-      </div>
+    <v-card class="portal-banner">
+      <template v-slot:image>
+        <div class="portal-banner-looping-video w-100">
+          <video autoplay playsinline
+                 class="card-enlargement-flavor"
+                 muted loop type="video/mp4"
+                 src="http://cdn.hommk.com/pcgame/ubi2015/img/gamezone/sb/full/skullandbones-year2-loop.mp4"></video>
+        </div>
+      </template>
 
       <v-container class="portal-banner-top">
-        <div class="title">
-          <h1 class="btn-flavor pl-10 pr-10 pt-3 pb-3">{{ t(`snb.calendar.${currentlySeason?.id}.name`) }}</h1>
-          <p class="ma-auto mt-4 font-weight-light opacity-80">{{ t(`snb.calendar.${currentlySeason?.id}.description`) }}</p>
-        </div>
+
       </v-container>
 
-      <div class="portal-season-left-tip opacity-30" v-if="currentlySeason && currentlySeason.alternativeName">
-        本赛季 {{ currentlySeason.alternativeName.toUpperCase() }}
-        <v-divider vertical/>
-        {{ t(`snb.calendar.${currentlySeason?.id}.name`) }}
+      <div class="portal-season-left-tip" v-if="currentlySeason && currentlySeason.alternativeName">
+        <div class="opacity-30">
+          本赛季 {{ currentlySeason.alternativeName.toUpperCase() }}
+          <v-divider thickness="3" vertical />
+          {{ t(`snb.calendar.${currentlySeason?.id}.name`) }}
+        </div>
       </div>
-    </div>
+    </v-card>
 
-    <div class="background-flavor">
+    <div class="portal-body pl-3 pr-3 pt-2 pb-2 pt-md-3 pb-md-3 pt-lg-10 pb-lg-10">
       <v-container>
         <v-row>
-          <v-col cols="12" sm="12" md="6" lg="3">
-            <v-card
-                class="background-flavor"
-                to="/team"
-                :subtitle="`目前${data?.teamCount || 0}寻求组队`"
-                text="发布或寻找与你计划相同船长出航，面对真正敌人"
-                title="组队寻求"
-                variant="text"
-            ></v-card>
+          <v-col cols="12" md="8" lg="8" order="2" order-lg="1">
+            <v-row>
+              <v-col cols="12" sm="6" md="4" lg="4" v-for="(i,index) in portalNavs" :key="index">
+                <v-row>
+                  <v-col cols="auto">
+                    <ItemSlotBase size="60px" class=" d-flex justify-center align-center">
+                      <v-icon icon="mdi-help"></v-icon>
+                    </ItemSlotBase>
+                  </v-col>
+                  <v-col>
+                    <router-link :to="i.to">
+                      <u class="text-h6 font-weight-bold mb-2 text-amber">{{ i.title }}</u>
+                    </router-link>
+                    <p class="opacity-50">{{ i.description }}</p>
+                  </v-col>
+                </v-row>
+              </v-col>
+            </v-row>
           </v-col>
-          <v-col cols="12" sm="12" md="6" lg="3">
-            <v-card
-                class="background-flavor"
-                to="/calendar"
-                text="查看本赛季活动信息"
-                title="日历"
-                variant="text">
-            </v-card>
-          </v-col>
-          <v-col cols="12" sm="12" md="6" lg="3">
-            <v-card
-                to="/maps"
-                class="background-flavor"
-                text="所有地图物品清单"
-                title="地图"
-                variant="text"
-            ></v-card>
-          </v-col>
-          <v-col cols="12" sm="12" md="6" lg="3">
-            <v-card
-                class="background-flavor"
-                to="/display-cabinet"
-                text="陈列物品信息, 检查它们如何获得"
-                title="展示馆"
-                variant="text"
-            ></v-card>
-          </v-col>
-
-          <v-col cols="12" sm="12" md="6" lg="3">
-            <v-card
-                to="/assembly"
-                class="background-flavor"
-                text="设计你船，让它到达性能极限，分享给好友"
-                title="船只配装厂"
-                variant="text"
-            ></v-card>
-          </v-col>
-
-          <v-col cols="12" sm="12" md="6" lg="3">
-            <v-card
-                class="background-flavor"
-                disabled
-                text="生成海盗签名图片，分享到社区网站上"
-                title="海盗签名"
-                variant="text"
-            ></v-card>
+          <v-col order="1" order-lg="2">
+            <div class="title">
+              <h1 class="btn-flavor pl-10 pr-10 pt-3 pb-3">{{ t(`snb.calendar.${currentlySeason?.id}.name`) }}</h1>
+              <p class="ma-auto mt-4 font-weight-light opacity-80">{{ t(`snb.calendar.${currentlySeason?.id}.description`) }}</p>
+            </div>
           </v-col>
         </v-row>
       </v-container>
@@ -145,7 +148,7 @@ const getCurrentSeason = (): Season | null => {
 
 <style scoped lang="less">
 .portal-banner {
-  min-height: 500px;
+  min-height: 700px;
   position: relative;
   overflow: hidden;
 
@@ -169,24 +172,11 @@ const getCurrentSeason = (): Season | null => {
       top: 50%;
       width: 100%;
       height: auto;
-      transform: translate(-50%, -50%);
-      min-width: 100%;
+      transform: scale(1.05) translate(-48%, calc(-50% + 0px));
+      min-width: 110%;
       min-height: 100%;
       pointer-events: visible;
     }
-  }
-
-  &:before {
-    content: "";
-    position: absolute;
-    z-index: 1;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 0;
-    padding: 10% 0 0;
-    background: url(../../assets/images/portal-banner-background.png) 100% -20px no-repeat;
-    background-size: cover;
   }
 
   .portal-banner-top {
@@ -203,22 +193,39 @@ const getCurrentSeason = (): Season | null => {
 
   .portal-season-left-tip {
     position: absolute;
-    top: 100px;
-    left: 20px;
-    writing-mode: vertical-rl;
-    display: flex;
-    flex-flow: row wrap;
-    column-gap: 4px;
-    font-weight: 400;
-    margin-bottom: 20px;
+    top: 0;
+    left: 0;
+    padding-top: 10vh;
+    padding-left: 3vh;
+    padding-right: 3vh;
+    height: 100%;
 
-    &:after {
-      bottom: 0;
-      content: "";
-      margin: 0 5px;
-      border-bottom: 1px solid #fff;
+    > div {
+      writing-mode: vertical-rl;
+      display: flex;
+      flex-flow: row wrap;
+      column-gap: 4px;
+      font-weight: 400;
+      margin-bottom: 20px;
+
+      &:after {
+        bottom: 0;
+        content: "";
+        margin: 0 5px;
+        border-bottom: 1px solid #fff;
+      }
     }
+
+
   }
+}
+
+.portal-body {
+  background: #131313;
+  position: relative;
+  overflow: hidden;
+  margin-top: -50px;
+  border-radius: 20px 20px 10px 10px;
 }
 
 @media screen and (max-width: 980px) {

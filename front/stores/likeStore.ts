@@ -14,7 +14,7 @@ export const useLikeStore = defineStore('like', {
          * @param targetType
          * @param targetId
          */
-        async checkLike(userId, targetType, targetId) {
+        async checkLike(userId: string, targetType: string, targetId: string) {
             const authStore = useAuthStore()
 
             if (!authStore.isLogin)
@@ -35,7 +35,7 @@ export const useLikeStore = defineStore('like', {
          * @param targetType
          * @param targetId
          */
-        async toggleLike(userId, targetType, targetId) {
+        async toggleLike(userId: string, targetType: string, targetId: string) {
             const authStore = useAuthStore()
 
             if (!authStore.isLogin)

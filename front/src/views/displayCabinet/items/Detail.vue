@@ -9,7 +9,6 @@ import ItemIconWidget from "../../../components/snbWidget/itemIconWidget.vue";
 import MaterialIconWidget from "../../../components/snbWidget/materialIconWidget.vue";
 import EmptyView from "../../../components/EmptyView.vue";
 import FactionIconWidget from "../../../components/snbWidget/factionIconWidget.vue";
-import Vue3IntroStep from 'vue3-intro-step'
 
 import {Materials} from "glow-prow-data";
 import ItemModificationWidget from "../../../components/snbWidget/itemModificationWidget.vue";
@@ -19,6 +18,7 @@ import {useI18nUtils} from "../../../assets/sripts/i18nUtil.ts";
 import ItemInputWidget from "../../../components/snbWidget/itemInputWidget.vue";
 import TimeView from "../../../components/TimeView.vue";
 import ItemDamageTypeWidget from "../../../components/snbWidget/itemDamageTypeWidget.vue";
+import {storage} from "../../../assets/sripts";
 
 const
     {t} = useI18n(),
@@ -72,7 +72,25 @@ onMounted(() => {
   itemDetailData.value = itemsData[id];
 
   onStatisticsRawMaterial();
+  onDisplayCabinetHistory();
 })
+
+const onDisplayCabinetHistory = () => {
+  const {id} = route.params;
+
+  let name = 'displayCabinet.history'
+
+  const d = storage.session.get(name)
+
+  storage.session.set(name, {
+    ...d?.data?.value || {},
+    [id]: {
+      id,
+      type: 'item',
+      time: new Date().getTime()
+    }
+  })
+}
 
 /**
  * 处理计算必要材料对应原材料
@@ -337,13 +355,13 @@ const onStatisticsRawMaterial = () => {
                 </template>
               </v-col>
               <v-col cols="12" sm="12" lg="6" xl="6">
-                <v-row class="mt-4 mb-1">
+                <div class="mt-4 mb-2">
                   <p><b>原材料</b></p>
                   <v-spacer></v-spacer>
                   <v-btn density="compact" icon @click="isShowShipRawList = !isShowShipRawList" v-if="Object.keys(itemRawMaterials).length > 0">
                     <v-icon :icon="`mdi-menu-${isShowShipRawList ? 'down' : 'up'}`"></v-icon>
                   </v-btn>
-                </v-row>
+                </div>
                 <template v-if="Object.entries(itemRawMaterials).length > 0">
                   <div v-for="([key, value], rIndex) in Object.entries(itemRawMaterials)"
                        :key="rIndex">
@@ -399,8 +417,11 @@ const onStatisticsRawMaterial = () => {
               </v-col>
               <v-col cols="12">
                 <template v-if="itemDetailData && itemDetailData.id">
-                  <p class="mt-5 mb-3 font-weight-bold">可安装模组</p>
-                  <ItemModificationWidget :id="itemDetailData.id" :type="itemDetailData.type"></ItemModificationWidget>
+                  <ItemModificationWidget :id="itemDetailData.id" :type="itemDetailData.type">
+                    <template v-slot:title>
+                      <p class="mt-5 mb-3 font-weight-bold">可安装模组</p>
+                    </template>
+                  </ItemModificationWidget>
                 </template>
               </v-col>
             </v-row>
@@ -489,7 +510,7 @@ const onStatisticsRawMaterial = () => {
             </ItemInputWidget>
 
             <template v-if="itemDetailData.id">
-              <p class="mt-5 mb-1 font-weight-bold">武器属性</p>
+              <p class="mt-5 mb-4 font-weight-bold">武器属性</p>
               <ItemDamageTypeWidget :data="itemDetailData"></ItemDamageTypeWidget>
             </template>
 

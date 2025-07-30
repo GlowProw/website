@@ -7,6 +7,7 @@ import {useI18n} from "vue-i18n";
 import {api, storageAssembly} from "../../assets/sripts";
 import {StorageAssemblyType} from "../../assets/sripts/storage_assembly";
 import {useHttpToken} from "../../assets/sripts/httpUtil";
+import ZoomableCanvas from "../../components/ZoomableCanvas.vue";
 
 const route = useRoute(),
     router = useRouter(),
@@ -171,62 +172,71 @@ const onPublish = async () => {
   </v-container>
 
   <!-- Workshop Share Preview S -->
-  <v-container>
-    <div class="ml-n2 mr-n2">
-      <AssemblyShowWidget class="card-flavor mb-5 ml-n10 mr-n10"
+  <div class="ml-n2 mr-n2 card-enlargement-flavor">
+    <ZoomableCanvas
+        style="height: 600px"
+        :minScale=".8"
+        :max-scale="1.2"
+        :boundary="{
+                left: -1500,
+                right: 1500,
+                top: -500,
+                bottom: 500
+              }">
+      <AssemblyShowWidget class="card-enlargement-flavor mb-5 ml-n10 mr-n10"
                           ref="assemblyWorkshopRef" :readonly="true">
       </AssemblyShowWidget>
-    </div>
+    </ZoomableCanvas>
+  </div>
+  <!-- Workshop Share Preview E -->
 
-    <v-container>
-      <v-form>
-        <v-row>
-          <v-col cols="12" sm="12" lg="6">
-            <v-text-field
-                v-model="publishData.name"
-                label="配置名称"
-                placeholder="配置名称"
-                :rules="formRules.name"
-                variant="underlined">
-              <template v-slot:details>
-                船长，设置一个酷炫名字，好名字配好船
-              </template>
-            </v-text-field>
-          </v-col>
-          <v-col cols="12" sm="12" lg="6" align="right">
-            <v-combobox
-                label="标签"
-                chips
-                multiple
-                clearable
-                v-model="publishData.tags"
-                variant="underlined"
-                item-title="label"
-                item-value="value"
-                :hide-no-data="true">
-              <template v-slot:details>
-                输入标签敲下回车键，即可创建新标签
-              </template>
-            </v-combobox>
-          </v-col>
-          <v-col cols="12">
-            <div class="mt-4 mb-3 font-weight-bold">描述</div>
+  <v-container>
+    <v-form class="mt-10">
+      <v-row>
+        <v-col cols="12" sm="12" lg="6">
+          <v-text-field
+              v-model="publishData.name"
+              label="配置名称"
+              placeholder="配置名称"
+              :rules="formRules.name"
+              variant="underlined">
+            <template v-slot:details>
+              船长，设置一个酷炫名字，好名字配好船
+            </template>
+          </v-text-field>
+        </v-col>
+        <v-col cols="12" sm="12" lg="6" align="right">
+          <v-combobox
+              label="标签"
+              chips
+              multiple
+              clearable
+              v-model="publishData.tags"
+              variant="underlined"
+              item-title="label"
+              item-value="value"
+              :hide-no-data="true">
+            <template v-slot:details>
+              输入标签敲下回车键，即可创建新标签
+            </template>
+          </v-combobox>
+        </v-col>
+        <v-col cols="12">
+          <div class="mt-4 mb-3 font-weight-bold">描述</div>
 
-            <v-card class="pl-5 pr-5">
+          <v-card class="pl-5 pr-5">
               <Textarea class="mt-5 mb-2"
                         height="300px"
                         v-model="publishData.description"
                         placeholder="输入描述描述"></Textarea>
-              <template v-if="route.query.debug">
-                {{ publishData.description }}
-              </template>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-form>
-    </v-container>
+            <template v-if="route.query.debug">
+              {{ publishData.description }}
+            </template>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-form>
   </v-container>
-  <!-- Workshop Share Preview E -->
 
   <v-snackbar-queue v-model="messages"></v-snackbar-queue>
 </template>

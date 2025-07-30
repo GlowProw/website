@@ -14,6 +14,7 @@ import ShipIconWidget from "../../../components/snbWidget/shipIconWidget.vue";
 import PerksWidget from "../../../components/snbWidget/perksWidget.vue";
 import ShipTopDownPerspectiveWidget from "../../../components/snbWidget/shipTopDownPerspectiveWidget.vue";
 import {Ship} from "glow-prow-data/src/entity/Ships.ts";
+import {storage} from "../../../assets/sripts";
 
 const shipImages = import.meta.glob('@glow-prow-assets/ships/*.png', {eager: true});
 
@@ -62,9 +63,27 @@ onMounted(() => {
   }
 
   onStatisticsRawMaterial()
+  onDisplayCabinetHistory()
 
   shipDetailPageData.value.loading = false;
 })
+
+const onDisplayCabinetHistory = () => {
+  const {id} = route.params;
+
+  let name = 'displayCabinet.history'
+
+  const d = storage.session.get(name)
+
+  storage.session.set(name, {
+    ...d?.data?.value || {},
+    [id]: {
+      id,
+      type: 'ship',
+      time: new Date().getTime()
+    }
+  })
+}
 
 /**
  * 处理计算必要材料对应原材料

@@ -123,10 +123,7 @@ const onReady = async () => {
             :src="itemsCardData.iconsSrc[i.id] || 'none'" cover width="100%" height="100%">
           <template v-slot:error>
             <div class="fill-height repeating-gradient d-flex justify-center align-center h-100">
-              <div>
-                <v-icon icon="mdi-error"></v-icon>
-                <p class="text-no-wrap">{{ t(`snb.items.${i.id}.name`) }}</p>
-              </div>
+              <v-icon icon="mdi-help" class="opacity-30"></v-icon>
             </div>
           </template>
           <template v-slot:placeholder>
@@ -141,6 +138,8 @@ const onReady = async () => {
       <div class="demo-reel-header pa-10 position-relative" :class="[
                     `item-card-header-rarity-${i.rarity}`
                 ]">
+        <div class="v-skeleton-loader__bone v-skeleton-loader__image opacity-30 position-absolute left-0 top-0 w-100 h-100"></div>
+
         <h1 class="font-weight-bold">
           {{
             asString([
@@ -151,12 +150,13 @@ const onReady = async () => {
         </h1>
         <p class="mb-1">{{ i.id }}</p>
 
-        <router-link :to="`/display-cabinet/item/category/${i.type}`">
-          <v-badge inline color="transparent" class="badge-flavor text-center tag-badge pl-4 mr-2" v-if="i.type">{{ t(`displayCabinet.type.${i.type}`) }}</v-badge>
-        </router-link>
-
-        <v-badge inline color="transparent" class="badge-flavor text-center tag-badge pl-4" v-if="i.tier">{{ t(`displayCabinet.tier`) || i.tier }}</v-badge>
-
+        <div class="d-flex ga-2 mt-3">
+          <v-chip inline
+                  :to="`/display-cabinet/item/category/${i.type}`"
+                  class="badge-flavor text-center text-black" v-if="i.type">{{ t(`displayCabinet.type.${i.type}`) }}
+          </v-chip>
+          <v-chip inline class="badge-flavor text-center text-black" v-if="i.tier">{{ t(`displayCabinet.tier`, {num: i.tier || 0}) }}</v-chip>
+        </div>
         <div class="right-show-item-image pointer-events-none position-absolute w-33">
           <v-img :src="itemsCardData.iconsSrc[i.id]" class="item-mirror-image"></v-img>
         </div>
@@ -270,7 +270,7 @@ const onReady = async () => {
     &:before {
       content: "";
       position: absolute;
-      z-index: 1;
+      z-index: 5;
       bottom: 0;
       left: 0;
       width: 100%;

@@ -16,21 +16,17 @@ const authStore = useAuthStore()
           flat>
 
         <Logo></Logo>
-        <v-btn size="x-small" class="mr-5 ml-n3" variant="outlined">BETA</v-btn>
-        <v-divider vertical></v-divider>
+        <v-btn size="x-small" class="ml-n3" variant="outlined">BETA</v-btn>
+        <v-divider vertical class="ml-5 mr-5"></v-divider>
 
-        <v-btn variant="text" tile href="https://www.ubisoft.com/en-us/game/skull-and-bones">
+        <v-btn variant="text" exact href="https://www.ubisoft.com/en-us/game/skull-and-bones">
           官网
           <v-icon icon="mdi-open-in-new"></v-icon>
         </v-btn>
-<!--        <v-btn variant="text" tile href="https://www.ubisoft.com/en-us/game/skull-and-bones">-->
-<!--          Wiki-->
-<!--          <v-icon icon="mdi-open-in-new"></v-icon>-->
-<!--        </v-btn>-->
 
         <v-spacer></v-spacer>
 
-        <v-btn to="/account/home" v-if="authStore.isLogin">
+        <v-btn to="/account/home" v-if="authStore.isLogin" density="comfortable" icon class="mr-3">
           <v-avatar
               class="hidden-sm-and-down"
               color="grey-darken-2"

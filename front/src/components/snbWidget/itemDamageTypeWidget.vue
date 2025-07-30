@@ -58,7 +58,7 @@ const getTitle = (key) => {
 </script>
 
 <template>
-  <v-card class="mt-4 bg-transparent d-flex ga-3" v-if="damageIconImages.length > 0">
+  <v-card class="bg-transparent d-flex ga-3" v-if="damageIconImages.length > 0">
     <ItemSlotBase padding="4" v-for="(i, index) in damageIconImages" :key="index"
          class="mr-1"
          v-tooltip="getTitle(i.key)">
@@ -66,7 +66,9 @@ const getTitle = (key) => {
     </ItemSlotBase>
   </v-card>
   <template v-else>
-    <EmptyView></EmptyView>
+    <v-card class="bg-transparent background-flavor" border>
+      <EmptyView></EmptyView>
+    </v-card>
   </template>
 </template>
 

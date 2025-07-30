@@ -4,11 +4,11 @@ import AssemblyShowWidget from "../../components/AssemblyShowWidget.vue";
 import {useRoute, useRouter} from "vue-router";
 import {computed, nextTick, onMounted, ref} from "vue";
 import {useI18n} from "vue-i18n";
-import {api} from "../../assets/sripts";
+import {api, storage} from "../../assets/sripts";
 import {useHttpToken} from "../../assets/sripts/httpUtil";
 import {useAuthStore} from "../../../stores";
 import LikeWidget from "../../components/LikeWidget.vue";
-import {DisqusComments, DisqusCount} from "vue3-disqus";
+import {DisqusCount} from "vue3-disqus";
 import Textarea from "../../components/textarea/index.vue";
 import Loading from "../../components/Loading.vue";
 import ZoomableCanvas from "../../components/ZoomableCanvas.vue"
@@ -64,7 +64,7 @@ const getAssemblyDetail = async () => {
       return;
 
     assemblyDetailData.value = d.data;
-    assemblyDetailData.value.description = unescape(assemblyDetailData.value.description)
+    assemblyDetailData.value.description = unescape(assemblyDetailData.value.description || '这个人很懒什么都没说')
 
     await nextTick(() => {
       assemblyDetailRef.value.onLoadJson(d.data.data || d.data.assembly)
@@ -111,7 +111,6 @@ const delAssembly = async () => {
   </v-breadcrumbs>
   <v-divider></v-divider>
 
-  <!-- Assembly Preview S -->
   <v-container>
     <div v-show="assemblyLoading">
       <div class="mt-10 mb-10" align="center">
@@ -155,72 +154,75 @@ const delAssembly = async () => {
                          :identifier="`/assembly/uuid/${assemblyDetailData.uuid}`"></DisqusCount>
           </v-btn>
         </v-toolbar>
+      </div>
 
-        <v-card class="card-flavor mb-5 ml-n10 mr-n10 ">
-          <ZoomableCanvas
-              style="height: 600px"
-              :minScale=".8"
-              :max-scale="1.2"
-              :boundary="{
+    </div>
+  </v-container>
+
+  <!-- Assembly Preview S -->
+  <v-card class="card-enlargement-flavor mb-5 ml-n10 mr-n10 ">
+    <ZoomableCanvas
+        style="height: 600px"
+        :minScale=".8"
+        :max-scale="1.2"
+        :boundary="{
                 left: -1500,
                 right: 1500,
                 top: -500,
                 bottom: 500
               }">
-            <AssemblyShowWidget ref="assemblyDetailRef" :readonly="true"></AssemblyShowWidget>
-          </ZoomableCanvas>
-        </v-card>
-      </div>
+      <AssemblyShowWidget ref="assemblyDetailRef" :readonly="true"></AssemblyShowWidget>
+    </ZoomableCanvas>
+  </v-card>
+  <!-- Assembly Preview E -->
 
-      <div>
-        <v-row>
-          <v-col cols="12" sm="12" lg="8" xl="8">
-            <div id="commit">
-              <DisqusComments :lazy="true"
-                              :language="language"
-                              :sso-config="sso"
-                              :identifier="`/assembly/uuid/${assemblyDetailData.uuid}`"/>
-            </div>
-          </v-col>
-          <v-col cols="12" sm="12" lg="4" xl="4">
-            <v-text-field
-                label="作者"
-                v-model="assemblyDetailData.username"
-                readonly
-                variant="underlined">
-            </v-text-field>
+  <v-container>
+    <div>
+      <v-row>
+        <v-col cols="12" sm="12" lg="8" xl="8">
+             <Textarea class="mt-5 mb-2"
+                       :readonly="true"
+                       v-model="assemblyDetailData.description"
+                       placeholder="输入描述描述"></Textarea>
 
-            <div class="ga-2 mb-6">
-              <v-badge color="transparent" dot class="badge-flavor mr-2 pt-1 pb-1 pl-5 pr-5" v-for="(i, index) in assemblyDetailData.tags">
-                {{ i }}
-              </v-badge>
-            </div>
+          <!--            <div id="commit">-->
+          <!--              <DisqusComments :lazy="true"-->
+          <!--                              :language="language"-->
+          <!--                              :sso-config="sso"-->
+          <!--                              :identifier="`/assembly/uuid/${assemblyDetailData.uuid}`"/>-->
+          <!--            </div>-->
+        </v-col>
+        <v-col cols="12" sm="12" lg="4" xl="4">
+          <v-text-field
+              label="作者"
+              v-model="assemblyDetailData.username"
+              readonly
+              variant="underlined">
+          </v-text-field>
 
-            <v-text-field
-                label="创建时间"
-                v-model="assemblyDetailData.createdTime"
-                readonly
-                variant="underlined">
-            </v-text-field>
+          <div class="ga-2 mb-6">
+            <v-badge color="transparent" dot class="badge-flavor mr-2 pt-1 pb-1 pl-5 pr-5" v-for="(i, index) in assemblyDetailData.tags">
+              {{ i }}
+            </v-badge>
+          </div>
 
-            <v-text-field
-                label="更新时间"
-                v-model="assemblyDetailData.updatedTime"
-                readonly
-                variant="underlined">
-            </v-text-field>
+          <v-text-field
+              label="创建时间"
+              v-model="assemblyDetailData.createdTime"
+              readonly
+              variant="underlined">
+          </v-text-field>
 
-            <Textarea class="mt-5 mb-2"
-                      height="400px"
-                      :readonly="true"
-                      v-model="assemblyDetailData.description"
-                      placeholder="输入描述描述"></Textarea>
-          </v-col>
-        </v-row>
-      </div>
+          <v-text-field
+              label="更新时间"
+              v-model="assemblyDetailData.updatedTime"
+              readonly
+              variant="underlined">
+          </v-text-field>
+        </v-col>
+      </v-row>
     </div>
   </v-container>
-  <!-- Assembly Preview E -->
 </template>
 
 <style scoped lang="less">

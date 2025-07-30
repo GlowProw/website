@@ -11,6 +11,7 @@ const router = useRouter(),
 let messages = ref([]),
     username = ref(''),
     password = ref(''),
+    email = ref(''),
     captcha = ref({});
 
 /**
@@ -22,6 +23,7 @@ const onRegister = async () => {
           data: {
             username: username.value,
             password: password.value,
+            email: email.value,
             captcha: captcha.value,
           }
         }),
@@ -50,8 +52,8 @@ const onCaptchaData = (data: any) => {
 <template>
   <div class="background-img-flavor">
     <v-container class="mt-10 register">
-      <v-card dense variant="flat" class="mt-10 register-box card-flavor">
-        <h1 class="pl-8 pt-5">{{ t('register.title') }}</h1>
+      <v-card dense variant="flat" class="mt-10 register-box card-enlargement-flavor">
+        <h1 class="pl-8 pt-5 pb-5 background-flavor">{{ t('register.title') }}</h1>
 
         <v-row class="pa-8">
           <v-col>
@@ -61,6 +63,17 @@ const onCaptchaData = (data: any) => {
             <v-text-field v-model="password"
                           variant="solo-filled"
                           placeholder="输入密码"></v-text-field>
+            <div class="mb-10 mt-5">
+              <p class="mb-2">可选</p>
+              <v-text-field v-model="email"
+                            label="邮箱"
+                            variant="solo-filled"
+                            placeholder="输入邮箱地址">
+                <template v-slot:details>
+                  可选邮箱，这将使得你的账户可寻回
+                </template>
+              </v-text-field>
+            </div>
             <Captcha @getCaptchaData="onCaptchaData" type="svg" class="captcha"></Captcha>
           </v-col>
         </v-row>

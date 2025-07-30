@@ -66,8 +66,8 @@ const onCaptchaData = (data: any) => {
 <template>
   <div class="background-img-flavor">
     <v-container class="mt-10 login">
-      <v-card dense flat class="mt-10 login-card card-flavor">
-        <h1 class="pl-8 pt-8">{{ t('login.title') }}</h1>
+      <v-card dense flat class="mt-10 login-card card-enlargement-flavor">
+        <h1 class="pl-8 pt-5 pb-5 background-flavor">{{ t('login.title') }}</h1>
 
         <v-row class="pa-8">
           <v-col>

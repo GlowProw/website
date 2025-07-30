@@ -264,7 +264,7 @@ const onWorkshopDelete = () => {
   <div max-width="100%" :class="[isWorkshopFillScreen ? 'fill-screen' : '']" v-show="!isSharePreview">
     <v-row class="mt-1 mb-5">
       <v-col cols="12">
-        <v-card class="w-100 card-flavor workshop-ship">
+        <v-card class="w-100 card-enlargement-flavor workshop-ship">
           <ZoomableCanvas
               style="animation: all 1s"
               ref="assemblyWorkshopZoomableAreaRef"
@@ -277,9 +277,7 @@ const onWorkshopDelete = () => {
                 top: -500,
                 bottom: 500
               }">
-            <v-container>
-              <AssemblyShowWidget ref="assemblyWorkshopRef"></AssemblyShowWidget>
-            </v-container>
+            <AssemblyShowWidget ref="assemblyWorkshopRef"></AssemblyShowWidget>
           </ZoomableCanvas>
           <v-divider></v-divider>
           <v-container>
@@ -383,10 +381,6 @@ const onWorkshopDelete = () => {
   </v-dialog>
 
   <v-snackbar-queue v-model="messages"></v-snackbar-queue>
-
-  <Vue3IntroStep v-model:show="show" :config="config" ref="myIntroStep">
-
-  </Vue3IntroStep>
 </template>
 
 <style scoped lang="less">

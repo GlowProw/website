@@ -166,7 +166,7 @@ watch(browseData, (newList: ResultData) => {
       <v-col cols="12" lg="9">
         <v-row>
           <v-col cols="12" md="12" lg="6" v-for="(i, index) in browseData.data"
-                 :key="index" class="card-flavor"
+                 :key="index" class="card-enlargement-flavor mb-2"
                  v-if="browseData.data.length > 0">
             <v-row class="pt-5 pl-5 pr-5">
               <v-col>
@@ -181,7 +181,7 @@ watch(browseData, (newList: ResultData) => {
                 </v-chip>
               </v-col>
             </v-row>
-            <v-card class="card-flavor" :to="`/assembly/browse/${i.uuid}/detail`">
+            <v-card class="card-enlargement-flavor mt-2" :to="`/assembly/browse/${i.uuid}/detail`">
               <AssemblyTouring>
                 <AssemblyShowWidget
                     class="card-flavor mb-5 ml-n10 mr-n10"

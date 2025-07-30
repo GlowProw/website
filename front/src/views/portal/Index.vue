@@ -1,5 +1,5 @@
 <template>
-  <v-app class="background-flavor">
+  <v-app>
     <Header></Header>
     <router-view></router-view>
     <Footer></Footer>

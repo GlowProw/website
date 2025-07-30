@@ -21,7 +21,7 @@ export function useHttpToken() {
             const token = authStore.user.token;
             if (token != null || token !== '') {
                 const headers = data?.headers || {}
-                data =  {
+                data = {
                     ...data,
                     headers: {
                         'x-access-token': token,
@@ -32,6 +32,17 @@ export function useHttpToken() {
         }
         return data;
     }
+
+    // Add response interceptor to handle token expiration
+    http.HTTP.interceptors.response.use(
+        (response) => response,
+        (error) => {
+            if (error.response && error.response.data && error.response.data.code === 'user.tokenExpired') {
+                authStore.logout();
+            }
+            return Promise.reject(error);
+        }
+    );
 
     const post = (url = '', data?: { data?: {} }) => {
         return http.post(url, token(data));

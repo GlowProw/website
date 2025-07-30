@@ -7,16 +7,28 @@ import ItemSlotBase from "../../components/snbWidget/ItemSlotBase.vue";
 import {Ship} from "glow-prow-data/src/entity/Ships.ts";
 import {Item} from "glow-prow-data/src/entity/Items.ts";
 import {onMounted, Ref, ref} from "vue";
+import {storage} from "../../assets/sripts";
 
 let items = Items,
     ships = Ships,
     itemsRandomList: Ref<Item[]> = ref([]),
-    shipsRandomList: Ref<Ship[]> = ref([])
+    shipsRandomList: Ref<Ship[]> = ref([]),
+    displayCabinetHistorys = ref([])
 
 onMounted(() => {
   getItems()
   getShips()
+  getDisplayCabinetHistory()
 })
+
+const getDisplayCabinetHistory = () => {
+  let name = 'displayCabinet.history'
+
+  const d = storage.session.get(name)
+
+  if (d.code == 0)
+    displayCabinetHistorys.value = Object.values(d.data.value);
+}
 
 /**
  * 获取物品
@@ -58,6 +70,25 @@ function getRandom(obj, count) {
     <p class="mb-10 opacity-80">嗨，船长, 要看看我的宝贝嘛</p>
 
     <v-row class="fill-height">
+      <div class="w-100 mb-5" v-if="displayCabinetHistorys.length > 0">
+        <v-toolbar class="title-long-flavor bg-black mb-5">
+          <router-link to="/display-cabinet/ships" class="ml-10 font-weight-bold text-amber">
+            游览历史
+            ({{ displayCabinetHistorys.length || 0 }})
+          </router-link>
+          <v-spacer></v-spacer>
+        </v-toolbar>
+
+        <div class="d-flex ga-2">
+          <template v-for="(i,index) in displayCabinetHistorys" :key="index">
+            <ItemSlotBase size="120px">
+              <ItemIconWidget :id="i.id" v-if="i.type == 'item'"></ItemIconWidget>
+              <ShipIconWidget :id="i.id" v-if="i.type == 'ship'"></ShipIconWidget>
+            </ItemSlotBase>
+          </template>
+        </div>
+      </div>
+
       <div class="w-100">
         <v-toolbar class="title-long-flavor bg-black mb-5">
           <router-link to="/display-cabinet/ships" class="ml-10 font-weight-bold text-amber">
