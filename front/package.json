@@ -9,7 +9,7 @@
     "build:no-check:production": "run-p \"build-only {@}\" --",
     "build:production": "run-p type-check \"build-only {@}\" --",
     "preview:production": "vite preview",
-    "build-only": "vite build",
+    "build-only": "vite build && vite prerender",
     "type-check": "vue-tsc --build --force"
   },
   "dependencies": {
@@ -24,6 +24,7 @@
     "@tiptap/vue-3": "^3.0.7",
     "axios": "^1.10.0",
     "less": "^4.4.0",
+    "ogl": "^1.0.11",
     "pinia": "^3.0.3",
     "pinia-plugin-persistedstate": "^4.4.1",
     "uuid": "^11.1.0",
@@ -42,7 +43,8 @@
     "@skullandbonestools/snbdata": "^6.0.6",
     "@tsconfig/node22": "^22.0.0",
     "@types/node": "^22.9.0",
-    "@vitejs/plugin-vue": "^6.0.0",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "@vitejs/plugin-vue-jsx": "^5.0.1",
     "@vue/tsconfig": "^0.7.0",
     "npm-run-all2": "^7.0.2",
     "typescript": "~5.8.3",
