@@ -1,17 +1,21 @@
 <script setup lang="ts">
-import Textarea from "../../components/textarea/index.vue"
-import AssemblyShowWidget from "../../components/AssemblyShowWidget.vue";
+import Textarea from "@/components/textarea/index.vue"
+import AssemblyShowWidget from "@/components/AssemblyShowWidget.vue";
 import {useRoute, useRouter} from "vue-router";
 import {computed, onMounted, ref} from "vue";
 import {useI18n} from "vue-i18n";
-import {api, storageAssembly} from "../../assets/sripts";
-import {StorageAssemblyType} from "../../assets/sripts/storage_assembly";
-import {useHttpToken} from "../../assets/sripts/httpUtil";
-import ZoomableCanvas from "../../components/ZoomableCanvas.vue";
+import {api, storageAssembly} from "@/assets/sripts";
+import {StorageAssemblyType} from "@/assets/sripts/storage_assembly";
+import {useHttpToken} from "@/assets/sripts/httpUtil";
+import ZoomableCanvas from "@/components/ZoomableCanvas.vue";
+import Silk from "@/components/Silk.vue";
+import {Seasons} from "glow-prow-data";
+import {useI18nUtils} from "@/assets/sripts/i18nUtil";
 
 const route = useRoute(),
     router = useRouter(),
     http = useHttpToken(),
+    {asString} = useI18nUtils(),
     {t} = useI18n(),
     httpToken = useHttpToken()
 
@@ -21,9 +25,26 @@ let publishData = ref({
       uuid: string,
       name: string,
       description: string,
-      tags: [],
+      tags: any[],
       data: {}
     }),
+    selectedChips = ref([]),
+    tagsConfig = {
+      seasons: Object.keys(Seasons),
+      archeTypes: ['dps', 'tank', 'support'],
+      difficultyOfAcquisitions: ['simple', 'medium', 'difficulties'],
+      damageTypes: [
+        'explosive',
+        'flooding',
+        'fire',
+        'tearing',
+        'piercing',
+        'electric',
+        'lifesteal',
+        'poison',
+        'repair',
+      ]
+    },
     dataLoading = ref(false),
     publishLoading = ref(false),
     assemblyData = ref(null),
@@ -34,6 +55,11 @@ let publishData = ref({
         v => !!v || 'Name is required',
       ]
     },
+    // 发布前检查 是否可发布
+    isPush = computed(() => {
+      return publishData.value.name == ''
+    }),
+    // 是否编辑模式
     isEditModel = computed(() => {
       switch (route.name) {
         case 'EditAssembly':
@@ -65,6 +91,7 @@ const onLoadData = () => {
         ...publishData.value,
         ...assemblyData.value.data,
       }
+      selectedChips.value = assemblyData.value.data.tags
     }
   }
 
@@ -123,7 +150,7 @@ const onPublish = async () => {
         d = result.data;
 
     if (d.error == 1)
-      throw Error(d.message || d.code);
+      throw Error(d);
 
     messages.value.push(t(`basic.tips.${d.code}`))
     storageAssembly.delete(uid as string, StorageAssemblyType.Data)
@@ -132,47 +159,87 @@ const onPublish = async () => {
   } catch (e) {
     console.error(e)
     if (e instanceof Error)
-      messages.value.push(e.message)
+      messages.value.push(t(`basic.tips.${e.response.data.code}`, {
+        context: e.response.data.code
+      }))
   } finally {
     publishLoading.value = false
   }
 }
+
+/**
+ * 处理标签难度
+ */
+const onTagsDifficultyOfAcquisition = (value: string) => {
+  if (value == null) {
+    let index = publishData.value.tags.findIndex(i => i.indexOf('difficultyOfAcquisition_') >= 0);
+    publishData.value.tags.splice(index, 1)
+    return;
+  }
+
+  if (publishData.value.tags.filter(i => i.indexOf('difficultyOfAcquisition_') >= 0)) {
+    let index = publishData.value.tags.findIndex(i => i.indexOf('difficultyOfAcquisition_') >= 0);
+    publishData.value.tags.splice(index, 1)
+  }
+
+  publishData.value.tags.splice(publishData.value.tags.length + 1, 0, `difficultyOfAcquisition_${value}`)
+}
+
+/**
+ * 处理tab事件
+ * @param data
+ */
+const onUpdateTags = (data: any) => {
+  publishData.value.tags = [...new Set([...selectedChips.value, ...data])];
+}
 </script>
 
 <template>
-  <v-breadcrumbs class="pt-5">
-    <v-container class="pa-0">
-      <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
-      <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item to="/assembly">{{ t('assembly.title') }}</v-breadcrumbs-item>
-      <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item to="/assembly/workshop">{{ t('assembly.workshop.title') }}</v-breadcrumbs-item>
-      <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item>{{ t('assembly.publish.title') }}</v-breadcrumbs-item>
-    </v-container>
-  </v-breadcrumbs>
-  <v-divider></v-divider>
-  <v-container>
-    <v-row align="start">
-      <v-col>
-        <h1>预览</h1>
-        <p class="opacity-80">
-          设置配装信息
-        </p>
-      </v-col>
-      <v-col cols="auto">
-        <v-btn variant="elevated" v-if="isEditModel" @click="router.go(-1)">
-          返回编辑
-        </v-btn>
-        <v-btn variant="elevated" :color="`var(--main-color)`" class="ml-2" :loading="publishLoading" @click="() => isEditModel ? onEdit() : onPublish()">
-          发布
-        </v-btn>
-      </v-col>
-    </v-row>
-  </v-container>
+  <v-card height="250px">
+    <template v-slot:image>
+      <Silk
+          :speed="3"
+          :scale=".7"
+          :color="'#1c1c1c'"
+          :noise-intensity="0.1"
+          :rotation="-.6"
+          class="bg-black">
+      </Silk>
+    </template>
+    <template v-slot:default>
+      <v-container class="pa-2 mt-4 position-relative">
+        <v-breadcrumbs class="pa-2">
+          <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
+          <v-breadcrumbs-divider></v-breadcrumbs-divider>
+          <v-breadcrumbs-item to="/assembly">{{ t('assembly.title') }}</v-breadcrumbs-item>
+          <v-breadcrumbs-divider></v-breadcrumbs-divider>
+          <v-breadcrumbs-item to="/assembly/workshop">{{ t('assembly.workshop.title') }}</v-breadcrumbs-item>
+          <v-breadcrumbs-divider></v-breadcrumbs-divider>
+          <v-breadcrumbs-item>{{ t('assembly.publish.title') }}</v-breadcrumbs-item>
+        </v-breadcrumbs>
+      </v-container>
+
+      <v-container class="pa-7">
+        <v-row no-gutters align="start">
+          <v-col>
+            <h1 class="text-amber">预览</h1>
+            <p class="opacity-80 mt-5">设置配装信息</p>
+          </v-col>
+          <v-col cols="auto">
+            <v-btn variant="elevated" v-if="isEditModel" @click="router.go(-1)">
+              上一步
+            </v-btn>
+            <v-btn variant="elevated" :color="`var(--main-color)`" class="ml-2" :disabled="isPush" :loading="publishLoading" @click="() => isEditModel ? onEdit() : onPublish()">
+              发布
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-container>
+    </template>
+  </v-card>
 
   <!-- Workshop Share Preview S -->
-  <div class="ml-n2 mr-n2 card-enlargement-flavor">
+  <div class="card-enlargement-flavor mt-n3 ml-n2 mr-n2">
     <ZoomableCanvas
         style="height: 600px"
         :minScale=".8"
@@ -191,48 +258,129 @@ const onPublish = async () => {
   <!-- Workshop Share Preview E -->
 
   <v-container>
-    <v-form class="mt-10">
+    <v-form class="mt-10 mb-10">
       <v-row>
-        <v-col cols="12" sm="12" lg="6">
-          <v-text-field
-              v-model="publishData.name"
-              label="配置名称"
-              placeholder="配置名称"
-              :rules="formRules.name"
-              variant="underlined">
-            <template v-slot:details>
-              船长，设置一个酷炫名字，好名字配好船
-            </template>
-          </v-text-field>
-        </v-col>
-        <v-col cols="12" sm="12" lg="6" align="right">
-          <v-combobox
-              label="标签"
-              chips
-              multiple
-              clearable
-              v-model="publishData.tags"
-              variant="underlined"
-              item-title="label"
-              item-value="value"
-              :hide-no-data="true">
-            <template v-slot:details>
-              输入标签敲下回车键，即可创建新标签
-            </template>
-          </v-combobox>
-        </v-col>
-        <v-col cols="12">
-          <div class="mt-4 mb-3 font-weight-bold">描述</div>
+        <v-col cols="12" sm="12" lg="8">
+          <v-row>
+            <v-col cols="12" sm="12" lg="6">
+              <v-text-field
+                  v-model="publishData.name"
+                  label="配置名称"
+                  placeholder="配置名称"
+                  :rules="formRules.name"
+                  variant="underlined">
+                <template v-slot:details>
+                  船长，设置一个酷炫名字，好名字配好船
+                </template>
+              </v-text-field>
+            </v-col>
+            <v-col cols="12">
+              <div class="mt-4 mb-3 font-weight-bold">描述</div>
 
-          <v-card class="pl-5 pr-5">
-              <Textarea class="mt-5 mb-2"
-                        height="300px"
-                        v-model="publishData.description"
-                        placeholder="输入描述描述"></Textarea>
-            <template v-if="route.query.debug">
-              {{ publishData.description }}
-            </template>
-          </v-card>
+              <v-card border class="pl-3 pr-3" :color="`hsl(from var(--main-color) h s calc(l * 0.05))`">
+                <Textarea class="mt-3 mb-2"
+                          v-model="publishData.description"
+                          placeholder="输入描述描述"></Textarea>
+                <template v-if="route.query.debug">
+                  {{ publishData.description }}
+                </template>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-col>
+        <v-col cols="12" sm="12" lg="4">
+          <div class="mb-5">
+            <v-combobox
+                placeholder="输入标签敲下回车键，即可创建新标签"
+                chips
+                multiple
+                clearable
+                label="标签"
+                v-model="publishData.tags"
+                variant="underlined"
+                item-title="label"
+                item-value="value"
+                :counter="100"
+                :hide-no-data="true">
+              <template v-slot:chip="{item}">
+                <v-chip size="x-large" color="primary">
+                  {{
+                    asString([
+                      `${item.raw}`,
+                      `assembly.teamFormationMethods.${item.raw.toString().split('_')[1]}`,
+                      `assembly.archetypes.${item.raw.toString().split('_')[1]}`,
+                      `assembly.modes.${item.raw.toString().split('_')[0]}`,
+                      `assembly.damageTypes.${item.raw.toString().split('_')[1]}`,
+                      `snb.seasons.${item.raw.toString().split('_')[1]}`,
+                    ], true)
+                  }}
+                </v-chip>
+              </template>
+            </v-combobox>
+          </div>
+
+          <p class="font-weight-bold  mt-5 text-amber">快速选择标签</p>
+          <p class="font-weight-light mt-1 mb-1 opacity-80">通过快速选择模版来创建配装标签</p>
+
+          <v-chip-group
+              v-model="selectedChips"
+              @update:modelValue="onUpdateTags"
+              column
+              multiple>
+            <div class="mt-3 w-100">
+              <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">配装适用模式</p>
+              <div class="mt-3 d-flex ga-2">
+                <v-chip filter size="small" color="primary" v-for="(i, index) in ['pvp', 'pve']" :value="i">{{ i.toUpperCase() }}</v-chip>
+              </div>
+            </div>
+
+            <div class="mt-3 w-100">
+              <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">配装组队</p>
+              <div class="mt-3 d-flex ga-2">
+                <v-chip size="small" color="primary" v-for="(i, index) in ['singlePlayer', 'multiPlayer']"
+                        :value="`teamFormationMethod_${i}`">
+                  {{ t(`assembly.teamFormationMethods.${i}`) }}
+                </v-chip>
+              </div>
+            </div>
+
+            <div class="mt-3 w-100">
+              <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">适用赛季</p>
+              <div class="mt-3 ga-2">
+                <v-chip filter size="small" color="primary" v-for="(i, index) in tagsConfig.seasons" :value="`season_${i}`">{{ t(`snb.seasons.${i}`) }}</v-chip>
+              </div>
+            </div>
+
+            <div class="mt-3">
+              <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">伤害类型</p>
+              <div class="mt-3 ga-2">
+                <v-chip filter size="small" color="primary" v-for="(i, index) in tagsConfig.damageTypes" :value="`damageType_${i}`">{{ t(`assembly.damageTypes.${i}`) }}</v-chip>
+              </div>
+            </div>
+
+            <div class="mt-3 w-100">
+              <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">船只定位</p>
+              <div class="mt-3 d-flex ga-2">
+                <v-chip filter size="small" color="primary" v-for="(i, index) in tagsConfig.archeTypes" :value="`archetype_${i}`">{{ t(`assembly.archetypes.${i}`) }}</v-chip>
+              </div>
+            </div>
+
+            <div class="mt-5 w-100">
+              <!--              <v-select @update:modelValue="onTagsDifficultyOfAcquisition"-->
+              <!--                        label="配装获取难度"-->
+              <!--                        placeholder="配装获取难度"-->
+              <!--                        variant="plain"-->
+              <!--                        clearable-->
+              <!--                        :items="tagsConfig.difficultyOfAcquisitions">-->
+              <!--                <template v-slot:label></template>-->
+              <!--                <template v-slot:item="{ props: itemProps, item }">-->
+              <!--                  <v-list-item v-bind="itemProps">-->
+              <!--                    {{ t(`assembly.difficultyOfAcquisitions.${item.raw}`) }}-->
+              <!--                  </v-list-item>-->
+              <!--                </template>-->
+              <!--              </v-select>-->
+            </div>
+          </v-chip-group>
         </v-col>
       </v-row>
     </v-form>
@@ -242,5 +390,4 @@ const onPublish = async () => {
 </template>
 
 <style scoped lang="less">
-
 </style>

@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import {Items} from 'glow-prow-data/src/entity/Items'
 import {Ships} from "glow-prow-data";
-import ItemIconWidget from "../../components/snbWidget/itemIconWidget.vue";
-import ShipIconWidget from "../../components/snbWidget/shipIconWidget.vue";
-import ItemSlotBase from "../../components/snbWidget/ItemSlotBase.vue";
+import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
+import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
+import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import {Ship} from "glow-prow-data/src/entity/Ships.ts";
 import {Item} from "glow-prow-data/src/entity/Items.ts";
 import {onMounted, Ref, ref} from "vue";
-import {storage} from "../../assets/sripts";
+import {storage} from "@/assets/sripts";
 
 let items = Items,
     ships = Ships,

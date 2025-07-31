@@ -49,7 +49,7 @@
 <script setup lang="ts">
 import {computed, onMounted, onUnmounted, ref} from 'vue'
 import {useRoute} from 'vue-router'
-import {api, http, storage} from '../../assets/sripts'
+import {api, http, storage} from '@/assets/sripts'
 import {useI18n} from "vue-i18n";
 
 const props = defineProps({
@@ -211,7 +211,7 @@ const captchaTimeout = (num) => {
 </script>
 
 <style lang="less">
-@import "../../assets/styles/captcha";
+@import "@/assets/styles/captcha";
 
 .captcha-svg {
   overflow: hidden;

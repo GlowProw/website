@@ -3,7 +3,7 @@ import {Items, Ships} from "@skullandbonestools/snbdata";
 import type {Item} from "@skullandbonestools/snbdata/dist/daos/items";
 
 const items = Items
-import ItemSlotWidget from "../components/ItemSlotWiget.vue";
+import ItemSlotWidget from "@/components/ItemSlotWiget.vue";
 </script>
 
 <template>

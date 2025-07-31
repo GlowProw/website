@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {useAuthStore} from "../../stores";
+import {useAuthStore} from "~/stores";
 import Logo from "./Logo.vue";
 
 const authStore = useAuthStore()
@@ -17,7 +17,6 @@ const authStore = useAuthStore()
 
         <Logo></Logo>
         <v-btn size="x-small" class="ml-n3" variant="outlined">BETA</v-btn>
-        <v-divider vertical class="ml-5 mr-5"></v-divider>
 
         <v-btn variant="text" exact href="https://www.ubisoft.com/en-us/game/skull-and-bones">
           官网
@@ -44,5 +43,5 @@ const authStore = useAuthStore()
 </template>
 
 <style scoped>
-@import "../assets/styles/header.less";
+@import "@/assets/styles/header.less";
 </style>

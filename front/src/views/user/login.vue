@@ -3,8 +3,8 @@ import {ref} from "vue";
 import {useAuthStore} from '../../../stores'
 import {useRoute, useRouter} from "vue-router";
 
-import Captcha from "../../components/captcha/index.vue";
-import {api, http} from "../../assets/sripts";
+import Captcha from "@/components/captcha/index.vue";
+import {api, http} from "@/assets/sripts";
 import {useI18n} from "vue-i18n";
 
 const authStore = useAuthStore(),
@@ -36,14 +36,13 @@ const onLogin = async () => {
         }),
         d = result.data;
 
-    if (d.code != 0) {
+    if (d.error == 1)
       return Error(d.message)
-    }
 
     authStore.setAccountToken(d.data)
 
     if (route.query.backurl)
-      await router.push(route.query.backurl as string)
+      return await router.push(route.query.backurl as string)
 
     await router.push('/')
   } catch (e) {

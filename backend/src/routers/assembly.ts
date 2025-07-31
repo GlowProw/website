@@ -4,7 +4,7 @@ import logger from "../../logger";
 import db from "../../mysql";
 import {verifyJWT} from "../middleware/auth";
 import {v6 as uuidv6} from "uuid"
-import {sanitizeRichText} from "../lib/content";
+import {sanitizeRichText, xss} from "../lib/content";
 
 const router = express.Router();
 const assemblyConfig = {
@@ -13,20 +13,29 @@ const assemblyConfig = {
 }
 
 /**
+ * 处理标签内容
+ * @param data
+ */
+function handlingLabels(data: string[]) {
+    return data.map(i => xss(i));
+}
+
+/**
  * 发布配装
  */
 router.post('/publish', verifyJWT, [
     checkbody("name").isString().trim().isLength({min: 1, max: assemblyConfig.nameMaxLength}),
     checkbody('description').optional().isString().trim().isLength({max: assemblyConfig.descriptionMaxLength}),
+    checkbody('tags').optional().isArray(),
     checkbody('data').isJSON(),
-    checkbody('localUid').optional(),
+    checkbody('localUid').optional().isString().trim().isLength({max: 32}),
 ], async (req: any, res: Response) => {
     try {
         const validateErr = validationResult(req);
         if (!validateErr.isEmpty())
             return res.status(400).json({error: 1, code: 'publish.bad', message: validateErr.array()});
 
-        const {name, description, data, localUid} = req.body;
+        const {name, description, tags, data, localUid} = req.body;
 
         // 验证JSON数据是否有效
         let parsedData;
@@ -40,7 +49,7 @@ router.post('/publish', verifyJWT, [
             });
         }
 
-        // 检查配装名称是否已存在（可根据需求决定是否需要唯一性检查）
+        // 检查配装名称是否已存在
         const existingAssembly = await db('assembly')
             .where('name', name)
             .andWhere('userId', req.user.id) // 只检查当前用户的配装名称
@@ -58,17 +67,18 @@ router.post('/publish', verifyJWT, [
             name,
             description,
             uuid: uuidv6(),
-            data: JSON.stringify(parsedData), // 确保数据是字符串格式存储
-            userId: req.user.id, // 假设req.user包含当前用户信息
+            tags: JSON.stringify(handlingLabels(tags)),
+            data: JSON.stringify(parsedData),
+            userId: req.user.id,
             createdTime: db.fn.now(),
             updatedTime: db.fn.now(),
-            localUid: localUid || null // 保存客户端本地ID（如果有）
+            localUid: localUid || null
         };
 
         // 执行插入操作
         const [insertedId] = await db('assembly')
             .insert(assemblyData)
-            .returning('id'); // 根据数据库支持情况可能需要调整
+            .returning('id');
 
         // 获取完整的配装信息返回给客户端
         const newAssembly = await db('assembly')
@@ -140,7 +150,7 @@ router.get('/list', [
 
         // 关键词模糊查询（配装名称或用户名称）
         if (keyword) {
-            query = query.where(function() {
+            query = query.where(function () {
                 this.where('assembly.name', 'like', `%${keyword}%`)
                     .orWhere('users.username', 'like', `%${keyword}%`);
             });
@@ -187,7 +197,7 @@ router.get('/list', [
             .leftJoin('users', 'assembly.userId', 'users.id');
 
         if (keyword) {
-            totalQuery = totalQuery.where(function() {
+            totalQuery = totalQuery.where(function () {
                 this.where('assembly.name', 'like', `%${keyword}%`)
                     .orWhere('users.username', 'like', `%${keyword}%`)
             });
@@ -238,8 +248,8 @@ router.get('/list', [
 router.post('/edit', verifyJWT, [
     checkbody('uuid').isString().trim().isLength({min: 1}),
     checkbody("name").isString().trim().isLength({min: 1, max: assemblyConfig.nameMaxLength}),
-    checkbody('description').optional().isString().trim().isLength({min: 1, max: assemblyConfig.descriptionMaxLength}),
-    checkbody('tags').isArray(),
+    checkbody('description').optional().isString().trim().isLength({max: assemblyConfig.descriptionMaxLength}),
+    checkbody('tags').optional().isArray(),
     checkbody('data').isJSON(),
 ], async (req: any, res: Response) => {
     try {
@@ -266,13 +276,13 @@ router.post('/edit', verifyJWT, [
 
         // 构建更新数据
         const updateData: any = {
-            updatedTime: db.fn.now()
+            name: sanitizeRichText(name),
+            updatedTime: db.fn.now(),
+            data,
         };
 
-        if (name) updateData.name = sanitizeRichText(name);
         if (description) updateData.description = sanitizeRichText(description);
-        if (data) updateData.data = data;
-        if (tags) updateData.tags = JSON.stringify(tags);
+        if (tags) updateData.tags = JSON.stringify(handlingLabels(tags));
 
         // 执行更新
         await db('assembly')

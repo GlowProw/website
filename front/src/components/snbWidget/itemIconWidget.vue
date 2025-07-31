@@ -5,7 +5,7 @@ import {onMounted, type Ref, ref, watch} from "vue";
 import {Item, Items} from "glow-prow-data/src/entity/Items.ts";
 import {useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
-import {useI18nUtils} from "../../assets/sripts/i18nUtil.ts";
+import {useI18nUtils} from "@/assets/sripts/i18nUtil";
 
 const {asArray, asString, sanitizeString} = useI18nUtils()
 

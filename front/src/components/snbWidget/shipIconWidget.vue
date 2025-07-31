@@ -6,6 +6,7 @@ import {Ships} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 import type {Ship} from "glow-prow-data/src/entity/Ships.ts";
 import PerksWidget from "./perksWidget.vue";
+import ShinyText from "@/components/ShinyText.vue";
 
 const props = withDefaults(defineProps<{
       id: string,
@@ -73,13 +74,14 @@ const onReady = async () => {
           height="100%"
           width="100%">
         <v-img :src="shipsData.images[props.id]" class="pointer-events-none"></v-img>
-
       </v-card>
     </template>
 
     <v-card class="demo-reel bg-black" flat border>
       <div class="demo-reel-header pa-10 position-relative">
-        <h1><b>{{ t(`snb.ships.${props.id}.name`) }}</b></h1>
+        <h1 class="font-weight-bold">
+          <ShinyText :text="t(`snb.ships.${props.id}.name`)" :speed="1" class-name="text-amber" class=""></ShinyText>
+        </h1>
         <p class="mb-1">{{ props.id }}</p>
 
         <v-badge inline color="transparent" class="badge-flavor text-center tag-badge pl-3" v-if="i && i.size">{{ t(`displayCabinet.size.${i.size}`) }}</v-badge>

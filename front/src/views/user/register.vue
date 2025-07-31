@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import {ref} from "vue";
 import {useRouter} from "vue-router";
-import Captcha from "../../components/captcha/index.vue";
-import {api, http} from "../../assets/sripts";
+import Captcha from "@/components/captcha/index.vue";
+import {api, http} from "@/assets/sripts";
 import {useI18n} from "vue-i18n";
 
 const router = useRouter(),
@@ -63,7 +63,7 @@ const onRegister = async () => {
     }, 1000)
   } catch (e) {
     if (e instanceof Error)
-      messages.value.push(t(`basic.tips.${e.response.data.code.replace('.', '_')}`))
+      messages.value.push(t(`basic.tips.${e.response.data.code}`))
   } finally {
     registerLoading.value = false;
   }

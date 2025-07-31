@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import {nodeViewProps, NodeViewWrapper} from "@tiptap/vue-3";
 import {useI18n} from "vue-i18n";
-import {useI18nUtils} from "../../../assets/sripts/i18nUtil";
+import {useI18nUtils} from "@/assets/sripts/i18nUtil";
 
-import ItemSlotBase from "../../snbWidget/ItemSlotBase.vue";
-import ItemIconWidget from "../../snbWidget/itemIconWidget.vue";
-import ItemNameRarity from "../../snbWidget/itemNameRarity.vue"
+import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
+import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
+import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue"
 
 const props = defineProps(nodeViewProps);
 const {t} = useI18n(),

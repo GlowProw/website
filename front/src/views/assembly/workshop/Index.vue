@@ -3,14 +3,15 @@ import {useI18n} from "vue-i18n";
 import {computed, nextTick, onMounted, type Ref, ref, toRaw} from "vue";
 import {useRoute, useRouter} from "vue-router";
 
-import {api, http, storageAssembly} from "../../../assets/sripts";
+import {api, http, storageAssembly} from "@/assets/sripts";
 
-import ZoomableCanvas from "../../../components/ZoomableCanvas.vue"
-import AssemblyShowWidget from "../../../components/AssemblyShowWidget.vue";
-import {StorageAssemblyType} from "../../../assets/sripts/storage_assembly";
+import ZoomableCanvas from "@/components/ZoomableCanvas.vue"
+import AssemblyShowWidget from "@/components/AssemblyShowWidget.vue";
+import {StorageAssemblyType} from "@/assets/sripts/storage_assembly";
 import {v6 as uuidv6} from "uuid";
-import {useAuthStore} from "../../../../stores";
-import EmptyView from "../../../components/EmptyView.vue";
+import {useAuthStore} from "~/stores";
+import EmptyView from "@/components/EmptyView.vue";
+import Silk from "@/components/Silk.vue";
 
 const {t} = useI18n(),
     route = useRoute(),
@@ -210,106 +211,116 @@ const onWorkshopDelete = () => {
 </script>
 
 <template>
-  <v-breadcrumbs class="pt-5">
-    <v-container class="pa-0">
-      <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
-      <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item to="/assembly">{{ t('assembly.title') }}</v-breadcrumbs-item>
-      <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item>{{ t('assembly.workshop.title') }}</v-breadcrumbs-item>
-    </v-container>
-  </v-breadcrumbs>
-  <v-divider></v-divider>
-  <v-container>
-    <v-row align="start">
-      <v-col>
-        <h1>{{ !isEditModel ? '创建' : '编辑' }}</h1>
-        <p class="opacity-80">
-          <template v-if="!isEditModel">创建配置</template>
-          <template v-else>编辑配装 <u><b>{{ assemblyDetailData.name || 'none' }}</b></u></template>
-        </p>
-      </v-col>
-      <v-col cols="auto">
-        <v-btn-group density="compact" class="mr-2">
-          <v-btn @click="onQuickArchiving" :loading="draftSaveQuickArchivingLoading" v-if="!isEditModel">
-            快速保存草稿
-          </v-btn>
-          <v-menu>
-            <template v-slot:activator="{ props }">
-              <v-btn v-bind="props" v-if="!isEditModel">
-                <v-icon icon="mdi-dots-vertical"/>
+  <v-card height="250px">
+    <template v-slot:image>
+      <Silk
+          :speed="3"
+          :scale=".7"
+          :color="'#1c1c1c'"
+          :noise-intensity="0.1"
+          :rotation="-.6"
+          class="bg-black">
+      </Silk>
+    </template>
+    <template v-slot:default>
+      <v-container class="pa-2 mt-4 position-relative">
+        <v-breadcrumbs class="pa-2">
+          <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
+          <v-breadcrumbs-divider></v-breadcrumbs-divider>
+          <v-breadcrumbs-item to="/assembly">{{ t('assembly.title') }}</v-breadcrumbs-item>
+          <v-breadcrumbs-divider></v-breadcrumbs-divider>
+          <v-breadcrumbs-item>{{ t('assembly.workshop.title') }}</v-breadcrumbs-item>
+        </v-breadcrumbs>
+      </v-container>
+
+      <v-container class="pa-7">
+        <v-row no-gutters align="start">
+          <v-col>
+            <h1 class="text-amber">{{ !isEditModel ? '创建' : '编辑' }}</h1>
+            <p class="opacity-80 mt-5">
+              <template v-if="!isEditModel">创建配置</template>
+              <template v-else>编辑配装 <u><b>{{ assemblyDetailData.name || 'none' }}</b></u></template>
+            </p>
+          </v-col>
+          <v-col cols="auto">
+            <v-btn-group density="compact" class="mr-2">
+              <v-btn @click="onQuickArchiving" :loading="draftSaveQuickArchivingLoading" v-if="!isEditModel">
+                快速保存草稿
               </v-btn>
-            </template>
-            <v-list>
-              <v-list-item>
-                <v-list-item-title @click="draftNewSaveModel = true">另存草稿</v-list-item-title>
-              </v-list-item>
-              <v-list-item>
-                <v-list-item-title @click="onPenDraftPanel">加载草稿</v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </v-btn-group>
-        <v-btn :color="`var(--main-color)`" :disabled="!isAssemblyByUser" @click="onSaveAssemblyPublish" v-if="!isEditModel">
-          下一步
-        </v-btn>
-        <v-btn :color="`var(--main-color)`" :disabled="!isAssemblyByUser" @click="onSaveAssemblyEdit" v-if="isEditModel">
-          下一步
-        </v-btn>
-      </v-col>
-    </v-row>
-  </v-container>
+              <v-menu>
+                <template v-slot:activator="{ props }">
+                  <v-btn v-bind="props" v-if="!isEditModel">
+                    <v-icon icon="mdi-dots-vertical"/>
+                  </v-btn>
+                </template>
+                <v-list>
+                  <v-list-item>
+                    <v-list-item-title @click="draftNewSaveModel = true">另存草稿</v-list-item-title>
+                  </v-list-item>
+                  <v-list-item>
+                    <v-list-item-title @click="onPenDraftPanel">加载草稿</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </v-btn-group>
+            <v-btn :color="`var(--main-color)`" :disabled="!isAssemblyByUser" @click="onSaveAssemblyPublish" v-if="!isEditModel">
+              下一步
+            </v-btn>
+            <v-btn :color="`var(--main-color)`" :disabled="!isAssemblyByUser" @click="onSaveAssemblyEdit" v-if="isEditModel">
+              下一步
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-container>
+    </template>
+  </v-card>
 
   <!-- Workshop S -->
-  <div max-width="100%" :class="[isWorkshopFillScreen ? 'fill-screen' : '']" v-show="!isSharePreview">
-    <v-row class="mt-1 mb-5">
-      <v-col cols="12">
-        <v-card class="w-100 card-enlargement-flavor workshop-ship">
-          <ZoomableCanvas
-              style="animation: all 1s"
-              ref="assemblyWorkshopZoomableAreaRef"
-              :style="isWorkshopFillScreen ? 'height: calc(100vh - 100px)' : `height: ${workshopHeight}px`"
-              :minScale=".8"
-              :max-scale="1.2"
-              :boundary="{
+  <div class="mt-n5 ml-n5 mr-n5" :class="[isWorkshopFillScreen ? 'fill-screen bg-black' : 'mb-10']" v-show="!isSharePreview">
+    <v-card class="w-100 pa-0 card-enlargement-flavor workshop-ship">
+      <ZoomableCanvas
+          style="animation: all 1s"
+          ref="assemblyWorkshopZoomableAreaRef"
+          :style="isWorkshopFillScreen ? 'height: calc(100vh - 50px)' : `height: ${workshopHeight}px`"
+          :minScale=".8"
+          :max-scale="1.2"
+          :boundary="{
                 left: -1500,
                 right: 1500,
                 top: -500,
                 bottom: 500
               }">
-            <AssemblyShowWidget ref="assemblyWorkshopRef"></AssemblyShowWidget>
-          </ZoomableCanvas>
-          <v-divider></v-divider>
-          <v-container>
-            <v-row justify="center">
-              <v-col cols="auto">
-                <v-btn density="comfortable"
-                       @click="onWorkshopPos"
-                       icon="mdi-restore"></v-btn>
+        <AssemblyShowWidget ref="assemblyWorkshopRef"></AssemblyShowWidget>
+      </ZoomableCanvas>
+      <v-divider></v-divider>
+      <v-container>
+        <v-row justify="center">
+          <v-col cols="auto">
+            <v-btn density="comfortable"
+                   @click="onWorkshopPos"
+                   icon="mdi-restore"></v-btn>
 
-              </v-col>
-              <v-col cols="auto" class="ml-4 mr-3">
-                <v-btn @click="workshopHeight <= 600 ? workshopHeight += 100 : null" density="comfortable" icon>
-                  <v-icon icon="mdi-arrow-expand-vertical"></v-icon>
-                </v-btn>
-                <v-btn density="comfortable"
-                       class="ml-1 mr-1"
-                       @click="onWorkshopFullScreen"
-                       :icon="`mdi-${!isWorkshopFillScreen ? 'fullscreen' : 'fullscreen-exit'}`"></v-btn>
-                <v-btn @click="workshopHeight >= 400 ? workshopHeight -= 100 : null" density="comfortable" icon>
-                  <v-icon icon="mdi-arrow-collapse-vertical"></v-icon>
-                </v-btn>
-              </v-col>
-              <v-col cols="auto">
-                <v-btn density="comfortable"
-                       @click="onWorkshopDelete"
-                       icon="mdi-delete"></v-btn>
-              </v-col>
-            </v-row>
-          </v-container>
-        </v-card>
-      </v-col>
-    </v-row>
+          </v-col>
+          <v-col cols="auto" class="ml-4 mr-3">
+            <v-btn @click="workshopHeight <= 600 ? workshopHeight += 100 : null" density="comfortable" icon>
+              <v-icon icon="mdi-arrow-expand-vertical"></v-icon>
+            </v-btn>
+            <v-btn density="comfortable"
+                   class="ml-1 mr-1"
+                   @click="onWorkshopFullScreen"
+                   :icon="`mdi-${!isWorkshopFillScreen ? 'fullscreen' : 'fullscreen-exit'}`"></v-btn>
+            <v-btn @click="workshopHeight >= 400 ? workshopHeight -= 100 : null" density="comfortable" icon>
+              <v-icon icon="mdi-arrow-collapse-vertical"></v-icon>
+            </v-btn>
+          </v-col>
+          <v-col cols="auto">
+            <v-btn density="comfortable"
+                   @click="onWorkshopDelete"
+                   icon="mdi-delete"></v-btn>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-card>
   </div>
   <!-- Workshop E -->
 

@@ -67,7 +67,7 @@ export function useI18nUtils() {
     /**
      * 获取翻译字符串
      */
-    const asString = (keys: string[]) => {
+    const asString = (keys: string[], backRawKey?: boolean) => {
         let result = ''
 
         for (const i18nKey of keys) {
@@ -78,6 +78,9 @@ export function useI18nUtils() {
                 }
             }
         }
+
+        if (result == '' && backRawKey)
+            result = keys[0]
 
         return result
     }

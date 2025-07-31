@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import {onMounted, type Ref, ref} from "vue";
-import {api, http} from "../../assets/sripts";
+import {api, http} from "@/assets/sripts";
 import {Seasons} from "glow-prow-data";
 import {Season} from "glow-prow-data/src/entity/Seasons";
 import {useI18n} from "vue-i18n";
-import ItemSlotBase from "../../components/snbWidget/ItemSlotBase.vue";
+import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
+import Silk from "@/components/Silk.vue";
+import SpotlightCard from "@/components/SpotlightCard.vue"
 
 const {t} = useI18n()
 
@@ -91,7 +93,16 @@ const getCurrentSeason = (): Season | null => {
   <div>
     <v-card class="portal-banner">
       <template v-slot:image>
-        <div class="portal-banner-looping-video w-100">
+        <Silk
+            :speed="1.8"
+            :scale=".7"
+            :color="'#1c1c1c'"
+            :noise-intensity="0.1"
+            :rotation="0"
+            class="portal-banner-backMark w-100 h-100 bg-black"
+        />
+
+        <div class="portal-banner-looping-video w-100 opacity-60">
           <video autoplay playsinline
                  class="card-enlargement-flavor"
                  muted loop type="video/mp4"
@@ -117,10 +128,11 @@ const getCurrentSeason = (): Season | null => {
         <v-row>
           <v-col cols="12" md="8" lg="8" order="2" order-lg="1">
             <v-row>
-              <v-col cols="12" sm="6" md="4" lg="4" v-for="(i,index) in portalNavs" :key="index">
+              <v-col cols="12" sm="6" md="4" lg="4"
+                     v-for="(i,index) in portalNavs" :key="index">
                 <v-row>
                   <v-col cols="auto">
-                    <ItemSlotBase size="60px" class=" d-flex justify-center align-center">
+                    <ItemSlotBase size="60px" class="d-flex justify-center align-center">
                       <v-icon icon="mdi-help"></v-icon>
                     </ItemSlotBase>
                   </v-col>
@@ -152,8 +164,16 @@ const getCurrentSeason = (): Season | null => {
   position: relative;
   overflow: hidden;
 
-  .portal-banner-looping-video {
+  .portal-banner-backMark {
+    position: absolute;
+    z-index: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
 
+  .portal-banner-looping-video {
     &:after {
       content: "";
       position: absolute;

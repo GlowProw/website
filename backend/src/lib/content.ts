@@ -36,6 +36,7 @@ function sanitizeRichText(content: string, options?: IFilterXSSOptions): string 
 }
 
 export {
+    xss,
     config,
     sanitizeRichText
 }

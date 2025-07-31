@@ -3,7 +3,7 @@ import {onMounted, ref} from "vue";
 import {Modifications} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 import ItemSlotBase from "./ItemSlotBase.vue";
-import router from "../../../router";
+import router from "~/router";
 import {useRoute} from "vue-router";
 
 const modImages = import.meta.glob('@glow-prow-assets/modifications/*.*', {eager: true});

@@ -2,10 +2,10 @@
 import {Materials, Ships} from "glow-prow-data";
 import {Ship} from "glow-prow-data/src/entity/Ships.ts";
 
-import ItemSlotBase from "../../../components/snbWidget/ItemSlotBase.vue";
+import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import {onMounted, ref} from "vue";
 import {useI18n} from "vue-i18n";
-import ShipIconWidget from "../../../components/snbWidget/shipIconWidget.vue";
+import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
 
 const shipsData: Ship[] = Ships,
     materialsData: any = Materials,

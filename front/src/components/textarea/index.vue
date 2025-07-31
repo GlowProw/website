@@ -171,19 +171,18 @@ watch(() => props.modelValue, (newVal) => {
 </script>
 
 <template>
-  <v-card v-if="tiptap" class="container html-widget-box bg-transparent">
+  <div v-if="tiptap" class="container html-widget-box bg-transparent">
     <div class="mb-3 control-group editor-toolbar" v-if="!props.readonly">
       <v-row :gutter="20" type="flex" align="middle">
         <v-col>
           <div class="bg-transparent">
             <v-btn
                 icon
-                class="btn mr-2"
+                class="btn mr-5"
                 density="compact"
                 @click="onEmote"
                 :disabled="isOpenEmoji"
-                v-if="toolbarAs.indexOf('emote') >= 0"
-            >
+                v-if="toolbarAs.indexOf('emote') >= 0">
               <v-icon icon="mdi-emoticon-happy-outline"></v-icon>
             </v-btn>
 
@@ -193,8 +192,7 @@ watch(() => props.modelValue, (newVal) => {
                 density="compact"
                 @click="onShip"
                 :disabled="isOpenEmoji"
-                v-if="toolbarAs.indexOf('ship') >= 0"
-            >
+                v-if="toolbarAs.indexOf('ship') >= 0">
               <v-icon icon="mdi-ship-wheel"></v-icon>
             </v-btn>
 
@@ -204,8 +202,7 @@ watch(() => props.modelValue, (newVal) => {
                 density="compact"
                 @click="onItem"
                 :disabled="isOpenEmoji"
-                v-if="toolbarAs.indexOf('item') >= 0"
-            >
+                v-if="toolbarAs.indexOf('item') >= 0">
               <v-icon icon="mdi-cube-outline"></v-icon>
             </v-btn>
           </div>
@@ -223,7 +220,7 @@ watch(() => props.modelValue, (newVal) => {
     <ItemView ref="itemWidget" :editor="tiptap" @finish="onInsertItem" @close="() => isOpenItem = false"/>
     <ShipView ref="shipWidget" :editor="tiptap" @finish="onInsertShip" @close="() => isOpenEmoji = false"/>
     <EmoteView ref="emoteWidget" :editor="tiptap" @finish="onInsertEmote" @close="() => isOpenEmoji = false"/>
-  </v-card>
+  </div>
 </template>
 
 <style lang="less">

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import Footer from "../components/Footer.vue";
+import Footer from "@/components/Footer.vue";
 import {useI18n} from "vue-i18n";
 
 const {t} = useI18n()

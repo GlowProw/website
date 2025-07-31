@@ -1,7 +1,7 @@
 <script>
 import {Editor} from "@tiptap/vue-3";
 
-import emojis from "../../public/config/emoji.json"
+import emojis from "@/../public/config/emoji.json"
 import EmoteItem from "./EmoteItem.vue";
 
 export default {

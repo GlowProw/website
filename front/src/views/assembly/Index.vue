@@ -1,10 +1,10 @@
 <script setup lang="ts">
 
-import Footer from "../../components/Footer.vue";
+import Footer from "@/components/Footer.vue";
 </script>
 
 <template>
-  <v-app class="background-flavor">
+  <v-app>
     <v-main class="mt-10">
       <router-view></router-view>
       <Footer></Footer>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
+import ShinyText from "@/components/ShinyText.vue";
 
 const {t} = useI18n()
 </script>
@@ -7,7 +8,12 @@ const {t} = useI18n()
 <template>
   <router-link to="/" class="logo mr-5">
     <img src="/favicon.svg" class="mr-1 icon"/>
-    <h1 class="name">{{ t('name') }}</h1>
+    <h1 class="name">
+      <ShinyText
+          :text="t('name')"
+          :speed="10">
+      </ShinyText>
+    </h1>
   </router-link>
 </template>
 

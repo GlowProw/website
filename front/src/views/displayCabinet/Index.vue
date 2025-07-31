@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Footer from "../../components/Footer";
+import Footer from "@/components/Footer";
 </script>
 
 <template>

@@ -1,6 +1,6 @@
 <script>
 import {nodeViewProps, NodeViewWrapper} from "@tiptap/vue-3";
-import EmoteItem from "../../../components/EmoteItem.vue";
+import EmoteItem from "@/components/EmoteItem.vue";
 
 export default {
   props: {

@@ -16,18 +16,18 @@ const router = express.Router();
  * 注册
  */
 router.post('/register', registerRateLimiter, verifyCaptcha, [
-    checkbody("username").isString().trim().isLength({min: 1, max: 40}),
-    checkbody('password').isString().trim().isLength({min: 1, max: 40}),
-    checkbody('email').optional().isEmail(),
+    checkbody("username").isString().trim().isLength({ min: 3, max: 40 }).matches(/^[a-zA-Z0-9_]+$/),
+    checkbody('password').isString().trim().isLength({ min: 8, max: 64 }),
+    checkbody('email').optional({checkFalsy: true}).isEmail().normalizeEmail(),
 ], async (req: Request, res: Response) => {
-    const validateErr = validationResult(req);
-
-    if (!validateErr.isEmpty())
-        return res.status(400).json({error: 1, code: 'register.bad', message: validateErr.array()});
-
-    const {username, password, email} = req.body;
-
     try {
+        const validateErr = validationResult(req);
+
+        if (!validateErr.isEmpty())
+            return res.status(400).json({error: 1, code: 'register.bad', message: validateErr.array()});
+
+        const {username, password, email} = req.body;
+
         const userRepository = AppDataSource.getRepository(Users);
         const existingUser = await userRepository.findOneBy({username});
 
@@ -36,14 +36,14 @@ router.post('/register', registerRateLimiter, verifyCaptcha, [
         }
 
         const passwordHash = await bcrypt.hash(password, 10);
-        const newUser = userRepository.create({username, passwordHash, email});
+        const newUser = userRepository.create({username, passwordHash, ...(email && {email})});
 
         await userRepository.save(newUser);
 
-        res.status(200).json({code: 0, message: 'register.ok'});
+        res.status(200).json({code: 'register.ok'});
     } catch (error) {
         logger.error('register error:', error);
-        res.status(500).json({code: 500, message: 'register.error'});
+        res.status(500).json({error: 1, code: 'register.error'});
     }
 });
 
@@ -54,13 +54,14 @@ router.post('/login', loginRateLimiter, verifyCaptcha, [
     checkbody("username").isString().trim().isLength({min: 1, max: 40}),
     checkbody('password').isString().trim().isLength({min: 1, max: 40}),
 ], async (req: Request, res: Response) => {
-    const validateErr = validationResult(req);
-    if (!validateErr.isEmpty())
-        return res.status(400).json({error: 1, code: 'login.bad', message: validateErr.array()});
-
-    const {username, password} = req.body;
-
     try {
+        const validateErr = validationResult(req);
+        if (!validateErr.isEmpty())
+            return res.status(400).json({error: 1, code: 'login.bad', message: validateErr.array()});
+
+        const {username, password} = req.body;
+
+
         const userRepository = AppDataSource.getRepository(Users);
         const user = await userRepository.findOneBy({username});
 
@@ -77,8 +78,7 @@ router.post('/login', loginRateLimiter, verifyCaptcha, [
         const token = jwt.sign({userId: user.id, username: user.username}, config.secret, {expiresIn: '24h'});
 
         res.status(200).json({
-            code: 0,
-            message: 'login.ok',
+            code: 'login.ok',
             data: {
                 token,
                 userId: user.id,
@@ -87,7 +87,7 @@ router.post('/login', loginRateLimiter, verifyCaptcha, [
         });
     } catch (error) {
         logger.error('login error:', error);
-        res.status(500).json({code: 500, message: 'login，error'});
+        res.status(500).json({error: 1, code: 'login.error'});
     }
 });
 

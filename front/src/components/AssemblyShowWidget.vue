@@ -3,8 +3,8 @@ import {useI18n} from "vue-i18n";
 import {computed, ref, toRaw, useSlots, watch} from "vue";
 import {useRoute} from "vue-router";
 
-import ItemIconWidget from "./snbWidget/itemIconWidget.vue";
-import ItemSlotBase from "./snbWidget/ItemSlotBase.vue";
+import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
+import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import EmptyView from "./EmptyView.vue";
 import ShipIconWidget from "./snbWidget/shipIconWidget.vue";
 
@@ -593,15 +593,21 @@ defineExpose({
                   </v-col>
                   <v-col>
                     <div>
-                      <ItemSlotBase size="80px" class="pa-2" v-if="workshopData.data.displaySlots[displayIndex] && !workshopData.data.displaySlots[displayIndex].id">
+                      <ItemSlotBase size="80px" class="pa-2"
+                                    v-if="!readonly && workshopData.data.displaySlots[displayIndex] && workshopData.data.displaySlots[displayIndex].id == null">
                         <v-card class="w-100 d-flex align-center justify-center"
                                 :disabled="readonly"
                                 @click="workshopData.displayModel = true;workshopData.frigateUpgradeInsertIndex = displayIndex">
                           <v-icon icon="mdi-plus"></v-icon>
                         </v-card>
                       </ItemSlotBase>
+                      <ItemSlotBase size="80px" class="pa-2" v-else-if="readonly && workshopData.data.displaySlots[displayIndex]">
+                        <v-card class="w-100 d-flex align-center justify-center">
+                          <v-icon icon="mdi-block-helper" class="opacity-30" size="20"></v-icon>
+                        </v-card>
+                      </ItemSlotBase>
 
-                      <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-else>
+                      <v-hover v-slot="{ isHovering, props : propsHoverClose }">
                         <v-card v-bind="propsHoverClose">
                           <ItemSlotBase size="80px" class="pa-1" v-if="display && display.id">
                             <ItemIconWidget :id="display.id"></ItemIconWidget>

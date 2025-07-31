@@ -4,21 +4,21 @@ import {useRoute, useRouter} from "vue-router";
 import {Item, Items} from "glow-prow-data/src/entity/Items.ts";
 import {computed, onMounted, ref, type Ref, type UnwrapRef} from "vue";
 
-import ItemSlotBase from "../../../components/snbWidget/ItemSlotBase.vue";
-import ItemIconWidget from "../../../components/snbWidget/itemIconWidget.vue";
-import MaterialIconWidget from "../../../components/snbWidget/materialIconWidget.vue";
-import EmptyView from "../../../components/EmptyView.vue";
-import FactionIconWidget from "../../../components/snbWidget/factionIconWidget.vue";
+import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
+import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
+import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
+import EmptyView from "@/components/EmptyView.vue";
+import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 
 import {Materials} from "glow-prow-data";
-import ItemModificationWidget from "../../../components/snbWidget/itemModificationWidget.vue";
-import PerksWidget from "../../../components/snbWidget/perksWidget.vue";
+import ItemModificationWidget from "@/components/snbWidget/itemModificationWidget.vue";
+import PerksWidget from "@/components/snbWidget/perksWidget.vue";
 
-import {useI18nUtils} from "../../../assets/sripts/i18nUtil.ts";
-import ItemInputWidget from "../../../components/snbWidget/itemInputWidget.vue";
-import TimeView from "../../../components/TimeView.vue";
-import ItemDamageTypeWidget from "../../../components/snbWidget/itemDamageTypeWidget.vue";
-import {storage} from "../../../assets/sripts";
+import {useI18nUtils} from "@/assets/sripts/i18nUtil";
+import ItemInputWidget from "@/components/snbWidget/itemInputWidget.vue";
+import TimeView from "@/components/TimeView.vue";
+import ItemDamageTypeWidget from "@/components/snbWidget/itemDamageTypeWidget.vue";
+import {storage} from "@/assets/sripts";
 
 const
     {t} = useI18n(),
@@ -472,7 +472,7 @@ const onStatisticsRawMaterial = () => {
                   <p class="text-no-wrap">分数</p>
                 </template>
                 <template v-slot:prepend>
-                  <img src="../../../assets/images/snb/icon-gearScore.png" width="25px" height="25px">
+                  <img src="@/assets/images/snb/icon-gearScore.png" width="25px" height="25px">
                 </template>
               </v-text-field>
             </template>

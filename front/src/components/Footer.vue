@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import I18nWidget from "./i18nWidget.vue";
+import ShinyText from "@/components/ShinyText.vue";
 
 const {t} = useI18n()
 </script>
@@ -12,7 +13,9 @@ const {t} = useI18n()
       <footer class="mt-10 mb-10">
         <v-row>
           <v-col cols="12" sm="12" md="5" lg="4" order="2" order-sm="2" order-lg="1">
-            <h2 class="mb-5">{{ t('name') }}</h2>
+            <h2 class="mb-5">
+              {{t('name')}}
+            </h2>
             <p class="mt-2 opacity-80">{{ t('footer.basic.description') }}</p>
             <p class="opacity-60">@2025-{{new Date().getFullYear()}} Glow Prow</p>
           </v-col>

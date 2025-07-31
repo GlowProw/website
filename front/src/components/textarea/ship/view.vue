@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import {nodeViewProps, NodeViewWrapper} from "@tiptap/vue-3";
-import ShipIconWidget from "../../snbWidget/shipIconWidget.vue";
+import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
 import {useI18n} from "vue-i18n";
-import ItemSlotBase from "../../snbWidget/ItemSlotBase.vue";
-import ItemNameRarity from "../../snbWidget/itemNameRarity.vue";
+import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
+import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
 
 const props = defineProps(nodeViewProps);
 const {t} = useI18n();

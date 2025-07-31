@@ -22,7 +22,7 @@ const onCheckI18nValue = (key) => {
   <v-card max-width="420" min-width="420" class="pa-2 mb-2 background-flavor">
     <v-card border color="hsl(from var(--main-color) h s calc(l * 0.3))">
       <template v-slot:image>
-        <img class="pointer-events-none" src="../../assets/images/portal-banner-background.png">
+        <img class="pointer-events-none" src="@/assets/images/portal-banner-background.png">
       </template>
       <template v-slot:title>
         <v-row class="text-lg-body-1" style="min-height: 60px">

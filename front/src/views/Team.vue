@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import {useAuthStore} from "../../stores";
+import {useAuthStore} from "~/stores";
 import {onMounted, type Ref, ref, triggerRef, type UnwrapRef} from "vue";
 import {useRouter} from "vue-router";
-import EmptyView from "../components/EmptyView.vue";
-import {api, http, storage, ws} from "../assets/sripts";
-import TimeView from "../components/TimeView.vue";
+import EmptyView from "@/components/EmptyView.vue";
+import {api, http, storage, ws} from "@/assets/sripts";
+import TimeView from "@/components/TimeView.vue";
 import {useI18n} from "vue-i18n";
 import type {VForm} from "vuetify/components";
-import Banner from "../components/Banner.vue";
-import Loading from "../components/Loading.vue";
+import Banner from "@/components/Banner.vue";
+import Loading from "@/components/Loading.vue";
 import Team from "./Team.vue";
 
 const authStore = useAuthStore(),
@@ -296,9 +296,6 @@ const onWss = () => {
 
     console.log('ws', data);
 
-    if (data.code)
-      data.code = data.code.replaceAll('.', '_');
-
     switch (data.type) {
       case 'new_team_up':
         messages.value.push(t('basic.tips.teamUp_pushSuccess'));
@@ -348,7 +345,7 @@ const onWss = () => {
         break;
       case 'error':
         console.error(data.message)
-        messages.value.push(t(`basic.tips.${'teamUp.error'.replaceAll('.', '_')}`, {
+        messages.value.push(t(`basic.tips.teamUp.error`, {
           context: data.message
         }))
         break;
@@ -358,7 +355,7 @@ const onWss = () => {
   ws.client.onclose = function (event: any) {
     service.value.status = -1;
     console.warn(event)
-    messages.value.push(t(`basic.tips.${'teamUp.error'.replaceAll('.', '_')}`, {
+    messages.value.push(t(`basic.tips.teamUp.error`, {
       context: 'client -> close'
     }))
   };
@@ -366,7 +363,7 @@ const onWss = () => {
   ws.client.onerror = function (error: any) {
     service.value.status = -1;
     console.error(error)
-    messages.value.push(t(`basic.tips.${'teamUp.error'.replaceAll('.', '_')}`, {
+    messages.value.push(t(`basic.tips.teamUp.error`, {
       context: 'client -> error'
     }))
   };

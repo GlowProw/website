@@ -5,16 +5,16 @@ import {useI18n} from "vue-i18n";
 import {Materials, Ships} from "glow-prow-data";
 import {useRoute, useRouter} from "vue-router";
 
-import EmptyView from "../../../components/EmptyView.vue";
-import ItemSlotBase from "../../../components/snbWidget/ItemSlotBase.vue";
-import ShipSailSpeedWidget from "../../../components/snbWidget/shipSailSpeedWidget.vue";
-import MaterialIconWidget from "../../../components/snbWidget/materialIconWidget.vue";
-import FactionIconWidget from "../../../components/snbWidget/factionIconWidget.vue";
-import ShipIconWidget from "../../../components/snbWidget/shipIconWidget.vue";
-import PerksWidget from "../../../components/snbWidget/perksWidget.vue";
-import ShipTopDownPerspectiveWidget from "../../../components/snbWidget/shipTopDownPerspectiveWidget.vue";
+import EmptyView from "@/components/EmptyView.vue";
+import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
+import ShipSailSpeedWidget from "@/components/snbWidget/shipSailSpeedWidget.vue";
+import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
+import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
+import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
+import PerksWidget from "@/components/snbWidget/perksWidget.vue";
+import ShipTopDownPerspectiveWidget from "@/components/snbWidget/shipTopDownPerspectiveWidget.vue";
 import {Ship} from "glow-prow-data/src/entity/Ships.ts";
-import {storage} from "../../../assets/sripts";
+import {storage} from "@/assets/sripts";
 
 const shipImages = import.meta.glob('@glow-prow-assets/ships/*.png', {eager: true});
 

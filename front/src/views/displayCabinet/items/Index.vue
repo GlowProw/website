@@ -1,13 +1,13 @@
 <script setup lang="ts">
 
-import ItemSlotBase from "../../../components/snbWidget/ItemSlotBase.vue";
+import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import {computed, onMounted, ref} from "vue";
 import {Items} from "glow-prow-data/src/entity/Items.ts";
 import {useI18n} from "vue-i18n";
-import Loading from "../../../components/Loading.vue";
+import Loading from "@/components/Loading.vue";
 import {useRoute} from "vue-router";
-import ItemIconWidget from "../../../components/snbWidget/itemIconWidget.vue";
-import EmptyView from "../../../components/EmptyView.vue";
+import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
+import EmptyView from "@/components/EmptyView.vue";
 
 const rarityImages = import.meta.glob('@/assets/images/item-rarity-*.png', {eager: true});
 const items: Items = Items,

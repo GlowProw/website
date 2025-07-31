@@ -8,7 +8,7 @@ import en_US_local from './lang/en_US.json';
 
 // 数据翻译
 import {en_US as en_US_snb, zh_CN as zh_CN_snb} from 'glow-prow-data-languages/src'
-import {storage} from "./assets/sripts";
+import {http, storage} from "./assets/sripts";
 
 export const messageCompiler = (message: any) => {
     return (ctx: MessageContext) => {

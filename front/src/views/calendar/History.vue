@@ -3,9 +3,9 @@ import {onMounted, type Ref, ref} from "vue";
 import {useI18n} from "vue-i18n";
 import {Seasons} from "@skullandbonestools/snbdata";
 import type {Season} from "@skullandbonestools/snbdata/dist/daos/seasons";
-import {http} from "../../assets/sripts";
-import Loading from "../../components/Loading.vue";
-import CalendarEventSLotWidget from "../../components/snbWidget/calendarEventSLotWidget.vue";
+import {http} from "@/assets/sripts";
+import Loading from "@/components/Loading.vue";
+import CalendarEventSLotWidget from "@/components/snbWidget/calendarEventSLotWidget.vue";
 
 interface EventOccurrence {
   month: number;
@@ -368,7 +368,7 @@ function getRemainingDays(): number | null {
                   <!--                <v-card v-for="event in day.events" :key="event" max-width="420" min-width="420" class="pa-2 mb-2 background-flavor">-->
                   <!--                  <v-card border color="hsl(from var(&#45;&#45;main-color) h s calc(l * 0.3))">-->
                   <!--                    <template v-slot:image>-->
-                  <!--                      <img class="pointer-events-none" src="../../assets/images/portal-banner-background.png">-->
+                  <!--                      <img class="pointer-events-none" src="@/assets/images/portal-banner-background.png">-->
                   <!--                    </template>-->
                   <!--                    <template v-slot:title>-->
                   <!--                      <v-row class="text-lg-body-1" style="min-height: 60px">-->

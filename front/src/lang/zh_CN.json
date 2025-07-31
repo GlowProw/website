@@ -19,27 +19,48 @@
       "submit": "确认"
     },
     "tips": {
-      "captcha_bad": "验证码错误",
-      "captcha_expired": "验证码过期",
-      "captcha_wrong": "输入的验证码错误",
-      "login_accountIncorrect": "登陆信息错误",
-      "login_ok": "登陆成功",
-      "login_error": "登陆错误: {context}",
-      "login_bad": "登陆错误: 请检查登陆信息格式",
-      "register_ok": "注册成功",
-      "register_userAlreadyHas": "注册帐号的名称已存在",
-      "register_error": "注册错误: {context}",
-      "register_bad": "注册错误: 请检查注册信息的格式要求",
-      "user_tokenExpired": "用户身份过期,请重新登陆",
-      "like_error": "点赞错误: {context}",
-      "like_bad": "点赞错误: {context}",
-      "request_rateLimited": "请求太快力，慢点",
-      "teamUp_pushSuccess": "发布成功",
-      "teamUp_newTeamUp": "船长，有新组队",
-      "teamUp_anonymous_rateLimit": "匿名发布过快，请{remainingTime}小时稍后再试",
-      "teamUp_account_rateLimit": "发布过快，请{remainingTime}分钟后再试",
-      "teamUp_authFailed": "Token 无效或已过期, 重新登陆",
-      "teamUp_error": "通信错误: {context}"
+      "publish": {
+        "ok": "发布成功",
+        "bad": "发布格式错误，请检查是否按照要求填写"
+      },
+      "captcha": {
+        "bad": "验证码错误",
+        "expired": "验证码过期",
+        "wrong": "输入的验证码错误"
+      },
+      "login": {
+        "ok": "登陆成功",
+        "bad": "登陆错误: 请检查登陆信息格式",
+        "wrong": "登陆信息错误",
+        "expired": "用户身份过期,请重新登陆",
+        "accountIncorrect": "登陆信息错误"
+      },
+      "register": {
+        "ok": "注册成功",
+        "userAlreadyHas": "注册帐号的名称已存在",
+        "error": "注册错误: {context}",
+        "bad": "注册错误: 请检查注册信息的格式要求"
+      },
+      "like": {
+        "ok": "赞处理成功",
+        "error": "点赞错误: {context}",
+        "bad": "点赞错误: {context}"
+      },
+      "user": {
+        "invalid": "错误用户",
+        "tokenExpired": "用户身份过期,请重新登陆"
+      },
+      "request": {
+        "rateLimited": "请求太快力，慢点"
+      },
+      "teamUp": {
+        "pushSuccess": "发布成功",
+        "newTeamUp": "船长，有新组队",
+        "anonymous_rateLimit": "匿名发布过快，请{remainingTime}小时稍后再试",
+        "account_rateLimit": "发布过快，请{remainingTime}分钟后再试",
+        "authFailed": "Token 无效或已过期, 重新登陆",
+        "error": "通信错误: {context}"
+      }
     }
   },
   "portal": {
@@ -136,6 +157,35 @@
   },
   "assembly": {
     "title": "配装厂",
+    "modes": {
+      "pvp": "战斗",
+      "pve": "生存"
+    },
+    "teamFormationMethods": {
+      "singlePlayer": "单人",
+      "multiPlayer": "多人"
+    },
+    "difficultyOfAcquisitions": {
+      "simple": "简单",
+      "medium": "中等",
+      "difficulties": "困难"
+    },
+    "archetypes": {
+      "dps": "输出",
+      "tank": "坦克",
+      "support": "支援"
+    },
+    "damageTypes": {
+      "electric": "雷电",
+      "explosive": "爆炸物",
+      "fire": "火",
+      "flooding": "进水",
+      "lifesteal": "吸血",
+      "piercing": "穿透",
+      "poison": "剧毒",
+      "repair": "维修",
+      "tearing": "撕裂"
+    },
     "workshop": {
       "title": "工作站"
     },

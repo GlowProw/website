@@ -2,7 +2,7 @@
 
 import {onMounted, ref} from "vue";
 import {useI18n} from "vue-i18n";
-import {http, storage} from "../assets/sripts";
+import {http, storage} from "@/assets/sripts";
 import {useRoute, useRouter} from "vue-router";
 
 const {t, locale} = useI18n(),

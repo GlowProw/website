@@ -1,23 +1,26 @@
 <script setup lang="ts">
 
-import AssemblyShowWidget from "../../components/AssemblyShowWidget.vue";
+import AssemblyShowWidget from "@/components/AssemblyShowWidget.vue";
 import {useRoute, useRouter} from "vue-router";
 import {computed, nextTick, onMounted, ref} from "vue";
 import {useI18n} from "vue-i18n";
-import {api, storage} from "../../assets/sripts";
-import {useHttpToken} from "../../assets/sripts/httpUtil";
-import {useAuthStore} from "../../../stores";
-import LikeWidget from "../../components/LikeWidget.vue";
+import {api} from "@/assets/sripts";
+import {useHttpToken} from "@/assets/sripts/httpUtil";
+import {useAuthStore} from "~/stores";
+import LikeWidget from "@/components/LikeWidget.vue";
 import {DisqusCount} from "vue3-disqus";
-import Textarea from "../../components/textarea/index.vue";
-import Loading from "../../components/Loading.vue";
-import ZoomableCanvas from "../../components/ZoomableCanvas.vue"
+import Textarea from "@/components/textarea/index.vue";
+import Loading from "@/components/Loading.vue";
+import ZoomableCanvas from "@/components/ZoomableCanvas.vue"
+import Silk from "@/components/Silk.vue";
+import {useI18nUtils} from "@/assets/sripts/i18nUtil";
 
 const route = useRoute(),
     router = useRouter(),
     http = useHttpToken(),
     authStore = useAuthStore(),
-    {t, locale} = useI18n()
+    {t, locale} = useI18n(),
+    {asString} = useI18nUtils()
 
 let assemblyDetailData = ref({
       uuid: '',
@@ -100,67 +103,79 @@ const delAssembly = async () => {
 </script>
 
 <template>
-  <v-breadcrumbs class="pt-5">
-    <v-container class="pa-0">
-      <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
-      <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item to="/assembly">{{ t('assembly.title') }}</v-breadcrumbs-item>
-      <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item>{{ t('assembly.detail.title') }}</v-breadcrumbs-item>
-    </v-container>
-  </v-breadcrumbs>
-  <v-divider></v-divider>
+  <v-card height="200px">
+    <template v-slot:image>
+      <Silk
+          :speed="3"
+          :scale=".7"
+          :color="'#1c1c1c'"
+          :noise-intensity="0.1"
+          :rotation="-.6"
+          class="bg-black">
+      </Silk>
+    </template>
+    <template v-slot:default>
+      <v-container class="pa-2 mt-4 position-relative">
+        <v-breadcrumbs class="pa-2">
+          <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
+          <v-breadcrumbs-divider></v-breadcrumbs-divider>
+          <v-breadcrumbs-item to="/assembly">{{ t('assembly.title') }}</v-breadcrumbs-item>
+          <v-breadcrumbs-divider></v-breadcrumbs-divider>
+          <v-breadcrumbs-item>{{ t('assembly.detail.title') }}</v-breadcrumbs-item>
+        </v-breadcrumbs>
+      </v-container>
 
-  <v-container>
-    <div v-show="assemblyLoading">
-      <div class="mt-10 mb-10" align="center">
-        <Loading size="120"></Loading>
-      </div>
-    </div>
+      <v-container class="pa-7">
+        <div v-show="assemblyLoading">
+          <div class="mt-10 mb-10" align="center">
+            <Loading size="120"></Loading>
+          </div>
+        </div>
 
-    <div v-show="!assemblyLoading">
-      <div class="ml-n2 mr-n2">
-        <v-toolbar color="" class="bg-transparent">
-          <h1 class="text-amber">{{ assemblyDetailData.name || 'none' }}</h1>
+        <div v-show="!assemblyLoading">
+          <div class="ml-n2 mr-n2">
+            <v-toolbar color="" class="bg-transparent">
+              <h1 class="text-amber text-h2">{{ assemblyDetailData.name || 'none' }}</h1>
 
-          <v-spacer></v-spacer>
+              <v-spacer></v-spacer>
 
-          <LikeWidget targetType="assembly"
-                      class="ml-2"
-                      v-if="authStore.isLogin"
-                      :targetId="assemblyDetailData.uuid"
-                      :userId="authStore.user.userId">
-            <template v-slot:activate>
-              <v-btn icon="mdi-thumb-up"></v-btn>
-            </template>
-            <template v-slot:unActivate>
-              <v-btn icon="mdi-thumb-up-outline"></v-btn>
-            </template>
-          </LikeWidget>
+              <LikeWidget targetType="assembly"
+                          class="ml-2"
+                          v-if="authStore.isLogin"
+                          :targetId="assemblyDetailData.uuid"
+                          :userId="authStore.user.userId">
+                <template v-slot:activate>
+                  <v-btn icon="mdi-thumb-up"></v-btn>
+                </template>
+                <template v-slot:unActivate>
+                  <v-btn icon="mdi-thumb-up-outline"></v-btn>
+                </template>
+              </LikeWidget>
 
-          <template v-if="authStore.isLogin && authStore.user.userId == assemblyDetailData.userId">
-            <v-btn icon="mdi-delete-outline" class="mr-5 text-red" :loading="delAssemblyLoading" @click="delAssembly"></v-btn>
+              <template v-if="authStore.isLogin && authStore.user.userId == assemblyDetailData.userId">
+                <v-btn icon="mdi-delete-outline" class="mr-5 text-red" :loading="delAssemblyLoading" @click="delAssembly"></v-btn>
 
-            <v-btn variant="flat" :to="`/assembly/workshop/${assemblyDetailData.uuid}/edit`">
-              <v-icon icon="mdi-pencil" class="mr-2"></v-icon>
-              编辑此配装
-            </v-btn>
-          </template>
+                <v-btn variant="flat" :to="`/assembly/workshop/${assemblyDetailData.uuid}/edit`">
+                  <v-icon icon="mdi-pencil" class="mr-2"></v-icon>
+                  编辑此配装
+                </v-btn>
+              </template>
 
-          <v-btn to="#commit" class="ml-2">
-            <v-icon icon="mdi-comment-outline" class="mr-2"></v-icon>
-            <DisqusCount :lazy="true"
-                         :language="language"
-                         :identifier="`/assembly/uuid/${assemblyDetailData.uuid}`"></DisqusCount>
-          </v-btn>
-        </v-toolbar>
-      </div>
-
-    </div>
-  </v-container>
+              <v-btn to="#commit" class="ml-2">
+                <v-icon icon="mdi-comment-outline" class="mr-2"></v-icon>
+                <DisqusCount :lazy="true"
+                             :language="language"
+                             :identifier="`/assembly/uuid/${assemblyDetailData.uuid}`"></DisqusCount>
+              </v-btn>
+            </v-toolbar>
+          </div>
+        </div>
+      </v-container>
+    </template>
+  </v-card>
 
   <!-- Assembly Preview S -->
-  <v-card class="card-enlargement-flavor mb-5 ml-n10 mr-n10 ">
+  <v-card class="card-enlargement-flavor mt-n3 mb-5 ml-n10 mr-n10 ">
     <ZoomableCanvas
         style="height: 600px"
         :minScale=".8"
@@ -180,17 +195,27 @@ const delAssembly = async () => {
     <div>
       <v-row>
         <v-col cols="12" sm="12" lg="8" xl="8">
-             <Textarea class="mt-5 mb-2"
-                       :readonly="true"
-                       v-model="assemblyDetailData.description"
-                       placeholder="输入描述描述"></Textarea>
+          <div class="ga-2 mb-6">
+            <div>
+              <v-chip class="mr-2 mb-2 pt-1 pb-1 pl-5 pr-5" v-for="(i, index) in assemblyDetailData.tags">
+                {{
+                  asString([
+                    `${i}`,
+                    `assembly.teamFormationMethods.${i.split('_')[1]}`,
+                    `assembly.archetypes.${i.split('_')[1]}`,
+                    `assembly.modes.${i.split('_')[0]}`,
+                    `assembly.damageTypes.${i.split('_')[1]}`,
+                    `snb.seasons.${i.split('_')[1]}`,
+                  ], true)
+                }}
+              </v-chip>
+            </div>
+          </div>
 
-          <!--            <div id="commit">-->
-          <!--              <DisqusComments :lazy="true"-->
-          <!--                              :language="language"-->
-          <!--                              :sso-config="sso"-->
-          <!--                              :identifier="`/assembly/uuid/${assemblyDetailData.uuid}`"/>-->
-          <!--            </div>-->
+          <Textarea class="mt-5 mb-2"
+                    :readonly="true"
+                    v-model="assemblyDetailData.description"
+                    placeholder="输入描述描述"></Textarea>
         </v-col>
         <v-col cols="12" sm="12" lg="4" xl="4">
           <v-text-field
@@ -200,24 +225,30 @@ const delAssembly = async () => {
               variant="underlined">
           </v-text-field>
 
-          <div class="ga-2 mb-6">
-            <v-badge color="transparent" dot class="badge-flavor mr-2 pt-1 pb-1 pl-5 pr-5" v-for="(i, index) in assemblyDetailData.tags">
-              {{ i }}
-            </v-badge>
-          </div>
-
           <v-text-field
-              label="创建时间"
-              v-model="assemblyDetailData.createdTime"
+              :value="new Date(assemblyDetailData.createdTime).toLocaleString()"
               readonly
+              hide-details
               variant="underlined">
+            <template v-slot:prepend>
+              <v-icon icon="mdi-calendar-range"></v-icon>
+            </template>
+            <template v-slot:prepend-inner>
+              <p class="text-no-wrap">创建时间:</p>
+            </template>
           </v-text-field>
 
           <v-text-field
-              label="更新时间"
-              v-model="assemblyDetailData.updatedTime"
+              :value="new Date(assemblyDetailData.updatedTime).toLocaleString()"
               readonly
+              hide-details
               variant="underlined">
+            <template v-slot:prepend>
+              <v-icon icon="mdi-calendar-range"></v-icon>
+            </template>
+            <template v-slot:prepend-inner>
+              <p class="text-no-wrap">更新时间:</p>
+            </template>
           </v-text-field>
         </v-col>
       </v-row>

@@ -1,5 +1,5 @@
 <script setup>
-import {useLikeStore} from '../../stores/likeStore';
+import {useLikeStore} from '~/stores/likeStore.js';
 import {ref, useSlots, watch} from 'vue';
 import Loading from "./Loading.vue";
 import {useI18n} from "vue-i18n";
@@ -37,7 +37,7 @@ const onReady = async () => {
   } catch (e) {
     console.error(e)
     messages.value.push({
-      text: t(`basic.tips.${'like.error'.replaceAll('.', '_')}`, {
+      text: t(`basic.tips.${e.response.data.code}`, {
         context: e instanceof AxiosError ? e.response.data.code : e.code ||  e.message || ''
       }),
       color: 'error'
@@ -60,7 +60,7 @@ const handleLike = async () => {
   } catch (e) {
     console.error(e)
     messages.value.push({
-      text: t(`basic.tips.${'like.error'.replaceAll('.', '_')}`, {
+      text: t(`basic.tips.${e.response.data.code}`, {
         context: e instanceof AxiosError ? e.response.data.code : e.code ||  e.message || ''
       }),
       color: 'error'

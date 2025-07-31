@@ -60,7 +60,7 @@
     width: 100%;
     height: 0;
     padding: 10% 0 0;
-    background: url(../assets/images/portal-banner-background.png) 50% 0 no-repeat;
+    background: url(@/assets/images/portal-banner-background.png) 50% 0 no-repeat;
     background-size: cover;
   }
 

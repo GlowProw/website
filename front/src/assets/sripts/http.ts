@@ -36,7 +36,7 @@ export default class Http extends Config {
     get globalUrl(): any {
         try {
             if (!this.CONF) {
-                throw Error('not data')
+                 throw new Error('not data')
             }
 
             switch (Config.NODE) {

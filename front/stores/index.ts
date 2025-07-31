@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, ref, triggerRef } from 'vue'
-import { storage } from "../src/assets/sripts"
+import { storage } from "@/assets/sripts"
 
 export const useAuthStore = defineStore('account', () => {
     // 状态 - 使用更明确的类型定义
