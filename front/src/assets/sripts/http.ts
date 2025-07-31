@@ -85,7 +85,6 @@ export default class Http extends Config {
             method: options.method,
             data: options.data,
             params: options.params,
-            body: options.body,
         });
     }
 

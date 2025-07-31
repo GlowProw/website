@@ -11,6 +11,9 @@ export default class Storage {
         return this
     }
 
+    /**
+     * session
+     */
     get session() {
         return {
             /**
@@ -33,7 +36,7 @@ export default class Storage {
                 let data: any | null = JSON.parse(
                     sessionStorage.getItem(this.STORAGENAME + name)
                 );
-                let result: { code: number } = {code: 0, data: data};
+                let result: { code: number, data?: any } = {code: 0, data: data};
                 if (data == null || data === '' || data === undefined) {
                     result = {code: -1}
                 }
@@ -57,7 +60,6 @@ export default class Storage {
 
     /**
      * local
-     * @returns {{set: (function(*, *): {code: number, data: {time: number, value: *}}), get: (function(*): {code: number, data: any}), rem: ((function(*): Promise<void>)|*)}}
      */
     get local() {
         return {
@@ -82,7 +84,7 @@ export default class Storage {
                 let data: any | null = JSON.parse(
                     localStorage.getItem(this.STORAGENAME + name)
                 );
-                let result: { code: number } = {code: 0, data};
+                let result: { code: number, data?: any } = {code: 0, data};
                 if (data == null || data === '' || data === undefined) {
                     result = {code: -1}
                 }

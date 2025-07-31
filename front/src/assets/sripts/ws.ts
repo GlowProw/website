@@ -1,4 +1,4 @@
-import {http} from "./index.ts";
+import {http} from "./index";
 
 type WebSocketEventMap = {
     open: (event: Event) => void;

@@ -1,15 +1,26 @@
 {
   "files": [],
+  "esModuleInterop": false,
   "compilerOptions": {
+    "allowJs": true,
+    "forceConsistentCasingInFileNames": true,
     "target": "es6",
     "module": "commonjs",
     "baseUrl": ".",
+    "lib": [
+      "es6",
+      "dom",
+      "es2015.promise"
+    ],
     "paths": {
       "@/*": ["src/*"],
       "~/*": ["/*"]
     },
     "outDir": "dist",
+    "resolveJsonModule": true,
     "esModuleInterop": true,
+    "moduleResolution": "node",
+    "sourceMap": false,
     "allowSyntheticDefaultImports": true
   },
   "include": [

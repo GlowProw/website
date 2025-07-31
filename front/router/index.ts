@@ -29,7 +29,8 @@ import AboutPage from '../src/views/About.vue'
 import AchievementPage from '../src/views/Achievement.vue'
 import NotFoundPage from '../src/views/NotFound.vue';
 import {useI18n} from "vue-i18n";
-import {useAuthStore} from "~/stores";
+
+import {useAuthStore} from "@/../stores";
 
 
 const isLoginBeforeEnter = function (to: any, from: any, next) {
@@ -214,7 +215,7 @@ const router = createRouter({
                 } else if (savedPosition) {
                     resolve(savedPosition)
                 } else {
-                    resolve({ top: 0, behavior: 'smooth' })
+                    resolve({top: 0, behavior: 'smooth'})
                 }
             }, 300)
         })

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {useAuthStore} from "~/stores";
+import {useAuthStore} from "@/../stores";
 import {onMounted, type Ref, ref, triggerRef, type UnwrapRef} from "vue";
 import {useRouter} from "vue-router";
 import EmptyView from "@/components/EmptyView.vue";

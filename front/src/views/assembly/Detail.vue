@@ -6,7 +6,7 @@ import {computed, nextTick, onMounted, ref} from "vue";
 import {useI18n} from "vue-i18n";
 import {api} from "@/assets/sripts";
 import {useHttpToken} from "@/assets/sripts/httpUtil";
-import {useAuthStore} from "~/stores";
+import {useAuthStore} from "@/../stores";
 import LikeWidget from "@/components/LikeWidget.vue";
 import {DisqusCount} from "vue3-disqus";
 import Textarea from "@/components/textarea/index.vue";

@@ -1,5 +1,5 @@
 import {defineStore} from 'pinia';
-import {http} from "@/assets/sripts";
+import {http} from "@/assets/sripts/index.ts";
 import {useHttpToken} from "@/assets/sripts/httpUtil";
 import {useAuthStore} from "./index";
 
@@ -18,7 +18,7 @@ export const useLikeStore = defineStore('like', {
             const authStore = useAuthStore()
 
             if (!authStore.isLogin)
-                return ;
+                return;
 
             const httpToken = useHttpToken()
             const result = await httpToken.get(`likes/check?userId=${userId}&targetType=${targetType}&targetId=${targetId}`);
@@ -39,7 +39,7 @@ export const useLikeStore = defineStore('like', {
             const authStore = useAuthStore()
 
             if (!authStore.isLogin)
-                return ;
+                return;
 
             const httpToken = useHttpToken()
             const result = await httpToken.post('likes/toggle', {
