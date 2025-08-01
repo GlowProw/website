@@ -56,6 +56,7 @@ let teams: Ref<Team[]> = ref([]),
         {label: t('teamUp.tags.sideQuest'), value: 'sideQuest'},
         {label: t('teamUp.tags.reward'), value: 'reward'},
         {label: t('teamUp.tags.fortressRaiding'), value: 'fortressRaiding'},
+        {label: t('teamUp.tags.transaction'), value: 'transaction'},
         {label: t('teamUp.tags.other'), value: 'other'}
       ],
       time: [
@@ -63,7 +64,9 @@ let teams: Ref<Team[]> = ref([]),
         {value: 30, label: t('teamUp.time.minutes', {count: 30})},
         {value: 60, label: t('teamUp.time.minutes', {count: 60})},
         {value: 120, label: t('teamUp.time.minutes', {count: 120})},
-        {value: 60 * 24, label: t('teamUp.time.day', {count: 1})}
+        {value: 60 * 24, label: t('teamUp.time.day', {count: 1})},
+        {value: 3 * 60 * 24, label: t('teamUp.time.day', {count: 3})},
+        {value: 7 * 60 * 24, label: t('teamUp.time.day', {count: 7})}
       ]
     },
     pushModel = ref(false),

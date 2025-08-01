@@ -32,7 +32,7 @@ const teamConfig = {
     // 可用的标签类型
     tags: [
         'pve', 'pvp', 'timeWander', 'plotTask', 'sideQuest',
-        'reward', 'fortressRaiding', 'other'
+        'reward', 'fortressRaiding', 'transaction', 'other'
     ],
 }
 
