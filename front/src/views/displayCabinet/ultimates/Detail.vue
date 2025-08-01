@@ -4,17 +4,10 @@ import {computed, onMounted, type Ref, ref, type UnwrapRef} from "vue";
 import {useI18n} from "vue-i18n";
 import {Materials, Ultimates} from "glow-prow-data";
 import {useRoute, useRouter} from "vue-router";
-
-import EmptyView from "@/components/EmptyView.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
-import ShipSailSpeedWidget from "@/components/snbWidget/shipSailSpeedWidget.vue";
-import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
-import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
-import PerksWidget from "@/components/snbWidget/perksWidget.vue";
-import ShipTopDownPerspectiveWidget from "@/components/snbWidget/shipTopDownPerspectiveWidget.vue";
-import {Ship} from "glow-prow-data/src/entity/Ships.ts";
 import {storage} from "@/assets/sripts";
 import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
+import {Ultimate} from "glow-prow-data/src/entity/Ultimates";
 
 const ultimateImages = import.meta.glob('@glow-prow-assets/ships/*.*', {eager: true});
 
@@ -35,7 +28,7 @@ let
       img: '',
       loading: false
     }),
-    ultimateDetailData: Ref<Ship> = ref(ultimatesData['dhow'] as Ship),
+    ultimateDetailData: Ref<Ultimate> = ref(ultimatesData['hunter'] as Ultimate),
     isShowShipRawList = ref(false),
 
     // 蓝图
@@ -43,8 +36,6 @@ let
 
 onMounted(() => {
   const {id} = route.params;
-
-  console.log(route)
 
   if (!id) {
     router.push('/')
@@ -112,7 +103,7 @@ const onUltimateHistory = () => {
               {{ ultimateDetailPageData.id || 'none' }}
             </p>
 
-            <!--            <v-chip inline class="badge-flavor text-center text-black tag-badge pl-3" v-if="ultimatesData[ultimateDetailPageData.id].size">{{ t(`displayCabinet.size.${ultimatesData[ultimateDetailPageData.id].size}`) }}</v-chip>-->
+            <v-chip class="badge-flavor text-center tag-badge text-black" v-if="ultimateDetailData.rarity">{{ t(`displayCabinet.rarity.${ultimateDetailData.rarity}`) }}</v-chip>
           </v-col>
           <v-spacer></v-spacer>
         </v-row>
@@ -129,14 +120,14 @@ const onUltimateHistory = () => {
 
             <v-row>
               <ItemSlotBase size="150px" class="mr-3">
-<!--                <UltimateIconWidget :id="ultimateDetailPageData.id" class="pa-2"-->
-<!--                                    :is-click-open-detail="false"-->
-<!--                                    :isShowOpenDetail="false"-->
-<!--                                    :isShowDescription="false"></UltimateIconWidget>-->
+                <UltimateIconWidget :id="ultimateDetailPageData.id" class="pa-2"
+                                    :is-click-open-detail="false"
+                                    :isShowOpenDetail="false"
+                                    :isShowDescription="false"></UltimateIconWidget>
               </ItemSlotBase>
               <v-col>
                 <p class="text-pre-wrap mb-4">
-                  {{ t(`snb.ultimates.${ultimateDetailPageData.id}.description.general`) }}
+                  {{ t(`snb.ultimates.${ultimateDetailPageData.id}.description`) }}
                 </p>
               </v-col>
             </v-row>
@@ -144,74 +135,56 @@ const onUltimateHistory = () => {
 
             <v-row>
               <v-col cols="12" sm="12" lg="6" xl="6">
-<!--                <template v-if="ultimateDetailData.id">-->
-<!--                  <v-text-field :value="ultimateDetailData.id" readonly-->
-<!--                                hide-details-->
-<!--                                variant="underlined" density="compact">-->
-<!--                    <template v-slot:append-inner>-->
-<!--                      <p class="text-no-wrap">ID</p>-->
-<!--                    </template>-->
-<!--                  </v-text-field>-->
-<!--                </template>-->
-
+                <template v-if="ultimateDetailData.id">
+                  <v-text-field :value="ultimateDetailData.id" readonly
+                                hide-details
+                                variant="underlined" density="compact">
+                    <template v-slot:append-inner>
+                      <p class="text-no-wrap">ID</p>
+                    </template>
+                  </v-text-field>
+                </template>
               </v-col>
             </v-row>
           </v-col>
-<!--          <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">-->
-<!--            <v-card class="mb-4 pl-3" v-if="ultimateDetailData.bySeason">-->
-<!--              <v-text-field :value="t(`snb.seasons.${ultimateDetailData.bySeason}`) || 'none'" readonly-->
-<!--                            hide-details-->
-<!--                            variant="solo-filled">-->
-<!--                <template v-slot:prepend>-->
-<!--                  <p class="text-no-wrap">出自</p>-->
-<!--                </template>-->
-<!--                <template v-slot:append-inner>-->
-<!--                  <p class="text-no-wrap">赛季</p>-->
-<!--                </template>-->
-<!--              </v-text-field>-->
-<!--            </v-card>-->
+          <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
+            <v-card class="mb-4 pl-3" v-if="ultimateDetailData.bySeason">
+              <v-text-field :value="t(`snb.seasons.${ultimateDetailData.bySeason.id}`) || 'none'" readonly
+                            hide-details
+                            tile
+                            variant="solo-filled">
+                <template v-slot:prepend>
+                  <p class="text-no-wrap">出自</p>
+                </template>
+                <template v-slot:append-inner>
+                  <p class="text-no-wrap">赛季</p>
+                </template>
+              </v-text-field>
+            </v-card>
 
-<!--            <template v-if="bluePrint">-->
-<!--              <v-text-field :value="bluePrint" readonly-->
-<!--                            hide-details-->
-<!--                            variant="underlined" density="compact">-->
-<!--                <template v-slot:append-inner>-->
-<!--                  <p class="text-no-wrap">蓝图</p>-->
-<!--                </template>-->
-<!--                <template v-slot:append>-->
-<!--                  <ItemSlotBase :size="10" class="pa-0">-->
-<!--                    <v-icon icon="mdi-book"></v-icon>-->
-<!--                  </ItemSlotBase>-->
-<!--                </template>-->
-<!--              </v-text-field>-->
-<!--            </template>-->
-<!--            <v-text-field :value="ultimateDetailData.requiredRank || 'none'" readonly-->
-<!--                          hide-details-->
-<!--                          variant="underlined" density="compact">-->
-<!--              <template v-slot:append-inner>-->
-<!--                <p class="text-no-wrap">最低使用等级</p>-->
-<!--              </template>-->
-<!--            </v-text-field>-->
-<!--            <v-text-field :value="ultimateDetailData.dateAdded" readonly-->
-<!--                          hide-details-->
-<!--                          variant="underlined" density="compact">-->
-<!--              <template v-slot:append-inner>-->
-<!--                <p class="text-no-wrap">添加日期</p>-->
-<!--              </template>-->
-<!--            </v-text-field>-->
-<!--            <v-text-field :value="ultimateDetailData.lastUpdated" readonly-->
-<!--                          hide-details-->
-<!--                          variant="underlined" density="compact">-->
-<!--              <template v-slot:append-inner>-->
-<!--                <p class="text-no-wrap">更新日期</p>-->
-<!--              </template>-->
-<!--            </v-text-field>-->
+            <v-text-field :value="ultimateDetailData.chargeRequired" readonly
+                          hide-details
+                          variant="underlined" density="compact">
+              <template v-slot:append-inner>
+                <p class="text-no-wrap">获取所需积分</p>
+              </template>
+            </v-text-field>
 
-<!--            <template v-if="ultimateDetailData.perks">-->
-<!--              <p class="mt-5 mb-1 font-weight-bold">词条 ({{ ultimateDetailData.perks.length || 0 }})</p>-->
-<!--              <PerksWidget :data="ultimateDetailData"></PerksWidget>-->
-<!--            </template>-->
-<!--          </v-col>-->
+            <v-text-field :value="ultimateDetailData.dateAdded" readonly
+                          hide-details
+                          variant="underlined" density="compact">
+              <template v-slot:append-inner>
+                <p class="text-no-wrap">添加日期</p>
+              </template>
+            </v-text-field>
+            <v-text-field :value="ultimateDetailData.lastUpdated" readonly
+                          hide-details
+                          variant="underlined" density="compact">
+              <template v-slot:append-inner>
+                <p class="text-no-wrap">更新日期</p>
+              </template>
+            </v-text-field>
+          </v-col>
         </v-row>
       </v-container>
     </div>

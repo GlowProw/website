@@ -56,11 +56,11 @@ const ultimateImages = import.meta.glob('@glow-prow-assets/ultimates/*.*', {eage
   </v-breadcrumbs>
   <v-divider></v-divider>
   <v-container class="mb-10">
-    <v-row>
+    <v-row class="mt-5">
       <v-col cols="12" lg="5" xl="5">
         <h1 class="btn-flavor ultimates-title">终极技能</h1>
         <div class="w-75">
-          <p>"技能。"</p>
+          <p>"船长使用终极技能击败你对手！"</p>
         </div>
       </v-col>
       <v-col cols="12" lg="7" xl="7">

@@ -79,6 +79,7 @@ const getCurrentSeason = (): Season | null => {
     const startDate = new Date(season.startDate).getTime();
     const endDate = new Date(season.endDate).getTime();
 
+    console.log(season)
     if (currentTime >= startDate && currentTime <= endDate) {
       currentlySeason.value = season;
       return season;

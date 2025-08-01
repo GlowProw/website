@@ -1018,10 +1018,15 @@ defineExpose({
                     interactive
                     open-on-click>
                   <template v-slot:activator="{ props: propsSlot }">
-                    <ItemSlotBase id="ship_select" size="80px" class="pa-2" v-if="!workshopData.data.ultimateSlot">
+                    <ItemSlotBase id="ship_select" size="80px" class="pa-2" v-if="!readonly && !workshopData.data.ultimateSlot">
                       <v-card class="w-100 d-flex align-center justify-center" v-bind="propsSlot"
                               :disabled="readonly">
                         <v-icon icon="mdi-plus" size="30"></v-icon>
+                      </v-card>
+                    </ItemSlotBase>
+                    <ItemSlotBase size="80px" class="pa-2 d-flex justify-center align-center" v-else-if="readonly && !workshopData.data.ultimateSlot">
+                      <v-card class="w-100 h-100 d-flex align-center justify-center">
+                        <v-icon icon="mdi-block-helper" class="opacity-30" size="20"></v-icon>
                       </v-card>
                     </ItemSlotBase>
                     <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-else>

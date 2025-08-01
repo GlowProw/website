@@ -19,6 +19,16 @@
       "submit": "确认"
     },
     "tips": {
+      "comment": {
+        "ok": "发布成功",
+        "bad": "发布格式错误，请检查内容是否符合要求",
+        "notFound": "回复的目标没有这样评论",
+        "notFoundOrNotOwner": "没有对应评论或用户",
+        "error": "评论错误: {context}",
+        "delete": {
+          "ok": "删除成功"
+        }
+      },
       "publish": {
         "ok": "发布成功",
         "bad": "发布格式错误，请检查是否按照要求填写"
@@ -125,6 +135,12 @@
       "leftSideWeapon": "左侧武器",
       "rightSideWeapon": "右侧武器",
       "aftWeapon": "后方武器"
+    },
+    "ultimate": {
+      "title": "终结技详情"
+    },
+    "ultimates": {
+      "title": "终结技列表"
     }
   },
   "teamUp": {
