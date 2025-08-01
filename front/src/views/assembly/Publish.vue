@@ -9,8 +9,8 @@ import {StorageAssemblyType} from "@/assets/sripts/storage_assembly";
 import {useHttpToken} from "@/assets/sripts/httpUtil";
 import ZoomableCanvas from "@/components/ZoomableCanvas.vue";
 import Silk from "@/components/Silk.vue";
-import {Seasons} from "glow-prow-data";
 import {useI18nUtils} from "@/assets/sripts/i18nUtil";
+import AssemblyTagsWidget from "@/components/AssemblyTagsWidget.vue";
 
 const route = useRoute(),
     router = useRouter(),
@@ -28,23 +28,6 @@ let publishData = ref({
       tags: any[],
       data: {}
     }),
-    selectedChips = ref([]),
-    tagsConfig = {
-      seasons: Object.keys(Seasons),
-      archeTypes: ['dps', 'tank', 'support'],
-      difficultyOfAcquisitions: ['simple', 'medium', 'difficulties'],
-      damageTypes: [
-        'explosive',
-        'flooding',
-        'fire',
-        'tearing',
-        'piercing',
-        'electric',
-        'lifesteal',
-        'poison',
-        'repair',
-      ]
-    },
     dataLoading = ref(false),
     publishLoading = ref(false),
     assemblyData = ref(null),
@@ -87,11 +70,7 @@ const onLoadData = () => {
 
     if (assemblyData && assemblyData.value) {
       assemblyWorkshopRef.value.onLoadJson(assemblyData.value.data.data)
-      publishData.value = {
-        ...publishData.value,
-        ...assemblyData.value.data,
-      }
-      selectedChips.value = assemblyData.value.data.tags
+      publishData.value = assemblyData.value.data
     }
   }
 
@@ -104,11 +83,10 @@ const onLoadData = () => {
 const onEdit = async () => {
   try {
     publishLoading.value = true
-
     let editPublishData: any = publishData.value;
 
     // 处理数据
-    editPublishData.data = JSON.stringify(editPublishData.assembly) // as JSON
+    editPublishData.data = JSON.stringify(editPublishData.data) // as JSON
 
     const result = await httpToken.post(api['assembly_edit'], {
           data: editPublishData
@@ -144,7 +122,7 @@ const onPublish = async () => {
             name: publishData.value.name,
             description: publishData.value.description,
             data: JSON.stringify(assemblyData.value.data.data),
-            tags: publishData.value.tags.join(','),
+            tags: publishData.value.tags,
           }
         }),
         d = result.data;
@@ -168,29 +146,11 @@ const onPublish = async () => {
 }
 
 /**
- * 处理标签难度
- */
-const onTagsDifficultyOfAcquisition = (value: string) => {
-  if (value == null) {
-    let index = publishData.value.tags.findIndex(i => i.indexOf('difficultyOfAcquisition_') >= 0);
-    publishData.value.tags.splice(index, 1)
-    return;
-  }
-
-  if (publishData.value.tags.filter(i => i.indexOf('difficultyOfAcquisition_') >= 0)) {
-    let index = publishData.value.tags.findIndex(i => i.indexOf('difficultyOfAcquisition_') >= 0);
-    publishData.value.tags.splice(index, 1)
-  }
-
-  publishData.value.tags.splice(publishData.value.tags.length + 1, 0, `difficultyOfAcquisition_${value}`)
-}
-
-/**
  * 处理tab事件
  * @param data
  */
 const onUpdateTags = (data: any) => {
-  publishData.value.tags = [...new Set([...selectedChips.value, ...data])];
+  publishData.value.tags = data;
 }
 </script>
 
@@ -322,65 +282,9 @@ const onUpdateTags = (data: any) => {
           <p class="font-weight-bold  mt-5 text-amber">快速选择标签</p>
           <p class="font-weight-light mt-1 mb-1 opacity-80">通过快速选择模版来创建配装标签</p>
 
-          <v-chip-group
-              v-model="selectedChips"
-              @update:modelValue="onUpdateTags"
-              column
-              multiple>
-            <div class="mt-3 w-100">
-              <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">配装适用模式</p>
-              <div class="mt-3 d-flex ga-2">
-                <v-chip filter size="small" color="primary" v-for="(i, index) in ['pvp', 'pve']" :value="i">{{ i.toUpperCase() }}</v-chip>
-              </div>
-            </div>
-
-            <div class="mt-3 w-100">
-              <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">配装组队</p>
-              <div class="mt-3 d-flex ga-2">
-                <v-chip size="small" color="primary" v-for="(i, index) in ['singlePlayer', 'multiPlayer']"
-                        :value="`teamFormationMethod_${i}`">
-                  {{ t(`assembly.teamFormationMethods.${i}`) }}
-                </v-chip>
-              </div>
-            </div>
-
-            <div class="mt-3 w-100">
-              <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">适用赛季</p>
-              <div class="mt-3 ga-2">
-                <v-chip filter size="small" color="primary" v-for="(i, index) in tagsConfig.seasons" :value="`season_${i}`">{{ t(`snb.seasons.${i}`) }}</v-chip>
-              </div>
-            </div>
-
-            <div class="mt-3">
-              <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">伤害类型</p>
-              <div class="mt-3 ga-2">
-                <v-chip filter size="small" color="primary" v-for="(i, index) in tagsConfig.damageTypes" :value="`damageType_${i}`">{{ t(`assembly.damageTypes.${i}`) }}</v-chip>
-              </div>
-            </div>
-
-            <div class="mt-3 w-100">
-              <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">船只定位</p>
-              <div class="mt-3 d-flex ga-2">
-                <v-chip filter size="small" color="primary" v-for="(i, index) in tagsConfig.archeTypes" :value="`archetype_${i}`">{{ t(`assembly.archetypes.${i}`) }}</v-chip>
-              </div>
-            </div>
-
-            <div class="mt-5 w-100">
-              <!--              <v-select @update:modelValue="onTagsDifficultyOfAcquisition"-->
-              <!--                        label="配装获取难度"-->
-              <!--                        placeholder="配装获取难度"-->
-              <!--                        variant="plain"-->
-              <!--                        clearable-->
-              <!--                        :items="tagsConfig.difficultyOfAcquisitions">-->
-              <!--                <template v-slot:label></template>-->
-              <!--                <template v-slot:item="{ props: itemProps, item }">-->
-              <!--                  <v-list-item v-bind="itemProps">-->
-              <!--                    {{ t(`assembly.difficultyOfAcquisitions.${item.raw}`) }}-->
-              <!--                  </v-list-item>-->
-              <!--                </template>-->
-              <!--              </v-select>-->
-            </div>
-          </v-chip-group>
+          <AssemblyTagsWidget
+              :tags="publishData.tags"
+              @change="onUpdateTags"></AssemblyTagsWidget>
         </v-col>
       </v-row>
     </v-form>

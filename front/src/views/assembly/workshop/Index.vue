@@ -292,35 +292,37 @@ const onWorkshopDelete = () => {
               }">
         <AssemblyShowWidget ref="assemblyWorkshopRef"></AssemblyShowWidget>
       </ZoomableCanvas>
-      <v-divider></v-divider>
-      <v-container>
-        <v-row justify="center">
-          <v-col cols="auto">
-            <v-btn density="comfortable"
-                   @click="onWorkshopPos"
-                   icon="mdi-restore"></v-btn>
-
-          </v-col>
-          <v-col cols="auto" class="ml-4 mr-3">
-            <v-btn @click="workshopHeight <= 600 ? workshopHeight += 100 : null" density="comfortable" icon>
-              <v-icon icon="mdi-arrow-expand-vertical"></v-icon>
-            </v-btn>
-            <v-btn density="comfortable"
-                   class="ml-1 mr-1"
-                   @click="onWorkshopFullScreen"
-                   :icon="`mdi-${!isWorkshopFillScreen ? 'fullscreen' : 'fullscreen-exit'}`"></v-btn>
-            <v-btn @click="workshopHeight >= 400 ? workshopHeight -= 100 : null" density="comfortable" icon>
-              <v-icon icon="mdi-arrow-collapse-vertical"></v-icon>
-            </v-btn>
-          </v-col>
-          <v-col cols="auto">
-            <v-btn density="comfortable"
-                   @click="onWorkshopDelete"
-                   icon="mdi-delete"></v-btn>
-          </v-col>
-        </v-row>
-      </v-container>
     </v-card>
+  </div>
+  <div class="position-fixed left-0 bottom-0 right-0 bg-black" style="z-index: 11">
+    <v-divider></v-divider>
+    <v-container>
+      <v-row justify="center">
+        <v-col cols="auto">
+          <v-btn density="comfortable"
+                 @click="onWorkshopPos"
+                 icon="mdi-restore"></v-btn>
+
+        </v-col>
+        <v-col cols="auto" class="ml-4 mr-3">
+          <v-btn @click="workshopHeight <= 600 ? workshopHeight += 100 : null" density="comfortable" icon>
+            <v-icon icon="mdi-arrow-expand-vertical"></v-icon>
+          </v-btn>
+          <v-btn density="comfortable"
+                 class="ml-1 mr-1"
+                 @click="onWorkshopFullScreen"
+                 :icon="`mdi-${!isWorkshopFillScreen ? 'fullscreen' : 'fullscreen-exit'}`"></v-btn>
+          <v-btn @click="workshopHeight >= 400 ? workshopHeight -= 100 : null" density="comfortable" icon>
+            <v-icon icon="mdi-arrow-collapse-vertical"></v-icon>
+          </v-btn>
+        </v-col>
+        <v-col cols="auto">
+          <v-btn density="comfortable"
+                 @click="onWorkshopDelete"
+                 icon="mdi-delete"></v-btn>
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
   <!-- Workshop E -->
 
@@ -404,16 +406,10 @@ const onWorkshopDelete = () => {
 
 .fill-screen {
   position: fixed;
-  z-index: 100;
+  z-index: 10;
   top: 0;
   right: 0;
   left: 0;
   bottom: 0;
-}
-</style>
-
-<style>
-.introjs-tooltipbuttons {
-  border: none;
 }
 </style>

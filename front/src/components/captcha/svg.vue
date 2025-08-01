@@ -4,6 +4,7 @@
         v-model="inputValue"
         variant="solo-filled"
         maxlength="4"
+        hide-details
         @change="onChangeValue"
         :rules="rules"
         :placeholder="t('captcha.title')"

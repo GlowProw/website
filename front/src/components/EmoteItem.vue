@@ -43,6 +43,9 @@ export default {
      * @returns {{}}
      */
     getInquireEmojiItem(idRaw) {
+      if (!idRaw)
+        return {}
+
       let type = idRaw.split('|')[0],
           id = idRaw.split('|')[1],
           result = {

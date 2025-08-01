@@ -111,6 +111,27 @@ function getRandom(obj, count) {
           </v-col>
         </v-row>
       </div>
+      <div class="w-100">
+        <v-toolbar class="title-long-flavor bg-black mb-5">
+          <router-link to="/display-cabinet/ships" class="ml-10 font-weight-bold text-amber">
+            终极技能
+          </router-link>
+          <v-spacer></v-spacer>
+          <v-btn @click="getUltimates" class="mr-2" icon density="compact">
+            <v-icon icon="mdi-dice-4-outline"></v-icon>
+          </v-btn>
+          <router-link class="mr-10" to="/display-cabinet/ultimates">
+            更多
+          </router-link>
+        </v-toolbar>
+<!--        <v-row>-->
+<!--          <v-col cols="auto" v-for="(i, index) in shipsRandomList" :key="index">-->
+<!--            <ItemSlotBase size="120px">-->
+<!--              <ShipIconWidget :id="i.id"></ShipIconWidget>-->
+<!--            </ItemSlotBase>-->
+<!--          </v-col>-->
+<!--        </v-row>-->
+      </div>
       <div class="mt-10">
         <v-toolbar class="title-long-flavor bg-black mb-5">
           <router-link to="/display-cabinet/items" class="ml-10 font-weight-bold text-amber">

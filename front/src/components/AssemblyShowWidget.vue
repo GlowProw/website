@@ -8,11 +8,12 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import EmptyView from "./EmptyView.vue";
 import ShipIconWidget from "./snbWidget/shipIconWidget.vue";
 
-import {Ships} from "glow-prow-data";
+import {Ships, Ultimates} from "glow-prow-data";
 import {Item, Items} from "glow-prow-data/src/entity/Items.ts";
 import {Ship} from "glow-prow-data/src/entity/Ships.ts";
 import shipSlotMapping from "../../public/config/shipsConfig.json";
 import ShipTopDownPerspectiveWidget from "./snbWidget/shipTopDownPerspectiveWidget.vue";
+import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
 
 const poops = withDefaults(defineProps<{ readonly?: boolean }>(), {
       readonly: false
@@ -21,34 +22,39 @@ const poops = withDefaults(defineProps<{ readonly?: boolean }>(), {
     route = useRoute(),
     ships = Ships,
     items: Items = Items,
+    ultimates = Ultimates,
     {t, te} = useI18n()
 
 interface ItemAssemblySave extends Item {
   direction?: string
 }
 
-let workshopData = ref({
+let workshopLSCF = ref(),
+    workshopData = ref({
       shipModel: false,
       frigateUpgradeModel: false,
       displayModel: false,
       weaponModel: false,
       secondaryWeaponModel: false,
+      ultimateModel: false,
       weaponSearchValue: '',
       frigateUpgradeInsertIndex: 0,
       weaponInsertIndex: 0,
       secondaryWeaponInsertIndex: 0,
       secondaryWeaponSelect: 0,
+      ultimateSelect: 0,
       shipWorkshopSelect: null,
       shipSelect: null,
       shipFrigateUpgradeSelect: null,
       shipDisplaySelect: null,
+      shipFrigateUpgradeList: [],
 
       name: '',
       description: '',
 
       data: {
+        ultimateSlot: null,                 // 技能
         weaponDirection: [],                // 临时 武器朝向,
-        shipFrigateUpgradeList: [],
         shipFrigateUpgradeSlot: null,       // 家具
         shipSlot: null,                     // 船
         shipUpgradeSlot: null,              // 船 升级配方
@@ -57,7 +63,7 @@ let workshopData = ref({
         secondaryWeaponSlots: [],           // 副武器
         displaySlots: [],                   // 家具
       } as {
-        shipFrigateUpgradeList: [], shipFrigateUpgradeSlot: Item | null, shipSlot: Ship,
+        shipFrigateUpgradeSlot: Item | null, shipSlot: Ship,
         displaySlots: Item[], weaponSlot: ItemAssemblySave[] | Item[], shipUpgradeSlot: Item | null,
         secondaryWeaponSlots: Item[],
         weaponDirection: string[]
@@ -83,6 +89,10 @@ watch(() => workshopData.value?.data?.shipSlot, (value) => {
     Object.entries(value.slots).forEach(i => result[i[0]] = i[1][1])
 
   cache.value.weaponDirection = result;
+})
+
+watch(() => route, () => {
+  onLoadJson(workshopLSCF.value)
 })
 
 /**
@@ -174,6 +184,9 @@ const onSlotRemove = (type, index?: number) => {
     case 'upgrade':
       workshopData.value.data.shipFrigateUpgradeSlot = null
       break;
+    case 'ultimate':
+      workshopData.value.data.ultimateSlot = null
+      break;
     case 'display':
       workshopData.value.data.displaySlots[index] = Item.fromRawData({})
       break;
@@ -195,7 +208,7 @@ const onSelectShip = (shipId: string) => {
 
   workshopData.value.shipModel = false;
   workshopData.value.data.shipSlot = ships[shipId] as Ship;
-  workshopData.value.data.shipFrigateUpgradeList = shipUpItem;
+  workshopData.value.shipFrigateUpgradeList = shipUpItem;
 
   // 创建陈设插槽
   workshopData.value.data.displaySlots = Array.from({length: workshopData.value.data.shipSlot.slots.furniture[0] || 0}, (i) => {
@@ -218,6 +231,20 @@ const onSelectShip = (shipId: string) => {
   workshopData.value.data.secondaryWeaponSlots = Array.from({
     length: shipSlotMapping.f[workshopData.value.data.shipSlot.id].weaponsSlotCount[0].secondaryWeapon || 0
   }, () => Item.fromRawData({}))
+}
+
+/**
+ * 选择终结技能
+ */
+const onSelectUltimate = () => {
+  if (poops.readonly)
+    return;
+
+  workshopData.value.ultimateModel = false;
+  if (!workshopData.value.ultimateSelect)
+    return;
+
+  workshopData.value.data.ultimateSlot = workshopData.value.ultimateSelect
 }
 
 /**
@@ -382,6 +409,8 @@ const onLoadJson = (data) => {
   if (!d || JSON.stringify(d) === '{}')
     return;
 
+  workshopLSCF.value = data;
+
   workshopData.value.data = {
     ...workshopData.value.data,
     ...data
@@ -404,7 +433,7 @@ defineExpose({
 
 <template>
   <v-row class="workshop-ship-interior position-relative pa-10 ml-5 mt-3">
-    <v-col class="position-relative" style="min-width: 650px;z-index: 5" cols="7" sm="7" md="7" lg="7" xl="7">
+    <v-col class="position-relative" style="min-width: 650px;z-index: 5" cols="10" sm="10" md="10" lg="10" xl="10">
       <v-col>
         <div class="mb-10">
           <v-row no-gutters align="end">
@@ -530,7 +559,7 @@ defineExpose({
 
 
                   <ItemSlotBase size="80px" class="pa-2"
-                                v-if="!workshopData.data.shipFrigateUpgradeSlot && workshopData.data.shipFrigateUpgradeList.length > 0">
+                                v-if="!workshopData.data.shipFrigateUpgradeSlot && workshopData.shipFrigateUpgradeList.length > 0">
                     <v-card class="w-100 d-flex align-center justify-center"
                             :disabled="readonly"
                             v-bind="props">
@@ -541,7 +570,7 @@ defineExpose({
                 <v-card class="demo-reel bg-black pt-3" flat border>
                   <v-row class="ga-0 pa-2 pb-5">
                     <v-col cols="3"
-                           v-for="(upgrade,upgradeIndex) in workshopData.data.shipFrigateUpgradeList"
+                           v-for="(upgrade,upgradeIndex) in workshopData.shipFrigateUpgradeList"
                            :key="upgradeIndex">
                       <v-badge :color="`var(--main-color)`">
                         <template v-slot:badge>
@@ -573,7 +602,7 @@ defineExpose({
         </div>
 
         <div>
-          <div class="">
+          <div>
             <v-row justify="space-around">
               <v-col cols="auto" class="mr-5">
                 <p class="mb-2 font-weight-bold badge-flavor text-center text-black">陈设</p>
@@ -601,7 +630,7 @@ defineExpose({
                           <v-icon icon="mdi-plus"></v-icon>
                         </v-card>
                       </ItemSlotBase>
-                      <ItemSlotBase size="80px" class="pa-2" v-else-if="readonly && workshopData.data.displaySlots[displayIndex]">
+                      <ItemSlotBase size="80px" class="pa-2" v-else-if="readonly && workshopData.data.displaySlots[displayIndex] && workshopData.data.displaySlots[displayIndex].id == null">
                         <v-card class="w-100 d-flex align-center justify-center">
                           <v-icon icon="mdi-block-helper" class="opacity-30" size="20"></v-icon>
                         </v-card>
@@ -875,6 +904,11 @@ defineExpose({
                               </v-overlay>
                             </div>
                           </v-hover>
+                          <ItemSlotBase size="80px" class="pa-2" v-else-if="readonly && workshopData.data.secondaryWeaponSlots[index] && workshopData.data.secondaryWeaponSlots[index].id == null">
+                            <v-card class="w-100 d-flex align-center justify-center">
+                              <v-icon icon="mdi-block-helper" class="opacity-30" size="20"></v-icon>
+                            </v-card>
+                          </ItemSlotBase>
                           <ItemSlotBase size="80px" class="pa-2" v-else>
                             <v-card class="w-100 d-flex align-center justify-center"
                                     :disabled="readonly"
@@ -967,6 +1001,81 @@ defineExpose({
                     <v-btn variant="tonal" class="ml-1" @click="workshopData.weaponModel = false">取消</v-btn>
                   </v-card-actions>
                 </v-dialog>
+              </v-col>
+
+              <v-col cols="auto">
+                <p class="mb-2 font-weight-bold badge-flavor text-center text-black">终极技能</p>
+
+                <!-- 终极技能 -->
+                <v-tooltip
+                    v-model="workshopData.ultimateModel"
+                    :open-on-hover="false"
+                    :offset="[-100, -120]"
+                    location="bottom left"
+                    content-class="pa-0"
+                    min-width="450"
+                    max-width="450"
+                    interactive
+                    open-on-click>
+                  <template v-slot:activator="{ props: propsSlot }">
+                    <ItemSlotBase id="ship_select" size="80px" class="pa-2" v-if="!workshopData.data.ultimateSlot">
+                      <v-card class="w-100 d-flex align-center justify-center" v-bind="propsSlot"
+                              :disabled="readonly">
+                        <v-icon icon="mdi-plus" size="30"></v-icon>
+                      </v-card>
+                    </ItemSlotBase>
+                    <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-else>
+                      <v-card
+                          class="mx-auto"
+                          max-width="344"
+                          v-bind="propsHoverClose">
+
+                        <ItemSlotBase size="80px" class="pa-2"
+                                      v-if="workshopData.data.ultimateSlot && workshopData.data.ultimateSlot.id"
+                                      :class="[workshopData.data.ultimateSlot && workshopData.data.ultimateSlot.id ? 'bg-amber' : '']">
+                          <v-card class="w-100">
+                            <UltimateIconWidget :id="workshopData.data.ultimateSlot.id" :isClickOpenDetail="false"></UltimateIconWidget>
+                          </v-card>
+                        </ItemSlotBase>
+
+                        <v-overlay
+                            v-if="!readonly"
+                            :model-value="!!isHovering"
+                            class="align-center justify-center"
+                            scrim="#000"
+                            @click="onSlotRemove('ultimate')"
+                            contained>
+                          <v-icon icon="mdi-delete" color="red" size="50"></v-icon>
+                        </v-overlay>
+                      </v-card>
+                    </v-hover>
+                  </template>
+                  <v-card v-slot:default>
+                    <v-row class="ga-0 pa-2 pb-5">
+                      <v-col cols="3"
+                             v-for="(ultimate,ultimateIndex) in ultimates"
+                             :key="shipIndex">
+                        <v-badge :color="workshopData.ultimateSelect ? workshopData.ultimateSelect!.id == ultimate!.id ? `var(--main-color)` : 'transparent' : 'transparent'">
+                          <template v-slot:badge>
+                            <v-icon icon="mdi-check" v-if="workshopData.ultimateSelect && workshopData.ultimateSelect!.id == ultimate!.id"></v-icon>
+                          </template>
+                          <ItemSlotBase
+                              size="92px" class="pa-1"
+                              @click="workshopData.ultimateSelect = ultimate"
+                              :class="[
+                                          workshopData.ultimateSelect ? workshopData.ultimateSelect!.id == ultimate!.id ? 'bg-amber' : '' : ''
+                                      ]">
+                            <UltimateIconWidget :id="ultimate.id" :isClickOpenDetail="false"></UltimateIconWidget>
+                          </ItemSlotBase>
+                        </v-badge>
+                      </v-col>
+                    </v-row>
+                    <v-card-actions class="bg-amber">
+                      <v-btn variant="tonal" @click="onSelectUltimate(workshopData.ultimateSelect.id)">确定</v-btn>
+                      <v-btn variant="tonal" class="ml-1" @click="workshopData.ultimateModel = false">取消</v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-tooltip>
               </v-col>
             </v-row>
           </div>

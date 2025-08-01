@@ -8,12 +8,13 @@ import {api} from "@/assets/sripts";
 import {useHttpToken} from "@/assets/sripts/httpUtil";
 import {useAuthStore} from "@/../stores";
 import LikeWidget from "@/components/LikeWidget.vue";
-import {DisqusCount} from "vue3-disqus";
 import Textarea from "@/components/textarea/index.vue";
 import Loading from "@/components/Loading.vue";
 import ZoomableCanvas from "@/components/ZoomableCanvas.vue"
 import Silk from "@/components/Silk.vue";
 import {useI18nUtils} from "@/assets/sripts/i18nUtil";
+import AssemblyTagsWidget from "@/components/AssemblyTagsWidget.vue";
+import CommentWidget from "@/components/CommentWidget.vue";
 
 const route = useRoute(),
     router = useRouter(),
@@ -67,7 +68,7 @@ const getAssemblyDetail = async () => {
       return;
 
     assemblyDetailData.value = d.data;
-    assemblyDetailData.value.description = unescape(assemblyDetailData.value.description || '这个人很懒什么都没说')
+    assemblyDetailData.value.description = unescape(assemblyDetailData.value.description || '这个人很懒什么,对此配装什么都没说')
 
     await nextTick(() => {
       assemblyDetailRef.value.onLoadJson(d.data.data || d.data.assembly)
@@ -126,16 +127,18 @@ const delAssembly = async () => {
       </v-container>
 
       <v-container class="pa-7">
-        <div v-show="assemblyLoading">
-          <div class="mt-10 mb-10" align="center">
-            <Loading size="120"></Loading>
-          </div>
-        </div>
+        <v-overlay
+            :model-value="assemblyLoading"
+            transition
+            scrim
+            class="align-center justify-center background-flavor">
+          <Loading size="120"></Loading>
+        </v-overlay>
 
         <div v-show="!assemblyLoading">
           <div class="ml-n2 mr-n2">
             <v-toolbar color="" class="bg-transparent">
-              <h1 class="text-amber text-h2">{{ assemblyDetailData.name || 'none' }}</h1>
+              <h1 :title="assemblyDetailData.name || 'none'" class="text-amber text-h2 singe-line">{{ assemblyDetailData.name || 'none' }}</h1>
 
               <v-spacer></v-spacer>
 
@@ -160,13 +163,6 @@ const delAssembly = async () => {
                   编辑此配装
                 </v-btn>
               </template>
-
-              <v-btn to="#commit" class="ml-2">
-                <v-icon icon="mdi-comment-outline" class="mr-2"></v-icon>
-                <DisqusCount :lazy="true"
-                             :language="language"
-                             :identifier="`/assembly/uuid/${assemblyDetailData.uuid}`"></DisqusCount>
-              </v-btn>
             </v-toolbar>
           </div>
         </div>
@@ -195,27 +191,29 @@ const delAssembly = async () => {
     <div>
       <v-row>
         <v-col cols="12" sm="12" lg="8" xl="8">
-          <div class="ga-2 mb-6">
-            <div>
-              <v-chip class="mr-2 mb-2 pt-1 pb-1 pl-5 pr-5" v-for="(i, index) in assemblyDetailData.tags">
-                {{
-                  asString([
-                    `${i}`,
-                    `assembly.teamFormationMethods.${i.split('_')[1]}`,
-                    `assembly.archetypes.${i.split('_')[1]}`,
-                    `assembly.modes.${i.split('_')[0]}`,
-                    `assembly.damageTypes.${i.split('_')[1]}`,
-                    `snb.seasons.${i.split('_')[1]}`,
-                  ], true)
-                }}
-              </v-chip>
-            </div>
+          <div class="ga-2 mb-6" v-if="assemblyDetailData.tags">
+            <v-chip class="mr-2 mb-2 pt-1 pb-1 pl-5 pr-5" v-for="(i, index) in assemblyDetailData.tags">
+              {{
+                asString([
+                  `${i}`,
+                  `assembly.teamFormationMethods.${i.split('_')[1]}`,
+                  `assembly.archetypes.${i.split('_')[1]}`,
+                  `assembly.modes.${i.split('_')[0]}`,
+                  `assembly.damageTypes.${i.split('_')[1]}`,
+                  `snb.seasons.${i.split('_')[1]}`,
+                ], true)
+              }}
+            </v-chip>
           </div>
 
           <Textarea class="mt-5 mb-2"
                     :readonly="true"
                     v-model="assemblyDetailData.description"
                     placeholder="输入描述描述"></Textarea>
+
+          <v-divider>评论</v-divider>
+
+          <CommentWidget :id="assemblyDetailData.uuid" type="assembly"></CommentWidget>
         </v-col>
         <v-col cols="12" sm="12" lg="4" xl="4">
           <v-text-field
@@ -250,6 +248,11 @@ const delAssembly = async () => {
               <p class="text-no-wrap">更新时间:</p>
             </template>
           </v-text-field>
+
+          <AssemblyTagsWidget
+              class="mt-4"
+              :readonly="true"
+              :tags="assemblyDetailData.tags"></AssemblyTagsWidget>
         </v-col>
       </v-row>
     </div>

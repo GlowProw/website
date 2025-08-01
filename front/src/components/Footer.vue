@@ -34,6 +34,9 @@ const {t} = useI18n()
               <v-col cols="12" sm="6" md="6" lg="3">
                 <b class="text-amber">社区</b>
                 <ul>
+                  <li>
+                    <a target="_blank" href="https://kook.vip/2s0eQP">Kook社区</a>
+                  </li>
                   <li>碧海黑帆吧</li>
                 </ul>
               </v-col>

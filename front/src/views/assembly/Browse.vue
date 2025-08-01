@@ -197,13 +197,12 @@ watch(browseData, (newList: ResultData) => {
                  v-if="browseData.data.length > 0">
             <v-card class="card-enlargement-flavor pa-5">
               <v-row class="pt-5 pl-5 pr-5">
-                <v-col>
+                <v-col cols="9">
                   <router-link :to="`/assembly/browse/${i.uuid}/detail`">
-                    <div class="text-amber text-h4 mb-1 font-weight-bold">{{ i.name || 'none' }}</div>
+                    <div :title="i.name || 'none'" class="text-amber text-h4 mb-1 font-weight-bold singe-line">{{ i.name || 'none' }}</div>
                   </router-link>
-                  <p class="font-weight-light">{{ i.username || 'none' }}</p>
                 </v-col>
-                <v-col cols="auto">
+                <v-col cols="3">
                   <v-chip density="compact" class="badge-flavor pl-5 pr-5" :disabled="i.isLiked">
                     赞 {{ i.likes || 0 }}
                   </v-chip>

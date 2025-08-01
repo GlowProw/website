@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onBeforeUnmount, onMounted, ref, watch} from 'vue'
+import {computed, ComputedRef, onBeforeUnmount, onMounted, Ref, ref, watch} from 'vue'
 import {Editor, EditorContent, EditorOptions} from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import Paragraph from '@tiptap/extension-paragraph'
@@ -54,7 +54,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
-const tiptap = ref<Editor | null>(null)
+const tiptap: Ref<Editor> = ref<Editor | null>(null)
 const isOpenEmoji = ref(false)
 const isOpenShip = ref(false)
 const isOpenItem = ref(false)
@@ -71,6 +71,10 @@ const toolbarAs = computed(() => {
     if (typeof item === 'string') return item
     return item.map((obj: ToolbarItem) => obj.list || obj || '')
   })
+})
+
+watch(() => props.readonly, (value) => {
+  tiptap.value.options.editable = !value;
 })
 
 const flatMap = (array: any[], callback: (item: any) => any) => {
@@ -122,7 +126,7 @@ const onEditorChange = (data: string) => {
   emit('update:modelValue', data)
 }
 
-onMounted(() => {
+const onInitEdit = () => {
   tiptap.value = new Editor({
     content: editorContent.value,
     parseOptions: {
@@ -154,6 +158,10 @@ onMounted(() => {
     }
   } as Partial<EditorOptions>)
   tiptap.value.options.keyboardShortcuts = {}
+}
+
+onMounted(() => {
+  onInitEdit()
 })
 
 onBeforeUnmount(() => {

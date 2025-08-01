@@ -54,6 +54,18 @@ const onLogin = async () => {
 }
 
 /**
+ * 取消登陆返回上一层
+ */
+const onBackRoute = async () => {
+  const {backurl} = route.query
+
+  if (backurl)
+    return router.push({path: backurl})
+
+  return router.go(-1);
+}
+
+/**
  * 处理验证码数据
  * @param data
  */
@@ -86,7 +98,11 @@ const onCaptchaData = (data: any) => {
           </v-col>
         </v-row>
 
-        <v-btn class="btn-flavor ml-8" @click="onLogin" size="50" block :loading="loginFormLoading" :disabled="!username && !password" variant="flat">登陆</v-btn>
+        <div class="mt-10 ml-8 mr-8">
+          <v-btn class="bg-amber" @click="onLogin" size="50" block :loading="loginFormLoading" :disabled="!username && !password" variant="flat">登陆</v-btn>
+
+          <v-btn class="mt-2" @click="onBackRoute" size="50" block variant="text" v-if="route.query.backurl">取消</v-btn>
+        </div>
 
         <v-divider class="mt-5 mb-5"></v-divider>
         <v-btn class="ml-8 mb-5" to="/account/register" variant="text">没有账户？前往注册</v-btn>

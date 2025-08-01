@@ -12,7 +12,8 @@ const {t} = useI18n()
       <v-container class="mt-10">
         <h1 class="btn-flavor">关于</h1>
         <p>这个应用程序遵循MIT开源协议，程序不隶属于碧海黑帆以及ubisoft集团。</p>
-        <p>闪光船首的命名，是为社区提供便民服务，永远指引前方</p>
+        <p class="mt-5">闪光船首的命名蕴意作为船头点亮前方迷雾，为社区玩家提供服务，永恒指引前方</p>
+        <p>同时感谢@SkullAndBonesTools/SkullAndBonesData项目提供了数据源，这使得Glow Prow得意支持整个项目</p>
         <v-divider class="mt-5 mb-5"></v-divider>
         <v-row class="mb-5">
           <v-col sm="12" lg="4">
@@ -24,7 +25,7 @@ const {t} = useI18n()
           <v-col sm="12" lg="4">
             <h3 class="btn-flavor">翻译成员</h3>
             <ul>
-              <li v-for="(i,index) in [{name: 'cabbagelol', lang: ['zh-CN']},{name: '@教兽', lang: ['en-US', 'zh-CN']}]" :key="index">
+              <li v-for="(i,index) in [{name: 'cabbagelol', lang: ['zh-CN']},{name: '教兽', lang: ['en-US', 'zh-CN']}]" :key="index">
                 <v-row align="center">
                   <v-col>
                     @{{i.name}}
@@ -40,7 +41,7 @@ const {t} = useI18n()
             </ul>
           </v-col>
           <v-col sm="12" lg="4">
-            <h3 class="btn-flavor">来源协议</h3>
+            <h3 class="btn-flavor">开源</h3>
             <ul>
               <li>闪耀船首主程序，包含前端程序/后端程序，遵循MIT协议</li>
               <li>闪耀船首数据，碧海黑帆物品/日历等数据，遵循MIT协议</li>

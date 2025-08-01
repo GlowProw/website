@@ -13,6 +13,9 @@ import ItemsPage from '../src/views/displayCabinet/items/Index.vue'
 import ItemDetailPage from '../src/views/displayCabinet/items/Detail.vue'
 import ItemCategoryDetailPage from '../src/views/displayCabinet/items/Category.vue'
 
+import UltimatesPage from '../src/views/displayCabinet/ultimates/Index.vue'
+import UltimateDetailPage from '../src/views/displayCabinet/ultimates/Detail.vue'
+
 import CalendarPage from '../src/views/calendar/Index.vue'
 import CalendarHistoryPage from '../src/views/calendar/History.vue'
 import CalendarHistorysPage from '../src/views/calendar/Historys.vue'
@@ -112,6 +115,16 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: 'item/category/:name',
                 name: 'ItemCategoryDetail',
                 component: ItemCategoryDetailPage,
+            },
+            {
+                path: 'ultimates',
+                name: 'Ultimates',
+                component: UltimatesPage,
+            },
+            {
+                path: 'ultimate/:id',
+                name: 'UltimateDetail',
+                component: UltimateDetailPage,
             }
         ]
     },
