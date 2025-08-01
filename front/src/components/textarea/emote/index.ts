@@ -1,4 +1,4 @@
-import {mergeAttributes, Node, type RawCommands, VueNodeViewRenderer} from "@tiptap/vue-3"
+import {Node, type RawCommands, VueNodeViewRenderer} from "@tiptap/vue-3"
 import Component from "./view.vue";
 
 const EmoteNode = Node.create({

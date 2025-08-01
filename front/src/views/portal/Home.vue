@@ -6,7 +6,6 @@ import {Season} from "glow-prow-data/src/entity/Seasons";
 import {useI18n} from "vue-i18n";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import Silk from "@/components/Silk.vue";
-import SpotlightCard from "@/components/SpotlightCard.vue"
 
 const {t} = useI18n()
 
@@ -106,7 +105,7 @@ const getCurrentSeason = (): Season | null => {
           <video autoplay playsinline
                  class="card-enlargement-flavor"
                  muted loop type="video/mp4"
-                 src="http://cdn.hommk.com/pcgame/ubi2015/img/gamezone/sb/full/skullandbones-year2-loop.mp4"></video>
+                 src="//cdn.hommk.com/pcgame/ubi2015/img/gamezone/sb/full/skullandbones-year2-loop.mp4"></video>
         </div>
       </template>
 
@@ -117,7 +116,7 @@ const getCurrentSeason = (): Season | null => {
       <div class="portal-season-left-tip" v-if="currentlySeason && currentlySeason.alternativeName">
         <div class="opacity-30">
           本赛季 {{ currentlySeason.alternativeName.toUpperCase() }}
-          <v-divider thickness="3" vertical />
+          <v-divider thickness="3" vertical/>
           {{ t(`snb.calendar.${currentlySeason?.id}.name`) }}
         </div>
       </div>

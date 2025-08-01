@@ -211,14 +211,14 @@ const onSelectShip = (shipId: string) => {
   workshopData.value.shipFrigateUpgradeList = shipUpItem;
 
   // 创建陈设插槽
-  workshopData.value.data.displaySlots = Array.from({length: workshopData.value.data.shipSlot.slots.furniture[0] || 0}, (i) => {
+  workshopData.value.data.displaySlots = Array.from({length: workshopData.value.data.shipSlot.slots.furniture[0] || 0}, () => {
     return Item.fromRawData({})
   })
 
   // 创建武器插槽，选择初始
   workshopData.value.data.weaponSlot = Array.from({
     length: shipSlotMapping.f[workshopData.value.data.shipSlot.id].weaponsSlotCount[0].gunSlotCount || 0
-  }, (i) => {
+  }, () => {
     return Item.fromRawData({})
   })
 
@@ -279,14 +279,14 @@ const onSelectFrigteUpgrad = () => {
   resultFurnitureSlotCount = shipSlotMapping.f[workshopData.value.data.shipSlot.id].furnitureSlotCount[workshopData.value.data.shipFrigateUpgradeSlot ? selectFurnitureTier : furnitureBaseSlotCount]
 
   // 创建陈设插槽
-  workshopData.value.data.displaySlots = Array.from({length: resultFurnitureSlotCount}, (i) => {
+  workshopData.value.data.displaySlots = Array.from({length: resultFurnitureSlotCount}, () => {
     return Item.fromRawData({})
   })
 
   // 创建武器插槽
   workshopData.value.data.weaponSlot = Array.from({
     length: shipSlotMapping.f[workshopData.value.data.shipSlot.id].weaponsSlotCount[selectFurnitureTier].gunSlotCount
-  }, (i) => {
+  }, () => {
     return Item.fromRawData({})
   })
 }
@@ -713,7 +713,7 @@ defineExpose({
                           :center-down="workshopData.data.weaponDirection[index] == 'aftWeapon'"
                           class="ml-5"></ShipTopDownPerspectiveWidget>
                     </v-col>
-                    <v-divider vertical inset="10" class="ml-3 mr-2"></v-divider>
+                    <v-divider vertical :inset="10" class="ml-3 mr-2"></v-divider>
                     <v-col>
                       <p class="mb-2 ml-n5 mr-n5 pl-5 title-long-flavor bg-black" v-if="!readonly">
                         <v-select v-model="workshopData.data.weaponDirection[index]"

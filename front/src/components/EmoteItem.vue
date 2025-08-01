@@ -92,7 +92,7 @@ export default {
 </script>
 
 <template>
-  <Tooltip v-if="emojiItemData && emojiItemData.config" :disabled="isDisabledTooltip"
+  <v-tooltip v-if="emojiItemData && emojiItemData.config" :disabled="isDisabledTooltip"
            placement="top" transfer>
     <template v-slot:content>
       <div align="center">
@@ -145,7 +145,7 @@ export default {
                :alt="emojiItemData.name"/>
         </span>
     </template>
-  </Tooltip>
+  </v-tooltip>
   <span v-else>
     <template v-if="emojiItemData && emojiItemData.isCustom">
       <img class="emote"

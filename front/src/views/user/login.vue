@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {ref} from "vue";
-import {useAuthStore} from '../../../stores'
+import {useAuthStore} from '@/../stores'
 import {useRoute, useRouter} from "vue-router";
 
 import Captcha from "@/components/captcha/index.vue";

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import I18nWidget from "./i18nWidget.vue";
-import ShinyText from "@/components/ShinyText.vue";
 
 const {t} = useI18n()
 </script>
@@ -14,21 +13,31 @@ const {t} = useI18n()
         <v-row>
           <v-col cols="12" sm="12" md="5" lg="4" order="2" order-sm="2" order-lg="1">
             <h2 class="mb-5">
-              {{t('name')}}
+              {{ t('name') }}
             </h2>
             <p class="mt-2 opacity-80">{{ t('footer.basic.description') }}</p>
-            <p class="opacity-60">@2025-{{new Date().getFullYear()}} Glow Prow</p>
+            <p class="opacity-60">@2025-{{ new Date().getFullYear() }} Glow Prow</p>
           </v-col>
           <v-col cols="12" sm="12" md="7" lg="8" order="1" order-sm="1" order-lg="2">
             <v-row>
               <v-col cols="12" sm="6" md="6" lg="3">
                 <b class="text-amber">服务</b>
                 <ul>
-                  <li><router-link to="/team">组队寻求</router-link> </li>
-                  <li><router-link to="/calendar">日历</router-link></li>
-                  <li><router-link to="/display-cabinet">展示馆</router-link></li>
-                  <li><router-link to="/assembly">配装厂</router-link></li>
-                  <li><router-link to="/maps">地图</router-link></li>
+                  <li>
+                    <router-link to="/team">组队寻求</router-link>
+                  </li>
+                  <li>
+                    <router-link to="/calendar">日历</router-link>
+                  </li>
+                  <li>
+                    <router-link to="/display-cabinet">展示馆</router-link>
+                  </li>
+                  <li>
+                    <router-link to="/assembly">配装厂</router-link>
+                  </li>
+                  <li>
+                    <router-link to="/maps">地图</router-link>
+                  </li>
                 </ul>
               </v-col>
               <v-col cols="12" sm="6" md="6" lg="3">

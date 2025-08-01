@@ -24,9 +24,9 @@
                 {{ t('captcha.get') }}
               </span>
             </template>
-            <div v-else style="min-width: 80px">
+            <span v-else style="min-width: 80px">
               <v-icon class="spin-icon-load" icon="mdi-refresh" size="20"/>
-            </div>
+            </span>
           </span>
           <div
               v-else

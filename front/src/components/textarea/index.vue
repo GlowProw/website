@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, ComputedRef, onBeforeUnmount, onMounted, Ref, ref, watch} from 'vue'
+import {computed, onBeforeUnmount, onMounted, Ref, ref, watch} from 'vue'
 import {Editor, EditorContent, EditorOptions} from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import Paragraph from '@tiptap/extension-paragraph'
@@ -181,7 +181,7 @@ watch(() => props.modelValue, (newVal) => {
 <template>
   <div v-if="tiptap" class="container html-widget-box bg-transparent">
     <div class="mb-3 control-group editor-toolbar" v-if="!props.readonly">
-      <v-row :gutter="20" type="flex" align="middle">
+      <v-row :gutter="20" type="flex" align="center">
         <v-col>
           <div class="bg-transparent">
             <v-btn
@@ -257,7 +257,7 @@ watch(() => props.modelValue, (newVal) => {
       unicode-bidi: isolate;
       font-variant-numeric: tabular-nums;
       text-transform: none;
-      text-indent: 0px !important;
+      text-indent: 0 !important;
       text-align: start !important;
       text-align-last: start !important;
     }
