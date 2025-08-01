@@ -23,8 +23,7 @@ const DATA_DIR = path.join(__dirname, '../../data/calendar');
  *   - season: 赛季ID (必填)
  */
 router.get('/data', [
-    // 验证season参数: 长度1-255
-    checkquery("season").isLength({min: 1, max: 255}),
+    checkquery("season").isString().isLength({min: 1, max: 255}),
 ], async (req: any, res: any) => {
     try {
         // 验证请求参数

@@ -248,8 +248,8 @@ router.get('/list', [
 router.post('/edit', verifyJWT, [
     checkbody('uuid').isString().trim().isLength({min: 1}),
     checkbody("name").isString().trim().isLength({min: 1, max: assemblyConfig.nameMaxLength}),
-    checkbody('description').optional().isString().trim().isLength({max: assemblyConfig.descriptionMaxLength}),
-    checkbody('tags').optional().isArray(),
+    checkbody('description').optional({nullable: true}).isString().trim().isLength({max: assemblyConfig.descriptionMaxLength}),
+    checkbody('tags').optional({nullable: true}).isArray(),
     checkbody('data').isJSON(),
 ], async (req: any, res: Response) => {
     try {
@@ -369,6 +369,14 @@ router.post('/delete', verifyJWT, [
         await db('assembly')
             .where('uuid', uuid)
             .delete();
+
+        await db('likes')
+            .where('targetId', uuid)
+            .andWhere('targetType', 'assembly')
+            .andWhere('valid', 1)
+            .update({
+                valid: 0
+            })
 
         res.status(200).json({code: 'delete.ok'});
     } catch (error) {
