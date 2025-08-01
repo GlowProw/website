@@ -1,13 +1,14 @@
 <script setup lang="ts">
-
-import Loading from "../Loading.vue";
-import {onMounted, type Ref, ref, watch} from "vue";
-import {Item, Items} from "glow-prow-data/src/entity/Items.ts";
 import {useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
+import Loading from "../Loading.vue";
+import LightRays from "../LightRays.vue"
+import {onMounted, type Ref, ref, watch} from "vue";
+import {Item, Items} from "glow-prow-data/src/entity/Items.ts";
 import {useI18nUtils} from "@/assets/sripts/i18nUtil";
+import {useIntersectionObserver} from "@/assets/sripts/intersectionObserver";
 
-const {asArray, asString, sanitizeString} = useI18nUtils()
+const {asString, sanitizeString} = useI18nUtils()
 
 const assets_ammunitions = import.meta.glob('@glow-prow-assets/items/ammunitions/*', {eager: true}),
     assets_weapons = import.meta.glob('@glow-prow-assets/items/weapons/*', {eager: true}),
@@ -21,14 +22,13 @@ const assets_ammunitions = import.meta.glob('@glow-prow-assets/items/ammunitions
     assets_tools = import.meta.glob('@glow-prow-assets/items/tools/*', {eager: true}),
     assets_shipsUpgrades = import.meta.glob('@glow-prow-assets/ships/upgrades/*', {eager: true}),
     assets_items = import.meta.glob('@glow-prow-assets/items/*', {eager: true});
-
+const rarityImages = import.meta.glob('@/assets/images/item-rarity-*.png', {eager: true});
 const assetsImages = {
   ...assets_ammunitions, ...assets_weapons, ...assets_armors,
   ...assets_majorFurnitures, ...assets_utilityFurnitures, ...assets_offensiveFurnitures,
   ...assets_consumables, ...assets_torpedos, ...assets_longGuns,
   ...assets_tools, ...assets_shipsUpgrades, ...assets_items
 };
-const rarityImages = import.meta.glob('@/assets/images/item-rarity-*.png', {eager: true});
 const props = withDefaults(defineProps<{
   id: string,
   isShowOpenDetail?: boolean,
@@ -52,8 +52,16 @@ let itemsCardData = ref({
     i: Ref<Item> = ref(Item.fromRawData({})),
 
     // 稀有度
-    raritys: string[] = ["common", "uncommon", "rare", "epic", "legendary"],
+    raritys = {
+      "": "#fff",
+      "common": "#b0b0b0",
+      "uncommon": "#2ecc71",
+      "rare": "#3498db",
+      "epic": "#9b59b6",
+      "legendary": "#f1c40f"
+    },
     itemsRarityImages = ref({})
+
 
 watch(() => props.id, () => {
   onReady()
@@ -74,11 +82,10 @@ const onReady = async () => {
   }
 
   // 稀有度背景
-  for (let key in raritys) {
-    const imageKey = `/src/assets/images/item-rarity-${raritys[key]}.png`;
-
-    if (rarityImages[imageKey]) {
-      itemsRarityImages.value[raritys[key]] = rarityImages[imageKey].default;
+  for (let key of Object.keys(raritys).filter(i => i != '')) {
+    const imageKey = `/src/assets/images/item-rarity-${key}.png`;
+    if (rarityImages[imageKey].default) {
+      itemsRarityImages.value[key] = rarityImages[imageKey].default;
     }
   }
 
@@ -96,6 +103,10 @@ const onReady = async () => {
 
   i.value = items[props.id] || null
 }
+
+const {targetElement, isVisible} = useIntersectionObserver({
+  threshold: .7,
+});
 </script>
 
 <template>
@@ -108,6 +119,7 @@ const onReady = async () => {
       target="cursor">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
+          ref="targetElement"
           width="100%"
           v-bind="activatorProps"
           :to="isOpenDetail ? `/display-cabinet/item/${i.id}` : null"
@@ -156,13 +168,28 @@ const onReady = async () => {
                   class="badge-flavor text-center text-black" v-if="i.type">{{ t(`displayCabinet.type.${i.type}`) }}
           </v-chip>
           <v-chip inline class="badge-flavor text-center text-black" v-if="i.tier">{{ t(`displayCabinet.tier`, {num: i.tier || 0}) }}</v-chip>
+          <v-chip inline class="badge-flavor text-center text-black" v-if="i.rarity">{{ t(`displayCabinet.rarity.${i.rarity}`) }}</v-chip>
         </div>
         <div class="right-show-item-image pointer-events-none position-absolute w-33">
           <v-img :src="itemsCardData.iconsSrc[i.id]" class="item-mirror-image"></v-img>
         </div>
 
         <template v-if="i.rarity">
-          <img :src="itemsRarityImages[i.rarity]" width="100%" height="100%" class="pointer-events-none rarity opacity-20">
+          <LightRays
+              id="iconBackRight"
+              ref="iconBackRight"
+              rays-origin="top-right"
+              quality="low"
+              :rays-color="raritys[i.rarity]"
+              :rays-speed="2"
+              :light-spread="10"
+              :ray-length="10"
+              :follow-mouse="false"
+              :mouse-influence="0"
+              :noise-amount="0"
+              :distortion="0"
+              class="w-100 h-100 pointer-events-none position-absolute top-0 right-0"
+          />
         </template>
       </div>
       <div class="demo-reel-content pl-10 pr-10 pb-5 background-flavor overflow-auto">

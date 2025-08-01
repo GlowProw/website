@@ -39,7 +39,17 @@ let
     isShowShipRawList = ref(false),
 
     // 蓝图
-    bluePrint = computed(() => shipDetailData.value.blueprint ? t(`snb.locations.${shipDetailData.value?.blueprint}`) : null);
+    bluePrint = computed(() => {
+      const bluePrints = shipDetailData.value?.blueprint;
+
+      if (!bluePrints)
+        return null;
+
+      if (bluePrints)
+        return t(`snb.locations.${bluePrints}`)
+
+      return Object.values(bluePrints).map(i => t(`snb.locations.${i}`))
+    })
 
 onMounted(() => {
   const {id} = route.params;
@@ -188,7 +198,7 @@ const onStatisticsRawMaterial = () => {
                       <v-col>
                         <p>
                           <v-row align="center">
-                            <v-col><b>前武器</b></v-col>
+                            <v-col><b>{{ t('displayCabinet.ship.frontWeapon') }}</b></v-col>
                             <v-col cols>
                               <v-divider></v-divider>
                             </v-col>
@@ -201,14 +211,14 @@ const onStatisticsRawMaterial = () => {
                                       hide-details
                                       variant="underlined" density="compact">
                           <template v-slot:append-inner>
-                            <p class="text-no-wrap">顶层甲板</p>
+                            <p class="text-no-wrap">{{ t('displayCabinet.ship.topDeck') }}</p>
                           </template>
                         </v-text-field>
                         <v-text-field :value="shipDetailData.slots.frontWeapon[1].lower" readonly
                                       hide-details
                                       variant="underlined" density="compact">
                           <template v-slot:append-inner>
-                            <p class="text-no-wrap">下层甲板</p>
+                            <p class="text-no-wrap">{{ t('displayCabinet.ship.lowerDeck') }}</p>
                           </template>
                         </v-text-field>
                       </v-col>
@@ -222,7 +232,7 @@ const onStatisticsRawMaterial = () => {
                       <v-col>
                         <p>
                           <v-row align="center">
-                            <v-col><b>左侧武器</b></v-col>
+                            <v-col><b>{{ t('displayCabinet.ship.leftSideWeapon') }}</b></v-col>
                             <v-col cols>
                               <v-divider></v-divider>
                             </v-col>
@@ -236,7 +246,7 @@ const onStatisticsRawMaterial = () => {
                                       v-if="shipDetailData.slots.leftSideWeapon[1].top"
                                       variant="underlined" density="compact">
                           <template v-slot:append-inner>
-                            <p class="text-no-wrap">顶层甲板</p>
+                            <p class="text-no-wrap">{{ t('displayCabinet.ship.topDeck') }}</p>
                           </template>
                         </v-text-field>
                         <v-text-field :value="shipDetailData.slots.leftSideWeapon[1].lower" readonly
@@ -244,7 +254,7 @@ const onStatisticsRawMaterial = () => {
                                       v-if="shipDetailData.slots.leftSideWeapon[1].lower"
                                       variant="underlined" density="compact">
                           <template v-slot:append-inner>
-                            <p class="text-no-wrap">下层甲板</p>
+                            <p class="text-no-wrap">{{ t('displayCabinet.ship.lowerDeck') }}</p>
                           </template>
                         </v-text-field>
                       </v-col>
@@ -258,7 +268,7 @@ const onStatisticsRawMaterial = () => {
                       <v-col>
                         <p>
                           <v-row align="center">
-                            <v-col><b>右侧武器</b></v-col>
+                            <v-col><b>{{t('displayCabinet.ship.rightSideWeapon')}}</b></v-col>
                             <v-col cols>
                               <v-divider></v-divider>
                             </v-col>
@@ -272,7 +282,7 @@ const onStatisticsRawMaterial = () => {
                                       v-if="shipDetailData.slots.rightSideWeapon[1].top"
                                       variant="underlined" density="compact">
                           <template v-slot:append-inner>
-                            <p class="text-no-wrap">顶层甲板</p>
+                            <p class="text-no-wrap">{{ t('displayCabinet.ship.topDeck') }}</p>
                           </template>
                         </v-text-field>
                         <v-text-field :value="shipDetailData.slots.rightSideWeapon[1].lower" readonly
@@ -280,7 +290,7 @@ const onStatisticsRawMaterial = () => {
                                       v-if="shipDetailData.slots.rightSideWeapon[1].lower"
                                       variant="underlined" density="compact">
                           <template v-slot:append-inner>
-                            <p class="text-no-wrap">下层甲板</p>
+                            <p class="text-no-wrap">{{ t('displayCabinet.ship.lowerDeck') }}</p>
                           </template>
                         </v-text-field>
                       </v-col>
@@ -294,7 +304,7 @@ const onStatisticsRawMaterial = () => {
                       <v-col>
                         <p>
                           <v-row align="center">
-                            <v-col><b>后置武器</b></v-col>
+                            <v-col><b>{{ t('displayCabinet.ship.aftWeapon') }}</b></v-col>
                             <v-col cols>
                               <v-divider></v-divider>
                             </v-col>
@@ -308,7 +318,7 @@ const onStatisticsRawMaterial = () => {
                                       v-if="shipDetailData.slots.aftWeapon[1].top"
                                       variant="underlined" density="compact">
                           <template v-slot:append-inner>
-                            <p class="text-no-wrap">顶层甲板</p>
+                            <p class="text-no-wrap">{{ t('displayCabinet.ship.topDeck') }}</p>
                           </template>
                         </v-text-field>
                         <v-text-field :value="shipDetailData.slots.aftWeapon[1].lower" readonly
@@ -316,7 +326,7 @@ const onStatisticsRawMaterial = () => {
                                       v-if="shipDetailData.slots.aftWeapon[1].lower"
                                       variant="underlined" density="compact">
                           <template v-slot:append-inner>
-                            <p class="text-no-wrap">下层甲板</p>
+                            <p class="text-no-wrap">{{ t('displayCabinet.ship.lowerDeck') }}</p>
                           </template>
                         </v-text-field>
                       </v-col>
@@ -334,7 +344,7 @@ const onStatisticsRawMaterial = () => {
                                     hide-details
                                     variant="underlined" density="compact">
                         <template v-slot:append-inner>
-                          <p class="text-no-wrap">辅助武器</p>
+                          <p class="text-no-wrap">{{ t('displayCabinet.ship.auxiliaryWeapon') }}</p>
                         </template>
                       </v-text-field>
                     </v-col>
@@ -346,7 +356,7 @@ const onStatisticsRawMaterial = () => {
                                 hide-details
                                 variant="underlined" density="compact">
                     <template v-slot:append-inner>
-                      <p class="text-no-wrap">家具</p>
+                      <p class="text-no-wrap">{{t('displayCabinet.ship.furniture')}}</p>
                     </template>
                   </v-text-field>
                 </template>
@@ -356,7 +366,7 @@ const onStatisticsRawMaterial = () => {
                                 hide-details
                                 variant="underlined" density="compact">
                     <template v-slot:append-inner>
-                      <p class="text-no-wrap">技能</p>
+                      <p class="text-no-wrap">{{t('displayCabinet.ship.ultimate')}}</p>
                     </template>
                   </v-text-field>
                 </template>
@@ -366,7 +376,7 @@ const onStatisticsRawMaterial = () => {
                               hide-details
                               variant="underlined" density="compact">
                   <template v-slot:append-inner>
-                    <p class="text-no-wrap">血量</p>
+                    <p class="text-no-wrap">{{t('displayCabinet.ship.hitPoints')}}</p>
                   </template>
                 </v-text-field>
 
@@ -374,34 +384,34 @@ const onStatisticsRawMaterial = () => {
                               hide-details
                               variant="underlined" density="compact">
                   <template v-slot:append-inner>
-                    <p class="text-no-wrap">增强力量</p>
+                    <p class="text-no-wrap">{{ t('displayCabinet.ship.braceStrength') }}</p>
                   </template>
                 </v-text-field>
 
-                <p class="mt-4"><b>速度 (kts)</b></p>
+                <p class="mt-4"><b>{{ t('displayCabinet.ship.sailSpeed.title')}}</b></p>
                 <ShipSailSpeedWidget :data="shipDetailData"></ShipSailSpeedWidget>
 
-                <p class="mt-4"><b>容器</b></p>
+                <p class="mt-4"><b>{{t('displayCabinet.ship.cargo')}}</b></p>
                 <v-text-field :value="shipDetailData.cargo.cargoSlots" readonly
                               hide-details
                               variant="underlined" density="compact">
                   <template v-slot:append-inner>
-                    <p class="text-no-wrap">格子</p>
+                    <p class="text-no-wrap">{{ t('displayCabinet.ship.cargoSlots')}}</p>
                   </template>
                 </v-text-field>
                 <v-text-field :value="shipDetailData.cargo.cargoMaxWeight" readonly
                               hide-details
                               variant="underlined" density="compact">
                   <template v-slot:append-inner>
-                    <p class="text-no-wrap">容量</p>
+                    <p class="text-no-wrap">{{ t('displayCabinet.ship.cargoMaxWeight')}}</p>
                   </template>
                 </v-text-field>
               </v-col>
               <v-col cols="12">
-                <v-divider>材料</v-divider>
+                <v-divider>{{t('displayCabinet.ship.materialsTitle')}}</v-divider>
               </v-col>
               <v-col cols="12" sm="12" lg="6" xl="6">
-                <p class="mt-4 mb-2"><b>建造所需物品</b></p>
+                <p class="mt-4 mb-2"><b>{{ t('displayCabinet.ship.required') }}</b></p>
                 <template v-if="shipDetailData.required && Object.keys(shipDetailData.required).length > 0">
                   <div v-for="([key, value], rIndex) in Object.entries(shipDetailData.required)"
                        :key="rIndex">
@@ -429,7 +439,7 @@ const onStatisticsRawMaterial = () => {
               </v-col>
               <v-col cols="12" sm="12" lg="6" xl="6">
                 <v-row class="mt-4 mb-1">
-                  <p><b>原材料</b></p>
+                  <p><b>{{ t('displayCabinet.ship.rawMaterials') }}</b></p>
                   <v-spacer></v-spacer>
                   <v-btn density="compact" icon @click="isShowShipRawList = !isShowShipRawList" v-if="Object.keys(shipRawMaterials).length > 0">
                     <v-icon :icon="`mdi-menu-${isShowShipRawList ? 'down' : 'up'}`"></v-icon>
@@ -490,56 +500,59 @@ const onStatisticsRawMaterial = () => {
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
             <v-card class="mb-4 pl-3" v-if="shipDetailData.bySeason">
-              <v-text-field :value="t(`snb.seasons.${shipDetailData.bySeason}`) || 'none'" readonly
+              <v-text-field :value="t(`snb.seasons.${shipDetailData.bySeason.id}`) || 'none'" readonly
                             hide-details
+                            tile
                             variant="solo-filled">
                 <template v-slot:prepend>
-                  <p class="text-no-wrap">出自</p>
+                  <p class="text-no-wrap">{{t('displayCabinet.ship.bySeason.prepend')}}</p>
                 </template>
                 <template v-slot:append-inner>
-                  <p class="text-no-wrap">赛季</p>
+                  <p class="text-no-wrap">{{t('displayCabinet.ship.bySeason.append')}}</p>
                 </template>
               </v-text-field>
             </v-card>
 
             <template v-if="bluePrint">
-              <v-text-field :value="bluePrint" readonly
-                            hide-details
-                            variant="underlined" density="compact">
+              <v-combobox v-model="bluePrint" multiple chips readonly
+                          hide-details
+                          variant="underlined" density="compact">
                 <template v-slot:append-inner>
-                  <p class="text-no-wrap">蓝图</p>
+                  <p class="text-no-wrap">{{ t('displayCabinet.ship.bluePrint') }}</p>
                 </template>
                 <template v-slot:append>
                   <ItemSlotBase :size="10" class="pa-0">
                     <v-icon icon="mdi-book"></v-icon>
                   </ItemSlotBase>
                 </template>
+              </v-combobox>
+            </template>
+            <template v-if="shipDetailData.requiredRank">
+              <v-text-field :value="shipDetailData.requiredRank || 'none'" readonly
+                            hide-details
+                            variant="underlined" density="compact">
+                <template v-slot:append-inner>
+                  <p class="text-no-wrap">{{ t('displayCabinet.ship.requiredRank') }}</p>
+                </template>
               </v-text-field>
             </template>
-            <v-text-field :value="shipDetailData.requiredRank || 'none'" readonly
-                          hide-details
-                          variant="underlined" density="compact">
-              <template v-slot:append-inner>
-                <p class="text-no-wrap">最低使用等级</p>
-              </template>
-            </v-text-field>
             <v-text-field :value="shipDetailData.dateAdded" readonly
                           hide-details
                           variant="underlined" density="compact">
               <template v-slot:append-inner>
-                <p class="text-no-wrap">添加日期</p>
+                <p class="text-no-wrap">{{ t('displayCabinet.ship.dateAdded') }}</p>
               </template>
             </v-text-field>
             <v-text-field :value="shipDetailData.lastUpdated" readonly
                           hide-details
                           variant="underlined" density="compact">
               <template v-slot:append-inner>
-                <p class="text-no-wrap">更新日期</p>
+                <p class="text-no-wrap">{{ t('displayCabinet.ship.lastUpdated') }}</p>
               </template>
             </v-text-field>
 
             <template v-if="shipDetailData.perks">
-              <p class="mt-5 mb-1 font-weight-bold">词条 ({{ shipDetailData.perks.length || 0 }})</p>
+              <p class="mt-5 mb-1 font-weight-bold">{{t('displayCabinet.ship.perks')}} ({{ shipDetailData.perks.length || 0 }})</p>
               <PerksWidget :data="shipDetailData"></PerksWidget>
             </template>
           </v-col>
@@ -547,7 +560,6 @@ const onStatisticsRawMaterial = () => {
       </v-container>
     </div>
   </div>
-
 </template>
 
 <style scoped lang="less">

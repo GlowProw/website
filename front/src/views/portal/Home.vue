@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {onMounted, type Ref, ref} from "vue";
-import {api, http} from "@/assets/sripts";
+import {api, http, time} from "@/assets/sripts";
 import {Seasons} from "glow-prow-data";
 import {Season} from "glow-prow-data/src/entity/Seasons";
 import {useI18n} from "vue-i18n";
@@ -105,17 +105,16 @@ const getCurrentSeason = (): Season | null => {
           <video autoplay playsinline
                  class="card-enlargement-flavor"
                  muted loop type="video/mp4"
-                 src="//cdn.hommk.com/pcgame/ubi2015/img/gamezone/sb/full/skullandbones-year2-loop.mp4"></video>
+                 src="http://cdn.hommk.com/pcgame/ubi2015/img/gamezone/sb/full/skullandbones-year2-loop.mp4"></video>
         </div>
       </template>
 
       <v-container class="portal-banner-top">
-
       </v-container>
 
-      <div class="portal-season-left-tip" v-if="currentlySeason && currentlySeason.alternativeName">
+      <div class="portal-season-left-tip" v-if="currentlySeason && currentlySeason.id">
         <div class="opacity-30">
-          本赛季 {{ currentlySeason.alternativeName.toUpperCase() }}
+          <b class="mb-2">本赛季 {{ `${currentlySeason.alternativeName}`.toUpperCase()}}</b> 剩余 {{ time.calcRemainingDays(currentlySeason.endDate) }} 天
           <v-divider thickness="3" vertical/>
           {{ t(`snb.calendar.${currentlySeason?.id}.name`) }}
         </div>
@@ -214,7 +213,7 @@ const getCurrentSeason = (): Season | null => {
     position: absolute;
     top: 0;
     left: 0;
-    padding-top: 10vh;
+    padding-top: calc(80px + 3vh);
     padding-left: 3vh;
     padding-right: 3vh;
     height: 100%;
@@ -231,11 +230,8 @@ const getCurrentSeason = (): Season | null => {
         bottom: 0;
         content: "";
         margin: 0 5px;
-        border-bottom: 1px solid #fff;
       }
     }
-
-
   }
 }
 

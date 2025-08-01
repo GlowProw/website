@@ -1,19 +1,21 @@
 <script setup lang="ts">
-
 import type {Ship} from "glow-prow-data/src/entity/Ships.ts";
-import {computed, onMounted, ref, watch} from "vue";
+import {computed, ref, watch} from "vue";
+import {useI18n} from "vue-i18n";
 
 let simulationValue = ref(1),
     simulationArray = ref([]);
 
-const props = defineProps<{ data: Ship }>()
+const props = defineProps<{ data: Ship }>(),
+    {t} = useI18n()
 
 watch(() => props.data, (value) => {
   simulationArray.value = Object.values(value.sailSpeed);
 })
 
-
-// 分段
+/**
+ * 航速分段
+ */
 const ticks = computed(() => {
   return Object.keys(props.data.sailSpeed) || []
 })
@@ -45,26 +47,25 @@ const ticks = computed(() => {
       </v-slider>
     </v-card>
 
-
     <v-text-field :value="data.sailSpeed.halfSail" readonly
                   hide-details
                   variant="underlined" density="compact">
       <template v-slot:append-inner>
-        <p class="text-no-wrap">最低</p>
+        <p class="text-no-wrap">{{ t('displayCabinet.ship.sailSpeed.halfSail') }}</p>
       </template>
     </v-text-field>
     <v-text-field :value="data.sailSpeed.fullSail" readonly
                   hide-details
                   variant="underlined" density="compact">
       <template v-slot:append-inner>
-        <p class="text-no-wrap">全速</p>
+        <p class="text-no-wrap">{{ t('displayCabinet.ship.sailSpeed.fullSail') }}</p>
       </template>
     </v-text-field>
-    <v-text-field :value="data.sailSpeed.fullSail" readonly
+    <v-text-field :value="data.sailSpeed.travelSail" readonly
                   hide-details
                   variant="underlined" density="compact">
       <template v-slot:append-inner>
-        <p class="text-no-wrap">极限</p>
+        <p class="text-no-wrap">{{ t('displayCabinet.ship.sailSpeed.travelSail') }}</p>
       </template>
     </v-text-field>
   </div>

@@ -10,6 +10,7 @@ import {onMounted, Ref, ref} from "vue";
 import {storage} from "@/assets/sripts";
 import {Ultimate, Ultimates} from "glow-prow-data/src/entity/Ultimates";
 import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
+import {useI18n} from "vue-i18n";
 
 let items = Items,
     ships = Ships,
@@ -17,7 +18,8 @@ let items = Items,
     itemsRandomList: Ref<Item[]> = ref([]),
     shipsRandomList: Ref<Ship[]> = ref([]),
     ultimatesRandomList: Ref<Ultimate[]> = ref([]),
-    displayCabinetHistorys = ref([])
+    displayCabinetHistorys = ref([]),
+    {t} = useI18n()
 
 onMounted(() => {
   getItems()
@@ -85,21 +87,21 @@ function getRandom(obj, count) {
 <template>
   <v-breadcrumbs class="pt-5">
     <v-container class="pa-0">
-      <v-breadcrumbs-item to="/">首页</v-breadcrumbs-item>
+      <v-breadcrumbs-item to="/">{{ t('home.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item>展示柜</v-breadcrumbs-item>
+      <v-breadcrumbs-item>{{ t('displayCabinet.title') }}</v-breadcrumbs-item>
     </v-container>
   </v-breadcrumbs>
   <v-divider></v-divider>
   <v-container class="mb-10 overview">
-    <h1>展示柜</h1>
-    <p class="mb-10 opacity-80">嗨，船长, 要看看我的宝贝嘛</p>
+    <h1>{{t('displayCabinet.title')}}</h1>
+    <p class="mb-10 opacity-80">{{ t('displayCabinet.ships.description') }}</p>
 
     <v-row class="fill-height">
       <div class="w-100 mb-5" v-if="displayCabinetHistorys.length > 0">
         <v-toolbar class="title-long-flavor bg-black mb-5">
           <router-link to="/display-cabinet/ships" class="ml-10 font-weight-bold text-amber">
-            游览历史
+            {{ t('displayCabinet.cabinetHistoryTitle') }}
             ({{ displayCabinetHistorys.length || 0 }})
           </router-link>
           <v-spacer></v-spacer>
@@ -122,7 +124,7 @@ function getRandom(obj, count) {
       <div class="w-100">
         <v-toolbar class="title-long-flavor bg-black mb-5">
           <router-link to="/display-cabinet/ships" class="ml-10 font-weight-bold text-amber">
-            船
+            {{ t('displayCabinet.ships.title') }}
             ({{ Object.keys(ships).length || 0 }})
           </router-link>
           <v-spacer></v-spacer>
@@ -130,7 +132,7 @@ function getRandom(obj, count) {
             <v-icon icon="mdi-dice-4-outline"></v-icon>
           </v-btn>
           <router-link class="mr-10" to="/display-cabinet/ships">
-            更多
+            {{ t('displayCabinet.more') }}
           </router-link>
         </v-toolbar>
         <v-row>
@@ -144,7 +146,7 @@ function getRandom(obj, count) {
       <div class="w-100">
         <v-toolbar class="title-long-flavor bg-black mb-5">
           <router-link to="/display-cabinet/ultimates" class="ml-10 font-weight-bold text-amber">
-            终极技能
+            {{ t('displayCabinet.ultimates.title') }}
             ({{ Object.keys(ultimates).length || 0 }})
           </router-link>
           <v-spacer></v-spacer>
@@ -152,7 +154,7 @@ function getRandom(obj, count) {
             <v-icon icon="mdi-dice-4-outline"></v-icon>
           </v-btn>
           <router-link class="mr-10" to="/display-cabinet/ultimates">
-            更多
+            {{ t('displayCabinet.more') }}
           </router-link>
         </v-toolbar>
         <v-row>
@@ -166,7 +168,7 @@ function getRandom(obj, count) {
       <div class="mt-10">
         <v-toolbar class="title-long-flavor bg-black mb-5">
           <router-link to="/display-cabinet/items" class="ml-10 font-weight-bold text-amber">
-            物品
+            {{ t('displayCabinet.items.title') }}
             ({{ Object.keys(items).length || 0 }})
           </router-link>
           <v-spacer></v-spacer>
@@ -174,7 +176,7 @@ function getRandom(obj, count) {
             <v-icon icon="mdi-dice-4-outline"></v-icon>
           </v-btn>
           <router-link class="mr-10" to="/display-cabinet/items">
-            更多
+            {{ t('displayCabinet.more') }}
           </router-link>
         </v-toolbar>
         <v-row>

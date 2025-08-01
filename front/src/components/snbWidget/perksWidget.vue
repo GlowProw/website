@@ -6,7 +6,7 @@ import {useI18nUtils} from "@/assets/sripts/i18nUtil.ts";
 import {onUnmounted, ref, watch} from "vue";
 import {useRoute} from "vue-router";
 
-const {asArray, asString, sanitizeString} = useI18nUtils()
+const {asArray, sanitizeString} = useI18nUtils()
 
 const {t, te, locale} = useI18n(),
     route = useRoute(),
@@ -15,9 +15,7 @@ const {t, te, locale} = useI18n(),
     }),
     unwatch = watch(
         () => locale.value,
-        async (newVal) => {
-          console.log('语言已切换至:', newVal)
-        },
+        async () => {},
         {immediate: true}
     )
 

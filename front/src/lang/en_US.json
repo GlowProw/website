@@ -1,3 +1,261 @@
 {
-  "name": "Glow Prow"
+  "name": "Glow Prow",
+  "about": {
+    "title": "About",
+    "minor": "",
+    "description": ""
+  },
+  "basic": {
+    "button": {
+      "cancel": "Cancel",
+      "commit": "Commit",
+      "insert": "Insert",
+      "next": "Next",
+      "prev": "Previous",
+      "reply": "Reply",
+      "report": "Report",
+      "reset": "Reset",
+      "save": "Save",
+      "submit": "Confirm"
+    },
+    "tips": {
+      "comment": {
+        "ok": "Posted successfully",
+        "bad": "Post format error, please check if the content meets requirements",
+        "notFound": "The target comment does not exist",
+        "notFoundOrNotOwner": "No corresponding comment or user",
+        "error": "Comment error: {context}",
+        "delete": {
+          "ok": "Deleted successfully"
+        }
+      },
+      "publish": {
+        "ok": "Published successfully",
+        "bad": "Publish format error, please check if all fields are filled correctly"
+      },
+      "captcha": {
+        "bad": "Captcha error",
+        "expired": "Captcha expired",
+        "wrong": "Incorrect captcha"
+      },
+      "login": {
+        "ok": "Login successful",
+        "bad": "Login error: Please check login information format",
+        "wrong": "Incorrect login information",
+        "expired": "User session expired, please log in again",
+        "accountIncorrect": "Incorrect login information"
+      },
+      "register": {
+        "ok": "Registration successful",
+        "userAlreadyHas": "Username already exists",
+        "error": "Registration error: {context}",
+        "bad": "Registration error: Please check registration information format"
+      },
+      "like": {
+        "ok": "Like processed successfully",
+        "error": "Like error: {context}",
+        "bad": "Like error: {context}"
+      },
+      "user": {
+        "invalid": "Invalid user",
+        "tokenExpired": "User session expired, please log in again"
+      },
+      "request": {
+        "rateLimited": "Request too frequent, please slow down"
+      },
+      "teamUp": {
+        "pushSuccess": "Posted successfully",
+        "newTeamUp": "Captain, new team-up available",
+        "anonymous_rateLimit": "Anonymous posting too frequent, please try again in {remainingTime} hours",
+        "account_rateLimit": "Posting too frequent, please try again in {remainingTime} minutes",
+        "authFailed": "Token invalid or expired, please log in again",
+        "error": "Communication error: {context}"
+      }
+    }
+  },
+  "portal": {
+    "title": "Home"
+  },
+  "displayCabinet": {
+    "title": "Showcase",
+    "description": "",
+    "size": {
+      "extraSmall": "Extra Small",
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large"
+    },
+    "rarity": {
+      "common": "Common",
+      "uncommon": "Uncommon",
+      "rare": "Rare",
+      "epic": "Epic",
+      "legendary": "Legendary"
+    },
+    "type": {
+      "undefined": "None",
+      "consumable": "Consumable",
+      "ammunition": "Ammunition",
+      "armor": "Armor",
+      "tool": "Tool",
+      "chest": "Chest",
+      "culverin": "Culverin",
+      "longGun": "Long Gun",
+      "demicannon": "Demicannon",
+      "bombard": "Bombard",
+      "torpedo": "Torpedo",
+      "ballista": "Ballista",
+      "seaFire": "Sea Fire",
+      "mortar": "Mortar",
+      "rocket": "Rocket",
+      "springloader": "Springloader",
+      "offensiveFurniture": "Offensive Furniture",
+      "utilityFurniture": "Utility Furniture",
+      "majorFurniture": "Major Furniture",
+      "shipUpgrade": "Ship Upgrade"
+    },
+    "tier": "Tier {num}",
+    "category": {
+      "title": "Category"
+    },
+    "items": {
+      "title": "Item List",
+      "description": "Item List"
+    },
+    "item": {
+      "title": "Item Details"
+    },
+    "ships": {
+      "title": "Ships",
+      "description": "Ship List"
+    },
+    "ship": {
+      "title": "Ship Details",
+      "frontWeapon": "Front Weapon",
+      "leftSideWeapon": "Left Side Weapon",
+      "rightSideWeapon": "Right Side Weapon",
+      "aftWeapon": "Aft Weapon"
+    },
+    "ultimate": {
+      "title": "Ultimate Details"
+    },
+    "ultimates": {
+      "title": "Ultimate List"
+    }
+  },
+  "teamUp": {
+    "title": "Team Finder",
+    "emptyPlayer": "None",
+    "emptyUsername": "Anonymous Captain",
+    "emptyDescription": "This person is lazy and left nothing",
+    "copyPlayerBtn": "Copy",
+    "copyPlayerSuccess": "Copied successfully",
+    "pushLoginInfo": "👋 {username}, assemble your fleet and set sail!",
+    "form": {
+      "player": "Player ID",
+      "time": "Willing to wait time",
+      "descriptionPlaceholder": "Team description, you can also share your voice channel"
+    },
+    "time": {
+      "minutes": "{count} minutes",
+      "day": "{count} days"
+    },
+    "tags": {
+      "pve": "Survival",
+      "pvp": "Player Combat",
+      "timeWander": "World Roaming",
+      "plotTask": "Story Mission",
+      "sideQuest": "Side Quest",
+      "reward": "Bounty",
+      "fortressRaiding": "Fortress Raid",
+      "transaction": "Item Trading",
+      "other": "Other"
+    }
+  },
+  "assembly": {
+    "title": "Loadout Workshop",
+    "modes": {
+      "pvp": "Combat",
+      "pve": "Survival"
+    },
+    "teamFormationMethods": {
+      "singlePlayer": "Solo",
+      "multiPlayer": "Multiplayer"
+    },
+    "difficultyOfAcquisitions": {
+      "simple": "Easy",
+      "medium": "Medium",
+      "difficulties": "Hard"
+    },
+    "archetypes": {
+      "dps": "DPS",
+      "tank": "Tank",
+      "support": "Support"
+    },
+    "damageTypes": {
+      "electric": "Electric",
+      "explosive": "Explosive",
+      "fire": "Fire",
+      "flooding": "Flooding",
+      "lifesteal": "Lifesteal",
+      "piercing": "Piercing",
+      "poison": "Poison",
+      "repair": "Repair",
+      "tearing": "Tearing"
+    },
+    "workshop": {
+      "title": "Workshop"
+    },
+    "detail": {
+      "title": "Loadout Details"
+    },
+    "browse": {
+      "title": "Loadout Gallery",
+      "search": "Search loadout creator or loadout name",
+      "newAssembly": "Create Loadout",
+      "filterTitle": "Filter",
+      "filter": {
+        "createdTime": "Creation Time",
+        "updatedTime": "Update Time",
+        "likes": "Likes",
+        "desc": "Ascending",
+        "asc": "Descending"
+      }
+    },
+    "publish": {
+      "title": "Publish"
+    }
+  },
+  "login": {
+    "title": "Login",
+    "form": {
+      "placeholder": {
+        "username": "Enter account ID",
+        "password": "Enter password"
+      },
+      "label": {
+        "username": "Account ID",
+        "password": "Password"
+      }
+    }
+  },
+  "register": {
+    "title": "Register"
+  },
+  "footer": {
+    "basic": {
+      "description": "Skull and Bones Checklist Website"
+    }
+  },
+  "captcha": {
+    "get": "Get Captcha",
+    "fresh": "Refresh Captcha",
+    "messages": {
+      "bad": "Captcha error, please contact admin",
+      "expired": "Captcha expired",
+      "gen": "Obtained successfully",
+      "wrong": "Incorrect captcha"
+    },
+    "title": "Captcha"
+  }
 }

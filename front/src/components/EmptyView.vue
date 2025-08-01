@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import {useI18n} from "vue-i18n";
 
+const {t} = useI18n()
 </script>
 
 <template>
   <div class="empty">
-    <p>空空如也</p>
-    <p class="empty-subtext">这里什么都没有</p>
+    <p>{{t('empty.title')}}</p>
+    <p class="mt-2 empty-subtext">{{t('empty.description')}}</p>
     <slot></slot>
   </div>
 </template>
@@ -16,7 +18,7 @@
   padding: 20px 10px;
 
   .empty-subtext {
-    font-size: 12;
+    font-size: 13px;
     opacity: .5;
   }
 }

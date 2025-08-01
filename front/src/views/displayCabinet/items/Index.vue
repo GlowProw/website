@@ -9,15 +9,12 @@ import {useRoute} from "vue-router";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import EmptyView from "@/components/EmptyView.vue";
 
-const rarityImages = import.meta.glob('@/assets/images/item-rarity-*.png', {eager: true});
 const items: Items = Items,
     route = useRoute(),
     {t} = useI18n()
 
 let itemsData: any = ref([]),
     exceedingItemsCount = ref(0),
-    raritys: string[] = ["common", "uncommon", "rare", "epic", "legendary"],
-    itemsRarityImages = ref({}),
     itemsFilter = ref({
       type: 'index',
       keyValue: '',
@@ -53,20 +50,8 @@ const onProcessedData = computed(() => {
     isSearching = computed(() => itemsFilter.value.keyValue)
 
 onMounted(() => {
-  onReady()
   onFirstLoad()
 })
-
-const onReady = async () => {
-  // 稀有度背景
-  for (let key in raritys) {
-    const imageKey = `/src/assets/images/item-rarity-${raritys[key]}.png`;
-
-    if (rarityImages[imageKey]) {
-      itemsRarityImages.value[raritys[key]] = rarityImages[imageKey].default;
-    }
-  }
-}
 
 const onFirstLoad = () => {
   const data = Object.values(items);
@@ -103,7 +88,7 @@ const onSearchItem = () => {
 <template>
   <v-breadcrumbs class="pt-5">
     <v-container class="pa-0">
-      <v-breadcrumbs-item to="/">首页</v-breadcrumbs-item>
+      <v-breadcrumbs-item to="/">{{ t('home.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
       <v-breadcrumbs-item to="/display-cabinet">{{ t('displayCabinet.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
@@ -122,7 +107,7 @@ const onSearchItem = () => {
       <v-col cols="12" lg="6" xl="6">
         <v-row>
           <v-col>
-            <v-text-field placeholder="搜索" hide-details
+            <v-text-field :placeholder="t('basic.button.search')" hide-details
                           variant="solo-filled"
                           density="comfortable"
                           clearable
@@ -130,7 +115,7 @@ const onSearchItem = () => {
                           @click:clear="onSearchItem"
                           v-model="itemsFilter.inputWidgetKeyValue">
               <template v-slot:append-inner>
-                <v-btn @click="onSearchItem">搜索</v-btn>
+                <v-btn @click="onSearchItem">{{ t('basic.button.search') }}</v-btn>
               </template>
             </v-text-field>
           </v-col>
@@ -141,7 +126,7 @@ const onSearchItem = () => {
 
   <template v-if="!isSearching">
     <v-infinite-scroll
-        class="mb-10"
+        height="100vh"
         :items="itemsData"
         @load="onLoad">
       <v-container>
@@ -176,7 +161,9 @@ const onSearchItem = () => {
   <template v-else>
     <v-container>
       <template v-if="exceedingItemsCount > 0" >
-        <v-alert class="w-100 mb-5" type="warning" variant="tonal">超出搜索显示最大{{ maximumSearchCount }}，剩余{{ exceedingItemsCount }}已节流,可以再精准填写关键词</v-alert>
+        <v-alert class="w-100 mb-5" type="warning" variant="tonal">
+          {{ t('displayCabinet.ships.searchCountOverflowTip', {maximumSearchCount,exceedingItemsCount}) }}
+        </v-alert>
       </template>
 
       <v-row class="item-list">

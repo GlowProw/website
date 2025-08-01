@@ -1,53 +1,17 @@
 <script setup lang="ts">
 import {onMounted, type Ref, ref} from "vue";
 import {useI18n} from "vue-i18n";
-import {Seasons} from "@skullandbonestools/snbdata";
-import type {Season} from "@skullandbonestools/snbdata/dist/daos/seasons";
-import {http} from "@/assets/sripts";
+
+import {Seasons} from "glow-prow-data";
+import {time, http} from "@/assets/sripts";
+
 import Loading from "@/components/Loading.vue";
 import CalendarEventSLotWidget from "@/components/snbWidget/calendarEventSLotWidget.vue";
-
-interface EventOccurrence {
-  month: number;
-  day: number;
-}
-
-interface CalendarEvent {
-  id: string;
-  name: string;
-  description: string;
-  duration: number;
-  occurrences: EventOccurrence[];
-}
-
-interface CalendarData {
-  events: {
-    [key: string]: CalendarEvent;
-  };
-}
-
-interface DayEvent {
-  id: string;
-  name: string;
-  description: string;
-  duration: number;
-  isStart: boolean;
-}
-
-interface CalendarDay {
-  day: number;
-  events: DayEvent[];
-}
-
-interface FormattedCalendar {
-  [month: string]: {
-    data: CalendarDay[];
-  };
-}
+import {Season} from "glow-prow-data/src/entity/Seasons";
 
 const {t, te} = useI18n()
 
-let seasons: Seasons = Seasons,
+let seasons = Seasons,
 
     // 赛季选择器
     selectSeasonsList = ref(),
@@ -215,33 +179,16 @@ async function onOpenICS(url, season: string, id?: any) {
 
 /**
  * 计算当前赛季剩余天数
- * @returns {number | null} 剩余天数，如果不在赛季内则返回 null
  */
 function getRemainingDays(): number | null {
   let targetDate = seasons[selectSeasonsValue.value.id].endDate
-
   const endDate = new Date(targetDate);
+
   if (isNaN(endDate.getTime())) {
     console.error("Invalid date:", targetDate);
     return 0;
   }
-
-  const now = new Date();
-  const currentDate = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate()
-  );
-  const targetPureDate = new Date(
-      endDate.getFullYear(),
-      endDate.getMonth(),
-      endDate.getDate()
-  );
-
-  const remainingMs = targetPureDate.getTime() - currentDate.getTime();
-  const remainingDays = Math.floor(remainingMs / 86400000);
-
-  return remainingDays >= 0 ? remainingDays : 0;
+  return time.calcRemainingDays(endDate)
 }
 </script>
 

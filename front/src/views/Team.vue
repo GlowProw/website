@@ -453,7 +453,7 @@ const onWsReconnect = () => {
             </v-select>
           </v-col>
           <v-col cols="12" sm="6" md="12" lg="3" xl="3">
-            <v-text-field placeholder="搜索"
+            <v-text-field :placeholder="t('basic.button.search')"
                           hide-details
                           variant="solo-filled"
                           density="comfortable" v-model="filtering.keyword">

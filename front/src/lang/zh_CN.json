@@ -16,7 +16,8 @@
       "report": "举报",
       "reset": "重置",
       "save": "保存",
-      "submit": "确认"
+      "submit": "确认",
+      "search": "搜索"
     },
     "tips": {
       "comment": {
@@ -78,7 +79,9 @@
   },
   "displayCabinet": {
     "title": "展示柜",
-    "description": "",
+    "description": "嗨，船长, 要看看我的宝贝嘛",
+    "cabinetHistoryTitle": "游览历史",
+    "more": "更多",
     "size": {
       "extraSmall": "超小型",
       "small": "小型",
@@ -118,23 +121,82 @@
     "category": {
       "title": "分类"
     },
+    "share": {
+      "title": "分享",
+      "description": "分享你的{name}"
+    },
     "items": {
       "title": "物品列表",
       "description": "物品列表"
     },
     "item": {
-      "title": "物品详情"
+      "title": "物品详情",
+      "weight": "重量",
+      "projectilesPerShot": "单发伤害",
+      "rateOfFire": "开火间隔 (秒)",
+      "DPS": "DPS (Damage per Second)",
+      "DPSWithPerks": "DPS with Perks",
+      "damagePerShot": "单发损伤",
+      "DamagePerShotWithPerks": "damage Mitigation",
+      "reloadSpeed": "重新加载速度（秒）",
+      "optimalRange": "范围（米）",
+      "projectileSpeed": "射弹速度（米/秒）",
+      "materialsTitle": "材料",
+      "required": "物品建造所需物品",
+      "rawMaterials": "所需物品原材料",
+      "modifications": "可安装模组",
+      "bySeason": {
+        "prepend": "出自",
+        "append": "赛季"
+      },
+      "bluePrint": "蓝图",
+      "requiredRank": "最低使用等级",
+      "gearScore": "分数",
+      "rarity": "稀有度",
+      "dateAdded": "添加日期",
+      "lastUpdated": "更新日期",
+      "damageType": "武器属性",
+      "perks": "词条"
     },
     "ships": {
       "title": "船只",
-      "description": "船只列表"
+      "description": "\"自新大陆开拓以来，每一艘传奇战舰都在此留下印记。钢铁与风帆的交响诗，等待您的检阅。\"",
+      "searchCountOverflowTip": "超出搜索显示最大{maximumSearchCount}，剩余{exceedingItemsCount}已节流,可以再精准填写关键词"
     },
     "ship": {
-      "title": "船详情",
+      "title": "船详详情",
       "frontWeapon": "前方武器",
       "leftSideWeapon": "左侧武器",
       "rightSideWeapon": "右侧武器",
-      "aftWeapon": "后方武器"
+      "aftWeapon": "后方武器",
+      "auxiliaryWeapon": "辅助武器",
+      "topDeck": "顶层甲板",
+      "lowerDeck": "下层甲板",
+      "furniture": "陈设",
+      "ultimate": "终极技能",
+      "hitPoints": "血量",
+      "braceStrength": "增强力量",
+      "sailSpeed": {
+        "title": "速度 (节/kts)",
+        "halfSail": "最低",
+        "fullSail": "全速",
+        "travelSail": "极限"
+      },
+      "cargo": "容器",
+      "cargoSlots": "容器格子",
+      "cargoMaxWeight": "容量承重",
+      "materialsTitle": "材料",
+      "required": "建造所需物品",
+      "rawMaterials": "原材料",
+      "bySeason": {
+        "prepend": "出自",
+        "append": "赛季"
+      },
+      "bluePrint": "蓝图",
+      "requiredRank": "最低使用等级",
+      "dateAdded": "添加日期",
+      "lastUpdated": "更新日期",
+      "perks": "词条"
     },
     "ultimate": {
       "title": "终结技详情"
@@ -242,10 +304,17 @@
   "register": {
     "title": "注册"
   },
+  "home": {
+    "title": "首页"
+  },
   "footer": {
     "basic": {
       "description": "碧海黑帆清单网站"
     }
+  },
+  "empty": {
+    "title": "空空如也",
+    "description": "这里什么都没有"
   },
   "captcha": {
     "get": "获得验证码",
