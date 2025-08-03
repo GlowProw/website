@@ -680,7 +680,7 @@ const onWsReconnect = () => {
                   <v-row class="mt-4 pa-2">
                     <v-spacer></v-spacer>
                     <v-btn-group border>
-                      <v-btn variant="text" width="80" @click="pushModel = false">取消</v-btn>
+                      <v-btn variant="text" width="80" @click="pushModel = false">{{ t('basic.button.cancel') }}</v-btn>
                       <v-btn @click="pushTeamInfo" color="#000" width="200" :loading="pushLoading">发布</v-btn>
                     </v-btn-group>
                   </v-row>

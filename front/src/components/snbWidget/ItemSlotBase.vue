@@ -1,6 +1,7 @@
 <script setup lang="ts">
-const props = withDefaults(defineProps<{ size: number | string, padding?: number | string }>(), {
-  padding: 1
+const props = withDefaults(defineProps<{ size?: number | string, padding?: number | string }>(), {
+  padding: 1,
+  size: '80px'
 })
 </script>
 

@@ -33,7 +33,7 @@ let
     draftList: Ref<[]> = ref([]),
     draftSaveQuickArchivingLoading = ref(false),
     draftSaveLoading = ref(false),
-    workshopHeight = ref(500),
+    workshopHeight = ref(600),
     shareData: Ref<any> = ref({
       name: '',
       description: ''
@@ -305,7 +305,7 @@ const onWorkshopDelete = () => {
 
         </v-col>
         <v-col cols="auto" class="ml-4 mr-3">
-          <v-btn @click="workshopHeight <= 600 ? workshopHeight += 100 : null" density="comfortable" icon>
+          <v-btn @click="workshopHeight <= 1000 ? workshopHeight += 100 : null" density="comfortable" icon>
             <v-icon icon="mdi-arrow-expand-vertical"></v-icon>
           </v-btn>
           <v-btn density="comfortable"
@@ -343,7 +343,7 @@ const onWorkshopDelete = () => {
       </v-card-item>
       <v-card-actions>
         <v-btn :loading="draftSaveLoading" @click="onSaveDraft">
-          确定
+          {{ t('basic.button.submit') }}
         </v-btn>
       </v-card-actions>
     </v-card>

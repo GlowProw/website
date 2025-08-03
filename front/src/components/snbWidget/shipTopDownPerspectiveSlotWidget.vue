@@ -5,13 +5,13 @@ const props = withDefaults(defineProps<{ activate: boolean }>(), {
 </script>
 
 <template>
-  <div class="ship-perspective-slot">
+  <div class="weapon-modification-icon">
     <div :class="[activate ? 'activate' : '']"></div>
   </div>
 </template>
 
 <style scoped lang="less">
-.ship-perspective-slot {
+.weapon-modification-icon {
   background-color: #000;
   > div {
     background-color: rgba(255, 255, 255, 0.2);

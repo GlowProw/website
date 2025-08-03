@@ -119,8 +119,8 @@ export default {
             :width="600"
             :styles="{
            top: pos && pos.top ? `calc(${pos.top}px + 1.5rem)` : 'calc(20%)',
-           left: isMobile ? 0 : pos && pos.left ? pos.left  + 'px' : 'calc(50% - 300px)',
-           bottom: isMobile ? 0 : null,
+           left: pos && pos.left ? pos.left  + 'px' : 'calc(50% - 300px)',
+           bottom: 0,
            margin: 0,
            padding: 0
          }"

@@ -229,7 +229,7 @@ const onCaptchaData = (data: any) => {
                       保存
                     </v-btn>
                     <v-btn @click="i.isEdit = false">
-                      取消
+                      {{ t('basic.button.cancel') }}
                     </v-btn>
                   </template>
                 </template>

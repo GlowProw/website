@@ -5,13 +5,16 @@
           class="canvas"
           ref="canvas"
           :style="{
-        transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
-        width: `${canvasWidth}px`,
-        height: `${contentHeight}px`,
-        'pointer-events': isDragging ? 'none' : 'auto'
-      }"
+            transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
+            width: `${canvasWidth}px`,
+            height: `${contentHeight}px`,
+            'pointer-events': isDragging ? 'none' : 'auto'
+          }"
           @wheel.prevent="handleWheel"
-          @mousedown="startDrag">
+          @mousedown="startDrag"
+          @touchstart="startTouchDrag"
+          @touchmove.prevent="handleTouchDrag"
+          @touchend="stopDrag">
         <div class="content-wrapper content-layer"
              :style="{ pointerEvents: 'auto' }"
              ref="contentWrapper">
@@ -53,10 +56,14 @@ export default {
     this.initCanvas()
     window.addEventListener('mousemove', this.handleDrag)
     window.addEventListener('mouseup', this.stopDrag)
+    window.addEventListener('touchmove', this.handleTouchDrag, {passive: false})
+    window.addEventListener('touchend', this.stopDrag)
   },
   beforeDestroy() {
     window.removeEventListener('mousemove', this.handleDrag)
     window.removeEventListener('mouseup', this.stopDrag)
+    window.removeEventListener('touchmove', this.handleTouchDrag)
+    window.removeEventListener('touchend', this.stopDrag)
     if (this.resizeObserver) this.resizeObserver.disconnect()
   },
   methods: {
@@ -69,6 +76,34 @@ export default {
         this.updateContentHeight()
         this.setupResizeObserver()
       })
+    },
+
+    // 触摸开始
+    startTouchDrag(e) {
+      if (e.touches.length !== 1) return // 只处理单指触摸
+
+      const touch = e.touches[0]
+      this.touchIdentifier = touch.identifier
+      this.isDragging = true
+      this.startPos = {
+        x: touch.clientX - this.position.x,
+        y: touch.clientY - this.position.y
+      }
+      this.$refs.canvas.style.cursor = 'grabbing'
+    },
+
+    // 触摸移动
+    handleTouchDrag(e) {
+      if (!this.isDragging || e.touches.length !== 1) return
+
+      // 找到对应的触摸点
+      const touch = Array.from(e.touches).find(t => t.identifier === this.touchIdentifier)
+      if (!touch) return
+
+      this.position.x = touch.clientX - this.startPos.x
+      this.position.y = touch.clientY - this.startPos.y
+
+      this.updateBackgroundPosition((-this.position.x + 100) * .5, (-this.position.y + 100) * .5)
     },
 
     // 使用 ResizeObserver 监听内容高度变化

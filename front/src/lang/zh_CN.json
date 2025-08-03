@@ -156,7 +156,8 @@
       "dateAdded": "添加日期",
       "lastUpdated": "更新日期",
       "damageType": "武器属性",
-      "perks": "词条"
+      "perks": "词条",
+      "damageMitigation": "损害减轻"
     },
     "ships": {
       "title": "船只",
@@ -205,8 +206,17 @@
       "title": "终结技列表"
     }
   },
+  "calendar": {
+    "title": "日历",
+    "meta": {
+      "keywords": "游戏日历,日历,日程表,规划"
+    }
+  },
   "teamUp": {
     "title": "组队搜寻",
+    "meta": {
+      "keywords": "组队搜寻,最大交易,海上交易,争夺,pvp,pve,pvevp"
+    },
     "emptyPlayer": "无",
     "emptyUsername": "匿名船长",
     "emptyDescription": "这个人很懒，什么都没写",
@@ -236,6 +246,9 @@
   },
   "assembly": {
     "title": "配装厂",
+    "meta": {
+      "keywords": "配装厂,碧海黑帆配装,配装,套装,游戏配装"
+    },
     "modes": {
       "pvp": "战斗",
       "pve": "生存"
@@ -266,7 +279,17 @@
       "tearing": "撕裂"
     },
     "workshop": {
-      "title": "工作站"
+      "title": "工作站",
+      "displayTitle": "陈设",
+      "weaponTitle": "武器",
+      "mainWeapon": "主武器",
+      "secondaryWeapon": "副武器",
+      "insertWeaponTips": "请输入id来选中物体，id列表可见<a target=\"_blank\" href=\"{link}\">这里</a>",
+      "insertWeaponTitle": "插入武器",
+      "insertSecondaryWeaponTitle": "插入副武器",
+      "insertDisplayTitle": "插入陈设",
+      "exceedingDisplayLimitTip": "已到达主陈设上限，将主陈设隐藏",
+      "ultimateTitle": "终极技能"
     },
     "detail": {
       "title": "配装详情"
@@ -290,6 +313,9 @@
   },
   "login": {
     "title": "登陆",
+    "meta": {
+      "keywords": "账户登陆"
+    },
     "form": {
       "placeholder": {
         "username": "输入帐号id",
@@ -302,10 +328,16 @@
     }
   },
   "register": {
-    "title": "注册"
+    "title": "注册",
+    "meta": {
+      "keywords": "账户注册"
+    }
   },
   "home": {
-    "title": "首页"
+    "title": "首页",
+    "meta": {
+      "keywords": "游戏,碧海黑帆,game,skull-and-bones,Skull And Bones,SNB,S And B,ubisoft,2025"
+    }
   },
   "footer": {
     "basic": {

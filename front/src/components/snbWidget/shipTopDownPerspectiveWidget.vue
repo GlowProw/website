@@ -3,12 +3,12 @@
 import ShipTopDownPerspectiveSlotWidget from "./shipTopDownPerspectiveSlotWidget.vue";
 
 const props = withDefaults(defineProps<{
-  size: string,
-  left: boolean,
-  right: boolean,
-  centerTop: boolean,
-  centerCenter: boolean,
-  centerDown: boolean
+  size?: string,
+  left?: boolean,
+  right?: boolean,
+  centerTop?: boolean,
+  centerCenter?: boolean,
+  centerDown?: boolean
 }>(), {
   size: 'lg',
   left: false,

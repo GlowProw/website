@@ -51,6 +51,12 @@ const routes: Readonly<RouteRecordRaw[]> = [
         path: '/',
         name: 'BasePortal',
         component: PortalMainBasePage,
+        meta: {
+            metaInfo: {
+                title: 'home.title',
+                keywords: 'home.meta.keywords'
+            }
+        },
         children: [
             {
                 path: '/',
@@ -66,16 +72,34 @@ const routes: Readonly<RouteRecordRaw[]> = [
             {
                 path: '/account/login',
                 name: 'login',
+                meta: {
+                    metaInfo: {
+                        title: 'login.title',
+                        keywords: 'login.meta.keywords'
+                    }
+                },
                 component: LoginPage
             },
             {
                 path: '/account/register',
                 name: 'register',
+                meta: {
+                    metaInfo: {
+                        title: 'register.title',
+                        keywords: 'register.meta.keywords'
+                    }
+                },
                 component: RegisterPage
             },
             {
                 path: '/team',
                 name: 'Team',
+                meta: {
+                    metaInfo: {
+                        title: 'teamUp.title',
+                        keywords: 'teamUp.meta.keywords'
+                    }
+                },
                 component: TeamPage,
             },
         ]
@@ -131,6 +155,12 @@ const routes: Readonly<RouteRecordRaw[]> = [
     {
         path: '/calendar',
         name: 'Calendar',
+        meta: {
+            metaInfo: {
+                title: 'calendar.title',
+                keywords: 'calendar.meta.keywords'
+            }
+        },
         component: CalendarPage,
         redirect: '/calendar/history',
         children: [
@@ -148,6 +178,12 @@ const routes: Readonly<RouteRecordRaw[]> = [
     },
     {
         path: '/assembly',
+        meta: {
+            metaInfo: {
+                title: 'assembly.title',
+                keywords: 'assembly.meta.keywords'
+            }
+        },
         name: 'Assembly',
         component: AssemblePage,
         redirect: '/assembly/browse',
@@ -239,10 +275,11 @@ router.beforeEach((to, _from, next) => {
     try {
         const {t} = useI18n();
 
+        console.log(to)
         if (to.meta.metaInfo) {
             let metaInfo: any = to.meta.metaInfo;
             if (metaInfo.keywords && t(metaInfo.keywords) !== metaInfo.keywords) metaInfo.keywords = "Glow Prow," + t(metaInfo.keywords);
-            else metaInfo.keywords = "bfban,BFBAN";
+            else metaInfo.keywords = "Glow Prow,glow-prow";
             if (metaInfo.title) metaInfo.title = t(metaInfo.title);
             else metaInfo.title = "";
             if (metaInfo.description && t(metaInfo.description) !== metaInfo.description) metaInfo.description = t(metaInfo.description);

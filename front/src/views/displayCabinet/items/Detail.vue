@@ -19,6 +19,7 @@ import ItemInputWidget from "@/components/snbWidget/itemInputWidget.vue";
 import TimeView from "@/components/TimeView.vue";
 import ItemDamageTypeWidget from "@/components/snbWidget/itemDamageTypeWidget.vue";
 import {storage} from "@/assets/sripts";
+import WeaponModificationWidget from "@/components/snbWidget/weaponModificationWidget.vue";
 
 const
     {t} = useI18n(),
@@ -166,9 +167,12 @@ const onStatisticsRawMaterial = () => {
         <v-row>
           <v-col cols="12" sm="12" md="8" lg="8" order="2" order-sm="1">
             <v-row>
-              <ItemSlotBase size="130px" class="mr-3">
-                <ItemIconWidget :id="itemDetailData.id" :isOpenDetail="false" :isShowOpenDetail="false"></ItemIconWidget>
-              </ItemSlotBase>
+              <div>
+                <ItemSlotBase size="130px">
+                  <ItemIconWidget :id="itemDetailData.id" :isOpenDetail="false" :isShowOpenDetail="false"></ItemIconWidget>
+                </ItemSlotBase>
+                <WeaponModificationWidget :data="itemDetailData"></WeaponModificationWidget>
+              </div>
               <v-col>
                 <p class="text-pre-wrap mb-4">
                   <span v-for="(i ,index) in asArray([
@@ -282,9 +286,10 @@ const onStatisticsRawMaterial = () => {
                   </v-text-field>
                 </template>
                 <template v-if="typeof itemDetailData.damageMitigation == 'object'">
-                  <p class="mb-2"><b>
+                  <p class="mb-2 font-weight-bold">
                     <v-icon icon="mdi-shield" size="18" class="mr-2"></v-icon>
-                    损害减轻</b></p>
+                    {{ t('displayCabinet.item.damageMitigation') }}
+                  </p>
                   <v-text-field :value="dmValue"
                                 v-for="([dmKey,dmValue]) in Object.entries(itemDetailData.damageMitigation)"
                                 :key="dmValue"

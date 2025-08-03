@@ -8,29 +8,33 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import EmptyView from "./EmptyView.vue";
 import ShipIconWidget from "./snbWidget/shipIconWidget.vue";
 
+import {number} from "@/assets/sripts/index"
+import AssemblyDataProcessing from "@/assets/sripts/assemblyDataProcessing";
 import {Ships, Ultimates} from "glow-prow-data";
 import {Item, Items} from "glow-prow-data/src/entity/Items.ts";
 import {Ship} from "glow-prow-data/src/entity/Ships.ts";
 import shipSlotMapping from "../../public/config/shipsConfig.json";
 import ShipTopDownPerspectiveWidget from "./snbWidget/shipTopDownPerspectiveWidget.vue";
 import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
+import WeaponModificationWidget from "@/components/snbWidget/weaponModificationWidget.vue";
 
-const poops = withDefaults(defineProps<{ readonly?: boolean }>(), {
-      readonly: false
+const poops = withDefaults(defineProps<{ readonly?: boolean, class?: string }>(), {
+      readonly: false,
+      class: ''
     }),
     slots = useSlots(),
     route = useRoute(),
     ships = Ships,
     items: Items = Items,
     ultimates = Ultimates,
+    assemblyDataProcessing = new AssemblyDataProcessing(),
     {t, te} = useI18n()
 
 interface ItemAssemblySave extends Item {
   direction?: string
 }
 
-let workshopLSCF = ref(),
-    workshopData = ref({
+let workshopData = ref({
       shipModel: false,
       frigateUpgradeModel: false,
       displayModel: false,
@@ -49,24 +53,24 @@ let workshopLSCF = ref(),
       shipDisplaySelect: null,
       shipFrigateUpgradeList: [],
 
-      name: '',
-      description: '',
-
       data: {
-        ultimateSlot: null,                 // 技能
-        weaponDirection: [],                // 临时 武器朝向,
-        shipFrigateUpgradeSlot: null,       // 家具
         shipSlot: null,                     // 船
+        ultimateSlot: null,                 // 技能
         shipUpgradeSlot: null,              // 船 升级配方
+        weaponDirections: [],               // 武器朝向 信息
+        weaponModification: [],             // 武器按照模组 信息
         weaponSlots: [],                    // 武器
         mortarSlots: [],                    // 弹药
         secondaryWeaponSlots: [],           // 副武器
-        displaySlots: [],                   // 家具
+        displaySlots: [],                   // 家具陈设
+
+        // 平台版本
+        __version: assemblyDataProcessing.nowVersion,
       } as {
-        shipFrigateUpgradeSlot: Item | null, shipSlot: Ship,
-        displaySlots: Item[], weaponSlot: ItemAssemblySave[] | Item[], shipUpgradeSlot: Item | null,
+        shipSlot: Ship, ultimateSlot: Item | null,
+        displaySlots: Item[], weaponSlots: ItemAssemblySave[] | Item[], shipUpgradeSlot: Item | null,
         secondaryWeaponSlots: Item[],
-        weaponDirection: string[]
+        weaponDirections: string[], weaponModification: any[]
       }
     }),
     // 最大主陈设
@@ -76,7 +80,7 @@ let workshopLSCF = ref(),
 
     // 临时缓存
     cache = ref({
-      weaponDirection: {},
+      weaponDirections: {},
       shipDisplayList: [],
       shipWeaponList: [],
       shipWeaponDirectionList: []
@@ -88,11 +92,7 @@ watch(() => workshopData.value?.data?.shipSlot, (value) => {
   if (value && value.slots)
     Object.entries(value.slots).forEach(i => result[i[0]] = i[1][1])
 
-  cache.value.weaponDirection = result;
-})
-
-watch(() => route, () => {
-  onLoadJson(workshopLSCF.value)
+  cache.value.weaponDirections = result;
 })
 
 /**
@@ -153,7 +153,7 @@ let getShipDisplayList = computed(() => {
  */
 const getOptionalShipWeaponDirection = () => {
   let selectedDirections = []
-  workshopData.value.data.weaponDirection.forEach(i => {
+  workshopData.value.data.weaponDirections.forEach(i => {
     if (!i)
       return
     selectedDirections.push(i)
@@ -170,19 +170,19 @@ const onSlotRemove = (type, index?: number) => {
   switch (type) {
     case 'ship':
       workshopData.value.data.shipSlot = null
-      workshopData.value.data.weaponSlot = []
+      workshopData.value.data.weaponSlots = []
       workshopData.value.data.displaySlots = []
-      workshopData.value.data.shipFrigateUpgradeSlot = null
+      workshopData.value.data.shipUpgradeSlot = null
       workshopData.value.data.secondaryWeaponSlots = [];
       return;
     case 'weapon':
-      workshopData.value.data.weaponSlot[index] = Item.fromRawData({})
+      workshopData.value.data.weaponSlots[index] = Item.fromRawData({})
       break;
     case 'secondaryWeapon':
       workshopData.value.data.secondaryWeaponSlots[index] = Item.fromRawData({})
       break;
     case 'upgrade':
-      workshopData.value.data.shipFrigateUpgradeSlot = null
+      workshopData.value.data.shipUpgradeSlot = null
       break;
     case 'ultimate':
       workshopData.value.data.ultimateSlot = null
@@ -216,14 +216,19 @@ const onSelectShip = (shipId: string) => {
   })
 
   // 创建武器插槽，选择初始
-  workshopData.value.data.weaponSlot = Array.from({
+  workshopData.value.data.weaponSlots = Array.from({
     length: shipSlotMapping.f[workshopData.value.data.shipSlot.id].weaponsSlotCount[0].gunSlotCount || 0
   }, () => {
     return Item.fromRawData({})
   })
 
   // 创建武器插槽方向，用于排它选择以及查询甲板信息用途
-  workshopData.value.data.weaponDirection = Array.from({
+  workshopData.value.data.weaponDirections = Array.from({
+    length: shipSlotMapping.f[workshopData.value.data.shipSlot.id].weaponsSlotCount[0].gunSlotCount || 0
+  }, () => null)
+
+  // 创建武器插槽mod
+  workshopData.value.data.weaponModification = Array.from({
     length: shipSlotMapping.f[workshopData.value.data.shipSlot.id].weaponsSlotCount[0].gunSlotCount || 0
   }, () => null)
 
@@ -269,14 +274,14 @@ const onSelectFrigteUpgrad = () => {
     return;
 
   workshopData.value.frigateUpgradeModel = false;
-  workshopData.value.data.shipFrigateUpgradeSlot = workshopData.value.shipFrigateUpgradeSelect;
+  workshopData.value.data.shipUpgradeSlot = workshopData.value.shipFrigateUpgradeSelect;
 
   // 更新插槽
   let furnitureBaseSlotCount = workshopData.value.data.shipSlot.slots.furniture[0],
       selectFurnitureTier = workshopData.value.shipFrigateUpgradeSelect.tier - 1,
       resultFurnitureSlotCount: any;
 
-  resultFurnitureSlotCount = shipSlotMapping.f[workshopData.value.data.shipSlot.id].furnitureSlotCount[workshopData.value.data.shipFrigateUpgradeSlot ? selectFurnitureTier : furnitureBaseSlotCount]
+  resultFurnitureSlotCount = shipSlotMapping.f[workshopData.value.data.shipSlot.id].furnitureSlotCount[workshopData.value.data.shipUpgradeSlot ? selectFurnitureTier : furnitureBaseSlotCount]
 
   // 创建陈设插槽
   workshopData.value.data.displaySlots = Array.from({length: resultFurnitureSlotCount}, () => {
@@ -284,7 +289,7 @@ const onSelectFrigteUpgrad = () => {
   })
 
   // 创建武器插槽
-  workshopData.value.data.weaponSlot = Array.from({
+  workshopData.value.data.weaponSlots = Array.from({
     length: shipSlotMapping.f[workshopData.value.data.shipSlot.id].weaponsSlotCount[selectFurnitureTier].gunSlotCount
   }, () => {
     return Item.fromRawData({})
@@ -307,7 +312,7 @@ const onSelectDisplayShip = () => {
       .map(i => i.id)
       .filter(i => i != undefined)
 
-
+  // 不可使用已在插槽的物品
   if (slotAlreadyFurnished.indexOf(workshopData.value.shipDisplaySelect.id) >= 0) {
     messages.value.push('不可使用已在插槽的物品')
     return;
@@ -327,7 +332,7 @@ const onSelectWorkshopShip = () => {
   if (!workshopData.value.weaponSearchValue)
     return;
 
-  workshopData.value.data.weaponSlot[workshopData.value.weaponInsertIndex] = items[workshopData.value.weaponSearchValue]
+  workshopData.value.data.weaponSlots[workshopData.value.weaponInsertIndex] = items[workshopData.value.weaponSearchValue]
 }
 
 /**
@@ -345,26 +350,14 @@ const onSelectSecondaryWeapon = () => {
 }
 
 /**
- * 重制配置
- */
-const onAssemblyClear = () => {
-  if (poops.readonly)
-    return;
-
-  workshopData.value.data.displaySlots = []
-  workshopData.value.data.shipFrigateUpgradeSlot = null
-  workshopData.value.data.shipUpgradeSlot = []
-}
-
-/**
  * 获取甲板信息
  */
 const getDeckInformation = (index: number): Record<string, any> => {
   try {
-    const weaponDirection = workshopData.value?.data?.weaponDirection?.[index];
-    if (weaponDirection === undefined) return {};
+    const weaponDirections = workshopData.value?.data?.weaponDirections?.[index];
+    if (weaponDirections === undefined) return {};
 
-    return cache.value.weaponDirection[weaponDirection] || {};
+    return cache.value.weaponDirections[weaponDirections] || {};
   } catch (e) {
     console.error('Error in getDeckInformation:', e);
     return {};
@@ -372,48 +365,27 @@ const getDeckInformation = (index: number): Record<string, any> => {
 };
 
 /**
- * 处理罗马信息
- * int 转 罗马数字
- * @param num
- */
-const intToRoman = (num: number) => {
-  const val = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
-  const sym = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"];
-
-  let result = '';
-  let i = 0;
-
-  while (num > 0) {
-    while (num >= val[i]) {
-      num -= val[i];
-      result += sym[i];
-    }
-    i++;
-  }
-
-  return result;
-}
-
-/**
  * 导出数据
  */
-const onExpostJson = () => {
-  return toRaw(workshopData.value.data);
+const onExport = () => {
+  const data = assemblyDataProcessing.export(workshopData.value.data)
+
+  console.log(data)
+
+  return toRaw(data);
 }
 
 /**
  * 导入数据
  */
-const onLoadJson = (data) => {
-  const d = (data);
+const onLoad = (data) => {
+  const d = assemblyDataProcessing.import(data);
   if (!d || JSON.stringify(d) === '{}')
     return;
 
-  workshopLSCF.value = data;
-
   workshopData.value.data = {
     ...workshopData.value.data,
-    ...data
+    ...d
   };
 }
 
@@ -425,14 +397,14 @@ const onErasure = () => {
 }
 
 defineExpose({
-  onExpostJson,
-  onLoadJson,
+  onExpostJson: onExport,
+  onLoadJson: onLoad,
   onErasure,
 })
 </script>
 
 <template>
-  <v-row class="workshop-ship-interior position-relative pa-10 ml-5 mt-3">
+  <v-row class="workshop-ship-interior position-relative pa-10 ml-5 mt-3" :class="poops.class">
     <v-col class="position-relative" style="min-width: 650px;z-index: 5" cols="10" sm="10" md="10" lg="10" xl="10">
       <v-col>
         <div class="mb-10">
@@ -505,8 +477,8 @@ defineExpose({
                     </v-col>
                   </v-row>
                   <v-card-actions class="bg-amber">
-                    <v-btn variant="tonal" @click="onSelectShip(workshopData.shipSelect.id)">确定</v-btn>
-                    <v-btn variant="tonal" class="ml-1" @click="workshopData.shipModel = false">取消</v-btn>
+                    <v-btn variant="tonal" @click="onSelectShip(workshopData.shipSelect.id)">{{ t('basic.button.submit') }}</v-btn>
+                    <v-btn variant="tonal" class="ml-1" @click="workshopData.shipModel = false">{{ t('basic.button.cancel') }}</v-btn>
                   </v-card-actions>
                 </v-card>
               </v-tooltip>
@@ -524,7 +496,7 @@ defineExpose({
                   interactive
                   open-on-click>
                 <template v-slot:activator="{ props }">
-                  <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.shipFrigateUpgradeSlot">
+                  <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.shipUpgradeSlot">
                     <v-card
                         class="mx-auto"
                         max-width="344"
@@ -535,13 +507,13 @@ defineExpose({
                                   class="d-flex align-center justify-center">
                           <div class="pt-2 pb-2">
                             <v-icon icon="mdi-chevron-triple-up mr-1"></v-icon>
-                            <b>{{ workshopData.data.shipFrigateUpgradeSlot.tier || 0 }}</b>
+                            <b>{{ workshopData.data.shipUpgradeSlot.tier || 0 }}</b>
                           </div>
                         </template>
                         <ItemSlotBase
                             size="80px" class="pa-1"
-                            :class="[workshopData.data.shipFrigateUpgradeSlot ? 'bg-amber' : '']">
-                          <ItemIconWidget :id="workshopData.data.shipFrigateUpgradeSlot.id" :is-open-detail="false"></ItemIconWidget>
+                            :class="[workshopData.data.shipUpgradeSlot ? 'bg-amber' : '']">
+                          <ItemIconWidget :id="workshopData.data.shipUpgradeSlot.id" :is-open-detail="false"></ItemIconWidget>
                         </ItemSlotBase>
                       </v-badge>
 
@@ -559,7 +531,7 @@ defineExpose({
 
 
                   <ItemSlotBase size="80px" class="pa-2"
-                                v-if="!workshopData.data.shipFrigateUpgradeSlot && workshopData.shipFrigateUpgradeList.length > 0">
+                                v-if="!workshopData.data.shipUpgradeSlot && workshopData.shipFrigateUpgradeList.length > 0">
                     <v-card class="w-100 d-flex align-center justify-center"
                             :disabled="readonly"
                             v-bind="props">
@@ -592,7 +564,7 @@ defineExpose({
                            v-if="workshopData.shipFrigateUpgradeSelect"
                            @click="onSelectFrigteUpgrad()">确认
                     </v-btn>
-                    <v-btn variant="tonal" class="ml-2" @click="workshopData.frigateUpgradeModel = false">取消</v-btn>
+                    <v-btn variant="tonal" class="ml-2" @click="workshopData.frigateUpgradeModel = false">{{ t('basic.button.cancel') }}</v-btn>
                   </v-card-actions>
                 </v-card>
               </v-tooltip>
@@ -605,7 +577,7 @@ defineExpose({
           <div>
             <v-row justify="space-around">
               <v-col cols="auto" class="mr-5">
-                <p class="mb-2 font-weight-bold badge-flavor text-center text-black">陈设</p>
+                <p class="mb-2 font-weight-bold badge-flavor text-center text-black">{{ t('assembly.workshop.displayTitle') }}</p>
                 <template v-if="route.query.debug">
                   {{ workshopData.data.displaySlots || [] }}
                 </template>
@@ -614,7 +586,7 @@ defineExpose({
                        :key="displayIndex">
                   <v-col cols="auto">
                     <v-card class="bg-transparent text-center pt-1" min-height="40" min-width="30">
-                      {{ intToRoman(displayIndex + 1) }}
+                      {{ number.intToRoman(displayIndex + 1) }}
                       <template v-slot:image>
                         <v-icon icon="mdi-table-furniture" class="opacity-20" size="30"></v-icon>
                       </template>
@@ -664,7 +636,7 @@ defineExpose({
                           min-width="450"
                           max-width="700">
                   <v-card v-slot:default>
-                    <b class="font-weight-bold text-h5 pa-5"> 插入陈设</b>
+                    <b class="font-weight-bold text-h5 pa-5"> {{ t('assembly.workshop.insertDisplayTitle') }}</b>
                     <v-row class="ga-0 pa-2 pb-5">
                       <v-col cols="2"
                              v-for="(display, displayIndex) in getShipDisplayList"
@@ -686,8 +658,8 @@ defineExpose({
                     </v-row>
                   </v-card>
                   <v-card-actions class="bg-amber">
-                    <v-btn variant="tonal" @click="onSelectDisplayShip" v-if="workshopData.shipDisplaySelect">确定</v-btn>
-                    <v-btn variant="tonal" class="ml-1" @click="workshopData.weaponModel = false">取消</v-btn>
+                    <v-btn variant="tonal" @click="onSelectDisplayShip" v-if="workshopData.shipDisplaySelect">{{ t('basic.button.submit') }}</v-btn>
+                    <v-btn variant="tonal" class="ml-1" @click="workshopData.weaponModel = false">{{ t('basic.button.cancel') }}</v-btn>
                   </v-card-actions>
                 </v-dialog>
 
@@ -700,29 +672,33 @@ defineExpose({
               </v-col>
 
               <v-col>
-                <p class="mb-2 font-weight-bold badge-flavor text-center text-black">武装</p>
+                <p class="mb-2 font-weight-bold badge-flavor text-center text-black">{{ t('assembly.workshop.weaponTitle') }}</p>
                 <!-- 主武器 -->
-                <p class="mb-1">主武器</p>
-                <div class="ml-5 mb-2" v-if="workshopData.data.weaponSlot && workshopData.data.weaponSlot.length > 0" v-for="(i, index) in workshopData.data.weaponSlot" :key="index">
+                <p class="mb-1">{{ t('assembly.workshop.mainWeapon') }}</p>
+                <div class="ml-5 mb-2"
+                     v-if="workshopData.data.weaponSlots && workshopData.data.weaponSlots.length > 0"
+                     v-for="(i, index) in workshopData.data.weaponSlots"
+                     :key="index">
                   <v-row align="center">
                     <v-col cols="auto" class="pa-0">
                       <ShipTopDownPerspectiveWidget
-                          :left="workshopData.data.weaponDirection[index] == 'leftSideWeapon'"
-                          :right="workshopData.data.weaponDirection[index] == 'rightSideWeapon'"
-                          :center-top="workshopData.data.weaponDirection[index] == 'frontWeapon'"
-                          :center-down="workshopData.data.weaponDirection[index] == 'aftWeapon'"
+                          :left="workshopData.data.weaponDirections[index] == 'leftSideWeapon'"
+                          :right="workshopData.data.weaponDirections[index] == 'rightSideWeapon'"
+                          :center-top="workshopData.data.weaponDirections[index] == 'frontWeapon'"
+                          :center-down="workshopData.data.weaponDirections[index] == 'aftWeapon'"
                           class="ml-5"></ShipTopDownPerspectiveWidget>
                     </v-col>
-                    <v-divider vertical :inset="10" class="ml-3 mr-2"></v-divider>
+                    <v-divider vertical class="ml-3 mr-2"></v-divider>
                     <v-col>
                       <p class="mb-2 ml-n5 mr-n5 pl-5 title-long-flavor bg-black" v-if="!readonly">
-                        <v-select v-model="workshopData.data.weaponDirection[index]"
+                        <v-select v-model="workshopData.data.weaponDirections[index]"
                                   hide-details
                                   clearable
                                   placeholder="选择武器方向"
                                   variant="underlined"
                                   density="compact"
                                   item-value="0"
+                                  item-title="0"
                                   :disabled="readonly"
                                   :items="getOptionalShipWeaponDirection()">
                           <template v-slot:item="{ props: itemProps, item }">
@@ -746,18 +722,18 @@ defineExpose({
                             </v-list-item>
                           </template>
                           <template v-slot:chip="{item}">
-                            {{ t(`displayCabinet.ship.${workshopData.data.weaponDirection[index]}`) }}
+                            {{ t(`displayCabinet.ship.${workshopData.data.weaponDirections[index]}`) }}
                           </template>
                         </v-select>
                       </p>
                       <template v-else>
-                        <template v-if="workshopData.data.weaponDirection[index]">
-                          {{ t(`displayCabinet.ship.${workshopData.data.weaponDirection[index]}`) }}
+                        <template v-if="workshopData.data.weaponDirections[index]">
+                          {{ t(`displayCabinet.ship.${workshopData.data.weaponDirections[index]}`) }}
                         </template>
                       </template>
                       <v-row>
                         <v-col cols="auto">
-                          <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.weaponSlot[index] && workshopData.data.weaponSlot[index].id">
+                          <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.weaponSlots[index] && workshopData.data.weaponSlots[index].id">
                             <div class="position-relative" v-bind="propsHoverClose">
                               <ItemSlotBase size="80px" class="pa-1">
                                 <ItemIconWidget :id="i.id"></ItemIconWidget>
@@ -774,7 +750,7 @@ defineExpose({
                               </v-overlay>
                             </div>
                           </v-hover>
-                          <ItemSlotBase size="80px" class="pa-2" v-else-if="!workshopData.data.weaponDirection[index]">
+                          <ItemSlotBase size="80px" class="pa-2" v-else-if="!workshopData.data.weaponDirections[index]">
                             <v-card class="w-100 d-flex align-center justify-center">
                               <v-icon icon="mdi-block-helper" class="opacity-30" size="20"></v-icon>
                             </v-card>
@@ -786,6 +762,14 @@ defineExpose({
                               <v-icon icon="mdi-plus"></v-icon>
                             </v-card>
                           </ItemSlotBase>
+
+                          <!-- 武器模组插槽 -->
+                          <div class="mb-2">
+                            <WeaponModificationWidget :readonly="readonly"
+                                                      :disabled="workshopData.data.weaponDirections[index] == null"
+                                                      :data="i" size="4"
+                                                      v-model="workshopData.data.weaponModification[index]"></WeaponModificationWidget>
+                          </div>
                         </v-col>
                         <v-col class="d-flex align-start">
                           <div class="w-100">
@@ -845,7 +829,7 @@ defineExpose({
                           min-width="450"
                           max-width="700">
                   <v-card v-slot:default>
-                    <b class="font-weight-bold text-h5 pa-5"> 插入陈设</b>
+                    <b class="font-weight-bold text-h5 pa-5"> {{ t('assembly.workshop.insertDisplayTitle') }}</b>
                     <v-row class="ga-0 pa-2 pb-5">
                       <v-col cols="2"
                              v-for="(display, displayIndex) in getShipDisplayList"
@@ -867,23 +851,23 @@ defineExpose({
                     </v-row>
                   </v-card>
                   <v-alert class="pa-5 card-flavor bg-red" v-if="hasMajorDisplayUpperLimit">
-                    已到达主陈设上限，将主陈设隐藏
+                    {{ t('assembly.workshop.exceedingDisplayLimitTip') }}
                   </v-alert>
                   <v-card-actions class="bg-amber">
-                    <v-btn variant="tonal" @click="onSelectDisplayShip" v-if="workshopData.shipDisplaySelect">确定</v-btn>
-                    <v-btn variant="tonal" class="ml-1" @click="workshopData.displayModel = false">取消</v-btn>
+                    <v-btn variant="tonal" @click="onSelectDisplayShip" v-if="workshopData.shipDisplaySelect">{{ t('basic.button.submit') }}</v-btn>
+                    <v-btn variant="tonal" class="ml-1" @click="workshopData.displayModel = false">{{ t('basic.button.cancel') }}</v-btn>
                   </v-card-actions>
                 </v-dialog>
 
-                <p class="mt-1 mb-1">副武器</p>
+                <p class="mt-1 mb-1">{{ t('assembly.workshop.secondaryWeapon') }}</p>
                 <div class="ml-5 mb-2" v-if="workshopData.data.secondaryWeaponSlots && workshopData.data.secondaryWeaponSlots.length > 0" v-for="(i, index) in workshopData.data.secondaryWeaponSlots" :key="index">
                   <v-row align="center">
                     <v-col cols="auto" class="pa-0">
                       <ShipTopDownPerspectiveWidget
-                          :centerCenter="i && i.id as boolean"
+                          :centerCenter="i && !!i.id"
                           class="ml-5"></ShipTopDownPerspectiveWidget>
                     </v-col>
-                    <v-divider vertical inset="10" class="ml-3 mr-2"></v-divider>
+                    <v-divider vertical class="ml-3 mr-2"></v-divider>
                     <v-col>
                       <v-row>
                         <v-col cols="auto">
@@ -924,7 +908,7 @@ defineExpose({
                                     min-width="450"
                                     max-width="700">
                             <v-card v-slot:default>
-                              <b class="font-weight-bold text-h5 pa-5"> 插入副武器</b>
+                              <b class="font-weight-bold text-h5 pa-5">{{ t('assembly.workshop.insertSecondaryWeaponTitle') }}</b>
                               <v-row class="ga-0 pa-2 pb-5">
                                 <v-col cols="2"
                                        v-for="(secondaryWeapon, secondaryWeaponIndex) in getSecondaryWeapon"
@@ -946,8 +930,8 @@ defineExpose({
                               </v-row>
                             </v-card>
                             <v-card-actions class="bg-amber">
-                              <v-btn variant="tonal" @click="onSelectSecondaryWeapon" v-if="workshopData.secondaryWeaponSelect">确定</v-btn>
-                              <v-btn variant="tonal" class="ml-1" @click="workshopData.secondaryWeaponModel = false">取消</v-btn>
+                              <v-btn variant="tonal" @click="onSelectSecondaryWeapon" v-if="workshopData.secondaryWeaponSelect">{{ t('basic.button.submit') }}</v-btn>
+                              <v-btn variant="tonal" class="ml-1" @click="workshopData.secondaryWeaponModel = false">{{ t('basic.button.cancel') }}</v-btn>
                             </v-card-actions>
                           </v-dialog>
                         </v-col>
@@ -969,7 +953,7 @@ defineExpose({
                           min-width="450"
                           max-width="700">
                   <v-card v-slot:default>
-                    <b class="font-weight-bold text-h5 pa-5"> 插入武器</b>
+                    <b class="font-weight-bold text-h5 pa-5">{{ t('assembly.workshop.insertWeaponTitle') }}</b>
                     <v-row class="pl-8 pr-8 mt-1 mb-5">
                       <ItemSlotBase size="60px" v-if="workshopData.weaponSearchValue || getShipWeaponList[workshopData.weaponSearchValue]">
                         <ItemIconWidget :id="workshopData.weaponSearchValue"></ItemIconWidget>
@@ -989,22 +973,24 @@ defineExpose({
                           clearable
                           persistent-hint>
                         <template v-slot:details>
-                          请输入id来选中物体，id列表可见
-                          <router-link to="/display-cabinet">这里</router-link>
+                          <span v-html="t('assembly.workshop.insertWeaponTips', {
+                            link: `/display-cabinet`
+                          })">
+                          </span>
                           <v-icon icon="mdi-share"></v-icon>
                         </template>
                       </v-combobox>
                     </v-row>
                   </v-card>
                   <v-card-actions class="bg-amber">
-                    <v-btn variant="tonal" @click="onSelectWorkshopShip" :disabled="!workshopData.weaponSearchValue || getShipWeaponList.filter(d => d.id == workshopData.weaponSearchValue).length <= 0">确定</v-btn>
-                    <v-btn variant="tonal" class="ml-1" @click="workshopData.weaponModel = false">取消</v-btn>
+                    <v-btn variant="tonal" @click="onSelectWorkshopShip" :disabled="!workshopData.weaponSearchValue || getShipWeaponList.filter(d => d.id == workshopData.weaponSearchValue).length <= 0">{{ t('basic.button.submit') }}</v-btn>
+                    <v-btn variant="tonal" class="ml-1" @click="workshopData.weaponModel = false">{{ t('basic.button.cancel') }}</v-btn>
                   </v-card-actions>
                 </v-dialog>
               </v-col>
 
               <v-col cols="auto">
-                <p class="mb-2 font-weight-bold badge-flavor text-center text-black">终极技能</p>
+                <p class="mb-2 font-weight-bold badge-flavor text-center text-black">{{ t('assembly.workshop.ultimateTitle') }}</p>
 
                 <!-- 终极技能 -->
                 <v-tooltip
@@ -1059,7 +1045,7 @@ defineExpose({
                     <v-row class="ga-0 pa-2 pb-5">
                       <v-col cols="3"
                              v-for="(ultimate,ultimateIndex) in ultimates"
-                             :key="shipIndex">
+                             :key="ultimateIndex">
                         <v-badge :color="workshopData.ultimateSelect ? workshopData.ultimateSelect!.id == ultimate!.id ? `var(--main-color)` : 'transparent' : 'transparent'">
                           <template v-slot:badge>
                             <v-icon icon="mdi-check" v-if="workshopData.ultimateSelect && workshopData.ultimateSelect!.id == ultimate!.id"></v-icon>
@@ -1076,8 +1062,8 @@ defineExpose({
                       </v-col>
                     </v-row>
                     <v-card-actions class="bg-amber">
-                      <v-btn variant="tonal" @click="onSelectUltimate(workshopData.ultimateSelect.id)">确定</v-btn>
-                      <v-btn variant="tonal" class="ml-1" @click="workshopData.ultimateModel = false">取消</v-btn>
+                      <v-btn variant="tonal" @click="onSelectUltimate(workshopData.ultimateSelect.id)">{{ t('basic.button.submit') }}</v-btn>
+                      <v-btn variant="tonal" class="ml-1" @click="workshopData.ultimateModel = false">{{ t('basic.button.cancel') }}</v-btn>
                     </v-card-actions>
                   </v-card>
                 </v-tooltip>

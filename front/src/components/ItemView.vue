@@ -1,55 +1,55 @@
-<script>
+<script setup lang="ts">
+import {computed, ref} from 'vue'
 import {Editor} from "@tiptap/vue-3";
 import ItemSlotBase from "./snbWidget/ItemSlotBase.vue";
-import ShipIconWidget from "./snbWidget/shipIconWidget.vue";
 import ItemIconWidget from "./snbWidget/itemIconWidget.vue";
 import {Items} from 'glow-prow-data/src/entity/Items.js'
+import {useI18n} from "vue-i18n";
 
-export default {
-  components: {ItemIconWidget, ShipWidget: ShipIconWidget, ItemSlotBase},
-  props: {
-    editor: {
-      type: Editor,
-    }
-  },
-  data() {
-    return {
-      show: false,
-      items: '',
-      value: ''
-    }
-  },
-  created() {
-  },
-  methods: {
-    /**
-     * 完成
-     * @param val
-     */
-    onFinish(id) {
-      this.onPanelToggle();
-      this.$emit('finish', id)
-    },
-    /**
-     * 面板开关
-     */
-    onPanelToggle() {
-      this.show = !this.show;
+const props = defineProps({
+      editor: {
+        type: Editor,
+      }
+    }),
+    {t} = useI18n()
 
-      if (this.show === false)
-        this.$emit('close');
-    },
-    /**
-     * 打开面板
-     */
-    openPanel() {
-      this.onPanelToggle();
-    },
-  },
-  computed: {
-    items: () => Items,
-  }
+const emit = defineEmits(['finish', 'close'])
+
+const show = ref(false)
+const value = ref('')
+
+/**
+ * 完成
+ * @param val
+ */
+const onFinish = (id) => {
+  onPanelToggle()
+  emit('finish', id)
 }
+
+/**
+ * 面板开关
+ */
+const onPanelToggle = () => {
+  show.value = !show.value
+
+  if (show.value === false)
+    emit('close')
+}
+
+/**
+ * 打开面板
+ */
+const openPanel = () => {
+  onPanelToggle()
+}
+
+const items = computed(() => Items)
+
+defineExpose({
+  openPanel,
+  onPanelToggle,
+})
 </script>
 
 <template>
@@ -57,9 +57,8 @@ export default {
             class="ship"
             class-name="ship-window-box"
             :width="600"
-            @on-visible-change="(status) => !status ? $emit('close') : null"
+            @update:modelValue="(status) => !status ? $emit('close') : null"
             sticky
-            transfer
             footer-hide>
     <v-card class="pl-10 pr-10 pt-10 card-flavor">
       <v-row>
@@ -81,8 +80,7 @@ export default {
             clearable
             persistent-hint>
           <template v-slot:details>
-            请输入id来选中物体，id列表可见
-            <router-link to="/display-cabinet">这里</router-link>
+            <span v-html="t('assembly.workshop.insertWeaponTips', {link: '/display-cabinet'})"></span>
             <v-icon icon="mdi-share"></v-icon>
           </template>
         </v-combobox>
@@ -90,7 +88,7 @@ export default {
 
       <v-card-actions class="mt-4">
         <v-btn @click="onFinish(value)" block :disabled="!value || !items[value]" class="bg-amber">
-          确定
+          {{ t('basic.button.submit') }}
         </v-btn>
       </v-card-actions>
     </v-card>

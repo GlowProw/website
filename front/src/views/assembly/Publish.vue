@@ -187,10 +187,10 @@ const onUpdateTags = (data: any) => {
           </v-col>
           <v-col cols="auto">
             <v-btn variant="elevated" v-if="isEditModel" @click="router.go(-1)">
-              上一步
+              {{ t('basic.button.prev') }}
             </v-btn>
             <v-btn variant="elevated" :color="`var(--main-color)`" class="ml-2" :disabled="isPush" :loading="publishLoading" @click="() => isEditModel ? onEdit() : onPublish()">
-              发布
+              {{ t('basic.button.commit') }}
             </v-btn>
           </v-col>
         </v-row>
@@ -210,9 +210,9 @@ const onUpdateTags = (data: any) => {
                 top: -500,
                 bottom: 500
               }">
-      <AssemblyShowWidget class="card-enlargement-flavor mb-5 ml-n10 mr-n10"
-                          ref="assemblyWorkshopRef" :readonly="true">
-      </AssemblyShowWidget>
+      <div class="card-enlargement-flavor mb-5 ml-n10 mr-n10">
+        <AssemblyShowWidget ref="assemblyWorkshopRef" :readonly="true"></AssemblyShowWidget>
+      </div>
     </ZoomableCanvas>
   </div>
   <!-- Workshop Share Preview E -->

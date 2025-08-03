@@ -21,7 +21,7 @@ export default class Config {
             "production": {
                 "protocol": "https",
                 "wsProtocol": "wss",
-                "host": "snb-tool-api.cabbagelol.net",
+                "host": "glow-prow-api.cabbagelol.net",
                 "port": "",
                 "wsPort": "",
                 "pathname": "/api/",
@@ -30,7 +30,7 @@ export default class Config {
             "test": {
                 "protocol": "https",
                 "wsProtocol": "wss",
-                "host": "snb-tool-api.cabbagelol.net",
+                "host": "glow-prow-api.cabbagelol.net",
                 "port": "3000",
                 "wsPort": "3001",
                 "pathname": "/api/",
