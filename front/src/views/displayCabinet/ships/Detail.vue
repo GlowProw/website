@@ -15,6 +15,7 @@ import PerksWidget from "@/components/snbWidget/perksWidget.vue";
 import ShipTopDownPerspectiveWidget from "@/components/snbWidget/shipTopDownPerspectiveWidget.vue";
 import {Ship} from "glow-prow-data/src/entity/Ships.ts";
 import {storage} from "@/assets/sripts";
+import CommentWidget from "@/components/CommentWidget.vue";
 
 const shipImages = import.meta.glob('@glow-prow-assets/ships/*.png', {eager: true});
 
@@ -388,7 +389,7 @@ const onStatisticsRawMaterial = () => {
                   </template>
                 </v-text-field>
 
-                <p class="mt-4"><b>{{ t('displayCabinet.ship.sailSpeed.title')}}</b></p>
+                <p class="mt-4"><b>{{ t('displayCabinet.ship.sailSpeed.title') }}{{ t('displayCabinet.ship.sailSpeed.knot') }}</b></p>
                 <ShipSailSpeedWidget :data="shipDetailData"></ShipSailSpeedWidget>
 
                 <p class="mt-4"><b>{{t('displayCabinet.ship.cargo')}}</b></p>
@@ -497,6 +498,11 @@ const onStatisticsRawMaterial = () => {
                 </template>
               </v-col>
             </v-row>
+
+            <template v-if="shipDetailData.id">
+              <v-divider>评论</v-divider>
+              <CommentWidget :id="shipDetailData.id" type="ship" placeholder=""></CommentWidget>
+            </template>
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
             <v-card class="mb-4 pl-3" v-if="shipDetailData.bySeason">

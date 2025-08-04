@@ -20,6 +20,7 @@ import TimeView from "@/components/TimeView.vue";
 import ItemDamageTypeWidget from "@/components/snbWidget/itemDamageTypeWidget.vue";
 import {storage} from "@/assets/sripts";
 import WeaponModificationWidget from "@/components/snbWidget/weaponModificationWidget.vue";
+import CommentWidget from "@/components/CommentWidget.vue";
 
 const
     {t} = useI18n(),
@@ -440,6 +441,11 @@ const onStatisticsRawMaterial = () => {
                 </template>
               </v-col>
             </v-row>
+
+            <template v-if="itemDetailData.id">
+              <v-divider>评论</v-divider>
+              <CommentWidget :id="itemDetailData.id" type="item" placeholder=""></CommentWidget>
+            </template>
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
             <v-card class="mb-4 pl-3" v-if="itemDetailData.bySeason">

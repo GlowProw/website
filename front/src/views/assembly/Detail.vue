@@ -213,7 +213,7 @@ const delAssembly = async () => {
 
           <v-divider>评论</v-divider>
 
-          <CommentWidget :id="assemblyDetailData.uuid" type="assembly"></CommentWidget>
+          <CommentWidget :id="assemblyDetailData.uuid" placeholder="你对此有何见解？" type="assembly"></CommentWidget>
         </v-col>
         <v-col cols="12" sm="12" lg="4" xl="4">
           <v-text-field

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {ref, watch} from "vue";
+import {onMounted, ref, watch} from "vue";
 import {api, http} from "@/assets/sripts/index";
 
 import Textarea from "@/components/textarea"
@@ -9,31 +9,32 @@ import Captcha from "@/components/captcha/index.vue";
 import {useAuthStore} from "~/stores";
 import {AxiosError} from "axios";
 import {useRoute} from "vue-router";
+import {useI18n} from "vue-i18n";
 
 type commentTargetType = 'assembly' | 'item' | 'ship'
 
 const route = useRoute(),
     authStore = useAuthStore(),
     httpToKen = useHttpToken(),
+    {t} = useI18n(),
     props = withDefaults(defineProps<{
       id: string,
-      type: commentTargetType
+      type: commentTargetType,
+      placeholder: string
     }>(), {})
 
 let content = ref(''),
     commentPushLoading = ref(false),
     commentLoading = ref(false),
-    commentListData = ref([
-      {
-        id: 1,
-        username: 'cabb',
-        content: '11'
-      }
-    ]),
+    commentListData = ref([]),
     captcha = ref({}),
     messages = ref([])
 
 watch(() => props.id, () => {
+  getComment()
+})
+
+onMounted(() => {
   getComment()
 })
 
@@ -257,7 +258,7 @@ const onCaptchaData = (data: any) => {
   </div>
 
   <v-card border class="pa-2" v-if="authStore.isLogin">
-    <Textarea v-model="content"></Textarea>
+    <Textarea v-model="content" :placeholder="props.placeholder"></Textarea>
 
     <v-row no-gutters>
       <v-col>

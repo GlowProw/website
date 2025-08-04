@@ -2,6 +2,8 @@
 import type {Ship} from "glow-prow-data/src/entity/Ships.ts";
 import {computed, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
+import CountUp from "@/components/CountUp.vue";
+import WindFlowsWidget from "@/components/WindFlowsWidget.vue"
 
 let simulationValue = ref(1),
     simulationArray = ref([]);
@@ -24,13 +26,51 @@ const ticks = computed(() => {
 <template>
   <div v-if="data.sailSpeed" class="pt-3">
     <v-card class="pa-5 card-flavor" variant="text">
-      <p class="text-center text-h4 mb-3 ">
-        <span :class="[
-          simulationValue  >= simulationArray.length - 1 ? 'text-green' : '',
-          simulationValue  <= 0 ? 'text-red' : ''
-        ]"> {{ simulationArray[simulationValue] || 0 }}</span>
-        <span class="opacity-50 text-md-h6 ml-2">kts</span>
-      </p>
+      <v-row class="mb-2 mt-2" align="center">
+        <v-spacer></v-spacer>
+        <v-col cols="auto">
+          <v-progress-circular
+              size="150"
+              :color="{
+                0: '#ff8484',
+                1: '#f2f2f2',
+                2: '#a6ffab'
+              }[simulationValue || 0]"
+              model-value="100">
+            <div class="position-absolute">
+              <WindFlowsWidget
+                  style="transform: rotate(-45deg);width: calc(100% - 5px);"
+                  :pathCount="4"
+                  :speed="1"
+                  :opacity=".3"
+                  :mid-point="3">
+              </WindFlowsWidget>
+            </div>
+            <div class="h-100 text-center">
+              <CountUp
+                  :from="0"
+                  :to="simulationArray[simulationValue] || 0"
+                  separator=","
+                  direction="up"
+                  class="text-center text-h4 mb-3 "
+                  :duration=".5"
+                  :delay="0"
+                  :start-when="true"
+                  :class="[
+              simulationValue  >= simulationArray.length - 1 ? 'text-green' : '',
+              simulationValue  <= 0 ? 'text-red' : ''
+            ]"/>
+
+              <p class="opacity-50 text-body-1 ml-2">
+                <v-icon icon="mdi-arrow-top-right-thick"></v-icon>
+                {{ t('displayCabinet.ship.sailSpeed.knot') }}
+              </p>
+            </div>
+          </v-progress-circular>
+        </v-col>
+        <v-spacer></v-spacer>
+      </v-row>
+
       <v-slider
           :max="simulationArray.length - 1"
           :ticks="ticks"

@@ -95,7 +95,7 @@ function getRandom(obj, count) {
   <v-divider></v-divider>
   <v-container class="mb-10 overview">
     <h1>{{t('displayCabinet.title')}}</h1>
-    <p class="mb-10 opacity-80">{{ t('displayCabinet.ships.description') }}</p>
+    <p class="mb-10 opacity-80">{{ t('displayCabinet.description') }}</p>
 
     <v-row class="fill-height">
       <div class="w-100 mb-5" v-if="displayCabinetHistorys.length > 0">

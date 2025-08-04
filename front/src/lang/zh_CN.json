@@ -178,7 +178,8 @@
       "hitPoints": "血量",
       "braceStrength": "增强力量",
       "sailSpeed": {
-        "title": "速度 (节/kts)",
+        "title": "速度",
+        "knot": "(节/kts)",
         "halfSail": "最低",
         "fullSail": "全速",
         "travelSail": "极限"
