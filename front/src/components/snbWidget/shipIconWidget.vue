@@ -94,7 +94,7 @@ const onReady = async () => {
               v-if="isShowDescription"
               title="描述">
             <template v-slot:text>
-              {{ t(`snb.ships.${props.id}.description`) }}
+              {{ t(`snb.ships.${props.id}.description.general`) }}
             </template>
           </v-expansion-panel>
           <v-expansion-panel

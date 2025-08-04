@@ -250,6 +250,11 @@
     "meta": {
       "keywords": "配装厂,碧海黑帆配装,配装,套装,游戏配装"
     },
+    "setting": {
+      "title": "设置",
+      "publicly": "公开",
+      "private": "私有"
+    },
     "modes": {
       "pvp": "战斗",
       "pve": "生存"
@@ -283,6 +288,7 @@
       "title": "工作站",
       "displayTitle": "陈设",
       "weaponTitle": "武器",
+      "armorTitle": "船甲",
       "mainWeapon": "主武器",
       "secondaryWeapon": "副武器",
       "insertWeaponTips": "请输入id来选中物体，id列表可见<a target=\"_blank\" href=\"{link}\">这里</a>",

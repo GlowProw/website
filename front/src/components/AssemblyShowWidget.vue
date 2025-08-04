@@ -41,11 +41,13 @@ let workshopData = ref({
       weaponModel: false,
       secondaryWeaponModel: false,
       ultimateModel: false,
+      armorModel: false,
       weaponSearchValue: '',
       frigateUpgradeInsertIndex: 0,
       weaponInsertIndex: 0,
       secondaryWeaponInsertIndex: 0,
       secondaryWeaponSelect: 0,
+      armorSelect: 0,
       ultimateSelect: 0,
       shipWorkshopSelect: null,
       shipSelect: null,
@@ -60,6 +62,7 @@ let workshopData = ref({
         weaponDirections: [],               // 武器朝向 信息
         weaponModification: [],             // 武器按照模组 信息
         weaponSlots: [],                    // 武器
+        armorSlot: null,                    // 船甲
         mortarSlots: [],                    // 弹药
         secondaryWeaponSlots: [],           // 副武器
         displaySlots: [],                   // 家具陈设
@@ -67,7 +70,7 @@ let workshopData = ref({
         // 平台版本
         __version: assemblyDataProcessing.nowVersion,
       } as {
-        shipSlot: Ship, ultimateSlot: Item | null,
+        shipSlot: Ship, ultimateSlot: Item | null, armorSlot: Item | null,
         displaySlots: Item[], weaponSlots: ItemAssemblySave[] | Item[], shipUpgradeSlot: Item | null,
         secondaryWeaponSlots: Item[],
         weaponDirections: string[], weaponModification: any[]
@@ -98,7 +101,8 @@ watch(() => workshopData.value?.data?.shipSlot, (value) => {
 /**
  * 获取船只陈设列表
  */
-let getShipDisplayList = computed(() => {
+let // 获取陈设
+    getShipDisplayList = computed(() => {
       let tags = ['offensiveFurniture', 'utilityFurniture']
       if (!hasMajorDisplayUpperLimit.value)
         tags.push('majorFurniture')
@@ -110,6 +114,7 @@ let getShipDisplayList = computed(() => {
       cache.value.shipDisplayList = d;
       return d;
     }),
+    // 获取副武器
     getSecondaryWeapon = computed(() => {
       let tag = ['springloader', 'mortar', 'rocket']
 
@@ -120,8 +125,20 @@ let getShipDisplayList = computed(() => {
       cache.value.shipWeaponList = d;
       return d;
     }),
+    // 获取武器列表
     getShipWeaponList = computed(() => {
-      let tag = ['culverin', 'demicannon', 'bombard', 'longGun', 'torpedo']
+      let tag = ['culverin', 'demicannon', 'bombard', 'longGun', 'torpedo', 'ballista']
+
+      if (cache.value.shipWeaponList.length > 0)
+        return cache.value.shipWeaponList;
+
+      const d = Object.values(items).filter(i => tag.indexOf(i.type) >= 0);
+      cache.value.shipWeaponList = d;
+      return d;
+    }),
+    // 获取船甲列表
+    getShipArmorList = computed(() => {
+      let tag = ['armor']
 
       if (cache.value.shipWeaponList.length > 0)
         return cache.value.shipWeaponList;
@@ -184,6 +201,8 @@ const onSlotRemove = (type, index?: number) => {
     case 'upgrade':
       workshopData.value.data.shipUpgradeSlot = null
       break;
+    case 'armor':
+      workshopData.value.data.armorSlot = null
     case 'ultimate':
       workshopData.value.data.ultimateSlot = null
       break;
@@ -319,6 +338,20 @@ const onSelectDisplayShip = () => {
   }
 
   workshopData.value.data.displaySlots[workshopData.value.frigateUpgradeInsertIndex] = workshopData.value.shipDisplaySelect
+}
+
+/**
+ * 选择船甲
+ */
+const onSelectArmor = () => {
+  if (poops.readonly)
+    return;
+
+  workshopData.value.armorModel = false;
+  if (!workshopData.value.armorSelect)
+    return;
+
+  workshopData.value.data.armorSlot = workshopData.value.armorSelect
 }
 
 /**
@@ -576,6 +609,7 @@ defineExpose({
         <div>
           <div>
             <v-row justify="space-around">
+              <!-- 陈设 -->
               <v-col cols="auto" class="mr-5">
                 <p class="mb-2 font-weight-bold badge-flavor text-center text-black">{{ t('assembly.workshop.displayTitle') }}</p>
                 <template v-if="route.query.debug">
@@ -671,9 +705,9 @@ defineExpose({
                 </ItemSlotBase>
               </v-col>
 
+              <!-- 主武器 -->
               <v-col>
                 <p class="mb-2 font-weight-bold badge-flavor text-center text-black">{{ t('assembly.workshop.weaponTitle') }}</p>
-                <!-- 主武器 -->
                 <p class="mb-1">{{ t('assembly.workshop.mainWeapon') }}</p>
                 <div class="ml-5 mb-2"
                      v-if="workshopData.data.weaponSlots && workshopData.data.weaponSlots.length > 0"
@@ -822,6 +856,7 @@ defineExpose({
                 <div v-else>
                   <EmptyView></EmptyView>
                 </div>
+
                 <v-dialog v-model="workshopData.displayModel"
                           content-class="pa-0"
                           max-height="90%"
@@ -989,10 +1024,65 @@ defineExpose({
                 </v-dialog>
               </v-col>
 
+              <!-- 船甲 -->
+              <v-col cols="auto">
+                <p class="mb-2 font-weight-bold badge-flavor text-center text-black">{{ t('assembly.workshop.armorTitle') }}</p>
+
+                <ItemSlotBase id="ship_select" size="80px" class="pa-2" v-if="!readonly && !workshopData.data.armorSlot">
+                  <v-card class="w-100 d-flex align-center justify-center"
+                          @click="workshopData.armorModel = true"
+                          :disabled="readonly">
+                    <v-icon icon="mdi-plus" size="30"></v-icon>
+                  </v-card>
+                </ItemSlotBase>
+                <ItemSlotBase size="80px" class="pa-1" v-else-if="workshopData.data.armorSlot">
+                  <ItemIconWidget :id="workshopData.data.armorSlot.id"></ItemIconWidget>
+                </ItemSlotBase>
+                <ItemSlotBase size="80px" class="pa-2 d-flex justify-center align-center" v-else-if="readonly && !workshopData.data.armorSlot">
+                  <v-card class="w-100 h-100 d-flex align-center justify-center">
+                    <v-icon icon="mdi-block-helper" class="opacity-30" size="20"></v-icon>
+                  </v-card>
+                </ItemSlotBase>
+
+                <v-dialog v-model="workshopData.armorModel"
+                          content-class="pa-0"
+                          max-height="90%"
+                          min-height="300"
+                          min-width="450"
+                          max-width="700">
+                  <v-card v-slot:default>
+                    <b class="font-weight-bold text-h5 pa-5"> {{ t('assembly.workshop.insertDisplayTitle') }}</b>
+                    <v-row class="ga-0 pa-2 pb-5">
+                      <v-col cols="2"
+                             v-for="(armor, armorIndex) in getShipArmorList"
+                             :key="armorIndex">
+                        <v-badge :color="workshopData.armorSelect ? workshopData.armorSelect!.id == armor!.id ? `var(--main-color)` : 'transparent' : 'transparent'">
+                          <template v-slot:badge>
+                            <v-icon icon="mdi-check" v-if="workshopData.armorSelect && workshopData.armorSelect!.id == armor!.id"></v-icon>
+                          </template>
+                          <ItemSlotBase
+                              size="92px" class="pa-1"
+                              @click="workshopData.armorSelect = armor"
+                              :class="[
+                                          workshopData.armorSelect ? workshopData.armorSelect!.id == armor!.id ? 'bg-amber' : '' : ''
+                                      ]">
+                            <ItemIconWidget :id="armor.id" :is-open-detail="false" :is-show-open-detail="false"></ItemIconWidget>
+                          </ItemSlotBase>
+                        </v-badge>
+                      </v-col>
+                    </v-row>
+                  </v-card>
+                  <v-card-actions class="bg-amber">
+                    <v-btn variant="tonal" @click="onSelectArmor" v-if="workshopData.armorSelect">{{ t('basic.button.submit') }}</v-btn>
+                    <v-btn variant="tonal" class="ml-1" @click="workshopData.armorModel = false">{{ t('basic.button.cancel') }}</v-btn>
+                  </v-card-actions>
+                </v-dialog>
+              </v-col>
+
+              <!-- 终极技能 -->
               <v-col cols="auto">
                 <p class="mb-2 font-weight-bold badge-flavor text-center text-black">{{ t('assembly.workshop.ultimateTitle') }}</p>
 
-                <!-- 终极技能 -->
                 <v-tooltip
                     v-model="workshopData.ultimateModel"
                     :open-on-hover="false"
@@ -1016,29 +1106,20 @@ defineExpose({
                       </v-card>
                     </ItemSlotBase>
                     <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-else>
-                      <v-card
-                          class="mx-auto"
-                          max-width="344"
-                          v-bind="propsHoverClose">
+                      <ItemSlotBase size="80px" class="pa-2"
+                                    v-bind="propsHoverClose"
+                                    v-if="workshopData.data.ultimateSlot && workshopData.data.ultimateSlot.id">
+                        <UltimateIconWidget :id="workshopData.data.ultimateSlot.id" :isClickOpenDetail="false"></UltimateIconWidget>
+                      </ItemSlotBase>
 
-                        <ItemSlotBase size="80px" class="pa-2"
-                                      v-if="workshopData.data.ultimateSlot && workshopData.data.ultimateSlot.id"
-                                      :class="[workshopData.data.ultimateSlot && workshopData.data.ultimateSlot.id ? 'bg-amber' : '']">
-                          <v-card class="w-100">
-                            <UltimateIconWidget :id="workshopData.data.ultimateSlot.id" :isClickOpenDetail="false"></UltimateIconWidget>
-                          </v-card>
-                        </ItemSlotBase>
-
-                        <v-overlay
-                            v-if="!readonly"
-                            :model-value="!!isHovering"
-                            class="align-center justify-center"
-                            scrim="#000"
-                            @click="onSlotRemove('ultimate')"
-                            contained>
-                          <v-icon icon="mdi-delete" color="red" size="50"></v-icon>
-                        </v-overlay>
-                      </v-card>
+                      <v-overlay
+                          v-if="!readonly"
+                          class="align-center justify-center"
+                          scrim="#000"
+                          @click="onSlotRemove('ultimate')"
+                          contained>
+                        <v-icon icon="mdi-delete" color="red" size="50"></v-icon>
+                      </v-overlay>
                     </v-hover>
                   </template>
                   <v-card v-slot:default>

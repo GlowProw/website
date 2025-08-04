@@ -7,6 +7,7 @@ const ships = Ships,
     items = Items
 
 export default class AssemblyDataProcessing {
+    static versions = ['0.0.1']
     nowVersion = '0.0.1'
 
     private processing = {
@@ -14,6 +15,9 @@ export default class AssemblyDataProcessing {
             get: (data) => {
                 if (data.shipSlot)
                     data.shipSlot = {id: data.shipSlot.id}
+
+                if (data.armorSlot)
+                    data.armorSlot = {id: data.armorSlot.id}
 
                 if (data.shipUpgradeSlot)
                     data.shipUpgradeSlot = {id: data.shipUpgradeSlot.id}
@@ -42,13 +46,16 @@ export default class AssemblyDataProcessing {
             },
             set: (data) => {
                 if (data.shipSlot)
-                    data.shipSlot = ships[data.shipSlot.id]
+                    data.shipSlot = ships[data.shipSlot.id] || Ship.fromRawData({})
+
+                if (data.armorSlot)
+                    data.armorSlot = items[data.armorSlot.id] || Item.fromRawData({})
 
                 if (data.shipUpgradeSlot)
-                    data.shipUpgradeSlot = items[data.shipUpgradeSlot.id]
+                    data.shipUpgradeSlot = items[data.shipUpgradeSlot.id]|| Item.fromRawData({})
 
                 if (data.ultimateSlot)
-                    data.ultimateSlot = items[data.ultimateSlot.id]
+                    data.ultimateSlot = items[data.ultimateSlot.id]|| Item.fromRawData({})
 
                 if (data.secondaryWeaponSlots)
                     data.secondaryWeaponSlots = data.secondaryWeaponSlots.map(i => {

@@ -25,7 +25,7 @@ const authStore = useAuthStore()
 
         <v-spacer></v-spacer>
 
-        <v-btn to="/account/home" v-if="authStore.isLogin" density="comfortable" icon class="mr-3">
+        <v-btn to="/account/information" v-if="authStore.isLogin" density="comfortable" icon class="mr-3">
           <v-avatar
               class="hidden-sm-and-down"
               color="grey-darken-2"

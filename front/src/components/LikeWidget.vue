@@ -6,6 +6,8 @@ import {useI18n} from "vue-i18n";
 import {AxiosError} from "axios";
 
 const props = defineProps({
+  class: String,
+  isShowCount: Boolean,
   targetType: String,             // 如 'assembly', 'comment', 'teamUp'
   targetId: String,               // 对应内容的ID
   userId: String,                 // 当前用户ID
@@ -72,7 +74,7 @@ const handleLike = async () => {
 </script>
 
 <template>
-  <div @click="handleLike">
+  <div @click="handleLike" :class="props.class">
     <v-btn v-if="likeLoading" icon>
       <Loading size="25px"></Loading>
     </v-btn>
@@ -83,6 +85,11 @@ const handleLike = async () => {
       <template v-else>
         <slot name="unActivate"></slot>
       </template>
+    </template>
+    <template v-if="props.isShowCount">
+      <span class="ml-1">
+        {{ likeCount }}
+      </span>
     </template>
   </div>
   <v-snackbar-queue v-model="messages"></v-snackbar-queue>

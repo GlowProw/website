@@ -15,6 +15,7 @@ import Silk from "@/components/Silk.vue";
 import {useI18nUtils} from "@/assets/sripts/i18nUtil";
 import AssemblyTagsWidget from "@/components/AssemblyTagsWidget.vue";
 import CommentWidget from "@/components/CommentWidget.vue";
+import AssemblySettingPanel from "@/components/AssemblySettingPanel.vue";
 
 const route = useRoute(),
     router = useRouter(),
@@ -35,6 +36,7 @@ let assemblyDetailData = ref({
     assemblyDetailRef = ref(null),
     assemblyLoading = ref(false),
     delAssemblyLoading = ref(false),
+    password = ref(''),
     language = computed(() => locale.value.split('-')[0]),
     sso = ref({
       // name:   "SampleNews",
@@ -56,16 +58,21 @@ onMounted(() => {
 const getAssemblyDetail = async () => {
   try {
     const {uuid} = route.params;
+    const {password} = route.query;
     assemblyLoading.value = true;
+
     const result = await http.get(api['assembly_item'], {
           params: {
             uuid,
+            password
           },
         }),
         d = result.data;
 
-    if (d.error == 1)
+    if (d.error == 1) {
+      assemblyDetailData.value = d.data;
       return;
+    }
 
     assemblyDetailData.value = d.data;
     assemblyDetailData.value.description = unescape(assemblyDetailData.value.description || '这个人很懒什么,对此配装什么都没说')
@@ -76,6 +83,15 @@ const getAssemblyDetail = async () => {
   } finally {
     assemblyLoading.value = false
   }
+}
+
+/**
+ * 直访，无密码重输
+ */
+const onPenPassword = () => {
+  router.push({name: route.name, query: {...route.query, 'password': password.value}})
+
+  getAssemblyDetail()
 }
 
 /**
@@ -138,13 +154,13 @@ const delAssembly = async () => {
         <div v-show="!assemblyLoading">
           <div class="ml-n2 mr-n2">
             <v-toolbar color="" class="bg-transparent">
-              <h1 :title="assemblyDetailData.name || 'none'" class="text-amber text-h2 singe-line">{{ assemblyDetailData.name || 'none' }}</h1>
+              <h1 :title="assemblyDetailData.name || ''" class="text-amber text-h2 singe-line">{{ assemblyDetailData.name || '' }}</h1>
 
               <v-spacer></v-spacer>
 
               <LikeWidget targetType="assembly"
                           class="ml-2"
-                          v-if="authStore.isLogin"
+                          v-if="authStore.isLogin && assemblyDetailData.isVisibility"
                           :targetId="assemblyDetailData.uuid"
                           :userId="authStore.user.userId">
                 <template v-slot:activate>
@@ -155,13 +171,19 @@ const delAssembly = async () => {
                 </template>
               </LikeWidget>
 
-              <template v-if="authStore.isLogin && authStore.user.userId == assemblyDetailData.userId">
+              <template v-if="assemblyDetailData.isVisibility && authStore.isLogin && authStore.user.userId == assemblyDetailData.userId">
                 <v-btn icon="mdi-delete-outline" class="mr-5 text-red" :loading="delAssemblyLoading" @click="delAssembly"></v-btn>
 
                 <v-btn variant="flat" :to="`/assembly/workshop/${assemblyDetailData.uuid}/edit`">
                   <v-icon icon="mdi-pencil" class="mr-2"></v-icon>
                   编辑此配装
                 </v-btn>
+
+                <AssemblySettingPanel :id="assemblyDetailData.uuid">
+                  <v-btn variant="flat" class="ml-3">
+                    <v-icon icon="mdi-cog"></v-icon>
+                  </v-btn>
+                </AssemblySettingPanel>
               </template>
             </v-toolbar>
           </div>
@@ -171,7 +193,7 @@ const delAssembly = async () => {
   </v-card>
 
   <!-- Assembly Preview S -->
-  <v-card class="card-enlargement-flavor mt-n3 mb-5 ml-n10 mr-n10 ">
+  <v-card class="card-enlargement-flavor mt-n3 mb-5 ml-n10 mr-n10" v-if="assemblyDetailData.isVisibility">
     <ZoomableCanvas
         style="height: 600px"
         :minScale=".8"
@@ -187,7 +209,7 @@ const delAssembly = async () => {
   </v-card>
   <!-- Assembly Preview E -->
 
-  <v-container>
+  <v-container v-if="assemblyDetailData.isVisibility">
     <div>
       <v-row>
         <v-col cols="12" sm="12" lg="8" xl="8">
@@ -256,6 +278,29 @@ const delAssembly = async () => {
         </v-col>
       </v-row>
     </div>
+  </v-container>
+
+  <v-container v-if="!assemblyDetailData.isPassword && !assemblyDetailData.isVisibility && !assemblyDetailData.assembly">
+    <v-card variant="text" class="pa-10 text-center">
+      <v-icon icon="mdi-alert-circle-outline" class="text-amber" size="120"></v-icon>
+      <h1 class="mt-10">抱歉,此配装不存在或不公开</h1>
+      <p>未能找到<v-chip density="compact">{{route.params.uuid}}</v-chip>，它可能为私有或不存在</p>
+    </v-card>
+  </v-container>
+  <v-container v-else-if="assemblyDetailData.isPassword">
+    <v-card variant="text" class="pa-10 text-center">
+      <v-icon icon="mdi-alert-circle-outline" class="text-amber" size="120"></v-icon>
+      <h1 class="mt-10">抱歉此配装，需要密码</h1>
+      <p>你可以输入密码来解密</p>
+
+      <div class="mt-8">
+        <v-text-field placeholder="******" class="ma-auto" v-model="password" max-width="400">
+          <template v-slot:append-inner>
+            <v-btn @click="onPenPassword">确定</v-btn>
+          </template>
+        </v-text-field>
+      </div>
+    </v-card>
   </v-container>
 </template>
 

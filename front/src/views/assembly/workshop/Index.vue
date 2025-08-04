@@ -12,6 +12,7 @@ import {v6 as uuidv6} from "uuid";
 import {useAuthStore} from "@/../stores";
 import EmptyView from "@/components/EmptyView.vue";
 import Silk from "@/components/Silk.vue";
+import Loading from "@/components/Loading.vue";
 
 const {t} = useI18n(),
     route = useRoute(),
@@ -21,6 +22,7 @@ const {t} = useI18n(),
 let
     messages: Ref<string[]> = ref([]),
 
+    assemblyLoading = ref(false),
     assemblyDetailData = ref({}),
     assemblyWorkshopRef = ref(null),                      // 配装工作区
     assemblyWorkshopZoomableAreaRef = ref(null),          // 配装缩放
@@ -59,24 +61,28 @@ onMounted(() => {
  * 获取配装详情
  */
 const getAssemblyDetail = async () => {
-  const {uid} = route.params;
+  try {
+    const {uid} = route.params;
+    assemblyLoading.value = true;
+    const result = await http.get(api['assembly_item'], {
+          params: {
+            uuid: uid,
+          },
+        }),
+        d = result.data;
 
-  const result = await http.get(api['assembly_item'], {
-        params: {
-          uuid: uid,
-        },
-      }),
-      d = result.data;
+    if (d.error == 1)
+      return;
 
-  if (d.error == 1)
-    return;
+    assemblyDetailData.value = d.data;
+    shareData.value = d.data;
 
-  assemblyDetailData.value = d.data;
-  shareData.value = d.data;
-
-  await nextTick(() => {
-    assemblyWorkshopRef.value.onLoadJson(d.data.assembly)
-  })
+    await nextTick(() => {
+      assemblyWorkshopRef.value.onLoadJson(d.data.assembly)
+    })
+  } finally {
+    assemblyLoading.value = false;
+  }
 }
 
 /**
@@ -211,6 +217,14 @@ const onWorkshopDelete = () => {
 </script>
 
 <template>
+  <v-overlay
+      :model-value="assemblyLoading"
+      transition
+      scrim
+      class="align-center justify-center background-flavor">
+    <Loading size="120"></Loading>
+  </v-overlay>
+
   <v-card height="250px">
     <template v-slot:image>
       <Silk

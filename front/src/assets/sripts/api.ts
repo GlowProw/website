@@ -9,7 +9,8 @@ export default class Api {
             "account_register": "register",
             "captcha": "captcha",
 
-            "user": "comments",
+            "user_comments": "user/comments",
+            "user_assemblys": "user/assemblys",
 
             "teamups": "teamups",
             "teamup_statistics": "teamup/statistics",
@@ -19,6 +20,8 @@ export default class Api {
             "assembly_list": "assembly/list",
             "assembly_edit": "assembly/edit",
             "assembly_delete": "assembly/delete",
+            "assembly_attr": "assembly/attr",
+            "assembly_attr_edit": "assembly/attr/edit",
 
             "comment": "comment",
             "comments": "comment/comments",

@@ -21,11 +21,14 @@ import ItemDamageTypeWidget from "@/components/snbWidget/itemDamageTypeWidget.vu
 import {storage} from "@/assets/sripts";
 import WeaponModificationWidget from "@/components/snbWidget/weaponModificationWidget.vue";
 import CommentWidget from "@/components/CommentWidget.vue";
+import LikeWidget from "@/components/LikeWidget.vue";
+import {useAuthStore} from "~/stores";
 
 const
     {t} = useI18n(),
     router = useRouter(),
     route = useRoute(),
+    authStore = useAuthStore(),
     {asArray, asString, sanitizeString} = useI18nUtils(),
 
     // 物品数据
@@ -156,9 +159,24 @@ const onStatisticsRawMaterial = () => {
               <v-chip class="badge-flavor text-center tag-badge text-black" v-if="itemDetailData.rarity">{{ t(`displayCabinet.rarity.${itemDetailData.rarity}`) }}</v-chip>
             </div>
           </v-col>
-          <v-spacer></v-spacer>
-          <v-col align="right">
-            <v-btn>{{ t('displayCabinet.share.title') }}</v-btn>
+          <v-col cols="auto">
+            <div class="d-flex ga-2">
+              <v-btn>
+                <LikeWidget v-if="authStore.isLogin"
+                            targetType="item"
+                            :isShowCount="true"
+                            :targetId="itemDetailData.id">
+                  <template v-slot:activate>
+                    <v-icon icon="mdi-thumb-up"></v-icon>
+                  </template>
+                  <template v-slot:unActivate>
+                    <v-icon icon="mdi-thumb-up-outline"></v-icon>
+                  </template>
+                </LikeWidget>
+              </v-btn>
+
+              <v-btn>{{ t('displayCabinet.share.title') }}</v-btn>
+            </div>
           </v-col>
         </v-row>
       </v-container>
@@ -531,7 +549,7 @@ const onStatisticsRawMaterial = () => {
             </ItemInputWidget>
 
             <template v-if="itemDetailData.id">
-              <p class="mt-5 mb-4 font-weight-bold">{{t('displayCabinet.item.damageType')}}</p>
+              <p class="mt-5 mb-4 font-weight-bold">{{ t('displayCabinet.item.damageType') }}</p>
               <ItemDamageTypeWidget :data="itemDetailData"></ItemDamageTypeWidget>
             </template>
 

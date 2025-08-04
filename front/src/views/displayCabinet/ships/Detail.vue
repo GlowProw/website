@@ -16,6 +16,8 @@ import ShipTopDownPerspectiveWidget from "@/components/snbWidget/shipTopDownPers
 import {Ship} from "glow-prow-data/src/entity/Ships.ts";
 import {storage} from "@/assets/sripts";
 import CommentWidget from "@/components/CommentWidget.vue";
+import LikeWidget from "@/components/LikeWidget.vue";
+import {useAuthStore} from "~/stores";
 
 const shipImages = import.meta.glob('@glow-prow-assets/ships/*.png', {eager: true});
 
@@ -23,6 +25,7 @@ const
     {t} = useI18n(),
     router = useRouter(),
     route = useRoute(),
+    authStore = useAuthStore(),
 
     // 船只数据
     shipsData: Ships = Ships,
@@ -141,7 +144,25 @@ const onStatisticsRawMaterial = () => {
 
             <v-chip inline class="badge-flavor text-center text-black tag-badge pl-3" v-if="shipsData[shipDetailPageData.id].size">{{ t(`displayCabinet.size.${shipsData[shipDetailPageData.id].size}`) }}</v-chip>
           </v-col>
-          <v-spacer></v-spacer>
+          <v-col cols="auto">
+            <div class="d-flex ga-2">
+              <v-btn>
+                <LikeWidget v-if="authStore.isLogin"
+                            targetType="ship"
+                            :isShowCount="true"
+                            :targetId="shipDetailPageData.id">
+                  <template v-slot:activate>
+                    <v-icon icon="mdi-thumb-up"></v-icon>
+                  </template>
+                  <template v-slot:unActivate>
+                    <v-icon icon="mdi-thumb-up-outline"></v-icon>
+                  </template>
+                </LikeWidget>
+              </v-btn>
+
+              <v-btn>{{ t('displayCabinet.share.title') }}</v-btn>
+            </div>
+          </v-col>
         </v-row>
 
         <v-img :src="shipDetailPageData.img"

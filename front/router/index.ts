@@ -2,7 +2,11 @@ import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router';
 
 import PortalMainBasePage from '../src/views/portal/Index.vue'
 import PortalPage from '../src/views/portal/Home.vue'
-import AccountPage from '../src/views/user/Index.vue'
+
+import AccountPage from '../src/views/user/account/Index.vue'
+import AccountInformationPage from '../src/views/user/account/Information.vue'
+import AccountAssemblysPage from '../src/views/user/account/assemblys.vue'
+
 import LoginPage from '../src/views/user/login.vue'
 import RegisterPage from '../src/views/user/register.vue'
 import DisplayCabinetPage from '../src/views/displayCabinet/Index.vue'
@@ -64,10 +68,23 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 component: PortalPage
             },
             {
-                path: '/account/home',
-                name: 'accountHome',
+                path: '/account',
+                name: 'AccountHome',
                 component: AccountPage,
-                beforeEnter: isLoginBeforeEnter
+                redirect: '/account/home/information',
+                beforeEnter: isLoginBeforeEnter,
+                children: [
+                    {
+                        path: 'information',
+                        name: 'AccountInformation',
+                        component: AccountInformationPage
+                    },
+                    {
+                        path: 'assemblys',
+                        name: 'AccountAssemblys',
+                        component: AccountAssemblysPage
+                    },
+                ]
             },
             {
                 path: '/account/login',
@@ -275,7 +292,6 @@ router.beforeEach((to, _from, next) => {
     try {
         const {t} = useI18n();
 
-        console.log(to)
         if (to.meta.metaInfo) {
             let metaInfo: any = to.meta.metaInfo;
             if (metaInfo.keywords && t(metaInfo.keywords) !== metaInfo.keywords) metaInfo.keywords = "Glow Prow," + t(metaInfo.keywords);
