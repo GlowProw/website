@@ -197,7 +197,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
           {{ i }}
         </template>
 
-        <v-btn :to="`/display-cabinet/item/${i.id}`" class="mt-4" density="comfortable" v-if="isShowOpenDetail">
+        <v-btn :to="`/display-cabinet/item/${i.id}`" target="_blank" class="mt-4" density="comfortable" v-if="isShowOpenDetail">
           <v-icon icon="mdi-help"></v-icon>
           详情
         </v-btn>

@@ -333,7 +333,7 @@ const onReady = async () => {
           </v-expansion-panel>
         </v-expansion-panels>
 
-        <v-btn :to="`/display-cabinet/ships/${props.id}`" class="mt-4" density="comfortable" v-if="isShowOpenDetail">
+        <v-btn :to="`/display-cabinet/ships/${props.id}`" target="_blank" class="mt-4" density="comfortable" v-if="isShowOpenDetail">
           <v-icon icon="mdi-help"></v-icon>
           详情
         </v-btn>

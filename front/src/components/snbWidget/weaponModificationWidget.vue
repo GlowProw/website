@@ -57,18 +57,16 @@ let show = ref(false),
 
 watch(() => props.data, (data: Item) => {
   if (data) {
-    weaponModSlots.value = weaponModConfig[data.rarity || 'common'].slotType.map((i) => {
-      return {
-        type: i,
-        value: null
-      }
-    })
+    emit('update:modelValue',
+        weaponModConfig[props.data.rarity || 'common'].slotType.map((i) => {
+          return {
+            type: i,
+            value: null
+          }
+        })
+    )
   }
 })
-//
-// watch(() => props.modelValue, () => {
-//   props.modelValue.value = {};
-// })
 
 onMounted(() => {
   onReady()
@@ -95,19 +93,6 @@ const onReady = () => {
     imageMap[key] = modImages[path].default;
   }
   modIconImages.value = imageMap;
-
-  // if (props.data) {
-  //   props.modelValue.value = weaponModConfig[props.data.rarity || 'common'].slotType.map((i) => {
-  //     return {
-  //       type: i,
-  //       value: null
-  //     }
-  //   })
-  // }
-
-  // console.log(props.modelValue)
-  // weaponModSlots.value = props.modelValue
-  // console.log(weaponModSlots.value)
 
   availableModulesData.value = onCategorizeByGrade(Modifications)
 }
@@ -199,28 +184,6 @@ const removeModification = (slotIndex: number) => {
  */
 const onPercentage = (data: []): [number, number] => {
   return [Math.ceil(data[0] * 100), Math.ceil(data[1] * 100)]
-}
-
-const showMods = (): [] => {
-  if (!props.modelValue)
-    return props.modelValue;
-
-  let data = toRaw(props.modelValue);
-
-  console.log(data)
-
-  return data.sort((a, b) => {
-    if (a.value !== null && b.value !== null) {
-      return a.value - b.value;
-    }
-    if (a.value !== null) {
-      return -1;
-    }
-    if (b.value !== null) {
-      return 1;
-    }
-    return 0;
-  })
 }
 </script>
 
