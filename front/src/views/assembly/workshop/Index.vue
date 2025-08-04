@@ -13,10 +13,12 @@ import {useAuthStore} from "@/../stores";
 import EmptyView from "@/components/EmptyView.vue";
 import Silk from "@/components/Silk.vue";
 import Loading from "@/components/Loading.vue";
+import {useHttpToken} from "@/assets/sripts/httpUtil";
 
 const {t} = useI18n(),
     route = useRoute(),
     router = useRouter(),
+    httpToken = useHttpToken(),
     authStore = useAuthStore()
 
 let
@@ -64,7 +66,7 @@ const getAssemblyDetail = async () => {
   try {
     const {uid} = route.params;
     assemblyLoading.value = true;
-    const result = await http.get(api['assembly_item'], {
+    const result = await httpToken.get(api['assembly_item'], {
           params: {
             uuid: uid,
           },
@@ -78,7 +80,7 @@ const getAssemblyDetail = async () => {
     shareData.value = d.data;
 
     await nextTick(() => {
-      assemblyWorkshopRef.value.onLoadJson(d.data.assembly)
+      assemblyWorkshopRef.value.onLoadJson(d.data.assembly, d.data.attr.assemblyUseVersion)
     })
   } finally {
     assemblyLoading.value = false;

@@ -289,6 +289,7 @@
       "displayTitle": "陈设",
       "weaponTitle": "武器",
       "armorTitle": "船甲",
+      "insertArmorTitle": "插入船甲",
       "mainWeapon": "主武器",
       "secondaryWeapon": "副武器",
       "insertWeaponTips": "请输入id来选中物体，id列表可见<a target=\"_blank\" href=\"{link}\">这里</a>",

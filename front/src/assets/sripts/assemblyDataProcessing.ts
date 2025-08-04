@@ -45,6 +45,8 @@ export default class AssemblyDataProcessing {
                 return data
             },
             set: (data) => {
+                console.log(ships, [data.shipSlot.id])
+
                 if (data.shipSlot)
                     data.shipSlot = ships[data.shipSlot.id] || Ship.fromRawData({})
 
@@ -52,10 +54,10 @@ export default class AssemblyDataProcessing {
                     data.armorSlot = items[data.armorSlot.id] || Item.fromRawData({})
 
                 if (data.shipUpgradeSlot)
-                    data.shipUpgradeSlot = items[data.shipUpgradeSlot.id]|| Item.fromRawData({})
+                    data.shipUpgradeSlot = items[data.shipUpgradeSlot.id] || Item.fromRawData({})
 
                 if (data.ultimateSlot)
-                    data.ultimateSlot = items[data.ultimateSlot.id]|| Item.fromRawData({})
+                    data.ultimateSlot = items[data.ultimateSlot.id] || Item.fromRawData({})
 
                 if (data.secondaryWeaponSlots)
                     data.secondaryWeaponSlots = data.secondaryWeaponSlots.map(i => {
@@ -92,8 +94,8 @@ export default class AssemblyDataProcessing {
     /**
      * 导入数据动作
      */
-    import(data) {
-        let version = data.__version || this.nowVersion
+    import(data, useVersion?: string) {
+        let version = useVersion || data.__version || this.nowVersion
         if (version)
             return this.processing[version].set(toRaw(data))
 

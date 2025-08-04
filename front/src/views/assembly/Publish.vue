@@ -97,7 +97,7 @@ const onEdit = async () => {
     let editPublishData: any = publishData.value;
 
     // 处理数据
-    editPublishData.data = JSON.stringify(editPublishData.data) // as JSON
+    // editPublishData.data = JSON.stringify(editPublishData.data) // as JSON
 
     const result = await httpToken.post(api['assembly_edit'], {
           data: editPublishData
@@ -132,7 +132,7 @@ const onPublish = async () => {
           data: {
             name: publishData.value.name,
             description: publishData.value.description,
-            data: JSON.stringify(assemblyData.value.data.data),
+            data: assemblyData.value.data.data,
             tags: publishData.value.tags,
             attr: {
               ...publishData.value.attr,

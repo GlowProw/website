@@ -50,6 +50,7 @@ const getMyAssemblysData = async () => {
         <v-spacer></v-spacer>
         <v-col cols="auto">
           <div class="d-flex ga-2">
+            <v-btn :to="`/assembly/workshop/${i.uuid}/edit`" target="_blank" icon="mdi-pencil"></v-btn>
             <v-btn :to="`/assembly/browse/${i.uuid}/detail`" target="_blank" icon="mdi-open-in-new"></v-btn>
             <AssemblySettingPanel :id="i.uuid">
               <v-btn icon="mdi-cog"></v-btn>
