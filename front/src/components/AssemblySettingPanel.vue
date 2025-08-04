@@ -4,9 +4,10 @@ import {useI18n} from "vue-i18n";
 import {useHttpToken} from "@/assets/sripts/httpUtil";
 import {api} from "@/assets/sripts/index";
 import Loading from "@/components/Loading.vue";
+import AssemblySettingWidget from "@/components/AssmblySettingWidget.vue"
 import AssemblyDataProcessing from "@/assets/sripts/assemblyDataProcessing";
 
-const {t} = useI18n(),
+const {t,locale} = useI18n(),
     http = useHttpToken()
 
 const props = defineProps<{ id: string }>()
@@ -14,22 +15,12 @@ const props = defineProps<{ id: string }>()
 let show = ref(false),
     getSettingLoading = ref(false),
     setSettingLoading = ref(false),
-    settingConfig = ref({
-      visibilitys: [
-        {
-          label: t('assembly.setting.publicly'),
-          value: 'publicly'
-        },
-        {
-          label: t('assembly.setting.private'),
-          value: 'private'
-        }
-      ]
-    }),
     settingData = ref({
       visibility: 'publicly',
       attr: {
-        password: ''
+        password: '',
+        language: locale.value,
+        assemblyUseVersion: AssemblyDataProcessing.nowVersion
       }
     })
 
@@ -115,53 +106,7 @@ const setAssemblySetting = async () => {
             常规
           </v-col>
           <v-divider vertical class="mr-4 ml-4"></v-divider>
-          <v-col>
-            <v-row>
-              <v-col>
-                <b>是否可见</b>
-                <p>决定是否被搜索或是直接访问</p>
-              </v-col>
-              <v-col>
-                <v-select item-title="label" v-model="settingData.visibility" :items="settingConfig.visibilitys"></v-select>
-              </v-col>
-            </v-row>
-
-            <v-row>
-              <v-col>
-                <b>使用密码</b>
-                <p>必须输入密码才可访问</p>
-              </v-col>
-              <v-col>
-                <v-text-field item-title="label" :placeholder="settingData.password || '输入密码并保存来创建，如果空则不需密码'" v-model="settingData.attr.password">
-                  <template v-slot:details>
-                    至少6位到32位，仅可使用a-A 0-9 _
-                  </template>
-                </v-text-field>
-              </v-col>
-            </v-row>
-
-            <v-divider class="mt-10 mb-10">其他</v-divider>
-
-            <v-row>
-              <v-col>
-                <b>配装渲染器版本</b>
-                <p>决定对配装数据以何种格式加载，如果你不清楚作用可以不需要设置，让系统以最新版本来初始加载</p>
-              </v-col>
-              <v-col>
-                <v-select placeholder="选择版本" :items="AssemblyDataProcessing.versions" v-model="settingData.attr.assemblyUseVersion"></v-select>
-              </v-col>
-            </v-row>
-
-            <v-row>
-              <v-col>
-                <b>删除</b>
-                <p>删除配装是不可逆行为, 将会删除对应评论和点赞</p>
-              </v-col>
-              <v-col>
-                <v-btn class="bg-red">删除</v-btn>
-              </v-col>
-            </v-row>
-          </v-col>
+          <AssemblySettingWidget v-model="settingData"></AssemblySettingWidget>
         </v-row>
         <v-divider></v-divider>
         <v-card-actions class="pa-5">

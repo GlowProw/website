@@ -10,17 +10,25 @@ import {useHttpToken} from "@/assets/sripts/httpUtil";
 import ZoomableCanvas from "@/components/ZoomableCanvas.vue";
 import Silk from "@/components/Silk.vue";
 import {useI18nUtils} from "@/assets/sripts/i18nUtil";
+import assemblyDataProcessing from "@/assets/sripts/assemblyDataProcessing"
 import AssemblyTagsWidget from "@/components/AssemblyTagsWidget.vue";
+import AssemblySettingWidget from "@/components/AssmblySettingWidget.vue"
 
 const route = useRoute(),
     router = useRouter(),
     http = useHttpToken(),
     {asString} = useI18nUtils(),
-    {t} = useI18n(),
+    {t, locale} = useI18n(),
     httpToken = useHttpToken()
 
 let publishData = ref({
-      tags: []
+      tags: [],
+      visibility: 'publicly',
+      attr: {
+        password: '',
+        assemblyUseVersion: assemblyDataProcessing.nowVersion,
+        language: locale.value
+      }
     } as {
       uuid: string,
       name: string,
@@ -70,7 +78,10 @@ const onLoadData = () => {
 
     if (assemblyData && assemblyData.value) {
       assemblyWorkshopRef.value.onLoadJson(assemblyData.value.data.data)
-      publishData.value = assemblyData.value.data
+      publishData.value = {
+        ...publishData.value,
+        ...assemblyData.value.data,
+      }
     }
   }
 
@@ -123,6 +134,9 @@ const onPublish = async () => {
             description: publishData.value.description,
             data: JSON.stringify(assemblyData.value.data.data),
             tags: publishData.value.tags,
+            attr: {
+              ...publishData.value.attr,
+            }
           }
         }),
         d = result.data;
@@ -245,6 +259,10 @@ const onUpdateTags = (data: any) => {
                   {{ publishData.description }}
                 </template>
               </v-card>
+            </v-col>
+            <v-col>
+              <v-divider>额外</v-divider>
+              <AssemblySettingWidget v-model="publishData" :is-show-delete="false"></AssemblySettingWidget>
             </v-col>
           </v-row>
         </v-col>

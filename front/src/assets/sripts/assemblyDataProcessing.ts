@@ -8,7 +8,7 @@ const ships = Ships,
 
 export default class AssemblyDataProcessing {
     static versions = ['0.0.1']
-    nowVersion = '0.0.1'
+    static nowVersion = '0.0.1'
 
     private processing = {
         '0.0.1': {
