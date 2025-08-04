@@ -6,6 +6,8 @@ import PortalPage from '../src/views/portal/Home.vue'
 import AccountPage from '../src/views/user/account/Index.vue'
 import AccountInformationPage from '../src/views/user/account/Information.vue'
 import AccountAssemblysPage from '../src/views/user/account/assemblys.vue'
+import AccountCommentsPage from '../src/views/user/account/comments.vue'
+import AccountTeamUpsPage from '../src/views/user/account/teamup.vue'
 
 import LoginPage from '../src/views/user/login.vue'
 import RegisterPage from '../src/views/user/register.vue'
@@ -83,6 +85,16 @@ const routes: Readonly<RouteRecordRaw[]> = [
                         path: 'assemblys',
                         name: 'AccountAssemblys',
                         component: AccountAssemblysPage
+                    },
+                    {
+                        path: 'comments',
+                        name: 'AccountComments',
+                        component: AccountCommentsPage
+                    },
+                    {
+                        path: 'teamups',
+                        name: 'AccountTeamUps',
+                        component: AccountTeamUpsPage
                     },
                 ]
             },

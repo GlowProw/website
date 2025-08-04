@@ -11,6 +11,8 @@ export default class Api {
 
             "user_comments": "user/comments",
             "user_assemblys": "user/assemblys",
+            "user_likes": "user/likes",
+            "user_teamups": "user/teamups",
 
             "teamups": "teamups",
             "teamup_statistics": "teamup/statistics",

@@ -49,7 +49,7 @@ const logout = () => {
 
             <v-spacer></v-spacer>
             <v-toolbar-items>
-              <v-btn @click="logout"  v-if="authStore.isLogin">登出</v-btn>
+              <v-btn @click="logout" v-if="authStore.isLogin">登出</v-btn>
             </v-toolbar-items>
           </v-toolbar>
         </v-container>
@@ -64,8 +64,8 @@ const logout = () => {
             <v-list-item prepend-icon="mdi-account" title="账户信息" to="/account/information" link></v-list-item>
             <v-divider class="mb-1"></v-divider>
             <v-list-item title="我的配装" to="/account/assemblys" link></v-list-item>
-            <v-list-item title="我的评论" disabled to="/account/comments" link></v-list-item>
-            <v-list-item title="我的组队" disabled to="/account/teamup" link></v-list-item>
+            <v-list-item title="我的评论" to="/account/comments" link></v-list-item>
+            <v-list-item title="我的组队" to="/account/teamups" link></v-list-item>
           </v-list>
         </v-navigation-drawer>
 
