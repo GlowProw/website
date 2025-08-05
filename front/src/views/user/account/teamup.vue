@@ -6,6 +6,7 @@ import {api} from "@/assets/sripts/index";
 
 import Loading from "@/components/Loading.vue";
 import AssemblySettingPanel from "@/components/AssemblySettingPanel.vue";
+import EmptyView from "@/components/EmptyView.vue";
 
 const http = useHttpToken()
 
@@ -41,7 +42,7 @@ const getMyTeamUpsData = async () => {
       <Loading></Loading>
     </v-overlay>
 
-    <v-card v-for="(i,index) in userTeamUpData.data" :key="index" class="mb-2 pa-2 pl-4">
+    <v-card v-for="(i,index) in userTeamUpData.data" :key="index" class="mb-2 pa-2 pl-4" v-if="userTeamUpData.data && userTeamUpData.data.length > 0">
       <v-row align="center">
         <v-col cols="12">
           <div class="font-weight-bold text-h5 text-amber">{{i.description}}</div>
@@ -62,6 +63,9 @@ const getMyTeamUpsData = async () => {
         <v-spacer></v-spacer>
       </v-row>
     </v-card>
+    <div class="text-center" v-else>
+      <EmptyView></EmptyView>
+    </div>
   </div>
 </template>
 

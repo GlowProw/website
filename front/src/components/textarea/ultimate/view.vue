@@ -4,8 +4,8 @@ import {useI18n} from "vue-i18n";
 import {useI18nUtils} from "@/assets/sripts/i18nUtil";
 
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
-import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
-import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue"
+import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
+import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
 
 const props = defineProps(nodeViewProps);
 const {t} = useI18n(),
@@ -14,19 +14,10 @@ const {t} = useI18n(),
 
 <template>
   <node-view-wrapper :as="'span'" class="ultimate-span-box">
-    <ItemSlotBase size="25px" :padding="0" class="item-icon">
-      <ItemIconWidget :id="node.attrs.id" :padding="0" class="ma-0"></ItemIconWidget>
+    <ItemSlotBase size="25px" :padding="0" class="ultimate-icon">
+      <UltimateIconWidget :id="node.attrs.id" :padding="0" class="ma-0"></UltimateIconWidget>
     </ItemSlotBase>
-    <ItemNameRarity :id="node.attrs.id" class="item-name text-no-wrap">
-      <u>
-        {{
-          asString([
-            `snb.items.${node.attrs.id}.name`,
-            `snb.items.${sanitizeString(node.attrs.id).cleaned}.name`
-          ])
-        }}
-      </u>
-    </ItemNameRarity>
+    <u class="ship-name text-no-wrap">{{ t(`snb.ultimates.${node.attrs.id}.name`) }}</u>
   </node-view-wrapper>
 </template>
 
@@ -39,12 +30,12 @@ const {t} = useI18n(),
   align-items: baseline;
   gap: 1px;
 
-  .item-icon {
+  .ultimate-icon {
     position: relative;
     top: 7px;
   }
 
-  > .item-name {
+  > .ultimate-name {
     position: relative;
     top: auto;
     left: auto;

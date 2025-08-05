@@ -406,8 +406,6 @@ const getDeckInformation = (index: number): Record<string, any> => {
 const onExport = () => {
   const data = assemblyDataProcessing.export(workshopData.value.data)
 
-  console.log(data)
-
   return toRaw(data);
 }
 
@@ -443,7 +441,7 @@ defineExpose({
   <v-row class="workshop-ship-interior position-relative pa-10 ml-5 mt-3" :class="poops.class">
     <v-col class="position-relative" style="min-width: 650px;z-index: 5" cols="10" sm="10" md="10" lg="10" xl="10">
       <v-col>
-        <div class="mb-10">
+        <div class="mb-12">
           <v-row no-gutters align="end">
             <v-col cols="auto">
               <!-- 船只 -->
@@ -794,7 +792,9 @@ defineExpose({
                               <ItemSlotBase size="30px"
                                             padding="0"
                                             v-for="(p, pindex) in getDeckInformation(index).top" :key="pindex">
-                                <ItemIconWidget :id="i.id" v-if="i.id" :is-open-detail="false"></ItemIconWidget>
+                                <ItemIconWidget :id="i.id" v-if="i.id"
+                                                :is-show-tooltip="false"
+                                                :is-open-detail="false"></ItemIconWidget>
                               </ItemSlotBase>
                             </v-col>
                             <v-col align="center" class="mt-n1">
@@ -804,7 +804,9 @@ defineExpose({
                                             :id="i.id"
                                             v-if="i.id"
                                             v-for="(p, pindex) in getDeckInformation(index).lower" :key="pindex">
-                                <ItemIconWidget :id="i.id" :is-open-detail="false"></ItemIconWidget>
+                                <ItemIconWidget :id="i.id"
+                                                :is-show-tooltip="false"
+                                                :is-open-detail="false"></ItemIconWidget>
                               </ItemSlotBase>
                             </v-col>
                           </v-row>

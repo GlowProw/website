@@ -4,8 +4,7 @@ import {useI18n} from "vue-i18n";
 import {useI18nUtils} from "@/assets/sripts/i18nUtil";
 
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
-import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
-import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue"
+import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
 
 const props = defineProps(nodeViewProps);
 const {t} = useI18n(),
@@ -13,25 +12,16 @@ const {t} = useI18n(),
 </script>
 
 <template>
-  <node-view-wrapper :as="'span'" class="ultimate-span-box">
-    <ItemSlotBase size="25px" :padding="0" class="item-icon">
-      <ItemIconWidget :id="node.attrs.id" :padding="0" class="ma-0"></ItemIconWidget>
+  <node-view-wrapper :as="'span'" class="mod-span-box">
+    <ItemSlotBase size="25px" :padding="0" class="mod-icon">
+      <ModIconWidget :id="node.attrs.id"></ModIconWidget>
     </ItemSlotBase>
-    <ItemNameRarity :id="node.attrs.id" class="item-name text-no-wrap">
-      <u>
-        {{
-          asString([
-            `snb.items.${node.attrs.id}.name`,
-            `snb.items.${sanitizeString(node.attrs.id).cleaned}.name`
-          ])
-        }}
-      </u>
-    </ItemNameRarity>
+    <u class="ship-name text-no-wrap">{{ t(`snb.modifications.${node.attrs.id}.name`) }}</u>
   </node-view-wrapper>
 </template>
 
 <style scoped lang="less">
-.ultimate-span-box {
+.mod-span-box {
   position: relative;
   display: inline-flex;
   width: auto;
@@ -39,12 +29,12 @@ const {t} = useI18n(),
   align-items: baseline;
   gap: 1px;
 
-  .item-icon {
+  .mod-icon {
     position: relative;
     top: 7px;
   }
 
-  > .item-name {
+  > .mod-name {
     position: relative;
     top: auto;
     left: auto;

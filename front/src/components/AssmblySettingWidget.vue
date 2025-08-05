@@ -3,8 +3,11 @@
 import AssemblyDataProcessing from "@/assets/sripts/assemblyDataProcessing";
 import {ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
+import {api} from "@/assets/sripts/index";
+import {useHttpToken} from "@/assets/sripts/httpUtil";
 
 const {t} = useI18n(),
+    http = useHttpToken(),
     props = withDefaults(defineProps<{ modelValue: any, isShowDelete?: boolean }>(), {
       isShowDelete: true
     })
@@ -21,7 +24,8 @@ let emit = defineEmits(['update:modelValue']),
           value: 'private'
         }
       ]
-    })
+    }),
+    delAssemblyLoading = ref(false)
 
 watch(() => props.modelValue.value, (value, oldValue) => {
   const changes = {}
@@ -40,6 +44,29 @@ const isEqual = (a, b) => {
   return JSON.stringify(a) === JSON.stringify(b)
 }
 
+/**
+ * 删除配装
+ */
+const delAssembly = async () => {
+  try {
+    const {uuid} = route.params;
+    delAssemblyLoading.value = true
+    const result = await http.post(api['assembly_delete'], {
+          data: {uuid},
+        }),
+        d = result.data;
+
+    if (d.error == 1)
+      throw Error(d.message || d.code);
+
+    await router.push("/assembly")
+  } catch (e) {
+    if (e instanceof Error)
+      console.error(e)
+  } finally {
+    delAssemblyLoading.value = false
+  }
+}
 </script>
 
 <template>
@@ -86,7 +113,7 @@ const isEqual = (a, b) => {
         <p>删除配装是不可逆行为, 将会删除对应评论和点赞</p>
       </v-col>
       <v-col>
-        <v-btn class="bg-red">删除</v-btn>
+        <v-btn class="bg-red" @click="delAssembly">删除</v-btn>
       </v-col>
     </v-row>
   </v-col>

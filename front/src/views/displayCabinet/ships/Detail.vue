@@ -9,7 +9,6 @@ import EmptyView from "@/components/EmptyView.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ShipSailSpeedWidget from "@/components/snbWidget/shipSailSpeedWidget.vue";
 import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
-import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
 import PerksWidget from "@/components/snbWidget/perksWidget.vue";
 import ShipTopDownPerspectiveWidget from "@/components/snbWidget/shipTopDownPerspectiveWidget.vue";
@@ -18,6 +17,7 @@ import {storage} from "@/assets/sripts";
 import CommentWidget from "@/components/CommentWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
 import {useAuthStore} from "~/stores";
+import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 
 const shipImages = import.meta.glob('@glow-prow-assets/ships/*.png', {eager: true});
 
@@ -103,16 +103,16 @@ const onDisplayCabinetHistory = () => {
  * 处理计算必要材料对应原材料
  */
 const onStatisticsRawMaterial = () => {
-  shipRawMaterials.value = Object.entries(shipDetailData.value.required).reduce(
-      (acc, [key, value]) => {
-        if (materials[key]?.raw) {
-          Object.entries(materials[key].raw).forEach(([nKey, nValue]) => {
-            acc[nKey] = (acc[nKey] || 0) + nValue * value;
-          });
+  shipRawMaterials.value = Array.from(shipDetailData.value.required).reduce(
+      (acc, [material, quantity]) => {
+        if (materials[material.id]?.required) {
+          Array.from(materials[material.id].required).reduce((j, [raw, rawQuantity]) => {
+            acc[raw.id] = (acc[raw.id] || 0) + (rawQuantity as number) * quantity;
+          })
         }
         return acc;
       },
-      {} as any
+      {} as Record<string, number>
   );
 }
 </script>
@@ -290,7 +290,7 @@ const onStatisticsRawMaterial = () => {
                       <v-col>
                         <p>
                           <v-row align="center">
-                            <v-col><b>{{t('displayCabinet.ship.rightSideWeapon')}}</b></v-col>
+                            <v-col><b>{{ t('displayCabinet.ship.rightSideWeapon') }}</b></v-col>
                             <v-col cols>
                               <v-divider></v-divider>
                             </v-col>
@@ -378,7 +378,7 @@ const onStatisticsRawMaterial = () => {
                                 hide-details
                                 variant="underlined" density="compact">
                     <template v-slot:append-inner>
-                      <p class="text-no-wrap">{{t('displayCabinet.ship.furniture')}}</p>
+                      <p class="text-no-wrap">{{ t('displayCabinet.ship.furniture') }}</p>
                     </template>
                   </v-text-field>
                 </template>
@@ -388,7 +388,7 @@ const onStatisticsRawMaterial = () => {
                                 hide-details
                                 variant="underlined" density="compact">
                     <template v-slot:append-inner>
-                      <p class="text-no-wrap">{{t('displayCabinet.ship.ultimate')}}</p>
+                      <p class="text-no-wrap">{{ t('displayCabinet.ship.ultimate') }}</p>
                     </template>
                   </v-text-field>
                 </template>
@@ -398,7 +398,7 @@ const onStatisticsRawMaterial = () => {
                               hide-details
                               variant="underlined" density="compact">
                   <template v-slot:append-inner>
-                    <p class="text-no-wrap">{{t('displayCabinet.ship.hitPoints')}}</p>
+                    <p class="text-no-wrap">{{ t('displayCabinet.ship.hitPoints') }}</p>
                   </template>
                 </v-text-field>
 
@@ -413,29 +413,29 @@ const onStatisticsRawMaterial = () => {
                 <p class="mt-4"><b>{{ t('displayCabinet.ship.sailSpeed.title') }}{{ t('displayCabinet.ship.sailSpeed.knot') }}</b></p>
                 <ShipSailSpeedWidget :data="shipDetailData"></ShipSailSpeedWidget>
 
-                <p class="mt-4"><b>{{t('displayCabinet.ship.cargo')}}</b></p>
+                <p class="mt-4"><b>{{ t('displayCabinet.ship.cargo') }}</b></p>
                 <v-text-field :value="shipDetailData.cargo.cargoSlots" readonly
                               hide-details
                               variant="underlined" density="compact">
                   <template v-slot:append-inner>
-                    <p class="text-no-wrap">{{ t('displayCabinet.ship.cargoSlots')}}</p>
+                    <p class="text-no-wrap">{{ t('displayCabinet.ship.cargoSlots') }}</p>
                   </template>
                 </v-text-field>
                 <v-text-field :value="shipDetailData.cargo.cargoMaxWeight" readonly
                               hide-details
                               variant="underlined" density="compact">
                   <template v-slot:append-inner>
-                    <p class="text-no-wrap">{{ t('displayCabinet.ship.cargoMaxWeight')}}</p>
+                    <p class="text-no-wrap">{{ t('displayCabinet.ship.cargoMaxWeight') }}</p>
                   </template>
                 </v-text-field>
               </v-col>
               <v-col cols="12">
-                <v-divider>{{t('displayCabinet.ship.materialsTitle')}}</v-divider>
+                <v-divider>{{ t('displayCabinet.ship.materialsTitle') }}</v-divider>
               </v-col>
               <v-col cols="12" sm="12" lg="6" xl="6">
                 <p class="mt-4 mb-2"><b>{{ t('displayCabinet.ship.required') }}</b></p>
-                <template v-if="shipDetailData.required && Object.keys(shipDetailData.required).length > 0">
-                  <div v-for="([key, value], rIndex) in Object.entries(shipDetailData.required)"
+                <template v-if="shipDetailData.required">
+                  <div v-for="([i, value], rIndex) in shipDetailData.required"
                        :key="rIndex">
                     <v-text-field
                         :value="value"
@@ -445,12 +445,15 @@ const onStatisticsRawMaterial = () => {
                         density="compact">
                       <template v-slot:append-inner>
                         <div class="text-right">
-                          <p class="text-no-wrap">{{ t(`snb.materials.${key}.name`) }}</p>
-                          <p class="text-no-wrap mt-n2 opacity-30" v-if="route.query.debug">{{ key }}</p>
+                          <p class="text-no-wrap">{{ t(`snb.materials.${i.id}.name`) }}</p>
+                          <p class="text-no-wrap mt-n2 opacity-30" v-if="route.query.debug">{{ i.id }}</p>
                         </div>
                       </template>
                       <template v-slot:prepend>
-                        <MaterialIconWidget :id="key" item-type="items"></MaterialIconWidget>
+                        <MaterialIconWidget :id="i.id" item-type="items"></MaterialIconWidget>
+                        <FactionIconWidget :name="materials[i.id].faction.id"
+                                           v-if="materials[i.id].faction"
+                                           size="20px"></FactionIconWidget>
                       </template>
                     </v-text-field>
                   </div>
@@ -484,29 +487,29 @@ const onStatisticsRawMaterial = () => {
                       </template>
                       <template v-slot:prepend>
                         <MaterialIconWidget :id="key" item-type="items"></MaterialIconWidget>
-                        <FactionIconWidget :name="materials[key].faction"
+                        <FactionIconWidget :name="materials[key].faction.id"
                                            v-if="materials[key].faction"
                                            size="20px"></FactionIconWidget>
                       </template>
                     </v-text-field>
 
                     <ul class="ml-10 raw-list" v-if="!isShowShipRawList">
-                      <li v-for="(rawKey,rawValue) in materials[key].raw" :key="rawKey" class="ml-10">
+                      <li v-for="([raw,rawValue],rawIndex) in materials[key].required" :key="rawIndex" class="ml-10">
                         <v-text-field
-                            :value="value"
+                            :value="rawValue"
                             readonly
                             hide-details
                             variant="underlined"
                             density="compact">
                           <template v-slot:append-inner>
                             <div class="text-right">
-                              <p class="text-no-wrap">{{ t(`snb.materials.${rawValue}.name`) }}</p>
+                              <p class="text-no-wrap">{{ t(`snb.materials.${raw.id}.name`) }}</p>
                             </div>
                           </template>
                           <template v-slot:prepend>
-                            <MaterialIconWidget :id="rawValue.toString()" item-type="items"></MaterialIconWidget>
-                            <FactionIconWidget :name="materials[key].faction"
-                                               v-if="materials[key].faction"
+                            <MaterialIconWidget :id="raw.id" item-type="items"></MaterialIconWidget>
+                            <FactionIconWidget :name="materials[raw.id].faction.id"
+                                               v-if="materials[raw.id].faction"
                                                size="20px"></FactionIconWidget>
                           </template>
                         </v-text-field>
@@ -532,10 +535,10 @@ const onStatisticsRawMaterial = () => {
                             tile
                             variant="solo-filled">
                 <template v-slot:prepend>
-                  <p class="text-no-wrap">{{t('displayCabinet.ship.bySeason.prepend')}}</p>
+                  <p class="text-no-wrap">{{ t('displayCabinet.ship.bySeason.prepend') }}</p>
                 </template>
                 <template v-slot:append-inner>
-                  <p class="text-no-wrap">{{t('displayCabinet.ship.bySeason.append')}}</p>
+                  <p class="text-no-wrap">{{ t('displayCabinet.ship.bySeason.append') }}</p>
                 </template>
               </v-text-field>
             </v-card>
@@ -579,7 +582,7 @@ const onStatisticsRawMaterial = () => {
             </v-text-field>
 
             <template v-if="shipDetailData.perks">
-              <p class="mt-5 mb-1 font-weight-bold">{{t('displayCabinet.ship.perks')}} ({{ shipDetailData.perks.length || 0 }})</p>
+              <p class="mt-5 mb-1 font-weight-bold">{{ t('displayCabinet.ship.perks') }} ({{ shipDetailData.perks.length || 0 }})</p>
               <PerksWidget :data="shipDetailData"></PerksWidget>
             </template>
           </v-col>

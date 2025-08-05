@@ -100,10 +100,10 @@ function getRandom(obj, count) {
     <v-row class="fill-height">
       <div class="w-100 mb-5" v-if="displayCabinetHistorys.length > 0">
         <v-toolbar class="title-long-flavor bg-black mb-5">
-          <router-link to="/display-cabinet/ships" class="ml-10 font-weight-bold text-amber">
+          <div class="ml-10 font-weight-bold text-amber">
             {{ t('displayCabinet.cabinetHistoryTitle') }}
             ({{ displayCabinetHistorys.length || 0 }})
-          </router-link>
+          </div>
           <v-spacer></v-spacer>
           <v-col cols="auto" class="mr-4">
             <v-btn icon="mdi-delete" @click="onCleaningHistory" v-if="displayCabinetHistorys.length >= 0"></v-btn>

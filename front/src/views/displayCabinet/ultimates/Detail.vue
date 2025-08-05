@@ -8,6 +8,9 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import {storage} from "@/assets/sripts";
 import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
 import {Ultimate} from "glow-prow-data/src/entity/Ultimates";
+import CommentWidget from "@/components/CommentWidget.vue";
+import LikeWidget from "@/components/LikeWidget.vue";
+import {useAuthStore} from "~/stores";
 
 const ultimateImages = import.meta.glob('@glow-prow-assets/ships/*.*', {eager: true});
 
@@ -15,6 +18,7 @@ const
     {t} = useI18n(),
     router = useRouter(),
     route = useRoute(),
+    authStore = useAuthStore(),
 
     // 船只数据
     ultimatesData = Ultimates,
@@ -92,8 +96,8 @@ const onUltimateHistory = () => {
   </v-breadcrumbs>
   <v-divider></v-divider>
 
-  <div class="ships-detail" v-if="ultimateDetailPageData.id && !ultimateDetailPageData.loading">
-    <div class="ships-detail-header background-dot-grid">
+  <div class="ultimates-detail" v-if="ultimateDetailPageData.id && !ultimateDetailPageData.loading">
+    <div class="ultimates-detail-header background-dot-grid">
       <v-container class="position-relative">
         <v-row class="mt-5">
           <v-col>
@@ -106,11 +110,26 @@ const onUltimateHistory = () => {
             <v-chip class="badge-flavor text-center tag-badge text-black" v-if="ultimateDetailData.rarity">{{ t(`displayCabinet.rarity.${ultimateDetailData.rarity}`) }}</v-chip>
           </v-col>
           <v-spacer></v-spacer>
+          <v-col cols="auto">
+            <v-btn>
+              <LikeWidget v-if="authStore.isLogin"
+                          targetType="ultimate"
+                          :isShowCount="true"
+                          :targetId="ultimateDetailPageData.id">
+                <template v-slot:activate>
+                  <v-icon icon="mdi-thumb-up"></v-icon>
+                </template>
+                <template v-slot:unActivate>
+                  <v-icon icon="mdi-thumb-up-outline"></v-icon>
+                </template>
+              </LikeWidget>
+            </v-btn>
+          </v-col>
         </v-row>
 
         <!--        <v-img :src="ultimateDetailPageData.img"-->
         <!--               inline-->
-        <!--               class="ships-detail-header-img pointer-events-none"></v-img>-->
+        <!--               class="ultimates-detail-header-img pointer-events-none"></v-img>-->
       </v-container>
     </div>
     <div class="background-flavor">
@@ -146,6 +165,11 @@ const onUltimateHistory = () => {
                 </template>
               </v-col>
             </v-row>
+
+            <template v-if="ultimateDetailData.id">
+              <v-divider>评论</v-divider>
+              <CommentWidget :id="ultimateDetailData.id" type="ultimate" placeholder=""></CommentWidget>
+            </template>
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
             <v-card class="mb-4 pl-3" v-if="ultimateDetailData.bySeason">
@@ -193,8 +217,8 @@ const onUltimateHistory = () => {
 </template>
 
 <style scoped lang="less">
-.ships-detail {
-  .ships-detail-header {
+.ultimates-detail {
+  .ultimates-detail-header {
     background-color: #000;
     position: relative;
     padding-bottom: 40px;
@@ -213,7 +237,7 @@ const onUltimateHistory = () => {
       background-size: cover;
     }
 
-    .ships-detail-header-img {
+    .ultimates-detail-header-img {
       position: absolute;
       z-index: -1;
       right: 20px;

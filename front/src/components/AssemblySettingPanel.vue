@@ -1,20 +1,25 @@
 <script setup lang="ts">
-import {ref, watch} from "vue";
+import {onMounted, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {useHttpToken} from "@/assets/sripts/httpUtil";
 import {api} from "@/assets/sripts/index";
 import Loading from "@/components/Loading.vue";
 import AssemblySettingWidget from "@/components/AssmblySettingWidget.vue"
 import AssemblyDataProcessing from "@/assets/sripts/assemblyDataProcessing";
+import VueJsonPretty from 'vue-json-pretty';
 
-const {t,locale} = useI18n(),
-    http = useHttpToken()
+import 'vue-json-pretty/lib/styles.css';
 
-const props = defineProps<{ id: string }>()
+const {t, locale} = useI18n(),
+    http = useHttpToken(),
+    assemblyDataProcessing = new AssemblyDataProcessing();
+
+const props = defineProps<{ id: string, assemblyData?: any }>()
 
 let show = ref(false),
     getSettingLoading = ref(false),
     setSettingLoading = ref(false),
+    tabValue = ref('conventional'),
     settingData = ref({
       visibility: 'publicly',
       attr: {
@@ -80,8 +85,6 @@ const setAssemblySetting = async () => {
     setSettingLoading.value = false
   }
 }
-
-
 </script>
 
 <template>
@@ -101,17 +104,41 @@ const setAssemblySetting = async () => {
           <Loading size="30"></Loading>
         </v-overlay>
 
-        <v-row class="mt-5 pa-5">
-          <v-col cols="2">
-            常规
-          </v-col>
-          <v-divider vertical class="mr-4 ml-4"></v-divider>
-          <AssemblySettingWidget v-model="settingData"></AssemblySettingWidget>
-        </v-row>
+        <div class="d-flex flex-row">
+          <v-tabs
+              class="v-col-3"
+              v-model="tabValue"
+              direction="vertical">
+            <v-tab prepend-icon="mdi-cog" text="常规" value="conventional"></v-tab>
+            <v-tab prepend-icon="mdi-database" text="数据" value="data" v-if="props.assemblyData"></v-tab>
+          </v-tabs>
+
+          <v-tabs-window v-model="tabValue" class="v-col-9 flex-1 w-100">
+            <v-tabs-window-item value="conventional">
+              <AssemblySettingWidget v-model="settingData"></AssemblySettingWidget>
+            </v-tabs-window-item>
+
+            <v-tabs-window-item value="data">
+              <div class="w-100">
+                <v-card elevation="0" min-height="200" max-height="60vh" class="pa-2 overflow-auto">
+                  <VueJsonPretty
+                      theme="dark"
+                      showLine
+                      showIcon
+                      showDoubleQuotes
+                      v-if="assemblyData"
+                      :data="assemblyDataProcessing.export(assemblyData)" />
+                </v-card>
+              </div>
+            </v-tabs-window-item>
+          </v-tabs-window>
+        </div>
+
         <v-divider></v-divider>
         <v-card-actions class="pa-5">
-          <v-btn :loading="setSettingLoading" @click="setAssemblySetting" class="bg-amber">确定</v-btn>
+          <v-spacer></v-spacer>
           <v-btn @click="show = !show">取消</v-btn>
+          <v-btn :loading="setSettingLoading" @click="setAssemblySetting" class="bg-amber">确定</v-btn>
         </v-card-actions>
       </v-card>
     </v-container>

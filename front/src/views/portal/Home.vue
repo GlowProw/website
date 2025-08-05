@@ -75,6 +75,7 @@ const getCurrentSeason = (): Season | null => {
 
   for (const seasonId in seasons) {
     const season = seasons[seasonId];
+
     const startDate = new Date(season.startDate).getTime();
     const endDate = new Date(season.endDate).getTime();
 

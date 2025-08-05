@@ -112,16 +112,16 @@ const onDisplayCabinetHistory = () => {
  */
 const onStatisticsRawMaterial = () => {
   if (itemDetailData.value?.required)
-    itemRawMaterials.value = Object.entries(itemDetailData.value.required).reduce(
-        (acc, [key, value]) => {
-          if (materials[key]?.raw) {
-            Object.entries(materials[key].raw).forEach(([nKey, nValue]) => {
-              acc[nKey] = (acc[nKey] || 0) + nValue * value;
-            });
+    itemRawMaterials.value = Array.from(itemDetailData.value.required).reduce(
+        (acc, [material, quantity]) => {
+          if (materials[material.id]?.required) {
+            Array.from(materials[material.id].required).reduce((j, [raw, rawQuantity]) => {
+              acc[raw.id] = (acc[raw.id] || 0) + (rawQuantity as number) * quantity;
+            })
           }
           return acc;
         },
-        {} as any
+        {} as Record<string, number>
     );
 }
 </script>
@@ -361,8 +361,8 @@ const onStatisticsRawMaterial = () => {
               </v-col>
               <v-col cols="12" sm="12" lg="6" xl="6">
                 <p class="mt-4 mb-2"><b>{{ t('displayCabinet.item.required') }}</b></p>
-                <template v-if="itemDetailData.required && Object.keys(itemDetailData.required).length > 0">
-                  <div v-for="([key, value], rIndex) in Object.entries(itemDetailData.required)"
+                <template v-if="itemDetailData.required && Array.from(itemDetailData.required).length > 0">
+                  <div v-for="([i, value], rIndex) in itemDetailData.required"
                        :key="rIndex">
                     <v-text-field
                         :value="value"
@@ -372,12 +372,15 @@ const onStatisticsRawMaterial = () => {
                         density="compact">
                       <template v-slot:append-inner>
                         <div class="text-right">
-                          <p class="text-no-wrap">{{ t(`snb.materials.${key}.name`) }}</p>
-                          <p class="text-no-wrap mt-n2 opacity-30" v-if="route.query.debug">{{ key }}</p>
+                          <p class="text-no-wrap">{{ t(`snb.materials.${i.id}.name`) }}</p>
+                          <p class="text-no-wrap mt-n2 opacity-30" v-if="route.query.debug">{{ i.id }}</p>
                         </div>
                       </template>
                       <template v-slot:prepend>
-                        <MaterialIconWidget :id="key" item-type="items"></MaterialIconWidget>
+                        <MaterialIconWidget :id="i.id" item-type="items"></MaterialIconWidget>
+                        <FactionIconWidget :name="materials[i.id].faction.id"
+                                           v-if="materials[i.id].faction"
+                                           size="20px"></FactionIconWidget>
                       </template>
                     </v-text-field>
                   </div>
@@ -389,13 +392,13 @@ const onStatisticsRawMaterial = () => {
                 </template>
               </v-col>
               <v-col cols="12" sm="12" lg="6" xl="6">
-                <div class="mt-4 mb-2">
+                <v-row class="mt-4 mb-2">
                   <p><b>{{ t('displayCabinet.item.rawMaterials') }}</b></p>
                   <v-spacer></v-spacer>
                   <v-btn density="compact" icon @click="isShowShipRawList = !isShowShipRawList" v-if="Object.keys(itemRawMaterials).length > 0">
                     <v-icon :icon="`mdi-menu-${isShowShipRawList ? 'down' : 'up'}`"></v-icon>
                   </v-btn>
-                </div>
+                </v-row>
                 <template v-if="Object.entries(itemRawMaterials).length > 0">
                   <div v-for="([key, value], rIndex) in Object.entries(itemRawMaterials)"
                        :key="rIndex">
@@ -413,14 +416,14 @@ const onStatisticsRawMaterial = () => {
                       </template>
                       <template v-slot:prepend>
                         <MaterialIconWidget :id="key" item-type="items"></MaterialIconWidget>
-                        <FactionIconWidget :name="materials[key].faction"
+                        <FactionIconWidget :name="materials[key].faction.id"
                                            v-if="materials[key].faction"
                                            size="20px"></FactionIconWidget>
                       </template>
                     </v-text-field>
 
                     <ul class="ml-10 raw-list" v-if="!isShowShipRawList">
-                      <li v-for="(rawKey,rawValue) in materials[key].raw" :key="rawKey" class="ml-10">
+                      <li v-for="([raw,rawValue],rawIndex) in materials[key].required" :key="rawIndex" class="ml-10">
                         <v-text-field
                             :value="value"
                             readonly
@@ -429,13 +432,13 @@ const onStatisticsRawMaterial = () => {
                             density="compact">
                           <template v-slot:append-inner>
                             <div class="text-right">
-                              <p class="text-no-wrap">{{ t(`snb.materials.${rawValue}.name`) }}</p>
+                              <p class="text-no-wrap">{{ t(`snb.materials.${raw.id}.name`) }}</p>
                             </div>
                           </template>
                           <template v-slot:prepend>
-                            <MaterialIconWidget :id="rawValue.toString()" item-type="items"></MaterialIconWidget>
-                            <FactionIconWidget :name="materials[key].faction"
-                                               v-if="materials[key].faction"
+                            <MaterialIconWidget :id="raw.id" item-type="items"></MaterialIconWidget>
+                            <FactionIconWidget :name="materials[raw.id].faction.id"
+                                               v-if="materials[raw.id].faction"
                                                size="20px"></FactionIconWidget>
                           </template>
                         </v-text-field>

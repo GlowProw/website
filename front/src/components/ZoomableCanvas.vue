@@ -25,187 +25,218 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'AutoHeightCanvas',
-  props: {
-    canvasWidth: {
-      type: Number,
-      default: 1200
-    },
-    minScale: {
-      type: Number,
-      default: 0.1
-    },
-    maxScale: {
-      type: Number,
-      default: 3
+<script setup lang="ts">
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import {useDisplay} from "vuetify/framework";
+
+const { mobile } = useDisplay()
+const props = defineProps({
+  canvasWidth: {
+    type: Number,
+    default: 1200
+  },
+  minScale: {
+    type: Number,
+    default: 0.1
+  },
+  maxScale: {
+    type: Number,
+    default: 3
+  }
+})
+
+const scale = ref(1)
+const position = ref({x: 0, y: 0})
+const contentHeight = ref(600) // Initial height, will be updated
+const isDragging = ref(false)
+const startPos = ref({x: 0, y: 0})
+const resizeObserver = ref(null)
+const touchIdentifier = ref(null)
+const container = ref(null)
+const canvas = ref(null)
+const contentWrapper = ref(null)
+
+const initCanvas = () => {
+  centerCanvas()
+
+  nextTick(() => {
+    updateContentHeight()
+    setupResizeObserver()
+  })
+}
+
+/**
+ * 触摸开始
+ * @param e
+ */
+const startTouchDrag = (e) => {
+  if (e.touches.length !== 1) return // Only handle single touch
+
+  const touch = e.touches[0]
+  touchIdentifier.value = touch.identifier
+  isDragging.value = true
+  startPos.value = {
+    x: touch.clientX - position.value.x,
+    y: touch.clientY - position.value.y
+  }
+  canvas.value.style.cursor = 'grabbing'
+}
+
+/**
+ * 处理拖拽
+ * @param e
+ */
+const handleTouchDrag = (e) => {
+  if (!isDragging.value || e.touches.length !== 1) return
+
+  // Find the corresponding touch point
+  const touch = Array.from(e.touches).find(t => t.identifier === touchIdentifier.value)
+  if (!touch) return
+
+  position.value.x = touch.clientX - startPos.value.x
+  position.value.y = touch.clientY - startPos.value.y
+
+  updateBackgroundPosition((-position.value.x + 100) * .5, (-position.value.y + 100) * .5)
+}
+
+/**
+ * 监听内容高度的变化
+ */
+const setupResizeObserver = () => {
+  if (typeof ResizeObserver === 'undefined') return
+
+  resizeObserver.value = new ResizeObserver(entries => {
+    for (let entry of entries) {
+      contentHeight.value = entry.contentRect.height
     }
-  },
-  data() {
-    return {
-      scale: 1,
-      position: {x: 0, y: 0},
-      contentHeight: 600, // 初始高度，会被更新
-      isDragging: false,
-      startPos: {x: 0, y: 0},
-      resizeObserver: null
-    }
-  },
-  mounted() {
-    this.initCanvas()
-    window.addEventListener('mousemove', this.handleDrag)
-    window.addEventListener('mouseup', this.stopDrag)
-    window.addEventListener('touchmove', this.handleTouchDrag, {passive: false})
-    window.addEventListener('touchend', this.stopDrag)
-  },
-  beforeDestroy() {
-    window.removeEventListener('mousemove', this.handleDrag)
-    window.removeEventListener('mouseup', this.stopDrag)
-    window.removeEventListener('touchmove', this.handleTouchDrag)
-    window.removeEventListener('touchend', this.stopDrag)
-    if (this.resizeObserver) this.resizeObserver.disconnect()
-  },
-  methods: {
-    initCanvas() {
-      // 初始居中
-      this.centerCanvas()
+  })
 
-      // 监听内容高度变化
-      this.$nextTick(() => {
-        this.updateContentHeight()
-        this.setupResizeObserver()
-      })
-    },
+  resizeObserver.value.observe(contentWrapper.value)
+}
 
-    // 触摸开始
-    startTouchDrag(e) {
-      if (e.touches.length !== 1) return // 只处理单指触摸
-
-      const touch = e.touches[0]
-      this.touchIdentifier = touch.identifier
-      this.isDragging = true
-      this.startPos = {
-        x: touch.clientX - this.position.x,
-        y: touch.clientY - this.position.y
-      }
-      this.$refs.canvas.style.cursor = 'grabbing'
-    },
-
-    // 触摸移动
-    handleTouchDrag(e) {
-      if (!this.isDragging || e.touches.length !== 1) return
-
-      // 找到对应的触摸点
-      const touch = Array.from(e.touches).find(t => t.identifier === this.touchIdentifier)
-      if (!touch) return
-
-      this.position.x = touch.clientX - this.startPos.x
-      this.position.y = touch.clientY - this.startPos.y
-
-      this.updateBackgroundPosition((-this.position.x + 100) * .5, (-this.position.y + 100) * .5)
-    },
-
-    // 使用 ResizeObserver 监听内容高度变化
-    setupResizeObserver() {
-      if (typeof ResizeObserver === 'undefined') return
-
-      this.resizeObserver = new ResizeObserver(entries => {
-        for (let entry of entries) {
-          this.contentHeight = entry.contentRect.height
-        }
-      })
-
-      this.resizeObserver.observe(this.$refs.contentWrapper)
-    },
-
-    // 更新内容高度
-    updateContentHeight() {
-      if (this.$refs.contentWrapper) {
-        this.contentHeight = this.$refs.contentWrapper.offsetHeight
-      }
-    },
-
-    // 初始居中
-    centerCanvas() {
-      const container = this.$refs.container
-      if (!container) return
-
-      const containerWidth = container.clientWidth
-      const containerHeight = container.clientHeight
-
-      this.position = {
-        x: (containerWidth - this.canvasWidth * this.scale) / 2 / this.scale,
-        y: (containerHeight - this.contentHeight * this.scale) / 2 / this.scale
-      }
-    },
-
-    // 拖拽相关方法（保持不变）
-    startDrag(e) {
-      if (e.button !== 0) return
-      this.isDragging = true
-      this.startPos = {
-        x: e.clientX - this.position.x,
-        y: e.clientY - this.position.y
-      }
-      this.$refs.canvas.style.cursor = 'grabbing'
-    },
-
-    handleDrag(e) {
-      if (!this.isDragging) return
-
-      this.position.x = e.clientX - this.startPos.x
-      this.position.y = e.clientY - this.startPos.y
-
-      this.updateBackgroundPosition((-this.position.x + 100) * .5, (-this.position.y + 100) * .5)
-    },
-
-    stopDrag() {
-      this.isDragging = false
-      if (this.$refs.canvas && this.$refs.canvas.style.cursor)
-        this.$refs.canvas.style.cursor = 'grab'
-    },
-
-    // 缩放处理
-    handleWheel(e) {
-      const delta = -e.deltaY
-      const scaleFactor = 0.001
-      const newScale = this.scale * (1 + delta * scaleFactor)
-
-      this.scale = Math.max(
-          this.minScale,
-          Math.min(this.maxScale, newScale)
-      )
-
-      // 缩放时保持鼠标位置为中心
-      const container = this.$refs.container
-      const rect = container.getBoundingClientRect()
-      const mouseX = e.clientX - rect.left
-      const mouseY = e.clientY - rect.top
-
-      this.position.x = mouseX / this.scale - (mouseX - this.position.x * this.scale) / this.scale
-      this.position.y = mouseY / this.scale - (mouseY - this.position.y * this.scale) / this.scale
-    },
-
-    // 重置视图
-    resetView() {
-      this.scale = 1
-      this.centerCanvas()
-    },
-
-    // 动态背景
-    updateBackgroundPosition(x, y) {
-      const elementCircles = document.querySelector('.overlapping-circles');
-
-      elementCircles.style.transition = '--offset-x 0.3s ease, --offset-y 0.3s ease';
-      elementCircles.style.setProperty('--offset-x', `${x}px`);
-      elementCircles.style.setProperty('--offset-y', `${y}px`);
-    }
+/**
+ * 更新高度
+ */
+const updateContentHeight = () => {
+  if (contentWrapper.value) {
+    contentHeight.value = contentWrapper.value.offsetHeight
   }
 }
+
+/**
+ * 初始画布
+ */
+const centerCanvas = () => {
+  if (!container.value) return
+
+  const containerWidth = container.value.clientWidth
+  const containerHeight = container.value.clientHeight
+
+  position.value = {
+    x: (containerWidth - props.canvasWidth * scale.value) / 2 / scale.value,
+    y: (containerHeight - contentHeight.value * scale.value) / 2 / scale.value
+  }
+}
+
+/**
+ * 开始拖拽
+ * @param e
+ */
+const startDrag = (e) => {
+  if (e.button !== 0) return
+  isDragging.value = true
+  startPos.value = {
+    x: e.clientX - position.value.x,
+    y: e.clientY - position.value.y
+  }
+  canvas.value.style.cursor = 'grabbing'
+}
+
+/**
+ * 拖拽事件
+ * @param e
+ */
+const handleDrag = (e) => {
+  if (!isDragging.value) return
+
+  position.value.x = e.clientX - startPos.value.x
+  position.value.y = e.clientY - startPos.value.y
+
+  updateBackgroundPosition((-position.value.x + 100) * .5, (-position.value.y + 100) * .5)
+}
+
+/**
+ * 停止
+ */
+const stopDrag = () => {
+  isDragging.value = false
+  if (canvas.value && canvas.value.style.cursor)
+    canvas.value.style.cursor = 'grab'
+}
+
+/**
+ * 处理缩放
+ * @param e
+ */
+const handleWheel = (e) => {
+  const delta = -e.deltaY
+  const scaleFactor = 0.001
+  const newScale = scale.value * (1 + delta * scaleFactor)
+
+  scale.value = Math.max(
+      props.minScale,
+      Math.min(props.maxScale, newScale)
+  )
+
+  const rect = container.value.getBoundingClientRect()
+  const mouseX = e.clientX - rect.left
+  const mouseY = e.clientY - rect.top
+
+  position.value.x = mouseX / scale.value - (mouseX - position.value.x * scale.value) / scale.value
+  position.value.y = mouseY / scale.value - (mouseY - position.value.y * scale.value) / scale.value
+}
+
+/**
+ * 重置视图
+ */
+const resetView = () => {
+  scale.value = 1
+  centerCanvas()
+}
+
+const updateBackgroundPosition = (x, y) => {
+  const elementCircles = document.querySelector('.overlapping-circles')
+
+  elementCircles.style.transition = '--offset-x 0.3s ease, --offset-y 0.3s ease'
+  elementCircles.style.setProperty('--offset-x', `${x}px`)
+  elementCircles.style.setProperty('--offset-y', `${y}px`)
+}
+
+onMounted(() => {
+  initCanvas()
+  window.addEventListener('mousemove', handleDrag)
+  window.addEventListener('mouseup', stopDrag)
+
+  if (mobile) {
+    window.addEventListener('touchmove', handleTouchDrag, {passive: false})
+    window.addEventListener('touchend', stopDrag)
+  }
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('mousemove', handleDrag)
+  window.removeEventListener('mouseup', stopDrag)
+
+  if (window.innerWidth <= 768) {
+    window.removeEventListener('touchmove', handleTouchDrag)
+    window.removeEventListener('touchend', stopDrag)
+  }
+
+  if (resizeObserver.value) resizeObserver.value.disconnect()
+})
 </script>
 
-<style scoped>
+<style scoped lang="less">
 .canvas-container {
   width: 100%;
   height: 100%;

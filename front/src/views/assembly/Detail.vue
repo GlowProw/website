@@ -35,7 +35,6 @@ let assemblyDetailData = ref({
     }),
     assemblyDetailRef = ref(null),
     assemblyLoading = ref(false),
-    delAssemblyLoading = ref(false),
     password = ref(''),
     language = computed(() => locale.value.split('-')[0]),
     sso = ref({
@@ -94,29 +93,6 @@ const onPenPassword = () => {
   getAssemblyDetail()
 }
 
-/**
- * 删除配装
- */
-const delAssembly = async () => {
-  try {
-    const {uuid} = route.params;
-    delAssemblyLoading.value = true
-    const result = await http.post(api['assembly_delete'], {
-          data: {uuid},
-        }),
-        d = result.data;
-
-    if (d.error == 1)
-      throw Error(d.message || d.code);
-
-    await router.push("/assembly")
-  } catch (e) {
-    if (e instanceof Error)
-      console.error(e)
-  } finally {
-    delAssemblyLoading.value = false
-  }
-}
 </script>
 
 <template>
@@ -172,14 +148,12 @@ const delAssembly = async () => {
               </LikeWidget>
 
               <template v-if="assemblyDetailData.isVisibility && authStore.isLogin && authStore.user.userId == assemblyDetailData.userId">
-                <v-btn icon="mdi-delete-outline" class="mr-5 text-red" :loading="delAssemblyLoading" @click="delAssembly"></v-btn>
-
                 <v-btn variant="flat" :to="`/assembly/workshop/${assemblyDetailData.uuid}/edit`">
                   <v-icon icon="mdi-pencil" class="mr-2"></v-icon>
                   编辑此配装
                 </v-btn>
 
-                <AssemblySettingPanel :id="assemblyDetailData.uuid">
+                <AssemblySettingPanel :id="assemblyDetailData.uuid" :assembly-data="assemblyDetailData?.assembly || {}">
                   <v-btn variant="flat" class="ml-3">
                     <v-icon icon="mdi-cog"></v-icon>
                   </v-btn>

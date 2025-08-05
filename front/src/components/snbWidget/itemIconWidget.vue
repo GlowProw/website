@@ -33,11 +33,13 @@ const props = withDefaults(defineProps<{
   id: string,
   isShowOpenDetail?: boolean,
   isOpenDetail?: boolean,
+  isShowTooltip?: boolean,
   padding?: number
 }>(), {
   id: 'culverin1',
   isShowOpenDetail: true,
   isOpenDetail: true,
+  isShowTooltip: true,
   padding: 1
 })
 const items: Items = Items,
@@ -112,6 +114,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
 <template>
   <v-tooltip
       v-if="i && i.id"
+      :disabled="!props.isShowTooltip"
       min-width="450"
       max-width="450"
       interactive

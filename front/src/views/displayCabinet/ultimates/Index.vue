@@ -1,47 +1,11 @@
 <script setup lang="ts">
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
-import {onMounted, ref} from "vue";
 import {useI18n} from "vue-i18n";
 import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
 import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
 
 const ultimatesData = Ultimates,
     {t} = useI18n()
-
-let ultimatesCardData = ref({
-      images: {},
-      model: {},
-      panel: {}
-    }),
-    ultimatesFilter = ref({
-      type: 'index',
-      key: ''
-    });
-
-onMounted(() => {
-  // onReady()
-})
-
-const ultimateImages = import.meta.glob('@glow-prow-assets/ultimates/*.*', {eager: true});
-
-// const onReady = async () => {
-//   console.log(ultimateImages)
-//
-//   for (let key in ultimatesData) {
-//     const imageKey = `/node_modules/glow-prow-assets/ultimates/${key}.webp`;
-//
-//     ultimatesCardData.value.panel[key] = 0;
-//     ultimatesCardData.value.model[key] = false;
-//
-//     if (ultimateImages[imageKey]) {
-//       ultimatesCardData.value.images[key] = ultimateImages[imageKey].default;
-//     } else {
-//       ultimatesCardData.value.images[key] = '';
-//     }
-//   }
-//
-//   console.log(ultimatesCardData.value.images)
-// }
 </script>
 
 <template>
@@ -51,7 +15,7 @@ const ultimateImages = import.meta.glob('@glow-prow-assets/ultimates/*.*', {eage
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
       <v-breadcrumbs-item to="/display-cabinet">{{ t('displayCabinet.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item>{{ t('displayCabinet.ships.title') }}</v-breadcrumbs-item>
+      <v-breadcrumbs-item>{{ t('displayCabinet.ultimates.title') }}</v-breadcrumbs-item>
     </v-container>
   </v-breadcrumbs>
   <v-divider></v-divider>

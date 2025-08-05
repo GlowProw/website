@@ -9,6 +9,7 @@ import AssemblySettingPanel from "@/components/AssemblySettingPanel.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
+import EmptyView from "@/components/EmptyView.vue";
 
 const http = useHttpToken()
 
@@ -44,7 +45,7 @@ const getMyCommentsData = async () => {
       <Loading></Loading>
     </v-overlay>
 
-    <v-card v-for="(i,index) in userCommentData.data" :key="index" class="mb-2 pa-2 pl-4">
+    <v-card v-for="(i,index) in userCommentData.data" :key="index" class="mb-2 pa-2 pl-4" v-if="userCommentData.data && userCommentData.data.length > 0">
       <v-row align="center">
         <div class="pa-3">
           <template v-if="i.targetType == 'item'">
@@ -69,6 +70,9 @@ const getMyCommentsData = async () => {
         </v-col>
       </v-row>
     </v-card>
+    <div class="text-center" v-else>
+      <EmptyView></EmptyView>
+    </div>
   </div>
 </template>
 

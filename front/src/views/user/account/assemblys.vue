@@ -6,6 +6,7 @@ import {api} from "@/assets/sripts/index";
 
 import Loading from "@/components/Loading.vue";
 import AssemblySettingPanel from "@/components/AssemblySettingPanel.vue";
+import EmptyView from "@/components/EmptyView.vue";
 
 const http = useHttpToken()
 
@@ -41,7 +42,7 @@ const getMyAssemblysData = async () => {
       <Loading></Loading>
     </v-overlay>
 
-    <v-card v-for="(i,index) in userAssemblysData.data" :key="index" class="mb-2 pa-2 pl-4">
+    <v-card v-for="(i,index) in userAssemblysData.data" :key="index" class="mb-2 pa-2 pl-4" v-if="userAssemblysData.data && userAssemblysData.data.length > 0">
       <v-row align="center">
         <v-col>
           <b>{{i.name}}</b>
@@ -59,6 +60,9 @@ const getMyAssemblysData = async () => {
         </v-col>
       </v-row>
     </v-card>
+    <div class="text-center" v-else>
+      <EmptyView></EmptyView>
+    </div>
   </div>
 </template>
 

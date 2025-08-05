@@ -1,10 +1,11 @@
 import {toRaw} from "vue";
 
-import {Items, Ships} from "glow-prow-data"
+import {Items, Modification, Modifications, Ships} from "glow-prow-data"
 import {Item} from "glow-prow-data/src/entity/Items.ts";
 
 const ships = Ships,
-    items = Items
+    items = Items,
+    modifications = Modifications
 
 export default class AssemblyDataProcessing {
     static versions = ['0.0.1']
@@ -25,6 +26,19 @@ export default class AssemblyDataProcessing {
                 if (data.ultimateSlot)
                     data.ultimateSlot = {id: data.ultimateSlot.id}
 
+                if (data.shipFrigateUpgradeSlot)
+                    data.shipFrigateUpgradeSlot = {id: data.shipFrigateUpgradeSlot.id}
+
+                if (data.weaponModification)
+                    data.weaponModification = data.weaponModification.map(i => {
+                        return i.map(j => {
+                            return {
+                                type: j.type,
+                                value: j?.value?.id || null
+                            }
+                        })
+                    })
+
                 if (data.secondaryWeaponSlots)
                     data.secondaryWeaponSlots = data.secondaryWeaponSlots.map(i => {
                         return i.id ? {id: i.id} : {id: null}
@@ -40,13 +54,11 @@ export default class AssemblyDataProcessing {
                         return i.id ? {id: i.id} : {id: null}
                     })
 
+                delete data.shipFrigateUpgradeList;
                 data.__version = this.nowVersion;
-                console.log(data)
                 return data
             },
             set: (data) => {
-                console.log(ships, [data.shipSlot.id])
-
                 if (data.shipSlot)
                     data.shipSlot = ships[data.shipSlot.id] || Ship.fromRawData({})
 
@@ -58,6 +70,19 @@ export default class AssemblyDataProcessing {
 
                 if (data.ultimateSlot)
                     data.ultimateSlot = items[data.ultimateSlot.id] || Item.fromRawData({})
+
+                if (data.shipFrigateUpgradeSlot)
+                    data.shipFrigateUpgradeSlot = items[data.shipFrigateUpgradeSlot.id] || Item.fromRawData({})
+
+                if (data.weaponModification)
+                    data.weaponModification = data.weaponModification.map(i => {
+                        return i.map(j => {
+                            return {
+                                type: j.type,
+                                value: j.value ? modifications[j.value] : Modification.fromRawData({variants: []})
+                            }
+                        })
+                    })
 
                 if (data.secondaryWeaponSlots)
                     data.secondaryWeaponSlots = data.secondaryWeaponSlots.map(i => {
@@ -84,7 +109,7 @@ export default class AssemblyDataProcessing {
      * @param data
      */
     export(data) {
-        let version = data.__version || this.nowVersion
+        let version = data?.__version || this.nowVersion
         if (version)
             return this.processing[version].get(toRaw(data))
 

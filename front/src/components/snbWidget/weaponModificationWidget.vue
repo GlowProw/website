@@ -37,13 +37,12 @@ const props = withDefaults(defineProps<{
       data: Item | any,
       disabled?: boolean,
       type?: string,
-      modelValue: Array | any
+      modelValue: Array | Item | any
     }>(), {
       readonly: false,
       size: 6,
       disabled: false,
       item: null,
-      modelValue: []
     }),
     {t, te} = useI18n(),
     emit = defineEmits(['update:modelValue'])

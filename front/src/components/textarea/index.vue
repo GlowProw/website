@@ -7,9 +7,14 @@ import Placeholder from '@tiptap/extension-placeholder'
 import {ItemNode as ItemWidget} from './item/index'
 import {ShipNode as ShipWidget} from './ship/index'
 import {EmoteNode as EmoteWidget} from './emote/index'
+import {UltimateNode as UltimatesWidget} from './ultimate/index'
+import {ModNode as ModWidget} from './mod/index'
+
 import ShipView from '../ShipView.vue'
 import ItemView from '../ItemView.vue'
 import EmoteView from '../EmoteView.vue'
+import UltimateView from "../UltimateView.vue";
+import ModView from "../ModView.vue"
 
 interface ToolbarItem {
   list?: any
@@ -48,7 +53,7 @@ const props = defineProps({
   },
   toolbar: {
     type: Array as () => Array<string | ToolbarItem>,
-    default: () => ['emote', 'item', 'ship']
+    default: () => ['emote', 'item', 'ship', 'mod', 'ultimate']
   }
 })
 
@@ -56,12 +61,17 @@ const emit = defineEmits(['update:modelValue'])
 
 const tiptap: Ref<Editor> = ref<Editor | null>(null)
 const isOpenEmoji = ref(false)
+const isOpenMod = ref(false)
+const isOpenUltimate = ref(false)
 const isOpenShip = ref(false)
 const isOpenItem = ref(false)
 const editorContent = ref(props.modelValue)
 const emoteWidget = ref<InstanceType<typeof EmoteView> | null>(null)
 const shipWidget = ref<InstanceType<typeof ShipView> | null>(null)
 const itemWidget = ref<InstanceType<typeof ItemView> | null>(null)
+const modWidget = ref<InstanceType<typeof ItemView> | null>(null)
+const ultimateWidget = ref<InstanceType<typeof ItemView> | null>(null)
+
 const tiptapTextEditor = ref<HTMLElement | null>(null)
 
 const editor = computed(() => tiptap.value)
@@ -105,6 +115,20 @@ const onItem = () => {
   }
 }
 
+const onMod = () => {
+  if (modWidget.value && !editor.value?.isFocused) {
+    modWidget.value.openPanel()
+    isOpenMod.value = true
+  }
+}
+
+const onUltimate = () => {
+  if (ultimateWidget.value && !editor.value?.isFocused) {
+    ultimateWidget.value.openPanel()
+    isOpenUltimate.value = true
+  }
+}
+
 const onInsertItem = (id: string) => {
   editor.value?.commands.insertItem({id})
   isOpenShip.value = false
@@ -118,6 +142,18 @@ const onInsertShip = (id: string) => {
 const onInsertEmote = (type: string, val: { name: string }) => {
   editor.value?.commands.insertEmote({id: `${type}|${val.name}`})
   isOpenEmoji.value = false
+}
+
+
+
+const onInsertUltimate = (id: string) => {
+  editor.value?.commands.insertUltimate({id})
+  isOpenUltimate.value = !isOpenUltimate
+}
+
+const onInsertMod = (id: string) => {
+  editor.value?.commands.insertMod({id})
+  isOpenMod.value = !isOpenMod
 }
 
 const onEditorChange = (data: string) => {
@@ -148,7 +184,9 @@ const onInitEdit = () => {
       }),
       ItemWidget,
       ShipWidget,
-      EmoteWidget
+      EmoteWidget,
+      UltimatesWidget,
+      ModWidget,
     ],
     onCreate({editor}) {
       editor.options.keyboardShortcuts = {}
@@ -199,6 +237,7 @@ watch(() => props.modelValue, (newVal) => {
                 class="btn mr-2"
                 density="compact"
                 @click="onShip"
+                v-tooltip="'船'"
                 :disabled="isOpenEmoji"
                 v-if="toolbarAs.indexOf('ship') >= 0">
               <v-icon icon="mdi-ship-wheel"></v-icon>
@@ -209,9 +248,32 @@ watch(() => props.modelValue, (newVal) => {
                 class="btn mr-2"
                 density="compact"
                 @click="onItem"
+                v-tooltip="'物品'"
                 :disabled="isOpenEmoji"
                 v-if="toolbarAs.indexOf('item') >= 0">
               <v-icon icon="mdi-cube-outline"></v-icon>
+            </v-btn>
+
+            <v-btn
+                icon
+                class="btn mr-2"
+                density="compact"
+                @click="onMod"
+                v-tooltip="'模组'"
+                :disabled="isOpenMod"
+                v-if="toolbarAs.indexOf('mod') >= 0">
+              <v-icon icon="mdi-puzzle-outline"></v-icon>
+            </v-btn>
+
+            <v-btn
+                icon
+                class="btn mr-2"
+                density="compact"
+                @click="onUltimate"
+                v-tooltip="'终结技能'"
+                :disabled="isOpenUltimate"
+                v-if="toolbarAs.indexOf('ultimate') >= 0">
+              <v-icon icon="mdi-multiplication"></v-icon>
             </v-btn>
           </div>
         </v-col>
@@ -227,6 +289,8 @@ watch(() => props.modelValue, (newVal) => {
 
     <ItemView ref="itemWidget" :editor="tiptap" @finish="onInsertItem" @close="() => isOpenItem = false"/>
     <ShipView ref="shipWidget" :editor="tiptap" @finish="onInsertShip" @close="() => isOpenEmoji = false"/>
+    <UltimateView ref="ultimateWidget" :editor="tiptap" @finish="onInsertUltimate" @close="() => isOpenUltimate = false"/>
+    <ModView ref="modWidget" :editor="tiptap" @finish="onInsertMod" @close="() => isOpenMod = false"/>
     <EmoteView ref="emoteWidget" :editor="tiptap" @finish="onInsertEmote" @close="() => isOpenEmoji = false"/>
   </div>
 </template>

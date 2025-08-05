@@ -37,7 +37,7 @@ let
     draftList: Ref<[]> = ref([]),
     draftSaveQuickArchivingLoading = ref(false),
     draftSaveLoading = ref(false),
-    workshopHeight = ref(600),
+    workshopHeight = ref(700),
     shareData: Ref<any> = ref({
       name: '',
       description: ''
@@ -292,7 +292,7 @@ const onWorkshopDelete = () => {
   </v-card>
 
   <!-- Workshop S -->
-  <div class="mt-n5 ml-n5 mr-n5" :class="[isWorkshopFillScreen ? 'fill-screen bg-black' : 'mb-10']" v-show="!isSharePreview">
+  <div class="mt-n5 ml-n5 mr-n5" style="z-index: 10" :class="[isWorkshopFillScreen ? 'fill-screen bg-black' : 'position-relative mb-n2']" v-show="!isSharePreview">
     <v-card class="w-100 pa-0 card-enlargement-flavor workshop-ship">
       <ZoomableCanvas
           style="animation: all 1s"
