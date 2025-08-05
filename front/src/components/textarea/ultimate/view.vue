@@ -5,7 +5,6 @@ import {useI18nUtils} from "@/assets/sripts/i18nUtil";
 
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
-import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
 
 const props = defineProps(nodeViewProps);
 const {t} = useI18n(),

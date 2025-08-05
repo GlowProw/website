@@ -791,7 +791,7 @@ defineExpose({
                               <v-icon icon="mdi-chevron-up" size="16"></v-icon>
                               <ItemSlotBase size="30px"
                                             padding="0"
-                                            v-for="(p, pindex) in getDeckInformation(index).top" :key="pindex">
+                                            v-for="(p, pIndex) in getDeckInformation(index).top" :key="pIndex">
                                 <ItemIconWidget :id="i.id" v-if="i.id"
                                                 :is-show-tooltip="false"
                                                 :is-open-detail="false"></ItemIconWidget>

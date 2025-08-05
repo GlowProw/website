@@ -37,7 +37,7 @@ const props = withDefaults(defineProps<{
       data: Item | any,
       disabled?: boolean,
       type?: string,
-      modelValue: Array | Item | any
+      modelValue?: Array | Item | any
     }>(), {
       readonly: false,
       size: 6,

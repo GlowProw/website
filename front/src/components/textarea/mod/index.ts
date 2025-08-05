@@ -15,7 +15,7 @@ const ModNode = Node.create({
                 default: null,
                 parseHTML: element => {
                     const text = element.textContent?.trim() || '';
-                    return text.match(/^\[(.*?)\]$/)?.[1] || element.getAttribute('data-id') || null;
+                    return text.match(/^\[(.*?)]$/)?.[1] || element.getAttribute('data-id') || null;
                 },
                 renderHTML: attributes => {
                     if (!attributes.id) return {}

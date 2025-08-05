@@ -28,10 +28,19 @@ let content = ref(''),
     commentLoading = ref(false),
     commentListData = ref([]),
     captcha = ref({}),
+    captchaOneUpdateEvent = ref(false),
+    captchaRef = ref(null),
     messages = ref([])
 
 watch(() => props.id, () => {
   getComment()
+})
+
+watch(() => content.value, (value) => {
+  if (value && value.length >= 5 && !captchaOneUpdateEvent.value) {
+    captchaOneUpdateEvent.value = true
+    captchaRef.value.refreshCaptcha();
+  }
 })
 
 onMounted(() => {
@@ -53,11 +62,15 @@ const getComment = async () => {
         d = result.data;
 
     if (d.error == 1)
-      return
+      throw new Error(d)
 
     commentListData.value = d.data.data;
   } catch (e) {
-
+    console.error(e)
+    if (e instanceof Error)
+      messages.value.push(t(`basic.tips.${e.response.data.code}`, {
+        context: e.response.data.code
+      }))
   } finally {
     commentLoading.value = false
   }
@@ -95,7 +108,11 @@ const onPushComment = async () => {
 
     messages.value.push('comment.ok')
   } catch (e) {
-    messages.value.push(e.toString())
+    console.error(e)
+    if (e instanceof Error)
+      messages.value.push(t(`basic.tips.${e.response.data.code}`, {
+        context: e.response.data.code
+      }))
   } finally {
     commentPushLoading.value = false
   }
@@ -262,11 +279,16 @@ const onCaptchaData = (data: any) => {
 
     <v-row no-gutters>
       <v-col>
-        <Captcha @getCaptchaData="onCaptchaData" type="svg" class="captcha"></Captcha>
+        <Captcha @getCaptchaData="onCaptchaData" type="svg" class="captcha" ref="captchaRef"></Captcha>
       </v-col>
       <v-spacer></v-spacer>
       <v-col>
-        <v-btn size="55" :max-width="150" block :loading="commentPushLoading" :disabled="!content && !captcha && !captcha.response" @click="onPushComment">确认</v-btn>
+        <v-btn size="55" class="bg-amber" :max-width="150" block
+               :loading="commentPushLoading"
+               :disabled="!content || !captcha && !captcha.response"
+               @click="onPushComment">
+          确认
+        </v-btn>
       </v-col>
     </v-row>
   </v-card>

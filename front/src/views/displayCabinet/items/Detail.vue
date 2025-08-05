@@ -111,18 +111,17 @@ const onDisplayCabinetHistory = () => {
  * 处理计算必要材料对应原材料
  */
 const onStatisticsRawMaterial = () => {
-  if (itemDetailData.value?.required)
-    itemRawMaterials.value = Array.from(itemDetailData.value.required).reduce(
-        (acc, [material, quantity]) => {
-          if (materials[material.id]?.required) {
-            Array.from(materials[material.id].required).reduce((j, [raw, rawQuantity]) => {
-              acc[raw.id] = (acc[raw.id] || 0) + (rawQuantity as number) * quantity;
-            })
-          }
-          return acc;
-        },
-        {} as Record<string, number>
-    );
+  itemRawMaterials.value = Array.from(itemDetailData.value.required).reduce(
+      (acc, [material, quantity]) => {
+        if (materials[material.id]?.required) {
+          Array.from(materials[material.id].required).forEach(([raw, rawQuantity]) => {
+            acc[raw.id] = (acc[raw.id] || 0) + (rawQuantity as number) * quantity;
+          })
+        }
+        return acc;
+      },
+      {} as Record<string, number>
+  );
 }
 </script>
 
@@ -392,8 +391,10 @@ const onStatisticsRawMaterial = () => {
                 </template>
               </v-col>
               <v-col cols="12" sm="12" lg="6" xl="6">
-                <v-row class="mt-4 mb-2">
-                  <p><b>{{ t('displayCabinet.item.rawMaterials') }}</b></p>
+                <v-row no-gutters class="mt-4 mb-2">
+                  <v-col>
+                    <p><b>{{ t('displayCabinet.item.rawMaterials') }}</b></p>
+                  </v-col>
                   <v-spacer></v-spacer>
                   <v-btn density="compact" icon @click="isShowShipRawList = !isShowShipRawList" v-if="Object.keys(itemRawMaterials).length > 0">
                     <v-icon :icon="`mdi-menu-${isShowShipRawList ? 'down' : 'up'}`"></v-icon>
@@ -423,7 +424,7 @@ const onStatisticsRawMaterial = () => {
                     </v-text-field>
 
                     <ul class="ml-10 raw-list" v-if="!isShowShipRawList">
-                      <li v-for="([raw,rawValue],rawIndex) in materials[key].required" :key="rawIndex" class="ml-10">
+                      <li v-for="([raw,rawValue],rawIndex) in materials[key].required" :key="rawIndex += rawValue" class="ml-10">
                         <v-text-field
                             :value="value"
                             readonly

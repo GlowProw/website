@@ -3,7 +3,7 @@ import {useI18n} from "vue-i18n";
 import {computed, nextTick, onMounted, type Ref, ref, toRaw} from "vue";
 import {useRoute, useRouter} from "vue-router";
 
-import {api, http, storageAssembly} from "@/assets/sripts";
+import {api, storageAssembly} from "@/assets/sripts";
 
 import ZoomableCanvas from "@/components/ZoomableCanvas.vue"
 import AssemblyShowWidget from "@/components/AssemblyShowWidget.vue";
@@ -128,9 +128,7 @@ const onSaveAssembly = (type: StorageAssemblyType, uid?: string) => {
     localUpdateTime: now,
   }
 
-  const updata = storageAssembly.updata(shareData.value, type, uid);
-
-  return updata
+  return storageAssembly.updata(shareData.value, type, uid)
 }
 
 /**

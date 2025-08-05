@@ -22,7 +22,7 @@ export default {
   methods: {
     /**
      * 完成
-     * @param val
+     * @param id
      */
     onFinish(id) {
       this.onPanelToggle();

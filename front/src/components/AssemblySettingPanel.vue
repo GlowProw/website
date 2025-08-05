@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {onMounted, ref, watch} from "vue";
+import {ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {useHttpToken} from "@/assets/sripts/httpUtil";
 import {api} from "@/assets/sripts/index";
@@ -127,7 +127,7 @@ const setAssemblySetting = async () => {
                       showIcon
                       showDoubleQuotes
                       v-if="assemblyData"
-                      :data="assemblyDataProcessing.export(assemblyData)" />
+                      :data="assemblyDataProcessing.export(assemblyData)"/>
                 </v-card>
               </div>
             </v-tabs-window-item>

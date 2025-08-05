@@ -14,9 +14,9 @@
             y1="0%"
             x2="100%"
             y2="0%">
-          <stop offset="0%" :stop-color="color" stop-opacity="0" />
-          <stop offset="50%" :stop-color="color" :stop-opacity="opacity" />
-          <stop offset="100%" :stop-color="color" stop-opacity="0" />
+          <stop offset="0%" :stop-color="color" stop-opacity="0"/>
+          <stop offset="50%" :stop-color="color" :stop-opacity="opacity"/>
+          <stop offset="100%" :stop-color="color" stop-opacity="0"/>
         </linearGradient>
       </defs>
 
@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import {onBeforeUnmount, onMounted, ref} from 'vue';
 
 export default {
   name: 'WindFlow',

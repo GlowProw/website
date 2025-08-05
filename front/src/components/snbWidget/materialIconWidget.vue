@@ -11,27 +11,30 @@ const props = defineProps<{
 
 let src = ref('')
 
-const itemImages = import.meta.glob('@glow-prow-assets/items/*.png', {eager: true});
+const itemImages = import.meta.glob('@glow-prow-assets/items/*.*', {eager: true});
 
 onMounted(() => {
   onImage()
 })
 
 const onImage = () => {
-  const imageKey = `/node_modules/glow-prow-assets/items/${props.id}.png`;
-
-  if (itemImages[imageKey]) {
-    src.value = itemImages[imageKey].default;
-  } else {
-    src.value = '';
+  const imageMap = {};
+  for (const path in itemImages) {
+    const key = path.split('/').pop()
+        ?.toString()
+        .replace('.webp', '')
+        .replace('.png', '');
+    imageMap[key] = itemImages[path];
   }
+
+  src.value = imageMap[props.id].default
 }
 
 </script>
 
 <template>
   <ItemSlotBase :size="10" class="pa-0 material-icon">
-    <img :src="src" :width="props.size || '20px'" lazy-src="@/assets/images/loading.gif" :height="props.size || '20px'"></img>
+    <v-img :src="src" :width="props.size || '20px'" cover lazy-src="@/assets/images/loading.gif" :height="props.size || '20px'"></v-img>
   </ItemSlotBase>
 </template>
 

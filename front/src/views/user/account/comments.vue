@@ -5,7 +5,6 @@ import {onMounted, ref} from "vue";
 import {api} from "@/assets/sripts/index";
 
 import Loading from "@/components/Loading.vue";
-import AssemblySettingPanel from "@/components/AssemblySettingPanel.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";

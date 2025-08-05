@@ -188,7 +188,7 @@ const onPenPassword = () => {
       <v-row>
         <v-col cols="12" sm="12" lg="8" xl="8">
           <div class="ga-2 mb-6" v-if="assemblyDetailData.tags">
-            <v-chip class="mr-2 mb-2 pt-1 pb-1 pl-5 pr-5" v-for="(i, index) in assemblyDetailData.tags">
+            <v-chip class="mr-2 mb-2 pt-1 pb-1 pl-5 pr-5" v-for="(i, index) in assemblyDetailData.tags" :key="index">
               {{
                 asString([
                   `${i}`,

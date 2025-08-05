@@ -209,6 +209,12 @@ const captchaTimeout = (num) => {
 
   return true
 }
+
+defineExpose({
+  refreshCaptcha,
+  onUnmounted,
+  isCaptcha,
+})
 </script>
 
 <style lang="less">

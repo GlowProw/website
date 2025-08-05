@@ -20,7 +20,7 @@ const value = ref('')
 
 /**
  * 完成
- * @param val
+ * @param id
  */
 const onFinish = (id) => {
   onPanelToggle()

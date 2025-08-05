@@ -312,57 +312,6 @@ function getRemainingDays(): number | null {
                       </v-dialog>
                     </template>
                   </CalendarEventSLotWidget>
-                  <!--                <v-card v-for="event in day.events" :key="event" max-width="420" min-width="420" class="pa-2 mb-2 background-flavor">-->
-                  <!--                  <v-card border color="hsl(from var(&#45;&#45;main-color) h s calc(l * 0.3))">-->
-                  <!--                    <template v-slot:image>-->
-                  <!--                      <img class="pointer-events-none" src="@/assets/images/portal-banner-background.png">-->
-                  <!--                    </template>-->
-                  <!--                    <template v-slot:title>-->
-                  <!--                      <v-row class="text-lg-body-1" style="min-height: 60px">-->
-                  <!--                        <v-col>-->
-                  <!--                          <v-icon icon="mdi-calendar-badge"></v-icon>-->
-                  <!--                        </v-col>-->
-                  <!--                        <v-col align="right">-->
-                  <!--                          <v-dialog max-width="500">-->
-                  <!--                            <template v-slot:activator="{ props: activatorProps }">-->
-                  <!--                              <v-btn density="compact" v-bind="activatorProps"-->
-                  <!--                                     @click="">添加到日历-->
-                  <!--                              </v-btn>-->
-                  <!--                            </template>-->
-
-                  <!--                            <template v-slot:default="{ isActive }">-->
-                  <!--                              <v-card title="">-->
-                  <!--                                <v-card-text>-->
-                  <!--                                  下载.ics文件，它是标准格式，通过支持应用打开，应用数据-->
-                  <!--                                </v-card-text>-->
-
-                  <!--                                <v-card-actions>-->
-                  <!--                                  <v-spacer></v-spacer>-->
-
-                  <!--                                  <v-btn-->
-                  <!--                                      :text="t('basic.button.submit')"-->
-                  <!--                                      @click="onSubscriptionCalendar('event', selectSeasonsValue.id, event.id);isActive.value = false"-->
-                  <!--                                  ></v-btn>-->
-                  <!--                                </v-card-actions>-->
-                  <!--                              </v-card>-->
-                  <!--                            </template>-->
-                  <!--                          </v-dialog>-->
-
-                  <!--                        </v-col>-->
-                  <!--                      </v-row>-->
-                  <!--                    </template>-->
-
-                  <!--                    <div class="bg-black pa-5 background-flavor pointer-events-none">-->
-                  <!--                      <p class="text-amber text-h5"><b> {{ t(`snb.calendar.${currentlySeason.id}.data.${event.id}.name`) }}</b></p>-->
-
-                  <!--                      <p class="text-pre-wrap mt-1 opacity-80">-->
-                  <!--                        <template v-if="onCheckI18nValue(`snb.calendar.${currentlySeason.id}.data.${event.id}.description`).code == 0">-->
-                  <!--                          {{ t(`snb.calendar.${currentlySeason.id}.data.${event.id}.description`) }}-->
-                  <!--                        </template>-->
-                  <!--                      </p>-->
-                  <!--                    </div>-->
-                  <!--                  </v-card>-->
-                  <!--                </v-card>-->
                 </div>
               </template>
             </div>

@@ -5,7 +5,6 @@ import {onMounted, ref} from "vue";
 import {api} from "@/assets/sripts/index";
 
 import Loading from "@/components/Loading.vue";
-import AssemblySettingPanel from "@/components/AssemblySettingPanel.vue";
 import EmptyView from "@/components/EmptyView.vue";
 
 const http = useHttpToken()
@@ -45,17 +44,17 @@ const getMyTeamUpsData = async () => {
     <v-card v-for="(i,index) in userTeamUpData.data" :key="index" class="mb-2 pa-2 pl-4" v-if="userTeamUpData.data && userTeamUpData.data.length > 0">
       <v-row align="center">
         <v-col cols="12">
-          <div class="font-weight-bold text-h5 text-amber">{{i.description}}</div>
+          <div class="font-weight-bold text-h5 text-amber">{{ i.description }}</div>
           <v-row class="text-body-1 opacity-60">
             <v-col cols="auto">
-              {{i.createdTime}}
+              {{ i.createdTime }}
             </v-col>
             <v-col cols="auto">
-              {{i.player}}
+              {{ i.player }}
             </v-col>
             <v-col cols="auto">
               <v-chip density="compact" v-for="(i, index) in i.tags" :key="index">
-                {{i}}
+                {{ i }}
               </v-chip>
             </v-col>
           </v-row>
