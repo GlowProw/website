@@ -176,9 +176,9 @@ const onInitEdit = () => {
       StarterKit.configure({
         horizontalRule: false,
         codeBlock: false,
-        heading: false
+        heading: false,
+        paragraph: true
       }),
-      Paragraph,
       Placeholder.configure({
         placeholder: props.placeholder
       }),

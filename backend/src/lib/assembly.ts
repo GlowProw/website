@@ -5,8 +5,23 @@ const assemblyAttributes: any = {
         set: true,
         default: "",
     },
+    "backgroundPresentation": {
+        type: "string",
+        get: true,
+        set: true,
+        default: "",
+    },
+    "externalLinks": {
+        type: "object",
+        get: true,
+        set: true,
+        default: {
+            "bilibili": "",
+            "youtube": ""
+        },
+    },
     "assemblyUseVersion": {type: "string", get: true, set: true, default: ''},
-    "language": {type: "string", get: true, set: true, isprivate: true, default: 'zh-CN'},
+    "language": {type: "array", get: true, set: true, isprivate: true, default: ['zh-CN']},
 }
 
 function assemblyShowAttributes(attr: any, showprivate: boolean = false, force: boolean = false) {

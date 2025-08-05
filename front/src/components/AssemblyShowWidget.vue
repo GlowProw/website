@@ -60,15 +60,17 @@ let workshopData = ref({
         ultimateSlot: null,                 // 技能
         shipUpgradeSlot: null,              // 船 升级配方
         weaponDirections: [],               // 武器朝向 信息
-        weaponModification: [],             // 武器按照模组 信息
+        weaponModifications: [],            // 武器   安装模组
         weaponSlots: [],                    // 武器
         armorSlot: null,                    // 船甲
         mortarSlots: [],                    // 弹药
         secondaryWeaponSlots: [],           // 副武器
+        secondaryWeaponModifications: [],   // 副武器 安装模组
         displaySlots: [],                   // 家具陈设
 
         // 平台版本
-        __version: assemblyDataProcessing.nowVersion,
+        // ** 它可能不存在，如果有则依靠此__version识别，没有则主要使用attr.assemblyUseVersion, 否则降级 **
+        __version: AssemblyDataProcessing.nowVersion,
       } as {
         shipSlot: Ship, ultimateSlot: Item | null, armorSlot: Item | null,
         displaySlots: Item[], weaponSlots: ItemAssemblySave[] | Item[], shipUpgradeSlot: Item | null,
@@ -833,7 +835,9 @@ defineExpose({
                 <!-- 副 -->
                 <p class="mt-1 mb-1">{{ t('assembly.workshop.secondaryWeapon') }}</p>
 
-                <div class="ml-5 mb-2" v-if="workshopData.data.secondaryWeaponSlots && workshopData.data.secondaryWeaponSlots.length > 0" v-for="(i, index) in workshopData.data.secondaryWeaponSlots" :key="index">
+                <div class="ml-5 mb-2"
+                     v-if="workshopData.data.secondaryWeaponSlots && workshopData.data.secondaryWeaponSlots.length > 0"
+                     v-for="(i, index) in workshopData.data.secondaryWeaponSlots" :key="index">
                   <v-row align="center">
                     <v-col cols="auto" class="pa-0">
                       <ShipTopDownPerspectiveWidget
@@ -874,6 +878,13 @@ defineExpose({
                             </v-card>
                           </ItemSlotBase>
 
+                          <!-- 副武器模组插槽 -->
+                          <div class="mb-2">
+                            <WeaponModificationWidget :readonly="readonly"
+                                                      :disabled="workshopData.data.secondaryWeaponModifications[index] && workshopData.data.secondaryWeaponModifications[index].id == null"
+                                                      :data="i" size="4"
+                                                      v-model="workshopData.data.secondaryWeaponModifications[index]"></WeaponModificationWidget>
+                          </div>
                         </v-col>
                         <v-col class="d-flex align-start">
                           <div class="w-100">

@@ -105,6 +105,7 @@ router.get('/list', [
     checkquery('pageSize').optional().isInt({min: 1, max: 100}).toInt(),
     checkquery('sortField').optional().isIn(['createdTime', 'updatedTime', 'likes']),
     checkquery('sortOrder').optional().isIn(['asc', 'desc']),
+    checkquery('isHasPassword').optional().default(false).isBoolean(),
     checkquery('createdStart').optional().isISO8601(),
     checkquery('createdEnd').optional().isISO8601(),
     checkquery('updatedStart').optional().isISO8601(),
@@ -113,7 +114,7 @@ router.get('/list', [
     try {
         const validateErr = validationResult(req);
         if (!validateErr.isEmpty()) {
-            return res.status(400).json({error: 1, code: 'list.bad', message: validateErr.array()});
+            return res.status(400).json({error: 1, code: 'assembly.list.bad', message: validateErr.array()});
         }
 
         const {
@@ -122,6 +123,7 @@ router.get('/list', [
             pageSize = 20,
             sortField = 'updatedTime',
             sortOrder = 'desc',
+            isHasPassword,
             createdStart,
             createdEnd,
             updatedStart,
@@ -138,15 +140,14 @@ router.get('/list', [
                 'assembly.createdTime',
                 'assembly.updatedTime',
                 'assembly.userId',
-                'assembly.data',
+                'assembly.data as assembly',
                 'assembly.visibility',
                 db.raw('(SELECT COUNT(*) FROM likes WHERE targetType = "assembly" AND targetId = assembly.uuid) as likes')
             )
             .where('assembly.visibility', '=', 'publicly')
-            // .where(function () {
-            //     this.where(db.raw('assembly.attr->>"$.password" IS NULL'))
-            //         .orWhere(db.raw('assembly.attr->>"$.password"'), '=', '');
-            // })
+            .where(function () {
+                this.where(db.raw('assembly.attr->>"$.password"'), !isHasPassword ? '!=' : '=', '');
+            })
             .leftJoin('users', 'assembly.userId', 'users.id');
 
         // 关键词模糊查询（配装名称或用户名称）
@@ -220,7 +221,7 @@ router.get('/list', [
         const total = totalResult ? Number(totalResult.count) : 0;
 
         res.status(200).json({
-            code: 0,
+            code: 'assembly.list.ok',
             data: {
                 data: assemblies,
                 pagination: {
@@ -229,11 +230,11 @@ router.get('/list', [
                     total,
                     totalPages: Math.ceil(total / pageSize)
                 }
-            }
+            },
         });
     } catch (error) {
         logger.error('list error:', error);
-        res.status(500).json({error: 1, code: 'list.error'});
+        res.status(500).json({error: 1, code: 'assembly.list.error'});
     }
 });
 
@@ -258,7 +259,7 @@ router.post('/edit', verifyJWT, [
     try {
         const validateErr = validationResult(req);
         if (!validateErr.isEmpty())
-            return res.status(400).json({error: 1, code: 'edit.bad', message: validateErr.array()});
+            return res.status(400).json({error: 1, code: 'assembly.edit.bad', message: validateErr.array()});
 
         const {uuid, name, description, tags, visibility, attr, data} = req.body;
 
@@ -269,12 +270,12 @@ router.post('/edit', verifyJWT, [
             .first();
 
         if (!assembly) {
-            return res.status(404).json({error: 1, code: 'edit.notFound'});
+            return res.status(404).json({error: 1, code: 'assembly.edit.notFound'});
         }
 
         // 检查用户是否有权限编辑
         if (assembly.userId !== req.user.id) {
-            return res.status(403).json({error: 1, code: 'edit.forbidden'});
+            return res.status(401).json({error: 1, code: 'assembly.edit.forbidden'});
         }
 
         // 构建更新数据
@@ -287,7 +288,7 @@ router.post('/edit', verifyJWT, [
         if (description) updateData.description = sanitizeRichText(description);
         if (tags) updateData.tags = JSON.stringify(handlingLabels(tags));
         if (visibility) updateData.visibility = visibility;
-        if (attr) updateData.attr = JSON.stringify(assemblySetAttributes(assembly.attr, attr, true));
+        if (attr) updateData.attr = JSON.stringify(assemblySetAttributes(assembly.attr, attr, false));
 
 
         // 执行更新
@@ -296,10 +297,10 @@ router.post('/edit', verifyJWT, [
             .andWhere('userId', req.user.id)
             .update(updateData);
 
-        res.status(200).json({code: 'edit.ok'});
+        res.status(200).json({code: 'assembly.edit.ok'});
     } catch (error) {
         logger.error('update error:', error);
-        res.status(500).json({error: 1, code: 'edit.error'});
+        res.status(500).json({error: 1, code: 'assembly.edit.error'});
     }
 });
 
@@ -330,7 +331,7 @@ router.post('/attr/edit', verifyJWT, [
 
         if (attr?.password) {
             if (!/^[a-zA-Z0-9_]+$/.test(attr.password)) {
-                return res.status(400).json({
+                return res.status(401).json({
                     error: 1,
                     code: 'assembly.editAttr.invalidPassword',
                     message: 'Password can only contain letters, numbers and underscores'
@@ -338,7 +339,7 @@ router.post('/attr/edit', verifyJWT, [
             }
 
             if (attr.password.length < 4) {
-                return res.status(400).json({
+                return res.status(401).json({
                     error: 1,
                     code: 'assembly.editAttr.passwordTooShort',
                     message: 'Password must be at least 4 characters'
@@ -427,7 +428,7 @@ router.get('/item', [
             .select(
                 'users.username', 'users.id as userId',
                 'assembly.uuid', 'assembly.userId', 'assembly.name', 'assembly.description',
-                'assembly.visibility', 'assembly.attr',
+                'assembly.visibility', 'assembly.attr', 'assembly.cloningUuid',
                 'assembly.createdTime', 'assembly.updatedTime', 'assembly.attr', 'assembly.tags', 'assembly.data as assembly'
             )
             .first();
@@ -450,7 +451,7 @@ router.get('/item', [
             }
 
             if (assembly.attr.password && assembly.attr.password !== password) {
-                return res.status(200).json({
+                return res.status(401).json({
                     error: 1,
                     code: 'assembly.detail.noPermission',
                     data: {
@@ -460,6 +461,7 @@ router.get('/item', [
             }
         }
 
+        const assemblyIsHasPassword = !!assembly.attr.password;
         if (assembly.attr)
             assembly.attr = assemblyShowAttributes(assembly.attr);
 
@@ -468,7 +470,8 @@ router.get('/item', [
             data: {
                 ...assembly,
                 isVisibility: true,
-                isOwner: isOwner
+                isOwner: isOwner,
+                isPassword: assemblyIsHasPassword
             },
         });
     } catch (error) {

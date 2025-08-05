@@ -2,7 +2,7 @@
 
 import AssemblyShowWidget from "@/components/AssemblyShowWidget.vue";
 import {useRoute, useRouter} from "vue-router";
-import {computed, nextTick, onMounted, ref} from "vue";
+import {computed, nextTick, onMounted, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {api} from "@/assets/sripts";
 import {useHttpToken} from "@/assets/sripts/httpUtil";
@@ -36,16 +36,11 @@ let assemblyDetailData = ref({
     assemblyDetailRef = ref(null),
     assemblyLoading = ref(false),
     password = ref(''),
-    language = computed(() => locale.value.split('-')[0]),
-    sso = ref({
-      // name:   "SampleNews",
-      // button:  "http://example.com/images/samplenews.gif",
-      // icon:     "http://example.com/favicon.png",
-      // url:        "http://example.com/login/",
-      // logout:  "http://example.com/logout/",
-      // width:   "800",
-      // height:  "400"
-    })
+    messages = ref([])
+
+watch(() => route.params, (value) => {
+  getAssemblyDetail()
+})
 
 onMounted(() => {
   getAssemblyDetail()
@@ -70,7 +65,7 @@ const getAssemblyDetail = async () => {
 
     if (d.error == 1) {
       assemblyDetailData.value = d.data;
-      return;
+      return
     }
 
     assemblyDetailData.value = d.data;
@@ -79,6 +74,12 @@ const getAssemblyDetail = async () => {
     await nextTick(() => {
       assemblyDetailRef.value.onLoadJson(d.data.data || d.data.assembly)
     })
+  } catch (e) {
+    console.error(e)
+    if (e instanceof Error)
+      messages.value.push(t(`basic.tips.${e.response.data.code}`, {
+        context: e.response.data.code
+      }))
   } finally {
     assemblyLoading.value = false
   }
@@ -118,7 +119,7 @@ const onPenPassword = () => {
         </v-breadcrumbs>
       </v-container>
 
-      <v-container class="pa-7">
+      <v-container class="pt-7">
         <v-overlay
             :model-value="assemblyLoading"
             transition
@@ -129,8 +130,24 @@ const onPenPassword = () => {
 
         <div v-show="!assemblyLoading">
           <div class="ml-n2 mr-n2">
-            <v-toolbar color="" class="bg-transparent">
-              <h1 :title="assemblyDetailData.name || ''" class="text-amber text-h2 singe-line">{{ assemblyDetailData.name || '' }}</h1>
+            <v-toolbar class="bg-transparent">
+              <div>
+                <h1 :title="assemblyDetailData.name || ''" class="text-amber text-h4 singe-line">{{ assemblyDetailData.name || '' }}</h1>
+
+                <div class="d-flex ga-2">
+                  <v-chip-group>
+                    <v-chip density="compact" v-if="assemblyDetailData.isOwner">
+                      所有者
+                    </v-chip>
+                    <v-chip density="compact" v-if="assemblyDetailData.isPassword">
+                      包含密码
+                    </v-chip>
+                    <v-chip :to="`/assembly/browse/${assemblyDetailData.cloningUuid}/detail`" density="compact" v-if="assemblyDetailData.cloningUuid">
+                      克隆: {{assemblyDetailData.cloningUuid}}
+                    </v-chip>
+                  </v-chip-group>
+                </div>
+              </div>
 
               <v-spacer></v-spacer>
 
@@ -178,7 +195,11 @@ const onPenPassword = () => {
                 top: -500,
                 bottom: 500
               }">
-      <AssemblyShowWidget ref="assemblyDetailRef" :readonly="true"></AssemblyShowWidget>
+      <AssemblyShowWidget ref="assemblyDetailRef" :readonly="true">
+        <template v-slot:image v-if="assemblyDetailData.attr.backgroundPresentation">
+          <v-img cover class="pointer-events-none" :src="assemblyDetailData.attr.backgroundPresentation"></v-img>
+        </template>
+      </AssemblyShowWidget>
     </ZoomableCanvas>
   </v-card>
   <!-- Assembly Preview E -->
@@ -258,7 +279,10 @@ const onPenPassword = () => {
     <v-card variant="text" class="pa-10 text-center">
       <v-icon icon="mdi-alert-circle-outline" class="text-amber" size="120"></v-icon>
       <h1 class="mt-10">抱歉,此配装不存在或不公开</h1>
-      <p>未能找到<v-chip density="compact">{{route.params.uuid}}</v-chip>，它可能为私有或不存在</p>
+      <p>未能找到
+        <v-chip density="compact">{{ route.params.uuid }}</v-chip>
+        ，它可能为私有或不存在
+      </p>
     </v-card>
   </v-container>
   <v-container v-else-if="assemblyDetailData.isPassword">
@@ -276,6 +300,8 @@ const onPenPassword = () => {
       </div>
     </v-card>
   </v-container>
+
+  <v-snackbar-queue v-model="messages"></v-snackbar-queue>
 </template>
 
 <style scoped lang="less">

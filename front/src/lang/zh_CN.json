@@ -27,7 +27,50 @@
         "notFoundOrNotOwner": "没有对应评论或用户",
         "error": "评论错误: {context}",
         "delete": {
-          "ok": "删除成功"
+          "ok": "删除成功",
+          "bad": "错误请求格式，请检查网络工具接口"
+        }
+      },
+      "assembly": {
+        "list": {
+          "ok": "获取列表成功",
+          "error": "列表错误: {context}",
+          "bad": "错误请求格式，请检查网络工具接口"
+        },
+        "editAttr": {
+          "ok": "设置配装属性成功",
+          "invalidPassword": "错误的密码格式",
+          "passwordTooShort": "密码太短",
+          "error": "错误: {context}",
+          "bad": "错误请求格式，请检查网络工具接口"
+        },
+        "getAttr": {
+          "ok": "获取属性成功",
+          "notFound": "配装属性不存在",
+          "error": "错误: {context}",
+          "bad": "错误请求格式，请检查网络工具接口"
+        },
+        "edit": {
+          "ok": "配装更新",
+          "notFound": "没找到对应配装",
+          "invalidPassword": "错误密码",
+          "passwordTooShort": "密码太短",
+          "error": "错误: {context}",
+          "bad": "错误请求格式，请检查网络工具接口"
+        },
+        "delete": {
+          "ok": "删除成功",
+          "notFound": "没找到对应配装",
+          "forbidden": "不允许操作，非法删除",
+          "error": "错误: {context}",
+          "bad": "错误请求格式，请检查网络工具接口"
+        },
+        "detail": {
+          "bad": "错误请求格式，请检查网络工具接口",
+          "notDisclosed": "不公开",
+          "noPermission": "无权访问，请检查是否需要密码或是合伙人身份",
+          "error": "错误: {context}",
+          "ok": "访问成功"
         }
       },
       "publish": {

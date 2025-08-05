@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {computed, ref} from "vue";
+import {useI18n} from "vue-i18n";
 
 const props = defineProps({
   modelValue: String
@@ -8,6 +9,7 @@ const props = defineProps({
 const dialog = ref(false);
 const startDate = ref<string | null>(null);
 const endDate = ref<string | null>(null);
+const {t} = useI18n()
 
 const emit = defineEmits(['update:modelValue'])
 

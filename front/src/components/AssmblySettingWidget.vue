@@ -1,13 +1,15 @@
 <script setup lang="ts">
 
 import AssemblyDataProcessing from "@/assets/sripts/assemblyDataProcessing";
-import {ref, watch} from "vue";
+import {computed, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {api} from "@/assets/sripts/index";
 import {useHttpToken} from "@/assets/sripts/httpUtil";
+import {useRoute} from "vue-router";
 
-const {t} = useI18n(),
+const {t, messages} = useI18n(),
     http = useHttpToken(),
+    route = useRoute(),
     props = withDefaults(defineProps<{ modelValue: any, isShowDelete?: boolean }>(), {
       isShowDelete: true
     })
@@ -26,6 +28,8 @@ let emit = defineEmits(['update:modelValue']),
       ]
     }),
     delAssemblyLoading = ref(false)
+
+let languages = computed(() => Object.keys(messages.value))
 
 watch(() => props.modelValue.value, (value, oldValue) => {
   const changes = {}
@@ -67,6 +71,22 @@ const delAssembly = async () => {
     delAssemblyLoading.value = false
   }
 }
+
+const passwordPlaceholder = computed(() => {
+  if (props.modelValue.password && props.modelValue.attr.password === '')
+    return '含密码'
+
+  else if (props.modelValue.password && props.modelValue.attr.password === null)
+    return '当前配装已设密码，但新密码已删除'
+
+  else if (!props.modelValue.password && props.modelValue.attr.password === '')
+    return '无密码'
+
+  // if (props.modelValue.attr.password === '')
+  //   return props.modelValue.password || '输入密码并保存来创建，如果空则不需密码'
+
+  return '未设置密码'
+})
 </script>
 
 <template>
@@ -87,13 +107,48 @@ const delAssembly = async () => {
         <p>必须输入密码才可访问</p>
       </v-col>
       <v-col>
-        <v-text-field item-title="label" :placeholder="modelValue.attr.password || '输入密码并保存来创建，如果空则不需密码'" v-model="modelValue.attr.password">
+        <template v-if="route.debug">
+          {{modelValue.password}} |
+          {{modelValue.attr.password}}
+        </template>
+
+        <v-text-field item-title="label" :placeholder="passwordPlaceholder"
+                      clearable
+                      v-model="modelValue.attr.password">
           <template v-slot:details>
             至少6位到32位，仅可使用a-A 0-9 _
+          </template>
+          <template v-slot:append>
+            <v-btn icon="mdi-delete"
+                   v-if="modelValue.attr.password  === ''"
+                   @click="modelValue.attr.password = null"></v-btn>
           </template>
         </v-text-field>
       </v-col>
     </v-row>
+
+    <v-row>
+      <v-col>
+        <b>配装语种</b>
+        <p>你可以定义配装语言</p>
+      </v-col>
+      <v-col>
+        <v-select item-title="label" v-model="modelValue.attr.languages"
+                  multiple
+                  :items="languages"></v-select>
+      </v-col>
+    </v-row>
+
+    <v-row>
+      <v-col>
+        <b>背景图片</b>
+        <p>它仅在配装详情页展示，固定在配装后方，使用外部图床</p>
+      </v-col>
+      <v-col>
+        <v-text-field placeholder="https://" v-model="modelValue.attr.backgroundPresentation"></v-text-field>
+      </v-col>
+    </v-row>
+
 
     <v-divider class="mt-10 mb-10">其他</v-divider>
 

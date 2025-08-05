@@ -26,6 +26,7 @@ let browsePagination = ref({
       data: {
         keyword: '',
         userId: null,
+        isHasPassword: false,
         sortField: 'createdTime',
         sortOrder: 'asc',
         createdStartAndEnd: null,
@@ -57,7 +58,7 @@ const getBrowseList = async () => {
   try {
     browseLoading.value = true
 
-    const {keyword, sortField, sortOrder, createdStartAndEnd, updatedStartAndEnd} = browseFilter.value.data;
+    const {keyword, sortField, sortOrder, isHasPassword, createdStartAndEnd, updatedStartAndEnd} = browseFilter.value.data;
 
     let createdStart = createdStartAndEnd && createdStartAndEnd.split(',')[0] || null,
         createdEnd = createdStartAndEnd && createdStartAndEnd.split(',')[1] || null,
@@ -69,6 +70,7 @@ const getBrowseList = async () => {
         keyword,
         sortField,
         sortOrder,
+        isHasPassword,
         createdStart,
         createdEnd,
         updatedStart,
@@ -90,7 +92,7 @@ watch(browseData, (newList: ResultData) => {
     nextTick(() => {
       browseAssemblyWidgetRefs.value.forEach((widget, index) => {
         if (widget?.onLoadJson) {
-          widget.onLoadJson(newList.data[index].data);
+          widget.onLoadJson(newList.data[index].assembly);
         }
       });
     });
@@ -181,6 +183,9 @@ watch(browseData, (newList: ResultData) => {
             <v-col cols="12" sm="6" md="6" lg="12">
               <p class="mb-2 font-weight-bold">更新时间范围</p>
               <TimeFrame v-model="browseFilter.data.updatedStartAndEnd"></TimeFrame>
+            </v-col>
+            <v-col cols="12" sm="6" md="6" lg="12">
+              <v-checkbox density="compact" hide-details v-model="browseFilter.data.isHasPassword" label="是否列出包含密码配装"></v-checkbox>
             </v-col>
           </v-row>
 

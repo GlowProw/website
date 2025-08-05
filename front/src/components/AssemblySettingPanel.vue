@@ -20,6 +20,7 @@ let show = ref(false),
     getSettingLoading = ref(false),
     setSettingLoading = ref(false),
     tabValue = ref('conventional'),
+    messages = ref([]),
     settingData = ref({
       visibility: 'publicly',
       attr: {
@@ -69,6 +70,11 @@ const setAssemblySetting = async () => {
 
     setSettingLoading.value = true
 
+    if (settingData.value.password && settingData.value.attr.password == null)
+      settingData.value.attr.password = ''
+    else if (settingData.value.password && settingData.value.attr.password == '')
+      delete settingData.value.attr.password
+
     const result = await http.post(api['assembly_attr_edit'], {
           data: {
             uuid: props.id,
@@ -80,6 +86,12 @@ const setAssemblySetting = async () => {
     if (d.error == 1)
       return;
 
+  } catch (e) {
+    console.error(e)
+    if (e instanceof Error)
+      messages.value.push(t(`basic.tips.${e.response.data.code}`, {
+        context: e.response.data.code
+      }))
   } finally {
     show.value = false;
     setSettingLoading.value = false
@@ -143,6 +155,7 @@ const setAssemblySetting = async () => {
       </v-card>
     </v-container>
   </v-dialog>
+  <v-snackbar-queue v-model="messages"></v-snackbar-queue>
 </template>
 
 <style scoped lang="less">

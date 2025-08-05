@@ -47,7 +47,9 @@ const onLogin = async () => {
     await router.push('/')
   } catch (e) {
     if (e instanceof Error)
-      messages.value.push(e.message)
+      messages.value.push(t(`basic.tips.${e.response.data.code}`, {
+        context: e.response.data.code
+      }))
   } finally {
     loginFormLoading.value = false
   }

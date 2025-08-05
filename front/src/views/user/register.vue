@@ -63,7 +63,9 @@ const onRegister = async () => {
     }, 1000)
   } catch (e) {
     if (e instanceof Error)
-      messages.value.push(t(`basic.tips.${e.response.data.code}`))
+      messages.value.push(t(`basic.tips.${e.response.data.code}`, {
+        context: e.response.data.code
+      }))
   } finally {
     registerLoading.value = false;
   }

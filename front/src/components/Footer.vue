@@ -53,7 +53,7 @@ const {t} = useI18n()
                 <b class="text-amber">联系</b>
                 <ul>
                   <li><a href="/about">关于</a></li>
-                  <li><a href="#">帮助我们翻译</a></li>
+                  <li><a href="https://tieba.baidu.com/p/9886565445">帮助我们翻译</a></li>
                 </ul>
               </v-col>
               <v-col cols="12" sm="6" md="6" lg="3">
