@@ -133,7 +133,7 @@ const passwordPlaceholder = computed(() => {
         <p>你可以定义配装语言</p>
       </v-col>
       <v-col>
-        <v-select item-title="label" v-model="modelValue.attr.languages"
+        <v-select item-title="label" v-model="modelValue.attr.language"
                   multiple
                   :items="languages"></v-select>
       </v-col>
@@ -149,6 +149,25 @@ const passwordPlaceholder = computed(() => {
       </v-col>
     </v-row>
 
+    <v-row>
+      <v-col>
+        <b>评论</b>
+        <p>是否开启评论</p>
+      </v-col>
+      <v-col>
+        <v-checkbox v-model="modelValue.attr.isComment" density="compact" hide-details></v-checkbox>
+      </v-col>
+    </v-row>
+
+    <v-row>
+      <v-col>
+        <b>点赞</b>
+        <p>是否开启点赞</p>
+      </v-col>
+      <v-col>
+        <v-checkbox v-model="modelValue.attr.isLike" density="compact" hide-details></v-checkbox>
+      </v-col>
+    </v-row>
 
     <v-divider class="mt-10 mb-10">其他</v-divider>
 

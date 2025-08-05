@@ -14,7 +14,8 @@ const {t, locale} = useI18n(),
     http = useHttpToken(),
     assemblyDataProcessing = new AssemblyDataProcessing();
 
-const props = defineProps<{ id: string, assemblyData?: any }>()
+const props = defineProps<{ id: string, assemblyData?: any }>(),
+    emit = defineEmits('change')
 
 let show = ref(false),
     getSettingLoading = ref(false),
@@ -93,6 +94,8 @@ const setAssemblySetting = async () => {
         context: e.response.data.code
       }))
   } finally {
+    emit('change')
+
     show.value = false;
     setSettingLoading.value = false
   }
@@ -109,6 +112,7 @@ const setAssemblySetting = async () => {
         <v-card-title class="pa-5">
           <div class="text-h5 font-weight-bold text-amber">设置</div>
         </v-card-title>
+
         <v-overlay :model-value="getSettingLoading"
                    contained
                    disabled
@@ -125,25 +129,27 @@ const setAssemblySetting = async () => {
             <v-tab prepend-icon="mdi-database" text="数据" value="data" v-if="props.assemblyData"></v-tab>
           </v-tabs>
 
-          <v-tabs-window v-model="tabValue" class="v-col-9 flex-1 w-100">
-            <v-tabs-window-item value="conventional">
-              <AssemblySettingWidget v-model="settingData"></AssemblySettingWidget>
-            </v-tabs-window-item>
+          <v-card class="overflow-auto v-col-9 flex-1 w-100" max-height="50vh">
+            <v-tabs-window v-model="tabValue">
+              <v-tabs-window-item value="conventional">
+                <AssemblySettingWidget v-model="settingData"></AssemblySettingWidget>
+              </v-tabs-window-item>
 
-            <v-tabs-window-item value="data">
-              <div class="w-100">
-                <v-card elevation="0" min-height="200" max-height="60vh" class="pa-2 overflow-auto">
-                  <VueJsonPretty
-                      theme="dark"
-                      showLine
-                      showIcon
-                      showDoubleQuotes
-                      v-if="assemblyData"
-                      :data="assemblyDataProcessing.export(assemblyData)"/>
-                </v-card>
-              </div>
-            </v-tabs-window-item>
-          </v-tabs-window>
+              <v-tabs-window-item value="data">
+                <div class="w-100">
+                  <v-card elevation="0" min-height="200" max-height="60vh" class="pa-2 overflow-auto">
+                    <VueJsonPretty
+                        theme="dark"
+                        showLine
+                        showIcon
+                        showDoubleQuotes
+                        v-if="assemblyData"
+                        :data="assemblyDataProcessing.export(assemblyData)"/>
+                  </v-card>
+                </div>
+              </v-tabs-window-item>
+            </v-tabs-window>
+          </v-card>
         </div>
 
         <v-divider></v-divider>

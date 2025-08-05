@@ -13,12 +13,14 @@ const props = withDefaults(defineProps<{
       isClickOpenDetail?: boolean,
       isShowOpenDetail?: boolean,
       isShowDescription?: boolean,
+      isShowTooltip?: boolean,
       padding?: number
     }>(), {
       id: 'dhow',
       isClickOpenDetail: true,
       isShowOpenDetail: true,
       isShowDescription: true,
+      isShowTooltip: true,
       padding: 3
     }),
     ships: Ships = Ships,
@@ -60,7 +62,8 @@ const onReady = async () => {
              min-width="450"
              max-width="450"
              interactive
-             :offset="[30,10]"
+             :disabled="!props.isShowTooltip"
+             :offset="[40, 0]"
              location="right top"
              content-class="pa-0" target="cursor">
     <template v-slot:activator="{ props: activatorProps }">

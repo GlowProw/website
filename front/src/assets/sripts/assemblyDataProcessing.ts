@@ -8,122 +8,169 @@ const ships = Ships,
     modifications = Modifications
 
 export default class AssemblyDataProcessing {
-    static versions = ['0.0.1']
-    static nowVersion = '0.0.1'
+    static versions = ['0.0.1'];
+    static nowVersion = '0.0.1';
+
+    private allowedFields = [
+        'shipSlot',
+        'armorSlot',
+        'shipUpgradeSlot',
+        'ultimateSlot',
+        'shipFrigateUpgradeSlot',
+        'weaponModifications',
+        'secondaryWeaponModifications',
+        'secondaryWeaponSlots',
+        'weaponSlots',
+        'displaySlots',
+        '__version',
+    ];
 
     private processing = {
         '0.0.1': {
             get: (data) => {
-                if (data.shipSlot)
-                    data.shipSlot = {id: data.shipSlot.id}
+                const filteredData = {};
+                this.allowedFields.forEach(field => {
+                    if (data[field] !== undefined) {
+                        filteredData[field] = data[field];
+                    }
+                });
 
-                if (data.armorSlot)
-                    data.armorSlot = {id: data.armorSlot.id}
+                // 后续处理逻辑
+                if (filteredData.shipSlot)
+                    filteredData.shipSlot = { id: filteredData.shipSlot.id };
 
-                if (data.shipUpgradeSlot)
-                    data.shipUpgradeSlot = {id: data.shipUpgradeSlot.id}
+                if (filteredData.armorSlot)
+                    filteredData.armorSlot = { id: filteredData.armorSlot.id };
 
-                if (data.ultimateSlot)
-                    data.ultimateSlot = {id: data.ultimateSlot.id}
+                if (filteredData.shipUpgradeSlot)
+                    filteredData.shipUpgradeSlot = { id: filteredData.shipUpgradeSlot.id };
 
-                if (data.shipFrigateUpgradeSlot)
-                    data.shipFrigateUpgradeSlot = {id: data.shipFrigateUpgradeSlot.id}
+                if (filteredData.ultimateSlot)
+                    filteredData.ultimateSlot = { id: filteredData.ultimateSlot.id };
 
-                if (data.weaponModification)
-                    data.weaponModification = data.weaponModification.map(i => {
+                if (filteredData.shipFrigateUpgradeSlot)
+                    filteredData.shipFrigateUpgradeSlot = { id: filteredData.shipFrigateUpgradeSlot.id };
+
+                if (filteredData.weaponModifications)
+                    filteredData.weaponModifications = filteredData.weaponModifications.map(i => {
                         return i.map(j => {
                             return {
                                 type: j.type,
-                                value: j?.value?.id || null
-                            }
-                        })
-                    })
+                                value: j?.value?.id || null,
+                            };
+                        });
+                    });
 
-                if (data.secondaryWeaponSlots)
-                    data.secondaryWeaponSlots = data.secondaryWeaponSlots.map(i => {
-                        return i.id ? {id: i.id} : {id: null}
-                    })
+                if (filteredData.secondaryWeaponModifications)
+                    filteredData.secondaryWeaponModifications = filteredData.secondaryWeaponModifications.map(i => {
+                        return i.map(j => {
+                            return {
+                                type: j.type,
+                                value: j?.value?.id || null,
+                            };
+                        });
+                    });
 
-                if (data.weaponSlots)
-                    data.weaponSlots = data.weaponSlots.map(i => {
-                        return i.id ? {id: i.id} : {id: null}
-                    })
+                if (filteredData.secondaryWeaponSlots)
+                    filteredData.secondaryWeaponSlots = filteredData.secondaryWeaponSlots.map(i => {
+                        return i.id ? { id: i.id } : { id: null };
+                    });
 
-                if (data.displaySlots)
-                    data.displaySlots = data.displaySlots.map(i => {
-                        return i.id ? {id: i.id} : {id: null}
-                    })
+                if (filteredData.weaponSlots)
+                    filteredData.weaponSlots = filteredData.weaponSlots.map(i => {
+                        return i.id ? { id: i.id } : { id: null };
+                    });
 
-                delete data.shipFrigateUpgradeList;
-                data.__version = this.nowVersion;
-                return data
+                if (filteredData.displaySlots)
+                    filteredData.displaySlots = filteredData.displaySlots.map(i => {
+                        return i.id ? { id: i.id } : { id: null };
+                    });
+
+                filteredData.__version = this.nowVersion;
+                return filteredData;
             },
             set: (data) => {
-                if (data.shipSlot)
-                    data.shipSlot = ships[data.shipSlot.id] || Ship.fromRawData({})
+                const filteredData = {};
+                this.allowedFields.forEach(field => {
+                    if (data[field] !== undefined) {
+                        filteredData[field] = data[field];
+                    }
+                });
 
-                if (data.armorSlot)
-                    data.armorSlot = items[data.armorSlot.id] || Item.fromRawData({})
+                // 后续处理逻辑
+                if (filteredData.shipSlot)
+                    filteredData.shipSlot = ships[filteredData.shipSlot.id] || Ship.fromRawData({});
 
-                if (data.shipUpgradeSlot)
-                    data.shipUpgradeSlot = items[data.shipUpgradeSlot.id] || Item.fromRawData({})
+                if (filteredData.armorSlot)
+                    filteredData.armorSlot = items[filteredData.armorSlot.id] || Item.fromRawData({});
 
-                if (data.ultimateSlot)
-                    data.ultimateSlot = items[data.ultimateSlot.id] || Item.fromRawData({})
+                if (filteredData.shipUpgradeSlot)
+                    filteredData.shipUpgradeSlot = items[filteredData.shipUpgradeSlot.id] || Item.fromRawData({});
 
-                if (data.shipFrigateUpgradeSlot)
-                    data.shipFrigateUpgradeSlot = items[data.shipFrigateUpgradeSlot.id] || Item.fromRawData({})
+                if (filteredData.ultimateSlot)
+                    filteredData.ultimateSlot = items[filteredData.ultimateSlot.id] || Item.fromRawData({});
 
-                if (data.weaponModification)
-                    data.weaponModification = data.weaponModification.map(i => {
+                if (filteredData.shipFrigateUpgradeSlot)
+                    filteredData.shipFrigateUpgradeSlot = items[filteredData.shipFrigateUpgradeSlot.id] || Item.fromRawData({});
+
+                if (filteredData.weaponModifications)
+                    filteredData.weaponModifications = filteredData.weaponModifications.map(i => {
                         return i.map(j => {
                             return {
                                 type: j.type,
-                                value: j.value ? modifications[j.value] : Modification.fromRawData({variants: []})
-                            }
-                        })
-                    })
+                                value: modifications[j.value] || null,
+                            };
+                        });
+                    });
 
-                if (data.secondaryWeaponSlots)
-                    data.secondaryWeaponSlots = data.secondaryWeaponSlots.map(i => {
-                        return i.id ? items[i.id] : Item.fromRawData({})
-                    })
+                if (filteredData.secondaryWeaponModifications)
+                    filteredData.secondaryWeaponModifications = filteredData.secondaryWeaponModifications.map(i => {
+                        return i.map(j => {
+                            return {
+                                type: j.type,
+                                value: modifications[j.value] || null,
+                            };
+                        });
+                    });
 
-                if (data.weaponSlots)
-                    data.weaponSlots = data.weaponSlots.map(i => {
-                        return i.id ? items[i.id] : Item.fromRawData({})
-                    })
+                if (filteredData.secondaryWeaponSlots)
+                    filteredData.secondaryWeaponSlots = filteredData.secondaryWeaponSlots.map(i => {
+                        return i.id ? items[i.id] : Item.fromRawData({});
+                    });
 
-                if (data.displaySlots)
-                    data.displaySlots = data.displaySlots.map(i => {
-                        return i.id ? items[i.id] : Item.fromRawData({})
-                    })
+                if (filteredData.weaponSlots)
+                    filteredData.weaponSlots = filteredData.weaponSlots.map(i => {
+                        return i.id ? items[i.id] : Item.fromRawData({});
+                    });
 
-                return data
-            }
-        }
-    }
+                if (filteredData.displaySlots)
+                    filteredData.displaySlots = filteredData.displaySlots.map(i => {
+                        return i.id ? items[i.id] : Item.fromRawData({});
+                    });
+
+                return filteredData;
+            },
+        },
+    };
 
     /**
-     * 导出数据动作
+     * 导出数据
      * @param data
      */
     export(data) {
-        let version = data?.__version || this.nowVersion
-        if (version)
-            return this.processing[version].get(toRaw(data))
-
+        let version = data?.__version || this.nowVersion;
+        if (version) return this.processing[version].get(toRaw(data));
         return data;
     }
 
     /**
-     * 导入数据动作
+     * 导入数据
+     * @param data
+     * @param useVersion
      */
     import(data, useVersion?: string) {
-        let version = useVersion || data.__version || this.nowVersion
-        if (version)
-            return this.processing[version].set(toRaw(data))
-
+        let version = useVersion || data.__version || this.nowVersion;
+        if (version) return this.processing[version].set(toRaw(data));
         return data;
     }
 }

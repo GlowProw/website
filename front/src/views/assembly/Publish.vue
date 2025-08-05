@@ -13,6 +13,7 @@ import {useI18nUtils} from "@/assets/sripts/i18nUtil";
 import assemblyDataProcessing from "@/assets/sripts/assemblyDataProcessing"
 import AssemblyTagsWidget from "@/components/AssemblyTagsWidget.vue";
 import AssemblySettingWidget from "@/components/AssmblySettingWidget.vue"
+import AssemblyDataProcessing from "@/assets/sripts/assemblyDataProcessing";
 
 const route = useRoute(),
     router = useRouter(),
@@ -77,7 +78,8 @@ const onLoadData = () => {
     assemblyData.value = storageAssembly.get(uid as string, StorageAssemblyType.Data)
 
     if (assemblyData && assemblyData.value) {
-      assemblyWorkshopRef.value.onLoadJson(assemblyData.value.data.data)
+      assemblyWorkshopRef.value.onLoadJson(assemblyData.value.data.data, assemblyData.value.data?.attr?.assemblyUseVersion || assemblyData.value.data.data.__version || AssemblyDataProcessing.nowVersion)
+
       publishData.value = {
         ...publishData.value,
         ...assemblyData.value.data,
@@ -95,9 +97,6 @@ const onEdit = async () => {
   try {
     publishLoading.value = true
     let editPublishData: any = publishData.value;
-
-    // 处理数据
-    // editPublishData.data = JSON.stringify(editPublishData.data) // as JSON
 
     const result = await httpToken.post(api['assembly_edit'], {
           data: editPublishData
@@ -253,6 +252,7 @@ const onUpdateTags = (data: any) => {
 
               <v-card border class="pl-3 pr-3" :color="`hsl(from var(--main-color) h s calc(l * 0.05))`">
                 <Textarea class="mt-3 mb-2"
+                          :maxlength="5000"
                           v-model="publishData.description"
                           placeholder="输入描述描述"></Textarea>
                 <template v-if="route.query.debug">

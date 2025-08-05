@@ -2,7 +2,7 @@
 
 import AssemblyShowWidget from "@/components/AssemblyShowWidget.vue";
 import {useRoute, useRouter} from "vue-router";
-import {computed, nextTick, onMounted, ref, watch} from "vue";
+import {nextTick, onMounted, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {api} from "@/assets/sripts";
 import {useHttpToken} from "@/assets/sripts/httpUtil";
@@ -72,7 +72,7 @@ const getAssemblyDetail = async () => {
     assemblyDetailData.value.description = unescape(assemblyDetailData.value.description || '这个人很懒什么,对此配装什么都没说')
 
     await nextTick(() => {
-      assemblyDetailRef.value.onLoadJson(d.data.data || d.data.assembly)
+      assemblyDetailRef.value.onLoadJson(d.data.data || d.data.assembly, d.data.attr.assemblyUseVersion)
     })
   } catch (e) {
     console.error(e)
@@ -143,7 +143,7 @@ const onPenPassword = () => {
                       包含密码
                     </v-chip>
                     <v-chip :to="`/assembly/browse/${assemblyDetailData.cloningUuid}/detail`" density="compact" v-if="assemblyDetailData.cloningUuid">
-                      克隆: {{assemblyDetailData.cloningUuid}}
+                      克隆: {{ assemblyDetailData.cloningUuid }}
                     </v-chip>
                   </v-chip-group>
                 </div>
@@ -152,8 +152,7 @@ const onPenPassword = () => {
               <v-spacer></v-spacer>
 
               <LikeWidget targetType="assembly"
-                          class="ml-2"
-                          v-if="authStore.isLogin && assemblyDetailData.isVisibility"
+                          v-if="authStore.isLogin && assemblyDetailData.isVisibility && assemblyDetailData.attr.isLike"
                           :targetId="assemblyDetailData.uuid"
                           :userId="authStore.user.userId">
                 <template v-slot:activate>
@@ -165,12 +164,14 @@ const onPenPassword = () => {
               </LikeWidget>
 
               <template v-if="assemblyDetailData.isVisibility && authStore.isLogin && authStore.user.userId == assemblyDetailData.userId">
-                <v-btn variant="flat" :to="`/assembly/workshop/${assemblyDetailData.uuid}/edit`">
+                <v-btn class="ml-3" variant="flat" :to="`/assembly/workshop/${assemblyDetailData.uuid}/edit`">
                   <v-icon icon="mdi-pencil" class="mr-2"></v-icon>
                   编辑此配装
                 </v-btn>
 
-                <AssemblySettingPanel :id="assemblyDetailData.uuid" :assembly-data="assemblyDetailData?.assembly || {}">
+                <AssemblySettingPanel :id="assemblyDetailData.uuid"
+                                      :assembly-data="assemblyDetailData?.assembly || {}"
+                                      @change="getAssemblyDetail">
                   <v-btn variant="flat" class="ml-3">
                     <v-icon icon="mdi-cog"></v-icon>
                   </v-btn>
@@ -228,9 +229,11 @@ const onPenPassword = () => {
                     v-model="assemblyDetailData.description"
                     placeholder="输入描述描述"></Textarea>
 
-          <v-divider>评论</v-divider>
-
-          <CommentWidget :id="assemblyDetailData.uuid" placeholder="你对此有何见解？" type="assembly"></CommentWidget>
+          <template v-if="assemblyDetailData.attr.isComment">
+            <v-divider>评论</v-divider>
+            <CommentWidget :id="assemblyDetailData.uuid" placeholder="你对此有何见解？"
+                           type="assembly"></CommentWidget>
+          </template>
         </v-col>
         <v-col cols="12" sm="12" lg="4" xl="4">
           <v-text-field

@@ -97,7 +97,15 @@ watch(() => workshopData.value?.data?.shipSlot, (value) => {
   let result = {}
 
   if (value && value.slots)
-    Object.entries(value.slots).forEach(i => result[i[0]] = i[1][1])
+    Object.entries(value.slots).forEach(i => {
+      try {
+        if (i && i[1] != undefined && i[1][1])
+          return result[i[0]] = i[1][1];
+        return result[i[0]] = {}
+      } catch (e) {
+        return {}
+      }
+    })
 
   cache.value.weaponDirections = result;
 })
@@ -136,7 +144,12 @@ let // 获取陈设
       if (cache.value.shipWeaponList.length > 0)
         return cache.value.shipWeaponList;
 
-      const d = Object.values(items).filter(i => tag.indexOf(i.type) >= 0);
+      const d = Object.values(items).filter(i => tag.indexOf(i.type) >= 0).map(i => {
+        return {
+          id: i.id,
+          label: t(`snb.items.${i.id}.name`)
+        }
+      });
       cache.value.shipWeaponList = d;
       return d;
     }),
@@ -402,6 +415,14 @@ const getDeckInformation = (index: number): Record<string, any> => {
   }
 };
 
+const weaponFilter = (item, queryText, itemText) => {
+  const searchText = queryText.toLowerCase();
+  const label = item.label.toLowerCase();
+  const category = item.category.toLowerCase();
+
+  return label.includes(searchText) || category.includes(searchText);
+};
+
 /**
  * 导出数据
  */
@@ -474,7 +495,7 @@ defineExpose({
                                     v-if="workshopData.data.shipSlot && workshopData.data.shipSlot.id"
                                     :class="[workshopData.data.shipSlot && workshopData.data.shipSlot.id ? 'bg-amber' : '']">
                         <v-card class="w-100">
-                          <ShipIconWidget :id="workshopData.data.shipSlot.id" :isClickOpenDetail="false"/>
+                          <ShipIconWidget :id="workshopData.data.shipSlot.id" :is-show-tooltip="false" :isClickOpenDetail="false"/>
                         </v-card>
                       </ItemSlotBase>
 
@@ -489,8 +510,6 @@ defineExpose({
                       </v-overlay>
                     </v-card>
                   </v-hover>
-
-
                 </template>
                 <v-card v-slot:default>
                   <v-row class="ga-0 pa-2 pb-5">
@@ -507,7 +526,7 @@ defineExpose({
                             :class="[
                                           workshopData.shipSelect ? workshopData.shipSelect!.id == ship!.id ? 'bg-amber' : '' : ''
                                       ]">
-                          <ShipIconWidget :id="ship.id" :isClickOpenDetail="false"></ShipIconWidget>
+                          <ShipIconWidget :id="ship.id" :is-show-tooltip="false" :isClickOpenDetail="false"></ShipIconWidget>
                         </ItemSlotBase>
                       </v-badge>
                     </v-col>
@@ -604,7 +623,6 @@ defineExpose({
                   </v-card-actions>
                 </v-card>
               </v-tooltip>
-
             </v-col>
           </v-row>
         </div>
@@ -695,6 +713,7 @@ defineExpose({
                     </v-col>
                     <v-divider vertical class="ml-3 mr-2"></v-divider>
                     <v-col>
+                      <!-- 武器方向 -->
                       <p class="mb-2 ml-n5 mr-n5 pl-5 title-long-flavor bg-black" v-if="!readonly">
                         <v-select v-model="workshopData.data.weaponDirections[index]"
                                   hide-details
@@ -771,9 +790,9 @@ defineExpose({
                           <!-- 武器模组插槽 -->
                           <div class="mb-2">
                             <WeaponModificationWidget :readonly="readonly"
-                                                      :disabled="workshopData.data.weaponDirections[index] == null"
+                                                      :disabled="workshopData.data.weaponSlots[index].id == null"
                                                       :data="i" size="4"
-                                                      v-model="workshopData.data.weaponModification[index]"></WeaponModificationWidget>
+                                                      v-model="workshopData.data.weaponModifications[index]"></WeaponModificationWidget>
                           </div>
                         </v-col>
                         <v-col class="d-flex align-start">
@@ -881,7 +900,7 @@ defineExpose({
                           <!-- 副武器模组插槽 -->
                           <div class="mb-2">
                             <WeaponModificationWidget :readonly="readonly"
-                                                      :disabled="workshopData.data.secondaryWeaponModifications[index] && workshopData.data.secondaryWeaponModifications[index].id == null"
+                                                      :disabled="workshopData.data.secondaryWeaponSlots[index].id == null"
                                                       :data="i" size="4"
                                                       v-model="workshopData.data.secondaryWeaponModifications[index]"></WeaponModificationWidget>
                           </div>
@@ -1020,145 +1039,148 @@ defineExpose({
 
   <v-snackbar-queue v-model="messages"></v-snackbar-queue>
 
-  <v-dialog v-model="workshopData.weaponModel"
-            content-class="pa-0"
-            max-height="90%"
-            min-width="450"
-            max-width="700">
-    <v-card v-slot:default>
-      <b class="font-weight-bold text-h5 pa-5">{{ t('assembly.workshop.insertWeaponTitle') }}</b>
-      <v-row class="pl-8 pr-8 mt-1 mb-5">
-        <ItemSlotBase size="60px" v-if="workshopData.weaponSearchValue || getShipWeaponList[workshopData.weaponSearchValue]">
-          <ItemIconWidget :id="workshopData.weaponSearchValue"></ItemIconWidget>
-        </ItemSlotBase>
-        <ItemSlotBase size="60px" class="d-flex justify-center align-center" v-else>
-          <v-icon icon="mdi-close-octagon-outline"/>
-        </ItemSlotBase>
-        <v-combobox
-            v-model="workshopData.weaponSearchValue"
-            v-model:search="workshopData.weaponSearchValue"
-            :hide-no-data="false"
-            :items="getShipWeaponList"
-            hide-selected
-            item-value="id"
-            item-title="id"
-            class="ml-4"
-            clearable
-            persistent-hint>
-          <template v-slot:details>
-                          <span v-html="t('assembly.workshop.insertWeaponTips', {
-                            link: `/display-cabinet`
-                          })">
-                          </span>
-            <v-icon icon="mdi-share"></v-icon>
-          </template>
-        </v-combobox>
-      </v-row>
-    </v-card>
-    <v-card-actions class="bg-amber">
-      <v-btn variant="tonal" @click="onSelectWorkshopShip" :disabled="!workshopData.weaponSearchValue || getShipWeaponList.filter(d => d.id == workshopData.weaponSearchValue).length <= 0">{{ t('basic.button.submit') }}</v-btn>
-      <v-btn variant="tonal" class="ml-1" @click="workshopData.weaponModel = false">{{ t('basic.button.cancel') }}</v-btn>
-    </v-card-actions>
-  </v-dialog>
-  <v-dialog v-model="workshopData.secondaryWeaponModel"
-            ref="secondaryWeaponModel"
-            content-class="pa-0"
-            max-height="90%"
-            min-height="300"
-            min-width="450"
-            max-width="700">
-    <v-card v-slot:default>
-      <b class="font-weight-bold text-h5 pa-5">{{ t('assembly.workshop.insertSecondaryWeaponTitle') }}</b>
-      <v-row class="ga-0 pa-2 pb-5">
-        <v-col cols="2"
-               v-for="(secondaryWeapon, secondaryWeaponIndex) in getSecondaryWeapon"
-               :key="secondaryWeaponIndex">
-          <v-badge :color="workshopData.secondaryWeaponSelect ? workshopData.secondaryWeaponSelect!.id == secondaryWeapon!.id ? `var(--main-color)` : 'transparent' : 'transparent'">
-            <template v-slot:badge>
-              <v-icon icon="mdi-check" v-if="workshopData.secondaryWeaponSelect && workshopData.secondaryWeaponSelect!.id == secondaryWeapon!.id"></v-icon>
+  <template v-if="!readonly">
+    <v-dialog v-model="workshopData.weaponModel"
+              content-class="pa-0"
+              max-height="90%"
+              min-width="450"
+              max-width="700">
+      <v-card v-slot:default>
+        <b class="font-weight-bold text-h5 pa-5">{{ t('assembly.workshop.insertWeaponTitle') }}</b>
+        <v-row class="pl-8 pr-8 mt-1 mb-5">
+          <ItemSlotBase size="60px" v-if="workshopData.weaponSearchValue || getShipWeaponList[workshopData.weaponSearchValue]">
+            <ItemIconWidget :id="workshopData.weaponSearchValue"></ItemIconWidget>
+          </ItemSlotBase>
+          <ItemSlotBase size="60px" class="d-flex justify-center align-center" v-else>
+            <v-icon icon="mdi-close-octagon-outline"/>
+          </ItemSlotBase>
+
+          {{workshopData.weaponSearchValue}}
+          <v-combobox
+              v-model="workshopData.weaponSearchValue"
+              v-model:search="workshopData.weaponSearchValue"
+              :hide-no-data="false"
+              :items="getShipWeaponList"
+              :filter="weaponFilter"
+              hide-selected
+              item-value="id"
+              item-title="id"
+              class="ml-4"
+              clearable
+              persistent-hint>
+            <template v-slot:details>
+              <span v-html="t('assembly.workshop.insertWeaponTips', {link: `/display-cabinet`})"></span>
+              <v-icon icon="mdi-share"></v-icon>
             </template>
-            <ItemSlotBase
-                size="92px" class="pa-1"
-                @click="workshopData.secondaryWeaponSelect = secondaryWeapon"
-                :class="[
+
+          </v-combobox>
+        </v-row>
+      </v-card>
+      <v-card-actions class="bg-amber">
+        <v-btn variant="tonal" @click="onSelectWorkshopShip" :disabled="!workshopData.weaponSearchValue || getShipWeaponList.filter(d => d.id == workshopData.weaponSearchValue).length <= 0">{{ t('basic.button.submit') }}</v-btn>
+        <v-btn variant="tonal" class="ml-1" @click="workshopData.weaponModel = false">{{ t('basic.button.cancel') }}</v-btn>
+      </v-card-actions>
+    </v-dialog>
+    <v-dialog v-model="workshopData.secondaryWeaponModel"
+              ref="secondaryWeaponModel"
+              content-class="pa-0"
+              max-height="90%"
+              min-height="300"
+              min-width="450"
+              max-width="700">
+      <v-card v-slot:default>
+        <b class="font-weight-bold text-h5 pa-5">{{ t('assembly.workshop.insertSecondaryWeaponTitle') }}</b>
+        <v-row class="ga-0 pa-2 pb-5">
+          <v-col cols="2"
+                 v-for="(secondaryWeapon, secondaryWeaponIndex) in getSecondaryWeapon"
+                 :key="secondaryWeaponIndex">
+            <v-badge :color="workshopData.secondaryWeaponSelect ? workshopData.secondaryWeaponSelect!.id == secondaryWeapon!.id ? `var(--main-color)` : 'transparent' : 'transparent'">
+              <template v-slot:badge>
+                <v-icon icon="mdi-check" v-if="workshopData.secondaryWeaponSelect && workshopData.secondaryWeaponSelect!.id == secondaryWeapon!.id"></v-icon>
+              </template>
+              <ItemSlotBase
+                  size="92px" class="pa-1"
+                  @click="workshopData.secondaryWeaponSelect = secondaryWeapon"
+                  :class="[
                                           workshopData.secondaryWeaponSelect ? workshopData.secondaryWeaponSelect!.id == secondaryWeapon!.id ? 'bg-amber' : '' : ''
                                       ]">
-              <ItemIconWidget :id="secondaryWeapon.id" :is-open-detail="false" :is-show-open-detail="false"></ItemIconWidget>
-            </ItemSlotBase>
-          </v-badge>
-        </v-col>
-      </v-row>
-    </v-card>
-    <v-card-actions class="bg-amber">
-      <v-btn variant="tonal" @click="onSelectSecondaryWeapon" v-if="workshopData.secondaryWeaponSelect">{{ t('basic.button.submit') }}</v-btn>
-      <v-btn variant="tonal" class="ml-1" @click="workshopData.secondaryWeaponModel = false">{{ t('basic.button.cancel') }}</v-btn>
-    </v-card-actions>
-  </v-dialog>
-  <v-dialog v-model="workshopData.displayModel"
-            content-class="pa-0"
-            max-height="90%"
-            min-height="300"
-            min-width="450"
-            max-width="700">
-    <v-card v-slot:default>
-      <b class="font-weight-bold text-h5 pa-5"> {{ t('assembly.workshop.insertDisplayTitle') }}</b>
-      <v-row class="ga-0 pa-2 pb-5">
-        <v-col cols="2"
-               v-for="(display, displayIndex) in getShipDisplayList"
-               :key="displayIndex">
-          <v-badge :color="workshopData.shipDisplaySelect ? workshopData.shipDisplaySelect!.id == display!.id ? `var(--main-color)` : 'transparent' : 'transparent'">
-            <template v-slot:badge>
-              <v-icon icon="mdi-check" v-if="workshopData.shipDisplaySelect && workshopData.shipDisplaySelect!.id == display!.id"></v-icon>
-            </template>
-            <ItemSlotBase
-                size="92px" class="pa-1"
-                @click="workshopData.shipDisplaySelect = display"
-                :class="[
+                <ItemIconWidget :id="secondaryWeapon.id" :is-open-detail="false" :is-show-open-detail="false"></ItemIconWidget>
+              </ItemSlotBase>
+            </v-badge>
+          </v-col>
+        </v-row>
+      </v-card>
+      <v-card-actions class="bg-amber">
+        <v-btn variant="tonal" @click="onSelectSecondaryWeapon" v-if="workshopData.secondaryWeaponSelect">{{ t('basic.button.submit') }}</v-btn>
+        <v-btn variant="tonal" class="ml-1" @click="workshopData.secondaryWeaponModel = false">{{ t('basic.button.cancel') }}</v-btn>
+      </v-card-actions>
+    </v-dialog>
+    <v-dialog v-model="workshopData.displayModel"
+              content-class="pa-0"
+              max-height="90%"
+              min-height="300"
+              min-width="450"
+              max-width="700">
+      <v-card v-slot:default>
+        <b class="font-weight-bold text-h5 pa-5"> {{ t('assembly.workshop.insertDisplayTitle') }}</b>
+        <v-row class="ga-0 pa-2 pb-5">
+          <v-col cols="2"
+                 v-for="(display, displayIndex) in getShipDisplayList"
+                 :key="displayIndex">
+            <v-badge :color="workshopData.shipDisplaySelect ? workshopData.shipDisplaySelect!.id == display!.id ? `var(--main-color)` : 'transparent' : 'transparent'">
+              <template v-slot:badge>
+                <v-icon icon="mdi-check" v-if="workshopData.shipDisplaySelect && workshopData.shipDisplaySelect!.id == display!.id"></v-icon>
+              </template>
+              <ItemSlotBase
+                  size="92px" class="pa-1"
+                  @click="workshopData.shipDisplaySelect = display"
+                  :class="[
                                           workshopData.shipDisplaySelect ? workshopData.shipDisplaySelect!.id == display!.id ? 'bg-amber' : '' : ''
                                       ]">
-              <ItemIconWidget :id="display.id" :is-open-detail="false" :is-show-open-detail="false"></ItemIconWidget>
-            </ItemSlotBase>
-          </v-badge>
-        </v-col>
-      </v-row>
-    </v-card>
-    <v-card-actions class="bg-amber">
-      <v-btn variant="tonal" @click="onSelectDisplayShip" v-if="workshopData.shipDisplaySelect">{{ t('basic.button.submit') }}</v-btn>
-      <v-btn variant="tonal" class="ml-1" @click="workshopData.weaponModel = false">{{ t('basic.button.cancel') }}</v-btn>
-    </v-card-actions>
-  </v-dialog>
-  <!-- 船甲 -->
-  <v-dialog v-model="workshopData.armorModel"
-            content-class="pa-0"
-            max-height="90%"
-            min-height="300"
-            min-width="450"
-            max-width="700">
-    <v-card v-slot:default>
-      <b class="font-weight-bold text-h5 pa-5"> {{ t('assembly.workshop.insertArmorTitle') }}</b>
-      <v-row class="ga-0 pa-2 pb-5">
-        <v-col cols="2"
-               v-for="(armor, armorIndex) in getShipArmorList"
-               :key="armorIndex">
-          <v-badge :color="workshopData.armorSelect ? workshopData.armorSelect!.id == armor!.id ? `var(--main-color)` : 'transparent' : 'transparent'">
-            <template v-slot:badge>
-              <v-icon icon="mdi-check" v-if="workshopData.armorSelect && workshopData.armorSelect!.id == armor!.id"></v-icon>
-            </template>
-            <ItemSlotBase
-                size="92px" class="pa-1"
-                @click="workshopData.armorSelect = armor"
-                :class="[workshopData.armorSelect ? workshopData.armorSelect!.id == armor!.id ? 'bg-amber' : '' : '']">
-              <ItemIconWidget :id="armor.id" :is-open-detail="false" :is-show-open-detail="false"></ItemIconWidget>
-            </ItemSlotBase>
-          </v-badge>
-        </v-col>
-      </v-row>
-    </v-card>
-    <v-card-actions class="bg-amber">
-      <v-btn variant="tonal" @click="onSelectArmor" v-if="workshopData.armorSelect">{{ t('basic.button.submit') }}</v-btn>
-      <v-btn variant="tonal" class="ml-1" @click="workshopData.armorModel = false">{{ t('basic.button.cancel') }}</v-btn>
-    </v-card-actions>
-  </v-dialog>
+                <ItemIconWidget :id="display.id" :is-open-detail="false" :is-show-open-detail="false"></ItemIconWidget>
+              </ItemSlotBase>
+            </v-badge>
+          </v-col>
+        </v-row>
+      </v-card>
+      <v-card-actions class="bg-amber">
+        <v-btn variant="tonal" @click="onSelectDisplayShip" v-if="workshopData.shipDisplaySelect">{{ t('basic.button.submit') }}</v-btn>
+        <v-btn variant="tonal" class="ml-1" @click="workshopData.displayModel = false">{{ t('basic.button.cancel') }}</v-btn>
+      </v-card-actions>
+    </v-dialog>
+    <!-- 船甲 -->
+    <v-dialog v-model="workshopData.armorModel"
+              content-class="pa-0"
+              max-height="90%"
+              min-height="300"
+              min-width="450"
+              max-width="700">
+      <v-card v-slot:default>
+        <b class="font-weight-bold text-h5 pa-5"> {{ t('assembly.workshop.insertArmorTitle') }}</b>
+        <v-row class="ga-0 pa-2 pb-5">
+          <v-col cols="2"
+                 v-for="(armor, armorIndex) in getShipArmorList"
+                 :key="armorIndex">
+            <v-badge :color="workshopData.armorSelect ? workshopData.armorSelect!.id == armor!.id ? `var(--main-color)` : 'transparent' : 'transparent'">
+              <template v-slot:badge>
+                <v-icon icon="mdi-check" v-if="workshopData.armorSelect && workshopData.armorSelect!.id == armor!.id"></v-icon>
+              </template>
+              <ItemSlotBase
+                  size="92px" class="pa-1"
+                  @click="workshopData.armorSelect = armor"
+                  :class="[workshopData.armorSelect ? workshopData.armorSelect!.id == armor!.id ? 'bg-amber' : '' : '']">
+                <ItemIconWidget :id="armor.id" :is-open-detail="false" :is-show-open-detail="false"></ItemIconWidget>
+              </ItemSlotBase>
+            </v-badge>
+          </v-col>
+        </v-row>
+      </v-card>
+      <v-card-actions class="bg-amber">
+        <v-btn variant="tonal" @click="onSelectArmor" v-if="workshopData.armorSelect">{{ t('basic.button.submit') }}</v-btn>
+        <v-btn variant="tonal" class="ml-1" @click="workshopData.armorModel = false">{{ t('basic.button.cancel') }}</v-btn>
+      </v-card-actions>
+    </v-dialog>
+  </template>
 </template>
 
 <style lang="less">

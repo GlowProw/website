@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
-import {ref, toRaw, watch} from "vue";
+import {onMounted, ref, toRaw, watch} from "vue";
 import {useRoute} from "vue-router";
 
 import {Seasons, Ships} from "glow-prow-data";
 import {Items} from "glow-prow-data/src/entity/Items.ts";
 
-const poops = withDefaults(defineProps<{ readonly?: boolean, tags: any[] }>(), {
+const poops = withDefaults(defineProps<{ readonly?: boolean, tags: string[], class?: string }>(), {
       readonly: false,
-      tags: []
+      tags: () => [],
+      class: ''
     }),
     route = useRoute(),
     ships = Ships,
@@ -40,6 +41,12 @@ const emit = defineEmits(['change'])
 
 watch(() => poops.tags, (value) => {
   publishData.value.tags = value;
+}, {
+  deep: true,
+})
+
+onMounted(() => {
+  publishData.value.tags = poops.tags;
 })
 
 /**
@@ -75,6 +82,7 @@ const onUpdateTags = (data: any) => {
   <v-chip-group
       v-model="publishData.tags"
       :value="publishData.tags"
+      :class="poops.class"
       @update:modelValue="onUpdateTags"
       column
       multiple>

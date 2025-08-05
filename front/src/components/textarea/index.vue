@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import {computed, onBeforeUnmount, onMounted, Ref, ref, watch} from 'vue'
-import {Editor, EditorContent, EditorOptions} from '@tiptap/vue-3'
+import {Editor, EditorContent, EditorOptions, Extension} from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
-import Paragraph from '@tiptap/extension-paragraph'
 import Placeholder from '@tiptap/extension-placeholder'
 import {ItemNode as ItemWidget} from './item/index'
 import {ShipNode as ShipWidget} from './ship/index'
@@ -29,7 +28,7 @@ const props = defineProps({
   },
   maxlength: {
     type: Number,
-    default: 500
+    default: 5000
   },
   height: {
     type: String,
@@ -58,7 +57,6 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:modelValue'])
-
 const tiptap: Ref<Editor> = ref<Editor | null>(null)
 const isOpenEmoji = ref(false)
 const isOpenMod = ref(false)
@@ -72,20 +70,49 @@ const itemWidget = ref<InstanceType<typeof ItemView> | null>(null)
 const modWidget = ref<InstanceType<typeof ItemView> | null>(null)
 const ultimateWidget = ref<InstanceType<typeof ItemView> | null>(null)
 
-const tiptapTextEditor = ref<HTMLElement | null>(null)
+const
+    tiptapTextEditor = ref<HTMLElement | null>(null),
+    editor = computed(() => tiptap.value),
+    toolbarAs = computed(() => {
+      return flatMap(props.toolbar, item => {
+        if (typeof item === 'string') return item
+        return item.map((obj: ToolbarItem) => obj.list || obj || '')
+      })
+    })
 
-const editor = computed(() => tiptap.value)
-
-const toolbarAs = computed(() => {
-  return flatMap(props.toolbar, item => {
-    if (typeof item === 'string') return item
-    return item.map((obj: ToolbarItem) => obj.list || obj || '')
-  })
-})
+let charCount = ref(0)
 
 watch(() => props.readonly, (value) => {
   tiptap.value.options.editable = !value;
 })
+
+const MaxLength = Extension.create({
+  addKeyboardShortcuts() {
+    return {
+      Enter: ({editor}) => {
+        if (editor.getText().length >= props.maxlength) {
+          // 阻止换行
+          return true;
+        }
+        return false;
+      },
+    };
+  },
+  addCommands() {
+    return {
+      enforceMaxLength: () => ({ commands }) => {
+        const html = this.editor.getHTML();
+        if (html.length > props.maxlength) {
+          return commands.setContent(html.slice(0, props.maxlength - 3));
+        }
+        return true;
+      },
+    };
+  },
+  onUpdate() {
+    this.editor.commands.enforceMaxLength();
+  },
+});
 
 const flatMap = (array: any[], callback: (item: any) => any) => {
   return array.reduce((acc: any[], item: any) => {
@@ -145,7 +172,6 @@ const onInsertEmote = (type: string, val: { name: string }) => {
 }
 
 
-
 const onInsertUltimate = (id: string) => {
   editor.value?.commands.insertUltimate({id})
   isOpenUltimate.value = !isOpenUltimate
@@ -166,7 +192,7 @@ const onInitEdit = () => {
   tiptap.value = new Editor({
     content: editorContent.value,
     parseOptions: {
-      preserveWhitespace: 'full'
+      preserveWhitespace: 'full',
     },
     editable: !props.readonly,
     enablePasteRules: ['code'],
@@ -182,6 +208,7 @@ const onInitEdit = () => {
       Placeholder.configure({
         placeholder: props.placeholder
       }),
+      MaxLength,
       ItemWidget,
       ShipWidget,
       EmoteWidget,
@@ -192,6 +219,15 @@ const onInitEdit = () => {
       editor.options.keyboardShortcuts = {}
     },
     onUpdate({editor}) {
+      // const html = editor.getHTML();
+      // if (html.length > props.maxlength) {
+      //   // 撤销最后一步操作
+      //   editor.commands.undo();
+      //   // 截断 HTML
+      //   const truncatedHTML = html.slice(0, props.maxlength);
+      //   editor.commands.setContent(truncatedHTML);
+      // }
+
       onEditorChange(editor.isEmpty ? '' : editor.getHTML())
     }
   } as Partial<EditorOptions>)

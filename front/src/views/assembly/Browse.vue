@@ -92,7 +92,7 @@ watch(browseData, (newList: ResultData) => {
     nextTick(() => {
       browseAssemblyWidgetRefs.value.forEach((widget, index) => {
         if (widget?.onLoadJson) {
-          widget.onLoadJson(newList.data[index].assembly);
+          widget.onLoadJson(newList.data[index].assembly, newList.data[index].attr.assemblyUseVersion);
         }
       });
     });
@@ -124,8 +124,8 @@ watch(browseData, (newList: ResultData) => {
 
         <div class="position-absolute top-0 right-0 opacity-10 pt-10 d-flex ga-2">
           <v-icon icon="mdi-account-heart" size="120"></v-icon>
-          <v-icon icon="mdi-assistant" size="120" ></v-icon>
-          <v-icon icon="mdi-ship-wheel" size="120" ></v-icon>
+          <v-icon icon="mdi-assistant" size="120"></v-icon>
+          <v-icon icon="mdi-ship-wheel" size="120"></v-icon>
         </div>
       </v-container>
     </template>

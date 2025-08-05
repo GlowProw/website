@@ -115,6 +115,8 @@ const {targetElement, isVisible} = useIntersectionObserver({
   <v-tooltip
       v-if="i && i.id"
       :disabled="!props.isShowTooltip"
+      :offset="[40, 0]"
+      location="right top"
       min-width="450"
       max-width="450"
       interactive
