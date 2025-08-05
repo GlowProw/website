@@ -46,14 +46,16 @@ const {t} = useI18n()
                   <li>
                     <a target="_blank" href="https://kook.vip/2s0eQP">Kook社区</a>
                   </li>
-                  <li>碧海黑帆吧</li>
+                  <li>
+                    <a href="https://tieba.baidu.com/p/9886565445" target="_blank">碧海黑帆吧</a>
+                  </li>
                 </ul>
               </v-col>
               <v-col cols="12" sm="6" md="6" lg="3">
                 <b class="text-amber">联系</b>
                 <ul>
                   <li><a href="/about">关于</a></li>
-                  <li><a href="https://tieba.baidu.com/p/9886565445">帮助我们翻译</a></li>
+                  <li><a>帮助我们翻译</a></li>
                 </ul>
               </v-col>
               <v-col cols="12" sm="6" md="6" lg="3">
