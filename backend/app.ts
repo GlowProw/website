@@ -17,6 +17,7 @@ import logger from "./logger";
 // import routers
 import {cleanExpiredTeamUps, router as team_index} from "./src/routers/team";
 import user_index from './src/routers/user'
+import account_index from './src/routers/account'
 import calendar_index from './src/routers/calendar'
 import assembly_index from './src/routers/assembly'
 import links_index from './src/routers/likes'
@@ -80,6 +81,7 @@ try {
         res.status(200).json({success: 1, code: 'captcha.gen', data: generateCaptcha()});
     });
     app.use('/api', user_index, team_index);
+    app.use('/api/user', account_index);
     app.use('/api/calendar', calendar_index);
     app.use('/api/assembly', assembly_index);
     app.use('/api/likes', links_index)

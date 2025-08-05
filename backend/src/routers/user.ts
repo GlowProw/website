@@ -2,7 +2,6 @@ import express, {Request, Response} from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import {body as checkbody, validationResult} from "express-validator";
-import {query as checkQuery} from "express-validator/lib/middlewares/validation-chain-builders";
 
 import AppDataSource from "../ormconfig";
 import {Users} from "../entity/Users";
@@ -10,9 +9,6 @@ import verifyCaptcha from "../middleware/captcha";
 import config from "../../config";
 import {loginRateLimiter, registerRateLimiter} from "../middleware/rateLimiter";
 import logger from "../../logger";
-import db from "../../mysql";
-import {verifyJWT} from "../middleware/auth";
-import {RequestHasAccount} from "../types/auth";
 
 const router = express.Router();
 
@@ -95,75 +91,5 @@ router.post('/login', loginRateLimiter, verifyCaptcha, [
     }
 });
 
-/**
- * 获取用户自己的评论
- */
-router.get('/comments', verifyJWT, [
-    checkQuery("page").optional().isInt({min: 1}).toInt(),
-    checkQuery("pageSize").optional().isInt({min: 1, max: 50}).toInt(),
-], async (req: RequestHasAccount, res: any) => {
-    try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({error: 1, code: 'invalidInput', details: errors.array()});
-        }
-
-        const userId = req.user.id;
-        const page = parseInt(req.query.page as string) || 1;
-        const pageSize = Math.min(
-            parseInt(req.query.pageSize as string) || 10,
-            10
-        );
-        const offset = (page - 1) * pageSize;
-
-        // 获取评论总数
-        const totalCountResult = await db('comments as c')
-            .count('* as count')
-            .where('c.userId', userId)
-            .whereNull('c.deletedTime')
-            .first();
-
-        const totalCount = totalCountResult ? parseInt(totalCountResult.count as string) : 0;
-        const totalPages = Math.ceil(totalCount / pageSize);
-
-        // 获取用户的所有评论
-        const comments = await db('comments as c')
-            .select(
-                'c.id',
-                'c.targetType',
-                'c.targetId',
-                'c.content',
-                'c.createdTime',
-                'c.updatedTime',
-                db.raw('COUNT(r.id) as reply_count')
-            )
-            .leftJoin('replies as r', function () {
-                this.on('r.commentId', '=', 'c.id')
-                    .andOnNull('r.deletedTime')
-            })
-            .where('c.userId', userId)
-            .whereNull('c.deletedTime')
-            .groupBy('c.id')
-            .orderBy('c.createdTime', 'desc')
-            .limit(pageSize)
-            .offset(offset);
-
-        res.json({
-            code: 'success',
-            data: {
-                items: comments,
-                pagination: {
-                    page,
-                    pageSize,
-                    totalCount,
-                    totalPages
-                }
-            }
-        });
-    } catch (e) {
-        logger.error(e);
-        res.status(500).json({error: 1, code: 'serverError'});
-    }
-});
 
 export default router;

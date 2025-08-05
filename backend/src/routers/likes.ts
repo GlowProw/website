@@ -4,18 +4,24 @@ import {likesRateLimiter} from "../middleware/rateLimiter";
 import {verifyJWT} from "../middleware/auth";
 import {RequestHasAccount} from "../types/auth";
 import logger from "../../logger";
+import {validationResult} from "express-validator";
+import {body as checkbody} from "express-validator/lib/middlewares/validation-chain-builders";
 
 const router = express.Router();
 
 /**
  * 检查用户是否点赞过某个目标
  */
-router.get('/check', likesRateLimiter, verifyJWT, async (req: RequestHasAccount, res) => {
+router.get('/check', likesRateLimiter, verifyJWT, [
+    checkbody('targetType').isString(),
+    checkbody('targetId').isString(),
+], async (req: RequestHasAccount, res: any) => {
     try {
         const {targetType, targetId} = req.query;
 
         const like = await db('likes')
             .where({userId: req.user.id, targetType, targetId})
+            .andWhere('valid', '1')
             .first();
 
         res.json({isLiked: !!like});
@@ -30,25 +36,35 @@ router.get('/check', likesRateLimiter, verifyJWT, async (req: RequestHasAccount,
  */
 router.post('/toggle', likesRateLimiter, verifyJWT,
     [
-
+        checkbody('targetType').isString(),
+        checkbody('targetId').isString(),
     ],
     async (req: RequestHasAccount, res: any) => {
         try {
+            const validateErr = validationResult(req);
+            if (!validateErr.isEmpty())
+                return res.status(400).json({error: 1, code: 'likes.bad', message: validateErr.array()});
+
             const {targetType, targetId} = req.body;
 
             // 检查是否已经点赞
             const existingLike = await db('likes')
                 .where({userId: req.user.id, targetType, targetId})
+                .andWhere('valid', '1')
+
                 .first();
 
             if (existingLike) {
                 // 取消点赞
-                await db('likes').where({id: existingLike.id}).del();
+                await db('likes')
+                    .where({id: existingLike.id}).del()
+                    .andWhere('valid', '1');
                 return res.json({isLiked: false, action: 'unliked'});
             }
 
             // 新增点赞
-            await db('likes').insert({userId: req.user.id, targetType, targetId});
+            await db('likes')
+                .insert({userId: req.user.id, targetType, targetId, valid: 1});
             res.status(200).json({isLiked: true, code: 'like.ok', action: 'liked'});
         } catch (e) {
             logger.error('赞 错误:', e)
@@ -57,12 +73,16 @@ router.post('/toggle', likesRateLimiter, verifyJWT,
     },
 );
 
-router.get('/count', likesRateLimiter, async (req, res) => {
+router.get('/count', likesRateLimiter, [
+    checkbody('targetType').isString(),
+    checkbody('targetId').isString(),
+], async (req: RequestHasAccount, res: any) => {
     try {
         const {targetType, targetId} = req.query;
 
         const count = await db('likes')
             .where({targetType, targetId})
+            .andWhere('valid', '1')
             .count('id as likeCount')
             .first();
 

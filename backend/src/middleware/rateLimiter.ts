@@ -55,6 +55,12 @@ const likesRateLimiter = rateLimit({
     message: {error: 1, code: 'request.rateLimited', message: 'slow down please.'}
 });
 
+const accountRateLimiter = rateLimit({
+    windowMs: 20000,
+    max: 10,
+    message: {error: 1, code: 'request.rateLimited', message: 'slow down please.'}
+});
+
 export {
     limiter,
     captchaRateLimiter,
@@ -62,5 +68,6 @@ export {
     registerRateLimiter,
     loginRateLimiter,
     calendarRateLimiter,
-    likesRateLimiter
+    likesRateLimiter,
+    accountRateLimiter
 }

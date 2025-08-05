@@ -2,9 +2,10 @@ import express, {Response} from "express";
 import {body as checkbody, query as checkquery, validationResult} from "express-validator";
 import logger from "../../logger";
 import db from "../../mysql";
-import {verifyJWT} from "../middleware/auth";
+import {supposeBackJWT, verifyJWT} from "../middleware/auth";
 import {v6 as uuidv6} from "uuid"
 import {sanitizeRichText, xss} from "../lib/content";
+import {assemblySetAttributes, assemblyShowAttributes} from "../lib/assembly";
 
 const router = express.Router();
 const assemblyConfig = {
@@ -17,7 +18,9 @@ const assemblyConfig = {
  * @param data
  */
 function handlingLabels(data: string[]) {
-    return data.map(i => xss(i));
+    if (data)
+        return data.map(i => xss(i));
+    return data
 }
 
 /**
@@ -27,7 +30,9 @@ router.post('/publish', verifyJWT, [
     checkbody("name").isString().trim().isLength({min: 1, max: assemblyConfig.nameMaxLength}),
     checkbody('description').optional().isString().trim().isLength({max: assemblyConfig.descriptionMaxLength}),
     checkbody('tags').optional().isArray(),
-    checkbody('data').isJSON(),
+    checkbody('data').isObject(),
+    checkbody('attr').optional({nullable: true}).isObject(),
+    checkbody('visibility').optional().default('publicly').isIn(['publicly', 'private']),
     checkbody('localUid').optional().isString().trim().isLength({max: 32}),
 ], async (req: any, res: Response) => {
     try {
@@ -35,19 +40,7 @@ router.post('/publish', verifyJWT, [
         if (!validateErr.isEmpty())
             return res.status(400).json({error: 1, code: 'publish.bad', message: validateErr.array()});
 
-        const {name, description, tags, data, localUid} = req.body;
-
-        // 验证JSON数据是否有效
-        let parsedData;
-        try {
-            parsedData = JSON.parse(data);
-        } catch (e) {
-            return res.status(400).json({
-                error: 1,
-                message: 'publish.invalidData',
-                details: '配装数据必须是有效的JSON格式'
-            });
-        }
+        const {name, description, tags, data, attr, visibility, localUid} = req.body;
 
         // 检查配装名称是否已存在
         const existingAssembly = await db('assembly')
@@ -63,17 +56,19 @@ router.post('/publish', verifyJWT, [
         }
 
         // 准备插入数据库的数据
-        const assemblyData = {
+        let assemblyData: any = {
             name,
             description,
             uuid: uuidv6(),
-            tags: JSON.stringify(handlingLabels(tags)),
-            data: JSON.stringify(parsedData),
+            data: JSON.stringify(data),
             userId: req.user.id,
+            visibility: visibility,
             createdTime: db.fn.now(),
             updatedTime: db.fn.now(),
-            localUid: localUid || null
         };
+
+        if (tags) assemblyData.tags = JSON.stringify(handlingLabels(tags));
+        if (attr) assemblyData.attr = JSON.stringify(assemblySetAttributes(assemblyData.attr, attr, true));
 
         // 执行插入操作
         const [insertedId] = await db('assembly')
@@ -144,8 +139,14 @@ router.get('/list', [
                 'assembly.updatedTime',
                 'assembly.userId',
                 'assembly.data',
+                'assembly.visibility',
                 db.raw('(SELECT COUNT(*) FROM likes WHERE targetType = "assembly" AND targetId = assembly.uuid) as likes')
             )
+            .where('assembly.visibility', '=', 'publicly')
+            // .where(function () {
+            //     this.where(db.raw('assembly.attr->>"$.password" IS NULL'))
+            //         .orWhere(db.raw('assembly.attr->>"$.password"'), '=', '');
+            // })
             .leftJoin('users', 'assembly.userId', 'users.id');
 
         // 关键词模糊查询（配装名称或用户名称）
@@ -250,14 +251,16 @@ router.post('/edit', verifyJWT, [
     checkbody("name").isString().trim().isLength({min: 1, max: assemblyConfig.nameMaxLength}),
     checkbody('description').optional({nullable: true}).isString().trim().isLength({max: assemblyConfig.descriptionMaxLength}),
     checkbody('tags').optional({nullable: true}).isArray(),
-    checkbody('data').isJSON(),
+    checkbody('visibility').optional().isIn(['publicly', 'private']),
+    checkbody('attr').optional({nullable: true}).isObject(),
+    checkbody('data').isObject(),
 ], async (req: any, res: Response) => {
     try {
         const validateErr = validationResult(req);
         if (!validateErr.isEmpty())
             return res.status(400).json({error: 1, code: 'edit.bad', message: validateErr.array()});
 
-        const {uuid, name, description, tags, data} = req.body;
+        const {uuid, name, description, tags, visibility, attr, data} = req.body;
 
         // 检查配装是否存在
         const assembly = await db('assembly')
@@ -269,7 +272,7 @@ router.post('/edit', verifyJWT, [
             return res.status(404).json({error: 1, code: 'edit.notFound'});
         }
 
-        // 检查用户是否有权限编辑 (假设req.user中包含当前用户信息)
+        // 检查用户是否有权限编辑
         if (assembly.userId !== req.user.id) {
             return res.status(403).json({error: 1, code: 'edit.forbidden'});
         }
@@ -278,11 +281,14 @@ router.post('/edit', verifyJWT, [
         const updateData: any = {
             name: sanitizeRichText(name),
             updatedTime: db.fn.now(),
-            data,
+            data: JSON.stringify(data),
         };
 
         if (description) updateData.description = sanitizeRichText(description);
         if (tags) updateData.tags = JSON.stringify(handlingLabels(tags));
+        if (visibility) updateData.visibility = visibility;
+        if (attr) updateData.attr = JSON.stringify(assemblySetAttributes(assembly.attr, attr, true));
+
 
         // 执行更新
         await db('assembly')
@@ -298,6 +304,107 @@ router.post('/edit', verifyJWT, [
 });
 
 /**
+ * 编辑配装设置
+ * 路由: POST /attr/edit
+ */
+router.post('/attr/edit', verifyJWT, [
+    checkbody('uuid').isString().trim().isLength({min: 1}),
+    checkbody('attr').optional({nullable: true}).isObject(),
+    checkbody('visibility').optional().isIn(['publicly', 'private']),
+], async (req: any, res: Response) => {
+    try {
+        const validateErr = validationResult(req);
+        if (!validateErr.isEmpty())
+            return res.status(400).json({error: 1, code: 'assembly.editAttr.bad', message: validateErr.array()});
+
+        const {uuid, attr, visibility} = req.body;
+
+        const assembly = await db('assembly')
+            .where('uuid', uuid)
+            .andWhere('userId', req.user.id)
+            .first();
+
+        if (!assembly) {
+            return res.status(404).json({error: 1, code: 'assembly.editAttr.notFound'});
+        }
+
+        if (attr?.password) {
+            if (!/^[a-zA-Z0-9_]+$/.test(attr.password)) {
+                return res.status(400).json({
+                    error: 1,
+                    code: 'assembly.editAttr.invalidPassword',
+                    message: 'Password can only contain letters, numbers and underscores'
+                });
+            }
+
+            if (attr.password.length < 4) {
+                return res.status(400).json({
+                    error: 1,
+                    code: 'assembly.editAttr.passwordTooShort',
+                    message: 'Password must be at least 4 characters'
+                });
+            }
+        }
+
+        const updateData: any = {
+            updatedTime: db.fn.now()
+        };
+
+        if (visibility) updateData.visibility = visibility;
+        if (attr) updateData.attr = JSON.stringify(assemblySetAttributes(assembly.attr, attr, false));
+
+        await db('assembly')
+            .where('uuid', uuid)
+            .andWhere('userId', req.user.id)
+            .update(updateData);
+
+        res.status(200).json({code: 'assembly.editAttr.ok'});
+    } catch (error) {
+        logger.error('update editAttr error:', error);
+        res.status(500).json({error: 1, code: 'assembly.editAttr.error'});
+    }
+});
+
+
+/**
+ * 获取配装设置
+ * 路由: GET /attr
+ */
+router.get('/attr', verifyJWT, [
+    checkquery('uuid').isString().trim().isLength({min: 1}),
+], async (req: any, res: Response) => {
+    try {
+        const validateErr = validationResult(req);
+        if (!validateErr.isEmpty())
+            return res.status(400).json({error: 1, code: 'assembly.getAttr.bad', message: validateErr.array()});
+
+        const {uuid} = req.query;
+
+        const assembly = await db('assembly')
+            .where('uuid', uuid)
+            .where('userId', req.user.id)
+            .select('assembly.uuid', 'assembly.attr', 'assembly.visibility')
+            .first();
+
+        // 检查配装是否存在
+        if (!assembly) {
+            return res.status(404).json({error: 1, code: 'assembly.getAttr.notFound'});
+        }
+
+        const data = {
+            ...assembly || {},
+            password: assembly.attr && assembly.attr.password ? '******' : '',
+            attr: assemblyShowAttributes(assembly.attr)
+        }
+
+        res.status(200).json({code: 'assembly.getAttr.ok', data});
+    } catch (error) {
+        logger.error('update editAttr error:', error);
+        res.status(500).json({error: 1, code: 'assembly.editAttr.error'});
+    }
+});
+
+/**
  * 获取配装详情
  * 路由: GET /item
  * 参数:
@@ -305,35 +412,68 @@ router.post('/edit', verifyJWT, [
  */
 router.get('/item', [
     checkquery('uuid').isString().trim().isLength({min: 1}),
-], async (req: any, res: Response) => {
+    checkquery('password').optional({nullable: true}).isString().trim().matches(/^[a-zA-Z0-9_]+$/).isLength({min: 1, max: 32}),
+], supposeBackJWT, async (req: any, res: Response) => {
     try {
         const validateErr = validationResult(req);
         if (!validateErr.isEmpty())
-            return res.status(400).json({error: 1, code: 'detail.bad', message: validateErr.array()});
+            return res.status(400).json({error: 1, code: 'detail.detail.bad', message: validateErr.array()});
 
-        const {uuid} = req.query;
+        const {uuid, password} = req.query;
 
         const assembly = await db('assembly')
-            .join('users', 'assembly.userId', 'users.id')
+            .leftJoin('users', 'assembly.userId', 'users.id')
             .where('assembly.uuid', uuid)
             .select(
                 'users.username', 'users.id as userId',
                 'assembly.uuid', 'assembly.userId', 'assembly.name', 'assembly.description',
-                'assembly.createdTime', 'assembly.updatedTime', 'assembly.tags', 'assembly.data as assembly'
+                'assembly.visibility', 'assembly.attr',
+                'assembly.createdTime', 'assembly.updatedTime', 'assembly.attr', 'assembly.tags', 'assembly.data as assembly'
             )
             .first();
 
         if (!assembly) {
-            return res.status(404).json({code: 404, message: 'assembly.notFound'});
+            return res.status(404).json({error: 1, code: 'assembly.detail.notFound'});
         }
 
+        const isOwner = req.user && req.user.id === assembly.userId;
+
+        if (!isOwner) {
+            if (assembly.visibility === 'private') {
+                return res.status(200).json({
+                    error: 1,
+                    code: 'assembly.detail.notDisclosed',
+                    data: {
+                        isVisibility: false
+                    }
+                });
+            }
+
+            if (assembly.attr.password && assembly.attr.password !== password) {
+                return res.status(200).json({
+                    error: 1,
+                    code: 'assembly.detail.noPermission',
+                    data: {
+                        isPassword: true
+                    }
+                });
+            }
+        }
+
+        if (assembly.attr)
+            assembly.attr = assemblyShowAttributes(assembly.attr);
+
         res.status(200).json({
-            code: 0,
-            data: assembly
+            code: 'assembly.detail.ok',
+            data: {
+                ...assembly,
+                isVisibility: true,
+                isOwner: isOwner
+            },
         });
     } catch (error) {
         logger.error('detail error:', error);
-        res.status(500).json({error: 1, code: 'detail.error'});
+        res.status(500).json({error: 1, code: 'assembly.detail.error'});
     }
 });
 
@@ -346,7 +486,7 @@ router.post('/delete', verifyJWT, [
     try {
         const validateErr = validationResult(req);
         if (!validateErr.isEmpty())
-            return res.status(400).json({error: 1, code: 'delete.bad', message: validateErr.array()});
+            return res.status(400).json({error: 1, code: 'assembly.delete.bad', message: validateErr.array()});
 
         const {uuid} = req.body;
 
@@ -357,12 +497,12 @@ router.post('/delete', verifyJWT, [
             .first();
 
         if (!assembly) {
-            return res.status(404).json({error: 1, code: 'assembly.notFound'});
+            return res.status(404).json({error: 1, code: 'assembly.delete.notFound'});
         }
 
         // 检查用户是否有权限删除
         if (assembly.userId !== req.user.id) {
-            return res.status(403).json({error: 1, code: 'delete.forbidden'});
+            return res.status(403).json({error: 1, code: 'assembly.delete.forbidden'});
         }
 
         // 执行删除
@@ -370,6 +510,7 @@ router.post('/delete', verifyJWT, [
             .where('uuid', uuid)
             .delete();
 
+        // 点赞， 软删除
         await db('likes')
             .where('targetId', uuid)
             .andWhere('targetType', 'assembly')
@@ -378,10 +519,27 @@ router.post('/delete', verifyJWT, [
                 valid: 0
             })
 
-        res.status(200).json({code: 'delete.ok'});
+        // 评论和回复， 软删除
+        await db('comments')
+            .where('targetId', uuid)
+            .andWhere('targetType', 'assembly')
+            .andWhere('valid', 1)
+            .update({
+                valid: 0
+            })
+
+        await db('replies')
+            .where('targetId', uuid)
+            .andWhere('targetType', 'assembly')
+            .andWhere('valid', 1)
+            .update({
+                valid: 0
+            })
+
+        res.status(200).json({code: 'assembly.delete.ok'});
     } catch (error) {
         logger.error('delete error:', error);
-        res.status(500).json({error: 1, code: 'delete.error'});
+        res.status(500).json({error: 1, code: 'assembly.delete.error'});
     }
 });
 
