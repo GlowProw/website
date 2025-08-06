@@ -3,32 +3,73 @@ const assemblyAttributes: any = {
         type: "string",
         get: false,
         set: true,
+        isprivate: true,
         default: "",
     },
     "backgroundPresentation": {
         type: "string",
         get: true,
         set: true,
+        isprivate: false,
         default: "",
     },
     "externalLinks": {
         type: "object",
         get: true,
         set: true,
+        isprivate: false,
         default: {
             "bilibili": "",
             "youtube": ""
         },
     },
-    "assemblyUseVersion": {type: "string", get: true, set: true, default: ''},
-    "language": {type: "array", get: true, set: true, isprivate: true, default: ['zh-CN']},
+    "isComment": {type: "boolean", get: true, set: true, isprivate: false, default: true},
+    "isLike": {type: "boolean", get: true, set: true, isprivate: false, default: true},
+    "assemblyUseVersion": {type: "string", get: true, set: true, isprivate: false, default: ''},
+    "language": {type: "array", get: true, set: true, isprivate: false, default: ['zh-CN']},
 }
 
-function assemblyShowAttributes(attr: any, showprivate: boolean = false, force: boolean = false) {
-    const result: any = {};
-    for (let i of Object.keys(assemblyAttributes))
-        if ((assemblyAttributes[i].get && showprivate | (!assemblyAttributes[i].isprivate)) || force)
-            result[i] = assemblyAttributes[i].handleValue ? assemblyAttributes[i].handleValue(attr[i], 'show') : attr[i];
+function assemblyShowAttributes(
+    attr: Record<string, any>,
+    options: {
+        showprivate?: boolean;
+        force?: boolean;
+        includeDefaults?: boolean;
+        transformHandlers?: Record<string, (value: any) => any>;
+    } = {}
+): Record<string, any> {
+    const {
+        showprivate = false,
+        force = false,
+        includeDefaults = false,
+        transformHandlers = {}
+    } = options;
+
+    const result: Record<string, any> = {};
+
+    for (const key of Object.keys(assemblyAttributes)) {
+        const config = assemblyAttributes[key];
+
+        // 检查是否应该包含此属性
+        const shouldInclude = force || (config.get && (showprivate || !config.isprivate));
+
+        if (shouldInclude) {
+            // 获取值，如果不存在则使用默认值（如果includeDefaults为true）
+            let value = attr[key] !== undefined ? attr[key] : (includeDefaults ? config.default : undefined);
+
+            if (value !== undefined) {
+                // 应用转换
+                if (transformHandlers[key]) {
+                    value = transformHandlers[key](value);
+                } else if (config.handleValue) {
+                    value = config.handleValue(value, 'show');
+                }
+
+                result[key] = value;
+            }
+        }
+    }
+
     return result;
 }
 

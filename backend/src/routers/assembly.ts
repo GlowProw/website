@@ -3,14 +3,14 @@ import {body as checkbody, query as checkquery, validationResult} from "express-
 import logger from "../../logger";
 import db from "../../mysql";
 import {supposeBackJWT, verifyJWT} from "../middleware/auth";
-import {v6 as uuidv6} from "uuid"
+import {v6 as uuidV6} from "uuid"
 import {sanitizeRichText, xss} from "../lib/content";
 import {assemblySetAttributes, assemblyShowAttributes} from "../lib/assembly";
 
 const router = express.Router();
 const assemblyConfig = {
     nameMaxLength: 140,
-    descriptionMaxLength: 500
+    descriptionMaxLength: 10000
 }
 
 /**
@@ -33,14 +33,13 @@ router.post('/publish', verifyJWT, [
     checkbody('data').isObject(),
     checkbody('attr').optional({nullable: true}).isObject(),
     checkbody('visibility').optional().default('publicly').isIn(['publicly', 'private']),
-    checkbody('localUid').optional().isString().trim().isLength({max: 32}),
 ], async (req: any, res: Response) => {
     try {
         const validateErr = validationResult(req);
         if (!validateErr.isEmpty())
             return res.status(400).json({error: 1, code: 'publish.bad', message: validateErr.array()});
 
-        const {name, description, tags, data, attr, visibility, localUid} = req.body;
+        const {name, description, tags, data, attr, visibility} = req.body;
 
         // 检查配装名称是否已存在
         const existingAssembly = await db('assembly')
@@ -59,7 +58,7 @@ router.post('/publish', verifyJWT, [
         let assemblyData: any = {
             name,
             description,
-            uuid: uuidv6(),
+            uuid: uuidV6(),
             data: JSON.stringify(data),
             userId: req.user.id,
             visibility: visibility,
@@ -68,7 +67,7 @@ router.post('/publish', verifyJWT, [
         };
 
         if (tags) assemblyData.tags = JSON.stringify(handlingLabels(tags));
-        if (attr) assemblyData.attr = JSON.stringify(assemblySetAttributes(assemblyData.attr, attr, true));
+        if (attr) assemblyData.attr = JSON.stringify(assemblySetAttributes(assemblyData.attr || {}, attr, false));
 
         // 执行插入操作
         const [insertedId] = await db('assembly')
@@ -136,9 +135,7 @@ router.get('/list', [
                 'assembly.id',
                 'assembly.uuid',
                 'assembly.name',
-                'assembly.description',
-                'assembly.createdTime',
-                'assembly.updatedTime',
+                'assembly.attr',
                 'assembly.userId',
                 'assembly.data as assembly',
                 'assembly.visibility',
@@ -190,7 +187,7 @@ router.get('/list', [
         }
 
         // 分页查询
-        const assemblies = await query
+        const assemblies: any = await query
             .offset((page - 1) * pageSize)
             .limit(pageSize);
 
@@ -219,6 +216,9 @@ router.get('/list', [
 
         const totalResult = await totalQuery.count('assembly.id as count').first();
         const total = totalResult ? Number(totalResult.count) : 0;
+
+        if (assemblies.attr)
+            assemblies.attr = assemblyShowAttributes(assemblies.attr)
 
         res.status(200).json({
             code: 'assembly.list.ok',
@@ -395,7 +395,7 @@ router.get('/attr', verifyJWT, [
         const data = {
             ...assembly || {},
             password: assembly.attr && assembly.attr.password ? '******' : '',
-            attr: assemblyShowAttributes(assembly.attr)
+            attr: assemblyShowAttributes(assembly.attr, {includeDefaults: true})
         }
 
         res.status(200).json({code: 'assembly.getAttr.ok', data});
@@ -463,7 +463,7 @@ router.get('/item', [
 
         const assemblyIsHasPassword = !!assembly.attr.password;
         if (assembly.attr)
-            assembly.attr = assemblyShowAttributes(assembly.attr);
+            assembly.attr = assemblyShowAttributes(assembly.attr, {includeDefaults: true});
 
         res.status(200).json({
             code: 'assembly.detail.ok',
