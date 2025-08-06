@@ -75,7 +75,7 @@ class Backend {
 
     async read(language: string, namespace: any, callback: any) {
         try {
-            const filePath = path.join(CACHE_DIR, `${language}.json`);
+            const filePath = path.join(CACHE_DIR + (namespace || ''), `${language}.json`);
             const data = await fs.readFile(filePath, 'utf8');
             callback(null, JSON.parse(data));
         } catch (err) {
@@ -119,7 +119,7 @@ const i18nInitPromise = initI18next();
 // 导出一个增强的i18next实例
 export default {
     ...i18next,
-    ready: i18nInitPromise,
+    initialize: i18nInitPromise,
     refresh: fetchAndCacheTranslations,
     /**
      * 便捷翻译方法 (自动处理语言设置)
@@ -129,7 +129,7 @@ export default {
      * @returns {string}
      */
     translate: async function (key: string, language?: string, options = {}): Promise<string> {
-        await this.ready;
+        await this.initialize;
         if (language) {
             await this.changeLanguage(language);
         }
