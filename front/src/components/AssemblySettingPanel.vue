@@ -15,7 +15,7 @@ const {t, locale} = useI18n(),
     assemblyDataProcessing = new AssemblyDataProcessing();
 
 const props = defineProps<{ id: string, assemblyData?: any }>(),
-    emit = defineEmits('change')
+    emit = defineEmits(['change'])
 
 let show = ref(false),
     getSettingLoading = ref(false),

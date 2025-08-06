@@ -252,7 +252,7 @@ const onUpdateTags = (data: any) => {
 
               <v-card border class="pl-3 pr-3" :color="`hsl(from var(--main-color) h s calc(l * 0.05))`">
                 <Textarea class="mt-3 mb-2"
-                          :maxlength="5000"
+                          :maxlength="10000"
                           v-model="publishData.description"
                           placeholder="输入描述描述"></Textarea>
                 <template v-if="route.query.debug">

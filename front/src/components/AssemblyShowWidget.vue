@@ -1221,6 +1221,7 @@ defineExpose({
   right: 0;
   top: 0;
   z-index: 0;
+  opacity: .3;
   width: 100%;
   height: 100%;
   min-height: 300px;
