@@ -6,6 +6,8 @@ import {Season} from "glow-prow-data/src/entity/Seasons";
 import {useI18n} from "vue-i18n";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import Silk from "@/components/Silk.vue";
+import BlogWidget from "@/components/BlogWidget.vue";
+import AppVersionWidget from "@/components/AppVersionWidget.vue";
 
 const {t} = useI18n()
 
@@ -18,38 +20,44 @@ let data = ref({
     portalNavs = ref([
       {
         title: '组队寻求',
+        icon: 'mdi-bullhorn-outline',
         description: "发布或寻找与你计划相同船长出航，面对真正敌人",
         to: '/team'
       },
       {
         title: '日历',
+        icon: 'mdi-calendar-range',
         description: '查看本赛季活动信息',
         to: '/calendar'
       },
       {
         title: '地图',
+        icon: 'mdi-map',
         description: '所有地图物品清单',
         to: '/maps'
       },
       {
         title: '展示馆',
+        icon: 'mdi-package-variant-closed',
         description: '陈列物品信息, 检查它们如何获得',
         to: '/display-cabinet'
       },
       {
         title: '船只配装厂',
+        icon: 'mdi-palette-outline',
         description: '设计你船，让它到达性能极限，分享给好友',
         to: '/assembly'
       },
       {
         title: '海盗签名(开发中)',
+        icon: 'mdi-draw-pen',
         description: '生成海盗签名图片，分享到社区网站上',
         to: ''
       }
     ])
 
 onMounted(() => {
-  getHomeData();
+  // getHomeData();
   getCurrentSeason()
 })
 
@@ -115,7 +123,7 @@ const getCurrentSeason = (): Season | null => {
 
       <div class="portal-season-left-tip" v-if="currentlySeason && currentlySeason.id">
         <div class="opacity-30">
-          <b class="mb-2">本赛季 {{ `${currentlySeason.alternativeName}`.toUpperCase()}}</b> 剩余 {{ time.calcRemainingDays(currentlySeason.endDate) }} 天
+          <b class="mb-2">本赛季 {{ `${currentlySeason.alternativeName}`.toUpperCase() }}</b> 剩余 {{ time.calcRemainingDays(currentlySeason.endDate) }} 天
           <v-divider thickness="3" vertical/>
           {{ t(`snb.calendar.${currentlySeason?.id}.name`) }}
         </div>
@@ -127,12 +135,12 @@ const getCurrentSeason = (): Season | null => {
         <v-row>
           <v-col cols="12" md="8" lg="8" order="2" order-lg="1">
             <v-row>
-              <v-col cols="12" sm="6" md="4" lg="4"
+              <v-col cols="12" sm="6" md="6" lg="6"
                      v-for="(i,index) in portalNavs" :key="index">
                 <v-row>
                   <v-col cols="auto">
-                    <ItemSlotBase size="60px" class="d-flex justify-center align-center">
-                      <v-icon icon="mdi-help"></v-icon>
+                    <ItemSlotBase size="90px" class="d-flex justify-center align-center">
+                      <v-icon :icon="i.icon" size="40"></v-icon>
                     </ItemSlotBase>
                   </v-col>
                   <v-col>
@@ -150,6 +158,38 @@ const getCurrentSeason = (): Season | null => {
               <h1 class="btn-flavor pl-10 pr-10 pt-3 pb-3">{{ t(`snb.calendar.${currentlySeason?.id}.name`) }}</h1>
               <p class="ma-auto mt-4 font-weight-light opacity-80">{{ t(`snb.calendar.${currentlySeason?.id}.description`) }}</p>
             </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </div>
+
+    <div class="bg-black pt-5 background-img-flavor">
+      <v-container>
+        <v-row>
+          <v-col cols="12" sm="12" md="4" lg="4">
+            <v-row class="mb-5">
+              <v-col class="">
+                <b class="text-h4 btn-flavor">更新</b>
+                <p class="mt-2 opacity-60">可以直接通过网站页脚预留<code>kook</code>社区中提出问题，以帮助修复问题</p>
+              </v-col>
+            </v-row>
+            <AppVersionWidget></AppVersionWidget>
+          </v-col>
+          <v-col cols="12" sm="12" md="8" lg="8">
+            <v-row align="center">
+              <v-col>
+                <span class="btn-flavor text-h4">
+                  博客
+                </span>
+              </v-col>
+              <v-spacer></v-spacer>
+              <v-col cols="auto">
+                <a href="https://glow-prow-blog.cabbagelol.net/blog" target="_blank">
+                  {{ t('displayCabinet.more') }}
+                </a>
+              </v-col>
+            </v-row>
+            <BlogWidget></BlogWidget>
           </v-col>
         </v-row>
       </v-container>

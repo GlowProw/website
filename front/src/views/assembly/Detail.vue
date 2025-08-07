@@ -163,7 +163,7 @@ const onPenPassword = () => {
                 </template>
               </LikeWidget>
 
-              <template v-if="assemblyDetailData.isVisibility && authStore.isLogin && authStore.user.userId == assemblyDetailData.userId">
+              <template v-if="assemblyDetailData.isVisibility && authStore.isLogin && assemblyDetailData.isOwner">
                 <v-btn class="ml-3" variant="flat" :to="`/assembly/workshop/${assemblyDetailData.uuid}/edit`">
                   <v-icon icon="mdi-pencil" class="mr-2"></v-icon>
                   编辑此配装
@@ -237,8 +237,10 @@ const onPenPassword = () => {
         </v-col>
         <v-col cols="12" sm="12" lg="4" xl="4">
           <v-text-field
-              label="作者"
-              v-model="assemblyDetailData.username"
+              size="lg"
+              class="text-h5"
+              :value="assemblyDetailData.username || '匿名'"
+              placeholder="作者"
               readonly
               variant="underlined">
           </v-text-field>

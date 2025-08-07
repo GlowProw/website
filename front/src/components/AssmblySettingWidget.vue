@@ -149,6 +149,17 @@ const passwordPlaceholder = computed(() => {
       </v-col>
     </v-row>
 
+
+    <v-row>
+      <v-col>
+        <b>是否匿名</b>
+        <p>是否将你在此配装中用户名称和ID删除</p>
+      </v-col>
+      <v-col>
+        <v-checkbox v-model="modelValue.attr.isAnonymous" density="compact" hide-details></v-checkbox>
+      </v-col>
+    </v-row>
+
     <v-row>
       <v-col>
         <b>评论</b>

@@ -13,14 +13,16 @@ export default class AssemblyDataProcessing {
 
     private allowedFields = [
         'shipSlot',
-        'armorSlot',
-        'shipUpgradeSlot',
         'ultimateSlot',
-        'shipFrigateUpgradeSlot',
+        'shipUpgradeSlot',
+        'weaponDirections',
         'weaponModifications',
-        'secondaryWeaponModifications',
-        'secondaryWeaponSlots',
         'weaponSlots',
+        'armorSlot',
+        'mortarSlots',
+        'secondaryWeaponSlots',
+        'shipFrigateUpgradeSlot',
+        'secondaryWeaponModifications',
         'displaySlots',
         '__version',
     ];
