@@ -15,7 +15,7 @@ const {t} = useI18n(),
 <template>
   <node-view-wrapper :as="'span'" class="ultimate-span-box">
     <ItemSlotBase size="25px" :padding="0" class="item-icon">
-      <ItemIconWidget :id="node.attrs.id" :padding="0" class="ma-0"></ItemIconWidget>
+      <ItemIconWidget :id="node.attrs.id" :padding="0" :margin="0" class="ma-0"></ItemIconWidget>
     </ItemSlotBase>
     <ItemNameRarity :id="node.attrs.id" class="item-name text-no-wrap">
       <u>

@@ -17,6 +17,8 @@ import shipSlotMapping from "../../public/config/shipsConfig.json";
 import ShipTopDownPerspectiveWidget from "./snbWidget/shipTopDownPerspectiveWidget.vue";
 import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
 import WeaponModificationWidget from "@/components/snbWidget/weaponModificationWidget.vue";
+import AssemblyClassificationShowList from "@/components/AssemblyClassificationShowList.vue";
+import {useI18nUtils} from "@/assets/sripts/i18nUtil";
 
 const poops = withDefaults(defineProps<{ readonly?: boolean, class?: string }>(), {
       readonly: false,
@@ -28,6 +30,7 @@ const poops = withDefaults(defineProps<{ readonly?: boolean, class?: string }>()
     items: Items = Items,
     ultimates = Ultimates,
     assemblyDataProcessing = new AssemblyDataProcessing(),
+    {asString, sanitizeString} = useI18nUtils(),
     {t, te} = useI18n()
 
 interface ItemAssemblySave extends Item {
@@ -49,6 +52,7 @@ let workshopData = ref({
       secondaryWeaponSelect: 0,
       armorSelect: 0,
       ultimateSelect: 0,
+      displayInsertIndex: 0,
       shipWorkshopSelect: null,
       shipSelect: null,
       shipFrigateUpgradeSelect: null,
@@ -118,59 +122,32 @@ let // 获取陈设
       let tags = ['offensiveFurniture', 'utilityFurniture']
       if (!hasMajorDisplayUpperLimit.value)
         tags.push('majorFurniture')
-
-      if (cache.value.shipDisplayList.length > 0)
-        return cache.value.shipDisplayList;
-
-      const d = Object.values(items).filter(i => tags.indexOf(i.type) >= 0);
-      cache.value.shipDisplayList = d;
-      return d;
+      return tags;
     }),
     // 获取副武器
     getSecondaryWeapon = computed(() => {
       let secondaryWeaponTag = ['springloader', 'mortar', 'rocket']
-
-      if (cache.value.shipSecondaryWeaponList.length > 0)
-        return cache.value.shipSecondaryWeaponList;
-
-      const d = Object.values(items).filter(i => secondaryWeaponTag.indexOf(i.type) >= 0);
-      cache.value.shipSecondaryWeaponList = d;
-      return d;
+      return secondaryWeaponTag;
     }),
     // 获取武器列表
     getShipWeaponList = computed(() => {
       let tag = ['culverin', 'demicannon', 'bombard', 'longGun', 'torpedo'],
           conditionsTag = {
-            'frontWeapon': ['ballista'],
+            'frontWeapon': ['ballista', 'seaFire'],
             'leftSideWeapon': [],
             'rightSideWeapon': [],
             'aftWeapon': []
           },
           queryTags = []
-
       queryTags = queryTags.concat(
           tag,
           conditionsTag[workshopData.value.data.weaponDirections[workshopData.value.weaponInsertIndex]]
       )
-
-      const d = Object.values(items).filter(i => queryTags.indexOf(i.type) >= 0).map(i => {
-        return {
-          id: i.id,
-          label: t(`snb.items.${i.id}.name`)
-        }
-      });
-      return d;
+      return queryTags;
     }),
     // 获取船甲列表
     getShipArmorList = computed(() => {
-      let tag = ['armor']
-
-      if (cache.value.shipArmorList.length > 0)
-        return cache.value.shipArmorList;
-
-      const d = Object.values(items).filter(i => tag.indexOf(i.type) >= 0);
-      cache.value.shipArmorList = d;
-      return d;
+      return ['armor'];
     }),
     // 主陈设上限
     hasMajorDisplayUpperLimit = computed(() => {
@@ -238,7 +215,6 @@ const onSlotRemove = (type, index?: number) => {
   }
 }
 
-
 /**
  * 选择船
  * @param shipId
@@ -259,6 +235,9 @@ const onSelectShip = (shipId: string) => {
   workshopData.value.data.displaySlots = Array.from({length: workshopData.value.data.shipSlot.slots.furniture[0] || 0}, () => {
     return Item.fromRawData({})
   })
+
+  // 创建船甲
+  workshopData.value.data.armorSlot = Item.fromRawData({})
 
   // 创建武器插槽，选择初始
   workshopData.value.data.weaponSlots = Array.from({
@@ -298,20 +277,6 @@ const onSelectUltimate = () => {
 }
 
 /**
- * 添加陈设
- */
-const onAddDisplaySlot = () => {
-  if (poops.readonly)
-    return;
-
-  let data: Item = Item.fromRawData({
-    id: null
-  });
-
-  workshopData.value.data.displaySlots.push(data)
-}
-
-/**
  * 选择升级部件
  */
 const onSelectFrigteUpgrad = () => {
@@ -342,73 +307,6 @@ const onSelectFrigteUpgrad = () => {
 }
 
 /**
- * 选择家具
- */
-const onSelectDisplayShip = () => {
-  if (poops.readonly)
-    return;
-
-  workshopData.value.displayModel = false;
-  if (!workshopData.value.shipDisplaySelect)
-    return;
-
-  // 已有陈设
-  const slotAlreadyFurnished = workshopData.value.data.displaySlots
-      .map(i => i.id)
-      .filter(i => i != undefined)
-
-  // 不可使用已在插槽的物品
-  if (slotAlreadyFurnished.indexOf(workshopData.value.shipDisplaySelect.id) >= 0) {
-    messages.value.push('不可使用已在插槽的物品')
-    return;
-  }
-
-  workshopData.value.data.displaySlots[workshopData.value.frigateUpgradeInsertIndex] = workshopData.value.shipDisplaySelect
-}
-
-/**
- * 选择船甲
- */
-const onSelectArmor = () => {
-  if (poops.readonly)
-    return;
-
-  workshopData.value.armorModel = false;
-  if (!workshopData.value.armorSelect)
-    return;
-
-  workshopData.value.data.armorSlot = workshopData.value.armorSelect
-}
-
-/**
- * 选择武器
- */
-const onSelectWorkshopShip = () => {
-  if (poops.readonly)
-    return;
-
-  workshopData.value.weaponModel = false;
-  if (!workshopData.value.weaponSearchValue)
-    return;
-
-  workshopData.value.data.weaponSlots[workshopData.value.weaponInsertIndex] = items[workshopData.value.weaponSearchValue]
-}
-
-/**
- * 选择副武器
- */
-const onSelectSecondaryWeapon = () => {
-  if (poops.readonly)
-    return;
-
-  workshopData.value.secondaryWeaponModel = false;
-  if (!workshopData.value.secondaryWeaponSelect)
-    return;
-
-  workshopData.value.data.secondaryWeaponSlots[workshopData.value.secondaryWeaponInsertIndex] = workshopData.value.secondaryWeaponSelect
-}
-
-/**
  * 获取甲板信息
  */
 const getDeckInformation = (index: number): Record<string, any> => {
@@ -421,14 +319,6 @@ const getDeckInformation = (index: number): Record<string, any> => {
     console.error('Error in getDeckInformation:', e);
     return {};
   }
-};
-
-const weaponFilter = (item, queryText, itemText) => {
-  const searchText = queryText.toLowerCase();
-  const label = item.label.toLowerCase();
-  const category = item.category.toLowerCase();
-
-  return label.includes(searchText) || category.includes(searchText);
 };
 
 /**
@@ -496,7 +386,7 @@ defineExpose({
                   <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-else>
                     <v-card
                         class="mx-auto"
-                        max-width="344"
+                        max-width="400"
                         v-bind="propsHoverClose">
 
                       <ItemSlotBase size="110px" class="pa-2"
@@ -520,7 +410,7 @@ defineExpose({
                   </v-hover>
                 </template>
                 <v-card v-slot:default>
-                  <v-row class="ga-0 pa-2 pb-5">
+                  <v-row class="ga-0 pa-5 pb-5">
                     <v-col cols="3"
                            v-for="(ship,shipIndex) in ships"
                            :key="shipIndex">
@@ -537,11 +427,13 @@ defineExpose({
                           <ShipIconWidget :id="ship.id" :is-show-tooltip="false" :isClickOpenDetail="false"></ShipIconWidget>
                         </ItemSlotBase>
                       </v-badge>
+                      <p class="w-100 singe-line text-center">{{ t(`snb.ships.${ship.id}.name`) }}</p>
                     </v-col>
                   </v-row>
-                  <v-card-actions class="bg-amber">
-                    <v-btn variant="tonal" @click="onSelectShip(workshopData.shipSelect.id)">{{ t('basic.button.submit') }}</v-btn>
-                    <v-btn variant="tonal" class="ml-1" @click="workshopData.shipModel = false">{{ t('basic.button.cancel') }}</v-btn>
+                  <v-card-actions class="bg-amber-lighten-1">
+                    <v-spacer></v-spacer>
+                    <v-btn variant="text" class="ml-1" @click="workshopData.shipModel = false">{{ t('basic.button.cancel') }}</v-btn>
+                    <v-btn variant="tonal" class="bg-amber" @click="onSelectShip(workshopData.shipSelect.id)">{{ t('basic.button.submit') }}</v-btn>
                   </v-card-actions>
                 </v-card>
               </v-tooltip>
@@ -559,7 +451,7 @@ defineExpose({
                   interactive
                   open-on-click>
                 <template v-slot:activator="{ props }">
-                  <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.shipUpgradeSlot">
+                  <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.shipUpgradeSlot ">
                     <v-card
                         class="mx-auto"
                         max-width="344"
@@ -592,7 +484,6 @@ defineExpose({
                     </v-card>
                   </v-hover>
 
-
                   <ItemSlotBase size="80px" class="pa-2"
                                 v-if="!workshopData.data.shipUpgradeSlot && workshopData.shipFrigateUpgradeList.length > 0">
                     <v-card class="w-100 d-flex align-center justify-center"
@@ -603,31 +494,35 @@ defineExpose({
                   </ItemSlotBase>
                 </template>
                 <v-card class="demo-reel bg-black pt-3" flat border>
-                  <v-row class="ga-0 pa-2 pb-5">
+                  <v-row class="ga-0 pa-5 pb-5">
                     <v-col cols="3"
                            v-for="(upgrade,upgradeIndex) in workshopData.shipFrigateUpgradeList"
                            :key="upgradeIndex">
-                      <v-badge :color="`var(--main-color)`">
-                        <template v-slot:badge>
-                          {{ upgradeIndex + 1 }}
-                        </template>
-                        <ItemSlotBase
-                            size="92px" class="pa-1"
-                            @click="workshopData.shipFrigateUpgradeSelect = upgrade"
-                            :class="[
-                                          workshopData.shipFrigateUpgradeSelect ? workshopData.shipFrigateUpgradeSelect!.id == upgrade!.id ? 'bg-amber' : '' : ''
-                                      ]">
-                          <ItemIconWidget :id="upgrade.id" :is-open-detail="false"></ItemIconWidget>
-                        </ItemSlotBase>
-                      </v-badge>
+                      <ItemSlotBase
+                          size="92px" class="pa-1"
+                          @click="workshopData.shipFrigateUpgradeSelect = upgrade"
+                          :class="[
+                              workshopData.shipFrigateUpgradeSelect ? workshopData.shipFrigateUpgradeSelect!.id == upgrade!.id ? 'bg-amber' : '' : ''
+                          ]">
+                        <ItemIconWidget :padding="2" :id="upgrade.id" :is-open-detail="false" :is-show-tooltip="false"></ItemIconWidget>
+                      </ItemSlotBase>
+                      <div class="text-center d-flex">
+                        <div class="singe-line w-100">
+                          {{ asString([`snb.items.${upgrade.id}.name`, `snb.items.${sanitizeString(upgrade.id).cleaned}.name`]) || '-' }}
+                        </div>
+                        <span>{{ number.intToRoman(upgradeIndex + 1) }}</span>
+                      </div>
                     </v-col>
                   </v-row>
-                  <v-card-actions class="bg-amber">
+                  <v-card-actions class="bg-amber-lighten-1">
+                    <v-spacer></v-spacer>
+                    <v-btn variant="text" class="ml-2" @click="workshopData.frigateUpgradeModel = false">{{ t('basic.button.cancel') }}</v-btn>
                     <v-btn variant="tonal"
+                           class="bg-amber"
                            v-if="workshopData.shipFrigateUpgradeSelect"
-                           @click="onSelectFrigteUpgrad()">确认
+                           @click="onSelectFrigteUpgrad">
+                      确认
                     </v-btn>
-                    <v-btn variant="tonal" class="ml-2" @click="workshopData.frigateUpgradeModel = false">{{ t('basic.button.cancel') }}</v-btn>
                   </v-card-actions>
                 </v-card>
               </v-tooltip>
@@ -661,7 +556,7 @@ defineExpose({
                                     v-if="!readonly && workshopData.data.displaySlots[displayIndex] && workshopData.data.displaySlots[displayIndex].id == null">
                         <v-card class="w-100 d-flex align-center justify-center"
                                 :disabled="readonly"
-                                @click="workshopData.displayModel = true;workshopData.frigateUpgradeInsertIndex = displayIndex">
+                                @click="workshopData.displayModel = true;workshopData.displayInsertIndex = displayIndex">
                           <v-icon icon="mdi-plus"></v-icon>
                         </v-card>
                       </ItemSlotBase>
@@ -1053,41 +948,27 @@ defineExpose({
               max-height="90%"
               min-width="450"
               max-width="700">
-      <v-card v-slot:default>
-        <b class="font-weight-bold text-h5 pa-5">{{ t('assembly.workshop.insertWeaponTitle') }}</b>
-        <v-row class="pl-8 pr-8 mt-1 mb-5">
-          <ItemSlotBase size="60px" v-if="workshopData.weaponSearchValue || getShipWeaponList[workshopData.weaponSearchValue]">
-            <ItemIconWidget :id="workshopData.weaponSearchValue"></ItemIconWidget>
-          </ItemSlotBase>
-          <ItemSlotBase size="60px" class="d-flex justify-center align-center" v-else>
-            <v-icon icon="mdi-close-octagon-outline"/>
-          </ItemSlotBase>
-
-          <v-combobox
-              v-model="workshopData.weaponSearchValue"
-              v-model:search="workshopData.weaponSearchValue"
-              :hide-no-data="false"
-              :items="getShipWeaponList"
-              :filter="weaponFilter"
-              hide-selected
-              item-value="id"
-              item-title="id"
-              class="ml-4"
-              clearable
-              persistent-hint>
-            <template v-slot:details>
-              <span v-html="t('assembly.workshop.insertWeaponTips', {link: `/display-cabinet`})"></span>
-              <v-icon icon="mdi-share"></v-icon>
-            </template>
-
-          </v-combobox>
+      <v-card v-slot:default class="overflow-hidden">
+        <v-card-title>
+          <v-row>
+            <b class="font-weight-bold text-h5 pa-5">{{ t('assembly.workshop.insertWeaponTitle') }}</b>
+            <v-spacer></v-spacer>
+            <v-col cols="auto">
+              <v-btn icon variant="text" class="ml-1" @click="workshopData.weaponModel = false">
+                <v-icon icon="mdi-close"/>
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card-title>
+        <v-row>
+          <AssemblyClassificationShowList
+              v-model="workshopData.data.weaponSlots[workshopData.weaponInsertIndex]"
+              @clickSelectItem="workshopData.weaponModel = false"
+              :tags="getShipWeaponList"></AssemblyClassificationShowList>
         </v-row>
       </v-card>
-      <v-card-actions class="bg-amber">
-        <v-btn variant="tonal" @click="onSelectWorkshopShip" :disabled="!workshopData.weaponSearchValue || getShipWeaponList.filter(d => d.id == workshopData.weaponSearchValue).length <= 0">{{ t('basic.button.submit') }}</v-btn>
-        <v-btn variant="tonal" class="ml-1" @click="workshopData.weaponModel = false">{{ t('basic.button.cancel') }}</v-btn>
-      </v-card-actions>
     </v-dialog>
+
     <v-dialog v-model="workshopData.secondaryWeaponModel"
               ref="secondaryWeaponModel"
               content-class="pa-0"
@@ -1096,64 +977,51 @@ defineExpose({
               min-width="450"
               max-width="700">
       <v-card v-slot:default>
-        <b class="font-weight-bold text-h5 pa-5">{{ t('assembly.workshop.insertSecondaryWeaponTitle') }}</b>
-        <v-row class="ga-0 pa-2 pb-5">
-          <v-col cols="2"
-                 v-for="(secondaryWeapon, secondaryWeaponIndex) in getSecondaryWeapon"
-                 :key="secondaryWeaponIndex">
-            <v-badge :color="workshopData.secondaryWeaponSelect ? workshopData.secondaryWeaponSelect!.id == secondaryWeapon!.id ? `var(--main-color)` : 'transparent' : 'transparent'">
-              <template v-slot:badge>
-                <v-icon icon="mdi-check" v-if="workshopData.secondaryWeaponSelect && workshopData.secondaryWeaponSelect!.id == secondaryWeapon!.id"></v-icon>
-              </template>
-              <ItemSlotBase
-                  size="92px" class="pa-1"
-                  @click="workshopData.secondaryWeaponSelect = secondaryWeapon"
-                  :class="[
-                                          workshopData.secondaryWeaponSelect ? workshopData.secondaryWeaponSelect!.id == secondaryWeapon!.id ? 'bg-amber' : '' : ''
-                                      ]">
-                <ItemIconWidget :id="secondaryWeapon.id" :is-open-detail="false" :is-show-open-detail="false"></ItemIconWidget>
-              </ItemSlotBase>
-            </v-badge>
-          </v-col>
+        <v-card-title>
+          <v-row>
+            <b class="font-weight-bold text-h5 pa-5">{{ t('assembly.workshop.insertSecondaryWeaponTitle') }}</b>
+            <v-spacer></v-spacer>
+            <v-col cols="auto">
+              <v-btn icon variant="text" class="ml-1" @click="workshopData.secondaryWeaponModel = false">
+                <v-icon icon="mdi-close"/>
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card-title>
+        <v-row>
+          <AssemblyClassificationShowList
+              v-model="workshopData.data.secondaryWeaponSlots[workshopData.secondaryWeaponInsertIndex]"
+              @clickSelectItem="workshopData.secondaryWeaponModel = false"
+              :tags="getSecondaryWeapon"></AssemblyClassificationShowList>
         </v-row>
       </v-card>
-      <v-card-actions class="bg-amber">
-        <v-btn variant="tonal" @click="onSelectSecondaryWeapon" v-if="workshopData.secondaryWeaponSelect">{{ t('basic.button.submit') }}</v-btn>
-        <v-btn variant="tonal" class="ml-1" @click="workshopData.secondaryWeaponModel = false">{{ t('basic.button.cancel') }}</v-btn>
-      </v-card-actions>
     </v-dialog>
+    <!-- 陈设 -->
     <v-dialog v-model="workshopData.displayModel"
               content-class="pa-0"
               max-height="90%"
               min-height="300"
               min-width="450"
               max-width="700">
-      <v-card v-slot:default>
-        <b class="font-weight-bold text-h5 pa-5"> {{ t('assembly.workshop.insertDisplayTitle') }}</b>
-        <v-row class="ga-0 pa-2 pb-5">
-          <v-col cols="2"
-                 v-for="(display, displayIndex) in getShipDisplayList"
-                 :key="displayIndex">
-            <v-badge :color="workshopData.shipDisplaySelect ? workshopData.shipDisplaySelect!.id == display!.id ? `var(--main-color)` : 'transparent' : 'transparent'">
-              <template v-slot:badge>
-                <v-icon icon="mdi-check" v-if="workshopData.shipDisplaySelect && workshopData.shipDisplaySelect!.id == display!.id"></v-icon>
-              </template>
-              <ItemSlotBase
-                  size="92px" class="pa-1"
-                  @click="workshopData.shipDisplaySelect = display"
-                  :class="[
-                                          workshopData.shipDisplaySelect ? workshopData.shipDisplaySelect!.id == display!.id ? 'bg-amber' : '' : ''
-                                      ]">
-                <ItemIconWidget :id="display.id" :is-open-detail="false" :is-show-open-detail="false"></ItemIconWidget>
-              </ItemSlotBase>
-            </v-badge>
-          </v-col>
+      <v-card v-slot:default class="overflow-hidden">
+        <v-card-title>
+          <v-row>
+            <b class="font-weight-bold text-h5 pa-5">{{ t('assembly.workshop.insertDisplayTitle') }}</b>
+            <v-spacer></v-spacer>
+            <v-col cols="auto">
+              <v-btn icon variant="text" class="ml-1" @click="workshopData.displayModel = false">
+                <v-icon icon="mdi-close"/>
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card-title>
+        <v-row>
+          <AssemblyClassificationShowList
+              v-model="workshopData.data.displaySlots[workshopData.displayInsertIndex]"
+              @clickSelectItem="workshopData.displayModel = false"
+              :tags="getShipDisplayList"></AssemblyClassificationShowList>
         </v-row>
       </v-card>
-      <v-card-actions class="bg-amber">
-        <v-btn variant="tonal" @click="onSelectDisplayShip" v-if="workshopData.shipDisplaySelect">{{ t('basic.button.submit') }}</v-btn>
-        <v-btn variant="tonal" class="ml-1" @click="workshopData.displayModel = false">{{ t('basic.button.cancel') }}</v-btn>
-      </v-card-actions>
     </v-dialog>
     <!-- 船甲 -->
     <v-dialog v-model="workshopData.armorModel"
@@ -1162,30 +1030,25 @@ defineExpose({
               min-height="300"
               min-width="450"
               max-width="700">
-      <v-card v-slot:default>
-        <b class="font-weight-bold text-h5 pa-5"> {{ t('assembly.workshop.insertArmorTitle') }}</b>
-        <v-row class="ga-0 pa-2 pb-5">
-          <v-col cols="2"
-                 v-for="(armor, armorIndex) in getShipArmorList"
-                 :key="armorIndex">
-            <v-badge :color="workshopData.armorSelect ? workshopData.armorSelect!.id == armor!.id ? `var(--main-color)` : 'transparent' : 'transparent'">
-              <template v-slot:badge>
-                <v-icon icon="mdi-check" v-if="workshopData.armorSelect && workshopData.armorSelect!.id == armor!.id"></v-icon>
-              </template>
-              <ItemSlotBase
-                  size="92px" class="pa-1"
-                  @click="workshopData.armorSelect = armor"
-                  :class="[workshopData.armorSelect ? workshopData.armorSelect!.id == armor!.id ? 'bg-amber' : '' : '']">
-                <ItemIconWidget :id="armor.id" :is-open-detail="false" :is-show-open-detail="false"></ItemIconWidget>
-              </ItemSlotBase>
-            </v-badge>
-          </v-col>
+      <v-card v-slot:default class="overflow-hidden">
+        <v-card-title>
+          <v-row>
+            <b class="font-weight-bold text-h5 pa-5">{{ t('assembly.workshop.insertArmorTitle') }}</b>
+            <v-spacer></v-spacer>
+            <v-col cols="auto">
+              <v-btn icon variant="text" class="ml-1" @click="workshopData.armorModel = false">
+                <v-icon icon="mdi-close"/>
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card-title>
+        <v-row>
+          <AssemblyClassificationShowList
+              v-model="workshopData.data.armorSlot"
+              @clickSelectItem="workshopData.armorModel = false"
+              :tags="getShipArmorList"></AssemblyClassificationShowList>
         </v-row>
       </v-card>
-      <v-card-actions class="bg-amber">
-        <v-btn variant="tonal" @click="onSelectArmor" v-if="workshopData.armorSelect">{{ t('basic.button.submit') }}</v-btn>
-        <v-btn variant="tonal" class="ml-1" @click="workshopData.armorModel = false">{{ t('basic.button.cancel') }}</v-btn>
-      </v-card-actions>
     </v-dialog>
   </template>
 </template>

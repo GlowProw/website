@@ -34,13 +34,15 @@ const props = withDefaults(defineProps<{
   isShowOpenDetail?: boolean,
   isOpenDetail?: boolean,
   isShowTooltip?: boolean,
-  padding?: number
+  padding?: number,
+  margin?: number
 }>(), {
   id: 'culverin1',
   isShowOpenDetail: true,
   isOpenDetail: true,
   isShowTooltip: true,
-  padding: 1
+  padding: 0,
+  margin: 1,
 })
 const items: Items = Items,
     route = useRoute(),
@@ -129,7 +131,8 @@ const {targetElement, isVisible} = useIntersectionObserver({
           v-bind="activatorProps"
           :to="isOpenDetail ? `/display-cabinet/item/${i.id}` : null"
           :class="[
-              `ma-${props.padding}`,
+              `ma-${props.margin}`,
+              `pa-${props.padding}`,
               `item-card-header-rarity-${i.rarity}`
           ]">
         <template v-slot:image v-if="i.rarity">

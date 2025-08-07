@@ -219,7 +219,7 @@ const getCurrentSeason = (): Season | null => {
       width: 120%;
       height: 100%;
       background: #000;
-      opacity: .5;
+      opacity: .2;
     }
 
     video {

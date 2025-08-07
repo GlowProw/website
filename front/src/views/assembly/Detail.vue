@@ -93,7 +93,6 @@ const onPenPassword = () => {
 
   getAssemblyDetail()
 }
-
 </script>
 
 <template>
@@ -162,6 +161,8 @@ const onPenPassword = () => {
                   <v-btn icon="mdi-thumb-up-outline"></v-btn>
                 </template>
               </LikeWidget>
+
+              <v-btn v-if="assemblyDetailData.uuid" :to="`/assembly/browse/${assemblyDetailData.uuid}/share`" icon="mdi-share"></v-btn>
 
               <template v-if="assemblyDetailData.isVisibility && authStore.isLogin && assemblyDetailData.isOwner">
                 <v-btn class="ml-3" variant="flat" :to="`/assembly/workshop/${assemblyDetailData.uuid}/edit`">

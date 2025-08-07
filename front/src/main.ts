@@ -8,7 +8,6 @@ import App from './App.vue'
 import {createApp} from 'vue'
 import router from "../router";
 import {createPinia} from 'pinia'
-import Vue3Disqus from "vue3-disqus";
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import i18n from './i18n';
 import vuetify from "./vuetify";
@@ -25,9 +24,6 @@ app
     .use(pinia)
     .use(i18n)
     .use(vuetify)
-    .use(Vue3Disqus, {
-        shortname: "glow-prow"
-    })
     .mount('#app')
 
 export default app

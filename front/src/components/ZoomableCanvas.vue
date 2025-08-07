@@ -26,14 +26,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import {nextTick, onBeforeUnmount, onMounted, ref} from 'vue'
 import {useDisplay} from "vuetify/framework";
 
-const { mobile } = useDisplay()
+const {mobile} = useDisplay()
 const props = defineProps({
   canvasWidth: {
     type: Number,
     default: 1200
+  },
+  canvasHeight: {
+    type: Number,
+    default: 600
   },
   minScale: {
     type: Number,
@@ -47,7 +51,7 @@ const props = defineProps({
 
 const scale = ref(1)
 const position = ref({x: 0, y: 0})
-const contentHeight = ref(600) // Initial height, will be updated
+const contentHeight = ref(props.canvasHeight || 600) // Initial height, will be updated
 const isDragging = ref(false)
 const startPos = ref({x: 0, y: 0})
 const resizeObserver = ref(null)
@@ -134,7 +138,7 @@ const centerCanvas = () => {
 
   position.value = {
     x: (containerWidth - props.canvasWidth * scale.value) / 2 / scale.value,
-    y: (containerHeight - contentHeight.value * scale.value) / 2 / scale.value
+    y: (containerHeight - (props.canvasHeight || contentHeight.value) * scale.value) / 2 / scale.value
   }
 }
 
@@ -278,10 +282,10 @@ onBeforeUnmount(() => {
   var(--color) calc(var(--size) + 2px),
   transparent calc(var(--size) + 3px)),
   linear-gradient(to bottom,
-      transparent calc(var(--size) + 0px),
-      var(--color) calc(var(--size) + 1px),
-      var(--color) calc(var(--size) + 2px),
-      transparent calc(var(--size) + 3px));
+  transparent calc(var(--size) + 0px),
+  var(--color) calc(var(--size) + 1px),
+  var(--color) calc(var(--size) + 2px),
+  transparent calc(var(--size) + 3px));
 
   background-size: 236px 236px;
   background-repeat: repeat;
@@ -294,12 +298,10 @@ onBeforeUnmount(() => {
   --size: 212px;
   --color: rgba(255, 216, 2, 0.1);
 
-  background-image: radial-gradient(
-      circle at calc(50%) calc(50%),
-      transparent calc(var(--size) + 0px),
-      var(--color) calc(var(--size) + 1px),
-      transparent calc(var(--size) + 3px)
-  );
+  background-image: radial-gradient(circle at calc(50%) calc(50%),
+  transparent calc(var(--size) + 0px),
+  var(--color) calc(var(--size) + 1px),
+  transparent calc(var(--size) + 3px));
 
   background-size: calc(var(--size) + 210px) calc(var(--size) + 210px);
   background-repeat: repeat;

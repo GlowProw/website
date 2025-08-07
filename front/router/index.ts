@@ -31,12 +31,16 @@ import AssembleWorkshopPage from '../src/views/assembly/workshop/Index.vue'
 import AssemblePublishPage from '../src/views/assembly/Publish.vue'
 import AssemblyBrowsePage from '../src/views/assembly/Browse.vue'
 import AssemblyDetailPage from '../src/views/assembly/Detail.vue'
+import AssemblySharePage from '../src/views/assembly/Share.vue'
 
 import MapsPage from '../src/views/Map.vue';
 import TeamPage from '../src/views/Team.vue'
 import AboutPage from '../src/views/About.vue'
 import AchievementPage from '../src/views/Achievement.vue'
 import NotFoundPage from '../src/views/NotFound.vue';
+
+import Test from '@/views/Test.vue'
+
 import {useI18n} from "vue-i18n";
 
 import {useAuthStore} from "@/../stores";
@@ -250,6 +254,11 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: 'browse/:uuid/detail',
                 name: 'AssemblyDetail',
                 component: AssemblyDetailPage
+            },
+            {
+                path: 'browse/:uuid/share',
+                name: 'AssemblyShare',
+                component: AssemblySharePage
             }
         ]
     },
@@ -268,6 +277,12 @@ const routes: Readonly<RouteRecordRaw[]> = [
         path: '/achievement',
         name: 'Achievement',
         component: AchievementPage
+    },
+
+    {
+        path: '/test',
+        name: 'test',
+        component: Test,
     },
 
     // 404 路由（必须放在最后）

@@ -340,10 +340,21 @@
       "insertSecondaryWeaponTitle": "插入副武器",
       "insertDisplayTitle": "插入陈设",
       "exceedingDisplayLimitTip": "已到达主陈设上限，将主陈设隐藏",
-      "ultimateTitle": "终极技能"
+      "ultimateTitle": "终极技能",
+      "filter": {
+        "all": "所有",
+        "byType": "物品排序类型",
+        "byTitle": "物品以{key}排序",
+        "byId": "ID",
+        "byTier": "等级",
+        "byRarity": "稀有度"
+      }
     },
     "detail": {
       "title": "配装详情"
+    },
+    "share": {
+      "title": "分享配装"
     },
     "browse": {
       "title": "配装分享集",
