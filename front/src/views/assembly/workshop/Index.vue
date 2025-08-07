@@ -52,7 +52,7 @@ let isEditModel = computed(() => {
           return false
       }
     }),
-    isAssemblyByUser = computed(() => isEditModel.value ? authStore.user.userId == shareData.value.userId : true)
+    isAssemblyByUser = computed(() => isEditModel.value ? shareData.value.isOwner : true)
 
 onMounted(() => {
   if (isEditModel.value)

@@ -1,11 +1,13 @@
 import {toRaw} from "vue";
 
-import {Items, Modification, Modifications, Ships} from "glow-prow-data"
+import {Items, Modifications, Ships} from "glow-prow-data"
 import {Item} from "glow-prow-data/src/entity/Items.ts";
+import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
 
 const ships = Ships,
     items = Items,
-    modifications = Modifications
+    modifications = Modifications,
+    ultimates = Ultimates
 
 export default class AssemblyDataProcessing {
     static versions = ['0.0.1'];
@@ -39,19 +41,19 @@ export default class AssemblyDataProcessing {
 
                 // 后续处理逻辑
                 if (filteredData.shipSlot)
-                    filteredData.shipSlot = { id: filteredData.shipSlot.id };
+                    filteredData.shipSlot = {id: filteredData.shipSlot.id};
 
                 if (filteredData.armorSlot)
-                    filteredData.armorSlot = { id: filteredData.armorSlot.id };
+                    filteredData.armorSlot = {id: filteredData.armorSlot.id};
 
                 if (filteredData.shipUpgradeSlot)
-                    filteredData.shipUpgradeSlot = { id: filteredData.shipUpgradeSlot.id };
+                    filteredData.shipUpgradeSlot = {id: filteredData.shipUpgradeSlot.id};
 
                 if (filteredData.ultimateSlot)
-                    filteredData.ultimateSlot = { id: filteredData.ultimateSlot.id };
+                    filteredData.ultimateSlot = {id: filteredData.ultimateSlot.id};
 
                 if (filteredData.shipFrigateUpgradeSlot)
-                    filteredData.shipFrigateUpgradeSlot = { id: filteredData.shipFrigateUpgradeSlot.id };
+                    filteredData.shipFrigateUpgradeSlot = {id: filteredData.shipFrigateUpgradeSlot.id};
 
                 if (filteredData.weaponModifications)
                     filteredData.weaponModifications = filteredData.weaponModifications.map(i => {
@@ -75,17 +77,17 @@ export default class AssemblyDataProcessing {
 
                 if (filteredData.secondaryWeaponSlots)
                     filteredData.secondaryWeaponSlots = filteredData.secondaryWeaponSlots.map(i => {
-                        return i.id ? { id: i.id } : { id: null };
+                        return i.id ? {id: i.id} : {id: null};
                     });
 
                 if (filteredData.weaponSlots)
                     filteredData.weaponSlots = filteredData.weaponSlots.map(i => {
-                        return i.id ? { id: i.id } : { id: null };
+                        return i.id ? {id: i.id} : {id: null};
                     });
 
                 if (filteredData.displaySlots)
                     filteredData.displaySlots = filteredData.displaySlots.map(i => {
-                        return i.id ? { id: i.id } : { id: null };
+                        return i.id ? {id: i.id} : {id: null};
                     });
 
                 filteredData.__version = this.nowVersion;
@@ -110,7 +112,7 @@ export default class AssemblyDataProcessing {
                     filteredData.shipUpgradeSlot = items[filteredData.shipUpgradeSlot.id] || Item.fromRawData({});
 
                 if (filteredData.ultimateSlot)
-                    filteredData.ultimateSlot = items[filteredData.ultimateSlot.id] || Item.fromRawData({});
+                    filteredData.ultimateSlot = ultimates[filteredData.ultimateSlot.id] || Item.fromRawData({});
 
                 if (filteredData.shipFrigateUpgradeSlot)
                     filteredData.shipFrigateUpgradeSlot = items[filteredData.shipFrigateUpgradeSlot.id] || Item.fromRawData({});
