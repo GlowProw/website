@@ -136,10 +136,11 @@ router.get('/list', [
                 'assembly.uuid',
                 'assembly.name',
                 'assembly.attr',
-                'assembly.userId',
+                db.raw(`CASE WHEN assembly.attr->>"$.isAnonymous" = 'true' THEN NULL ELSE assembly.userId END as userId`),
                 'assembly.data as assembly',
                 'assembly.visibility',
-                db.raw('(SELECT COUNT(*) FROM likes WHERE targetType = "assembly" AND targetId = assembly.uuid) as likes')
+                db.raw('(SELECT COUNT(*) FROM likes WHERE targetType = "assembly" AND targetId = assembly.uuid) as likes'),
+                db.raw(`CASE WHEN assembly.attr->>"$.isAnonymous" = 'true' THEN NULL ELSE users.username END as username`)
             )
             .where('assembly.visibility', '=', 'publicly')
             .where(function () {
@@ -459,6 +460,12 @@ router.get('/item', [
                     }
                 });
             }
+        }
+
+        // user anonymous info
+        if (assembly.attr.isAnonymous) {
+            assembly.userId = null
+            assembly.username= null
         }
 
         const assemblyIsHasPassword = !!assembly.attr.password;

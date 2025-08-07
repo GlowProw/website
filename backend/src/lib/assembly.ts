@@ -23,6 +23,7 @@ const assemblyAttributes: any = {
             "youtube": ""
         },
     },
+    "isAnonymous": {type: "boolean", get: true, set: true, isprivate: false, default: false},
     "isComment": {type: "boolean", get: true, set: true, isprivate: false, default: true},
     "isLike": {type: "boolean", get: true, set: true, isprivate: false, default: true},
     "assemblyUseVersion": {type: "string", get: true, set: true, isprivate: false, default: ''},
