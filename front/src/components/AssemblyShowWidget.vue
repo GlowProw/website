@@ -139,18 +139,26 @@ let // 获取陈设
     }),
     // 获取武器列表
     getShipWeaponList = computed(() => {
-      let tag = ['culverin', 'demicannon', 'bombard', 'longGun', 'torpedo', 'ballista']
+      let tag = ['culverin', 'demicannon', 'bombard', 'longGun', 'torpedo'],
+          conditionsTag = {
+            'frontWeapon': ['ballista'],
+            'leftSideWeapon': [],
+            'rightSideWeapon': [],
+            'aftWeapon': []
+          },
+          queryTags = []
 
-      if (cache.value.shipWeaponList.length > 0)
-        return cache.value.shipWeaponList;
+      queryTags = queryTags.concat(
+          tag,
+          conditionsTag[workshopData.value.data.weaponDirections[workshopData.value.weaponInsertIndex]]
+      )
 
-      const d = Object.values(items).filter(i => tag.indexOf(i.type) >= 0).map(i => {
+      const d = Object.values(items).filter(i => queryTags.indexOf(i.type) >= 0).map(i => {
         return {
           id: i.id,
           label: t(`snb.items.${i.id}.name`)
         }
       });
-      cache.value.shipWeaponList = d;
       return d;
     }),
     // 获取船甲列表
@@ -1055,7 +1063,6 @@ defineExpose({
             <v-icon icon="mdi-close-octagon-outline"/>
           </ItemSlotBase>
 
-          {{workshopData.weaponSearchValue}}
           <v-combobox
               v-model="workshopData.weaponSearchValue"
               v-model:search="workshopData.weaponSearchValue"
