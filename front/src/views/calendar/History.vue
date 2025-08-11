@@ -3,11 +3,12 @@ import {onMounted, type Ref, ref} from "vue";
 import {useI18n} from "vue-i18n";
 
 import {Seasons} from "glow-prow-data";
-import {time, http} from "@/assets/sripts";
+import {http, time} from "@/assets/sripts";
 
 import Loading from "@/components/Loading.vue";
 import CalendarEventSLotWidget from "@/components/snbWidget/calendarEventSLotWidget.vue";
 import {Season} from "glow-prow-data/src/entity/Seasons";
+import Scrollbar from "smooth-scrollbar";
 
 const {t, te} = useI18n()
 
@@ -23,7 +24,11 @@ let seasons = Seasons,
     // 赛季日历事件数据
     seasonsCalendarEvents: any = ref(),
     // 当前赛季
-    currentlySeason: Ref<Season> = ref(null);
+    currentlySeason: Ref<Season> = ref(null),
+
+    scrollContainer = ref(null)
+
+let isTransforming = false;
 
 onMounted(async () => {
   // 初始当前赛季
@@ -45,6 +50,35 @@ onMounted(async () => {
 
   // 初始日历列表
   formattedCalendar.value = transformCalendarData(seasonsCalendarEvents.value);
+
+  if (scrollContainer.value) {
+    let scrollbar= Scrollbar.init(scrollContainer.value, {
+      damping: 0.1,
+      thumbMinSize: 20,
+      renderByPixels: true,
+      alwaysShowTracks: false,
+      continuousScrolling: true,
+      plugins: {
+        horizontalScroll: {
+          events: ['wheel', 'touch'],
+        }
+      }
+    });
+
+    scrollbar.addListener((status) => {
+      if (isTransforming) return;
+      const deltaY = status.offset.y;
+
+      if (deltaY !== 0) {
+        isTransforming = true;
+
+        scrollbar.setPosition(0, 0);
+        scrollbar.contentEl.scrollLeft -= deltaY * 4;
+
+        isTransforming = false;
+      }
+    });
+  }
 })
 
 /**
@@ -260,63 +294,65 @@ function getRemainingDays(): number | null {
       </v-row>
     </v-container>
 
-    <div class="calendar-line">
-      <div v-for="(month, monthIndex) in formattedCalendar" :key="monthIndex">
-        <template v-if="month.eventCount > 0">
-          <v-row no-gutters align="center">
-            <v-avatar size="55" class="font-weight-bold text-h5" :color="`var(--main-color)`" style="color: hsl(from var(--main-color) h s calc(l * 0.3));">
-              {{ month.month }}
-            </v-avatar>
-            <v-col>
-              <v-divider :color="`var(--main-color)`" :opacity="20"></v-divider>
-            </v-col>
-          </v-row>
+    <div ref="scrollContainer">
+      <div class="calendar-line" style="white-space: nowrap;">
+        <div v-for="(month, monthIndex) in formattedCalendar" :key="monthIndex">
+          <template v-if="month.eventCount > 0">
+            <v-row no-gutters align="center">
+              <v-avatar size="55" class="font-weight-bold text-h5" :color="`var(--main-color)`" style="color: hsl(from var(--main-color) h s calc(l * 0.3));">
+                {{ month.month }}
+              </v-avatar>
+              <v-col>
+                <v-divider :color="`var(--main-color)`" :opacity="20"></v-divider>
+              </v-col>
+            </v-row>
 
-          <div class="calendar-line-day">
-            <div v-for="day in month.data" :key="day">
-              <template v-if="day.events.length">
-                <v-btn elevation block class="btn-flavor mt-4 w-100 font-weight-bold">
-                  {{ day.day }}日
-                </v-btn>
+            <div class="calendar-line-day">
+              <div v-for="day in month.data" :key="day">
+                <template v-if="day.events.length">
+                  <v-btn elevation block class="btn-flavor mt-4 w-100 font-weight-bold text-black">
+                    {{ day.day }}日
+                  </v-btn>
 
-                <div class="mr-3 pt-4">
+                  <div class="mr-3 pt-4">
 
-                  <CalendarEventSLotWidget :data="event" :currentlySeason="currentlySeason" v-for="event in day.events" :key="event">
-                    <template v-slot:header-right-btn>
-                      <v-dialog max-width="500">
-                        <template v-slot:activator="{ props: activatorProps }">
-                          <v-btn density="compact" v-bind="activatorProps"
-                                 @click="">添加到日历
-                          </v-btn>
-                        </template>
+                    <CalendarEventSLotWidget :data="event" :currentlySeason="currentlySeason" v-for="event in day.events" :key="event">
+                      <template v-slot:header-right-btn>
+                        <v-dialog max-width="500">
+                          <template v-slot:activator="{ props: activatorProps }">
+                            <v-btn density="compact" v-bind="activatorProps"
+                                   @click="">添加到日历
+                            </v-btn>
+                          </template>
 
-                        <template v-slot:default="{ isActive }">
-                          <v-card :title="t(`snb.calendar.${selectSeasonsValue.id}.data.${event.id}.name`)">
-                            <v-card-text>
-                              单独订阅{{ t(`snb.calendar.${selectSeasonsValue.id}.data.${event.id}.name`) }}所有事件？
-                            </v-card-text>
-                            <div class="w-100 background-flavor pt-4 pb-4">
-                              <CalendarEventSLotWidget class="ma-auto" :data="event" :currentlySeason="currentlySeason"></CalendarEventSLotWidget>
-                            </div>
+                          <template v-slot:default="{ isActive }">
+                            <v-card :title="t(`snb.calendar.${selectSeasonsValue.id}.data.${event.id}.name`)">
+                              <v-card-text>
+                                单独订阅{{ t(`snb.calendar.${selectSeasonsValue.id}.data.${event.id}.name`) }}所有事件？
+                              </v-card-text>
+                              <div class="w-100 background-flavor pt-4 pb-4">
+                                <CalendarEventSLotWidget class="ma-auto" :data="event" :currentlySeason="currentlySeason"></CalendarEventSLotWidget>
+                              </div>
 
-                            <v-card-actions>
-                              <v-spacer></v-spacer>
+                              <v-card-actions>
+                                <v-spacer></v-spacer>
 
-                              <v-btn
-                                  :text="t('basic.button.submit')"
-                                  @click="onSubscriptionCalendar('event', selectSeasonsValue.id, event.id);isActive.value = false"
-                              ></v-btn>
-                            </v-card-actions>
-                          </v-card>
-                        </template>
-                      </v-dialog>
-                    </template>
-                  </CalendarEventSLotWidget>
-                </div>
-              </template>
+                                <v-btn
+                                    :text="t('basic.button.submit')"
+                                    @click="onSubscriptionCalendar('event', selectSeasonsValue.id, event.id);isActive.value = false"
+                                ></v-btn>
+                              </v-card-actions>
+                            </v-card>
+                          </template>
+                        </v-dialog>
+                      </template>
+                    </CalendarEventSLotWidget>
+                  </div>
+                </template>
+              </div>
             </div>
-          </div>
-        </template>
+          </template>
+        </div>
       </div>
     </div>
   </template>
@@ -329,8 +365,8 @@ function getRemainingDays(): number | null {
 
 <style scoped lang="less">
 .calendar-line {
-  overflow-x: auto;
-  overflow-y: hidden;
+  //overflow-x: auto;
+  //overflow-y: hidden;
   min-height: 400px;
   padding-bottom: 50px;
   display: flex;

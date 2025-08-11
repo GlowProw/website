@@ -18,6 +18,8 @@ import CommentWidget from "@/components/CommentWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
 import {useAuthStore} from "~/stores";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
+import ShipWeaponInfoSlotWidget from "@/components/snbWidget/shipWeaponInfoSlotWidget.vue";
+import ShipBaseInfoSlotWidget from "@/components/snbWidget/shipBaseInfoSlotWidget.vue";
 
 const shipImages = import.meta.glob('@glow-prow-assets/ships/*.png', {eager: true});
 
@@ -212,166 +214,8 @@ const onStatisticsRawMaterial = () => {
                 </template>
 
                 <div class="mt-1">
-                  <template v-if="shipDetailData.slots.frontWeapon">
-                    <v-row>
-                      <v-col cols="auto">
-                        <ShipTopDownPerspectiveWidget :centerTop="true"></ShipTopDownPerspectiveWidget>
-                      </v-col>
-                      <v-col>
-                        <p>
-                          <v-row align="center">
-                            <v-col><b>{{ t('displayCabinet.ship.frontWeapon') }}</b></v-col>
-                            <v-col cols>
-                              <v-divider></v-divider>
-                            </v-col>
-                            <v-col align="right">
-                              {{ shipDetailData.slots.frontWeapon[0] }}
-                            </v-col>
-                          </v-row>
-                        </p>
-                        <v-text-field :value="shipDetailData.slots.frontWeapon[1].top" readonly
-                                      hide-details
-                                      variant="underlined" density="compact">
-                          <template v-slot:append-inner>
-                            <p class="text-no-wrap">{{ t('displayCabinet.ship.topDeck') }}</p>
-                          </template>
-                        </v-text-field>
-                        <v-text-field :value="shipDetailData.slots.frontWeapon[1].lower" readonly
-                                      hide-details
-                                      variant="underlined" density="compact">
-                          <template v-slot:append-inner>
-                            <p class="text-no-wrap">{{ t('displayCabinet.ship.lowerDeck') }}</p>
-                          </template>
-                        </v-text-field>
-                      </v-col>
-                    </v-row>
-                  </template>
-                  <template v-if="shipDetailData.slots.leftSideWeapon">
-                    <v-row>
-                      <v-col cols="auto">
-                        <ShipTopDownPerspectiveWidget :left="true"></ShipTopDownPerspectiveWidget>
-                      </v-col>
-                      <v-col>
-                        <p>
-                          <v-row align="center">
-                            <v-col><b>{{ t('displayCabinet.ship.leftSideWeapon') }}</b></v-col>
-                            <v-col cols>
-                              <v-divider></v-divider>
-                            </v-col>
-                            <v-col align="right" v-if="shipDetailData.slots.leftSideWeapon[0]">
-                              {{ shipDetailData.slots.leftSideWeapon[0] }}
-                            </v-col>
-                          </v-row>
-                        </p>
-                        <v-text-field :value="shipDetailData.slots.leftSideWeapon[1].top" readonly
-                                      hide-details
-                                      v-if="shipDetailData.slots.leftSideWeapon[1].top"
-                                      variant="underlined" density="compact">
-                          <template v-slot:append-inner>
-                            <p class="text-no-wrap">{{ t('displayCabinet.ship.topDeck') }}</p>
-                          </template>
-                        </v-text-field>
-                        <v-text-field :value="shipDetailData.slots.leftSideWeapon[1].lower" readonly
-                                      hide-details
-                                      v-if="shipDetailData.slots.leftSideWeapon[1].lower"
-                                      variant="underlined" density="compact">
-                          <template v-slot:append-inner>
-                            <p class="text-no-wrap">{{ t('displayCabinet.ship.lowerDeck') }}</p>
-                          </template>
-                        </v-text-field>
-                      </v-col>
-                    </v-row>
-                  </template>
-                  <template v-if="shipDetailData.slots.rightSideWeapon">
-                    <v-row>
-                      <v-col cols="auto">
-                        <ShipTopDownPerspectiveWidget :right="true"></ShipTopDownPerspectiveWidget>
-                      </v-col>
-                      <v-col>
-                        <p>
-                          <v-row align="center">
-                            <v-col><b>{{ t('displayCabinet.ship.rightSideWeapon') }}</b></v-col>
-                            <v-col cols>
-                              <v-divider></v-divider>
-                            </v-col>
-                            <v-col align="right" v-if="shipDetailData.slots.rightSideWeapon[0]">
-                              {{ shipDetailData.slots.rightSideWeapon[0] }}
-                            </v-col>
-                          </v-row>
-                        </p>
-                        <v-text-field :value="shipDetailData.slots.rightSideWeapon[1].top" readonly
-                                      hide-details
-                                      v-if="shipDetailData.slots.rightSideWeapon[1].top"
-                                      variant="underlined" density="compact">
-                          <template v-slot:append-inner>
-                            <p class="text-no-wrap">{{ t('displayCabinet.ship.topDeck') }}</p>
-                          </template>
-                        </v-text-field>
-                        <v-text-field :value="shipDetailData.slots.rightSideWeapon[1].lower" readonly
-                                      hide-details
-                                      v-if="shipDetailData.slots.rightSideWeapon[1].lower"
-                                      variant="underlined" density="compact">
-                          <template v-slot:append-inner>
-                            <p class="text-no-wrap">{{ t('displayCabinet.ship.lowerDeck') }}</p>
-                          </template>
-                        </v-text-field>
-                      </v-col>
-                    </v-row>
-                  </template>
-                  <template v-if="shipDetailData.slots.aftWeapon">
-                    <v-row>
-                      <v-col cols="auto">
-                        <ShipTopDownPerspectiveWidget :centerDown="true"></ShipTopDownPerspectiveWidget>
-                      </v-col>
-                      <v-col>
-                        <p>
-                          <v-row align="center">
-                            <v-col><b>{{ t('displayCabinet.ship.aftWeapon') }}</b></v-col>
-                            <v-col cols>
-                              <v-divider></v-divider>
-                            </v-col>
-                            <v-col align="right" v-if="shipDetailData.slots.aftWeapon[0]">
-                              {{ shipDetailData.slots.aftWeapon[0] }}
-                            </v-col>
-                          </v-row>
-                        </p>
-                        <v-text-field :value="shipDetailData.slots.aftWeapon[1].top" readonly
-                                      hide-details
-                                      v-if="shipDetailData.slots.aftWeapon[1].top"
-                                      variant="underlined" density="compact">
-                          <template v-slot:append-inner>
-                            <p class="text-no-wrap">{{ t('displayCabinet.ship.topDeck') }}</p>
-                          </template>
-                        </v-text-field>
-                        <v-text-field :value="shipDetailData.slots.aftWeapon[1].lower" readonly
-                                      hide-details
-                                      v-if="shipDetailData.slots.aftWeapon[1].lower"
-                                      variant="underlined" density="compact">
-                          <template v-slot:append-inner>
-                            <p class="text-no-wrap">{{ t('displayCabinet.ship.lowerDeck') }}</p>
-                          </template>
-                        </v-text-field>
-                      </v-col>
-                    </v-row>
-                  </template>
+                  <ShipWeaponInfoSlotWidget :data="shipDetailData"></ShipWeaponInfoSlotWidget>
                 </div>
-
-                <template v-if="shipDetailData.slots.auxiliaryWeapon">
-                  <v-row>
-                    <v-col cols="auto">
-                      <ShipTopDownPerspectiveWidget :center-center="true"></ShipTopDownPerspectiveWidget>
-                    </v-col>
-                    <v-col>
-                      <v-text-field :value="shipDetailData.slots.auxiliaryWeapon[0]" readonly
-                                    hide-details
-                                    variant="underlined" density="compact">
-                        <template v-slot:append-inner>
-                          <p class="text-no-wrap">{{ t('displayCabinet.ship.auxiliaryWeapon') }}</p>
-                        </template>
-                      </v-text-field>
-                    </v-col>
-                  </v-row>
-                </template>
 
                 <template v-if="shipDetailData.slots.furniture">
                   <v-text-field :value="shipDetailData.slots.furniture[0]" readonly
@@ -382,7 +226,6 @@ const onStatisticsRawMaterial = () => {
                     </template>
                   </v-text-field>
                 </template>
-
                 <template v-if="shipDetailData.slots.ultimate">
                   <v-text-field :value="shipDetailData.slots.ultimate[0]" readonly
                                 hide-details
@@ -394,40 +237,7 @@ const onStatisticsRawMaterial = () => {
                 </template>
               </v-col>
               <v-col cols="12" sm="12" lg="6" xl="6">
-                <v-text-field :value="shipDetailData.hitpoints" readonly
-                              hide-details
-                              variant="underlined" density="compact">
-                  <template v-slot:append-inner>
-                    <p class="text-no-wrap">{{ t('displayCabinet.ship.hitPoints') }}</p>
-                  </template>
-                </v-text-field>
-
-                <v-text-field :value="shipDetailData.braceStrength" readonly
-                              hide-details
-                              variant="underlined" density="compact">
-                  <template v-slot:append-inner>
-                    <p class="text-no-wrap">{{ t('displayCabinet.ship.braceStrength') }}</p>
-                  </template>
-                </v-text-field>
-
-                <p class="mt-4"><b>{{ t('displayCabinet.ship.sailSpeed.title') }}{{ t('displayCabinet.ship.sailSpeed.knot') }}</b></p>
-                <ShipSailSpeedWidget :data="shipDetailData"></ShipSailSpeedWidget>
-
-                <p class="mt-4"><b>{{ t('displayCabinet.ship.cargo') }}</b></p>
-                <v-text-field :value="shipDetailData.cargo.cargoSlots" readonly
-                              hide-details
-                              variant="underlined" density="compact">
-                  <template v-slot:append-inner>
-                    <p class="text-no-wrap">{{ t('displayCabinet.ship.cargoSlots') }}</p>
-                  </template>
-                </v-text-field>
-                <v-text-field :value="shipDetailData.cargo.cargoMaxWeight" readonly
-                              hide-details
-                              variant="underlined" density="compact">
-                  <template v-slot:append-inner>
-                    <p class="text-no-wrap">{{ t('displayCabinet.ship.cargoMaxWeight') }}</p>
-                  </template>
-                </v-text-field>
+                <ShipBaseInfoSlotWidget :data="shipDetailData"></ShipBaseInfoSlotWidget>
               </v-col>
               <v-col cols="12">
                 <v-divider>{{ t('displayCabinet.ship.materialsTitle') }}</v-divider>

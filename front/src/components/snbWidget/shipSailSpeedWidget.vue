@@ -4,11 +4,15 @@ import {computed, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import CountUp from "@/components/CountUp.vue";
 import WindFlowsWidget from "@/components/WindFlowsWidget.vue"
+import RhombusWidget from "@/components/snbWidget/rhombusWidget.vue";
 
 let simulationValue = ref(1),
     simulationArray = ref([]);
 
-const props = defineProps<{ data: Ship }>(),
+const props = withDefaults(defineProps<{ data: Ship, isSimulationShipSailSpeed?: boolean }>(), {
+      data: null,
+      isSimulationShipSailSpeed: true,
+    }),
     {t} = useI18n()
 
 watch(() => props.data, (value) => {
@@ -24,11 +28,23 @@ const ticks = computed(() => {
 </script>
 
 <template>
-  <div v-if="data.sailSpeed" class="pt-3">
-    <v-card class="pa-5 card-flavor" variant="text">
+  <div v-if="data" class="pt-3">
+    <v-card v-if="isSimulationShipSailSpeed" class="pa-5 card-flavor" variant="text">
       <v-row class="mb-2 mt-2" align="center">
         <v-spacer></v-spacer>
+        <div class="d-flex ml-n4 speed-dot">
+          <div
+              class="mb-1 mt-1"
+              v-for="(i,index) in ticks"
+              :key="i += index">
+            <RhombusWidget
+                :activateColor="ticks.length - 1 == index ? '#4CAF50' : 'rgba(242,242,242,0.76)'"
+                :activate="index <= simulationValue">
+            </RhombusWidget>
+          </div>
+        </div>
         <v-col cols="auto">
+
           <v-progress-circular
               size="150"
               :color="{
@@ -112,5 +128,8 @@ const ticks = computed(() => {
 </template>
 
 <style scoped lang="less">
-
+.speed-dot {
+  flex-direction: column-reverse;
+  align-items: center;
+}
 </style>

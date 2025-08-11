@@ -1,14 +1,16 @@
 <script setup lang="ts">
-const props = withDefaults(defineProps<{ activate?: boolean, size?: string | number }>(), {
+const props = withDefaults(defineProps<{ activate?: boolean, activateColor?: string, size?: string | number }>(), {
   activate: false,
-  size: 6
+  size: 6,
+  activateColor: ''
 })
 </script>
 
 <template>
   <div class="weapon-modification">
-    <div class="weapon-modification-icon" :class="[activate ? 'activate' : '']">
-      <div :style="`width: ${size}px;height: ${size}px;`"></div>
+    <div class="weapon-modification-icon" :class="[activate ? 'activate' : '']"
+         :style="activate ? `border: 1px solid hsl(from ${activateColor|| 'var(--main-color)'} h s calc(l * 1))` : ''">
+      <div :style="`width: ${size}px;height: ${size}px;${activate ? `background-color: ${activateColor || 'var(--main-color)'}` : ''}`"></div>
     </div>
   </div>
 </template>

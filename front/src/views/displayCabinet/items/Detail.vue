@@ -17,6 +17,7 @@ import PerksWidget from "@/components/snbWidget/perksWidget.vue";
 import {useI18nUtils} from "@/assets/sripts/i18nUtil";
 import ItemInputWidget from "@/components/snbWidget/itemInputWidget.vue";
 import TimeView from "@/components/TimeView.vue";
+import Time from "@/components/Time.vue"
 import ItemDamageTypeWidget from "@/components/snbWidget/itemDamageTypeWidget.vue";
 import {storage} from "@/assets/sripts";
 import WeaponModificationWidget from "@/components/snbWidget/weaponModificationWidget.vue";
@@ -224,7 +225,7 @@ const onStatisticsRawMaterial = () => {
                                 hide-details
                                 variant="underlined" density="compact">
                     <template v-slot:append-inner>
-                      <p class="text-no-wrap">Tier</p>
+                      <p class="text-no-wrap">{{ t('displayCabinet.item.tier') }}</p>
                     </template>
                   </v-text-field>
                 </template>
@@ -529,28 +530,33 @@ const onStatisticsRawMaterial = () => {
               </v-text-field>
             </template>
 
-            <ItemInputWidget>
-              <TimeView class="mt-1" :time="itemDetailData.dateAdded">
-                {{ itemDetailData.dateAdded.toLocaleString() }}
-              </TimeView>
-              <template v-slot:append-inner>
+            <v-row no-gutters align="center" class="mt-2">
+              <v-col cols="auto">
+                <v-icon icon="mdi-calendar-range" class="mr-3"></v-icon>
+              </v-col>
+              <v-col>
+                <TimeView class="mt-1" :time="itemDetailData.dateAdded">
+                  <Time :time="itemDetailData.dateAdded"/>
+                </TimeView>
+              </v-col>
+              <v-col cols="auto">
                 <p class="text-no-wrap">{{ t('displayCabinet.item.dateAdded') }}</p>
-              </template>
-              <template v-slot:prepend>
-                <v-icon icon="mdi-calendar-range"></v-icon>
-              </template>
-            </ItemInputWidget>
-            <ItemInputWidget>
-              <TimeView class="mt-1" :time="itemDetailData.lastUpdated">
-                {{ itemDetailData.lastUpdated.toLocaleString() }}
-              </TimeView>
-              <template v-slot:prepend>
-                <v-icon icon="mdi-calendar-range"></v-icon>
-              </template>
-              <template v-slot:append-inner>
+              </v-col>
+            </v-row>
+
+            <v-row no-gutters align="center" class="mt-2">
+              <v-col cols="auto">
+                <v-icon icon="mdi-calendar-range" class="mr-3"></v-icon>
+              </v-col>
+              <v-col>
+                <TimeView class="mt-1" :time="itemDetailData.lastUpdated">
+                  <Time :time="itemDetailData.lastUpdated"/>
+                </TimeView>
+              </v-col>
+              <v-col cols="auto">
                 <p class="text-no-wrap">{{ t('displayCabinet.item.lastUpdated') }}</p>
-              </template>
-            </ItemInputWidget>
+              </v-col>
+            </v-row>
 
             <template v-if="itemDetailData.id">
               <p class="mt-5 mb-4 font-weight-bold">{{ t('displayCabinet.item.damageType') }}</p>

@@ -5,8 +5,9 @@ import {computed, onMounted, ref} from "vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import {useI18n} from "vue-i18n";
 import {useI18nUtils} from "@/assets/sripts/i18nUtil";
-import {number} from "@/assets/sripts/index";
+import {number, storageCollect} from "@/assets/sripts/index";
 import EmptyView from "@/components/EmptyView.vue";
+import {StorageCollectType} from "@/assets/sripts/storage_collect";
 
 interface Item {
   id: string;
@@ -61,7 +62,7 @@ let // 搜索相关状态
       // 转换格式并添加name字段
       const mapped = filtered.map((i) => ({
         id: i.id,
-        name: asString([`snb.items.${i.id}.name`, `snb.items.${sanitizeString(i.id).cleaned}.name`]),
+        name: handleItemName(i.id),
         tier: i.tier,
         type: i.type,
         rarity: i.rarity || 0,
@@ -74,19 +75,39 @@ let // 搜索相关状态
 
       // 排序
       return sortItems(searched, sortBy.value);
-    });
+    }),
+
+    // starAsArray = computed(() => {
+    //   return Object.keys(starItem.value)
+    // }),
+    starItem = ref({});
 
 onMounted(() => {
   sortBy.value = props.sortBy;
   filterType.value = props.filterType;
+  let itemCollect = storageCollect.gets(StorageCollectType.Item)
+  if (itemCollect.code == 0)
+    starItem.value = itemCollect.data.map(i => {
+      return {
+        ...items[i.id],
+        name: handleItemName(i.id)
+      }
+    });
   updateData();
 });
 
+/**
+ * 更新数据
+ */
 const updateData = () => {
   resultItems.value = groupByType(processedItems.value);
 };
 
-// 排序函数
+/**
+ * 排序函数
+ * @param items
+ * @param sortBy
+ */
 function sortItems(items: Item[], sortBy: string): Item[] {
   switch (sortBy) {
     case "rarity":
@@ -99,7 +120,17 @@ function sortItems(items: Item[], sortBy: string): Item[] {
   }
 }
 
-// 分组函数
+/**
+ * 处理物品名称
+ */
+const handleItemName = (id) => {
+  return asString([`snb.items.${id}.name`, `snb.items.${sanitizeString(id).cleaned}.name`]);
+}
+
+/**
+ * 分组函数
+ * @param items
+ */
 function groupByType(items: Item[]): GroupedItem[] {
   const typeMap = new Map<string, Item[]>();
 
@@ -116,16 +147,51 @@ function groupByType(items: Item[]): GroupedItem[] {
   }));
 }
 
+/**
+ * 首大写
+ * @param str
+ */
 const capitalizeFLetter = (str: string) => {
   return str ? str[0].toUpperCase() + str.slice(1) : '';
 };
 
+/**
+ * 单击事件
+ * @param data
+ */
 const onClickEvent = (data: Item) => {
   if (props.modelValue && props.modelValue.id == data.id)
     return;
 
   emit('update:modelValue', data)
   emit('clickSelectItem', data)
+}
+
+/**
+ * 收藏物品
+ */
+const onStarItem = (data: Item) => {
+  let index = starItem.value.findIndex(i => i.id == data.id)
+
+  if (index >= 0) {
+    storageCollect.delete(data.id, StorageCollectType.Item)
+    starItem.value.splice(index, 1)
+    return;
+  }
+
+  storageCollect.updata(
+      {collectTime: new Date().getTime()},
+      StorageCollectType.Item,
+      data.id
+  )
+  starItem.value.push({
+    ...items[data.id],
+    name: handleItemName(data.id)
+  })
+}
+
+const isCollect = (id) => {
+  return starItem.value.findLast(i => i.id == id)
 }
 
 defineExpose({
@@ -183,16 +249,15 @@ defineExpose({
   </v-row>
   <v-divider thickness="1" color="#000" class="mb-n1"></v-divider>
 
-  <div class="bg-shades-black background-flavor">
-    <!-- 物品展示 -->
-    <div v-if="resultItems.length > 0" style="max-height: 50vh" class="w-100 overflow-y-auto overflow-x-hidden">
-      <div v-for="(i, index) in resultItems" :key="index" class="mb-8">
-        <div class="text-center title-long-flavor text-amber font-weight-bold bg-black pl-4 lr-4 pt-2 pb-2 ml-n2 mr-n2 mb-4">
-          {{ t(`displayCabinet.type.${i.type}`) }} ({{ i.child.length || 0 }})
-        </div>
+  <div class="bg-shades-black background-flavor w-100 overflow-y-auto overflow-x-hidden" style="max-height: 50vh">
+    <div class="w-100 pb-3" v-if="starItem.length > 0">
+      <div class="text-center title-long-flavor text-amber font-weight-bold bg-black pl-4 lr-4 pt-2 pb-2 ml-n2 mr-n2 mb-4">
+        我的最爱
+      </div>
 
-        <v-row class="pl-8 pr-8">
-          <v-col cols="auto" class="item" v-for="(j, jIndex) in i.child" :key="jIndex" @click="onClickEvent(j)" :title="j.name">
+      <v-row class="pl-8 pr-8">
+        <v-col v-for="(j,jIndex) in starItem" :key="jIndex" cols="auto">
+          <div @click="onClickEvent(j)">
             <ItemSlotBase size="90px" :class="[ modelValue && modelValue.id == j.id ? 'bg-amber' : '']">
               <ItemIconWidget :id="j.id" :is-show-tooltip="false" :is-open-detail="false"></ItemIconWidget>
             </ItemSlotBase>
@@ -202,16 +267,55 @@ defineExpose({
               </div>
               <span>{{ number.intToRoman(j.tier || 1) }}</span>
             </div>
-          </v-col>
-        </v-row>
-      </div>
+          </div>
+
+          <div class="text-center mt-1">
+            <v-btn class="text-amber" density="compact" variant="text" icon @click="onStarItem(j)">
+              <v-icon :icon="`mdi-${isCollect(j.id) ? 'star' : 'star-outline'}`" size="12"></v-icon>
+            </v-btn>
+          </div>
+        </v-col>
+      </v-row>
     </div>
 
-    <!-- 无结果提示 -->
-    <div v-else class="text-center w-100">
-      <v-icon size="64" color="grey">mdi-magnify-close</v-icon>
-      <div class="mt-4">
-        <EmptyView></EmptyView>
+    <div>
+      <!-- 物品展示 -->
+      <div v-if="resultItems.length > 0">
+        <div v-for="(i, index) in resultItems" :key="index" class="mb-8">
+          <div class="text-center title-long-flavor text-amber font-weight-bold bg-black pl-4 lr-4 pt-2 pb-2 ml-n2 mr-n2 mb-4">
+            {{ t(`displayCabinet.type.${i.type}`) }} ({{ i.child.length || 0 }})
+          </div>
+
+          <v-row class="pl-8 pr-8">
+            <v-col cols="auto" class="item" v-for="(j, jIndex) in i.child" :key="jIndex" :title="j.name">
+              <div @click="onClickEvent(j)">
+                <ItemSlotBase size="90px" :class="[ modelValue && modelValue.id == j.id ? 'bg-amber' : '']">
+                  <ItemIconWidget :id="j.id" :is-show-tooltip="false" :is-open-detail="false"></ItemIconWidget>
+                </ItemSlotBase>
+                <div class="text-center d-flex justify-center" style="width: 90px" :class="[modelValue && modelValue.id == j.id ? 'text-amber' : '']">
+                  <div class="singe-line">
+                    {{ j.name }}
+                  </div>
+                  <span>{{ number.intToRoman(j.tier || 1) }}</span>
+                </div>
+              </div>
+
+              <div class="text-center mt-1">
+                <v-btn class="text-amber" density="compact" variant="text" icon @click="onStarItem(j)">
+                  <v-icon :icon="`mdi-${isCollect(j.id) ? 'star' : 'star-outline'}`" size="12"></v-icon>
+                </v-btn>
+              </div>
+            </v-col>
+          </v-row>
+        </div>
+      </div>
+
+      <!-- 无结果提示 -->
+      <div v-else class="text-center w-100">
+        <v-icon size="64" color="grey">mdi-magnify-close</v-icon>
+        <div class="mt-4">
+          <EmptyView></EmptyView>
+        </div>
       </div>
     </div>
   </div>

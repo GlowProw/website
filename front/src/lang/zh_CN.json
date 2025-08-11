@@ -200,6 +200,7 @@
       "lastUpdated": "更新日期",
       "damageType": "武器属性",
       "perks": "词条",
+      "tier": "等级",
       "damageMitigation": "损害减轻"
     },
     "ships": {
@@ -241,7 +242,10 @@
       "requiredRank": "最低使用等级",
       "dateAdded": "添加日期",
       "lastUpdated": "更新日期",
-      "perks": "词条"
+      "perks": "词条",
+      "baseInfo": "基础信息",
+      "deckInfo": "甲板信息",
+      "lookDetail": "查看船只详情"
     },
     "ultimate": {
       "title": "终结技详情"

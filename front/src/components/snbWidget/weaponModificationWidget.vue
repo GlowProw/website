@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import WeaponModificationIconSlotWidget from "@/components/snbWidget/weaponModificationIconSlotWidget.vue";
+import RhombusWidget from "@/components/snbWidget/rhombusWidget.vue";
 import {Item} from "glow-prow-data/src/entity/Items.ts";
 import {onMounted, ref, toRaw, watch} from "vue";
 import type {Rarity} from "glow-prow-data/src/types/Rarity";
@@ -189,11 +189,11 @@ const onPercentage = (data: []): [number, number] => {
 <template>
   <!-- 武器扩展模组插槽 -->
   <v-btn block variant="text" size="small" class="pa-0" :disabled="disabled" @click="show = true">
-    <WeaponModificationIconSlotWidget
+    <RhombusWidget
         :size="size"
         v-for="(i, index) in props.modelValue" :key="index"
         :activate="!!i.value"
-    ></WeaponModificationIconSlotWidget>
+    ></RhombusWidget>
   </v-btn>
 
   <v-dialog v-model="show">
