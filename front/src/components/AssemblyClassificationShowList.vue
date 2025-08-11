@@ -77,10 +77,7 @@ let // 搜索相关状态
       return sortItems(searched, sortBy.value);
     }),
 
-    // starAsArray = computed(() => {
-    //   return Object.keys(starItem.value)
-    // }),
-    starItem = ref({});
+    starItem = ref([]);
 
 onMounted(() => {
   sortBy.value = props.sortBy;
@@ -191,6 +188,8 @@ const onStarItem = (data: Item) => {
 }
 
 const isCollect = (id) => {
+  if (!starItem.value || starItem.value.length < 0)
+    return false;
   return starItem.value.findLast(i => i.id == id)
 }
 

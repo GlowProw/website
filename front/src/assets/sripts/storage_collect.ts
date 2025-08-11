@@ -38,6 +38,12 @@ export class StorageCollect {
     gets(type: StorageCollectType) {
         try {
             const d = storage.local.get(this.NAME + type)
+
+            if (d.data || d.code != 0)
+                return {
+                    code: -1,
+                }
+
             const items = Object.entries(d.data.value)
                 .slice(0, this.MAX_COUNT)
                 .map(i => ({
