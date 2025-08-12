@@ -7,11 +7,9 @@ import {useRoute, useRouter} from "vue-router";
 
 import EmptyView from "@/components/EmptyView.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
-import ShipSailSpeedWidget from "@/components/snbWidget/shipSailSpeedWidget.vue";
 import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
 import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
 import PerksWidget from "@/components/snbWidget/perksWidget.vue";
-import ShipTopDownPerspectiveWidget from "@/components/snbWidget/shipTopDownPerspectiveWidget.vue";
 import {Ship} from "glow-prow-data/src/entity/Ships.ts";
 import {storage} from "@/assets/sripts";
 import CommentWidget from "@/components/CommentWidget.vue";
@@ -105,17 +103,18 @@ const onDisplayCabinetHistory = () => {
  * 处理计算必要材料对应原材料
  */
 const onStatisticsRawMaterial = () => {
-  shipRawMaterials.value = Array.from(shipDetailData.value.required).reduce(
-      (acc, [material, quantity]) => {
-        if (materials[material.id]?.required) {
-          Array.from(materials[material.id].required).reduce((j, [raw, rawQuantity]) => {
-            acc[raw.id] = (acc[raw.id] || 0) + (rawQuantity as number) * quantity;
-          })
-        }
-        return acc;
-      },
-      {} as Record<string, number>
-  );
+  if (shipDetailData.value.required)
+    shipRawMaterials.value = Array.from(shipDetailData.value.required).reduce(
+        (acc, [material, quantity]) => {
+          if (materials[material.id]?.required) {
+            Array.from(materials[material.id].required).reduce((j, [raw, rawQuantity]) => {
+              acc[raw.id] = (acc[raw.id] || 0) + (rawQuantity as number) * quantity;
+            })
+          }
+          return acc;
+        },
+        {} as Record<string, number>
+    );
 }
 </script>
 
@@ -340,7 +339,8 @@ const onStatisticsRawMaterial = () => {
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
             <v-card class="mb-4 pl-3" v-if="shipDetailData.bySeason">
-              <v-text-field :value="t(`snb.seasons.${shipDetailData.bySeason.id}`) || 'none'" readonly
+              <v-text-field :value="t(`snb.seasons.${shipDetailData.bySeason.id}`) || 'none'"
+                            readonly
                             hide-details
                             tile
                             variant="solo-filled">

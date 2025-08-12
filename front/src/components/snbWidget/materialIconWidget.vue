@@ -27,7 +27,8 @@ const onImage = () => {
     imageMap[key] = itemImages[path];
   }
 
-  src.value = imageMap[props.id].default
+  if (imageMap[props.id] && imageMap[props.id].default)
+    src.value = imageMap[props.id].default
 }
 
 </script>

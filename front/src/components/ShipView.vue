@@ -52,7 +52,7 @@ export default {
 
 <template>
   <v-dialog v-model="show"
-            class="ship"
+            class="item"
             class-name="ship-window-box"
             :width="600"
             @on-visible-change="(status) => !status ? $emit('close') : null"
@@ -80,14 +80,14 @@ export default {
   }
 }
 
-.ship {
+.item {
   .insert-preview {
     position: absolute;
     top: -50px;
     left: 1px;
   }
 
-  .ship-tab {
+  .item-tab {
     margin: -10px -16px -16px -16px;
 
     .ivu-tabs-bar {
@@ -95,7 +95,7 @@ export default {
     }
   }
 
-  .ship-row-box {
+  .item-row-box {
     background-color: rgba(0, 0, 0, 0.01);
     display: grid;
     grid-template-columns: repeat(12, 1fr);
@@ -108,14 +108,14 @@ export default {
     max-height: 200px;
     overflow-y: auto;
 
-    .ship-item {
+    .item-item {
       width: 38px;
       height: 38px;
     }
   }
 }
 
-.ship-window-box {
+.item-window-box {
   .ivu-modal {
     margin: 0 !important;
   }

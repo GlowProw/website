@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import {onMounted, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import {Modifications} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 import ItemSlotBase from "./ItemSlotBase.vue";
 import router from "~/router";
 import {useRoute} from "vue-router";
+import {useI18nUtils} from "@/assets/sripts/i18nUtil";
 
 const modImages = import.meta.glob('@glow-prow-assets/modifications/*.*', {eager: true});
 const props = withDefaults(defineProps<{ id: string, type: string | null }>(), {
@@ -12,11 +13,15 @@ const props = withDefaults(defineProps<{ id: string, type: string | null }>(), {
       type: null
     }),
     route = useRoute(),
-    {t, te} = useI18n()
+    {t, rt, te, tm} = useI18n(),
+    {asString} = useI18nUtils()
 
 let modData = ref({}),
     modIconImages = ref({}),
-    showType = ref('1')
+    showType = ref('1'),
+    isHasMod = computed(() => {
+      return Object.keys(modData.value).length > 0
+    })
 
 onMounted(() => {
   modData.value = onCategorizeByGrade(Modifications)
@@ -92,21 +97,31 @@ const onIsModPossibleSlot = (data) => {
  * 模组展示方式切换
  */
 const onSwitchModShow = () => {
-  router.push({name: route.name, query: {...route.query, 'modeShowType': showType.value}, params: {...route.params}})
+  router.push({
+    name: route.name,
+    query: {...route.query, 'modeShowType': showType.value},
+    params: {...route.params}
+  })
 }
 
 /**
  * 百分化
  * @param data
  */
-const onPercentage = (data: []): [number, number] => {
-  return [Math.ceil(data[0] * 100), Math.ceil(data[1] * 100)]
+const onFormatRange = (data: []) => {
+  return data.map((num, index) => {
+    if (num < 1) {
+      return [Math.floor(num * 100 * 10) / 10, Math.ceil(num * 100 * 10) / 10][index];
+    } else {
+      return num;
+    }
+  });
 }
 </script>
 
 <template>
-  <slot name="title" v-if="modData.length >= 0"></slot>
-  <v-card border class="mod" v-if="modData.length >= 0">
+  <slot name="title" v-if="isHasMod"></slot>
+  <v-card border class="mod" v-if="isHasMod">
     <template v-for="(key, value) in modData" :key="key">
       <v-row class="pl-5 pr-5 pr-0 pt-2 title-long-flavor bg-black" align="center">
         <v-col>
@@ -151,13 +166,17 @@ const onPercentage = (data: []): [number, number] => {
               </ItemSlotBase>
               <v-col cols="10">
                 <b :class="`grade-${mod.grade}-title`">{{ t(`snb.modifications.${mod.id}.name`) }}</b>
-                <div v-for="(v, vIndex) in mod.variants" :key="vIndex" :class="`grade-${mod.grade}-description`" class="opacity-50 description">
-                  <template v-if="te(`snb.modifications.${mod.id}.description`)">
+                <div v-for="(v, vIndex) in mod.variants.filter(e => e.itemType.indexOf(type) >= 0)" :key="vIndex"
+                     :class="`grade-${mod.grade}-description`" class="opacity-50 description">
+                  <template v-if="!Array.isArray(t(`snb.modifications.${mod.id}.description`)) && te(`snb.modifications.${mod.id}.description`)">
                     {{
                       t(`snb.modifications.${mod.id}.description`, {
-                        __: onPercentage(v.range)
+                        __: onFormatRange(v.range)
                       })
                     }}
+                  </template>
+                  <template v-else v-for="content in tm(`snb.modifications.${mod.id}.description`)" :key="content">
+                    {{ rt(content, {__: onFormatRange(v.range)}) }}<br>
                   </template>
                 </div>
               </v-col>

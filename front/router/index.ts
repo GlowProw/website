@@ -44,6 +44,7 @@ import Test from '@/views/Test.vue'
 import {useI18n} from "vue-i18n";
 
 import {useAuthStore} from "@/../stores";
+import {useItemAssetsStore} from "~/stores/itemAssetsStore";
 
 
 const isLoginBeforeEnter = function (to: any, from: any, next) {
@@ -54,6 +55,11 @@ const isLoginBeforeEnter = function (to: any, from: any, next) {
     } else {
         next({path: '/account/login', query: {backUrl: to.fullPath}});
     }
+}
+
+const initItemAssets = () => {
+    const {init} = useItemAssetsStore()
+    init();
 }
 
 const routes: Readonly<RouteRecordRaw[]> = [
@@ -141,6 +147,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
         path: '/display-cabinet',
         name: 'DisplayCabinet',
         component: DisplayCabinetPage,
+        beforeEnter: initItemAssets,
         redirect: '/display-cabinet/overview',
         children: [
             {
@@ -169,7 +176,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 component: ItemDetailPage,
             },
             {
-                path: 'item/category/:name',
+                path: 'item/:fun/:key',
                 name: 'ItemCategoryDetail',
                 component: ItemCategoryDetailPage,
             },
@@ -219,6 +226,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
         },
         name: 'Assembly',
         component: AssemblePage,
+        beforeEnter: initItemAssets,
         redirect: '/assembly/browse',
         children: [
             {

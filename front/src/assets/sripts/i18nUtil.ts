@@ -67,19 +67,19 @@ export function useI18nUtils() {
     /**
      * 获取翻译字符串
      */
-    const asString = (keys: string[], backRawKey?: boolean) => {
+    const asString = (keys: string[], options: {backRawKey? : boolean, variable?: any} = {}) => {
         let result = ''
 
         for (const i18nKey of keys) {
             if (te(i18nKey)) {
-                const content = t(i18nKey)
+                const content = t(i18nKey, options.variable || null)
                 if (content && result.length <= 0 && result === '') {
                     result = content
                 }
             }
         }
 
-        if (result == '' && backRawKey)
+        if (result == '' && options.backRawKey)
             result = keys[0]
 
         return result

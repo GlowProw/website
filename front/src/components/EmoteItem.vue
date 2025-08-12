@@ -92,11 +92,11 @@ export default {
 </script>
 
 <template>
-  <v-tooltip v-if="emojiItemData && emojiItemData.config" :disabled="isDisabledTooltip"
-           placement="top" transfer>
-    <template v-slot:content>
-      <div align="center">
-        <br>
+  <v-tooltip v-if="emojiItemData && emojiItemData.config"
+             :disabled="isDisabledTooltip"
+             placement="top" transfer>
+    <template v-slot:activator="{ props }">
+      <div v-bind="props">
         <template
             v-if="emojiItemData && emojiItemData.config && (emojiItemData.config.type === 'gif' || emojiItemData.config.type === 'png')">
           <img class="emote"
@@ -105,36 +105,10 @@ export default {
                :class="[
                  isSpan ? 'emote-none-padding': ''
               ]"
-               :style="`width: ${size * 3}px ;height: ${size * 3}px`"
+               :style="`width: auto ;height: ${size}px`"
                v-if="emojiItemData"/>
         </template>
         <template v-else-if="emojiItemData && emojiItemData.config && emojiItemData.config.type === 'spriteDiagram'">
-          <span class="emote"
-                :class="[
-                   isSpan ? 'emote-none-padding': ''
-                ]"
-                :style="`width: ${size * 3}px;height: ${size * 3}px;background-image: url(${emojiItemData.imageUrl});background-size: ${emojiItemData.config.size};background-position: ${emojiItemData.config.position}`"
-                v-if="emojiItemData">
-            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-                 :alt="emojiItemData.name"/>
-          </span>
-        </template>
-
-        <p class="emote-name">{{emojiItemData.name}}</p>
-      </div>
-    </template>
-    <template
-        v-if="emojiItemData && emojiItemData.config && (emojiItemData.config.type === 'gif' || emojiItemData.config.type === 'png')">
-      <img class="emote"
-           :alt="emojiItemData.name"
-           :src="emojiItemData.imageUrl"
-           :class="[
-                 isSpan ? 'emote-none-padding': ''
-              ]"
-           :style="`width: auto ;height: ${size}px`"
-           v-if="emojiItemData"/>
-    </template>
-    <template v-else-if="emojiItemData && emojiItemData.config && emojiItemData.config.type === 'spriteDiagram'">
         <span class="emote"
               :class="[
                  isSpan ? 'emote-none-padding': ''
@@ -144,7 +118,37 @@ export default {
           <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
                :alt="emojiItemData.name"/>
         </span>
+        </template>
+      </div>
     </template>
+
+    <div align="center">
+      <template
+          v-if="emojiItemData && emojiItemData.config && (emojiItemData.config.type === 'gif' || emojiItemData.config.type === 'png')">
+        <v-img class="emote"
+               cover
+               :alt="emojiItemData.name"
+               :src="emojiItemData.imageUrl"
+               :class="[
+                 isSpan ? 'emote-none-padding': ''
+              ]"
+               :style="`width: ${size * 3}px ;height: ${size * 3}px`"
+               v-if="emojiItemData"/>
+      </template>
+      <template v-else-if="emojiItemData && emojiItemData.config && emojiItemData.config.type === 'spriteDiagram'">
+          <span class="emote"
+                :class="[
+                   isSpan ? 'emote-none-padding': ''
+                ]"
+                :style="`width: ${size * 3}px;height: ${size * 3}px;background-image: url(${emojiItemData.imageUrl});background-size: ${emojiItemData.config.size};background-position: ${emojiItemData.config.position}`"
+                v-if="emojiItemData">
+            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                 :alt="emojiItemData.name"/>
+          </span>
+      </template>
+
+      <p class="emote-name">{{ emojiItemData.name }}</p>
+    </div>
   </v-tooltip>
   <span v-else>
     <template v-if="emojiItemData && emojiItemData.isCustom">

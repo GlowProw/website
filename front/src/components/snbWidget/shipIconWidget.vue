@@ -78,7 +78,7 @@ const onReady = async () => {
           :class="`pa-${props.padding} cursor-pointer`"
           height="100%"
           width="100%">
-        <v-img :src="shipConfig.images[props.id]" class="pointer-events-none"></v-img>
+        <v-img :src="shipConfig.images[props.id]" class="pointer-events-none prohibit-drag"></v-img>
       </v-card>
     </template>
 
@@ -91,7 +91,7 @@ const onReady = async () => {
 
         <v-badge inline color="transparent" class="badge-flavor text-center tag-badge pl-3" v-if="shipData && shipData.size">{{ t(`displayCabinet.size.${shipData.size}`) }}</v-badge>
 
-        <v-img :src="shipConfig.images[props.id]" class="right-show-item-image position-absolute w-33"></v-img>
+        <v-img :src="shipConfig.images[props.id]" class="prohibit-drag right-show-item-image position-absolute w-33"></v-img>
       </div>
       <div class="demo-reel-content background-flavor overflow-auto">
         <template v-if="isShowDescription">

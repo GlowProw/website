@@ -21,8 +21,8 @@ export class StorageCollect {
 
             return {
                 code: 0,
-                data: d.data.value[id],
-                count: Object.keys(d.data.value).length,
+                data: d.data && d.data.value[id] || null,
+                count: d.data && Object.keys(d.data.value).length || 0,
                 maxCount: this.MAX_COUNT
             }
         } catch (e) {
@@ -39,7 +39,7 @@ export class StorageCollect {
         try {
             const d = storage.local.get(this.NAME + type)
 
-            if (d.data || d.code != 0)
+            if (d.code != 0)
                 return {
                     code: -1,
                 }

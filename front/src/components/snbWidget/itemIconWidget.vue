@@ -7,64 +7,45 @@ import {onMounted, type Ref, ref, watch} from "vue";
 import {Item, Items} from "glow-prow-data/src/entity/Items.ts";
 import {useI18nUtils} from "@/assets/sripts/i18nUtil";
 import {useIntersectionObserver} from "@/assets/sripts/intersectionObserver";
+import {number} from "@/assets/sripts/index";
+import {useItemAssetsStore} from "~/stores/itemAssetsStore";
 
-const {asString, sanitizeString} = useI18nUtils()
-
-const assets_ammunitions = import.meta.glob('@glow-prow-assets/items/ammunitions/*', {eager: true}),
-    assets_weapons = import.meta.glob('@glow-prow-assets/items/weapons/*', {eager: true}),
-    assets_armors = import.meta.glob('@glow-prow-assets/items/armors/*', {eager: true}),
-    assets_majorFurnitures = import.meta.glob('@glow-prow-assets/items/majorFurnitures/*', {eager: true}),
-    assets_offensiveFurnitures = import.meta.glob('@glow-prow-assets/items/offensiveFurnitures/*', {eager: true}),
-    assets_utilityFurnitures = import.meta.glob('@glow-prow-assets/items/utilityFurnitures/*.*', {eager: true}),
-    assets_consumables = import.meta.glob('@glow-prow-assets/items/consumables/*', {eager: true}),
-    assets_torpedos = import.meta.glob('@glow-prow-assets/items/weapons/torpedos/*', {eager: true}),
-    assets_longGuns = import.meta.glob('@glow-prow-assets/items/weapons/longGuns/*', {eager: true}),
-    assets_tools = import.meta.glob('@glow-prow-assets/items/tools/*', {eager: true}),
-    assets_shipsUpgrades = import.meta.glob('@glow-prow-assets/ships/upgrades/*', {eager: true}),
-    assets_items = import.meta.glob('@glow-prow-assets/items/*', {eager: true});
-const rarityImages = import.meta.glob('@/assets/images/item-rarity-*.png', {eager: true});
-const assetsImages = {
-  ...assets_ammunitions, ...assets_weapons, ...assets_armors,
-  ...assets_majorFurnitures, ...assets_utilityFurnitures, ...assets_offensiveFurnitures,
-  ...assets_consumables, ...assets_torpedos, ...assets_longGuns,
-  ...assets_tools, ...assets_shipsUpgrades, ...assets_items
-};
-const props = withDefaults(defineProps<{
-  id: string,
-  isShowOpenDetail?: boolean,
-  isOpenDetail?: boolean,
-  isShowTooltip?: boolean,
-  padding?: number,
-  margin?: number
-}>(), {
-  id: 'culverin1',
-  isShowOpenDetail: true,
-  isOpenDetail: true,
-  isShowTooltip: true,
-  padding: 0,
-  margin: 1,
-})
-const items: Items = Items,
+const
+    {asString, sanitizeString} = useI18nUtils(),
     route = useRoute(),
-    {t} = useI18n()
+    {t} = useI18n(),
+    {assets, raritys} = useItemAssetsStore(),
+    props = withDefaults(defineProps<{
+      id: string,
+      isShowOpenDetail?: boolean,
+      isOpenDetail?: boolean,
+      isShowTooltip?: boolean,
+      padding?: number,
+      margin?: number
+    }>(), {
+      id: 'culverin1',
+      isShowOpenDetail: true,
+      isOpenDetail: true,
+      isShowTooltip: true,
+      padding: 0,
+      margin: 1,
+    }),
+    items: Items = Items
 
 let itemsCardData = ref({
-      iconsSrc: {},
-      model: {},
-      panel: {},
+      iconSrc: null,
     }),
     i: Ref<Item> = ref(Item.fromRawData({})),
 
     // 稀有度
-    raritys = {
+    rarityColorConfig = {
       "": "#fff",
       "common": "#b0b0b0",
       "uncommon": "#2ecc71",
       "rare": "#3498db",
       "epic": "#9b59b6",
       "legendary": "#f1c40f"
-    },
-    itemsRarityImages = ref({})
+    }
 
 
 watch(() => props.id, () => {
@@ -76,36 +57,8 @@ onMounted(() => {
 })
 
 const onReady = async () => {
-  const imageMap = {};
-  for (const path in assetsImages) {
-    const key = path.split('/').pop()
-        ?.toString()
-        .replace('.webp', '')
-        .replace('.png', '');
-    imageMap[key] = assetsImages[path];
-  }
-
-  // 稀有度背景
-  for (let key of Object.keys(raritys).filter(i => i != '')) {
-    const imageKey = `/src/assets/images/item-rarity-${key}.png`;
-    if (rarityImages[imageKey].default) {
-      itemsRarityImages.value[key] = rarityImages[imageKey].default;
-    }
-  }
-
-  // 物品图
-  for (let key in items) {
-    itemsCardData.value.panel[key] = 0;
-    itemsCardData.value.model[key] = false;
-
-    if (imageMap[key]) {
-      itemsCardData.value.iconsSrc[key] = imageMap[key].default;
-    } else {
-      itemsCardData.value.iconsSrc[key] = '';
-    }
-  }
-
   i.value = items[props.id] || null
+  itemsCardData.value.iconSrc = assets[props.id]
 }
 
 const {targetElement, isVisible} = useIntersectionObserver({
@@ -136,11 +89,12 @@ const {targetElement, isVisible} = useIntersectionObserver({
               `item-card-header-rarity-${i.rarity}`
           ]">
         <template v-slot:image v-if="i.rarity">
-          <img :src="itemsRarityImages[i.rarity]" width="100%" height="100%" class="opacity-30">
+          <img :src="raritys[`item-rarity-${i.rarity}`]" width="100%" height="100%" class="opacity-30 prohibit-drag">
         </template>
 
         <v-img
-            :src="itemsCardData.iconsSrc[i.id] || 'none'" cover width="100%" height="100%">
+            class="prohibit-drag"
+            :src="itemsCardData.iconSrc || 'none'" cover width="100%" height="100%">
           <template v-slot:error>
             <div class="fill-height repeating-gradient d-flex justify-center align-center h-100">
               <v-icon icon="mdi-help" class="opacity-30"></v-icon>
@@ -175,11 +129,17 @@ const {targetElement, isVisible} = useIntersectionObserver({
                   :to="`/display-cabinet/item/category/${i.type}`"
                   class="badge-flavor text-center text-black" v-if="i.type">{{ t(`displayCabinet.type.${i.type}`) }}
           </v-chip>
-          <v-chip inline class="badge-flavor text-center text-black" v-if="i.tier">{{ t(`displayCabinet.tier`, {num: i.tier || 0}) }}</v-chip>
-          <v-chip inline class="badge-flavor text-center text-black" v-if="i.rarity">{{ t(`displayCabinet.rarity.${i.rarity}`) }}</v-chip>
+          <v-chip class="badge-flavor text-center tag-badge text-black"
+                  :to="`/display-cabinet/item/tier/${i.tier}`"
+                  v-if="i.tier">{{ t(`displayCabinet.tier`, {num: number.intToRoman(i.tier)}) }}
+          </v-chip>
+          <v-chip class="badge-flavor text-center tag-badge text-black"
+                  :to="`/display-cabinet/item/rarity/${i.rarity}`"
+                  v-if="i.rarity">{{ t(`displayCabinet.rarity.${i.rarity}`) }}
+          </v-chip>
         </div>
         <div class="right-show-item-image pointer-events-none position-absolute w-33">
-          <v-img :src="itemsCardData.iconsSrc[i.id]" class="item-mirror-image"></v-img>
+          <v-img :src="itemsCardData.iconSrc" class="item-mirror-image"></v-img>
         </div>
 
         <template v-if="i.rarity">
@@ -188,7 +148,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
               ref="iconBackRight"
               rays-origin="top-right"
               quality="low"
-              :rays-color="raritys[i.rarity]"
+              :rays-color="rarityColorConfig[i.rarity]"
               :rays-speed="2"
               :light-spread="10"
               :ray-length="10"

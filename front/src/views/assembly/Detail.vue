@@ -238,7 +238,7 @@ const onPenPassword = () => {
         </v-col>
         <v-col cols="12" sm="12" lg="4" xl="4">
           <v-text-field
-              size="lg"
+              size="large"
               class="text-h5"
               :value="assemblyDetailData.username || '匿名'"
               placeholder="作者"

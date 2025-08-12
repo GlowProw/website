@@ -96,14 +96,6 @@ export default {
         }
       });
     },
-
-    handleMouseEnter(i, j) {
-      this.isInsertPreview = true;
-      this.insertPreview = `${i.name}|${j.name}`
-    },
-    handleMouseLeave(i, j) {
-      this.isInsertPreview = false;
-    }
   },
   computed: {
     emojis: () => emojis,
@@ -126,7 +118,7 @@ export default {
          }"
             :mask="true"
             :closable="true"
-            @on-visible-change="(status) => !status ? $emit('close') : null"
+            @update:modelValue="(status) => !status ? $emit('close') : null"
             sticky
             transfer
             footer-hide>
@@ -143,11 +135,10 @@ export default {
         <v-tabs-window-item class="emote-row-box pt-7" v-for="(i, index) in emojis.child" :key="index"
                             :value="i.name">
           <v-card :padding="3" dis-hover class="emote-item pa-1"
-                @mouseenter.native="handleMouseEnter(i,j)"
-                @mouseleave.native="handleMouseLeave(i,j)"
-                v-for="(j, j_index) in i.child" :key="j_index">
-            <EmoteItem :isSpan="false" :size="30" :id="`${i.name}|${j.name}`"
-                       @click.native="onFinish(i.name,j)"></EmoteItem>
+                  @click="onFinish(i.name,j)"
+                  v-for="(j, j_index) in i.child"
+                  :key="j_index">
+            <EmoteItem :isSpan="false" :size="30" :id="`${i.name}|${j.name}`"></EmoteItem>
           </v-card>
         </v-tabs-window-item>
       </v-tabs-window>

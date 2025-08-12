@@ -15,15 +15,15 @@ import ItemModificationWidget from "@/components/snbWidget/itemModificationWidge
 import PerksWidget from "@/components/snbWidget/perksWidget.vue";
 
 import {useI18nUtils} from "@/assets/sripts/i18nUtil";
-import ItemInputWidget from "@/components/snbWidget/itemInputWidget.vue";
 import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue"
 import ItemDamageTypeWidget from "@/components/snbWidget/itemDamageTypeWidget.vue";
-import {storage} from "@/assets/sripts";
+import {number, storage, storageCollect} from "@/assets/sripts";
 import WeaponModificationWidget from "@/components/snbWidget/weaponModificationWidget.vue";
 import CommentWidget from "@/components/CommentWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
 import {useAuthStore} from "~/stores";
+import {StorageCollectType} from "@/assets/sripts/storage_collect";
 
 const
     {t} = useI18n(),
@@ -33,13 +33,14 @@ const
     {asArray, asString, sanitizeString} = useI18nUtils(),
 
     // 物品数据
-    itemsData: Items = Items,
+    items: Items = Items,
     materials: Materials = Materials,
     // 后期处理所需物品 对应计算 原材料
     itemRawMaterials: Ref<UnwrapRef<any[]>, UnwrapRef<any[]> | any[]> = ref([])
 
 let itemDetailData: Ref<Item | null> = ref(null),
     isShowShipRawList = ref(false),
+    isCollect = ref(false),
 
     DPS = computed(() => {
       const {damagePerShot, rateOfFire, reloadSpeed} = itemDetailData.value;
@@ -67,6 +68,11 @@ let itemDetailData: Ref<Item | null> = ref(null),
 
       return Object.values(bluePrints[0]).map(i => t(`snb.locations.${i}`))
     }),
+    getCollectStatus = computed(() => {
+      if (!itemDetailData.value && !itemDetailData.value.id) return false;
+      isCollect.value = !isCollect.value;
+      return !!storageCollect.get(itemDetailData.value.id, StorageCollectType.Item).data
+    }),
     rateFire = computed(() => 1),
     dpsWithPerksArmed = computed(() => {
       return itemDetailData.value?.damagePerShot + 1;
@@ -80,12 +86,12 @@ onMounted(() => {
     return;
   }
 
-  if (!itemsData[id]) {
+  if (!items[id]) {
     setInterval(() => router.push({name: 'NotFound'}), 1000)
     return;
   }
 
-  itemDetailData.value = itemsData[id];
+  itemDetailData.value = items[id];
 
   onStatisticsRawMaterial();
   onDisplayCabinetHistory();
@@ -112,17 +118,34 @@ const onDisplayCabinetHistory = () => {
  * 处理计算必要材料对应原材料
  */
 const onStatisticsRawMaterial = () => {
-  itemRawMaterials.value = Array.from(itemDetailData.value.required).reduce(
-      (acc, [material, quantity]) => {
-        if (materials[material.id]?.required) {
-          Array.from(materials[material.id].required).forEach(([raw, rawQuantity]) => {
-            acc[raw.id] = (acc[raw.id] || 0) + (rawQuantity as number) * quantity;
-          })
-        }
-        return acc;
-      },
-      {} as Record<string, number>
-  );
+  if (itemDetailData.value.required)
+    itemRawMaterials.value = Array.from(itemDetailData.value.required).reduce(
+        (acc, [material, quantity]) => {
+          if (materials[material.id]?.required) {
+            Array.from(materials[material.id].required).forEach(([raw, rawQuantity]) => {
+              acc[raw.id] = (acc[raw.id] || 0) + (rawQuantity as number) * quantity;
+            })
+          }
+          return acc;
+        },
+        {} as Record<string, number>
+    );
+}
+
+/**
+ * 收藏物品
+ */
+const onStarItem = (data: Item) => {
+  isCollect.value = !isCollect.value;
+
+  if (isCollect.value)
+    return storageCollect.delete(data.id, StorageCollectType.Item)
+
+  storageCollect.updata(
+      {collectTime: new Date().getTime()}
+      , StorageCollectType.Item,
+      data.id
+  )
 }
 </script>
 
@@ -155,12 +178,22 @@ const onStatisticsRawMaterial = () => {
                       :to="`/display-cabinet/item/category/${itemDetailData.type}`">
                 {{ t(`displayCabinet.type.${itemDetailData.type}`) || '' }}
               </v-chip>
-              <v-chip class="badge-flavor text-center tag-badge text-black" v-if="itemDetailData.tier">{{ t(`displayCabinet.tier`, {num: itemDetailData.tier}) }}</v-chip>
-              <v-chip class="badge-flavor text-center tag-badge text-black" v-if="itemDetailData.rarity">{{ t(`displayCabinet.rarity.${itemDetailData.rarity}`) }}</v-chip>
+              <v-chip class="badge-flavor text-center tag-badge text-black"
+                      :to="`/display-cabinet/item/tier/${itemDetailData.tier}`"
+                      v-if="itemDetailData.tier">{{ t(`displayCabinet.tier`, {num: number.intToRoman(itemDetailData.tier)}) }}
+              </v-chip>
+              <v-chip class="badge-flavor text-center tag-badge text-black"
+                      :to="`/display-cabinet/item/rarity/${itemDetailData.rarity}`"
+                      v-if="itemDetailData.rarity">{{ t(`displayCabinet.rarity.${itemDetailData.rarity}`) }}
+              </v-chip>
             </div>
           </v-col>
           <v-col cols="auto">
             <div class="d-flex ga-2">
+              <v-btn @click="onStarItem(itemDetailData)" variant="text" :class="getCollectStatus ? 'text-amber' : ''">
+                <v-icon :icon="`mdi-${getCollectStatus ? 'star' : 'star-outline'}`"></v-icon>
+              </v-btn>
+
               <v-btn>
                 <LikeWidget v-if="authStore.isLogin"
                             targetType="item"
@@ -454,7 +487,7 @@ const onStatisticsRawMaterial = () => {
                   </v-card>
                 </template>
               </v-col>
-              <v-col cols="12">
+              <v-col cols="12 mb-3">
                 <template v-if="itemDetailData && itemDetailData.id">
                   <ItemModificationWidget :id="itemDetailData.id" :type="itemDetailData.type">
                     <template v-slot:title>
@@ -471,8 +504,9 @@ const onStatisticsRawMaterial = () => {
             </template>
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
-            <v-card class="mb-4 pl-3" v-if="itemDetailData.bySeason">
-              <v-text-field :value="itemDetailData.bySeason || 'none'" readonly
+            <v-card class="mb-4 pl-3" v-if="itemDetailData.bySeason" :to="`/display-cabinet/item/season/${itemDetailData.bySeason.id}`">
+              <v-text-field :value="t(`snb.seasons.${itemDetailData.bySeason.id}`) || 'none'"
+                            readonly
                             tile
                             hide-details
                             variant="solo-filled">

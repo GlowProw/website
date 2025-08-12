@@ -2,8 +2,15 @@
 
 import Footer from "@/components/Footer.vue";
 import {useI18n} from "vue-i18n";
+import {ref} from "vue";
 
 const {t} = useI18n()
+
+let languageData = ref([
+  {name: '菜萌-cabbagelol', lang: ['zh-CN']},
+  {name: '教兽-Alinekon', lang: ['en-US', 'zh-CN']},
+  {name: '幻-dwbcsgo', lang: ['en-US', 'zh-CN']}
+])
 </script>
 
 <template>
@@ -25,10 +32,10 @@ const {t} = useI18n()
           <v-col sm="12" lg="4">
             <h3 class="btn-flavor">翻译成员</h3>
             <ul>
-              <li v-for="(i,index) in [{name: 'cabbagelol', lang: ['zh-CN']},{name: '教兽', lang: ['en-US', 'zh-CN']}]" :key="index">
+              <li v-for="(i,index) in languageData" :key="index">
                 <v-row align="center">
                   <v-col>
-                    @{{i.name}}
+                    @{{ i.name }}
                   </v-col>
                   <v-col>
                     <v-divider opacity=".6" thickness="1"></v-divider>

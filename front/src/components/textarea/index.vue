@@ -274,7 +274,7 @@ watch(() => props.modelValue, (newVal) => {
                 density="compact"
                 @click="onShip"
                 v-tooltip="'船'"
-                :disabled="isOpenEmoji"
+                :disabled="isOpenShip"
                 v-if="toolbarAs.indexOf('ship') >= 0">
               <v-icon icon="mdi-ship-wheel"></v-icon>
             </v-btn>
@@ -285,7 +285,7 @@ watch(() => props.modelValue, (newVal) => {
                 density="compact"
                 @click="onItem"
                 v-tooltip="'物品'"
-                :disabled="isOpenEmoji"
+                :disabled="isOpenItem"
                 v-if="toolbarAs.indexOf('item') >= 0">
               <v-icon icon="mdi-cube-outline"></v-icon>
             </v-btn>

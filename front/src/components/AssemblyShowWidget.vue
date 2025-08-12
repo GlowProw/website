@@ -237,7 +237,7 @@ const onSelectShip = (shipId: string) => {
   })
 
   // 创建船甲
-  workshopData.value.data.armorSlot = Item.fromRawData({})
+  workshopData.value.data.armorSlot = null
 
   // 创建武器插槽，选择初始
   workshopData.value.data.weaponSlots = Array.from({
@@ -468,7 +468,7 @@ defineExpose({
                         <ItemSlotBase
                             size="80px" class="pa-1"
                             :class="[workshopData.data.shipUpgradeSlot ? 'bg-amber' : '']">
-                          <ItemIconWidget :id="workshopData.data.shipUpgradeSlot.id" :is-open-detail="false"></ItemIconWidget>
+                          <ItemIconWidget :id="workshopData.data.shipUpgradeSlot.id" :is-open-detail="false" :is-show-tooltip="!readonly"></ItemIconWidget>
                         </ItemSlotBase>
                       </v-badge>
 
@@ -569,7 +569,7 @@ defineExpose({
                       <v-hover v-slot="{ isHovering, props : propsHoverClose }">
                         <v-card v-bind="propsHoverClose">
                           <ItemSlotBase size="80px" class="pa-1" v-if="display && display.id">
-                            <ItemIconWidget :id="display.id"></ItemIconWidget>
+                            <ItemIconWidget :id="display.id" :is-show-tooltip="!readonly"></ItemIconWidget>
                           </ItemSlotBase>
 
                           <v-overlay
@@ -663,7 +663,7 @@ defineExpose({
                           <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.weaponSlots[index] && workshopData.data.weaponSlots[index].id">
                             <div class="position-relative" v-bind="propsHoverClose">
                               <ItemSlotBase size="80px" class="pa-1">
-                                <ItemIconWidget :id="i.id"></ItemIconWidget>
+                                <ItemIconWidget :id="i.id" :is-show-tooltip="!readonly"></ItemIconWidget>
                               </ItemSlotBase>
 
                               <v-overlay
@@ -773,7 +773,7 @@ defineExpose({
                           <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.secondaryWeaponSlots[index] && workshopData.data.secondaryWeaponSlots[index].id">
                             <div class="position-relative" v-bind="propsHoverClose">
                               <ItemSlotBase size="80px" class="pa-1">
-                                <ItemIconWidget :id="i.id"></ItemIconWidget>
+                                <ItemIconWidget :id="i.id" :is-show-tooltip="!readonly"></ItemIconWidget>
                               </ItemSlotBase>
 
                               <v-overlay
@@ -828,7 +828,7 @@ defineExpose({
                 <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.armorSlot">
                   <div v-bind="propsHoverClose" class="position-relative">
                     <ItemSlotBase size="80px" class="pa-1">
-                      <ItemIconWidget :id="workshopData.data.armorSlot.id"></ItemIconWidget>
+                      <ItemIconWidget :id="workshopData.data.armorSlot.id" :is-show-tooltip="!readonly"></ItemIconWidget>
                     </ItemSlotBase>
                     <v-overlay
                         v-if="!readonly"

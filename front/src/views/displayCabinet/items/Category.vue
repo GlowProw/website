@@ -6,18 +6,15 @@ import {computed, onMounted, ref} from "vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import EmptyView from "@/components/EmptyView.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
+import {useI18nUtils} from "@/assets/sripts/i18nUtil";
+import {number} from "@/assets/sripts/index";
 
 const items: Items = Items,
     {t} = useI18n(),
+    {asString} = useI18nUtils(),
     route = useRoute()
 
-let itemsData: any = ref([]),
-    itemsFilter = ref({
-      keyValue: '',
-      inputWidgetKeyValue: '',
-      page: 1,
-      limit: 50
-    });
+let itemsData: any = ref([])
 
 onMounted(() => {
   itemsData.value = items;
@@ -30,8 +27,24 @@ const onProcessedData = computed(() => {
   let originalData = Object.values(itemsData.value),
       resultData = []
 
-  resultData = originalData
-      .filter(i => i.type == route.params.name)
+  switch (route.params.fun) {
+    case 'category':
+      resultData = originalData
+          .filter(i => i.type == route.params.key)
+      break;
+    case 'season':
+      resultData = originalData
+          .filter(i => i.bySeason.id == route.params.key)
+      break;
+    case 'rarity':
+      resultData = originalData
+          .filter(i => i.rarity == route.params.key)
+      break;
+    case 'tier':
+      resultData = originalData
+          .filter(i => i.tier == route.params.key)
+      break;
+  }
 
   return resultData;
 });
@@ -52,7 +65,20 @@ const onProcessedData = computed(() => {
   </v-breadcrumbs>
   <v-divider></v-divider>
   <v-container class="mt-10 mb-10">
-    <h1 class="mb-5">分类: {{ t(`displayCabinet.type.${route.params.name}`) || route.params.name }}</h1>
+    <h1 class="mb-5 text-amber">
+      {{
+        asString([
+          `displayCabinet.type.${route.params.key}`,
+          `snb.seasons.${route.params.key}`,
+          `displayCabinet.rarity.${route.params.key}`,
+          `displayCabinet.tier`,
+        ], {
+          variable: {
+              num: number.intToRoman(route.params.key),
+          }
+        }) || route.params.key
+      }}
+    </h1>
 
     <v-row class="category-list">
       <div v-for="(i,index) in onProcessedData" :key="index">

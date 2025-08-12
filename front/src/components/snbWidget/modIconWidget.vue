@@ -1,12 +1,10 @@
 <script setup lang="ts">
 
 import {onMounted, ref} from "vue";
-import {Modifications} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 
 const modImages = import.meta.glob('@glow-prow-assets/modifications/*.*', {eager: true});
 const
-    modifications = Modifications,
     props = withDefaults(defineProps<{
       id: string,
       isClickOpenDetail?: boolean,
@@ -32,14 +30,21 @@ onMounted(() => {
 })
 
 const onReady = async () => {
-  const imageKey = `/node_modules/glow-prow-assets/modifications/${props.id}.webp`;
-  modsData.value.images = modImages[imageKey].default
+  const imageMap = {};
+  for (const path in modImages) {
+    const key = path.split('/').pop()
+        ?.toString()
+        .replace('.webp', '')
+        .replace('.png', '');
+    imageMap[key] = modImages[path];
+  }
+
+  modsData.value.images = imageMap[props.id].default
 }
 </script>
 
 <template>
   <v-card
-      v-bind="activatorProps"
       tile
       border
       variant="text"
