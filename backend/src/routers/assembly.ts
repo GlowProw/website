@@ -132,14 +132,12 @@ router.get('/list', [
         // 基础查询
         let query = db('assembly')
             .select(
-                'assembly.id',
                 'assembly.uuid',
                 'assembly.name',
                 'assembly.attr',
-                db.raw(`CASE WHEN assembly.attr->>"$.isAnonymous" = 'true' THEN NULL ELSE assembly.userId END as userId`),
                 'assembly.data as assembly',
-                'assembly.visibility',
                 db.raw('(SELECT COUNT(*) FROM likes WHERE targetType = "assembly" AND targetId = assembly.uuid) as likes'),
+                db.raw(`CASE WHEN assembly.attr->>"$.isAnonymous" = 'true' THEN NULL ELSE assembly.userId END as userId`),
                 db.raw(`CASE WHEN assembly.attr->>"$.isAnonymous" = 'true' THEN NULL ELSE users.username END as username`)
             )
             .where('assembly.visibility', '=', 'publicly')
@@ -215,11 +213,16 @@ router.get('/list', [
             totalQuery = totalQuery.where('updatedTime', '<=', updatedEnd);
         }
 
-        const totalResult = await totalQuery.count('assembly.id as count').first();
+        const totalResult = await db('assembly')
+            .where('visibility', 'publicly')
+            .count('* as approximate_count')
+            .first();
         const total = totalResult ? Number(totalResult.count) : 0;
 
-        if (assemblies.attr)
-            assemblies.attr = assemblyShowAttributes(assemblies.attr)
+        assemblies.map((data: any) => {
+            if (data.attr)
+                data.attr = assemblyShowAttributes(data.attr)
+        })
 
         res.status(200).json({
             code: 'assembly.list.ok',

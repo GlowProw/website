@@ -90,7 +90,8 @@ async function initI18next() {
 
     // 先尝试从远程加载最新翻译
     try {
-        await fetchAndCacheTranslations();
+        if (!config.__DEBUG__)
+            await fetchAndCacheTranslations();
     } catch (err) {
         console.error('Initial fetch failed, using cached files:', err);
     }
