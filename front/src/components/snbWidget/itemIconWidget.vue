@@ -9,6 +9,7 @@ import {useI18nUtils} from "@/assets/sripts/i18nUtil";
 import {useIntersectionObserver} from "@/assets/sripts/intersectionObserver";
 import {number} from "@/assets/sripts/index";
 import {useItemAssetsStore} from "~/stores/itemAssetsStore";
+import ItemName from "@/components/snbWidget/itemName.vue";
 
 const
     {asString, sanitizeString} = useI18nUtils(),
@@ -115,12 +116,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
         <div class="v-skeleton-loader__bone v-skeleton-loader__image opacity-30 position-absolute left-0 top-0 w-100 h-100"></div>
 
         <h1 class="font-weight-bold">
-          {{
-            asString([
-              `snb.items.${i.id}.name`,
-              `snb.items.${sanitizeString(i.id).cleaned}.name`
-            ])
-          }}
+          <ItemName :data="i"></ItemName>
         </h1>
         <p class="mb-1">{{ i.id }}</p>
 

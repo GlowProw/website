@@ -6,9 +6,13 @@ import {useI18nUtils} from "@/assets/sripts/i18nUtil";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue"
+import ItemName from "@/components/snbWidget/itemName.vue";
+import {Items} from "glow-prow-data";
 
 const props = defineProps(nodeViewProps);
-const {t} = useI18n(),
+const
+    items = Items,
+    {t} = useI18n(),
     {asString, sanitizeString} = useI18nUtils()
 </script>
 
@@ -19,12 +23,7 @@ const {t} = useI18n(),
     </ItemSlotBase>
     <ItemNameRarity :id="node.attrs.id" class="item-name text-no-wrap">
       <u>
-        {{
-          asString([
-            `snb.items.${node.attrs.id}.name`,
-            `snb.items.${sanitizeString(node.attrs.id).cleaned}.name`
-          ])
-        }}
+        <ItemName :data="items[node.attrs.id]"></ItemName>
       </u>
     </ItemNameRarity>
   </node-view-wrapper>

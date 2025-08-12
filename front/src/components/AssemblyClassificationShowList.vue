@@ -8,6 +8,8 @@ import {useI18nUtils} from "@/assets/sripts/i18nUtil";
 import {number, storageCollect} from "@/assets/sripts/index";
 import EmptyView from "@/components/EmptyView.vue";
 import {StorageCollectType} from "@/assets/sripts/storage_collect";
+import ItemDamageTypeWidget from "@/components/snbWidget/itemDamageTypeWidget.vue";
+import ItemName from "@/components/snbWidget/itemName.vue";
 
 interface Item {
   id: string;
@@ -61,10 +63,8 @@ let // 搜索相关状态
 
       // 转换格式并添加name字段
       const mapped = filtered.map((i) => ({
-        id: i.id,
+        ...items[i.id],
         name: handleItemName(i.id),
-        tier: i.tier,
-        type: i.type,
         rarity: i.rarity || 0,
       }));
 
@@ -253,7 +253,7 @@ defineExpose({
       </v-row>
       <v-divider thickness="1" color="#000" class="mb-n1"></v-divider>
 
-      <div class="bg-shades-black background-flavor w-100 overflow-y-auto overflow-x-hidden" style="max-height: 50vh">
+      <div class="bg-shades-black background-flavor w-100 overflow-y-auto overflow-x-hidden" style="max-height: 70vh">
         <div class="w-100 pb-3" v-if="starItem.length > 0">
           <div class="text-center title-long-flavor text-amber font-weight-bold bg-black pl-4 lr-4 pt-2 pb-2 ml-n2 mr-n2 mb-4">
             我的最爱 ({{processedStarItems.length || 0}})
@@ -267,15 +267,17 @@ defineExpose({
                 </ItemSlotBase>
                 <div class="text-center d-flex justify-center" style="width: 90px" :class="[modelValue && modelValue.id == j.id ? 'text-amber' : '']">
                   <div class="singe-line">
-                    {{ j.name }}
+                    <ItemName :data="j" />
                   </div>
-                  <span>{{ number.intToRoman(j.tier || 1) }}</span>
                 </div>
               </div>
 
               <div class="text-center mt-1">
+                <div class="d-flex justify-center">
+                  <ItemDamageTypeWidget :data="j" size="mini"></ItemDamageTypeWidget>
+                </div>
                 <v-btn class="text-amber" density="compact" variant="text" icon @click="onStarItem(j)">
-                  <v-icon :icon="`mdi-${isCollect(j.id) ? 'star' : 'star-outline'}`" size="12"></v-icon>
+                  <v-icon :icon="`mdi-${isCollect(j.id) ? 'star' : 'star-outline'}`" size="15"></v-icon>
                 </v-btn>
               </div>
             </v-col>
@@ -301,15 +303,17 @@ defineExpose({
                     </ItemSlotBase>
                     <div class="text-center d-flex justify-center" style="width: 90px" :class="[modelValue && modelValue.id == j.id ? 'text-amber' : '']">
                       <div class="singe-line">
-                        {{ j.name }}
+                        <ItemName :data="j" />
                       </div>
-                      <span>{{ number.intToRoman(j.tier || 1) }}</span>
                     </div>
                   </div>
 
                   <div class="text-center mt-1">
+                    <div class="d-flex justify-center">
+                      <ItemDamageTypeWidget :data="j" size="mini"></ItemDamageTypeWidget>
+                    </div>
                     <v-btn class="text-amber" density="compact" variant="text" icon @click="onStarItem(j)">
-                      <v-icon :icon="`mdi-${isCollect(j.id) ? 'star' : 'star-outline'}`" size="12"></v-icon>
+                      <v-icon :icon="`mdi-${isCollect(j.id) ? 'star' : 'star-outline'}`" size="15"></v-icon>
                     </v-btn>
                   </div>
                 </v-col>

@@ -44,6 +44,11 @@ const openPanel = () => {
   onPanelToggle()
 }
 
+const onClose = () => {
+  onPanelToggle()
+  emit('close')
+}
+
 const items = computed(() => Items)
 
 defineExpose({
@@ -54,17 +59,19 @@ defineExpose({
 
 <template>
   <v-dialog v-model="show"
+            max-width="1024"
             class="item"
             sticky
+            scrim
             footer-hide
-            @update:modelValue="(status) => !status ? $emit('close') : null">
+            @update:modelValue="(status) => !status ? onClose() : null">
     <v-card>
       <v-card-title>
         <v-row>
           <b class="font-weight-bold text-h5 pa-5">{{ t('comment.item.title') }}</b>
           <v-spacer></v-spacer>
           <v-col cols="auto">
-            <v-btn icon variant="text" class="ml-1" @click="show = false">
+            <v-btn icon variant="text" class="ml-1" @click="onClose">
               <v-icon icon="mdi-close"/>
             </v-btn>
           </v-col>

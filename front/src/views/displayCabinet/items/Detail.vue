@@ -24,6 +24,7 @@ import CommentWidget from "@/components/CommentWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
 import {useAuthStore} from "~/stores";
 import {StorageCollectType} from "@/assets/sripts/storage_collect";
+import ItemName from "@/components/snbWidget/itemName.vue";
 
 const
     {t} = useI18n(),
@@ -51,12 +52,6 @@ let itemDetailData: Ref<Item | null> = ref(null),
       return DPS / damageMitigation?.piercing || 0
     }),
     DamagePerShotWithPerks = computed(() => 0),
-    getTitle = computed(() => {
-      return asString([
-        `snb.items.${itemDetailData.value?.id}.name`,
-        `snb.items.${sanitizeString(itemDetailData.value!.id).cleaned}.name`
-      ])
-    }),
     bluePrint = computed(() => {
       let bluePrints = itemDetailData.value?.blueprint;
 
@@ -167,7 +162,9 @@ const onStarItem = (data: Item) => {
       <v-container class="position-relative">
         <v-row class="mt-5">
           <v-col>
-            <h1 class="text-amber text-h2">{{ getTitle }}</h1>
+            <h1 class="text-amber text-h2">
+              <ItemName :data="itemDetailData"></ItemName>
+            </h1>
             <p class="mt-2 mb-3">
               <v-icon icon="mdi-identifier"/>
               {{ itemDetailData.id || 'none' }}

@@ -21,7 +21,7 @@ const route = useRoute(),
     router = useRouter(),
     http = useHttpToken(),
     authStore = useAuthStore(),
-    {t, locale} = useI18n(),
+    {t} = useI18n(),
     {asString} = useI18nUtils()
 
 let assemblyDetailData = ref({
@@ -220,7 +220,9 @@ const onPenPassword = () => {
                   `assembly.modes.${i.split('_')[0]}`,
                   `assembly.damageTypes.${i.split('_')[1]}`,
                   `snb.seasons.${i.split('_')[1]}`,
-                ], true)
+                ], {
+                  backRawKey: true
+                })
               }}
             </v-chip>
           </div>
