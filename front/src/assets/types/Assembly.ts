@@ -1,6 +1,7 @@
 /**
  * 配装
  */
+import {Item} from "../../../../../glow-prow-data";
 
 export interface AssemblyBasieIds {
     id: string | bigint
@@ -13,4 +14,13 @@ export interface AssemblyItem extends AssemblyBasieIds {
     isLiked: boolean
     byUsername: string
     byUserId: string | number
+}
+
+interface ItemAssemblySave extends Item {
+    direction?: string
+}
+
+export interface AssemblyAttr {
+    isShowItemName?: boolean
+    assemblyUseVersion?: string
 }

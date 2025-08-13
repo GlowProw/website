@@ -149,6 +149,16 @@ const passwordPlaceholder = computed(() => {
       </v-col>
     </v-row>
 
+    <v-row>
+      <v-col>
+        <b>是否展示名称</b>
+        <p>在物品图标下方显示物品名称</p>
+      </v-col>
+      <v-col>
+        <v-checkbox v-model="modelValue.attr.isShowItemName" density="compact" hide-details></v-checkbox>
+      </v-col>
+    </v-row>
+
 
     <v-row>
       <v-col>

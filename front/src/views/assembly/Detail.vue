@@ -38,7 +38,7 @@ let assemblyDetailData = ref({
     password = ref(''),
     messages = ref([])
 
-watch(() => route.params, (value) => {
+watch(() => route, (value) => {
   getAssemblyDetail()
 })
 
@@ -72,7 +72,12 @@ const getAssemblyDetail = async () => {
     assemblyDetailData.value.description = unescape(assemblyDetailData.value.description || '这个人很懒什么,对此配装什么都没说')
 
     await nextTick(() => {
-      assemblyDetailRef.value.onLoadJson(d.data.data || d.data.assembly, d.data.attr.assemblyUseVersion)
+      assemblyDetailRef.value
+          .setSetting({
+            assemblyUseVersion: d.data.attr.assemblyUseVersion,
+            isShowItemName: d.data.attr.isShowItemName,
+          })
+          .onLoad(d.data.data || d.data.assembly)
     })
   } catch (e) {
     console.error(e)
@@ -215,10 +220,10 @@ const onPenPassword = () => {
               {{
                 asString([
                   `${i}`,
-                  `assembly.teamFormationMethods.${i.split('_')[1]}`,
-                  `assembly.archetypes.${i.split('_')[1]}`,
-                  `assembly.modes.${i.split('_')[0]}`,
-                  `assembly.damageTypes.${i.split('_')[1]}`,
+                  `assembly.tags.teamFormationMethods.${i.split('_')[1]}`,
+                  `assembly.tags.archetypes.${i.split('_')[1]}`,
+                  `assembly.tags.modes.${i.split('_')[0]}`,
+                  `assembly.tags.damageTypes.${i.split('_')[1]}`,
                   `snb.seasons.${i.split('_')[1]}`,
                 ], {
                   backRawKey: true

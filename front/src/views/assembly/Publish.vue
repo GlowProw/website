@@ -78,7 +78,12 @@ const onLoadData = () => {
     assemblyData.value = storageAssembly.get(uid as string, StorageAssemblyType.Data)
 
     if (assemblyData && assemblyData.value) {
-      assemblyWorkshopRef.value.onLoadJson(assemblyData.value.data.data, assemblyData.value.data?.attr?.assemblyUseVersion || assemblyData.value.data.data.__version || AssemblyDataProcessing.nowVersion)
+      assemblyWorkshopRef.value
+          .setSetting({
+            assemblyUseVersion: assemblyData.value.data?.attr?.assemblyUseVersion || assemblyData.value.data.data.__version || AssemblyDataProcessing.nowVersion,
+            isShowItemName: assemblyData.value.data?.attr?.isShowItemName || false
+          })
+          .onLoad(assemblyData.value.data.data)
 
       publishData.value = {
         ...publishData.value,
@@ -285,12 +290,14 @@ const onUpdateTags = (data: any) => {
                   {{
                     asString([
                       `${item.raw}`,
-                      `assembly.teamFormationMethods.${item.raw.toString().split('_')[1]}`,
-                      `assembly.archetypes.${item.raw.toString().split('_')[1]}`,
-                      `assembly.modes.${item.raw.toString().split('_')[0]}`,
-                      `assembly.damageTypes.${item.raw.toString().split('_')[1]}`,
+                      `assembly.tags.teamFormationMethods.${item.raw.toString().split('_')[1]}`,
+                      `assembly.tags.archetypes.${item.raw.toString().split('_')[1]}`,
+                      `assembly.tags.modes.${item.raw.toString().split('_')[0]}`,
+                      `assembly.tags.damageTypes.${item.raw.toString().split('_')[1]}`,
                       `snb.seasons.${item.raw.toString().split('_')[1]}`,
-                    ], true)
+                    ], {
+                        backRawKey: true
+                    })
                   }}
                 </v-chip>
               </template>

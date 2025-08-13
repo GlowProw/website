@@ -5,6 +5,7 @@ import {useI18nUtils} from "@/assets/sripts/i18nUtil";
 
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
+import UltimateName from "@/components/snbWidget/ultimateName.vue";
 
 const props = defineProps(nodeViewProps);
 const {t} = useI18n(),
@@ -16,7 +17,9 @@ const {t} = useI18n(),
     <ItemSlotBase size="25px" :padding="0" class="ultimate-icon">
       <UltimateIconWidget :id="node.attrs.id" :padding="0" class="ma-0"></UltimateIconWidget>
     </ItemSlotBase>
-    <u class="ship-name text-no-wrap">{{ t(`snb.ultimates.${node.attrs.id}.name`) }}</u>
+    <u class="ship-name text-no-wrap">
+      <UltimateName :id="node.attrs.id"></UltimateName>
+    </u>
   </node-view-wrapper>
 </template>
 

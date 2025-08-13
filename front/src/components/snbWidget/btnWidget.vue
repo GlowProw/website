@@ -15,6 +15,7 @@
           :size="size"
           :width="2"
           :model-value="progress"
+          :bg-color="lineColor"
           :color="color">
         <div class="shortcut-display">
           <v-icon v-if="!keyboardShortcut" :icon="icon" :size="iconSize"></v-icon>
@@ -28,10 +29,14 @@
   </v-row>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 
 const props = defineProps({
+  disabled: {
+    type: Boolean,
+    default: false
+  },
   size: {
     type: Number,
     default: 30
@@ -47,6 +52,10 @@ const props = defineProps({
   completeAnimationDuration: {
     type: Number,
     default: 300
+  },
+  lineColor: {
+    type: String,
+    default: ''
   },
   color: {
     type: String,
@@ -70,8 +79,24 @@ const activationSource = ref(null) // 'mouse', 'touch' or 'keyboard'
 
 const iconSize = computed(() => props.size / 2)
 
+onMounted(() => {
+  if (props.keyboardShortcut && !props.disabled) {
+    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('keyup', handleKeyUp)
+  }
+})
+
+onBeforeUnmount(() => {
+  if (props.keyboardShortcut && !props.disabled) {
+    window.removeEventListener('keydown', handleKeyDown)
+    window.removeEventListener('keyup', handleKeyUp)
+  }
+  clearInterval(holdTimer.value)
+})
+
 const startAction = (event, source) => {
-  if (isHolding.value) return
+  if (isHolding.value && props.disabled) return
+
   activationSource.value = source
 
   isHolding.value = true
@@ -144,21 +169,6 @@ const handleKeyUp = (e) => {
     }
   }
 }
-
-onMounted(() => {
-  if (props.keyboardShortcut) {
-    window.addEventListener('keydown', handleKeyDown)
-    window.addEventListener('keyup', handleKeyUp)
-  }
-})
-
-onBeforeUnmount(() => {
-  if (props.keyboardShortcut) {
-    window.removeEventListener('keydown', handleKeyDown)
-    window.removeEventListener('keyup', handleKeyUp)
-  }
-  clearInterval(holdTimer.value)
-})
 </script>
 
 <style scoped>

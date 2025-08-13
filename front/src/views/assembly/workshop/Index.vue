@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
-import {computed, nextTick, onMounted, type Ref, ref, toRaw} from "vue";
+import {computed, nextTick, onMounted, type Ref, ref, toRaw, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 
 import {api, storageAssembly} from "@/assets/sripts";
@@ -15,6 +15,7 @@ import Silk from "@/components/Silk.vue";
 import Loading from "@/components/Loading.vue";
 import {useHttpToken} from "@/assets/sripts/httpUtil";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
+import AssemblyDataProcessing from "@/assets/sripts/assemblyDataProcessing";
 
 const {t} = useI18n(),
     route = useRoute(),
@@ -53,7 +54,17 @@ let isEditModel = computed(() => {
           return false
       }
     }),
-    isAssemblyByUser = computed(() => isEditModel.value ? shareData.value.isOwner : true)
+    isAssemblyByUser = computed(() => isEditModel.value ? shareData.value.isOwner : true),
+    verificationAssembly = computed(() => {
+      if (assemblyWorkshopRef.value && assemblyDetailData.value)
+        return assemblyWorkshopRef.value.verify()
+
+      return null
+    })
+
+watch(() => route, async () => {
+  await loadAssemblyData()
+})
 
 onMounted(() => {
   if (isEditModel.value)
@@ -80,12 +91,23 @@ const getAssemblyDetail = async () => {
     assemblyDetailData.value = d.data;
     shareData.value = d.data;
 
-    await nextTick(() => {
-      assemblyWorkshopRef.value.onLoadJson(d.data.assembly, d.data.attr.assemblyUseVersion)
-    })
+    await loadAssemblyData()
   } finally {
     assemblyLoading.value = false;
   }
+}
+
+const loadAssemblyData = async () => {
+  let assemblyData = assemblyDetailData.value
+
+  await nextTick(() => {
+    assemblyWorkshopRef.value
+        .setSetting({
+          isShowItemName: assemblyData.attr.isShowItemName,
+          assemblyUseVersion: assemblyData.attr.assemblyUseVersion
+        })
+        .onLoad(assemblyData.assembly)
+  })
 }
 
 /**
@@ -124,7 +146,7 @@ const onSaveAssembly = (type: StorageAssemblyType, uid?: string) => {
   // 合并数据
   shareData.value = {
     ...shareData.value,
-    data: assemblyWorkshopRef.value.onExpostJson(),
+    data: assemblyWorkshopRef.value.onExport(),
     localCreationTime: now,
     localUpdateTime: now,
   }
@@ -140,7 +162,7 @@ const onQuickArchiving = () => {
 
   storageAssembly.updata({
     ...shareData.value,
-    data: assemblyWorkshopRef.value.onExpostJson()
+    data: assemblyWorkshopRef.value.onExport()
   }, StorageAssemblyType.Draft, 'quickArchiving')
 
   setTimeout(() => {
@@ -195,7 +217,12 @@ const onWorkshopPos = () => {
  * @param data
  */
 const onUseDraft = (data) => {
-  assemblyWorkshopRef.value.onLoadJson(toRaw(data))
+  assemblyWorkshopRef.value
+      .setSetting({
+        assemblyUseVersion: AssemblyDataProcessing.nowVersion,
+        isShowItemName: false,
+      })
+      .onLoad(toRaw(data))
   draftModel.value = false
 }
 
@@ -284,12 +311,39 @@ const onWorkshopDelete = () => {
                 </v-list>
               </v-menu>
             </v-btn-group>
-            <v-btn :color="`var(--main-color)`" :disabled="!isAssemblyByUser" @click="onSaveAssemblyPublish" v-if="!isEditModel">
-              下一步
+            <v-btn class="mr-2" @click="router.go(-1)" v-if="isEditModel">
+              取消
             </v-btn>
-            <v-btn :color="`var(--main-color)`" :disabled="!isAssemblyByUser" @click="onSaveAssemblyEdit" v-if="isEditModel">
-              下一步
-            </v-btn>
+            <v-tooltip location="bottom right" content-class="pa-0" :offset="[20, 0]" :disabled="verificationAssembly && verificationAssembly.verify <= 0">
+              <template v-slot:activator="{props}">
+                <span v-bind="props">
+                  <v-btn :color="`var(--main-color)`" :disabled="!isAssemblyByUser || verificationAssembly && verificationAssembly.required >  0" @click="onSaveAssemblyPublish" v-if="!isEditModel">
+                    下一步
+                  </v-btn>
+                  <v-btn :color="`var(--main-color)`" :disabled="!isAssemblyByUser || verificationAssembly && verificationAssembly.required > 0" @click="onSaveAssemblyEdit" v-if="isEditModel">
+                    下一步
+                  </v-btn>
+
+                  <v-icon class="ml-2" icon="mdi-alert-circle-outline" color="red" v-if="verificationAssembly && verificationAssembly.required > 0"></v-icon>
+                  <v-icon class="ml-2 text-green" icon="mdi-check" v-if="verificationAssembly && verificationAssembly.verify <= 0"></v-icon>
+                </span>
+              </template>
+
+              <v-card width="100%">
+                <v-alert type="warning">
+                  <template v-if="verificationAssembly && verificationAssembly.required > 0">
+                    <p class="mb-3 font-weight-bold">配装似乎缺少必要选项，请船长添加必要内容</p>
+                  </template>
+                  <p>配装似乎缺少一些内容:</p>
+                  <ul v-if="verificationAssembly">
+                    <li v-for="(v, vIndex) in verificationAssembly.verify" :key="vIndex">
+                      - {{ t(`assembly.workshop.verifyTips.${v.message}`) }}
+                    </li>
+                  </ul>
+                </v-alert>
+              </v-card>
+
+            </v-tooltip>
           </v-col>
         </v-row>
       </v-container>

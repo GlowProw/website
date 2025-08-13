@@ -90,7 +90,9 @@ const onUpdateTags = (data: any) => {
       <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">配装适用模式</p>
       <div class="mt-3 d-flex ga-2" :class="[readonly ? 'readonly' : '']">
         <v-chip filter size="small" color="primary"
-                v-for="(i, index) in ['pvp', 'pve']" :value="i">{{ i.toUpperCase() }}
+                v-for="(i, index) in ['pvp', 'pve']"
+                :key="index"
+                :value="i">{{ i.toUpperCase() }}
         </v-chip>
       </div>
     </div>
@@ -100,7 +102,7 @@ const onUpdateTags = (data: any) => {
       <div class="mt-3 d-flex ga-2" :class="[readonly ? 'readonly' : '']">
         <v-chip size="small" color="primary" v-for="(i, index) in ['singlePlayer', 'multiPlayer']"
                 :value="`teamFormationMethod_${i}`">
-          {{ t(`assembly.teamFormationMethods.${i}`) }}
+          {{ t(`assembly.tags.teamFormationMethods.${i}`) }}
         </v-chip>
       </div>
     </div>
@@ -115,14 +117,14 @@ const onUpdateTags = (data: any) => {
     <div class="mt-3">
       <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">伤害类型</p>
       <div class="mt-3 ga-2" :class="[readonly ? 'readonly' : '']">
-        <v-chip filter size="small" color="primary" v-for="(i, index) in tagsConfig.damageTypes" :value="`damageType_${i}`">{{ t(`assembly.damageTypes.${i}`) }}</v-chip>
+        <v-chip filter size="small" color="primary" v-for="(i, index) in tagsConfig.damageTypes" :value="`damageType_${i}`">{{ t(`assembly.tags.damageTypes.${i}`) }}</v-chip>
       </div>
     </div>
 
     <div class="mt-3 w-100">
       <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">船只定位</p>
       <div class="mt-3 d-flex ga-2" :class="[readonly ? 'readonly' : '']">
-        <v-chip filter size="small" color="primary" v-for="(i, index) in tagsConfig.archeTypes" :value="`archetype_${i}`">{{ t(`assembly.archetypes.${i}`) }}</v-chip>
+        <v-chip filter size="small" color="primary" v-for="(i, index) in tagsConfig.archeTypes" :value="`archetype_${i}`">{{ t(`assembly.tags.archetypes.${i}`) }}</v-chip>
       </div>
     </div>
 

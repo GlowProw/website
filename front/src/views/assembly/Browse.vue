@@ -91,8 +91,13 @@ watch(browseData, (newList: ResultData) => {
   if (newList && newList.data.length > 0) {
     nextTick(() => {
       browseAssemblyWidgetRefs.value.forEach((widget, index) => {
-        if (widget?.onLoadJson) {
-          widget.onLoadJson(newList.data[index].assembly, newList.data[index].attr.assemblyUseVersion);
+        if (widget?.onLoad) {
+          widget
+              .setSetting({
+                assemblyUseVersion: newList.data[index].attr.assemblyUseVersion,
+                isShowItemName: newList.data[index].attr.isShowItemName,
+              })
+              .onLoad(newList.data[index].assembly);
         }
       });
     });

@@ -8,6 +8,7 @@ import {useI18n} from "vue-i18n";
 import EmptyView from "@/components/EmptyView.vue";
 import ModName from "@/components/snbWidget/modName.vue";
 import ModDescription from "@/components/snbWidget/modDescription.vue";
+import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 
 type WeaponModificationSize = '3' | '5' | '6' | '8'
 type WeaponModConfigType = Record<Rarity, any>;
@@ -86,7 +87,7 @@ watch(() => props.data, (data: Item) => {
 
 watch(() => props.modelValue, () => {
   availableModulesData.value = onCategorizeByGrade(modifications);
-}, { deep: true });
+}, {deep: true});
 
 onMounted(() => {
   onReady()
@@ -163,6 +164,8 @@ const onCategorizeByGrade = (modificationsRaw): Record<string, any[]> => {
  * 确认
  */
 const onConfirm = () => {
+  if (!show.value) return;
+
   show.value = !show.value;
   emit('update:modelValue',
       toRaw(props.modelValue)
@@ -265,7 +268,7 @@ const isHasShowSlot = (type: string) => {
           </v-card-title>
           <v-row class="pa-4">
             <!-- 已安装模组 -->
-            <v-col cols="6">
+            <v-col cols="12" md="6" lg="6">
               <div class="font-weight-bold mb-2">
                 已安装模组
               </div>
@@ -323,7 +326,7 @@ const isHasShowSlot = (type: string) => {
             </v-col>
 
             <!-- 可选择模组 -->
-            <v-col cols="6" v-if="!readonly">
+            <v-col cols="12" md="6" lg="6" v-if="!readonly">
               <p class="font-weight-bold mb-2">可选择模组</p>
 
               <v-card border variant="flat" class="overflow-auto bg-transparent">
@@ -367,7 +370,16 @@ const isHasShowSlot = (type: string) => {
           <v-card-actions v-if="!readonly">
             <v-spacer></v-spacer>
             <v-btn @click="show = false">取消</v-btn>
-            <v-btn class="bg-amber" @click="onConfirm">确定</v-btn>
+            <v-btn class="bg-amber" @click="onConfirm">
+              <BtnWidget
+                  :disabled="!show"
+                  size="25" keyboard-shortcut="f" class="ml-1"
+                  line-color="rgba(83,83,83,0.68)"
+                  color="#000"
+                  @action-complete="onConfirm">
+                确定
+              </BtnWidget>
+            </v-btn>
           </v-card-actions>
         </v-card>
       </div>

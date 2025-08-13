@@ -62,7 +62,12 @@ const getAssemblyDetail = async () => {
     assemblyDetailData.value.description = unescape(assemblyDetailData.value.description || '这个人很懒什么,对此配装什么都没说')
 
     await nextTick(() => {
-      assemblyDetailRef.value.onLoadJson(d.data.data || d.data.assembly, d.data.attr.assemblyUseVersion)
+      assemblyDetailRef.value
+          .setSetting({
+            isShowItemName: d.data.attr.isShowItemName,
+            assemblyUseVersion: d.data.attr.assemblyUseVersion
+          })
+          .onLoad(d.data.data || d.data.assembly)
     })
   } catch (e) {
     console.error(e)

@@ -6,7 +6,7 @@ const props = withDefaults(defineProps<{ size?: number | string, padding?: numbe
 </script>
 
 <template>
-  <span :class="`item-base-slot card-flavor pa-${padding}`" :style="`height: ${size}; width: ${size};min-height: ${size}; min-width: ${size}`">
+  <span class="card-enlargement-flavor" :class="`item-base-slot pa-${padding}`" :style="`height: ${size}; width: ${size};min-height: ${size}; min-width: ${size}`">
     <slot></slot>
   </span>
 </template>
