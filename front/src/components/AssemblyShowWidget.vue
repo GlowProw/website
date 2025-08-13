@@ -689,6 +689,9 @@ defineExpose({
                           <template v-slot:chip="{item}">
                             {{ t(`displayCabinet.ship.${workshopData.data.weaponDirections[index]}`) }}
                           </template>
+                          <template v-slot:no-data>
+                            <EmptyView></EmptyView>
+                          </template>
                         </v-select>
                         <template v-else>
                           <template v-if="workshopData.data.weaponDirections[index]">

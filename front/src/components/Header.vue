@@ -16,9 +16,14 @@ const authStore = useAuthStore()
           flat>
 
         <Logo></Logo>
-        <v-btn size="x-small" class="ml-n3" variant="outlined">BETA</v-btn>
+        <v-btn size="x-small" class="ml-n3 mr-3" variant="outlined">BETA</v-btn>
 
-        <v-btn variant="text" exact href="https://www.ubisoft.com/en-us/game/skull-and-bones">
+        <v-btn variant="text" exact href="https://glow-prow-blog.cabbagelol.net/blog" target="_blank">
+          博客
+          <v-icon icon="mdi-open-in-new"></v-icon>
+        </v-btn>
+
+        <v-btn variant="text" exact href="https://www.ubisoft.com/en-us/game/skull-and-bones" target="_blank">
           官网
           <v-icon icon="mdi-open-in-new"></v-icon>
         </v-btn>

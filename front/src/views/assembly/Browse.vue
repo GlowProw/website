@@ -12,7 +12,6 @@ import Silk from "@/components/Silk.vue";
 
 const {t} = useI18n()
 
-
 let browsePagination = ref({
       page: 1
     }),
@@ -66,18 +65,18 @@ const getBrowseList = async () => {
         updatedEnd = updatedStartAndEnd && updatedStartAndEnd.split(',')[1] || null;
 
     const result = await http.get(api['assembly_list'], {
-      params: {
-        keyword,
-        sortField,
-        sortOrder,
-        isHasPassword,
-        createdStart,
-        createdEnd,
-        updatedStart,
-        updatedEnd,
-      }
-    });
-    const d = result.data;
+          params: {
+            keyword,
+            sortField,
+            sortOrder,
+            isHasPassword,
+            createdStart,
+            createdEnd,
+            updatedStart,
+            updatedEnd,
+          }
+        }),
+        d = result.data;
 
     if (d.error) return;
 
@@ -201,41 +200,51 @@ watch(browseData, (newList: ResultData) => {
         <!-- 配装筛选 E -->
       </v-col>
       <v-col cols="12" lg="9">
-        <v-row>
-          <v-col cols="12" md="12" lg="6" v-for="(i, index) in browseData.data"
-                 :key="index" class=""
-                 v-if="browseData.data.length > 0">
-            <v-card class="card-enlargement-flavor pa-5">
-              <v-row class="pt-5 pl-5 pr-5">
-                <v-col cols="9">
-                  <router-link :to="`/assembly/browse/${i.uuid}/detail`">
-                    <div :title="i.name || 'none'" class="text-amber text-h4 mb-1 font-weight-bold singe-line">{{ i.name || 'none' }}</div>
-                  </router-link>
-                </v-col>
-                <v-col cols="3">
-                  <v-chip density="compact" class="badge-flavor pl-5 pr-5" :disabled="i.isLiked">
-                    赞 {{ i.likes || 0 }}
-                  </v-chip>
-                </v-col>
-              </v-row>
-              <router-link :to="`/assembly/browse/${i.uuid}/detail`">
-                <AssemblyTouring>
-                  <AssemblyShowWidget
-                      class="card-flavor mb-5 ml-n10 mr-n10"
-                      :readonly="true"
-                      :ref="(el) => { if (el) browseAssemblyWidgetRefs[index] = el }">
-                  </AssemblyShowWidget>
-                </AssemblyTouring>
-              </router-link>
-            </v-card>
-          </v-col>
-          <div class="w-100" v-else-if="browseLoading" align="center">
-            <Loading size="100"></Loading>
-          </div>
-          <div class="w-100" v-else>
-            <EmptyView></EmptyView>
-          </div>
-        </v-row>
+        <keep-alive>
+          <v-row>
+            <v-col cols="12" md="12" lg="6" v-for="(i, index) in browseData.data"
+                   :key="index" class=""
+                   v-if="browseData.data.length > 0">
+              <v-card class="card-enlargement-flavor pa-5">
+                <v-row class="pt-5 pl-5 pr-5">
+                  <v-col cols="9">
+                    <router-link :to="`/assembly/browse/${i.uuid}/detail`">
+                      <div :title="i.name || 'none'" class="text-amber text-h4 mb-1 font-weight-bold singe-line">{{ i.name || 'none' }}</div>
+                    </router-link>
+                  </v-col>
+                  <v-col cols="3">
+                    <v-chip density="compact" class="badge-flavor pl-5 pr-5" :disabled="i.isLiked">
+                      赞 {{ i.likes || 0 }}
+                    </v-chip>
+                  </v-col>
+                </v-row>
+
+                <v-hover v-slot="{ isHovering, props }">
+                  <div v-bind="props" class="position-relative">
+                    <AssemblyTouring>
+                      <AssemblyShowWidget
+                          class="card-flavor mb-5 ml-n10 mr-n10"
+                          :readonly="true"
+                          :ref="(el) => { if (el) browseAssemblyWidgetRefs[index] = el }">
+                      </AssemblyShowWidget>
+                    </AssemblyTouring>
+                    <router-link :to="`/assembly/browse/${i.uuid}/detail`" target="_blank">
+                      <v-overlay scrim="#000" contained class="d-flex justify-center align-center" :model-value="!!isHovering">
+                        <v-icon icon="mdi-open-in-new" size="30"></v-icon>
+                      </v-overlay>
+                    </router-link>
+                  </div>
+                </v-hover>
+              </v-card>
+            </v-col>
+            <div class="w-100" v-else-if="browseLoading" align="center">
+              <Loading size="100"></Loading>
+            </div>
+            <div class="w-100" v-else>
+              <EmptyView></EmptyView>
+            </div>
+          </v-row>
+        </keep-alive>
 
         <!-- 配装分页 S -->
         <v-pagination

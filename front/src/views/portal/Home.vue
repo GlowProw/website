@@ -53,6 +53,24 @@ let data = ref({
         icon: 'mdi-draw-pen',
         description: '生成海盗签名图片，分享到社区网站上',
         to: ''
+      },
+      {
+        title: '物品排名(开发中)',
+        icon: 'mdi-help',
+        description: '生成物品玩家心中排名以及评价',
+        to: ''
+      },
+      {
+        title: '精英怪印象(开发中)',
+        icon: 'mdi-help',
+        description: '分享你对游戏内不同怪物第一印象',
+        to: ''
+      },
+      {
+        title: '时装秀(开发中)',
+        icon: 'mdi-help',
+        description: '分享你的穿搭，成为时尚达人',
+        to: ''
       }
     ])
 
