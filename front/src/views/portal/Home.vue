@@ -114,7 +114,7 @@ const getCurrentSeason = (): Season | null => {
           <video autoplay playsinline
                  class="card-enlargement-flavor"
                  muted loop type="video/mp4"
-                 src="http://cdn.hommk.com/pcgame/ubi2015/img/gamezone/sb/full/skullandbones-year2-loop.mp4"></video>
+                 src="https://staticctf.ubisoft.com/J3yJr34U2pZ2Ieem48Dwy9uqj5PNUQTn/5WG1pexP19mMXzIXCA2fzV/feb19cb3049e381b7bf1b8f2b983c5c0/skullandbones-year2-loop.mp4"></video>
         </div>
       </template>
 

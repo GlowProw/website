@@ -314,7 +314,7 @@ const onWorkshopDelete = () => {
             <v-btn class="mr-2" @click="router.go(-1)" v-if="isEditModel">
               取消
             </v-btn>
-            <v-tooltip location="bottom right" content-class="pa-0" :offset="[20, 0]" :disabled="verificationAssembly && verificationAssembly.verify <= 0">
+            <v-tooltip location="left top" content-class="pa-0" :offset="[20, 0]" :disabled="verificationAssembly && verificationAssembly.verify <= 0">
               <template v-slot:activator="{props}">
                 <span v-bind="props">
                   <v-btn :color="`var(--main-color)`" :disabled="!isAssemblyByUser || verificationAssembly && verificationAssembly.required >  0" @click="onSaveAssemblyPublish" v-if="!isEditModel">
@@ -334,10 +334,9 @@ const onWorkshopDelete = () => {
                   <template v-if="verificationAssembly && verificationAssembly.required > 0">
                     <p class="mb-3 font-weight-bold">配装似乎缺少必要选项，请船长添加必要内容</p>
                   </template>
-                  <p>配装似乎缺少一些内容:</p>
                   <ul v-if="verificationAssembly">
                     <li v-for="(v, vIndex) in verificationAssembly.verify" :key="vIndex">
-                      - {{ t(`assembly.workshop.verifyTips.${v.message}`) }}
+                      <span v-html="`- ${t(`assembly.workshop.verifyTips.${v.message}`)}`"></span>
                     </li>
                   </ul>
                 </v-alert>

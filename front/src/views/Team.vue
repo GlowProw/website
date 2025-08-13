@@ -297,8 +297,6 @@ const onWss = () => {
     const data = JSON.parse(event.data);
     teams.value = []
 
-    console.log('ws', data);
-
     switch (data.type) {
       case 'new_team_up':
         messages.value.push(t('basic.tips.teamUp_pushSuccess'));

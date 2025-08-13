@@ -21,7 +21,7 @@ import AssemblyClassificationShowList from "@/components/AssemblyClassificationS
 import {useI18nUtils} from "@/assets/sripts/i18nUtil";
 import ItemName from "@/components/snbWidget/itemName.vue";
 import UltimateName from "@/components/snbWidget/ultimateName.vue";
-import {AssemblyAttr} from "@/assets/types";
+import {AssemblyAttr, ItemAssemblySave} from "@/assets/types";
 import ShipName from "@/components/snbWidget/shipName.vue";
 
 const poops = withDefaults(defineProps<{
@@ -38,7 +38,7 @@ const poops = withDefaults(defineProps<{
     ultimates = Ultimates,
     assemblyDataProcessing = new AssemblyDataProcessing(),
     {asString, sanitizeString} = useI18nUtils(),
-    {t, te} = useI18n()
+    {t} = useI18n()
 
 let workshopData = ref({
       shipModel: false,
@@ -134,8 +134,7 @@ let // 获取陈设
     }),
     // 获取副武器
     getSecondaryWeapon = computed(() => {
-      let secondaryWeaponTag = ['springloader', 'mortar', 'rocket']
-      return secondaryWeaponTag;
+      return ['springloader', 'mortar', 'rocket'];
     }),
     // 获取武器列表
     getShipWeaponList = computed(() => {
@@ -320,8 +319,8 @@ const onSelectFrigteUpgrad = () => {
 const getDeckInformation = (index: number): Record<string, any> => {
   try {
     const weaponDirections = workshopData.value?.data?.weaponDirections?.[index],
-    weapons = workshopData.value?.data?.weaponSlots?.[index];
-    if (['ballista','seaFire'].includes(weapons.type)) return {top: 1, down: 0}
+        weapons = workshopData.value?.data?.weaponSlots?.[index];
+    if (['ballista', 'seaFire'].includes(weapons.type)) return {top: 1, down: 0}
     if (weaponDirections === undefined) return {};
 
     return cache.value.weaponDirections[weaponDirections] || {};
@@ -604,7 +603,7 @@ defineExpose({
                       <v-hover v-slot="{ isHovering, props : propsHoverClose }">
                         <v-card v-bind="propsHoverClose" max-width="80">
                           <ItemSlotBase size="80px" class="pa-1" v-if="display && display.id">
-                            <ItemIconWidget :id="display.id" :is-show-tooltip="!readonly"></ItemIconWidget>
+                            <ItemIconWidget :id="display.id" :is-show-tooltip="readonly"></ItemIconWidget>
                           </ItemSlotBase>
                           <div class="text-center text-caption text-grey w-100 singe-line" v-if="attr.isShowItemName">
                             <ItemName :data="display"></ItemName>
@@ -703,7 +702,7 @@ defineExpose({
                           <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.weaponSlots[index] && workshopData.data.weaponSlots[index].id">
                             <v-card class="position-relative" v-bind="propsHoverClose" max-width="80">
                               <ItemSlotBase size="80px" class="pa-1">
-                                <ItemIconWidget :id="i.id" :is-show-tooltip="!readonly" :is-open-detail="readonly"></ItemIconWidget>
+                                <ItemIconWidget :id="i.id" :is-show-tooltip="readonly" :is-open-detail="readonly"></ItemIconWidget>
                               </ItemSlotBase>
                               <div class="text-center text-caption text-grey w-100 singe-line" v-if="attr.isShowItemName">
                                 <ItemName :data="i"></ItemName>
@@ -770,7 +769,7 @@ defineExpose({
                                             padding="0"
                                             :id="i.id"
                                             v-if="i.id"
-                                            v-for="(p, pindex) in getDeckInformation(index).lower" :key="pindex">
+                                            v-for="(p, pIndex) in getDeckInformation(index).lower" :key="pIndex">
                                 <ItemIconWidget :id="i.id"
                                                 :is-show-tooltip="false"
                                                 :is-open-detail="false"></ItemIconWidget>
@@ -816,7 +815,7 @@ defineExpose({
                           <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.secondaryWeaponSlots[index] && workshopData.data.secondaryWeaponSlots[index].id">
                             <v-card class="position-relative" v-bind="propsHoverClose" max-width="80">
                               <ItemSlotBase size="80px" class="pa-1">
-                                <ItemIconWidget :id="i.id" :is-show-tooltip="!readonly"></ItemIconWidget>
+                                <ItemIconWidget :id="i.id" :is-show-tooltip="readonly"></ItemIconWidget>
                               </ItemSlotBase>
                               <div class="text-center text-caption text-grey w-100 singe-line" v-if="attr.isShowItemName">
                                 <ItemName :data="i"></ItemName>
@@ -874,7 +873,7 @@ defineExpose({
                 <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.armorSlot">
                   <v-card v-bind="propsHoverClose" class="position-relative" width="80">
                     <ItemSlotBase size="80px" class="pa-1">
-                      <ItemIconWidget :id="workshopData.data.armorSlot.id" :is-show-tooltip="!readonly"></ItemIconWidget>
+                      <ItemIconWidget :id="workshopData.data.armorSlot.id" :is-show-tooltip="readonly"></ItemIconWidget>
                     </ItemSlotBase>
                     <div class="text-center text-caption text-grey w-100 singe-line" v-if="attr.isShowItemName">
                       <ItemName :data="workshopData.data.armorSlot"></ItemName>

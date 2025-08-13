@@ -38,7 +38,7 @@ let assemblyDetailData = ref({
     password = ref(''),
     messages = ref([])
 
-watch(() => route, (value) => {
+watch(() => route, () => {
   getAssemblyDetail()
 })
 
@@ -167,21 +167,23 @@ const onPenPassword = () => {
                 </template>
               </LikeWidget>
 
-              <v-btn v-if="assemblyDetailData.uuid" :to="`/assembly/browse/${assemblyDetailData.uuid}/share`" icon="mdi-share"></v-btn>
+              <v-btn v-if="assemblyDetailData.uuid" :to="`/assembly/browse/${assemblyDetailData.uuid}/share`" icon="mdi-share-variant-outline"></v-btn>
 
               <template v-if="assemblyDetailData.isVisibility && authStore.isLogin && assemblyDetailData.isOwner">
-                <v-btn class="ml-3" variant="flat" :to="`/assembly/workshop/${assemblyDetailData.uuid}/edit`">
-                  <v-icon icon="mdi-pencil" class="mr-2"></v-icon>
-                  编辑此配装
-                </v-btn>
-
-                <AssemblySettingPanel :id="assemblyDetailData.uuid"
-                                      :assembly-data="assemblyDetailData?.assembly || {}"
-                                      @change="getAssemblyDetail">
-                  <v-btn variant="flat" class="ml-3">
-                    <v-icon icon="mdi-cog"></v-icon>
+                <v-btn-group class="ml-2">
+                  <v-btn variant="flat" :to="`/assembly/workshop/${assemblyDetailData.uuid}/edit`">
+                    <v-icon icon="mdi-pencil" class="mr-2"></v-icon>
+                    编辑此配装
                   </v-btn>
-                </AssemblySettingPanel>
+                  <v-divider vertical></v-divider>
+                  <AssemblySettingPanel :id="assemblyDetailData.uuid"
+                                        :assembly-data="assemblyDetailData?.assembly || {}"
+                                        @change="getAssemblyDetail">
+                    <v-btn variant="flat" class="h-100">
+                      <v-icon icon="mdi-cog"></v-icon>
+                    </v-btn>
+                  </AssemblySettingPanel>
+                </v-btn-group>
               </template>
             </v-toolbar>
           </div>

@@ -2,7 +2,7 @@
 import Textarea from "@/components/textarea/index.vue"
 import AssemblyShowWidget from "@/components/AssemblyShowWidget.vue";
 import {useRoute, useRouter} from "vue-router";
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, ref, toRaw, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {api, storageAssembly} from "@/assets/sripts";
 import {StorageAssemblyType} from "@/assets/sripts/storage_assembly";
@@ -28,13 +28,16 @@ let publishData = ref({
       attr: {
         password: '',
         assemblyUseVersion: assemblyDataProcessing.nowVersion,
-        language: locale.value
+        language: locale.value,
+        isComment: true,
+        isLike: true
       }
     } as {
       uuid: string,
       name: string,
       description: string,
       tags: any[],
+      attr: {},
       data: {}
     }),
     dataLoading = ref(false),
@@ -62,6 +65,11 @@ let publishData = ref({
       }
     })
 
+watch(() => publishData.value.attr, () => {
+  console.log(1)
+  onSetAssemblyData()
+}, {deep: true})
+
 onMounted(() => {
   onLoadData()
 })
@@ -78,21 +86,25 @@ const onLoadData = () => {
     assemblyData.value = storageAssembly.get(uid as string, StorageAssemblyType.Data)
 
     if (assemblyData && assemblyData.value) {
-      assemblyWorkshopRef.value
-          .setSetting({
-            assemblyUseVersion: assemblyData.value.data?.attr?.assemblyUseVersion || assemblyData.value.data.data.__version || AssemblyDataProcessing.nowVersion,
-            isShowItemName: assemblyData.value.data?.attr?.isShowItemName || false
-          })
-          .onLoad(assemblyData.value.data.data)
-
       publishData.value = {
-        ...publishData.value,
         ...assemblyData.value.data,
+        ...publishData.value,
       }
+
+      onSetAssemblyData()
     }
   }
 
   dataLoading.value = false
+}
+
+const onSetAssemblyData = () => {
+  assemblyWorkshopRef.value
+      .setSetting({
+        assemblyUseVersion: publishData.value.attr?.assemblyUseVersion || assemblyData.value.data.data.__version || AssemblyDataProcessing.nowVersion,
+        isShowItemName: publishData.value.attr?.isShowItemName || false
+      })
+      .onLoad(toRaw(publishData.value.data))
 }
 
 /**

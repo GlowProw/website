@@ -25,7 +25,7 @@ let assemblyDetailData = ref({}),
     qrCanvas = ref(null),
     path = ref("")
 
-watch(() => route.params, (value) => {
+watch(() => route, () => {
   getAssemblyDetail()
 })
 

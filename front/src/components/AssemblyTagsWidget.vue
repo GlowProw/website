@@ -100,7 +100,9 @@ const onUpdateTags = (data: any) => {
     <div class="mt-3 w-100">
       <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">配装组队</p>
       <div class="mt-3 d-flex ga-2" :class="[readonly ? 'readonly' : '']">
-        <v-chip size="small" color="primary" v-for="(i, index) in ['singlePlayer', 'multiPlayer']"
+        <v-chip size="small" color="primary"
+                v-for="(i, index) in ['singlePlayer', 'multiPlayer']"
+                :key="index"
                 :value="`teamFormationMethod_${i}`">
           {{ t(`assembly.tags.teamFormationMethods.${i}`) }}
         </v-chip>
@@ -110,21 +112,30 @@ const onUpdateTags = (data: any) => {
     <div class="mt-3 w-100">
       <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">适用赛季</p>
       <div class="mt-3 ga-2" :class="[readonly ? 'readonly' : '']">
-        <v-chip filter size="small" color="primary" v-for="(i, index) in tagsConfig.seasons" :value="`season_${i}`">{{ t(`snb.seasons.${i}`) }}</v-chip>
+        <v-chip filter size="small" color="primary"
+                v-for="(i, index) in tagsConfig.seasons"
+                :key="index"
+                :value="`season_${i}`">{{ t(`snb.seasons.${i}`) }}</v-chip>
       </div>
     </div>
 
     <div class="mt-3">
       <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">伤害类型</p>
       <div class="mt-3 ga-2" :class="[readonly ? 'readonly' : '']">
-        <v-chip filter size="small" color="primary" v-for="(i, index) in tagsConfig.damageTypes" :value="`damageType_${i}`">{{ t(`assembly.tags.damageTypes.${i}`) }}</v-chip>
+        <v-chip filter size="small" color="primary"
+                v-for="(i, index) in tagsConfig.damageTypes"
+                :key="index"
+                :value="`damageType_${i}`">{{ t(`assembly.tags.damageTypes.${i}`) }}</v-chip>
       </div>
     </div>
 
     <div class="mt-3 w-100">
       <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">船只定位</p>
       <div class="mt-3 d-flex ga-2" :class="[readonly ? 'readonly' : '']">
-        <v-chip filter size="small" color="primary" v-for="(i, index) in tagsConfig.archeTypes" :value="`archetype_${i}`">{{ t(`assembly.tags.archetypes.${i}`) }}</v-chip>
+        <v-chip filter size="small" color="primary"
+                v-for="(i, index) in tagsConfig.archeTypes"
+                :key="index"
+                :value="`archetype_${i}`">{{ t(`assembly.tags.archetypes.${i}`) }}</v-chip>
       </div>
     </div>
 

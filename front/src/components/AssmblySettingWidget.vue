@@ -108,8 +108,8 @@ const passwordPlaceholder = computed(() => {
       </v-col>
       <v-col>
         <template v-if="route.debug">
-          {{modelValue.password}} |
-          {{modelValue.attr.password}}
+          {{ modelValue.password }} |
+          {{ modelValue.attr.password }}
         </template>
 
         <v-text-field item-title="label" :placeholder="passwordPlaceholder"
@@ -145,7 +145,13 @@ const passwordPlaceholder = computed(() => {
         <p>它仅在配装详情页展示，固定在配装后方，使用外部图床</p>
       </v-col>
       <v-col>
-        <v-text-field placeholder="https://" v-model="modelValue.attr.backgroundPresentation"></v-text-field>
+        <v-card border>
+          <v-img v-if="modelValue.attr.backgroundPresentation" :src="modelValue.attr.backgroundPresentation"></v-img>
+          <v-text-field tile hide-details clearable persistent-hint
+                        type="src"
+                        placeholder="https://"
+                        v-model="modelValue.attr.backgroundPresentation"></v-text-field>
+        </v-card>
       </v-col>
     </v-row>
 
@@ -158,7 +164,6 @@ const passwordPlaceholder = computed(() => {
         <v-checkbox v-model="modelValue.attr.isShowItemName" density="compact" hide-details></v-checkbox>
       </v-col>
     </v-row>
-
 
     <v-row>
       <v-col>

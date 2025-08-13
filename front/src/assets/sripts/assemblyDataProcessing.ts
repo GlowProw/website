@@ -163,6 +163,20 @@ export default class AssemblyDataProcessing {
                             return length <= 0 || (data.weaponSlots as Array).filter(i => !i.id).length == length
                         }, required: false, message: 'weaponAllEmpty'
                     },
+                    {
+                        condition: () => {
+                            let weaponDirections = data.weaponDirections,
+                                weaponSlots = data.weaponSlots,
+                                result = true
+                            for (let i = 0; i < weaponSlots.length; i++) {
+                                if (weaponDirections[i]) {
+                                    result = false
+                                }
+                            }
+                            return result
+                        }, required: true, message: 'weaponDirectionsEmpty'
+                    },
+
                     {condition: () => data.armorSlot == null, required: false, message: 'armorEmpty'},
                     {
                         condition: () => {
@@ -194,7 +208,7 @@ export default class AssemblyDataProcessing {
      */
     public export(data) {
         let version = data?.__version || AssemblyDataProcessing.nowVersion;
-        if (version) {
+        if (version && data) {
             const filteredData = {};
             this.processing[version].allowedFields.forEach(field => {
                 if (data[field] !== undefined) {
@@ -213,7 +227,7 @@ export default class AssemblyDataProcessing {
      */
     public import(data, useVersion?: string) {
         let version = useVersion || data.__version || AssemblyDataProcessing.nowVersion;
-        if (version) {
+        if (version && data) {
             const filteredData = {};
             this.processing[version].allowedFields.forEach(field => {
                 if (data[field] !== undefined) {

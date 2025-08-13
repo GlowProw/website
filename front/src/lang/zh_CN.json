@@ -361,13 +361,14 @@
         "byRarity": "稀有度"
       },
       "verifyTips": {
-        "shipEmpty": "船只未选择，它是必须",
+        "shipEmpty": "船只未选择，<u>它是必须</u>",
         "ultimateEmpty": "技能是空的",
         "shipUpgradeEmpty": "船只升级部件是空的",
         "weaponModificationsEmpty": "武器模组是空的",
         "secondaryWeaponModificationsEmpty": "副武器的模组是空的",
         "secondaryWeaponEmpty": "副武器是空的",
         "weaponAllEmpty": "武器都是空的",
+        "weaponDirectionsEmpty": "武器的方向你未设置, <u>它是必须</u>",
         "armorEmpty": "船甲是空的",
         "displayAllEmpty": "陈设都是空的"
       }

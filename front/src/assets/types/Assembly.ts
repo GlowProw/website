@@ -16,7 +16,7 @@ export interface AssemblyItem extends AssemblyBasieIds {
     byUserId: string | number
 }
 
-interface ItemAssemblySave extends Item {
+export interface ItemAssemblySave extends Item {
     direction?: string
 }
 

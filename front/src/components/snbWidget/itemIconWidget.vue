@@ -92,7 +92,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
               `item-card-header-rarity-${i.rarity}`
           ]">
         <template v-slot:image v-if="i.rarity">
-          <img :src="raritys[`item-rarity-${i.rarity}`]" width="100%" height="100%" class="opacity-30 prohibit-drag">
+          <v-img :src="raritys[`item-rarity-${i.rarity}`]" width="100%" height="100%" class="opacity-30 prohibit-drag" />
         </template>
 
         <v-img
