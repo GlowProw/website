@@ -8,10 +8,13 @@ import Loading from "@/components/Loading.vue";
 import {useRoute} from "vue-router";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import EmptyView from "@/components/EmptyView.vue";
+import {useI18nUtils} from "@/assets/sripts/i18nUtil";
+import ItemName from "@/components/snbWidget/itemName.vue";
 
 const items: Items = Items,
     route = useRoute(),
-    {t} = useI18n()
+    {t} = useI18n(),
+    {asString, sanitizeString} = useI18nUtils()
 
 let itemsData: any = ref([]),
     exceedingItemsCount = ref(0),
@@ -37,7 +40,10 @@ const onProcessedData = computed(() => {
       if (searchValue) {
         const filteredData = originalData.filter(i =>
             i.id.indexOf(searchValue) >= 0 ||
-            t(`snb.items.${i.id}.name`).indexOf(searchValue) >= 0
+            asString([
+              `snb.items.${i.id}.name`,
+              `snb.items.${sanitizeString(i.id).cleaned}.name`
+            ]).indexOf(searchValue) >= 0
         );
 
         resultData = filteredData.slice(0, maximumSearchCount);
@@ -130,8 +136,8 @@ const onSearchItem = () => {
         :items="itemsData"
         @load="onLoad">
       <v-container>
-        <v-row class="item-list">
-          <div v-for="(i,index) in itemsData" :key="index">
+        <v-row class="item-list" no-gutters>
+          <div v-for="(i,index) in itemsData" :key="index" style="width: 99px">
             <template v-if="route.query.debug">
               {{ i.id }}
             </template>
@@ -139,6 +145,9 @@ const onSearchItem = () => {
             <ItemSlotBase size="99px">
               <ItemIconWidget :id="i.id"></ItemIconWidget>
             </ItemSlotBase>
+            <div class="text-center singe-line w-100">
+              <ItemName :data="i"></ItemName>
+            </div>
           </div>
         </v-row>
       </v-container>
@@ -160,14 +169,14 @@ const onSearchItem = () => {
   </template>
   <template v-else>
     <v-container>
-      <template v-if="exceedingItemsCount > 0" >
+      <template v-if="exceedingItemsCount > 0">
         <v-alert class="w-100 mb-5" type="warning" variant="tonal">
-          {{ t('displayCabinet.ships.searchCountOverflowTip', {maximumSearchCount,exceedingItemsCount}) }}
+          {{ t('displayCabinet.ships.searchCountOverflowTip', {maximumSearchCount, exceedingItemsCount}) }}
         </v-alert>
       </template>
 
       <v-row class="item-list">
-        <div v-for="(i,index) in onProcessedData" :key="index">
+        <div v-for="(i,index) in onProcessedData" :key="index" style="width: 99px">
           <template v-if="route.query.debug">
             {{ i.id }}
           </template>
@@ -175,6 +184,9 @@ const onSearchItem = () => {
           <ItemSlotBase size="99px">
             <ItemIconWidget :id="i.id"></ItemIconWidget>
           </ItemSlotBase>
+          <div class="text-center singe-line w-100">
+            <ItemName :data="i"></ItemName>
+          </div>
         </div>
 
         <v-card border class="w-100" v-if="onProcessedData.length <= 0">

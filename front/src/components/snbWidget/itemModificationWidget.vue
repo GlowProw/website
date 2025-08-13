@@ -6,6 +6,8 @@ import ItemSlotBase from "./ItemSlotBase.vue";
 import router from "~/router";
 import {useRoute} from "vue-router";
 import {useI18nUtils} from "@/assets/sripts/i18nUtil";
+import ModName from "@/components/snbWidget/modName.vue";
+import ModDescription from "@/components/snbWidget/modDescription.vue";
 
 const modImages = import.meta.glob('@glow-prow-assets/modifications/*.*', {eager: true});
 const props = withDefaults(defineProps<{ id: string, type: string | null }>(), {
@@ -83,17 +85,6 @@ const onCategorizeByGrade = (data): {} => {
 }
 
 /**
- * 模组是否可用
- */
-const onIsModPossibleSlot = (data) => {
-  for (const i of data.variants) {
-    if (i.itemType.indexOf(props.type) > 0)
-      return true;
-  }
-  return false;
-}
-
-/**
  * 模组展示方式切换
  */
 const onSwitchModShow = () => {
@@ -104,19 +95,6 @@ const onSwitchModShow = () => {
   })
 }
 
-/**
- * 百分化
- * @param data
- */
-const onFormatRange = (data: []) => {
-  return data.map((num, index) => {
-    if (num < 1) {
-      return [Math.floor(num * 100 * 10) / 10, Math.ceil(num * 100 * 10) / 10][index];
-    } else {
-      return num;
-    }
-  });
-}
 </script>
 
 <template>
@@ -165,20 +143,8 @@ const onFormatRange = (data: []) => {
                 <v-img :src="modIconImages[mod.id]"></v-img>
               </ItemSlotBase>
               <v-col cols="10">
-                <b :class="`grade-${mod.grade}-title`">{{ t(`snb.modifications.${mod.id}.name`) }}</b>
-                <div v-for="(v, vIndex) in mod.variants.filter(e => e.itemType.indexOf(type) >= 0)" :key="vIndex"
-                     :class="`grade-${mod.grade}-description`" class="opacity-50 description">
-                  <template v-if="!Array.isArray(t(`snb.modifications.${mod.id}.description`)) && te(`snb.modifications.${mod.id}.description`)">
-                    {{
-                      t(`snb.modifications.${mod.id}.description`, {
-                        __: onFormatRange(v.range)
-                      })
-                    }}
-                  </template>
-                  <template v-else v-for="content in tm(`snb.modifications.${mod.id}.description`)" :key="content">
-                    {{ rt(content, {__: onFormatRange(v.range)}) }}<br>
-                  </template>
-                </div>
+                <ModName :id="mod.id" :grade="mod.grade"></ModName>
+                <ModDescription :id="mod.id" :variants="mod.variants" :grade="mod.grade" :type="type"></ModDescription>
               </v-col>
             </v-row>
           </template>

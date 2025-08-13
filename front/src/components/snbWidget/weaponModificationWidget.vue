@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import RhombusWidget from "@/components/snbWidget/rhombusWidget.vue";
 import {Item} from "glow-prow-data/src/entity/Items.ts";
-import {onMounted, ref, toRaw, watch} from "vue";
+import {computed, onMounted, ref, toRaw, watch} from "vue";
 import type {Rarity} from "glow-prow-data/src/types/Rarity";
 import {Modifications} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 import EmptyView from "@/components/EmptyView.vue";
+import ModName from "@/components/snbWidget/modName.vue";
+import ModDescription from "@/components/snbWidget/modDescription.vue";
 
 type WeaponModificationSize = '3' | '5' | '6' | '8'
 type WeaponModConfigType = Record<Rarity, any>;
@@ -13,22 +15,27 @@ type WeaponModConfigType = Record<Rarity, any>;
 // 插槽卡槽设定
 // 按照等级来决定卡槽类型和数量
 const weaponModConfig: WeaponModConfigType = {
-  common: {
-    slotType: ['basic', 'basic', 'advanced', 'special']
-  },
-  uncommon: {
-    slotType: ['basic', 'advanced', 'special']
-  },
-  rare: {
-    slotType: ['basic', 'advanced', 'special']
-  },
-  epic: {
-    slotType: ['basic', 'advanced', 'special']
-  },
-  legendary: {
-    slotType: ['basic', 'advanced', 'special']
-  }
-}
+      common: {
+        slotType: ['basic', 'basic', 'advanced', 'special']
+      },
+      uncommon: {
+        slotType: ['basic', 'advanced', 'special']
+      },
+      rare: {
+        slotType: ['basic', 'advanced', 'special']
+      },
+      epic: {
+        slotType: ['basic', 'advanced', 'advanced']
+      },
+      legendary: {
+        slotType: ['basic', 'advanced', 'advanced']
+      }
+    },
+    modStyleConfig = {
+      'basic': 'rgba(208,255,208,0.14)',
+      'advanced': 'rgba(187,220,255,0.14)',
+      'special': 'rgba(249,235,255,0.14)'
+    }
 
 const modImages = import.meta.glob('@glow-prow-assets/modifications/*.*', {eager: true});
 const props = withDefaults(defineProps<{
@@ -45,14 +52,22 @@ const props = withDefaults(defineProps<{
       item: null,
     }),
     {t, te} = useI18n(),
+    modifications = Modifications,
+    isHasBasicSlot = computed(() => {
+      return props.modelValue.filter(i => i.type == 'basic').length > 0
+    }),
+    isHasAdvancedSlot = computed(() => {
+      return props.modelValue.filter(i => i.type == 'advanced').length > 0
+    }),
+    isHasSpecialSlot = computed(() => {
+      return props.modelValue.filter(i => i.type == 'special').length > 0
+    }),
     emit = defineEmits(['update:modelValue'])
 
 let show = ref(false),
     modIconImages = ref({}),
     // 可用模组列表
-    availableModulesData = ref<Record<string, any[]>>({}),
-    // 武器插槽模组
-    weaponModSlots = ref<Array<{ type: string, value: any | null }>>([])
+    availableModulesData = ref<Record<string, any[]>>({})
 
 watch(() => props.data, (data: Item) => {
   if (data) {
@@ -65,7 +80,13 @@ watch(() => props.data, (data: Item) => {
         })
     )
   }
+
+  availableModulesData.value = onCategorizeByGrade(modifications)
 })
+
+watch(() => props.modelValue, () => {
+  availableModulesData.value = onCategorizeByGrade(modifications);
+}, { deep: true });
 
 onMounted(() => {
   onReady()
@@ -93,26 +114,42 @@ const onReady = () => {
   }
   modIconImages.value = imageMap;
 
-  availableModulesData.value = onCategorizeByGrade(Modifications)
+  availableModulesData.value = onCategorizeByGrade(modifications)
 }
 
 /**
  * 初始化分类表
  * 以grade创建
- * @param data
+ * @param modificationsRaw
  */
-const onCategorizeByGrade = (data): Record<string, any[]> => {
-  const result: Record<string, any[]> = {};
+const onCategorizeByGrade = (modificationsRaw): Record<string, any[]> => {
+  const result = {};
 
-  Object.values(data).forEach((item: any) => {
-    if (props.type) {
-      const hasMatchingVariant = item.variants?.some((variant: any) =>
-          variant.itemType?.includes(props.type)
-      );
+  if (!props.data?.type) return result;
 
-      if (!hasMatchingVariant) return; // 不匹配则跳过
+  // 获取已安装模组的damageType集合
+  const installedDamageTypes = new Set(
+      props.modelValue
+          ?.filter(mod => mod.value?.damageType)
+          .map(mod => mod.value.damageType)
+  );
+
+  Object.values(modificationsRaw).forEach(item => {
+    // 检查武器类型是否匹配
+    const hasMatchingVariant = item.variants.some(variant =>
+        variant.itemType.includes(props.data.type)
+    );
+    if (!hasMatchingVariant) return;
+
+    // 检查requiredDamageType要求
+    if (item.requiredDamageType) {
+      // 如果模组有requiredDamageType，但已安装模组中没有匹配的damageType，则跳过
+      if (!installedDamageTypes.has(item.requiredDamageType)) {
+        return;
+      }
     }
 
+    // 按grade分类
     if (!result[item.grade]) {
       result[item.grade] = [];
     }
@@ -184,6 +221,21 @@ const removeModification = (slotIndex: number) => {
 const onPercentage = (data: []): [number, number] => {
   return [Math.ceil(data[0] * 100), Math.ceil(data[1] * 100)]
 }
+
+/**
+ * 检查按照插槽的类型，决定可显示按照类型模组
+ * @param type
+ */
+const isHasShowSlot = (type: string) => {
+  switch (type) {
+    case 'basic':
+      return isHasBasicSlot.value
+    case 'advanced':
+      return isHasAdvancedSlot.value
+    case 'special':
+      return isHasSpecialSlot.value
+  }
+}
 </script>
 
 <template>
@@ -203,7 +255,7 @@ const onPercentage = (data: []): [number, number] => {
           <v-card-title>
             <v-row align="center">
               <h1 class="text-amber">
-                模组
+                模组改装
               </h1>
               <v-spacer></v-spacer>
               <v-btn icon @click="show = false">
@@ -212,8 +264,9 @@ const onPercentage = (data: []): [number, number] => {
             </v-row>
           </v-card-title>
           <v-row class="pa-4">
+            <!-- 已安装模组 -->
             <v-col cols="6">
-              <div class="font-weight-bold mb-1">
+              <div class="font-weight-bold mb-2">
                 已安装模组
               </div>
 
@@ -222,6 +275,8 @@ const onPercentage = (data: []): [number, number] => {
                   :key="modIndex"
                   variant="flat"
                   class="mb-3"
+                  border
+                  :color="modStyleConfig[mod.type]"
                   @drop="onDrop($event, modIndex)"
                   @dragover="onDragOver"
                   :class="{'slot-highlight': !mod.value}">
@@ -229,14 +284,17 @@ const onPercentage = (data: []): [number, number] => {
                   <v-col cols="auto" class="mt-2 mb-2 ml-2">
                     <v-img class="ma-2" :src="modIconImages[mod.type]" width="40px" height="40px"/>
                   </v-col>
-                  <v-divider vertical></v-divider>
+                  <v-divider vertical opacity=".06"></v-divider>
                   <v-col class="mt-2 mb-2 mr-2">
                     <template v-if="mod.value">
                       <v-row align="stretch">
                         <v-col>
                           <v-card variant="tonal" class="pa-2 d-flex align-center">
                             <v-img class="mr-4" :src="modIconImages[mod.value.id]" width="40px" height="40px"/>
-                            <div class="w-100">{{ t(`snb.modifications.${mod.value.id}.name`) }}</div>
+                            <div class="w-100">
+                              <ModName :id="mod.value.id" :grade="mod.value.grade"></ModName>
+                              <ModDescription :id="mod.value.id" :variants="mod.value.variants" :grade="mod.value.grade" :type="data.type"></ModDescription>
+                            </div>
                           </v-card>
                         </v-col>
                         <v-divider vertical class="opacity-10"></v-divider>
@@ -253,7 +311,7 @@ const onPercentage = (data: []): [number, number] => {
                     </template>
                     <template v-else>
                       <div class="text-caption text-grey" v-if="!readonly">
-                        拖拽{{ mod.type }}模组到此处
+                        拖拽{{ t(`assembly.modification.${mod.type}`) }}模组到此处
                       </div>
                       <div v-else>
                         <EmptyView></EmptyView>
@@ -263,54 +321,53 @@ const onPercentage = (data: []): [number, number] => {
                 </v-row>
               </v-card>
             </v-col>
-            <v-col cols="6" v-if="!readonly">
-              <p class="font-weight-bold mb-1">可选择模组</p>
 
-              <div class="overflow-auto" style="max-height: calc(100vh - 350px);">
-                <v-expansion-panels variant="accordion">
+            <!-- 可选择模组 -->
+            <v-col cols="6" v-if="!readonly">
+              <p class="font-weight-bold mb-2">可选择模组</p>
+
+              <v-card border variant="flat" class="overflow-auto bg-transparent">
+                <v-expansion-panels variant="accordion" tile class="bg-transparent">
                   <v-expansion-panel
-                      v-for="(mods, title) in availableModulesData"
-                      :key="title">
+                      v-show="isHasShowSlot(type)"
+                      v-for="(mods, type) in availableModulesData"
+                      :bg-color="modStyleConfig[type]"
+                      :key="type">
                     <template v-slot:title>
-                      <v-img class="mr-4" :src="modIconImages[title]" width="40px" height="40px"/>
-                      <div class="w-100">{{ title }}</div>
+                      <v-img class="mr-4" :src="modIconImages[type]" width="40px" height="40px"/>
+                      <div class="w-100">{{ t(`assembly.modification.${type}`) }} ({{ mods.length || 0 }})</div>
                     </template>
                     <template v-slot:text>
-                      <v-card
-                          v-for="(modItem, modItemIndex) in mods"
-                          :key="modItemIndex"
-                          variant="tonal"
-                          class="pa-2 mb-2"
-                          draggable="true"
-                          @dragstart="onDragStart($event, modItem)">
-                        <v-row>
-                          <v-col cols="auto">
-                            <v-img class="ma-2" :src="modIconImages[modItem.id]" width="40px" height="40px"/>
-                          </v-col>
-                          <v-col>
-                            <b :class="`grade-${modItem.grade}-title`">{{ t(`snb.modifications.${modItem.id}.name`) }}</b>
-                            <div v-for="(v, vIndex) in modItem.variants" :key="vIndex" :class="`grade-${modItem.grade}-description`" class="opacity-50 description">
-                              <template v-if="te(`snb.modifications.${modItem.id}.description`)">
-                                {{
-                                  t(`snb.modifications.${modItem.id}.description`, {
-                                    __: onPercentage(v.range)
-                                  })
-                                }}
-                              </template>
-                            </div>
-                          </v-col>
-                        </v-row>
-                      </v-card>
+                      <div style="max-height: 300px;" class="overflow-y-auto">
+                        <v-card
+                            v-for="(modItem, modItemIndex) in mods"
+                            :key="modItemIndex"
+                            variant="tonal"
+                            class="pa-2 mb-2 cursor-move"
+                            draggable="true"
+                            @dragstart="onDragStart($event, modItem)">
+                          <v-row no-gutters>
+                            <v-col cols="auto">
+                              <v-img class="ma-2" :src="modIconImages[modItem.id]" width="40px" height="40px"/>
+                            </v-col>
+                            <v-col>
+                              <ModName :id="modItem.id" :grade="modItem.grade"></ModName>
+                              <ModDescription :id="modItem.id" :variants="modItem.variants" :grade="modItem.grade" :type="data.type"></ModDescription>
+                            </v-col>
+                          </v-row>
+                        </v-card>
+                      </div>
                     </template>
                   </v-expansion-panel>
                 </v-expansion-panels>
-              </div>
+              </v-card>
             </v-col>
           </v-row>
 
           <v-card-actions v-if="!readonly">
-            <v-btn class="bg-amber" @click="onConfirm">确定</v-btn>
+            <v-spacer></v-spacer>
             <v-btn @click="show = false">取消</v-btn>
+            <v-btn class="bg-amber" @click="onConfirm">确定</v-btn>
           </v-card-actions>
         </v-card>
       </div>

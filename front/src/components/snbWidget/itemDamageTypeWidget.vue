@@ -81,12 +81,12 @@ const getTitle = (key) => {
   </template>
   <!-- 浓缩 无空Widget -->
   <template v-else-if="size == 'mini'">
-    <v-card class="bg-transparent d-flex ga-0" v-if="damageIconImages.length > 0">
+    <v-card class="bg-transparent d-flex ga-1" v-if="damageIconImages.length > 0">
       <ItemSlotBase padding="0"
                     size="25"
                     v-for="(i, index) in damageIconImages"
                     :key="index"
-                    class="mr-1 d-flex justify-center align-center card-flavor"
+                    class="d-flex justify-center align-center card-flavor"
                     v-tooltip="getTitle(i.key)">
         <v-card tile class="pa-1 w-100 h-100 bg-transparent d-flex justify-center align-center" border>
           <v-img :src="i.src" width="15px" height="15px"></v-img>

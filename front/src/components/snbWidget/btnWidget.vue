@@ -1,246 +1,201 @@
 <template>
-  <div class="long-press-button-container">
-    <svg :width="size" :height="size" class="progress-ring">
-      <circle
-          class="progress-ring-track"
-          :stroke="trackColor"
-          :stroke-width="strokeWidth"
-          :r="radius"
-          :cx="center"
-          :cy="center"
-      />
-      <circle
-          class="progress-ring-bar"
-          :stroke="progressColor"
-          :stroke-width="strokeWidth"
-          :r="radius"
-          :cx="center"
-          :cy="center"
-          :stroke-dasharray="circumference"
-          :stroke-dashoffset="progressOffset"
-          transform="rotate(-90)"
-          :transform-origin="`${center} ${center}`"
-      />
-    </svg>
-
-    <button
-        class="long-press-button"
-        @mousedown="startPress"
-        @mouseup="endPress"
-        @mouseleave="cancelPress"
-        @touchstart.prevent="startPress"
-        @touchend="endPress"
-        @touchcancel="cancelPress"
-        :disabled="isProcessing"
-    >
-      <slot>{{ buttonText }}</slot>
-    </button>
-  </div>
+  <v-row
+      class="action-button"
+      @mousedown="!keyboardShortcut && startAction($event, 'mouse')"
+      @touchstart="startAction($event, 'touch')"
+      @mouseup="endAction"
+      @mouseleave="endAction"
+      @touchend="endAction">
+    <v-col
+        cols="auto"
+        ref="actionButton"
+        class="position-relative"
+        :class="{ 'active': isHolding }">
+      <v-progress-circular
+          :size="size"
+          :width="2"
+          :model-value="progress"
+          :color="color">
+        <div class="shortcut-display">
+          <v-icon v-if="!keyboardShortcut" :icon="icon" :size="iconSize"></v-icon>
+          <span v-else>{{ keyboardShortcut.toUpperCase() }}</span>
+        </div>
+      </v-progress-circular>
+    </v-col>
+    <v-col cols="auto">
+      <slot></slot>
+    </v-col>
+  </v-row>
 </template>
 
-<script setup lang="ts">
-import {computed, defineComponent, onUnmounted, ref} from 'vue';
+<script setup>
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 
-export default defineComponent({
-  name: 'LongPressButton',
-  props: {
-    /**
-     * @description 按钮和进度条的整体尺寸 (px)
-     */
-    size: {
-      type: Number,
-      default: 40,
-    },
-    /**
-     * @description 进度条的粗细 (px)
-     */
-    strokeWidth: {
-      type: Number,
-      default: 5,
-    },
-    /**
-     * @description 进度条背景色
-     */
-    trackColor: {
-      type: String,
-      default: '#e0e0e0',
-    },
-    /**
-     * @description 进度条颜色
-     */
-    progressColor: {
-      type: String,
-      default: '#4CAF50',
-    },
-    /**
-     * @description 长按持续时间 (毫秒)
-     */
-    duration: {
-      type: Number,
-      default: 2000, // 默认 2 秒
-    },
-    /**
-     * @description 按钮内文本，如果使用 slot 则无效
-     */
-    buttonText: {
-      type: String,
-      default: '按住',
+const props = defineProps({
+  size: {
+    type: Number,
+    default: 30
+  },
+  holdDuration: {
+    type: Number,
+    default: 1000
+  },
+  keyboardShortcut: {
+    type: String,
+    default: null
+  },
+  completeAnimationDuration: {
+    type: Number,
+    default: 300
+  },
+  color: {
+    type: String,
+    default: 'var(--main-color)'
+  },
+  icon: {
+    type: String,
+    default: 'mdi-mouse-left-click-outline'
+  }
+})
+
+const emit = defineEmits(['action-complete'])
+
+const isHolding = ref(false)
+const progress = ref(0)
+const holdTimer = ref(null)
+const actionButton = ref(null)
+const startTime = ref(0)
+const keyAlreadyPressed = ref(false)
+const activationSource = ref(null) // 'mouse', 'touch' or 'keyboard'
+
+const iconSize = computed(() => props.size / 2)
+
+const startAction = (event, source) => {
+  if (isHolding.value) return
+  activationSource.value = source
+
+  isHolding.value = true
+  progress.value = 0
+  startTime.value = Date.now()
+
+  holdTimer.value = setInterval(() => {
+    const elapsed = Date.now() - startTime.value
+    progress.value = Math.min((elapsed / props.holdDuration) * 100, 100)
+
+    if (elapsed >= props.holdDuration) {
+      completeAction()
     }
-  },
-  emits: ['long-press-complete', 'press-cancelled'],
-  setup(props, {emit}) {
-    const isPressing = ref(false);
-    const progress = ref(0); // 0 到 100
-    let pressStartTime: number | null = null;
-    let animationFrameId: number | null = null;
-    let pressTimeoutId: number | null = null;
+  }, 16)
+}
 
-    const radius = computed(() => (props.size / 2) - (props.strokeWidth / 2));
-    const center = computed(() => props.size / 2);
-    const circumference = computed(() => 2 * Math.PI * radius.value);
-    const progressOffset = computed(() => circumference.value * (1 - progress.value / 100));
+const endAction = () => {
+  if (!isHolding.value || activationSource.value === 'keyboard') return
 
-    const isProcessing = computed(() => progress.value > 0 && progress.value < 100);
+  clearInterval(holdTimer.value)
 
-    const updateProgress = () => {
-      if (!isPressing.value || !pressStartTime) {
-        return;
-      }
+  if (progress.value >= 90) {
+    completeAction()
+  } else {
+    resetAction()
+  }
+}
 
-      const elapsed = Date.now() - pressStartTime;
-      const newProgress = Math.min(100, (elapsed / props.duration) * 100);
-      progress.value = newProgress;
+const completeAction = () => {
+  clearInterval(holdTimer.value)
+  isHolding.value = false
+  progress.value = 100
 
-      if (newProgress < 100) {
-        animationFrameId = requestAnimationFrame(updateProgress);
+  setTimeout(() => {
+    emit('action-complete')
+    resetAction()
+  }, props.completeAnimationDuration)
+}
+
+const resetAction = () => {
+  isHolding.value = false
+  progress.value = 0
+  activationSource.value = null
+}
+
+const handleKeyDown = (e) => {
+  if (!props.keyboardShortcut ||
+      e.key.toLowerCase() !== props.keyboardShortcut.toLowerCase() ||
+      keyAlreadyPressed.value) {
+    return
+  }
+
+  e.preventDefault()
+  keyAlreadyPressed.value = true
+  activationSource.value = 'keyboard'
+  startAction(null, 'keyboard')
+  actionButton.value?.$el.focus()
+}
+
+const handleKeyUp = (e) => {
+  if (props.keyboardShortcut && e.key.toLowerCase() === props.keyboardShortcut.toLowerCase()) {
+    keyAlreadyPressed.value = false
+
+    if (activationSource.value === 'keyboard') {
+      if (progress.value >= 90) {
+        completeAction()
       } else {
-        // 进度完成
-        isPressing.value = false;
-        emit('long-press-complete');
-        resetState();
+        resetAction()
       }
-    };
+    }
+  }
+}
 
-    const startPress = () => {
-      if (isProcessing.value) return; // 避免重复触发
+onMounted(() => {
+  if (props.keyboardShortcut) {
+    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('keyup', handleKeyUp)
+  }
+})
 
-      isPressing.value = true;
-      pressStartTime = Date.now();
-      progress.value = 0; // 重置进度
-      animationFrameId = requestAnimationFrame(updateProgress);
-
-      // 设置一个超时，确保在动画结束之前触发完整回调 (以防动画帧丢失)
-      pressTimeoutId = window.setTimeout(() => {
-        if (isPressing.value && progress.value < 100) {
-          progress.value = 100; // 强制设置为100%
-          emit('long-press-complete');
-          resetState();
-        }
-      }, props.duration + 50); // 稍微加一点缓冲时间
-    };
-
-    const resetState = () => {
-      isPressing.value = false;
-      progress.value = 0;
-      pressStartTime = null;
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-        animationFrameId = null;
-      }
-      if (pressTimeoutId) {
-        clearTimeout(pressTimeoutId);
-        pressTimeoutId = null;
-      }
-    };
-
-    const endPress = () => {
-      if (isPressing.value && progress.value < 100) {
-        // 在完成前松开，取消
-        cancelPress();
-      } else if (isPressing.value && progress.value >= 100) {
-        // 完成后松开，直接重置
-        resetState();
-      } else {
-        resetState(); // 确保重置状态
-      }
-    };
-
-    const cancelPress = () => {
-      if (isPressing.value && progress.value < 100) {
-        emit('press-cancelled');
-      }
-      resetState();
-    };
-
-    onUnmounted(() => {
-      // 组件卸载时清除计时器和动画帧
-      resetState();
-    });
-
-    return {
-      isPressing,
-      progress,
-      radius,
-      center,
-      circumference,
-      progressOffset,
-      isProcessing,
-      startPress,
-      endPress,
-      cancelPress,
-    };
-  },
-});
+onBeforeUnmount(() => {
+  if (props.keyboardShortcut) {
+    window.removeEventListener('keydown', handleKeyDown)
+    window.removeEventListener('keyup', handleKeyUp)
+  }
+  clearInterval(holdTimer.value)
+})
 </script>
 
 <style scoped>
-.long-press-button-container {
+.action-button {
   position: relative;
+  transition: all 0.3s ease;
+  user-select: none;
   display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 50%;
+  cursor: pointer !important;
 }
 
-.long-press-button {
-  width: calc(v-bind(size) * 1px - v-bind(strokeWidth) * 2px - 8px); /* 按钮比容器小一点 */
-  height: calc(v-bind(size) * 1px - v-bind(strokeWidth) * 2px - 8px);
-  border-radius: 50%;
-  background-color: #007bff;
-  color: white;
-  font-size: 16px;
-  border: none;
-  cursor: pointer;
-  outline: none;
+.action-button.active {
+  transform: scale(0.95);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.shortcut-display {
   display: flex;
-  justify-content: center;
   align-items: center;
-  transition: background-color 0.1s ease; /* 增加点击反馈 */
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-weight: bold;
+  font-size: calc(v-bind(size) / 2.5);
 }
 
-.long-press-button:hover {
-  background-color: #0056b3;
-}
-
-.long-press-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
-
-.progress-ring {
+.action-button :deep(.v-progress-circular) {
   position: absolute;
-  top: 0;
-  left: 0;
-  transform: rotateY(-180deg); /* 翻转使进度条顺时针增长 */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
-.progress-ring-track,
-.progress-ring-bar {
-  fill: none;
-  transition: stroke-dashoffset 0.1s linear; /* 平滑过渡 */
-}
-
-.progress-ring-track {
-  opacity: 0.3;
+.action-button :deep(.v-progress-circular__content) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 </style>

@@ -1,7 +1,6 @@
 <script setup lang="ts">
-
-import AssemblyClassificationShowList from "@/components/AssemblyClassificationShowList.vue";
 import {ref} from "vue";
+import LongPressButton from "@/components/snbWidget/btnWidget.vue";
 
 let value = ref('')
 </script>
@@ -9,15 +8,13 @@ let value = ref('')
 <template>
   <v-container class="mt-10">
     <div style="width: 1200px">
-<!--      sortBy="rarity"-->
-<!--      filterType="culverin"-->
+      <LongPressButton :duration="3000">
+        11
+      </LongPressButton>
 
-      {{value}}
-
-      <AssemblyClassificationShowList
-          v-model="value"
-          :tags="['culverin', 'demicannon', 'bombard', 'longGun', 'torpedo','ballista']">
-      </AssemblyClassificationShowList>
+      <LongPressButton :duration="3000" keyboard-shortcut="e">
+        11
+      </LongPressButton>
     </div>
   </v-container>
 </template>

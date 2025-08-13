@@ -14,6 +14,7 @@ import EmptyView from "@/components/EmptyView.vue";
 import Silk from "@/components/Silk.vue";
 import Loading from "@/components/Loading.vue";
 import {useHttpToken} from "@/assets/sripts/httpUtil";
+import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 
 const {t} = useI18n(),
     route = useRoute(),
@@ -259,20 +260,26 @@ const onWorkshopDelete = () => {
           <v-col cols="auto">
             <v-btn-group density="compact" class="mr-2">
               <v-btn @click="onQuickArchiving" :loading="draftSaveQuickArchivingLoading" v-if="!isEditModel">
-                快速保存草稿
+                <BtnWidget class="pl-2" :size="25" keyboard-shortcut="s" @action-complete="onQuickArchiving">
+                  快速保存草稿
+                </BtnWidget>
               </v-btn>
-              <v-menu>
+              <v-menu location="bottom right">
                 <template v-slot:activator="{ props }">
                   <v-btn v-bind="props" v-if="!isEditModel">
                     <v-icon icon="mdi-dots-vertical"/>
                   </v-btn>
                 </template>
-                <v-list>
+                <v-list min-width="300">
                   <v-list-item>
-                    <v-list-item-title @click="draftNewSaveModel = true">另存草稿</v-list-item-title>
+                    <v-list-item-title @click="draftNewSaveModel = true">
+                      另存草稿
+                    </v-list-item-title>
                   </v-list-item>
                   <v-list-item>
-                    <v-list-item-title @click="onPenDraftPanel">加载草稿</v-list-item-title>
+                    <v-list-item-title @click="onPenDraftPanel">
+                      加载草稿
+                    </v-list-item-title>
                   </v-list-item>
                 </v-list>
               </v-menu>

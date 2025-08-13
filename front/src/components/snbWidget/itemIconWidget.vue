@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {useRoute} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
 import Loading from "../Loading.vue";
 import LightRays from "../LightRays.vue"
@@ -10,10 +10,12 @@ import {useIntersectionObserver} from "@/assets/sripts/intersectionObserver";
 import {number} from "@/assets/sripts/index";
 import {useItemAssetsStore} from "~/stores/itemAssetsStore";
 import ItemName from "@/components/snbWidget/itemName.vue";
+import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 
 const
     {asString, sanitizeString} = useI18nUtils(),
     route = useRoute(),
+    router = useRouter(),
     {t} = useI18n(),
     {assets, raritys} = useItemAssetsStore(),
     props = withDefaults(defineProps<{
@@ -156,15 +158,12 @@ const {targetElement, isVisible} = useIntersectionObserver({
           />
         </template>
       </div>
-      <div class="demo-reel-content pl-10 pr-10 pb-5 background-flavor overflow-auto">
-        <template v-if="route.query.debug">
-          {{ i }}
-        </template>
-
-        <v-btn :to="`/display-cabinet/item/${i.id}`" target="_blank" class="mt-4" density="comfortable" v-if="isShowOpenDetail">
-          <v-icon icon="mdi-help"></v-icon>
-          详情
-        </v-btn>
+      <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto">
+        <BtnWidget @action-complete="router.push(`/display-cabinet/item/${i.id}`)"
+                   class="mt-1"
+                   v-if="isShowOpenDetail">
+          {{ t('displayCabinet.ship.lookDetail') }}
+        </BtnWidget>
       </div>
     </v-card>
   </v-tooltip>

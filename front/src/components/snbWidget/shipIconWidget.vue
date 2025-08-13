@@ -9,6 +9,7 @@ import PerksWidget from "./perksWidget.vue";
 import ShinyText from "@/components/ShinyText.vue";
 import ShipBaseInfoSlotWidget from "@/components/snbWidget/shipBaseInfoSlotWidget.vue";
 import ShipWeaponInfoSlotWidget from "@/components/snbWidget/shipWeaponInfoSlotWidget.vue";
+import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 
 const props = withDefaults(defineProps<{
       id: string,
@@ -151,9 +152,11 @@ const onReady = async () => {
       </div>
       <v-divider></v-divider>
       <v-card-actions class="pa-5 pt-0">
-        <v-btn :to="`/display-cabinet/ships/${props.id}`" target="_blank" class="mt-4" density="comfortable" v-if="isShowOpenDetail">
+        <BtnWidget @action-complete="router.push(`/display-cabinet/ships/${props.id}`)"
+                   class="mt-1 ml-1"
+                   v-if="isShowOpenDetail">
           {{ t('displayCabinet.ship.lookDetail') }}
-        </v-btn>
+        </BtnWidget>
       </v-card-actions>
     </v-card>
   </v-tooltip>
