@@ -4,6 +4,7 @@ import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
 import {useI18n} from "vue-i18n";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
+import ShipName from "@/components/snbWidget/shipName.vue";
 
 const props = defineProps(nodeViewProps);
 const {t} = useI18n();
@@ -15,7 +16,9 @@ const {t} = useI18n();
       <ShipIconWidget :id="props.node.attrs.id" :padding="0" />
     </ItemSlotBase>
     <ItemNameRarity :id="props.node.attrs.id">
-      <u class="ship-name text-no-wrap">{{ t(`snb.ships.${props.node.attrs.id}.name`) }}</u>
+      <u class="ship-name text-no-wrap">
+        <ShipName :id="props.node.attrs.id"></ShipName>
+      </u>
     </ItemNameRarity>
   </NodeViewWrapper>
 </template>

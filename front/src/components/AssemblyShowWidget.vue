@@ -22,6 +22,7 @@ import {useI18nUtils} from "@/assets/sripts/i18nUtil";
 import ItemName from "@/components/snbWidget/itemName.vue";
 import UltimateName from "@/components/snbWidget/ultimateName.vue";
 import {AssemblyAttr} from "@/assets/types";
+import ShipName from "@/components/snbWidget/shipName.vue";
 
 const poops = withDefaults(defineProps<{
       readonly?: boolean,
@@ -408,12 +409,12 @@ defineExpose({
                       <v-icon icon="mdi-plus" size="50"></v-icon>
                     </v-card>
                   </ItemSlotBase>
+
                   <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-else>
                     <v-card
                         class="mx-auto"
-                        max-width="400"
+                        width="110"
                         v-bind="propsHoverClose">
-
                       <ItemSlotBase size="110px" class="pa-2"
                                     v-if="workshopData.data.shipSlot && workshopData.data.shipSlot.id"
                                     :class="[workshopData.data.shipSlot && workshopData.data.shipSlot.id ? 'bg-amber' : '']">
@@ -432,6 +433,10 @@ defineExpose({
                         <v-icon icon="mdi-delete" color="red" size="50"></v-icon>
                       </v-overlay>
                     </v-card>
+
+                    <div class="mt-2 text-center text-caption text-grey w-100 singe-line" v-if="attr.isShowItemName">
+                      <ShipName :id="workshopData.data.shipSlot.id"></ShipName>
+                    </div>
                   </v-hover>
                 </template>
                 <v-card v-slot:default>
@@ -479,7 +484,7 @@ defineExpose({
                   <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.shipUpgradeSlot ">
                     <v-card
                         class="mx-auto"
-                        max-width="344"
+                        width="80"
                         v-bind="propsHoverClose">
                       <v-badge bordered rounded :color="`var(--main-color)`" :offset-x="25" :offset-y="63" class="d-flex">
                         <template v-slot:badge
@@ -507,6 +512,10 @@ defineExpose({
                         <v-icon icon="mdi-delete" color="red" size="40"></v-icon>
                       </v-overlay>
                     </v-card>
+
+                    <div class="mt-2 text-center text-caption text-grey w-100 singe-line" v-if="attr.isShowItemName">
+                      <ItemName :data="workshopData.data.shipUpgradeSlot"></ItemName>
+                    </div>
                   </v-hover>
 
                   <ItemSlotBase size="80px" class="pa-2" padding="1"
@@ -531,6 +540,7 @@ defineExpose({
                           ]">
                         <ItemIconWidget :padding="2" :id="upgrade.id" :is-open-detail="false" :is-show-tooltip="false"></ItemIconWidget>
                       </ItemSlotBase>
+
                       <div class="text-center d-flex">
                         <div class="singe-line w-100">
                           {{ asString([`snb.items.${upgrade.id}.name`, `snb.items.${sanitizeString(upgrade.id).cleaned}.name`]) || '-' }}

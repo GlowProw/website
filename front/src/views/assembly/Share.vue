@@ -195,10 +195,10 @@ const generateQRCode = async (text) => {
             {{
               asString([
                 `${i}`,
-                `assembly.teamFormationMethods.${i.split('_')[1]}`,
-                `assembly.archetypes.${i.split('_')[1]}`,
-                `assembly.modes.${i.split('_')[0]}`,
-                `assembly.damageTypes.${i.split('_')[1]}`,
+                `assembly.tags.teamFormationMethods.${i.split('_')[1]}`,
+                `assembly.tags.archetypes.${i.split('_')[1]}`,
+                `assembly.tags.modes.${i.split('_')[0]}`,
+                `assembly.tags.damageTypes.${i.split('_')[1]}`,
                 `snb.seasons.${i.split('_')[1]}`,
               ], true)
             }}
