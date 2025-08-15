@@ -6,10 +6,10 @@ import {computed, onMounted, ref, toRaw, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {api, storageAssembly} from "@/assets/sripts";
 import {StorageAssemblyType} from "@/assets/sripts/storage_assembly";
-import {useHttpToken} from "@/assets/sripts/httpUtil";
+import {useHttpToken} from "@/assets/sripts/http_util";
 import ZoomableCanvas from "@/components/ZoomableCanvas.vue";
 import Silk from "@/components/Silk.vue";
-import {useI18nUtils} from "@/assets/sripts/i18nUtil";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import assemblyDataProcessing from "@/assets/sripts/assemblyDataProcessing"
 import AssemblyTagsWidget from "@/components/AssemblyTagsWidget.vue";
 import AssemblySettingWidget from "@/components/AssmblySettingWidget.vue"

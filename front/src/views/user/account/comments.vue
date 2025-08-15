@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import {useHttpToken} from "@/assets/sripts/httpUtil";
+import {useHttpToken} from "@/assets/sripts/http_util";
 import {onMounted, ref} from "vue";
 import {api} from "@/assets/sripts/index";
 

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 
-import {computed, onMounted, type Ref, ref, type UnwrapRef} from "vue";
+import {onMounted, type Ref, ref} from "vue";
 import {useI18n} from "vue-i18n";
-import {Materials, Ultimates} from "glow-prow-data";
+import {Ultimates} from "glow-prow-data";
 import {useRoute, useRouter} from "vue-router";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import {storage} from "@/assets/sripts";
@@ -11,32 +11,34 @@ import {Ultimate} from "glow-prow-data/src/entity/Ultimates";
 import CommentWidget from "@/components/CommentWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
 import {useAuthStore} from "~/stores";
-
-const ultimateImages = import.meta.glob('@glow-prow-assets/ships/*.*', {eager: true});
+import {useHead} from "@unhead/vue";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
+import UltimateName from "@/components/snbWidget/ultimateName.vue";
 
 const
     {t} = useI18n(),
+    i18nReadName = useI18nReadName(),
     router = useRouter(),
     route = useRoute(),
-    authStore = useAuthStore(),
-
-    // 船只数据
-    ultimatesData = Ultimates,
-    materials: Materials = Materials,
-    // 后期处理所需物品 对应计算 原材料
-    shipRawMaterials: Ref<UnwrapRef<any[]>, UnwrapRef<any[]> | any[]> = ref([])
+    authStore = useAuthStore()
 
 let
-    ultimateDetailPageData: Ref<{ id: string, img: string, loading: boolean }> = ref({
-      id: 'dhow',
-      img: '',
+    ultimateDetailPageData: Ref<{ img: string, loading: boolean }> = ref({
       loading: false
     }),
-    ultimateDetailData: Ref<Ultimate> = ref(ultimatesData['hunter'] as Ultimate),
-    isShowShipRawList = ref(false),
+    ultimateDetailData: Ref<Ultimate> = ref(Ultimates['hunter'] as Ultimate),
 
-    // 蓝图
-    bluePrint = computed(() => ultimateDetailData.value.blueprint ? t(`snb.locations.${ultimateDetailData.value?.blueprint}`) : null);
+    // meta
+    head = ref({
+      title: t(route.meta.title),
+      titleTemplate: `%s | ${t('name')}`,
+      meta: [
+        {name: 'keywords', content: t(route.meta.keywords)},
+        {name: 'og:title', content: `%s | ${t('name')}`},
+      ]
+    })
+
+useHead(head)
 
 onMounted(() => {
   const {id} = route.params;
@@ -48,16 +50,7 @@ onMounted(() => {
 
   ultimateDetailPageData.value.loading = true;
 
-  const imageKey = `/node_modules/glow-prow-assets/ultimates/${id}.webp`;
-
-  ultimateDetailData.value = ultimatesData[id];
-  ultimateDetailPageData.value.id = id as string;
-
-  if (ultimateImages[imageKey]) {
-    ultimateDetailPageData.value.img = ultimateImages[imageKey].default;
-  } else {
-    ultimateDetailPageData.value.img = "";
-  }
+  head.value.titleTemplate = `${i18nReadName.ultimate.name(id)} - ${head.value.titleTemplate}`
 
   onUltimateHistory()
 
@@ -83,7 +76,7 @@ const onUltimateHistory = () => {
 </script>
 
 <template>
-  <v-breadcrumbs >
+  <v-breadcrumbs>
     <v-container class="pa-0">
       <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
@@ -96,15 +89,17 @@ const onUltimateHistory = () => {
   </v-breadcrumbs>
   <v-divider></v-divider>
 
-  <div class="ultimates-detail" v-if="ultimateDetailPageData.id && !ultimateDetailPageData.loading">
+  <div class="ultimates-detail" v-if="ultimateDetailData.id && !ultimateDetailPageData.loading">
     <div class="ultimates-detail-header background-dot-grid">
       <v-container class="position-relative">
         <v-row class="mt-5">
           <v-col>
-            <h1 class="text-amber text-h2">{{ t(`snb.ultimates.${ultimateDetailPageData.id}.name`) }}</h1>
+            <h1 class="text-amber text-h2">
+              <UltimateName :id="ultimateDetailData.id"></UltimateName>
+            </h1>
             <p class="mt-2 mb-3">
               <v-icon icon="mdi-identifier"/>
-              {{ ultimateDetailPageData.id || 'none' }}
+              {{ ultimateDetailData.id || 'none' }}
             </p>
 
             <v-chip class="badge-flavor text-center tag-badge text-black" v-if="ultimateDetailData.rarity">{{ t(`displayCabinet.rarity.${ultimateDetailData.rarity}`) }}</v-chip>
@@ -115,7 +110,7 @@ const onUltimateHistory = () => {
               <LikeWidget v-if="authStore.isLogin"
                           targetType="ultimate"
                           :isShowCount="true"
-                          :targetId="ultimateDetailPageData.id">
+                          :targetId="ultimateDetailData.id">
                 <template v-slot:activate>
                   <v-icon icon="mdi-thumb-up"></v-icon>
                 </template>
@@ -139,14 +134,14 @@ const onUltimateHistory = () => {
 
             <v-row>
               <ItemSlotBase size="150px" class="mr-3">
-                <UltimateIconWidget :id="ultimateDetailPageData.id" class="pa-2"
+                <UltimateIconWidget :id="ultimateDetailData.id" class="pa-2"
                                     :is-click-open-detail="false"
                                     :isShowOpenDetail="false"
                                     :isShowDescription="false"></UltimateIconWidget>
               </ItemSlotBase>
               <v-col>
                 <p class="text-pre-wrap mb-4">
-                  {{ t(`snb.ultimates.${ultimateDetailPageData.id}.description`) }}
+                  {{ t(`snb.ultimates.${ultimateDetailData.id}.description`) }}
                 </p>
               </v-col>
             </v-row>

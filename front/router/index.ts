@@ -36,16 +36,14 @@ import AssemblySharePage from '../src/views/assembly/Share.vue'
 import MapsPage from '../src/views/Map.vue';
 import TeamPage from '../src/views/Team.vue'
 import AboutPage from '../src/views/About.vue'
-import AchievementPage from '../src/views/Achievement.vue'
 import NotFoundPage from '../src/views/NotFound.vue';
 
 import Test from '@/views/Test.vue'
 
-import {useI18n} from "vue-i18n";
-
 import {useAuthStore} from "@/../stores";
 import {useItemAssetsStore} from "~/stores/itemAssetsStore";
-
+import i18n from "@/i18n";
+import {useHead} from "@unhead/vue";
 
 const isLoginBeforeEnter = function (to: any, from: any, next) {
     const authStore = useAuthStore()
@@ -68,10 +66,8 @@ const routes: Readonly<RouteRecordRaw[]> = [
         name: 'BasePortal',
         component: PortalMainBasePage,
         meta: {
-            metaInfo: {
-                title: 'home.title',
-                keywords: 'home.meta.keywords'
-            }
+            title: 'home.title',
+            keywords: 'home.meta.keywords'
         },
         children: [
             {
@@ -84,6 +80,10 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 name: 'AccountHome',
                 component: AccountPage,
                 redirect: '/account/home/information',
+                meta: {
+                    title: 'account.title',
+                    keywords: 'account.meta.keywords'
+                },
                 beforeEnter: isLoginBeforeEnter,
                 children: [
                     {
@@ -112,10 +112,8 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: '/account/login',
                 name: 'login',
                 meta: {
-                    metaInfo: {
-                        title: 'login.title',
-                        keywords: 'login.meta.keywords'
-                    }
+                    title: 'login.title',
+                    keywords: 'login.meta.keywords'
                 },
                 component: LoginPage
             },
@@ -123,10 +121,8 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: '/account/register',
                 name: 'register',
                 meta: {
-                    metaInfo: {
-                        title: 'register.title',
-                        keywords: 'register.meta.keywords'
-                    }
+                    title: 'register.title',
+                    keywords: 'register.meta.keywords'
                 },
                 component: RegisterPage
             },
@@ -134,10 +130,8 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: '/team',
                 name: 'Team',
                 meta: {
-                    metaInfo: {
-                        title: 'teamUp.title',
-                        keywords: 'teamUp.meta.keywords'
-                    }
+                    title: 'teamUp.title',
+                    keywords: 'teamUp.meta.keywords'
                 },
                 component: TeamPage,
             },
@@ -147,6 +141,10 @@ const routes: Readonly<RouteRecordRaw[]> = [
         path: '/display-cabinet',
         name: 'DisplayCabinet',
         component: DisplayCabinetPage,
+        meta: {
+            title: 'displayCabinet.title',
+            keywords: 'displayCabinet.keywords'
+        },
         beforeEnter: initItemAssets,
         redirect: '/display-cabinet/overview',
         children: [
@@ -158,36 +156,64 @@ const routes: Readonly<RouteRecordRaw[]> = [
             {
                 path: 'ships',
                 name: 'Ships',
+                meta: {
+                    title: 'displayCabinet.ships.title',
+                    keywords: 'displayCabinet.ships.meta.keywords'
+                },
                 component: ShipsPage,
             },
             {
-                path: 'ships/:id',
+                path: 'ship/:id',
                 name: 'ShipDetail',
+                meta: {
+                    title: 'displayCabinet.ship.title',
+                    keywords: 'displayCabinet.ship.meta.keywords'
+                },
                 component: ShipDetailPage,
             },
             {
                 path: 'items',
                 name: 'Items',
+                meta: {
+                    title: 'displayCabinet.items.title',
+                    keywords: 'displayCabinet.items.meta.keywords'
+                },
                 component: ItemsPage,
             },
             {
                 path: 'item/:id',
                 name: 'ItemDetail',
+                meta: {
+                    title: 'displayCabinet.item.title',
+                    keywords: 'displayCabinet.item.meta.keywords'
+                },
                 component: ItemDetailPage,
             },
             {
                 path: 'item/:fun/:key',
                 name: 'ItemCategoryDetail',
+                meta: {
+                    title: 'displayCabinet.items.title',
+                    keywords: 'displayCabinet.items.meta.keywords'
+                },
                 component: ItemCategoryDetailPage,
             },
             {
                 path: 'ultimates',
                 name: 'Ultimates',
+                meta: {
+                    title: 'displayCabinet.ultimates.title',
+                    keywords: 'displayCabinet.ultimates.meta.keywords'
+                },
                 component: UltimatesPage,
             },
             {
                 path: 'ultimate/:id',
                 name: 'UltimateDetail',
+                meta: {
+                    title: 'displayCabinet.ultimate.title',
+                    keywords: 'displayCabinet.ultimate.meta.keywords'
+                },
                 component: UltimateDetailPage,
             }
         ]
@@ -196,10 +222,8 @@ const routes: Readonly<RouteRecordRaw[]> = [
         path: '/calendar',
         name: 'Calendar',
         meta: {
-            metaInfo: {
-                title: 'calendar.title',
-                keywords: 'calendar.meta.keywords'
-            }
+            title: 'calendar.title',
+            keywords: 'calendar.meta.keywords'
         },
         component: CalendarPage,
         redirect: '/calendar/history',
@@ -219,10 +243,8 @@ const routes: Readonly<RouteRecordRaw[]> = [
     {
         path: '/assembly',
         meta: {
-            metaInfo: {
-                title: 'assembly.title',
-                keywords: 'assembly.meta.keywords'
-            }
+            title: 'assembly.title',
+            keywords: 'assembly.meta.keywords'
         },
         name: 'Assembly',
         component: AssemblePage,
@@ -281,11 +303,6 @@ const routes: Readonly<RouteRecordRaw[]> = [
         name: 'About',
         component: AboutPage,
     },
-    {
-        path: '/achievement',
-        name: 'Achievement',
-        component: AchievementPage
-    },
 
     {
         path: '/test',
@@ -323,23 +340,23 @@ const router = createRouter({
     }
 });
 
-router.beforeEach((to, _from, next) => {
+router.beforeEach((to) => {
     try {
-        const {t} = useI18n();
+        const t = i18n.global.t
+        if (to.meta && to.meta.title) {
+            let meta = []
 
-        if (to.meta.metaInfo) {
-            let metaInfo: any = to.meta.metaInfo;
-            if (metaInfo.keywords && t(metaInfo.keywords) !== metaInfo.keywords) metaInfo.keywords = "Glow Prow," + t(metaInfo.keywords);
-            else metaInfo.keywords = "Glow Prow,glow-prow";
-            if (metaInfo.title) metaInfo.title = t(metaInfo.title);
-            else metaInfo.title = "";
-            if (metaInfo.description && t(metaInfo.description) !== metaInfo.description) metaInfo.description = t(metaInfo.description);
-            else metaInfo.description = "";
+            if (to.meta.keywords)
+                meta.push({name: 'keywords', content: t(to.meta.keywords)})
+
+            useHead({
+                title: t(to.meta.title) + ' | ' + t('name'),
+                meta,
+            })
         }
-    } catch (err) {
-    } finally {
-        next();
+    } catch (e) {
+        console.error('router error:' + e)
     }
-});
+})
 
 export default router;

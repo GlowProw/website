@@ -2,52 +2,41 @@
 
 import Footer from "@/components/Footer.vue";
 import {useI18n} from "vue-i18n";
-import {ref} from "vue";
+import Header from "@/components/Header.vue";
+import I18nMembersWidget from "@/components/i18nMembersWidget.vue";
 
 const {t} = useI18n()
-
-let languageData = ref([
-  {name: '菜萌-cabbagelol', lang: ['zh-CN']},
-  {name: '教兽-Alinekon', lang: ['en-US', 'zh-CN']},
-  {name: '幻-dwbcsgo', lang: ['en-US', 'zh-CN']}
-])
 </script>
 
 <template>
   <v-app class="background-flavor mt-10 about">
-    <div class="background-img-flavor fill-height">
-      <v-container class="mt-10">
+    <Header></Header>
+    <div class="background-img-flavor">
+      <v-container class="pt-10 pb-10">
         <h1 class="btn-flavor">关于</h1>
-        <p>这个应用程序遵循MIT开源协议，程序不隶属于碧海黑帆以及ubisoft集团。</p>
-        <p class="mt-5">闪光船首的命名蕴意作为船头点亮前方迷雾，为社区玩家提供服务，永恒指引前方</p>
-        <p>同时感谢@SkullAndBonesTools/SkullAndBonesData项目提供了数据源，这使得Glow Prow得意支持整个项目</p>
-        <v-divider class="mt-5 mb-5"></v-divider>
+      </v-container>
+    </div>
+    <v-divider></v-divider>
+    <div class="fill-height bg-black">
+      <v-container>
         <v-row class="mb-5">
-          <v-col sm="12" lg="4">
+          <v-col cols="12" class="mb-5">
+            <p>这个应用程序遵循MIT开源协议，程序不隶属于碧海黑帆以及ubisoft集团。</p>
+            <p class="mt-5">闪光船首的命名蕴意作为船头点亮前方迷雾，为社区玩家提供服务，永恒指引前方</p>
+            <p>同时感谢@SkullAndBonesTools/SkullAndBonesData项目提供了数据源，这使得Glow Prow得意支持整个项目</p>
+          </v-col>
+          <v-col cols="12" sm="12" md="6" lg="4">
             <h3 class="btn-flavor">作者</h3>
             <ul>
               <li>@Cabbagelol</li>
             </ul>
           </v-col>
-          <v-col sm="12" lg="4">
+          <v-col cols="12" sm="12" md="6" lg="4">
             <h3 class="btn-flavor">翻译成员</h3>
-            <ul>
-              <li v-for="(i,index) in languageData" :key="index">
-                <v-row align="center">
-                  <v-col>
-                    @{{ i.name }}
-                  </v-col>
-                  <v-col>
-                    <v-divider opacity=".6" thickness="1"></v-divider>
-                  </v-col>
-                  <v-col>
-                    {{ i.lang.join(',') }}
-                  </v-col>
-                </v-row>
-              </li>
-            </ul>
+            <p class="opacity-80 mb-3">表彰杰出翻译成员，感谢为程序进行翻译工作成员</p>
+            <I18nMembersWidget :size="40"></I18nMembersWidget>
           </v-col>
-          <v-col sm="12" lg="4">
+          <v-col cols="12" sm="12" md="6" lg="4">
             <h3 class="btn-flavor">开源</h3>
             <ul>
               <li>闪耀船首主程序，包含前端程序/后端程序，遵循MIT协议</li>
@@ -56,7 +45,7 @@ let languageData = ref([
               <li>闪耀船首翻译数据</li>
             </ul>
           </v-col>
-          <v-col sm="12" lg="4">
+          <v-col cols="12" sm="12" md="6" lg="4">
             <h3 class="btn-flavor">联系</h3>
             <p class="opacity-80 mb-2">通过下方可供联系方式找到我(不需广告/SEO需求)</p>
             <ul>
@@ -77,8 +66,8 @@ let languageData = ref([
         </ul>
       </v-container>
     </div>
+    <Footer></Footer>
   </v-app>
-  <Footer></Footer>
 </template>
 
 <style scoped lang="less">

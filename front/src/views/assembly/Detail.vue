@@ -5,18 +5,19 @@ import {useRoute, useRouter} from "vue-router";
 import {nextTick, onMounted, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {api} from "@/assets/sripts";
-import {useHttpToken} from "@/assets/sripts/httpUtil";
+import {useHttpToken} from "@/assets/sripts/http_util";
 import {useAuthStore} from "@/../stores";
 import LikeWidget from "@/components/LikeWidget.vue";
 import Textarea from "@/components/textarea/index.vue";
 import Loading from "@/components/Loading.vue";
 import ZoomableCanvas from "@/components/ZoomableCanvas.vue"
 import Silk from "@/components/Silk.vue";
-import {useI18nUtils} from "@/assets/sripts/i18nUtil";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import AssemblyTagsWidget from "@/components/AssemblyTagsWidget.vue";
 import CommentWidget from "@/components/CommentWidget.vue";
 import AssemblySettingPanel from "@/components/AssemblySettingPanel.vue";
 import {useDisplay} from "vuetify/framework";
+import {useHead} from "@unhead/vue";
 
 const route = useRoute(),
     router = useRouter(),
@@ -38,14 +39,31 @@ let assemblyDetailData = ref({
     assemblyDetailRef = ref(null),
     assemblyLoading = ref(false),
     password = ref(''),
-    messages = ref([])
+    messages = ref([]),
+
+    // meta
+    head = ref({
+      title: t(route.meta.title),
+      titleTemplate: `%s | ${t('name')}`,
+      meta: [
+        {name: 'keywords', content: t(route.meta.keywords)},
+        {name: 'og:title', content: `%s | ${t('name')}`},
+      ]
+    })
+
+useHead(head)
 
 watch(() => route, () => {
   getAssemblyDetail()
 })
 
-onMounted(() => {
-  getAssemblyDetail()
+onMounted(async () => {
+  await getAssemblyDetail()
+
+  // set new title
+  const title = `${assemblyDetailData.value.name} - ${head.value.title} | ${t('name')}`;
+  head.value.titleTemplate = title
+  head.value.meta = { name: 'og:title', content: title }
 })
 
 /**

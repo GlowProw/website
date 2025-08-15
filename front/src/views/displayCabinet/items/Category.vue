@@ -6,7 +6,7 @@ import {computed, onMounted, ref} from "vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import EmptyView from "@/components/EmptyView.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
-import {useI18nUtils} from "@/assets/sripts/i18nUtil";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {number} from "@/assets/sripts/index";
 
 const items: Items = Items,

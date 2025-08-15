@@ -5,8 +5,8 @@ import Loading from "../Loading.vue";
 import LightRays from "../LightRays.vue"
 import {onMounted, type Ref, ref, watch} from "vue";
 import {Item, Items} from "glow-prow-data/src/entity/Items.ts";
-import {useI18nUtils} from "@/assets/sripts/i18nUtil";
-import {useIntersectionObserver} from "@/assets/sripts/intersectionObserver";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
+import {useIntersectionObserver} from "@/assets/sripts/intersection_observer";
 import {number} from "@/assets/sripts/index";
 import {useItemAssetsStore} from "~/stores/itemAssetsStore";
 import ItemName from "@/components/snbWidget/itemName.vue";

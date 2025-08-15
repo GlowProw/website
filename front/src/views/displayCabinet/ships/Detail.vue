@@ -18,11 +18,14 @@ import {useAuthStore} from "~/stores";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 import ShipWeaponInfoSlotWidget from "@/components/snbWidget/shipWeaponInfoSlotWidget.vue";
 import ShipBaseInfoSlotWidget from "@/components/snbWidget/shipBaseInfoSlotWidget.vue";
+import {useHead} from "@unhead/vue";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
 const shipImages = import.meta.glob('@glow-prow-assets/ships/*.png', {eager: true});
 
 const
-    {t} = useI18n(),
+    {t,messages} = useI18n(),
+    i18nReadName = useI18nReadName(),
     router = useRouter(),
     route = useRoute(),
     authStore = useAuthStore(),
@@ -34,8 +37,7 @@ const
     shipRawMaterials: Ref<UnwrapRef<any[]>, UnwrapRef<any[]> | any[]> = ref([])
 
 let
-    shipDetailPageData: Ref<{ id: string, img: string, loading: boolean }> = ref({
-      id: 'dhow',
+    shipDetailPageData: Ref<{ img: string, loading: boolean }> = ref({
       img: '',
       loading: false
     }),
@@ -53,7 +55,19 @@ let
         return t(`snb.locations.${bluePrints}`)
 
       return Object.values(bluePrints).map(i => t(`snb.locations.${i}`))
+    }),
+
+    // meta
+    head = ref({
+      title: t(route.meta.title),
+      titleTemplate: `%s | ${t('name')}`,
+      meta: [
+        {name: 'keywords', content: t(route.meta.keywords)},
+        {name: 'og:title', content: `%s | ${t('name')}`},
+      ]
     })
+
+useHead(head)
 
 onMounted(() => {
   const {id} = route.params;
@@ -68,7 +82,18 @@ onMounted(() => {
   const imageKey = `/node_modules/glow-prow-assets/ships/${id}.png`;
 
   shipDetailData.value = shipsData[id];
-  shipDetailPageData.value.id = id as string;
+
+  head.value.titleTemplate = `${i18nReadName.ship(id).name()} - ${head.value.titleTemplate}`
+  head.value.meta = [
+    {
+      name: 'keywords', content: t(route.meta.keywords, {
+        keywords: Object.keys(messages.value).map(lang => {
+          return i18nReadName.ship(id).keys.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
+        }).concat([id])
+      })
+    },
+    {name: 'og:title', content: `${t(route.meta.title)} | ${t('name')}`},
+  ]
 
   if (shipImages[imageKey]) {
     shipDetailPageData.value.img = shipImages[imageKey].default;
@@ -132,18 +157,18 @@ const onStatisticsRawMaterial = () => {
   </v-breadcrumbs>
   <v-divider></v-divider>
 
-  <div class="ships-detail" v-if="shipDetailPageData.id && !shipDetailPageData.loading">
+  <div class="ships-detail" v-if="shipDetailData.id && !shipDetailPageData.loading">
     <div class="ships-detail-header background-dot-grid">
       <v-container class="position-relative">
         <v-row class="mt-5">
           <v-col>
-            <h1 class="text-amber text-h2">{{ t(`snb.ships.${shipDetailPageData.id}.name`) }}</h1>
+            <h1 class="text-amber text-h2">{{ t(`snb.ships.${shipDetailData.id}.name`) }}</h1>
             <p class="mt-2 mb-3">
               <v-icon icon="mdi-identifier"/>
-              {{ shipDetailPageData.id || 'none' }}
+              {{ shipDetailData.id || 'none' }}
             </p>
 
-            <v-chip inline class="badge-flavor text-center text-black tag-badge pl-3" v-if="shipsData[shipDetailPageData.id].size">{{ t(`displayCabinet.size.${shipsData[shipDetailPageData.id].size}`) }}</v-chip>
+            <v-chip inline class="badge-flavor text-center text-black tag-badge pl-3" v-if="shipsData[shipDetailData.id].size">{{ t(`displayCabinet.size.${shipsData[shipDetailData.id].size}`) }}</v-chip>
           </v-col>
           <v-col cols="auto">
             <div class="d-flex ga-2">
@@ -151,7 +176,7 @@ const onStatisticsRawMaterial = () => {
                 <LikeWidget v-if="authStore.isLogin"
                             targetType="ship"
                             :isShowCount="true"
-                            :targetId="shipDetailPageData.id">
+                            :targetId="shipDetailData.id">
                   <template v-slot:activate>
                     <v-icon icon="mdi-thumb-up"></v-icon>
                   </template>
@@ -178,14 +203,14 @@ const onStatisticsRawMaterial = () => {
 
             <v-row>
               <ItemSlotBase size="150px" class="mr-3">
-                <ShipIconWidget :id="shipDetailPageData.id" class="pa-2"
+                <ShipIconWidget :id="shipDetailData.id" class="pa-2"
                                 :is-click-open-detail="false"
                                 :isShowOpenDetail="false"
                                 :isShowDescription="false"></ShipIconWidget>
               </ItemSlotBase>
               <v-col>
                 <p class="text-pre-wrap mb-4">
-                  {{ t(`snb.ships.${shipDetailPageData.id}.description.general`) }}
+                  {{ t(`snb.ships.${shipDetailData.id}.description.general`) }}
                 </p>
               </v-col>
             </v-row>

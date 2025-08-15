@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
-import {useHttpToken} from "@/assets/sripts/httpUtil";
+import {useHttpToken} from "@/assets/sripts/http_util";
 import {api} from "@/assets/sripts/index";
 import Loading from "@/components/Loading.vue";
 import AssemblySettingWidget from "@/components/AssmblySettingWidget.vue"

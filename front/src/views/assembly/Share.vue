@@ -6,7 +6,7 @@ import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
 import Loading from "@/components/Loading.vue";
 import Textarea from "@/components/textarea"
-import {useI18nUtils} from "@/assets/sripts/i18nUtil";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
 
 import domToImage from "dom-to-image"
 import QRCode from "qrcode"

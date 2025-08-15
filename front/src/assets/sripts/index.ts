@@ -24,5 +24,5 @@ export const number = new _Number()
 export default {
     api, conf, ws, http,
     storage, storageAssembly, storageCollect, time,
-    number,
+    number
 };

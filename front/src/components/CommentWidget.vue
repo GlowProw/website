@@ -4,7 +4,7 @@ import {api, http} from "@/assets/sripts/index";
 
 import Textarea from "@/components/textarea"
 import EmptyView from "@/components/EmptyView.vue";
-import {useHttpToken} from "@/assets/sripts/httpUtil";
+import {useHttpToken} from "@/assets/sripts/http_util";
 import Captcha from "@/components/captcha/index.vue";
 import {useAuthStore} from "~/stores";
 import {AxiosError} from "axios";

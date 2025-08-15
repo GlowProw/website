@@ -120,6 +120,12 @@
   "portal": {
     "title": "首页"
   },
+  "account": {
+    "title": "账户",
+    "information": {
+      "title": "个人信息"
+    }
+  },
   "displayCabinet": {
     "title": "展示柜",
     "description": "嗨，船长, 要看看我的宝贝嘛",
@@ -174,6 +180,9 @@
     },
     "item": {
       "title": "物品详情",
+      "meta": {
+        "keywords": "物品详情,船物品,{keywords}"
+      },
       "weight": "重量",
       "projectilesPerShot": "单发伤害",
       "rateOfFire": "开火间隔 (秒)",
@@ -204,12 +213,15 @@
       "damageMitigation": "损害减轻"
     },
     "ships": {
-      "title": "船只",
+      "title": "船只列表",
       "description": "\"自新大陆开拓以来，每一艘传奇战舰都在此留下印记。钢铁与风帆的交响诗，等待您的检阅。\"",
       "searchCountOverflowTip": "超出搜索显示最大{maximumSearchCount}，剩余{exceedingItemsCount}已节流,可以再精准填写关键词"
     },
     "ship": {
       "title": "船详详情",
+      "meta": {
+        "keywords": "船详详情,船,{keywords}"
+      },
       "frontWeapon": "前方武器",
       "leftSideWeapon": "左侧武器",
       "rightSideWeapon": "右侧武器",

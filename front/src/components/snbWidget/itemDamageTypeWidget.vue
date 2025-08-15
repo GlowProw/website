@@ -3,7 +3,7 @@ import {useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {onMounted, ref} from "vue";
 
-import {useI18nUtils} from "@/assets/sripts/i18nUtil";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
 
 import EmptyView from "../EmptyView.vue";
 import ItemSlotBase from "./ItemSlotBase.vue";

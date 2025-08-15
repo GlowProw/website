@@ -4,7 +4,7 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import {computed, onMounted, ref} from "vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import {useI18n} from "vue-i18n";
-import {useI18nUtils} from "@/assets/sripts/i18nUtil";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {number, storageCollect} from "@/assets/sripts/index";
 import EmptyView from "@/components/EmptyView.vue";
 import {StorageCollectType} from "@/assets/sripts/storage_collect";

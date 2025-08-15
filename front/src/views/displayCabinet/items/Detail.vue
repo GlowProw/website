@@ -14,7 +14,7 @@ import {Materials} from "glow-prow-data";
 import ItemModificationWidget from "@/components/snbWidget/itemModificationWidget.vue";
 import PerksWidget from "@/components/snbWidget/perksWidget.vue";
 
-import {useI18nUtils} from "@/assets/sripts/i18nUtil";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue"
 import ItemDamageTypeWidget from "@/components/snbWidget/itemDamageTypeWidget.vue";
@@ -25,13 +25,16 @@ import LikeWidget from "@/components/LikeWidget.vue";
 import {useAuthStore} from "~/stores";
 import {StorageCollectType} from "@/assets/sripts/storage_collect";
 import ItemName from "@/components/snbWidget/itemName.vue";
+import {useHead} from "@unhead/vue";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
 const
-    {t} = useI18n(),
+    {t, messages} = useI18n(),
     router = useRouter(),
     route = useRoute(),
     authStore = useAuthStore(),
     {asArray, asString, sanitizeString} = useI18nUtils(),
+    i18nReadName  = useI18nReadName(),
 
     // 物品数据
     items: Items = Items,
@@ -71,7 +74,19 @@ let itemDetailData: Ref<Item | null> = ref(null),
     rateFire = computed(() => 1),
     dpsWithPerksArmed = computed(() => {
       return itemDetailData.value?.damagePerShot + 1;
-    });
+    }),
+
+    // meta
+    head = ref({
+      title: t(route.meta.title),
+      titleTemplate: `%s | ${t('name')}`,
+      meta: [
+        {name: 'keywords', content: t(route.meta.keywords)},
+        {name: 'og:title', content: `%s | ${t('name')}`},
+      ]
+    })
+
+useHead(head)
 
 onMounted(() => {
   const {id} = route.params;
@@ -87,6 +102,18 @@ onMounted(() => {
   }
 
   itemDetailData.value = items[id];
+
+  head.value.titleTemplate = `${i18nReadName.item(id).name()} - ${head.value.titleTemplate}`
+  head.value.meta = [
+    {
+      name: 'keywords', content: t(route.meta.keywords, {
+        keywords: Object.keys(messages.value).map(lang => {
+          return i18nReadName.item(id).keys.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
+        }).concat([id])
+      })
+    },
+    {name: 'og:title', content: `${t(route.meta.title)} | ${t('name')}`},
+  ]
 
   onStatisticsRawMaterial();
   onDisplayCabinetHistory();
@@ -145,7 +172,7 @@ const onStarItem = (data: Item) => {
 </script>
 
 <template>
-  <v-breadcrumbs >
+  <v-breadcrumbs>
     <v-container class="pa-0">
       <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>

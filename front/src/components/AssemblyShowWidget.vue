@@ -18,7 +18,7 @@ import ShipTopDownPerspectiveWidget from "./snbWidget/shipTopDownPerspectiveWidg
 import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
 import WeaponModificationWidget from "@/components/snbWidget/weaponModificationWidget.vue";
 import AssemblyClassificationShowList from "@/components/AssemblyClassificationShowList.vue";
-import {useI18nUtils} from "@/assets/sripts/i18nUtil";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import ItemName from "@/components/snbWidget/itemName.vue";
 import UltimateName from "@/components/snbWidget/ultimateName.vue";
 import {AssemblyAttr, ItemAssemblySave} from "@/assets/types";

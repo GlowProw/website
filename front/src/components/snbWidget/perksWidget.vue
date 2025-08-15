@@ -2,7 +2,7 @@
 
 import EmptyView from "../EmptyView.vue";
 import {useI18n} from "vue-i18n";
-import {useI18nUtils} from "@/assets/sripts/i18nUtil.ts";
+import {useI18nUtils} from "@/assets/sripts/i18n_util.ts";
 import {onUnmounted, ref, watch} from "vue";
 import {useRoute} from "vue-router";
 

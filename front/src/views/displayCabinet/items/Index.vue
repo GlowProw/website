@@ -8,7 +8,7 @@ import Loading from "@/components/Loading.vue";
 import {useRoute} from "vue-router";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import EmptyView from "@/components/EmptyView.vue";
-import {useI18nUtils} from "@/assets/sripts/i18nUtil";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import ItemName from "@/components/snbWidget/itemName.vue";
 
 const items: Items = Items,

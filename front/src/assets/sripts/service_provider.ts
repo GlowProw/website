@@ -3,7 +3,7 @@ interface ServiceProviderItem {
     src: string
 }
 
-export class ServiceProvider {
+export class Service_provider {
     private static list: ServiceProviderItem[] = [
         {
             name: 'edgeone',
@@ -28,7 +28,7 @@ export class ServiceProvider {
     ]
 
     get services() {
-        return ServiceProvider.list.map(i => {
+        return Service_provider.list.map(i => {
             return {...i}
         })
     }

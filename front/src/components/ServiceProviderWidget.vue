@@ -1,11 +1,11 @@
 <script setup lang="ts">
 
-import {ServiceProvider} from "@/assets/sripts/serviceProvider";
+import {Service_provider} from "@/assets/sripts/service_provider";
 import {useItemAssetsStore} from "~/stores/itemAssetsStore";
 import {onMounted, ref} from "vue";
 
 
-const serviceProviders = new ServiceProvider().services,
+const serviceProviders = new Service_provider().services,
     {serializationMap} = useItemAssetsStore()
 
 let service_providers = ref([])
@@ -15,7 +15,6 @@ onMounted(() => {
       logosSerialization = serializationMap(logosMap)
 
   service_providers.value = serviceProviders.map(i => {
-    console.log(i.name, logosSerialization[i.name])
     return {
       ...i,
       icon: logosSerialization[i.name]

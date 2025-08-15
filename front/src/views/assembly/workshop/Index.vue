@@ -13,7 +13,7 @@ import {useAuthStore} from "@/../stores";
 import EmptyView from "@/components/EmptyView.vue";
 import Silk from "@/components/Silk.vue";
 import Loading from "@/components/Loading.vue";
-import {useHttpToken} from "@/assets/sripts/httpUtil";
+import {useHttpToken} from "@/assets/sripts/http_util";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import AssemblyDataProcessing from "@/assets/sripts/assemblyDataProcessing";
 

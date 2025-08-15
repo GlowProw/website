@@ -5,7 +5,7 @@ import {useI18n} from "vue-i18n";
 import ItemSlotBase from "./ItemSlotBase.vue";
 import router from "~/router";
 import {useRoute} from "vue-router";
-import {useI18nUtils} from "@/assets/sripts/i18nUtil";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import ModName from "@/components/snbWidget/modName.vue";
 import ModDescription from "@/components/snbWidget/modDescription.vue";
 

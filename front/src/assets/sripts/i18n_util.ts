@@ -67,12 +67,12 @@ export function useI18nUtils() {
     /**
      * 获取翻译字符串
      */
-    const asString = (keys: string[], options: {backRawKey? : boolean, variable?: any} = {}) => {
+    const asString = (keys: string[], options: {backRawKey? : boolean, variable?: any, lang?: string} = {}) => {
         let result = ''
 
         for (const i18nKey of keys) {
             if (te(i18nKey)) {
-                const content = t(i18nKey, options.variable || null)
+                const content = t(i18nKey, options.variable || null, options.lang || null)
                 if (content && result.length <= 0 && result === '') {
                     result = content
                 }

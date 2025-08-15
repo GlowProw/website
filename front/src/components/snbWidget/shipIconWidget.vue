@@ -75,7 +75,7 @@ const onReady = async () => {
           tile
           border
           variant="text"
-          :to="isClickOpenDetail ? `/display-cabinet/ships/${id}` : ''"
+          :to="isClickOpenDetail ? `/display-cabinet/ship/${id}` : ''"
           :class="`pa-${props.padding} cursor-pointer`"
           height="100%"
           width="100%">
@@ -152,7 +152,7 @@ const onReady = async () => {
       </div>
       <v-divider></v-divider>
       <v-card-actions class="pa-5 pt-0">
-        <BtnWidget @action-complete="router.push(`/display-cabinet/ships/${props.id}`)"
+        <BtnWidget @action-complete="router.push(`/display-cabinet/ship/${props.id}`)"
                    class="mt-1 ml-1"
                    v-if="isShowOpenDetail">
           {{ t('displayCabinet.ship.lookDetail') }}

@@ -4,7 +4,7 @@ import AssemblyDataProcessing from "@/assets/sripts/assemblyDataProcessing";
 import {computed, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {api} from "@/assets/sripts/index";
-import {useHttpToken} from "@/assets/sripts/httpUtil";
+import {useHttpToken} from "@/assets/sripts/http_util";
 import {useRoute} from "vue-router";
 
 const {t, messages} = useI18n(),

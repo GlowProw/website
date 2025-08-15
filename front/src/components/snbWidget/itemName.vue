@@ -1,17 +1,15 @@
 <script setup lang="ts">
 import {computed} from "vue";
-import {number} from "@/assets/sripts/index";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name"
 import {Item} from "glow-prow-data";
-import {useI18nUtils} from "@/assets/sripts/i18nUtil";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
 
 const props = defineProps<{ data: Item, id?: string, tier?: number }>(),
-    {asString, sanitizeString} = useI18nUtils()
+    {asString, sanitizeString} = useI18nUtils(),
+    {item} = useI18nReadName()
 
 let getTitle = computed(() => {
-  return asString([
-    `snb.items.${props.id || props.data.id}.name`,
-    `snb.items.${sanitizeString(props.id || props.data.id).cleaned}.name`
-  ]) + ` ${number.intToRoman(props.tier || props.data.tier)}`
+  return `${item(props.id || props.data.id).name()}`
 })
 </script>
 
