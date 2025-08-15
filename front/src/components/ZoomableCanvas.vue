@@ -1,6 +1,12 @@
 <template>
   <div class="canvas-container overlapping-circles" ref="container">
     <div class="canvas-container overlapping-pattern">
+      <v-container class="position-relative" v-if="isShowTool">
+        <ZoomableTool @event-center="resetView"
+                      @event-minus="onScaleMinus"
+                      @event-plus="onScalePlus"></ZoomableTool>
+      </v-container>
+
       <div
           class="canvas"
           ref="canvas"
@@ -10,7 +16,7 @@
             height: `${contentHeight}px`,
             'pointer-events': isDragging ? 'none' : 'auto'
           }"
-          @wheel.prevent="handleWheel"
+          @wheel="handleWheel"
           @mousedown="startDrag"
           @touchstart="startTouchDrag"
           @touchmove.prevent="handleTouchDrag"
@@ -28,6 +34,7 @@
 <script setup lang="ts">
 import {nextTick, onBeforeUnmount, onMounted, ref} from 'vue'
 import {useDisplay} from "vuetify/framework";
+import ZoomableTool from "@/components/ZoomableTool.vue";
 
 const {mobile} = useDisplay()
 const props = defineProps({
@@ -39,6 +46,14 @@ const props = defineProps({
     type: Number,
     default: 600
   },
+  isShowTool: {
+    type: Boolean,
+    default: false
+  },
+  defaultScale: {
+    type: Number,
+    default: 1
+  },
   minScale: {
     type: Number,
     default: 0.1
@@ -48,7 +63,6 @@ const props = defineProps({
     default: 3
   }
 })
-
 const scale = ref(1)
 const position = ref({x: 0, y: 0})
 const contentHeight = ref(props.canvasHeight || 600) // Initial height, will be updated
@@ -67,6 +81,26 @@ const initCanvas = () => {
     updateContentHeight()
     setupResizeObserver()
   })
+}
+
+/**
+ * 放大
+ */
+const onScalePlus = () => {
+  if (scale.value >= props.maxScale)
+    return
+
+  scale.value += .2
+}
+
+/**
+ * 缩小
+ */
+const onScaleMinus = () => {
+  if (scale.value <= props.minScale)
+    return
+
+  scale.value -= .2
 }
 
 /**
@@ -183,6 +217,9 @@ const stopDrag = () => {
  * @param e
  */
 const handleWheel = (e) => {
+  if (!mobile.value)
+    return;
+
   const delta = -e.deltaY
   const scaleFactor = 0.001
   const newScale = scale.value * (1 + delta * scaleFactor)
@@ -217,7 +254,10 @@ const updateBackgroundPosition = (x, y) => {
 }
 
 onMounted(() => {
+  scale.value = props.defaultScale;
+
   initCanvas()
+
   window.addEventListener('mousemove', handleDrag)
   window.addEventListener('mouseup', stopDrag)
 
@@ -225,6 +265,20 @@ onMounted(() => {
     window.addEventListener('touchmove', handleTouchDrag, {passive: false})
     window.addEventListener('touchend', stopDrag)
   }
+
+  // 禁止缩放
+  const originalViewport = document.querySelector('meta[name="viewport"]');
+  const originalContent = originalViewport?.content || '';
+
+  // 设置不允许缩放
+  originalViewport?.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0');
+
+  // 页面卸载时恢复原始 viewport（可选）
+  onBeforeUnmount(() => {
+    if (originalViewport) {
+      originalViewport.setAttribute('content', originalContent);
+    }
+  });
 })
 
 onBeforeUnmount(() => {

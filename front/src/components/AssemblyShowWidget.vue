@@ -385,7 +385,7 @@ defineExpose({
 
 <template>
   <v-row class="workshop-ship-interior position-relative pa-10 ml-5 mt-3" :class="poops.class">
-    <v-col class="position-relative" style="min-width: 650px;z-index: 5" cols="10" sm="10" md="10" lg="10" xl="10">
+    <v-col class="position-relative" style="min-width: 650px;z-index: 5" cols="12" sm="12" md="10" lg="10" xl="10">
       <v-col>
         <div class="mb-12">
           <v-row no-gutters align="end">

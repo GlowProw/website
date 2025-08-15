@@ -16,11 +16,13 @@ import {useI18nUtils} from "@/assets/sripts/i18nUtil";
 import AssemblyTagsWidget from "@/components/AssemblyTagsWidget.vue";
 import CommentWidget from "@/components/CommentWidget.vue";
 import AssemblySettingPanel from "@/components/AssemblySettingPanel.vue";
+import {useDisplay} from "vuetify/framework";
 
 const route = useRoute(),
     router = useRouter(),
     http = useHttpToken(),
     authStore = useAuthStore(),
+    {mobile} = useDisplay(),
     {t} = useI18n(),
     {asString} = useI18nUtils()
 
@@ -114,7 +116,7 @@ const onPenPassword = () => {
     </template>
     <template v-slot:default>
       <v-container class="pa-2 mt-4 position-relative">
-        <v-breadcrumbs >
+        <v-breadcrumbs>
           <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
           <v-breadcrumbs-item to="/assembly">{{ t('assembly.title') }}</v-breadcrumbs-item>
@@ -195,10 +197,17 @@ const onPenPassword = () => {
   <!-- Assembly Preview S -->
   <v-card class="card-enlargement-flavor mt-n3 mb-5 ml-n10 mr-n10" v-if="assemblyDetailData.isVisibility">
     <ZoomableCanvas
-        style="height: 600px"
-        :minScale=".8"
-        :max-scale="1.2"
-        :boundary="{
+        :style="`height: ${mobile ? 300 : 600}px`"
+        :min-scale="mobile ? .1 : .8"
+        :max-scale="1.4"
+        :default-scale="mobile ? .4 : 1"
+        :is-show-tool="true"
+        :boundary="mobile ? {
+                left: -100,
+                right: 100,
+                top: -100,
+                bottom: 100
+              } : {
                 left: -1500,
                 right: 1500,
                 top: -500,
