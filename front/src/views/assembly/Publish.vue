@@ -198,7 +198,7 @@ const onUpdateTags = (data: any) => {
     </template>
     <template v-slot:default>
       <v-container class="pa-2 mt-4 position-relative">
-        <v-breadcrumbs class="pa-2">
+        <v-breadcrumbs >
           <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
           <v-breadcrumbs-item to="/assembly">{{ t('assembly.title') }}</v-breadcrumbs-item>
@@ -248,7 +248,7 @@ const onUpdateTags = (data: any) => {
   <!-- Workshop Share Preview E -->
 
   <v-container>
-    <v-form class="mt-10 mb-10">
+    <v-form class="mb-10">
       <v-row>
         <v-col cols="12" sm="12" lg="8">
           <v-row>

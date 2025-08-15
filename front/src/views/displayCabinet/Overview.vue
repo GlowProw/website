@@ -85,7 +85,7 @@ function getRandom(obj, count) {
 </script>
 
 <template>
-  <v-breadcrumbs class="pt-5">
+  <v-breadcrumbs >
     <v-container class="pa-0">
       <v-breadcrumbs-item to="/">{{ t('home.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>

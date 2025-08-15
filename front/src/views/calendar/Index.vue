@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import Footer from "@/components/Footer";
+import Header from "@/components/Header";
 </script>
 
 <template>
-  <v-app class="background-flavor">
+  <v-app id="calendar" class="background-flavor">
+    <Header></Header>
     <v-main class="mt-10 background-img-flavor">
       <router-view></router-view>
-      <Footer></Footer>
     </v-main>
+    <Footer></Footer>
   </v-app>
 </template>
 

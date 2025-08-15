@@ -152,7 +152,7 @@ const generateQRCode = async (text) => {
 </script>
 
 <template>
-  <v-container class="mt-10 mb-10">
+  <v-container class="mb-10">
     <v-row align="center">
       <v-col>
         <h1 class="text-amber">{{ t('assembly.share.title') }}</h1>

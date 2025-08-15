@@ -114,7 +114,7 @@ const onPenPassword = () => {
     </template>
     <template v-slot:default>
       <v-container class="pa-2 mt-4 position-relative">
-        <v-breadcrumbs class="pa-2">
+        <v-breadcrumbs >
           <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
           <v-breadcrumbs-item to="/assembly">{{ t('assembly.title') }}</v-breadcrumbs-item>
@@ -123,7 +123,7 @@ const onPenPassword = () => {
         </v-breadcrumbs>
       </v-container>
 
-      <v-container class="pt-7">
+      <v-container class="pt-5">
         <v-overlay
             :model-value="assemblyLoading"
             transition
@@ -133,7 +133,7 @@ const onPenPassword = () => {
         </v-overlay>
 
         <div v-show="!assemblyLoading">
-          <div class="ml-n2 mr-n2">
+          <div class="pl-2">
             <v-toolbar class="bg-transparent">
               <div>
                 <h1 :title="assemblyDetailData.name || ''" class="text-amber text-h4 singe-line">{{ assemblyDetailData.name || '' }}</h1>
@@ -146,7 +146,7 @@ const onPenPassword = () => {
                     <v-chip density="compact" v-if="assemblyDetailData.isPassword">
                       包含密码
                     </v-chip>
-                    <v-chip :to="`/assembly/browse/${assemblyDetailData.cloningUuid}/detail`" density="compact" v-if="assemblyDetailData.cloningUuid">
+                    <v-chip :to="`/assembly/browse/${assemblyDetailData.cloningUuid}/detail`" target="_blank" density="compact" v-if="assemblyDetailData.cloningUuid">
                       克隆: {{ assemblyDetailData.cloningUuid }}
                     </v-chip>
                   </v-chip-group>
