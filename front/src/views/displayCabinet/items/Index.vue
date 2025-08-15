@@ -19,8 +19,9 @@ const items: Items = Items,
 let itemsData: any = ref([]),
     exceedingItemsCount = ref(0),
     itemsFilter = ref({
-      type: 'index',
+      type: '',
       keyValue: '',
+      tags: [],
       inputWidgetKeyValue: '',
       page: 1,
       limit: 50
@@ -30,30 +31,30 @@ let itemsData: any = ref([]),
  * 处理数据
  */
 const onProcessedData = computed(() => {
-      let originalData = Object.values(itemsData.value),
-          resultData = [],
-          searchValue = itemsFilter.value.keyValue
+      let originalData = Object.values(items);
+      let searchValue = itemsFilter.value.keyValue.toLowerCase();
+      let filterItemType = itemsFilter.value.type;
 
-      if (!searchValue)
-        return itemsData;
+      const filteredData = originalData.filter(i => {
+        // 检查关键词匹配
+        const nameMatch = asString([
+          `snb.items.${i.id}.name`,
+          `snb.items.${sanitizeString(i.id).cleaned}.name`
+        ]).toLowerCase().indexOf(searchValue) >= 0;
+        const idMatch = i.id.toLowerCase().indexOf(searchValue) >= 0;
 
-      if (searchValue) {
-        const filteredData = originalData.filter(i =>
-            i.id.indexOf(searchValue) >= 0 ||
-            asString([
-              `snb.items.${i.id}.name`,
-              `snb.items.${sanitizeString(i.id).cleaned}.name`
-            ]).indexOf(searchValue) >= 0
-        );
+        // 检查类型匹配
+        const typeMatch = filterItemType ? i.type === filterItemType : true;
 
-        resultData = filteredData.slice(0, maximumSearchCount);
-        exceedingItemsCount.value = Math.max(filteredData.length - maximumSearchCount, 0);
-      }
+        // 返回同时满足关键词和类型条件的项目
+        return (nameMatch || idMatch) && typeMatch;
+      });
 
-      return resultData;
+      exceedingItemsCount.value = Math.max(filteredData.length - maximumSearchCount, 0);
+      return filteredData.slice(0, maximumSearchCount);
     }),
     maximumSearchCount = 30,
-    isSearching = computed(() => itemsFilter.value.keyValue)
+    isSearching = computed(() => itemsFilter.value.keyValue || itemsFilter.value.type)
 
 onMounted(() => {
   onFirstLoad()
@@ -61,6 +62,7 @@ onMounted(() => {
 
 const onFirstLoad = () => {
   const data = Object.values(items);
+  itemsFilter.value.tags = [...new Set(data.map(item => item.type))]
   itemsData.value.push(...data.slice(
       0,
       itemsFilter.value.limit
@@ -89,10 +91,13 @@ const onSearchItem = () => {
   itemsFilter.value.keyValue = itemsFilter.value.inputWidgetKeyValue;
 }
 
+const onFilterItemType = (value) => {
+  itemsFilter.value.type = value;
+}
 </script>
 
 <template>
-  <v-breadcrumbs >
+  <v-breadcrumbs>
     <v-container class="pa-0">
       <v-breadcrumbs-item to="/">{{ t('home.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
@@ -103,7 +108,7 @@ const onSearchItem = () => {
   </v-breadcrumbs>
   <v-divider></v-divider>
   <v-container>
-    <v-row>
+    <v-row class="mt-5">
       <v-col cols="12" lg="6" xl="6">
         <h1 class="btn-flavor ships-title">{{ t('displayCabinet.items.title') }}</h1>
         <div class="w-75 mt-2">
@@ -114,16 +119,38 @@ const onSearchItem = () => {
         <v-row>
           <v-col>
             <v-text-field :placeholder="t('basic.button.search')" hide-details
-                          variant="solo-filled"
+                          variant="filled"
                           density="comfortable"
                           clearable
                           @keydown.enter="onSearchItem"
                           @click:clear="onSearchItem"
                           v-model="itemsFilter.inputWidgetKeyValue">
               <template v-slot:append-inner>
-                <v-btn @click="onSearchItem">{{ t('basic.button.search') }}</v-btn>
+                <v-btn @click="onSearchItem" icon variant="text" density="comfortable">
+                  <v-icon icon="mdi-magnify"></v-icon>
+                </v-btn>
               </template>
             </v-text-field>
+          </v-col>
+          <v-col cols="auto">
+            <v-select
+                width="200"
+                variant="filled"
+                @update:model-value="onFilterItemType"
+                item-value="value"
+                item-title="text"
+                density="comfortable"
+                :items="[
+                  { value: '', text: t('assembly.workshop.filter.all') },
+                  ...itemsFilter.tags.map(tag => ({
+                    value: tag,
+                    text: t(`displayCabinet.type.${tag}`)
+                  }))
+                ]"
+                :label="t('assembly.workshop.filter.byType')"
+                hide-details
+                clearable
+            ></v-select>
           </v-col>
         </v-row>
       </v-col>
