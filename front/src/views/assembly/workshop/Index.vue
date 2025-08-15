@@ -15,7 +15,7 @@ import Silk from "@/components/Silk.vue";
 import Loading from "@/components/Loading.vue";
 import {useHttpToken} from "@/assets/sripts/http_util";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
-import AssemblyDataProcessing from "@/assets/sripts/assemblyDataProcessing";
+import Assembly_data_processing from "@/assets/sripts/assembly_data_processing";
 
 const {t} = useI18n(),
     route = useRoute(),
@@ -219,7 +219,7 @@ const onWorkshopPos = () => {
 const onUseDraft = (data) => {
   assemblyWorkshopRef.value
       .setSetting({
-        assemblyUseVersion: AssemblyDataProcessing.nowVersion,
+        assemblyUseVersion: Assembly_data_processing.nowVersion,
         isShowItemName: false,
       })
       .onLoad(toRaw(data))

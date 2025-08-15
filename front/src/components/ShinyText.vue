@@ -48,6 +48,6 @@ const animationDuration = computed(() => `${props.speed}s`);
 }
 
 .text-\[\#b5b5b5a4\] {
-  color: rgba(181, 181, 181, 0.96);
+  color: rgba(181, 181, 181, 0.98);
 }
 </style>

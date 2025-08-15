@@ -89,7 +89,7 @@ const getDescription = (key) => {
 
           </div>
         </v-row>
-        <p class="opacity-80 text-pre-wrap mt-3 pl-5 pr-5" v-for="(pPkey, pPIndex) in getDescription(p)" :key="pIndex">
+        <p class="opacity-80 text-pre-wrap mt-3 pl-5 pr-5" v-for="(pPkey, pIndex) in getDescription(p)" :key="pIndex">
           {{ pPkey }}
         </p>
       </div>

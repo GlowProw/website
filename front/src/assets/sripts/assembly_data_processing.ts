@@ -18,9 +18,9 @@ type AssemblyDataProcessingMap<T = any> = {
     [version: string]: VersionedDataProcessing<T>;
 };
 
-export default class AssemblyDataProcessing {
+export default class Assembly_data_processing {
     static versions = ['0.0.1'];
-    static nowVersion = AssemblyDataProcessing.versions[AssemblyDataProcessing.versions.length - 1];
+    static nowVersion = Assembly_data_processing.versions[Assembly_data_processing.versions.length - 1];
 
     private processing: AssemblyDataProcessingMap<AssemblyData> = {
         '0.0.1': {
@@ -207,7 +207,7 @@ export default class AssemblyDataProcessing {
      * @param data
      */
     public export(data) {
-        let version = data?.__version || AssemblyDataProcessing.nowVersion;
+        let version = data?.__version || Assembly_data_processing.nowVersion;
         if (version && data) {
             const filteredData = {};
             this.processing[version].allowedFields.forEach(field => {
@@ -226,7 +226,7 @@ export default class AssemblyDataProcessing {
      * @param useVersion
      */
     public import(data, useVersion?: string) {
-        let version = useVersion || data.__version || AssemblyDataProcessing.nowVersion;
+        let version = useVersion || data.__version || Assembly_data_processing.nowVersion;
         if (version && data) {
             const filteredData = {};
             this.processing[version].allowedFields.forEach(field => {
@@ -245,7 +245,7 @@ export default class AssemblyDataProcessing {
      * @param useVersion
      */
     public verify(data, useVersion?: string): boolean {
-        let version = useVersion || data.__version || AssemblyDataProcessing.nowVersion;
+        let version = useVersion || data.__version || Assembly_data_processing.nowVersion;
 
         return this.processing[version].verify(data);
     }

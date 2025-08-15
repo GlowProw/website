@@ -10,10 +10,10 @@ import {useHttpToken} from "@/assets/sripts/http_util";
 import ZoomableCanvas from "@/components/ZoomableCanvas.vue";
 import Silk from "@/components/Silk.vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
-import assemblyDataProcessing from "@/assets/sripts/assemblyDataProcessing"
+import assemblyDataProcessing from "@/assets/sripts/assembly_data_processing"
 import AssemblyTagsWidget from "@/components/AssemblyTagsWidget.vue";
 import AssemblySettingWidget from "@/components/AssmblySettingWidget.vue"
-import AssemblyDataProcessing from "@/assets/sripts/assemblyDataProcessing";
+import Assembly_data_processing from "@/assets/sripts/assembly_data_processing";
 
 const route = useRoute(),
     router = useRouter(),
@@ -101,7 +101,7 @@ const onLoadData = () => {
 const onSetAssemblyData = () => {
   assemblyWorkshopRef.value
       .setSetting({
-        assemblyUseVersion: publishData.value.attr?.assemblyUseVersion || assemblyData.value.data.data.__version || AssemblyDataProcessing.nowVersion,
+        assemblyUseVersion: publishData.value.attr?.assemblyUseVersion || assemblyData.value.data.data.__version || Assembly_data_processing.nowVersion,
         isShowItemName: publishData.value.attr?.isShowItemName || false
       })
       .onLoad(toRaw(publishData.value.data))

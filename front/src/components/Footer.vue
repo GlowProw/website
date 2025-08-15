@@ -2,6 +2,7 @@
 import {useI18n} from "vue-i18n";
 import I18nWidget from "./i18nWidget.vue";
 import ServiceProviderWidget from "@/components/ServiceProviderWidget.vue";
+import {appFuns} from "@/assets/sripts/index";
 
 const {t} = useI18n();
 </script>
@@ -24,20 +25,8 @@ const {t} = useI18n();
               <v-col cols="12" sm="6" md="6" lg="3">
                 <b class="text-amber">服务</b>
                 <ul>
-                  <li>
-                    <router-link to="/team">组队寻求</router-link>
-                  </li>
-                  <li>
-                    <router-link to="/calendar">日历</router-link>
-                  </li>
-                  <li>
-                    <router-link to="/display-cabinet">展示馆</router-link>
-                  </li>
-                  <li>
-                    <router-link to="/assembly">配装厂</router-link>
-                  </li>
-                  <li>
-                    <router-link to="/maps">地图</router-link>
+                  <li v-for="(fun, funIndex) in appFuns.list" :key="funIndex" :class="{'opacity-40':!fun.to }">
+                    <router-link :to="fun.to">{{ t(fun.title) }}</router-link>
                   </li>
                 </ul>
               </v-col>
@@ -56,7 +45,7 @@ const {t} = useI18n();
                 <b class="text-amber">联系</b>
                 <ul>
                   <li><a href="/about">关于</a></li>
-                  <li><a>帮助我们翻译</a></li>
+                  <li><a href="https://zh.crowdin.com/project/glow-prow" target="_blank">帮助我们翻译</a></li>
                 </ul>
               </v-col>
               <v-col cols="12" sm="6" md="6" lg="3">

@@ -26,7 +26,7 @@ onMounted(() => {
 <template>
   <div class="service-provider d-flex ga-10 overflow-x-auto">
     <a :href="i.src" target="_blank" v-for="(i, index) in service_providers" :key="index">
-      <img :src="i.icon" height="30px"/>
+      <img :alt="i.name" :src="i.icon" height="30px"/>
     </a>
   </div>
 </template>

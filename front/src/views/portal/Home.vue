@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {onMounted, type Ref, ref} from "vue";
-import {api, http, time} from "@/assets/sripts";
+import {api, appFuns, http, time} from "@/assets/sripts";
 import {Seasons} from "glow-prow-data";
 import {Season} from "glow-prow-data/src/entity/Seasons";
 import {useI18n} from "vue-i18n";
@@ -16,63 +16,7 @@ let data = ref({
     }),
     seasons: Seasons = Seasons,
     // 当前赛季
-    currentlySeason: Ref<Season> = ref(null),
-    portalNavs = ref([
-      {
-        title: '组队寻求',
-        icon: 'mdi-bullhorn-outline',
-        description: "发布或寻找与你计划相同船长出航，面对真正敌人",
-        to: '/team'
-      },
-      {
-        title: '日历',
-        icon: 'mdi-calendar-range',
-        description: '查看本赛季活动信息',
-        to: '/calendar'
-      },
-      {
-        title: '地图',
-        icon: 'mdi-map',
-        description: '所有地图物品清单',
-        to: '/maps'
-      },
-      {
-        title: '展示馆',
-        icon: 'mdi-package-variant-closed',
-        description: '陈列物品信息, 检查它们如何获得',
-        to: '/display-cabinet'
-      },
-      {
-        title: '船只配装厂',
-        icon: 'mdi-palette-outline',
-        description: '设计你船，让它到达性能极限，分享给好友',
-        to: '/assembly'
-      },
-      {
-        title: '海盗签名(开发中)',
-        icon: 'mdi-draw-pen',
-        description: '生成海盗签名图片，分享到社区网站上',
-        to: ''
-      },
-      {
-        title: '物品排名(开发中)',
-        icon: 'mdi-help',
-        description: '生成物品玩家心中排名以及评价',
-        to: ''
-      },
-      {
-        title: '精英怪印象(开发中)',
-        icon: 'mdi-help',
-        description: '分享你对游戏内不同怪物第一印象',
-        to: ''
-      },
-      {
-        title: '时装秀(开发中)',
-        icon: 'mdi-help',
-        description: '分享你的穿搭，成为时尚达人',
-        to: ''
-      }
-    ])
+    currentlySeason: Ref<Season> = ref(null)
 
 onMounted(() => {
   // getHomeData();
@@ -154,7 +98,7 @@ const getCurrentSeason = (): Season | null => {
           <v-col cols="12" md="8" lg="8" order="2" order-lg="1">
             <v-row>
               <v-col cols="12" sm="6" md="6" lg="6"
-                     v-for="(i,index) in portalNavs" :key="index">
+                     v-for="(i,index) in appFuns.list" :key="index">
                 <v-row>
                   <v-col cols="auto">
                     <ItemSlotBase size="90px" class="d-flex justify-center align-center">
@@ -163,9 +107,9 @@ const getCurrentSeason = (): Season | null => {
                   </v-col>
                   <v-col>
                     <router-link :to="i.to">
-                      <u class="text-h6 font-weight-bold mb-2 text-amber">{{ i.title }}</u>
+                      <p class="text-h6 font-weight-bold mb-2 text-amber">{{ t(i.title) }}</p>
                     </router-link>
-                    <p class="opacity-50">{{ i.description }}</p>
+                    <p class="opacity-50">{{ t(i.description) }}</p>
                   </v-col>
                 </v-row>
               </v-col>

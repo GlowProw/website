@@ -574,7 +574,7 @@ const onStarItem = (data: Item) => {
                   <p class="text-no-wrap">{{ t('displayCabinet.item.gearScore') }}</p>
                 </template>
                 <template v-slot:prepend>
-                  <img src="@/assets/images/snb/icon-gearScore.png" width="25px" height="25px">
+                  <img src="@/assets/images/snb/icon-gearScore.png" alt="gear-score" width="25px" height="25px">
                 </template>
               </v-text-field>
             </template>

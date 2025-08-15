@@ -436,9 +436,62 @@
       "keywords": "游戏,碧海黑帆,game,skull-and-bones,Skull And Bones,SNB,S And B,ubisoft,2025"
     }
   },
+  "header": {
+    "navs": {
+      "blog": "博客",
+      "officialWebsite": "官网"
+    },
+    "functions": {
+      "team": {
+        "title": "组队寻求",
+        "description": "发布或寻找与你计划相同船长出航，面对真正敌人"
+      },
+      "calendar": {
+        "title": "日历",
+        "description": "查看本赛季活动信息"
+      },
+      "maps": {
+        "title": "地图",
+        "description": "所有地图物品清单"
+      },
+      "display-cabinet": {
+        "title": "展示馆",
+        "description": "陈列物品信息, 检查它们如何获得"
+      },
+      "assembly": {
+        "title": "船只配装厂",
+        "description": "设计你船，让它到达性能极限，分享给好友"
+      },
+      "captain-signature": {
+        "title": "海盗签名(开发中)",
+        "description": "生成海盗签名图片，分享到社区网站上"
+      },
+      "ranking-of-designed-items": {
+        "title": "物品排名(开发中)",
+        "description": "生成物品玩家心中排名以及评价"
+      },
+      "impression-of-monsters": {
+        "title": "精英怪印象(开发中)",
+        "description": "分享你对游戏内不同怪物第一印象"
+      },
+      "fashion-show": {
+        "title": "时装秀(开发中)",
+        "description": "分享你的穿搭，成为时尚达人"
+      }
+    }
+  },
   "footer": {
     "basic": {
       "description": "碧海黑帆清单网站"
+    },
+    "col1": {
+      "title": "服务"
+    },
+    "col2": {
+      "title": "社区"
+    },
+    "col3": {
+      "title": "联系"
     }
   },
   "empty": {

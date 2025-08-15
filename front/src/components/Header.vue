@@ -3,8 +3,12 @@ import {useAuthStore} from "@/../stores";
 import Logo from "./Logo.vue";
 import {ref} from "vue";
 import HeaderAccount from "@/components/HeaderAccount.vue";
+import HeaderMuenFunWidget from "@/components/HeaderMuenFunWidget.vue";
+import {appNavs} from "@/assets/sripts/index";
+import {useI18n} from "vue-i18n";
 
-const authStore = useAuthStore()
+const authStore = useAuthStore(),
+    {t} = useI18n()
 
 let drawer = ref(false)
 </script>
@@ -20,11 +24,25 @@ let drawer = ref(false)
       <v-app-bar-nav-icon @click="drawer = !drawer" class="hidden-md hidden-lg hidden-xl hidden-xxl"></v-app-bar-nav-icon>
 
       <Logo></Logo>
-      <v-btn size="x-small" class="ml-n3 mr-3" variant="outlined">BETA</v-btn>
+      <v-btn size="x-small" class="ml-n3 mr-3" variant="tonal">BETA</v-btn>
+
+      <v-btn
+          class="hidden-sm hidden-xs"
+          variant="text"
+          density="comfortable" href="https://glow-prow-blog.cabbagelol.net/blog" target="_blank"
+          v-for="(nav, navIndex) in appNavs.list" :key="navIndex">
+        {{ t(nav.title) }}
+        <template v-slot:append>
+          <v-icon icon="mdi-open-in-new" size="15"></v-icon>
+        </template>
+      </v-btn>
 
       <v-spacer></v-spacer>
 
+
       <HeaderAccount type="header"></HeaderAccount>
+
+      <HeaderMuenFunWidget></HeaderMuenFunWidget>
     </v-app-bar>
 
     <v-navigation-drawer
@@ -37,14 +55,9 @@ let drawer = ref(false)
         </div>
         <v-divider></v-divider>
 
-        <v-list-item link href="https://glow-prow-blog.cabbagelol.net/blog" target="_blank">
-          博客
-          <template v-slot:append>
-            <v-icon icon="mdi-open-in-new" size="15"></v-icon>
-          </template>
-        </v-list-item>
-        <v-list-item href="https://www.ubisoft.com/en-us/game/skull-and-bones" target="_blank">
-          官网
+        <v-list-item link href="https://glow-prow-blog.cabbagelol.net/blog" target="_blank"
+                     v-for="(nav, navIndex) in appNavs.list" :key="navIndex">
+          {{ t(nav.title) }}
           <template v-slot:append>
             <v-icon icon="mdi-open-in-new" size="15"></v-icon>
           </template>

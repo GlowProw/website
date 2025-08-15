@@ -6,9 +6,9 @@ const {t} = useI18n()
 </script>
 
 <template>
-  <router-link to="/" class="logo mr-5">
+  <router-link to="/" class="logo ml-sm-0 ml-md-0 ml-lg-2 mr-5">
     <img src="/favicon.svg" class="mr-1 icon"/>
-    <h1 class="name">
+    <h1 class="name hidden-xs hidden-sm">
       <ShinyText
           :text="t('name')"
           :speed="10">
@@ -22,6 +22,7 @@ const {t} = useI18n()
   margin-left: 10px;
   display: flex;
   align-self: center;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.61);
 
   &:hover,
   & {

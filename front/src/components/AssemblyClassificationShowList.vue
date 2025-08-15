@@ -5,7 +5,7 @@ import {computed, onMounted, ref} from "vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import {useI18n} from "vue-i18n";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
-import {number, storageCollect} from "@/assets/sripts/index";
+import {storageCollect} from "@/assets/sripts/index";
 import EmptyView from "@/components/EmptyView.vue";
 import {StorageCollectType} from "@/assets/sripts/storage_collect";
 import ItemDamageTypeWidget from "@/components/snbWidget/itemDamageTypeWidget.vue";
@@ -256,7 +256,7 @@ defineExpose({
       <div class="bg-shades-black background-flavor w-100 overflow-y-auto overflow-x-hidden" style="max-height: 70vh">
         <div class="w-100 pb-3" v-if="starItem.length > 0">
           <div class="text-center title-long-flavor text-amber font-weight-bold bg-black pl-4 lr-4 pt-2 pb-2 ml-n2 mr-n2 mb-4">
-            我的最爱 ({{processedStarItems.length || 0}})
+            我的最爱 ({{ processedStarItems.length || 0 }})
           </div>
 
           <v-row class="pl-8 pr-8" v-if="processedStarItems.length > 0">
@@ -267,7 +267,7 @@ defineExpose({
                 </ItemSlotBase>
                 <div class="text-center d-flex justify-center" style="width: 90px" :class="[modelValue && modelValue.id == j.id ? 'text-amber' : '']">
                   <div class="singe-line">
-                    <ItemName :data="j" />
+                    <ItemName :data="j"/>
                   </div>
                 </div>
               </div>
@@ -303,7 +303,7 @@ defineExpose({
                     </ItemSlotBase>
                     <div class="text-center d-flex justify-center" style="width: 90px" :class="[modelValue && modelValue.id == j.id ? 'text-amber' : '']">
                       <div class="singe-line">
-                        <ItemName :data="j" />
+                        <ItemName :data="j"/>
                       </div>
                     </div>
                   </div>

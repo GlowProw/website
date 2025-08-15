@@ -9,7 +9,7 @@ import EmptyView from "./EmptyView.vue";
 import ShipIconWidget from "./snbWidget/shipIconWidget.vue";
 
 import {number} from "@/assets/sripts/index"
-import AssemblyDataProcessing from "@/assets/sripts/assemblyDataProcessing";
+import Assembly_data_processing from "@/assets/sripts/assembly_data_processing";
 import {Ships, Ultimates} from "glow-prow-data";
 import {Item, Items} from "glow-prow-data/src/entity/Items.ts";
 import {Ship} from "glow-prow-data/src/entity/Ships.ts";
@@ -36,7 +36,7 @@ const poops = withDefaults(defineProps<{
     ships = Ships,
     items: Items = Items,
     ultimates = Ultimates,
-    assemblyDataProcessing = new AssemblyDataProcessing(),
+    assemblyDataProcessing = new Assembly_data_processing(),
     {asString, sanitizeString} = useI18nUtils(),
     {t} = useI18n()
 
@@ -76,7 +76,7 @@ let workshopData = ref({
 
         // 平台版本
         // ** 它可能不存在，如果有则依靠此__version识别，没有则主要使用attr.assemblyUseVersion, 否则降级 **
-        __version: AssemblyDataProcessing.nowVersion,
+        __version: Assembly_data_processing.nowVersion,
       } as {
         shipSlot: Ship, ultimateSlot: Item | null, armorSlot: Item | null,
         displaySlots: Item[], weaponSlots: ItemAssemblySave[] | Item[], shipUpgradeSlot: Item | null,
@@ -102,7 +102,7 @@ let workshopData = ref({
     // 配装属性
     attr: Ref<AssemblyAttr> = ref({
       isShowItemName: true,
-      assemblyUseVersion: AssemblyDataProcessing.nowVersion
+      assemblyUseVersion: Assembly_data_processing.nowVersion
     })
 
 watch(() => workshopData.value?.data?.shipSlot, (value) => {
@@ -760,7 +760,7 @@ defineExpose({
                               <v-icon icon="mdi-chevron-up" size="16"></v-icon>
                               <ItemSlotBase size="30px"
                                             padding="0"
-                                            v-for="(p, pIndex) in getDeckInformation(index).top" :key="pIndex">
+                                            v-for="(p, pIndex) in getDeckInformation(index).top" :key="pIndex + p">
                                 <ItemIconWidget :id="i.id" v-if="i.id"
                                                 :is-show-tooltip="false"
                                                 :is-open-detail="false"></ItemIconWidget>
