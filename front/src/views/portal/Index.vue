@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app id="portal">
     <Header></Header>
     <router-view></router-view>
     <Footer></Footer>

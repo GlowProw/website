@@ -156,7 +156,7 @@ watch(browseData, (newList: ResultData) => {
     </v-row>
 
     <v-row>
-      <v-col cols="12" lg="3">
+      <v-col cols="12" md="3" lg="3">
         <!-- 配装筛选 S -->
         <v-icon icon="mdi-filter"></v-icon>
         {{ t('assembly.browse.filterTitle') }}
@@ -199,10 +199,10 @@ watch(browseData, (newList: ResultData) => {
         </div>
         <!-- 配装筛选 E -->
       </v-col>
-      <v-col cols="12" lg="9">
+      <v-col cols="12" md="9" lg="9">
         <keep-alive>
           <v-row>
-            <v-col cols="12" md="12" lg="6" v-for="(i, index) in browseData.data"
+            <v-col cols="12" md="6" lg="6" v-for="(i, index) in browseData.data"
                    :key="index" class=""
                    v-if="browseData.data.length > 0">
               <v-card class="card-enlargement-flavor pa-5">

@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import I18nWidget from "./i18nWidget.vue";
+import ServiceProviderWidget from "@/components/ServiceProviderWidget.vue";
 
-const {t} = useI18n()
+const {t} = useI18n();
 </script>
 
 <template>
@@ -16,7 +17,7 @@ const {t} = useI18n()
               {{ t('name') }}
             </h2>
             <p class="mt-2 opacity-80">{{ t('footer.basic.description') }}</p>
-            <p class="opacity-60">@2025-{{ new Date().getFullYear() }} Glow Prow</p>
+            <p class="opacity-60">@2025-{{ new Date().getFullYear() }} {{ t('name') }}</p>
           </v-col>
           <v-col cols="12" sm="12" md="7" lg="8" order="1" order-sm="1" order-lg="2">
             <v-row>
@@ -65,6 +66,10 @@ const {t} = useI18n()
           </v-col>
         </v-row>
       </footer>
+    </v-container>
+    <v-divider></v-divider>
+    <v-container class="pt-5 pb-5">
+      <ServiceProviderWidget></ServiceProviderWidget>
     </v-container>
   </div>
 </template>

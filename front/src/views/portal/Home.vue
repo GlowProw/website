@@ -132,7 +132,7 @@ const getCurrentSeason = (): Season | null => {
           <video autoplay playsinline
                  class="card-enlargement-flavor"
                  muted loop type="video/mp4"
-                 src="https://staticctf.ubisoft.com/J3yJr34U2pZ2Ieem48Dwy9uqj5PNUQTn/5WG1pexP19mMXzIXCA2fzV/feb19cb3049e381b7bf1b8f2b983c5c0/skullandbones-year2-loop.mp4"></video>
+                 src="@/assets/videos/skullandbones-year2-loop.mp4"></video>
         </div>
       </template>
 
@@ -188,7 +188,7 @@ const getCurrentSeason = (): Season | null => {
             <v-row class="mb-5">
               <v-col class="">
                 <b class="text-h4 btn-flavor">更新</b>
-                <p class="mt-2 opacity-60">可以直接通过网站页脚预留<code>kook</code>社区中提出问题，以帮助修复问题</p>
+                <p class="mt-2 opacity-60">可以直接通过网站页脚预留<u><a href="https://kook.vip/2s0eQP" target="_blank">Kook 社区</a></u>中提出问题，以帮助修复问题</p>
               </v-col>
             </v-row>
             <AppVersionWidget></AppVersionWidget>

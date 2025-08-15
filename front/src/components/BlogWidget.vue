@@ -37,8 +37,10 @@ const getBlogData = async () => {
     loading.value = true
     const result = await http.request(`${blogBaseUrl}/blog-data.json`)
 
-    if (result.data)
+    if (result.data) {
       blogData.value = result.data;
+      showBlogIndex.value = result.data.latestPosts.length - 1;
+    }
   } catch (e) {
 
   } finally {
@@ -49,14 +51,14 @@ const getBlogData = async () => {
 const onPage = (type) => {
   switch (type) {
     case 'prev':
-      if (showBlogIndex <= 0)
+      if (showBlogIndex.value <= 0)
         return;
-      showBlogIndex -= 1
+      showBlogIndex.value -= 1
       break;
     case 'next':
-      if (showBlogIndex >= blogData.value.totalCount)
+      if (showBlogIndex.value > blogData.value.totalCount)
         return;
-      showBlogIndex += 1
+      showBlogIndex.value += 1
       break;
   }
 }
@@ -82,7 +84,7 @@ const onPage = (type) => {
     </v-row>
     <div class="position-relative">
       <template v-if="blogData.latestPosts">
-        <div class="text-h5 font-weight-bold text-amber mb-2" v-html="blogData.latestPosts[showBlogIndex].title"></div>
+        <div class="text-h5 font-weight-bold text-amber mb-2" v-html="blogData.latestPosts[showBlogIndex].title || ''"></div>
         <p class="opacity-80 mb-1">{{ blogData.latestPosts[showBlogIndex].authors.join(',') }}</p>
         <div class="content text-pre-wrap" v-html="md.render(blogData.latestPosts[showBlogIndex].content || '')"></div>
       </template>
@@ -133,6 +135,43 @@ const onPage = (type) => {
     p {
       opacity: .8;
       font-size: 15px !important;
+    }
+
+    table {
+      width: 100%;
+      padding: 0;
+      border-spacing: 0px;
+      border: 1px solid hsl(from var(--main-color) h s calc(l * 0.2));
+      background: hsl(from var(--main-color) h s calc(l * 0.06));
+      outline: none;
+
+      thead {
+        background: hsl(from var(--main-color) h s calc(l * .08));
+
+        th {
+          padding: 10px 4px;
+          border-bottom: 1px solid hsl(from var(--main-color) h s calc(l * 0.1)) !important;
+        }
+      }
+
+      tbody {
+        border-right: 5px;
+        overflow: hidden;
+
+        td {
+          padding: 8px 8px;
+          border-right: 1px solid hsl(from var(--main-color) h s calc(l * 0.1));
+          border-bottom: 1px solid hsl(from var(--main-color) h s calc(l * 0.1)) !important;
+        }
+
+        td:last-child {
+          border-right: none;
+        }
+
+        tr:last-child td {
+          border-bottom: none !important;
+        }
+      }
     }
 
     blockquote {

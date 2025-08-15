@@ -17,8 +17,6 @@ pinia.use(piniaPluginPersistedstate)
 
 const app = createApp(App)
 
-app.config.globalProperties.$t = i18n.global.t;
-
 app
     .use(router)
     .use(pinia)
