@@ -45,11 +45,13 @@ const {t} = useI18n();
                 <b class="text-amber">联系</b>
                 <ul>
                   <li><a href="/about">关于</a></li>
-                  <li><a href="https://zh.crowdin.com/project/glow-prow" target="_blank">帮助我们翻译</a></li>
+                  <li><a href="https://status.glow-prow.org.cn">服务状态</a></li>
+                  <li><a href="https://zh.crowdin.com/project/glow-prow" target="_blank">📖帮助我们翻译</a></li>
                 </ul>
               </v-col>
               <v-col cols="12" sm="6" md="6" lg="3">
                 <I18nWidget/>
+
               </v-col>
             </v-row>
           </v-col>
@@ -58,7 +60,17 @@ const {t} = useI18n();
     </v-container>
     <v-divider></v-divider>
     <v-container class="pt-5 pb-5">
-      <ServiceProviderWidget></ServiceProviderWidget>
+      <v-row no-gutters align="center">
+        <v-col>
+          <ServiceProviderWidget></ServiceProviderWidget>
+        </v-col>
+        <v-col cols="12" lg="auto" class="d-flex ga-2 align-center mt-sm-2 mt-md-2">
+          <img src="@/assets/images/logos/betterstack.svg" width="26px" height="30px" />
+          <iframe src="https://status.glow-prow.org.cn/badge?theme=dark"
+                  width="190"
+                  height="30" frameborder="0" scrolling="no" style="color-scheme: normal"></iframe>
+        </v-col>
+      </v-row>
     </v-container>
   </div>
 </template>
@@ -75,6 +87,10 @@ const {t} = useI18n();
     margin-top: 15px;
     list-style-type: none;
     font-size: 14px;
+
+    li {
+      margin-bottom: 5px;
+    }
   }
 }
 </style>

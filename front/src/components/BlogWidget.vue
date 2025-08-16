@@ -137,6 +137,10 @@ const onPage = (type) => {
       font-size: 15px !important;
     }
 
+    ul {
+      margin-left: 25px;
+    }
+
     table {
       width: 100%;
       padding: 0;

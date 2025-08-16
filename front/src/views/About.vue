@@ -49,7 +49,8 @@ const {t} = useI18n()
             <h3 class="btn-flavor">联系</h3>
             <p class="opacity-80 mb-2">通过下方可供联系方式找到我(不需广告/SEO需求)</p>
             <ul>
-              <li>admin@cabbagelol.net</li>
+              <li>qwqpwp@qq.com</li>
+              <li>nickmiku@gmail.net</li>
               <li>https://cabbagelol.net</li>
             </ul>
           </v-col>
