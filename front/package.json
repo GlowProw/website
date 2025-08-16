@@ -43,9 +43,9 @@
     "vue-json-pretty": "^2.5.0",
     "vue-router": "^4.5.1",
     "vuetify": "^3.8.1",
-    "glow-prow-assets": "file:~/Code/glow-prow/glow-prow-assets",
-    "glow-prow-data": "file:~/Code/glow-prow/glow-prow-data",
-    "glow-prow-data-languages": "file:~/Code/glow-prow/glow-prow-data-languages"
+    "glow-prow-data": "github:GlowProw/glow-prow-data",
+    "glow-prow-assets": "github:GlowProw/glow-prow-assets",
+    "glow-prow-data-languages": "github:GlowProw/glow-prow-data-languages"
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.0",
