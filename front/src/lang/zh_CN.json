@@ -438,8 +438,9 @@
   },
   "header": {
     "navs": {
-      "blog": "博客",
-      "officialWebsite": "官网"
+      "blog": "闪耀船首博客",
+      "officialWebsite": "碧海黑帆官网",
+      "officialWebsiteDebug": "碧海黑帆官方问题集"
     },
     "functions": {
       "team": {

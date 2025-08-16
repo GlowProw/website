@@ -4,8 +4,9 @@ import Logo from "./Logo.vue";
 import {ref} from "vue";
 import HeaderAccount from "@/components/HeaderAccount.vue";
 import HeaderMuenFunWidget from "@/components/HeaderMuenFunWidget.vue";
-import {appNavs} from "@/assets/sripts/index";
+import {appFuns, appNavs} from "@/assets/sripts/index";
 import {useI18n} from "vue-i18n";
+import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 
 const authStore = useAuthStore(),
     {t} = useI18n()
@@ -29,7 +30,7 @@ let drawer = ref(false)
       <v-btn
           class="hidden-sm hidden-xs"
           variant="text"
-          density="comfortable" href="https://glow-prow-blog.cabbagelol.net/blog" target="_blank"
+          density="comfortable" :href="nav.href" target="_blank"
           v-for="(nav, navIndex) in appNavs.list" :key="navIndex">
         {{ t(nav.title) }}
         <template v-slot:append>
@@ -55,7 +56,19 @@ let drawer = ref(false)
         </div>
         <v-divider></v-divider>
 
-        <v-list-item link href="https://glow-prow-blog.cabbagelol.net/blog" target="_blank"
+        <v-list-item link :to="nav.to" :href="nav.href" target="_blank"
+                     @click="drawer = !drawer"
+                     v-for="(nav, navIndex) in appFuns.list" :key="navIndex">
+          {{ t(nav.title) }}
+          <template v-slot:prepend>
+            <ItemSlotBase size="20" class="mr-2">
+              <v-icon :icon="nav.icon"></v-icon>
+            </ItemSlotBase>
+          </template>
+        </v-list-item>
+        <v-divider></v-divider>
+
+        <v-list-item link :href="nav.href" target="_blank"
                      v-for="(nav, navIndex) in appNavs.list" :key="navIndex">
           {{ t(nav.title) }}
           <template v-slot:append>

@@ -6,14 +6,8 @@ const {t} = useI18n()
 </script>
 
 <template>
-  <router-link to="/" class="logo ml-sm-0 ml-md-0 ml-lg-2 mr-5">
-    <img src="/favicon.svg" class="mr-1 icon"/>
-    <h1 class="name hidden-xs hidden-sm">
-      <ShinyText
-          :text="t('name')"
-          :speed="10">
-      </ShinyText>
-    </h1>
+  <router-link to="/" class="logo ml-sm-1 ml-md-1 ml-lg-2 mr-5">
+    <img src="/favicon.png" class="mr-1 icon"/>
   </router-link>
 </template>
 
@@ -31,16 +25,18 @@ const {t} = useI18n()
   }
 
   .icon {
+    margin-left: 10px;
     margin-right: 5px;
-    height: 30px;
-    width: 30px;
+    height: 25px;
+    width: 25px;
   }
 
   .name {
     line-height: 30px;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: bold;
     opacity: 0.9;
+    font-family: "Playwrite_IN", monospace, sans-serif, "Microsoft YaHei", "微软雅黑", "Arial", sans-serif;
   }
 }
 </style>
