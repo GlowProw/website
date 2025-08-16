@@ -13,8 +13,7 @@
     "build:no-check:production": "run-p \"build-only {@}\" --",
     "build:production": "run-p type-check \"build-only {@}\" --",
     "preview:production": "vite preview",
-    "build-only": "vite build",
-    "type-check": "vue-tsc --build --force"
+    "build-only": "vite build"
   },
   "dependencies": {
     "@fontsource/roboto": "5.2.5",
@@ -26,6 +25,7 @@
     "@tiptap/pm": "^3.0.7",
     "@tiptap/starter-kit": "^3.0.7",
     "@tiptap/vue-3": "^3.0.7",
+    "@unhead/vue": "^2.0.14",
     "axios": "^1.10.0",
     "dom-to-image": "^2.6.0",
     "less": "^4.4.0",
@@ -37,18 +37,17 @@
     "smooth-scrollbar": "^8.8.4",
     "uuid": "^11.1.0",
     "vite-plugin-node": "^7.0.0",
+    "vite-plugin-seo-prerender": "^1.0.0",
     "vue": "^3.5.17",
     "vue-i18n": "^9.14.5",
     "vue-json-pretty": "^2.5.0",
-    "vue-meta": "^2.4.0",
     "vue-router": "^4.5.1",
     "vuetify": "^3.8.1",
-    "glow-prow-data": "github:GlowProw/glow-prow-data",
-    "glow-prow-assets": "github:GlowProw/glow-prow-assets",
-    "glow-prow-data-languages": "github:GlowProw/glow-prow-data-languages"
+    "glow-prow-assets": "file:~/Code/glow-prow/glow-prow-assets",
+    "glow-prow-data": "file:~/Code/glow-prow/glow-prow-data",
+    "glow-prow-data-languages": "file:~/Code/glow-prow/glow-prow-data-languages"
   },
   "devDependencies": {
-    "@skullandbonestools/snbdata": "^6.0.6",
     "@tsconfig/node22": "^22.0.0",
     "@types/dom-to-image": "^2.6.7",
     "@types/node": "^22.9.0",
