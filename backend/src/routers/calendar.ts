@@ -8,13 +8,85 @@ import config from "../../config";
 import logger from "../../logger";
 import {fileURLToPath} from "node:url";
 import path from "path";
-import fs from 'fs/promises';
+import redis from '../../redis';
+import fs from "fs/promises";
+import {allowPrivileges} from "../lib/auth";
+import {verifyJWT} from "../middleware/auth";
 
 const router = express.Router();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DATA_DIR = path.join(__dirname, '../../data/calendar');
+
+// Redis键前缀
+const REDIS_PREFIX = 'calendar:',
+    CACHE_TTL = 10 * 24 * 60 * 60 // 缓存时间：10天（秒）
+
+/**
+ * 从Redis获取缓存数据，如果不存在则从文件加载并缓存
+ * @param season 赛季ID
+ * @returns 返回该赛季的事件数据对象
+ */
+async function loadGameEventsData(season: string): Promise<any> {
+    const redisKey = `${REDIS_PREFIX}.season:${season}`;
+
+    try {
+        // 尝试从Redis获取缓存
+        const cachedData = await redis.get(redisKey);
+        if (cachedData) {
+            if (config.__DEBUG__)
+                logger.info(`by Redis Load season Data: ${season}`);
+            return JSON.parse(cachedData);
+        }
+
+        // 缓存不存在，从文件加载
+        const seasonPath = path.join(DATA_DIR, season, 'index.json');
+        const fileData = await fs.readFile(seasonPath, 'utf-8');
+        const parsedData = JSON.parse(fileData);
+
+        // 将数据缓存到Redis
+        await redis.setex(redisKey, CACHE_TTL, JSON.stringify(parsedData));
+        if (config.__DEBUG__)
+            logger.info(`by local File Load season Data: ${season}`);
+
+        return parsedData;
+    } catch (err) {
+        logger.error(`load season error: ${season}`, err);
+        return {events: {}};
+    }
+}
+
+/**
+ * 清除指定赛季的Redis缓存
+ * @param season 赛季ID
+ */
+async function clearSeasonCache(season: string): Promise<void> {
+    const redisKey = `${REDIS_PREFIX}.season:${season}`;
+    try {
+        await redis.del(redisKey);
+        logger.info(`clear ok: ${season}`);
+    } catch (err) {
+        logger.error(`clear error: ${season}`, err);
+    }
+}
+
+/**
+ * 获取ICS日历内容的Redis缓存键
+ */
+function getCalendarCacheKey(type: 'events' | 'event', params: any): string {
+    const {season, language, eventId, occurrenceIndex} = params;
+    let key = `${REDIS_PREFIX}.ics:${type}:${season}:${language}`;
+
+    if (type === 'event') {
+        key += `:${eventId}`;
+        if (occurrenceIndex !== undefined) {
+            key += `:${occurrenceIndex}`;
+        }
+    }
+
+    return key;
+}
 
 /**
  * 获取赛季原始数据
@@ -33,124 +105,94 @@ router.get('/data', [
 
         const {season} = req.query;
 
-        // 加载当前赛季的事件数据
+        // 加载当前赛季的事件数据（现在会使用Redis缓存）
         const gameEventsData = await loadGameEventsData(season);
 
-        // 设置响应头 - 指定内容类型为JSON
         res.setHeader('Content-Type', 'application/json');
-
-        // 返回原始数据
-        res.setHeader('Cache-Control', `public, max-age=${config.__DEBUG__ ? 0 : 10 * 24 * 60 * 60}`).json({
+        res.setHeader('Cache-Control', `public, max-age=${config.__DEBUG__ ? 0 : 10 * 24 * 60 * 60}`);
+        res.json({
             code: 0,
             data: gameEventsData
         });
     } catch (e) {
-        // 捕获并记录错误
         logger.error(e);
         res.status(500).json({code: 'data.error'});
     }
 });
 
 /**
- * 加载指定赛季的游戏事件数据
- * @param season 赛季ID
- * @returns 返回该赛季的事件数据对象
- */
-async function loadGameEventsData(season: string): Promise<any> {
-    const seasonPath = path.join(DATA_DIR, season, 'index.json');
-    try {
-        const data = await fs.readFile(seasonPath, 'utf-8');
-        return JSON.parse(data);
-    } catch (err) {
-        logger.error(`加载赛季数据失败: ${seasonPath}`, err);
-        return {events: {}};
-    }
-}
-
-/**
- * 获取赛季所有事件的ICS日历
- * 路由: GET /events.ics
- * 参数:
- *   - season: 赛季ID (必填)
- *   - language: 语言代码 (必填)
+ * 获取赛季所有事件的ICS日历（带Redis缓存）
  */
 router.get('/events.ics', calendarRateLimiter, [
-    // 验证season参数: 长度1-255
     checkquery("season").isLength({min: 1, max: 255}),
-    // 验证language参数: 必须在配置的语言列表中
     checkquery("language").isIn(config.i18n.locales),
 ], async (req: any, res: any) => {
     try {
-        // 验证请求参数
         const validateErr = validationResult(req);
         if (!validateErr.isEmpty())
             return res.status(400).json({error: 1, code: 'events.bad', message: validateErr.array()});
 
         const {season, language} = req.query;
+        const cacheKey = getCalendarCacheKey('events', {season, language});
 
-        // 加载当前赛季的事件数据
+        // 尝试从Redis获取缓存的ICS内容
+        const cachedICS = await redis.get(cacheKey);
+        if (cachedICS) {
+            // 从Redis缓存获取ICS日历
+            res.setHeader('Content-Type', 'text/calendar');
+            res.setHeader('Content-Disposition', 'attachment; filename="game-events.ics"');
+            return res.send(cachedICS);
+        }
+
+        // 缓存不存在，生成新的ICS内容
         const gameEventsData = await loadGameEventsData(season);
-
-        // 创建新的日历实例
         const cal = new ICalCalendar({
-            name: await i18n.translate(`${season}.name`, language) || '赛季名称',
+            name: await i18n.translate(`${season}.name`, language) || 'season name',
             url: req.protocol + '://' + req.get('host') + req.originalUrl,
             prodId: {company: 'Ubisoft', product: 'GameEventsCalendar'},
-            ttl: 60 * 60 // 缓存1小时
+            ttl: 60 * 60
         });
 
         const eventsToAdd: any[] = [];
-        const currentYear = new Date().getFullYear(); // 获取当前年份
+        const currentYear = new Date().getFullYear();
 
-        // 遍历所有事件
         for (const e of Object.values(gameEventsData.events)) {
             let event: any = e;
-
-            // 遍历每个事件的所有发生日期
             for (const occurrence of event.occurrences) {
-                // 创建事件开始日期 (月份是0-based所以要减1)
                 const startDate = new Date(currentYear, occurrence.month - 1, occurrence.day, 12, 0, 0);
                 const endDate = new Date(startDate);
-                endDate.setDate(startDate.getDate() + event.duration); // 设置结束日期
+                endDate.setDate(startDate.getDate() + event.duration);
 
-                // 添加事件到列表
                 eventsToAdd.push({
-                    uid: `${event.id}-${occurrence.month}-${occurrence.day}-${currentYear}`, // 唯一事件ID
-                    start: startDate, // 开始时间
-                    end: endDate,    // 结束时间
-                    summary: await i18n.translate(`${season}.data.${event.id}.name`, language), // 事件名称
-                    description: await i18n.translate(`${season}.data.${event.id}.description`, language) || '', // 事件描述
-                    allDay: true,    // 全天事件
-                    location: 'In-Game', // 事件位置
-                    url: `${req.$AppBaseUrl}/calendar`, // 相关URL
+                    uid: `${event.id}-${occurrence.month}-${occurrence.day}-${currentYear}`,
+                    start: startDate,
+                    end: endDate,
+                    summary: await i18n.translate(`${season}.data.${event.id}.name`, language),
+                    description: await i18n.translate(`${season}.data.${event.id}.description`, language) || '',
+                    allDay: true,
+                    location: 'In-Game',
+                    url: `${req.$AppBaseUrl}/calendar`,
                 });
             }
         }
 
-        // 将所有事件添加到日历
         cal.events(eventsToAdd);
+        const icsContent = cal.toString();
 
-        // 设置响应头 - 指定内容类型为日历格式
+        // 缓存ICS内容到Redis（缓存1小时）
+        await redis.setex(cacheKey, 3600, icsContent);
+
         res.setHeader('Content-Type', 'text/calendar');
-        // 设置响应头 - 指定下载文件名
         res.setHeader('Content-Disposition', 'attachment; filename="game-events.ics"');
-        // 发送日历内容
-        res.send(cal.toString());
+        res.send(icsContent);
     } catch (e) {
-        // 捕获并记录错误
         logger.error(e);
         res.status(500).json({code: 'events.error'});
     }
 });
 
 /**
- * 获取单个事件的ICS日历
- * 路由: GET /event.ics
- * 参数:
- *   - season: 赛季ID (必填)
- *   - language: 语言代码 (必填)
- *   - eventId: 事件ID (必填)
- *   - occurrenceIndex: 事件发生索引 (可选)
+ * 获取单个事件的ICS日历（带Redis缓存）
  */
 router.get('/event.ics', calendarRateLimiter, [
     checkquery("season").isLength({min: 1, max: 255}),
@@ -159,38 +201,44 @@ router.get('/event.ics', calendarRateLimiter, [
     checkquery("occurrenceIndex").optional().isInt({min: 0}).toInt(),
 ], async (req: any, res: any) => {
     try {
-        // 验证请求参数
         const validateErr = validationResult(req);
         if (!validateErr.isEmpty())
             return res.status(400).json({error: 1, code: 'events.bad', message: validateErr.array()});
 
         const {season, language, eventId, occurrenceIndex} = req.query;
+        const cacheKey = getCalendarCacheKey('event', {season, language, eventId, occurrenceIndex});
 
-        // 加载当前赛季的事件数据
+        // 尝试从Redis获取缓存的ICS内容
+        const cachedICS = await redis.get(cacheKey);
+        if (cachedICS) {
+            // 缓存获取单个事件
+            res.setHeader('Content-Type', 'text/calendar');
+            res.setHeader('Content-Disposition', `attachment; filename="${eventId}${occurrenceIndex !== undefined ? `-${occurrenceIndex}` : ''}.ics"`);
+            return res.send(cachedICS);
+        }
+
+        // 缓存不存在，生成新的ICS内容
         const gameEventsData = await loadGameEventsData(season);
         const event = gameEventsData.events[eventId];
 
-        // 检查事件是否存在
         if (!event) {
-            return res.status(404).json({error: 1, code: 'event.not_found', message: '事件不存在'});
+            return res.status(404).json({error: 1, code: 'event.notFound'});
         }
 
-        // 创建新的日历实例
         const cal = new ICalCalendar({
-            name: await i18n.translate(`${season}.data.${eventId}.name`, language) || '事件名称',
+            name: await i18n.translate(`${season}.data.${eventId}.name`, language) || 'event name',
             url: req.protocol + '://' + req.get('host') + req.originalUrl,
             prodId: {company: 'Ubisoft', product: 'GameEventsCalendar'},
-            ttl: 60 * 60 // 缓存1小时
+            ttl: 60 * 60
         });
 
         const eventsToAdd: any[] = [];
-        const currentYear = new Date().getFullYear(); // 获取当前年份
+        const currentYear = new Date().getFullYear();
 
-        // 如果指定了occurrenceIndex，只添加该特定发生日期
         if (occurrenceIndex !== undefined) {
-            // 检查occurrenceIndex是否有效
             if (occurrenceIndex >= event.occurrences.length || occurrenceIndex < 0) {
-                return res.status(400).json({error: 1, code: 'event.invalid_occurrence', message: '无效的事件发生索引'});
+                // 无效的事件发生索引
+                return res.status(400).json({error: 1, code: 'event.invalidOccurrence'});
             }
 
             const occurrence = event.occurrences[occurrenceIndex];
@@ -198,7 +246,6 @@ router.get('/event.ics', calendarRateLimiter, [
             const endDate = new Date(startDate);
             endDate.setDate(startDate.getDate() + event.duration);
 
-            // 添加单个事件到列表
             eventsToAdd.push({
                 uid: `${eventId}-${occurrenceIndex}-${currentYear}`,
                 start: startDate,
@@ -210,7 +257,6 @@ router.get('/event.ics', calendarRateLimiter, [
                 url: `${req.$AppBaseUrl}/calendar`,
             });
         } else {
-            // 如果没有指定occurrenceIndex，添加所有发生日期
             for (const occurrence of event.occurrences) {
                 const index = event.occurrences.indexOf(occurrence);
                 const startDate = new Date(currentYear, occurrence.month - 1, occurrence.day, 12, 0, 0);
@@ -230,19 +276,34 @@ router.get('/event.ics', calendarRateLimiter, [
             }
         }
 
-        // 将所有事件添加到日历
         cal.events(eventsToAdd);
+        const icsContent = cal.toString();
 
-        // 设置响应头 - 指定内容类型为日历格式
+        // 缓存ICS内容到Redis（缓存1小时）
+        await redis.setex(cacheKey, 3600, icsContent);
+
         res.setHeader('Content-Type', 'text/calendar');
-        // 设置响应头 - 指定下载文件名(包含事件ID和可选的发生索引)
         res.setHeader('Content-Disposition', `attachment; filename="${eventId}${occurrenceIndex !== undefined ? `-${occurrenceIndex}` : ''}.ics"`);
-        // 发送日历内容
-        res.send(cal.toString());
+        res.send(icsContent);
     } catch (e) {
-        // 捕获并记录错误
         logger.error(e);
         res.status(500).json({code: 'events.error'});
+    }
+});
+
+/**
+ * 清除缓存端点（用于开发或数据更新时）
+ */
+router.post('/clear-cache', verifyJWT, allowPrivileges(["super"]), [
+    checkquery("season").isString().isLength({min: 1, max: 255}),
+], async (req: any, res: any) => {
+    try {
+        const {season} = req.query;
+        await clearSeasonCache(season);
+        res.json({code: 0, message: 'cache.ok'});
+    } catch (e) {
+        logger.error(e);
+        res.status(500).json({code: 'cache.error'});
     }
 });
 

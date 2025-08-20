@@ -9,6 +9,7 @@ export interface AuthenticatedRequest extends Request {
 // 响应内容
 export interface RequestHasAccount extends Request {
     user?: any
+    REAL_IP?: string | number | any | null | unknown
 }
 
 export interface Token {

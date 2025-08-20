@@ -7,6 +7,7 @@ import logger from "../../logger";
 import {RequestHasAccount} from "../types/auth";
 import {verifyJWT} from "../middleware/auth";
 import verifyCaptcha from "../middleware/captcha";
+import {forbidPrivileges} from "../lib/auth";
 
 const router = Router();
 
@@ -16,7 +17,7 @@ const MAX_PAGE_SIZE = 50;           // 最大分页大小
 /**
  * 添加评论
  */
-router.post('/', verifyJWT, verifyCaptcha, [
+router.post('/', verifyJWT, verifyCaptcha, forbidPrivileges(['blacklisted', 'freezed']), [
     checkBody("targetType").isString().notEmpty().withMessage('targetType is required'),
     checkBody("targetId").isString().notEmpty().withMessage('targetId is required'),
     checkBody("content").isString().notEmpty().withMessage('content is required'),
@@ -54,7 +55,7 @@ router.post('/', verifyJWT, verifyCaptcha, [
 /**
  * 回复评论
  */
-router.post('/reply', verifyJWT, [
+router.post('/reply', verifyJWT, forbidPrivileges(['blacklisted', 'freezed']), [
     checkBody("commentId").isInt().notEmpty().withMessage('commentId is required'),
     checkBody("content").isString().notEmpty().withMessage('content is required'),
 ], async (req: RequestHasAccount, res: any) => {
@@ -99,7 +100,7 @@ router.post('/reply', verifyJWT, [
 /**
  * 编辑评论
  */
-router.post('/edit', verifyJWT, [
+router.post('/edit', verifyJWT, forbidPrivileges(['blacklisted', 'freezed']), [
     checkBody("id"),
     checkBody("content").isString().notEmpty().withMessage('content is required'),
 ], async (req: RequestHasAccount, res: any) => {
@@ -142,7 +143,7 @@ router.post('/edit', verifyJWT, [
 /**
  * 删除评论
  */
-router.post('/delete', verifyJWT, [
+router.post('/delete', verifyJWT, forbidPrivileges(['blacklisted', 'freezed']), [
     checkBody("id"),
 ], async (req: RequestHasAccount, res: any) => {
     try {

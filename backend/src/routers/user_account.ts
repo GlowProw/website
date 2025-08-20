@@ -1,11 +1,13 @@
 import {verifyJWT} from "../middleware/auth";
-import {query as checkQuery} from "express-validator/lib/middlewares/validation-chain-builders";
+import {body as checkbody, query as checkQuery} from "express-validator/lib/middlewares/validation-chain-builders";
 import {RequestHasAccount} from "../types/auth";
 import {validationResult} from "express-validator";
 import db from "../../mysql";
 import logger from "../../logger";
 import express from "express";
 import {accountRateLimiter} from "../middleware/rateLimiter";
+import {comparePassword, forbidPrivileges, generatePassword} from "../lib/auth";
+import {PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH, showUserInfo, userSetAttributes} from "../lib/user";
 
 const router = express.Router();
 
@@ -260,5 +262,73 @@ router.post('/assemblys', accountRateLimiter, verifyJWT, [
         res.status(500).setHeader('Cache-Control', 'public, max-age=60').json({error: 1, code: 'user.assembls.error'});
     }
 });
+
+/**
+ * 修改密码
+ */
+router.post('/changePassword', verifyJWT, [
+        checkbody('newPassword').isString().trim().isLength({min: PASSWORD_MIN_LENGTH, max: PASSWORD_MAX_LENGTH}),
+        checkbody('oldPassword').isString().trim().isLength({min: PASSWORD_MIN_LENGTH, max: PASSWORD_MAX_LENGTH})
+    ],
+    async (req: any, res: any, next: any) => {
+        try {
+            const validateErr = validationResult(req);
+            if (!validateErr.isEmpty())
+                return res.status(400).json({error: 1, code: 'changePassword.bad', message: validateErr.array()});
+
+            const {oldPassword, newPassword} = req.body;
+
+            const user = req.user
+            if (!await comparePassword(oldPassword, user.password))
+                return res.status(400).json({
+                    error: 1,
+                    code: 'changePassword.notMatch',
+                    message: 'original password incorrect.'
+                });
+            await db('users').update({
+                password: await generatePassword(newPassword),
+                signoutTime: db.fn.now()
+            }).where({id: user.id});
+
+            return res.status(200).json({
+                success: 1,
+                code: 'changePassword.success',
+            });
+        } catch (err) {
+            next(err);
+        }
+    });
+
+/**
+ * 获取用户自己信息
+ */
+router.get('/me', verifyJWT, accountRateLimiter, showUserInfo);
+
+/**
+ * 修改用户自己属性
+ */
+router.post('/me', verifyJWT, accountRateLimiter, forbidPrivileges(['blacklisted', 'freezed']), [
+        checkbody('attr').optional({nullable: true}).isObject(),
+    ],
+    async (req: RequestHasAccount, res: any, next: any) => {
+        try {
+            const validateErr = validationResult(req);
+            if (!validateErr.isEmpty())
+                return res.status(400).json({error: 1, code: 'me.bad', message: validateErr.array()});
+
+            let update: any = {};
+
+            if (req.body.subscribes)
+                update.subscribes = JSON.stringify(req.body.subscribes.map((i: any) => i - 0)); // to number
+            if (req.body.attr)
+                update.attr = JSON.stringify(userSetAttributes(req.user.attr, req.body.attr));
+
+            await db('users').update(update).where({id: req.user.id});
+
+            res.status(200).json({success: 1, code: 'me.success', data: update});
+        } catch (err) {
+            next(err);
+        }
+    });
 
 export default router;

@@ -1,3 +1,4 @@
+"use strict";
 const assemblyAttributes: any = {
     "password": {
         type: "string",

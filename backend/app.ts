@@ -1,13 +1,11 @@
-import 'reflect-metadata';
-
 import express from 'express';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import cron from "node-cron";
+import morgan from "morgan";
 
-import AppDataSource from "./src/ormconfig";
 import config from "./config";
 import {generateCaptcha} from "./src/lib/captcha";
 import {captchaRateLimiter, limiter} from "./src/middleware/rateLimiter";
@@ -17,7 +15,7 @@ import logger from "./logger";
 // import routers
 import {cleanExpiredTeamUps, router as team_index} from "./src/routers/team";
 import user_index from './src/routers/user'
-import account_index from './src/routers/account'
+import user_account_index from './src/routers/user_account'
 import calendar_index from './src/routers/calendar'
 import assembly_index from './src/routers/assembly'
 import links_index from './src/routers/likes'
@@ -28,7 +26,7 @@ const main = async () => {
         dotenv.config();
 
         // 定时任务
-        const cleanWork = cron.schedule('* * * * *', cleanExpiredTeamUps);
+        const cleanWork = cron.schedule('0 2 */7 * *', cleanExpiredTeamUps);
 
         const authenticateJWT = (req: any, res: any, next: any) => {
             const authHeader = req.headers.authorization;
@@ -50,7 +48,6 @@ const main = async () => {
         };
 
         await Promise.all([
-            AppDataSource.initialize(),
             i18n.initialize
         ])
 
@@ -60,10 +57,38 @@ const main = async () => {
 
         app.use(cors());
         app.use(authenticateJWT);               // 将认证中间件应用于所有请求
+        app.use(morgan((tokens, req, res) => {
+            const status = Number(tokens.status(req, res));
+            const base = `${tokens.status(req, res)} ${tokens.method(req, res)} ${tokens.url(req, res)} in ${tokens['response-time'](req, res)}ms`;
+            const verbose = config.logLevel >= 3 ? ` RequestBody: ${JSON.stringify(req.body)}` : '';
+            if (config.logLevel < 0)
+                return undefined;
+            if (status >= 500)
+                return logger.toText.error(base + verbose);
+            else if (status >= 400)
+                return logger.toText.warn(base + verbose);
+            else
+                return logger.toText.info(base + verbose);
+        }));
         app.use(bodyParser.urlencoded({extended: false}));
         app.use(bodyParser.json());             // 解析 JSON 请求体
-
-        app.use(async (req, res, next) => {
+        app.use((req, res, next) => {
+            let realIP = '';
+            switch (true) {
+                case !!req.get('CF-Connecting-IP') && config.cloudflare:
+                    realIP = req.get('CF-Connecting-IP');
+                    break;
+                case !!req.get('X-Forwarded-For') && config.behindProxy:
+                    realIP = req.get('X-Forwarded-For').split(',').reverse()[config.behindProxy];
+                    break;
+                default:
+                    realIP = req.ip;
+                    break;
+            }
+            req['REAL_IP'] = realIP;
+            next();
+        });
+        app.use((req, res, next) => {
             res.header('Access-Control-Allow-Origin', req.header('Origin') || '*');                                                 // better than wildcard *
             res.header('Access-Control-Allow-Headers',
                 'Origin, X-Requested-With, Content-Type, Accept, x-access-token' + (config.__DEBUG__ ? ', x-whosdaddy, x-whosdaddy-p' : ''));   // DEBUG
@@ -79,11 +104,10 @@ const main = async () => {
             next();
         });
 
-
         // routers
         app.get('/api/captcha', captchaRateLimiter, (req, res, next) => res.status(200).json({success: 1, code: 'captcha.gen', data: generateCaptcha()}));
-        app.use('/api', user_index, team_index);
-        app.use('/api/user', account_index);
+        app.use('/api', team_index);
+        app.use('/api/user', user_index, user_account_index);
         app.use('/api/calendar', calendar_index);
         app.use('/api/assembly', assembly_index);
         app.use('/api/likes', links_index)

@@ -5,11 +5,7 @@ import {validationResult} from "express-validator";
 import express, {Request, Response} from "express";
 import {query as checkquery} from "express-validator/lib/middlewares/validation-chain-builders";
 
-import AppDataSource from "../ormconfig";
-import {Users} from "../entity/Users";
-import {TeamUp} from "../entity/TeamUp";
 import logger from "../../logger";
-
 import config from "../../config";
 import {timeUpRateLimiter} from "../middleware/rateLimiter";
 import db from "../../mysql";
@@ -116,19 +112,6 @@ async function handleAuthentication(ws: WebSocket, message: WebSocketMessage) {
             code: 'teamUp.authFailed',
         }));
     }
-
-    // jwt.verify(token, config.secret, (err: any, decoded: any) => {
-    //     if (!err && decoded && typeof decoded === 'object' && 'userId' in decoded) {
-    //         connectedClients.set(ws, decoded.userId as string);
-    //         logger.info(`WebSocket 用户 ${decoded.userId} 已认证`);
-    //     } else {
-    //         logger.warn('WebSocket 认证失败:', err);
-    //         ws.send(JSON.stringify({
-    //             type: 'auth_failed',
-    //             code: 'teamUp.authFailed',
-    //         }));
-    //     }
-    // });
 }
 
 /**
@@ -138,15 +121,12 @@ async function handleAuthentication(ws: WebSocket, message: WebSocketMessage) {
  */
 async function addTeamUp(teamUpData: TeamUpData, userId: string | null | undefined) {
     try {
-        const userRepository = AppDataSource.getRepository(Users);
-        const teamUpRepository = AppDataSource.getRepository(TeamUp);
-
-        let user: Users | null = null;
-        let lastPublishedAt: Date | null = null;
+        let user: any = null;
+        let signoutTime: Date | null = null;
 
         // 注册用户处理
         if (userId) {
-            user = await userRepository.findOneBy({id: userId});
+            user = await db('users').where({id: userId}).first();
             if (!user) {
                 logger.error(`用户 ID ${userId} 不存在`);
                 broadcastToClients({
@@ -156,20 +136,20 @@ async function addTeamUp(teamUpData: TeamUpData, userId: string | null | undefin
                 }, userId);
                 return;
             }
-            lastPublishedAt = user.lastPublishedAt;
+            signoutTime = user.signoutTime;
         }
         // 匿名用户处理
         else {
             const minIntervalAnonymous = 60 * 60 * 1000; // 1 小时
             const oneHourAgo = new Date(Date.now() - minIntervalAnonymous);
 
-            const anonymousPostsCount = await teamUpRepository
-                .createQueryBuilder("team_up")
-                .where("team_up.userId IS NULL")
-                .andWhere("team_up.createdAt > :oneHourAgo", {oneHourAgo})
-                .getCount();
+            const anonymousPostsCount = await db('team_up')
+                .whereNull('userId')
+                .where('createdAt', '>', oneHourAgo)
+                .count('* as count')
+                .first();
 
-            if (!config.__DEBUG__ && anonymousPostsCount >= 1) {
+            if (!config.__DEBUG__ && anonymousPostsCount && Number(anonymousPostsCount.count) >= 1) {
                 logger.warn(`匿名用户发布过快，请 1 小时后再试`);
                 broadcastToClients({
                     type: 'publish_rate_limit',
@@ -185,8 +165,8 @@ async function addTeamUp(teamUpData: TeamUpData, userId: string | null | undefin
         const now = new Date();
         const minIntervalRegistered = 2 * 60 * 1000; // 2 分钟
 
-        if (lastPublishedAt && userId && (now.getTime() - lastPublishedAt.getTime()) < minIntervalRegistered) {
-            const timeDiff = now.getTime() - lastPublishedAt.getTime();
+        if (signoutTime && userId && (now.getTime() - signoutTime.getTime()) < minIntervalRegistered) {
+            const timeDiff = now.getTime() - signoutTime.getTime();
 
             logger.warn(`用户 ${userId} 发布过快，请 ${Math.ceil((minIntervalRegistered - timeDiff) / 1000 / 60)} 分钟后再试`);
 
@@ -205,30 +185,45 @@ async function addTeamUp(teamUpData: TeamUpData, userId: string | null | undefin
         }
 
         // 创建并保存组队信息
-        const newTeamUp = teamUpRepository.create({
-            ...teamUpData,
-            user: user,
+        const [newTeamUpId] = await db('team_up').insert({
+            player: teamUpData.player,
+            description: teamUpData.description,
+            tags: JSON.stringify(teamUpData.tags),
+            expiresAt: teamUpData.expiresAt,
+            createdAt: teamUpData.createdAt,
             userId: userId
         });
-        await teamUpRepository.save(newTeamUp);
 
         // 更新用户最后发布时间
         if (user) {
-            user.lastPublishedAt = now;
-            await userRepository.save(user);
+            await db('users')
+                .where({id: userId})
+                .update({signoutTime: now});
         }
 
-        logger.info(`发布新的组队信息: ${newTeamUp.player} (用户ID: ${userId || '匿名'})`);
+        logger.info(`发布新的组队信息: ${teamUpData.player} (用户ID: ${userId || '匿名'})`);
+
+        // 获取完整的组队信息
+        const newTeamUp = await db('team_up')
+            .leftJoin('users', 'team_up.userId', 'users.id')
+            .select(
+                'team_up.*',
+                'users.username',
+                db.raw('UNIX_TIMESTAMP(team_up.expiresAt) as expiresAtTimestamp'),
+                db.raw('UNIX_TIMESTAMP(team_up.createdAt) as createdAtTimestamp')
+            )
+            .where('team_up.id', newTeamUpId)
+            .first();
 
         // 构建响应数据
         const payload = {
             id: newTeamUp.id,
             player: sanitizeRichText(newTeamUp.player),
             description: sanitizeRichText(newTeamUp.description),
-            tags: newTeamUp.tags,
-            expiresAt: newTeamUp.expiresAt.getTime(),
-            createdAt: newTeamUp.createdAt.getTime(),
-            username: user ? user.username : 'none',
+            tags: newTeamUp.tags ? JSON.parse(newTeamUp.tags) : [],
+            expiresAt: newTeamUp.expiresAtTimestamp,
+            createdAt: newTeamUp.createdAtTimestamp,
+            username: newTeamUp.username || 'none',
             userId: newTeamUp.userId,
         };
 
@@ -256,8 +251,7 @@ async function addTeamUp(teamUpData: TeamUpData, userId: string | null | undefin
  */
 async function cancelTeamUp(id: string, userId: string | null | undefined) {
     try {
-        const teamUpRepository = AppDataSource.getRepository(TeamUp);
-        const teamUp = await teamUpRepository.findOneBy({id});
+        const teamUp = await db('team_up').where({id}).first();
 
         if (!teamUp) {
             logger.info(`未找到 ID 为 ${id} 的组队信息。`);
@@ -273,9 +267,9 @@ async function cancelTeamUp(id: string, userId: string | null | undefined) {
         }
 
         // 删除组队信息
-        const result = await teamUpRepository.delete(id);
+        const result = await db('team_up').where({id}).delete();
 
-        if (result.affected && result.affected > 0) {
+        if (result > 0) {
             logger.info(`组队信息已主动取消: ID ${id} (用户ID: ${userId})`);
             broadcastToClients({type: 'team_up_expired', payload: {id}});
         } else {
@@ -308,17 +302,23 @@ function broadcastToClients(message: any, targetUserId: string | null = null) {
 async function cleanExpiredTeamUps() {
     try {
         logger.info('执行清理工作');
-        const teamUpRepository = AppDataSource.getRepository(TeamUp);
-        const expiredTeamUps = await teamUpRepository
-            .createQueryBuilder("team_up")
-            .where("team_up.expiresAt <= NOW()")
-            .getMany();
+
+        // 获取过期组队信息
+        const expiredTeamUps = await db('team_up')
+            .where('expiresAt', '<=', db.fn.now())
+            .select('id');
 
         if (expiredTeamUps.length > 0) {
             const expiredIds = expiredTeamUps.map(t => t.id);
-            await teamUpRepository.delete(expiredIds);
+
+            // 删除过期组队信息
+            await db('team_up')
+                .whereIn('id', expiredIds)
+                .delete();
 
             logger.info(`[${new Date().toISOString()}] 删除已过期组队信息: ${expiredIds.length} 条`);
+
+            // 广播过期通知
             expiredIds.forEach(id => {
                 broadcastToClients({type: 'team_up_expired', payload: {id}});
             });
@@ -358,14 +358,16 @@ router.get('/teamups', timeUpRateLimiter, [
                 'users.username',
                 db.raw('UNIX_TIMESTAMP(team_up.expiresAt) as expiresAtTimestamp'),
                 db.raw('UNIX_TIMESTAMP(team_up.createdAt) as createdAtTimestamp')
-            );
+            )
+            .where('team_up.expiresAt', '>', db.fn.now());
 
         // 关键词搜索
         if (keyword) {
             const searchKeyword = `%${keyword.toLowerCase()}%`;
             query.where(function () {
-                this.where(db.raw('LOWER(team_up.name)'), 'LIKE', searchKeyword)
-                    .orWhere(db.raw('JSON_SEARCH(LOWER(team_up.tags), "one", ?)', [keyword.toLowerCase()]));
+                this.where(db.raw('LOWER(team_up.player)'), 'LIKE', searchKeyword)
+                    .orWhere(db.raw('LOWER(team_up.description)'), 'LIKE', searchKeyword)
+                    .orWhere(db.raw('JSON_SEARCH(LOWER(team_up.tags), "one", ?)', [searchKeyword]));
             });
         }
 
@@ -390,7 +392,7 @@ router.get('/teamups', timeUpRateLimiter, [
             id: t.id,
             player: t.player,
             description: t.description,
-            tags: t.tags,
+            tags: t.tags ? JSON.parse(t.tags) : [],
             expiresAt: t.expiresAtTimestamp,
             createdAt: t.createdAtTimestamp,
             username: t.username || null,
@@ -470,7 +472,7 @@ router.post('/my/teamups', timeUpRateLimiter, verifyJWT, [
             id: t.id,
             player: t.player,
             description: t.description,
-            tags: t.tags,
+            tags: t.tags ? JSON.parse(t.tags) : [],
             expiresAt: t.expiresAtTimestamp,
             createdAt: t.createdAtTimestamp,
             username: t.username || null,

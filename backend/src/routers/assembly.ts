@@ -6,6 +6,7 @@ import {supposeBackJWT, verifyJWT} from "../middleware/auth";
 import {v6 as uuidV6} from "uuid"
 import {sanitizeRichText, xss} from "../lib/content";
 import {assemblySetAttributes, assemblyShowAttributes} from "../lib/assembly";
+import {forbidPrivileges} from "../lib/auth";
 
 const router = express.Router();
 const assemblyConfig = {
@@ -26,7 +27,7 @@ function handlingLabels(data: string[]) {
 /**
  * 发布配装
  */
-router.post('/publish', verifyJWT, [
+router.post('/publish', verifyJWT, forbidPrivileges(['blacklisted', 'freezed']), [
     checkbody("name").isString().trim().isLength({min: 1, max: assemblyConfig.nameMaxLength}),
     checkbody('description').optional().isString().trim().isLength({max: assemblyConfig.descriptionMaxLength}),
     checkbody('tags').optional().isArray(),
@@ -251,7 +252,7 @@ router.get('/list', [
  *   - description
  *   - data
  */
-router.post('/edit', verifyJWT, [
+router.post('/edit', verifyJWT, forbidPrivileges(['blacklisted', 'freezed']), [
     checkbody('uuid').isString().trim().isLength({min: 1}),
     checkbody("name").isString().trim().isLength({min: 1, max: assemblyConfig.nameMaxLength}),
     checkbody('description').optional({nullable: true}).isString().trim().isLength({max: assemblyConfig.descriptionMaxLength}),
@@ -312,7 +313,7 @@ router.post('/edit', verifyJWT, [
  * 编辑配装设置
  * 路由: POST /attr/edit
  */
-router.post('/attr/edit', verifyJWT, [
+router.post('/attr/edit', verifyJWT, forbidPrivileges(['blacklisted', 'freezed']), [
     checkbody('uuid').isString().trim().isLength({min: 1}),
     checkbody('attr').optional({nullable: true}).isObject(),
     checkbody('visibility').optional().isIn(['publicly', 'private']),
@@ -468,7 +469,7 @@ router.get('/item', [
         // user anonymous info
         if (assembly.attr.isAnonymous) {
             assembly.userId = null
-            assembly.username= null
+            assembly.username = null
         }
 
         const assemblyIsHasPassword = !!assembly.attr.password;
@@ -493,7 +494,7 @@ router.get('/item', [
 /**
  * 删除配装
  */
-router.post('/delete', verifyJWT, [
+router.post('/delete', verifyJWT, forbidPrivileges(['blacklisted', 'freezed']), [
     checkbody('uuid').isString().trim().isLength({min: 1}),
 ], async (req: any, res: Response) => {
     try {

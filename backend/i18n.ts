@@ -5,13 +5,38 @@ import path from 'path';
 import {fileURLToPath} from 'node:url';
 import fetch from 'node-fetch';
 import logger from "./logger";
+import redis from './redis';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const CACHE_DIR = path.join(__dirname, '.locale_cache');
 const REMOTE_BASE_URL = config.i18n.serverUrl.replace(/\/$/, '');
 
-// 确保缓存目录存在
+async function getRedisCache(key: string) {
+    if (!redis || !redis.status || redis.status !== 'ready') return null;
+    try {
+        const data = await redis.get(key);
+        return data ? JSON.parse(data) : null;
+    } catch (err) {
+        logger.error('Redis get error:', err);
+        return null;
+    }
+}
+
+async function setRedisCache(key: string, data: any, ttl?: number) {
+    if (!redis || !redis.status || redis.status !== 'ready') return;
+    try {
+        const value = JSON.stringify(data);
+        if (ttl) {
+            await redis.setex(key, ttl, value);
+        } else {
+            await redis.set(key, value);
+        }
+    } catch (err) {
+        logger.error('Redis set error:', err);
+    }
+}
+
 async function ensureCacheDir() {
     try {
         await fs.mkdir(CACHE_DIR, {recursive: true});
@@ -21,13 +46,13 @@ async function ensureCacheDir() {
     }
 }
 
-// 从远程加载并缓存翻译文件
 async function fetchAndCacheTranslations() {
     const locales = config.i18n.locales;
     let hasError = false;
 
     for (const locale of locales) {
         const cacheFile = path.join(CACHE_DIR, `${locale}.json`);
+        const redisKey = `i18n:${locale}`;
 
         try {
             const url = `${REMOTE_BASE_URL}/src/data/${locale}/calendar.json`;
@@ -41,12 +66,12 @@ async function fetchAndCacheTranslations() {
 
             const data = await response.json();
             await fs.writeFile(cacheFile, JSON.stringify(data, null, 2));
+            await setRedisCache(redisKey, data, 7 * 24 * 60 * 60);
             logger.info(`Successfully updated ${locale} translations`);
         } catch (error: any) {
             hasError = true;
             logger.error(`Failed to update ${locale} translations:`, error.message);
 
-            // 如果远程获取失败，尝试使用缓存文件
             try {
                 await fs.access(cacheFile);
                 logger.info(`Using cached translations for ${locale}`);
@@ -56,16 +81,13 @@ async function fetchAndCacheTranslations() {
         }
     }
 
-    // 定期刷新（7d）
     if (!hasError) {
         setTimeout(fetchAndCacheTranslations, 7 * 24 * 60 * 60 * 1000);
     } else {
-        // 如果有错误，缩短重试时间（例如1小时后）
         setTimeout(fetchAndCacheTranslations, 60 * 60 * 1000);
     }
 }
 
-// 从缓存目录加载翻译
 class Backend {
     type = ''
 
@@ -75,20 +97,29 @@ class Backend {
 
     async read(language: string, namespace: any, callback: any) {
         try {
+            const redisKey = `i18n:${language}`;
+            const cachedData = await getRedisCache(redisKey);
+
+            if (cachedData) {
+                callback(null, cachedData);
+                return;
+            }
+
             const filePath = path.join(CACHE_DIR + (namespace || ''), `${language}.json`);
             const data = await fs.readFile(filePath, 'utf8');
-            callback(null, JSON.parse(data));
+            const parsedData = JSON.parse(data);
+
+            await setRedisCache(redisKey, parsedData);
+            callback(null, parsedData);
         } catch (err) {
             callback(err, null);
         }
     }
 }
 
-// 初始化i18next
 async function initI18next() {
     await ensureCacheDir();
 
-    // 先尝试从远程加载最新翻译
     try {
         if (!config.__DEBUG__)
             await fetchAndCacheTranslations();
@@ -110,40 +141,29 @@ async function initI18next() {
             backend: {
                 loadPath: path.join(CACHE_DIR, '{{lng}}.json')
             },
-            initImmediate: false // 立即初始化
+            initImmediate: false
         });
 }
 
-// 立即执行初始化
 const i18nInitPromise = initI18next();
 
-// 导出一个增强的i18next实例
 export default {
     ...i18next,
     initialize: i18nInitPromise,
     refresh: fetchAndCacheTranslations,
-    /**
-     * 便捷翻译方法 (自动处理语言设置)
-     * @param {string} key 翻译键
-     * @param {string} [language] 可选语言代码
-     * @param {object} [options] 翻译选项
-     * @returns {string}
-     */
     translate: async function (key: string, language?: string, options = {}): Promise<string> {
         await this.initialize;
         if (language) {
             await this.changeLanguage(language);
         }
 
-        // 获取翻译结果
         const result: any = this.t(key, {
             ...options,
-            returnEmptyString: true,  // 找不到翻译时返回空字符串
-            returnObjects: false,    // 确保总是返回字符串
-            defaultValue: ''         // 默认返回空字符串
+            returnEmptyString: true,
+            returnObjects: false,
+            defaultValue: ''
         });
 
-        // 额外检查：如果结果仍然是键名（某些i18next版本可能忽略returnEmptyString）
         return result === key ? '' : result;
     }
 };

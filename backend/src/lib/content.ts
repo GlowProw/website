@@ -1,3 +1,4 @@
+"use strict";
 import xss, {IFilterXSSOptions} from "xss";
 
 const config = {

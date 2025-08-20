@@ -6,6 +6,7 @@ import {RequestHasAccount} from "../types/auth";
 import logger from "../../logger";
 import {validationResult} from "express-validator";
 import {body as checkbody} from "express-validator/lib/middlewares/validation-chain-builders";
+import {forbidPrivileges} from "../lib/auth";
 
 const router = express.Router();
 
@@ -34,7 +35,7 @@ router.get('/check', likesRateLimiter, verifyJWT, [
 /**
  * 点赞或取消点赞
  */
-router.post('/toggle', likesRateLimiter, verifyJWT,
+router.post('/toggle', likesRateLimiter, verifyJWT, forbidPrivileges(['blacklisted', 'freezed']),
     [
         checkbody('targetType').isString(),
         checkbody('targetId').isString(),
