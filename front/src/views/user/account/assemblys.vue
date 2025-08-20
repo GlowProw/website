@@ -42,21 +42,22 @@ const getMyAssemblysData = async () => {
       <Loading></Loading>
     </v-overlay>
 
-    <v-card v-for="(i,index) in userAssemblysData.data" :key="index" class="mb-2 pa-2 pl-4" v-if="userAssemblysData.data && userAssemblysData.data.length > 0">
-      <v-row align="center">
+    <v-card v-for="(i,index) in userAssemblysData.data" :key="index" class="mb-2 pl-4" v-if="userAssemblysData.data && userAssemblysData.data.length > 0">
+      <v-row align="stretch">
         <v-col>
-          <b>{{i.name}}</b>
-          <p class="text-caption opacity-60">{{i.uuid}}</p>
+          <div class="mx-5 my-3">
+            <b>{{i.name}}</b>
+            <p class="text-caption opacity-60">{{i.uuid}}</p>
+          </div>
         </v-col>
         <v-spacer></v-spacer>
-        <v-col cols="auto">
-          <div class="d-flex ga-2">
-            <v-btn :to="`/assembly/workshop/${i.uuid}/edit`" target="_blank" icon="mdi-pencil"></v-btn>
-            <v-btn :to="`/assembly/browse/${i.uuid}/detail`" target="_blank" icon="mdi-open-in-new"></v-btn>
-            <AssemblySettingPanel :id="i.uuid">
-              <v-btn icon="mdi-cog"></v-btn>
-            </AssemblySettingPanel>
-          </div>
+        <v-col cols="auto" class="d-flex">
+          <v-btn class="h-100 px-8" elevation="0" tile :to="`/assembly/workshop/${i.uuid}/edit`" target="_blank" icon="mdi-pencil"></v-btn>
+          <v-btn class="h-100 px-8" elevation="0" tile :to="`/assembly/browse/${i.uuid}/detail`" target="_blank" icon="mdi-open-in-new"></v-btn>
+          <v-divider vertical></v-divider>
+          <AssemblySettingPanel :id="i.uuid">
+            <v-btn class="h-100 px-10" elevation="0" tile icon="mdi-cog"></v-btn>
+          </AssemblySettingPanel>
         </v-col>
       </v-row>
     </v-card>

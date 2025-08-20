@@ -98,6 +98,7 @@ const getCurrentSeason = (): Season | null => {
           <v-col cols="12" md="8" lg="8" order="2" order-lg="1">
             <v-row>
               <v-col cols="12" sm="6" md="6" lg="6"
+                     :class="{'opacity-30': !i.to}"
                      v-for="(i,index) in appFuns.list" :key="index">
                 <v-row>
                   <v-col cols="auto">
