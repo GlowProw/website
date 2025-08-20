@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import {useAuthStore} from "~/stores";
-import {computed, onMounted, Ref, ref, watch} from "vue";
+import {computed, onMounted, Ref, ref} from "vue";
 import {useHttpToken} from "@/assets/sripts/http_util";
 import {api} from "@/assets/sripts/index";
 import {useI18n} from "vue-i18n";
@@ -18,7 +18,9 @@ const authStore = useAuthStore(),
     router = useRouter(),
     {t} = useI18n()
 
-let userAccountData = ref({
+let
+    form = ref(null),
+    userAccountData = ref({
       attr: {
         language: '',
         introduction: ''
@@ -67,6 +69,12 @@ const getUserAccount = async () => {
     return
 
   userAccountData.value = d.data;
+
+  if (userAccountData.value.attr.language) {
+    let defaultLanguage = languages.child[languages.default],
+        language = languages.child.filter(i => i.value == userAccountData.value.attr.language)[0];
+    userAccountData.value.attr.language = language ? language : defaultLanguage
+  }
 }
 
 /**
@@ -118,7 +126,7 @@ const onClearPasswordFrom = () => {
  */
 const onSaveAccountAttr = async () => {
   try {
-    const {valid} = await passwordFrom.value.validate();
+    const {valid} = await form.value.validate();
     if (!valid)
       return
 
@@ -126,7 +134,8 @@ const onSaveAccountAttr = async () => {
 
     let attr = userAccountData.value.attr;
 
-    attr.language = attr.language.value;
+    if (attr.language)
+      attr.language = attr.language.value;
 
     const result = await httpToken.post(api["user_me"], {
           data: {
@@ -155,131 +164,133 @@ const onSaveAccountAttr = async () => {
   <div>
     <div class="font-weight-bold text-h5 mb-10">账户基本信息</div>
 
-    <v-row>
-      <v-col cols="12" sm="12" :lg="4">
-        <b>账户登陆id</b>
-      </v-col>
-      <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="8">
-        <v-text-field :value="userAccountData.username"
-                      variant="plain"
-                      hide-details
-                      readonly>
-          <template v-slot:prepend>
-            <UserAvatar size="30" :src="userAccountData.userAvatar"></UserAvatar>
-          </template>
-        </v-text-field>
-      </v-col>
-    </v-row>
+    <v-form ref="form">
+      <v-row>
+        <v-col cols="12" sm="12" :lg="4">
+          <b>账户登陆id</b>
+        </v-col>
+        <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="8">
+          <v-text-field :value="userAccountData.username"
+                        variant="plain"
+                        hide-details
+                        readonly>
+            <template v-slot:prepend>
+              <UserAvatar size="30" :src="userAccountData.userAvatar"></UserAvatar>
+            </template>
+          </v-text-field>
+        </v-col>
+      </v-row>
 
-    <v-row>
-      <v-col cols="12" sm="12" :lg="4">
-        <b>账户唯一标识</b>
-        <p class="text-caption text-grey opacity-80">这是唯一标识，由系统分配</p>
-      </v-col>
-      <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="8">
-        <v-text-field :value="userAccountData.id"
-                      variant="plain"
-                      hide-details
-                      readonly>
-        </v-text-field>
-      </v-col>
-    </v-row>
+      <v-row>
+        <v-col cols="12" sm="12" :lg="4">
+          <b>账户唯一标识</b>
+          <p class="text-caption text-grey opacity-80">这是唯一标识，由系统分配</p>
+        </v-col>
+        <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="8">
+          <v-text-field :value="userAccountData.id"
+                        variant="plain"
+                        hide-details
+                        readonly>
+          </v-text-field>
+        </v-col>
+      </v-row>
 
-    <v-row>
-      <v-col cols="12" sm="12" :lg="4">
-        <b>邮箱</b>
-      </v-col>
-      <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="8">
-        <v-text-field :value="userAccountData.email || ''"
-                      placeholder="账户邮箱"
-                      variant="plain"
-                      hide-details
-                      readonly>
-        </v-text-field>
-      </v-col>
-    </v-row>
+      <v-row>
+        <v-col cols="12" sm="12" :lg="4">
+          <b>邮箱</b>
+        </v-col>
+        <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="8">
+          <v-text-field :value="userAccountData.email || ''"
+                        placeholder="账户邮箱"
+                        variant="plain"
+                        hide-details
+                        readonly>
+          </v-text-field>
+        </v-col>
+      </v-row>
 
-    <v-row>
-      <v-col cols="12" sm="12" :lg="4">
-        <b>语种</b>
-        <p class="text-caption text-grey opacity-80">设置账户偏向语种</p>
-      </v-col>
-      <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="8">
-        <v-combobox v-model="userAccountData.attr.language"
-                    item-title="label"
-                    item-value="value"
-                    :items="userAttrLanguages"></v-combobox>
-      </v-col>
-    </v-row>
+      <v-row>
+        <v-col cols="12" sm="12" :lg="4">
+          <b>语种</b>
+          <p class="text-caption text-grey opacity-80">设置账户偏向语种</p>
+        </v-col>
+        <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="8">
+          <v-combobox v-model="userAccountData.attr.language"
+                      item-title="label"
+                      item-value="value"
+                      :items="userAttrLanguages"></v-combobox>
+        </v-col>
+      </v-row>
 
-    <v-row>
-      <v-col cols="12" sm="12" :lg="4">
-        <b>描述</b>
-      </v-col>
-      <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="8">
-        <v-card class="pa-2">
+      <v-row>
+        <v-col cols="12" sm="12" :lg="4">
+          <b>描述</b>
+        </v-col>
+        <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="8">
+          <v-card class="pa-2">
           <Textarea v-model="userAccountData.attr.introduction"
                     placeholder="自我介绍一下:D"
                     maxLength="2"></Textarea>
-        </v-card>
-      </v-col>
-    </v-row>
-
-    <v-divider class="mt-5 mb-5"></v-divider>
-
-    <v-row>
-      <v-col cols="12" sm="12" :lg="4">
-        <b>密码</b>
-      </v-col>
-      <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="8">
-        <v-text-field value="******"
-                      variant="plain"
-                      readonly>
-          <template v-slot:append-inner>
-            <v-btn @click="changePasswordModel = true">修改</v-btn>
-          </template>
-        </v-text-field>
-
-        <v-dialog max-width="1024" v-model="changePasswordModel">
-          <v-card>
-            <v-card-title>
-              修改密码
-            </v-card-title>
-            <v-card-text>
-              <v-alert class="mb-5" type="warning" density="comfortable" variant="tonal">
-                此操作会在成功后推出登陆，需要重新登陆账号
-              </v-alert>
-
-              <v-form ref="passwordFrom">
-                <v-text-field v-model="passwordFromData.data.oldPassword"
-                              :rules="passwordFromData.rules.oldPassword"
-                              placeholder="输入旧密码">
-                </v-text-field>
-                <v-text-field v-model="passwordFromData.data.newPassword"
-                              :rules="passwordFromData.rules.newPassword"
-                              placeholder="输入新密码">
-                </v-text-field>
-              </v-form>
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn @click="onChangePassword" :loading="changePasswordLoading">确定</v-btn>
-            </v-card-actions>
           </v-card>
-        </v-dialog>
-      </v-col>
-    </v-row>
+        </v-col>
+      </v-row>
 
-    <v-divider class="mt-5 mb-5"></v-divider>
+      <v-divider class="mt-5 mb-5"></v-divider>
 
-    <v-row>
-      <v-col cols="12" sm="12" :lg="4">
-        <b>身份</b>
-      </v-col>
-      <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="8">
-        <PrivilegesTagWidget :data="userAccountData.privilege"/>
-      </v-col>
-    </v-row>
+      <v-row>
+        <v-col cols="12" sm="12" :lg="4">
+          <b>密码</b>
+        </v-col>
+        <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="8">
+          <v-text-field value="******"
+                        variant="plain"
+                        readonly>
+            <template v-slot:append-inner>
+              <v-btn @click="changePasswordModel = true">修改</v-btn>
+            </template>
+          </v-text-field>
+
+          <v-dialog max-width="1024" v-model="changePasswordModel">
+            <v-card>
+              <v-card-title>
+                修改密码
+              </v-card-title>
+              <v-card-text>
+                <v-alert class="mb-5" type="warning" density="comfortable" variant="tonal">
+                  此操作会在成功后推出登陆，需要重新登陆账号
+                </v-alert>
+
+                <v-form ref="passwordFrom">
+                  <v-text-field v-model="passwordFromData.data.oldPassword"
+                                :rules="passwordFromData.rules.oldPassword"
+                                placeholder="输入旧密码">
+                  </v-text-field>
+                  <v-text-field v-model="passwordFromData.data.newPassword"
+                                :rules="passwordFromData.rules.newPassword"
+                                placeholder="输入新密码">
+                  </v-text-field>
+                </v-form>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn @click="onChangePassword" :loading="changePasswordLoading">确定</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </v-col>
+      </v-row>
+
+      <v-divider class="mt-5 mb-5"></v-divider>
+
+      <v-row>
+        <v-col cols="12" sm="12" :lg="4">
+          <b>身份</b>
+        </v-col>
+        <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="8">
+          <PrivilegesTagWidget :data="userAccountData.privilege"/>
+        </v-col>
+      </v-row>
+    </v-form>
 
     <v-row class="pa-3 mt-10">
       <v-btn color="var(--main-color)" :loading="userAccountAttrLoading" @click="onSaveAccountAttr">

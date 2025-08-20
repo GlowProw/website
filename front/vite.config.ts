@@ -1,5 +1,6 @@
 import Vue from '@vitejs/plugin-vue'
 import Vuetify, {transformAssetUrls} from 'vite-plugin-vuetify'
+import seoPrerender from 'vite-plugin-seo-prerender'
 
 import {defineConfig} from 'vite'
 import path from "path";
@@ -12,9 +13,22 @@ export default defineConfig({
             template: {transformAssetUrls},
         }),
         Vuetify({autoImport: true}),
+        seoPrerender({
+            network: true,
+            removeStyle: false,
+            routes: [
+                '/',
+                '/team',
+                '/display-cabinet', '/display-cabinet/overview', '/display-cabinet/ships', '/display-cabinet/items', '/display-cabinet/ultimates',
+                '/calendar',
+                '/assembly', '/assembly/browse',
+                '/maps',
+                '/about'
+            ]
+        })
     ],
     optimizeDeps: {
-        exclude: ['vuetify', 'glow-prow-assets'],
+        exclude: ['vuetify', 'glow-prow-assets',"fsevents"],
     },
     define: {'process.env': {}},
     build: {
