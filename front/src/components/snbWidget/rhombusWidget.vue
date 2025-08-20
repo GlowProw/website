@@ -1,6 +1,7 @@
 <script setup lang="ts">
-const props = withDefaults(defineProps<{ activate?: boolean, activateColor?: string, size?: string | number }>(), {
+const props = withDefaults(defineProps<{ activate?: boolean, solid?: boolean, activateColor?: string, size?: string | number }>(), {
   activate: false,
+  solid: true,
   size: 6,
   activateColor: ''
 })
@@ -10,7 +11,8 @@ const props = withDefaults(defineProps<{ activate?: boolean, activateColor?: str
   <div class="weapon-modification">
     <div class="weapon-modification-icon" :class="[activate ? 'activate' : '']"
          :style="activate ? `border: 1px solid hsl(from ${activateColor|| 'var(--main-color)'} h s calc(l * 1))` : ''">
-      <div :style="`width: ${size}px;height: ${size}px;${activate ? `background-color: ${activateColor || 'var(--main-color)'}` : ''}`"></div>
+      <div :style="`width: ${size}px;height: ${size}px;${activate ? `background-color: ${activateColor || 'var(--main-color)'}` : ''}`"
+           :class="{'hidden-solid': !solid}"></div>
     </div>
   </div>
 </template>
@@ -35,6 +37,10 @@ const props = withDefaults(defineProps<{ activate?: boolean, activateColor?: str
 
   > div {
     background-color: rgba(255, 255, 255, 1);
+  }
+
+  > div.hidden-solid {
+    visibility: hidden;
   }
 }
 

@@ -5,12 +5,13 @@ import PortalPage from '../src/views/portal/Home.vue'
 
 import AccountPage from '../src/views/user/account/Index.vue'
 import AccountInformationPage from '../src/views/user/account/Information.vue'
+import AccountProfilePicturePage from '@/views/user/account/profilePicture.vue'
 import AccountAssemblysPage from '../src/views/user/account/assemblys.vue'
 import AccountCommentsPage from '../src/views/user/account/comments.vue'
 import AccountTeamUpsPage from '../src/views/user/account/teamup.vue'
 
 import LoginPage from '../src/views/user/login.vue'
-import RegisterPage from '../src/views/user/register.vue'
+import SignupPage from '@/views/user/signup.vue'
 import DisplayCabinetPage from '../src/views/displayCabinet/Index.vue'
 import DisplayCabinetOverviewPage from '../src/views/displayCabinet/Overview.vue'
 import ShipsPage from '../src/views/displayCabinet/ships/Index.vue'
@@ -92,6 +93,12 @@ const routes: Readonly<RouteRecordRaw[]> = [
                         component: AccountInformationPage
                     },
                     {
+                        path: 'profile-picture',
+                        name: 'AccountProfilePicture',
+                        component: AccountProfilePicturePage
+                    },
+
+                    {
                         path: 'assemblys',
                         name: 'AccountAssemblys',
                         component: AccountAssemblysPage
@@ -118,13 +125,13 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 component: LoginPage
             },
             {
-                path: '/account/register',
-                name: 'register',
+                path: '/account/signup',
+                name: 'signup',
                 meta: {
-                    title: 'register.title',
-                    keywords: 'register.meta.keywords'
+                    title: 'signup.title',
+                    keywords: 'signup.meta.keywords'
                 },
-                component: RegisterPage
+                component: SignupPage
             },
             {
                 path: '/team',

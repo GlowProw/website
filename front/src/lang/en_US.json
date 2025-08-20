@@ -45,7 +45,7 @@
         "expired": "User session expired, please log in again",
         "accountIncorrect": "Incorrect login information"
       },
-      "register": {
+      "signup": {
         "ok": "Registration successful",
         "userAlreadyHas": "Username already exists",
         "error": "Registration error: {context}",
@@ -239,7 +239,7 @@
       }
     }
   },
-  "register": {
+  "signup": {
     "title": "Register"
   },
   "footer": {

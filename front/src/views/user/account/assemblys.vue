@@ -46,7 +46,7 @@ const getMyAssemblysData = async () => {
       <v-row align="center">
         <v-col>
           <b>{{i.name}}</b>
-          <p class="text-body-1 opacity-60">{{i.uuid}}</p>
+          <p class="text-caption opacity-60">{{i.uuid}}</p>
         </v-col>
         <v-spacer></v-spacer>
         <v-col cols="auto">

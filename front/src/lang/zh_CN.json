@@ -19,6 +19,15 @@
       "submit": "确认",
       "search": "搜索"
     },
+    "privilege": {
+      "admin": "社区管理",
+      "blacklisted": "黑名单",
+      "bot": "机器人",
+      "dev": "开发组",
+      "normal": "用户",
+      "root": "系统",
+      "super": "超级管理员"
+    },
     "tips": {
       "comment": {
         "ok": "发布成功",
@@ -89,7 +98,7 @@
         "expired": "用户身份过期,请重新登陆",
         "accountIncorrect": "登陆信息错误"
       },
-      "register": {
+      "signup": {
         "ok": "注册成功",
         "userAlreadyHas": "注册帐号的名称已存在",
         "error": "注册错误: {context}",
@@ -424,10 +433,25 @@
       }
     }
   },
-  "register": {
+  "signup": {
     "title": "注册",
     "meta": {
       "keywords": "账户注册"
+    },
+    "username": {
+      "name": "账户id",
+      "placeholder": "输入网址唯一标准",
+      "hint":"作为网站登陆唯一id，不可更改，至少3位到40位，使用a-z/A-Z/0-9/_来注册用户名"
+    },
+    "alternativeName": {
+      "name": "别名",
+      "placeholder": "输入展示名称",
+      "hint":"用于展示网站名称，如果不填将默认使用账户id，至少3位到40位，使用a-z/A-Z/0-9/_"
+    },
+    "email": {
+      "name": "邮箱",
+      "placeholder": "输入邮箱地址",
+      "hint":"可选邮箱，这将使得你的账户可寻回"
     }
   },
   "home": {

@@ -5,14 +5,18 @@
 export default class Api {
     constructor() {
         return {
-            "account_login": "login",
-            "account_register": "register",
+
             "captcha": "captcha",
 
+            "account_login": "user/login",
+            "account_signup": "user/signup",
             "user_comments": "user/comments",
             "user_assemblys": "user/assemblys",
             "user_likes": "user/likes",
             "user_teamups": "user/teamups",
+            "user_me": "user/me",
+            "user_info": "user/info",
+            "user_changePassword":"user/changePassword",
 
             "teamups": "teamups",
             "teamup_statistics": "teamup/statistics",
