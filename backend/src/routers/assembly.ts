@@ -431,7 +431,7 @@ router.get('/item', [
             .leftJoin('users', 'assembly.userId', 'users.id')
             .where('assembly.uuid', uuid)
             .select(
-                'users.username', 'users.id as userId',
+                'users.username', 'users.alternativeName','users.id as userId',
                 'assembly.uuid', 'assembly.userId', 'assembly.name', 'assembly.description',
                 'assembly.visibility', 'assembly.attr', 'assembly.cloningUuid',
                 'assembly.createdTime', 'assembly.updatedTime', 'assembly.attr', 'assembly.tags', 'assembly.data as assembly'
@@ -466,6 +466,8 @@ router.get('/item', [
             }
         }
 
+        assembly.username = assembly.alternativeName || assembly.username
+
         // user anonymous info
         if (assembly.attr.isAnonymous) {
             assembly.userId = null
@@ -475,6 +477,8 @@ router.get('/item', [
         const assemblyIsHasPassword = !!assembly.attr.password;
         if (assembly.attr)
             assembly.attr = assemblyShowAttributes(assembly.attr, {includeDefaults: true});
+
+        delete assembly.alternativeName
 
         res.status(200).json({
             code: 'assembly.detail.ok',

@@ -140,7 +140,7 @@ async function addTeamUp(teamUpData: TeamUpData, userId: string | null | undefin
         }
         // 匿名用户处理
         else {
-            const minIntervalAnonymous = 60 * 60 * 1000; // 1 小时
+            const minIntervalAnonymous = config.__DEBUG__ ? 1000 : 60 * 60 * 1000; // 测试 1分钟，正式 1 小时
             const oneHourAgo = new Date(Date.now() - minIntervalAnonymous);
 
             const anonymousPostsCount = await db('team_up')
@@ -220,7 +220,7 @@ async function addTeamUp(teamUpData: TeamUpData, userId: string | null | undefin
             id: newTeamUp.id,
             player: sanitizeRichText(newTeamUp.player),
             description: sanitizeRichText(newTeamUp.description),
-            tags: newTeamUp.tags ? JSON.parse(newTeamUp.tags) : [],
+            tags: newTeamUp.tags ? newTeamUp.tags : [],
             expiresAt: newTeamUp.expiresAtTimestamp,
             createdAt: newTeamUp.createdAtTimestamp,
             username: newTeamUp.username || 'none',
@@ -271,7 +271,7 @@ async function cancelTeamUp(id: string, userId: string | null | undefined) {
 
         if (result > 0) {
             logger.info(`组队信息已主动取消: ID ${id} (用户ID: ${userId})`);
-            broadcastToClients({type: 'team_up_expired', payload: {id}});
+            broadcastToClients({type: 'cancel_team_up', payload: {id}});
         } else {
             logger.info(`未找到 ID 为 ${id} 的组队信息或已被删除。`);
         }
@@ -392,7 +392,7 @@ router.get('/teamups', timeUpRateLimiter, [
             id: t.id,
             player: t.player,
             description: t.description,
-            tags: t.tags ? JSON.parse(t.tags) : [],
+            // tags: t.tags ? JSON.parse(t.tags) : [],
             expiresAt: t.expiresAtTimestamp,
             createdAt: t.createdAtTimestamp,
             username: t.username || null,
@@ -415,85 +415,6 @@ router.get('/teamups', timeUpRateLimiter, [
         res.status(500).json({error: 1, code: 'teamups.error'});
     }
 });
-
-/**
- * 获取用户发布组队信息
- */
-router.post('/my/teamups', timeUpRateLimiter, verifyJWT, [
-    checkquery("page").optional().isInt({min: 1}).toInt(),
-    checkquery("limit").optional().isInt({min: 1, max: 100}).toInt(),
-    checkquery("sortBy").isIn(['recent', 'expires']),
-    checkquery('keyword').optional().isString().isLength({max: 100}).trim(),
-], async (req: RequestHasAccount, res: Response) => {
-    try {
-        const validateErr = validationResult(req);
-        if (!validateErr.isEmpty()) {
-            return res.status(400).json({error: 1, code: 'my.teamups.bad', message: validateErr.array()});
-        }
-
-        const {keyword, sortBy, page = 1, limit = 20} = req.query as {
-            keyword?: string;
-            sortBy: string;
-            page?: number;
-            limit?: number;
-        } | any;
-
-        let query = db('team_up')
-            .leftJoin('users', 'team_up.userId', 'users.id')
-            .where('users.id', req.user.id)
-            .select(
-                'team_up.*',
-                'users.username',
-                db.raw('UNIX_TIMESTAMP(team_up.expiresAt) as expiresAtTimestamp'),
-                db.raw('UNIX_TIMESTAMP(team_up.createdAt) as createdAtTimestamp')
-            );
-
-        // 排序
-        switch (sortBy) {
-            case 'recent':
-                query.orderBy('team_up.createdAt', 'desc');
-                break
-            default:
-                query.orderBy('team_up.expiresAt', 'asc');
-                break;
-        }
-
-        // 分页处理
-        const totalQuery = query.clone().clearSelect().count('* as total');
-        const totalResult = await totalQuery.first();
-        const total = totalResult ? (totalResult as any).total : 0;
-
-        query.limit(limit).offset((page - 1) * limit);
-
-        const teamUps = await query;
-
-        // 格式化响应数据
-        const formattedTeamUps = teamUps.map(t => ({
-            id: t.id,
-            player: t.player,
-            description: t.description,
-            tags: t.tags ? JSON.parse(t.tags) : [],
-            expiresAt: t.expiresAtTimestamp,
-            createdAt: t.createdAtTimestamp,
-            username: t.username || null,
-            userId: t.userId
-        }));
-
-        res.status(200).json({
-            success: 1,
-            code: 'my.teamups.success',
-            data: formattedTeamUps,
-            pagination: {
-                total,
-                page: Number(page),
-                limit: Number(limit)
-            }
-        });
-    } catch (error) {
-        logger.error('我读检索组队信息失败:', error);
-        res.status(500).json({error: 1, code: 'teamups.error'});
-    }
-})
 
 /**
  * 组队信息统计

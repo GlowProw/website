@@ -7,7 +7,7 @@ import logger from "../../logger";
 import express from "express";
 import {accountRateLimiter} from "../middleware/rateLimiter";
 import {comparePassword, forbidPrivileges, generatePassword} from "../lib/auth";
-import {PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH, showUserInfo, userSetAttributes} from "../lib/user";
+import {PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH, showUserInfo, USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH, USERNAME_REGULAR, userSetAttributes} from "../lib/user";
 
 const router = express.Router();
 
@@ -148,17 +148,25 @@ router.get('/likes', accountRateLimiter, verifyJWT, [
 /**
  * 获取我的组队记录
  */
-router.get('/teamups', accountRateLimiter, verifyJWT, [
+router.get('/me/teamups', accountRateLimiter, verifyJWT, [
     checkQuery("page").optional().isInt({min: 1}).toInt(),
     checkQuery("pageSize").optional().isInt({min: 1, max: 50}).toInt(),
-], async (req: RequestHasAccount, res: any) => {
+], showTeamUp);
+
+router.get('/space/teamups', accountRateLimiter, [
+    checkQuery("id").isString().trim(),
+    checkQuery("page").optional().isInt({min: 1}).toInt(),
+    checkQuery("pageSize").optional().isInt({min: 1, max: 50}).toInt(),
+], showTeamUp);
+
+export async function showTeamUp(req: RequestHasAccount, res: any) {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({error: 1, code: 'user.teamups.bad', details: errors.array()});
         }
 
-        const userId = req.user.id;
+        const userId = req.user && req.user.id || req.query.id || null;
         const page = parseInt(req.query.page as string) || 1;
         const pageSize = Math.min(
             parseInt(req.query.pageSize as string) || 10,
@@ -189,7 +197,7 @@ router.get('/teamups', accountRateLimiter, verifyJWT, [
             .limit(pageSize)
             .offset(offset);
 
-        res.json({
+        res.setHeader('Cache-Control', 'public, max-age=60').json({
             code: 'user.teamups.ok',
             data: {
                 data: comments,
@@ -203,30 +211,39 @@ router.get('/teamups', accountRateLimiter, verifyJWT, [
         });
     } catch (e) {
         logger.error(e);
-        res.status(500).setHeader('Cache-Control', 'public, max-age=60').json({error: 1, code: 'user.teamups.error'});
+        res.status(500).json({error: 1, code: 'user.teamups.error'});
     }
-});
+}
 
 /**
  * 获取用户自己的评论
  */
-router.post('/assemblys', accountRateLimiter, verifyJWT, [
+router.get('/me/assemblys', accountRateLimiter, verifyJWT, [
     checkQuery("page").optional().isInt({min: 1}).toInt(),
     checkQuery("pageSize").optional().isInt({min: 1, max: 50}).toInt(),
-], async (req: RequestHasAccount, res: any) => {
+], showAssembly);
+
+router.get('/space/assemblys', accountRateLimiter, [
+    checkQuery("id").isString().trim(),
+    checkQuery("page").optional().isInt({min: 1}).toInt(),
+    checkQuery("pageSize").optional().isInt({min: 1, max: 50}).toInt(),
+], showAssembly);
+
+export async function showAssembly(req: RequestHasAccount, res: any) {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({error: 1, code: 'user.assembls.bad', details: errors.array()});
         }
 
-        const userId = req.user.id;
+        const userId = req.user && req.user.id || req.query.id || null;
         const page = parseInt(req.query.page as string) || 1;
         const pageSize = Math.min(
             parseInt(req.query.pageSize as string) || 10,
             10
         );
         const offset = (page - 1) * pageSize;
+        const isLogin = req.user
 
         // 获取评论总数
         const totalCountResult = await db('assembly as a')
@@ -238,12 +255,18 @@ router.post('/assemblys', accountRateLimiter, verifyJWT, [
         const totalPages = Math.ceil(totalCount / pageSize);
 
         // 获取用户的所有配装
-        const assemblys = await db('assembly as a')
+        const query = db('assembly as a')
             .select('a.userId', 'a.uuid', 'a.name')
-            .where('a.userId', userId)
+            .where('a.userId', userId);
+
+        if (isLogin) {
+            // todo
+        }
+
+        const assemblys = await query
             .orderBy('a.createdTime', 'desc')
             .limit(pageSize)
-            .offset(offset);
+            .offset(offset)
 
         res.json({
             code: 'user.assembls.ok',
@@ -261,7 +284,34 @@ router.post('/assemblys', accountRateLimiter, verifyJWT, [
         logger.error(e);
         res.status(500).setHeader('Cache-Control', 'public, max-age=60').json({error: 1, code: 'user.assembls.error'});
     }
-});
+}
+
+/**
+ * 修改别名
+ */
+router.post('/changeAlternativeName', verifyJWT, [
+        checkbody("username").isString().trim().isLength({min: USERNAME_MIN_LENGTH, max: USERNAME_MAX_LENGTH}).matches(USERNAME_REGULAR),
+    ],
+    async (req: any, res: any, next: any) => {
+        try {
+            const validateErr = validationResult(req);
+            if (!validateErr.isEmpty())
+                return res.status(400).json({error: 1, code: 'changeAlternativeName.bad', message: validateErr.array()});
+
+            const {username} = req.body;
+
+            const user = req.user
+
+            await db('users').update({alternativeName: username}).where({id: user.id});
+
+            return res.status(200).json({
+                success: 1,
+                code: 'changeAlternativeName.success',
+            });
+        } catch (err) {
+            next(err);
+        }
+    });
 
 /**
  * 修改密码

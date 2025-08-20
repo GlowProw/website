@@ -11,6 +11,8 @@ import db from "../../mysql";
 import {generatePassword} from "../lib/auth";
 import {PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH, showUserInfo, userDefaultAttribute, USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH, USERNAME_REGULAR} from "../lib/user";
 import {RequestHasAccount} from "../types/auth";
+import {v6 as uuidV6} from "uuid";
+import {getGravatarAvatar} from "../lib/gravatar";
 
 const router = express.Router()
 
@@ -34,17 +36,18 @@ router.post('/signup', registerRateLimiter, verifyCaptcha, [
         if (await db('users').where('username', username).first())
             return res.status(409).json({error: 1, code: 'signup.userAlreadyHas'});
 
-        // 加密密码
-        const passwordHash = await generatePassword(password);
+        const passwordHash = await generatePassword(password), // 加密密码
+            id = uuidV6() // id
 
         // 插入新用户
         const [userId] = await db('users').insert({
+            id,
             username,
             alternativeName: alternativeName || username,
             password: passwordHash,
             email: email || null,
             privilege: JSON.stringify(['normal']),
-            attr: JSON.stringify(userDefaultAttribute(req.REAL_IP, req.headers["accept-language"] || req.query.lang)),
+            attr: JSON.stringify(userDefaultAttribute(req.REAL_IP, config.i18n.defaultLocale)),
             createdTime: db.fn.now(),
             updateTime: db.fn.now(),
         });
@@ -93,7 +96,9 @@ router.post('/login', loginRateLimiter, verifyCaptcha, [
             data: {
                 token,
                 userId: user.id,
+                userAvatar: user.email ? getGravatarAvatar(user.email) : null,
                 username: user.username,
+                alternativeName: user.alternativeName || user.username,
                 privilege: user.privilege,
             }
         });
@@ -107,6 +112,8 @@ router.post('/login', loginRateLimiter, verifyCaptcha, [
  * 获取账户信息
  * 这是公共
  */
-router.get('/info', [checkquery('id').isInt({min: 0})], showUserInfo);
+router.get('/info', [
+    checkquery('id').isString().trim().isLength({min:1})
+], showUserInfo);
 
 export default router;

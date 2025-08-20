@@ -4,7 +4,6 @@ import {validationResult} from "express-validator";
 import db from "../../mysql";
 import {getGravatarAvatar} from "./gravatar";
 import {userHasRoles} from "./auth";
-import * as QueryString from "node:querystring";
 
 const userAttributes: any = {
         "avatar": {type: "string", get: true, set: false, default: ''},
@@ -46,7 +45,7 @@ function userSetAttributes(org: any, attr: any, force = false) {
     return result;
 }
 
-function userDefaultAttribute(registerIP = '', language?: string | QueryString.ParsedUrlQuery | (string | QueryString.ParsedUrlQuery)[] | undefined) {
+function userDefaultAttribute(registerIP = '', language?: string | undefined) {
     const result: any = {};
     for (let i of Object.keys(userAttributes))
         result[i] = userAttributes[i].default;
@@ -61,22 +60,33 @@ async function showUserInfo(req: any, res: any, next: any) {
         if (!validateErr.isEmpty())
             return res.status(400).json({error: 1, code: 'userInfo.bad', message: validateErr.array()});
 
-        const user = await db.from('users').where({id: req.query.id || req.user.id, valid: 1}).first();
+        const isLogin = req.user;
+        const user = await db.from('users').where({id: req.query && req.query.id || req.user && req.user.id, valid: 1}).first();
         if (!user)
             return res.status(404).json({error: 1, code: 'userInfo.notFound', message: 'no such user.'});
 
-        const data = {
+        let data = {
             id: user.id,
             userAvatar: user.email ? getGravatarAvatar(user.email) : null,
-            username: user.username,
             privilege: user.privilege,
             joinTime: user.createTime,
             lastOnlineTime: user.updateTime,
-            email: req.user ? user.email : null,
             attr: userShowAttributes(user.attr,
                 (req.user && req.user.id === user.id), // self, show private info
                 (req.user && userHasRoles(req.user, ['admin', 'super', 'root', 'dev']))), // no limit for admin
         };
+
+        if (isLogin) {
+            data = Object.assign(data, {
+                username: user.username,
+                alternativeName: user.alternativeName,
+                email: req.user ? user.email : null,
+            })
+        } else {
+            data = Object.assign(data, {
+                username: user.alternativeName || user.username,
+            })
+        }
 
         return res.status(200)
             .setHeader('Cache-Control', 'public, max-age=60')
