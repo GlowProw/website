@@ -11,7 +11,7 @@ const
 </script>
 
 <template>
-  {{ i18nReadName.ship(id || data.id).name() }}
+  {{ i18nReadName.ship(id || data.id).name() || '-'}}
 </template>
 
 <style scoped lang="less">

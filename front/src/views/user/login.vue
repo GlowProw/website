@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {ref} from "vue";
-import {useAuthStore} from '@/../stores'
+import {useAuthStore} from '~/stores/userAccountStore'
 import {useRoute, useRouter} from "vue-router";
 
 import Captcha from "@/components/captcha/index.vue";
@@ -107,7 +107,7 @@ const onCaptchaData = (data: any) => {
         </div>
 
         <v-divider class="mt-5 mb-5"></v-divider>
-        <v-btn class="ml-8 mb-5" to="/account/register" variant="text">没有账户？前往注册</v-btn>
+        <v-btn class="ml-8 mb-5" to="/account/signup" variant="text">没有账户？前往注册</v-btn>
       </v-card>
     </v-container>
   </div>

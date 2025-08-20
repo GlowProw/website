@@ -22,7 +22,7 @@ onMounted(() => {
 const getMyTeamUpsData = async () => {
   try {
     loading.value = true;
-    const result = await http.get(api['user_teamups']),
+    const result = await http.get(api['user_me_teamups']),
         d = result.data
 
     if (d.error == 1)

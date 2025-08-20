@@ -2,7 +2,7 @@
  * extends http
  * 用于需要token请求
  */
-import {useAuthStore} from "@/../stores";
+import {useAuthStore} from "~/stores/userAccountStore";
 import {http} from "./index";
 
 /**

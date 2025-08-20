@@ -10,7 +10,7 @@ import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
 import {Ultimate} from "glow-prow-data/src/entity/Ultimates";
 import CommentWidget from "@/components/CommentWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
-import {useAuthStore} from "~/stores";
+import {useAuthStore} from "~/stores/userAccountStore";
 import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import UltimateName from "@/components/snbWidget/ultimateName.vue";

@@ -87,6 +87,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
           v-bind="activatorProps"
           :to="isOpenDetail ? `/display-cabinet/item/${i.id}` : null"
           :class="[
+              'prohibit-drag',
               `ma-${props.margin}`,
               `pa-${props.padding}`,
               `item-card-header-rarity-${i.rarity}`
@@ -221,7 +222,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
       left: 0;
       width: 100%;
       height: 100%;
-      z-index: -1;
+      z-index: 100;
       border-radius: inherit;
     }
   }

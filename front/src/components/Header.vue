@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {useAuthStore} from "@/../stores";
+import {useAuthStore} from "~/stores/userAccountStore";
 import Logo from "./Logo.vue";
 import {ref} from "vue";
 import HeaderAccount from "@/components/HeaderAccount.vue";

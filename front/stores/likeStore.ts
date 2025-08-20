@@ -1,7 +1,7 @@
 import {defineStore} from 'pinia';
 import {http} from "@/assets/sripts/index.ts";
 import {useHttpToken} from "@/assets/sripts/http_util";
-import {useAuthStore} from "./index";
+import {useAuthStore} from "./userAccountStore";
 
 export const useLikeStore = defineStore('like', {
     state: () => ({

@@ -6,7 +6,7 @@ import Textarea from "@/components/textarea"
 import EmptyView from "@/components/EmptyView.vue";
 import {useHttpToken} from "@/assets/sripts/http_util";
 import Captcha from "@/components/captcha/index.vue";
-import {useAuthStore} from "~/stores";
+import {useAuthStore} from "~/stores/userAccountStore";
 import {AxiosError} from "axios";
 import {useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";

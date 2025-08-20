@@ -9,7 +9,7 @@ import ZoomableCanvas from "@/components/ZoomableCanvas.vue"
 import AssemblyShowWidget from "@/components/AssemblyShowWidget.vue";
 import {StorageAssemblyType} from "@/assets/sripts/storage_assembly";
 import {v6 as uuidv6} from "uuid";
-import {useAuthStore} from "@/../stores";
+import {useAuthStore} from "~/stores/userAccountStore";
 import EmptyView from "@/components/EmptyView.vue";
 import Silk from "@/components/Silk.vue";
 import Loading from "@/components/Loading.vue";

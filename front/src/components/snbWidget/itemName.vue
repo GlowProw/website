@@ -9,7 +9,7 @@ const props = defineProps<{ data: Item, id?: string, tier?: number }>(),
     {item} = useI18nReadName()
 
 let getTitle = computed(() => {
-  return `${item(props.id || props.data.id).name()}`
+  return `${item(props.id || props.data.id).name() || '-'}`
 })
 </script>
 

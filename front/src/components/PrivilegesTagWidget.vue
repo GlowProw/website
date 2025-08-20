@@ -1,5 +1,5 @@
 <template>
-    <span class="privilege-tag-box">
+    <span class="privilege-tag-box d-flex ga-2">
       <span v-for="(p_item, pIndex) in tags" :key="pIndex">
         <v-chip :type="tagType" :size="size" :color="p_item.class" class="tag"
                 :title="t('basic.privilege.' + p_item.value)">

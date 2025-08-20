@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {useAuthStore} from "@/../stores";
+import {useAuthStore} from "~/stores/userAccountStore";
 
 type HeaderAccountType = 'header-drawer' | 'header'
 
@@ -15,7 +15,8 @@ const authStore = useAuthStore(),
           <v-avatar
               color="grey-darken-2"
               size="32">
-            {{ authStore.currentUser[0].toUpperCase() || 'U' }}
+            <v-img :src="authStore.user.userAvatar" v-if="authStore.user.userAvatar"></v-img>
+            <span v-else>{{ authStore.currentUser[0].toUpperCase() || 'U' }}</span>
           </v-avatar>
         </v-btn>
         <v-btn variant="text" to="/account/login" v-else>
@@ -32,7 +33,8 @@ const authStore = useAuthStore(),
                 color="var(--main-color)"
                 class="d-flex justify-center align-center"
                 size="32">
-              {{ authStore.currentUser[0].toUpperCase() || 'U' }}
+              <v-img :src="authStore.user.userAvatar" v-if="authStore.user.userAvatar"></v-img>
+              <span v-else>{{ authStore.currentUser[0].toUpperCase() || 'U' }}</span>
             </v-avatar>
           </v-col>
           <v-col>

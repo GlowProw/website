@@ -6,7 +6,7 @@ import {nextTick, onMounted, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {api} from "@/assets/sripts";
 import {useHttpToken} from "@/assets/sripts/http_util";
-import {useAuthStore} from "@/../stores";
+import {useAuthStore} from "~/stores/userAccountStore";
 import LikeWidget from "@/components/LikeWidget.vue";
 import Textarea from "@/components/textarea/index.vue";
 import Loading from "@/components/Loading.vue";
@@ -63,7 +63,7 @@ onMounted(async () => {
   // set new title
   const title = `${assemblyDetailData.value.name} - ${head.value.title} | ${t('name')}`;
   head.value.titleTemplate = title
-  head.value.meta = { name: 'og:title', content: title }
+  head.value.meta = {name: 'og:title', content: title}
 })
 
 /**
@@ -188,6 +188,7 @@ const onPenPassword = () => {
               </LikeWidget>
 
               <v-btn v-if="assemblyDetailData.uuid" :to="`/assembly/browse/${assemblyDetailData.uuid}/share`" icon="mdi-share-variant-outline"></v-btn>
+              <v-btn v-if="assemblyDetailData.uuid" @click="getAssemblyDetail" icon="mdi-refresh"></v-btn>
 
               <template v-if="assemblyDetailData.isVisibility && authStore.isLogin && assemblyDetailData.isOwner">
                 <v-btn-group class="ml-2">
@@ -273,14 +274,9 @@ const onPenPassword = () => {
           </template>
         </v-col>
         <v-col cols="12" sm="12" lg="4" xl="4">
-          <v-text-field
-              size="large"
-              class="text-h5"
-              :value="assemblyDetailData.username || '匿名'"
-              placeholder="作者"
-              readonly
-              variant="underlined">
-          </v-text-field>
+          <router-link class="text-h5 bg-transparent" :to="`/space/${assemblyDetailData.userId}`">
+            {{ assemblyDetailData.username || '-' }}
+          </router-link>
 
           <v-text-field
               :value="new Date(assemblyDetailData.createdTime).toLocaleString()"

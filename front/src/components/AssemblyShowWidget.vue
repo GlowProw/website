@@ -603,9 +603,9 @@ defineExpose({
                       <v-hover v-slot="{ isHovering, props : propsHoverClose }">
                         <v-card v-bind="propsHoverClose" max-width="80">
                           <ItemSlotBase size="80px" class="pa-1" v-if="display && display.id">
-                            <ItemIconWidget :id="display.id" :is-show-tooltip="readonly"></ItemIconWidget>
+                            <ItemIconWidget :id="display.id" :is-open-detail="false" :is-show-tooltip="false"></ItemIconWidget>
                           </ItemSlotBase>
-                          <div class="text-center text-caption text-grey w-100 singe-line" v-if="attr.isShowItemName">
+                          <div class="text-center text-caption text-grey w-100 singe-line" v-if="attr.isShowItemName && display && display.id">
                             <ItemName :data="display"></ItemName>
                           </div>
 
@@ -705,7 +705,7 @@ defineExpose({
                           <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.weaponSlots[index] && workshopData.data.weaponSlots[index].id">
                             <v-card class="position-relative" v-bind="propsHoverClose" max-width="80">
                               <ItemSlotBase size="80px" class="pa-1">
-                                <ItemIconWidget :id="i.id" :is-show-tooltip="readonly" :is-open-detail="readonly"></ItemIconWidget>
+                                <ItemIconWidget :id="i.id" :is-show-tooltip="readonly" :is-open-detail="false"></ItemIconWidget>
                               </ItemSlotBase>
                               <div class="text-center text-caption text-grey w-100 singe-line" v-if="attr.isShowItemName">
                                 <ItemName :data="i"></ItemName>
@@ -876,7 +876,7 @@ defineExpose({
                 <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.armorSlot">
                   <v-card v-bind="propsHoverClose" class="position-relative" width="80">
                     <ItemSlotBase size="80px" class="pa-1">
-                      <ItemIconWidget :id="workshopData.data.armorSlot.id" :is-show-tooltip="readonly"></ItemIconWidget>
+                      <ItemIconWidget :id="workshopData.data.armorSlot.id" :is-open-detail="false" :is-show-tooltip="readonly"></ItemIconWidget>
                     </ItemSlotBase>
                     <div class="text-center text-caption text-grey w-100 singe-line" v-if="attr.isShowItemName">
                       <ItemName :data="workshopData.data.armorSlot"></ItemName>

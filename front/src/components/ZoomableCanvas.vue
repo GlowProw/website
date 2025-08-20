@@ -90,7 +90,7 @@ const onScalePlus = () => {
   if (scale.value >= props.maxScale)
     return
 
-  scale.value += .2
+  scale.value += .1
 }
 
 /**
@@ -100,7 +100,7 @@ const onScaleMinus = () => {
   if (scale.value <= props.minScale)
     return
 
-  scale.value -= .2
+  scale.value -= .1
 }
 
 /**
@@ -181,7 +181,7 @@ const centerCanvas = () => {
  * @param e
  */
 const startDrag = (e) => {
-  if (e.button !== 0) return
+  if (e.button !== 0 && !!Array.from(e.target.classList).findLast(i => i == 'prohibit-drag')) return
   isDragging.value = true
   startPos.value = {
     x: e.clientX - position.value.x,
@@ -241,7 +241,7 @@ const handleWheel = (e) => {
  * 重置视图
  */
 const resetView = () => {
-  scale.value = 1
+  scale.value =  props.defaultScale || 1
   centerCanvas()
 }
 

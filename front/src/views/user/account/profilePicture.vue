@@ -4,8 +4,10 @@ import UserAvatar from "@/components/UserAvatar.vue";
 import {onMounted, ref} from "vue";
 import {api} from "@/assets/sripts/index";
 import {useHttpToken} from "@/assets/sripts/http_util";
+import {useAuthStore} from "~/stores/userAccountStore";
 
-const httpToken = useHttpToken()
+const httpToken = useHttpToken(),
+    authStore = useAuthStore()
 
 let userAccountData = ref({
   userAvatar: ''
@@ -19,13 +21,7 @@ onMounted(() => {
  * 获取账户信息
  */
 const getUserAccount = async () => {
-  const result = await httpToken.get(api["user_me"]),
-      d = result.data;
-
-  if (d.error == 1)
-    return
-
-  userAccountData.value = d.data;
+  userAccountData.value = authStore.user;
 }
 </script>
 

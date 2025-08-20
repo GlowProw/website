@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import {useAuthStore} from "@/../stores";
+import {useAuthStore} from "~/stores/userAccountStore";
 import Silk from "@/components/Silk.vue";
 import {useI18n} from "vue-i18n";
 import EmptyView from "@/components/EmptyView.vue";

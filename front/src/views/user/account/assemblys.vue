@@ -23,7 +23,7 @@ onMounted(() => {
 const getMyAssemblysData = async () => {
   try {
     loading.value = true;
-    const result = await http.post(api['user_assemblys']),
+    const result = await http.get(api['user_me_assemblys']),
         d = result.data
 
     if (d.error == 1)

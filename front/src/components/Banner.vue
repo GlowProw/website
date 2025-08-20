@@ -7,7 +7,7 @@
     <div class="banner-looping-video">
       <video autoplay playsinline
              muted loop type="video/mp4"
-             src="http://cdn.hommk.com/pcgame/ubi2015/img/gamezone/sb/full/skullandbones-year2-loop.mp4"></video>
+             src="../assets/videos/skullandbones-year2-loop.mp4"></video>
     </div>
 
     <v-container class="banner-top">

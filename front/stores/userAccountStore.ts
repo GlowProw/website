@@ -1,21 +1,24 @@
-import { defineStore } from 'pinia'
-import { computed, ref, triggerRef } from 'vue'
-import { storage } from "@/assets/sripts"
+import {defineStore} from 'pinia'
+import {computed, ref, triggerRef} from 'vue'
+import {storage} from "@/assets/sripts"
 
 export const useAuthStore = defineStore('account', () => {
-    // 状态 - 使用更明确的类型定义
     const user = ref<{
-        token?: string
+        token: string
+        userId: string
+        privilege: string[]
+        userAvatar?: string
         username?: string
-        // 其他用户字段...
+        alternativeName?: string
     } | null>(null)
 
-    // 计算属性
     const isAuthenticated = computed(() => !!user.value)
     const isLogin = computed(() => !!user.value?.token)
-    const currentUser = computed(() => user.value?.username || 'none')
+    const currentUser = computed(() => user.value?.alternativeName || user.value?.username || 'none')
 
-    // 初始化
+    /**
+     * 初始化
+     */
     const initFromStorage = () => {
         try {
             const storedData = storage.local.get('account')
@@ -27,7 +30,10 @@ export const useAuthStore = defineStore('account', () => {
         }
     }
 
-    // 设置token
+    /**
+     * 设置token
+     * @param data
+     */
     const setAccountToken = (data) => {
         try {
             user.value = data
@@ -39,7 +45,27 @@ export const useAuthStore = defineStore('account', () => {
         }
     }
 
-    // 登出 - 修复版本
+    /**
+     * 设置token
+     * @param data
+     */
+    const updateAccountAttr = (data: {} = {}) => {
+        try {
+            let accountData = storage.local.get('account')
+            delete data.token
+            if (accountData.code == 0)
+                user.value = Object.assign(accountData.data.value, user.value,data)
+            storage.local.set('account', user.value)
+            return true
+        } catch (error) {
+            console.error('Login error:', error)
+            throw error
+        }
+    }
+
+    /**
+     * 登出
+     */
     const logout = () => {
         try {
             storage.local.rem('account')
@@ -47,7 +73,7 @@ export const useAuthStore = defineStore('account', () => {
             console.error('登出时清除存储失败:', error)
         } finally {
             user.value = null
-            triggerRef(user) // 强制更新
+            triggerRef(user)
         }
     }
 
@@ -59,6 +85,7 @@ export const useAuthStore = defineStore('account', () => {
         isLogin,
         isAuthenticated,
         currentUser,
+        updateAccountAttr,
         setAccountToken,
         logout
     }

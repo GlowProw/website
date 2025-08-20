@@ -117,10 +117,14 @@
         "rateLimited": "请求太快力，慢点"
       },
       "teamUp": {
+        "account": {
+          "rateLimit": "发布过快，请{remainingTime}分钟后再试"
+        },
+        "anonymous": {
+          "rateLimit": "匿名发布过快，请{remainingTime}小时稍后再试"
+        },
         "pushSuccess": "发布成功",
         "newTeamUp": "船长，有新组队",
-        "anonymous_rateLimit": "匿名发布过快，请{remainingTime}小时稍后再试",
-        "account_rateLimit": "发布过快，请{remainingTime}分钟后再试",
         "authFailed": "Token 无效或已过期, 重新登陆",
         "error": "通信错误: {context}"
       }
@@ -441,17 +445,17 @@
     "username": {
       "name": "账户id",
       "placeholder": "输入网址唯一标准",
-      "hint":"作为网站登陆唯一id，不可更改，至少3位到40位，使用a-z/A-Z/0-9/_来注册用户名"
+      "hint": "作为网站登陆唯一id，不可更改，至少3位到40位，使用a-z/A-Z/0-9/_来注册用户名"
     },
     "alternativeName": {
       "name": "别名",
       "placeholder": "输入展示名称",
-      "hint":"用于展示网站名称，如果不填将默认使用账户id，至少3位到40位，使用a-z/A-Z/0-9/_"
+      "hint": "用于展示网站名称，如果不填将默认使用账户id，至少3位到40位，使用a-z/A-Z/0-9/_"
     },
     "email": {
       "name": "邮箱",
       "placeholder": "输入邮箱地址",
-      "hint":"可选邮箱，这将使得你的账户可寻回"
+      "hint": "可选邮箱，这将使得你的账户可寻回"
     }
   },
   "home": {

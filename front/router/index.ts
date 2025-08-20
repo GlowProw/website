@@ -10,6 +10,8 @@ import AccountAssemblysPage from '../src/views/user/account/assemblys.vue'
 import AccountCommentsPage from '../src/views/user/account/comments.vue'
 import AccountTeamUpsPage from '../src/views/user/account/teamup.vue'
 
+import AccountSpacePage from '../src/views/user/Space.vue'
+
 import LoginPage from '../src/views/user/login.vue'
 import SignupPage from '@/views/user/signup.vue'
 import DisplayCabinetPage from '../src/views/displayCabinet/Index.vue'
@@ -41,10 +43,12 @@ import NotFoundPage from '../src/views/NotFound.vue';
 
 import Test from '@/views/Test.vue'
 
-import {useAuthStore} from "@/../stores";
+import {useAuthStore} from "~/stores/userAccountStore";
 import {useItemAssetsStore} from "~/stores/itemAssetsStore";
 import i18n from "@/i18n";
 import {useHead} from "@unhead/vue";
+import {api} from "@/assets/sripts/index";
+import {useHttpToken} from "@/assets/sripts/http_util";
 
 const isLoginBeforeEnter = function (to: any, from: any, next) {
     const authStore = useAuthStore()
@@ -53,6 +57,23 @@ const isLoginBeforeEnter = function (to: any, from: any, next) {
         next();
     } else {
         next({path: '/account/login', query: {backUrl: to.fullPath}});
+    }
+}
+
+const initAccountInfo = async function (to, from, next) {
+    const authStore = useAuthStore(),
+        httpToken = useHttpToken()
+
+    try {
+        const result = await httpToken.get(api["user_me"]),
+            d = result.data;
+
+        if (d.error == 1)
+            return Error(d)
+
+        authStore.updateAccountAttr(d.data)
+    } catch (e) {
+        console.error(e)
     }
 }
 
@@ -85,7 +106,10 @@ const routes: Readonly<RouteRecordRaw[]> = [
                     title: 'account.title',
                     keywords: 'account.meta.keywords'
                 },
-                beforeEnter: isLoginBeforeEnter,
+                beforeEnter: (to, from, next) => {
+                    isLoginBeforeEnter(to, from, next)
+                    initAccountInfo(to, from, next)
+                },
                 children: [
                     {
                         path: 'information',
@@ -114,6 +138,11 @@ const routes: Readonly<RouteRecordRaw[]> = [
                         component: AccountTeamUpsPage
                     },
                 ]
+            },
+            {
+                path: '/space/:id',
+                name: 'AccountSpace',
+                component: AccountSpacePage,
             },
             {
                 path: '/account/login',

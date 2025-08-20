@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {useAuthStore} from "@/../stores";
+import {useAuthStore} from "~/stores/userAccountStore";
 import {onMounted, type Ref, ref, triggerRef, type UnwrapRef} from "vue";
 import {useRouter} from "vue-router";
 import EmptyView from "@/components/EmptyView.vue";
@@ -164,46 +164,39 @@ const pushTeamInfo = async () => {
       }
     };
 
-    // if (!ws.connected) {
-    //   messages.value.push(t('basic.tips.teamUp_error'), {
-    //     context: '丢失服务器信息，重新刷新网页'
-    //   })
-    //   pushLoading.value = false;
-    //   pushModel.value = false;
-    //   return
-    // }
-
     pushLoading.value = true;
 
     ws.client.send(JSON.stringify(message));
   } catch (e) {
+    pushLoading.value = false;
     console.error(e)
   } finally {
-
   }
 }
 
 /**
  * 取消发布
  */
-const onDeleTeamUp = async (id) => {
-  if (!id) return;
+const onDeleteTeamUp = async (id) => {
+  try {
+    if (!id) return;
 
-  const message = {
-    type: 'cancel_team_up',
-    payload: {
-      id
+    const message = {
+      type: 'cancel_team_up',
+      payload: {id}
+    };
+
+    if (ws.connected) {
+      messages.value.push(t('basic.tips.teamUp.error', {
+        context: '取消发布失败，丢失服务器信号'
+      }))
+      return
     }
-  };
 
-  if (ws.connected) {
-    messages.value.push(t('basic.tips.teamUp.error', {
-      context: '取消发布失败，丢失服务器信号'
-    }))
-    return
+    ws.client.send(JSON.stringify(message));
+  } finally {
+
   }
-
-  ws.client.send(JSON.stringify(message));
 }
 
 /**
@@ -231,7 +224,7 @@ const onTeamSortBy = async () => {
  * 处理并储存配置
  */
 const onStoragePlayer = () => {
-  storage.local.set('team_up.push_form', {
+  storage.local.set('teamUp.pushForm', {
     player: player.value,
     expiresMinutesAt: expiresMinutesAt.value,
     tags: tags.value,
@@ -299,7 +292,7 @@ const onWss = () => {
 
     switch (data.type) {
       case 'new_team_up':
-        messages.value.push(t('basic.tips.teamUp_pushSuccess'));
+        messages.value.push(t('basic.tips.teamUp.pushSuccess'));
 
         onCleanPushInfo();
         getTeams(getTeamsType.none);
@@ -308,17 +301,17 @@ const onWss = () => {
         pushModel.value = false;
         break;
       case 'cancel_team_up':
+        const idToRemove = data.payload.id;
+        if (teams.value.length > 0) {
+          const index = teams.value.findIndex(item => item.id === idToRemove);
+
+          if (index !== -1) {
+            teams.value = teams.value.splice(index, 1);
+          }
+        }
         getTeams(getTeamsType.none);
         break;
       case 'team_up_expired':
-        // const idToRemove = data.payload.id;
-        // if (teams.value.length > 0) {
-        //   const index = teams.value.findIndex(item => item.id === idToRemove);
-        //
-        //   if (index !== -1) {
-        //     teams.value = teams.value.splice(index, 1);
-        //   }
-        // }
         triggerRef(teams)
         break;
       case 'publish_rate_limit':
@@ -345,10 +338,11 @@ const onWss = () => {
         authStore.logout()
         break;
       case 'error':
-        console.error(data.message)
+        console.error(data, data.message)
         messages.value.push(t(`basic.tips.teamUp.error`, {
-          context: data.message
+          context: data.message || '?'
         }))
+        pushLoading.value = false
         break;
     }
   };
@@ -380,6 +374,13 @@ const onWsReconnect = () => {
       service.value.loading = false
       messages.value.push('重连依旧失败')
     } else if (code == 0) {
+      ws.client.send(
+          JSON.stringify(
+              {
+                type: 'authenticate', payload: {token: authStore.user.token}
+              }
+          )
+      );
       service.value.status = 1;
       service.value.loading = false
     }
@@ -403,12 +404,12 @@ const onWsReconnect = () => {
               <v-icon icon="mdi-home" class="mr-5"></v-icon>
             </router-link>
 
-            <v-btn @click="pushModel = true" class="btn-flavor  mr-1" variant="elevated">
+            <v-btn @click="pushModel = true" class="btn-flavor h-100 mr-1" variant="elevated">
               <v-icon icon="mdi-plus"></v-icon>
               发布组队
             </v-btn>
 
-            <v-btn @click="getTeams(getTeamsType.none)" class=" btn-flavor" variant="elevated">
+            <v-btn @click="getTeams(getTeamsType.none)" class="h-100 btn-flavor" variant="elevated">
               <v-icon :class="[
                 teamsLoading ?  'spin-icon-load' : ''
             ]" icon="mdi-refresh" size="20"/>
@@ -416,7 +417,7 @@ const onWsReconnect = () => {
 
           </v-col>
           <v-col cols="12" sm="12" md="6" lg="3" xl="6" class="d-flex justify-md-end">
-            <v-btn class="d-lg-block w-sm-100 w-lg-auto w-xl-auto" variant="tonal">
+            <v-btn class="d-lg-block w-sm-100 w-lg-auto w-xl-auto h-100" variant="tonal">
               <template v-if="service.status == 1">
                 服务正常
               </template>
@@ -529,7 +530,7 @@ const onWsReconnect = () => {
                       </v-row>
                     </v-col>
                   </v-row>
-                  <v-divider class="mt-0 mb-0"></v-divider>
+                  <v-divider opacity=".08" class="mt-0 mb-0"></v-divider>
                   <v-row class="pl-10 pr-5" align="center">
                     <v-col>
                       <v-text-field langth="10"
@@ -545,7 +546,7 @@ const onWsReconnect = () => {
                     </v-col>
                     <v-spacer></v-spacer>
                     <v-col align="right">
-                      <v-btn class="btn-flavor" @click="onDeleTeamUp(i.id)" v-if="authStore.isLogin && authStore.user.userId == i.userId">
+                      <v-btn class="btn-flavor" @click="onDeleteTeamUp(i.id)" v-if="authStore.isLogin && authStore.user.userId == i.userId">
                         删除
                       </v-btn>
                     </v-col>

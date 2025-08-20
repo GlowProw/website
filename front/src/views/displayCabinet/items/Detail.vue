@@ -22,7 +22,7 @@ import {number, storage, storageCollect} from "@/assets/sripts";
 import WeaponModificationWidget from "@/components/snbWidget/weaponModificationWidget.vue";
 import CommentWidget from "@/components/CommentWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
-import {useAuthStore} from "~/stores";
+import {useAuthStore} from "~/stores/userAccountStore";
 import {StorageCollectType} from "@/assets/sripts/storage_collect";
 import ItemName from "@/components/snbWidget/itemName.vue";
 import {useHead} from "@unhead/vue";
@@ -34,7 +34,7 @@ const
     route = useRoute(),
     authStore = useAuthStore(),
     {asArray, asString, sanitizeString} = useI18nUtils(),
-    i18nReadName  = useI18nReadName(),
+    i18nReadName = useI18nReadName(),
 
     // 物品数据
     items: Items = Items,
@@ -70,6 +70,17 @@ let itemDetailData: Ref<Item | null> = ref(null),
       if (!itemDetailData.value && !itemDetailData.value.id) return false;
       isCollect.value = !isCollect.value;
       return !!storageCollect.get(itemDetailData.value.id, StorageCollectType.Item).data
+    }),
+    requiredRank = computed(() => {
+      const r = sanitizeString(itemDetailData.value.requiredRank)
+      return asString([
+        `snb.ranks.${itemDetailData.value.requiredRank}`,
+        `snb.ranks.${r.cleaned}`
+      ], {
+        variable: {
+          lv: number.intToRoman(r.removedNumbers[0])
+        }
+      })
     }),
     rateFire = computed(() => 1),
     dpsWithPerksArmed = computed(() => {
@@ -558,7 +569,8 @@ const onStarItem = (data: Item) => {
               </v-combobox>
             </template>
             <template v-if="itemDetailData.requiredRank">
-              <v-text-field :value="itemDetailData.requiredRank" readonly
+              <v-text-field :value="requiredRank"
+                            readonly
                             hide-details
                             variant="underlined" density="compact">
                 <template v-slot:append-inner>

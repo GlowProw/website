@@ -11,20 +11,22 @@ import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
 import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
 import PerksWidget from "@/components/snbWidget/perksWidget.vue";
 import {Ship} from "glow-prow-data/src/entity/Ships.ts";
-import {storage} from "@/assets/sripts";
+import {number, storage} from "@/assets/sripts";
 import CommentWidget from "@/components/CommentWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
-import {useAuthStore} from "~/stores";
+import {useAuthStore} from "~/stores/userAccountStore";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 import ShipWeaponInfoSlotWidget from "@/components/snbWidget/shipWeaponInfoSlotWidget.vue";
 import ShipBaseInfoSlotWidget from "@/components/snbWidget/shipBaseInfoSlotWidget.vue";
 import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
 
 const shipImages = import.meta.glob('@glow-prow-assets/ships/*.png', {eager: true});
 
 const
-    {t,messages} = useI18n(),
+    {t, messages} = useI18n(),
+    {asString, sanitizeString} = useI18nUtils(),
     i18nReadName = useI18nReadName(),
     router = useRouter(),
     route = useRoute(),
@@ -55,6 +57,17 @@ let
         return t(`snb.locations.${bluePrints}`)
 
       return Object.values(bluePrints).map(i => t(`snb.locations.${i}`))
+    }),
+    requiredRank = computed(() => {
+      const r = sanitizeString(shipDetailData.value.requiredRank)
+      return asString([
+        `snb.ranks.${shipDetailData.value.requiredRank}`,
+        `snb.ranks.${r.cleaned}`
+      ], {
+        variable: {
+          lv: number.intToRoman(r.removedNumbers[0])
+        }
+      })
     }),
 
     // meta
@@ -144,7 +157,7 @@ const onStatisticsRawMaterial = () => {
 </script>
 
 <template>
-  <v-breadcrumbs >
+  <v-breadcrumbs>
     <v-container class="pa-0">
       <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
@@ -393,7 +406,8 @@ const onStatisticsRawMaterial = () => {
               </v-combobox>
             </template>
             <template v-if="shipDetailData.requiredRank">
-              <v-text-field :value="shipDetailData.requiredRank || 'none'" readonly
+              <v-text-field :value="requiredRank"
+                            readonly
                             hide-details
                             variant="underlined" density="compact">
                 <template v-slot:append-inner>
