@@ -23,7 +23,7 @@ const {t} = useI18n()
           <v-col cols="12" class="mb-5">
             <p>这个应用程序遵循MIT开源协议，程序不隶属于碧海黑帆以及ubisoft集团。</p>
             <p class="mt-5">闪光船首的命名蕴意作为船头点亮前方迷雾，为社区玩家提供服务，永恒指引前方</p>
-            <p>同时感谢@SkullAndBonesTools/SkullAndBonesData项目提供了数据源，这使得Glow Prow得意支持整个项目</p>
+            <p>同时感谢@SkullAndBonesTools/SkullAndBonesData项目提供了数据源，这使得Glow Prow能开发此项目</p>
           </v-col>
           <v-col cols="12" sm="12" md="6" lg="4">
             <h3 class="btn-flavor">作者</h3>

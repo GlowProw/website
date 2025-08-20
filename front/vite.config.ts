@@ -17,7 +17,6 @@ export default defineConfig({
             network: true,
             removeStyle: false,
             routes: [
-                '/',
                 '/team',
                 '/display-cabinet', '/display-cabinet/overview', '/display-cabinet/ships', '/display-cabinet/items', '/display-cabinet/ultimates',
                 '/calendar',
