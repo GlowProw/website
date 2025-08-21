@@ -104,7 +104,7 @@ const passwordPlaceholder = computed(() => {
     <v-row>
       <v-col>
         <b>使用密码</b>
-        <p>必须输入密码才可访问</p>
+        <p>创建密码后，配装页面必须输入密码才可访问</p>
       </v-col>
       <v-col>
         <template v-if="route.debug">
