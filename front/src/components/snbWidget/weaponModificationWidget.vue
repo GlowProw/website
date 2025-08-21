@@ -45,7 +45,7 @@ const props = withDefaults(defineProps<{
       data: Item | any,
       disabled?: boolean,
       type?: string,
-      modelValue?: Array | Item | any
+      modelValue?: Array<any> | Item | any
     }>(), {
       readonly: false,
       size: 6,
@@ -239,6 +239,11 @@ const isHasShowSlot = (type: string) => {
       return isHasSpecialSlot.value
   }
 }
+
+defineExpose({
+  weaponModConfig,
+  modStyleConfig
+})
 </script>
 
 <template>

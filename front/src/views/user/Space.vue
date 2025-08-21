@@ -9,6 +9,7 @@ import UserAvatar from "@/components/UserAvatar.vue";
 import EmptyView from "@/components/EmptyView.vue";
 import Time from "@/components/Time.vue";
 import TimeView from "@/components/TimeView.vue";
+import Textarea from "@/components/textarea"
 import {useDisplay} from "vuetify/framework";
 
 const route = useRoute(),
@@ -139,23 +140,30 @@ const getAssemblysData = async () => {
         </Silk>
       </template>
       <template v-slot:append>
-        <v-container class="position-relative mt-10">
-          <div class="position-absolute top-0 right-0 opacity-10 d-flex ga-2">
+        <v-container class="position-relative">
+          <div class="position-absolute top-0 right-0 opacity-10 d-flex pt-10 ga-2">
             <v-icon icon="mdi-account" size="200"></v-icon>
           </div>
         </v-container>
       </template>
       <template v-slot:default>
-        <v-container>
+        <v-container class="mt-3 ">
           <v-row no-gutters align="center">
             <v-col cols="auto">
               <v-card border>
                 <UserAvatar :src="userData.userAvatar" size="80"></UserAvatar>
               </v-card>
             </v-col>
-            <v-col cols="auto" class="ml-4">
+            <v-col cols="8" class="ml-4">
               <h1 class="mb-1">{{ userData.username }}</h1>
-              <PrivilegesTagWidget :data="userData.privilege"></PrivilegesTagWidget>
+              <div class="d-inline-flex d-flex ga-2 overflow-y-auto">
+                <v-chip-group>
+                  <PrivilegesTagWidget :data="userData.privilege" density="compact"></PrivilegesTagWidget>
+
+                  <v-chip density="compact" v-if="userData.lastOnlineTime">最后在线： <Time :time="userData.lastOnlineTime"/></v-chip>
+                  <v-chip density="compact" v-if="userData.joinTime">加入时间： <Time :time="userData.joinTime"/></v-chip>
+                </v-chip-group>
+              </div>
             </v-col>
           </v-row>
         </v-container>
@@ -165,6 +173,10 @@ const getAssemblysData = async () => {
     <v-divider></v-divider>
 
     <v-container>
+      <template v-if="userData.attr && userData.attr.introduction">
+        <Textarea class="mb-10 opacity-80 text-caption" :minHeight="'auto'" v-model="userData.attr.introduction" readonly></Textarea>
+      </template>
+
       <div :class="{
         'd-flex flex-row ': !mobile,
       }">
@@ -180,8 +192,9 @@ const getAssemblysData = async () => {
           <v-tab :value="i.value"
                  v-for="(i, index) in tabs"
                  :key="index"
-                 class="mb-5 d-flex align-center justify-center"
                  :class="{'mb-5': !mobile, 'mr-5': mobile}"
+                 selected-class="bg-amber"
+                 class="mb-5 d-flex align-center justify-center"
                  min-width="80"
                  width="80"
                  height="80"

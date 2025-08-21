@@ -226,7 +226,7 @@ export default class Assembly_data_processing {
      * @param useVersion
      */
     public import(data, useVersion?: string) {
-        let version = useVersion || data.__version || Assembly_data_processing.nowVersion;
+        let version = useVersion || data?.__version || Assembly_data_processing.nowVersion;
         if (version && data) {
             const filteredData = {};
             this.processing[version].allowedFields.forEach(field => {
@@ -245,7 +245,7 @@ export default class Assembly_data_processing {
      * @param useVersion
      */
     public verify(data, useVersion?: string): boolean {
-        let version = useVersion || data.__version || Assembly_data_processing.nowVersion;
+        let version = useVersion || data?.__version || Assembly_data_processing.nowVersion;
 
         return this.processing[version].verify(data);
     }

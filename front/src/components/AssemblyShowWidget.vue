@@ -23,12 +23,16 @@ import ItemName from "@/components/snbWidget/itemName.vue";
 import UltimateName from "@/components/snbWidget/ultimateName.vue";
 import {AssemblyAttr, ItemAssemblySave} from "@/assets/types";
 import ShipName from "@/components/snbWidget/shipName.vue";
+import {useNoticeStore} from "~/stores/noticeStore";
+import WeaponModificationOnlyShowWidget from "@/components/snbWidget/WeaponModificationOnlyShowWidget.vue";
 
 const poops = withDefaults(defineProps<{
       readonly?: boolean,
+      perfectDisplay?: boolean,
       class?: string,
     }>(), {
       readonly: false,
+      perfectDisplay: false,
       class: ''
     }),
     slots = useSlots(),
@@ -37,6 +41,7 @@ const poops = withDefaults(defineProps<{
     items: Items = Items,
     ultimates = Ultimates,
     assemblyDataProcessing = new Assembly_data_processing(),
+    noticeStore = useNoticeStore(),
     {asString, sanitizeString} = useI18nUtils(),
     {t} = useI18n()
 
@@ -87,7 +92,6 @@ let workshopData = ref({
     // 最大主陈设
     maxMajorDisplayCount = 1,
     hasImageSlot = computed(() => !!slots.image),
-    messages = ref([]),
 
     // 临时缓存
     cache = ref({
@@ -316,14 +320,32 @@ const onSelectFrigteUpgrad = () => {
 /**
  * 获取甲板信息
  */
-const getDeckInformation = (index: number): Record<string, any> => {
+const getDeckInformation = (index: number, type = 'weapon'): Record<string, any> => {
   try {
-    const weaponDirections = workshopData.value?.data?.weaponDirections?.[index],
-        weapons = workshopData.value?.data?.weaponSlots?.[index];
-    if (['ballista', 'seaFire'].includes(weapons.type)) return {top: 1, down: 0}
-    if (weaponDirections === undefined) return {};
+    switch (type) {
+      case 'weapon':
+        const weaponDirections = workshopData.value?.data?.weaponDirections?.[index],
+            weapons = workshopData.value?.data?.weaponSlots?.[index];
 
-    return cache.value.weaponDirections[weaponDirections] || {};
+        // 顶层甲板武器 大型甲板仅有一个Top
+        if (['ballista', 'seaFire'].includes(weapons.type)) return {top: 1, down: 0}
+        if (weaponDirections === undefined) return {};
+
+        // 顶层甲板武器仅能使用Top
+        if (['bombard', 'longGun', 'torpedo'].includes(weapons.type)) {
+          const {top} = cache.value.weaponDirections[weaponDirections]
+          return {top, down: 0}
+        }
+        return cache.value.weaponDirections[weaponDirections] || {};
+
+      case 'secondaryWeapon':
+        const auxiliaryWeapon = cache.value.weaponDirections;
+
+        if (typeof auxiliaryWeapon['auxiliaryWeapon'] == 'number')
+          return {top: auxiliaryWeapon['auxiliaryWeapon']}
+
+        return auxiliaryWeapon['auxiliaryWeapon'] || {};
+    }
   } catch (e) {
     console.error('Error in getDeckInformation:', e);
     return {};
@@ -736,20 +758,21 @@ defineExpose({
                           </ItemSlotBase>
 
                           <!-- 武器模组插槽 -->
-                          <div class="mb-2 mt-1">
+                          <div class="mb-2 mt-1" v-if="!perfectDisplay">
                             <WeaponModificationWidget :readonly="readonly"
                                                       :disabled="workshopData.data.weaponSlots[index].id == null"
-                                                      :data="i" size="4"
+                                                      :data="i"
+                                                      size="4"
                                                       v-model="workshopData.data.weaponModifications[index]"></WeaponModificationWidget>
                           </div>
                         </v-col>
                         <v-col class="d-flex align-start">
                           <div class="w-100">
                             <v-divider thickness="4" opacity="1" color="#000" class="w-100 mt-2 mb-2"></v-divider>
-                            <p class="opacity-80 text-deck-information">上甲板
+                            <p class="opacity-80 text-deck-information">{{ t('displayCabinet.ship.topDeck') }}
                               <v-chip size="x-small" density="compact" :variant="getDeckInformation(index).top ? 'flat' : 'tonal'">{{ getDeckInformation(index).top || 0 }}</v-chip>
                             </p>
-                            <p class="opacity-80 text-deck-information">下甲板
+                            <p class="opacity-80 text-deck-information">{{ t('displayCabinet.ship.lowerDeck') }}
                               <v-chip size="x-small" density="compact" :variant="getDeckInformation(index).lower ? 'flat' : 'tonal'">{{ getDeckInformation(index).lower || 0 }}</v-chip>
                             </p>
                           </div>
@@ -791,6 +814,13 @@ defineExpose({
                           </v-col>
                         </template>
                       </v-row>
+
+                      <!-- 武器模组插槽 仅展示 -->
+                      <div class="mb-2 mt-1" v-if="perfectDisplay">
+                        <WeaponModificationOnlyShowWidget
+                            :item-data="i"
+                            :mod-data="workshopData.data.weaponModifications[index]"></WeaponModificationOnlyShowWidget>
+                      </div>
                     </v-col>
                   </v-row>
                   <v-divider></v-divider>
@@ -859,7 +889,24 @@ defineExpose({
                         <v-col class="d-flex align-start">
                           <div class="w-100">
                             <v-divider thickness="4" opacity="1" color="#000" class="w-100 mt-2 mb-2"></v-divider>
+                            <p class="opacity-80 text-deck-information">{{ t('displayCabinet.ship.topDeck') }}
+                              <v-chip size="x-small" density="compact" :variant="getDeckInformation(index, 'secondaryWeapon').top ? 'flat' : 'tonal'">{{ getDeckInformation(index, 'secondaryWeapon').top || 0 }}</v-chip>
+                            </p>
                           </div>
+                        </v-col>
+                        <v-col cols="auto">
+                          <v-row no-gutters v-if="i && i.id" :class="[!i.id ? 'opacity-30' : '']">
+                            <v-col align="center" class="mt-n1">
+                              <v-icon icon="mdi-chevron-up" size="16"></v-icon>
+                              <ItemSlotBase size="30px"
+                                            padding="0"
+                                            v-for="(p, pIndex) in getDeckInformation(index, 'secondaryWeapon').top" :key="pIndex + p">
+                                <ItemIconWidget :id="i.id" v-if="i.id"
+                                                :is-show-tooltip="false"
+                                                :is-open-detail="false"></ItemIconWidget>
+                              </ItemSlotBase>
+                            </v-col>
+                          </v-row>
                         </v-col>
                       </v-row>
                     </v-col>
@@ -994,8 +1041,6 @@ defineExpose({
       <div class="background-dot-grid" v-if="hasImageSlot"></div>
     </div>
   </v-row>
-
-  <v-snackbar-queue v-model="messages"></v-snackbar-queue>
 
   <template v-if="!readonly">
     <v-dialog v-model="workshopData.weaponModel"

@@ -30,6 +30,10 @@ const props = defineProps({
     type: Number,
     default: 5000
   },
+  minHeight: {
+    type: String,
+    default: '200px'
+  },
   height: {
     type: String,
     default: '200px'
@@ -320,7 +324,7 @@ watch(() => props.modelValue, (newVal) => {
     <EditorContent
         class="editor pt-2 html-widget-size-default timeline-description"
         ref="tiptapTextEditor"
-        :style="`min-height:${height}`"
+        :style="`min-height:${minHeight}`"
         :editor="tiptap"/>
 
     <ItemView ref="itemWidget" :editor="tiptap" @finish="onInsertItem" @close="() => isOpenItem = false"/>

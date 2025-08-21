@@ -1,23 +1,27 @@
 <script setup lang="ts">
 
-import AssemblyShowWidget from "@/components/AssemblyShowWidget.vue";
 import {useRoute, useRouter} from "vue-router";
 import {nextTick, onMounted, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
+
+import AssemblyShowWidget from "@/components/AssemblyShowWidget.vue";
 import {api} from "@/assets/sripts";
 import {useHttpToken} from "@/assets/sripts/http_util";
 import {useAuthStore} from "~/stores/userAccountStore";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
+import {useDisplay} from "vuetify/framework";
+import {useHead} from "@unhead/vue";
+
 import LikeWidget from "@/components/LikeWidget.vue";
 import Textarea from "@/components/textarea/index.vue";
 import Loading from "@/components/Loading.vue";
 import ZoomableCanvas from "@/components/ZoomableCanvas.vue"
 import Silk from "@/components/Silk.vue";
-import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import AssemblyTagsWidget from "@/components/AssemblyTagsWidget.vue";
 import CommentWidget from "@/components/CommentWidget.vue";
 import AssemblySettingPanel from "@/components/AssemblySettingPanel.vue";
-import {useDisplay} from "vuetify/framework";
-import {useHead} from "@unhead/vue";
+import TimeView from "@/components/TimeView.vue";
+import Time from "@/components/Time.vue";
 
 const route = useRoute(),
     router = useRouter(),
@@ -232,7 +236,7 @@ const onPenPassword = () => {
                 top: -500,
                 bottom: 500
               }">
-      <AssemblyShowWidget ref="assemblyDetailRef" :readonly="true">
+      <AssemblyShowWidget ref="assemblyDetailRef" :readonly="true" :perfect-display="true">
         <template v-slot:image v-if="assemblyDetailData.attr.backgroundPresentation">
           <v-img cover class="pointer-events-none" :src="assemblyDetailData.attr.backgroundPresentation"></v-img>
         </template>
@@ -278,31 +282,29 @@ const onPenPassword = () => {
             {{ assemblyDetailData.username || '-' }}
           </router-link>
 
-          <v-text-field
-              :value="new Date(assemblyDetailData.createdTime).toLocaleString()"
-              readonly
-              hide-details
-              variant="underlined">
-            <template v-slot:prepend>
+          <v-row class="mt-5">
+            <v-col cols="auto">
               <v-icon icon="mdi-calendar-range"></v-icon>
-            </template>
-            <template v-slot:prepend-inner>
-              <p class="text-no-wrap">创建时间:</p>
-            </template>
-          </v-text-field>
+              创建时间
+            </v-col>
+            <v-col>
+              <TimeView :time="assemblyDetailData.createdTime">
+                <Time :time="assemblyDetailData.createdTime"></Time>
+              </TimeView>
+            </v-col>
+          </v-row>
 
-          <v-text-field
-              :value="new Date(assemblyDetailData.updatedTime).toLocaleString()"
-              readonly
-              hide-details
-              variant="underlined">
-            <template v-slot:prepend>
+          <v-row class="mt-1">
+            <v-col cols="auto">
               <v-icon icon="mdi-calendar-range"></v-icon>
-            </template>
-            <template v-slot:prepend-inner>
-              <p class="text-no-wrap">更新时间:</p>
-            </template>
-          </v-text-field>
+              更新时间
+            </v-col>
+            <v-col>
+              <TimeView :time="assemblyDetailData.createdTimeupdatedTime">
+                <Time :time="assemblyDetailData.createdTimeupdatedTime"></Time>
+              </TimeView>
+            </v-col>
+          </v-row>
 
           <AssemblyTagsWidget
               class="mt-4"

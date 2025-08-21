@@ -11,7 +11,7 @@ import {number} from "@/assets/sripts/index";
 
 const items: Items = Items,
     {t} = useI18n(),
-    {asString} = useI18nUtils(),
+    {asString, sanitizeString} = useI18nUtils(),
     route = useRoute()
 
 let itemsData: any = ref([])
@@ -44,6 +44,10 @@ const onProcessedData = computed(() => {
       resultData = originalData
           .filter(i => i.tier == route.params.key)
       break;
+    case 'requiredRank':
+      resultData = originalData
+          .filter(i => i.requiredRank == route.params.key)
+      break;
   }
 
   return resultData;
@@ -71,10 +75,14 @@ const onProcessedData = computed(() => {
           `displayCabinet.type.${route.params.key}`,
           `snb.seasons.${route.params.key}`,
           `displayCabinet.rarity.${route.params.key}`,
+          `snb.ranks.${route.params.key}`,
+          `snb.ranks.${sanitizeString(route.params.key).cleaned}`,
           `displayCabinet.tier`,
         ], {
+          backRawKey: true,
           variable: {
-              num: number.intToRoman(route.params.key),
+            lv: number.intToRoman(sanitizeString(route.params.key).removedNumbers[0]),
+            num: number.intToRoman(route.params.key),
           }
         }) || route.params.key
       }}

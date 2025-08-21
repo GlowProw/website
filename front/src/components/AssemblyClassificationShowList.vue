@@ -203,7 +203,7 @@ defineExpose({
 
 <template>
   <keep-alive>
-    <div>
+    <div class="w-100">
       <v-row class="mb-1 pl-8 pr-8">
         <v-col cols="6">
           <v-text-field

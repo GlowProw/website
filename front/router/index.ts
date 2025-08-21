@@ -13,7 +13,7 @@ import AccountTeamUpsPage from '../src/views/user/account/teamup.vue'
 import AccountSpacePage from '../src/views/user/Space.vue'
 
 import LoginPage from '../src/views/user/login.vue'
-import SignupPage from '@/views/user/signup.vue'
+import SignupPage from '@/views/user/Signup.vue'
 import DisplayCabinetPage from '../src/views/displayCabinet/Index.vue'
 import DisplayCabinetOverviewPage from '../src/views/displayCabinet/Overview.vue'
 import ShipsPage from '../src/views/displayCabinet/ships/Index.vue'

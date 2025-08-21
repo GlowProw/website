@@ -36,7 +36,7 @@ const
     items: Items = Items
 
 let itemsCardData = ref({
-      iconSrc: null,
+      iconSrc: '',
     }),
     i: Ref<Item> = ref(Item.fromRawData({})),
 
@@ -61,7 +61,7 @@ onMounted(() => {
 
 const onReady = async () => {
   i.value = items[props.id] || null
-  itemsCardData.value.iconSrc = assets[props.id]
+  itemsCardData.value.iconSrc = assets[props.id] || ''
 }
 
 const {targetElement, isVisible} = useIntersectionObserver({
@@ -93,23 +93,25 @@ const {targetElement, isVisible} = useIntersectionObserver({
               `item-card-header-rarity-${i.rarity}`
           ]">
         <template v-slot:image v-if="i.rarity">
-          <v-img :src="raritys[`item-rarity-${i.rarity}`]" width="100%" height="100%" class="opacity-30 prohibit-drag" />
+          <v-img :src="raritys[`item-rarity-${i.rarity}`]" width="100%" height="100%" class="opacity-30 prohibit-drag"/>
         </template>
 
-        <v-img
-            class="prohibit-drag"
-            :src="itemsCardData.iconSrc || 'none'" cover width="100%" height="100%">
-          <template v-slot:error>
-            <div class="fill-height repeating-gradient d-flex justify-center align-center h-100">
-              <v-icon icon="mdi-help" class="opacity-30"></v-icon>
-            </div>
-          </template>
-          <template v-slot:placeholder>
-            <div class="d-flex justify-center align-center h-100">
-              <Loading size="40"/>
-            </div>
-          </template>
-        </v-img>
+        <div class="item-card">
+          <v-img
+              class="prohibit-drag"
+              :src="itemsCardData.iconSrc" cover width="100%" height="100%">
+            <template v-slot:error>
+              <div class="fill-height repeating-gradient d-flex justify-center align-center h-100">
+                <v-icon icon="mdi-help" class="opacity-30"></v-icon>
+              </div>
+            </template>
+            <template v-slot:placeholder>
+              <div class="d-flex justify-center align-center h-100">
+                <Loading size="40"/>
+              </div>
+            </template>
+          </v-img>
+        </div>
       </v-card>
     </template>
     <v-card class="demo-reel bg-black" flat border>
@@ -163,7 +165,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
         <BtnWidget @action-complete="router.push(`/display-cabinet/item/${i.id}`)"
                    class="mt-1"
                    v-if="isShowOpenDetail">
-          {{ t('displayCabinet.ship.lookDetail') }}
+          {{ t('displayCabinet.item.lookDetail') }}
         </BtnWidget>
       </div>
     </v-card>
@@ -175,6 +177,19 @@ const {targetElement, isVisible} = useIntersectionObserver({
 
 .item-mirror-image {
   transform: scaleX(-1);
+}
+
+.item-card {
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 200;
+    border-radius: inherit;
+  }
 }
 
 .item-card-header-rarity {
@@ -222,7 +237,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
       left: 0;
       width: 100%;
       height: 100%;
-      z-index: 100;
+      z-index: -1;
       border-radius: inherit;
     }
   }

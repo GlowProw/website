@@ -3,6 +3,7 @@ import {useI18n} from "vue-i18n";
 import I18nWidget from "./i18nWidget.vue";
 import ServiceProviderWidget from "@/components/ServiceProviderWidget.vue";
 import {appFuns} from "@/assets/sripts/index";
+import Logo from "@/components/Logo.vue";
 
 const {t} = useI18n();
 </script>
@@ -13,17 +14,18 @@ const {t} = useI18n();
     <v-container class="pt-0">
       <footer class="mt-10 mb-10">
         <v-row>
-          <v-col cols="12" sm="12" md="5" lg="4" order="2" order-sm="2" order-lg="1">
-            <h2 class="mb-5">
+          <v-col cols="12" sm="12" md="5" lg="3" order="2" order-sm="2" order-lg="1">
+            <Logo size="50" class="ml-n2 mb-2"></Logo>
+            <h2>
               {{ t('name') }}
             </h2>
-            <p class="mt-2 opacity-80">{{ t('footer.basic.description') }}</p>
+            <p class="mb-3 opacity-80">{{ t('footer.basic.description') }}</p>
             <p class="opacity-60">@2025-{{ new Date().getFullYear() }} {{ t('name') }}</p>
           </v-col>
-          <v-col cols="12" sm="12" md="7" lg="8" order="1" order-sm="1" order-lg="2">
+          <v-col cols="12" sm="12" md="7" lg="9" order="1" order-sm="1" order-lg="2">
             <v-row>
               <v-col cols="12" sm="6" md="6" lg="3">
-                <b class="text-amber">服务</b>
+                <b class="text-amber">{{ t('footer.col1.title') }}</b>
                 <ul>
                   <li v-for="(fun, funIndex) in appFuns.list" :key="funIndex" :class="{'opacity-40':!fun.to }">
                     <router-link :to="fun.to">{{ t(fun.title) }}</router-link>
@@ -31,22 +33,22 @@ const {t} = useI18n();
                 </ul>
               </v-col>
               <v-col cols="12" sm="6" md="6" lg="3">
-                <b class="text-amber">社区</b>
+                <b class="text-amber">{{ t('footer.col2.title') }}</b>
                 <ul>
                   <li>
-                    <a target="_blank" href="https://kook.vip/2s0eQP">Kook社区</a>
+                    <a target="_blank" href="https://kook.vip/2s0eQP">{{ t('footer.col2.kook') }}</a>
                   </li>
                   <li>
-                    <a href="https://tieba.baidu.com/p/9886565445" target="_blank">碧海黑帆吧</a>
+                    <a href="https://tieba.baidu.com/p/9886565445" target="_blank">{{ t('footer.col2.baiduTieBa')}}</a>
                   </li>
                 </ul>
               </v-col>
               <v-col cols="12" sm="6" md="6" lg="3">
-                <b class="text-amber">联系</b>
+                <b class="text-amber">{{ t('footer.col3.title') }}</b>
                 <ul>
-                  <li><a href="/about">关于</a></li>
-                  <li><a href="https://status.glow-prow.org.cn">服务状态</a></li>
-                  <li><a href="https://zh.crowdin.com/project/glow-prow" target="_blank">📖帮助我们翻译</a></li>
+                  <li><a href="/about">{{ t('about.title') }}</a></li>
+                  <li><a href="https://status.glow-prow.org.cn">{{ t('footer.col3.serviceStatus') }}</a></li>
+                  <li><a href="https://zh.crowdin.com/project/glow-prow" target="_blank">{{ t('footer.col3.translated') }}</a></li>
                 </ul>
               </v-col>
               <v-col cols="12" sm="6" md="6" lg="3">

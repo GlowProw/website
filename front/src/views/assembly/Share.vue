@@ -10,17 +10,20 @@ import {useI18nUtils} from "@/assets/sripts/i18n_util";
 
 import domToImage from "dom-to-image"
 import QRCode from "qrcode"
-import ZoomableCanvas from "@/components/ZoomableCanvas.vue";
+import {useNoticeStore} from "~/stores/noticeStore";
+import {useGoTo} from "vuetify";
 
 const route = useRoute(),
     router = useRouter(),
+    noticeStore = useNoticeStore(),
+    goto = useGoTo(),
     {asString} = useI18nUtils(),
     {t} = useI18n()
 
 let assemblyDetailData = ref({}),
+    capture = ref(null),
     assemblyLoading = ref(false),
     assemblyDetailRef = ref(null),
-    messages = ref([]),
     generatedLoading = ref(false),
     qrCanvas = ref(null),
     path = ref("")
@@ -43,6 +46,7 @@ const getAssemblyDetail = async () => {
   try {
     const {uuid} = route.params;
     const {password} = route.query;
+
     assemblyLoading.value = true;
 
     const result = await http.get(api['assembly_item'], {
@@ -59,7 +63,7 @@ const getAssemblyDetail = async () => {
     }
 
     assemblyDetailData.value = d.data;
-    assemblyDetailData.value.description = unescape(assemblyDetailData.value.description || '这个人很懒什么,对此配装什么都没说')
+    assemblyDetailData.value.description = decodeURI(assemblyDetailData.value.description || '这个人很懒什么,对此配装什么都没说')
 
     await nextTick(() => {
       assemblyDetailRef.value
@@ -72,7 +76,7 @@ const getAssemblyDetail = async () => {
   } catch (e) {
     console.error(e)
     if (e instanceof Error)
-      messages.value.push(t(`basic.tips.${e.response.data.code}`, {
+      noticeStore.error(t(`basic.tips.${e.response.data.code}`, {
         context: e.response.data.code
       }))
   } finally {
@@ -86,9 +90,12 @@ const getAssemblyDetail = async () => {
 const onGeneratedShare = async () => {
   try {
     generatedLoading.value = true
+    await goto('#share-footer')
 
-    let node = document.getElementById('capture');
-    await domToImage.toBlob(node, {
+    let node = capture.value;
+    await goto(0, {duration: 3000})
+
+    const dataUrl = await domToImage.toBlob(node, {
       filter: (node) => {
         if (node instanceof HTMLElement) {
           return !(node.tagName === 'IMG' && node.classList.contains('ProseMirror-separator'));
@@ -96,13 +103,8 @@ const onGeneratedShare = async () => {
         return true;
       }
     })
-        .then(function (dataUrl) {
-          downloadBlob(dataUrl)
-        })
-        .catch(function (error) {
-          console.error('oops, something went wrong!', error);
-        })
 
+    downloadBlob(dataUrl, `${assemblyDetailData.value.name}.png`)
   } catch (e) {
     console.error(e)
   } finally {
@@ -119,7 +121,12 @@ const onBackDetail = () => {
   router.push({name: 'AssemblyDetail'})
 }
 
-function downloadBlob(blob: Blob, filename: string): void {
+/**
+ * 下载Blob数据
+ * @param blob
+ * @param filename
+ */
+const downloadBlob = (blob: Blob, filename: string) => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -152,7 +159,7 @@ const generateQRCode = async (text) => {
 </script>
 
 <template>
-  <v-container class="mb-10">
+  <v-container class="mb-10 mt-10">
     <v-row align="center">
       <v-col>
         <h1 class="text-amber">{{ t('assembly.share.title') }}</h1>
@@ -160,24 +167,16 @@ const generateQRCode = async (text) => {
       <v-spacer></v-spacer>
       <v-col cols="auto">
         <v-btn @click="onBackDetail" class="mr-3">{{ t('basic.button.cancel') }}</v-btn>
-        <v-btn class="bg-amber" :loading="generatedLoading" :disabled="generatedLoading || assemblyDetailData.uuid == null" @click="onGeneratedShare">生成图片</v-btn>
+        <v-btn class="bg-amber" :loading="generatedLoading" :disabled="generatedLoading || assemblyDetailData.uuid == null" @click="onGeneratedShare">
+          {{ t('assembly.share.createPoster') }}
+        </v-btn>
       </v-col>
     </v-row>
   </v-container>
   <v-divider></v-divider>
 
-  <ZoomableCanvas
-      style="height: 1900px"
-      :canvas-height="1800"
-      :minScale=".5"
-      :max-scale="1"
-      :boundary="{
-                left: -100,
-                right: 100,
-                top: -100,
-                bottom: 100
-              }">
-    <div class="bg-black position-relative share ml-n6 mr-n6" id="capture">
+  <v-container class="my-5">
+    <div class="bg-black position-relative share ml-n6 mr-n6" ref="capture">
       <!-- Assembly Preview S -->
       <v-card class="card-enlargement-flavor mt-n3 mb-5" v-if="assemblyDetailData.isVisibility">
         <AssemblyShowWidget ref="assemblyDetailRef" :readonly="true">
@@ -220,8 +219,10 @@ const generateQRCode = async (text) => {
       <v-overlay v-model="assemblyLoading" contained class="d-flex justify-center align-center">
         <Loading size="120"></Loading>
       </v-overlay>
+
+      <div id="share-footer"></div>
     </div>
-  </ZoomableCanvas>
+  </v-container>
 </template>
 
 <style scoped lang="less">

@@ -569,10 +569,14 @@ const onStarItem = (data: Item) => {
               </v-combobox>
             </template>
             <template v-if="itemDetailData.requiredRank">
-              <v-text-field :value="requiredRank"
-                            readonly
+              <v-text-field readonly
                             hide-details
                             variant="underlined" density="compact">
+                <template v-slot:prepend-inner>
+                  <router-link class="singe-line text-no-wrap" :to="`/display-cabinet/item/requiredRank/${itemDetailData.requiredRank}`">
+                    {{requiredRank}}
+                  </router-link>
+                </template>
                 <template v-slot:append-inner>
                   <p class="text-no-wrap">{{ t('displayCabinet.item.requiredRank') }}</p>
                 </template>

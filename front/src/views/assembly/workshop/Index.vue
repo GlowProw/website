@@ -16,12 +16,14 @@ import Loading from "@/components/Loading.vue";
 import {useHttpToken} from "@/assets/sripts/http_util";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import Assembly_data_processing from "@/assets/sripts/assembly_data_processing";
+import {useNoticeStore} from "~/stores/noticeStore";
 
 const {t} = useI18n(),
     route = useRoute(),
     router = useRouter(),
     httpToken = useHttpToken(),
-    authStore = useAuthStore()
+    authStore = useAuthStore(),
+    noticeStore = useNoticeStore()
 
 let
     messages: Ref<string[]> = ref([]),

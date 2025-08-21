@@ -13,7 +13,8 @@ import Silk from "@/components/Silk.vue";
 const {t} = useI18n()
 
 let browsePagination = ref({
-      page: 1
+      page: 1,
+      pageSize: 10
     }),
     browseData: Ref<{
       data: AssemblyItem[],
@@ -27,7 +28,7 @@ let browsePagination = ref({
         userId: null,
         isHasPassword: false,
         sortField: 'createdTime',
-        sortOrder: 'asc',
+        sortOrder: 'desc',
         createdStartAndEnd: null,
         updatedStartAndEnd: null,
       },
@@ -58,6 +59,7 @@ const getBrowseList = async () => {
     browseLoading.value = true
 
     const {keyword, sortField, sortOrder, isHasPassword, createdStartAndEnd, updatedStartAndEnd} = browseFilter.value.data;
+    const {page, pageSize} = browsePagination.value;
 
     let createdStart = createdStartAndEnd && createdStartAndEnd.split(',')[0] || null,
         createdEnd = createdStartAndEnd && createdStartAndEnd.split(',')[1] || null,
@@ -66,6 +68,9 @@ const getBrowseList = async () => {
 
     const result = await http.get(api['assembly_list'], {
           params: {
+            page,
+            pageSize,
+
             keyword,
             sortField,
             sortOrder,
@@ -93,10 +98,10 @@ watch(browseData, (newList: ResultData) => {
         if (widget?.onLoad) {
           widget
               .setSetting({
-                assemblyUseVersion: newList.data[index].attr.assemblyUseVersion,
-                isShowItemName: newList.data[index].attr.isShowItemName,
+                assemblyUseVersion: newList.data[index]?.attr?.assemblyUseVersion,
+                isShowItemName: newList.data[index]?.attr?.isShowItemName,
               })
-              .onLoad(newList.data[index].assembly);
+              .onLoad(newList.data[index]?.assembly || {});
         }
       });
     });
@@ -251,7 +256,8 @@ watch(browseData, (newList: ResultData) => {
             v-if="browseData.pagination"
             v-model="browsePagination.page"
             :length="browseData.pagination.totalPages"
-            class="my-4"
+            @update:model-value="getBrowseList"
+            class="mt-8"
         ></v-pagination>
         <!-- 配装分页 E -->
       </v-col>

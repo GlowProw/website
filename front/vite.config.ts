@@ -7,7 +7,7 @@ import path from "path";
 import config from "./package.json"
 
 export default defineConfig({
-    base: './',
+    base: '/',
     plugins: [
         Vue({
             template: {transformAssetUrls},

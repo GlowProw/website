@@ -3,7 +3,7 @@ const props = defineProps<{ time: string | Date }>()
 </script>
 
 <template>
-<span>{{ new Date(props.time).toLocaleString() }}</span>
+<span>{{ new Date(time).toLocaleString() }}</span>
 </template>
 
 <style scoped lang="less">

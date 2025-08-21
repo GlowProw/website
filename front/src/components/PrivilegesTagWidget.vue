@@ -1,7 +1,7 @@
 <template>
     <span class="privilege-tag-box d-flex ga-2">
       <span v-for="(p_item, pIndex) in tags" :key="pIndex">
-        <v-chip :type="tagType" :size="size" :color="p_item.class" class="tag"
+        <v-chip :type="tagType" :size="size" :color="p_item.class" :density="density" class="tag"
                 :title="t('basic.privilege.' + p_item.value)">
           {{ t('basic.privilege.' + p_item.value) }}
         </v-chip>
@@ -21,6 +21,10 @@ const props = defineProps({
   data: {
     type: [Array, String],
     default: () => []
+  },
+  density: {
+    type: String,
+    default: ''
   },
   size: {
     type: String,

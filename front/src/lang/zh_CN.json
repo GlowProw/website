@@ -223,7 +223,8 @@
       "damageType": "武器属性",
       "perks": "词条",
       "tier": "等级",
-      "damageMitigation": "损害减轻"
+      "damageMitigation": "损害减轻",
+      "lookDetail": "查看物品详情"
     },
     "ships": {
       "title": "船只列表",
@@ -402,7 +403,8 @@
       "title": "配装详情"
     },
     "share": {
-      "title": "分享配装"
+      "title": "分享配装",
+      "createPoster": "生成配装海报"
     },
     "browse": {
       "title": "配装分享集",
@@ -517,10 +519,14 @@
       "title": "服务"
     },
     "col2": {
-      "title": "社区"
+      "title": "社区",
+      "baiduTieBa": "百度贴吧",
+      "kook": "Kook社区"
     },
     "col3": {
-      "title": "联系"
+      "title": "联系",
+      "serviceStatus": "服务状态",
+      "translated": "📖帮助我们翻译"
     }
   },
   "empty": {
