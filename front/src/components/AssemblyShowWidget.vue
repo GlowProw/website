@@ -603,7 +603,7 @@ defineExpose({
                       <v-hover v-slot="{ isHovering, props : propsHoverClose }">
                         <v-card v-bind="propsHoverClose" max-width="80">
                           <ItemSlotBase size="80px" class="pa-1" v-if="display && display.id">
-                            <ItemIconWidget :id="display.id" :is-open-detail="false" :is-show-tooltip="false"></ItemIconWidget>
+                            <ItemIconWidget :id="display.id" :is-open-detail="false" :is-show-tooltip="readonly"></ItemIconWidget>
                           </ItemSlotBase>
                           <div class="text-center text-caption text-grey w-100 singe-line" v-if="attr.isShowItemName && display && display.id">
                             <ItemName :data="display"></ItemName>
