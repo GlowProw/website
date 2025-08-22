@@ -40,20 +40,19 @@ onMounted(() => {
                src="@/assets/images/snb/season/release.png"></v-img>
       </div>
     </template>
-    <v-card class="card-enlargement-flavor by-season-footer-context" :to="`/display-cabinet/item/season/${data?.bySeason?.id || 'release'}`">
-      <v-text-field :value="t(`snb.seasons.${data?.bySeason?.id || 'release'}`) || 'none'"
-                    readonly
-                    tile
-                    hide-details
-                    class="bg-transparent"
-                    variant="solo-filled">
-        <template v-slot:prepend>
-          <p class="text-no-wrap pl-4">{{ t('displayCabinet.item.bySeason.prepend') }}</p>
-        </template>
-        <template v-slot:append-inner>
+    <v-card class="by-season-footer-context" tile :to="`/display-cabinet/item/season/${data?.bySeason?.id || 'release'}`">
+      <v-row class="px-5" align="center">
+        <v-col cols="auto">
+          <p class="text-no-wrap font-weight-bold">{{ t('displayCabinet.item.bySeason.prepend') }}</p>
+        </v-col>
+        <v-col>
+          <v-text-field hide-details variant="solo" elevation="0" density="compact" readonly tile
+                        class="h-100 bg-transparent" :value="t(`snb.seasons.${data?.bySeason?.id || 'release'}`) || 'none'"></v-text-field>
+        </v-col>
+        <v-col cols="auto">
           <p class="text-no-wrap">{{ t('displayCabinet.item.bySeason.append') }}</p>
-        </template>
-      </v-text-field>
+        </v-col>
+      </v-row>
     </v-card>
   </v-card>
 </template>

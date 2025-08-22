@@ -10,6 +10,7 @@ import ShinyText from "@/components/ShinyText.vue";
 import ShipBaseInfoSlotWidget from "@/components/snbWidget/shipBaseInfoSlotWidget.vue";
 import ShipWeaponInfoSlotWidget from "@/components/snbWidget/shipWeaponInfoSlotWidget.vue";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
+import {useRouter} from "vue-router";
 
 const props = withDefaults(defineProps<{
       id: string,
@@ -27,6 +28,7 @@ const props = withDefaults(defineProps<{
       padding: 3
     }),
     ships: Ships = Ships,
+    router = useRouter(),
     {t} = useI18n()
 
 let shipConfig = ref({
