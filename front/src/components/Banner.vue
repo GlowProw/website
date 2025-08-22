@@ -7,7 +7,7 @@
     <div class="banner-looping-video">
       <video autoplay playsinline
              muted loop type="video/mp4"
-             src="../assets/videos/oathsOfWar"></video>
+             src="@/assets/videos/oathsOfWar"></video>
     </div>
 
     <v-container class="banner-top">
