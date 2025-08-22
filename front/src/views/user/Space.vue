@@ -156,13 +156,11 @@ const getAssemblysData = async () => {
             </v-col>
             <v-col cols="8" class="ml-4">
               <h1 class="mb-1">{{ userData.username }}</h1>
-              <div class="d-inline-flex d-flex ga-2 overflow-y-auto">
-                <v-chip-group>
-                  <PrivilegesTagWidget :data="userData.privilege" density="compact"></PrivilegesTagWidget>
-
-                  <v-chip density="compact" v-if="userData.lastOnlineTime">最后在线： <Time :time="userData.lastOnlineTime"/></v-chip>
-                  <v-chip density="compact" v-if="userData.joinTime">加入时间： <Time :time="userData.joinTime"/></v-chip>
-                </v-chip-group>
+              <div class="align-center d-flex ga-2 overflow-y-auto">
+                <PrivilegesTagWidget :data="userData.privilege" density="compact"></PrivilegesTagWidget>
+                <v-divider vertical class="mx-3" inset></v-divider>
+                <v-chip density="compact" v-if="userData.lastOnlineTime">最后在线： <Time :time="userData.lastOnlineTime"/></v-chip>
+                <v-chip density="compact" v-if="userData.joinTime">加入时间： <Time :time="userData.joinTime"/></v-chip>
               </div>
             </v-col>
           </v-row>

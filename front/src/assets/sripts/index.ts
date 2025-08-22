@@ -12,6 +12,7 @@ import _Date from './date';
 import _Number from './number';
 import _AppFuns from './app_funs'
 import _AppNavs from './app_navs'
+import _Rarity from './rarity'
 
 export const conf = new _Conf();
 export const api = new _Api();
@@ -24,9 +25,10 @@ export const time = new _Date();
 export const number = new _Number()
 export const appFuns = new _AppFuns()
 export const appNavs = new _AppNavs()
+export const rarity = new _Rarity()
 
 export default {
     api, conf, ws, http,
     storage, storageAssembly, storageCollect, time,
-    number, appFuns, appNavs
+    number, appFuns, appNavs, rarity
 };

@@ -217,6 +217,7 @@
         "append": "赛季"
       },
       "obtainable": "获取方式",
+      "worldEvent": "世界事件",
       "bluePrint": "蓝图",
       "requiredRank": "最低使用等级",
       "gearScore": "分数",
@@ -328,6 +329,7 @@
     "meta": {
       "keywords": "配装厂,碧海黑帆配装,配装,套装,游戏配装"
     },
+    "anonymous": "匿名",
     "setting": {
       "title": "设置",
       "publicly": "公开",

@@ -11,6 +11,7 @@ import CosmeticName from "@/components/snbWidget/cosmeticName.vue";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import {Cosmetic, Cosmetics} from "glow-prow-data";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
+import {rarity} from "@/assets/sripts/index";
 
 const
     {asString, sanitizeString} = useI18nUtils(),
@@ -41,14 +42,7 @@ let cosmeticsCardData = ref({
     i: Ref<cosmetic> = ref(Cosmetic.fromRawData({})),
 
     // 稀有度
-    rarityColorConfig = {
-      "": "#fff",
-      "common": "#b0b0b0",
-      "uncommon": "#2ecc71",
-      "rare": "#3498db",
-      "epic": "#9b59b6",
-      "legendary": "#f1c40f"
-    }
+    rarityColorConfig = rarity.color
 
 
 watch(() => props.id, () => {

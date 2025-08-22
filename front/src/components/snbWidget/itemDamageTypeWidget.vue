@@ -1,19 +1,18 @@
 <script setup lang="ts">
 import {useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
-import {onMounted, ref} from "vue";
+import {computed, nextTick, onMounted, ref, watch} from "vue";
 
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 
 import EmptyView from "../EmptyView.vue";
 import ItemSlotBase from "./ItemSlotBase.vue";
+import {Item} from "glow-prow-data";
+import DamageIconWidget from "@/components/snbWidget/damageIconWidget.vue";
 
 type ItemDamageTypeSize = 'mini' | 'default'
 
-const damagesImages = import.meta.glob('@glow-prow-assets/damages/*.*', {eager: true}),
-    modsImages = import.meta.glob('@glow-prow-assets/modifications/*.*', {eager: true}),
-    images = {...damagesImages, ...modsImages},
-    props = withDefaults(defineProps<{ data: Item | any, size?: ItemDamageTypeSize }>(), {
+const props = withDefaults(defineProps<{ data: Item | any, size?: ItemDamageTypeSize }>(), {
       data: null,
       size: 'default'
     }),
@@ -22,30 +21,36 @@ const damagesImages = import.meta.glob('@glow-prow-assets/damages/*.*', {eager: 
     {t} = useI18n(),
     {asArray, sanitizeString} = useI18nUtils()
 
+let damageRefs = ref<Record<string, any>>([]),
+    damageIsShowList = ref<boolean[]>([]),
+    isEmpty = computed(() => {
+      return damageRefs.value.filter(i => i.isShow).length <= 0
+    });
+
+watch(() => damageIconImages.value, (newVal) => {
+  if (newVal && newVal.length > 0) {
+    nextTick(() => {
+      damageIsShowList.value = newVal.map((item, index) => {
+        const widget = damageRefs.value[item.key || index];
+        return widget?.isShow ?? false;
+      });
+    });
+  }
+}, {deep: true});
 
 onMounted(() => {
   onReady()
 })
 
 const onReady = () => {
-  const imageMap = {};
-  for (const path in images) {
-    const key = path.split('/').pop()
-        ?.toString()
-        .replace('.webp', '')
-        .replace('.png', '');
-    imageMap[key] = images[path];
-  }
-
-  if (props.data && props.data.perks)
+  if (props.data && props.data.perks) {
     props.data.perks.forEach(i => {
       let key = sanitizeString(i).cleaned;
-      if (imageMap[key])
-        damageIconImages.value.push({
-          src: imageMap[key].default || '',
-          key
-        });
+      damageIconImages.value.push({
+        key
+      });
     })
+  }
 }
 
 /**
@@ -59,21 +64,41 @@ const getTitle = (key) => {
 
   return asArray(keys)[0] || '';
 }
+
+/**
+ * 设置ref的回调函数
+ * @param el
+ * @param index
+ */
+const setDamageRef = (el: any, index: string | number) => {
+  if (el) {
+    damageRefs.value[index] = el;
+  }
+}
 </script>
 
 <template>
   <!-- 正常 -->
   <template v-if="size == 'default'">
-    <v-card class="bg-transparent d-flex ga-3" v-if="damageIconImages.length > 0">
-      <ItemSlotBase padding="1" v-for="(i, index) in damageIconImages" :key="index"
-                    class="mr-1 d-flex justify-center align-center card-flavor"
-                    v-tooltip="getTitle(i.key)">
-        <v-card tile class="w-100 h-100 bg-transparent d-flex justify-center align-center" border>
-          <v-img :src="i.src" width="35px" height="35px"></v-img>
-        </v-card>
-      </ItemSlotBase>
+    <v-card class="bg-transparent d-flex ga-3">
+      <template v-for="(i, index) in damageIconImages"
+                :key="index">
+        <div v-show="damageRefs[index] && damageRefs[index]?.isShow || false">
+          <ItemSlotBase
+              padding="1"
+              class="mr-1 d-flex justify-center align-center card-flavor"
+              v-tooltip="getTitle(i.key)">
+            <DamageIconWidget
+                :id="i.key"
+                :ref="(el) => setDamageRef(el, index)"
+                size="35"
+            ></DamageIconWidget>
+          </ItemSlotBase>
+        </div>
+      </template>
     </v-card>
-    <template v-else>
+
+    <template v-if="isEmpty">
       <v-card class="bg-transparent background-flavor" border>
         <EmptyView></EmptyView>
       </v-card>
@@ -82,15 +107,19 @@ const getTitle = (key) => {
   <!-- 浓缩 无空Widget -->
   <template v-else-if="size == 'mini'">
     <v-card class="bg-transparent d-flex ga-1" v-if="damageIconImages.length > 0">
-      <ItemSlotBase padding="0"
-                    size="25"
-                    v-for="(i, index) in damageIconImages"
-                    :key="index"
-                    class="d-flex justify-center align-center card-flavor"
-                    v-tooltip="getTitle(i.key)">
-        <v-card tile class="pa-1 w-100 h-100 bg-transparent d-flex justify-center align-center" border>
-          <v-img :src="i.src" width="15px" height="15px"></v-img>
-        </v-card>
+      <ItemSlotBase
+          padding="0"
+          size="25"
+          v-for="(i, index) in damageIconImages"
+          :key="index"
+          class="d-flex justify-center align-center card-flavor"
+          v-tooltip="getTitle(i.key)"
+          v-show="damageRefs[i.key]?.isShow ?? false">
+        <DamageIconWidget
+            :id="i.key"
+            :ref="(el) => setDamageRef(el, i.key)"
+            size="15"
+        ></DamageIconWidget>
       </ItemSlotBase>
     </v-card>
   </template>

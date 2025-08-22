@@ -7,7 +7,7 @@ import {onMounted, type Ref, ref, watch} from "vue";
 import {Item, Items} from "glow-prow-data/src/entity/Items.ts";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useIntersectionObserver} from "@/assets/sripts/intersection_observer";
-import {number} from "@/assets/sripts/index";
+import {number, rarity} from "@/assets/sripts/index";
 import {useItemAssetsStore} from "~/stores/itemAssetsStore";
 import ItemName from "@/components/snbWidget/itemName.vue";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
@@ -42,14 +42,7 @@ let itemsCardData = ref({
     i: Ref<Item> = ref(Item.fromRawData({})),
 
     // 稀有度
-    rarityColorConfig = {
-      "": "#fff",
-      "common": "#b0b0b0",
-      "uncommon": "#2ecc71",
-      "rare": "#3498db",
-      "epic": "#9b59b6",
-      "legendary": "#f1c40f"
-    }
+    rarityColorConfig = rarity.color
 
 
 watch(() => props.id, () => {
@@ -87,6 +80,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
           ref="targetElement"
           width="100%"
           v-bind="activatorProps"
+          :color="`hsl(from ${rarityColorConfig[i.rarity]} h s calc(l * .15))`"
           :to="isOpenDetail ? `/display-cabinet/item/${i.id}` : null"
           :class="[
               'prohibit-drag',

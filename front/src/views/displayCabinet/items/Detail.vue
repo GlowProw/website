@@ -18,7 +18,7 @@ import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue"
 import ItemDamageTypeWidget from "@/components/snbWidget/itemDamageTypeWidget.vue";
-import {number, storage, storageCollect} from "@/assets/sripts";
+import {number, rarity, storage, storageCollect} from "@/assets/sripts";
 import WeaponModificationWidget from "@/components/snbWidget/weaponModificationWidget.vue";
 import CommentWidget from "@/components/CommentWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
@@ -29,6 +29,7 @@ import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import ItemContentWidget from "@/components/snbWidget/itemContentWidget.vue";
 import BySeasonWidget from "@/components/bySeasonWidget.vue";
+import DamageIconWidget from "@/components/snbWidget/damageIconWidget.vue";
 
 const
     {t, messages} = useI18n(),
@@ -57,6 +58,12 @@ let itemDetailData: Ref<Item | null> = ref(null),
       return DPS / damageMitigation?.piercing || 0
     }),
     DamagePerShotWithPerks = computed(() => 0),
+    worldEvent = computed(() => {
+      let events = itemDetailData.value.worldEvent;
+      if (Array.isArray(events))
+        return events
+      return [events]
+    }),
     obtainable = computed(() => {
       return filterByObtainable(itemDetailData.value)
     }),
@@ -91,6 +98,8 @@ let itemDetailData: Ref<Item | null> = ref(null),
     dpsWithPerksArmed = computed(() => {
       return itemDetailData.value?.damagePerShot + 1;
     }),
+
+    rarityColorConfig = rarity.color,
 
     // meta
     head = ref({
@@ -278,7 +287,9 @@ const filterByObtainable = (item: Item) => {
               </v-chip>
               <v-chip class="badge-flavor text-center tag-badge text-black"
                       :to="`/display-cabinet/item/rarity/${itemDetailData.rarity}`"
-                      v-if="itemDetailData.rarity">{{ t(`displayCabinet.rarity.${itemDetailData.rarity}`) }}
+                      v-if="itemDetailData.rarity">
+                <v-badge dot inline :color="rarityColorConfig[itemDetailData.rarity]" class="mr-1"></v-badge>
+                {{ t(`displayCabinet.rarity.${itemDetailData.rarity}`) }}
               </v-chip>
             </div>
           </v-col>
@@ -445,11 +456,11 @@ const filterByObtainable = (item: Item) => {
                                 variant="underlined"
                                 density="compact">
                     <template v-slot:append-inner>
-                      <p class="text-no-wrap">{{ t(`snb.perks.${dmKey}.name`) }}</p>
+                      <p class="text-no-wrap">{{ t(`assembly.tags.damageTypes.${dmKey}`) }}</p>
                     </template>
                     <template v-slot:append>
-                      <ItemSlotBase size="30px">
-                        <ItemIconWidget :id="dmKey"></ItemIconWidget>
+                      <ItemSlotBase size="30px" :padding="0">
+                        <DamageIconWidget :id="dmKey"></DamageIconWidget>
                       </ItemSlotBase>
                     </template>
                   </v-text-field>
@@ -611,6 +622,14 @@ const filterByObtainable = (item: Item) => {
                 {{ t(bluePrint) }}
               </v-chip>
             </template>
+            <template v-if="itemDetailData.worldEvent">
+              <p class="text-no-wrap font-weight-bold mb-2 mt-2">{{ t('displayCabinet.item.worldEvent') }}</p>
+              <v-chip v-for="(e,eIndex) in worldEvent"
+                      class="d-inline-flex mb-1 mr-1"
+                      :key="eIndex">
+                {{ t(`snb.worldEvents.${e.id}`) }}
+              </v-chip>
+            </template>
             <template v-if="itemDetailData.obtainable">
               <p class="text-no-wrap font-weight-bold mb-2 mt-2">{{ t('displayCabinet.item.obtainable') }}</p>
               <v-chip v-for="(o,oIndex) in obtainable"
@@ -618,7 +637,7 @@ const filterByObtainable = (item: Item) => {
                       :key="oIndex"
                       :to="o.to">
                 <template v-if="o.item">
-                  <ItemName :data="o.item"></ItemName>
+                  <ItemName :id="o.item.id"></ItemName>
                 </template>
                 <template v-else>
                   {{ t(`snb.locations.${o.id}`) }}
@@ -669,9 +688,17 @@ const filterByObtainable = (item: Item) => {
               </v-text-field>
             </template>
             <template v-if="itemDetailData.rarity">
-              <v-text-field :value="t(`displayCabinet.rarity.${itemDetailData.rarity}`) || 'none'" readonly
+              <v-text-field readonly
                             hide-details
                             variant="underlined" density="compact">
+                <template v-slot:prepend>
+                  <v-badge dot inline :color="rarityColorConfig[itemDetailData.rarity]" class="ma-1 pt-0"></v-badge>
+                </template>
+                <template v-slot:prepend-inner>
+                  <router-link :to="`/display-cabinet/item/rarity/${itemDetailData.rarity}`" class="text-no-wrap">
+                    {{ t(`displayCabinet.rarity.${itemDetailData.rarity}`) || 'none' }}
+                  </router-link>
+                </template>
                 <template v-slot:append-inner>
                   <p class="text-no-wrap">{{ t('displayCabinet.item.rarity') }}</p>
                 </template>

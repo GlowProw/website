@@ -9,6 +9,7 @@ import TimeFrame from "@/components/TimeFrame.vue";
 import {AssemblyItem, Pagination, ResultData} from "@/assets/types";
 import Loading from "@/components/Loading.vue";
 import Silk from "@/components/Silk.vue";
+import UserAvatar from "@/components/UserAvatar.vue";
 
 const {t} = useI18n()
 
@@ -216,6 +217,14 @@ watch(browseData, (newList: ResultData) => {
                     <router-link :to="`/assembly/browse/${i.uuid}/detail`">
                       <div :title="i.name || 'none'" class="text-amber text-h4 mb-1 font-weight-bold singe-line">{{ i.name || 'none' }}</div>
                     </router-link>
+                    <div>
+                      <div class="d-flex align-center">
+                        <v-card v-if="i.userAvatar" class="mr-1">
+                          <UserAvatar size="20" :src="i.userAvatar"></UserAvatar>
+                        </v-card>
+                        {{ i.username || t('assembly.anonymous') }}
+                      </div>
+                    </div>
                   </v-col>
                   <v-col cols="3">
                     <v-chip density="compact" class="badge-flavor pl-5 pr-5" :disabled="i.isLiked">

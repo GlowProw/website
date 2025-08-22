@@ -879,7 +879,7 @@ defineExpose({
                           </ItemSlotBase>
 
                           <!-- 副武器模组插槽 -->
-                          <div class="mb-2 mt-1">
+                          <div class="mb-2 mt-1" v-if="!perfectDisplay">
                             <WeaponModificationWidget :readonly="readonly"
                                                       :disabled="workshopData.data.secondaryWeaponSlots[index].id == null"
                                                       :data="i" size="4"
@@ -909,6 +909,13 @@ defineExpose({
                           </v-row>
                         </v-col>
                       </v-row>
+
+                      <!-- 武器模组插槽 仅展示 -->
+                      <div class="mb-2 mt-1" v-if="perfectDisplay">
+                        <WeaponModificationOnlyShowWidget
+                            :item-data="i"
+                            :mod-data="workshopData.data.secondaryWeaponModifications[index]"></WeaponModificationOnlyShowWidget>
+                      </div>
                     </v-col>
                   </v-row>
                 </div>

@@ -22,6 +22,7 @@ import CommentWidget from "@/components/CommentWidget.vue";
 import AssemblySettingPanel from "@/components/AssemblySettingPanel.vue";
 import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue";
+import UserAvatar from "@/components/UserAvatar.vue";
 
 const route = useRoute(),
     router = useRouter(),
@@ -278,8 +279,12 @@ const onPenPassword = () => {
           </template>
         </v-col>
         <v-col cols="12" sm="12" lg="4" xl="4">
-          <router-link class="text-h5 bg-transparent" :to="`/space/${assemblyDetailData.userId}`">
-            {{ assemblyDetailData.username || '-' }}
+          <router-link class="text-h5 bg-transparent d-flex ga-2 align-center"
+                       :to="assemblyDetailData.userId ? `/space/${assemblyDetailData.userId}` : null">
+            <v-card v-if="assemblyDetailData.userAvatar" class="mr-1">
+              <UserAvatar size="25" :src="assemblyDetailData.userAvatar"></UserAvatar>
+            </v-card>
+            {{ assemblyDetailData.username || t('assembly.anonymous') }}
           </router-link>
 
           <v-row class="mt-5">
