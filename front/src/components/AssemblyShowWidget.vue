@@ -455,7 +455,7 @@ defineExpose({
                       </v-overlay>
                     </v-card>
 
-                    <div class="mt-2 text-center text-caption text-grey w-100 singe-line" v-if="attr.isShowItemName">
+                    <div class="mt-2 text-center text-caption text-grey w-100 " :class="{'singe-line': perfectDisplay}" v-if="attr.isShowItemName">
                       <ShipName :id="workshopData.data.shipSlot.id"></ShipName>
                     </div>
                   </v-hover>
@@ -534,7 +534,7 @@ defineExpose({
                       </v-overlay>
                     </v-card>
 
-                    <div class="mt-2 text-center text-caption text-grey w-100 singe-line" v-if="attr.isShowItemName">
+                    <div class="mt-2 text-center text-caption text-grey w-100 " :class="{'singe-line': perfectDisplay}" v-if="attr.isShowItemName">
                       <ItemName :data="workshopData.data.shipUpgradeSlot"></ItemName>
                     </div>
                   </v-hover>
@@ -563,7 +563,7 @@ defineExpose({
                       </ItemSlotBase>
 
                       <div class="text-center d-flex">
-                        <div class="singe-line w-100">
+                        <div class="w-100" :class="{'singe-line': perfectDisplay}">
                           {{ asString([`snb.items.${upgrade.id}.name`, `snb.items.${sanitizeString(upgrade.id).cleaned}.name`]) || '-' }}
                         </div>
                         <span>{{ number.intToRoman(upgradeIndex + 1) }}</span>
@@ -627,7 +627,7 @@ defineExpose({
                           <ItemSlotBase size="80px" class="pa-1" v-if="display && display.id">
                             <ItemIconWidget :id="display.id" :is-open-detail="false" :is-show-tooltip="readonly"></ItemIconWidget>
                           </ItemSlotBase>
-                          <div class="text-center text-caption text-grey w-100 singe-line" v-if="attr.isShowItemName && display && display.id">
+                          <div class="text-center text-caption text-grey w-100" :class="{'singe-line': perfectDisplay}" v-if="attr.isShowItemName && display && display.id">
                             <ItemName :data="display"></ItemName>
                           </div>
 
@@ -729,7 +729,7 @@ defineExpose({
                               <ItemSlotBase size="80px" class="pa-1">
                                 <ItemIconWidget :id="i.id" :is-show-tooltip="readonly" :is-open-detail="false"></ItemIconWidget>
                               </ItemSlotBase>
-                              <div class="text-center text-caption text-grey w-100 singe-line" v-if="attr.isShowItemName">
+                              <div class="text-center text-caption text-grey w-100" :class="{'singe-line': perfectDisplay}" v-if="attr.isShowItemName">
                                 <ItemName :data="i"></ItemName>
                               </div>
 
@@ -850,7 +850,7 @@ defineExpose({
                               <ItemSlotBase size="80px" class="pa-1">
                                 <ItemIconWidget :id="i.id" :is-show-tooltip="readonly"></ItemIconWidget>
                               </ItemSlotBase>
-                              <div class="text-center text-caption text-grey w-100 singe-line" v-if="attr.isShowItemName">
+                              <div class="text-center text-caption text-grey w-100" :class="{'singe-line': perfectDisplay}" v-if="attr.isShowItemName">
                                 <ItemName :data="i"></ItemName>
                               </div>
 
@@ -925,7 +925,7 @@ defineExpose({
                     <ItemSlotBase size="80px" class="pa-1">
                       <ItemIconWidget :id="workshopData.data.armorSlot.id" :is-open-detail="false" :is-show-tooltip="readonly"></ItemIconWidget>
                     </ItemSlotBase>
-                    <div class="text-center text-caption text-grey w-100 singe-line" v-if="attr.isShowItemName">
+                    <div class="text-center text-caption text-grey w-100 " :class="{'singe-line': perfectDisplay}" v-if="attr.isShowItemName">
                       <ItemName :data="workshopData.data.armorSlot"></ItemName>
                     </div>
                     <v-overlay
@@ -986,7 +986,7 @@ defineExpose({
                                       v-if="workshopData.data.ultimateSlot && workshopData.data.ultimateSlot.id">
                           <UltimateIconWidget :id="workshopData.data.ultimateSlot.id" :isClickOpenDetail="false"></UltimateIconWidget>
                         </ItemSlotBase>
-                        <div class="text-center text-caption text-grey w-100 singe-line" v-if="attr.isShowItemName">
+                        <div class="text-center text-caption text-grey w-100 " :class="{'singe-line': perfectDisplay}" v-if="attr.isShowItemName">
                           <UltimateName :id="workshopData.data.ultimateSlot.id"></UltimateName>
                         </div>
                         <v-overlay
@@ -1015,7 +1015,7 @@ defineExpose({
                                       ]">
                             <UltimateIconWidget :id="ultimate.id" :isClickOpenDetail="false"></UltimateIconWidget>
                           </ItemSlotBase>
-                          <div class="text-center text-caption text-grey w-100 singe-line" v-if="attr.isShowItemName">
+                          <div class="text-center text-caption text-grey w-100 " :class="{'singe-line': perfectDisplay}" v-if="attr.isShowItemName">
                             <UltimateName :id="ultimate.id"></UltimateName>
                           </div>
                         </v-card>

@@ -11,6 +11,7 @@ import {number} from "@/assets/sripts/index";
 import {useItemAssetsStore} from "~/stores/itemAssetsStore";
 import ItemName from "@/components/snbWidget/itemName.vue";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
+import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 
 const
     {asString, sanitizeString} = useI18nUtils(),
@@ -78,6 +79,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
       min-width="450"
       max-width="450"
       interactive
+      class="item-card"
       content-class="pa-0"
       target="cursor">
     <template v-slot:activator="{ props: activatorProps }">
@@ -96,7 +98,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
           <v-img :src="raritys[`item-rarity-${i.rarity}`]" width="100%" height="100%" class="opacity-30 prohibit-drag"/>
         </template>
 
-        <div class="item-card">
+        <div>
           <v-img
               class="prohibit-drag"
               :src="itemsCardData.iconSrc" cover width="100%" height="100%">
@@ -120,10 +122,11 @@ const {targetElement, isVisible} = useIntersectionObserver({
                 ]">
         <div class="v-skeleton-loader__bone v-skeleton-loader__image opacity-30 position-absolute left-0 top-0 w-100 h-100"></div>
 
-        <h1 class="font-weight-bold">
+        <h1 class="item-card-name font-weight-bold w-66">
+          <FactionIconWidget class="bg-red d-inline-flex" :name="i.faction.id" size="28px" v-if="i.faction"></FactionIconWidget>
           <ItemName :data="i"></ItemName>
         </h1>
-        <p class="mb-1">{{ i.id }}</p>
+        <p class="mb-1 mt-2">{{ i.id }}</p>
 
         <div class="d-flex ga-2 mt-3">
           <v-chip inline
@@ -175,10 +178,6 @@ const {targetElement, isVisible} = useIntersectionObserver({
 <style scoped lang="less">
 @rarities: common, uncommon, rare, epic, legendary;
 
-.item-mirror-image {
-  transform: scaleX(-1);
-}
-
 .item-card {
   &::after {
     content: "";
@@ -190,65 +189,65 @@ const {targetElement, isVisible} = useIntersectionObserver({
     z-index: 200;
     border-radius: inherit;
   }
-}
 
-.item-card-header-rarity {
-  width: 100px;
-  height: 100px;
-  position: relative;
+  .item-mirror-image {
+    transform: scaleX(-1);
+  }
 
-  each(@rarities, {
-    &-@{value} {
-      .set-rarity-color(@value);
-    }
-  });
+  .item-card-name {
+    line-height: 1.2 !important;
+  }
 
-  .set-rarity-color(@type) {
-    & when (@type = common) {
-      &::after {
-        background-color: fade(#b0b0b0, 10%);
-      }
-    }
-    & when (@type = uncommon) {
-      &::after {
-        background-color: fade(#2ecc71, 10%);
-      }
-    }
-    & when (@type = rare) {
-      &::after {
-        background-color: fade(#3498db, 10%);
-      }
-    }
-    & when (@type = epic) {
-      &::after {
-        background-color: fade(#9b59b6, 10%);
-      }
-    }
-    & when (@type = legendary) {
-      &::after {
-        background-color: fade(#f1c40f, 10%);
-      }
-    }
+  .item-card-header-rarity {
+    width: 100px;
+    height: 100px;
+    position: relative;
 
-    &::after {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-      border-radius: inherit;
+    each(@rarities, {
+      &-@{value} {
+        .set-rarity-color(@value);
+      }
+    });
+
+    .set-rarity-color(@type) {
+      & when (@type = common) {
+        &::after {
+          background-color: fade(#b0b0b0, 10%);
+        }
+      }
+      & when (@type = uncommon) {
+        &::after {
+          background-color: fade(#2ecc71, 10%);
+        }
+      }
+      & when (@type = rare) {
+        &::after {
+          background-color: fade(#3498db, 10%);
+        }
+      }
+      & when (@type = epic) {
+        &::after {
+          background-color: fade(#9b59b6, 10%);
+        }
+      }
+      & when (@type = legendary) {
+        &::after {
+          background-color: fade(#f1c40f, 10%);
+        }
+      }
+
+      &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        border-radius: inherit;
+      }
     }
   }
-}
-
-.rarity {
-  position: absolute;
-  z-index: 0;
-  top: 0;
-  left: 0;
-  width: 100%;
 }
 
 .demo-reel {
@@ -270,7 +269,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
   }
 
   .demo-reel-header {
-    height: 200px;
+    min-height: 200px;
     overflow: hidden;
 
     &:before {

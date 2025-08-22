@@ -206,7 +206,9 @@
       "reloadSpeed": "重新加载速度（秒）",
       "optimalRange": "范围（米）",
       "projectileSpeed": "射弹速度（米/秒）",
+      "contentsTitle": "掉落内容",
       "materialsTitle": "材料",
+      "faction": "阵营",
       "required": "物品建造所需物品",
       "rawMaterials": "所需物品原材料",
       "modifications": "可安装模组",
@@ -214,6 +216,7 @@
         "prepend": "出自",
         "append": "赛季"
       },
+      "obtainable": "获取方式",
       "bluePrint": "蓝图",
       "requiredRank": "最低使用等级",
       "gearScore": "分数",
@@ -236,6 +239,8 @@
       "meta": {
         "keywords": "船详详情,船,{keywords}"
       },
+      "archetype": "承担类型",
+      "stamina": "体力",
       "frontWeapon": "前方武器",
       "leftSideWeapon": "左侧武器",
       "rightSideWeapon": "右侧武器",

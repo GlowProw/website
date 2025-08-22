@@ -11,7 +11,7 @@ import EmptyView from "@/components/EmptyView.vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import ItemName from "@/components/snbWidget/itemName.vue";
 
-const items: Items = Items,
+const items = Items,
     route = useRoute(),
     {t} = useI18n(),
     {asString, sanitizeString} = useI18nUtils()
@@ -53,7 +53,7 @@ const onProcessedData = computed(() => {
       exceedingItemsCount.value = Math.max(filteredData.length - maximumSearchCount, 0);
       return filteredData.slice(0, maximumSearchCount);
     }),
-    maximumSearchCount = 30,
+    maximumSearchCount = route.query.debug ? 10000 : 30,
     isSearching = computed(() => itemsFilter.value.keyValue || itemsFilter.value.type)
 
 onMounted(() => {
@@ -165,10 +165,6 @@ const onFilterItemType = (value) => {
       <v-container>
         <v-row class="item-list" no-gutters>
           <div v-for="(i,index) in itemsData" :key="index" style="width: 99px">
-            <template v-if="route.query.debug">
-              {{ i.id }}
-            </template>
-
             <ItemSlotBase size="99px">
               <ItemIconWidget :id="i.id"></ItemIconWidget>
             </ItemSlotBase>
@@ -204,10 +200,6 @@ const onFilterItemType = (value) => {
 
       <v-row class="item-list">
         <div v-for="(i,index) in onProcessedData" :key="index" style="width: 99px">
-          <template v-if="route.query.debug">
-            {{ i.id }}
-          </template>
-
           <ItemSlotBase size="99px">
             <ItemIconWidget :id="i.id"></ItemIconWidget>
           </ItemSlotBase>

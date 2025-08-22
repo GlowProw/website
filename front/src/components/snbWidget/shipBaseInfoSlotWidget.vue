@@ -14,11 +14,19 @@ const props = withDefaults(defineProps<{ data: Ship, isSimulationShipSailSpeed?:
 
 <template>
   <template v-if="data">
-    <v-text-field :value="data.hitpoints" readonly
+    <v-text-field :value="data.hitPoints" readonly
                   hide-details
                   variant="underlined" density="compact">
       <template v-slot:append-inner>
         <p class="text-no-wrap">{{ t('displayCabinet.ship.hitPoints') }}</p>
+      </template>
+    </v-text-field>
+
+    <v-text-field :value="data.stamina" readonly
+                  hide-details
+                  variant="underlined" density="compact">
+      <template v-slot:append-inner>
+        <p class="text-no-wrap">{{ t('displayCabinet.ship.stamina') }}</p>
       </template>
     </v-text-field>
 

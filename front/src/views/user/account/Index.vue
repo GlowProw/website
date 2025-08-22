@@ -30,6 +30,12 @@ let drawer = ref(true),
             to: '/account/profile-picture',
             primaryValue: 'MeAccount'
           },
+          {
+            name: '空间',
+            href: `/space/${authStore.user.userId}`,
+            target: '_blank',
+            primaryValue: 'MeAccount'
+          },
         ]
       },
       'MeDataList': {
@@ -151,7 +157,14 @@ const onChangeMenu = (key) => {
             permanent
             color="var(--v-theme-background)">
           <v-list class="pa-0">
-            <v-list-item v-for="(i, index) in navs[primaryNavMenu].child" :key="index" :title="i.name" :to="i.to" link></v-list-item>
+            <v-list-item v-for="(i, index) in navs[primaryNavMenu].child" :key="index"
+                         :title="i.name"
+                         :to="i.to || i.href"
+                         :target="i.target || null">
+              <template v-slot:append v-if="i.href">
+                <v-icon icon="mdi-open-in-new" size="15"></v-icon>
+              </template>
+            </v-list-item>
           </v-list>
           <v-divider opacity=".05" class="mt-4 mb-4"></v-divider>
           <div class="ml-4 mr-4">

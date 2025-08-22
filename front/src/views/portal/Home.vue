@@ -76,7 +76,7 @@ const getCurrentSeason = (): Season | null => {
           <video autoplay playsinline
                  class="card-enlargement-flavor"
                  muted loop type="video/mp4"
-                 src="@/assets/videos/skullandbones-year2-loop.mp4"></video>
+                 src="@/assets/videos/oathsOfWar.mp4"></video>
         </div>
       </template>
 

@@ -3,7 +3,8 @@ import {defineStore} from "pinia";
 export const useItemAssetsStore = defineStore('itemAssets', {
     state: () => ({
         assets: new Map(),
-        raritys: new Map()
+        raritys: new Map(),
+        cosmetic: new Map()
     }),
     actions: {
         /**
@@ -13,28 +14,38 @@ export const useItemAssetsStore = defineStore('itemAssets', {
             if (!this.assets && this.assets.size != 0 && !this.rarity && this.rarity.size != 0)
                 return;
 
-            const assets_ammunitions = import.meta.glob('@glow-prow-assets/items/ammunitions/*', {eager: true}),
-                assets_weapons = import.meta.glob('@glow-prow-assets/items/weapons/*', {eager: true}),
-                assets_armors = import.meta.glob('@glow-prow-assets/items/armors/*', {eager: true}),
-                assets_major_furnitures = import.meta.glob('@glow-prow-assets/items/majorFurnitures/*', {eager: true}),
-                assets_offensive_furnitures = import.meta.glob('@glow-prow-assets/items/offensiveFurnitures/*', {eager: true}),
-                assets_utility_furnitures = import.meta.glob('@glow-prow-assets/items/utilityFurnitures/*.*', {eager: true}),
-                assets_consumables = import.meta.glob('@glow-prow-assets/items/consumables/*', {eager: true}),
-                assets_torpedos = import.meta.glob('@glow-prow-assets/items/weapons/torpedos/*', {eager: true}),
-                assets_longGuns = import.meta.glob('@glow-prow-assets/items/weapons/longGuns/*', {eager: true}),
-                assets_tools = import.meta.glob('@glow-prow-assets/items/tools/*', {eager: true}),
-                assets_shipsUpgrades = import.meta.glob('@glow-prow-assets/ships/upgrades/*', {eager: true}),
-                assets_items = import.meta.glob('@glow-prow-assets/items/*', {eager: true});
+            const item_ammunitions = import.meta.glob('@glow-prow-assets/items/ammunitions/*', {eager: true}),
+                item_weapons = import.meta.glob('@glow-prow-assets/items/weapons/*', {eager: true}),
+                item_armors = import.meta.glob('@glow-prow-assets/items/armors/*', {eager: true}),
+                item_chests = import.meta.glob('@glow-prow-assets/items/chests/*', {eager: true}),
+                item_major_furnitures = import.meta.glob('@glow-prow-assets/items/majorFurnitures/*', {eager: true}),
+                item_offensive_furnitures = import.meta.glob('@glow-prow-assets/items/offensiveFurnitures/*', {eager: true}),
+                item_utility_furnitures = import.meta.glob('@glow-prow-assets/items/utilityFurnitures/*.*', {eager: true}),
+                item_consumables = import.meta.glob('@glow-prow-assets/items/consumables/*', {eager: true}),
+                item_torpedos = import.meta.glob('@glow-prow-assets/items/weapons/torpedos/*', {eager: true}),
+                item_longGuns = import.meta.glob('@glow-prow-assets/items/weapons/longGuns/*', {eager: true}),
+                item_tools = import.meta.glob('@glow-prow-assets/items/tools/*', {eager: true}),
+                item_shipsUpgrades = import.meta.glob('@glow-prow-assets/ships/upgrades/*', {eager: true}),
+                item_items = import.meta.glob('@glow-prow-assets/items/*', {eager: true});
+
+            const cosmetics_sailsPattern = import.meta.glob('@glow-prow-assets/cosmetics/sailsPattern/*', {eager: true});
+
             const rarityImages = import.meta.glob('@/assets/images/item-rarity-*.png', {eager: true});
-            const assetsImages = {
-                ...assets_ammunitions, ...assets_weapons, ...assets_armors,
-                ...assets_major_furnitures, ...assets_utility_furnitures, ...assets_offensive_furnitures,
-                ...assets_consumables, ...assets_torpedos, ...assets_longGuns,
-                ...assets_tools, ...assets_shipsUpgrades, ...assets_items
+
+            const itemImages = {
+                ...item_ammunitions, ...item_weapons, ...item_armors, ...item_chests,
+                ...item_major_furnitures, ...item_utility_furnitures, ...item_offensive_furnitures,
+                ...item_consumables, ...item_torpedos, ...item_longGuns,
+                ...item_tools, ...item_shipsUpgrades, ...item_items,
             };
 
+            const cosmeticsImages = {
+                ...cosmetics_sailsPattern
+            }
+
             this.raritys = this.serializationMap(rarityImages);
-            this.assets = this.serializationMap(assetsImages);
+            this.assets = this.serializationMap(itemImages);
+            this.cosmetic = this.serializationMap(cosmeticsImages);
         },
 
         /**
@@ -46,7 +57,7 @@ export const useItemAssetsStore = defineStore('itemAssets', {
             for (const path in assetsRaw) {
                 const key = path.split('/').pop()
                     ?.toString()
-                    .replace(/\.(svg|webp|jpg|png)$/, '');
+                    .replace(/\.(svg|webp|jpg|png|mp4)$/, '');
                 imageMap[key] = assetsRaw[path].default;
             }
             return imageMap

@@ -14,7 +14,7 @@ let getTitle = computed(() => {
 </script>
 
 <template>
-  {{ getTitle }}
+  <span :title="getTitle">{{ getTitle }}</span>
 </template>
 
 <style scoped lang="less">

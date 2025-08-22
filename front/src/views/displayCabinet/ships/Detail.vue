@@ -21,6 +21,10 @@ import ShipBaseInfoSlotWidget from "@/components/snbWidget/shipBaseInfoSlotWidge
 import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
+import ItemContentWidget from "@/components/snbWidget/itemContentWidget.vue";
+import TimeView from "@/components/TimeView.vue";
+import Time from "@/components/Time.vue";
+import BySeasonWidget from "@/components/bySeasonWidget.vue";
 
 const shipImages = import.meta.glob('@glow-prow-assets/ships/*.png', {eager: true});
 
@@ -185,9 +189,8 @@ const onStatisticsRawMaterial = () => {
           </v-col>
           <v-col cols="auto">
             <div class="d-flex ga-2">
-              <v-btn>
-                <LikeWidget v-if="authStore.isLogin"
-                            targetType="ship"
+              <v-btn v-if="authStore.isLogin">
+                <LikeWidget targetType="ship"
                             :isShowCount="true"
                             :targetId="shipDetailData.id">
                   <template v-slot:activate>
@@ -229,7 +232,7 @@ const onStatisticsRawMaterial = () => {
             </v-row>
             <v-divider class="mt-10 mb-6"></v-divider>
 
-            <v-row>
+            <v-row class="mb-5">
               <v-col cols="12" sm="12" lg="6" xl="6">
                 <template v-if="shipDetailData.id">
                   <v-text-field :value="shipDetailData.id" readonly
@@ -275,6 +278,11 @@ const onStatisticsRawMaterial = () => {
               </v-col>
               <v-col cols="12" sm="12" lg="6" xl="6">
                 <ShipBaseInfoSlotWidget :data="shipDetailData"></ShipBaseInfoSlotWidget>
+              </v-col>
+              <v-col cols="12" sm="12" lg="12" xl="12">
+                <ItemContentWidget :data="shipDetailData">
+                  <v-divider>{{ t('displayCabinet.item.contentsTitle') }}</v-divider>
+                </ItemContentWidget>
               </v-col>
               <v-col cols="12">
                 <v-divider>{{ t('displayCabinet.ship.materialsTitle') }}</v-divider>
@@ -376,20 +384,7 @@ const onStatisticsRawMaterial = () => {
             </template>
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
-            <v-card class="mb-4 pl-3" v-if="shipDetailData.bySeason">
-              <v-text-field :value="t(`snb.seasons.${shipDetailData.bySeason.id}`) || 'none'"
-                            readonly
-                            hide-details
-                            tile
-                            variant="solo-filled">
-                <template v-slot:prepend>
-                  <p class="text-no-wrap">{{ t('displayCabinet.ship.bySeason.prepend') }}</p>
-                </template>
-                <template v-slot:append-inner>
-                  <p class="text-no-wrap">{{ t('displayCabinet.ship.bySeason.append') }}</p>
-                </template>
-              </v-text-field>
-            </v-card>
+            <BySeasonWidget :data="shipDetailData"></BySeasonWidget>
 
             <template v-if="bluePrint">
               <v-combobox v-model="bluePrint" multiple chips readonly
@@ -405,6 +400,18 @@ const onStatisticsRawMaterial = () => {
                 </template>
               </v-combobox>
             </template>
+
+            <template v-if="shipDetailData.archetype">
+              <v-text-field :value="t(`assembly.tags.archetypes.${shipDetailData.archetype}`)"
+                            readonly
+                            hide-details
+                            variant="underlined" density="compact">
+                <template v-slot:append-inner>
+                  <p class="text-no-wrap">{{ t('displayCabinet.ship.archetype') }}</p>
+                </template>
+              </v-text-field>
+            </template>
+
             <template v-if="shipDetailData.requiredRank">
               <v-text-field :value="requiredRank"
                             readonly
@@ -415,16 +422,26 @@ const onStatisticsRawMaterial = () => {
                 </template>
               </v-text-field>
             </template>
-            <v-text-field :value="shipDetailData.dateAdded" readonly
+            <v-text-field readonly
                           hide-details
                           variant="underlined" density="compact">
+              <template v-slot:prepend-inner>
+                <TimeView :time="shipDetailData.dateAdded" class="singe-line">
+                  <Time :time="shipDetailData.dateAdded"></Time>
+                </TimeView>
+              </template>
               <template v-slot:append-inner>
                 <p class="text-no-wrap">{{ t('displayCabinet.ship.dateAdded') }}</p>
               </template>
             </v-text-field>
-            <v-text-field :value="shipDetailData.lastUpdated" readonly
+            <v-text-field readonly
                           hide-details
                           variant="underlined" density="compact">
+              <template v-slot:prepend-inner>
+                <TimeView :time="shipDetailData.lastUpdated" class="singe-line">
+                  <Time :time="shipDetailData.lastUpdated"></Time>
+                </TimeView>
+              </template>
               <template v-slot:append-inner>
                 <p class="text-no-wrap">{{ t('displayCabinet.ship.lastUpdated') }}</p>
               </template>
