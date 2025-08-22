@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import {ref, watch} from "vue";
+import {ref} from "vue";
 import {useRouter} from "vue-router";
 import Captcha from "@/components/captcha/index.vue";
 import {api, http} from "@/assets/sripts";
 import {useI18n} from "vue-i18n";
+import {useNoticeStore} from "~/stores/noticeStore";
 
 const router = useRouter(),
+    noticeStore = useNoticeStore(),
     {t} = useI18n();
 
 let registerLoading = ref(false),
@@ -36,7 +38,6 @@ let registerLoading = ref(false),
       inputCol: 6,
     }),
     isUserInputAlternativeName = ref(false),
-    messages = ref([]),
 
     // 注册表单
     username = ref(''),
@@ -66,9 +67,8 @@ const onRegister = async () => {
       return Error(d)
     }
 
-    messages.value.push({
-      text: t('basic.tips.register_ok'),
-      color: 'success'
+    noticeStore.success({
+      text: t(`basic.tips.${d.code}`),
     });
 
     setTimeout(async () => {
@@ -76,7 +76,7 @@ const onRegister = async () => {
     }, 1000)
   } catch (e) {
     if (e instanceof Error)
-      messages.value.push(t(`basic.tips.${e.response.data.code}`, {
+      noticeStore.error(t(`basic.tips.${e.response.data.code}`, {
         context: e.response.data.code
       }))
   } finally {
@@ -188,8 +188,6 @@ const onCaptchaData = (data: any) => {
       </v-card>
     </v-container>
   </div>
-
-  <v-snackbar-queue v-model="messages"></v-snackbar-queue>
 </template>
 
 <style scoped lang="less">
