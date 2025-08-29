@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {nextTick, onMounted, Ref, ref, watch} from "vue";
 import {api, http} from "@/assets/sripts";
-import AssemblyShowWidget from "@/components/AssemblyShowWidget.vue";
+import AssemblyWidget from "@/components/AssemblyWidget.vue";
 import AssemblyTouring from "@/components/AssemblyTouring.vue";
 import {useI18n} from "vue-i18n";
 import EmptyView from "@/components/EmptyView.vue";
@@ -236,11 +236,11 @@ watch(browseData, (newList: ResultData) => {
                 <v-hover v-slot="{ isHovering, props }">
                   <div v-bind="props" class="position-relative">
                     <AssemblyTouring>
-                      <AssemblyShowWidget
+                      <AssemblyWidget
                           class="card-flavor mb-5 ml-n10 mr-n10"
                           :readonly="true"
                           :ref="(el) => { if (el) browseAssemblyWidgetRefs[index] = el }">
-                      </AssemblyShowWidget>
+                      </AssemblyWidget>
                     </AssemblyTouring>
                     <router-link :to="`/assembly/browse/${i.uuid}/detail`" target="_blank">
                       <v-overlay scrim="#000" contained class="d-flex justify-center align-center" :model-value="!!isHovering">

@@ -21,7 +21,7 @@ export default {
   components: {Loading},
   props: {
     size: {
-      type: Number,
+      type: [Number, String],
       default: 150
     },
     shape: {

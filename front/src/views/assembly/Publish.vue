@@ -1,50 +1,67 @@
-<script setup lang="ts">
-import Textarea from "@/components/textarea/index.vue"
-import AssemblyShowWidget from "@/components/AssemblyShowWidget.vue";
+<script lang="ts" setup>
 import {useRoute, useRouter} from "vue-router";
 import {computed, onMounted, ref, toRaw, watch} from "vue";
 import {useI18n} from "vue-i18n";
-import {api, storageAssembly} from "@/assets/sripts";
+import {api, assemblyViewConfig, storageAssembly} from "@/assets/sripts";
 import {StorageAssemblyType} from "@/assets/sripts/storage_assembly";
 import {useHttpToken} from "@/assets/sripts/http_util";
-import ZoomableCanvas from "@/components/ZoomableCanvas.vue";
-import Silk from "@/components/Silk.vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
+import {useNoticeStore} from "~/stores/noticeStore";
+import {useDisplay} from "vuetify/framework";
+
+import Textarea from "@/components/textarea/index.vue"
+import AssemblyMainSubjectView from "@/components/AssemblyMainSubjectView.vue";
+import Silk from "@/components/Silk.vue";
 import assemblyDataProcessing from "@/assets/sripts/assembly_data_processing"
+import AssemblyDataProcessing from "@/assets/sripts/assembly_data_processing"
 import AssemblyTagsWidget from "@/components/AssemblyTagsWidget.vue";
 import AssemblySettingWidget from "@/components/AssmblySettingWidget.vue"
-import Assembly_data_processing from "@/assets/sripts/assembly_data_processing";
+import WheelDataProcessing from "@/assets/sripts/wheel_data_processing";
+import WarehouseDataProcessing from "@/assets/sripts/warehouse_data_processing";
 
 const route = useRoute(),
     router = useRouter(),
     http = useHttpToken(),
+    noticeStore = useNoticeStore(),
     {asString} = useI18nUtils(),
     {t, locale} = useI18n(),
     httpToken = useHttpToken()
 
-let publishData = ref({
-      tags: [],
-      visibility: 'publicly',
-      attr: {
-        password: '',
-        assemblyUseVersion: assemblyDataProcessing.nowVersion,
-        language: locale.value,
-        isComment: true,
-        isLike: true
-      }
+let // 发布信息
+    publishData = ref({
+      assembly: {
+        visibility: 'publicly',
+        tags: [],
+        attr: {
+          password: '',
+          assemblyUseVersion: assemblyDataProcessing.nowVersion,
+          language: locale.value,
+          isComment: true,
+          isLike: true
+        }
+      },
     } as {
       uuid: string,
       name: string,
       description: string,
-      tags: any[],
-      attr: {},
-      data: {}
+      assembly: {
+        tags: any[],
+        visibility: string,
+        attr: any,
+        data: any
+      },
+      wheel?: {
+        attr?: any,
+        data: any
+      },
+      warehouse?: {
+        attr?: any,
+        data: any
+      }
     }),
     dataLoading = ref(false),
     publishLoading = ref(false),
-    assemblyData = ref(null),
-    assemblyWorkshopRef = ref(null),
-    messages = ref([]),
+    assemblyMainSubjectView = ref(null),
     formRules = {
       name: [
         v => !!v || 'Name is required',
@@ -65,10 +82,13 @@ let publishData = ref({
       }
     })
 
-watch(() => publishData.value.attr, () => {
-  console.log(1)
+watch(() => publishData.value.assembly.attr, () => {
   onSetAssemblyData()
 }, {deep: true})
+
+watch(() => route, () => {
+  onLoadData()
+})
 
 onMounted(() => {
   onLoadData()
@@ -83,28 +103,75 @@ const onLoadData = () => {
   const {uid} = route.params;
 
   if (uid) {
-    assemblyData.value = storageAssembly.get(uid as string, StorageAssemblyType.Data)
+    const getLocalAssemblyData = storageAssembly.get(uid as string, StorageAssemblyType.Data)
 
-    if (assemblyData && assemblyData.value) {
-      publishData.value = {
-        ...assemblyData.value.data,
-        ...publishData.value,
+    if (getLocalAssemblyData.code != 0)
+      return noticeStore.error(t('basic.tips.assembly.error', {
+        context: '无法读取到本地数据'
+      }))
+
+    const {uuid, assembly, name, description, tags} = getLocalAssemblyData.data;
+
+    publishData.value.uuid = uuid
+    publishData.value.name = name
+    publishData.value.description = description
+
+    publishData.value.assembly.data = assembly;
+    publishData.value.assembly.tags = tags;
+
+    if (getLocalAssemblyData.data.wheel)
+      publishData.value.wheel = {
+        ...publishData.value.wheel,
+        data: getLocalAssemblyData.data.wheel || null
+      };
+    if (getLocalAssemblyData.data.warehouse)
+      publishData.value.warehouse = {
+        ...publishData.value.warehouse,
+        data: getLocalAssemblyData.data.warehouse || null
       }
 
+    if (publishData && publishData.value) {
       onSetAssemblyData()
+      onSetWheelData()
+      onSetWarehouseData()
     }
   }
 
   dataLoading.value = false
 }
 
+/**
+ * 设置配装视图数据
+ */
 const onSetAssemblyData = () => {
-  assemblyWorkshopRef.value
+  assemblyMainSubjectView.value.assembly
       .setSetting({
-        assemblyUseVersion: publishData.value.attr?.assemblyUseVersion || assemblyData.value.data.data.__version || Assembly_data_processing.nowVersion,
-        isShowItemName: publishData.value.attr?.isShowItemName || false
+        assemblyUseVersion: publishData.value.assembly.attr?.assemblyUseVersion || publishData.value.assembly.data.__version || AssemblyDataProcessing.nowVersion,
+        isShowItemName: publishData.value.assembly.attr?.isShowItemName || false
       })
-      .onLoad(toRaw(publishData.value.data))
+      .onLoad(publishData.value.assembly.data)
+}
+
+/**
+ * 设置轮盘视图数据
+ */
+const onSetWheelData = () => {
+  assemblyMainSubjectView.value.wheel
+      .setSetting({
+        wheelUseVersion: publishData.value.wheel.attr?.wheelUseVersion || publishData.value.wheel.data.__version || WheelDataProcessing.nowVersion,
+      })
+      .onLoad(publishData.value.wheel.data)
+}
+
+/**
+ * 设置船仓视图数据
+ */
+const onSetWarehouseData = () => {
+  assemblyMainSubjectView.value.warehouse
+      .setSetting({
+        warehouseUseVersion: publishData.value.warehouse.attr?.warehouseUseVersion || publishData.value.warehouse.data.__version || WarehouseDataProcessing.nowVersion,
+      })
+      .onLoad(publishData.value.warehouse.data)
 }
 
 /**
@@ -123,13 +190,14 @@ const onEdit = async () => {
     if (d.error == 1)
       throw Error(d.message || d.code);
 
-    messages.value.push(t(`basic.tips.${d.code}`))
     storageAssembly.delete(editPublishData.uuid as string, StorageAssemblyType.Data)
-    await router.push(`/assembly/browse/${publishData.value.uuid}/detail`)
+    await router.push(`/assembly/browse/${editPublishData.uuid}/detail`)
+
+    noticeStore.success(t(`basic.tips.${d.code}`))
   } catch (e) {
     console.error(e)
     if (e instanceof Error)
-      messages.value.push(e.message)
+      noticeStore.error(e.message)
   } finally {
     publishLoading.value = false
   }
@@ -146,12 +214,12 @@ const onPublish = async () => {
 
     const result = await http.post(api['assembly_publish'], {
           data: {
-            name: publishData.value.name,
-            description: publishData.value.description,
-            data: assemblyData.value.data.data,
+            name: publishData.value.assembly.name,
+            description: publishData.value.assembly.description,
+            assembly: publishData.value.assembly,
             tags: publishData.value.tags,
             attr: {
-              ...publishData.value.attr,
+              ...publishData.value.assembly.attr,
             }
           }
         }),
@@ -160,14 +228,14 @@ const onPublish = async () => {
     if (d.error == 1)
       throw Error(d);
 
-    messages.value.push(t(`basic.tips.${d.code}`))
     storageAssembly.delete(uid as string, StorageAssemblyType.Data)
-
     await router.push(`/assembly/browse/${d.data.id}/detail`)
+
+    noticeStore.success(t(`basic.tips.${d.code}`))
   } catch (e) {
     console.error(e)
     if (e instanceof Error)
-      messages.value.push(t(`basic.tips.${e.response.data.code}`, {
+      noticeStore.error(t(`basic.tips.${e.response.data.code}`, {
         context: e.response.data.code
       }))
   } finally {
@@ -180,7 +248,7 @@ const onPublish = async () => {
  * @param data
  */
 const onUpdateTags = (data: any) => {
-  publishData.value.tags = data;
+  publishData.value.assembly.tags = data;
 }
 </script>
 
@@ -188,17 +256,17 @@ const onUpdateTags = (data: any) => {
   <v-card height="250px">
     <template v-slot:image>
       <Silk
-          :speed="3"
-          :scale=".7"
           :color="'#1c1c1c'"
           :noise-intensity="0.1"
           :rotation="-.6"
+          :scale=".7"
+          :speed="3"
           class="bg-black">
       </Silk>
     </template>
     <template v-slot:default>
       <v-container class="pa-2 mt-4 position-relative">
-        <v-breadcrumbs >
+        <v-breadcrumbs>
           <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
           <v-breadcrumbs-item to="/assembly">{{ t('assembly.title') }}</v-breadcrumbs-item>
@@ -210,16 +278,16 @@ const onUpdateTags = (data: any) => {
       </v-container>
 
       <v-container class="pa-7">
-        <v-row no-gutters align="start">
+        <v-row align="start" no-gutters>
           <v-col>
             <h1 class="text-amber">预览</h1>
             <p class="opacity-80 mt-5">设置配装信息</p>
           </v-col>
           <v-col cols="auto">
-            <v-btn variant="elevated" v-if="isEditModel" @click="router.go(-1)">
+            <v-btn v-if="isEditModel" variant="elevated" @click="router.go(-1)">
               {{ t('basic.button.prev') }}
             </v-btn>
-            <v-btn variant="elevated" :color="`var(--main-color)`" class="ml-2" :disabled="isPush" :loading="publishLoading" @click="() => isEditModel ? onEdit() : onPublish()">
+            <v-btn :color="`var(--main-color)`" :disabled="isPush" :loading="publishLoading" class="ml-2" variant="elevated" @click="() => isEditModel ? onEdit() : onPublish()">
               {{ t('basic.button.commit') }}
             </v-btn>
           </v-col>
@@ -229,35 +297,20 @@ const onUpdateTags = (data: any) => {
   </v-card>
 
   <!-- Workshop Share Preview S -->
-  <div class="card-enlargement-flavor mt-n3 ml-n2 mr-n2">
-    <ZoomableCanvas
-        style="height: 600px"
-        :minScale=".8"
-        :max-scale="1.2"
-        :boundary="{
-                left: -1500,
-                right: 1500,
-                top: -500,
-                bottom: 500
-              }">
-      <div class="card-enlargement-flavor mb-5 ml-n10 mr-n10">
-        <AssemblyShowWidget ref="assemblyWorkshopRef" :readonly="true"></AssemblyShowWidget>
-      </div>
-    </ZoomableCanvas>
-  </div>
+  <AssemblyMainSubjectView ref="assemblyMainSubjectView"></AssemblyMainSubjectView>
   <!-- Workshop Share Preview E -->
 
   <v-container>
     <v-form class="mb-10">
       <v-row>
-        <v-col cols="12" sm="12" lg="8">
+        <v-col cols="12" lg="8" sm="12">
           <v-row>
-            <v-col cols="12" sm="12" lg="6">
+            <v-col cols="12" lg="6" sm="12">
               <v-text-field
                   v-model="publishData.name"
+                  :rules="formRules.name"
                   label="配置名称"
                   placeholder="配置名称"
-                  :rules="formRules.name"
                   variant="underlined">
                 <template v-slot:details>
                   船长，设置一个酷炫名字，好名字配好船
@@ -267,10 +320,10 @@ const onUpdateTags = (data: any) => {
             <v-col cols="12">
               <div class="mt-4 mb-3 font-weight-bold">描述</div>
 
-              <v-card border class="pl-3 pr-3" :color="`hsl(from var(--main-color) h s calc(l * 0.05))`">
-                <Textarea class="mt-3 mb-2"
+              <v-card :color="`hsl(from var(--main-color) h s calc(l * 0.05))`" border class="pl-3 pr-3">
+                <Textarea v-model="publishData.description"
                           :maxlength="10000"
-                          v-model="publishData.description"
+                          class="mt-3 mb-2"
                           placeholder="输入描述描述"></Textarea>
                 <template v-if="route.query.debug">
                   {{ publishData.description }}
@@ -279,26 +332,26 @@ const onUpdateTags = (data: any) => {
             </v-col>
             <v-col>
               <v-divider>额外</v-divider>
-              <AssemblySettingWidget v-model="publishData" :is-show-delete="false"></AssemblySettingWidget>
+              <AssemblySettingWidget v-model="publishData.assembly" :is-show-delete="false"></AssemblySettingWidget>
             </v-col>
           </v-row>
         </v-col>
-        <v-col cols="12" sm="12" lg="4">
+        <v-col cols="12" lg="4" sm="12">
           <div class="mb-5">
             <v-combobox
-                placeholder="输入标签敲下回车键，即可创建新标签"
-                chips
-                multiple
-                clearable
-                label="标签"
                 v-model="publishData.tags"
-                variant="underlined"
+                :counter="100"
+                :hide-no-data="true"
+                chips
+                clearable
                 item-title="label"
                 item-value="value"
-                :counter="100"
-                :hide-no-data="true">
+                label="标签"
+                multiple
+                placeholder="输入标签敲下回车键，即可创建新标签"
+                variant="underlined">
               <template v-slot:chip="{item}">
-                <v-chip size="x-large" color="primary">
+                <v-chip color="primary" size="x-large">
                   {{
                     asString([
                       `${item.raw}`,
@@ -308,7 +361,7 @@ const onUpdateTags = (data: any) => {
                       `assembly.tags.damageTypes.${item.raw.toString().split('_')[1]}`,
                       `snb.seasons.${item.raw.toString().split('_')[1]}`,
                     ], {
-                        backRawKey: true
+                      backRawKey: true
                     })
                   }}
                 </v-chip>
@@ -326,9 +379,7 @@ const onUpdateTags = (data: any) => {
       </v-row>
     </v-form>
   </v-container>
-
-  <v-snackbar-queue v-model="messages"></v-snackbar-queue>
 </template>
 
-<style scoped lang="less">
+<style lang="less" scoped>
 </style>

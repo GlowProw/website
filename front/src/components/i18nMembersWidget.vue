@@ -36,7 +36,7 @@ const getLanguageMembers = async () => {
     method: 'get',
     headers: {
       "Authorization": `Bearer ${key}`,
-      "Accept": "application/json"
+      // "Accept": "application/json"
     },
     params: {
       role: 'all'

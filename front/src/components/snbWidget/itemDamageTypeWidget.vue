@@ -107,20 +107,24 @@ const setDamageRef = (el: any, index: string | number) => {
   <!-- 浓缩 无空Widget -->
   <template v-else-if="size == 'mini'">
     <v-card class="bg-transparent d-flex ga-1" v-if="damageIconImages.length > 0">
-      <ItemSlotBase
-          padding="0"
-          size="25"
+      <template
           v-for="(i, index) in damageIconImages"
-          :key="index"
-          class="d-flex justify-center align-center card-flavor"
-          v-tooltip="getTitle(i.key)"
-          v-show="damageRefs[i.key]?.isShow ?? false">
-        <DamageIconWidget
-            :id="i.key"
-            :ref="(el) => setDamageRef(el, i.key)"
-            size="15"
-        ></DamageIconWidget>
-      </ItemSlotBase>
+          :key="index">
+        <div v-show="damageRefs[index] && damageRefs[index]?.isShow || false">
+          <ItemSlotBase
+              padding="0"
+              size="25"
+              class="d-flex justify-center align-center card-flavor"
+              v-tooltip="getTitle(i.key)">
+
+            <DamageIconWidget
+                :id="i.key"
+                :ref="(el) => setDamageRef(el, index)"
+                size="15"
+            ></DamageIconWidget>
+          </ItemSlotBase>
+        </div>
+      </template>
     </v-card>
   </template>
 </template>

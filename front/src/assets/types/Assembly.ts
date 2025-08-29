@@ -24,3 +24,11 @@ export interface AssemblyAttr {
     isShowItemName?: boolean
     assemblyUseVersion?: string
 }
+
+export interface WheelAttr {
+    wheelUseVersion?: string
+}
+
+export interface WarehouseAttr {
+    warehouseUseVersion?: string
+}

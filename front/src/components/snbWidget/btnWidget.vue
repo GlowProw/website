@@ -38,7 +38,7 @@ const props = defineProps({
     default: false
   },
   size: {
-    type: Number,
+    type: [Number, String],
     default: 30
   },
   holdDuration: {

@@ -4,9 +4,6 @@ import {computed, nextTick, onMounted, type Ref, ref, toRaw, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 
 import {api, storageAssembly} from "@/assets/sripts";
-
-import ZoomableCanvas from "@/components/ZoomableCanvas.vue"
-import AssemblyShowWidget from "@/components/AssemblyShowWidget.vue";
 import {StorageAssemblyType} from "@/assets/sripts/storage_assembly";
 import {v6 as uuidv6} from "uuid";
 import {useAuthStore} from "~/stores/userAccountStore";
@@ -15,8 +12,9 @@ import Silk from "@/components/Silk.vue";
 import Loading from "@/components/Loading.vue";
 import {useHttpToken} from "@/assets/sripts/http_util";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
-import Assembly_data_processing from "@/assets/sripts/assembly_data_processing";
+import AssemblyDataProcessing from "@/assets/sripts/assembly_data_processing";
 import {useNoticeStore} from "~/stores/noticeStore";
+import AssemblyMainSubjectView from "@/components/AssemblyMainSubjectView.vue";
 
 const {t} = useI18n(),
     route = useRoute(),
@@ -26,25 +24,20 @@ const {t} = useI18n(),
     noticeStore = useNoticeStore()
 
 let
-    messages: Ref<string[]> = ref([]),
-
     assemblyLoading = ref(false),
     assemblyDetailData = ref({}),
-    assemblyWorkshopRef = ref(null),                      // 配装工作区
-    assemblyWorkshopZoomableAreaRef = ref(null),          // 配装缩放
+    assemblyMainSubjectView = ref(null),
 
-    isSharePreview = ref(false),                          // 是否处于分享预览
-    isWorkshopFillScreen = ref(false),
     draftModel = ref(false),
     draftNewSaveModel = ref(false),
     newDraftName = ref(''),
     draftList: Ref<[]> = ref([]),
     draftSaveQuickArchivingLoading = ref(false),
     draftSaveLoading = ref(false),
-    workshopHeight = ref(700),
     shareData: Ref<any> = ref({
-      name: '',
-      description: ''
+      assembly: {},
+      warehouse: {},
+      wheel: {}
     })                                                          // 分享数据，包含配置集和分享数据
 
 let isEditModel = computed(() => {
@@ -58,8 +51,9 @@ let isEditModel = computed(() => {
     }),
     isAssemblyByUser = computed(() => isEditModel.value ? shareData.value.isOwner : true),
     verificationAssembly = computed(() => {
-      if (assemblyWorkshopRef.value && assemblyDetailData.value)
-        return assemblyWorkshopRef.value.verify()
+      if (!!assemblyMainSubjectView.value && !!assemblyMainSubjectView.value.assembly) {
+        return assemblyMainSubjectView.value.assembly.verify()
+      }
 
       return null
     })
@@ -148,9 +142,9 @@ const onSaveAssembly = (type: StorageAssemblyType, uid?: string) => {
   // 合并数据
   shareData.value = {
     ...shareData.value,
-    data: assemblyWorkshopRef.value.onExport(),
-    localCreationTime: now,
-    localUpdateTime: now,
+    assembly: assemblyWorkshopRef.value.onExport(),
+    wheel: wheelWorkshopRef.value.onExport(),
+    warehouse: warehouseWorkshopRef.value.onExport()
   }
 
   return storageAssembly.updata(shareData.value, type, uid)
@@ -198,20 +192,13 @@ const onSaveDraft = () => {
   newDraftData.name = newDraftName.value;
 
   draftSaveLoading.value = true
-  storageAssembly.updata(newDraftData, StorageAssemblyType.Draft, uid)
-  draftSaveLoading.value = false
 
+  storageAssembly.updata(newDraftData, StorageAssemblyType.Draft, uid)
+
+  draftSaveLoading.value = false
   draftNewSaveModel.value = false
 
-  messages.value.push('保存草稿成功')
-}
-
-/**
- * 重制画布位置
- */
-const onWorkshopPos = () => {
-  if (assemblyWorkshopZoomableAreaRef)
-    assemblyWorkshopZoomableAreaRef.value.centerCanvas()
+  noticeStore.success('保存草稿成功')
 }
 
 /**
@@ -221,7 +208,7 @@ const onWorkshopPos = () => {
 const onUseDraft = (data) => {
   assemblyWorkshopRef.value
       .setSetting({
-        assemblyUseVersion: Assembly_data_processing.nowVersion,
+        assemblyUseVersion: AssemblyDataProcessing.nowVersion,
         isShowItemName: false,
       })
       .onLoad(toRaw(data))
@@ -235,14 +222,6 @@ const onUseDraft = (data) => {
 const onDeleteDraft = (id) => {
   storageAssembly.delete(id, StorageAssemblyType.Draft)
   getDraftListData()
-}
-
-const onWorkshopFullScreen = () => {
-  isWorkshopFillScreen.value = !isWorkshopFillScreen.value;
-}
-
-const onWorkshopDelete = () => {
-  assemblyWorkshopRef.value.onErasure();
 }
 </script>
 
@@ -268,7 +247,7 @@ const onWorkshopDelete = () => {
     </template>
     <template v-slot:default>
       <v-container class="pa-2 mt-4 position-relative">
-        <v-breadcrumbs >
+        <v-breadcrumbs>
           <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
           <v-breadcrumbs-item to="/assembly">{{ t('assembly.title') }}</v-breadcrumbs-item>
@@ -352,140 +331,117 @@ const onWorkshopDelete = () => {
   </v-card>
 
   <!-- Workshop S -->
-  <div class="mt-n5 ml-n5 mr-n5" style="z-index: 10" :class="[isWorkshopFillScreen ? 'fill-screen bg-black' : 'position-relative mb-n2']" v-show="!isSharePreview">
-    <v-card class="w-100 pa-0 card-enlargement-flavor workshop-ship">
-      <ZoomableCanvas
-          style="animation: all 1s"
-          ref="assemblyWorkshopZoomableAreaRef"
-          :style="isWorkshopFillScreen ? 'height: calc(100vh - 50px)' : `height: ${workshopHeight}px`"
-          :minScale=".8"
-          :max-scale="1.2"
-          :boundary="{
-                left: -1500,
-                right: 1500,
-                top: -500,
-                bottom: 500
-              }">
-        <AssemblyShowWidget ref="assemblyWorkshopRef"></AssemblyShowWidget>
-      </ZoomableCanvas>
-    </v-card>
-  </div>
-  <div class="position-fixed left-0 bottom-0 right-0 bg-black" style="z-index: 11">
-    <v-divider></v-divider>
-    <v-container>
-      <v-row justify="center">
-        <v-col cols="auto">
-          <v-btn density="comfortable"
-                 @click="onWorkshopPos"
-                 icon="mdi-restore"></v-btn>
+  <AssemblyMainSubjectView
+      ref="assemblyMainSubjectView"
+      class="mt-n2 ml-n5 mr-n5"
+      :readonly="false"
+      :isShowFooterTool="true"
+  ></AssemblyMainSubjectView>
+  <!--  <div class="mt-n2 ml-n5 mr-n5" style="z-index: 10" :class="[isWorkshopFillScreen ? 'fill-screen bg-black' : 'position-relative mb-n2']" v-show="!isSharePreview">-->
+  <!--    <v-card class="w-100 pa-0 card-enlargement-flavor workshop-ship">-->
+  <!--      <v-tabs-->
+  <!--          @update:model-value="onTabs"-->
+  <!--          v-model="tab"-->
+  <!--          align-tabs="center">-->
+  <!--        <v-tab :value="i" v-for="(i,index) in assemblyViewConfig.onlySet"-->
+  <!--               :disabled="i == 'warehouse' && shareData.assembly.shipSlot == null"-->
+  <!--               :key="index">{{ t(`assembly.additions.${i}`) }}-->
+  <!--        </v-tab>-->
+  <!--      </v-tabs>-->
+  <!--      <v-divider></v-divider>-->
 
-        </v-col>
-        <v-col cols="auto" class="ml-4 mr-3">
-          <v-btn @click="workshopHeight <= 1000 ? workshopHeight += 100 : null" density="comfortable" icon>
-            <v-icon icon="mdi-arrow-expand-vertical"></v-icon>
-          </v-btn>
-          <v-btn density="comfortable"
-                 class="ml-1 mr-1"
-                 @click="onWorkshopFullScreen"
-                 :icon="`mdi-${!isWorkshopFillScreen ? 'fullscreen' : 'fullscreen-exit'}`"></v-btn>
-          <v-btn @click="workshopHeight >= 400 ? workshopHeight -= 100 : null" density="comfortable" icon>
-            <v-icon icon="mdi-arrow-collapse-vertical"></v-icon>
-          </v-btn>
-        </v-col>
-        <v-col cols="auto">
-          <v-btn density="comfortable"
-                 @click="onWorkshopDelete"
-                 icon="mdi-delete"></v-btn>
-        </v-col>
-      </v-row>
-    </v-container>
-  </div>
+  <!--      <ZoomableCanvas-->
+  <!--          ref="assemblyWorkshopZoomableAreaRef"-->
+  <!--          :style="isWorkshopFillScreen ? 'height: calc(100vh - 50px)' : `height: ${workshopHeight}px`"-->
+  <!--          :minScale=".8"-->
+  <!--          :max-scale="1.2"-->
+  <!--          :boundary="{-->
+  <!--                left: -1500,-->
+  <!--                right: 1500,-->
+  <!--                top: -500,-->
+  <!--                bottom: 500-->
+  <!--              }">-->
+  <!--        <div v-show="tab == 'assembly'">-->
+  <!--          <AssemblyShowWidget ref="assemblyWorkshopRef" v-model="shareData.assembly"></AssemblyShowWidget>-->
+  <!--        </div>-->
+  <!--        <div v-show="tab == 'wheel'">-->
+  <!--          <WheelWidget ref="wheelWorkshopRef"></WheelWidget>-->
+  <!--        </div>-->
+  <!--        <div v-show="tab == 'warehouse'">-->
+  <!--          <WarehouseShowWidget ref="warehouseWorkshopRef"></WarehouseShowWidget>-->
+  <!--        </div>-->
+  <!--      </ZoomableCanvas>-->
+  <!--    </v-card>-->
+  <!--  </div>-->
   <!-- Workshop E -->
 
-  <v-dialog
-      :width="600"
-      v-model="draftNewSaveModel">
-    <v-card>
-      <v-card-title>
-        <v-row align="center" class="pa-2">
-          草稿
-          <v-spacer></v-spacer>
-          <v-btn @click="draftNewSaveModel = false" :elevation="0" icon="mdi-close"></v-btn>
-        </v-row>
-      </v-card-title>
-      <v-card-item>
-        <v-text-field label="输入另存为草稿名称"
-                      v-model="newDraftName"></v-text-field>
-      </v-card-item>
-      <v-card-actions>
-        <v-btn :loading="draftSaveLoading" @click="onSaveDraft">
-          {{ t('basic.button.submit') }}
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+  <v-container class="pa-0">
+    <v-dialog
+        v-model="draftNewSaveModel">
+      <v-card>
+        <v-card-title>
+          <v-row align="center" class="pa-2">
+            草稿
+            <v-spacer></v-spacer>
+            <v-btn @click="draftNewSaveModel = false" :elevation="0" icon="mdi-close"></v-btn>
+          </v-row>
+        </v-card-title>
+        <v-card-item>
+          <v-text-field label="输入另存为草稿名称"
+                        v-model="newDraftName"></v-text-field>
+        </v-card-item>
+        <v-card-actions>
+          <v-btn :loading="draftSaveLoading" @click="onSaveDraft">
+            {{ t('basic.button.submit') }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
-  <v-dialog
-      max-width="600"
-      v-model="draftModel">
-    <v-card>
-      <v-card-title>
-        <v-row align="center" class="pa-2">
-          草稿
-          <v-spacer></v-spacer>
-          <v-btn @click="draftModel = false" :elevation="0" icon="mdi-close"></v-btn>
-        </v-row>
-      </v-card-title>
-      <v-card-item>
-        <v-list density="compact" v-if="draftList.length > 0">
-          <v-list-item slim density="compact" v-for="(i, index) in draftList" :key="index">
-            <v-list-item-title>
-              <v-row no-gutters>
-                <v-col>
-                  <template v-if="i.id == 'quickArchiving'">
-                    快速储存草稿
-                  </template>
-                  <template v-else>
-                    {{ i.name || 'none' }}
-                  </template>
-                </v-col>
-                <v-col cols="auto">
-                  <v-btn @click="onUseDraft(i.data)" variant="tonal" class="mr-2">
-                    使用
-                  </v-btn>
-                  <v-btn icon density="compact" @click="onDeleteDraft(i.id)">
-                    <v-icon icon="mdi-delete"></v-icon>
-                  </v-btn>
-                </v-col>
-              </v-row>
-            </v-list-item-title>
-            <v-list-item-subtitle>
-              <p class="opacity-40" v-if="i.id != 'quickArchiving'">{{ i.id }}</p>
-            </v-list-item-subtitle>
-          </v-list-item>
-        </v-list>
-        <EmptyView v-else></EmptyView>
-      </v-card-item>
-    </v-card>
-  </v-dialog>
-
-  <v-snackbar-queue v-model="messages"></v-snackbar-queue>
+    <v-dialog
+        v-model="draftModel">
+      <v-card>
+        <v-card-title>
+          <v-row align="center" class="pa-2">
+            草稿
+            <v-spacer></v-spacer>
+            <v-btn @click="draftModel = false" :elevation="0" icon="mdi-close"></v-btn>
+          </v-row>
+        </v-card-title>
+        <v-card-item>
+          <v-list density="compact" v-if="draftList.length > 0">
+            <v-list-item slim density="compact" v-for="(i, index) in draftList" :key="index">
+              <v-list-item-title>
+                <v-row no-gutters>
+                  <v-col>
+                    <template v-if="i.id == 'quickArchiving'">
+                      快速储存草稿
+                    </template>
+                    <template v-else>
+                      {{ i.name || 'none' }}
+                    </template>
+                  </v-col>
+                  <v-col cols="auto">
+                    <v-btn @click="onUseDraft(i.data)" variant="tonal" class="mr-2">
+                      使用
+                    </v-btn>
+                    <v-btn icon density="compact" @click="onDeleteDraft(i.id)">
+                      <v-icon icon="mdi-delete"></v-icon>
+                    </v-btn>
+                  </v-col>
+                </v-row>
+              </v-list-item-title>
+              <v-list-item-subtitle>
+                <p class="opacity-40" v-if="i.id != 'quickArchiving'">{{ i.id }}</p>
+              </v-list-item-subtitle>
+            </v-list-item>
+          </v-list>
+          <EmptyView v-else></EmptyView>
+        </v-card-item>
+      </v-card>
+    </v-dialog>
+  </v-container>
 </template>
 
 <style scoped lang="less">
-.assembly-variable-gradient {
-  --gradient-start: rgba(0, 0, 0, 0);
-  --gradient-end: #000000;
-
-  background: linear-gradient(to right, var(--gradient-start), var(--gradient-end), var(--gradient-end));
-}
-
-.fill-screen {
-  position: fixed;
-  z-index: 10;
-  top: 0;
-  right: 0;
-  left: 0;
-  bottom: 0;
-}
 </style>

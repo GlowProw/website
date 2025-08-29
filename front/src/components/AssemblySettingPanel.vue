@@ -5,14 +5,14 @@ import {useHttpToken} from "@/assets/sripts/http_util";
 import {api} from "@/assets/sripts/index";
 import Loading from "@/components/Loading.vue";
 import AssemblySettingWidget from "@/components/AssmblySettingWidget.vue"
-import Assembly_data_processing from "@/assets/sripts/assembly_data_processing";
+import AssemblyDataProcessing from "@/assets/sripts/assembly_data_processing";
 import VueJsonPretty from 'vue-json-pretty';
 
 import 'vue-json-pretty/lib/styles.css';
 
 const {t, locale} = useI18n(),
     http = useHttpToken(),
-    assemblyDataProcessing = new Assembly_data_processing();
+    assemblyDataProcessing = new AssemblyDataProcessing();
 
 const props = defineProps<{ id: string, assemblyData?: any }>(),
     emit = defineEmits(['change'])
@@ -27,7 +27,7 @@ let show = ref(false),
       attr: {
         password: '',
         language: locale.value,
-        assemblyUseVersion: Assembly_data_processing.nowVersion
+        assemblyUseVersion: AssemblyDataProcessing.nowVersion
       }
     })
 

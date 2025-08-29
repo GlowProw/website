@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import Assembly_data_processing from "@/assets/sripts/assembly_data_processing";
+import AssemblyDataProcessing from "@/assets/sripts/assembly_data_processing";
 import {computed, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {api} from "@/assets/sripts/index";
@@ -203,7 +203,7 @@ const passwordPlaceholder = computed(() => {
         <p>决定对配装数据以何种格式加载，如果你不清楚作用可以不需要设置，让系统以最新版本来初始加载</p>
       </v-col>
       <v-col>
-        <v-select placeholder="选择版本" :items="Assembly_data_processing.versions" v-model="modelValue.attr.assemblyUseVersion"></v-select>
+        <v-select placeholder="选择版本" :items="AssemblyDataProcessing.versions" v-model="modelValue.attr.assemblyUseVersion"></v-select>
       </v-col>
     </v-row>
 

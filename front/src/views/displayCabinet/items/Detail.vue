@@ -114,7 +114,6 @@ let itemDetailData: Ref<Item | null> = ref(null),
 useHead(head)
 
 watch(() => route.path, (value) => {
-  console.log(value)
   onReady()
 })
 
@@ -174,7 +173,6 @@ const onDisplayCabinetHistory = () => {
  * 处理计算必要材料对应原材料
  */
 const onStatisticsRawMaterial = () => {
-  console.log(itemDetailData)
   if (itemDetailData.value.required)
     itemRawMaterials.value = Array.from(itemDetailData.value.required).reduce(
         (acc, [material, quantity]) => {

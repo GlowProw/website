@@ -3,27 +3,28 @@ import {useI18n} from "vue-i18n";
 import {computed, Ref, ref, toRaw, useSlots, watch} from "vue";
 import {useRoute} from "vue-router";
 
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
+import {AssemblyAttr, ItemAssemblySave} from "@/assets/types";
+import {useNoticeStore} from "~/stores/noticeStore";
+import {number} from "@/assets/sripts/index"
+import {Ships, Ultimates} from "glow-prow-data";
+import {Item, Items} from "glow-prow-data/src/entity/Items.ts";
+import {Ship} from "glow-prow-data/src/entity/Ships.ts";
+
+import shipSlotMapping from "../../public/config/shipsConfig.json";
+
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import EmptyView from "./EmptyView.vue";
 import ShipIconWidget from "./snbWidget/shipIconWidget.vue";
-
-import {number} from "@/assets/sripts/index"
-import Assembly_data_processing from "@/assets/sripts/assembly_data_processing";
-import {Ships, Ultimates} from "glow-prow-data";
-import {Item, Items} from "glow-prow-data/src/entity/Items.ts";
-import {Ship} from "glow-prow-data/src/entity/Ships.ts";
-import shipSlotMapping from "../../public/config/shipsConfig.json";
 import ShipTopDownPerspectiveWidget from "./snbWidget/shipTopDownPerspectiveWidget.vue";
 import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
 import WeaponModificationWidget from "@/components/snbWidget/weaponModificationWidget.vue";
 import AssemblyClassificationShowList from "@/components/AssemblyClassificationShowList.vue";
-import {useI18nUtils} from "@/assets/sripts/i18n_util";
+import AssemblyDataProcessing from "@/assets/sripts/assembly_data_processing";
+import ShipName from "@/components/snbWidget/shipName.vue";
 import ItemName from "@/components/snbWidget/itemName.vue";
 import UltimateName from "@/components/snbWidget/ultimateName.vue";
-import {AssemblyAttr, ItemAssemblySave} from "@/assets/types";
-import ShipName from "@/components/snbWidget/shipName.vue";
-import {useNoticeStore} from "~/stores/noticeStore";
 import WeaponModificationOnlyShowWidget from "@/components/snbWidget/WeaponModificationOnlyShowWidget.vue";
 
 const poops = withDefaults(defineProps<{
@@ -40,8 +41,9 @@ const poops = withDefaults(defineProps<{
     ships = Ships,
     items: Items = Items,
     ultimates = Ultimates,
-    assemblyDataProcessing = new Assembly_data_processing(),
+    assemblyDataProcessing = new AssemblyDataProcessing(),
     noticeStore = useNoticeStore(),
+    emit = defineEmits(['update:modelValue']),
     {asString, sanitizeString} = useI18nUtils(),
     {t} = useI18n()
 
@@ -81,7 +83,7 @@ let workshopData = ref({
 
         // 平台版本
         // ** 它可能不存在，如果有则依靠此__version识别，没有则主要使用attr.assemblyUseVersion, 否则降级 **
-        __version: Assembly_data_processing.nowVersion,
+        __version: AssemblyDataProcessing.nowVersion,
       } as {
         shipSlot: Ship, ultimateSlot: Item | null, armorSlot: Item | null,
         displaySlots: Item[], weaponSlots: ItemAssemblySave[] | Item[], shipUpgradeSlot: Item | null,
@@ -106,7 +108,7 @@ let workshopData = ref({
     // 配装属性
     attr: Ref<AssemblyAttr> = ref({
       isShowItemName: true,
-      assemblyUseVersion: Assembly_data_processing.nowVersion
+      assemblyUseVersion: AssemblyDataProcessing.nowVersion
     })
 
 watch(() => workshopData.value?.data?.shipSlot, (value) => {
@@ -124,6 +126,7 @@ watch(() => workshopData.value?.data?.shipSlot, (value) => {
     })
 
   cache.value.weaponDirections = result;
+  emit('update:modelValue', onExport())
 })
 
 /**
@@ -402,6 +405,7 @@ defineExpose({
   onErasure,
   setSetting,
   verify,
+  data: workshopData.value.data
 })
 </script>
 

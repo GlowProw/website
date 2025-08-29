@@ -1,21 +1,15 @@
 <script setup lang="ts">
 import {ref} from "vue";
 import LongPressButton from "@/components/snbWidget/btnWidget.vue";
+import WheelWidget from "@/components/wheelShowWidget.vue";
+import WarehouseShowWidget from "@/components/WarehouseShowWidget.vue";
 
 let value = ref('')
 </script>
 
 <template>
   <v-container class="mt-10">
-    <div style="width: 1200px">
-      <LongPressButton :duration="3000">
-        11
-      </LongPressButton>
-
-      <LongPressButton :duration="3000" keyboard-shortcut="e">
-        11
-      </LongPressButton>
-    </div>
+    <WarehouseShowWidget></WarehouseShowWidget>
   </v-container>
 </template>
 

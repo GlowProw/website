@@ -330,6 +330,11 @@
       "keywords": "配装厂,碧海黑帆配装,配装,套装,游戏配装"
     },
     "anonymous": "匿名",
+    "additions": {
+      "assembly": "配装",
+      "wheel": "轮盘",
+      "warehouse": "船仓"
+    },
     "setting": {
       "title": "设置",
       "publicly": "公开",

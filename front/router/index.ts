@@ -344,6 +344,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
         path: '/test',
         name: 'test',
         component: Test,
+        beforeEnter: initItemAssets
     },
 
     // 404 路由（必须放在最后）

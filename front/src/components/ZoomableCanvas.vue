@@ -292,6 +292,10 @@ onBeforeUnmount(() => {
 
   if (resizeObserver.value) resizeObserver.value.disconnect()
 })
+
+defineExpose({
+  centerCanvas
+})
 </script>
 
 <style scoped lang="less">

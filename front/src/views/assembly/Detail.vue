@@ -3,19 +3,15 @@
 import {useRoute, useRouter} from "vue-router";
 import {nextTick, onMounted, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
-
-import AssemblyShowWidget from "@/components/AssemblyShowWidget.vue";
 import {api} from "@/assets/sripts";
 import {useHttpToken} from "@/assets/sripts/http_util";
 import {useAuthStore} from "~/stores/userAccountStore";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
-import {useDisplay} from "vuetify/framework";
 import {useHead} from "@unhead/vue";
 
 import LikeWidget from "@/components/LikeWidget.vue";
 import Textarea from "@/components/textarea/index.vue";
 import Loading from "@/components/Loading.vue";
-import ZoomableCanvas from "@/components/ZoomableCanvas.vue"
 import Silk from "@/components/Silk.vue";
 import AssemblyTagsWidget from "@/components/AssemblyTagsWidget.vue";
 import CommentWidget from "@/components/CommentWidget.vue";
@@ -23,25 +19,27 @@ import AssemblySettingPanel from "@/components/AssemblySettingPanel.vue";
 import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
+import AssemblyMainSubjectView from "@/components/AssemblyMainSubjectView.vue";
 
 const route = useRoute(),
     router = useRouter(),
     http = useHttpToken(),
     authStore = useAuthStore(),
-    {mobile} = useDisplay(),
     {t} = useI18n(),
     {asString} = useI18nUtils()
 
-let assemblyDetailData = ref({
+let detailData = ref({
       uuid: '',
       name: '',
       tags: [],
       description: '',
       username: '',
+      assembly: {},
+      wheel: {},
       createdTime: Date.now(),
       updatedTime: Date.now(),
     }),
-    assemblyDetailRef = ref(null),
+    assemblyMainSubjectView = ref(null),
     assemblyLoading = ref(false),
     password = ref(''),
     messages = ref([]),
@@ -66,7 +64,7 @@ onMounted(async () => {
   await getAssemblyDetail()
 
   // set new title
-  const title = `${assemblyDetailData.value.name} - ${head.value.title} | ${t('name')}`;
+  const title = `${detailData.value.assembly.name} - ${head.value.title} | ${t('name')}`;
   head.value.titleTemplate = title
   head.value.meta = {name: 'og:title', content: title}
 })
@@ -74,36 +72,32 @@ onMounted(async () => {
 /**
  * 获取配装详情
  */
-const getAssemblyDetail = async () => {
+const getAssemblyDetail = async (force: boolean = false) => {
   try {
     const {uuid} = route.params;
     const {password} = route.query;
+
     assemblyLoading.value = true;
 
     const result = await http.get(api['assembly_item'], {
           params: {
             uuid,
-            password
+            password,
           },
+          data: {
+            force
+          }
         }),
         d = result.data;
 
     if (d.error == 1) {
-      assemblyDetailData.value = d.data;
-      return
+      detailData.value = d.data;
+      throw new Error(d)
     }
 
-    assemblyDetailData.value = d.data;
-    assemblyDetailData.value.description = unescape(assemblyDetailData.value.description || '这个人很懒什么,对此配装什么都没说')
+    detailData.value = d.data;
+    detailData.value.description = decodeURI(detailData.value.description || '这个人很懒什么,对此配装什么都没说')
 
-    await nextTick(() => {
-      assemblyDetailRef.value
-          .setSetting({
-            assemblyUseVersion: d.data.attr.assemblyUseVersion,
-            isShowItemName: d.data.attr.isShowItemName,
-          })
-          .onLoad(d.data.data || d.data.assembly)
-    })
   } catch (e) {
     console.error(e)
     if (e instanceof Error)
@@ -113,6 +107,33 @@ const getAssemblyDetail = async () => {
   } finally {
     assemblyLoading.value = false
   }
+}
+
+/**
+ * 当配装视图准备时装载数据
+ */
+const onAssemblyMainViewReady = () => {
+  const d = detailData.value
+
+  // 载入配装
+  assemblyMainSubjectView.value.refs.assembly
+      .setSetting({
+        assemblyUseVersion: d.assembly.attr.assemblyUseVersion,
+        isShowItemName: d.assembly.attr.isShowItemName,
+      })
+      .onLoad(d.assembly.data)
+  // 载入轮盘
+  assemblyMainSubjectView.value.refs.wheel
+      .setSetting({
+        wheelUseVersion: d.wheel.attr.wheelUseVersion,
+      })
+      .onLoad(d.wheel.data)
+  // 载入船仓
+  assemblyMainSubjectView.value.refs.warehouse
+      .setSetting({
+        warehouseUseVersion: d.warehouse.attr.warehouseUseVersion,
+      })
+      .onLoad(d.warehouse.data)
 }
 
 /**
@@ -126,7 +147,7 @@ const onPenPassword = () => {
 </script>
 
 <template>
-  <v-card height="200px">
+  <v-card height="250px">
     <template v-slot:image>
       <Silk
           :speed="3"
@@ -159,51 +180,52 @@ const onPenPassword = () => {
 
         <div v-show="!assemblyLoading">
           <div class="pl-2">
-            <v-toolbar class="bg-transparent">
-              <div>
-                <h1 :title="assemblyDetailData.name || ''" class="text-amber text-h4 singe-line">{{ assemblyDetailData.name || '' }}</h1>
+            <v-row no-gutters>
+              <v-col>
+                <h1 :title="detailData.name || ''" class="text-amber text-h4 singe-line">{{ detailData.name || '' }}</h1>
 
                 <div class="d-flex ga-2">
                   <v-chip-group>
-                    <v-chip density="compact" v-if="assemblyDetailData.isOwner">
+                    <v-chip density="compact" v-if="detailData.isOwner">
                       所有者
                     </v-chip>
-                    <v-chip density="compact" v-if="assemblyDetailData.isPassword">
+                    <v-chip density="compact" v-if="detailData.isPassword">
                       包含密码
                     </v-chip>
-                    <v-chip :to="`/assembly/browse/${assemblyDetailData.cloningUuid}/detail`" target="_blank" density="compact" v-if="assemblyDetailData.cloningUuid">
-                      克隆: {{ assemblyDetailData.cloningUuid }}
+                    <v-chip :to="`/assembly/browse/${detailData.cloningUuid}/detail`" target="_blank" density="compact" v-if="detailData.cloningUuid">
+                      克隆: {{ detailData.cloningUuid }}
                     </v-chip>
                   </v-chip-group>
                 </div>
-              </div>
+              </v-col>
 
               <v-spacer></v-spacer>
 
-              <LikeWidget targetType="assembly"
-                          v-if="authStore.isLogin && assemblyDetailData.isVisibility && assemblyDetailData.attr.isLike"
-                          :targetId="assemblyDetailData.uuid"
-                          :userId="authStore.user.userId">
-                <template v-slot:activate>
-                  <v-btn icon="mdi-thumb-up"></v-btn>
-                </template>
-                <template v-slot:unActivate>
-                  <v-btn icon="mdi-thumb-up-outline"></v-btn>
-                </template>
-              </LikeWidget>
+              <div class="d-flex ga-1 mr-2">
+                <LikeWidget targetType="assembly"
+                            v-if="authStore.isLogin && detailData.isVisibility && detailData.assembly?.attr?.isLike"
+                            :targetId="detailData.uuid"
+                            :userId="authStore.user.userId">
+                  <template v-slot:activate>
+                    <v-btn variant="text" icon="mdi-thumb-up"></v-btn>
+                  </template>
+                  <template v-slot:unActivate>
+                    <v-btn variant="text" icon="mdi-thumb-up-outline"></v-btn>
+                  </template>
+                </LikeWidget>
+                <v-btn variant="text" v-if="detailData.uuid" :to="`/assembly/browse/${detailData.uuid}/share`" icon="mdi-share-variant-outline"></v-btn>
+                <v-btn variant="text" v-if="detailData.uuid" @click="getAssemblyDetail(true)" icon="mdi-refresh"></v-btn>
+              </div>
 
-              <v-btn v-if="assemblyDetailData.uuid" :to="`/assembly/browse/${assemblyDetailData.uuid}/share`" icon="mdi-share-variant-outline"></v-btn>
-              <v-btn v-if="assemblyDetailData.uuid" @click="getAssemblyDetail" icon="mdi-refresh"></v-btn>
-
-              <template v-if="assemblyDetailData.isVisibility && authStore.isLogin && assemblyDetailData.isOwner">
+              <template v-if="detailData.isVisibility && authStore.isLogin && detailData.isOwner">
                 <v-btn-group class="ml-2">
-                  <v-btn variant="flat" :to="`/assembly/workshop/${assemblyDetailData.uuid}/edit`">
+                  <v-btn variant="flat" :to="`/assembly/workshop/${detailData.uuid}/edit`">
                     <v-icon icon="mdi-pencil" class="mr-2"></v-icon>
                     编辑此配装
                   </v-btn>
                   <v-divider vertical></v-divider>
-                  <AssemblySettingPanel :id="assemblyDetailData.uuid"
-                                        :assembly-data="assemblyDetailData?.assembly || {}"
+                  <AssemblySettingPanel :id="detailData.uuid"
+                                        :assembly-data="detailData?.assembly || {}"
                                         @change="getAssemblyDetail">
                     <v-btn variant="flat" class="h-100">
                       <v-icon icon="mdi-cog"></v-icon>
@@ -211,7 +233,7 @@ const onPenPassword = () => {
                   </AssemblySettingPanel>
                 </v-btn-group>
               </template>
-            </v-toolbar>
+            </v-row>
           </div>
         </div>
       </v-container>
@@ -219,39 +241,21 @@ const onPenPassword = () => {
   </v-card>
 
   <!-- Assembly Preview S -->
-  <v-card class="card-enlargement-flavor mt-n3 mb-5 ml-n10 mr-n10" v-if="assemblyDetailData.isVisibility">
-    <ZoomableCanvas
-        :style="`height: ${mobile ? 300 : 600}px`"
-        :min-scale="mobile ? .1 : .8"
-        :max-scale="1.4"
-        :default-scale="mobile ? .4 : 1"
-        :is-show-tool="true"
-        :boundary="mobile ? {
-                left: -100,
-                right: 100,
-                top: -100,
-                bottom: 100
-              } : {
-                left: -1500,
-                right: 1500,
-                top: -500,
-                bottom: 500
-              }">
-      <AssemblyShowWidget ref="assemblyDetailRef" :readonly="true" :perfect-display="true">
-        <template v-slot:image v-if="assemblyDetailData.attr.backgroundPresentation">
-          <v-img cover class="pointer-events-none" :src="assemblyDetailData.attr.backgroundPresentation"></v-img>
-        </template>
-      </AssemblyShowWidget>
-    </ZoomableCanvas>
-  </v-card>
+  <AssemblyMainSubjectView
+      ref="assemblyMainSubjectView"
+      v-if="detailData.isVisibility"
+      v-model="detailData"
+      @ready="onAssemblyMainViewReady"
+      :perfect-display="true"
+      :assembly-background="detailData.assembly.attr && detailData.assembly.attr.backgroundPresentation"></AssemblyMainSubjectView>
   <!-- Assembly Preview E -->
 
-  <v-container v-if="assemblyDetailData.isVisibility">
+  <v-container v-if="detailData.isVisibility">
     <div>
       <v-row>
         <v-col cols="12" sm="12" lg="8" xl="8">
-          <div class="ga-2 mb-6" v-if="assemblyDetailData.tags">
-            <v-chip class="mr-2 mb-2 pt-1 pb-1 pl-5 pr-5" v-for="(i, index) in assemblyDetailData.tags" :key="index">
+          <div class="ga-2 mb-6" v-if="detailData.tags">
+            <v-chip class="mr-2 mb-2 pt-1 pb-1 pl-5 pr-5" v-for="(i, index) in detailData.tags" :key="index">
               {{
                 asString([
                   `${i}`,
@@ -269,22 +273,22 @@ const onPenPassword = () => {
 
           <Textarea class="mt-5 mb-2"
                     :readonly="true"
-                    v-model="assemblyDetailData.description"
+                    v-model="detailData.description"
                     placeholder="输入描述描述"></Textarea>
 
-          <template v-if="assemblyDetailData.attr.isComment">
+          <template v-if="detailData.assembly.attr.isComment">
             <v-divider>评论</v-divider>
-            <CommentWidget :id="assemblyDetailData.uuid" placeholder="你对此有何见解？"
+            <CommentWidget :id="detailData.uuid" placeholder="你对此有何见解？"
                            type="assembly"></CommentWidget>
           </template>
         </v-col>
         <v-col cols="12" sm="12" lg="4" xl="4">
           <router-link class="text-h5 bg-transparent d-flex ga-2 align-center"
-                       :to="assemblyDetailData.userId ? `/space/${assemblyDetailData.userId}` : null">
-            <v-card v-if="assemblyDetailData.userAvatar" class="mr-1">
-              <UserAvatar size="25" :src="assemblyDetailData.userAvatar"></UserAvatar>
+                       :to="detailData.userId ? `/space/${detailData.userId}` : null">
+            <v-card v-if="detailData.userAvatar" class="mr-1">
+              <UserAvatar size="25" :src="detailData.userAvatar"></UserAvatar>
             </v-card>
-            {{ assemblyDetailData.username || t('assembly.anonymous') }}
+            {{ detailData.username || t('assembly.anonymous') }}
           </router-link>
 
           <v-row class="mt-5">
@@ -293,8 +297,8 @@ const onPenPassword = () => {
               创建时间
             </v-col>
             <v-col>
-              <TimeView :time="assemblyDetailData.createdTime">
-                <Time :time="assemblyDetailData.createdTime"></Time>
+              <TimeView :time="detailData.createdTime" v-if="detailData.createdTime">
+                <Time :time="detailData.createdTime"></Time>
               </TimeView>
             </v-col>
           </v-row>
@@ -305,8 +309,8 @@ const onPenPassword = () => {
               更新时间
             </v-col>
             <v-col>
-              <TimeView :time="assemblyDetailData.createdTimeupdatedTime">
-                <Time :time="assemblyDetailData.createdTimeupdatedTime"></Time>
+              <TimeView :time="detailData.updatedTime" v-if="detailData.updatedTime">
+                <Time :time="detailData.updatedTime"></Time>
               </TimeView>
             </v-col>
           </v-row>
@@ -314,13 +318,13 @@ const onPenPassword = () => {
           <AssemblyTagsWidget
               class="mt-4"
               :readonly="true"
-              :tags="assemblyDetailData.tags"></AssemblyTagsWidget>
+              :tags="detailData.tags"></AssemblyTagsWidget>
         </v-col>
       </v-row>
     </div>
   </v-container>
 
-  <v-container v-if="!assemblyDetailData.isPassword && !assemblyDetailData.isVisibility && !assemblyDetailData.assembly">
+  <v-container v-if="!detailData.isPassword && !detailData.isVisibility && !detailData.assembly">
     <v-card variant="text" class="pa-10 text-center">
       <v-icon icon="mdi-alert-circle-outline" class="text-amber" size="120"></v-icon>
       <h1 class="mt-10">抱歉,此配装不存在或不公开</h1>
@@ -330,7 +334,7 @@ const onPenPassword = () => {
       </p>
     </v-card>
   </v-container>
-  <v-container v-else-if="assemblyDetailData.isPassword">
+  <v-container v-else-if="detailData.isPassword">
     <v-card variant="text" class="pa-10 text-center">
       <v-icon icon="mdi-alert-circle-outline" class="text-amber" size="120"></v-icon>
       <h1 class="mt-10">抱歉此配装，需要密码</h1>

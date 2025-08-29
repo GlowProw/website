@@ -10,15 +10,7 @@ import EmptyView from "@/components/EmptyView.vue";
 import {StorageCollectType} from "@/assets/sripts/storage_collect";
 import ItemDamageTypeWidget from "@/components/snbWidget/itemDamageTypeWidget.vue";
 import ItemName from "@/components/snbWidget/itemName.vue";
-
-interface Item {
-  id: string;
-  tier: number;
-  label: string;
-  type: string;
-  rarity?: number;
-  name: string;
-}
+import {Item} from "glow-prow-data";
 
 interface GroupedItem {
   type: string;
@@ -210,10 +202,13 @@ defineExpose({
               variant="underlined"
               v-model="searchQuery"
               hide-details
-              prepend-inner-icon="mdi-magnify"
               clearable
-              @update:modelValue="updateData"
-          ></v-text-field>
+              @click:clear="updateData"
+              @keydown.enter="updateData">
+            <template v-slot:append-inner>
+              <v-icon @click="updateData">mdi-magnify</v-icon>
+            </template>
+          </v-text-field>
         </v-col>
         <v-col cols="3">
           <v-select

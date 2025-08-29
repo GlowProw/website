@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {nextTick, onMounted, ref, watch} from "vue";
 import {api, http} from "@/assets/sripts/index";
-import AssemblyShowWidget from "@/components/AssemblyShowWidget.vue";
+import AssemblyWidget from "@/components/AssemblyWidget.vue";
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
 import Loading from "@/components/Loading.vue";
@@ -179,11 +179,11 @@ const generateQRCode = async (text) => {
     <div class="bg-black position-relative share ml-n6 mr-n6" ref="capture">
       <!-- Assembly Preview S -->
       <v-card class="card-enlargement-flavor mt-n3 mb-5" v-if="assemblyDetailData.isVisibility">
-        <AssemblyShowWidget ref="assemblyDetailRef" :readonly="true" :perfect-display="true">
+        <AssemblyWidget ref="assemblyDetailRef" :readonly="true" :perfect-display="true">
           <template v-slot:image v-if="assemblyDetailData.attr.backgroundPresentation">
             <v-img cover class="pointer-events-none" :src="assemblyDetailData.attr.backgroundPresentation"></v-img>
           </template>
-        </AssemblyShowWidget>
+        </AssemblyWidget>
       </v-card>
       <!-- Assembly Preview E -->
 

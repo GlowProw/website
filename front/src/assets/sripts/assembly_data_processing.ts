@@ -1,6 +1,7 @@
 import {Items, Modifications, Ships} from "glow-prow-data"
 import {Item} from "glow-prow-data/src/entity/Items.ts";
 import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
+import {toRaw} from "vue";
 
 const ships = Ships,
     items = Items,
@@ -18,9 +19,9 @@ type AssemblyDataProcessingMap<T = any> = {
     [version: string]: VersionedDataProcessing<T>;
 };
 
-export default class Assembly_data_processing {
+export default class AssemblyDataProcessing {
     static versions = ['0.0.1'];
-    static nowVersion = Assembly_data_processing.versions[Assembly_data_processing.versions.length - 1];
+    static nowVersion = AssemblyDataProcessing.versions[AssemblyDataProcessing.versions.length - 1];
 
     private processing: AssemblyDataProcessingMap<AssemblyData> = {
         '0.0.1': {
@@ -204,10 +205,12 @@ export default class Assembly_data_processing {
 
     /**
      * 导出数据
-     * @param data
+     * @param dataRaw
      */
-    public export(data) {
-        let version = data?.__version || Assembly_data_processing.nowVersion;
+    public export(dataRaw) {
+        const data = toRaw(dataRaw)
+
+        let version = data?.__version || AssemblyDataProcessing.nowVersion;
         if (version && data) {
             const filteredData = {};
             this.processing[version].allowedFields.forEach(field => {
@@ -222,11 +225,13 @@ export default class Assembly_data_processing {
 
     /**
      * 导入数据
-     * @param data
+     * @param dataRaw
      * @param useVersion
      */
-    public import(data, useVersion?: string) {
-        let version = useVersion || data?.__version || Assembly_data_processing.nowVersion;
+    public import(dataRaw, useVersion?: string) {
+        const data = toRaw(dataRaw)
+
+        let version = useVersion || data?.__version || AssemblyDataProcessing.nowVersion;
         if (version && data) {
             const filteredData = {};
             this.processing[version].allowedFields.forEach(field => {
@@ -241,11 +246,13 @@ export default class Assembly_data_processing {
 
     /**
      * 验证数据
-     * @param data
+     * @param dataRaw
      * @param useVersion
      */
-    public verify(data, useVersion?: string): boolean {
-        let version = useVersion || data?.__version || Assembly_data_processing.nowVersion;
+    public verify(dataRaw, useVersion?: string): boolean {
+        const data = toRaw(dataRaw)
+
+        let version = useVersion || data?.__version || AssemblyDataProcessing.nowVersion;
 
         return this.processing[version].verify(data);
     }

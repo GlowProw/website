@@ -4,19 +4,25 @@ import Silk from "@/components/Silk.vue";
 import {onMounted, ref, watch} from "vue";
 import {api, http} from "@/assets/sripts/index";
 import {useRoute, useRouter} from "vue-router";
+import {useDisplay} from "vuetify/framework";
+
 import PrivilegesTagWidget from "@/components/PrivilegesTagWidget.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
 import EmptyView from "@/components/EmptyView.vue";
 import Time from "@/components/Time.vue";
 import TimeView from "@/components/TimeView.vue";
 import Textarea from "@/components/textarea"
-import {useDisplay} from "vuetify/framework";
+import Loading from "@/components/Loading.vue"
 
 const route = useRoute(),
     router = useRouter(),
     {mobile} = useDisplay()
 
-let loading = ref(false),
+let loading = ref({
+      userInfo: true,
+      assembly: true,
+      teamUp: true
+    }),
     userData = ref({}),
     userTeamUpData = ref({
       data: []
@@ -63,18 +69,22 @@ const onUpdateData = (value) => {
  * 取得账户数据
  */
 const getUserInfo = async () => {
-  loading.value = true;
-  const {id} = route.params
+  try {
+    loading.value.userInfo = true;
+    const {id} = route.params
 
-  const result = await http.get(api['user_info'], {
-        params: {id}
-      }),
-      d = result.data
+    const result = await http.get(api['user_info'], {
+          params: {id}
+        }),
+        d = result.data
 
-  if (d.error == 1)
-    return;
+    if (d.error == 1)
+      return;
 
-  userData.value = d.data;
+    userData.value = d.data;
+  } finally {
+    loading.value.userInfo = false;
+  }
 }
 
 /**
@@ -85,7 +95,7 @@ const getMyTeamUpsData = async () => {
     if (Array.from(userTeamUpData.value.data).length > 0)
       return
 
-    loading.value = true;
+    loading.value.teamUp = true;
     const {id} = route.params
     const result = await http.get(api['user_space_teamups'], {
           params: {id}
@@ -97,7 +107,7 @@ const getMyTeamUpsData = async () => {
 
     userTeamUpData.value = d.data;
   } finally {
-    loading.value = false;
+    loading.value.teamUp = false;
   }
 }
 
@@ -110,7 +120,7 @@ const getAssemblysData = async () => {
     if (Array.from(userAssemblysData.value.data).length > 0)
       return;
 
-    loading.value = true;
+    loading.value.assembly = true;
     const {id} = route.params
 
     const result = await http.get(api['user_space_assemblys'], {params: {id}}),
@@ -121,7 +131,7 @@ const getAssemblysData = async () => {
 
     userAssemblysData.value = d.data;
   } finally {
-    loading.value = false;
+    loading.value.assembly = false;
   }
 }
 </script>
@@ -159,8 +169,12 @@ const getAssemblysData = async () => {
               <div class="align-center d-flex ga-2 overflow-y-auto">
                 <PrivilegesTagWidget :data="userData.privilege" density="compact"></PrivilegesTagWidget>
                 <v-divider vertical class="mx-3" inset></v-divider>
-                <v-chip density="compact" v-if="userData.lastOnlineTime">最后在线： <Time :time="userData.lastOnlineTime"/></v-chip>
-                <v-chip density="compact" v-if="userData.joinTime">加入时间： <Time :time="userData.joinTime"/></v-chip>
+                <v-chip density="compact" v-if="userData.lastOnlineTime">最后在线：
+                  <Time :time="userData.lastOnlineTime"/>
+                </v-chip>
+                <v-chip density="compact" v-if="userData.joinTime">加入时间：
+                  <Time :time="userData.joinTime"/>
+                </v-chip>
               </div>
             </v-col>
           </v-row>
@@ -209,7 +223,7 @@ const getAssemblysData = async () => {
 
         <v-main min-height="80vh" class="pl-lg-5">
           <v-tabs-window v-model="tab">
-            <v-tabs-window-item value="teamUp">
+            <v-tabs-window-item value="teamUp" class="position-relative">
               <v-card v-for="(i,index) in userTeamUpData.data" :key="index" class="mb-2 pa-2 pl-4" v-if="userTeamUpData.data && userTeamUpData.data.length > 0">
                 <v-row align="center">
                   <v-col cols="12">
@@ -236,8 +250,12 @@ const getAssemblysData = async () => {
               <div class="text-center" v-else>
                 <EmptyView></EmptyView>
               </div>
+
+              <v-overlay v-model="loading.teamUp" contained class="d-flex justify-center align-center">
+                <Loading size="50"></Loading>
+              </v-overlay>
             </v-tabs-window-item>
-            <v-tabs-window-item value="assembly">
+            <v-tabs-window-item value="assembly" class="position-relative">
               <v-card v-for="(i,index) in userAssemblysData.data" :key="index" class="mb-2 pl-4" v-if="userAssemblysData.data && userAssemblysData.data.length > 0">
                 <v-row align="stretch">
                   <v-col>
@@ -256,6 +274,10 @@ const getAssemblysData = async () => {
               <div class="text-center" v-else>
                 <EmptyView></EmptyView>
               </div>
+
+              <v-overlay v-model="loading.assembly" contained class="d-flex justify-center align-center">
+                <Loading size="50"></Loading>
+              </v-overlay>
             </v-tabs-window-item>
           </v-tabs-window>
         </v-main>
