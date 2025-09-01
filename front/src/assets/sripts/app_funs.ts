@@ -28,7 +28,7 @@ export default class AppFuns {
             title: 'header.functions.assembly.title',
             icon: 'mdi-palette-outline',
             description: 'header.functions.assembly.description',
-            to: '/assembly'
+            to: `/assembly/browse?t=${new Date().getTime()}`
         },
         {
             title: 'header.functions.captain-signature.title',

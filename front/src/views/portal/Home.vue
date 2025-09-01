@@ -19,7 +19,6 @@ let data = ref({
     currentlySeason: Ref<Season> = ref(null)
 
 onMounted(() => {
-  // getHomeData();
   getCurrentSeason()
 })
 

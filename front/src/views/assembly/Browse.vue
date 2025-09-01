@@ -1,17 +1,20 @@
 <script setup lang="ts">
 import {nextTick, onMounted, Ref, ref, watch} from "vue";
 import {api, http} from "@/assets/sripts";
+import {useI18n} from "vue-i18n";
+import {AssemblyItem, Pagination, ResultData} from "@/assets/types";
+import {useRoute} from "vue-router";
+
 import AssemblyWidget from "@/components/AssemblyWidget.vue";
 import AssemblyTouring from "@/components/AssemblyTouring.vue";
-import {useI18n} from "vue-i18n";
 import EmptyView from "@/components/EmptyView.vue";
 import TimeFrame from "@/components/TimeFrame.vue";
-import {AssemblyItem, Pagination, ResultData} from "@/assets/types";
 import Loading from "@/components/Loading.vue";
 import Silk from "@/components/Silk.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
 
-const {t} = useI18n()
+const {t} = useI18n(),
+    route = useRoute()
 
 let browsePagination = ref({
       page: 1,
@@ -69,9 +72,9 @@ const getBrowseList = async () => {
 
     const result = await http.get(api['assembly_list'], {
           params: {
+            ...route.query,
             page,
             pageSize,
-
             keyword,
             sortField,
             sortOrder,
