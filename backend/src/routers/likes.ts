@@ -5,7 +5,7 @@ import {verifyJWT} from "../middleware/auth";
 import {RequestHasAccount} from "../types/auth";
 import logger from "../../logger";
 import {validationResult} from "express-validator";
-import {body as checkbody} from "express-validator/lib/middlewares/validation-chain-builders";
+import {body as checkBody} from "express-validator/lib/middlewares/validation-chain-builders";
 import {forbidPrivileges} from "../lib/auth";
 
 const router = express.Router();
@@ -14,8 +14,8 @@ const router = express.Router();
  * 检查用户是否点赞过某个目标
  */
 router.get('/check', likesRateLimiter, verifyJWT, [
-    checkbody('targetType').isString(),
-    checkbody('targetId').isString(),
+    checkBody('targetType').isString(),
+    checkBody('targetId').isString(),
 ], async (req: RequestHasAccount, res: any) => {
     try {
         const {targetType, targetId} = req.query;
@@ -37,8 +37,8 @@ router.get('/check', likesRateLimiter, verifyJWT, [
  */
 router.post('/toggle', likesRateLimiter, verifyJWT, forbidPrivileges(['blacklisted', 'freezed']),
     [
-        checkbody('targetType').isString(),
-        checkbody('targetId').isString(),
+        checkBody('targetType').isString(),
+        checkBody('targetId').isString(),
     ],
     async (req: RequestHasAccount, res: any) => {
         try {
@@ -75,8 +75,8 @@ router.post('/toggle', likesRateLimiter, verifyJWT, forbidPrivileges(['blacklist
 );
 
 router.get('/count', likesRateLimiter, [
-    checkbody('targetType').isString(),
-    checkbody('targetId').isString(),
+    checkBody('targetType').isString(),
+    checkBody('targetId').isString(),
 ], async (req: RequestHasAccount, res: any) => {
     try {
         const {targetType, targetId} = req.query;

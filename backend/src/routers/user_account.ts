@@ -1,5 +1,5 @@
 import {verifyJWT} from "../middleware/auth";
-import {body as checkbody, query as checkQuery} from "express-validator/lib/middlewares/validation-chain-builders";
+import {body as checkBody, query as checkQuery} from "express-validator/lib/middlewares/validation-chain-builders";
 import {RequestHasAccount} from "../types/auth";
 import {validationResult} from "express-validator";
 import db from "../../mysql";
@@ -290,7 +290,7 @@ export async function showAssembly(req: RequestHasAccount, res: any) {
  * 修改别名
  */
 router.post('/changeAlternativeName', verifyJWT, [
-        checkbody("username").isString().trim().isLength({min: USERNAME_MIN_LENGTH, max: USERNAME_MAX_LENGTH}).matches(USERNAME_REGULAR),
+        checkBody("username").isString().trim().isLength({min: USERNAME_MIN_LENGTH, max: USERNAME_MAX_LENGTH}).matches(USERNAME_REGULAR),
     ],
     async (req: any, res: any, next: any) => {
         try {
@@ -317,8 +317,8 @@ router.post('/changeAlternativeName', verifyJWT, [
  * 修改密码
  */
 router.post('/changePassword', verifyJWT, [
-        checkbody('newPassword').isString().trim().isLength({min: PASSWORD_MIN_LENGTH, max: PASSWORD_MAX_LENGTH}),
-        checkbody('oldPassword').isString().trim().isLength({min: PASSWORD_MIN_LENGTH, max: PASSWORD_MAX_LENGTH})
+        checkBody('newPassword').isString().trim().isLength({min: PASSWORD_MIN_LENGTH, max: PASSWORD_MAX_LENGTH}),
+        checkBody('oldPassword').isString().trim().isLength({min: PASSWORD_MIN_LENGTH, max: PASSWORD_MAX_LENGTH})
     ],
     async (req: any, res: any, next: any) => {
         try {
@@ -358,7 +358,7 @@ router.get('/me', verifyJWT, accountRateLimiter, showUserInfo);
  * 修改用户自己属性
  */
 router.post('/me', verifyJWT, accountRateLimiter, forbidPrivileges(['blacklisted', 'freezed']), [
-        checkbody('attr').optional({nullable: true}).isObject(),
+        checkBody('attr').optional({nullable: true}).isObject(),
     ],
     async (req: RequestHasAccount, res: any, next: any) => {
         try {

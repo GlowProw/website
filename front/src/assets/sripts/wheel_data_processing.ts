@@ -39,8 +39,11 @@ export default class WheelDataProcessing {
 
                 return data;
             },
-            verify: () => {
-
+            verify: (data) => {
+                return {
+                    required: 0,
+                    verify: [],
+                };
             }
         },
     };

@@ -9,13 +9,15 @@ import WarehouseDataProcessing from "@/assets/sripts/warehouse_data_processing";
 
 const props = withDefaults(defineProps<{
       readonly?: boolean,
+      cargo?: any,
     }>(), {
       readonly: false,
+      cargo: {}
     }),
-    warehouseDataProcessing = new WarehouseDataProcessing(),
-    maxSlot = ref(50)
+    warehouseDataProcessing = new WarehouseDataProcessing()
 
 let data = ref<{ id: number | null, count: number, timestamp?: number }[]>([]),
+    maxSlot = ref(props.cargo.cargoSlots || 50),
     show = ref(false),
     selectIndex = ref(0),
     selectItemValue = ref(null),
@@ -37,6 +39,10 @@ let data = ref<{ id: number | null, count: number, timestamp?: number }[]>([]),
 
       return szatistical == warehouseSlotCount
     })
+
+watch(props.slotCount, (value) => {
+  maxSlot.value = value
+})
 
 watch(data.value, (data) => {
   // 重新赋值回 data.value，确保响应式更新
@@ -123,17 +129,14 @@ const onLoad = (importData) => {
  * 导出
  */
 const onExport = () => {
-  if (isEmpty)
-    return null
-
-  return warehouseDataProcessing.export(toRaw(data.value), attr.value.assemblyUseVersion)
+  return warehouseDataProcessing.export(data.value, attr.value.assemblyUseVersion)
 }
 
 /**
  * 验证
  */
 const verify = () => {
-  return wheelDataProcessing.verify(toRaw(wheelTabs.value), attr.value.assemblyUseVersion)
+  return warehouseDataProcessing.verify(data.value, attr.value.assemblyUseVersion)
 }
 
 
@@ -150,8 +153,14 @@ defineExpose({
   <v-row align="center">
     <v-spacer></v-spacer>
     <v-col cols="auto">
-      {{ usedSlotCount }} / {{ maxSlot }}
-      <v-icon class="ml-2" size="17" v-tooltip="'仓库的容量由所选船只或升级部件来影响'">mdi-help</v-icon>
+      <template v-if="cargo.cargoMaxWeight">
+        {{ cargo.cargoMaxWeight || 0 }}
+      </template>
+      <v-divider vertical class="mx-2"></v-divider>
+      <template v-if="cargo.cargoSlots">
+        {{ usedSlotCount }} / {{ cargo.cargoSlots }}
+      </template>
+      <v-icon class="ml-2" size="15" v-tooltip="'仓库的容量由所选船只或升级部件来影响'">mdi-help</v-icon>
     </v-col>
   </v-row>
   <v-row align="center" justify="center">

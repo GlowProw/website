@@ -118,8 +118,6 @@ const onLoad = (data) => {
  * 导出
  */
 const onExport = () => {
-  if (isEmpty)
-    return null
   return wheelDataProcessing.export(toRaw(wheelTabs.value), attr.value.assemblyUseVersion)
 }
 

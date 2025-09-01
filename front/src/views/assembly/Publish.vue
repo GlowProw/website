@@ -1,13 +1,12 @@
 <script lang="ts" setup>
 import {useRoute, useRouter} from "vue-router";
-import {computed, onMounted, ref, toRaw, watch} from "vue";
+import {computed, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
-import {api, assemblyViewConfig, storageAssembly} from "@/assets/sripts";
+import {api, storageAssembly} from "@/assets/sripts";
 import {StorageAssemblyType} from "@/assets/sripts/storage_assembly";
 import {useHttpToken} from "@/assets/sripts/http_util";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useNoticeStore} from "~/stores/noticeStore";
-import {useDisplay} from "vuetify/framework";
 
 import Textarea from "@/components/textarea/index.vue"
 import AssemblyMainSubjectView from "@/components/AssemblyMainSubjectView.vue";
@@ -90,10 +89,6 @@ watch(() => route, () => {
   onLoadData()
 })
 
-onMounted(() => {
-  onLoadData()
-})
-
 /**
  * 加载数据
  */
@@ -144,7 +139,7 @@ const onLoadData = () => {
  * 设置配装视图数据
  */
 const onSetAssemblyData = () => {
-  assemblyMainSubjectView.value.assembly
+  assemblyMainSubjectView.value.refs.assembly
       .setSetting({
         assemblyUseVersion: publishData.value.assembly.attr?.assemblyUseVersion || publishData.value.assembly.data.__version || AssemblyDataProcessing.nowVersion,
         isShowItemName: publishData.value.assembly.attr?.isShowItemName || false
@@ -156,9 +151,10 @@ const onSetAssemblyData = () => {
  * 设置轮盘视图数据
  */
 const onSetWheelData = () => {
-  assemblyMainSubjectView.value.wheel
+  console.log(22222,publishData.value.wheel.data)
+  assemblyMainSubjectView.value.refs.wheel
       .setSetting({
-        wheelUseVersion: publishData.value.wheel.attr?.wheelUseVersion || publishData.value.wheel.data.__version || WheelDataProcessing.nowVersion,
+        wheelUseVersion: publishData.value.wheel?.attr?.wheelUseVersion || publishData.value.wheel.data.__version || WheelDataProcessing.nowVersion,
       })
       .onLoad(publishData.value.wheel.data)
 }
@@ -167,9 +163,9 @@ const onSetWheelData = () => {
  * 设置船仓视图数据
  */
 const onSetWarehouseData = () => {
-  assemblyMainSubjectView.value.warehouse
+  assemblyMainSubjectView.value.refs.warehouse
       .setSetting({
-        warehouseUseVersion: publishData.value.warehouse.attr?.warehouseUseVersion || publishData.value.warehouse.data.__version || WarehouseDataProcessing.nowVersion,
+        warehouseUseVersion: publishData.value.warehouse?.attr?.warehouseUseVersion || publishData.value.warehouse.data.__version || WarehouseDataProcessing.nowVersion,
       })
       .onLoad(publishData.value.warehouse.data)
 }
@@ -297,7 +293,8 @@ const onUpdateTags = (data: any) => {
   </v-card>
 
   <!-- Workshop Share Preview S -->
-  <AssemblyMainSubjectView ref="assemblyMainSubjectView"></AssemblyMainSubjectView>
+  <AssemblyMainSubjectView ref="assemblyMainSubjectView"
+                           @ready="onLoadData"></AssemblyMainSubjectView>
   <!-- Workshop Share Preview E -->
 
   <v-container>

@@ -1,6 +1,6 @@
 import express from 'express';
 import {ICalCalendar} from 'ical-generator';
-import {query as checkquery} from "express-validator/lib/middlewares/validation-chain-builders";
+import {query as checkQuery} from "express-validator/lib/middlewares/validation-chain-builders";
 import {validationResult} from "express-validator";
 import {calendarRateLimiter} from "../middleware/rateLimiter";
 import i18n from "../../i18n";
@@ -95,7 +95,7 @@ function getCalendarCacheKey(type: 'events' | 'event', params: any): string {
  *   - season: 赛季ID (必填)
  */
 router.get('/data', [
-    checkquery("season").isString().isLength({min: 1, max: 255}),
+    checkQuery("season").isString().isLength({min: 1, max: 255}),
 ], async (req: any, res: any) => {
     try {
         // 验证请求参数
@@ -124,8 +124,8 @@ router.get('/data', [
  * 获取赛季所有事件的ICS日历（带Redis缓存）
  */
 router.get('/events.ics', calendarRateLimiter, [
-    checkquery("season").isLength({min: 1, max: 255}),
-    checkquery("language").isIn(config.i18n.locales),
+    checkQuery("season").isLength({min: 1, max: 255}),
+    checkQuery("language").isIn(config.i18n.locales),
 ], async (req: any, res: any) => {
     try {
         const validateErr = validationResult(req);
@@ -195,10 +195,10 @@ router.get('/events.ics', calendarRateLimiter, [
  * 获取单个事件的ICS日历（带Redis缓存）
  */
 router.get('/event.ics', calendarRateLimiter, [
-    checkquery("season").isLength({min: 1, max: 255}),
-    checkquery("language").isIn(config.i18n.locales),
-    checkquery("eventId").isLength({min: 1, max: 255}),
-    checkquery("occurrenceIndex").optional().isInt({min: 0}).toInt(),
+    checkQuery("season").isLength({min: 1, max: 255}),
+    checkQuery("language").isIn(config.i18n.locales),
+    checkQuery("eventId").isLength({min: 1, max: 255}),
+    checkQuery("occurrenceIndex").optional().isInt({min: 0}).toInt(),
 ], async (req: any, res: any) => {
     try {
         const validateErr = validationResult(req);
@@ -295,7 +295,7 @@ router.get('/event.ics', calendarRateLimiter, [
  * 清除缓存端点（用于开发或数据更新时）
  */
 router.post('/clear-cache', verifyJWT, allowPrivileges(["super"]), [
-    checkquery("season").isString().isLength({min: 1, max: 255}),
+    checkQuery("season").isString().isLength({min: 1, max: 255}),
 ], async (req: any, res: any) => {
     try {
         const {season} = req.query;

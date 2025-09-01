@@ -225,7 +225,7 @@ const onPenPassword = () => {
                   </v-btn>
                   <v-divider vertical></v-divider>
                   <AssemblySettingPanel :id="detailData.uuid"
-                                        :assembly-data="detailData?.assembly || {}"
+                                        :data="detailData || {}"
                                         @change="getAssemblyDetail">
                     <v-btn variant="flat" class="h-100">
                       <v-icon icon="mdi-cog"></v-icon>

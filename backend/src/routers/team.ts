@@ -3,7 +3,7 @@ import 'reflect-metadata';
 import {WebSocket, WebSocketServer} from "ws";
 import {validationResult} from "express-validator";
 import express, {Request, Response} from "express";
-import {query as checkquery} from "express-validator/lib/middlewares/validation-chain-builders";
+import {query as checkQuery} from "express-validator/lib/middlewares/validation-chain-builders";
 
 import logger from "../../logger";
 import config from "../../config";
@@ -332,10 +332,10 @@ async function cleanExpiredTeamUps() {
  * 组队信息检索
  */
 router.get('/teamups', timeUpRateLimiter, [
-    checkquery("page").optional().isInt({min: 1}).toInt(),
-    checkquery("limit").optional().isInt({min: 1, max: 100}).toInt(),
-    checkquery("sortBy").isIn(['recent', 'expires']),
-    checkquery('keyword').optional().isString().isLength({max: 100}).trim(),
+    checkQuery("page").optional().isInt({min: 1}).toInt(),
+    checkQuery("limit").optional().isInt({min: 1, max: 100}).toInt(),
+    checkQuery("sortBy").isIn(['recent', 'expires']),
+    checkQuery('keyword').optional().isString().isLength({max: 100}).trim(),
 ], async (req: Request, res: Response) => {
     try {
         const validateErr = validationResult(req);

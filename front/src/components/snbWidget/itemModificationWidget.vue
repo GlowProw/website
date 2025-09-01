@@ -21,6 +21,7 @@ const props = withDefaults(defineProps<{ id: string, type: string | null }>(), {
 let modData = ref({}),
     modIconImages = ref({}),
     showType = ref('1'),
+    prepositionMod = ref([]),
     isHasMod = computed(() => {
       return Object.keys(modData.value).length > 0
     })

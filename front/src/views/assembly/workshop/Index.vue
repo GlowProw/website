@@ -51,14 +51,34 @@ let isEditModel = computed(() => {
     }),
     isAssemblyByUser = computed(() => isEditModel.value ? shareData.value.isOwner : true),
     verificationAssembly = computed(() => {
-      if (!!assemblyMainSubjectView.value && !!assemblyMainSubjectView.value.assembly) {
-        return assemblyMainSubjectView.value.assembly.verify()
+      let verificationResult = {
+        required: 0,
+        verify: []
+      };
+
+      const refs = assemblyMainSubjectView.value?.refs;
+      if (!refs) {
+        return verificationResult;
       }
 
-      return null
-    })
+      const componentsToVerify = ['assembly', 'wheel', 'warehouse'];
 
-watch(() => route, async () => {
+      // 执行验证逻辑
+      componentsToVerify.forEach(componentName => {
+        const component = refs[componentName];
+        if (component && typeof component.verify === 'function') {
+          const componentVerify = component.verify();
+          if (componentVerify) {
+            verificationResult.verify.push(...componentVerify.verify);
+            verificationResult.required += componentVerify.required;
+          }
+        }
+      });
+
+      return verificationResult;
+    });
+
+watch(() => shareData.value, async () => {
   await loadAssemblyData()
 })
 
@@ -86,23 +106,21 @@ const getAssemblyDetail = async () => {
 
     assemblyDetailData.value = d.data;
     shareData.value = d.data;
-
-    await loadAssemblyData()
   } finally {
     assemblyLoading.value = false;
   }
 }
 
 const loadAssemblyData = async () => {
-  let assemblyData = assemblyDetailData.value
+  const d = shareData.value
 
   await nextTick(() => {
-    assemblyWorkshopRef.value
+    assemblyMainSubjectView.value.refs.assembly
         .setSetting({
-          isShowItemName: assemblyData.attr.isShowItemName,
-          assemblyUseVersion: assemblyData.attr.assemblyUseVersion
+          isShowItemName: d.assembly?.attr?.isShowItemName,
+          assemblyUseVersion: d.assembly?.attr?.assemblyUseVersion
         })
-        .onLoad(assemblyData.assembly)
+        .onLoad(d.assembly.data)
   })
 }
 
@@ -137,15 +155,15 @@ const onSaveAssemblyPublish = () => {
  * 写入本地
  */
 const onSaveAssembly = (type: StorageAssemblyType, uid?: string) => {
-  const now = Date.now();
-
   // 合并数据
   shareData.value = {
     ...shareData.value,
-    assembly: assemblyWorkshopRef.value.onExport(),
-    wheel: wheelWorkshopRef.value.onExport(),
-    warehouse: warehouseWorkshopRef.value.onExport()
+    assembly: assemblyMainSubjectView.value.refs.assembly.onExport(),
+    wheel: assemblyMainSubjectView.value.refs.wheel.onExport(),
+    warehouse: assemblyMainSubjectView.value.refs.warehouse.onExport()
   }
+
+  console.log(3333,assemblyMainSubjectView.value.refs.wheel)
 
   return storageAssembly.updata(shareData.value, type, uid)
 }
@@ -158,7 +176,9 @@ const onQuickArchiving = () => {
 
   storageAssembly.updata({
     ...shareData.value,
-    data: assemblyWorkshopRef.value.onExport()
+    assembly: assemblyMainSubjectView.value.refs.assembly.onExport(),
+    wheel: assemblyMainSubjectView.value.refs.wheel.onExport(),
+    warehouse: assemblyMainSubjectView.value.refs.warehouse.onExport()
   }, StorageAssemblyType.Draft, 'quickArchiving')
 
   setTimeout(() => {
@@ -334,45 +354,10 @@ const onDeleteDraft = (id) => {
   <AssemblyMainSubjectView
       ref="assemblyMainSubjectView"
       class="mt-n2 ml-n5 mr-n5"
+      @ready="loadAssemblyData"
       :readonly="false"
       :isShowFooterTool="true"
   ></AssemblyMainSubjectView>
-  <!--  <div class="mt-n2 ml-n5 mr-n5" style="z-index: 10" :class="[isWorkshopFillScreen ? 'fill-screen bg-black' : 'position-relative mb-n2']" v-show="!isSharePreview">-->
-  <!--    <v-card class="w-100 pa-0 card-enlargement-flavor workshop-ship">-->
-  <!--      <v-tabs-->
-  <!--          @update:model-value="onTabs"-->
-  <!--          v-model="tab"-->
-  <!--          align-tabs="center">-->
-  <!--        <v-tab :value="i" v-for="(i,index) in assemblyViewConfig.onlySet"-->
-  <!--               :disabled="i == 'warehouse' && shareData.assembly.shipSlot == null"-->
-  <!--               :key="index">{{ t(`assembly.additions.${i}`) }}-->
-  <!--        </v-tab>-->
-  <!--      </v-tabs>-->
-  <!--      <v-divider></v-divider>-->
-
-  <!--      <ZoomableCanvas-->
-  <!--          ref="assemblyWorkshopZoomableAreaRef"-->
-  <!--          :style="isWorkshopFillScreen ? 'height: calc(100vh - 50px)' : `height: ${workshopHeight}px`"-->
-  <!--          :minScale=".8"-->
-  <!--          :max-scale="1.2"-->
-  <!--          :boundary="{-->
-  <!--                left: -1500,-->
-  <!--                right: 1500,-->
-  <!--                top: -500,-->
-  <!--                bottom: 500-->
-  <!--              }">-->
-  <!--        <div v-show="tab == 'assembly'">-->
-  <!--          <AssemblyShowWidget ref="assemblyWorkshopRef" v-model="shareData.assembly"></AssemblyShowWidget>-->
-  <!--        </div>-->
-  <!--        <div v-show="tab == 'wheel'">-->
-  <!--          <WheelWidget ref="wheelWorkshopRef"></WheelWidget>-->
-  <!--        </div>-->
-  <!--        <div v-show="tab == 'warehouse'">-->
-  <!--          <WarehouseShowWidget ref="warehouseWorkshopRef"></WarehouseShowWidget>-->
-  <!--        </div>-->
-  <!--      </ZoomableCanvas>-->
-  <!--    </v-card>-->
-  <!--  </div>-->
   <!-- Workshop E -->
 
   <v-container class="pa-0">

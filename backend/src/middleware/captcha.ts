@@ -1,7 +1,7 @@
 import config from "../../config";
 import * as misc from "../lib/misc";
 import db from "../../mysql";
-import {body as checkbody} from "express-validator";
+import {body as checkBody} from "express-validator";
 
 async function verifyCaptcha(req: any, res: any, next: any) {
     try {
@@ -11,8 +11,8 @@ async function verifyCaptcha(req: any, res: any, next: any) {
                 case 'svg': {
                     // validation
                     if (typeof req.body.captcha == 'object' && req.body.captcha.captchaType) {
-                        if (!(await checkbody('captcha.encryptCaptcha').isBase64().run(req, {dryRun: true})).isEmpty() ||
-                            !(await checkbody('captcha.response').isAscii().isLength({
+                        if (!(await checkBody('captcha.encryptCaptcha').isBase64().run(req, {dryRun: true})).isEmpty() ||
+                            !(await checkBody('captcha.response').isAscii().isLength({
                                 min: 4,
                                 max: 4
                             }).run(req, {dryRun: true})).isEmpty())

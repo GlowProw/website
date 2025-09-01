@@ -39,6 +39,12 @@ export default class WarehouseDataProcessing {
 
                 return data;
             },
+            verify: (data) => {
+                return {
+                    required: 0,
+                    verify: [],
+                };
+            }
         },
     };
 

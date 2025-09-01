@@ -1,7 +1,7 @@
 import express, {Request, Response} from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import {body as checkbody, query as checkquery, validationResult} from "express-validator";
+import {body as checkBody, query as checkQuery, validationResult} from "express-validator";
 
 import verifyCaptcha from "../middleware/captcha";
 import config from "../../config";
@@ -20,10 +20,10 @@ const router = express.Router()
  * 注册
  */
 router.post('/signup', registerRateLimiter, verifyCaptcha, [
-    checkbody("username").isString().trim().isLength({min: USERNAME_MIN_LENGTH, max: USERNAME_MAX_LENGTH}).matches(USERNAME_REGULAR),
-    checkbody("alternativeName").isString().trim().isLength({min: USERNAME_MIN_LENGTH, max: USERNAME_MAX_LENGTH}),
-    checkbody('password').isString().trim().isLength({min: PASSWORD_MIN_LENGTH, max: PASSWORD_MAX_LENGTH}),
-    checkbody('email').optional({checkFalsy: true}).isEmail().normalizeEmail(),
+    checkBody("username").isString().trim().isLength({min: USERNAME_MIN_LENGTH, max: USERNAME_MAX_LENGTH}).matches(USERNAME_REGULAR),
+    checkBody("alternativeName").isString().trim().isLength({min: USERNAME_MIN_LENGTH, max: USERNAME_MAX_LENGTH}),
+    checkBody('password').isString().trim().isLength({min: PASSWORD_MIN_LENGTH, max: PASSWORD_MAX_LENGTH}),
+    checkBody('email').optional({checkFalsy: true}).isEmail().normalizeEmail(),
 ], async (req: RequestHasAccount, res: Response) => {
     try {
         const validateErr = validationResult(req);
@@ -63,8 +63,8 @@ router.post('/signup', registerRateLimiter, verifyCaptcha, [
  * 登陆
  */
 router.post('/login', loginRateLimiter, verifyCaptcha, [
-    checkbody("username").isString().trim().isLength({min: USERNAME_MIN_LENGTH, max: USERNAME_MAX_LENGTH}).matches(USERNAME_REGULAR),
-    checkbody('password').isString().trim().isLength({min: PASSWORD_MIN_LENGTH, max: PASSWORD_MAX_LENGTH}),
+    checkBody("username").isString().trim().isLength({min: USERNAME_MIN_LENGTH, max: USERNAME_MAX_LENGTH}).matches(USERNAME_REGULAR),
+    checkBody('password').isString().trim().isLength({min: PASSWORD_MIN_LENGTH, max: PASSWORD_MAX_LENGTH}),
 ], async (req: Request, res: Response) => {
     try {
         const validateErr = validationResult(req);
@@ -113,7 +113,7 @@ router.post('/login', loginRateLimiter, verifyCaptcha, [
  * 这是公共
  */
 router.get('/info', [
-    checkquery('id').isString().trim().isLength({min:1})
+    checkQuery('id').isString().trim().isLength({min:1})
 ], showUserInfo);
 
 export default router;

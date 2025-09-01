@@ -7,6 +7,7 @@ import AssemblyWidget from "@/components/AssemblyWidget.vue"; // 确保导入了
 import {computed, nextTick, onMounted, ref, toRaw} from "vue";
 import {useDisplay} from "vuetify/framework";
 import {useI18n} from "vue-i18n";
+import {Ships} from "glow-prow-data";
 
 const props = withDefaults(defineProps<{
   assemblyBackground?: string,
@@ -47,8 +48,12 @@ const refs = ref({
 const isWorkshopFillScreen = ref(props.isWorkshopFillScreen);
 
 const hasShip = computed(() => {
-  return assemblyWorkshopRef.value?.data?.shipSlot == null;
+  return assemblyWorkshopRef.value?.onExport() == null;
 });
+const shipDetailInfo = computed(() => {
+  const ship = assemblyWorkshopRef.value?.onExport()?.shipSlot?.id
+  return Ships[ship]
+})
 
 onMounted(() => {
   nextTick(() => {
@@ -133,7 +138,7 @@ const hasData = (name: string): boolean => {
         :min-scale="mobile ? .1 : .8"
         :max-scale="1.4"
         :default-scale="mobile ? .4 : 1"
-        :is-show-tool="true"
+        :is-show-tool="tab == 'assembly'"
         :boundary="mobile ? {
                 left: -100,
                 right: 100,
@@ -157,7 +162,9 @@ const hasData = (name: string): boolean => {
           <WheelWidget ref="wheelWorkshopRef" :readonly="readonly"></WheelWidget>
         </div>
         <div v-show="tab === 'warehouse'">
-          <WarehouseShowWidget ref="warehouseWorkshopRef" :readonly="readonly"></WarehouseShowWidget>
+          <WarehouseShowWidget ref="warehouseWorkshopRef"
+                               :cargo="shipDetailInfo?.cargo"
+                               :readonly="readonly"></WarehouseShowWidget>
         </div>
       </div>
     </ZoomableCanvas>

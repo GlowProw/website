@@ -9,25 +9,41 @@ import AssemblyDataProcessing from "@/assets/sripts/assembly_data_processing";
 import VueJsonPretty from 'vue-json-pretty';
 
 import 'vue-json-pretty/lib/styles.css';
+import WheelDataProcessing from "@/assets/sripts/wheel_data_processing";
+import WarehouseDataProcessing from "@/assets/sripts/warehouse_data_processing";
+import {useNoticeStore} from "~/stores/noticeStore";
 
 const {t, locale} = useI18n(),
     http = useHttpToken(),
+    notice = useNoticeStore(),
     assemblyDataProcessing = new AssemblyDataProcessing();
 
-const props = defineProps<{ id: string, assemblyData?: any }>(),
+const props = defineProps<{ id: string, data?: any }>(),
     emit = defineEmits(['change'])
 
 let show = ref(false),
     getSettingLoading = ref(false),
     setSettingLoading = ref(false),
     tabValue = ref('conventional'),
-    messages = ref([]),
+    // 属性结构
     settingData = ref({
-      visibility: 'publicly',
-      attr: {
-        password: '',
-        language: locale.value,
-        assemblyUseVersion: AssemblyDataProcessing.nowVersion
+      assembly: {
+        visibility: 'publicly',
+        attr: {
+          password: '',
+          language: [locale.value],
+          assemblyUseVersion: AssemblyDataProcessing.nowVersion
+        }
+      },
+      wheel: {
+        attr: {
+          wheelUseVersion: WheelDataProcessing.nowVersion
+        }
+      },
+      warehouse: {
+        attr: {
+          warehouseUseVersion: WarehouseDataProcessing.nowVersion
+        }
       }
     })
 
@@ -55,7 +71,7 @@ const getAssemblySetting = async () => {
     if (d.error == 1)
       return;
 
-    settingData.value = d.data;
+    settingData.value = Object.assign(settingData.value, d.data);
   } finally {
     getSettingLoading.value = false
   }
@@ -71,10 +87,10 @@ const setAssemblySetting = async () => {
 
     setSettingLoading.value = true
 
-    if (settingData.value.password && settingData.value.attr.password == null)
-      settingData.value.attr.password = ''
-    else if (settingData.value.password && settingData.value.attr.password == '')
-      delete settingData.value.attr.password
+    if (settingData.value.assembly.attr && settingData.value.assembly.attr.password == null)
+      settingData.value.assembly.attr.password = ''
+    else if (settingData.value.assembly.attr && settingData.value.assembly.attr.password == '')
+      delete settingData.value.assembly.attr.password
 
     const result = await http.post(api['assembly_attr_edit'], {
           data: {
@@ -90,7 +106,7 @@ const setAssemblySetting = async () => {
   } catch (e) {
     console.error(e)
     if (e instanceof Error)
-      messages.value.push(t(`basic.tips.${e.response.data.code}`, {
+      notice.error(t(`basic.tips.${e.response.data.code}`, {
         context: e.response.data.code
       }))
   } finally {
@@ -120,16 +136,18 @@ const setAssemblySetting = async () => {
           <Loading size="30"></Loading>
         </v-overlay>
 
+        <v-divider></v-divider>
         <div class="d-flex flex-row">
           <v-tabs
-              class="v-col-3"
+              class="v-col-2 pa-0"
               v-model="tabValue"
               direction="vertical">
             <v-tab prepend-icon="mdi-cog" text="常规" value="conventional"></v-tab>
-            <v-tab prepend-icon="mdi-database" text="数据" value="data" v-if="props.assemblyData"></v-tab>
+            <v-tab prepend-icon="mdi-database" text="数据" value="data" v-if="props.data.assembly.data"></v-tab>
           </v-tabs>
+          <v-divider vertical></v-divider>
 
-          <v-card class="overflow-auto v-col-9 flex-1 w-100" max-height="50vh">
+          <v-card class="overflow-auto v-col-10 flex-1 w-100">
             <v-tabs-window v-model="tabValue">
               <v-tabs-window-item value="conventional">
                 <AssemblySettingWidget v-model="settingData"></AssemblySettingWidget>
@@ -143,8 +161,8 @@ const setAssemblySetting = async () => {
                         showLine
                         showIcon
                         showDoubleQuotes
-                        v-if="assemblyData"
-                        :data="assemblyDataProcessing.export(assemblyData)"/>
+                        v-if="props.data.assembly.data"
+                        :data="assemblyDataProcessing.export(props.data.assembly.data)"/>
                   </v-card>
                 </div>
               </v-tabs-window-item>
@@ -161,7 +179,6 @@ const setAssemblySetting = async () => {
       </v-card>
     </v-container>
   </v-dialog>
-  <v-snackbar-queue v-model="messages"></v-snackbar-queue>
 </template>
 
 <style scoped lang="less">
