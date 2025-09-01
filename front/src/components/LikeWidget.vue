@@ -1,6 +1,6 @@
 <script setup>
 import {useLikeStore} from '~/stores/likeStore.js';
-import {ref, useSlots, watch} from 'vue';
+import {onMounted, ref, useSlots, watch} from 'vue';
 import Loading from "./Loading.vue";
 import {useI18n} from "vue-i18n";
 import {AxiosError} from "axios";
@@ -13,7 +13,11 @@ const props = defineProps({
   userId: String,                 // 当前用户ID
 });
 
-watch(() => props.targetId, () => {
+watch(props.targetId, () => {
+  onReady()
+}, {deep: true})
+
+onMounted(() => {
   onReady()
 })
 
@@ -40,7 +44,7 @@ const onReady = async () => {
     console.error(e)
     messages.value.push({
       text: t(`basic.tips.${e.response.data.code}`, {
-        context: e instanceof AxiosError ? e.response.data.code : e.code ||  e.message || ''
+        context: e instanceof AxiosError ? e.response.data.code : e.code || e.message || ''
       }),
       color: 'error'
     })
@@ -63,7 +67,7 @@ const handleLike = async () => {
     console.error(e)
     messages.value.push({
       text: t(`basic.tips.${e.response.data.code}`, {
-        context: e instanceof AxiosError ? e.response.data.code : e.code ||  e.message || ''
+        context: e instanceof AxiosError ? e.response.data.code : e.code || e.message || ''
       }),
       color: 'error'
     })
