@@ -20,7 +20,7 @@ const
     {t} = useI18n()
 
 let modsData = ref({
-  images: '',
+  icon: null,
   model: false,
   panel: {}
 });
@@ -39,7 +39,7 @@ const onReady = async () => {
     imageMap[key] = modImages[path];
   }
 
-  modsData.value.images = imageMap[props.id].default
+  modsData.value.icon = imageMap[props.id].default || null
 }
 </script>
 
@@ -52,7 +52,16 @@ const onReady = async () => {
       :class="`pa-${props.padding} cursor-pointer`"
       height="100%"
       width="100%">
-    <v-img :src="modsData.images" class="pointer-events-none"></v-img>
+    <template v-if="modsData.icon">
+      <v-img :src="modsData.icon" class="pointer-events-none"></v-img>
+    </template>
+    <template v-else>
+      <v-img class="bg-red-accent-4 text-center">
+        <template v-slot:default>
+          <v-icon size="15" class="mt-n1">mdi-help</v-icon>
+        </template>
+      </v-img>
+    </template>
   </v-card>
 </template>
 
