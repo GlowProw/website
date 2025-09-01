@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import {nextTick, onMounted, ref, watch} from "vue";
 import {api, http} from "@/assets/sripts/index";
-import AssemblyWidget from "@/components/AssemblyWidget.vue";
+import {useGoTo} from "vuetify";
+import domToImage from "dom-to-image"
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
+import QRCode from "qrcode"
+
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
+import {useNoticeStore} from "~/stores/noticeStore";
+import AssemblyWidget from "@/components/AssemblyWidget.vue";
 import Loading from "@/components/Loading.vue";
 import Textarea from "@/components/textarea"
-import {useI18nUtils} from "@/assets/sripts/i18n_util";
-
-import domToImage from "dom-to-image"
-import QRCode from "qrcode"
-import {useNoticeStore} from "~/stores/noticeStore";
-import {useGoTo} from "vuetify";
 
 const route = useRoute(),
     router = useRouter(),
@@ -35,8 +35,8 @@ watch(() => route, () => {
 onMounted(() => {
   path.value = window.location.host + router.resolve({name: 'AssemblyDetail'}).path
 
-  getAssemblyDetail()
   generateQRCode(path.value)
+  getAssemblyDetail()
 })
 
 /**
@@ -68,10 +68,10 @@ const getAssemblyDetail = async () => {
     await nextTick(() => {
       assemblyDetailRef.value
           .setSetting({
-            isShowItemName: d.data.attr.isShowItemName,
-            assemblyUseVersion: d.data.attr.assemblyUseVersion
+            isShowItemName: d.data.assembly.attr.isShowItemName,
+            assemblyUseVersion: d.data.assembly.attr.assemblyUseVersion
           })
-          .onLoad(d.data.data || d.data.assembly)
+          .onLoad(d.data.data || d.data.assembly.data)
     })
   } catch (e) {
     console.error(e)
@@ -142,6 +142,10 @@ const downloadBlob = (blob: Blob, filename: string) => {
   }, 100);
 }
 
+/**
+ * 生成二维码
+ * @param text
+ */
 const generateQRCode = async (text) => {
   try {
     await QRCode.toCanvas(qrCanvas.value, text, {
@@ -175,19 +179,19 @@ const generateQRCode = async (text) => {
   </v-container>
   <v-divider></v-divider>
 
-  <v-container class="my-5">
-    <div class="bg-black position-relative share ml-n6 mr-n6" ref="capture">
+  <v-container class="my-5 position-relative">
+    <div class="bg-black share ml-n6 mr-n6" ref="capture">
       <!-- Assembly Preview S -->
-      <v-card class="card-enlargement-flavor mt-n3 mb-5" v-if="assemblyDetailData.isVisibility">
+      <v-card class="card-enlargement-flavor mt-n3" v-if="assemblyDetailData.isVisibility">
         <AssemblyWidget ref="assemblyDetailRef" :readonly="true" :perfect-display="true">
-          <template v-slot:image v-if="assemblyDetailData.attr.backgroundPresentation">
-            <v-img cover class="pointer-events-none" :src="assemblyDetailData.attr.backgroundPresentation"></v-img>
+          <template v-slot:image v-if="assemblyDetailData.assembly.attr.backgroundPresentation">
+            <v-img cover class="pointer-events-none" :src="assemblyDetailData.assembly.attr.backgroundPresentation"></v-img>
           </template>
         </AssemblyWidget>
       </v-card>
       <!-- Assembly Preview E -->
 
-      <div class="pa-10 ma-10">
+      <div class="px-10 mx-10">
         <b class="text-amber text-h2 w-100">{{ assemblyDetailData.name }}</b>
         <div class="ga-2 mb-6 mt-4" v-if="assemblyDetailData.tags">
           <v-chip class="mr-2 mb-2 pt-1 pb-1 pl-5 pr-5" v-for="(i, index) in assemblyDetailData.tags" :key="index">
@@ -203,15 +207,17 @@ const generateQRCode = async (text) => {
             }}
           </v-chip>
         </div>
+
         <Textarea class="mt-5" v-if="assemblyDetailData.description" readonly v-model="assemblyDetailData.description"></Textarea>
-        <v-row class="opacity-80 mt-5">
+
+        <v-row class="opacity-80 mt-5" v-show="!assemblyLoading">
           <v-col>
             <v-icon>mdi-link</v-icon>
             {{ path }}
           </v-col>
           <v-spacer></v-spacer>
           <v-col cols="auto">
-            <canvas ref="qrCanvas"></canvas>
+            <canvas ref="qrCanvas" class="rounded-sm"></canvas>
           </v-col>
         </v-row>
       </div>

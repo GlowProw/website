@@ -147,7 +147,9 @@ watch(browseData, (newList: ResultData) => {
   <v-container>
     <v-row align="center">
       <v-col>
-        <v-text-field variant="plain" v-model="browseFilter.data.keyword" clearable
+        <v-text-field variant="plain"
+                      v-model="browseFilter.data.keyword"
+                      clearable
                       @keydown.enter="getBrowseList"
                       @click:prepend="getBrowseList"
                       :placeholder="t('assembly.browse.search')">
@@ -208,7 +210,7 @@ watch(browseData, (newList: ResultData) => {
         </div>
         <!-- 配装筛选 E -->
       </v-col>
-      <v-col cols="12" md="9" lg="9">
+      <v-col cols="12" md="9" lg="9" class="position-relative">
         <keep-alive>
           <v-row>
             <v-col cols="12" md="6" lg="6" v-for="(i, index) in browseData.data"
@@ -254,14 +256,16 @@ watch(browseData, (newList: ResultData) => {
                 </v-hover>
               </v-card>
             </v-col>
-            <div class="w-100" v-else-if="browseLoading" align="center">
-              <Loading size="100"></Loading>
-            </div>
-            <div class="w-100" v-else>
-              <EmptyView></EmptyView>
-            </div>
           </v-row>
         </keep-alive>
+
+        <div class="w-100" v-if="!browseData.data && !browseLoading">
+          <EmptyView></EmptyView>
+        </div>
+
+        <v-overlay contained :scrim="false" v-model="browseLoading" class="h-100 d-flex justify-center align-center">
+          <Loading size="100"></Loading>
+        </v-overlay>
 
         <!-- 配装分页 S -->
         <v-pagination
