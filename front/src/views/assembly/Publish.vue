@@ -11,12 +11,14 @@ import {useNoticeStore} from "~/stores/noticeStore";
 import Textarea from "@/components/textarea/index.vue"
 import AssemblyMainSubjectView from "@/components/AssemblyMainSubjectView.vue";
 import Silk from "@/components/Silk.vue";
-import assemblyDataProcessing from "@/assets/sripts/assembly_data_processing"
-import AssemblyDataProcessing from "@/assets/sripts/assembly_data_processing"
 import AssemblyTagsWidget from "@/components/AssemblyTagsWidget.vue";
 import AssemblySettingWidget from "@/components/AssmblySettingWidget.vue"
-import WheelDataProcessing from "@/assets/sripts/wheel_data_processing";
-import WarehouseDataProcessing from "@/assets/sripts/warehouse_data_processing";
+
+// workshop data processing S
+import AssemblyDataProcessing from "@/assets/sripts/assembly_data_processing"
+import WheelDataProcessing from "@/assets/sripts/wheel_data_processing"
+import WarehouseDataProcessing from "@/assets/sripts/warehouse_data_processing"
+// workshop data processing E
 
 const route = useRoute(),
     router = useRouter(),
@@ -33,12 +35,22 @@ let // 发布信息
         tags: [],
         attr: {
           password: '',
-          assemblyUseVersion: assemblyDataProcessing.nowVersion,
+          assemblyUseVersion: AssemblyDataProcessing.nowVersion,
           language: locale.value,
           isComment: true,
           isLike: true
         }
       },
+      wheel: {
+        attr: {
+          wheelUseVersion: WheelDataProcessing.nowVersion
+        }
+      },
+      warehouse: {
+        attr: {
+          warehouseUseVersion: WarehouseDataProcessing.nowVersion
+        }
+      }
     } as {
       uuid: string,
       name: string,
@@ -151,7 +163,6 @@ const onSetAssemblyData = () => {
  * 设置轮盘视图数据
  */
 const onSetWheelData = () => {
-  console.log(22222,publishData.value.wheel.data)
   assemblyMainSubjectView.value.refs.wheel
       .setSetting({
         wheelUseVersion: publishData.value.wheel?.attr?.wheelUseVersion || publishData.value.wheel.data.__version || WheelDataProcessing.nowVersion,
@@ -329,7 +340,7 @@ const onUpdateTags = (data: any) => {
             </v-col>
             <v-col>
               <v-divider>额外</v-divider>
-              <AssemblySettingWidget v-model="publishData.assembly" :is-show-delete="false"></AssemblySettingWidget>
+              <AssemblySettingWidget v-model="publishData" :is-show-delete="false"></AssemblySettingWidget>
             </v-col>
           </v-row>
         </v-col>

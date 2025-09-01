@@ -55,13 +55,13 @@
         },
         "getAttr": {
           "ok": "获取属性成功",
-          "notFound": "配装属性不存在",
+          "notFound": "配装属性不存在或非所有者",
           "error": "错误: {context}",
           "bad": "错误请求格式，请检查网络工具接口"
         },
         "edit": {
           "ok": "配装更新",
-          "notFound": "没找到对应配装",
+          "notFound": "没找到对应配装或非所有者",
           "invalidPassword": "错误密码",
           "passwordTooShort": "密码太短",
           "error": "错误: {context}",
@@ -69,7 +69,7 @@
         },
         "delete": {
           "ok": "删除成功",
-          "notFound": "没找到对应配装",
+          "notFound": "没找到对应配装或非所有者",
           "forbidden": "不允许操作，非法删除",
           "error": "错误: {context}",
           "bad": "错误请求格式，请检查网络工具接口"

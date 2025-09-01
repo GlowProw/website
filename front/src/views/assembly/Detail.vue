@@ -64,7 +64,7 @@ onMounted(async () => {
   await getAssemblyDetail()
 
   // set new title
-  const title = `${detailData.value.assembly.name} - ${head.value.title} | ${t('name')}`;
+  const title = `${detailData.value.name} - ${head.value.title} | ${t('name')}`;
   head.value.titleTemplate = title
   head.value.meta = {name: 'og:title', content: title}
 })

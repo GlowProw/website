@@ -75,11 +75,15 @@ const onInsertSlot = () => {
 
 /**
  * 删除卡槽内容
+ * @param index
  */
 const onSlotRemove = (index: number) => {
   wheelTabs.value[wheelTabValue.value].data[index] = null
 }
 
+/**
+ * 切换上一个轮盘
+ */
 const prev = () => {
   if (wheelTabValue.value <= 0) {
     return wheelTabValue.value = 2
@@ -88,6 +92,9 @@ const prev = () => {
   wheelTabValue.value -= 1
 }
 
+/**
+ * 切换下一个轮盘
+ */
 const next = () => {
   if (wheelTabValue.value >= 2) {
     return wheelTabValue.value = 0
@@ -96,6 +103,10 @@ const next = () => {
   wheelTabValue.value += 1
 }
 
+/**
+ * 设置轮盘属性
+ * @param attrData
+ */
 const setSetting = (attrData: WheelAttr) => {
   if (!attrData) return {onLoad};
 
@@ -106,12 +117,15 @@ const setSetting = (attrData: WheelAttr) => {
 
 /**
  * 导入
+ * @param importData
  */
-const onLoad = (data) => {
-  if (!data)
+const onLoad = (importDataRaw) => {
+  const importData = toRaw(importDataRaw)
+
+  if (!importData || Object.keys(importData).length <= 0)
     return;
 
-  wheelTabs.value = wheelDataProcessing.import(toRaw(data), attr.value.assemblyUseVersion)
+  wheelTabs.value = wheelDataProcessing.import(toRaw(importData), attr.value.assemblyUseVersion)
 }
 
 /**

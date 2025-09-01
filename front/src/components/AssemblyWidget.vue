@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
-import {computed, Ref, ref, toRaw, useSlots, watch} from "vue";
+import {computed, getCurrentInstance, nextTick, onMounted, Ref, ref, toRaw, useAttrs, useSlots, watch} from "vue";
 import {useRoute} from "vue-router";
 
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
@@ -37,13 +37,14 @@ const poops = withDefaults(defineProps<{
       class: ''
     }),
     slots = useSlots(),
+    attrs = useAttrs(),
     route = useRoute(),
     ships = Ships,
     items: Items = Items,
     ultimates = Ultimates,
     assemblyDataProcessing = new AssemblyDataProcessing(),
     noticeStore = useNoticeStore(),
-    emit = defineEmits(['update:modelValue']),
+    emit = defineEmits(['update:model-value', 'update:item-change']),
     {asString, sanitizeString} = useI18nUtils(),
     {t} = useI18n()
 
@@ -94,6 +95,8 @@ let workshopData = ref({
     // 最大主陈设
     maxMajorDisplayCount = 1,
     hasImageSlot = computed(() => !!slots.image),
+    hasItemChangeEvent = computed(() => !!attrs.onUpdateItemChange),
+    hasModelValueEvent = computed(() => !!attrs.onUpdateModelValue),
 
     // 临时缓存
     cache = ref({
@@ -126,7 +129,11 @@ watch(() => workshopData.value?.data?.shipSlot, (value) => {
     })
 
   cache.value.weaponDirections = result;
-  emit('update:modelValue', onExport())
+
+  if (hasModelValueEvent)
+    emit('update:model-value', onExport())
+  if (hasItemChangeEvent)
+    emit('update:item-change', 'assembly')
 })
 
 /**

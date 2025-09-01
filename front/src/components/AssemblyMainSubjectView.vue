@@ -4,7 +4,7 @@ import ZoomableCanvas from "@/components/ZoomableCanvas.vue";
 import WarehouseShowWidget from "@/components/WarehouseShowWidget.vue";
 import WheelWidget from "@/components/WheelShowWidget.vue";
 import AssemblyWidget from "@/components/AssemblyWidget.vue"; // 确保导入了正确的组件
-import {computed, nextTick, onMounted, ref, toRaw} from "vue";
+import {computed, nextTick, onMounted, ref, toRaw, useAttrs} from "vue";
 import {useDisplay} from "vuetify/framework";
 import {useI18n} from "vue-i18n";
 import {Ships} from "glow-prow-data";
@@ -27,33 +27,36 @@ const props = withDefaults(defineProps<{
   perfectDisplay: false,
 });
 
-const {mobile} = useDisplay();
-const {t} = useI18n();
-const emit = defineEmits(['update:tab', 'ready']);
+const {mobile} = useDisplay(),
+    {t} = useI18n(),
+    attrs = useAttrs(),
+    emit = defineEmits(['update:tab', 'update:item-change', 'ready']);
 
-const zoomableAreaRef = ref(null);
-const assemblyWorkshopRef = ref(null);
-const wheelWorkshopRef = ref(null);
-const warehouseWorkshopRef = ref(null);
+const zoomableAreaRef = ref(null),
+    assemblyWorkshopRef = ref(null),
+    wheelWorkshopRef = ref(null),
+    warehouseWorkshopRef = ref(null);
 
-const workshopHeight = ref(700);
-const tab = ref(assemblyViewConfig.onlyRead[0]);
-const refs = ref({
-  zoomableAreaRef: null,
-  assembly: null,
-  wheel: null,
-  warehouse: null
-});
+const workshopHeight = ref(700),
+    tab = ref(assemblyViewConfig.onlyRead[0]),
+    refs = ref({
+      zoomableAreaRef: null,
+      assembly: null,
+      wheel: null,
+      warehouse: null
+    });
 
 const isWorkshopFillScreen = ref(props.isWorkshopFillScreen);
 
 const hasShip = computed(() => {
-  return assemblyWorkshopRef.value?.onExport() == null;
-});
-const shipDetailInfo = computed(() => {
-  const ship = assemblyWorkshopRef.value?.onExport()?.shipSlot?.id
-  return Ships[ship]
-})
+      return assemblyWorkshopRef.value?.onExport() == null;
+    }),
+    shipDetailInfo = computed(() => {
+      const ship = assemblyWorkshopRef.value?.onExport()?.shipSlot?.id
+      return Ships[ship]
+    }),
+    hasReadyEvent = computed(() => !!attrs.onReady),
+    hasItemChangeEvent = computed(() => !!attrs.onUpdateItemChange)
 
 onMounted(() => {
   nextTick(() => {
@@ -64,7 +67,13 @@ onMounted(() => {
       warehouse: warehouseWorkshopRef.value
     };
 
-    emit('ready', refs)
+    if (hasReadyEvent)
+      emit('ready', refs)
+
+    // 初始验证
+    if (hasItemChangeEvent) {
+      emit('update:item-change', 'assembly')
+    }
   });
 });
 
@@ -91,6 +100,13 @@ const onWorkshopDelete = () => {
     assemblyWorkshopRef.value.onErasure();
   }
 };
+
+/**
+ * 变动事件
+ */
+const onUpdateEvent = (workshopName: string) => {
+  emit('update:item-change', workshopName)
+}
 
 /**
  * 切换附件事件
@@ -152,17 +168,23 @@ const hasData = (name: string): boolean => {
               }">
       <div class="mb-5 ml-n10 mr-n10">
         <div v-show="tab === 'assembly'">
-          <AssemblyWidget ref="assemblyWorkshopRef" :readonly="readonly" :perfect-display="perfectDisplay">
+          <AssemblyWidget ref="assemblyWorkshopRef"
+                          @update:item-change="onUpdateEvent"
+                          :readonly="readonly"
+                          :perfect-display="perfectDisplay">
             <template v-slot:image v-if="assemblyBackground">
               <v-img cover class="pointer-events-none" :src="assemblyBackground"></v-img>
             </template>
           </AssemblyWidget>
         </div>
         <div v-show="tab === 'wheel'">
-          <WheelWidget ref="wheelWorkshopRef" :readonly="readonly"></WheelWidget>
+          <WheelWidget ref="wheelWorkshopRef"
+                       @update:item-change="onUpdateEvent"
+                       :readonly="readonly"></WheelWidget>
         </div>
         <div v-show="tab === 'warehouse'">
           <WarehouseShowWidget ref="warehouseWorkshopRef"
+                               @update:item-change="onUpdateEvent"
                                :cargo="shipDetailInfo?.cargo"
                                :readonly="readonly"></WarehouseShowWidget>
         </div>

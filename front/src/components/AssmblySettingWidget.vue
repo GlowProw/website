@@ -30,7 +30,7 @@ let emit = defineEmits(['update:modelValue']),
       ]
     }),
     delAssemblyLoading = ref(false),
-    tabValue = ref(false)
+    tabValue = ref('assembly')
 
 let languages = computed(() => Object.keys(messages.value))
 

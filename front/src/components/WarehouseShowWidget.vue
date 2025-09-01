@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import {computed, onMounted, ref, toRaw, watch} from "vue";
+import {WarehouseAttr} from "@/assets/types";
+
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemName from "@/components/snbWidget/itemName.vue";
 import AssemblyClassificationShowList from "@/components/AssemblyClassificationShowList.vue";
-import {WarehouseAttr} from "@/assets/types";
+
 import WarehouseDataProcessing from "@/assets/sripts/warehouse_data_processing";
 
 const props = withDefaults(defineProps<{
@@ -106,7 +108,10 @@ const onInsertSlot = (index: number) => {
   show.value = false
 }
 
-
+/**
+ * 设置船仓属性
+ * @param attrData
+ */
 const setSetting = (attrData: WarehouseAttr) => {
   if (!attrData) return {onLoad};
 
@@ -118,8 +123,10 @@ const setSetting = (attrData: WarehouseAttr) => {
 /**
  * 导入
  */
-const onLoad = (importData) => {
-  if (!importData)
+const onLoad = (importDataRaw) => {
+  const importData = toRaw(importDataRaw)
+
+  if (!importData || importData.length <= 0)
     return;
 
   data.value = warehouseDataProcessing.import(importData, attr.value.assemblyUseVersion)

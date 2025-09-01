@@ -2,18 +2,19 @@
 import {useI18n} from "vue-i18n";
 import {computed, nextTick, onMounted, type Ref, ref, toRaw, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
+import {v6 as uuidv6} from "uuid";
 
 import {api, storageAssembly} from "@/assets/sripts";
 import {StorageAssemblyType} from "@/assets/sripts/storage_assembly";
-import {v6 as uuidv6} from "uuid";
 import {useAuthStore} from "~/stores/userAccountStore";
+import {useHttpToken} from "@/assets/sripts/http_util";
+import {useNoticeStore} from "~/stores/noticeStore";
+
 import EmptyView from "@/components/EmptyView.vue";
 import Silk from "@/components/Silk.vue";
 import Loading from "@/components/Loading.vue";
-import {useHttpToken} from "@/assets/sripts/http_util";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import AssemblyDataProcessing from "@/assets/sripts/assembly_data_processing";
-import {useNoticeStore} from "~/stores/noticeStore";
 import AssemblyMainSubjectView from "@/components/AssemblyMainSubjectView.vue";
 
 const {t} = useI18n(),
@@ -38,9 +39,14 @@ let
       assembly: {},
       warehouse: {},
       wheel: {}
-    })                                                          // 分享数据，包含配置集和分享数据
+    }),
 
-let isEditModel = computed(() => {
+    verificationWorkshop = ref({
+      required: 0,
+      verify: []
+    }),
+
+    isEditModel = computed(() => {
       switch (route.name) {
         case 'AssemblyEdit':
           return true
@@ -49,34 +55,8 @@ let isEditModel = computed(() => {
           return false
       }
     }),
-    isAssemblyByUser = computed(() => isEditModel.value ? shareData.value.isOwner : true),
-    verificationAssembly = computed(() => {
-      let verificationResult = {
-        required: 0,
-        verify: []
-      };
+    isAssemblyByUser = computed(() => isEditModel.value ? shareData.value.isOwner : true)
 
-      const refs = assemblyMainSubjectView.value?.refs;
-      if (!refs) {
-        return verificationResult;
-      }
-
-      const componentsToVerify = ['assembly', 'wheel', 'warehouse'];
-
-      // 执行验证逻辑
-      componentsToVerify.forEach(componentName => {
-        const component = refs[componentName];
-        if (component && typeof component.verify === 'function') {
-          const componentVerify = component.verify();
-          if (componentVerify) {
-            verificationResult.verify.push(...componentVerify.verify);
-            verificationResult.required += componentVerify.required;
-          }
-        }
-      });
-
-      return verificationResult;
-    });
 
 watch(() => shareData.value, async () => {
   await loadAssemblyData()
@@ -86,6 +66,35 @@ onMounted(() => {
   if (isEditModel.value)
     getAssemblyDetail()
 })
+
+/**
+ * 工作台更新事件
+ * 变动检查
+ */
+const onWorkshopUpdateEvent = (componentName: string) => {
+  let verification = {
+    required: 0,
+    verify: []
+  };
+
+  const refs = assemblyMainSubjectView.value?.refs;
+  if (!refs) {
+    return verification;
+  }
+
+  // 执行验证逻辑
+  const component = refs[componentName];
+  if (component && typeof component.verify === 'function') {
+    const componentVerify = component.verify();
+    if (componentVerify) {
+      verification.verify.push(...componentVerify.verify);
+      verification.required += componentVerify.required;
+    }
+  }
+
+  verificationWorkshop.value.required = verification.required;
+  verificationWorkshop.value.verify = verification.verify;
+}
 
 /**
  * 获取配装详情
@@ -121,6 +130,20 @@ const loadAssemblyData = async () => {
           assemblyUseVersion: d.assembly?.attr?.assemblyUseVersion
         })
         .onLoad(d.assembly.data)
+
+    assemblyMainSubjectView.value.refs.wheel
+        .setSetting({
+          isShowItemName: d.wheel?.attr?.isShowItemName,
+          assemblyUseVersion: d.wheel?.attr?.assemblyUseVersion
+        })
+        .onLoad(d.wheel.data)
+
+    assemblyMainSubjectView.value.refs.warehouse
+        .setSetting({
+          isShowItemName: d.warehouse?.attr?.isShowItemName,
+          assemblyUseVersion: d.warehouse?.attr?.assemblyUseVersion
+        })
+        .onLoad(d.warehouse.data)
   })
 }
 
@@ -162,8 +185,6 @@ const onSaveAssembly = (type: StorageAssemblyType, uid?: string) => {
     wheel: assemblyMainSubjectView.value.refs.wheel.onExport(),
     warehouse: assemblyMainSubjectView.value.refs.warehouse.onExport()
   }
-
-  console.log(3333,assemblyMainSubjectView.value.refs.wheel)
 
   return storageAssembly.updata(shareData.value, type, uid)
 }
@@ -315,28 +336,28 @@ const onDeleteDraft = (id) => {
             <v-btn class="mr-2" @click="router.go(-1)" v-if="isEditModel">
               取消
             </v-btn>
-            <v-tooltip location="left top" content-class="pa-0" :offset="[20, 0]" :disabled="verificationAssembly && verificationAssembly.verify <= 0">
+            <v-tooltip location="left top" content-class="pa-0" :offset="[20, 0]" :disabled="verificationWorkshop && verificationWorkshop.verify <= 0">
               <template v-slot:activator="{props}">
                 <span v-bind="props">
-                  <v-btn :color="`var(--main-color)`" :disabled="!isAssemblyByUser || verificationAssembly && verificationAssembly.required >  0" @click="onSaveAssemblyPublish" v-if="!isEditModel">
+                  <v-btn :color="`var(--main-color)`" :disabled="!isAssemblyByUser || verificationWorkshop && verificationWorkshop.required >  0" @click="onSaveAssemblyPublish" v-if="!isEditModel">
                     下一步
                   </v-btn>
-                  <v-btn :color="`var(--main-color)`" :disabled="!isAssemblyByUser || verificationAssembly && verificationAssembly.required > 0" @click="onSaveAssemblyEdit" v-if="isEditModel">
+                  <v-btn :color="`var(--main-color)`" :disabled="!isAssemblyByUser || verificationWorkshop && verificationWorkshop.required > 0" @click="onSaveAssemblyEdit" v-if="isEditModel">
                     下一步
                   </v-btn>
 
-                  <v-icon class="ml-2" icon="mdi-alert-circle-outline" color="red" v-if="verificationAssembly && verificationAssembly.required > 0"></v-icon>
-                  <v-icon class="ml-2 text-green" icon="mdi-check" v-if="verificationAssembly && verificationAssembly.verify <= 0"></v-icon>
+                  <v-icon class="ml-2" icon="mdi-alert-circle-outline" color="red" v-if="verificationWorkshop && verificationWorkshop.required > 0"></v-icon>
+                  <v-icon class="ml-2 text-green" icon="mdi-check" v-if="verificationWorkshop && verificationWorkshop.verify <= 0"></v-icon>
                 </span>
               </template>
 
               <v-card width="100%">
                 <v-alert type="warning">
-                  <template v-if="verificationAssembly && verificationAssembly.required > 0">
+                  <template v-if="verificationWorkshop && verificationWorkshop.required > 0">
                     <p class="mb-3 font-weight-bold">配装似乎缺少必要选项，请船长添加必要内容</p>
                   </template>
-                  <ul v-if="verificationAssembly">
-                    <li v-for="(v, vIndex) in verificationAssembly.verify" :key="vIndex">
+                  <ul v-if="verificationWorkshop">
+                    <li v-for="(v, vIndex) in verificationWorkshop.verify" :key="vIndex">
                       <span v-html="`- ${t(`assembly.workshop.verifyTips.${v.message}`)}`"></span>
                     </li>
                   </ul>
@@ -355,6 +376,7 @@ const onDeleteDraft = (id) => {
       ref="assemblyMainSubjectView"
       class="mt-n2 ml-n5 mr-n5"
       @ready="loadAssemblyData"
+      @update:item-change="onWorkshopUpdateEvent"
       :readonly="false"
       :isShowFooterTool="true"
   ></AssemblyMainSubjectView>
