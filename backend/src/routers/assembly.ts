@@ -247,7 +247,8 @@ router.get('/list', [
         if (keyword) {
             query = query.where(function () {
                 this.where('assembly.name', 'like', `%${keyword}%`)
-                    .orWhere('users.username', 'like', `%${keyword}%`);
+                    .orWhere('users.username', 'like', `%${keyword}%`)
+                    .orWhere('users.alternativeName', 'like', `%${keyword}%`);
             });
         }
 
@@ -488,12 +489,12 @@ router.post('/attr/edit', verifyJWT, forbidPrivileges(['blacklisted', 'freezed']
             .where('assembly.uuid', uuid)
             .andWhere('assembly.userId', req.user.id)
             .andWhere(function () {
-                // (wheel.userId = req.user.id) OR (assembly.wheelId IS NULL)
-                this.where('wheel.userId', req.user.id).orWhereNull('assembly.wheelId');
+                if (req.user && req.user.id)
+                    this.where('wheel.userId', req.user.id).orWhereNull('assembly.wheelId');
             })
             .andWhere(function () {
-                // (warehouse.userId = req.user.id) OR (assembly.warehouseId IS NULL)
-                this.where('warehouse.userId', req.user.id).orWhereNull('assembly.warehouseId');
+                if (req.user && req.user.id)
+                    this.where('warehouse.userId', req.user.id).orWhereNull('assembly.warehouseId');
             })
             .select(
                 'assembly.id as assemblyId',
@@ -590,7 +591,10 @@ router.get('/attr', verifyJWT, [
         try {
             const cachedData = await redis.get(cacheKey);
             if (cachedData) {
-                return res.status(200).json(JSON.parse(cachedData));
+                return res.status(200).json({
+                    code: 'assembly.getAttr.ok',
+                    data: JSON.parse(cachedData)
+                });
             }
         } catch (cacheError) {
             logger.warn('Redis cache read error:', cacheError);
@@ -645,7 +649,7 @@ router.get('/attr', verifyJWT, [
                 attr: attrHandle.warehouseShowAttributes(query.warehouseAttr || {}, {includeDefaults: true})
             }
 
-        const responseData = {code: 'assembly.getAttr.ok', data};
+        const responseData = {data};
 
         // 缓存结果
         try {
@@ -654,7 +658,10 @@ router.get('/attr', verifyJWT, [
             logger.warn('Redis cache write error:', cacheError);
         }
 
-        res.status(200).json(responseData);
+        res.status(200).json({
+            code: 'assembly.getAttr.ok',
+            data: responseData
+        });
     } catch (error) {
         logger.error('update editAttr error:', error);
         res.status(500).json({error: 1, code: 'assembly.editAttr.error'});
@@ -668,7 +675,7 @@ router.get('/item', [
     checkQuery('uuid').isString().trim().isLength({min: 1}),
     checkQuery('password').optional({nullable: true}).isString().trim().matches(/^[a-zA-Z0-9_]+$/).isLength({min: 1, max: 32}),
     checkBody('force').optional().isBoolean({strict: true})
-], supposeBackJWT, async (req: any, res: Response) => {
+], supposeBackJWT, async (req: RequestHasAccount, res: Response) => {
     try {
         const validateErr = validationResult(req);
         if (!validateErr.isEmpty())
@@ -678,7 +685,7 @@ router.get('/item', [
         const userId = req.user?.id || 'anonymous'; // 获取用户ID 或 匿名标识
 
         // 基于用户身份创建不同的缓存键
-        const cacheKey = `${getCacheKey(uuid)}:user:${userId}`;
+        const cacheKey = `${getCacheKey(uuid as string)}:user:${userId}`;
 
         let assemblyCacheDataResult = null
 
@@ -701,7 +708,7 @@ router.get('/item', [
 
                     return res.status(200).json({
                         code: 'assembly.detail.ok',
-                        data:assemblyCacheDataResult
+                        data: assemblyCacheDataResult
                     });
                 }
             } catch (cacheError) {
@@ -716,10 +723,6 @@ router.get('/item', [
             .where('assembly.uuid', uuid)
             .andWhere(function () {
                 if (req.user && req.user.id)
-                    this.where('assembly.userId', req.user.id)
-            })
-            .andWhere(function () {
-                if (req.user && req.user.id)
                     this.where('wheel.userId', req.user.id).orWhereNull('assembly.wheelId');
             })
             .andWhere(function () {
@@ -731,7 +734,6 @@ router.get('/item', [
                 'users.alternativeName',
                 'users.id as userId',
                 'users.email as userEmail',
-                'assembly.id as assemblyId',
                 'assembly.uuid',
                 'assembly.userId',
                 'assembly.name',
@@ -750,7 +752,7 @@ router.get('/item', [
             )
             .first();
 
-        if (!result.assemblyId) {
+        if (!result) {
             return res.status(404).json({error: 1, code: 'assembly.detail.notFound'});
         }
 
@@ -766,7 +768,7 @@ router.get('/item', [
                     attr: result.wheelAttr || {}
                 },
                 warehouse: {
-                    data: result.warehouseData || {},
+                    data: result.warehouseData || [],
                     attr: result.warehouseAttr || {}
                 }
             };
@@ -813,8 +815,8 @@ router.get('/item', [
             }
         }
 
-        data.assembly.userAvatar = data.userEmail ? getGravatarAvatar(data.userEmail) : null;
-        data.assembly.username = data.assembly.alternativeName || data.assembly.username;
+        data.userAvatar = data?.userEmail ? getGravatarAvatar(data.userEmail) : null;
+        data.username = data?.alternativeName || data.username;
 
         if (data.assembly.attr.isAnonymous) {
             data.assembly.userAvatar = null;

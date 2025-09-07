@@ -25,7 +25,10 @@ const userAttributes: any = {
     USERNAME_MIN_LENGTH = 3,
     USERNAME_MAX_LENGTH = 40,
     PASSWORD_MIN_LENGTH = 6,
-    PASSWORD_MAX_LENGTH = 60
+    PASSWORD_MAX_LENGTH = 60,
+    ILLEGAL_USERNAMES: ReadonlySet<string> = new Set([
+        "null", "undefined", " ", "\t", "\n"
+    ] as const);
 
 function userShowAttributes(attr: any, showPrivate = false, force = false) {
     const result: any = {};
@@ -100,16 +103,23 @@ async function showUserInfo(req: any, res: any, next: any) {
     }
 }
 
+function validateUsername(username: any): boolean {
+    const trimmedUsername = username.trim().toLowerCase();
+    return !(typeof username !== 'string' || ILLEGAL_USERNAMES.has(trimmedUsername) || trimmedUsername.length === 0);
+}
+
 export {
     userAttributes,
     userSetAttributes,
     userShowAttributes,
     userDefaultAttribute,
     showUserInfo,
+    validateUsername,
 
     USERNAME_REGULAR,
     USERNAME_MAX_LENGTH,
     USERNAME_MIN_LENGTH,
     PASSWORD_MIN_LENGTH,
-    PASSWORD_MAX_LENGTH
+    PASSWORD_MAX_LENGTH,
+    ILLEGAL_USERNAMES
 }

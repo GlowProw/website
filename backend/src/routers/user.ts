@@ -9,7 +9,7 @@ import {loginRateLimiter, registerRateLimiter} from "../middleware/rateLimiter";
 import logger from "../../logger";
 import db from "../../mysql";
 import {generatePassword} from "../lib/auth";
-import {PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH, showUserInfo, userDefaultAttribute, USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH, USERNAME_REGULAR} from "../lib/user";
+import {PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH, showUserInfo, userDefaultAttribute, USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH, USERNAME_REGULAR, validateUsername} from "../lib/user";
 import {RequestHasAccount} from "../types/auth";
 import {v6 as uuidV6} from "uuid";
 import {getGravatarAvatar} from "../lib/gravatar";
@@ -19,7 +19,7 @@ const router = express.Router()
 /**
  * 注册
  */
-router.post('/signup', registerRateLimiter, verifyCaptcha, [
+router.post('/signup', registerRateLimiter,  verifyCaptcha, [
     checkBody("username").isString().trim().isLength({min: USERNAME_MIN_LENGTH, max: USERNAME_MAX_LENGTH}).matches(USERNAME_REGULAR),
     checkBody("alternativeName").isString().trim().isLength({min: USERNAME_MIN_LENGTH, max: USERNAME_MAX_LENGTH}),
     checkBody('password').isString().trim().isLength({min: PASSWORD_MIN_LENGTH, max: PASSWORD_MAX_LENGTH}),
@@ -32,9 +32,12 @@ router.post('/signup', registerRateLimiter, verifyCaptcha, [
 
         const {username, alternativeName, password, email} = req.body;
 
+        if (validateUsername(username))
+            return res.status(403).json({error: 1, code: 'signup.illegalFormat'});
+
         // 检查用户名是否已存在
         if (await db('users').where('username', username).first())
-            return res.status(409).json({error: 1, code: 'signup.userAlreadyHas'});
+            return res.status(403).json({error: 1, code: 'signup.userAlreadyHas'});
 
         const passwordHash = await generatePassword(password), // 加密密码
             id = uuidV6() // id
@@ -72,6 +75,9 @@ router.post('/login', loginRateLimiter, verifyCaptcha, [
             return res.status(400).json({error: 1, code: 'login.bad', message: validateErr.array()});
 
         const {username, password} = req.body;
+
+        if (validateUsername(username))
+            return res.status(403).json({error: 1, code: 'login.illegalFormat'});
 
         // 查找用户
         const user = await db('users')
@@ -113,7 +119,7 @@ router.post('/login', loginRateLimiter, verifyCaptcha, [
  * 这是公共
  */
 router.get('/info', [
-    checkQuery('id').isString().trim().isLength({min:1})
+    checkQuery('id').isString().trim().isLength({min: 1})
 ], showUserInfo);
 
 export default router;
