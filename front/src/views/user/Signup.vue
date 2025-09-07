@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import {ref} from "vue";
 import {useRouter} from "vue-router";
-import Captcha from "@/components/captcha/index.vue";
 import {api, http} from "@/assets/sripts";
 import {useI18n} from "vue-i18n";
 import {useNoticeStore} from "~/stores/noticeStore";
+
+import Captcha from "@/components/captcha/index.vue";
+import RulesUser from "@/assets/sripts/rules_user"
 
 const router = useRouter(),
     noticeStore = useNoticeStore(),
@@ -12,32 +14,16 @@ const router = useRouter(),
 
 let registerLoading = ref(false),
     registerRules = ref({
-      username: [
-        v => !!v || '必须填写用户名ID',
-        v => (v && v.length >= 3 && v.length <= 40) || '长度3-40',
-        v => new RegExp(/^[a-zA-Z0-9_]+$/).test(v) || '用户名ID格式不正确',
-      ],
-      alternativeName: [
-        v => !v || (v && v.length >= 3 && v.length <= 40) || '长度3-40',
-        v => !v || new RegExp(/^[a-zA-Z0-9_]+$/).test(v) || '账户名称格式不正确',
-      ],
-      password: [
-        v => !!v || '必须填写密码',
-        v => (v && v.length >= 8 && v.length <= 60) || '长度8-60',
-      ],
-      email: [
-        v => !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || '邮箱格式不正确'
-      ],
-      captcha: [
-        v => !!v || '必须填写验证码',
-        v => (v && v.length == 4) || '长度4',
-      ]
+      username: RulesUser.username,
+      alternativeName: RulesUser.alternativeName,
+      email: RulesUser.email,
+      password: RulesUser.password,
+      captcha: RulesUser.captcha,
     }),
     registerStyle = ref({
       hintCol: 6,
       inputCol: 6,
     }),
-    isUserInputAlternativeName = ref(false),
 
     // 注册表单
     username = ref(''),

@@ -2,10 +2,11 @@
 import {ref} from "vue";
 import {useAuthStore} from '~/stores/userAccountStore'
 import {useRoute, useRouter} from "vue-router";
-
-import Captcha from "@/components/captcha/index.vue";
 import {api, http} from "@/assets/sripts";
 import {useI18n} from "vue-i18n";
+
+import Captcha from "@/components/captcha/index.vue";
+import RulesUser from "@/assets/sripts/rules_user"
 
 const authStore = useAuthStore(),
     router = useRouter(),
@@ -15,6 +16,11 @@ const authStore = useAuthStore(),
 let messages = ref([]),
 
     loginFormLoading = ref(false),
+    loginRules = ref({
+      username: RulesUser.username,
+      password: RulesUser.password,
+      captcha: RulesUser.captcha
+    }),
 
     // 登陆表单
     username = ref(''),
@@ -85,11 +91,13 @@ const onCaptchaData = (data: any) => {
         <v-row class="pa-8">
           <v-col>
             <v-text-field v-model="username"
+                          :rules="loginRules.username"
                           name="username"
                           variant="solo-filled"
                           :label="t('login.form.label.username')"
                           :placeholder="t('login.form.placeholder.username')"></v-text-field>
             <v-text-field v-model="password"
+                          :rules="loginRules.password"
                           name="password"
                           variant="solo-filled"
                           :label="t('login.form.label.password')"
