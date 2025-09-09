@@ -50,11 +50,13 @@ const onProcessedData = computed(() => {
         return (nameMatch || idMatch) && typeMatch;
       });
 
-      exceedingItemsCount.value = Math.max(filteredData.length - maximumSearchCount, 0);
-      return filteredData.slice(0, maximumSearchCount);
+      if (isSearching.value)
+        exceedingItemsCount.value = Math.max(filteredData.length - maximumSearchCount, 0);
+      return isSearching.value ? filteredData.slice(0, maximumSearchCount) : filteredData;
     }),
-    maximumSearchCount = route.query.debug ? 10000 : 30,
-    isSearching = computed(() => itemsFilter.value.keyValue || itemsFilter.value.type)
+    maximumSearchCount = route.query.debug ? 10000 : 50,
+    isSearching = computed(() => !!(itemsFilter.value.keyValue)),
+    isType = computed(() => !!itemsFilter.value.type)
 
 onMounted(() => {
   onFirstLoad()
@@ -157,7 +159,7 @@ const onFilterItemType = (value) => {
     </v-row>
   </v-container>
 
-  <template v-if="!isSearching">
+  <template v-if="!isSearching && !isType">
     <v-infinite-scroll
         height="100vh"
         :items="itemsData"

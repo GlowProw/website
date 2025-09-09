@@ -177,7 +177,9 @@
       "offensiveFurniture": "攻击家具",
       "utilityFurniture": "功能家具",
       "majorFurniture": "主要家具",
-      "shipUpgrade": "船升级"
+      "shipUpgrade": "船升级",
+      "quest": "任务",
+      "contract": "合同"
     },
     "tier": "{num}级",
     "category": {
