@@ -9,6 +9,7 @@ import EmptyView from "@/components/EmptyView.vue";
 import ModName from "@/components/snbWidget/modName.vue";
 import ModDescription from "@/components/snbWidget/modDescription.vue";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
 
 type WeaponModificationSize = '3' | '5' | '6' | '8'
 type WeaponModConfigType = Record<Rarity, any>;
@@ -53,6 +54,7 @@ const props = withDefaults(defineProps<{
       item: null,
     }),
     {t, te} = useI18n(),
+    {sanitizeString} = useI18nUtils(),
     modifications = Modifications,
     isHasBasicSlot = computed(() => {
       return props.modelValue.filter(i => i.type == 'basic').length > 0
@@ -134,6 +136,10 @@ const onCategorizeByGrade = (modificationsRaw): Record<string, any[]> => {
           ?.filter(mod => mod.value?.damageType)
           .map(mod => mod.value.damageType)
   );
+
+  // 获取武器的perks
+  const weaponPerks = props.data.perks?.map(i => sanitizeString(i).cleaned) || [];
+  weaponPerks.forEach(perk => installedDamageTypes.add(perk));
 
   Object.values(modificationsRaw).forEach(item => {
     // 检查武器类型是否匹配

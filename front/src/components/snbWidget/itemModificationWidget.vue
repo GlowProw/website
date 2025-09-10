@@ -21,7 +21,6 @@ const props = withDefaults(defineProps<{ id: string, type: string | null }>(), {
 let modData = ref({}),
     modIconImages = ref({}),
     showType = ref('1'),
-    prepositionMod = ref([]),
     isHasMod = computed(() => {
       return Object.keys(modData.value).length > 0
     })
@@ -104,7 +103,7 @@ const onSwitchModShow = () => {
     <template v-for="(key, value) in modData" :key="key">
       <v-row class="pl-5 pr-5 pr-0 pt-2 title-long-flavor bg-black" align="center">
         <v-col>
-          <v-img :src="modIconImages[value]" class="mt-1" width="25px" height="25px" />
+          <v-img :src="modIconImages[value]" class="mt-1" width="25px" height="25px"/>
         </v-col>
         <v-spacer></v-spacer>
         <v-col align="right">

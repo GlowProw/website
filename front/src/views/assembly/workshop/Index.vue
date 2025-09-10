@@ -252,7 +252,6 @@ const onUseDraft = (item) => {
     return noticeStore.error('draft data null')
   }
 
-  console.log(assemblyData, assemblyMainSubjectView.value.refs.assembly)
   assemblyMainSubjectView.value.refs.assembly
       .setSetting({
         assemblyUseVersion: AssemblyDataProcessing.nowVersion,
