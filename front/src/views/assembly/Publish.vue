@@ -120,11 +120,11 @@ const onLoadData = () => {
     const {uuid, assembly, name, description, tags} = getLocalAssemblyData.data;
 
     publishData.value.uuid = uuid
-    publishData.value.name = name
-    publishData.value.description = description
+    publishData.value.name = name || ''
+    publishData.value.description = description || ''
 
     publishData.value.assembly.data = assembly;
-    publishData.value.assembly.tags = tags;
+    publishData.value.assembly.tags = tags || [];
 
     if (getLocalAssemblyData.data.wheel)
       publishData.value.wheel = {
@@ -218,17 +218,10 @@ const onPublish = async () => {
     publishLoading.value = true
 
     const {uid} = route.params;
+    const onePublishData = publishData.value;
 
     const result = await http.post(api['assembly_publish'], {
-          data: {
-            name: publishData.value.assembly.name,
-            description: publishData.value.assembly.description,
-            assembly: publishData.value.assembly,
-            tags: publishData.value.tags,
-            attr: {
-              ...publishData.value.assembly.attr,
-            }
-          }
+          data: onePublishData
         }),
         d = result.data;
 
@@ -236,7 +229,11 @@ const onPublish = async () => {
       throw Error(d);
 
     storageAssembly.delete(uid as string, StorageAssemblyType.Data)
-    await router.push(`/assembly/browse/${d.data.id}/detail`)
+    await router.push(
+        d.data['assembly.uuid'] ?
+            `/assembly/browse/${d.data['assembly.uuid']}/detail` :
+            `/assembly/browse`
+    )
 
     noticeStore.success(t(`basic.tips.${d.code}`))
   } catch (e) {

@@ -114,6 +114,15 @@ let workshopData = ref({
       assemblyUseVersion: AssemblyDataProcessing.nowVersion
     })
 
+watch(() => workshopData.value?.data, (value) => {
+  if (hasModelValueEvent)
+    emit('update:model-value', onExport())
+  if (hasItemChangeEvent)
+    emit('update:item-change', 'assembly')
+}, {
+  deep: true
+})
+
 watch(() => workshopData.value?.data?.shipSlot, (value) => {
   let result = {}
 
@@ -129,11 +138,6 @@ watch(() => workshopData.value?.data?.shipSlot, (value) => {
     })
 
   cache.value.weaponDirections = result;
-
-  if (hasModelValueEvent)
-    emit('update:model-value', onExport())
-  if (hasItemChangeEvent)
-    emit('update:item-change', 'assembly')
 })
 
 /**

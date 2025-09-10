@@ -63,7 +63,6 @@ const getAssemblyDetail = async () => {
     }
 
     assemblyDetailData.value = d.data;
-    assemblyDetailData.value.description = decodeURI(assemblyDetailData.value.description || '这个人很懒什么,对此配装什么都没说')
 
     await nextTick(() => {
       assemblyDetailRef.value
@@ -236,6 +235,7 @@ const generateQRCode = async (text) => {
   pointer-events: none;
   user-select: none;
   min-width: 1024px;
+  min-height: 300px;
 
   &:after {
     content: "";

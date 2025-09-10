@@ -246,13 +246,19 @@ const onSaveDraft = () => {
  * 使用快速草稿
  * @param data
  */
-const onUseDraft = (data) => {
-  assemblyWorkshopRef.value
+const onUseDraft = (item) => {
+  const assemblyData = item.assembly
+  if (!assemblyData && Object.keys(assemblyData).length == 0) {
+    return noticeStore.error('draft data null')
+  }
+
+  console.log(assemblyData, assemblyMainSubjectView.value.refs.assembly)
+  assemblyMainSubjectView.value.refs.assembly
       .setSetting({
         assemblyUseVersion: AssemblyDataProcessing.nowVersion,
         isShowItemName: false,
       })
-      .onLoad(toRaw(data))
+      .onLoad(toRaw(assemblyData))
   draftModel.value = false
 }
 
@@ -429,7 +435,7 @@ const onDeleteDraft = (id) => {
                     </template>
                   </v-col>
                   <v-col cols="auto">
-                    <v-btn @click="onUseDraft(i.data)" variant="tonal" class="mr-2">
+                    <v-btn @click="onUseDraft(i)" variant="tonal" class="mr-2">
                       使用
                     </v-btn>
                     <v-btn icon density="compact" @click="onDeleteDraft(i.id)">
