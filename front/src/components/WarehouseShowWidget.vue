@@ -109,6 +109,18 @@ const onInsertSlot = (index: number) => {
 }
 
 /**
+ * 显示面包
+ * @param index
+ */
+const openShowPanel = (index) => {
+  if (props.readonly)
+    return;
+
+  show.value = true;
+  selectIndex.value = index
+}
+
+/**
  * 设置船仓属性
  * @param attrData
  */
@@ -146,7 +158,6 @@ const verify = () => {
   return warehouseDataProcessing.verify(data.value, attr.value.assemblyUseVersion)
 }
 
-
 defineExpose({
   onExport,
   onLoad,
@@ -173,7 +184,7 @@ defineExpose({
   <v-row align="center" justify="center">
     <v-col cols="auto" v-for="(i, index) in data" :key="index">
       <v-card width="100">
-        <div @click="show = true; selectIndex = index">
+        <div @click="openShowPanel(index)">
           <ItemSlotBase size="100px" class="w-100 d-flex justify-center align-center">
             <ItemIconWidget :id="i.id" v-if="i && i.id"></ItemIconWidget>
             <v-icon size="35" v-else>mdi-plus</v-icon>

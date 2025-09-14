@@ -9,7 +9,6 @@ import AccountProfilePicturePage from '@/views/user/account/profilePicture.vue'
 import AccountAssemblysPage from '../src/views/user/account/assemblys.vue'
 import AccountCommentsPage from '../src/views/user/account/comments.vue'
 import AccountTeamUpsPage from '../src/views/user/account/teamup.vue'
-
 import AccountSpacePage from '../src/views/user/Space.vue'
 
 import LoginPage from '../src/views/user/login.vue'
@@ -21,6 +20,7 @@ import ShipDetailPage from '../src/views/displayCabinet/ships/Detail.vue'
 import ItemsPage from '../src/views/displayCabinet/items/Index.vue'
 import ItemDetailPage from '../src/views/displayCabinet/items/Detail.vue'
 import ItemCategoryDetailPage from '../src/views/displayCabinet/items/Category.vue'
+import empireSkillSimulationPage from '../src/views/empireSkillSimulation/Index.vue'
 
 import UltimatesPage from '../src/views/displayCabinet/ultimates/Index.vue'
 import UltimateDetailPage from '../src/views/displayCabinet/ultimates/Detail.vue'
@@ -327,6 +327,16 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 component: AssemblySharePage
             }
         ]
+    },
+    {
+        path: '/empire-skill-simulation',
+        name: 'empireSkillSimulation',
+        component: empireSkillSimulationPage,
+        meta: {
+            title: 'empireSkillSimulation.title',
+            keywords: 'empireSkillSimulation.keywords'
+        },
+        beforeEnter: initItemAssets,
     },
 
     {

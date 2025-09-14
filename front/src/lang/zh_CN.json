@@ -522,6 +522,10 @@
       "fashion-show": {
         "title": "时装秀(开发中)",
         "description": "分享你的穿搭，成为时尚达人"
+      },
+      "empire-skill-Simulation": {
+        "title": "帝国升级模拟(开发中)",
+        "description": "海陀社升级模拟"
       }
     }
   },

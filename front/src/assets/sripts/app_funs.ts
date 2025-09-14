@@ -53,6 +53,12 @@ export default class AppFuns {
             icon: 'mdi-help',
             description: 'header.functions.fashion-show.description',
             to: ''
+        },
+        {
+            title: 'header.functions.empire-skill-Simulation.title',
+            icon: 'mdi-help',
+            description: 'header.functions.empire-skill-Simulation.description',
+            to: '/empire-skill-simulation'
         }
     ]
 }
