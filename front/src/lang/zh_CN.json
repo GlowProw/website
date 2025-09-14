@@ -480,6 +480,12 @@
       "keywords": "游戏,碧海黑帆,game,skull-and-bones,Skull And Bones,SNB,S And B,ubisoft,2025"
     }
   },
+  "empireSkillSimulation": {
+    "effects": "效果",
+    "requirements": "要求",
+    "requiredCost": "需要材料",
+    "stage": "阶段{num}"
+  },
   "header": {
     "navs": {
       "blog": "闪耀船首博客",
