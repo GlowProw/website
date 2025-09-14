@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <Header></Header>
-    <v-main class="background-img-flavor">
+    <v-main class="bg-black">
 <!--      <ZoomableCanvas style="height: 100vh">-->
 <!--      </ZoomableCanvas>-->
       <View :skills="EmpireSkills"></View>
