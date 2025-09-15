@@ -2,7 +2,11 @@
   <div class="skill-tree-container position-relative">
     <svg ref="svgRef"></svg>
 
-    <v-card border class="skill-tree-search-bar">
+    <v-card border class="skill-tree-search-bar"
+            :style="{
+              'top': mobile ? '30px' : '30px'
+            }"
+            :width="mobile ? 'calc(100% - 50px)' : 450">
       <v-combobox
           v-model="searchQuery"
           :items="searchItems"
@@ -17,12 +21,19 @@
       ></v-combobox>
     </v-card>
 
-    <v-card v-show="show" border elevation="12" width="450" class="skill-tree-container-cardinfo">
-      <v-card-title class="py-3 font-weight-bold d-flex align-center" :title="t(`snb.empireSkills.${selectShowKey}.name`)">
+    <v-card v-show="show" border
+            elevation="12"
+            :width="mobile ? 'calc(100% - 50px)' : 450"
+            :style="{
+              'top': mobile ? '90px' : '30px'
+            }"
+            class="skill-tree-container-cardinfo">
+      <div class="mx-5 py-3 font-weight-bold d-flex align-center" :title="t(`snb.empireSkills.${selectShowKey}.name`)">
         <FactionIconWidget class="my-2 mr-2" :name="skills[selectShowKey].type" size="25px" v-if="skills[selectShowKey] && skills[selectShowKey].type"></FactionIconWidget>
         {{ t(`snb.empireSkills.${selectShowKey}.name`) }}
-      </v-card-title>
-      <div class="ml-12 mt-n5 mb-4 opacity-60 text-caption" v-if="skills[selectShowKey] && skills[selectShowKey].id">
+      </div>
+      <div class="mx-5 mb-4 opacity-60 text-caption"
+           v-if="skills[selectShowKey] && skills[selectShowKey].id">
         id: {{ skills[selectShowKey].id }}
       </div>
 
@@ -37,7 +48,7 @@
               <rhombus-widget :solid="false"></rhombus-widget>
             </v-col>
             <v-col>
-              {{ skills[i].id }}
+              {{ t(`snb.empireSkills.${skills[i].id}.name`) }}
             </v-col>
           </v-row>
         </div>
@@ -55,7 +66,7 @@
                   </ItemSlotBase>
                   <span class="ml-2">{{ t(`snb.materials.${key}.name`) }}</span>
                 </v-col>
-                <v-col cols="auto">
+                <v-col>
                   <v-breadcrumbs
                       :items="i"
                       class="pa-0 ma-0">
@@ -80,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref} from 'vue';
+import {onMounted, onUnmounted, ref} from 'vue';
 import * as d3 from 'd3';
 import {useI18n} from "vue-i18n";
 import {EmpireSkills} from "glow-prow-data/src/entity/EmpireSkills";
@@ -88,6 +99,7 @@ import RhombusWidget from "@/components/snbWidget/rhombusWidget.vue";
 import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
+import {useDisplay} from "vuetify/framework";
 
 // --- 类型定义 ---
 interface SkillData {
@@ -108,7 +120,8 @@ const props = defineProps<{
       skills: Record<string, SkillData>;
     }>(),
     skills = EmpireSkills,
-    {t} = useI18n();
+    {t} = useI18n(),
+    {mobile} = useDisplay();
 
 let svgRef = ref<SVGSVGElement | null>(null),
     transform = ref({k: 1}),
@@ -122,10 +135,7 @@ const foundNodes = ref([]);
 let root: d3.HierarchyNode<HierarchyNodeData>;
 let svg: d3.Selection<SVGElement | null, unknown, null, undefined>;
 let zoom: d3.ZoomBehavior<SVGSVGElement, unknown>;
-const width = 1800;
-const height = 2200;
-const marginTop = 50;
-const marginLeft = 150;
+// D3 布局的节点间距
 const nodeWidth = 60;
 const nodeHeight = 60;
 
@@ -185,25 +195,28 @@ const handleSearchInput = (value) => {
   }
 };
 
+/**
+ * 定位并居中一个节点到屏幕中间
+ * @param node 要居中的 D3 节点数据
+ */
 const locateNode = (node: d3.HierarchyNode<HierarchyNodeData>) => {
-  // 获取当前 transform 的缩放和平移信息
-  const currentTransform = d3.zoomTransform(svg.node());
+  if (!svgRef.value) return;
 
-  // 计算目标缩放比例，这里选择 1.2
-  const targetScale = 1.2;
   const containerRect = svgRef.value.getBoundingClientRect();
   const svgWidth = containerRect.width;
   const svgHeight = containerRect.height;
 
-  // 计算新的平移量，使节点居中
-  // 这里需要考虑 D3 树布局的坐标系（x,y）以及初始平移量
-  const targetX = -node.y * targetScale + (width / 2) - marginLeft - nodeWidth;
-  const targetY = -node.x * targetScale + (height / 2) - marginTop - nodeHeight - 650;
+  // 目标缩放比例
+  const targetScale = 1.8;
 
-  // 使用 D3 的过渡效果平滑地平移和缩放
+  // 使用D3的平移和缩放来居中节点
+  // 注意：D3的树状图布局是 y 对应水平，x 对应垂直
+  const newX = -node.y * targetScale + svgWidth / 2;
+  const newY = -node.x * targetScale + svgHeight / 2;
+
   svg.transition()
       .duration(750)
-      .call(zoom.transform as any, d3.zoomIdentity.translate(targetX, targetY).scale(targetScale));
+      .call(zoom.transform as any, d3.zoomIdentity.translate(newX, newY).scale(targetScale));
 
   // 移除所有节点的高亮
   d3.select(svgRef.value).selectAll('.node-group .node-rect').classed('highlighted', false);
@@ -216,9 +229,22 @@ const locateNode = (node: d3.HierarchyNode<HierarchyNodeData>) => {
   show.value = true;
 };
 
-// --- LIFECYCLE HOOK ---
-onMounted(() => {
+// 窗口大小变化时，重新绘制整个图表以适应新尺寸
+const handleResize = () => {
+  drawTree();
+};
+
+
+const drawTree = () => {
   if (!svgRef.value || !props.skills) return;
+
+  // 动态获取容器的实际宽高
+  const containerRect = svgRef.value.getBoundingClientRect();
+  const dynamicWidth = containerRect.width;
+  const dynamicHeight = containerRect.height;
+
+  // 清空 SVG 内容，避免重复绘制
+  d3.select(svgRef.value).selectAll('*').remove();
 
   // --- 1. 数据处理 ---
   const flatData: HierarchyNodeData[] = [];
@@ -261,24 +287,23 @@ onMounted(() => {
   }
 
   // --- 2. D3 布局设置 ---
-  const marginRight = 50;
-  const marginBottom = 50;
-
+  // D3 树布局现在使用动态尺寸
   root = d3.stratify<HierarchyNodeData>()
       .id(d => d.id)
       .parentId(d => d.parentId)(flatData);
 
   const treeLayout = d3.tree<HierarchyNodeData>()
-      .size([height - marginTop - marginBottom, width - marginLeft - marginRight])
-      .nodeSize([100, 220]);
+      .size([dynamicHeight, dynamicWidth])
+      .nodeSize([90, 300]);
 
   treeLayout(root);
 
   // --- 3. D3 渲染 ---
   svg = d3.select(svgRef.value)
-      .attr("width", width)
-      .attr("height", height)
-      .attr("viewBox", [0, 0, width, height]);
+      .attr("width", "100%")
+      .attr("height", "100%");
+
+  // 移除了 viewBox，因为布局是动态的
 
   svg.on('click', () => {
     show.value = false;
@@ -287,7 +312,7 @@ onMounted(() => {
   });
 
   const container = svg.append("g")
-      .attr("transform", `translate(${marginLeft},${marginTop})`);
+      .attr("transform", `translate(0,0)`); // 初始偏移量不再需要，居中计算会处理
 
   container.append('defs').append('marker')
       .attr('id', 'arrow')
@@ -388,14 +413,27 @@ onMounted(() => {
       });
 
   zoom = d3.zoom<SVGSVGElement, unknown>()
-      .extent([[0, 0], [width, height]])
-      .scaleExtent([0.6, 1.8])
+      .extent([[0, 0], [dynamicWidth, dynamicHeight]])
+      .scaleExtent([0.3, 4])
       .on("zoom", ({transform}) => {
         transform.value = transform
         container.attr("transform", transform);
       });
 
   svg.call(zoom as any);
+};
+
+
+// --- LIFECYCLE HOOK ---
+onMounted(() => {
+  drawTree();
+  // 添加窗口大小变化监听器
+  window.addEventListener('resize', handleResize);
+});
+
+onUnmounted(() => {
+  // 移除窗口大小变化监听器，避免内存泄漏
+  window.removeEventListener('resize', handleResize);
 });
 </script>
 
@@ -409,7 +447,7 @@ onMounted(() => {
 
 .skill-tree-container {
   width: 100%;
-  height: calc(70vh + 100px);
+  height: 600px;
   overflow: hidden;
 }
 
@@ -417,7 +455,6 @@ onMounted(() => {
   position: absolute;
   top: 30px;
   left: 30px;
-  width: 450px;
   z-index: 100;
 }
 
