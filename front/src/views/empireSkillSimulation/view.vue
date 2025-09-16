@@ -50,8 +50,8 @@
         <template v-if="skills[selectShowKey] && skills[selectShowKey].stage && skills[selectShowKey].stage > 1">
           <template v-if="!skillPointsInput[selectShowKey]">
             <!-- 未选择模拟，预览所有 -->
-            <p class="opacity-60" v-for="(t, tIndex) in tm(`snb.empireSkills.${skills[selectShowKey] && skills[selectShowKey].id}.effects`)" :key="tIndex">
-              {{ number.intToRoman(tIndex || 1) }}: {{ t }}
+            <p class="opacity-60" v-for="(to, toIndex) in tm(`snb.empireSkills.${skills[selectShowKey] && skills[selectShowKey].id}.effects`)" :key="toIndex">
+              {{ number.intToRoman(tIndex || 1) }}: {{ to || t('empireSkillSimulation.effectsNotContent') }}
             </p>
           </template>
           <template v-else>
