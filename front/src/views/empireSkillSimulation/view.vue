@@ -1,6 +1,30 @@
 <template>
   <div class="skill-tree-container">
-    <svg ref="svgRef"></svg>
+
+    <div class="position-relative h-100">
+      <svg ref="svgRef"></svg>
+
+      <div class="skill-tree-footer-toolbar px-8 py-3 d-flex">
+        <v-card border class="d-inline-flex mx-auto py-1 px-2 align-center">
+          <v-icon class="mr-1 opacity-60" size="13">mdi-resize</v-icon>
+          <span class="text-caption opacity-60 mr-2">{{ Math.abs(svgTransform.k).toFixed(1) }}</span>
+
+          <div v-for="(z, zIndex) in scaleExtent"
+               :key="zIndex">
+            <rhombus-widget
+                :size="6"
+                :activate="z == svgTransform.k"
+                :solid="z == svgTransform.k"
+                @click="setSvgScale(z)"
+                class="pa-1"></rhombus-widget>
+          </div>
+        </v-card>
+
+        <v-spacer></v-spacer>
+
+        <span class="ml-3 text-caption opacity-60">{{svgTransform.x}} {{svgTransform.y}}</span>
+      </div>
+    </div>
 
     <v-card border class="skill-tree-search-bar"
             :style="{
@@ -190,7 +214,7 @@
 <script setup lang="ts">
 import * as d3 from 'd3';
 
-import {onMounted, onUnmounted, ref, watch} from 'vue';
+import {computed, onMounted, onUnmounted, ref, watch} from 'vue';
 import {useI18n} from "vue-i18n";
 import {EmpireSkills} from "glow-prow-data/src/entity/EmpireSkills";
 import RhombusWidget from "@/components/snbWidget/rhombusWidget.vue";
@@ -221,22 +245,27 @@ const props = defineProps<{
       skills: Record<string, SkillData>;
     }>(),
     skills = EmpireSkills,
+    svgScaleExtent = [0.6, 4],
     router = useRouter(),
     route = useRoute(),
     {t, tm, te, locale} = useI18n(),
     {mobile} = useDisplay();
 
 let svgRef = ref<SVGSVGElement | null>(null),
-    transform = ref({k: 1}),
+    // 更改：`scaleExtent` 计算属性现在包含一个额外的缩放值，以提供更多选项
+    scaleExtent = computed(() => [
+      svgScaleExtent[0],
+      1,
+      svgScaleExtent[1],
+    ]),
+    svgTransform = ref({k: 1}),
     show = ref(false),
-    selectShowKey = ref<string | null>('manufactoryExpansion-compagnieRoyale-2');
+    selectShowKey = ref<string | null>('manufactoryExpansion-compagnieRoyale-2'),
 
-let searchQuery = ref(''),
+    searchQuery = ref(''),
     searchItems = ref([]),
-    foundNodes = ref([]);
-
-// 模拟点数输入，使用 ref 包裹以保持响应性
-const skillPointsInput = ref({});
+    foundNodes = ref([]),
+    skillPointsInput = ref({});
 
 watch(locale, () => {
   drawTree()
@@ -458,6 +487,27 @@ const updateSkillPointsText = () => {
   });
 };
 
+
+/**
+ * 设置SVG的缩放级别
+ * @param scale 目标缩放级别
+ */
+const setSvgScale = (scale: number) => {
+  if (!svgRef.value || !zoom) return;
+
+  // 确保目标缩放级别在设定的范围内
+  const targetScale = Math.max(svgScaleExtent[0], Math.min(svgScaleExtent[1], scale));
+
+  // 创建新的transform，只改变缩放比例，保持平移不变
+  const newTransform = d3.zoomIdentity
+      .scale(targetScale);
+
+  // 平滑过渡到新的缩放状态
+  svg.transition()
+      .duration(750)
+      .call(zoom.transform as any, newTransform);
+};
+
 /**
  * 绘制树节点
  */
@@ -636,9 +686,9 @@ const drawTree = () => {
 
   zoom = d3.zoom<SVGSVGElement, unknown>()
       .extent([[0, 0], [dynamicWidth, dynamicHeight]])
-      .scaleExtent([0.3, 4])
+      .scaleExtent(svgScaleExtent)
       .on("zoom", ({transform}) => {
-        transform.value = transform
+        svgTransform.value = transform;
         container.attr("transform", transform);
       });
 
@@ -685,8 +735,17 @@ onUnmounted(() => {
 
 .skill-tree-container {
   width: 100%;
-  height: calc(80vh + 150px);
+  height: calc(80vh + 128px);
   overflow: hidden;
+}
+
+.skill-tree-footer-toolbar {
+  position: absolute;
+  z-index: 100;
+  width: 100%;
+  left: 0;
+  right: 0;
+  bottom: 0
 }
 
 .skill-tree-search-bar {
