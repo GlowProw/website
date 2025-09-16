@@ -484,7 +484,11 @@
     "effects": "效果",
     "requirements": "要求",
     "requiredCost": "需要材料",
-    "stage": "阶段{num}"
+    "stage": "阶段{num}",
+    "other": "其他",
+    "effectsNotContent": "缺少描述",
+    "dateAdded": "创建时间",
+    "lastUpdated": "更新时间"
   },
   "header": {
     "navs": {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {onMounted, type Ref, ref} from "vue";
+import {onMounted, type Ref, ref, watch} from "vue";
 import ItemSlotBase from "./ItemSlotBase.vue";
 
 const factionImages = import.meta.glob('@glow-prow-assets/factions/*.png', {eager: true});
@@ -7,6 +7,10 @@ const factionImages = import.meta.glob('@glow-prow-assets/factions/*.png', {eage
 let src: Ref<string | null> = ref(null)
 
 const props = defineProps<{ name: string, size: string, class?: string }>()
+
+watch(() => props.name, () => {
+  onImage()
+})
 
 onMounted(() => {
   onImage()

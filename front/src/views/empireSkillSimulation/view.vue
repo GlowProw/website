@@ -1,10 +1,10 @@
 <template>
-  <div class="skill-tree-container position-relative">
+  <div class="skill-tree-container">
     <svg ref="svgRef"></svg>
 
     <v-card border class="skill-tree-search-bar"
             :style="{
-              'top': mobile ? '30px' : '30px'
+              'top': mobile ? '70px' : '70px'
             }"
             :width="mobile ? 'calc(100% - 50px)' : 450">
       <v-combobox
@@ -25,40 +25,66 @@
             elevation="12"
             :width="mobile ? 'calc(100% - 50px)' : 450"
             :style="{
-              'top': mobile ? '90px' : '30px'
+              'top': mobile ? '130px' : '70px'
             }"
-            class="skill-tree-container-cardinfo">
-      <div class="mx-5 py-3 font-weight-bold d-flex align-center" :title="t(`snb.empireSkills.${selectShowKey}.name`)">
-        <FactionIconWidget class="my-2 mr-2" :name="skills[selectShowKey].type" size="25px" v-if="skills[selectShowKey] && skills[selectShowKey].type"></FactionIconWidget>
-        {{ t(`snb.empireSkills.${selectShowKey}.name`) }}
-      </div>
-      <div class="mx-5 mb-4 opacity-60 text-caption"
-           v-if="skills[selectShowKey] && skills[selectShowKey].id">
-        id: {{ skills[selectShowKey].id }}
+            class="skill-tree-container-cardInfo overflow-y-auto">
+      <v-card-title class="my-2 mr-2">
+        <div class="mb-1 d-flex align-center text-caption"
+             v-if="skills[selectShowKey] && skills[selectShowKey].type"
+             :title="t(`snb.empireSkills.${selectShowKey}.name`)">
+          <ItemSlotBase size="20px" :padding="0" class="d-inline-flex">
+            <FactionIconWidget :name="skills[selectShowKey].type" size="20px"></FactionIconWidget>
+          </ItemSlotBase>
+          <span class="ml-2">{{ t(`snb.factions.${skills[selectShowKey].type}.name`) }}</span>
+        </div>
+        <span class="text-amber">{{ t(`snb.empireSkills.${skills[selectShowKey] && skills[selectShowKey].id}.name`) }}</span>
+        <template v-if="skillPointsInput[selectShowKey] > 1">
+          <span class="font-weight-bold">
+              {{ number.intToRoman(skillPointsInput[selectShowKey] || 0) }}
+          </span>
+        </template>
+      </v-card-title>
+
+      <div class="card-enlargement-flavor px-10 mx-n6 py-2 text-amber-lighten-4">{{ t('empireSkillSimulation.effects') }}</div>
+      <div class="py-2 px-5 mb-5">
+        <template v-if="skills[selectShowKey] && skills[selectShowKey].stage && skills[selectShowKey].stage > 1">
+          <template v-if="!skillPointsInput[selectShowKey]">
+            <!-- 未选择模拟，预览所有 -->
+            <p class="opacity-60" v-for="(t, tIndex) in tm(`snb.empireSkills.${skills[selectShowKey] && skills[selectShowKey].id}.effects`)" :key="tIndex">
+              {{ number.intToRoman(tIndex || 1) }}: {{ t }}
+            </p>
+          </template>
+          <template v-else>
+            <!-- 选择模拟，预览对应 -->
+            {{ t(`snb.empireSkills.${skills[selectShowKey] && skills[selectShowKey].id}.effects.${skillPointsInput[selectShowKey] || '1'}`) }}
+          </template>
+        </template>
+        <template v-else-if="skills[selectShowKey] && skills[selectShowKey].stage && skills[selectShowKey].stage == 1">
+          {{ t(`snb.empireSkills.${skills[selectShowKey] && skills[selectShowKey].id}.effects.general`) || t('empireSkillSimulation.effectsNotContent') }}
+        </template>
       </div>
 
-      <div class="card-enlargement-flavor px-10 mx-n6 py-2">{{ t('empireSkillSimulation.effects') }}</div>
-      <div class="py-2 px-5 mb-5">{{ t(`snb.empireSkills.${selectShowKey}.effects`) }}</div>
-
-      <div class="card-enlargement-flavor px-10 mx-n6 py-2">{{ t('empireSkillSimulation.requirements') }}</div>
+      <div class="card-enlargement-flavor px-10 mx-n6 py-2 text-amber-lighten-4">{{ t('empireSkillSimulation.requirements') }}</div>
       <div class="py-2 px-5 mb-5">
         <div v-if="skills[selectShowKey] && skills[selectShowKey].requisite">
           <v-row no-gutters v-for="(i, index) in skills[selectShowKey].requisite" :key="index">
             <v-col cols="auto" class="d-flex justify-center align-center mr-2">
-              <rhombus-widget :solid="false"></rhombus-widget>
+              <rhombus-widget :solid="!!skillPointsInput[skills[i].id]" :activate="skillPointsInput[skills[i].id]"></rhombus-widget>
             </v-col>
             <v-col>
-              {{ t(`snb.empireSkills.${skills[i].id}.name`) }}
+              <u class="cursor-pointer" @click="onMoveNode(skills[i].key)">
+                {{ t(`snb.empireSkills.${skills[i].id}.name`) }}
+              </u>
             </v-col>
           </v-row>
         </div>
       </div>
 
-      <div class="card-enlargement-flavor px-10 mx-n6 py-2">{{ t('empireSkillSimulation.requiredCost') }}</div>
-      <div class="py-2 mb-5">
+      <div class="card-enlargement-flavor px-10 mx-n6 py-2 text-amber-lighten-4">{{ t('empireSkillSimulation.requiredCost') }}</div>
+      <div class="py-2">
         <div v-if="skills[selectShowKey] && skills[selectShowKey].requiredCost">
-          <v-list density="compact" nav>
-            <v-list-item v-for="(i, key) in skills[selectShowKey].requiredCost" :key="key">
+          <v-list density="compact" nav class="pt-0">
+            <v-list-item v-for="(i, key) in skills[selectShowKey].requiredCost" :key="key" class="pt-0">
               <v-row no-gutters align="start">
                 <v-col class="d-flex justify-start align-center">
                   <ItemSlotBase size="60">
@@ -66,7 +92,7 @@
                   </ItemSlotBase>
                   <span class="ml-2">{{ t(`snb.materials.${key}.name`) }}</span>
                 </v-col>
-                <v-col>
+                <v-col class="d-flex justify-end">
                   <v-breadcrumbs
                       :items="i"
                       class="pa-0 ma-0">
@@ -86,13 +112,85 @@
           </v-list>
         </div>
       </div>
+
+      <div class="card-enlargement-flavor px-10 mx-n6 py-2 text-amber-lighten-4">{{ t('empireSkillSimulation.other') }}</div>
+      <div class="mx-5 mb-10 opacity-60"
+           v-if="skills[selectShowKey] && skills[selectShowKey].id">
+        <v-text-field :value="skills[selectShowKey].id" hide-details readonly variant="underlined" density="compact">
+          <template v-slot:append-inner>
+            <v-icon>mdi-identifier</v-icon>
+          </template>
+        </v-text-field>
+        <v-text-field :value="skills[selectShowKey].key" hide-details readonly variant="underlined" density="compact">
+          <template v-slot:append-inner>
+            <v-icon size="18" class="mr-1">mdi-key-outline</v-icon>
+          </template>
+        </v-text-field>
+        <v-text-field hide-details
+                      variant="underlined"
+                      density="compact"
+                      readonly
+                      :value="t(`snb.seasons.${skills[selectShowKey].bySeason?.id || 'release'}`) || 'none'">
+        </v-text-field>
+
+
+        <v-row no-gutters class="mt-2" align="center">
+          <v-col cols="auto" class="mr-2">
+            <v-icon icon="mdi-calendar-range" size="19"></v-icon>
+            {{ t('empireSkillSimulation.dateAdded') }}
+          </v-col>
+          <v-col>
+            <TimeView :time="skills[selectShowKey].dateAdded" v-if="skills[selectShowKey].dateAdded">
+              <Time :time="skills[selectShowKey].dateAdded"></Time>
+            </TimeView>
+          </v-col>
+        </v-row>
+        <v-row no-gutters class="mt-2" align="center">
+          <v-col cols="auto" class="mr-2">
+            <v-icon icon="mdi-calendar-range" size="19"></v-icon>
+            {{ t('empireSkillSimulation.lastUpdated') }}
+          </v-col>
+          <v-col>
+            <TimeView :time="skills[selectShowKey].lastUpdated" v-if="skills[selectShowKey].lastUpdated">
+              <Time :time="skills[selectShowKey].lastUpdated"></Time>
+            </TimeView>
+          </v-col>
+        </v-row>
+      </div>
+
+      <v-divider></v-divider>
+      <div class="">
+        <v-row align="center" no-gutters>
+          <v-col class="text-center">
+            <template v-if="skillPointsInput[selectShowKey]">
+              {{ t('empireSkillSimulation.stage', {num: skillPointsInput[selectShowKey] || '0'}) }}
+            </template>
+            <template v-else>
+              未激活
+            </template>
+          </v-col>
+          <v-divider vertical></v-divider>
+          <v-col cols="auto">
+            <v-btn size="50" elevation="0" :disabled="!getIsSkillPointPossible(selectShowKey)" @click="onSetSkillPoint(selectShowKey, 'add')" tile block>
+              <v-icon>mdi-plus</v-icon>
+            </v-btn>
+          </v-col>
+          <v-divider vertical inset></v-divider>
+          <v-col cols="auto">
+            <v-btn size="50" elevation="0" :disabled="!getIsSkillPointPossible(selectShowKey)" @click="onSetSkillPoint(selectShowKey, 'rem')" tile block>
+              <v-icon>mdi-minus</v-icon>
+            </v-btn>
+          </v-col>
+        </v-row>
+      </div>
     </v-card>
   </div>
 </template>
 
 <script setup lang="ts">
-import {onMounted, onUnmounted, ref} from 'vue';
 import * as d3 from 'd3';
+
+import {onMounted, onUnmounted, ref, watch} from 'vue';
 import {useI18n} from "vue-i18n";
 import {EmpireSkills} from "glow-prow-data/src/entity/EmpireSkills";
 import RhombusWidget from "@/components/snbWidget/rhombusWidget.vue";
@@ -100,8 +198,11 @@ import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 import {useDisplay} from "vuetify/framework";
+import {number} from "@/assets/sripts/index";
+import {useRoute, useRouter} from "vue-router";
+import Time from "@/components/Time.vue";
+import TimeView from "@/components/TimeView.vue";
 
-// --- 类型定义 ---
 interface SkillData {
   id: string;
   requisite: string[];
@@ -120,37 +221,131 @@ const props = defineProps<{
       skills: Record<string, SkillData>;
     }>(),
     skills = EmpireSkills,
-    {t} = useI18n(),
+    router = useRouter(),
+    route = useRoute(),
+    {t, tm, te, locale} = useI18n(),
     {mobile} = useDisplay();
 
 let svgRef = ref<SVGSVGElement | null>(null),
     transform = ref({k: 1}),
-    show = ref(true),
-    selectShowKey = ref<string | null>('advancedGinProcessing');
+    show = ref(false),
+    selectShowKey = ref<string | null>('manufactoryExpansion-compagnieRoyale-2');
 
-const searchQuery = ref('');
-const searchItems = ref([]);
-const foundNodes = ref([]);
+let searchQuery = ref(''),
+    searchItems = ref([]),
+    foundNodes = ref([]);
+
+// 模拟点数输入，使用 ref 包裹以保持响应性
+const skillPointsInput = ref({});
+
+watch(locale, () => {
+  drawTree()
+})
+
+// 监听 skillPointsInput 的变化，并调用更新函数
+watch(skillPointsInput.value, () => {
+  updateSkillPointsText();
+}, {deep: true});
+
 
 let root: d3.HierarchyNode<HierarchyNodeData>;
 let svg: d3.Selection<SVGElement | null, unknown, null, undefined>;
 let zoom: d3.ZoomBehavior<SVGSVGElement, unknown>;
-// D3 布局的节点间距
-const nodeWidth = 60;
-const nodeHeight = 60;
 
-// --- 事件处理函数 ---
+// D3 布局的节点间距
+const nodeWidth = 50;
+const nodeHeight = 50;
+
+/**
+ * 模拟点是否可用
+ * @param key 技能的键名
+ * @returns boolean 指示是否可以增加或减少模拟点
+ */
+const getIsSkillPointPossible = (key) => {
+  const skill = skills[key];
+  if (!skill) return false;
+
+  const requisite = skill.requisite || [];
+
+  // 如果前置条件包含 'root'，则认为该技能是根节点，直接返回 true
+  // 这意味着根节点始终可以被激活
+  if (requisite.includes('root')) {
+    return true;
+  }
+
+  let checkResultCount = 0;
+  requisite.forEach(i => {
+    // 检查前置条件技能是否已激活
+    if (skillPointsInput.value[i]) {
+      checkResultCount += 1;
+    }
+  });
+
+  // 如果所有前置条件都已激活，则返回 true
+  return checkResultCount === requisite.length;
+};
+
+/**
+ * 设置模拟点数
+ * @param key
+ * @param type
+ */
+const onSetSkillPoint = (key, type = 'add') => {
+  const {stage} = skills[key];
+  const currentValue = skillPointsInput.value[key] || 0;
+
+  switch (type) {
+    case 'add':
+      if (currentValue < stage) skillPointsInput.value[key] = currentValue + 1;
+      break;
+    case 'rem':
+      if (currentValue > 0) skillPointsInput.value[key] = currentValue - 1;
+      break;
+  }
+}
+
+/**
+ * 聚焦节点
+ * @param key
+ */
+const onMoveNode = (key) => {
+  if (key == 'root')
+    return;
+
+  root.descendants().forEach(node => {
+    if (node.id == key) {
+      locateNode(node)
+    }
+  })
+}
+
+/**
+ * 处理节点点击
+ * @param event
+ * @param d
+ */
 const handleNodeClick = (event: MouseEvent, d: d3.HierarchyNode<HierarchyNodeData>) => {
   event.stopPropagation();
-  selectShowKey.value = d.data.data.key;
+
+  const {key} = d.data.data;
+
+  if (!key && !d)
+    return show.value = false;
+
+  selectShowKey.value = key;
   show.value = true;
-  locateNode(d); // 增加点击居中功能
+
+  router.push({
+    name: route.name,
+    query: {...route.query, key}
+  })
+
+  locateNode(d);
 };
 
-const handleNodeHover = (event: MouseEvent, d: d3.HierarchyNode<HierarchyNodeData>) => {
-  // console.log(`Hovered over node: ${d.data.data.key}`);
-};
-
+/**
+ * 搜索节点
+ */
 const searchAndLocate = () => {
   if (!searchQuery.value) return;
 
@@ -180,6 +375,10 @@ const searchAndLocate = () => {
   }
 };
 
+/**
+ * 处理搜索内容输入
+ * @param value
+ */
 const handleSearchInput = (value) => {
   if (typeof value === 'object' && value && value.node) {
     // 用户从下拉列表中选择了一个项
@@ -229,12 +428,39 @@ const locateNode = (node: d3.HierarchyNode<HierarchyNodeData>) => {
   show.value = true;
 };
 
-// 窗口大小变化时，重新绘制整个图表以适应新尺寸
+/**
+ * 窗口大小变化时，重新绘制整个图表以适应新尺寸
+ */
 const handleResize = () => {
   drawTree();
 };
 
+/**
+ * 更新技能视图信息
+ * 根据 skillPointsInput 的值更新节点上的文本
+ */
+const updateSkillPointsText = () => {
+  if (!svgRef.value) return;
 
+  d3.select(svgRef.value).selectAll('.node-group').each(function (d: any) {
+    const nodeElement = d3.select(this);
+    const skillKey = d.data.data.key;
+    const currentPoints = skillPointsInput.value[skillKey] || 0;
+    const maxStage = d.data.data.stage || 1;
+
+    // 找到文本元素并更新其内容
+    nodeElement.select('.node-label')
+        .text(`${t(`snb.empireSkills.${d.data.data.id}.name`)} (${currentPoints}/${maxStage})`);
+
+    // 同时更新节点的激活状态，使其颜色也动态变化
+    nodeElement.select('.node-rect')
+        .classed('activated', currentPoints > 0);
+  });
+};
+
+/**
+ * 绘制树节点
+ */
 const drawTree = () => {
   if (!svgRef.value || !props.skills) return;
 
@@ -274,6 +500,7 @@ const drawTree = () => {
 
     flatData.push({
       id: key,
+      skillPointValue: 0,
       parentId: primaryParent || 'root',
       data: {...skill, key: key}
     });
@@ -302,8 +529,6 @@ const drawTree = () => {
   svg = d3.select(svgRef.value)
       .attr("width", "100%")
       .attr("height", "100%");
-
-  // 移除了 viewBox，因为布局是动态的
 
   svg.on('click', () => {
     show.value = false;
@@ -337,6 +562,33 @@ const drawTree = () => {
         const end = {x: d.target.y, y: d.target.x};
         const mid = {x: (start.x + end.x) / 2, y: (start.y + end.y) / 2};
         return `M${start.x},${start.y} L${mid.x},${mid.y} L${end.x},${end.y}`;
+      });
+
+  const categoryGroups = d3.groups(root.descendants().filter(d => d.data.data.type), d => d.data.data.type);
+
+  const categoryLabels = container.append("g")
+      .attr("class", "category-labels")
+      .selectAll("g")
+      .data(categoryGroups)
+      .join("g")
+      .attr("class", "category-label-group");
+
+  categoryLabels.append("text")
+      .text(d => d[0] != 'root' ? categoryName(d[0]) : t(`snb.empireSkills.${d[0]}.name`))
+      .attr("class", "category-text")
+      .attr("text-anchor", "middle")
+      .attr("dominant-baseline", "central")
+      .attr("transform", d => {
+        const nodes = d[1];
+        const minX = d3.min(nodes, n => n.y);
+        const maxX = d3.max(nodes, n => n.y);
+        const minY = d3.min(nodes, n => n.x);
+        const maxY = d3.max(nodes, n => n.x);
+
+        const centerX = (minX + maxX) / 2;
+        const centerY = (minY + maxY) / 2;
+
+        return `translate(${centerX}, ${centerY})`;
       });
 
   const nodesById = new Map(root.descendants().map(d => [d.id, d]));
@@ -373,44 +625,14 @@ const drawTree = () => {
       .attr("rx", 5)
       .attr("class", d => `node-rect ${d.data.data.type || 'default'}`)
       .on('click', handleNodeClick)
-      .on('touchstart', handleNodeClick)
-      .on('mouseover', handleNodeHover);
+      .on('touchstart', handleNodeClick);
 
   node.append("text")
-      .text(d => d.data.data.id)
       .attr("class", "node-label")
       .attr("text-anchor", "middle")
       .attr("y", 48)
       .on('click', handleNodeClick)
-      .on('touchstart', handleNodeClick)
-      .on('mouseover', handleNodeHover);
-
-  const categoryGroups = d3.groups(root.descendants().filter(d => d.data.data.type), d => d.data.data.type);
-
-  const categoryLabels = container.append("g")
-      .attr("class", "category-labels")
-      .selectAll("g")
-      .data(categoryGroups)
-      .join("g")
-      .attr("class", "category-label-group");
-
-  categoryLabels.append("text")
-      .text(d => d[0] != 'root' ? t(`snb.factions.${d[0]}.name`) : d[0])
-      .attr("class", "category-text")
-      .attr("text-anchor", "middle")
-      .attr("dominant-baseline", "central")
-      .attr("transform", d => {
-        const nodes = d[1];
-        const minX = d3.min(nodes, n => n.y);
-        const maxX = d3.max(nodes, n => n.y);
-        const minY = d3.min(nodes, n => n.x);
-        const maxY = d3.max(nodes, n => n.x);
-
-        const centerX = (minX + maxX) / 2;
-        const centerY = (minY + maxY) / 2;
-
-        return `translate(${centerX}, ${centerY})`;
-      });
+      .on('touchstart', handleNodeClick);
 
   zoom = d3.zoom<SVGSVGElement, unknown>()
       .extent([[0, 0], [dynamicWidth, dynamicHeight]])
@@ -421,12 +643,28 @@ const drawTree = () => {
       });
 
   svg.call(zoom as any);
+
+  // 在这里调用，确保初始文本正确显示
+  updateSkillPointsText();
 };
 
+/**
+ * 大类名称转换
+ * @param key
+ */
+const categoryName = (key) => {
+  const keyPath = `snb.factions.${key}.name`;
+  return te(keyPath) ? t(keyPath) : key
+}
 
-// --- LIFECYCLE HOOK ---
 onMounted(() => {
+  const {key} = route.query;
+
   drawTree();
+
+  if (key && skills[key])
+    onMoveNode(key)
+
   // 添加窗口大小变化监听器
   window.addEventListener('resize', handleResize);
 });
@@ -438,7 +676,7 @@ onUnmounted(() => {
 </script>
 
 <style lang="less">
-.skill-tree-container-cardinfo {
+.skill-tree-container-cardInfo {
   position: absolute;
   z-index: 100;
   right: 20px;
@@ -447,7 +685,7 @@ onUnmounted(() => {
 
 .skill-tree-container {
   width: 100%;
-  height: 600px;
+  height: calc(80vh + 150px);
   overflow: hidden;
 }
 
@@ -481,19 +719,10 @@ onUnmounted(() => {
 }
 
 .node-rect {
+  fill: #433000;
   stroke: #af8313;
   stroke-width: 1px;
   transition: stroke 0.3s ease, stroke-width 0.3s ease;
-}
-
-.node-rect.theHelm,
-.node-rect.compagnieRoyale,
-.node-rect.clanOfFara {
-  fill: #433000;
-}
-
-.node-rect.default {
-  fill: #4b5263;
 }
 
 /* 高亮样式 */
