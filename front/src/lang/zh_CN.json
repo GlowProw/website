@@ -286,6 +286,12 @@
     },
     "ultimates": {
       "title": "终结技列表"
+    },
+    "mod": {
+      "title": "模组详情"
+    },
+    "mods": {
+      "title": "模组列表"
     }
   },
   "calendar": {

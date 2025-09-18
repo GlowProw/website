@@ -8,7 +8,7 @@ import {AxiosError} from "axios";
 const props = defineProps({
   class: String,
   isShowCount: Boolean,
-  targetType: String,             // 如 'assembly', 'comment', 'teamUp'
+  targetType: String,             // 如 'assembly', 'comment', 'teamUp', 'mod
   targetId: String,               // 对应内容的ID
   userId: String,                 // 当前用户ID
 });

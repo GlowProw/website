@@ -261,8 +261,8 @@ const filterByObtainable = (item: Item) => {
     </v-container>
   </v-breadcrumbs>
   <v-divider></v-divider>
-  <div class="items-detail" v-if="itemDetailData && itemDetailData.id">
-    <div class="items-detail-header background-dot-grid">
+  <div class="item-detail" v-if="itemDetailData && itemDetailData.id">
+    <div class="item-detail-header background-dot-grid">
       <v-container class="position-relative">
         <v-row class="mt-5">
           <v-col cols="8">
@@ -748,8 +748,8 @@ const filterByObtainable = (item: Item) => {
 </template>
 
 <style scoped lang="less">
-.items-detail {
-  .items-detail-header {
+.item-detail {
+  .item-detail-header {
     background-color: #000;
     position: relative;
     padding-bottom: 40px;

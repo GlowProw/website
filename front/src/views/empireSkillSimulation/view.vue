@@ -75,16 +75,16 @@
           <template v-if="!skillPointsInput[selectShowKey]">
             <!-- 未选择模拟，预览所有 -->
             <p class="opacity-60" v-for="(to, toIndex) in tm(`snb.empireSkills.${skills[selectShowKey] && skills[selectShowKey].id}.effects`)" :key="toIndex">
-              {{ number.intToRoman(tIndex || 1) }}: {{ to || t('empireSkillSimulation.effectsNotContent') }}
+              {{ number.intToRoman(toIndex) }}: {{ to || t('empireSkillSimulation.effectsNotContent') }}
             </p>
           </template>
           <template v-else>
             <!-- 选择模拟，预览对应 -->
-            {{ t(`snb.empireSkills.${skills[selectShowKey] && skills[selectShowKey].id}.effects.${skillPointsInput[selectShowKey] || '1'}`) }}
+            {{ t(`snb.empireSkills.${skills[selectShowKey] && skills[selectShowKey].id}.effects.${skillPointsInput[selectShowKey] || '1'}`, { ...skills[selectShowKey].attr }) }}
           </template>
         </template>
         <template v-else-if="skills[selectShowKey] && skills[selectShowKey].stage && skills[selectShowKey].stage == 1">
-          {{ t(`snb.empireSkills.${skills[selectShowKey] && skills[selectShowKey].id}.effects.general`) || t('empireSkillSimulation.effectsNotContent') }}
+          {{ t(`snb.empireSkills.${skills[selectShowKey] && skills[selectShowKey].id}.effects.general`, { ...skills[selectShowKey].attr }) || t('empireSkillSimulation.effectsNotContent') }}
         </template>
       </div>
 
@@ -163,7 +163,8 @@
             <v-icon icon="mdi-calendar-range" size="19"></v-icon>
             {{ t('empireSkillSimulation.dateAdded') }}
           </v-col>
-          <v-col>
+          <v-spacer></v-spacer>
+          <v-col class="text-right">
             <TimeView :time="skills[selectShowKey].dateAdded" v-if="skills[selectShowKey].dateAdded">
               <Time :time="skills[selectShowKey].dateAdded"></Time>
             </TimeView>
@@ -174,7 +175,8 @@
             <v-icon icon="mdi-calendar-range" size="19"></v-icon>
             {{ t('empireSkillSimulation.lastUpdated') }}
           </v-col>
-          <v-col>
+          <v-spacer></v-spacer>
+          <v-col class="text-right">
             <TimeView :time="skills[selectShowKey].lastUpdated" v-if="skills[selectShowKey].lastUpdated">
               <Time :time="skills[selectShowKey].lastUpdated"></Time>
             </TimeView>

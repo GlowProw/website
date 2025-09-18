@@ -20,6 +20,8 @@ import ShipDetailPage from '../src/views/displayCabinet/ships/Detail.vue'
 import ItemsPage from '../src/views/displayCabinet/items/Index.vue'
 import ItemDetailPage from '../src/views/displayCabinet/items/Detail.vue'
 import ItemCategoryDetailPage from '../src/views/displayCabinet/items/Category.vue'
+import ModsPage from '../src/views/displayCabinet/mobs/Index.vue'
+import ModDetailPage from '../src/views/displayCabinet/mobs/Detail.vue'
 import empireSkillSimulationPage from '../src/views/empireSkillSimulation/Index.vue'
 
 import UltimatesPage from '../src/views/displayCabinet/ultimates/Index.vue'
@@ -251,6 +253,25 @@ const routes: Readonly<RouteRecordRaw[]> = [
                     keywords: 'displayCabinet.ultimate.meta.keywords'
                 },
                 component: UltimateDetailPage,
+            },
+            {
+                path: 'mods',
+                name: 'Mods',
+                meta: {
+                    title: 'displayCabinet.mods.title',
+                    keywords: 'displayCabinet.mods.meta.keywords'
+                },
+                component: ModsPage,
+
+            },
+            {
+                path: 'mod/:id',
+                name: 'ModDetail',
+                meta: {
+                    title: 'displayCabinet.mod.title',
+                    keywords: 'displayCabinet.mod.meta.keywords'
+                },
+                component: ModDetailPage,
             }
         ]
     },

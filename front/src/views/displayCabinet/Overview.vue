@@ -1,23 +1,24 @@
 <script setup lang="ts">
-import {Items} from 'glow-prow-data/src/entity/Items'
-import {Ships} from "glow-prow-data";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
-import {Ship} from "glow-prow-data/src/entity/Ships.ts";
-import {Item} from "glow-prow-data/src/entity/Items.ts";
-import {onMounted, Ref, ref} from "vue";
-import {storage} from "@/assets/sripts";
-import {Ultimate, Ultimates} from "glow-prow-data/src/entity/Ultimates";
 import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
+
+import {onMounted, Ref, ref} from "vue";
 import {useI18n} from "vue-i18n";
+import {storage} from "@/assets/sripts";
+
+import {Item, Items, Modification, Modifications, Ship, Ships, Ultimate, Ultimates} from "glow-prow-data";
+import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
 
 let items = Items,
     ships = Ships,
     ultimates = Ultimates,
+    mods = Modifications,
     itemsRandomList: Ref<Item[]> = ref([]),
     shipsRandomList: Ref<Ship[]> = ref([]),
     ultimatesRandomList: Ref<Ultimate[]> = ref([]),
+    modsRandomList: Ref<Modification[]> = ref([]),
     displayCabinetHistorys = ref([]),
     {t} = useI18n()
 
@@ -25,6 +26,7 @@ onMounted(() => {
   getItems()
   getShips()
   getUltimates()
+  getMods()
   getDisplayCabinetHistory()
 })
 
@@ -73,6 +75,13 @@ const getUltimates = () => {
 }
 
 /**
+ * 获取模组
+ */
+const getMods = () => {
+  modsRandomList.value = getRandom(mods, 10) as Modification[]
+}
+
+/**
  * 随机范围
  * @param obj
  * @param count
@@ -85,7 +94,7 @@ function getRandom(obj, count) {
 </script>
 
 <template>
-  <v-breadcrumbs >
+  <v-breadcrumbs>
     <v-container class="pa-0">
       <v-breadcrumbs-item to="/">{{ t('home.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
@@ -94,7 +103,7 @@ function getRandom(obj, count) {
   </v-breadcrumbs>
   <v-divider></v-divider>
   <v-container class="mb-10 overview">
-    <h1>{{t('displayCabinet.title')}}</h1>
+    <h1>{{ t('displayCabinet.title') }}</h1>
     <p class="mb-10 opacity-80">{{ t('displayCabinet.description') }}</p>
 
     <v-row class="fill-height">
@@ -143,6 +152,7 @@ function getRandom(obj, count) {
           </v-col>
         </v-row>
       </div>
+
       <div class="w-100">
         <v-toolbar class="title-long-flavor bg-black mb-5">
           <router-link to="/display-cabinet/ultimates" class="ml-10 font-weight-bold text-amber">
@@ -165,6 +175,30 @@ function getRandom(obj, count) {
           </v-col>
         </v-row>
       </div>
+
+      <div class="w-100">
+        <v-toolbar class="title-long-flavor bg-black mb-5">
+          <router-link to="/display-cabinet/mods" class="ml-10 font-weight-bold text-amber">
+            {{ t('displayCabinet.mods.title') }}
+            ({{ Object.keys(mods).length || 0 }})
+          </router-link>
+          <v-spacer></v-spacer>
+          <v-btn @click="getMods" class="mr-2" icon density="compact">
+            <v-icon icon="mdi-dice-4-outline"></v-icon>
+          </v-btn>
+          <router-link class="mr-10" to="/display-cabinet/mods">
+            {{ t('displayCabinet.more') }}
+          </router-link>
+        </v-toolbar>
+        <v-row>
+          <v-col cols="auto" v-for="(i, index) in modsRandomList" :key="index">
+            <ItemSlotBase size="90px">
+              <ModIconWidget :id="i.id"></ModIconWidget>
+            </ItemSlotBase>
+          </v-col>
+        </v-row>
+      </div>
+
       <div class="mt-10">
         <v-toolbar class="title-long-flavor bg-black mb-5">
           <router-link to="/display-cabinet/items" class="ml-10 font-weight-bold text-amber">
@@ -188,7 +222,6 @@ function getRandom(obj, count) {
         </v-row>
       </div>
     </v-row>
-
   </v-container>
 </template>
 
