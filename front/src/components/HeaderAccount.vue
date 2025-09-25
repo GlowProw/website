@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import {useAuthStore} from "~/stores/userAccountStore";
+import {useI18n} from "vue-i18n";
 
 type HeaderAccountType = 'header-drawer' | 'header'
 
 const authStore = useAuthStore(),
-    props = defineProps<{type: HeaderAccountType}>()
+    {t} = useI18n(),
+    props = defineProps<{ type: HeaderAccountType }>()
 </script>
 
 <template>
@@ -20,7 +22,7 @@ const authStore = useAuthStore(),
           </v-avatar>
         </v-btn>
         <v-btn variant="text" to="/account/login" v-else>
-          登陆
+          {{ t('login.title') }}
         </v-btn>
       </div>
     </template>
@@ -52,7 +54,7 @@ const authStore = useAuthStore(),
           </v-avatar>
         </v-col>
         <v-col>
-          登陆
+          {{ t('login.title') }}
         </v-col>
       </v-row>
     </template>

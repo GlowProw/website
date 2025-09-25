@@ -109,7 +109,9 @@ const onCaptchaData = (data: any) => {
         </v-row>
 
         <div class="mt-10 ml-8 mr-8">
-          <v-btn class="bg-amber" @click="onLogin" size="50" block :loading="loginFormLoading" :disabled="!username && !password" variant="flat">登陆</v-btn>
+          <v-btn class="bg-amber" @click="onLogin" size="50" block :loading="loginFormLoading" :disabled="!username && !password" variant="flat">
+            {{ t('login.title') }}
+          </v-btn>
 
           <v-btn class="mt-2" @click="onBackRoute" size="50" block variant="text" v-if="route.query.backurl">{{ t('basic.button.cancel') }}</v-btn>
         </div>

@@ -242,9 +242,69 @@
   "signup": {
     "title": "Register"
   },
+  "header": {
+    "navs": {
+      "blog": "Blog",
+      "officialWebsite": "SNB Official Website",
+      "officialWebsiteDebug": "SNB Bug"
+    },
+    "functions": {
+      "team": {
+        "title": "Team Up",
+        "description": "Post or search for a ship that has the same captain as yours and set sail to confront the real enemy."
+      },
+      "calendar": {
+        "title": "Calendar",
+        "description": "View the event information for this season"
+      },
+      "maps": {
+        "title": "Map",
+        "description": "List of all map items"
+      },
+      "display-cabinet": {
+        "title": "Display Cabinet",
+        "description": "Display the item information and examine how they were obtained"
+      },
+      "assembly": {
+        "title": "Ship assembly plant",
+        "description": "Design your boat to reach its performance limit and share it with your friends."
+      },
+      "captain-signature": {
+        "title": "Pirate Signature",
+        "description": "Generate a pirate signature image and share it on the community website."
+      },
+      "ranking-of-designed-items": {
+        "title": "Item ranking",
+        "description": "Generate the ranking and evaluation of the generated items in the player's mind"
+      },
+      "impression-of-monsters": {
+        "title": "Impression of Elite Monsters",
+        "description": "Share your initial impressions of different monsters in the game."
+      },
+      "fashion-show": {
+        "title": "Fashion Show",
+        "description": "Share your outfit and become a fashionista!"
+      },
+      "empire-skill-Simulation": {
+        "title": "Empire Upgrade Simulation",
+        "description": "He Tao Society Upgrade Simulation"
+      }
+    }
+  },
   "footer": {
     "basic": {
       "description": "Skull and Bones Checklist Website"
+    },
+    "col1": {
+      "title": "Service"
+    },
+    "col2": {
+      "title": "Community",
+      "baiduTieBa": "百度贴吧",
+      "kook": "Kook社区"
+    },
+    "col3": {
+      "title": "Contact"
     }
   },
   "captcha": {
