@@ -17,7 +17,7 @@ const {t} = useI18n(),
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
       <v-breadcrumbs-item to="/display-cabinet">{{ t('displayCabinet.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item>{{ t('displayCabinet.mobs.title') }}</v-breadcrumbs-item>
+      <v-breadcrumbs-item>{{ t('displayCabinet.mods.title') }}</v-breadcrumbs-item>
     </v-container>
   </v-breadcrumbs>
   <v-divider></v-divider>

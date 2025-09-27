@@ -24,8 +24,11 @@ const getVersionData = async () => {
     loading.value = true
     const result = await http.request('https://glow-prow-blog.cabbagelol.net/versions-data.json')
 
-    if (result.data)
+    if (result.data) {
       versionData.value = result.data;
+      console.log(result.data)
+      showVersionIndex.value = result.data?.latestPosts?.length - 1 || 0;
+    }
   } finally {
     loading.value = false
   }
@@ -33,10 +36,10 @@ const getVersionData = async () => {
 </script>
 
 <template>
-  <div class="app-version">
+  <div class="app-version read-view">
     <div class="position-relative">
       <template v-if="versionData.latestPosts">
-        <div class="content text-pre-wrap" v-html="md.render(versionData.latestPosts[showVersionIndex].content || '')"></div>
+        <div class="content" v-html="md.render(versionData.latestPosts[showVersionIndex].content || '')"></div>
       </template>
       <EmptyView v-else></EmptyView>
       <v-overlay v-model="loading" class="d-flex justify-center align-center" contained>
@@ -47,19 +50,5 @@ const getVersionData = async () => {
 </template>
 
 <style lang="less">
-.app-version {
-  .content {
-    p {
-      opacity: .8;
-    }
-
-    h1 {
-      font-size: 15px !important;
-    }
-
-    h2, h3, h4, h5 {
-      font-size: 15px !important;
-    }
-  }
-}
+@import "../assets/styles/read-view";
 </style>

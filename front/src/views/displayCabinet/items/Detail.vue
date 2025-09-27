@@ -30,6 +30,7 @@ import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import ItemContentWidget from "@/components/snbWidget/itemContentWidget.vue";
 import BySeasonWidget from "@/components/bySeasonWidget.vue";
 import DamageIconWidget from "@/components/snbWidget/damageIconWidget.vue";
+import MaterialName from "@/components/snbWidget/materialName.vue";
 
 const
     {t, messages} = useI18n(),
@@ -513,15 +514,19 @@ const filterByObtainable = (item: Item) => {
                         density="compact">
                       <template v-slot:append-inner>
                         <div class="text-right">
-                          <p class="text-no-wrap">{{ t(`snb.materials.${i.id}.name`) }}</p>
+                          <p class="text-no-wrap"><MaterialName :id="i.id"></MaterialName></p>
                           <p class="text-no-wrap mt-n2 opacity-30" v-if="route.query.debug">{{ i.id }}</p>
                         </div>
                       </template>
                       <template v-slot:prepend>
-                        <MaterialIconWidget :id="i.id" item-type="items"></MaterialIconWidget>
-                        <FactionIconWidget :name="materials[i.id].faction.id"
-                                           v-if="materials[i.id].faction"
-                                           size="20px"></FactionIconWidget>
+                        <ItemSlotBase size="20px" :padding="0" class="mr-2">
+                          <MaterialIconWidget :id="i.id" item-type="items"></MaterialIconWidget>
+                        </ItemSlotBase>
+                        <ItemSlotBase size="20px" :padding="0">
+                          <FactionIconWidget :name="materials[i.id].faction.id"
+                                             v-if="materials[i.id].faction"
+                                             size="20px"></FactionIconWidget>
+                        </ItemSlotBase>
                       </template>
                     </v-text-field>
                   </div>
@@ -553,15 +558,18 @@ const filterByObtainable = (item: Item) => {
                         density="compact">
                       <template v-slot:append-inner>
                         <div class="text-right">
-                          <p class="text-no-wrap">{{ t(`snb.materials.${key}.name`) }}</p>
+                          <p class="text-no-wrap"><MaterialName :id="key"></MaterialName></p>
                           <p class="text-no-wrap mt-n2 opacity-30" v-if="route.query.debug">{{ key }}</p>
                         </div>
                       </template>
                       <template v-slot:prepend>
-                        <MaterialIconWidget :id="key" item-type="items"></MaterialIconWidget>
-                        <FactionIconWidget :name="materials[key].faction.id"
-                                           v-if="materials[key].faction"
-                                           size="20px"></FactionIconWidget>
+                        <ItemSlotBase size="20px" :padding="0" class="mr-2">
+                          <MaterialIconWidget :id="key"></MaterialIconWidget>
+                        </ItemSlotBase>
+                        <ItemSlotBase size="20px" :padding="0">
+                          <FactionIconWidget :name="materials[key].faction.id"
+                                             v-if="materials[key].faction"></FactionIconWidget>
+                        </ItemSlotBase>
                       </template>
                     </v-text-field>
 
@@ -575,7 +583,7 @@ const filterByObtainable = (item: Item) => {
                             density="compact">
                           <template v-slot:append-inner>
                             <div class="text-right">
-                              <p class="text-no-wrap">{{ t(`snb.materials.${raw.id}.name`) }}</p>
+                              <p class="text-no-wrap"><MaterialName :id="raw.id"></MaterialName></p>
                             </div>
                           </template>
                           <template v-slot:prepend>
@@ -768,7 +776,7 @@ const filterByObtainable = (item: Item) => {
       background-size: cover;
     }
 
-    .ships-detail-header-img {
+    .material-detail-header-img {
       position: absolute;
       right: 20px;
       bottom: -120px;

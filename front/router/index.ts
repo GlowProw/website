@@ -20,8 +20,10 @@ import ShipDetailPage from '../src/views/displayCabinet/ships/Detail.vue'
 import ItemsPage from '../src/views/displayCabinet/items/Index.vue'
 import ItemDetailPage from '../src/views/displayCabinet/items/Detail.vue'
 import ItemCategoryDetailPage from '../src/views/displayCabinet/items/Category.vue'
-import ModsPage from '../src/views/displayCabinet/mobs/Index.vue'
-import ModDetailPage from '../src/views/displayCabinet/mobs/Detail.vue'
+import ModsPage from '@/views/displayCabinet/mods/Index.vue'
+import ModDetailPage from '@/views/displayCabinet/mods/Detail.vue'
+import MaterialsPage from '../src/views/displayCabinet/materials/Index.vue'
+import MaterialsDetailPage from '../src/views/displayCabinet/materials/Detail.vue'
 import empireSkillSimulationPage from '../src/views/empireSkillSimulation/Index.vue'
 
 import UltimatesPage from '../src/views/displayCabinet/ultimates/Index.vue'
@@ -172,6 +174,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
                     keywords: 'teamUp.meta.keywords'
                 },
                 component: TeamPage,
+                beforeEnter: initItemAssets,
             },
         ]
     },
@@ -272,7 +275,27 @@ const routes: Readonly<RouteRecordRaw[]> = [
                     keywords: 'displayCabinet.mod.meta.keywords'
                 },
                 component: ModDetailPage,
-            }
+            },
+            {
+                path: 'materials',
+                name: 'Materials',
+                meta: {
+                    title: 'displayCabinet.materials.title',
+                    keywords: 'displayCabinet.materials.meta.keywords'
+                },
+                component: MaterialsPage,
+
+            },
+            {
+                path: 'material/:id',
+                name: 'MaterialsDetail',
+                meta: {
+                    title: 'displayCabinet.material.title',
+                    keywords: 'displayCabinet.material.meta.keywords'
+                },
+                component: MaterialsDetailPage,
+            },
+
         ]
     },
     {
@@ -354,8 +377,8 @@ const routes: Readonly<RouteRecordRaw[]> = [
         name: 'empireSkillSimulation',
         component: empireSkillSimulationPage,
         meta: {
-            title: 'empireSkillSimulation.title',
-            keywords: 'empireSkillSimulation.keywords'
+            title: 'header.functions.empire-skill-simulation.title',
+            keywords: 'header.functions.empire-skill-simulation.keywords'
         },
         beforeEnter: initItemAssets,
     },

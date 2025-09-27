@@ -177,7 +177,7 @@
       "offensiveFurniture": "攻击家具",
       "utilityFurniture": "功能家具",
       "majorFurniture": "主要家具",
-      "shipUpgrade": "船升级",
+      "shipUpgrade": "升级部件",
       "quest": "任务",
       "contract": "合同"
     },
@@ -292,6 +292,12 @@
     },
     "mods": {
       "title": "模组列表"
+    },
+    "material": {
+      "title": "材料详情"
+    },
+    "materials": {
+      "title": "材料列表"
     }
   },
   "calendar": {
@@ -539,9 +545,10 @@
         "title": "时装秀(开发中)",
         "description": "分享你的穿搭，成为时尚达人"
       },
-      "empire-skill-Simulation": {
+      "empire-skill-simulation": {
         "title": "帝国升级模拟(开发中)",
-        "description": "海陀社升级模拟"
+        "description": "海陀社升级模拟",
+        "keywords": "empire skill simulation"
       }
     }
   },

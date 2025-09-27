@@ -10,9 +10,12 @@ import type {VForm} from "vuetify/components";
 import Banner from "@/components/Banner.vue";
 import Loading from "@/components/Loading.vue";
 import Team from "./Team.vue";
+import Textarea from "@/components/textarea/index.vue";
+import {useNoticeStore} from "~/stores/noticeStore";
 
 const authStore = useAuthStore(),
     router = useRouter(),
+    notice = useNoticeStore(),
     {t} = useI18n();
 
 interface Teams {
@@ -28,7 +31,6 @@ enum getTeamsType {
 }
 
 let teams: Ref<Team[]> = ref([]),
-    messages: Ref<string[]> = ref([]),
 
     // 服务
     service = ref({
@@ -124,7 +126,7 @@ const getTeams = async (type: getTeamsType = getTeamsType.none) => {
       resolve(_teams.value);
     } catch (e) {
       if (e instanceof Error)
-        messages.value.push(t(`basic.tips.${e.response.data.code.replace('.', '_')}`))
+        notice.error(t(`basic.tips.${e.response.data.code.replace('.', '_')}`))
       else
         console.error(e)
     } finally {
@@ -187,7 +189,7 @@ const onDeleteTeamUp = async (id) => {
     };
 
     if (ws.connected) {
-      messages.value.push(t('basic.tips.teamUp.error', {
+      notice.error(t('basic.tips.teamUp.error', {
         context: '取消发布失败，丢失服务器信号'
       }))
       return
@@ -256,7 +258,7 @@ const copyToClipboard = async (content: string) => {
   try {
     await navigator.clipboard.writeText(content)
 
-    messages.value.push(t(`teamUp.copyPlayerSuccess`))
+    notice.success(t(`teamUp.copyPlayerSuccess`))
   } catch (err) {
     console.error('复制失败:', err)
   }
@@ -292,7 +294,7 @@ const onWss = () => {
 
     switch (data.type) {
       case 'new_team_up':
-        messages.value.push(t('basic.tips.teamUp.pushSuccess'));
+        notice.success(t('basic.tips.teamUp.pushSuccess'));
 
         onCleanPushInfo();
         getTeams(getTeamsType.none);
@@ -325,7 +327,7 @@ const onWss = () => {
             break;
         }
 
-        messages.value.push(t(`basic.tips.${data.code}`, {remainingTime: _remainingTime}))
+        notice.success(t(`basic.tips.${data.code}`, {remainingTime: _remainingTime}))
 
         pushLoading.value = false;
         pushModel.value = false;
@@ -333,13 +335,13 @@ const onWss = () => {
         getTeams(getTeamsType.none);
         break;
       case 'auth_failed':
-        messages.value.push(t(`basic.tips.${data.code}`))
+        notice.warning(t(`basic.tips.${data.code}`))
 
         authStore.logout()
         break;
       case 'error':
         console.error(data, data.message)
-        messages.value.push(t(`basic.tips.teamUp.error`, {
+        notice.error(t(`basic.tips.teamUp.error`, {
           context: data.message || '?'
         }))
         pushLoading.value = false
@@ -350,7 +352,7 @@ const onWss = () => {
   ws.client.onclose = function (event: any) {
     service.value.status = -1;
     console.warn(event)
-    messages.value.push(t(`basic.tips.teamUp.error`, {
+    notice.warning(t(`basic.tips.teamUp.error`, {
       context: 'client -> close'
     }))
   };
@@ -358,7 +360,7 @@ const onWss = () => {
   ws.client.onerror = function (error: any) {
     service.value.status = -1;
     console.error(error)
-    messages.value.push(t(`basic.tips.teamUp.error`, {
+    notice.error(t(`basic.tips.teamUp.error`, {
       context: 'client -> error'
     }))
   };
@@ -372,7 +374,7 @@ const onWsReconnect = () => {
     if (code == -1) {
       service.value.status = -1
       service.value.loading = false
-      messages.value.push('重连依旧失败')
+      notice.warning('重连依旧失败')
     } else if (code == 0) {
       ws.client.send(
           JSON.stringify(
@@ -487,7 +489,11 @@ const onWsReconnect = () => {
                           <v-col cols="8">
                             <div class="description">
                               <b class="mr-3 text-emphasis">
-                                {{ i.description || t('teamUp.emptyDescription') }}
+                                <Textarea
+                                    :min-height="'40px'"
+                                    :value="i.description || t('teamUp.emptyDescription')"
+                                    :readonly="true">
+                                </Textarea>
                               </b>
                             </div>
                           </v-col>
@@ -640,13 +646,13 @@ const onWsReconnect = () => {
                     <v-col cols="12" lg="3">
                       <v-text-field v-model="player"
                                     variant="filled"
-                                    density="compact"
+                                    density="comfortable"
                                     @update:model-value="onStoragePlayer()"
                                     :rules="pushConfig.rules.player"
                                     :placeholder="t('teamUp.form.player')"></v-text-field>
                     </v-col>
                     <v-col cols="12" lg="3">
-                      <v-select density="compact"
+                      <v-select density="comfortable"
                                 v-model="expiresMinutesAt"
                                 :label="t('teamUp.form.time')"
                                 item-title="label"
@@ -659,7 +665,7 @@ const onWsReconnect = () => {
                           label="标签"
                           chips
                           multiple
-                          density="compact"
+                          density="comfortable"
                           v-model="tags"
                           clearable
                           @update:modelValue="onStoragePlayer"
@@ -670,11 +676,12 @@ const onWsReconnect = () => {
                     </v-col>
                     <v-spacer></v-spacer>
                   </v-row>
-                  <v-textarea :placeholder="t('teamUp.form.descriptionPlaceholder')"
-                              :rules="pushConfig.rules.description"
-                              @update:focused="onStoragePlayer"
-                              counter="300"
-                              v-model="description"></v-textarea>
+                  <Textarea
+                      v-model="description"
+                      :placeholder="t('teamUp.form.descriptionPlaceholder')"
+                      :height="'300px'"
+                      @focused="onStoragePlayer"
+                      @blur="onStoragePlayer"></Textarea>
 
                   <v-row class="mt-4 pa-2">
                     <v-spacer></v-spacer>
@@ -689,8 +696,6 @@ const onWsReconnect = () => {
           </v-dialog>
         </v-fab>
       </v-container>
-
-      <v-snackbar-queue v-model="messages"></v-snackbar-queue>
     </div>
   </div>
 </template>
@@ -707,7 +712,6 @@ const onWsReconnect = () => {
 
   .description {
     line-height: 1.1rem;
-    margin-bottom: 10px;
     overflow: auto;
     max-height: 80px;
   }

@@ -43,7 +43,11 @@ const onReady = async () => {
     imageMap[key] = modImages[path];
   }
 
-  modsData.value.icon = imageMap[props.id]?.default || null
+  if (imageMap[props.id])
+    modsData.value.icon = imageMap[props.id]?.default || null
+  else {
+    modsData.value.icon = `https://skullandbonestools.de/api/imagesservice?src=modifications%2F${props.id}&width=128`
+  }
 }
 </script>
 
@@ -71,7 +75,7 @@ const onReady = async () => {
 
 <style scoped lang="less">
 .error {
-  background-color:  #d500002b !important;
+  background-color: #d500002b !important;
   width: 100%;
   height: 100%;
   display: flex;

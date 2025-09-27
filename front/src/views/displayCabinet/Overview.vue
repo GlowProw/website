@@ -8,17 +8,22 @@ import {onMounted, Ref, ref} from "vue";
 import {useI18n} from "vue-i18n";
 import {storage} from "@/assets/sripts";
 
-import {Item, Items, Modification, Modifications, Ship, Ships, Ultimate, Ultimates} from "glow-prow-data";
+import {Item, Items, Material, Materials, Modification, Modifications, Ship, Ships, Ultimate, Ultimates} from "glow-prow-data";
 import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
+import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
+import MaterialName from "@/components/snbWidget/materialName.vue";
+import ItemName from "@/components/snbWidget/itemName.vue";
 
 let items = Items,
     ships = Ships,
     ultimates = Ultimates,
     mods = Modifications,
+    materials = Materials,
     itemsRandomList: Ref<Item[]> = ref([]),
     shipsRandomList: Ref<Ship[]> = ref([]),
     ultimatesRandomList: Ref<Ultimate[]> = ref([]),
     modsRandomList: Ref<Modification[]> = ref([]),
+    materialRandomList: Ref<Material[]> = ref([]),
     displayCabinetHistorys = ref([]),
     {t} = useI18n()
 
@@ -27,6 +32,7 @@ onMounted(() => {
   getShips()
   getUltimates()
   getMods()
+  getMaterials()
   getDisplayCabinetHistory()
 })
 
@@ -79,6 +85,13 @@ const getUltimates = () => {
  */
 const getMods = () => {
   modsRandomList.value = getRandom(mods, 10) as Modification[]
+}
+
+/**
+ * 获取模组
+ */
+const getMaterials = () => {
+  materialRandomList.value = getRandom(materials, 50) as Material[]
 }
 
 /**
@@ -215,9 +228,42 @@ function getRandom(obj, count) {
         </v-toolbar>
         <v-row>
           <v-col cols="auto" v-for="(i, index) in itemsRandomList" :key="index">
-            <ItemSlotBase size="90px">
-              <ItemIconWidget :id="i.id"></ItemIconWidget>
-            </ItemSlotBase>
+            <v-card variant="text" width="90">
+              <ItemSlotBase size="90px">
+                <ItemIconWidget :id="i.id"></ItemIconWidget>
+              </ItemSlotBase>
+              <div class="d-flex justify-center mx-auto mt-1 w-100 singe-line">
+                <ItemName :id="i.id" class="text-center"></ItemName>
+              </div>
+            </v-card>
+          </v-col>
+        </v-row>
+      </div>
+
+      <div class="mt-10">
+        <v-toolbar class="title-long-flavor bg-black mb-5">
+          <router-link to="/display-cabinet/materials" class="ml-10 font-weight-bold text-amber">
+            {{ t('displayCabinet.materials.title') }}
+            ({{ Object.keys(materials).length || 0 }})
+          </router-link>
+          <v-spacer></v-spacer>
+          <v-btn @click="getMaterials" class="mr-2" icon density="compact">
+            <v-icon icon="mdi-dice-4-outline"></v-icon>
+          </v-btn>
+          <router-link class="mr-10" to="/display-cabinet/materials">
+            {{ t('displayCabinet.more') }}
+          </router-link>
+        </v-toolbar>
+        <v-row>
+          <v-col cols="auto" v-for="(i, index) in materialRandomList" :key="index">
+            <v-card variant="text" width="90">
+              <ItemSlotBase size="90px" class="d-flex justify-center align-center">
+                <MaterialIconWidget :id="i.id"></MaterialIconWidget>
+              </ItemSlotBase>
+              <div class="d-flex justify-center mx-auto mt-1 w-100 singe-line">
+                <MaterialName :id="i.id" class="text-center"></MaterialName>
+              </div>
+            </v-card>
           </v-col>
         </v-row>
       </div>

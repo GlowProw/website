@@ -1,0 +1,108 @@
+.read-view {
+  --read-view-text-color: hsl(from var(--text-color) h s calc(l * .7));
+  --read-view-border: hsl(from var(--main-color) h s calc(l * 0.1));
+
+  cursor: auto;
+
+  h1, h2, h3, h4, h5 {
+    display: inline-flex;
+    margin-bottom: 12px;
+    opacity: 1;
+    margin-top: 20px;
+    color: var(--main-color);
+    border-bottom: 1px solid hsl(from var(--main-color) h s calc(l * 0.4));
+    animation: all .8s;
+  }
+
+  h1:hover, h2:hover, h3:hover, h4:hover, h5:hover {
+    border-bottom: 1px solid var(--read-view-border);
+  }
+
+  h1 {
+    font-size: 18px !important;
+  }
+
+  h2 {
+    font-size: 16px !important;
+  }
+
+  h3, h4, h5 {
+    font-size: 15px !important;
+  }
+
+  p {
+    color: var(--read-view-text-color);
+    margin: 7px auto;
+    font-size: 15px !important;
+  }
+
+  ul {
+    color: var(--read-view-text-color);
+    padding-inline-start: 0;
+    margin-left: 25px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 15px !important;
+  }
+
+  table {
+    width: 100%;
+    padding: 0;
+    margin: 20px auto;
+    border-spacing: 0;
+    border: 1px solid var(--read-view-border);
+    background: hsl(from var(--main-color) h s calc(l * 0.06));
+    outline: none;
+
+    thead {
+      background: hsl(from var(--main-color) h s calc(l * .08));
+
+      th {
+        padding: 10px 4px;
+        border-bottom: 1px solid var(--read-view-border) !important;
+      }
+    }
+
+    tbody {
+      border-right: 5px;
+      overflow: hidden;
+
+      td {
+        padding: 8px 8px;
+        border-right: 1px solid var(--read-view-border);
+        border-bottom: 1px solid var(--read-view-border) !important;
+      }
+
+      td:last-child {
+        border-right: none;
+      }
+
+      tr:last-child td {
+        border-bottom: none !important;
+      }
+    }
+  }
+
+  blockquote {
+    background-color: var(--read-view-border);
+    border-left: 2px solid var(--main-color);
+    padding: 5px 20px;
+  }
+
+  b {
+    font-weight: bold;
+  }
+
+  .img {
+    border: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent) !important;
+    min-height: 100px;
+
+    img {
+      position: relative;
+      width: 100%;
+      min-width: 100%;
+      max-width: 100%;
+    }
+  }
+}
+

@@ -209,7 +209,7 @@ const onStatisticsRawMaterial = () => {
 
         <v-img :src="shipDetailPageData.img"
                inline
-               class="ships-detail-header-img pointer-events-none"></v-img>
+               class="material-detail-header-img pointer-events-none"></v-img>
       </v-container>
     </div>
     <div class="background-flavor">
@@ -479,7 +479,7 @@ const onStatisticsRawMaterial = () => {
       background-size: cover;
     }
 
-    .ships-detail-header-img {
+    .material-detail-header-img {
       position: absolute;
       z-index: -1;
       right: 20px;

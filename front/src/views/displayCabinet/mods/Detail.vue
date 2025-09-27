@@ -46,8 +46,8 @@ onMounted(() => {
     </v-container>
   </v-breadcrumbs>
   <v-divider></v-divider>
-  <div class="mod-detail">
-    <div class="mod-detail-header background-dot-grid">
+  <div class="material-detail">
+    <div class="material-detail-header background-dot-grid">
       <v-container class="position-relative">
         <v-row class="mt-5">
           <v-col cols="8">
@@ -179,8 +179,8 @@ onMounted(() => {
 </template>
 
 <style scoped lang="less">
-.mod-detail {
-  .mod-detail-header {
+.material-detail {
+  .material-detail-header {
     background-color: #000;
     position: relative;
     padding-bottom: 40px;
@@ -199,7 +199,7 @@ onMounted(() => {
       background-size: cover;
     }
 
-    .ships-detail-header-img {
+    .material-detail-header-img {
       position: absolute;
       right: 20px;
       bottom: -120px;

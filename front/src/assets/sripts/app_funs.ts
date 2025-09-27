@@ -55,9 +55,9 @@ export default class AppFuns {
             to: ''
         },
         {
-            title: 'header.functions.empire-skill-Simulation.title',
+            title: 'header.functions.empire-skill-simulation.title',
             icon: 'mdi-help',
-            description: 'header.functions.empire-skill-Simulation.description',
+            description: 'header.functions.empire-skill-simulation.description',
             to: '/empire-skill-simulation'
         }
     ]

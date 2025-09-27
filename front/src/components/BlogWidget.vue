@@ -65,7 +65,7 @@ const onPage = (type) => {
 </script>
 
 <template>
-  <div class="blog">
+  <div class="blog read-view">
     <v-row class="mb-1">
       <v-col>
         总计: <span class="opacity-60">{{ blogData.totalCount }}</span>
@@ -86,7 +86,7 @@ const onPage = (type) => {
       <template v-if="blogData.latestPosts">
         <div class="text-h5 font-weight-bold text-amber mb-2" v-html="blogData.latestPosts[showBlogIndex].title || ''"></div>
         <p class="opacity-80 mb-1">{{ blogData.latestPosts[showBlogIndex].authors.join(',') }}</p>
-        <div class="content text-pre-wrap" v-html="md.render(blogData.latestPosts[showBlogIndex].content || '')"></div>
+        <div class="content" v-html="md.render(blogData.latestPosts[showBlogIndex].content || '')"></div>
       </template>
       <EmptyView v-else></EmptyView>
       <v-overlay v-model="loading" class="d-flex justify-center align-center" contained>
@@ -103,102 +103,5 @@ const onPage = (type) => {
 </style>
 
 <style lang="less">
-.blog {
-  .content {
-    cursor: auto;
-
-    h1, h2, h3, h4, h5 {
-      display: inline-flex;
-      margin-bottom: 12px;
-      opacity: 1;
-      color: var(--main-color);
-      border-bottom: 1px solid hsl(from var(--main-color) h s calc(l * 0.4));
-      animation: all .8s;
-    }
-
-    h1:hover, h2:hover, h3:hover, h4:hover, h5:hover {
-      border-bottom: 1px solid hsl(from var(--main-color) h s calc(l * 1));
-    }
-
-    h1 {
-      font-size: 18px !important;
-    }
-
-    h2 {
-      font-size: 16px !important;
-    }
-
-    h3, h4, h5 {
-      font-size: 15px !important;
-    }
-
-    p {
-      opacity: .8;
-      font-size: 15px !important;
-    }
-
-    ul {
-      margin-left: 25px;
-    }
-
-    table {
-      width: 100%;
-      padding: 0;
-      border-spacing: 0px;
-      border: 1px solid hsl(from var(--main-color) h s calc(l * 0.2));
-      background: hsl(from var(--main-color) h s calc(l * 0.06));
-      outline: none;
-
-      thead {
-        background: hsl(from var(--main-color) h s calc(l * .08));
-
-        th {
-          padding: 10px 4px;
-          border-bottom: 1px solid hsl(from var(--main-color) h s calc(l * 0.1)) !important;
-        }
-      }
-
-      tbody {
-        border-right: 5px;
-        overflow: hidden;
-
-        td {
-          padding: 8px 8px;
-          border-right: 1px solid hsl(from var(--main-color) h s calc(l * 0.1));
-          border-bottom: 1px solid hsl(from var(--main-color) h s calc(l * 0.1)) !important;
-        }
-
-        td:last-child {
-          border-right: none;
-        }
-
-        tr:last-child td {
-          border-bottom: none !important;
-        }
-      }
-    }
-
-    blockquote {
-      background-color: hsl(from var(--main-color) h s calc(l * 0.1));
-      border-left: 2px solid var(--main-color);
-      padding: 5px 20px;
-    }
-
-    b {
-      font-weight: bold;
-    }
-
-    .img {
-      border: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent) !important;
-      min-height: 100px;
-
-      img {
-        position: relative;
-        width: 100%;
-        min-width: 100%;
-        max-width: 100%;
-      }
-    }
-  }
-}
+@import "../assets/styles/read-view";
 </style>

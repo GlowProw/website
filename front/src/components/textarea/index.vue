@@ -14,6 +14,7 @@ import ItemView from '../ItemView.vue'
 import EmoteView from '../EmoteView.vue'
 import UltimateView from "../UltimateView.vue";
 import ModView from "../ModView.vue"
+import {useI18n} from "vue-i18n";
 
 interface ToolbarItem {
   list?: any
@@ -50,6 +51,10 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
+  value: {
+    type: String,
+    default: ''
+  },
   modelValue: {
     type: String,
     default: ''
@@ -60,19 +65,26 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue'])
-const tiptap: Ref<Editor> = ref<Editor | null>(null)
-const isOpenEmoji = ref(false)
-const isOpenMod = ref(false)
-const isOpenUltimate = ref(false)
-const isOpenShip = ref(false)
-const isOpenItem = ref(false)
-const editorContent = ref(props.modelValue)
-const emoteWidget = ref<InstanceType<typeof EmoteView> | null>(null)
-const shipWidget = ref<InstanceType<typeof ShipView> | null>(null)
-const itemWidget = ref<InstanceType<typeof ItemView> | null>(null)
-const modWidget = ref<InstanceType<typeof ItemView> | null>(null)
-const ultimateWidget = ref<InstanceType<typeof ItemView> | null>(null)
+const emit = defineEmits([
+      'update:modelValue',
+      'focused', 'ready', 'blur'
+    ]),
+    {t} = useI18n(),
+
+    tiptap: Ref<Editor> = ref<Editor | null>(null),
+    isOpenEmoji = ref(false),
+    isOpenMod = ref(false),
+    isOpenUltimate = ref(false),
+    isOpenShip = ref(false),
+    isOpenItem = ref(false),
+
+    // editor widgets
+    editorContent = ref(props.modelValue),
+    emoteWidget = ref<InstanceType<typeof EmoteView> | null>(null),
+    shipWidget = ref<InstanceType<typeof ShipView> | null>(null),
+    itemWidget = ref<InstanceType<typeof ItemView> | null>(null),
+    modWidget = ref<InstanceType<typeof ItemView> | null>(null),
+    ultimateWidget = ref<InstanceType<typeof ItemView> | null>(null)
 
 const
     tiptapTextEditor = ref<HTMLElement | null>(null),
@@ -90,6 +102,30 @@ watch(() => props.readonly, (value) => {
   tiptap.value.options.editable = !value;
 })
 
+watch(() => props.value, (value) => {
+  if (value) {
+    editorContent.value = value
+    tiptap.value?.commands.setContent(value, false)
+  }
+})
+
+watch(() => props.modelValue, (newVal) => {
+  if (newVal !== editorContent.value) {
+    editorContent.value = newVal
+    if (tiptap.value?.getHTML() !== newVal) {
+      tiptap.value?.commands.setContent(newVal, false)
+    }
+  }
+})
+
+onMounted(() => {
+  onInitEdit()
+})
+
+onBeforeUnmount(() => {
+  tiptap.value?.destroy()
+})
+
 const MaxLength = Extension.create({
   addKeyboardShortcuts() {
     return {
@@ -104,7 +140,7 @@ const MaxLength = Extension.create({
   },
   addCommands() {
     return {
-      enforceMaxLength: () => ({ commands }) => {
+      enforceMaxLength: () => ({commands}) => {
         const html = this.editor.getHTML();
         if (html.length > props.maxlength) {
           return commands.setContent(html.slice(0, props.maxlength - 3));
@@ -139,9 +175,9 @@ const onShip = () => {
   }
 }
 
-const onItem = () => {
+const onItem = (tags = []) => {
   if (itemWidget.value && !editor.value?.isFocused) {
-    itemWidget.value.openPanel()
+    itemWidget.value.openPanel(tags)
     isOpenItem.value = true
   }
 }
@@ -194,7 +230,7 @@ const onEditorChange = (data: string) => {
 
 const onInitEdit = () => {
   tiptap.value = new Editor({
-    content: editorContent.value,
+    content: editorContent.value || props.value,
     parseOptions: {
       preserveWhitespace: 'full',
     },
@@ -221,6 +257,13 @@ const onInitEdit = () => {
     ],
     onCreate({editor}) {
       editor.options.keyboardShortcuts = {}
+      emit('ready', editor)
+    },
+    onBlur({editor}) {
+      emit('blur', editor.isEmpty ? '' : editor.getHTML())
+    },
+    onFocus({editor}) {
+      emit('focused', editor.isEmpty ? '' : editor.getHTML())
     },
     onUpdate({editor}) {
       // const html = editor.getHTML();
@@ -237,23 +280,6 @@ const onInitEdit = () => {
   } as Partial<EditorOptions>)
   tiptap.value.options.keyboardShortcuts = {}
 }
-
-onMounted(() => {
-  onInitEdit()
-})
-
-onBeforeUnmount(() => {
-  tiptap.value?.destroy()
-})
-
-watch(() => props.modelValue, (newVal) => {
-  if (newVal !== editorContent.value) {
-    editorContent.value = newVal
-    if (tiptap.value?.getHTML() !== newVal) {
-      tiptap.value?.commands.setContent(newVal, false)
-    }
-  }
-})
 </script>
 
 <template>
@@ -283,16 +309,68 @@ watch(() => props.modelValue, (newVal) => {
               <v-icon icon="mdi-ship-wheel"></v-icon>
             </v-btn>
 
-            <v-btn
-                icon
-                class="btn mr-2"
-                density="compact"
-                @click="onItem"
-                v-tooltip="'物品'"
-                :disabled="isOpenItem"
-                v-if="toolbarAs.indexOf('item') >= 0">
-              <v-icon icon="mdi-cube-outline"></v-icon>
-            </v-btn>
+            <v-menu location="bottom right">
+              <template v-slot:activator="{ props }">
+                <v-btn
+                    icon
+                    class="btn mr-2"
+                    density="compact"
+                    v-tooltip="'物品'"
+                    v-bind="props"
+                    :disabled="isOpenItem"
+                    v-if="toolbarAs.indexOf('item') >= 0">
+                  <v-icon icon="mdi-cube-outline"></v-icon>
+                </v-btn>
+              </template>
+
+              <v-list min-width="300" density="compact">
+                <v-list-item link>
+                  <v-list-item-title
+                      @click="onItem(['culverin', 'demicannon', 'bombard', 'longGun', 'torpedo'])">
+                    {{ t('assembly.workshop.weaponTitle') }}
+                  </v-list-item-title>
+                  <template v-slot:append>
+                    <v-icon>mdi-open-in-new</v-icon>
+                  </template>
+                </v-list-item>
+                <v-list-item link>
+                  <v-list-item-title @click="onItem(['shipUpgrade'])">
+                    {{ t('displayCabinet.type.shipUpgrade') }}
+                  </v-list-item-title>
+                  <template v-slot:append>
+                    <v-icon>mdi-open-in-new</v-icon>
+                  </template>
+                </v-list-item>
+                <v-list-item link>
+                  <v-list-item-title @click="onItem([ 'majorFurniture','offensiveFurniture', 'utilityFurniture'])">
+                    {{ t('displayCabinet.type.offensiveFurniture') }},
+                    {{ t('displayCabinet.type.offensiveFurniture') }},
+                    {{ t('displayCabinet.type.utilityFurniture') }}
+                  </v-list-item-title>
+                  <template v-slot:append>
+                    <v-icon>mdi-open-in-new</v-icon>
+                  </template>
+                </v-list-item>
+                <v-list-item link>
+                  <v-list-item-title @click="onItem([ 'consumable'])">
+                    {{ t('displayCabinet.type.consumable') }}
+                  </v-list-item-title>
+                  <template v-slot:append>
+                    <v-icon>mdi-open-in-new</v-icon>
+                  </template>
+                </v-list-item>
+                <v-list-item link>
+                  <v-list-item-title @click="onItem(['tool','chest'])">
+                    {{ t('displayCabinet.type.tool') }},
+                    {{ t('displayCabinet.type.chest') }}
+                  </v-list-item-title>
+                  <template v-slot:append>
+                    <v-icon>mdi-open-in-new</v-icon>
+                  </template>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+
 
             <v-btn
                 icon

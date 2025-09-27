@@ -11,12 +11,12 @@ const props = defineProps({
         type: Editor,
       }
     }),
-    {t} = useI18n()
+    {t} = useI18n(),
+    emit = defineEmits(['finish', 'close'])
 
-const emit = defineEmits(['finish', 'close'])
-
-const show = ref(false)
-const value = ref('')
+let show = ref(false),
+    value = ref(''),
+    tags = ref([])
 
 /**
  * 完成
@@ -40,7 +40,8 @@ const onPanelToggle = () => {
 /**
  * 打开面板
  */
-const openPanel = () => {
+const openPanel = (tagsRwa = []) => {
+  tags.value = tagsRwa
   onPanelToggle()
 }
 
@@ -78,7 +79,7 @@ defineExpose({
         </v-row>
       </v-card-title>
 
-      <AssemblyClassificationShowList v-model="value" :tags="[]"></AssemblyClassificationShowList>
+      <AssemblyClassificationShowList v-model="value" :tags="tags"></AssemblyClassificationShowList>
 
       <v-card-actions>
         <v-btn @click="onFinish(value)" block :disabled="!value" class="bg-amber">

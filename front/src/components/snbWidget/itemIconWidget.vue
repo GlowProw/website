@@ -55,7 +55,12 @@ onMounted(() => {
 
 const onReady = async () => {
   i.value = items[props.id] || null
-  itemsCardData.value.iconSrc = assets[props.id] || ''
+
+  if (assets[props.id])
+    itemsCardData.value.iconSrc = assets[props.id] || ''
+  else {
+    itemsCardData.value.iconSrc = `https://skullandbonestools.de/api/imagesservice?src=items%2F${props.id}&width=128`
+  }
 }
 
 const {targetElement, isVisible} = useIntersectionObserver({
@@ -167,6 +172,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
       </div>
     </v-card>
   </v-tooltip>
+
 </template>
 
 <style scoped lang="less">

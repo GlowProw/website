@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import {onMounted, type Ref, ref, watch} from "vue";
-import ItemSlotBase from "./ItemSlotBase.vue";
 
 const factionImages = import.meta.glob('@glow-prow-assets/factions/*.png', {eager: true});
 
 let src: Ref<string | null> = ref(null)
 
-const props = defineProps<{ name: string, size: string, class?: string }>()
+const props = withDefaults(
+    defineProps<{ name: string, size: string, class?: string }>(),
+    {
+      size: '20px'
+    }
+)
 
 watch(() => props.name, () => {
   onImage()
@@ -32,9 +36,17 @@ const onImage = () => {
 </script>
 
 <template>
-  <ItemSlotBase size="10" class="faction-icon" :class="props.class" v-if="src">
-    <v-img :src="src" lazy-src="@/assets/images/loading.gif" class="ma-n1" :style="`height: ${size}; width: ${size};min-height: ${size}; min-width: ${size}`"></v-img>
-  </ItemSlotBase>
+  <v-card :class="props.class" class="w-100 h-100">
+    <v-img :src="src"
+           width="100%"
+           height="100%"
+           cover
+           lazy-src="@/assets/images/loading.gif">
+      <template v-slot:error>
+        <v-icon>mdi-error</v-icon>
+      </template>
+    </v-img>
+  </v-card>
 </template>
 
 <style scoped lang="less">
