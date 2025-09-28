@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import {onMounted, ref, watch} from "vue";
-
-const props = withDefaults(defineProps<{
-  id: string,
-  imageType?: string,
-  size?: string
-}>(), {
-  size: 20
-})
-
-let src = ref('')
+import {useI18n} from "vue-i18n";
 
 const materialImages = import.meta.glob('@glow-prow-assets/materials/*.*', {eager: true});
+const props = withDefaults(defineProps<{
+      id: string | undefined,
+      imageType?: string,
+      size?: string
+    }>(), {
+      size: 20
+    }),
+    {t} = useI18n()
+
+let src = ref('')
 
 watch(() => props.id, () => {
   onImage()
@@ -41,7 +42,9 @@ const onImage = () => {
 </script>
 
 <template>
-  <v-card :to="`/display-cabinet/material/${id}`" class="w-100 h-100">
+  <v-card :to="`/display-cabinet/material/${id}`" class="w-100 h-100"
+          v-tooltip="t(`snb.materials.${id}.name`)"
+          v-if="id">
     <v-img :src="src"
            width="100%"
            height="100%"

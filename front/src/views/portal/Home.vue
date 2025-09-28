@@ -31,7 +31,7 @@ const getHomeData = async () => {
   if (result.error == 1)
     Error(result.message)
 
-  data.value.teamCount = result.data.data
+  data.value.teamCount = result.itemData.itemData
 }
 
 /**

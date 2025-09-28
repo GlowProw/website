@@ -37,9 +37,9 @@ const getBlogData = async () => {
     loading.value = true
     const result = await http.request(`${blogBaseUrl}/blog-data.json`)
 
-    if (result.data) {
-      blogData.value = result.data;
-      showBlogIndex.value = result.data.latestPosts.length - 1;
+    if (result.itemData) {
+      blogData.value = result.itemData;
+      showBlogIndex.value = result.itemData.latestPosts.length - 1;
     }
   } catch (e) {
 

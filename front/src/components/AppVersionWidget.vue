@@ -24,10 +24,10 @@ const getVersionData = async () => {
     loading.value = true
     const result = await http.request('https://glow-prow-blog.cabbagelol.net/versions-data.json')
 
-    if (result.data) {
-      versionData.value = result.data;
-      console.log(result.data)
-      showVersionIndex.value = result.data?.latestPosts?.length - 1 || 0;
+    if (result.itemData) {
+      versionData.value = result.itemData;
+      console.log(result.itemData)
+      showVersionIndex.value = result.itemData?.latestPosts?.length - 1 || 0;
     }
   } finally {
     loading.value = false

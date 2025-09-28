@@ -2,12 +2,10 @@
 import {useI18n} from "vue-i18n";
 import {useRoute, useRouter} from "vue-router";
 import {Item, Items} from "glow-prow-data/src/entity/Items.ts";
-import {computed, onMounted, ref, type Ref, type UnwrapRef, watch} from "vue";
+import {computed, onMounted, ref, type Ref, watch} from "vue";
 
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
-import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
-import EmptyView from "@/components/EmptyView.vue";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 
 import {Materials} from "glow-prow-data";
@@ -30,7 +28,7 @@ import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import ItemContentWidget from "@/components/snbWidget/itemContentWidget.vue";
 import BySeasonWidget from "@/components/bySeasonWidget.vue";
 import DamageIconWidget from "@/components/snbWidget/damageIconWidget.vue";
-import MaterialName from "@/components/snbWidget/materialName.vue";
+import ItemMaterials from "@/components/snbWidget/itemMaterials.vue";
 
 const
     {t, messages} = useI18n(),
@@ -42,12 +40,9 @@ const
 
     // 物品数据
     items: Items = Items,
-    materials: Materials = Materials,
-    // 后期处理所需物品 对应计算 原材料
-    itemRawMaterials: Ref<UnwrapRef<any[]>, UnwrapRef<any[]> | any[]> = ref([])
+    materials: Materials = Materials
 
 let itemDetailData: Ref<Item | null> = ref(null),
-    isShowShipRawList = ref(false),
     isCollect = ref(false),
 
     DPS = computed(() => {
@@ -149,7 +144,6 @@ const onReady = () => {
     {name: 'og:title', content: `${t(route.meta.title)} | ${t('name')}`},
   ]
 
-  onStatisticsRawMaterial();
   onDisplayCabinetHistory();
 }
 
@@ -168,24 +162,6 @@ const onDisplayCabinetHistory = () => {
       time: new Date().getTime()
     }
   })
-}
-
-/**
- * 处理计算必要材料对应原材料
- */
-const onStatisticsRawMaterial = () => {
-  if (itemDetailData.value.required)
-    itemRawMaterials.value = Array.from(itemDetailData.value.required).reduce(
-        (acc, [material, quantity]) => {
-          if (materials[material.id]?.required) {
-            Array.from(materials[material.id].required).forEach(([raw, rawQuantity]) => {
-              acc[raw.id] = (acc[raw.id] || 0) + (rawQuantity as number) * quantity;
-            })
-          }
-          return acc;
-        },
-        {} as Record<string, number>
-    );
 }
 
 /**
@@ -499,109 +475,9 @@ const filterByObtainable = (item: Item) => {
                 </ItemContentWidget>
               </v-col>
               <v-col cols="12">
-                <v-divider>{{ t('displayCabinet.item.materialsTitle') }}</v-divider>
-              </v-col>
-              <v-col cols="12" sm="12" lg="6" xl="6">
-                <p class="mt-4 mb-2"><b>{{ t('displayCabinet.item.required') }}</b></p>
-                <template v-if="itemDetailData.required && Array.from(itemDetailData.required).length > 0">
-                  <div v-for="([i, value], rIndex) in itemDetailData.required"
-                       :key="rIndex">
-                    <v-text-field
-                        :value="value"
-                        readonly
-                        hide-details
-                        variant="underlined"
-                        density="compact">
-                      <template v-slot:append-inner>
-                        <div class="text-right">
-                          <p class="text-no-wrap"><MaterialName :id="i.id"></MaterialName></p>
-                          <p class="text-no-wrap mt-n2 opacity-30" v-if="route.query.debug">{{ i.id }}</p>
-                        </div>
-                      </template>
-                      <template v-slot:prepend>
-                        <ItemSlotBase size="20px" :padding="0" class="mr-2">
-                          <MaterialIconWidget :id="i.id" item-type="items"></MaterialIconWidget>
-                        </ItemSlotBase>
-                        <ItemSlotBase size="20px" :padding="0">
-                          <FactionIconWidget :name="materials[i.id].faction.id"
-                                             v-if="materials[i.id].faction"
-                                             size="20px"></FactionIconWidget>
-                        </ItemSlotBase>
-                      </template>
-                    </v-text-field>
-                  </div>
-                </template>
-                <template v-else>
-                  <v-card border>
-                    <EmptyView></EmptyView>
-                  </v-card>
-                </template>
-              </v-col>
-              <v-col cols="12" sm="12" lg="6" xl="6">
-                <v-row no-gutters class="mt-4 mb-2">
-                  <v-col>
-                    <p><b>{{ t('displayCabinet.item.rawMaterials') }}</b></p>
-                  </v-col>
-                  <v-spacer></v-spacer>
-                  <v-btn density="compact" icon @click="isShowShipRawList = !isShowShipRawList" v-if="Object.keys(itemRawMaterials).length > 0">
-                    <v-icon :icon="`mdi-menu-${isShowShipRawList ? 'down' : 'up'}`"></v-icon>
-                  </v-btn>
-                </v-row>
-                <template v-if="Object.entries(itemRawMaterials).length > 0">
-                  <div v-for="([key, value], rIndex) in Object.entries(itemRawMaterials)"
-                       :key="rIndex">
-                    <v-text-field
-                        :value="value"
-                        readonly
-                        hide-details
-                        variant="underlined"
-                        density="compact">
-                      <template v-slot:append-inner>
-                        <div class="text-right">
-                          <p class="text-no-wrap"><MaterialName :id="key"></MaterialName></p>
-                          <p class="text-no-wrap mt-n2 opacity-30" v-if="route.query.debug">{{ key }}</p>
-                        </div>
-                      </template>
-                      <template v-slot:prepend>
-                        <ItemSlotBase size="20px" :padding="0" class="mr-2">
-                          <MaterialIconWidget :id="key"></MaterialIconWidget>
-                        </ItemSlotBase>
-                        <ItemSlotBase size="20px" :padding="0">
-                          <FactionIconWidget :name="materials[key].faction.id"
-                                             v-if="materials[key].faction"></FactionIconWidget>
-                        </ItemSlotBase>
-                      </template>
-                    </v-text-field>
-
-                    <ul class="ml-10 raw-list" v-if="!isShowShipRawList">
-                      <li v-for="([raw,rawValue],rawIndex) in materials[key].required" :key="rawIndex += rawValue" class="ml-10">
-                        <v-text-field
-                            :value="value"
-                            readonly
-                            hide-details
-                            variant="underlined"
-                            density="compact">
-                          <template v-slot:append-inner>
-                            <div class="text-right">
-                              <p class="text-no-wrap"><MaterialName :id="raw.id"></MaterialName></p>
-                            </div>
-                          </template>
-                          <template v-slot:prepend>
-                            <MaterialIconWidget :id="raw.id" item-type="items"></MaterialIconWidget>
-                            <FactionIconWidget :name="materials[raw.id].faction.id"
-                                               v-if="materials[raw.id].faction"
-                                               size="20px"></FactionIconWidget>
-                          </template>
-                        </v-text-field>
-                      </li>
-                    </ul>
-                  </div>
-                </template>
-                <template v-else>
-                  <v-card border>
-                    <EmptyView></EmptyView>
-                  </v-card>
-                </template>
+                <ItemMaterials :data="itemDetailData">
+                  <v-divider>{{ t('displayCabinet.item.materialsTitle') }}</v-divider>
+                </ItemMaterials>
               </v-col>
               <v-col cols="12 mb-3">
                 <template v-if="itemDetailData && itemDetailData.id">
@@ -783,10 +659,6 @@ const filterByObtainable = (item: Item) => {
       width: 300px;
       min-height: 300px;
     }
-  }
-
-  .raw-list {
-    list-style-type: none !important;
   }
 }
 </style>

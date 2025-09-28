@@ -70,12 +70,12 @@ const initAccountInfo = async function (to, from, next) {
 
     try {
         const result = await httpToken.get(api["user_me"]),
-            d = result.data;
+            d = result.itemData;
 
         if (d.error == 1)
             return Error(d)
 
-        authStore.updateAccountAttr(d.data)
+        authStore.updateAccountAttr(d.itemData)
     } catch (e) {
         console.error(e)
     }

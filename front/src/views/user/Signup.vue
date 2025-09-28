@@ -47,7 +47,7 @@ const onRegister = async () => {
             captcha: captcha.value,
           }
         }),
-        d = result.data;
+        d = result.itemData;
 
     if (d.error == 1) {
       return Error(d)
@@ -62,8 +62,8 @@ const onRegister = async () => {
     }, 1000)
   } catch (e) {
     if (e instanceof Error)
-      noticeStore.error(t(`basic.tips.${e.response.data.code}`, {
-        context: e.response.data.code
+      noticeStore.error(t(`basic.tips.${e.response.itemData.code}`, {
+        context: e.response.itemData.code
       }))
   } finally {
     registerLoading.value = false;

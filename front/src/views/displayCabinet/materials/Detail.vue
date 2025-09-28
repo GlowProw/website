@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import {useI18n} from "vue-i18n";
-import {onMounted, Ref, ref} from "vue";
+import {nextTick, onMounted, Ref, ref, watch} from "vue";
 import {Materials, Modification} from "glow-prow-data";
 import {useRoute, useRouter} from "vue-router";
 import {useAuthStore} from "~/stores/userAccountStore";
@@ -12,14 +12,25 @@ import LikeWidget from "@/components/LikeWidget.vue";
 import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
 import MaterialName from "@/components/snbWidget/materialName.vue";
 import MaterialDescription from "@/components/snbWidget/materialDescription.vue";
+import {rarity} from "@/assets/sripts/index";
+import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
+import ItemMaterials from "@/components/snbWidget/itemMaterials.vue";
 
 const {t} = useI18n(),
     router = useRouter(),
     route = useRoute(),
     authStore = useAuthStore(),
-    materials = Materials
+    materials = Materials,
+    rarityColorConfig = rarity.color
 
 let materialDetailData: Ref<Modification> = ref({})
+
+watch(() => route, (value) => {
+  if (value) {
+    const {id} = route.params
+    materialDetailData.value = materials[id]
+  }
+}, {deep: true})
 
 onMounted(() => {
   const {id} = route.params
@@ -48,7 +59,7 @@ onMounted(() => {
         <v-row class="mt-5">
           <v-col cols="8">
             <h1 class="text-amber text-h2 singe-line">
-              <MaterialName :id="materialDetailData.id"></MaterialName>
+              <MaterialName :id="materialDetailData.id" :isRarity="false"></MaterialName>
             </h1>
             <p class="mt-2 mb-3">
               <v-icon icon="mdi-identifier"/>
@@ -61,6 +72,14 @@ onMounted(() => {
               </v-chip>
               <v-chip class="badge-flavor text-center tag-badge text-black" v-if="materialDetailData.damageType">
                 {{ materialDetailData.damageType }}
+              </v-chip>
+              <v-chip class="badge-flavor text-center tag-badge text-black" v-if="materialDetailData.category">
+                {{ materialDetailData.category }}
+              </v-chip>
+              <v-chip class="badge-flavor text-center tag-badge text-black"
+                      v-if="materialDetailData.rarity">
+                <v-badge dot inline :color="rarityColorConfig[materialDetailData.rarity]" class="mr-1"></v-badge>
+                {{ t(`displayCabinet.rarity.${materialDetailData.rarity}`) }}
               </v-chip>
             </div>
           </v-col>
@@ -119,6 +138,11 @@ onMounted(() => {
                   </v-text-field>
                 </template>
               </v-col>
+              <v-col cols="12">
+                <ItemMaterials :data="materialDetailData">
+                  <v-divider>{{ t('displayCabinet.item.materialsTitle') }}</v-divider>
+                </ItemMaterials>
+              </v-col>
             </v-row>
 
             <template v-if="materialDetailData.id">
@@ -127,7 +151,25 @@ onMounted(() => {
             </template>
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
-            <BySeasonWidget :data="materialDetailData"></BySeasonWidget>
+            <BySeasonWidget
+                :data="materialDetailData.firstAppearingSeason"></BySeasonWidget>
+            <template v-if="materialDetailData.faction">
+              <v-text-field
+                  :value="t(`snb.factions.${materialDetailData.faction.id}.name`)"
+                  readonly
+                  hide-details
+                  variant="underlined" density="compact">
+                <template v-slot:prepend-inner>
+                  <ItemSlotBase size="25px" class="d-flex justify-center align-center mb-2" :padding="0">
+                    <FactionIconWidget :name="materialDetailData.faction.id"
+                                       size="25px"></FactionIconWidget>
+                  </ItemSlotBase>
+                </template>
+                <template v-slot:append-inner>
+                  <p class="text-no-wrap">{{ t('displayCabinet.item.faction') }}</p>
+                </template>
+              </v-text-field>
+            </template>
           </v-col>
         </v-row>
       </v-container>

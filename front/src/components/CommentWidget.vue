@@ -10,12 +10,14 @@ import {useAuthStore} from "~/stores/userAccountStore";
 import {AxiosError} from "axios";
 import {useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
+import {useNoticeStore} from "~/stores/noticeStore";
 
 type commentTargetType = 'assembly' | 'item' | 'ship' | 'ultimate' | 'mod' | 'material'
 
 const route = useRoute(),
     authStore = useAuthStore(),
     httpToKen = useHttpToken(),
+    notice = useNoticeStore(),
     {t} = useI18n(),
     props = withDefaults(defineProps<{
       id: string,
@@ -29,8 +31,7 @@ let content = ref(''),
     commentListData = ref([]),
     captcha = ref({}),
     captchaOneUpdateEvent = ref(false),
-    captchaRef = ref(null),
-    messages = ref([])
+    captchaRef = ref(null)
 
 watch(() => props.id, () => {
   getComment()
@@ -62,13 +63,13 @@ const getComment = async () => {
         d = result.data;
 
     if (d.error == 1)
-      throw new Error(d)
+      return
 
     commentListData.value = d.data.data;
   } catch (e) {
     console.error(e)
     if (e instanceof Error)
-      messages.value.push(t(`basic.tips.${e.response.data.code}`, {
+      notice.error(t(`basic.tips.${e.response.data.code}`, {
         context: e.response.data.code
       }))
   } finally {
@@ -106,11 +107,11 @@ const onPushComment = async () => {
       content: content.value
     })
 
-    messages.value.push('comment.ok')
+    notice.success('comment.ok')
   } catch (e) {
     console.error(e)
     if (e instanceof Error)
-      messages.value.push(t(`basic.tips.${e.response.data.code}`, {
+      notice.error(t(`basic.tips.${e.response.data.code}`, {
         context: e.response.data.code
       }))
   } finally {
@@ -139,10 +140,10 @@ const onDeleteComment = async (data: any) => {
       return
 
     await getComment()
-    messages.value.push(t(`basic.tips.${e.response.data.code}`))
+    notice.success(t(`basic.tips.${e.response.data.code}`))
   } catch (e) {
     if (e instanceof AxiosError)
-      messages.value.push({
+      notice.error({
         text: t(`basic.tips.${e.response.data.code}`, {
           content: e.response.data.message
         }),
@@ -175,10 +176,10 @@ const onEditComment = async (data: any) => {
       return
 
     data.content = data.editContent;
-    messages.value.push(t(`basic.tips.${e.response.data.code}`))
+    notice.success(t(`basic.tips.${e.response.data.code}`))
   } catch (e) {
     if (e instanceof AxiosError)
-      messages.value.push({
+      notice.error({
         text: t(`basic.tips.${e.response.data.code}`, {
           content: e.response.data.message
         }),
@@ -300,8 +301,6 @@ const onCaptchaData = (data: any) => {
       </router-link>
     </template>
   </v-alert>
-
-  <v-snackbar-queue v-model="messages"></v-snackbar-queue>
 </template>
 
 <style scoped lang="less">

@@ -55,28 +55,28 @@ const getAssemblyDetail = async () => {
             password
           },
         }),
-        d = result.data;
+        d = result.itemData;
 
     if (d.error == 1) {
-      assemblyDetailData.value = d.data;
+      assemblyDetailData.value = d.itemData;
       return
     }
 
-    assemblyDetailData.value = d.data;
+    assemblyDetailData.value = d.itemData;
 
     await nextTick(() => {
       assemblyDetailRef.value
           .setSetting({
             isShowItemName: true, // force display
-            assemblyUseVersion: d.data.assembly.attr.assemblyUseVersion
+            assemblyUseVersion: d.itemData.assembly.attr.assemblyUseVersion
           })
-          .onLoad(d.data.data || d.data.assembly.data)
+          .onLoad(d.itemData.itemData || d.itemData.assembly.itemData)
     })
   } catch (e) {
     console.error(e)
     if (e instanceof Error)
-      noticeStore.error(t(`basic.tips.${e.response.data.code}`, {
-        context: e.response.data.code
+      noticeStore.error(t(`basic.tips.${e.response.itemData.code}`, {
+        context: e.response.itemData.code
       }))
   } finally {
     assemblyLoading.value = false

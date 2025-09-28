@@ -22,7 +22,7 @@ export default class WheelDataProcessing {
                 data.map(i => {
                     return {
                         ...i,
-                        data: i.data.map(j => j?.id || null)
+                        data: i.itemData.map(j => j?.id || null)
                     }
                 })
 
@@ -33,7 +33,7 @@ export default class WheelDataProcessing {
                 data.map(i => {
                     return {
                         ...i,
-                        data: i.data.map(j => items[j])
+                        data: i.itemData.map(j => items[j])
                     }
                 })
 

@@ -25,7 +25,7 @@ onMounted(() => {
 const getLanguagesData = async () => {
   langLoading.value = true
   const result = await http.request(new URL('/config/languages.json', import.meta.url).href)
-  languages.value = result.data.child;
+  languages.value = result?.itemData?.child || [];
   langLoading.value = false
 }
 

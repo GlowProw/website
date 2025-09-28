@@ -43,8 +43,8 @@ const getLanguageMembers = async () => {
     }
   })
 
-  if (result.data.data) {
-    members.value = result.data.data
+  if (result.data.itemData) {
+    members.value = result.data.itemData
     storage.session.set('lang.members', toRaw(members.value))
   }
 }
@@ -53,8 +53,8 @@ const getLanguageMembers = async () => {
 <template>
   <div class="d-flex ga-2">
     <span v-for="(i, index) in members" :key="index">
-      <v-avatar :size="size" v-tooltip="i.data.username">
-        <v-img :src="i.data.avatarUrl"></v-img>
+      <v-avatar :size="size" v-tooltip="i?.itemData?.username || ''">
+        <v-img :src="i?.itemData?.avatarUrl"></v-img>
       </v-avatar>
     </span>
   </div>

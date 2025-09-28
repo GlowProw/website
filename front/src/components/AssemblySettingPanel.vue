@@ -66,12 +66,12 @@ const getAssemblySetting = async () => {
             uuid: props.id,
           }
         }),
-        d = result.data
+        d = result.itemData
 
     if (d.error == 1)
       return;
 
-    settingData.value = Object.assign(settingData.value, d.data);
+    settingData.value = Object.assign(settingData.value, d.itemData);
   } finally {
     getSettingLoading.value = false
   }
@@ -98,7 +98,7 @@ const setAssemblySetting = async () => {
             ...settingData.value
           }
         }),
-        d = result.data
+        d = result.itemData
 
     if (d.error == 1)
       return;
@@ -106,8 +106,8 @@ const setAssemblySetting = async () => {
   } catch (e) {
     console.error(e)
     if (e instanceof Error)
-      notice.error(t(`basic.tips.${e.response.data.code}`, {
-        context: e.response.data.code
+      notice.error(t(`basic.tips.${e.response.itemData.code}`, {
+        context: e.response.itemData.code
       }))
   } finally {
     emit('change')
@@ -143,7 +143,7 @@ const setAssemblySetting = async () => {
               v-model="tabValue"
               direction="vertical">
             <v-tab prepend-icon="mdi-cog" text="常规" value="conventional"></v-tab>
-            <v-tab prepend-icon="mdi-database" text="数据" value="data" v-if="props.data.assembly.data"></v-tab>
+            <v-tab prepend-icon="mdi-database" text="数据" value="data" v-if="props.data.assembly.itemData"></v-tab>
           </v-tabs>
           <v-divider vertical></v-divider>
 
@@ -161,8 +161,8 @@ const setAssemblySetting = async () => {
                         showLine
                         showIcon
                         showDoubleQuotes
-                        v-if="props.data.assembly.data"
-                        :data="assemblyDataProcessing.export(props.data.assembly.data)"/>
+                        v-if="props.data.assembly.itemData"
+                        :data="assemblyDataProcessing.export(props.data.assembly.itemData)"/>
                   </v-card>
                 </div>
               </v-tabs-window-item>

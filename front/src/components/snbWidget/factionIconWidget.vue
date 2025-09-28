@@ -1,16 +1,23 @@
 <script setup lang="ts">
 import {onMounted, type Ref, ref, watch} from "vue";
+import {useI18n} from "vue-i18n";
 
 const factionImages = import.meta.glob('@glow-prow-assets/factions/*.png', {eager: true});
 
 let src: Ref<string | null> = ref(null)
 
 const props = withDefaults(
-    defineProps<{ name: string, size: string, class?: string }>(),
-    {
-      size: '20px'
+        defineProps<{ name: string, size: string, class?: string }>(),
+        {
+          size: '20px'
+        }
+    ),
+    {t} = useI18n(),
+    // 阵营相同图标字典， 规划同类图标
+    factionConvertDictionary = {
+      "theHelmEmpire": "theHelm"
     }
-)
+
 
 watch(() => props.name, () => {
   onImage()
@@ -24,7 +31,7 @@ onMounted(() => {
  * 处理阵营图片
  */
 const onImage = () => {
-  const imageKey = `/node_modules/glow-prow-assets/factions/${props.name}.png`;
+  const imageKey = `/node_modules/glow-prow-assets/factions/${factionConvertDictionary[props.name] || props.name}.png`;
 
   if (factionImages[imageKey]) {
     src.value = factionImages[imageKey].default;
@@ -36,16 +43,17 @@ const onImage = () => {
 </script>
 
 <template>
-  <v-card :class="props.class" class="w-100 h-100">
+  <v-card :class="props.class" class="w-100 h-100"
+          v-tooltip="t(`snb.factions.${props.name}.name`)">
     <v-img :src="src"
+           v-if="!!src"
            width="100%"
            height="100%"
-           cover
-           lazy-src="@/assets/images/loading.gif">
-      <template v-slot:error>
-        <v-icon>mdi-error</v-icon>
-      </template>
+           cover>
     </v-img>
+    <div class="d-flex justify-center align-center h-100 w-100" v-else>
+      <v-icon :size="Number(size) / 2">mdi-help</v-icon>
+    </div>
   </v-card>
 </template>
 

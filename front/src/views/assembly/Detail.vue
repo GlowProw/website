@@ -88,21 +88,21 @@ const getAssemblyDetail = async (force: boolean = false) => {
             force
           }
         }),
-        d = result.data;
+        d = result.itemData;
 
     if (d.error == 1) {
-      detailData.value = d.data;
+      detailData.value = d.itemData;
       throw new Error(d)
     }
 
-    detailData.value = d.data;
+    detailData.value = d.itemData;
     detailData.value.description = decodeURI(detailData.value.description || '这个人很懒什么,对此配装什么都没说')
 
   } catch (e) {
     console.error(e)
     if (e instanceof Error)
-      messages.value.push(t(`basic.tips.${e.response.data.code}`, {
-        context: e.response.data.code
+      messages.value.push(t(`basic.tips.${e.response.itemData.code}`, {
+        context: e.response.itemData.code
       }))
   } finally {
     assemblyLoading.value = false
@@ -121,19 +121,19 @@ const onAssemblyMainViewReady = () => {
         assemblyUseVersion: d.assembly.attr.assemblyUseVersion,
         isShowItemName: d.assembly.attr.isShowItemName,
       })
-      .onLoad(d.assembly.data)
+      .onLoad(d.assembly.itemData)
   // 载入轮盘
   assemblyMainSubjectView.value.refs.wheel
       .setSetting({
         wheelUseVersion: d.wheel.attr.wheelUseVersion,
       })
-      .onLoad(d.wheel.data)
+      .onLoad(d.wheel.itemData)
   // 载入船仓
   assemblyMainSubjectView.value.refs.warehouse
       .setSetting({
         warehouseUseVersion: d.warehouse.attr.warehouseUseVersion,
       })
-      .onLoad(d.warehouse.data)
+      .onLoad(d.warehouse.itemData)
 }
 
 /**

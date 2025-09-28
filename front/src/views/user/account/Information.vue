@@ -100,7 +100,7 @@ const onChangePassword = async () => {
     const result = await httpToken.post(api["user_changePassword"], {
           data: passwordFromData.value.data
         }),
-        d = result.data;
+        d = result.itemData;
 
     if (d.error == 1)
       return Error(d)
@@ -111,8 +111,8 @@ const onChangePassword = async () => {
   } catch (e) {
     console.error(e)
     if (e instanceof Error)
-      messages.value.push(t(`basic.tips.${e.response.data.code}`, {
-        context: e.response.data.code
+      messages.value.push(t(`basic.tips.${e.response.itemData.code}`, {
+        context: e.response.itemData.code
       }))
   } finally {
     changePasswordLoading.value = false
@@ -151,7 +151,7 @@ const onSaveAccountAttr = async () => {
             attr
           }
         }),
-        d = result.data;
+        d = result.itemData;
 
     if (d.error == 1)
       return Error(d)
@@ -160,8 +160,8 @@ const onSaveAccountAttr = async () => {
   } catch (e) {
     console.error(e)
     if (e instanceof Error)
-      messages.value.push(t(`basic.tips.${e.response.data.code}`, {
-        context: e.response.data.code
+      messages.value.push(t(`basic.tips.${e.response.itemData.code}`, {
+        context: e.response.itemData.code
       }))
   } finally {
     userAccountAttrLoading.value = false
@@ -182,7 +182,7 @@ const onChangeAlternativeName = async () => {
     const result = await httpToken.post(api["user_changeAlternativeName"], {
           data: alternativeNameData.value.data
         }),
-        d = result.data;
+        d = result.itemData;
 
     if (d.error == 1)
       return Error(d)
@@ -195,8 +195,8 @@ const onChangeAlternativeName = async () => {
   } catch (e) {
     console.error(e)
     if (e instanceof Error)
-      messages.value.push(t(`basic.tips.${e.response.data.code}`, {
-        context: e.response.data.code
+      messages.value.push(t(`basic.tips.${e.response.itemData.code}`, {
+        context: e.response.itemData.code
       }))
   } finally {
     alternativeNameData.value.data.username = ''
