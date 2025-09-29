@@ -25,7 +25,7 @@ import AssemblyDataProcessing from "@/assets/sripts/assembly_data_processing";
 import ShipName from "@/components/snbWidget/shipName.vue";
 import ItemName from "@/components/snbWidget/itemName.vue";
 import UltimateName from "@/components/snbWidget/ultimateName.vue";
-import WeaponModificationOnlyShowWidget from "@/components/snbWidget/WeaponModificationOnlyShowWidget.vue";
+import WeaponModificationOnlyShowWidget from "@/components/snbWidget/weaponModificationOnlyShowWidget.vue";
 
 const poops = withDefaults(defineProps<{
       readonly?: boolean,
