@@ -3,6 +3,7 @@ import {computed} from "vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name"
 import {Item} from "glow-prow-data";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
+import {rarity} from "@/assets/sripts/index";
 
 const props = defineProps<{ data?: Item, id?: string, tier?: number }>(),
     {asString, sanitizeString} = useI18nUtils(),

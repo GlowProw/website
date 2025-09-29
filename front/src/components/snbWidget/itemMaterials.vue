@@ -10,6 +10,7 @@ import {useI18n} from "vue-i18n";
 import {nextTick, onMounted, type Ref, ref, UnwrapRef, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import HtmlLink from "@/components/HtmlLink.vue";
+import MaterialNameRarity from "@/components/snbWidget/materialNameRarity.vue";
 
 const props = defineProps<{ data: Item | Ship }>(),
     {t} = useI18n(),
@@ -77,7 +78,9 @@ const onStatisticsRawMaterial = () => {
               <div class="text-right">
                 <p class="text-no-wrap">
                   <HtmlLink :is-icon="false" :is-iframe-show="false" :href="`/display-cabinet/material/${i.id}`" target="_blank">
-                    <MaterialName :id="i.id"></MaterialName>
+                    <MaterialNameRarity :id="i.id">
+                      <MaterialName :id="i.id"></MaterialName>
+                    </MaterialNameRarity>
                     <v-icon size="14">mdi-open-in-new</v-icon>
                   </HtmlLink>
                 </p>
@@ -132,7 +135,9 @@ const onStatisticsRawMaterial = () => {
               <div class="text-right">
                 <p class="text-no-wrap">
                   <HtmlLink :is-icon="false" :is-iframe-show="false" :href="`/display-cabinet/material/${key}`" target="_blank">
-                    <MaterialName :id="key"></MaterialName>
+                    <MaterialNameRarity :id="key">
+                      <MaterialName :id="key"></MaterialName>
+                    </MaterialNameRarity>
                     <v-icon size="12">mdi-open-in-new</v-icon>
                   </HtmlLink>
                 </p>
@@ -165,7 +170,9 @@ const onStatisticsRawMaterial = () => {
                   <div class="text-right">
                     <p class="text-no-wrap">
                       <HtmlLink :is-icon="false" :is-iframe-show="false" :href="router.resolve(`/display-cabinet/material/${raw.id}`).fullPath" target="_blank">
-                        <MaterialName :id="raw.id"></MaterialName>
+                        <MaterialNameRarity :id="raw.id">
+                          <MaterialName :id="raw.id"></MaterialName>
+                        </MaterialNameRarity>
                         <v-icon size="12">mdi-open-in-new</v-icon>
                       </HtmlLink>
                     </p>

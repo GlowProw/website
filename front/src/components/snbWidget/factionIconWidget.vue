@@ -1,40 +1,41 @@
 <script setup lang="ts">
 import {onMounted, type Ref, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
-
-const factionImages = import.meta.glob('@glow-prow-assets/factions/*.png', {eager: true});
+import {useAssetsStore} from "~/stores/assetsStore";
 
 let src: Ref<string | null> = ref(null)
 
 const props = withDefaults(
-        defineProps<{ name: string, size: string, class?: string }>(),
+        defineProps<{ name: string, size?: string, class?: string }>(),
         {
-          size: '20px'
+          size: '20px',
+          class: ''
         }
     ),
     {t} = useI18n(),
+    {factions: factionsAssets} = useAssetsStore(),
+
     // 阵营相同图标字典， 规划同类图标
     factionConvertDictionary = {
       "theHelmEmpire": "theHelm"
     }
 
-
 watch(() => props.name, () => {
-  onImage()
+  onReady()
 })
 
 onMounted(() => {
-  onImage()
+  onReady()
 })
 
 /**
  * 处理阵营图片
  */
-const onImage = () => {
-  const imageKey = `/node_modules/glow-prow-assets/factions/${factionConvertDictionary[props.name] || props.name}.png`;
+const onReady = () => {
+  const key = factionConvertDictionary[props.name] || props.name;
 
-  if (factionImages[imageKey]) {
-    src.value = factionImages[imageKey].default;
+  if (factionsAssets[key]) {
+    src.value = factionsAssets[key];
   } else {
     src.value = null;
   }
@@ -52,7 +53,7 @@ const onImage = () => {
            cover>
     </v-img>
     <div class="d-flex justify-center align-center h-100 w-100" v-else>
-      <v-icon :size="Number(size) / 2">mdi-help</v-icon>
+      <v-icon :size="Number.parseInt(size) / 1.2">mdi-help</v-icon>
     </div>
   </v-card>
 </template>

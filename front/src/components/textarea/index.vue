@@ -108,8 +108,6 @@ const
       })
     })
 
-let charCount = ref(0)
-
 watch(() => props.readonly, (value) => {
   tiptap.value.options.editable = !value;
 })
@@ -246,7 +244,7 @@ const onInsertVideo = (src: string) => {
 
 const onInsertItem = (id: string) => {
   editor.value?.commands.insertItem({id})
-  isOpenShip.value = false
+  isOpenItem.value = false
 }
 
 const onInsertShip = (id: string) => {
@@ -258,7 +256,6 @@ const onInsertEmote = (type: string, val: { name: string }) => {
   editor.value?.commands.insertEmote({id: `${type}|${val.name}`})
   isOpenEmoji.value = false
 }
-
 
 const onInsertUltimate = (id: string) => {
   editor.value?.commands.insertUltimate({id})
@@ -489,7 +486,7 @@ const onInitEdit = () => {
     <ImgView ref="imgWidget" :editor="tiptap" @finish="onInsertImg" @close="() => isOpenImg = false"/>
     <VideoView ref="videoWidget" :editor="tiptap" @finish="onInsertVideo" @close="() => isOpenVideo = false"/>
     <ItemView ref="itemWidget" :editor="tiptap" @finish="onInsertItem" @close="() => isOpenItem = false"/>
-    <ShipView ref="shipWidget" :editor="tiptap" @finish="onInsertShip" @close="() => isOpenEmoji = false"/>
+    <ShipView ref="shipWidget" :editor="tiptap" @finish="onInsertShip" @close="() => isOpenShip = false"/>
     <UltimateView ref="ultimateWidget" :editor="tiptap" @finish="onInsertUltimate" @close="() => isOpenUltimate = false"/>
     <ModView ref="modWidget" :editor="tiptap" @finish="onInsertMod" @close="() => isOpenMod = false"/>
     <EmoteView ref="emoteWidget" :editor="tiptap" @finish="onInsertEmote" @close="() => isOpenEmoji = false"/>

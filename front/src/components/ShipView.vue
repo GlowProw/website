@@ -55,7 +55,7 @@ export default {
             class="item"
             class-name="ship-window-box"
             :width="600"
-            @on-visible-change="(status) => !status ? $emit('close') : null"
+            @update:modelValue="(status) => !status ? $emit('close') : null"
             sticky
             transfer
             footer-hide>

@@ -14,6 +14,7 @@ import {useAuthStore} from "~/stores/userAccountStore";
 import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import UltimateName from "@/components/snbWidget/ultimateName.vue";
+import BySeasonWidget from "@/components/bySeasonWidget.vue";
 
 const
     {t} = useI18n(),
@@ -167,19 +168,8 @@ const onUltimateHistory = () => {
             </template>
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
-            <v-card class="mb-4 pl-3" v-if="ultimateDetailData.bySeason">
-              <v-text-field :value="t(`snb.seasons.${ultimateDetailData.bySeason.id}`) || 'none'" readonly
-                            hide-details
-                            tile
-                            variant="solo-filled">
-                <template v-slot:prepend>
-                  <p class="text-no-wrap">出自</p>
-                </template>
-                <template v-slot:append-inner>
-                  <p class="text-no-wrap">赛季</p>
-                </template>
-              </v-text-field>
-            </v-card>
+            <BySeasonWidget
+                :data="ultimateDetailData"></BySeasonWidget>
 
             <v-text-field :value="ultimateDetailData.chargeRequired" readonly
                           hide-details

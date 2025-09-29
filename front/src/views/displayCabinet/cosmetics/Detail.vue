@@ -21,8 +21,7 @@ const {t} = useI18n(),
     router = useRouter(),
     route = useRoute(),
     authStore = useAuthStore(),
-    cosmetics = Cosmetics,
-    rarityColorConfig = rarity.color
+    cosmetics = Cosmetics
 
 let materialDetailData: Ref<Modification> = ref({})
 
@@ -137,8 +136,11 @@ onMounted(() => {
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
             <BySeasonWidget
-                :data="materialDetailData.firstAppearingSeason"></BySeasonWidget>
+                :data="materialDetailData.firstAppearingSeason || materialDetailData.bySeason"></BySeasonWidget>
 
+            <template v-if="materialDetailData.worldEvent">
+              <WorldEventWidget :data="materialDetailData"></WorldEventWidget>
+            </template>
             <template v-if="materialDetailData.obtainable">
               <ObtainableWidget :data="materialDetailData" byType="cosmetic"></ObtainableWidget>
             </template>

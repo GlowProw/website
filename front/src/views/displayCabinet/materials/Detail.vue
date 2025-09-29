@@ -122,7 +122,6 @@ onMounted(() => {
               </v-col>
             </v-row>
             <v-divider class="mt-10 mb-6"></v-divider>
-
             <v-row class="mb-5">
               <v-col cols="12" sm="12" lg="6" xl="6">
                 <template v-if="route.query.debug">

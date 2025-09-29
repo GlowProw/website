@@ -1,12 +1,12 @@
 <script setup lang="ts">
 
 import {Service_provider} from "@/assets/sripts/service_provider";
-import {useItemAssetsStore} from "~/stores/itemAssetsStore";
+import {useAssetsStore} from "~/stores/assetsStore";
 import {onMounted, ref} from "vue";
 
 
 const serviceProviders = new Service_provider().services,
-    {serializationMap} = useItemAssetsStore()
+    {serializationMap} = useAssetsStore()
 
 let service_providers = ref([])
 

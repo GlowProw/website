@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {ref, watch} from "vue";
+import {ref} from "vue";
 import {Editor} from "@tiptap/vue-3";
 import {useI18n} from "vue-i18n";
 import {useRoute, useRouter} from "vue-router";
@@ -18,10 +18,6 @@ let show = ref(false),
     data = ref({
       src: ''
     })
-
-watch(() => [router, route], () => {
-  onPanelToggle()
-}, {deep: true})
 
 /**
  * 完成

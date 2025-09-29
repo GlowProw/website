@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import {onMounted, ref} from "vue";
-import {useItemAssetsStore} from "~/stores/itemAssetsStore";
+import {useAssetsStore} from "~/stores/assetsStore";
 
 const damagesImages = import.meta.glob('@glow-prow-assets/damages/*', {eager: true}),
     modsImages = import.meta.glob('@glow-prow-assets/modifications/*', {eager: true}),
     images = {...damagesImages, ...modsImages},
     props = defineProps<{ id: string, size?: string | number }>(),
-    {serializationMap} = useItemAssetsStore()
+    {serializationMap} = useAssetsStore()
 
 let icons = ref({}),
     isShow = ref(true)

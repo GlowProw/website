@@ -50,7 +50,7 @@ import NotFoundPage from '../src/views/NotFound.vue';
 import Test from '@/views/Test.vue'
 
 import {useAuthStore} from "~/stores/userAccountStore";
-import {useItemAssetsStore} from "~/stores/itemAssetsStore";
+import {useAssetsStore} from "~/stores/assetsStore";
 import i18n from "@/i18n";
 import {useHead} from "@unhead/vue";
 import {api} from "@/assets/sripts/index";
@@ -84,7 +84,7 @@ const initAccountInfo = async function (to, from, next) {
 }
 
 const initItemAssets = () => {
-    const {init} = useItemAssetsStore()
+    const {init} = useAssetsStore()
     init();
 }
 

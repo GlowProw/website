@@ -30,6 +30,8 @@ import BySeasonWidget from "@/components/bySeasonWidget.vue";
 import DamageIconWidget from "@/components/snbWidget/damageIconWidget.vue";
 import ItemMaterials from "@/components/snbWidget/itemMaterials.vue";
 import ObtainableWidget from "@/components/ObtainableWidget.vue";
+import WorldEventWidget from "@/components/WorldEventWidget.vue";
+import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
 
 const
     {t, messages} = useI18n(),
@@ -55,12 +57,7 @@ let itemDetailData: Ref<Item | null> = ref(null),
       return DPS / damageMitigation?.piercing || 0
     }),
     DamagePerShotWithPerks = computed(() => 0),
-    worldEvent = computed(() => {
-      let events = itemDetailData.value.worldEvent;
-      if (Array.isArray(events))
-        return events
-      return [events]
-    }),
+
     bluePrint = computed(() => {
       let bluePrints = itemDetailData.value?.blueprint;
 
@@ -460,12 +457,7 @@ const onStarItem = (data: Item) => {
               </v-chip>
             </template>
             <template v-if="itemDetailData.worldEvent">
-              <p class="text-no-wrap font-weight-bold mb-2 mt-2">{{ t('displayCabinet.item.worldEvent') }}</p>
-              <v-chip v-for="(e,eIndex) in worldEvent"
-                      class="d-inline-flex mb-1 mr-1"
-                      :key="eIndex">
-                {{ t(`snb.worldEvents.${e.id}`) }}
-              </v-chip>
+              <WorldEventWidget :data="itemDetailData"></WorldEventWidget>
             </template>
             <template v-if="itemDetailData.obtainable">
               <ObtainableWidget :data="itemDetailData" byType="item"></ObtainableWidget>
@@ -521,9 +513,11 @@ const onStarItem = (data: Item) => {
                   <v-badge dot inline :color="rarityColorConfig[itemDetailData.rarity]" class="ma-1 pt-0"></v-badge>
                 </template>
                 <template v-slot:prepend-inner>
-                  <router-link :to="`/display-cabinet/item/rarity/${itemDetailData.rarity}`" class="text-no-wrap">
-                    {{ t(`displayCabinet.rarity.${itemDetailData.rarity}`) || 'none' }}
-                  </router-link>
+                  <ItemNameRarity :id="itemDetailData.id">
+                    <router-link :to="`/display-cabinet/item/rarity/${itemDetailData.rarity}`" class="text-no-wrap">
+                      {{ t(`displayCabinet.rarity.${itemDetailData.rarity}`) || 'none' }}
+                    </router-link>
+                  </ItemNameRarity>
                 </template>
                 <template v-slot:append-inner>
                   <p class="text-no-wrap">{{ t('displayCabinet.item.rarity') }}</p>

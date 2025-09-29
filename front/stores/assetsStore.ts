@@ -1,17 +1,27 @@
 import {defineStore} from "pinia";
 
-export const useItemAssetsStore = defineStore('itemAssets', {
+export const useAssetsStore = defineStore('assets', {
     state: () => ({
-        assets: new Map(),
+        items: new Map(),
         raritys: new Map(),
-        cosmetic: new Map()
+        cosmetics: new Map(),
+        materials: new Map(),
+        factions: new Map()
     }),
     actions: {
         /**
          * 初始
          */
         init() {
-            if (!this.assets && this.assets.size != 0 && !this.rarity && this.rarity.size != 0)
+            this.initItems()
+            this.initCosmetics()
+            this.initRarity()
+            this.initMaterials()
+            this.iniFactions()
+        },
+
+        initItems () {
+            if (this.items.size != 0)
                 return;
 
             const item_ammunitions = import.meta.glob('@glow-prow-assets/items/ammunitions/*', {eager: true}),
@@ -28,10 +38,6 @@ export const useItemAssetsStore = defineStore('itemAssets', {
                 item_shipsUpgrades = import.meta.glob('@glow-prow-assets/ships/upgrades/*', {eager: true}),
                 item_items = import.meta.glob('@glow-prow-assets/items/*', {eager: true});
 
-            const cosmetics_sailsPattern = import.meta.glob('@glow-prow-assets/cosmetics/sailsPattern/*', {eager: true});
-
-            const rarityImages = import.meta.glob('@/assets/images/item-rarity-*.png', {eager: true});
-
             const itemImages = {
                 ...item_ammunitions, ...item_weapons, ...item_armors, ...item_chests,
                 ...item_major_furnitures, ...item_utility_furnitures, ...item_offensive_furnitures,
@@ -39,13 +45,46 @@ export const useItemAssetsStore = defineStore('itemAssets', {
                 ...item_tools, ...item_shipsUpgrades, ...item_items,
             };
 
+            this.items = this.serializationMap(itemImages);
+        },
+
+        initCosmetics () {
+            if (this.cosmetics.size != 0)
+                return;
+
+            const cosmetics_sailsPattern = import.meta.glob('@glow-prow-assets/cosmetics/sailsPattern/*', {eager: true});
+
             const cosmeticsImages = {
                 ...cosmetics_sailsPattern
             }
+            this.cosmetics = this.serializationMap(cosmeticsImages);
+        },
+
+        initRarity () {
+            if (this.raritys.size != 0)
+                return;
+
+            const rarityImages = import.meta.glob('@/assets/images/item-rarity-*.png', {eager: true});
 
             this.raritys = this.serializationMap(rarityImages);
-            this.assets = this.serializationMap(itemImages);
-            this.cosmetic = this.serializationMap(cosmeticsImages);
+        },
+
+        initMaterials () {
+            if (this.materials.size != 0)
+                return;
+
+            const materialsImages = import.meta.glob('@glow-prow-assets/materials/*.*', {eager: true});
+
+            this.materials = this.serializationMap(materialsImages);
+        },
+
+        iniFactions () {
+            if (this.factions.size != 0)
+                return;
+
+            const factionsImages = import.meta.glob('@glow-prow-assets/factions/*.*', {eager: true});
+
+            this.factions = this.serializationMap(factionsImages);
         },
 
         /**

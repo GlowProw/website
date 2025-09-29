@@ -8,18 +8,19 @@ import {Item, Items} from "glow-prow-data/src/entity/Items.ts";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useIntersectionObserver} from "@/assets/sripts/intersection_observer";
 import {number, rarity} from "@/assets/sripts/index";
-import {useItemAssetsStore} from "~/stores/itemAssetsStore";
+import {useAssetsStore} from "~/stores/assetsStore";
 import ItemName from "@/components/snbWidget/itemName.vue";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
+import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
 
 const
     {asString, sanitizeString} = useI18nUtils(),
     route = useRoute(),
     router = useRouter(),
     {t} = useI18n(),
-    {assets, raritys} = useItemAssetsStore(),
+    {items: itemsAssets, raritys: raritysAssets} = useAssetsStore(),
     props = withDefaults(defineProps<{
       id: string,
       isShowOpenDetail?: boolean,
@@ -33,14 +34,14 @@ const
       isOpenDetail: true,
       isShowTooltip: true,
       padding: 0,
-      margin: 1,
+      margin: 1
     }),
     items: Items = Items
 
 let itemsCardData = ref({
-      iconSrc: '',
+      icon: '',
     }),
-    i: Ref<Item> = ref(Item.fromRawData({})),
+    i: Ref<Item | null> = ref(null),
 
     // 稀有度
     rarityColorConfig = rarity.color
@@ -57,10 +58,10 @@ onMounted(() => {
 const onReady = async () => {
   i.value = items[props.id] || null
 
-  if (assets[props.id])
-    itemsCardData.value.iconSrc = assets[props.id] || ''
+  if (itemsAssets[props.id])
+    itemsCardData.value.icon = itemsAssets[props.id] || ''
   else {
-    itemsCardData.value.iconSrc = `https://skullandbonestools.de/api/imagesservice?src=items%2F${props.id}&width=128`
+    itemsCardData.value.icon = `https://skullandbonestools.de/api/imagesservice?src=items%2F${props.id}&width=128`
   }
 }
 
@@ -86,8 +87,8 @@ const {targetElement, isVisible} = useIntersectionObserver({
           ref="targetElement"
           width="100%"
           v-bind="activatorProps"
-          :color="`hsl(from ${rarityColorConfig[i.rarity]} h s calc(l * .15))`"
-          :to="isOpenDetail ? `/display-cabinet/item/${i.id}` : null"
+          :color="`hsl(from ${rarityColorConfig[i?.rarity]} h s calc(l * .15))`"
+          :to="isOpenDetail ? `/display-cabinet/item/${i?.id}` : null"
           :class="[
               'prohibit-drag',
               `ma-${props.margin}`,
@@ -95,13 +96,13 @@ const {targetElement, isVisible} = useIntersectionObserver({
               `item-card-header-rarity-${i.rarity}`
           ]">
         <template v-slot:image v-if="i.rarity">
-          <v-img :src="raritys[`item-rarity-${i.rarity}`]" width="100%" height="100%" class="opacity-30 prohibit-drag"/>
+          <v-img :src="raritysAssets[`item-rarity-${i.rarity}`]" width="100%" height="100%" class="opacity-30 prohibit-drag"/>
         </template>
 
         <div>
           <v-img
               class="prohibit-drag"
-              :src="itemsCardData.iconSrc" cover width="100%" height="100%">
+              :src="itemsCardData.icon" cover width="100%" height="100%">
             <template v-slot:error>
               <div class="fill-height repeating-gradient d-flex justify-center align-center h-100">
                 <v-icon icon="mdi-help" class="opacity-30"></v-icon>
@@ -117,16 +118,17 @@ const {targetElement, isVisible} = useIntersectionObserver({
       </v-card>
     </template>
     <v-card class="demo-reel bg-black" flat border>
-      <div class="demo-reel-header pa-10 position-relative" :class="[
-                    `item-card-header-rarity-${i.rarity}`
-                ]">
+      <div class="demo-reel-header pa-10 position-relative"
+           :style="`background-color: color-mix(in srgb, hsl(from ${rarityColorConfig[ items[i.id]?.rarity || '' ]} h s l) 10%, #000)`">
         <div class="v-skeleton-loader__bone v-skeleton-loader__image opacity-30 position-absolute left-0 top-0 w-100 h-100"></div>
 
         <h1 class="item-card-name font-weight-bold w-66">
           <ItemSlotBase size="28px" class="mb-2" :padding="0" v-if="i.faction">
             <FactionIconWidget class="bg-red d-inline-flex" :name="i.faction.id" v-if="i.faction"></FactionIconWidget>
           </ItemSlotBase>
-          <ItemName :data="i"></ItemName>
+          <ItemNameRarity :id="i.id">
+            <ItemName :data="i"></ItemName>
+          </ItemNameRarity>
         </h1>
         <p class="mb-1 mt-2">{{ i.id }}</p>
 
@@ -145,7 +147,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
           </v-chip>
         </div>
         <div class="right-show-item-image pointer-events-none position-absolute w-33">
-          <v-img :src="itemsCardData.iconSrc" class="item-mirror-image"></v-img>
+          <v-img :src="itemsCardData.icon" class="item-mirror-image"></v-img>
         </div>
 
         <template v-if="i.rarity">
@@ -175,12 +177,9 @@ const {targetElement, isVisible} = useIntersectionObserver({
       </div>
     </v-card>
   </v-tooltip>
-
 </template>
 
 <style scoped lang="less">
-@rarities: common, uncommon, rare, epic, legendary;
-
 .item-card {
   &::after {
     content: "";
@@ -199,57 +198,6 @@ const {targetElement, isVisible} = useIntersectionObserver({
 
   .item-card-name {
     line-height: 1.2 !important;
-  }
-
-  .item-card-header-rarity {
-    width: 100px;
-    height: 100px;
-    position: relative;
-
-    each(@rarities, {
-      &-@{value} {
-        .set-rarity-color(@value);
-      }
-    });
-
-    .set-rarity-color(@type) {
-      & when (@type = common) {
-        &::after {
-          background-color: fade(#b0b0b0, 10%);
-        }
-      }
-      & when (@type = uncommon) {
-        &::after {
-          background-color: fade(#2ecc71, 10%);
-        }
-      }
-      & when (@type = rare) {
-        &::after {
-          background-color: fade(#3498db, 10%);
-        }
-      }
-      & when (@type = epic) {
-        &::after {
-          background-color: fade(#9b59b6, 10%);
-        }
-      }
-      & when (@type = legendary) {
-        &::after {
-          background-color: fade(#f1c40f, 10%);
-        }
-      }
-
-      &::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-        border-radius: inherit;
-      }
-    }
   }
 }
 

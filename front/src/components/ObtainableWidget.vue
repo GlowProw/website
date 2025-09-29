@@ -1,8 +1,8 @@
 <script setup lang="ts">
 
 import ItemName from "@/components/snbWidget/itemName.vue";
-import {computed, nextTick, onMounted, ref, type Ref, watch} from "vue";
-import {Cosmetic, Item, Material} from "glow-prow-data";
+import {computed} from "vue";
+import {Cosmetic, Cosmetics, Item, Items, Material} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 import EmptyView from "@/components/EmptyView.vue";
 
@@ -12,21 +12,12 @@ const props = withDefaults(
           byType: ''
         }
     ),
-    {t} = useI18n()
+    {t} = useI18n(),
+    items = Items,
+    cosmetics = Cosmetics
 
 let obtainable = computed(() => {
-      return filterByObtainable(props.data)
-    })
-
-watch(() => props.data, (value) => {
-  // if (value)
-  //   detailData.value = value
-})
-
-onMounted(() => {
-  // nextTick(() => {
-  //   detailData.value = props.data
-  // })
+  return filterByObtainable(props.data)
 })
 
 /**
@@ -63,14 +54,25 @@ const filterByObtainable = (item: Item | Material | Cosmetic) => {
       if (typeof element === 'string') {
         array.push({
           id: element,
-          to: `/display-cabinet/${props.byType}/obtainable/${element}`
+          // to: `/display-cabinet/${props.byType}/obtainable/${element}`
         });
       } else if (element && typeof element === 'object' && 'id' in element) {
-        array.push({
-          id: element.id,
-          to: `/display-cabinet/${props.byType}/${element.id}`,
-          item: items[element.id]
-        });
+
+        if (items[element.id]) {
+          array.push({
+            id: element.id,
+            to: `/display-cabinet/item/${element.id}`,
+            item: items[element.id]
+          });
+        }
+
+        else if (cosmetics[element.id]) {
+          array.push({
+            id: element.id,
+            to: `/display-cabinet/cosmetics/${element.id}`,
+            item: cosmetics[element.id]
+          });
+        }
       }
     });
   }

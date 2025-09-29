@@ -6,7 +6,7 @@ import LightRays from "../LightRays.vue"
 import {onMounted, type Ref, ref, watch} from "vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useIntersectionObserver} from "@/assets/sripts/intersection_observer";
-import {useItemAssetsStore} from "~/stores/itemAssetsStore";
+import {useAssetsStore} from "~/stores/assetsStore";
 import CosmeticName from "@/components/snbWidget/cosmeticName.vue";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import {Cosmetic, Cosmetics} from "glow-prow-data";
@@ -15,7 +15,7 @@ import {rarity} from "@/assets/sripts/index";
 
 const
     {asString, sanitizeString} = useI18nUtils(),
-    {assets, raritys, cosmetic: assetsCosmetics} = useItemAssetsStore(),
+    {items, raritys, cosmetic: assetsCosmetics} = useAssetsStore(),
     {t} = useI18n(),
     route = useRoute(),
     router = useRouter(),
@@ -55,7 +55,8 @@ onMounted(() => {
 
 const onReady = async () => {
   i.value = cosmetics[props.id] || null
-  if (assetsCosmetics[props.id])
+
+  if (assetsCosmetics && assetsCosmetics[props.id])
     cosmeticCardData.value.icon = assetsCosmetics[props.id] || ''
   else {
     cosmeticCardData.value.icon = `https://skullandbonestools.de/api/imagesservice?src=vanities%2F${props.id}&width=256`
