@@ -8,6 +8,9 @@ import {ShipNode as ShipWidget} from './ship/index'
 import {EmoteNode as EmoteWidget} from './emote/index'
 import {UltimateNode as UltimatesWidget} from './ultimate/index'
 import {ModNode as ModWidget} from './mod/index'
+import {LinkNode as LinkWidget} from './link/index'
+import {ImgNode as ImgWidget} from './img/index'
+import {VideoNode as VideoWidget} from './video/index'
 
 import ShipView from '../ShipView.vue'
 import ItemView from '../ItemView.vue'
@@ -15,6 +18,9 @@ import EmoteView from '../EmoteView.vue'
 import UltimateView from "../UltimateView.vue";
 import ModView from "../ModView.vue"
 import {useI18n} from "vue-i18n";
+import LinkView from "@/components/LinkView.vue";
+import ImgView from "@/components/ImgView.vue";
+import VideoView from "@/components/VideoView.vue";
 
 interface ToolbarItem {
   list?: any
@@ -61,7 +67,7 @@ const props = defineProps({
   },
   toolbar: {
     type: Array as () => Array<string | ToolbarItem>,
-    default: () => ['emote', 'item', 'ship', 'mod', 'ultimate']
+    default: () => ['link', 'img', 'video', 'emote', 'item', 'ship', 'mod', 'ultimate']
   }
 })
 
@@ -75,16 +81,22 @@ const emit = defineEmits([
     isOpenEmoji = ref(false),
     isOpenMod = ref(false),
     isOpenUltimate = ref(false),
+    isOpenLink = ref(false),
+    isOpenImg = ref(false),
+    isOpenVideo = ref(false),
     isOpenShip = ref(false),
     isOpenItem = ref(false),
 
     // editor widgets
     editorContent = ref(props.modelValue),
+    linkWidget = ref<InstanceType<typeof LinkWidget> | null>(null),
+    imgWidget = ref<InstanceType<typeof ImgWidget> | null>(null),
+    videoWidget = ref<InstanceType<typeof VideoWidget> | null>(null),
     emoteWidget = ref<InstanceType<typeof EmoteView> | null>(null),
     shipWidget = ref<InstanceType<typeof ShipView> | null>(null),
     itemWidget = ref<InstanceType<typeof ItemView> | null>(null),
-    modWidget = ref<InstanceType<typeof ItemView> | null>(null),
-    ultimateWidget = ref<InstanceType<typeof ItemView> | null>(null)
+    modWidget = ref<InstanceType<typeof ModView> | null>(null),
+    ultimateWidget = ref<InstanceType<typeof UltimateView> | null>(null)
 
 const
     tiptapTextEditor = ref<HTMLElement | null>(null),
@@ -161,6 +173,27 @@ const flatMap = (array: any[], callback: (item: any) => any) => {
   }, [])
 }
 
+const onLink = () => {
+  if (linkWidget.value && !editor.value?.isFocused) {
+    linkWidget.value.openPanel()
+    isOpenLink.value = true
+  }
+}
+
+const onImg = () => {
+  if (imgWidget.value && !editor.value?.isFocused) {
+    imgWidget.value.openPanel()
+    isOpenImg.value = true
+  }
+}
+
+const onVideo = () => {
+  if (videoWidget.value && !editor.value?.isFocused) {
+    videoWidget.value.openPanel()
+    isOpenVideo.value = true
+  }
+}
+
 const onEmote = () => {
   if (emoteWidget.value && !editor.value?.isFocused) {
     emoteWidget.value.openPanel()
@@ -194,6 +227,21 @@ const onUltimate = () => {
     ultimateWidget.value.openPanel()
     isOpenUltimate.value = true
   }
+}
+
+const onInsertLink = (href: string, text: string) => {
+  editor.value?.commands.insertLink(href, text)
+  isOpenLink.value = false
+}
+
+const onInsertImg = (src: string) => {
+  editor.value?.commands.insertImg(src)
+  isOpenImg.value = false
+}
+
+const onInsertVideo = (src: string) => {
+  editor.value?.commands.insertVideo(src)
+  isOpenVideo.value = false
 }
 
 const onInsertItem = (id: string) => {
@@ -249,11 +297,15 @@ const onInitEdit = () => {
         placeholder: props.placeholder
       }),
       MaxLength,
+
+      LinkWidget,
+      ImgWidget,
+      VideoWidget,
       ItemWidget,
       ShipWidget,
       EmoteWidget,
       UltimatesWidget,
-      ModWidget,
+      ModWidget
     ],
     onCreate({editor}) {
       editor.options.keyboardShortcuts = {}
@@ -288,6 +340,34 @@ const onInitEdit = () => {
       <v-row :gutter="20" type="flex" align="center">
         <v-col>
           <div class="bg-transparent">
+            <v-btn
+                icon
+                class="btn mr-2"
+                density="compact"
+                @click="onLink"
+                :disabled="isOpenLink"
+                v-if="toolbarAs.indexOf('link') >= 0">
+              <v-icon icon="mdi-link"></v-icon>
+            </v-btn>
+            <v-btn
+                icon
+                class="btn mr-2"
+                density="compact"
+                @click="onImg"
+                :disabled="isOpenImg"
+                v-if="toolbarAs.indexOf('img') >= 0">
+              <v-icon icon="mdi-image-outline"></v-icon>
+            </v-btn>
+            <v-btn
+                icon
+                class="btn mr-5"
+                density="compact"
+                @click="onVideo"
+                :disabled="isOpenVideo"
+                v-if="toolbarAs.indexOf('video') >= 0">
+              <v-icon icon="mdi-video-outline"></v-icon>
+            </v-btn>
+
             <v-btn
                 icon
                 class="btn mr-5"
@@ -405,6 +485,9 @@ const onInitEdit = () => {
         :style="`min-height:${minHeight}`"
         :editor="tiptap"/>
 
+    <LinkView ref="linkWidget" :editor="tiptap" @finish="onInsertLink" @close="() => isOpenLink = false"/>
+    <ImgView ref="imgWidget" :editor="tiptap" @finish="onInsertImg" @close="() => isOpenImg = false"/>
+    <VideoView ref="videoWidget" :editor="tiptap" @finish="onInsertVideo" @close="() => isOpenVideo = false"/>
     <ItemView ref="itemWidget" :editor="tiptap" @finish="onInsertItem" @close="() => isOpenItem = false"/>
     <ShipView ref="shipWidget" :editor="tiptap" @finish="onInsertShip" @close="() => isOpenEmoji = false"/>
     <UltimateView ref="ultimateWidget" :editor="tiptap" @finish="onInsertUltimate" @close="() => isOpenUltimate = false"/>

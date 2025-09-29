@@ -288,6 +288,14 @@
       "deckInfo": "甲板信息",
       "lookDetail": "查看船只详情"
     },
+    "cosmetic": {
+      "title": "装饰品列表",
+      "lookDetail": "查看详情"
+    },
+    "cosmetics": {
+      "title": "装饰品详情",
+      "description": "陈列收录装饰品"
+    },
     "ultimate": {
       "title": "终结技详情"
     },

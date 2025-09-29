@@ -273,6 +273,7 @@ const onPenPassword = () => {
 
           <Textarea class="mt-5 mb-2"
                     :readonly="true"
+                    :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
                     v-model="detailData.description"
                     placeholder="输入描述描述"></Textarea>
 

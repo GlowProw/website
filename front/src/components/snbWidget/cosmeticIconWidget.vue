@@ -15,10 +15,10 @@ import {rarity} from "@/assets/sripts/index";
 
 const
     {asString, sanitizeString} = useI18nUtils(),
+    {assets, raritys, cosmetic: assetsCosmetics} = useItemAssetsStore(),
+    {t} = useI18n(),
     route = useRoute(),
     router = useRouter(),
-    {t} = useI18n(),
-    assets = useItemAssetsStore(),
     props = withDefaults(defineProps<{
       id: string,
       isShowOpenDetail?: boolean,
@@ -34,10 +34,10 @@ const
       padding: 0,
       margin: 1,
     }),
-    cosmetics: Cosmetics = Cosmetics
+    cosmetics = Cosmetics
 
-let cosmeticsCardData = ref({
-      iconSrc: '',
+let cosmeticCardData = ref({
+      icon: '',
     }),
     i: Ref<cosmetic> = ref(Cosmetic.fromRawData({})),
 
@@ -55,7 +55,11 @@ onMounted(() => {
 
 const onReady = async () => {
   i.value = cosmetics[props.id] || null
-  cosmeticsCardData.value.iconSrc = assets.cosmetic[props.id] || ''
+  if (assetsCosmetics[props.id])
+    cosmeticCardData.value.icon = assetsCosmetics[props.id] || ''
+  else {
+    cosmeticCardData.value.icon = `https://skullandbonestools.de/api/imagesservice?src=vanities%2F${props.id}&width=256`
+  }
 }
 
 const {targetElement, isVisible} = useIntersectionObserver({
@@ -93,7 +97,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
         <div class="cosmetic-card">
           <v-img
               class="prohibit-drag"
-              :src="cosmeticsCardData.iconSrc" cover width="100%" height="100%">
+              :src="cosmeticCardData.icon" cover width="100%" height="100%">
             <template v-slot:error>
               <div class="fill-height repeating-gradient d-flex justify-center align-center h-100">
                 <v-icon icon="mdi-help" class="opacity-30"></v-icon>
@@ -110,7 +114,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
     </template>
     <v-card class="demo-reel bg-black" flat border>
       <div class="demo-reel-header pa-10 position-relative" :class="[
-                    `cosmetic-card-header-rarity-${i.rarity}`
+                    `cosmetic-card-header-rarity-${i?.rarity}`
                 ]">
         <div class="v-skeleton-loader__bone v-skeleton-loader__image opacity-30 position-absolute left-0 top-0 w-100 h-100"></div>
 
@@ -121,7 +125,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
         <p class="mb-1">{{ i.id }}</p>
 
         <div class="right-show-cosmetic-image pointer-events-none position-absolute w-33">
-          <v-img :src="cosmeticsCardData.iconSrc" class="cosmetic-mirror-image"></v-img>
+          <v-img :src="cosmeticCardData.icon" class="cosmetic-mirror-image"></v-img>
         </div>
 
         <template v-if="i.rarity">

@@ -3,7 +3,7 @@
 import {useI18n} from "vue-i18n";
 import {useRoute} from "vue-router";
 
-const props = defineProps<{id: string, grade?: string}>(),
+const props = defineProps<{id: string | unknown, grade?: string}>(),
     route = useRoute(),
     {t} = useI18n()
 </script>

@@ -4,6 +4,7 @@ import I18nWidget from "./i18nWidget.vue";
 import ServiceProviderWidget from "@/components/ServiceProviderWidget.vue";
 import {appFuns} from "@/assets/sripts/index";
 import Logo from "@/components/Logo.vue";
+import HtmlLink from "@/components/HtmlLink.vue";
 
 const {t} = useI18n();
 </script>
@@ -28,7 +29,12 @@ const {t} = useI18n();
                 <b class="text-amber">{{ t('footer.col1.title') }}</b>
                 <ul>
                   <li v-for="(fun, funIndex) in appFuns.list" :key="funIndex" :class="{'opacity-40':!fun.to }">
-                    <router-link :to="fun.to">{{ t(fun.title) }}</router-link>
+                    <HtmlLink
+                        :is-icon="false"
+                        :is-iframe-show="false"
+                        :href="fun.to" target="_blank">
+                      {{ t(fun.title) }}
+                    </HtmlLink>
                   </li>
                 </ul>
               </v-col>
@@ -36,24 +42,52 @@ const {t} = useI18n();
                 <b class="text-amber">{{ t('footer.col2.title') }}</b>
                 <ul>
                   <li>
-                    <a target="_blank" href="https://kook.vip/2s0eQP">{{ t('footer.col2.kook') }}</a>
+                    <HtmlLink
+                        :is-iframe-show="false"
+                        target="_blank" href="https://kook.vip/2s0eQP">
+                      {{ t('footer.col2.kook') }}
+                    </HtmlLink>
                   </li>
                   <li>
-                    <a href="https://tieba.baidu.com/p/9886565445" target="_blank">{{ t('footer.col2.baiduTieBa')}}</a>
+                    <HtmlLink
+                        :is-iframe-show="false"
+                        href="https://tieba.baidu.com/p/9886565445" target="_blank">
+                      {{ t('footer.col2.baiduTieBa') }}
+                    </HtmlLink>
                   </li>
                 </ul>
               </v-col>
               <v-col cols="12" sm="6" md="6" lg="3">
                 <b class="text-amber">{{ t('footer.col3.title') }}</b>
                 <ul>
-                  <li><a href="/about">{{ t('about.title') }}</a></li>
-                  <li><a href="https://status.glow-prow.org.cn">{{ t('footer.col3.serviceStatus') }}</a></li>
-                  <li><a href="https://zh.crowdin.com/project/glow-prow" target="_blank">{{ t('footer.col3.translated') }}</a></li>
+                  <li>
+                    <HtmlLink
+                        :is-icon="false"
+                        :is-iframe-show="false"
+                        href="/about" target="_blank">
+                      {{ t('about.title') }}
+                    </HtmlLink>
+                  </li>
+                  <li>
+                    <HtmlLink
+                        :is-icon="false"
+                        :is-iframe-show="false"
+                        href="https://status.glow-prow.org.cn" target="_blank">
+                      {{ t('footer.col3.serviceStatus') }}
+                    </HtmlLink>
+                  </li>
+                  <li>
+                    <HtmlLink
+                        :is-icon="false"
+                        :is-iframe-show="false"
+                        href="https://zh.crowdin.com/project/glow-prow" target="_blank">
+                      {{ t('footer.col3.translated') }}
+                    </HtmlLink>
+                  </li>
                 </ul>
               </v-col>
               <v-col cols="12" sm="6" md="6" lg="3">
                 <I18nWidget/>
-
               </v-col>
             </v-row>
           </v-col>
@@ -67,7 +101,7 @@ const {t} = useI18n();
           <ServiceProviderWidget></ServiceProviderWidget>
         </v-col>
         <v-col cols="12" lg="auto" class="d-flex ga-2 align-center mt-sm-2 mt-md-2">
-          <img src="@/assets/images/logos/betterstack.svg" width="26px" height="30px" />
+          <img src="@/assets/images/logos/betterstack.svg" width="26px" height="30px"/>
           <iframe src="https://status.glow-prow.org.cn/badge?theme=dark"
                   width="190"
                   height="30" frameborder="0" scrolling="no" style="color-scheme: normal"></iframe>

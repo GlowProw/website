@@ -186,7 +186,9 @@ const getAssemblysData = async () => {
 
     <v-container>
       <template v-if="userData.attr && userData.attr.introduction">
-        <Textarea class="mb-10 opacity-80 text-caption" :minHeight="'auto'" v-model="userData.attr.introduction" readonly></Textarea>
+        <Textarea class="mb-10 opacity-80 text-caption"
+                  :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
+                  :minHeight="'auto'" v-model="userData.attr.introduction" readonly></Textarea>
       </template>
 
       <div :class="{

@@ -236,8 +236,12 @@ const onCaptchaData = (data: any) => {
               </v-col>
             </v-row>
             <v-card border class="pl-3 pr-3 pb-2" :class="[i.isEdit ? 'pt-2' : '']">
-              <Textarea :model-value="i.content" :height="'80px'" :readonly="true" v-if="!i.isEdit"></Textarea>
-              <Textarea v-model="i.editContent" :height="'80px'" :readonly="false" v-else></Textarea>
+              <Textarea :model-value="i.content" :height="'80px'"
+                        :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
+                        :readonly="true" v-if="!i.isEdit"></Textarea>
+              <Textarea v-model="i.editContent" :height="'80px'"
+                        :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
+                        :readonly="false" v-else></Textarea>
             </v-card>
 
             <v-row class="mt-2">
@@ -281,7 +285,9 @@ const onCaptchaData = (data: any) => {
   </div>
 
   <v-card border class="pa-2" v-if="authStore.isLogin">
-    <Textarea v-model="content" :placeholder="props.placeholder"></Textarea>
+    <Textarea v-model="content"
+              :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
+              :placeholder="props.placeholder"></Textarea>
 
     <v-row no-gutters>
       <v-col>

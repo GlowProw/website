@@ -91,14 +91,16 @@
       <div class="card-enlargement-flavor px-10 mx-n6 py-2 text-amber-lighten-4">{{ t('empireSkillSimulation.requirements') }}</div>
       <div class="py-2 px-5 mb-5">
         <div v-if="skills[selectShowKey] && skills[selectShowKey].requisite">
-          <v-row no-gutters v-for="(i, index) in skills[selectShowKey].requisite" :key="index">
+          <v-row no-gutters v-for="(i, index) in skills[selectShowKey].requisite" :key="index" align="center">
             <v-col cols="auto" class="d-flex justify-center align-center mr-2">
-              <rhombus-widget :solid="!!skillPointsInput[skills[i].id]" :activate="skillPointsInput[skills[i].id]"></rhombus-widget>
+              <rhombus-widget size="6" :solid="!!skillPointsInput[skills[i].id]" :activate="skillPointsInput[skills[i].id]"></rhombus-widget>
             </v-col>
-            <v-col>
-              <u class="cursor-pointer" @click="onMoveNode(skills[i].key)">
+            <v-col @click="onMoveNode(skills[i].key)">
+              <HtmlLink class="cursor-pointer"
+                        :is-icon="false"
+                        :is-iframe-show="false">
                 {{ t(`snb.empireSkills.${skills[i].id}.name`) }}
-              </u>
+              </HtmlLink>
             </v-col>
           </v-row>
         </div>
@@ -111,10 +113,14 @@
             <v-list-item v-for="(i, key) in skills[selectShowKey].requiredCost" :key="key" class="pt-0">
               <v-row no-gutters align="start">
                 <v-col class="d-flex justify-start align-center">
-                  <ItemSlotBase :size="`35px`" :padding="0">
+                  <ItemSlotBase :size="`30px`" :padding="0">
                     <MaterialIconWidget :id="key" item-type="items"></MaterialIconWidget>
                   </ItemSlotBase>
-                  <span class="ml-2"><MaterialName :id="key"></MaterialName></span>
+                  <span class="ml-2">
+                    <HtmlLink :is-icon="false" :is-iframe-show="false" :href="`/display-cabinet/material/${key}`">
+                      <MaterialName :id="key"></MaterialName>
+                    </HtmlLink>
+                  </span>
                 </v-col>
                 <v-col class="d-flex justify-end">
                   <v-breadcrumbs
@@ -229,6 +235,7 @@ import {useRoute, useRouter} from "vue-router";
 import Time from "@/components/Time.vue";
 import TimeView from "@/components/TimeView.vue";
 import MaterialName from "@/components/snbWidget/materialName.vue";
+import HtmlLink from "@/components/HtmlLink.vue";
 
 interface SkillData {
   id: string;

@@ -323,6 +323,7 @@ const onChangeAlternativeName = async () => {
         <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="8">
           <v-card class="pa-2">
           <Textarea v-model="userAccountData.attr.introduction"
+                    :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
                     placeholder="自我介绍一下:D"
                     maxLength="2"></Textarea>
           </v-card>

@@ -29,6 +29,7 @@ import ItemContentWidget from "@/components/snbWidget/itemContentWidget.vue";
 import BySeasonWidget from "@/components/bySeasonWidget.vue";
 import DamageIconWidget from "@/components/snbWidget/damageIconWidget.vue";
 import ItemMaterials from "@/components/snbWidget/itemMaterials.vue";
+import ObtainableWidget from "@/components/ObtainableWidget.vue";
 
 const
     {t, messages} = useI18n(),
@@ -59,9 +60,6 @@ let itemDetailData: Ref<Item | null> = ref(null),
       if (Array.isArray(events))
         return events
       return [events]
-    }),
-    obtainable = computed(() => {
-      return filterByObtainable(itemDetailData.value)
     }),
     bluePrint = computed(() => {
       let bluePrints = itemDetailData.value?.blueprint;
@@ -180,49 +178,6 @@ const onStarItem = (data: Item) => {
   )
 }
 
-const filterByObtainable = (item: Item) => {
-  let array = []
-  if (!item.id) return [];
-
-  const obtainable = item.obtainable;
-
-  if (typeof obtainable === 'string') {
-
-    array.push({
-      id: obtainable,
-      to: `/display-cabinet/item/obtainable/${obtainable}`
-    });
-
-  } else if (obtainable && typeof obtainable === 'object' && 'id' in obtainable) {
-
-    array.push({
-      id: obtainable.id,
-      to: `/display-cabinet/item/${obtainable.id}`,
-      item: items[obtainable.id]
-    })
-
-  } else if (Array.isArray(obtainable)) {
-
-    const flatArray = obtainable.flat();
-
-    flatArray.forEach(element => {
-      if (typeof element === 'string') {
-        array.push({
-          id: element,
-          to: `/display-cabinet/item/obtainable/${element}`
-        });
-      } else if (element && typeof element === 'object' && 'id' in element) {
-        array.push({
-          id: element.id,
-          to: `/display-cabinet/item/${element.id}`,
-          item: items[element.id]
-        });
-      }
-    });
-  }
-
-  return array;
-};
 </script>
 
 <template>
@@ -513,18 +468,7 @@ const filterByObtainable = (item: Item) => {
               </v-chip>
             </template>
             <template v-if="itemDetailData.obtainable">
-              <p class="text-no-wrap font-weight-bold mb-2 mt-2">{{ t('displayCabinet.item.obtainable') }}</p>
-              <v-chip v-for="(o,oIndex) in obtainable"
-                      class="d-inline-flex mb-1 mr-1"
-                      :key="oIndex"
-                      :to="o.to">
-                <template v-if="o.item">
-                  <ItemName :id="o.item.id"></ItemName>
-                </template>
-                <template v-else>
-                  {{ t(`snb.locations.${o.id}`) }}
-                </template>
-              </v-chip>
+              <ObtainableWidget :data="itemDetailData" byType="item"></ObtainableWidget>
             </template>
             <template v-if="itemDetailData.faction">
               <v-text-field
@@ -652,7 +596,7 @@ const filterByObtainable = (item: Item) => {
       background-size: cover;
     }
 
-    .material-detail-header-img {
+    .cosmetic-detail-header-img {
       position: absolute;
       right: 20px;
       bottom: -120px;

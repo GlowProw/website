@@ -9,6 +9,7 @@ import {Item, Materials, Ship} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 import {nextTick, onMounted, type Ref, ref, UnwrapRef, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
+import HtmlLink from "@/components/HtmlLink.vue";
 
 const props = defineProps<{ data: Item | Ship }>(),
     {t} = useI18n(),
@@ -75,10 +76,10 @@ const onStatisticsRawMaterial = () => {
             <template v-slot:append>
               <div class="text-right">
                 <p class="text-no-wrap">
-                  <a :href="`/display-cabinet/material/${i.id}`" target="_blank">
+                  <HtmlLink :is-icon="false" :is-iframe-show="false" :href="`/display-cabinet/material/${i.id}`" target="_blank">
                     <MaterialName :id="i.id"></MaterialName>
                     <v-icon size="14">mdi-open-in-new</v-icon>
-                  </a>
+                  </HtmlLink>
                 </p>
                 <p class="text-no-wrap mt-n2 opacity-30" v-if="route.query.debug">{{ i.id }}</p>
               </div>
@@ -130,10 +131,10 @@ const onStatisticsRawMaterial = () => {
             <template v-slot:append>
               <div class="text-right">
                 <p class="text-no-wrap">
-                  <router-link :to="`/display-cabinet/material/${key}`" target="_blank">
+                  <HtmlLink :is-icon="false" :is-iframe-show="false" :href="`/display-cabinet/material/${key}`" target="_blank">
                     <MaterialName :id="key"></MaterialName>
                     <v-icon size="12">mdi-open-in-new</v-icon>
-                  </router-link>
+                  </HtmlLink>
                 </p>
                 <p class="text-no-wrap mt-n2 opacity-30" v-if="route.query.debug">{{ key }}</p>
               </div>
@@ -163,10 +164,10 @@ const onStatisticsRawMaterial = () => {
                 <template v-slot:append>
                   <div class="text-right">
                     <p class="text-no-wrap">
-                      <router-link :to="`/display-cabinet/material/${raw.id}`" target="_blank">
+                      <HtmlLink :is-icon="false" :is-iframe-show="false" :href="router.resolve(`/display-cabinet/material/${raw.id}`).fullPath" target="_blank">
                         <MaterialName :id="raw.id"></MaterialName>
                         <v-icon size="12">mdi-open-in-new</v-icon>
-                      </router-link>
+                      </HtmlLink>
                     </p>
                   </div>
                 </template>

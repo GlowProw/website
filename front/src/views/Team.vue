@@ -492,6 +492,7 @@ const onWsReconnect = () => {
                                 <Textarea
                                     :min-height="'40px'"
                                     :value="i.description || t('teamUp.emptyDescription')"
+                                    :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
                                     :readonly="true">
                                 </Textarea>
                               </b>
@@ -679,6 +680,7 @@ const onWsReconnect = () => {
                   <Textarea
                       v-model="description"
                       :placeholder="t('teamUp.form.descriptionPlaceholder')"
+                      :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
                       :height="'300px'"
                       @focused="onStoragePlayer"
                       @blur="onStoragePlayer"></Textarea>

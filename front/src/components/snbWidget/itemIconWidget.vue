@@ -12,6 +12,7 @@ import {useItemAssetsStore} from "~/stores/itemAssetsStore";
 import ItemName from "@/components/snbWidget/itemName.vue";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
+import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 
 const
     {asString, sanitizeString} = useI18nUtils(),
@@ -122,7 +123,9 @@ const {targetElement, isVisible} = useIntersectionObserver({
         <div class="v-skeleton-loader__bone v-skeleton-loader__image opacity-30 position-absolute left-0 top-0 w-100 h-100"></div>
 
         <h1 class="item-card-name font-weight-bold w-66">
-          <FactionIconWidget class="bg-red d-inline-flex" :name="i.faction.id" size="28px" v-if="i.faction"></FactionIconWidget>
+          <ItemSlotBase size="28px" class="mb-2" :padding="0" v-if="i.faction">
+            <FactionIconWidget class="bg-red d-inline-flex" :name="i.faction.id" v-if="i.faction"></FactionIconWidget>
+          </ItemSlotBase>
           <ItemName :data="i"></ItemName>
         </h1>
         <p class="mb-1 mt-2">{{ i.id }}</p>

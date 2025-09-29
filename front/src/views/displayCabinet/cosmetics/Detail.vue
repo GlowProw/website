@@ -1,35 +1,43 @@
 <script setup lang="ts">
 
 import {useI18n} from "vue-i18n";
-import {onMounted, Ref, ref} from "vue";
-import {Modification, Modifications} from "glow-prow-data";
+import {onMounted, Ref, ref, watch} from "vue";
+import {Cosmetics, Modification} from "glow-prow-data";
 import {useRoute, useRouter} from "vue-router";
 import {useAuthStore} from "~/stores/userAccountStore";
-
-import ModName from "@/components/snbWidget/modName.vue";
-import Time from "@/components/Time.vue";
-import TimeView from "@/components/TimeView.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import CommentWidget from "@/components/CommentWidget.vue";
 import BySeasonWidget from "@/components/bySeasonWidget.vue";
-import WeaponModificationWidget from "@/components/snbWidget/weaponModificationWidget.vue";
-import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
-import ModDescription from "@/components/snbWidget/modDescription.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
+import {rarity} from "@/assets/sripts/index";
+import CosmeticName from "@/components/snbWidget/cosmeticName.vue";
+import CosmeticIconWidget from "@/components/snbWidget/cosmeticIconWidget.vue";
+import CosmeticDescription from "@/components/snbWidget/cosmeticDescription.vue";
+import Time from "@/components/Time.vue";
+import TimeView from "@/components/TimeView.vue";
+import ObtainableWidget from "@/components/ObtainableWidget.vue";
 
 const {t} = useI18n(),
     router = useRouter(),
     route = useRoute(),
     authStore = useAuthStore(),
-    mods = Modifications
+    cosmetics = Cosmetics,
+    rarityColorConfig = rarity.color
 
-let modDetailData: Ref<Modification> = ref({})
+let materialDetailData: Ref<Modification> = ref({})
+
+watch(() => route, (value) => {
+  if (value) {
+    const {id} = route.params
+    materialDetailData.value = cosmetics[id]
+  }
+}, {deep: true})
 
 onMounted(() => {
   const {id} = route.params
 
   if (id)
-    modDetailData.value = mods[id]
+    materialDetailData.value = cosmetics[id]
 })
 </script>
 
@@ -40,9 +48,9 @@ onMounted(() => {
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
       <v-breadcrumbs-item to="/display-cabinet">{{ t('displayCabinet.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item to="/display-cabinet/mods">{{ t('displayCabinet.mods.title') }}</v-breadcrumbs-item>
+      <v-breadcrumbs-item to="/display-cabinet/cosmetics">{{ t('displayCabinet.cosmetics.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item>{{ t('displayCabinet.mod.title') }}</v-breadcrumbs-item>
+      <v-breadcrumbs-item>{{ t('displayCabinet.cosmetic.title') }}</v-breadcrumbs-item>
     </v-container>
   </v-breadcrumbs>
   <v-divider></v-divider>
@@ -52,19 +60,16 @@ onMounted(() => {
         <v-row class="mt-5">
           <v-col cols="8">
             <h1 class="text-amber text-h2 singe-line">
-              <ModName :id="modDetailData.id" :grade="modDetailData.grade"></ModName>
+              <CosmeticName :id="materialDetailData.id" :isRarity="false"></CosmeticName>
             </h1>
             <p class="mt-2 mb-3">
               <v-icon icon="mdi-identifier"/>
-              {{ modDetailData.id || 'none' }}
+              {{ materialDetailData.id || 'none' }}
             </p>
 
             <div class="mt-5 d-flex ga-2">
-              <v-chip class="badge-flavor text-center tag-badge text-black" v-if="modDetailData.effectType">
-                {{ modDetailData.effectType }}
-              </v-chip>
-              <v-chip class="badge-flavor text-center tag-badge text-black" v-if="modDetailData.damageType">
-                {{ modDetailData.damageType }}
+              <v-chip class="badge-flavor text-center tag-badge text-black" v-if="materialDetailData.type">
+                {{ t(`displayCabinet.type.${materialDetailData.type}`) }}
               </v-chip>
             </div>
           </v-col>
@@ -72,9 +77,9 @@ onMounted(() => {
           <v-col cols="auto">
             <div class="d-flex ga-2">
               <v-btn v-if="authStore.isLogin">
-                <LikeWidget targetType="mod"
+                <LikeWidget targetType="cosmetic"
                             :isShowCount="true"
-                            :targetId="modDetailData.id">
+                            :targetId="materialDetailData.id">
                   <template v-slot:activate>
                     <v-icon icon="mdi-thumb-up"></v-icon>
                   </template>
@@ -96,25 +101,14 @@ onMounted(() => {
           <v-col cols="12" sm="12" md="8" lg="8" order="2" order-sm="1">
             <v-row>
               <div>
-                <ItemSlotBase size="130px">
-                  <ModIconWidget :id="modDetailData.id" :isClickOpenDetail="false" :isShowOpenDetail="false"></ModIconWidget>
+                <ItemSlotBase size="130px" class="d-flex justify-center align-center">
+                  <CosmeticIconWidget
+                      size="110"
+                      :id="materialDetailData.id" :isClickOpenDetail="false" :isShowOpenDetail="false"></CosmeticIconWidget>
                 </ItemSlotBase>
-                <WeaponModificationWidget :data="modDetailData"></WeaponModificationWidget>
               </div>
               <v-col>
-                <div v-for="(i,index) in modDetailData.variants" :key="index" class="mb-8">
-                  <div class="d-flex ga-2">
-                    <v-chip class="badge-flavor text-center tag-badge text-black"
-                            :to="`/display-cabinet/item/category/${tag}`"
-                            target="_blank"
-                            v-for="(tag, tagIndex) in i.itemType" :key="tagIndex">
-                      {{ t(`displayCabinet.type.${tag}`) }}
-                    </v-chip>
-                  </div>
-                  <div class="mt-3">
-                    <ModDescription :id="modDetailData.id" :variants="modDetailData.variants" :grade="modDetailData.grade" :type="i.itemType[0]"></ModDescription>
-                  </div>
-                </div>
+                <CosmeticDescription :id="materialDetailData.id"></CosmeticDescription>
               </v-col>
             </v-row>
             <v-divider class="mt-10 mb-6"></v-divider>
@@ -122,10 +116,10 @@ onMounted(() => {
             <v-row class="mb-5">
               <v-col cols="12" sm="12" lg="6" xl="6">
                 <template v-if="route.query.debug">
-                  {{ modDetailData }}
+                  {{ materialDetailData }}
                 </template>
-                <template v-if="modDetailData.id">
-                  <v-text-field :value="modDetailData.id" readonly
+                <template v-if="materialDetailData.id">
+                  <v-text-field :value="materialDetailData.id" readonly
                                 hide-details
                                 variant="underlined" density="compact">
                     <template v-slot:append-inner>
@@ -136,21 +130,26 @@ onMounted(() => {
               </v-col>
             </v-row>
 
-            <template v-if="modDetailData.id">
+            <template v-if="materialDetailData.id">
               <v-divider>评论</v-divider>
-              <CommentWidget :id="modDetailData.id" type="mod" placeholder=""></CommentWidget>
+              <CommentWidget :id="materialDetailData.id" type="cosmetic" placeholder=""></CommentWidget>
             </template>
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
-            <BySeasonWidget :data="modDetailData"></BySeasonWidget>
+            <BySeasonWidget
+                :data="materialDetailData.firstAppearingSeason"></BySeasonWidget>
+
+            <template v-if="materialDetailData.obtainable">
+              <ObtainableWidget :data="materialDetailData" byType="cosmetic"></ObtainableWidget>
+            </template>
 
             <v-row no-gutters align="center" class="mt-2">
               <v-col cols="auto">
                 <v-icon icon="mdi-calendar-range" class="mr-3"></v-icon>
               </v-col>
               <v-col>
-                <TimeView class="mt-1" :time="modDetailData.dateAdded">
-                  <Time :time="modDetailData.dateAdded"/>
+                <TimeView class="mt-1" :time="materialDetailData.dateAdded">
+                  <Time :time="materialDetailData.dateAdded"/>
                 </TimeView>
               </v-col>
               <v-col cols="auto">
@@ -163,8 +162,8 @@ onMounted(() => {
                 <v-icon icon="mdi-calendar-range" class="mr-3"></v-icon>
               </v-col>
               <v-col>
-                <TimeView class="mt-1" :time="modDetailData.lastUpdated">
-                  <Time :time="modDetailData.lastUpdated"/>
+                <TimeView class="mt-1" :time="materialDetailData.lastUpdated">
+                  <Time :time="materialDetailData.lastUpdated"/>
                 </TimeView>
               </v-col>
               <v-col cols="auto">
@@ -206,10 +205,6 @@ onMounted(() => {
       width: 300px;
       min-height: 300px;
     }
-  }
-
-  .raw-list {
-    list-style-type: none !important;
   }
 }
 </style>

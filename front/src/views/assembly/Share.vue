@@ -207,7 +207,9 @@ const generateQRCode = async (text) => {
           </v-chip>
         </div>
 
-        <Textarea class="mt-5" v-if="assemblyDetailData.description" readonly v-model="assemblyDetailData.description"></Textarea>
+        <Textarea class="mt-5" v-if="assemblyDetailData.description"
+                  :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
+                  readonly v-model="assemblyDetailData.description"></Textarea>
 
         <v-row class="opacity-80 mt-5" v-show="!assemblyLoading">
           <v-col>

@@ -187,7 +187,7 @@ const onDisplayCabinetHistory = () => {
 
         <v-img :src="shipDetailPageData.img"
                inline
-               class="material-detail-header-img pointer-events-none"></v-img>
+               class="cosmetic-detail-header-img pointer-events-none"></v-img>
       </v-container>
     </div>
     <div class="background-flavor">
@@ -370,7 +370,7 @@ const onDisplayCabinetHistory = () => {
       background-size: cover;
     }
 
-    .material-detail-header-img {
+    .cosmetic-detail-header-img {
       position: absolute;
       z-index: -1;
       right: 20px;

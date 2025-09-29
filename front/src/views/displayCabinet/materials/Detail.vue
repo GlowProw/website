@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import {useI18n} from "vue-i18n";
-import {nextTick, onMounted, Ref, ref, watch} from "vue";
+import {onMounted, Ref, ref, watch} from "vue";
 import {Materials, Modification} from "glow-prow-data";
 import {useRoute, useRouter} from "vue-router";
 import {useAuthStore} from "~/stores/userAccountStore";
@@ -53,8 +53,8 @@ onMounted(() => {
     </v-container>
   </v-breadcrumbs>
   <v-divider></v-divider>
-  <div class="material-detail">
-    <div class="material-detail-header background-dot-grid">
+  <div class="cosmetic-detail">
+    <div class="cosmetic-detail-header background-dot-grid">
       <v-container class="position-relative">
         <v-row class="mt-5">
           <v-col cols="8">
@@ -178,8 +178,8 @@ onMounted(() => {
 </template>
 
 <style scoped lang="less">
-.material-detail {
-  .material-detail-header {
+.cosmetic-detail {
+  .cosmetic-detail-header {
     background-color: #000;
     position: relative;
     padding-bottom: 40px;
@@ -198,7 +198,7 @@ onMounted(() => {
       background-size: cover;
     }
 
-    .material-detail-header-img {
+    .cosmetic-detail-header-img {
       position: absolute;
       right: 20px;
       bottom: -120px;

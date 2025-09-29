@@ -23,7 +23,9 @@ import ItemCategoryDetailPage from '../src/views/displayCabinet/items/Category.v
 import ModsPage from '@/views/displayCabinet/mods/Index.vue'
 import ModDetailPage from '@/views/displayCabinet/mods/Detail.vue'
 import MaterialsPage from '../src/views/displayCabinet/materials/Index.vue'
-import MaterialsDetailPage from '../src/views/displayCabinet/materials/Detail.vue'
+import MaterialDetailPage from '../src/views/displayCabinet/materials/Detail.vue'
+import CosmeticsPage from '../src/views/displayCabinet/cosmetics/Index.vue'
+import CosmeticDetailPage from '../src/views/displayCabinet/cosmetics/Detail.vue'
 import empireSkillSimulationPage from '../src/views/empireSkillSimulation/Index.vue'
 
 import UltimatesPage from '../src/views/displayCabinet/ultimates/Index.vue'
@@ -288,14 +290,31 @@ const routes: Readonly<RouteRecordRaw[]> = [
             },
             {
                 path: 'material/:id',
-                name: 'MaterialsDetail',
+                name: 'MaterialDetail',
                 meta: {
                     title: 'displayCabinet.material.title',
                     keywords: 'displayCabinet.material.meta.keywords'
                 },
-                component: MaterialsDetailPage,
+                component: MaterialDetailPage,
             },
-
+            {
+                path: 'cosmetics',
+                name: 'Cosmetics',
+                meta: {
+                    title: 'displayCabinet.cosmetics.title',
+                    keywords: 'displayCabinet.cosmetics.meta.keywords'
+                },
+                component: CosmeticsPage,
+            },
+            {
+                path: 'cosmetic/:id',
+                name: 'MaterialsDetail',
+                meta: {
+                    title: 'displayCabinet.cosmetic.title',
+                    keywords: 'displayCabinet.cosmetic.meta.keywords'
+                },
+                component: CosmeticDetailPage,
+            },
         ]
     },
     {

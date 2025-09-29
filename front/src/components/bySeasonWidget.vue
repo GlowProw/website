@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {useItemAssetsStore} from "~/stores/itemAssetsStore";
-import {computed, nextTick, onMounted, ref, watch} from "vue";
+import {nextTick, onMounted, ref, watch} from "vue";
 import {Item, Material, Ship} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 import {useDisplay} from "vuetify/framework";
@@ -10,7 +10,7 @@ const seasonImages = import.meta.glob('@/assets/videos/*', {eager: true});
 const {serializationMap} = useItemAssetsStore(),
     {t} = useI18n(),
     {mobile} = useDisplay(),
-    props = defineProps<{ data: Item | Ship | Material }>()
+    props = defineProps<{ data: Item | Ship | Material | unknown }>()
 
 let images = ref({}),
     currentSeasonBanner = ref('release')
