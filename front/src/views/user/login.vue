@@ -4,6 +4,8 @@ import {useAuthStore} from '~/stores/userAccountStore'
 import {useRoute, useRouter} from "vue-router";
 import {api, http} from "@/assets/sripts";
 import {useI18n} from "vue-i18n";
+import {useNoticeStore} from "~/stores/noticeStore";
+import {AxiosError} from "axios";
 
 import Captcha from "@/components/captcha/index.vue";
 import RulesUser from "@/assets/sripts/rules_user"
@@ -11,11 +13,10 @@ import RulesUser from "@/assets/sripts/rules_user"
 const authStore = useAuthStore(),
     router = useRouter(),
     route = useRoute(),
+    notice = useNoticeStore(),
     {t} = useI18n();
 
-let messages = ref([]),
-
-    loginFormLoading = ref(false),
+let loginFormLoading = ref(false),
     loginRules = ref({
       username: RulesUser.username,
       password: RulesUser.password,
@@ -52,8 +53,8 @@ const onLogin = async () => {
 
     await router.push('/')
   } catch (e) {
-    if (e instanceof Error)
-      messages.value.push(t(`basic.tips.${e.response.data.code}`, {
+    if (e instanceof AxiosError)
+      notice.error(t(`basic.tips.${e.response.data.code}`, {
         context: e.response.data.code
       }))
   } finally {
@@ -121,8 +122,6 @@ const onCaptchaData = (data: any) => {
       </v-card>
     </v-container>
   </div>
-
-  <v-snackbar-queue v-model="messages"></v-snackbar-queue>
 </template>
 
 <style scoped>

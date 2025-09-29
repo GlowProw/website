@@ -5,15 +5,18 @@ import {computed, onMounted, Ref, ref} from "vue";
 import {useHttpToken} from "@/assets/sripts/http_util";
 import {api} from "@/assets/sripts/index";
 import {useI18n} from "vue-i18n";
-import PrivilegesTagWidget from "@/components/PrivilegesTagWidget.vue";
-import UserAvatar from "@/components/UserAvatar.vue";
 import {useRoute, useRouter} from "vue-router";
+import {useNoticeStore} from "~/stores/noticeStore";
+
+import PrivilegesTagWidget from "@/components/PrivilegesTagWidget.vue";
 import Textarea from "@/components/textarea"
+import UserAvatar from "@/components/UserAvatar.vue";
 
 import languages from "@/../public/config/languages.json"
 
 const authStore = useAuthStore(),
     httpToken = useHttpToken(),
+    notice = useNoticeStore(),
     route = useRoute(),
     router = useRouter(),
     {t} = useI18n()
@@ -28,9 +31,6 @@ let
     }),
     userAlternativeNameLoading = ref(false),
     userAccountAttrLoading = ref(false),
-
-    messages = ref([]),
-
     alternativeNameModel = ref(false),
     alternativeNameFrom: Ref<H> = ref(null),
     alternativeNameData = ref({
@@ -105,15 +105,15 @@ const onChangePassword = async () => {
     if (d.error == 1)
       return Error(d)
 
-    messages.value.push(t(`basic.tips.${d.code}`))
+    notice.success(t(`basic.tips.${d.code}`))
     authStore.logout()
     await router.push({name: 'AccountInformation'})
   } catch (e) {
-    console.error(e)
     if (e instanceof Error)
-      messages.value.push(t(`basic.tips.${e.response.data.code}`, {
+      notice.error(t(`basic.tips.${e.response.data.code}`, {
         context: e.response.data.code
       }))
+    console.error(e)
   } finally {
     changePasswordLoading.value = false
     changePasswordModel.value = false
@@ -156,13 +156,13 @@ const onSaveAccountAttr = async () => {
     if (d.error == 1)
       return Error(d)
 
-    messages.value.push(t(`basic.tips.${d.code}`))
+    notice.success(t(`basic.tips.${d.code}`))
   } catch (e) {
-    console.error(e)
-    if (e instanceof Error)
-      messages.value.push(t(`basic.tips.${e.response.data.code}`, {
+    if (e instanceof AxiosError)
+      notice.error(t(`basic.tips.${e.response.data.code}`, {
         context: e.response.data.code
       }))
+    console.error(e)
   } finally {
     userAccountAttrLoading.value = false
   }
@@ -190,14 +190,15 @@ const onChangeAlternativeName = async () => {
     authStore.updateAccountAttr({
       alternativeName: alternativeNameData.value.data.username
     })
+
     userAccountData.value.alternativeName = alternativeNameData.value.data.username
-    messages.value.push(t(`basic.tips.${d.code}`))
+    notice.success(t(`basic.tips.${d.code}`))
   } catch (e) {
-    console.error(e)
     if (e instanceof Error)
-      messages.value.push(t(`basic.tips.${e.response.data.code}`, {
+      notice.error(t(`basic.tips.${e.response.data.code}`, {
         context: e.response.data.code
       }))
+    console.error(e)
   } finally {
     alternativeNameData.value.data.username = ''
     userAlternativeNameLoading.value = false
@@ -394,8 +395,6 @@ const onChangeAlternativeName = async () => {
       </v-btn>
     </v-row>
   </div>
-
-  <v-snackbar-queue v-model="messages"/>
 </template>
 
 <style scoped lang="less">

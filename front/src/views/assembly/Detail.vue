@@ -20,11 +20,13 @@ import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
 import AssemblyMainSubjectView from "@/components/AssemblyMainSubjectView.vue";
+import {useNoticeStore} from "~/stores/noticeStore";
 
 const route = useRoute(),
     router = useRouter(),
     http = useHttpToken(),
     authStore = useAuthStore(),
+    notice = useNoticeStore(),
     {t} = useI18n(),
     {asString} = useI18nUtils()
 
@@ -42,7 +44,6 @@ let detailData = ref({
     assemblyMainSubjectView = ref(null),
     assemblyLoading = ref(false),
     password = ref(''),
-    messages = ref([]),
 
     // meta
     head = ref({
@@ -99,11 +100,11 @@ const getAssemblyDetail = async (force: boolean = false) => {
     detailData.value.description = decodeURI(detailData.value.description || '这个人很懒什么,对此配装什么都没说')
 
   } catch (e) {
-    console.error(e)
     if (e instanceof Error)
-      messages.value.push(t(`basic.tips.${e.response.data.code}`, {
+      notice.error(t(`basic.tips.${e.response.data.code}`, {
         context: e.response.data.code
       }))
+    console.error(e)
   } finally {
     assemblyLoading.value = false
   }
@@ -350,8 +351,6 @@ const onPenPassword = () => {
       </div>
     </v-card>
   </v-container>
-
-  <v-snackbar-queue v-model="messages"></v-snackbar-queue>
 </template>
 
 <style scoped lang="less">
