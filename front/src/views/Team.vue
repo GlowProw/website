@@ -109,7 +109,7 @@ const getTeams = async (type: getTeamsType = getTeamsType.none) => {
                 )
             ),
           }),
-          d = result.itemData;
+          d = result.data;
 
       if (d.error == 1) {
         throw Error(d.code)
@@ -117,16 +117,16 @@ const getTeams = async (type: getTeamsType = getTeamsType.none) => {
 
       switch (type) {
         case 0:
-          _teams.value = d.itemData || [];
+          _teams.value = d.data || [];
           break;
         case 1:
-          _teams.value.push(...d.itemData)
+          _teams.value.push(...d.data)
           break;
       }
       resolve(_teams.value);
     } catch (e) {
       if (e instanceof Error)
-        notice.error(t(`basic.tips.${e.response.itemData.code.replace('.', '_')}`))
+        notice.error(t(`basic.tips.${e.response.data.code.replace('.', '_')}`))
       else
         console.error(e)
     } finally {
@@ -289,7 +289,7 @@ const initWss = () => {
  */
 const onWss = () => {
   ws.client.onmessage = function (event: any) {
-    const data = JSON.parse(event.itemData);
+    const data = JSON.parse(event.data);
     teams.value = []
 
     switch (data.type) {

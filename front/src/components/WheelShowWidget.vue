@@ -34,7 +34,7 @@ let show = ref(false),
       const wheelSlotCount = wheelCount * wheelSlotMax
       let szatistical = 0
 
-      wheelTabs.value.forEach(i => i.itemData.forEach(j => j == null ? szatistical++ : null))
+      wheelTabs.value.forEach(i => i.data.forEach(j => j == null ? szatistical++ : null))
 
       return szatistical == wheelSlotCount
     })
@@ -59,7 +59,7 @@ const onAddItem = (index) => {
  * 插入物品
  */
 const onInsertSlot = () => {
-  const currentTabData = wheelTabs.value[wheelTabValue.value].itemData
+  const currentTabData = wheelTabs.value[wheelTabValue.value].data
 
   const existingIndex = currentTabData.findIndex(item =>
       item && item.id === selectWheelValue.value.id
@@ -78,7 +78,7 @@ const onInsertSlot = () => {
  * @param index
  */
 const onSlotRemove = (index: number) => {
-  wheelTabs.value[wheelTabValue.value].itemData[index] = null
+  wheelTabs.value[wheelTabValue.value].data[index] = null
 }
 
 /**
@@ -177,7 +177,7 @@ defineExpose({
       <v-tabs-window-item :value="tabIndex" v-for="(tab, tabIndex) in wheelTabs" :key="tabIndex">
         <div class="wheel-box">
           <div class="wheel" :style="{ transform: `rotate(${rotation}deg)` }">
-            <template v-for="(i,index) in tab.itemData" :key="index">
+            <template v-for="(i,index) in tab.data" :key="index">
 
               <!-- 1 -->
               <v-badge :color="`rgb(57 57 57)`" :location="'bottom center'" class="slot" v-if="(index + 1) % 2">
@@ -187,7 +187,7 @@ defineExpose({
                   <ItemSlotBase size="90px"
                                 :padding="0"
                                 @click=" readonly ? null :onAddItem(index)"
-                                v-if="!wheelTabs[wheelTabValue].itemData[index]?.id"
+                                v-if="!wheelTabs[wheelTabValue].data[index]?.id"
                                 class="overflow-hidden d-flex justify-center align-center">
                     <v-icon size="40">
                       {{ !readonly ? 'mdi-plus' : 'mdi-close' }}
@@ -195,7 +195,7 @@ defineExpose({
                   </ItemSlotBase>
 
                   <v-hover v-slot="{ isHovering, props }"
-                           v-else-if="wheelTabs[wheelTabValue].itemData[index]?.id">
+                           v-else-if="wheelTabs[wheelTabValue].data[index]?.id">
                     <v-card v-bind="props">
                       <ItemSlotBase size="90px" :padding="0"
                                     class="overflow-hidden d-flex justify-center align-center">
@@ -203,7 +203,7 @@ defineExpose({
                                         :margin="0"
                                         :is-open-detail="readonly"
                                         :is-show-tooltip="readonly"
-                                        :id="wheelTabs[wheelTabValue].itemData[index].id"></ItemIconWidget>
+                                        :id="wheelTabs[wheelTabValue].data[index].id"></ItemIconWidget>
                       </ItemSlotBase>
 
                       <v-overlay
@@ -229,7 +229,7 @@ defineExpose({
                         class="rounded-circle position-relative">
                   <ItemSlotBase size="90px"
                                 @click="readonly ? null :onAddItem(index)"
-                                v-if="wheelTabs[wheelTabValue].itemData[index] == null"
+                                v-if="wheelTabs[wheelTabValue].data[index] == null"
                                 :padding="0"
                                 class="rounded-circle d-flex justify-center align-center">
                     <v-icon size="40">
@@ -239,7 +239,7 @@ defineExpose({
 
 
                   <v-hover v-slot="{ isHovering, props }"
-                           v-else-if="wheelTabs[wheelTabValue].itemData[index] != null">
+                           v-else-if="wheelTabs[wheelTabValue].data[index] != null">
                     <div v-bind="props">
                       <ItemSlotBase size="90px"
                                     :padding="0"
@@ -248,7 +248,7 @@ defineExpose({
                                         :margin="0"
                                         :is-open-detail="readonly"
                                         :is-show-tooltip="readonly"
-                                        :id="wheelTabs[wheelTabValue].itemData[index].id"></ItemIconWidget>
+                                        :id="wheelTabs[wheelTabValue].data[index].id"></ItemIconWidget>
                       </ItemSlotBase>
 
                       <v-overlay

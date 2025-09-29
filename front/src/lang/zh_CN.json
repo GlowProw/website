@@ -179,7 +179,14 @@
       "majorFurniture": "主要家具",
       "shipUpgrade": "升级部件",
       "quest": "任务",
-      "contract": "合同"
+      "contract": "合同",
+      "specialized": "特殊",
+      "refined": "精炼",
+      "currency": "货币",
+      "helm": "掌舵",
+      "scrap": "废弃材料",
+      "raw": "原材料",
+      "exotic": "奇异"
     },
     "tier": "{num}级",
     "category": {

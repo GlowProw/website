@@ -85,11 +85,11 @@ const getBrowseList = async () => {
             updatedEnd,
           }
         }),
-        d = result.itemData;
+        d = result.data;
 
     if (d.error) return;
 
-    browseData.value = d.itemData;
+    browseData.value = d.data;
   } finally {
     browseLoading.value = false
   }

@@ -24,12 +24,12 @@ const getMyAssemblysData = async () => {
   try {
     loading.value = true;
     const result = await http.get(api['user_me_assemblys']),
-        d = result.itemData
+        d = result.data
 
     if (d.error == 1)
       return;
 
-    userAssemblysData.value = d.itemData;
+    userAssemblysData.value = d.data;
   } finally {
     loading.value = false;
   }
@@ -42,7 +42,7 @@ const getMyAssemblysData = async () => {
       <Loading></Loading>
     </v-overlay>
 
-    <v-card v-for="(i,index) in userAssemblysData.itemData" :key="index" class="mb-2 pl-4" v-if="userAssemblysData.itemData && userAssemblysData.itemData.length > 0">
+    <v-card v-for="(i,index) in userAssemblysData.data" :key="index" class="mb-2 pl-4" v-if="userAssemblysData.data && userAssemblysData.data.length > 0">
       <v-row align="stretch">
         <v-col>
           <div class="mx-5 my-3">

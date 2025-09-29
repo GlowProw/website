@@ -4,6 +4,7 @@ import {onMounted, ref, useSlots, watch} from 'vue';
 import Loading from "./Loading.vue";
 import {useI18n} from "vue-i18n";
 import {AxiosError} from "axios";
+import {useNoticeStore} from "~/stores/noticeStore.js";
 
 const props = defineProps({
   class: String,
@@ -23,12 +24,12 @@ onMounted(() => {
 
 const likeStore = useLikeStore(),
     slot = useSlots(),
-    {t} = useI18n()
+    {t} = useI18n(),
+    notice = useNoticeStore()
 
 let isLiked = ref(false),
     likeCount = ref(0),
-    likeLoading = ref(false),
-    messages = ref([])
+    likeLoading = ref(false)
 
 /**
  * 初始化检查点赞状态
@@ -36,18 +37,24 @@ let isLiked = ref(false),
  */
 const onReady = async () => {
   try {
+    if (!props.userId || !props.targetType || !props.targetId) {
+      console.log('not id', props)
+      return ;
+    }
+
     likeLoading.value = true;
 
     isLiked.value = await likeStore.checkLike(props.userId, props.targetType, props.targetId);
     likeCount.value = await likeStore.getLikeCount(props.targetType, props.targetId);
   } catch (e) {
+    if (e instanceof AxiosError)
+      notice.error({
+        text: t(`basic.tips.${e.response.data.code}`, {
+          context: e instanceof AxiosError ? e.response.data.code : e.code || e.message || ''
+        }),
+        color: 'error'
+      })
     console.error(e)
-    messages.value.push({
-      text: t(`basic.tips.${e.response.data.code}`, {
-        context: e instanceof AxiosError ? e.response.data.code : e.code || e.message || ''
-      }),
-      color: 'error'
-    })
   } finally {
     likeLoading.value = false;
   }
@@ -64,13 +71,14 @@ const handleLike = async () => {
     isLiked.value = await likeStore.toggleLike(props.userId, props.targetType, props.targetId);
     likeCount.value = await likeStore.getLikeCount(props.targetType, props.targetId);
   } catch (e) {
+    if (e instanceof AxiosError)
+      notice.error({
+        text: t(`basic.tips.${e.response.data.code}`, {
+          context: e instanceof AxiosError ? e.response.data.code : e.code || e.message || ''
+        }),
+        color: 'error'
+      })
     console.error(e)
-    messages.value.push({
-      text: t(`basic.tips.${e.response.data.code}`, {
-        context: e instanceof AxiosError ? e.response.data.code : e.code || e.message || ''
-      }),
-      color: 'error'
-    })
   } finally {
     likeLoading.value = false;
   }
@@ -96,5 +104,4 @@ const handleLike = async () => {
       </span>
     </template>
   </div>
-  <v-snackbar-queue v-model="messages"></v-snackbar-queue>
 </template>

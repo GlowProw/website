@@ -6,7 +6,7 @@ const materialImages = import.meta.glob('@glow-prow-assets/materials/*.*', {eage
 const props = withDefaults(defineProps<{
       id: string | undefined,
       imageType?: string,
-      size?: string
+      size?: string | number
     }>(), {
       size: 20
     }),

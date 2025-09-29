@@ -23,12 +23,12 @@ const getMyTeamUpsData = async () => {
   try {
     loading.value = true;
     const result = await http.get(api['user_me_teamups']),
-        d = result.itemData
+        d = result.data
 
     if (d.error == 1)
       return;
 
-    userTeamUpData.value = d.itemData;
+    userTeamUpData.value = d.data;
   } finally {
     loading.value = false;
   }
@@ -41,7 +41,7 @@ const getMyTeamUpsData = async () => {
       <Loading></Loading>
     </v-overlay>
 
-    <v-card v-for="(i,index) in userTeamUpData.itemData" :key="index" class="mb-2 pa-2 pl-4" v-if="userTeamUpData.itemData && userTeamUpData.itemData.length > 0">
+    <v-card v-for="(i,index) in userTeamUpData.data" :key="index" class="mb-2 pa-2 pl-4" v-if="userTeamUpData.data && userTeamUpData.data.length > 0">
       <v-row align="center">
         <v-col cols="12">
           <div class="font-weight-bold text-h5 text-amber">{{ i.description }}</div>

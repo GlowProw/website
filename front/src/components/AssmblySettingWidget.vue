@@ -61,7 +61,7 @@ const delAssembly = async () => {
     const result = await http.post(api['assembly_delete'], {
           data: {uuid},
         }),
-        d = result.itemData;
+        d = result.data;
 
     if (d.error == 1)
       throw Error(d.message || d.code);

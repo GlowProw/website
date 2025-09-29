@@ -3,6 +3,8 @@ import ModName from "@/components/snbWidget/modName.vue";
 import ModDescription from "@/components/snbWidget/modDescription.vue";
 import {onMounted, ref} from "vue";
 import {Item} from "glow-prow-data";
+import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
+import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 
 const modImages = import.meta.glob('@glow-prow-assets/modifications/*.*', {eager: true});
 const props = defineProps<{ itemData: Item, modData: [] }>()
@@ -37,7 +39,7 @@ const onReady = () => {
        class="ml-n2"
        :key="modIndex">
     <v-row no-gutters>
-      <v-col cols="auto" class="d-flex justify-center align-center ma-2">
+      <v-col cols="auto" class="d-flex justify-center align-center">
         <v-card
             class="pa-1"
             variant="flat"
@@ -49,7 +51,10 @@ const onReady = () => {
         <template v-if="mod.value">
           <v-card tile
                   variant="flat"
-                  class="bg-transparent h-100 px-2 d-flex align-center">
+                  class="bg-transparent h-100 d-flex align-center">
+            <ItemSlotBase size="36px">
+              <ModIconWidget :id="mod.value.id"></ModIconWidget>
+            </ItemSlotBase>
             <div class="w-100 text-caption">
               <ModName :id="mod.value.id" :grade="mod.value.grade"></ModName>
               <ModDescription :id="mod.value.id" :variants="mod.value.variants" :grade="mod.value.grade" :type="itemData.type"></ModDescription>

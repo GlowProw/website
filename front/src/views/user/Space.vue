@@ -76,12 +76,12 @@ const getUserInfo = async () => {
     const result = await http.get(api['user_info'], {
           params: {id}
         }),
-        d = result.itemData
+        d = result.data
 
     if (d.error == 1)
       return;
 
-    userData.value = d.itemData;
+    userData.value = d.data;
   } finally {
     loading.value.userInfo = false;
   }
@@ -100,12 +100,12 @@ const getMyTeamUpsData = async () => {
     const result = await http.get(api['user_space_teamups'], {
           params: {id}
         }),
-        d = result.itemData
+        d = result.data
 
     if (d.error == 1)
       return;
 
-    userTeamUpData.value = d.itemData;
+    userTeamUpData.value = d.data;
   } finally {
     loading.value.teamUp = false;
   }
@@ -124,12 +124,12 @@ const getAssemblysData = async () => {
     const {id} = route.params
 
     const result = await http.get(api['user_space_assemblys'], {params: {id}}),
-        d = result.itemData
+        d = result.data
 
     if (d.error == 1)
       return;
 
-    userAssemblysData.value = d.itemData;
+    userAssemblysData.value = d.data;
   } finally {
     loading.value.assembly = false;
   }

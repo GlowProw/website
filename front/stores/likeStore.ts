@@ -23,7 +23,7 @@ export const useLikeStore = defineStore('like', {
             const httpToken = useHttpToken()
             const result = await httpToken.get(`likes/check?userId=${userId}&targetType=${targetType}&targetId=${targetId}`);
 
-            const {isLiked} = result.itemData;
+            const {isLiked} = result.data;
 
             if (isLiked) this.likedTargets.set(`${targetType}_${targetId}`, true);
             return isLiked;
@@ -45,7 +45,7 @@ export const useLikeStore = defineStore('like', {
             const result = await httpToken.post('likes/toggle', {
                 data: {userId, targetType, targetId},
             });
-            const {isLiked} = result.itemData;
+            const {isLiked} = result.data;
 
             const key = `${targetType}_${targetId}`;
             if (isLiked) {
@@ -64,7 +64,7 @@ export const useLikeStore = defineStore('like', {
          */
         async getLikeCount(targetType, targetId) {
             const result = await http.get(`likes/count?targetType=${targetType}&targetId=${targetId}`);
-            const {likeCount} = result.itemData;
+            const {likeCount} = result.data;
             return likeCount;
         },
     },

@@ -74,7 +74,7 @@ onMounted(() => {
                 {{ materialDetailData.damageType }}
               </v-chip>
               <v-chip class="badge-flavor text-center tag-badge text-black" v-if="materialDetailData.category">
-                {{ materialDetailData.category }}
+                {{ t(`displayCabinet.type.${materialDetailData.category}`) }}
               </v-chip>
               <v-chip class="badge-flavor text-center tag-badge text-black"
                       v-if="materialDetailData.rarity">

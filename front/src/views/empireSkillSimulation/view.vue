@@ -22,7 +22,7 @@
 
         <v-spacer></v-spacer>
 
-        <span class="ml-3 text-caption opacity-60">{{svgTransform.x}} {{svgTransform.y}}</span>
+        <span class="ml-3 text-caption opacity-60">{{ svgTransform.x }} {{ svgTransform.y }}</span>
       </div>
     </div>
 
@@ -80,11 +80,11 @@
           </template>
           <template v-else>
             <!-- 选择模拟，预览对应 -->
-            {{ t(`snb.empireSkills.${skills[selectShowKey] && skills[selectShowKey].id}.effects.${skillPointsInput[selectShowKey] || '1'}`, { ...skills[selectShowKey].attr }) }}
+            {{ t(`snb.empireSkills.${skills[selectShowKey] && skills[selectShowKey].id}.effects.${skillPointsInput[selectShowKey] || '1'}`, {...skills[selectShowKey].attr}) }}
           </template>
         </template>
         <template v-else-if="skills[selectShowKey] && skills[selectShowKey].stage && skills[selectShowKey].stage == 1">
-          {{ t(`snb.empireSkills.${skills[selectShowKey] && skills[selectShowKey].id}.effects.general`, { ...skills[selectShowKey].attr }) || t('empireSkillSimulation.effectsNotContent') }}
+          {{ t(`snb.empireSkills.${skills[selectShowKey] && skills[selectShowKey].id}.effects.general`, {...skills[selectShowKey].attr}) || t('empireSkillSimulation.effectsNotContent') }}
         </template>
       </div>
 
@@ -111,10 +111,10 @@
             <v-list-item v-for="(i, key) in skills[selectShowKey].requiredCost" :key="key" class="pt-0">
               <v-row no-gutters align="start">
                 <v-col class="d-flex justify-start align-center">
-                  <ItemSlotBase size="60">
+                  <ItemSlotBase :size="`35px`" :padding="0">
                     <MaterialIconWidget :id="key" item-type="items"></MaterialIconWidget>
                   </ItemSlotBase>
-                  <span class="ml-2">{{ t(`snb.materials.${key}.name`) }}</span>
+                  <span class="ml-2"><MaterialName :id="key"></MaterialName></span>
                 </v-col>
                 <v-col class="d-flex justify-end">
                   <v-breadcrumbs
@@ -228,6 +228,7 @@ import {number} from "@/assets/sripts/index";
 import {useRoute, useRouter} from "vue-router";
 import Time from "@/components/Time.vue";
 import TimeView from "@/components/TimeView.vue";
+import MaterialName from "@/components/snbWidget/materialName.vue";
 
 interface SkillData {
   id: string;
@@ -385,7 +386,7 @@ const searchAndLocate = () => {
 
   root.descendants().forEach(node => {
     const skillData = node.data.data;
-    const skillName = t(`snb.empireSkills.${node.id}.name`).toLowerCase();
+    const skillName = t(`snb.empireSkills.${skillData.id}.name`);
     const categoryName = skillData.type ? t(`snb.factions.${skillData.type}.name`).toLowerCase() : '';
 
     if (
@@ -475,13 +476,13 @@ const updateSkillPointsText = () => {
 
   d3.select(svgRef.value).selectAll('.node-group').each(function (d: any) {
     const nodeElement = d3.select(this);
-    const skillKey = d.itemData.itemData.key;
+    const skillKey = d.data.data.key;
     const currentPoints = skillPointsInput.value[skillKey] || 0;
-    const maxStage = d.itemData.itemData.stage || 1;
+    const maxStage = d.data.data.stage || 1;
 
     // 找到文本元素并更新其内容
     nodeElement.select('.node-label')
-        .text(`${t(`snb.empireSkills.${d.itemData.itemData.id}.name`)} (${currentPoints}/${maxStage})`);
+        .text(`${t(`snb.empireSkills.${d.data.data.id}.name`)} (${currentPoints}/${maxStage})`);
 
     // 同时更新节点的激活状态，使其颜色也动态变化
     nodeElement.select('.node-rect')
@@ -616,7 +617,7 @@ const drawTree = () => {
         return `M${start.x},${start.y} L${mid.x},${mid.y} L${end.x},${end.y}`;
       });
 
-  const categoryGroups = d3.groups(root.descendants().filter(d => d.data.data.type), d => d.itemData.itemData.type);
+  const categoryGroups = d3.groups(root.descendants().filter(d => d.data.data.type), d => d.data.data.type);
 
   const categoryLabels = container.append("g")
       .attr("class", "category-labels")

@@ -10,6 +10,7 @@ import ModName from "@/components/snbWidget/modName.vue";
 import ModDescription from "@/components/snbWidget/modDescription.vue";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
+import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
 
 type WeaponModificationSize = '3' | '5' | '6' | '8'
 type WeaponModConfigType = Record<Rarity, any>;
@@ -303,12 +304,19 @@ defineExpose({
                     <template v-if="mod.value">
                       <v-row align="stretch">
                         <v-col>
-                          <v-card variant="tonal" class="pa-2 d-flex align-center">
-                            <v-img class="mr-4" :src="modIconImages[mod.value.id]" width="40px" height="40px"/>
-                            <div class="w-100">
-                              <ModName :id="mod.value.id" :grade="mod.value.grade"></ModName>
-                              <ModDescription :id="mod.value.id" :variants="mod.value.variants" :grade="mod.value.grade" :type="data.type"></ModDescription>
-                            </div>
+                          <v-card variant="tonal" class="pa-2">
+                            <v-row no-gutters>
+                              <v-col cols="auto">
+                                <v-card width="40px" height="40px" variant="plain" class="mr-2">
+                                  <ModIconWidget :id="mod.value.id"></ModIconWidget>
+                                </v-card>
+                              </v-col>
+                              <v-col>
+                                <ModName :id="mod.value.id" :grade="mod.value.grade"></ModName>
+                                <ModDescription :id="mod.value.id" :variants="mod.value.variants" :grade="mod.value.grade" :type="data.type"></ModDescription>
+                              </v-col>
+                            </v-row>
+
                           </v-card>
                         </v-col>
                         <v-divider vertical class="opacity-10"></v-divider>
@@ -362,7 +370,9 @@ defineExpose({
                             @dragstart="onDragStart($event, modItem)">
                           <v-row no-gutters>
                             <v-col cols="auto">
-                              <v-img class="ma-2" :src="modIconImages[modItem.id]" width="40px" height="40px"/>
+                              <v-card width="40px" height="40px" variant="plain" class="mr-2">
+                                <ModIconWidget :id="modItem.id"></ModIconWidget>
+                              </v-card>
                             </v-col>
                             <v-col>
                               <ModName :id="modItem.id" :grade="modItem.grade"></ModName>

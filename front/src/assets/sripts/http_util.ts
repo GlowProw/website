@@ -37,7 +37,7 @@ export function useHttpToken() {
     http.HTTP.interceptors.response.use(
         (response) => response,
         (error) => {
-            if (error.response && error.response.itemData && error.response.itemData.code === 'user.tokenExpired') {
+            if (error.response && error.response.data && error.response.data.code === 'user.tokenExpired') {
                 authStore.logout();
             }
             return Promise.reject(error);

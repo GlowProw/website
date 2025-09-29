@@ -34,7 +34,8 @@ let content = ref(''),
     captchaRef = ref(null)
 
 watch(() => props.id, () => {
-  getComment()
+  if (props.id)
+    getComment()
 })
 
 watch(() => content.value, (value) => {
@@ -67,11 +68,11 @@ const getComment = async () => {
 
     commentListData.value = d.data.data;
   } catch (e) {
-    console.error(e)
-    if (e instanceof Error)
+    if (e instanceof AxiosError)
       notice.error(t(`basic.tips.${e.response.data.code}`, {
         context: e.response.data.code
       }))
+    console.error(e)
   } finally {
     commentLoading.value = false
   }
@@ -84,6 +85,9 @@ const onPushComment = async () => {
   try {
     if (!content.value && commentPushLoading.value)
       return;
+
+    if (!props.id || !props.type)
+      return console.log('not id', props)
 
     commentPushLoading.value = true
 
@@ -109,11 +113,11 @@ const onPushComment = async () => {
 
     notice.success('comment.ok')
   } catch (e) {
-    console.error(e)
-    if (e instanceof Error)
+    if (e instanceof AxiosError)
       notice.error(t(`basic.tips.${e.response.data.code}`, {
         context: e.response.data.code
       }))
+    console.error(e)
   } finally {
     commentPushLoading.value = false
   }
@@ -149,6 +153,7 @@ const onDeleteComment = async (data: any) => {
         }),
         color: 'red'
       })
+    console.error(e)
   } finally {
     data.deleteLoading = false
   }

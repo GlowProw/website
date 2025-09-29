@@ -58,6 +58,7 @@ const onReady = async () => {
       variant="text"
       :to="isClickOpenDetail ? `/display-cabinet/mod/${id}` : ''"
       :class="`pa-${props.padding} cursor-pointer`"
+      target="_blank"
       height="100%"
       width="100%">
     <template v-if="modsData.icon">

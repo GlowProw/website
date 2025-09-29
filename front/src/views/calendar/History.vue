@@ -108,14 +108,14 @@ function transformCalendarData(calendarData: CalendarData): FormattedCalendar {
       const startDay = occurrence.day;
       const endDay = Math.min(
           startDay + event.duration - 1,
-          result[occurrence.month].itemData.length
+          result[occurrence.month].data.length
       );
 
       // 增加该月的事件计数
       result[occurrence.month].eventCount++;
 
       for (let day = startDay; day <= endDay; day++) {
-        const dayData = result[occurrence.month].itemData.find(
+        const dayData = result[occurrence.month].data.find(
             (d) => d.day === day
         );
         if (dayData) {
@@ -145,10 +145,10 @@ const getCalendarEventData = async () => {
             season: currentlySeason.value.id
           }
         }),
-        d = result.itemData;
+        d = result.data;
     if (result.error) throw new Error('Failed to load data');
 
-    seasonsCalendarEvents.value = d.itemData;
+    seasonsCalendarEvents.value = d.data;
     calendarLoading.value = false;
   } catch (err) {
     calendarLoading.value = false;
@@ -308,7 +308,7 @@ function getRemainingDays(): number | null {
             </v-row>
 
             <div class="calendar-line-day">
-              <div v-for="day in month.itemData" :key="day">
+              <div v-for="day in month.data" :key="day">
                 <template v-if="day.events.length">
                   <v-btn elevation block class="btn-flavor mt-4 w-100 font-weight-bold text-black">
                     {{ day.day }}日

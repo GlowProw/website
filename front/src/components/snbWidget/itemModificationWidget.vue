@@ -142,6 +142,7 @@ const onSwitchModShow = () => {
               <ItemSlotBase size="50px" class="mt-3">
                 <v-img :src="modIconImages[mod.id]"></v-img>
               </ItemSlotBase>
+
               <v-col cols="10">
                 <ModName :id="mod.id" :grade="mod.grade"></ModName>
                 <ModDescription :id="mod.id" :variants="mod.variants" :grade="mod.grade" :type="type"></ModDescription>

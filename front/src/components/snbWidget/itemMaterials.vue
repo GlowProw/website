@@ -72,23 +72,26 @@ const onStatisticsRawMaterial = () => {
               hide-details
               variant="underlined"
               density="compact">
-            <template v-slot:append-inner>
+            <template v-slot:append>
               <div class="text-right">
                 <p class="text-no-wrap">
-                  <MaterialName :id="i.id"></MaterialName>
+                  <a :href="`/display-cabinet/material/${i.id}`" target="_blank">
+                    <MaterialName :id="i.id"></MaterialName>
+                    <v-icon size="14">mdi-open-in-new</v-icon>
+                  </a>
                 </p>
                 <p class="text-no-wrap mt-n2 opacity-30" v-if="route.query.debug">{{ i.id }}</p>
               </div>
             </template>
             <template v-slot:prepend>
               <div class="d-flex ga-2">
-                <ItemSlotBase size="20px" :padding="0">
+                <ItemSlotBase size="25px" :padding="0">
                   <MaterialIconWidget :id="i.id" item-type="items"></MaterialIconWidget>
                 </ItemSlotBase>
-                <ItemSlotBase size="20px" :padding="0"
+                <ItemSlotBase size="25px" :padding="0"
                               v-if="materials[i.id].faction">
                   <FactionIconWidget :name="materials[i.id].faction.id"
-                                     size="20px"></FactionIconWidget>
+                                     size="25px"></FactionIconWidget>
                 </ItemSlotBase>
               </div>
             </template>
@@ -124,20 +127,23 @@ const onStatisticsRawMaterial = () => {
               hide-details
               variant="underlined"
               density="compact">
-            <template v-slot:append-inner>
+            <template v-slot:append>
               <div class="text-right">
                 <p class="text-no-wrap">
-                  <MaterialName :id="key"></MaterialName>
+                  <router-link :to="`/display-cabinet/material/${key}`" target="_blank">
+                    <MaterialName :id="key"></MaterialName>
+                    <v-icon size="12">mdi-open-in-new</v-icon>
+                  </router-link>
                 </p>
                 <p class="text-no-wrap mt-n2 opacity-30" v-if="route.query.debug">{{ key }}</p>
               </div>
             </template>
             <template v-slot:prepend>
               <div class="d-flex ga-2">
-                <ItemSlotBase size="20px" :padding="0">
+                <ItemSlotBase size="25px" :padding="0">
                   <MaterialIconWidget :id="key"></MaterialIconWidget>
                 </ItemSlotBase>
-                <ItemSlotBase size="20px" :padding="0"
+                <ItemSlotBase size="25px" :padding="0"
                               v-if="materials[key].faction">
                   <FactionIconWidget :name="materials[key].faction.id"></FactionIconWidget>
                 </ItemSlotBase>
@@ -154,22 +160,25 @@ const onStatisticsRawMaterial = () => {
                   hide-details
                   variant="underlined"
                   density="compact">
-                <template v-slot:append-inner>
+                <template v-slot:append>
                   <div class="text-right">
                     <p class="text-no-wrap">
-                      <MaterialName :id="raw.id"></MaterialName>
+                      <router-link :to="`/display-cabinet/material/${raw.id}`" target="_blank">
+                        <MaterialName :id="raw.id"></MaterialName>
+                        <v-icon size="12">mdi-open-in-new</v-icon>
+                      </router-link>
                     </p>
                   </div>
                 </template>
                 <template v-slot:prepend>
                   <div class="d-flex ga-2">
-                    <ItemSlotBase size="20px" :padding="0">
+                    <ItemSlotBase size="25px" :padding="0">
                       <MaterialIconWidget :id="raw.id" item-type="items"></MaterialIconWidget>
                     </ItemSlotBase>
-                    <ItemSlotBase size="20px" :padding="0"
+                    <ItemSlotBase size="25px" :padding="0"
                                   v-if="materials[raw.id].faction">
                       <FactionIconWidget :name="materials[raw.id].faction.id"
-                                         size="20px"></FactionIconWidget>
+                                         size="25px"></FactionIconWidget>
                     </ItemSlotBase>
                   </div>
                 </template>

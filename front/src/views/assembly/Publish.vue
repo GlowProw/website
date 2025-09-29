@@ -192,7 +192,7 @@ const onEdit = async () => {
     const result = await httpToken.post(api['assembly_edit'], {
           data: editPublishData
         }),
-        d = result.itemData;
+        d = result.data;
 
     if (d.error == 1)
       throw Error(d.message || d.code);
@@ -223,15 +223,15 @@ const onPublish = async () => {
     const result = await http.post(api['assembly_publish'], {
           data: onePublishData
         }),
-        d = result.itemData;
+        d = result.data;
 
     if (d.error == 1)
       throw Error(d);
 
     storageAssembly.delete(uid as string, StorageAssemblyType.Data)
     await router.push(
-        d.itemData['assembly.uuid'] ?
-            `/assembly/browse/${d.itemData['assembly.uuid']}/detail` :
+        d.data['assembly.uuid'] ?
+            `/assembly/browse/${d.data['assembly.uuid']}/detail` :
             `/assembly/browse`
     )
 
@@ -239,8 +239,8 @@ const onPublish = async () => {
   } catch (e) {
     console.error(e)
     if (e instanceof Error)
-      noticeStore.error(t(`basic.tips.${e.response.itemData.code}`, {
-        context: e.response.itemData.code
+      noticeStore.error(t(`basic.tips.${e.response.data.code}`, {
+        context: e.response.data.code
       }))
   } finally {
     publishLoading.value = false

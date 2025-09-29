@@ -125,7 +125,7 @@ const hasData = (name: string): boolean => {
   if (!props.modelValue)
     return false
 
-  const modelValue = toRaw(props.modelValue[name].itemData);
+  const modelValue = toRaw(props.modelValue[name].data);
   if (modelValue == null || modelValue.length > 0 || Object.keys(modelValue).length > 0) {
     return false;
   }

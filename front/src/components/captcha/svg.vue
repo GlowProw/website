@@ -157,7 +157,7 @@ const refreshCaptcha = async () => {
       }
     })
 
-    const d = res.itemData
+    const d = res.data
 
     if (d.success === 1) {
       // 储存验证码hash
@@ -165,8 +165,8 @@ const refreshCaptcha = async () => {
         [route.name]: 0
       }
 
-      hash.value = d.itemData["hash"]
-      content.value = d.itemData["content"]
+      hash.value = d.data["hash"]
+      content.value = d.data["content"]
 
       if (captcha?.data?.value && Object.keys(captcha.data.value).includes(route.name as string)) {
         // 会话持久对应时间加载

@@ -108,13 +108,13 @@ const getAssemblyDetail = async () => {
             uuid: uid,
           },
         }),
-        d = result.itemData;
+        d = result.data;
 
     if (d.error == 1)
       return;
 
-    assemblyDetailData.value = d.itemData;
-    shareData.value = d.itemData;
+    assemblyDetailData.value = d.data;
+    shareData.value = d.data;
   } finally {
     assemblyLoading.value = false;
   }
@@ -129,21 +129,21 @@ const loadAssemblyData = async () => {
           isShowItemName: d.assembly?.attr?.isShowItemName,
           assemblyUseVersion: d.assembly?.attr?.assemblyUseVersion
         })
-        .onLoad(d.assembly.itemData)
+        .onLoad(d.assembly.data)
 
     assemblyMainSubjectView.value.refs.wheel
         .setSetting({
           isShowItemName: d.wheel?.attr?.isShowItemName,
           assemblyUseVersion: d.wheel?.attr?.assemblyUseVersion
         })
-        .onLoad(d.wheel.itemData)
+        .onLoad(d.wheel.data)
 
     assemblyMainSubjectView.value.refs.warehouse
         .setSetting({
           isShowItemName: d.warehouse?.attr?.isShowItemName,
           assemblyUseVersion: d.warehouse?.attr?.assemblyUseVersion
         })
-        .onLoad(d.warehouse.itemData)
+        .onLoad(d.warehouse.data)
   })
 }
 

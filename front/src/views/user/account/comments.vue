@@ -26,12 +26,12 @@ const getMyCommentsData = async () => {
   try {
     loading.value = true;
     const result = await http.get(api['user_comments']),
-        d = result.itemData
+        d = result.data
 
     if (d.error == 1)
       return;
 
-    userCommentData.value = d.itemData;
+    userCommentData.value = d.data;
   } finally {
     loading.value = false;
   }
@@ -44,7 +44,7 @@ const getMyCommentsData = async () => {
       <Loading></Loading>
     </v-overlay>
 
-    <v-card v-for="(i,index) in userCommentData.itemData" :key="index" class="mb-2 pa-2 pl-4" v-if="userCommentData.itemData && userCommentData.itemData.length > 0">
+    <v-card v-for="(i,index) in userCommentData.data" :key="index" class="mb-2 pa-2 pl-4" v-if="userCommentData.data && userCommentData.data.length > 0">
       <v-row align="center">
         <div class="pa-3">
           <template v-if="i.targetType == 'item'">

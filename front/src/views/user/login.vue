@@ -40,12 +40,12 @@ const onLogin = async () => {
             captcha: captcha.value,
           }
         }),
-        d = result.itemData;
+        d = result.data;
 
     if (d.error == 1)
       return Error(d.message)
 
-    authStore.setAccountToken(d.itemData)
+    authStore.setAccountToken(d.data)
 
     if (route.query.backurl)
       return await router.push(route.query.backurl as string)
@@ -53,8 +53,8 @@ const onLogin = async () => {
     await router.push('/')
   } catch (e) {
     if (e instanceof Error)
-      messages.value.push(t(`basic.tips.${e.response.itemData.code}`, {
-        context: e.response.itemData.code
+      messages.value.push(t(`basic.tips.${e.response.data.code}`, {
+        context: e.response.data.code
       }))
   } finally {
     loginFormLoading.value = false
