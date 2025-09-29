@@ -26,7 +26,7 @@ import ItemName from "@/components/snbWidget/itemName.vue";
 import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import ItemContentWidget from "@/components/snbWidget/itemContentWidget.vue";
-import BySeasonWidget from "@/components/bySeasonWidget.vue";
+import BySeasonWidget from "@/components/BySeasonWidget.vue";
 import DamageIconWidget from "@/components/snbWidget/damageIconWidget.vue";
 import ItemMaterials from "@/components/snbWidget/itemMaterials.vue";
 import ObtainableWidget from "@/components/ObtainableWidget.vue";

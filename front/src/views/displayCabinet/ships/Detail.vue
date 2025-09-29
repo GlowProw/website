@@ -24,7 +24,7 @@ import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import ItemContentWidget from "@/components/snbWidget/itemContentWidget.vue";
 import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue";
-import BySeasonWidget from "@/components/bySeasonWidget.vue";
+import BySeasonWidget from "@/components/BySeasonWidget.vue";
 import ItemMaterials from "@/components/snbWidget/itemMaterials.vue";
 
 const shipImages = import.meta.glob('@glow-prow-assets/ships/*.png', {eager: true});
