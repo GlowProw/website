@@ -489,7 +489,7 @@ const updateSkillPointsText = () => {
 
     // 找到文本元素并更新其内容
     nodeElement.select('.node-label')
-        .text(`${t(`snb.empireSkills.${d.data.data.id}.name`)} (${currentPoints}/${maxStage})`);
+        .text(`${t(`snb.empireSkills.${d.data.data.id}.name`)} (${currentPoints}/${maxStage})`)
 
     // 同时更新节点的激活状态，使其颜色也动态变化
     nodeElement.select('.node-rect')
