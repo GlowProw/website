@@ -36,7 +36,6 @@ const onReady = () => {
 <template>
   <div v-for="(mod, modIndex) in modData"
        v-show="mod.value && mod.value.id != null"
-       class="ml-n2"
        :key="modIndex">
     <v-row no-gutters>
       <v-col cols="auto" class="d-flex justify-center align-center">

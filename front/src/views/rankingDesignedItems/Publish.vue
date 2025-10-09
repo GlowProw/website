@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import {useRoute, useRouter} from "vue-router";
-import {computed, ref, watch} from "vue";
+import {computed, onMounted, Ref, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {api, storageIntermediateTransfer} from "@/assets/sripts";
 import {StorageIntermediateTransferSaveType} from "@/assets/sripts/storage_assembly";
@@ -9,15 +9,13 @@ import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useNoticeStore} from "~/stores/noticeStore";
 
 import Textarea from "@/components/textarea/index.vue"
-import AssemblyMainSubjectView from "@/components/AssemblyMainSubjectView.vue";
 import Silk from "@/components/Silk.vue";
 import AssemblyTagsWidget from "@/components/AssemblyTagsWidget.vue";
-import AssemblySettingWidget from "@/components/AssmblySettingWidget.vue"
 
 // workshop data processing S
-import AssemblyDataProcessing from "@/assets/sripts/assembly_data_processing"
-import WheelDataProcessing from "@/assets/sripts/wheel_data_processing"
-import WarehouseDataProcessing from "@/assets/sripts/warehouse_data_processing"
+import RankingDesignedClassificationShow from "@/components/RankingDesignedClassificationShow.vue";
+import RankingDesignedItemsDataProcessing from "@/assets/sripts/ranking_designed_items_data_processing";
+import RankingDesignedMainSubjectView from "@/components/RankingDesignedMainSubjectView.vue";
 // workshop data processing E
 
 const route = useRoute(),
@@ -30,49 +28,30 @@ const route = useRoute(),
 
 let // 发布信息
     publishData = ref({
-      assembly: {
+      ranking: {
         visibility: 'publicly',
         tags: [],
         attr: {
-          password: '',
-          assemblyUseVersion: AssemblyDataProcessing.nowVersion,
+          useVersion: RankingDesignedItemsDataProcessing.nowVersion,
           language: locale.value,
           isComment: true,
           isLike: true
         }
       },
-      wheel: {
-        attr: {
-          wheelUseVersion: WheelDataProcessing.nowVersion
-        }
-      },
-      warehouse: {
-        attr: {
-          warehouseUseVersion: WarehouseDataProcessing.nowVersion
-        }
-      }
     } as {
       uuid: string,
       name: string,
       description: string,
-      assembly: {
+      ranking: {
         tags: any[],
         visibility: string,
         attr: any,
         data: any
       },
-      wheel?: {
-        attr?: any,
-        data: any
-      },
-      warehouse?: {
-        attr?: any,
-        data: any
-      }
     }),
     dataLoading = ref(false),
     publishLoading = ref(false),
-    assemblyMainSubjectView = ref(null),
+    rankingDesignedMainSubjectView: Ref<RankingDesignedMainSubjectView> = ref(null),
     formRules = {
       name: [
         v => !!v || 'Name is required',
@@ -85,16 +64,16 @@ let // 发布信息
     // 是否编辑模式
     isEditModel = computed(() => {
       switch (route.name) {
-        case 'EditAssembly':
+        case 'EditRankingDesignedItems':
           return true
         default:
-        case 'PublishAssembly':
+        case 'PublishRankingDesignedItems':
           return false
       }
     })
 
-watch(() => publishData.value.assembly.attr, () => {
-  onSetAssemblyData()
+watch(() => publishData.value.ranking.attr, () => {
+  onSetRankingData()
 }, {deep: true})
 
 watch(() => route, () => {
@@ -110,37 +89,27 @@ const onLoadData = () => {
   const {uid} = route.params;
 
   if (uid) {
-    const getLocalAssemblyData = storageIntermediateTransfer.get(uid as string, StorageIntermediateTransferSaveType.Data)
+    const getLocalAssemblyData = storageIntermediateTransfer.get(uid as string, {
+      saveType: StorageIntermediateTransferSaveType.Data,
+      category: 'ranking'
+    })
 
     if (getLocalAssemblyData.code != 0)
-      return noticeStore.error(t('basic.tips.assembly.error', {
-        context: '无法读取到本地数据'
+      return noticeStore.error(t('basic.tips.ranking.error', {
+        context: 'read local data error'
       }))
 
-    const {uuid, assembly, name, description, tags} = getLocalAssemblyData.data;
+    const {uuid, ranking, name, description, tags} = getLocalAssemblyData.data;
 
     publishData.value.uuid = uuid
     publishData.value.name = name || ''
     publishData.value.description = description || ''
 
-    publishData.value.assembly.data = assembly;
-    publishData.value.assembly.tags = tags || [];
-
-    if (getLocalAssemblyData.data.wheel)
-      publishData.value.wheel = {
-        ...publishData.value.wheel,
-        data: getLocalAssemblyData.data.wheel || null
-      };
-    if (getLocalAssemblyData.data.warehouse)
-      publishData.value.warehouse = {
-        ...publishData.value.warehouse,
-        data: getLocalAssemblyData.data.warehouse || null
-      }
+    publishData.value.ranking.data = ranking;
+    publishData.value.ranking.tags = tags || [];
 
     if (publishData && publishData.value) {
-      onSetAssemblyData()
-      onSetWheelData()
-      onSetWarehouseData()
+      onSetRankingData()
     }
   }
 
@@ -148,37 +117,15 @@ const onLoadData = () => {
 }
 
 /**
- * 设置配装视图数据
+ * 设置排行视图数据
  */
-const onSetAssemblyData = () => {
-  assemblyMainSubjectView.value.refs.assembly
+const onSetRankingData = () => {
+  console.log(rankingDesignedMainSubjectView.value.refs)
+  rankingDesignedMainSubjectView.value.refs.rankingDesignedRef
       .setSetting({
-        assemblyUseVersion: publishData.value.assembly.attr?.assemblyUseVersion || publishData.value.assembly.data.__version || AssemblyDataProcessing.nowVersion,
-        isShowItemName: publishData.value.assembly.attr?.isShowItemName || false
+        useVersion: publishData.value.ranking.attr?.assemblyUseVersion || publishData.value.ranking.data.__version || RankingDesignedItemsDataProcessing.nowVersion,
       })
-      .onLoad(publishData.value.assembly.data)
-}
-
-/**
- * 设置轮盘视图数据
- */
-const onSetWheelData = () => {
-  assemblyMainSubjectView.value.refs.wheel
-      .setSetting({
-        wheelUseVersion: publishData.value.wheel?.attr?.wheelUseVersion || publishData.value.wheel.data.__version || WheelDataProcessing.nowVersion,
-      })
-      .onLoad(publishData.value.wheel.data)
-}
-
-/**
- * 设置船仓视图数据
- */
-const onSetWarehouseData = () => {
-  assemblyMainSubjectView.value.refs.warehouse
-      .setSetting({
-        warehouseUseVersion: publishData.value.warehouse?.attr?.warehouseUseVersion || publishData.value.warehouse.data.__version || WarehouseDataProcessing.nowVersion,
-      })
-      .onLoad(publishData.value.warehouse.data)
+      .onLoad(publishData.value.ranking.data)
 }
 
 /**
@@ -189,16 +136,16 @@ const onEdit = async () => {
     publishLoading.value = true
     let editPublishData: any = publishData.value;
 
-    const result = await httpToken.post(api['assembly_edit'], {
-          data: editPublishData
-        }),
-        d = result.data;
-
-    if (d.error == 1)
-      throw Error(d.message || d.code);
-
-    storageIntermediateTransfer.delete(editPublishData.uuid as string, StorageIntermediateTransferSaveType.Data)
-    await router.push(`/assembly/browse/${editPublishData.uuid}/detail`)
+    // const result = await httpToken.post(api['assembly_edit'], {
+    //       data: editPublishData
+    //     }),
+    //     d = result.data;
+    //
+    // if (d.error == 1)
+    //   throw Error(d.message || d.code);
+    //
+    // storageAssembly.delete(editPublishData.uuid as string, StorageAssemblyType.Data)
+    // await router.push(`/assembly/browse/${editPublishData.uuid}/detail`)
 
     noticeStore.success(t(`basic.tips.${d.code}`))
   } catch (e) {
@@ -220,20 +167,20 @@ const onPublish = async () => {
     const {uid} = route.params;
     const onePublishData = publishData.value;
 
-    const result = await http.post(api['assembly_publish'], {
-          data: onePublishData
-        }),
-        d = result.data;
-
-    if (d.error == 1)
-      throw Error(d);
-
-    storageIntermediateTransfer.delete(uid as string, StorageIntermediateTransferSaveType.Data)
-    await router.push(
-        d.data['assembly.uuid'] ?
-            `/assembly/browse/${d.data['assembly.uuid']}/detail` :
-            `/assembly/browse`
-    )
+    // const result = await http.post(api['assembly_publish'], {
+    //       data: onePublishData
+    //     }),
+    //     d = result.data;
+    //
+    // if (d.error == 1)
+    //   throw Error(d);
+    //
+    // storageAssembly.delete(uid as string, StorageAssemblyType.Data)
+    // await router.push(
+    //     d.data['assembly.uuid'] ?
+    //         `/assembly/browse/${d.data['assembly.uuid']}/detail` :
+    //         `/assembly/browse`
+    // )
 
     noticeStore.success(t(`basic.tips.${d.code}`))
   } catch (e) {
@@ -300,10 +247,9 @@ const onUpdateTags = (data: any) => {
     </template>
   </v-card>
 
-  <!-- Workshop Share Preview S -->
-  <AssemblyMainSubjectView ref="assemblyMainSubjectView"
-                           @ready="onLoadData"></AssemblyMainSubjectView>
-  <!-- Workshop Share Preview E -->
+  <!-- Ranking Designed Widget Preview S -->
+  <RankingDesignedMainSubjectView ref="rankingDesignedMainSubjectView" @ready="onLoadData" readonly></RankingDesignedMainSubjectView>
+  <!-- Ranking Designed Widget Preview E -->
 
   <v-container>
     <v-form class="mb-10">
@@ -334,10 +280,6 @@ const onUpdateTags = (data: any) => {
                   {{ publishData.description }}
                 </template>
               </v-card>
-            </v-col>
-            <v-col>
-              <v-divider>额外</v-divider>
-              <AssemblySettingWidget v-model="publishData" :is-show-delete="false"></AssemblySettingWidget>
             </v-col>
           </v-row>
         </v-col>

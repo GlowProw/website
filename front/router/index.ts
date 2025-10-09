@@ -15,6 +15,10 @@ import LoginPage from '../src/views/user/login.vue'
 import SignupPage from '@/views/user/Signup.vue'
 import DisplayCabinetPage from '../src/views/displayCabinet/Index.vue'
 import DisplayCabinetOverviewPage from '../src/views/displayCabinet/Overview.vue'
+import RankingDesignedItemsPage from '../src/views/rankingDesignedItems/Index.vue'
+import RankingDesignedItemsBrowsePage from '../src/views/rankingDesignedItems/Browse.vue'
+import RankingDesignedItemsWorkshopPage from '../src/views/rankingDesignedItems/workshop/Index.vue'
+import RankingDesignedItemsPublishPage from '../src/views/rankingDesignedItems/Publish.vue'
 import ShipsPage from '../src/views/displayCabinet/ships/Index.vue'
 import ShipDetailPage from '../src/views/displayCabinet/ships/Detail.vue'
 import ItemsPage from '../src/views/displayCabinet/items/Index.vue'
@@ -184,11 +188,11 @@ const routes: Readonly<RouteRecordRaw[]> = [
         path: '/display-cabinet',
         name: 'DisplayCabinet',
         component: DisplayCabinetPage,
+        beforeEnter: initItemAssets,
         meta: {
             title: 'displayCabinet.title',
             keywords: 'displayCabinet.keywords'
         },
-        beforeEnter: initItemAssets,
         redirect: '/display-cabinet/overview',
         children: [
             {
@@ -286,7 +290,6 @@ const routes: Readonly<RouteRecordRaw[]> = [
                     keywords: 'displayCabinet.materials.meta.keywords'
                 },
                 component: MaterialsPage,
-
             },
             {
                 path: 'material/:id',
@@ -314,6 +317,39 @@ const routes: Readonly<RouteRecordRaw[]> = [
                     keywords: 'displayCabinet.cosmetic.meta.keywords'
                 },
                 component: CosmeticDetailPage,
+            },
+        ]
+    },
+    {
+        path: '/ranking-designed-items',
+        name: 'rankingDesignedItems',
+        component: RankingDesignedItemsPage,
+        meta: {
+            title: 'rankingDesignedItems.title',
+            keywords: 'rankingDesignedItems.keywords'
+        },
+        beforeEnter: initItemAssets,
+        redirect: '/ranking-designed-items/browse',
+        children: [
+            {
+                path: 'browse',
+                name: 'RankingDesignedItemsBrowse',
+                component: RankingDesignedItemsBrowsePage,
+            },
+            {
+                path: 'workshop',
+                name: 'RankingDesignedItemsWorkshop',
+                component: RankingDesignedItemsWorkshopPage,
+            },
+            {
+                path: 'publish/:uid',
+                name: 'PublishRankingDesignedItems',
+                component: RankingDesignedItemsPublishPage,
+            },
+            {
+                path: 'edit/:uid',
+                name: 'EditRankingDesignedItems',
+                component: RankingDesignedItemsPublishPage,
             },
         ]
     },

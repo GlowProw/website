@@ -1,21 +1,19 @@
 <script setup lang="ts">
-import {computed, ref} from 'vue'
-import {Editor} from "@tiptap/vue-3";
-import {Items} from 'glow-prow-data/src/entity/Items.js'
+import {ref} from "vue"
 import {useI18n} from "vue-i18n";
-import AssemblyClassificationShowList from "@/components/AssemblyClassificationShowList.vue";
 import {Item} from "glow-prow-data";
 
-const props = defineProps({
-      editor: {
-        type: Editor,
-      }
-    }),
-    {t} = useI18n(),
-    emit = defineEmits(['finish', 'close'])
+import AssemblyClassificationShowList from "@/components/AssemblyClassificationShowList.vue";
 
-let show = ref(false),
-    value = ref(''),
+// 选择器所加载的类型
+type ContentSelectorOption = "item" | "material" | "cosmetic" | "ultimate" | "modification"
+
+const {t} = useI18n(),
+    emit = defineEmits(["finish", "close"])
+
+let model = ref(false),
+    value = ref(""),
+    type: ContentSelectorOption = ref("item"),
     tags = ref([])
 
 /**
@@ -31,26 +29,34 @@ const onFinish = (data: Item) => {
  * 面板开关
  */
 const onPanelToggle = () => {
-  show.value = !show.value
+  model.value = !model.value
 
-  if (show.value === false)
+  if (model.value === false)
     emit('close')
 }
 
 /**
  * 打开面板
+ * @param tagsRaw 可选数据类型
+ * @param typeRaw 大类类型
  */
-const openPanel = (tagsRwa = []) => {
-  tags.value = tagsRwa
+const openPanel = (tagsRaw: any[] = [], typeRaw: ContentSelectorOption = 'item') => {
+  if (!tagsRaw || !typeRaw)
+    return console.warn('panel not id')
+
+  tags.value = tagsRaw
+  type.value = typeRaw;
+
   onPanelToggle()
 }
 
+/**
+ * 关闭面包
+ */
 const onClose = () => {
   onPanelToggle()
   emit('close')
 }
-
-const items = computed(() => Items)
 
 defineExpose({
   openPanel,
@@ -59,9 +65,9 @@ defineExpose({
 </script>
 
 <template>
-  <v-dialog v-model="show"
+  <v-dialog v-model="model"
             max-width="1024"
-            class="item"
+            class="content-selector"
             sticky
             scrim
             footer-hide
@@ -69,7 +75,7 @@ defineExpose({
     <v-card>
       <v-card-title>
         <v-row>
-          <b class="font-weight-bold text-h5 pa-5">{{ t('comment.item.title') }}</b>
+          <b class="font-weight-bold text-h5 pa-5">{{ t(`displayCabinet.${type}s.title`) }}</b>
           <v-spacer></v-spacer>
           <v-col cols="auto">
             <v-btn icon variant="text" class="ml-1" @click="onClose">
@@ -79,10 +85,14 @@ defineExpose({
         </v-row>
       </v-card-title>
 
-      <AssemblyClassificationShowList v-model="value" :tags="tags"></AssemblyClassificationShowList>
+      <AssemblyClassificationShowList v-model="value" :tags="tags" :loadDataType="type"></AssemblyClassificationShowList>
 
       <v-card-actions>
-        <v-btn @click="onFinish(value)" block :disabled="!value" class="bg-amber">
+        <v-spacer></v-spacer>
+        <v-btn @click="onClose">
+          {{ t('basic.button.cancel') }}
+        </v-btn>
+        <v-btn @click="onFinish(value)" :disabled="!value" class="bg-amber">
           {{ t('basic.button.submit') }}
         </v-btn>
       </v-card-actions>
@@ -97,14 +107,14 @@ defineExpose({
   }
 }
 
-.item {
+.content-selector {
   .insert-preview {
     position: absolute;
     top: -50px;
     left: 1px;
   }
 
-  .item-tab {
+  .content-selector-tab {
     margin: -10px -16px -16px -16px;
 
     .ivu-tabs-bar {
@@ -112,7 +122,7 @@ defineExpose({
     }
   }
 
-  .item-row-box {
+  .content-selector-row-box {
     background-color: rgba(0, 0, 0, 0.01);
     display: grid;
     grid-template-columns: repeat(12, 1fr);
@@ -125,14 +135,14 @@ defineExpose({
     max-height: 200px;
     overflow-y: auto;
 
-    .item-item {
+    .content-selector-item {
       width: 38px;
       height: 38px;
     }
   }
 }
 
-.item-window-box {
+.content-selector-window-box {
   .ivu-modal {
     margin: 0 !important;
   }

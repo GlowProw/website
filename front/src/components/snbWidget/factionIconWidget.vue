@@ -45,7 +45,7 @@ const onReady = () => {
 
 <template>
   <v-card :class="props.class" class="w-100 h-100"
-          v-tooltip="t(`snb.factions.${props.name}.name`)">
+          variant="flat">
     <v-img :src="src"
            v-if="!!src"
            width="100%"
@@ -53,7 +53,7 @@ const onReady = () => {
            cover>
     </v-img>
     <div class="d-flex justify-center align-center h-100 w-100" v-else>
-      <v-icon :size="Number.parseInt(size) / 1.2">mdi-help</v-icon>
+      <v-icon :size="Number.parseInt(size) / 1.5" class="opacity-30">mdi-help</v-icon>
     </div>
   </v-card>
 </template>

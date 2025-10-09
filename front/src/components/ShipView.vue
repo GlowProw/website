@@ -87,7 +87,7 @@ export default {
     left: 1px;
   }
 
-  .item-tab {
+  .content-selector-tab {
     margin: -10px -16px -16px -16px;
 
     .ivu-tabs-bar {
@@ -95,7 +95,7 @@ export default {
     }
   }
 
-  .item-row-box {
+  .content-selector-row-box {
     background-color: rgba(0, 0, 0, 0.01);
     display: grid;
     grid-template-columns: repeat(12, 1fr);
@@ -108,14 +108,14 @@ export default {
     max-height: 200px;
     overflow-y: auto;
 
-    .item-item {
+    .content-selector-item {
       width: 38px;
       height: 38px;
     }
   }
 }
 
-.item-window-box {
+.content-selector-window-box {
   .ivu-modal {
     margin: 0 !important;
   }

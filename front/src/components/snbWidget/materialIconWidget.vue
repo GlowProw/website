@@ -3,15 +3,16 @@ import {onMounted, type Ref, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {useAssetsStore} from "~/stores/assetsStore";
 import {number, rarity} from "@/assets/sripts/index";
+import {Material, Materials} from "glow-prow-data";
+
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import Loading from "@/components/Loading.vue";
-import ItemName from "@/components/snbWidget/itemName.vue";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 import LightRays from "@/components/LightRays.vue";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
-import {Material, Materials} from "glow-prow-data";
 import MaterialName from "@/components/snbWidget/materialName.vue";
 import MaterialNameRarity from "@/components/snbWidget/materialNameRarity.vue";
+import router from "~/router";
 
 const props = withDefaults(defineProps<{
       id: string | undefined,
@@ -49,10 +50,9 @@ const onReady = async () => {
   i.value = materials[props.id] || null
 
   if (materialsAssets[props.id])
-    materialsCardData.value.icon = materialsAssets[props.id] || ''
-  else {
+    materialsCardData.value.icon = materialsAssets[props.id]
+  else
     materialsCardData.value.icon = `https://skullandbonestools.de/api/imagesservice?src=materials%2F${props.id}&width=128`
-  }
 }
 </script>
 
@@ -65,7 +65,7 @@ const onReady = async () => {
       min-width="450"
       max-width="450"
       interactive
-      class="item-card"
+      class="material-card"
       content-class="pa-0"
       target="cursor">
     <template v-slot:activator="{ props: activatorProps }">
@@ -107,9 +107,9 @@ const onReady = async () => {
            :style="`background-color: color-mix(in srgb, hsl(from ${rarityColorConfig[ materials[i.id]?.rarity || '' ]} h s l) 10%, #000)`">
         <div class="v-skeleton-loader__bone v-skeleton-loader__image opacity-30 position-absolute left-0 top-0 w-100 h-100"></div>
 
-        <h1 class="item-card-name font-weight-bold w-66">
+        <h1 class="material-card-name font-weight-bold w-66">
           <ItemSlotBase size="28px" class="mb-2" :padding="0" v-if="i.faction">
-            <FactionIconWidget class="bg-red d-inline-flex" :name="i.faction.id" v-if="i.faction"></FactionIconWidget>
+            <FactionIconWidget class="d-inline-flex" :name="i.faction.id" v-if="i.faction"></FactionIconWidget>
           </ItemSlotBase>
           <MaterialNameRarity :id="i.id">
             <MaterialName :id="i.id"></MaterialName>
@@ -119,20 +119,16 @@ const onReady = async () => {
 
         <div class="d-flex ga-2 mt-3">
           <v-chip inline
-                  :to="`/display-cabinet/item/category/${i.type}`"
+                  :to="`/display-cabinet/material/category/${i.type}`"
                   class="badge-flavor text-center text-black" v-if="i.type">{{ t(`displayCabinet.type.${i.type}`) }}
           </v-chip>
           <v-chip class="badge-flavor text-center tag-badge text-black"
-                  :to="`/display-cabinet/item/tier/${i.tier}`"
-                  v-if="i.tier">{{ t(`displayCabinet.tier`, {num: number.intToRoman(i.tier)}) }}
-          </v-chip>
-          <v-chip class="badge-flavor text-center tag-badge text-black"
-                  :to="`/display-cabinet/item/rarity/${i.rarity}`"
+                  :to="`/display-cabinet/material/rarity/${i.rarity}`"
                   v-if="i.rarity">{{ t(`displayCabinet.rarity.${i.rarity}`) }}
           </v-chip>
         </div>
-        <div class="right-show-item-image pointer-events-none position-absolute w-33">
-          <v-img :src="materialsCardData.icon" class="item-mirror-image"></v-img>
+        <div class="right-show-image pointer-events-none position-absolute w-33">
+          <v-img :src="materialsCardData.icon" class="material-mirror-image"></v-img>
         </div>
 
         <template v-if="i.rarity">
@@ -154,7 +150,7 @@ const onReady = async () => {
         </template>
       </div>
       <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto">
-        <BtnWidget @action-complete="router.push(`/display-cabinet/item/${i.id}`)"
+        <BtnWidget @action-complete="router.push(`/display-cabinet/material/${i.id}`)"
                    class="mt-1"
                    v-if="isShowOpenDetail">
           {{ t('displayCabinet.material.lookDetail') }}
@@ -162,12 +158,12 @@ const onReady = async () => {
       </div>
     </v-card>
   </v-tooltip>
-
-
 </template>
 
 <style scoped lang="less">
-.item-card {
+@import "@/assets/styles/demo-reel";
+
+.material-card {
   &::after {
     content: "";
     position: absolute;
@@ -179,53 +175,12 @@ const onReady = async () => {
     border-radius: inherit;
   }
 
-  .item-mirror-image {
+  .material-mirror-image {
     transform: scaleX(-1);
   }
 
-  .item-card-name {
+  .material-card-name {
     line-height: 1.2 !important;
-  }
-}
-
-.demo-reel {
-  .right-show-item-image {
-    position: relative;
-    z-index: 5;
-    transform: scale(1.5);
-    top: 20px;
-    right: 0;
-    bottom: 15px;
-  }
-
-  .item {
-    pointer-events: none;
-  }
-
-  .tag-badge {
-    color: hsl(from var(--main-color) h s calc(l * 0.3));
-  }
-
-  .demo-reel-header {
-    min-height: 200px;
-    overflow: hidden;
-
-    &:before {
-      content: "";
-      position: absolute;
-      z-index: 5;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 0;
-      padding: 10% 0 0;
-      background: url('@/assets/images/portal-banner-background.png') 50% 0 no-repeat;
-      background-size: cover;
-    }
-  }
-
-  .demo-reel-content {
-    max-height: 70vh;
   }
 }
 </style>

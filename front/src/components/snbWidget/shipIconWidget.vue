@@ -1,16 +1,18 @@
 <script setup lang="ts">
 
-import EmptyView from "../EmptyView.vue";
 import {onMounted, type Ref, ref} from "vue";
-import {Ships} from "glow-prow-data";
+import {Ship, Ships} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
-import type {Ship} from "glow-prow-data/src/entity/Ships.ts";
-import PerksWidget from "./perksWidget.vue";
+import {useRouter} from "vue-router";
+import {useAssetsStore} from "~/stores/assetsStore";
+
 import ShinyText from "@/components/ShinyText.vue";
 import ShipBaseInfoSlotWidget from "@/components/snbWidget/shipBaseInfoSlotWidget.vue";
 import ShipWeaponInfoSlotWidget from "@/components/snbWidget/shipWeaponInfoSlotWidget.vue";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
-import {useRouter} from "vue-router";
+import EmptyView from "../EmptyView.vue";
+import PerksWidget from "./perksWidget.vue";
+import ShipDescription from "@/components/snbWidget/shipDescription.vue";
 
 const props = withDefaults(defineProps<{
       id: string,
@@ -29,12 +31,13 @@ const props = withDefaults(defineProps<{
     }),
     ships: Ships = Ships,
     router = useRouter(),
-    {t} = useI18n()
+    {t} = useI18n(),
+    {ships: shipsAssets} = useAssetsStore()
 
-let shipConfig = ref({
-      images: {},
-      model: {},
-      panel: {}
+let shipCardData = ref({
+      icon: '',
+      model: false,
+      panel: null
     }),
     shipData: Ref<Ship> = ref({});
 
@@ -42,28 +45,22 @@ onMounted(() => {
   onReady()
 })
 
-const shipImages = import.meta.glob('@glow-prow-assets/ships/*.png', {eager: true});
-
 const onReady = async () => {
   shipData.value = ships[props.id];
 
-  for (let key in Ships) {
-    const imageKey = `/node_modules/glow-prow-assets/ships/${key}.png`;
+  shipCardData.value.panel = null;
+  shipCardData.value.model = false;
 
-    shipConfig.value.panel[key] = null;
-    shipConfig.value.model[key] = false;
-
-    if (shipImages[imageKey].default) {
-      shipConfig.value.images[key] = shipImages[imageKey].default;
-    } else {
-      shipConfig.value.images[key] = '';
-    }
+  if (shipsAssets[props.id]) {
+    shipCardData.value.icon = shipsAssets[props.id];
+  } else {
+    shipCardData.value.icon = '';
   }
 }
 </script>
 
 <template>
-  <v-tooltip v-model="shipConfig.model[props.id]"
+  <v-tooltip v-model="shipCardData.model"
              min-width="450"
              max-width="450"
              interactive
@@ -81,7 +78,7 @@ const onReady = async () => {
           :class="`pa-${props.padding} cursor-pointer`"
           height="100%"
           width="100%">
-        <v-img :src="shipConfig.images[props.id]" class="pointer-events-none prohibit-drag"></v-img>
+        <v-img :src="shipCardData.icon" class="pointer-events-none prohibit-drag"></v-img>
       </v-card>
     </template>
 
@@ -94,16 +91,16 @@ const onReady = async () => {
 
         <v-badge inline color="transparent" class="badge-flavor text-center tag-badge pl-3" v-if="shipData && shipData.size">{{ t(`displayCabinet.size.${shipData.size}`) }}</v-badge>
 
-        <v-img :src="shipConfig.images[props.id]" class="prohibit-drag right-show-item-image position-absolute w-33"></v-img>
+        <v-img :src="shipCardData.icon" class="prohibit-drag right-show-image position-absolute w-33"></v-img>
       </div>
       <div class="demo-reel-content background-flavor overflow-auto">
         <template v-if="isShowDescription">
           <div class="mb-2 pa-5 description">
-            {{ t(`snb.ships.${props.id}.description.general`) }}
+            <ShipDescription :id="props.id"></ShipDescription>
           </div>
         </template>
 
-        <v-expansion-panels v-model="shipConfig.panel[props.id]">
+        <v-expansion-panels v-model="shipCardData.panel">
           <v-expansion-panel
               selected-class="bg-black"
               class="bg-transparent"
@@ -116,7 +113,7 @@ const onReady = async () => {
               </div>
             </template>
             <template v-slot:text>
-              <ShipBaseInfoSlotWidget :data="shipData" :isSimulationShipSailSpeed="false"  />
+              <ShipBaseInfoSlotWidget :data="shipData" :isSimulationShipSailSpeed="false"/>
             </template>
           </v-expansion-panel>
           <v-expansion-panel
@@ -147,7 +144,7 @@ const onReady = async () => {
               </div>
             </template>
             <template v-slot:text>
-              <ShipWeaponInfoSlotWidget :data="shipData" />
+              <ShipWeaponInfoSlotWidget :data="shipData"/>
             </template>
           </v-expansion-panel>
         </v-expansion-panels>
@@ -165,46 +162,9 @@ const onReady = async () => {
 </template>
 
 <style scoped lang="less">
+@import "@/assets/styles/demo-reel";
+
 .description {
   font-size: 18px;
-}
-
-.demo-reel {
-  .right-show-item-image {
-    transform: scale(1.5);
-    right: 0;
-    bottom: 15px;
-  }
-
-  .item {
-    pointer-events: none;
-  }
-
-  .tag-badge {
-    color: hsl(from var(--main-color) h s calc(l * 0.3));
-  }
-
-  .demo-reel-header {
-    height: 200px;
-    overflow: hidden;
-    background-color: #000;
-
-    &:before {
-      content: "";
-      position: absolute;
-      z-index: 1;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 0;
-      padding: 10% 0 0;
-      background: url('@/assets/images/portal-banner-background.png') 50% 0 no-repeat;
-      background-size: cover;
-    }
-  }
-
-  .demo-reel-content {
-    max-height: 70vh;
-  }
 }
 </style>

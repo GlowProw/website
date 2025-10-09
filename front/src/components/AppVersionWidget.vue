@@ -26,7 +26,6 @@ const getVersionData = async () => {
 
     if (result.data) {
       versionData.value = result.data;
-      console.log(result.data)
       showVersionIndex.value = result.data?.latestPosts?.length - 1 || 0;
     }
   } finally {

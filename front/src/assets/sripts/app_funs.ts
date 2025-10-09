@@ -40,7 +40,7 @@ export default class AppFuns {
             title: 'header.functions.ranking-of-designed-items.title',
             icon: 'mdi-help',
             description: 'header.functions.ranking-of-designed-items.description',
-            to: ''
+            to: '/ranking-designed-items'
         },
         {
             title: 'header.functions.impression-of-monsters.title',

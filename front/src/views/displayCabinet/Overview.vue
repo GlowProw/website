@@ -204,7 +204,7 @@ function getRandom(obj, count) {
       <div class="w-100">
         <v-toolbar class="title-long-flavor bg-black mb-5">
           <router-link to="/display-cabinet/mods" class="ml-10 font-weight-bold text-amber">
-            {{ t('displayCabinet.mods.title') }}
+            {{ t('displayCabinet.modifications.title') }}
             ({{ Object.keys(mods).length || 0 }})
           </router-link>
           <v-spacer></v-spacer>
@@ -255,7 +255,7 @@ function getRandom(obj, count) {
       <div class="mt-10">
         <v-toolbar class="title-long-flavor bg-black mb-5">
           <router-link to="/display-cabinet/cosmetics" class="ml-10 font-weight-bold text-amber">
-            {{ t('displayCabinet.items.title') }}
+            {{ t('displayCabinet.cosmetics.title') }}
             ({{ Object.keys(cosmetics).length || 0 }})
           </router-link>
           <v-spacer></v-spacer>

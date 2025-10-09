@@ -125,7 +125,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
         </h1>
         <p class="mb-1">{{ i.id }}</p>
 
-        <div class="right-show-cosmetic-image pointer-events-none position-absolute w-33">
+        <div class="right-show-image pointer-events-none position-absolute w-33">
           <v-img :src="cosmeticCardData.icon" class="cosmetic-mirror-image"></v-img>
         </div>
 
@@ -159,8 +159,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
 </template>
 
 <style scoped lang="less">
-@rarities: common, uncommon, rare, epic, legendary;
-
+@import "@/assets/styles/demo-reel";
 .cosmetic-mirror-image {
   transform: scaleX(-1);
 }
@@ -175,106 +174,6 @@ const {targetElement, isVisible} = useIntersectionObserver({
     height: 100%;
     z-index: 200;
     border-radius: inherit;
-  }
-}
-
-.cosmetic-card-header-rarity {
-  width: 100px;
-  height: 100px;
-  position: relative;
-
-  each(@rarities, {
-    &-@{value} {
-      .set-rarity-color(@value);
-    }
-  });
-
-  .set-rarity-color(@type) {
-    & when (@type = common) {
-      &::after {
-        background-color: fade(#b0b0b0, 10%);
-      }
-    }
-    & when (@type = uncommon) {
-      &::after {
-        background-color: fade(#2ecc71, 10%);
-      }
-    }
-    & when (@type = rare) {
-      &::after {
-        background-color: fade(#3498db, 10%);
-      }
-    }
-    & when (@type = epic) {
-      &::after {
-        background-color: fade(#9b59b6, 10%);
-      }
-    }
-    & when (@type = legendary) {
-      &::after {
-        background-color: fade(#f1c40f, 10%);
-      }
-    }
-
-    &::after {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-      border-radius: inherit;
-    }
-  }
-}
-
-.rarity {
-  position: absolute;
-  z-index: 0;
-  top: 0;
-  left: 0;
-  width: 100%;
-}
-
-.demo-reel {
-  .right-show-cosmetic-image {
-    position: relative;
-    z-index: 5;
-    transform: scale(1.5);
-    top: 20px;
-    right: 0;
-    bottom: 15px;
-  }
-
-  .cosmetic {
-    pointer-events: none;
-  }
-
-  .tag-badge {
-    color: hsl(from var(--main-color) h s calc(l * 0.3));
-  }
-
-  .demo-reel-header {
-    height: 200px;
-    overflow: hidden;
-
-    &:before {
-      content: "";
-      position: absolute;
-      z-index: 5;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 0;
-      padding: 10% 0 0;
-      background: url('@/assets/images/portal-banner-background.png') 50% 0 no-repeat;
-      background-size: cover;
-    }
-  }
-
-  .demo-reel-content {
-    max-height: 70vh;
   }
 }
 </style>

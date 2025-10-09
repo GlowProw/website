@@ -1,7 +1,7 @@
 /**
  * 配装
  */
-import {Item} from "../../../../../glow-prow-data";
+import {Item} from "glow-prow-data";
 
 export interface AssemblyBasieIds {
     id: string | bigint

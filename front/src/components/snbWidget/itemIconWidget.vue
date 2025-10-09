@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
-import Loading from "../Loading.vue";
-import LightRays from "../LightRays.vue"
 import {onMounted, type Ref, ref, watch} from "vue";
 import {Item, Items} from "glow-prow-data/src/entity/Items.ts";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useIntersectionObserver} from "@/assets/sripts/intersection_observer";
 import {number, rarity} from "@/assets/sripts/index";
 import {useAssetsStore} from "~/stores/assetsStore";
+
+import Loading from "../Loading.vue";
+import LightRays from "../LightRays.vue"
 import ItemName from "@/components/snbWidget/itemName.vue";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
@@ -122,7 +123,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
            :style="`background-color: color-mix(in srgb, hsl(from ${rarityColorConfig[ items[i.id]?.rarity || '' ]} h s l) 10%, #000)`">
         <div class="v-skeleton-loader__bone v-skeleton-loader__image opacity-30 position-absolute left-0 top-0 w-100 h-100"></div>
 
-        <h1 class="item-card-name font-weight-bold w-66">
+        <h1 class="material-card-name font-weight-bold w-66">
           <ItemSlotBase size="28px" class="mb-2" :padding="0" v-if="i.faction">
             <FactionIconWidget class="bg-red d-inline-flex" :name="i.faction.id" v-if="i.faction"></FactionIconWidget>
           </ItemSlotBase>
@@ -146,8 +147,8 @@ const {targetElement, isVisible} = useIntersectionObserver({
                   v-if="i.rarity">{{ t(`displayCabinet.rarity.${i.rarity}`) }}
           </v-chip>
         </div>
-        <div class="right-show-item-image pointer-events-none position-absolute w-33">
-          <v-img :src="itemsCardData.icon" class="item-mirror-image"></v-img>
+        <div class="right-show-image pointer-events-none position-absolute w-33">
+          <v-img :src="itemsCardData.icon" class="material-mirror-image"></v-img>
         </div>
 
         <template v-if="i.rarity">
@@ -180,6 +181,8 @@ const {targetElement, isVisible} = useIntersectionObserver({
 </template>
 
 <style scoped lang="less">
+@import "@/assets/styles/demo-reel";
+
 .item-card {
   &::after {
     content: "";
@@ -192,53 +195,12 @@ const {targetElement, isVisible} = useIntersectionObserver({
     border-radius: inherit;
   }
 
-  .item-mirror-image {
+  .material-mirror-image {
     transform: scaleX(-1);
   }
 
-  .item-card-name {
+  .material-card-name {
     line-height: 1.2 !important;
-  }
-}
-
-.demo-reel {
-  .right-show-item-image {
-    position: relative;
-    z-index: 5;
-    transform: scale(1.5);
-    top: 20px;
-    right: 0;
-    bottom: 15px;
-  }
-
-  .item {
-    pointer-events: none;
-  }
-
-  .tag-badge {
-    color: hsl(from var(--main-color) h s calc(l * 0.3));
-  }
-
-  .demo-reel-header {
-    min-height: 200px;
-    overflow: hidden;
-
-    &:before {
-      content: "";
-      position: absolute;
-      z-index: 5;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 0;
-      padding: 10% 0 0;
-      background: url('@/assets/images/portal-banner-background.png') 50% 0 no-repeat;
-      background-size: cover;
-    }
-  }
-
-  .demo-reel-content {
-    max-height: 70vh;
   }
 }
 </style>

@@ -2,25 +2,47 @@ import {defineStore} from "pinia";
 
 export const useAssetsStore = defineStore('assets', {
     state: () => ({
+        ships: new Map(),
         items: new Map(),
-        raritys: new Map(),
         cosmetics: new Map(),
         materials: new Map(),
-        factions: new Map()
+        factions: new Map(),
+
+        raritys: new Map(),
     }),
     actions: {
         /**
          * 初始
          */
-        init() {
-            this.initItems()
-            this.initCosmetics()
-            this.initRarity()
-            this.initMaterials()
-            this.iniFactions()
+        init(options = {
+            all: true, ship: true, item: true, cosmetic: true, material: true, faction: true,
+            rarity: true,
+        }) {
+            if (options.ship || options.all)
+                this.initShips()
+            if (options.item || options.all)
+                this.initItems()
+            if (options.cosmetic || options.all)
+                this.initCosmetics()
+            if (options.material || options.all)
+                this.initMaterials()
+            if (options.faction || options.all)
+                this.iniFactions()
+
+            if (options.rarity || options.all)
+                this.initRarity()
         },
 
-        initItems () {
+        initShips() {
+            if (this.ships.size != 0)
+                return;
+
+            const shipImages = import.meta.glob('@glow-prow-assets/ships/*', {eager: true});
+
+            this.ships = this.serializationMap(shipImages)
+        },
+
+        initItems() {
             if (this.items.size != 0)
                 return;
 
@@ -48,7 +70,7 @@ export const useAssetsStore = defineStore('assets', {
             this.items = this.serializationMap(itemImages);
         },
 
-        initCosmetics () {
+        initCosmetics() {
             if (this.cosmetics.size != 0)
                 return;
 
@@ -60,7 +82,7 @@ export const useAssetsStore = defineStore('assets', {
             this.cosmetics = this.serializationMap(cosmeticsImages);
         },
 
-        initRarity () {
+        initRarity() {
             if (this.raritys.size != 0)
                 return;
 
@@ -69,7 +91,7 @@ export const useAssetsStore = defineStore('assets', {
             this.raritys = this.serializationMap(rarityImages);
         },
 
-        initMaterials () {
+        initMaterials() {
             if (this.materials.size != 0)
                 return;
 
@@ -78,7 +100,7 @@ export const useAssetsStore = defineStore('assets', {
             this.materials = this.serializationMap(materialsImages);
         },
 
-        iniFactions () {
+        iniFactions() {
             if (this.factions.size != 0)
                 return;
 

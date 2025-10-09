@@ -1,26 +1,43 @@
 import {storage} from "./index";
 import {v6 as uuidv6} from 'uuid';
 
-export enum StorageAssemblyType {
-    Data = 'data',
-    Draft = 'draft',
+interface StorageIntermediateTransferOptions {
+    // 转存id
+    uid?: string
+    // 转存类型，如数据/存稿
+    saveType?: StorageIntermediateTransferSaveType
+    // 转存大类
+    category: 'assembly' | 'ranking'
 }
 
-export class StorageAssembly {
-    private NAME = 'assembly.'
+export enum StorageIntermediateTransferSaveType {
+    Data = 'data',    // 数据
+    Draft = 'draft',  // 存稿
+}
+
+/**
+ * 数据转存
+ * 用于页面长久或会话存储，除状态机外跨页共享
+ */
+export class StorageIntermediateTransfer {
+    private NAME = ''
 
     /**
      * 查询
-     * @param id
+     * @param uid
      * @param type
+     * @param options
      */
-    get(id: string, type?: StorageAssemblyType) {
+    get(uid: string, options?: StorageIntermediateTransferOptions = {
+        saveType: StorageIntermediateTransferSaveType.Data,
+        category: 'assembly'
+    }) {
         try {
-            const d = storage.local.get(this.NAME + type)
+            const d = storage.local.get(`${this.NAME}${options.category}.${options.saveType}`)
 
             return {
                 code: 0,
-                data: d.data.value[id]
+                data: d.data.value[uid]
             }
         } catch (e) {
             console.error(e)
@@ -30,9 +47,16 @@ export class StorageAssembly {
         }
     }
 
-    gets(type: StorageAssemblyType) {
+    /**
+     * 检出所有key
+     * @param options
+     */
+    gets(options: StorageIntermediateTransferOptions = {
+        saveType: StorageIntermediateTransferSaveType.Data,
+        category: 'assembly'
+    }) {
         try {
-            const d = storage.local.get(this.NAME + type)
+            const d = storage.local.get(`${this.NAME}${options.category}.${options.saveType}`)
 
             return {
                 code: 0,
@@ -56,20 +80,25 @@ export class StorageAssembly {
      * @param data
      * @param type
      * @param _uid
+     * @param options
      */
-    updata(data: any, type?: StorageAssemblyType, _uid?: string): { code: number, uid?: string } {
+    update(data: any, options?: StorageIntermediateTransferOptions = {
+        uid: '',
+        saveType: StorageIntermediateTransferSaveType.Data,
+        category: 'assembly'
+    }): { code: number, uid?: string } {
         try {
-            let uid: any = _uid || uuidv6(),
+            let uid: any = options.uid || uuidv6(),
                 c_d: any = {};
 
-            const d = storage.local.get(this.NAME + type)
+            const d = storage.local.get(`${this.NAME}${options.category}.${options.saveType}`)
 
             c_d = {
                 ...d.data?.value || {},
                 [uid]: data
             }
 
-            storage.local.set(this.NAME + type, c_d)
+            storage.local.set(`${this.NAME}${options.category}.${options.saveType}`, c_d)
 
             return {
                 code: 0,
@@ -83,18 +112,22 @@ export class StorageAssembly {
 
     /**
      * 删除
-     * @param id
-     * @param type
+     * @param uid
+     * @param options
      */
-    delete(id: string, type?: StorageAssemblyType) {
+    delete(uid: string, options?: StorageIntermediateTransferOptions = {
+        uid: '',
+        saveType: StorageIntermediateTransferSaveType.Data,
+        category: 'assembly'
+    }) {
         try {
-            const d = storage.local.get(this.NAME + type)
+            const d = storage.local.get(`${this.NAME}${options.category}.${options.saveType}`)
             if (d.code != 0)
                 return false
 
-            delete d.data.value[id]
+            delete d.data.value[uid]
 
-            storage.local.set(this.NAME + type, d.data.value)
+            storage.local.set(`${this.NAME}${options.category}.${options.saveType}`, d.data.value)
 
             return true
         } catch (e) {

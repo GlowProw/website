@@ -158,7 +158,7 @@
       "legendary": "传奇"
     },
     "type": {
-      "undefined": "无",
+      "undefined": "无分类",
       "consumable": "消耗品",
       "ammunition": "弹药",
       "armor": "护甲",
@@ -186,7 +186,46 @@
       "helm": "掌舵",
       "scrap": "废弃材料",
       "raw": "原材料",
-      "exotic": "奇异"
+      "exotic": "奇异",
+      "sailsEmblem": "船帆徽章",
+      "hull": "船体",
+      "sailsColor": "船帆颜色",
+      "crowsNest": "瞭望台",
+      "trophy": "战利品",
+      "wheel": "舵轮",
+      "sailsPattern": "船帆图案",
+      "helmDecor": "舵轮装饰",
+      "ornaments": "装饰物",
+      "figureHead": "船首像",
+      "nameplate": "名牌",
+      "pet": "宠物",
+      "crewLook": "船员外观",
+      "headwear": "头部装备",
+      "torso": "上身装备",
+      "neck": "颈部装备",
+      "waist": "腰部装备",
+      "bottom": "下身装备",
+      "faceAccessory": "面部配饰",
+      "footwear": "足部装备",
+      "forearm": "前臂装备",
+      "firework": "烟花",
+      "emote": "表情",
+      "bodyCosmetics": "身体装饰",
+      "hand": "手部",
+      "hair": "发型",
+      "facialHair": "胡须",
+      "eyeColor": "眼睛颜色",
+      "aura": "光环",
+      "shipSkin": "船皮",
+      "armorSkin": "护甲皮肤",
+      "culverinWeaponSkin": "长管炮武器皮肤",
+      "demicannonWeaponSkin": "半长炮武器皮肤",
+      "longGunWeaponSkin": "长枪武器皮肤",
+      "ballistaWeaponSkin": "弩炮武器皮肤",
+      "torpedoWeaponSkin": "鱼雷武器皮肤",
+      "combatSkill": "combat Skill",
+      "legendaryEntity": "legendary Entity",
+      "powerWeapon": "power Weapon"
     },
     "tier": "{num}级",
     "category": {
@@ -305,11 +344,12 @@
     "mod": {
       "title": "模组详情"
     },
-    "mods": {
+    "modifications": {
       "title": "模组列表"
     },
     "material": {
-      "title": "材料详情"
+      "title": "材料详情",
+      "lookDetail": "查看材料详情"
     },
     "materials": {
       "title": "材料列表"
@@ -319,6 +359,16 @@
     "title": "日历",
     "meta": {
       "keywords": "游戏日历,日历,日程表,规划"
+    }
+  },
+  "rankingDesignedItems": {
+    "title": "排序设计",
+    "workshop": {
+      "title": "工作台"
+    },
+    "browse": {
+      "title": "分享",
+      "newRanking": "创建新排行"
     }
   },
   "teamUp": {

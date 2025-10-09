@@ -4,8 +4,8 @@ import {computed, nextTick, onMounted, type Ref, ref, toRaw, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {v6 as uuidv6} from "uuid";
 
-import {api, storageAssembly} from "@/assets/sripts";
-import {StorageAssemblyType} from "@/assets/sripts/storage_assembly";
+import {api, storageIntermediateTransfer} from "@/assets/sripts";
+import {StorageIntermediateTransferSaveType} from "@/assets/sripts/storage_assembly";
 import {useAuthStore} from "~/stores/userAccountStore";
 import {useHttpToken} from "@/assets/sripts/http_util";
 import {useNoticeStore} from "~/stores/noticeStore";
@@ -155,7 +155,7 @@ const onSaveAssemblyEdit = () => {
     return;
 
   const {uuid} = assemblyDetailData.value;
-  const saveResult = onSaveAssembly(StorageAssemblyType.Data, uuid)
+  const saveResult = onSaveAssembly(StorageIntermediateTransferSaveType.Data, uuid)
 
   if (saveResult.code == 0 && uuid)
     router.push(`/assembly/edit/${uuid}`)
@@ -168,7 +168,7 @@ const onSaveAssemblyPublish = () => {
   if (!isAssemblyByUser)
     return;
 
-  const saveResult = onSaveAssembly(StorageAssemblyType.Data)
+  const saveResult = onSaveAssembly(StorageIntermediateTransferSaveType.Data)
 
   if (saveResult.code == 0)
     router.push(`/assembly/publish/${saveResult.uid}`)
@@ -177,7 +177,7 @@ const onSaveAssemblyPublish = () => {
 /**
  * 写入本地
  */
-const onSaveAssembly = (type: StorageAssemblyType, uid?: string) => {
+const onSaveAssembly = (saveType: StorageIntermediateTransferSaveType, uid?: string) => {
   // 合并数据
   shareData.value = {
     ...shareData.value,
@@ -186,7 +186,11 @@ const onSaveAssembly = (type: StorageAssemblyType, uid?: string) => {
     warehouse: assemblyMainSubjectView.value.refs.warehouse.onExport()
   }
 
-  return storageAssembly.updata(shareData.value, type, uid)
+  return storageIntermediateTransfer.update(shareData.value, {
+    uid,
+    saveType,
+    category: 'assembly'
+  })
 }
 
 /**
@@ -195,12 +199,16 @@ const onSaveAssembly = (type: StorageAssemblyType, uid?: string) => {
 const onQuickArchiving = () => {
   draftSaveQuickArchivingLoading.value = true;
 
-  storageAssembly.updata({
+  storageIntermediateTransfer.update({
     ...shareData.value,
     assembly: assemblyMainSubjectView.value.refs.assembly.onExport(),
     wheel: assemblyMainSubjectView.value.refs.wheel.onExport(),
     warehouse: assemblyMainSubjectView.value.refs.warehouse.onExport()
-  }, StorageAssemblyType.Draft, 'quickArchiving')
+  }, {
+    uid: 'quickArchiving',
+    saveType: StorageIntermediateTransferSaveType.Draft,
+    category: 'assembly'
+  })
 
   setTimeout(() => {
     draftSaveQuickArchivingLoading.value = false;
@@ -220,7 +228,10 @@ const onPenDraftPanel = () => {
  * 读取草稿数据
  */
 const getDraftListData = () => {
-  let d = storageAssembly.gets(StorageAssemblyType.Draft);
+  let d = storageIntermediateTransfer.gets({
+    saveType: StorageIntermediateTransferSaveType.Draft,
+    category: 'assembly'
+  });
 
   if (d.code == 0)
     draftList.value = d.data;
@@ -234,7 +245,11 @@ const onSaveDraft = () => {
 
   draftSaveLoading.value = true
 
-  storageAssembly.updata(newDraftData, StorageAssemblyType.Draft, uid)
+  storageIntermediateTransfer.update(newDraftData, {
+    uid,
+    saveType: StorageIntermediateTransferSaveType.Draft,
+    category: 'assembly'
+  })
 
   draftSaveLoading.value = false
   draftNewSaveModel.value = false
@@ -266,7 +281,10 @@ const onUseDraft = (item) => {
  * @param id
  */
 const onDeleteDraft = (id) => {
-  storageAssembly.delete(id, StorageAssemblyType.Draft)
+  storageIntermediateTransfer.delete(id, {
+    saveType: StorageIntermediateTransferSaveType.Draft,
+    category: 'assembly'
+  })
   getDraftListData()
 }
 </script>

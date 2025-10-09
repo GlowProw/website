@@ -10,45 +10,41 @@ import {useI18n} from "vue-i18n";
 import {Ships} from "glow-prow-data";
 
 const props = withDefaults(defineProps<{
-  assemblyBackground?: string,
-  isWorkshopFillScreen?: boolean,
-  isShowFooterTool?: boolean,
-  modelValue?: any,
-  class?: string,
-  readonly?: boolean,
-  perfectDisplay?: boolean
-}>(), {
-  assemblyBackground: '',
-  isWorkshopFillScreen: false,
-  isShowFooterTool: false,
-  modelValue: null,
-  class: '',
-  readonly: true,
-  perfectDisplay: false,
-});
-
-const {mobile} = useDisplay(),
+      assemblyBackground?: string,
+      isWorkshopFillScreen?: boolean,
+      isShowFooterTool?: boolean,
+      modelValue?: any,
+      class?: string,
+      readonly?: boolean,
+      perfectDisplay?: boolean
+    }>(), {
+      assemblyBackground: '',
+      isWorkshopFillScreen: false,
+      isShowFooterTool: false,
+      modelValue: null,
+      class: '',
+      readonly: true,
+      perfectDisplay: false,
+    }),
+    {mobile} = useDisplay(),
     {t} = useI18n(),
     attrs = useAttrs(),
-    emit = defineEmits(['update:tab', 'update:item-change', 'ready']);
+    emit = defineEmits(['update:tab', 'update:item-change', 'ready'])
 
-const zoomableAreaRef = ref(null),
+let isWorkshopFillScreen = ref(props.isWorkshopFillScreen),
+    zoomableAreaRef = ref(null),
     assemblyWorkshopRef = ref(null),
     wheelWorkshopRef = ref(null),
-    warehouseWorkshopRef = ref(null);
-
-const workshopHeight = ref(700),
+    warehouseWorkshopRef = ref(null),
+    workshopHeight = ref(700),
     tab = ref(assemblyViewConfig.onlyRead[0]),
     refs = ref({
       zoomableAreaRef: null,
       assembly: null,
       wheel: null,
       warehouse: null
-    });
-
-const isWorkshopFillScreen = ref(props.isWorkshopFillScreen);
-
-const hasShip = computed(() => {
+    }),
+    hasShip = computed(() => {
       return assemblyWorkshopRef.value?.onExport() == null;
     }),
     shipDetailInfo = computed(() => {
@@ -77,10 +73,6 @@ onMounted(() => {
   });
 });
 
-defineExpose({
-  refs,
-  tab
-});
 
 /**
  * 重制画布位置
@@ -131,6 +123,11 @@ const hasData = (name: string): boolean => {
   }
   return true;
 };
+
+defineExpose({
+  refs,
+  tab
+});
 </script>
 
 <template>

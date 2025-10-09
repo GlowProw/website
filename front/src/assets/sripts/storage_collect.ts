@@ -4,6 +4,8 @@ import {v6 as uuidV6} from 'uuid';
 export enum StorageCollectType {
     Item = 'item',
     Ship = 'ship',
+    Cosmetics = 'cosmetic',
+    Materials = 'material'
 }
 
 export class StorageCollect {
@@ -15,7 +17,7 @@ export class StorageCollect {
      * @param id
      * @param type
      */
-    get(id: string, type?: StorageCollectType) {
+    get(id: string, type?: StorageCollectType | string) {
         try {
             const d = storage.local.get(this.NAME + type)
 
@@ -35,7 +37,7 @@ export class StorageCollect {
         }
     }
 
-    gets(type: StorageCollectType) {
+    gets(type: StorageCollectType | string) {
         try {
             const d = storage.local.get(this.NAME + type)
 
@@ -73,7 +75,7 @@ export class StorageCollect {
      * @param type
      * @param _uid
      */
-    updata(data: any, type?: StorageCollectType, _uid?: string): { code: number, uid?: string, count?: number, maxCount?: number } {
+    updata(data: any, type?: StorageCollectType | string, _uid?: string): { code: number, uid?: string, count?: number, maxCount?: number } {
         try {
             const d = storage.local.get(this.NAME + type)
             const currentItems = d.data?.value || {}
@@ -126,7 +128,7 @@ export class StorageCollect {
      * @param id
      * @param type
      */
-    delete(id: string, type?: StorageCollectType) {
+    delete(id: string, type?: StorageCollectType | string) {
         try {
             const d = storage.local.get(this.NAME + type)
             if (d.code != 0)
