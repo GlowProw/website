@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import {onMounted, type Ref, ref} from "vue";
+import {onMounted, type Ref, ref, watch} from "vue";
 import {Ship, Ships} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 import {useRouter} from "vue-router";
@@ -40,6 +40,10 @@ let shipCardData = ref({
       panel: null
     }),
     shipData: Ref<Ship> = ref({});
+
+watch(() => props.id, () => {
+  onReady()
+})
 
 onMounted(() => {
   onReady()
