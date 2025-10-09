@@ -13,7 +13,7 @@ const
   <node-view-wrapper>
     <v-card border class="my-3 bg-black">
       <iframe :src="props.node.attrs.src" class="border-0 w-100 h-100"
-              style="min-height: 300px"></iframe>
+              style="min-height: 400px"></iframe>
     </v-card>
   </node-view-wrapper>
 </template>
