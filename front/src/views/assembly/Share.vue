@@ -182,7 +182,7 @@ const generateQRCode = async (text) => {
     <div class="bg-black share ml-n6 mr-n6" ref="capture">
       <!-- Assembly Preview S -->
       <v-card class="card-enlargement-flavor mt-n3" v-if="assemblyDetailData.isVisibility">
-        <AssemblyWidget ref="assemblyDetailRef" :readonly="true" :perfect-display="false">
+        <AssemblyWidget ref="assemblyDetailRef" :readonly="true" :perfect-display="true">
           <template v-slot:image v-if="assemblyDetailData.assembly.attr.backgroundPresentation">
             <v-img cover class="pointer-events-none" :src="assemblyDetailData.assembly.attr.backgroundPresentation"></v-img>
           </template>
