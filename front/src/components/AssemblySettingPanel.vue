@@ -71,7 +71,7 @@ const getAssemblySetting = async () => {
     if (d.error == 1)
       return;
 
-    settingData.value = Object.assign(settingData.value, d.data);
+    settingData.value = Object.assign(settingData.value, d.data.data);
   } finally {
     getSettingLoading.value = false
   }

@@ -185,6 +185,16 @@ const passwordPlaceholder = computed(() => {
               </v-col>
             </v-row>
 
+            <v-row v-show="modelValue.assembly.attr.isShowItemName">
+              <v-col>
+                <b>是否完整显示</b>
+                <p>决定于物品是否完整显示名称，而并非溢出隐藏</p>
+              </v-col>
+              <v-col>
+                <v-checkbox v-model="modelValue.assembly.attr.isFullName" density="compact" hide-details></v-checkbox>
+              </v-col>
+            </v-row>
+
             <v-row>
               <v-col>
                 <b>是否匿名</b>

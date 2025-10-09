@@ -22,6 +22,7 @@ export interface ItemAssemblySave extends Item {
 
 export interface AssemblyAttr {
     isShowItemName?: boolean
+    isFullName?: boolean
     assemblyUseVersion?: string
 }
 

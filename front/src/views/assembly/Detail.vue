@@ -41,7 +41,7 @@ let detailData = ref({
       createdTime: Date.now(),
       updatedTime: Date.now(),
     }),
-    assemblyMainSubjectView = ref(null),
+    assemblyMainSubjectView: Ref<AssemblyMainSubjectView> = ref(null),
     assemblyLoading = ref(false),
     password = ref(''),
 
@@ -121,6 +121,7 @@ const onAssemblyMainViewReady = () => {
       .setSetting({
         assemblyUseVersion: d.assembly.attr.assemblyUseVersion,
         isShowItemName: d.assembly.attr.isShowItemName,
+        isFullName: d.assembly.attr.isFullName
       })
       .onLoad(d.assembly.data)
   // 载入轮盘

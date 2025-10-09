@@ -4,7 +4,7 @@ import ZoomableCanvas from "@/components/ZoomableCanvas.vue";
 import WarehouseShowWidget from "@/components/WarehouseShowWidget.vue";
 import WheelWidget from "@/components/WheelShowWidget.vue";
 import AssemblyWidget from "@/components/AssemblyWidget.vue"; // 确保导入了正确的组件
-import {computed, nextTick, onMounted, ref, toRaw, useAttrs} from "vue";
+import {computed, nextTick, onMounted, Ref, ref, toRaw, useAttrs} from "vue";
 import {useDisplay} from "vuetify/framework";
 import {useI18n} from "vue-i18n";
 import {Ships} from "glow-prow-data";
@@ -32,13 +32,18 @@ const props = withDefaults(defineProps<{
     emit = defineEmits(['update:tab', 'update:item-change', 'ready'])
 
 let isWorkshopFillScreen = ref(props.isWorkshopFillScreen),
-    zoomableAreaRef = ref(null),
-    assemblyWorkshopRef = ref(null),
-    wheelWorkshopRef = ref(null),
-    warehouseWorkshopRef = ref(null),
+    zoomableAreaRef: Ref<ZoomableCanvas> = ref(null),
+    assemblyWorkshopRef: Ref<AssemblyWidget> = ref(null),
+    wheelWorkshopRef: Ref<WheelWidget> = ref(null),
+    warehouseWorkshopRef: Ref<WarehouseShowWidget> = ref(null),
     workshopHeight = ref(700),
     tab = ref(assemblyViewConfig.onlyRead[0]),
-    refs = ref({
+    refs: Ref<{
+      zoomableAreaRef: ZoomableCanvas,
+      assembly: AssemblyWidget,
+      wheel: WheelWidget,
+      warehouse: WarehouseShowWidget
+    }> = ref({
       zoomableAreaRef: null,
       assembly: null,
       wheel: null,
