@@ -110,7 +110,10 @@ const onLoadData = () => {
   const {uid} = route.params;
 
   if (uid) {
-    const getLocalAssemblyData = storageIntermediateTransfer.get(uid as string, StorageIntermediateTransferSaveType.Data)
+    const getLocalAssemblyData = storageIntermediateTransfer.get(uid as string, {
+      saveType: StorageIntermediateTransferSaveType.Data,
+      category: 'assembly'
+    })
 
     if (getLocalAssemblyData.code != 0)
       return noticeStore.error(t('basic.tips.assembly.error', {
@@ -197,7 +200,10 @@ const onEdit = async () => {
     if (d.error == 1)
       throw Error(d.message || d.code);
 
-    storageIntermediateTransfer.delete(editPublishData.uuid as string, StorageIntermediateTransferSaveType.Data)
+    storageIntermediateTransfer.delete(editPublishData.uuid as string, {
+      saveType: StorageIntermediateTransferSaveType.Data,
+      category: 'assembly'
+    })
     await router.push(`/assembly/browse/${editPublishData.uuid}/detail`)
 
     noticeStore.success(t(`basic.tips.${d.code}`))
@@ -228,7 +234,10 @@ const onPublish = async () => {
     if (d.error == 1)
       throw Error(d);
 
-    storageIntermediateTransfer.delete(uid as string, StorageIntermediateTransferSaveType.Data)
+    storageIntermediateTransfer.delete(uid as string, {
+      saveType: StorageIntermediateTransferSaveType.Data,
+      category: 'assembly'
+    })
     await router.push(
         d.data['assembly.uuid'] ?
             `/assembly/browse/${d.data['assembly.uuid']}/detail` :
