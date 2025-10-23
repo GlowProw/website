@@ -361,6 +361,19 @@
       "keywords": "游戏日历,日历,日程表,规划"
     }
   },
+  "map": {
+    "title": "地图",
+    "description": "所有地图物品清单",
+    "type": {
+      "none": "未知",
+      "shareLocation": "分享位置",
+      "outpost": "前哨站",
+      "foundry": "铸造厂",
+      "capitalSettlement": "资本结算",
+      "lumberyard": "木材厂",
+      "militaryBase": "军事基地"
+    }
+  },
   "rankingDesignedItems": {
     "title": "排序设计",
     "workshop": {

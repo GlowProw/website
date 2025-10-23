@@ -46,7 +46,9 @@ import AssemblyBrowsePage from '../src/views/assembly/Browse.vue'
 import AssemblyDetailPage from '../src/views/assembly/Detail.vue'
 import AssemblySharePage from '../src/views/assembly/Share.vue'
 
-import MapsPage from '../src/views/Map.vue';
+import MapsPage from '../src/views/map/Index.vue';
+import MapViewPage from '../src/views/map/View.vue';
+
 import TeamPage from '../src/views/Team.vue'
 import AboutPage from '../src/views/About.vue'
 import NotFoundPage from '../src/views/NotFound.vue';
@@ -439,9 +441,17 @@ const routes: Readonly<RouteRecordRaw[]> = [
     },
 
     {
-        path: '/maps',
-        name: 'maps',
+        path: '/map',
+        name: 'map',
+        redirect: '/map/view',
         component: MapsPage,
+        children: [
+            {
+                path: 'view',
+                name: 'mapView',
+                component: MapViewPage
+            }
+        ]
     },
     {
         path: '/about',
