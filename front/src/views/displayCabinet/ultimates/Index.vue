@@ -19,17 +19,11 @@ const ultimatesData = Ultimates,
     </v-container>
   </v-breadcrumbs>
   <v-divider></v-divider>
-  <v-container class="mb-10">
-    <v-row class="mt-5">
-      <v-col cols="12" lg="5" xl="5">
-        <h1 class="btn-flavor ultimates-title">终极技能</h1>
-        <div class="w-75">
-          <p>"船长使用终极技能击败你对手！"</p>
-        </div>
-      </v-col>
-      <v-col cols="12" lg="7" xl="7">
-        <v-row class="ultimates-list ga-2">
-          <ItemSlotBase size="150px" v-for="(i,index) in ultimatesData" :key="index">
+  <v-container class="mb-10 pa-10">
+    <v-row>
+      <v-col cols="12" lg="12" xl="12">
+        <v-row class="ultimates-list ga-4">
+          <ItemSlotBase size="99px" v-for="(i,index) in ultimatesData" :key="index">
             <UltimateIconWidget :id="i.id" class="pa-2"></UltimateIconWidget>
           </ItemSlotBase>
         </v-row>
@@ -47,8 +41,7 @@ const ultimatesData = Ultimates,
 
 .ultimates-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(99px, 1fr));
 }
 
 </style>

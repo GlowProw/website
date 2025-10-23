@@ -10,12 +10,7 @@ import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
 const shipsData: Ship[] = Ships,
     {t} = useI18n()
 
-let shipsCardData = ref({
-      images: {},
-      model: {},
-      panel: {}
-    }),
-    shipsFilter = ref({
+let shipsFilter = ref({
       type: 'index',
       key: ''
     });
@@ -46,21 +41,11 @@ const onProcessedData = () => {
     </v-container>
   </v-breadcrumbs>
   <v-divider></v-divider>
-  <v-container class="mb-10">
-    <v-row class="mt-10">
-      <v-col cols="12" lg="5" xl="5">
-        <h1 class="btn-flavor ships-title">{{ t('displayCabinet.ships.title') }}</h1>
-        <div class="w-75">
-          <p>{{ t('displayCabinet.ships.description') }}</p>
-        </div>
-      </v-col>
-      <v-col cols="12" lg="7" xl="7">
-        <v-row class="ships-list ga-2">
-          <ItemSlotBase size="150px" v-for="(i,index) in onProcessedData()" :key="index">
-            <ShipIconWidget :id="i.id" class="pa-2"></ShipIconWidget>
-          </ItemSlotBase>
-        </v-row>
-      </v-col>
+  <v-container class="mb-10 pa-10">
+    <v-row class="ships-list ga-4">
+      <ItemSlotBase size="99px" v-for="(i,index) in onProcessedData()" :key="index">
+        <ShipIconWidget :id="i.id" class="pa-2"></ShipIconWidget>
+      </ItemSlotBase>
     </v-row>
   </v-container>
 </template>
@@ -70,11 +55,11 @@ const onProcessedData = () => {
   padding: 25px 40px;
   margin-bottom: 20px;
   font-size: 3rem;
+  max-width: 100% !important;
 }
 
 .ships-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(99px, 1fr));
 }
 </style>

@@ -16,7 +16,7 @@ export default class AppFuns {
             title: 'header.functions.maps.title',
             icon: 'mdi-map',
             description: 'header.functions.maps.description',
-            to: '/maps'
+            to: '/map'
         },
         {
             title: 'header.functions.display-cabinet.title',

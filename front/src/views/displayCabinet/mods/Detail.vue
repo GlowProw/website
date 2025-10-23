@@ -40,9 +40,9 @@ onMounted(() => {
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
       <v-breadcrumbs-item to="/display-cabinet">{{ t('displayCabinet.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item to="/display-cabinet/mods">{{ t('displayCabinet.mods.title') }}</v-breadcrumbs-item>
+      <v-breadcrumbs-item to="/display-cabinet/mods">{{ t('displayCabinet.modifications.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item>{{ t('displayCabinet.mod.title') }}</v-breadcrumbs-item>
+      <v-breadcrumbs-item>{{ t('displayCabinet.modification.title') }}</v-breadcrumbs-item>
     </v-container>
   </v-breadcrumbs>
   <v-divider></v-divider>

@@ -213,6 +213,7 @@ import VectorSource from 'ol/source/Vector';
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
 import {defaults as defaultControls} from 'ol/control';
+import {defaults as defaultInteractions, DoubleClickZoom} from 'ol/interaction';
 import {Icon, Style} from 'ol/style';
 import {Select} from 'ol/interaction';
 import {pointerMove} from 'ol/events/condition';
@@ -295,6 +296,9 @@ onMounted(() => {
       zoom: false,
       rotate: false,
     }),
+    interactions: defaultInteractions({
+      doubleClickZoom: false, // 禁用双击缩放
+    }),
     view: new View({
       center: locations.value.length > 0
           ? fromLonLat([locations.value[0].longitude, locations.value[0].latitude])
@@ -355,7 +359,16 @@ onMounted(() => {
       return;
     }
 
-    // 点击空白处，显示坐标信息并准备创建标记
+    showCoordinateInfo.value = true;
+    showModel.value = false;
+
+    router.push({
+      name: route.name,
+      query: {}
+    })
+  });
+
+  map.on('dblclick', (event) => {
     const coordinate = toLonLat(event.coordinate);
     clickedCoordinate.value = {
       longitude: coordinate[0],
@@ -397,7 +410,8 @@ onMounted(() => {
     // 已有数据
     if (feature) {
       map.getView().animate({
-        center: fromLonLat(Lat)
+        center: fromLonLat(Lat),
+        duration: 0
       })
 
       selectedLocationData.value = feature
@@ -421,7 +435,8 @@ onMounted(() => {
       vectorSource.addFeature(newFeature);
 
       map.getView().animate({
-        center: fromLonLat([queryX, queryY])
+        center: fromLonLat([queryX, queryY]),
+        duration: 0
       })
 
       selectedLocationData.value = {

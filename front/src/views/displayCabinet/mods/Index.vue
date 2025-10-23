@@ -17,26 +17,29 @@ const {t} = useI18n(),
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
       <v-breadcrumbs-item to="/display-cabinet">{{ t('displayCabinet.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item>{{ t('displayCabinet.mods.title') }}</v-breadcrumbs-item>
+      <v-breadcrumbs-item>{{ t('displayCabinet.modifications.title') }}</v-breadcrumbs-item>
     </v-container>
   </v-breadcrumbs>
   <v-divider></v-divider>
-  <v-container class="mb-10">
-    <v-row>
-      <div v-for="(i, index) in mods" :key="index" class="mx-2 py-2">
-        <v-card variant="text" width="80">
-          <ItemSlotBase size="80px">
+  <v-container class="mb-10 pa-10">
+    <v-row class="mods-list ga-4">
+      <template v-for="(i, index) in mods" :key="index">
+        <v-card variant="text" width="99">
+          <ItemSlotBase size="99px">
             <ModIconWidget :id="i.id"></ModIconWidget>
           </ItemSlotBase>
           <div class="d-flex justify-center mx-auto mt-1 w-100 singe-line">
             <ModName :id="i.id" :grade="i.grade" class="text-center"></ModName>
           </div>
         </v-card>
-      </div>
+      </template>
     </v-row>
   </v-container>
 </template>
 
 <style scoped lang="less">
-
+.mods-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(99px, 1fr));
+}
 </style>

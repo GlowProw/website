@@ -15,6 +15,12 @@ import MaterialName from "@/components/snbWidget/materialName.vue";
 import ItemName from "@/components/snbWidget/itemName.vue";
 import CosmeticIconWidget from "@/components/snbWidget/cosmeticIconWidget.vue";
 import CosmeticName from "@/components/snbWidget/cosmeticName.vue";
+import {useDisplay} from "vuetify/framework";
+import Sidebar from "@/views/displayCabinet/Sidebar.vue";
+
+const
+    {t} = useI18n(),
+    {mobile} = useDisplay()
 
 let items = Items,
     ships = Ships,
@@ -28,8 +34,7 @@ let items = Items,
     modsRandomList: Ref<Modification[]> = ref([]),
     cosmeticsRandomList: Ref<Cosmetic[]> = ref([]),
     materialRandomList: Ref<Material[]> = ref([]),
-    displayCabinetHistorys = ref([]),
-    {t} = useI18n()
+    displayCabinetHistorys = ref([])
 
 onMounted(() => {
   getItems()
@@ -121,16 +126,13 @@ function getRandom(obj, count) {
 <template>
   <v-breadcrumbs>
     <v-container class="pa-0">
-      <v-breadcrumbs-item to="/">{{ t('home.title') }}</v-breadcrumbs-item>
+      <v-breadcrumbs-item>{{ t('home.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
       <v-breadcrumbs-item>{{ t('displayCabinet.title') }}</v-breadcrumbs-item>
     </v-container>
   </v-breadcrumbs>
   <v-divider></v-divider>
-  <v-container class="mb-10 overview">
-    <h1>{{ t('displayCabinet.title') }}</h1>
-    <p class="mb-10 opacity-80">{{ t('displayCabinet.description') }}</p>
-
+  <div class="mb-10 px-10 py-5 overview">
     <v-row class="fill-height">
       <div class="w-100 mb-5" v-if="displayCabinetHistorys.length > 0">
         <v-toolbar class="title-long-flavor bg-black mb-5">
@@ -308,7 +310,7 @@ function getRandom(obj, count) {
         </v-row>
       </div>
     </v-row>
-  </v-container>
+  </div>
 </template>
 
 <style scoped lang="less">

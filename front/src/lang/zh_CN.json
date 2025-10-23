@@ -140,10 +140,11 @@
     }
   },
   "displayCabinet": {
-    "title": "展示柜",
+    "title": "手稿",
     "description": "嗨，船长, 要看看我的宝贝嘛",
     "cabinetHistoryTitle": "游览历史",
     "more": "更多",
+    "sidebar": "侧边栏",
     "size": {
       "extraSmall": "超小型",
       "small": "小型",
@@ -331,8 +332,11 @@
       "title": "装饰品列表",
       "lookDetail": "查看详情"
     },
+    "cosmetic": {
+      "title": "装饰品详情"
+    },
     "cosmetics": {
-      "title": "装饰品详情",
+      "title": "装饰品列表",
       "description": "陈列收录装饰品"
     },
     "ultimate": {
@@ -600,7 +604,7 @@
         "description": "所有地图物品清单"
       },
       "display-cabinet": {
-        "title": "展示馆",
+        "title": "手稿",
         "description": "陈列物品信息, 检查它们如何获得"
       },
       "assembly": {

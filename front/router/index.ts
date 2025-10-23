@@ -313,7 +313,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
             },
             {
                 path: 'cosmetic/:id',
-                name: 'MaterialsDetail',
+                name: 'cosmeticDetail',
                 meta: {
                     title: 'displayCabinet.cosmetic.title',
                     keywords: 'displayCabinet.cosmetic.meta.keywords'

@@ -1,13 +1,14 @@
 <script setup lang="ts">
 
-import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import {computed, onMounted, ref} from "vue";
 import {useI18n} from "vue-i18n";
-import Loading from "@/components/Loading.vue";
 import {useRoute} from "vue-router";
-import EmptyView from "@/components/EmptyView.vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {Cosmetics} from "glow-prow-data";
+
+import EmptyView from "@/components/EmptyView.vue";
+import Loading from "@/components/Loading.vue";
+import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import CosmeticIconWidget from "@/components/snbWidget/cosmeticIconWidget.vue";
 import CosmeticName from "@/components/snbWidget/cosmeticName.vue";
 
@@ -109,63 +110,52 @@ const onFilterItemType = (value) => {
     </v-container>
   </v-breadcrumbs>
   <v-divider></v-divider>
-  <v-container>
-    <v-row class="mt-5">
-      <v-col cols="12" lg="6" xl="6">
-        <h1 class="btn-flavor ships-title">{{ t('displayCabinet.cosmetics.title') }}</h1>
-        <div class="w-75 mt-2">
-          {{ t('displayCabinet.cosmetics.description') }}
-        </div>
+  <v-container class="pt-5 pa-10 ml-n2 mr-n2 pb-0">
+    <v-row class="mb-5" align="center">
+      <v-icon>mdi-filter</v-icon>
+      <v-col>
+        <v-text-field :placeholder="t('basic.button.search')" hide-details
+                      variant="filled"
+                      density="comfortable"
+                      clearable
+                      @keydown.enter="onSearchItem"
+                      @click:clear="onSearchItem"
+                      v-model="cosmeticsDataFilter.inputWidgetKeyValue">
+          <template v-slot:append-inner>
+            <v-btn @click="onSearchItem" icon variant="text" density="comfortable">
+              <v-icon icon="mdi-magnify"></v-icon>
+            </v-btn>
+          </template>
+        </v-text-field>
       </v-col>
-      <v-col cols="12" lg="6" xl="6">
-        <v-row>
-          <v-col>
-            <v-text-field :placeholder="t('basic.button.search')" hide-details
-                          variant="filled"
-                          density="comfortable"
-                          clearable
-                          @keydown.enter="onSearchItem"
-                          @click:clear="onSearchItem"
-                          v-model="cosmeticsDataFilter.inputWidgetKeyValue">
-              <template v-slot:append-inner>
-                <v-btn @click="onSearchItem" icon variant="text" density="comfortable">
-                  <v-icon icon="mdi-magnify"></v-icon>
-                </v-btn>
-              </template>
-            </v-text-field>
-          </v-col>
-          <v-col cols="auto">
-            <v-select
-                width="200"
-                variant="filled"
-                @update:model-value="onFilterItemType"
-                item-value="value"
-                item-title="text"
-                density="comfortable"
-                :items="[
+      <v-col cols="auto">
+        <v-select
+            width="200"
+            variant="filled"
+            @update:model-value="onFilterItemType"
+            item-value="value"
+            item-title="text"
+            density="comfortable"
+            :items="[
                   { value: '', text: t('assembly.workshop.filter.all') },
                   ...cosmeticsDataFilter.tags.map(tag => ({
                     value: tag,
                     text: t(`displayCabinet.type.${tag}`)
                   }))
                 ]"
-                :label="t('assembly.workshop.filter.byType')"
-                hide-details
-                clearable
-            ></v-select>
-          </v-col>
-        </v-row>
+            :label="t('assembly.workshop.filter.byType')"
+            hide-details
+            clearable
+        ></v-select>
       </v-col>
     </v-row>
-  </v-container>
 
-  <template v-if="!isSearching && !isType">
-    <v-infinite-scroll
-        height="100vh"
-        :items="cosmeticsData"
-        @load="onLoad">
-      <v-container>
-        <v-row class="item-list" no-gutters>
+    <template v-if="!isSearching && !isType">
+      <v-infinite-scroll
+          height="100vh"
+          :items="cosmeticsData"
+          @load="onLoad">
+        <v-row class="cosmetic-list ga-4" no-gutters>
           <div v-for="(i,index) in cosmeticsData" :key="index" style="width: 99px">
             <ItemSlotBase size="99px">
               <CosmeticIconWidget :id="i.id"></CosmeticIconWidget>
@@ -175,32 +165,30 @@ const onFilterItemType = (value) => {
             </div>
           </div>
         </v-row>
-      </v-container>
-      <template v-slot:empty></template>
-      <template v-slot:loading>
-        <v-btn density="comfortable" icon>
-          <Loading :size="42"></Loading>
-        </v-btn>
-      </template>
-      <template v-slot:load-more="{ props }">
-        <v-btn
-            icon="mdi-refresh"
-            size="small"
-            variant="text"
-            v-bind="props"
-        ></v-btn>
-      </template>
-    </v-infinite-scroll>
-  </template>
-  <template v-else>
-    <v-container>
+        <template v-slot:empty></template>
+        <template v-slot:loading>
+          <v-btn density="comfortable" icon>
+            <Loading :size="42"></Loading>
+          </v-btn>
+        </template>
+        <template v-slot:load-more="{ props }">
+          <v-btn
+              icon="mdi-refresh"
+              size="small"
+              variant="text"
+              v-bind="props"
+          ></v-btn>
+        </template>
+      </v-infinite-scroll>
+    </template>
+    <template v-else>
       <template v-if="exceedingItemsCount > 0">
         <v-alert class="w-100 mb-5" type="warning" variant="tonal">
           {{ t('displayCabinet.ships.searchCountOverflowTip', {maximumSearchCount, exceedingItemsCount}) }}
         </v-alert>
       </template>
 
-      <v-row class="item-list">
+      <v-row class="cosmetic-list ga-4">
         <div v-for="(i,index) in onProcessedData" :key="index" style="width: 99px">
           <ItemSlotBase size="99px">
             <CosmeticIconWidget :id="i.id"></CosmeticIconWidget>
@@ -214,14 +202,13 @@ const onFilterItemType = (value) => {
           <EmptyView></EmptyView>
         </v-card>
       </v-row>
-    </v-container>
-  </template>
+    </template>
+  </v-container>
 </template>
 
 <style scoped lang="less">
-.item-list {
-  > div {
-    margin: 10px;
-  }
+.cosmetic-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(99px, 1fr));
 }
 </style>

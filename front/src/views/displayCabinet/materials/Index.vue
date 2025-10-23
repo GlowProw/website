@@ -21,22 +21,25 @@ const {t} = useI18n(),
     </v-container>
   </v-breadcrumbs>
   <v-divider></v-divider>
-  <v-container class="mb-10">
-    <v-row>
-      <div v-for="(i, index) in materials" :key="index" class="mx-2 py-2">
-        <v-card variant="text" width="90">
-          <ItemSlotBase size="90px" class="d-flex justify-center align-center">
+  <v-container class="mb-10 pa-10">
+    <v-row class="material-list ga-4">
+      <template v-for="(i, index) in materials" :key="index">
+        <v-card variant="text" width="99" class="bg-transparent">
+          <ItemSlotBase size="99px" class="d-flex justify-center align-center">
             <MaterialIconWidget :id="i.id" size="60"></MaterialIconWidget>
           </ItemSlotBase>
           <div class="d-flex justify-center mx-auto mt-1 w-100 singe-line">
             <MaterialName :id="i.id" class="text-center"></MaterialName>
           </div>
         </v-card>
-      </div>
+      </template>
     </v-row>
   </v-container>
 </template>
 
 <style lang="less" scoped>
-
+.material-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(99px, 1fr));
+}
 </style>
