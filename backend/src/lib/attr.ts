@@ -23,10 +23,12 @@ const assemblyAttributes: any = {
             isPrivate: false,
             default: {
                 "bilibili": "",
+                "youku": "",
                 "youtube": ""
             },
         },
         "isShowItemName": {type: "boolean", get: true, set: true, isPrivate: false, default: false},
+        "isFullName": {type: "boolean", get: true, set: true, isPrivate: false, default: false},
         "isAnonymous": {type: "boolean", get: true, set: true, isPrivate: false, default: false},
         "isComment": {type: "boolean", get: true, set: true, isPrivate: false, default: true},
         "isLike": {type: "boolean", get: true, set: true, isPrivate: false, default: true},

@@ -139,7 +139,8 @@ async function showUserInfo(req: any, res: any, next: any) {
 
 function validateUsername(username: any): boolean {
     const trimmedUsername = username.trim().toLowerCase();
-    return !(typeof username !== 'string' || ILLEGAL_USERNAMES.has(trimmedUsername) || trimmedUsername.length === 0);
+    return !(typeof username !== 'string' || trimmedUsername.length === 0) &&
+        ILLEGAL_USERNAMES.has(trimmedUsername);
 }
 
 export {

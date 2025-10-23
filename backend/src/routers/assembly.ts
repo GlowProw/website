@@ -23,7 +23,7 @@ const assemblyConfig = {
 
 // 缓存键前缀
 const CACHE_PREFIX = 'assembly:';
-const CACHE_TTL = config.__DEBUG__ ? 10 : 24 * 60 * 60; // 1天
+const CACHE_TTL = config.__DEBUG__ ? 10 : 60 * 60; // 1小时
 
 /**
  * 获取缓存键
@@ -38,7 +38,8 @@ function getCacheKey(uuid: string, type: 'detail' | 'list' | 'attr' = 'detail'):
 async function clearAssemblyCache(uuid: string): Promise<void> {
     try {
         const keys = [
-            getCacheKey(uuid, 'detail'),
+            getCacheKey(`${uuid}:user:anonymous`, 'detail'),
+            getCacheKey(`${uuid}:user:owner`, 'detail'),
             getCacheKey(uuid, 'attr')
         ];
 
@@ -106,10 +107,10 @@ router.post('/publish', verifyJWT, forbidPrivileges(['blacklisted', 'freezed']),
 
         // 准备插入数据库的数据
         let assemblyInsertData: any = {
-                name,
-                description,
+                name: sanitizeRichText(name),
                 uuid: uuidV6(),
-                data: assemblyData && JSON.stringify(assemblyData || {}),
+                data: assemblyData,
+                attr: assemblyAttr,
                 userId: req.user.id,
                 visibility: visibility,
                 createdTime: db.fn.now(),
@@ -118,52 +119,54 @@ router.post('/publish', verifyJWT, forbidPrivileges(['blacklisted', 'freezed']),
             wheelInsertData: any = {
                 userId: req.user.id,
                 uuid: uuidV6(),
+                data: wheelData,
                 attr: wheelAttr,
-                data: wheelData && JSON.stringify(wheelData || {}),
                 creationTime: db.fn.now(),
                 updatedTime: db.fn.now(),
             },
             warehouseInsertData: any = {
                 userId: req.user.id,
                 uuid: uuidV6(),
+                data: warehouseData,
                 attr: warehouseAttr,
-                data: warehouseData && JSON.stringify(warehouseData || {}),
                 creationTime: db.fn.now(),
                 updatedTime: db.fn.now(),
             },
             result: any = {}
 
-        if (wheelAttr) wheelInsertData.attr = JSON.stringify(attrHandle.assemblySetAttributes(wheelInsertData.attr || {}, wheelAttr, false));
-        if (wheelData) wheelInsertData.data = wheelData;
-        if (warehouseAttr) warehouseInsertData.attr = JSON.stringify(attrHandle.assemblySetAttributes(warehouseInsertData.attr || {}, warehouseAttr, false));
-        if (warehouseData) warehouseInsertData.data = warehouseData;
+        if (wheelAttr) wheelInsertData.attr = JSON.stringify(attrHandle.wheelSetAttributes(wheelInsertData.attr || {}, wheelAttr, false));
+        if (wheelData) wheelInsertData.data = JSON.stringify(wheelData || {});
+        if (warehouseAttr) warehouseInsertData.attr = JSON.stringify(attrHandle.warehouseSetAttributes(warehouseInsertData.attr || {}, warehouseAttr, false));
+        if (warehouseData) warehouseInsertData.data = JSON.stringify(warehouseData || {});
         if (assemblyAttr) assemblyInsertData.attr = JSON.stringify(attrHandle.assemblySetAttributes(assemblyInsertData.attr || {}, assemblyAttr, false));
+        if (assemblyData) assemblyInsertData.data = JSON.stringify(assemblyData || {});
         if (tags) assemblyInsertData.tags = JSON.stringify(handlingLabels(tags));
+        if (description) assemblyInsertData.description = sanitizeRichText(description);
 
         // 新增轮盘
         if (wheelData) {
-            const [insertedWheelId] = await db('wheel')
+            const [insertedWheelUUid] = await db('wheel')
                 .insert(wheelInsertData)
-                .returning('id');
-            result['wheel.id'] = insertedWheelId
+                .returning('uuid');
+            result['wheel.uuid'] = insertedWheelUUid
         }
 
         // 新增船仓
         if (warehouseData) {
-            const [insertedWarehouseId] = await db('warehouse')
+            const [insertedWarehouseUUid] = await db('warehouse')
                 .insert(wheelInsertData)
-                .returning('id');
-            result['warehouse.id'] = insertedWarehouseId
+                .returning('uuid');
+            result['warehouse.uuid'] = insertedWarehouseUUid
         }
 
-        if (result['wheel.id']) assemblyInsertData.wheelId = result['wheel.id'] || null
-        if (result['warehouse.id']) assemblyInsertData.warehouseId = result['warehouse.id'] || null
+        if (result['wheel.uuid']) assemblyInsertData.wheelId = result['wheel.uuid'] || null
+        if (result['warehouse.uuid']) assemblyInsertData.warehouseId = result['warehouse.uuid'] || null
 
         // 新增配装
-        const [insertedAssemblyId] = await db('assembly')
+        await db('assembly')
             .insert(assemblyInsertData)
-            .returning('id');
-        result['assembly.id'] = insertedAssemblyId
+            .returning('uuid');
+        result['assembly.uuid'] = assemblyInsertData.uuid
 
         res.status(200).json({
             code: 'publish.success',
@@ -231,11 +234,13 @@ router.get('/list', [
                 'assembly.uuid',
                 'assembly.name',
                 'assembly.attr',
+                'assembly.valid',
                 'assembly.data as assembly',
                 db.raw('(SELECT COUNT(*) FROM likes WHERE targetType = "assembly" AND targetId = assembly.uuid) as likes'),
                 db.raw(`CASE WHEN assembly.attr->>"$.isAnonymous" = 'true' THEN NULL ELSE assembly.userId END as userId`),
                 db.raw(`CASE WHEN assembly.attr->>"$.isAnonymous" = 'true' THEN NULL ELSE users.username END as username`)
             )
+            .where('assembly.valid', 1)
             .where('assembly.visibility', '=', 'publicly')
             .where(function () {
                 this.where(db.raw('assembly.attr->>"$.password"'), !isHasPassword ? '!=' : '=', '');
@@ -682,10 +687,10 @@ router.get('/item', [
             return res.status(400).json({error: 1, code: 'detail.detail.bad', message: validateErr.array()});
 
         const {uuid, password, force: isForce = false} = req.query;
-        const userId = req.user?.id || 'anonymous'; // 获取用户ID 或 匿名标识
+        const userType = req.user?.id ? 'owner' : 'anonymous'; // 所有者 或 匿名标识
 
         // 基于用户身份创建不同的缓存键
-        const cacheKey = `${getCacheKey(uuid as string)}:user:${userId}`;
+        const cacheKey = `${getCacheKey(uuid as string)}:user:${userType}`;
 
         let assemblyCacheDataResult = null
 
@@ -722,12 +727,20 @@ router.get('/item', [
             .leftJoin('warehouse', 'assembly.warehouseId', 'warehouse.id')
             .where('assembly.uuid', uuid)
             .andWhere(function () {
-                if (req.user && req.user.id)
-                    this.where('wheel.userId', req.user.id).orWhereNull('assembly.wheelId');
+                if (req.user && req.user.id) {
+                    this.where(function () {
+                        this.whereNotNull('assembly.wheelId')
+                            .andWhere('wheel.userId', req.user.id);
+                    }).orWhereNull('assembly.wheelId');
+                }
             })
             .andWhere(function () {
-                if (req.user && req.user.id)
-                    this.where('warehouse.userId', req.user.id).orWhereNull('assembly.warehouseId');
+                if (req.user && req.user.id) {
+                    this.where(function () {
+                        this.whereNotNull('assembly.warehouseId')
+                            .andWhere('warehouse.userId', req.user.id);
+                    }).orWhereNull('assembly.warehouseId');
+                }
             })
             .select(
                 'users.username',
@@ -736,6 +749,7 @@ router.get('/item', [
                 'users.email as userEmail',
                 'assembly.uuid',
                 'assembly.userId',
+                'assembly.valid',
                 'assembly.name',
                 'assembly.description',
                 'assembly.visibility',
@@ -752,8 +766,12 @@ router.get('/item', [
             )
             .first();
 
-        if (!result) {
-            return res.status(404).json({error: 1, code: 'assembly.detail.notFound'});
+        if (!result || result.valid == 0) {
+            return res.status(404).json({
+                error: 1,
+                code: 'assembly.detail.notFound',
+                isVisibility: true,
+            });
         }
 
         const isOwner = req.user && req.user.id === result.userId || false,
@@ -878,9 +896,10 @@ router.post('/delete', verifyJWT, forbidPrivileges(['blacklisted', 'freezed']), 
         const assembly = await db('assembly')
             .where('uuid', uuid)
             .andWhere('userId', req.user.id)
+            .andWhere('valid', 1)
             .first();
 
-        if (!assembly || assembly.valid == 0) {
+        if (!assembly) {
             return res.status(404).json({error: 1, code: 'assembly.delete.notFound'});
         }
 
@@ -895,36 +914,70 @@ router.post('/delete', verifyJWT, forbidPrivileges(['blacklisted', 'freezed']), 
             .andWhere('valid', 1)
             .update({valid: 0});
 
-        // 清理相关数据
-        await db('wheel')
+        const wheelExists = await db('wheel')
             .where('userId', req.user.id)
             .where('uuid', assembly.wheelId)
             .andWhere('valid', 1)
-            .update({valid: 0});
+            .first();
+        if (wheelExists) {
+            await db('wheel')
+                .where('userId', req.user.id)
+                .where('uuid', assembly.wheelId)
+                .andWhere('valid', 1)
+                .update({valid: 0});
+        }
 
-        await db('warehouse')
+        const warehouseExists = await db('warehouse')
             .where('userId', req.user.id)
             .where('uuid', assembly.warehouseId)
             .andWhere('valid', 1)
-            .update({valid: 0});
+            .first();
+        if (warehouseExists) {
+            await db('warehouse')
+                .where('userId', req.user.id)
+                .where('uuid', assembly.warehouseId)
+                .andWhere('valid', 1)
+                .update({valid: 0});
+        }
 
-        await db('likes')
+        const likesExists = await db('likes')
             .where('targetId', uuid)
             .andWhere('targetType', 'assembly')
             .andWhere('valid', 1)
-            .update({valid: 0});
+            .first();
+        if (likesExists) {
+            await db('likes')
+                .where('targetId', uuid)
+                .andWhere('targetType', 'assembly')
+                .andWhere('valid', 1)
+                .update({valid: 0});
+        }
 
-        await db('comments')
+        const commentsExists = await db('comments')
             .where('targetId', uuid)
             .andWhere('targetType', 'assembly')
             .andWhere('valid', 1)
-            .update({valid: 0});
+            .first();
+        if (commentsExists) {
+            await db('comments')
+                .where('targetId', uuid)
+                .andWhere('targetType', 'assembly')
+                .andWhere('valid', 1)
+                .update({valid: 0});
+        }
 
-        await db('replies')
+        const repliesExists = await db('replies')
             .where('targetId', uuid)
             .andWhere('targetType', 'assembly')
             .andWhere('valid', 1)
-            .update({valid: 0});
+            .first();
+        if (repliesExists) {
+            await db('replies')
+                .where('targetId', uuid)
+                .andWhere('targetType', 'assembly')
+                .andWhere('valid', 1)
+                .update({valid: 0});
+        }
 
         // 清除相关缓存
         await clearAssemblyCache(uuid);
