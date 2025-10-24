@@ -26,6 +26,8 @@ import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue";
 import BySeasonWidget from "@/components/BySeasonWidget.vue";
 import ItemMaterials from "@/components/snbWidget/itemMaterials.vue";
+import shipAvailableUpgradeWidget from "@/components/snbWidget/shipAvailableUpgradeWidget.vue";
+import ShipUpgradeUseWidget from "@/components/snbWidget/shipUpgradeUseWidget.vue";
 
 const shipImages = import.meta.glob('@glow-prow-assets/ships/*.png', {eager: true});
 
@@ -261,6 +263,11 @@ const onDisplayCabinetHistory = () => {
                 <ItemContentWidget :data="shipDetailData">
                   <v-divider>{{ t('displayCabinet.item.contentsTitle') }}</v-divider>
                 </ItemContentWidget>
+              </v-col>
+              <v-col cols="12">
+                <shipAvailableUpgradeWidget :id="shipDetailData.id">
+                  <v-divider>{{ t('displayCabinet.item.shipUpgradesTitle') }}</v-divider>
+                </shipAvailableUpgradeWidget>
               </v-col>
               <v-col cols="12">
                 <ItemMaterials :data="shipDetailData">

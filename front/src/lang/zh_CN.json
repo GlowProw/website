@@ -255,6 +255,8 @@
       "reloadSpeed": "重新加载速度（秒）",
       "optimalRange": "范围（米）",
       "projectileSpeed": "射弹速度（米/秒）",
+      "shipUpgradeUseTitle": "可用船只",
+      "shipUpgradesTitle": "可用升级",
       "contentsTitle": "掉落内容",
       "materialsTitle": "材料",
       "faction": "阵营",
@@ -354,6 +356,13 @@
     },
     "materials": {
       "title": "材料列表"
+    },
+    "treasureMap": {
+      "title": "藏宝图详情",
+      "lookDetail": "查看藏宝图详情"
+    },
+    "treasureMaps": {
+      "title": "藏宝图列表"
     }
   },
   "calendar": {

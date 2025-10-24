@@ -25,6 +25,10 @@ const {t} = useI18n()
     <v-list-item to="/display-cabinet/materials">
       {{ t('displayCabinet.materials.title') }}
     </v-list-item>
+    <v-divider class="my-2"></v-divider>
+    <v-list-item to="/display-cabinet/treasureMaps">
+      {{ t('displayCabinet.treasureMaps.title') }}
+    </v-list-item>
   </v-list>
 </template>
 

@@ -55,6 +55,24 @@ export function useI18nReadName() {
         }
     }
 
+    const treasureMap = (id) => {
+        const keys = [
+            `snb.treasureMaps.${id}.name`,
+        ];
+
+        return {
+            keys,
+            name: (lang?: string) => {
+                if (ships[id])
+                    return asString(keys, {
+                        backRawKey: true,
+                        lang
+                    })
+                return id
+            }
+        }
+    }
+
     const ultimate = {
         name: (id: string) => {
             if (ultimates[id])
@@ -71,6 +89,7 @@ export function useI18nReadName() {
         item,
         ship,
         ultimate,
+        treasureMap,
         getValue
     }
 }

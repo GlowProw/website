@@ -30,6 +30,8 @@ import MaterialsPage from '../src/views/displayCabinet/materials/Index.vue'
 import MaterialDetailPage from '../src/views/displayCabinet/materials/Detail.vue'
 import CosmeticsPage from '../src/views/displayCabinet/cosmetics/Index.vue'
 import CosmeticDetailPage from '../src/views/displayCabinet/cosmetics/Detail.vue'
+import TreasureMapsPage from '../src/views/displayCabinet/treasureMaps/Index.vue'
+import TreasureMapDetailPage from '../src/views/displayCabinet/treasureMaps/Detail.vue'
 import empireSkillSimulationPage from '../src/views/empireSkillSimulation/Index.vue'
 
 import UltimatesPage from '../src/views/displayCabinet/ultimates/Index.vue'
@@ -313,13 +315,32 @@ const routes: Readonly<RouteRecordRaw[]> = [
             },
             {
                 path: 'cosmetic/:id',
-                name: 'cosmeticDetail',
+                name: 'CosmeticDetail',
                 meta: {
                     title: 'displayCabinet.cosmetic.title',
                     keywords: 'displayCabinet.cosmetic.meta.keywords'
                 },
                 component: CosmeticDetailPage,
             },
+            {
+                path: 'treasureMaps',
+                name: 'TreasureMaps',
+                meta: {
+                    title: 'displayCabinet.treasureMaps.title',
+                    keywords: 'displayCabinet.treasureMaps.meta.keywords'
+                },
+                component: TreasureMapsPage,
+            },
+            {
+                path: 'treasureMap/:id',
+                name: 'TreasureMapDetail',
+                meta: {
+                    title: 'displayCabinet.treasureMaps.title',
+                    keywords: 'displayCabinet.treasureMaps.meta.keywords'
+                },
+                component: TreasureMapDetailPage,
+            },
+
         ]
     },
     {

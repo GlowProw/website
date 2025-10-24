@@ -8,6 +8,8 @@ export const useAssetsStore = defineStore('assets', {
         materials: new Map(),
         factions: new Map(),
 
+        treasureMaps: new Map(),
+
         raritys: new Map(),
     }),
     actions: {
@@ -16,6 +18,7 @@ export const useAssetsStore = defineStore('assets', {
          */
         init(options = {
             all: true, ship: true, item: true, cosmetic: true, material: true, faction: true,
+            teasureMap: true,
             rarity: true,
         }) {
             if (options.ship || options.all)
@@ -28,6 +31,9 @@ export const useAssetsStore = defineStore('assets', {
                 this.initMaterials()
             if (options.faction || options.all)
                 this.iniFactions()
+
+            if (options.teasureMap || options.all)
+                this.initTeasureMaps()
 
             if (options.rarity || options.all)
                 this.initRarity()
@@ -107,6 +113,16 @@ export const useAssetsStore = defineStore('assets', {
             const factionsImages = import.meta.glob('@glow-prow-assets/factions/*.*', {eager: true});
 
             this.factions = this.serializationMap(factionsImages);
+        },
+
+        initTeasureMaps () {
+            if (this.treasureMaps.size != 0)
+                return;
+
+            const teasureMapsImages = import.meta.glob('@glow-prow-assets/treasureMaps/*.*', {eager: true});
+
+            this.treasureMaps = this.serializationMap(teasureMapsImages);
+            console.log(this.treasureMaps)
         },
 
         /**

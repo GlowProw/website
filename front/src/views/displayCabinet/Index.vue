@@ -14,10 +14,11 @@ const {t} = useI18n(),
 let isDetailPage = computed(() => [
   'ShipDetail',
   'ItemDetail',
-  'cosmeticDetail',
+  'CosmeticDetail',
   'UltimateDetail',
   'ModDetail',
-  'MaterialDetail'
+  'MaterialDetail',
+  'TreasureMapDetail'
 ].includes(route.name))
 </script>
 

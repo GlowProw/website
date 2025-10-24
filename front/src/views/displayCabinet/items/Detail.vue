@@ -32,6 +32,7 @@ import ItemMaterials from "@/components/snbWidget/itemMaterials.vue";
 import ObtainableWidget from "@/components/ObtainableWidget.vue";
 import WorldEventWidget from "@/components/WorldEventWidget.vue";
 import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
+import ShipUpgradeUseWidget from "@/components/snbWidget/shipUpgradeUseWidget.vue";
 
 const
     {t, messages} = useI18n(),
@@ -425,6 +426,11 @@ const onStarItem = (data: Item) => {
                 <ItemContentWidget :data="itemDetailData">
                   <v-divider>{{ t('displayCabinet.item.contentsTitle') }}</v-divider>
                 </ItemContentWidget>
+              </v-col>
+              <v-col cols="12" v-if="itemDetailData.type == 'shipUpgrade'">
+                <ShipUpgradeUseWidget :id="itemDetailData.id">
+                  <v-divider>{{ t('displayCabinet.item.shipUpgradeUseTitle') }}</v-divider>
+                </ShipUpgradeUseWidget>
               </v-col>
               <v-col cols="12">
                 <ItemMaterials :data="itemDetailData">
