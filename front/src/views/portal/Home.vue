@@ -117,7 +117,7 @@ const getCurrentSeason = (): Season | null => {
           </v-col>
           <v-col order="1" order-lg="2">
             <div class="title">
-              <h1 class="btn-flavor pl-10 pr-10 pt-3 pb-3">{{ t(`snb.calendar.${currentlySeason?.id}.name`) }}</h1>
+              <h1 class="btn-flavor pl-10 pr-10 pt-3 pb-3 singe-line overflow-hidden w-100">{{ t(`snb.calendar.${currentlySeason?.id}.name`) }}</h1>
               <p class="ma-auto mt-4 font-weight-light opacity-80">{{ t(`snb.calendar.${currentlySeason?.id}.description`) }}</p>
             </div>
           </v-col>

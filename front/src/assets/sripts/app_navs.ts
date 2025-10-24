@@ -1,3 +1,6 @@
+/**
+ * 应用导航
+ */
 export default class AppNavs {
     public list = [
         {

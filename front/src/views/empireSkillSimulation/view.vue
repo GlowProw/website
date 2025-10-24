@@ -69,27 +69,33 @@
         </template>
       </v-card-title>
 
-      <div class="card-enlargement-flavor px-10 mx-n6 py-2 text-amber-lighten-4">{{ t('empireSkillSimulation.effects') }}</div>
-      <div class="py-2 px-5 mb-5">
+      <div class="card-enlargement-flavor px-10 mx-n6 py-2 text-amber-lighten-4">
+        {{ t('empireSkillSimulation.effects') }}
+        <template v-if="skills[selectShowKey] && skills[selectShowKey].stage > 1">
+          ({{skills[selectShowKey].stage }})
+        </template>
+      </div>
+      <div class="py-2 px-5 mb-5 text-pre-line">
         <template v-if="skills[selectShowKey] && skills[selectShowKey].stage && skills[selectShowKey].stage > 1">
           <template v-if="!skillPointsInput[selectShowKey]">
             <!-- 未选择模拟，预览所有 -->
-            <p class="opacity-60" v-for="(to, toIndex) in tm(`snb.empireSkills.${skills[selectShowKey] && skills[selectShowKey].id}.effects`)" :key="toIndex">
-              {{ number.intToRoman(toIndex) }}: {{ to || t('empireSkillSimulation.effectsNotContent') }}
+            <p class="opacity-60" v-for="(to, toIndex) in skills[selectShowKey].stage" :key="toIndex">
+              {{ number.intToRoman(to) }}: {{ t(`snb.empireSkills.${skills[selectShowKey] && skills[selectShowKey].id}.effects.${to}`, {...skills[selectShowKey].attr, faction: t(`snb.factions.${skills[selectShowKey].type}.name`)}) || t('empireSkillSimulation.effectsNotContent') }}
             </p>
           </template>
           <template v-else>
             <!-- 选择模拟，预览对应 -->
-            {{ t(`snb.empireSkills.${skills[selectShowKey] && skills[selectShowKey].id}.effects.${skillPointsInput[selectShowKey] || '1'}`, {...skills[selectShowKey].attr}) }}
+            {{ t(`snb.empireSkills.${skills[selectShowKey] && skills[selectShowKey].id}.effects.${skillPointsInput[selectShowKey] || '1'}`, {...skills[selectShowKey].attr, faction: t(`snb.factions.${skills[selectShowKey].type}.name`)}) }}
           </template>
         </template>
         <template v-else-if="skills[selectShowKey] && skills[selectShowKey].stage && skills[selectShowKey].stage == 1">
-          {{ t(`snb.empireSkills.${skills[selectShowKey] && skills[selectShowKey].id}.effects.general`, {...skills[selectShowKey].attr}) || t('empireSkillSimulation.effectsNotContent') }}
+          {{ t(`snb.empireSkills.${skills[selectShowKey] && skills[selectShowKey].id}.effects.general`, {...skills[selectShowKey].attr, faction: t(`snb.factions.${skills[selectShowKey].type}.name`)}) || t('empireSkillSimulation.effectsNotContent') }}
         </template>
       </div>
 
       <div class="card-enlargement-flavor px-10 mx-n6 py-2 text-amber-lighten-4">{{ t('empireSkillSimulation.requirements') }}</div>
       <div class="py-2 px-5 mb-5">
+        <p class="mb-1">需拥有以下所有升级</p>
         <div v-if="skills[selectShowKey] && skills[selectShowKey].requisite">
           <v-row no-gutters v-for="(i, index) in skills[selectShowKey].requisite" :key="index" align="center">
             <v-col cols="auto" class="d-flex justify-center align-center mr-2">
@@ -258,7 +264,7 @@ const props = defineProps<{
     svgScaleExtent = [0.6, 4],
     router = useRouter(),
     route = useRoute(),
-    {t, tm, te, locale} = useI18n(),
+    {t, tm, te, rt, locale} = useI18n(),
     {mobile} = useDisplay();
 
 let svgRef = ref<SVGSVGElement | null>(null),

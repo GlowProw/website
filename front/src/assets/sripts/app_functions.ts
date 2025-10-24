@@ -1,3 +1,6 @@
+/**
+ * 应用功能
+ */
 export default class AppFuns {
     public list = [
         {

@@ -7,6 +7,7 @@ import HeaderMuenFunWidget from "@/components/HeaderMuenFunWidget.vue";
 import {appFuns, appNavs} from "@/assets/sripts/index";
 import {useI18n} from "vue-i18n";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
+import GlobalSearch from "@/components/GlobalSearch.vue";
 
 const authStore = useAuthStore(),
     {t} = useI18n()
@@ -40,8 +41,11 @@ let drawer = ref(false)
 
       <v-spacer></v-spacer>
 
-
       <HeaderAccount type="header"></HeaderAccount>
+
+      <GlobalSearch>
+        <v-icon>mdi-search-web</v-icon>
+      </GlobalSearch>
 
       <HeaderMuenFunWidget></HeaderMuenFunWidget>
     </v-app-bar>

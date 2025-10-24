@@ -10,7 +10,7 @@ import {StorageIntermediateTransfer as _StorageIntermediateTransfer} from './sto
 import {StorageCollect as _StorageCollect} from './storage_collect'
 import _Date from './date';
 import _Number from './number';
-import _AppFuns from './app_funs'
+import _AppFuns from './app_functions'
 import _AppNavs from './app_navs'
 import _Rarity from './rarity'
 import _AssemblyViewConfig from './assembly_view_config'
