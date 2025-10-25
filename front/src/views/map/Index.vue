@@ -1,9 +1,7 @@
 <template>
-  <v-app>
+  <v-app class="background-flavor">
     <Header></Header>
-    <v-main>
-      <router-view></router-view>
-    </v-main>
+    <router-view></router-view>
     <Footer></Footer>
   </v-app>
 </template>

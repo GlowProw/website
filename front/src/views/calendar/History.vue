@@ -9,13 +9,15 @@ import Loading from "@/components/Loading.vue";
 import CalendarEventSLotWidget from "@/components/snbWidget/calendarEventSLotWidget.vue";
 import {Season} from "glow-prow-data/src/entity/Seasons";
 import Scrollbar from "smooth-scrollbar";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
 
-const {t, te} = useI18n()
+const {t, te} = useI18n(),
+    {asString} = useI18nUtils()
 
 let seasons = Seasons,
 
     // 赛季选择器
-    selectSeasonsList = ref(),
+    selectSeasonsList = ref([]),
     selectSeasonsValue = ref(),
 
     // 赛季表单
@@ -25,9 +27,11 @@ let seasons = Seasons,
     seasonsCalendarEvents: any = ref(),
     // 当前赛季
     currentlySeason: Ref<Season> = ref(null),
+    remainingDays = computed(() => getRemainingDays()),
 
-    scrollContainer = ref(null),
-    remainingDays = computed(() => getRemainingDays())
+    // 滚动器
+    scrollbarRef = ref(null),
+    scrollbarContainer: Ref<Scrollbar> = ref(null)
 
 let isTransforming = false;
 
@@ -37,23 +41,20 @@ onMounted(async () => {
   // 读取当前赛季事件
   await getCalendarEventData()
 
-  // 初始赛季选择列表
-  selectSeasonsList.value = Object.values(seasons).map(i => {
-    let label = 'none',
-        i18nText = `snb.calendar.${i.id}.name`
+  // 初始日历数据
+  initCalendarList()
+  // 初始滚动器
+  initScroll()
 
-    if (onCheckI18nValue(i18nText).code == 0)
-      label = onCheckI18nValue(i18nText).value
-
-    return {id: i.id, label}
-  })
   selectSeasonsValue.value = selectSeasonsList.value[selectSeasonsList.value.length - 1]
+})
 
-  // 初始日历列表
-  formattedCalendar.value = transformCalendarData(seasonsCalendarEvents.value);
-
-  if (scrollContainer.value) {
-    let scrollbar= Scrollbar.init(scrollContainer.value, {
+/**
+ * 初始滚动
+ */
+const initScroll = () => {
+  if (scrollbarRef.value) {
+    scrollbarContainer.value = Scrollbar.init(scrollbarRef.value, {
       damping: 0.1,
       thumbMinSize: 20,
       renderByPixels: true,
@@ -66,7 +67,7 @@ onMounted(async () => {
       }
     });
 
-    scrollbar.addListener((status) => {
+    scrollbarContainer.value.addListener((status) => {
       if (isTransforming) return;
       const deltaY = status.offset.y;
 
@@ -80,7 +81,26 @@ onMounted(async () => {
       }
     });
   }
-})
+}
+
+/**
+ * 处理日历数据
+ */
+const initCalendarList = () => {
+  // 初始赛季选择列表
+  selectSeasonsList.value = Object.values(seasons).map(i => {
+    let label = 'none',
+        i18nText = `snb.seasons.${i.id}`
+
+    if (onCheckI18nValue(i18nText).code == 0)
+      label = onCheckI18nValue(i18nText).value
+
+    return {id: i.id, label}
+  }).filter(i => i.id != 'none')
+
+  // 初始日历列表
+  formattedCalendar.value = transformCalendarData(seasonsCalendarEvents.value);
+}
 
 /**
  * 处理日历
@@ -120,7 +140,7 @@ function transformCalendarData(calendarData: CalendarData): FormattedCalendar {
   });
 
   // 初始化结果结构
-  sortedYearMonths.forEach(({ year, month, daysInMonth }) => {
+  sortedYearMonths.forEach(({year, month, daysInMonth}) => {
     const monthKey = `${year}-${month}`;
     result[monthKey] = {
       data: Array.from({length: daysInMonth}, (_, i) => ({
@@ -185,12 +205,12 @@ function transformCalendarData(calendarData: CalendarData): FormattedCalendar {
 /**
  * 获取日历数据
  */
-const getCalendarEventData = async () => {
+const getCalendarEventData = async (seasonId: string) => {
   try {
     calendarLoading.value = true;
     const result = await http.get('calendar/data', {
           params: {
-            season: currentlySeason.value.id
+            season: seasonId || currentlySeason.value.id
           }
         }),
         d = result.data;
@@ -202,6 +222,16 @@ const getCalendarEventData = async () => {
     calendarLoading.value = false;
     return {}
   }
+}
+
+/**
+ * 更新选择赛季日历
+ */
+const updateSelectSeason = (season) => {
+  getCalendarEventData(season.id).then(() => {
+    initCalendarList()
+    initScroll()
+  })
 }
 
 /**
@@ -284,14 +314,14 @@ function getRemainingDays(): number | null {
         <v-col v-if="currentlySeason && selectSeasonsValue && selectSeasonsValue.id" cols="12" sm="12" lg="6">
           <div class="mt-3">
             <div>
-              <span class="text-amber mr-2 text-h3">{{ t(`snb.calendar.${selectSeasonsValue.id}.name`) || '-' }}</span>
+              <span class="text-amber mr-2 text-h3">{{ t(`snb.seasons.${selectSeasonsValue.id}`) || '-' }}</span>
               <span class="mr-2 text-h4">
              剩余 {{ remainingDays }} 天
             </span>
             </div>
             <p class="mt-1" v-if="selectSeasonsValue">{{ selectSeasonsValue.id.toString().toUpperCase() }}</p>
           </div>
-          <p class="mt-2 opacity-80">{{ t(`snb.calendar.${selectSeasonsValue.id}.description`) || '-' }}</p>
+          <p class="mt-2 opacity-80">{{ asString([`snb.calendar.${selectSeasonsValue.id}.description`], {backRawKey: false}) || '' }}</p>
         </v-col>
         <v-spacer></v-spacer>
         <v-col>
@@ -306,12 +336,12 @@ function getRemainingDays(): number | null {
               </template>
 
               <template v-slot:default="{ isActive }">
-                <v-card :title="`订阅 ${t(`snb.calendar.${selectSeasonsValue.id}.name`)}`">
+                <v-card :title="`订阅 ${t(`snb.seasons.${selectSeasonsValue.id}`)}`">
                   <v-card-text class="opacity-80">
                     下载.ics文件，它是标准格式，通过支持应用打开，应用数据
                   </v-card-text>
                   <div class="w-100 background-flavor pt-4 pb-4">
-                    <p class="text-amber text-h3 text-center">{{ t(`snb.calendar.${selectSeasonsValue.id}.name`) || '-' }}</p>
+                    <p class="text-amber text-h3 text-center">{{ t(`snb.seasons.${selectSeasonsValue.id}`) || '-' }}</p>
                   </div>
                   <v-card-actions>
                     <v-spacer></v-spacer>
@@ -326,7 +356,6 @@ function getRemainingDays(): number | null {
             </v-dialog>
             <v-combobox
                 tile
-                disabled
                 label="过往赛季"
                 variant="solo-filled"
                 density="comfortable"
@@ -334,6 +363,7 @@ function getRemainingDays(): number | null {
                 item-title="label"
                 min-width="150px"
                 max-width="300px"
+                @update:modelValue="(v) => updateSelectSeason(v)"
                 v-model="selectSeasonsValue"
                 :items="selectSeasonsList">
             </v-combobox>
@@ -344,13 +374,13 @@ function getRemainingDays(): number | null {
     </v-container>
     <!-- 头部 E -->
 
-    <div ref="scrollContainer">
+    <div ref="scrollbarRef" class="position-relative">
       <div class="calendar-line" style="white-space: nowrap;">
-        <div v-for="(month, monthKey) in formattedCalendar" :key="monthKey">
-          <template v-if="month.eventCount > 0">
+        <div v-for="(m, monthKey) in formattedCalendar" :key="monthKey">
+          <template v-if="m.eventCount > 0">
             <v-row no-gutters align="center">
               <v-avatar size="55" class="font-weight-bold text-h5" :color="`var(--main-color)`" style="color: hsl(from var(--main-color) h s calc(l * 0.3));">
-                {{ month.month }}
+                {{ m.month }}
               </v-avatar>
               <v-col>
                 <v-divider :color="`var(--main-color)`" :opacity="20"></v-divider>
@@ -358,17 +388,17 @@ function getRemainingDays(): number | null {
             </v-row>
 
             <div class="calendar-line-day">
-              <div v-for="day in month.data" :key="day.day">
-                <template v-if="day.events.length">
+              <div v-for="d in m.data" :key="d.day">
+                <template v-if="d.events.length">
                   <v-btn block class="btn-flavor mt-4 w-100 font-weight-bold text-black">
-                    {{ day.day }}日
+                    {{ d.day }}日
                   </v-btn>
 
                   <div class="mr-3 pt-4">
                     <CalendarEventSLotWidget
                         :data="event"
-                        :currentlySeason="currentlySeason"
-                        v-for="event in day.events"
+                        :currentlySeason="seasons[selectSeasonsValue.id]"
+                        v-for="event in d.events"
                         :key="`${event.id}-${event.year}-${event.month}-${event.startDay}`">
                       <template v-slot:header-right-btn>
                         <v-dialog max-width="500">
@@ -387,7 +417,7 @@ function getRemainingDays(): number | null {
                                 <CalendarEventSLotWidget class="ma-auto"
                                                          :show-dropped="false"
                                                          :data="event"
-                                                         :currentlySeason="currentlySeason"></CalendarEventSLotWidget>
+                                                         :currentlySeason="seasons[selectSeasonsValue.id]"></CalendarEventSLotWidget>
                               </div>
 
                               <v-card-actions>
@@ -413,7 +443,7 @@ function getRemainingDays(): number | null {
     </div>
   </template>
   <div class="calendar text-center" v-if="calendarLoading">
-    <v-card min-height="400" class="mt-10 ma-auto" variant="text">
+    <v-card min-height="400" class="mt-16 ma-auto bg-transparent" variant="text">
       <Loading size="100" class="mt-50"></Loading>
     </v-card>
   </div>

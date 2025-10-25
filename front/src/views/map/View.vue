@@ -5,7 +5,7 @@
     <!-- 搜索 S -->
     <v-card border class="d-flex map-search-bar"
             :width="mobile ? 'calc(100% - 60px)' : 450"
-            :style="{'top': mobile ? '30px' : '30px'}">
+            :style="{'top': mobile ? '80px' : '80px'}">
       <v-combobox
           v-model="searchQuery"
           :items="searchSuggestions"
@@ -368,7 +368,7 @@ let mapViewRef = ref<HTMLElement | null>(null),
     searchQuery = ref(""),
     searchSuggestions = ref<any[]>([]),
 
-    // 图层控制相关 - 修复：使用对象来管理每个图层的可见性
+    // 图层控制相关
     isShowMarkModel = ref(false),
     layerVisibility = ref<Record<string, boolean>>({}),
     allLayersVisible = ref(true),
@@ -482,7 +482,10 @@ const handleSearch = () => {
   }
 };
 
-// 切换单个图层显示 - 修复：使用图层过滤而不是样式设置
+/**
+ * 切换单个图层显示
+ * @param category
+ */
 const toggleLayer = (category: string) => {
   if (!vectorLayerRef.value) return;
 
@@ -514,7 +517,9 @@ const toggleLayer = (category: string) => {
   updateAllLayersVisibleState();
 };
 
-// 切换所有图层显示 - 修复：统一处理所有分类
+/**
+ * 切换所有图层显示
+ */
 const toggleAllLayers = () => {
   if (!vectorLayerRef.value || !availableCategories.value.length) return;
 
@@ -554,7 +559,6 @@ const initializeLayerVisibility = () => {
   });
 };
 
-// 监听搜索建议变化
 watch(searchQuery, (newValue) => {
   if (!newValue) {
     searchSuggestions.value = [];
@@ -576,7 +580,7 @@ onMounted(() => {
     features: createFeaturesFromLocations(locations.value)
   });
 
-  // 创建矢量图层 - 修复：使用动态样式函数
+  // 创建矢量图层
   const vectorLayer = new VectorLayer({
     source: vectorSource,
     zIndex: 100,
@@ -769,6 +773,7 @@ onMounted(() => {
 
 /**
  * 处理名称
+ * @param data
  */
 const locationDisplayName = (data: any): string => {
   const location = data;
@@ -793,6 +798,7 @@ const capitalizeFirstLetter = (str: string): string => {
 
 /**
  * 创建标记点样式
+ * @param feature
  */
 const createMarkerStyle = (feature: OLFeature<Geometry>): Style => {
   const originalData = feature.get('originalData');
@@ -810,6 +816,7 @@ const createMarkerStyle = (feature: OLFeature<Geometry>): Style => {
 
 /**
  * 将locations数据转换为OpenLayers要素
+ * @param locations
  */
 const createFeaturesFromLocations = (locations: any[]): OLFeature<Geometry>[] => {
   return locations.map(location => {
@@ -985,7 +992,7 @@ const resetView = (): void => {
     backdrop-filter: blur(70px);
     top: 0 !important;;
     left: 0;
-    padding-top: 86px;
+    padding-top: 136px;
     height: calc(100vh - 100px) !important;;
     overflow-y: auto;
     z-index: 30 !important;

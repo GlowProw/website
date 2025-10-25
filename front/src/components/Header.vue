@@ -26,7 +26,7 @@ let drawer = ref(false)
       <v-app-bar-nav-icon @click="drawer = !drawer" class="hidden-md hidden-lg hidden-xl hidden-xxl"></v-app-bar-nav-icon>
 
       <Logo class="ml-sm-1 ml-md-1 ml-lg-2 mr-5"></Logo>
-      <v-btn size="x-small" class="ml-n3 mr-3" variant="tonal">BETA</v-btn>
+      <v-btn size="x-small" class="ml-n3 mr-3" variant="tonal">BETA 2</v-btn>
 
       <v-btn
           class="hidden-sm hidden-xs"
