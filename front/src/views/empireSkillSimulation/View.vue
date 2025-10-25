@@ -33,6 +33,7 @@
       <v-combobox
           v-model="searchQuery"
           :items="searchItems"
+          :placeholder="t('empireSkillSimulation.searchPlaceholder')"
           tile
           elevation="0"
           hide-details
@@ -48,7 +49,7 @@
     </v-card>
     <!-- 搜索 E -->
 
-    <!-- 技能展示卡 S -->
+    <!-- 信息卡片 S -->
     <v-card v-show="model" border
             elevation="12"
             :width="mobile ? 'calc(100% - 50px)' : 450"
@@ -231,7 +232,7 @@
         </v-row>
       </div>
     </v-card>
-    <!-- 技能展示卡 E -->
+    <!-- 信息卡片 E -->
 
   </div>
 </template>
@@ -282,7 +283,6 @@ const props = defineProps<{
 let
     empireSkillSimulationViewRef = ref(null),
     svgRef = ref<SVGSVGElement | null>(null),
-    // 更改：`scaleExtent` 计算属性现在包含一个额外的缩放值，以提供更多选项
     scaleExtent = computed(() => [
       svgScaleExtent[0],
       1,
@@ -309,7 +309,6 @@ watch(locale, () => {
   drawTree()
 })
 
-// 监听 skillPointsInput 的变化，并调用更新函数
 watch(skillPointsInput.value, () => {
   updateSkillPointsText();
 }, {deep: true});

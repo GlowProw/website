@@ -374,6 +374,12 @@
   "map": {
     "title": "地图",
     "description": "所有地图物品清单",
+    "searchPlaceholder": "搜索地标",
+    "locations": "地点",
+    "layerControl": "图层控制",
+    "hideAll": "隐藏所有",
+    "showAll": "显示所有",
+    "typeTitle": "类型",
     "type": {
       "none": "未知",
       "den": "大据点",
@@ -583,6 +589,7 @@
     }
   },
   "empireSkillSimulation": {
+    "searchPlaceholder": "搜索技能",
     "effects": "效果",
     "requirements": "要求",
     "requiredCost": "需要材料",

@@ -32,7 +32,7 @@ import CosmeticsPage from '../src/views/displayCabinet/cosmetics/Index.vue'
 import CosmeticDetailPage from '../src/views/displayCabinet/cosmetics/Detail.vue'
 import TreasureMapsPage from '../src/views/displayCabinet/treasureMaps/Index.vue'
 import TreasureMapDetailPage from '../src/views/displayCabinet/treasureMaps/Detail.vue'
-import empireSkillSimulationPage from '../src/views/empireSkillSimulation/Index.vue'
+import EmpireSkillSimulationPage from '../src/views/empireSkillSimulation/Index.vue'
 
 import UltimatesPage from '../src/views/displayCabinet/ultimates/Index.vue'
 import UltimateDetailPage from '../src/views/displayCabinet/ultimates/Detail.vue'
@@ -453,7 +453,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
     {
         path: '/empire-skill-simulation',
         name: 'empireSkillSimulation',
-        component: empireSkillSimulationPage,
+        component: EmpireSkillSimulationPage,
         meta: {
             title: 'header.functions.empire-skill-simulation.title',
             keywords: 'header.functions.empire-skill-simulation.keywords'

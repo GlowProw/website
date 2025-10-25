@@ -15,7 +15,7 @@
 <script setup lang="ts">
 import Header from "@/components/Header.vue";
 import Footer from "@/components/Footer.vue";
-import View from "./view.vue";
+import View from "./View.vue";
 import {ref} from "vue";
 import {EmpireSkills} from "glow-prow-data/src/entity/EmpireSkills";
 

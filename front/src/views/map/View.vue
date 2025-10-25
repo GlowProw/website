@@ -2,6 +2,107 @@
   <div class="map-container">
     <div id="map" class="map-view" ref="mapViewRef"></div>
 
+    <!-- 搜索 S -->
+    <v-card border class="d-flex map-search-bar"
+            :width="mobile ? 'calc(100% - 60px)' : 450"
+            :style="{'top': mobile ? '30px' : '30px'}">
+      <v-combobox
+          v-model="searchQuery"
+          :items="searchSuggestions"
+          tile
+          elevation="0"
+          hide-details
+          variant="solo"
+          clearable
+          density="comfortable"
+          :menu-props="{ maxHeight: '450px' }"
+          :placeholder="t('map.searchPlaceholder')"
+          @update:search="handleSearchInput"
+          @keydown.enter="handleSearch"
+          prepend-inner-icon="mdi-magnify">
+        <template v-slot:item="{ props, item }">
+          <v-list-item v-bind="props">
+            <template v-slot:prepend>
+              <v-img
+                  :src="getCategoryIcon(item.raw.category)"
+                  width="24"
+                  height="24"
+                  class="mr-2"
+                  cover/>
+            </template>
+            <template v-slot:title>{{ locationDisplayName(item.raw) }}</template>
+          </v-list-item>
+        </template>
+      </v-combobox>
+      <v-divider vertical></v-divider>
+      <v-btn tile stacked density="compact" @click="isShowMarkModel = !isShowMarkModel">
+        <v-icon :class="isShowMarkModel ? 'text-amber' : ''" :icon="`mdi-layers${!isShowMarkModel ? '-outline' : ''}`"></v-icon>
+      </v-btn>
+      <FullscreenBtn></FullscreenBtn>
+    </v-card>
+    <!-- 搜索 E -->
+
+    <!-- 图层控制面板 -->
+    <v-navigation-drawer v-model="isShowMarkModel"
+                         temporary
+                         absolute
+                         tile
+                         class="layer-control-panel"
+                         :scrim="false"
+                         :style="mobile ? isShowMarkModel ? 'min-width: 100%' : 'width: 0' :''"
+                         :width="mobile ? '100vh' : 510">
+      <v-card
+          tile
+          elevation="0"
+          class="bg-transparent"
+          width="100%"
+          height="100%">
+        <v-card-title class="d-flex align-center py-4 px-7">
+          <v-icon icon="mdi-layers" class="mr-2 text-amber"></v-icon>
+          {{ t('map.layerControl') }}
+          <v-spacer></v-spacer>
+          <v-btn
+              variant="text"
+              size="small"
+              @click="toggleAllLayers">
+            {{ allLayersVisible ? t('map.hideAll') : t('map.showAll') }}
+          </v-btn>
+        </v-card-title>
+
+        <v-divider></v-divider>
+
+        <v-card-text class="pa-0 px-3">
+          <v-list density="compact" class="bg-transparent">
+            <v-list-item
+                v-for="category in availableCategories"
+                :key="category.value">
+              <template v-slot:prepend>
+                <v-checkbox
+                    v-model="layerVisibility[category.value]"
+                    @update:model-value="toggleLayer(category.value)"
+                    hide-details
+                    class="mr-2"
+                    density="compact"></v-checkbox>
+
+                <v-img
+                    :src="getCategoryIcon(category.value)"
+                    width="20"
+                    height="20"
+                    class="mr-3"
+                    cover/>
+              </template>
+              <v-list-item-title>
+                {{ category.text }}
+              </v-list-item-title>
+              <v-list-item-subtitle>
+                {{ getCategoryCount(category.value) }} {{ t('map.locations') }}
+              </v-list-item-subtitle>
+            </v-list-item>
+          </v-list>
+        </v-card-text>
+      </v-card>
+    </v-navigation-drawer>
+
     <!-- 创建标记对话框 -->
     <v-dialog v-model="showCreateMarkerDialog" max-width="500">
       <v-card>
@@ -14,7 +115,7 @@
             <v-col cols="12">
               <v-text-field
                   v-model="newMarkerData.name"
-                  label="标记名称"
+                  :label="t('map.markerName')"
                   variant="outlined"
                   hide-details
               ></v-text-field>
@@ -24,7 +125,9 @@
               <v-select
                   v-model="newMarkerData.category"
                   :items="categories"
-                  label="标记类型"
+                  :label="t('map.markerType')"
+                  item-title="text"
+                  item-value="value"
                   variant="outlined"
                   hide-details
               ></v-select>
@@ -32,8 +135,8 @@
 
             <v-col cols="6">
               <v-text-field
-                  :model-value="newMarkerData.longitude"
-                  label="经度"
+                  :model-value="newMarkerData.longitude.toFixed(6)"
+                  :label="t('map.longitude')"
                   variant="outlined"
                   hide-details
                   readonly
@@ -42,8 +145,8 @@
 
             <v-col cols="6">
               <v-text-field
-                  :model-value="newMarkerData.latitude"
-                  label="纬度"
+                  :model-value="newMarkerData.latitude.toFixed(6)"
+                  :label="t('map.latitude')"
                   variant="outlined"
                   hide-details
                   readonly
@@ -55,33 +158,78 @@
         <v-divider></v-divider>
         <v-card-actions class="px-6 py-2">
           <v-spacer></v-spacer>
-          <v-btn @click="cancelCreateMarker" variant="text">取消</v-btn>
+          <v-btn @click="cancelCreateMarker" variant="text">{{ t('common.cancel') }}</v-btn>
           <v-btn
               @click="createNewMarker"
               :disabled="!newMarkerData.name"
               variant="flat">
-            创建标记
+            {{ t('map.createMarker') }}
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
-    <!-- 信息卡片 -->
+    <!-- 地图控件 -->
+    <div class="map-controls">
+      <v-btn
+          class="control-btn"
+          @click="zoomIn"
+          variant="flat">
+        <v-icon>mdi-plus</v-icon>
+      </v-btn>
+      <v-btn
+          class="control-btn"
+          @click="zoomOut"
+          variant="flat">
+        <v-icon>mdi-minus</v-icon>
+      </v-btn>
+      <v-btn
+          class="control-btn"
+          @click="resetView"
+          variant="flat">
+        <v-icon>mdi-crosshairs-gps</v-icon>
+      </v-btn>
+    </div>
+
+    <!-- 地图控制底部信息 -->
+    <div class="map-footer">
+      <v-row class="w-100 mb-1">
+        <v-spacer></v-spacer>
+        <v-col cols="auto" class="d-flex align-center">
+          <div class="text-caption opacity-50">
+            <span>{{ hoveedCoordinate.longitude?.toFixed(6) }}</span>
+            <v-divider vertical class="mx-1"></v-divider>
+            <span>{{ hoveedCoordinate.latitude?.toFixed(6) }}</span>
+          </div>
+          <template v-if="route.query.debug">
+            <v-divider vertical inset class="mx-5"></v-divider>
+            <div class="text-caption opacity-50">
+              <span>{{ clickedCoordinate.longitude?.toFixed(6) }}</span>
+              <v-divider vertical class="mx-1"></v-divider>
+              <span>{{ clickedCoordinate.latitude?.toFixed(6) }}</span>
+            </div>
+          </template>
+          <v-icon size="12" class="ml-2">mdi-map-marker</v-icon>
+        </v-col>
+      </v-row>
+    </div>
+
+    <!-- 信息卡片 S -->
     <v-card
         v-show="model"
         border
         elevation="12"
-        :width="mobile ? 'calc(100% - 50px)' : 450"
+        :width="mobile ? 'calc(100% - 60px)' : 450"
         :style="{
-        'top': mobile ? '100px' : '30px'
-      }"
+          'top': mobile ? '100px' : '30px'
+        }"
         class="map-container-cardInfo overflow-y-auto">
       <template v-slot:title>
         <v-row class="my-2 mr-2" align="center">
           <v-col cols="auto" class="d-flex align-center">
             <v-img
-                :src="icons[selectedLocationData.category]"
-                v-if="icons[selectedLocationData.category]"
+                :src="getCategoryIcon(selectedLocationData.category)"
+                v-if="getCategoryIcon(selectedLocationData.category)"
                 width="28"
                 height="28"
                 cover/>
@@ -90,7 +238,7 @@
             <div
                 class="d-flex align-center text-amber"
                 :title="t(`snb.locations.${selectedLocationData.id}`)">
-              {{ locationDisplayName }}
+              {{ locationDisplayName(selectedLocationData) }}
             </div>
           </v-col>
         </v-row>
@@ -102,9 +250,9 @@
       </template>
 
       <div class="card-enlargement-flavor px-10 mx-n6 py-2 text-amber-lighten-4">
-        类型
+        {{ t('map.typeTitle') }}
       </div>
-      <div class="mx-5 py-2">
+      <div class="mx-5 mb-3 py-2">
         {{ t(`map.type.${selectedLocationData.category || 'none'}`) }}
       </div>
 
@@ -157,56 +305,12 @@
         </v-row>
       </div>
     </v-card>
-
-    <!-- 自定义地图控件 -->
-    <div class="map-controls">
-      <v-btn
-          class="control-btn"
-          @click="zoomIn"
-          variant="flat">
-        <v-icon>mdi-plus</v-icon>
-      </v-btn>
-      <v-btn
-          class="control-btn"
-          @click="zoomOut"
-          variant="flat">
-        <v-icon>mdi-minus</v-icon>
-      </v-btn>
-      <v-btn
-          class="control-btn"
-          @click="resetView"
-          variant="flat">
-        <v-icon>mdi-crosshairs-gps</v-icon>
-      </v-btn>
-    </div>
-
-    <!-- 地图控制底部信息 -->
-    <div class="map-footer">
-      <v-row class="w-100 mb-1">
-        <v-spacer></v-spacer>
-        <v-col cols="auto" class="d-flex align-center">
-          <div class="text-caption opacity-50">
-            <span>{{ hoveedCoordinate.longitude }}</span>
-            <v-divider vertical class="mx-1"></v-divider>
-            <span>{{ hoveedCoordinate.latitude }}</span>
-          </div>
-          <template v-if="route.query.debug">
-            <v-divider vertical inset class="mx-5"></v-divider>
-            <div class="text-caption opacity-50">
-              <span>{{ clickedCoordinate.longitude }}</span>
-              <v-divider vertical class="mx-1"></v-divider>
-              <span>{{ clickedCoordinate.latitude }}</span>
-            </div>
-          </template>
-          <v-icon size="12" class="ml-2">mdi-map-marker</v-icon>
-        </v-col>
-      </v-row>
-    </div>
+    <!-- 信息卡片 E -->
   </div>
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted, ref, type Ref} from 'vue';
+import {computed, onMounted, ref, type Ref, watch} from 'vue';
 import {v6 as uuidv6} from 'uuid';
 import Map from 'ol/Map';
 import View from 'ol/View';
@@ -218,38 +322,71 @@ import VectorSource from 'ol/source/Vector';
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
 import {defaults as defaultControls} from 'ol/control';
-import {defaults as defaultInteractions, DoubleClickZoom} from 'ol/interaction';
+import {defaults as defaultInteractions, Select} from 'ol/interaction';
 import {Icon, Style} from 'ol/style';
-import {Select} from 'ol/interaction';
 import {pointerMove} from 'ol/events/condition';
 import type {Feature as OLFeature} from 'ol';
 import type {Geometry} from 'ol/geom';
+import {useRoute, useRouter} from "vue-router";
+import {useDisplay} from "vuetify/framework";
 
 import locationsData from "/public/config/mapData.json"
 
 import {useI18n} from "vue-i18n";
 import {useAssetsStore} from "~/stores/assetsStore.js";
 import {useI18nUtils} from "@/assets/sripts/i18n_util.js";
+
 import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue";
-import {useRoute, useRouter} from "vue-router";
+import FullscreenBtn from "@/components/FullscreenBtn.vue";
 
-const mapViewRef = ref<HTMLElement | null>(null);
-const mapInstance: Ref<Map | null> = ref(null);
-const locations: Ref<[]> = ref<[]>(locationsData);
-const icons: Ref<{}> = ref({});
-const model = ref<boolean>(false);
-const selectedLocationData = ref<{}>({});
-const mobile = ref<boolean>(false);
-const showCoordinateInfo = ref<boolean>(false);
-const clickedCoordinate = ref({
+
+const {t} = useI18n(),
+    route = useRoute(),
+    router = useRouter(),
+    {asString} = useI18nUtils(),
+    {mobile} = useDisplay(),
+    {serializationMap} = useAssetsStore();
+
+let mapViewRef = ref<HTMLElement | null>(null),
+    mapInstance: Ref<Map | null> = ref(null),
+    locations: Ref<any[]> = ref<any[]>(locationsData),
+    icons: Ref<Record<string, string>> = ref({}),
+    model = ref<boolean>(false),
+    selectedLocationData = ref<any>({}),
+    showCoordinateInfo = ref<boolean>(false),
+    clickedCoordinate = ref({
       longitude: 0,
       latitude: 0
     }),
-    hoveedCoordinate = ref({}),
+    hoveedCoordinate = ref({
+      longitude: 0,
+      latitude: 0
+    }),
+
+    // 搜索相关
+    searchQuery = ref(""),
+    searchSuggestions = ref<any[]>([]),
+
+    // 图层控制相关 - 修复：使用对象来管理每个图层的可见性
+    isShowMarkModel = ref(false),
+    layerVisibility = ref<Record<string, boolean>>({}),
+    allLayersVisible = ref(true),
+    vectorLayerRef: Ref<VectorLayer<VectorSource> | null> = ref(null),
 
     // 创建标记
-    categories = ref(['shareLocation']),
+    categories = ref([
+      {value: 'shareLocation', text: t('map.type.shareLocation')},
+      {value: 'outpost', text: t('map.type.outpost')},
+      {value: 'den', text: t('map.type.den')},
+      {value: 'settlement', text: t('map.type.settlement')},
+      {value: 'harbor', text: t('map.type.harbor')},
+      {value: 'fort', text: t('map.type.fort')},
+      {value: 'lumber', text: t('map.type.lumber')},
+      {value: 'mine', text: t('map.type.mine')},
+      {value: 'farm', text: t('map.type.farm')},
+      {value: 'workshop', text: t('map.type.workshop')}
+    ]),
     showCreateMarkerDialog = ref(false),
     newMarkerData = ref({
       longitude: 0,
@@ -258,16 +395,177 @@ const clickedCoordinate = ref({
       name: '',
       id: ''
     });
-;
 
-const {t} = useI18n(),
-    route = useRoute(),
-    router = useRouter(),
-    {asString} = useI18nUtils(),
-    {serializationMap} = useAssetsStore();
+/**
+ * 计算可用分类
+ */
+const availableCategories = computed(() => {
+  const uniqueCategories = [...new Set(locations.value.map(loc => loc.category))];
+  return uniqueCategories.map(category => ({
+    value: category,
+    text: t(`map.type.${category}`)
+  }));
+});
+
+/**
+ * 获取分类数量
+ * @param category
+ */
+const getCategoryCount = (category: string) => {
+  return locations.value.filter(loc => loc.category === category).length;
+};
+
+/**
+ * 获取分类图标
+ * @param category
+ */
+const getCategoryIcon = (category: string) => {
+  return icons.value[category] || icons.value['default'];
+};
+
+/**
+ * 处理搜索输入
+ * @param value
+ */
+const handleSearchInput = (value: string) => {
+  if (!value.trim()) {
+    searchSuggestions.value = [];
+    return;
+  }
+
+  const filtered = locations.value.filter(location => {
+    const name = location.name || location.id || locationDisplayName(location);
+    return name.toLowerCase().includes(value.toLowerCase()) || location.id.toLowerCase().includes(value.toLowerCase());
+  }).slice(0, 10); // 限制建议数量
+
+  searchSuggestions.value = filtered.map(location => ({
+    title: location.name || location.id,
+    value: location.id,
+    ...location
+  }));
+};
+
+/**
+ * 处理搜索
+ */
+const handleSearch = () => {
+  if (!searchQuery.value.trim()) return;
+
+  const foundLocation = locations.value.find(location => {
+    const name = location.name || location.id || locationDisplayName(location);
+    return name.toLowerCase() === searchQuery.value.toLowerCase() || location.id.toLowerCase() === searchQuery.value.toLowerCase();
+  });
+
+  if (foundLocation && mapInstance.value) {
+    // 跳转到找到的位置
+    mapInstance.value.getView().animate({
+      center: fromLonLat([foundLocation.longitude, foundLocation.latitude]),
+      zoom: 15,
+      duration: 500
+    });
+
+    // 显示位置信息
+    selectedLocationData.value = foundLocation;
+    model.value = true;
+    showCoordinateInfo.value = false;
+
+    router.push({
+      name: route.name,
+      query: {
+        ...route.query,
+        key: foundLocation.id,
+        x: foundLocation.longitude,
+        y: foundLocation.latitude,
+        category: foundLocation.category
+      }
+    });
+  }
+};
+
+// 切换单个图层显示 - 修复：使用图层过滤而不是样式设置
+const toggleLayer = (category: string) => {
+  if (!vectorLayerRef.value) return;
+
+  const isVisible = layerVisibility.value[category];
+
+  // 更新图层样式函数来过滤要素
+  vectorLayerRef.value.setStyle((feature) => {
+    const featureCategory = feature.get('originalData')?.category;
+
+    // 如果该分类不可见，返回null（隐藏）
+    if (featureCategory === category && !isVisible) {
+      return null;
+    }
+
+    // 如果该分类可见，返回正常样式
+    if (featureCategory === category && isVisible) {
+      return createMarkerStyle(feature);
+    }
+
+    // 对于其他分类，根据其可见性决定
+    const otherCategoryVisible = layerVisibility.value[featureCategory];
+    return otherCategoryVisible ? createMarkerStyle(feature) : null;
+  });
+
+  // 强制刷新地图
+  vectorLayerRef.value.changed();
+
+  // 更新全选状态
+  updateAllLayersVisibleState();
+};
+
+// 切换所有图层显示 - 修复：统一处理所有分类
+const toggleAllLayers = () => {
+  if (!vectorLayerRef.value || !availableCategories.value.length) return;
+
+  const newVisibility = !allLayersVisible.value;
+
+  // 更新所有分类的可见性状态
+  availableCategories.value.forEach(category => {
+    layerVisibility.value[category.value] = newVisibility;
+  });
+
+  allLayersVisible.value = newVisibility;
+
+  // 应用样式
+  vectorLayerRef.value.setStyle((feature) => {
+    const featureCategory = feature.get('originalData')?.category;
+    const isFeatureVisible = layerVisibility.value[featureCategory];
+
+    return isFeatureVisible ? createMarkerStyle(feature) : null;
+  });
+
+  // 强制刷新地图
+  vectorLayerRef.value.changed();
+};
+
+// 更新全选图层状态
+const updateAllLayersVisibleState = () => {
+  const allCategories = availableCategories.value.map(cat => cat.value);
+  const allVisible = allCategories.every(category => layerVisibility.value[category]);
+  allLayersVisible.value = allVisible;
+};
+
+// 初始化图层可见性
+const initializeLayerVisibility = () => {
+  const allCategories = [...new Set(locations.value.map(loc => loc.category))];
+  allCategories.forEach(category => {
+    layerVisibility.value[category] = true;
+  });
+};
+
+// 监听搜索建议变化
+watch(searchQuery, (newValue) => {
+  if (!newValue) {
+    searchSuggestions.value = [];
+  }
+});
 
 onMounted(() => {
-  const {x: queryX, y: queryY, key: queryKey, category: queryCategory} = route.query
+  const {x: queryX, y: queryY, key: queryKey, category: queryCategory} = route.query;
+
+  // 初始化图层可见性
+  initializeLayerVisibility();
 
   // 加载图标
   const mapImages = import.meta.glob('/src/assets/images/map/*.*', {eager: true});
@@ -278,12 +576,20 @@ onMounted(() => {
     features: createFeaturesFromLocations(locations.value)
   });
 
-  // 创建矢量图层
+  // 创建矢量图层 - 修复：使用动态样式函数
   const vectorLayer = new VectorLayer({
     source: vectorSource,
     zIndex: 100,
-    style: createMarkerStyle // 设置默认样式
+    style: (feature) => {
+      const featureCategory = feature.get('originalData')?.category;
+      const isVisible = layerVisibility.value[featureCategory];
+
+      return isVisible ? createMarkerStyle(feature) : null;
+    }
   });
+
+  // 保存矢量图层引用
+  vectorLayerRef.value = vectorLayer;
 
   // 初始化地图
   const map = new Map({
@@ -409,7 +715,7 @@ onMounted(() => {
 
   // 查找
   if (queryX && queryY && queryKey) {
-    const Lat = [queryX, queryY]
+    const Lat = [parseFloat(queryX as string), parseFloat(queryY as string)]
     const feature = locations.value.find(i => i.id == queryKey)
 
     // 已有数据
@@ -428,8 +734,8 @@ onMounted(() => {
       const loadLocation = {
         name: queryKey,
         id: queryKey,
-        latitude: queryY,
-        longitude: queryX,
+        latitude: parseFloat(queryY as string),
+        longitude: parseFloat(queryX as string),
         category: queryCategory,
         dateAdded: new Date().toISOString(),
         lastUpdated: new Date().toISOString()
@@ -439,16 +745,22 @@ onMounted(() => {
       const newFeature = createFeatureFromLocation(loadLocation);
       vectorSource.addFeature(newFeature);
 
+      // 更新图层可见性状态
+      if (!layerVisibility.value[queryCategory]) {
+        layerVisibility.value[queryCategory] = true;
+        updateAllLayersVisibleState();
+      }
+
       map.getView().animate({
-        center: fromLonLat([queryX, queryY]),
+        center: fromLonLat([parseFloat(queryX as string), parseFloat(queryY as string)]),
         duration: 0
       })
 
       selectedLocationData.value = {
         id: queryKey,
         category: queryCategory,
-        latitude: queryX,
-        longitude: queryY
+        latitude: parseFloat(queryX as string),
+        longitude: parseFloat(queryY as string)
       }
       model.value = true;
     }
@@ -458,8 +770,8 @@ onMounted(() => {
 /**
  * 处理名称
  */
-const locationDisplayName = computed(() => {
-  const location = selectedLocationData.value;
+const locationDisplayName = (data: any): string => {
+  const location = data;
   if (!location.id) return '';
 
   return asString([
@@ -467,7 +779,7 @@ const locationDisplayName = computed(() => {
     `snb.locations.${capitalizeFirstLetter(location.id)}`,
     `snb.locations.${location.id}`
   ], {backRawKey: false}) || location.id;
-});
+};
 
 /**
  * 首字母大写
@@ -487,7 +799,7 @@ const createMarkerStyle = (feature: OLFeature<Geometry>): Style => {
 
   return new Style({
     image: new Icon({
-      src: icons.value[originalData.category] || 'default',
+      src: getCategoryIcon(originalData.category),
       scale: 0.12,
       anchor: [0.5, 0.6],
       anchorXUnits: 'fraction',
@@ -499,7 +811,7 @@ const createMarkerStyle = (feature: OLFeature<Geometry>): Style => {
 /**
  * 将locations数据转换为OpenLayers要素
  */
-const createFeaturesFromLocations = (locations: []): OLFeature<Geometry>[] => {
+const createFeaturesFromLocations = (locations: any[]): OLFeature<Geometry>[] => {
   return locations.map(location => {
     const feature = new Feature({
       geometry: new Point(fromLonLat([location.longitude, location.latitude])),
@@ -537,6 +849,12 @@ const createNewMarker = (): void => {
   // 创建新的要素并添加到地图
   const newFeature = createFeatureFromLocation(newLocation);
   vectorSource.addFeature(newFeature);
+
+  // 更新可见图层状态
+  if (!layerVisibility.value[newMarkerData.value.category]) {
+    layerVisibility.value[newMarkerData.value.category] = true;
+    updateAllLayersVisibleState();
+  }
 
   // 选中新创建的标记
   selectedLocationData.value = Object.assign(newLocation, {
@@ -583,7 +901,7 @@ const resetNewMarkerData = (): void => {
   newMarkerData.value = {
     longitude: 0,
     latitude: 0,
-    category: 'default',
+    category: 'shareLocation',
     id: '',
     name: '',
   };
@@ -654,6 +972,25 @@ const resetView = (): void => {
   max-height: 100vh;
   background: #b1c1bf;
 
+  .map-search-bar {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    z-index: 200;
+  }
+
+  .layer-control-panel {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.67);
+    backdrop-filter: blur(70px);
+    top: 0 !important;;
+    left: 0;
+    padding-top: 86px;
+    height: calc(100vh - 100px) !important;;
+    overflow-y: auto;
+    z-index: 30 !important;
+  }
+
   .map-view {
     width: 100%;
     height: 100%;
@@ -661,9 +998,9 @@ const resetView = (): void => {
 
   .map-controls {
     position: absolute;
-    bottom: 10px;
-    left: 10px;
-    z-index: 1000;
+    bottom: 30px;
+    left: 30px;
+    z-index: 20;
     display: flex;
     flex-direction: column;
     gap: 8px;
