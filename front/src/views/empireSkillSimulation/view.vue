@@ -1,5 +1,5 @@
 <template>
-  <div class="skill-tree-container">
+  <div class="skill-tree-container" id="empire-skill-simulation" ref="empireSkillSimulationViewRef">
 
     <div class="position-relative h-100">
       <svg ref="svgRef"></svg>
@@ -26,14 +26,15 @@
       </div>
     </div>
 
-    <v-card border class="skill-tree-search-bar"
-            :style="{
-              'top': mobile ? '70px' : '70px'
-            }"
-            :width="mobile ? 'calc(100% - 50px)' : 450">
+    <!-- 搜索 S -->
+    <v-card border class="d-flex skill-tree-search-bar"
+            :width="mobile ? 'calc(100% - 50px)' : 450"
+            :style="{'top': mobile ? '70px' : '70px'}">
       <v-combobox
           v-model="searchQuery"
           :items="searchItems"
+          tile
+          elevation="0"
           hide-details
           variant="solo"
           clearable
@@ -43,17 +44,20 @@
           @update:modelValue="handleSearchInput"
           @keydown.enter="searchAndLocate"
       ></v-combobox>
+      <FullscreenBtn :viewRef="empireSkillSimulationViewRef"></FullscreenBtn>
     </v-card>
+    <!-- 搜索 E -->
 
-    <v-card v-show="show" border
+    <!-- 技能展示卡 S -->
+    <v-card v-show="model" border
             elevation="12"
             :width="mobile ? 'calc(100% - 50px)' : 450"
             :style="{
               'top': mobile ? '130px' : '70px'
             }"
             class="skill-tree-container-cardInfo overflow-y-auto">
-      <v-card-title class="my-2 mr-2">
-        <div class="mb-1 d-flex align-center text-caption"
+      <template v-slot:title>
+        <div class="mb-1 d-flex align-center text-caption my-2 mr-2"
              v-if="skills[selectShowKey] && skills[selectShowKey].type"
              :title="t(`snb.empireSkills.${selectShowKey}.name`)">
           <ItemSlotBase size="20px" :padding="0" class="d-inline-flex">
@@ -67,12 +71,17 @@
               {{ number.intToRoman(skillPointsInput[selectShowKey] || 0) }}
           </span>
         </template>
-      </v-card-title>
+      </template>
+      <template v-slot:append>
+        <v-btn variant="tonal" icon @click="model = false">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </template>
 
       <div class="card-enlargement-flavor px-10 mx-n6 py-2 text-amber-lighten-4">
         {{ t('empireSkillSimulation.effects') }}
         <template v-if="skills[selectShowKey] && skills[selectShowKey].stage > 1">
-          ({{skills[selectShowKey].stage }})
+          ({{ skills[selectShowKey].stage }})
         </template>
       </div>
       <div class="py-2 px-5 mb-5 text-pre-line">
@@ -222,6 +231,8 @@
         </v-row>
       </div>
     </v-card>
+    <!-- 技能展示卡 E -->
+
   </div>
 </template>
 
@@ -242,6 +253,7 @@ import Time from "@/components/Time.vue";
 import TimeView from "@/components/TimeView.vue";
 import MaterialName from "@/components/snbWidget/materialName.vue";
 import HtmlLink from "@/components/HtmlLink.vue";
+import FullscreenBtn from "@/components/FullscreenBtn.vue";
 
 interface SkillData {
   id: string;
@@ -267,7 +279,9 @@ const props = defineProps<{
     {t, tm, te, rt, locale} = useI18n(),
     {mobile} = useDisplay();
 
-let svgRef = ref<SVGSVGElement | null>(null),
+let
+    empireSkillSimulationViewRef = ref(null),
+    svgRef = ref<SVGSVGElement | null>(null),
     // 更改：`scaleExtent` 计算属性现在包含一个额外的缩放值，以提供更多选项
     scaleExtent = computed(() => [
       svgScaleExtent[0],
@@ -275,13 +289,21 @@ let svgRef = ref<SVGSVGElement | null>(null),
       svgScaleExtent[1],
     ]),
     svgTransform = ref({k: 1}),
-    show = ref(false),
+    model = ref(false),
     selectShowKey = ref<string | null>('manufactoryExpansion-compagnieRoyale-2'),
 
     searchQuery = ref(''),
     searchItems = ref([]),
     foundNodes = ref([]),
-    skillPointsInput = ref({});
+    skillPointsInput = ref({}),
+
+    // 布局的节点间距
+    nodeWidth = 39,
+    nodeHeight = 39
+
+let root: d3.HierarchyNode<HierarchyNodeData>;
+let svg: d3.Selection<SVGElement | null, unknown, null, undefined>;
+let zoom: d3.ZoomBehavior<SVGSVGElement, unknown>;
 
 watch(locale, () => {
   drawTree()
@@ -291,15 +313,6 @@ watch(locale, () => {
 watch(skillPointsInput.value, () => {
   updateSkillPointsText();
 }, {deep: true});
-
-
-let root: d3.HierarchyNode<HierarchyNodeData>;
-let svg: d3.Selection<SVGElement | null, unknown, null, undefined>;
-let zoom: d3.ZoomBehavior<SVGSVGElement, unknown>;
-
-// D3 布局的节点间距
-const nodeWidth = 50;
-const nodeHeight = 50;
 
 /**
  * 模拟点是否可用
@@ -375,10 +388,10 @@ const handleNodeClick = (event: MouseEvent, d: d3.HierarchyNode<HierarchyNodeDat
   const {key} = d.data.data;
 
   if (!key && !d)
-    return show.value = false;
+    return model.value = false;
 
   selectShowKey.value = key;
-  show.value = true;
+  model.value = true;
 
   router.push({
     name: route.name,
@@ -455,11 +468,11 @@ const locateNode = (node: d3.HierarchyNode<HierarchyNodeData>) => {
 
   // 使用D3的平移和缩放来居中节点
   // 注意：D3的树状图布局是 y 对应水平，x 对应垂直
-  const newX = -node.y * targetScale + svgWidth / 2;
+  const newX = -node.y * targetScale + svgWidth / 2
   const newY = -node.x * targetScale + svgHeight / 2;
 
   svg.transition()
-      .duration(750)
+      .duration(450)
       .call(zoom.transform as any, d3.zoomIdentity.translate(newX, newY).scale(targetScale));
 
   // 移除所有节点的高亮
@@ -470,7 +483,7 @@ const locateNode = (node: d3.HierarchyNode<HierarchyNodeData>) => {
 
   // 更新信息卡片
   selectShowKey.value = node.data.data.key;
-  show.value = true;
+  model.value = true;
 };
 
 /**
@@ -520,7 +533,7 @@ const setSvgScale = (scale: number) => {
 
   // 平滑过渡到新的缩放状态
   svg.transition()
-      .duration(750)
+      .duration(450)
       .call(zoom.transform as any, newTransform);
 };
 
@@ -587,7 +600,7 @@ const drawTree = () => {
 
   const treeLayout = d3.tree<HierarchyNodeData>()
       .size([dynamicHeight, dynamicWidth])
-      .nodeSize([90, 300]);
+      .nodeSize([90, 180]);
 
   treeLayout(root);
 
@@ -597,7 +610,7 @@ const drawTree = () => {
       .attr("height", "100%");
 
   svg.on('click', () => {
-    show.value = false;
+    model.value = false;
     selectShowKey.value = null;
     d3.select(svgRef.value).selectAll('.node-group .node-rect').classed('highlighted', false);
   });
@@ -609,8 +622,8 @@ const drawTree = () => {
       .attr('id', 'arrow')
       .attr('viewBox', '0 -5 10 10')
       .attr('refX', 5)
-      .attr('markerWidth', 5)
-      .attr('markerHeight', 5)
+      .attr('markerWidth', 8)
+      .attr('markerHeight', 8)
       .attr('orient', 'auto')
       .append('path')
       .attr('d', 'M0,-5L10,0L0,5')
@@ -619,7 +632,7 @@ const drawTree = () => {
   container.append("g")
       .attr("class", "links")
       .selectAll("path")
-      .data(root.links())
+      .data(root.links().filter(i => i.source.id != 'root'))
       .join("path")
       .attr("class", "link")
       .attr("marker-mid", "url(#arrow)")
@@ -628,6 +641,30 @@ const drawTree = () => {
         const end = {x: d.target.y, y: d.target.x};
         const mid = {x: (start.x + end.x) / 2, y: (start.y + end.y) / 2};
         return `M${start.x},${start.y} L${mid.x},${mid.y} L${end.x},${end.y}`;
+      });
+
+  container.append("g")
+      .attr("class", "links")
+      .selectAll("path")
+      .data(root.links().filter(i => i.source.id == 'root'))
+      .join("path")
+      .attr("stroke", "#c7c7c7")
+      .attr("stroke-width", 1.5)
+      .attr("fill", "none")
+      .attr("stroke-dasharray", "15,20")
+      .attr("d", d => {
+        const start = {x: d.source.y, y: d.source.x};
+        const end = {x: d.target.y, y: d.target.x};
+
+        if (isNaN(start.x) || isNaN(start.y) || isNaN(end.x) || isNaN(end.y)) {
+          console.error('Invalid coordinates:', {start, end});
+          return '';
+        }
+
+        return `M${start.x},${start.y}
+            V${start.y + 120}
+            H${end.x}
+            V${end.y}`;
       });
 
   const categoryGroups = d3.groups(root.descendants().filter(d => d.data.data.type), d => d.data.data.type);
@@ -688,7 +725,8 @@ const drawTree = () => {
       .attr("height", nodeHeight)
       .attr("x", -nodeWidth / 2)
       .attr("y", -nodeHeight / 2)
-      .attr("rx", 5)
+      .attr("rx", 45)
+      .attr("ry", 45)
       .attr("class", d => `node-rect ${d.data.data.type || 'default'}`)
       .on('click', handleNodeClick)
       .on('touchstart', handleNodeClick);
@@ -696,7 +734,7 @@ const drawTree = () => {
   node.append("text")
       .attr("class", "node-label")
       .attr("text-anchor", "middle")
-      .attr("y", 48)
+      .attr("y", 38)
       .on('click', handleNodeClick)
       .on('touchstart', handleNodeClick);
 

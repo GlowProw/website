@@ -8,6 +8,7 @@ export function useI18nUtils() {
 
     /**
      * 清理字符串（移除数字）
+     * @param input
      */
     const sanitizeString = <T extends string>(input: T) => {
         try {
@@ -38,6 +39,7 @@ export function useI18nUtils() {
 
     /**
      * 获取翻译数组
+     * @param keys
      */
     const asArray = (keys: string[]) => {
         let result: Record<string, any> = {}
@@ -66,6 +68,8 @@ export function useI18nUtils() {
 
     /**
      * 获取翻译字符串
+     * @param keys
+     * @param options
      */
     const asString = (keys: string[], options: {backRawKey? : boolean, variable?: any, lang?: string} = {}) => {
         let result = ''

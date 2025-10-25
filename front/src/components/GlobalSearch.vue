@@ -1,25 +1,46 @@
 <script setup lang="ts">
-import {onMounted, ref, watch} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import FlexSearch from "flexsearch";
+
 import {Cosmetic, Cosmetics, Items, Material, Materials, Modification, Modifications, Ultimate, Ultimates} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
+import {Item} from "glow-prow-data/src/entity/Items.ts";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
+import {useHotkey} from "vuetify";
+import {useOS} from "@/assets/sripts/os";
+
 import ItemName from "@/components/snbWidget/itemName.vue";
 import MaterialName from "@/components/snbWidget/materialName.vue";
 import ModName from "@/components/snbWidget/modName.vue";
 import CosmeticName from "@/components/snbWidget/cosmeticName.vue";
 import UltimateName from "@/components/snbWidget/ultimateName.vue";
-import {Item} from "glow-prow-data/src/entity/Items.ts";
-import {useI18nUtils} from "@/assets/sripts/i18n_util";
+import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
+import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
+import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
+import CosmeticIconWidget from "@/components/snbWidget/cosmeticIconWidget.vue";
+import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
+import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 
-const searchIndex = ref(null);
-const model = ref(false);
-const searchValue = ref('');
-const searchResult = ref<Record<string, any[]>>({});
+
 const {t} = useI18n(),
+    os = useOS(),
     {sanitizeString, asString} = useI18nUtils()
 
-// 扁平化所有数据
-const allItems = ref([]);
+let searchIndex = ref(null),
+    model = ref(false),
+    searchValue = ref(''),
+    searchResult = ref<Record<string, any[]>>({}),
+
+    // 扁平化所有数据
+    allItems = ref([]),
+    hotkey = computed(() => {
+      let key = ''
+      if (os.isDesktop() && os.detectOS() == 'MacOS')
+        key = ['fn', 's']
+      else if (os.isDesktop() && os.detectOS() == 'MacOS')
+        key = ['clat', 's']
+      return key;
+    })
 
 onMounted(() => {
   searchIndex.value = new FlexSearch.Index({
@@ -29,12 +50,8 @@ onMounted(() => {
     cache: true
   });
 
-  const dataSources = [];
-
   // 测试数据
-  const testData = [
-    {id: "test_1", name: "test item", description: "这是一个测试项目", sourceType: "test"},
-  ]
+  const data = []
       .concat(Object.values(Items).map(i => {
         return {
           ...i,
@@ -74,7 +91,7 @@ onMounted(() => {
         }
       }));
 
-  testData.forEach((item, index) => {
+  data.forEach((item, index) => {
     if (item && item.name) {
       const itemId = item.id || `item_${index}`;
       const contentToIndex = `${item.name} ${item.description || ''}`.trim().toLowerCase();
@@ -90,27 +107,25 @@ onMounted(() => {
     }
   });
 
-  dataSources.forEach(source => {
-    if (source.data && Array.isArray(source.data)) {
-      source.data.forEach((item, index) => {
-        if (item && item.name) {
-          const itemId = `${source.type}_${index}`;
-          const contentToIndex = `${item.name} ${item.description || ''}`.trim().toLowerCase();
-
-          // 添加到索引
-          searchIndex.value.add(itemId, contentToIndex);
-
-          // 存储完整数据
-          allItems.value.push({
-            id: itemId,
-            ...item,
-            sourceType: source.type
-          });
-        }
-      });
-    }
-  });
+  initHotkey()
 });
+
+/**
+ * 初始化热键
+ */
+const initHotkey = () => {
+  let key = ''
+
+  if (os.isDesktop() && os.detectOS() == 'MacOS')
+    key = hotkey.value.join('+')
+  else if (os.isDesktop() && os.detectOS() == 'MacOS')
+    key = hotkey.value.join('+')
+
+  if (key)
+    useHotkey(key, () => {
+      model.value = !model.value
+    })
+}
 
 // 按类型分组并限制每个类型的数量
 const groupResultsByType = (results: any[], limitPerType: number = 20) => {
@@ -186,18 +201,44 @@ const toPage = (data: Item | Material | Modification | Cosmetic | Ultimate | any
 </script>
 
 <template>
-  <span @click="model = true" class="mx-2">
+  <v-btn icon density="comfortable" @click="model = true" class="mx-2" :disabled="model">
     <slot></slot>
-  </span>
+  </v-btn>
 
-  <v-dialog max-width="1024" v-model="model" style="backdrop-filter: blur(20px)">
+  <v-dialog max-width="1024"
+            z-index="10"
+            content-class="pt-8"
+            v-model="model" style="backdrop-filter: blur(20px)">
     <template v-slot:default>
-      <v-card elevation="0" class="bg-transparent">
-        <v-card-title>全局搜索</v-card-title>
-        <v-card-text>
+      <v-card elevation="0" class="bg-transparent pa-3">
+        <v-row class="mb-3" no-gutters align="center">
+          <v-col class="font-weight-bold">
+            <v-icon>mdi-magnify</v-icon>
+            <span class="opacity-80">全局搜索</span>
+          </v-col>
+          <v-spacer></v-spacer>
+          <div class="d-flex ga-2 align-center"
+               v-if="os.isDesktop()">
+            <template v-for="(i, index) in hotkey" :key="index">
+              <v-chip border>{{ i }}</v-chip>
+              <template v-if="index == 0">
+                <v-icon>mdi-plus</v-icon>
+              </template>
+            </template>
+          </div>
+        </v-row>
+
+        <div>
           <v-text-field
               v-model="searchValue"
-              label="输入搜索内容..."
+              variant="outlined"
+              class="mb-5"
+              :counter="10"
+              glow
+              hide-spin-buttons
+              persistent-hint
+              hide-details
+              style="backdrop-filter: blur(20px)"
               clearable
               @input="searchValue = $event.target.value"
               @keydown.enter="searchValue = $event.target.value"
@@ -206,8 +247,17 @@ const toPage = (data: Item | Material | Modification | Cosmetic | Ultimate | any
           <div v-if="Object.keys(searchResult).length > 0">
             <!-- 按类型循环显示 -->
             <div v-for="(items, type) in searchResult" :key="type" class="mb-6">
-              <v-subheader class="text-h6 primary--text">
-                {{ t(`displayCabinet.${type}s.title`) }} ({{ items.length }})
+              <v-subheader class="d-block text-h6 primary--text mb-3 w-100">
+                <v-row align="center">
+                  <v-col class="text-h6">
+                    {{ t(`displayCabinet.${type}s.title`) }} ({{ items.length }})
+                  </v-col>
+                  <v-col cols="auto">
+                    <v-btn icon :to="`/display-cabinet/${type}s`" variant="text" @click="model = !model">
+                      {{ t('displayCabinet.more') }}
+                    </v-btn>
+                  </v-col>
+                </v-row>
               </v-subheader>
 
               <v-list class="elevation-1">
@@ -218,7 +268,26 @@ const toPage = (data: Item | Material | Modification | Cosmetic | Ultimate | any
                     @click="model.value = false"
                     three-line>
                   <v-list-item-content>
-                    <v-list-item-title class="font-weight-medium">
+                    <v-list-item-title class="font-weight-medium d-flex align-center">
+                      <ItemSlotBase size="30px" :padding="0" class="mr-2">
+                        <template v-if="type=='item'">
+                          <ItemIconWidget :id="i.id"></ItemIconWidget>
+                        </template>
+                        <template v-else-if="type=='material'">
+                          <MaterialIconWidget :id="i.id"></MaterialIconWidget>
+                        </template>
+                        <template v-else-if="type=='modification'">
+                          <ModIconWidget :id="i.id"></ModIconWidget>
+                        </template>
+                        <template v-else-if="type=='cosmetic'">
+                          <CosmeticIconWidget :id="i.id"></CosmeticIconWidget>
+                        </template>
+                        <template v-else-if="type=='ultimate'">
+                          <UltimateIconWidget :id="i.id"></UltimateIconWidget>
+                        </template>
+                      </ItemSlotBase>
+
+
                       <template v-if="type=='item'">
                         <ItemName :id="i.id"></ItemName>
                       </template>
@@ -244,6 +313,10 @@ const toPage = (data: Item | Material | Modification | Cosmetic | Ultimate | any
                       </span>
                     </div>
                   </v-list-item-content>
+
+                  <template v-slot:append>
+                    <v-icon icon="mdi-arrow-right"></v-icon>
+                  </template>
                 </v-list-item>
               </v-list>
             </div>
@@ -256,7 +329,7 @@ const toPage = (data: Item | Material | Modification | Cosmetic | Ultimate | any
           <div v-else class="text-center text-grey py-8">
             输入关键词开始搜索
           </div>
-        </v-card-text>
+        </div>
       </v-card>
     </template>
   </v-dialog>

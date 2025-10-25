@@ -68,7 +68,7 @@
 
     <!-- 信息卡片 -->
     <v-card
-        v-show="showModel"
+        v-show="model"
         border
         elevation="12"
         :width="mobile ? 'calc(100% - 50px)' : 450"
@@ -76,8 +76,8 @@
         'top': mobile ? '100px' : '30px'
       }"
         class="map-container-cardInfo overflow-y-auto">
-      <v-card-title class="my-2 mr-2">
-        <v-row align="center">
+      <template v-slot:title>
+        <v-row class="my-2 mr-2" align="center">
           <v-col cols="auto" class="d-flex align-center">
             <v-img
                 :src="icons[selectedLocationData.category]"
@@ -94,7 +94,12 @@
             </div>
           </v-col>
         </v-row>
-      </v-card-title>
+      </template>
+      <template v-slot:append>
+        <v-btn variant="tonal" icon @click="model = false">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </template>
 
       <div class="card-enlargement-flavor px-10 mx-n6 py-2 text-amber-lighten-4">
         类型
@@ -233,7 +238,7 @@ const mapViewRef = ref<HTMLElement | null>(null);
 const mapInstance: Ref<Map | null> = ref(null);
 const locations: Ref<[]> = ref<[]>(locationsData);
 const icons: Ref<{}> = ref({});
-const showModel = ref<boolean>(false);
+const model = ref<boolean>(false);
 const selectedLocationData = ref<{}>({});
 const mobile = ref<boolean>(false);
 const showCoordinateInfo = ref<boolean>(false);
@@ -343,7 +348,7 @@ onMounted(() => {
 
     if (feature) {
       selectedLocationData.value = feature.get('originalData');
-      showModel.value = true;
+      model.value = true;
       showCoordinateInfo.value = false;
 
       router.push({
@@ -360,7 +365,7 @@ onMounted(() => {
     }
 
     showCoordinateInfo.value = true;
-    showModel.value = false;
+    model.value = false;
 
     router.push({
       name: route.name,
@@ -382,7 +387,7 @@ onMounted(() => {
     });
 
     showCoordinateInfo.value = true;
-    showModel.value = false;
+    model.value = false;
     showCreateMarkerDialog.value = true; // 显示创建标记对话框
 
     router.push({
@@ -415,7 +420,7 @@ onMounted(() => {
       })
 
       selectedLocationData.value = feature
-      showModel.value = true;
+      model.value = true;
     }
 
     // 创建分享
@@ -445,7 +450,7 @@ onMounted(() => {
         latitude: queryX,
         longitude: queryY
       }
-      showModel.value = true;
+      model.value = true;
     }
   }
 });
@@ -539,7 +544,7 @@ const createNewMarker = (): void => {
     latitude: newMarkerData.value.latitude,
     longitude: newMarkerData.value.longitude
   });
-  showModel.value = true;
+  model.value = true;
 
   router.push({
     name: route.name,
