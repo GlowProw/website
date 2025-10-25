@@ -36,6 +36,10 @@ const getVersionData = async () => {
 
 <template>
   <div class="app-version read-view">
+    <template v-if="versionData.latestPosts">
+      <b class="text-amber">{{ versionData.latestPosts[showVersionIndex].slug || '' }}</b>
+    </template>
+
     <div class="position-relative">
       <template v-if="versionData.latestPosts">
         <div class="content" v-html="md.render(versionData.latestPosts[showVersionIndex].content || '')"></div>

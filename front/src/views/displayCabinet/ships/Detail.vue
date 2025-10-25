@@ -24,7 +24,7 @@ import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import ItemContentWidget from "@/components/snbWidget/itemContentWidget.vue";
 import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue";
-import BySeasonWidget from "@/components/BySeasonWidget.vue";
+import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
 import ItemMaterials from "@/components/snbWidget/itemMaterials.vue";
 import shipAvailableUpgradeWidget from "@/components/snbWidget/shipAvailableUpgradeWidget.vue";
 import ShipUpgradeUseWidget from "@/components/snbWidget/shipUpgradeUseWidget.vue";

@@ -8,6 +8,7 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import Silk from "@/components/Silk.vue";
 import BlogWidget from "@/components/BlogWidget.vue";
 import AppVersionWidget from "@/components/AppVersionWidget.vue";
+import SeasonViewWidget from "@/components/SeasonViewWidget.vue";
 
 const {t} = useI18n()
 
@@ -84,9 +85,9 @@ const getCurrentSeason = (): Season | null => {
 
       <div class="portal-season-left-tip" v-if="currentlySeason && currentlySeason.id">
         <div class="opacity-30">
-          <b class="mb-2">本赛季 {{ `${currentlySeason.alternativeName}`.toUpperCase() }}</b> 剩余 {{ time.calcRemainingDays(currentlySeason.endDate) }} 天
+          {{ t('portal.seasonTimer', {seasonName: currentlySeason.alternativeName.toUpperCase(), day: time.calcRemainingDays(currentlySeason.endDate)}) }}
           <v-divider thickness="3" vertical/>
-          {{ t(`snb.calendar.${currentlySeason?.id}.name`) }}
+          {{ t(`snb.seasons.${currentlySeason?.id}`) }}
         </div>
       </div>
     </v-card>
@@ -115,10 +116,26 @@ const getCurrentSeason = (): Season | null => {
               </v-col>
             </v-row>
           </v-col>
-          <v-col order="1" order-lg="2">
-            <div class="title">
-              <h1 class="btn-flavor pl-10 pr-10 pt-3 pb-3 singe-line overflow-hidden w-100">{{ t(`snb.calendar.${currentlySeason?.id}.name`) }}</h1>
-              <p class="ma-auto mt-4 font-weight-light opacity-80">{{ t(`snb.calendar.${currentlySeason?.id}.description`) }}</p>
+          <v-col order="1" order-lg="2" lg="4">
+            <div class="title card-enlargement-flavor pb-6">
+              <v-card width="100%">
+                <SeasonViewWidget v-if="currentlySeason" :data="currentlySeason"></SeasonViewWidget>
+              </v-card>
+
+              <h1 class="text-amber pl-10 pr-10 pt-5 d-flex align-center">
+                <v-row no-gutters align="center" justify="space-between">
+                  <v-col cols="2">
+                    <v-icon class="mr-3" size="32">mdi-flare</v-icon>
+                  </v-col>
+                  <v-col class="text-center" cols="8" style="line-height: 1">
+                    {{ t(`snb.seasons.${currentlySeason?.id}`) }}
+                  </v-col>
+                  <v-col cols="2">
+                    <v-icon class="ml-3" size="32">mdi-flare</v-icon>
+                  </v-col>
+                </v-row>
+              </h1>
+              <p class="px-10 py-3 font-weight-light opacity-80">{{ t(`snb.calendar.${currentlySeason?.id}.description`) }}</p>
             </div>
           </v-col>
         </v-row>
@@ -131,8 +148,8 @@ const getCurrentSeason = (): Season | null => {
           <v-col cols="12" sm="12" md="4" lg="4">
             <v-row class="mb-5">
               <v-col class="">
-                <b class="text-h4 btn-flavor">更新</b>
-                <p class="mt-2 opacity-60">可以直接通过网站页脚预留<u><a href="https://kook.vip/2s0eQP" target="_blank">Kook 社区</a></u>中提出问题，以帮助修复问题</p>
+                <b class="text-h4 btn-flavor px-4">{{ t('portal.appVersionLog') }}</b>
+                <p class="mt-2 opacity-60" v-html="t('portal.appVersionContext')"></p>
               </v-col>
             </v-row>
             <AppVersionWidget></AppVersionWidget>
@@ -140,8 +157,8 @@ const getCurrentSeason = (): Season | null => {
           <v-col cols="12" sm="12" md="8" lg="8">
             <v-row align="center">
               <v-col>
-                <span class="btn-flavor text-h4">
-                  博客
+                <span class="btn-flavor text-h4 px-4">
+                  {{ t('portal.blogLog') }}
                 </span>
               </v-col>
               <v-spacer></v-spacer>

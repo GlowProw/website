@@ -41,7 +41,7 @@ export default class AppFuns {
         },
         {
             title: 'header.functions.ranking-of-designed-items.title',
-            icon: 'mdi-help',
+            icon: 'mdi-format-list-numbered',
             description: 'header.functions.ranking-of-designed-items.description',
             to: '',
             testTo: '/ranking-designed-items'
@@ -60,7 +60,7 @@ export default class AppFuns {
         },
         {
             title: 'header.functions.empire-skill-simulation.title',
-            icon: 'mdi-help',
+            icon: 'mdi-hexagram-outline',
             description: 'header.functions.empire-skill-simulation.description',
             to: '/empire-skill-simulation'
         }

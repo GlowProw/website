@@ -29,15 +29,15 @@ let isDetailPage = computed(() => [
       <v-container class="py-0" :class="{'ma-0': isDetailPage}" :style="isDetailPage ? 'max-width:100% !important': ''" :min-width="mobile ? '100%' : ''">
         <v-row no-gutters>
           <v-col cols="12" order-sm="1" order-lg="1" lg="2" v-if="!isDetailPage">
-            <v-breadcrumbs>
+            <v-breadcrumbs class="pl-0">
               <v-container class="pa-0">
                 <v-breadcrumbs-item>
-                  <v-img src="@/assets/images/display-cabinet-icon.bmp" width="26" height="26" class="mr-2" style="border-radius: 50%"></v-img>
-                  {{ t('displayCabinet.sidebar') }}
+                  <v-img src="@/assets/images/display-cabinet-icon.bmp" width="26" height="26" class="mr-3" style="border-radius: 50%"></v-img>
+                  <b class="text-amber">{{ t('displayCabinet.title') }}</b>
                 </v-breadcrumbs-item>
               </v-container>
             </v-breadcrumbs>
-            <v-divider class="mb-3"></v-divider>
+            <v-divider></v-divider>
 
             <Sidebar></Sidebar>
           </v-col>

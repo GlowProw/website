@@ -7,7 +7,7 @@ import {useRoute, useRouter} from "vue-router";
 import {useAuthStore} from "~/stores/userAccountStore";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import CommentWidget from "@/components/CommentWidget.vue";
-import BySeasonWidget from "@/components/BySeasonWidget.vue";
+import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
 import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
 import MaterialName from "@/components/snbWidget/materialName.vue";

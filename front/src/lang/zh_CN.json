@@ -131,7 +131,11 @@
     }
   },
   "portal": {
-    "title": "首页"
+    "title": "首页",
+    "seasonTimer": "本赛季 {seasonName} 剩余{day}天",
+    "appVersionLog": "更新",
+    "appVersionContext": "可以直接通过网站页脚预留<u><a href=\"https://kook.vip/2s0eQP\" target=\"_blank\">Kook 社区</a></u>中提出问题，以帮助修复问题",
+    "blogLog": "博客"
   },
   "account": {
     "title": "账户",

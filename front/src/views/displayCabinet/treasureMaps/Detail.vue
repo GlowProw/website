@@ -11,7 +11,7 @@ import Time from "@/components/Time.vue";
 import TimeView from "@/components/TimeView.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import CommentWidget from "@/components/CommentWidget.vue";
-import BySeasonWidget from "@/components/BySeasonWidget.vue";
+import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
 import WeaponModificationWidget from "@/components/snbWidget/weaponModificationWidget.vue";
 import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
 import ModDescription from "@/components/snbWidget/modDescription.vue";

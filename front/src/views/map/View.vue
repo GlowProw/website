@@ -221,7 +221,7 @@
         elevation="12"
         :width="mobile ? 'calc(100% - 60px)' : 450"
         :style="{
-          'top': mobile ? '100px' : '30px'
+          'top': mobile ? '100px' : '80px'
         }"
         class="map-container-cardInfo overflow-y-auto">
       <template v-slot:title>
