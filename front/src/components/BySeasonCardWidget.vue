@@ -16,7 +16,7 @@ let images = ref({})
 <template>
   <v-card class="by-season-card mb-4 bg-transparent" :class="{'by-season-n-top': !mobile}">
     <template v-slot:image>
-      <SeasonViewWidget :season="data?.bySeason?.id || data?.firstAppearingSeason?.id"></SeasonViewWidget>
+      <SeasonViewWidget :data="data?.bySeason || data?.firstAppearingSeason"></SeasonViewWidget>
     </template>
     <v-card class="by-season-footer-context" tile :to="`/display-cabinet/item/season/${data?.bySeason?.id || 'release'}`">
       <v-row class="px-5" align="center">
