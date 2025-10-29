@@ -76,7 +76,7 @@ let show = ref(false),
 watch(() => props.data, (data: Item) => {
   if (data) {
     emit('update:modelValue',
-        weaponModConfig[props.data.rarity || 'common'].slotType.map((i) => {
+        weaponModConfig[props.data?.rarity || 'common'].slotType.map((i) => {
           return {
             type: i,
             value: null
@@ -98,7 +98,7 @@ onMounted(() => {
   // 当无值时，初始
   if (!props.modelValue)
     emit('update:modelValue',
-        weaponModConfig[props.data.rarity || 'common'].slotType.map((i) => {
+        weaponModConfig[props.data?.rarity || 'common'].slotType.map((i) => {
           return {
             type: i,
             value: null
@@ -284,6 +284,8 @@ defineExpose({
               <div class="font-weight-bold mb-2">
                 已安装模组
               </div>
+
+              {{modelValue}}
 
               <v-card
                   v-for="(mod, modIndex) in modelValue"

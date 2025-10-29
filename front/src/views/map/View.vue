@@ -14,6 +14,7 @@
           hide-details
           variant="solo"
           clearable
+          class="bg-transparent"
           density="comfortable"
           :menu-props="{ maxHeight: '450px' }"
           :placeholder="t('map.searchPlaceholder')"
@@ -221,7 +222,7 @@
         elevation="12"
         :width="mobile ? 'calc(100% - 60px)' : 450"
         :style="{
-          'top': mobile ? '100px' : '80px'
+          'top': mobile ? '140px' : '80px'
         }"
         class="map-container-cardInfo overflow-y-auto">
       <template v-slot:title>
@@ -249,14 +250,14 @@
         </v-btn>
       </template>
 
-      <div class="card-enlargement-flavor px-10 mx-n6 py-2 text-amber-lighten-4">
+      <div class="map-title px-10 mx-n6 py-2 text-amber-lighten-4">
         {{ t('map.typeTitle') }}
       </div>
       <div class="mx-5 mb-3 py-2">
         {{ t(`map.type.${selectedLocationData.category || 'none'}`) }}
       </div>
 
-      <div class="card-enlargement-flavor px-10 mx-n6 py-2 text-amber-lighten-4">
+      <div class="map-title px-10 mx-n6 py-2 text-amber-lighten-4">
         {{ t('empireSkillSimulation.other') }}
       </div>
       <div class="mx-5 mb-10 opacity-60"
@@ -365,7 +366,7 @@ let mapViewRef = ref<HTMLElement | null>(null),
     }),
 
     // 搜索相关
-    searchQuery = ref(""),
+    searchQuery = ref(''),
     searchSuggestions = ref<any[]>([]),
 
     // 图层控制相关
@@ -980,6 +981,7 @@ const resetView = (): void => {
   background: #b1c1bf;
 
   .map-search-bar {
+    background-color: hsl(from rgb(var(--v-theme-background)) h s l / .8);
     position: absolute;
     top: 30px;
     left: 30px;
@@ -1020,9 +1022,16 @@ const resetView = (): void => {
   }
 
   .map-container-cardInfo {
+    background-color: hsl(from rgb(var(--v-theme-background)) h s l / .8);
+    backdrop-filter: blur(20px);
     position: absolute;
     right: 30px;
     max-height: 80vh;
+
+    .map-title {
+      marker: none;
+      background-color: hsl(from #000 h s l / .3);
+    }
   }
 
   .coordinate-info {

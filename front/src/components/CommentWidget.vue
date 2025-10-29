@@ -68,9 +68,9 @@ const getComment = async () => {
 
     commentListData.value = d.data.data;
   } catch (e) {
-    if (e instanceof AxiosError)
-      notice.error(t(`basic.tips.${e.response.data.code}`, {
-        context: e.response.data.code
+    if (e instanceof AxiosError && e?.response)
+      notice.error(t(`basic.tips.${e?.response?.data?.code}`, {
+        context: e?.response?.data?.code || e.code
       }))
     console.error(e)
   } finally {

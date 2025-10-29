@@ -2,10 +2,10 @@
   <v-row
       class="action-button"
       @mousedown="!keyboardShortcut && startAction($event, 'mouse')"
-      @touchstart="startAction($event, 'touch')"
+      @touchstart.passive="startAction($event, 'touch')"
       @mouseup="endAction"
       @mouseleave="endAction"
-      @touchend="endAction">
+      @touchend.passive="endAction">
     <v-col
         cols="auto"
         ref="actionButton"

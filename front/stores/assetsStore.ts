@@ -122,7 +122,6 @@ export const useAssetsStore = defineStore('assets', {
             const teasureMapsImages = import.meta.glob('@glow-prow-assets/treasureMaps/*.*', {eager: true});
 
             this.treasureMaps = this.serializationMap(teasureMapsImages);
-            console.log(this.treasureMaps)
         },
 
         /**

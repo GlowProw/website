@@ -24,7 +24,7 @@
       }"
         :style="wrapperStyle"
         @mousedown="handleMouseDown"
-        @wheel="handleWheel"
+        @wheel.passive="handleWheel"
         @scroll="handleScroll"
     >
       <div

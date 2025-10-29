@@ -16,11 +16,11 @@
             height: `${contentHeight}px`,
             'pointer-events': isDragging ? 'none' : 'auto'
           }"
-          @wheel="handleWheel"
+          @wheel.passive="handleWheel"
           @mousedown="startDrag"
-          @touchstart="startTouchDrag"
-          @touchmove.prevent="handleTouchDrag"
-          @touchend="stopDrag">
+          @touchstart.passive="startTouchDrag"
+          @touchmove.prevent.passive="handleTouchDrag"
+          @touchend.passive="stopDrag">
         <div class="content-wrapper content-layer"
              :style="{ pointerEvents: 'auto' }"
              ref="contentWrapper">
@@ -263,7 +263,7 @@ onMounted(() => {
 
   if (mobile) {
     window.addEventListener('touchmove', handleTouchDrag, {passive: false})
-    window.addEventListener('touchend', stopDrag)
+    window.addEventListener('touchend', stopDrag, {passive: false})
   }
 
   // 禁止缩放
@@ -286,8 +286,8 @@ onBeforeUnmount(() => {
   window.removeEventListener('mouseup', stopDrag)
 
   if (window.innerWidth <= 768) {
-    window.removeEventListener('touchmove', handleTouchDrag)
-    window.removeEventListener('touchend', stopDrag)
+    window.removeEventListener('touchmove', handleTouchDrag, {passive: false})
+    window.removeEventListener('touchend', stopDrag, {passive: false})
   }
 
   if (resizeObserver.value) resizeObserver.value.disconnect()

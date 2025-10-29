@@ -20,7 +20,7 @@ type AssemblyDataProcessingMap<T = any> = {
 };
 
 export default class AssemblyDataProcessing {
-    static versions = ['0.0.1'];
+    static versions = ['0.0.1', '0.0.2'];
     static nowVersion = AssemblyDataProcessing.versions[AssemblyDataProcessing.versions.length - 1];
 
     private processing: AssemblyDataProcessingMap<AssemblyData> = {
@@ -179,6 +179,211 @@ export default class AssemblyDataProcessing {
                     },
 
                     {condition: () => data.armorSlot == null, required: false, message: 'armorEmpty'},
+                    {
+                        condition: () => {
+                            let length = data.displaySlots?.length
+                            return length <= 0 || (data.displaySlots as Array).filter(i => !i.id).length == length
+                        }, required: false, message: 'displayAllEmpty'
+                    }
+                ];
+
+                const resultVerify = rules
+                    .filter(rule => rule.condition())
+                    .map(({required, message}) => ({required, message}));
+
+                const requiredCount = resultVerify
+                    .filter(item => item.required)
+                    .length;
+
+                return {
+                    required: requiredCount,
+                    verify: resultVerify,
+                };
+            }
+        },
+        '0.0.2': {
+            allowedFields: [
+                'shipSlot',
+                'ultimateSlot',
+                'shipUpgradeSlot',
+                'weaponDirections',
+                'weaponModifications',
+                'weaponSlots',
+                'armorSlot',
+                'armorModification',
+                'secondaryWeaponSlots',
+                'shipFrigateUpgradeSlot',
+                'secondaryWeaponModifications',
+                'displaySlots',
+                '__version'
+            ],
+            get: (data) => {
+                // 后续处理逻辑
+                if (data.shipSlot)
+                    data.shipSlot = {id: data.shipSlot.id};
+
+                if (data.shipUpgradeSlot)
+                    data.shipUpgradeSlot = {id: data.shipUpgradeSlot.id};
+
+                if (data.ultimateSlot)
+                    data.ultimateSlot = {id: data.ultimateSlot.id};
+
+                if (data.shipFrigateUpgradeSlot)
+                    data.shipFrigateUpgradeSlot = {id: data.shipFrigateUpgradeSlot.id};
+
+                if (data.weaponModifications)
+                    data.weaponModifications = data.weaponModifications.map(i => {
+                        return i.map(j => {
+                            return {
+                                type: j.type,
+                                value: j?.value?.id || null,
+                            };
+                        });
+                    });
+
+                // console.log('get', data.armorModification)
+                // if (data.armorModification)
+                //     data.armorModification = data.armorModification.map(i => {
+                //         return i.map(j => {
+                //             return {
+                //                 type: j.type,
+                //                 value: j?.value?.id || null,
+                //             };
+                //         });
+                //     });
+                // console.log('get1', data.armorModification)
+
+                if (data.secondaryWeaponModifications)
+                    data.secondaryWeaponModifications = data.secondaryWeaponModifications.map(i => {
+                        return i.map(j => {
+                            return {
+                                type: j.type,
+                                value: j?.value?.id || null,
+                            };
+                        });
+                    });
+
+                if (data.secondaryWeaponSlots)
+                    data.secondaryWeaponSlots = data.secondaryWeaponSlots.map(i => {
+                        return i.id ? {id: i.id} : {id: null};
+                    });
+
+                if (data.weaponSlots)
+                    data.weaponSlots = data.weaponSlots.map(i => {
+                        return i.id ? {id: i.id} : {id: null};
+                    });
+
+                if (data.armorSlot)
+                    data.armorSlot = {id: data.armorSlot.id}
+
+
+
+                if (data.displaySlots)
+                    data.displaySlots = data.displaySlots.map(i => {
+                        return i.id ? {id: i.id} : {id: null};
+                    });
+
+                data.__version = this.nowVersion;
+                return data;
+            },
+            set: (data) => {
+                // 后续处理逻辑
+                if (data.shipSlot)
+                    data.shipSlot = ships[data.shipSlot.id] || Ship.fromRawData({});
+
+                if (data.shipUpgradeSlot)
+                    data.shipUpgradeSlot = items[data.shipUpgradeSlot.id] || Item.fromRawData({});
+
+                if (data.ultimateSlot)
+                    data.ultimateSlot = ultimates[data.ultimateSlot.id] || Item.fromRawData({});
+
+                if (data.weaponModifications)
+                    data.weaponModifications = data.weaponModifications.map(i => {
+                        return i.map(j => {
+                            return {
+                                type: j.type,
+                                value: modifications[j.value] || null
+                            };
+                        });
+                    });
+
+                // console.log('set', data.armorModification)
+                // if (data.armorModification)
+                //     data.armorModification.map(i => {
+                //         return i.map(j => {
+                //             return {
+                //                 type: j.type,
+                //                 value: modifications[j.value] || null,
+                //             };
+                //         });
+                //     });
+                // console.log('set2', data.armorModification)
+
+                if (data.secondaryWeaponModifications)
+                    data.secondaryWeaponModifications = data.secondaryWeaponModifications.map(i => {
+                        return i.map(j => {
+                            return {
+                                type: j.type,
+                                value: modifications[j.value] || null,
+                            };
+                        });
+                    });
+
+                if (data.secondaryWeaponSlots)
+                    data.secondaryWeaponSlots = data.secondaryWeaponSlots.map(i => {
+                        return i.id ? items[i.id] : Item.fromRawData({});
+                    });
+
+                if (data.weaponSlots)
+                    data.weaponSlots = data.weaponSlots.map(i => {
+                        return i.id ? items[i.id] : Item.fromRawData({});
+                    });
+
+                if (data.armorSlot)
+                    data.armorSlot = items[data.armorSlot.id] || Item.fromRawData({})
+
+                if (data.displaySlots)
+                    data.displaySlots = data.displaySlots.map(i => {
+                        return i.id ? items[i.id] : Item.fromRawData({});
+                    });
+
+                return data;
+            },
+            verify: (data) => {
+                const rules: ValidationRule[] = [
+                    {condition: () => data.shipSlot == null, required: true, message: 'shipEmpty'},
+                    {condition: () => data.shipUpgradeSlot == null, required: false, message: 'shipUpgradeEmpty'},
+                    {condition: () => data.ultimateSlot == null, required: false, message: 'ultimateEmpty'},
+                    {condition: () => data.weaponModifications?.length <= 0, required: false, message: 'weaponModificationsEmpty'},
+                    {condition: () => data.secondaryWeaponModifications?.length <= 0, required: false, message: 'secondaryWeaponModificationsEmpty'},
+                    {
+                        condition: () => {
+                            let length = data.secondaryWeaponSlots?.length <= 0
+                            return (data.secondaryWeaponSlots as Array).filter(i => !i.id).length != length
+                        }, required: false, message: 'secondaryWeaponEmpty'
+                    },
+                    {
+                        condition: () => {
+                            let length = data.weaponSlots?.length
+                            return length <= 0 || (data.weaponSlots as Array).filter(i => !i.id).length == length
+                        }, required: false, message: 'weaponAllEmpty'
+                    },
+                    {
+                        condition: () => {
+                            let weaponDirections = data.weaponDirections,
+                                weaponSlots = data.weaponSlots,
+                                result = true
+                            for (let i = 0; i < weaponSlots.length; i++) {
+                                if (weaponDirections[i]) {
+                                    result = false
+                                }
+                            }
+                            return result
+                        }, required: true, message: 'weaponDirectionsEmpty'
+                    },
+
+                    {condition: () => data.armorSlot == null, required: false, message: 'armorEmpty'},
+                    {condition: () => data.armorModification?.length <= 0, required: false, message: 'armorModificationEmpty'},
                     {
                         condition: () => {
                             let length = data.displaySlots?.length

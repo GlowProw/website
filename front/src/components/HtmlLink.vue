@@ -113,6 +113,7 @@ const getProtocol = () => {
                   allowTransparency="true"
                   security="restricted"
                   frameborder="no"
+                  allow="fullscreen"
                   border="0"
                   marginwidth="0"
                   marginheight="0"

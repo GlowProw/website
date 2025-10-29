@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
-import {computed, getCurrentInstance, nextTick, onMounted, Ref, ref, toRaw, useAttrs, useSlots, watch} from "vue";
+import {computed, Ref, ref, toRaw, useAttrs, useSlots, watch} from "vue";
 import {useRoute} from "vue-router";
 
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
@@ -79,6 +79,7 @@ let workshopData = ref({
         weaponModifications: [],            // 武器   安装模组
         weaponSlots: [],                    // 武器
         armorSlot: null,                    // 船甲
+        armorModification: [],              // 船甲模组
         secondaryWeaponSlots: [],           // 副武器
         secondaryWeaponModifications: [],   // 副武器 安装模组
         displaySlots: [],                   // 家具陈设
@@ -87,7 +88,7 @@ let workshopData = ref({
         // ** 它可能不存在，如果有则依靠此__version识别，没有则主要使用attr.assemblyUseVersion, 否则降级 **
         __version: AssemblyDataProcessing.nowVersion,
       } as {
-        shipSlot: Ship, ultimateSlot: Item | null, armorSlot: Item | null,
+        shipSlot: Ship, ultimateSlot: Item | null, armorSlot: Item | null, armorModification: [],
         displaySlots: Item[], weaponSlots: ItemAssemblySave[] | Item[], shipUpgradeSlot: Item | null,
         secondaryWeaponSlots: Item[],
         weaponDirections: string[], weaponModification: any[]
@@ -278,7 +279,7 @@ const onSelectShip = (shipId: string) => {
     length: shipSlotMapping.f[workshopData.value.data.shipSlot.id]?.weaponsSlotCount[0]?.gunSlotCount || 0
   }, () => null)
 
-  // 创建武器插槽mod
+  // 创建武器插槽模组
   workshopData.value.data.weaponModification = Array.from({
     length: shipSlotMapping.f[workshopData.value.data.shipSlot.id].weaponsSlotCount[0].gunSlotCount || 0
   }, () => null)
@@ -975,6 +976,22 @@ defineExpose({
                     <v-icon icon="mdi-block-helper" class="opacity-30" size="20"></v-icon>
                   </v-card>
                 </ItemSlotBase>
+
+                <!-- 船甲模组插槽 -->
+                <div class="mb-2 mt-1" v-if="!perfectDisplay">
+                  <WeaponModificationWidget :readonly="readonly"
+                                            :disabled="workshopData.data.armorSlot == null"
+                                            :data="workshopData.data.armorSlot"
+                                            size="4"
+                                            v-model="workshopData.data.armorModification[0]"></WeaponModificationWidget>
+                </div>
+
+                <!-- 船甲模组插槽 仅展示 -->
+                <div class="mb-2 mt-1" v-if="perfectDisplay">
+                  <WeaponModificationOnlyShowWidget
+                      :item-data="workshopData.data.armorSlot"
+                      :mod-data="workshopData.data.armorModification[0]"></WeaponModificationOnlyShowWidget>
+                </div>
               </v-col>
 
               <!-- 终极技能 -->

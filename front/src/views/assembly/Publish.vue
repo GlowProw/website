@@ -121,6 +121,7 @@ const onLoadData = () => {
       }))
 
     const {uuid, assembly, name, description, tags} = getLocalAssemblyData.data;
+    console.log('assembly', Object.assign({}, assembly))
 
     publishData.value.uuid = uuid
     publishData.value.name = name || ''

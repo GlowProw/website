@@ -79,7 +79,7 @@
         </v-btn>
       </template>
 
-      <div class="card-enlargement-flavor px-10 mx-n6 py-2 text-amber-lighten-4">
+      <div class="skill-tree-title px-10 mx-n6 py-2 text-amber-lighten-4">
         {{ t('empireSkillSimulation.effects') }}
         <template v-if="skills[selectShowKey] && skills[selectShowKey].stage > 1">
           ({{ skills[selectShowKey].stage }})
@@ -103,7 +103,7 @@
         </template>
       </div>
 
-      <div class="card-enlargement-flavor px-10 mx-n6 py-2 text-amber-lighten-4">{{ t('empireSkillSimulation.requirements') }}</div>
+      <div class="skill-tree-title px-10 mx-n6 py-2 text-amber-lighten-4">{{ t('empireSkillSimulation.requirements') }}</div>
       <div class="py-2 px-5 mb-5">
         <p class="mb-1">需拥有以下所有升级</p>
         <div v-if="skills[selectShowKey] && skills[selectShowKey].requisite">
@@ -122,12 +122,12 @@
         </div>
       </div>
 
-      <div class="card-enlargement-flavor px-10 mx-n6 py-2 text-amber-lighten-4">{{ t('empireSkillSimulation.requiredCost') }}</div>
+      <div class="skill-tree-title px-10 mx-n6 py-2 text-amber-lighten-4">{{ t('empireSkillSimulation.requiredCost') }}</div>
       <div class="py-2">
         <div v-if="skills[selectShowKey] && skills[selectShowKey].requiredCost">
-          <v-list density="compact" nav class="pt-0">
+          <v-list density="compact" nav class="pt-0 bg-transparent">
             <v-list-item v-for="(i, key) in skills[selectShowKey].requiredCost" :key="key" class="pt-0">
-              <v-row no-gutters align="start">
+              <v-row no-gutters align="center">
                 <v-col class="d-flex justify-start align-center">
                   <ItemSlotBase :size="`30px`" :padding="0">
                     <MaterialIconWidget :id="key" item-type="items"></MaterialIconWidget>
@@ -148,7 +148,7 @@
                     <template v-slot:item="{item: v, index: vIndex}">
                       <div class="text-center">
                         <b class="text-amber">{{ v ? v : '?' }}</b>
-                        <div class="text-caption opacity-60" style="line-height: .6">{{ t('empireSkillSimulation.stage', {num: vIndex + 1}) }}</div>
+                        <div class="text-caption opacity-60" style="line-height: .7">{{ t('empireSkillSimulation.stage', {num: vIndex + 1}) }}</div>
                       </div>
                     </template>
                   </v-breadcrumbs>
@@ -159,7 +159,7 @@
         </div>
       </div>
 
-      <div class="card-enlargement-flavor px-10 mx-n6 py-2 text-amber-lighten-4">{{ t('empireSkillSimulation.other') }}</div>
+      <div class="skill-tree-title px-10 mx-n6 py-2 text-amber-lighten-4">{{ t('empireSkillSimulation.other') }}</div>
       <div class="mx-5 mb-10 opacity-60"
            v-if="skills[selectShowKey] && skills[selectShowKey].id">
         <v-text-field :value="skills[selectShowKey].id" hide-details readonly variant="underlined" density="compact">
@@ -727,8 +727,8 @@ const drawTree = () => {
       .attr("rx", 45)
       .attr("ry", 45)
       .attr("class", d => `node-rect ${d.data.data.type || 'default'}`)
-      .on('click', handleNodeClick)
-      .on('touchstart', handleNodeClick);
+      .on('click', handleNodeClick, {passive: true})
+      .on('touchstart', handleNodeClick, {passive: true});
 
   node.append("text")
       .attr("class", "node-label")
@@ -780,10 +780,17 @@ onUnmounted(() => {
 
 <style lang="less">
 .skill-tree-container-cardInfo {
+  background-color: hsl(from rgb(var(--v-theme-background)) h s l / .8);
+  backdrop-filter: blur(20px);
   position: absolute;
   z-index: 100;
   right: 20px;
-  top: 30px
+  top: 30px;
+
+  .skill-tree-title {
+    marker: none;
+    background-color: hsl(from #000 h s l / .3);
+  }
 }
 
 .skill-tree-container {
@@ -837,7 +844,6 @@ onUnmounted(() => {
   transition: stroke 0.3s ease, stroke-width 0.3s ease;
 }
 
-/* 高亮样式 */
 .node-rect.highlighted {
   stroke: #ffeb3b;
   stroke-width: 3px;

@@ -104,6 +104,7 @@ const {t} = useI18n();
           <img src="@/assets/images/logos/betterstack.svg" width="26px" height="30px"/>
           <iframe src="https://status.glow-prow.org.cn/badge?theme=dark"
                   width="190"
+                  allow="fullscreen"
                   height="30" frameborder="0" scrolling="no" style="color-scheme: normal"></iframe>
         </v-col>
       </v-row>

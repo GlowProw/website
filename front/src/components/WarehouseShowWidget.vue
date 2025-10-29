@@ -42,7 +42,7 @@ let data = ref<{ id: number | null, count: number, timestamp?: number }[]>([]),
       return szatistical == warehouseSlotCount
     })
 
-watch(props.slotCount, (value) => {
+watch(() => props.slotCount, (value) => {
   maxSlot.value = value
 })
 

@@ -22,62 +22,60 @@ let obtainable = computed(() => {
 
 /**
  * 处理数据
- * @param item
+ * @param d
  */
-const filterByObtainable = (item: Item | Material | Cosmetic) => {
-  let array = []
-  console.log(item)
-  if (!item || !item.id) return [];
+const filterByObtainable = (d: Item | Material | Cosmetic | null | undefined): ObtainableLink[] => {
+  // 返回检查
+  if (!d?.id) return [];
 
-  const obtainable = item.obtainable;
+  const { obtainable } = d;
 
+  // 处理字符串类型的 obtainable
   if (typeof obtainable === 'string') {
-
-    array.push({
+    return [{
       id: obtainable,
       to: `/display-cabinet/${props.byType}/obtainable/${obtainable}`
-    });
+    }];
+  }
 
-  } else if (obtainable && typeof obtainable === 'object' && 'id' in obtainable) {
-
-    array.push({
+  // 处理对象类型的 obtainable（包含 id 属性）
+  if (obtainable && typeof obtainable === 'object' && 'id' in obtainable) {
+    return [{
       id: obtainable.id,
       to: `/display-cabinet/${props.byType}/${obtainable.id}`,
       item: items[obtainable.id]
-    })
+    }];
+  }
 
-  } else if (Array.isArray(obtainable)) {
-
-    const flatArray = obtainable.flat();
-
-    flatArray.forEach(element => {
+  // 处理数组类型的 obtainable
+  if (Array.isArray(obtainable)) {
+    return obtainable.flat().reduce<ObtainableLink[]>((acc, element) => {
+      // 处理字符串元素
       if (typeof element === 'string') {
-        array.push({
+        acc.push({
           id: element,
           // to: `/display-cabinet/${props.byType}/obtainable/${element}`
         });
-      } else if (element && typeof element === 'object' && 'id' in element) {
+      }
+      // 处理对象元素（包含 id 属性）
+      else if (element && typeof element === 'object' && 'id' in element) {
+        const item = items[element.id] || cosmetics[element.id];
 
-        if (items[element.id]) {
-          array.push({
+        if (item) {
+          const itemType = items[element.id] ? 'item' : 'cosmetics';
+          acc.push({
             id: element.id,
-            to: `/display-cabinet/item/${element.id}`,
-            item: items[element.id]
-          });
-        }
-
-        else if (cosmetics[element.id]) {
-          array.push({
-            id: element.id,
-            to: `/display-cabinet/cosmetics/${element.id}`,
-            item: cosmetics[element.id]
+            to: `/display-cabinet/${itemType}/${element.id}`,
+            item
           });
         }
       }
-    });
+
+      return acc;
+    }, []);
   }
 
-  return array;
+  return [];
 };
 
 </script>
@@ -85,7 +83,8 @@ const filterByObtainable = (item: Item | Material | Cosmetic) => {
 <template>
   <p class="text-no-wrap font-weight-bold mb-2 mt-2">{{ t('displayCabinet.item.obtainable') }}</p>
   <v-chip v-for="(o,oIndex) in obtainable"
-          class="d-inline-flex mb-1 mr-1"
+          class="d-inline-flex mb-1 mr-1 py-2 obtainable-item"
+          exact
           :key="oIndex"
           :to="o.to">
     <template v-if="o.item">
@@ -99,5 +98,7 @@ const filterByObtainable = (item: Item | Material | Cosmetic) => {
 </template>
 
 <style scoped lang="less">
-
+.obtainable-item {
+  white-space: break-spaces;
+}
 </style>

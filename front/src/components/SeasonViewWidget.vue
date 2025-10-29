@@ -40,7 +40,7 @@ const updateSeason = () => {
 </script>
 
 <template>
-  <div class="card-enlargement-flavor">
+  <div class="card-enlargement-flavor w-100">
     <template v-if="currentSeasonBannerAddress">
       <video autoplay playsinline
              v-if="currentSeasonFormat == 'mp4'"

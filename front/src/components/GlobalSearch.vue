@@ -247,7 +247,7 @@ const toPage = (data: Item | Material | Modification | Cosmetic | Ultimate | any
           <div v-if="Object.keys(searchResult).length > 0">
             <!-- 按类型循环显示 -->
             <div v-for="(items, type) in searchResult" :key="type" class="mb-6">
-              <v-subheader class="d-block text-h6 primary--text mb-3 w-100">
+              <div class="d-block text-h6 primary--text mb-3 w-100">
                 <v-row align="center">
                   <v-col class="text-h6">
                     {{ t(`displayCabinet.${type}s.title`) }} ({{ items.length }})
@@ -258,7 +258,7 @@ const toPage = (data: Item | Material | Modification | Cosmetic | Ultimate | any
                     </v-btn>
                   </v-col>
                 </v-row>
-              </v-subheader>
+              </div>
 
               <v-list class="elevation-1">
                 <v-list-item
@@ -267,52 +267,50 @@ const toPage = (data: Item | Material | Modification | Cosmetic | Ultimate | any
                     :to="toPage(i, type)"
                     @click="model.value = false"
                     three-line>
-                  <v-list-item-content>
-                    <v-list-item-title class="font-weight-medium d-flex align-center">
-                      <ItemSlotBase size="30px" :padding="0" class="mr-2">
-                        <template v-if="type=='item'">
-                          <ItemIconWidget :id="i.id"></ItemIconWidget>
-                        </template>
-                        <template v-else-if="type=='material'">
-                          <MaterialIconWidget :id="i.id"></MaterialIconWidget>
-                        </template>
-                        <template v-else-if="type=='modification'">
-                          <ModIconWidget :id="i.id"></ModIconWidget>
-                        </template>
-                        <template v-else-if="type=='cosmetic'">
-                          <CosmeticIconWidget :id="i.id"></CosmeticIconWidget>
-                        </template>
-                        <template v-else-if="type=='ultimate'">
-                          <UltimateIconWidget :id="i.id"></UltimateIconWidget>
-                        </template>
-                      </ItemSlotBase>
-
-
+                  <v-list-item-title class="font-weight-medium d-flex align-center">
+                    <ItemSlotBase size="30px" :padding="0" class="mr-2">
                       <template v-if="type=='item'">
-                        <ItemName :id="i.id"></ItemName>
+                        <ItemIconWidget :id="i.id"></ItemIconWidget>
                       </template>
                       <template v-else-if="type=='material'">
-                        <MaterialName :id="i.id"></MaterialName>
+                        <MaterialIconWidget :id="i.id"></MaterialIconWidget>
                       </template>
                       <template v-else-if="type=='modification'">
-                        <ModName :id="i.id"></ModName>
+                        <ModIconWidget :id="i.id"></ModIconWidget>
                       </template>
                       <template v-else-if="type=='cosmetic'">
-                        <CosmeticName :id="i.id"></CosmeticName>
+                        <CosmeticIconWidget :id="i.id"></CosmeticIconWidget>
                       </template>
                       <template v-else-if="type=='ultimate'">
-                        <UltimateName :id="i.id"></UltimateName>
+                        <UltimateIconWidget :id="i.id"></UltimateIconWidget>
                       </template>
-                    </v-list-item-title>
+                    </ItemSlotBase>
 
-                    <!-- 显示需求材料 -->
-                    <div v-if="i.required && Object.keys(i.required).length > 0" class="text-caption mt-1">
-                      <strong>需求材料:</strong>
-                      <span v-for="(amount, material) in i.required" :key="material" class="ml-2">
+
+                    <template v-if="type=='item'">
+                      <ItemName :id="i.id"></ItemName>
+                    </template>
+                    <template v-else-if="type=='material'">
+                      <MaterialName :id="i.id"></MaterialName>
+                    </template>
+                    <template v-else-if="type=='modification'">
+                      <ModName :id="i.id"></ModName>
+                    </template>
+                    <template v-else-if="type=='cosmetic'">
+                      <CosmeticName :id="i.id"></CosmeticName>
+                    </template>
+                    <template v-else-if="type=='ultimate'">
+                      <UltimateName :id="i.id"></UltimateName>
+                    </template>
+                  </v-list-item-title>
+
+                  <!-- 显示需求材料 -->
+                  <div v-if="i.required && Object.keys(i.required).length > 0" class="text-caption mt-1">
+                    <strong>需求材料:</strong>
+                    <span v-for="(amount, material) in i.required" :key="material" class="ml-2">
                         {{ material }}: {{ amount }}
                       </span>
-                    </div>
-                  </v-list-item-content>
+                  </div>
 
                   <template v-slot:append>
                     <v-icon icon="mdi-arrow-right"></v-icon>

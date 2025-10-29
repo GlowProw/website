@@ -9,7 +9,6 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import CommentWidget from "@/components/CommentWidget.vue";
 import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
-import {rarity} from "@/assets/sripts/index";
 import CosmeticName from "@/components/snbWidget/cosmeticName.vue";
 import CosmeticIconWidget from "@/components/snbWidget/cosmeticIconWidget.vue";
 import CosmeticDescription from "@/components/snbWidget/cosmeticDescription.vue";

@@ -22,6 +22,7 @@ let show = ref(false),
 
     wheelCount = 3,
     wheelSlotMax = 8,
+    rotation = ref(0),
     selectWheelIndex = ref(0),
     selectWheelValue = ref(null),
     wheelOptionalItemTags = ref(['consumable']),

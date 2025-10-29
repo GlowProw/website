@@ -747,6 +747,56 @@
           "gunSlotCount": 4
         }
       ]
+    },
+    "sloopOfWar": {
+      "attachementSlotCount": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "furnitureSlotCount": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "weaponsSlotCount": [
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        },
+        {
+          "secondaryWeapon": 1,
+          "gunSlotCount": 4
+        }
+      ]
     }
   }
 }
