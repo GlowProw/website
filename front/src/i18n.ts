@@ -55,8 +55,8 @@ const i18n = createI18n({
     messageCompiler,
     locale: storage.local.get('lang')?.data?.value?.value || language.default || 'zh-CN',
     fallbackLocale: 'en-US',
-    missingWarn: false, // 禁用"缺少翻译密钥"的警告
-    fallbackWarn: false, // 禁用"回退到备用语言"的警告
+    missingWarn: false,
+    fallbackWarn: false,
     messages: {
         'zh-CN': Object.assign(zh_CN_local, {'snb': zh_CN_snb}),
         'en-US': Object.assign(en_US_local, {'snb': en_US_snb}),
