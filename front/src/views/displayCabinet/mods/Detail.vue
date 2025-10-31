@@ -60,11 +60,14 @@ onMounted(() => {
             </p>
 
             <div class="mt-5 d-flex ga-2">
+              <v-chip class="badge-flavor text-center tag-badge text-black" v-if="modDetailData.grade">
+                {{ t(`assembly.tags.grade.${modDetailData.grade}`) }}
+              </v-chip>
               <v-chip class="badge-flavor text-center tag-badge text-black" v-if="modDetailData.effectType">
-                {{ modDetailData.effectType }}
+                {{ t(`displayCabinet.modification.effectType.${modDetailData.effectType}`) }}
               </v-chip>
               <v-chip class="badge-flavor text-center tag-badge text-black" v-if="modDetailData.damageType">
-                {{ modDetailData.damageType }}
+                {{ t(`assembly.tags.damageTypes.${modDetailData.damageType}`) }}
               </v-chip>
             </div>
           </v-col>

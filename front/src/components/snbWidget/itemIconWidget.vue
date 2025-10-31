@@ -100,7 +100,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
           <v-img :src="raritysAssets[`item-rarity-${i.rarity}`]" width="100%" height="100%" class="opacity-30 prohibit-drag"/>
         </template>
 
-        <div>
+        <div class="d-flex align-center">
           <v-img
               class="prohibit-drag"
               :src="itemsCardData.icon" cover width="100%" height="100%">

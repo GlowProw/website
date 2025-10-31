@@ -348,8 +348,28 @@
     "ultimates": {
       "title": "终结技列表"
     },
-    "mod": {
-      "title": "模组详情"
+    "modification": {
+      "title": "模组详情",
+      "effectType": {
+        "ignoreResistance": "忽略抵抗",
+        "addElementalDamage": "添加元素伤害",
+        "increaseDamage": "增加伤害",
+        "increaseElementalResistance": "提高元素抗性",
+        "increaseArmor": "增加护甲值",
+        "increaseHullHealth": "增加船体生命值",
+        "increaseReloadSpeed": "提高重新加载速度",
+        "extraElementalDamage": "额外元素伤害",
+        "extraDamage": "额外伤害",
+        "increaseProjectileSpeed": "增加弹丸速度",
+        "increaseProjectileRange": "增加弹道射程",
+        "reduceDamageWhileBracing": "防御时减少伤害",
+        "reduceTimeToTarget": "缩短至目标时间",
+        "increaseRepairAmountPerShot": "每枪增加的修复",
+        "increaseRepairAmount": "增加维修费用",
+        "increaseCritDamage": "增加暴击伤害",
+        "bonusElementalDamage": "额外元素伤害",
+        "increaseSiegeDamage": "增加攻城伤害"
+      }
     },
     "modifications": {
       "title": "模组列表"
@@ -478,6 +498,11 @@
         "tank": "坦克",
         "support": "支援"
       },
+      "grade": {
+        "basic": "基本",
+        "advanced": "高级",
+        "special": "特殊"
+      },
       "damageTypes": {
         "electric": "雷电",
         "explosive": "爆炸物",
@@ -485,6 +510,7 @@
         "flooding": "进水",
         "lifesteal": "吸血",
         "piercing": "穿透",
+        "burning": "燃烧",
         "poison": "剧毒",
         "repair": "维修",
         "tearing": "撕裂"

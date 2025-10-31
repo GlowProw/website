@@ -977,21 +977,21 @@ defineExpose({
                   </v-card>
                 </ItemSlotBase>
 
-                <!-- 船甲模组插槽 -->
-                <div class="mb-2 mt-1" v-if="!perfectDisplay">
-                  <WeaponModificationWidget :readonly="readonly"
-                                            :disabled="workshopData.data.armorSlot == null"
-                                            :data="workshopData.data.armorSlot"
-                                            size="4"
-                                            v-model="workshopData.data.armorModification[0]"></WeaponModificationWidget>
-                </div>
+<!--                &lt;!&ndash; 船甲模组插槽 &ndash;&gt;-->
+<!--                <div class="mb-2 mt-1" v-if="!perfectDisplay">-->
+<!--                  <WeaponModificationWidget :readonly="readonly"-->
+<!--                                            :disabled="workshopData.data.armorSlot == null"-->
+<!--                                            :data="workshopData.data.armorSlot"-->
+<!--                                            size="4"-->
+<!--                                            v-model="workshopData.data.armorModification[0]"></WeaponModificationWidget>-->
+<!--                </div>-->
 
-                <!-- 船甲模组插槽 仅展示 -->
-                <div class="mb-2 mt-1" v-if="perfectDisplay">
-                  <WeaponModificationOnlyShowWidget
-                      :item-data="workshopData.data.armorSlot"
-                      :mod-data="workshopData.data.armorModification[0]"></WeaponModificationOnlyShowWidget>
-                </div>
+<!--                &lt;!&ndash; 船甲模组插槽 仅展示 &ndash;&gt;-->
+<!--                <div class="mb-2 mt-1" v-if="perfectDisplay">-->
+<!--                  <WeaponModificationOnlyShowWidget-->
+<!--                      :item-data="workshopData.data.armorSlot"-->
+<!--                      :mod-data="workshopData.data.armorModification[0]"></WeaponModificationOnlyShowWidget>-->
+<!--                </div>-->
               </v-col>
 
               <!-- 终极技能 -->
