@@ -15,6 +15,7 @@ import CosmeticDescription from "@/components/snbWidget/cosmeticDescription.vue"
 import Time from "@/components/Time.vue";
 import TimeView from "@/components/TimeView.vue";
 import ObtainableWidget from "@/components/ObtainableWidget.vue";
+import {storage} from "@/assets/sripts/index";
 
 const {t} = useI18n(),
     router = useRouter(),
@@ -36,7 +37,26 @@ onMounted(() => {
 
   if (id)
     materialDetailData.value = cosmetics[id]
+
+  onDisplayCabinetHistory()
 })
+
+const onDisplayCabinetHistory = () => {
+  const {id} = route.params;
+
+  let name = 'displayCabinet.history'
+
+  const d = storage.session.get(name)
+
+  storage.session.set(name, {
+    ...d?.data?.value || {},
+    [id]: {
+      id,
+      category: 'cosmetic',
+      time: new Date().getTime()
+    }
+  })
+}
 </script>
 
 <template>

@@ -12,7 +12,7 @@ import LikeWidget from "@/components/LikeWidget.vue";
 import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
 import MaterialName from "@/components/snbWidget/materialName.vue";
 import MaterialDescription from "@/components/snbWidget/materialDescription.vue";
-import {rarity} from "@/assets/sripts/index";
+import {rarity, storage} from "@/assets/sripts/index";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 import ItemMaterials from "@/components/snbWidget/itemMaterials.vue";
 
@@ -37,7 +37,26 @@ onMounted(() => {
 
   if (id)
     materialDetailData.value = materials[id]
+
+  onDisplayCabinetHistory()
 })
+
+const onDisplayCabinetHistory = () => {
+  const {id} = route.params;
+
+  let name = 'displayCabinet.history'
+
+  const d = storage.session.get(name)
+
+  storage.session.set(name, {
+    ...d?.data?.value || {},
+    [id]: {
+      id,
+      category: 'material',
+      time: new Date().getTime()
+    }
+  })
+}
 </script>
 
 <template>

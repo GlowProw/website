@@ -16,7 +16,7 @@ import ItemName from "@/components/snbWidget/itemName.vue";
 import CosmeticIconWidget from "@/components/snbWidget/cosmeticIconWidget.vue";
 import CosmeticName from "@/components/snbWidget/cosmeticName.vue";
 import {useDisplay} from "vuetify/framework";
-import Sidebar from "@/views/displayCabinet/Sidebar.vue";
+import TreasureMapIconWidget from "@/components/snbWidget/treasureMapIconWidget.vue";
 
 const
     {t} = useI18n(),
@@ -132,10 +132,10 @@ function getRandom(obj, count) {
     </v-container>
   </v-breadcrumbs>
   <v-divider></v-divider>
-  <div class="mb-10 px-10 py-5 overview">
-    <v-row class="fill-height">
+  <div class="mb-10 py-5 overview">
+    <v-row class="fill-height" no-gutters>
       <div class="w-100 mb-5" v-if="displayCabinetHistorys.length > 0">
-        <v-toolbar class="title-long-flavor bg-black mb-5">
+        <v-toolbar class="title-long-flavor bg-black mb-5 ml-n3 mr-n3">
           <div class="ml-10 font-weight-bold text-amber">
             {{ t('displayCabinet.cabinetHistoryTitle') }}
             ({{ displayCabinetHistorys.length || 0 }})
@@ -149,16 +149,20 @@ function getRandom(obj, count) {
         <v-row>
           <v-col cols="auto" v-for="(i,index) in displayCabinetHistorys" :key="index">
             <ItemSlotBase size="120px">
-              <ItemIconWidget :id="i.id" v-if="i.type == 'item'"></ItemIconWidget>
-              <ShipIconWidget :id="i.id" v-if="i.type == 'ship'"></ShipIconWidget>
-              <UltimateIconWidget :id="i.id" v-if="i.type == 'ultimate'"></UltimateIconWidget>
+              <ItemIconWidget :id="i.id" v-if="i.category == 'item'"></ItemIconWidget>
+              <ShipIconWidget :id="i.id" v-if="i.category == 'ship'"></ShipIconWidget>
+              <UltimateIconWidget :id="i.id" v-if="i.category == 'ultimate'"></UltimateIconWidget>
+              <MaterialIconWidget :id="i.id" v-if="i.category == 'material'"></MaterialIconWidget>
+              <TreasureMapIconWidget :id="i.id" v-if="i.category == 'map'"></TreasureMapIconWidget>
+              <CosmeticIconWidget :id="i.id" v-if="i.category == 'cosmetic'"></CosmeticIconWidget>
+              <ModIconWidget :id="i.id" v-if="i.category == 'mod'"></ModIconWidget>
             </ItemSlotBase>
           </v-col>
         </v-row>
       </div>
 
       <div class="w-100">
-        <v-toolbar class="title-long-flavor bg-black mb-5">
+        <v-toolbar class="title-long-flavor bg-black mb-5 ml-n3 mr-n3">
           <router-link to="/display-cabinet/ships" class="ml-10 font-weight-bold text-amber">
             {{ t('displayCabinet.ships.title') }}
             ({{ Object.keys(ships).length || 0 }})
@@ -181,7 +185,7 @@ function getRandom(obj, count) {
       </div>
 
       <div class="w-100">
-        <v-toolbar class="title-long-flavor bg-black mb-5">
+        <v-toolbar class="title-long-flavor bg-black mb-5 ml-n3 mr-n3">
           <router-link to="/display-cabinet/ultimates" class="ml-10 font-weight-bold text-amber">
             {{ t('displayCabinet.ultimates.title') }}
             ({{ Object.keys(ultimates).length || 0 }})
@@ -204,7 +208,7 @@ function getRandom(obj, count) {
       </div>
 
       <div class="w-100">
-        <v-toolbar class="title-long-flavor bg-black mb-5">
+        <v-toolbar class="title-long-flavor bg-black mb-5 ml-n3 mr-n3">
           <router-link to="/display-cabinet/mods" class="ml-10 font-weight-bold text-amber">
             {{ t('displayCabinet.modifications.title') }}
             ({{ Object.keys(mods).length || 0 }})
@@ -227,7 +231,7 @@ function getRandom(obj, count) {
       </div>
 
       <div class="mt-10">
-        <v-toolbar class="title-long-flavor bg-black mb-5">
+        <v-toolbar class="title-long-flavor bg-black mb-5 ml-n3 mr-n3">
           <router-link to="/display-cabinet/items" class="ml-10 font-weight-bold text-amber">
             {{ t('displayCabinet.items.title') }}
             ({{ Object.keys(items).length || 0 }})
@@ -255,7 +259,7 @@ function getRandom(obj, count) {
       </div>
 
       <div class="mt-10">
-        <v-toolbar class="title-long-flavor bg-black mb-5">
+        <v-toolbar class="title-long-flavor bg-black mb-5 ml-n3 mr-n3">
           <router-link to="/display-cabinet/cosmetics" class="ml-10 font-weight-bold text-amber">
             {{ t('displayCabinet.cosmetics.title') }}
             ({{ Object.keys(cosmetics).length || 0 }})
@@ -283,7 +287,7 @@ function getRandom(obj, count) {
       </div>
 
       <div class="mt-10">
-        <v-toolbar class="title-long-flavor bg-black mb-5">
+        <v-toolbar class="title-long-flavor bg-black mb-5 ml-n3 mr-n3">
           <router-link to="/display-cabinet/materials" class="ml-10 font-weight-bold text-amber">
             {{ t('displayCabinet.materials.title') }}
             ({{ Object.keys(materials).length || 0 }})

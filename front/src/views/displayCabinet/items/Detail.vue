@@ -154,7 +154,7 @@ const onDisplayCabinetHistory = () => {
     ...d?.data?.value || {},
     [id]: {
       id,
-      type: 'item',
+      category: 'item',
       time: new Date().getTime()
     }
   })

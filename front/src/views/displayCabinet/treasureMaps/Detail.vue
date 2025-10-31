@@ -16,6 +16,7 @@ import WeaponModificationWidget from "@/components/snbWidget/weaponModificationW
 import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
 import ModDescription from "@/components/snbWidget/modDescription.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
+import {storage} from "@/assets/sripts/index";
 
 const {t} = useI18n(),
     router = useRouter(),
@@ -30,7 +31,26 @@ onMounted(() => {
 
   if (id)
     modDetailData.value = mods[id]
+
+  onDisplayCabinetHistory()
 })
+
+const onDisplayCabinetHistory = () => {
+  const {id} = route.params;
+
+  let name = 'displayCabinet.history'
+
+  const d = storage.session.get(name)
+
+  storage.session.set(name, {
+    ...d?.data?.value || {},
+    [id]: {
+      id,
+      category: 'map',
+      time: new Date().getTime()
+    }
+  })
+}
 </script>
 
 <template>

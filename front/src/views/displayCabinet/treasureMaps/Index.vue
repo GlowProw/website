@@ -12,17 +12,7 @@ const {t} = useI18n(),
 </script>
 
 <template>
-  <v-breadcrumbs>
-    <v-container class="pa-0">
-      <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
-      <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item to="/display-cabinet">{{ t('displayCabinet.title') }}</v-breadcrumbs-item>
-      <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item>{{ t('displayCabinet.treasureMaps.title') }}</v-breadcrumbs-item>
-    </v-container>
-  </v-breadcrumbs>
-  <v-divider></v-divider>
-  <v-container class="mb-10 pa-10">
+  <v-container class="pa-5">
     <v-row class="treasure-map-list ga-4">
       <template v-for="(i, index) in treasureMaps" :key="index">
         <v-card variant="text" width="99">

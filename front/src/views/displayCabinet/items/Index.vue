@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import {computed, onMounted, ref} from "vue";
 import {Items} from "glow-prow-data/src/entity/Items.ts";
@@ -10,6 +9,7 @@ import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import EmptyView from "@/components/EmptyView.vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import ItemName from "@/components/snbWidget/itemName.vue";
+import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
 
 const items = Items,
     route = useRoute(),
@@ -38,6 +38,7 @@ const onProcessedData = computed(() => {
       const filteredData = originalData.filter(i => {
         // 检查关键词匹配
         const nameMatch = asString([
+          i.id,
           `snb.items.${i.id}.name`,
           `snb.items.${sanitizeString(i.id).cleaned}.name`
         ]).toLowerCase().indexOf(searchValue) >= 0;
@@ -99,19 +100,11 @@ const onFilterItemType = (value) => {
 </script>
 
 <template>
-  <v-breadcrumbs>
-    <v-container class="pa-0">
-      <v-breadcrumbs-item to="/">{{ t('home.title') }}</v-breadcrumbs-item>
-      <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item to="/display-cabinet">{{ t('displayCabinet.title') }}</v-breadcrumbs-item>
-      <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item>{{ t('displayCabinet.items.title') }}</v-breadcrumbs-item>
-    </v-container>
-  </v-breadcrumbs>
-  <v-divider></v-divider>
-  <v-container class="pt-5 pa-10 ml-n2 mr-n2 pb-0">
-    <v-row class="mb-5" align="center">
-      <v-icon>mdi-filter</v-icon>
+  <v-container class="pa-5 pb-0">
+    <v-row align="center">
+      <v-col cols="auto">
+        <v-icon>mdi-filter</v-icon>
+      </v-col>
       <v-col>
         <v-text-field :placeholder="t('basic.button.search')" hide-details
                       variant="filled"
@@ -149,59 +142,65 @@ const onFilterItemType = (value) => {
       </v-col>
     </v-row>
 
-    <template v-if="!isSearching && !isType">
-      <v-infinite-scroll
-          height="100vh"
-          :items="itemsData"
-          @load="onLoad">
+    <v-divider class="mt-3"></v-divider>
+
+    <template v-if="exceedingItemsCount > 0">
+      <v-alert class="w-100 mb-5" type="warning" variant="tonal">
+        {{ t('displayCabinet.ships.searchCountOverflowTip', {maximumSearchCount, exceedingItemsCount}) }}
+      </v-alert>
+    </template>
+
+    <v-infinite-scroll
+        height="100vh"
+        @load="onLoad">
+      <template v-if="!isSearching && !isType">
         <v-row class="item-list ga-4" no-gutters>
-          <v-card v-for="(i,index) in itemsData" :key="index" width="99" class="bg-transparent">
+          <v-card v-for="(i,index) in itemsData" :key="index" width="99" variant="text">
             <ItemSlotBase size="99px">
               <ItemIconWidget :id="i.id"></ItemIconWidget>
             </ItemSlotBase>
             <div class="text-center singe-line w-100">
-              <ItemName :data="i"></ItemName>
+              <ItemNameRarity :id="i.id">
+                <ItemName :data="i"></ItemName>
+              </ItemNameRarity>
             </div>
           </v-card>
         </v-row>
-        <template v-slot:empty></template>
-        <template v-slot:loading>
-          <v-btn density="comfortable" icon>
-            <Loading :size="42"></Loading>
-          </v-btn>
-        </template>
-        <template v-slot:load-more="{ props }">
-          <v-btn
-              icon="mdi-refresh"
-              size="small"
-              variant="text"
-              v-bind="props"
-          ></v-btn>
-        </template>
-      </v-infinite-scroll>
-    </template>
-    <template v-else>
-      <template v-if="exceedingItemsCount > 0">
-        <v-alert class="w-100 mb-5" type="warning" variant="tonal">
-          {{ t('displayCabinet.ships.searchCountOverflowTip', {maximumSearchCount, exceedingItemsCount}) }}
-        </v-alert>
       </template>
-
-      <v-row class="item-list ga-4">
-        <div v-for="(i,index) in onProcessedData" :key="index" style="width: 99px">
-          <ItemSlotBase size="99px">
-            <ItemIconWidget :id="i.id"></ItemIconWidget>
-          </ItemSlotBase>
-          <div class="text-center singe-line w-100">
-            <ItemName :data="i"></ItemName>
-          </div>
-        </div>
-
-        <v-card border class="w-100" v-if="onProcessedData.length <= 0">
+      <template v-else>
+        <v-row class="item-list ga-4" no-gutters>
+          <v-card v-for="(i,index) in onProcessedData" :key="index" width="99" variant="text">
+            <ItemSlotBase size="99px">
+              <ItemIconWidget :id="i.id"></ItemIconWidget>
+            </ItemSlotBase>
+            <div class="text-center singe-line w-100">
+              <ItemNameRarity :id="i.id">
+                <ItemName :data="i"></ItemName>
+              </ItemNameRarity>
+            </div>
+          </v-card>
+        </v-row>
+      </template>
+      <template v-slot:empty></template>
+      <template v-slot:loading>
+        <v-btn density="comfortable" icon>
+          <Loading :size="42"></Loading>
+        </v-btn>
+      </template>
+      <template v-slot:load-more="{ props }">
+        <v-btn
+            icon="mdi-refresh"
+            size="small"
+            variant="text"
+            v-bind="props"
+        ></v-btn>
+      </template>
+      <template  v-if="onProcessedData.length <= 0">
+        <v-card border class="w-100">
           <EmptyView></EmptyView>
         </v-card>
-      </v-row>
-    </template>
+      </template>
+    </v-infinite-scroll>
   </v-container>
 </template>
 

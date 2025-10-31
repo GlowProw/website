@@ -133,7 +133,7 @@ const onDisplayCabinetHistory = () => {
     ...d?.data?.value || {},
     [id]: {
       id,
-      type: 'ship',
+      category: 'ship',
       time: new Date().getTime()
     }
   })

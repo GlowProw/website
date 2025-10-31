@@ -3,42 +3,30 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import {useI18n} from "vue-i18n";
 import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
 import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
+import UltimateName from "@/components/snbWidget/ultimateName.vue";
 
 const ultimatesData = Ultimates,
     {t} = useI18n()
 </script>
 
 <template>
-  <v-breadcrumbs >
-    <v-container class="pa-0">
-      <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
-      <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item to="/display-cabinet">{{ t('displayCabinet.title') }}</v-breadcrumbs-item>
-      <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item>{{ t('displayCabinet.ultimates.title') }}</v-breadcrumbs-item>
-    </v-container>
-  </v-breadcrumbs>
-  <v-divider></v-divider>
-  <v-container class="mb-10 pa-10">
-    <v-row>
-      <v-col cols="12" lg="12" xl="12">
-        <v-row class="ultimates-list ga-4">
-          <ItemSlotBase size="99px" v-for="(i,index) in ultimatesData" :key="index">
+  <v-container class="pa-5">
+    <v-row class="ultimates-list ga-4">
+      <template v-for="(i,index) in ultimatesData" :key="index">
+        <v-card width="99" class="bg-transparent">
+          <ItemSlotBase size="99px">
             <UltimateIconWidget :id="i.id" class="pa-2"></UltimateIconWidget>
           </ItemSlotBase>
-        </v-row>
-      </v-col>
+          <div class="d-flex justify-center mx-auto mt-1 w-100 singe-line">
+            <UltimateName :id="i.id"></UltimateName>
+          </div>
+        </v-card>
+      </template>
     </v-row>
   </v-container>
 </template>
 
 <style scoped>
-.ultimates-title {
-  padding: 25px 40px;
-  margin-bottom: 20px;
-  font-size: 3rem;
-}
-
 .ultimates-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(99px, 1fr));

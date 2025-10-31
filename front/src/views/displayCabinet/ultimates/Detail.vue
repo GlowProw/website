@@ -54,9 +54,27 @@ onMounted(() => {
   head.value.titleTemplate = `${i18nReadName.ultimate.name(id)} - ${head.value.titleTemplate}`
 
   onUltimateHistory()
+  onDisplayCabinetHistory()
 
   ultimateDetailPageData.value.loading = false;
 })
+
+const onDisplayCabinetHistory = () => {
+  const {id} = route.params;
+
+  let name = 'displayCabinet.history'
+
+  const d = storage.session.get(name)
+
+  storage.session.set(name, {
+    ...d?.data?.value || {},
+    [id]: {
+      id,
+      category: 'ultimate',
+      time: new Date().getTime()
+    }
+  })
+}
 
 const onUltimateHistory = () => {
   const {id} = route.params;

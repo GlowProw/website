@@ -39,8 +39,9 @@ const onProcessedData = computed(() => {
       const filteredData = originalData.filter(i => {
         // 检查关键词匹配
         const nameMatch = asString([
-          `snb.items.${i.id}.name`,
-          `snb.items.${sanitizeString(i.id).cleaned}.name`
+          i.id,
+          `snb.cosmetics.${i.id}.name`,
+          `snb.cosmetics.${sanitizeString(i.id).cleaned}.name`
         ]).toLowerCase().indexOf(searchValue) >= 0;
         const idMatch = i.id.toLowerCase().indexOf(searchValue) >= 0;
 
@@ -100,19 +101,11 @@ const onFilterItemType = (value) => {
 </script>
 
 <template>
-  <v-breadcrumbs>
-    <v-container class="pa-0">
-      <v-breadcrumbs-item to="/">{{ t('home.title') }}</v-breadcrumbs-item>
-      <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item to="/display-cabinet">{{ t('displayCabinet.title') }}</v-breadcrumbs-item>
-      <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item>{{ t('displayCabinet.cosmetics.title') }}</v-breadcrumbs-item>
-    </v-container>
-  </v-breadcrumbs>
-  <v-divider></v-divider>
-  <v-container class="pt-5 pa-10 ml-n2 mr-n2 pb-0">
-    <v-row class="mb-5" align="center">
-      <v-icon>mdi-filter</v-icon>
+  <v-container class="pa-5">
+    <v-row align="center">
+      <v-col cols="auto">
+        <v-icon>mdi-filter</v-icon>
+      </v-col>
       <v-col>
         <v-text-field :placeholder="t('basic.button.search')" hide-details
                       variant="filled"
@@ -150,59 +143,59 @@ const onFilterItemType = (value) => {
       </v-col>
     </v-row>
 
-    <template v-if="!isSearching && !isType">
-      <v-infinite-scroll
-          height="100vh"
-          :items="cosmeticsData"
-          @load="onLoad">
+    <v-divider class="mt-3"></v-divider>
+
+    <template v-if="exceedingItemsCount > 0">
+      <v-alert class="w-100 mb-5" type="warning" variant="tonal">
+        {{ t('displayCabinet.ships.searchCountOverflowTip', {maximumSearchCount, exceedingItemsCount}) }}
+      </v-alert>
+    </template>
+
+    <v-infinite-scroll @load="onLoad">
+      <template v-if="!isSearching && !isType">
         <v-row class="cosmetic-list ga-4" no-gutters>
-          <div v-for="(i,index) in cosmeticsData" :key="index" style="width: 99px">
+          <v-card v-for="(i,index) in cosmeticsData" :key="index" width="99" variant="text">
             <ItemSlotBase size="99px">
               <CosmeticIconWidget :id="i.id"></CosmeticIconWidget>
             </ItemSlotBase>
             <div class="text-center singe-line w-100">
               <CosmeticName :id="i.id"></CosmeticName>
             </div>
-          </div>
+          </v-card>
         </v-row>
-        <template v-slot:empty></template>
-        <template v-slot:loading>
-          <v-btn density="comfortable" icon>
-            <Loading :size="42"></Loading>
-          </v-btn>
-        </template>
-        <template v-slot:load-more="{ props }">
-          <v-btn
-              icon="mdi-refresh"
-              size="small"
-              variant="text"
-              v-bind="props"
-          ></v-btn>
-        </template>
-      </v-infinite-scroll>
-    </template>
-    <template v-else>
-      <template v-if="exceedingItemsCount > 0">
-        <v-alert class="w-100 mb-5" type="warning" variant="tonal">
-          {{ t('displayCabinet.ships.searchCountOverflowTip', {maximumSearchCount, exceedingItemsCount}) }}
-        </v-alert>
       </template>
-
-      <v-row class="cosmetic-list ga-4">
-        <div v-for="(i,index) in onProcessedData" :key="index" style="width: 99px">
-          <ItemSlotBase size="99px">
-            <CosmeticIconWidget :id="i.id"></CosmeticIconWidget>
-          </ItemSlotBase>
-          <div class="text-center singe-line w-100">
-            <CosmeticName :id="i.id"></CosmeticName>
-          </div>
-        </div>
-
-        <v-card border class="w-100" v-if="onProcessedData.length <= 0">
+      <template v-else>
+        <v-row class="cosmetic-list ga-4" no-gutters>
+          <v-card v-for="(i,index) in onProcessedData" :key="index" width="99" variant="text">
+            <ItemSlotBase size="99px">
+              <CosmeticIconWidget :id="i.id"></CosmeticIconWidget>
+            </ItemSlotBase>
+            <div class="text-center singe-line w-100">
+              <CosmeticName :id="i.id"></CosmeticName>
+            </div>
+          </v-card>
+        </v-row>
+      </template>
+      <template v-slot:empty></template>
+      <template v-slot:loading>
+        <v-btn density="comfortable" icon>
+          <Loading :size="42"></Loading>
+        </v-btn>
+      </template>
+      <template v-slot:load-more="{ props }">
+        <v-btn
+            icon="mdi-refresh"
+            size="small"
+            variant="text"
+            v-bind="props"
+        ></v-btn>
+      </template>
+      <template v-if="onProcessedData.length <= 0">
+        <v-card border class="w-100 mt-1">
           <EmptyView></EmptyView>
         </v-card>
-      </v-row>
-    </template>
+      </template>
+    </v-infinite-scroll>
   </v-container>
 </template>
 
