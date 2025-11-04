@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
-import {computed, Ref, ref, toRaw, useAttrs, useSlots, watch} from "vue";
+import {computed, reactive, Ref, ref, toRaw, useAttrs, useSlots, watch} from "vue";
 import {useRoute} from "vue-router";
 
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
@@ -79,7 +79,7 @@ let workshopData = ref({
         weaponModifications: [],            // 武器   安装模组
         weaponSlots: [],                    // 武器
         armorSlot: null,                    // 船甲
-        armorModification: [],              // 船甲模组
+        armorModification: [[]],              // 船甲模组
         secondaryWeaponSlots: [],           // 副武器
         secondaryWeaponModifications: [],   // 副武器 安装模组
         displaySlots: [],                   // 家具陈设
@@ -394,10 +394,10 @@ const onLoad = (data) => {
 
   if (!d || JSON.stringify(d) === '{}') return;
 
-  workshopData.value.data = {
+  workshopData.value.data = reactive({
     ...workshopData.value.data,
     ...d
-  };
+  });
 }
 
 const verify = () => {
@@ -910,9 +910,8 @@ defineExpose({
 
                 <div v-for="(i, index) in workshopData.data.armorModification" :key="index">
                   <!-- 船甲模组插槽 -->
-                  <div class="mb-2 mt-1" v-if="!perfectDisplay">
+                  <div class="mb-2 mt-1" v-if="!perfectDisplay && workshopData.data.armorSlot">
                     <WeaponModificationWidget :readonly="readonly"
-                                              :disabled="workshopData.data.armorSlot == null"
                                               :data="workshopData.data.armorSlot"
                                               size="4"
                                               v-model="workshopData.data.armorModification[index]"></WeaponModificationWidget>
