@@ -164,6 +164,7 @@
     },
     "type": {
       "undefined": "无分类",
+      "ships": "船只",
       "consumable": "消耗品",
       "ammunition": "弹药",
       "armor": "护甲",
@@ -387,6 +388,13 @@
     },
     "treasureMaps": {
       "title": "藏宝图列表"
+    },
+    "mapLocation": {
+      "title": "地图地点",
+      "lookDetail": "查看地图地点详情"
+    },
+    "mapLocations": {
+      "title": "地图地点列表"
     }
   },
   "calendar": {
@@ -399,6 +407,7 @@
     "title": "地图",
     "description": "所有地图物品清单",
     "searchPlaceholder": "搜索地标",
+    "possibleLoot": "可能的赃物",
     "locations": "地点",
     "layerControl": "图层控制",
     "hideAll": "隐藏所有",
@@ -411,7 +420,7 @@
       "shareLocation": "分享位置",
       "outpost": "前哨站",
       "foundry": "铸造厂",
-      "capitalSettlement": "资本结算",
+      "capitalSettlement": "首府定居点",
       "lumberyard": "木材厂",
       "militaryBase": "军事基地"
     }
@@ -505,7 +514,7 @@
       },
       "damageTypes": {
         "electric": "雷电",
-        "explosive": "爆炸物",
+        "explosive": "爆炸",
         "fire": "火",
         "flooding": "进水",
         "lifesteal": "吸血",
@@ -513,7 +522,8 @@
         "burning": "燃烧",
         "poison": "剧毒",
         "repair": "维修",
-        "tearing": "撕裂"
+        "tearing": "撕裂",
+        "toxic": "剧毒"
       }
     },
     "workshop": {
@@ -522,6 +532,8 @@
       "weaponTitle": "武器",
       "armorTitle": "船甲",
       "insertArmorTitle": "插入船甲",
+      "insertShipTitle": "插入船只",
+      "insertShipFrigateUpgradeTitle": "插入升级部件",
       "mainWeapon": "主武器",
       "secondaryWeapon": "副武器",
       "insertWeaponTips": "请输入id来选中物体，id列表可见<a target=\"_blank\" href=\"{link}\">这里</a>",

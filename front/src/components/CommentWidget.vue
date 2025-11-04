@@ -12,7 +12,7 @@ import {useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useNoticeStore} from "~/stores/noticeStore";
 
-type commentTargetType = 'assembly' | 'item' | 'ship' | 'ultimate' | 'mod' | 'material'
+type commentTargetType = 'assembly' | 'item' | 'ship' | 'ultimate' | 'mod' | 'material' | 'treasureMap'
 
 const route = useRoute(),
     authStore = useAuthStore(),

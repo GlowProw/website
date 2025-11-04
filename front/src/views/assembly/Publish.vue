@@ -97,10 +97,6 @@ watch(() => publishData.value.assembly.attr, () => {
   onSetAssemblyData()
 }, {deep: true})
 
-watch(() => route, () => {
-  onLoadData()
-})
-
 /**
  * 加载数据
  */
@@ -117,11 +113,10 @@ const onLoadData = () => {
 
     if (getLocalAssemblyData.code != 0)
       return noticeStore.error(t('basic.tips.assembly.error', {
-        context: '无法读取到本地数据'
+        context: 'Unable to read the local data' // 无法读取到本地数据
       }))
 
     const {uuid, assembly, name, description, tags} = getLocalAssemblyData.data;
-    console.log('assembly', Object.assign({}, assembly))
 
     publishData.value.uuid = uuid
     publishData.value.name = name || ''
@@ -154,7 +149,7 @@ const onLoadData = () => {
 /**
  * 设置配装视图数据
  */
-const onSetAssemblyData = () => {
+const onSetAssemblyData = async () => {
   assemblyMainSubjectView.value.refs.assembly
       .setSetting({
         assemblyUseVersion: publishData.value.assembly.attr?.assemblyUseVersion || publishData.value.assembly.data.__version || AssemblyDataProcessing.nowVersion,

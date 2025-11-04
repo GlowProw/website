@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import {ref} from "vue";
-import {Cosmetic, Item, Material, Ship, Ultimate} from "glow-prow-data";
+import {Cosmetic, Item, MapLocation, Material, Ship, TreasureMap, Ultimate} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 import {useDisplay} from "vuetify/framework";
 import SeasonViewWidget from "@/components/SeasonViewWidget.vue";
 
 const {t} = useI18n(),
     {mobile} = useDisplay(),
-    props = defineProps<{ data: Item | Ship | Material | Cosmetic | Ultimate | unknown }>()
+    props = defineProps<{ data: Item | Ship | Material | Cosmetic | Ultimate | MapLocation | TreasureMap | unknown }>()
 
 let images = ref({})
 

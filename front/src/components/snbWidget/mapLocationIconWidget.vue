@@ -10,16 +10,18 @@ import {useAssetsStore} from "~/stores/assetsStore";
 import Loading from "../Loading.vue";
 import LightRays from "../LightRays.vue"
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
-import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
-import {TreasureMap, TreasureMaps} from "glow-prow-data";
-import TreasureMapName from "@/components/snbWidget/treasureMapName.vue";
+import {MapLocation, MapLocations} from "glow-prow-data";
+import MapLocationNameWidget from "@/components/snbWidget/mapLocationNameWidget.vue";
+
+const mapImages = import.meta.glob('/src/assets/images/map/*.*', {eager: true});
 
 const
     {asString, sanitizeString} = useI18nUtils(),
+    {serializationMap} = useAssetsStore(),
     route = useRoute(),
     router = useRouter(),
     {t} = useI18n(),
-    {treasureMaps: treasureMapsAssets, raritys: raritysAssets} = useAssetsStore(),
+    {raritys: raritysAssets} = useAssetsStore(),
     props = withDefaults(defineProps<{
       id: string,
       isShowOpenDetail?: boolean,
@@ -35,12 +37,13 @@ const
       padding: 0,
       margin: 1
     }),
-    treasureMaps: TreasureMaps = TreasureMaps
+    mapLocations: MapLocations = MapLocations
 
-let treasureMapsCardData = ref({
+let mapLocationsCardData = ref({
       icon: '',
     }),
-    i: Ref<TreasureMap | null> = ref(null),
+    mapIcons = ref({}),
+    i: Ref<MapLocation | null> = ref(null),
 
     // 稀有度
     rarityColorConfig = rarity.color
@@ -55,10 +58,12 @@ onMounted(() => {
 })
 
 const onReady = async () => {
-  i.value = treasureMaps[props.id] || null
+  i.value = mapLocations[props.id] || null
 
-  if (treasureMapsAssets[props.id])
-    treasureMapsCardData.value.icon = treasureMapsAssets[props.id] || ''
+  if (props.id) {
+    mapIcons.value = serializationMap(mapImages);
+    mapLocationsCardData.value.icon = mapIcons.value[i.value.category]
+  }
 }
 
 const {targetElement, isVisible} = useIntersectionObserver({
@@ -75,7 +80,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
       min-width="450"
       max-width="450"
       interactive
-      class="treasureMap-card"
+      class="map-location-card"
       content-class="pa-0"
       target="cursor">
     <template v-slot:activator="{ props: activatorProps }">
@@ -84,21 +89,22 @@ const {targetElement, isVisible} = useIntersectionObserver({
           width="100%"
           v-bind="activatorProps"
           :color="`hsl(from ${rarityColorConfig[i?.rarity]} h s calc(l * .15))`"
-          :to="isOpenDetail ? `/display-cabinet/treasureMap/${i?.id}` : null"
+          :to="isOpenDetail ? `/display-cabinet/mapLocation/${i?.id}` : null"
           :class="[
               'prohibit-drag',
               `ma-${props.margin}`,
               `pa-${props.padding}`,
-              `treasureMap-card-header-rarity-${i.rarity}`
+              `mapLocation-card-header-rarity-${i.rarity}`
           ]">
         <template v-slot:image v-if="i.rarity">
-          <v-img :src="raritysAssets[`treasureMap-rarity-${i.rarity}`]" width="100%" height="100%" class="opacity-30 prohibit-drag"/>
+          <v-img :src="raritysAssets[`mapLocation-rarity-${i.rarity}`]" width="100%" height="100%" class="opacity-30 prohibit-drag"/>
         </template>
 
-        <div class="w-100 h-100">
+        <div class="d-flex justify-center align-center">
           <v-img
               class="prohibit-drag"
-              :src="treasureMapsCardData.icon" width="100%" height="100%">
+              cover
+              :src="mapLocationsCardData.icon" width="100%" height="100%">
             <template v-slot:error>
               <div class="fill-height repeating-gradient d-flex justify-center align-center h-100">
                 <v-icon icon="mdi-help" class="opacity-30"></v-icon>
@@ -115,29 +121,22 @@ const {targetElement, isVisible} = useIntersectionObserver({
     </template>
     <v-card class="demo-reel bg-black" flat border>
       <div class="demo-reel-header pa-10 position-relative"
-           :style="`background-color: color-mix(in srgb, hsl(from ${rarityColorConfig[ treasureMaps[i.id]?.rarity || '' ]} h s l) 10%, #000)`">
+           :style="`background-color: color-mix(in srgb, hsl(from ${rarityColorConfig[ mapLocations[i.id]?.rarity || '' ]} h s l) 10%, #000)`">
         <div class="v-skeleton-loader__bone v-skeleton-loader__image opacity-30 position-absolute left-0 top-0 w-100 h-100"></div>
 
-        <h1 class="material-card-name font-weight-bold w-66">
-          <ItemSlotBase size="28px" class="mb-2" :padding="0">
-            <TreasureMapIconWidget class="bg-red d-inline-flex"></TreasureMapIconWidget>
-          </ItemSlotBase>
-          <TreasureMapName :id="i.id"></TreasureMapName>
+        <h1 class="map-location-card-name font-weight-bold w-66">
+          <MapLocationNameWidget :id="i.id"></MapLocationNameWidget>
         </h1>
         <p class="mb-1 mt-2">{{ i.id }}</p>
 
         <div class="d-flex ga-2 mt-3">
           <v-chip inline
-                  :to="`/display-cabinet/treasureMap/category/${i.type}`"
-                  class="badge-flavor text-center text-black" v-if="i.type">{{ t(`displayCabinet.type.${i.type}`) }}
-          </v-chip>
-          <v-chip class="badge-flavor text-center tag-badge text-black"
-                  :to="`/display-cabinet/treasureMap/rarity/${i.rarity}`"
-                  v-if="i.rarity">{{ t(`displayCabinet.rarity.${i.rarity}`) }}
+                  :to="`/display-cabinet/mapLocations/category/${i.category}`"
+                  class="badge-flavor text-center text-black" v-if="i.type">{{ t(`displayCabinet.type.${i.category}`) }}
           </v-chip>
         </div>
         <div class="right-show-image pointer-events-none position-absolute w-33">
-          <v-img :src="treasureMapsCardData.icon" class="material-mirror-image"></v-img>
+          <v-img :src="mapLocationsCardData.icon" class="map-location-mirror-image"></v-img>
         </div>
 
         <template v-if="i.rarity">
@@ -159,10 +158,10 @@ const {targetElement, isVisible} = useIntersectionObserver({
         </template>
       </div>
       <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto">
-        <BtnWidget @action-complete="router.push(`/display-cabinet/treasureMap/${i.id}`)"
+        <BtnWidget @action-complete="router.push(`/display-cabinet/mapLocation/${i.id}`)"
                    class="mt-1"
                    v-if="isShowOpenDetail">
-          {{ t('displayCabinet.treasureMap.lookDetail') }}
+          {{ t('displayCabinet.mapLocation.lookDetail') }}
         </BtnWidget>
       </div>
     </v-card>
@@ -184,11 +183,11 @@ const {targetElement, isVisible} = useIntersectionObserver({
     border-radius: inherit;
   }
 
-  .material-mirror-image {
+  .map-location-mirror-image {
     transform: scaleX(-1);
   }
 
-  .material-card-name {
+  .map-location-card-name {
     line-height: 1.2 !important;
   }
 }

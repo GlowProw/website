@@ -242,15 +242,15 @@ export default class AssemblyDataProcessing {
                     });
 
                 // console.log('get', data.armorModification)
-                // if (data.armorModification)
-                //     data.armorModification = data.armorModification.map(i => {
-                //         return i.map(j => {
-                //             return {
-                //                 type: j.type,
-                //                 value: j?.value?.id || null,
-                //             };
-                //         });
-                //     });
+                if (data.armorModification)
+                    data.armorModification = data.armorModification.map(i => {
+                        return i.map(j => {
+                            return {
+                                type: j.type,
+                                value: j?.value?.id || null,
+                            };
+                        });
+                    });
                 // console.log('get1', data.armorModification)
 
                 if (data.secondaryWeaponModifications)
@@ -275,8 +275,6 @@ export default class AssemblyDataProcessing {
 
                 if (data.armorSlot)
                     data.armorSlot = {id: data.armorSlot.id}
-
-
 
                 if (data.displaySlots)
                     data.displaySlots = data.displaySlots.map(i => {
@@ -307,17 +305,15 @@ export default class AssemblyDataProcessing {
                         });
                     });
 
-                // console.log('set', data.armorModification)
-                // if (data.armorModification)
-                //     data.armorModification.map(i => {
-                //         return i.map(j => {
-                //             return {
-                //                 type: j.type,
-                //                 value: modifications[j.value] || null,
-                //             };
-                //         });
-                //     });
-                // console.log('set2', data.armorModification)
+                if (data.armorModification)
+                    data.armorModification = data.armorModification.map(i => {
+                        return i.map(j => {
+                            return {
+                                type: j.type,
+                                value: modifications[j.value] || null,
+                            };
+                        });
+                    });
 
                 if (data.secondaryWeaponModifications)
                     data.secondaryWeaponModifications = data.secondaryWeaponModifications.map(i => {

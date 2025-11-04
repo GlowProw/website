@@ -32,6 +32,8 @@ import CosmeticsPage from '../src/views/displayCabinet/cosmetics/Index.vue'
 import CosmeticDetailPage from '../src/views/displayCabinet/cosmetics/Detail.vue'
 import TreasureMapsPage from '../src/views/displayCabinet/treasureMaps/Index.vue'
 import TreasureMapDetailPage from '../src/views/displayCabinet/treasureMaps/Detail.vue'
+import MapLocationPage from '../src/views/displayCabinet/mapLocations/Index.vue'
+import MapLocationsDetailPage from '../src/views/displayCabinet/mapLocations/Detail.vue'
 import EmpireSkillSimulationPage from '../src/views/empireSkillSimulation/Index.vue'
 
 import UltimatesPage from '../src/views/displayCabinet/ultimates/Index.vue'
@@ -339,6 +341,24 @@ const routes: Readonly<RouteRecordRaw[]> = [
                     keywords: 'displayCabinet.treasureMaps.meta.keywords'
                 },
                 component: TreasureMapDetailPage,
+            },
+            {
+                path: 'mapLocations',
+                name: 'MapLocations',
+                meta: {
+                    title: 'displayCabinet.treasureMaps.title',
+                    keywords: 'displayCabinet.treasureMaps.meta.keywords'
+                },
+                component: MapLocationPage,
+            },
+            {
+                path: 'mapLocation/:id',
+                name: 'MapLocationDetail',
+                meta: {
+                    title: 'displayCabinet.treasureMaps.title',
+                    keywords: 'displayCabinet.treasureMaps.meta.keywords'
+                },
+                component: MapLocationsDetailPage,
             },
 
         ]

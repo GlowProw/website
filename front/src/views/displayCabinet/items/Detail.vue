@@ -375,7 +375,7 @@ const onStarItem = (data: Item) => {
                     <v-icon icon="mdi-shield" size="18" class="mr-2"></v-icon>
                     {{ t('displayCabinet.item.damageMitigation') }}
                   </p>
-                  <v-text-field :value="dmValue"
+                  <v-text-field :value="`${(dmValue * 100).toFixed(0)}%`"
                                 v-for="([dmKey,dmValue]) in Object.entries(itemDetailData.damageMitigation)"
                                 :key="dmValue"
                                 :class="[dmValue ? '' : 'opacity-30']"

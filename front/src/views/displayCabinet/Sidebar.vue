@@ -30,6 +30,9 @@ const {t} = useI18n()
     <v-list-item to="/display-cabinet/treasureMaps" prepend-icon="mdi-format-list-bulleted-type">
       {{ t('displayCabinet.treasureMaps.title') }}
     </v-list-item>
+    <v-list-item to="/display-cabinet/mapLocations" prepend-icon="mdi-format-list-bulleted-type">
+      {{ t('displayCabinet.mapLocations.title') }}
+    </v-list-item>
   </v-list>
 </template>
 

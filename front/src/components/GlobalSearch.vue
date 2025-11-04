@@ -2,7 +2,7 @@
 import {computed, onMounted, ref, watch} from "vue";
 import FlexSearch from "flexsearch";
 
-import {Cosmetic, Cosmetics, Items, Material, Materials, Modification, Modifications, Ultimate, Ultimates} from "glow-prow-data";
+import {Cosmetic, Cosmetics, Items, MapLocations, Material, Materials, Modification, Modifications, Ultimate, Ultimates} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 import {Item} from "glow-prow-data/src/entity/Items.ts";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
@@ -20,6 +20,8 @@ import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
 import CosmeticIconWidget from "@/components/snbWidget/cosmeticIconWidget.vue";
 import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
+import MapLocationIconWidget from "@/components/snbWidget/mapLocationIconWidget.vue";
+import MapLocationNameWidget from "@/components/snbWidget/mapLocationNameWidget.vue";
 
 
 const {t} = useI18n(),
@@ -88,6 +90,13 @@ onMounted(() => {
           ...i,
           name: t(`snb.ultimates.${i.id}.name`),
           sourceType: 'ultimate'
+        }
+      }))
+      .concat(Object.values(MapLocations).map(i => {
+        return {
+          ...i,
+          name: t(`snb.mapLocations.${i.id}.name`),
+          sourceType: 'mapLocation'
         }
       }));
 
@@ -194,6 +203,8 @@ const toPage = (data: Item | Material | Modification | Cosmetic | Ultimate | any
       return `/display-cabinet/cosmetic/${data.id}`
     case "ultimate":
       return `/display-cabinet/ultimate/${data.id}`
+    case "mapLocation":
+      return `/display-cabinet/mapLocation/${data.id}`
     default:
       return ''
   }
@@ -284,6 +295,9 @@ const toPage = (data: Item | Material | Modification | Cosmetic | Ultimate | any
                       <template v-else-if="type=='ultimate'">
                         <UltimateIconWidget :id="i.id"></UltimateIconWidget>
                       </template>
+                      <template v-else-if="type=='mapLocation'">
+                        <MapLocationIconWidget :id="i.id"></MapLocationIconWidget>
+                      </template>
                     </ItemSlotBase>
 
 
@@ -301,6 +315,9 @@ const toPage = (data: Item | Material | Modification | Cosmetic | Ultimate | any
                     </template>
                     <template v-else-if="type=='ultimate'">
                       <UltimateName :id="i.id"></UltimateName>
+                    </template>
+                    <template v-else-if="type=='mapLocation'">
+                      <MapLocationNameWidget :id="i.id"></MapLocationNameWidget>
                     </template>
                   </v-list-item-title>
 

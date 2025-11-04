@@ -2,7 +2,7 @@
 
 import {useI18n} from "vue-i18n";
 import {onMounted, Ref, ref} from "vue";
-import {TreasureMap, TreasureMaps} from "glow-prow-data";
+import {MapLocation, MapLocations} from "glow-prow-data";
 import {useRoute, useRouter} from "vue-router";
 import {useAuthStore} from "~/stores/userAccountStore";
 import Time from "@/components/Time.vue";
@@ -10,26 +10,24 @@ import TimeView from "@/components/TimeView.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import CommentWidget from "@/components/CommentWidget.vue";
 import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
-import WeaponModificationWidget from "@/components/snbWidget/weaponModificationWidget.vue";
-import ModDescription from "@/components/snbWidget/modDescription.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
 import {storage} from "@/assets/sripts/index";
-import TreasureMapIconWidget from "@/components/snbWidget/treasureMapIconWidget.vue";
-import TreasureMapName from "@/components/snbWidget/treasureMapName.vue";
+import MapLocationNameWidget from "@/components/snbWidget/mapLocationNameWidget.vue";
+import MapLocationIconWidget from "@/components/snbWidget/mapLocationIconWidget.vue";
 
 const {t} = useI18n(),
     router = useRouter(),
     route = useRoute(),
     authStore = useAuthStore(),
-    maps = TreasureMaps
+    mapLocations = MapLocations
 
-let mapDetailData: Ref<TreasureMap> = ref({})
+let mapLocationDetailData: Ref<MapLocation> = ref({})
 
 onMounted(() => {
   const {id} = route.params
 
   if (id)
-    mapDetailData.value = maps[id]
+    mapLocationDetailData.value = mapLocations[id]
 
   onDisplayCabinetHistory()
 })
@@ -45,7 +43,7 @@ const onDisplayCabinetHistory = () => {
     ...d?.data?.value || {},
     [id]: {
       id,
-      category: 'treasureMap',
+      category: 'mapLocation',
       time: new Date().getTime()
     }
   })
@@ -59,9 +57,9 @@ const onDisplayCabinetHistory = () => {
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
       <v-breadcrumbs-item to="/display-cabinet">{{ t('displayCabinet.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item to="/display-cabinet/treasureMaps">{{ t('displayCabinet.treasureMaps.title') }}</v-breadcrumbs-item>
+      <v-breadcrumbs-item to="/display-cabinet/mapLocations">{{ t('displayCabinet.mapLocations.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item>{{ t('displayCabinet.treasureMap.title') }}</v-breadcrumbs-item>
+      <v-breadcrumbs-item>{{ t('displayCabinet.mapLocation.title') }}</v-breadcrumbs-item>
     </v-container>
   </v-breadcrumbs>
   <v-divider></v-divider>
@@ -71,16 +69,16 @@ const onDisplayCabinetHistory = () => {
         <v-row class="mt-5">
           <v-col cols="8">
             <h1 class="text-amber text-h2 singe-line">
-              <TreasureMapName :id="mapDetailData.id"></TreasureMapName>
+              <MapLocationNameWidget :id="mapLocationDetailData.id"></MapLocationNameWidget>
             </h1>
             <p class="mt-2 mb-3">
               <v-icon icon="mdi-identifier"/>
-              {{ mapDetailData.id || 'none' }}
+              {{ mapLocationDetailData.id || 'none' }}
             </p>
 
             <div class="mt-5 d-flex ga-2">
-              <v-chip class="badge-flavor text-center tag-badge text-black" v-if="mapDetailData.effectType">
-                {{ mapDetailData.effectType }}
+              <v-chip class="badge-flavor text-center tag-badge text-black" v-if="mapLocationDetailData.effectType">
+                {{ mapLocationDetailData.effectType }}
               </v-chip>
             </div>
           </v-col>
@@ -88,9 +86,9 @@ const onDisplayCabinetHistory = () => {
           <v-col cols="auto">
             <div class="d-flex ga-2">
               <v-btn v-if="authStore.isLogin">
-                <LikeWidget targetType="mod"
+                <LikeWidget targetType="mapLocation"
                             :isShowCount="true"
-                            :targetId="mapDetailData.id">
+                            :targetId="mapLocationDetailData.id">
                   <template v-slot:activate>
                     <v-icon icon="mdi-thumb-up"></v-icon>
                   </template>
@@ -113,7 +111,7 @@ const onDisplayCabinetHistory = () => {
             <v-row>
               <div>
                 <ItemSlotBase size="130px">
-                  <TreasureMapIconWidget :id="mapDetailData.id" :isClickOpenDetail="false" :isShowOpenDetail="false"></TreasureMapIconWidget>
+                  <MapLocationIconWidget :id="mapLocationDetailData.id" :isClickOpenDetail="false" :isShowOpenDetail="false"></MapLocationIconWidget>
                 </ItemSlotBase>
               </div>
             </v-row>
@@ -122,10 +120,10 @@ const onDisplayCabinetHistory = () => {
             <v-row class="mb-5">
               <v-col cols="12" sm="12" lg="6" xl="6">
                 <template v-if="route.query.debug">
-                  {{ mapDetailData }}
+                  {{ mapLocationDetailData }}
                 </template>
-                <template v-if="mapDetailData.id">
-                  <v-text-field :value="mapDetailData.id" readonly
+                <template v-if="mapLocationDetailData.id">
+                  <v-text-field :value="mapLocationDetailData.id" readonly
                                 hide-details
                                 variant="underlined" density="compact">
                     <template v-slot:append-inner>
@@ -136,21 +134,21 @@ const onDisplayCabinetHistory = () => {
               </v-col>
             </v-row>
 
-            <template v-if="mapDetailData.id">
+            <template v-if="mapLocationDetailData.id">
               <v-divider>评论</v-divider>
-              <CommentWidget :id="mapDetailData.id" type="treasureMap" placeholder=""></CommentWidget>
+              <CommentWidget :id="mapLocationDetailData.id" type="treasureMap" placeholder=""></CommentWidget>
             </template>
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
-            <BySeasonWidget :data="mapDetailData"></BySeasonWidget>
+            <BySeasonWidget :data="mapLocationDetailData"></BySeasonWidget>
 
             <v-row no-gutters align="center" class="mt-2">
               <v-col cols="auto">
                 <v-icon icon="mdi-calendar-range" class="mr-3"></v-icon>
               </v-col>
               <v-col>
-                <TimeView class="mt-1" :time="mapDetailData.dateAdded">
-                  <Time :time="mapDetailData.dateAdded"/>
+                <TimeView class="mt-1" :time="mapLocationDetailData.dateAdded">
+                  <Time :time="mapLocationDetailData.dateAdded"/>
                 </TimeView>
               </v-col>
               <v-col cols="auto">
@@ -163,8 +161,8 @@ const onDisplayCabinetHistory = () => {
                 <v-icon icon="mdi-calendar-range" class="mr-3"></v-icon>
               </v-col>
               <v-col>
-                <TimeView class="mt-1" :time="mapDetailData.lastUpdated">
-                  <Time :time="mapDetailData.lastUpdated"/>
+                <TimeView class="mt-1" :time="mapLocationDetailData.lastUpdated">
+                  <Time :time="mapLocationDetailData.lastUpdated"/>
                 </TimeView>
               </v-col>
               <v-col cols="auto">

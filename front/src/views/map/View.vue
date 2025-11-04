@@ -31,7 +31,9 @@
                   class="mr-2"
                   cover/>
             </template>
-            <template v-slot:title>{{ locationDisplayName(item.raw) }}</template>
+            <template v-slot:title>
+              <MapLocationNameWidget :id="item.raw.id"></MapLocationNameWidget>
+            </template>
           </v-list-item>
         </template>
       </v-combobox>
@@ -226,23 +228,24 @@
         }"
         class="map-container-cardInfo overflow-y-auto">
       <template v-slot:title>
-        <v-row class="my-2 mr-2" align="center">
-          <v-col cols="auto" class="d-flex align-center">
-            <v-img
-                :src="getCategoryIcon(selectedLocationData.category)"
-                v-if="getCategoryIcon(selectedLocationData.category)"
-                width="28"
-                height="28"
-                cover/>
-          </v-col>
-          <v-col>
-            <div
-                class="d-flex align-center text-amber"
-                :title="t(`snb.locations.${selectedLocationData.id}`)">
-              {{ locationDisplayName(selectedLocationData) }}
-            </div>
-          </v-col>
-        </v-row>
+        <div class="my-2 mr-2">
+          <v-row align="center" no-gutters>
+            <v-col cols="auto" class="mr-2">
+              <ShieldWidget :size="30">
+                {{ selectedLocationData.baseRank || 0 }}
+              </ShieldWidget>
+            </v-col>
+            <v-col>
+              <router-link :to="`/display-cabinet/mapLocation/${selectedLocationData.id}`">
+                <div
+                    class="d-flex align-center text-amber"
+                    :title="t(`snb.locations.${selectedLocationData.id}`)">
+                  <MapLocationNameWidget :id="selectedLocationData.id"></MapLocationNameWidget>
+                </div>
+              </router-link>
+            </v-col>
+          </v-row>
+        </div>
       </template>
       <template v-slot:append>
         <v-btn variant="tonal" icon @click="model = false">
@@ -250,12 +253,55 @@
         </v-btn>
       </template>
 
-      <div class="map-title px-10 mx-n6 py-2 text-amber-lighten-4">
-        {{ t('map.typeTitle') }}
+      <div class="mx-5 mb-3 pb-2">
+        <v-row no-gutters>
+          <v-col cols="auto" class="d-flex align-center mr-2">
+            <v-img
+                :src="getCategoryIcon(selectedLocationData.category)"
+                v-if="getCategoryIcon(selectedLocationData.category)"
+                width="25"
+                height="25"
+                cover/>
+          </v-col>
+          <v-col>
+            {{ t(`map.type.${selectedLocationData.category || 'none'}`) }}
+          </v-col>
+        </v-row>
+        <v-row no-gutters class="mt-1" v-if="selectedLocationData && selectedLocationData.faction">
+          <v-col cols="auto" class="d-flex align-center mr-2">
+            <ItemSlotBase :size="'25px'" :padding="0">
+              <FactionIconWidget :name="selectedLocationData.faction.id"></FactionIconWidget>
+            </ItemSlotBase>
+          </v-col>
+          <v-col>
+            <FactionNameWidget :id="selectedLocationData.faction.id"></FactionNameWidget>
+          </v-col>
+        </v-row>
       </div>
-      <div class="mx-5 mb-3 py-2">
-        {{ t(`map.type.${selectedLocationData.category || 'none'}`) }}
-      </div>
+
+      <template v-if="selectedLocationData.possibleLoot">
+        <div class="map-title px-10 mx-n6 py-2 text-amber-lighten-4" >
+          {{ t('map.possibleLoot') }}
+        </div>
+        <div class="mx-5 mb-5 pt-3 opacity-60">
+          <v-row v-for="(i,index) in Object.entries(selectedLocationData.possibleLoot)" :key="index" align="center" no-gutters>
+            <v-col cols="auto" class="mr-2">
+              <ItemSlotBase :size="`30px`">
+                <MaterialIconWidget :id="i[0]"></MaterialIconWidget>
+              </ItemSlotBase>
+            </v-col>
+            <v-col cols="auto">
+              <MaterialNameRarity :id="i[0]">
+                <MaterialName :id="i[0]"></MaterialName>
+              </MaterialNameRarity>
+            </v-col>
+            <v-col class="text-right">
+              {{ i[1] || 0 }}
+            </v-col>
+          </v-row>
+        </div>
+      </template>
+
 
       <div class="map-title px-10 mx-n6 py-2 text-amber-lighten-4">
         {{ t('empireSkillSimulation.other') }}
@@ -331,7 +377,7 @@ import type {Geometry} from 'ol/geom';
 import {useRoute, useRouter} from "vue-router";
 import {useDisplay} from "vuetify/framework";
 
-import locationsData from "/public/config/mapData.json"
+import {MapLocations} from "glow-prow-data"
 
 import {useI18n} from "vue-i18n";
 import {useAssetsStore} from "~/stores/assetsStore.js";
@@ -340,7 +386,14 @@ import {useI18nUtils} from "@/assets/sripts/i18n_util.js";
 import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue";
 import FullscreenBtn from "@/components/FullscreenBtn.vue";
-
+import MapLocationNameWidget from "@/components/snbWidget/mapLocationNameWidget.vue";
+import ShieldWidget from "@/components/snbWidget/shieldWidget.vue";
+import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
+import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
+import FactionNameWidget from "@/components/snbWidget/factionNameWidget.vue";
+import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
+import MaterialName from "@/components/snbWidget/materialName.vue";
+import MaterialNameRarity from "@/components/snbWidget/materialNameRarity.vue";
 
 const {t} = useI18n(),
     route = useRoute(),
@@ -351,7 +404,7 @@ const {t} = useI18n(),
 
 let mapViewRef = ref<HTMLElement | null>(null),
     mapInstance: Ref<Map | null> = ref(null),
-    locations: Ref<any[]> = ref<any[]>(locationsData),
+    locations: Ref<any[]> = ref(Object.values(MapLocations)),
     icons: Ref<Record<string, string>> = ref({}),
     model = ref<boolean>(false),
     selectedLocationData = ref<any>({}),
@@ -408,157 +461,6 @@ const availableCategories = computed(() => {
   }));
 });
 
-/**
- * 获取分类数量
- * @param category
- */
-const getCategoryCount = (category: string) => {
-  return locations.value.filter(loc => loc.category === category).length;
-};
-
-/**
- * 获取分类图标
- * @param category
- */
-const getCategoryIcon = (category: string) => {
-  return icons.value[category] || icons.value['default'];
-};
-
-/**
- * 处理搜索输入
- * @param value
- */
-const handleSearchInput = (value: string) => {
-  if (!value.trim()) {
-    searchSuggestions.value = [];
-    return;
-  }
-
-  const filtered = locations.value.filter(location => {
-    const name = location.name || location.id || locationDisplayName(location);
-    return name.toLowerCase().includes(value.toLowerCase()) || location.id.toLowerCase().includes(value.toLowerCase());
-  }).slice(0, 10); // 限制建议数量
-
-  searchSuggestions.value = filtered.map(location => ({
-    title: location.name || location.id,
-    value: location.id,
-    ...location
-  }));
-};
-
-/**
- * 处理搜索
- */
-const handleSearch = () => {
-  if (!searchQuery.value.trim()) return;
-
-  const foundLocation = locations.value.find(location => {
-    const name = location.name || location.id || locationDisplayName(location);
-    return name.toLowerCase() === searchQuery.value.toLowerCase() || location.id.toLowerCase() === searchQuery.value.toLowerCase();
-  });
-
-  if (foundLocation && mapInstance.value) {
-    // 跳转到找到的位置
-    mapInstance.value.getView().animate({
-      center: fromLonLat([foundLocation.longitude, foundLocation.latitude]),
-      zoom: 15,
-      duration: 500
-    });
-
-    // 显示位置信息
-    selectedLocationData.value = foundLocation;
-    model.value = true;
-    showCoordinateInfo.value = false;
-
-    router.push({
-      name: route.name,
-      query: {
-        ...route.query,
-        key: foundLocation.id,
-        x: foundLocation.longitude,
-        y: foundLocation.latitude,
-        category: foundLocation.category
-      }
-    });
-  }
-};
-
-/**
- * 切换单个图层显示
- * @param category
- */
-const toggleLayer = (category: string) => {
-  if (!vectorLayerRef.value) return;
-
-  const isVisible = layerVisibility.value[category];
-
-  // 更新图层样式函数来过滤要素
-  vectorLayerRef.value.setStyle((feature) => {
-    const featureCategory = feature.get('originalData')?.category;
-
-    // 如果该分类不可见，返回null（隐藏）
-    if (featureCategory === category && !isVisible) {
-      return null;
-    }
-
-    // 如果该分类可见，返回正常样式
-    if (featureCategory === category && isVisible) {
-      return createMarkerStyle(feature);
-    }
-
-    // 对于其他分类，根据其可见性决定
-    const otherCategoryVisible = layerVisibility.value[featureCategory];
-    return otherCategoryVisible ? createMarkerStyle(feature) : null;
-  });
-
-  // 强制刷新地图
-  vectorLayerRef.value.changed();
-
-  // 更新全选状态
-  updateAllLayersVisibleState();
-};
-
-/**
- * 切换所有图层显示
- */
-const toggleAllLayers = () => {
-  if (!vectorLayerRef.value || !availableCategories.value.length) return;
-
-  const newVisibility = !allLayersVisible.value;
-
-  // 更新所有分类的可见性状态
-  availableCategories.value.forEach(category => {
-    layerVisibility.value[category.value] = newVisibility;
-  });
-
-  allLayersVisible.value = newVisibility;
-
-  // 应用样式
-  vectorLayerRef.value.setStyle((feature) => {
-    const featureCategory = feature.get('originalData')?.category;
-    const isFeatureVisible = layerVisibility.value[featureCategory];
-
-    return isFeatureVisible ? createMarkerStyle(feature) : null;
-  });
-
-  // 强制刷新地图
-  vectorLayerRef.value.changed();
-};
-
-// 更新全选图层状态
-const updateAllLayersVisibleState = () => {
-  const allCategories = availableCategories.value.map(cat => cat.value);
-  const allVisible = allCategories.every(category => layerVisibility.value[category]);
-  allLayersVisible.value = allVisible;
-};
-
-// 初始化图层可见性
-const initializeLayerVisibility = () => {
-  const allCategories = [...new Set(locations.value.map(loc => loc.category))];
-  allCategories.forEach(category => {
-    layerVisibility.value[category] = true;
-  });
-};
 
 watch(searchQuery, (newValue) => {
   if (!newValue) {
@@ -773,6 +675,162 @@ onMounted(() => {
 });
 
 /**
+ * 获取分类数量
+ * @param category
+ */
+const getCategoryCount = (category: string) => {
+  return locations.value.filter(loc => loc.category === category).length;
+};
+
+/**
+ * 获取分类图标
+ * @param category
+ */
+const getCategoryIcon = (category: string) => {
+  return icons.value[category] || icons.value['default'];
+};
+
+/**
+ * 处理搜索输入
+ * @param value
+ */
+const handleSearchInput = (value: string) => {
+  if (!value.trim()) {
+    searchSuggestions.value = [];
+    return;
+  }
+
+  const filtered = locations.value.filter(location => {
+    const name = location.name || location.id || locationDisplayName(location);
+    return name.toLowerCase().includes(value.toLowerCase()) || location.id.toLowerCase().includes(value.toLowerCase());
+  }).slice(0, 10); // 限制建议数量
+
+  searchSuggestions.value = filtered.map(location => ({
+    title: location.name || location.id,
+    value: location.id,
+    ...location
+  }));
+};
+
+/**
+ * 处理搜索
+ */
+const handleSearch = () => {
+  if (!searchQuery.value.trim()) return;
+
+  const foundLocation = locations.value.find(location => {
+    const name = location.name || location.id || locationDisplayName(location);
+    return name.toLowerCase() === searchQuery.value.toLowerCase() || location.id.toLowerCase() === searchQuery.value.toLowerCase();
+  });
+
+  if (foundLocation && mapInstance.value) {
+    // 跳转到找到的位置
+    mapInstance.value.getView().animate({
+      center: fromLonLat([foundLocation.longitude, foundLocation.latitude]),
+      zoom: 15,
+      duration: 500
+    });
+
+    // 显示位置信息
+    selectedLocationData.value = foundLocation;
+    model.value = true;
+    showCoordinateInfo.value = false;
+
+    router.push({
+      name: route.name,
+      query: {
+        ...route.query,
+        key: foundLocation.id,
+        x: foundLocation.longitude,
+        y: foundLocation.latitude,
+        category: foundLocation.category
+      }
+    });
+  }
+};
+
+/**
+ * 切换单个图层显示
+ * @param category
+ */
+const toggleLayer = (category: string) => {
+  if (!vectorLayerRef.value) return;
+
+  const isVisible = layerVisibility.value[category];
+
+  // 更新图层样式函数来过滤要素
+  vectorLayerRef.value.setStyle((feature) => {
+    const featureCategory = feature.get('originalData')?.category;
+
+    // 如果该分类不可见，返回null（隐藏）
+    if (featureCategory === category && !isVisible) {
+      return null;
+    }
+
+    // 如果该分类可见，返回正常样式
+    if (featureCategory === category && isVisible) {
+      return createMarkerStyle(feature);
+    }
+
+    // 对于其他分类，根据其可见性决定
+    const otherCategoryVisible = layerVisibility.value[featureCategory];
+    return otherCategoryVisible ? createMarkerStyle(feature) : null;
+  });
+
+  // 强制刷新地图
+  vectorLayerRef.value.changed();
+
+  // 更新全选状态
+  updateAllLayersVisibleState();
+};
+
+/**
+ * 切换所有图层显示
+ */
+const toggleAllLayers = () => {
+  if (!vectorLayerRef.value || !availableCategories.value.length) return;
+
+  const newVisibility = !allLayersVisible.value;
+
+  // 更新所有分类的可见性状态
+  availableCategories.value.forEach(category => {
+    layerVisibility.value[category.value] = newVisibility;
+  });
+
+  allLayersVisible.value = newVisibility;
+
+  // 应用样式
+  vectorLayerRef.value.setStyle((feature) => {
+    const featureCategory = feature.get('originalData')?.category;
+    const isFeatureVisible = layerVisibility.value[featureCategory];
+
+    return isFeatureVisible ? createMarkerStyle(feature) : null;
+  });
+
+  // 强制刷新地图
+  vectorLayerRef.value.changed();
+};
+
+/**
+ * 更新全选图层状态
+ */
+const updateAllLayersVisibleState = () => {
+  const allCategories = availableCategories.value.map(cat => cat.value);
+  const allVisible = allCategories.every(category => layerVisibility.value[category]);
+  allLayersVisible.value = allVisible;
+};
+
+/**
+ * 初始化图层可见性
+ */
+const initializeLayerVisibility = () => {
+  const allCategories = [...new Set(locations.value.map(loc => loc.category))];
+  allCategories.forEach(category => {
+    layerVisibility.value[category] = true;
+  });
+};
+
+/**
  * 处理名称
  * @param data
  */
@@ -781,9 +839,9 @@ const locationDisplayName = (data: any): string => {
   if (!location.id) return '';
 
   return asString([
-    `snb.locations.${location.category}${capitalizeFirstLetter(location.id)}`,
-    `snb.locations.${capitalizeFirstLetter(location.id)}`,
-    `snb.locations.${location.id}`
+    `snb.mapLocations.${location.category}${capitalizeFirstLetter(location.id)}`,
+    `snb.mapLocations.${capitalizeFirstLetter(location.id)}`,
+    `snb.mapLocations.${location.id}`
   ], {backRawKey: false}) || location.id;
 };
 

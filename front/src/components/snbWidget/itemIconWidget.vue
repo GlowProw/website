@@ -199,7 +199,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
     transform: scaleX(-1);
   }
 
-  .material-card-name {
+  .map-location-card-name {
     line-height: 1.2 !important;
   }
 }

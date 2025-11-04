@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {Cosmetic, Cosmetics, Item, Items, Material, Materials, Modification, Modifications, Ultimate, Ultimates} from "glow-prow-data";
+import {Cosmetic, Cosmetics, Item, Items, Material, Materials, Modification, Modifications, Ships, Ultimate, Ultimates} from "glow-prow-data";
 import {computed, onMounted, ref} from "vue";
 import {useI18n} from "vue-i18n";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
@@ -20,6 +20,8 @@ import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
 import ModName from "@/components/snbWidget/modName.vue";
 import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
 import UltimateName from "@/components/snbWidget/ultimateName.vue";
+import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
+import ShipName from "@/components/snbWidget/shipName.vue";
 
 interface GroupedData {
   type: string;
@@ -27,13 +29,13 @@ interface GroupedData {
   child: AvailableDataStructure[];
 }
 
-type AvailableDataStructure = Item | Material | Cosmetic | Ultimate | Modification
+type AvailableDataStructure = Ship | Item | Material | Cosmetic | Ultimate | Modification
 
 const props = withDefaults(
         defineProps<{
           tags: string[];
           sortBy?: "id" | "rarity" | "tier";
-          loadDataType: "item" | "material" | "cosmetic" | "ultimate" | "modification",
+          loadDataType: "ship" | "item" | "material" | "cosmetic" | "ultimate" | "modification",
           filterType?: string;
           modelValue: any
         }>(),
@@ -58,6 +60,8 @@ let // 搜索相关状态
     // 加载源数据
     rawData = computed(() => {
       switch (props.loadDataType) {
+        case "ship":
+          return Ships;
         case "item":
           return Items;
         case "material":
@@ -394,6 +398,17 @@ defineExpose({
               <v-row class="pl-8 pr-8" v-if="i.model">
                 <v-col cols="auto" v-for="(j, jIndex) in i.child" :key="jIndex" :title="j.name">
                   <div @click="onClickEvent(j)" class="item">
+                    <template v-if="loadDataType == 'ship'">
+                      <ItemSlotBase size="90px" :class="[ modelValue && modelValue.id == j.id ? 'bg-amber' : '']">
+                        <ShipIconWidget :id="j.id" :is-show-tooltip="false" :is-open-detail="false" :is-show-open-detail="false" :is-click-open-detail="false"></ShipIconWidget>
+                      </ItemSlotBase>
+                      <div class="text-center d-flex justify-center" style="width: 90px" :class="[modelValue && modelValue.id == j.id ? 'text-amber' : '']">
+                        <div class="singe-line">
+                          <ShipName :data="j"/>
+                        </div>
+                      </div>
+                    </template>
+
                     <template v-if="loadDataType == 'item'">
                       <ItemSlotBase size="90px" :class="[ modelValue && modelValue.id == j.id ? 'bg-amber' : '']">
                         <ItemIconWidget :id="j.id" :is-show-tooltip="false" :is-open-detail="false"></ItemIconWidget>

@@ -10,7 +10,7 @@ const
 </script>
 
 <template>
-  {{ i18nReadName.treasureMap(id || data.id).name() || '-'}}
+  {{ i18nReadName.treasureMap(id || data?.id).name() || '-' }}
 </template>
 
 <style scoped lang="less">

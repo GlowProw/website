@@ -142,6 +142,8 @@ const getCurrentSeason = (): Season | null => {
       </v-container>
     </div>
 
+    <v-divider></v-divider>
+
     <div class="bg-black pt-5 background-img-flavor">
       <v-container>
         <v-row>
@@ -178,7 +180,7 @@ const getCurrentSeason = (): Season | null => {
 
 <style scoped lang="less">
 .portal-banner {
-  min-height: 700px;
+  min-height: 500px;
   position: relative;
   overflow: hidden;
 

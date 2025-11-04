@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import Sidebar from "@/views/displayCabinet/Sidebar.vue";
 import {useI18n} from "vue-i18n";
 import {useDisplay} from "vuetify/framework";
-import {computed, onMounted} from "vue";
+import {computed} from "vue";
 import {useRoute} from "vue-router";
 import Silk from "@/components/Silk.vue";
 
@@ -19,7 +19,8 @@ let isDetailPage = computed(() => [
   'UltimateDetail',
   'ModDetail',
   'MaterialDetail',
-  'TreasureMapDetail'
+  'TreasureMapDetail',
+  'MapLocationDetail'
 ].includes(route.name))
 </script>
 

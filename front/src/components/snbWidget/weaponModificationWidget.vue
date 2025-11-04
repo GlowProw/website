@@ -285,8 +285,6 @@ defineExpose({
                 已安装模组
               </div>
 
-              {{modelValue}}
-
               <v-card
                   v-for="(mod, modIndex) in modelValue"
                   :key="modIndex"
