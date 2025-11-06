@@ -80,7 +80,7 @@ const ticks = computed(() => {
 
               <p class="opacity-50 text-body-1 ml-2">
                 <v-icon icon="mdi-arrow-top-right-thick"></v-icon>
-                {{ t('displayCabinet.ship.sailSpeed.knot') }}
+                {{ t('codex.ship.sailSpeed.knot') }}
               </p>
             </div>
           </v-progress-circular>
@@ -108,21 +108,21 @@ const ticks = computed(() => {
                   hide-details
                   variant="underlined" density="compact">
       <template v-slot:append-inner>
-        <p class="text-no-wrap">{{ t('displayCabinet.ship.sailSpeed.halfSail') }}</p>
+        <p class="text-no-wrap">{{ t('codex.ship.sailSpeed.halfSail') }}</p>
       </template>
     </v-text-field>
     <v-text-field :value="data.sailSpeed.fullSail" readonly
                   hide-details
                   variant="underlined" density="compact">
       <template v-slot:append-inner>
-        <p class="text-no-wrap">{{ t('displayCabinet.ship.sailSpeed.fullSail') }}</p>
+        <p class="text-no-wrap">{{ t('codex.ship.sailSpeed.fullSail') }}</p>
       </template>
     </v-text-field>
     <v-text-field :value="data.sailSpeed.travelSail" readonly
                   hide-details
                   variant="underlined" density="compact">
       <template v-slot:append-inner>
-        <p class="text-no-wrap">{{ t('displayCabinet.ship.sailSpeed.travelSail') }}</p>
+        <p class="text-no-wrap">{{ t('codex.ship.sailSpeed.travelSail') }}</p>
       </template>
     </v-text-field>
   </div>

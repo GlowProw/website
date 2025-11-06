@@ -2,7 +2,9 @@
 import {computed, onMounted, ref, watch} from "vue";
 import FlexSearch from "flexsearch";
 
-import {Cosmetic, Cosmetics, Items, MapLocations, Material, Materials, Modification, Modifications, Ultimate, Ultimates} from "glow-prow-data";
+import {Commodity, Cosmetic, Cosmetics, Items, MapLocations, Material, Materials, Modification, Modifications, Ultimate, Ultimates} from "glow-prow-data";
+import {Commodities} from "glow-prow-data/src/entity/Commodities";
+
 import {useI18n} from "vue-i18n";
 import {Item} from "glow-prow-data/src/entity/Items.ts";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
@@ -22,6 +24,8 @@ import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import MapLocationIconWidget from "@/components/snbWidget/mapLocationIconWidget.vue";
 import MapLocationNameWidget from "@/components/snbWidget/mapLocationNameWidget.vue";
+import CommoditieIconWidget from "@/components/snbWidget/commoditieIconWidget.vue";
+import CommoditieName from "@/components/snbWidget/commoditieName.vue";
 
 
 const {t} = useI18n(),
@@ -40,7 +44,7 @@ let searchIndex = ref(null),
       if (os.isDesktop() && os.detectOS() == 'MacOS')
         key = ['fn', 's']
       else if (os.isDesktop() && os.detectOS() == 'MacOS')
-        key = ['clat', 's']
+        key = ['ctrl', 's']
       return key;
     })
 
@@ -52,7 +56,6 @@ onMounted(() => {
     cache: true
   });
 
-  // 测试数据
   const data = []
       .concat(Object.values(Items).map(i => {
         return {
@@ -62,6 +65,16 @@ onMounted(() => {
             `snb.items.${sanitizeString(i.id).cleaned}.name`
           ]),
           sourceType: 'item'
+        }
+      }))
+      .concat(Object.values(Commodities).map(i => {
+        return {
+          ...i,
+          name: asString([
+            `snb.commodities.${i.id}.name`,
+            `snb.commodities.${sanitizeString(i.id).cleaned}.name`
+          ]),
+          sourceType: 'commoditie'
         }
       }))
       .concat(Object.values(Materials).map(i => {
@@ -191,20 +204,22 @@ watch(searchValue, (value) => {
  * @param data
  * @param type
  */
-const toPage = (data: Item | Material | Modification | Cosmetic | Ultimate | any, type: string) => {
+const toPage = (data: Item | Commodity | Material | Modification | Cosmetic | Ultimate | any, type: string) => {
   switch (type) {
     case "item":
-      return `/display-cabinet/item/${data.id}`
+      return `/codex/item/${data.id}`
+    case "commodity":
+      return `/codex/commodity/${data.id}`
     case "material":
-      return `/display-cabinet/material/${data.id}`
+      return `/codex/material/${data.id}`
     case "modification":
-      return `/display-cabinet/mod/${data.id}`
+      return `/codex/mod/${data.id}`
     case "cosmetic":
-      return `/display-cabinet/cosmetic/${data.id}`
+      return `/codex/cosmetic/${data.id}`
     case "ultimate":
-      return `/display-cabinet/ultimate/${data.id}`
+      return `/codex/ultimate/${data.id}`
     case "mapLocation":
-      return `/display-cabinet/mapLocation/${data.id}`
+      return `/codex/mapLocation/${data.id}`
     default:
       return ''
   }
@@ -261,11 +276,11 @@ const toPage = (data: Item | Material | Modification | Cosmetic | Ultimate | any
               <div class="d-block text-h6 primary--text mb-3 w-100">
                 <v-row align="center">
                   <v-col class="text-h6">
-                    {{ t(`displayCabinet.${type}s.title`) }} ({{ items.length }})
+                    {{ t(`codex.${type}s.title`) }} ({{ items.length }})
                   </v-col>
                   <v-col cols="auto">
-                    <v-btn icon :to="`/display-cabinet/${type}s`" variant="text" @click="model = !model">
-                      {{ t('displayCabinet.more') }}
+                    <v-btn icon :to="`/codex/${type}s`" variant="text" @click="model = !model">
+                      {{ t('codex.more') }}
                     </v-btn>
                   </v-col>
                 </v-row>
@@ -282,6 +297,9 @@ const toPage = (data: Item | Material | Modification | Cosmetic | Ultimate | any
                     <ItemSlotBase size="30px" :padding="0" class="mr-2">
                       <template v-if="type=='item'">
                         <ItemIconWidget :id="i.id"></ItemIconWidget>
+                      </template>
+                      <template v-if="type=='commoditie'">
+                        <CommoditieIconWidget :id="i.id"></CommoditieIconWidget>
                       </template>
                       <template v-else-if="type=='material'">
                         <MaterialIconWidget :id="i.id"></MaterialIconWidget>
@@ -303,6 +321,9 @@ const toPage = (data: Item | Material | Modification | Cosmetic | Ultimate | any
 
                     <template v-if="type=='item'">
                       <ItemName :id="i.id"></ItemName>
+                    </template>
+                    <template v-if="type=='commoditie'">
+                      <CommoditieName :id="i.id"></CommoditieName>
                     </template>
                     <template v-else-if="type=='material'">
                       <MaterialName :id="i.id"></MaterialName>

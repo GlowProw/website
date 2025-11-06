@@ -84,7 +84,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
           width="100%"
           v-bind="activatorProps"
           :color="`hsl(from ${rarityColorConfig[i?.rarity]} h s calc(l * .15))`"
-          :to="isOpenDetail ? `/display-cabinet/treasureMap/${i?.id}` : null"
+          :to="isOpenDetail ? `/codex/treasureMap/${i?.id}` : null"
           :class="[
               'prohibit-drag',
               `ma-${props.margin}`,
@@ -128,12 +128,12 @@ const {targetElement, isVisible} = useIntersectionObserver({
 
         <div class="d-flex ga-2 mt-3">
           <v-chip inline
-                  :to="`/display-cabinet/treasureMap/category/${i.type}`"
-                  class="badge-flavor text-center text-black" v-if="i.type">{{ t(`displayCabinet.type.${i.type}`) }}
+                  :to="`/codex/treasureMap/category/${i.type}`"
+                  class="badge-flavor text-center text-black" v-if="i.type">{{ t(`codex.type.${i.type}`) }}
           </v-chip>
           <v-chip class="badge-flavor text-center tag-badge text-black"
-                  :to="`/display-cabinet/treasureMap/rarity/${i.rarity}`"
-                  v-if="i.rarity">{{ t(`displayCabinet.rarity.${i.rarity}`) }}
+                  :to="`/codex/treasureMap/rarity/${i.rarity}`"
+                  v-if="i.rarity">{{ t(`codex.rarity.${i.rarity}`) }}
           </v-chip>
         </div>
         <div class="right-show-image pointer-events-none position-absolute w-33">
@@ -159,10 +159,10 @@ const {targetElement, isVisible} = useIntersectionObserver({
         </template>
       </div>
       <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto">
-        <BtnWidget @action-complete="router.push(`/display-cabinet/treasureMap/${i.id}`)"
+        <BtnWidget @action-complete="router.push(`/codex/treasureMap/${i.id}`)"
                    class="mt-1"
                    v-if="isShowOpenDetail">
-          {{ t('displayCabinet.treasureMap.lookDetail') }}
+          {{ t('codex.treasureMap.lookDetail') }}
         </BtnWidget>
       </div>
     </v-card>

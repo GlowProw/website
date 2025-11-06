@@ -18,17 +18,17 @@ let images = ref({})
     <template v-slot:image>
       <SeasonViewWidget :data="data?.bySeason || data?.firstAppearingSeason"></SeasonViewWidget>
     </template>
-    <v-card class="by-season-footer-context" tile :to="`/display-cabinet/item/season/${data?.bySeason?.id || 'release'}`">
+    <v-card class="by-season-footer-context" tile :to="`/codex/item/season/${data?.bySeason?.id || 'release'}`">
       <v-row class="px-5" align="center">
         <v-col cols="auto">
-          <p class="text-no-wrap font-weight-bold">{{ t('displayCabinet.item.bySeason.prepend') }}</p>
+          <p class="text-no-wrap font-weight-bold">{{ t('codex.item.bySeason.prepend') }}</p>
         </v-col>
         <v-col>
           <v-text-field hide-details variant="solo" elevation="0" density="compact" readonly tile
                         class="h-100 bg-transparent" :value="t(`snb.seasons.${data?.bySeason?.id || 'release'}`) || 'none'"></v-text-field>
         </v-col>
         <v-col cols="auto">
-          <p class="text-no-wrap">{{ t('displayCabinet.item.bySeason.append') }}</p>
+          <p class="text-no-wrap">{{ t('codex.item.bySeason.append') }}</p>
         </v-col>
       </v-row>
     </v-card>

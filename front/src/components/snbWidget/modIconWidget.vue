@@ -56,7 +56,7 @@ const onReady = async () => {
       tile
       border
       variant="text"
-      :to="isClickOpenDetail ? `/display-cabinet/mod/${id}` : ''"
+      :to="isClickOpenDetail ? `/codex/mod/${id}` : ''"
       :class="`pa-${props.padding} cursor-pointer`"
       target="_blank"
       height="100%"

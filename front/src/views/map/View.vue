@@ -236,13 +236,22 @@
               </ShieldWidget>
             </v-col>
             <v-col>
-              <router-link :to="`/display-cabinet/mapLocation/${selectedLocationData.id}`">
+              <template v-if="selectedLocationData.category != 'shareLocation'">
+                <router-link :to="`/codex/mapLocation/${selectedLocationData.id}`">
+                  <div
+                      class="d-flex align-center text-amber"
+                      :title="t(`snb.locations.${selectedLocationData.id}`)">
+                    <MapLocationNameWidget :id="selectedLocationData.id"></MapLocationNameWidget>
+                  </div>
+                </router-link>
+              </template>
+              <template v-else-if="selectedLocationData.category == 'shareLocation'">
                 <div
                     class="d-flex align-center text-amber"
-                    :title="t(`snb.locations.${selectedLocationData.id}`)">
-                  <MapLocationNameWidget :id="selectedLocationData.id"></MapLocationNameWidget>
+                    :title="selectedLocationData.id">
+                  {{ selectedLocationData.id }}
                 </div>
-              </router-link>
+              </template>
             </v-col>
           </v-row>
         </div>

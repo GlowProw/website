@@ -64,7 +64,7 @@ const getMyCommentsData = async () => {
         <v-spacer></v-spacer>
         <v-col cols="auto">
           <div class="d-flex ga-2">
-            <v-btn :to="`/display-cabinet/${i.targetType}/${i.targetId}`" target="_blank" icon="mdi-open-in-new"></v-btn>
+            <v-btn :to="`/codex/${i.targetType}/${i.targetId}`" target="_blank" icon="mdi-open-in-new"></v-btn>
           </div>
         </v-col>
       </v-row>

@@ -160,7 +160,7 @@ const onClickMenu = (tags = [], category) => {
                                 i.category
                             )">
                           <span v-for="(tr, trIndex) in i.value" :key="trIndex">
-                            <template v-if="trIndex != 0">,</template>{{ t(`displayCabinet.type.${tr}`) }}
+                            <template v-if="trIndex != 0">,</template>{{ t(`codex.type.${tr}`) }}
                           </span>
                         </v-list-item-title>
                       </v-list-item>

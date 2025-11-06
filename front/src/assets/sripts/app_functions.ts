@@ -22,10 +22,10 @@ export default class AppFuns {
             to: '/map'
         },
         {
-            title: 'header.functions.display-cabinet.title',
+            title: 'header.functions.codex.title',
             icon: 'mdi-package-variant-closed',
-            description: 'header.functions.display-cabinet.description',
-            to: '/display-cabinet'
+            description: 'header.functions.codex.description',
+            to: '/codex'
         },
         {
             title: 'header.functions.assembly.title',

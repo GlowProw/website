@@ -78,7 +78,7 @@ const onReady = async () => {
           tile
           border
           variant="text"
-          :to="isClickOpenDetail ? `/display-cabinet/ship/${id}` : ''"
+          :to="isClickOpenDetail ? `/codex/ship/${id}` : ''"
           :class="`pa-${props.padding} cursor-pointer`"
           height="100%"
           width="100%">
@@ -93,7 +93,7 @@ const onReady = async () => {
         </h1>
         <p class="mb-1">{{ props.id }}</p>
 
-        <v-badge inline color="transparent" class="badge-flavor text-center tag-badge pl-3" v-if="shipData && shipData.size">{{ t(`displayCabinet.size.${shipData.size}`) }}</v-badge>
+        <v-badge inline color="transparent" class="badge-flavor text-center tag-badge pl-3" v-if="shipData && shipData.size">{{ t(`codex.size.${shipData.size}`) }}</v-badge>
 
         <v-img :src="shipCardData.icon" class="prohibit-drag right-show-image position-absolute w-33"></v-img>
       </div>
@@ -113,7 +113,7 @@ const onReady = async () => {
               static>
             <template v-slot:title>
               <div class="title-long-flavor bg-black">
-                {{ t('displayCabinet.ship.baseInfo') }}
+                {{ t('codex.ship.baseInfo') }}
               </div>
             </template>
             <template v-slot:text>
@@ -127,7 +127,7 @@ const onReady = async () => {
               static>
             <template v-slot:title>
               <div class="title-long-flavor bg-black">
-                {{ t('displayCabinet.ship.perks') }}
+                {{ t('codex.ship.perks') }}
               </div>
             </template>
             <template v-slot:text>
@@ -144,7 +144,7 @@ const onReady = async () => {
               static>
             <template v-slot:title>
               <div class="title-long-flavor bg-black">
-                {{ t('displayCabinet.ship.deckInfo') }}
+                {{ t('codex.ship.deckInfo') }}
               </div>
             </template>
             <template v-slot:text>
@@ -155,10 +155,10 @@ const onReady = async () => {
       </div>
       <v-divider></v-divider>
       <v-card-actions class="pa-5 pt-0">
-        <BtnWidget @action-complete="router.push(`/display-cabinet/ship/${props.id}`)"
+        <BtnWidget @action-complete="router.push(`/codex/ship/${props.id}`)"
                    class="mt-1 ml-1"
                    v-if="isShowOpenDetail">
-          {{ t('displayCabinet.ship.lookDetail') }}
+          {{ t('codex.ship.lookDetail') }}
         </BtnWidget>
       </v-card-actions>
     </v-card>

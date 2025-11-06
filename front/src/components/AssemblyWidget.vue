@@ -646,14 +646,14 @@ defineExpose({
                                         class="ml-5"></ShipTopDownPerspectiveWidget>
                                   </v-col>
                                   <v-col>
-                                    {{ t(`displayCabinet.ship.${item.raw[0]}`) }}
+                                    {{ t(`codex.ship.${item.raw[0]}`) }}
                                   </v-col>
                                 </v-row>
                               </template>
                             </v-list-item>
                           </template>
                           <template v-slot:chip="{item}">
-                            {{ t(`displayCabinet.ship.${workshopData.data.weaponDirections[index]}`) }}
+                            {{ t(`codex.ship.${workshopData.data.weaponDirections[index]}`) }}
                           </template>
                           <template v-slot:no-data>
                             <EmptyView></EmptyView>
@@ -661,7 +661,7 @@ defineExpose({
                         </v-select>
                         <template v-else>
                           <template v-if="workshopData.data.weaponDirections[index]">
-                            {{ t(`displayCabinet.ship.${workshopData.data.weaponDirections[index]}`) }}
+                            {{ t(`codex.ship.${workshopData.data.weaponDirections[index]}`) }}
                           </template>
                         </template>
                       </p>
@@ -713,10 +713,10 @@ defineExpose({
                         <v-col class="d-flex align-start">
                           <div class="w-100">
                             <v-divider thickness="4" opacity="1" color="#000" class="w-100 mt-2 mb-2"></v-divider>
-                            <p class="opacity-80 text-deck-information">{{ t('displayCabinet.ship.topDeck') }}
+                            <p class="opacity-80 text-deck-information">{{ t('codex.ship.topDeck') }}
                               <v-chip size="x-small" density="compact" :variant="getDeckInformation(index).top ? 'flat' : 'tonal'">{{ getDeckInformation(index).top || 0 }}</v-chip>
                             </p>
-                            <p class="opacity-80 text-deck-information">{{ t('displayCabinet.ship.lowerDeck') }}
+                            <p class="opacity-80 text-deck-information">{{ t('codex.ship.lowerDeck') }}
                               <v-chip size="x-small" density="compact" :variant="getDeckInformation(index).lower ? 'flat' : 'tonal'">{{ getDeckInformation(index).lower || 0 }}</v-chip>
                             </p>
                           </div>
@@ -833,7 +833,7 @@ defineExpose({
                         <v-col class="d-flex align-start">
                           <div class="w-100">
                             <v-divider thickness="4" opacity="1" color="#000" class="w-100 mt-2 mb-2"></v-divider>
-                            <p class="opacity-80 text-deck-information">{{ t('displayCabinet.ship.topDeck') }}
+                            <p class="opacity-80 text-deck-information">{{ t('codex.ship.topDeck') }}
                               <v-chip size="x-small" density="compact" :variant="getDeckInformation(index, 'secondaryWeapon').top ? 'flat' : 'tonal'">{{ getDeckInformation(index, 'secondaryWeapon').top || 0 }}</v-chip>
                             </p>
                           </div>

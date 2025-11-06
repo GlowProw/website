@@ -89,7 +89,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
           width="100%"
           v-bind="activatorProps"
           :color="`hsl(from ${rarityColorConfig[i?.rarity]} h s calc(l * .15))`"
-          :to="isOpenDetail ? `/display-cabinet/item/${i?.id}` : null"
+          :to="isOpenDetail ? `/codex/item/${i?.id}` : null"
           :class="[
               'prohibit-drag',
               `ma-${props.margin}`,
@@ -135,16 +135,16 @@ const {targetElement, isVisible} = useIntersectionObserver({
 
         <div class="d-flex ga-2 mt-3">
           <v-chip inline
-                  :to="`/display-cabinet/item/category/${i.type}`"
-                  class="badge-flavor text-center text-black" v-if="i.type">{{ t(`displayCabinet.type.${i.type}`) }}
+                  :to="`/codex/item/category/${i.type}`"
+                  class="badge-flavor text-center text-black" v-if="i.type">{{ t(`codex.type.${i.type}`) }}
           </v-chip>
           <v-chip class="badge-flavor text-center tag-badge text-black"
-                  :to="`/display-cabinet/item/tier/${i.tier}`"
-                  v-if="i.tier">{{ t(`displayCabinet.tier`, {num: number.intToRoman(i.tier)}) }}
+                  :to="`/codex/item/tier/${i.tier}`"
+                  v-if="i.tier">{{ t(`codex.tier`, {num: number.intToRoman(i.tier)}) }}
           </v-chip>
           <v-chip class="badge-flavor text-center tag-badge text-black"
-                  :to="`/display-cabinet/item/rarity/${i.rarity}`"
-                  v-if="i.rarity">{{ t(`displayCabinet.rarity.${i.rarity}`) }}
+                  :to="`/codex/item/rarity/${i.rarity}`"
+                  v-if="i.rarity">{{ t(`codex.rarity.${i.rarity}`) }}
           </v-chip>
         </div>
         <div class="right-show-image pointer-events-none position-absolute w-33">
@@ -170,10 +170,10 @@ const {targetElement, isVisible} = useIntersectionObserver({
         </template>
       </div>
       <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto">
-        <BtnWidget @action-complete="router.push(`/display-cabinet/item/${i.id}`)"
+        <BtnWidget @action-complete="router.push(`/codex/item/${i.id}`)"
                    class="mt-1"
                    v-if="isShowOpenDetail">
-          {{ t('displayCabinet.item.lookDetail') }}
+          {{ t('codex.item.lookDetail') }}
         </BtnWidget>
       </div>
     </v-card>

@@ -291,7 +291,7 @@ defineExpose({
             { value: '', text: t('assembly.workshop.filter.all') },
             ...props.tags.map(tag => ({
               value: tag,
-              text: t(`displayCabinet.type.${tag}`)
+              text: t(`codex.type.${tag}`)
             }))
           ]"
               :label="t('assembly.workshop.filter.byType')"
@@ -391,7 +391,7 @@ defineExpose({
               <div class="cursor-pointer text-center title-long-flavor text-amber font-weight-bold bg-black pl-4 lr-4 pt-4 pb-4 ml-n2 mr-n2"
                    :class="{'mb-4': i.model}"
                    @click="i.model = !i.model">
-                {{ t(`displayCabinet.type.${i.type}`) }} ({{ i.child.length || 0 }})
+                {{ t(`codex.type.${i.type}`) }} ({{ i.child.length || 0 }})
                 <v-icon class="ml-3">{{ !i.model ? 'mdi-triangle-small-down' : 'mdi-triangle-small-up' }}</v-icon>
               </div>
 

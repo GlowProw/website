@@ -3,8 +3,10 @@ import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {Items, Ships} from "glow-prow-data";
 import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
 import {number} from "@/assets/sripts/index";
+import {Commodities} from "glow-prow-data/src/entity/Commodities";
 
 const items = Items,
+    commodities = Commodities,
     ships = Ships,
     ultimates = Ultimates
 
@@ -30,6 +32,28 @@ export function useI18nReadName() {
                         lang
                     });
                     const tier = number.intToRoman(items[id].tier) || '';
+                    return `${translatedName} ${tier}`.trim();
+                }
+                return id;
+            }
+        };
+    }
+
+    const commoditie = (id: string) => {
+        let keys = [
+            `snb.commodities.${id}.name`,
+            `snb.commodities.${sanitizeString(id).cleaned}.name`,
+        ];
+
+        return {
+            keys,
+            name: (lang?: string) => {
+                if (commodities[id]) {
+                    const translatedName = asString(keys, {
+                        backRawKey: true,
+                        lang
+                    });
+                    const tier = number.intToRoman(commodities[id].tier) || '';
                     return `${translatedName} ${tier}`.trim();
                 }
                 return id;
@@ -86,8 +110,9 @@ export function useI18nReadName() {
     }
 
     return {
-        item,
         ship,
+        item,
+        commoditie,
         ultimate,
         treasureMap,
         getValue

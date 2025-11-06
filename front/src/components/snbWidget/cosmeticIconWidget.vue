@@ -84,7 +84,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
           ref="targetElement"
           width="100%"
           v-bind="activatorProps"
-          :to="isOpenDetail ? `/display-cabinet/cosmetic/${i.id}` : null"
+          :to="isOpenDetail ? `/codex/cosmetic/${i.id}` : null"
           :class="[
               'prohibit-drag',
               `ma-${props.margin}`,
@@ -148,10 +148,10 @@ const {targetElement, isVisible} = useIntersectionObserver({
         </template>
       </div>
       <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto">
-        <BtnWidget @action-complete="router.push(`/display-cabinet/cosmetic/${i.id}`)"
+        <BtnWidget @action-complete="router.push(`/codex/cosmetic/${i.id}`)"
                    class="mt-1"
                    v-if="isShowOpenDetail">
-          {{ t('displayCabinet.cosmetic.lookDetail') }}
+          {{ t('codex.cosmetic.lookDetail') }}
         </BtnWidget>
       </div>
     </v-card>

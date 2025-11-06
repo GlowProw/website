@@ -1,0 +1,390 @@
+<script setup lang="ts">
+
+import {computed, onMounted, type Ref, ref, type UnwrapRef} from "vue";
+import {useI18n} from "vue-i18n";
+import {Materials, Ships} from "glow-prow-data";
+import {useRoute, useRouter} from "vue-router";
+
+import EmptyView from "@/components/EmptyView.vue";
+import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
+import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
+import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
+import PerksWidget from "@/components/snbWidget/perksWidget.vue";
+import {Ship} from "glow-prow-data/src/entity/Ships.ts";
+import {number, storage} from "@/assets/sripts";
+import CommentWidget from "@/components/CommentWidget.vue";
+import LikeWidget from "@/components/LikeWidget.vue";
+import {useAuthStore} from "~/stores/userAccountStore";
+import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
+import ShipWeaponInfoSlotWidget from "@/components/snbWidget/shipWeaponInfoSlotWidget.vue";
+import ShipBaseInfoSlotWidget from "@/components/snbWidget/shipBaseInfoSlotWidget.vue";
+import {useHead} from "@unhead/vue";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
+import ItemContentWidget from "@/components/snbWidget/itemContentWidget.vue";
+import TimeView from "@/components/TimeView.vue";
+import Time from "@/components/Time.vue";
+import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
+import ItemMaterials from "@/components/snbWidget/itemMaterials.vue";
+import shipAvailableUpgradeWidget from "@/components/snbWidget/shipAvailableUpgradeWidget.vue";
+import ShipUpgradeUseWidget from "@/components/snbWidget/shipUpgradeUseWidget.vue";
+
+const shipImages = import.meta.glob('@glow-prow-assets/ships/*.png', {eager: true});
+
+const
+    {t, messages} = useI18n(),
+    {asString, sanitizeString} = useI18nUtils(),
+    i18nReadName = useI18nReadName(),
+    router = useRouter(),
+    route = useRoute(),
+    authStore = useAuthStore(),
+
+    // 船只数据
+    shipsData: Ships = Ships
+
+let
+    shipDetailPageData: Ref<{ img: string, loading: boolean }> = ref({
+      img: '',
+      loading: false
+    }),
+    shipDetailData: Ref<Ship> = ref(shipsData['dhow'] as Ship),
+
+    // 蓝图
+    bluePrint = computed(() => {
+      const bluePrints = shipDetailData.value?.blueprint;
+
+      if (!bluePrints)
+        return null;
+
+      if (bluePrints)
+        return t(`snb.locations.${bluePrints}`)
+
+      return Object.values(bluePrints).map(i => t(`snb.locations.${i}`))
+    }),
+    requiredRank = computed(() => {
+      const r = sanitizeString(shipDetailData.value.requiredRank)
+      return asString([
+        `snb.ranks.${shipDetailData.value.requiredRank}`,
+        `snb.ranks.${r.cleaned}`
+      ], {
+        variable: {
+          lv: number.intToRoman(r.removedNumbers[0])
+        }
+      })
+    }),
+
+    // meta
+    head = ref({
+      title: t(route.meta.title),
+      titleTemplate: `%s | ${t('name')}`,
+      meta: [
+        {name: 'keywords', content: t(route.meta.keywords)},
+        {name: 'og:title', content: `%s | ${t('name')}`},
+      ]
+    })
+
+useHead(head)
+
+onMounted(() => {
+  const {id} = route.params;
+
+  if (!id) {
+    router.push('/')
+    return;
+  }
+
+  shipDetailPageData.value.loading = true;
+
+  const imageKey = `/node_modules/glow-prow-assets/ships/${id}.png`;
+
+  shipDetailData.value = shipsData[id];
+
+  head.value.titleTemplate = `${i18nReadName.ship(id).name()} - ${head.value.titleTemplate}`
+  head.value.meta = [
+    {
+      name: 'keywords', content: t(route.meta.keywords, {
+        keywords: Object.keys(messages.value).map(lang => {
+          return i18nReadName.ship(id).keys.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
+        }).concat([id])
+      })
+    },
+    {name: 'og:title', content: `${t(route.meta.title)} | ${t('name')}`},
+  ]
+
+  if (shipImages[imageKey]) {
+    shipDetailPageData.value.img = shipImages[imageKey].default;
+  } else {
+    shipDetailPageData.value.img = "";
+  }
+
+  onCodexHistory()
+
+  shipDetailPageData.value.loading = false;
+})
+
+const onCodexHistory = () => {
+  const {id} = route.params;
+
+  let name = 'codex.history'
+
+  const d = storage.session.get(name)
+
+  storage.session.set(name, {
+    ...d?.data?.value || {},
+    [id]: {
+      id,
+      category: 'ship',
+      time: new Date().getTime()
+    }
+  })
+}
+</script>
+
+<template>
+  <v-breadcrumbs>
+    <v-container class="pa-0">
+      <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
+      <v-breadcrumbs-divider></v-breadcrumbs-divider>
+      <v-breadcrumbs-item to="/codex">{{ t('codex.title') }}</v-breadcrumbs-item>
+      <v-breadcrumbs-divider></v-breadcrumbs-divider>
+      <v-breadcrumbs-item to="/codex/ships">{{ t('codex.ships.title') }}</v-breadcrumbs-item>
+      <v-breadcrumbs-divider></v-breadcrumbs-divider>
+      <v-breadcrumbs-item>{{ t('codex.ship.title') }}</v-breadcrumbs-item>
+    </v-container>
+  </v-breadcrumbs>
+  <v-divider></v-divider>
+
+  <div class="ships-detail" v-if="shipDetailData.id && !shipDetailPageData.loading">
+    <div class="ships-detail-header background-dot-grid">
+      <v-container class="position-relative">
+        <v-row class="mt-5">
+          <v-col>
+            <h1 class="text-amber text-h2">{{ t(`snb.ships.${shipDetailData.id}.name`) }}</h1>
+            <p class="mt-2 mb-3">
+              <v-icon icon="mdi-identifier"/>
+              {{ shipDetailData.id || 'none' }}
+            </p>
+
+            <v-chip inline class="badge-flavor text-center text-black tag-badge pl-3" v-if="shipsData[shipDetailData.id].size">{{ t(`codex.size.${shipsData[shipDetailData.id].size}`) }}</v-chip>
+          </v-col>
+          <v-col cols="auto">
+            <div class="d-flex ga-2">
+              <v-btn v-if="authStore.isLogin">
+                <LikeWidget targetType="ship"
+                            :isShowCount="true"
+                            :targetId="shipDetailData.id">
+                  <template v-slot:activate>
+                    <v-icon icon="mdi-thumb-up"></v-icon>
+                  </template>
+                  <template v-slot:unActivate>
+                    <v-icon icon="mdi-thumb-up-outline"></v-icon>
+                  </template>
+                </LikeWidget>
+              </v-btn>
+
+              <v-btn>{{ t('codex.share.title') }}</v-btn>
+            </div>
+          </v-col>
+        </v-row>
+
+        <v-img :src="shipDetailPageData.img"
+               inline
+               class="cosmetic-detail-header-img pointer-events-none"></v-img>
+      </v-container>
+    </div>
+    <div class="background-flavor">
+      <v-container>
+        <v-row>
+          <v-col cols="12" sm="12" md="8" lg="8" order="2" order-sm="1">
+
+            <v-row>
+              <ItemSlotBase size="150px" class="mr-3">
+                <ShipIconWidget :id="shipDetailData.id" class="pa-2"
+                                :is-click-open-detail="false"
+                                :isShowOpenDetail="false"
+                                :isShowDescription="false"></ShipIconWidget>
+              </ItemSlotBase>
+              <v-col>
+                <p class="text-pre-wrap mb-4">
+                  {{ t(`snb.ships.${shipDetailData.id}.description.general`) }}
+                </p>
+              </v-col>
+            </v-row>
+            <v-divider class="mt-10 mb-6"></v-divider>
+
+            <v-row class="mb-5">
+              <v-col cols="12" sm="12" lg="6" xl="6">
+                <template v-if="shipDetailData.id">
+                  <v-text-field :value="shipDetailData.id" readonly
+                                hide-details
+                                variant="underlined" density="compact">
+                    <template v-slot:append-inner>
+                      <p class="text-no-wrap">ID</p>
+                    </template>
+                  </v-text-field>
+                </template>
+                <template v-if="shipDetailData.slots.attachement">
+                  <v-text-field :value="shipDetailData.slots.attachement[0]" readonly
+                                hide-details
+                                variant="underlined" density="compact">
+                    <template v-slot:append-inner>
+                      <p class="text-no-wrap">附件</p>
+                    </template>
+                  </v-text-field>
+                </template>
+
+                <div class="mt-1">
+                  <ShipWeaponInfoSlotWidget :data="shipDetailData"></ShipWeaponInfoSlotWidget>
+                </div>
+
+                <template v-if="shipDetailData.slots.furniture">
+                  <v-text-field :value="shipDetailData.slots.furniture[0]" readonly
+                                hide-details
+                                variant="underlined" density="compact">
+                    <template v-slot:append-inner>
+                      <p class="text-no-wrap">{{ t('codex.ship.furniture') }}</p>
+                    </template>
+                  </v-text-field>
+                </template>
+                <template v-if="shipDetailData.slots.ultimate">
+                  <v-text-field :value="shipDetailData.slots.ultimate[0]" readonly
+                                hide-details
+                                variant="underlined" density="compact">
+                    <template v-slot:append-inner>
+                      <p class="text-no-wrap">{{ t('codex.ship.ultimate') }}</p>
+                    </template>
+                  </v-text-field>
+                </template>
+              </v-col>
+              <v-col cols="12" sm="12" lg="6" xl="6">
+                <ShipBaseInfoSlotWidget :data="shipDetailData"></ShipBaseInfoSlotWidget>
+              </v-col>
+              <v-col cols="12" sm="12" lg="12" xl="12">
+                <ItemContentWidget :data="shipDetailData">
+                  <v-divider>{{ t('codex.item.contentsTitle') }}</v-divider>
+                </ItemContentWidget>
+              </v-col>
+              <v-col cols="12">
+                <shipAvailableUpgradeWidget :id="shipDetailData.id">
+                  <v-divider>{{ t('codex.item.shipUpgradesTitle') }}</v-divider>
+                </shipAvailableUpgradeWidget>
+              </v-col>
+              <v-col cols="12">
+                <ItemMaterials :data="shipDetailData">
+                  <v-divider>{{ t('codex.item.materialsTitle') }}</v-divider>
+                </ItemMaterials>
+              </v-col>
+            </v-row>
+
+            <template v-if="shipDetailData.id">
+              <v-divider>评论</v-divider>
+              <CommentWidget :id="shipDetailData.id" type="ship" placeholder=""></CommentWidget>
+            </template>
+          </v-col>
+          <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
+            <BySeasonWidget :data="shipDetailData"></BySeasonWidget>
+
+            <template v-if="bluePrint">
+              <v-combobox v-model="bluePrint" multiple chips readonly
+                          hide-details
+                          variant="underlined" density="compact">
+                <template v-slot:append-inner>
+                  <p class="text-no-wrap">{{ t('codex.ship.bluePrint') }}</p>
+                </template>
+                <template v-slot:append>
+                  <ItemSlotBase :size="10" class="pa-0">
+                    <v-icon icon="mdi-book"></v-icon>
+                  </ItemSlotBase>
+                </template>
+              </v-combobox>
+            </template>
+
+            <template v-if="shipDetailData.archetype">
+              <v-text-field :value="t(`assembly.tags.archetypes.${shipDetailData.archetype}`)"
+                            readonly
+                            hide-details
+                            variant="underlined" density="compact">
+                <template v-slot:append-inner>
+                  <p class="text-no-wrap">{{ t('codex.ship.archetype') }}</p>
+                </template>
+              </v-text-field>
+            </template>
+
+            <template v-if="shipDetailData.requiredRank">
+              <v-text-field :value="requiredRank"
+                            readonly
+                            hide-details
+                            variant="underlined" density="compact">
+                <template v-slot:append-inner>
+                  <p class="text-no-wrap">{{ t('codex.ship.requiredRank') }}</p>
+                </template>
+              </v-text-field>
+            </template>
+            <v-text-field readonly
+                          hide-details
+                          variant="underlined" density="compact">
+              <template v-slot:prepend-inner>
+                <TimeView :time="shipDetailData.dateAdded" class="singe-line">
+                  <Time :time="shipDetailData.dateAdded"></Time>
+                </TimeView>
+              </template>
+              <template v-slot:append-inner>
+                <p class="text-no-wrap">{{ t('codex.ship.dateAdded') }}</p>
+              </template>
+            </v-text-field>
+            <v-text-field readonly
+                          hide-details
+                          variant="underlined" density="compact">
+              <template v-slot:prepend-inner>
+                <TimeView :time="shipDetailData.lastUpdated" class="singe-line">
+                  <Time :time="shipDetailData.lastUpdated"></Time>
+                </TimeView>
+              </template>
+              <template v-slot:append-inner>
+                <p class="text-no-wrap">{{ t('codex.ship.lastUpdated') }}</p>
+              </template>
+            </v-text-field>
+
+            <template v-if="shipDetailData.perks">
+              <p class="mt-5 mb-1 font-weight-bold">{{ t('codex.ship.perks') }} ({{ shipDetailData.perks.length || 0 }})</p>
+              <PerksWidget :data="shipDetailData"></PerksWidget>
+            </template>
+          </v-col>
+        </v-row>
+      </v-container>
+    </div>
+  </div>
+</template>
+
+<style scoped lang="less">
+.ships-detail {
+  .ships-detail-header {
+    background-color: #000;
+    position: relative;
+    padding-bottom: 40px;
+    min-height: 320px;
+
+    &:before {
+      content: "";
+      position: absolute;
+      z-index: 0;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 0;
+      padding: 10% 0 0;
+      background: url(@/assets/images/portal-banner-background.png) 50% 0 no-repeat;
+      background-size: cover;
+    }
+
+    .cosmetic-detail-header-img {
+      position: absolute;
+      z-index: -1;
+      right: 20px;
+      bottom: -120px;
+      width: 300px;
+      min-height: 300px;
+    }
+  }
+}
+</style>

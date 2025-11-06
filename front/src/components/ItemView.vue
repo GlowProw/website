@@ -75,7 +75,7 @@ defineExpose({
     <v-card>
       <v-card-title>
         <v-row>
-          <b class="font-weight-bold text-h5 pa-5">{{ t(`displayCabinet.${type}s.title`) }}</b>
+          <b class="font-weight-bold text-h5 pa-5">{{ t(`codex.${type}s.title`) }}</b>
           <v-spacer></v-spacer>
           <v-col cols="auto">
             <v-btn icon variant="text" class="ml-1" @click="onClose">

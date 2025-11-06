@@ -133,7 +133,7 @@
                     <MaterialIconWidget :id="key" item-type="items"></MaterialIconWidget>
                   </ItemSlotBase>
                   <span class="ml-2">
-                    <HtmlLink :is-icon="false" :is-iframe-show="false" :href="`/display-cabinet/material/${key}`">
+                    <HtmlLink :is-icon="false" :is-iframe-show="false" :href="`/codex/material/${key}`">
                       <MaterialName :id="key"></MaterialName>
                     </HtmlLink>
                   </span>

@@ -166,7 +166,7 @@ const getCurrentSeason = (): Season | null => {
               <v-spacer></v-spacer>
               <v-col cols="auto">
                 <a href="https://glow-prow-blog.cabbagelol.net/blog" target="_blank">
-                  {{ t('displayCabinet.more') }}
+                  {{ t('codex.more') }}
                 </a>
               </v-col>
             </v-row>

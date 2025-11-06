@@ -18,7 +18,7 @@ const props = withDefaults(defineProps<{ data: Ship, isSimulationShipSailSpeed?:
                   hide-details
                   variant="underlined" density="compact">
       <template v-slot:append-inner>
-        <p class="text-no-wrap">{{ t('displayCabinet.ship.hitPoints') }}</p>
+        <p class="text-no-wrap">{{ t('codex.ship.hitPoints') }}</p>
       </template>
     </v-text-field>
 
@@ -26,7 +26,7 @@ const props = withDefaults(defineProps<{ data: Ship, isSimulationShipSailSpeed?:
                   hide-details
                   variant="underlined" density="compact">
       <template v-slot:append-inner>
-        <p class="text-no-wrap">{{ t('displayCabinet.ship.stamina') }}</p>
+        <p class="text-no-wrap">{{ t('codex.ship.stamina') }}</p>
       </template>
     </v-text-field>
 
@@ -34,26 +34,26 @@ const props = withDefaults(defineProps<{ data: Ship, isSimulationShipSailSpeed?:
                   hide-details
                   variant="underlined" density="compact">
       <template v-slot:append-inner>
-        <p class="text-no-wrap">{{ t('displayCabinet.ship.braceStrength') }}</p>
+        <p class="text-no-wrap">{{ t('codex.ship.braceStrength') }}</p>
       </template>
     </v-text-field>
 
-    <p class="mt-4"><b>{{ t('displayCabinet.ship.sailSpeed.title') }}{{ t('displayCabinet.ship.sailSpeed.knot') }}</b></p>
+    <p class="mt-4"><b>{{ t('codex.ship.sailSpeed.title') }}{{ t('codex.ship.sailSpeed.knot') }}</b></p>
     <ShipSailSpeedWidget :data="data" :isSimulationShipSailSpeed="isSimulationShipSailSpeed"></ShipSailSpeedWidget>
 
-    <p class="mt-4"><b>{{ t('displayCabinet.ship.cargo') }}</b></p>
+    <p class="mt-4"><b>{{ t('codex.ship.cargo') }}</b></p>
     <v-text-field :value="data.cargo.cargoSlots" readonly
                   hide-details
                   variant="underlined" density="compact">
       <template v-slot:append-inner>
-        <p class="text-no-wrap">{{ t('displayCabinet.ship.cargoSlots') }}</p>
+        <p class="text-no-wrap">{{ t('codex.ship.cargoSlots') }}</p>
       </template>
     </v-text-field>
     <v-text-field :value="data.cargo.cargoMaxWeight" readonly
                   hide-details
                   variant="underlined" density="compact">
       <template v-slot:append-inner>
-        <p class="text-no-wrap">{{ t('displayCabinet.ship.cargoMaxWeight') }}</p>
+        <p class="text-no-wrap">{{ t('codex.ship.cargoMaxWeight') }}</p>
       </template>
     </v-text-field>
   </template>

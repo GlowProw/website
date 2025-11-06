@@ -26,7 +26,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <p class="text-no-wrap font-weight-bold mb-2 mt-2">{{ t('displayCabinet.item.worldEvent') }}</p>
+  <p class="text-no-wrap font-weight-bold mb-2 mt-2">{{ t('codex.item.worldEvent') }}</p>
   <v-chip v-for="(e,eIndex) in worldEvent"
           class="d-inline-flex mb-1 mr-1"
           :key="eIndex">

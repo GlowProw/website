@@ -5,21 +5,22 @@ import {useI18n} from "vue-i18n";
 import {useDisplay} from "vuetify/framework";
 import {Season} from "glow-prow-data/src/entity/Seasons";
 
-const seasonVideos = import.meta.glob('@/assets/videos/*', {eager: true}),
-    seasonImages = import.meta.glob('@/assets/images/snb/season/*', {eager: true});
-
+const seasonVideos = import.meta.glob('@/assets/videos/*.*', {eager: true}),
+    seasonImages = import.meta.glob('@/assets/images/snb/season/*.*', {eager: true});
 
 const {serializationMap} = useAssetsStore(),
     {t} = useI18n(),
     {mobile} = useDisplay(),
-    props = defineProps<{ data: Season }>()
+    props = defineProps<{ data: Season | unknown }>()
 
 let images = ref({}),
     currentSeasonBannerAddress = ref('release'),
     bySeasonId = computed(() => {
       return props.data?.id || props.data?.id || 'release'
     }),
-    currentSeasonFormat = computed(() => currentSeasonBannerAddress.value.toString().split('.')[1])
+    currentSeasonFormat = computed(() => {
+      return extractFileFormat(currentSeasonBannerAddress.value)
+    })
 
 watch(() => props.data, () => {
   updateSeason()
@@ -30,6 +31,15 @@ onMounted(() => {
 
   updateSeason()
 })
+
+/**
+ * 文件格式
+ * @param url
+ */
+const extractFileFormat = (url: string): string | null => {
+  const match = url.match(/\.([a-zA-Z0-9]+)(?:[\?#]|$)/);
+  return match ? match[1].toLowerCase() : null;
+}
 
 const updateSeason = () => {
   nextTick(() => {
@@ -42,15 +52,18 @@ const updateSeason = () => {
 <template>
   <div class="card-enlargement-flavor w-100">
     <template v-if="currentSeasonBannerAddress">
-      <video autoplay playsinline
-             v-if="currentSeasonFormat == 'mp4'"
-             class="w-100 by-season-content"
-             muted loop type="video/mp4"
-             :src="currentSeasonBannerAddress"></video>
-      <v-img v-else-if="currentSeasonFormat == 'png'"
-             cover
-             class="w-100 by-season-content"
-             :src="currentSeasonBannerAddress"></v-img>
+      <template v-if="currentSeasonFormat == 'mp4'">
+        <video autoplay playsinline
+               class="w-100 by-season-content"
+               muted loop type="video/mp4"
+               :src="currentSeasonBannerAddress"></video>
+      </template>
+      <template v-else-if="currentSeasonFormat == 'png'">
+        <v-img
+            cover
+            class="w-100 by-season-content"
+            :src="currentSeasonBannerAddress"></v-img>
+      </template>
     </template>
     <v-img v-else-if="!currentSeasonBannerAddress || !data || !data?.id"
            cover

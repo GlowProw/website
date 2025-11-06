@@ -89,7 +89,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
           width="100%"
           v-bind="activatorProps"
           :color="`hsl(from ${rarityColorConfig[i?.rarity]} h s calc(l * .15))`"
-          :to="isOpenDetail ? `/display-cabinet/mapLocation/${i?.id}` : null"
+          :to="isOpenDetail ? `/codex/mapLocation/${i?.id}` : null"
           :class="[
               'prohibit-drag',
               `ma-${props.margin}`,
@@ -131,8 +131,8 @@ const {targetElement, isVisible} = useIntersectionObserver({
 
         <div class="d-flex ga-2 mt-3">
           <v-chip inline
-                  :to="`/display-cabinet/mapLocations/category/${i.category}`"
-                  class="badge-flavor text-center text-black" v-if="i.type">{{ t(`displayCabinet.type.${i.category}`) }}
+                  :to="`/codex/mapLocations/category/${i.category}`"
+                  class="badge-flavor text-center text-black" v-if="i.type">{{ t(`codex.type.${i.category}`) }}
           </v-chip>
         </div>
         <div class="right-show-image pointer-events-none position-absolute w-33">
@@ -158,10 +158,10 @@ const {targetElement, isVisible} = useIntersectionObserver({
         </template>
       </div>
       <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto">
-        <BtnWidget @action-complete="router.push(`/display-cabinet/mapLocation/${i.id}`)"
+        <BtnWidget @action-complete="router.push(`/codex/mapLocation/${i.id}`)"
                    class="mt-1"
                    v-if="isShowOpenDetail">
-          {{ t('displayCabinet.mapLocation.lookDetail') }}
+          {{ t('codex.mapLocation.lookDetail') }}
         </BtnWidget>
       </div>
     </v-card>

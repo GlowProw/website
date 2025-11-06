@@ -80,7 +80,7 @@ defineExpose({
             clearable
             persistent-hint>
           <template v-slot:details>
-            <span v-html="t('assembly.workshop.insertWeaponTips', {link: '/display-cabinet'})"></span>
+            <span v-html="t('assembly.workshop.insertWeaponTips', {link: '/codex'})"></span>
             <v-icon icon="mdi-share"></v-icon>
           </template>
         </v-combobox>

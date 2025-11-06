@@ -74,7 +74,7 @@ const onReady = async () => {
           width="100%"
           v-bind="activatorProps"
           :color="`hsl(from ${rarityColorConfig[i?.rarity]} h s calc(l * .15))`"
-          :to="isOpenDetail ? `/display-cabinet/material/${i?.id}` : null"
+          :to="isOpenDetail ? `/codex/material/${i?.id}` : null"
           :class="[
               'prohibit-drag',
               `ma-${props.margin}`,
@@ -119,12 +119,12 @@ const onReady = async () => {
 
         <div class="d-flex ga-2 mt-3">
           <v-chip inline
-                  :to="`/display-cabinet/material/category/${i.type}`"
-                  class="badge-flavor text-center text-black" v-if="i.type">{{ t(`displayCabinet.type.${i.type}`) }}
+                  :to="`/codex/material/category/${i.type}`"
+                  class="badge-flavor text-center text-black" v-if="i.type">{{ t(`codex.type.${i.type}`) }}
           </v-chip>
           <v-chip class="badge-flavor text-center tag-badge text-black"
-                  :to="`/display-cabinet/material/rarity/${i.rarity}`"
-                  v-if="i.rarity">{{ t(`displayCabinet.rarity.${i.rarity}`) }}
+                  :to="`/codex/material/rarity/${i.rarity}`"
+                  v-if="i.rarity">{{ t(`codex.rarity.${i.rarity}`) }}
           </v-chip>
         </div>
         <div class="right-show-image pointer-events-none position-absolute w-33">
@@ -150,10 +150,10 @@ const onReady = async () => {
         </template>
       </div>
       <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto">
-        <BtnWidget @action-complete="router.push(`/display-cabinet/material/${i.id}`)"
+        <BtnWidget @action-complete="router.push(`/codex/material/${i.id}`)"
                    class="mt-1"
                    v-if="isShowOpenDetail">
-          {{ t('displayCabinet.material.lookDetail') }}
+          {{ t('codex.material.lookDetail') }}
         </BtnWidget>
       </div>
     </v-card>

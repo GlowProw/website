@@ -13,31 +13,33 @@ import AccountSpacePage from '../src/views/user/Space.vue'
 
 import LoginPage from '../src/views/user/login.vue'
 import SignupPage from '@/views/user/Signup.vue'
-import DisplayCabinetPage from '../src/views/displayCabinet/Index.vue'
-import DisplayCabinetOverviewPage from '../src/views/displayCabinet/Overview.vue'
+import CodexPage from '../src/views/codex/Index.vue'
+import CodexOverviewPage from '../src/views/codex/Overview.vue'
 import RankingDesignedItemsPage from '../src/views/rankingDesignedItems/Index.vue'
 import RankingDesignedItemsBrowsePage from '../src/views/rankingDesignedItems/Browse.vue'
 import RankingDesignedItemsWorkshopPage from '../src/views/rankingDesignedItems/workshop/Index.vue'
 import RankingDesignedItemsPublishPage from '../src/views/rankingDesignedItems/Publish.vue'
-import ShipsPage from '../src/views/displayCabinet/ships/Index.vue'
-import ShipDetailPage from '../src/views/displayCabinet/ships/Detail.vue'
-import ItemsPage from '../src/views/displayCabinet/items/Index.vue'
-import ItemDetailPage from '../src/views/displayCabinet/items/Detail.vue'
-import ItemCategoryDetailPage from '../src/views/displayCabinet/items/Category.vue'
-import ModsPage from '@/views/displayCabinet/mods/Index.vue'
-import ModDetailPage from '@/views/displayCabinet/mods/Detail.vue'
-import MaterialsPage from '../src/views/displayCabinet/materials/Index.vue'
-import MaterialDetailPage from '../src/views/displayCabinet/materials/Detail.vue'
-import CosmeticsPage from '../src/views/displayCabinet/cosmetics/Index.vue'
-import CosmeticDetailPage from '../src/views/displayCabinet/cosmetics/Detail.vue'
-import TreasureMapsPage from '../src/views/displayCabinet/treasureMaps/Index.vue'
-import TreasureMapDetailPage from '../src/views/displayCabinet/treasureMaps/Detail.vue'
-import MapLocationPage from '../src/views/displayCabinet/mapLocations/Index.vue'
-import MapLocationsDetailPage from '../src/views/displayCabinet/mapLocations/Detail.vue'
+import ShipsPage from '../src/views/codex/ships/Index.vue'
+import ShipDetailPage from '../src/views/codex/ships/Detail.vue'
+import ItemsPage from '../src/views/codex/items/Index.vue'
+import ItemDetailPage from '../src/views/codex/items/Detail.vue'
+import ItemCategoryDetailPage from '../src/views/codex/items/Category.vue'
+import CommoditiesPage from '../src/views/codex/commoditie/Index.vue'
+import CommoditieDetailPage from '../src/views/codex/commoditie/Detail.vue'
+import ModsPage from '@/views/codex/modifications/Index.vue'
+import ModDetailPage from '@/views/codex/modifications/Detail.vue'
+import MaterialsPage from '../src/views/codex/materials/Index.vue'
+import MaterialDetailPage from '../src/views/codex/materials/Detail.vue'
+import CosmeticsPage from '../src/views/codex/cosmetics/Index.vue'
+import CosmeticDetailPage from '../src/views/codex/cosmetics/Detail.vue'
+import TreasureMapsPage from '../src/views/codex/treasureMaps/Index.vue'
+import TreasureMapDetailPage from '../src/views/codex/treasureMaps/Detail.vue'
+import MapLocationPage from '../src/views/codex/mapLocations/Index.vue'
+import MapLocationsDetailPage from '../src/views/codex/mapLocations/Detail.vue'
 import EmpireSkillSimulationPage from '../src/views/empireSkillSimulation/Index.vue'
 
-import UltimatesPage from '../src/views/displayCabinet/ultimates/Index.vue'
-import UltimateDetailPage from '../src/views/displayCabinet/ultimates/Detail.vue'
+import UltimatesPage from '../src/views/codex/ultimates/Index.vue'
+import UltimateDetailPage from '../src/views/codex/ultimates/Detail.vue'
 
 import CalendarPage from '../src/views/calendar/Index.vue'
 import CalendarHistoryPage from '../src/views/calendar/History.vue'
@@ -191,27 +193,27 @@ const routes: Readonly<RouteRecordRaw[]> = [
         ]
     },
     {
-        path: '/display-cabinet',
-        name: 'DisplayCabinet',
-        component: DisplayCabinetPage,
+        path: '/codex',
+        name: 'codex',
+        component: CodexPage,
         beforeEnter: initItemAssets,
         meta: {
-            title: 'displayCabinet.title',
-            keywords: 'displayCabinet.keywords'
+            title: 'codex.title',
+            keywords: 'codex.keywords'
         },
-        redirect: '/display-cabinet/overview',
+        redirect: '/codex',
         children: [
             {
-                path: 'overview',
-                name: 'DisplayCabinetOverview',
-                component: DisplayCabinetOverviewPage,
+                path: '',
+                name: 'codexOverview',
+                component: CodexOverviewPage,
             },
             {
                 path: 'ships',
                 name: 'Ships',
                 meta: {
-                    title: 'displayCabinet.ships.title',
-                    keywords: 'displayCabinet.ships.meta.keywords'
+                    title: 'codex.ships.title',
+                    keywords: 'codex.ships.meta.keywords'
                 },
                 component: ShipsPage,
             },
@@ -219,8 +221,8 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: 'ship/:id',
                 name: 'ShipDetail',
                 meta: {
-                    title: 'displayCabinet.ship.title',
-                    keywords: 'displayCabinet.ship.meta.keywords'
+                    title: 'codex.ship.title',
+                    keywords: 'codex.ship.meta.keywords'
                 },
                 component: ShipDetailPage,
             },
@@ -228,8 +230,8 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: 'items',
                 name: 'Items',
                 meta: {
-                    title: 'displayCabinet.items.title',
-                    keywords: 'displayCabinet.items.meta.keywords'
+                    title: 'codex.items.title',
+                    keywords: 'codex.items.meta.keywords'
                 },
                 component: ItemsPage,
             },
@@ -237,17 +239,35 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: 'item/:id',
                 name: 'ItemDetail',
                 meta: {
-                    title: 'displayCabinet.item.title',
-                    keywords: 'displayCabinet.item.meta.keywords'
+                    title: 'codex.item.title',
+                    keywords: 'codex.item.meta.keywords'
                 },
                 component: ItemDetailPage,
+            },
+            {
+                path: 'commodities',
+                name: 'Commodities',
+                meta: {
+                    title: 'codex.commodities.title',
+                    keywords: 'codex.commodities.meta.keywords'
+                },
+                component: CommoditiesPage,
+            },
+            {
+                path: 'commoditie/:id',
+                name: 'CommoditieDetail',
+                meta: {
+                    title: 'codex.commoditie.title',
+                    keywords: 'codex.commoditie.meta.keywords'
+                },
+                component: CommoditieDetailPage,
             },
             {
                 path: 'item/:fun/:key',
                 name: 'ItemCategoryDetail',
                 meta: {
-                    title: 'displayCabinet.items.title',
-                    keywords: 'displayCabinet.items.meta.keywords'
+                    title: 'codex.items.title',
+                    keywords: 'codex.items.meta.keywords'
                 },
                 component: ItemCategoryDetailPage,
             },
@@ -255,8 +275,8 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: 'ultimates',
                 name: 'Ultimates',
                 meta: {
-                    title: 'displayCabinet.ultimates.title',
-                    keywords: 'displayCabinet.ultimates.meta.keywords'
+                    title: 'codex.ultimates.title',
+                    keywords: 'codex.ultimates.meta.keywords'
                 },
                 component: UltimatesPage,
             },
@@ -264,8 +284,8 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: 'ultimate/:id',
                 name: 'UltimateDetail',
                 meta: {
-                    title: 'displayCabinet.ultimate.title',
-                    keywords: 'displayCabinet.ultimate.meta.keywords'
+                    title: 'codex.ultimate.title',
+                    keywords: 'codex.ultimate.meta.keywords'
                 },
                 component: UltimateDetailPage,
             },
@@ -273,8 +293,8 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: 'mods',
                 name: 'Mods',
                 meta: {
-                    title: 'displayCabinet.mods.title',
-                    keywords: 'displayCabinet.mods.meta.keywords'
+                    title: 'codex.modifications.title',
+                    keywords: 'codex.mods.meta.keywords'
                 },
                 component: ModsPage,
 
@@ -283,8 +303,8 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: 'mod/:id',
                 name: 'ModDetail',
                 meta: {
-                    title: 'displayCabinet.mod.title',
-                    keywords: 'displayCabinet.mod.meta.keywords'
+                    title: 'codex.mod.title',
+                    keywords: 'codex.mod.meta.keywords'
                 },
                 component: ModDetailPage,
             },
@@ -292,8 +312,8 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: 'materials',
                 name: 'Materials',
                 meta: {
-                    title: 'displayCabinet.materials.title',
-                    keywords: 'displayCabinet.materials.meta.keywords'
+                    title: 'codex.materials.title',
+                    keywords: 'codex.materials.meta.keywords'
                 },
                 component: MaterialsPage,
             },
@@ -301,8 +321,8 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: 'material/:id',
                 name: 'MaterialDetail',
                 meta: {
-                    title: 'displayCabinet.material.title',
-                    keywords: 'displayCabinet.material.meta.keywords'
+                    title: 'codex.material.title',
+                    keywords: 'codex.material.meta.keywords'
                 },
                 component: MaterialDetailPage,
             },
@@ -310,8 +330,8 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: 'cosmetics',
                 name: 'Cosmetics',
                 meta: {
-                    title: 'displayCabinet.cosmetics.title',
-                    keywords: 'displayCabinet.cosmetics.meta.keywords'
+                    title: 'codex.cosmetics.title',
+                    keywords: 'codex.cosmetics.meta.keywords'
                 },
                 component: CosmeticsPage,
             },
@@ -319,8 +339,8 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: 'cosmetic/:id',
                 name: 'CosmeticDetail',
                 meta: {
-                    title: 'displayCabinet.cosmetic.title',
-                    keywords: 'displayCabinet.cosmetic.meta.keywords'
+                    title: 'codex.cosmetic.title',
+                    keywords: 'codex.cosmetic.meta.keywords'
                 },
                 component: CosmeticDetailPage,
             },
@@ -328,8 +348,8 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: 'treasureMaps',
                 name: 'TreasureMaps',
                 meta: {
-                    title: 'displayCabinet.treasureMaps.title',
-                    keywords: 'displayCabinet.treasureMaps.meta.keywords'
+                    title: 'codex.treasureMaps.title',
+                    keywords: 'codex.treasureMaps.meta.keywords'
                 },
                 component: TreasureMapsPage,
             },
@@ -337,8 +357,8 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: 'treasureMap/:id',
                 name: 'TreasureMapDetail',
                 meta: {
-                    title: 'displayCabinet.treasureMaps.title',
-                    keywords: 'displayCabinet.treasureMaps.meta.keywords'
+                    title: 'codex.treasureMaps.title',
+                    keywords: 'codex.treasureMaps.meta.keywords'
                 },
                 component: TreasureMapDetailPage,
             },
@@ -346,8 +366,8 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: 'mapLocations',
                 name: 'MapLocations',
                 meta: {
-                    title: 'displayCabinet.treasureMaps.title',
-                    keywords: 'displayCabinet.treasureMaps.meta.keywords'
+                    title: 'codex.treasureMaps.title',
+                    keywords: 'codex.treasureMaps.meta.keywords'
                 },
                 component: MapLocationPage,
             },
@@ -355,8 +375,8 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: 'mapLocation/:id',
                 name: 'MapLocationDetail',
                 meta: {
-                    title: 'displayCabinet.treasureMaps.title',
-                    keywords: 'displayCabinet.treasureMaps.meta.keywords'
+                    title: 'codex.treasureMaps.title',
+                    keywords: 'codex.treasureMaps.meta.keywords'
                 },
                 component: MapLocationsDetailPage,
             },

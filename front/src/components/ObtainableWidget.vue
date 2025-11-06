@@ -34,7 +34,7 @@ const filterByObtainable = (d: Item | Material | Cosmetic | null | undefined): O
   if (typeof obtainable === 'string') {
     return [{
       id: obtainable,
-      to: `/display-cabinet/${props.byType}/obtainable/${obtainable}`
+      to: `/codex/${props.byType}/obtainable/${obtainable}`
     }];
   }
 
@@ -42,7 +42,7 @@ const filterByObtainable = (d: Item | Material | Cosmetic | null | undefined): O
   if (obtainable && typeof obtainable === 'object' && 'id' in obtainable) {
     return [{
       id: obtainable.id,
-      to: `/display-cabinet/${props.byType}/${obtainable.id}`,
+      to: `/codex/${props.byType}/${obtainable.id}`,
       item: items[obtainable.id]
     }];
   }
@@ -54,7 +54,7 @@ const filterByObtainable = (d: Item | Material | Cosmetic | null | undefined): O
       if (typeof element === 'string') {
         acc.push({
           id: element,
-          // to: `/display-cabinet/${props.byType}/obtainable/${element}`
+          // to: `/codex/${props.byType}/obtainable/${element}`
         });
       }
       // 处理对象元素（包含 id 属性）
@@ -65,7 +65,7 @@ const filterByObtainable = (d: Item | Material | Cosmetic | null | undefined): O
           const itemType = items[element.id] ? 'item' : 'cosmetics';
           acc.push({
             id: element.id,
-            to: `/display-cabinet/${itemType}/${element.id}`,
+            to: `/codex/${itemType}/${element.id}`,
             item
           });
         }
@@ -81,7 +81,7 @@ const filterByObtainable = (d: Item | Material | Cosmetic | null | undefined): O
 </script>
 
 <template>
-  <p class="text-no-wrap font-weight-bold mb-2 mt-2">{{ t('displayCabinet.item.obtainable') }}</p>
+  <p class="text-no-wrap font-weight-bold mb-2 mt-2">{{ t('codex.item.obtainable') }}</p>
   <v-chip v-for="(o,oIndex) in obtainable"
           class="d-inline-flex mb-1 mr-1 py-2 obtainable-item"
           exact

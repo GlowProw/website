@@ -143,7 +143,7 @@
       "title": "个人信息"
     }
   },
-  "displayCabinet": {
+  "codex": {
     "title": "手稿",
     "description": "嗨，船长, 要看看我的宝贝嘛",
     "cabinetHistoryTitle": "游览历史",
@@ -187,6 +187,13 @@
       "quest": "任务",
       "contract": "合同",
       "specialized": "特殊",
+      "localFaction": "当地阵营杂货",
+      "megacorp": "超巨公司杂货",
+      "kingpin": "头目杂货",
+      "theHelm": "海舵社杂货",
+      "summoningBell": "召唤",
+      "unique": "独特的",
+      "event": "事件",
       "refined": "精炼",
       "currency": "货币",
       "helm": "掌舵",
@@ -237,6 +244,95 @@
     "category": {
       "title": "分类"
     },
+    "navs": {
+      "shipsAndCaptainTools": {
+        "name": "船只与船长工具"
+      },
+      "ships": {
+        "name": "船只"
+      },
+      "captainTools": {
+        "name": "船长工具"
+      },
+      "weapons": {
+        "name": "武器"
+      },
+      "allDeckWeapons": {
+        "name": "全甲板武器"
+      },
+      "topDeckWeapons": {
+        "name": "顶层甲板武器"
+      },
+      "bowWeapons": {
+        "name": "船首武器"
+      },
+      "auxiliaryWeapons": {
+        "name": "辅助武器"
+      },
+      "armor": {
+        "name": "装甲"
+      },
+      "hullArmor": {
+        "name": "船体装甲"
+      },
+      "furnTure": {
+        "name": "家具"
+      },
+      "majorFurniture": {
+        "name": "主要家具"
+      },
+      "offensiveFurnTure": {
+        "name": "进攻型家具"
+      },
+      "utilityFurnTure": {
+        "name": "实用家具"
+      },
+      "materials": {
+        "name": "材料"
+      },
+      "rawMaterials": {
+        "name": "原材料"
+      },
+      "refinedMaterials": {
+        "name": "精炼材料"
+      },
+      "specializedMaterials": {
+        "name": "专业材料"
+      },
+      "exoticMaterials": {
+        "name": "异域材料"
+      },
+      "helmMaterials": {
+        "name": "舵轮材料"
+      },
+      "scrapMaterials": {
+        "name": "废料材料"
+      },
+      "provisions": {
+        "name": "补给品"
+      },
+      "shipSupplies": {
+        "name": "船舶补给"
+      },
+      "crewProvision": {
+        "name": "船员给养"
+      },
+      "commodities": {
+        "name": "商品"
+      },
+      "localFactionCommodities": {
+        "name": "本地派系商品"
+      },
+      "megaCorpCommodities": {
+        "name": "大型企业商品"
+      },
+      "kingpinCommodities": {
+        "name": "龙头商品"
+      },
+      "theHelmItems": {
+        "name": "舵轮物品"
+      }
+    },
     "share": {
       "title": "分享",
       "description": "分享你的{name}"
@@ -244,6 +340,10 @@
     "items": {
       "title": "物品列表",
       "description": "物品列表"
+    },
+    "ships": {
+      "title": "船只列表",
+      "searchCountOverflowTip": "超出搜索显示最大{maximumSearchCount}，剩余{exceedingItemsCount}已节流,可以再精准填写关键词"
     },
     "item": {
       "title": "物品详情",
@@ -286,10 +386,15 @@
       "damageMitigation": "损害减轻",
       "lookDetail": "查看物品详情"
     },
-    "ships": {
-      "title": "船只列表",
-      "description": "\"自新大陆开拓以来，每一艘传奇战舰都在此留下印记。钢铁与风帆的交响诗，等待您的检阅。\"",
-      "searchCountOverflowTip": "超出搜索显示最大{maximumSearchCount}，剩余{exceedingItemsCount}已节流,可以再精准填写关键词"
+    "commoditie": {
+      "title": "杂货详情",
+      "meta": {
+        "keywords": "杂货,商品,{keywords}"
+      },
+      "lookDetail": "查看杂货详情"
+    },
+    "commodities": {
+      "title": "杂货列表"
     },
     "ship": {
       "title": "船详详情",
@@ -660,7 +765,7 @@
         "title": "地图",
         "description": "地图物品清单"
       },
-      "display-cabinet": {
+      "codex": {
         "title": "手稿",
         "description": "陈列物品信息, 检查它们如何获得"
       },

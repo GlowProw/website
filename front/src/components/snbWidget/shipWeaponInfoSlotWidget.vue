@@ -20,7 +20,7 @@ const props = withDefaults(defineProps<{ data: Ship }>(), {
         <v-col>
           <p>
             <v-row align="center">
-              <v-col><b>{{ t('displayCabinet.ship.frontWeapon') }}</b></v-col>
+              <v-col><b>{{ t('codex.ship.frontWeapon') }}</b></v-col>
               <v-col cols>
                 <v-divider></v-divider>
               </v-col>
@@ -33,14 +33,14 @@ const props = withDefaults(defineProps<{ data: Ship }>(), {
                         hide-details
                         variant="underlined" density="compact">
             <template v-slot:append-inner>
-              <p class="text-no-wrap">{{ t('displayCabinet.ship.topDeck') }}</p>
+              <p class="text-no-wrap">{{ t('codex.ship.topDeck') }}</p>
             </template>
           </v-text-field>
           <v-text-field :value="data.slots.frontWeapon[1].lower" readonly
                         hide-details
                         variant="underlined" density="compact">
             <template v-slot:append-inner>
-              <p class="text-no-wrap">{{ t('displayCabinet.ship.lowerDeck') }}</p>
+              <p class="text-no-wrap">{{ t('codex.ship.lowerDeck') }}</p>
             </template>
           </v-text-field>
         </v-col>
@@ -54,7 +54,7 @@ const props = withDefaults(defineProps<{ data: Ship }>(), {
         <v-col>
           <p>
             <v-row align="center">
-              <v-col><b>{{ t('displayCabinet.ship.leftSideWeapon') }}</b></v-col>
+              <v-col><b>{{ t('codex.ship.leftSideWeapon') }}</b></v-col>
               <v-col cols>
                 <v-divider></v-divider>
               </v-col>
@@ -68,7 +68,7 @@ const props = withDefaults(defineProps<{ data: Ship }>(), {
                         v-if="data.slots.leftSideWeapon[1].top"
                         variant="underlined" density="compact">
             <template v-slot:append-inner>
-              <p class="text-no-wrap">{{ t('displayCabinet.ship.topDeck') }}</p>
+              <p class="text-no-wrap">{{ t('codex.ship.topDeck') }}</p>
             </template>
           </v-text-field>
           <v-text-field :value="data.slots.leftSideWeapon[1].lower" readonly
@@ -76,7 +76,7 @@ const props = withDefaults(defineProps<{ data: Ship }>(), {
                         v-if="data.slots.leftSideWeapon[1].lower"
                         variant="underlined" density="compact">
             <template v-slot:append-inner>
-              <p class="text-no-wrap">{{ t('displayCabinet.ship.lowerDeck') }}</p>
+              <p class="text-no-wrap">{{ t('codex.ship.lowerDeck') }}</p>
             </template>
           </v-text-field>
         </v-col>
@@ -90,7 +90,7 @@ const props = withDefaults(defineProps<{ data: Ship }>(), {
         <v-col>
           <p>
             <v-row align="center">
-              <v-col><b>{{ t('displayCabinet.ship.rightSideWeapon') }}</b></v-col>
+              <v-col><b>{{ t('codex.ship.rightSideWeapon') }}</b></v-col>
               <v-col cols>
                 <v-divider></v-divider>
               </v-col>
@@ -104,7 +104,7 @@ const props = withDefaults(defineProps<{ data: Ship }>(), {
                         v-if="data.slots.rightSideWeapon[1].top"
                         variant="underlined" density="compact">
             <template v-slot:append-inner>
-              <p class="text-no-wrap">{{ t('displayCabinet.ship.topDeck') }}</p>
+              <p class="text-no-wrap">{{ t('codex.ship.topDeck') }}</p>
             </template>
           </v-text-field>
           <v-text-field :value="data.slots.rightSideWeapon[1].lower" readonly
@@ -112,7 +112,7 @@ const props = withDefaults(defineProps<{ data: Ship }>(), {
                         v-if="data.slots.rightSideWeapon[1].lower"
                         variant="underlined" density="compact">
             <template v-slot:append-inner>
-              <p class="text-no-wrap">{{ t('displayCabinet.ship.lowerDeck') }}</p>
+              <p class="text-no-wrap">{{ t('codex.ship.lowerDeck') }}</p>
             </template>
           </v-text-field>
         </v-col>
@@ -126,7 +126,7 @@ const props = withDefaults(defineProps<{ data: Ship }>(), {
         <v-col>
           <p>
             <v-row align="center">
-              <v-col><b>{{ t('displayCabinet.ship.aftWeapon') }}</b></v-col>
+              <v-col><b>{{ t('codex.ship.aftWeapon') }}</b></v-col>
               <v-col cols>
                 <v-divider></v-divider>
               </v-col>
@@ -140,7 +140,7 @@ const props = withDefaults(defineProps<{ data: Ship }>(), {
                         v-if="data.slots.aftWeapon[1].top"
                         variant="underlined" density="compact">
             <template v-slot:append-inner>
-              <p class="text-no-wrap">{{ t('displayCabinet.ship.topDeck') }}</p>
+              <p class="text-no-wrap">{{ t('codex.ship.topDeck') }}</p>
             </template>
           </v-text-field>
           <v-text-field :value="data.slots.aftWeapon[1].lower" readonly
@@ -148,7 +148,7 @@ const props = withDefaults(defineProps<{ data: Ship }>(), {
                         v-if="data.slots.aftWeapon[1].lower"
                         variant="underlined" density="compact">
             <template v-slot:append-inner>
-              <p class="text-no-wrap">{{ t('displayCabinet.ship.lowerDeck') }}</p>
+              <p class="text-no-wrap">{{ t('codex.ship.lowerDeck') }}</p>
             </template>
           </v-text-field>
         </v-col>
@@ -164,7 +164,7 @@ const props = withDefaults(defineProps<{ data: Ship }>(), {
                         hide-details
                         variant="underlined" density="compact">
             <template v-slot:append-inner>
-              <p class="text-no-wrap">{{ t('displayCabinet.ship.auxiliaryWeapon') }}</p>
+              <p class="text-no-wrap">{{ t('codex.ship.auxiliaryWeapon') }}</p>
             </template>
           </v-text-field>
         </v-col>

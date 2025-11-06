@@ -64,7 +64,7 @@ const onStatisticsRawMaterial = () => {
 
     <!-- 物品建造所需物品 S -->
     <v-col cols="12" sm="12" lg="6" xl="6">
-      <p class="mt-4 mb-2"><b>{{ t('displayCabinet.item.required') }}</b></p>
+      <p class="mt-4 mb-2"><b>{{ t('codex.item.required') }}</b></p>
       <template v-if="itemDetailData.required && Array.from(itemDetailData.required).length > 0">
         <div v-for="([i, value], rIndex) in itemDetailData.required"
              :key="rIndex">
@@ -77,7 +77,7 @@ const onStatisticsRawMaterial = () => {
             <template v-slot:append>
               <div class="text-right">
                 <p class="text-no-wrap">
-                  <HtmlLink :is-icon="false" :is-iframe-show="false" :href="`/display-cabinet/material/${i.id}`" target="_blank">
+                  <HtmlLink :is-icon="false" :is-iframe-show="false" :href="`/codex/material/${i.id}`" target="_blank">
                     <MaterialNameRarity :id="i.id">
                       <MaterialName :id="i.id"></MaterialName>
                     </MaterialNameRarity>
@@ -115,7 +115,7 @@ const onStatisticsRawMaterial = () => {
     <v-col cols="12" sm="12" lg="6" xl="6">
       <v-row no-gutters class="mt-4 mb-2">
         <v-col>
-          <p><b>{{ t('displayCabinet.item.rawMaterials') }}</b></p>
+          <p><b>{{ t('codex.item.rawMaterials') }}</b></p>
         </v-col>
         <v-spacer></v-spacer>
         <v-btn density="compact" icon @click="isShowShipRawList = !isShowShipRawList" v-if="Object.keys(itemRawMaterials).length > 0">
@@ -134,7 +134,7 @@ const onStatisticsRawMaterial = () => {
             <template v-slot:append>
               <div class="text-right">
                 <p class="text-no-wrap">
-                  <HtmlLink :is-icon="false" :is-iframe-show="false" :href="`/display-cabinet/material/${key}`" target="_blank">
+                  <HtmlLink :is-icon="false" :is-iframe-show="false" :href="`/codex/material/${key}`" target="_blank">
                     <MaterialNameRarity :id="key">
                       <MaterialName :id="key"></MaterialName>
                     </MaterialNameRarity>
@@ -169,7 +169,7 @@ const onStatisticsRawMaterial = () => {
                 <template v-slot:append>
                   <div class="text-right">
                     <p class="text-no-wrap">
-                      <HtmlLink :is-icon="false" :is-iframe-show="false" :href="router.resolve(`/display-cabinet/material/${raw.id}`).fullPath" target="_blank">
+                      <HtmlLink :is-icon="false" :is-iframe-show="false" :href="router.resolve(`/codex/material/${raw.id}`).fullPath" target="_blank">
                         <MaterialNameRarity :id="raw.id">
                           <MaterialName :id="raw.id"></MaterialName>
                         </MaterialNameRarity>

@@ -143,7 +143,7 @@
       "title": "Personal Information"
     }
   },
-  "displayCabinet": {
+  "codex": {
     "title": "Manuscript",
     "description": "Hey Captain, want to see my treasures?",
     "cabinetHistoryTitle": "Viewing History",
@@ -186,6 +186,13 @@
       "quest": "Quest",
       "contract": "Contract",
       "specialized": "Specialized",
+      "localFaction": "当地阵营杂货",
+      "megacorp": "超巨公司杂货",
+      "kingpin": "头目杂货",
+      "theHelm": "海舵社杂货",
+      "summoningBell": "召唤",
+      "unique": "独特的",
+      "event": "事件",
       "refined": "Refined",
       "currency": "Currency",
       "helm": "Helm",
@@ -236,6 +243,95 @@
     "category": {
       "title": "Category"
     },
+    "navs": {
+      "shipsAndCaptainTools": {
+        "name": "Ships And CaptainTools"
+      },
+      "ships": {
+        "name": "Ships"
+      },
+      "captainTools": {
+        "name": "Captain Tools"
+      },
+      "weapons": {
+        "name": "Weapons"
+      },
+      "allDeckWeapons": {
+        "name": "All-Deck Weapons"
+      },
+      "topDeckWeapons": {
+        "name": "Top-Deck Weapons"
+      },
+      "bowWeapons": {
+        "name": "Bow Weapons"
+      },
+      "auxiliaryWeapons": {
+        "name": "Auxiliary Weapons"
+      },
+      "armor": {
+        "name": "Armor"
+      },
+      "hullArmor": {
+        "name": "Hull Armor"
+      },
+      "furnTure": {
+        "name": "FurnTure"
+      },
+      "majorFurniture": {
+        "name": "Major Furniture"
+      },
+      "offensiveFurnTure": {
+        "name": "Offensive FurnTure"
+      },
+      "utilityFurnTure": {
+        "name": "UtilityFurnTure"
+      },
+      "materials": {
+        "name": "Materials"
+      },
+      "rawMaterials": {
+        "name": "Raw Materials"
+      },
+      "refinedMaterials": {
+        "name": "Refined Materials"
+      },
+      "specializedMaterials": {
+        "name": "Specialized Materials"
+      },
+      "exoticMaterials": {
+        "name": "Exotic Materials"
+      },
+      "helmMaterials": {
+        "name": "Helm Materials"
+      },
+      "scrapMaterials": {
+        "name": "Scrap Materials"
+      },
+      "provisions": {
+        "name": "Provisions"
+      },
+      "shipSupplies": {
+        "name": "Ship Supplies"
+      },
+      "crewProvision": {
+        "name": "Crew Provision"
+      },
+      "commodities": {
+        "name": "Commodities"
+      },
+      "localFactionCommodities": {
+        "name": "Local Faction Commodities"
+      },
+      "megaCorpCommodities": {
+        "name": "Mega Corp Commodities"
+      },
+      "kingpinCommodities": {
+        "name": "Kingpin Commodities"
+      },
+      "theHelmItems": {
+        "name": "The Helm Items"
+      }
+    },
     "share": {
       "title": "Share",
       "description": "Share your {name}"
@@ -243,6 +339,11 @@
     "items": {
       "title": "Items List",
       "description": "Items List"
+    },
+    "ships": {
+      "title": "Ships List",
+      "description": "\"Since the opening of the New World, every legendary warship has left its mark here. The symphony of steel and sails awaits your inspection.\"",
+      "searchCountOverflowTip": "Exceeds maximum search display of {maximumSearchCount}, remaining {exceedingItemsCount} have been throttled, please refine keywords"
     },
     "item": {
       "title": "Item Details",
@@ -285,10 +386,15 @@
       "damageMitigation": "Damage Mitigation",
       "lookDetail": "View Item Details"
     },
-    "ships": {
-      "title": "Ships List",
-      "description": "\"Since the opening of the New World, every legendary warship has left its mark here. The symphony of steel and sails awaits your inspection.\"",
-      "searchCountOverflowTip": "Exceeds maximum search display of {maximumSearchCount}, remaining {exceedingItemsCount} have been throttled, please refine keywords"
+    "commoditie": {
+      "title": "杂货详情",
+      "meta": {
+        "keywords": "杂货,商品,{keywords}"
+      },
+      "lookDetail": "查看杂货详情"
+    },
+    "commodities": {
+      "title": "杂货列表"
     },
     "ship": {
       "title": "Ship Details",
@@ -648,7 +754,7 @@
         "title": "Map",
         "description": "Map items inventory"
       },
-      "display-cabinet": {
+      "codex": {
         "title": "Manuscript",
         "description": "Display item information, check how to obtain them"
       },
