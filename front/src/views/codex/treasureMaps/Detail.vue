@@ -10,8 +10,6 @@ import TimeView from "@/components/TimeView.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import CommentWidget from "@/components/CommentWidget.vue";
 import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
-import WeaponModificationWidget from "@/components/snbWidget/weaponModificationWidget.vue";
-import ModDescription from "@/components/snbWidget/modDescription.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
 import {storage} from "@/assets/sripts/index";
 import TreasureMapIconWidget from "@/components/snbWidget/treasureMapIconWidget.vue";

@@ -3,21 +3,24 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import {computed, onMounted, ref, watch} from "vue";
 import {Items} from "glow-prow-data/src/entity/Items.ts";
 import {useI18n} from "vue-i18n";
-import Loading from "@/components/Loading.vue";
 import {useRoute, useRouter} from "vue-router";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
+import {useDisplay} from "vuetify/framework";
+
+
+import {Commodities, Cosmetics, MapLocations, Materials, Modifications, Ships, TreasureMaps} from "glow-prow-data";
+import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
+
+import Loading from "@/components/Loading.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import EmptyView from "@/components/EmptyView.vue";
-import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import ItemName from "@/components/snbWidget/itemName.vue";
 import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
-import {useDisplay} from "vuetify/framework";
-import {Commodities, Cosmetics, Materials, Modifications, Ships} from "glow-prow-data";
 import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
 import ShipName from "@/components/snbWidget/shipName.vue";
 import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
 import MaterialNameRarity from "@/components/snbWidget/materialNameRarity.vue";
 import MaterialName from "@/components/snbWidget/materialName.vue";
-import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
 import CosmeticIconWidget from "@/components/snbWidget/cosmeticIconWidget.vue";
 import UltimateName from "@/components/snbWidget/ultimateName.vue";
 import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
@@ -26,8 +29,12 @@ import CosmeticName from "@/components/snbWidget/cosmeticName.vue";
 import ModName from "@/components/snbWidget/modName.vue";
 import CommoditieIconWidget from "@/components/snbWidget/commoditieIconWidget.vue";
 import CommoditieName from "@/components/snbWidget/commoditieName.vue";
+import TreasureMapIconWidget from "@/components/snbWidget/treasureMapIconWidget.vue";
+import MapLocationIconWidget from "@/components/snbWidget/mapLocationIconWidget.vue";
+import TreasureMapName from "@/components/snbWidget/treasureMapName.vue";
+import MapLocationNameWidget from "@/components/snbWidget/mapLocationNameWidget.vue";
 
-type LoadDataType = 'ship' | 'item' | 'commoditie' | 'material' | 'ultimate' | 'cosmetic' | 'modification'
+type LoadDataType = 'ship' | 'item' | 'commoditie' | 'material' | 'ultimate' | 'cosmetic' | 'modification' | 'treasureMaps' | 'mapLocation'
 type SortField = 'dateAdded' | 'lastUpdated'
 type SortOrder = 'asc' | 'desc'
 
@@ -35,6 +42,8 @@ const
     props = withDefaults(defineProps<{ loadDataType: LoadDataType }>(), {
       loadDataType: 'item'
     }),
+
+    // 数据 手稿
     ships = Ships,
     items = Items,
     commodities = Commodities,
@@ -42,6 +51,11 @@ const
     ultimates = Ultimates,
     cosmetics = Cosmetics,
     modifications = Modifications,
+
+    // 数据 地图
+    treasureMaps = TreasureMaps,
+    mapLocation = MapLocations,
+
     route = useRoute(),
     router = useRouter(),
     {t} = useI18n(),
@@ -67,14 +81,14 @@ let data: any = ref([]),
     typeFilterAvailableOptions = computed(() => [
       ...filterData.value.tags.map(tag => ({
         value: tag,
-        text: t(`codex.type.${tag}`)
+        text: asString([`codex.type.${tag}`, `map.type.${tag}`], {backRawKey: true, variable: tag})
       }))
     ]),
     // 赛季筛选器可选选项
     seasonFilterAvailableOptions = computed(() => [
       ...filterData.value.seasonTags.map(season => ({
         value: season,
-        text: t(`snb.seasons.${season}`)
+        text: asString([`snb.seasons.${season}`], {backRawKey: false, variable: season})
       }))
     ]),
     // 检查是否有活跃的筛选条件
@@ -121,7 +135,9 @@ const onProcessedData = computed(() => {
           `snb.modifications.${i.id}.name`,
           `snb.modifications.${sanitizeString(i.id).cleaned}.name`,
 
-        ]).toLowerCase().indexOf(searchValue) >= 0;
+        ], {
+          backRawKey: false
+        }).toLowerCase().indexOf(searchValue) >= 0;
         const idMatch = i.id.toLowerCase().indexOf(searchValue) >= 0;
 
         // 检查类型匹配
@@ -168,6 +184,7 @@ const onProcessedData = computed(() => {
     originalData = computed(() => {
       let d = []
       switch (props.loadDataType) {
+          // 手稿
         case "ship":
           d = ships;
           break;
@@ -188,6 +205,13 @@ const onProcessedData = computed(() => {
           break;
         case "modification":
           d = modifications;
+          break;
+          // 地图
+        case "treasureMaps":
+          d = treasureMaps;
+          break;
+        case "mapLocation":
+          d = mapLocation;
           break;
       }
       return Object.values(d)
@@ -212,7 +236,7 @@ watch(() => route.query, (newQuery) => {
   if (newQuery.sortOrder) {
     filterData.value.sortOrder = newQuery.sortOrder as SortOrder;
   }
-}, { immediate: true });
+}, {immediate: true});
 
 onMounted(() => {
   onInitTagLoad()
@@ -515,6 +539,9 @@ const onSort = (field: SortField, order: SortOrder) => {
               <CosmeticIconWidget :id="i.id" v-if="loadDataType == 'cosmetic'"></CosmeticIconWidget>
               <UltimateIconWidget :id="i.id" v-if="loadDataType == 'ultimate'"></UltimateIconWidget>
               <ModIconWidget :id="i.id" v-if="loadDataType == 'modification'"></ModIconWidget>
+
+              <TreasureMapIconWidget :id="i.id" v-if="loadDataType == 'treasureMaps'"></TreasureMapIconWidget>
+              <MapLocationIconWidget :id="i.id" v-if="loadDataType == 'mapLocation'"></MapLocationIconWidget>
             </ItemSlotBase>
             <div class="text-center singe-line w-100">
               <ShipName :id="i.id" v-if="loadDataType == 'ship'"></ShipName>
@@ -528,6 +555,9 @@ const onSort = (field: SortField, order: SortOrder) => {
               <CosmeticName :id="i.id" v-if="loadDataType == 'cosmetic'"></CosmeticName>
               <UltimateName :id="i.id" v-if="loadDataType == 'ultimate'"></UltimateName>
               <ModName :id="i.id" v-if="loadDataType == 'modification'" :grade="i.grade"></ModName>
+
+              <TreasureMapName :id="i.id" v-if="loadDataType == 'treasureMaps'"></TreasureMapName>
+              <MapLocationNameWidget :id="i.id" v-if="loadDataType == 'mapLocation'"></MapLocationNameWidget>
             </div>
           </v-card>
         </v-row>
@@ -559,6 +589,9 @@ const onSort = (field: SortField, order: SortOrder) => {
             <CosmeticIconWidget :id="i.id" v-if="loadDataType == 'cosmetic'"></CosmeticIconWidget>
             <UltimateIconWidget :id="i.id" v-if="loadDataType == 'ultimate'"></UltimateIconWidget>
             <ModIconWidget :id="i.id" v-if="loadDataType == 'modification'"></ModIconWidget>
+
+            <TreasureMapIconWidget :id="i.id" v-if="loadDataType == 'treasureMaps'"></TreasureMapIconWidget>
+            <MapLocationIconWidget :id="i.id" v-if="loadDataType == 'mapLocation'"></MapLocationIconWidget>
           </ItemSlotBase>
           <div class="text-center singe-line w-100">
             <ShipName :id="i.id" v-if="loadDataType == 'ship'"></ShipName>
@@ -572,6 +605,9 @@ const onSort = (field: SortField, order: SortOrder) => {
             <CosmeticName :id="i.id" v-if="loadDataType == 'cosmetic'"></CosmeticName>
             <UltimateName :id="i.id" v-if="loadDataType == 'ultimate'"></UltimateName>
             <ModName :id="i.id" v-if="loadDataType == 'modification'" :grade="i.grade"></ModName>
+
+            <TreasureMapName :id="i.id" v-if="loadDataType == 'treasureMaps'"></TreasureMapName>
+            <MapLocationNameWidget :id="i.id" v-if="loadDataType == 'mapLocation'"></MapLocationNameWidget>
           </div>
         </v-card>
       </v-row>
