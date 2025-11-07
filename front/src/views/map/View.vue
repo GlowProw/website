@@ -289,23 +289,41 @@
       </div>
 
       <template v-if="selectedLocationData.possibleLoot">
-        <div class="map-title px-10 mx-n6 py-2 text-amber-lighten-4" >
+        <div class="map-title px-10 mx-n6 py-2 text-amber-lighten-4">
           {{ t('map.possibleLoot') }}
         </div>
         <div class="mx-5 mb-5 pt-3 opacity-60">
-          <v-row v-for="(i,index) in Object.entries(selectedLocationData.possibleLoot)" :key="index" align="center" no-gutters>
+          <v-row v-for="(i,index) in Object.entries(selectedLocationData.possibleLoot)" :key="index" align="center" no-gutters class="mb-1">
             <v-col cols="auto" class="mr-2">
-              <ItemSlotBase :size="`30px`">
-                <MaterialIconWidget :id="i[0]"></MaterialIconWidget>
+              <ItemSlotBase :size="`30px`" :padding="0">
+                <template v-if="i[1]['category'] == 'material'">
+                  <MaterialIconWidget :id="i[0]"></MaterialIconWidget>
+                </template>
+                <template v-if="i[1]['category'] == 'commoditie'">
+                  <CommoditieIconWidget :id="i[0]"></CommoditieIconWidget>
+                </template>
+                <template v-if="i[1]['category'] == 'item'">
+                  <ItemIconWidget :id="i[0]"></ItemIconWidget>
+                </template>
               </ItemSlotBase>
             </v-col>
             <v-col cols="auto">
-              <MaterialNameRarity :id="i[0]">
-                <MaterialName :id="i[0]"></MaterialName>
-              </MaterialNameRarity>
+              <template v-if="i[1]['category'] == 'material'">
+                <MaterialNameRarity :id="i[0]">
+                  <MaterialName :id="i[0]"></MaterialName>
+                </MaterialNameRarity>
+              </template>
+              <template v-if="i[1]['category'] == 'commoditie'">
+                <CommoditieName :id="i[0]"></CommoditieName>
+              </template>
+              <template v-if="i[1]['category'] == 'item'">
+                <ItemNameRarity :id="i[0]">
+                  <ItemName :id="i[0]"></ItemName>
+                </ItemNameRarity>
+              </template>
             </v-col>
             <v-col class="text-right">
-              {{ i[1] || 0 }}
+              {{ i[1]['lv'] }}
             </v-col>
           </v-row>
         </div>
@@ -403,6 +421,11 @@ import FactionNameWidget from "@/components/snbWidget/factionNameWidget.vue";
 import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
 import MaterialName from "@/components/snbWidget/materialName.vue";
 import MaterialNameRarity from "@/components/snbWidget/materialNameRarity.vue";
+import CommoditieIconWidget from "@/components/snbWidget/commoditieIconWidget.vue";
+import CommoditieName from "@/components/snbWidget/commoditieName.vue";
+import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
+import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
+import ItemName from "@/components/snbWidget/itemName.vue";
 
 const {t} = useI18n(),
     route = useRoute(),

@@ -14,6 +14,7 @@ import {useDisplay} from "vuetify/framework";
 import TreasureMapIconWidget from "@/components/snbWidget/treasureMapIconWidget.vue";
 import AppCodexNav from "@/assets/sripts/app_codex_nav";
 import {useAssetsStore} from "~/stores/assetsStore";
+import CommoditieIconWidget from "@/components/snbWidget/commoditieIconWidget.vue";
 
 const codexImages = import.meta.glob('@/assets/images/snb/codexIcons/*', {eager: true})
 
@@ -76,8 +77,9 @@ const onCleaningHistory = () => {
         <v-row>
           <v-col cols="auto" v-for="(i,index) in codexHistorys" :key="index">
             <ItemSlotBase size="120px">
-              <ItemIconWidget :id="i.id" v-if="i.category == 'item'"></ItemIconWidget>
               <ShipIconWidget :id="i.id" v-if="i.category == 'ship'"></ShipIconWidget>
+              <ItemIconWidget :id="i.id" v-if="i.category == 'item'"></ItemIconWidget>
+              <CommoditieIconWidget :id="i.id" v-if="i.category == 'commoditie'"></CommoditieIconWidget>
               <UltimateIconWidget :id="i.id" v-if="i.category == 'ultimate'"></UltimateIconWidget>
               <MaterialIconWidget :id="i.id" v-if="i.category == 'material'"></MaterialIconWidget>
               <TreasureMapIconWidget :id="i.id" v-if="i.category == 'map'"></TreasureMapIconWidget>

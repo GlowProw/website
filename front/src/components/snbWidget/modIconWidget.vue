@@ -10,12 +10,15 @@ const
       isClickOpenDetail?: boolean,
       isShowOpenDetail?: boolean,
       isShowDescription?: boolean,
+      margin?: number,
+      padding?: number
     }>(), {
       id: 'dhow',
       isClickOpenDetail: true,
       isShowOpenDetail: true,
       isShowDescription: true,
-      padding: 3
+      margin: 1,
+      padding: 1
     }),
     {t} = useI18n()
 
@@ -53,14 +56,14 @@ const onReady = async () => {
 
 <template>
   <v-card
-      tile
-      border
-      variant="text"
       :to="isClickOpenDetail ? `/codex/mod/${id}` : ''"
-      :class="`pa-${props.padding} cursor-pointer`"
       target="_blank"
-      height="100%"
-      width="100%">
+      width="100%"
+      :class="[
+          'prohibit-drag',
+          `ma-${props.margin}`,
+          `pa-${props.padding}`,
+      ]">
     <template v-if="modsData.icon">
       <v-img :src="modsData.icon" class="pointer-events-none"></v-img>
     </template>

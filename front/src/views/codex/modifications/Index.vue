@@ -10,7 +10,6 @@ const {t} = useI18n()
 <template>
   <v-container class="pa-5">
     <CodexViewData load-data-type="modification"></CodexViewData>
-
   </v-container>
 </template>
 

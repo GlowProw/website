@@ -21,11 +21,15 @@ const props = withDefaults(defineProps<{
       isShowTooltip?: boolean,
       imageType?: string,
       size?: string | number,
+      padding?: number,
+      margin?: number
     }>(), {
       isShowOpenDetail: true,
       isOpenDetail: true,
       isShowTooltip: true,
-      size: 20
+      size: 20,
+      padding: 1,
+      margin: 1
     }),
     {t} = useI18n(),
     {materials: materialsAssets, raritys: raritysAssets} = useAssetsStore(),
@@ -84,7 +88,7 @@ const onReady = async () => {
           <v-img :src="raritysAssets[`item-rarity-${i?.rarity}`]" width="100%" height="100%" class="opacity-30 prohibit-drag"/>
         </template>
 
-        <div>
+        <div class="d-flex justify-center align-center">
           <v-img
               class="prohibit-drag"
               :src="materialsCardData.icon" cover width="100%" height="100%">

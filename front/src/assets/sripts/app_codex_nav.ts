@@ -153,7 +153,7 @@ export default class AppCodexNav {
                 {
                     title: 'codex.navs.theHelmItems.name',
                     value: 'theHelmItems',
-                    to: '/codex/items?type=tool'
+                    to: '/codex/commodities?type=theHelm'
                 },
             ]
         }

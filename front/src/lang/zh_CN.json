@@ -149,6 +149,14 @@
     "cabinetHistoryTitle": "游览历史",
     "more": "更多",
     "sidebar": "侧边栏",
+    "filter": {
+      "bySeason": "赛季筛选",
+      "sortBy": "排序",
+      "dateAdded": "添加时间",
+      "lastUpdated": "更新时间",
+      "descending": "正序",
+      "ascending": "反序"
+    },
     "size": {
       "extraSmall": "超小型",
       "small": "小型",
@@ -521,13 +529,13 @@
     "type": {
       "none": "未知",
       "den": "大据点",
-      "megafort": "超级堡垒",
+      "megafort": "大型要塞",
       "shareLocation": "分享位置",
       "outpost": "前哨站",
       "foundry": "铸造厂",
       "capitalSettlement": "首府定居点",
       "lumberyard": "木材厂",
-      "militaryBase": "军事基地"
+      "militaryBase": "军营"
     }
   },
   "rankingDesignedItems": {

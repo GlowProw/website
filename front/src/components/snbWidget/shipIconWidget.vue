@@ -13,6 +13,7 @@ import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import EmptyView from "../EmptyView.vue";
 import PerksWidget from "./perksWidget.vue";
 import ShipDescription from "@/components/snbWidget/shipDescription.vue";
+import {number} from "@/assets/sripts/index";
 
 const props = withDefaults(defineProps<{
       id: string,
@@ -21,13 +22,15 @@ const props = withDefaults(defineProps<{
       isShowDescription?: boolean,
       isShowTooltip?: boolean,
       padding?: number
+      margin?: number
     }>(), {
       id: 'dhow',
       isClickOpenDetail: true,
       isShowOpenDetail: true,
       isShowDescription: true,
       isShowTooltip: true,
-      padding: 3
+      padding: 1,
+      margin: 1
     }),
     ships: Ships = Ships,
     router = useRouter(),
@@ -75,13 +78,13 @@ const onReady = async () => {
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
           v-bind="activatorProps"
-          tile
-          border
-          variant="text"
+          width="100%"
           :to="isClickOpenDetail ? `/codex/ship/${id}` : ''"
-          :class="`pa-${props.padding} cursor-pointer`"
-          height="100%"
-          width="100%">
+          :class="[
+              'prohibit-drag',
+              `ma-${props.margin}`,
+              `pa-${props.padding}`,
+          ]">
         <v-img :src="shipCardData.icon" class="pointer-events-none prohibit-drag"></v-img>
       </v-card>
     </template>

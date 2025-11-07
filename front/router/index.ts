@@ -506,6 +506,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
         name: 'map',
         redirect: '/map/view',
         component: MapsPage,
+        beforeEnter: initItemAssets,
         children: [
             {
                 path: 'view',

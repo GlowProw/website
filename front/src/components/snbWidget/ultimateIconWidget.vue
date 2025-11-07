@@ -8,13 +8,15 @@ const props = withDefaults(defineProps<{
   isClickOpenDetail?: boolean,
   isShowOpenDetail?: boolean,
   isShowDescription?: boolean,
+  margin?: number,
   padding?: number
 }>(), {
   id: 'dhow',
   isClickOpenDetail: true,
   isShowOpenDetail: true,
   isShowDescription: true,
-  padding: 3
+  margin: 1,
+  padding: 1
 })
 
 let ultimatesData = ref({
@@ -55,13 +57,13 @@ const onReady = async () => {
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
           v-bind="activatorProps"
-          tile
-          border
-          variant="text"
           :to="isClickOpenDetail ? `/codex/ultimate/${id}` : ''"
-          :class="`pa-${props.padding} cursor-pointer`"
-          height="100%"
-          width="100%">
+          width="100%"
+          :class="[
+              'prohibit-drag',
+              `ma-${props.margin}`,
+              `pa-${props.padding}`,
+          ]">
         <v-img :src="ultimatesData.images[props.id]" class="pointer-events-none"></v-img>
       </v-card>
     </template>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import {Items} from "glow-prow-data/src/entity/Items.ts";
 import {useI18n} from "vue-i18n";
 import Loading from "@/components/Loading.vue";
@@ -28,6 +28,8 @@ import CommoditieIconWidget from "@/components/snbWidget/commoditieIconWidget.vu
 import CommoditieName from "@/components/snbWidget/commoditieName.vue";
 
 type LoadDataType = 'ship' | 'item' | 'commoditie' | 'material' | 'ultimate' | 'cosmetic' | 'modification'
+type SortField = 'dateAdded' | 'lastUpdated'
+type SortOrder = 'asc' | 'desc'
 
 const
     props = withDefaults(defineProps<{ loadDataType: LoadDataType }>(), {
@@ -53,9 +55,13 @@ let data: any = ref([]),
       types: [],
       keyValue: '',
       tags: [],
+      seasons: [],
+      seasonTags: [],
       inputWidgetKeyValue: '',
       page: 1,
-      limit: 50
+      limit: 50,
+      sortField: 'dateAdded' as SortField,
+      sortOrder: 'desc' as SortOrder
     }),
     // 类型筛选器可选选项
     typeFilterAvailableOptions = computed(() => [
@@ -63,7 +69,23 @@ let data: any = ref([]),
         value: tag,
         text: t(`codex.type.${tag}`)
       }))
-    ])
+    ]),
+    // 赛季筛选器可选选项
+    seasonFilterAvailableOptions = computed(() => [
+      ...filterData.value.seasonTags.map(season => ({
+        value: season,
+        text: t(`snb.seasons.${season}`)
+      }))
+    ]),
+    // 检查是否有活跃的筛选条件
+    hasActiveFilters = computed(() => {
+      return filterData.value.types.length > 0 ||
+          filterData.value.seasons.length > 0 ||
+          filterData.value.sortField !== 'dateAdded' ||
+          filterData.value.sortOrder !== 'desc' ||
+          filterData.value.keyValue !== '' ||
+          filterData.value.inputWidgetKeyValue !== '';
+    })
 
 /**
  * 处理数据
@@ -72,10 +94,10 @@ const onProcessedData = computed(() => {
       let d = originalData.value;
       let searchValue = filterData.value.keyValue.toLowerCase();
       let filterItemTypes = filterData.value.types;
+      let filterSeasons = filterData.value.seasons;
 
       const filteredData = d.filter(i => {
         // 检查关键词匹配
-
         const nameMatch = asString([
           i.id,
           `snb.ships.${i.id}.name`,
@@ -105,15 +127,44 @@ const onProcessedData = computed(() => {
         // 检查类型匹配
         const typeMatch = filterItemTypes.length === 0 || filterItemTypes.includes(i.type) || filterItemTypes.includes(i.category);
 
-        // 返回同时满足关键词和类型条件的项目
-        return (nameMatch || idMatch) && typeMatch;
+        // 检查赛季匹配
+        const seasonMatch = filterSeasons.length === 0 ||
+            (i.bySeason && filterSeasons.includes(i.bySeason.id)) ||
+            (i.seasons && i.seasons.some((s: string) => filterSeasons.includes(s)));
+
+        // 返回同时满足关键词、类型和赛季条件的项目
+        return (nameMatch || idMatch) && typeMatch && seasonMatch;
+      });
+
+      // 排序
+      const sortedData = filteredData.sort((a, b) => {
+        const field = filterData.value.sortField;
+        const order = filterData.value.sortOrder;
+
+        let aValue = a[field];
+        let bValue = b[field];
+
+        // 处理日期排序
+        if (field === 'dateAdded' || field === 'lastUpdated') {
+          aValue = aValue ? new Date(aValue).getTime() : 0;
+          bValue = bValue ? new Date(bValue).getTime() : 0;
+        }
+
+        // 处理空值
+        if (!aValue && !bValue) return 0;
+        if (!aValue) return order === 'asc' ? -1 : 1;
+        if (!bValue) return order === 'asc' ? 1 : -1;
+
+        if (aValue < bValue) return order === 'asc' ? -1 : 1;
+        if (aValue > bValue) return order === 'asc' ? 1 : -1;
+        return 0;
       });
 
       if (isSearching.value)
-        exceedingItemsCount.value = Math.max(filteredData.length - maximumSearchCount, 0);
-      return isSearching.value ? filteredData.slice(0, maximumSearchCount) : filteredData;
+        exceedingItemsCount.value = Math.max(sortedData.length - maximumSearchCount, 0);
+      return isSearching.value ? sortedData.slice(0, maximumSearchCount) : sortedData;
     }),
-    maximumSearchCount = route.query.debug ? 10000 : 50,
+    maximumSearchCount = route.query.debug ? 10000 : 100,
     originalData = computed(() => {
       let d = []
       switch (props.loadDataType) {
@@ -143,17 +194,29 @@ const onProcessedData = computed(() => {
     }),
     isSearching = computed(() => !!(filterData.value.keyValue)),
     isType = computed(() => filterData.value.types.length > 0),
+    isSeason = computed(() => filterData.value.seasons.length > 0),
     // 否应该显示无限滚动
-    isShouldShowInfiniteScroll = computed(() => !isSearching.value && !isType.value)
+    isShouldShowInfiniteScroll = computed(() => !isSearching.value && !isType.value && !isSeason.value)
+
+// 监听路由变化，同步query到筛选条件
+watch(() => route.query, (newQuery) => {
+  if (newQuery.type) {
+    filterData.value.types = Array.isArray(newQuery.type) ? newQuery.type : newQuery.type.split(',');
+  }
+  if (newQuery.season) {
+    filterData.value.seasons = Array.isArray(newQuery.season) ? newQuery.season : newQuery.season.split(',');
+  }
+  if (newQuery.sortField) {
+    filterData.value.sortField = newQuery.sortField as SortField;
+  }
+  if (newQuery.sortOrder) {
+    filterData.value.sortOrder = newQuery.sortOrder as SortOrder;
+  }
+}, { immediate: true });
 
 onMounted(() => {
-  const {type} = route.query
-
-  if (type) {
-    filterData.value.types = type.split(',')
-  }
-
   onInitTagLoad()
+  onInitSeasonLoad()
 })
 
 /**
@@ -161,8 +224,66 @@ onMounted(() => {
  */
 const onInitTagLoad = () => {
   let d = originalData.value
-
   filterData.value.tags = [...new Set(d.map(i => i.type || i.category))]
+}
+
+/**
+ * 初始筛选可选赛季选项
+ */
+const onInitSeasonLoad = () => {
+  let d = originalData.value
+  const allSeasons = new Set<string>();
+
+  d.forEach(i => {
+    if (i.bySeason) {
+      allSeasons.add(i.bySeason.id);
+    }
+  });
+
+  filterData.value.seasonTags = [...allSeasons].sort();
+}
+
+/**
+ * 更新URL查询参数
+ */
+const updateQueryParams = () => {
+  const query: any = {};
+
+  if (filterData.value.types.length > 0) {
+    query.type = filterData.value.types.join(',');
+  }
+  if (filterData.value.seasons.length > 0) {
+    query.season = filterData.value.seasons.join(',');
+  }
+  if (filterData.value.sortField !== 'dateAdded') {
+    query.sortField = filterData.value.sortField;
+  }
+  if (filterData.value.sortOrder !== 'desc') {
+    query.sortOrder = filterData.value.sortOrder;
+  }
+
+  router.replace({
+    query: Object.keys(query).length > 0 ? query : undefined
+  });
+}
+
+/**
+ * 重置所有筛选条件
+ */
+const resetAllFilters = () => {
+  filterData.value.types = [];
+  filterData.value.seasons = [];
+  filterData.value.sortField = 'dateAdded';
+  filterData.value.sortOrder = 'desc';
+  filterData.value.keyValue = '';
+  filterData.value.inputWidgetKeyValue = '';
+
+  // 重置分页数据
+  data.value = [];
+  filterData.value.page = 1;
+
+  // 更新URL
+  updateQueryParams();
 }
 
 /**
@@ -170,8 +291,8 @@ const onInitTagLoad = () => {
  * @param done
  */
 const onLoad = ({done}) => {
-  // 如果正在搜索或筛选类型，直接返回空
-  if (isSearching.value || isType.value) {
+  // 如果正在搜索或筛选类型或赛季，直接返回空
+  if (isSearching.value || isType.value || isSeason.value) {
     done('empty')
     return
   }
@@ -179,7 +300,6 @@ const onLoad = ({done}) => {
   const allData = originalData.value;
   const startIndex = (filterData.value.page - 1) * filterData.value.limit;
   const endIndex = startIndex + filterData.value.limit;
-
 
   // 确保不会超出数组范围
   if (startIndex >= allData.length) {
@@ -214,10 +334,32 @@ const onSearchItem = () => {
  */
 const onFilterItemType = (value) => {
   filterData.value.types = value;
+  updateQueryParams();
   // 类型筛选时重置分页数据
   if (value.length > 0) {
     data.value = []
   }
+}
+
+/**
+ * 过滤赛季
+ */
+const onFilterSeason = (value) => {
+  filterData.value.seasons = value;
+  updateQueryParams();
+  // 赛季筛选时重置分页数据
+  if (value.length > 0) {
+    data.value = []
+  }
+}
+
+/**
+ * 排序
+ */
+const onSort = (field: SortField, order: SortOrder) => {
+  filterData.value.sortField = field;
+  filterData.value.sortOrder = order;
+  updateQueryParams();
 }
 </script>
 
@@ -243,12 +385,16 @@ const onFilterItemType = (value) => {
         <v-menu open-on-click :close-on-content-click="false">
           <template v-slot:activator="{ props }">
             <div v-bind="props">
-              <v-icon>mdi-filter</v-icon>
+              <v-icon>{{ hasActiveFilters ? 'mdi-filter' : 'mdi-filter-outline' }}</v-icon>
               <v-icon>mdi-dots-vertical</v-icon>
             </div>
           </template>
 
           <v-card border class="pa-5" :min-width="mobile ? '100%' : 300" :width="mobile ? '100%' : 400">
+            <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 mt-n5">
+              <v-icon size="80">{{ hasActiveFilters ? 'mdi-filter' : 'mdi-filter-outline' }}</v-icon>
+            </v-card-title>
+
             <v-row>
               <v-col cols="12">
                 <div class="mb-2">{{ t('assembly.workshop.filter.byType') }}</div>
@@ -270,7 +416,80 @@ const onFilterItemType = (value) => {
                     clearable
                 ></v-select>
               </v-col>
+
+              <v-col cols="12">
+                <div class="mb-2">{{ t('codex.filter.bySeason') }}</div>
+                <v-select
+                    variant="filled"
+                    @update:model-value="onFilterSeason"
+                    item-value="value"
+                    item-title="text"
+                    density="comfortable"
+                    v-model="filterData.seasons"
+                    :placeholder="t('codex.filter.bySeason')"
+                    :counter="3"
+                    :eager="false"
+                    :glow="false"
+                    :items="seasonFilterAvailableOptions"
+                    hide-details
+                    multiple
+                    chips
+                    clearable
+                ></v-select>
+              </v-col>
+
+              <v-col cols="12">
+                <div class="mb-2">{{ t('codex.filter.sortBy') }}</div>
+                <v-row>
+                  <v-col cols="6">
+                    <v-select
+                        variant="filled"
+                        @update:model-value="onSort(filterData.sortField, filterData.sortOrder)"
+                        item-value="value"
+                        item-title="text"
+                        density="comfortable"
+                        v-model="filterData.sortField"
+                        :items="[
+                          { value: 'dateAdded', text: t('codex.filter.dateAdded') },
+                          { value: 'lastUpdated', text: t('codex.filter.lastUpdated') }
+                        ]"
+                        hide-details
+                    ></v-select>
+                  </v-col>
+                  <v-col cols="6">
+                    <v-select
+                        variant="filled"
+                        @update:model-value="onSort(filterData.sortField, filterData.sortOrder)"
+                        item-value="value"
+                        item-title="text"
+                        density="comfortable"
+                        v-model="filterData.sortOrder"
+                        :items="[
+                          { value: 'desc', text: t('codex.filter.descending') },
+                          { value: 'asc', text: t('codex.filter.ascending') }
+                        ]"
+                        hide-details
+                    ></v-select>
+                  </v-col>
+                </v-row>
+              </v-col>
             </v-row>
+
+            <v-card-actions class="mx-n4 mt-4 px-4">
+              <v-row>
+                <v-spacer></v-spacer>
+                <v-col cols="auto" class="text-right">
+                  <v-btn
+                      @click="resetAllFilters"
+                      variant="outlined"
+                      color="error"
+                      :disabled="!hasActiveFilters"
+                      prepend-icon="mdi-refresh">
+                    {{ t('basic.button.reset') }}
+                  </v-btn>
+                </v-col>
+              </v-row>
+            </v-card-actions>
           </v-card>
         </v-menu>
       </v-col>
@@ -366,7 +585,6 @@ const onFilterItemType = (value) => {
       </div>
     </template>
     <!-- 空状态显示 E -->
-
   </div>
 </template>
 
