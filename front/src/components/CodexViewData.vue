@@ -89,14 +89,14 @@ let data: any = ref([]),
     typeFilterAvailableOptions = computed(() => [
       ...filterData.value.typeTags.map(tag => ({
         value: tag,
-        text: asString([`codex.types.${tag}`, `map.type.${tag}`], {backRawKey: true, variable: tag})
+        text: asString([`codex.types.${tag}`], {backRawKey: true, variable: tag})
       }))
     ]),
     // 类别 筛选器可选选项
     categoryFilterAvailableOptions = computed(() => [
       ...filterData.value.categoryTags.map(tag => ({
         value: tag,
-        text: asString([`codex.categorys.${tag}`], {backRawKey: true, variable: tag})
+        text: asString([`codex.categorys.${tag}`, `map.types.${tag}`], {backRawKey: true, variable: tag})
       }))
     ]),
     // 稀有度筛选器可选选项

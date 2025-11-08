@@ -1,5 +1,3 @@
-import {Commodity} from "../../../../../glow-prow-data";
-
 /**
  * 手稿导航
  */
