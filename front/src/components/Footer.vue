@@ -36,6 +36,15 @@ const {t} = useI18n();
                       {{ t(fun.title) }}
                     </HtmlLink>
                   </li>
+                  <v-divider class="my-3"></v-divider>
+                  <li>
+                    <HtmlLink
+                        :is-icon="false"
+                        :is-iframe-show="false"
+                        href="/search" target="_blank">
+                      {{ t('search.title') }}
+                    </HtmlLink>
+                  </li>
                 </ul>
               </v-col>
               <v-col cols="12" sm="6" md="6" lg="3">
@@ -55,6 +64,14 @@ const {t} = useI18n();
                       {{ t('footer.col2.baiduTieBa') }}
                     </HtmlLink>
                   </li>
+                  <li>
+                    <HtmlLink
+                        :is-iframe-show="false"
+                        href="https://www.xiaoheihe.cn/app/bbs/link/160752071" target="_blank">
+                      {{ t('footer.col2.xiaoheihe') }}
+                    </HtmlLink>
+                  </li>
+
                 </ul>
               </v-col>
               <v-col cols="12" sm="6" md="6" lg="3">

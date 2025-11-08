@@ -15,6 +15,7 @@ import TreasureMapIconWidget from "@/components/snbWidget/treasureMapIconWidget.
 import AppCodexNav from "@/assets/sripts/app_codex_nav";
 import {useAssetsStore} from "~/stores/assetsStore";
 import CommoditieIconWidget from "@/components/snbWidget/commoditieIconWidget.vue";
+import MapLocationIconWidget from "@/components/snbWidget/mapLocationIconWidget.vue";
 
 const codexImages = import.meta.glob('@/assets/images/snb/codexIcons/*', {eager: true})
 
@@ -58,7 +59,7 @@ const onCleaningHistory = () => {
 </script>
 
 <template>
-  <div class="mb-10 py-5 overview">
+  <div class="mb-10 overview">
     <v-row class="fill-height" no-gutters>
       <!-- 游览历史 S -->
       <div class="w-100 mb-10" v-if="codexHistorys.length > 0">
@@ -82,7 +83,8 @@ const onCleaningHistory = () => {
               <CommoditieIconWidget :id="i.id" v-if="i.category == 'commoditie'"></CommoditieIconWidget>
               <UltimateIconWidget :id="i.id" v-if="i.category == 'ultimate'"></UltimateIconWidget>
               <MaterialIconWidget :id="i.id" v-if="i.category == 'material'"></MaterialIconWidget>
-              <TreasureMapIconWidget :id="i.id" v-if="i.category == 'map'"></TreasureMapIconWidget>
+              <MapLocationIconWidget :id="i.id" v-if="i.category == 'mapLocation'"></MapLocationIconWidget>
+              <TreasureMapIconWidget :id="i.id" v-if="i.category == 'treasureMap'"></TreasureMapIconWidget>
               <CosmeticIconWidget :id="i.id" v-if="i.category == 'cosmetic'"></CosmeticIconWidget>
               <ModIconWidget :id="i.id" v-if="i.category == 'mod'"></ModIconWidget>
             </ItemSlotBase>

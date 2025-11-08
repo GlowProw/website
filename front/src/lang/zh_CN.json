@@ -150,6 +150,9 @@
     "more": "更多",
     "sidebar": "侧边栏",
     "filter": {
+      "byType": "类型筛选",
+      "byRarity": "品质筛选",
+      "byCategory": "类别筛选",
       "bySeason": "赛季筛选",
       "sortBy": "排序",
       "dateAdded": "添加时间",
@@ -164,14 +167,15 @@
       "large": "大型"
     },
     "rarity": {
+      "none": "未知",
       "common": "常见",
       "uncommon": "不常见",
       "rare": "少见",
       "epic": "史诗",
       "legendary": "传奇"
     },
-    "type": {
-      "undefined": "无分类",
+    "types": {
+      "none": "无类型",
       "ships": "船只",
       "consumable": "消耗品",
       "ammunition": "弹药",
@@ -194,20 +198,8 @@
       "shipUpgrade": "升级部件",
       "quest": "任务",
       "contract": "合同",
-      "specialized": "特殊",
-      "localFaction": "当地阵营杂货",
-      "megacorp": "超巨公司杂货",
-      "kingpin": "头目杂货",
-      "theHelm": "海舵社杂货",
-      "summoningBell": "召唤",
-      "unique": "独特的",
-      "event": "事件",
-      "refined": "精炼",
-      "currency": "货币",
-      "helm": "掌舵",
-      "scrap": "废弃材料",
-      "raw": "原材料",
-      "exotic": "奇异",
+
+
       "sailsEmblem": "船帆徽章",
       "hull": "船体",
       "sailsColor": "船帆颜色",
@@ -251,6 +243,24 @@
     "tier": "{num}级",
     "category": {
       "title": "分类"
+    },
+    "categorys": {
+      "none": "无类别",
+      "localFaction": "当地阵营杂货",
+      "megacorp": "超巨公司杂货",
+      "kingpin": "头目杂货",
+      "theHelm": "海舵社杂货",
+      "summoningBell": "召唤",
+      "unique": "独特的",
+      "event": "事件",
+
+      "refined": "精炼",
+      "specialized": "特殊",
+      "currency": "货币",
+      "helm": "掌舵",
+      "scrap": "废弃材料",
+      "raw": "原材料",
+      "exotic": "奇异"
     },
     "navs": {
       "shipsAndCaptainTools": {
@@ -526,7 +536,7 @@
     "hideAll": "隐藏所有",
     "showAll": "显示所有",
     "typeTitle": "类型",
-    "type": {
+    "types": {
       "none": "未知",
       "den": "大据点",
       "megafort": "大型要塞",
@@ -754,6 +764,9 @@
     "dateAdded": "创建时间",
     "lastUpdated": "更新时间"
   },
+  "search": {
+    "title": "搜索"
+  },
   "header": {
     "navs": {
       "blog": "闪耀船首博客",
@@ -813,7 +826,8 @@
     },
     "col2": {
       "title": "社区",
-      "baiduTieBa": "百度贴吧",
+      "baiduTieBa": "百度贴吧闪耀船首贴子",
+      "xiaoheihe": "小黑盒闪耀船首贴子",
       "kook": "Kook社区"
     },
     "col3": {

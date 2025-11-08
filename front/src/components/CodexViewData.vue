@@ -33,6 +33,7 @@ import TreasureMapIconWidget from "@/components/snbWidget/treasureMapIconWidget.
 import MapLocationIconWidget from "@/components/snbWidget/mapLocationIconWidget.vue";
 import TreasureMapName from "@/components/snbWidget/treasureMapName.vue";
 import MapLocationNameWidget from "@/components/snbWidget/mapLocationNameWidget.vue";
+import {rarity} from "@/assets/sripts/index";
 
 type LoadDataType = 'ship' | 'item' | 'commoditie' | 'material' | 'ultimate' | 'cosmetic' | 'modification' | 'treasureMaps' | 'mapLocation'
 type SortField = 'dateAdded' | 'lastUpdated'
@@ -56,6 +57,9 @@ const
     treasureMaps = TreasureMaps,
     mapLocation = MapLocations,
 
+    // 稀有度
+    rarityColorConfig = rarity.color,
+
     route = useRoute(),
     router = useRouter(),
     {t} = useI18n(),
@@ -66,9 +70,13 @@ let data: any = ref([]),
     exceedingItemsCount = ref(0),
     // 筛选
     filterData = ref({
-      types: [],
       keyValue: '',
-      tags: [],
+      types: [],
+      typeTags: [],
+      categorys: [],
+      categoryTags: [],
+      rarities: [],
+      rarityTags: [],
       seasons: [],
       seasonTags: [],
       inputWidgetKeyValue: '',
@@ -77,11 +85,25 @@ let data: any = ref([]),
       sortField: 'dateAdded' as SortField,
       sortOrder: 'desc' as SortOrder
     }),
-    // 类型筛选器可选选项
+    // 类型 筛选器可选选项
     typeFilterAvailableOptions = computed(() => [
-      ...filterData.value.tags.map(tag => ({
+      ...filterData.value.typeTags.map(tag => ({
         value: tag,
-        text: asString([`codex.type.${tag}`, `map.type.${tag}`], {backRawKey: true, variable: tag})
+        text: asString([`codex.types.${tag}`, `map.type.${tag}`], {backRawKey: true, variable: tag})
+      }))
+    ]),
+    // 类别 筛选器可选选项
+    categoryFilterAvailableOptions = computed(() => [
+      ...filterData.value.categoryTags.map(tag => ({
+        value: tag,
+        text: asString([`codex.categorys.${tag}`], {backRawKey: true, variable: tag})
+      }))
+    ]),
+    // 稀有度筛选器可选选项
+    rarityFilterAvailableOptions = computed(() => [
+      ...filterData.value.rarityTags.map(rarity => ({
+        value: rarity,
+        text: asString([`codex.rarity.${rarity}`], {backRawKey: true, variable: rarity})
       }))
     ]),
     // 赛季筛选器可选选项
@@ -94,6 +116,8 @@ let data: any = ref([]),
     // 检查是否有活跃的筛选条件
     hasActiveFilters = computed(() => {
       return filterData.value.types.length > 0 ||
+          filterData.value.categorys.length > 0 ||
+          filterData.value.rarities.length > 0 ||
           filterData.value.seasons.length > 0 ||
           filterData.value.sortField !== 'dateAdded' ||
           filterData.value.sortOrder !== 'desc' ||
@@ -108,6 +132,8 @@ const onProcessedData = computed(() => {
       let d = originalData.value;
       let searchValue = filterData.value.keyValue.toLowerCase();
       let filterItemTypes = filterData.value.types;
+      let filterItemCategorys = filterData.value.categorys;
+      let filterRarities = filterData.value.rarities;
       let filterSeasons = filterData.value.seasons;
 
       const filteredData = d.filter(i => {
@@ -136,20 +162,23 @@ const onProcessedData = computed(() => {
           `snb.modifications.${sanitizeString(i.id).cleaned}.name`,
 
         ], {
-          backRawKey: false
+          backRawKey: true
         }).toLowerCase().indexOf(searchValue) >= 0;
+
         const idMatch = i.id.toLowerCase().indexOf(searchValue) >= 0;
 
-        // 检查类型匹配
-        const typeMatch = filterItemTypes.length === 0 || filterItemTypes.includes(i.type) || filterItemTypes.includes(i.category);
+        // 检查类型、类别和稀有度匹配
+        const typeMatch = filterItemTypes.length === 0 || filterItemTypes.includes(i.type)
+        const categoryMatch = filterItemCategorys.length === 0 || filterItemCategorys.includes(i.category);
+        const rarityMatch = filterRarities.length === 0 || filterRarities.includes(i.rarity);
 
         // 检查赛季匹配
         const seasonMatch = filterSeasons.length === 0 ||
             (i.bySeason && filterSeasons.includes(i.bySeason.id)) ||
             (i.seasons && i.seasons.some((s: string) => filterSeasons.includes(s)));
 
-        // 返回同时满足关键词、类型和赛季条件的项目
-        return (nameMatch || idMatch) && typeMatch && seasonMatch;
+        // 返回同时满足关键词、类型、稀有度和赛季条件的项目
+        return (nameMatch || idMatch) && typeMatch && categoryMatch && rarityMatch && seasonMatch;
       });
 
       // 排序
@@ -218,14 +247,22 @@ const onProcessedData = computed(() => {
     }),
     isSearching = computed(() => !!(filterData.value.keyValue)),
     isType = computed(() => filterData.value.types.length > 0),
+    isCategory = computed(() => filterData.value.categorys.length > 0),
+    isRarity = computed(() => filterData.value.rarities.length > 0),
     isSeason = computed(() => filterData.value.seasons.length > 0),
     // 否应该显示无限滚动
-    isShouldShowInfiniteScroll = computed(() => !isSearching.value && !isType.value && !isSeason.value)
+    isShouldShowInfiniteScroll = computed(() => !isSearching.value && !isType.value && !isCategory.value && !isRarity.value && !isSeason.value)
 
 // 监听路由变化，同步query到筛选条件
 watch(() => route.query, (newQuery) => {
   if (newQuery.type) {
     filterData.value.types = Array.isArray(newQuery.type) ? newQuery.type : newQuery.type.split(',');
+  }
+  if (newQuery.category) {
+    filterData.value.categorys = Array.isArray(newQuery.category) ? newQuery.category : newQuery.category.split(',');
+  }
+  if (newQuery.rarity) {
+    filterData.value.rarities = Array.isArray(newQuery.rarity) ? newQuery.rarity : newQuery.rarity.split(',');
   }
   if (newQuery.season) {
     filterData.value.seasons = Array.isArray(newQuery.season) ? newQuery.season : newQuery.season.split(',');
@@ -239,16 +276,34 @@ watch(() => route.query, (newQuery) => {
 }, {immediate: true});
 
 onMounted(() => {
-  onInitTagLoad()
+  onInitTypeLoad()
+  onInitCategoryLoad()
+  onInitRarityLoad()
   onInitSeasonLoad()
 })
 
 /**
- * 初始筛选可选标签选项
+ * 初始筛选可选 类型 标签选项
  */
-const onInitTagLoad = () => {
+const onInitTypeLoad = () => {
   let d = originalData.value
-  filterData.value.tags = [...new Set(d.map(i => i.type || i.category))]
+  filterData.value.typeTags = [...new Set(d.map(i => i.type || 'none'))]
+}
+
+/**
+ * 初始筛选可选 类别 标签选项
+ */
+const onInitCategoryLoad = () => {
+  let d = originalData.value
+  filterData.value.categoryTags = [...new Set(d.map(i => i.category || 'none'))]
+}
+
+/**
+ * 初始筛选可选 稀有度 标签选项
+ */
+const onInitRarityLoad = () => {
+  let d = originalData.value
+  filterData.value.rarityTags = [...new Set(d.map(i => i.rarity || 'none'))]
 }
 
 /**
@@ -276,6 +331,12 @@ const updateQueryParams = () => {
   if (filterData.value.types.length > 0) {
     query.type = filterData.value.types.join(',');
   }
+  if (filterData.value.categorys.length > 0) {
+    query.category = filterData.value.categorys.join(',');
+  }
+  if (filterData.value.rarities.length > 0) {
+    query.rarity = filterData.value.rarities.join(',');
+  }
   if (filterData.value.seasons.length > 0) {
     query.season = filterData.value.seasons.join(',');
   }
@@ -296,6 +357,8 @@ const updateQueryParams = () => {
  */
 const resetAllFilters = () => {
   filterData.value.types = [];
+  filterData.value.categorys = [];
+  filterData.value.rarities = [];
   filterData.value.seasons = [];
   filterData.value.sortField = 'dateAdded';
   filterData.value.sortOrder = 'desc';
@@ -315,8 +378,8 @@ const resetAllFilters = () => {
  * @param done
  */
 const onLoad = ({done}) => {
-  // 如果正在搜索或筛选类型或赛季，直接返回空
-  if (isSearching.value || isType.value || isSeason.value) {
+  // 如果正在搜索或筛选类型、类别、稀有度或赛季，直接返回空
+  if (isSearching.value || isType.value || isCategory.value || isRarity.value || isSeason.value) {
     done('empty')
     return
   }
@@ -354,12 +417,36 @@ const onSearchItem = () => {
 }
 
 /**
- * 过滤物品类型
+ * 过滤物品 类型
  */
 const onFilterItemType = (value) => {
   filterData.value.types = value;
   updateQueryParams();
   // 类型筛选时重置分页数据
+  if (value.length > 0) {
+    data.value = []
+  }
+}
+
+/**
+ * 过滤物品 类别
+ */
+const onFilterCategory = (value) => {
+  filterData.value.categorys = value;
+  updateQueryParams();
+  // 类别筛选时重置分页数据
+  if (value.length > 0) {
+    data.value = []
+  }
+}
+
+/**
+ * 过滤物品 稀有度
+ */
+const onFilterRarity = (value) => {
+  filterData.value.rarities = value;
+  updateQueryParams();
+  // 稀有度筛选时重置分页数据
   if (value.length > 0) {
     data.value = []
   }
@@ -414,14 +501,14 @@ const onSort = (field: SortField, order: SortOrder) => {
             </div>
           </template>
 
-          <v-card border class="pa-5" :min-width="mobile ? '100%' : 300" :width="mobile ? '100%' : 400">
+          <v-card border class="pa-5" :min-width="mobile ? '100%' : 350" :width="mobile ? '100%' : 480">
             <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 mt-n5">
               <v-icon size="80">{{ hasActiveFilters ? 'mdi-filter' : 'mdi-filter-outline' }}</v-icon>
             </v-card-title>
 
             <v-row>
               <v-col cols="12">
-                <div class="mb-2">{{ t('assembly.workshop.filter.byType') }}</div>
+                <div class="mb-2">{{ t('codex.filter.byType') }} ({{ typeFilterAvailableOptions.length || 0 }})</div>
                 <v-select
                     variant="filled"
                     @update:model-value="onFilterItemType"
@@ -429,7 +516,8 @@ const onSort = (field: SortField, order: SortOrder) => {
                     item-title="text"
                     density="comfortable"
                     v-model="filterData.types"
-                    :placeholder="t('assembly.workshop.filter.byType')"
+                    :disabled="typeFilterAvailableOptions.length == 0"
+                    :placeholder="t('codex.filter.byType')"
                     :counter="3"
                     :eager="false"
                     :glow="false"
@@ -441,6 +529,89 @@ const onSort = (field: SortField, order: SortOrder) => {
                 ></v-select>
               </v-col>
 
+              <v-col cols="12">
+                <div class="mb-2">{{ t('codex.filter.byCategory') }} ({{ categoryFilterAvailableOptions.length || 0 }})</div>
+                <v-select
+                    variant="filled"
+                    @update:model-value="onFilterCategory"
+                    item-value="value"
+                    item-title="text"
+                    density="comfortable"
+                    v-model="filterData.categorys"
+                    :disabled="categoryFilterAvailableOptions.length == 0"
+                    :placeholder="t('codex.filter.byCategory')"
+                    :counter="3"
+                    :eager="false"
+                    :glow="false"
+                    :items="categoryFilterAvailableOptions"
+                    hide-details
+                    multiple
+                    chips
+                    clearable
+                ></v-select>
+              </v-col>
+
+              <v-col cols="12">
+                <div class="mb-2">{{ t('codex.filter.byRarity') }} ({{ rarityFilterAvailableOptions.length || 0 }})</div>
+                <v-select
+                    variant="filled"
+                    @update:model-value="onFilterRarity"
+                    item-value="value"
+                    item-title="text"
+                    density="comfortable"
+                    v-model="filterData.rarities"
+                    :disabled="rarityFilterAvailableOptions.length == 0"
+                    :placeholder="t('codex.filter.byRarity')"
+                    :counter="3"
+                    :eager="false"
+                    :glow="false"
+                    :items="rarityFilterAvailableOptions"
+                    hide-details
+                    multiple
+                    chips
+                    clearable>
+                  <template v-slot:item="{ item, props }">
+                    <v-list-item
+                        v-bind="props"
+                        :style="`color: ${rarityColorConfig[item.value]}`">
+                      <template v-slot:prepend>
+                        <v-checkbox
+                            class="pa-0 ma-0"
+                            density="compact"
+                            hide-spin-buttons
+                            hide-details
+                            :model-value="filterData.rarities.includes(item.value)"
+                            @click.stop
+                        ></v-checkbox>
+                      </template>
+                    </v-list-item>
+                  </template>
+
+                  <template v-slot:selection="{ item, index }">
+                    <v-chip
+                        v-if="index < 2"
+                        :style="`color: ${rarityColorConfig[item.value]}; border-color: ${rarityColorConfig[item.value]}`"
+                        variant="outlined"
+                        size="small">
+                      {{ item.title }}
+                    </v-chip>
+                    <span
+                        v-if="index === 2"
+                        class="text-grey text-caption">
+                      +{{ filterData.rarities.length - 2 }} more
+                    </span>
+                  </template>
+
+                  <template v-slot:chip="{ item, index }">
+                    <v-chip
+                        :style="`color: ${rarityColorConfig[item.value]}; border-color: ${rarityColorConfig[item.value]}`"
+                        variant="tonal"
+                        size="small">
+                      {{ item.title }}
+                    </v-chip>
+                  </template>
+                </v-select>
+              </v-col>
               <v-col cols="12">
                 <div class="mb-2">{{ t('codex.filter.bySeason') }}</div>
                 <v-select

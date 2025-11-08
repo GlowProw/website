@@ -52,11 +52,6 @@ let commoditieDetailData: Ref<Commoditie | null> = ref(null),
 
       return Object.values(bluePrints[0]).map(i => t(`snb.locations.${i}`))
     }),
-    getCollectStatus = computed(() => {
-      if (!commoditieDetailData.value && !commoditieDetailData.value.id) return false;
-      isCollect.value = !isCollect.value;
-      return !!storageCollect.get(commoditieDetailData.value.id, StorageCollectType.Item).data
-    }),
 
     rarityColorConfig = rarity.color,
 
@@ -136,9 +131,9 @@ const onCodexHistory = () => {
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
       <v-breadcrumbs-item to="/codex">{{ t('codex.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item to="/codex/items">{{ t('codex.items.title') }}</v-breadcrumbs-item>
+      <v-breadcrumbs-item to="/codex/commodities">{{ t('codex.commodities.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item>{{ t('codex.item.title') }}</v-breadcrumbs-item>
+      <v-breadcrumbs-item>{{ t('codex.commoditie.title') }}</v-breadcrumbs-item>
     </v-container>
   </v-breadcrumbs>
   <v-divider></v-divider>

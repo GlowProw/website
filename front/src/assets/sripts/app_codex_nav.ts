@@ -70,12 +70,12 @@ export default class AppCodexNav {
                 {
                     title: 'codex.navs.offensiveFurnTure.name',
                     value: 'offensiveFurnTure',
-                    to: "/codex/items?type=offensiveFurnTure"
+                    to: "/codex/items?type=offensiveFurniture"
                 },
                 {
                     title: 'codex.navs.utilityFurnTure.name',
                     value: 'utilityFurnTure',
-                    to: "/codex/items?type=utilityFurnTure"
+                    to: "/codex/items?type=utilityFurniture"
                 },
             ]
         },
@@ -122,12 +122,12 @@ export default class AppCodexNav {
                 {
                     title: 'codex.navs.shipSupplies.name',
                     value: 'shipSupplies',
-                    to: '/codex/items?type=tool'
+                    to: '/codex/items?type=ammunition,consumable'
                 },
                 {
                     title: 'codex.navs.crewProvision.name',
                     value: 'crewProvision',
-                    to: '/codex/items?type=tool'
+                    to: '/codex/items?type=consumable'
                 },
             ]
         },
@@ -138,22 +138,22 @@ export default class AppCodexNav {
                 {
                     title: 'codex.navs.localFactionCommodities.name',
                     value: 'localFactionCommodities',
-                    to: '/codex/commodities?type=localFaction'
+                    to: '/codex/commodities?category=localFaction'
                 },
                 {
                     title: 'codex.navs.megaCorpCommodities.name',
                     value: 'megaCorpCommodities',
-                    to: '/codex/commodities?type=megacorp'
+                    to: '/codex/commodities?category=megacorp'
                 },
                 {
                     title: 'codex.navs.kingpinCommodities.name',
                     value: 'kingpinCommodities',
-                    to: '/codex/commodities?type=kingpin'
+                    to: '/codex/commodities?category=kingpin'
                 },
                 {
                     title: 'codex.navs.theHelmItems.name',
                     value: 'theHelmItems',
-                    to: '/codex/commodities?type=theHelm'
+                    to: '/codex/commodities?category=theHelm'
                 },
             ]
         }

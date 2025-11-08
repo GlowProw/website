@@ -4,12 +4,11 @@ import {useI18n} from "vue-i18n";
 import {onMounted, type Ref, ref, watch} from "vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useIntersectionObserver} from "@/assets/sripts/intersection_observer";
-import {number, rarity} from "@/assets/sripts/index";
+import {rarity} from "@/assets/sripts/index";
 import {useAssetsStore} from "~/stores/assetsStore";
 
 import Loading from "../Loading.vue";
 import LightRays from "../LightRays.vue"
-import ItemName from "@/components/snbWidget/itemName.vue";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
@@ -23,7 +22,7 @@ const
     route = useRoute(),
     router = useRouter(),
     {t} = useI18n(),
-    {items: itemsAssets, raritys: raritysAssets} = useAssetsStore(),
+    {commodities: commoditiesAssets, raritys: raritysAssets} = useAssetsStore(),
     props = withDefaults(defineProps<{
       id: string,
       isShowOpenDetail?: boolean,
@@ -61,8 +60,8 @@ onMounted(() => {
 const onReady = async () => {
   i.value = commodities[props.id] || null
 
-  if (itemsAssets[props.id])
-    commoditiesCardData.value.icon = itemsAssets[props.id] || ''
+  if (commoditiesAssets[props.id])
+    commoditiesCardData.value.icon = commoditiesAssets[props.id] || ''
   else {
     commoditiesCardData.value.icon = `https://skullandbonestools.de/api/imagesservice?src=commodities%2F${props.id}&width=128`
   }

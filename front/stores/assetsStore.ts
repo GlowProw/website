@@ -2,6 +2,7 @@ import {defineStore} from "pinia";
 
 export const useAssetsStore = defineStore('assets', {
     state: () => ({
+        commodities: new Map(),
         ships: new Map(),
         items: new Map(),
         cosmetics: new Map(),
@@ -22,6 +23,8 @@ export const useAssetsStore = defineStore('assets', {
             rarity: true,
         }) {
             if (options.ship || options.all)
+                this.initCommodities()
+            if (options.ship || options.all)
                 this.initShips()
             if (options.item || options.all)
                 this.initItems()
@@ -37,6 +40,15 @@ export const useAssetsStore = defineStore('assets', {
 
             if (options.rarity || options.all)
                 this.initRarity()
+        },
+
+        initCommodities () {
+            if (this.commodities.size != 0)
+                return;
+
+            const commoditieImages = import.meta.glob('@glow-prow-assets/commodities/*', {eager: true});
+
+            this.commodities = this.serializationMap(commoditieImages)
         },
 
         initShips() {

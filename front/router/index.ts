@@ -56,6 +56,7 @@ import MapsPage from '../src/views/map/Index.vue';
 import MapViewPage from '../src/views/map/View.vue';
 
 import TeamPage from '../src/views/Team.vue'
+import SearchPage from '../src/views/Search.vue'
 import AboutPage from '../src/views/About.vue'
 import NotFoundPage from '../src/views/NotFound.vue';
 
@@ -190,11 +191,20 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 component: TeamPage,
                 beforeEnter: initItemAssets,
             },
+            {
+                path: '/search',
+                name: 'Search',
+                meta: {
+                    title: 'search.title',
+                    keywords: 'search.meta.keywords'
+                },
+                component: SearchPage,
+            }
         ]
     },
     {
         path: '/codex',
-        name: 'codex',
+        name: 'Codex',
         component: CodexPage,
         beforeEnter: initItemAssets,
         meta: {
