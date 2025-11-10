@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import RhombusWidget from "@/components/snbWidget/rhombusWidget.vue";
-import { Item } from "glow-prow-data/src/entity/Items.ts";
-import { computed, nextTick, onMounted, ref, toRaw, watch } from "vue";
-import type { Rarity } from "glow-prow-data/src/types/Rarity";
-import { Modifications } from "glow-prow-data";
-import { useI18n } from "vue-i18n";
+import {Item} from "glow-prow-data/src/entity/Items.ts";
+import {computed, nextTick, onMounted, ref, toRaw, watch} from "vue";
+import type {Rarity} from "glow-prow-data/src/types/Rarity";
+import {Modifications} from "glow-prow-data";
+import {useI18n} from "vue-i18n";
 import EmptyView from "@/components/EmptyView.vue";
 import ModName from "@/components/snbWidget/modName.vue";
 import ModDescription from "@/components/snbWidget/modDescription.vue";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
-import { useI18nUtils } from "@/assets/sripts/i18n_util";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 
@@ -58,10 +58,10 @@ const MOD_STYLE_CONFIG: Record<ModType, string> = {
 };
 
 const MOD_CATEGORIES: { value: ModCategory; label: string }[] = [
-  { value: 'all', label: '全部模组' },
-  { value: 'basic', label: '基础模组' },
-  { value: 'advanced', label: '高级模组' },
-  { value: 'special', label: '特殊模组' }
+  {value: 'all', label: '全部模组'},
+  {value: 'basic', label: '基础模组'},
+  {value: 'advanced', label: '高级模组'},
+  {value: 'special', label: '特殊模组'}
 ];
 
 const props = withDefaults(defineProps<{
@@ -77,8 +77,8 @@ const props = withDefaults(defineProps<{
   disabled: false,
 });
 
-const { t } = useI18n();
-const { sanitizeString } = useI18nUtils();
+const {t} = useI18n();
+const {sanitizeString} = useI18nUtils();
 
 const show = ref(false);
 const modIconImages = ref<Record<string, string>>({});
@@ -121,9 +121,9 @@ watch(() => props.data, (data: Item) => {
     initializeSlots();
   }
   updateAvailableMods();
-}, { deep: true });
+}, {deep: true});
 
-watch(() => props.modelValue, () => updateAvailableMods(), { deep: true });
+watch(() => props.modelValue, () => updateAvailableMods(), {deep: true});
 
 watch([searchQuery, selectedCategory], () => updateFilteredMods());
 
@@ -141,7 +141,7 @@ const initializeResources = () => {
 };
 
 const loadModImages = () => {
-  const modImages = import.meta.glob('@glow-prow-assets/modifications/*.*', { eager: true });
+  const modImages = import.meta.glob('@/assets/images/snb/modTypeIcons/*.*', {eager: true});
   const imageMap: Record<string, string> = {};
 
   for (const path in modImages) {
@@ -251,6 +251,11 @@ const categorizeModificationsByGrade = (modificationsRaw: any): Record<ModType, 
   const weaponPerks = props.data.perks?.map((i: any) => sanitizeString(i).cleaned) || [];
   weaponPerks.forEach(perk => installedDamageTypes.add(perk));
 
+  // 检查武器是否包含指定的修复类perks
+  const hasRepairPerks = weaponPerks.some((perk: string) =>
+      ['repairBlast', 'repairBomb', 'repair', 'repair2'].includes(perk)
+  );
+
   Object.values(modificationsRaw).forEach((item: any) => {
     // 检查武器类型是否匹配
     const hasMatchingVariant = item.variants?.some((variant: any) =>
@@ -262,6 +267,22 @@ const categorizeModificationsByGrade = (modificationsRaw: any): Record<ModType, 
     if (item.requiredDamageType) {
       if (!installedDamageTypes.has(item.requiredDamageType)) {
         return;
+      }
+    }
+
+    // 检查 repairAccess 要求
+    if (item.repairAccess) {
+      if (item.repairAccess === 'exclusive') {
+        // 只有拥有修复类perks的武器才能显示
+        if (!hasRepairPerks) {
+          return;
+        }
+      } else if (item.repairAccess === 'shared') {
+        // 共享类型：拥有修复类perks的武器可以显示，或者没有特定限制
+        // 这里可以根据需要调整逻辑
+        if (!hasRepairPerks) {
+          return;
+        }
       }
     }
 
@@ -354,27 +375,24 @@ defineExpose({
     />
   </v-btn>
 
-  <v-dialog v-model="show" max-width="1200" scrollable>
-    <v-container>
-      <v-card border class="bg-black pa-4 modification-dialog">
+  <v-dialog v-model="show" scrollable>
+    <v-container class="pa-0">
+      <v-card border class="bg-black py-2 px-4 modification-dialog">
         <v-card-title class="d-flex align-center">
           <h1 class="text-amber">
             模组改装
           </h1>
-          <v-spacer />
+          <v-spacer/>
           <v-btn icon @click="show = false">
-            <v-icon icon="mdi-close" />
+            <v-icon icon="mdi-close"/>
           </v-btn>
         </v-card-title>
 
         <v-row class="pa-4">
           <!-- 已安装模组 -->
           <v-col cols="12" md="6" lg="6">
-            <div class="font-weight-bold mb-2 d-flex align-center">
+            <div class="font-weight-bold mb-3 d-flex align-center">
               <span>已安装模组</span>
-              <v-chip size="small" variant="outlined" class="ml-2">
-                {{ slotStats.basic }}/{{ slotStats.advanced }}/{{ slotStats.special }}
-              </v-chip>
             </div>
 
             <v-card
@@ -396,13 +414,13 @@ defineExpose({
                       height="40"
                   />
                 </v-col>
-                <v-divider vertical opacity=".06" />
+                <v-divider vertical opacity=".06"/>
                 <v-col class="pa-3">
                   <template v-if="mod.value">
                     <v-card variant="tonal" class="pa-2">
                       <v-row align="center" no-gutters>
                         <v-col cols="auto">
-                          <ItemSlotBase size="40" class="mr-2" :padding="0">
+                          <ItemSlotBase size="40px" class="mr-2" :padding="0">
                             <ModIconWidget
                                 :id="mod.value.id"
                                 :padding="0"
@@ -429,7 +447,7 @@ defineExpose({
                     <div class="text-caption text-grey" v-if="!readonly">
                       拖拽{{ getSlotDisplayName(mod.type) }}模组到此处
                     </div>
-                    <EmptyView v-else />
+                    <EmptyView v-else/>
                   </template>
                 </v-col>
                 <v-col cols="auto" v-if="!readonly && mod.value">
@@ -485,7 +503,7 @@ defineExpose({
               </v-row>
             </v-card>
 
-            <v-card border variant="flat" class="overflow-auto bg-transparent">
+            <v-card border variant="flat" class="overflow-auto bg-transparent mod-list">
               <v-expansion-panels variant="accordion" tile class="bg-transparent">
                 <v-expansion-panel
                     v-for="(mods, type) in filteredMods"
@@ -511,18 +529,17 @@ defineExpose({
                     </v-row>
                   </template>
                   <template v-slot:text>
-                    <div class="mod-list">
+                    <div>
                       <v-card
                           v-for="(modItem, modItemIndex) in mods"
                           :key="modItemIndex"
                           variant="tonal"
                           class="pa-2 mb-2 mod-item"
                           draggable="true"
-                          @dragstart="onDragStart($event, modItem)"
-                      >
-                        <v-row no-gutters align="center">
+                          @dragstart="onDragStart($event, modItem)">
+                        <v-row no-gutters>
                           <v-col cols="auto">
-                            <ItemSlotBase size="40" class="mr-2" :padding="0">
+                            <ItemSlotBase size="40px" class="mr-2" :padding="0">
                               <ModIconWidget
                                   :id="modItem.id"
                                   :padding="0"
@@ -562,7 +579,7 @@ defineExpose({
         </v-row>
 
         <v-card-actions v-if="!readonly">
-          <v-spacer />
+          <v-spacer/>
           <v-btn @click="show = false">取消</v-btn>
           <v-btn class="bg-amber" @click="onConfirm">
             <BtnWidget
@@ -585,7 +602,7 @@ defineExpose({
 
 <style scoped lang="less">
 .modification-dialog {
-  max-height: 90vh;
+  max-height: 95vh;
 }
 
 .slot-highlight {
@@ -610,12 +627,13 @@ defineExpose({
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: rgba(255, 193, 7, 0.5);
+    border-color: hsl(from var(--main-color) h s l / .2);
+    background: hsl(from var(--main-color) h s l / .1) !important;
   }
 }
 
 .mod-list {
-  max-height: 400px;
+  max-height: calc(80vh - 200px);
   overflow-y: auto;
 }
 </style>

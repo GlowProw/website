@@ -6,7 +6,7 @@ import {Item} from "glow-prow-data";
 import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 
-const modImages = import.meta.glob('@glow-prow-assets/modifications/*.*', {eager: true});
+const modImages = import.meta.glob('@/assets/images/snb/modTypeIcons/*.*', {eager: true});
 const props = defineProps<{ itemData: Item, modData: [] }>()
 
 let modIconImages = ref({}),

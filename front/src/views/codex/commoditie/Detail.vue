@@ -1,22 +1,18 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import {useRoute, useRouter} from "vue-router";
-import {Item} from "glow-prow-data/src/entity/Items.ts";
 import {computed, onMounted, ref, type Ref, watch} from "vue";
 
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 
-import {Materials} from "glow-prow-data";
-
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue"
-import {number, rarity, storage, storageCollect} from "@/assets/sripts";
+import {rarity, storage} from "@/assets/sripts";
 import CommentWidget from "@/components/CommentWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
 import {useAuthStore} from "~/stores/userAccountStore";
-import {StorageCollectType} from "@/assets/sripts/storage_collect";
 import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
@@ -152,11 +148,12 @@ const onCodexHistory = () => {
 
             <div class="mt-5 d-flex ga-2">
               <v-chip class="badge-flavor text-center tag-badge text-black"
-                      :to="`/codex/item/category/${commoditieDetailData.type}`">
-                {{ t(`codex.types.${commoditieDetailData.type}`) || '' }}
+                      :to="`/codex/commoditie/category/${commoditieDetailData.category}`"
+                      v-if="commoditieDetailData.category">
+                {{ t(`codex.categorys.${commoditieDetailData.category}`) || '' }}
               </v-chip>
               <v-chip class="badge-flavor text-center tag-badge text-black"
-                      :to="`/codex/item/rarity/${commoditieDetailData.rarity}`"
+                      :to="`/codex/commoditie/rarity/${commoditieDetailData.rarity}`"
                       v-if="commoditieDetailData.rarity">
                 <v-badge dot inline :color="rarityColorConfig[commoditieDetailData.rarity]" class="mr-1"></v-badge>
                 {{ t(`codex.rarity.${commoditieDetailData.rarity}`) }}

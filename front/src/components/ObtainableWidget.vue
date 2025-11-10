@@ -12,13 +12,21 @@ const props = withDefaults(
           byType: ''
         }
     ),
-    {t} = useI18n(),
+    {t, tm} = useI18n(),
     items = Items,
     cosmetics = Cosmetics
 
 let obtainable = computed(() => {
-  return filterByObtainable(props.data)
-})
+      return filterByObtainable(props.data)
+    }),
+    seasonI18nMap = computed(() => {
+      return tm('snb.seasons')
+    }),
+    i18nAdditionalAttr = computed(() => {
+      return {
+        ...seasonI18nMap.value
+      }
+    })
 
 /**
  * 处理数据
@@ -28,7 +36,7 @@ const filterByObtainable = (d: Item | Material | Cosmetic | null | undefined): O
   // 返回检查
   if (!d?.id) return [];
 
-  const { obtainable } = d;
+  const {obtainable} = d;
 
   // 处理字符串类型的 obtainable
   if (typeof obtainable === 'string') {
@@ -91,7 +99,9 @@ const filterByObtainable = (d: Item | Material | Cosmetic | null | undefined): O
       <ItemName :id="o.item.id"></ItemName>
     </template>
     <template v-else>
-      {{ t(`snb.locations.${o.id}`) }}
+      {{
+        t(`snb.locations.${o.id}`, {...i18nAdditionalAttr})
+      }}
     </template>
   </v-chip>
   <EmptyView v-if="obtainable.length <= 0"></EmptyView>

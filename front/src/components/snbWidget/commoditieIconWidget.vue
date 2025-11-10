@@ -136,8 +136,10 @@ const {targetElement, isVisible} = useIntersectionObserver({
 
         <div class="d-flex ga-2 mt-3">
           <v-chip inline
-                  :to="`/codex/commoditie/category/${i.type}`"
-                  class="badge-flavor text-center text-black" v-if="i.type">{{ t(`codex.types.${i.type}`) }}
+                  class="badge-flavor text-center tag-badge text-black"
+                  :to="`/codex/commoditie/category/${i.category}`"
+                  v-if="i.category">
+            {{ t(`codex.categorys.${i.category}`) || '' }}
           </v-chip>
           <v-chip class="badge-flavor text-center tag-badge text-black"
                   :to="`/codex/commoditie/rarity/${i.rarity}`"

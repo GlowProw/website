@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import {Modifications} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 import ItemSlotBase from "./ItemSlotBase.vue";
@@ -8,14 +8,15 @@ import {useRoute} from "vue-router";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import ModName from "@/components/snbWidget/modName.vue";
 import ModDescription from "@/components/snbWidget/modDescription.vue";
+import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
 
-const modImages = import.meta.glob('@glow-prow-assets/modifications/*.*', {eager: true});
+const modImages = import.meta.glob('@/assets/images/snb/modTypeIcons/*.*', {eager: true});
 const props = withDefaults(defineProps<{ id: string, type: string | null }>(), {
       id: null,
       type: null
     }),
     route = useRoute(),
-    {t} = useI18n(),
+    {t, locale} = useI18n(),
     {asString} = useI18nUtils()
 
 let modData = ref({}),
@@ -70,6 +71,11 @@ let modData = ref({}),
       return searchKeyword.value || filterGrades.value.length > 0;
     })
 
+watch(()=> locale.value, () => {
+  modData.value = onCategorizeByGrade(Modifications)
+  onReady();
+})
+
 onMounted(() => {
   modData.value = onCategorizeByGrade(Modifications)
   onReady();
@@ -88,13 +94,6 @@ const onReady = () => {
   if (route.query.modeShowType)
     displayMode.value = route.query.modeShowType as string;
 
-  // mod图标
-  for (let key in Modifications) {
-    if (imageMap[key]) {
-      modIcons.value[key] = imageMap[key].default;
-    }
-  }
-
   // 插槽图标
   for (let key in modData.value) {
     if (imageMap[key]) {
@@ -111,15 +110,23 @@ const onReady = () => {
 const onCategorizeByGrade = (data): {} => {
   const result = {};
 
+  // 首先收集所有匹配的模组
+  const allMods = [];
   Object.values(data).forEach(item => {
     if (props.type) {
-      const hasMatchingVariant = item.variants.some(variant =>
-          variant.itemType.includes(props.type)
+      const hasMatchingVariant = item.variants?.some(variant =>
+          variant.itemType?.includes(props.type)
       );
 
       if (!hasMatchingVariant) return; // 不匹配则跳过
     }
+    allMods.push(item);
+  });
 
+  // 排序 a-z
+  allMods.sort((a, b) => a.id[0].localeCompare(b.id[0]));
+
+  allMods.forEach(item => {
     if (!result[item.grade]) {
       result[item.grade] = [];
     }
@@ -153,7 +160,7 @@ const resetFilters = () => {
   <slot name="title" v-if="isHasMod"></slot>
 
   <template v-if="isHasMod" >
-    <!-- 搜索和筛选栏 -->
+    <!-- 搜索和筛选栏 S -->
     <v-row class="pb-4" align="center">
       <v-col cols="12" sm="6">
         <v-text-field
@@ -196,6 +203,7 @@ const resetFilters = () => {
         </v-btn>
       </v-col>
     </v-row>
+    <!-- 搜索和筛选栏 E -->
 
     <v-card border class="mod pt-3" variant="flat">
       <template v-if="Object.keys(filteredModData).length > 0">
@@ -236,19 +244,13 @@ const resetFilters = () => {
               <template v-if="displayMode == 1">
                 <ItemSlotBase size="40px" class="d-flex justify-center align-center"
                               v-tooltip="t(`snb.modifications.${mod.id}.name`)">
-                  <v-img :src="modIcons[mod.id]" width="100%" height="100%" v-if="modIcons[mod.id]"></v-img>
-                  <template v-else>
-                    <v-icon>mdi-help</v-icon>
-                  </template>
+                  <ModIconWidget :id="mod.id" :padding="0" :margin="0"></ModIconWidget>
                 </ItemSlotBase>
               </template>
               <template v-else-if="displayMode == 0">
                 <v-row class="pt-0 pl-3">
                   <ItemSlotBase size="50px" class="mt-3 d-flex justify-center align-center">
-                    <v-img :src="modIcons[mod.id]" v-if="modIcons[mod.id]"></v-img>
-                    <template v-else>
-                      <v-icon>mdi-help</v-icon>
-                    </template>
+                    <ModIconWidget :id="mod.id" :padding="0" :margin="0"></ModIconWidget>
                   </ItemSlotBase>
 
                   <v-col cols="10">
@@ -275,8 +277,7 @@ const resetFilters = () => {
                 variant="tonal"
                 class="mt-4"
                 @click="resetFilters"
-                prepend-icon="mdi-refresh"
-            >
+                prepend-icon="mdi-refresh">
               {{ t('basic.button.clearFilters') }}
             </v-btn>
           </v-col>

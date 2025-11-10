@@ -1,13 +1,10 @@
 <script setup lang="ts">
 
-import {computed, onMounted, type Ref, ref, type UnwrapRef} from "vue";
+import {computed, onMounted, type Ref, ref} from "vue";
 import {useI18n} from "vue-i18n";
-import {Materials, Ships} from "glow-prow-data";
+import {Ships} from "glow-prow-data";
 import {useRoute, useRouter} from "vue-router";
-
-import EmptyView from "@/components/EmptyView.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
-import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
 import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
 import PerksWidget from "@/components/snbWidget/perksWidget.vue";
 import {Ship} from "glow-prow-data/src/entity/Ships.ts";
@@ -15,7 +12,6 @@ import {number, storage} from "@/assets/sripts";
 import CommentWidget from "@/components/CommentWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
 import {useAuthStore} from "~/stores/userAccountStore";
-import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 import ShipWeaponInfoSlotWidget from "@/components/snbWidget/shipWeaponInfoSlotWidget.vue";
 import ShipBaseInfoSlotWidget from "@/components/snbWidget/shipBaseInfoSlotWidget.vue";
 import {useHead} from "@unhead/vue";
@@ -27,7 +23,6 @@ import Time from "@/components/Time.vue";
 import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
 import ItemMaterials from "@/components/snbWidget/itemMaterials.vue";
 import shipAvailableUpgradeWidget from "@/components/snbWidget/shipAvailableUpgradeWidget.vue";
-import ShipUpgradeUseWidget from "@/components/snbWidget/shipUpgradeUseWidget.vue";
 
 const shipImages = import.meta.glob('@glow-prow-assets/ships/*.png', {eager: true});
 
@@ -165,7 +160,18 @@ const onCodexHistory = () => {
               {{ shipDetailData.id || 'none' }}
             </p>
 
-            <v-chip inline class="badge-flavor text-center text-black tag-badge pl-3" v-if="shipsData[shipDetailData.id].size">{{ t(`codex.size.${shipsData[shipDetailData.id].size}`) }}</v-chip>
+            <div class="d-flex ga-2">
+              <v-chip inline
+                      class="badge-flavor text-center text-black tag-badge pl-3"
+                      v-if="shipsData[shipDetailData.id].size">
+                {{ t(`codex.size.${shipsData[shipDetailData.id].size}`) }}
+              </v-chip>
+              <v-chip inline
+                      class="badge-flavor text-center text-black tag-badge pl-3"
+                      v-if="shipsData[shipDetailData.id].archetype">
+                {{ t(`codex.ships.archetypes.${shipDetailData.archetype}.name`) }}
+              </v-chip>
+            </div>
           </v-col>
           <v-col cols="auto">
             <div class="d-flex ga-2">
@@ -208,6 +214,15 @@ const onCodexHistory = () => {
                 <p class="text-pre-wrap mb-4">
                   {{ t(`snb.ships.${shipDetailData.id}.description.general`) }}
                 </p>
+
+                <v-row class="mb-4">
+                  <v-col class="text-pre-wrap">
+                    <b class="text-amber mb-1">{{ t(`codex.ships.archetypes.${shipDetailData.archetype}.name`) }}</b>
+                    <p class="text-caption">
+                      {{ t(`codex.ships.archetypes.${shipDetailData.archetype}.description`) }}
+                    </p>
+                  </v-col>
+                </v-row>
               </v-col>
             </v-row>
             <v-divider class="mt-10 mb-6"></v-divider>

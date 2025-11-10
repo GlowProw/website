@@ -33,6 +33,7 @@ import ObtainableWidget from "@/components/ObtainableWidget.vue";
 import WorldEventWidget from "@/components/WorldEventWidget.vue";
 import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
 import ShipUpgradeUseWidget from "@/components/snbWidget/shipUpgradeUseWidget.vue";
+import BluePrintWidget from "@/components/BluePrintWidget.vue";
 
 const
     {t, messages} = useI18n(),
@@ -59,17 +60,6 @@ let itemDetailData: Ref<Item | null> = ref(null),
     }),
     DamagePerShotWithPerks = computed(() => 0),
 
-    bluePrint = computed(() => {
-      let bluePrints = itemDetailData.value?.blueprint;
-
-      if (!bluePrints)
-        return null;
-
-      if (bluePrints)
-        return t(`snb.locations.${bluePrints}`)
-
-      return Object.values(bluePrints[0]).map(i => t(`snb.locations.${i}`))
-    }),
     getCollectStatus = computed(() => {
       if (!itemDetailData.value && !itemDetailData.value.id) return false;
       isCollect.value = !isCollect.value;
@@ -456,11 +446,8 @@ const onStarItem = (data: Item) => {
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
             <BySeasonWidget :data="itemDetailData"></BySeasonWidget>
 
-            <template v-if="bluePrint">
-              <p class="text-no-wrap font-weight-bold mb-2 mt-2">{{ t('codex.item.bluePrint') }}</p>
-              <v-chip class="d-inline-flex mb-1">
-                {{ t(bluePrint) }}
-              </v-chip>
+            <template v-if="itemDetailData.blueprint">
+              <BluePrintWidget :data="itemDetailData"></BluePrintWidget>
             </template>
             <template v-if="itemDetailData.worldEvent">
               <WorldEventWidget :data="itemDetailData"></WorldEventWidget>

@@ -3,7 +3,7 @@
 import {onMounted, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 
-const modImages = import.meta.glob('@glow-prow-assets/modifications/*.*', {eager: true});
+const modImages = import.meta.glob('@/assets/images/snb/modTypeIcons/*.*', {eager: true});
 const
     props = withDefaults(defineProps<{
       id: string,

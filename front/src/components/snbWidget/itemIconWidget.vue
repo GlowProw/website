@@ -15,7 +15,6 @@ import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
-import DamageIconWidget from "@/components/snbWidget/damageIconWidget.vue";
 import ItemDamageTypeWidget from "@/components/snbWidget/itemDamageTypeWidget.vue";
 
 const

@@ -361,7 +361,21 @@
     },
     "ships": {
       "title": "船只列表",
-      "searchCountOverflowTip": "超出搜索显示最大{maximumSearchCount}，剩余{exceedingItemsCount}已节流,可以再精准填写关键词"
+      "searchCountOverflowTip": "超出搜索显示最大{maximumSearchCount}，剩余{exceedingItemsCount}已节流,可以再精准填写关键词",
+      "archetypes": {
+        "dps": {
+          "name": "火力舰",
+          "description": "火力舰适合喜欢进攻的玩家，擅长造成伤害与状态效果。"
+        },
+        "tank": {
+          "name": "重装舰",
+          "description": "重装舰更加的坚固，擅于防御来袭的炮火。"
+        },
+        "support": {
+          "name": "支援舰",
+          "description": "支援舰擅长支援友方船只，往往能够帮助扭转战局。"
+        }
+      }
     },
     "item": {
       "title": "物品详情",
@@ -392,7 +406,7 @@
       },
       "obtainable": "获取方式",
       "worldEvent": "世界事件",
-      "bluePrint": "蓝图",
+      "bluePrint": "设计图",
       "requiredRank": "最低使用等级",
       "gearScore": "分数",
       "rarity": "稀有度",
@@ -449,11 +463,11 @@
         "prepend": "出自",
         "append": "赛季"
       },
-      "bluePrint": "蓝图",
+      "bluePrint": "设计图",
       "requiredRank": "最低使用等级",
       "dateAdded": "添加日期",
       "lastUpdated": "更新日期",
-      "perks": "词条",
+      "perks": "能力",
       "baseInfo": "基础信息",
       "deckInfo": "甲板信息",
       "lookDetail": "查看船只详情"

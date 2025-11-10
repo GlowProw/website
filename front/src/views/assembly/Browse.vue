@@ -271,9 +271,9 @@ watch(browseData, (newList: ResultData) => {
           <EmptyView></EmptyView>
         </div>
 
-        <div class="h-100 d-flex justify-center align-center" v-else-if="browseLoading">
+        <v-overlay class="h-100 d-flex justify-center align-center" contained :transition="false" v-model="browseLoading">
           <Loading size="100"></Loading>
-        </div>
+        </v-overlay>
 
         <!-- 配装分页 S -->
         <v-pagination

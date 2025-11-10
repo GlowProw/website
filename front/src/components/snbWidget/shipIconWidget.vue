@@ -13,7 +13,6 @@ import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import EmptyView from "../EmptyView.vue";
 import PerksWidget from "./perksWidget.vue";
 import ShipDescription from "@/components/snbWidget/shipDescription.vue";
-import {number} from "@/assets/sripts/index";
 
 const props = withDefaults(defineProps<{
       id: string,
@@ -96,7 +95,18 @@ const onReady = async () => {
         </h1>
         <p class="mb-1">{{ props.id }}</p>
 
-        <v-badge inline color="transparent" class="badge-flavor text-center tag-badge pl-3" v-if="shipData && shipData.size">{{ t(`codex.size.${shipData.size}`) }}</v-badge>
+        <div class="d-flex ga-2">
+          <v-chip inline
+                   class="badge-flavor text-center tag-badge"
+                   v-if="shipData && shipData.size">
+            {{ t(`codex.size.${shipData.size}`) }}
+          </v-chip>
+          <v-chip inline
+                  class="badge-flavor text-center text-black tag-badge"
+                  v-if="shipData.archetype">
+            {{ t(`codex.ships.archetypes.${shipData.archetype}.name`) }}
+          </v-chip>
+        </div>
 
         <v-img :src="shipCardData.icon" class="prohibit-drag right-show-image position-absolute w-33"></v-img>
       </div>
