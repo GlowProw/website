@@ -1,39 +1,36 @@
 <script setup lang="ts">
-import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
-import {computed, onMounted, ref, watch} from "vue";
-import {Items} from "glow-prow-data/src/entity/Items.ts";
-import {useI18n} from "vue-i18n";
-import {useRoute, useRouter} from "vue-router";
-import {useI18nUtils} from "@/assets/sripts/i18n_util";
-import {useDisplay} from "vuetify/framework";
-
-
-import {Commodities, Cosmetics, MapLocations, Materials, Modifications, Ships, TreasureMaps} from "glow-prow-data";
+import {Cosmetics, Items, MapLocations, Materials, Modifications, Ships, TreasureMaps} from "glow-prow-data";
+import {Commodities} from "glow-prow-data/src/entity/Commodities";
 import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
-
-import Loading from "@/components/Loading.vue";
-import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
-import EmptyView from "@/components/EmptyView.vue";
-import ItemName from "@/components/snbWidget/itemName.vue";
-import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
+import {computed, onMounted, ref, watch} from "vue";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
+import {useRoute, useRouter} from "vue-router";
+import {useI18n} from "vue-i18n";
+import {useDisplay} from "vuetify/framework";
+import {rarity} from "@/assets/sripts/index";
+import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
-import ShipName from "@/components/snbWidget/shipName.vue";
+import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
+import CommoditieIconWidget from "@/components/snbWidget/commoditieIconWidget.vue";
 import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
-import MaterialNameRarity from "@/components/snbWidget/materialNameRarity.vue";
-import MaterialName from "@/components/snbWidget/materialName.vue";
 import CosmeticIconWidget from "@/components/snbWidget/cosmeticIconWidget.vue";
-import UltimateName from "@/components/snbWidget/ultimateName.vue";
 import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
 import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
+import MapLocationIconWidget from "@/components/snbWidget/mapLocationIconWidget.vue";
+import TreasureMapIconWidget from "@/components/snbWidget/treasureMapIconWidget.vue";
+import CommoditieName from "@/components/snbWidget/commoditieName.vue";
+import ShipName from "@/components/snbWidget/shipName.vue";
+import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
+import ItemName from "@/components/snbWidget/itemName.vue";
+import UltimateName from "@/components/snbWidget/ultimateName.vue";
 import CosmeticName from "@/components/snbWidget/cosmeticName.vue";
 import ModName from "@/components/snbWidget/modName.vue";
-import CommoditieIconWidget from "@/components/snbWidget/commoditieIconWidget.vue";
-import CommoditieName from "@/components/snbWidget/commoditieName.vue";
-import TreasureMapIconWidget from "@/components/snbWidget/treasureMapIconWidget.vue";
-import MapLocationIconWidget from "@/components/snbWidget/mapLocationIconWidget.vue";
 import TreasureMapName from "@/components/snbWidget/treasureMapName.vue";
 import MapLocationNameWidget from "@/components/snbWidget/mapLocationNameWidget.vue";
-import {rarity} from "@/assets/sripts/index";
+import MaterialNameRarity from "@/components/snbWidget/materialNameRarity.vue";
+import MaterialName from "@/components/snbWidget/materialName.vue";
+import EmptyView from "@/components/EmptyView.vue";
+import Loading from "@/components/Loading.vue";
 
 type LoadDataType = 'ship' | 'item' | 'commoditie' | 'material' | 'ultimate' | 'cosmetic' | 'modification' | 'treasureMaps' | 'mapLocation'
 type SortField = 'dateAdded' | 'lastUpdated'
@@ -77,6 +74,8 @@ let data: any = ref([]),
       categoryTags: [],
       rarities: [],
       rarityTags: [],
+      tiers: [],
+      tierTags: [],
       seasons: [],
       seasonTags: [],
       inputWidgetKeyValue: '',
@@ -106,6 +105,17 @@ let data: any = ref([]),
         text: asString([`codex.rarity.${rarity}`], {backRawKey: true, variable: rarity})
       }))
     ]),
+    // tier筛选器可选选项
+    tierFilterAvailableOptions = computed(() => [
+      ...filterData.value.tierTags.map(tier => ({
+        value: tier.toString(),
+        text: asString([`codex.tier`], {
+          backRawKey: true, variable: {
+            num: tier
+          }
+        })
+      }))
+    ]),
     // 赛季筛选器可选选项
     seasonFilterAvailableOptions = computed(() => [
       ...filterData.value.seasonTags.map(season => ({
@@ -118,6 +128,7 @@ let data: any = ref([]),
       return filterData.value.types.length > 0 ||
           filterData.value.categorys.length > 0 ||
           filterData.value.rarities.length > 0 ||
+          filterData.value.tiers.length > 0 ||
           filterData.value.seasons.length > 0 ||
           filterData.value.sortField !== 'dateAdded' ||
           filterData.value.sortOrder !== 'desc' ||
@@ -134,6 +145,7 @@ const onProcessedData = computed(() => {
       let filterItemTypes = filterData.value.types;
       let filterItemCategorys = filterData.value.categorys;
       let filterRarities = filterData.value.rarities;
+      let filterTiers = filterData.value.tiers;
       let filterSeasons = filterData.value.seasons;
 
       const filteredData = d.filter(i => {
@@ -167,18 +179,19 @@ const onProcessedData = computed(() => {
 
         const idMatch = i.id.toLowerCase().indexOf(searchValue) >= 0;
 
-        // 检查类型、类别和稀有度匹配
+        // 检查类型、类别、稀有度和tier匹配
         const typeMatch = filterItemTypes.length === 0 || filterItemTypes.includes(i.type)
         const categoryMatch = filterItemCategorys.length === 0 || filterItemCategorys.includes(i.category);
         const rarityMatch = filterRarities.length === 0 || filterRarities.includes(i.rarity);
+        const tierMatch = filterTiers.length === 0 || (i.tier && filterTiers.includes(i.tier.toString()));
 
         // 检查赛季匹配
         const seasonMatch = filterSeasons.length === 0 ||
             (i.bySeason && filterSeasons.includes(i.bySeason.id)) ||
             (i.seasons && i.seasons.some((s: string) => filterSeasons.includes(s)));
 
-        // 返回同时满足关键词、类型、稀有度和赛季条件的项目
-        return (nameMatch || idMatch) && typeMatch && categoryMatch && rarityMatch && seasonMatch;
+        // 返回同时满足关键词、类型、稀有度、tier和赛季条件的项目
+        return (nameMatch || idMatch) && typeMatch && categoryMatch && rarityMatch && tierMatch && seasonMatch;
       });
 
       // 排序
@@ -249,9 +262,10 @@ const onProcessedData = computed(() => {
     isType = computed(() => filterData.value.types.length > 0),
     isCategory = computed(() => filterData.value.categorys.length > 0),
     isRarity = computed(() => filterData.value.rarities.length > 0),
+    isTier = computed(() => filterData.value.tiers.length > 0),
     isSeason = computed(() => filterData.value.seasons.length > 0),
     // 否应该显示无限滚动
-    isShouldShowInfiniteScroll = computed(() => !isSearching.value && !isType.value && !isCategory.value && !isRarity.value && !isSeason.value)
+    isShouldShowInfiniteScroll = computed(() => !isSearching.value && !isType.value && !isCategory.value && !isRarity.value && !isTier.value && !isSeason.value)
 
 // 监听路由变化，同步query到筛选条件
 watch(() => route.query, (newQuery) => {
@@ -263,6 +277,9 @@ watch(() => route.query, (newQuery) => {
   }
   if (newQuery.rarity) {
     filterData.value.rarities = Array.isArray(newQuery.rarity) ? newQuery.rarity : newQuery.rarity.split(',');
+  }
+  if (newQuery.tier) {
+    filterData.value.tiers = Array.isArray(newQuery.tier) ? newQuery.tier : newQuery.tier.split(',');
   }
   if (newQuery.season) {
     filterData.value.seasons = Array.isArray(newQuery.season) ? newQuery.season : newQuery.season.split(',');
@@ -279,6 +296,7 @@ onMounted(() => {
   onInitTypeLoad()
   onInitCategoryLoad()
   onInitRarityLoad()
+  onInitTierLoad()
   onInitSeasonLoad()
 })
 
@@ -304,6 +322,14 @@ const onInitCategoryLoad = () => {
 const onInitRarityLoad = () => {
   let d = originalData.value
   filterData.value.rarityTags = [...new Set(d.map(i => i.rarity || 'none'))]
+}
+
+/**
+ * 初始筛选可选 tier 标签选项
+ */
+const onInitTierLoad = () => {
+  let d = originalData.value
+  filterData.value.tierTags = [...new Set(d.map(i => i.tier || 'none').filter(tier => tier !== 'none'))]
 }
 
 /**
@@ -337,6 +363,9 @@ const updateQueryParams = () => {
   if (filterData.value.rarities.length > 0) {
     query.rarity = filterData.value.rarities.join(',');
   }
+  if (filterData.value.tiers.length > 0) {
+    query.tier = filterData.value.tiers.join(',');
+  }
   if (filterData.value.seasons.length > 0) {
     query.season = filterData.value.seasons.join(',');
   }
@@ -359,6 +388,7 @@ const resetAllFilters = () => {
   filterData.value.types = [];
   filterData.value.categorys = [];
   filterData.value.rarities = [];
+  filterData.value.tiers = [];
   filterData.value.seasons = [];
   filterData.value.sortField = 'dateAdded';
   filterData.value.sortOrder = 'desc';
@@ -378,8 +408,8 @@ const resetAllFilters = () => {
  * @param done
  */
 const onLoad = ({done}) => {
-  // 如果正在搜索或筛选类型、类别、稀有度或赛季，直接返回空
-  if (isSearching.value || isType.value || isCategory.value || isRarity.value || isSeason.value) {
+  // 如果正在搜索或筛选类型、类别、稀有度、tier或赛季，直接返回空
+  if (isSearching.value || isType.value || isCategory.value || isRarity.value || isTier.value || isSeason.value) {
     done('empty')
     return
   }
@@ -447,6 +477,18 @@ const onFilterRarity = (value) => {
   filterData.value.rarities = value;
   updateQueryParams();
   // 稀有度筛选时重置分页数据
+  if (value.length > 0) {
+    data.value = []
+  }
+}
+
+/**
+ * 过滤物品 tier
+ */
+const onFilterTier = (value) => {
+  filterData.value.tiers = value;
+  updateQueryParams();
+  // tier筛选时重置分页数据
   if (value.length > 0) {
     data.value = []
   }
@@ -612,6 +654,29 @@ const onSort = (field: SortField, order: SortOrder) => {
                   </template>
                 </v-select>
               </v-col>
+
+              <v-col cols="12">
+                <div class="mb-2">{{ t('codex.filter.byTier') }} ({{ tierFilterAvailableOptions.length || 0 }})</div>
+                <v-select
+                    variant="filled"
+                    @update:model-value="onFilterTier"
+                    item-value="value"
+                    item-title="text"
+                    density="comfortable"
+                    v-model="filterData.tiers"
+                    :disabled="tierFilterAvailableOptions.length == 0"
+                    :placeholder="t('codex.filter.byTier')"
+                    :counter="3"
+                    :eager="false"
+                    :glow="false"
+                    :items="tierFilterAvailableOptions"
+                    hide-details
+                    multiple
+                    chips
+                    clearable
+                ></v-select>
+              </v-col>
+
               <v-col cols="12">
                 <div class="mb-2">{{ t('codex.filter.bySeason') }}</div>
                 <v-select

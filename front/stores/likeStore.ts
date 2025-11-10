@@ -14,14 +14,14 @@ export const useLikeStore = defineStore('like', {
          * @param targetType
          * @param targetId
          */
-        async checkLike(userId: string, targetType: string, targetId: string) {
+        async checkLike(targetType: string, targetId: string) {
             const authStore = useAuthStore()
 
             if (!authStore.isLogin)
                 return;
 
             const httpToken = useHttpToken()
-            const result = await httpToken.get(`likes/check?userId=${userId}&targetType=${targetType}&targetId=${targetId}`);
+            const result = await httpToken.get(`likes/check?targetType=${targetType}&targetId=${targetId}`);
 
             const {isLiked} = result.data;
 

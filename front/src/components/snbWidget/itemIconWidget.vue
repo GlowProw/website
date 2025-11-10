@@ -134,23 +134,20 @@ const {targetElement, isVisible} = useIntersectionObserver({
         </h1>
         <p class="mb-1 mt-2">{{ i.id }}</p>
 
-        <div class="mt-3" v-if="i.perks.length > 0">
-          <ItemDamageTypeWidget :data="i" size="mini"></ItemDamageTypeWidget>
-        </div>
-
-        <div class="d-flex ga-2 mt-3">
+        <div class="d-flex ga-2 align-center mt-3">
           <v-chip inline
-                  :to="`/codex/item/category/${i.type}`"
+                  :to="`/codex/items?type=${i.type}`"
                   class="badge-flavor text-center text-black" v-if="i.type">{{ t(`codex.types.${i.type}`) }}
           </v-chip>
           <v-chip class="badge-flavor text-center tag-badge text-black"
-                  :to="`/codex/item/tier/${i.tier}`"
+                  :to="`/codex/items?tier=${i.tier}`"
                   v-if="i.tier">{{ t(`codex.tier`, {num: number.intToRoman(i.tier)}) }}
           </v-chip>
           <v-chip class="badge-flavor text-center tag-badge text-black"
-                  :to="`/codex/item/rarity/${i.rarity}`"
+                  :to="`/codex/items?rarity=${i.rarity}`"
                   v-if="i.rarity">{{ t(`codex.rarity.${i.rarity}`) }}
           </v-chip>
+          <ItemDamageTypeWidget :data="i" sizeType="mini" :size="25"></ItemDamageTypeWidget>
         </div>
 
         <div class="right-show-image pointer-events-none position-absolute w-33">

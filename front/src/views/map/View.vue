@@ -263,7 +263,7 @@
       </template>
 
       <div class="mx-5 mb-3 pb-2">
-        <v-row no-gutters>
+        <v-row no-gutters align="center">
           <v-col cols="auto" class="d-flex align-center mr-2">
             <v-img
                 :src="getCategoryIcon(selectedLocationData.category)"
@@ -272,17 +272,17 @@
                 height="25"
                 cover/>
           </v-col>
-          <v-col>
+          <v-col class="text-caption">
             {{ t(`map.type.${selectedLocationData.category || 'none'}`) }}
           </v-col>
         </v-row>
-        <v-row no-gutters class="mt-1" v-if="selectedLocationData && selectedLocationData.faction">
+        <v-row no-gutters class="mt-1" v-if="selectedLocationData && selectedLocationData.faction" align="center">
           <v-col cols="auto" class="d-flex align-center mr-2">
             <ItemSlotBase :size="'25px'" :padding="0">
               <FactionIconWidget :name="selectedLocationData.faction.id"></FactionIconWidget>
             </ItemSlotBase>
           </v-col>
-          <v-col>
+          <v-col class="text-caption">
             <FactionNameWidget :id="selectedLocationData.faction.id"></FactionNameWidget>
           </v-col>
         </v-row>
@@ -295,15 +295,15 @@
         <div class="mx-5 mb-5 pt-3 opacity-60">
           <v-row v-for="(i,index) in Object.entries(selectedLocationData.possibleLoot)" :key="index" align="center" no-gutters class="mb-1">
             <v-col cols="auto" class="mr-2">
-              <ItemSlotBase :size="`30px`" :padding="0">
+              <ItemSlotBase :size="`30px`" :padding="1">
                 <template v-if="i[1]['category'] == 'material'">
-                  <MaterialIconWidget :id="i[0]"></MaterialIconWidget>
+                  <MaterialIconWidget :id="i[0]" :padding="0" :margin="0"></MaterialIconWidget>
                 </template>
                 <template v-if="i[1]['category'] == 'commoditie'">
-                  <CommoditieIconWidget :id="i[0]"></CommoditieIconWidget>
+                  <CommoditieIconWidget :id="i[0]" :padding="0" :margin="0"></CommoditieIconWidget>
                 </template>
                 <template v-if="i[1]['category'] == 'item'">
-                  <ItemIconWidget :id="i[0]"></ItemIconWidget>
+                  <ItemIconWidget :id="i[0]" :padding="0" :margin="0"></ItemIconWidget>
                 </template>
               </ItemSlotBase>
             </v-col>

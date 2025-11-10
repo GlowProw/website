@@ -384,7 +384,7 @@ defineExpose({
 
             <div class="text-center mt-1">
               <div class="d-flex justify-center">
-                <ItemDamageTypeWidget :data="j" size="mini"></ItemDamageTypeWidget>
+                <ItemDamageTypeWidget :data="j" sizeType="mini"></ItemDamageTypeWidget>
               </div>
               <v-btn
                   class="text-amber"
@@ -481,7 +481,7 @@ defineExpose({
 
                 <div class="text-center mt-1" v-if="isStar">
                   <div class="d-flex justify-center">
-                    <ItemDamageTypeWidget :data="item" size="mini"></ItemDamageTypeWidget>
+                    <ItemDamageTypeWidget :data="item" sizeType="mini"></ItemDamageTypeWidget>
                   </div>
                   <v-btn
                       class="text-amber"

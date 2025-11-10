@@ -123,11 +123,12 @@ const onReady = async () => {
 
         <div class="d-flex ga-2 mt-3">
           <v-chip inline
-                  :to="`/codex/material/category/${i.type}`"
-                  class="badge-flavor text-center text-black" v-if="i.type">{{ t(`codex.types.${i.type}`) }}
+                  :to="`/codex/materials?category=${i.category}`"
+                  class="badge-flavor text-center text-black" v-if="i.category">
+            {{ t(`codex.categorys.${i.category}`) }}
           </v-chip>
           <v-chip class="badge-flavor text-center tag-badge text-black"
-                  :to="`/codex/material/rarity/${i.rarity}`"
+                  :to="`/codex/materials?rarity=${i.rarity}`"
                   v-if="i.rarity">{{ t(`codex.rarity.${i.rarity}`) }}
           </v-chip>
         </div>

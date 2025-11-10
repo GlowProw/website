@@ -23,7 +23,6 @@ import ShipsPage from '../src/views/codex/ships/Index.vue'
 import ShipDetailPage from '../src/views/codex/ships/Detail.vue'
 import ItemsPage from '../src/views/codex/items/Index.vue'
 import ItemDetailPage from '../src/views/codex/items/Detail.vue'
-import ItemCategoryDetailPage from '../src/views/codex/items/Category.vue'
 import CommoditiesPage from '../src/views/codex/commoditie/Index.vue'
 import CommoditieDetailPage from '../src/views/codex/commoditie/Detail.vue'
 import ModsPage from '@/views/codex/modifications/Index.vue'
@@ -271,15 +270,6 @@ const routes: Readonly<RouteRecordRaw[]> = [
                     keywords: 'codex.commoditie.meta.keywords'
                 },
                 component: CommoditieDetailPage,
-            },
-            {
-                path: 'item/:fun/:key',
-                name: 'ItemCategoryDetail',
-                meta: {
-                    title: 'codex.items.title',
-                    keywords: 'codex.items.meta.keywords'
-                },
-                component: ItemCategoryDetailPage,
             },
             {
                 path: 'ultimates',

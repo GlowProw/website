@@ -37,21 +37,20 @@ let isLiked = ref(false),
  */
 const onReady = async () => {
   try {
-    if (!props.userId || !props.targetType || !props.targetId) {
+    if (!props.targetType || !props.targetId) {
       console.log('not id', props)
-      return ;
+      return;
     }
 
     likeLoading.value = true;
 
-    isLiked.value = await likeStore.checkLike(props.userId, props.targetType, props.targetId);
+    isLiked.value = await likeStore.checkLike(props.targetType, props.targetId);
     likeCount.value = await likeStore.getLikeCount(props.targetType, props.targetId);
   } catch (e) {
     if (e instanceof AxiosError)
-      notice.error({
-        text: t(`basic.tips.${e.response.data.code}`, {
-          context: e instanceof AxiosError ? e.response.data.code : e.code || e.message || ''
-        }),
+      notice.error(t(`basic.tips.${e.response.data.code}`, {
+        context: e instanceof AxiosError ? e.response.data.code : e.code || e.message || ''
+      }), {
         color: 'error'
       })
     console.error(e)
@@ -72,10 +71,9 @@ const handleLike = async () => {
     likeCount.value = await likeStore.getLikeCount(props.targetType, props.targetId);
   } catch (e) {
     if (e instanceof AxiosError)
-      notice.error({
-        text: t(`basic.tips.${e.response.data.code}`, {
-          context: e instanceof AxiosError ? e.response.data.code : e.code || e.message || ''
-        }),
+      notice.error(t(`basic.tips.${e.response.data.code}`, {
+        context: e instanceof AxiosError ? e.response.data.code : e.code || e.message || ''
+      }), {
         color: 'error'
       })
     console.error(e)

@@ -128,7 +128,7 @@ const onCodexHistory = () => {
                 <div v-for="(i,index) in modDetailData.variants" :key="index" class="mb-8">
                   <div class="d-flex ga-2">
                     <v-chip class="badge-flavor text-center tag-badge text-black"
-                            :to="`/codex/item/category/${tag}`"
+                            :to="`/codex/items?type=${tag}`"
                             target="_blank"
                             v-for="(tag, tagIndex) in i.itemType" :key="tagIndex">
                       {{ t(`codex.types.${tag}`) }}

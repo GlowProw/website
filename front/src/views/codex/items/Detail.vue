@@ -196,15 +196,15 @@ const onStarItem = (data: Item) => {
 
             <div class="mt-5 d-flex ga-2">
               <v-chip class="badge-flavor text-center tag-badge text-black"
-                      :to="`/codex/item/category/${itemDetailData.type}`">
+                      :to="`/codex/items?type=${itemDetailData.type}`">
                 {{ t(`codex.types.${itemDetailData.type}`) || '' }}
               </v-chip>
               <v-chip class="badge-flavor text-center tag-badge text-black"
-                      :to="`/codex/item/tier/${itemDetailData.tier}`"
+                      :to="`/codex/items?tier=${itemDetailData.tier}`"
                       v-if="itemDetailData.tier">{{ t(`codex.tier`, {num: number.intToRoman(itemDetailData.tier)}) }}
               </v-chip>
               <v-chip class="badge-flavor text-center tag-badge text-black"
-                      :to="`/codex/item/rarity/${itemDetailData.rarity}`"
+                      :to="`/codex/items?rarity=${itemDetailData.rarity}`"
                       v-if="itemDetailData.rarity">
                 <v-badge dot inline :color="rarityColorConfig[itemDetailData.rarity]" class="mr-1"></v-badge>
                 {{ t(`codex.rarity.${itemDetailData.rarity}`) }}

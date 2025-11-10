@@ -147,10 +147,9 @@ const onDeleteComment = async (data: any) => {
     notice.success(t(`basic.tips.${e.response.data.code}`))
   } catch (e) {
     if (e instanceof AxiosError)
-      notice.error({
-        text: t(`basic.tips.${e.response.data.code}`, {
-          content: e.response.data.message
-        }),
+      notice.error(t(`basic.tips.${e.response.data.code}`, {
+        content: e.response.data.message
+      }), {
         color: 'red'
       })
     console.error(e)
@@ -184,10 +183,9 @@ const onEditComment = async (data: any) => {
     notice.success(t(`basic.tips.${e.response.data.code}`))
   } catch (e) {
     if (e instanceof AxiosError)
-      notice.error({
-        text: t(`basic.tips.${e.response.data.code}`, {
-          content: e.response.data.message
-        }),
+      notice.error(t(`basic.tips.${e.response.data.code}`, {
+        content: e.response.data.message
+      }), {
         color: 'red'
       })
   } finally {

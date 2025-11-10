@@ -12,9 +12,10 @@ import DamageIconWidget from "@/components/snbWidget/damageIconWidget.vue";
 
 type ItemDamageTypeSize = 'mini' | 'default'
 
-const props = withDefaults(defineProps<{ data: Item | any, size?: ItemDamageTypeSize }>(), {
+const props = withDefaults(defineProps<{ data: Item | any, sizeType?: ItemDamageTypeSize, size: number }>(), {
       data: null,
-      size: 'default'
+      sizeType: 'default',
+      size: 15,
     }),
     damageIconImages = ref([]),
     route = useRoute(),
@@ -79,7 +80,7 @@ const setDamageRef = (el: any, index: string | number) => {
 
 <template>
   <!-- 正常 -->
-  <template v-if="size == 'default'">
+  <template v-if="sizeType == 'default'">
     <v-card class="bg-transparent d-flex ga-3">
       <template v-for="(i, index) in damageIconImages"
                 :key="index">
@@ -105,7 +106,7 @@ const setDamageRef = (el: any, index: string | number) => {
     </template>
   </template>
   <!-- 浓缩 无空Widget -->
-  <template v-else-if="size == 'mini'">
+  <template v-else-if="sizeType == 'mini'">
     <v-card class="bg-transparent d-flex ga-1" v-if="damageIconImages.length > 0">
       <template
           v-for="(i, index) in damageIconImages"
@@ -113,14 +114,14 @@ const setDamageRef = (el: any, index: string | number) => {
         <div v-show="damageRefs[index] && damageRefs[index]?.isShow || false">
           <ItemSlotBase
               padding="0"
-              size="25"
+              :size="size + 15"
               class="d-flex justify-center align-center card-flavor"
               v-tooltip="getTitle(i.key)">
 
             <DamageIconWidget
                 :id="i.key"
                 :ref="(el) => setDamageRef(el, index)"
-                size="15"
+                :size="size"
             ></DamageIconWidget>
           </ItemSlotBase>
         </div>

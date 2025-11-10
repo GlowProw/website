@@ -153,6 +153,7 @@
       "byType": "类型筛选",
       "byRarity": "品质筛选",
       "byCategory": "类别筛选",
+      "byTier": "等级筛选",
       "bySeason": "赛季筛选",
       "sortBy": "排序",
       "dateAdded": "添加时间",
