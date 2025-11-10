@@ -412,7 +412,7 @@ const onInitEdit = () => {
                 </v-list-item>
                 <v-list-item link>
                   <v-list-item-title @click="onItem(['shipUpgrade'])">
-                    {{ t('codex.type.shipUpgrade') }}
+                    {{ t('codex.types.shipUpgrade') }}
                   </v-list-item-title>
                   <template v-slot:append>
                     <v-icon>mdi-open-in-new</v-icon>
@@ -420,9 +420,9 @@ const onInitEdit = () => {
                 </v-list-item>
                 <v-list-item link>
                   <v-list-item-title @click="onItem([ 'majorFurniture','offensiveFurniture', 'utilityFurniture'])">
-                    {{ t('codex.type.offensiveFurniture') }},
-                    {{ t('codex.type.offensiveFurniture') }},
-                    {{ t('codex.type.utilityFurniture') }}
+                    {{ t('codex.types.offensiveFurniture') }},
+                    {{ t('codex.types.offensiveFurniture') }},
+                    {{ t('codex.types.utilityFurniture') }}
                   </v-list-item-title>
                   <template v-slot:append>
                     <v-icon>mdi-open-in-new</v-icon>
@@ -430,7 +430,7 @@ const onInitEdit = () => {
                 </v-list-item>
                 <v-list-item link>
                   <v-list-item-title @click="onItem([ 'consumable'])">
-                    {{ t('codex.type.consumable') }}
+                    {{ t('codex.types.consumable') }}
                   </v-list-item-title>
                   <template v-slot:append>
                     <v-icon>mdi-open-in-new</v-icon>
@@ -438,8 +438,8 @@ const onInitEdit = () => {
                 </v-list-item>
                 <v-list-item link>
                   <v-list-item-title @click="onItem(['tool','chest'])">
-                    {{ t('codex.type.tool') }},
-                    {{ t('codex.type.chest') }}
+                    {{ t('codex.types.tool') }},
+                    {{ t('codex.types.chest') }}
                   </v-list-item-title>
                   <template v-slot:append>
                     <v-icon>mdi-open-in-new</v-icon>

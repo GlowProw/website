@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
-import {computed, reactive, Ref, ref, toRaw, useAttrs, useSlots, watch} from "vue";
+import {computed, onMounted, reactive, Ref, ref, toRaw, useAttrs, useSlots, watch} from "vue";
 import {useRoute} from "vue-router";
 
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
@@ -79,7 +79,7 @@ let workshopData = ref({
         weaponModifications: [],            // 武器   安装模组
         weaponSlots: [],                    // 武器
         armorSlot: null,                    // 船甲
-        armorModification: [[]],              // 船甲模组
+        armorModification: [],              // 船甲模组
         secondaryWeaponSlots: [],           // 副武器
         secondaryWeaponModifications: [],   // 副武器 安装模组
         displaySlots: [],                   // 家具陈设
@@ -255,6 +255,10 @@ const onSlotRemove = (type, index?: number) => {
  * 选择船
  * @param shipId
  */
+/**
+ * 选择船
+ * @param shipId
+ */
 const onSelectShip = (shipId: string) => {
   if (poops.readonly)
     return;
@@ -268,7 +272,8 @@ const onSelectShip = (shipId: string) => {
   workshopData.value.shipFrigateUpgradeList = shipUpItem;
 
   // 创建陈设插槽
-  workshopData.value.data.displaySlots = Array.from({length: workshopData.value.data.shipSlot.slots.furniture[0] || 0}, () => {
+  const furnitureCount = workshopData.value.data.shipSlot.slots.furniture?.[0] || 0;
+  workshopData.value.data.displaySlots = Array.from({length: furnitureCount}, () => {
     return Item.fromRawData({})
   })
 
@@ -276,26 +281,22 @@ const onSelectShip = (shipId: string) => {
   workshopData.value.data.armorSlot = null
 
   // 创建武器插槽，选择初始
-  workshopData.value.data.weaponSlots = Array.from({
-    length: shipSlotMapping.f[workshopData.value.data.shipSlot.id]?.weaponsSlotCount[0]?.gunSlotCount || 0
-  }, () => {
+  const shipConfig = shipSlotMapping.f[workshopData.value.data.shipSlot.id];
+  const weaponSlotCount = shipConfig?.weaponsSlotCount?.[0]?.gunSlotCount || 0;
+
+  workshopData.value.data.weaponSlots = Array.from({length: weaponSlotCount}, () => {
     return Item.fromRawData({})
   })
 
   // 创建武器插槽方向，用于排它选择以及查询甲板信息用途
-  workshopData.value.data.weaponDirections = Array.from({
-    length: shipSlotMapping.f[workshopData.value.data.shipSlot.id]?.weaponsSlotCount[0]?.gunSlotCount || 0
-  }, () => null)
+  workshopData.value.data.weaponDirections = Array.from({length: weaponSlotCount}, () => null)
 
   // 创建武器插槽模组
-  workshopData.value.data.weaponModification = Array.from({
-    length: shipSlotMapping.f[workshopData.value.data.shipSlot.id].weaponsSlotCount[0]?.gunSlotCount || 0
-  }, () => null)
+  workshopData.value.data.weaponModification = Array.from({length: weaponSlotCount}, () => null)
 
   // 创建副武器插槽
-  workshopData.value.data.secondaryWeaponSlots = Array.from({
-    length: shipSlotMapping.f[workshopData.value.data.shipSlot.id].weaponsSlotCount[0]?.secondaryWeapon || 0
-  }, () => Item.fromRawData({}))
+  const secondaryWeaponCount = shipConfig?.weaponsSlotCount?.[0]?.secondaryWeapon || 0;
+  workshopData.value.data.secondaryWeaponSlots = Array.from({length: secondaryWeaponCount}, () => Item.fromRawData({}))
 }
 
 /**
@@ -310,6 +311,7 @@ const onSelectUltimate = () => {
     return;
 
   workshopData.value.data.ultimateSlot = workshopData.value.ultimateSelect
+  workshopData.value.ultimateSelect = null;
 }
 
 /**
@@ -347,10 +349,18 @@ const onSelectFrigteUpgrad = () => {
  */
 const getDeckInformation = (index: number, type = 'weapon'): Record<string, any> => {
   try {
+    // 添加索引边界检查
+    if (index < 0 || index >= workshopData.value.data.weaponDirections.length) {
+      return {};
+    }
+
     switch (type) {
       case 'weapon':
         const weaponDirections = workshopData.value?.data?.weaponDirections?.[index],
             weapons = workshopData.value?.data?.weaponSlots?.[index];
+
+        // 检查武器是否存在
+        if (!weapons || !weapons.type) return {};
 
         // 顶层甲板武器 大型甲板仅有一个Top
         if (['ballista', 'seaFire'].includes(weapons.type)) return {top: 1, down: 0}
@@ -358,18 +368,22 @@ const getDeckInformation = (index: number, type = 'weapon'): Record<string, any>
 
         // 顶层甲板武器仅能使用Top
         if (['bombard', 'longGun', 'torpedo'].includes(weapons.type)) {
-          const {top} = cache.value.weaponDirections[weaponDirections]
-          return {top, down: 0}
+          const {top} = cache.value.weaponDirections[weaponDirections] || {}
+          return {top: top || 0, down: 0}
         }
         return cache.value.weaponDirections[weaponDirections] || {};
 
       case 'secondaryWeapon':
         const auxiliaryWeapon = cache.value.weaponDirections;
+        if (!auxiliaryWeapon) return {};
 
         if (typeof auxiliaryWeapon['auxiliaryWeapon'] == 'number')
           return {top: auxiliaryWeapon['auxiliaryWeapon']}
 
         return auxiliaryWeapon['auxiliaryWeapon'] || {};
+
+      default:
+        return {};
     }
   } catch (e) {
     console.error('Error in getDeckInformation:', e);
@@ -908,23 +922,22 @@ defineExpose({
                   </ItemSlotBase>
                 </div>
 
-                <div v-for="(i, index) in workshopData.data.armorModification" :key="index">
+                <template v-if="workshopData.data.armorSlot != null">
                   <!-- 船甲模组插槽 -->
-                  <div class="mb-2 mt-1" v-if="!perfectDisplay && workshopData.data.armorSlot">
+                  <div class="mb-2 mt-1" v-if="!perfectDisplay">
                     <WeaponModificationWidget :readonly="readonly"
                                               :data="workshopData.data.armorSlot"
                                               size="4"
-                                              v-model="workshopData.data.armorModification[index]"></WeaponModificationWidget>
+                                              v-model="workshopData.data.armorModification[0]"></WeaponModificationWidget>
                   </div>
 
                   <!-- 船甲模组插槽 仅展示 -->
                   <div class="mb-2 mt-1" v-if="perfectDisplay">
                     <WeaponModificationOnlyShowWidget
                         :item-data="workshopData.data.armorSlot"
-                        :mod-data="workshopData.data.armorModification[index]"></WeaponModificationOnlyShowWidget>
+                        :mod-data="workshopData.data.armorModification[0]"></WeaponModificationOnlyShowWidget>
                   </div>
-                </div>
-
+                </template>
               </v-col>
               <!-- 船甲 卡槽 E -->
 

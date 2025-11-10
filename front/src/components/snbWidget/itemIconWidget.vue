@@ -15,6 +15,8 @@ import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
+import DamageIconWidget from "@/components/snbWidget/damageIconWidget.vue";
+import ItemDamageTypeWidget from "@/components/snbWidget/itemDamageTypeWidget.vue";
 
 const
     {asString, sanitizeString} = useI18nUtils(),
@@ -100,10 +102,10 @@ const {targetElement, isVisible} = useIntersectionObserver({
           <v-img :src="raritysAssets[`item-rarity-${i.rarity}`]" width="100%" height="100%" class="opacity-30 prohibit-drag"/>
         </template>
 
-        <div class="d-flex align-center">
+        <div class="d-flex align-center justify-center h-100">
           <v-img
               class="prohibit-drag"
-              :src="itemsCardData.icon" cover width="100%" height="100%">
+              :src="itemsCardData.icon">
             <template v-slot:error>
               <div class="fill-height repeating-gradient d-flex justify-center align-center h-100">
                 <v-icon icon="mdi-help" class="opacity-30"></v-icon>
@@ -133,10 +135,14 @@ const {targetElement, isVisible} = useIntersectionObserver({
         </h1>
         <p class="mb-1 mt-2">{{ i.id }}</p>
 
+        <div class="mt-3" v-if="i.perks.length > 0">
+          <ItemDamageTypeWidget :data="i" size="mini"></ItemDamageTypeWidget>
+        </div>
+
         <div class="d-flex ga-2 mt-3">
           <v-chip inline
                   :to="`/codex/item/category/${i.type}`"
-                  class="badge-flavor text-center text-black" v-if="i.type">{{ t(`codex.type.${i.type}`) }}
+                  class="badge-flavor text-center text-black" v-if="i.type">{{ t(`codex.types.${i.type}`) }}
           </v-chip>
           <v-chip class="badge-flavor text-center tag-badge text-black"
                   :to="`/codex/item/tier/${i.tier}`"
@@ -147,6 +153,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
                   v-if="i.rarity">{{ t(`codex.rarity.${i.rarity}`) }}
           </v-chip>
         </div>
+
         <div class="right-show-image pointer-events-none position-absolute w-33">
           <v-img :src="itemsCardData.icon" class="material-mirror-image"></v-img>
         </div>

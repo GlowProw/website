@@ -90,7 +90,7 @@ const onStatisticsRawMaterial = () => {
             <template v-slot:prepend>
               <div class="d-flex ga-2">
                 <ItemSlotBase size="25px" :padding="0">
-                  <MaterialIconWidget :id="i.id" item-type="items"></MaterialIconWidget>
+                  <MaterialIconWidget :id="i.id" item-type="items" :padding="0" :margin="0"></MaterialIconWidget>
                 </ItemSlotBase>
                 <ItemSlotBase size="25px" :padding="0"
                               v-if="materials[i.id].faction">
@@ -147,7 +147,7 @@ const onStatisticsRawMaterial = () => {
             <template v-slot:prepend>
               <div class="d-flex ga-2">
                 <ItemSlotBase size="25px" :padding="0">
-                  <MaterialIconWidget :id="key"></MaterialIconWidget>
+                  <MaterialIconWidget :id="key" :padding="0" :margin="0"></MaterialIconWidget>
                 </ItemSlotBase>
                 <ItemSlotBase size="25px" :padding="0"
                               v-if="materials[key].faction">
@@ -181,7 +181,7 @@ const onStatisticsRawMaterial = () => {
                 <template v-slot:prepend>
                   <div class="d-flex ga-2">
                     <ItemSlotBase size="25px" :padding="0">
-                      <MaterialIconWidget :id="raw.id" item-type="items"></MaterialIconWidget>
+                      <MaterialIconWidget :id="raw.id" item-type="items" :padding="0" :margin="0"></MaterialIconWidget>
                     </ItemSlotBase>
                     <ItemSlotBase size="25px" :padding="0"
                                   v-if="materials[raw.id].faction">

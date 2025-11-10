@@ -101,10 +101,10 @@ const {targetElement, isVisible} = useIntersectionObserver({
           <v-img :src="raritysAssets[`item-rarity-${i.rarity}`]" width="100%" height="100%" class="opacity-30 prohibit-drag"/>
         </template>
 
-        <div class="d-flex align-center">
+        <div class="d-flex align-center justify-center h-100">
           <v-img
               class="prohibit-drag"
-              :src="commoditiesCardData.icon" cover width="100%" height="100%">
+              :src="commoditiesCardData.icon">
             <template v-slot:error>
               <div class="fill-height repeating-gradient d-flex justify-center align-center h-100">
                 <v-icon icon="mdi-help" class="opacity-30"></v-icon>
@@ -137,7 +137,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
         <div class="d-flex ga-2 mt-3">
           <v-chip inline
                   :to="`/codex/commoditie/category/${i.type}`"
-                  class="badge-flavor text-center text-black" v-if="i.type">{{ t(`codex.type.${i.type}`) }}
+                  class="badge-flavor text-center text-black" v-if="i.type">{{ t(`codex.types.${i.type}`) }}
           </v-chip>
           <v-chip class="badge-flavor text-center tag-badge text-black"
                   :to="`/codex/commoditie/rarity/${i.rarity}`"

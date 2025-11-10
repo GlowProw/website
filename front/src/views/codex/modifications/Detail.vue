@@ -131,7 +131,7 @@ const onCodexHistory = () => {
                             :to="`/codex/item/category/${tag}`"
                             target="_blank"
                             v-for="(tag, tagIndex) in i.itemType" :key="tagIndex">
-                      {{ t(`codex.type.${tag}`) }}
+                      {{ t(`codex.types.${tag}`) }}
                     </v-chip>
                   </div>
                   <div class="mt-3">

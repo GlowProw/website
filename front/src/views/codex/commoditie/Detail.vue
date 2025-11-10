@@ -153,7 +153,7 @@ const onCodexHistory = () => {
             <div class="mt-5 d-flex ga-2">
               <v-chip class="badge-flavor text-center tag-badge text-black"
                       :to="`/codex/item/category/${commoditieDetailData.type}`">
-                {{ t(`codex.type.${commoditieDetailData.type}`) || '' }}
+                {{ t(`codex.types.${commoditieDetailData.type}`) || '' }}
               </v-chip>
               <v-chip class="badge-flavor text-center tag-badge text-black"
                       :to="`/codex/item/rarity/${commoditieDetailData.rarity}`"

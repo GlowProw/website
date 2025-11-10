@@ -96,7 +96,7 @@ const onProcessedData = computed(() => {
     <h1 class="mb-5 mt-5 text-amber" v-if="route.params.fun != 'obtainable'">
       {{
         asString([
-          `codex.type.${route.params.key}`,
+          `codex.types.${route.params.key}`,
           `snb.seasons.${route.params.key}`,
           `codex.rarity.${route.params.key}`,
           `snb.ranks.${route.params.key}`,

@@ -93,7 +93,7 @@ const onCodexHistory = () => {
                 {{ materialDetailData.damageType }}
               </v-chip>
               <v-chip class="badge-flavor text-center tag-badge text-black" v-if="materialDetailData.category">
-                {{ t(`codex.type.${materialDetailData.category}`) }}
+                {{ t(`codex.types.${materialDetailData.category}`) }}
               </v-chip>
               <v-chip class="badge-flavor text-center tag-badge text-black"
                       v-if="materialDetailData.rarity">

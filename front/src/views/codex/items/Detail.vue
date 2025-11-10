@@ -207,7 +207,7 @@ const onStarItem = (data: Item) => {
             <div class="mt-5 d-flex ga-2">
               <v-chip class="badge-flavor text-center tag-badge text-black"
                       :to="`/codex/item/category/${itemDetailData.type}`">
-                {{ t(`codex.type.${itemDetailData.type}`) || '' }}
+                {{ t(`codex.types.${itemDetailData.type}`) || '' }}
               </v-chip>
               <v-chip class="badge-flavor text-center tag-badge text-black"
                       :to="`/codex/item/tier/${itemDetailData.tier}`"

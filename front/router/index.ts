@@ -552,6 +552,14 @@ const router = createRouter({
     scrollBehavior(to, from, savedPosition) {
         return new Promise((resolve) => {
             setTimeout(() => {
+                // 检查是否有 scrollTop=false 查询参数
+                const scrollTopParam = to.query.scrollTop;
+                if (scrollTopParam === 'false' || scrollTopParam === false) {
+                    // 不进行滚动
+                    resolve(false);
+                    return;
+                }
+
                 if (to.hash) {
                     resolve({
                         el: to.hash,

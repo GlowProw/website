@@ -84,32 +84,32 @@ export default class AppCodexNav {
                 {
                     title: 'codex.navs.rawMaterials.name',
                     value: 'rawMaterials',
-                    to: "/codex/materials?type=raw"
+                    to: "/codex/materials?category=raw"
                 },
                 {
                     title: 'codex.navs.refinedMaterials.name',
                     value: 'refinedMaterials',
-                    to: "/codex/materials?type=refined"
+                    to: "/codex/materials?category=refined"
                 },
                 {
                     title: 'codex.navs.specializedMaterials.name',
                     value: 'specializedMaterials',
-                    to: "/codex/materials?type=specialized"
+                    to: "/codex/materials?category=specialized"
                 },
                 {
                     title: 'codex.navs.exoticMaterials.name',
                     value: 'exoticMaterials',
-                    to: "/codex/materials?type=exotic"
+                    to: "/codex/materials?category=exotic"
                 },
                 {
                     title: 'codex.navs.helmMaterials.name',
                     value: 'helmMaterials',
-                    to: "/codex/materials?type=helm"
+                    to: "/codex/materials?category=helm"
                 },
                 {
                     title: 'codex.navs.scrapMaterials.name',
                     value: 'scrapMaterials',
-                    to: "/codex/materials?type=scrap"
+                    to: "/codex/materials?category=scrap"
                 },
             ]
         },

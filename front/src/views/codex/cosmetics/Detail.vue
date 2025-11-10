@@ -87,7 +87,7 @@ const onCodexHistory = () => {
 
             <div class="mt-5 d-flex ga-2">
               <v-chip class="badge-flavor text-center tag-badge text-black" v-if="materialDetailData.type">
-                {{ t(`codex.type.${materialDetailData.type}`) }}
+                {{ t(`codex.types.${materialDetailData.type}`) }}
               </v-chip>
             </div>
           </v-col>

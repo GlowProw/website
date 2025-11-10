@@ -32,9 +32,10 @@ export const messageCompiler = (message: any) => {
                     return String(arg);
                 });
             } else {
-                // 处理对象参数（{named} 占位符）
-                result = result.replace(/\{(\w+)\}/g, (match: any, placeholder: any) => {
-                    if (ctx.values[placeholder]) {
+                // 处理对象参数
+                // 支持 {named} 和 {{named}} 两种格式
+                result = result.replace(/\{\{?(\w+)\}?\}/g, (match: any, placeholder: any) => {
+                    if (ctx.values[placeholder] !== undefined) {
                         return String(ctx.values[placeholder]);
                     }
                     return match; // 保持原样而不是返回空字符串
