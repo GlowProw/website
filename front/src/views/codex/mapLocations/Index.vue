@@ -8,7 +8,7 @@ const {t} = useI18n()
 
 <template>
   <v-container class="pa-5">
-    <CodexViewData load-data-type="mapLocation"></CodexViewData>
+    <CodexViewData :load-data-type="['mapLocation']"></CodexViewData>
   </v-container>
 </template>
 

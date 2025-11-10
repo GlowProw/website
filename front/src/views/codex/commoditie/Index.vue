@@ -15,7 +15,7 @@ const route = useRoute(),
 
 <template>
   <v-container class="pa-5">
-    <CodexViewData load-data-type="commoditie"></CodexViewData>
+    <CodexViewData :load-data-type="['commoditie']"></CodexViewData>
   </v-container>
 </template>
 

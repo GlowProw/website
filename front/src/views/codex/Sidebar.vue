@@ -55,8 +55,6 @@ watch(() => mobile.value, (value) => {
           {{ t('search.title') }}
         </v-list-item>
       </template>
-
-
     </v-list>
   </div>
 </template>
@@ -64,6 +62,7 @@ watch(() => mobile.value, (value) => {
 <style scoped lang="less">
 .sidebar-container {
   overflow: hidden;
+  padding-bottom: 10px;
 
   &.collapsed {
     .menu-content {

@@ -63,7 +63,7 @@ const onCleaningHistory = () => {
     <v-row class="fill-height" no-gutters>
       <!-- 游览历史 S -->
       <div class="w-100 mb-10" v-if="codexHistorys.length > 0">
-        <v-toolbar class="pa-0 bg-transparent">
+        <v-toolbar class="py-0 px-5 bg-transparent">
           <div class="font-weight-bold text-amber text-h5">
             <v-icon>mdi-history</v-icon>
             {{ t('codex.cabinetHistoryTitle') }}
@@ -75,8 +75,8 @@ const onCleaningHistory = () => {
           </v-col>
         </v-toolbar>
 
-        <v-row>
-          <v-col cols="auto" v-for="(i,index) in codexHistorys" :key="index">
+        <v-row class="px-5">
+          <v-col cols="auto"v-for="(i,index) in codexHistorys" :key="index">
             <ItemSlotBase size="120px">
               <ShipIconWidget :id="i.id" v-if="i.category == 'ship'"></ShipIconWidget>
               <ItemIconWidget :id="i.id" v-if="i.category == 'item'"></ItemIconWidget>
@@ -95,7 +95,7 @@ const onCleaningHistory = () => {
 
       <div class="w-100">
         <template v-for="(i, index) in appCodexNav.codex" :key="index">
-          <v-toolbar class="pa-0 bg-transparent">
+          <v-toolbar class="py-0 px-5 bg-transparent">
             <div class="font-weight-bold text-amber text-h5">
               {{ t(i.title) }}
             </div>
@@ -104,8 +104,8 @@ const onCleaningHistory = () => {
 
           <v-divider class="mb-5"></v-divider>
 
-          <v-row class="mb-2 px-3 mb-16 pl-0 pr-0">
-            <v-col cols="12" sm="12" lg="3" v-for="(n, nIndex) in i.childs" :key="nIndex" v-if="i.childs">
+          <v-row class="mb-2 px-3 mb-16">
+            <v-col cols="12" sm="12" md="4" lg="3" v-for="(n, nIndex) in i.childs" :key="nIndex" v-if="i.childs">
               <router-link :to="n.to" class="codex-overview-item">
                 <div class="card-flavor px-0 py-1">
                   <v-card class="card-enlargement-flavor card px-8 py-5">

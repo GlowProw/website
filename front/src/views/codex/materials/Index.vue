@@ -5,7 +5,7 @@ import CodexViewData from "@/components/CodexViewData.vue";
 
 <template>
   <v-container class="pa-5">
-    <CodexViewData load-data-type="material"></CodexViewData>
+    <CodexViewData :load-data-type="['material']"></CodexViewData>
   </v-container>
 </template>
 

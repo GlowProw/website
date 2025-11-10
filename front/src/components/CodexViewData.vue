@@ -37,8 +37,8 @@ type SortField = 'dateAdded' | 'lastUpdated'
 type SortOrder = 'asc' | 'desc'
 
 const
-    props = withDefaults(defineProps<{ loadDataType: LoadDataType }>(), {
-      loadDataType: 'item'
+    props = withDefaults(defineProps<{ loadDataType: LoadDataType[] }>(), {
+      loadDataType: ['item']
     }),
 
     // 数据 手稿
@@ -60,7 +60,7 @@ const
     route = useRoute(),
     router = useRouter(),
     {t} = useI18n(),
-    {mobile} = useDisplay(),
+    {mobile, sm, md, lg} = useDisplay(),
     {asString, sanitizeString} = useI18nUtils()
 
 let data: any = ref([]),
@@ -134,6 +134,13 @@ let data: any = ref([]),
           filterData.value.sortOrder !== 'desc' ||
           filterData.value.keyValue !== '' ||
           filterData.value.inputWidgetKeyValue !== '';
+    }),
+    size = computed(() => {
+      let s = 120
+      if (mobile.value) {
+        s = 99
+      }
+      return s;
     })
 
 /**
@@ -225,37 +232,39 @@ const onProcessedData = computed(() => {
     maximumSearchCount = route.query.debug ? 10000 : 100,
     originalData = computed(() => {
       let d = []
-      switch (props.loadDataType) {
-          // 手稿
-        case "ship":
-          d = ships;
-          break;
-        case "item":
-          d = items;
-          break;
-        case "commoditie":
-          d = commodities;
-          break;
-        case "material":
-          d = materials;
-          break;
-        case "cosmetic":
-          d = cosmetics;
-          break;
-        case "ultimate":
-          d = ultimates;
-          break;
-        case "modification":
-          d = modifications;
-          break;
-          // 地图
-        case "treasureMaps":
-          d = treasureMaps;
-          break;
-        case "mapLocation":
-          d = mapLocation;
-          break;
-      }
+      props.loadDataType.forEach(type => {
+        switch (type) {
+            // 手稿
+          case "ship":
+            d = d.concat(Object.values(ships));
+            break;
+          case "item":
+            d = d.concat(Object.values(items));
+            break;
+          case "commoditie":
+            d = d.concat(Object.values(commodities));
+            break;
+          case "material":
+            d = d.concat(Object.values(materials));
+            break;
+          case "cosmetic":
+            d = d.concat(Object.values(cosmetics));
+            break;
+          case "ultimate":
+            d = d.concat(Object.values(ultimates));
+            break;
+          case "modification":
+            d = d.concat(Object.values(modifications));
+            break;
+            // 地图
+          case "treasureMaps":
+            d = d.concat(Object.values(treasureMaps));
+            break;
+          case "mapLocation":
+            d = d.concat(Object.values(mapLocation));
+            break;
+        }
+      })
       return Object.values(d)
     }),
     isSearching = computed(() => !!(filterData.value.keyValue)),
@@ -766,8 +775,8 @@ const onSort = (field: SortField, order: SortOrder) => {
     <template v-if="isShouldShowInfiniteScroll">
       <v-infinite-scroll @load="onLoad">
         <v-row class="list ga-4" no-gutters>
-          <v-card v-for="(i,index) in data" :key="index" width="120" variant="text">
-            <ItemSlotBase size="120px">
+          <v-card v-for="(i,index) in data" :key="index" :width="size" variant="text">
+            <ItemSlotBase :size="`${size}px`">
               <ShipIconWidget :id="i.id" v-if="loadDataType == 'ship'"></ShipIconWidget>
               <ItemIconWidget :id="i.id" v-if="loadDataType == 'item'"></ItemIconWidget>
               <CommoditieIconWidget :id="i.id" v-if="loadDataType == 'commoditie'"></CommoditieIconWidget>
@@ -816,8 +825,8 @@ const onSort = (field: SortField, order: SortOrder) => {
     <template v-else>
       <!-- 搜索或筛选时的显示 S -->
       <v-row class="list ga-4" no-gutters>
-        <v-card v-for="(i,index) in onProcessedData" :key="index" width="120" variant="text">
-          <ItemSlotBase size="120px">
+        <v-card v-for="(i,index) in onProcessedData" :key="index" :width="size" variant="text">
+          <ItemSlotBase :size="`${size}px`">
             <ShipIconWidget :id="i.id" v-if="loadDataType == 'ship'"></ShipIconWidget>
             <ItemIconWidget :id="i.id" v-if="loadDataType == 'item'"></ItemIconWidget>
             <CommoditieIconWidget :id="i.id" v-if="loadDataType == 'commoditie'"></CommoditieIconWidget>
@@ -864,6 +873,22 @@ const onSort = (field: SortField, order: SortOrder) => {
 .list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  grid-auto-columns: minmax(120px, 120px);
+  gap: 16px;
+}
+
+@media (max-width: 480px) {
+  .list {
+    grid-template-columns: repeat(auto-fill, minmax(99px, 1fr));
+    gap: 10px;
+    justify-items: center;
+  }
+}
+
+@media (max-width: 390px) {
+  .list {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+    justify-items: center;
+  }
 }
 </style>
