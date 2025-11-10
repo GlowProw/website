@@ -1,13 +1,8 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
-import {computed} from "vue";
 
 const props = defineProps<{ id: string, variants, grade, type }>(),
     {t, rt, tm, te} = useI18n()
-
-let isDescriptionMultipleLines = computed(() => {
-  return tm(`snb.modifications.${props.id}.description`)
-})
 
 /**
  * 格式数据
@@ -27,15 +22,7 @@ const onFormatRange = (data: []) => {
 <template>
   <div v-for="(v, vIndex) in variants.filter(e => e.itemType.indexOf(type) >= 0)" :key="vIndex"
        :class="`grade-${grade}-description`" class="opacity-50 description">
-
-
-
-    <template v-if="isDescriptionMultipleLines">
-      {{ t(`snb.modifications.${id}.description`, {
-        __: onFormatRange(v.range)
-      }) }}
-    </template>
-    <template v-else-if="isDescriptionMultipleLines && !Array.isArray(t(`snb.modifications.${id}.description`)) && te(`snb.modifications.${id}.description`)">
+    <template v-if=" !Array.isArray(t(`snb.modifications.${id}.description`)) && te(`snb.modifications.${id}.description`)">
       {{
         t(`snb.modifications.${id}.description`, {
           __: onFormatRange(v.range)
