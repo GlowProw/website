@@ -169,7 +169,6 @@ const initializeSlots = () => {
 };
 
 const updateAvailableMods = () => {
-  console.log('更新可用模组数据');
   availableModulesData.value = categorizeModificationsByGrade(Modifications);
   updateFilteredMods();
 };
@@ -200,7 +199,6 @@ const updateFilteredMods = () => {
   });
 
   filteredMods.value = result;
-  console.log('筛选结果:', filteredMods.value);
 };
 
 const matchesSearchQuery = (mod: ModItem, query: string): boolean => {
@@ -274,7 +272,6 @@ const categorizeModificationsByGrade = (modificationsRaw: any): Record<ModType, 
     }
   });
 
-  console.log('分类后的模组数据:', result);
   return result;
 };
 

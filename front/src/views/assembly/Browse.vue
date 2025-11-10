@@ -18,7 +18,7 @@ const {t} = useI18n(),
 
 let browsePagination = ref({
       page: 1,
-      pageSize: 10
+      pageSize: 6
     }),
     browseData: Ref<{
       data: AssemblyItem[],
@@ -98,7 +98,10 @@ const getBrowseList = async () => {
 watch(browseData, (newList: ResultData) => {
   if (newList && newList.data.length > 0) {
     nextTick(() => {
-      browseAssemblyWidgetRefs.value.forEach((widget, index) => {
+      const processBatch = (index = 0) => {
+        if (index >= newList.data.length) return;
+
+        const widget = browseAssemblyWidgetRefs.value[index];
         if (widget?.onLoad) {
           widget
               .setSetting({
@@ -107,7 +110,14 @@ watch(browseData, (newList: ResultData) => {
               })
               .onLoad(newList.data[index]?.assembly || {});
         }
-      });
+
+        // requestAnimationFrame 继续处理下一个
+        requestAnimationFrame(() => {
+          processBatch(index + 1);
+        });
+      };
+
+      processBatch();
     });
   }
 }, {deep: true});
@@ -261,7 +271,7 @@ watch(browseData, (newList: ResultData) => {
           <EmptyView></EmptyView>
         </div>
 
-        <div class="h-100 d-flex justify-center align-center">
+        <div class="h-100 d-flex justify-center align-center" v-else-if="browseLoading">
           <Loading size="100"></Loading>
         </div>
 
@@ -269,7 +279,7 @@ watch(browseData, (newList: ResultData) => {
         <v-pagination
             v-if="browseData.pagination"
             v-model="browsePagination.page"
-            :length="browseData.pagination.totalPages"
+            :length="browseData.pagination?.totalPages || 0"
             @update:model-value="getBrowseList"
             class="mt-8"
         ></v-pagination>

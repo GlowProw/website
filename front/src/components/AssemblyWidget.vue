@@ -1039,13 +1039,13 @@ defineExpose({
               max-height="90%"
               min-width="450"
               max-width="700">
-      <v-card v-slot:default class="overflow-hidden">
+      <v-card class="overflow-hidden">
         <v-card-title>
           <v-row>
             <b class="font-weight-bold text-h5 pa-5">{{ t('assembly.workshop.insertShipTitle') }}</b>
             <v-spacer></v-spacer>
             <v-col cols="auto">
-              <v-btn icon variant="text" class="ml-1" @click="workshopData.weaponModel = false">
+              <v-btn icon variant="text" class="ml-1" @click="workshopData.shipModel = false">
                 <v-icon icon="mdi-close"/>
               </v-btn>
             </v-col>
@@ -1074,7 +1074,7 @@ defineExpose({
             <b class="font-weight-bold text-h5 pa-5">{{ t('assembly.workshop.insertShipFrigateUpgradeTitle') }}</b>
             <v-spacer></v-spacer>
             <v-col cols="auto">
-              <v-btn icon variant="text" class="ml-1" @click="workshopData.weaponModel = false">
+              <v-btn icon variant="text" class="ml-1" @click="workshopData.frigateUpgradeModel = false">
                 <v-icon icon="mdi-close"/>
               </v-btn>
             </v-col>

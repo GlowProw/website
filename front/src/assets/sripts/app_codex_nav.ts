@@ -26,22 +26,22 @@ export default class AppCodexNav {
                 {
                     title: 'codex.navs.allDeckWeapons.name',
                     value: 'allDeckWeapons',
-                    to: "/codex/items?type=culverin,demicannon,bombard,longGun,torpedo"
+                    to: "/codex/items?type=culverin,demicannon"
                 },
                 {
                     title: 'codex.navs.topDeckWeapons.name',
                     value: 'topDeckWeapons',
-                    to: "/codex/items?type=ballista,seaFire"
+                    to: "/codex/items?type=longGun,bombard,torpedo"
                 },
                 {
                     title: 'codex.navs.bowWeapons.name',
                     value: 'bowWeapons',
-                    to: "/codex/items?type=ballista"
+                    to: "/codex/items?type=ballista,seaFire"
                 },
                 {
                     title: 'codex.navs.auxiliaryWeapons.name',
                     value: 'auxiliaryWeapons',
-                    to: "/codex/items?type=mortar"
+                    to: "/codex/items?type=mortar,rocket,springloader"
                 }
             ]
         },
