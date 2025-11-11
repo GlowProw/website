@@ -51,7 +51,7 @@ const onReady = () => {
           <v-card tile
                   variant="flat"
                   class="bg-transparent h-100 d-flex align-center">
-            <ItemSlotBase size="36px">
+            <ItemSlotBase size="45px">
               <ModIconWidget :id="mod.value.id"></ModIconWidget>
             </ItemSlotBase>
             <div class="w-100 text-caption">

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
-import {computed, onMounted, reactive, Ref, ref, toRaw, useAttrs, useSlots, watch} from "vue";
+import {computed, reactive, Ref, ref, toRaw, useAttrs, useSlots, watch} from "vue";
 import {useRoute} from "vue-router";
 
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
@@ -87,12 +87,13 @@ let workshopData = ref({
         // 平台版本
         // ** 它可能不存在，如果有则依靠此__version识别，没有则主要使用attr.assemblyUseVersion, 否则降级 **
         __version: AssemblyDataProcessing.nowVersion,
-      } as {
-        shipSlot: Ship, ultimateSlot: Item | null, armorSlot: Item | null, armorModification: any[],
-        displaySlots: Item[], weaponSlots: ItemAssemblySave[] | Item[], shipUpgradeSlot: Item | null,
-        secondaryWeaponSlots: Item[],
-        weaponDirections: string[], weaponModification: any[]
       }
+      // as {
+      //   shipSlot: Ship, ultimateSlot: Item | null, armorSlot: Item | null, armorModification: any[],
+      //   displaySlots: Item[], weaponSlots: ItemAssemblySave[] | Item[], shipUpgradeSlot: Item | null,
+      //   secondaryWeaponSlots: Item[],
+      //   weaponDirections: string[], weaponModification: any[]
+      // }
     }),
     // 最大主陈设
     maxMajorDisplayCount = 1,
@@ -129,7 +130,8 @@ watch(() => workshopData.value?.data, (value) => {
 watch(() => workshopData.value?.data?.shipSlot, (value) => {
   let result = {}
 
-  if (value) {
+  // 选择船只，如果它已经有数据则不处理
+  if (value && !workshopData.value.data.shipSlot.id) {
     onSelectShip(workshopData.value.data.shipSlot.id)
   }
 
@@ -404,12 +406,12 @@ const onExport = () => {
  * 导入数据
  */
 const onLoad = (data) => {
-  const d = assemblyDataProcessing.import(data, attr.value.assemblyUseVersion);
+  let d = assemblyDataProcessing.import(data, attr.value.assemblyUseVersion);
 
   if (!d || JSON.stringify(d) === '{}') return;
 
   workshopData.value.data = reactive({
-    ...workshopData.value.data,
+    ...toRaw(workshopData.value.data),
     ...d
   });
 }

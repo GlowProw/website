@@ -9,7 +9,7 @@ const props = defineProps<{id: string | unknown, grade?: string}>(),
 </script>
 
 <template>
-  <span :class="`grade-${grade}-title`">{{ t(`snb.sets.${id}.name`) }}</span>
+  <span :class="`grade-${grade}-title`">{{ t(`snb.sets.${id}`) }}</span>
 </template>
 
 <style scoped lang="less">

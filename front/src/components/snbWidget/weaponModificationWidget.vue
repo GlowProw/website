@@ -115,7 +115,6 @@ const totalAvailableMods = computed(() => {
   return Object.values(filteredMods.value).reduce((total, mods) => total + (mods?.length || 0), 0);
 });
 
-// 修复监听器 - 移除箭头函数包装
 watch(() => props.data, (data: Item) => {
   if (data) {
     initializeSlots();

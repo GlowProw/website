@@ -241,7 +241,6 @@ export default class AssemblyDataProcessing {
                         });
                     });
 
-                // console.log('get', data.armorModification)
                 if (data.armorModification)
                     data.armorModification = data.armorModification.map(i => {
                         return i.map(j => {
@@ -251,7 +250,6 @@ export default class AssemblyDataProcessing {
                             };
                         });
                     });
-                // console.log('get1', data.armorModification)
 
                 if (data.secondaryWeaponModifications)
                     data.secondaryWeaponModifications = data.secondaryWeaponModifications.map(i => {

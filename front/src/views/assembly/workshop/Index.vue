@@ -27,7 +27,7 @@ const {t} = useI18n(),
 let
     assemblyLoading = ref(false),
     assemblyDetailData = ref({}),
-    assemblyMainSubjectView = ref(null),
+    assemblyMainSubjectView: Ref<AssemblyMainSubjectView> = ref(null),
 
     draftModel = ref(false),
     draftNewSaveModel = ref(false),
@@ -120,31 +120,30 @@ const getAssemblyDetail = async () => {
   }
 }
 
-const loadAssemblyData = async () => {
+const loadAssemblyData = () => {
   const d = shareData.value
 
-  await nextTick(() => {
-    assemblyMainSubjectView.value.refs.assembly
-        .setSetting({
-          isShowItemName: d.assembly?.attr?.isShowItemName || true,
-          assemblyUseVersion: d.assembly?.attr?.assemblyUseVersion
-        })
-        .onLoad(d.assembly.data)
+  assemblyMainSubjectView.value.refs.assembly
+      .setSetting({
+        isShowItemName: d.assembly?.attr?.isShowItemName || true,
+        assemblyUseVersion: d.assembly?.attr?.assemblyUseVersion,
+        isFullName: d.assembly?.attr?.isFullName
+      })
+      .onLoad(d.assembly.data)
 
-    assemblyMainSubjectView.value.refs.wheel
-        .setSetting({
-          isShowItemName: d.wheel?.attr?.isShowItemName,
-          assemblyUseVersion: d.wheel?.attr?.assemblyUseVersion
-        })
-        .onLoad(d.wheel.data)
+  assemblyMainSubjectView.value.refs.wheel
+      .setSetting({
+        isShowItemName: d.wheel?.attr?.isShowItemName,
+        assemblyUseVersion: d.wheel?.attr?.assemblyUseVersion
+      })
+      .onLoad(d.wheel.data)
 
-    assemblyMainSubjectView.value.refs.warehouse
-        .setSetting({
-          isShowItemName: d.warehouse?.attr?.isShowItemName,
-          assemblyUseVersion: d.warehouse?.attr?.assemblyUseVersion
-        })
-        .onLoad(d.warehouse.data)
-  })
+  assemblyMainSubjectView.value.refs.warehouse
+      .setSetting({
+        isShowItemName: d.warehouse?.attr?.isShowItemName,
+        assemblyUseVersion: d.warehouse?.attr?.assemblyUseVersion
+      })
+      .onLoad(d.warehouse.data)
 }
 
 /**
