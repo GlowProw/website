@@ -1,14 +1,14 @@
 import {createI18n, type MessageContext} from 'vue-i18n';
 
-import language from '../public/config/languages.json'
+import language from '@/../public/config/languages.json'
 
 // 网站翻译
-import zh_CN_local from './lang/zh_CN.json';
-import en_US_local from './lang/en_US.json';
+import zh_CN_local from '../lang/zh_CN.json';
+import en_US_local from '../lang/en_US.json';
 
 // 数据翻译
 import {en_US as en_US_snb, zh_CN as zh_CN_snb} from 'glow-prow-data-languages/src'
-import {storage} from "./assets/sripts";
+import {storage} from "@/assets/sripts";
 
 export const messageCompiler = (message: any) => {
     return (ctx: MessageContext) => {

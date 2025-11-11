@@ -1,5 +1,6 @@
 {
   "default": "zh-CN",
+  "mapping": "en-US",
   "child": [
     {
       "label": "简体中文",

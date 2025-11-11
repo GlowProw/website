@@ -12,7 +12,7 @@ import DamageIconWidget from "@/components/snbWidget/damageIconWidget.vue";
 
 type ItemDamageTypeSize = 'mini' | 'default'
 
-const props = withDefaults(defineProps<{ data: Item | any, sizeType?: ItemDamageTypeSize, size: number }>(), {
+const props = withDefaults(defineProps<{ data: Item | any, sizeType?: ItemDamageTypeSize, size?: number }>(), {
       data: null,
       sizeType: 'default',
       size: 15,

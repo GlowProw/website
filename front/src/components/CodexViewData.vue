@@ -7,7 +7,7 @@ import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useDisplay} from "vuetify/framework";
-import {rarity} from "@/assets/sripts/index";
+import {number, rarity} from "@/assets/sripts/index";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
@@ -111,7 +111,7 @@ let data: any = ref([]),
         value: tier.toString(),
         text: asString([`codex.tier`], {
           backRawKey: true, variable: {
-            num: tier
+            num: number.intToRoman(tier)
           }
         })
       }))
@@ -764,16 +764,14 @@ const onSort = (field: SortField, order: SortOrder) => {
       </v-col>
     </v-row>
 
-    <v-divider class="my-3"></v-divider>
-
     <template v-if="exceedingItemsCount > 0">
       <v-alert class="w-100 mb-5" type="warning" variant="tonal">
         {{ t('codex.ships.searchCountOverflowTip', {maximumSearchCount, exceedingItemsCount}) }}
       </v-alert>
     </template>
 
-    <template v-if="isShouldShowInfiniteScroll">
-      <v-infinite-scroll @load="onLoad">
+    <v-infinite-scroll @load="onLoad">
+      <template v-if="isShouldShowInfiniteScroll">
         <v-row class="list ga-4" no-gutters>
           <v-card v-for="(i,index) in data" :key="index" :width="size" variant="text">
             <ItemSlotBase :size="`${size}px`">
@@ -806,58 +804,60 @@ const onSort = (field: SortField, order: SortOrder) => {
             </div>
           </v-card>
         </v-row>
-        <template v-slot:empty></template>
-        <template v-slot:loading>
-          <v-btn density="comfortable" class="my-8" icon>
-            <Loading :size="42"></Loading>
-          </v-btn>
-        </template>
-        <template v-slot:load-more="{ props }">
-          <v-btn
-              icon="mdi-refresh"
-              size="small"
-              variant="text"
-              v-bind="props"
-          ></v-btn>
-        </template>
-      </v-infinite-scroll>
-    </template>
-    <template v-else>
-      <!-- 搜索或筛选时的显示 S -->
-      <v-row class="list ga-4" no-gutters>
-        <v-card v-for="(i,index) in onProcessedData" :key="index" :width="size" variant="text">
-          <ItemSlotBase :size="`${size}px`">
-            <ShipIconWidget :id="i.id" v-if="loadDataType == 'ship'"></ShipIconWidget>
-            <ItemIconWidget :id="i.id" v-if="loadDataType == 'item'"></ItemIconWidget>
-            <CommoditieIconWidget :id="i.id" v-if="loadDataType == 'commoditie'"></CommoditieIconWidget>
-            <MaterialIconWidget :id="i.id" v-if="loadDataType == 'material'"></MaterialIconWidget>
-            <CosmeticIconWidget :id="i.id" v-if="loadDataType == 'cosmetic'"></CosmeticIconWidget>
-            <UltimateIconWidget :id="i.id" v-if="loadDataType == 'ultimate'"></UltimateIconWidget>
-            <ModIconWidget :id="i.id" v-if="loadDataType == 'modification'"></ModIconWidget>
+      </template>
+      <template v-else>
+        <!-- 搜索或筛选时的显示 S -->
+        <v-row class="list ga-4" no-gutters>
+          <v-card v-for="(i,index) in onProcessedData" :key="index" :width="size" variant="text">
+            <ItemSlotBase :size="`${size}px`">
+              <ShipIconWidget :id="i.id" v-if="loadDataType == 'ship'"></ShipIconWidget>
+              <ItemIconWidget :id="i.id" v-if="loadDataType == 'item'"></ItemIconWidget>
+              <CommoditieIconWidget :id="i.id" v-if="loadDataType == 'commoditie'"></CommoditieIconWidget>
+              <MaterialIconWidget :id="i.id" v-if="loadDataType == 'material'"></MaterialIconWidget>
+              <CosmeticIconWidget :id="i.id" v-if="loadDataType == 'cosmetic'"></CosmeticIconWidget>
+              <UltimateIconWidget :id="i.id" v-if="loadDataType == 'ultimate'"></UltimateIconWidget>
+              <ModIconWidget :id="i.id" v-if="loadDataType == 'modification'"></ModIconWidget>
 
-            <TreasureMapIconWidget :id="i.id" v-if="loadDataType == 'treasureMaps'"></TreasureMapIconWidget>
-            <MapLocationIconWidget :id="i.id" v-if="loadDataType == 'mapLocation'"></MapLocationIconWidget>
-          </ItemSlotBase>
-          <div class="text-center singe-line w-100">
-            <ShipName :id="i.id" v-if="loadDataType == 'ship'"></ShipName>
-            <ItemNameRarity :id="i.id" v-if="loadDataType == 'item'">
-              <ItemName :data="i"></ItemName>
-            </ItemNameRarity>
-            <CommoditieName :id="i.id" v-if="loadDataType == 'commoditie'"></CommoditieName>
-            <MaterialNameRarity :id="i.id" v-if="loadDataType == 'material'">
-              <MaterialName :id="i.id"></MaterialName>
-            </MaterialNameRarity>
-            <CosmeticName :id="i.id" v-if="loadDataType == 'cosmetic'"></CosmeticName>
-            <UltimateName :id="i.id" v-if="loadDataType == 'ultimate'"></UltimateName>
-            <ModName :id="i.id" v-if="loadDataType == 'modification'" :grade="i.grade"></ModName>
+              <TreasureMapIconWidget :id="i.id" v-if="loadDataType == 'treasureMaps'"></TreasureMapIconWidget>
+              <MapLocationIconWidget :id="i.id" v-if="loadDataType == 'mapLocation'"></MapLocationIconWidget>
+            </ItemSlotBase>
+            <div class="text-center singe-line w-100">
+              <ShipName :id="i.id" v-if="loadDataType == 'ship'"></ShipName>
+              <ItemNameRarity :id="i.id" v-if="loadDataType == 'item'">
+                <ItemName :data="i"></ItemName>
+              </ItemNameRarity>
+              <CommoditieName :id="i.id" v-if="loadDataType == 'commoditie'"></CommoditieName>
+              <MaterialNameRarity :id="i.id" v-if="loadDataType == 'material'">
+                <MaterialName :id="i.id"></MaterialName>
+              </MaterialNameRarity>
+              <CosmeticName :id="i.id" v-if="loadDataType == 'cosmetic'"></CosmeticName>
+              <UltimateName :id="i.id" v-if="loadDataType == 'ultimate'"></UltimateName>
+              <ModName :id="i.id" v-if="loadDataType == 'modification'" :grade="i.grade"></ModName>
 
-            <TreasureMapName :id="i.id" v-if="loadDataType == 'treasureMaps'"></TreasureMapName>
-            <MapLocationNameWidget :id="i.id" v-if="loadDataType == 'mapLocation'"></MapLocationNameWidget>
-          </div>
-        </v-card>
-      </v-row>
-      <!-- 搜索或筛选时的显示 E -->
-    </template>
+              <TreasureMapName :id="i.id" v-if="loadDataType == 'treasureMaps'"></TreasureMapName>
+              <MapLocationNameWidget :id="i.id" v-if="loadDataType == 'mapLocation'"></MapLocationNameWidget>
+            </div>
+          </v-card>
+        </v-row>
+        <!-- 搜索或筛选时的显示 E -->
+      </template>
+
+      <template v-slot:empty></template>
+      <template v-slot:loading>
+        <v-btn density="comfortable" class="my-8" icon>
+          <Loading :size="42"></Loading>
+        </v-btn>
+      </template>
+      <template v-slot:load-more="{ props }">
+        <v-btn
+            icon="mdi-refresh"
+            size="small"
+            variant="text"
+            v-bind="props"
+        ></v-btn>
+      </template>
+    </v-infinite-scroll>
+
 
     <!-- 空状态显示 S -->
     <template v-if="(isShouldShowInfiniteScroll && data.length <= 0) || (!isShouldShowInfiniteScroll && onProcessedData.length <= 0)">

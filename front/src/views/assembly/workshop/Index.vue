@@ -126,7 +126,7 @@ const loadAssemblyData = async () => {
   await nextTick(() => {
     assemblyMainSubjectView.value.refs.assembly
         .setSetting({
-          isShowItemName: d.assembly?.attr?.isShowItemName,
+          isShowItemName: d.assembly?.attr?.isShowItemName || true,
           assemblyUseVersion: d.assembly?.attr?.assemblyUseVersion
         })
         .onLoad(d.assembly.data)

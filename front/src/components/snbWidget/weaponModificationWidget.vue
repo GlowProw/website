@@ -206,13 +206,11 @@ const matchesSearchQuery = (mod: ModItem, query: string): boolean => {
 
   const searchTerm = query.toLowerCase();
 
-  // 搜索模组名称
-  if (mod.name?.toLowerCase().includes(searchTerm)) {
-    return true;
-  }
-
-  // 搜索模组描述
-  if (mod.description?.toLowerCase().includes(searchTerm)) {
+  // 搜索模组名称和ID
+  if (
+      t(`snb.modifications.${mod.id}.name`)?.toLowerCase().includes(searchTerm) ||
+      mod.id?.toLowerCase().includes(searchTerm)
+  ) {
     return true;
   }
 
@@ -251,10 +249,10 @@ const categorizeModificationsByGrade = (modificationsRaw: any): Record<ModType, 
   const weaponPerks = props.data.perks?.map((i: any) => sanitizeString(i).cleaned) || [];
   weaponPerks.forEach(perk => installedDamageTypes.add(perk));
 
-  // 检查武器是否包含指定的修复类perks
-  const hasRepairPerks = weaponPerks.some((perk: string) =>
-      ['repairBlast', 'repairBomb', 'repair', 'repair2'].includes(perk)
-  );
+  // // 检查武器是否包含指定的修复类perks
+  // const hasRepairPerks = weaponPerks.some((perk: string) =>
+  //     ['repairBlast', 'repairBomb', 'repair', 'repair2'].includes(perk)
+  // );
 
   Object.values(modificationsRaw).forEach((item: any) => {
     // 检查武器类型是否匹配
@@ -267,22 +265,6 @@ const categorizeModificationsByGrade = (modificationsRaw: any): Record<ModType, 
     if (item.requiredDamageType) {
       if (!installedDamageTypes.has(item.requiredDamageType)) {
         return;
-      }
-    }
-
-    // 检查 repairAccess 要求
-    if (item.repairAccess) {
-      if (item.repairAccess === 'exclusive') {
-        // 只有拥有修复类perks的武器才能显示
-        if (!hasRepairPerks) {
-          return;
-        }
-      } else if (item.repairAccess === 'shared') {
-        // 共享类型：拥有修复类perks的武器可以显示，或者没有特定限制
-        // 这里可以根据需要调整逻辑
-        if (!hasRepairPerks) {
-          return;
-        }
       }
     }
 
@@ -482,7 +464,7 @@ defineExpose({
                       v-model="searchQuery"
                       density="compact"
                       variant="outlined"
-                      placeholder="搜索模组名称、描述或效果..."
+                      placeholder="搜索模组名称、效果..."
                       prepend-inner-icon="mdi-magnify"
                       hide-details
                       clearable
@@ -625,11 +607,6 @@ defineExpose({
 
 .mod-slot {
   transition: all 0.3s ease;
-
-  &:hover {
-    border-color: hsl(from var(--main-color) h s l / .2);
-    background: hsl(from var(--main-color) h s l / .1) !important;
-  }
 }
 
 .mod-list {

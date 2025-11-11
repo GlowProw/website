@@ -16,10 +16,13 @@ import Time from "@/components/Time.vue";
 import TimeView from "@/components/TimeView.vue";
 import ObtainableWidget from "@/components/ObtainableWidget.vue";
 import {storage} from "@/assets/sripts/index";
+import SetIconWidget from "@/components/snbWidget/setIconWidget.vue";
+import {useDisplay} from "vuetify/framework";
 
 const {t} = useI18n(),
     router = useRouter(),
     route = useRoute(),
+    {mobile} = useDisplay(),
     authStore = useAuthStore(),
     cosmetics = Cosmetics
 
@@ -89,6 +92,16 @@ const onCodexHistory = () => {
               <v-chip class="badge-flavor text-center tag-badge text-black" v-if="materialDetailData.type">
                 {{ t(`codex.types.${materialDetailData.type}`) }}
               </v-chip>
+              <v-chip class="badge-flavor text-center tag-badge text-black"
+                      v-for="(i, index) in materialDetailData.pieces"
+                      v-if="materialDetailData.pieces">
+                {{ t(`codex.types.${i}`) }}
+              </v-chip>
+              <v-chip class="badge-flavor text-center tag-badge text-black"
+                      v-for="(i, index) in materialDetailData.effect"
+                      v-if="materialDetailData.effect">
+                {{ t(`codex.cosmetic.effects.${i}`) }}
+              </v-chip>
             </div>
           </v-col>
           <v-spacer></v-spacer>
@@ -118,13 +131,17 @@ const onCodexHistory = () => {
         <v-row>
           <v-col cols="12" sm="12" md="8" lg="8" order="2" order-sm="1">
             <v-row>
-              <div>
+              <v-col cols="auto" class="d-flex align-end ga-2">
                 <ItemSlotBase size="130px" class="d-flex justify-center align-center">
                   <CosmeticIconWidget
                       size="110"
                       :id="materialDetailData.id" :isClickOpenDetail="false" :isShowOpenDetail="false"></CosmeticIconWidget>
                 </ItemSlotBase>
-              </div>
+
+                <ItemSlotBase size="63px" v-if="materialDetailData?.set && materialDetailData.set.id">
+                  <SetIconWidget :id="materialDetailData?.set.id"></SetIconWidget>
+                </ItemSlotBase>
+              </v-col>
               <v-col>
                 <CosmeticDescription :id="materialDetailData.id"></CosmeticDescription>
               </v-col>

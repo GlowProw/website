@@ -269,16 +269,16 @@ const resetFilters = () => {
         <v-row class="px-5 py-10">
           <v-col cols="12" class="text-center">
             <v-icon size="64" class="mb-4">mdi-magnify-close</v-icon>
-            <h4 class="text-h6">{{ t('codex.noResults') }}</h4>
+            <h4 class="text-h6">{{ t('empty.title') }}</h4>
             <p class="text-body-2 text-medium-emphasis mt-2">
-              {{ t('codex.noResultsDescription') }}
+              {{ t('empty.description') }}
             </p>
             <v-btn
                 variant="tonal"
                 class="mt-4"
                 @click="resetFilters"
                 prepend-icon="mdi-refresh">
-              {{ t('basic.button.clearFilters') }}
+              {{ t('basic.button.reset') }}
             </v-btn>
           </v-col>
         </v-row>

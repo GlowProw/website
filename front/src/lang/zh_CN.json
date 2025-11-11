@@ -475,7 +475,14 @@
     },
     "cosmetic": {
       "title": "装饰品列表",
-      "lookDetail": "查看详情"
+      "lookDetail": "查看详情",
+      "effects": {
+        "emissive": "自发光",
+        "combatReactive": "战斗反应",
+        "killReactive": "击杀反应",
+        "bossKillReactive": "首领击杀反应",
+        "animated": "动画效果"
+      }
     },
     "cosmetics": {
       "title": "装饰品列表",
@@ -854,7 +861,7 @@
   },
   "empty": {
     "title": "空空如也",
-    "description": "这里什么都没有"
+    "description": "船长！请调头，这里什么都没有"
   },
   "captcha": {
     "get": "获得验证码",
