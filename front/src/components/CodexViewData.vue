@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {Cosmetics, Items, MapLocations, Materials, Modifications, Ships, TreasureMaps} from "glow-prow-data";
+import {Cosmetics, Items, MapLocations, Materials, Modifications, Sets, Ships, TreasureMaps} from "glow-prow-data";
 import {Commodities} from "glow-prow-data/src/entity/Commodities";
 import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
 import {computed, onMounted, ref, watch} from "vue";
@@ -31,8 +31,10 @@ import MaterialNameRarity from "@/components/snbWidget/materialNameRarity.vue";
 import MaterialName from "@/components/snbWidget/materialName.vue";
 import EmptyView from "@/components/EmptyView.vue";
 import Loading from "@/components/Loading.vue";
+import SetIconWidget from "@/components/snbWidget/setIconWidget.vue";
+import SetName from "@/components/snbWidget/setName.vue";
 
-type LoadDataType = 'ship' | 'item' | 'commoditie' | 'material' | 'ultimate' | 'cosmetic' | 'modification' | 'treasureMaps' | 'mapLocation'
+type LoadDataType = 'ship' | 'item' | 'commoditie' | 'material' | 'ultimate' | 'cosmetic' | 'modification' | 'set' | 'treasureMaps' | 'mapLocation'
 type SortField = 'dateAdded' | 'lastUpdated'
 type SortOrder = 'asc' | 'desc'
 
@@ -49,6 +51,7 @@ const
     ultimates = Ultimates,
     cosmetics = Cosmetics,
     modifications = Modifications,
+    sets = Sets,
 
     // 数据 地图
     treasureMaps = TreasureMaps,
@@ -68,6 +71,8 @@ let data: any = ref([]),
     // 筛选
     filterData = ref({
       keyValue: '',
+      sets: [],
+      setTags: [],
       types: [],
       typeTags: [],
       categorys: [],
@@ -123,6 +128,13 @@ let data: any = ref([]),
         text: asString([`snb.seasons.${season}`], {backRawKey: false, variable: season})
       }))
     ]),
+    // set筛选器可选选项
+    setFilterAvailableOptions = computed(() => [
+      ...filterData.value.setTags.map(set => ({
+        value: set,
+        text: asString([`snb.sets.${set}`], {backRawKey: false, variable: set})
+      }))
+    ]),
     // 检查是否有活跃的筛选条件
     hasActiveFilters = computed(() => {
       return filterData.value.types.length > 0 ||
@@ -130,6 +142,7 @@ let data: any = ref([]),
           filterData.value.rarities.length > 0 ||
           filterData.value.tiers.length > 0 ||
           filterData.value.seasons.length > 0 ||
+          filterData.value.sets.length > 0 ||
           filterData.value.sortField !== 'dateAdded' ||
           filterData.value.sortOrder !== 'desc' ||
           filterData.value.keyValue !== '' ||
@@ -154,11 +167,13 @@ const onProcessedData = computed(() => {
       let filterRarities = filterData.value.rarities;
       let filterTiers = filterData.value.tiers;
       let filterSeasons = filterData.value.seasons;
+      let filterSets = filterData.value.sets;
 
       const filteredData = d.filter(i => {
         // 检查关键词匹配
         const nameMatch = asString([
           i.id,
+
           `snb.ships.${i.id}.name`,
           `snb.ships.${sanitizeString(i.id).cleaned}.name`,
 
@@ -180,6 +195,7 @@ const onProcessedData = computed(() => {
           `snb.modifications.${i.id}.name`,
           `snb.modifications.${sanitizeString(i.id).cleaned}.name`,
 
+          `snb.sets.${i.id}`,
         ], {
           backRawKey: true
         }).toLowerCase().indexOf(searchValue) >= 0;
@@ -191,6 +207,7 @@ const onProcessedData = computed(() => {
         const categoryMatch = filterItemCategorys.length === 0 || filterItemCategorys.includes(i.category);
         const rarityMatch = filterRarities.length === 0 || filterRarities.includes(i.rarity);
         const tierMatch = filterTiers.length === 0 || (i.tier && filterTiers.includes(i.tier.toString()));
+        const setMatch = filterSets.length === 0 || (i.set && filterSets.includes(i.set.id));
 
         // 检查赛季匹配
         const seasonMatch = filterSeasons.length === 0 ||
@@ -198,7 +215,7 @@ const onProcessedData = computed(() => {
             (i.seasons && i.seasons.some((s: string) => filterSeasons.includes(s)));
 
         // 返回同时满足关键词、类型、稀有度、tier和赛季条件的项目
-        return (nameMatch || idMatch) && typeMatch && categoryMatch && rarityMatch && tierMatch && seasonMatch;
+        return (nameMatch || idMatch) && typeMatch && categoryMatch && rarityMatch && tierMatch && seasonMatch && setMatch;
       });
 
       // 排序
@@ -256,6 +273,9 @@ const onProcessedData = computed(() => {
           case "modification":
             d = d.concat(Object.values(modifications));
             break;
+          case "set":
+            d = d.concat(Object.values(sets));
+            break;
             // 地图
           case "treasureMaps":
             d = d.concat(Object.values(treasureMaps));
@@ -273,8 +293,12 @@ const onProcessedData = computed(() => {
     isRarity = computed(() => filterData.value.rarities.length > 0),
     isTier = computed(() => filterData.value.tiers.length > 0),
     isSeason = computed(() => filterData.value.seasons.length > 0),
+    isSet = computed(() => filterData.value.sets.length > 0),
+
+    isFilterSet = computed(() => props.loadDataType == 'cosmetic'),
+
     // 否应该显示无限滚动
-    isShouldShowInfiniteScroll = computed(() => !isSearching.value && !isType.value && !isCategory.value && !isRarity.value && !isTier.value && !isSeason.value)
+    isShouldShowInfiniteScroll = computed(() => !isSearching.value && !isType.value && !isCategory.value && !isRarity.value && !isTier.value && !isSeason.value && !isSet.value)
 
 // 监听路由变化，同步query到筛选条件
 watch(() => route.query, (newQuery) => {
@@ -293,6 +317,9 @@ watch(() => route.query, (newQuery) => {
   if (newQuery.season) {
     filterData.value.seasons = Array.isArray(newQuery.season) ? newQuery.season : newQuery.season.split(',');
   }
+  if (newQuery.set) {
+    filterData.value.sets = Array.isArray(newQuery.set) ? newQuery.set : newQuery.set.split(',');
+  }
   if (newQuery.sortField) {
     filterData.value.sortField = newQuery.sortField as SortField;
   }
@@ -307,6 +334,7 @@ onMounted(() => {
   onInitRarityLoad()
   onInitTierLoad()
   onInitSeasonLoad()
+  onInitSetLoad()
 })
 
 /**
@@ -358,6 +386,22 @@ const onInitSeasonLoad = () => {
 }
 
 /**
+ * 初始筛选可选Set选项
+ */
+const onInitSetLoad = () => {
+  let d = originalData.value
+  const allSet = new Set<string>();
+
+  d.forEach(i => {
+    if (i.set) {
+      allSet.add(i.set.id);
+    }
+  });
+
+  filterData.value.setTags = [...allSet].sort();
+}
+
+/**
  * 更新URL查询参数
  */
 const updateQueryParams = () => {
@@ -377,6 +421,9 @@ const updateQueryParams = () => {
   }
   if (filterData.value.seasons.length > 0) {
     query.season = filterData.value.seasons.join(',');
+  }
+  if (filterData.value.sets.length > 0) {
+    query.set = filterData.value.sets.join(',');
   }
   if (filterData.value.sortField !== 'dateAdded') {
     query.sortField = filterData.value.sortField;
@@ -399,6 +446,7 @@ const resetAllFilters = () => {
   filterData.value.rarities = [];
   filterData.value.tiers = [];
   filterData.value.seasons = [];
+  filterData.value.sets = [];
   filterData.value.sortField = 'dateAdded';
   filterData.value.sortOrder = 'desc';
   filterData.value.keyValue = '';
@@ -418,7 +466,7 @@ const resetAllFilters = () => {
  */
 const onLoad = ({done}) => {
   // 如果正在搜索或筛选类型、类别、稀有度、tier或赛季，直接返回空
-  if (isSearching.value || isType.value || isCategory.value || isRarity.value || isTier.value || isSeason.value) {
+  if (isSearching.value || isType.value || isCategory.value || isRarity.value || isTier.value || isSeason.value || isSet.value) {
     done('empty')
     return
   }
@@ -516,6 +564,18 @@ const onFilterSeason = (value) => {
 }
 
 /**
+ * 过滤Set
+ */
+const onFilterSet = (value) => {
+  filterData.value.sets = value;
+  updateQueryParams();
+  // set筛选时重置分页数据
+  if (value.length > 0) {
+    data.value = []
+  }
+}
+
+/**
  * 排序
  */
 const onSort = (field: SortField, order: SortOrder) => {
@@ -552,7 +612,7 @@ const onSort = (field: SortField, order: SortOrder) => {
             </div>
           </template>
 
-          <v-card border class="pa-5" :min-width="mobile ? '100%' : 350" :width="mobile ? '100%' : 480">
+          <v-card border class="pa-5" :min-width="mobile ? '100%' : 350" :width="mobile ? '100%' : 580">
             <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 mt-n5">
               <v-icon size="80">{{ hasActiveFilters ? 'mdi-filter' : 'mdi-filter-outline' }}</v-icon>
             </v-card-title>
@@ -602,7 +662,7 @@ const onSort = (field: SortField, order: SortOrder) => {
                 ></v-select>
               </v-col>
 
-              <v-col cols="12">
+              <v-col cols="6">
                 <div class="mb-2">{{ t('codex.filter.byRarity') }} ({{ rarityFilterAvailableOptions.length || 0 }})</div>
                 <v-select
                     variant="filled"
@@ -664,7 +724,7 @@ const onSort = (field: SortField, order: SortOrder) => {
                 </v-select>
               </v-col>
 
-              <v-col cols="12">
+              <v-col cols="6">
                 <div class="mb-2">{{ t('codex.filter.byTier') }} ({{ tierFilterAvailableOptions.length || 0 }})</div>
                 <v-select
                     variant="filled"
@@ -686,8 +746,8 @@ const onSort = (field: SortField, order: SortOrder) => {
                 ></v-select>
               </v-col>
 
-              <v-col cols="12">
-                <div class="mb-2">{{ t('codex.filter.bySeason') }}</div>
+              <v-col cols="6">
+                <div class="mb-2">{{ t('codex.filter.bySeason') }} ({{ setFilterAvailableOptions.length || 0 }})</div>
                 <v-select
                     variant="filled"
                     @update:model-value="onFilterSeason"
@@ -695,11 +755,34 @@ const onSort = (field: SortField, order: SortOrder) => {
                     item-title="text"
                     density="comfortable"
                     v-model="filterData.seasons"
+                    :disabled="setFilterAvailableOptions.length <= 0"
                     :placeholder="t('codex.filter.bySeason')"
                     :counter="3"
                     :eager="false"
                     :glow="false"
                     :items="seasonFilterAvailableOptions"
+                    hide-details
+                    multiple
+                    chips
+                    clearable
+                ></v-select>
+              </v-col>
+
+              <v-col cols="6" v-if="isFilterSet">
+                <div class="mb-2">{{ t('codex.filter.bySet') }} ({{ setFilterAvailableOptions.length || 0 }})</div>
+                <v-select
+                    variant="filled"
+                    @update:model-value="onFilterSet"
+                    item-value="value"
+                    item-title="text"
+                    density="comfortable"
+                    v-model="filterData.sets"
+                    :disabled="setFilterAvailableOptions.length <= 0"
+                    :placeholder="t('codex.filter.bySet')"
+                    :counter="3"
+                    :eager="true"
+                    :glow="false"
+                    :items="setFilterAvailableOptions"
                     hide-details
                     multiple
                     chips
@@ -774,18 +857,27 @@ const onSort = (field: SortField, order: SortOrder) => {
       <template v-if="isShouldShowInfiniteScroll">
         <v-row class="list ga-4" no-gutters>
           <v-card v-for="(i,index) in data" :key="index" :width="size" variant="text">
-            <ItemSlotBase :size="`${size}px`">
-              <ShipIconWidget :id="i.id" v-if="loadDataType == 'ship'"></ShipIconWidget>
-              <ItemIconWidget :id="i.id" v-if="loadDataType == 'item'"></ItemIconWidget>
-              <CommoditieIconWidget :id="i.id" v-if="loadDataType == 'commoditie'"></CommoditieIconWidget>
-              <MaterialIconWidget :id="i.id" v-if="loadDataType == 'material'"></MaterialIconWidget>
-              <CosmeticIconWidget :id="i.id" v-if="loadDataType == 'cosmetic'"></CosmeticIconWidget>
-              <UltimateIconWidget :id="i.id" v-if="loadDataType == 'ultimate'"></UltimateIconWidget>
-              <ModIconWidget :id="i.id" v-if="loadDataType == 'modification'"></ModIconWidget>
+            <div class="position-relative">
+              <ItemSlotBase :size="`${size}px`" class="position-relative">
+                <ShipIconWidget :id="i.id" v-if="loadDataType == 'ship'"></ShipIconWidget>
+                <ItemIconWidget :id="i.id" v-if="loadDataType == 'item'"></ItemIconWidget>
+                <CommoditieIconWidget :id="i.id" v-if="loadDataType == 'commoditie'"></CommoditieIconWidget>
+                <MaterialIconWidget :id="i.id" v-if="loadDataType == 'material'"></MaterialIconWidget>
+                <CosmeticIconWidget :id="i.id" v-if="loadDataType == 'cosmetic'"></CosmeticIconWidget>
+                <SetIconWidget :id="i.id" v-if="loadDataType == 'set'"></SetIconWidget>
+                <UltimateIconWidget :id="i.id" v-if="loadDataType == 'ultimate'"></UltimateIconWidget>
+                <ModIconWidget :id="i.id" v-if="loadDataType == 'modification'"></ModIconWidget>
 
-              <TreasureMapIconWidget :id="i.id" v-if="loadDataType == 'treasureMaps'"></TreasureMapIconWidget>
-              <MapLocationIconWidget :id="i.id" v-if="loadDataType == 'mapLocation'"></MapLocationIconWidget>
-            </ItemSlotBase>
+                <TreasureMapIconWidget :id="i.id" v-if="loadDataType == 'treasureMaps'"></TreasureMapIconWidget>
+                <MapLocationIconWidget :id="i.id" v-if="loadDataType == 'mapLocation'"></MapLocationIconWidget>
+              </ItemSlotBase>
+
+              <div v-if="i.set && i.set.id && isFilterSet" class="position-absolute subordinate-data">
+                <ItemSlotBase size="40px" :padding="0">
+                  <SetIconWidget :id="i.set.id"></SetIconWidget>
+                </ItemSlotBase>
+              </div>
+            </div>
             <div class="text-center singe-line w-100">
               <ShipName :id="i.id" v-if="loadDataType == 'ship'"></ShipName>
               <ItemNameRarity :id="i.id" v-if="loadDataType == 'item'">
@@ -796,6 +888,7 @@ const onSort = (field: SortField, order: SortOrder) => {
                 <MaterialName :id="i.id"></MaterialName>
               </MaterialNameRarity>
               <CosmeticName :id="i.id" v-if="loadDataType == 'cosmetic'"></CosmeticName>
+              <SetName :id="i.id" v-if="loadDataType == 'set'"></SetName>
               <UltimateName :id="i.id" v-if="loadDataType == 'ultimate'"></UltimateName>
               <ModName :id="i.id" v-if="loadDataType == 'modification'" :grade="i.grade"></ModName>
 
@@ -809,18 +902,27 @@ const onSort = (field: SortField, order: SortOrder) => {
         <!-- 搜索或筛选时的显示 S -->
         <v-row class="list ga-4" no-gutters>
           <v-card v-for="(i,index) in onProcessedData" :key="index" :width="size" variant="text">
-            <ItemSlotBase :size="`${size}px`">
-              <ShipIconWidget :id="i.id" v-if="loadDataType == 'ship'"></ShipIconWidget>
-              <ItemIconWidget :id="i.id" v-if="loadDataType == 'item'"></ItemIconWidget>
-              <CommoditieIconWidget :id="i.id" v-if="loadDataType == 'commoditie'"></CommoditieIconWidget>
-              <MaterialIconWidget :id="i.id" v-if="loadDataType == 'material'"></MaterialIconWidget>
-              <CosmeticIconWidget :id="i.id" v-if="loadDataType == 'cosmetic'"></CosmeticIconWidget>
-              <UltimateIconWidget :id="i.id" v-if="loadDataType == 'ultimate'"></UltimateIconWidget>
-              <ModIconWidget :id="i.id" v-if="loadDataType == 'modification'"></ModIconWidget>
+            <div class="position-relative">
+              <ItemSlotBase :size="`${size}px`" class="position-relative">
+                <ShipIconWidget :id="i.id" v-if="loadDataType == 'ship'"></ShipIconWidget>
+                <ItemIconWidget :id="i.id" v-if="loadDataType == 'item'"></ItemIconWidget>
+                <CommoditieIconWidget :id="i.id" v-if="loadDataType == 'commoditie'"></CommoditieIconWidget>
+                <MaterialIconWidget :id="i.id" v-if="loadDataType == 'material'"></MaterialIconWidget>
+                <CosmeticIconWidget :id="i.id" v-if="loadDataType == 'cosmetic'"></CosmeticIconWidget>
+                <SetIconWidget :id="i.id" v-if="loadDataType == 'set'"></SetIconWidget>
+                <UltimateIconWidget :id="i.id" v-if="loadDataType == 'ultimate'"></UltimateIconWidget>
+                <ModIconWidget :id="i.id" v-if="loadDataType == 'modification'"></ModIconWidget>
 
-              <TreasureMapIconWidget :id="i.id" v-if="loadDataType == 'treasureMaps'"></TreasureMapIconWidget>
-              <MapLocationIconWidget :id="i.id" v-if="loadDataType == 'mapLocation'"></MapLocationIconWidget>
-            </ItemSlotBase>
+                <TreasureMapIconWidget :id="i.id" v-if="loadDataType == 'treasureMaps'"></TreasureMapIconWidget>
+                <MapLocationIconWidget :id="i.id" v-if="loadDataType == 'mapLocation'"></MapLocationIconWidget>
+              </ItemSlotBase>
+
+              <div v-if="i.set && i.set.id && isFilterSet" class="position-absolute subordinate-data">
+                <ItemSlotBase size="40px" :padding="0">
+                  <SetIconWidget :id="i.set.id"></SetIconWidget>
+                </ItemSlotBase>
+              </div>
+            </div>
             <div class="text-center singe-line w-100">
               <ShipName :id="i.id" v-if="loadDataType == 'ship'"></ShipName>
               <ItemNameRarity :id="i.id" v-if="loadDataType == 'item'">
@@ -831,6 +933,7 @@ const onSort = (field: SortField, order: SortOrder) => {
                 <MaterialName :id="i.id"></MaterialName>
               </MaterialNameRarity>
               <CosmeticName :id="i.id" v-if="loadDataType == 'cosmetic'"></CosmeticName>
+              <SetName :id="i.id" v-if="loadDataType == 'set'"></SetName>
               <UltimateName :id="i.id" v-if="loadDataType == 'ultimate'"></UltimateName>
               <ModName :id="i.id" v-if="loadDataType == 'modification'" :grade="i.grade"></ModName>
 
@@ -874,6 +977,13 @@ const onSort = (field: SortField, order: SortOrder) => {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: 16px;
+
+  .subordinate-data {
+    width: 40px;
+    height: 40px;
+    right: 5px;
+    bottom: 5px;
+  }
 }
 
 @media (max-width: 480px) {

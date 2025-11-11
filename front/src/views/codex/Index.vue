@@ -17,6 +17,7 @@ let isDetailPage = computed(() => [
   'ItemDetail',
   'CommoditieDetail',
   'CosmeticDetail',
+  'SetDetail',
   'UltimateDetail',
   'ModDetail',
   'MaterialDetail',

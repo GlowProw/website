@@ -12,6 +12,8 @@ import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
+import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
+import ItemName from "@/components/snbWidget/itemName.vue";
 
 type WeaponModificationSize = '3' | '5' | '6' | '8'
 type ModType = 'basic' | 'advanced' | 'special';
@@ -360,9 +362,17 @@ defineExpose({
     <v-container class="pa-0">
       <v-card border class="bg-black py-2 px-4 modification-dialog">
         <v-card-title class="d-flex align-center">
-          <h1 class="text-amber">
-            模组改装
-          </h1>
+          <ItemSlotBase size="75px" class="mr-4" :padding="0" v-if="data.id">
+            <ItemIconWidget :id="data.id" :margin="0" :padding="0" :is-open-detail="false" :is-show-open-detail="false"></ItemIconWidget>
+          </ItemSlotBase>
+          <div>
+            <h1 class="text-amber">
+              模组改装
+            </h1>
+            <p class="text-caption mt-n2" v-if="data.id">
+              <ItemName :id="data.id"></ItemName>
+            </p>
+          </div>
           <v-spacer/>
           <v-btn icon @click="show = false">
             <v-icon icon="mdi-close"/>

@@ -1,32 +1,39 @@
 <script setup lang="ts">
-import {onMounted, ref} from "vue";
+import {nextTick, onMounted, ref} from "vue";
 import {useAssetsStore} from "~/stores/assetsStore";
 
 const damagesImages = import.meta.glob('@glow-prow-assets/damages/*', {eager: true}),
     modsImages = import.meta.glob('@glow-prow-assets/modifications/*', {eager: true}),
     images = {...damagesImages, ...modsImages},
-    props = defineProps<{ id: string, size?: string | number }>(),
+    props = withDefaults(
+        defineProps<{ id: string, size?: string | number, isBorder?: boolean }>(),
+        {isBorder: true}
+    ),
     {serializationMap} = useAssetsStore()
 
-let icons = ref({}),
-    isShow = ref(true)
+let icons = ref({})
+
+/**
+ * 是否有图标
+ * @param id
+ */
+const hasIconAssets = (id) => {
+  return !!icons.value[id]
+}
 
 onMounted(() => {
   onReady()
 })
 
 const onReady = () => {
-  icons.value = serializationMap(images)
-  isShow.value = !!icons.value[props.id]
+  nextTick(() => {
+    icons.value = serializationMap(images)
+  })
 }
-
-defineExpose({
-  isShow,
-})
 </script>
 
 <template>
-  <v-card tile class="pa-1 w-100 h-100 bg-transparent d-flex justify-center align-center" border>
+  <v-card elevation="0" class="w-100 h-100 d-flex justify-center align-center" variant="text" :border="isBorder" v-if="hasIconAssets(id)">
     <v-img :src="icons[id]" :width="size" :height="size"></v-img>
   </v-card>
 </template>

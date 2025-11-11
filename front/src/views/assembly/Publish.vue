@@ -349,9 +349,12 @@ const onUpdateTags = (data: any) => {
         <v-col cols="12" lg="4" sm="12">
           <div class="mb-5">
             <v-combobox
-                v-model="publishData.tags"
+                v-model="publishData.assembly.tags"
                 :counter="100"
                 :hide-no-data="true"
+                hide-details
+                hide-selected
+                :details="false"
                 chips
                 clearable
                 item-title="label"
@@ -360,8 +363,11 @@ const onUpdateTags = (data: any) => {
                 multiple
                 placeholder="输入标签敲下回车键，即可创建新标签"
                 variant="underlined">
+              <template v-slot:prepend>
+                <v-icon>mdi-tag-multiple</v-icon>
+              </template>
               <template v-slot:chip="{item}">
-                <v-chip color="primary" size="x-large">
+                <v-chip color="primary">
                   {{
                     asString([
                       `${item.raw}`,

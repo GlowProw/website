@@ -19,20 +19,31 @@ import RankingDesignedItemsPage from '../src/views/rankingDesignedItems/Index.vu
 import RankingDesignedItemsBrowsePage from '../src/views/rankingDesignedItems/Browse.vue'
 import RankingDesignedItemsWorkshopPage from '../src/views/rankingDesignedItems/workshop/Index.vue'
 import RankingDesignedItemsPublishPage from '../src/views/rankingDesignedItems/Publish.vue'
+
 import ShipsPage from '../src/views/codex/ships/Index.vue'
 import ShipDetailPage from '../src/views/codex/ships/Detail.vue'
+
 import ItemsPage from '../src/views/codex/items/Index.vue'
 import ItemDetailPage from '../src/views/codex/items/Detail.vue'
+
 import CommoditiesPage from '../src/views/codex/commoditie/Index.vue'
 import CommoditieDetailPage from '../src/views/codex/commoditie/Detail.vue'
+
 import ModsPage from '@/views/codex/modifications/Index.vue'
 import ModDetailPage from '@/views/codex/modifications/Detail.vue'
+
 import MaterialsPage from '../src/views/codex/materials/Index.vue'
 import MaterialDetailPage from '../src/views/codex/materials/Detail.vue'
+
 import CosmeticsPage from '../src/views/codex/cosmetics/Index.vue'
 import CosmeticDetailPage from '../src/views/codex/cosmetics/Detail.vue'
+
+import SetsPage from '../src/views/codex/sets/Index.vue'
+import SetDetailPage from '../src/views/codex/sets/Detail.vue'
+
 import TreasureMapsPage from '../src/views/codex/treasureMaps/Index.vue'
 import TreasureMapDetailPage from '../src/views/codex/treasureMaps/Detail.vue'
+
 import MapLocationPage from '../src/views/codex/mapLocations/Index.vue'
 import MapLocationsDetailPage from '../src/views/codex/mapLocations/Detail.vue'
 import EmpireSkillSimulationPage from '../src/views/empireSkillSimulation/Index.vue'
@@ -343,6 +354,24 @@ const routes: Readonly<RouteRecordRaw[]> = [
                     keywords: 'codex.cosmetic.meta.keywords'
                 },
                 component: CosmeticDetailPage,
+            },
+            {
+                path: 'sets',
+                name: 'Sets',
+                meta: {
+                    title: 'codex.sets.title',
+                    keywords: 'codex.sets.meta.keywords'
+                },
+                component: SetsPage,
+            },
+            {
+                path: 'set/:id',
+                name: 'SetDetail',
+                meta: {
+                    title: 'codex.set.title',
+                    keywords: 'codex.set.meta.keywords'
+                },
+                component: SetDetailPage,
             },
             {
                 path: 'treasureMaps',

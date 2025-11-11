@@ -5,6 +5,8 @@ import {useRoute} from "vue-router";
 
 import {Seasons, Ships} from "glow-prow-data";
 import {Items} from "glow-prow-data/src/entity/Items.ts";
+import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
+import DamageIconWidget from "@/components/snbWidget/damageIconWidget.vue";
 
 const poops = withDefaults(defineProps<{ readonly?: boolean, tags: string[], class?: string }>(), {
       readonly: false,
@@ -32,7 +34,7 @@ let publishData = ref({
         'piercing',
         'electric',
         'lifesteal',
-        'poison',
+        'toxic',
         'repair',
       ]
     };
@@ -125,7 +127,10 @@ const onUpdateTags = (data: any) => {
         <v-chip filter size="small" color="primary"
                 v-for="(i, index) in tagsConfig.damageTypes"
                 :key="index"
-                :value="`damageType_${i}`">{{ t(`assembly.tags.damageTypes.${i}`) }}</v-chip>
+                :value="`damageType_${i}`">
+          <DamageIconWidget :id="i" size="20px" class="mr-1" :is-border="false"></DamageIconWidget>
+          {{ t(`assembly.tags.damageTypes.${i}`) }}
+        </v-chip>
       </div>
     </div>
 
@@ -137,22 +142,6 @@ const onUpdateTags = (data: any) => {
                 :key="index"
                 :value="`archetype_${i}`">{{ t(`assembly.tags.archetypes.${i}`) }}</v-chip>
       </div>
-    </div>
-
-    <div class="mt-5 w-100">
-      <!--              <v-select @update:modelValue="onTagsDifficultyOfAcquisition"-->
-      <!--                        label="配装获取难度"-->
-      <!--                        placeholder="配装获取难度"-->
-      <!--                        variant="plain"-->
-      <!--                        clearable-->
-      <!--                        :items="tagsConfig.difficultyOfAcquisitions">-->
-      <!--                <template v-slot:label></template>-->
-      <!--                <template v-slot:item="{ props: itemProps, item }">-->
-      <!--                  <v-list-item v-bind="itemProps">-->
-      <!--                    {{ t(`assembly.difficultyOfAcquisitions.${item.raw}`) }}-->
-      <!--                  </v-list-item>-->
-      <!--                </template>-->
-      <!--              </v-select>-->
     </div>
   </v-chip-group>
 </template>

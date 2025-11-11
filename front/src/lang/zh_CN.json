@@ -155,6 +155,7 @@
       "byCategory": "类别筛选",
       "byTier": "等级筛选",
       "bySeason": "赛季筛选",
+      "bySet": "集合筛选",
       "sortBy": "排序",
       "dateAdded": "添加时间",
       "lastUpdated": "更新时间",
@@ -488,6 +489,14 @@
       "title": "装饰品列表",
       "description": "陈列收录装饰品"
     },
+    "set": {
+      "title": "集合详情",
+      "setAvailableTitle": "组合列表",
+      "lookDetail": "查看详情"
+    },
+    "sets": {
+      "title": "集合列表"
+    },
     "ultimate": {
       "title": "终结技详情"
     },
@@ -665,7 +674,6 @@
         "lifesteal": "吸血",
         "piercing": "穿透",
         "burning": "燃烧",
-        "poison": "剧毒",
         "repair": "维修",
         "tearing": "撕裂",
         "toxic": "剧毒"

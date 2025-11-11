@@ -12,6 +12,8 @@ import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import {Cosmetic, Cosmetics} from "glow-prow-data";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 import {rarity} from "@/assets/sripts/index";
+import CosmeticPiecesTagWidget from "@/components/snbWidget/cosmeticPiecesTagWidget.vue";
+import CosmeticEffectTagWidget from "@/components/snbWidget/cosmeticEffectTagWidget.vue";
 
 const
     {asString, sanitizeString} = useI18nUtils(),
@@ -124,6 +126,15 @@ const {targetElement, isVisible} = useIntersectionObserver({
           <CosmeticName :id="i.id"></CosmeticName>
         </h1>
         <p class="mb-1">{{ i.id }}</p>
+
+        <div class="d-flex ga-2 align-center mt-3">
+          <v-chip class="badge-flavor text-center tag-badge text-black"
+                  v-if="i.type">
+            {{ t(`codex.types.${i.type}`) }}
+          </v-chip>
+          <CosmeticPiecesTagWidget :pieces="i.pieces"></CosmeticPiecesTagWidget>
+          <CosmeticEffectTagWidget :effect="i.effect"></CosmeticEffectTagWidget>
+        </div>
 
         <div class="right-show-image pointer-events-none position-absolute w-33">
           <v-img :src="cosmeticCardData.icon" class="cosmetic-mirror-image"></v-img>

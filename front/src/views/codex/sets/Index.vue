@@ -4,7 +4,7 @@ import CodexViewData from "@/components/CodexViewData.vue";
 
 <template>
   <v-container class="pa-5">
-    <CodexViewData :load-data-type="['commoditie']"></CodexViewData>
+    <CodexViewData :load-data-type="['set']"></CodexViewData>
   </v-container>
 </template>
 

@@ -2,7 +2,7 @@
 
 import {useI18n} from "vue-i18n";
 import {onMounted, Ref, ref, watch} from "vue";
-import {Cosmetics, Modification} from "glow-prow-data";
+import {Cosmetic, Cosmetics} from "glow-prow-data";
 import {useRoute, useRouter} from "vue-router";
 import {useAuthStore} from "~/stores/userAccountStore";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
@@ -18,6 +18,8 @@ import ObtainableWidget from "@/components/ObtainableWidget.vue";
 import {storage} from "@/assets/sripts/index";
 import SetIconWidget from "@/components/snbWidget/setIconWidget.vue";
 import {useDisplay} from "vuetify/framework";
+import CosmeticPiecesTagWidget from "@/components/snbWidget/cosmeticPiecesTagWidget.vue";
+import CosmeticEffectTagWidget from "@/components/snbWidget/cosmeticEffectTagWidget.vue";
 
 const {t} = useI18n(),
     router = useRouter(),
@@ -26,12 +28,12 @@ const {t} = useI18n(),
     authStore = useAuthStore(),
     cosmetics = Cosmetics
 
-let materialDetailData: Ref<Modification> = ref({})
+let cosmeticDetailData: Ref<Cosmetic> = ref({})
 
 watch(() => route, (value) => {
   if (value) {
     const {id} = route.params
-    materialDetailData.value = cosmetics[id]
+    cosmeticDetailData.value = cosmetics[id]
   }
 }, {deep: true})
 
@@ -39,7 +41,7 @@ onMounted(() => {
   const {id} = route.params
 
   if (id)
-    materialDetailData.value = cosmetics[id]
+    cosmeticDetailData.value = cosmetics[id]
 
   onCodexHistory()
 })
@@ -81,27 +83,20 @@ const onCodexHistory = () => {
         <v-row class="mt-5">
           <v-col cols="8">
             <h1 class="text-amber text-h2 singe-line">
-              <CosmeticName :id="materialDetailData.id" :isRarity="false"></CosmeticName>
+              <CosmeticName :id="cosmeticDetailData.id" :isRarity="false"></CosmeticName>
             </h1>
             <p class="mt-2 mb-3">
               <v-icon icon="mdi-identifier"/>
-              {{ materialDetailData.id || 'none' }}
+              {{ cosmeticDetailData.id || 'none' }}
             </p>
 
-            <div class="mt-5 d-flex ga-2">
-              <v-chip class="badge-flavor text-center tag-badge text-black" v-if="materialDetailData.type">
-                {{ t(`codex.types.${materialDetailData.type}`) }}
-              </v-chip>
+            <div class="mt-5 d-inline-flex ga-2">
               <v-chip class="badge-flavor text-center tag-badge text-black"
-                      v-for="(i, index) in materialDetailData.pieces"
-                      v-if="materialDetailData.pieces">
-                {{ t(`codex.types.${i}`) }}
+                      v-if="cosmeticDetailData.type">
+                {{ t(`codex.types.${cosmeticDetailData.type}`) }}
               </v-chip>
-              <v-chip class="badge-flavor text-center tag-badge text-black"
-                      v-for="(i, index) in materialDetailData.effect"
-                      v-if="materialDetailData.effect">
-                {{ t(`codex.cosmetic.effects.${i}`) }}
-              </v-chip>
+              <CosmeticPiecesTagWidget :pieces="cosmeticDetailData.pieces"></CosmeticPiecesTagWidget>
+              <CosmeticEffectTagWidget :effect="cosmeticDetailData.effect"></CosmeticEffectTagWidget>
             </div>
           </v-col>
           <v-spacer></v-spacer>
@@ -110,7 +105,7 @@ const onCodexHistory = () => {
               <v-btn v-if="authStore.isLogin">
                 <LikeWidget targetType="cosmetic"
                             :isShowCount="true"
-                            :targetId="materialDetailData.id">
+                            :targetId="cosmeticDetailData.id">
                   <template v-slot:activate>
                     <v-icon icon="mdi-thumb-up"></v-icon>
                   </template>
@@ -135,15 +130,15 @@ const onCodexHistory = () => {
                 <ItemSlotBase size="130px" class="d-flex justify-center align-center">
                   <CosmeticIconWidget
                       size="110"
-                      :id="materialDetailData.id" :isClickOpenDetail="false" :isShowOpenDetail="false"></CosmeticIconWidget>
+                      :id="cosmeticDetailData.id" :isClickOpenDetail="false" :isShowOpenDetail="false"></CosmeticIconWidget>
                 </ItemSlotBase>
 
-                <ItemSlotBase size="63px" v-if="materialDetailData?.set && materialDetailData.set.id">
-                  <SetIconWidget :id="materialDetailData?.set.id"></SetIconWidget>
+                <ItemSlotBase size="63px" v-if="cosmeticDetailData?.set && cosmeticDetailData.set.id">
+                  <SetIconWidget :id="cosmeticDetailData?.set.id"></SetIconWidget>
                 </ItemSlotBase>
               </v-col>
               <v-col>
-                <CosmeticDescription :id="materialDetailData.id"></CosmeticDescription>
+                <CosmeticDescription :id="cosmeticDetailData.id"></CosmeticDescription>
               </v-col>
             </v-row>
             <v-divider class="mt-10 mb-6"></v-divider>
@@ -151,10 +146,10 @@ const onCodexHistory = () => {
             <v-row class="mb-5">
               <v-col cols="12" sm="12" lg="6" xl="6">
                 <template v-if="route.query.debug">
-                  {{ materialDetailData }}
+                  {{ cosmeticDetailData }}
                 </template>
-                <template v-if="materialDetailData.id">
-                  <v-text-field :value="materialDetailData.id" readonly
+                <template v-if="cosmeticDetailData.id">
+                  <v-text-field :value="cosmeticDetailData.id" readonly
                                 hide-details
                                 variant="underlined" density="compact">
                     <template v-slot:append-inner>
@@ -165,20 +160,20 @@ const onCodexHistory = () => {
               </v-col>
             </v-row>
 
-            <template v-if="materialDetailData.id">
+            <template v-if="cosmeticDetailData.id">
               <v-divider>评论</v-divider>
-              <CommentWidget :id="materialDetailData.id" type="cosmetic" placeholder=""></CommentWidget>
+              <CommentWidget :id="cosmeticDetailData.id" type="cosmetic" placeholder=""></CommentWidget>
             </template>
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
             <BySeasonWidget
-                :data="materialDetailData.firstAppearingSeason || materialDetailData.bySeason"></BySeasonWidget>
+                :data="cosmeticDetailData.firstAppearingSeason || cosmeticDetailData.bySeason"></BySeasonWidget>
 
-            <template v-if="materialDetailData.worldEvent">
-              <WorldEventWidget :data="materialDetailData"></WorldEventWidget>
+            <template v-if="cosmeticDetailData.worldEvent">
+              <WorldEventWidget :data="cosmeticDetailData"></WorldEventWidget>
             </template>
-            <template v-if="materialDetailData.obtainable">
-              <ObtainableWidget :data="materialDetailData" byType="cosmetic"></ObtainableWidget>
+            <template v-if="cosmeticDetailData.obtainable">
+              <ObtainableWidget :data="cosmeticDetailData" byType="cosmetic"></ObtainableWidget>
             </template>
 
             <v-row no-gutters align="center" class="mt-2">
@@ -186,8 +181,8 @@ const onCodexHistory = () => {
                 <v-icon icon="mdi-calendar-range" class="mr-3"></v-icon>
               </v-col>
               <v-col>
-                <TimeView class="mt-1" :time="materialDetailData.dateAdded">
-                  <Time :time="materialDetailData.dateAdded"/>
+                <TimeView class="mt-1" :time="cosmeticDetailData.dateAdded">
+                  <Time :time="cosmeticDetailData.dateAdded"/>
                 </TimeView>
               </v-col>
               <v-col cols="auto">
@@ -200,8 +195,8 @@ const onCodexHistory = () => {
                 <v-icon icon="mdi-calendar-range" class="mr-3"></v-icon>
               </v-col>
               <v-col>
-                <TimeView class="mt-1" :time="materialDetailData.lastUpdated">
-                  <Time :time="materialDetailData.lastUpdated"/>
+                <TimeView class="mt-1" :time="cosmeticDetailData.lastUpdated">
+                  <Time :time="cosmeticDetailData.lastUpdated"/>
                 </TimeView>
               </v-col>
               <v-col cols="auto">

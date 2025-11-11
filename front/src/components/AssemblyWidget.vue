@@ -128,10 +128,11 @@ watch(() => workshopData.value?.data, (value) => {
 })
 
 watch(() => workshopData.value?.data?.shipSlot, (value) => {
-  let result = {}
+  let result = {},
+      workshop_data = workshopData.value.data
 
   // 选择船只，如果它已经有数据则不处理
-  if (value && !workshopData.value.data.shipSlot.id) {
+  if (value && workshop_data.shipSlot.id != null && workshop_data.displaySlots.length <= 0) {
     onSelectShip(workshopData.value.data.shipSlot.id)
   }
 
