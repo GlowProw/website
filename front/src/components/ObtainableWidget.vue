@@ -103,8 +103,8 @@ const filterByObtainable = (d: Item | Material | Cosmetic | null | undefined): O
     <template v-else>
       {{
         asString([
+          `snb.mapLocations.${o.id}.name`,
           `snb.locations.${o.id}`,
-          `snb.mapLocations.${o.id}.name`
         ], {
           variable: i18nAdditionalAttr,
           backRawKey: true

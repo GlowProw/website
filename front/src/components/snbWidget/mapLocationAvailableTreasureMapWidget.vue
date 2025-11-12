@@ -7,13 +7,14 @@ import TreasureMapIconWidget from "@/components/snbWidget/treasureMapIconWidget.
 import EmptyView from "@/components/EmptyView.vue";
 
 const props = defineProps<{ id: string }>(),
-    treasureMaps = computed(() => Object.values(TreasureMaps)
-        .filter((i: Item) => i.obtainable.indexOf(props.id) >= 0)
+    treasureMaps = computed(() =>
+        Object.values(TreasureMaps)
+            .filter((i: Item) => i.obtainable.indexOf(props.id) >= 0) || []
     )
 </script>
 
 <template>
-  <div class="d-inline-flex ga-4" v-if="treasureMaps.length > 0">
+  <div class="d-inline-flex ga-4" v-if="treasureMaps && treasureMaps.length > 0">
     <template v-for="(i, index) in treasureMaps" :key="index">
       <v-card class="bg-transparent" width="100%">
         <ItemSlotBase size="120px" :padding="0">

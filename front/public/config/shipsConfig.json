@@ -736,15 +736,15 @@
         },
         {
           "secondaryWeapon": 1,
-          "gunSlotCount": 5
+          "gunSlotCount": 4
         },
         {
           "secondaryWeapon": 1,
-          "gunSlotCount": 5
+          "gunSlotCount": 4
         },
         {
           "secondaryWeapon": 1,
-          "gunSlotCount": 5
+          "gunSlotCount": 4
         }
       ]
     },
@@ -763,9 +763,9 @@
         5,
         5,
         5,
-        5,
-        5,
-        5
+        6,
+        6,
+        6
       ],
       "weaponsSlotCount": [
         {

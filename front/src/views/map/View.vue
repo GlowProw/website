@@ -232,7 +232,7 @@
           <v-row align="center" no-gutters>
             <v-col cols="auto" class="mr-2">
               <ShieldWidget :size="30"
-                            :class="{'opacity-30': selectedLocationData.category == 'outpost'}">
+                            :class="{'opacity-30': selectedLocationData.category == 'den' || selectedLocationData.category == 'outpost'}">
                 {{ selectedLocationData.baseRank || 0 }}
               </ShieldWidget>
             </v-col>
