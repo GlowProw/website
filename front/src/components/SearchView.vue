@@ -290,7 +290,7 @@ defineExpose({
                 {{ t(`codex.${type}s.title`) }} ({{ items.length }})
               </v-col>
               <v-col cols="auto">
-                <v-btn icon :to="`/codex/${type}s`" variant="text" @click="model = !model">
+                <v-btn icon :to="`/codex/${type}s?key=${searchValue}`" variant="text" @click="model = !model">
                   {{ t('codex.more') }}
                 </v-btn>
               </v-col>
@@ -340,7 +340,7 @@ defineExpose({
                   <MaterialName :id="i.id"></MaterialName>
                 </template>
                 <template v-else-if="type=='modification'">
-                  <ModName :id="i.id"></ModName>
+                  <ModName :id="i.id" :grade="i.grade"></ModName>
                 </template>
                 <template v-else-if="type=='cosmetic'">
                   <CosmeticName :id="i.id"></CosmeticName>

@@ -200,8 +200,6 @@
       "shipUpgrade": "升级部件",
       "quest": "任务",
       "contract": "合同",
-
-
       "sailsEmblem": "船帆徽章",
       "hull": "船体",
       "sailsColor": "船帆颜色",
@@ -240,7 +238,8 @@
       "torpedoWeaponSkin": "鱼雷武器皮肤",
       "combatSkill": "combat Skill",
       "legendaryEntity": "legendary Entity",
-      "powerWeapon": "power Weapon"
+      "powerWeapon": "power Weapon",
+      "treasure": "藏宝图"
     },
     "tier": "{num}级",
     "category": {
@@ -255,7 +254,6 @@
       "summoningBell": "召唤",
       "unique": "独特的",
       "event": "事件",
-
       "refined": "精炼",
       "specialized": "特殊",
       "currency": "货币",
@@ -538,7 +536,10 @@
     },
     "treasureMap": {
       "title": "藏宝图详情",
-      "lookDetail": "查看藏宝图详情"
+      "lookDetail": "查看藏宝图详情",
+      "raritys": {
+        "recently": "近期"
+      }
     },
     "treasureMaps": {
       "title": "藏宝图列表"
@@ -561,22 +562,59 @@
     "title": "地图",
     "description": "所有地图物品清单",
     "searchPlaceholder": "搜索地标",
+    "treasureMapAvailable": "可用藏宝图",
     "possibleLoot": "可能的赃物",
     "locations": "地点",
     "layerControl": "图层控制",
     "hideAll": "隐藏所有",
     "showAll": "显示所有",
     "typeTitle": "类型",
+    "difficulty": "难度",
     "types": {
-      "none": "未知",
-      "den": "大据点",
-      "megafort": "大型要塞",
-      "shareLocation": "分享位置",
-      "outpost": "前哨站",
-      "foundry": "铸造厂",
-      "capitalSettlement": "首府定居点",
-      "lumberyard": "木材厂",
-      "militaryBase": "军营"
+      "none": {
+        "name": "未知",
+        "description": "未知地点"
+      },
+      "den": {
+        "name": "窝点",
+        "description": "这里是海盗窝。为你下一次抢劫做计划、装配你的船只，或与其他志同道合的海贼相聚，一起痛饮。"
+      },
+      "weaver": {
+        "name": "织纺",
+        "description": "一处专注于收集并精制黄麻的小型定居点。你可以在这里购买布料或交易货物。"
+      },
+      "settlement": {
+        "name": "定居点",
+        "description": "一处小型阵营定居点，同时也是交易场所。你可以在此买卖货物.....或是尝试暴力夺取?"
+      },
+      "megafort": {
+        "name": "大型要塞",
+        "description": "与其他5名船长合作，偷取大型要塞内的一批晋阶型材料"
+      },
+      "shareLocation": {
+        "name": "分享位置",
+        "description": "此地点由用户分享"
+      },
+      "outpost": {
+        "name": "前哨站",
+        "description": ""
+      },
+      "foundry": {
+        "name": "铸造厂",
+        "description": "一处专注于收集并精炼原材料的小型定居点。你可以在这里购买铸锭或交易货物。"
+      },
+      "capitalSettlement": {
+        "name": "首府定居点",
+        "description": "这里是阵营的首府，一个富有且守卫森严、适合进行贸易的地方。"
+      },
+      "lumberyard": {
+        "name": "木材厂",
+        "description": "一处专注于收集并精制原木的小型定居点。你可以在这里购买木板或交易货物。"
+      },
+      "militaryBase": {
+        "name": "军营",
+        "description": "这是一座戒备森严的军营。虽然回报丰厚，但只有最强的海盗团队才有能力把它拿下"
+      }
     }
   },
   "rankingDesignedItems": {
@@ -696,6 +734,7 @@
       "insertDisplayTitle": "插入陈设",
       "exceedingDisplayLimitTip": "已到达主陈设上限，将主陈设隐藏",
       "ultimateTitle": "终极技能",
+      "ignoreConditions": "无视模组条件",
       "filter": {
         "all": "所有",
         "byType": "物品排序类型",

@@ -100,7 +100,7 @@ let data: any = ref([]),
     categoryFilterAvailableOptions = computed(() => [
       ...filterData.value.categoryTags.map(tag => ({
         value: tag,
-        text: asString([`codex.categorys.${tag}`, `map.types.${tag}`], {backRawKey: true, variable: tag})
+        text: asString([`codex.categorys.${tag}`, `map.types.${tag}.name`], {backRawKey: true, variable: tag})
       }))
     ]),
     // 稀有度筛选器可选选项
@@ -302,6 +302,10 @@ const onProcessedData = computed(() => {
 
 // 监听路由变化，同步query到筛选条件
 watch(() => route.query, (newQuery) => {
+  if (newQuery.key) {
+    filterData.value.inputWidgetKeyValue = newQuery.key;
+    filterData.value.keyValue = newQuery.key;
+  }
   if (newQuery.type) {
     filterData.value.types = Array.isArray(newQuery.type) ? newQuery.type : newQuery.type.split(',');
   }
@@ -406,7 +410,9 @@ const onInitSetLoad = () => {
  */
 const updateQueryParams = () => {
   const query: any = {};
-
+  if (filterData.value.keyValue != '') {
+    query.key = filterData.value.keyValue;
+  }
   if (filterData.value.types.length > 0) {
     query.type = filterData.value.types.join(',');
   }
@@ -496,11 +502,21 @@ const onLoad = ({done}) => {
  * 检索
  */
 const onSearchItem = () => {
+  const query: any = {};
   filterData.value.keyValue = filterData.value.inputWidgetKeyValue;
+
+  if (filterData.value.keyValue != '') {
+    query.key = filterData.value.keyValue;
+  }
+
   // 搜索时重置分页数据
   if (filterData.value.keyValue) {
     data.value = []
   }
+
+  router.replace({
+    query: Object.keys(query).length > 0 ? query : undefined
+  });
 }
 
 /**

@@ -14,6 +14,7 @@ import LikeWidget from "@/components/LikeWidget.vue";
 import {storage} from "@/assets/sripts/index";
 import TreasureMapIconWidget from "@/components/snbWidget/treasureMapIconWidget.vue";
 import TreasureMapName from "@/components/snbWidget/treasureMapName.vue";
+import ObtainableWidget from "@/components/ObtainableWidget.vue";
 
 const {t} = useI18n(),
     router = useRouter(),
@@ -77,8 +78,11 @@ const onCodexHistory = () => {
             </p>
 
             <div class="mt-5 d-flex ga-2">
-              <v-chip class="badge-flavor text-center tag-badge text-black" v-if="mapDetailData.effectType">
-                {{ mapDetailData.effectType }}
+              <v-chip class="badge-flavor text-center tag-badge text-black"
+                      v-if="mapDetailData.rarity">{{ t(`codex.types.${mapDetailData.type}`) }}
+              </v-chip>
+              <v-chip class="badge-flavor text-center tag-badge text-black"
+                      v-if="mapDetailData.rarity">{{ t(`codex.treasureMap.raritys.${mapDetailData.rarity}`) }}
               </v-chip>
             </div>
           </v-col>
@@ -109,11 +113,22 @@ const onCodexHistory = () => {
         <v-row>
           <v-col cols="12" sm="12" md="8" lg="8" order="2" order-sm="1">
             <v-row>
-              <div>
+              <v-col>
                 <ItemSlotBase size="130px">
                   <TreasureMapIconWidget :id="mapDetailData.id" :isClickOpenDetail="false" :isShowOpenDetail="false"></TreasureMapIconWidget>
                 </ItemSlotBase>
-              </div>
+              </v-col>
+              <v-col cols="12">
+                <TreasureMapIconWidget
+                    class="w-100"
+                    :padding="4"
+                    :id="mapDetailData.id"
+                    :is-open-detail="false"
+                    :is-show-tooltip="false"
+                    :is-show-open-detail="false"
+                    :isClickOpenDetail="false"
+                    :isShowOpenDetail="false"></TreasureMapIconWidget>
+              </v-col>
             </v-row>
             <v-divider class="mt-10 mb-6"></v-divider>
 
@@ -141,6 +156,8 @@ const onCodexHistory = () => {
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
             <BySeasonWidget :data="mapDetailData"></BySeasonWidget>
+
+            <ObtainableWidget :data="mapDetailData" byType="treasureMap"></ObtainableWidget>
 
             <v-row no-gutters align="center" class="mt-2">
               <v-col cols="auto">

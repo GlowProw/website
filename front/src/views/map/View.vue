@@ -231,7 +231,8 @@
         <div class="my-2 mr-2">
           <v-row align="center" no-gutters>
             <v-col cols="auto" class="mr-2">
-              <ShieldWidget :size="30">
+              <ShieldWidget :size="30"
+                            :class="{'opacity-30': selectedLocationData.category == 'outpost'}">
                 {{ selectedLocationData.baseRank || 0 }}
               </ShieldWidget>
             </v-col>
@@ -261,8 +262,15 @@
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </template>
+      <template v-slot:image>
+        <v-card v-if="selectedLocationData.faction" width="100%" height="400" class="overflow-hidden opacity-20">
+          <FactionIconWidget :name="selectedLocationData.faction.id" size="300"
+                             class="img-bottom-fade"
+                             style="transform: rotate3d(1, -1, 1, 39deg) translate(50px, -190px); filter: blur(10px);"></FactionIconWidget>
+        </v-card>
+      </template>
 
-      <div class="mx-5 mb-3 pb-2">
+      <div class="mx-5 pb-3">
         <v-row no-gutters align="center">
           <v-col cols="auto" class="d-flex align-center mr-2">
             <v-img
@@ -273,7 +281,7 @@
                 cover/>
           </v-col>
           <v-col class="text-caption">
-            {{ t(`map.type.${selectedLocationData.category || 'none'}`) }}
+            {{ t(`map.types.${selectedLocationData.category || 'none'}.name`) }}
           </v-col>
         </v-row>
         <v-row no-gutters class="mt-1" v-if="selectedLocationData && selectedLocationData.faction" align="center">
@@ -288,47 +296,49 @@
         </v-row>
       </div>
 
+      <v-row class="mx-2 mt-8" v-if="selectedLocationData.difficulty" align="center">
+        <v-col>
+          {{ t('map.difficulty') }}
+        </v-col>
+        <v-col cols="auto" class="text-blue d-flex align-center">
+          <v-icon>mdi-account-group</v-icon>
+          <div class="font-weight-bold ml-2">
+            <ShinyText :text="`${selectedLocationData.difficulty.minimumPeople || 1 }+ ${selectedLocationData.difficulty.type.toUpperCase()}`"
+                       :speed=".8"
+                       class-name="text-blue"></ShinyText>
+          </div>
+        </v-col>
+      </v-row>
+
+      <template v-if="t(`map.types.${selectedLocationData.category}.description`)">
+        <v-divider class="my-2 mx-4"></v-divider>
+
+        <div class="mx-5 mb-3 pb-2">
+          {{ t(`map.types.${selectedLocationData.category}.description`) }}
+        </div>
+      </template>
+
+      <template v-if="selectedLocationData && selectedLocationData.category == 'outpost'">
+        <v-row class="map-title px-10 mx-n6 py-2 text-amber-lighten-4" no-gutters>
+          {{ t('map.treasureMapAvailable') }}
+          <v-spacer></v-spacer>
+          <v-btn icon density="compact" to="/codex/treasureMaps">
+            <v-icon>mdi-dots-vertical</v-icon>
+          </v-btn>
+        </v-row>
+        <div class="mx-5 mb-5 pt-3">
+          <MapLocationAvailableTreasureMapWidget :id="selectedLocationData.id"></MapLocationAvailableTreasureMapWidget>
+        </div>
+      </template>
+
       <template v-if="selectedLocationData.possibleLoot">
         <div class="map-title px-10 mx-n6 py-2 text-amber-lighten-4">
           {{ t('map.possibleLoot') }}
         </div>
         <div class="mx-5 mb-5 pt-3 opacity-60">
-          <v-row v-for="(i,index) in Object.entries(selectedLocationData.possibleLoot)" :key="index" align="center" no-gutters class="mb-1">
-            <v-col cols="auto" class="mr-2">
-              <ItemSlotBase :size="`30px`" :padding="1">
-                <template v-if="i[1]['category'] == 'material'">
-                  <MaterialIconWidget :id="i[0]" :padding="0" :margin="0"></MaterialIconWidget>
-                </template>
-                <template v-if="i[1]['category'] == 'commoditie'">
-                  <CommoditieIconWidget :id="i[0]" :padding="0" :margin="0"></CommoditieIconWidget>
-                </template>
-                <template v-if="i[1]['category'] == 'item'">
-                  <ItemIconWidget :id="i[0]" :padding="0" :margin="0"></ItemIconWidget>
-                </template>
-              </ItemSlotBase>
-            </v-col>
-            <v-col cols="auto">
-              <template v-if="i[1]['category'] == 'material'">
-                <MaterialNameRarity :id="i[0]">
-                  <MaterialName :id="i[0]"></MaterialName>
-                </MaterialNameRarity>
-              </template>
-              <template v-if="i[1]['category'] == 'commoditie'">
-                <CommoditieName :id="i[0]"></CommoditieName>
-              </template>
-              <template v-if="i[1]['category'] == 'item'">
-                <ItemNameRarity :id="i[0]">
-                  <ItemName :id="i[0]"></ItemName>
-                </ItemNameRarity>
-              </template>
-            </v-col>
-            <v-col class="text-right">
-              {{ i[1]['lv'] }}
-            </v-col>
-          </v-row>
+          <MapPossibleLoot :possible-loot="selectedLocationData.possibleLoot"></MapPossibleLoot>
         </div>
       </template>
-
 
       <div class="map-title px-10 mx-n6 py-2 text-amber-lighten-4">
         {{ t('empireSkillSimulation.other') }}
@@ -418,14 +428,9 @@ import ShieldWidget from "@/components/snbWidget/shieldWidget.vue";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import FactionNameWidget from "@/components/snbWidget/factionNameWidget.vue";
-import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
-import MaterialName from "@/components/snbWidget/materialName.vue";
-import MaterialNameRarity from "@/components/snbWidget/materialNameRarity.vue";
-import CommoditieIconWidget from "@/components/snbWidget/commoditieIconWidget.vue";
-import CommoditieName from "@/components/snbWidget/commoditieName.vue";
-import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
-import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
-import ItemName from "@/components/snbWidget/itemName.vue";
+import MapPossibleLoot from "@/components/snbWidget/mapPossibleLoot.vue";
+import ShinyText from "@/components/ShinyText.vue";
+import MapLocationAvailableTreasureMapWidget from "@/components/snbWidget/mapLocationAvailableTreasureMapWidget.vue";
 
 const {t} = useI18n(),
     route = useRoute(),
@@ -462,16 +467,16 @@ let mapViewRef = ref<HTMLElement | null>(null),
 
     // 创建标记
     categories = ref([
-      {value: 'shareLocation', text: t('map.type.shareLocation')},
-      {value: 'outpost', text: t('map.type.outpost')},
-      {value: 'den', text: t('map.type.den')},
-      {value: 'settlement', text: t('map.type.settlement')},
-      {value: 'harbor', text: t('map.type.harbor')},
-      {value: 'fort', text: t('map.type.fort')},
-      {value: 'lumber', text: t('map.type.lumber')},
-      {value: 'mine', text: t('map.type.mine')},
-      {value: 'farm', text: t('map.type.farm')},
-      {value: 'workshop', text: t('map.type.workshop')}
+      {value: 'shareLocation', text: t('map.types.shareLocation.name')},
+      {value: 'outpost', text: t('map.types.outpost.name')},
+      {value: 'den', text: t('map.types.den.name')},
+      {value: 'settlement', text: t('map.types.settlement.name')},
+      {value: 'harbor', text: t('map.types.harbor.name')},
+      {value: 'fort', text: t('map.types.fort.name')},
+      {value: 'lumber', text: t('map.types.lumber.name')},
+      {value: 'mine', text: t('map.types.mine.name')},
+      {value: 'farm', text: t('map.types.farm.name')},
+      {value: 'workshop', text: t('map.types.workshop.name')}
     ]),
     showCreateMarkerDialog = ref(false),
     newMarkerData = ref({
@@ -489,7 +494,7 @@ const availableCategories = computed(() => {
   const uniqueCategories = [...new Set(locations.value.map(loc => loc.category))];
   return uniqueCategories.map(category => ({
     value: category,
-    text: t(`map.type.${category}`)
+    text: t(`map.types.${category}.name`)
   }));
 });
 
@@ -1115,6 +1120,7 @@ const resetView = (): void => {
     background-color: hsl(from rgb(var(--v-theme-background)) h s l / .8);
     backdrop-filter: blur(20px);
     position: absolute;
+    z-index: 10;
     right: 30px;
     max-height: 80vh;
 
@@ -1139,5 +1145,22 @@ const resetView = (): void => {
     left: 0;
     right: 0;
   }
+}
+
+.img-bottom-fade {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  overflow: hidden;
+}
+
+.img-bottom-fade::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
 }
 </style>

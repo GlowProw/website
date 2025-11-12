@@ -107,11 +107,8 @@ const slotStats = computed(() => ({
   special: props.modelValue?.filter((i: ModSlot) => i.type === 'special').length || 0
 }));
 
-const hasSlot = computed(() => ({
-  basic: slotStats.value.basic > 0,
-  advanced: slotStats.value.advanced > 0,
-  special: slotStats.value.special > 0
-}));
+// 无视模组条件
+let isIgnoreConditions = ref(false);
 
 const totalAvailableMods = computed(() => {
   return Object.values(filteredMods.value).reduce((total, mods) => total + (mods?.length || 0), 0);
@@ -127,6 +124,10 @@ watch(() => props.data, (data: Item) => {
 watch(() => props.modelValue, () => updateAvailableMods(), {deep: true});
 
 watch([searchQuery, selectedCategory], () => updateFilteredMods());
+
+watch(() => isIgnoreConditions.value, () => {
+  updateAvailableMods()
+})
 
 onMounted(() => {
   initializeResources();
@@ -250,29 +251,26 @@ const categorizeModificationsByGrade = (modificationsRaw: any): Record<ModType, 
   const weaponPerks = props.data.perks?.map((i: any) => sanitizeString(i).cleaned) || [];
   weaponPerks.forEach(perk => installedDamageTypes.add(perk));
 
-  // // 检查武器是否包含指定的修复类perks
-  // const hasRepairPerks = weaponPerks.some((perk: string) =>
-  //     ['repairBlast', 'repairBomb', 'repair', 'repair2'].includes(perk)
-  // );
+  Object.values(modificationsRaw).forEach((mod: any) => {
+    // 模组约束开关
+    if (!isIgnoreConditions.value) {
+      // 检查武器类型是否匹配
+      const hasMatchingVariant = mod.variants?.some((variant: any) =>
+          variant.itemType?.includes(props.data.type)
+      );
+      if (!hasMatchingVariant) return;
 
-  Object.values(modificationsRaw).forEach((item: any) => {
-    // 检查武器类型是否匹配
-    const hasMatchingVariant = item.variants?.some((variant: any) =>
-        variant.itemType?.includes(props.data.type)
-    );
-    if (!hasMatchingVariant) return;
-
-    // 检查requiredDamageType要求
-    if (item.requiredDamageType) {
-      if (!installedDamageTypes.has(item.requiredDamageType)) {
-        return;
+      // 当 requiredDamageType 字段存在时才进行检查
+      if (mod?.requiredDamageType && !installedDamageTypes.has(mod.requiredDamageType)) {
+        return; // 有要求但不满足，跳过
       }
+      // 如果没有 requiredDamageType 字段，就不检查，直接通过
     }
 
     // 按grade分类
-    const grade = item.grade as ModType;
+    const grade = mod.grade as ModType;
     if (grade && result[grade]) {
-      result[grade].push(item);
+      result[grade].push(mod);
     }
   });
 
@@ -570,6 +568,13 @@ defineExpose({
         </v-row>
 
         <v-card-actions v-if="!readonly">
+          <div class="d-flex ml-2 align-center">
+            <v-checkbox v-model="isIgnoreConditions" density="compact" hide-details hide-spin-buttons></v-checkbox>
+            {{ t('assembly.workshop.ignoreConditions') }}
+            <v-btn icon class="ml-1" v-tooltip="`无视模组条件，打开此选项将关闭对配装内的条件约束，同时可能带来与游戏模组不匹配问题`">
+              <v-icon size="15">mdi-help</v-icon>
+            </v-btn>
+          </div>
           <v-spacer/>
           <v-btn @click="show = false">取消</v-btn>
           <v-btn class="bg-amber" @click="onConfirm">

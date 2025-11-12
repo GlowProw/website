@@ -5,6 +5,7 @@ import {computed} from "vue";
 import {Cosmetic, Cosmetics, Item, Items, Material} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 import EmptyView from "@/components/EmptyView.vue";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
 
 const props = withDefaults(
         defineProps<{ data: Item | Material | Cosmetic, byType: string }>(),
@@ -13,6 +14,7 @@ const props = withDefaults(
         }
     ),
     {t, tm} = useI18n(),
+    {asString} = useI18nUtils(),
     items = Items,
     cosmetics = Cosmetics
 
@@ -42,7 +44,7 @@ const filterByObtainable = (d: Item | Material | Cosmetic | null | undefined): O
   if (typeof obtainable === 'string') {
     return [{
       id: obtainable,
-      to: `/codex/${props.byType}/obtainable/${obtainable}`
+      to: `/map/view?key=${obtainable}`
     }];
   }
 
@@ -50,7 +52,7 @@ const filterByObtainable = (d: Item | Material | Cosmetic | null | undefined): O
   if (obtainable && typeof obtainable === 'object' && 'id' in obtainable) {
     return [{
       id: obtainable.id,
-      to: `/codex/${props.byType}/${obtainable.id}`,
+      to: `/map/view?key=${obtainable.id}`,
       item: items[obtainable.id]
     }];
   }
@@ -100,7 +102,13 @@ const filterByObtainable = (d: Item | Material | Cosmetic | null | undefined): O
     </template>
     <template v-else>
       {{
-        t(`snb.locations.${o.id}`, {...i18nAdditionalAttr})
+        asString([
+          `snb.locations.${o.id}`,
+          `snb.mapLocations.${o.id}.name`
+        ], {
+          variable: i18nAdditionalAttr,
+          backRawKey: true
+        })
       }}
     </template>
   </v-chip>
