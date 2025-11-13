@@ -3,6 +3,7 @@ import {defineStore} from "pinia";
 export const useAssetsStore = defineStore('assets', {
     state: () => ({
         commodities: new Map(),
+        modifications: new Map(),
         ships: new Map(),
         items: new Map(),
         cosmetics: new Map(),
@@ -18,12 +19,12 @@ export const useAssetsStore = defineStore('assets', {
          * 初始
          */
         init(options = {
-            all: true, ship: true, item: true, cosmetic: true, material: true, faction: true,
+            all: true, ship: true, item: true, material: true, faction: true,
+            modification: true, cosmetic: true,
             teasureMap: true,
             rarity: true,
         }) {
-            if (options.ship || options.all)
-                this.initCommodities()
+
             if (options.ship || options.all)
                 this.initShips()
             if (options.item || options.all)
@@ -34,6 +35,10 @@ export const useAssetsStore = defineStore('assets', {
                 this.initMaterials()
             if (options.faction || options.all)
                 this.iniFactions()
+            if (options.cosmetic || options.all)
+                this.initCommodities()
+            if (options.modification || options.all)
+                this.initModifications()
 
             if (options.teasureMap || options.all)
                 this.initTeasureMaps()
@@ -42,13 +47,22 @@ export const useAssetsStore = defineStore('assets', {
                 this.initRarity()
         },
 
-        initCommodities () {
+        initCommodities() {
             if (this.commodities.size != 0)
                 return;
 
             const commoditieImages = import.meta.glob('@glow-prow-assets/commodities/*', {eager: true});
 
             this.commodities = this.serializationMap(commoditieImages)
+        },
+
+        initModifications() {
+            if (this.modifications.size != 0)
+                return;
+
+            const modificationImages = import.meta.glob('@glow-prow-assets/modifications/*', {eager: true});
+
+            this.modifications = this.serializationMap(modificationImages)
         },
 
         initShips() {
@@ -127,7 +141,7 @@ export const useAssetsStore = defineStore('assets', {
             this.factions = this.serializationMap(factionsImages);
         },
 
-        initTeasureMaps () {
+        initTeasureMaps() {
             if (this.treasureMaps.size != 0)
                 return;
 

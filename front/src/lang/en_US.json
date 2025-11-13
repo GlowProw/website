@@ -155,7 +155,7 @@
       "medium": "Medium",
       "large": "Large"
     },
-    "rarity": {
+    "raritys": {
       "common": "Common",
       "uncommon": "Uncommon",
       "rare": "Rare",

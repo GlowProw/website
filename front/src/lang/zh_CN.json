@@ -168,7 +168,7 @@
       "medium": "中等",
       "large": "大型"
     },
-    "rarity": {
+    "raritys": {
       "none": "未知",
       "common": "常见",
       "uncommon": "不常见",
@@ -536,9 +536,23 @@
     },
     "treasureMap": {
       "title": "藏宝图详情",
+      "names": {
+        "none": "藏宝图",
+        "recent": "{location}",
+        "old": "藏宝图",
+        "veryOld": "藏宝图",
+        "legend": "藏宝图"
+      },
       "lookDetail": "查看藏宝图详情",
       "raritys": {
         "recently": "近期"
+      },
+      "categorys": {
+        "none": "未知",
+        "recent": "新近",
+        "old": "老旧",
+        "veryOld": "古老",
+        "legend": "匪首"
       }
     },
     "treasureMaps": {

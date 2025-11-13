@@ -15,6 +15,7 @@ import {storage} from "@/assets/sripts/index";
 import TreasureMapIconWidget from "@/components/snbWidget/treasureMapIconWidget.vue";
 import TreasureMapName from "@/components/snbWidget/treasureMapName.vue";
 import ObtainableWidget from "@/components/ObtainableWidget.vue";
+import ImageMagnifyingGlass from "@/components/ImageMagnifyingGlass.vue";
 
 const {t} = useI18n(),
     router = useRouter(),
@@ -70,7 +71,7 @@ const onCodexHistory = () => {
         <v-row class="mt-5">
           <v-col cols="8">
             <h1 class="text-amber text-h2 singe-line">
-              <TreasureMapName :id="mapDetailData.id"></TreasureMapName>
+              <TreasureMapName :data="mapDetailData"></TreasureMapName>
             </h1>
             <p class="mt-2 mb-3">
               <v-icon icon="mdi-identifier"/>
@@ -79,10 +80,13 @@ const onCodexHistory = () => {
 
             <div class="mt-5 d-flex ga-2">
               <v-chip class="badge-flavor text-center tag-badge text-black"
-                      v-if="mapDetailData.rarity">{{ t(`codex.types.${mapDetailData.type}`) }}
+                      v-if="mapDetailData.type">{{ t(`codex.types.${mapDetailData.type}`) }}
               </v-chip>
               <v-chip class="badge-flavor text-center tag-badge text-black"
-                      v-if="mapDetailData.rarity">{{ t(`codex.treasureMap.raritys.${mapDetailData.rarity}`) }}
+                      v-if="mapDetailData.category">{{ t(`codex.treasureMap.categorys.${mapDetailData.category}`) }}
+              </v-chip>
+              <v-chip class="badge-flavor text-center tag-badge text-black"
+                      v-if="mapDetailData.rarity">{{ t(`codex.raritys.${mapDetailData.rarity}`) }}
               </v-chip>
             </div>
           </v-col>
@@ -90,7 +94,7 @@ const onCodexHistory = () => {
           <v-col cols="auto">
             <div class="d-flex ga-2">
               <v-btn v-if="authStore.isLogin">
-                <LikeWidget targetType="mod"
+                <LikeWidget targetType="treasureMap"
                             :isShowCount="true"
                             :targetId="mapDetailData.id">
                   <template v-slot:activate>
@@ -119,15 +123,19 @@ const onCodexHistory = () => {
                 </ItemSlotBase>
               </v-col>
               <v-col cols="12">
-                <TreasureMapIconWidget
-                    class="w-100"
-                    :padding="4"
-                    :id="mapDetailData.id"
-                    :is-open-detail="false"
-                    :is-show-tooltip="false"
-                    :is-show-open-detail="false"
-                    :isClickOpenDetail="false"
-                    :isShowOpenDetail="false"></TreasureMapIconWidget>
+                <ImageMagnifyingGlass
+                    :scale="1.3"
+                    position="top-right">
+                  <TreasureMapIconWidget
+                      class="w-100"
+                      :padding="4"
+                      :id="mapDetailData.id"
+                      :is-open-detail="false"
+                      :is-show-tooltip="false"
+                      :is-show-open-detail="false"
+                      :isClickOpenDetail="false"
+                      :isShowOpenDetail="false"></TreasureMapIconWidget>
+                </ImageMagnifyingGlass>
               </v-col>
             </v-row>
             <v-divider class="mt-10 mb-6"></v-divider>

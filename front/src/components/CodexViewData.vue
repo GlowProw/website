@@ -107,7 +107,7 @@ let data: any = ref([]),
     rarityFilterAvailableOptions = computed(() => [
       ...filterData.value.rarityTags.map(rarity => ({
         value: rarity,
-        text: asString([`codex.rarity.${rarity}`], {backRawKey: true, variable: rarity})
+        text: asString([`codex.raritys.${rarity}`], {backRawKey: true, variable: rarity})
       }))
     ]),
     // tier筛选器可选选项
@@ -908,7 +908,7 @@ const onSort = (field: SortField, order: SortOrder) => {
               <UltimateName :id="i.id" v-if="loadDataType == 'ultimate'"></UltimateName>
               <ModName :id="i.id" v-if="loadDataType == 'modification'" :grade="i.grade"></ModName>
 
-              <TreasureMapName :id="i.id" v-if="loadDataType == 'treasureMaps'"></TreasureMapName>
+              <TreasureMapName :data="i" v-if="loadDataType == 'treasureMaps'"></TreasureMapName>
               <MapLocationNameWidget :id="i.id" v-if="loadDataType == 'mapLocation'"></MapLocationNameWidget>
             </div>
           </v-card>
@@ -953,7 +953,7 @@ const onSort = (field: SortField, order: SortOrder) => {
               <UltimateName :id="i.id" v-if="loadDataType == 'ultimate'"></UltimateName>
               <ModName :id="i.id" v-if="loadDataType == 'modification'" :grade="i.grade"></ModName>
 
-              <TreasureMapName :id="i.id" v-if="loadDataType == 'treasureMaps'"></TreasureMapName>
+              <TreasureMapName :data="i" v-if="loadDataType == 'treasureMaps'"></TreasureMapName>
               <MapLocationNameWidget :id="i.id" v-if="loadDataType == 'mapLocation'"></MapLocationNameWidget>
             </div>
           </v-card>

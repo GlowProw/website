@@ -121,7 +121,7 @@ const onUltimateHistory = () => {
               {{ ultimateDetailData.id || 'none' }}
             </p>
 
-            <v-chip class="badge-flavor text-center tag-badge text-black" v-if="ultimateDetailData.rarity">{{ t(`codex.rarity.${ultimateDetailData.rarity}`) }}</v-chip>
+            <v-chip class="badge-flavor text-center tag-badge text-black" v-if="ultimateDetailData.rarity">{{ t(`codex.raritys.${ultimateDetailData.rarity}`) }}</v-chip>
           </v-col>
           <v-spacer></v-spacer>
           <v-col cols="auto">

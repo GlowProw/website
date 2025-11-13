@@ -207,7 +207,7 @@ const onStarItem = (data: Item) => {
                       :to="`/codex/items?rarity=${itemDetailData.rarity}`"
                       v-if="itemDetailData.rarity">
                 <v-badge dot inline :color="rarityColorConfig[itemDetailData.rarity]" class="mr-1"></v-badge>
-                {{ t(`codex.rarity.${itemDetailData.rarity}`) }}
+                {{ t(`codex.raritys.${itemDetailData.rarity}`) }}
               </v-chip>
             </div>
           </v-col>
@@ -508,7 +508,7 @@ const onStarItem = (data: Item) => {
                 <template v-slot:prepend-inner>
                   <ItemNameRarity :id="itemDetailData.id">
                     <router-link :to="`/codex/item/rarity/${itemDetailData.rarity}`" class="text-no-wrap">
-                      {{ t(`codex.rarity.${itemDetailData.rarity}`) || 'none' }}
+                      {{ t(`codex.raritys.${itemDetailData.rarity}`) || 'none' }}
                     </router-link>
                   </ItemNameRarity>
                 </template>

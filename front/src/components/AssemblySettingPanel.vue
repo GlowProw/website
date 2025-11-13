@@ -143,7 +143,7 @@ const setAssemblySetting = async () => {
               v-model="tabValue"
               direction="vertical">
             <v-tab prepend-icon="mdi-cog" text="常规" value="conventional"></v-tab>
-            <v-tab prepend-icon="mdi-database" text="数据" value="data" v-if="props.data.assembly.data"></v-tab>
+            <v-tab prepend-icon="mdi-database" text="数据" value="data" v-if="props?.data?.assembly?.data"></v-tab>
           </v-tabs>
           <v-divider vertical></v-divider>
 

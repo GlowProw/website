@@ -2,6 +2,8 @@
 
 import {onMounted, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
+import {useAssetsStore} from "~/stores/assetsStore";
+import Loading from "@/components/Loading.vue";
 
 const modImages = import.meta.glob('@/assets/images/snb/modTypeIcons/*.*', {eager: true});
 const
@@ -20,7 +22,8 @@ const
       margin: 1,
       padding: 1
     }),
-    {t} = useI18n()
+    {t} = useI18n(),
+    {modifications: modAssets} = useAssetsStore()
 
 let modsData = ref({
   icon: null,
@@ -46,10 +49,10 @@ const onReady = async () => {
     imageMap[key] = modImages[path];
   }
 
-  if (imageMap[props.id])
-    modsData.value.icon = imageMap[props.id]?.default || null
+  if (modAssets[props.id])
+    modsData.value.icon = modAssets[props.id] || ''
   else {
-    modsData.value.icon = `https://skullandbonestools.de/api/imagesservice?src=modifications%2F${props.id}&width=128`
+    modsData.value.icon = `https://skullandbonestools.de/api/imagesservice?src=items%2F${props.id}&width=128`
   }
 }
 </script>
@@ -65,12 +68,31 @@ const onReady = async () => {
           `pa-${props.padding}`,
       ]">
     <template v-if="modsData.icon">
-      <v-img :src="modsData.icon" class="pointer-events-none"></v-img>
+      <v-img :src="modsData.icon"
+             class="pointer-events-none">
+        <template v-slot:error>
+          <div class="fill-height repeating-gradient d-flex justify-center align-center h-100">
+            <v-icon icon="mdi-help" class="opacity-30"></v-icon>
+          </div>
+        </template>
+        <template v-slot:placeholder>
+          <div class="d-flex justify-center align-center h-100">
+            <Loading size="40"/>
+          </div>
+        </template>
+      </v-img>
     </template>
     <template v-else>
       <v-img class="error text-center">
-        <template v-slot:default>
-          <v-icon size="15" class="mt-n1">mdi-help</v-icon>
+        <template v-slot:error>
+          <div class="fill-height repeating-gradient d-flex justify-center align-center h-100">
+            <v-icon icon="mdi-help" class="opacity-30"></v-icon>
+          </div>
+        </template>
+        <template v-slot:placeholder>
+          <div class="d-flex justify-center align-center h-100">
+            <Loading size="40"/>
+          </div>
         </template>
       </v-img>
     </template>

@@ -145,7 +145,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
           </v-chip>
           <v-chip class="badge-flavor text-center tag-badge text-black"
                   :to="`/codex/items?rarity=${i.rarity}`"
-                  v-if="i.rarity">{{ t(`codex.rarity.${i.rarity}`) }}
+                  v-if="i.rarity">{{ t(`codex.raritys.${i.rarity}`) }}
           </v-chip>
           <ItemDamageTypeWidget :data="i" sizeType="mini" :size="25"></ItemDamageTypeWidget>
         </div>

@@ -98,7 +98,7 @@ const onCodexHistory = () => {
               <v-chip class="badge-flavor text-center tag-badge text-black"
                       v-if="materialDetailData.rarity">
                 <v-badge dot inline :color="rarityColorConfig[materialDetailData.rarity]" class="mr-1"></v-badge>
-                {{ t(`codex.rarity.${materialDetailData.rarity}`) }}
+                {{ t(`codex.raritys.${materialDetailData.rarity}`) }}
               </v-chip>
             </div>
           </v-col>

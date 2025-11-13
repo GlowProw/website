@@ -35,6 +35,7 @@ const
       padding: 0,
       margin: 1
     }),
+
     treasureMaps: TreasureMaps = TreasureMaps
 
 let treasureMapsCardData = ref({
@@ -118,11 +119,8 @@ const {targetElement, isVisible} = useIntersectionObserver({
            :style="`background-color: color-mix(in srgb, hsl(from ${rarityColorConfig[ treasureMaps[i.id]?.rarity || '' ]} h s l) 10%, #000)`">
         <div class="v-skeleton-loader__bone v-skeleton-loader__image opacity-30 position-absolute left-0 top-0 w-100 h-100"></div>
 
-        <h1 class="material-card-name font-weight-bold w-66">
-          <ItemSlotBase size="28px" class="mb-2" :padding="0">
-            <TreasureMapIconWidget class="bg-red d-inline-flex"></TreasureMapIconWidget>
-          </ItemSlotBase>
-          <TreasureMapName :id="i.id"></TreasureMapName>
+        <h1 class="treasure-card-name font-weight-bold w-66">
+          <TreasureMapName :data="i"></TreasureMapName>
         </h1>
         <p class="mb-1 mt-2">{{ i.id }}</p>
 
@@ -132,12 +130,16 @@ const {targetElement, isVisible} = useIntersectionObserver({
                   class="badge-flavor text-center text-black" v-if="i.type">{{ t(`codex.types.${i.type}`) }}
           </v-chip>
           <v-chip class="badge-flavor text-center tag-badge text-black"
+                  :to="`/codex/treasureMaps?category=${i.category}`"
+                  v-if="i.category">{{ t(`codex.treasureMap.categorys.${i.category}`) }}
+          </v-chip>
+          <v-chip class="badge-flavor text-center tag-badge text-black"
                   :to="`/codex/treasureMaps?rarity=${i.rarity}`"
-                  v-if="i.rarity">{{ t(`codex.rarity.${i.rarity}`) }}
+                  v-if="i.rarity">{{ t(`codex.raritys.${i.rarity}`) }}
           </v-chip>
         </div>
         <div class="right-show-image pointer-events-none position-absolute w-33">
-          <v-img :src="treasureMapsCardData.icon" class="material-mirror-image"></v-img>
+          <v-img :src="treasureMapsCardData.icon" class="treasure-mirror-image"></v-img>
         </div>
 
         <template v-if="i.rarity">
@@ -172,7 +174,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
 <style scoped lang="less">
 @import "@/assets/styles/demo-reel";
 
-.map-location-card {
+.treasure-location-card {
   &::after {
     content: "";
     position: absolute;
@@ -184,11 +186,11 @@ const {targetElement, isVisible} = useIntersectionObserver({
     border-radius: inherit;
   }
 
-  .material-mirror-image {
-    transform: scaleX(-1);
+  .treasure-mirror-image {
+    transform: scaleX(1);
   }
 
-  .material-card-name {
+  .treasure-card-name {
     line-height: 1.2 !important;
   }
 }

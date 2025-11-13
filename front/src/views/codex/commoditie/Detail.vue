@@ -156,7 +156,7 @@ const onCodexHistory = () => {
                       :to="`/codex/commoditie/rarity/${commoditieDetailData.rarity}`"
                       v-if="commoditieDetailData.rarity">
                 <v-badge dot inline :color="rarityColorConfig[commoditieDetailData.rarity]" class="mr-1"></v-badge>
-                {{ t(`codex.rarity.${commoditieDetailData.rarity}`) }}
+                {{ t(`codex.raritys.${commoditieDetailData.rarity}`) }}
               </v-chip>
             </div>
           </v-col>
@@ -287,7 +287,7 @@ const onCodexHistory = () => {
                 <template v-slot:prepend-inner>
                   <ItemNameRarity :id="commoditieDetailData.id">
                     <router-link :to="`/codex/item/rarity/${commoditieDetailData.rarity}`" class="text-no-wrap">
-                      {{ t(`codex.rarity.${commoditieDetailData.rarity}`) || 'none' }}
+                      {{ t(`codex.raritys.${commoditieDetailData.rarity}`) || 'none' }}
                     </router-link>
                   </ItemNameRarity>
                 </template>

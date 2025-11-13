@@ -30,18 +30,22 @@ let loading = ref({
     userAssemblysData = ref({
       data: []
     }),
+    browsePagination = ref({
+      page: 1,
+      pageSize: 10
+    }),
 
     tabs = ref([
+      {
+        name: '配装',
+        value: 'assembly',
+        icon: 'mdi-palette-outline'
+      },
       {
         name: '组队',
         value: 'teamUp',
         icon: 'mdi-bullhorn-outline'
       },
-      {
-        name: '配装',
-        value: 'assembly',
-        icon: 'mdi-palette-outline'
-      }
     ]),
     tab = ref(tabs.value[0].value)
 
@@ -97,8 +101,10 @@ const getMyTeamUpsData = async () => {
 
     loading.value.teamUp = true;
     const {id} = route.params
+    const {page, pageSize} = browsePagination.value;
+
     const result = await http.get(api['user_space_teamups'], {
-          params: {id}
+          params: {id, page, pageSize}
         }),
         d = result.data
 
@@ -111,19 +117,21 @@ const getMyTeamUpsData = async () => {
   }
 }
 
-
 /**
  * 获取账户相关配装信息
  */
 const getAssemblysData = async () => {
   try {
-    if (Array.from(userAssemblysData.value.data).length > 0)
-      return;
-
     loading.value.assembly = true;
-    const {id} = route.params
 
-    const result = await http.get(api['user_space_assemblys'], {params: {id}}),
+    const {id} = route.params
+    const {page, pageSize} = browsePagination.value;
+
+    const result = await http.get(api['user_space_assemblys'], {
+          params: {
+            id, page, pageSize
+          }
+        }),
         d = result.data
 
     if (d.error == 1)
@@ -276,6 +284,16 @@ const getAssemblysData = async () => {
               <div class="text-center" v-else>
                 <EmptyView></EmptyView>
               </div>
+
+              <!-- 配装分页 S -->
+              <v-pagination
+                  v-if="userAssemblysData.pagination"
+                  v-model="browsePagination.page"
+                  :length="userAssemblysData.pagination?.totalPages || 0"
+                  @update:model-value="getAssemblysData"
+                  class="mt-8"
+              ></v-pagination>
+              <!-- 配装分页 E -->
 
               <v-overlay v-model="loading.assembly" contained class="d-flex justify-center align-center">
                 <Loading size="50"></Loading>

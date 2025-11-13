@@ -129,7 +129,7 @@ const onReady = async () => {
           </v-chip>
           <v-chip class="badge-flavor text-center tag-badge text-black"
                   :to="`/codex/materials?rarity=${i.rarity}`"
-                  v-if="i.rarity">{{ t(`codex.rarity.${i.rarity}`) }}
+                  v-if="i.rarity">{{ t(`codex.raritys.${i.rarity}`) }}
           </v-chip>
         </div>
         <div class="right-show-image pointer-events-none position-absolute w-33">

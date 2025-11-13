@@ -64,7 +64,7 @@ const filterByObtainable = (d: Item | Material | Cosmetic | null | undefined): O
       if (typeof element === 'string') {
         acc.push({
           id: element,
-          // to: `/codex/${props.byType}/obtainable/${element}`
+          to: `/map/view?key=${element}`,
         });
       }
       // 处理对象元素（包含 id 属性）
@@ -75,7 +75,7 @@ const filterByObtainable = (d: Item | Material | Cosmetic | null | undefined): O
           const itemType = items[element.id] ? 'item' : 'cosmetics';
           acc.push({
             id: element.id,
-            to: `/codex/${itemType}/${element.id}`,
+            to: `/map/view?key=${element.id}`,
             item
           });
         }

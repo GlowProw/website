@@ -20,9 +20,10 @@
           :placeholder="t('map.searchPlaceholder')"
           @update:search="handleSearchInput"
           @keydown.enter="handleSearch"
+          @update:model-value="handleSelectSuggestion"
           prepend-inner-icon="mdi-magnify">
         <template v-slot:item="{ props, item }">
-          <v-list-item v-bind="props">
+          <v-list-item v-bind="props" @click="selectLocation(item.raw)">
             <template v-slot:prepend>
               <v-img
                   :src="getCategoryIcon(item.raw.category)"
@@ -197,7 +198,10 @@
     <!-- 地图控制底部信息 -->
     <div class="map-footer">
       <v-row class="w-100 mb-1">
-        <v-spacer></v-spacer>
+        <v-col class="text-caption opacity-50 ml-8">
+          <v-icon size="12" class="mr-2">mdi-information-outline</v-icon>
+          map tiles by <HtmlLink :is-icon="false" :is-iframe-show="false" href="https://mapgenie.io">mapgenie</HtmlLink>
+        </v-col>
         <v-col cols="auto" class="d-flex align-center">
           <div class="text-caption opacity-50">
             <span>{{ hoveedCoordinate.longitude?.toFixed(6) }}</span>
@@ -431,6 +435,7 @@ import FactionNameWidget from "@/components/snbWidget/factionNameWidget.vue";
 import MapPossibleLoot from "@/components/snbWidget/mapPossibleLoot.vue";
 import ShinyText from "@/components/ShinyText.vue";
 import MapLocationAvailableTreasureMapWidget from "@/components/snbWidget/mapLocationAvailableTreasureMapWidget.vue";
+import HtmlLink from "@/components/HtmlLink.vue";
 
 const {t} = useI18n(),
     route = useRoute(),
@@ -497,7 +502,6 @@ const availableCategories = computed(() => {
     text: t(`map.types.${category}.name`)
   }));
 });
-
 
 watch(searchQuery, (newValue) => {
   if (!newValue) {
@@ -657,30 +661,27 @@ onMounted(() => {
     };
   });
 
-  // 查找
-  if (queryX && queryY && queryKey) {
-    const Lat = [parseFloat(queryX as string), parseFloat(queryY as string)]
-    const feature = locations.value.find(i => i.id == queryKey)
+  if (queryKey) {
+    // 查找已有的位置数据
+    const existingLocation = locations.value.find(loc => loc.id === queryKey);
 
-    // 已有数据
-    if (feature) {
+    if (existingLocation) {
+      // 使用已有的坐标数据
       map.getView().animate({
-        center: fromLonLat(Lat),
+        center: fromLonLat([existingLocation.longitude, existingLocation.latitude]),
         duration: 0
-      })
+      });
 
-      selectedLocationData.value = feature
+      selectedLocationData.value = existingLocation;
       model.value = true;
-    }
-
-    // 创建分享
-    if (queryCategory == 'shareLocation') {
+    } else if (queryX && queryY && queryCategory) {
+      // 创建分享位置
       const loadLocation = {
-        name: queryKey,
-        id: queryKey,
+        name: queryKey as string,
+        id: queryKey as string,
         latitude: parseFloat(queryY as string),
         longitude: parseFloat(queryX as string),
-        category: queryCategory,
+        category: queryCategory as string,
         dateAdded: new Date().toISOString(),
         lastUpdated: new Date().toISOString()
       };
@@ -698,15 +699,15 @@ onMounted(() => {
       map.getView().animate({
         center: fromLonLat([parseFloat(queryX as string), parseFloat(queryY as string)]),
         duration: 0
-      })
+      });
 
-      selectedLocationData.value = {
-        id: queryKey,
-        category: queryCategory,
-        latitude: parseFloat(queryX as string),
-        longitude: parseFloat(queryY as string)
-      }
+      selectedLocationData.value = loadLocation;
       model.value = true;
+
+      // 如果是分享位置，添加到locations中以便搜索
+      if (queryCategory === 'shareLocation') {
+        locations.value.push(loadLocation);
+      }
     }
   }
 });
@@ -728,7 +729,7 @@ const getCategoryIcon = (category: string) => {
 };
 
 /**
- * 处理搜索输入
+ * 处理搜索输入 - 增强中文搜索
  * @param value
  */
 const handleSearchInput = (value: string) => {
@@ -738,51 +739,87 @@ const handleSearchInput = (value: string) => {
   }
 
   const filtered = locations.value.filter(location => {
-    const name = location.name || location.id || locationDisplayName(location);
-    return name.toLowerCase().includes(value.toLowerCase()) || location.id.toLowerCase().includes(value.toLowerCase());
+    const displayName = locationDisplayName(location).toLowerCase();
+    const locationId = location.id.toLowerCase();
+    const searchTerm = value.toLowerCase().trim();
+
+    // 名称、ID搜索
+    return displayName.includes(searchTerm) || locationId.includes(searchTerm)
   }).slice(0, 10); // 限制建议数量
 
   searchSuggestions.value = filtered.map(location => ({
-    title: location.name || location.id,
+    title: locationDisplayName(location),
     value: location.id,
     ...location
   }));
 };
 
 /**
- * 处理搜索
+ * 选择搜索建议项
+ */
+const handleSelectSuggestion = (selectedItem: any) => {
+  if (selectedItem && selectedItem.id) {
+    selectLocation(selectedItem);
+  }
+};
+
+/**
+ * 直接点击搜索结果项
+ */
+const selectLocation = (location: any) => {
+  if (!location || !mapInstance.value) return;
+
+  // 跳转到选中位置
+  mapInstance.value.getView().animate({
+    center: fromLonLat([location.longitude, location.latitude]),
+    zoom: 15,
+    duration: 500
+  });
+
+  // 显示位置信息
+  selectedLocationData.value = location;
+  model.value = true;
+  showCoordinateInfo.value = false;
+
+  // 清空搜索框
+  searchQuery.value = '';
+
+  // 更新URL参数
+  router.push({
+    name: route.name,
+    query: {
+      ...route.query,
+      key: location.id,
+      x: location.longitude,
+      y: location.latitude,
+      category: location.category
+    }
+  });
+};
+
+/**
+ * 处理键盘搜索
  */
 const handleSearch = () => {
   if (!searchQuery.value.trim()) return;
 
   const foundLocation = locations.value.find(location => {
-    const name = location.name || location.id || locationDisplayName(location);
-    return name.toLowerCase() === searchQuery.value.toLowerCase() || location.id.toLowerCase() === searchQuery.value.toLowerCase();
+    const displayName = locationDisplayName(location).toLowerCase();
+    const locationId = location.id.toLowerCase();
+    const searchTerm = searchQuery.value.toLowerCase().trim();
+
+    return displayName === searchTerm ||
+        locationId === searchTerm ||
+        getPinyinInitials(displayName) === searchTerm;
   });
 
-  if (foundLocation && mapInstance.value) {
-    // 跳转到找到的位置
-    mapInstance.value.getView().animate({
-      center: fromLonLat([foundLocation.longitude, foundLocation.latitude]),
-      zoom: 15,
-      duration: 500
-    });
-
-    // 显示位置信息
-    selectedLocationData.value = foundLocation;
-    model.value = true;
-    showCoordinateInfo.value = false;
-
-    router.push({
-      name: route.name,
-      query: {
-        ...route.query,
-        key: foundLocation.id,
-        x: foundLocation.longitude,
-        y: foundLocation.latitude,
-        category: foundLocation.category
-      }
-    });
+  if (foundLocation) {
+    selectLocation(foundLocation);
+  } else {
+    // 如果没有精确匹配，使用第一个建议项
+    if (searchSuggestions.value.length > 0) {
+      selectLocation(searchSuggestions.value[0]);
+    }
   }
 };
 
@@ -876,9 +913,10 @@ const locationDisplayName = (data: any): string => {
   if (!location.id) return '';
 
   return asString([
-    `snb.mapLocations.${location.category}${capitalizeFirstLetter(location.id)}`,
-    `snb.mapLocations.${capitalizeFirstLetter(location.id)}`,
-    `snb.mapLocations.${location.id}`
+    location.id,
+    `snb.mapLocations.${location.category}${capitalizeFirstLetter(location.id)}.name`,
+    `snb.mapLocations.${capitalizeFirstLetter(location.id)}.name`,
+    `snb.mapLocations.${location.id}.name`
   ], {backRawKey: false}) || location.id;
 };
 
@@ -1064,6 +1102,11 @@ const resetView = (): void => {
   }
 };
 
+defineExpose({
+  resetView,
+  zoomIn,
+  zoomOut
+})
 </script>
 
 <style scoped lang="less">
@@ -1081,6 +1124,7 @@ const resetView = (): void => {
     top: 30px;
     left: 30px;
     z-index: 200;
+    min-width: 300px;
   }
 
   .layer-control-panel {
@@ -1102,7 +1146,7 @@ const resetView = (): void => {
 
   .map-controls {
     position: absolute;
-    bottom: 30px;
+    bottom: 45px;
     left: 30px;
     z-index: 20;
     display: flex;
@@ -1162,5 +1206,14 @@ const resetView = (): void => {
   width: 100%;
   height: 50%;
   background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+}
+
+.v-list-item {
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
 }
 </style>

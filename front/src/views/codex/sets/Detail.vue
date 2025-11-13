@@ -268,7 +268,7 @@ const onCodexHistory = () => {
                 <template v-slot:prepend-inner>
                   <ItemNameRarity :id="setDetailData.id">
                     <router-link :to="`/codex/item/rarity/${setDetailData.rarity}`" class="text-no-wrap">
-                      {{ t(`codex.rarity.${setDetailData.rarity}`) || 'none' }}
+                      {{ t(`codex.raritys.${setDetailData.rarity}`) || 'none' }}
                     </router-link>
                   </ItemNameRarity>
                 </template>
