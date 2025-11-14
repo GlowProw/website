@@ -335,6 +335,19 @@
         </div>
       </template>
 
+      <template v-if="selectedLocationData && ['outpost','den'].includes(selectedLocationData.category)">
+        <v-row class="map-title px-10 mx-n6 py-2 text-amber-lighten-4" no-gutters>
+          {{ t('map.npcAvailable') }}
+          <v-spacer></v-spacer>
+          <v-btn icon density="compact" to="/codex/npcs">
+            <v-icon>mdi-dots-vertical</v-icon>
+          </v-btn>
+        </v-row>
+        <div class="mx-5 mb-5 pt-3 overflow-x-auto w-100">
+          <MapLocationAvailableNpcWidget :id="selectedLocationData.id" :category="selectedLocationData.category"></MapLocationAvailableNpcWidget>
+        </div>
+      </template>
+
       <template v-if="selectedLocationData.possibleLoot">
         <div class="map-title px-10 mx-n6 py-2 text-amber-lighten-4">
           {{ t('map.possibleLoot') }}
@@ -436,6 +449,7 @@ import MapPossibleLoot from "@/components/snbWidget/mapPossibleLoot.vue";
 import ShinyText from "@/components/ShinyText.vue";
 import MapLocationAvailableTreasureMapWidget from "@/components/snbWidget/mapLocationAvailableTreasureMapWidget.vue";
 import HtmlLink from "@/components/HtmlLink.vue";
+import MapLocationAvailableNpcWidget from "@/components/snbWidget/mapLocationAvailableNpcWidget.vue";
 
 const {t} = useI18n(),
     route = useRoute(),

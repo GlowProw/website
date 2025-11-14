@@ -50,6 +50,9 @@ watch(() => mobile.value, (value) => {
         <v-list-item to="/codex/mapLocations" prepend-icon="mdi-format-list-bulleted-type">
           {{ t('codex.mapLocations.title') }}
         </v-list-item>
+        <v-list-item to="/codex/npcs" prepend-icon="mdi-format-list-bulleted-type">
+          {{ t('codex.npcs.title') }}
+        </v-list-item>
 
         <v-list-item to="/search" class="mt-5" prepend-icon="mdi-magnify" append-icon="mdi-open-in-new" variant="tonal" slim>
           {{ t('search.title') }}

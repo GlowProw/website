@@ -564,6 +564,29 @@
     },
     "mapLocations": {
       "title": "地图地点列表"
+    },
+    "npc": {
+      "title": "NPC",
+      "lookDetail": "查看详情",
+      "types": {
+        "npc": "非玩家人物",
+        "structure": "建筑体(不可移动)"
+      },
+      "categorys": {
+        "helmTask": "海舵社悬赏",
+        "water": "水源",
+        "powder": "篝火",
+        "task": "任务",
+        "shop": "商店",
+        "pvpMode": "对战模式",
+        "factory": "工厂(可加工物品)",
+        "mail": "邮箱",
+        "warehouse": "仓库",
+        "objective": "悬赏"
+      }
+    },
+    "npcs": {
+      "title": "NPC列表"
     }
   },
   "calendar": {
@@ -577,6 +600,7 @@
     "description": "所有地图物品清单",
     "searchPlaceholder": "搜索地标",
     "treasureMapAvailable": "可用藏宝图",
+    "npcAvailable": "NPC's",
     "possibleLoot": "可能的赃物",
     "locations": "地点",
     "layerControl": "图层控制",

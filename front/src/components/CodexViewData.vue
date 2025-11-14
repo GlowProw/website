@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {Cosmetics, Items, MapLocations, Materials, Modifications, Sets, Ships, TreasureMaps} from "glow-prow-data";
+import {Cosmetics, Items, MapLocations, Materials, Modifications, Npcs, Sets, Ships, TreasureMaps} from "glow-prow-data";
 import {Commodities} from "glow-prow-data/src/entity/Commodities";
 import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
 import {computed, onMounted, ref, watch} from "vue";
@@ -33,8 +33,10 @@ import EmptyView from "@/components/EmptyView.vue";
 import Loading from "@/components/Loading.vue";
 import SetIconWidget from "@/components/snbWidget/setIconWidget.vue";
 import SetName from "@/components/snbWidget/setName.vue";
+import NpcIconWidget from "@/components/snbWidget/npcIconWidget.vue";
+import NpcName from "@/components/snbWidget/npcName.vue";
 
-type LoadDataType = 'ship' | 'item' | 'commoditie' | 'material' | 'ultimate' | 'cosmetic' | 'modification' | 'set' | 'treasureMaps' | 'mapLocation'
+type LoadDataType = 'ship' | 'item' | 'commoditie' | 'material' | 'ultimate' | 'cosmetic' | 'modification' | 'set' | 'treasureMaps' | 'mapLocation' | 'npc'
 type SortField = 'dateAdded' | 'lastUpdated'
 type SortOrder = 'asc' | 'desc'
 
@@ -56,6 +58,7 @@ const
     // 数据 地图
     treasureMaps = TreasureMaps,
     mapLocation = MapLocations,
+    npcs = Npcs,
 
     // 稀有度
     rarityColorConfig = rarity.color,
@@ -195,6 +198,9 @@ const onProcessedData = computed(() => {
           `snb.modifications.${i.id}.name`,
           `snb.modifications.${sanitizeString(i.id).cleaned}.name`,
 
+          `snb.npcs.${i.id}.name`,
+          `snb.npcs.${sanitizeString(i.id).cleaned}.name`,
+
           `snb.sets.${i.id}`,
         ], {
           backRawKey: true
@@ -282,6 +288,9 @@ const onProcessedData = computed(() => {
             break;
           case "mapLocation":
             d = d.concat(Object.values(mapLocation));
+            break;
+          case "npc":
+            d = d.concat(Object.values(npcs));
             break;
         }
       })
@@ -886,6 +895,7 @@ const onSort = (field: SortField, order: SortOrder) => {
 
                 <TreasureMapIconWidget :id="i.id" v-if="loadDataType == 'treasureMaps'"></TreasureMapIconWidget>
                 <MapLocationIconWidget :id="i.id" v-if="loadDataType == 'mapLocation'"></MapLocationIconWidget>
+                <NpcIconWidget :data="i" v-if="loadDataType == 'npc'"></NpcIconWidget>
               </ItemSlotBase>
 
               <div v-if="i.set && i.set.id && isFilterSet" class="position-absolute subordinate-data">
@@ -910,6 +920,7 @@ const onSort = (field: SortField, order: SortOrder) => {
 
               <TreasureMapName :data="i" v-if="loadDataType == 'treasureMaps'"></TreasureMapName>
               <MapLocationNameWidget :id="i.id" v-if="loadDataType == 'mapLocation'"></MapLocationNameWidget>
+              <NpcName :data="i" v-if="loadDataType == 'npc'"></NpcName>
             </div>
           </v-card>
         </v-row>
@@ -931,6 +942,7 @@ const onSort = (field: SortField, order: SortOrder) => {
 
                 <TreasureMapIconWidget :id="i.id" v-if="loadDataType == 'treasureMaps'"></TreasureMapIconWidget>
                 <MapLocationIconWidget :id="i.id" v-if="loadDataType == 'mapLocation'"></MapLocationIconWidget>
+                <NpcIconWidget :data="i" v-if="loadDataType == 'npc'"></NpcIconWidget>
               </ItemSlotBase>
 
               <div v-if="i.set && i.set.id && isFilterSet" class="position-absolute subordinate-data">
@@ -955,6 +967,7 @@ const onSort = (field: SortField, order: SortOrder) => {
 
               <TreasureMapName :data="i" v-if="loadDataType == 'treasureMaps'"></TreasureMapName>
               <MapLocationNameWidget :id="i.id" v-if="loadDataType == 'mapLocation'"></MapLocationNameWidget>
+              <NpcName :data="i" v-if="loadDataType == 'npc'"></NpcName>
             </div>
           </v-card>
         </v-row>

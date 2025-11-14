@@ -46,6 +46,10 @@ import TreasureMapDetailPage from '../src/views/codex/treasureMaps/Detail.vue'
 
 import MapLocationPage from '../src/views/codex/mapLocations/Index.vue'
 import MapLocationsDetailPage from '../src/views/codex/mapLocations/Detail.vue'
+
+import NpcsPage from '../src/views/codex/npcs/Index.vue'
+import NpcDetailPage from '../src/views/codex/npcs/Detail.vue'
+
 import EmpireSkillSimulationPage from '../src/views/empireSkillSimulation/Index.vue'
 
 import UltimatesPage from '../src/views/codex/ultimates/Index.vue'
@@ -409,7 +413,24 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 },
                 component: MapLocationsDetailPage,
             },
-
+            {
+                path: 'npcs',
+                name: 'Npcs',
+                meta: {
+                    title: 'codex.npcs.title',
+                    keywords: 'codex.npcs.meta.keywords'
+                },
+                component: NpcsPage,
+            },
+            {
+                path: 'npc/:id',
+                name: 'NpcDetail',
+                meta: {
+                    title: 'codex.npc.title',
+                    keywords: 'codex.npc.meta.keywords'
+                },
+                component: NpcDetailPage,
+            },
         ]
     },
     {
