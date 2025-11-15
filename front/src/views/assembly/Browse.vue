@@ -275,7 +275,7 @@ watch(browseData, (newList: ResultData) => {
           <Loading size="100"></Loading>
         </v-overlay>
 
-        <!-- 配装分页 S -->
+        <!-- 分页 S -->
         <v-pagination
             v-if="browseData.pagination"
             v-model="browsePagination.page"
@@ -283,7 +283,7 @@ watch(browseData, (newList: ResultData) => {
             @update:model-value="getBrowseList"
             class="mt-8"
         ></v-pagination>
-        <!-- 配装分页 E -->
+        <!-- 分页 E -->
       </v-col>
     </v-row>
   </v-container>

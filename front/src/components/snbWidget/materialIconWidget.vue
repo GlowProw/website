@@ -176,7 +176,7 @@ const onReady = async () => {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 200;
+    z-index: 40;
     border-radius: inherit;
   }
 

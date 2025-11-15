@@ -17,7 +17,8 @@
       "reset": "重置",
       "save": "保存",
       "submit": "确认",
-      "search": "搜索"
+      "search": "搜索",
+      "go": "前往"
     },
     "privilege": {
       "admin": "社区管理",
@@ -29,6 +30,7 @@
       "super": "超级管理员"
     },
     "tips": {
+      "error": "应用程序错误: {content}",
       "comment": {
         "ok": "发布成功",
         "bad": "发布格式错误，请检查内容是否符合要求",
@@ -608,6 +610,30 @@
     "showAll": "显示所有",
     "typeTitle": "类型",
     "difficulty": "难度",
+    "selectCollection": "选择地图集",
+    "collectionManager": "地图集管理",
+    "myCollections": "我的地图集",
+    "createCollection": "创建地图集",
+    "collectionTitle": "地图集标题",
+    "collectionIsEmptyTip": "请先创建地图集后，再创建标记",
+    "collectionDescription": "地图集描述",
+    "layerCollection": "地图集",
+    "publicCollection": "公开地图集",
+    "sharedUsers": "共享用户",
+    "sharedUsersHint": "输入用户ID，用逗号分隔",
+    "personalMarkers": "个人标记",
+    "noDescription": "暂无描述",
+    "noCollections": "暂无地图集",
+    "titleRequired": "标题是必填项",
+    "collectionRequired": "请选择地图集",
+    "confirmDeleteCollection": "确定要删除地图集 \"{title}\" 吗？此操作将同时删除其中的所有标记。",
+    "markerName": "标记名称",
+    "markerDescription": "标记描述",
+    "nearbyMarker": "附近",
+    "createMarker": "创建标记",
+    "type": "类型",
+    "tags": "标签",
+    "publicMarker": "公开标记",
     "types": {
       "none": {
         "name": "未知",
@@ -873,7 +899,21 @@
     "lastUpdated": "更新时间"
   },
   "search": {
-    "title": "搜索"
+    "title": "搜索",
+    "placeholder": "输入关键词或使用字段查询，如：name:设备 或 id:exact_id",
+    "conditions": "查询条件",
+    "quickFilters": "快速筛选",
+    "recentSearches": "最近搜索",
+    "strictMatch": "精确匹配",
+    "fuzzyMatch": "模糊匹配",
+    "useTip": "高级使用提示",
+    "filters": {
+      "name": "名称",
+      "id": "ID",
+      "description": "描述",
+      "category": "分类",
+      "type": "类型"
+    }
   },
   "header": {
     "navs": {

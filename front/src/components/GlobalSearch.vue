@@ -23,18 +23,25 @@ let model = ref(false),
   </v-btn>
 
   <v-dialog max-width="1024"
-            z-index="10"
+            z-index="51"
             class="global-search"
             content-class="pt-8"
             v-model="model">
     <template v-slot:default>
-      <SearchView></SearchView>
+      <SearchView>
+        <template v-slot:close>
+          <v-btn icon variant="tonal" class="ml-5" @click="model = false" >
+            <v-icon icon="mdi-close"/>
+          </v-btn>
+        </template>
+      </SearchView>
     </template>
   </v-dialog>
 </template>
 
 <style scoped lang="less">
 .global-search {
+  background: rgba(0, 0, 0, 0.47);
   backdrop-filter: blur(100px)
 }
 </style>

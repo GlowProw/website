@@ -16,7 +16,7 @@ const props = defineProps<{ id: string }>(),
 <template>
   <div class="d-inline-flex ga-4" v-if="treasureMaps && treasureMaps.length > 0">
     <template v-for="(i, index) in treasureMaps" :key="index">
-      <v-card class="bg-transparent" width="100%">
+      <v-card class="bg-transparent" width="100%" variant="text" :class="{'ml-5': index == 0, 'mr-5': index == treasureMaps.length - 1}">
         <ItemSlotBase size="120px" :padding="0">
           <TreasureMapIconWidget :id="i.id"></TreasureMapIconWidget>
         </ItemSlotBase>

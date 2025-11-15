@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import {computed, onMounted, ref, watch} from "vue";
+import {computed, onMounted, ref, useSlots, watch} from "vue";
 import FlexSearch from "flexsearch";
 
-import {Commodity, Cosmetic, Cosmetics, Items, MapLocations, Material, Materials, Modification, Modifications, Ultimate, Ultimates} from "glow-prow-data";
-import {Commodities} from "glow-prow-data/src/entity/Commodities";
+import {Commodity, Cosmetic, Cosmetics, Items, MapLocations, Material, Materials, Modification, Modifications, Ships, Ultimate} from "glow-prow-data";
 
 import {useI18n} from "vue-i18n";
 import {Item} from "glow-prow-data/src/entity/Items.ts";
@@ -28,9 +27,17 @@ import CommoditieIconWidget from "@/components/snbWidget/commoditieIconWidget.vu
 import CommoditieName from "@/components/snbWidget/commoditieName.vue";
 import {useRoute, useRouter} from "vue-router";
 
+import {advanced_search} from '@/assets/sripts/advanced_search';
+import {AdvancedQueryParser} from '@/assets/sripts/advanced_query_parser';
+import {storage} from "@/assets/sripts/index";
+import {Commodities} from "glow-prow-data/src/entity/Commodities";
+import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
+import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
+import ShipName from "@/components/snbWidget/shipName.vue";
 
 const {t} = useI18n(),
     os = useOS(),
+    slots = useSlots(),
     router = useRouter(),
     route = useRoute(),
     {sanitizeString, asString} = useI18nUtils()
@@ -47,10 +54,75 @@ let searchIndex = ref(null),
       let key = ''
       if (os.isDesktop() && os.detectOS() == 'MacOS')
         key = ['fn', 's']
-      else if (os.isDesktop() && os.detectOS() == 'MacOS')
+      else if (os.isDesktop() && os.detectOS() == 'Windows')
         key = ['ctrl', 's']
       return key;
     })
+
+const {
+  searchKey,
+  parsedQuery,
+  searchHistory,
+  addCondition,
+  removeCondition,
+  clearSearch,
+  addToHistory,
+  hasConditions,
+  hasKeywords,
+  isEmpty
+} = advanced_search();
+
+// 快速过滤器
+const quickFilters = [
+  {field: 'name', label: t('search.filters.name'), icon: 'mdi-tag'},
+  {field: 'id', label: t('search.filters.id'), icon: 'mdi-identifier'},
+  {field: 'description', label: t('search.filters.description'), icon: 'mdi-text'},
+  {field: 'category', label: t('search.filters.category'), icon: 'mdi-folder'},
+  {field: 'type', label: t('search.filters.type'), icon: 'mdi-shape'}
+];
+
+watch(() => searchValue.value, (value) => {
+  if (!value) {
+    searchResult.value = {};
+    return;
+  }
+
+  try {
+    // 解析高级查询
+    const parsed = AdvancedQueryParser.parse(value);
+
+    let matchedItems = [];
+
+    if (parsed.conditions.length > 0) {
+      // 使用高级查询匹配（混合严格和模糊匹配）
+      matchedItems = allItems.value.filter(item =>
+          matchesAdvancedQuery(item, parsed)
+      );
+    } else {
+      // 纯关键词搜索，使用模糊匹配
+      const resultIds = searchIndex.value.search(value, {
+        limit: 100,
+        suggest: true
+      });
+
+      matchedItems = resultIds
+          .map(resultId => allItems.value.find(item => item.id === resultId))
+          .filter(item => item !== undefined && item !== null);
+    }
+
+    // 按类型分组并限制每个类型最多20条
+    searchResult.value = groupResultsByType(matchedItems, 20);
+
+    // 添加到搜索历史
+    if (matchedItems.length > 0) {
+      addToHistory(value);
+    }
+
+  } catch (error) {
+    console.error('搜索错误:', error);
+    searchResult.value = {};
+  }
+});
 
 onMounted(() => {
   searchIndex.value = new FlexSearch.Index({
@@ -60,78 +132,245 @@ onMounted(() => {
     cache: true
   });
 
+  // 创建字段特定的索引
+  const fieldIndices = {
+    id: new FlexSearch.Index({preset: "default", cache: true}),
+    name: new FlexSearch.Index({tokenize: "forward", preset: "default", cache: true}),
+    description: new FlexSearch.Index({tokenize: "forward", preset: "default", cache: true})
+  };
+
   const data = []
       .concat(Object.values(Items).map(i => {
-        return {
+        const itemData = {
           ...i,
           name: asString([
             `snb.items.${i.id}.name`,
             `snb.items.${sanitizeString(i.id).cleaned}.name`
           ]),
-          sourceType: 'item'
+          sourceType: 'item',
+          searchableFields: {
+            name: asString([
+              `snb.items.${i.id}.name`,
+              `snb.items.${sanitizeString(i.id).cleaned}.name`
+            ]),
+            id: i.id,
+            description: i.description || '',
+            category: i.category || '',
+            type: i.type || ''
+          }
+        };
+
+        // 索引到各个字段
+        const itemId = i.id;
+        searchIndex.value.add(itemId, Object.values(itemData.searchableFields).join(' ').toLowerCase());
+        fieldIndices.id.add(itemId, itemData.searchableFields.id.toLowerCase());
+        fieldIndices.name.add(itemId, itemData.searchableFields.name.toLowerCase());
+
+        if (itemData.searchableFields.description) {
+          fieldIndices.description.add(itemId, itemData.searchableFields.description.toLowerCase());
         }
+
+        return itemData;
+      }))
+      .concat(Object.values(Ships).map(i => {
+        const itemData = {
+          ...i,
+          name: asString([
+            `snb.ships.${i.id}.name`,
+            `snb.ships.${sanitizeString(i.id).cleaned}.name`
+          ]),
+          sourceType: 'ship',
+          searchableFields: {
+            name: asString([
+              `snb.ships.${i.id}.name`,
+              `snb.ships.${sanitizeString(i.id).cleaned}.name`
+            ]),
+            id: i.id,
+            description: i.description || '',
+            category: i.category || '',
+            type: i.type || ''
+          }
+        };
+
+        // 索引到各个字段
+        const itemId = i.id;
+        searchIndex.value.add(itemId, Object.values(itemData.searchableFields).join(' ').toLowerCase());
+        fieldIndices.id.add(itemId, itemData.searchableFields.id.toLowerCase());
+        fieldIndices.name.add(itemId, itemData.searchableFields.name.toLowerCase());
+
+        if (itemData.searchableFields.description) {
+          fieldIndices.description.add(itemId, itemData.searchableFields.description.toLowerCase());
+        }
+
+        return itemData;
       }))
       .concat(Object.values(Commodities).map(i => {
-        return {
+        const itemData = {
           ...i,
           name: asString([
             `snb.commodities.${i.id}.name`,
             `snb.commodities.${sanitizeString(i.id).cleaned}.name`
           ]),
-          sourceType: 'commoditie'
+          sourceType: 'commoditie',
+          searchableFields: {
+            name: asString([
+              `snb.commodities.${i.id}.name`,
+              `snb.commodities.${sanitizeString(i.id).cleaned}.name`
+            ]),
+            id: i.id,
+            description: i.description || '',
+            category: i.category || '',
+            type: i.type || ''
+          }
+        };
+
+        // 索引到各个字段
+        const itemId = i.id;
+        searchIndex.value.add(itemId, Object.values(itemData.searchableFields).join(' ').toLowerCase());
+        fieldIndices.id.add(itemId, itemData.searchableFields.id.toLowerCase());
+        fieldIndices.name.add(itemId, itemData.searchableFields.name.toLowerCase());
+
+        if (itemData.searchableFields.description) {
+          fieldIndices.description.add(itemId, itemData.searchableFields.description.toLowerCase());
         }
+
+        return itemData;
       }))
       .concat(Object.values(Materials).map(i => {
-        return {
+        const itemData = {
           ...i,
           name: t(`snb.materials.${i.id}.name`),
-          sourceType: 'material'
+          sourceType: 'material',
+          searchableFields: {
+            name: t(`snb.materials.${i.id}.name`),
+            id: i.id,
+            description: i.description || '',
+            category: i.category || '',
+            type: i.type || ''
+          }
+        };
+
+        // 索引到各个字段
+        const itemId = i.id;
+        searchIndex.value.add(itemId, Object.values(itemData.searchableFields).join(' ').toLowerCase());
+        fieldIndices.id.add(itemId, itemData.searchableFields.id.toLowerCase());
+        fieldIndices.name.add(itemId, itemData.searchableFields.name.toLowerCase());
+
+        if (itemData.searchableFields.description) {
+          fieldIndices.description.add(itemId, itemData.searchableFields.description.toLowerCase());
         }
+
+        return itemData;
       }))
       .concat(Object.values(Modifications).map(i => {
-        return {
+        const itemData = {
           ...i,
           name: t(`snb.modifications.${i.id}.name`),
-          sourceType: 'modification'
+          sourceType: 'modification',
+          searchableFields: {
+            name: t(`snb.modifications.${i.id}.name`),
+            id: i.id,
+            description: i.description || '',
+            category: i.category || '',
+            type: i.type || '',
+            grade: i.grade || ''
+          }
+        };
+
+        // 索引到各个字段
+        const itemId = i.id;
+        searchIndex.value.add(itemId, Object.values(itemData.searchableFields).join(' ').toLowerCase());
+        fieldIndices.id.add(itemId, itemData.searchableFields.id.toLowerCase());
+        fieldIndices.name.add(itemId, itemData.searchableFields.name.toLowerCase());
+
+        if (itemData.searchableFields.description) {
+          fieldIndices.description.add(itemId, itemData.searchableFields.description.toLowerCase());
         }
+
+        return itemData;
       }))
       .concat(Object.values(Cosmetics).map(i => {
-        return {
+        const itemData = {
           ...i,
           name: t(`snb.cosmetics.${i.id}.name`),
-          sourceType: 'cosmetic'
+          sourceType: 'cosmetic',
+          searchableFields: {
+            name: t(`snb.cosmetics.${i.id}.name`),
+            id: i.id,
+            description: i.description || '',
+            category: i.category || '',
+            type: i.type || ''
+          }
+        };
+
+        // 索引到各个字段
+        const itemId = i.id;
+        searchIndex.value.add(itemId, Object.values(itemData.searchableFields).join(' ').toLowerCase());
+        fieldIndices.id.add(itemId, itemData.searchableFields.id.toLowerCase());
+        fieldIndices.name.add(itemId, itemData.searchableFields.name.toLowerCase());
+
+        if (itemData.searchableFields.description) {
+          fieldIndices.description.add(itemId, itemData.searchableFields.description.toLowerCase());
         }
+
+        return itemData;
       }))
       .concat(Object.values(Ultimates).map(i => {
-        return {
+        const itemData = {
           ...i,
           name: t(`snb.ultimates.${i.id}.name`),
-          sourceType: 'ultimate'
+          sourceType: 'ultimate',
+          searchableFields: {
+            name: t(`snb.ultimates.${i.id}.name`),
+            id: i.id,
+            description: i.description || '',
+            category: i.category || '',
+            type: i.type || ''
+          }
+        };
+
+        // 索引到各个字段
+        const itemId = i.id;
+        searchIndex.value.add(itemId, Object.values(itemData.searchableFields).join(' ').toLowerCase());
+        fieldIndices.id.add(itemId, itemData.searchableFields.id.toLowerCase());
+        fieldIndices.name.add(itemId, itemData.searchableFields.name.toLowerCase());
+
+        if (itemData.searchableFields.description) {
+          fieldIndices.description.add(itemId, itemData.searchableFields.description.toLowerCase());
         }
+
+        return itemData;
       }))
       .concat(Object.values(MapLocations).map(i => {
-        return {
+        const itemData = {
           ...i,
           name: t(`snb.mapLocations.${i.id}.name`),
-          sourceType: 'mapLocation'
+          sourceType: 'mapLocation',
+          searchableFields: {
+            name: t(`snb.mapLocations.${i.id}.name`),
+            id: i.id,
+            description: i.description || '',
+            category: i.category || '',
+            type: i.type || ''
+          }
+        };
+
+        // 索引到各个字段
+        const itemId = i.id;
+        searchIndex.value.add(itemId, Object.values(itemData.searchableFields).join(' ').toLowerCase());
+        fieldIndices.id.add(itemId, itemData.searchableFields.id.toLowerCase());
+        fieldIndices.name.add(itemId, itemData.searchableFields.name.toLowerCase());
+
+        if (itemData.searchableFields.description) {
+          fieldIndices.description.add(itemId, itemData.searchableFields.description.toLowerCase());
         }
+
+        return itemData;
       }));
 
-  data.forEach((item, index) => {
-    if (item && item.name) {
-      const itemId = item.id || `item_${index}`;
-      const contentToIndex = `${item.name} ${item.description || ''}`.trim().toLowerCase();
-
-      // 添加到索引
-      searchIndex.value.add(itemId, contentToIndex);
-
-      // 存储完整数据
-      allItems.value.push({
-        id: itemId,
-        ...item
-      });
-    }
-  });
+  // 存储字段索引
+  allItems.value = data;
+  fieldIndices.value = fieldIndices;
 
   initHotkey()
 });
@@ -144,7 +383,7 @@ const initHotkey = () => {
 
   if (os.isDesktop() && os.detectOS() == 'MacOS')
     key = hotkey.value.join('+')
-  else if (os.isDesktop() && os.detectOS() == 'MacOS')
+  else if (os.isDesktop() && os.detectOS() == 'Windows')
     key = hotkey.value.join('+')
 
   if (key)
@@ -153,7 +392,111 @@ const initHotkey = () => {
     })
 }
 
-// 按类型分组并限制每个类型的数量
+/**
+ * 高级搜索匹配逻辑
+ */
+const matchesAdvancedQuery = (item: any, parsedQuery: any): boolean => {
+  const {keywords, conditions} = parsedQuery;
+
+  // 检查关键词匹配（模糊匹配）
+  const keywordMatch = keywords.length === 0 || keywords.some(keyword => {
+    const searchContent = Object.values(item.searchableFields || {})
+        .filter(value => value)
+        .join(' ')
+        .toLowerCase();
+    return searchContent.includes(keyword.toLowerCase());
+  });
+
+  // 检查条件匹配
+  const conditionMatch = conditions.length === 0 || conditions.every(condition => {
+    const {field, operator, value, isStrict} = condition;
+    const itemValue = item.searchableFields?.[field] || item[field];
+
+    if (!itemValue) return false;
+
+    const itemValueStr = String(itemValue).toLowerCase();
+    const conditionValues = Array.isArray(value) ? value.map(v => v.toLowerCase()) : [String(value).toLowerCase()];
+
+    // 根据是否严格匹配使用不同的匹配策略
+    if (isStrict) {
+      // 严格匹配：精确比较
+      return matchesStrictCondition(itemValue, itemValueStr, conditionValues, operator);
+    } else {
+      // 模糊匹配：包含关系
+      return matchesFuzzyCondition(itemValueStr, conditionValues, operator);
+    }
+  });
+
+  return keywordMatch && conditionMatch;
+};
+
+/**
+ * 严格匹配条件
+ */
+const matchesStrictCondition = (itemValue: any, itemValueStr: string, conditionValues: string[], operator: string): boolean => {
+  switch (operator) {
+    case ':':
+    case '=':
+      // 严格匹配：完全相等或多值包含
+      return conditionValues.some(conditionValue =>
+          itemValueStr === conditionValue ||
+          (Array.isArray(itemValue) && itemValue.includes(conditionValue))
+      );
+
+    case '!=':
+      // 严格不相等
+      return !conditionValues.some(conditionValue =>
+          itemValueStr === conditionValue
+      );
+
+    case '>':
+      return Number(itemValue) > Number(conditionValues[0]);
+
+    case '<':
+      return Number(itemValue) < Number(conditionValues[0]);
+
+    case '>=':
+      return Number(itemValue) >= Number(conditionValues[0]);
+
+    case '<=':
+      return Number(itemValue) <= Number(conditionValues[0]);
+
+    default:
+      return itemValueStr === conditionValues[0];
+  }
+};
+
+/**
+ * 模糊匹配条件
+ */
+const matchesFuzzyCondition = (itemValueStr: string, conditionValues: string[], operator: string): boolean => {
+  switch (operator) {
+    case ':':
+    case '=':
+      // 模糊匹配：包含关系
+      return conditionValues.some(conditionValue =>
+          itemValueStr.includes(conditionValue)
+      );
+
+    case '!=':
+      // 模糊不匹配：不包含
+      return !conditionValues.some(conditionValue =>
+          itemValueStr.includes(conditionValue)
+      );
+
+    default:
+      // 其他操作符使用严格匹配
+      return conditionValues.some(conditionValue =>
+          itemValueStr.includes(conditionValue)
+      );
+  }
+};
+
+/**
+ * 按类型分组并限制每个类型的数量
+ * @param results
+ * @param limitPerType
+ */
 const groupResultsByType = (results: any[], limitPerType: number = 20) => {
   const grouped: Record<string, any[]> = {};
 
@@ -171,37 +514,6 @@ const groupResultsByType = (results: any[], limitPerType: number = 20) => {
 
   return grouped;
 };
-
-// 监听搜索输入
-watch(searchValue, (value) => {
-  if (!value.trim()) {
-    searchResult.value = {};
-    return;
-  }
-
-  try {
-    // 执行搜索
-    const resultIds = searchIndex.value.search(value, {
-      limit: 100,
-      suggest: true
-    });
-
-    // 映射回完整数据
-    const matchedItems = resultIds
-        .map(resultId => {
-          // 根据ID找到对应的完整数据
-          return allItems.value.find(item => item.id === resultId);
-        })
-        .filter(item => item !== undefined && item !== null);
-
-    // 按类型分组并限制每个类型最多20条
-    searchResult.value = groupResultsByType(matchedItems, 20);
-
-  } catch (error) {
-    console.error('搜索错误:', error);
-    searchResult.value = {};
-  }
-});
 
 /**
  * 获取前往地址
@@ -236,8 +548,41 @@ const onCloseModel = () => {
   setTimeout(() => model.value = false, 1200)
 }
 
-const onPage = () => {
-  router.push(toPage(i, type))
+/**
+ * 添加快速条件
+ */
+const addQuickCondition = (filter: { field: string; label: string }) => {
+  addCondition(filter.field, '');
+  // 聚焦到搜索框
+  const searchInput = document.querySelector('input[type="text"]') as HTMLInputElement;
+  if (searchInput) {
+    searchInput.focus();
+  }
+};
+
+/**
+ * 应用历史记录
+ */
+const applyHistory = (query: string) => {
+  searchValue.value = query;
+};
+
+/**
+ * 清空历史记录
+ */
+const clearHistory = () => {
+  searchHistory.value = [];
+  storage.local.rem(searchKey);
+  clearSearch()
+};
+
+/**
+ * 打开详情页面
+ * @param item
+ * @param type
+ */
+const onPage = (item: any, type: string) => {
+  router.push(toPage(item, type))
   onCloseModel()
 }
 
@@ -249,40 +594,127 @@ defineExpose({
 
 <template>
   <v-card elevation="0" class="bg-transparent pa-3">
-    <v-row class="mb-3" no-gutters align="center">
-      <v-col class="font-weight-bold">
+    <v-row class="mb-0" no-gutters align="center">
+      <v-col class="font-weight-bold text-h5">
         <v-icon>mdi-magnify</v-icon>
-        <span class="opacity-80">全局搜索</span>
+        <span class="ml-3 opacity-80">全局搜索</span>
       </v-col>
       <v-spacer></v-spacer>
-      <div class="d-flex ga-2 align-center"
+      <v-col cols="auto" class="d-flex ga-2 align-center"
            v-if="os.isDesktop() && isShowHotKet">
         <template v-for="(i, index) in hotkey" :key="index">
-          <v-chip border>{{ i }}</v-chip>
+          <v-chip variant="tonal" density="comfortable">{{ i }}</v-chip>
           <template v-if="index == 0">
             <v-icon>mdi-plus</v-icon>
           </template>
         </template>
-      </div>
+      </v-col>
+      <v-col cols="auto" class="ml-2" v-if="slots.close">
+        <slot name="close"></slot>
+      </v-col>
     </v-row>
 
-    <div>
-      <v-text-field
-          v-model="searchValue"
-          variant="outlined"
-          class="mb-5 bg-black"
-          :counter="10"
-          glow
-          hide-spin-buttons
-          persistent-hint
-          hide-details
-          clearable
-          @input="searchValue = $event.target.value"
-          @keydown.enter="searchValue = $event.target.value"
-      ></v-text-field>
+    <v-row>
+      <!-- 搜索输入框 S -->
+      <v-col cols="12">
+        <v-text-field
+            v-model="searchValue"
+            variant="outlined"
+            class="mb-3"
+            :placeholder="t('search.placeholder')"
+            glow
+            hide-spin-buttons
+            persistent-hint
+            hide-details
+            clearable
+            autofocus
+            @keyup.enter="searchValue = $event.target.value">
+          <template v-slot:prepend-inner>
+            <v-icon icon="mdi-magnify"/>
+          </template>
+        </v-text-field>
+      </v-col>
+      <!-- 搜索输入框 E -->
 
-      <div v-if="Object.keys(searchResult).length > 0">
-        <!-- 按类型循环显示 -->
+      <!-- 查询条件展示 S -->
+      <div v-if="hasConditions && parsedQuery.conditions.length > 0" class="conditions-container mb-3">
+        <div class="conditions-header">
+          <span class="text-caption text-medium-emphasis">
+            {{ t('search.conditions') }}
+          </span>
+        </div>
+
+        <div class="conditions-list">
+          <v-chip
+              v-for="(condition, index) in parsedQuery.conditions"
+              :key="index"
+              variant="outlined"
+              size="small"
+              closable
+              @click:close="removeCondition(index)"
+              class="condition-chip">
+            <span class="field">{{ condition.field }}</span>
+            <span class="operator">{{ condition.operator }}</span>
+            <span class="value">
+              {{ Array.isArray(condition.value) ? condition.value.join(', ') : condition.value }}
+            </span>
+          </v-chip>
+        </div>
+      </div>
+      <!-- 查询条件展示 E -->
+
+      <!-- 快速条件添加 S -->
+      <v-col cols="6" class="quick-conditions mb-4">
+        <span class="text-caption text-medium-emphasis">
+          {{ t('search.quickFilters') }}
+        </span>
+
+        <div class="quick-buttons">
+          <v-chip
+              v-for="filter in quickFilters"
+              :key="filter.field"
+              variant="outlined"
+              size="small"
+              @click="addQuickCondition(filter)"
+              class="ma-1">
+            <v-icon :icon="filter.icon" size="small" class="mr-1"></v-icon>
+            {{ filter.label }}
+          </v-chip>
+        </div>
+      </v-col>
+      <!-- 快速条件添加 E -->
+
+      <!-- 搜索历史 S -->
+      <v-col cols="6" v-if="searchHistory.length && !searchValue" class="search-history mb-4">
+        <div class="history-header">
+          <span class="text-caption text-medium-emphasis">
+            {{ t('search.recentSearches') }}
+          </span>
+          <v-btn
+              variant="text"
+              size="small"
+              @click="clearHistory">
+            {{ t('basic.button.reset') }}
+          </v-btn>
+        </div>
+
+        <div class="history-list">
+          <v-chip
+              v-for="(historyItem, index) in searchHistory"
+              :key="index"
+              variant="flat"
+              size="small"
+              @click="applyHistory(historyItem)"
+              class="ma-1">
+            {{ historyItem }}
+          </v-chip>
+        </div>
+      </v-col>
+      <!-- 搜索历史 E -->
+
+      <!-- 搜索结果 S -->
+      <v-col cols="12" v-if="Object.keys(searchResult).length > 0">
+        <!-- 按类型循环显示 S -->
         <div v-for="(items, type) in searchResult" :key="type" class="mb-6">
           <div class="d-block text-h6 primary--text mb-3 w-100">
             <v-row align="center">
@@ -290,7 +722,7 @@ defineExpose({
                 {{ t(`codex.${type}s.title`) }} ({{ items.length }})
               </v-col>
               <v-col cols="auto">
-                <v-btn icon :to="`/codex/${type}s?key=${searchValue}`" variant="text" @click="model = !model">
+                <v-btn icon :to="`/codex/${type}s?key=${searchValue}`" variant="text" @click="onCloseModel">
                   {{ t('codex.more') }}
                 </v-btn>
               </v-col>
@@ -301,13 +733,15 @@ defineExpose({
             <v-list-item
                 v-for="(i, index) in items"
                 :key="i.id || index"
-                :to="toPage(i, type)"
-                @click="onCloseModel"
+                @click="onPage(i, type)"
                 three-line>
               <v-list-item-title class="font-weight-medium d-flex align-center">
                 <ItemSlotBase size="30px" :padding="0" class="mr-2">
                   <template v-if="type=='item'">
                     <ItemIconWidget :id="i.id"></ItemIconWidget>
+                  </template>
+                  <template v-if="type=='ship'">
+                    <ShipIconWidget :id="i.id"></ShipIconWidget>
                   </template>
                   <template v-if="type=='commoditie'">
                     <CommoditieIconWidget :id="i.id"></CommoditieIconWidget>
@@ -329,9 +763,11 @@ defineExpose({
                   </template>
                 </ItemSlotBase>
 
-
                 <template v-if="type=='item'">
                   <ItemName :id="i.id"></ItemName>
+                </template>
+                <template v-if="type=='ship'">
+                  <ShipName :id="i.id"></ShipName>
                 </template>
                 <template v-if="type=='commoditie'">
                   <CommoditieName :id="i.id"></CommoditieName>
@@ -357,8 +793,8 @@ defineExpose({
               <div v-if="i.required && Object.keys(i.required).length > 0" class="text-caption mt-1">
                 <strong>需求材料:</strong>
                 <span v-for="(amount, material) in i.required" :key="material" class="ml-2">
-                        {{ material }}: {{ amount }}
-                      </span>
+                  {{ material }}: {{ amount }}
+                </span>
               </div>
 
               <template v-slot:append>
@@ -367,18 +803,92 @@ defineExpose({
             </v-list-item>
           </v-list>
         </div>
-      </div>
+        <!-- 按类型循环显示 E -->
+      </v-col>
 
-      <div v-else-if="searchValue" class="text-center text-grey py-8">
+      <v-col cols="12" v-else-if="searchValue" class="text-center text-grey py-8">
         未找到匹配的结果
-      </div>
+      </v-col>
 
-      <div v-else class="text-center text-grey py-8">
-        输入关键词开始搜索
-      </div>
-    </div>
+      <v-col cols="6" v-else class="mb-4">
+        <div class="history-header text-grey">
+          <span class="text-caption text-medium-emphasis">
+            <v-icon>mdi-lightbulb-on-10</v-icon>
+            {{ t('search.useTip') }}
+          </span>
+        </div>
+
+        <div class="mt-3">
+          <p>支持高级查询如：name:item_name id:id1 category:ship type:ships</p>
+
+          <ul class="mt-5 text-caption text-grey ml-4">
+            <li>模糊检索: <u>id=id1</u> · <u>id>=id1</u> · <u>id<=id1</u> · <u>id< id1 </u> · <u>id>id1</u></li>
+            <li>精准id检索: <u>id:id1</u></li>
+            <li>category单一和组合: <u>category:ship,ships</u> (仅限category)</li>
+          </ul>
+
+          <ul class="mt-2 text-caption text-grey ml-4">
+            <li>字段: <u>name</u> · <u>id</u> · <u>category</u> · <u>type</u> · <u>description</u></li>
+            <li>支持同时使用以上字段查询</li>
+          </ul>
+        </div>
+      </v-col>
+      <!-- 搜索结果 E -->
+    </v-row>
   </v-card>
 </template>
 
 <style scoped lang="less">
+.conditions-container {
+  padding: 12px;
+  border-radius: 6px;
+}
+
+.conditions-header {
+  margin-bottom: 8px;
+}
+
+.conditions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.condition-chip {
+  .field {
+    font-weight: 600;
+  }
+
+  .operator {
+    margin: 0 4px;
+    color: #666;
+  }
+
+  .value {
+    color: #2e7d32;
+  }
+}
+
+.quick-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.history-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.quick-buttons, .history-list {
+  margin-top: 8px;
+}
 </style>

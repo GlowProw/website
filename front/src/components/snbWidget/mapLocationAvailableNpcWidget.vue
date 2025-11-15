@@ -20,7 +20,7 @@ const props = defineProps<{ id: string, category: string }>(),
 <template>
   <div class="d-inline-flex ga-4" v-if="npcs && npcs.length > 0">
     <template v-for="(i, index) in npcs" :key="index">
-      <v-card class="bg-transparent" width="99" variant="text">
+      <v-card class="bg-transparent" width="99" variant="text" :class="{'ml-5': index == 0, 'mr-5': index == npcs.length - 1}">
         <ItemSlotBase size="99px" :padding="0">
           <NpcIconWidget :data="i"></NpcIconWidget>
         </ItemSlotBase>

@@ -1,5 +1,6 @@
 interface ServiceProviderItem {
     name: string,
+    icon: string,
     src: string
 }
 
@@ -24,6 +25,11 @@ export class Service_provider {
             name: 'crowdin',
             icon: 'crowdin.svg',
             src: 'https://crowdin.com'
+        },
+        {
+            name: 'datadoghq',
+            icon: 'datadoghq.png',
+            src: 'https://www.datadoghq.com'
         },
     ]
 

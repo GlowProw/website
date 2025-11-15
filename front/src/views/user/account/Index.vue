@@ -50,9 +50,15 @@ let drawer = ref(true),
             name: '我的评论',
             to: '/account/comments',
             primaryValue: 'MeDataList'
-          }, {
+          },
+          {
             name: '我的组队',
             to: '/account/teamups',
+            primaryValue: 'MeDataList'
+          },
+          {
+            name: '地图管理',
+            to: '/account/maps',
             primaryValue: 'MeDataList'
           }
         ]

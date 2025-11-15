@@ -52,7 +52,6 @@ export const messageCompiler = (message: any) => {
 
 const i18n = createI18n({
     legacy: false,
-    missingWarn: false,
     messageCompiler,
     locale: storage.local.get('lang')?.data?.value?.value || language.default || 'zh-CN',
     fallbackLocale: 'en-US',

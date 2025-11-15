@@ -9,6 +9,7 @@ import AccountProfilePicturePage from '@/views/user/account/profilePicture.vue'
 import AccountAssemblysPage from '../src/views/user/account/assemblys.vue'
 import AccountCommentsPage from '../src/views/user/account/comments.vue'
 import AccountTeamUpsPage from '../src/views/user/account/teamup.vue'
+import AccountMapsPage from '../src/views/user/account/maps.vue'
 import AccountSpacePage from '../src/views/user/Space.vue'
 
 import LoginPage from '../src/views/user/login.vue'
@@ -169,6 +170,11 @@ const routes: Readonly<RouteRecordRaw[]> = [
                         path: 'teamups',
                         name: 'AccountTeamUps',
                         component: AccountTeamUpsPage
+                    },
+                    {
+                        path: 'maps',
+                        name: 'AccountMaps',
+                        component: AccountMapsPage
                     },
                 ]
             },

@@ -37,7 +37,12 @@ export default class Api {
             "comment_reply": "comment/reply",
             "comment_edit": "comment/edit",
             "comment_replies": "comment/replies",
-            "comment_delete": "comment/delete"
+            "comment_delete": "comment/delete",
+
+            "map_collection": "map/collection",
+            "map_collections": "map/collections",
+            "map_point": "map/point",
+            "map_point_nearby": "map/point/nearby"
         };
     }
 }
