@@ -169,15 +169,15 @@
       "armor": "Armor",
       "tool": "Tool",
       "chest": "Chest",
-      "culverin": "长炮",
-      "longGun": "长管炮",
+      "culverin": "Culverin",
+      "longGun": "Long Gun",
       "demicannon": "Demicannon",
-      "bombard": "射石炮",
-      "torpedo": "鱼雷",
-      "ballista": "弩炮",
-      "seaFire": "海洋之火",
-      "mortar": "迫击炮",
-      "rocket": "火箭",
+      "bombard": "Bombard",
+      "torpedo": "Torpedo",
+      "ballista": "Ballista",
+      "seaFire": "Sea Fire",
+      "mortar": "Mortar",
+      "rocket": "Rocket",
       "springloader": "Springloader",
       "offensiveFurniture": "Offensive Furniture",
       "utilityFurniture": "Utility Furniture",
@@ -561,7 +561,7 @@
       "reward": "Bounty",
       "fortressRaiding": "Fortress Raiding",
       "transaction": "Item Trading",
-      "other": "其他"
+      "other": "Other"
     }
   },
   "assembly": {
@@ -610,16 +610,16 @@
         "special": "Special"
       },
       "damageTypes": {
-        "electric": "电击",
-        "explosive": "爆炸",
+        "electric": "Electric",
+        "explosive": "Explosive",
         "fire": "Fire",
-        "flooding": "进水",
+        "flooding": "Flooding",
         "lifesteal": "Lifesteal",
-        "piercing": "穿透",
-        "burning": "火焰型",
+        "piercing": "Piercing",
+        "burning": "Burning",
         "poison": "Poison",
-        "repair": "修复",
-        "tearing": "撕裂"
+        "repair": "Repair",
+        "tearing": "Tearing"
       }
     },
     "workshop": {
@@ -730,7 +730,7 @@
     "requirements": "Requirements",
     "requiredCost": "Required Materials",
     "stage": "Stage {num}",
-    "other": "其他",
+    "other": "Other",
     "effectsNotContent": "Missing description",
     "dateAdded": "Creation Time",
     "lastUpdated": "Update Time"
