@@ -1,0 +1,821 @@
+{
+  "name": "Glow Prow",
+  "about": {
+    "title": "About",
+    "minor": "",
+    "description": ""
+  },
+  "basic": {
+    "button": {
+      "cancel": "Cancel",
+      "commit": "Commit",
+      "insert": "Insert",
+      "next": "Next",
+      "prev": "Previous",
+      "reply": "Reply",
+      "report": "Report",
+      "reset": "Reset",
+      "save": "Save",
+      "submit": "Confirm",
+      "search": "Search"
+    },
+    "privilege": {
+      "admin": "Community Admin",
+      "blacklisted": "Blacklisted",
+      "bot": "Bot",
+      "dev": "Development Team",
+      "normal": "User",
+      "root": "System",
+      "super": "Super Administrator"
+    },
+    "tips": {
+      "comment": {
+        "ok": "Published successfully",
+        "bad": "Publication format error, please check if content meets requirements",
+        "notFound": "Target comment not found",
+        "notFoundOrNotOwner": "No corresponding comment or user",
+        "error": "Comment error: {context}",
+        "delete": {
+          "ok": "Deleted successfully",
+          "bad": "Error request format, please check network tool interface"
+        }
+      },
+      "assembly": {
+        "list": {
+          "ok": "List retrieved successfully",
+          "error": "List error: {context}",
+          "bad": "Error request format, please check network tool interface"
+        },
+        "editAttr": {
+          "ok": "Assembly attributes set successfully",
+          "invalidPassword": "Incorrect password format",
+          "passwordTooShort": "Password too short",
+          "error": "Error: {context}",
+          "bad": "Error request format, please check network tool interface"
+        },
+        "getAttr": {
+          "ok": "Attributes retrieved successfully",
+          "notFound": "Assembly attributes do not exist or not owner",
+          "error": "Error: {context}",
+          "bad": "Error request format, please check network tool interface"
+        },
+        "edit": {
+          "ok": "Assembly updated",
+          "notFound": "Corresponding assembly not found or not owner",
+          "invalidPassword": "Incorrect password",
+          "passwordTooShort": "Password too short",
+          "error": "Error: {context}",
+          "bad": "Error request format, please check network tool interface"
+        },
+        "delete": {
+          "ok": "Deleted successfully",
+          "notFound": "Corresponding assembly not found or not owner",
+          "forbidden": "Operation not allowed, illegal deletion",
+          "error": "Error: {context}",
+          "bad": "Error request format, please check network tool interface"
+        },
+        "detail": {
+          "bad": "Error request format, please check network tool interface",
+          "notDisclosed": "Not disclosed",
+          "noPermission": "No access permission, please check if password required or partner status",
+          "error": "Error: {context}",
+          "ok": "Access successful"
+        }
+      },
+      "publish": {
+        "ok": "Published successfully",
+        "bad": "Publication format error, please check if all fields are filled correctly"
+      },
+      "captcha": {
+        "bad": "Captcha error",
+        "expired": "Captcha expired",
+        "wrong": "Entered captcha is incorrect"
+      },
+      "signin": {
+        "ok": "Login successful",
+        "bad": "Login error: Please check login information format",
+        "wrong": "Login information incorrect",
+        "expired": "User identity expired, please login again",
+        "accountIncorrect": "Login information incorrect"
+      },
+      "signup": {
+        "ok": "Registration successful",
+        "userAlreadyHas": "Account name already exists",
+        "error": "Registration error: {context}",
+        "bad": "Registration error: Please check registration information format requirements"
+      },
+      "like": {
+        "ok": "Like processed successfully",
+        "error": "Like error: {context}",
+        "bad": "Like error: {context}"
+      },
+      "user": {
+        "invalid": "Invalid user",
+        "tokenExpired": "User identity expired, please login again"
+      },
+      "request": {
+        "rateLimited": "Request too fast, please slow down"
+      },
+      "teamUp": {
+        "account": {
+          "rateLimit": "Posting too frequently, please try again in {remainingTime} minutes"
+        },
+        "anonymous": {
+          "rateLimit": "Anonymous posting too frequently, please try again in {remainingTime} hours"
+        },
+        "pushSuccess": "Published successfully",
+        "newTeamUp": "Captain, new team up available",
+        "authFailed": "Token invalid or expired, please login again",
+        "error": "Communication error: {context}"
+      }
+    }
+  },
+  "portal": {
+    "title": "Home",
+    "seasonTimer": "Season {seasonName} remaining {day} days",
+    "appVersionLog": "Updates",
+    "appVersionContext": "You can directly raise issues in the <u><a href=\"https://kook.vip/2s0eQP\" target=\"_blank\">Kook Community</a></u> reserved in the website footer to help fix problems",
+    "blogLog": "Blog"
+  },
+  "account": {
+    "title": "Account",
+    "information": {
+      "title": "Personal Information"
+    }
+  },
+  "codex": {
+    "title": "Manuscript",
+    "description": "Hey Captain, want to see my treasures?",
+    "cabinetHistoryTitle": "Viewing History",
+    "more": "More",
+    "sidebar": "Sidebar",
+    "size": {
+      "extraSmall": "Extra Small",
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large"
+    },
+    "raritys": {
+      "common": "Common",
+      "uncommon": "Uncommon",
+      "rare": "Rare",
+      "epic": "Epic",
+      "legendary": "Legendary"
+    },
+    "type": {
+      "undefined": "Uncategorized",
+      "consumable": "Consumable",
+      "ammunition": "Ammunition",
+      "armor": "Armor",
+      "tool": "Tool",
+      "chest": "Chest",
+      "culverin": "Culverin",
+      "longGun": "Long Gun",
+      "demicannon": "Demicannon",
+      "bombard": "Bombard",
+      "torpedo": "Torpedo",
+      "ballista": "Ballista",
+      "seaFire": "Sea Fire",
+      "mortar": "Mortar",
+      "rocket": "Rocket",
+      "springloader": "Springloader",
+      "offensiveFurniture": "Offensive Furniture",
+      "utilityFurniture": "Utility Furniture",
+      "majorFurniture": "Major Furniture",
+      "shipUpgrade": "Ship Upgrade",
+      "quest": "Quest",
+      "contract": "Contract",
+      "specialized": "Specialized",
+      "localFaction": "当地阵营杂货",
+      "megacorp": "超巨公司杂货",
+      "kingpin": "头目杂货",
+      "theHelm": "海舵社杂货",
+      "summoningBell": "召唤",
+      "unique": "独特的",
+      "event": "事件",
+      "refined": "Refined",
+      "currency": "Currency",
+      "helm": "Helm",
+      "scrap": "Scrap Material",
+      "raw": "Raw Material",
+      "exotic": "Exotic",
+      "sailsEmblem": "Sails Emblem",
+      "hull": "Hull",
+      "sailsColor": "Sails Color",
+      "crowsNest": "Crow's Nest",
+      "trophy": "Trophy",
+      "wheel": "Wheel",
+      "sailsPattern": "Sails Pattern",
+      "helmDecor": "Helm Decoration",
+      "ornaments": "Ornaments",
+      "figureHead": "Figurehead",
+      "nameplate": "Nameplate",
+      "pet": "Pet",
+      "crewLook": "Crew Appearance",
+      "headwear": "Headwear",
+      "torso": "Torso Equipment",
+      "neck": "Neck Equipment",
+      "waist": "Waist Equipment",
+      "bottom": "Bottom Equipment",
+      "faceAccessory": "Face Accessory",
+      "footwear": "Footwear",
+      "forearm": "Forearm Equipment",
+      "firework": "Firework",
+      "emote": "Emote",
+      "bodyCosmetics": "Body Cosmetics",
+      "hand": "Hand",
+      "hair": "Hair Style",
+      "facialHair": "Facial Hair",
+      "eyeColor": "Eye Color",
+      "aura": "Aura",
+      "shipSkin": "Ship Skin",
+      "armorSkin": "Armor Skin",
+      "culverinWeaponSkin": "Culverin Weapon Skin",
+      "demicannonWeaponSkin": "Demicannon Weapon Skin",
+      "longGunWeaponSkin": "Long Gun Weapon Skin",
+      "ballistaWeaponSkin": "Ballista Weapon Skin",
+      "torpedoWeaponSkin": "Torpedo Weapon Skin",
+      "combatSkill": "Combat Skill",
+      "legendaryEntity": "Legendary Entity",
+      "powerWeapon": "Power Weapon"
+    },
+    "tier": "Tier {num}",
+    "category": {
+      "title": "Category"
+    },
+    "navs": {
+      "shipsAndCaptainTools": {
+        "name": "Ships And CaptainTools"
+      },
+      "ships": {
+        "name": "Ships"
+      },
+      "captainTools": {
+        "name": "Captain Tools"
+      },
+      "weapons": {
+        "name": "Weapons"
+      },
+      "allDeckWeapons": {
+        "name": "All-Deck Weapons"
+      },
+      "topDeckWeapons": {
+        "name": "Top-Deck Weapons"
+      },
+      "bowWeapons": {
+        "name": "Bow Weapons"
+      },
+      "auxiliaryWeapons": {
+        "name": "Auxiliary Weapons"
+      },
+      "armor": {
+        "name": "Armor"
+      },
+      "hullArmor": {
+        "name": "Hull Armor"
+      },
+      "furnTure": {
+        "name": "FurnTure"
+      },
+      "majorFurniture": {
+        "name": "Major Furniture"
+      },
+      "offensiveFurnTure": {
+        "name": "Offensive FurnTure"
+      },
+      "utilityFurnTure": {
+        "name": "UtilityFurnTure"
+      },
+      "materials": {
+        "name": "Materials"
+      },
+      "rawMaterials": {
+        "name": "Raw Materials"
+      },
+      "refinedMaterials": {
+        "name": "Refined Materials"
+      },
+      "specializedMaterials": {
+        "name": "Specialized Materials"
+      },
+      "exoticMaterials": {
+        "name": "Exotic Materials"
+      },
+      "helmMaterials": {
+        "name": "Helm Materials"
+      },
+      "scrapMaterials": {
+        "name": "Scrap Materials"
+      },
+      "provisions": {
+        "name": "Provisions"
+      },
+      "shipSupplies": {
+        "name": "Ship Supplies"
+      },
+      "crewProvision": {
+        "name": "Crew Provision"
+      },
+      "commodities": {
+        "name": "Commodities"
+      },
+      "localFactionCommodities": {
+        "name": "Local Faction Commodities"
+      },
+      "megaCorpCommodities": {
+        "name": "Mega Corp Commodities"
+      },
+      "kingpinCommodities": {
+        "name": "Kingpin Commodities"
+      },
+      "theHelmItems": {
+        "name": "The Helm Items"
+      }
+    },
+    "share": {
+      "title": "Share",
+      "description": "Share your {name}"
+    },
+    "items": {
+      "title": "Items List",
+      "description": "Items List"
+    },
+    "ships": {
+      "title": "Ships List",
+      "description": "\"Since the opening of the New World, every legendary warship has left its mark here. The symphony of steel and sails awaits your inspection.\"",
+      "searchCountOverflowTip": "Exceeds maximum search display of {maximumSearchCount}, remaining {exceedingItemsCount} have been throttled, please refine keywords"
+    },
+    "item": {
+      "title": "Item Details",
+      "meta": {
+        "keywords": "Item Details,Ship Items,{keywords}"
+      },
+      "weight": "Weight",
+      "projectilesPerShot": "Projectiles Per Shot",
+      "rateOfFire": "Rate of Fire (seconds)",
+      "DPS": "DPS (Damage per Second)",
+      "DPSWithPerks": "DPS with Perks",
+      "damagePerShot": "Damage Per Shot",
+      "DamagePerShotWithPerks": "Damage Mitigation",
+      "reloadSpeed": "Reload Speed (seconds)",
+      "optimalRange": "Range (meters)",
+      "projectileSpeed": "Projectile Speed (m/s)",
+      "shipUpgradeUseTitle": "Available Ships",
+      "shipUpgradesTitle": "Available Upgrades",
+      "contentsTitle": "Drop Contents",
+      "materialsTitle": "Materials",
+      "faction": "Faction",
+      "required": "Items Required for Crafting",
+      "rawMaterials": "Required Raw Materials",
+      "modifications": "Installable Modifications",
+      "bySeason": {
+        "prepend": "From",
+        "append": "Season"
+      },
+      "obtainable": "Obtainable Methods",
+      "worldEvent": "World Event",
+      "bluePrint": "Blueprint",
+      "requiredRank": "Minimum Usage Level",
+      "gearScore": "Score",
+      "rarity": "Rarity",
+      "dateAdded": "Date Added",
+      "lastUpdated": "Last Updated",
+      "damageType": "Weapon Attribute",
+      "perks": "Perks",
+      "tier": "Tier",
+      "damageMitigation": "Damage Mitigation",
+      "lookDetail": "View Item Details"
+    },
+    "commoditie": {
+      "title": "杂货详情",
+      "meta": {
+        "keywords": "杂货,商品,{keywords}"
+      },
+      "lookDetail": "查看杂货详情"
+    },
+    "commodities": {
+      "title": "杂货列表"
+    },
+    "ship": {
+      "title": "Ship Details",
+      "meta": {
+        "keywords": "Ship Details,Ship,{keywords}"
+      },
+      "archetype": "Archetype",
+      "stamina": "Stamina",
+      "frontWeapon": "Front Weapon",
+      "leftSideWeapon": "Left Side Weapon",
+      "rightSideWeapon": "Right Side Weapon",
+      "aftWeapon": "Aft Weapon",
+      "auxiliaryWeapon": "Auxiliary Weapon",
+      "topDeck": "Top Deck",
+      "lowerDeck": "Lower Deck",
+      "furniture": "Furniture",
+      "ultimate": "Ultimate Skill",
+      "hitPoints": "Hit Points",
+      "braceStrength": "Brace Strength",
+      "sailSpeed": {
+        "title": "Speed",
+        "knot": "(knots/kts)",
+        "halfSail": "Minimum",
+        "fullSail": "Full Speed",
+        "travelSail": "Maximum"
+      },
+      "cargo": "Cargo",
+      "cargoSlots": "Cargo Slots",
+      "cargoMaxWeight": "Cargo Capacity",
+      "materialsTitle": "Materials",
+      "required": "Items Required for Construction",
+      "rawMaterials": "Raw Materials",
+      "bySeason": {
+        "prepend": "From",
+        "append": "Season"
+      },
+      "bluePrint": "Blueprint",
+      "requiredRank": "Minimum Usage Level",
+      "dateAdded": "Date Added",
+      "lastUpdated": "Last Updated",
+      "perks": "Perks",
+      "baseInfo": "Basic Information",
+      "deckInfo": "Deck Information",
+      "lookDetail": "View Ship Details"
+    },
+    "cosmetic": {
+      "title": "Cosmetics List",
+      "lookDetail": "View Details"
+    },
+    "cosmetics": {
+      "title": "Cosmetics List",
+      "description": "Display cabinet collection of cosmetics"
+    },
+    "ultimate": {
+      "title": "Ultimate Skill Details"
+    },
+    "ultimates": {
+      "title": "Ultimate Skills List"
+    },
+    "modification": {
+      "title": "Modification Details",
+      "effectType": {
+        "ignoreResistance": "Ignore Resistance",
+        "addElementalDamage": "Add Elemental Damage",
+        "increaseDamage": "Increase Damage",
+        "increaseElementalResistance": "Increase Elemental Resistance",
+        "increaseArmor": "Increase Armor Value",
+        "increaseHullHealth": "Increase Hull Health",
+        "increaseReloadSpeed": "Increase Reload Speed",
+        "extraElementalDamage": "Extra Elemental Damage",
+        "extraDamage": "Extra Damage",
+        "increaseProjectileSpeed": "Increase Projectile Speed",
+        "increaseProjectileRange": "Increase Projectile Range",
+        "reduceDamageWhileBracing": "Reduce Damage While Bracing",
+        "reduceTimeToTarget": "Reduce Time to Target",
+        "increaseRepairAmountPerShot": "Increase Repair Amount Per Shot",
+        "increaseRepairAmount": "Increase Repair Amount",
+        "increaseCritDamage": "Increase Critical Damage",
+        "bonusElementalDamage": "Bonus Elemental Damage",
+        "increaseSiegeDamage": "Increase Siege Damage"
+      }
+    },
+    "modifications": {
+      "title": "Modifications List"
+    },
+    "material": {
+      "title": "Material Details",
+      "lookDetail": "View Material Details"
+    },
+    "materials": {
+      "title": "Materials List"
+    },
+    "treasureMap": {
+      "title": "Treasure Map Details",
+      "lookDetail": "View Treasure Map Details"
+    },
+    "treasureMaps": {
+      "title": "Treasure Maps List"
+    }
+  },
+  "calendar": {
+    "title": "Calendar",
+    "meta": {
+      "keywords": "Game Calendar,Calendar,Schedule,Planning"
+    }
+  },
+  "map": {
+    "title": "Map",
+    "description": "All map items inventory",
+    "searchPlaceholder": "Search landmarks",
+    "locations": "Locations",
+    "layerControl": "Layer Control",
+    "hideAll": "Hide All",
+    "showAll": "Show All",
+    "typeTitle": "Type",
+    "type": {
+      "none": "Unknown",
+      "den": "Large Den",
+      "megafort": "Megafort",
+      "shareLocation": "Share Location",
+      "outpost": "Outpost",
+      "foundry": "Foundry",
+      "capitalSettlement": "Capital Settlement",
+      "lumberyard": "Lumberyard",
+      "militaryBase": "Military Base"
+    }
+  },
+  "rankingDesignedItems": {
+    "title": "Ranking Design",
+    "workshop": {
+      "title": "Workshop"
+    },
+    "browse": {
+      "title": "Share",
+      "newRanking": "Create New Ranking"
+    }
+  },
+  "teamUp": {
+    "title": "Team Up Search",
+    "meta": {
+      "keywords": "Team Up Search,Maximum Trading,Sea Trading,Conflict,PVP,PVE,PVEVP"
+    },
+    "emptyPlayer": "None",
+    "emptyUsername": "Anonymous Captain",
+    "emptyDescription": "This person is lazy and wrote nothing",
+    "copyPlayerBtn": "Copy",
+    "copyPlayerSuccess": "Copied successfully",
+    "pushLoginInfo": "👋 {username}, assemble the fleet, set sail!",
+    "form": {
+      "player": "Player ID",
+      "time": "Willing Wait Time",
+      "descriptionPlaceholder": "Team description, you can also place your voice channel"
+    },
+    "time": {
+      "minutes": "{count} minutes",
+      "day": "{count} days"
+    },
+    "tags": {
+      "pve": "Survival",
+      "pvp": "Player Combat",
+      "timeWander": "World Wandering",
+      "plotTask": "Plot Task",
+      "sideQuest": "Side Quest",
+      "reward": "Bounty",
+      "fortressRaiding": "Fortress Raiding",
+      "transaction": "Item Trading",
+      "other": "Other"
+    }
+  },
+  "assembly": {
+    "title": "Ship Assembly Factory",
+    "meta": {
+      "keywords": "Ship Assembly Factory,Skull and Bones Assembly,Assembly,Build,Game Assembly"
+    },
+    "anonymous": "Anonymous",
+    "additions": {
+      "assembly": "Assembly",
+      "wheel": "Wheel",
+      "warehouse": "Warehouse"
+    },
+    "setting": {
+      "title": "Settings",
+      "publicly": "Public",
+      "private": "Private"
+    },
+    "modification": {
+      "basic": "Basic",
+      "advanced": "Advanced",
+      "special": "Special"
+    },
+    "tags": {
+      "modes": {
+        "pvp": "Combat",
+        "pve": "Survival"
+      },
+      "teamFormationMethods": {
+        "singlePlayer": "Single Player",
+        "multiPlayer": "Multi Player"
+      },
+      "difficultyOfAcquisitions": {
+        "simple": "Simple",
+        "medium": "Medium",
+        "difficulties": "Difficult"
+      },
+      "archetypes": {
+        "dps": "DPS",
+        "tank": "Tank",
+        "support": "Support"
+      },
+      "grade": {
+        "basic": "Basic",
+        "advanced": "Advanced",
+        "special": "Special"
+      },
+      "damageTypes": {
+        "electric": "Electric",
+        "explosive": "Explosive",
+        "fire": "Fire",
+        "flooding": "Flooding",
+        "lifesteal": "Lifesteal",
+        "piercing": "Piercing",
+        "burning": "Burning",
+        "poison": "Poison",
+        "repair": "Repair",
+        "tearing": "Tearing"
+      }
+    },
+    "workshop": {
+      "title": "Workstation",
+      "displayTitle": "Furniture",
+      "weaponTitle": "Weapon",
+      "armorTitle": "Ship Armor",
+      "insertArmorTitle": "Insert Ship Armor",
+      "mainWeapon": "Main Weapon",
+      "secondaryWeapon": "Secondary Weapon",
+      "insertWeaponTips": "Please enter ID to select item, ID list can be found <a target=\"_blank\" href=\"{link}\">here</a>",
+      "insertWeaponTitle": "Insert Weapon",
+      "insertSecondaryWeaponTitle": "Insert Secondary Weapon",
+      "insertDisplayTitle": "Insert Furniture",
+      "exceedingDisplayLimitTip": "Reached main furniture limit, main furniture will be hidden",
+      "ultimateTitle": "Ultimate Skill",
+      "filter": {
+        "all": "All",
+        "byType": "Item Sort Type",
+        "byTitle": "Items sorted by {key}",
+        "byId": "ID",
+        "byTier": "Tier",
+        "byRarity": "Rarity"
+      },
+      "verifyTips": {
+        "shipEmpty": "Ship not selected, <u>it is required</u>",
+        "ultimateEmpty": "Skill is empty",
+        "shipUpgradeEmpty": "Ship upgrade parts are empty",
+        "weaponModificationsEmpty": "Weapon modifications are empty",
+        "secondaryWeaponModificationsEmpty": "Secondary weapon modifications are empty",
+        "secondaryWeaponEmpty": "Secondary weapon is empty",
+        "weaponAllEmpty": "All weapons are empty",
+        "weaponDirectionsEmpty": "Weapon directions not set, <u>it is required</u>",
+        "armorEmpty": "Ship armor is empty",
+        "displayAllEmpty": "All furniture is empty"
+      }
+    },
+    "detail": {
+      "title": "Assembly Details"
+    },
+    "share": {
+      "title": "Share Assembly",
+      "createPoster": "Generate Assembly Poster"
+    },
+    "browse": {
+      "title": "Assembly Share Collection",
+      "search": "Search assembly creator user or assembly name",
+      "newAssembly": "Create Assembly",
+      "filterTitle": "Filter",
+      "filter": {
+        "createdTime": "Creation Time",
+        "updatedTime": "Update Time",
+        "likes": "Likes",
+        "desc": "Ascending",
+        "asc": "Descending"
+      }
+    },
+    "publish": {
+      "title": "Publish"
+    }
+  },
+  "signin": {
+    "title": "Login",
+    "meta": {
+      "keywords": "Account Login"
+    },
+    "form": {
+      "placeholder": {
+        "username": "Enter account ID",
+        "password": "Enter password"
+      },
+      "label": {
+        "username": "Account ID",
+        "password": "Password"
+      }
+    }
+  },
+  "signup": {
+    "title": "Register",
+    "meta": {
+      "keywords": "Account Registration"
+    },
+    "username": {
+      "name": "Account ID",
+      "placeholder": "Enter website unique standard",
+      "hint": "As the website login unique ID, cannot be changed, at least 3 to 40 characters, use a-z/A-Z/0-9/_ to register username"
+    },
+    "alternativeName": {
+      "name": "Display Name",
+      "placeholder": "Enter display name",
+      "hint": "Used for website display name, if not filled will default to account ID, at least 3 to 40 characters, use a-z/A-Z/0-9/_"
+    },
+    "email": {
+      "name": "Email",
+      "placeholder": "Enter email address",
+      "hint": "Optional email, this will allow account recovery"
+    }
+  },
+  "home": {
+    "title": "Home",
+    "meta": {
+      "keywords": "Game,Skull and Bones,Skull-and-bones,Skull And Bones,SNB,S And B,Ubisoft,2025"
+    }
+  },
+  "empireSkillSimulation": {
+    "searchPlaceholder": "Search Skills",
+    "effects": "Effects",
+    "requirements": "Requirements",
+    "requiredCost": "Required Materials",
+    "stage": "Stage {num}",
+    "other": "Other",
+    "effectsNotContent": "Missing description",
+    "dateAdded": "Creation Time",
+    "lastUpdated": "Update Time"
+  },
+  "header": {
+    "navs": {
+      "blog": "Glow Prow Blog",
+      "officialWebsite": "Skull and Bones Official Website",
+      "officialWebsiteDebug": "Skull and Bones Official Issues Collection"
+    },
+    "functions": {
+      "team": {
+        "title": "Team Up Search",
+        "description": "Post or find captains with same plans to sail, face real enemies"
+      },
+      "calendar": {
+        "title": "Calendar",
+        "description": "View current season event information"
+      },
+      "maps": {
+        "title": "Map",
+        "description": "Map items inventory"
+      },
+      "codex": {
+        "title": "Manuscript",
+        "description": "Display item information, check how to obtain them"
+      },
+      "assembly": {
+        "title": "Ship Assembly Factory",
+        "description": "Design your ship, reach performance limits, share with friends"
+      },
+      "captain-signature": {
+        "title": "Pirate Signature (In Development)",
+        "description": "Generate pirate signature images, share on community websites"
+      },
+      "ranking-of-designed-items": {
+        "title": "Item Ranking (In Development)",
+        "description": "Generate player rankings and evaluations for items"
+      },
+      "impression-of-monsters": {
+        "title": "Elite Monster Impressions (In Development)",
+        "description": "Share your first impressions of different monsters in the game"
+      },
+      "fashion-show": {
+        "title": "Fashion Show (In Development)",
+        "description": "Share your outfits, become a fashion icon"
+      },
+      "empire-skill-simulation": {
+        "title": "Empire Upgrade Simulation (BETA 1)",
+        "description": "Helm Upgrade Simulation",
+        "keywords": "Empire Skill Simulation"
+      }
+    }
+  },
+  "footer": {
+    "basic": {
+      "description": "Skull and Bones Inventory Website"
+    },
+    "col1": {
+      "title": "Services"
+    },
+    "col2": {
+      "title": "Community",
+      "baiduTieBa": "Baidu Tieba",
+      "kook": "Kook Community"
+    },
+    "col3": {
+      "title": "Contact",
+      "serviceStatus": "Service Status",
+      "translated": "📖 Help us translate"
+    }
+  },
+  "empty": {
+    "title": "Empty",
+    "description": "Nothing here"
+  },
+  "captcha": {
+    "get": "Get Captcha",
+    "fresh": "Refresh Captcha",
+    "messages": {
+      "bad": "Captcha error, please contact administrator",
+      "expired": "Captcha expired",
+      "gen": "Retrieved successfully",
+      "wrong": "Captcha incorrect"
+    },
+    "title": "Captcha"
+  }
+}
