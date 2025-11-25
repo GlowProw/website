@@ -168,14 +168,42 @@
     "information": {
       "title": "个人信息",
       "form": {
+        "uuid": {
+          "name": "账户唯一标识",
+          "description": "这是唯一标识，由系统分配"
+        },
         "username": {
           "name": "账户登陆id"
         },
         "alternativeName": {
           "name": "别名",
           "description": "显示账户别名名称",
+          "placeholder": "输入新用户名称",
           "changeName": "修改别名",
           "changeNameDescription": "设置新的名称，展示你独特名字"
+        },
+        "email": {
+          "name": "邮箱",
+          "placeholder": "账户邮箱"
+        },
+        "language": {
+          "name": "语种",
+          "description": "设置账户偏向语种",
+          "placeholder": "选择偏向语种"
+        },
+        "introduction": {
+          "name": "描述",
+          "description": "自我的描述，它会暂时在外部",
+          "placeholder": "自我介绍一下:D"
+        },
+        "password": {
+          "name": "密码",
+          "changePasswordName": "修改账户密码",
+          "changePasswordDescription": "此操作会在成功后推出登陆，需要重新登陆账号",
+          "oldPassword": "",
+          "oldPasswordPlaceholder": "输入旧的密码",
+          "newPassword": "",
+          "newPasswordPlaceholder": "输入新的密码"
         }
       }
     }

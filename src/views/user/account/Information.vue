@@ -20,7 +20,7 @@ const authStore = useAuthStore(),
     route = useRoute(),
     router = useRouter(),
     {t} = useI18n(),
-    userApi = useUserApi(),
+    api = useUserApi(),
     rules = useRules()
 
 let
@@ -73,7 +73,7 @@ onMounted(() => {
  */
 const getUserAccount = async () => {
   try {
-    const result = await userApi.getMe(),
+    const result = await api.getMe(),
         d = result.data
 
     userAccountData.value = d.data;
@@ -97,7 +97,7 @@ const onChangePassword = async () => {
 
     changePasswordLoading.value = true;
 
-    const result = await userApi.changePassword(passwordFromData.value.data);
+    const result = await api.changePassword(passwordFromData.value.data);
 
     authStore.logout();
     await router.push({name: 'AccountInformation'});
@@ -133,7 +133,7 @@ const onSaveAccountAttr = async () => {
     if (attr.language)
       attr.language = attr.language.value;
 
-    const result = await userApi.updateMeAttr(attr)
+    const result = await api.updateMeAttr(attr)
 
     notice.success(t(`basic.tips.${result.code}`))
   } catch (e) {
@@ -158,7 +158,7 @@ const onChangeAlternativeName = async () => {
 
     userAlternativeNameLoading.value = true
 
-    const result = await userApi.changeAlternativeName(alternativeNameData.value.data.username);
+    const result = await api.changeAlternativeName(alternativeNameData.value.data.username);
 
     authStore.updateAccountAttr({alternativeName: alternativeNameData.value.data.username})
     userAccountData.value.alternativeName = alternativeNameData.value.data.username
@@ -229,30 +229,30 @@ const onClearPasswordFrom = () => {
             </template>
           </v-text-field>
 
-          <v-dialog max-width="1024" v-model="alternativeNameModel">
-            <v-card>
-              <v-card-title>
-                {{ t('account.information.form.alternativeName.changeName') }}
+          <v-dialog max-width="500" v-model="alternativeNameModel">
+            <v-card border>
+              <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 mt-n1">
+                <v-icon size="80">mdi-form-textbox</v-icon>
+                <p class="mt-3">{{ t('account.information.form.alternativeName.changeName') }}</p>
               </v-card-title>
               <v-card-text>
                 <v-alert class="mb-5" type="warning" density="comfortable" variant="tonal">
                   {{ t('account.information.form.alternativeName.changeNameDescription') }}
                 </v-alert>
 
-                <p class="text-caption text-grey opacity-80">
-                  {{ t('signup.alternativeName.hint') }}
-                </p>
-
                 <v-form ref="alternativeNameFrom">
                   <v-text-field v-model="alternativeNameData.data.username"
                                 :rules="rules.username"
-                                placeholder="输入新用户名称">
+                                :placeholder="t('account.information.form.alternativeName.placeholder')">
                   </v-text-field>
+                  <p class="text-caption text-grey opacity-80">
+                    {{ t('signup.alternativeName.hint') }}
+                  </p>
                 </v-form>
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn @click="onChangeAlternativeName" :loading="userAlternativeNameLoading">
+                <v-btn color="var(--main-color)" @click="onChangeAlternativeName" :loading="userAlternativeNameLoading">
                   {{ t('basic.button.save') }}
                 </v-btn>
               </v-card-actions>
@@ -263,8 +263,8 @@ const onClearPasswordFrom = () => {
 
       <v-row class="mb-6" no-gutters>
         <v-col cols="12" sm="12" :lg="4">
-          <b>账户唯一标识</b>
-          <p class="text-caption text-grey opacity-80">这是唯一标识，由系统分配</p>
+          <b>{{t('account.information.form.uuid.name')}}</b>
+          <p class="text-caption text-grey opacity-80">{{ t('account.information.form.uuid.description') }}</p>
         </v-col>
         <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="8">
           <v-text-field :value="userAccountData.id"
@@ -278,11 +278,11 @@ const onClearPasswordFrom = () => {
 
       <v-row class="mb-6" no-gutters>
         <v-col cols="12" sm="12" :lg="4">
-          <b>邮箱</b>
+          <b>{{ t('account.information.form.email.name')}}</b>
         </v-col>
         <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="8">
           <v-text-field :value="userAccountData.email || ''"
-                        placeholder="账户邮箱"
+                        :placeholder="t('account.information.form.email.placeholder')"
                         variant="underlined"
                         density="compact"
                         hide-details
@@ -293,27 +293,28 @@ const onClearPasswordFrom = () => {
 
       <v-row class="mb-6" no-gutters>
         <v-col cols="12" sm="12" :lg="4">
-          <b>语种</b>
-          <p class="text-caption text-grey opacity-80">设置账户偏向语种</p>
+          <b>{{t('account.information.form.language.name')}}</b>
+          <p class="text-caption text-grey opacity-80">{{t('account.information.form.language.description')}}</p>
         </v-col>
         <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="8">
           <v-combobox v-model="userAccountData.attr.language"
                       item-title="label"
                       item-value="value"
-                      placeholder="选择语种"
+                      :placeholder="t('account.information.form.language.placeholder')"
                       :items="userAttrLanguages"></v-combobox>
         </v-col>
       </v-row>
 
       <v-row class="mb-6" no-gutters>
         <v-col cols="12" sm="12" :lg="4">
-          <b>描述</b>
+          <b>{{ t('account.information.form.language.name')}}</b>
+          <p class="text-caption text-grey opacity-80">{{t('account.information.form.language.description')}}</p>
         </v-col>
         <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="8">
           <v-card class="pa-2">
           <Textarea v-model="userAccountData.attr.introduction"
                     :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
-                    placeholder="自我介绍一下:D"
+                    :placeholder="t('account.information.form.language.description')"
                     maxLength="2"></Textarea>
           </v-card>
         </v-col>
@@ -323,7 +324,7 @@ const onClearPasswordFrom = () => {
 
       <v-row>
         <v-col cols="12" sm="12" :lg="4">
-          <b>密码</b>
+          <b>{{ t('account.information.form.password.name')}}</b>
         </v-col>
         <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="8">
           <v-text-field value="******"
@@ -331,35 +332,38 @@ const onClearPasswordFrom = () => {
                         density="compact"
                         readonly>
             <template v-slot:append-inner>
-              <v-btn class="mb-2" density="compact" @click="changePasswordModel = true">修改</v-btn>
+              <v-btn class="mb-2" density="compact" @click="changePasswordModel = true">
+                {{ t('basic.button.change') }}
+              </v-btn>
             </template>
           </v-text-field>
 
-          <v-dialog max-width="1024" v-model="changePasswordModel">
-            <v-card>
-              <v-card-title>
-                修改密码
+          <v-dialog max-width="500" v-model="changePasswordModel">
+            <v-card border>
+              <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 mt-n1">
+                <v-icon size="80">mdi-lock-reset</v-icon>
+                <p class="mt-3">{{ t('account.information.form.password.changePasswordName') }}</p>
               </v-card-title>
               <v-card-text>
                 <v-alert class="mb-5" type="warning" density="comfortable" variant="tonal">
-                  此操作会在成功后推出登陆，需要重新登陆账号
+                  {{ t('account.information.form.password.changePasswordDescription') }}
                 </v-alert>
 
                 <v-form ref="passwordFrom">
                   <v-text-field v-model="passwordFromData.data.oldPassword"
                                 :rules="passwordFromData.rules.oldPassword"
-                                placeholder="输入旧密码">
+                                :placeholder="t('account.information.form.password.oldPasswordPlaceholder')">
                   </v-text-field>
                   <v-text-field v-model="passwordFromData.data.newPassword"
                                 :rules="passwordFromData.rules.newPassword"
-                                placeholder="输入新密码">
+                                :placeholder="t('account.information.form.password.newPasswordPlaceholder')">
                   </v-text-field>
                 </v-form>
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn @click="onChangePassword" :loading="changePasswordLoading">
-                  {{ t('basic.button.save') }}
+                  {{ t('basic.button.change') }}
                 </v-btn>
               </v-card-actions>
             </v-card>

@@ -1,18 +1,16 @@
 import type {CreateCollectionData, CreatePointData, NearbySearchParams, UpdateCollectionData, UpdatePointData} from '@/assets/types/Map';
 import {useHttpToken} from "@/assets/sripts/http_util";
 import {PaginationParams} from "@/assets/types";
+import {ApiError, ApiResponseSuccess} from "@/assets/types/Api";
+import {createApiBase} from "@/assets/sripts/api/api-util";
 
+/**
+ * 地图接口
+ */
 export function useMapApi() {
     const createHttp = () => useHttpToken();
     const http = createHttp();
-
-    /**
-     * 统一错误处理
-     */
-    const handleError = (error: any): never => {
-        console.error(error);
-        throw error;
-    };
+    const { handleError, handleResponse } = createApiBase();
 
     /**
      * 获取用户的地图集列表
@@ -20,8 +18,11 @@ export function useMapApi() {
     const getCollections = async (pagination?: PaginationParams) => {
         try {
             const result = await http.get('map/collections', {params: {...pagination}});
-            return result.data;
+            return handleResponse(result);
         } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
             return handleError(error);
         }
     };
@@ -34,8 +35,11 @@ export function useMapApi() {
             const result = await http.post('map/collection', {
                 data
             });
-            return result.data;
+            return handleResponse(result);
         } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
             return handleError(error);
         }
     };
@@ -48,8 +52,11 @@ export function useMapApi() {
             const result = await http.put(`map/collection/${collectionUuid}`, {
                 data
             });
-            return result.data;
+            return handleResponse(result);
         } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
             return handleError(error);
         }
     };
@@ -62,6 +69,9 @@ export function useMapApi() {
         try {
             await http.del(`map/collection/${collectionUuid}`);
         } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
             return handleError(error);
         }
     };
@@ -73,8 +83,11 @@ export function useMapApi() {
 
         try {
             const result = await http.get(`map/collection/${collectionUuid}`);
-            return result.data;
+            return handleResponse(result);
         } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
             return handleError(error);
         }
     };
@@ -86,8 +99,11 @@ export function useMapApi() {
 
         try {
             const result = await http.get(`map/point/${pointUuid}`);
-            return result.data;
+            return handleResponse(result);
         } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
             return handleError(error);
         }
     };
@@ -99,8 +115,11 @@ export function useMapApi() {
 
         try {
             const result = await http.post('map/point', {data});
-            return result.data;
+            return handleResponse(result);
         } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
             return handleError(error);
         }
     };
@@ -114,8 +133,11 @@ export function useMapApi() {
             const result = await http.put(`map/point/${pointUuid}`, {
                 data
             });
-            return result.data;
+            return handleResponse(result);
         } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
             return handleError(error);
         }
     };
@@ -128,6 +150,9 @@ export function useMapApi() {
         try {
             await http.del(`map/point/${pointUuid}`);
         } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
             return handleError(error);
         }
     };
@@ -141,8 +166,11 @@ export function useMapApi() {
             const result = await http.get(`map/collections/${collectionUuid}/points`, {
                 params: pagination
             });
-            return result.data;
+            return handleResponse(result);
         } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
             return handleError(error);
         }
     };
@@ -154,8 +182,11 @@ export function useMapApi() {
 
         try {
             const result = await http.get('map/point/nearby', {params});
-            return result.data;
+            return handleResponse(result);
         } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
             return handleError(error);
         }
     };
@@ -169,8 +200,11 @@ export function useMapApi() {
             const result = await http.post(`map/collection/${collectionUuid}/points`, {
                 data: {pointUuids}
             });
-            return result.data;
+            return handleResponse(result);
         } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
             return handleError(error);
         }
     };
@@ -184,8 +218,11 @@ export function useMapApi() {
             const result = await http.del(`map/collection/${collectionUuid}/points`, {
                 data: {pointUuids}
             });
-            return result.data;
+            return handleResponse(result);
         } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
             return handleError(error);
         }
     };
@@ -196,8 +233,11 @@ export function useMapApi() {
     const getUserPoints = async (params?: PaginationParams & { collectionUuid?: string }) => {
         try {
             const result = await http.get('map/user/points', {params});
-            return result.data;
+            return handleResponse(result);
         } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
             return handleError(error);
         }
     };
@@ -209,8 +249,11 @@ export function useMapApi() {
 
         try {
             const result = await http.get('map/user/orphan-points', {params});
-            return result.data;
+            return handleResponse(result);
         } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
             return handleError(error);
         }
     };

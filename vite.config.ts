@@ -37,7 +37,7 @@ export default defineConfig({
             // import assets
             '@glow-prow-assets': path.resolve(__dirname, 'node_modules/glow-prow-assets'),
             '@': path.resolve(__dirname, './src'),
-            '~': path.resolve(__dirname, '.'),
+            '~': path.resolve(__dirname, './'),
         },
         extensions: [
             '.js',

@@ -1,19 +1,16 @@
 <script setup lang="ts">
 import {onMounted, Ref, ref} from "vue";
 import {useI18n} from "vue-i18n";
-
-import {useHttpToken} from "@/assets/sripts/http_util";
-import type {MapCollection, MapPoint} from "@/assets/types/Map";
+import {MapCollection, MapCollectionResult, MapPoint} from "@/assets/types/Map";
 import {useMapApi} from "@/assets/sripts/api/map_service";
-
-import EmptyView from "@/components/EmptyView.vue";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {AxiosError} from "axios";
-import {PaginationParams, PaginationResult} from "@/assets/types";
+import {PaginationParams} from "@/assets/types";
+import {ApiError} from "@/assets/types/Api";
+import EmptyView from "@/components/EmptyView.vue";
 
-const http = useHttpToken(),
-    {t} = useI18n(),
-    {addPointsToCollection, createCollection, deleteCollection, deletePoint, getCollections, getOrphanPoints, getUserPoints, removePointsFromCollection, updateCollection, updatePoint} = useMapApi(),
+const {t} = useI18n(),
+    api = useMapApi(),
     notice = useNoticeStore()
 
 let collectionLoading = ref(false),
@@ -22,7 +19,7 @@ let collectionLoading = ref(false),
       page: 1,
       pageSize: 10
     }),
-    userCollections: Ref<{ data: MapCollection[], pagination: PaginationResult }> = ref({data: [], pagination: {}}),
+    userCollections: Ref<MapCollectionResult> = ref({data: []}),
     savingCollectionLoading = ref(false),
     collectionFormModal = ref(false),
     collectionForm: Ref<any> = ref({
@@ -64,25 +61,11 @@ const getMyCollectionsData = async () => {
   try {
     collectionLoading.value = true;
 
-    const result = await getCollections(collectionPagination.value);
+    const result = await api.getCollections(collectionPagination.value),
+        d = result.data;
 
-    if (result.error != 1) {
-      userCollections.value.data = result.data;
-      userCollections.value.pagination = result.pagination;
-    }
+    userCollections.value = d;
   } catch (e) {
-    if (e instanceof AxiosError && e.response)
-      notice.error(t(`basic.tips.${e.response.data.code}`, {
-        content: e.response.data.message
-      }), {
-        color: 'red'
-      })
-    else if (e instanceof AxiosError)
-      notice.error(t(`basic.tips.error`, {
-        content: e.toString()
-      }), {
-        color: 'red'
-      })
     console.error(e)
   } finally {
     collectionLoading.value = false;
@@ -109,20 +92,21 @@ const openPointManager = async (collection: MapCollection) => {
  */
 const loadCollectionPoints = async (collectionUuid: string) => {
   try {
-    const response = await getUserPoints({
-      collectionUuid,
-      page: pointPagination.value.page,
-      pageSize: pointPagination.value.pageSize
-    });
-    collectionPoints.value = response.points || [];
+    const result = await api.getUserPoints({
+          collectionUuid,
+          page: pointPagination.value.page,
+          pageSize: pointPagination.value.pageSize
+        }),
+        d = result.data;
+
+    collectionPoints.value = d.points || [];
   } catch (e) {
-    if (e instanceof AxiosError)
-      notice.error(t(`basic.tips.${e.response.data.code}`, {
-        content: e.response.data.message
-      }), {
-        color: 'red'
-      })
-    console.error(e)
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.code
+      }));
+    }
+    console.error(e);
   }
 }
 
@@ -131,13 +115,20 @@ const loadCollectionPoints = async (collectionUuid: string) => {
  */
 const loadOrphanPoints = async () => {
   try {
-    const response = await getOrphanPoints({
-      page: orphanPointPagination.value.page,
-      pageSize: orphanPointPagination.value.pageSize
-    });
-    orphanPoints.value = response.points || [];
-  } catch (error) {
-    console.error('加载孤儿坐标失败:', error);
+    const result = await api.getOrphanPoints({
+          page: orphanPointPagination.value.page,
+          pageSize: orphanPointPagination.value.pageSize
+        }),
+        d = result.data;
+
+    orphanPoints.value = d.points || [];
+  } catch (e) {
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.code
+      }));
+    }
+    console.error(e);
   }
 }
 
@@ -151,18 +142,24 @@ const onSearchPoints = async () => {
   }
 
   try {
-    const response = await getUserPoints({
-      page: orphanPointPagination.value.page,
-      pageSize: orphanPointPagination.value.pageSize
-    });
+    const result = await api.getUserPoints({
+          page: orphanPointPagination.value.page,
+          pageSize: orphanPointPagination.value.pageSize
+        }),
+        d = result.data;
 
     // 前端过滤搜索结果
-    orphanPoints.value = (response.points || []).filter(point =>
+    orphanPoints.value = (d.points || []).filter(point =>
         point.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
         point.description?.toLowerCase().includes(searchQuery.value.toLowerCase())
     );
-  } catch (error) {
-    console.error('搜索坐标失败:', error);
+  } catch (e) {
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.code
+      }));
+    }
+    console.error(e);
   }
 }
 
@@ -207,7 +204,7 @@ const addSelectedPointsToCollection = async () => {
   if (!selectedCollection.value || selectedPoints.value.length === 0) return;
 
   try {
-    await addPointsToCollection(selectedCollection.value.uuid, selectedPoints.value);
+    await api.addPointsToCollection(selectedCollection.value.uuid, selectedPoints.value);
 
     // 重新加载数据
     await Promise.all([
@@ -220,19 +217,12 @@ const addSelectedPointsToCollection = async () => {
 
     notice.success(t(`basic.tips.map.success`))
   } catch (e) {
-    if (e instanceof AxiosError && e.response)
-      notice.error(t(`basic.tips.${e.response.data.code}`, {
-        content: e.response.data.message
-      }), {
-        color: 'red'
-      })
-    else if (e instanceof AxiosError)
-      notice.error(t(`basic.tips.error`, {
-        content: e.toString()
-      }), {
-        color: 'red'
-      })
-    console.error(e)
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.code
+      }));
+    }
+    console.error(e);
   }
 }
 
@@ -243,7 +233,7 @@ const onRemoveSelectedPointsFromCollection = async () => {
   if (!selectedCollection.value || selectedPoints.value.length === 0) return;
 
   try {
-    await removePointsFromCollection(selectedCollection.value.uuid, selectedPoints.value);
+    await api.removePointsFromCollection(selectedCollection.value.uuid, selectedPoints.value);
 
     // 重新加载数据
     await Promise.all([
@@ -281,7 +271,7 @@ const deleteSelectedPoints = async () => {
   try {
     // 批量删除坐标
     for (const pointId of selectedPoints.value) {
-      await deletePoint(pointId);
+      await api.deletePoint(pointId);
     }
 
     // 重新加载数据
@@ -319,7 +309,7 @@ const onSaveCollection = async (): Promise<void> => {
   try {
     if (editingCollection.value) {
       // 更新地图集
-      await updateCollection(collectionForm.value.uuid, {
+      await api.updateCollection(collectionForm.value.uuid, {
         title: collectionForm.value.title,
         description: collectionForm.value.description,
         public: collectionForm.value.public,
@@ -327,7 +317,7 @@ const onSaveCollection = async (): Promise<void> => {
       });
     } else {
       // 创建新地图集
-      await createCollection({
+      await api.createCollection({
         title: collectionForm.value.title,
         description: collectionForm.value.description,
         public: collectionForm.value.public,
@@ -448,7 +438,7 @@ const onResetCollectionForm = (): void => {
 const confirmDeleteCollection = (collection: MapCollection): void => {
   deleteConfirmMessage.value = t('map.confirmDeleteCollection', {title: collection.title});
   pendingDeleteAction.value = async () => {
-    await deleteCollection(collection.uuid);
+    await api.deleteCollection(collection.uuid);
     await getMyCollectionsData();
   };
   showDeleteConfirm.value = true;
@@ -468,8 +458,8 @@ const executeDelete = async (): Promise<void> => {
 
 <template>
   <div class="position-relative">
-    <v-overlay :model-value="collectionLoading" contained>
-      <collectionLoading></collectionLoading>
+    <v-overlay v-model="collectionLoading" contained>
+      <Loading></Loading>
     </v-overlay>
 
     <v-row class="mb-2">
@@ -511,7 +501,7 @@ const executeDelete = async (): Promise<void> => {
       <EmptyView></EmptyView>
     </div>
 
-    <!-- 分页 S -->
+    <!-- 分页 S-->
     <v-pagination
         v-if="userCollections.pagination"
         v-model="collectionPagination.page"
@@ -519,11 +509,11 @@ const executeDelete = async (): Promise<void> => {
         @update:model-value="getMyCollectionsData"
         class="mt-8"
     ></v-pagination>
-    <!-- 分页 E -->
+    <!-- 分页 E-->
 
     <!-- 坐标管理对话框 S -->
     <v-dialog v-model="showPointManager" max-width="1200">
-      <v-card v-if="selectedCollection" class="point-manager-dialog">
+      <v-card border v-if="selectedCollection" class="point-manager-dialog">
         <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 create-collectio-card">
           <v-icon size="80">mdi-map-marker-multiple</v-icon>
           <p>{{ selectedCollection.title }}</p>
@@ -554,8 +544,8 @@ const executeDelete = async (): Promise<void> => {
               <v-card border class="h-100">
                 <v-list>
                   <v-list-item
-                      v-for="point in collectionPoints"
-                      :key="point.uuid"
+                      v-for="(point, index) in collectionPoints"
+                      :key="index"
                       @click="togglePointSelection(point.uuid)">
                     <template v-slot:prepend>
                       <v-checkbox
@@ -661,8 +651,8 @@ const executeDelete = async (): Promise<void> => {
 
                 <v-list>
                   <v-list-item
-                      v-for="point in orphanPoints"
-                      :key="point.uuid"
+                      v-for="(point, index) in orphanPoints"
+                      :key="index"
                       @click="togglePointSelection(point.uuid)">
                     <template v-slot:prepend>
                       <v-checkbox
@@ -815,7 +805,6 @@ const executeDelete = async (): Promise<void> => {
 }
 
 .point-manager-dialog {
-
 }
 
 .v-list-item {

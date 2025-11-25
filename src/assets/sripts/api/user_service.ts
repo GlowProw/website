@@ -3,48 +3,16 @@ import {PaginationParams} from "@/assets/types";
 import {SigninParams} from "@/assets/types/User.Login";
 import {SignupParams} from "@/assets/types/User.Signup";
 import {ChangePasswordParams} from "@/assets/types/User";
-import {ApiError, ApiResponseSuccess} from "@/assets/types/Api";
+import {ApiError} from "@/assets/types/Api";
+import {createApiBase} from "@/assets/sripts/api/api-util";
 
+/**
+ * 用户接口
+ */
 export function useUserApi() {
     const createHttp = () => useHttpToken();
     const http = createHttp();
-
-    /**
-     * 错误处理
-     */
-    const handleError = (error: any): never => {
-        console.error(error);
-        const errorData = error.response?.data;
-        throw new ApiError(
-            errorData?.message || error.message,
-            errorData?.code || 'UNKNOWN_ERROR',
-            errorData?.error || 1,
-            error.response
-        );
-    };
-
-    /**
-     * 响应并检查错误
-     */
-    const handleResponseWithErrorCheck = (response: any): ApiResponseSuccess => {
-        const responseData = response.data;
-
-        if (responseData.error === 1) {
-            throw new ApiError(
-                responseData.message,
-                responseData.code,
-                responseData.error,
-                response
-            );
-        }
-
-        return {
-            code: responseData.code,
-            data: responseData,
-            message: responseData.message,
-            success: 1
-        };
-    };
+    const {handleError, handleResponse} = createApiBase();
 
     /**
      * 用户登录
@@ -52,7 +20,7 @@ export function useUserApi() {
     const signin = async (data: SigninParams) => {
         try {
             const result = await http.post('user/signin', {data});
-            return handleResponseWithErrorCheck(result);
+            return handleResponse(result);
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
@@ -67,7 +35,7 @@ export function useUserApi() {
     const signup = async (data: SignupParams) => {
         try {
             const result = await http.post('user/signup', {data});
-            return handleResponseWithErrorCheck(result);
+            return handleResponse(result);
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
@@ -82,7 +50,7 @@ export function useUserApi() {
     const getMe = async () => {
         try {
             const result = await http.get('user/me');
-            return handleResponseWithErrorCheck(result);
+            return handleResponse(result);
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
@@ -96,8 +64,8 @@ export function useUserApi() {
      */
     const updateMeAttr = async (attr) => {
         try {
-            const result = await http.post('user/me', { data: {attr} });
-            return handleResponseWithErrorCheck(result);
+            const result = await http.post('user/me', {data: {attr}});
+            return handleResponse(result);
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
@@ -113,7 +81,7 @@ export function useUserApi() {
         try {
             const url = userId ? `user/info/${userId}` : 'user/info';
             const result = await http.get(url);
-            return handleResponseWithErrorCheck(result);
+            return handleResponse(result);
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
@@ -128,8 +96,8 @@ export function useUserApi() {
      */
     const changePassword = async (data: ChangePasswordParams) => {
         try {
-            const result = await http.put('user/changePassword', { data });
-            return handleResponseWithErrorCheck(result);
+            const result = await http.put('user/changePassword', {data});
+            return handleResponse(result);
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
@@ -149,7 +117,7 @@ export function useUserApi() {
                     username: alternativeName
                 }
             });
-            return handleResponseWithErrorCheck(result);
+            return handleResponse(result);
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
@@ -169,7 +137,7 @@ export function useUserApi() {
             const result = await http.get(url, {
                 params: {...pagination, userId}
             });
-            return handleResponseWithErrorCheck(result);
+            return handleResponse(result);
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
@@ -187,7 +155,7 @@ export function useUserApi() {
             const result = await http.get(url, {
                 params: {...pagination, userId}
             });
-            return handleResponseWithErrorCheck(result);
+            return handleResponse(result);
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;

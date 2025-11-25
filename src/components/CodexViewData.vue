@@ -8,6 +8,7 @@ import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useDisplay} from "vuetify/framework";
 import {number, rarity} from "@/assets/sripts/index";
+
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
@@ -197,6 +198,12 @@ const onProcessedData = computed(() => {
 
           `snb.modifications.${i.id}.name`,
           `snb.modifications.${sanitizeString(i.id).cleaned}.name`,
+
+          `snb.treasureMaps.${i.id}.name`,
+          `snb.treasureMaps.${sanitizeString(i.id).cleaned}.name`,
+
+          `snb.mapLocations.${i.id}.name`,
+          `snb.mapLocations.${sanitizeString(i.id).cleaned}.name`,
 
           `snb.npcs.${i.id}.name`,
           `snb.npcs.${sanitizeString(i.id).cleaned}.name`,

@@ -1,30 +1,26 @@
 <script lang="ts" setup>
 import {useRoute, useRouter} from "vue-router";
-import {computed, onMounted, Ref, ref, watch} from "vue";
+import {computed, Ref, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
-import {api, storageIntermediateTransfer} from "@/assets/sripts";
+import {storageIntermediateTransfer} from "@/assets/sripts";
 import {StorageIntermediateTransferSaveType} from "@/assets/sripts/storage_assembly";
-import {useHttpToken} from "@/assets/sripts/http_util";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
-import {useNoticeStore} from "~/stores/noticeStore";
+import {useNoticeStore} from "@/../stores/noticeStore";
 
 import Textarea from "@/components/textarea/index.vue"
 import Silk from "@/components/Silk.vue";
 import AssemblyTagsWidget from "@/components/AssemblyTagsWidget.vue";
 
 // workshop data processing S
-import RankingDesignedClassificationShow from "@/components/RankingDesignedClassificationShow.vue";
 import RankingDesignedItemsDataProcessing from "@/assets/sripts/ranking_designed_items_data_processing";
 import RankingDesignedMainSubjectView from "@/components/RankingDesignedMainSubjectView.vue";
 // workshop data processing E
 
 const route = useRoute(),
     router = useRouter(),
-    http = useHttpToken(),
     noticeStore = useNoticeStore(),
     {asString} = useI18nUtils(),
-    {t, locale} = useI18n(),
-    httpToken = useHttpToken()
+    {t, locale} = useI18n()
 
 let // 发布信息
     publishData = ref({
@@ -51,7 +47,7 @@ let // 发布信息
     }),
     dataLoading = ref(false),
     publishLoading = ref(false),
-    rankingDesignedMainSubjectView: Ref<RankingDesignedMainSubjectView> = ref(null),
+    rankingDesignedMainSubjectView: Ref<any> = ref(null),
     formRules = {
       name: [
         v => !!v || 'Name is required',

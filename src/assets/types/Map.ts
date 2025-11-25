@@ -1,14 +1,21 @@
+import {PaginationResult} from "@/assets/types/Pagination";
+
 export interface MapCollection {
     id: string;
     uuid: string;
     userId: string;
     title: string;
     description?: string;
-    public: boolean;
+    public: number;
     sharedUsers: string[];
     valid: number;
     createdAt: string;
     updatedAt: string;
+}
+
+export interface MapCollectionResult {
+    data: MapCollection[]
+    pagination?: PaginationResult
 }
 
 export interface MapPoint {
@@ -22,7 +29,7 @@ export interface MapPoint {
     longitude: number;
     address?: string;
     tags: string;
-    isPublic: boolean;
+    public: number;
     sharedUsers: string;
     valid: number;
     createdAt: string;

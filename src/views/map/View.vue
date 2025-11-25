@@ -65,16 +65,17 @@
           <v-card-title class="d-flex align-center py-4 px-7">
             <v-icon icon="mdi-map-marker-multiple" class="mr-2 text-amber"></v-icon>
             {{ t('map.layerCollection') }}
+            <v-btn size="x-small" variant="tonal">BETA</v-btn>
             <v-spacer></v-spacer>
             <v-btn density="compact" to="/account/maps" target="_blank">
               <v-icon icon="mdi-cog"></v-icon>
             </v-btn>
           </v-card-title>
 
-          <!-- 地图集选择器 -->
+          <!-- 地图集选择器 S -->
           <v-select
               v-model="selectedCollectionUuid"
-              :items="userCollections"
+              :items="userCollectionsSelect"
               item-title="title"
               item-value="uuid"
               density="compact"
@@ -83,6 +84,7 @@
               :placeholder="t('map.selectCollection')"
               class="collection-selector mx-9">
           </v-select>
+          <!-- 地图集选择器 E -->
         </v-card>
 
         <v-card
@@ -254,7 +256,7 @@
 
               <v-col cols="12">
                 <v-checkbox
-                    v-model="newMarkerData.isPublic"
+                    v-model="newMarkerData.public"
                     density="compact"
                     :label="t('map.publicMarker')"
                     :disabled="userCollections.length <= 0"
@@ -567,12 +569,13 @@ import type {Feature as OLFeature} from 'ol';
 import type {Geometry} from 'ol/geom';
 import {useRoute, useRouter} from "vue-router";
 import {useDisplay} from "vuetify/framework";
-
 import {MapLocations} from "glow-prow-data"
-
 import {useI18n} from "vue-i18n";
 import {useAssetsStore} from "~/stores/assetsStore.js";
 import {useI18nUtils} from "@/assets/sripts/i18n_util.js";
+import type {MapCollection, MapPoint} from '@/assets/types/map';
+import {useMapApi} from '@/assets/sripts/api/map_service';
+import {useAuthStore} from "~/stores/userAccountStore";
 
 import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue";
@@ -588,17 +591,16 @@ import MapLocationAvailableTreasureMapWidget from "@/components/snbWidget/mapLoc
 import HtmlLink from "@/components/HtmlLink.vue";
 import MapLocationAvailableNpcWidget from "@/components/snbWidget/mapLocationAvailableNpcWidget.vue";
 import Textarea from "@/components/textarea/index.vue";
-
-import type {MapCollection, MapPoint} from '@/assets/types/map';
-import {useMapApi} from '@/assets/sripts/api/map_service';
-import {useAuthStore} from "~/stores/userAccountStore";
+import {ApiError} from "@/assets/types/Api";
+import {useNoticeStore} from "~/stores/noticeStore";
 
 const mapImages = import.meta.glob('/src/assets/images/map/*.*', {eager: true});
 const {t} = useI18n(),
     route = useRoute(),
     router = useRouter(),
     authStore = useAuthStore(),
-    {createPoint, getCollectionPoints, getCollections, getNearbyPoints} = useMapApi(),
+    notice = useNoticeStore(),
+    api = useMapApi(),
     {asString} = useI18nUtils(),
     {mobile} = useDisplay(),
     {serializationMap} = useAssetsStore();
@@ -654,7 +656,7 @@ let mapViewRef = ref<HTMLElement | null>(null),
       latitude: 0,
       address: '',
       tags: [] as string[],
-      isPublic: false,
+      public: false,
       sharedUsers: [] as string[]
     }),
     editingMarker = ref(false),
@@ -670,6 +672,10 @@ let mapViewRef = ref<HTMLElement | null>(null),
     // 计算个人标记数量
     personalMarkersCount = computed(() => {
       return personalMarkers.value.length;
+    }),
+    // 用户可用地图集
+    userCollectionsSelect = computed(() => {
+      return [{title: t('none'), uuid: null}].concat(userCollections.value)
     });
 
 watch(() => searchQuery.value, (newValue) => {
@@ -685,10 +691,10 @@ watch(() => selectedLocationData.value, async () => {
   }
 })
 
-watch(() => selectedCollectionUuid.value, async (newCollectionId) => {
+watch(() => selectedCollectionUuid.value, async (newCollectionUuid) => {
   // 监听选中的地图集变化
-  if (newCollectionId) {
-    await loadCollectionPoints(newCollectionId);
+  if (newCollectionUuid) {
+    await loadCollectionPoints(newCollectionUuid);
   } else {
     personalMarkers.value = [];
     onRemovePersonalMarkersFromMap();
@@ -865,7 +871,7 @@ onMounted(async () => {
       latitude: coordinate[1],
       address: '',
       tags: [],
-      isPublic: false,
+      public: false,
       sharedUsers: []
     };
 
@@ -986,17 +992,22 @@ const onLoadUserCollections = async (): Promise<void> => {
   try {
     if (!authStore.isLogin) return
 
-    const result = await getCollections();
+    const result = await api.getCollections(),
+        d = result.data;
 
-    if (result.error != 1)
-      userCollections.value = result.data;
+    userCollections.value = d.data;
 
     // 如果没有选中的地图集且存在地图集，默认选中第一个
     if (userCollections.value.length > 0 && !selectedCollectionUuid.value) {
       selectedCollectionUuid.value = userCollections.value[0].uuid;
     }
-  } catch (error) {
-    console.error('加载地图集失败:', error);
+  } catch (e) {
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.code
+      }));
+    }
+    console.error(e);
   }
 };
 
@@ -1005,20 +1016,24 @@ const onLoadUserCollections = async (): Promise<void> => {
  */
 const loadCollectionPoints = async (collectionUuid: string): Promise<void> => {
   try {
-    if (!authStore.isLogin) return
+    if (!authStore.isLogin && !collectionUuid) return
 
-    const result = await getCollectionPoints(collectionUuid);
+    const result = await api.getCollectionPoints(collectionUuid),
+        d = result.data;
 
-    if (result.error != 1) {
-      const points = result.points;
-      personalMarkers.value = points;
+    const points = d.points;
+    personalMarkers.value = points;
 
-      // 将个人标记添加到地图
-      onAddPersonalMarkersToMap(points);
+    // 将个人标记添加到地图
+    onAddPersonalMarkersToMap(points);
+
+  } catch (e) {
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.code
+      }));
     }
-
-  } catch (error) {
-    console.error('加载坐标点失败:', error);
+    console.error(e);
   }
 };
 
@@ -1090,7 +1105,7 @@ const onCreateNewMarker = async (): Promise<void> => {
   creatingMarker.value = true;
 
   try {
-    await createPoint({
+    await api.createPoint({
       collectionUuid: newMarkerData.value.collectionUuid,
       title: newMarkerData.value.title,
       description: newMarkerData.value.description,
@@ -1098,9 +1113,10 @@ const onCreateNewMarker = async (): Promise<void> => {
       longitude: newMarkerData.value.longitude,
       address: newMarkerData.value.address,
       tags: newMarkerData.value.tags,
-      isPublic: newMarkerData.value.isPublic,
+      public: newMarkerData.value.public,
       sharedUsers: newMarkerData.value.sharedUsers
     });
+
     // 重新加载当前地图集的坐标点
     if (selectedCollectionUuid.value === newMarkerData.value.collectionUuid) {
       await loadCollectionPoints(selectedCollectionUuid.value);
@@ -1129,7 +1145,7 @@ const onResetNewMarkerData = (): void => {
     latitude: 0,
     address: '',
     tags: [],
-    isPublic: false,
+    public: false,
     sharedUsers: []
   };
   editingMarker.value = false;
@@ -1183,17 +1199,22 @@ const onSearchNearbyPoints = async (latitude: number, longitude: number, radius:
   try {
     selectedLocationNearbyPoints.value = [];
 
-    const result = await getNearbyPoints({
-      latitude,
-      longitude,
-      radius,
-      limit: 10
-    });
+    const result = await api.getNearbyPoints({
+          latitude,
+          longitude,
+          radius,
+          limit: 10
+        }),
+        d = result.data;
 
-    if (result.error != 1)
-      selectedLocationNearbyPoints.value = result.points;
-  } catch (error) {
-    console.error('搜索附近坐标点失败:', error);
+    selectedLocationNearbyPoints.value = d.points;
+  } catch (e) {
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.code
+      }));
+    }
+    console.error(e);
   }
 };
 
@@ -1426,14 +1447,12 @@ const onCreateFeaturesFromLocations = (locations: any[]): OLFeature<Geometry>[] 
  * @param location
  */
 const onCreateFeatureFromLocation = (location: any): OLFeature<Geometry> => {
-  const feature = new Feature({
+  return new Feature({
     geometry: new Point(fromLonLat([location.longitude, location.latitude])),
     id: location.id,
     name: location.name || `位置${location.id}`,
     originalData: location
   }) as OLFeature<Geometry>;
-
-  return feature;
 };
 
 /**

@@ -1,45 +1,13 @@
-import {ApiError, ApiResponseSuccess} from "@/assets/types/Api";
+import {ApiError} from "@/assets/types/Api";
 import {useHttpToken} from "@/assets/sripts/http_util";
+import {createApiBase} from "@/assets/sripts/api/api-util";
 
+/**
+ * 验证码接口
+ */
 export function useCaptchaApi() {
     const http = useHttpToken();
-
-    /**
-     * 错误处理
-     */
-    const handleError = (error: any): never => {
-        console.error(error);
-        const errorData = error.response?.data;
-        throw new ApiError(
-            errorData?.message || error.message,
-            errorData?.code || 'UNKNOWN_ERROR',
-            errorData?.error || 1,
-            error.response
-        );
-    };
-
-    /**
-     * 响应并检查错误
-     */
-    const handleResponseWithErrorCheck = (response: any): ApiResponseSuccess => {
-        const responseData = response.data;
-
-        if (responseData.error === 1) {
-            throw new ApiError(
-                responseData.message,
-                responseData.code,
-                responseData.error,
-                response
-            );
-        }
-
-        return {
-            code: responseData.code,
-            data: responseData,
-            message: responseData.message,
-            success: 1
-        };
-    };
+    const {handleError, handleResponse} = createApiBase();
 
     /**
      * 获取当前用户信息
@@ -49,7 +17,7 @@ export function useCaptchaApi() {
             const result = await http.get('captcha', {
                 params: {...options.isUpdateTime ? {t: Math.random()} : {}}
             });
-            return handleResponseWithErrorCheck(result);
+            return handleResponse(result);
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
