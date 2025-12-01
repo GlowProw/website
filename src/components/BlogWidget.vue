@@ -1,25 +1,28 @@
 <script setup lang="ts">
-import {computed, onMounted, ref} from "vue";
-import {http} from "@/assets/sripts/index";
+import {computed, onMounted, Ref, ref} from "vue";
+import {useBlogApi} from "@/assets/sripts/api/blog_service";
+
+import MarkdownIt from 'markdown-it';
+
 import EmptyView from "@/components/EmptyView.vue";
 import Loading from "@/components/Loading.vue";
-import MarkdownIt from 'markdown-it';
+import {BlogData} from "@/assets/types/Blog";
 
 const md = new MarkdownIt({
       html: true,
       linkify: true,
       typographer: true
     }),
-    blogBaseUrl = ['https://glow-prow-blog.cabbagelol.net'][0];
+    api = useBlogApi()
 
-let loading = ref(true),
-    showBlogIndex = ref(0),
-    blogData = ref({})
+let loading: Ref<boolean> = ref(true),
+    showBlogIndex: Ref<number> = ref(0),
+    blogData: Ref<BlogData> = ref({})
 
 onMounted(() => {
   md.renderer.rules.image = function (tokens, idx, options, env, self) {
     const token = tokens[idx];
-    return `<div class="img"><img src="${blogBaseUrl}/images/blog/${blogData.value.latestPosts[showBlogIndex.value].slug}/${token.content}" alt="${token.content}" /></div>`;
+    return `<div class="img"><img src="${api.blogBaseUrl}/images/blog/${blogData.value.latestPosts[showBlogIndex.value].slug}/${token.content}" alt="${token.content}" /></div>`;
   };
 
   getBlogData()
@@ -32,22 +35,28 @@ let isNext = computed(() => {
       return (showBlogIndex.value + 1) <= 1
     })
 
+/**
+ * 取得博客信息内容
+ */
 const getBlogData = async () => {
   try {
     loading.value = true
-    const result = await http.request(`${blogBaseUrl}/blog-data.json`)
+    const result = await api.blogs(),
+        d = result.data
 
-    if (result.data) {
-      blogData.value = result.data;
-      showBlogIndex.value = result.data.latestPosts.length - 1;
+    if (d) {
+      blogData.value = d;
+      showBlogIndex.value = d?.latestPosts.length - 1;
     }
-  } catch (e) {
-
   } finally {
     loading.value = false
   }
 }
 
+/**
+ * 处理翻页
+ * @param type
+ */
 const onPage = (type) => {
   switch (type) {
     case 'prev':
@@ -66,9 +75,9 @@ const onPage = (type) => {
 
 <template>
   <div class="blog read-view">
-    <v-row class="mb-1">
+    <v-row class="mb-1" align="center">
       <v-col>
-        总计: <span class="opacity-60">{{ blogData.totalCount }}</span>
+        <v-icon>mdi-post-outline</v-icon>: <span class="opacity-60">{{ blogData.totalCount }}</span>
       </v-col>
       <v-spacer></v-spacer>
       <v-col cols="auto">

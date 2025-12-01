@@ -1,32 +1,40 @@
 <script lang="ts" setup>
-import {onMounted, ref} from "vue";
-import {http} from "@/assets/sripts/index";
-import EmptyView from "@/components/EmptyView.vue";
+import {onMounted, Ref, ref} from "vue";
+import {VersionData} from "@/assets/types/Blog";
+
 import MarkdownIt from 'markdown-it';
+
+import EmptyView from "@/components/EmptyView.vue";
 import Loading from "@/components/Loading.vue";
+import {useBlogApi} from "@/assets/sripts/api/blog_service";
 
 const md = new MarkdownIt({
-  html: true,
-  linkify: true,
-  typographer: true
-});
+      html: true,
+      linkify: true,
+      typographer: true
+    }),
+    api = useBlogApi()
 
 let loading = ref(true),
     showVersionIndex = ref(0),
-    versionData = ref({})
+    versionData: Ref<VersionData> = ref({})
 
 onMounted(() => {
   getVersionData()
 })
 
+/**
+ * 取得版本更新信息
+ */
 const getVersionData = async () => {
   try {
     loading.value = true
-    const result = await http.request('https://glow-prow-blog.cabbagelol.net/versions-data.json')
+    const result = await api.versions(),
+        d = result.data
 
-    if (result.data) {
-      versionData.value = result.data;
-      showVersionIndex.value = result.data?.latestPosts?.length - 1 || 0;
+    if (d) {
+      versionData.value = d;
+      showVersionIndex.value = d?.latestPosts?.length - 1 || 0;
     }
   } finally {
     loading.value = false

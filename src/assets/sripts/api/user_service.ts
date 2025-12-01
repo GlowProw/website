@@ -62,7 +62,7 @@ export function useUserApi() {
     /**
      * 获取当前用户信息
      */
-    const updateMeAttr = async (attr) => {
+    const updateMeAttr = async (attr: any) => {
         try {
             const result = await http.post('user/me', {data: {attr}});
             return handleResponse(result);
@@ -76,11 +76,13 @@ export function useUserApi() {
 
     /**
      * 获取用户信息
+     * 公开接口
      */
     const getUserInfo = async (userId?: string) => {
         try {
-            const url = userId ? `user/info/${userId}` : 'user/info';
-            const result = await http.get(url);
+            const result = await http.get('user/info', {
+                params: {id: userId}
+            });
             return handleResponse(result);
         } catch (error) {
             if (error instanceof ApiError) {
@@ -116,6 +118,44 @@ export function useUserApi() {
                 data: {
                     username: alternativeName
                 }
+            });
+            return handleResponse(result);
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            return handleError(error);
+        }
+    };
+
+    /**
+     * 获取用户组队列表
+     * @param userId
+     * @param pagination
+     */
+    const getUserTeamups = async (userId: string, pagination?: PaginationParams) => {
+        try {
+            const result = await http.get('user/space/teamups', {
+                params: {id: userId, ...pagination}
+            });
+            return handleResponse(result);
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            return handleError(error);
+        }
+    };
+
+    /**
+     * 获取用户配装列表
+     * @param userId
+     * @param pagination
+     */
+    const getUserAssemblys = async (userId: string, pagination?: PaginationParams) => {
+        try {
+            const result = await http.get('user/space/assemblys', {
+                params: {id: userId, ...pagination}
             });
             return handleResponse(result);
         } catch (error) {
@@ -172,6 +212,8 @@ export function useUserApi() {
         getUserInfo,
         changePassword,
         changeAlternativeName,
+        getUserTeamups,
+        getUserAssemblys,
         getUserComments,
         getUserLikes,
     };

@@ -1,10 +1,13 @@
 <script setup lang="ts">
 
 import Silk from "@/components/Silk.vue";
-import {onMounted, ref, watch} from "vue";
-import {api, http} from "@/assets/sripts/index";
+import {onMounted, Ref, ref, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {useDisplay} from "vuetify/framework";
+import {useUserApi} from "@/assets/sripts/api";
+import {ApiError} from "@/assets/types/Api";
+import {useNoticeStore} from "~/stores/noticeStore";
+import {useI18n} from "vue-i18n";
 
 import PrivilegesTagWidget from "@/components/PrivilegesTagWidget.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
@@ -13,36 +16,41 @@ import Time from "@/components/Time.vue";
 import TimeView from "@/components/TimeView.vue";
 import Textarea from "@/components/textarea"
 import Loading from "@/components/Loading.vue"
+import {PaginationParams} from "@/assets/types";
+import {SpaceUserResult} from "@/assets/types/User";
 
 const route = useRoute(),
     router = useRouter(),
-    {mobile} = useDisplay()
+    notice = useNoticeStore(),
+    {mobile} = useDisplay(),
+    {t} = useI18n(),
+    api = useUserApi()
 
 let loading = ref({
       userInfo: true,
       assembly: true,
       teamUp: true
     }),
-    userData = ref({}),
+    userData: Ref<SpaceUserResult> = ref({}),
     userTeamUpData = ref({
       data: []
     }),
     userAssemblysData = ref({
       data: []
     }),
-    browsePagination = ref({
+    spacePagination: Ref<PaginationParams> = ref({
       page: 1,
       pageSize: 10
     }),
 
     tabs = ref([
       {
-        name: '配装',
+        name: t('assembly.title'),
         value: 'assembly',
         icon: 'mdi-palette-outline'
       },
       {
-        name: '组队',
+        name: t('teamUp.title'),
         value: 'teamUp',
         icon: 'mdi-bullhorn-outline'
       },
@@ -61,10 +69,10 @@ onMounted(() => {
 const onUpdateData = (value) => {
   switch (value) {
     case 'teamUp':
-      getMyTeamUpsData()
+      getUserTeamUpsData()
       break;
     case 'assembly':
-      getAssemblysData()
+      getUserAssemblysData()
       break;
   }
 }
@@ -74,18 +82,22 @@ const onUpdateData = (value) => {
  */
 const getUserInfo = async () => {
   try {
+    const {id} = route.params;
+
+    if (!id) return;
     loading.value.userInfo = true;
-    const {id} = route.params
 
-    const result = await http.get(api['user_info'], {
-          params: {id}
-        }),
-        d = result.data
-
-    if (d.error == 1)
-      return;
+    const result = await api.getUserInfo(id as string),
+        d = result.data;
 
     userData.value = d.data;
+  } catch (e) {
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.code
+      }));
+    }
+    console.error(e);
   } finally {
     loading.value.userInfo = false;
   }
@@ -94,24 +106,26 @@ const getUserInfo = async () => {
 /**
  * 获取账户相关配装信息
  */
-const getMyTeamUpsData = async () => {
+const getUserTeamUpsData = async () => {
   try {
-    if (Array.from(userTeamUpData.value.data).length > 0)
+    const {id} = route.params;
+
+    if (Array.from(userTeamUpData.value.data).length > 0 && !id)
       return
 
     loading.value.teamUp = true;
-    const {id} = route.params
-    const {page, pageSize} = browsePagination.value;
 
-    const result = await http.get(api['user_space_teamups'], {
-          params: {id, page, pageSize}
-        }),
+    const result = await api.getUserTeamups(id as string, spacePagination.value),
         d = result.data
 
-    if (d.error == 1)
-      return;
-
     userTeamUpData.value = d.data;
+  } catch (e) {
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.code
+      }));
+    }
+    console.error(e);
   } finally {
     loading.value.teamUp = false;
   }
@@ -120,24 +134,26 @@ const getMyTeamUpsData = async () => {
 /**
  * 获取账户相关配装信息
  */
-const getAssemblysData = async () => {
+const getUserAssemblysData = async () => {
   try {
+    const {id} = route.params;
+
+    if (!id)
+      return
+
     loading.value.assembly = true;
 
-    const {id} = route.params
-    const {page, pageSize} = browsePagination.value;
-
-    const result = await http.get(api['user_space_assemblys'], {
-          params: {
-            id, page, pageSize
-          }
-        }),
+    const result = await api.getUserAssemblys(id as string, spacePagination.value),
         d = result.data
 
-    if (d.error == 1)
-      return;
-
     userAssemblysData.value = d.data;
+  } catch (e) {
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.code
+      }));
+    }
+    console.error(e);
   } finally {
     loading.value.assembly = false;
   }
@@ -169,18 +185,20 @@ const getAssemblysData = async () => {
           <v-row no-gutters align="center">
             <v-col cols="auto">
               <v-card border>
-                <UserAvatar :src="userData.userAvatar" size="80"></UserAvatar>
+                <UserAvatar :src="userData.userAvatar" v-if="userData.userAvatar" size="80"></UserAvatar>
               </v-card>
             </v-col>
             <v-col cols="8" class="ml-4">
               <h1 class="mb-1">{{ userData.username }}</h1>
               <div class="align-center d-flex ga-2 overflow-y-auto">
                 <PrivilegesTagWidget :data="userData.privilege" density="compact"></PrivilegesTagWidget>
-                <v-divider vertical class="mx-3" inset></v-divider>
-                <v-chip density="compact" v-if="userData.lastOnlineTime">最后在线：
+                <v-divider vertical class="mx-3" inset opacity=".2"></v-divider>
+                <v-chip density="compact" v-if="userData.lastOnlineTime">
+                  {{ t('space.lastOnlineTime') }}：
                   <Time :time="userData.lastOnlineTime"/>
                 </v-chip>
-                <v-chip density="compact" v-if="userData.joinTime">加入时间：
+                <v-chip density="compact" v-if="userData.joinTime">
+                  {{ t('space.joinTime') }}：
                   <Time :time="userData.joinTime"/>
                 </v-chip>
               </div>
@@ -199,9 +217,7 @@ const getAssemblysData = async () => {
                   :minHeight="'auto'" v-model="userData.attr.introduction" readonly></Textarea>
       </template>
 
-      <div :class="{
-        'd-flex flex-row ': !mobile,
-      }">
+      <div :class="{'d-flex flex-row ': !mobile}">
         <v-tabs
             stacked
             border
@@ -285,15 +301,15 @@ const getAssemblysData = async () => {
                 <EmptyView></EmptyView>
               </div>
 
-              <!-- 配装分页 S -->
+              <!-- 分页 S -->
               <v-pagination
                   v-if="userAssemblysData.pagination"
-                  v-model="browsePagination.page"
+                  v-model="spacePagination.page"
                   :length="userAssemblysData.pagination?.totalPages || 0"
-                  @update:model-value="getAssemblysData"
+                  @update:model-value="getUserAssemblysData"
                   class="mt-8"
               ></v-pagination>
-              <!-- 配装分页 E -->
+              <!-- 分页 E -->
 
               <v-overlay v-model="loading.assembly" contained class="d-flex justify-center align-center">
                 <Loading size="50"></Loading>

@@ -14,21 +14,25 @@
       "es2022"
     ],
     "paths": {
-      "@/*": ["src/*","./src/*"],
-      "~/*": ["/*"]
+      "@/*": ["src/*"],
+      "~/*": ["./*"]
     },
     "outDir": "dist",
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "moduleResolution": "Node",
+    "moduleResolution": "node",
     "sourceMap": false,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "types": ["node"]
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.d.ts",
     "src/**/*.tsx",
-    "src/**/*.vue"
+    "src/**/*.vue",
+    "src/**/*.js"
   ],
-  "exclude": ["node_modules", ".vscode"]
+  "exclude": ["node_modules", ".vscode", "dist"]
 }

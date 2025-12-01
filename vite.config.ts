@@ -15,7 +15,7 @@ export default defineConfig({
         Vuetify({autoImport: true}),
     ],
     optimizeDeps: {
-        exclude: ['vuetify', 'glow-prow-assets',"fsevents"],
+        exclude: ['vuetify', 'glow-prow-assets', "fsevents", "file-type"],
     },
     define: {'process.env': {}},
     build: {
