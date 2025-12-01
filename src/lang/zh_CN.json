@@ -601,6 +601,7 @@
     },
     "treasureMap": {
       "title": "藏宝图详情",
+      "treasureMapSameArea": "同地区藏宝图",
       "names": {
         "none": "藏宝图",
         "recent": "{location}",
@@ -625,6 +626,8 @@
       "comparison": {
         "title": "比对藏宝图",
         "description": "通过截图图片检索相似藏宝图，定位位置和信息",
+        "searchingProgress": "搜索进度",
+        "currentComparing": "正在比较",
         "algorithms": {
           "perceptual-hash": "感知哈希",
           "color-histogram": "颜色直方图",

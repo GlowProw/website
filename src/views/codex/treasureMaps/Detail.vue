@@ -11,11 +11,13 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import CommentWidget from "@/components/CommentWidget.vue";
 import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
-import {storage} from "@/assets/sripts/index";
+import {rarity, storage} from "@/assets/sripts/index";
 import TreasureMapIconWidget from "@/components/snbWidget/treasureMapIconWidget.vue";
 import TreasureMapName from "@/components/snbWidget/treasureMapName.vue";
 import ObtainableWidget from "@/components/ObtainableWidget.vue";
 import ImageMagnifyingGlass from "@/components/ImageMagnifyingGlass.vue";
+import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
+import TreasureMapSameArea from "@/components/snbWidget/treasureMapSameArea.vue";
 
 const {t} = useI18n(),
     router = useRouter(),
@@ -23,7 +25,8 @@ const {t} = useI18n(),
     authStore = useAuthStore(),
     maps = TreasureMaps
 
-let mapDetailData: Ref<TreasureMap> = ref({})
+let mapDetailData: Ref<TreasureMap> = ref({}),
+    rarityColorConfig = rarity.color
 
 onMounted(() => {
   const {id} = route.params
@@ -155,6 +158,10 @@ const onCodexHistory = () => {
                   </v-text-field>
                 </template>
               </v-col>
+              <v-col cols="12">
+                <v-divider>{{ t('codex.treasureMap.treasureMapSameArea') }}</v-divider>
+                <TreasureMapSameArea :data="mapDetailData"></TreasureMapSameArea>
+              </v-col>
             </v-row>
 
             <template v-if="mapDetailData.id">
@@ -166,6 +173,26 @@ const onCodexHistory = () => {
             <BySeasonWidget :data="mapDetailData"></BySeasonWidget>
 
             <ObtainableWidget :data="mapDetailData" byType="treasureMap"></ObtainableWidget>
+
+            <template v-if="mapDetailData.rarity">
+              <v-text-field readonly
+                            hide-details
+                            variant="underlined" density="compact">
+                <template v-slot:prepend>
+                  <v-badge dot inline :color="rarityColorConfig[mapDetailData.rarity]" class="ma-1 pt-0"></v-badge>
+                </template>
+                <template v-slot:prepend-inner>
+                  <ItemNameRarity :id="mapDetailData.id">
+                    <router-link :to="`/codex/item/rarity/${mapDetailData.rarity}`" class="text-no-wrap">
+                      {{ t(`codex.raritys.${mapDetailData.rarity}`) || 'none' }}
+                    </router-link>
+                  </ItemNameRarity>
+                </template>
+                <template v-slot:append-inner>
+                  <p class="text-no-wrap">{{ t('codex.item.rarity') }}</p>
+                </template>
+              </v-text-field>
+            </template>
 
             <v-row no-gutters align="center" class="mt-2">
               <v-col cols="auto">

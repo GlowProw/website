@@ -143,6 +143,40 @@
                 </v-row>
                 <!-- 筛选条件 E -->
 
+                <!-- 搜索进度显示 S -->
+                <div v-if="searching" class="mb-4">
+                  <v-card border class="pa-4">
+                    <div class="d-flex align-center justify-space-between mb-2">
+                      <div class="text-body-1 font-weight-medium">
+                        {{ t('codex.treasureMaps.comparison.searchingProgress') }}
+                      </div>
+                      <div class="text-amber">
+                        {{ currentProgress }} / {{ totalImages }}
+                        ({{ progressPercentage }}%)
+                      </div>
+                    </div>
+                    <v-progress-linear
+                        v-model="progressPercentage"
+                        color="amber"
+                        height="8"
+                        rounded
+                    ></v-progress-linear>
+
+                    <!-- 当前正在比较的图片 -->
+                    <v-row v-if="currentComparingImage" class="mt-4">
+                      <v-col cols="auto" class="text-caption text-grey mb-1">
+                        {{ t('codex.treasureMaps.comparison.currentComparing') }}
+                      </v-col>
+                      <v-col class="d-flex align-center gap-2">
+                        <div>
+                          <div class="text-body-2">{{ currentComparingImage.id }}</div>
+                        </div>
+                      </v-col>
+                    </v-row>
+                  </v-card>
+                </div>
+                <!-- 搜索进度显示 E -->
+
                 <template v-if="searchResults.length <= 0 && !searching && !queryImageData">
                   <v-card class="pa-10 d-flex justify-center align-center" height="calc(100vh - 400px)" elevation="0" border>
                     <div class="text-center">
@@ -283,6 +317,13 @@ interface Algorithm {
   label: string;
 }
 
+interface ComparingImage {
+  id: string;
+  url: string;
+  category: string;
+  index: number;
+}
+
 // ==================== 响应式数据 ====================
 const mockCollectionMap: Record<string, { default: string }> = import.meta.glob('@glow-prow-assets/treasureMaps/**/*.*', { eager: true });
 const treasureMaps = TreasureMaps;
@@ -303,6 +344,11 @@ const imageFeaturesCache = ref<Map<number, any>>(new Map());
 const selectedCategories = ref<string[]>([]);
 const selectedObtainables = ref<string[]>([]);
 
+// 新增：搜索进度相关
+const currentProgress = ref(0);
+const totalImages = ref(0);
+const currentComparingImage = ref<ComparingImage | null>(null);
+
 // 算法配置
 const algorithms: Algorithm[] = [
   { value: 'perceptual-hash', label: '感知哈希 (快速)' },
@@ -314,6 +360,11 @@ const algorithms: Algorithm[] = [
 // ==================== 计算属性 ====================
 const hasActiveFilters = computed(() => {
   return selectedCategories.value.length > 0 || selectedObtainables.value.length > 0;
+});
+
+const progressPercentage = computed(() => {
+  if (totalImages.value === 0) return 0;
+  return Math.round((currentProgress.value / totalImages.value) * 100);
 });
 
 const categoryOptions = computed(() => [
@@ -403,6 +454,9 @@ const resetSearch = () => {
   searchResults.value = [];
   searched.value = false;
   searching.value = false;
+  currentProgress.value = 0;
+  totalImages.value = 0;
+  currentComparingImage.value = null;
 };
 
 // ==================== 图片处理工具方法 ====================
@@ -485,6 +539,8 @@ const onQueryImageUpload = async (event: Event) => {
 
     searchResults.value = [];
     searched.value = false;
+    currentProgress.value = 0;
+    currentComparingImage.value = null;
   } catch (error) {
     console.error('图片上传失败:', error);
     URL.revokeObjectURL(imageUrl);
@@ -542,19 +598,32 @@ const searchSimilarImages = async () => {
   searching.value = true;
   searchResults.value = [];
   searched.value = false;
+  currentProgress.value = 0;
+  currentComparingImage.value = null;
 
   try {
     const results: SearchResult[] = [];
     const filteredList = filteredImageList.value;
+    totalImages.value = filteredList.length;
 
     // 并行处理所有图片比较（按顺序但异步）
     for (let index = 0; index < filteredList.length; index++) {
       const imgUrl = filteredList[index];
-      const features = await getOrCreateImageFeatures(imgUrl, index);
-      const similarity = calculateSimilarity(queryImageData.value, features);
-
       const imageId = getImageIdFromUrl(imgUrl);
       const mapData = treasureMaps[imageId];
+
+      // 更新当前比较的图片信息
+      if (mapData) {
+        currentComparingImage.value = {
+          id: imageId,
+          url: imgUrl,
+          category: mapData.category,
+          index: index
+        };
+      }
+
+      const features = await getOrCreateImageFeatures(imgUrl, index);
+      const similarity = calculateSimilarity(queryImageData.value, features);
 
       if (mapData) {
         results.push({
@@ -567,6 +636,9 @@ const searchSimilarImages = async () => {
           obtainable: mapData.obtainable
         });
       }
+
+      // 更新进度
+      currentProgress.value = index + 1;
     }
 
     // 筛选、排序并截取结果
@@ -580,6 +652,7 @@ const searchSimilarImages = async () => {
   } finally {
     searching.value = false;
     searched.value = true;
+    currentComparingImage.value = null;
   }
 };
 
