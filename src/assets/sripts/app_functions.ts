@@ -28,6 +28,12 @@ export default class AppFuns {
             to: '/codex'
         },
         {
+            title: 'codex.treasureMaps.comparison.title',
+            icon: 'mdi-image-search-outline',
+            description: 'codex.treasureMaps.comparison.description',
+            to: '/codex/treasureMaps?comparison=true'
+        },
+        {
             title: 'header.functions.assembly.title',
             icon: 'mdi-palette-outline',
             description: 'header.functions.assembly.description',

@@ -145,7 +145,7 @@ export const useAssetsStore = defineStore('assets', {
             if (this.treasureMaps.size != 0)
                 return;
 
-            const teasureMapsImages = import.meta.glob('@glow-prow-assets/treasureMaps/*.*', {eager: true});
+            const teasureMapsImages = import.meta.glob('@glow-prow-assets/treasureMaps/**/*.*', {eager: true});
 
             this.treasureMaps = this.serializationMap(teasureMapsImages);
         },
@@ -154,16 +154,15 @@ export const useAssetsStore = defineStore('assets', {
          * 序列化
          * @param assetsRaw
          */
-        serializationMap(assetsRaw) {
-            const imageMap = {};
+        serializationMap(assetsRaw: any) {
+            const imageMap: any = {};
             for (const path in assetsRaw) {
-                const key = path.split('/').pop()
+                const key: any = path.split('/').pop()
                     ?.toString()
                     .replace(/\.(svg|webp|jpg|png|mp4)$/, '');
                 imageMap[key] = assetsRaw[path].default;
             }
             return imageMap
         }
-
     }
 })

@@ -621,7 +621,33 @@
       }
     },
     "treasureMaps": {
-      "title": "藏宝图列表"
+      "title": "藏宝图列表",
+      "comparison": {
+        "title": "比对藏宝图",
+        "description": "通过截图图片检索相似藏宝图，定位位置和信息",
+        "algorithms": {
+          "perceptual-hash": "感知哈希",
+          "color-histogram": "颜色直方图",
+          "feature-matching": "特征点匹配",
+          "structural-similarity": "结构相似性"
+        },
+        "selectAlgorithm": "选择比较算法",
+        "filter": {
+          "source": "来源筛选",
+          "category": "分类筛选",
+          "similarityPercent": "相似百分比",
+          "similarityHint": "此值越低图片相似越低，等于0时代表检索所有",
+          "searchRange": "检索范围",
+          "rangeHint": "取搜索结果前{range},超出的内容截断"
+        },
+        "uploadPrompt": "选择一张图片作为基准，查找藏宝图",
+        "selectImage": "选择图片",
+        "noResult": {
+          "algorithmIssue": "未找到相似藏宝图，这可能由于查询算法偏差或未收录藏宝图，请尝试更换查询算法再次尝试",
+          "useFilter": "如果知道藏宝图属性，适当使用筛选地图类型和藏宝图地区，可以减少检索等待时间",
+          "notInCollection": "未收录情况通过网站下方联系方式联系添加收藏"
+        }
+      }
     },
     "mapLocation": {
       "title": "地图地点",
@@ -906,6 +932,11 @@
     "publish": {
       "title": "发布"
     }
+  },
+  "space": {
+    "title": "用户空间",
+    "lastOnlineTime": "最后在线",
+    "joinTime": "加入时间"
   },
   "signin": {
     "title": "登陆",

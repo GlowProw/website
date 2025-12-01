@@ -2,7 +2,7 @@
 import {Cosmetics, Items, MapLocations, Materials, Modifications, Npcs, Sets, Ships, TreasureMaps} from "glow-prow-data";
 import {Commodities} from "glow-prow-data/src/entity/Commodities";
 import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
-import {computed, onMounted, ref, watch} from "vue";
+import {computed, onMounted, ref, useSlots, watch} from "vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
@@ -66,6 +66,7 @@ const
 
     route = useRoute(),
     router = useRouter(),
+    slots = useSlots(),
     {t} = useI18n(),
     {mobile, sm, md, lg} = useDisplay(),
     {asString, sanitizeString} = useI18nUtils()
@@ -97,14 +98,20 @@ let data: any = ref([]),
     typeFilterAvailableOptions = computed(() => [
       ...filterData.value.typeTags.map(tag => ({
         value: tag,
-        text: asString([`codex.types.${tag}`], {backRawKey: true, variable: tag})
+        text: asString([
+          `codex.types.${tag}`
+        ], {backRawKey: true, variable: tag})
       }))
     ]),
     // 类别 筛选器可选选项
     categoryFilterAvailableOptions = computed(() => [
       ...filterData.value.categoryTags.map(tag => ({
         value: tag,
-        text: asString([`codex.categorys.${tag}`, `map.types.${tag}.name`], {backRawKey: true, variable: tag})
+        text: asString([
+          `codex.categorys.${tag}`,
+          `map.types.${tag}.name`,
+          `codex.treasureMap.categorys.${tag}`
+        ], {backRawKey: true, variable: tag})
       }))
     ]),
     // 稀有度筛选器可选选项
@@ -634,6 +641,9 @@ const onSort = (field: SortField, order: SortOrder) => {
             </v-btn>
           </template>
         </v-text-field>
+      </v-col>
+      <v-col cols="auto" v-if="slots.action">
+        <slot name="action"></slot>
       </v-col>
       <v-col cols="auto">
         <v-menu open-on-click :close-on-content-click="false">
