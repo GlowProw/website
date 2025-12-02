@@ -162,7 +162,6 @@ const initZoomView = () => {
     viewport.style.height = `${props.lensSize}px`
     viewport.style.overflow = 'hidden'
     viewport.style.position = 'relative'
-    viewport.style.background = 'white'
     viewportRef.value = viewport
 
     // 创建容器内容的克隆

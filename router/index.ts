@@ -59,7 +59,6 @@ import UltimateDetailPage from '@/views/codex/ultimates/Detail.vue'
 
 import CalendarPage from '@/views/calendar/Index.vue'
 import CalendarHistoryPage from '@/views/calendar/History.vue'
-import CalendarHistorysPage from '@/views/calendar/Historys.vue'
 
 import AssemblePage from '@/views/assembly/Index.vue'
 import AssembleWorkshopPage from '@/views/assembly/workshop/Index.vue'
@@ -481,12 +480,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: 'history',
                 name: 'CalendarHistory',
                 component: CalendarHistoryPage,
-            },
-            {
-                path: 'historys',
-                name: 'CalendarHistorys',
-                component: CalendarHistorysPage,
-            },
+            }
         ]
     },
     {

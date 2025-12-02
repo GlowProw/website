@@ -4,9 +4,9 @@ import Header from "@/components/Header";
 </script>
 
 <template>
-  <v-app id="calendar" class="background-flavor">
+  <v-app id="calendar">
     <Header></Header>
-    <v-main class="mt-10 background-img-flavor">
+    <v-main>
       <router-view></router-view>
     </v-main>
     <Footer></Footer>

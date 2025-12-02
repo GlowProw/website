@@ -8,7 +8,7 @@ export const handleApiError = (error: any): never => {
     const errorData = error.response?.data;
     throw new ApiError(
         errorData?.message || error.message,
-        errorData?.code || 'UNKNOWN_ERROR',
+        errorData?.code || 'error',
         errorData?.error || 1,
         error.response
     );

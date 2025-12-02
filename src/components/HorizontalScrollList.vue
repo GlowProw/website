@@ -1,20 +1,20 @@
 <template>
   <div class="horizontal-scroll-container">
-    <!-- 左侧滚动按钮 -->
+    <!-- 左侧滚动按钮 S -->
     <v-btn
         icon
         v-if="showControls && canScrollLeft"
         class="scroll-button scroll-button--left bg-amber text-black"
         @click="scrollLeft"
+        :size="btnSize"
         :aria-label="leftButtonAriaLabel">
       <slot name="left-button">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M15 18L9 12L15 6"/>
-        </svg>
+        <v-icon>mdi-arrow-left-thin</v-icon>
       </slot>
     </v-btn>
+    <!-- 左侧滚动按钮 E -->
 
-    <!-- 主要滚动区域 -->
+    <!-- 主要滚动区域 S -->
     <div
         ref="scrollWrapper"
         class="scroll-wrapper"
@@ -34,44 +34,50 @@
         <slot></slot>
       </div>
     </div>
+    <!-- 主要滚动区域 E -->
 
-    <!-- 右侧滚动按钮 -->
+    <!-- 右侧滚动按钮 S -->
     <v-btn
         icon
         v-if="showControls && canScrollRight"
         class="scroll-button scroll-button--right  bg-amber text-black"
         @click="scrollRight"
+        :size="btnSize"
         :aria-label="rightButtonAriaLabel">
       <slot name="right-button">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M9 18L15 12L9 6"/>
-        </svg>
+        <v-icon>mdi-arrow-right-thin</v-icon>
       </slot>
     </v-btn>
+    <!-- 右侧滚动按钮 E -->
 
-    <!-- 滚动指示器 -->
+    <!-- 滚动指示器 S -->
     <div
-        v-if="showScrollIndicator && maxScroll > 0"
-        class="scroll-indicator"
-    >
+        v-if="isIndicator && showScrollIndicator && maxScroll > 0"
+        class="scroll-indicator">
       <div
           class="scroll-track"
-          @click="handleTrackClick"
-      >
+          @click="handleTrackClick">
         <div
             class="scroll-thumb"
-            :style="thumbStyle"
-        ></div>
+            :style="thumbStyle"></div>
       </div>
     </div>
+    <!-- 滚动指示器 E -->
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import {computed, nextTick, onMounted, onUnmounted, ref} from 'vue'
 
-// Props 定义
 const props = defineProps({
+  btnSize: {
+    type: Number,
+    default: 45
+  },
+  isIndicator: {
+    type: Boolean,
+    default: true
+  },
   // 滚动项间距
   gap: {
     type: Number,
@@ -139,10 +145,8 @@ const props = defineProps({
   }
 })
 
-// Emits 定义
 const emit = defineEmits(['scroll', 'scroll-start', 'scroll-end'])
 
-// 响应式数据
 const scrollWrapper = ref(null)
 const isDragging = ref(false)
 const startX = ref(0)
@@ -199,7 +203,7 @@ onUnmounted(() => {
 const checkScrollability = () => {
   if (!scrollWrapper.value) return
 
-  const { scrollLeft, scrollWidth, clientWidth } = scrollWrapper.value
+  const {scrollLeft, scrollWidth, clientWidth} = scrollWrapper.value
   maxScroll.value = Math.max(0, scrollWidth - clientWidth)
   canScrollLeft.value = scrollLeft > 0
   canScrollRight.value = scrollLeft < maxScroll.value
@@ -257,7 +261,7 @@ const handleMouseDown = (e) => {
   document.addEventListener('mousemove', handleMouseMove)
   document.addEventListener('mouseup', handleMouseUp)
 
-  emit('scroll-start', { position: startScrollLeft.value })
+  emit('scroll-start', {position: startScrollLeft.value})
 }
 
 const handleMouseMove = (e) => {
@@ -314,7 +318,7 @@ const handleMouseUp = () => {
     }
   }
 
-  emit('scroll-end', { position: scrollWrapper.value?.scrollLeft || 0 })
+  emit('scroll-end', {position: scrollWrapper.value?.scrollLeft || 0})
 }
 
 /**
@@ -417,6 +421,11 @@ const scrollTo = (position, behavior = 'smooth') => {
   })
 }
 
+/**
+ * 滚到对应容器
+ * @param index
+ * @param behavior
+ */
 const scrollToItem = (index, behavior = 'smooth') => {
   if (!scrollWrapper.value) return
 
@@ -433,7 +442,6 @@ const scrollToItem = (index, behavior = 'smooth') => {
   })
 }
 
-// 暴露给父组件的方法
 defineExpose({
   scrollTo,
   scrollToItem,
@@ -450,7 +458,7 @@ defineExpose({
 })
 </script>
 
-<style scoped>
+<style scoped lang="less">
 .horizontal-scroll-container {
   position: relative;
   width: 100%;

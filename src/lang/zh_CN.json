@@ -687,7 +687,29 @@
     "title": "日历",
     "meta": {
       "keywords": "游戏日历,日历,日程表,规划"
-    }
+    },
+    "timeRemaining": "剩余{time}天",
+    "label": {
+      "pastSeasons": "过往赛季"
+    },
+    "button": {
+      "subscribe": "订阅日历",
+      "addToCalendar": "添加到日历"
+    },
+    "dialog": {
+      "subscribeTitle": "订阅 {season}",
+      "subscribeDescription": "下载 .ics 文件，这是标准格式，可通过支持的应用打开并同步数据",
+      "eventSubscribeQuestion": "单独订阅 {event} 所有事件？"
+    },
+    "common": {
+      "na": "未知",
+      "none": "无"
+    },
+    "error": {
+      "invalidDate": "无效的日期",
+      "fetchFailed": "获取日历数据失败"
+    },
+    "day": "{day}日"
   },
   "map": {
     "title": "地图",

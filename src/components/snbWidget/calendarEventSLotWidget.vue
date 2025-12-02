@@ -48,10 +48,12 @@ const onCheckI18nValue = (key) => {
       </template>
 
       <div class="bg-black pa-5 background-flavor" v-if="data && data.id">
-        <p class="text-amber text-h5 pointer-events-none"><b> {{ t(`snb.calendar.${props.currentlySeason.id}.data.${data.id}.name`) }}</b></p>
+        <template v-if="props.currentlySeason && props.currentlySeason.id && data && data.id">
+          <p class="text-amber text-h5 pointer-events-none"><b> {{ t(`snb.calendar.${props.currentlySeason.id}.data.${data.id}.name`) }}</b></p>
+        </template>
 
         <p class="text-pre-wrap mt-1 opacity-80 pointer-events-none">
-          <template v-if="onCheckI18nValue(`snb.calendar.${props.currentlySeason.id}.data.${data.id}.description`).code == 0">
+          <template v-if="props.currentlySeason && props.currentlySeason.id && onCheckI18nValue(`snb.calendar.${props.currentlySeason.id}.data.${data.id}.description`).code == 0">
             {{ t(`snb.calendar.${props.currentlySeason.id}.data.${data.id}.description`) }}
           </template>
         </p>
@@ -70,7 +72,7 @@ const onCheckI18nValue = (key) => {
           </ItemSlotBase>
 
           <ItemSlotBase size="50px" class="d-flex justify-center align-center" v-if="droppedCount > showItemCount">
-            +{{droppedCount - showItemCount}}
+            +{{ droppedCount - showItemCount }}
           </ItemSlotBase>
         </div>
       </div>

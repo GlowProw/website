@@ -470,7 +470,7 @@
             <v-icon>mdi-dots-vertical</v-icon>
           </v-btn>
         </v-row>
-        <div class="mb-5 pt-3 overflow-x-auto">
+        <div class="mb-5 pt-3">
           <MapLocationAvailableTreasureMapWidget :id="selectedLocationData.id"></MapLocationAvailableTreasureMapWidget>
         </div>
       </template>
@@ -483,7 +483,7 @@
             <v-icon>mdi-dots-vertical</v-icon>
           </v-btn>
         </v-row>
-        <div class="mb-5 pt-3 overflow-x-auto">
+        <div class="mb-5 pt-3">
           <MapLocationAvailableNpcWidget :id="selectedLocationData.id" :category="selectedLocationData.category"></MapLocationAvailableNpcWidget>
         </div>
       </template>
@@ -675,7 +675,7 @@ let mapViewRef = ref<HTMLElement | null>(null),
     }),
     // 用户可用地图集
     userCollectionsSelect = computed(() => {
-      return [{title: t('none'), uuid: null}].concat(userCollections.value)
+      return [{title: t('none'), uuid: null}].concat(userCollections.value as [])
     });
 
 watch(() => searchQuery.value, (newValue) => {
@@ -685,6 +685,8 @@ watch(() => searchQuery.value, (newValue) => {
 });
 
 watch(() => selectedLocationData.value, async () => {
+  if (!authStore.isLogin) return;
+
   if (model.value == true) {
     const {latitude, longitude} = selectedLocationData.value;
     await onSearchNearbyPoints(latitude, longitude)
@@ -692,6 +694,8 @@ watch(() => selectedLocationData.value, async () => {
 })
 
 watch(() => selectedCollectionUuid.value, async (newCollectionUuid) => {
+  if (!authStore.isLogin) return;
+
   // 监听选中的地图集变化
   if (newCollectionUuid) {
     await loadCollectionPoints(newCollectionUuid);
@@ -733,7 +737,7 @@ onMounted(async () => {
       const isSystemVisible = layerVisibility.value[featureCategory];
       return isSystemVisible ? onCreateMarkerStyle(feature) : null;
     }
-  });
+  } as any);
 
   // 保存矢量图层引用
   vectorLayerRef.value = vectorLayer;
@@ -1327,7 +1331,7 @@ const handleSearch = () => {
 const onToggleLayer = () => {
   if (!vectorLayerRef.value) return;
 
-  vectorLayerRef.value.setStyle((feature) => {
+  vectorLayerRef.value.setStyle((feature: any) => {
     const originalData = feature.get('originalData');
     const featureCategory = originalData?.category;
 
@@ -1359,7 +1363,7 @@ const onToggleAllLayers = () => {
 
   allLayersVisible.value = newVisibility;
 
-  vectorLayerRef.value.setStyle((feature) => {
+  vectorLayerRef.value.setStyle((feature: any) => {
     const originalData = feature.get('originalData');
     const featureCategory = originalData?.category;
 

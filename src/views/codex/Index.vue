@@ -24,7 +24,7 @@ let isDetailPage = computed(() => [
   'TreasureMapDetail',
   'MapLocationDetail',
   'NpcDetail',
-].includes(route.name))
+].includes(route.name as string))
 </script>
 
 <template>

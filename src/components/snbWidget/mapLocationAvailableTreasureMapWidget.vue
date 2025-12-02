@@ -5,6 +5,7 @@ import {Item} from "glow-prow-data/src/entity/Items.ts";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import TreasureMapIconWidget from "@/components/snbWidget/treasureMapIconWidget.vue";
 import EmptyView from "@/components/EmptyView.vue";
+import HorizontalScrollList from "@/components/HorizontalScrollList.vue";
 
 const props = defineProps<{ id: string }>(),
     treasureMaps = computed(() =>
@@ -14,16 +15,19 @@ const props = defineProps<{ id: string }>(),
 </script>
 
 <template>
-  <div class="d-inline-flex ga-4" v-if="treasureMaps && treasureMaps.length > 0">
-    <template v-for="(i, index) in treasureMaps" :key="index">
-      <v-card class="bg-transparent" width="100%" variant="text" :class="{'ml-5': index == 0, 'mr-5': index == treasureMaps.length - 1}">
-        <ItemSlotBase size="120px" :padding="0">
-          <TreasureMapIconWidget :id="i.id"></TreasureMapIconWidget>
-        </ItemSlotBase>
-      </v-card>
-    </template>
-  </div>
-  <EmptyView v-else></EmptyView>
+  <HorizontalScrollList btn-size="30" :is-indicator="false">
+    <div class="d-inline-flex ga-4" v-if="treasureMaps && treasureMaps.length > 0">
+      <template v-for="(i, index) in treasureMaps" :key="index">
+        <v-card class="bg-transparent" width="100%" variant="text" :class="{'ml-5': index == 0, 'mr-5': index == treasureMaps.length - 1}">
+          <ItemSlotBase size="120px" :padding="0">
+            <TreasureMapIconWidget :id="i.id"></TreasureMapIconWidget>
+          </ItemSlotBase>
+        </v-card>
+      </template>
+    </div>
+
+    <EmptyView v-else></EmptyView>
+  </HorizontalScrollList>
 </template>
 
 <style scoped lang="less">
