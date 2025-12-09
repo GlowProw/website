@@ -79,8 +79,8 @@ const onCodexHistory = () => {
             </p>
 
             <div class="mt-5 d-flex ga-2">
-              <v-chip class="badge-flavor text-center tag-badge text-black" v-if="mapLocationDetailData.effectType">
-                {{ mapLocationDetailData.effectType }}
+              <v-chip class="badge-flavor text-center tag-badge text-black" v-if="mapLocationDetailData.category">
+                {{ mapLocationDetailData.category }}
               </v-chip>
             </div>
           </v-col>

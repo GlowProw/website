@@ -83,7 +83,6 @@ const zoomViewStyle = computed(() => {
   }
 })
 
-// 事件监听器管理
 let observer: MutationObserver | null = null
 
 watch(() => props.scale, () => {
@@ -92,13 +91,14 @@ watch(() => props.scale, () => {
   }
 })
 
-// 监听鼠标位置变化 - 使用防抖
+// 监听鼠标位置变化
 watch([mouseX, mouseY], () => {
   if (isActive.value) {
     // 使用 requestAnimationFrame 避免频繁更新
     if (rafId) {
       cancelAnimationFrame(rafId)
     }
+    // 防抖
     rafId = requestAnimationFrame(() => {
       updateZoomViewPosition()
     })
@@ -220,6 +220,9 @@ const handleMouseEnter = () => {
   initZoomView()
 }
 
+/**
+ * 鼠标结束处理
+ */
 const handleMouseLeave = () => {
   isActive.value = false
   emit('zoomEnd')
@@ -230,6 +233,10 @@ const handleMouseLeave = () => {
   }
 }
 
+/**
+ * 触摸移动处理
+ * @param e
+ */
 const handleMouseMove = (e: MouseEvent) => {
   if (!containerRef.value || !containerRect.value) return
 
@@ -251,6 +258,9 @@ const handleTouchStart = (e: TouchEvent) => {
   handleTouchMove(e)
 }
 
+/**
+ * 触摸结束处理
+ */
 const handleTouchEnd = () => {
   isActive.value = false
   emit('zoomEnd')
@@ -261,6 +271,10 @@ const handleTouchEnd = () => {
   }
 }
 
+/**
+ * 触摸移动处理
+ * @param e
+ */
 const handleTouchMove = (e: TouchEvent) => {
   if (!containerRef.value || !containerRect.value || !isActive.value) return
 
@@ -297,18 +311,18 @@ const handleResize = () => {
       <div
           ref="lensRef"
           class="magnifier-lens"
-          :style="lensStyle"
-      ></div>
+          :style="lensStyle"></div>
 
       <slot></slot>
     </div>
 
-    <!-- 放大视图窗口 -->
+    <!-- 放大视图窗口 S -->
     <div
         ref="zoomViewRef"
         class="magnifier-zoom-view"
         :style="zoomViewStyle">
     </div>
+    <!-- 放大视图窗口 E -->
   </div>
 </template>
 
@@ -346,20 +360,7 @@ const handleResize = () => {
   background: hsl(from var(--main-color) h s l / .1);
   pointer-events: none;
   z-index: 10;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(1px);
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 2px;
-    height: 2px;
-    background: var(--main-color);
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-  }
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 .magnifier-zoom-view {
