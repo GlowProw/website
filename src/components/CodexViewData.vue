@@ -77,6 +77,8 @@ let data: any = ref([]),
     filterData = ref({
       keyValue: '',
       sets: [],
+      locations: [],
+      locationTags: [],
       setTags: [],
       types: [],
       typeTags: [],
@@ -139,6 +141,13 @@ let data: any = ref([]),
         text: asString([`snb.seasons.${season}`], {backRawKey: false, variable: season})
       }))
     ]),
+    // 地点筛选器可选选项
+    locationFilterAvailableOptions = computed(() => [
+      ...filterData.value.locationTags.map(location => ({
+        value: location,
+        text: asString([`snb.mapLocations.${location}.name`], {backRawKey: false, variable: location})
+      }))
+    ]),
     // set筛选器可选选项
     setFilterAvailableOptions = computed(() => [
       ...filterData.value.setTags.map(set => ({
@@ -154,6 +163,7 @@ let data: any = ref([]),
           filterData.value.tiers.length > 0 ||
           filterData.value.seasons.length > 0 ||
           filterData.value.sets.length > 0 ||
+          filterData.value.locations.length > 0 ||
           filterData.value.sortField !== 'dateAdded' ||
           filterData.value.sortOrder !== 'desc' ||
           filterData.value.keyValue !== '' ||
@@ -179,42 +189,32 @@ const onProcessedData = computed(() => {
       let filterTiers = filterData.value.tiers;
       let filterSeasons = filterData.value.seasons;
       let filterSets = filterData.value.sets;
+      let filterLocations = filterData.value.locations;
 
       const filteredData = d.filter(i => {
         // 检查关键词匹配
         const nameMatch = asString([
           i.id,
-
           `snb.ships.${i.id}.name`,
           `snb.ships.${sanitizeString(i.id).cleaned}.name`,
-
           `snb.items.${i.id}.name`,
           `snb.items.${sanitizeString(i.id).cleaned}.name`,
-
           `snb.commodities.${i.id}.name`,
           `snb.commodities.${sanitizeString(i.id).cleaned}.name`,
-
           `snb.materials.${i.id}.name`,
           `snb.materials.${sanitizeString(i.id).cleaned}.name`,
-
           `snb.ultimates.${i.id}.name`,
           `snb.ultimates.${sanitizeString(i.id).cleaned}.name`,
-
           `snb.cosmetics.${i.id}.name`,
           `snb.cosmetics.${sanitizeString(i.id).cleaned}.name`,
-
           `snb.modifications.${i.id}.name`,
           `snb.modifications.${sanitizeString(i.id).cleaned}.name`,
-
           `snb.treasureMaps.${i.id}.name`,
           `snb.treasureMaps.${sanitizeString(i.id).cleaned}.name`,
-
           `snb.mapLocations.${i.id}.name`,
           `snb.mapLocations.${sanitizeString(i.id).cleaned}.name`,
-
           `snb.npcs.${i.id}.name`,
           `snb.npcs.${sanitizeString(i.id).cleaned}.name`,
-
           `snb.sets.${i.id}`,
         ], {
           backRawKey: true
@@ -222,20 +222,53 @@ const onProcessedData = computed(() => {
 
         const idMatch = i.id.toLowerCase().indexOf(searchValue) >= 0;
 
-        // 检查类型、类别、稀有度和tier匹配
-        const typeMatch = filterItemTypes.length === 0 || filterItemTypes.includes(i.type)
-        const categoryMatch = filterItemCategorys.length === 0 || filterItemCategorys.includes(i.category);
-        const rarityMatch = filterRarities.length === 0 || filterRarities.includes(i.rarity);
-        const tierMatch = filterTiers.length === 0 || (i.tier && filterTiers.includes(i.tier.toString()));
-        const setMatch = filterSets.length === 0 || (i.set && filterSets.includes(i.set.id));
+        // 检查类型匹配
+        const typeMatch = filterItemTypes.length === 0 ||
+            (i.type && filterItemTypes.includes(i.type)) ||
+            (!i.type && filterItemTypes.includes('none'));
+
+        // 检查类别匹配
+        const categoryMatch = filterItemCategorys.length === 0 ||
+            (i.category && filterItemCategorys.includes(i.category)) ||
+            (!i.category && filterItemCategorys.includes('none'));
+
+        // 检查稀有度匹配
+        const rarityMatch = filterRarities.length === 0 ||
+            (i.rarity && filterRarities.includes(i.rarity)) ||
+            (!i.rarity && filterRarities.includes('none'));
+
+        // 检查tier匹配
+        const tierMatch = filterTiers.length === 0 ||
+            (i.tier && filterTiers.includes(i.tier.toString())) ||
+            (!i.tier && filterTiers.includes('none'));
+
+        // 检查Set匹配
+        const setMatch = filterSets.length === 0 ||
+            (i.set && i.set.id && filterSets.includes(i.set.id));
+
+        // 检查地点匹配 - 修正逻辑
+        const locationMatch = filterLocations.length === 0 ||
+            (i.obtainable && Array.isArray(i.obtainable) &&
+                i.obtainable.some(location => filterLocations.includes(location)));
 
         // 检查赛季匹配
-        const seasonMatch = filterSeasons.length === 0 ||
-            (i.bySeason && filterSeasons.includes(i.bySeason.id)) ||
-            (i.seasons && i.seasons.some((s: string) => filterSeasons.includes(s)));
+        let seasonMatch = true;
+        if (filterSeasons.length > 0) {
+          seasonMatch = false;
+          if (i.bySeason && filterSeasons.includes(i.bySeason.id)) {
+            seasonMatch = true;
+          } else if (i.seasons && Array.isArray(i.seasons) &&
+              i.seasons.some((s: string) => filterSeasons.includes(s))) {
+            seasonMatch = true;
+          }
+        }
 
-        // 返回同时满足关键词、类型、稀有度、tier和赛季条件的项目
-        return (nameMatch || idMatch) && typeMatch && categoryMatch && rarityMatch && tierMatch && seasonMatch && setMatch;
+        // 关键词匹配是基础条件，其他筛选条件可选
+        const keywordMatch = nameMatch || idMatch;
+
+        // 返回匹配结果
+        return keywordMatch && typeMatch && categoryMatch && rarityMatch &&
+            tierMatch && seasonMatch && setMatch && locationMatch;
       });
 
       // 排序
@@ -317,17 +350,27 @@ const onProcessedData = computed(() => {
     isTier = computed(() => filterData.value.tiers.length > 0),
     isSeason = computed(() => filterData.value.seasons.length > 0),
     isSet = computed(() => filterData.value.sets.length > 0),
+    isLocation = computed(() => filterData.value.locations.length > 0),
 
+    isFilterLocation = computed(() => props.loadDataType == 'treasureMaps'),
     isFilterSet = computed(() => props.loadDataType == 'cosmetic'),
 
     // 否应该显示无限滚动
-    isShouldShowInfiniteScroll = computed(() => !isSearching.value && !isType.value && !isCategory.value && !isRarity.value && !isTier.value && !isSeason.value && !isSet.value)
+    isShouldShowInfiniteScroll = computed(() =>
+        !isSearching.value &&
+        !isType.value &&
+        !isCategory.value &&
+        !isRarity.value &&
+        !isTier.value &&
+        !isSeason.value &&
+        !isSet.value &&
+        !isLocation.value
+    );
 
-// 监听路由变化，同步query到筛选条件
 watch(() => route.query, (newQuery) => {
   if (newQuery.key) {
-    filterData.value.inputWidgetKeyValue = newQuery.key;
-    filterData.value.keyValue = newQuery.key;
+    filterData.value.inputWidgetKeyValue = newQuery.key as string;
+    filterData.value.keyValue = newQuery.key as string;
   }
   if (newQuery.type) {
     filterData.value.types = Array.isArray(newQuery.type) ? newQuery.type : newQuery.type.split(',');
@@ -343,6 +386,9 @@ watch(() => route.query, (newQuery) => {
   }
   if (newQuery.season) {
     filterData.value.seasons = Array.isArray(newQuery.season) ? newQuery.season : newQuery.season.split(',');
+  }
+  if (newQuery.location) {
+    filterData.value.locations = Array.isArray(newQuery.location) ? newQuery.location : newQuery.location.split(',');
   }
   if (newQuery.set) {
     filterData.value.sets = Array.isArray(newQuery.set) ? newQuery.set : newQuery.set.split(',');
@@ -362,6 +408,7 @@ onMounted(() => {
   onInitTierLoad()
   onInitSeasonLoad()
   onInitSetLoad()
+  onInitLocationLoad()
 })
 
 /**
@@ -429,6 +476,26 @@ const onInitSetLoad = () => {
 }
 
 /**
+ * 初始筛选可选地点选项
+ */
+const onInitLocationLoad = () => {
+  let d = originalData.value
+  const allLocation = new Set<string>();
+
+  d.forEach(i => {
+    if (i.obtainable && Array.isArray(i.obtainable)) {
+      i.obtainable.forEach(location => {
+        if (location && typeof location === 'string') {
+          allLocation.add(location);
+        }
+      });
+    }
+  });
+
+  filterData.value.locationTags = [...allLocation].sort();
+}
+
+/**
  * 更新URL查询参数
  */
 const updateQueryParams = () => {
@@ -450,6 +517,9 @@ const updateQueryParams = () => {
   }
   if (filterData.value.seasons.length > 0) {
     query.season = filterData.value.seasons.join(',');
+  }
+  if (filterData.value.locations.length > 0) {
+    query.location = filterData.value.locations.join(',');
   }
   if (filterData.value.sets.length > 0) {
     query.set = filterData.value.sets.join(',');
@@ -475,6 +545,7 @@ const resetAllFilters = () => {
   filterData.value.rarities = [];
   filterData.value.tiers = [];
   filterData.value.seasons = [];
+  filterData.value.locations = [];
   filterData.value.sets = [];
   filterData.value.sortField = 'dateAdded';
   filterData.value.sortOrder = 'desc';
@@ -495,7 +566,9 @@ const resetAllFilters = () => {
  */
 const onLoad = ({done}) => {
   // 如果正在搜索或筛选类型、类别、稀有度、tier或赛季，直接返回空
-  if (isSearching.value || isType.value || isCategory.value || isRarity.value || isTier.value || isSeason.value || isSet.value) {
+  if (isSearching.value || isType.value || isCategory.value ||
+      isRarity.value || isTier.value || isSeason.value ||
+      isSet.value || isLocation.value) {  // 添加 location 判断
     done('empty')
     return
   }
@@ -615,6 +688,18 @@ const onFilterSet = (value) => {
 }
 
 /**
+ * 过滤地点
+ */
+const onFilterLocation = (value) => {
+  filterData.value.locations = value;
+  updateQueryParams();
+  // 地点筛选时重置分页数据
+  if (value.length > 0) {
+    data.value = []
+  }
+}
+
+/**
  * 排序
  */
 const onSort = (field: SortField, order: SortOrder) => {
@@ -645,6 +730,7 @@ const onSort = (field: SortField, order: SortOrder) => {
       <v-col cols="auto" v-if="slots.action">
         <slot name="action"></slot>
       </v-col>
+      <v-divider vertical v-if="slots.action" inset></v-divider>
       <v-col cols="auto">
         <v-menu open-on-click :close-on-content-click="false">
           <template v-slot:activator="{ props }">
@@ -828,10 +914,52 @@ const onSort = (field: SortField, order: SortOrder) => {
                     hide-details
                     multiple
                     chips
-                    clearable
-                ></v-select>
+                    clearable>
+                  <template v-slot:item="{props, item}">
+                    <v-list-item v-bind="props">
+                      <template v-slot:prepend>
+                        <v-checkbox
+                            class="pa-0 ma-0"
+                            density="compact"
+                            hide-spin-buttons
+                            hide-details
+                            :model-value="filterData.sets.includes(item.value)"
+                            @click.stop
+                        ></v-checkbox>
+                      </template>
+                      <template v-slot:append>
+                        <ItemSlotBase size="30px" :padding="0">
+                          <SetIconWidget :id="item.raw.value" :is-open-detail="false" :is-show-tooltip="false" :is-show-open-detail="false"></SetIconWidget>
+                        </ItemSlotBase>
+                      </template>
+                      <template v-slot:title>
+                        {{ item.title || item.value }}
+                      </template>
+                    </v-list-item>
+                  </template>
+                </v-select>
               </v-col>
 
+              <v-col cols="6" v-if="isFilterLocation">
+                <div class="mb-2">{{ t('codex.filter.byLocation') }} ({{ locationFilterAvailableOptions.length || 0 }})</div>
+                <v-select
+                    variant="filled"
+                    @update:model-value="onFilterLocation"
+                    item-value="value"
+                    item-title="text"
+                    density="comfortable"
+                    v-model="filterData.locations"
+                    :disabled="locationFilterAvailableOptions.length <= 0"
+                    :placeholder="t('codex.filter.byLocation')"
+                    :counter="3"
+                    :eager="true"
+                    :glow="false"
+                    :items="locationFilterAvailableOptions"
+                    hide-details
+                    multiple
+                    chips
+                    clearable></v-select>
+              </v-col>
               <v-col cols="12">
                 <div class="mb-2">{{ t('codex.filter.sortBy') }}</div>
                 <v-row>

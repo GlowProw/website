@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import {useI18n} from "vue-i18n";
-import {onMounted, Ref, ref} from "vue";
+import {computed, onMounted, Ref, ref} from "vue";
 import {TreasureMap, TreasureMaps} from "glow-prow-data";
 import {useRoute, useRouter} from "vue-router";
 import {useAuthStore} from "~/stores/userAccountStore";
@@ -19,14 +19,16 @@ import ImageMagnifyingGlass from "@/components/ImageMagnifyingGlass.vue";
 import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
 import TreasureMapSameArea from "@/components/snbWidget/treasureMapSameArea.vue";
 
-const {t} = useI18n(),
+const {t, tm, te} = useI18n(),
     router = useRouter(),
     route = useRoute(),
     authStore = useAuthStore(),
     maps = TreasureMaps
 
 let mapDetailData: Ref<TreasureMap> = ref({}),
-    rarityColorConfig = rarity.color
+    rarityColorConfig = rarity.color,
+    isTreasureMapDescription = computed(() => te(`snb.treasureMaps.${mapDetailData.value.id}.description`)),
+    isTreasureMapTypeDescription = computed(() => te(`codex.treasureMap.descriptions.${mapDetailData.value.category}`))
 
 onMounted(() => {
   const {id} = route.params
@@ -120,10 +122,18 @@ const onCodexHistory = () => {
         <v-row>
           <v-col cols="12" sm="12" md="8" lg="8" order="2" order-sm="1">
             <v-row>
-              <v-col>
+              <v-col cols="auto">
                 <ItemSlotBase size="130px">
                   <TreasureMapIconWidget :id="mapDetailData.id" :isClickOpenDetail="false" :isShowOpenDetail="false"></TreasureMapIconWidget>
                 </ItemSlotBase>
+              </v-col>
+              <v-col>
+                <template v-if="isTreasureMapDescription">
+                  <p>{{ t(`snb.treasureMaps.${mapDetailData.id}.description`) }}</p>
+                </template>
+                <template v-if="isTreasureMapTypeDescription">
+                  <p class="mt-3">{{ t(`codex.treasureMap.descriptions.${mapDetailData.category}`) }}</p>
+                </template>
               </v-col>
               <v-col cols="12">
                 <ImageMagnifyingGlass

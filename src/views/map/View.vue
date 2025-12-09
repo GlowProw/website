@@ -466,12 +466,12 @@
         <v-row class="map-title px-10 mx-n6 py-2 text-amber-lighten-4" no-gutters>
           {{ t('map.treasureMapAvailable') }}
           <v-spacer></v-spacer>
-          <v-btn icon density="compact" to="/codex/treasureMaps">
+          <v-btn icon density="compact" :to="`/codex/treasureMaps?location=${selectedLocationObtainables}`">
             <v-icon>mdi-dots-vertical</v-icon>
           </v-btn>
         </v-row>
         <div class="mb-5 pt-3">
-          <MapLocationAvailableTreasureMapWidget :id="selectedLocationData.id"></MapLocationAvailableTreasureMapWidget>
+          <MapLocationAvailableTreasureMapWidget ref="mapLocationAvailableTreasureMapWidget" :id="selectedLocationData.id"></MapLocationAvailableTreasureMapWidget>
         </div>
       </template>
 
@@ -608,6 +608,7 @@ const {t} = useI18n(),
 let mapViewRef = ref<HTMLElement | null>(null),
     mapInstance: Ref<Map | null> = ref(null),
     mapCenterLocation: Ref<number[]> = ref([-0.667206, 0.626653]),
+    mapLocationAvailableTreasureMapWidget = ref(null),
     locations: Ref<any[]> = ref(Object.values(MapLocations)),
     icons: Ref<Record<string, string>> = ref({}),
     isFull = ref(false),
@@ -676,6 +677,11 @@ let mapViewRef = ref<HTMLElement | null>(null),
     // 用户可用地图集
     userCollectionsSelect = computed(() => {
       return [{title: t('none'), uuid: null}].concat(userCollections.value as [])
+    }),
+    selectedLocationObtainables = computed(() => {
+      if (!selectedLocationData.value.id && !mapLocationAvailableTreasureMapWidget.value)
+        return [].join(',')
+      return mapLocationAvailableTreasureMapWidget.value?.getObtainables().join(',') || []
     });
 
 watch(() => searchQuery.value, (newValue) => {
@@ -823,8 +829,6 @@ onMounted(async () => {
           query: {
             ...route.query,
             key: originalData.id,
-            x: originalData.longitude,
-            y: originalData.latitude,
             category: 'shareLocation'
           }
         });
@@ -841,8 +845,6 @@ onMounted(async () => {
         query: {
           ...route.query,
           key: selectedLocationData.value.id,
-          x: selectedLocationData.value.longitude,
-          y: selectedLocationData.value.latitude,
           category: selectedLocationData.value.category
         }
       });

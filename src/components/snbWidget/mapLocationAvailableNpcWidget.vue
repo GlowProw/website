@@ -16,11 +16,15 @@ const props = defineProps<{ id: string, category: string }>(),
               return i.location.indexOf(props.id) >= 0 || anyoneOutpost || anyoneDen
             }) || []
     )
+
+defineExpose({
+  npcs
+})
 </script>
 
 <template>
-  <HorizontalScrollList btn-size="30" :is-indicator="false">
-    <div class="d-inline-flex ga-4" v-if="npcs && npcs.length > 0">
+  <HorizontalScrollList btn-size="30" :is-indicator="false" v-if="npcs && npcs.length > 0">
+    <div class="d-inline-flex ga-4">
       <template v-for="(i, index) in npcs" :key="index">
         <v-card class="bg-transparent" width="99" variant="text" :class="{'ml-5': index == 0, 'mr-5': index == npcs.length - 1}">
           <ItemSlotBase size="99px" :padding="0">
@@ -32,8 +36,8 @@ const props = defineProps<{ id: string, category: string }>(),
         </v-card>
       </template>
     </div>
-    <EmptyView v-else></EmptyView>
   </HorizontalScrollList>
+  <EmptyView v-else></EmptyView>
 </template>
 
 <style scoped lang="less">

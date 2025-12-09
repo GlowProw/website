@@ -10,7 +10,6 @@ import {useAssetsStore} from "~/stores/assetsStore";
 import Loading from "../Loading.vue";
 import LightRays from "../LightRays.vue"
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
-import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import {TreasureMap, TreasureMaps} from "glow-prow-data";
 import TreasureMapName from "@/components/snbWidget/treasureMapName.vue";
 
@@ -119,12 +118,12 @@ const {targetElement, isVisible} = useIntersectionObserver({
            :style="`background-color: color-mix(in srgb, hsl(from ${rarityColorConfig[ treasureMaps[i.id]?.rarity || '' ]} h s l) 10%, #000)`">
         <div class="v-skeleton-loader__bone v-skeleton-loader__image opacity-30 position-absolute left-0 top-0 w-100 h-100"></div>
 
-        <h1 class="treasure-card-name font-weight-bold w-66">
+        <h1 class="treasure-card-name card-name font-weight-bold w-66">
           <TreasureMapName :data="i"></TreasureMapName>
         </h1>
-        <p class="mb-1 mt-2">{{ i.id }}</p>
+        <p class="card-id mb-1 mt-2">{{ i.id }}</p>
 
-        <div class="d-flex ga-2 mt-3">
+        <div class="card-chip d-flex ga-2 mt-3">
           <v-chip inline
                   :to="`/codex/treasureMaps?type=${i.type}`"
                   class="badge-flavor text-center text-black" v-if="i.type">{{ t(`codex.types.${i.type}`) }}
@@ -138,7 +137,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
                   v-if="i.rarity">{{ t(`codex.raritys.${i.rarity}`) }}
           </v-chip>
         </div>
-        <div class="right-show-image pointer-events-none position-absolute w-33">
+        <div class="right-show-image pointer-events-none position-absolute w-50">
           <v-img :src="treasureMapsCardData.icon" class="treasure-mirror-image"></v-img>
         </div>
 
@@ -174,7 +173,15 @@ const {targetElement, isVisible} = useIntersectionObserver({
 <style scoped lang="less">
 @import "@/assets/styles/demo-reel";
 
-.treasure-location-card {
+// 覆盖新藏宝图位置
+.right-show-image {
+  transform: scale(1.5) translateX(calc(-50% + 70px)) translateY(calc(20%)) !important;
+  top: 0 !important;
+  right: 0 !important;
+  mask-image: linear-gradient(to right, #00000000 0%, black 80%);
+}
+
+.treasureMap-card {
   &::after {
     content: "";
     position: absolute;
@@ -186,11 +193,11 @@ const {targetElement, isVisible} = useIntersectionObserver({
     border-radius: inherit;
   }
 
-  .treasure-mirror-image {
-    transform: scaleX(1);
+  .material-mirror-image {
+    transform: scaleX(-1);
   }
 
-  .treasure-card-name {
+  .map-location-card-name {
     line-height: 1.2 !important;
   }
 }

@@ -14,6 +14,8 @@ import LikeWidget from "@/components/LikeWidget.vue";
 import {storage} from "@/assets/sripts/index";
 import MapLocationNameWidget from "@/components/snbWidget/mapLocationNameWidget.vue";
 import MapLocationIconWidget from "@/components/snbWidget/mapLocationIconWidget.vue";
+import MapLocationAvailableTreasureMapWidget from "@/components/snbWidget/mapLocationAvailableTreasureMapWidget.vue";
+import MapLocationAvailableNpcWidget from "@/components/snbWidget/mapLocationAvailableNpcWidget.vue";
 
 const {t} = useI18n(),
     router = useRouter(),
@@ -131,6 +133,14 @@ const onCodexHistory = () => {
                     </template>
                   </v-text-field>
                 </template>
+              </v-col>
+              <v-col cols="12" sm="12" lg="12" xl="12">
+                <v-divider>{{ t('map.treasureMapAvailable') }}</v-divider>
+                <MapLocationAvailableTreasureMapWidget :id="mapLocationDetailData.id"></MapLocationAvailableTreasureMapWidget>
+              </v-col>
+              <v-col cols="12" sm="12" lg="12" xl="12">
+                <v-divider>{{ t('map.npcAvailable') }}</v-divider>
+                <MapLocationAvailableNpcWidget :id="mapLocationDetailData.id" :category="mapLocationDetailData.category"></MapLocationAvailableNpcWidget>
               </v-col>
             </v-row>
 

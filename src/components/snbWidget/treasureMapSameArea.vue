@@ -25,9 +25,9 @@ const hasIntersection = (arr1: string[], arr2: string[]): boolean => {
   <div class="mb-10">
     <slot></slot>
   </div>
-  <v-row class="ga-6 mb-2" justify="center">
+  <v-row class="ga-6 mb-2"justify="center">
     <v-card v-for="(i, index) in treasureMaps" :key="index" class="bg-transparent" width="80">
-      <ItemSlotBase size="80px">
+      <ItemSlotBase size="80px" class="mx-auto">
         <TreasureMapIconWidget :id="i.id"></TreasureMapIconWidget>
       </ItemSlotBase>
       <div class="mt-1 text-center">
