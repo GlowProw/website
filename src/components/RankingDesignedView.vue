@@ -167,7 +167,7 @@ defineExpose({
         <v-col class="pl-3">
           <v-row no-gutters>
             <v-col v-for="(j, jIndex) in i.content" :key="jIndex" cols="auto" class="my-3 ml-3">
-              <template v-if="j.category == 'item'">
+              <template v-if="j._typeStringName == 'Item'">
                 <v-card elevation="0" class="bg-transparent" width="90">
                   <ItemSlotBase size="90px">
                     <ItemIconWidget :id="j.id" :is-open-detail="false"></ItemIconWidget>
@@ -179,7 +179,7 @@ defineExpose({
                   </div>
                 </v-card>
               </template>
-              <template v-else-if="j.category == 'material'">
+              <template v-else-if="j._typeStringName == 'Material'">
                 <ItemSlotBase size="90px">
                   <MaterialIconWidget :id="j.id" :is-open-detail="false"></MaterialIconWidget>
                 </ItemSlotBase>
@@ -187,7 +187,7 @@ defineExpose({
                   <MaterialName :id="j.id"></MaterialName>
                 </div>
               </template>
-              <template v-else-if="j.category == 'cosmetic'">
+              <template v-else-if="j._typeStringName == 'Cosmetic'">
                 <ItemSlotBase size="90px">
                   <CosmeticIconWidget :id="j.id" :is-open-detail="false"></CosmeticIconWidget>
                 </ItemSlotBase>
@@ -195,7 +195,7 @@ defineExpose({
                   <CosmeticName :id="j.id"></CosmeticName>
                 </div>
               </template>
-              <template v-else-if="j.category == 'ultimate'">
+              <template v-else-if="j._typeStringName == 'Ultimate'">
                 <ItemSlotBase size="90px">
                   <UltimateIconWidget :id="j.id" :is-open-detail="false"></UltimateIconWidget>
                 </ItemSlotBase>
@@ -203,7 +203,7 @@ defineExpose({
                   <UltimateName :id="j.id"></UltimateName>
                 </div>
               </template>
-              <template v-else-if="j.category == 'modification'">
+              <template v-else-if="j._typeStringName == 'Modification'">
                 <ItemSlotBase size="90px">
                   <ModIconWidget :id="j.id" :is-open-detail="false"></ModIconWidget>
                 </ItemSlotBase>

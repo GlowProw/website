@@ -101,6 +101,15 @@ const {t} = useI18n();
                       {{ t('footer.col3.translated') }}
                     </HtmlLink>
                   </li>
+                  <li>
+                    <HtmlLink
+                        :is-icon="false"
+                        :is-iframe-show="false"
+                        href="https://github.com/GlowProw" target="_blank">
+                      {{ t('footer.col3.github') }}
+                    </HtmlLink>
+                  </li>
+
                 </ul>
               </v-col>
               <v-col cols="12" sm="6" md="6" lg="3">

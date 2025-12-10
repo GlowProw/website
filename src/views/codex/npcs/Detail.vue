@@ -7,12 +7,10 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 
 import {Materials, Npc, Npcs} from "glow-prow-data";
-import PerksWidget from "@/components/snbWidget/perksWidget.vue";
 
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue"
-import ItemDamageTypeWidget from "@/components/snbWidget/itemDamageTypeWidget.vue";
 import {rarity, storage} from "@/assets/sripts";
 import WeaponModificationWidget from "@/components/snbWidget/weaponModificationWidget.vue";
 import CommentWidget from "@/components/CommentWidget.vue";
@@ -24,9 +22,12 @@ import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
 import ObtainableWidget from "@/components/ObtainableWidget.vue";
 import WorldEventWidget from "@/components/WorldEventWidget.vue";
 import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
-import BluePrintWidget from "@/components/BluePrintWidget.vue";
 import NpcName from "@/components/snbWidget/npcName.vue";
 import NpcIconWidget from "@/components/snbWidget/npcIconWidget.vue";
+import ItemName from "@/components/snbWidget/itemName.vue";
+import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
+import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
+import MaterialName from "@/components/snbWidget/materialName.vue";
 
 const
     {t, messages} = useI18n(),
@@ -140,6 +141,7 @@ const onCodexHistory = () => {
 
             <div class="mt-5 d-flex ga-2">
               <v-chip class="badge-flavor text-center tag-badge text-black"
+                      v-if="npcDetailData.type"
                       :to="`/codex/npcs?type=${npcDetailData.type}`">
                 {{ t(`codex.npc.types.${npcDetailData.type}`) || '' }}
               </v-chip>
@@ -198,7 +200,7 @@ const onCodexHistory = () => {
             </v-row>
             <v-divider class="mt-10 mb-6"></v-divider>
 
-            <v-row>
+            <v-row class="mb-3">
               <v-col cols="12" sm="12" lg="6" xl="6">
                 <template v-if="route.query.debug">
                   {{ npcDetailData }}
@@ -213,6 +215,34 @@ const onCodexHistory = () => {
                   </v-text-field>
                 </template>
               </v-col>
+              <v-col cols="12" sm="12" lg="12" xl="12" v-if="npcDetailData.slots?.container">
+                <v-divider>{{ t('codex.item.contentsTitle') }}</v-divider>
+
+                <v-row align="end" justify="center" class="d-flex ga-2 mt-2">
+                  <v-col cols="auto" v-for="(i,index) in npcDetailData.slots?.container?.data" :key="index">
+                    <div class="text-center">
+                      <ItemSlotBase size="50px" :padding="0" class="mx-auto mb-2">
+                        <ItemIconWidget :id="i.id" :padding="1"></ItemIconWidget>
+                      </ItemSlotBase>
+                      <ItemName :data="i"></ItemName>
+                    </div>
+                  </v-col>
+                </v-row>
+              </v-col>
+              <v-col cols="12" sm="12" lg="12" xl="12" v-if="npcDetailData.slots?.worker">
+                <v-divider>{{ t('codex.npc.workerTitle') }}</v-divider>
+
+                <v-row align="end" justify="center" class="d-flex ga-2 mt-2">
+                  <v-col cols="auto" v-for="(i,index) in npcDetailData.slots?.worker?.data" :key="index">
+                    <div class="text-center" v-if="i && i.id">
+                      <ItemSlotBase size="50px" :padding="0" class="mx-auto mb-2">
+                        <MaterialIconWidget :id="i.id" :padding="1"></MaterialIconWidget>
+                      </ItemSlotBase>
+                      <MaterialName :id="i.id"></MaterialName>
+                    </div>
+                  </v-col>
+                </v-row>
+              </v-col>
             </v-row>
 
             <template v-if="npcDetailData.id">
@@ -223,13 +253,10 @@ const onCodexHistory = () => {
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
             <BySeasonWidget :data="npcDetailData"></BySeasonWidget>
 
-            <template v-if="npcDetailData.blueprint">
-              <BluePrintWidget :data="npcDetailData"></BluePrintWidget>
-            </template>
             <template v-if="npcDetailData.worldEvent">
               <WorldEventWidget :data="npcDetailData"></WorldEventWidget>
             </template>
-            <template v-if="npcDetailData.obtainable">
+            <template v-if="npcDetailData.obtainable || npcDetailData.location">
               <ObtainableWidget :data="npcDetailData" byType="item"></ObtainableWidget>
             </template>
             <template v-if="npcDetailData.faction">
@@ -246,32 +273,6 @@ const onCodexHistory = () => {
                 </template>
                 <template v-slot:append-inner>
                   <p class="text-no-wrap">{{ t('codex.item.faction') }}</p>
-                </template>
-              </v-text-field>
-            </template>
-            <template v-if="npcDetailData.requiredRank">
-              <v-text-field readonly
-                            hide-details
-                            variant="underlined" density="compact">
-                <template v-slot:prepend-inner>
-                  <router-link class="singe-line text-no-wrap" :to="`/codex/item/requiredRank/${npcDetailData.requiredRank}`">
-                    {{ requiredRank }}
-                  </router-link>
-                </template>
-                <template v-slot:append-inner>
-                  <p class="text-no-wrap">{{ t('codex.item.requiredRank') }}</p>
-                </template>
-              </v-text-field>
-            </template>
-            <template v-if="npcDetailData.gearScore">
-              <v-text-field :value="npcDetailData.gearScore || 'none'" readonly
-                            hide-details
-                            variant="underlined" density="compact">
-                <template v-slot:append-inner>
-                  <p class="text-no-wrap">{{ t('codex.item.gearScore') }}</p>
-                </template>
-                <template v-slot:prepend>
-                  <img src="@/assets/images/snb/icon-gearScore.png" alt="gear-score" width="25px" height="25px">
                 </template>
               </v-text-field>
             </template>
@@ -322,16 +323,6 @@ const onCodexHistory = () => {
                 <p class="text-no-wrap">{{ t('codex.item.lastUpdated') }}</p>
               </v-col>
             </v-row>
-
-            <template v-if="npcDetailData.id">
-              <p class="mt-5 mb-4 font-weight-bold">{{ t('codex.item.damageType') }}</p>
-              <ItemDamageTypeWidget :data="npcDetailData"></ItemDamageTypeWidget>
-            </template>
-
-            <template v-if="npcDetailData.perks">
-              <p class="mt-5 mb-1 font-weight-bold">{{ t('codex.item.perks') }} ({{ npcDetailData.perks.length || 0 }})</p>
-              <PerksWidget :data="npcDetailData"></PerksWidget>
-            </template>
           </v-col>
         </v-row>
       </v-container>

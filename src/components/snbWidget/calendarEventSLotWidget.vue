@@ -5,6 +5,7 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import {computed} from "vue";
 import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
+import CosmeticIconWidget from "@/components/snbWidget/cosmeticIconWidget.vue";
 
 const props = withDefaults(
         defineProps<{ data: any, currentlySeason: Season, showDropped?: boolean }>(),
@@ -64,7 +65,10 @@ const onCheckI18nValue = (key) => {
               <ItemIconWidget :padding="0" :margin="0" :id="i[0]"></ItemIconWidget>
             </template>
             <template v-else-if="i[1].category == 'material' && !i[1].isUnknown">
-              <MaterialIconWidget :padding="0" :id="i[0]"></MaterialIconWidget>
+              <MaterialIconWidget :padding="0" :margin="0" :id="i[0]"></MaterialIconWidget>
+            </template>
+            <template v-else-if="i[1].category == 'cosmetic' && !i[1].isUnknown">
+              <CosmeticIconWidget :padding="0" :margin="0" :id="i[0]"></CosmeticIconWidget>
             </template>
             <template v-else>
               <v-icon>mdi-help</v-icon>

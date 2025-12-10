@@ -4,14 +4,13 @@ export const useAssetsStore = defineStore('assets', {
     state: () => ({
         commodities: new Map(),
         modifications: new Map(),
+        npcs: new Map(),
         ships: new Map(),
         items: new Map(),
         cosmetics: new Map(),
         materials: new Map(),
         factions: new Map(),
-
         treasureMaps: new Map(),
-
         raritys: new Map(),
     }),
     actions: {
@@ -19,12 +18,13 @@ export const useAssetsStore = defineStore('assets', {
          * 初始
          */
         init(options = {
-            all: true, ship: true, item: true, material: true, faction: true,
+            all: true, npc: true, ship: true, item: true, material: true, faction: true,
             modification: true, cosmetic: true,
             teasureMap: true,
             rarity: true,
         }) {
-
+            if (options.npc || options.all)
+                this.initNpcs()
             if (options.ship || options.all)
                 this.initShips()
             if (options.item || options.all)
@@ -63,6 +63,15 @@ export const useAssetsStore = defineStore('assets', {
             const modificationImages = import.meta.glob('@glow-prow-assets/modifications/*', {eager: true});
 
             this.modifications = this.serializationMap(modificationImages)
+        },
+
+        initNpcs() {
+            if (this.npcs.size != 0)
+                return;
+
+            const npcImages = import.meta.glob('@glow-prow-assets/npcs/*', {eager: true});
+
+            this.npcs = this.serializationMap(npcImages)
         },
 
         initShips() {

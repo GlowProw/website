@@ -121,6 +121,10 @@ const getCurrentSeason = (): Season | null => {
                 </v-row>
               </h1>
               <p class="px-10 py-3 font-weight-light opacity-80">{{ t(`snb.calendar.${currentlySeason?.id}.description`) }}</p>
+
+              <div class="mt-3 mx-10" >
+                <v-btn block to="/calendar/history" size="50" prepend-icon="mdi-calendar-range">{{ t('calendar.title')}}</v-btn>
+              </div>
             </div>
           </v-col>
         </v-row>

@@ -23,7 +23,7 @@ onMounted(() => {
 
 <template>
   <v-container class="pa-5">
-    <CodexViewData :load-data-type="['treasureMaps']">
+    <CodexViewData :load-data-type="['treasureMap']">
       <template v-slot:action>
         <div class="d-flex ga-1">
           <v-btn variant="text" icon to="/map" target="_blank">

@@ -24,7 +24,7 @@ let nameLocations = computed(() => {
 <template>
   {{
     t(`snb.npcs.${id || data?.id}.name`, {
-      location: nameLocationAsLang.join(' ')
+      location: nameLocationAsLang.length > 0 ? `(${nameLocationAsLang.join(' ')})` : ''
     })
   }}
 </template>

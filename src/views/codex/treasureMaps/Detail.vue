@@ -1,23 +1,29 @@
 <script setup lang="ts">
 
 import {useI18n} from "vue-i18n";
-import {computed, onMounted, Ref, ref} from "vue";
+import {computed, onMounted, Ref, ref, watch} from "vue";
 import {TreasureMap, TreasureMaps} from "glow-prow-data";
 import {useRoute, useRouter} from "vue-router";
 import {useAuthStore} from "~/stores/userAccountStore";
+import {rarity, storage} from "@/assets/sripts/index";
+
 import Time from "@/components/Time.vue";
 import TimeView from "@/components/TimeView.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import CommentWidget from "@/components/CommentWidget.vue";
 import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
-import {rarity, storage} from "@/assets/sripts/index";
 import TreasureMapIconWidget from "@/components/snbWidget/treasureMapIconWidget.vue";
 import TreasureMapName from "@/components/snbWidget/treasureMapName.vue";
 import ObtainableWidget from "@/components/ObtainableWidget.vue";
 import ImageMagnifyingGlass from "@/components/ImageMagnifyingGlass.vue";
 import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
 import TreasureMapSameArea from "@/components/snbWidget/treasureMapSameArea.vue";
+import ItemContentWidget from "@/components/snbWidget/itemContentWidget.vue";
+import CosmeticIconWidget from "@/components/snbWidget/cosmeticIconWidget.vue";
+import ItemName from "@/components/snbWidget/itemName.vue";
+import CosmeticName from "@/components/snbWidget/cosmeticName.vue";
+import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 
 const {t, tm, te} = useI18n(),
     router = useRouter(),
@@ -30,14 +36,23 @@ let mapDetailData: Ref<TreasureMap> = ref({}),
     isTreasureMapDescription = computed(() => te(`snb.treasureMaps.${mapDetailData.value.id}.description`)),
     isTreasureMapTypeDescription = computed(() => te(`codex.treasureMap.descriptions.${mapDetailData.value.category}`))
 
+watch(() => route.params, (value) => {
+  if (value)
+    getData()
+})
+
+
 onMounted(() => {
+  getData()
+  onCodexHistory()
+})
+
+const getData = () => {
   const {id} = route.params
 
   if (id)
     mapDetailData.value = maps[id]
-
-  onCodexHistory()
-})
+}
 
 const onCodexHistory = () => {
   const {id} = route.params;

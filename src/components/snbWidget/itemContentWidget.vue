@@ -77,13 +77,13 @@ const filterByObtainable = (items: any[], targetId: string) => {
     <v-row align="end" justify="center" class="d-flex ga-2 mt-2">
       <v-col cols="auto" v-for="(i,index) in contents" :key="index">
         <div class="text-center">
-          <template v-if="i._type == 'item'">
+          <template v-if="i._typeStringName == 'Item'">
             <ItemSlotBase size="50px" :padding="0" class="mx-auto mb-2">
               <ItemIconWidget :id="i.id" :padding="1"></ItemIconWidget>
             </ItemSlotBase>
             <ItemName :data="i"></ItemName>
           </template>
-          <template v-if="i._type == 'cosmetic'">
+          <template v-if="i._typeStringName == 'Cosmetic'">
             <v-badge :offset-y="0" color="#000">
               <template v-slot:badge>
                 <v-icon size="15">mdi-brush-variant</v-icon>
@@ -93,7 +93,7 @@ const filterByObtainable = (items: any[], targetId: string) => {
               </ItemSlotBase>
             </v-badge>
             <div>
-              <CosmeticName :id="i.id" :grade="null"></CosmeticName>
+              <CosmeticName :id="i.id" :grade="i.grade"></CosmeticName>
             </div>
           </template>
         </div>

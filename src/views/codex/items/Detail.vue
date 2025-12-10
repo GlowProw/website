@@ -8,7 +8,7 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 
-import {Materials} from "glow-prow-data";
+import {Materials, Npc} from "glow-prow-data";
 import ItemModificationWidget from "@/components/snbWidget/itemModificationWidget.vue";
 import PerksWidget from "@/components/snbWidget/perksWidget.vue";
 
@@ -296,7 +296,6 @@ const onStarItem = (data: Item) => {
                 </template>
               </v-col>
               <v-col cols="12" sm="12" lg="6" xl="6">
-
                 <template v-if="itemDetailData.projectilesPerShot">
                   <v-text-field :value="itemDetailData.projectilesPerShot" readonly
                                 hide-details

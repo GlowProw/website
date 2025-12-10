@@ -282,7 +282,6 @@ import {useI18n} from "vue-i18n";
 import TreasureMapIconWidget from "@/components/snbWidget/treasureMapIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 
-// ==================== 类型定义 ====================
 interface QueryImageData {
   url: string;
   hash?: string;
@@ -324,13 +323,11 @@ interface ComparingImage {
   index: number;
 }
 
-// ==================== 响应式数据 ====================
 const mockCollectionMap: Record<string, { default: string }> = import.meta.glob('@glow-prow-assets/treasureMaps/**/*.*', { eager: true });
 const treasureMaps = TreasureMaps;
 const { t } = useI18n();
 const { mobile } = useDisplay();
 
-// 状态管理
 const model = ref(false);
 const searched = ref(false);
 const searching = ref(false);
@@ -344,12 +341,10 @@ const imageFeaturesCache = ref<Map<number, any>>(new Map());
 const selectedCategories = ref<string[]>([]);
 const selectedObtainables = ref<string[]>([]);
 
-// 新增：搜索进度相关
 const currentProgress = ref(0);
 const totalImages = ref(0);
 const currentComparingImage = ref<ComparingImage | null>(null);
 
-// 算法配置
 const algorithms: Algorithm[] = [
   { value: 'perceptual-hash', label: '感知哈希 (快速)' },
   { value: 'color-histogram', label: '颜色直方图' },
@@ -357,7 +352,6 @@ const algorithms: Algorithm[] = [
   { value: 'structural-similarity', label: '结构相似性' }
 ];
 
-// ==================== 计算属性 ====================
 const hasActiveFilters = computed(() => {
   return selectedCategories.value.length > 0 || selectedObtainables.value.length > 0;
 });
@@ -411,9 +405,9 @@ const filteredImageList = computed(() => {
   });
 });
 
-// ==================== 生命周期钩子 ====================
 onMounted(() => {
   imageList.value = Object.entries(mockCollectionMap).map(([path, module]) => module.default);
+  console.log(imageList.value )
 });
 
 onUnmounted(() => {
@@ -423,14 +417,12 @@ onUnmounted(() => {
   }
 });
 
-// ==================== 事件监听 ====================
 watch(() => queryImageData.value, (value, oldValue) => {
   if (value && value !== oldValue) {
     searchSimilarImages();
   }
 });
 
-// ==================== 对话框控制方法 ====================
 /**
  * 打开对话框
  */
@@ -459,7 +451,6 @@ const resetSearch = () => {
   currentComparingImage.value = null;
 };
 
-// ==================== 图片处理工具方法 ====================
 /**
  * 从图片URL中提取ID
  */
@@ -494,9 +485,8 @@ const loadImageToImageData = (imageUrl: string): Promise<ImageData> => {
   });
 };
 
-// ==================== 图片上传处理方法 ====================
 /**
- * 处理查询图片上传
+ * 处理查询图片
  */
 const onQueryImageUpload = async (event: Event) => {
   const target = event.target as HTMLInputElement;
@@ -547,7 +537,6 @@ const onQueryImageUpload = async (event: Event) => {
   }
 };
 
-// ==================== 特征缓存和计算方法 ====================
 /**
  * 获取或缓存图片特征
  */
@@ -588,7 +577,6 @@ const calculateSimilarity = (queryData: QueryImageData, features: any): number =
   }
 };
 
-// ==================== 搜索核心方法 ====================
 /**
  * 执行相似图片搜索
  */
@@ -656,7 +644,6 @@ const searchSimilarImages = async () => {
   }
 };
 
-// ==================== 暴露方法 ====================
 /**
  * 外部打开对话框的方法
  */

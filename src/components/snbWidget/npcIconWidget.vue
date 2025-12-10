@@ -20,7 +20,8 @@ const
     {t} = useI18n(),
     {npcs: npcsAssets, raritys: raritysAssets} = useAssetsStore(),
     props = withDefaults(defineProps<{
-      data: Npc,
+      data?: Npc,
+      id?: string,
       isShowOpenDetail?: boolean,
       isOpenDetail?: boolean,
       isShowTooltip?: boolean,
@@ -34,7 +35,14 @@ const
       padding: 0,
       margin: 1
     }),
-    npcs: Npcs = Npcs
+    npcs: Npcs = Npcs,
+    // 同类图标字典
+    npcDictionaries = {
+      "vendor": ['vendor-rempahWarrior', 'vendor-overseasSmuggler'],
+      "trader": ['rempahTrader', 'rogueTrader'],
+      "cache": ['warehouse', 'cache'],
+      "theHelm": ['managerOfLePontMuet', 'helmLiaison']
+    }
 
 let npcsCardData = ref({
       icon: '',
@@ -44,20 +52,35 @@ let npcsCardData = ref({
     // 稀有度
     rarityColorConfig = rarity.color
 
-
 watch(() => props.id, () => {
   onReady()
 })
+
+watch(() => props.data, () => {
+  onReady()
+}, {deep: true})
 
 onMounted(() => {
   onReady()
 })
 
 const onReady = async () => {
-  i.value = npcs[props.data.key] || null
+  i.value = npcs[props?.data?.key || props?.id] || null
 
-  // if (npcsAssets[props.id])
-  //   npcsCardData.value.icon = npcsAssets[props.id] || ''
+  npcsCardData.value.icon = getIconId(i.value?.id) || ''
+}
+
+/**
+ * 获取图标
+ * @param id
+ */
+const getIconId = (id) => {
+  let resultId = npcsAssets[id]
+  Object.entries(npcDictionaries).forEach((value, index, array) => {
+    if (value[1].includes(id))
+      resultId = npcsAssets[value[0]]
+  })
+  return resultId;
 }
 
 const {targetElement, isVisible} = useIntersectionObserver({
@@ -85,12 +108,14 @@ const {targetElement, isVisible} = useIntersectionObserver({
               `ma-${props.margin}`,
               `pa-${props.padding}`,
           ]"
-          :to="isOpenDetail ? `/codex/npc/${i?.key}` : null"
+          :to="isOpenDetail ? `/codex/npc/${i.key}` : ''"
           v-bind="activatorProps"
           width="100%">
         <div class="d-flex align-center justify-center h-100">
           <v-img
               :src="npcsCardData.icon"
+              width="50%"
+              height="50%"
               class="prohibit-drag">
             <template v-slot:error>
               <div class="fill-height repeating-gradient d-flex justify-center align-center h-100">
@@ -118,6 +143,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
 
         <div class="d-flex ga-2 align-center mt-3">
           <v-chip class="badge-flavor text-center tag-badge text-black"
+                  v-if="i.type"
                   :to="`/codex/items?type=${i.type}`">
             {{ t(`codex.npc.types.${i.type}`) || '' }}
           </v-chip>
@@ -178,7 +204,10 @@ const {targetElement, isVisible} = useIntersectionObserver({
   }
 
   .npc-mirror-image {
+    position: absolute;
+    right: 0;
     transform: scaleX(-1);
+    width: 80px;
   }
 
   .npc-location-card-name {

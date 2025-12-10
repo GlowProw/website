@@ -37,7 +37,7 @@ import SetName from "@/components/snbWidget/setName.vue";
 import NpcIconWidget from "@/components/snbWidget/npcIconWidget.vue";
 import NpcName from "@/components/snbWidget/npcName.vue";
 
-type LoadDataType = 'ship' | 'item' | 'commoditie' | 'material' | 'ultimate' | 'cosmetic' | 'modification' | 'set' | 'treasureMaps' | 'mapLocation' | 'npc'
+type LoadDataType = 'ship' | 'item' | 'commoditie' | 'material' | 'ultimate' | 'cosmetic' | 'modification' | 'set' | 'treasureMap' | 'mapLocation' | 'npc'
 type SortField = 'dateAdded' | 'lastUpdated'
 type SortOrder = 'asc' | 'desc'
 
@@ -330,7 +330,7 @@ const onProcessedData = computed(() => {
             d = d.concat(Object.values(sets));
             break;
             // 地图
-          case "treasureMaps":
+          case "treasureMap":
             d = d.concat(Object.values(treasureMaps));
             break;
           case "mapLocation":
@@ -352,7 +352,7 @@ const onProcessedData = computed(() => {
     isSet = computed(() => filterData.value.sets.length > 0),
     isLocation = computed(() => filterData.value.locations.length > 0),
 
-    isFilterLocation = computed(() => props.loadDataType == 'treasureMaps'),
+    isFilterLocation = computed(() => props.loadDataType == 'treasureMap'),
     isFilterSet = computed(() => props.loadDataType == 'cosmetic'),
 
     // 否应该显示无限滚动
@@ -1029,18 +1029,18 @@ const onSort = (field: SortField, order: SortOrder) => {
           <v-card v-for="(i,index) in data" :key="index" :width="size" variant="text">
             <div class="position-relative">
               <ItemSlotBase :size="`${size}px`" class="position-relative">
-                <ShipIconWidget :id="i.id" v-if="loadDataType == 'ship'"></ShipIconWidget>
-                <ItemIconWidget :id="i.id" v-if="loadDataType == 'item'"></ItemIconWidget>
-                <CommoditieIconWidget :id="i.id" v-if="loadDataType == 'commoditie'"></CommoditieIconWidget>
-                <MaterialIconWidget :id="i.id" v-if="loadDataType == 'material'"></MaterialIconWidget>
-                <CosmeticIconWidget :id="i.id" v-if="loadDataType == 'cosmetic'"></CosmeticIconWidget>
-                <SetIconWidget :id="i.id" v-if="loadDataType == 'set'"></SetIconWidget>
-                <UltimateIconWidget :id="i.id" v-if="loadDataType == 'ultimate'"></UltimateIconWidget>
-                <ModIconWidget :id="i.id" v-if="loadDataType == 'modification'"></ModIconWidget>
+                <ShipIconWidget :id="i.id" v-if="i._typeStringName == 'Ship'"></ShipIconWidget>
+                <ItemIconWidget :id="i.id" v-if="i._typeStringName == 'Item'"></ItemIconWidget>
+                <CommoditieIconWidget :id="i.id" v-if="i._typeStringName == 'Commodity'"></CommoditieIconWidget>
+                <MaterialIconWidget :id="i.id" v-if="i._typeStringName == 'Material'"></MaterialIconWidget>
+                <CosmeticIconWidget :id="i.id" v-if="i._typeStringName == 'Cosmetic'"></CosmeticIconWidget>
+                <SetIconWidget :id="i.id" v-if="i._typeStringName == 'Set'"></SetIconWidget>
+                <UltimateIconWidget :id="i.id" v-if="i._typeStringName == 'Ultimate'"></UltimateIconWidget>
+                <ModIconWidget :id="i.id" v-if="i._typeStringName == 'Modification'"></ModIconWidget>
 
-                <TreasureMapIconWidget :id="i.id" v-if="loadDataType == 'treasureMaps'"></TreasureMapIconWidget>
-                <MapLocationIconWidget :id="i.id" v-if="loadDataType == 'mapLocation'"></MapLocationIconWidget>
-                <NpcIconWidget :data="i" v-if="loadDataType == 'npc'"></NpcIconWidget>
+                <TreasureMapIconWidget :id="i.id" v-if="i._typeStringName == 'TreasureMap'"></TreasureMapIconWidget>
+                <MapLocationIconWidget :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationIconWidget>
+                <NpcIconWidget :data="i" v-if="i._typeStringName == 'Npc'"></NpcIconWidget>
               </ItemSlotBase>
 
               <div v-if="i.set && i.set.id && isFilterSet" class="position-absolute subordinate-data">
@@ -1050,22 +1050,22 @@ const onSort = (field: SortField, order: SortOrder) => {
               </div>
             </div>
             <div class="text-center singe-line w-100">
-              <ShipName :id="i.id" v-if="loadDataType == 'ship'"></ShipName>
-              <ItemNameRarity :id="i.id" v-if="loadDataType == 'item'">
+              <ShipName :id="i.id" v-if="i._typeStringName == 'Ship'"></ShipName>
+              <ItemNameRarity :id="i.id" v-if="i._typeStringName == 'Item'">
                 <ItemName :data="i"></ItemName>
               </ItemNameRarity>
-              <CommoditieName :id="i.id" v-if="loadDataType == 'commoditie'"></CommoditieName>
-              <MaterialNameRarity :id="i.id" v-if="loadDataType == 'material'">
+              <CommoditieName :id="i.id" v-if="i._typeStringName == 'Commodity'"></CommoditieName>
+              <MaterialNameRarity :id="i.id" v-if="i._typeStringName == 'Material'">
                 <MaterialName :id="i.id"></MaterialName>
               </MaterialNameRarity>
-              <CosmeticName :id="i.id" v-if="loadDataType == 'cosmetic'"></CosmeticName>
-              <SetName :id="i.id" v-if="loadDataType == 'set'"></SetName>
-              <UltimateName :id="i.id" v-if="loadDataType == 'ultimate'"></UltimateName>
-              <ModName :id="i.id" v-if="loadDataType == 'modification'" :grade="i.grade"></ModName>
+              <CosmeticName :id="i.id" v-if="i._typeStringName == 'Cosmetic'"></CosmeticName>
+              <SetName :id="i.id" v-if="i._typeStringName == 'Set'"></SetName>
+              <UltimateName :id="i.id" v-if="i._typeStringName == 'Ultimate'"></UltimateName>
+              <ModName :id="i.id" v-if="i._typeStringName == 'Modification'" :grade="i.grade"></ModName>
 
-              <TreasureMapName :data="i" v-if="loadDataType == 'treasureMaps'"></TreasureMapName>
-              <MapLocationNameWidget :id="i.id" v-if="loadDataType == 'mapLocation'"></MapLocationNameWidget>
-              <NpcName :data="i" v-if="loadDataType == 'npc'"></NpcName>
+              <TreasureMapName :data="i" v-if="i._typeStringName == 'TreasureMap'"></TreasureMapName>
+              <MapLocationNameWidget :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationNameWidget>
+              <NpcName :data="i" v-if="i._typeStringName == 'Npc'"></NpcName>
             </div>
           </v-card>
         </v-row>
@@ -1076,18 +1076,18 @@ const onSort = (field: SortField, order: SortOrder) => {
           <v-card v-for="(i,index) in onProcessedData" :key="index" :width="size" variant="text">
             <div class="position-relative">
               <ItemSlotBase :size="`${size}px`" class="position-relative">
-                <ShipIconWidget :id="i.id" v-if="loadDataType == 'ship'"></ShipIconWidget>
-                <ItemIconWidget :id="i.id" v-if="loadDataType == 'item'"></ItemIconWidget>
-                <CommoditieIconWidget :id="i.id" v-if="loadDataType == 'commoditie'"></CommoditieIconWidget>
-                <MaterialIconWidget :id="i.id" v-if="loadDataType == 'material'"></MaterialIconWidget>
-                <CosmeticIconWidget :id="i.id" v-if="loadDataType == 'cosmetic'"></CosmeticIconWidget>
-                <SetIconWidget :id="i.id" v-if="loadDataType == 'set'"></SetIconWidget>
-                <UltimateIconWidget :id="i.id" v-if="loadDataType == 'ultimate'"></UltimateIconWidget>
-                <ModIconWidget :id="i.id" v-if="loadDataType == 'modification'"></ModIconWidget>
+                <ShipIconWidget :id="i.id" v-if="i._typeStringName == 'Ship'"></ShipIconWidget>
+                <ItemIconWidget :id="i.id" v-if="i._typeStringName == 'Item'"></ItemIconWidget>
+                <CommoditieIconWidget :id="i.id" v-if="i._typeStringName == 'Commodity'"></CommoditieIconWidget>
+                <MaterialIconWidget :id="i.id" v-if="i._typeStringName == 'Material'"></MaterialIconWidget>
+                <CosmeticIconWidget :id="i.id" v-if="i._typeStringName == 'Cosmetic'"></CosmeticIconWidget>
+                <SetIconWidget :id="i.id" v-if="i._typeStringName == 'Set'"></SetIconWidget>
+                <UltimateIconWidget :id="i.id" v-if="i._typeStringName == 'Ultimate'"></UltimateIconWidget>
+                <ModIconWidget :id="i.id" v-if="i._typeStringName == 'Modification'"></ModIconWidget>
 
-                <TreasureMapIconWidget :id="i.id" v-if="loadDataType == 'treasureMaps'"></TreasureMapIconWidget>
-                <MapLocationIconWidget :id="i.id" v-if="loadDataType == 'mapLocation'"></MapLocationIconWidget>
-                <NpcIconWidget :data="i" v-if="loadDataType == 'npc'"></NpcIconWidget>
+                <TreasureMapIconWidget :id="i.id" v-if="i._typeStringName == 'TreasureMap'"></TreasureMapIconWidget>
+                <MapLocationIconWidget :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationIconWidget>
+                <NpcIconWidget :data="i" v-if="i._typeStringName == 'Npc'"></NpcIconWidget>
               </ItemSlotBase>
 
               <div v-if="i.set && i.set.id && isFilterSet" class="position-absolute subordinate-data">
@@ -1097,22 +1097,22 @@ const onSort = (field: SortField, order: SortOrder) => {
               </div>
             </div>
             <div class="text-center singe-line w-100">
-              <ShipName :id="i.id" v-if="loadDataType == 'ship'"></ShipName>
-              <ItemNameRarity :id="i.id" v-if="loadDataType == 'item'">
+              <ShipName :id="i.id" v-if="i._typeStringName == 'Ship'"></ShipName>
+              <ItemNameRarity :id="i.id" v-if="i._typeStringName == 'Item'">
                 <ItemName :data="i"></ItemName>
               </ItemNameRarity>
-              <CommoditieName :id="i.id" v-if="loadDataType == 'commoditie'"></CommoditieName>
-              <MaterialNameRarity :id="i.id" v-if="loadDataType == 'material'">
+              <CommoditieName :id="i.id" v-if="i._typeStringName == 'Commodity'"></CommoditieName>
+              <MaterialNameRarity :id="i.id" v-if="i._typeStringName == 'Material'">
                 <MaterialName :id="i.id"></MaterialName>
               </MaterialNameRarity>
-              <CosmeticName :id="i.id" v-if="loadDataType == 'cosmetic'"></CosmeticName>
-              <SetName :id="i.id" v-if="loadDataType == 'set'"></SetName>
-              <UltimateName :id="i.id" v-if="loadDataType == 'ultimate'"></UltimateName>
-              <ModName :id="i.id" v-if="loadDataType == 'modification'" :grade="i.grade"></ModName>
+              <CosmeticName :id="i.id" v-if="i._typeStringName == 'Cosmetic'"></CosmeticName>
+              <SetName :id="i.id" v-if="i._typeStringName == 'Set'"></SetName>
+              <UltimateName :id="i.id" v-if="i._typeStringName == 'Ultimate'"></UltimateName>
+              <ModName :id="i.id" v-if="i._typeStringName == 'Modification'" :grade="i.grade"></ModName>
 
-              <TreasureMapName :data="i" v-if="loadDataType == 'treasureMaps'"></TreasureMapName>
-              <MapLocationNameWidget :id="i.id" v-if="loadDataType == 'mapLocation'"></MapLocationNameWidget>
-              <NpcName :data="i" v-if="loadDataType == 'npc'"></NpcName>
+              <TreasureMapName :data="i" v-if="i._typeStringName == 'TreasureMap'"></TreasureMapName>
+              <MapLocationNameWidget :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationNameWidget>
+              <NpcName :data="i" v-if="i._typeStringName == 'Npc'"></NpcName>
             </div>
           </v-card>
         </v-row>

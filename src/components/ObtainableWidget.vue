@@ -2,7 +2,7 @@
 
 import ItemName from "@/components/snbWidget/itemName.vue";
 import {computed} from "vue";
-import {Cosmetic, Cosmetics, Item, Items, Material} from "glow-prow-data";
+import {Cosmetic, Cosmetics, Item, Items, Material, Npc} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 import EmptyView from "@/components/EmptyView.vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
@@ -34,11 +34,11 @@ let obtainable = computed(() => {
  * 处理数据
  * @param d
  */
-const filterByObtainable = (d: Item | Material | Cosmetic | null | undefined): ObtainableLink[] => {
+const filterByObtainable = (d: Item | Material | Cosmetic | Npc | null | undefined): ObtainableLink[] => {
   // 返回检查
   if (!d?.id) return [];
 
-  const {obtainable} = d;
+  const obtainable = d.obtainable || d.location;
 
   // 处理字符串类型的 obtainable
   if (typeof obtainable === 'string') {
