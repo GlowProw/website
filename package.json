@@ -26,9 +26,13 @@
     "@tiptap/starter-kit": "^3.0.7",
     "@tiptap/vue-3": "^3.0.7",
     "@unhead/vue": "^2.0.14",
+    "@zumer/snapdom": "^2.0.0-dev.4",
     "axios": "^1.10.0",
     "d3": "^7.9.0",
     "flexsearch": "^0.8.212",
+    "glow-prow-assets": "github:GlowProw/glow-prow-assets",
+    "glow-prow-data": "github:GlowProw/glow-prow-data",
+    "glow-prow-data-languages": "github:GlowProw/glow-prow-data-languages",
     "less": "^4.4.0",
     "markdown-it": "^14.1.0",
     "ogl": "^1.0.11",
@@ -44,10 +48,7 @@
     "vue-i18n": "^9.14.5",
     "vue-json-pretty": "^2.5.0",
     "vue-router": "^4.5.1",
-    "vuetify": "^3.8.1",
-    "glow-prow-data": "github:GlowProw/glow-prow-data",
-    "glow-prow-assets": "github:GlowProw/glow-prow-assets",
-    "glow-prow-data-languages": "github:GlowProw/glow-prow-data-languages"
+    "vuetify": "^3.8.1"
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.0",
