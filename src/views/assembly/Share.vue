@@ -3,18 +3,16 @@ import {computed, nextTick, onMounted, ref, watch} from "vue";
 import {api, http} from "@/assets/sripts/index";
 import {useGoTo} from "vuetify";
 import {snapdom} from '@zumer/snapdom';
-
-
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
-import QRCode from "qrcode"
-
+import {useDisplay} from "vuetify/framework";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useNoticeStore} from "~/stores/noticeStore";
+import QRCode from "qrcode"
+
 import AssemblyWidget from "@/components/AssemblyWidget.vue";
 import Loading from "@/components/Loading.vue";
 import Textarea from "@/components/textarea"
-import {useDisplay} from "vuetify/framework";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import Logo from "@/components/Logo.vue";
 import AssemblySvgIcon from "@/components/AssemblySvgIcon.vue";
@@ -23,7 +21,6 @@ import Silk from "@/components/Silk.vue";
 const route = useRoute(),
     router = useRouter(),
     noticeStore = useNoticeStore(),
-    goto = useGoTo(),
     {asString} = useI18nUtils(),
     {t} = useI18n(),
     {mobile} = useDisplay()

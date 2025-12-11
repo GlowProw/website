@@ -16,8 +16,8 @@ export default defineConfig({
     ],
     optimizeDeps: {
         exclude: [
-            'glow-prow-assets', 'glow-prow-data',
-            'vuetify', "fsevents", "file-type"
+            "glow-prow-assets", "glow-prow-data",
+            "vuetify", "fsevents", "file-type", "'@zumer/snapdom'"
         ],
     },
     define: {'process.env': {}},
