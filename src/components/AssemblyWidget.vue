@@ -4,7 +4,7 @@ import {computed, reactive, Ref, ref, toRaw, useAttrs, useSlots, watch} from "vu
 import {useRoute} from "vue-router";
 
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
-import {AssemblyAttr, ItemAssemblySave} from "@/assets/types";
+import {AssemblyAttr} from "@/assets/types";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {number} from "@/assets/sripts/index"
 import {Ships, Ultimates} from "glow-prow-data";
@@ -30,10 +30,12 @@ import WeaponModificationOnlyShowWidget from "@/components/snbWidget/weaponModif
 const poops = withDefaults(defineProps<{
       readonly?: boolean,
       isFullName?: boolean,
+      isShowEmpty?: boolean,
       perfectDisplay?: boolean,
       class?: string,
     }>(), {
       readonly: false,
+      isShowEmpty: true,
       perfectDisplay: false,
       class: ''
     }),
@@ -556,63 +558,60 @@ defineExpose({
                   {{ workshopData.data.displaySlots || [] }}
                 </template>
 
-                <v-row v-for="(display, displayIndex) in workshopData.data.displaySlots"
-                       :key="displayIndex">
-                  <v-col cols="auto">
-                    <v-card class="bg-transparent text-center pt-1" min-height="40" min-width="30">
-                      <span class="text-amber-lighten-5">{{ number.intToRoman(displayIndex + 1) }}</span>
-                      <template v-slot:image>
-                        <v-icon icon="mdi-table-furniture" class="opacity-20" size="30"></v-icon>
-                      </template>
-                    </v-card>
-                  </v-col>
-                  <v-col>
-                    <div>
-                      <ItemSlotBase size="80px" class="pa-2"
-                                    v-if="!readonly && workshopData.data.displaySlots[displayIndex] && workshopData.data.displaySlots[displayIndex].id == null">
-                        <v-card class="w-100 d-flex align-center justify-center"
-                                :disabled="readonly"
-                                @click="workshopData.displayModel = true;workshopData.displayInsertIndex = displayIndex">
-                          <v-icon icon="mdi-plus"></v-icon>
-                        </v-card>
-                      </ItemSlotBase>
-                      <ItemSlotBase size="80px" v-else-if="readonly && workshopData.data.displaySlots[displayIndex] && workshopData.data.displaySlots[displayIndex].id == null">
-                        <v-card class="w-100 d-flex align-center justify-center">
-                          <v-icon icon="mdi-block-helper" class="opacity-30" size="20"></v-icon>
-                        </v-card>
-                      </ItemSlotBase>
+                <v-row
+                    v-for="(display, displayIndex) in workshopData.data.displaySlots"
+                    :key="displayIndex">
 
-                      <v-hover v-slot="{ isHovering, props : propsHoverClose }">
-                        <v-card v-bind="propsHoverClose" max-width="80">
-                          <ItemSlotBase size="80px" class="pa-1" v-if="display && display.id">
-                            <ItemIconWidget :id="display.id" :is-open-detail="false" :is-show-tooltip="readonly"></ItemIconWidget>
-                          </ItemSlotBase>
-                          <div class="text-center text-caption text-grey w-100" :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName && display && display.id">
-                            <ItemName :data="display"></ItemName>
-                          </div>
+                  <template v-if="isShowEmpty || workshopData.data.displaySlots[displayIndex] && workshopData.data.displaySlots[displayIndex]?.id != null">
+                    <v-col cols="auto">
+                      <v-card class="bg-transparent text-center pt-1" min-height="40" min-width="30">
+                        <span class="text-amber-lighten-5">{{ number.intToRoman(displayIndex + 1) }}</span>
+                        <template v-slot:image>
+                          <v-icon icon="mdi-table-furniture" class="opacity-20" size="30"></v-icon>
+                        </template>
+                      </v-card>
+                    </v-col>
+                    <v-col>
+                      <div>
+                        <ItemSlotBase size="80px" class="pa-2"
+                                      v-if="!readonly && workshopData.data.displaySlots[displayIndex] && workshopData.data.displaySlots[displayIndex].id == null">
+                          <v-card class="w-100 d-flex align-center justify-center"
+                                  :disabled="readonly"
+                                  @click="workshopData.displayModel = true;workshopData.displayInsertIndex = displayIndex">
+                            <v-icon icon="mdi-plus"></v-icon>
+                          </v-card>
+                        </ItemSlotBase>
+                        <ItemSlotBase size="80px" v-else-if="readonly && isShowEmpty && workshopData.data.displaySlots[displayIndex] && workshopData.data.displaySlots[displayIndex].id == null">
+                          <v-card class="w-100 d-flex align-center justify-center">
+                            <v-icon icon="mdi-block-helper" class="opacity-30" size="20"></v-icon>
+                          </v-card>
+                        </ItemSlotBase>
 
-                          <v-overlay
-                              v-if="!readonly"
-                              :model-value="!!isHovering"
-                              class="align-center justify-center"
-                              scrim="#000"
-                              @click="onSlotRemove('display', displayIndex)"
-                              contained>
-                            <v-icon icon="mdi-delete" color="red" size="40"></v-icon>
-                          </v-overlay>
-                        </v-card>
-                      </v-hover>
-                    </div>
-                  </v-col>
+                        <v-hover v-slot="{ isHovering, props : propsHoverClose }">
+                          <v-card v-bind="propsHoverClose" max-width="80">
+                            <ItemSlotBase size="80px" class="pa-1" v-if="display && display.id">
+                              <ItemIconWidget :id="display.id" :is-open-detail="false" :is-show-tooltip="readonly"></ItemIconWidget>
+                            </ItemSlotBase>
+                            <div class="text-center text-caption text-grey w-100" :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName && display && display.id">
+                              <ItemName :data="display"></ItemName>
+                            </div>
+
+                            <v-overlay
+                                v-if="!readonly"
+                                :model-value="!!isHovering"
+                                class="align-center justify-center"
+                                scrim="#000"
+                                @click="onSlotRemove('display', displayIndex)"
+                                contained>
+                              <v-icon icon="mdi-delete" color="red" size="40"></v-icon>
+                            </v-overlay>
+                          </v-card>
+                        </v-hover>
+                      </div>
+                    </v-col>
+                  </template>
+
                 </v-row>
-
-                <ItemSlotBase size="80px" class="pa-2"
-                              v-if="workshopData.data.displaySlots.length <= 0">
-                  <v-card class="w-100 d-flex align-center justify-center">
-                    <v-icon icon="mdi-close-octagon-outline" class="opacity-50" size="30"></v-icon>
-                  </v-card>
-                </ItemSlotBase>
-
               </v-col>
               <!-- 陈设 卡槽 E -->
 
@@ -626,165 +625,170 @@ defineExpose({
                      v-if="workshopData.data.weaponSlots && workshopData.data.weaponSlots.length > 0"
                      v-for="(i, index) in workshopData.data.weaponSlots"
                      :key="index">
-                  <v-row align="center">
-                    <v-col cols="auto" class="pa-0">
-                      <ShipTopDownPerspectiveWidget
-                          :left="workshopData.data.weaponDirections[index] == 'leftSideWeapon'"
-                          :right="workshopData.data.weaponDirections[index] == 'rightSideWeapon'"
-                          :center-top="workshopData.data.weaponDirections[index] == 'frontWeapon'"
-                          :center-down="workshopData.data.weaponDirections[index] == 'aftWeapon'"
-                          class="ml-5"></ShipTopDownPerspectiveWidget>
-                    </v-col>
-                    <v-divider vertical class="ml-3 mr-2"></v-divider>
-                    <v-col>
-                      <!-- 武器方向 -->
-                      <p class="mb-2 ml-n5 mr-n5 pl-5 title-long-flavor bg-black">
-                        <v-select v-if="!readonly" v-model="workshopData.data.weaponDirections[index]"
-                                  hide-details
-                                  clearable
-                                  placeholder="选择武器方向"
-                                  variant="underlined"
-                                  density="compact"
-                                  item-value="0"
-                                  item-title="0"
-                                  :disabled="readonly"
-                                  :items="getOptionalShipWeaponDirection()">
-                          <template v-slot:item="{ props: itemProps, item }">
-                            <v-list-item v-bind="itemProps">
-                              <template v-slot:title>
-                                <v-row align="center">
-                                  <v-col cols="auto" class="pa-0">
-                                    <ShipTopDownPerspectiveWidget
-                                        :size="'sm'"
-                                        :left="item.raw[0] == 'leftSideWeapon'"
-                                        :right="item.raw[0] == 'rightSideWeapon'"
-                                        :center-top="item.raw[0] == 'frontWeapon'"
-                                        :center-down="item.raw[0] == 'aftWeapon'"
-                                        class="ml-5"></ShipTopDownPerspectiveWidget>
-                                  </v-col>
-                                  <v-col>
-                                    {{ t(`codex.ship.${item.raw[0]}`) }}
-                                  </v-col>
-                                </v-row>
-                              </template>
-                            </v-list-item>
-                          </template>
-                          <template v-slot:chip="{item}">
-                            {{ t(`codex.ship.${workshopData.data.weaponDirections[index]}`) }}
-                          </template>
-                          <template v-slot:no-data>
-                            <EmptyView></EmptyView>
-                          </template>
-                        </v-select>
-                        <template v-else>
-                          <template v-if="workshopData.data.weaponDirections[index]">
-                            {{ t(`codex.ship.${workshopData.data.weaponDirections[index]}`) }}
-                          </template>
-                        </template>
-                      </p>
 
-                      <v-row>
-                        <v-col cols="auto">
-                          <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.weaponSlots[index] && workshopData.data.weaponSlots[index].id">
-                            <v-card class="position-relative" v-bind="propsHoverClose" max-width="80">
-                              <ItemSlotBase size="80px" class="pa-1">
-                                <ItemIconWidget :id="i.id" :is-show-tooltip="readonly" :is-open-detail="false"></ItemIconWidget>
-                              </ItemSlotBase>
-                              <div class="text-center text-caption text-grey w-100" :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
-                                <ItemName :data="i"></ItemName>
-                              </div>
-
-                              <v-overlay
-                                  v-if="!readonly"
-                                  :model-value="!!isHovering"
-                                  class="align-center justify-center"
-                                  scrim="#000"
-                                  @click="onSlotRemove('weapon', index)"
-                                  contained>
-                                <v-icon icon="mdi-delete" color="red" size="40"></v-icon>
-                              </v-overlay>
-                            </v-card>
-                          </v-hover>
-                          <ItemSlotBase size="80px" v-else-if="!workshopData.data.weaponDirections[index]">
-                            <v-card class="w-100 d-flex align-center justify-center">
-                              <v-icon icon="mdi-block-helper" class="opacity-30" size="20"></v-icon>
-                            </v-card>
-                          </ItemSlotBase>
-                          <ItemSlotBase size="80px" v-else>
-                            <v-card class="w-100 d-flex align-center justify-center"
+                  <template v-if="isShowEmpty || workshopData.data.weaponSlots[index] && workshopData.data.weaponSlots[index].id">
+                    <v-row align="center">
+                      <v-col cols="auto" class="pa-0">
+                        <ShipTopDownPerspectiveWidget
+                            :left="workshopData.data.weaponDirections[index] == 'leftSideWeapon'"
+                            :right="workshopData.data.weaponDirections[index] == 'rightSideWeapon'"
+                            :center-top="workshopData.data.weaponDirections[index] == 'frontWeapon'"
+                            :center-down="workshopData.data.weaponDirections[index] == 'aftWeapon'"
+                            class="ml-5"></ShipTopDownPerspectiveWidget>
+                      </v-col>
+                      <v-divider vertical class="ml-3 mr-2"></v-divider>
+                      <v-col>
+                        <!-- 武器方向 -->
+                        <p class="mb-2 ml-n5 mr-n5 pl-5 title-long-flavor bg-black">
+                          <v-select v-if="!readonly" v-model="workshopData.data.weaponDirections[index]"
+                                    hide-details
+                                    clearable
+                                    placeholder="选择武器方向"
+                                    variant="underlined"
+                                    density="compact"
+                                    item-value="0"
+                                    item-title="0"
                                     :disabled="readonly"
-                                    @click="workshopData.weaponModel = true;workshopData.weaponInsertIndex = index">
-                              <v-icon icon="mdi-plus"></v-icon>
-                            </v-card>
-                          </ItemSlotBase>
+                                    :items="getOptionalShipWeaponDirection()">
+                            <template v-slot:item="{ props: itemProps, item }">
+                              <v-list-item v-bind="itemProps">
+                                <template v-slot:title>
+                                  <v-row align="center">
+                                    <v-col cols="auto" class="pa-0">
+                                      <ShipTopDownPerspectiveWidget
+                                          :size="'sm'"
+                                          :left="item.raw[0] == 'leftSideWeapon'"
+                                          :right="item.raw[0] == 'rightSideWeapon'"
+                                          :center-top="item.raw[0] == 'frontWeapon'"
+                                          :center-down="item.raw[0] == 'aftWeapon'"
+                                          class="ml-5"></ShipTopDownPerspectiveWidget>
+                                    </v-col>
+                                    <v-col>
+                                      {{ t(`codex.ship.${item.raw[0]}`) }}
+                                    </v-col>
+                                  </v-row>
+                                </template>
+                              </v-list-item>
+                            </template>
+                            <template v-slot:chip="{item}">
+                              {{ t(`codex.ship.${workshopData.data.weaponDirections[index]}`) }}
+                            </template>
+                            <template v-slot:no-data>
+                              <EmptyView></EmptyView>
+                            </template>
+                          </v-select>
+                          <template v-else>
+                            <template v-if="workshopData.data.weaponDirections[index]">
+                              {{ t(`codex.ship.${workshopData.data.weaponDirections[index]}`) }}
+                            </template>
+                          </template>
+                        </p>
 
-                          <!-- 武器模组插槽 -->
-                          <div class="mb-2 mt-1" v-if="!perfectDisplay">
-                            <WeaponModificationWidget :readonly="readonly"
-                                                      :disabled="workshopData.data.weaponSlots[index].id == null"
-                                                      :data="i"
-                                                      size="4"
-                                                      v-model="workshopData.data.weaponModifications[index]"></WeaponModificationWidget>
-                          </div>
-                        </v-col>
-                        <v-col class="d-flex align-start">
-                          <div class="w-100">
-                            <v-divider thickness="4" opacity="1" color="#000" class="w-100 mt-2 mb-2"></v-divider>
-                            <p class="opacity-80 text-deck-information">{{ t('codex.ship.topDeck') }}
-                              <v-chip size="x-small" density="compact" :variant="getDeckInformation(index).top ? 'flat' : 'tonal'">{{ getDeckInformation(index).top || 0 }}</v-chip>
-                            </p>
-                            <p class="opacity-80 text-deck-information">{{ t('codex.ship.lowerDeck') }}
-                              <v-chip size="x-small" density="compact" :variant="getDeckInformation(index).lower ? 'flat' : 'tonal'">{{ getDeckInformation(index).lower || 0 }}</v-chip>
-                            </p>
-                          </div>
-                        </v-col>
-                        <v-col cols="auto">
-                          <v-row no-gutters v-if="i && i.id" :class="[!i.id ? 'opacity-30' : '']">
-                            <v-col align="center" class="mt-n1">
-                              <v-icon icon="mdi-chevron-up" size="16"></v-icon>
-                              <ItemSlotBase size="30px"
-                                            padding="0"
-                                            v-for="(p, pIndex) in getDeckInformation(index).top" :key="pIndex + p">
-                                <ItemIconWidget :id="i.id" v-if="i.id"
-                                                :is-show-tooltip="false"
-                                                :is-open-detail="false"></ItemIconWidget>
-                              </ItemSlotBase>
-                            </v-col>
-                            <v-col align="center" class="mt-n1">
-                              <v-icon icon="mdi-chevron-down" size="16"></v-icon>
-                              <ItemSlotBase size="30px"
-                                            padding="0"
-                                            :id="i.id"
-                                            v-if="i.id"
-                                            v-for="(p, pIndex) in getDeckInformation(index).lower" :key="pIndex">
-                                <ItemIconWidget :id="i.id"
-                                                :is-show-tooltip="false"
-                                                :is-open-detail="false"></ItemIconWidget>
-                              </ItemSlotBase>
-                            </v-col>
-                          </v-row>
-                        </v-col>
-                        <template v-if="false">
-                          <v-col class="d-flex align-start">
-                            <v-divider thickness="4" opacity="1" color="#000" class="mt-2"></v-divider>
-                          </v-col>
-                          <v-col cols="1">
-                            <ItemSlotBase size="60px">
-                              皮肤
+                        <v-row>
+                          <v-col cols="auto">
+                            <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.weaponSlots[index] && workshopData.data.weaponSlots[index].id">
+                              <v-card class="position-relative" v-bind="propsHoverClose" max-width="80">
+                                <ItemSlotBase size="80px" class="pa-1">
+                                  <ItemIconWidget :id="i.id" :is-show-tooltip="readonly" :is-open-detail="false"></ItemIconWidget>
+                                </ItemSlotBase>
+                                <div class="text-center text-caption text-grey w-100" :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
+                                  <ItemName :data="i"></ItemName>
+                                </div>
+
+                                <v-overlay
+                                    v-if="!readonly"
+                                    :model-value="!!isHovering"
+                                    class="align-center justify-center"
+                                    scrim="#000"
+                                    @click="onSlotRemove('weapon', index)"
+                                    contained>
+                                  <v-icon icon="mdi-delete" color="red" size="40"></v-icon>
+                                </v-overlay>
+                              </v-card>
+                            </v-hover>
+                            <ItemSlotBase size="80px" v-else-if="!workshopData.data.weaponDirections[index]">
+                              <v-card class="w-100 d-flex align-center justify-center">
+                                <v-icon icon="mdi-block-helper" class="opacity-30" size="20"></v-icon>
+                              </v-card>
                             </ItemSlotBase>
-                          </v-col>
-                        </template>
-                      </v-row>
+                            <ItemSlotBase size="80px" v-else>
+                              <v-card class="w-100 d-flex align-center justify-center"
+                                      :disabled="readonly"
+                                      @click="workshopData.weaponModel = true;workshopData.weaponInsertIndex = index">
+                                <v-icon icon="mdi-plus"></v-icon>
+                              </v-card>
+                            </ItemSlotBase>
 
-                      <!-- 武器模组插槽 仅展示 -->
-                      <div class="mb-2 mt-1" v-if="perfectDisplay">
-                        <WeaponModificationOnlyShowWidget
-                            :item-data="i"
-                            :mod-data="workshopData.data.weaponModifications[index]"></WeaponModificationOnlyShowWidget>
-                      </div>
-                    </v-col>
-                  </v-row>
-                  <v-divider></v-divider>
+                            <!-- 武器模组插槽 -->
+                            <div class="mb-2 mt-1" v-if="!perfectDisplay">
+                              <WeaponModificationWidget :readonly="readonly"
+                                                        :disabled="workshopData.data.weaponSlots[index].id == null"
+                                                        :data="i"
+                                                        size="4"
+                                                        v-model="workshopData.data.weaponModifications[index]"></WeaponModificationWidget>
+                            </div>
+                          </v-col>
+                          <v-col class="d-flex align-start">
+                            <div class="w-100">
+                              <v-divider thickness="4" opacity="1" color="#000" class="w-100 mt-2 mb-2"></v-divider>
+                              <p class="opacity-80 text-deck-information">{{ t('codex.ship.topDeck') }}
+                                <v-chip size="x-small" density="compact" :variant="getDeckInformation(index).top ? 'flat' : 'tonal'">{{ getDeckInformation(index).top || 0 }}</v-chip>
+                              </p>
+                              <p class="opacity-80 text-deck-information">{{ t('codex.ship.lowerDeck') }}
+                                <v-chip size="x-small" density="compact" :variant="getDeckInformation(index).lower ? 'flat' : 'tonal'">{{ getDeckInformation(index).lower || 0 }}</v-chip>
+                              </p>
+                            </div>
+                          </v-col>
+                          <v-col cols="auto">
+                            <v-row no-gutters v-if="i && i.id" :class="[!i.id ? 'opacity-30' : '']">
+                              <v-col align="center" class="mt-n1">
+                                <v-icon icon="mdi-chevron-up" size="16"></v-icon>
+                                <ItemSlotBase size="30px"
+                                              padding="0"
+                                              v-for="(p, pIndex) in getDeckInformation(index).top" :key="pIndex + p">
+                                  <ItemIconWidget :id="i.id" v-if="i.id"
+                                                  :is-show-tooltip="false"
+                                                  :is-open-detail="false"></ItemIconWidget>
+                                </ItemSlotBase>
+                              </v-col>
+                              <v-col align="center" class="mt-n1">
+                                <v-icon icon="mdi-chevron-down" size="16"></v-icon>
+                                <ItemSlotBase size="30px"
+                                              padding="0"
+                                              :id="i.id"
+                                              v-if="i.id"
+                                              v-for="(p, pIndex) in getDeckInformation(index).lower" :key="pIndex">
+                                  <ItemIconWidget :id="i.id"
+                                                  :is-show-tooltip="false"
+                                                  :is-open-detail="false"></ItemIconWidget>
+                                </ItemSlotBase>
+                              </v-col>
+                            </v-row>
+                          </v-col>
+                          <template v-if="false">
+                            <v-col class="d-flex align-start">
+                              <v-divider thickness="4" opacity="1" color="#000" class="mt-2"></v-divider>
+                            </v-col>
+                            <v-col cols="1">
+                              <ItemSlotBase size="60px">
+                                皮肤
+                              </ItemSlotBase>
+                            </v-col>
+                          </template>
+                        </v-row>
+
+                        <!-- 武器模组插槽 仅展示 -->
+                        <div class="mb-2 mt-1" v-if="perfectDisplay">
+                          <WeaponModificationOnlyShowWidget
+                              :item-data="i"
+                              :mod-data="workshopData.data.weaponModifications[index]"></WeaponModificationOnlyShowWidget>
+                        </div>
+                      </v-col>
+                    </v-row>
+                    <v-divider></v-divider>
+                  </template>
+
+
                 </div>
                 <div v-else>
                   <EmptyView></EmptyView>
@@ -796,89 +800,92 @@ defineExpose({
                 <div class="ml-5 mb-2"
                      v-if="workshopData.data.secondaryWeaponSlots && workshopData.data.secondaryWeaponSlots.length > 0"
                      v-for="(i, index) in workshopData.data.secondaryWeaponSlots" :key="index">
-                  <v-row align="center">
-                    <v-col cols="auto" class="pa-0">
-                      <ShipTopDownPerspectiveWidget
-                          :centerCenter="i && !!i.id"
-                          class="ml-5"></ShipTopDownPerspectiveWidget>
-                    </v-col>
-                    <v-divider vertical class="ml-3 mr-2"></v-divider>
-                    <v-col>
-                      <v-row>
-                        <v-col cols="auto">
-                          <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.secondaryWeaponSlots[index] && workshopData.data.secondaryWeaponSlots[index].id">
-                            <v-card class="position-relative" v-bind="propsHoverClose" max-width="80">
-                              <ItemSlotBase size="80px" class="pa-1">
-                                <ItemIconWidget :id="i.id" :is-show-tooltip="readonly"></ItemIconWidget>
-                              </ItemSlotBase>
-                              <div class="text-center text-caption text-grey w-100" :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
-                                <ItemName :data="i"></ItemName>
-                              </div>
 
-                              <v-overlay
-                                  v-if="!readonly"
-                                  :model-value="!!isHovering"
-                                  class="align-center justify-center"
-                                  scrim="#000"
-                                  @click="onSlotRemove('secondaryWeapon', index)"
-                                  contained>
-                                <v-icon icon="mdi-delete" color="red" size="40"></v-icon>
-                              </v-overlay>
-                            </v-card>
-                          </v-hover>
-                          <ItemSlotBase size="80px" v-else-if="readonly && workshopData.data.secondaryWeaponSlots[index] && workshopData.data.secondaryWeaponSlots[index].id == null">
-                            <v-card class="w-100 d-flex align-center justify-center">
-                              <v-icon icon="mdi-block-helper" class="opacity-30" size="20"></v-icon>
-                            </v-card>
-                          </ItemSlotBase>
-                          <ItemSlotBase size="80px" v-else>
-                            <v-card class="w-100 d-flex align-center justify-center"
-                                    :disabled="readonly"
-                                    @click="workshopData.secondaryWeaponModel = true;workshopData.secondaryWeaponInsertIndex = index">
-                              <v-icon icon="mdi-plus"></v-icon>
-                            </v-card>
-                          </ItemSlotBase>
+                  <template v-if="isShowEmpty || workshopData.data.secondaryWeaponSlots[index] && workshopData.data.secondaryWeaponSlots[index].id != null">
+                    <v-row align="center">
+                      <v-col cols="auto" class="pa-0">
+                        <ShipTopDownPerspectiveWidget
+                            :centerCenter="i && !!i.id"
+                            class="ml-5"></ShipTopDownPerspectiveWidget>
+                      </v-col>
+                      <v-divider vertical class="ml-3 mr-2"></v-divider>
+                      <v-col>
+                        <v-row>
+                          <v-col cols="auto">
+                            <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.secondaryWeaponSlots[index] && workshopData.data.secondaryWeaponSlots[index].id">
+                              <v-card class="position-relative" v-bind="propsHoverClose" max-width="80">
+                                <ItemSlotBase size="80px" class="pa-1">
+                                  <ItemIconWidget :id="i.id" :is-show-tooltip="readonly"></ItemIconWidget>
+                                </ItemSlotBase>
+                                <div class="text-center text-caption text-grey w-100" :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
+                                  <ItemName :data="i"></ItemName>
+                                </div>
 
-                          <!-- 副武器模组插槽 -->
-                          <div class="mb-2 mt-1" v-if="!perfectDisplay">
-                            <WeaponModificationWidget :readonly="readonly"
-                                                      :disabled="workshopData.data.secondaryWeaponSlots[index].id == null"
-                                                      :data="i" size="4"
-                                                      v-model="workshopData.data.secondaryWeaponModifications[index]"></WeaponModificationWidget>
-                          </div>
-                        </v-col>
-                        <v-col class="d-flex align-start">
-                          <div class="w-100">
-                            <v-divider thickness="4" opacity="1" color="#000" class="w-100 mt-2 mb-2"></v-divider>
-                            <p class="opacity-80 text-deck-information">{{ t('codex.ship.topDeck') }}
-                              <v-chip size="x-small" density="compact" :variant="getDeckInformation(index, 'secondaryWeapon').top ? 'flat' : 'tonal'">{{ getDeckInformation(index, 'secondaryWeapon').top || 0 }}</v-chip>
-                            </p>
-                          </div>
-                        </v-col>
-                        <v-col cols="auto">
-                          <v-row no-gutters v-if="i && i.id" :class="[!i.id ? 'opacity-30' : '']">
-                            <v-col align="center" class="mt-n1">
-                              <v-icon icon="mdi-chevron-up" size="16"></v-icon>
-                              <ItemSlotBase size="30px"
-                                            padding="0"
-                                            v-for="(p, pIndex) in getDeckInformation(index, 'secondaryWeapon').top" :key="pIndex + p">
-                                <ItemIconWidget :id="i.id" v-if="i.id"
-                                                :is-show-tooltip="false"
-                                                :is-open-detail="false"></ItemIconWidget>
-                              </ItemSlotBase>
-                            </v-col>
-                          </v-row>
-                        </v-col>
-                      </v-row>
+                                <v-overlay
+                                    v-if="!readonly"
+                                    :model-value="!!isHovering"
+                                    class="align-center justify-center"
+                                    scrim="#000"
+                                    @click="onSlotRemove('secondaryWeapon', index)"
+                                    contained>
+                                  <v-icon icon="mdi-delete" color="red" size="40"></v-icon>
+                                </v-overlay>
+                              </v-card>
+                            </v-hover>
+                            <ItemSlotBase size="80px" v-else-if="readonly && workshopData.data.secondaryWeaponSlots[index] && workshopData.data.secondaryWeaponSlots[index].id == null">
+                              <v-card class="w-100 d-flex align-center justify-center">
+                                <v-icon icon="mdi-block-helper" class="opacity-30" size="20"></v-icon>
+                              </v-card>
+                            </ItemSlotBase>
+                            <ItemSlotBase size="80px" v-else>
+                              <v-card class="w-100 d-flex align-center justify-center"
+                                      :disabled="readonly"
+                                      @click="workshopData.secondaryWeaponModel = true;workshopData.secondaryWeaponInsertIndex = index">
+                                <v-icon icon="mdi-plus"></v-icon>
+                              </v-card>
+                            </ItemSlotBase>
 
-                      <!-- 武器模组插槽 仅展示 -->
-                      <div class="mb-2 mt-1" v-if="perfectDisplay">
-                        <WeaponModificationOnlyShowWidget
-                            :item-data="i"
-                            :mod-data="workshopData.data.secondaryWeaponModifications[index]"></WeaponModificationOnlyShowWidget>
-                      </div>
-                    </v-col>
-                  </v-row>
+                            <!-- 副武器模组插槽 -->
+                            <div class="mb-2 mt-1" v-if="!perfectDisplay">
+                              <WeaponModificationWidget :readonly="readonly"
+                                                        :disabled="workshopData.data.secondaryWeaponSlots[index].id == null"
+                                                        :data="i" size="4"
+                                                        v-model="workshopData.data.secondaryWeaponModifications[index]"></WeaponModificationWidget>
+                            </div>
+                          </v-col>
+                          <v-col class="d-flex align-start">
+                            <div class="w-100">
+                              <v-divider thickness="4" opacity="1" color="#000" class="w-100 mt-2 mb-2"></v-divider>
+                              <p class="opacity-80 text-deck-information">{{ t('codex.ship.topDeck') }}
+                                <v-chip size="x-small" density="compact" :variant="getDeckInformation(index, 'secondaryWeapon').top ? 'flat' : 'tonal'">{{ getDeckInformation(index, 'secondaryWeapon').top || 0 }}</v-chip>
+                              </p>
+                            </div>
+                          </v-col>
+                          <v-col cols="auto">
+                            <v-row no-gutters v-if="i && i.id" :class="[!i.id ? 'opacity-30' : '']">
+                              <v-col align="center" class="mt-n1">
+                                <v-icon icon="mdi-chevron-up" size="16"></v-icon>
+                                <ItemSlotBase size="30px"
+                                              padding="0"
+                                              v-for="(p, pIndex) in getDeckInformation(index, 'secondaryWeapon').top" :key="pIndex + p">
+                                  <ItemIconWidget :id="i.id" v-if="i.id"
+                                                  :is-show-tooltip="false"
+                                                  :is-open-detail="false"></ItemIconWidget>
+                                </ItemSlotBase>
+                              </v-col>
+                            </v-row>
+                          </v-col>
+                        </v-row>
+
+                        <!-- 武器模组插槽 仅展示 -->
+                        <div class="mb-2 mt-1" v-if="perfectDisplay">
+                          <WeaponModificationOnlyShowWidget
+                              :item-data="i"
+                              :mod-data="workshopData.data.secondaryWeaponModifications[index]"></WeaponModificationOnlyShowWidget>
+                        </div>
+                      </v-col>
+                    </v-row>
+                  </template>
                 </div>
                 <div v-else>
                   <EmptyView></EmptyView>
@@ -891,38 +898,40 @@ defineExpose({
                 <p class="mb-3 px-3 font-weight-bold badge-flavor text-center text-black">{{ t('assembly.workshop.armorTitle') }}</p>
 
                 <div>
-                  <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.armorSlot">
-                    <v-card v-bind="propsHoverClose" class="position-relative" width="80">
-                      <ItemSlotBase size="80px" class="pa-1">
-                        <ItemIconWidget :id="workshopData.data.armorSlot.id" :is-open-detail="false" :is-show-tooltip="readonly"></ItemIconWidget>
-                      </ItemSlotBase>
-                      <div class="text-center text-caption text-grey w-100 " :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
-                        <ItemName :data="workshopData.data.armorSlot"></ItemName>
-                      </div>
-                      <v-overlay
-                          v-if="!readonly"
-                          :model-value="!!isHovering"
-                          class="align-center justify-center"
-                          scrim="#000"
-                          @click="onSlotRemove('armor')"
-                          contained>
-                        <v-icon icon="mdi-delete" color="red" size="40"></v-icon>
-                      </v-overlay>
-                    </v-card>
-                  </v-hover>
+                  <template v-if="isShowEmpty || workshopData.data.armorSlot">
+                    <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.armorSlot">
+                      <v-card v-bind="propsHoverClose" class="position-relative" width="80">
+                        <ItemSlotBase size="80px" class="pa-1">
+                          <ItemIconWidget :id="workshopData.data.armorSlot.id" :is-open-detail="false" :is-show-tooltip="readonly"></ItemIconWidget>
+                        </ItemSlotBase>
+                        <div class="text-center text-caption text-grey w-100 " :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
+                          <ItemName :data="workshopData.data.armorSlot"></ItemName>
+                        </div>
+                        <v-overlay
+                            v-if="!readonly"
+                            :model-value="!!isHovering"
+                            class="align-center justify-center"
+                            scrim="#000"
+                            @click="onSlotRemove('armor')"
+                            contained>
+                          <v-icon icon="mdi-delete" color="red" size="40"></v-icon>
+                        </v-overlay>
+                      </v-card>
+                    </v-hover>
 
-                  <ItemSlotBase id="ship_select" size="80px" v-if="!readonly && !workshopData.data.armorSlot">
-                    <v-card class="w-100 d-flex align-center justify-center"
-                            @click="workshopData.armorModel = true"
-                            :disabled="readonly">
-                      <v-icon icon="mdi-plus" size="30"></v-icon>
-                    </v-card>
-                  </ItemSlotBase>
-                  <ItemSlotBase size="80px" class="pa-2 d-flex justify-center align-center" v-else-if="readonly && !workshopData.data.armorSlot">
-                    <v-card class="w-100 h-100 d-flex align-center justify-center">
-                      <v-icon icon="mdi-block-helper" class="opacity-30" size="20"></v-icon>
-                    </v-card>
-                  </ItemSlotBase>
+                    <ItemSlotBase id="ship_select" size="80px" v-if="!readonly && !workshopData.data.armorSlot">
+                      <v-card class="w-100 d-flex align-center justify-center"
+                              @click="workshopData.armorModel = true"
+                              :disabled="readonly">
+                        <v-icon icon="mdi-plus" size="30"></v-icon>
+                      </v-card>
+                    </ItemSlotBase>
+                    <ItemSlotBase size="80px" class="pa-2 d-flex justify-center align-center" v-else-if="readonly && !workshopData.data.armorSlot">
+                      <v-card class="w-100 h-100 d-flex align-center justify-center">
+                        <v-icon icon="mdi-block-helper" class="opacity-30" size="20"></v-icon>
+                      </v-card>
+                    </ItemSlotBase>
+                  </template>
                 </div>
 
                 <template v-if="workshopData.data.armorSlot != null">
@@ -948,77 +957,79 @@ defineExpose({
               <v-col cols="auto">
                 <p class="mb-3 px-3 font-weight-bold badge-flavor text-center text-black">{{ t('assembly.workshop.ultimateTitle') }}</p>
 
-                <v-tooltip
-                    v-model="workshopData.ultimateModel"
-                    :open-on-hover="false"
-                    :offset="[-100, -120]"
-                    location="bottom left"
-                    content-class="pa-0"
-                    min-width="450"
-                    max-width="450"
-                    interactive
-                    open-on-click>
-                  <template v-slot:activator="{ props: propsSlot }">
-                    <ItemSlotBase id="ship_select" size="80px" v-if="!readonly && !workshopData.data.ultimateSlot">
-                      <v-card class="w-100 d-flex align-center justify-center" v-bind="propsSlot"
-                              :disabled="readonly">
-                        <v-icon icon="mdi-plus" size="30"></v-icon>
-                      </v-card>
-                    </ItemSlotBase>
-                    <ItemSlotBase size="80px" class="pa-2 d-flex justify-center align-center" v-else-if="readonly && !workshopData.data.ultimateSlot">
-                      <v-card class="w-100 h-100 d-flex align-center justify-center">
-                        <v-icon icon="mdi-block-helper" class="opacity-30" size="20"></v-icon>
-                      </v-card>
-                    </ItemSlotBase>
+                <template v-if="isShowEmpty || workshopData.ultimateModel">
+                  <v-tooltip
+                      v-model="workshopData.ultimateModel"
+                      :open-on-hover="false"
+                      :offset="[-100, -120]"
+                      location="bottom left"
+                      content-class="pa-0"
+                      min-width="450"
+                      max-width="450"
+                      interactive
+                      open-on-click>
+                    <template v-slot:activator="{ props: propsSlot }">
+                      <ItemSlotBase id="ship_select" size="80px" v-if="!readonly && !workshopData.data.ultimateSlot">
+                        <v-card class="w-100 d-flex align-center justify-center" v-bind="propsSlot"
+                                :disabled="readonly">
+                          <v-icon icon="mdi-plus" size="30"></v-icon>
+                        </v-card>
+                      </ItemSlotBase>
+                      <ItemSlotBase size="80px" class="pa-2 d-flex justify-center align-center" v-else-if="readonly && !workshopData.data.ultimateSlot">
+                        <v-card class="w-100 h-100 d-flex align-center justify-center">
+                          <v-icon icon="mdi-block-helper" class="opacity-30" size="20"></v-icon>
+                        </v-card>
+                      </ItemSlotBase>
 
-                    <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-else>
-                      <v-card v-bind="propsHoverClose" class="position-relative" width="80">
-                        <ItemSlotBase size="80px" class="pa-2"
-                                      v-if="workshopData.data.ultimateSlot && workshopData.data.ultimateSlot.id">
-                          <UltimateIconWidget :id="workshopData.data.ultimateSlot.id" :isClickOpenDetail="false"></UltimateIconWidget>
-                        </ItemSlotBase>
-                        <div class="text-center text-caption text-grey w-100 " :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
-                          <UltimateName :id="workshopData.data.ultimateSlot.id"></UltimateName>
-                        </div>
-                        <v-overlay
-                            v-if="!readonly"
-                            :model-value="!!isHovering"
-                            class="align-center justify-center"
-                            scrim="#000"
-                            @click="onSlotRemove('ultimate')"
-                            contained>
-                          <v-icon icon="mdi-delete" color="red" size="30"></v-icon>
-                        </v-overlay>
-                      </v-card>
-                    </v-hover>
-                  </template>
-                  <v-card v-slot:default>
-                    <v-row class="ga-0 pa-2 pb-5">
-                      <v-col cols="3"
-                             v-for="(ultimate,ultimateIndex) in ultimates"
-                             :key="ultimateIndex">
-                        <v-card width="92" elevation="0">
-                          <ItemSlotBase
-                              size="92px" class="pa-1"
-                              @click="workshopData.ultimateSelect = ultimate"
-                              :class="[
-                                          workshopData.ultimateSelect ? workshopData.ultimateSelect!.id == ultimate!.id ? 'bg-amber' : '' : ''
-                                      ]">
-                            <UltimateIconWidget :id="ultimate.id" :isClickOpenDetail="false"></UltimateIconWidget>
+                      <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-else>
+                        <v-card v-bind="propsHoverClose" class="position-relative" width="80">
+                          <ItemSlotBase size="80px" class="pa-2"
+                                        v-if="workshopData.data.ultimateSlot && workshopData.data.ultimateSlot.id">
+                            <UltimateIconWidget :id="workshopData.data.ultimateSlot.id" :isClickOpenDetail="false"></UltimateIconWidget>
                           </ItemSlotBase>
                           <div class="text-center text-caption text-grey w-100 " :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
-                            <UltimateName :id="ultimate.id"></UltimateName>
+                            <UltimateName :id="workshopData.data.ultimateSlot.id"></UltimateName>
                           </div>
+                          <v-overlay
+                              v-if="!readonly"
+                              :model-value="!!isHovering"
+                              class="align-center justify-center"
+                              scrim="#000"
+                              @click="onSlotRemove('ultimate')"
+                              contained>
+                            <v-icon icon="mdi-delete" color="red" size="30"></v-icon>
+                          </v-overlay>
                         </v-card>
-                      </v-col>
-                    </v-row>
-                    <v-card-actions class="bg-amber">
-                      <v-spacer></v-spacer>
-                      <v-btn variant="tonal" class="ml-1" @click="workshopData.ultimateModel = false">{{ t('basic.button.cancel') }}</v-btn>
-                      <v-btn variant="tonal" @click="onSelectUltimate(workshopData.ultimateSelect.id)">{{ t('basic.button.submit') }}</v-btn>
-                    </v-card-actions>
-                  </v-card>
-                </v-tooltip>
+                      </v-hover>
+                    </template>
+                    <v-card v-slot:default>
+                      <v-row class="ga-0 pa-2 pb-5">
+                        <v-col cols="3"
+                               v-for="(ultimate,ultimateIndex) in ultimates"
+                               :key="ultimateIndex">
+                          <v-card width="92" elevation="0">
+                            <ItemSlotBase
+                                size="92px" class="pa-1"
+                                @click="workshopData.ultimateSelect = ultimate"
+                                :class="[
+                                          workshopData.ultimateSelect ? workshopData.ultimateSelect!.id == ultimate!.id ? 'bg-amber' : '' : ''
+                                      ]">
+                              <UltimateIconWidget :id="ultimate.id" :isClickOpenDetail="false"></UltimateIconWidget>
+                            </ItemSlotBase>
+                            <div class="text-center text-caption text-grey w-100 " :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
+                              <UltimateName :id="ultimate.id"></UltimateName>
+                            </div>
+                          </v-card>
+                        </v-col>
+                      </v-row>
+                      <v-card-actions class="bg-amber">
+                        <v-spacer></v-spacer>
+                        <v-btn variant="tonal" class="ml-1" @click="workshopData.ultimateModel = false">{{ t('basic.button.cancel') }}</v-btn>
+                        <v-btn variant="tonal" @click="onSelectUltimate(workshopData.ultimateSelect.id)">{{ t('basic.button.submit') }}</v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-tooltip>
+                </template>
               </v-col>
               <!-- 终极技能 卡槽 E -->
 

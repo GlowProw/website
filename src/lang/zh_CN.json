@@ -948,7 +948,12 @@
     },
     "share": {
       "title": "分享配装",
-      "createPoster": "生成配装海报"
+      "createPoster": "生成配装海报",
+      "configHint": "配置生成海报属性，决定海报样式以及格式等",
+      "format": "格式",
+      "width": "宽度",
+      "quality": "图片质量",
+      "filename": "文件名称"
     },
     "browse": {
       "title": "配装分享集",
