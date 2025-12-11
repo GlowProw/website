@@ -1016,134 +1016,133 @@ const onSort = (field: SortField, order: SortOrder) => {
         </v-menu>
       </v-col>
     </v-row>
-
-    <template v-if="exceedingItemsCount > 0">
-      <v-alert class="w-100 mb-5" type="warning" variant="tonal">
-        {{ t('codex.ships.searchCountOverflowTip', {maximumSearchCount, exceedingItemsCount}) }}
-      </v-alert>
-    </template>
-
-    <v-infinite-scroll @load="onLoad">
-      <template v-if="isShouldShowInfiniteScroll">
-        <v-row class="list ga-4" no-gutters>
-          <v-card v-for="(i,index) in data" :key="index" :width="size" variant="text">
-            <div class="position-relative">
-              <ItemSlotBase :size="`${size}px`" class="position-relative">
-                <ShipIconWidget :id="i.id" v-if="i._typeStringName == 'Ship'"></ShipIconWidget>
-                <ItemIconWidget :id="i.id" v-if="i._typeStringName == 'Item'"></ItemIconWidget>
-                <CommoditieIconWidget :id="i.id" v-if="i._typeStringName == 'Commodity'"></CommoditieIconWidget>
-                <MaterialIconWidget :id="i.id" v-if="i._typeStringName == 'Material'"></MaterialIconWidget>
-                <CosmeticIconWidget :id="i.id" v-if="i._typeStringName == 'Cosmetic'"></CosmeticIconWidget>
-                <SetIconWidget :id="i.id" v-if="i._typeStringName == 'Set'"></SetIconWidget>
-                <UltimateIconWidget :id="i.id" v-if="i._typeStringName == 'Ultimate'"></UltimateIconWidget>
-                <ModIconWidget :id="i.id" v-if="i._typeStringName == 'Modification'"></ModIconWidget>
-
-                <TreasureMapIconWidget :id="i.id" v-if="i._typeStringName == 'TreasureMap'"></TreasureMapIconWidget>
-                <MapLocationIconWidget :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationIconWidget>
-                <NpcIconWidget :data="i" v-if="i._typeStringName == 'Npc'"></NpcIconWidget>
-              </ItemSlotBase>
-
-              <div v-if="i.set && i.set.id && isFilterSet" class="position-absolute subordinate-data">
-                <ItemSlotBase size="40px" :padding="0">
-                  <SetIconWidget :id="i.set.id"></SetIconWidget>
-                </ItemSlotBase>
-              </div>
-            </div>
-            <div class="text-center singe-line w-100">
-              <ShipName :id="i.id" v-if="i._typeStringName == 'Ship'"></ShipName>
-              <ItemNameRarity :id="i.id" v-if="i._typeStringName == 'Item'">
-                <ItemName :data="i"></ItemName>
-              </ItemNameRarity>
-              <CommoditieName :id="i.id" v-if="i._typeStringName == 'Commodity'"></CommoditieName>
-              <MaterialNameRarity :id="i.id" v-if="i._typeStringName == 'Material'">
-                <MaterialName :id="i.id"></MaterialName>
-              </MaterialNameRarity>
-              <CosmeticName :id="i.id" v-if="i._typeStringName == 'Cosmetic'"></CosmeticName>
-              <SetName :id="i.id" v-if="i._typeStringName == 'Set'"></SetName>
-              <UltimateName :id="i.id" v-if="i._typeStringName == 'Ultimate'"></UltimateName>
-              <ModName :id="i.id" v-if="i._typeStringName == 'Modification'" :grade="i.grade"></ModName>
-
-              <TreasureMapName :data="i" v-if="i._typeStringName == 'TreasureMap'"></TreasureMapName>
-              <MapLocationNameWidget :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationNameWidget>
-              <NpcName :data="i" v-if="i._typeStringName == 'Npc'"></NpcName>
-            </div>
-          </v-card>
-        </v-row>
-      </template>
-      <template v-else>
-        <!-- 搜索或筛选时的显示 S -->
-        <v-row class="list ga-4" no-gutters>
-          <v-card v-for="(i,index) in onProcessedData" :key="index" :width="size" variant="text">
-            <div class="position-relative">
-              <ItemSlotBase :size="`${size}px`" class="position-relative">
-                <ShipIconWidget :id="i.id" v-if="i._typeStringName == 'Ship'"></ShipIconWidget>
-                <ItemIconWidget :id="i.id" v-if="i._typeStringName == 'Item'"></ItemIconWidget>
-                <CommoditieIconWidget :id="i.id" v-if="i._typeStringName == 'Commodity'"></CommoditieIconWidget>
-                <MaterialIconWidget :id="i.id" v-if="i._typeStringName == 'Material'"></MaterialIconWidget>
-                <CosmeticIconWidget :id="i.id" v-if="i._typeStringName == 'Cosmetic'"></CosmeticIconWidget>
-                <SetIconWidget :id="i.id" v-if="i._typeStringName == 'Set'"></SetIconWidget>
-                <UltimateIconWidget :id="i.id" v-if="i._typeStringName == 'Ultimate'"></UltimateIconWidget>
-                <ModIconWidget :id="i.id" v-if="i._typeStringName == 'Modification'"></ModIconWidget>
-
-                <TreasureMapIconWidget :id="i.id" v-if="i._typeStringName == 'TreasureMap'"></TreasureMapIconWidget>
-                <MapLocationIconWidget :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationIconWidget>
-                <NpcIconWidget :data="i" v-if="i._typeStringName == 'Npc'"></NpcIconWidget>
-              </ItemSlotBase>
-
-              <div v-if="i.set && i.set.id && isFilterSet" class="position-absolute subordinate-data">
-                <ItemSlotBase size="40px" :padding="0">
-                  <SetIconWidget :id="i.set.id"></SetIconWidget>
-                </ItemSlotBase>
-              </div>
-            </div>
-            <div class="text-center singe-line w-100">
-              <ShipName :id="i.id" v-if="i._typeStringName == 'Ship'"></ShipName>
-              <ItemNameRarity :id="i.id" v-if="i._typeStringName == 'Item'">
-                <ItemName :data="i"></ItemName>
-              </ItemNameRarity>
-              <CommoditieName :id="i.id" v-if="i._typeStringName == 'Commodity'"></CommoditieName>
-              <MaterialNameRarity :id="i.id" v-if="i._typeStringName == 'Material'">
-                <MaterialName :id="i.id"></MaterialName>
-              </MaterialNameRarity>
-              <CosmeticName :id="i.id" v-if="i._typeStringName == 'Cosmetic'"></CosmeticName>
-              <SetName :id="i.id" v-if="i._typeStringName == 'Set'"></SetName>
-              <UltimateName :id="i.id" v-if="i._typeStringName == 'Ultimate'"></UltimateName>
-              <ModName :id="i.id" v-if="i._typeStringName == 'Modification'" :grade="i.grade"></ModName>
-
-              <TreasureMapName :data="i" v-if="i._typeStringName == 'TreasureMap'"></TreasureMapName>
-              <MapLocationNameWidget :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationNameWidget>
-              <NpcName :data="i" v-if="i._typeStringName == 'Npc'"></NpcName>
-            </div>
-          </v-card>
-        </v-row>
-        <!-- 搜索或筛选时的显示 E -->
-      </template>
-
-      <template v-slot:empty></template>
-      <template v-slot:loading>
-        <v-btn density="comfortable" class="my-8" icon>
-          <Loading :size="42"></Loading>
-        </v-btn>
-      </template>
-      <template v-slot:load-more="{ props }">
-        <v-btn
-            icon="mdi-refresh"
-            size="small"
-            variant="text"
-            v-bind="props"
-        ></v-btn>
-      </template>
-    </v-infinite-scroll>
-
-
-    <!-- 空状态显示 S -->
-    <template v-if="(isShouldShowInfiniteScroll && data.length <= 0) || (!isShouldShowInfiniteScroll && onProcessedData.length <= 0)">
-      <div class="w-100 mt-4">
-        <EmptyView></EmptyView>
-      </div>
-    </template>
-    <!-- 空状态显示 E -->
   </div>
+
+  <template v-if="exceedingItemsCount > 0">
+    <v-alert class="w-100 mb-5" type="warning" variant="tonal">
+      {{ t('codex.ships.searchCountOverflowTip', {maximumSearchCount, exceedingItemsCount}) }}
+    </v-alert>
+  </template>
+
+  <v-infinite-scroll class="mt-3" @load="onLoad">
+    <template v-if="isShouldShowInfiniteScroll">
+      <v-row class="list ga-4" no-gutters>
+        <v-card v-for="(i,index) in data" :key="index" :width="size" variant="text">
+          <div class="position-relative">
+            <ItemSlotBase :size="`${size}px`" class="position-relative">
+              <ShipIconWidget :id="i.id" v-if="i._typeStringName == 'Ship'"></ShipIconWidget>
+              <ItemIconWidget :id="i.id" v-if="i._typeStringName == 'Item'"></ItemIconWidget>
+              <CommoditieIconWidget :id="i.id" v-if="i._typeStringName == 'Commodity'"></CommoditieIconWidget>
+              <MaterialIconWidget :id="i.id" v-if="i._typeStringName == 'Material'"></MaterialIconWidget>
+              <CosmeticIconWidget :id="i.id" v-if="i._typeStringName == 'Cosmetic'"></CosmeticIconWidget>
+              <SetIconWidget :id="i.id" v-if="i._typeStringName == 'Set'"></SetIconWidget>
+              <UltimateIconWidget :id="i.id" v-if="i._typeStringName == 'Ultimate'"></UltimateIconWidget>
+              <ModIconWidget :id="i.id" v-if="i._typeStringName == 'Modification'"></ModIconWidget>
+
+              <TreasureMapIconWidget :id="i.id" v-if="i._typeStringName == 'TreasureMap'"></TreasureMapIconWidget>
+              <MapLocationIconWidget :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationIconWidget>
+              <NpcIconWidget :data="i" v-if="i._typeStringName == 'Npc'"></NpcIconWidget>
+            </ItemSlotBase>
+
+            <div v-if="i.set && i.set.id && isFilterSet" class="position-absolute subordinate-data">
+              <ItemSlotBase size="40px" :padding="0">
+                <SetIconWidget :id="i.set.id"></SetIconWidget>
+              </ItemSlotBase>
+            </div>
+          </div>
+          <div class="text-center singe-line w-100">
+            <ShipName :id="i.id" v-if="i._typeStringName == 'Ship'"></ShipName>
+            <ItemNameRarity :id="i.id" v-if="i._typeStringName == 'Item'">
+              <ItemName :data="i"></ItemName>
+            </ItemNameRarity>
+            <CommoditieName :id="i.id" v-if="i._typeStringName == 'Commodity'"></CommoditieName>
+            <MaterialNameRarity :id="i.id" v-if="i._typeStringName == 'Material'">
+              <MaterialName :id="i.id"></MaterialName>
+            </MaterialNameRarity>
+            <CosmeticName :id="i.id" v-if="i._typeStringName == 'Cosmetic'"></CosmeticName>
+            <SetName :id="i.id" v-if="i._typeStringName == 'Set'"></SetName>
+            <UltimateName :id="i.id" v-if="i._typeStringName == 'Ultimate'"></UltimateName>
+            <ModName :id="i.id" v-if="i._typeStringName == 'Modification'" :grade="i.grade"></ModName>
+
+            <TreasureMapName :data="i" v-if="i._typeStringName == 'TreasureMap'"></TreasureMapName>
+            <MapLocationNameWidget :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationNameWidget>
+            <NpcName :data="i" v-if="i._typeStringName == 'Npc'"></NpcName>
+          </div>
+        </v-card>
+      </v-row>
+    </template>
+    <template v-else>
+      <!-- 搜索或筛选时的显示 S -->
+      <v-row class="list ga-4" no-gutters>
+        <v-card v-for="(i,index) in onProcessedData" :key="index" :width="size" variant="text">
+          <div class="position-relative">
+            <ItemSlotBase :size="`${size}px`" class="position-relative">
+              <ShipIconWidget :id="i.id" v-if="i._typeStringName == 'Ship'"></ShipIconWidget>
+              <ItemIconWidget :id="i.id" v-if="i._typeStringName == 'Item'"></ItemIconWidget>
+              <CommoditieIconWidget :id="i.id" v-if="i._typeStringName == 'Commodity'"></CommoditieIconWidget>
+              <MaterialIconWidget :id="i.id" v-if="i._typeStringName == 'Material'"></MaterialIconWidget>
+              <CosmeticIconWidget :id="i.id" v-if="i._typeStringName == 'Cosmetic'"></CosmeticIconWidget>
+              <SetIconWidget :id="i.id" v-if="i._typeStringName == 'Set'"></SetIconWidget>
+              <UltimateIconWidget :id="i.id" v-if="i._typeStringName == 'Ultimate'"></UltimateIconWidget>
+              <ModIconWidget :id="i.id" v-if="i._typeStringName == 'Modification'"></ModIconWidget>
+
+              <TreasureMapIconWidget :id="i.id" v-if="i._typeStringName == 'TreasureMap'"></TreasureMapIconWidget>
+              <MapLocationIconWidget :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationIconWidget>
+              <NpcIconWidget :data="i" v-if="i._typeStringName == 'Npc'"></NpcIconWidget>
+            </ItemSlotBase>
+
+            <div v-if="i.set && i.set.id && isFilterSet" class="position-absolute subordinate-data">
+              <ItemSlotBase size="40px" :padding="0">
+                <SetIconWidget :id="i.set.id"></SetIconWidget>
+              </ItemSlotBase>
+            </div>
+          </div>
+          <div class="text-center singe-line w-100">
+            <ShipName :id="i.id" v-if="i._typeStringName == 'Ship'"></ShipName>
+            <ItemNameRarity :id="i.id" v-if="i._typeStringName == 'Item'">
+              <ItemName :data="i"></ItemName>
+            </ItemNameRarity>
+            <CommoditieName :id="i.id" v-if="i._typeStringName == 'Commodity'"></CommoditieName>
+            <MaterialNameRarity :id="i.id" v-if="i._typeStringName == 'Material'">
+              <MaterialName :id="i.id"></MaterialName>
+            </MaterialNameRarity>
+            <CosmeticName :id="i.id" v-if="i._typeStringName == 'Cosmetic'"></CosmeticName>
+            <SetName :id="i.id" v-if="i._typeStringName == 'Set'"></SetName>
+            <UltimateName :id="i.id" v-if="i._typeStringName == 'Ultimate'"></UltimateName>
+            <ModName :id="i.id" v-if="i._typeStringName == 'Modification'" :grade="i.grade"></ModName>
+
+            <TreasureMapName :data="i" v-if="i._typeStringName == 'TreasureMap'"></TreasureMapName>
+            <MapLocationNameWidget :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationNameWidget>
+            <NpcName :data="i" v-if="i._typeStringName == 'Npc'"></NpcName>
+          </div>
+        </v-card>
+      </v-row>
+      <!-- 搜索或筛选时的显示 E -->
+    </template>
+
+    <template v-slot:empty></template>
+    <template v-slot:loading>
+      <v-btn density="comfortable" class="my-8" icon>
+        <Loading :size="50"></Loading>
+      </v-btn>
+    </template>
+    <template v-slot:load-more="{ props }">
+      <v-btn
+          icon="mdi-refresh"
+          size="small"
+          variant="text"
+          v-bind="props"
+      ></v-btn>
+    </template>
+  </v-infinite-scroll>
+
+  <!-- 空状态显示 S -->
+  <template v-if="(isShouldShowInfiniteScroll && data.length <= 0) || (!isShouldShowInfiniteScroll && onProcessedData.length <= 0)">
+    <div class="w-100 mt-4">
+      <EmptyView></EmptyView>
+    </div>
+  </template>
+  <!-- 空状态显示 E -->
 </template>
 
 <style scoped lang="less">
@@ -1174,5 +1173,11 @@ const onSort = (field: SortField, order: SortOrder) => {
     gap: 8px;
     justify-items: center;
   }
+}
+</style>
+
+<style lang="less">
+.v-infinite-scroll__side {
+  padding: 0 !important;
 }
 </style>

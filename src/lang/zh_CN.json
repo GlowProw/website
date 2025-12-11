@@ -482,14 +482,14 @@
       "perks": "词条",
       "tier": "等级",
       "damageMitigation": "损害减轻",
-      "lookDetail": "查看物品详情"
+      "lookDetail": "查看物品详情(按住)"
     },
     "commoditie": {
       "title": "杂货详情",
       "meta": {
         "keywords": "杂货,商品,{keywords}"
       },
-      "lookDetail": "查看杂货详情"
+      "lookDetail": "查看杂货详情(按住)"
     },
     "commodities": {
       "title": "杂货列表"
@@ -536,11 +536,11 @@
       "perks": "能力",
       "baseInfo": "基础信息",
       "deckInfo": "甲板信息",
-      "lookDetail": "查看船只详情"
+      "lookDetail": "查看船只详情(按住)"
     },
     "cosmetic": {
       "title": "装饰品列表",
-      "lookDetail": "查看详情",
+      "lookDetail": "查看详情(按住)",
       "effects": {
         "emissive": "自发光",
         "combatReactive": "战斗反应",
@@ -556,7 +556,7 @@
     "set": {
       "title": "集合详情",
       "setAvailableTitle": "组合列表",
-      "lookDetail": "查看详情"
+      "lookDetail": "查看详情(按住)"
     },
     "sets": {
       "title": "集合列表"
@@ -595,7 +595,7 @@
     },
     "material": {
       "title": "材料详情",
-      "lookDetail": "查看材料详情"
+      "lookDetail": "查看材料详情(按住)"
     },
     "materials": {
       "title": "材料列表"
@@ -610,7 +610,7 @@
         "veryOld": "藏宝图",
         "legend": "藏宝图"
       },
-      "lookDetail": "查看藏宝图详情",
+      "lookDetail": "查看藏宝图详情(按住)",
       "raritys": {
         "recently": "近期"
       },
@@ -662,14 +662,14 @@
     },
     "mapLocation": {
       "title": "地图地点",
-      "lookDetail": "查看地图地点详情"
+      "lookDetail": "查看地图地点详情(按住)"
     },
     "mapLocations": {
       "title": "地图地点列表"
     },
     "npc": {
       "title": "NPC",
-      "lookDetail": "查看详情",
+      "lookDetail": "查看详情(按住)",
       "workerTitle": "可加工列表",
       "types": {
         "npc": "非玩家人物",
@@ -1063,7 +1063,7 @@
       },
       "calendar": {
         "title": "日历",
-        "description": "查看本赛季活动信息"
+        "description": "查看本赛季活动信息(按住)"
       },
       "maps": {
         "title": "地图",

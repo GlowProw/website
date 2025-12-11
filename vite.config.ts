@@ -24,8 +24,33 @@ export default defineConfig({
     build: {
         assetsDir: 'static/images',
         chunkSizeWarningLimit: 1000,
+        minify: 'terser',
+        terserOptions: {
+            keep_classnames: true,
+            keep_fnames: true,
+            compress: {
+                keep_classnames: true,
+                keep_fnames: true,
+                drop_console: true,
+                drop_debugger: true,
+                pure_funcs: [
+                    'console.log',
+                    'console.debug',
+                    'console.info',
+                    'console.warn',
+                    'console.table',
+                    'console.dir'
+                ],
+            },
+        },
         rollupOptions: {
             output: {
+                preserveModulesRoot: 'node_modules/glow-prow-data',
+                manualChunks(id) {
+                    if (id.includes('glow-prow-data')) {
+                        return 'glow-prow-data'
+                    }
+                },
                 assetFileNames: (assetInfo: any) => {
                     if (/\.(png|jpe?g|gif|svg|webp|avif)$/.test(assetInfo.name)) {
                         return `assets/[name].${config.name}.[hash][extname]`
