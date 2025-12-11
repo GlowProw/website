@@ -1,10 +1,9 @@
 import {createVuetify} from "vuetify/framework";
-import {aliases as aliasesSvg, mdi as mdiSvg} from "vuetify/iconsets/mdi-svg";
-import { mdiCog } from '@mdi/js'
+
+import {aliases, mdi} from "vuetify/iconsets/mdi";
 
 import {en, zhHans} from "vuetify/locale";
 
-// mdi-block-helper
 // Styles
 import '@/assets/styles/index.less'
 import 'vuetify/styles/main.css';
@@ -17,12 +16,10 @@ const vuetify = createVuetify({
     icons: {
         defaultSet: 'mdi',
         aliases: {
-            ...aliasesSvg,
-            cog: mdiCog
+            ...aliases,
         },
         sets: {
-            // mdi,
-            mdi: mdiSvg
+            mdi,
         },
     },
     locale: {

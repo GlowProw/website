@@ -11,7 +11,7 @@ const
 
 <template>
   <node-view-wrapper>
-    <v-card border class="my-3 bg-black">
+    <v-card border class="my-3 bg-black ProseMirror-separator">
       <iframe :src="props.node.attrs.src" class="border-0 w-100 h-100"
               allow="fullscreen"
               style="min-height: 400px"></iframe>

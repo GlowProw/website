@@ -953,7 +953,13 @@
       "format": "格式",
       "width": "宽度",
       "quality": "图片质量",
-      "filename": "文件名称"
+      "filename": "文件名称",
+      "showEmptySlot": "显示空卡槽",
+      "backgroundColor": "背景颜色",
+      "showItemName": "显示名称",
+      "fullName": "完整名称",
+      "showHeader": "海报头部标识",
+      "showTitle": "显示标题"
     },
     "browse": {
       "title": "配装分享集",

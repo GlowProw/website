@@ -26,6 +26,7 @@ import ShipName from "@/components/snbWidget/shipName.vue";
 import ItemName from "@/components/snbWidget/itemName.vue";
 import UltimateName from "@/components/snbWidget/ultimateName.vue";
 import WeaponModificationOnlyShowWidget from "@/components/snbWidget/weaponModificationOnlyShowWidget.vue";
+import AssemblySvgIcon from "@/components/AssemblySvgIcon.vue";
 
 const poops = withDefaults(defineProps<{
       readonly?: boolean,
@@ -567,7 +568,7 @@ defineExpose({
                       <v-card class="bg-transparent text-center pt-1" min-height="40" min-width="30">
                         <span class="text-amber-lighten-5">{{ number.intToRoman(displayIndex + 1) }}</span>
                         <template v-slot:image>
-                          <v-icon icon="mdi-table-furniture" class="opacity-20" size="30"></v-icon>
+                          <AssemblySvgIcon name="tableFurniture" class="opacity-20" size="30"></AssemblySvgIcon>
                         </template>
                       </v-card>
                     </v-col>
@@ -636,10 +637,10 @@ defineExpose({
                             :center-down="workshopData.data.weaponDirections[index] == 'aftWeapon'"
                             class="ml-5"></ShipTopDownPerspectiveWidget>
                       </v-col>
-                      <v-divider vertical class="ml-3 mr-2"></v-divider>
+                      <v-divider vertical inset class="ml-3 mr-2"></v-divider>
                       <v-col>
                         <!-- 武器方向 -->
-                        <p class="mb-2 ml-n5 mr-n5 pl-5 title-long-flavor bg-black">
+                        <p class="mb-2 ml-n5 mr-n5 pl-5">
                           <v-select v-if="!readonly" v-model="workshopData.data.weaponDirections[index]"
                                     hide-details
                                     clearable
@@ -708,7 +709,7 @@ defineExpose({
                             </v-hover>
                             <ItemSlotBase size="80px" v-else-if="!workshopData.data.weaponDirections[index]">
                               <v-card class="w-100 d-flex align-center justify-center">
-                                <v-icon icon="mdi-block-helper" class="opacity-30" size="20"></v-icon>
+                                <AssemblySvgIcon name="blockHelper" class="opacity-30" size="20"></AssemblySvgIcon>
                               </v-card>
                             </ItemSlotBase>
                             <ItemSlotBase size="80px" v-else>
@@ -834,7 +835,7 @@ defineExpose({
                             </v-hover>
                             <ItemSlotBase size="80px" v-else-if="readonly && workshopData.data.secondaryWeaponSlots[index] && workshopData.data.secondaryWeaponSlots[index].id == null">
                               <v-card class="w-100 d-flex align-center justify-center">
-                                <v-icon icon="mdi-block-helper" class="opacity-30" size="20"></v-icon>
+                                <AssemblySvgIcon name="blockHelper" class="opacity-30" size="20"></AssemblySvgIcon>
                               </v-card>
                             </ItemSlotBase>
                             <ItemSlotBase size="80px" v-else>
@@ -928,7 +929,7 @@ defineExpose({
                     </ItemSlotBase>
                     <ItemSlotBase size="80px" class="pa-2 d-flex justify-center align-center" v-else-if="readonly && !workshopData.data.armorSlot">
                       <v-card class="w-100 h-100 d-flex align-center justify-center">
-                        <v-icon icon="mdi-block-helper" class="opacity-30" size="20"></v-icon>
+                        <AssemblySvgIcon name="blockHelper" class="opacity-30" size="20"></AssemblySvgIcon>
                       </v-card>
                     </ItemSlotBase>
                   </template>
@@ -977,7 +978,7 @@ defineExpose({
                       </ItemSlotBase>
                       <ItemSlotBase size="80px" class="pa-2 d-flex justify-center align-center" v-else-if="readonly && !workshopData.data.ultimateSlot">
                         <v-card class="w-100 h-100 d-flex align-center justify-center">
-                          <v-icon icon="mdi-block-helper" class="opacity-30" size="20"></v-icon>
+                          <AssemblySvgIcon name="blockHelper" class="opacity-30" size="20"></AssemblySvgIcon>
                         </v-card>
                       </ItemSlotBase>
 

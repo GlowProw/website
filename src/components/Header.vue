@@ -44,7 +44,7 @@ let drawer = ref(false)
       <HeaderAccount type="header"></HeaderAccount>
 
       <GlobalSearch>
-        <v-icon>mdi-magnify</v-icon>
+        <v-icon icon="mdi-magnify"></v-icon>
       </GlobalSearch>
 
       <HeaderMuenFunWidget></HeaderMuenFunWidget>
