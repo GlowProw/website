@@ -1,10 +1,10 @@
-<script setup lang="ts">
-import { Cosmetic, Cosmetics, Item, Items, Material, Materials, Modification, Modifications, Ships, Ultimate, Ultimates } from "glow-prow-data";
-import { computed, onMounted, ref, watch } from "vue";
-import { useI18n } from "vue-i18n";
-import { useI18nUtils } from "@/assets/sripts/i18n_util";
-import { storageCollect } from "@/assets/sripts/index";
-import { StorageCollectType } from "@/assets/sripts/storage_collect";
+<script lang="ts" setup>
+import {Cosmetic, Cosmetics, Item, Items, Material, Materials, Modification, Modifications, Ship, Ships, Ultimate, Ultimates} from "glow-prow-data";
+import {computed, onMounted, ref, watch} from "vue";
+import {useI18n} from "vue-i18n";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
+import {storageCollect} from "@/assets/sripts/index";
+import {StorageCollectType} from "@/assets/sripts/storage_collect";
 
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
@@ -12,14 +12,6 @@ import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import EmptyView from "@/components/EmptyView.vue";
 import ItemDamageTypeWidget from "@/components/snbWidget/itemDamageTypeWidget.vue";
 import ItemName from "@/components/snbWidget/itemName.vue";
-import MaterialName from "@/components/snbWidget/materialName.vue";
-import CosmeticIconWidget from "@/components/snbWidget/cosmeticIconWidget.vue";
-import CosmeticName from "@/components/snbWidget/cosmeticName.vue";
-import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
-import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
-import ModName from "@/components/snbWidget/modName.vue";
-import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
-import UltimateName from "@/components/snbWidget/ultimateName.vue";
 import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
 import ShipName from "@/components/snbWidget/shipName.vue";
 
@@ -38,20 +30,20 @@ const props = withDefaults(
       loadDataType?: "ship" | "item" | "material" | "cosmetic" | "ultimate" | "modification";
       filterType?: string;
       modelValue: any;
-      autoExpandFirst?: boolean; // 新增：是否自动展开第一个分类
+      autoExpandFirst?: boolean;
     }>(),
     {
-      tags: [],
+      tags: () => [],
       sortBy: "rarity",
       loadDataType: "item",
       filterType: "",
       modelValue: "",
-      autoExpandFirst: true, // 默认展开第一个分类
+      autoExpandFirst: true,
     }
 );
 
-const { asString, sanitizeString } = useI18nUtils();
-const { t } = useI18n();
+const {asString, sanitizeString} = useI18nUtils();
+const {t} = useI18n();
 const resultData = ref<GroupedData[]>([]);
 const emit = defineEmits(['update:modelValue', 'clickSelectItem']);
 
@@ -263,7 +255,7 @@ const onStarItem = (data: AvailableDataStructure) => {
     starData.value.splice(index, 1);
   } else {
     storageCollect.updata(
-        { collectTime: Date.now() },
+        {collectTime: Date.now()},
         StorageCollectType.Item,
         data.id
     );
@@ -299,11 +291,11 @@ defineExpose({
     <v-row class="mb-1 pl-8 pr-8">
       <v-col cols="6">
         <v-text-field
-            variant="underlined"
             v-model="searchQuery"
-            hide-details
-            clearable
             :loading="isLoading"
+            clearable
+            hide-details
+            variant="underlined"
             @keydown.enter="updateData"
         >
           <template v-slot:append-inner>
@@ -313,10 +305,7 @@ defineExpose({
       </v-col>
       <v-col cols="3">
         <v-select
-            variant="underlined"
             v-model="filterType"
-            item-value="value"
-            item-title="text"
             :items="[
             { value: '', text: t('assembly.workshop.filter.all') },
             ...props.tags.map(tag => ({
@@ -325,17 +314,17 @@ defineExpose({
             }))
           ]"
             :label="t('assembly.workshop.filter.byType')"
-            @update:modelValue="updateData"
-            hide-details
             clearable
+            hide-details
+            item-title="text"
+            item-value="value"
+            variant="underlined"
+            @update:modelValue="updateData"
         ></v-select>
       </v-col>
       <v-col cols="3">
         <v-select
-            variant="underlined"
             v-model="sortBy"
-            item-value="value"
-            item-title="text"
             :items="[
             { value: 'id', text: t('assembly.workshop.filter.byId') },
             { value: 'rarity', text: t('assembly.workshop.filter.byRarity') },
@@ -343,38 +332,41 @@ defineExpose({
           ]"
             :label="t('assembly.workshop.filter.byTitle', { key: t(`assembly.workshop.filter.by${capitalizeFLetter(sortBy)}`) })"
             hide-details
+            item-title="text"
+            item-value="value"
+            variant="underlined"
             @update:modelValue="updateData"
         ></v-select>
       </v-col>
     </v-row>
     <!-- 选择头 E -->
 
-    <v-divider thickness="1" color="#000" class="mb-n1"></v-divider>
+    <v-divider class="mb-n1" color="#000" thickness="1"></v-divider>
 
     <div class="bg-shades-black background-flavor w-100 overflow-y-auto overflow-x-hidden" style="max-height: 70vh">
       <!-- 我的最爱 S -->
-      <div class="w-100 pb-3" v-if="isStar && processedStarData.length > 0">
+      <div v-if="isStar && processedStarData.length > 0" class="w-100 pb-3">
         <div class="text-center title-long-flavor text-amber font-weight-bold bg-black pl-4 lr-4 pt-2 pb-2 ml-n2 mr-n2 mb-4">
           {{ t('assembly.workshop.myFavorites') }} ({{ processedStarData.length }})
         </div>
 
         <v-row class="pl-8 pr-8">
           <v-col v-for="(j, jIndex) in processedStarData" :key="`star-${j.id}`" cols="auto">
-            <div @click="onClickEvent(j)" class="item">
+            <div class="item" @click="onClickEvent(j)">
               <ItemSlotBase
-                  size="90px"
                   :class="[modelValue && modelValue.id === j.id ? 'bg-amber' : '']"
+                  size="90px"
               >
                 <ItemIconWidget
                     :id="j.id"
-                    :is-show-tooltip="false"
                     :is-open-detail="false"
+                    :is-show-tooltip="false"
                 ></ItemIconWidget>
               </ItemSlotBase>
               <div
+                  :class="[modelValue && modelValue.id === j.id ? 'text-amber' : '']"
                   class="text-center d-flex justify-center"
                   style="width: 90px"
-                  :class="[modelValue && modelValue.id === j.id ? 'text-amber' : '']"
               >
                 <div class="singe-line">
                   <ItemName :data="j"/>
@@ -389,8 +381,8 @@ defineExpose({
               <v-btn
                   class="text-amber"
                   density="compact"
-                  variant="text"
                   icon
+                  variant="text"
                   @click.stop="onStarItem(j)"
               >
                 <v-icon :icon="`mdi-${isCollect(j.id) ? 'star' : 'star-outline'}`" size="15"></v-icon>
@@ -411,8 +403,8 @@ defineExpose({
               :class="{ 'mb-8': category.model }"
           >
             <div
-                class="cursor-pointer text-center title-long-flavor text-amber font-weight-bold bg-black pl-4 lr-4 pt-4 pb-4 ml-n2 mr-n2"
                 :class="{ 'mb-4': category.model }"
+                class="cursor-pointer text-center title-long-flavor text-amber font-weight-bold bg-black pl-4 lr-4 pt-4 pb-4 ml-n2 mr-n2"
                 @click="toggleCategory(category)"
             >
               {{ t(`codex.types.${category.type}`) }} ({{ category.child.length }})
@@ -421,32 +413,32 @@ defineExpose({
               </v-icon>
             </div>
 
-            <v-row class="pl-8 pr-8" v-if="category.model">
+            <v-row v-if="category.model" class="pl-8 pr-8">
               <v-col
-                  cols="auto"
                   v-for="item in category.child"
                   :key="item.id"
                   :title="item.name"
+                  cols="auto"
               >
-                <div @click="onClickEvent(item)" class="item">
+                <div class="item" @click="onClickEvent(item)">
                   <!-- 根据类型渲染不同的组件 -->
                   <template v-if="loadDataType === 'ship'">
                     <ItemSlotBase
-                        size="90px"
                         :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
+                        size="90px"
                     >
                       <ShipIconWidget
                           :id="item.id"
-                          :is-show-tooltip="false"
+                          :is-click-open-detail="false"
                           :is-open-detail="false"
                           :is-show-open-detail="false"
-                          :is-click-open-detail="false"
+                          :is-show-tooltip="false"
                       ></ShipIconWidget>
                     </ItemSlotBase>
                     <div
+                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
                         class="text-center d-flex justify-center"
                         style="width: 90px"
-                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
                     >
                       <div class="singe-line">
                         <ShipName :data="item"/>
@@ -456,19 +448,19 @@ defineExpose({
 
                   <template v-else-if="loadDataType === 'item'">
                     <ItemSlotBase
-                        size="90px"
                         :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
+                        size="90px"
                     >
                       <ItemIconWidget
                           :id="item.id"
-                          :is-show-tooltip="false"
                           :is-open-detail="false"
+                          :is-show-tooltip="false"
                       ></ItemIconWidget>
                     </ItemSlotBase>
                     <div
+                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
                         class="text-center d-flex justify-center"
                         style="width: 90px"
-                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
                     >
                       <div class="singe-line">
                         <ItemName :data="item"/>
@@ -479,15 +471,15 @@ defineExpose({
                   <!-- 其他类型的模板... -->
                 </div>
 
-                <div class="text-center mt-1" v-if="isStar">
+                <div v-if="isStar" class="text-center mt-1">
                   <div class="d-flex justify-center">
                     <ItemDamageTypeWidget :data="item" sizeType="mini"></ItemDamageTypeWidget>
                   </div>
                   <v-btn
                       class="text-amber"
                       density="compact"
-                      variant="text"
                       icon
+                      variant="text"
                       @click.stop="onStarItem(item)"
                   >
                     <v-icon :icon="`mdi-${isCollect(item.id) ? 'star' : 'star-outline'}`" size="15"></v-icon>
@@ -500,7 +492,7 @@ defineExpose({
 
         <!-- 无结果提示 -->
         <div v-else class="pt-5 pb-5 text-center w-100">
-          <v-icon size="64" color="grey">mdi-magnify-close</v-icon>
+          <v-icon color="grey" size="64">mdi-magnify-close</v-icon>
           <div class="mt-4">
             <EmptyView></EmptyView>
           </div>
@@ -511,7 +503,7 @@ defineExpose({
   </div>
 </template>
 
-<style scoped lang="less">
+<style lang="less" scoped>
 .item {
   cursor: pointer;
   transition: all 0.2s ease;
