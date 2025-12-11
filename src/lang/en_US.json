@@ -1,5 +1,5 @@
 {
-  "name": "Glow Prow",
+  "name": "Shining Prow",
   "about": {
     "title": "About",
     "minor": "",
@@ -12,12 +12,16 @@
       "insert": "Insert",
       "next": "Next",
       "prev": "Previous",
+      "change": "Change",
       "reply": "Reply",
       "report": "Report",
       "reset": "Reset",
       "save": "Save",
-      "submit": "Confirm",
-      "search": "Search"
+      "submit": "Submit",
+      "search": "Search",
+      "go": "Go",
+      "edit": "Edit",
+      "delete": "Delete"
     },
     "privilege": {
       "admin": "Community Admin",
@@ -26,83 +30,84 @@
       "dev": "Development Team",
       "normal": "User",
       "root": "System",
-      "super": "Super Administrator"
+      "super": "Super Admin"
     },
     "tips": {
+      "error": "Application Error: {content}",
       "comment": {
-        "ok": "Published successfully",
-        "bad": "Publication format error, please check if content meets requirements",
-        "notFound": "Target comment not found",
-        "notFoundOrNotOwner": "No corresponding comment or user",
-        "error": "Comment error: {context}",
+        "ok": "Published Successfully",
+        "bad": "Publish format error, please check if the content meets the requirements",
+        "notFound": "The target of the reply does not have such a comment",
+        "notFoundOrNotOwner": "Corresponding comment or user not found",
+        "error": "Comment Error: {context}",
         "delete": {
-          "ok": "Deleted successfully",
-          "bad": "Error request format, please check network tool interface"
+          "ok": "Deleted Successfully",
+          "bad": "Bad request format, please check the network tool interface"
         }
       },
       "assembly": {
         "list": {
           "ok": "List retrieved successfully",
-          "error": "List error: {context}",
-          "bad": "Error request format, please check network tool interface"
+          "error": "List Error: {context}",
+          "bad": "Bad request format, please check the network tool interface"
         },
         "editAttr": {
           "ok": "Assembly attributes set successfully",
-          "invalidPassword": "Incorrect password format",
+          "invalidPassword": "Invalid password format",
           "passwordTooShort": "Password too short",
           "error": "Error: {context}",
-          "bad": "Error request format, please check network tool interface"
+          "bad": "Bad request format, please check the network tool interface"
         },
         "getAttr": {
           "ok": "Attributes retrieved successfully",
-          "notFound": "Assembly attributes do not exist or not owner",
+          "notFound": "Assembly attribute not found or not owner",
           "error": "Error: {context}",
-          "bad": "Error request format, please check network tool interface"
+          "bad": "Bad request format, please check the network tool interface"
         },
         "edit": {
           "ok": "Assembly updated",
           "notFound": "Corresponding assembly not found or not owner",
-          "invalidPassword": "Incorrect password",
+          "invalidPassword": "Invalid password",
           "passwordTooShort": "Password too short",
           "error": "Error: {context}",
-          "bad": "Error request format, please check network tool interface"
+          "bad": "Bad request format, please check the network tool interface"
         },
         "delete": {
           "ok": "Deleted successfully",
           "notFound": "Corresponding assembly not found or not owner",
-          "forbidden": "Operation not allowed, illegal deletion",
+          "forbidden": "Operation forbidden, illegal deletion",
           "error": "Error: {context}",
-          "bad": "Error request format, please check network tool interface"
+          "bad": "Bad request format, please check the network tool interface"
         },
         "detail": {
-          "bad": "Error request format, please check network tool interface",
+          "bad": "Bad request format, please check the network tool interface",
           "notDisclosed": "Not disclosed",
-          "noPermission": "No access permission, please check if password required or partner status",
+          "noPermission": "No access permission, please check if a password is required or if you need partner status",
           "error": "Error: {context}",
           "ok": "Access successful"
         }
       },
       "publish": {
         "ok": "Published successfully",
-        "bad": "Publication format error, please check if all fields are filled correctly"
+        "bad": "Publish format error, please check if filled out as required"
       },
       "captcha": {
         "bad": "Captcha error",
         "expired": "Captcha expired",
-        "wrong": "Entered captcha is incorrect"
+        "wrong": "Incorrect captcha entered"
       },
       "signin": {
         "ok": "Login successful",
         "bad": "Login error: Please check login information format",
-        "wrong": "Login information incorrect",
-        "expired": "User identity expired, please login again",
-        "accountIncorrect": "Login information incorrect"
+        "wrong": "Incorrect login information",
+        "expired": "User identity expired, please log in again",
+        "accountIncorrect": "Incorrect login information"
       },
       "signup": {
         "ok": "Registration successful",
         "userAlreadyHas": "Account name already exists",
         "error": "Registration error: {context}",
-        "bad": "Registration error: Please check registration information format requirements"
+        "bad": "Registration error: Please check the format requirements for registration information"
       },
       "like": {
         "ok": "Like processed successfully",
@@ -111,44 +116,132 @@
       },
       "user": {
         "invalid": "Invalid user",
-        "tokenExpired": "User identity expired, please login again"
+        "tokenExpired": "User identity expired, please log in again"
       },
       "request": {
         "rateLimited": "Request too fast, please slow down"
       },
       "teamUp": {
         "account": {
-          "rateLimit": "Posting too frequently, please try again in {remainingTime} minutes"
+          "rateLimit": "Posting too fast, please try again in {remainingTime} minutes"
         },
         "anonymous": {
-          "rateLimit": "Anonymous posting too frequently, please try again in {remainingTime} hours"
+          "rateLimit": "Anonymous posting too fast, please try again in {remainingTime} hours"
         },
         "pushSuccess": "Published successfully",
-        "newTeamUp": "Captain, new team up available",
-        "authFailed": "Token invalid or expired, please login again",
+        "newTeamUp": "Captain, there's a new team-up",
+        "authFailed": "Token is invalid or expired, please log in again",
         "error": "Communication error: {context}"
+      }
+    },
+    "rules": {
+      "username": {
+        "notEmpty": "Username ID must be filled in",
+        "blacklistRestriction": "{content} is an illegal name, please try another",
+        "limitationLength": "Username length must be between {min} and {max}",
+        "incorrectFormat": "Username ID format is incorrect"
+      },
+      "alternativeName": {
+        "limitationLength": "Alias length must be between {min} and {max}",
+        "incorrectFormat": "Alias format is incorrect"
+      },
+      "email": {
+        "incorrectFormat": "Email format is incorrect"
+      },
+      "password": {
+        "notEmpty": "Password must be filled in",
+        "limitationLength": "Password length must be between {min} and {max}"
+      },
+      "captcha": {
+        "notEmpty": "Captcha must be filled in",
+        "limitationLength": "Captcha length is {max}"
       }
     }
   },
+  "comment": {
+    "title": "Comment",
+    "edit": "Edit",
+    "save": "Save",
+    "publishSuccess": "Comment published successfully",
+    "loginRequired": "Please log in to publish a comment",
+    "noComments": "No comments yet",
+    "beFirst": "Be the first to comment",
+    "me": "Me",
+    "deleteConfirmation": "Delete comment?",
+    "deleteWarning": "This operation is irreversible."
+  },
   "portal": {
-    "title": "Home",
+    "title": "Portal",
     "seasonTimer": "Season {seasonName} remaining {day} days",
     "appVersionLog": "Updates",
-    "appVersionContext": "You can directly raise issues in the <u><a href=\"https://kook.vip/2s0eQP\" target=\"_blank\">Kook Community</a></u> reserved in the website footer to help fix problems",
+    "appVersionContext": "You can report issues directly through the <u><a href=\"https://kook.vip/2s0eQP\" target=\"_blank\">Kook Community</a></u> link reserved in the website footer to help fix problems",
     "blogLog": "Blog"
   },
   "account": {
     "title": "Account",
     "information": {
-      "title": "Personal Information"
+      "title": "Personal Information",
+      "form": {
+        "uuid": {
+          "name": "Account Unique Identifier",
+          "description": "This is a unique identifier, assigned by the system"
+        },
+        "username": {
+          "name": "Account Login ID"
+        },
+        "alternativeName": {
+          "name": "Alias",
+          "description": "Display account alias name",
+          "placeholder": "Enter new username",
+          "changeName": "Change Alias",
+          "changeNameDescription": "Set a new name to display your unique name"
+        },
+        "email": {
+          "name": "Email",
+          "placeholder": "Account Email"
+        },
+        "language": {
+          "name": "Language",
+          "description": "Set account preferred language",
+          "placeholder": "Select preferred language"
+        },
+        "introduction": {
+          "name": "Description",
+          "description": "Self-description, it will be temporarily displayed externally",
+          "placeholder": "Introduce yourself :D"
+        },
+        "password": {
+          "name": "Password",
+          "changePasswordName": "Change Account Password",
+          "changePasswordDescription": "This operation will log you out upon success and require you to log in again",
+          "oldPassword": "",
+          "oldPasswordPlaceholder": "Enter old password",
+          "newPassword": "",
+          "newPasswordPlaceholder": "Enter new password"
+        }
+      }
     }
   },
   "codex": {
-    "title": "Manuscript",
-    "description": "Hey Captain, want to see my treasures?",
-    "cabinetHistoryTitle": "Viewing History",
+    "title": "Codex",
+    "description": "Ahoy, Captain, wanna check out my treasures?",
+    "cabinetHistoryTitle": "Browsing History",
     "more": "More",
     "sidebar": "Sidebar",
+    "filter": {
+      "byType": "Filter by Type",
+      "byRarity": "Filter by Rarity",
+      "byCategory": "Filter by Category",
+      "byTier": "Filter by Tier",
+      "bySeason": "Filter by Season",
+      "bySet": "Filter by Set",
+      "byLocation": "Filter by Location",
+      "sortBy": "Sort by",
+      "dateAdded": "Date Added",
+      "lastUpdated": "Last Updated",
+      "descending": "Descending",
+      "ascending": "Ascending"
+    },
     "size": {
       "extraSmall": "Extra Small",
       "small": "Small",
@@ -156,14 +249,16 @@
       "large": "Large"
     },
     "raritys": {
+      "none": "Unknown",
       "common": "Common",
       "uncommon": "Uncommon",
       "rare": "Rare",
       "epic": "Epic",
       "legendary": "Legendary"
     },
-    "type": {
-      "undefined": "Uncategorized",
+    "types": {
+      "none": "No Type",
+      "ships": "Ships",
       "consumable": "Consumable",
       "ammunition": "Ammunition",
       "armor": "Armor",
@@ -171,7 +266,7 @@
       "chest": "Chest",
       "culverin": "Culverin",
       "longGun": "Long Gun",
-      "demicannon": "Demicannon",
+      "demicannon": "Demi-cannon",
       "bombard": "Bombard",
       "torpedo": "Torpedo",
       "ballista": "Ballista",
@@ -185,20 +280,6 @@
       "shipUpgrade": "Ship Upgrade",
       "quest": "Quest",
       "contract": "Contract",
-      "specialized": "Specialized",
-      "localFaction": "当地阵营杂货",
-      "megacorp": "超巨公司杂货",
-      "kingpin": "头目杂货",
-      "theHelm": "海舵社杂货",
-      "summoningBell": "召唤",
-      "unique": "独特的",
-      "event": "事件",
-      "refined": "Refined",
-      "currency": "Currency",
-      "helm": "Helm",
-      "scrap": "Scrap Material",
-      "raw": "Raw Material",
-      "exotic": "Exotic",
       "sailsEmblem": "Sails Emblem",
       "hull": "Hull",
       "sailsColor": "Sails Color",
@@ -206,46 +287,64 @@
       "trophy": "Trophy",
       "wheel": "Wheel",
       "sailsPattern": "Sails Pattern",
-      "helmDecor": "Helm Decoration",
+      "helmDecor": "Helm Decor",
       "ornaments": "Ornaments",
       "figureHead": "Figurehead",
       "nameplate": "Nameplate",
       "pet": "Pet",
-      "crewLook": "Crew Appearance",
+      "crewLook": "Crew Look",
       "headwear": "Headwear",
-      "torso": "Torso Equipment",
-      "neck": "Neck Equipment",
-      "waist": "Waist Equipment",
-      "bottom": "Bottom Equipment",
+      "torso": "Torso",
+      "neck": "Neck",
+      "waist": "Waist",
+      "bottom": "Bottom",
       "faceAccessory": "Face Accessory",
       "footwear": "Footwear",
-      "forearm": "Forearm Equipment",
+      "forearm": "Forearm",
       "firework": "Firework",
       "emote": "Emote",
       "bodyCosmetics": "Body Cosmetics",
       "hand": "Hand",
-      "hair": "Hair Style",
+      "hair": "Hair",
       "facialHair": "Facial Hair",
       "eyeColor": "Eye Color",
       "aura": "Aura",
       "shipSkin": "Ship Skin",
       "armorSkin": "Armor Skin",
       "culverinWeaponSkin": "Culverin Weapon Skin",
-      "demicannonWeaponSkin": "Demicannon Weapon Skin",
+      "demicannonWeaponSkin": "Demi-cannon Weapon Skin",
       "longGunWeaponSkin": "Long Gun Weapon Skin",
       "ballistaWeaponSkin": "Ballista Weapon Skin",
       "torpedoWeaponSkin": "Torpedo Weapon Skin",
       "combatSkill": "Combat Skill",
       "legendaryEntity": "Legendary Entity",
-      "powerWeapon": "Power Weapon"
+      "powerWeapon": "Power Weapon",
+      "treasure": "Treasure Map"
     },
     "tier": "Tier {num}",
     "category": {
       "title": "Category"
     },
+    "categorys": {
+      "none": "No Category",
+      "localFaction": "Local Faction Commodities",
+      "megacorp": "Megacorp Commodities",
+      "kingpin": "Kingpin Commodities",
+      "theHelm": "The Helm Commodities",
+      "summoningBell": "Summoning",
+      "unique": "Unique",
+      "event": "Event",
+      "refined": "Refined",
+      "specialized": "Specialized",
+      "currency": "Currency",
+      "helm": "The Helm",
+      "scrap": "Scrap",
+      "raw": "Raw",
+      "exotic": "Exotic"
+    },
     "navs": {
       "shipsAndCaptainTools": {
-        "name": "Ships And CaptainTools"
+        "name": "Ships and Captain Tools"
       },
       "ships": {
         "name": "Ships"
@@ -257,10 +356,10 @@
         "name": "Weapons"
       },
       "allDeckWeapons": {
-        "name": "All-Deck Weapons"
+        "name": "All Deck Weapons"
       },
       "topDeckWeapons": {
-        "name": "Top-Deck Weapons"
+        "name": "Top Deck Weapons"
       },
       "bowWeapons": {
         "name": "Bow Weapons"
@@ -275,16 +374,16 @@
         "name": "Hull Armor"
       },
       "furnTure": {
-        "name": "FurnTure"
+        "name": "Furniture"
       },
       "majorFurniture": {
         "name": "Major Furniture"
       },
       "offensiveFurnTure": {
-        "name": "Offensive FurnTure"
+        "name": "Offensive Furniture"
       },
       "utilityFurnTure": {
-        "name": "UtilityFurnTure"
+        "name": "Utility Furniture"
       },
       "materials": {
         "name": "Materials"
@@ -302,7 +401,7 @@
         "name": "Exotic Materials"
       },
       "helmMaterials": {
-        "name": "Helm Materials"
+        "name": "The Helm Materials"
       },
       "scrapMaterials": {
         "name": "Scrap Materials"
@@ -337,69 +436,82 @@
       "description": "Share your {name}"
     },
     "items": {
-      "title": "Items List",
-      "description": "Items List"
+      "title": "Item List",
+      "description": "Item List"
     },
     "ships": {
-      "title": "Ships List",
-      "description": "\"Since the opening of the New World, every legendary warship has left its mark here. The symphony of steel and sails awaits your inspection.\"",
-      "searchCountOverflowTip": "Exceeds maximum search display of {maximumSearchCount}, remaining {exceedingItemsCount} have been throttled, please refine keywords"
+      "title": "Ship List",
+      "searchCountOverflowTip": "Exceeded maximum search display of {maximumSearchCount}, {exceedingItemsCount} items were truncated. Please enter more precise keywords.",
+      "archetypes": {
+        "dps": {
+          "name": "Damage Ship",
+          "description": "Damage Ships are suitable for offensive players, excelling at dealing damage and status effects."
+        },
+        "tank": {
+          "name": "Tank Ship",
+          "description": "Tank Ships are more robust, specializing in defending against incoming cannon fire."
+        },
+        "support": {
+          "name": "Support Ship",
+          "description": "Support Ships excel at assisting friendly vessels, often helping to turn the tide of battle."
+        }
+      }
     },
     "item": {
       "title": "Item Details",
       "meta": {
-        "keywords": "Item Details,Ship Items,{keywords}"
+        "keywords": "Item details, ship item, {keywords}"
       },
       "weight": "Weight",
       "projectilesPerShot": "Projectiles Per Shot",
-      "rateOfFire": "Rate of Fire (seconds)",
+      "rateOfFire": "Rate of Fire (sec)",
       "DPS": "DPS (Damage per Second)",
       "DPSWithPerks": "DPS with Perks",
       "damagePerShot": "Damage Per Shot",
       "DamagePerShotWithPerks": "Damage Mitigation",
-      "reloadSpeed": "Reload Speed (seconds)",
-      "optimalRange": "Range (meters)",
+      "reloadSpeed": "Reload Speed (sec)",
+      "optimalRange": "Range (m)",
       "projectileSpeed": "Projectile Speed (m/s)",
       "shipUpgradeUseTitle": "Available Ships",
       "shipUpgradesTitle": "Available Upgrades",
-      "contentsTitle": "Drop Contents",
+      "contentsTitle": "Loot Contents",
       "materialsTitle": "Materials",
       "faction": "Faction",
       "required": "Items Required for Crafting",
-      "rawMaterials": "Required Raw Materials",
-      "modifications": "Installable Modifications",
+      "rawMaterials": "Raw Materials Required",
+      "modifications": "Modifications Installable",
       "bySeason": {
         "prepend": "From",
         "append": "Season"
       },
-      "obtainable": "Obtainable Methods",
+      "obtainable": "How to Obtain",
       "worldEvent": "World Event",
       "bluePrint": "Blueprint",
-      "requiredRank": "Minimum Usage Level",
-      "gearScore": "Score",
+      "requiredRank": "Minimum Required Rank",
+      "gearScore": "Gear Score",
       "rarity": "Rarity",
       "dateAdded": "Date Added",
       "lastUpdated": "Last Updated",
-      "damageType": "Weapon Attribute",
+      "damageType": "Weapon Property",
       "perks": "Perks",
       "tier": "Tier",
       "damageMitigation": "Damage Mitigation",
-      "lookDetail": "View Item Details"
+      "lookDetail": "View Item Details (Hold)"
     },
     "commoditie": {
-      "title": "杂货详情",
+      "title": "Commodity Details",
       "meta": {
-        "keywords": "杂货,商品,{keywords}"
+        "keywords": "Commodity, goods, {keywords}"
       },
-      "lookDetail": "查看杂货详情"
+      "lookDetail": "View Commodity Details (Hold)"
     },
     "commodities": {
-      "title": "杂货列表"
+      "title": "Commodity List"
     },
     "ship": {
       "title": "Ship Details",
       "meta": {
-        "keywords": "Ship Details,Ship,{keywords}"
+        "keywords": "Ship details, ship, {keywords}"
       },
       "archetype": "Archetype",
       "stamina": "Stamina",
@@ -419,40 +531,76 @@
         "knot": "(knots/kts)",
         "halfSail": "Minimum",
         "fullSail": "Full Speed",
-        "travelSail": "Maximum"
+        "travelSail": "Travel Speed",
+        "unit": {
+          "knot": "knots"
+        },
+        "boost": {
+          "title": "Speed Boost: +{percent}%",
+          "waterFlaskRemaining": "(Water Flask effect remaining {time})",
+          "waterBarrelRemaining": "(Water Barrel effect remaining {time})",
+          "strongBreeze": "Strong Breeze",
+          "strongBreezeEffect": "Strong Breeze Effect",
+          "cancelEffect": "Cancel Effect",
+          "waterFlaskTooltip": "Water Flask: 10% speed boost for 20s",
+          "waterBarrelTooltip": "Water Barrel: 15% speed boost for 20s",
+          "strongBreezeTooltip": "Strong Breeze: 50% speed boost"
+        },
+        "simulation": {
+          "windy": "Windy",
+          "dust": "No Wind",
+          "slow": "Slow",
+          "normal": "Normal",
+          "fast": "Fast"
+        }
       },
       "cargo": "Cargo",
       "cargoSlots": "Cargo Slots",
-      "cargoMaxWeight": "Cargo Capacity",
+      "cargoMaxWeight": "Max Cargo Weight",
       "materialsTitle": "Materials",
-      "required": "Items Required for Construction",
+      "required": "Items Required for Crafting",
       "rawMaterials": "Raw Materials",
       "bySeason": {
         "prepend": "From",
         "append": "Season"
       },
       "bluePrint": "Blueprint",
-      "requiredRank": "Minimum Usage Level",
+      "requiredRank": "Minimum Required Rank",
       "dateAdded": "Date Added",
       "lastUpdated": "Last Updated",
-      "perks": "Perks",
-      "baseInfo": "Basic Information",
-      "deckInfo": "Deck Information",
-      "lookDetail": "View Ship Details"
+      "perks": "Abilities",
+      "baseInfo": "Base Info",
+      "deckInfo": "Deck Info",
+      "lookDetail": "View Ship Details (Hold)"
     },
     "cosmetic": {
-      "title": "Cosmetics List",
-      "lookDetail": "View Details"
+      "title": "Cosmetic List",
+      "lookDetail": "View Details (Hold)",
+      "effects": {
+        "emissive": "Emissive",
+        "combatReactive": "Combat Reactive",
+        "killReactive": "Kill Reactive",
+        "bossKillReactive": "Boss Kill Reactive",
+        "animated": "Animated"
+      }
     },
     "cosmetics": {
-      "title": "Cosmetics List",
-      "description": "Display cabinet collection of cosmetics"
+      "title": "Cosmetic List",
+      "description": "Collection of cosmetics"
+    },
+    "set": {
+      "title": "Set Details",
+      "setAvailableTitle": "Set List",
+      "lookDetail": "View Details (Hold)"
+    },
+    "sets": {
+      "title": "Set List"
     },
     "ultimate": {
       "title": "Ultimate Skill Details"
     },
     "ultimates": {
-      "title": "Ultimate Skills List"
+      "title": "Ultimate Skill List"
     },
     "modification": {
       "title": "Modification Details",
@@ -472,54 +620,223 @@
         "reduceTimeToTarget": "Reduce Time to Target",
         "increaseRepairAmountPerShot": "Increase Repair Amount Per Shot",
         "increaseRepairAmount": "Increase Repair Amount",
-        "increaseCritDamage": "Increase Critical Damage",
+        "increaseCritDamage": "Increase Crit Damage",
         "bonusElementalDamage": "Bonus Elemental Damage",
         "increaseSiegeDamage": "Increase Siege Damage"
       }
     },
     "modifications": {
-      "title": "Modifications List"
+      "title": "Modification List"
     },
     "material": {
       "title": "Material Details",
-      "lookDetail": "View Material Details"
+      "lookDetail": "View Material Details (Hold)"
     },
     "materials": {
-      "title": "Materials List"
+      "title": "Material List"
     },
     "treasureMap": {
       "title": "Treasure Map Details",
-      "lookDetail": "View Treasure Map Details"
+      "treasureMapSameArea": "Treasure Maps in the Same Area",
+      "names": {
+        "none": "Treasure Map",
+        "recent": "{location}",
+        "old": "Treasure Map",
+        "veryOld": "Treasure Map",
+        "legend": "Treasure Map"
+      },
+      "lookDetail": "View Treasure Map Details (Hold)",
+      "raritys": {
+        "recently": "Recent"
+      },
+      "categorys": {
+        "none": "Unknown",
+        "recent": "Recent",
+        "old": "Old",
+        "veryOld": "Very Old",
+        "legend": "Kingpin"
+      },
+      "descriptions": {
+        "none": "Unknown Map",
+        "recent": "A map pointing to a treasure. The paper is crisp and thick; the treasure should have been buried recently.",
+        "old": "A map pointing to a treasure. The paper is thick; the treasure should have been buried for some time.",
+        "veryOld": "A map pointing to a treasure. The paper is tattered; the treasure should have been buried for a long time.",
+        "legend": "A map pointing to a treasure. The paper is blurry and indistinct; it is unknown when the treasure was buried."
+      }
     },
     "treasureMaps": {
-      "title": "Treasure Maps List"
+      "title": "Treasure Map List",
+      "comparison": {
+        "title": "Compare Treasure Maps",
+        "description": "Retrieve similar treasure maps by image screenshot, locate position and information",
+        "searchingProgress": "Search Progress",
+        "currentComparing": "Currently Comparing",
+        "algorithms": {
+          "perceptual-hash": "Perceptual Hash",
+          "color-histogram": "Color Histogram",
+          "feature-matching": "Feature Matching",
+          "structural-similarity": "Structural Similarity"
+        },
+        "selectAlgorithm": "Select Comparison Algorithm",
+        "filter": {
+          "source": "Filter by Source",
+          "category": "Filter by Category",
+          "similarityPercent": "Similarity Percentage",
+          "similarityHint": "The lower this value, the lower the image similarity. 0 means all are retrieved.",
+          "searchRange": "Search Range",
+          "rangeHint": "Take the top {range} search results, exceeding content is truncated"
+        },
+        "uploadPrompt": "Select an image as a baseline to find treasure maps",
+        "selectImage": "Select Image",
+        "noResult": {
+          "algorithmIssue": "No similar treasure maps found. This might be due to a query algorithm bias or the treasure map not being in the collection. Please try changing the query algorithm and try again.",
+          "useFilter": "If you know the treasure map attributes, appropriately filtering by map type and treasure map area can reduce the search wait time.",
+          "notInCollection": "If not in the collection, please contact us using the contact information at the bottom of the website to add it to the collection."
+        }
+      }
+    },
+    "mapLocation": {
+      "title": "Map Location",
+      "lookDetail": "View Map Location Details (Hold)"
+    },
+    "mapLocations": {
+      "title": "Map Location List"
+    },
+    "npc": {
+      "title": "NPC",
+      "lookDetail": "View Details (Hold)",
+      "workerTitle": "Processable List",
+      "types": {
+        "npc": "Non-Player Character",
+        "structure": "Structure (Immovable)"
+      },
+      "categorys": {
+        "helmTask": "The Helm Bounty",
+        "water": "Water Source",
+        "powder": "Bonfire",
+        "task": "Task",
+        "shop": "Shop",
+        "pvpMode": "PvP Mode",
+        "factory": "Factory (Processable Items)",
+        "mail": "Mailbox",
+        "warehouse": "Warehouse",
+        "objective": "Objective"
+      }
+    },
+    "npcs": {
+      "title": "NPC List"
     }
   },
   "calendar": {
     "title": "Calendar",
     "meta": {
-      "keywords": "Game Calendar,Calendar,Schedule,Planning"
-    }
+      "keywords": "Game calendar, calendar, schedule, planning"
+    },
+    "timeRemaining": "{time} days remaining",
+    "label": {
+      "pastSeasons": "Past Seasons"
+    },
+    "button": {
+      "subscribe": "Subscribe to Calendar",
+      "addToCalendar": "Add to Calendar"
+    },
+    "dialog": {
+      "subscribeTitle": "Subscribe to {season}",
+      "subscribeDescription": "Download the .ics file, a standard format that can be opened and synced by supporting applications",
+      "eventSubscribeQuestion": "Subscribe to all events for {event} separately?"
+    },
+    "common": {
+      "na": "N/A",
+      "none": "None"
+    },
+    "error": {
+      "invalidDate": "Invalid date",
+      "fetchFailed": "Failed to fetch calendar data"
+    },
+    "day": "Day {day}"
   },
   "map": {
     "title": "Map",
-    "description": "All map items inventory",
-    "searchPlaceholder": "Search landmarks",
+    "description": "Inventory of all map items",
+    "searchPlaceholder": "Search Landmark",
+    "treasureMapAvailable": "Available Treasure Maps",
+    "npcAvailable": "NPC's",
+    "possibleLoot": "Possible Loot",
     "locations": "Locations",
     "layerControl": "Layer Control",
     "hideAll": "Hide All",
     "showAll": "Show All",
     "typeTitle": "Type",
-    "type": {
-      "none": "Unknown",
-      "den": "Large Den",
-      "megafort": "Megafort",
-      "shareLocation": "Share Location",
-      "outpost": "Outpost",
-      "foundry": "Foundry",
-      "capitalSettlement": "Capital Settlement",
-      "lumberyard": "Lumberyard",
-      "militaryBase": "Military Base"
+    "difficulty": "Difficulty",
+    "selectCollection": "Select Collection",
+    "collectionManager": "Collection Manager",
+    "myCollections": "My Collections",
+    "createCollection": "Create Collection",
+    "collectionTitle": "Collection Title",
+    "collectionIsEmptyTip": "Please create a collection first before creating markers",
+    "collectionDescription": "Collection Description",
+    "layerCollection": "Collection",
+    "publicCollection": "Public Collection",
+    "sharedUsers": "Shared Users",
+    "sharedUsersHint": "Enter user IDs, separated by commas",
+    "personalMarkers": "Personal Markers",
+    "noDescription": "No description yet",
+    "noCollections": "No collections yet",
+    "titleRequired": "Title is required",
+    "collectionRequired": "Please select a collection",
+    "confirmDeleteCollection": "Are you sure you want to delete the collection \"{title}\"? This action will also delete all markers within it.",
+    "markerName": "Marker Name",
+    "markerDescription": "Marker Description",
+    "nearbyMarker": "Nearby",
+    "createMarker": "Create Marker",
+    "type": "Type",
+    "tags": "Tags",
+    "publicMarker": "Public Marker",
+    "types": {
+      "none": {
+        "name": "Unknown",
+        "description": "Unknown location"
+      },
+      "den": {
+        "name": "Den",
+        "description": "This is a pirate den. Plan your next heist, outfit your ship, or meet up with other like-minded freebooters for a drink."
+      },
+      "weaver": {
+        "name": "Weaver",
+        "description": "A small settlement focused on collecting and refining Jute. You can purchase cloth or trade goods here."
+      },
+      "settlement": {
+        "name": "Settlement",
+        "description": "A small faction settlement, also a trading post. You can buy and sell goods here... or try to take them by force?"
+      },
+      "megafort": {
+        "name": "Megafort",
+        "description": "Cooperate with 5 other captains to steal a batch of advanced materials from within the Megafort"
+      },
+      "shareLocation": {
+        "name": "Shared Location",
+        "description": "This location is shared by a user"
+      },
+      "outpost": {
+        "name": "Outpost",
+        "description": ""
+      },
+      "foundry": {
+        "name": "Foundry",
+        "description": "A small settlement focused on collecting and refining raw materials. You can purchase ingots or trade goods here."
+      },
+      "capitalSettlement": {
+        "name": "Capital Settlement",
+        "description": "The capital of a faction, a wealthy and well-guarded place suitable for trade."
+      },
+      "lumberyard": {
+        "name": "Lumberyard",
+        "description": "A small settlement focused on collecting and refining raw logs. You can purchase planks or trade goods here."
+      },
+      "militaryBase": {
+        "name": "Military Base",
+        "description": "This is a heavily guarded military base. Although the rewards are rich, only the strongest pirate teams can take it down."
+      }
     }
   },
   "rankingDesignedItems": {
@@ -535,18 +852,18 @@
   "teamUp": {
     "title": "Team Up Search",
     "meta": {
-      "keywords": "Team Up Search,Maximum Trading,Sea Trading,Conflict,PVP,PVE,PVEVP"
+      "keywords": "Team up search, max trade, sea trade, contest, pvp, pve, pvevp"
     },
     "emptyPlayer": "None",
     "emptyUsername": "Anonymous Captain",
-    "emptyDescription": "This person is lazy and wrote nothing",
+    "emptyDescription": "This person is lazy and hasn't written anything",
     "copyPlayerBtn": "Copy",
     "copyPlayerSuccess": "Copied successfully",
-    "pushLoginInfo": "👋 {username}, assemble the fleet, set sail!",
+    "pushLoginInfo": "👋 {username}, form a fleet, and set sail!",
     "form": {
       "player": "Player ID",
       "time": "Willing Wait Time",
-      "descriptionPlaceholder": "Team description, you can also place your voice channel"
+      "descriptionPlaceholder": "Team up description, you can also include your voice channel"
     },
     "time": {
       "minutes": "{count} minutes",
@@ -554,22 +871,27 @@
     },
     "tags": {
       "pve": "Survival",
-      "pvp": "Player Combat",
+      "pvp": "Player Versus Player",
       "timeWander": "World Wandering",
-      "plotTask": "Plot Task",
+      "plotTask": "Main Story Quest",
       "sideQuest": "Side Quest",
       "reward": "Bounty",
       "fortressRaiding": "Fortress Raiding",
-      "transaction": "Item Trading",
+      "transaction": "Item Transaction",
       "other": "Other"
     }
   },
   "assembly": {
-    "title": "Ship Assembly Factory",
+    "title": "Assembly Workshop",
     "meta": {
-      "keywords": "Ship Assembly Factory,Skull and Bones Assembly,Assembly,Build,Game Assembly"
+      "keywords": "Assembly workshop, Skull and Bones assembly, assembly, build, game build"
     },
+    "owner": "Owner",
+    "hasPassword": "Has Password",
+    "byCloningUuid": "Clone",
+    "editAssemblyBtn": "Edit this Assembly",
     "anonymous": "Anonymous",
+    "commentPlaceholder": "What are your thoughts on this?",
     "additions": {
       "assembly": "Assembly",
       "wheel": "Wheel",
@@ -578,7 +900,49 @@
     "setting": {
       "title": "Settings",
       "publicly": "Public",
-      "private": "Private"
+      "private": "Private",
+      "tagCommon": "General",
+      "tagData": "Data",
+      "includePasswordHint": "Include Password",
+      "existingPasswordButNewDelete": "The current assembly has a password, but the new password has been deleted",
+      "notPassword": "No Password",
+      "visibility": "Visibility",
+      "visibilityDescription": "Determines whether it can be searched or accessed directly",
+      "selectVisibility": "Select Visibility",
+      "usePassword": "Use Password",
+      "passwordDescription": "After creating a password, the assembly page requires a password to access",
+      "passwordInput": "Password",
+      "passwordHint": "At least 6 to 32 characters, only a-A 0-9 _ are allowed",
+      "language": "Assembly Language",
+      "languageDescription": "You can define the assembly language",
+      "selectLanguage": "Select Language",
+      "backgroundImage": "Background Image",
+      "backgroundImageDescription": "It is only displayed on the assembly detail page, fixed behind the assembly, use an external image hosting service",
+      "backgroundImageAlt": "Background Image",
+      "backgroundImageUrl": "Background Image URL",
+      "showItemName": "Show Item Name",
+      "showItemNameDescription": "Display the item name below the item icon",
+      "showFullName": "Show Full Name",
+      "showFullNameDescription": "Determines whether the item name is displayed in full, rather than being hidden when overflowing",
+      "anonymous": "Anonymous",
+      "anonymousDescription": "Whether to remove your username and ID in this assembly",
+      "comments": "Comments",
+      "commentsDescription": "Enable comments",
+      "likes": "Likes",
+      "likesDescription": "Enable likes",
+      "other": "Other",
+      "rendererVersion": "Assembly Renderer Version",
+      "rendererVersionDescription": "Determines the format in which the assembly data is loaded. If you don't know what this does, you don't need to set it; the system will use the latest version to initialize the load.",
+      "wheelRendererVersion": "Wheel Renderer Version",
+      "wheelRendererVersionDescription": "Determines the format in which the wheel data is loaded. If you don't know what this does, you don't need to set it; the system will use the latest version to initialize the load.",
+      "warehouseRendererVersion": "Warehouse Renderer Version",
+      "warehouseRendererVersionDescription": "Determines the format in which the warehouse data is loaded. If you don't know what this does, you don't need to set it; the system will use the latest version to initialize the load.",
+      "version": "Version",
+      "selectVersion": "Select Version",
+      "enable": "Enable",
+      "deleteDescription": "Deleting an assembly is irreversible and will delete corresponding comments and likes",
+      "deleteConfirmation": "Delete Assembly?",
+      "deleteWarning": "This operation is irreversible and will permanently delete the assembly, its comments, and likes."
     },
     "modification": {
       "basic": "Basic",
@@ -592,7 +956,7 @@
       },
       "teamFormationMethods": {
         "singlePlayer": "Single Player",
-        "multiPlayer": "Multi Player"
+        "multiPlayer": "Multiplayer"
       },
       "difficultyOfAcquisitions": {
         "simple": "Simple",
@@ -600,7 +964,7 @@
         "difficulties": "Difficult"
       },
       "archetypes": {
-        "dps": "DPS",
+        "dps": "Damage",
         "tank": "Tank",
         "support": "Support"
       },
@@ -617,42 +981,46 @@
         "lifesteal": "Lifesteal",
         "piercing": "Piercing",
         "burning": "Burning",
-        "poison": "Poison",
         "repair": "Repair",
-        "tearing": "Tearing"
+        "tearing": "Tearing",
+        "toxic": "Toxic"
       }
     },
     "workshop": {
-      "title": "Workstation",
+      "title": "Workshop",
       "displayTitle": "Furniture",
-      "weaponTitle": "Weapon",
+      "weaponTitle": "Weapons",
+      "myFavorites": "My Favorites",
       "armorTitle": "Ship Armor",
       "insertArmorTitle": "Insert Ship Armor",
+      "insertShipTitle": "Insert Ship",
+      "insertShipFrigateUpgradeTitle": "Insert Upgrade Part",
       "mainWeapon": "Main Weapon",
       "secondaryWeapon": "Secondary Weapon",
-      "insertWeaponTips": "Please enter ID to select item, ID list can be found <a target=\"_blank\" href=\"{link}\">here</a>",
+      "insertWeaponTips": "Please enter the ID to select the item. The list of IDs is available <a target=\"_blank\" href=\"{link}\">here</a>",
       "insertWeaponTitle": "Insert Weapon",
       "insertSecondaryWeaponTitle": "Insert Secondary Weapon",
       "insertDisplayTitle": "Insert Furniture",
-      "exceedingDisplayLimitTip": "Reached main furniture limit, main furniture will be hidden",
+      "exceedingDisplayLimitTip": "Maximum Major Furniture limit reached, Major Furniture will be hidden",
       "ultimateTitle": "Ultimate Skill",
+      "ignoreConditions": "Ignore Mod Conditions",
       "filter": {
         "all": "All",
-        "byType": "Item Sort Type",
-        "byTitle": "Items sorted by {key}",
+        "byType": "Sort by Item Type",
+        "byTitle": "Sort Items by {key}",
         "byId": "ID",
         "byTier": "Tier",
         "byRarity": "Rarity"
       },
       "verifyTips": {
         "shipEmpty": "Ship not selected, <u>it is required</u>",
-        "ultimateEmpty": "Skill is empty",
-        "shipUpgradeEmpty": "Ship upgrade parts are empty",
+        "ultimateEmpty": "Ultimate skill is empty",
+        "shipUpgradeEmpty": "Ship upgrade part is empty",
         "weaponModificationsEmpty": "Weapon modifications are empty",
         "secondaryWeaponModificationsEmpty": "Secondary weapon modifications are empty",
         "secondaryWeaponEmpty": "Secondary weapon is empty",
         "weaponAllEmpty": "All weapons are empty",
-        "weaponDirectionsEmpty": "Weapon directions not set, <u>it is required</u>",
+        "weaponDirectionsEmpty": "Weapon direction is not set, <u>it is required</u>",
         "armorEmpty": "Ship armor is empty",
         "displayAllEmpty": "All furniture is empty"
       }
@@ -662,29 +1030,45 @@
     },
     "share": {
       "title": "Share Assembly",
-      "createPoster": "Generate Assembly Poster"
+      "createPoster": "Generate Assembly Poster",
+      "configHint": "Configure poster generation attributes, determining poster style and format, etc.",
+      "format": "Format",
+      "width": "Width",
+      "quality": "Image Quality",
+      "filename": "File Name",
+      "showEmptySlot": "Show Empty Slots",
+      "backgroundColor": "Background Color",
+      "showItemName": "Show Name",
+      "fullName": "Full Name",
+      "showHeader": "Poster Header Identifier",
+      "showTitle": "Show Title"
     },
     "browse": {
       "title": "Assembly Share Collection",
-      "search": "Search assembly creator user or assembly name",
+      "search": "Search for Assembly Creator or Assembly Name",
       "newAssembly": "Create Assembly",
       "filterTitle": "Filter",
       "filter": {
         "createdTime": "Creation Time",
         "updatedTime": "Update Time",
         "likes": "Likes",
-        "desc": "Ascending",
-        "asc": "Descending"
+        "desc": "Descending",
+        "asc": "Ascending"
       }
     },
     "publish": {
       "title": "Publish"
     }
   },
+  "space": {
+    "title": "User Space",
+    "lastOnlineTime": "Last Online",
+    "joinTime": "Join Time"
+  },
   "signin": {
-    "title": "Login",
+    "title": "Sign In",
     "meta": {
-      "keywords": "Account Login"
+      "keywords": "Account sign in"
     },
     "form": {
       "placeholder": {
@@ -695,93 +1079,117 @@
         "username": "Account ID",
         "password": "Password"
       }
-    }
+    },
+    "newUserRegistrationHint": "No account? Go to register"
   },
   "signup": {
-    "title": "Register",
+    "title": "Sign Up",
     "meta": {
-      "keywords": "Account Registration"
+      "keywords": "Account registration"
     },
     "username": {
       "name": "Account ID",
-      "placeholder": "Enter website unique standard",
-      "hint": "As the website login unique ID, cannot be changed, at least 3 to 40 characters, use a-z/A-Z/0-9/_ to register username"
+      "placeholder": "Enter unique website identifier",
+      "hint": "Used as the unique login ID for the website, cannot be changed, at least 3 to 40 characters, use a-z/A-Z/0-9/_ to register username"
     },
     "alternativeName": {
-      "name": "Display Name",
+      "name": "Alias",
       "placeholder": "Enter display name",
-      "hint": "Used for website display name, if not filled will default to account ID, at least 3 to 40 characters, use a-z/A-Z/0-9/_"
+      "hint": "Used as the display name on the website. If left blank, your account ID will be used by default. At least 3 to 40 characters, use a-z/A-Z/0-9/_"
+    },
+    "password": {
+      "name": "Password",
+      "placeholder": "Enter account password",
+      "hint": "At least 8 to 64 characters"
     },
     "email": {
       "name": "Email",
       "placeholder": "Enter email address",
-      "hint": "Optional email, this will allow account recovery"
-    }
+      "hint": "Optional email, which will allow your account to be recoverable"
+    },
+    "register": "Register"
   },
   "home": {
     "title": "Home",
     "meta": {
-      "keywords": "Game,Skull and Bones,Skull-and-bones,Skull And Bones,SNB,S And B,Ubisoft,2025"
+      "keywords": "Game, Skull and Bones, game, skull-and-bones, Skull And Bones, SNB, S And B, ubisoft, 2025"
     }
   },
   "empireSkillSimulation": {
-    "searchPlaceholder": "Search Skills",
+    "searchPlaceholder": "Search Skill",
     "effects": "Effects",
     "requirements": "Requirements",
-    "requiredCost": "Required Materials",
+    "requiredCost": "Required Cost",
     "stage": "Stage {num}",
     "other": "Other",
-    "effectsNotContent": "Missing description",
-    "dateAdded": "Creation Time",
-    "lastUpdated": "Update Time"
+    "effectsNotContent": "Missing Description",
+    "dateAdded": "Date Added",
+    "lastUpdated": "Last Updated"
+  },
+  "search": {
+    "title": "Search",
+    "placeholder": "Enter keywords or use field query, e.g.: name:device or id:exact_id",
+    "conditions": "Query Conditions",
+    "quickFilters": "Quick Filters",
+    "recentSearches": "Recent Searches",
+    "strictMatch": "Strict Match",
+    "fuzzyMatch": "Fuzzy Match",
+    "useTip": "Advanced Usage Tips",
+    "filters": {
+      "name": "Name",
+      "id": "ID",
+      "description": "Description",
+      "category": "Category",
+      "type": "Type"
+    }
   },
   "header": {
     "navs": {
-      "blog": "Glow Prow Blog",
+      "blog": "Shining Prow Blog",
       "officialWebsite": "Skull and Bones Official Website",
       "officialWebsiteDebug": "Skull and Bones Official Issues Collection"
     },
     "functions": {
       "team": {
         "title": "Team Up Search",
-        "description": "Post or find captains with same plans to sail, face real enemies"
+        "description": "Post or find captains with the same plan to set sail and face real enemies"
       },
       "calendar": {
         "title": "Calendar",
-        "description": "View current season event information"
+        "description": "View this season's event information (Hold)"
       },
       "maps": {
         "title": "Map",
-        "description": "Map items inventory"
+        "description": "Map item inventory"
       },
       "codex": {
-        "title": "Manuscript",
+        "title": "Codex",
         "description": "Display item information, check how to obtain them"
       },
       "assembly": {
-        "title": "Ship Assembly Factory",
-        "description": "Design your ship, reach performance limits, share with friends"
+        "title": "Ship Assembly Workshop",
+        "description": "Design your ship, push it to its performance limit, and share it with friends"
       },
       "captain-signature": {
-        "title": "Pirate Signature (In Development)",
-        "description": "Generate pirate signature images, share on community websites"
+        "title": "Pirate Signature (Under Development)",
+        "description": "Generate pirate signature images to share on community websites"
       },
       "ranking-of-designed-items": {
-        "title": "Item Ranking (In Development)",
+        "title": "Item Ranking (Under Development)",
         "description": "Generate player rankings and evaluations for items"
       },
       "impression-of-monsters": {
-        "title": "Elite Monster Impressions (In Development)",
-        "description": "Share your first impressions of different monsters in the game"
+        "title": "Elite Monster Impression (Under Development)",
+        "description": "Share your first impression of different in-game monsters"
       },
       "fashion-show": {
-        "title": "Fashion Show (In Development)",
-        "description": "Share your outfits, become a fashion icon"
+        "title": "Fashion Show (Under Development)",
+        "description": "Share your outfit and become a fashionista"
       },
       "empire-skill-simulation": {
         "title": "Empire Upgrade Simulation (BETA 1)",
-        "description": "Helm Upgrade Simulation",
-        "keywords": "Empire Skill Simulation"
+        "description": "The Helm Upgrade Simulation",
+        "keywords": "empire skill simulation"
       }
     }
   },
@@ -790,22 +1198,24 @@
       "description": "Skull and Bones Inventory Website"
     },
     "col1": {
-      "title": "Services"
+      "title": "Service"
     },
     "col2": {
       "title": "Community",
-      "baiduTieBa": "Baidu Tieba",
+      "baiduTieBa": "Baidu Tieba Shining Prow Posts",
+      "xiaoheihe": "Xiaoheihe Shining Prow Posts",
       "kook": "Kook Community"
     },
     "col3": {
       "title": "Contact",
       "serviceStatus": "Service Status",
-      "translated": "📖 Help us translate"
+      "translated": "📖Help us translate",
+      "github": "Project Open Source Address"
     }
   },
   "empty": {
     "title": "Empty",
-    "description": "Nothing here"
+    "description": "Captain! Turn around, there's nothing here"
   },
   "captcha": {
     "get": "Get Captcha",
@@ -813,8 +1223,8 @@
     "messages": {
       "bad": "Captcha error, please contact administrator",
       "expired": "Captcha expired",
-      "gen": "Retrieved successfully",
-      "wrong": "Captcha incorrect"
+      "gen": "Acquired successfully",
+      "wrong": "Incorrect captcha"
     },
     "title": "Captcha"
   }

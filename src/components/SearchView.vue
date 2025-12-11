@@ -619,7 +619,7 @@ defineExpose({
       <v-col cols="12">
         <v-text-field
             v-model="searchValue"
-            variant="outlined"
+            variant="filled"
             class="mb-3"
             :placeholder="t('search.placeholder')"
             glow

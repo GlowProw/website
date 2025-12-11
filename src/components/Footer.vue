@@ -2,7 +2,7 @@
 import {useI18n} from "vue-i18n";
 import I18nWidget from "./i18nWidget.vue";
 import ServiceProviderWidget from "@/components/ServiceProviderWidget.vue";
-import {appFuns} from "@/assets/sripts/index";
+import {appFuns, appNavs} from "@/assets/sripts/index";
 import Logo from "@/components/Logo.vue";
 import HtmlLink from "@/components/HtmlLink.vue";
 
@@ -49,6 +49,7 @@ const {t} = useI18n();
               </v-col>
               <v-col cols="12" sm="6" md="6" lg="3">
                 <b class="text-amber">{{ t('footer.col2.title') }}</b>
+
                 <ul>
                   <li>
                     <HtmlLink
@@ -71,7 +72,21 @@ const {t} = useI18n();
                       {{ t('footer.col2.xiaoheihe') }}
                     </HtmlLink>
                   </li>
+                </ul>
 
+                <v-divider class="my-3"></v-divider>
+
+                <ul>
+                  <li
+                      class="hidden-sm hidden-xs"
+                      v-for="(nav, navIndex) in appNavs.list" :key="navIndex">
+                    <HtmlLink
+                        :is-iframe-show="false"
+                        :href="nav.href"
+                        target="_blank">
+                      {{ t(nav.title) }}
+                    </HtmlLink>
+                  </li>
                 </ul>
               </v-col>
               <v-col cols="12" sm="6" md="6" lg="3">

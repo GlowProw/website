@@ -8,9 +8,11 @@ import {appFuns, appNavs} from "@/assets/sripts/index";
 import {useI18n} from "vue-i18n";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import GlobalSearch from "@/components/GlobalSearch.vue";
+import {useDisplay} from "vuetify/framework";
 
 const authStore = useAuthStore(),
-    {t} = useI18n()
+    {t} = useI18n(),
+    {mobile, xs} = useDisplay()
 
 let drawer = ref(false)
 </script>
@@ -18,34 +20,42 @@ let drawer = ref(false)
 <template>
   <header>
     <v-app-bar
-        class="header"
-        density="compact"
+        class="header header-filter"
+        density="comfortable"
         translate="yes"
         :absolute="false"
         flat>
       <v-app-bar-nav-icon @click="drawer = !drawer" class="hidden-md hidden-lg hidden-xl hidden-xxl"></v-app-bar-nav-icon>
 
-      <Logo class="ml-sm-1 ml-md-1 ml-lg-2 mr-5"></Logo>
-      <v-btn size="x-small" class="ml-n3 mr-3" variant="tonal">BETA 2</v-btn>
+      <Logo size="32" class="ml-sm-1 ml-md-1 ml-lg-2 mr-5"></Logo>
 
-      <v-btn
-          class="hidden-sm hidden-xs"
-          variant="text"
-          density="comfortable" :href="nav.href" target="_blank"
-          v-for="(nav, navIndex) in appNavs.list" :key="navIndex">
-        {{ t(nav.title) }}
-        <template v-slot:append>
-          <v-icon icon="mdi-open-in-new" size="15"></v-icon>
-        </template>
-      </v-btn>
+      <v-spacer></v-spacer>
+
+      <GlobalSearch>
+        <v-card
+            border
+            :width="mobile ? 'auto' : '60vh'"
+            min-width="100"
+            class="my-2 mx-auto header-filter"
+            density="compact"
+            prepend-inner-icon="mdi-magnify"
+            readonly
+            hide-details
+            hide-spin-buttons
+            persistent-hint
+            variant="tonal">
+          <v-row class="px-5 py-1" align="center" justify="center">
+            <v-col cols="auto"><v-icon>mdi-magnify</v-icon></v-col>
+            <v-col cols="auto" class="opacity-50 w-75 singe-line" v-if="!xs">
+              {{ t('search.placeholder') }}
+            </v-col>
+          </v-row>
+        </v-card>
+      </GlobalSearch>
 
       <v-spacer></v-spacer>
 
       <HeaderAccount type="header"></HeaderAccount>
-
-      <GlobalSearch>
-        <v-icon icon="mdi-magnify"></v-icon>
-      </GlobalSearch>
 
       <HeaderMuenFunWidget></HeaderMuenFunWidget>
     </v-app-bar>

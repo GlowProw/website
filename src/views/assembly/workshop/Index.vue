@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
-import {computed, nextTick, onMounted, type Ref, ref, toRaw, watch} from "vue";
+import {computed, onMounted, type Ref, ref, toRaw, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {v6 as uuidv6} from "uuid";
 

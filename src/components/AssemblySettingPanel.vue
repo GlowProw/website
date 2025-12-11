@@ -1,17 +1,20 @@
 <script setup lang="ts">
-import {ref, watch} from "vue";
+import {Ref, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {useHttpToken} from "@/assets/sripts/http_util";
-import {api} from "@/assets/sripts/index";
+import {apis} from "@/assets/sripts/index";
+import {useNoticeStore} from "~/stores/noticeStore";
+import {ApiError} from "@/assets/types/Api";
+import {PublishAssemblyData} from "@/assets/types";
+
 import Loading from "@/components/Loading.vue";
 import AssemblySettingWidget from "@/components/AssmblySettingWidget.vue"
 import AssemblyDataProcessing from "@/assets/sripts/assembly_data_processing";
 import VueJsonPretty from 'vue-json-pretty';
-
-import 'vue-json-pretty/lib/styles.css';
 import WheelDataProcessing from "@/assets/sripts/wheel_data_processing";
 import WarehouseDataProcessing from "@/assets/sripts/warehouse_data_processing";
-import {useNoticeStore} from "~/stores/noticeStore";
+
+import 'vue-json-pretty/lib/styles.css';
 
 const {t, locale} = useI18n(),
     http = useHttpToken(),
@@ -26,7 +29,7 @@ let show = ref(false),
     setSettingLoading = ref(false),
     tabValue = ref('conventional'),
     // 属性结构
-    settingData = ref({
+    settingData: Ref<PublishAssemblyData> = ref({
       assembly: {
         visibility: 'publicly',
         attr: {
@@ -61,17 +64,18 @@ const getAssemblySetting = async () => {
       return;
 
     getSettingLoading.value = true
-    const result = await http.get(api['assembly_attr'], {
-          params: {
-            uuid: props.id,
-          }
-        }),
+
+    const result = await apis.assemblyApi().getAssemblyAttr(props.id),
         d = result.data
 
-    if (d.error == 1)
-      return;
-
     settingData.value = Object.assign(settingData.value, d.data.data);
+  } catch (e) {
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.code
+      }));
+    }
+    console.error(e);
   } finally {
     getSettingLoading.value = false
   }
@@ -92,23 +96,17 @@ const setAssemblySetting = async () => {
     else if (settingData.value.assembly.attr && settingData.value.assembly.attr.password == '')
       delete settingData.value.assembly.attr.password
 
-    const result = await http.post(api['assembly_attr_edit'], {
-          data: {
-            uuid: props.id,
-            ...settingData.value
-          }
-        }),
+    const result = await apis.assemblyApi().editAssemblyAttr(props.id, settingData.value),
         d = result.data
 
-    if (d.error == 1)
-      return;
-
+    notice.success(t(`basic.tips.${d.code}`))
   } catch (e) {
-    console.error(e)
-    if (e instanceof Error)
-      notice.error(t(`basic.tips.${e.response.data.code}`, {
-        context: e.response.data.code
-      }))
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.code
+      }));
+    }
+    console.error(e);
   } finally {
     emit('change')
 
@@ -126,7 +124,7 @@ const setAssemblySetting = async () => {
     <v-container>
       <v-card class="position-relative">
         <v-card-title class="pa-5">
-          <div class="text-h5 font-weight-bold text-amber">设置</div>
+          <div class="text-h5 font-weight-bold text-amber">{{ t('assembly.setting.title') }}</div>
         </v-card-title>
 
         <v-overlay :model-value="getSettingLoading"
@@ -142,8 +140,8 @@ const setAssemblySetting = async () => {
               class="v-col-2 pa-0"
               v-model="tabValue"
               direction="vertical">
-            <v-tab prepend-icon="mdi-cog" text="常规" value="conventional"></v-tab>
-            <v-tab prepend-icon="mdi-database" text="数据" value="data" v-if="props?.data?.assembly?.data"></v-tab>
+            <v-tab prepend-icon="mdi-cog" :text="t('assembly.setting.tagCommon')" value="conventional"></v-tab>
+            <v-tab prepend-icon="mdi-database" :text="t('assembly.setting.tagData')" value="data" v-if="props?.data?.assembly?.data"></v-tab>
           </v-tabs>
           <v-divider vertical></v-divider>
 
@@ -173,8 +171,8 @@ const setAssemblySetting = async () => {
         <v-divider></v-divider>
         <v-card-actions class="pa-5">
           <v-spacer></v-spacer>
-          <v-btn @click="show = !show">取消</v-btn>
-          <v-btn :loading="setSettingLoading" @click="setAssemblySetting" class="bg-amber">确定</v-btn>
+          <v-btn @click="show = !show">{{ t('basic.button.cancel') }}</v-btn>
+          <v-btn :loading="setSettingLoading" @click="setAssemblySetting" class="bg-amber">{{ t('basic.button.submit') }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-container>

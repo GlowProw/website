@@ -151,11 +151,13 @@ const onWaterBarrelClick = () => {
           <div class="d-flex align-center">
             <v-icon :icon="strongBreeze ? 'mdi-weather-windy' : 'mdi-sail-boat'" class="mr-2"></v-icon>
             <span>
-              速度提升: +{{ totalSpeedBoost.toFixed(1) }}%
+              {{ t('codex.ship.sailSpeed.boost.title', { percent: totalSpeedBoost.toFixed(1) }) }}
               <span v-if="speedBoost > 0">
-                ({{ currentBoostType === 'waterFlask' ? '水壶' : '水桶' }}效果剩余 {{ formattedRemainingTime }})
+                {{ boostDescription }}
               </span>
-              <span v-if="strongBreeze">(强风效果)</span>
+              <span v-if="strongBreeze">
+                ({{ t('codex.ship.sailSpeed.boost.strongBreezeEffect') }})
+              </span>
             </span>
           </div>
           <v-btn
@@ -165,7 +167,7 @@ const onWaterBarrelClick = () => {
               variant="text"
               color="error"
               icon
-              title="终止效果">
+              :title="t('codex.ship.sailSpeed.boost.cancelEffect')">
             <v-icon>mdi-close-circle</v-icon>
           </v-btn>
         </div>
@@ -217,10 +219,12 @@ const onWaterBarrelClick = () => {
 
                 <p class="opacity-50 text-body-1 ml-2">
                   <v-icon icon="mdi-arrow-top-right-thick"></v-icon>
-                  {{ t('codex.ship.sailSpeed.knot') }}
+                  {{ t('codex.ship.sailSpeed.unit.knot') }}
                   <span v-if="totalSpeedBoost > 0" class="text-success text-caption">
                     (+{{ totalSpeedBoost.toFixed(1) }}%)
-                    <span v-if="strongBreeze" class="text-orange">(强风)</span>
+                    <span v-if="strongBreeze" class="text-orange">
+                      ({{ t('codex.ship.sailSpeed.boost.strongBreeze') }})
+                    </span>
                   </span>
                 </p>
               </div>
@@ -252,7 +256,8 @@ const onWaterBarrelClick = () => {
           <v-btn
               @click="onWaterFlaskClick"
               :disabled="speedBoost > 0"
-              :color="currentBoostType === 'waterFlask' ? '' : undefined">
+              :color="currentBoostType === 'waterFlask' ? '' : undefined"
+              :title="t('codex.ship.sailSpeed.boost.waterFlaskTooltip')">
             <ItemSlotBase size="32px" :padding="0" class="mr-2">
               <ItemIconWidget :id="'waterFlask'" :is-show-tooltip="false" :is-open-detail="false"></ItemIconWidget>
             </ItemSlotBase>
@@ -271,7 +276,8 @@ const onWaterBarrelClick = () => {
           <v-btn
               @click="onWaterBarrelClick"
               :disabled="speedBoost > 0"
-              :color="currentBoostType === 'waterBarrel' ? '' : undefined">
+              :color="currentBoostType === 'waterBarrel' ? '' : undefined"
+              :title="t('codex.ship.sailSpeed.boost.waterBarrelTooltip')">
             <ItemSlotBase size="32px" :padding="0" class="mr-2">
               <ItemIconWidget :id="'waterBarrel'" :is-show-tooltip="false" :is-open-detail="false"></ItemIconWidget>
             </ItemSlotBase>
@@ -290,10 +296,11 @@ const onWaterBarrelClick = () => {
         <v-col cols="12" class="d-flex justify-center">
           <v-checkbox
               v-model="strongBreeze"
-              :label="`强风`"
+              :label="t('codex.ship.sailSpeed.boost.strongBreeze')"
               density="compact"
               hide-details
               color="orange"
+              :title="t('codex.ship.sailSpeed.boost.strongBreezeTooltip')"
           ></v-checkbox>
         </v-col>
       </v-row>
@@ -322,7 +329,6 @@ const onWaterBarrelClick = () => {
       </template>
     </v-text-field>
     <!-- 速度 E -->
-
   </div>
 </template>
 
@@ -336,7 +342,6 @@ const onWaterBarrelClick = () => {
   color: #ff9800;
 }
 
-// 为倒计时徽章添加样式
 :deep(.v-badge__badge) {
   font-size: 0.7rem;
   min-width: 40px;

@@ -1,5 +1,5 @@
 import {defineStore} from "pinia";
-import {ref} from "vue";
+import {Ref, ref} from "vue";
 
 type NoticeType = 'success' | 'error' | 'info' | 'warning' | 'primary' | any
 
@@ -18,12 +18,12 @@ const NoticeType = {
 };
 
 export const useNoticeStore = defineStore('notice', () => {
-    const messages = ref([]);
-    const currentMessage = ref(null);
+    const messages: Ref<NoticeOptions[]> = ref([]);
+    const currentMessage: Ref<any> = ref(null);
 
     // 添加消息到队列
-    const push = (options) => {
-        const message = {
+    const push = (options: any) => {
+        const message: NoticeOptions | any = {
             text: options.text,
             timeout: options.timeout || 3000,
             color: options.color || 'primary',
@@ -54,23 +54,23 @@ export const useNoticeStore = defineStore('notice', () => {
     };
 
     // 便捷方法
-    const success = (text, options = {}) => {
+    const success = (text: string, options = {}) => {
         push({text, ...options, color: NoticeType.SUCCESS});
     };
 
-    const error = (text, options = {}) => {
+    const error = (text: string, options = {}) => {
         push({text, ...options, color: NoticeType.ERROR});
     };
 
-    const info = (text, options = {}) => {
+    const info = (text: string, options = {}) => {
         push({text, ...options, color: NoticeType.INFO});
     };
 
-    const warning = (text, options = {}) => {
+    const warning = (text: string, options = {}) => {
         push({text, ...options, color: NoticeType.WARNING});
     };
 
-    const primary = (text, options = {}) => {
+    const primary = (text: string, options = {}) => {
         push({text, ...options, color: NoticeType.PRIMARY});
     };
 

@@ -438,7 +438,7 @@ const onStarItem = (data: Item) => {
             </v-row>
 
             <template v-if="itemDetailData.id">
-              <v-divider>评论</v-divider>
+              <v-divider>{{ t('comment.title') }}</v-divider>
               <CommentWidget :id="itemDetailData.id" type="item" placeholder=""></CommentWidget>
             </template>
           </v-col>

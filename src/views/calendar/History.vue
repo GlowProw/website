@@ -2,12 +2,11 @@
 import {computed, onMounted, ref} from "vue";
 import {useI18n} from "vue-i18n";
 import {Seasons} from "glow-prow-data";
-import {http, time} from "@/assets/sripts";
+import {apis, http, time} from "@/assets/sripts";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 
 import {Season} from "glow-prow-data/src/entity/Seasons";
 import {CalendarData, FormattedCalendar} from "@/assets/types";
-import {useCalendarApi} from "@/assets/sripts/api/calendar_service";
 import {ApiError} from "@/assets/types/Api";
 import {useNoticeStore} from "~/stores/noticeStore";
 
@@ -18,7 +17,6 @@ import Silk from "@/components/Silk.vue";
 
 const {t, te} = useI18n();
 const {asString} = useI18nUtils();
-const api = useCalendarApi();
 const notice = useNoticeStore();
 
 const seasons = Seasons;
@@ -67,8 +65,10 @@ const initCalendar = async () => {
   }
 };
 
+/**
+ * Initialize season selection list
+ */
 const initCalendarList = () => {
-  // Initialize season selection list
   selectSeasonsList.value = Object.values(seasons)
       .map(season => {
         const i18nKey = `snb.seasons.${season.id}`;
@@ -185,7 +185,7 @@ const fetchCalendarEventData = async (seasonId?: string) => {
     if (!targetSeasonId) return;
 
     calendarLoading.value = true;
-    const result = await api.get(targetSeasonId);
+    const result = await apis.calendarApi().get(targetSeasonId);
 
     if (result.data?.data) {
       seasonsCalendarEvents.value = result.data.data;
@@ -194,9 +194,9 @@ const fetchCalendarEventData = async (seasonId?: string) => {
     if (error instanceof ApiError) {
       notice.error(t(`basic.tips.${error.code}`, {context: error.code}));
     } else {
-      console.error('calendar.error.fetchFailed', error);
       notice.error(t('calendar.error.fetchFailed'));
     }
+    console.error(error);
   } finally {
     calendarLoading.value = false;
   }

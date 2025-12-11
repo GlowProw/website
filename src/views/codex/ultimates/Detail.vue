@@ -181,7 +181,7 @@ const onUltimateHistory = () => {
             </v-row>
 
             <template v-if="ultimateDetailData.id">
-              <v-divider>评论</v-divider>
+              <v-divider>{{ t('comment.title') }}</v-divider>
               <CommentWidget :id="ultimateDetailData.id" type="ultimate" placeholder=""></CommentWidget>
             </template>
           </v-col>

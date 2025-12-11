@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import {computed, nextTick, onMounted, ref, watch} from "vue";
-import {api, http} from "@/assets/sripts/index";
+import {apis} from "@/assets/sripts/index";
 import {snapdom} from '@zumer/snapdom';
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useDisplay} from "vuetify/framework";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useNoticeStore} from "~/stores/noticeStore";
+import {useGoTo} from "vuetify";
 import QRCode from "qrcode"
 
 import AssemblyWidget from "@/components/AssemblyWidget.vue";
@@ -16,10 +17,12 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import Logo from "@/components/Logo.vue";
 import AssemblySvgIcon from "@/components/AssemblySvgIcon.vue";
 import Silk from "@/components/Silk.vue";
+import {ApiError} from "@/assets/types/Api";
 
 const route = useRoute(),
     router = useRouter(),
-    noticeStore = useNoticeStore(),
+    goto = useGoTo(),
+    notice = useNoticeStore(),
     {asString} = useI18nUtils(),
     {t} = useI18n(),
     {mobile} = useDisplay()
@@ -77,29 +80,20 @@ const getAssemblyDetail = async () => {
 
     assemblyLoading.value = true;
 
-    const result = await http.get(api['assembly_item'], {
-          params: {
-            uuid,
-            password
-          },
-        }),
+    const result = await apis.assemblyApi().getAssemblyItem(<string>uuid, {password}),
         d = result.data;
-
-    if (d.error == 1) {
-      assemblyDetailData.value = d.data;
-      return
-    }
 
     assemblyDetailData.value = d.data;
     generateImageConfig.value.filename = assemblyDetailData.value.name;
 
-    loadAssemblyData()
+    await loadAssemblyData()
   } catch (e) {
-    console.error(e)
-    if (e instanceof Error)
-      noticeStore.error(t(`basic.tips.${e.response.data.code}`, {
-        context: e.response.data.code
-      }))
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.code
+      }));
+    }
+    console.error(e);
   } finally {
     assemblyLoading.value = false
   }
@@ -127,16 +121,17 @@ const onGeneratedShare = async () => {
   try {
     generatedLoading.value = true
 
+    await goto('#share-footer')
+
     let node = captureRef.value;
+
+    await goto(0, {duration: 2000})
 
     const d = await snapdom(node, {
       width: generateImageConfig.value.width,
+      scale: mobile ? window.devicePixelRatio * 2 : window.devicePixelRatio,
       embedFonts: true,
-      localFonts: [
-        {family: "Material Icons", src: "https://fonts.gstatic.com/s/materialicons/v145/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2", weight: "normal", style: "normal"},
-        {family: "Material Design Icons", src: "https://fonts.gstatic.com/s/materialicons/v145/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2", weight: "normal", style: "normal"},
-      ],
-      iconFonts: ['Material Design Icons', 'Material Icons', 'Material Icons Round'],
+      iconFonts: ['Material Design Icons', 'Material Icons'],
       useProxy: 'https://proxy.corsfix.com/?',
       quality: generateImageConfig.value.quality,
       filter: (node) => {
@@ -236,7 +231,7 @@ const onGenerateQRCode = async (text) => {
       </v-row>
 
       <!-- Assembly Preview S -->
-      <v-card class="mt-n10" variant="text" v-if="assemblyDetailData.isVisibility">
+      <v-card variant="text" v-if="assemblyDetailData.isVisibility">
         <AssemblyWidget ref="assemblyDetailRef" :readonly="true" :is-show-empty="generateImageConfig.isShowEmptySlot" :perfect-display="true" :is-full-name="true">
           <template v-slot:image v-if="assemblyDetailData.assembly.attr.backgroundPresentation">
             <v-img cover class="pointer-events-none" :src="assemblyDetailData.assembly.attr.backgroundPresentation"></v-img>

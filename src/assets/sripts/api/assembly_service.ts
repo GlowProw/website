@@ -13,6 +13,7 @@ export function useAssemblyApi() {
 
     /**
      * 发布组件
+     * @param data
      */
     const publishAssembly = async (data: PublishAssemblyData) => {
         try {
@@ -24,7 +25,8 @@ export function useAssemblyApi() {
     };
 
     /**
-     * 获取组件列表
+     * 获取配装列表
+     * @param params
      */
     const getAssemblyList = async (params?: AssemblyListParams & PaginationParams) => {
         try {
@@ -36,11 +38,24 @@ export function useAssemblyApi() {
     };
 
     /**
-     * 获取组件详情
+     * 获取配装详情
+     * @param assemblyUuid
+     * @param options
      */
-    const getAssemblyItem = async (assemblyId: string) => {
+    const getAssemblyItem = async (assemblyUuid: string, options?: {
+        password?: string | null,
+        force?: boolean
+    }) => {
         try {
-            const result = await http.get(`assembly/item/${assemblyId}`);
+            const result = await http.get(`assembly/item`, {
+                params: {
+                    uuid: assemblyUuid,
+                    password: options?.password
+                },
+                data: {
+                    force: options?.force
+                }
+            });
             return handleResponse(result);
         } catch (error) {
             return handleError(error);
@@ -48,11 +63,12 @@ export function useAssemblyApi() {
     };
 
     /**
-     * 编辑组件
+     * 编辑配装
+     * @param data
      */
-    const editAssembly = async (assemblyId: string, data: EditAssemblyData) => {
+    const editAssembly = async (data: EditAssemblyData) => {
         try {
-            const result = await http.put(`assembly/edit/${assemblyId}`, {data});
+            const result = await http.put(`assembly/edit`, {data});
             return handleResponse(result);
         } catch (error) {
             return handleError(error);
@@ -61,10 +77,14 @@ export function useAssemblyApi() {
 
     /**
      * 删除组件
+     * @param assemblyUuid
      */
-    const deleteAssembly = async (assemblyId: string): Promise<void> => {
+    const deleteAssembly = async (assemblyUuid: string) => {
         try {
-            await http.del(`assembly/delete/${assemblyId}`);
+            const result = await http.post(`assembly/delete`, {
+                data: {uuid: assemblyUuid}
+            });
+            return handleResponse(result);
         } catch (error) {
             return handleError(error);
         }
@@ -73,9 +93,13 @@ export function useAssemblyApi() {
     /**
      * 获取组件属性
      */
-    const getAssemblyAttr = async (assemblyId: string) => {
+    const getAssemblyAttr = async (assemblyUuid: string) => {
         try {
-            const result = await http.get(`assembly/attr/${assemblyId}`);
+            const result = await http.get(`assembly/attr`, {
+                params: {
+                    uuid: assemblyUuid
+                }
+            });
             return handleResponse(result);
         } catch (error) {
             return handleError(error);
@@ -85,10 +109,13 @@ export function useAssemblyApi() {
     /**
      * 编辑组件属性
      */
-    const editAssemblyAttr = async (assemblyId: string, attrData: any) => {
+    const editAssemblyAttr = async (assemblyUuid: string, attrData: any) => {
         try {
-            const result = await http.put(`assembly/attr/edit/${assemblyId}`, {
-                data: attrData
+            const result = await http.post(`assembly/attr/edit`, {
+                data: {
+                    uuid: assemblyUuid,
+                    ...attrData
+                }
             });
             return handleResponse(result);
         } catch (error) {

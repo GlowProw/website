@@ -1,11 +1,12 @@
 <script lang="ts" setup>
 import {useRoute, useRouter} from "vue-router";
-import {computed, ref, watch} from "vue";
+import {computed, Ref, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
-import {api, storageIntermediateTransfer} from "@/assets/sripts";
+import {apis, storageIntermediateTransfer} from "@/assets/sripts";
 import {StorageIntermediateTransferSaveType} from "@/assets/sripts/storage_assembly";
 import {useHttpToken} from "@/assets/sripts/http_util";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
+import {ApiError} from "@/assets/types/Api";
 import {useNoticeStore} from "~/stores/noticeStore";
 
 import Textarea from "@/components/textarea/index.vue"
@@ -13,23 +14,20 @@ import AssemblyMainSubjectView from "@/components/AssemblyMainSubjectView.vue";
 import Silk from "@/components/Silk.vue";
 import AssemblyTagsWidget from "@/components/AssemblyTagsWidget.vue";
 import AssemblySettingWidget from "@/components/AssmblySettingWidget.vue"
-
-// workshop data processing S
 import AssemblyDataProcessing from "@/assets/sripts/assembly_data_processing"
 import WheelDataProcessing from "@/assets/sripts/wheel_data_processing"
 import WarehouseDataProcessing from "@/assets/sripts/warehouse_data_processing"
-// workshop data processing E
+import type {PublishAssemblyData} from "@/assets/types";
 
 const route = useRoute(),
     router = useRouter(),
     http = useHttpToken(),
-    noticeStore = useNoticeStore(),
+    notice = useNoticeStore(),
     {asString} = useI18nUtils(),
-    {t, locale} = useI18n(),
-    httpToken = useHttpToken()
+    {t, locale} = useI18n()
 
 let // 发布信息
-    publishData = ref({
+    publishData: Ref<PublishAssemblyData> = ref({
       assembly: {
         visibility: 'publicly',
         tags: [],
@@ -51,24 +49,6 @@ let // 发布信息
           warehouseUseVersion: WarehouseDataProcessing.nowVersion
         }
       }
-    } as {
-      uuid: string,
-      name: string,
-      description: string,
-      assembly: {
-        tags: any[],
-        visibility: string,
-        attr: any,
-        data: any
-      },
-      wheel?: {
-        attr?: any,
-        data: any
-      },
-      warehouse?: {
-        attr?: any,
-        data: any
-      }
     }),
     dataLoading = ref(false),
     publishLoading = ref(false),
@@ -80,7 +60,7 @@ let // 发布信息
     },
     // 发布前检查 是否可发布
     isPush = computed(() => {
-      return publishData.value.name == ''
+      return publishData.value?.name == ''
     }),
     // 是否编辑模式
     isEditModel = computed(() => {
@@ -106,13 +86,13 @@ const onLoadData = () => {
   const {uid} = route.params;
 
   if (uid) {
-    const getLocalAssemblyData = storageIntermediateTransfer.get(uid as string, {
+    const getLocalAssemblyData: any = storageIntermediateTransfer.get(uid as string, {
       saveType: StorageIntermediateTransferSaveType.Data,
       category: 'assembly'
     })
 
     if (getLocalAssemblyData.code != 0)
-      return noticeStore.error(t('basic.tips.assembly.error', {
+      return notice.error(t('basic.tips.assembly.error', {
         context: 'Unable to read the local data' // 无法读取到本地数据
       }))
 
@@ -155,7 +135,7 @@ const onSetAssemblyData = async () => {
         assemblyUseVersion: publishData.value.assembly.attr?.assemblyUseVersion || publishData.value.assembly.data.__version || AssemblyDataProcessing.nowVersion,
         isShowItemName: publishData.value.assembly.attr?.isShowItemName || false
       })
-      .onLoad(publishData.value.assembly.data)
+      .onLoad(publishData.value.assembly?.data)
 }
 
 /**
@@ -166,7 +146,7 @@ const onSetWheelData = () => {
       .setSetting({
         wheelUseVersion: publishData.value.wheel?.attr?.wheelUseVersion || publishData.value.wheel.data.__version || WheelDataProcessing.nowVersion,
       })
-      .onLoad(publishData.value.wheel.data)
+      .onLoad(publishData.value.wheel?.data)
 }
 
 /**
@@ -177,7 +157,7 @@ const onSetWarehouseData = () => {
       .setSetting({
         warehouseUseVersion: publishData.value.warehouse?.attr?.warehouseUseVersion || publishData.value.warehouse.data.__version || WarehouseDataProcessing.nowVersion,
       })
-      .onLoad(publishData.value.warehouse.data)
+      .onLoad(publishData.value.warehouse?.data)
 }
 
 /**
@@ -188,25 +168,24 @@ const onEdit = async () => {
     publishLoading.value = true
     let editPublishData: any = publishData.value;
 
-    const result = await httpToken.post(api['assembly_edit'], {
-          data: editPublishData
-        }),
+    const result = await apis.assemblyApi().editAssembly(editPublishData),
         d = result.data;
-
-    if (d.error == 1)
-      throw Error(d.message || d.code);
 
     storageIntermediateTransfer.delete(editPublishData.uuid as string, {
       saveType: StorageIntermediateTransferSaveType.Data,
       category: 'assembly'
     })
+
     await router.push(`/assembly/browse/${editPublishData.uuid}/detail`)
 
-    noticeStore.success(t(`basic.tips.${d.code}`))
+    notice.success(t(`basic.tips.${d.code}`))
   } catch (e) {
-    console.error(e)
-    if (e instanceof Error)
-      noticeStore.error(e.message)
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.code
+      }));
+    }
+    console.error(e);
   } finally {
     publishLoading.value = false
   }
@@ -222,31 +201,28 @@ const onPublish = async () => {
     const {uid} = route.params;
     const onePublishData = publishData.value;
 
-    const result = await http.post(api['assembly_publish'], {
-          data: onePublishData
-        }),
+    const result = await apis.assemblyApi().publishAssembly(onePublishData),
         d = result.data;
-
-    if (d.error == 1)
-      throw Error(d);
 
     storageIntermediateTransfer.delete(uid as string, {
       saveType: StorageIntermediateTransferSaveType.Data,
       category: 'assembly'
     })
+
     await router.push(
         d.data['assembly.uuid'] ?
             `/assembly/browse/${d.data['assembly.uuid']}/detail` :
             `/assembly/browse`
     )
 
-    noticeStore.success(t(`basic.tips.${d.code}`))
+    notice.success(t(`basic.tips.${d.code}`))
   } catch (e) {
-    console.error(e)
-    if (e instanceof Error)
-      noticeStore.error(t(`basic.tips.${e.response.data.code}`, {
-        context: e.response.data.code
-      }))
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.code
+      }));
+    }
+    console.error(e);
   } finally {
     publishLoading.value = false
   }

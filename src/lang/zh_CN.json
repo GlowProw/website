@@ -19,7 +19,9 @@
       "save": "保存",
       "submit": "确认",
       "search": "搜索",
-      "go": "前往"
+      "go": "前往",
+      "edit": "编辑",
+      "delete": "删除"
     },
     "privilege": {
       "admin": "社区管理",
@@ -155,6 +157,18 @@
         "limitationLength": "验证码长度为{max}"
       }
     }
+  },
+  "comment": {
+    "title": "评论",
+    "edit": "编辑",
+    "save": "保存",
+    "publishSuccess": "评论发布成功",
+    "loginRequired": "请登陆发布评论",
+    "noComments": "暂无评论",
+    "beFirst": "成为第一个评论的人",
+    "me": "我",
+    "deleteConfirmation": "删除评论？",
+    "deleteWarning": "此操作不可逆。"
   },
   "portal": {
     "title": "首页",
@@ -517,7 +531,28 @@
         "knot": "(节/kts)",
         "halfSail": "最低",
         "fullSail": "全速",
-        "travelSail": "极限"
+        "travelSail": "极限",
+        "unit": {
+          "knot": "节"
+        },
+        "boost": {
+          "title": "速度提升: +{percent}%",
+          "waterFlaskRemaining": "(水壶效果剩余 {time})",
+          "waterBarrelRemaining": "(水桶效果剩余 {time})",
+          "strongBreeze": "强风",
+          "strongBreezeEffect": "强风效果",
+          "cancelEffect": "终止效果",
+          "waterFlaskTooltip": "水壶：20秒内速度提升10%",
+          "waterBarrelTooltip": "水桶：20秒内速度提升15%",
+          "strongBreezeTooltip": "强风：速度提升50%"
+        },
+        "simulation": {
+          "windy": "有风",
+          "dust": "无风",
+          "slow": "慢速",
+          "normal": "正常",
+          "fast": "快速"
+        }
       },
       "cargo": "容器",
       "cargoSlots": "容器格子",
@@ -851,7 +886,12 @@
     "meta": {
       "keywords": "配装厂,碧海黑帆配装,配装,套装,游戏配装"
     },
+    "owner": "所有者",
+    "hasPassword": "包含密码",
+    "byCloningUuid": "克隆",
+    "editAssemblyBtn": "编辑此配装",
     "anonymous": "匿名",
+    "commentPlaceholder": "你对此有何见解？",
     "additions": {
       "assembly": "配装",
       "wheel": "轮盘",
@@ -860,7 +900,49 @@
     "setting": {
       "title": "设置",
       "publicly": "公开",
-      "private": "私有"
+      "private": "私有",
+      "tagCommon": "常规",
+      "tagData": "数据",
+      "includePasswordHint": "含密码",
+      "existingPasswordButNewDelete": "当前配装已设密码，但新密码已删除",
+      "notPassword": "无密码",
+      "visibility": "是否可见",
+      "visibilityDescription": "决定是否被搜索或是直接访问",
+      "selectVisibility": "选择可见性",
+      "usePassword": "使用密码",
+      "passwordDescription": "创建密码后，配装页面必须输入密码才可访问",
+      "passwordInput": "密码",
+      "passwordHint": "至少6位到32位，仅可使用a-A 0-9 _",
+      "language": "配装语种",
+      "languageDescription": "你可以定义配装语言",
+      "selectLanguage": "选择语言",
+      "backgroundImage": "背景图片",
+      "backgroundImageDescription": "它仅在配装详情页展示，固定在配装后方，使用外部图床",
+      "backgroundImageAlt": "背景图片",
+      "backgroundImageUrl": "背景图片URL",
+      "showItemName": "是否展示名称",
+      "showItemNameDescription": "在物品图标下方显示物品名称",
+      "showFullName": "是否完整显示",
+      "showFullNameDescription": "决定于物品是否完整显示名称，而并非溢出隐藏",
+      "anonymous": "是否匿名",
+      "anonymousDescription": "是否将你在此配装中用户名称和ID删除",
+      "comments": "评论",
+      "commentsDescription": "是否开启评论",
+      "likes": "点赞",
+      "likesDescription": "是否开启点赞",
+      "other": "其他",
+      "rendererVersion": "配装渲染器版本",
+      "rendererVersionDescription": "决定对配装数据以何种格式加载，如果你不清楚作用可以不需要设置，让系统以最新版本来初始加载",
+      "wheelRendererVersion": "轮盘渲染器版本",
+      "wheelRendererVersionDescription": "决定对轮盘数据以何种格式加载，如果你不清楚作用可以不需要设置，让系统以最新版本来初始加载",
+      "warehouseRendererVersion": "船仓渲染器版本",
+      "warehouseRendererVersionDescription": "决定对船仓数据以何种格式加载，如果你不清楚作用可以不需要设置，让系统以最新版本来初始加载",
+      "version": "版本",
+      "selectVersion": "选择版本",
+      "enable": "启用",
+      "deleteDescription": "删除配装是不可逆行为, 将会删除对应评论和点赞",
+      "deleteConfirmation": "删除配装？",
+      "deleteWarning": "此操作不可逆，将永久删除配装及其评论和点赞。"
     },
     "modification": {
       "basic": "基础",

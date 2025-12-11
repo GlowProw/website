@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import {nextTick, onMounted, Ref, ref, watch} from "vue";
-import {api, http} from "@/assets/sripts";
+import {apis} from "@/assets/sripts";
 import {useI18n} from "vue-i18n";
-import {AssemblyItem, Pagination, ResultData} from "@/assets/types";
+import {AssemblyItem, PaginationParams, ResultData} from "@/assets/types";
 import {useRoute} from "vue-router";
 
 import AssemblyWidget from "@/components/AssemblyWidget.vue";
@@ -12,9 +12,12 @@ import TimeFrame from "@/components/TimeFrame.vue";
 import Loading from "@/components/Loading.vue";
 import Silk from "@/components/Silk.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
+import {ApiError} from "@/assets/types/Api";
+import {useNoticeStore} from "~/stores/noticeStore";
 
 const {t} = useI18n(),
-    route = useRoute()
+    route = useRoute(),
+    notice = useNoticeStore()
 
 let browsePagination = ref({
       page: 1,
@@ -22,7 +25,7 @@ let browsePagination = ref({
     }),
     browseData: Ref<{
       data: AssemblyItem[],
-      pagination?: Pagination
+      pagination?: PaginationParams
     }> = ref({
       data: []
     }),
@@ -51,50 +54,6 @@ let browsePagination = ref({
     browseAssemblyWidgetRefs = ref([]),
     browseLoading = ref(true)
 
-onMounted(() => {
-  getBrowseList();
-});
-
-/**
- * 获取配装列表
- */
-const getBrowseList = async () => {
-  try {
-    browseLoading.value = true
-
-    const {keyword, sortField, sortOrder, isHasPassword, createdStartAndEnd, updatedStartAndEnd} = browseFilter.value.data;
-    const {page, pageSize} = browsePagination.value;
-
-    let createdStart = createdStartAndEnd && createdStartAndEnd.split(',')[0] || null,
-        createdEnd = createdStartAndEnd && createdStartAndEnd.split(',')[1] || null,
-        updatedStart = updatedStartAndEnd && updatedStartAndEnd.split(',')[0] || null,
-        updatedEnd = updatedStartAndEnd && updatedStartAndEnd.split(',')[1] || null;
-
-    const result = await http.get(api['assembly_list'], {
-          params: {
-            ...route.query,
-            page,
-            pageSize,
-            keyword,
-            sortField,
-            sortOrder,
-            isHasPassword,
-            createdStart,
-            createdEnd,
-            updatedStart,
-            updatedEnd,
-          }
-        }),
-        d = result.data;
-
-    if (d.error) return;
-
-    browseData.value = d.data;
-  } finally {
-    browseLoading.value = false
-  }
-};
-
 watch(browseData, (newList: ResultData) => {
   if (newList && newList.data.length > 0) {
     nextTick(() => {
@@ -121,6 +80,53 @@ watch(browseData, (newList: ResultData) => {
     });
   }
 }, {deep: true});
+
+onMounted(() => {
+  getBrowseList();
+});
+
+/**
+ * 获取配装列表
+ */
+const getBrowseList = async () => {
+  try {
+    browseLoading.value = true
+
+    const {keyword, sortField, sortOrder, isHasPassword, createdStartAndEnd, updatedStartAndEnd} = browseFilter.value.data;
+    const {page, pageSize} = browsePagination.value;
+
+    let createdStart = createdStartAndEnd && createdStartAndEnd.split(',')[0] || null,
+        createdEnd = createdStartAndEnd && createdStartAndEnd.split(',')[1] || null,
+        updatedStart = updatedStartAndEnd && updatedStartAndEnd.split(',')[0] || null,
+        updatedEnd = updatedStartAndEnd && updatedStartAndEnd.split(',')[1] || null;
+
+    const result = await apis.assemblyApi().getAssemblyList({
+          ...route.query,
+          page,
+          pageSize,
+          keyword,
+          sortField,
+          sortOrder,
+          isHasPassword,
+          createdStart,
+          createdEnd,
+          updatedStart,
+          updatedEnd,
+        }),
+        d = result.data;
+
+    browseData.value = d.data;
+  } catch (e) {
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.code
+      }));
+    }
+    console.error(e);
+  } finally {
+    browseLoading.value = false
+  }
+};
 </script>
 
 <template>

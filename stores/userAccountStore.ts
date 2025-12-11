@@ -28,7 +28,7 @@ export const useAuthStore = defineStore('account', () => {
      * 设置token
      * @param data
      */
-    const setAccountToken = (data) => {
+    const setAccountToken = (data: any) => {
         try {
             user.value = data
             storage.local.set('account', data)
@@ -43,10 +43,10 @@ export const useAuthStore = defineStore('account', () => {
      * 设置令牌
      * @param data
      */
-    const updateAccountAttr = (data: {} = {}) => {
+    const updateAccountAttr = (data: any | {} = {}) => {
         try {
             let accountData = storage.local.get('account')
-            delete data.token
+            delete data?.token
             if (accountData.code == 0)
                 user.value = Object.assign(accountData.data.value, user.value, data)
             storage.local.set('account', user.value)

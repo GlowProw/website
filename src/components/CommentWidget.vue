@@ -1,22 +1,23 @@
 <script setup lang="ts">
 import {onMounted, ref, watch} from "vue";
-import {api, http} from "@/assets/sripts/index";
+import {apis} from "@/assets/sripts/index";
 
-import Textarea from "@/components/textarea"
-import EmptyView from "@/components/EmptyView.vue";
-import {useHttpToken} from "@/assets/sripts/http_util";
-import Captcha from "@/components/captcha/index.vue";
 import {useAuthStore} from "~/stores/userAccountStore";
-import {AxiosError} from "axios";
 import {useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useNoticeStore} from "~/stores/noticeStore";
+import {ApiError} from "@/assets/types/Api";
+
+import Textarea from "@/components/textarea"
+import EmptyView from "@/components/EmptyView.vue";
+import Captcha from "@/components/captcha/index.vue";
+import TimeView from "@/components/TimeView.vue";
+import Time from "@/components/Time.vue";
 
 type commentTargetType = 'assembly' | 'item' | 'commoditie' | 'ship' | 'ultimate' | 'mod' | 'material' | 'set' | 'treasureMap'
 
 const route = useRoute(),
     authStore = useAuthStore(),
-    httpToKen = useHttpToken(),
     notice = useNoticeStore(),
     {t} = useI18n(),
     props = withDefaults(defineProps<{
@@ -55,24 +56,21 @@ onMounted(() => {
 const getComment = async () => {
   try {
     commentLoading.value = true
-    const result = await http.get(api['comments'], {
-          params: {
-            targetId: props.id,
-            targetType: props.type,
-          }
+
+    const result = await apis.commentApi().getComments({
+          targetId: props.id,
+          targetType: props.type,
         }),
         d = result.data;
 
-    if (d.error == 1)
-      return
-
     commentListData.value = d.data.data;
   } catch (e) {
-    if (e instanceof AxiosError && e?.response)
-      notice.error(t(`basic.tips.${e?.response?.data?.code}`, {
-        context: e?.response?.data?.code || e.code
-      }))
-    console.error(e)
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.response.data.message
+      }));
+    }
+    console.error(e);
   } finally {
     commentLoading.value = false
   }
@@ -91,18 +89,13 @@ const onPushComment = async () => {
 
     commentPushLoading.value = true
 
-    const result = await httpToKen.post(api['comment'], {
-          data: {
-            targetId: props.id,
-            targetType: props.type,
-            content: content.value,
-            captcha: captcha.value,
-          }
+    const result = await apis.commentApi().createComment({
+          targetId: props.id,
+          targetType: props.type,
+          content: content.value,
+          captcha: captcha.value,
         }),
         d = result.data;
-
-    if (d.error == 1)
-      return
 
     commentListData.value.push({
       id: d.data.id,
@@ -113,11 +106,12 @@ const onPushComment = async () => {
 
     notice.success('comment.ok')
   } catch (e) {
-    if (e instanceof AxiosError)
-      notice.error(t(`basic.tips.${e.response.data.code}`, {
-        context: e.response.data.code
-      }))
-    console.error(e)
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.response.data.message
+      }));
+    }
+    console.error(e);
   } finally {
     commentPushLoading.value = false
   }
@@ -133,26 +127,22 @@ const onDeleteComment = async (data: any) => {
 
     data.deleteLoading = true
 
-    const result = await httpToKen.post(api['comment_delete'], {
-          data: {
-            id: data.id,
-          }
-        }),
+    const result = await apis.commentApi().deleteComment(data.id),
         d = result.data;
 
     if (d.error == 1)
       return
 
     await getComment()
-    notice.success(t(`basic.tips.${e.response.data.code}`))
+
+    notice.success(t(`basic.tips.${d.code}`))
   } catch (e) {
-    if (e instanceof AxiosError)
-      notice.error(t(`basic.tips.${e.response.data.code}`, {
-        content: e.response.data.message
-      }), {
-        color: 'red'
-      })
-    console.error(e)
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.response.data.message
+      }));
+    }
+    console.error(e);
   } finally {
     data.deleteLoading = false
   }
@@ -168,26 +158,20 @@ const onEditComment = async (data: any) => {
 
     data.loading = true
 
-    const result = await httpToKen.post(api['comment_edit'], {
-          data: {
-            id: data.id,
-            content: data.editContent,
-          }
+    const result = await apis.commentApi().editComment(data.id, {
+          content: data.content
         }),
         d = result.data;
 
-    if (d.error == 1)
-      return
-
     data.content = data.editContent;
-    notice.success(t(`basic.tips.${e.response.data.code}`))
+    notice.success(t(`basic.tips.${d.code}`))
   } catch (e) {
-    if (e instanceof AxiosError)
-      notice.error(t(`basic.tips.${e.response.data.code}`, {
-        content: e.response.data.message
-      }), {
-        color: 'red'
-      })
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.response.data.message
+      }));
+    }
+    console.error(e);
   } finally {
     data.isEdit = !data.isEdit;
     data.loading = false
@@ -229,7 +213,9 @@ const onCaptchaData = (data: any) => {
               <v-spacer></v-spacer>
               <v-col cols="auto">
                 <template v-if="i.createdTime">
-                  {{ new Date(i.createdTime).toLocaleString() }}
+                  <TimeView :time="i.createdTime">
+                    <Time :time="i.createdTime"></Time>
+                  </TimeView>
                 </template>
               </v-col>
             </v-row>
@@ -247,12 +233,12 @@ const onCaptchaData = (data: any) => {
                 <template v-if="authStore.isLogin && authStore.user.userId == i.userId">
                   <template v-if="!i.isEdit">
                     <v-btn @click="i.isEdit = true; i.editContent = i.content">
-                      编辑
+                      {{ t('basic.button.edit') }}
                     </v-btn>
                   </template>
                   <template v-else>
                     <v-btn :loading="i.loading" @click="onEditComment(i)">
-                      保存
+                      {{ t('basic.button.save') }}
                     </v-btn>
                     <v-btn @click="i.isEdit = false">
                       {{ t('basic.button.cancel') }}
@@ -263,9 +249,11 @@ const onCaptchaData = (data: any) => {
               <v-spacer></v-spacer>
               <v-col cols="auto">
                 <template v-if="authStore.isLogin && authStore.user.userId == i.userId">
-                  <v-btn variant="text" icon="mdi-delete-outline" class="text-red"
+                  <v-btn variant="text" prepend-icon="mdi-delete-outline" class="text-red"
                          :loading="i.deleteLoading"
+                         :title="t('basic.delete')"
                          @click="onDeleteComment(i)">
+                    {{ t('basic.button.delete') }}
                   </v-btn>
                 </template>
               </v-col>
@@ -277,7 +265,7 @@ const onCaptchaData = (data: any) => {
     </v-timeline>
     <template v-else>
       <div class="pt-10 pb-10">
-        <EmptyView></EmptyView>
+        <EmptyView :title="t('comment.noComments')" :description="t('comment.beFirst')"></EmptyView>
       </div>
     </template>
   </div>
@@ -297,16 +285,16 @@ const onCaptchaData = (data: any) => {
                :loading="commentPushLoading"
                :disabled="!content || !captcha && !captcha.response"
                @click="onPushComment">
-          确认
+          {{ t('basic.button.submit') }}
         </v-btn>
       </v-col>
     </v-row>
   </v-card>
   <v-alert v-else>
-    请登陆发布评论
+    {{ t('comment.loginRequired') }}
     <template v-slot:append>
       <router-link :to="`/account/signin?backUrl=${route.path}`">
-        <v-btn>登陆</v-btn>
+        <v-btn>{{ t('basic.button.login') }}</v-btn>
       </router-link>
     </template>
   </v-alert>

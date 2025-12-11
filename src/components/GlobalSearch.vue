@@ -18,9 +18,9 @@ let model = ref(false),
 </script>
 
 <template>
-  <v-btn icon density="comfortable" @click="model = true" class="mx-2" :disabled="model || isSearchPage">
+  <div @click.prevent="model = true" class="mx-2 cursor-pointer" :class="{'d-none': model || isSearchPage}">
     <slot></slot>
-  </v-btn>
+  </div>
 
   <v-dialog max-width="1024"
             z-index="51"

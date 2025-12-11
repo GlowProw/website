@@ -1,13 +1,13 @@
 <script setup lang="ts">
 
 import {useRoute, useRouter} from "vue-router";
-import {nextTick, onMounted, ref, watch} from "vue";
+import {onMounted, Ref, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
-import {api} from "@/assets/sripts";
 import {useHttpToken} from "@/assets/sripts/http_util";
 import {useAuthStore} from "~/stores/userAccountStore";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useHead} from "@unhead/vue";
+import {useNoticeStore} from "~/stores/noticeStore";
 
 import LikeWidget from "@/components/LikeWidget.vue";
 import Textarea from "@/components/textarea/index.vue";
@@ -20,7 +20,8 @@ import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
 import AssemblyMainSubjectView from "@/components/AssemblyMainSubjectView.vue";
-import {useNoticeStore} from "~/stores/noticeStore";
+import {apis} from "@/assets/sripts/index";
+import {ApiError} from "@/assets/types/Api";
 
 const route = useRoute(),
     router = useRouter(),
@@ -31,15 +32,22 @@ const route = useRoute(),
     {asString} = useI18nUtils()
 
 let detailData = ref({
+      cloningUuid: '',
       uuid: '',
+      userId: null,
       name: '',
       tags: [],
       description: '',
       username: '',
       assembly: {},
       wheel: {},
+      warehouse: {},
       createdTime: Date.now(),
       updatedTime: Date.now(),
+      userAvatar: null,
+      isVisibility: false,
+      isPassword: false,
+      isOwner: false,
     }),
     assemblyMainSubjectView: Ref<AssemblyMainSubjectView> = ref(null),
     assemblyLoading = ref(false),
@@ -80,31 +88,21 @@ const getAssemblyDetail = async (force: boolean = false) => {
 
     assemblyLoading.value = true;
 
-    const result = await http.get(api['assembly_item'], {
-          params: {
-            uuid,
-            password,
-          },
-          data: {
-            force
-          }
+    const result = await apis.assemblyApi().getAssemblyItem(<string>uuid, {
+          password: <string>password,
+          force
         }),
         d = result.data;
 
-    if (d.error == 1) {
-      detailData.value = d.data;
-      throw new Error(d)
-    }
-
     detailData.value = d.data;
     detailData.value.description = decodeURI(detailData.value.description || '这个人很懒什么,对此配装什么都没说')
-
   } catch (e) {
-    if (e instanceof Error)
-      notice.error(t(`basic.tips.${e.response.data.code}`, {
-        context: e.response.data.code
-      }))
-    console.error(e)
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.code
+      }));
+    }
+    console.error(e);
   } finally {
     assemblyLoading.value = false
   }
@@ -189,13 +187,13 @@ const onPenPassword = () => {
                 <div class="d-flex ga-2">
                   <v-chip-group>
                     <v-chip density="compact" v-if="detailData.isOwner">
-                      所有者
+                      {{ t('assembly.owner') }}
                     </v-chip>
                     <v-chip density="compact" v-if="detailData.isPassword">
-                      包含密码
+                      {{ t('assembly.hasPassword') }}
                     </v-chip>
                     <v-chip :to="`/assembly/browse/${detailData.cloningUuid}/detail`" target="_blank" density="compact" v-if="detailData.cloningUuid">
-                      克隆: {{ detailData.cloningUuid }}
+                      {{ t('assembly.byCloningUuid') }}: {{ detailData.cloningUuid }}
                     </v-chip>
                   </v-chip-group>
                 </div>
@@ -223,7 +221,7 @@ const onPenPassword = () => {
                 <v-btn-group class="ml-2">
                   <v-btn variant="flat" :to="`/assembly/workshop/${detailData.uuid}/edit`">
                     <v-icon icon="mdi-pencil" class="mr-2"></v-icon>
-                    编辑此配装
+                    {{ t('assembly.editAssemblyBtn') }}
                   </v-btn>
                   <v-divider vertical></v-divider>
                   <AssemblySettingPanel :id="detailData.uuid"
@@ -280,8 +278,8 @@ const onPenPassword = () => {
                     placeholder="输入描述描述"></Textarea>
 
           <template v-if="detailData.assembly.attr.isComment">
-            <v-divider>评论</v-divider>
-            <CommentWidget :id="detailData.uuid" placeholder="你对此有何见解？"
+            <v-divider>{{ t('comment.title') }}</v-divider>
+            <CommentWidget :id="detailData.uuid" :placeholder="t('assembly.commentPlaceholder')"
                            type="assembly"></CommentWidget>
           </template>
         </v-col>

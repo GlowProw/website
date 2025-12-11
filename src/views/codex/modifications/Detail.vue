@@ -160,7 +160,7 @@ const onCodexHistory = () => {
             </v-row>
 
             <template v-if="modDetailData.id">
-              <v-divider>评论</v-divider>
+              <v-divider>{{ t('comment.title') }}</v-divider>
               <CommentWidget :id="modDetailData.id" type="mod" placeholder=""></CommentWidget>
             </template>
           </v-col>
