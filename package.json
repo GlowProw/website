@@ -30,9 +30,6 @@
     "axios": "^1.10.0",
     "d3": "^7.9.0",
     "flexsearch": "^0.8.212",
-    "glow-prow-assets": "github:GlowProw/glow-prow-assets",
-    "glow-prow-data": "github:GlowProw/glow-prow-data",
-    "glow-prow-data-languages": "github:GlowProw/glow-prow-data-languages",
     "less": "^4.4.0",
     "markdown-it": "^14.1.0",
     "ogl": "^1.0.11",
@@ -48,7 +45,11 @@
     "vue-i18n": "^9.14.5",
     "vue-json-pretty": "^2.5.0",
     "vue-router": "^4.5.1",
-    "vuetify": "^3.8.1"
+    "vue3-google-adsense": "^1.2.2",
+    "vuetify": "^3.8.1",
+    "glow-prow-data": "github:GlowProw/glow-prow-data",
+    "glow-prow-assets": "github:GlowProw/glow-prow-assets",
+    "glow-prow-data-languages": "github:GlowProw/glow-prow-data-languages"
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.0",
