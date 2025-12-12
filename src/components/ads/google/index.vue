@@ -10,14 +10,14 @@
       <v-icon size="20" icon="mdi-close"/>
     </v-btn>
 
-    <Adsense
-        v-if="ads[adId] && adId"
-        :client-id="adClient.toString()"
-        :slot-id="adId.toString()"
-        :format="ads[adId]?.adFormat || ''"
-        :ad-style="ads[adId]?.style || ''"
-        :full-width-responsive="ads[adId]?.fullWidthResponsive || ''">
-    </Adsense>
+<!--    <Adsense-->
+<!--        v-if="ads[adId] && adId"-->
+<!--        :client-id="adClient.toString()"-->
+<!--        :slot-id="adId.toString()"-->
+<!--        :format="ads[adId]?.adFormat || ''"-->
+<!--        :ad-style="ads[adId]?.style || ''"-->
+<!--        :full-width-responsive="ads[adId]?.fullWidthResponsive || ''">-->
+<!--    </Adsense>-->
   </v-card>
 </template>
 

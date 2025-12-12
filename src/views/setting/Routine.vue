@@ -4,11 +4,16 @@ import I18nWidget from "@/components/i18nWidget.vue";
 import ItemIconManager from "@/components/itemIconManager.vue";
 import HtmlLink from "@/components/HtmlLink.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
-import {storage_account, storage_capacity_monitor} from "@/assets/sripts/index";
-import {onMounted, ref} from "vue";
+import {appFuns, storage_account, storage_capacity_monitor} from "@/assets/sripts/index";
+import {onMounted, Ref, ref} from "vue";
+import {useI18n} from "vue-i18n";
 
-let estimateCapacity = ref({}),
+const {t} = useI18n()
 
+let estimateCapacity: Ref<any> = ref({}),
+    appFunConfig = ref([]),
+
+    clearLoading = ref(false),
     headerSearchSwitch = ref(false),
 
     searchIsLogs = ref(false),
@@ -21,9 +26,21 @@ onMounted(() => {
   getConfig()
 })
 
+/**
+ * 格式化应用列表
+ */
+const appFunFormatting = () => {
+  return appFuns.original.map(i => ({
+    key: i.title,
+    description: i.title,
+    value: true
+  }))
+}
+
 const getConfig = () => {
   estimateCapacity.value = storage_capacity_monitor.estimateCapacity()
 
+  appFunConfig.value = storage_account.getConfigurationItem('appFun', 'config', {defaultValue: appFunFormatting()})
   headerSearchSwitch.value = storage_account.getConfigurationItem('search', 'header.switch')
 
   searchIsLogs.value = storage_account.getConfigurationItem('search', 'log.switch')
@@ -31,6 +48,10 @@ const getConfig = () => {
   searchHint.value = storage_account.getConfigurationItem('search', 'hint.switch')
 
   posterSwitch.value = storage_account.getConfigurationItem('poster', 'poster.switch')
+}
+
+const onUpdateAppFunConfig = () => {
+  storage_account.updateConfiguration('appFun', 'config', appFunConfig.value)
 }
 
 /**
@@ -54,6 +75,20 @@ const onSearchHint = () => {
 
 const onPosterSwitch = () => {
   storage_account.updateConfiguration('poster', 'poster.switch', posterSwitch.value)
+}
+
+/**
+ * 擦除数据
+ */
+const clearStorage = () => {
+  clearLoading.value = true
+
+  storage_capacity_monitor.clearStorage(localStorage)
+  storage_capacity_monitor.clearStorage(sessionStorage)
+
+  getConfig()
+
+  clearLoading.value = false
 }
 </script>
 
@@ -93,6 +128,20 @@ const onPosterSwitch = () => {
           <p class="text-caption">管理功能列表，由你决定是否显示</p>
         </div>
 
+        <v-list variant="text" lines density="compact" class="bg-transparent mx-n4" max-height="300px">
+          <v-list-item v-for="(nav,index) in appFunConfig" :key="index" link density="compact">
+            <template v-slot:append>
+              <v-switch hide-details inset density="compact" v-model="appFunConfig[index].value" @update:modelValue="onUpdateAppFunConfig"></v-switch>
+            </template>
+            <template v-slot:title>
+              {{ t(nav.key) }}
+            </template>
+            <template v-slot:subtitle>
+              <p class="opacity-50 text-caption">{{ t(nav.description) }}</p>
+            </template>
+          </v-list-item>
+        </v-list>
+
         <template v-slot:title>
           功能
         </template>
@@ -103,11 +152,13 @@ const onPosterSwitch = () => {
         <p class="text-caption opacity-60 mb-5">管理海报设置</p>
 
         <v-row align="center" no-gutters>
-          <v-col>是否记住生成海报设置选项</v-col>
+          <v-col>自动保存生成海报选项</v-col>
           <v-col cols="auto">
-            <v-switch hide-details density="comfortable" v-model="posterSwitch" @update:modelValue="onPosterSwitch"></v-switch>
+            <v-switch hide-details inset v-model="posterSwitch" @update:modelValue="onPosterSwitch"></v-switch>
           </v-col>
         </v-row>
+
+        <p class="text-caption opacity-60 mt-1">当用户修改海报生成设置将立即保存记录，再次访问海报加载配置内容</p>
         <template v-slot:title>
           海报
         </template>
@@ -137,7 +188,7 @@ const onPosterSwitch = () => {
           <div class="mb-6">
             <v-row class="mb-0">
               <v-col>
-                <v-btn @click="estimateCapacity.clearStorage()">清空缓存</v-btn>
+                <v-btn @click="clearStorage" :disabled="estimateCapacity.used == 0">清空缓存</v-btn>
               </v-col>
             </v-row>
 
@@ -174,28 +225,28 @@ const onPosterSwitch = () => {
         <v-row align="center" no-gutters>
           <v-col>网页头搜索开启</v-col>
           <v-col cols="auto">
-            <v-switch hide-details density="compact" v-model="headerSearchSwitch" @update:modelValue="onHeaderSearchSwitch"></v-switch>
+            <v-switch hide-details inset density="compact" v-model="headerSearchSwitch" @update:modelValue="onHeaderSearchSwitch"></v-switch>
           </v-col>
         </v-row>
 
         <v-row align="center" no-gutters>
           <v-col>保存搜索记录</v-col>
           <v-col cols="auto">
-            <v-switch hide-details density="compact" v-model="searchIsLogs" @update:modelValue="onSearchIsLogs"></v-switch>
+            <v-switch hide-details inset density="compact" v-model="searchIsLogs" @update:modelValue="onSearchIsLogs"></v-switch>
           </v-col>
         </v-row>
 
         <v-row align="center" no-gutters>
           <v-col>是否快捷键触发</v-col>
           <v-col cols="auto">
-            <v-switch hide-details density="compact" v-model="searchHotkey" @update:modelValue="onSearchHotkey"></v-switch>
+            <v-switch hide-details inset density="compact" v-model="searchHotkey" @update:modelValue="onSearchHotkey"></v-switch>
           </v-col>
         </v-row>
 
         <v-row align="center" no-gutters>
           <v-col>关闭提示</v-col>
           <v-col cols="auto">
-            <v-switch hide-details density="compact" v-model="searchHint" @update:modelValue="onSearchHint"></v-switch>
+            <v-switch hide-details inset density="compact" v-model="searchHint" @update:modelValue="onSearchHint"></v-switch>
           </v-col>
         </v-row>
         <template v-slot:title>

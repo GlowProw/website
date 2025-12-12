@@ -20,12 +20,12 @@ const props = withDefaults(defineProps<SilkProps>(), {
   rotation: 0,
   className: '',
   style: () => ({})
-})
+});
 
-const containerRef = useTemplateRef<HTMLDivElement>('containerRef')
+const containerRef = useTemplateRef<HTMLDivElement>('containerRef');
 
 const hexToNormalizedRGB = (hex: string): [number, number, number] => {
-  const clean = hex.replace('#', '')
+  const clean = hex.replace('#', '');
   const r = parseInt(clean.slice(0, 2), 16) / 255;
   const g = parseInt(clean.slice(2, 4), 16) / 255;
   const b = parseInt(clean.slice(4, 6), 16) / 255;
@@ -45,7 +45,7 @@ varying vec3 vPosition;
 void main() {
   vPosition = position;
   vUv = uv;
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 }
 `;
 
@@ -66,30 +66,30 @@ const float e = 2.71828182845904523536;
 
 float noise(vec2 texCoord) {
   float G = e;
-  vec2 r = (G * sin(G * texCoord)
-  return fract(r.x * r.y * (1.0 + texCoord.x)
+  vec2 r = (G * sin(G * texCoord));
+  return fract(r.x * r.y * (1.0 + texCoord.x));
 }
 
 vec2 rotateUvs(vec2 uv, float angle) {
-  float c = cos(angle
-  float s = sin(angle
-  mat2 rot = mat2(c, -s, s, c
+  float c = cos(angle);
+  float s = sin(angle);
+  mat2 rot = mat2(c, -s, s, c);
   return rot * uv;
 }
 
 void main() {
-  float rnd = noise(gl_FragCoord.xy
-  vec2 uv = rotateUvs(vUv * uScale, uRotation
+  float rnd = noise(gl_FragCoord.xy);
+  vec2 uv = rotateUvs(vUv * uScale, uRotation);
   vec2 tex = uv * uScale;
   float tOffset = uSpeed * uTime;
 
-  tex.y += 0.03 * sin(8.0 * tex.x - tOffset
+  tex.y += 0.03 * sin(8.0 * tex.x - tOffset);
 
   float pattern = 0.6 +
                   0.4 * sin(5.0 * (tex.x + tex.y +
                                    cos(3.0 * tex.x + 5.0 * tex.y) +
                                    0.02 * tOffset) +
-                           sin(20.0 * (tex.x + tex.y - 0.1 * tOffset))
+                           sin(20.0 * (tex.x + tex.y - 0.1 * tOffset)));
 
   vec4 col = vec4(uColor, 1.0) * vec4(pattern) - rnd / 15.0 * uNoiseIntensity;
   col.a = 1.0;
@@ -110,13 +110,13 @@ const initSilk = () => {
   renderer = new Renderer({
     alpha: true,
     antialias: true
-  })
+  });
 
   const gl = renderer.gl;
-  gl.clearColor(0, 0, 0, 0)
+  gl.clearColor(0, 0, 0, 0);
   gl.canvas.style.backgroundColor = 'transparent';
 
-  camera = new Camera(gl, { fov: 75 })
+  camera = new Camera(gl, { fov: 75 });
   camera.position.z = 1;
 
   const resize = () => {
@@ -140,30 +140,30 @@ const initSilk = () => {
       height = window.innerHeight;
     }
 
-    width = Math.max(width, 300)
-    height = Math.max(height, 300)
+    width = Math.max(width, 300);
+    height = Math.max(height, 300);
 
-    renderer!.setSize(width, height)
-    camera.perspective({ aspect: width / height })
+    renderer!.setSize(width, height);
+    camera.perspective({ aspect: width / height });
 
     if (mesh) {
       const distance = camera.position.z;
-      const fov = camera.fov * (Math.PI / 180)
+      const fov = camera.fov * (Math.PI / 180);
       const height2 = 2 * Math.tan(fov / 2) * distance;
-      const width2 = height2 * (width / height)
+      const width2 = height2 * (width / height);
 
-      mesh.scale.set(width2, height2, 1)
+      mesh.scale.set(width2, height2, 1);
     }
   };
 
-  window.addEventListener('resize', resize)
+  window.addEventListener('resize', resize);
 
   const geometry = new Plane(gl, {
     width: 1,
     height: 1
-  })
+  });
 
-  const colorRGB = hexToNormalizedRGB(props.color)
+  const colorRGB = hexToNormalizedRGB(props.color);
 
   program = new Program(gl, {
     vertex: vertexShader,
@@ -176,10 +176,10 @@ const initSilk = () => {
       uRotation: { value: props.rotation },
       uTime: { value: 0 }
     }
-  })
+  });
 
-  mesh = new Mesh(gl, { geometry, program })
-  container.appendChild(gl.canvas)
+  mesh = new Mesh(gl, { geometry, program });
+  container.appendChild(gl.canvas);
 
   gl.canvas.style.width = '100%';
   gl.canvas.style.height = '100%';
@@ -191,7 +191,7 @@ const initSilk = () => {
 
   let lastTime = 0;
   const update = (t: number) => {
-    animateId = requestAnimationFrame(update)
+    animateId = requestAnimationFrame(update);
     const deltaTime = (t - lastTime) / 1000;
     lastTime = t;
 
@@ -200,36 +200,36 @@ const initSilk = () => {
       program.uniforms.uSpeed.value = props.speed;
       program.uniforms.uScale.value = props.scale;
       program.uniforms.uNoiseIntensity.value = props.noiseIntensity;
-      program.uniforms.uColor.value = hexToNormalizedRGB(props.color)
+      program.uniforms.uColor.value = hexToNormalizedRGB(props.color);
       program.uniforms.uRotation.value = props.rotation;
-      renderer!.render({ scene: mesh, camera })
+      renderer!.render({ scene: mesh, camera });
     }
   };
-  animateId = requestAnimationFrame(update)
+  animateId = requestAnimationFrame(update);
 
-  resize()
+  resize();
 
   return () => {
-    cancelAnimationFrame(animateId)
-    window.removeEventListener('resize', resize)
+    cancelAnimationFrame(animateId);
+    window.removeEventListener('resize', resize);
     if (container && gl.canvas.parentNode === container) {
-      container.removeChild(gl.canvas)
+      container.removeChild(gl.canvas);
     }
-    gl.getExtension('WEBGL_lose_context')?.loseContext()
+    gl.getExtension('WEBGL_lose_context')?.loseContext();
   };
 };
 
 const cleanup = () => {
   if (animateId) {
-    cancelAnimationFrame(animateId)
+    cancelAnimationFrame(animateId);
   }
   if (renderer) {
     const gl = renderer.gl;
     const container = containerRef.value;
     if (container && gl.canvas.parentNode === container) {
-      container.removeChild(gl.canvas)
+      container.removeChild(gl.canvas);
     }
-    gl.getExtension('WEBGL_lose_context')?.loseContext()
+    gl.getExtension('WEBGL_lose_context')?.loseContext();
   }
   renderer = null;
   mesh = null;
@@ -238,12 +238,12 @@ const cleanup = () => {
 };
 
 onMounted(() => {
-  initSilk()
-})
+  initSilk();
+});
 
 onUnmounted(() => {
-  cleanup()
-})
+  cleanup();
+});
 
 watch(
     () => [props.speed, props.scale, props.color, props.noiseIntensity, props.rotation],
@@ -271,3 +271,4 @@ div {
   object-fit: cover !important;
 }
 </style>
+

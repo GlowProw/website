@@ -72,7 +72,12 @@ import MapViewPage from '@/views/map/View.vue';
 
 import TeamPage from '@/views/Team.vue'
 import SearchPage from '@/views/Search.vue'
+
 import SettingPage from '@/views/setting/Index.vue'
+import SettingAdPage from '@/views/setting/Ad.vue'
+import SettingRoutinePage from '@/views/setting/Routine.vue'
+import SettingStoragePage from '@/views/setting/Storage.vue'
+
 import AboutPage from '@/views/About.vue'
 import NotFoundPage from '@/views/NotFound.vue';
 
@@ -218,7 +223,25 @@ const routes: Readonly<RouteRecordRaw[]> = [
             {
                 path: '/setting',
                 name: 'PortalSetting',
-                component: SettingPage
+                component: SettingPage,
+                redirect: '/setting/routine',
+                children: [
+                    {
+                        path: 'routine',
+                        name: 'PortalSettingRoutine',
+                        component: SettingRoutinePage,
+                    },
+                    {
+                        path: 'ads',
+                        name: 'PortalSettingAds',
+                        component: SettingAdPage,
+                    },
+                    {
+                        path: 'storage',
+                        name: 'PortalSettingStorage',
+                        component: SettingStoragePage,
+                    }
+                ]
             },
         ]
     },
@@ -594,8 +617,8 @@ const router = createRouter({
         return new Promise((resolve) => {
             setTimeout(() => {
                 // 检查是否有 scrollTop=false 查询参数
-                const scrollTopParam = to.query.scrollTop;
-                if (scrollTopParam === 'false' || scrollTopParam === false) {
+                const scrollTopParam = <boolean | string>to.query.scrollTop;
+                if (scrollTopParam === 'false' || scrollTopParam == false) {
                     // 不进行滚动
                     resolve(false)
                     return
@@ -619,6 +642,7 @@ const router = createRouter({
 
 router.beforeEach((to) => {
     try {
+        // @ts-ignore
         let t: any = i18n.global.t
         if (to.meta && to.meta.title) {
             let meta = []

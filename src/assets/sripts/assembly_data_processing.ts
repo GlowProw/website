@@ -1,8 +1,6 @@
-import {Items, Modifications, Ships} from "glow-prow-data"
-import {Item} from "glow-prow-data/src/entity/Items";
-import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
 import {toRaw} from "vue";
-import {Ship} from "glow-prow-data/src/entity/Ships";
+
+import {Item, Items, Modifications, Ships, Ultimates} from "glow-prow-data"
 
 const ships = Ships,
     items = Items,
@@ -11,9 +9,9 @@ const ships = Ships,
 
 interface VersionedDataProcessing<T> {
     allowedFields: string[];
-    get: (data: T) => any;
-    set: (data: T, value: any) => T;
-    verify: (data: T) => { valid: boolean; errors?: string[] };
+    get: (data: any) => any;
+    set: (data: any) => T;
+    verify: (data: any) => { valid?: boolean; errors?: string[] };
 }
 
 type AssemblyDataProcessingMap<T = any> = {
@@ -449,7 +447,7 @@ export default class AssemblyDataProcessing {
      * @param dataRaw
      * @param useVersion
      */
-    public verify(dataRaw: any, useVersion?: string): boolean {
+    public verify(dataRaw: any, useVersion?: string) {
         const data = toRaw(dataRaw)
 
         let version = useVersion || data?.__version || AssemblyDataProcessing.nowVersion;

@@ -1,5 +1,5 @@
-// i18nReadName.ts
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
+
 import {Items, Ships} from "glow-prow-data";
 import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
 import {number} from "@/assets/sripts/index";

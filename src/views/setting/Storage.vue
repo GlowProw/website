@@ -21,7 +21,6 @@ const loadLocalReport = () => {
     local: storage_capacity_monitor.getDetailedReport(),
     session: storage_capacity_monitor.getDetailedReport(sessionStorage)
   }
-  console.log(detailedReport.value)
 }
 </script>
 

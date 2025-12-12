@@ -1,8 +1,12 @@
+import {storage_account} from "@/assets/sripts/index";
+
 /**
  * 应用功能
  */
 export default class AppFuns {
-    public list = [
+    storage = storage_account
+
+    public original: any[] = [
         {
             title: 'header.functions.team.title',
             icon: 'mdi-bullhorn-outline',
@@ -71,4 +75,27 @@ export default class AppFuns {
             to: '/empire-skill-simulation'
         }
     ]
+
+    get list(): any[] {
+        const userConfigAppfuns = this.storage.getConfigurationItem('appFun', 'config');
+        const original: any[] = this.original;
+
+        if (!userConfigAppfuns || !Array.isArray(userConfigAppfuns)) {
+            return original;
+        }
+
+        const configMap = new Map();
+        userConfigAppfuns.forEach((item: { key: string, value: boolean }) => {
+            if (item && item.key) {
+                configMap.set(item.key, item.value);
+            }
+        });
+
+        return original.filter((item: any) => {
+            const configKey = item.title;
+            const isEnabled = configMap.get(configKey);
+
+            return isEnabled === undefined || isEnabled === true;
+        });
+    }
 }

@@ -401,6 +401,7 @@ const onGenerateQRCode = async (text) => {
                       <v-col cols="auto">
                         <v-switch
                             v-model="generateImageValue.isShowEmptySlot"
+                            inset indeterminate
                             hide-details>
                         </v-switch>
                       </v-col>
@@ -413,6 +414,7 @@ const onGenerateQRCode = async (text) => {
                       <v-col cols="auto">
                         <v-switch
                             v-model="generateImageValue.isShowItemName"
+                            inset indeterminate
                             hide-details>
                         </v-switch>
                       </v-col>
@@ -425,6 +427,7 @@ const onGenerateQRCode = async (text) => {
                       <v-col cols="auto">
                         <v-switch
                             v-model="generateImageValue.isFullName"
+                            inset indeterminate
                             hide-details>
                         </v-switch>
                       </v-col>
@@ -437,6 +440,7 @@ const onGenerateQRCode = async (text) => {
                       <v-col cols="auto">
                         <v-switch
                             v-model="generateImageValue.isShowTitle"
+                            inset indeterminate
                             hide-details>
                         </v-switch>
                       </v-col>
@@ -449,6 +453,7 @@ const onGenerateQRCode = async (text) => {
                       <v-col cols="auto">
                         <v-switch
                             v-model="generateImageValue.isShowHeader"
+                            inset indeterminate
                             hide-details>
                         </v-switch>
                       </v-col>

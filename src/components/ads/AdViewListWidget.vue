@@ -40,7 +40,6 @@ const updateAdStatus = (i) => {
 <template>
   <v-row class="mb-1">
     <v-col>
-      <b>排除广告</b>
       <p class="text-caption opacity-60">下方是已关闭广告列表</p>
     </v-col>
     <v-spacer></v-spacer>
@@ -51,18 +50,18 @@ const updateAdStatus = (i) => {
     </v-col>
   </v-row>
   <v-card border>
-    <v-list v-if="ads.length >= 0">
+    <v-list v-if="ads.length > 0">
       <v-list-item v-for="(i, index) in ads" :key="index" link>
         <template v-slot:title>
           <v-chip variant="tonal" density="compact">{{ i[1].type }}</v-chip>
           {{ i[0] }}
         </template>
         <template v-slot:append>
-          <v-switch v-model="i[1].value" hide-details @update:modelValue="updateAdStatus(i)"></v-switch>
+          <v-switch v-model="i[1].value" hide-details inset indeterminate @update:modelValue="updateAdStatus(i)"></v-switch>
         </template>
       </v-list-item>
     </v-list>
-    <EmptyView v-else-if=" ads.length<=0 "></EmptyView>
+    <EmptyView v-else></EmptyView>
   </v-card>
 </template>
 

@@ -8,10 +8,6 @@ import {useNoticeStore} from "~/stores/noticeStore";
 import {useI18n} from "vue-i18n";
 
 import Silk from "@/components/Silk.vue";
-import AdManageBtn from "@/components/ads/AdManageBtn.vue";
-import AdViewListWidget from "@/components/ads/AdViewListWidget.vue";
-import StorageView from "@/views/setting/Storage.vue";
-import RoutineView from "@/views/setting/Routine.vue";
 
 const route = useRoute(),
     router = useRouter(),
@@ -36,33 +32,16 @@ let tabs = ref([
         value: 'storage',
         icon: 'mdi-database-outline'
       },
-      {
-        name: t('setting.notification.title'),
-        value: 'notification',
-        icon: 'mdi-bell-badge'
-      },
+      // {
+      //   name: t('setting.notification.title'),
+      //   value: 'notification',
+      //   icon: 'mdi-bell-badge'
+      // },
     ]),
     tab = ref(tabs.value[0].value)
 
 watch(() => tab.value, (value) => {
-  router.push({
-    name: route.name,
-    query: {
-      ...route.query,
-      tab: value
-    }
-  })
-})
-
-watch(() => route.query, (value) => {
-  if (value)
-    tab.value = value.tab
-}, {deep: true})
-
-onMounted(() => {
-  const {tab: tabValue} = route.query
-  if (tabValue)
-    tab.value = tabValue;
+  router.push(`/setting/${value}`)
 })
 </script>
 
@@ -124,51 +103,7 @@ onMounted(() => {
         </v-tabs>
 
         <v-main min-height="80vh" class="pl-lg-5">
-          <v-tabs-window v-model="tab" direction="vertical" :vertical-arrows="false">
-            <v-tabs-window-item value="routine" class="position-relative">
-              <RoutineView></RoutineView>
-            </v-tabs-window-item>
-            <v-tabs-window-item value="ads" class="position-relative">
-              <v-row>
-                <v-col cols="4">
-                  <h1 class="text-h5 mb-3 text-amber">广告</h1>
-                  <p class="text-caption">网站为热爱发电，我们向玩家提供公益服务，并开源项目；为了持续性提供服务，需要玩家们对投入广告进行触发</p>
-
-                  <ul>
-                    <li>
-                      <p class="text-caption mt-3">当然我们提供广告管理以及一键关闭功能，减少网站阅读困难</p>
-                    </li>
-                    <li>
-                      <p class="text-caption mt-3">广告使用第三方，你可以前往第三方广告管理cookie隐私问题</p>
-                    </li>
-                  </ul>
-
-                  <v-row align="center" class="mt-2" no-gutters>
-                    <v-col>
-                      总开关
-                    </v-col>
-                    <v-col cols="auto">
-                      <AdManageBtn></AdManageBtn>
-                    </v-col>
-                  </v-row>
-                </v-col>
-                <v-col>
-                  <AdViewListWidget></AdViewListWidget>
-                </v-col>
-              </v-row>
-            </v-tabs-window-item>
-            <v-tabs-window-item value="storage">
-              <StorageView></StorageView>
-            </v-tabs-window-item>
-            <v-tabs-window-item value="notification" class="position-relative">
-              <v-row>
-                <v-col cols="4">
-                  <h1 class="text-h5 mb-3 text-amber">通知</h1>
-                  <p class="text-caption">管理网站通知事件</p>
-                </v-col>
-              </v-row>
-            </v-tabs-window-item>
-          </v-tabs-window>
+          <router-view></router-view>
         </v-main>
       </div>
     </v-container>

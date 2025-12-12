@@ -39,7 +39,7 @@ const onItemIsOpenNewWindow = () => {
   <v-card border class="py-3 px-8 d-flex align-center justify-center">
     <div>
       <ItemSlotBase :size="getSize">
-        <ItemIconWidget :margin="iconSize.margin" :padding="iconSize.padding"></ItemIconWidget>
+        <ItemIconWidget id="culverin1" :margin="iconSize.margin" :padding="iconSize.padding"></ItemIconWidget>
       </ItemSlotBase>
     </div>
   </v-card>

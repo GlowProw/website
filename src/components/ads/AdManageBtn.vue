@@ -29,7 +29,7 @@ const offAds = () => {
 </script>
 
 <template>
-  <v-switch v-model="adValue" hide-details></v-switch>
+  <v-switch v-model="adValue" hide-details inset indeterminate></v-switch>
 </template>
 
 <style scoped lang="less">

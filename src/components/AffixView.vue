@@ -28,14 +28,14 @@ import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue'
 
 interface Props {
   direction?: 'left' | 'right'
-  offsetTop?: number
-  offsetBottom?: number
+  offsetTop?: number | string
+  offsetBottom?: number | string
   affixBgClass?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   direction: 'left',
-  offsetTop: 0,
+  offsetTop: 80,
   offsetBottom: 0,
   affixBgClass: ''
 })
