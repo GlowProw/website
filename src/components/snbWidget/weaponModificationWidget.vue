@@ -77,73 +77,73 @@ const props = withDefaults(defineProps<{
   readonly: false,
   size: 6,
   disabled: false,
-});
+})
 
-const {t} = useI18n();
-const {sanitizeString} = useI18nUtils();
+const {t} = useI18n()
+const {sanitizeString} = useI18nUtils()
 
-const show = ref(false);
-const modIconImages = ref<Record<string, string>>({});
+const show = ref(false)
+const modIconImages = ref<Record<string, string>>({})
 const availableModulesData = ref<Record<ModType, ModItem[]>>({
   basic: [],
   advanced: [],
   special: []
-});
-const searchQuery = ref('');
-const selectedCategory = ref<ModCategory>('all');
+})
+const searchQuery = ref('')
+const selectedCategory = ref<ModCategory>('all')
 const filteredMods = ref<Record<ModType, ModItem[]>>({
   basic: [],
   advanced: [],
   special: []
-});
+})
 
 const isModelValueEmpty = computed(() => {
   return !props.modelValue || props.modelValue.length === 0;
-});
+})
 
 const slotStats = computed(() => ({
   basic: props.modelValue?.filter((i: ModSlot) => i.type === 'basic').length || 0,
   advanced: props.modelValue?.filter((i: ModSlot) => i.type === 'advanced').length || 0,
   special: props.modelValue?.filter((i: ModSlot) => i.type === 'special').length || 0
-}));
+}))
 
 // 无视模组条件
-let isIgnoreConditions = ref(false);
+let isIgnoreConditions = ref(false)
 
 const totalAvailableMods = computed(() => {
-  return Object.values(filteredMods.value).reduce((total, mods) => total + (mods?.length || 0), 0);
-});
+  return Object.values(filteredMods.value).reduce((total, mods) => total + (mods?.length || 0), 0)
+})
 
 watch(() => props.data, (data: Item) => {
   if (data) {
-    initializeSlots();
+    initializeSlots()
   }
-  updateAvailableMods();
-}, {deep: true});
+  updateAvailableMods()
+}, {deep: true})
 
-watch(() => props.modelValue, () => updateAvailableMods(), {deep: true});
+watch(() => props.modelValue, () => updateAvailableMods(), {deep: true})
 
-watch([searchQuery, selectedCategory], () => updateFilteredMods());
+watch([searchQuery, selectedCategory], () => updateFilteredMods())
 
 watch(() => isIgnoreConditions.value, () => {
   updateAvailableMods()
 })
 
 onMounted(() => {
-  initializeResources();
+  initializeResources()
 
   if (isModelValueEmpty.value) {
-    nextTick(initializeSlots);
+    nextTick(initializeSlots)
   }
-});
+})
 
 const initializeResources = () => {
-  loadModImages();
-  updateAvailableMods();
+  loadModImages()
+  updateAvailableMods()
 };
 
 const loadModImages = () => {
-  const modImages = import.meta.glob('@/assets/images/snb/modTypeIcons/*.*', {eager: true});
+  const modImages = import.meta.glob('@/assets/images/snb/modTypeIcons/*.*', {eager: true})
   const imageMap: Record<string, string> = {};
 
   for (const path in modImages) {
@@ -166,13 +166,13 @@ const initializeSlots = () => {
       slotTypes.map((type: ModType) => ({
         type,
         value: null
-      }))
-  );
+      })))
+
 };
 
 const updateAvailableMods = () => {
-  availableModulesData.value = categorizeModificationsByGrade(Modifications);
-  updateFilteredMods();
+  availableModulesData.value = categorizeModificationsByGrade(Modifications)
+  updateFilteredMods()
 };
 
 const updateFilteredMods = () => {
@@ -191,14 +191,12 @@ const updateFilteredMods = () => {
     }
 
     // 搜索筛选
-    const filtered = (mods || []).filter(mod =>
-        matchesSearchQuery(mod, searchQuery.value)
-    );
+    const filtered = (mods || []).filter(mod => matchesSearchQuery(mod, searchQuery.value))
 
     if (filtered.length > 0) {
       result[modType] = filtered;
     }
-  });
+  })
 
   filteredMods.value = result;
 };
@@ -206,7 +204,7 @@ const updateFilteredMods = () => {
 const matchesSearchQuery = (mod: ModItem, query: string): boolean => {
   if (!query.trim()) return true;
 
-  const searchTerm = query.toLowerCase();
+  const searchTerm = query.toLowerCase()
 
   // 搜索模组名称和ID
   if (
@@ -244,20 +242,20 @@ const categorizeModificationsByGrade = (modificationsRaw: any): Record<ModType, 
   const installedDamageTypes = new Set(
       props.modelValue
           ?.filter((mod: ModSlot) => mod.value?.damageType)
-          .map((mod: ModSlot) => mod.value.damageType)
-  );
+          .map((mod: ModSlot) => mod.value.damageType))
+
 
   // 获取武器的perks
   const weaponPerks = props.data.perks?.map((i: any) => sanitizeString(i).cleaned) || [];
-  weaponPerks.forEach(perk => installedDamageTypes.add(perk));
+  weaponPerks.forEach(perk => installedDamageTypes.add(perk))
 
   Object.values(modificationsRaw).forEach((mod: any) => {
     // 模组约束开关
     if (!isIgnoreConditions.value) {
       // 检查武器类型是否匹配
       const hasMatchingVariant = mod.variants?.some((variant: any) =>
-          variant.itemType?.includes(props.data.type)
-      );
+          variant.itemType?.includes(props.data.type))
+
       if (!hasMatchingVariant) return;
 
       // 当 requiredDamageType 字段存在时才进行检查
@@ -270,9 +268,9 @@ const categorizeModificationsByGrade = (modificationsRaw: any): Record<ModType, 
     // 按grade分类
     const grade = mod.grade as ModType;
     if (grade && result[grade]) {
-      result[grade].push(mod);
+      result[grade].push(mod)
     }
-  });
+  })
 
   return result;
 };
@@ -281,18 +279,18 @@ const onConfirm = () => {
   if (!show.value) return;
 
   show.value = false;
-  emit('update:modelValue', toRaw(props.modelValue));
+  emit('update:modelValue', toRaw(props.modelValue))
 };
 
 const onDragStart = (event: DragEvent, modItem: ModItem) => {
   if (event.dataTransfer) {
-    event.dataTransfer.setData('application/json', JSON.stringify(modItem));
+    event.dataTransfer.setData('application/json', JSON.stringify(modItem))
   }
 };
 
 const onDrop = (event: DragEvent, slotIndex: number) => {
-  event.preventDefault();
-  const data = event.dataTransfer?.getData('application/json');
+  event.preventDefault()
+  const data = event.dataTransfer?.getData('application/json')
 
   if (data && props.modelValue) {
     try {
@@ -302,16 +300,16 @@ const onDrop = (event: DragEvent, slotIndex: number) => {
       if (modItem.grade === props.modelValue[slotIndex].type) {
         props.modelValue[slotIndex].value = modItem;
       } else {
-        console.warn('模组类型与卡槽不匹配');
+        console.warn('模组类型与卡槽不匹配')
       }
     } catch (error) {
-      console.error('解析拖拽数据失败:', error);
+      console.error('解析拖拽数据失败:', error)
     }
   }
 };
 
 const onDragOver = (event: DragEvent) => {
-  event.preventDefault();
+  event.preventDefault()
 };
 
 const removeModification = (slotIndex: number) => {
@@ -325,17 +323,17 @@ const clearSearch = () => {
 };
 
 const getSlotDisplayName = (type: ModType): string => {
-  return t(`assembly.modification.${type}`);
+  return t(`assembly.modification.${type}`)
 };
 
 const emit = defineEmits<{
   'update:modelValue': [value: ModSlot[]]
-}>();
+}>()
 
 defineExpose({
   weaponModConfig: WEAPON_MOD_CONFIG,
   modStyleConfig: MOD_STYLE_CONFIG
-});
+})
 </script>
 
 <template>

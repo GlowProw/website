@@ -12,11 +12,12 @@ import Loading from "@/components/Loading.vue";
 import Team from "./Team.vue";
 import Textarea from "@/components/textarea/index.vue";
 import {useNoticeStore} from "~/stores/noticeStore";
+import AdsWidget from "@/components/ads/google/index.vue";
 
 const authStore = useAuthStore(),
     router = useRouter(),
     notice = useNoticeStore(),
-    {t} = useI18n();
+    {t} = useI18n()
 
 interface Teams {
   username: string
@@ -86,11 +87,11 @@ let teams: Ref<Team[]> = ref([]),
     })
 
 onMounted(async () => {
-  await initWss();
-  await onWss();
-  await getTeams(getTeamsType.none);
+  await initWss()
+  await onWss()
+  await getTeams(getTeamsType.none)
 
-  readStoragePlayer();
+  readStoragePlayer()
 })
 
 /**
@@ -123,7 +124,7 @@ const getTeams = async (type: getTeamsType = getTeamsType.none) => {
           _teams.value.push(...d.data)
           break;
       }
-      resolve(_teams.value);
+      resolve(_teams.value)
     } catch (e) {
       if (e instanceof Error)
         notice.error(t(`basic.tips.${e.response.data.code.replace('.', '_')}`))
@@ -152,7 +153,7 @@ const onTeamLoad = async ({done}) => {
 const pushTeamInfo = async () => {
   try {
     if (!pushForm.value) return
-    const {valid} = await pushForm.value.validate();
+    const {valid} = await pushForm.value.validate()
 
     if (!valid) return;
 
@@ -168,7 +169,7 @@ const pushTeamInfo = async () => {
 
     pushLoading.value = true;
 
-    ws.client.send(JSON.stringify(message));
+    ws.client.send(JSON.stringify(message))
   } catch (e) {
     pushLoading.value = false;
     console.error(e)
@@ -195,7 +196,7 @@ const onDeleteTeamUp = async (id) => {
       return
     }
 
-    ws.client.send(JSON.stringify(message));
+    ws.client.send(JSON.stringify(message))
   } finally {
 
   }
@@ -214,11 +215,11 @@ const onCleanPushInfo = () => {
  * 检索
  */
 const onSearch = async () => {
-  await getTeams(getTeamsType.none);
+  await getTeams(getTeamsType.none)
 }
 
 const onTeamSortBy = async () => {
-  await getTeams(getTeamsType.none);
+  await getTeams(getTeamsType.none)
 }
 
 /**
@@ -268,7 +269,7 @@ const copyToClipboard = async (content: string) => {
  * WebSocket
  */
 const initWss = () => {
-  ws.start();
+  ws.start()
 
   ws.client.onopen = function (event: any) {
     if (authStore.isLogin) {
@@ -278,7 +279,7 @@ const initWss = () => {
                 type: 'authenticate', payload: {token: authStore.user.token}
               }
           )
-      );
+      )
     }
     service.value.status = 1;
   };
@@ -289,15 +290,15 @@ const initWss = () => {
  */
 const onWss = () => {
   ws.client.onmessage = function (event: any) {
-    const data = JSON.parse(event.data);
+    const data = JSON.parse(event.data)
     teams.value = []
 
     switch (data.type) {
       case 'new_team_up':
-        notice.success(t('basic.tips.teamUp.pushSuccess'));
+        notice.success(t('basic.tips.teamUp.pushSuccess'))
 
-        onCleanPushInfo();
-        getTeams(getTeamsType.none);
+        onCleanPushInfo()
+        getTeams(getTeamsType.none)
 
         pushLoading.value = false;
         pushModel.value = false;
@@ -305,13 +306,13 @@ const onWss = () => {
       case 'cancel_team_up':
         const idToRemove = data.payload.id;
         if (teams.value.length > 0) {
-          const index = teams.value.findIndex(item => item.id === idToRemove);
+          const index = teams.value.findIndex(item => item.id === idToRemove)
 
           if (index !== -1) {
-            teams.value = teams.value.splice(index, 1);
+            teams.value = teams.value.splice(index, 1)
           }
         }
-        getTeams(getTeamsType.none);
+        getTeams(getTeamsType.none)
         break;
       case 'team_up_expired':
         triggerRef(teams)
@@ -332,7 +333,7 @@ const onWss = () => {
         pushLoading.value = false;
         pushModel.value = false;
 
-        getTeams(getTeamsType.none);
+        getTeams(getTeamsType.none)
         break;
       case 'auth_failed':
         notice.warning(t(`basic.tips.${data.code}`))
@@ -381,12 +382,12 @@ const onWsReconnect = () => {
               {
                 type: 'authenticate', payload: {token: authStore.user.token}
               }
-          )
-      );
+          ))
+
       service.value.status = 1;
       service.value.loading = false
     }
-  });
+  })
 }
 </script>
 
@@ -400,6 +401,8 @@ const onWsReconnect = () => {
       </Banner>
 
       <v-container class="team pb-10">
+        <AdsWidget class="my-5" id="none"></AdsWidget>
+
         <v-row>
           <v-col cols="12" sm="12" md="6" lg="3" xl="6">
             <router-link to="/">
@@ -697,6 +700,8 @@ const onWsReconnect = () => {
             </v-container>
           </v-dialog>
         </v-fab>
+
+        <AdsWidget class="my-5" id="none"></AdsWidget>
       </v-container>
     </div>
   </div>

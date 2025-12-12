@@ -72,6 +72,7 @@ import MapViewPage from '@/views/map/View.vue';
 
 import TeamPage from '@/views/Team.vue'
 import SearchPage from '@/views/Search.vue'
+import SettingPage from '@/views/setting/Index.vue'
 import AboutPage from '@/views/About.vue'
 import NotFoundPage from '@/views/NotFound.vue';
 
@@ -82,17 +83,17 @@ import {useAssetsStore} from "@/../stores/assetsStore";
 import {useHead} from "@unhead/vue";
 import {useUserApi} from "@/assets/sripts/api";
 
-const isLoginBeforeEnter = function (to: any, from: any, next) {
+const isLoginBeforeEnter = function (to: any, from: any, next: any) {
     const authStore = useAuthStore()
 
     if (authStore.user) {
-        next();
+        next()
     } else {
-        next({path: '/account/signin', query: {backUrl: to.fullPath}});
+        next({path: '/account/signin', query: {backUrl: to.fullPath}})
     }
 }
 
-const initAccountInfo = async function (to, from, next) {
+const initAccountInfo = async function (to: any, from: any, next: any) {
     const authStore = useAuthStore(),
         useApi = useUserApi()
 
@@ -107,7 +108,7 @@ const initAccountInfo = async function (to, from, next) {
 
 const initItemAssets = () => {
     const {init} = useAssetsStore()
-    init();
+    init()
 }
 
 const routes: Readonly<RouteRecordRaw[]> = [
@@ -213,7 +214,12 @@ const routes: Readonly<RouteRecordRaw[]> = [
                     keywords: 'search.meta.keywords'
                 },
                 component: SearchPage,
-            }
+            },
+            {
+                path: '/setting',
+                name: 'PortalSetting',
+                component: SettingPage
+            },
         ]
     },
     {
@@ -591,8 +597,8 @@ const router = createRouter({
                 const scrollTopParam = to.query.scrollTop;
                 if (scrollTopParam === 'false' || scrollTopParam === false) {
                     // 不进行滚动
-                    resolve(false);
-                    return;
+                    resolve(false)
+                    return
                 }
 
                 if (to.hash) {

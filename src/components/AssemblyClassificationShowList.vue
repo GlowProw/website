@@ -39,21 +39,21 @@ const props = withDefaults(
       filterType: "",
       modelValue: "",
       autoExpandFirst: true,
-    }
-);
+    })
 
-const {asString, sanitizeString} = useI18nUtils();
-const {t} = useI18n();
-const resultData = ref<GroupedData[]>([]);
-const emit = defineEmits(['update:modelValue', 'clickSelectItem']);
+
+const {asString, sanitizeString} = useI18nUtils()
+const {t} = useI18n()
+const resultData = ref<GroupedData[]>([])
+const emit = defineEmits(['update:modelValue', 'clickSelectItem'])
 
 // 搜索相关状态
-const searchQuery = ref('');
-const sortBy = ref('');
-const filterType = ref('');
+const searchQuery = ref('')
+const sortBy = ref('')
+const filterType = ref('')
 
 // 加载状态
-const isLoading = ref(false);
+const isLoading = ref(false)
 
 // 加载源数据
 const rawData = computed(() => {
@@ -73,17 +73,17 @@ const rawData = computed(() => {
     default:
       return {};
   }
-});
+})
 
 // 缓存名称映射
-const nameCache = new Map();
+const nameCache = new Map()
 
 /**
  * 处理物品名称（带缓存）
  */
 const handleIDataName = (id: string) => {
   if (nameCache.has(id)) {
-    return nameCache.get(id);
+    return nameCache.get(id)
   }
 
   const rawId = id;
@@ -100,9 +100,9 @@ const handleIDataName = (id: string) => {
     `snb.ultimates.${sanitizeId}.name`,
     `snb.modifications.${rawId}.name`,
     `snb.modifications.${sanitizeId}.name`
-  ]);
+  ])
 
-  nameCache.set(id, name);
+  nameCache.set(id, name)
   return name;
 };
 
@@ -110,11 +110,11 @@ const handleIDataName = (id: string) => {
 const processedData = computed(() => {
   let filtered = props.tags.length > 0
       ? Object.values(rawData.value).filter(i => props.tags.includes(i?.type))
-      : Object.values(rawData.value);
+      : Object.values(rawData.value)
 
   // 类型筛选
   if (filterType.value) {
-    filtered = filtered.filter(i => i.type === filterType.value);
+    filtered = filtered.filter(i => i.type === filterType.value)
   }
 
   // 转换格式并添加name字段
@@ -122,7 +122,7 @@ const processedData = computed(() => {
     ...rawData.value[i.id],
     name: handleIDataName(i.id),
     rarity: i.rarity || 0,
-  }));
+  }))
 
   // 搜索过滤
   const searched = searchQuery.value
@@ -133,40 +133,40 @@ const processedData = computed(() => {
       : mapped;
 
   // 排序
-  return sortItems(searched, sortBy.value);
-});
+  return sortItems(searched, sortBy.value)
+})
 
-const starData = ref<AvailableDataStructure[]>([]);
-const isStar = computed(() => props.loadDataType === 'item');
+const starData = ref<AvailableDataStructure[]>([])
+const isStar = computed(() => props.loadDataType === 'item')
 
 const processedStarData = computed(() => {
-  return starData.value.filter(i => props.tags.includes(i.type));
-});
+  return starData.value.filter(i => props.tags.includes(i.type))
+})
 
 let updateTimeout: number;
 
 watch([searchQuery, filterType, sortBy], () => {
-  clearTimeout(updateTimeout);
-  updateTimeout = setTimeout(updateData, 300);
-});
+  clearTimeout(updateTimeout)
+  updateTimeout = setTimeout(updateData, 300)
+})
 
 onMounted(() => {
   sortBy.value = props.sortBy;
   filterType.value = props.filterType;
-  loadStarData();
-  updateData();
-});
+  loadStarData()
+  updateData()
+})
 
 /**
  * 加载收藏数据
  */
 const loadStarData = () => {
-  const collects = storageCollect.gets(StorageCollectType.Item);
+  const collects = storageCollect.gets(StorageCollectType.Item)
   if (collects.code === 0) {
     starData.value = collects.data.map(i => ({
       ...rawData.value[i.id],
       name: handleIDataName(i.id)
-    }));
+    }))
   }
 };
 
@@ -178,7 +178,7 @@ const updateData = () => {
 
   // 使用 requestAnimationFrame 避免阻塞主线程
   requestAnimationFrame(() => {
-    const grouped = groupByType(processedData.value);
+    const grouped = groupByType(processedData.value)
 
     // 自动展开第一个分类
     if (props.autoExpandFirst && grouped.length > 0) {
@@ -187,7 +187,7 @@ const updateData = () => {
 
     resultData.value = grouped;
     isLoading.value = false;
-  });
+  })
 };
 
 /**
@@ -198,12 +198,12 @@ function sortItems(data: any[], sortBy: string): any[] {
 
   switch (sortBy) {
     case "rarity":
-      return sorted.sort((a, b) => (b.rarity || 0) - (a.rarity || 0));
+      return sorted.sort((a, b) => (b.rarity || 0) - (a.rarity || 0))
     case "tier":
-      return sorted.sort((a, b) => (b.tier || 0) - (a.tier || 0));
+      return sorted.sort((a, b) => (b.tier || 0) - (a.tier || 0))
     case "id":
     default:
-      return sorted.sort((a, b) => a.id.localeCompare(b.id));
+      return sorted.sort((a, b) => a.id.localeCompare(b.id))
   }
 }
 
@@ -211,20 +211,20 @@ function sortItems(data: any[], sortBy: string): any[] {
  * 分组函数
  */
 function groupByType(data: AvailableDataStructure[]): GroupedData[] {
-  const typeMap = new Map<string, AvailableDataStructure[]>();
+  const typeMap = new Map<string, AvailableDataStructure[]>()
 
   data.forEach(d => {
     if (!typeMap.has(d.type)) {
-      typeMap.set(d.type, []);
+      typeMap.set(d.type, [])
     }
-    typeMap.get(d.type)?.push(d);
-  });
+    typeMap.get(d.type)?.push(d)
+  })
 
   return Array.from(typeMap.entries()).map(([type, child]) => ({
     type,
     model: false,
     child,
-  }));
+  }))
 }
 
 /**
@@ -240,29 +240,29 @@ const capitalizeFLetter = (str: string) => {
 const onClickEvent = (data: AvailableDataStructure) => {
   if (props.modelValue && props.modelValue.id === data.id) return;
 
-  emit('update:modelValue', data);
-  emit('clickSelectItem', data);
+  emit('update:modelValue', data)
+  emit('clickSelectItem', data)
 };
 
 /**
  * 收藏物品
  */
 const onStarItem = (data: AvailableDataStructure) => {
-  const index = starData.value.findIndex(i => i.id === data.id);
+  const index = starData.value.findIndex(i => i.id === data.id)
 
   if (index >= 0) {
-    storageCollect.delete(data.id, StorageCollectType.Item);
-    starData.value.splice(index, 1);
+    storageCollect.delete(data.id, StorageCollectType.Item)
+    starData.value.splice(index, 1)
   } else {
     storageCollect.updata(
         {collectTime: Date.now()},
         StorageCollectType.Item,
-        data.id
-    );
+        data.id)
+
     starData.value.push({
       ...rawData.value[data.id],
       name: handleIDataName(data.id)
-    });
+    })
   }
 };
 
@@ -270,7 +270,7 @@ const onStarItem = (data: AvailableDataStructure) => {
  * 是否收藏品
  */
 const isCollect = (id: string) => {
-  return starData.value.some(i => i.id === id);
+  return starData.value.some(i => i.id === id)
 };
 
 /**
@@ -282,7 +282,7 @@ const toggleCategory = (category: GroupedData) => {
 
 defineExpose({
   updateData,
-});
+})
 </script>
 
 <template>

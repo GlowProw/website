@@ -9,7 +9,7 @@ import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue"
 import ItemName from "@/components/snbWidget/itemName.vue";
 import {Items} from "glow-prow-data";
 
-const props = defineProps(nodeViewProps);
+const props = defineProps(nodeViewProps)
 const
     items = Items,
     {t} = useI18n(),

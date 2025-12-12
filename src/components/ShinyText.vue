@@ -13,9 +13,9 @@ const props = withDefaults(defineProps<ShinyTextProps>(), {
   disabled: false,
   speed: 5,
   className: ''
-});
+})
 
-const animationDuration = computed(() => `${props.speed}s`);
+const animationDuration = computed(() => `${props.speed}s`)
 </script>
 
 <template>
@@ -48,6 +48,6 @@ const animationDuration = computed(() => `${props.speed}s`);
 }
 
 .text-\[\#b5b5b5a4\] {
-  color: rgba(181, 181, 181, 0.98);
+  color: rgba(181, 181, 181, 0.98)
 }
 </style>

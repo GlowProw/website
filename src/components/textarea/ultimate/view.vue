@@ -7,7 +7,7 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
 import UltimateName from "@/components/snbWidget/ultimateName.vue";
 
-const props = defineProps(nodeViewProps);
+const props = defineProps(nodeViewProps)
 const {t} = useI18n(),
     {asString, sanitizeString} = useI18nUtils()
 </script>

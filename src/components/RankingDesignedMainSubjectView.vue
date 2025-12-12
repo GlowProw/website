@@ -30,12 +30,12 @@ onMounted(() => {
 
     if (hasReadyEvent)
       emit('ready', refs)
-  });
-});
+  })
+})
 
 defineExpose({
   refs,
-});
+})
 </script>
 
 <template>

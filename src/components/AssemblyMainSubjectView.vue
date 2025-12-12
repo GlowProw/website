@@ -75,8 +75,8 @@ onMounted(() => {
     if (hasItemChangeEvent) {
       emit('update:item-change', 'assembly')
     }
-  });
-});
+  })
+})
 
 
 /**
@@ -84,7 +84,7 @@ onMounted(() => {
  */
 const onWorkshopRestorePosition = () => {
   if (zoomableAreaRef.value) {
-    zoomableAreaRef.value.centerCanvas();
+    zoomableAreaRef.value.centerCanvas()
   }
 };
 
@@ -94,7 +94,7 @@ const onWorkshopFullScreen = () => {
 
 const onWorkshopDelete = () => {
   if (assemblyWorkshopRef.value) {
-    assemblyWorkshopRef.value.onErasure();
+    assemblyWorkshopRef.value.onErasure()
   }
 };
 
@@ -122,7 +122,7 @@ const hasData = (name: string): boolean => {
   if (!props.modelValue)
     return false
 
-  const modelValue = toRaw(props.modelValue[name].data);
+  const modelValue = toRaw(props.modelValue[name].data)
   if (modelValue == null || modelValue.length > 0 || Object.keys(modelValue).length > 0) {
     return false;
   }
@@ -132,7 +132,7 @@ const hasData = (name: string): boolean => {
 defineExpose({
   refs,
   tab
-});
+})
 </script>
 
 <template>

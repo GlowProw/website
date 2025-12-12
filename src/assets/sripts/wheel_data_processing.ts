@@ -52,12 +52,12 @@ export default class WheelDataProcessing {
      * 导出数据
      * @param dataRaw
      */
-    public export(dataRaw) {
+    public export(dataRaw: any) {
         const data = toRaw(dataRaw)
 
         let version = data?.__version || WheelDataProcessing.nowVersion;
         if (version && data && Object.keys(data).length > 0) {
-            return this.processing[version].get(data);
+            return this.processing[version].get(data)
         }
         return data;
     }
@@ -67,12 +67,12 @@ export default class WheelDataProcessing {
      * @param dataRaw
      * @param useVersion
      */
-    public import(dataRaw, useVersion?: string) {
+    public import(dataRaw: any, useVersion?: string) {
         const data = toRaw(dataRaw)
 
         let version = useVersion || data?.__version || WheelDataProcessing.nowVersion;
         if (version && data && Object.keys(data).length > 0) {
-            return this.processing[version].set(data);
+            return this.processing[version].set(data)
         }
         return data
     }
@@ -87,6 +87,6 @@ export default class WheelDataProcessing {
 
         let version = useVersion || data?.__version || WheelDataProcessing.nowVersion;
 
-        return this.processing[version].verify(data);
+        return this.processing[version].verify(data)
     }
 }

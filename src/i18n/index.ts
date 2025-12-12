@@ -17,7 +17,7 @@ export const messageCompiler = (message: any) => {
                 return message;
             }
 
-            let result = message.toString();
+            let result = message.toString()
 
             // 检查是否存在 __ 属性（Vue I18n 数组参数的约定）
             if (ctx.values.__) {
@@ -29,22 +29,22 @@ export const messageCompiler = (message: any) => {
                     if (arg === undefined) {
                         return '';
                     }
-                    return String(arg);
-                });
+                    return String(arg)
+                })
             } else {
                 // 处理对象参数
                 // 支持 {named} 和 {{named}} 两种格式
                 result = result.replace(/\{\{?(\w+)\}?\}/g, (match: any, placeholder: any) => {
                     if (ctx.values[placeholder] !== undefined) {
-                        return String(ctx.values[placeholder]);
+                        return String(ctx.values[placeholder])
                     }
                     return match; // 保持原样而不是返回空字符串
-                });
+                })
             }
 
             return result;
         } catch (err) {
-            // onError?.(err instanceof Error ? err : new Error(String(err)));
+            // onError?.(err instanceof Error ? err : new Error(String(err))
             return message;
         }
     };
@@ -62,6 +62,6 @@ const i18n = createI18n({
         'en-US': Object.assign(en_US_local, {'snb': en_US_snb}),
     },
     globalInjection: false,
-});
+})
 
 export default i18n;

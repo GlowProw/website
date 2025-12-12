@@ -57,7 +57,7 @@ const ShipNode = Node.create({
             },
         } as Partial<RawCommands>
     },
-});
+})
 
 export {
     ShipNode,

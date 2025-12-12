@@ -56,6 +56,11 @@
                          :scrim="false"
                          :style="mobile ? isShowMarkModel ? 'min-width: 100%' : 'width: 0' :''"
                          :width="mobile ? '100vh' : 510">
+
+      <div class="px-7 my-5 w-100">
+        <AdsWidget id="none"></AdsWidget>
+      </div>
+
       <div>
         <v-card
             v-if="authStore.isLogin"
@@ -308,7 +313,7 @@
 
     <!-- 地图底部信息 S -->
     <div class="map-footer">
-      <v-row class="w-100 mb-1">
+      <v-row class="w-100 mb-1" align="end">
         <v-col class="text-caption opacity-50 ml-8">
           <v-icon size="12" class="mr-2">mdi-information-outline</v-icon>
           map tiles by
@@ -330,6 +335,16 @@
           </template>
           <v-icon size="12" class="ml-2">mdi-map-marker</v-icon>
         </v-col>
+      </v-row>
+    </div>
+
+    <div class="map-footer">
+      <v-row class="w-100 mb-1" align="end">
+        <v-spacer></v-spacer>
+        <v-col cols="auto">
+          <AdsWidget class="my-5" id="none"></AdsWidget>
+        </v-col>
+        <v-spacer></v-spacer>
       </v-row>
     </div>
     <!-- 地图底部信息 E -->
@@ -593,8 +608,9 @@ import MapLocationAvailableNpcWidget from "@/components/snbWidget/mapLocationAva
 import Textarea from "@/components/textarea/index.vue";
 import {ApiError} from "@/assets/types/Api";
 import {useNoticeStore} from "~/stores/noticeStore";
+import AdsWidget from "@/components/ads/google/index.vue";
 
-const mapImages = import.meta.glob('/src/assets/images/map/*.*', {eager: true});
+const mapImages = import.meta.glob('/src/assets/images/map/*.*', {eager: true})
 const {t} = useI18n(),
     route = useRoute(),
     router = useRouter(),
@@ -603,7 +619,7 @@ const {t} = useI18n(),
     api = useMapApi(),
     {asString} = useI18nUtils(),
     {mobile} = useDisplay(),
-    {serializationMap} = useAssetsStore();
+    {serializationMap} = useAssetsStore()
 
 let mapViewRef = ref<HTMLElement | null>(null),
     mapInstance: Ref<Map | null> = ref(null),
@@ -668,7 +684,7 @@ let mapViewRef = ref<HTMLElement | null>(null),
       return uniqueCategories.map(category => ({
         value: category,
         text: t(`map.types.${category}.name`)
-      }));
+      }))
     }),
     // 计算个人标记数量
     personalMarkersCount = computed(() => {
@@ -682,13 +698,13 @@ let mapViewRef = ref<HTMLElement | null>(null),
       if (!selectedLocationData.value.id && !mapLocationAvailableTreasureMapWidget.value)
         return [].join(',')
       return mapLocationAvailableTreasureMapWidget.value?.getObtainables().join(',') || []
-    });
+    })
 
 watch(() => searchQuery.value, (newValue) => {
   if (!newValue) {
     searchSuggestions.value = [];
   }
-});
+})
 
 watch(() => selectedLocationData.value, async () => {
   if (!authStore.isLogin) return;
@@ -704,33 +720,33 @@ watch(() => selectedCollectionUuid.value, async (newCollectionUuid) => {
 
   // 监听选中的地图集变化
   if (newCollectionUuid) {
-    await loadCollectionPoints(newCollectionUuid);
+    await loadCollectionPoints(newCollectionUuid)
   } else {
     personalMarkers.value = [];
-    onRemovePersonalMarkersFromMap();
+    onRemovePersonalMarkersFromMap()
   }
-});
+})
 
 onMounted(async () => {
   const {x: queryX, y: queryY, key: queryKey, category: queryCategory} = route.query;
 
   // 初始化图层可见性
-  initializeLayerVisibility();
+  initializeLayerVisibility()
 
   // 加载图标
-  icons.value = serializationMap(mapImages);
+  icons.value = serializationMap(mapImages)
 
   // 创建矢量数据源并添加要素
   const vectorSource = new VectorSource({
     features: onCreateFeaturesFromLocations(locations.value)
-  });
+  })
 
   // 创建矢量图层
   const vectorLayer = new VectorLayer({
     source: vectorSource,
     zIndex: 100,
     style: (feature) => {
-      const originalData = feature.get('originalData');
+      const originalData = feature.get('originalData')
       const featureCategory = originalData?.category;
 
       // 处理个人标记
@@ -743,7 +759,7 @@ onMounted(async () => {
       const isSystemVisible = layerVisibility.value[featureCategory];
       return isSystemVisible ? onCreateMarkerStyle(feature) : null;
     }
-  } as any);
+  } as any)
 
   // 保存矢量图层引用
   vectorLayerRef.value = vectorLayer;
@@ -775,7 +791,7 @@ onMounted(async () => {
       maxZoom: 15,
       minZoom: 12,
     })
-  });
+  })
 
   // 保存地图实例
   mapInstance.value = map;
@@ -786,13 +802,13 @@ onMounted(async () => {
     layers: [vectorLayer],
     hitTolerance: 10,
     style: null
-  });
+  })
 
-  map.addInteraction(hoverInteraction);
+  map.addInteraction(hoverInteraction)
 
   // 监听悬停事件，改变鼠标样式
   hoverInteraction.on('select', (event) => {
-    const mapElement = map.getTargetElement();
+    const mapElement = map.getTargetElement()
     if (mapElement) {
       if (event.selected.length > 0) {
         mapElement.style.cursor = 'pointer';
@@ -800,17 +816,17 @@ onMounted(async () => {
         mapElement.style.cursor = '';
       }
     }
-  });
+  })
 
   // 添加点击地图事件
   map.on('click', async (event) => {
     // 检查是否点击到了要素
     const feature = map.forEachFeatureAtPixel(event.pixel, (feature) => {
       return feature as OLFeature<Geometry>;
-    });
+    })
 
     if (feature) {
-      const originalData = feature.get('originalData');
+      const originalData = feature.get('originalData')
 
       // 处理个人标记点击
       if (originalData?.category == 'shareLocation') {
@@ -831,7 +847,7 @@ onMounted(async () => {
             key: originalData.id,
             category: 'shareLocation'
           }
-        });
+        })
         return;
       }
 
@@ -847,7 +863,7 @@ onMounted(async () => {
           key: selectedLocationData.value.id,
           category: selectedLocationData.value.category
         }
-      });
+      })
       return;
     }
 
@@ -857,12 +873,12 @@ onMounted(async () => {
     await router.push({
       name: route.name,
       query: {}
-    });
-  });
+    })
+  })
 
   // 添加双击地图事件
   map.on('dblclick', (event) => {
-    const coordinate = toLonLat(event.coordinate);
+    const coordinate = toLonLat(event.coordinate)
     clickedCoordinate.value = {
       longitude: coordinate[0],
       latitude: coordinate[1]
@@ -889,28 +905,28 @@ onMounted(async () => {
     router.push({
       name: route.name,
       query: {}
-    });
-  });
+    })
+  })
 
   // 添加指针移动事件，实时更新坐标
   map.on('pointermove', (event) => {
     if (event.dragging) return;
 
-    const lonLat = toLonLat(event.coordinate);
+    const lonLat = toLonLat(event.coordinate)
     hoveedCoordinate.value = {
       longitude: lonLat[0],
       latitude: lonLat[1]
     };
-  });
+  })
 
   // 加载用户的地图集
-  await onLoadUserCollections();
+  await onLoadUserCollections()
 
   // 处理URL参数
   if (queryKey) {
-    await onHandleUrlParams(queryKey as string, queryX as string, queryY as string, queryCategory as string, vectorSource);
+    await onHandleUrlParams(queryKey as string, queryX as string, queryY as string, queryCategory as string, vectorSource)
   }
-});
+})
 
 /**
  * 处理URL参数
@@ -923,14 +939,14 @@ const onHandleUrlParams = async (
     vectorSource: VectorSource
 ): Promise<void> => {
   // 查找已有的位置数据
-  const existingLocation = locations.value.find(loc => loc.id === queryKey);
+  const existingLocation = locations.value.find(loc => loc.id === queryKey)
 
   if (existingLocation) {
     // 使用已有的坐标数据
     mapInstance.value?.getView().animate({
       center: fromLonLat([existingLocation.longitude, existingLocation.latitude]),
       duration: 0
-    });
+    })
 
     selectedLocationData.value = existingLocation;
     model.value = true;
@@ -938,12 +954,12 @@ const onHandleUrlParams = async (
     // 创建分享位置或查找个人标记
     if (queryCategory == 'shareLocation') {
       // 查找个人标记
-      const personalMarker = personalMarkers.value.find(marker => marker.id === queryKey);
+      const personalMarker = personalMarkers.value.find(marker => marker.id === queryKey)
       if (personalMarker) {
         mapInstance.value?.getView().animate({
           center: fromLonLat([personalMarker.longitude, personalMarker.latitude]),
           duration: 0
-        });
+        })
 
         selectedLocationData.value = {
           ...personalMarker,
@@ -966,26 +982,26 @@ const onHandleUrlParams = async (
       };
 
       // 创建新的要素并添加到地图
-      const newFeature = onCreateFeatureFromLocation(loadLocation);
-      vectorSource.addFeature(newFeature);
+      const newFeature = onCreateFeatureFromLocation(loadLocation)
+      vectorSource.addFeature(newFeature)
 
       // 更新图层可见性状态
       if (!layerVisibility.value[queryCategory]) {
         layerVisibility.value[queryCategory] = true;
-        onUpdateAllLayersVisibleState();
+        onUpdateAllLayersVisibleState()
       }
 
       mapInstance.value?.getView().animate({
         center: fromLonLat([parseFloat(queryX as string), parseFloat(queryY as string)]),
         duration: 0
-      });
+      })
 
       selectedLocationData.value = loadLocation;
       model.value = true;
 
       // 如果是分享位置，添加到locations中以便搜索
       if (queryCategory == 'shareLocation') {
-        locations.value.push(loadLocation);
+        locations.value.push(loadLocation)
       }
     }
   }
@@ -1011,9 +1027,9 @@ const onLoadUserCollections = async (): Promise<void> => {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.code
-      }));
+      }))
     }
-    console.error(e);
+    console.error(e)
   }
 };
 
@@ -1031,15 +1047,15 @@ const loadCollectionPoints = async (collectionUuid: string): Promise<void> => {
     personalMarkers.value = points;
 
     // 将个人标记添加到地图
-    onAddPersonalMarkersToMap(points);
+    onAddPersonalMarkersToMap(points)
 
   } catch (e) {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.code
-      }));
+      }))
     }
-    console.error(e);
+    console.error(e)
   }
 };
 
@@ -1049,20 +1065,20 @@ const loadCollectionPoints = async (collectionUuid: string): Promise<void> => {
 const onAddPersonalMarkersToMap = (points: MapPoint[]): void => {
   if (!mapInstance.value || !vectorLayerRef.value) return;
 
-  const vectorSource = vectorLayerRef.value.getSource();
+  const vectorSource = vectorLayerRef.value.getSource()
   if (!vectorSource) return;
 
   // 清除现有的个人标记
-  onRemovePersonalMarkersFromMap();
+  onRemovePersonalMarkersFromMap()
 
   // 添加新的个人标记
   points.forEach(point => {
-    const feature = createPersonalFeature(point);
-    vectorSource.addFeature(feature);
-  });
+    const feature = createPersonalFeature(point)
+    vectorSource.addFeature(feature)
+  })
 
   // 刷新地图显示
-  vectorLayerRef.value.changed();
+  vectorLayerRef.value.changed()
 };
 
 /**
@@ -1086,17 +1102,17 @@ const createPersonalFeature = (point: MapPoint): OLFeature<Geometry> => {
 const onRemovePersonalMarkersFromMap = (): void => {
   if (!vectorLayerRef.value) return;
 
-  const vectorSource = vectorLayerRef.value.getSource();
+  const vectorSource = vectorLayerRef.value.getSource()
   if (!vectorSource) return;
 
-  const features = vectorSource.getFeatures();
+  const features = vectorSource.getFeatures()
   features.forEach(feature => {
-    const originalData = feature.get('originalData');
+    const originalData = feature.get('originalData')
 
     if (originalData && originalData.category == 'shareLocation') {
-      vectorSource.removeFeature(feature);
+      vectorSource.removeFeature(feature)
     }
-  });
+  })
 };
 
 /**
@@ -1105,7 +1121,7 @@ const onRemovePersonalMarkersFromMap = (): void => {
 const onCreateNewMarker = async (): Promise<void> => {
   if (!markerFormRef.value) return;
 
-  const {valid} = await markerFormRef.value.validate();
+  const {valid} = await markerFormRef.value.validate()
   if (!valid) return;
 
   creatingMarker.value = true;
@@ -1121,19 +1137,19 @@ const onCreateNewMarker = async (): Promise<void> => {
       tags: newMarkerData.value.tags,
       public: newMarkerData.value.public,
       sharedUsers: newMarkerData.value.sharedUsers
-    });
+    })
 
     // 重新加载当前地图集的坐标点
     if (selectedCollectionUuid.value === newMarkerData.value.collectionUuid) {
-      await loadCollectionPoints(selectedCollectionUuid.value);
+      await loadCollectionPoints(selectedCollectionUuid.value)
     }
 
     // 关闭对话框并重置数据
     showCreateMarkerDialog.value = false;
-    onResetNewMarkerData();
+    onResetNewMarkerData()
 
   } catch (error) {
-    console.error('创建标记失败:', error);
+    console.error('创建标记失败:', error)
   } finally {
     creatingMarker.value = false;
   }
@@ -1162,7 +1178,7 @@ const onResetNewMarkerData = (): void => {
  */
 const onCancelCreateMarker = (): void => {
   showCreateMarkerDialog.value = false;
-  onResetNewMarkerData();
+  onResetNewMarkerData()
   selectedPoint.value = null;
 };
 
@@ -1173,7 +1189,7 @@ const onTogglePersonalLayer = (): void => {
   if (!vectorLayerRef.value) return;
 
   // 强制刷新地图
-  vectorLayerRef.value.changed();
+  vectorLayerRef.value.changed()
 };
 
 /**
@@ -1188,7 +1204,7 @@ const onCreatePersonalMarkerStyle = (): Style => {
       anchorXUnits: 'fraction',
       anchorYUnits: 'fraction'
     }),
-  });
+  })
 };
 
 /**
@@ -1218,9 +1234,9 @@ const onSearchNearbyPoints = async (latitude: number, longitude: number, radius:
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.code
-      }));
+      }))
     }
-    console.error(e);
+    console.error(e)
   }
 };
 
@@ -1251,18 +1267,18 @@ const handleSearchInput = (value: string) => {
   }
 
   const filtered = locations.value.filter(location => {
-    const displayName = getLocationDisplayName(location).toLowerCase();
-    const locationId = location.id.toLowerCase();
-    const searchTerm = value.toLowerCase().trim();
+    const displayName = getLocationDisplayName(location).toLowerCase()
+    const locationId = location.id.toLowerCase()
+    const searchTerm = value.toLowerCase().trim()
 
-    return displayName.includes(searchTerm) || locationId.includes(searchTerm);
-  }).slice(0, 10);
+    return displayName.includes(searchTerm) || locationId.includes(searchTerm)
+  }).slice(0, 10)
 
   searchSuggestions.value = filtered.map(location => ({
     title: getLocationDisplayName(location),
     value: location.id,
     ...location
-  }));
+  }))
 };
 
 /**
@@ -1271,7 +1287,7 @@ const handleSearchInput = (value: string) => {
  */
 const onHandleSelectSuggestion = (selectedItem: any) => {
   if (selectedItem && selectedItem.id) {
-    onSelectLocation(selectedItem);
+    onSelectLocation(selectedItem)
   }
 };
 
@@ -1286,7 +1302,7 @@ const onSelectLocation = (location: any) => {
     center: fromLonLat([location.longitude, location.latitude]),
     zoom: 15,
     duration: 500
-  });
+  })
 
   selectedLocationData.value = location;
   model.value = true;
@@ -1303,7 +1319,7 @@ const onSelectLocation = (location: any) => {
       y: location.latitude,
       category: location.category
     }
-  });
+  })
 };
 
 /**
@@ -1313,17 +1329,17 @@ const handleSearch = () => {
   if (!searchQuery.value.trim()) return;
 
   const foundLocation = locations.value.find(location => {
-    const displayName = getLocationDisplayName(location).toLowerCase();
-    const locationId = location.id.toLowerCase();
-    const searchTerm = searchQuery.value.toLowerCase().trim();
+    const displayName = getLocationDisplayName(location).toLowerCase()
+    const locationId = location.id.toLowerCase()
+    const searchTerm = searchQuery.value.toLowerCase().trim()
 
     return displayName === searchTerm || locationId === searchTerm;
-  });
+  })
 
   if (foundLocation) {
-    onSelectLocation(foundLocation);
+    onSelectLocation(foundLocation)
   } else if (searchSuggestions.value.length > 0) {
-    onSelectLocation(searchSuggestions.value[0]);
+    onSelectLocation(searchSuggestions.value[0])
   }
 };
 
@@ -1334,7 +1350,7 @@ const onToggleLayer = () => {
   if (!vectorLayerRef.value) return;
 
   vectorLayerRef.value.setStyle((feature: any) => {
-    const originalData = feature.get('originalData');
+    const originalData = feature.get('originalData')
     const featureCategory = originalData?.category;
 
     if (originalData?.category == 'shareLocation') {
@@ -1344,10 +1360,10 @@ const onToggleLayer = () => {
 
     const isSystemVisible = layerVisibility.value[featureCategory];
     return isSystemVisible ? onCreateMarkerStyle(feature) : null;
-  });
+  })
 
-  vectorLayerRef.value.changed();
-  onUpdateAllLayersVisibleState();
+  vectorLayerRef.value.changed()
+  onUpdateAllLayersVisibleState()
 };
 
 /**
@@ -1360,13 +1376,13 @@ const onToggleAllLayers = () => {
 
   availableCategories.value.forEach(category => {
     layerVisibility.value[category.value] = newVisibility;
-  });
+  })
   layerVisibility.value.shareLocation = newVisibility;
 
   allLayersVisible.value = newVisibility;
 
   vectorLayerRef.value.setStyle((feature: any) => {
-    const originalData = feature.get('originalData');
+    const originalData = feature.get('originalData')
     const featureCategory = originalData?.category;
 
     if (featureCategory == 'shareLocation') {
@@ -1374,18 +1390,18 @@ const onToggleAllLayers = () => {
     }
 
     return newVisibility ? onCreateMarkerStyle(feature) : null;
-  });
+  })
 
-  vectorLayerRef.value.changed();
+  vectorLayerRef.value.changed()
 };
 
 /**
  * 更新所有图层可见状态
  */
 const onUpdateAllLayersVisibleState = () => {
-  const allCategories = availableCategories.value.map(cat => cat.value);
-  allCategories.push('shareLocation');
-  allLayersVisible.value = allCategories.every(category => layerVisibility.value[category]);
+  const allCategories = availableCategories.value.map(cat => cat.value)
+  allCategories.push('shareLocation')
+  allLayersVisible.value = allCategories.every(category => layerVisibility.value[category])
 };
 
 /**
@@ -1395,7 +1411,7 @@ const initializeLayerVisibility = () => {
   const allCategories = [...new Set(locations.value.map(loc => loc.category))];
   allCategories.forEach(category => {
     layerVisibility.value[category] = true;
-  });
+  })
   layerVisibility.value.shareLocation = true;
 };
 
@@ -1418,7 +1434,7 @@ const getLocationDisplayName = (data: any): string => {
  * @param feature
  */
 const onCreateMarkerStyle = (feature: OLFeature<Geometry>): Style => {
-  const originalData = feature.get('originalData');
+  const originalData = feature.get('originalData')
 
   return new Style({
     image: new Icon({
@@ -1428,7 +1444,7 @@ const onCreateMarkerStyle = (feature: OLFeature<Geometry>): Style => {
       anchorXUnits: 'fraction',
       anchorYUnits: 'fraction'
     }),
-  });
+  })
 };
 
 /**
@@ -1445,7 +1461,7 @@ const onCreateFeaturesFromLocations = (locations: any[]): OLFeature<Geometry>[] 
     }) as OLFeature<Geometry>;
 
     return feature;
-  });
+  })
 };
 
 /**
@@ -1466,12 +1482,12 @@ const onCreateFeatureFromLocation = (location: any): OLFeature<Geometry> => {
  */
 const onZoomIn = (): void => {
   if (mapInstance.value) {
-    const view = mapInstance.value.getView();
+    const view = mapInstance.value.getView()
     const currentZoom = view.getZoom() || 0;
     view.animate({
       zoom: currentZoom + 1,
       duration: 250
-    });
+    })
   }
 };
 
@@ -1480,12 +1496,12 @@ const onZoomIn = (): void => {
  */
 const onZoomOut = (): void => {
   if (mapInstance.value) {
-    const view = mapInstance.value.getView();
+    const view = mapInstance.value.getView()
     const currentZoom = view.getZoom() || 0;
     view.animate({
       zoom: currentZoom - 1,
       duration: 250
-    });
+    })
   }
 };
 
@@ -1494,13 +1510,13 @@ const onZoomOut = (): void => {
  */
 const onResetView = (): void => {
   if (mapInstance.value && locations.value.length > 0) {
-    const view = mapInstance.value.getView();
+    const view = mapInstance.value.getView()
 
     view.animate({
       center: fromLonLat(mapCenterLocation.value),
       zoom: 13,
       duration: 500
-    });
+    })
   }
 };
 
@@ -1508,7 +1524,7 @@ defineExpose({
   resetView: onResetView,
   zoomIn: onZoomIn,
   zoomOut: onZoomOut
-});
+})
 </script>
 
 <style scoped lang="less">

@@ -32,7 +32,7 @@ onMounted(() => {
   nextTick(() => {
     if (props.data) {
       itemDetailData.value = props.data;
-      onStatisticsRawMaterial();
+      onStatisticsRawMaterial()
     }
   })
 })

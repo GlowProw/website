@@ -6,8 +6,8 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
 import ShipName from "@/components/snbWidget/shipName.vue";
 
-const props = defineProps(nodeViewProps);
-const {t} = useI18n();
+const props = defineProps(nodeViewProps)
+const {t} = useI18n()
 </script>
 
 <template>

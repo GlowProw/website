@@ -23,7 +23,7 @@ let simulationValue = ref(1),
     remainingTime = ref(0),     // 剩余时间（秒）
     countdownInterval = ref(null), // 倒计时计时器
     currentBoostType = ref(''), // 当前生效的道具类型
-    strongBreeze = ref(false);  // 强风状态
+    strongBreeze = ref(false)  // 强风状态
 
 
 const
@@ -40,39 +40,39 @@ const
       if (totalSpeedBoost.value === 0) return simulationArray.value;
 
       return simulationArray.value.map(speed => {
-        return speed * (1 + totalSpeedBoost.value / 100);
-      });
+        return speed * (1 + totalSpeedBoost.value / 100)
+      })
     }),
     // 当前显示的速度（应用提升后）
     currentDisplaySpeed = computed(() => {
       const baseSpeed = simulationArray.value[simulationValue.value] || 0;
-      return (baseSpeed * (1 + totalSpeedBoost.value / 100)).toFixed(0);
+      return (baseSpeed * (1 + totalSpeedBoost.value / 100)).toFixed(0)
     }),
     // 格式化剩余时间显示
     formattedRemainingTime = computed(() => {
-      const minutes = Math.floor(remainingTime.value / 60);
+      const minutes = Math.floor(remainingTime.value / 60)
       const seconds = remainingTime.value % 60;
       return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-    });
+    })
 
 watch(() => props.data, (value) => {
-  simulationArray.value = Object.values(value.sailSpeed);
+  simulationArray.value = Object.values(value.sailSpeed)
 }, {immediate: true})
 
 onUnmounted(() => {
-  clearAllTimers();
-});
+  clearAllTimers()
+})
 
 /**
  * 清理所有计时器
  */
 const clearAllTimers = () => {
   if (boostTimer.value) {
-    clearTimeout(boostTimer.value);
+    clearTimeout(boostTimer.value)
     boostTimer.value = null;
   }
   if (countdownInterval.value) {
-    clearInterval(countdownInterval.value);
+    clearInterval(countdownInterval.value)
     countdownInterval.value = null;
   }
 }
@@ -92,7 +92,7 @@ const ticks = computed(() => {
  */
 const applySpeedBoost = (boostPercent: number, duration: number, boostType: string) => {
   // 清除之前的计时器
-  clearAllTimers();
+  clearAllTimers()
 
   // 应用新的提升
   speedBoost.value = boostPercent;
@@ -103,25 +103,25 @@ const applySpeedBoost = (boostPercent: number, duration: number, boostType: stri
   countdownInterval.value = setInterval(() => {
     remainingTime.value--;
     if (remainingTime.value <= 0) {
-      clearAllTimers();
+      clearAllTimers()
       speedBoost.value = 0;
       currentBoostType.value = '';
     }
-  }, 1000);
+  }, 1000)
 
   // 设置总时长定时器（备用）
   boostTimer.value = setTimeout(() => {
-    clearAllTimers();
+    clearAllTimers()
     speedBoost.value = 0;
     currentBoostType.value = '';
-  }, duration * 1000);
+  }, duration * 1000)
 }
 
 /**
  * 终止当前效果
  */
 const cancelBoostEffect = () => {
-  clearAllTimers();
+  clearAllTimers()
   speedBoost.value = 0;
   remainingTime.value = 0;
   currentBoostType.value = '';
@@ -131,14 +131,14 @@ const cancelBoostEffect = () => {
  * waterFlask 加成处理
  */
 const onWaterFlaskClick = () => {
-  applySpeedBoost(10, 20, 'waterFlask');
+  applySpeedBoost(10, 20, 'waterFlask')
 }
 
 /**
  * waterBarrel 加成处理
  */
 const onWaterBarrelClick = () => {
-  applySpeedBoost(15, 20, 'waterBarrel');
+  applySpeedBoost(15, 20, 'waterBarrel')
 }
 </script>
 
@@ -200,7 +200,7 @@ const onWaterBarrelClick = () => {
                 model-value="100">
               <div class="position-absolute">
                 <WindFlowsWidget
-                    style="transform: rotate(-45deg);width: calc(100% - 5px);"
+                    style="transform: rotate(-45deg);width: calc(100% - 5px)"
                     :pathCount="4"
                     :speed="1 + totalSpeedBoost / 100"
                     :opacity="strongBreeze ? 0.6 : 0.3"

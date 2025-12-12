@@ -138,7 +138,7 @@ const onEdit = async () => {
     //     d = result.data;
     //
     // if (d.error == 1)
-    //   throw Error(d.message || d.code);
+    //   throw Error(d.message || d.code
     //
     // storageAssembly.delete(editPublishData.uuid as string, StorageAssemblyType.Data)
     // await router.push(`/assembly/browse/${editPublishData.uuid}/detail`)
@@ -169,7 +169,7 @@ const onPublish = async () => {
     //     d = result.data;
     //
     // if (d.error == 1)
-    //   throw Error(d);
+    //   throw Error(d
     //
     // storageAssembly.delete(uid as string, StorageAssemblyType.Data)
     // await router.push(

@@ -6,8 +6,8 @@ import {createApiBase} from "@/assets/sripts/api/api-util";
  * 日历
  */
 export function useCalendarApi() {
-    const http = useHttpToken();
-    const {handleError, handleResponse} = createApiBase();
+    const http = useHttpToken()
+    const {handleError, handleResponse} = createApiBase()
 
     /**
      * 获取当前用户信息
@@ -18,13 +18,13 @@ export function useCalendarApi() {
                 params: {
                     season: seasonId
                 }
-            });
-            return handleResponse(result);
+            })
+            return handleResponse(result)
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
             }
-            return handleError(error);
+            return handleError(error)
         }
     };
 

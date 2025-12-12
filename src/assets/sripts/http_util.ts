@@ -38,26 +38,26 @@ export function useHttpToken() {
         (response) => response,
         (error) => {
             if (error.response && error.response.data && error.response.data.code === 'user.tokenExpired') {
-                authStore.logout();
+                authStore.logout()
             }
-            return Promise.reject(error);
-        }
-    );
+            return Promise.reject(error)
+        })
+
 
     const post = (url = '', data?: { data?: {} }) => {
-        return http.post(url, token(data));
+        return http.post(url, token(data))
     }
 
     const get = (url = '', data?: { data?: {}, params?: {} }) => {
-        return http.get(url, token(data));
+        return http.get(url, token(data))
     }
 
     const put = (url = '', data?: { data?: {}, params?: {} }) => {
-        return http.put(url, token(data));
+        return http.put(url, token(data))
     }
 
     const del = (url = '', data?: { data?: {}, params?: {} }) => {
-        return http.delete(url, token(data));
+        return http.delete(url, token(data))
     }
 
     return {

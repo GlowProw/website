@@ -26,7 +26,7 @@ let damageRefs = ref<Record<string, any>>([]),
     damageIsShowList = ref<boolean[]>([]),
     isEmpty = computed(() => {
       return damageRefs.value.filter(i => i.isShow).length <= 0
-    });
+    })
 
 watch(() => damageIconImages.value, (newVal) => {
   if (newVal && newVal.length > 0) {
@@ -34,10 +34,10 @@ watch(() => damageIconImages.value, (newVal) => {
       damageIsShowList.value = newVal.map((item, index) => {
         const widget = damageRefs.value[item.key || index];
         return widget?.isShow ?? false;
-      });
-    });
+      })
+    })
   }
-}, {deep: true});
+}, {deep: true})
 
 onMounted(() => {
   onReady()
@@ -49,7 +49,7 @@ const onReady = () => {
       let key = sanitizeString(i).cleaned;
       damageIconImages.value.push({
         key
-      });
+      })
     })
   }
 }

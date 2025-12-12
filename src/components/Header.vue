@@ -57,6 +57,8 @@ let drawer = ref(false)
 
       <HeaderAccount type="header"></HeaderAccount>
 
+      <v-btn to="/setting" icon="mdi-cog"></v-btn>
+
       <HeaderMuenFunWidget></HeaderMuenFunWidget>
     </v-app-bar>
 

@@ -13,7 +13,7 @@ const {t, locale} = useI18n(),
     })
 
 let members = ref([]),
-    selectLang = ref('');
+    selectLang = ref('')
 
 onMounted(() => {
   selectLang.value = locale.value;

@@ -1143,6 +1143,21 @@
       "type": "类型"
     }
   },
+  "setting": {
+    "title": "设置",
+    "routine": {
+      "title": "常规设置"
+    },
+    "ad": {
+      "title": "广告"
+    },
+    "storage": {
+      "title": "数据报告"
+    },
+    "notification": {
+      "title": "通知"
+    }
+  },
   "header": {
     "navs": {
       "blog": "闪耀船首博客",

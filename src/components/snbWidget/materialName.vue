@@ -13,6 +13,6 @@ const {t} = useI18n(),
 
 <style scoped lang="less">
 .a {
-  color: hal();
+  color: hal()
 }
 </style>

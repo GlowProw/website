@@ -183,9 +183,9 @@ const onEdit = async () => {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.code
-      }));
+      }))
     }
-    console.error(e);
+    console.error(e)
   } finally {
     publishLoading.value = false
   }
@@ -220,9 +220,9 @@ const onPublish = async () => {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.code
-      }));
+      }))
     }
-    console.error(e);
+    console.error(e)
   } finally {
     publishLoading.value = false
   }

@@ -278,7 +278,7 @@ const props = defineProps<{
     router = useRouter(),
     route = useRoute(),
     {t, tm, te, rt, locale} = useI18n(),
-    {mobile} = useDisplay();
+    {mobile} = useDisplay()
 
 let
     empireSkillSimulationViewRef = ref(null),
@@ -310,8 +310,8 @@ watch(locale, () => {
 })
 
 watch(skillPointsInput.value, () => {
-  updateSkillPointsText();
-}, {deep: true});
+  updateSkillPointsText()
+}, {deep: true})
 
 /**
  * 模拟点是否可用
@@ -336,7 +336,7 @@ const getIsSkillPointPossible = (key) => {
     if (skillPointsInput.value[i]) {
       checkResultCount += 1;
     }
-  });
+  })
 
   // 如果所有前置条件都已激活，则返回 true
   return checkResultCount === requisite.length;
@@ -382,7 +382,7 @@ const onMoveNode = (key) => {
  * @param d
  */
 const handleNodeClick = (event: MouseEvent, d: d3.HierarchyNode<HierarchyNodeData>) => {
-  event.stopPropagation();
+  event.stopPropagation()
 
   const {key} = d.data.data;
 
@@ -397,7 +397,7 @@ const handleNodeClick = (event: MouseEvent, d: d3.HierarchyNode<HierarchyNodeDat
     query: {...route.query, key}
   })
 
-  locateNode(d);
+  locateNode(d)
 };
 
 /**
@@ -406,12 +406,12 @@ const handleNodeClick = (event: MouseEvent, d: d3.HierarchyNode<HierarchyNodeDat
 const searchAndLocate = () => {
   if (!searchQuery.value) return;
 
-  const query = searchQuery.value.toLowerCase();
+  const query = searchQuery.value.toLowerCase()
   foundNodes.value = [];
 
   root.descendants().forEach(node => {
     const skillData = node.data.data;
-    const skillName = t(`snb.empireSkills.${skillData.id}.name`);
+    const skillName = t(`snb.empireSkills.${skillData.id}.name`)
     const categoryName = skillData.type ? t(`snb.factions.${skillData.type}.name`).toLowerCase() : '';
 
     if (
@@ -423,12 +423,12 @@ const searchAndLocate = () => {
         title: skillName,
         value: node.id,
         node: node
-      });
+      })
     }
-  });
+  })
 
   if (foundNodes.value.length === 1) {
-    locateNode(foundNodes.value[0].node);
+    locateNode(foundNodes.value[0].node)
   }
 };
 
@@ -439,15 +439,15 @@ const searchAndLocate = () => {
 const handleSearchInput = (value) => {
   if (typeof value === 'object' && value && value.node) {
     // 用户从下拉列表中选择了一个项
-    locateNode(value.node);
+    locateNode(value.node)
   } else {
     // 用户在输入框中输入
-    searchAndLocate();
+    searchAndLocate()
     searchItems.value = foundNodes.value.map(item => ({
       title: item.title,
       value: item.value,
       node: item.node,
-    }));
+    }))
   }
 };
 
@@ -458,7 +458,7 @@ const handleSearchInput = (value) => {
 const locateNode = (node: d3.HierarchyNode<HierarchyNodeData>) => {
   if (!svgRef.value) return;
 
-  const containerRect = svgRef.value.getBoundingClientRect();
+  const containerRect = svgRef.value.getBoundingClientRect()
   const svgWidth = containerRect.width;
   const svgHeight = containerRect.height;
 
@@ -472,13 +472,13 @@ const locateNode = (node: d3.HierarchyNode<HierarchyNodeData>) => {
 
   svg.transition()
       .duration(450)
-      .call(zoom.transform as any, d3.zoomIdentity.translate(newX, newY).scale(targetScale));
+      .call(zoom.transform as any, d3.zoomIdentity.translate(newX, newY).scale(targetScale))
 
   // 移除所有节点的高亮
-  d3.select(svgRef.value).selectAll('.node-group .node-rect').classed('highlighted', false);
+  d3.select(svgRef.value).selectAll('.node-group .node-rect').classed('highlighted', false)
 
   // 高亮显示找到的节点
-  d3.select(svgRef.value).select(`.node-${node.id} .node-rect`).classed('highlighted', true);
+  d3.select(svgRef.value).select(`.node-${node.id} .node-rect`).classed('highlighted', true)
 
   // 更新信息卡片
   selectShowKey.value = node.data.data.key;
@@ -489,7 +489,7 @@ const locateNode = (node: d3.HierarchyNode<HierarchyNodeData>) => {
  * 窗口大小变化时，重新绘制整个图表以适应新尺寸
  */
 const handleResize = () => {
-  drawTree();
+  drawTree()
 };
 
 /**
@@ -500,7 +500,7 @@ const updateSkillPointsText = () => {
   if (!svgRef.value) return;
 
   d3.select(svgRef.value).selectAll('.node-group').each(function (d: any) {
-    const nodeElement = d3.select(this);
+    const nodeElement = d3.select(this)
     const skillKey = d.data.data.key;
     const currentPoints = skillPointsInput.value[skillKey] || 0;
     const maxStage = d.data.data.stage || 1;
@@ -511,8 +511,8 @@ const updateSkillPointsText = () => {
 
     // 同时更新节点的激活状态，使其颜色也动态变化
     nodeElement.select('.node-rect')
-        .classed('activated', currentPoints > 0);
-  });
+        .classed('activated', currentPoints > 0)
+  })
 };
 
 
@@ -524,16 +524,16 @@ const setSvgScale = (scale: number) => {
   if (!svgRef.value || !zoom) return;
 
   // 确保目标缩放级别在设定的范围内
-  const targetScale = Math.max(svgScaleExtent[0], Math.min(svgScaleExtent[1], scale));
+  const targetScale = Math.max(svgScaleExtent[0], Math.min(svgScaleExtent[1], scale))
 
   // 创建新的transform，只改变缩放比例，保持平移不变
   const newTransform = d3.zoomIdentity
-      .scale(targetScale);
+      .scale(targetScale)
 
   // 平滑过渡到新的缩放状态
   svg.transition()
       .duration(450)
-      .call(zoom.transform as any, newTransform);
+      .call(zoom.transform as any, newTransform)
 };
 
 /**
@@ -543,20 +543,20 @@ const drawTree = () => {
   if (!svgRef.value || !props.skills) return;
 
   // 动态获取容器的实际宽高
-  const containerRect = svgRef.value.getBoundingClientRect();
+  const containerRect = svgRef.value.getBoundingClientRect()
   const dynamicWidth = containerRect.width;
   const dynamicHeight = containerRect.height;
 
   // 清空 SVG 内容，避免重复绘制
-  d3.select(svgRef.value).selectAll('*').remove();
+  d3.select(svgRef.value).selectAll('*').remove()
 
   // --- 1. 数据处理 ---
   const flatData: HierarchyNodeData[] = [];
   const extraLinks: { source: string; target: string }[] = [];
-  const validSkillKeys = new Set(Object.keys(props.skills));
-  const categoryMap = new Map();
+  const validSkillKeys = new Set(Object.keys(props.skills))
+  const categoryMap = new Map()
 
-  flatData.push({id: 'root', parentId: null, data: {id: 'root', requisite: [], type: 'root', key: 'root'}});
+  flatData.push({id: 'root', parentId: null, data: {id: 'root', requisite: [], type: 'root', key: 'root'}})
 
   for (const [key, skill] of Object.entries(props.skills)) {
     if (key === 'root') continue;
@@ -568,10 +568,10 @@ const drawTree = () => {
           if (!primaryParent) {
             primaryParent = reqKey;
           } else {
-            extraLinks.push({source: reqKey, target: key});
+            extraLinks.push({source: reqKey, target: key})
           }
         } else {
-          console.warn(`数据警告：技能 "${key}" 的前置条件 "${reqKey}" 不存在于技能列表中。`);
+          console.warn(`数据警告：技能 "${key}" 的前置条件 "${reqKey}" 不存在于技能列表中。`)
         }
       }
     }
@@ -581,13 +581,13 @@ const drawTree = () => {
       skillPointValue: 0,
       parentId: primaryParent || 'root',
       data: {...skill, key: key}
-    });
+    })
 
     if (skill.type) {
       if (!categoryMap.has(skill.type)) {
-        categoryMap.set(skill.type, []);
+        categoryMap.set(skill.type, [])
       }
-      categoryMap.get(skill.type).push(key);
+      categoryMap.get(skill.type).push(key)
     }
   }
 
@@ -595,27 +595,27 @@ const drawTree = () => {
   // D3 树布局现在使用动态尺寸
   root = d3.stratify<HierarchyNodeData>()
       .id(d => d.id)
-      .parentId(d => d.parentId)(flatData);
+      .parentId(d => d.parentId)(flatData)
 
   const treeLayout = d3.tree<HierarchyNodeData>()
       .size([dynamicHeight, dynamicWidth])
-      .nodeSize([90, 180]);
+      .nodeSize([90, 180])
 
-  treeLayout(root);
+  treeLayout(root)
 
   // --- 3. D3 渲染 ---
   svg = d3.select(svgRef.value)
       .attr("width", "100%")
-      .attr("height", "100%");
+      .attr("height", "100%")
 
   svg.on('click', () => {
     model.value = false;
     selectShowKey.value = null;
-    d3.select(svgRef.value).selectAll('.node-group .node-rect').classed('highlighted', false);
-  });
+    d3.select(svgRef.value).selectAll('.node-group .node-rect').classed('highlighted', false)
+  })
 
   const container = svg.append("g")
-      .attr("transform", `translate(0,0)`); // 初始偏移量不再需要，居中计算会处理
+      .attr("transform", `translate(0,0)`) // 初始偏移量不再需要，居中计算会处理
 
   container.append('defs').append('marker')
       .attr('id', 'arrow')
@@ -626,7 +626,7 @@ const drawTree = () => {
       .attr('orient', 'auto')
       .append('path')
       .attr('d', 'M0,-5L10,0L0,5')
-      .attr('class', 'arrow-head');
+      .attr('class', 'arrow-head')
 
   container.append("g")
       .attr("class", "links")
@@ -640,7 +640,7 @@ const drawTree = () => {
         const end = {x: d.target.y, y: d.target.x};
         const mid = {x: (start.x + end.x) / 2, y: (start.y + end.y) / 2};
         return `M${start.x},${start.y} L${mid.x},${mid.y} L${end.x},${end.y}`;
-      });
+      })
 
   container.append("g")
       .attr("class", "links")
@@ -656,7 +656,7 @@ const drawTree = () => {
         const end = {x: d.target.y, y: d.target.x};
 
         if (isNaN(start.x) || isNaN(start.y) || isNaN(end.x) || isNaN(end.y)) {
-          console.error('Invalid coordinates:', {start, end});
+          console.error('Invalid coordinates:', {start, end})
           return '';
         }
 
@@ -664,16 +664,16 @@ const drawTree = () => {
             V${start.y + 120}
             H${end.x}
             V${end.y}`;
-      });
+      })
 
-  const categoryGroups = d3.groups(root.descendants().filter(d => d.data.data.type), d => d.data.data.type);
+  const categoryGroups = d3.groups(root.descendants().filter(d => d.data.data.type), d => d.data.data.type)
 
   const categoryLabels = container.append("g")
       .attr("class", "category-labels")
       .selectAll("g")
       .data(categoryGroups)
       .join("g")
-      .attr("class", "category-label-group");
+      .attr("class", "category-label-group")
 
   categoryLabels.append("text")
       .text(d => d[0] != 'root' ? categoryName(d[0]) : t(`snb.empireSkills.${d[0]}.name`))
@@ -682,18 +682,18 @@ const drawTree = () => {
       .attr("dominant-baseline", "central")
       .attr("transform", d => {
         const nodes = d[1];
-        const minX = d3.min(nodes, n => n.y);
-        const maxX = d3.max(nodes, n => n.y);
-        const minY = d3.min(nodes, n => n.x);
-        const maxY = d3.max(nodes, n => n.x);
+        const minX = d3.min(nodes, n => n.y)
+        const maxX = d3.max(nodes, n => n.y)
+        const minY = d3.min(nodes, n => n.x)
+        const maxY = d3.max(nodes, n => n.x)
 
         const centerX = (minX + maxX) / 2;
         const centerY = (minY + maxY) / 2;
 
         return `translate(${centerX}, ${centerY})`;
-      });
+      })
 
-  const nodesById = new Map(root.descendants().map(d => [d.id, d]));
+  const nodesById = new Map(root.descendants().map(d => [d.id, d]))
   container.append("g")
       .attr("class", "extra-links")
       .selectAll("path")
@@ -702,14 +702,14 @@ const drawTree = () => {
       .attr("class", "link extra")
       .attr("marker-mid", "url(#arrow)")
       .attr("d", d => {
-        const sourceNode = nodesById.get(d.source);
-        const targetNode = nodesById.get(d.target);
+        const sourceNode = nodesById.get(d.source)
+        const targetNode = nodesById.get(d.target)
         if (!sourceNode || !targetNode) return "";
         const start = {x: sourceNode.y, y: sourceNode.x};
         const end = {x: targetNode.y, y: targetNode.x};
         const mid = {x: (start.x + end.x) / 2, y: (start.y + end.y) / 2};
         return `M${start.x},${start.y} L${mid.x},${mid.y} L${end.x},${end.y}`;
-      });
+      })
 
   const node = container.append("g")
       .attr("class", "nodes")
@@ -717,7 +717,7 @@ const drawTree = () => {
       .data(root.descendants().filter(d => d.id !== 'root'))
       .join("g")
       .attr("class", d => `node-group node-${d.id}`)
-      .attr("transform", d => `translate(${d.y},${d.x})`);
+      .attr("transform", d => `translate(${d.y},${d.x})`)
 
   node.append("rect")
       .attr("width", nodeWidth)
@@ -728,27 +728,27 @@ const drawTree = () => {
       .attr("ry", 45)
       .attr("class", d => `node-rect ${d.data.data.type || 'default'}`)
       .on('click', handleNodeClick, {passive: true})
-      .on('touchstart', handleNodeClick, {passive: true});
+      .on('touchstart', handleNodeClick, {passive: true})
 
   node.append("text")
       .attr("class", "node-label")
       .attr("text-anchor", "middle")
       .attr("y", 38)
       .on('click', handleNodeClick)
-      .on('touchstart', handleNodeClick);
+      .on('touchstart', handleNodeClick)
 
   zoom = d3.zoom<SVGSVGElement, unknown>()
       .extent([[0, 0], [dynamicWidth, dynamicHeight]])
       .scaleExtent(svgScaleExtent)
       .on("zoom", ({transform}) => {
         svgTransform.value = transform;
-        container.attr("transform", transform);
-      });
+        container.attr("transform", transform)
+      })
 
-  svg.call(zoom as any);
+  svg.call(zoom as any)
 
   // 在这里调用，确保初始文本正确显示
-  updateSkillPointsText();
+  updateSkillPointsText()
 };
 
 /**
@@ -763,19 +763,19 @@ const categoryName = (key) => {
 onMounted(() => {
   const {key} = route.query;
 
-  drawTree();
+  drawTree()
 
   if (key && skills[key])
     onMoveNode(key)
 
   // 添加窗口大小变化监听器
-  window.addEventListener('resize', handleResize);
-});
+  window.addEventListener('resize', handleResize)
+})
 
 onUnmounted(() => {
   // 移除窗口大小变化监听器，避免内存泄漏
-  window.removeEventListener('resize', handleResize);
-});
+  window.removeEventListener('resize', handleResize)
+})
 </script>
 
 <style lang="less">

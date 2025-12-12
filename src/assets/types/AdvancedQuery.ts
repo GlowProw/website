@@ -2,7 +2,7 @@ export interface SearchCondition {
     field: string;
     operator: string;
     value: string | string[];
-    isStrict: boolean;
+    isStrict?: boolean;
 }
 
 export interface ParsedQuery {

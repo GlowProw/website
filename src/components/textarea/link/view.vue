@@ -3,8 +3,8 @@ import {nodeViewProps, NodeViewWrapper} from "@tiptap/vue-3";
 import {useI18n} from "vue-i18n";
 import HtmlLink from "@/components/HtmlLink.vue";
 
-const props = defineProps(nodeViewProps);
-const {t} = useI18n();
+const props = defineProps(nodeViewProps)
+const {t} = useI18n()
 </script>
 
 <template>

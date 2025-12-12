@@ -130,7 +130,7 @@ const onReady = () => {
     {name: 'og:title', content: `${t(route.meta.title)} | ${t('name')}`},
   ]
 
-  onCodexHistory();
+  onCodexHistory()
 }
 
 const onCodexHistory = () => {

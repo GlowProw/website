@@ -28,7 +28,7 @@ let model = ref(false),
             content-class="pt-8"
             v-model="model">
     <template v-slot:default>
-      <SearchView>
+      <SearchView @close="model = !model">
         <template v-slot:close>
           <v-btn icon variant="tonal" class="ml-5" @click="model = false" >
             <v-icon icon="mdi-close"/>

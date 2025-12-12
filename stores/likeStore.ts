@@ -10,7 +10,6 @@ export const useLikeStore = defineStore('like', {
     actions: {
         /**
          * 检查是否点赞
-         * @param userId
          * @param targetType
          * @param targetId
          */
@@ -21,11 +20,11 @@ export const useLikeStore = defineStore('like', {
                 return;
 
             const httpToken = useHttpToken()
-            const result = await httpToken.get(`likes/check?targetType=${targetType}&targetId=${targetId}`);
+            const result = await httpToken.get(`likes/check?targetType=${targetType}&targetId=${targetId}`)
 
             const {isLiked} = result.data;
 
-            if (isLiked) this.likedTargets.set(`${targetType}_${targetId}`, true);
+            if (isLiked) this.likedTargets.set(`${targetType}_${targetId}`, true)
             return isLiked;
         },
 
@@ -44,14 +43,14 @@ export const useLikeStore = defineStore('like', {
             const httpToken = useHttpToken()
             const result = await httpToken.post('likes/toggle', {
                 data: {userId, targetType, targetId},
-            });
+            })
             const {isLiked} = result.data;
 
             const key = `${targetType}_${targetId}`;
             if (isLiked) {
-                this.likedTargets.set(key, true);
+                this.likedTargets.set(key, true)
             } else {
-                this.likedTargets.delete(key);
+                this.likedTargets.delete(key)
             }
 
             return isLiked;
@@ -62,10 +61,10 @@ export const useLikeStore = defineStore('like', {
          * @param targetType
          * @param targetId
          */
-        async getLikeCount(targetType, targetId) {
-            const result = await http.get(`likes/count?targetType=${targetType}&targetId=${targetId}`);
+        async getLikeCount(targetType: any, targetId: any) {
+            const result = await http.get(`likes/count?targetType=${targetType}&targetId=${targetId}`)
             const {likeCount} = result.data;
             return likeCount;
         },
     },
-});
+})

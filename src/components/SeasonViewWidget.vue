@@ -6,7 +6,7 @@ import {useDisplay} from "vuetify/framework";
 import {Season} from "glow-prow-data/src/entity/Seasons";
 
 const seasonVideos = import.meta.glob('@/assets/videos/*.*', {eager: true}),
-    seasonImages = import.meta.glob('@/assets/images/snb/season/*.*', {eager: true});
+    seasonImages = import.meta.glob('@/assets/images/snb/season/*.*', {eager: true})
 
 const {serializationMap} = useAssetsStore(),
     {t} = useI18n(),
@@ -37,7 +37,7 @@ onMounted(() => {
  * @param url
  */
 const extractFileFormat = (url: string): string | null => {
-  const match = url.match(/\.([a-zA-Z0-9]+)(?:[\?#]|$)/);
+  const match = url.match(/\.([a-zA-Z0-9]+)(?:[\?#]|$)/)
   return match ? match[1].toLowerCase() : null;
 }
 

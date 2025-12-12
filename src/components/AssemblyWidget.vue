@@ -204,7 +204,7 @@ let // 获取陈设
 
       const d = Object.entries(workshopData.value.data.shipSlot.slots).filter((i) => {
         return tag.indexOf(i[0]) >= 0;
-      });
+      })
       cache.value.shipWeaponDirectionList = d;
       return d
     })
@@ -392,7 +392,7 @@ const getDeckInformation = (index: number, type = 'weapon'): Record<string, any>
         return {};
     }
   } catch (e) {
-    console.error('Error in getDeckInformation:', e);
+    console.error('Error in getDeckInformation:', e)
     return {};
   }
 };
@@ -403,21 +403,21 @@ const getDeckInformation = (index: number, type = 'weapon'): Record<string, any>
 const onExport = () => {
   const data = assemblyDataProcessing.export(workshopData.value.data)
 
-  return toRaw(data);
+  return toRaw(data)
 }
 
 /**
  * 导入数据
  */
 const onLoad = (data) => {
-  let d = assemblyDataProcessing.import(data, attr.value.assemblyUseVersion);
+  let d = assemblyDataProcessing.import(data, attr.value.assemblyUseVersion)
 
   if (!d || JSON.stringify(d) === '{}') return;
 
   workshopData.value.data = reactive({
     ...toRaw(workshopData.value.data),
     ...d
-  });
+  })
 }
 
 const verify = () => {

@@ -31,7 +31,7 @@ const LinkNode = Node.create({
         }]
     },
     renderHTML({HTMLAttributes}) {
-        const attrs = mergeAttributes(HTMLAttributes);
+        const attrs = mergeAttributes(HTMLAttributes)
         return ['a', {href: attrs.href}, attrs.text || attrs.href || '']
     },
     addNodeView() {
@@ -53,7 +53,7 @@ const LinkNode = Node.create({
             }
         } as Partial<RawCommands>
     },
-});
+})
 
 export {
     LinkNode,

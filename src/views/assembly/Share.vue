@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed, nextTick, onMounted, ref, watch} from "vue";
-import {apis} from "@/assets/sripts/index";
+import {apis, storage_account} from "@/assets/sripts/index";
 import {snapdom} from '@zumer/snapdom';
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
@@ -18,6 +18,7 @@ import Logo from "@/components/Logo.vue";
 import AssemblySvgIcon from "@/components/AssemblySvgIcon.vue";
 import Silk from "@/components/Silk.vue";
 import {ApiError} from "@/assets/types/Api";
+import AdsWidget from "@/components/ads/google/index.vue";
 
 const route = useRoute(),
     router = useRouter(),
@@ -28,7 +29,7 @@ const route = useRoute(),
     {mobile} = useDisplay()
 
 let assemblyDetailData = ref({}),
-    generateImageConfig = ref({
+    generateImageValue = ref({
       isShowEmptySlot: true,
       isShowItemName: true,
       isFullName: false,
@@ -36,12 +37,14 @@ let assemblyDetailData = ref({}),
       isShowTitle: true,
       filename: '',
       width: 1200,
-      widths: [1050, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 2048],
       format: 'jpg',
-      formats: ['png', 'jpg', 'webp'],
       quality: 1,
-      qualitys: [.6, .8, .9, 1],
       background: '#000',
+    }),
+    generateImageConfig = ref({
+      widths: [1050, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 2048],
+      formats: ['png', 'jpg', 'webp'],
+      qualitys: [.6, .8, .9, 1],
       backgrounds: ['#1a1a1a', '#000', 'rgb(35,26,0)']
     }),
     captureRef = ref(null),
@@ -49,15 +52,22 @@ let assemblyDetailData = ref({}),
     assemblyLoading = ref(false),
     assemblyDetailRef = ref(null),
     generatedLoading = ref(false),
+    posterSwitch = ref(true),
     path = ref(""),
     webPath = computed(() => window.location.host)
 
 watch(() => [
-  generateImageConfig.value.isFullName,
-  generateImageConfig.value.isShowItemName
+  generateImageValue.value.isFullName,
+  generateImageValue.value.isShowItemName
 ], () => {
   loadAssemblyData()
 })
+
+watch(() => generateImageValue.value, (value) => {
+  // 保存海报配置
+  if (value && posterSwitch.value)
+    storage_account.updateConfiguration('poster', 'poster.config', value)
+}, {deep: true})
 
 watch(() => route, () => {
   getAssemblyDetail()
@@ -65,6 +75,10 @@ watch(() => route, () => {
 
 onMounted(() => {
   path.value = webPath.value + router.resolve({name: 'AssemblyDetail'}).path
+  posterSwitch.value = storage_account.getConfigurationItem('poster', 'poster.switch')
+
+  if (posterSwitch.value)
+    generateImageValue.value = storage_account.getConfigurationItem('poster', 'poster.config')
 
   onGenerateQRCode(path.value)
   getAssemblyDetail()
@@ -84,16 +98,16 @@ const getAssemblyDetail = async () => {
         d = result.data;
 
     assemblyDetailData.value = d.data;
-    generateImageConfig.value.filename = assemblyDetailData.value.name;
+    generateImageValue.value.filename = assemblyDetailData.value.name;
 
     await loadAssemblyData()
   } catch (e) {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.code
-      }));
+      }))
     }
-    console.error(e);
+    console.error(e)
   } finally {
     assemblyLoading.value = false
   }
@@ -104,13 +118,14 @@ const getAssemblyDetail = async () => {
  */
 const loadAssemblyData = async () => {
   await nextTick(() => {
-    assemblyDetailRef.value
-        .setSetting({
-          isShowItemName: generateImageConfig.value.isShowItemName,
-          isFullName: generateImageConfig.value.isFullName,
-          assemblyUseVersion: assemblyDetailData.value.assembly.attr.assemblyUseVersion
-        })
-        .onLoad(assemblyDetailData.value.data || assemblyDetailData.value.assembly.data)
+    if (assemblyDetailRef.value)
+      assemblyDetailRef.value
+          .setSetting({
+            isShowItemName: generateImageValue.value.isShowItemName,
+            isFullName: generateImageValue.value.isFullName,
+            assemblyUseVersion: assemblyDetailData.value.assembly.attr.assemblyUseVersion
+          })
+          .onLoad(assemblyDetailData.value.data || assemblyDetailData.value.assembly.data)
   })
 }
 
@@ -128,22 +143,22 @@ const onGeneratedShare = async () => {
     await goto(0, {duration: 2000})
 
     const d = await snapdom(node, {
-      width: generateImageConfig.value.width,
+      width: generateImageValue.value.width,
       scale: mobile ? window.devicePixelRatio * 2 : window.devicePixelRatio,
       embedFonts: true,
       iconFonts: ['Material Design Icons', 'Material Icons'],
       useProxy: 'https://proxy.corsfix.com/?',
-      quality: generateImageConfig.value.quality,
+      quality: generateImageValue.value.quality,
       filter: (node) => {
         if (node instanceof HTMLElement) {
-          return !(node.tagName === 'IMG' && node.classList.contains('ProseMirror-separator'));
+          return !(node.tagName === 'IMG' && node.classList.contains('ProseMirror-separator'))
         }
         return true;
       },
       cacheBust: false
     })
 
-    await d.download({quality: generateImageConfig.value.quality, format: generateImageConfig.value.format, filename: `${generateImageConfig.value.filename}.${generateImageConfig.value.format}`});
+    await d.download({quality: generateImageValue.value.quality, format: generateImageValue.value.format, filename: `${generateImageValue.value.filename}.${generateImageValue.value.format}`})
   } catch (e) {
     console.error(e)
   } finally {
@@ -211,8 +226,10 @@ const onGenerateQRCode = async (text) => {
   <v-divider></v-divider>
 
   <v-container class="my-5 position-relative overflow-auto">
-    <div ref="captureRef" class="share mx-auto pt-5" :style="`background: ${generateImageConfig.background};width:${generateImageConfig.width}px`">
-      <v-row no-gutters class="px-5" align="center" v-if="generateImageConfig.isShowHeader">
+    <AdsWidget class="my-5" id="none"></AdsWidget>
+
+    <div ref="captureRef" class="share mx-auto pt-5" :style="`background: ${generateImageValue.background};width:${generateImageValue.width}px`">
+      <v-row no-gutters class="px-5" align="center" v-if="generateImageValue.isShowHeader">
         <v-col cols="auto">
           <Logo></Logo>
         </v-col>
@@ -222,17 +239,17 @@ const onGenerateQRCode = async (text) => {
           {{ webPath }}
         </v-col>
         <v-col cols="auto" class="opacity-30">
-          {{ assemblyDetailData.uuid }}
+          {{ assemblyDetailData?.uuid }}
         </v-col>
       </v-row>
 
-      <v-row class="px-10" :class="{'pt-5': !generateImageConfig.isShowHeader}" v-if="assemblyDetailData.name && generateImageConfig.isShowTitle">
+      <v-row class="px-10" :class="{'pt-5': !generateImageValue.isShowHeader}" v-if="assemblyDetailData.name && generateImageValue.isShowTitle">
         <b class="text-amber text-h4 w-100">{{ assemblyDetailData.name }}</b>
       </v-row>
 
       <!-- Assembly Preview S -->
       <v-card variant="text" v-if="assemblyDetailData.isVisibility">
-        <AssemblyWidget ref="assemblyDetailRef" :readonly="true" :is-show-empty="generateImageConfig.isShowEmptySlot" :perfect-display="true" :is-full-name="true">
+        <AssemblyWidget ref="assemblyDetailRef" :readonly="true" :is-show-empty="generateImageValue.isShowEmptySlot" :perfect-display="true" :is-full-name="true">
           <template v-slot:image v-if="assemblyDetailData.assembly.attr.backgroundPresentation">
             <v-img cover class="pointer-events-none" :src="assemblyDetailData.assembly.attr.backgroundPresentation"></v-img>
           </template>
@@ -313,7 +330,7 @@ const onGenerateQRCode = async (text) => {
                 <v-row>
                   <v-col cols="12">
                     <div class="mb-2">{{ t('assembly.share.filename') }}</div>
-                    <v-text-field v-model="generateImageConfig.filename"></v-text-field>
+                    <v-text-field v-model="generateImageValue.filename"></v-text-field>
                   </v-col>
                   <v-col cols="6">
                     <div class="mb-2">{{ t('assembly.share.width') }}</div>
@@ -322,7 +339,7 @@ const onGenerateQRCode = async (text) => {
                         item-value="value"
                         item-title="text"
                         density="comfortable"
-                        v-model="generateImageConfig.width"
+                        v-model="generateImageValue.width"
                         :items="generateImageConfig.widths"
                         hide-details>
                     </v-select>
@@ -334,7 +351,7 @@ const onGenerateQRCode = async (text) => {
                         item-value="value"
                         item-title="text"
                         density="comfortable"
-                        v-model="generateImageConfig.format"
+                        v-model="generateImageValue.format"
                         :items="generateImageConfig.formats"
                         hide-details>
                     </v-select>
@@ -346,7 +363,7 @@ const onGenerateQRCode = async (text) => {
                         item-value="value"
                         item-title="text"
                         density="comfortable"
-                        v-model="generateImageConfig.quality"
+                        v-model="generateImageValue.quality"
                         :items="generateImageConfig.qualitys"
                         hide-details>
                     </v-select>
@@ -358,7 +375,7 @@ const onGenerateQRCode = async (text) => {
                         item-value="value"
                         item-title="text"
                         density="comfortable"
-                        v-model="generateImageConfig.background"
+                        v-model="generateImageValue.background"
                         :items="generateImageConfig.backgrounds"
                         hide-details>
                       <template v-slot:prepend>
@@ -383,7 +400,7 @@ const onGenerateQRCode = async (text) => {
                       </v-col>
                       <v-col cols="auto">
                         <v-switch
-                            v-model="generateImageConfig.isShowEmptySlot"
+                            v-model="generateImageValue.isShowEmptySlot"
                             hide-details>
                         </v-switch>
                       </v-col>
@@ -395,7 +412,7 @@ const onGenerateQRCode = async (text) => {
                       </v-col>
                       <v-col cols="auto">
                         <v-switch
-                            v-model="generateImageConfig.isShowItemName"
+                            v-model="generateImageValue.isShowItemName"
                             hide-details>
                         </v-switch>
                       </v-col>
@@ -407,7 +424,7 @@ const onGenerateQRCode = async (text) => {
                       </v-col>
                       <v-col cols="auto">
                         <v-switch
-                            v-model="generateImageConfig.isFullName"
+                            v-model="generateImageValue.isFullName"
                             hide-details>
                         </v-switch>
                       </v-col>
@@ -419,7 +436,7 @@ const onGenerateQRCode = async (text) => {
                       </v-col>
                       <v-col cols="auto">
                         <v-switch
-                            v-model="generateImageConfig.isShowTitle"
+                            v-model="generateImageValue.isShowTitle"
                             hide-details>
                         </v-switch>
                       </v-col>
@@ -431,7 +448,7 @@ const onGenerateQRCode = async (text) => {
                       </v-col>
                       <v-col cols="auto">
                         <v-switch
-                            v-model="generateImageConfig.isShowHeader"
+                            v-model="generateImageValue.isShowHeader"
                             hide-details>
                         </v-switch>
                       </v-col>

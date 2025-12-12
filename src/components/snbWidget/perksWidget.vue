@@ -19,7 +19,7 @@ const {t, te, locale} = useI18n(),
         {immediate: true}
     )
 
-let v = ref(1);
+let v = ref(1)
 
 onUnmounted(() => unwatch()) // 手动停止监听
 
@@ -39,7 +39,7 @@ const getTitle = (key) => {
  * 获取词条描述内容
  */
 const getDescription = (key) => {
-  const perksName = sanitizeString(key);
+  const perksName = sanitizeString(key)
   let keys = []
 
   if (props.data.type == "shipUpgrade") {

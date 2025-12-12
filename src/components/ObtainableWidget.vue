@@ -65,7 +65,7 @@ const filterByObtainable = (d: Item | Material | Cosmetic | Npc | null | undefin
         acc.push({
           id: element,
           to: `/map/view?key=${element}`,
-        });
+        })
       }
       // 处理对象元素（包含 id 属性）
       else if (element && typeof element === 'object' && 'id' in element) {
@@ -77,12 +77,12 @@ const filterByObtainable = (d: Item | Material | Cosmetic | Npc | null | undefin
             id: element.id,
             to: `/map/view?key=${element.id}`,
             item
-          });
+          })
         }
       }
 
       return acc;
-    }, []);
+    }, [])
   }
 
   return [];

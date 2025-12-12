@@ -15,17 +15,17 @@ export default class Http extends Config {
     HTTP: AxiosInstance;
 
     constructor() {
-        super();
+        super()
         // @ts-ignore
         Config.NODE = process.env.NODE_ENV || 'development';
 
         this.HTTP = http.create({
             timeout: 600000,
-        });
+        })
     }
 
     get location() {
-        return new URL(this.globalUrl.location);
+        return new URL(this.globalUrl.location)
     }
 
     get host() {
@@ -36,7 +36,7 @@ export default class Http extends Config {
     get globalUrl(): any {
         try {
             if (!this.CONF) {
-                 throw new Error('not data')
+                throw new Error('not data')
             }
 
             switch (Config.NODE) {
@@ -85,7 +85,7 @@ export default class Http extends Config {
             method: options.method,
             data: options.data,
             params: options.params,
-        });
+        })
     }
 
     /**
@@ -102,7 +102,7 @@ export default class Http extends Config {
             headers: options.headers,
             params: options.params,
             data: options.data,
-        });
+        })
     }
 
     /**
@@ -116,7 +116,7 @@ export default class Http extends Config {
             headers: options.headers,
             params: options.params,
             data: options.data,
-        });
+        })
     }
 
     /**
@@ -133,7 +133,7 @@ export default class Http extends Config {
             headers: options.headers,
             params: options.params,
             data: options.data,
-        });
+        })
     }
 
     /**
@@ -149,6 +149,6 @@ export default class Http extends Config {
             headers: options.headers,
             params: options.params,
             data: options.data,
-        });
+        })
     }
 }

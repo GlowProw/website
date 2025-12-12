@@ -22,24 +22,24 @@ export class AdvancedQueryParser {
             const [fullMatch, field, value] = match;
 
             // 从剩余查询中移除已匹配的部分
-            remainingQuery = remainingQuery.replace(fullMatch, '').trim();
+            remainingQuery = remainingQuery.replace(fullMatch, '').trim()
 
             // 解析操作符和值
-            const {operator, cleanValue} = this.parseOperatorAndValue(value);
+            const {operator, cleanValue} = this.parseOperatorAndValue(value)
 
             // 处理多值情况 (逗号分隔)
-            const processedValue = this.processValue(cleanValue);
+            const processedValue = this.processValue(cleanValue)
 
             // 确定是否严格匹配：ID 字段总是严格匹配，其他字段根据操作符决定
-            const isStrict = this.shouldUseStrictMatch(field, operator);
+            const isStrict = this.shouldUseStrictMatch(field, operator)
 
             conditions.push({
                 field,
                 operator,
                 value: processedValue,
                 isStrict
-            });
-        });
+            })
+        })
 
         // 剩余部分作为关键词
         const keywords = remainingQuery ? remainingQuery.split(/\s+/) : [];
@@ -55,11 +55,11 @@ export class AdvancedQueryParser {
      * 解析操作符和值
      */
     private static parseOperatorAndValue(value: string): { operator: string; cleanValue: string } {
-        const operatorMatch = value.match(this.OPERATOR_PATTERN);
+        const operatorMatch = value.match(this.OPERATOR_PATTERN)
 
         if (operatorMatch) {
             const operator = operatorMatch[1];
-            const cleanValue = value.replace(this.OPERATOR_PATTERN, '').trim();
+            const cleanValue = value.replace(this.OPERATOR_PATTERN, '').trim()
             return {operator, cleanValue};
         }
 
@@ -69,9 +69,9 @@ export class AdvancedQueryParser {
     /**
      * 处理值，支持多值情况
      */
-    private static processValue(value: string): string | string[] {
+    static processValue(value: string): string | string[] {
         if (value.includes(',')) {
-            return value.split(',').map(v => v.trim()).filter(v => v);
+            return value.split(',').map(v => v.trim()).filter(v => v)
         }
         return value;
     }
@@ -103,11 +103,11 @@ export class AdvancedQueryParser {
                 ? condition.value.join(',')
                 : condition.value;
             return `${condition.field}${condition.operator}${value}`;
-        });
+        })
 
-        const keywordPart = parsedQuery.keywords.join(' ');
+        const keywordPart = parsedQuery.keywords.join(' ')
 
-        return [...conditionParts, keywordPart].filter(part => part).join(' ');
+        return [...conditionParts, keywordPart].filter(part => part).join(' ')
     }
 
     /**
@@ -128,6 +128,6 @@ export class AdvancedQueryParser {
         }
 
         // 检查值
-        return !(!value || (Array.isArray(value) && value.length === 0));
+        return !(!value || (Array.isArray(value) && value.length === 0))
     }
 }

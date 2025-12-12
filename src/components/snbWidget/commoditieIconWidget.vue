@@ -69,7 +69,7 @@ const onReady = async () => {
 
 const {targetElement, isVisible} = useIntersectionObserver({
   threshold: .7,
-});
+})
 </script>
 
 <template>

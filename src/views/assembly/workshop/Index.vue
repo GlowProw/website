@@ -85,9 +85,9 @@ const onWorkshopUpdateEvent = (componentName: string) => {
   // 执行验证逻辑
   const component = refs[componentName];
   if (component && typeof component.verify === 'function') {
-    const componentVerify = component.verify();
+    const componentVerify = component.verify()
     if (componentVerify) {
-      verification.verify.push(...componentVerify.verify);
+      verification.verify.push(...componentVerify.verify)
       verification.required += componentVerify.required;
     }
   }
@@ -230,7 +230,7 @@ const getDraftListData = () => {
   let d = storageIntermediateTransfer.gets({
     saveType: StorageIntermediateTransferSaveType.Draft,
     category: 'assembly'
-  });
+  })
 
   if (d.code == 0)
     draftList.value = d.data;

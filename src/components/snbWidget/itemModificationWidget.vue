@@ -10,7 +10,7 @@ import ModName from "@/components/snbWidget/modName.vue";
 import ModDescription from "@/components/snbWidget/modDescription.vue";
 import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
 
-const modImages = import.meta.glob('@/assets/images/snb/modTypeIcons/*.*', {eager: true});
+const modImages = import.meta.glob('@/assets/images/snb/modTypeIcons/*.*', {eager: true})
 const props = withDefaults(defineProps<{ id: string, type: string | null }>(), {
       id: null,
       type: null
@@ -49,20 +49,20 @@ let modData = ref({}),
         const filteredMods = (mods as any[]).filter(mod => {
           // 关键词搜索
           if (searchKeyword.value) {
-            const keyword = searchKeyword.value.toLowerCase();
-            const nameMatch = t(`snb.modifications.${mod.id}.name`).toLowerCase().includes(keyword);
-            const descMatch = t(`snb.modifications.${mod.id}.description`).toLowerCase().includes(keyword);
-            const idMatch = mod.id.toLowerCase().includes(keyword);
+            const keyword = searchKeyword.value.toLowerCase()
+            const nameMatch = t(`snb.modifications.${mod.id}.name`).toLowerCase().includes(keyword)
+            const descMatch = t(`snb.modifications.${mod.id}.description`).toLowerCase().includes(keyword)
+            const idMatch = mod.id.toLowerCase().includes(keyword)
 
             return nameMatch || descMatch || idMatch;
           }
           return true;
-        });
+        })
 
         if (filteredMods.length > 0) {
           result[grade] = filteredMods;
         }
-      });
+      })
 
       return result;
     }),
@@ -73,12 +73,12 @@ let modData = ref({}),
 
 watch(()=> locale.value, () => {
   modData.value = onCategorizeByGrade(Modifications)
-  onReady();
+  onReady()
 })
 
 onMounted(() => {
   modData.value = onCategorizeByGrade(Modifications)
-  onReady();
+  onReady()
 })
 
 const onReady = () => {
@@ -87,7 +87,7 @@ const onReady = () => {
     const key = path.split('/').pop()
         ?.toString()
         .replace('.webp', '')
-        .replace('.png', '');
+        .replace('.png', '')
     imageMap[key] = modImages[path];
   }
 
@@ -115,23 +115,23 @@ const onCategorizeByGrade = (data): {} => {
   Object.values(data).forEach(item => {
     if (props.type) {
       const hasMatchingVariant = item.variants?.some(variant =>
-          variant.itemType?.includes(props.type)
-      );
+          variant.itemType?.includes(props.type))
+
 
       if (!hasMatchingVariant) return; // 不匹配则跳过
     }
-    allMods.push(item);
-  });
+    allMods.push(item)
+  })
 
   // 排序 a-z
-  allMods.sort((a, b) => a.id[0].localeCompare(b.id[0]));
+  allMods.sort((a, b) => a.id[0].localeCompare(b.id[0]))
 
   allMods.forEach(item => {
     if (!result[item.grade]) {
       result[item.grade] = [];
     }
-    result[item.grade].push(item);
-  });
+    result[item.grade].push(item)
+  })
 
   return result;
 }

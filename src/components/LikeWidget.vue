@@ -12,7 +12,7 @@ const props = defineProps({
   targetType: String,             // 如 'assembly', 'comment', 'teamUp', 'mod' , 'material'
   targetId: String,               // 对应内容的ID
   userId: String,                 // 当前用户ID
-});
+})
 
 watch(props.targetId, () => {
   onReady()
@@ -44,8 +44,8 @@ const onReady = async () => {
 
     likeLoading.value = true;
 
-    isLiked.value = await likeStore.checkLike(props.targetType, props.targetId);
-    likeCount.value = await likeStore.getLikeCount(props.targetType, props.targetId);
+    isLiked.value = await likeStore.checkLike(props.targetType, props.targetId)
+    likeCount.value = await likeStore.getLikeCount(props.targetType, props.targetId)
   } catch (e) {
     if (e instanceof AxiosError)
       notice.error(t(`basic.tips.${e.response.data.code}`, {
@@ -67,8 +67,8 @@ const handleLike = async () => {
   try {
     likeLoading.value = true;
 
-    isLiked.value = await likeStore.toggleLike(props.userId, props.targetType, props.targetId);
-    likeCount.value = await likeStore.getLikeCount(props.targetType, props.targetId);
+    isLiked.value = await likeStore.toggleLike(props.userId, props.targetType, props.targetId)
+    likeCount.value = await likeStore.getLikeCount(props.targetType, props.targetId)
   } catch (e) {
     if (e instanceof AxiosError)
       notice.error(t(`basic.tips.${e.response.data.code}`, {

@@ -20,7 +20,7 @@ const bluePrintsList = computed(() => {
       `snb.locations.${blueprint}`,
     ], {
       backRawKey: true
-    });
+    })
   };
 
   // 扁平化处理蓝图数据的函数
@@ -36,12 +36,12 @@ const bluePrintsList = computed(() => {
       data.forEach(item => {
         if (Array.isArray(item)) {
           // 处理嵌套数组
-          result.push(...item.filter(i => typeof i === 'string'));
+          result.push(...item.filter(i => typeof i === 'string'))
         } else if (typeof item === 'string') {
           // 处理字符串项
-          result.push(item);
+          result.push(item)
         }
-      });
+      })
       return result;
     }
 
@@ -49,19 +49,19 @@ const bluePrintsList = computed(() => {
   };
 
   // 获取所有蓝图键
-  const blueprintKeys = flattenBlueprints(bluePrints);
+  const blueprintKeys = flattenBlueprints(bluePrints)
 
   if (blueprintKeys.length === 0) return [];
 
   // 转换为名称并过滤无效项
   return blueprintKeys
       .map(key => {
-        const name = getBlueprintName(key);
+        const name = getBlueprintName(key)
         // 如果转换后的名称不等于原始键，说明转换成功
         return name && name !== key ? name : null;
       })
-      .filter((name): name is string => name !== null);
-});
+      .filter((name): name is string => name !== null)
+})
 </script>
 
 <template>

@@ -26,14 +26,14 @@ onMounted(() => {
  * @returns {Season | null} 当前赛季，如果不在任何赛季范围内则返回 null
  */
 const getCurrentSeason = (): Season | null => {
-  const currentDate = new Date();
-  const currentTime = currentDate.getTime();
+  const currentDate = new Date()
+  const currentTime = currentDate.getTime()
 
   for (const seasonId in seasons) {
     const season = seasons[seasonId];
 
-    const startDate = new Date(season.startDate).getTime();
-    const endDate = new Date(season.endDate).getTime();
+    const startDate = new Date(season.startDate).getTime()
+    const endDate = new Date(season.endDate).getTime()
 
     if (currentTime >= startDate && currentTime <= endDate) {
       currentlySeason.value = season;

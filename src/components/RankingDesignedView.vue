@@ -126,7 +126,7 @@ const setSetting = (attrData) => {
  * @param attrData
  */
 const onLoad = (data) => {
-  const d = rankingDesignedItemsDataProcessing.import(data, attr.value.useVersion);
+  const d = rankingDesignedItemsDataProcessing.import(data, attr.value.useVersion)
   if (!d || JSON.stringify(d) === '{}')
     return;
 

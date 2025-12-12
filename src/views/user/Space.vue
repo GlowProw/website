@@ -95,9 +95,9 @@ const getUserInfo = async () => {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.code
-      }));
+      }))
     }
-    console.error(e);
+    console.error(e)
   } finally {
     loading.value.userInfo = false;
   }
@@ -123,9 +123,9 @@ const getUserTeamUpsData = async () => {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.code
-      }));
+      }))
     }
-    console.error(e);
+    console.error(e)
   } finally {
     loading.value.teamUp = false;
   }
@@ -151,9 +151,9 @@ const getUserAssemblysData = async () => {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.code
-      }));
+      }))
     }
-    console.error(e);
+    console.error(e)
   } finally {
     loading.value.assembly = false;
   }

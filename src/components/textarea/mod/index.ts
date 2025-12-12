@@ -57,7 +57,7 @@ const ModNode = Node.create({
             },
         } as Partial<RawCommands>
     },
-});
+})
 
 export {
     ModNode,

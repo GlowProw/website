@@ -44,10 +44,10 @@ export default {
      * 获取当前光标屏幕的位置
      */
     getCursorScreenCoords() {
-      const cursorPosition = this.getCursorPosition();
+      const cursorPosition = this.getCursorPosition()
 
       if (cursorPosition !== null && this.editor) {
-        const domPos = this.editor.view.coordsAtPos(cursorPosition);
+        const domPos = this.editor.view.coordsAtPos(cursorPosition)
         this.pos = domPos;
         return;
       }
@@ -57,11 +57,12 @@ export default {
 
     /**
      * 完成
+     * @param type
      * @param val
      */
     onFinish(type, val) {
-      this.onPanelToggle();
-      this.$emit('finish', type, val)
+      this.onPanelToggle(
+      this.$emit('finish', type, val))
     },
 
     /**
@@ -71,14 +72,14 @@ export default {
       this.show = !this.show;
 
       if (this.show === false)
-        this.$emit('close');
+        this.$emit('close')
     },
     /**
      * 打开面板
      */
     openPanel() {
-      this.onPanelToggle();
-      this.getCursorScreenCoords();
+      this.onPanelToggle()
+      this.getCursorScreenCoords()
     },
     /**
      * 表情标题
@@ -94,7 +95,7 @@ export default {
           id: i.titleEmoteName,
           isDisabledTooltip: true
         }
-      });
+      })
     },
   },
   computed: {

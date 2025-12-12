@@ -11,10 +11,10 @@ const items = Items,
     ultimates = Ultimates
 
 export function useI18nReadName() {
-    const {asString, sanitizeString} = useI18nUtils();
+    const {asString, sanitizeString} = useI18nUtils()
 
-    const getValue = (obj, path) => {
-        return path.split('.').reduce((acc, key) => acc?.[key], obj);
+    const getValue = (obj: any, path: string) => {
+        return path.split('.').reduce((acc, key) => acc?.[key], obj)
     }
 
     const item = (id: string) => {
@@ -30,9 +30,9 @@ export function useI18nReadName() {
                     const translatedName = asString(keys, {
                         backRawKey: true,
                         lang
-                    });
+                    })
                     const tier = number.intToRoman(items[id].tier) || '';
-                    return `${translatedName} ${tier}`.trim();
+                    return `${translatedName} ${tier}`.trim()
                 }
                 return id;
             }
@@ -52,9 +52,9 @@ export function useI18nReadName() {
                     const translatedName = asString(keys, {
                         backRawKey: true,
                         lang
-                    });
+                    })
                     const tier = number.intToRoman(commodities[id].tier) || '';
-                    return `${translatedName} ${tier}`.trim();
+                    return `${translatedName} ${tier}`.trim()
                 }
                 return id;
             }
@@ -79,7 +79,7 @@ export function useI18nReadName() {
         }
     }
 
-    const treasureMap = (id) => {
+    const treasureMap = (id: string | number) => {
         const keys = [
             `snb.treasureMaps.${id}.name`,
         ];

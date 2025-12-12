@@ -3,7 +3,7 @@ import {nodeViewProps, NodeViewWrapper} from "@tiptap/vue-3";
 import {useI18n} from "vue-i18n";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 
-const props = defineProps(nodeViewProps);
+const props = defineProps(nodeViewProps)
 const
     {t} = useI18n(),
     {asString, sanitizeString} = useI18nUtils()

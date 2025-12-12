@@ -10,22 +10,22 @@ import {createApiBase} from "@/assets/sripts/api/api-util";
  * 用户接口
  */
 export function useUserApi() {
-    const createHttp = () => useHttpToken();
-    const http = createHttp();
-    const {handleError, handleResponse} = createApiBase();
+    const createHttp = () => useHttpToken()
+    const http = createHttp()
+    const {handleError, handleResponse} = createApiBase()
 
     /**
      * 用户登录
      */
     const signin = async (data: SigninParams) => {
         try {
-            const result = await http.post('user/signin', {data});
-            return handleResponse(result);
+            const result = await http.post('user/signin', {data})
+            return handleResponse(result)
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
             }
-            return handleError(error);
+            return handleError(error)
         }
     };
 
@@ -34,13 +34,13 @@ export function useUserApi() {
      */
     const signup = async (data: SignupParams) => {
         try {
-            const result = await http.post('user/signup', {data});
-            return handleResponse(result);
+            const result = await http.post('user/signup', {data})
+            return handleResponse(result)
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
             }
-            return handleError(error);
+            return handleError(error)
         }
     };
 
@@ -49,13 +49,13 @@ export function useUserApi() {
      */
     const getMe = async () => {
         try {
-            const result = await http.get('user/me');
-            return handleResponse(result);
+            const result = await http.get('user/me')
+            return handleResponse(result)
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
             }
-            return handleError(error);
+            return handleError(error)
         }
     };
 
@@ -64,13 +64,13 @@ export function useUserApi() {
      */
     const updateMeAttr = async (attr: any) => {
         try {
-            const result = await http.post('user/me', {data: {attr}});
-            return handleResponse(result);
+            const result = await http.post('user/me', {data: {attr}})
+            return handleResponse(result)
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
             }
-            return handleError(error);
+            return handleError(error)
         }
     };
 
@@ -82,13 +82,13 @@ export function useUserApi() {
         try {
             const result = await http.get('user/info', {
                 params: {id: userId}
-            });
-            return handleResponse(result);
+            })
+            return handleResponse(result)
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
             }
-            return handleError(error);
+            return handleError(error)
         }
     };
 
@@ -98,13 +98,13 @@ export function useUserApi() {
      */
     const changePassword = async (data: ChangePasswordParams) => {
         try {
-            const result = await http.put('user/changePassword', {data});
-            return handleResponse(result);
+            const result = await http.put('user/changePassword', {data})
+            return handleResponse(result)
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
             }
-            return handleError(error);
+            return handleError(error)
         }
     };
 
@@ -118,13 +118,13 @@ export function useUserApi() {
                 data: {
                     username: alternativeName
                 }
-            });
-            return handleResponse(result);
+            })
+            return handleResponse(result)
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
             }
-            return handleError(error);
+            return handleError(error)
         }
     };
 
@@ -137,13 +137,13 @@ export function useUserApi() {
         try {
             const result = await http.get('user/space/teamups', {
                 params: {id: userId, ...pagination}
-            });
-            return handleResponse(result);
+            })
+            return handleResponse(result)
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
             }
-            return handleError(error);
+            return handleError(error)
         }
     };
 
@@ -156,13 +156,13 @@ export function useUserApi() {
         try {
             const result = await http.get('user/space/assemblys', {
                 params: {id: userId, ...pagination}
-            });
-            return handleResponse(result);
+            })
+            return handleResponse(result)
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
             }
-            return handleError(error);
+            return handleError(error)
         }
     };
 
@@ -176,13 +176,13 @@ export function useUserApi() {
             const url = userId ? `user/space/comments` : 'user/comments';
             const result = await http.get(url, {
                 params: {...pagination, userId}
-            });
-            return handleResponse(result);
+            })
+            return handleResponse(result)
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
             }
-            return handleError(error);
+            return handleError(error)
         }
     };
 
@@ -194,13 +194,13 @@ export function useUserApi() {
             const url = userId ? `user/space/likes` : 'user/likes';
             const result = await http.get(url, {
                 params: {...pagination, userId}
-            });
-            return handleResponse(result);
+            })
+            return handleResponse(result)
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
             }
-            return handleError(error);
+            return handleError(error)
         }
     };
 

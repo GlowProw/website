@@ -20,9 +20,9 @@ const props = withDefaults(defineProps<NoiseProps>(), {
   patternRefreshInterval: 2,
   patternAlpha: 10,
   mixBlendMode: 'normal'
-});
+})
 
-const grainRef = useTemplateRef<HTMLCanvasElement>('grainRef');
+const grainRef = useTemplateRef<HTMLCanvasElement>('grainRef')
 
 let animationId = 0;
 let frame = 0;
@@ -38,11 +38,11 @@ const resize = () => {
 };
 
 let noiseData: ImageData;
-let noise32: Uint32Array;
+let noise32: Uint32Array<any>;
 
 const initImageData = (ctx: CanvasRenderingContext2D) => {
-  noiseData = ctx.createImageData(canvasSize, canvasSize);
-  noise32 = new Uint32Array(noiseData.data.buffer);
+  noiseData = ctx.createImageData(canvasSize, canvasSize)
+  noise32 = new Uint32Array(noiseData.data.buffer)
 };
 
 const drawGrain = () => {
@@ -55,30 +55,30 @@ const drawGrain = () => {
 
 const loop = (ctx: CanvasRenderingContext2D) => {
   if (frame % Math.max(1, Math.round(props.patternRefreshInterval)) === 0) {
-    drawGrain();
-    ctx.putImageData(noiseData, 0, 0);
+    drawGrain()
+    ctx.putImageData(noiseData, 0, 0)
   }
   frame++;
-  animationId = requestAnimationFrame(() => loop(ctx));
+  animationId = requestAnimationFrame(() => loop(ctx))
 };
 
 onMounted(() => {
   const canvas = grainRef.value;
   if (!canvas) return;
-  const ctx = canvas.getContext('2d', { alpha: true });
+  const ctx = canvas.getContext('2d', { alpha: true })
   if (!ctx) return;
 
-  resize();
-  initImageData(ctx);
-  drawGrain();
-  ctx.putImageData(noiseData, 0, 0);
-  loop(ctx);
+  resize()
+  initImageData(ctx)
+  drawGrain()
+  ctx.putImageData(noiseData, 0, 0)
+  loop(ctx)
 
-  window.addEventListener('resize', resize);
-});
+  window.addEventListener('resize', resize)
+})
 
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', resize);
-  cancelAnimationFrame(animationId);
-});
+  window.removeEventListener('resize', resize)
+  cancelAnimationFrame(animationId)
+})
 </script>

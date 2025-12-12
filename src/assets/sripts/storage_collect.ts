@@ -51,7 +51,7 @@ export class StorageCollect {
                 .map(i => ({
                     id: i[0],
                     ...i[1] as {}
-                }));
+                }))
 
             return {
                 code: 0,

@@ -25,8 +25,8 @@ export default {
      * @param id
      */
     onFinish(id) {
-      this.onPanelToggle();
-      this.$emit('finish', id)
+      this.onPanelToggle(
+      this.$emit('finish', id))
     },
     /**
      * 面板开关
@@ -35,13 +35,13 @@ export default {
       this.show = !this.show;
 
       if (this.show === false)
-        this.$emit('close');
+        this.$emit('close')
     },
     /**
      * 打开面板
      */
     openPanel() {
-      this.onPanelToggle();
+      this.onPanelToggle()
     },
   },
   computed: {

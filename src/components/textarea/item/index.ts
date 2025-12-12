@@ -57,7 +57,7 @@ const ItemNode = Node.create({
             },
         } as Partial<RawCommands>
     },
-});
+})
 
 export {
     ItemNode,

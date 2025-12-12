@@ -19,7 +19,7 @@ import 'vue-json-pretty/lib/styles.css';
 const {t, locale} = useI18n(),
     http = useHttpToken(),
     notice = useNoticeStore(),
-    assemblyDataProcessing = new AssemblyDataProcessing();
+    assemblyDataProcessing = new AssemblyDataProcessing()
 
 const props = defineProps<{ id: string, data?: any }>(),
     emit = defineEmits(['change'])
@@ -68,14 +68,14 @@ const getAssemblySetting = async () => {
     const result = await apis.assemblyApi().getAssemblyAttr(props.id),
         d = result.data
 
-    settingData.value = Object.assign(settingData.value, d.data.data);
+    settingData.value = Object.assign(settingData.value, d.data.data)
   } catch (e) {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.code
-      }));
+      }))
     }
-    console.error(e);
+    console.error(e)
   } finally {
     getSettingLoading.value = false
   }
@@ -104,9 +104,9 @@ const setAssemblySetting = async () => {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.code
-      }));
+      }))
     }
-    console.error(e);
+    console.error(e)
   } finally {
     emit('change')
 

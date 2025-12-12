@@ -14,6 +14,7 @@ import Silk from "@/components/Silk.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
 import {ApiError} from "@/assets/types/Api";
 import {useNoticeStore} from "~/stores/noticeStore";
+import AdsWidget from "@/components/ads/google/index.vue";
 
 const {t} = useI18n(),
     route = useRoute(),
@@ -67,23 +68,23 @@ watch(browseData, (newList: ResultData) => {
                 assemblyUseVersion: newList.data[index]?.attr?.assemblyUseVersion,
                 isShowItemName: newList.data[index]?.attr?.isShowItemName,
               })
-              .onLoad(newList.data[index]?.assembly || {});
+              .onLoad(newList.data[index]?.assembly || {})
         }
 
         // requestAnimationFrame 继续处理下一个
         requestAnimationFrame(() => {
-          processBatch(index + 1);
-        });
+          processBatch(index + 1)
+        })
       };
 
-      processBatch();
-    });
+      processBatch()
+    })
   }
-}, {deep: true});
+}, {deep: true})
 
 onMounted(() => {
-  getBrowseList();
-});
+  getBrowseList()
+})
 
 /**
  * 获取配装列表
@@ -120,9 +121,9 @@ const getBrowseList = async () => {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.code
-      }));
+      }))
     }
-    console.error(e);
+    console.error(e)
   } finally {
     browseLoading.value = false
   }
@@ -225,8 +226,12 @@ const getBrowseList = async () => {
           </v-btn>
         </div>
         <!-- 配装筛选 E -->
+
+        <AdsWidget class="my-5" id="none"></AdsWidget>
       </v-col>
       <v-col cols="12" md="9" lg="9" class="position-relative">
+        <AdsWidget class="my-5" id="none"></AdsWidget>
+
         <v-row>
           <v-col cols="12" md="6" lg="6" v-for="(i, index) in browseData.data"
                  :key="index" class=""
@@ -290,6 +295,8 @@ const getBrowseList = async () => {
             class="mt-8"
         ></v-pagination>
         <!-- 分页 E -->
+
+        <AdsWidget class="my-5" id="none"></AdsWidget>
       </v-col>
     </v-row>
   </v-container>

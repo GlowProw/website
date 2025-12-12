@@ -41,7 +41,7 @@ let shipCardData = ref({
       model: false,
       panel: null
     }),
-    shipData: Ref<Ship> = ref({});
+    shipData: Ref<Ship> = ref({})
 
 watch(() => props.id, () => {
   onReady()

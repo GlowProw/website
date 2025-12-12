@@ -57,7 +57,7 @@ const UltimateNode = Node.create({
             },
         } as Partial<RawCommands>
     },
-});
+})
 
 export {
     UltimateNode,

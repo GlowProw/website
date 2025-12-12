@@ -14,7 +14,7 @@ let nameLocations = computed(() => {
         d = d.concat(Object.values(mapLocations).filter((i: MapLocation) => i.category == 'outpost'))
       if (props.data.location.includes('anyoneDen'))
         d = d.concat(Object.values(mapLocations).filter((i: MapLocation) => i.category == 'den'))
-      return d.concat(props.data.location || []);
+      return d.concat(props.data.location || [])
     }),
     nameLocationAsLang = computed(
         () => nameLocations.value.filter(i => i.id != undefined).map(i => t(`snb.mapLocations.${i.id}.name`))

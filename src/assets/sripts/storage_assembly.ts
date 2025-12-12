@@ -28,12 +28,9 @@ export class StorageIntermediateTransfer {
      * @param type
      * @param options
      */
-    get(uid: string, options?: StorageIntermediateTransferOptions = {
-        saveType: StorageIntermediateTransferSaveType.Data,
-        category: 'assembly'
-    }) {
+    get(uid: string, options?: StorageIntermediateTransferOptions) {
         try {
-            const d = storage.local.get(`${this.NAME}${options.category}.${options.saveType}`)
+            const d = storage.local.get(`${this.NAME}${options?.category}.${options?.saveType}`)
 
             console.log(d.data.value)
             return {
@@ -83,23 +80,19 @@ export class StorageIntermediateTransfer {
      * @param _uid
      * @param options
      */
-    update(data: any, options?: StorageIntermediateTransferOptions = {
-        uid: '',
-        saveType: StorageIntermediateTransferSaveType.Data,
-        category: 'assembly'
-    }): { code: number, uid?: string } {
+    update(data: any, options?: StorageIntermediateTransferOptions): { code: number, uid?: string } {
         try {
-            let uid: any = options.uid || uuidv6(),
+            let uid: any = options?.uid || uuidv6(),
                 c_d: any = {};
 
-            const d = storage.local.get(`${this.NAME}${options.category}.${options.saveType}`)
+            const d = storage.local.get(`${this.NAME}${options?.category}.${options?.saveType}`)
 
             c_d = {
                 ...d.data?.value || {},
                 [uid]: data
             }
 
-            storage.local.set(`${this.NAME}${options.category}.${options.saveType}`, c_d)
+            storage.local.set(`${this.NAME}${options?.category}.${options?.saveType}`, c_d)
 
             return {
                 code: 0,
@@ -116,19 +109,15 @@ export class StorageIntermediateTransfer {
      * @param uid
      * @param options
      */
-    delete(uid: string, options?: StorageIntermediateTransferOptions = {
-        uid: '',
-        saveType: StorageIntermediateTransferSaveType.Data,
-        category: 'assembly'
-    }) {
+    delete(uid: string, options?: StorageIntermediateTransferOptions) {
         try {
-            const d = storage.local.get(`${this.NAME}${options.category}.${options.saveType}`)
+            const d = storage.local.get(`${this.NAME}${options?.category}.${options?.saveType}`)
             if (d.code != 0)
                 return false
 
             delete d.data.value[uid]
 
-            storage.local.set(`${this.NAME}${options.category}.${options.saveType}`, d.data.value)
+            storage.local.set(`${this.NAME}${options?.category}.${options?.saveType}`, d.data.value)
 
             return true
         } catch (e) {

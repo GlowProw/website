@@ -13,7 +13,7 @@ import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import {MapLocation, MapLocations} from "glow-prow-data";
 import MapLocationNameWidget from "@/components/snbWidget/mapLocationNameWidget.vue";
 
-const mapImages = import.meta.glob('/src/assets/images/map/*.*', {eager: true});
+const mapImages = import.meta.glob('/src/assets/images/map/*.*', {eager: true})
 
 const
     {asString, sanitizeString} = useI18nUtils(),
@@ -61,7 +61,7 @@ const onReady = async () => {
   i.value = mapLocations[props.id] || null
 
   if (props.id) {
-    mapIcons.value = serializationMap(mapImages);
+    mapIcons.value = serializationMap(mapImages)
 
     if (i.value?.category && mapIcons.value[i.value.category])
       mapLocationsCardData.value.icon = mapIcons.value[i.value.category]
@@ -70,7 +70,7 @@ const onReady = async () => {
 
 const {targetElement, isVisible} = useIntersectionObserver({
   threshold: .7,
-});
+})
 </script>
 
 <template>
@@ -185,7 +185,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
   }
 
   .map-location-mirror-image {
-    transform: scaleX(-1);
+    transform: scaleX(-1)
   }
 
   .map-location-card-name {

@@ -151,18 +151,18 @@ const MaxLength = Extension.create({
   addCommands() {
     return {
       enforceMaxLength: () => ({commands}) => {
-        const html = this.editor.getHTML();
+        const html = this.editor.getHTML()
         if (html.length > props.maxlength) {
-          return commands.setContent(html.slice(0, props.maxlength - 3));
+          return commands.setContent(html.slice(0, props.maxlength - 3))
         }
         return true;
       },
     };
   },
   onUpdate() {
-    this.editor.commands.enforceMaxLength();
+    this.editor.commands.enforceMaxLength()
   },
-});
+})
 
 const flatMap = (array: any[], callback: (item: any) => any) => {
   return array.reduce((acc: any[], item: any) => {
@@ -315,13 +315,13 @@ const onInitEdit = () => {
       emit('focused', editor.isEmpty ? '' : editor.getHTML())
     },
     onUpdate({editor}) {
-      // const html = editor.getHTML();
+      // const html = editor.getHTML(
       // if (html.length > props.maxlength) {
       //   // 撤销最后一步操作
-      //   editor.commands.undo();
+      //   editor.commands.undo(
       //   // 截断 HTML
-      //   const truncatedHTML = html.slice(0, props.maxlength);
-      //   editor.commands.setContent(truncatedHTML);
+      //   const truncatedHTML = html.slice(0, props.maxlength
+      //   editor.commands.setContent(truncatedHTML
       // }
 
       onEditorChange(editor.isEmpty ? '' : editor.getHTML())

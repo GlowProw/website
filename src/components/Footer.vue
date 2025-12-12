@@ -6,7 +6,7 @@ import {appFuns, appNavs} from "@/assets/sripts/index";
 import Logo from "@/components/Logo.vue";
 import HtmlLink from "@/components/HtmlLink.vue";
 
-const {t} = useI18n();
+const {t} = useI18n()
 </script>
 
 <template>

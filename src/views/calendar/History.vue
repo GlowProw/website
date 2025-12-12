@@ -14,51 +14,52 @@ import Loading from "@/components/Loading.vue";
 import CalendarEventSLotWidget from "@/components/snbWidget/calendarEventSLotWidget.vue";
 import HorizontalScrollList from "@/components/HorizontalScrollList.vue";
 import Silk from "@/components/Silk.vue";
+import AdsWidget from "@/components/ads/google/index.vue";
 
-const {t, te} = useI18n();
-const {asString} = useI18nUtils();
-const notice = useNoticeStore();
+const {t, te} = useI18n()
+const {asString} = useI18nUtils()
+const notice = useNoticeStore()
 
 const seasons = Seasons;
-const selectSeasonsList: any = ref<Array<{ id: string; label: string }>>([]);
-const selectSeasonsValue: any = ref<Season | null>(null);
-const calendarLoading: any = ref(false);
-const formattedCalendar: any = ref<FormattedCalendar>({});
-const seasonsCalendarEvents: any = ref<CalendarData | null>(null);
-const currentlySeason: any = ref<Season | null>(null);
+const selectSeasonsList: any = ref<Array<{ id: string; label: string }>>([])
+const selectSeasonsValue: any = ref<Season | null>(null)
+const calendarLoading: any = ref(false)
+const formattedCalendar: any = ref<FormattedCalendar>({})
+const seasonsCalendarEvents: any = ref<CalendarData | null>(null)
+const currentlySeason: any = ref<Season | null>(null)
 
 const remainingDays = computed(() => {
   if (!selectSeasonsValue.value || !seasons[selectSeasonsValue.value.id]) return 0;
 
   const targetDate = seasons[selectSeasonsValue.value.id].endDate;
-  const endDate = new Date(targetDate);
+  const endDate = new Date(targetDate)
 
   if (isNaN(endDate.getTime())) {
-    console.error("calendar.error.invalidDate", targetDate);
+    console.error("calendar.error.invalidDate", targetDate)
     return 0;
   }
 
-  return time.calcRemainingDays(endDate);
-});
+  return time.calcRemainingDays(endDate)
+})
 
 const currentSeasonName = computed(() => {
-  if (!selectSeasonsValue.value) return t('calendar.common.na');
-  return t(`snb.seasons.${selectSeasonsValue.value.id}`, t('calendar.common.na'));
-});
+  if (!selectSeasonsValue.value) return t('calendar.common.na')
+  return t(`snb.seasons.${selectSeasonsValue.value.id}`, t('calendar.common.na'))
+})
 
 const seasonDescription = computed(() => {
   if (!selectSeasonsValue.value) return '';
   return asString([`snb.calendar.${selectSeasonsValue.value.id}.description`], {backRawKey: false}) || '';
-});
+})
 
 onMounted(async () => {
-  await initCalendar();
-});
+  await initCalendar()
+})
 
 const initCalendar = async () => {
-  getCurrentSeason();
-  await fetchCalendarEventData();
-  initCalendarList();
+  getCurrentSeason()
+  await fetchCalendarEventData()
+  initCalendarList()
 
   if (selectSeasonsList.value.length > 0) {
     selectSeasonsValue.value = selectSeasonsList.value[selectSeasonsList.value.length - 1];
@@ -79,11 +80,11 @@ const initCalendarList = () => {
           label
         };
       })
-      .filter(season => season.id !== 'none');
+      .filter(season => season.id !== 'none')
 
   // Initialize calendar list
   if (seasonsCalendarEvents.value) {
-    formattedCalendar.value = transformCalendarData(seasonsCalendarEvents.value);
+    formattedCalendar.value = transformCalendarData(seasonsCalendarEvents.value)
   }
 };
 
@@ -97,7 +98,7 @@ const transformCalendarData = (calendarData: CalendarData | null): FormattedCale
     month: number;
     daysInMonth: number;
     events: any[];
-  }>();
+  }>()
 
   // Collect all involved years and months
   Object.values(calendarData.events).forEach(event => {
@@ -107,22 +108,22 @@ const transformCalendarData = (calendarData: CalendarData | null): FormattedCale
       const key = `${year}-${month}`;
 
       if (!yearMonthMap.has(key)) {
-        const daysInMonth = new Date(year, month, 0).getDate();
+        const daysInMonth = new Date(year, month, 0).getDate()
         yearMonthMap.set(key, {
           year,
           month,
           daysInMonth,
           events: []
-        });
+        })
       }
-    });
-  });
+    })
+  })
 
   // Sort by year and month
   const sortedYearMonths = Array.from(yearMonthMap.values()).sort((a, b) => {
     if (a.year !== b.year) return a.year - b.year;
     return a.month - b.month;
-  });
+  })
 
   // Initialize result structure
   sortedYearMonths.forEach(({year, month, daysInMonth}) => {
@@ -136,15 +137,15 @@ const transformCalendarData = (calendarData: CalendarData | null): FormattedCale
       year,
       eventCount: 0,
     };
-  });
+  })
 
   // Process each event
   Object.values(calendarData.events).forEach((event: any) => {
     const sortedOccurrences = event.occurrences.sort((a: any, b: any) => {
-      const dateA = new Date(a.year, a.month - 1, a.day);
-      const dateB = new Date(b.year, b.month - 1, b.day);
-      return dateA.getTime() - dateB.getTime();
-    });
+      const dateA = new Date(a.year, a.month - 1, a.day)
+      const dateB = new Date(b.year, b.month - 1, b.day)
+      return dateA.getTime() - dateB.getTime()
+    })
 
     sortedOccurrences.forEach((occurrence: any) => {
       const monthKey = `${occurrence.year}-${occurrence.month}`;
@@ -153,12 +154,12 @@ const transformCalendarData = (calendarData: CalendarData | null): FormattedCale
       if (!result[monthKey]) return;
 
       const daysInMonth = result[monthKey].data.length;
-      const endDay = Math.min(startDay + event.duration - 1, daysInMonth);
+      const endDay = Math.min(startDay + event.duration - 1, daysInMonth)
 
       result[monthKey].eventCount++;
 
       for (let day = startDay; day <= endDay; day++) {
-        const dayData = result[monthKey].data.find(d => d.day === day);
+        const dayData = result[monthKey].data.find(d => d.day === day)
         if (dayData) {
           dayData.events.push({
             id: event.id,
@@ -170,11 +171,11 @@ const transformCalendarData = (calendarData: CalendarData | null): FormattedCale
             year: occurrence.year,
             month: occurrence.month,
             startDay: startDay
-          });
+          })
         }
       }
-    });
-  });
+    })
+  })
 
   return result;
 };
@@ -185,31 +186,31 @@ const fetchCalendarEventData = async (seasonId?: string) => {
     if (!targetSeasonId) return;
 
     calendarLoading.value = true;
-    const result = await apis.calendarApi().get(targetSeasonId);
+    const result = await apis.calendarApi().get(targetSeasonId)
 
     if (result.data?.data) {
       seasonsCalendarEvents.value = result.data.data;
     }
   } catch (error) {
     if (error instanceof ApiError) {
-      notice.error(t(`basic.tips.${error.code}`, {context: error.code}));
+      notice.error(t(`basic.tips.${error.code}`, {context: error.code}))
     } else {
-      notice.error(t('calendar.error.fetchFailed'));
+      notice.error(t('calendar.error.fetchFailed'))
     }
-    console.error(error);
+    console.error(error)
   } finally {
     calendarLoading.value = false;
   }
 };
 
 const getCurrentSeason = (): Season | null => {
-  const currentDate = new Date();
-  const currentTime = currentDate.getTime();
+  const currentDate = new Date()
+  const currentTime = currentDate.getTime()
 
   for (const seasonId in seasons) {
     const season = seasons[seasonId];
-    const startDate = new Date(season.startDate).getTime();
-    const endDate = new Date(season.endDate).getTime();
+    const startDate = new Date(season.startDate).getTime()
+    const endDate = new Date(season.endDate).getTime()
 
     if (currentTime >= startDate && currentTime <= endDate) {
       currentlySeason.value = season;
@@ -222,18 +223,18 @@ const getCurrentSeason = (): Season | null => {
 
 const updateSelectedSeason = (season: { id: string; label: string }) => {
   fetchCalendarEventData(season.id).then(() => {
-    initCalendarList();
-  });
+    initCalendarList()
+  })
 };
 
 const subscribeToCalendar = (type: 'calendar' | 'event', seasonId: string, eventId?: string) => {
   switch (type) {
     case 'calendar':
-      openICSFile('events.ics', seasonId);
+      openICSFile('events.ics', seasonId)
       break;
     case 'event':
       if (eventId) {
-        openICSFile('event.ics', seasonId, eventId);
+        openICSFile('event.ics', seasonId, eventId)
       }
       break;
   }
@@ -244,14 +245,14 @@ const openICSFile = (url: string, season: string, eventId?: string) => {
     language: 'zh_CN',
     season: season,
     eventId: eventId || ''
-  });
+  })
 
-  window.open(`${http.location}calendar/${url}?${params.toString()}`);
+  window.open(`${http.location}calendar/${url}?${params.toString()}`)
 };
 
 const getEventName = (eventId: string) => {
   if (!selectSeasonsValue.value) return '';
-  return t(`snb.calendar.${selectSeasonsValue.value.id}.data.${eventId}.name`, '');
+  return t(`snb.calendar.${selectSeasonsValue.value.id}.data.${eventId}.name`, '')
 };
 </script>
 
@@ -374,6 +375,10 @@ const getEventName = (eventId: string) => {
 
   <v-divider class="mb-5"></v-divider>
 
+  <v-container>
+    <AdsWidget class="my-5" id="none"></AdsWidget>
+  </v-container>
+
   <!-- 日历 内容 S -->
   <HorizontalScrollList v-if="!calendarLoading">
     <div class="position-relative">
@@ -385,7 +390,7 @@ const getEventName = (eventId: string) => {
                   size="55"
                   class="font-weight-bold text-h5"
                   :color="`var(--main-color)`"
-                  style="color: hsl(from var(--main-color) h s calc(l * 0.3));"
+                  style="color: hsl(from var(--main-color) h s calc(l * 0.3))"
               >
                 {{ monthData.month }}
               </v-avatar>
@@ -452,6 +457,10 @@ const getEventName = (eventId: string) => {
     </div>
   </HorizontalScrollList>
   <!-- 日历 内容 E -->
+
+  <v-container>
+    <AdsWidget class="my-5" id="none"></AdsWidget>
+  </v-container>
 
   <div class="text-center" v-if="calendarLoading">
     <v-card min-height="400" class="mt-16 ma-auto bg-transparent" variant="text">

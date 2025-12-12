@@ -47,7 +47,7 @@ const onRegister = async () => {
         }),
         d = result.data;
 
-    noticeStore.success(t(`basic.tips.${d.code}`));
+    noticeStore.success(t(`basic.tips.${d.code}`))
 
     setTimeout(async () => {
       await router.push('/account/signin')
@@ -56,9 +56,9 @@ const onRegister = async () => {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.code
-      }));
+      }))
     }
-    console.error(e);
+    console.error(e)
   } finally {
     signupLoading.value = false;
   }

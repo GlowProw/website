@@ -2,7 +2,7 @@
 import {Ultimates} from "glow-prow-data"
 import {onMounted, ref} from "vue";
 
-const ultimateImages = import.meta.glob('@glow-prow-assets/ultimates/*.*', {eager: true});
+const ultimateImages = import.meta.glob('@glow-prow-assets/ultimates/*.*', {eager: true})
 const props = withDefaults(defineProps<{
   id: string,
   isClickOpenDetail?: boolean,
@@ -23,7 +23,7 @@ let ultimatesData = ref({
   images: {},
   panel: {},
   model: {}
-});
+})
 
 onMounted(() => {
   onReady()

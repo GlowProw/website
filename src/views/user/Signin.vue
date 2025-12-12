@@ -52,9 +52,9 @@ const onLogin = async () => {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.code
-      }));
+      }))
     }
-    console.error(e);
+    console.error(e)
   } finally {
     signinFormLoading.value = false
   }
@@ -69,7 +69,7 @@ const onBackRoute = async () => {
   if (backurl || backUrl)
     return router.push({path: backurl || backUrl})
 
-  return router.go(-1);
+  return router.go(-1)
 }
 
 /**

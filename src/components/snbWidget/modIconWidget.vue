@@ -5,7 +5,7 @@ import {useI18n} from "vue-i18n";
 import {useAssetsStore} from "~/stores/assetsStore";
 import Loading from "@/components/Loading.vue";
 
-const modImages = import.meta.glob('@/assets/images/snb/modTypeIcons/*.*', {eager: true});
+const modImages = import.meta.glob('@/assets/images/snb/modTypeIcons/*.*', {eager: true})
 const
     props = withDefaults(defineProps<{
       id: string,
@@ -29,7 +29,7 @@ let modsData = ref({
   icon: null,
   model: false,
   panel: {}
-});
+})
 
 watch(() => props.id, () => {
   onReady()
@@ -45,7 +45,7 @@ const onReady = async () => {
     const key = path.split('/').pop()
         ?.toString()
         .replace('.webp', '')
-        .replace('.png', '');
+        .replace('.png', '')
     imageMap[key] = modImages[path];
   }
 

@@ -7,9 +7,9 @@ import {createApiBase} from "@/assets/sripts/api/api-util";
  * 配装接口
  */
 export function useAssemblyApi() {
-    const createHttp = () => useHttpToken();
-    const http = createHttp();
-    const {handleError, handleResponse} = createApiBase();
+    const createHttp = () => useHttpToken()
+    const http = createHttp()
+    const {handleError, handleResponse} = createApiBase()
 
     /**
      * 发布组件
@@ -17,10 +17,10 @@ export function useAssemblyApi() {
      */
     const publishAssembly = async (data: PublishAssemblyData) => {
         try {
-            const result = await http.post('assembly/publish', {data});
-            return handleResponse(result);
+            const result = await http.post('assembly/publish', {data})
+            return handleResponse(result)
         } catch (error) {
-            return handleError(error);
+            return handleError(error)
         }
     };
 
@@ -30,10 +30,10 @@ export function useAssemblyApi() {
      */
     const getAssemblyList = async (params?: AssemblyListParams & PaginationParams) => {
         try {
-            const result = await http.get('assembly/list', {params});
-            return handleResponse(result);
+            const result = await http.get('assembly/list', {params})
+            return handleResponse(result)
         } catch (error) {
-            return handleError(error);
+            return handleError(error)
         }
     };
 
@@ -55,10 +55,10 @@ export function useAssemblyApi() {
                 data: {
                     force: options?.force
                 }
-            });
-            return handleResponse(result);
+            })
+            return handleResponse(result)
         } catch (error) {
-            return handleError(error);
+            return handleError(error)
         }
     };
 
@@ -68,10 +68,10 @@ export function useAssemblyApi() {
      */
     const editAssembly = async (data: EditAssemblyData) => {
         try {
-            const result = await http.put(`assembly/edit`, {data});
-            return handleResponse(result);
+            const result = await http.put(`assembly/edit`, {data})
+            return handleResponse(result)
         } catch (error) {
-            return handleError(error);
+            return handleError(error)
         }
     };
 
@@ -83,10 +83,10 @@ export function useAssemblyApi() {
         try {
             const result = await http.post(`assembly/delete`, {
                 data: {uuid: assemblyUuid}
-            });
-            return handleResponse(result);
+            })
+            return handleResponse(result)
         } catch (error) {
-            return handleError(error);
+            return handleError(error)
         }
     };
 
@@ -99,10 +99,10 @@ export function useAssemblyApi() {
                 params: {
                     uuid: assemblyUuid
                 }
-            });
-            return handleResponse(result);
+            })
+            return handleResponse(result)
         } catch (error) {
-            return handleError(error);
+            return handleError(error)
         }
     };
 
@@ -116,10 +116,10 @@ export function useAssemblyApi() {
                     uuid: assemblyUuid,
                     ...attrData
                 }
-            });
-            return handleResponse(result);
+            })
+            return handleResponse(result)
         } catch (error) {
-            return handleError(error);
+            return handleError(error)
         }
     };
 
@@ -131,10 +131,10 @@ export function useAssemblyApi() {
             const url = userId ? 'user/space/assemblys' : 'user/me/assemblys';
             const result = await http.get(url, {
                 params: {...pagination, userId}
-            });
-            return handleResponse(result);
+            })
+            return handleResponse(result)
         } catch (error) {
-            return handleError(error);
+            return handleError(error)
         }
     };
 

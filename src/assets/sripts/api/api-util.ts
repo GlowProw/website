@@ -4,14 +4,14 @@ import { ApiError, ApiResponseSuccess } from "@/assets/types/Api";
  * 统一错误处理
  */
 export const handleApiError = (error: any): never => {
-    console.error(error);
+    console.error(error)
     const errorData = error.response?.data;
     throw new ApiError(
         errorData?.message || error.message,
         errorData?.code || 'error',
         errorData?.error || 1,
         error.response
-    );
+    )
 };
 
 /**
@@ -26,7 +26,7 @@ export const handleApiResponse = (response: any): ApiResponseSuccess => {
             responseData.code,
             responseData.error,
             response
-        );
+        )
     }
 
     return {

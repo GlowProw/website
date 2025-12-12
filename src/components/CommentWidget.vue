@@ -42,7 +42,7 @@ watch(() => props.id, () => {
 watch(() => content.value, (value) => {
   if (value && value.length >= 5 && !captchaOneUpdateEvent.value) {
     captchaOneUpdateEvent.value = true
-    captchaRef.value.refreshCaptcha();
+    captchaRef.value.refreshCaptcha()
   }
 })
 
@@ -68,9 +68,9 @@ const getComment = async () => {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.response.data.message
-      }));
+      }))
     }
-    console.error(e);
+    console.error(e)
   } finally {
     commentLoading.value = false
   }
@@ -109,9 +109,9 @@ const onPushComment = async () => {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.response.data.message
-      }));
+      }))
     }
-    console.error(e);
+    console.error(e)
   } finally {
     commentPushLoading.value = false
   }
@@ -140,9 +140,9 @@ const onDeleteComment = async (data: any) => {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.response.data.message
-      }));
+      }))
     }
-    console.error(e);
+    console.error(e)
   } finally {
     data.deleteLoading = false
   }
@@ -169,9 +169,9 @@ const onEditComment = async (data: any) => {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.response.data.message
-      }));
+      }))
     }
-    console.error(e);
+    console.error(e)
   } finally {
     data.isEdit = !data.isEdit;
     data.loading = false

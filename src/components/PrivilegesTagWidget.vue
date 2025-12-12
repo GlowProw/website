@@ -52,8 +52,8 @@ watch(() => props.data, (value) => {
 const update = (userPrivileges: string[] = []) => {
   if (!userPrivileges) return [];
   tags.value = privileges.child.filter(i => {
-    return userPrivileges.includes(i.value);
-  });
+    return userPrivileges.includes(i.value)
+  })
 }
 
 </script>

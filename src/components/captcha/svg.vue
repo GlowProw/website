@@ -173,9 +173,9 @@ const refreshCaptcha = async () => {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.code
-      }));
+      }))
     }
-    console.error(e);
+    console.error(e)
   } finally {
     setTimeout(() => {
       loading.value = false

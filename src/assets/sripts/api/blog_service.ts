@@ -6,7 +6,7 @@ import {http} from "@/assets/sripts/index";
  * 验证码接口
  */
 export function useBlogApi() {
-    const {handleError, handleResponse} = createApiBase();
+    const {handleError, handleResponse} = createApiBase()
     const blogBaseUrl = 'https://glow-prow-blog.cabbagelol.net'
 
     /**
@@ -16,13 +16,13 @@ export function useBlogApi() {
         try {
             const result = await http.request(`${blogBaseUrl}/blog-data.json`, {
                 params: {...options.isUpdateTime ? {t: Math.random()} : {}}
-            });
-            return handleResponse(result);
+            })
+            return handleResponse(result)
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
             }
-            return handleError(error);
+            return handleError(error)
         }
     };
 
@@ -33,13 +33,13 @@ export function useBlogApi() {
         try {
             const result = await http.request(`${blogBaseUrl}/versions-data.json`, {
                 params: {...options.isUpdateTime ? {t: Math.random()} : {}}
-            });
-            return handleResponse(result);
+            })
+            return handleResponse(result)
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
             }
-            return handleError(error);
+            return handleError(error)
         }
     };
 

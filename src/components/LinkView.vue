@@ -21,8 +21,8 @@ const onFinish = () => {
   const href = data.value.href,
       text = data.value.text
 
-  onPanelToggle();
-  emit('finish', href, text);
+  onPanelToggle()
+  emit('finish', href, text)
 }
 
 /**

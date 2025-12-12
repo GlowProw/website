@@ -81,9 +81,9 @@ const getUserAccount = async () => {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.code
-      }));
+      }))
     }
-    console.error(e);
+    console.error(e)
   }
 }
 
@@ -92,28 +92,28 @@ const getUserAccount = async () => {
  */
 const onChangePassword = async () => {
   try {
-    const {valid} = await passwordFrom.value.validate();
+    const {valid} = await passwordFrom.value.validate()
     if (!valid) return;
 
     changePasswordLoading.value = true;
 
-    const result = await api.changePassword(passwordFromData.value.data);
+    const result = await api.changePassword(passwordFromData.value.data)
 
-    authStore.logout();
-    await router.push({name: 'AccountInformation'});
+    authStore.logout()
+    await router.push({name: 'AccountInformation'})
 
-    notice.success(t(`basic.tips.${result.code}`));
+    notice.success(t(`basic.tips.${result.code}`))
   } catch (e) {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.code
-      }));
+      }))
     }
-    console.error(e);
+    console.error(e)
   } finally {
     changePasswordLoading.value = false;
     changePasswordModel.value = false;
-    onClearPasswordFrom();
+    onClearPasswordFrom()
   }
 }
 
@@ -122,7 +122,7 @@ const onChangePassword = async () => {
  */
 const onSaveAccountAttr = async () => {
   try {
-    const {valid} = await form.value.validate();
+    const {valid} = await form.value.validate()
     if (!valid)
       return
 
@@ -140,9 +140,9 @@ const onSaveAccountAttr = async () => {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.code
-      }));
+      }))
     }
-    console.error(e);
+    console.error(e)
   } finally {
     userAccountAttrLoading.value = false
   }
@@ -153,12 +153,12 @@ const onSaveAccountAttr = async () => {
  */
 const onChangeAlternativeName = async () => {
   try {
-    const {valid} = await alternativeNameFrom.value.validate();
+    const {valid} = await alternativeNameFrom.value.validate()
     if (!valid) return
 
     userAlternativeNameLoading.value = true
 
-    const result = await api.changeAlternativeName(alternativeNameData.value.data.username);
+    const result = await api.changeAlternativeName(alternativeNameData.value.data.username)
 
     authStore.updateAccountAttr({alternativeName: alternativeNameData.value.data.username})
     userAccountData.value.alternativeName = alternativeNameData.value.data.username
@@ -168,9 +168,9 @@ const onChangeAlternativeName = async () => {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.code
-      }));
+      }))
     }
-    console.error(e);
+    console.error(e)
   } finally {
     alternativeNameData.value.data.username = ''
     userAlternativeNameLoading.value = false

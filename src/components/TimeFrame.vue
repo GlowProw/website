@@ -6,26 +6,26 @@ const props = defineProps({
   modelValue: String
 })
 
-const dialog = ref(false);
-const startDate = ref<string | null>(null);
-const endDate = ref<string | null>(null);
+const dialog = ref(false)
+const startDate = ref<string | null>(null)
+const endDate = ref<string | null>(null)
 const {t} = useI18n()
 
 const emit = defineEmits(['update:modelValue'])
 
 const endDateMin = computed(() => {
-  return startDate.value || new Date().toISOString().substr(0, 10);
-});
+  return startDate.value || new Date().toISOString().substr(0, 10)
+})
 
 const startDateMax = computed(() => {
-  return endDate.value || new Date().toISOString().substr(0, 10);
-});
+  return endDate.value || new Date().toISOString().substr(0, 10)
+})
 
 // 验证
 const isRangeValid = computed(() => {
   if (!startDate.value || !endDate.value) return false;
-  return new Date(endDate.value) >= new Date(startDate.value);
-});
+  return new Date(endDate.value) >= new Date(startDate.value)
+})
 
 /**
  * 重置选择
@@ -34,7 +34,7 @@ const resetSelection = () => {
   startDate.value = null;
   endDate.value = null;
   dialog.value = false;
-  updateEvent();
+  updateEvent()
 };
 
 /**
@@ -43,7 +43,7 @@ const resetSelection = () => {
 const confirmSelection = () => {
   if (isRangeValid.value) {
     dialog.value = false;
-    updateEvent();
+    updateEvent()
   }
 };
 
@@ -51,7 +51,7 @@ const updateEvent = () => {
   const startTime = startDate.value ? new Date(startDate.value).toISOString() : null;
   const endTIme = endDate.value ? new Date(endDate.value).toISOString() : null;
 
-  emit('update:modelValue', startTime || endTIme ? `${startTime},${endTIme}` : null);
+  emit('update:modelValue', startTime || endTIme ? `${startTime},${endTIme}` : null)
 }
 </script>
 

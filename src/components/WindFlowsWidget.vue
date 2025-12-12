@@ -51,9 +51,9 @@ export default {
     }
   },
   setup(props) {
-    const svgElement = ref(null);
-    const windPaths = ref(null);
-    const paths = ref([]);
+    const svgElement = ref(null)
+    const windPaths = ref(null)
+    const paths = ref([])
     let animationFrameId = null;
 
     // 小尺寸画布专用参数
@@ -69,20 +69,20 @@ export default {
     const initPaths = () => {
       // 清除现有路径
       while (windPaths.value?.firstChild) {
-        windPaths.value.removeChild(windPaths.value.firstChild);
+        windPaths.value.removeChild(windPaths.value.firstChild)
       }
 
       paths.value = [];
 
       // 创建新路径
       for (let i = 0; i < smallCanvasConfig.pathCount; i++) {
-        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        path.setAttribute("stroke", "url(#windGradient)");
-        path.setAttribute("fill", "none");
-        path.setAttribute("stroke-width", (i + 1) * smallCanvasConfig.strokeWidth);
-        path.setAttribute("stroke-linecap", "round");
-        paths.value.push(path);
-        windPaths.value.appendChild(path);
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path")
+        path.setAttribute("stroke", "url(#windGradient)")
+        path.setAttribute("fill", "none")
+        path.setAttribute("stroke-width", (i + 1) * smallCanvasConfig.strokeWidth)
+        path.setAttribute("stroke-linecap", "round")
+        paths.value.push(path)
+        windPaths.value.appendChild(path)
       }
     };
 
@@ -113,34 +113,34 @@ export default {
           }
         }
 
-        path.setAttribute("d", d);
-      });
+        path.setAttribute("d", d)
+      })
 
-      animationFrameId = requestAnimationFrame(updatePaths);
+      animationFrameId = requestAnimationFrame(updatePaths)
     };
 
     // 启动动画
     const startAnimation = () => {
-      stopAnimation();
-      initPaths();
-      updatePaths();
+      stopAnimation()
+      initPaths()
+      updatePaths()
     };
 
     // 停止动画
     const stopAnimation = () => {
       if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
+        cancelAnimationFrame(animationFrameId)
         animationFrameId = null;
       }
     };
 
     onMounted(() => {
-      startAnimation();
-    });
+      startAnimation()
+    })
 
     onBeforeUnmount(() => {
-      stopAnimation();
-    });
+      stopAnimation()
+    })
 
     return {
       svgElement,

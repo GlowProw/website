@@ -33,9 +33,9 @@ onMounted(() => {
 const loadData = () => {
   // unescape is deprecated， by: https://developer.mozilla.org/en-US/docs/web/javascript/reference/global_objects/escape
   if (props.href)
-    afterData.value.href = decodeURI(props.href);
+    afterData.value.href = decodeURI(props.href)
   if (props.text)
-    afterData.value.text = decodeURI(props.text);
+    afterData.value.text = decodeURI(props.text)
 }
 
 /**
@@ -52,7 +52,7 @@ const onPoptipShow = () => {
     linkTime.value = setTimeout(function () {
       linkLoad.value = false;
       linkTime.value = null;
-    }, 2000);
+    }, 2000)
   }
   // 收起
   if (status == false) {
@@ -67,7 +67,7 @@ const onPoptipShow = () => {
 const getProtocol = () => {
   try {
     if (!afterData.value && !afterData.value.href) return '';
-    let url = new URL(afterData.value.href);
+    let url = new URL(afterData.value.href)
     return url.protocol;
   } catch (e) {
     return '';

@@ -1,5 +1,5 @@
 import {Ship} from "glow-prow-data";
-import {Item} from "glow-prow-data/src/entity/Items.ts";
+import {Item} from "glow-prow-data/src/entity/Items";
 
 /**
  * 运算结果

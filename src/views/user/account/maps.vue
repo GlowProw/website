@@ -83,7 +83,7 @@ const openPointManager = async (collection: MapCollection) => {
   await Promise.all([
     loadCollectionPoints(collection.uuid),
     loadOrphanPoints()
-  ]);
+  ])
 }
 
 /**
@@ -104,9 +104,9 @@ const loadCollectionPoints = async (collectionUuid: string) => {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.code
-      }));
+      }))
     }
-    console.error(e);
+    console.error(e)
   }
 }
 
@@ -126,9 +126,9 @@ const loadOrphanPoints = async () => {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.code
-      }));
+      }))
     }
-    console.error(e);
+    console.error(e)
   }
 }
 
@@ -137,7 +137,7 @@ const loadOrphanPoints = async () => {
  */
 const onSearchPoints = async () => {
   if (!searchQuery.value.trim()) {
-    await loadOrphanPoints();
+    await loadOrphanPoints()
     return;
   }
 
@@ -151,15 +151,15 @@ const onSearchPoints = async () => {
     // 前端过滤搜索结果
     orphanPoints.value = (d.points || []).filter(point =>
         point.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        point.description?.toLowerCase().includes(searchQuery.value.toLowerCase())
-    );
+        point.description?.toLowerCase().includes(searchQuery.value.toLowerCase()))
+
   } catch (e) {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.code
-      }));
+      }))
     }
-    console.error(e);
+    console.error(e)
   }
 }
 
@@ -168,11 +168,11 @@ const onSearchPoints = async () => {
  * @param pointId
  */
 const togglePointSelection = (pointId: string) => {
-  const index = selectedPoints.value.indexOf(pointId);
+  const index = selectedPoints.value.indexOf(pointId)
   if (index > -1) {
-    selectedPoints.value.splice(index, 1);
+    selectedPoints.value.splice(index, 1)
   } else {
-    selectedPoints.value.push(pointId);
+    selectedPoints.value.push(pointId)
   }
 }
 
@@ -180,20 +180,20 @@ const togglePointSelection = (pointId: string) => {
  * 全选/取消全选当前页坐标
  */
 const toggleSelectAll = (points: MapPoint[]) => {
-  const allSelected = points.every(point => selectedPoints.value.includes(point.uuid));
+  const allSelected = points.every(point => selectedPoints.value.includes(point.uuid))
 
   if (allSelected) {
     // 取消全选
     selectedPoints.value = selectedPoints.value.filter(uuid =>
-        !points.some(point => point.uuid === uuid)
-    );
+        !points.some(point => point.uuid === uuid))
+
   } else {
     // 全选
     points.forEach(point => {
       if (!selectedPoints.value.includes(point.uuid)) {
-        selectedPoints.value.push(point.uuid);
+        selectedPoints.value.push(point.uuid)
       }
-    });
+    })
   }
 }
 
@@ -204,13 +204,13 @@ const addSelectedPointsToCollection = async () => {
   if (!selectedCollection.value || selectedPoints.value.length === 0) return;
 
   try {
-    await api.addPointsToCollection(selectedCollection.value.uuid, selectedPoints.value);
+    await api.addPointsToCollection(selectedCollection.value.uuid, selectedPoints.value)
 
     // 重新加载数据
     await Promise.all([
       loadCollectionPoints(selectedCollection.value.uuid),
       loadOrphanPoints()
-    ]);
+    ])
 
     // 清空选择
     selectedPoints.value = [];
@@ -220,9 +220,9 @@ const addSelectedPointsToCollection = async () => {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.code
-      }));
+      }))
     }
-    console.error(e);
+    console.error(e)
   }
 }
 
@@ -233,13 +233,13 @@ const onRemoveSelectedPointsFromCollection = async () => {
   if (!selectedCollection.value || selectedPoints.value.length === 0) return;
 
   try {
-    await api.removePointsFromCollection(selectedCollection.value.uuid, selectedPoints.value);
+    await api.removePointsFromCollection(selectedCollection.value.uuid, selectedPoints.value)
 
     // 重新加载数据
     await Promise.all([
       loadCollectionPoints(selectedCollection.value.uuid),
       loadOrphanPoints()
-    ]);
+    ])
 
     // 清空选择
     selectedPoints.value = [];
@@ -271,14 +271,14 @@ const deleteSelectedPoints = async () => {
   try {
     // 批量删除坐标
     for (const pointId of selectedPoints.value) {
-      await api.deletePoint(pointId);
+      await api.deletePoint(pointId)
     }
 
     // 重新加载数据
     if (selectedCollection.value) {
-      await loadCollectionPoints(selectedCollection.value.uuid);
+      await loadCollectionPoints(selectedCollection.value.uuid)
     }
-    await loadOrphanPoints();
+    await loadOrphanPoints()
 
     // 清空选择
     selectedPoints.value = [];
@@ -301,7 +301,7 @@ const deleteSelectedPoints = async () => {
 const onSaveCollection = async (): Promise<void> => {
   if (!collectionFormRef.value) return;
 
-  const {valid} = await collectionFormRef.value.validate();
+  const {valid} = await collectionFormRef.value.validate()
   if (!valid) return;
 
   savingCollectionLoading.value = true;
@@ -314,7 +314,7 @@ const onSaveCollection = async (): Promise<void> => {
         description: collectionForm.value.description,
         public: collectionForm.value.public,
         sharedUsers: collectionForm.value.sharedUsers
-      });
+      })
     } else {
       // 创建新地图集
       await api.createCollection({
@@ -322,14 +322,14 @@ const onSaveCollection = async (): Promise<void> => {
         description: collectionForm.value.description,
         public: collectionForm.value.public,
         sharedUsers: collectionForm.value.sharedUsers
-      });
+      })
     }
 
     // 重新加载地图集列表
-    await getMyCollectionsData();
+    await getMyCollectionsData()
 
     // 重置表单
-    onResetCollectionForm();
+    onResetCollectionForm()
 
     notice.success(t(`basic.tips.map.success`))
   } catch (e) {
@@ -398,7 +398,7 @@ const onResetCollectionForm = (): void => {
 // const onUpdateMarker = async (): Promise<void> => {
 //   if (!markerFormRef.value || !newMarkerData.value.id) return;
 //
-//   const {valid} = await markerFormRef.value.validate();
+//   const {valid} = await markerFormRef.value.validate(
 //   if (!valid) return;
 //
 //   updatingMarker.value = true;
@@ -413,20 +413,20 @@ const onResetCollectionForm = (): void => {
 //       tags: newMarkerData.value.tags,
 //       isPublic: newMarkerData.value.isPublic,
 //       sharedUsers: newMarkerData.value.sharedUsers
-//     });
+//     }
 //
 //     // 重新加载当前地图集的坐标点
 //     if (selectedCollectionUuid.value) {
-//       await loadCollectionPoints(selectedCollectionUuid.value);
+//       await loadCollectionPoints(selectedCollectionUuid.value
 //     }
 //
 //     // 关闭对话框并重置数据
 //     showCreateMarkerDialog.value = false;
-//     onResetNewMarkerData();
+//     onResetNewMarkerData(
 //     selectedPoint.value = null;
 //
 //   } catch (error) {
-//     console.error('更新标记失败:', error);
+//     console.error('更新标记失败:', error
 //   } finally {
 //     updatingMarker.value = false;
 //   }
@@ -436,10 +436,10 @@ const onResetCollectionForm = (): void => {
  * 确认删除地图集
  */
 const confirmDeleteCollection = (collection: MapCollection): void => {
-  deleteConfirmMessage.value = t('map.confirmDeleteCollection', {title: collection.title});
+  deleteConfirmMessage.value = t('map.confirmDeleteCollection', {title: collection.title})
   pendingDeleteAction.value = async () => {
-    await api.deleteCollection(collection.uuid);
-    await getMyCollectionsData();
+    await api.deleteCollection(collection.uuid)
+    await getMyCollectionsData()
   };
   showDeleteConfirm.value = true;
 };
@@ -449,7 +449,7 @@ const confirmDeleteCollection = (collection: MapCollection): void => {
  */
 const executeDelete = async (): Promise<void> => {
   if (pendingDeleteAction.value) {
-    await pendingDeleteAction.value();
+    await pendingDeleteAction.value()
     pendingDeleteAction.value = null;
   }
   showDeleteConfirm.value = false

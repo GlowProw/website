@@ -23,7 +23,7 @@ const onFormatRange = (data: []) => {
     } else {
       return num;
     }
-  });
+  })
 }
 </script>
 

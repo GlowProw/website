@@ -32,7 +32,7 @@ const getCodexHistory = () => {
   const d = storage.session.get(name)
 
   if (d.code == 0)
-    codexHistorys.value = Object.values(d.data.value);
+    codexHistorys.value = Object.values(d.data.value)
 }
 
 

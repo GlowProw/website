@@ -54,7 +54,7 @@ const filterByObtainable = (items: any[], targetId: string) => {
     }
 
     if (Array.isArray(obtainable)) {
-      const flatArray = obtainable.flat();
+      const flatArray = obtainable.flat()
       return flatArray.some(element => {
         if (typeof element === 'string') {
           return element === targetId;
@@ -62,11 +62,11 @@ const filterByObtainable = (items: any[], targetId: string) => {
           return element.id === targetId;
         }
         return false;
-      });
+      })
     }
 
     return false;
-  });
+  })
 };
 
 </script>

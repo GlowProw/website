@@ -28,7 +28,7 @@ export default {
     },
   },
   created() {
-    this.loadData();
+    this.loadData()
   },
   methods: {
     loadData() {
@@ -43,13 +43,13 @@ export default {
         };
     },
     toLocaleString(unixTimestamp) {
-      const date = new Date(unixTimestamp);
-      return date.toLocaleString();
+      const date = new Date(unixTimestamp)
+      return date.toLocaleString()
     },
     onTime(time) {
       return time.toString()
           .replaceAll('\n', ' ')
-          .replaceAll('&nbsp;', ' ');
+          .replaceAll('&nbsp;', ' ')
     },
     /**
      * 获取时区名称
@@ -64,8 +64,8 @@ export default {
      * @returns {string}
      */
     toLocaleDateString(time) {
-      const date = new Date(time);
-      return date.toLocaleDateString(undefined, this.options);
+      const date = new Date(time)
+      return date.toLocaleDateString(undefined, this.options)
     },
     /**
      * 获取时间格式
@@ -73,8 +73,8 @@ export default {
      * @returns {string}
      */
     toDateString(time) {
-      const date = new Date(time);
-      return date.toDateString(undefined, this.options);
+      const date = new Date(time)
+      return date.toDateString(undefined, this.options)
     }
   }
 }

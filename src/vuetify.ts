@@ -33,6 +33,6 @@ const vuetify = createVuetify({
     theme: {
         defaultTheme: 'dark',
     },
-});
+})
 
 export default vuetify

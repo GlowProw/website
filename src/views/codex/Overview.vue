@@ -1,22 +1,10 @@
 <script setup lang="ts">
-import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
-import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
-import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
-import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
-
 import {onMounted, ref} from "vue";
 import {useI18n} from "vue-i18n";
-import {storage} from "@/assets/sripts";
-import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
-import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
-import CosmeticIconWidget from "@/components/snbWidget/cosmeticIconWidget.vue";
 import {useDisplay} from "vuetify/framework";
-import TreasureMapIconWidget from "@/components/snbWidget/treasureMapIconWidget.vue";
-import AppCodexNav from "@/assets/sripts/app_codex_nav";
 import {useAssetsStore} from "~/stores/assetsStore";
-import CommoditieIconWidget from "@/components/snbWidget/commoditieIconWidget.vue";
-import MapLocationIconWidget from "@/components/snbWidget/mapLocationIconWidget.vue";
-import NpcIconWidget from "@/components/snbWidget/npcIconWidget.vue";
+
+import AppCodexNav from "@/assets/sripts/app_codex_nav";
 import CodexHistory from "@/components/CodexHistory.vue";
 
 const codexImages = import.meta.glob('@/assets/images/snb/codexIcons/*', {eager: true})

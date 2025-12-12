@@ -51,7 +51,7 @@ export const useAssetsStore = defineStore('assets', {
             if (this.commodities.size != 0)
                 return;
 
-            const commoditieImages = import.meta.glob('@glow-prow-assets/commodities/*', {eager: true});
+            const commoditieImages = import.meta.glob('@glow-prow-assets/commodities/*', {eager: true})
 
             this.commodities = this.serializationMap(commoditieImages)
         },
@@ -60,7 +60,7 @@ export const useAssetsStore = defineStore('assets', {
             if (this.modifications.size != 0)
                 return;
 
-            const modificationImages = import.meta.glob('@glow-prow-assets/modifications/*', {eager: true});
+            const modificationImages = import.meta.glob('@glow-prow-assets/modifications/*', {eager: true})
 
             this.modifications = this.serializationMap(modificationImages)
         },
@@ -69,7 +69,7 @@ export const useAssetsStore = defineStore('assets', {
             if (this.npcs.size != 0)
                 return;
 
-            const npcImages = import.meta.glob('@glow-prow-assets/npcs/*', {eager: true});
+            const npcImages = import.meta.glob('@glow-prow-assets/npcs/*', {eager: true})
 
             this.npcs = this.serializationMap(npcImages)
         },
@@ -78,7 +78,7 @@ export const useAssetsStore = defineStore('assets', {
             if (this.ships.size != 0)
                 return;
 
-            const shipImages = import.meta.glob('@glow-prow-assets/ships/*', {eager: true});
+            const shipImages = import.meta.glob('@glow-prow-assets/ships/*', {eager: true})
 
             this.ships = this.serializationMap(shipImages)
         },
@@ -99,7 +99,7 @@ export const useAssetsStore = defineStore('assets', {
                 item_longGuns = import.meta.glob('@glow-prow-assets/items/weapons/longGuns/*', {eager: true}),
                 item_tools = import.meta.glob('@glow-prow-assets/items/tools/*', {eager: true}),
                 item_shipsUpgrades = import.meta.glob('@glow-prow-assets/ships/upgrades/*', {eager: true}),
-                item_items = import.meta.glob('@glow-prow-assets/items/*', {eager: true});
+                item_items = import.meta.glob('@glow-prow-assets/items/*', {eager: true})
 
             const itemImages = {
                 ...item_ammunitions, ...item_weapons, ...item_armors, ...item_chests,
@@ -108,55 +108,55 @@ export const useAssetsStore = defineStore('assets', {
                 ...item_tools, ...item_shipsUpgrades, ...item_items,
             };
 
-            this.items = this.serializationMap(itemImages);
+            this.items = this.serializationMap(itemImages)
         },
 
         initCosmetics() {
             if (this.cosmetics.size != 0)
                 return;
 
-            const cosmetics_sailsPattern = import.meta.glob('@glow-prow-assets/cosmetics/sailsPattern/*', {eager: true});
+            const cosmetics_sailsPattern = import.meta.glob('@glow-prow-assets/cosmetics/sailsPattern/*', {eager: true})
 
             const cosmeticsImages = {
                 ...cosmetics_sailsPattern
             }
-            this.cosmetics = this.serializationMap(cosmeticsImages);
+            this.cosmetics = this.serializationMap(cosmeticsImages)
         },
 
         initRarity() {
             if (this.raritys.size != 0)
                 return;
 
-            const rarityImages = import.meta.glob('@/assets/images/item-rarity-*.png', {eager: true});
+            const rarityImages = import.meta.glob('@/assets/images/item-rarity-*.png', {eager: true})
 
-            this.raritys = this.serializationMap(rarityImages);
+            this.raritys = this.serializationMap(rarityImages)
         },
 
         initMaterials() {
             if (this.materials.size != 0)
                 return;
 
-            const materialsImages = import.meta.glob('@glow-prow-assets/materials/*.*', {eager: true});
+            const materialsImages = import.meta.glob('@glow-prow-assets/materials/*.*', {eager: true})
 
-            this.materials = this.serializationMap(materialsImages);
+            this.materials = this.serializationMap(materialsImages)
         },
 
         iniFactions() {
             if (this.factions.size != 0)
                 return;
 
-            const factionsImages = import.meta.glob('@glow-prow-assets/factions/*.*', {eager: true});
+            const factionsImages = import.meta.glob('@glow-prow-assets/factions/*.*', {eager: true})
 
-            this.factions = this.serializationMap(factionsImages);
+            this.factions = this.serializationMap(factionsImages)
         },
 
         initTeasureMaps() {
             if (this.treasureMaps.size != 0)
                 return;
 
-            const teasureMapsImages = import.meta.glob('@glow-prow-assets/treasureMaps/**/*.*', {eager: true});
+            const teasureMapsImages = import.meta.glob('@glow-prow-assets/treasureMaps/**/*.*', {eager: true})
 
-            this.treasureMaps = this.serializationMap(teasureMapsImages);
+            this.treasureMaps = this.serializationMap(teasureMapsImages)
         },
 
         /**
@@ -168,7 +168,7 @@ export const useAssetsStore = defineStore('assets', {
             for (const path in assetsRaw) {
                 const key: any = path.split('/').pop()
                     ?.toString()
-                    .replace(/\.(svg|webp|jpg|png|mp4)$/, '');
+                    .replace(/\.(svg|webp|jpg|png|mp4)$/, '')
                 imageMap[key] = assetsRaw[path].default;
             }
             return imageMap

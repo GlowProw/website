@@ -74,6 +74,6 @@ export default class RankingDesignedItemsDataProcessing {
 
         let version = useVersion || data?.__version || RankingDesignedItemsDataProcessing.nowVersion;
 
-        return this.processing[version].verify(data);
+        return this.processing[version].verify(data)
     }
 }

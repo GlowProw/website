@@ -6,8 +6,8 @@ import {createApiBase} from "@/assets/sripts/api/api-util";
  * 验证码接口
  */
 export function useCaptchaApi() {
-    const http = useHttpToken();
-    const {handleError, handleResponse} = createApiBase();
+    const http = useHttpToken()
+    const {handleError, handleResponse} = createApiBase()
 
     /**
      * 获取当前用户信息
@@ -16,13 +16,13 @@ export function useCaptchaApi() {
         try {
             const result = await http.get('captcha', {
                 params: {...options.isUpdateTime ? {t: Math.random()} : {}}
-            });
-            return handleResponse(result);
+            })
+            return handleResponse(result)
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
             }
-            return handleError(error);
+            return handleError(error)
         }
     };
 

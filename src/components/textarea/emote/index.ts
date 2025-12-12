@@ -56,7 +56,7 @@ const EmoteNode = Node.create({
             },
         } as Partial<RawCommands>
     },
-});
+})
 
 export {
     EmoteNode,

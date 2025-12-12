@@ -267,18 +267,18 @@ onMounted(() => {
   }
 
   // 禁止缩放
-  const originalViewport = document.querySelector('meta[name="viewport"]');
+  const originalViewport = document.querySelector('meta[name="viewport"]')
   const originalContent = originalViewport?.content || '';
 
   // 设置不允许缩放
-  originalViewport?.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0');
+  originalViewport?.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0')
 
   // 页面卸载时恢复原始 viewport（可选）
   onBeforeUnmount(() => {
     if (originalViewport) {
-      originalViewport.setAttribute('content', originalContent);
+      originalViewport.setAttribute('content', originalContent)
     }
-  });
+  })
 })
 
 onBeforeUnmount(() => {

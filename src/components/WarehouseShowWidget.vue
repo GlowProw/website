@@ -50,15 +50,15 @@ watch(data.value, (data) => {
   // 重新赋值回 data.value，确保响应式更新
   if (data.value)
     data.value = data.sort((a, b) => {
-      const aHasData = hasDataChecker(a);
-      const bHasData = hasDataChecker(b);
+      const aHasData = hasDataChecker(a)
+      const bHasData = hasDataChecker(b)
 
       if (aHasData && !bHasData) return -1; // a在前
       if (!aHasData && bHasData) return 1;  // b在前
 
       // 如果两个都有数据，则根据时间戳排序，最新的在前面
       if (aHasData && bHasData) {
-        return (a.timestamp || 0) - (b.timestamp || 0); // 升序排列
+        return (a.timestamp || 0) - (b.timestamp || 0) // 升序排列
       }
 
       return 0; // 保持相对顺序
@@ -94,8 +94,8 @@ const onInsertSlot = (index: number) => {
     const existingItem = data.value[existingItemIndex]
     existingItem.count += 1
     // 重新排序，将此物品移到最前面
-    data.value.splice(existingItemIndex, 1);
-    data.value.unshift({...existingItem, timestamp: Date.now()});
+    data.value.splice(existingItemIndex, 1)
+    data.value.unshift({...existingItem, timestamp: Date.now()})
   } else {
     // 插入新物品
     data.value[index] = {

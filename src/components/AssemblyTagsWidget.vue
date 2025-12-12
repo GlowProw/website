@@ -56,13 +56,13 @@ onMounted(() => {
  */
 const onTagsDifficultyOfAcquisition = (value: string) => {
   if (value == null) {
-    let index = publishData.value.tags.findIndex(i => i.indexOf('difficultyOfAcquisition_') >= 0);
+    let index = publishData.value.tags.findIndex(i => i.indexOf('difficultyOfAcquisition_') >= 0)
     publishData.value.tags.splice(index, 1)
     return;
   }
 
   if (publishData.value.tags.filter(i => i.indexOf('difficultyOfAcquisition_') >= 0)) {
-    let index = publishData.value.tags.findIndex(i => i.indexOf('difficultyOfAcquisition_') >= 0);
+    let index = publishData.value.tags.findIndex(i => i.indexOf('difficultyOfAcquisition_') >= 0)
     publishData.value.tags.splice(index, 1)
   }
 

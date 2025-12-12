@@ -7,6 +7,7 @@ import {useDisplay} from "vuetify/framework";
 import {computed} from "vue";
 import {useRoute} from "vue-router";
 import Silk from "@/components/Silk.vue";
+import AdsWidget from "@/components/ads/google/index.vue";
 
 const {t} = useI18n(),
     {mobile} = useDisplay(),
@@ -68,7 +69,15 @@ let isDetailPage = computed(() => [
             <Sidebar></Sidebar>
           </v-col>
           <v-col cols="12" order-sm="2" order-lg="2" :lg="isDetailPage ? 12 : 10" class="pa-0">
+            <v-container class="px-3">
+              <AdsWidget id="none"></AdsWidget>
+            </v-container>
+
             <router-view></router-view>
+
+            <v-container class="px-3 mb-5">
+              <AdsWidget id="none"></AdsWidget>
+            </v-container>
           </v-col>
         </v-row>
       </v-container>

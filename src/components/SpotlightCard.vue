@@ -11,17 +11,17 @@ interface SpotlightCardProps {
   spotlightColor?: string;
 }
 
-const {className = '', spotlightColor = 'rgba(255, 255, 255, 1)'} = defineProps<SpotlightCardProps>();
+const {className = '', spotlightColor = 'rgba(255, 255, 255, 1)'} = defineProps<SpotlightCardProps>()
 
-const divRef = useTemplateRef<HTMLDivElement>('divRef');
-const isFocused = ref<boolean>(false);
-const position = ref<Position>({x: 0, y: 0});
-const opacity = ref<number>(0);
+const divRef = useTemplateRef<HTMLDivElement>('divRef')
+const isFocused = ref<boolean>(false)
+const position = ref<Position>({x: 0, y: 0})
+const opacity = ref<number>(0)
 
 const handleMouseMove = (e: MouseEvent) => {
   if (!divRef.value || isFocused.value) return;
 
-  const rect = divRef.value.getBoundingClientRect();
+  const rect = divRef.value.getBoundingClientRect()
   position.value = {x: e.clientX - rect.left, y: e.clientY - rect.top};
 };
 

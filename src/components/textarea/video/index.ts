@@ -27,7 +27,7 @@ const VideoNode = Node.create({
         }]
     },
     renderHTML({HTMLAttributes}) {
-        const attrs = mergeAttributes(HTMLAttributes);
+        const attrs = mergeAttributes(HTMLAttributes)
         return ['video', {src: attrs.src}, attrs.src || '']
     },
     addNodeView() {
@@ -47,11 +47,11 @@ const VideoNode = Node.create({
                         },
                         {type: 'paragraph'}
                     ])
-                    .run();
+                    .run()
             },
         } as Partial<RawCommands>
     },
-});
+})
 
 export {
     VideoNode,

@@ -181,7 +181,7 @@ const onReady = async () => {
   }
 
   .material-mirror-image {
-    transform: scaleX(-1);
+    transform: scaleX(-1)
   }
 
   .material-card-name {

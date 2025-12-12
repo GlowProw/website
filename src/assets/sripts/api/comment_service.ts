@@ -7,8 +7,8 @@ import {CommentListParams, CreateCommentParams, UpdateCommentParams} from "@/ass
  * 评论
  */
 export function useCommentApi() {
-    const http = useHttpToken();
-    const {handleError, handleResponse} = createApiBase();
+    const http = useHttpToken()
+    const {handleError, handleResponse} = createApiBase()
 
     /**
      * 获取评论列表
@@ -21,13 +21,13 @@ export function useCommentApi() {
                     targetId: params.targetId,
                     targetType: params.targetType,
                 }
-            });
-            return handleResponse(result);
+            })
+            return handleResponse(result)
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
             }
-            return handleError(error);
+            return handleError(error)
         }
     };
 
@@ -39,13 +39,13 @@ export function useCommentApi() {
         try {
             const result = await http.post('comment', {
                 data
-            });
-            return handleResponse(result);
+            })
+            return handleResponse(result)
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
             }
-            return handleError(error);
+            return handleError(error)
         }
     };
 
@@ -61,13 +61,13 @@ export function useCommentApi() {
                     id: commentId,
                     content: data.content
                 }
-            });
-            return handleResponse(result);
+            })
+            return handleResponse(result)
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
             }
-            return handleError(error);
+            return handleError(error)
         }
     };
 
@@ -81,13 +81,13 @@ export function useCommentApi() {
                 data: {
                     id: commentId
                 }
-            });
-            return handleResponse(result);
+            })
+            return handleResponse(result)
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
             }
-            return handleError(error);
+            return handleError(error)
         }
     };
 

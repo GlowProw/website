@@ -1,7 +1,8 @@
 import {Items, Modifications, Ships} from "glow-prow-data"
-import {Item} from "glow-prow-data/src/entity/Items.ts";
+import {Item} from "glow-prow-data/src/entity/Items";
 import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
 import {toRaw} from "vue";
+import {Ship} from "glow-prow-data/src/entity/Ships";
 
 const ships = Ships,
     items = Items,
@@ -20,8 +21,8 @@ type AssemblyDataProcessingMap<T = any> = {
 };
 
 export default class AssemblyDataProcessing {
-    static versions = ['0.0.1', '0.0.2'];
-    static nowVersion = AssemblyDataProcessing.versions[AssemblyDataProcessing.versions.length - 1];
+    static versions: string[] = ['0.0.1', '0.0.2'];
+    static nowVersion: string | any = AssemblyDataProcessing.versions[AssemblyDataProcessing.versions.length - 1];
 
     private processing: AssemblyDataProcessingMap<AssemblyData> = {
         '0.0.1': {
@@ -55,33 +56,33 @@ export default class AssemblyDataProcessing {
 
                 if (data.weaponModifications)
                     data.weaponModifications = data.weaponModifications.map(i => {
-                        return i.map(j => {
+                        return i.map((j: any) => {
                             return {
                                 type: j.type,
                                 value: j?.value?.id || null,
                             };
-                        });
-                    });
+                        })
+                    })
 
                 if (data.secondaryWeaponModifications)
                     data.secondaryWeaponModifications = data.secondaryWeaponModifications.map(i => {
-                        return i.map(j => {
+                        return i.map((j: any) => {
                             return {
                                 type: j.type,
                                 value: j?.value?.id || null,
                             };
-                        });
-                    });
+                        })
+                    })
 
                 if (data.secondaryWeaponSlots)
                     data.secondaryWeaponSlots = data.secondaryWeaponSlots.map(i => {
                         return i.id ? {id: i.id} : {id: null};
-                    });
+                    })
 
                 if (data.weaponSlots)
                     data.weaponSlots = data.weaponSlots.map(i => {
                         return i.id ? {id: i.id} : {id: null};
-                    });
+                    })
 
                 if (data.armorSlot)
                     data.armorSlot = {id: data.armorSlot.id}
@@ -89,7 +90,7 @@ export default class AssemblyDataProcessing {
                 if (data.displaySlots)
                     data.displaySlots = data.displaySlots.map(i => {
                         return i.id ? {id: i.id} : {id: null};
-                    });
+                    })
 
                 data.__version = this.nowVersion;
                 return data;
@@ -97,13 +98,13 @@ export default class AssemblyDataProcessing {
             set: (data) => {
                 // 后续处理逻辑
                 if (data.shipSlot)
-                    data.shipSlot = ships[data.shipSlot.id] || Ship.fromRawData({});
+                    data.shipSlot = ships[data.shipSlot.id] || Ship.fromRawData({})
 
                 if (data.shipUpgradeSlot)
-                    data.shipUpgradeSlot = items[data.shipUpgradeSlot.id] || Item.fromRawData({});
+                    data.shipUpgradeSlot = items[data.shipUpgradeSlot.id] || Item.fromRawData({})
 
                 if (data.ultimateSlot)
-                    data.ultimateSlot = ultimates[data.ultimateSlot.id] || Item.fromRawData({});
+                    data.ultimateSlot = ultimates[data.ultimateSlot.id] || Item.fromRawData({})
 
                 if (data.weaponModifications)
                     data.weaponModifications = data.weaponModifications.map(i => {
@@ -112,8 +113,8 @@ export default class AssemblyDataProcessing {
                                 type: j.type,
                                 value: modifications[j.value] || null,
                             };
-                        });
-                    });
+                        })
+                    })
 
                 if (data.secondaryWeaponModifications)
                     data.secondaryWeaponModifications = data.secondaryWeaponModifications.map(i => {
@@ -122,26 +123,26 @@ export default class AssemblyDataProcessing {
                                 type: j.type,
                                 value: modifications[j.value] || null,
                             };
-                        });
-                    });
+                        })
+                    })
 
                 if (data.secondaryWeaponSlots)
                     data.secondaryWeaponSlots = data.secondaryWeaponSlots.map(i => {
-                        return i.id ? items[i.id] : Item.fromRawData({});
-                    });
+                        return i.id ? items[i.id] : Item.fromRawData({})
+                    })
 
                 if (data.weaponSlots)
                     data.weaponSlots = data.weaponSlots.map(i => {
-                        return i.id ? items[i.id] : Item.fromRawData({});
-                    });
+                        return i.id ? items[i.id] : Item.fromRawData({})
+                    })
 
                 if (data.armorSlot)
                     data.armorSlot = items[data.armorSlot.id] || Item.fromRawData({})
 
                 if (data.displaySlots)
                     data.displaySlots = data.displaySlots.map(i => {
-                        return i.id ? items[i.id] : Item.fromRawData({});
-                    });
+                        return i.id ? items[i.id] : Item.fromRawData({})
+                    })
 
                 return data;
             },
@@ -155,13 +156,13 @@ export default class AssemblyDataProcessing {
                     {
                         condition: () => {
                             let length = data.secondaryWeaponSlots?.length <= 0
-                            return (data.secondaryWeaponSlots as Array).filter(i => !i.id).length != length
+                            return (data.secondaryWeaponSlots<any>).filter(i => !i.id).length != length
                         }, required: false, message: 'secondaryWeaponEmpty'
                     },
                     {
                         condition: () => {
                             let length = data.weaponSlots?.length
-                            return length <= 0 || (data.weaponSlots as Array).filter(i => !i.id).length == length
+                            return length <= 0 || (data.weaponSlots<any>).filter(i => !i.id).length == length
                         }, required: false, message: 'weaponAllEmpty'
                     },
                     {
@@ -182,14 +183,14 @@ export default class AssemblyDataProcessing {
                     {
                         condition: () => {
                             let length = data.displaySlots?.length
-                            return length <= 0 || (data.displaySlots as Array).filter(i => !i.id).length == length
+                            return length <= 0 || (data.displaySlots<any>).filter(i => !i.id).length == length
                         }, required: false, message: 'displayAllEmpty'
                     }
                 ];
 
                 const resultVerify = rules
                     .filter(rule => rule.condition())
-                    .map(({required, message}) => ({required, message}));
+                    .map(({required, message}) => ({required, message}))
 
                 const requiredCount = resultVerify
                     .filter(item => item.required)
@@ -238,8 +239,8 @@ export default class AssemblyDataProcessing {
                                 type: j.type,
                                 value: j?.value?.id || null,
                             };
-                        });
-                    });
+                        })
+                    })
 
                 if (data.armorModification)
                     data.armorModification = data.armorModification.map(i => {
@@ -248,8 +249,8 @@ export default class AssemblyDataProcessing {
                                 type: j.type,
                                 value: j?.value?.id || null,
                             };
-                        });
-                    });
+                        })
+                    })
 
                 if (data.secondaryWeaponModifications)
                     data.secondaryWeaponModifications = data.secondaryWeaponModifications.map(i => {
@@ -258,18 +259,18 @@ export default class AssemblyDataProcessing {
                                 type: j.type,
                                 value: j?.value?.id || null,
                             };
-                        });
-                    });
+                        })
+                    })
 
                 if (data.secondaryWeaponSlots)
                     data.secondaryWeaponSlots = data.secondaryWeaponSlots.map(i => {
                         return i.id ? {id: i.id} : {id: null};
-                    });
+                    })
 
                 if (data.weaponSlots)
                     data.weaponSlots = data.weaponSlots.map(i => {
                         return i.id ? {id: i.id} : {id: null};
-                    });
+                    })
 
                 if (data.armorSlot)
                     data.armorSlot = {id: data.armorSlot.id}
@@ -277,7 +278,7 @@ export default class AssemblyDataProcessing {
                 if (data.displaySlots)
                     data.displaySlots = data.displaySlots.map(i => {
                         return i.id ? {id: i.id} : {id: null};
-                    });
+                    })
 
                 data.__version = this.nowVersion;
                 return data;
@@ -285,13 +286,13 @@ export default class AssemblyDataProcessing {
             set: (data) => {
                 // 后续处理逻辑
                 if (data.shipSlot)
-                    data.shipSlot = ships[data.shipSlot.id] || Ship.fromRawData({});
+                    data.shipSlot = ships[data.shipSlot.id] || Ship.fromRawData({})
 
                 if (data.shipUpgradeSlot)
-                    data.shipUpgradeSlot = items[data.shipUpgradeSlot.id] || Item.fromRawData({});
+                    data.shipUpgradeSlot = items[data.shipUpgradeSlot.id] || Item.fromRawData({})
 
                 if (data.ultimateSlot)
-                    data.ultimateSlot = ultimates[data.ultimateSlot.id] || Item.fromRawData({});
+                    data.ultimateSlot = ultimates[data.ultimateSlot.id] || Item.fromRawData({})
 
                 if (data.weaponModifications)
                     data.weaponModifications = data.weaponModifications.map(i => {
@@ -300,8 +301,8 @@ export default class AssemblyDataProcessing {
                                 type: j.type,
                                 value: modifications[j.value] || null
                             };
-                        });
-                    });
+                        })
+                    })
 
                 if (data.armorModification)
                     data.armorModification = data.armorModification.map(i => {
@@ -310,8 +311,8 @@ export default class AssemblyDataProcessing {
                                 type: j.type,
                                 value: modifications[j.value] || null,
                             };
-                        });
-                    });
+                        })
+                    })
 
                 if (data.secondaryWeaponModifications)
                     data.secondaryWeaponModifications = data.secondaryWeaponModifications.map(i => {
@@ -320,26 +321,26 @@ export default class AssemblyDataProcessing {
                                 type: j.type,
                                 value: modifications[j.value] || null,
                             };
-                        });
-                    });
+                        })
+                    })
 
                 if (data.secondaryWeaponSlots)
                     data.secondaryWeaponSlots = data.secondaryWeaponSlots.map(i => {
-                        return i.id ? items[i.id] : Item.fromRawData({});
-                    });
+                        return i.id ? items[i.id] : Item.fromRawData({})
+                    })
 
                 if (data.weaponSlots)
                     data.weaponSlots = data.weaponSlots.map(i => {
-                        return i.id ? items[i.id] : Item.fromRawData({});
-                    });
+                        return i.id ? items[i.id] : Item.fromRawData({})
+                    })
 
                 if (data.armorSlot)
                     data.armorSlot = items[data.armorSlot.id] || Item.fromRawData({})
 
                 if (data.displaySlots)
                     data.displaySlots = data.displaySlots.map(i => {
-                        return i.id ? items[i.id] : Item.fromRawData({});
-                    });
+                        return i.id ? items[i.id] : Item.fromRawData({})
+                    })
 
                 return data;
             },
@@ -353,13 +354,13 @@ export default class AssemblyDataProcessing {
                     {
                         condition: () => {
                             let length = data.secondaryWeaponSlots?.length <= 0
-                            return (data.secondaryWeaponSlots as Array).filter(i => !i.id).length != length
+                            return (data.secondaryWeaponSlots<any>).filter((i: { id: any; }) => !i.id).length != length
                         }, required: false, message: 'secondaryWeaponEmpty'
                     },
                     {
                         condition: () => {
                             let length = data.weaponSlots?.length
-                            return length <= 0 || (data.weaponSlots as Array).filter(i => !i.id).length == length
+                            return length <= 0 || (data.weaponSlots<any>).filter((i: { id: any; }) => !i.id).length == length
                         }, required: false, message: 'weaponAllEmpty'
                     },
                     {
@@ -381,14 +382,14 @@ export default class AssemblyDataProcessing {
                     {
                         condition: () => {
                             let length = data.displaySlots?.length
-                            return length <= 0 || (data.displaySlots as Array).filter(i => !i.id).length == length
+                            return length <= 0 || (data.displaySlots<any>).filter(i => !i.id).length == length
                         }, required: false, message: 'displayAllEmpty'
                     }
                 ];
 
                 const resultVerify = rules
                     .filter(rule => rule.condition())
-                    .map(({required, message}) => ({required, message}));
+                    .map(({required, message}) => ({required, message}))
 
                 const requiredCount = resultVerify
                     .filter(item => item.required)
@@ -406,18 +407,18 @@ export default class AssemblyDataProcessing {
      * 导出数据
      * @param dataRaw
      */
-    public export(dataRaw) {
+    public export(dataRaw: any) {
         const data = toRaw(dataRaw)
 
         let version = data?.__version || AssemblyDataProcessing.nowVersion;
         if (version && data) {
-            const filteredData = {};
+            const filteredData: any = {};
             this.processing[version].allowedFields.forEach(field => {
                 if (data[field] !== undefined) {
                     filteredData[field] = data[field];
                 }
-            });
-            return this.processing[version].get(filteredData);
+            })
+            return this.processing[version].get(filteredData)
         }
         return data;
     }
@@ -427,18 +428,18 @@ export default class AssemblyDataProcessing {
      * @param dataRaw
      * @param useVersion
      */
-    public import(dataRaw, useVersion?: string) {
+    public import(dataRaw: any, useVersion?: string) {
         const data = toRaw(dataRaw)
 
         let version = useVersion || data?.__version || AssemblyDataProcessing.nowVersion;
         if (version && data) {
-            const filteredData = {};
+            const filteredData: any = {};
             this.processing[version].allowedFields.forEach(field => {
                 if (data[field] !== undefined) {
                     filteredData[field] = data[field];
                 }
-            });
-            return this.processing[version].set(filteredData);
+            })
+            return this.processing[version].set(filteredData)
         }
         return data
     }
@@ -448,11 +449,11 @@ export default class AssemblyDataProcessing {
      * @param dataRaw
      * @param useVersion
      */
-    public verify(dataRaw, useVersion?: string): boolean {
+    public verify(dataRaw: any, useVersion?: string): boolean {
         const data = toRaw(dataRaw)
 
         let version = useVersion || data?.__version || AssemblyDataProcessing.nowVersion;
 
-        return this.processing[version].verify(data);
+        return this.processing[version].verify(data)
     }
 }

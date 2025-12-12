@@ -87,9 +87,9 @@ const delAssembly = async () => {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.code
-      }));
+      }))
     }
-    console.error(e);
+    console.error(e)
   } finally {
     delAssemblyLoading.value = false
     deleteDialog.value = false

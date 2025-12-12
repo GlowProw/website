@@ -25,8 +25,8 @@ let show = ref(false),
 const onFinish = () => {
   const src = data.value.src
 
-  onPanelToggle();
-  emit('finish', src);
+  onPanelToggle()
+  emit('finish', src)
 }
 
 /**

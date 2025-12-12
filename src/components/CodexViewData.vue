@@ -182,7 +182,7 @@ let data: any = ref([]),
  */
 const onProcessedData = computed(() => {
       let d = originalData.value;
-      let searchValue = filterData.value.keyValue.toLowerCase();
+      let searchValue = filterData.value.keyValue.toLowerCase()
       let filterItemTypes = filterData.value.types;
       let filterItemCategorys = filterData.value.categorys;
       let filterRarities = filterData.value.rarities;
@@ -225,31 +225,31 @@ const onProcessedData = computed(() => {
         // 检查类型匹配
         const typeMatch = filterItemTypes.length === 0 ||
             (i.type && filterItemTypes.includes(i.type)) ||
-            (!i.type && filterItemTypes.includes('none'));
+            (!i.type && filterItemTypes.includes('none'))
 
         // 检查类别匹配
         const categoryMatch = filterItemCategorys.length === 0 ||
             (i.category && filterItemCategorys.includes(i.category)) ||
-            (!i.category && filterItemCategorys.includes('none'));
+            (!i.category && filterItemCategorys.includes('none'))
 
         // 检查稀有度匹配
         const rarityMatch = filterRarities.length === 0 ||
             (i.rarity && filterRarities.includes(i.rarity)) ||
-            (!i.rarity && filterRarities.includes('none'));
+            (!i.rarity && filterRarities.includes('none'))
 
         // 检查tier匹配
         const tierMatch = filterTiers.length === 0 ||
             (i.tier && filterTiers.includes(i.tier.toString())) ||
-            (!i.tier && filterTiers.includes('none'));
+            (!i.tier && filterTiers.includes('none'))
 
         // 检查Set匹配
         const setMatch = filterSets.length === 0 ||
-            (i.set && i.set.id && filterSets.includes(i.set.id));
+            (i.set && i.set.id && filterSets.includes(i.set.id))
 
         // 检查地点匹配 - 修正逻辑
         const locationMatch = filterLocations.length === 0 ||
             (i.obtainable && Array.isArray(i.obtainable) &&
-                i.obtainable.some(location => filterLocations.includes(location)));
+                i.obtainable.some(location => filterLocations.includes(location)))
 
         // 检查赛季匹配
         let seasonMatch = true;
@@ -269,7 +269,7 @@ const onProcessedData = computed(() => {
         // 返回匹配结果
         return keywordMatch && typeMatch && categoryMatch && rarityMatch &&
             tierMatch && seasonMatch && setMatch && locationMatch;
-      });
+      })
 
       // 排序
       const sortedData = filteredData.sort((a, b) => {
@@ -293,10 +293,10 @@ const onProcessedData = computed(() => {
         if (aValue < bValue) return order === 'asc' ? -1 : 1;
         if (aValue > bValue) return order === 'asc' ? 1 : -1;
         return 0;
-      });
+      })
 
       if (isSearching.value)
-        exceedingItemsCount.value = Math.max(sortedData.length - maximumSearchCount, 0);
+        exceedingItemsCount.value = Math.max(sortedData.length - maximumSearchCount, 0)
       return isSearching.value ? sortedData.slice(0, maximumSearchCount) : sortedData;
     }),
     maximumSearchCount = route.query.debug ? 10000 : 100,
@@ -306,38 +306,38 @@ const onProcessedData = computed(() => {
         switch (type) {
             // 手稿
           case "ship":
-            d = d.concat(Object.values(ships));
+            d = d.concat(Object.values(ships))
             break;
           case "item":
-            d = d.concat(Object.values(items));
+            d = d.concat(Object.values(items))
             break;
           case "commoditie":
-            d = d.concat(Object.values(commodities));
+            d = d.concat(Object.values(commodities))
             break;
           case "material":
-            d = d.concat(Object.values(materials));
+            d = d.concat(Object.values(materials))
             break;
           case "cosmetic":
-            d = d.concat(Object.values(cosmetics));
+            d = d.concat(Object.values(cosmetics))
             break;
           case "ultimate":
-            d = d.concat(Object.values(ultimates));
+            d = d.concat(Object.values(ultimates))
             break;
           case "modification":
-            d = d.concat(Object.values(modifications));
+            d = d.concat(Object.values(modifications))
             break;
           case "set":
-            d = d.concat(Object.values(sets));
+            d = d.concat(Object.values(sets))
             break;
             // 地图
           case "treasureMap":
-            d = d.concat(Object.values(treasureMaps));
+            d = d.concat(Object.values(treasureMaps))
             break;
           case "mapLocation":
-            d = d.concat(Object.values(mapLocation));
+            d = d.concat(Object.values(mapLocation))
             break;
           case "npc":
-            d = d.concat(Object.values(npcs));
+            d = d.concat(Object.values(npcs))
             break;
         }
       })
@@ -364,8 +364,8 @@ const onProcessedData = computed(() => {
         !isTier.value &&
         !isSeason.value &&
         !isSet.value &&
-        !isLocation.value
-    );
+        !isLocation.value)
+
 
 watch(() => route.query, (newQuery) => {
   if (newQuery.key) {
@@ -373,25 +373,25 @@ watch(() => route.query, (newQuery) => {
     filterData.value.keyValue = newQuery.key as string;
   }
   if (newQuery.type) {
-    filterData.value.types = Array.isArray(newQuery.type) ? newQuery.type : newQuery.type.split(',');
+    filterData.value.types = Array.isArray(newQuery.type) ? newQuery.type : newQuery.type.split(',')
   }
   if (newQuery.category) {
-    filterData.value.categorys = Array.isArray(newQuery.category) ? newQuery.category : newQuery.category.split(',');
+    filterData.value.categorys = Array.isArray(newQuery.category) ? newQuery.category : newQuery.category.split(',')
   }
   if (newQuery.rarity) {
-    filterData.value.rarities = Array.isArray(newQuery.rarity) ? newQuery.rarity : newQuery.rarity.split(',');
+    filterData.value.rarities = Array.isArray(newQuery.rarity) ? newQuery.rarity : newQuery.rarity.split(',')
   }
   if (newQuery.tier) {
-    filterData.value.tiers = Array.isArray(newQuery.tier) ? newQuery.tier : newQuery.tier.split(',');
+    filterData.value.tiers = Array.isArray(newQuery.tier) ? newQuery.tier : newQuery.tier.split(',')
   }
   if (newQuery.season) {
-    filterData.value.seasons = Array.isArray(newQuery.season) ? newQuery.season : newQuery.season.split(',');
+    filterData.value.seasons = Array.isArray(newQuery.season) ? newQuery.season : newQuery.season.split(',')
   }
   if (newQuery.location) {
-    filterData.value.locations = Array.isArray(newQuery.location) ? newQuery.location : newQuery.location.split(',');
+    filterData.value.locations = Array.isArray(newQuery.location) ? newQuery.location : newQuery.location.split(',')
   }
   if (newQuery.set) {
-    filterData.value.sets = Array.isArray(newQuery.set) ? newQuery.set : newQuery.set.split(',');
+    filterData.value.sets = Array.isArray(newQuery.set) ? newQuery.set : newQuery.set.split(',')
   }
   if (newQuery.sortField) {
     filterData.value.sortField = newQuery.sortField as SortField;
@@ -399,7 +399,7 @@ watch(() => route.query, (newQuery) => {
   if (newQuery.sortOrder) {
     filterData.value.sortOrder = newQuery.sortOrder as SortOrder;
   }
-}, {immediate: true});
+}, {immediate: true})
 
 onMounted(() => {
   onInitTypeLoad()
@@ -448,15 +448,14 @@ const onInitTierLoad = () => {
  */
 const onInitSeasonLoad = () => {
   let d = originalData.value
-  const allSeasons = new Set<string>();
-
+  const allSeasons = new Set<string>()
   d.forEach(i => {
     if (i.bySeason) {
-      allSeasons.add(i.bySeason.id);
+      allSeasons.add(i.bySeason.id)
     }
-  });
+  })
 
-  filterData.value.seasonTags = [...allSeasons].sort();
+  filterData.value.seasonTags = [...allSeasons].sort()
 }
 
 /**
@@ -464,15 +463,15 @@ const onInitSeasonLoad = () => {
  */
 const onInitSetLoad = () => {
   let d = originalData.value
-  const allSet = new Set<string>();
+  const allSet = new Set<string>()
 
   d.forEach(i => {
     if (i.set) {
-      allSet.add(i.set.id);
+      allSet.add(i.set.id)
     }
-  });
+  })
 
-  filterData.value.setTags = [...allSet].sort();
+  filterData.value.setTags = [...allSet].sort()
 }
 
 /**
@@ -480,19 +479,19 @@ const onInitSetLoad = () => {
  */
 const onInitLocationLoad = () => {
   let d = originalData.value
-  const allLocation = new Set<string>();
+  const allLocation = new Set<string>()
 
   d.forEach(i => {
     if (i.obtainable && Array.isArray(i.obtainable)) {
       i.obtainable.forEach(location => {
         if (location && typeof location === 'string') {
-          allLocation.add(location);
+          allLocation.add(location)
         }
-      });
+      })
     }
-  });
+  })
 
-  filterData.value.locationTags = [...allLocation].sort();
+  filterData.value.locationTags = [...allLocation].sort()
 }
 
 /**
@@ -504,25 +503,25 @@ const updateQueryParams = () => {
     query.key = filterData.value.keyValue;
   }
   if (filterData.value.types.length > 0) {
-    query.type = filterData.value.types.join(',');
+    query.type = filterData.value.types.join(',')
   }
   if (filterData.value.categorys.length > 0) {
-    query.category = filterData.value.categorys.join(',');
+    query.category = filterData.value.categorys.join(',')
   }
   if (filterData.value.rarities.length > 0) {
-    query.rarity = filterData.value.rarities.join(',');
+    query.rarity = filterData.value.rarities.join(',')
   }
   if (filterData.value.tiers.length > 0) {
-    query.tier = filterData.value.tiers.join(',');
+    query.tier = filterData.value.tiers.join(',')
   }
   if (filterData.value.seasons.length > 0) {
-    query.season = filterData.value.seasons.join(',');
+    query.season = filterData.value.seasons.join(',')
   }
   if (filterData.value.locations.length > 0) {
-    query.location = filterData.value.locations.join(',');
+    query.location = filterData.value.locations.join(',')
   }
   if (filterData.value.sets.length > 0) {
-    query.set = filterData.value.sets.join(',');
+    query.set = filterData.value.sets.join(',')
   }
   if (filterData.value.sortField !== 'dateAdded') {
     query.sortField = filterData.value.sortField;
@@ -533,7 +532,7 @@ const updateQueryParams = () => {
 
   router.replace({
     query: Object.keys(query).length > 0 ? query : undefined
-  });
+  })
 }
 
 /**
@@ -557,7 +556,7 @@ const resetAllFilters = () => {
   filterData.value.page = 1;
 
   // 更新URL
-  updateQueryParams();
+  updateQueryParams()
 }
 
 /**
@@ -579,18 +578,18 @@ const onLoad = ({done}) => {
 
   // 确保不会超出数组范围
   if (startIndex >= allData.length) {
-    done('empty');
+    done('empty')
     return;
   }
 
-  const newData = allData.slice(startIndex, endIndex);
-  data.value.push(...newData);
+  const newData = allData.slice(startIndex, endIndex)
+  data.value.push(...newData)
   filterData.value.page++;
 
   if (data.value.length >= allData.length) {
-    done('empty');
+    done('empty')
   } else {
-    done('ok');
+    done('ok')
   }
 }
 
@@ -612,7 +611,7 @@ const onSearchItem = () => {
 
   router.replace({
     query: Object.keys(query).length > 0 ? query : undefined
-  });
+  })
 }
 
 /**
@@ -620,7 +619,7 @@ const onSearchItem = () => {
  */
 const onFilterItemType = (value) => {
   filterData.value.types = value;
-  updateQueryParams();
+  updateQueryParams()
   // 类型筛选时重置分页数据
   if (value.length > 0) {
     data.value = []
@@ -632,7 +631,7 @@ const onFilterItemType = (value) => {
  */
 const onFilterCategory = (value) => {
   filterData.value.categorys = value;
-  updateQueryParams();
+  updateQueryParams()
   // 类别筛选时重置分页数据
   if (value.length > 0) {
     data.value = []
@@ -644,7 +643,7 @@ const onFilterCategory = (value) => {
  */
 const onFilterRarity = (value) => {
   filterData.value.rarities = value;
-  updateQueryParams();
+  updateQueryParams()
   // 稀有度筛选时重置分页数据
   if (value.length > 0) {
     data.value = []
@@ -656,7 +655,7 @@ const onFilterRarity = (value) => {
  */
 const onFilterTier = (value) => {
   filterData.value.tiers = value;
-  updateQueryParams();
+  updateQueryParams()
   // tier筛选时重置分页数据
   if (value.length > 0) {
     data.value = []
@@ -668,7 +667,7 @@ const onFilterTier = (value) => {
  */
 const onFilterSeason = (value) => {
   filterData.value.seasons = value;
-  updateQueryParams();
+  updateQueryParams()
   // 赛季筛选时重置分页数据
   if (value.length > 0) {
     data.value = []
@@ -680,7 +679,7 @@ const onFilterSeason = (value) => {
  */
 const onFilterSet = (value) => {
   filterData.value.sets = value;
-  updateQueryParams();
+  updateQueryParams()
   // set筛选时重置分页数据
   if (value.length > 0) {
     data.value = []
@@ -692,7 +691,7 @@ const onFilterSet = (value) => {
  */
 const onFilterLocation = (value) => {
   filterData.value.locations = value;
-  updateQueryParams();
+  updateQueryParams()
   // 地点筛选时重置分页数据
   if (value.length > 0) {
     data.value = []
@@ -705,7 +704,7 @@ const onFilterLocation = (value) => {
 const onSort = (field: SortField, order: SortOrder) => {
   filterData.value.sortField = field;
   filterData.value.sortOrder = order;
-  updateQueryParams();
+  updateQueryParams()
 }
 </script>
 

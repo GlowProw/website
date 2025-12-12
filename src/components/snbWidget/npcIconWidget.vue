@@ -85,7 +85,7 @@ const getIconId = (id) => {
 
 const {targetElement, isVisible} = useIntersectionObserver({
   threshold: .7,
-});
+})
 </script>
 
 <template>

@@ -23,17 +23,17 @@ const props = defineProps<{ id: string }>(),
  */
 const getTreasureMapSetObtainables = () => {
   let d = treasureMaps.value
-  const allLocation = new Set<string>();
+  const allLocation = new Set<string>()
 
   d.forEach(i => {
     if (i.obtainable && Array.isArray(i.obtainable)) {
       i.obtainable.forEach(location => {
         if (location && typeof location === 'string') {
-          allLocation.add(location);
+          allLocation.add(location)
         }
-      });
+      })
     }
-  });
+  })
 
   return [...allLocation].sort()
 }

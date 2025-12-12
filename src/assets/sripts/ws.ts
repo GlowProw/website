@@ -16,10 +16,10 @@ export default class Ws {
     private eventListeners: any = {};
 
     public start(): void {
-        const url = this.buildWebSocketUrl();
-        console.log("WebSocket connecting to:", url);
-        this.socket = new WebSocket(url);
-        this.setupEventHandlers();
+        const url = this.buildWebSocketUrl()
+        console.log("WebSocket connecting to:", url)
+        this.socket = new WebSocket(url)
+        this.setupEventHandlers()
     }
 
     private buildWebSocketUrl(): string {
@@ -31,8 +31,8 @@ export default class Ws {
             this.socket.onopen = (event) => {
                 this.isConnected = true;
                 this.reconnectAttempts = 0;
-                this.emit('open', event);
-                console.log("WebSocket connected");
+                this.emit('open', event)
+                console.log("WebSocket connected")
 
                 if (callback)
                     callback({code: 0})
@@ -41,9 +41,9 @@ export default class Ws {
         if (this.socket)
             this.socket.onclose = (event) => {
                 this.isConnected = false;
-                this.emit('close', event);
-                console.log("WebSocket disconnected");
-                this.handleReconnect();
+                this.emit('close', event)
+                console.log("WebSocket disconnected")
+                this.handleReconnect()
 
                 if (callback)
                     callback({code: -1})
@@ -51,8 +51,8 @@ export default class Ws {
 
         if (this.socket)
             this.socket.onerror = (event) => {
-                this.emit('error', event);
-                console.error("WebSocket error:", event);
+                this.emit('error', event)
+                console.error("WebSocket error:", event)
 
                 if (callback)
                     callback({code: -1})
@@ -60,29 +60,29 @@ export default class Ws {
 
         if (this.socket)
             this.socket.onmessage = (event) => {
-                this.emit('message', event);
+                this.emit('message', event)
             };
     }
 
     handleReconnect(callback?: any): void {
         if (this.reconnectAttempts < this.maxReconnectAttempts) {
             this.reconnectAttempts++;
-            console.log(`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`);
+            console.log(`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`)
 
             setTimeout(() => {
-                const url = this.buildWebSocketUrl();
-                this.socket = new WebSocket(url);
+                const url = this.buildWebSocketUrl()
+                this.socket = new WebSocket(url)
 
                 this.setupEventHandlers(({code}: { code: any }) => {
                     if (callback)
                         callback({code})
-                });
+                })
 
                 if (callback)
                     callback({code: 0})
-            }, this.reconnectInterval);
+            }, this.reconnectInterval)
         } else {
-            console.log("Max reconnection attempts reached");
+            console.log("Max reconnection attempts reached")
             if (callback)
                 callback({code: -1})
         }
@@ -103,10 +103,10 @@ export default class Ws {
     public send(data: string | ArrayBuffer | Blob | ArrayBufferView): boolean {
         if (this.connected) {
             if (this.socket)
-                this.socket.send(data);
+                this.socket.send(data)
             return true;
         }
-        console.warn("Cannot send message - WebSocket is not connected");
+        console.warn("Cannot send message - WebSocket is not connected")
         return false;
     }
 
@@ -115,14 +115,14 @@ export default class Ws {
         if (!this.eventListeners[event]) {
             this.eventListeners[event] = [];
         }
-        this.eventListeners[event]!.push(listener);
+        this.eventListeners[event]!.push(listener)
     }
 
     // 移除事件监听
     public off<K extends keyof WebSocketEventMap>(event: K, listener: WebSocketEventMap[K]): void {
         const listeners = this.eventListeners[event];
         if (listeners) {
-            this.eventListeners[event] = listeners.filter((l: any) => l !== listener);
+            this.eventListeners[event] = listeners.filter((l: any) => l !== listener)
         }
     }
 
@@ -130,13 +130,13 @@ export default class Ws {
     private emit<K extends keyof WebSocketEventMap>(event: K, ...args: Parameters<WebSocketEventMap[K]>): void {
         const listeners = this.eventListeners[event];
         if (listeners) {
-            listeners.forEach((listener: any) => listener(...args));
+            listeners.forEach((listener: any) => listener(...args))
         }
     }
 
     // 关闭连接
     public close(code?: number, reason?: string): void {
         if (this.socket)
-            this.socket.close(code, reason);
+            this.socket.close(code, reason)
     }
 }

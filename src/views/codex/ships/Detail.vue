@@ -24,7 +24,7 @@ import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
 import ItemMaterials from "@/components/snbWidget/itemMaterials.vue";
 import shipAvailableUpgradeWidget from "@/components/snbWidget/shipAvailableUpgradeWidget.vue";
 
-const shipImages = import.meta.glob('@glow-prow-assets/ships/*.png', {eager: true});
+const shipImages = import.meta.glob('@glow-prow-assets/ships/*.png', {eager: true})
 
 const
     {t, messages} = useI18n(),

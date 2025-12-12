@@ -22,6 +22,7 @@ import UserAvatar from "@/components/UserAvatar.vue";
 import AssemblyMainSubjectView from "@/components/AssemblyMainSubjectView.vue";
 import {apis} from "@/assets/sripts/index";
 import {ApiError} from "@/assets/types/Api";
+import AdsWidget from "@/components/ads/google/index.vue";
 
 const route = useRoute(),
     router = useRouter(),
@@ -100,9 +101,9 @@ const getAssemblyDetail = async (force: boolean = false) => {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.code
-      }));
+      }))
     }
-    console.error(e);
+    console.error(e)
   } finally {
     assemblyLoading.value = false
   }
@@ -251,6 +252,8 @@ const onPenPassword = () => {
   <!-- Assembly Preview E -->
 
   <v-container v-if="detailData.isVisibility">
+    <AdsWidget class="my-5" id="none"></AdsWidget>
+
     <div>
       <v-row>
         <v-col cols="12" sm="12" lg="8" xl="8">
@@ -276,6 +279,8 @@ const onPenPassword = () => {
                     :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
                     v-model="detailData.description"
                     placeholder="输入描述描述"></Textarea>
+
+          <AdsWidget class="my-5" id="none"></AdsWidget>
 
           <template v-if="detailData.assembly.attr.isComment">
             <v-divider>{{ t('comment.title') }}</v-divider>
@@ -326,6 +331,8 @@ const onPenPassword = () => {
   </v-container>
 
   <v-container v-if="!detailData.isPassword && !detailData.isVisibility && !detailData.assembly">
+    <AdsWidget class="my-5" id="none"></AdsWidget>
+
     <v-card variant="text" class="pa-10 text-center">
       <v-icon icon="mdi-alert-circle-outline" class="text-amber" size="120"></v-icon>
       <h1 class="mt-10">抱歉,此配装不存在或不公开</h1>

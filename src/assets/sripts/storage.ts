@@ -24,7 +24,7 @@ export default class Storage {
              */
             set: (name: string, value: any): { code: number; data: { time: number; value: any; }; } => {
                 let data = {value, time: time.update().nowTimeStamp};
-                sessionStorage.setItem(this.STORAGENAME + name, JSON.stringify(data));
+                sessionStorage.setItem(this.STORAGENAME + name, JSON.stringify(data))
                 return {code: 0, data};
             },
             /**
@@ -34,8 +34,8 @@ export default class Storage {
              */
             get: (name: string): { code: number; data?: any; } => {
                 let data: any | null = JSON.parse(
-                    sessionStorage.getItem(this.STORAGENAME + name)
-                );
+                    <any>sessionStorage.getItem(this.STORAGENAME + name))
+
                 let result: { code: number, data?: any } = {code: 0, data: data};
                 if (data == null || data === '' || data === undefined) {
                     result = {code: -1}
@@ -71,7 +71,7 @@ export default class Storage {
              */
             set: (name: string, value: any): { code: number; data: { time: number; value: any; }; } => {
                 let data = {value, time: time.update().nowTimeStamp}
-                localStorage.setItem(this.STORAGENAME + name, JSON.stringify(data));
+                localStorage.setItem(this.STORAGENAME + name, JSON.stringify(data))
 
                 return {code: 0, data};
             },
@@ -82,8 +82,8 @@ export default class Storage {
              */
             get: (name: string): { code: number; data?: any; } => {
                 let data: any | null = JSON.parse(
-                    localStorage.getItem(this.STORAGENAME + name)
-                );
+                    <any>localStorage.getItem(this.STORAGENAME + name))
+
                 let result: { code: number, data?: any } = {code: 0, data};
                 if (data == null || data === '' || data === undefined) {
                     result = {code: -1}
@@ -94,7 +94,7 @@ export default class Storage {
              * session 删除
              */
             rem: (name: string) => {
-                localStorage.removeItem(this.STORAGENAME + name);
+                localStorage.removeItem(this.STORAGENAME + name)
             },
             /**
              * get sessionStorage Keys

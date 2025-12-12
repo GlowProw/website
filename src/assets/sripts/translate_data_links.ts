@@ -1,5 +1,5 @@
 import {Ship} from "glow-prow-data";
-import {Item} from "glow-prow-data/src/entity/Items.ts";
+import {Item} from "glow-prow-data/src/entity/Items";
 import {useI18n} from "vue-i18n";
 
 /**
@@ -11,7 +11,7 @@ export class TranslateDataLinks {
     public item(data: Item): string {
         const {locale} = useI18n()
 
-        return `${Prefix}/${locale.value.replace('-','_')}/item.json`
+        return `${Prefix}/${locale.value.replace('-', '_')}/item.json`
     }
 
     public ship(data: Ship) {

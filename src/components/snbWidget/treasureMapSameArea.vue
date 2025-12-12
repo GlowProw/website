@@ -16,8 +16,8 @@ const props = defineProps<{ data: TreasureMap }>(),
  * @param arr2
  */
 const hasIntersection = (arr1: string[], arr2: string[]): boolean => {
-  const set2 = new Set(arr2);
-  return arr1.some(item => set2.has(item));
+  const set2 = new Set(arr2)
+  return arr1.some(item => set2.has(item))
 };
 </script>
 

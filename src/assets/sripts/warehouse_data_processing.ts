@@ -19,7 +19,7 @@ export default class WarehouseDataProcessing {
     private processing: WarehouseDataProcessingMap = {
         '0.0.1': {
             get: (data) => {
-                data.map(i => {
+                data.map((i: any) => {
                     return {
                         ...i,
                         id: i && i.id || null
@@ -30,7 +30,7 @@ export default class WarehouseDataProcessing {
                 return data;
             },
             set: (data) => {
-                data.map(i => {
+                data.map((i: any) => {
                     return {
                         ...i,
                         id: items[i && i.id] || null
@@ -52,12 +52,12 @@ export default class WarehouseDataProcessing {
      * 导出数据
      * @param dataRaw
      */
-    public export(dataRaw) {
+    public export(dataRaw: any) {
         const data = toRaw(dataRaw)
 
         let version = data?.__version || WarehouseDataProcessing.nowVersion;
         if (version && data && Object.keys(data).length > 0) {
-            return this.processing[version].get(data);
+            return this.processing[version].get(data)
         }
         return data;
     }
@@ -67,12 +67,12 @@ export default class WarehouseDataProcessing {
      * @param dataRaw
      * @param useVersion
      */
-    public import(dataRaw, useVersion?: string) {
+    public import(dataRaw: any, useVersion?: string) {
         const data = toRaw(dataRaw)
 
         let version = useVersion || data?.__version || WarehouseDataProcessing.nowVersion;
         if (version && data && Object.keys(data).length > 0) {
-            return this.processing[version].set(data);
+            return this.processing[version].set(data)
         }
         return data
     }
@@ -82,11 +82,11 @@ export default class WarehouseDataProcessing {
      * @param dataRaw
      * @param useVersion
      */
-    public verify(dataRaw, useVersion?: string): boolean {
+    public verify(dataRaw: any, useVersion?: string): boolean {
         const data = toRaw(dataRaw)
 
         let version = useVersion || data?.__version || WarehouseDataProcessing.nowVersion;
 
-        return this.processing[version].verify(data);
+        return this.processing[version].verify(data)
     }
 }

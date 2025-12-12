@@ -6,7 +6,7 @@ import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
 
-const props = defineProps(nodeViewProps);
+const props = defineProps(nodeViewProps)
 const {t} = useI18n(),
     {asString, sanitizeString} = useI18nUtils()
 </script>

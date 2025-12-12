@@ -323,27 +323,27 @@ interface ComparingImage {
   index: number;
 }
 
-const mockCollectionMap: Record<string, { default: string }> = import.meta.glob('@glow-prow-assets/treasureMaps/**/*.*', { eager: true });
+const mockCollectionMap: Record<string, { default: string }> = import.meta.glob('@glow-prow-assets/treasureMaps/**/*.*', { eager: true })
 const treasureMaps = TreasureMaps;
-const { t } = useI18n();
-const { mobile } = useDisplay();
+const { t } = useI18n()
+const { mobile } = useDisplay()
 
-const model = ref(false);
-const searched = ref(false);
-const searching = ref(false);
-const queryImageData = ref<QueryImageData | null>(null);
-const searchResults = ref<SearchResult[]>([]);
-const searchMinimumCondition = ref(50);
-const searchRangeMax = ref(100);
-const selectedAlgorithm = ref<string>('feature-matching');
-const imageList = ref<string[]>([]);
-const imageFeaturesCache = ref<Map<number, any>>(new Map());
-const selectedCategories = ref<string[]>([]);
-const selectedObtainables = ref<string[]>([]);
+const model = ref(false)
+const searched = ref(false)
+const searching = ref(false)
+const queryImageData = ref<QueryImageData | null>(null)
+const searchResults = ref<SearchResult[]>([])
+const searchMinimumCondition = ref(50)
+const searchRangeMax = ref(100)
+const selectedAlgorithm = ref<string>('feature-matching')
+const imageList = ref<string[]>([])
+const imageFeaturesCache = ref<Map<number, any>>(new Map())
+const selectedCategories = ref<string[]>([])
+const selectedObtainables = ref<string[]>([])
 
-const currentProgress = ref(0);
-const totalImages = ref(0);
-const currentComparingImage = ref<ComparingImage | null>(null);
+const currentProgress = ref(0)
+const totalImages = ref(0)
+const currentComparingImage = ref<ComparingImage | null>(null)
 
 const algorithms: Algorithm[] = [
   { value: 'perceptual-hash', label: '感知哈希 (快速)' },
@@ -354,12 +354,12 @@ const algorithms: Algorithm[] = [
 
 const hasActiveFilters = computed(() => {
   return selectedCategories.value.length > 0 || selectedObtainables.value.length > 0;
-});
+})
 
 const progressPercentage = computed(() => {
   if (totalImages.value === 0) return 0;
-  return Math.round((currentProgress.value / totalImages.value) * 100);
-});
+  return Math.round((currentProgress.value / totalImages.value) * 100)
+})
 
 const categoryOptions = computed(() => [
   { value: 'recent' },
@@ -367,24 +367,24 @@ const categoryOptions = computed(() => [
   { value: 'veryOld' },
   { value: 'legend' }
 ].map(i => {
-  i['title'] = t(`codex.treasureMap.categorys.${i.value}`);
+  i['title'] = t(`codex.treasureMap.categorys.${i.value}`)
   return i;
-}));
+}))
 
 const obtainableOptions = computed(() => {
-  const allObtainables = new Set<string>();
+  const allObtainables = new Set<string>()
   Object.values(treasureMaps).forEach((map: TreasureMapData) => {
-    map.obtainable.forEach(obtain => allObtainables.add(obtain));
-  });
+    map.obtainable.forEach(obtain => allObtainables.add(obtain))
+  })
   return Array.from(allObtainables).map(obtain => ({
     value: obtain,
     title: obtain
-  }));
-});
+  }))
+})
 
 const filteredImageList = computed(() => {
   return imageList.value.filter((url) => {
-    const imageId = getImageIdFromUrl(url);
+    const imageId = getImageIdFromUrl(url)
     const mapData = treasureMaps[imageId];
     if (!mapData) return false;
 
@@ -396,32 +396,32 @@ const filteredImageList = computed(() => {
     // 来源筛选
     if (selectedObtainables.value.length > 0) {
       const hasMatchingObtainable = mapData.obtainable.some(obtain =>
-          selectedObtainables.value.includes(obtain)
-      );
+          selectedObtainables.value.includes(obtain))
+
       if (!hasMatchingObtainable) return false;
     }
 
     return true;
-  });
-});
+  })
+})
 
 onMounted(() => {
-  imageList.value = Object.entries(mockCollectionMap).map(([path, module]) => module.default);
+  imageList.value = Object.entries(mockCollectionMap).map(([path, module]) => module.default)
   console.log(imageList.value )
-});
+})
 
 onUnmounted(() => {
   // 清理Blob URL防止内存泄漏
   if (queryImageData.value?.url && queryImageData.value.url.startsWith('blob:')) {
-    URL.revokeObjectURL(queryImageData.value.url);
+    URL.revokeObjectURL(queryImageData.value.url)
   }
-});
+})
 
 watch(() => queryImageData.value, (value, oldValue) => {
   if (value && value !== oldValue) {
-    searchSimilarImages();
+    searchSimilarImages()
   }
-});
+})
 
 /**
  * 打开对话框
@@ -435,7 +435,7 @@ const openDialog = () => {
  */
 const closeDialog = () => {
   model.value = false;
-  resetSearch();
+  resetSearch()
 };
 
 /**
@@ -464,25 +464,25 @@ const getImageIdFromUrl = (url: string): string => {
  */
 const loadImageToImageData = (imageUrl: string): Promise<ImageData> => {
   return new Promise((resolve, reject) => {
-    const img = new Image();
+    const img = new Image()
     img.crossOrigin = 'Anonymous';
     img.onload = () => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')
       if (!ctx) {
-        reject(new Error('Failed to get canvas context'));
+        reject(new Error('Failed to get canvas context'))
         return;
       }
 
       canvas.width = img.width;
       canvas.height = img.height;
-      ctx.drawImage(img, 0, 0);
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      resolve(imageData);
+      ctx.drawImage(img, 0, 0)
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+      resolve(imageData)
     };
     img.onerror = reject;
     img.src = imageUrl;
-  });
+  })
 };
 
 /**
@@ -493,32 +493,32 @@ const onQueryImageUpload = async (event: Event) => {
   if (!target.files || target.files.length === 0) return;
 
   const file = target.files[0];
-  const imageUrl = URL.createObjectURL(file);
+  const imageUrl = URL.createObjectURL(file)
 
   try {
     // 等待图片加载
     await new Promise<void>((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => resolve();
-      img.onerror = () => reject(new Error('图片加载失败'));
+      const img = new Image()
+      img.onload = () => resolve()
+      img.onerror = () => reject(new Error('图片加载失败'))
       img.src = imageUrl;
-    });
+    })
 
     // 根据算法类型预计算特征
     const features: Partial<QueryImageData> = {};
 
     switch (selectedAlgorithm.value) {
       case 'perceptual-hash':
-        features.hash = await getImageHash(imageUrl);
+        features.hash = await getImageHash(imageUrl)
         break;
       case 'color-histogram':
-        const colorImageData = await loadImageToImageData(imageUrl);
-        features.colorHistogram = computeColorHistogram(colorImageData);
+        const colorImageData = await loadImageToImageData(imageUrl)
+        features.colorHistogram = computeColorHistogram(colorImageData)
         break;
       case 'structural-similarity':
       case 'feature-matching':
-        const structImageData = await loadImageToImageData(imageUrl);
-        features.structuralFeatures = computeStructuralFeatures(structImageData);
+        const structImageData = await loadImageToImageData(imageUrl)
+        features.structuralFeatures = computeStructuralFeatures(structImageData)
         break;
     }
 
@@ -532,8 +532,8 @@ const onQueryImageUpload = async (event: Event) => {
     currentProgress.value = 0;
     currentComparingImage.value = null;
   } catch (error) {
-    console.error('图片上传失败:', error);
-    URL.revokeObjectURL(imageUrl);
+    console.error('图片上传失败:', error)
+    URL.revokeObjectURL(imageUrl)
   }
 };
 
@@ -546,16 +546,16 @@ const getOrCreateImageFeatures = async (imgUrl: string, index: number): Promise<
   }
 
   // 加载图片并计算所有特征
-  const imageData = await loadImageToImageData(imgUrl);
+  const imageData = await loadImageToImageData(imgUrl)
   const features: any = {};
 
   // 预计算所有可能用到的特征（缓存优化）
-  features.hash = await getImageHash(imgUrl);
-  features.colorHistogram = computeColorHistogram(imageData);
-  features.structuralFeatures = computeStructuralFeatures(imageData);
-  features.blockFeatures = computeBlockFeatures(imageData);
+  features.hash = await getImageHash(imgUrl)
+  features.colorHistogram = computeColorHistogram(imageData)
+  features.structuralFeatures = computeStructuralFeatures(imageData)
+  features.blockFeatures = computeBlockFeatures(imageData)
 
-  imageFeaturesCache.value.set(index, features);
+  imageFeaturesCache.value.set(index, features)
   return features;
 };
 
@@ -597,7 +597,7 @@ const searchSimilarImages = async () => {
     // 并行处理所有图片比较（按顺序但异步）
     for (let index = 0; index < filteredList.length; index++) {
       const imgUrl = filteredList[index];
-      const imageId = getImageIdFromUrl(imgUrl);
+      const imageId = getImageIdFromUrl(imgUrl)
       const mapData = treasureMaps[imageId];
 
       // 更新当前比较的图片信息
@@ -610,8 +610,8 @@ const searchSimilarImages = async () => {
         };
       }
 
-      const features = await getOrCreateImageFeatures(imgUrl, index);
-      const similarity = calculateSimilarity(queryImageData.value, features);
+      const features = await getOrCreateImageFeatures(imgUrl, index)
+      const similarity = calculateSimilarity(queryImageData.value, features)
 
       if (mapData) {
         results.push({
@@ -622,7 +622,7 @@ const searchSimilarImages = async () => {
           rarity: mapData.rarity,
           category: mapData.category,
           obtainable: mapData.obtainable
-        });
+        })
       }
 
       // 更新进度
@@ -633,10 +633,10 @@ const searchSimilarImages = async () => {
     searchResults.value = results
         .filter(item => item.similarity >= searchMinimumCondition.value)
         .sort((a, b) => b.similarity - a.similarity)
-        .slice(0, searchRangeMax.value);
+        .slice(0, searchRangeMax.value)
 
   } catch (error) {
-    console.error('搜索过程中出错:', error);
+    console.error('搜索过程中出错:', error)
   } finally {
     searching.value = false;
     searched.value = true;
@@ -653,7 +653,7 @@ const openModel = () => {
 
 defineExpose({
   openModel
-});
+})
 </script>
 
 <style scoped>

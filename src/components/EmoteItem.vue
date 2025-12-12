@@ -26,12 +26,12 @@ export default {
     }
   },
   created() {
-    this.getInquireEmojiItem(this.id);
+    this.getInquireEmojiItem(this.id)
   },
   watch: {
     id: {
       handler(val) {
-        this.getInquireEmojiItem(val);
+        this.getInquireEmojiItem(val)
       }
     }
   },
@@ -52,7 +52,7 @@ export default {
             isCustom: false,
           };
 
-      const typeList = this.emojis.child.findLast(i => i.name === type);
+      const typeList = this.emojis.child.findLast(i => i.name === type)
       if (typeList && typeList.child)
         for (let index = 0; index <= typeList.child.length; index++) {
           let i = typeList.child[index];
@@ -113,7 +113,7 @@ export default {
               :class="[
                  isSpan ? 'emote-none-padding': ''
               ]"
-              :style="`width: ${size}px;height: ${size}px;background-image: url(${emojiItemData.imageUrl});background-size: ${emojiItemData.config.size};background-position: ${emojiItemData.config.position}`"
+              :style="`width: ${size}px;height: ${size}px;background-image: url(${emojiItemData.imageUrl}background-size: ${emojiItemData.config.size};background-position: ${emojiItemData.config.position}`"
               v-if="emojiItemData">
           <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
                :alt="emojiItemData.name"/>
@@ -140,7 +140,7 @@ export default {
                 :class="[
                    isSpan ? 'emote-none-padding': ''
                 ]"
-                :style="`width: ${size * 3}px;height: ${size * 3}px;background-image: url(${emojiItemData.imageUrl});background-size: ${emojiItemData.config.size};background-position: ${emojiItemData.config.position}`"
+                :style="`width: ${size * 3}px;height: ${size * 3}px;background-image: url(${emojiItemData.imageUrl}background-size: ${emojiItemData.config.size};background-position: ${emojiItemData.config.position}`"
                 v-if="emojiItemData">
             <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
                  :alt="emojiItemData.name"/>

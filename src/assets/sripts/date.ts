@@ -10,7 +10,7 @@ export default class Time {
     }
 
     get nowTimeStamp() {
-        return this.DATE.getTime();
+        return this.DATE.getTime()
     }
 
     update() {
@@ -26,7 +26,7 @@ export default class Time {
     }
 
     get appStartDate() {
-        return new Date(this.appStart);
+        return new Date(this.appStart)
     }
 
     /**
@@ -34,22 +34,22 @@ export default class Time {
      * @returns {number | null} 剩余天数，如果不在赛季内则返回 null
      *
      */
-    calcRemainingDays(endData): number | null {
-        const endDate = new Date(endData);
-        const now = new Date();
+    calcRemainingDays(endData: string | number | Date): number | null {
+        const endDate = new Date(endData)
+        const now = new Date()
         const currentDate = new Date(
             now.getFullYear(),
             now.getMonth(),
-            now.getDate()
-        );
+            now.getDate())
+
         const targetPureDate = new Date(
             endDate.getFullYear(),
             endDate.getMonth(),
-            endDate.getDate()
-        );
+            endDate.getDate())
 
-        const remainingMs = targetPureDate.getTime() - currentDate.getTime();
-        const remainingDays = Math.floor(remainingMs / 86400000);
+
+        const remainingMs = targetPureDate.getTime() - currentDate.getTime()
+        const remainingDays = Math.floor(remainingMs / 86400000)
 
         return remainingDays >= 0 ? remainingDays : 0;
     }
