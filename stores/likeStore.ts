@@ -1,5 +1,5 @@
 import {defineStore} from 'pinia';
-import {http} from "@/assets/sripts/index.ts";
+import {http} from "@/assets/sripts/index";
 import {useHttpToken} from "@/assets/sripts/http_util";
 import {useAuthStore} from "./userAccountStore";
 

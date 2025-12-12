@@ -262,25 +262,4 @@ onUnmounted(() => {
 .nail-container.is-absolute {
   position: absolute !important;
 }
-
-@media (max-width: 768px) {
-  .nail-widget {
-    flex-direction: column !important;
-  }
-
-  .nail-area {
-    width: 100% !important;
-    margin: 20px 0 0 0 !important;
-    height: auto;
-  }
-
-  .nail-container {
-    position: relative !important;
-    top: auto !important;
-    left: auto !important;
-    right: auto !important;
-    bottom: auto !important;
-    width: 100% !important;
-  }
-}
 </style>

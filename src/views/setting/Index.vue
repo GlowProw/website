@@ -30,7 +30,12 @@ let tabs = ref([
       {
         name: t('setting.storage.title'),
         value: 'storage',
-        icon: 'mdi-database-outline'
+        icon: 'mdi-database'
+      },
+      {
+        name: t('about.title'),
+        value: 'about',
+        icon: 'mdi-information'
       },
       // {
       //   name: t('setting.notification.title'),

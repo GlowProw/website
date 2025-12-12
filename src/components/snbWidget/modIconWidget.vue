@@ -1,35 +1,40 @@
 <script setup lang="ts">
 
-import {onMounted, ref, watch} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {useAssetsStore} from "~/stores/assetsStore";
 import Loading from "@/components/Loading.vue";
+import {useAppStore} from "~/stores/appStore";
 
 const modImages = import.meta.glob('@/assets/images/snb/modTypeIcons/*.*', {eager: true})
-const
-    props = withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
       id: string,
-      isClickOpenDetail?: boolean,
-      isShowOpenDetail?: boolean,
+      isOpenDetail?: boolean,
+      isOpenNewWindow?: boolean,
       isShowDescription?: boolean,
       margin?: number,
       padding?: number
     }>(), {
       id: 'dhow',
-      isClickOpenDetail: true,
-      isShowOpenDetail: true,
+      isOpenDetail: true,
+      isOpenNewWindow: false,
       isShowDescription: true,
       margin: 1,
       padding: 1
     }),
+    appStore = useAppStore(),
     {t} = useI18n(),
     {modifications: modAssets} = useAssetsStore()
 
 let modsData = ref({
-  icon: null,
-  model: false,
-  panel: {}
-})
+      icon: null,
+      model: false,
+      panel: {}
+    }),
+    isOpenNewWindow = computed({
+      get: () => appStore.itemOpenNewWindow || props.isOpenNewWindow,
+      set: (value) => appStore.toggleItemOpenNewWindow(value)
+    })
 
 watch(() => props.id, () => {
   onReady()
@@ -59,7 +64,8 @@ const onReady = async () => {
 
 <template>
   <v-card
-      :to="isClickOpenDetail ? `/codex/mod/${id}` : ''"
+      :to="isOpenDetail ? `/codex/mod/${id}` : ''"
+      :target="isOpenNewWindow ? '_blank' : '_self'"
       target="_blank"
       width="100%"
       :class="[

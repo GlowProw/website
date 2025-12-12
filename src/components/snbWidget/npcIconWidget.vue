@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
-import {onMounted, type Ref, ref, watch} from "vue";
+import {computed, onMounted, type Ref, ref, watch} from "vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useIntersectionObserver} from "@/assets/sripts/intersection_observer";
 import {rarity} from "@/assets/sripts/index";
@@ -12,11 +12,13 @@ import LightRays from "../LightRays.vue"
 import NpcName from "@/components/snbWidget/npcName.vue";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import {Npc, Npcs} from "glow-prow-data";
+import {useAppStore} from "~/stores/appStore";
 
 const
     {asString, sanitizeString} = useI18nUtils(),
     route = useRoute(),
     router = useRouter(),
+    appStore = useAppStore(),
     {t} = useI18n(),
     {npcs: npcsAssets, raritys: raritysAssets} = useAssetsStore(),
     props = withDefaults(defineProps<{
@@ -24,6 +26,7 @@ const
       id?: string,
       isShowOpenDetail?: boolean,
       isOpenDetail?: boolean,
+      isOpenNewWindow?: boolean,
       isShowTooltip?: boolean,
       padding?: number,
       margin?: number
@@ -31,6 +34,7 @@ const
       data: null,
       isShowOpenDetail: true,
       isOpenDetail: true,
+      isOpenNewWindow: false,
       isShowTooltip: true,
       padding: 0,
       margin: 1
@@ -42,15 +46,20 @@ const
       "trader": ['rempahTrader', 'rogueTrader'],
       "cache": ['warehouse', 'cache'],
       "theHelm": ['managerOfLePontMuet', 'helmLiaison']
-    }
+    },
+
+    // 稀有度
+    rarityColorConfig = rarity.color
 
 let npcsCardData = ref({
       icon: '',
     }),
     i: Ref<Npc | null> = ref(null),
 
-    // 稀有度
-    rarityColorConfig = rarity.color
+    isOpenNewWindow = computed({
+      get: () => appStore.itemOpenNewWindow || props.isOpenNewWindow,
+      set: (value) => appStore.toggleItemOpenNewWindow(value)
+    })
 
 watch(() => props.id, () => {
   onReady()
@@ -109,6 +118,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
               `pa-${props.padding}`,
           ]"
           :to="isOpenDetail ? `/codex/npc/${i.key}` : ''"
+          :target="isOpenNewWindow ? '_blank' : '_self'"
           v-bind="activatorProps"
           width="100%">
         <div class="d-flex align-center justify-center h-100">

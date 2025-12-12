@@ -130,7 +130,7 @@ const onCodexHistory = () => {
                 <ItemSlotBase size="130px" class="d-flex justify-center align-center">
                   <CosmeticIconWidget
                       size="110"
-                      :id="cosmeticDetailData.id" :isClickOpenDetail="false" :isShowOpenDetail="false"></CosmeticIconWidget>
+                      :id="cosmeticDetailData.id" :isOpenDetail="false" :isShowOpenDetail="false"></CosmeticIconWidget>
                 </ItemSlotBase>
 
                 <ItemSlotBase size="63px" v-if="cosmeticDetailData?.set && cosmeticDetailData.set.id">

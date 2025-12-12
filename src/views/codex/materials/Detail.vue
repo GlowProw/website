@@ -133,7 +133,7 @@ const onCodexHistory = () => {
                 <ItemSlotBase size="130px" class="d-flex justify-center align-center">
                   <MaterialIconWidget
                       size="110"
-                      :id="materialDetailData.id" :isClickOpenDetail="false" :isShowOpenDetail="false"></MaterialIconWidget>
+                      :id="materialDetailData.id" :isOpenDetail="false" :isShowOpenDetail="false"></MaterialIconWidget>
                 </ItemSlotBase>
               </div>
               <v-col>

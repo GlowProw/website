@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
-import {onMounted, type Ref, ref, watch} from "vue";
+import {computed, onMounted, type Ref, ref, watch} from "vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useIntersectionObserver} from "@/assets/sripts/intersection_observer";
 import {rarity} from "@/assets/sripts/index";
@@ -12,6 +12,7 @@ import LightRays from "../LightRays.vue"
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import {MapLocation, MapLocations} from "glow-prow-data";
 import MapLocationNameWidget from "@/components/snbWidget/mapLocationNameWidget.vue";
+import {useAppStore} from "~/stores/appStore";
 
 const mapImages = import.meta.glob('/src/assets/images/map/*.*', {eager: true})
 
@@ -20,12 +21,14 @@ const
     {serializationMap} = useAssetsStore(),
     route = useRoute(),
     router = useRouter(),
+    appStore = useAppStore(),
     {t} = useI18n(),
     {raritys: raritysAssets} = useAssetsStore(),
     props = withDefaults(defineProps<{
       id: string,
       isShowOpenDetail?: boolean,
       isOpenDetail?: boolean,
+      isOpenNewWindow?: boolean,
       isShowTooltip?: boolean,
       padding?: number,
       margin?: number
@@ -33,11 +36,15 @@ const
       id: '',
       isShowOpenDetail: true,
       isOpenDetail: true,
+      isOpenNewWindow: false,
       isShowTooltip: true,
       padding: 0,
       margin: 1
     }),
-    mapLocations: MapLocations = MapLocations
+    mapLocations: MapLocations = MapLocations,
+
+    // 稀有度
+    rarityColorConfig = rarity.color
 
 let mapLocationsCardData = ref({
       icon: '',
@@ -45,8 +52,10 @@ let mapLocationsCardData = ref({
     mapIcons = ref({}),
     i: Ref<MapLocation | null> = ref(null),
 
-    // 稀有度
-    rarityColorConfig = rarity.color
+    isOpenNewWindow = computed({
+      get: () => appStore.itemOpenNewWindow || props.isOpenNewWindow,
+      set: (value) => appStore.toggleItemOpenNewWindow(value)
+    })
 
 
 watch(() => props.id, () => {
@@ -91,7 +100,8 @@ const {targetElement, isVisible} = useIntersectionObserver({
           width="100%"
           v-bind="activatorProps"
           :color="`hsl(from ${rarityColorConfig[i?.rarity]} h s calc(l * .15))`"
-          :to="isOpenDetail ? `/codex/mapLocation/${i?.id}` : null"
+          :to="isOpenDetail ? `/codex/mapLocation/${i?.id}` : ''"
+          :target="isOpenNewWindow ? '_blank' : '_self'"
           :class="[
               'prohibit-drag',
               `ma-${props.margin}`,

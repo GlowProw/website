@@ -41,19 +41,20 @@ const getConfig = () => {
     <slot></slot>
   </div>
 
-  <v-dialog max-width="1024"
-            z-index="51"
+  <v-dialog z-index="51"
             class="global-search"
-            content-class="pt-8"
+            content-class="pt-8 overflow-y-auto"
             v-model="model">
     <template v-slot:default>
-      <SearchView @close="model = !model">
-        <template v-slot:close>
-          <v-btn icon variant="tonal" class="ml-5" @click="model = false">
-            <v-icon icon="mdi-close"/>
-          </v-btn>
-        </template>
-      </SearchView>
+      <v-container >
+        <SearchView @close="model = !model">
+          <template v-slot:close>
+            <v-btn icon variant="tonal" class="ml-5" @click="model = false">
+              <v-icon icon="mdi-close"/>
+            </v-btn>
+          </template>
+        </SearchView>
+      </v-container>
     </template>
   </v-dialog>
 </template>

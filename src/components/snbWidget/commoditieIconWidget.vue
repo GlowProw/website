@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
-import {onMounted, type Ref, ref, watch} from "vue";
+import {computed, onMounted, type Ref, ref, watch} from "vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useIntersectionObserver} from "@/assets/sripts/intersection_observer";
 import {rarity} from "@/assets/sripts/index";
@@ -14,40 +14,47 @@ import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
 
-import {Commodities} from "glow-prow-data";
+import {Commodities, Commodity} from "glow-prow-data";
 import CommoditieName from "@/components/snbWidget/commoditieName.vue";
+import {useAppStore} from "~/stores/appStore";
 
 const
     {asString, sanitizeString} = useI18nUtils(),
     route = useRoute(),
     router = useRouter(),
+    appStore = useAppStore(),
     {t} = useI18n(),
     {commodities: commoditiesAssets, raritys: raritysAssets} = useAssetsStore(),
     props = withDefaults(defineProps<{
       id: string,
-      isShowOpenDetail?: boolean,
       isOpenDetail?: boolean,
+      isOpenNewWindow?: boolean,
+      isShowOpenDetail?: boolean,
       isShowTooltip?: boolean,
       padding?: number,
       margin?: number
     }>(), {
       id: '',
-      isShowOpenDetail: true,
       isOpenDetail: true,
+      isOpenNewWindow: false,
+      isShowOpenDetail: true,
       isShowTooltip: true,
       padding: 0,
       margin: 1
     }),
-    commodities: Commodities = Commodities
-
-let commoditiesCardData = ref({
-      icon: '',
-    }),
-    i: Ref<Commoditie | null> = ref(null),
+    commodities: Commodities = Commodities,
 
     // 稀有度
     rarityColorConfig = rarity.color
 
+let commoditiesCardData = ref({
+      icon: '',
+    }),
+    i: Ref<Commodity | null> = ref(null),
+    isOpenNewWindow = computed({
+      get: () => appStore.itemOpenNewWindow || props.isOpenNewWindow,
+      set: (value) => appStore.toggleItemOpenNewWindow(value)
+    })
 
 watch(() => props.id, () => {
   onReady()
@@ -90,7 +97,8 @@ const {targetElement, isVisible} = useIntersectionObserver({
           width="100%"
           v-bind="activatorProps"
           :color="`hsl(from ${rarityColorConfig[i?.rarity]} h s calc(l * .15))`"
-          :to="isOpenDetail ? `/codex/commoditie/${i?.id}` : null"
+          :to="isOpenDetail ? `/codex/commoditie/${i?.id}` : ''"
+          :target="isOpenNewWindow ? '_blank' : '_self'"
           :class="[
               'prohibit-drag',
               `ma-${props.margin}`,

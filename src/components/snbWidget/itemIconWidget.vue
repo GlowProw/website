@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
-import {onMounted, type Ref, ref, watch} from "vue";
+import {computed, onMounted, type Ref, ref, watch} from "vue";
 import {Item, Items} from "glow-prow-data/src/entity/Items.ts";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useIntersectionObserver} from "@/assets/sripts/intersection_observer";
@@ -16,17 +16,20 @@ import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
 import ItemDamageTypeWidget from "@/components/snbWidget/itemDamageTypeWidget.vue";
+import {useAppStore} from "~/stores/appStore";
 
 const
     {asString, sanitizeString} = useI18nUtils(),
     route = useRoute(),
     router = useRouter(),
+    appStore = useAppStore(),
     {t} = useI18n(),
     {items: itemsAssets, raritys: raritysAssets} = useAssetsStore(),
     props = withDefaults(defineProps<{
       id: string,
       isShowOpenDetail?: boolean,
       isOpenDetail?: boolean,
+      isOpenNewWindow?: boolean,
       isShowTooltip?: boolean,
       padding?: number,
       margin?: number
@@ -34,20 +37,25 @@ const
       id: 'culverin1',
       isShowOpenDetail: true,
       isOpenDetail: true,
+      isOpenNewWindow: false,
       isShowTooltip: true,
       padding: 0,
       margin: 1
     }),
-    items: Items = Items
+    items: Items = Items,
+
+    // 稀有度
+    rarityColorConfig = rarity.color
 
 let itemsCardData = ref({
       icon: '',
     }),
     i: Ref<Item | null> = ref(null),
 
-    // 稀有度
-    rarityColorConfig = rarity.color
-
+    isOpenNewWindow = computed({
+      get: () => appStore.itemOpenNewWindow || props.isOpenNewWindow,
+      set: (value) => appStore.toggleItemOpenNewWindow(value)
+    })
 
 watch(() => props.id, () => {
   onReady()
@@ -90,7 +98,8 @@ const {targetElement, isVisible} = useIntersectionObserver({
           width="100%"
           v-bind="activatorProps"
           :color="`hsl(from ${rarityColorConfig[i?.rarity]} h s calc(l * .15))`"
-          :to="isOpenDetail ? `/codex/item/${i?.id}` : null"
+          :to="isOpenDetail ? `/codex/item/${i?.id}` : ''"
+          :target="isOpenNewWindow ? '_blank' : '_self'"
           :class="[
               'prohibit-drag',
               `ma-${props.margin}`,

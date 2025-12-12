@@ -3,7 +3,7 @@ import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
 import Loading from "../Loading.vue";
 import LightRays from "../LightRays.vue"
-import {onMounted, type Ref, ref, watch} from "vue";
+import {computed, onMounted, type Ref, ref, UnwrapRef, watch} from "vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useIntersectionObserver} from "@/assets/sripts/intersection_observer";
 import {useAssetsStore} from "~/stores/assetsStore";
@@ -14,6 +14,7 @@ import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 import {rarity} from "@/assets/sripts/index";
 import CosmeticPiecesTagWidget from "@/components/snbWidget/cosmeticPiecesTagWidget.vue";
 import CosmeticEffectTagWidget from "@/components/snbWidget/cosmeticEffectTagWidget.vue";
+import {useAppStore} from "~/stores/appStore";
 
 const
     {asString, sanitizeString} = useI18nUtils(),
@@ -25,6 +26,7 @@ const
       id: string,
       isShowOpenDetail?: boolean,
       isOpenDetail?: boolean,
+      isOpenNewWindow?: boolean,
       isShowTooltip?: boolean,
       padding?: number,
       margin?: number
@@ -32,20 +34,25 @@ const
       id: 'culverin1',
       isShowOpenDetail: true,
       isOpenDetail: true,
+      isOpenNewWindow: false,
       isShowTooltip: true,
       padding: 0,
       margin: 1,
     }),
-    cosmetics = Cosmetics
-
-let cosmeticCardData = ref({
-      icon: '',
-    }),
-    i: Ref<cosmetic> = ref(Cosmetic.fromRawData({})),
+    appStore = useAppStore(),
+    cosmetics = Cosmetics,
 
     // 稀有度
     rarityColorConfig = rarity.color
 
+let cosmeticCardData = ref({
+      icon: '',
+    }),
+    i: Ref<UnwrapRef<Cosmetic> | Cosmetic> = ref(Cosmetic.fromRawData({})),
+    isOpenNewWindow = computed({
+      get: () => appStore.itemOpenNewWindow || props.isOpenNewWindow,
+      set: (value) => appStore.toggleItemOpenNewWindow(value)
+    })
 
 watch(() => props.id, () => {
   onReady()
@@ -86,7 +93,8 @@ const {targetElement, isVisible} = useIntersectionObserver({
           ref="targetElement"
           width="100%"
           v-bind="activatorProps"
-          :to="isOpenDetail ? `/codex/cosmetic/${i.id}` : null"
+          :to="isOpenDetail ? `/codex/cosmetic/${i.id}` : ''"
+          :target="isOpenNewWindow ? '_blank' : '_self'"
           :class="[
               'prohibit-drag',
               `ma-${props.margin}`,

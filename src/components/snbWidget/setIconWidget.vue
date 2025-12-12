@@ -1,18 +1,20 @@
 <script setup lang="ts">
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
-import Loading from "../Loading.vue";
-import LightRays from "../LightRays.vue"
-import {onMounted, type Ref, ref, watch} from "vue";
+
+import {computed, onMounted, type Ref, ref, watch} from "vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useIntersectionObserver} from "@/assets/sripts/intersection_observer";
 import {useAssetsStore} from "~/stores/assetsStore";
-import CosmeticName from "@/components/snbWidget/cosmeticName.vue";
-import BtnWidget from "@/components/snbWidget/btnWidget.vue";
-import {Sets} from "glow-prow-data";
-import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
+import {Sets, Set} from "glow-prow-data";
 import {rarity} from "@/assets/sripts/index";
+
+import BtnWidget from "@/components/snbWidget/btnWidget.vue";
+import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 import SetName from "@/components/snbWidget/setName.vue";
+import Loading from "../Loading.vue";
+import LightRays from "../LightRays.vue"
+import {useAppStore} from "~/stores/appStore";
 
 const
     {asString, sanitizeString} = useI18nUtils(),
@@ -22,29 +24,35 @@ const
     router = useRouter(),
     props = withDefaults(defineProps<{
       id: string,
-      isShowOpenDetail?: boolean,
       isOpenDetail?: boolean,
+      isOpenNewWindow?: boolean,
+      isShowOpenDetail?: boolean,
       isShowTooltip?: boolean,
       padding?: number,
       margin?: number
     }>(), {
       id: 'culverin1',
-      isShowOpenDetail: true,
       isOpenDetail: true,
+      isOpenNewWindow: false,
+      isShowOpenDetail: true,
       isShowTooltip: true,
       padding: 0,
       margin: 1,
     }),
-    sets = Sets
-
-let setCardData = ref({
-      icon: '',
-    }),
-    i: Ref<Set> = ref(null),
+    appStore = useAppStore(),
+    sets = Sets,
 
     // 稀有度
     rarityColorConfig = rarity.color
 
+let setCardData = ref({
+      icon: '',
+    }),
+    i: Ref<Set> = ref(Set),
+    isOpenNewWindow = computed({
+      get: () => appStore.itemOpenNewWindow || props.isOpenNewWindow,
+      set: (value) => appStore.toggleItemOpenNewWindow(value)
+    })
 
 watch(() => props.id, () => {
   onReady()
@@ -56,13 +64,12 @@ onMounted(() => {
 
 const onReady = async () => {
   i.value = sets[props.id] || null
-  setCardData.value.icon = `https://skullandbonestools.de/api/imagesservice?src=vanities%2F${props.id}Set&width=256`
 
-  // if (assetsCosmetics && assetsCosmetics[props.id])
-  //   setCardData.value.icon = assetsCosmetics[props.id] || ''
-  // else {
-  //   setCardData.value.icon = `https://skullandbonestools.de/api/imagesservice?src=vanities%2F${props.id}&width=256`
-  // }
+  if (assetsCosmetics && assetsCosmetics[props.id])
+    setCardData.value.icon = assetsCosmetics[props.id] || ''
+  else {
+    setCardData.value.icon = `https://skullandbonestools.de/api/imagesservice?src=vanities%2F${props.id}&width=256`
+  }
 }
 
 const {targetElement, isVisible} = useIntersectionObserver({
@@ -72,7 +79,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
 
 <template>
   <v-tooltip
-      v-if="i && i.id"
+      v-if="i && i?.id"
       :disabled="!props.isShowTooltip"
       :offset="[40, 0]"
       location="right top"
@@ -86,7 +93,8 @@ const {targetElement, isVisible} = useIntersectionObserver({
           ref="targetElement"
           width="100%"
           v-bind="activatorProps"
-          :to="isOpenDetail ? `/codex/set/${i.id}` : null"
+          :to="isOpenDetail ? `/codex/set/${i.id}` : ''"
+          :target="isOpenNewWindow ? '_blank' : '_self'"
           :class="[
               'prohibit-drag',
               `ma-${props.margin}`,
@@ -116,9 +124,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
       </v-card>
     </template>
     <v-card class="demo-reel bg-black" flat border>
-      <div class="demo-reel-header pa-10 position-relative" :class="[
-                    `set-card-header-rarity-${i?.rarity}`
-                ]">
+      <div class="demo-reel-header pa-10 position-relative" :class="[`set-card-header-rarity-${i?.rarity}`]">
         <div class="v-skeleton-loader__bone v-skeleton-loader__image opacity-30 position-absolute left-0 top-0 w-100 h-100"></div>
 
         <h1 class="font-weight-bold">

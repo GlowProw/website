@@ -78,7 +78,7 @@ import SettingAdPage from '@/views/setting/Ad.vue'
 import SettingRoutinePage from '@/views/setting/Routine.vue'
 import SettingStoragePage from '@/views/setting/Storage.vue'
 
-import AboutPage from '@/views/About.vue'
+import AboutPage from '@/views/setting/About.vue'
 import NotFoundPage from '@/views/NotFound.vue';
 
 import Test from '@/views/Test.vue'
@@ -240,6 +240,11 @@ const routes: Readonly<RouteRecordRaw[]> = [
                         path: 'storage',
                         name: 'PortalSettingStorage',
                         component: SettingStoragePage,
+                    },
+                    {
+                        path: 'about',
+                        name: 'PortalSettingAbout',
+                        component: AboutPage,
                     }
                 ]
             },
@@ -592,7 +597,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
     {
         path: '/about',
         name: 'About',
-        component: AboutPage,
+        redirect: '/setting/about'
     },
 
     {

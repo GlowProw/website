@@ -34,6 +34,8 @@ import {Commodities} from "glow-prow-data/src/entity/Commodities";
 import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
 import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
 import ShipName from "@/components/snbWidget/shipName.vue";
+import HtmlLink from "@/components/HtmlLink.vue";
+import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 
 const {t} = useI18n(),
     os = useOS(),
@@ -637,7 +639,7 @@ defineExpose({
       <!-- 搜索输入框 E -->
 
       <!-- 查询条件展示 S -->
-      <div v-if="asConditions && parsedQuery.conditions.length > 0" class="conditions-container mb-3">
+      <div v-if="hasConditions && parsedQuery.conditions.length > 0" class="conditions-container mb-3">
         <div class="conditions-header">
           <span class="text-caption text-medium-emphasis">
             {{ t('search.conditions') }}
@@ -695,92 +697,92 @@ defineExpose({
       <v-col cols="12" v-if="Object.keys(searchResult).length > 0">
         <!-- 按类型循环显示 S -->
         <div v-for="(items, type) in searchResult" :key="type" class="mb-6">
-          <div class="d-block text-h6 primary--text mb-3 w-100">
-            <v-row align="center">
-              <v-col class="text-h6">
-                {{ t(`codex.${type}s.title`) }} ({{ items.length }})
-              </v-col>
-              <v-col cols="auto">
-                <v-btn icon :to="`/codex/${type}s?key=${searchValue}`" variant="text" @click="onCloseModel">
-                  {{ t('codex.more') }}
-                </v-btn>
-              </v-col>
-            </v-row>
-          </div>
+          <AffixBoxHasTitleView>
+            <v-list class="elevation-1">
+              <v-list-item
+                  v-for="(i, index) in items"
+                  :key="i.id || index"
+                  @click="onPage(i, type)"
+                  three-line>
+                <v-list-item-title class="font-weight-medium d-flex align-center">
+                  <ItemSlotBase size="30px" :padding="0" class="mr-2">
+                    <template v-if="type=='item'">
+                      <ItemIconWidget :id="i.id"></ItemIconWidget>
+                    </template>
+                    <template v-if="type=='ship'">
+                      <ShipIconWidget :id="i.id"></ShipIconWidget>
+                    </template>
+                    <template v-if="type=='commoditie'">
+                      <CommoditieIconWidget :id="i.id"></CommoditieIconWidget>
+                    </template>
+                    <template v-else-if="type=='material'">
+                      <MaterialIconWidget :id="i.id"></MaterialIconWidget>
+                    </template>
+                    <template v-else-if="type=='modification'">
+                      <ModIconWidget :id="i.id"></ModIconWidget>
+                    </template>
+                    <template v-else-if="type=='cosmetic'">
+                      <CosmeticIconWidget :id="i.id"></CosmeticIconWidget>
+                    </template>
+                    <template v-else-if="type=='ultimate'">
+                      <UltimateIconWidget :id="i.id"></UltimateIconWidget>
+                    </template>
+                    <template v-else-if="type=='mapLocation'">
+                      <MapLocationIconWidget :id="i.id"></MapLocationIconWidget>
+                    </template>
+                  </ItemSlotBase>
 
-          <v-list class="elevation-1">
-            <v-list-item
-                v-for="(i, index) in items"
-                :key="i.id || index"
-                @click="onPage(i, type)"
-                three-line>
-              <v-list-item-title class="font-weight-medium d-flex align-center">
-                <ItemSlotBase size="30px" :padding="0" class="mr-2">
                   <template v-if="type=='item'">
-                    <ItemIconWidget :id="i.id"></ItemIconWidget>
+                    <ItemName :id="i.id"></ItemName>
                   </template>
                   <template v-if="type=='ship'">
-                    <ShipIconWidget :id="i.id"></ShipIconWidget>
+                    <ShipName :id="i.id"></ShipName>
                   </template>
                   <template v-if="type=='commoditie'">
-                    <CommoditieIconWidget :id="i.id"></CommoditieIconWidget>
+                    <CommoditieName :id="i.id"></CommoditieName>
                   </template>
                   <template v-else-if="type=='material'">
-                    <MaterialIconWidget :id="i.id"></MaterialIconWidget>
+                    <MaterialName :id="i.id"></MaterialName>
                   </template>
                   <template v-else-if="type=='modification'">
-                    <ModIconWidget :id="i.id"></ModIconWidget>
+                    <ModName :id="i.id" :grade="i.grade"></ModName>
                   </template>
                   <template v-else-if="type=='cosmetic'">
-                    <CosmeticIconWidget :id="i.id"></CosmeticIconWidget>
+                    <CosmeticName :id="i.id"></CosmeticName>
                   </template>
                   <template v-else-if="type=='ultimate'">
-                    <UltimateIconWidget :id="i.id"></UltimateIconWidget>
+                    <UltimateName :id="i.id"></UltimateName>
                   </template>
                   <template v-else-if="type=='mapLocation'">
-                    <MapLocationIconWidget :id="i.id"></MapLocationIconWidget>
+                    <MapLocationNameWidget :id="i.id"></MapLocationNameWidget>
                   </template>
-                </ItemSlotBase>
+                </v-list-item-title>
 
-                <template v-if="type=='item'">
-                  <ItemName :id="i.id"></ItemName>
-                </template>
-                <template v-if="type=='ship'">
-                  <ShipName :id="i.id"></ShipName>
-                </template>
-                <template v-if="type=='commoditie'">
-                  <CommoditieName :id="i.id"></CommoditieName>
-                </template>
-                <template v-else-if="type=='material'">
-                  <MaterialName :id="i.id"></MaterialName>
-                </template>
-                <template v-else-if="type=='modification'">
-                  <ModName :id="i.id" :grade="i.grade"></ModName>
-                </template>
-                <template v-else-if="type=='cosmetic'">
-                  <CosmeticName :id="i.id"></CosmeticName>
-                </template>
-                <template v-else-if="type=='ultimate'">
-                  <UltimateName :id="i.id"></UltimateName>
-                </template>
-                <template v-else-if="type=='mapLocation'">
-                  <MapLocationNameWidget :id="i.id"></MapLocationNameWidget>
-                </template>
-              </v-list-item-title>
-
-              <!-- 显示需求材料 -->
-              <div v-if="i.required && Object.keys(i.required).length > 0" class="text-caption mt-1">
-                <strong>需求材料:</strong>
-                <span v-for="(amount, material) in i.required" :key="material" class="ml-2">
+                <!-- 显示需求材料 -->
+                <div v-if="i.required && Object.keys(i.required).length > 0" class="text-caption mt-1">
+                  <strong>需求材料:</strong>
+                  <span v-for="(amount, material) in i.required" :key="material" class="ml-2">
                   {{ material }}: {{ amount }}
                 </span>
-              </div>
+                </div>
 
-              <template v-slot:append>
-                <v-icon icon="mdi-arrow-right"></v-icon>
-              </template>
-            </v-list-item>
-          </v-list>
+                <template v-slot:append>
+                  <v-icon icon="mdi-arrow-right"></v-icon>
+                </template>
+              </v-list-item>
+            </v-list>
+
+            <template v-slot:title>
+              {{ t(`codex.${type}s.title`) }} ({{ items.length }})
+
+
+              <v-divider class="my-5"></v-divider>
+
+              <v-btn icon density="compact" :to="`/codex/${type}s?key=${searchValue}`" variant="text" @click="onCloseModel">
+                {{ t('codex.more') }}
+              </v-btn>
+            </template>
+          </AffixBoxHasTitleView>
         </div>
         <!-- 按类型循环显示 E -->
       </v-col>

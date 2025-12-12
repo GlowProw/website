@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import {onMounted, type Ref, ref, watch} from "vue";
+import {computed, onMounted, type Ref, ref, watch} from "vue";
 import {Ship, Ships} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 import {useRouter} from "vue-router";
@@ -13,10 +13,12 @@ import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import EmptyView from "../EmptyView.vue";
 import PerksWidget from "./perksWidget.vue";
 import ShipDescription from "@/components/snbWidget/shipDescription.vue";
+import {useAppStore} from "~/stores/appStore";
 
 const props = withDefaults(defineProps<{
       id: string,
-      isClickOpenDetail?: boolean,
+      isOpenDetail?: boolean,
+      isOpenNewWindow?: boolean,
       isShowOpenDetail?: boolean,
       isShowDescription?: boolean,
       isShowTooltip?: boolean,
@@ -24,7 +26,8 @@ const props = withDefaults(defineProps<{
       margin?: number
     }>(), {
       id: 'dhow',
-      isClickOpenDetail: true,
+      isOpenDetail: true,
+      isOpenNewWindow: false,
       isShowOpenDetail: true,
       isShowDescription: true,
       isShowTooltip: true,
@@ -33,6 +36,7 @@ const props = withDefaults(defineProps<{
     }),
     ships: Ships = Ships,
     router = useRouter(),
+    appStore = useAppStore(),
     {t} = useI18n(),
     {ships: shipsAssets} = useAssetsStore()
 
@@ -41,7 +45,11 @@ let shipCardData = ref({
       model: false,
       panel: null
     }),
-    shipData: Ref<Ship> = ref({})
+    shipData: Ref<Ship> = ref({}),
+    isOpenNewWindow = computed({
+      get: () => appStore.itemOpenNewWindow || props.isOpenNewWindow,
+      set: (value) => appStore.toggleItemOpenNewWindow(value)
+    })
 
 watch(() => props.id, () => {
   onReady()
@@ -78,7 +86,8 @@ const onReady = async () => {
       <v-card
           v-bind="activatorProps"
           width="100%"
-          :to="isClickOpenDetail ? `/codex/ship/${id}` : ''"
+          :to="isOpenDetail ? `/codex/ship/${id}` : ''"
+          :target="isOpenNewWindow ? '_blank' : '_self'"
           :class="[
               'prohibit-drag',
               `ma-${props.margin}`,

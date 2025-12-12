@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {onMounted, type Ref, ref, watch} from "vue";
+import {computed, onMounted, type Ref, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {useAssetsStore} from "~/stores/assetsStore";
 import {number, rarity} from "@/assets/sripts/index";
@@ -13,11 +13,13 @@ import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import MaterialName from "@/components/snbWidget/materialName.vue";
 import MaterialNameRarity from "@/components/snbWidget/materialNameRarity.vue";
 import router from "~/router";
+import {useAppStore} from "~/stores/appStore";
 
 const props = withDefaults(defineProps<{
       id: string | undefined,
       isShowOpenDetail?: boolean,
       isOpenDetail?: boolean,
+      isOpenNewWindow?: boolean,
       isShowTooltip?: boolean,
       imageType?: string,
       size?: string | number,
@@ -26,21 +28,30 @@ const props = withDefaults(defineProps<{
     }>(), {
       isShowOpenDetail: true,
       isOpenDetail: true,
+      isOpenNewWindow: false,
       isShowTooltip: true,
       size: 20,
       padding: 1,
       margin: 1
     }),
+    appStore = useAppStore(),
     {t} = useI18n(),
     {materials: materialsAssets, raritys: raritysAssets} = useAssetsStore(),
     materials = Materials,
+
+    // 稀有度
     rarityColorConfig = rarity.color
 
 let src = ref(''),
     materialsCardData = ref({
       icon: '',
     }),
-    i: Ref<Material | null> = ref(null)
+    i: Ref<Material | null> = ref(null),
+
+    isOpenNewWindow = computed({
+      get: () => appStore.itemOpenNewWindow || props.isOpenNewWindow,
+      set: (value) => appStore.toggleItemOpenNewWindow(value)
+    })
 
 watch(() => props.id, () => {
   onReady()
@@ -78,7 +89,8 @@ const onReady = async () => {
           width="100%"
           v-bind="activatorProps"
           :color="`hsl(from ${rarityColorConfig[i?.rarity]} h s calc(l * .15))`"
-          :to="isOpenDetail ? `/codex/material/${i?.id}` : null"
+          :to="isOpenDetail ? `/codex/material/${i?.id}` : ''"
+          :target="isOpenNewWindow ? '_blank' : '_self'"
           :class="[
               'prohibit-drag',
               `ma-${props.margin}`,

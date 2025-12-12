@@ -15,6 +15,7 @@ import UserAvatar from "@/components/UserAvatar.vue";
 import {ApiError} from "@/assets/types/Api";
 import {useNoticeStore} from "~/stores/noticeStore";
 import AdsWidget from "@/components/ads/google/index.vue";
+import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 
 const {t} = useI18n(),
     route = useRoute(),
@@ -186,10 +187,7 @@ const getBrowseList = async () => {
     <v-row>
       <v-col cols="12" md="3" lg="3">
         <!-- 配装筛选 S -->
-        <v-icon icon="mdi-filter"></v-icon>
-        {{ t('assembly.browse.filterTitle') }}
-
-        <div class="mt-3">
+        <AffixBoxHasTitleView>
           <v-row no-gutters>
             <v-col cols="8">
               <v-select
@@ -224,13 +222,17 @@ const getBrowseList = async () => {
           <v-btn block class="mt-2" @click="getBrowseList">
             {{ t('basic.button.submit') }}
           </v-btn>
-        </div>
+          <template v-slot:title>
+            <v-icon icon="mdi-filter"></v-icon>
+            {{ t('assembly.browse.filterTitle') }}
+          </template>
+        </AffixBoxHasTitleView>
         <!-- 配装筛选 E -->
 
-        <AdsWidget class="my-5" id="none"></AdsWidget>
+        <AdsWidget class="my-10" id="none2"></AdsWidget>
       </v-col>
-      <v-col cols="12" md="9" lg="9" class="position-relative">
-        <AdsWidget class="my-5" id="none"></AdsWidget>
+      <v-col cols="12" md="9" lg="9"  class="position-relative">
+        <AdsWidget class="mb-5" id="none"></AdsWidget>
 
         <v-row>
           <v-col cols="12" md="6" lg="6" v-for="(i, index) in browseData.data"
@@ -282,7 +284,7 @@ const getBrowseList = async () => {
           <EmptyView></EmptyView>
         </div>
 
-        <v-overlay class="h-100 d-flex justify-center align-center" contained :transition="false" v-model="browseLoading">
+        <v-overlay class="h-100 d-flex justify-center align-center bg-transparent" contained :transition="false" v-model="browseLoading">
           <Loading size="100"></Loading>
         </v-overlay>
 

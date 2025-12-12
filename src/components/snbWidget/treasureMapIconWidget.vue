@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
-import {onMounted, type Ref, ref, watch} from "vue";
+import {computed, onMounted, type Ref, ref, watch} from "vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useIntersectionObserver} from "@/assets/sripts/intersection_observer";
 import {rarity} from "@/assets/sripts/index";
@@ -12,6 +12,7 @@ import LightRays from "../LightRays.vue"
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import {TreasureMap, TreasureMaps} from "glow-prow-data";
 import TreasureMapName from "@/components/snbWidget/treasureMapName.vue";
+import {useAppStore} from "~/stores/appStore";
 
 const
     {asString, sanitizeString} = useI18nUtils(),
@@ -23,6 +24,7 @@ const
       id: string,
       isShowOpenDetail?: boolean,
       isOpenDetail?: boolean,
+      isOpenNewWindow?: boolean,
       isShowTooltip?: boolean,
       padding?: number,
       margin?: number
@@ -30,21 +32,25 @@ const
       id: '',
       isShowOpenDetail: true,
       isOpenDetail: true,
+      isOpenNewWindow: false,
       isShowTooltip: true,
       padding: 0,
       margin: 1
     }),
+    appStore = useAppStore(),
+    treasureMaps: TreasureMaps = TreasureMaps,
 
-    treasureMaps: TreasureMaps = TreasureMaps
+    // 稀有度
+    rarityColorConfig = rarity.color
 
 let treasureMapsCardData = ref({
       icon: '',
     }),
     i: Ref<TreasureMap | null> = ref(null),
-
-    // 稀有度
-    rarityColorConfig = rarity.color
-
+    isOpenNewWindow = computed({
+      get: () => appStore.itemOpenNewWindow || props.isOpenNewWindow,
+      set: (value) => appStore.toggleItemOpenNewWindow(value)
+    })
 
 watch(() => props.id, () => {
   onReady()
@@ -84,7 +90,8 @@ const {targetElement, isVisible} = useIntersectionObserver({
           width="100%"
           v-bind="activatorProps"
           :color="`hsl(from ${rarityColorConfig[i?.rarity]} h s calc(l * .15))`"
-          :to="isOpenDetail ? `/codex/treasureMap/${i?.id}` : null"
+          :to="isOpenDetail ? `/codex/treasureMap/${i?.id}` : ''"
+          :target="isOpenNewWindow ? '_blank' : '_self'"
           :class="[
               'prohibit-drag',
               `ma-${props.margin}`,

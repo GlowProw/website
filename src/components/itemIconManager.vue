@@ -3,6 +3,9 @@
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import {computed, onMounted, ref} from "vue";
+import {useAppStore} from "~/stores/appStore";
+
+const appStore = useAppStore()
 
 let iconSize = ref({}),
     sizes = ref([{
@@ -23,15 +26,17 @@ let iconSize = ref({}),
       margin: 1,
     }]),
     getSize = computed(() => `${iconSize.value.icon}px`),
-    itemIsOpenNewWindow = ref()
+    itemIsOpenNewWindow = ref(false)
+
+const openNewWindow = computed({
+  get: () => appStore.itemOpenNewWindow,
+  set: (value) => appStore.toggleItemOpenNewWindow(value)
+})
 
 onMounted(() => {
   iconSize.value = sizes.value[2]
+  itemIsOpenNewWindow.value = openNewWindow.value
 })
-
-const onItemIsOpenNewWindow = () => {
-
-}
 
 </script>
 
@@ -73,7 +78,7 @@ const onItemIsOpenNewWindow = () => {
     <v-row align="center">
       <v-col>新窗口</v-col>
       <v-col cols="auto">
-        <v-switch hide-details hide-spin-buttons inset v-model="itemIsOpenNewWindow" @update:modelValue="onItemIsOpenNewWindow"></v-switch>
+        <v-switch hide-details hide-spin-buttons inset v-model="openNewWindow"></v-switch>
       </v-col>
     </v-row>
 

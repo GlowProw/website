@@ -113,7 +113,7 @@ const onCodexHistory = () => {
             <v-row>
               <div>
                 <ItemSlotBase size="130px">
-                  <MapLocationIconWidget :id="mapLocationDetailData.id" :isClickOpenDetail="false" :isShowOpenDetail="false"></MapLocationIconWidget>
+                  <MapLocationIconWidget :id="mapLocationDetailData.id" :isOpenDetail="false" :isShowOpenDetail="false"></MapLocationIconWidget>
                 </ItemSlotBase>
               </div>
             </v-row>

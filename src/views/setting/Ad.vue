@@ -7,7 +7,7 @@ import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 
 <template>
   <v-row>
-    <v-col cols="4">
+    <v-col cols="12" lg="4">
       <AffixBoxHasTitleView>
         <p class="text-caption">网站为热爱发电，我们向玩家提供公益服务，并开源项目；为了持续性提供服务，需要玩家们对投入广告进行触发</p>
 
@@ -33,7 +33,7 @@ import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
         </template>
       </AffixBoxHasTitleView>
     </v-col>
-    <v-col>
+    <v-col cols="12" lg="8">
       <AffixBoxHasTitleView>
         <AdViewListWidget></AdViewListWidget>
 

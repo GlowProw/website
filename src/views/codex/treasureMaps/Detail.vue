@@ -139,7 +139,7 @@ const onCodexHistory = () => {
             <v-row>
               <v-col cols="auto">
                 <ItemSlotBase size="130px">
-                  <TreasureMapIconWidget :id="mapDetailData.id" :isClickOpenDetail="false" :isShowOpenDetail="false"></TreasureMapIconWidget>
+                  <TreasureMapIconWidget :id="mapDetailData.id" :isOpenDetail="false" :isShowOpenDetail="false"></TreasureMapIconWidget>
                 </ItemSlotBase>
               </v-col>
               <v-col>
@@ -161,7 +161,7 @@ const onCodexHistory = () => {
                       :is-open-detail="false"
                       :is-show-tooltip="false"
                       :is-show-open-detail="false"
-                      :isClickOpenDetail="false"
+                      :isOpenDetail="false"
                       :isShowOpenDetail="false"></TreasureMapIconWidget>
                 </ImageMagnifyingGlass>
               </v-col>

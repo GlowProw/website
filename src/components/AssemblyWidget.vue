@@ -476,7 +476,7 @@ defineExpose({
                                 v-if="workshopData.data.shipSlot && workshopData.data.shipSlot.id"
                                 :class="[workshopData.data.shipSlot && workshopData.data.shipSlot.id ? 'bg-amber' : '']">
                     <v-card class="w-100">
-                      <ShipIconWidget :id="workshopData.data.shipSlot.id" :is-show-tooltip="false" :isClickOpenDetail="false"/>
+                      <ShipIconWidget :id="workshopData.data.shipSlot.id" :is-show-tooltip="false" :isOpenDetail="false"/>
                     </v-card>
                   </ItemSlotBase>
 
@@ -986,7 +986,7 @@ defineExpose({
                         <v-card v-bind="propsHoverClose" class="position-relative" width="80">
                           <ItemSlotBase size="80px" class="pa-2"
                                         v-if="workshopData.data.ultimateSlot && workshopData.data.ultimateSlot.id">
-                            <UltimateIconWidget :id="workshopData.data.ultimateSlot.id" :isClickOpenDetail="false"></UltimateIconWidget>
+                            <UltimateIconWidget :id="workshopData.data.ultimateSlot.id" :isOpenDetail="false"></UltimateIconWidget>
                           </ItemSlotBase>
                           <div class="text-center text-caption text-grey w-100 " :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
                             <UltimateName :id="workshopData.data.ultimateSlot.id"></UltimateName>
@@ -1015,7 +1015,7 @@ defineExpose({
                                 :class="[
                                           workshopData.ultimateSelect ? workshopData.ultimateSelect!.id == ultimate!.id ? 'bg-amber' : '' : ''
                                       ]">
-                              <UltimateIconWidget :id="ultimate.id" :isClickOpenDetail="false"></UltimateIconWidget>
+                              <UltimateIconWidget :id="ultimate.id" :isOpenDetail="false"></UltimateIconWidget>
                             </ItemSlotBase>
                             <div class="text-center text-caption text-grey w-100 " :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
                               <UltimateName :id="ultimate.id"></UltimateName>

@@ -120,7 +120,7 @@ const onCodexHistory = () => {
             <v-row>
               <div>
                 <ItemSlotBase size="130px">
-                  <ModIconWidget :id="modDetailData.id" :isClickOpenDetail="false" :isShowOpenDetail="false"></ModIconWidget>
+                  <ModIconWidget :id="modDetailData.id" :isOpenDetail="false" :isShowOpenDetail="false"></ModIconWidget>
                 </ItemSlotBase>
                 <WeaponModificationWidget :data="modDetailData"></WeaponModificationWidget>
               </div>

@@ -1,29 +1,37 @@
 <script setup lang="ts">
 import {Ultimates} from "glow-prow-data"
-import {onMounted, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
+import {useAppStore} from "~/stores/appStore";
 
 const ultimateImages = import.meta.glob('@glow-prow-assets/ultimates/*.*', {eager: true})
 const props = withDefaults(defineProps<{
-  id: string,
-  isClickOpenDetail?: boolean,
-  isShowOpenDetail?: boolean,
-  isShowDescription?: boolean,
-  margin?: number,
-  padding?: number
-}>(), {
-  id: 'dhow',
-  isClickOpenDetail: true,
-  isShowOpenDetail: true,
-  isShowDescription: true,
-  margin: 1,
-  padding: 1
-})
+      id: string,
+      isOpenDetail?: boolean,
+      isOpenNewWindow?: boolean,
+      isShowOpenDetail?: boolean,
+      isShowDescription?: boolean,
+      margin?: number,
+      padding?: number
+    }>(), {
+      id: 'dhow',
+      isOpenDetail: true,
+      isOpenNewWindow: false,
+      isShowOpenDetail: true,
+      isShowDescription: true,
+      margin: 1,
+      padding: 1
+    }),
+    appStore = useAppStore()
 
 let ultimatesData = ref({
-  images: {},
-  panel: {},
-  model: {}
-})
+      images: {},
+      panel: {},
+      model: {}
+    }),
+    isOpenNewWindow = computed({
+      get: () => appStore.itemOpenNewWindow || props.isOpenNewWindow,
+      set: (value) => appStore.toggleItemOpenNewWindow(value)
+    })
 
 onMounted(() => {
   onReady()
@@ -57,7 +65,8 @@ const onReady = async () => {
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
           v-bind="activatorProps"
-          :to="isClickOpenDetail ? `/codex/ultimate/${id}` : ''"
+          :to="isOpenDetail ? `/codex/ultimate/${id}` : ''"
+          :target="isOpenNewWindow ? '_blank' : '_self'"
           width="100%"
           :class="[
               'prohibit-drag',

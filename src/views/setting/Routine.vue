@@ -198,7 +198,7 @@ const clearStorage = () => {
           <div class="mb-6">
             <v-row class="mb-0">
               <v-col>
-                <v-btn to="/setting?tab=storage">使用报告</v-btn>
+                <v-btn to="/setting/storage">使用报告</v-btn>
               </v-col>
             </v-row>
 
