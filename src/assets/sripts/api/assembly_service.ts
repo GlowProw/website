@@ -68,7 +68,7 @@ export function useAssemblyApi() {
      */
     const editAssembly = async (data: EditAssemblyData) => {
         try {
-            const result = await http.put(`assembly/edit`, {data})
+            const result = await http.post(`assembly/edit`, {data})
             return handleResponse(result)
         } catch (error) {
             return handleError(error)

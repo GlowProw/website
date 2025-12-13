@@ -294,7 +294,7 @@ const onCaptchaData = (data: any) => {
     {{ t('comment.loginRequired') }}
     <template v-slot:append>
       <router-link :to="`/account/signin?backUrl=${route.path}`">
-        <v-btn>{{ t('basic.button.login') }}</v-btn>
+        <v-btn>{{ t('signin.title') }}</v-btn>
       </router-link>
     </template>
   </v-alert>

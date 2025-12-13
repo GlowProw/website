@@ -11,7 +11,7 @@ import {useDisplay} from "vuetify/framework";
 const authStore = useAuthStore(),
     router = useRouter(),
     route = useRoute(),
-    {t} = useI18n(),
+    {t, locale} = useI18n(),
     {width, mobile, md, sm} = useDisplay()
 
 let drawer = ref(true),
@@ -21,18 +21,18 @@ let drawer = ref(true),
         icon: 'mdi-account',
         child: [
           {
-            name: '账户信息',
+            name: 'account.information.form.username.name',
             to: '/account/information',
             primaryValue: 'MeAccount'
           },
           {
-            name: '账户头像',
+            name: 'account.profile-picture.title',
             to: '/account/profile-picture',
             primaryValue: 'MeAccount'
           },
           {
-            name: '空间',
-            href: `/space/${authStore.user.userId}`,
+            name: 'space.title',
+            href: `/space/${authStore.user?.userId}`,
             target: '_blank',
             primaryValue: 'MeAccount'
           },
@@ -42,22 +42,22 @@ let drawer = ref(true),
         icon: 'mdi-format-list-bulleted-type',
         child: [
           {
-            name: '我的配装',
+            name: 'account.myAssembly',
             to: '/account/assemblys',
             primaryValue: 'MeDataList'
           },
           {
-            name: '我的评论',
+            name: 'account.myComment',
             to: '/account/comments',
             primaryValue: 'MeDataList'
           },
           {
-            name: '我的组队',
+            name: 'account.myTeamup',
             to: '/account/teamups',
             primaryValue: 'MeDataList'
           },
           {
-            name: '地图管理',
+            name: 'account.myMap',
             to: '/account/maps',
             primaryValue: 'MeDataList'
           }
@@ -70,6 +70,13 @@ watch(() => mobile.value, (value) => {
 })
 
 onMounted(() => {
+  onGenerateMenu()
+})
+
+/**
+ * 生成菜单
+ */
+const onGenerateMenu = () => {
   Object.values(navs.value).filter(i => {
     i.child.forEach(nav => {
       let primaryValue = nav.primaryValue;
@@ -78,7 +85,7 @@ onMounted(() => {
       }
     })
   })
-})
+}
 
 const logout = () => {
   authStore.logout()
@@ -121,9 +128,6 @@ const onChangeMenu = (key) => {
             <template v-if="authStore.isLogin">
               <h1>Hi, {{ authStore.currentUser || 'none' }}</h1>
             </template>
-            <template v-else>
-              未登陆
-            </template>
 
             <v-spacer></v-spacer>
             <v-toolbar-items>
@@ -164,7 +168,7 @@ const onChangeMenu = (key) => {
             color="var(--v-theme-background)">
           <v-list class="pa-0">
             <v-list-item v-for="(i, index) in navs[primaryNavMenu].child" :key="index"
-                         :title="i.name"
+                         :title="t(i.name)"
                          :to="i.to || i.href"
                          :target="i.target || null">
               <template v-slot:append v-if="i.href">
@@ -174,7 +178,9 @@ const onChangeMenu = (key) => {
           </v-list>
           <v-divider opacity=".05" class="mt-4 mb-4"></v-divider>
           <div class="ml-4 mr-4">
-            <v-btn class=" bg-black" block @click="logout" v-if="authStore.isLogin">登出</v-btn>
+            <v-btn class=" bg-black" block @click="logout" v-if="authStore.isLogin">
+              {{ t('account.logout') }}
+            </v-btn>
           </div>
         </v-navigation-drawer>
 

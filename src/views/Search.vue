@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import SearchView from "@/components/SearchView.vue";
+import GlobalSearchCoreView from "@/components/GlobalSearchCoreView.vue";
 import AdsWidget from "@/components/ads/google/index.vue";
 </script>
 
@@ -10,7 +10,7 @@ import AdsWidget from "@/components/ads/google/index.vue";
       <v-container>
         <AdsWidget class="my-5" id="none"></AdsWidget>
 
-        <SearchView></SearchView>
+        <GlobalSearchCoreView></GlobalSearchCoreView>
 
         <AdsWidget class="my-5" id="none"></AdsWidget>
       </v-container>

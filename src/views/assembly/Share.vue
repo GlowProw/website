@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import {computed, nextTick, onMounted, ref, watch} from "vue";
-import {apis, storage_account} from "@/assets/sripts/index";
+import {computed, nextTick, onMounted, Ref, ref, watch} from "vue";
+import {apis, assemblyViewConfig, storage_account} from "@/assets/sripts/index";
 import {snapdom} from '@zumer/snapdom';
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
@@ -19,6 +19,7 @@ import AssemblySvgIcon from "@/components/AssemblySvgIcon.vue";
 import Silk from "@/components/Silk.vue";
 import {ApiError} from "@/assets/types/Api";
 import AdsWidget from "@/components/ads/google/index.vue";
+import {AssemblyItemResult, PublishAssemblyData} from "@/assets/types";
 
 const route = useRoute(),
     router = useRouter(),
@@ -28,13 +29,15 @@ const route = useRoute(),
     {t} = useI18n(),
     {mobile} = useDisplay()
 
-let assemblyDetailData = ref({}),
+let assemblyDetailData: Ref<AssemblyItemResult> = ref({}),
     generateImageValue = ref({
       isShowEmptySlot: true,
       isShowItemName: true,
       isFullName: false,
       isShowHeader: true,
       isShowTitle: true,
+      isShowTabs: true,
+      isShowDescription: true,
       filename: '',
       width: 1200,
       format: 'jpg',
@@ -78,7 +81,9 @@ onMounted(() => {
   posterSwitch.value = storage_account.getConfigurationItem('poster', 'poster.switch')
 
   if (posterSwitch.value)
-    generateImageValue.value = storage_account.getConfigurationItem('poster', 'poster.config')
+    generateImageValue.value = storage_account.getConfigurationItem('poster', 'poster.config', {
+      defaultValue: generateImageValue.value
+    })
 
   onGenerateQRCode(path.value)
   getAssemblyDetail()
@@ -94,11 +99,11 @@ const getAssemblyDetail = async () => {
 
     assemblyLoading.value = true;
 
-    const result = await apis.assemblyApi().getAssemblyItem(<string>uuid, {password}),
+    const result = await apis.assemblyApi().getAssemblyItem(<string>uuid, {password: <string>password}),
         d = result.data;
 
     assemblyDetailData.value = d.data;
-    generateImageValue.value.filename = assemblyDetailData.value.name;
+    generateImageValue.value.filename = assemblyDetailData.value.name as string;
 
     await loadAssemblyData()
   } catch (e) {
@@ -123,9 +128,9 @@ const loadAssemblyData = async () => {
           .setSetting({
             isShowItemName: generateImageValue.value.isShowItemName,
             isFullName: generateImageValue.value.isFullName,
-            assemblyUseVersion: assemblyDetailData.value.assembly.attr.assemblyUseVersion
+            assemblyUseVersion: assemblyDetailData.value.assembly?.attr?.assemblyUseVersion
           })
-          .onLoad(assemblyDetailData.value.data || assemblyDetailData.value.assembly.data)
+          .onLoad(assemblyDetailData.value.data || assemblyDetailData.value.assembly?.data)
   })
 }
 
@@ -228,7 +233,7 @@ const onGenerateQRCode = async (text) => {
   <v-container class="my-5 position-relative overflow-auto">
     <AdsWidget class="my-5" id="none"></AdsWidget>
 
-    <div ref="captureRef" class="share mx-auto pt-5" :style="`background: ${generateImageValue.background};width:${generateImageValue.width}px`">
+    <v-card min-height="300" variant="text" ref="captureRef" class="share mx-auto pt-5" :style="`background: ${generateImageValue.background};width:${generateImageValue.width}px`">
       <v-row no-gutters class="px-5" align="center" v-if="generateImageValue.isShowHeader">
         <v-col cols="auto">
           <Logo></Logo>
@@ -239,7 +244,7 @@ const onGenerateQRCode = async (text) => {
           {{ webPath }}
         </v-col>
         <v-col cols="auto" class="opacity-30">
-          {{ assemblyDetailData?.uuid }}
+          {{ assemblyDetailData?.uuid || '' }}
         </v-col>
       </v-row>
 
@@ -250,15 +255,15 @@ const onGenerateQRCode = async (text) => {
       <!-- Assembly Preview S -->
       <v-card variant="text" v-if="assemblyDetailData.isVisibility">
         <AssemblyWidget ref="assemblyDetailRef" :readonly="true" :is-show-empty="generateImageValue.isShowEmptySlot" :perfect-display="true" :is-full-name="true">
-          <template v-slot:image v-if="assemblyDetailData.assembly.attr.backgroundPresentation">
-            <v-img cover class="pointer-events-none" :src="assemblyDetailData.assembly.attr.backgroundPresentation"></v-img>
+          <template v-slot:image v-if="assemblyDetailData.assembly?.attr?.backgroundPresentation">
+            <v-img cover class="pointer-events-none" :src="assemblyDetailData.assembly.attr?.backgroundPresentation"></v-img>
           </template>
         </AssemblyWidget>
       </v-card>
       <!-- Assembly Preview E -->
 
       <div class="px-10 mx-10">
-        <div class="ga-2 mb-6 mt-4" v-if="assemblyDetailData.tags">
+        <div class="ga-2 mb-6 mt-4" v-if="assemblyDetailData.tags && generateImageValue.isShowTabs">
           <v-chip class="mr-2 mb-2 pt-1 pb-1 pl-5 pr-5" v-for="(i, index) in assemblyDetailData.tags" :key="index">
             {{
               asString([
@@ -273,7 +278,7 @@ const onGenerateQRCode = async (text) => {
           </v-chip>
         </div>
 
-        <Textarea class="mt-5" v-if="assemblyDetailData.description"
+        <Textarea class="mt-5" v-if="assemblyDetailData.description && generateImageValue.isShowDescription"
                   :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
                   readonly v-model="assemblyDetailData.description"></Textarea>
 
@@ -292,7 +297,7 @@ const onGenerateQRCode = async (text) => {
       <v-overlay v-model="assemblyLoading" contained opacity="1" class="d-flex justify-center align-center">
         <Loading size="120"></Loading>
       </v-overlay>
-    </div>
+    </v-card>
   </v-container>
 
   <div class="position-fixed bottom-0 w-100 bg-black" style="z-index: 120">
@@ -369,6 +374,9 @@ const onGenerateQRCode = async (text) => {
                     </v-select>
                   </v-col>
                   <v-col cols="12">
+                    <v-divider>{{ t('assembly.share.imageStyleTitle') }}</v-divider>
+                  </v-col>
+                  <v-col cols="12">
                     <div class="mb-2">{{ t('assembly.share.backgroundColor') }}</div>
                     <v-select
                         variant="filled"
@@ -378,9 +386,9 @@ const onGenerateQRCode = async (text) => {
                         v-model="generateImageValue.background"
                         :items="generateImageConfig.backgrounds"
                         hide-details>
-                      <template v-slot:prepend>
+                      <template v-slot:append>
                         <v-card border variant="text">
-                          <ItemSlotBase size="50px" :padding="0" :style="`background: ${generateImageConfig.background}`"></ItemSlotBase>
+                          <ItemSlotBase size="50px" :padding="0" :style="`background: ${generateImageValue.background}`"></ItemSlotBase>
                         </v-card>
                       </template>
                       <template v-slot:item="{props, item}">
@@ -394,67 +402,75 @@ const onGenerateQRCode = async (text) => {
                     </v-select>
                   </v-col>
                   <v-col cols="12">
-                    <v-row align="center" no-gutters>
-                      <v-col>
-                        <div>{{ t('assembly.share.showEmptySlot') }}</div>
-                      </v-col>
-                      <v-col cols="auto">
+                    <v-row>
+                      <v-col cols="6">
                         <v-switch
                             v-model="generateImageValue.isShowEmptySlot"
-                            inset indeterminate
+                            inset
                             hide-details>
+                          <template v-slot:append>
+                            <div>{{ t('assembly.share.showEmptySlot') }}</div>
+                          </template>
                         </v-switch>
                       </v-col>
-                    </v-row>
-
-                    <v-row align="center" no-gutters>
-                      <v-col>
-                        <div>{{ t('assembly.share.showItemName') }}</div>
-                      </v-col>
-                      <v-col cols="auto">
+                      <v-col cols="6">
                         <v-switch
                             v-model="generateImageValue.isShowItemName"
-                            inset indeterminate
+                            inset
                             hide-details>
+                          <template v-slot:append>
+                            <div>{{ t('assembly.share.showItemName') }}</div>
+                          </template>
                         </v-switch>
                       </v-col>
-                    </v-row>
-
-                    <v-row align="center" no-gutters>
-                      <v-col>
-                        <div>{{ t('assembly.share.fullName') }}</div>
-                      </v-col>
-                      <v-col cols="auto">
+                      <v-col cols="6">
                         <v-switch
                             v-model="generateImageValue.isFullName"
-                            inset indeterminate
+                            inset
                             hide-details>
+                          <template v-slot:append>
+                            <div>{{ t('assembly.share.fullName') }}</div>
+                          </template>
                         </v-switch>
                       </v-col>
-                    </v-row>
-
-                    <v-row align="center" no-gutters>
-                      <v-col>
-                        <div>{{ t('assembly.share.showTitle') }}</div>
-                      </v-col>
-                      <v-col cols="auto">
+                      <v-col cols="6">
                         <v-switch
                             v-model="generateImageValue.isShowTitle"
-                            inset indeterminate
+                            inset
                             hide-details>
+                          <template v-slot:append>
+                            <div>{{ t('assembly.share.showTitle') }}</div>
+                          </template>
                         </v-switch>
                       </v-col>
-                    </v-row>
-
-                    <v-row align="center" no-gutters>
-                      <v-col>
-                        <div>{{ t('assembly.share.showHeader') }}</div>
-                      </v-col>
-                      <v-col cols="auto">
+                      <v-col cols="6">
                         <v-switch
                             v-model="generateImageValue.isShowHeader"
-                            inset indeterminate
+                            inset
                             hide-details>
+                          <template v-slot:append>
+                            <div>{{ t('assembly.share.showHeader') }}</div>
+                          </template>
+                        </v-switch>
+                      </v-col>
+                      <v-col cols="6">
+                        <v-switch
+                            v-model="generateImageValue.isShowTabs"
+                            inset
+                            hide-details>
+                          <template v-slot:append>
+                            <div>{{ t('assembly.share.showTabs') }}</div>
+                          </template>
+                        </v-switch>
+                      </v-col>
+                      <v-col cols="6">
+                        <v-switch
+                            v-model="generateImageValue.isShowDescription"
+                            inset
+                            hide-details>
+                          <template v-slot:append>
+                            {{ t('assembly.share.showDescription') }}
+                          </template>
                         </v-switch>
                       </v-col>
                     </v-row>

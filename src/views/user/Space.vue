@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import Silk from "@/components/Silk.vue";
-import {onMounted, Ref, ref, watch} from "vue";
+import {nextTick, onMounted, Ref, ref, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {useDisplay} from "vuetify/framework";
 import {useUserApi} from "@/assets/sripts/api";
@@ -16,8 +16,12 @@ import Time from "@/components/Time.vue";
 import TimeView from "@/components/TimeView.vue";
 import Textarea from "@/components/textarea"
 import Loading from "@/components/Loading.vue"
-import {PaginationParams} from "@/assets/types";
+import {AssemblyListResult, PaginationParams, ResultData} from "@/assets/types";
 import {SpaceUserResult} from "@/assets/types/User";
+import AssemblyWidget from "@/components/AssemblyWidget.vue";
+import AssemblyTouring from "@/components/AssemblyTouring.vue";
+import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
+import AccountCardWidget from "@/components/AccountCardWidget.vue";
 
 const route = useRoute(),
     router = useRouter(),
@@ -32,10 +36,11 @@ let loading = ref({
       teamUp: true
     }),
     userData: Ref<SpaceUserResult> = ref({}),
+    userAssemblyWidgetRefs = ref([]),
     userTeamUpData = ref({
       data: []
     }),
-    userAssemblysData = ref({
+    userAssemblysData: Ref<AssemblyListResult> = ref({
       data: []
     }),
     spacePagination: Ref<PaginationParams> = ref({
@@ -56,6 +61,33 @@ let loading = ref({
       },
     ]),
     tab = ref(tabs.value[0].value)
+
+watch(userAssemblysData, (newList: ResultData) => {
+  if (newList && newList.data.length > 0) {
+    nextTick(() => {
+      const processBatch = (index = 0) => {
+        if (index >= newList.data.length) return;
+
+        const widget = userAssemblyWidgetRefs.value[index];
+        if (widget?.onLoad) {
+          widget
+              .setSetting({
+                assemblyUseVersion: newList.data[index]?.attr?.assemblyUseVersion,
+                isShowItemName: newList.data[index]?.attr?.isShowItemName,
+              })
+              .onLoad(newList.data[index]?.assembly || {})
+        }
+
+        // 继续处理下一个
+        requestAnimationFrame(() => {
+          processBatch(index + 1)
+        })
+      };
+
+      processBatch()
+    })
+  }
+}, {deep: true})
 
 watch(() => tab.value, (value) => {
   onUpdateData(value)
@@ -282,21 +314,48 @@ const getUserAssemblysData = async () => {
               </v-overlay>
             </v-tabs-window-item>
             <v-tabs-window-item value="assembly" class="position-relative">
-              <v-card v-for="(i,index) in userAssemblysData.data" :key="index" class="mb-2 pl-4" v-if="userAssemblysData.data && userAssemblysData.data.length > 0">
-                <v-row align="stretch">
-                  <v-col>
-                    <div class="mx-5 my-3">
-                      <b class="font-weight-bold text-h5 text-amber">{{ i.name }}</b>
-                      <p class="opacity-60">{{ i.uuid }}</p>
-                    </div>
-                  </v-col>
-                  <v-spacer></v-spacer>
-                  <v-col cols="auto" class="d-flex">
-                    <v-divider vertical></v-divider>
-                    <v-btn class="h-100 px-8" elevation="0" tile :to="`/assembly/browse/${i.uuid}/detail`" target="_blank" icon="mdi-open-in-new"></v-btn>
-                  </v-col>
-                </v-row>
-              </v-card>
+              <v-row v-if="userAssemblysData.data && userAssemblysData.data.length > 0" class="mr-16">
+                <v-col cols="12" md="6" lg="6" v-for="(i, index) in userAssemblysData.data"
+                       :key="index"
+                       v-if="userAssemblysData.data.length > 0">
+                  <v-card class="card-enlargement-flavor pa-5">
+                    <v-row class="pt-5 pl-5 pr-5">
+                      <v-col cols="9">
+                        <router-link :to="`/assembly/browse/${i.uuid}/detail`">
+                          <div :title="i.name || 'none'" class="text-amber text-h4 mb-1 font-weight-bold singe-line">{{ i.name || 'none' }}</div>
+                        </router-link>
+                        <div>
+                          <AccountCardWidget :id="i.userId">
+                            <div class="d-flex align-center">
+                              <v-card v-if="i.userAvatar" class="mr-1">
+                                <UserAvatar size="20" :src="i.userAvatar"></UserAvatar>
+                              </v-card>
+                              {{ i.username || t('assembly.anonymous') }}
+                            </div>
+                          </AccountCardWidget>
+                        </div>
+                      </v-col>
+                    </v-row>
+
+                    <v-hover v-slot="{ isHovering, props }">
+                      <div v-bind="props" class="position-relative">
+                        <AssemblyTouring>
+                          <AssemblyWidget
+                              class="card-flavor mb-5 ml-n10 mr-n10"
+                              :readonly="true"
+                              :ref="(el) => { if (el) userAssemblyWidgetRefs[index] = el }">
+                          </AssemblyWidget>
+                        </AssemblyTouring>
+                        <router-link :to="`/assembly/browse/${i.uuid}/detail`" target="_blank">
+                          <v-overlay scrim="#000" contained class="d-flex justify-center align-center" :model-value="!!isHovering">
+                            <v-icon icon="mdi-open-in-new" size="30"></v-icon>
+                          </v-overlay>
+                        </router-link>
+                      </div>
+                    </v-hover>
+                  </v-card>
+                </v-col>
+              </v-row>
               <div class="text-center" v-else>
                 <EmptyView></EmptyView>
               </div>

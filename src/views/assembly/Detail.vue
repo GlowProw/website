@@ -23,6 +23,7 @@ import AssemblyMainSubjectView from "@/components/AssemblyMainSubjectView.vue";
 import {apis} from "@/assets/sripts/index";
 import {ApiError} from "@/assets/types/Api";
 import AdsWidget from "@/components/ads/google/index.vue";
+import AccountCardWidget from "@/components/AccountCardWidget.vue";
 
 const route = useRoute(),
     router = useRouter(),
@@ -289,13 +290,12 @@ const onPenPassword = () => {
           </template>
         </v-col>
         <v-col cols="12" sm="12" lg="4" xl="4">
-          <router-link class="text-h5 bg-transparent d-flex ga-2 align-center"
-                       :to="detailData.userId ? `/space/${detailData.userId}` : null">
+          <AccountCardWidget :id="detailData.userId">
             <v-card v-if="detailData.userAvatar" class="mr-1">
               <UserAvatar size="25" :src="detailData.userAvatar"></UserAvatar>
             </v-card>
             {{ detailData.username || t('assembly.anonymous') }}
-          </router-link>
+          </AccountCardWidget>
 
           <v-row class="mt-5">
             <v-col cols="auto">

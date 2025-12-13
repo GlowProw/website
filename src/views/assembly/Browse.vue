@@ -2,8 +2,10 @@
 import {nextTick, onMounted, Ref, ref, watch} from "vue";
 import {apis} from "@/assets/sripts";
 import {useI18n} from "vue-i18n";
-import {AssemblyItem, PaginationParams, ResultData} from "@/assets/types";
+import {AssemblyListResult, ResultData} from "@/assets/types";
 import {useRoute} from "vue-router";
+import {ApiError} from "@/assets/types/Api";
+import {useNoticeStore} from "~/stores/noticeStore";
 
 import AssemblyWidget from "@/components/AssemblyWidget.vue";
 import AssemblyTouring from "@/components/AssemblyTouring.vue";
@@ -12,10 +14,10 @@ import TimeFrame from "@/components/TimeFrame.vue";
 import Loading from "@/components/Loading.vue";
 import Silk from "@/components/Silk.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
-import {ApiError} from "@/assets/types/Api";
-import {useNoticeStore} from "~/stores/noticeStore";
+
 import AdsWidget from "@/components/ads/google/index.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
+import AccountCardWidget from "@/components/AccountCardWidget.vue";
 
 const {t} = useI18n(),
     route = useRoute(),
@@ -25,10 +27,7 @@ let browsePagination = ref({
       page: 1,
       pageSize: 6
     }),
-    browseData: Ref<{
-      data: AssemblyItem[],
-      pagination?: PaginationParams
-    }> = ref({
+    browseData: Ref<AssemblyListResult> = ref({
       data: []
     }),
     browseFilter = ref({
@@ -231,7 +230,7 @@ const getBrowseList = async () => {
 
         <AdsWidget class="my-10" id="none2"></AdsWidget>
       </v-col>
-      <v-col cols="12" md="9" lg="9"  class="position-relative">
+      <v-col cols="12" md="9" lg="9" class="position-relative">
         <AdsWidget class="mb-5" id="none"></AdsWidget>
 
         <v-row>
@@ -245,16 +244,18 @@ const getBrowseList = async () => {
                     <div :title="i.name || 'none'" class="text-amber text-h4 mb-1 font-weight-bold singe-line">{{ i.name || 'none' }}</div>
                   </router-link>
                   <div>
-                    <div class="d-flex align-center">
-                      <v-card v-if="i.userAvatar" class="mr-1">
-                        <UserAvatar size="20" :src="i.userAvatar"></UserAvatar>
-                      </v-card>
-                      {{ i.username || t('assembly.anonymous') }}
-                    </div>
+                    <AccountCardWidget :id="i.userId">
+                      <div class="d-flex align-center">
+                        <v-card v-if="i.userAvatar" class="mr-1">
+                          <UserAvatar size="20" :src="i.userAvatar"></UserAvatar>
+                        </v-card>
+                        {{ i.username || t('assembly.anonymous') }}
+                      </div>
+                    </AccountCardWidget>
                   </div>
                 </v-col>
                 <v-col cols="3">
-                  <v-chip density="compact" class="badge-flavor pl-5 pr-5" :disabled="i.isLiked">
+                  <v-chip density="compact" class="badge-flavor pl-5 pr-5" :disabled="!!i.isLiked">
                     赞 {{ i.likes || 0 }}
                   </v-chip>
                 </v-col>

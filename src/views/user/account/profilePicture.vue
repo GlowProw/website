@@ -1,17 +1,15 @@
 <script setup lang="ts">
 
-import UserAvatar from "@/components/UserAvatar.vue";
-import {onMounted, ref} from "vue";
-import {api} from "@/assets/sripts/index";
-import {useHttpToken} from "@/assets/sripts/http_util";
+import {onMounted, Ref, ref} from "vue";
 import {useAuthStore} from "~/stores/userAccountStore";
+import {useI18n} from "vue-i18n";
 
-const httpToken = useHttpToken(),
-    authStore = useAuthStore()
+import UserAvatar from "@/components/UserAvatar.vue";
 
-let userAccountData = ref({
-  userAvatar: ''
-})
+const authStore = useAuthStore(),
+    {t} = useI18n()
+
+let userAccountData = ref({})
 
 onMounted(() => {
   getUserAccount()
@@ -27,8 +25,8 @@ const getUserAccount = async () => {
 
 <template>
   <div>
-    <div class="font-weight-bold text-h5 ">账户头像</div>
-    <p class="text-caption text-grey opacity-80 mb-10">头像使用的是gravatar提供用户信息，需要修改头像信息前往gravatar.com上传</p>
+    <div class="font-weight-bold text-h5 ">{{ t('account.profile-picture.title') }}</div>
+    <p class="text-caption text-grey opacity-80 mb-10">{{ t('account.profile-picture.description') }} </p>
 
     <v-row type="flex" align="end">
       <v-col flex="1">
@@ -43,7 +41,7 @@ const getUserAccount = async () => {
         </a>
       </v-col>
       <v-col>
-        <a :href="userAccountData.userAvatar ? 'https://gravatar.com/connect/' : 'https://gravatar.com/connect/?gravatar_from=signup'"
+        <a :href="userAccountData?.userAvatar ? 'https://gravatar.com/connect/' : 'https://gravatar.com/connect/?gravatar_from=signup'"
            target="_blank">
           <Button>
             <Icon type="md-link" size="20"></Icon>
@@ -55,13 +53,13 @@ const getUserAccount = async () => {
       <v-col cols="auto" v-for="(i, index) in [150,80,50,45,30,22]" :key="index">
         <p class="mb-2 font-weight-bold">{{ i }}</p>
         <v-card>
-          <UserAvatar :src="userAccountData.userAvatar" :size="i"></UserAvatar>
+          <UserAvatar :src="userAccountData.userAvatar" v-if="userAccountData.userAvatar" :size="i"></UserAvatar>
         </v-card>
       </v-col>
     </v-row>
 
-    <v-alert class="mt-5" v-if="userAccountData.email">
-      头像关联的是{{userAccountData.email || ''}}邮箱，请使用它来注册gravatar
+    <v-alert class="mt-5" v-if="userAccountData && userAccountData?.email">
+      {{ t('account.profile-picture.associatedEmailNotification', {email: userAccountData?.email}) }}
     </v-alert>
   </div>
 </template>

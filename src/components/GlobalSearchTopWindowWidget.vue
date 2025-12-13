@@ -4,9 +4,9 @@ import {computed, onMounted, ref} from "vue";
 import {useI18n} from "vue-i18n";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useRoute, useRouter} from "vue-router";
-import SearchView from "@/components/SearchView.vue";
 import {storage_account} from "@/assets/sripts/index";
 
+import GlobalSearchCoreView from "@/components/GlobalSearchCoreView.vue";
 
 const {t} = useI18n(),
     router = useRouter(),
@@ -46,14 +46,14 @@ const getConfig = () => {
             content-class="pt-8 overflow-y-auto"
             v-model="model">
     <template v-slot:default>
-      <v-container >
-        <SearchView @close="model = !model">
+      <v-container>
+        <GlobalSearchCoreView @close="model = !model">
           <template v-slot:close>
             <v-btn icon variant="tonal" class="ml-5" @click="model = false">
               <v-icon icon="mdi-close"/>
             </v-btn>
           </template>
-        </SearchView>
+        </GlobalSearchCoreView>
       </v-container>
     </template>
   </v-dialog>

@@ -7,7 +7,7 @@ import HeaderMuenFunWidget from "@/components/HeaderMuenFunWidget.vue";
 import {appFuns, appNavs} from "@/assets/sripts/index";
 import {useI18n} from "vue-i18n";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
-import GlobalSearch from "@/components/GlobalSearch.vue";
+import GlobalSearchTopWindowWidget from "@/components/GlobalSearchTopWindowWidget.vue";
 import {useDisplay} from "vuetify/framework";
 
 const authStore = useAuthStore(),
@@ -31,10 +31,10 @@ let drawer = ref(false)
 
       <v-spacer></v-spacer>
 
-      <GlobalSearch>
+      <GlobalSearchTopWindowWidget>
         <v-card
             border
-            :width="mobile ? 'auto' : '60vh'"
+            :width="mobile ? 'auto' : '60%'"
             min-width="100"
             class="my-2 mx-auto header-filter"
             density="compact"
@@ -51,7 +51,7 @@ let drawer = ref(false)
             </v-col>
           </v-row>
         </v-card>
-      </GlobalSearch>
+      </GlobalSearchTopWindowWidget>
 
       <v-spacer></v-spacer>
 
