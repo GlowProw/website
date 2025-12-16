@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import {onMounted, ref, watch} from "vue";
-import {apis} from "@/assets/sripts/index";
+import {apis, sessionUserInfo} from "@/assets/sripts/index";
 import {ApiError} from "@/assets/types/Api";
 import {useI18n} from "vue-i18n";
 import {useNoticeStore} from "~/stores/noticeStore";
+
 import Silk from "@/components/Silk.vue";
 import Textarea from "@/components/textarea/index.vue";
 import PrivilegesTagWidget from "@/components/PrivilegesTagWidget.vue";
@@ -14,16 +15,18 @@ const props = withDefaults(defineProps<{ id: string | null }>(), {id: null}),
     {t} = useI18n()
 
 let loading = ref(false),
+    model = ref(false),
     userInfoData = ref({})
+
+watch(() => model.value, (value) => {
+  if (value)
+    getUserInfo()
+})
 
 watch(() => props.id, (value) => {
   if (value)
     getUserInfo()
 }, {deep: true})
-
-onMounted(() => {
-  getUserInfo()
-})
 
 /**
  * 获取用户数据
@@ -35,10 +38,20 @@ const getUserInfo = async () => {
 
     loading.value = true
 
+    const sessionUserData = sessionUserInfo.getUserInfoItem('user', props.id)
+
+    // 读取会话数据
+    if (sessionUserData.id) {
+      userInfoData.value = sessionUserData
+      return
+    }
+
     const result = await apis.userApi().getUserInfo(<string>props.id),
         d = result.data
 
     userInfoData.value = d.data;
+
+    sessionUserInfo.updateConfiguration('user', props.id, d.data)
   } catch (e) {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
@@ -54,6 +67,7 @@ const getUserInfo = async () => {
 
 <template>
   <v-menu content-class="pa-0"
+          v-model="model"
           class="bg-transparent"
           :offset="[15, 0]"
           open-on-click>
@@ -89,7 +103,7 @@ const getUserInfo = async () => {
           </v-row>
         </router-link>
 
-        <PrivilegesTagWidget :data="userInfoData.privilege" v-if="userInfoData.privilege" class="mb-3 mt-1" ></PrivilegesTagWidget>
+        <PrivilegesTagWidget :data="userInfoData.privilege" v-if="userInfoData.privilege" class="mb-3 mt-1"></PrivilegesTagWidget>
 
         <Textarea
             readonly

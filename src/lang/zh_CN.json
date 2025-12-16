@@ -179,7 +179,7 @@
   },
   "account": {
     "title": "账户",
-    "logout": "登陆",
+    "logout": "登出账号",
     "information": {
       "title": "个人信息",
       "form": {
@@ -230,7 +230,8 @@
     "myAssembly": "我的配装",
     "myComment": "我的评论",
     "myTeamup": "我的组队",
-    "myMap": "地图管理"
+    "myMap": "地图管理",
+    "mySmugglersReport": "走私犯奖赏家"
   },
   "codex": {
     "title": "手稿",
@@ -1072,6 +1073,10 @@
     "publish": {
       "title": "发布"
     }
+  },
+  "smugglersReport": {
+    "title": "走私犯鉴赏家",
+    "description": "走私犯鉴赏家是对每周走私犯刷新物品评价，给所有玩家推荐选购理由，让玩家们不要错过价值非常高物品"
   },
   "space": {
     "title": "用户空间",

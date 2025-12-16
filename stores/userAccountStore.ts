@@ -71,6 +71,24 @@ export const useAuthStore = defineStore('account', () => {
         }
     }
 
+    /**
+     * 检查权限组
+     * @param currentPrivilegeGroup
+     * @param {Array} targetPrivilegeGroup 检查是否包含的身份
+     * @returns {boolean}
+     */
+    const checkPrivilegeGroup = (currentPrivilegeGroup: Array<any> = [], targetPrivilegeGroup: Array<any> = ['root', 'admin', 'super', 'dev']): boolean => {
+        let isBool = false;
+        const privilege = currentPrivilegeGroup;
+        if (!privilege) return false;
+        for (const i of targetPrivilegeGroup) {
+            for (const j of privilege) {
+                if (j === i) isBool = true;
+            }
+        }
+        return Boolean(isBool);
+    }
+
     // 立即初始化
     initFromStorage()
 
@@ -79,6 +97,7 @@ export const useAuthStore = defineStore('account', () => {
         isLogin,
         isAuthenticated,
         currentUser,
+        checkPrivilegeGroup,
         updateAccountAttr,
         setAccountToken,
         logout

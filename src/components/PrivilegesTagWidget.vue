@@ -13,43 +13,34 @@
 </template>
 
 <script setup lang="ts">
-
 import {onMounted, ref, watch} from "vue";
 import privileges from "@/../public/config/privilege.json"
 import {useI18n} from "vue-i18n";
 
 const {t} = useI18n()
 
-const props = defineProps({
-  data: {
-    type: [Array, String],
-    default: () => []
-  },
-  density: {
-    type: String,
-    default: ''
-  },
-  size: {
-    type: String,
-    default: 'default'
-  },
-  tagType: {
-    type: String,
-    default: 'border'
-  }
+const props = withDefaults(defineProps<{ data: [] | string, density?: string | any | null, size?: string, tagType?: string }>(), {
+  density: 'default',
+  size: 'default',
+  tagType: 'border'
 })
 
 let tags = ref([])
 
-onMounted(() => {
-  update(props.data)
-})
-
 watch(() => props.data, (value) => {
-  update(value)
+  if (value)
+    onUpdateTag(value)
 })
 
-const update = (userPrivileges: string[] = []) => {
+onMounted(() => {
+  onUpdateTag(props.data)
+})
+
+/**
+ * 更新身份令牌
+ * @param userPrivileges
+ */
+const onUpdateTag = (userPrivileges?: [] | string) => {
   if (!userPrivileges) return [];
   tags.value = privileges.child.filter(i => {
     return userPrivileges.includes(i.value)

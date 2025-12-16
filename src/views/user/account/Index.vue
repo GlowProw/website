@@ -60,6 +60,11 @@ let drawer = ref(true),
             name: 'account.myMap',
             to: '/account/maps',
             primaryValue: 'MeDataList'
+          },
+          {
+            name: 'account.mySmugglersReport',
+            to: '/account/smugglersReport',
+            primaryValue: 'MeDataList'
           }
         ]
       },

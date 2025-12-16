@@ -20,6 +20,12 @@ export default class AppFuns {
             to: '/calendar'
         },
         {
+            title: 'smugglersReport.title',
+            icon: 'mdi-trophy-award',
+            description: 'smugglersReport.description',
+            to: '/smugglers-report'
+        },
+        {
             title: 'header.functions.maps.title',
             icon: 'mdi-map',
             description: 'header.functions.maps.description',

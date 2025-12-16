@@ -19,22 +19,22 @@ const route = useRoute(),
 let tabs = ref([
       {
         name: t('setting.routine.title'),
-        value: 'routine',
+        value: 'PortalSettingRoutine',
         icon: 'mdi-cog'
       },
       {
         name: t('setting.ad.title'),
-        value: 'ads',
+        value: 'PortalSettingAds',
         icon: 'mdi-advertisements'
       },
       {
         name: t('setting.storage.title'),
-        value: 'storage',
+        value: 'PortalSettingStorage',
         icon: 'mdi-database'
       },
       {
         name: t('about.title'),
-        value: 'about',
+        value: 'PortalSettingAbout',
         icon: 'mdi-information'
       },
       // {
@@ -46,7 +46,13 @@ let tabs = ref([
     tab = ref(tabs.value[0].value)
 
 watch(() => tab.value, (value) => {
-  router.push(`/setting/${value}`)
+  router.push({name: value})
+})
+
+onMounted(() => {
+  const currentRouterName = tabs.value.findLast(i => i.value == router.resolve(route).name)
+  if (currentRouterName)
+    tab.value = currentRouterName.value
 })
 </script>
 

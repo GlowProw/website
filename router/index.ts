@@ -11,6 +11,7 @@ import AccountAssemblysPage from '@/views/user/account/assemblys.vue'
 import AccountCommentsPage from '@/views/user/account/comments.vue'
 import AccountTeamUpsPage from '@/views/user/account/teamup.vue'
 import AccountMapsPage from '@/views/user/account/maps.vue'
+import AccountSmugglersReport from '@/views/user/account/smugglersReport.vue'
 import AccountSpacePage from '@/views/user/Space.vue'
 
 import SigninPage from '@/views/user/Signin.vue'
@@ -72,6 +73,9 @@ import MapViewPage from '@/views/map/View.vue';
 
 import TeamPage from '@/views/Team.vue'
 import SearchPage from '@/views/Search.vue'
+
+import SmugglersReportPage from '@/views/smugglers/Index.vue'
+import SmugglersReportDetailPage from '@/views/smugglers/View.vue'
 
 import SettingPage from '@/views/setting/Index.vue'
 import SettingAdPage from '@/views/setting/Ad.vue'
@@ -176,6 +180,11 @@ const routes: Readonly<RouteRecordRaw[]> = [
                         name: 'AccountMaps',
                         component: AccountMapsPage
                     },
+                    {
+                        path: 'smugglersReport',
+                        name: 'AccountSmugglersReport',
+                        component: AccountSmugglersReport
+                    },
                 ]
             },
             {
@@ -248,6 +257,24 @@ const routes: Readonly<RouteRecordRaw[]> = [
                     }
                 ]
             },
+        ]
+    },
+    {
+        path: '/smugglers-report',
+        name: 'SmugglersReport',
+        meta: {
+            title: 'smugglersReport.title',
+            keywords: 'smugglersReport.meta.keywords'
+        },
+        redirect: '/smugglers-report/view',
+        component: SmugglersReportPage,
+        beforeEnter: initItemAssets,
+        children: [
+            {
+                path: 'view',
+                name: 'SmugglersReportDetail',
+                component: SmugglersReportDetailPage,
+            }
         ]
     },
     {

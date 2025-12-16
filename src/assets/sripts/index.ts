@@ -12,6 +12,7 @@ import _StorageAccount from './storage_account'
 import _StorageAds from './storage_ads'
 import {StorageIntermediateTransfer as _StorageIntermediateTransfer} from './storage_assembly'
 import {StorageCollect as _StorageCollect} from './storage_collect'
+import _UserInfoSession from './session_user_info'
 import _Date from './date';
 import _Number from './number';
 import _AppFuns from './app_functions'
@@ -30,6 +31,7 @@ export const storage_account = new _StorageAccount()
 export const storage_ads = new _StorageAds()
 export const storageIntermediateTransfer = new _StorageIntermediateTransfer()
 export const storageCollect = new _StorageCollect()
+export const sessionUserInfo = new _UserInfoSession()
 export const time = new _Date()
 export const number = new _Number()
 export const appFuns = new _AppFuns()
@@ -39,6 +41,7 @@ export const assemblyViewConfig = new _AssemblyViewConfig()
 
 export default {
     api, apis, conf, ws, http,
-    storage, storage_capacity_monitor, storage_account, storage_ads, storageIntermediateTransfer, storageCollect, time,
-    number, appFuns, appNavs, rarity, assemblyViewConfig
+    storage, storage_capacity_monitor, storage_account, storage_ads, storageIntermediateTransfer, storageCollect,
+    sessionUserInfo,
+    time, number, appFuns, appNavs, rarity, assemblyViewConfig
 };
