@@ -5,6 +5,7 @@ import {useCaptchaApi} from "@/assets/sripts/api/captcha_service";
 import {useCalendarApi} from "@/assets/sripts/api/calendar_service";
 import {useCommentApi} from "@/assets/sripts/api/comment_service";
 import {useSmugglersApi} from "@/assets/sripts/api/smugglers_service";
+import {usePrivilegeApi} from "@/assets/sripts/api/privilege_service";
 
 export * from './user_service'
 export * from './assembly_service'
@@ -19,4 +20,5 @@ export class Apis {
     static captchaApi = useCaptchaApi
     static calendarApi = useCalendarApi
     static smugglersApi = useSmugglersApi
+    static privilegeApi = usePrivilegeApi
 }

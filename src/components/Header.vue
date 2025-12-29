@@ -36,6 +36,7 @@ let drawer = ref(false)
             border
             :width="mobile ? 'auto' : '60%'"
             min-width="100"
+            max-width="70%"
             class="my-2 mx-auto header-filter"
             density="compact"
             prepend-inner-icon="mdi-magnify"

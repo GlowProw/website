@@ -41,7 +41,8 @@ const getConfig = () => {
     <slot></slot>
   </div>
 
-  <v-dialog z-index="51"
+  <v-dialog z-index="800"
+            absolute
             class="global-search"
             content-class="pt-8 overflow-y-auto"
             v-model="model">
@@ -61,7 +62,10 @@ const getConfig = () => {
 
 <style scoped lang="less">
 .global-search {
-  background: rgba(0, 0, 0, 0.47);
+  background:
+      linear-gradient(rgba(0, 0, 0, 0.47), rgba(0, 0, 0, 0.47)),
+      hsl(from var(--main-color) h s l / .1);
+  background-blend-mode: multiply;
   backdrop-filter: blur(100px)
 }
 </style>

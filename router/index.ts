@@ -14,6 +14,9 @@ import AccountMapsPage from '@/views/user/account/maps.vue'
 import AccountSmugglersReport from '@/views/user/account/smugglersReport.vue'
 import AccountSpacePage from '@/views/user/Space.vue'
 
+import AccountAdminPage from '@/views/user/admin/Index.vue'
+import AccountAdminPrivilegeManagementPage from '@/views/user/admin/PrivilegeManagement.vue'
+
 import SigninPage from '@/views/user/Signin.vue'
 import SignupPage from '@/views/user/Signup.vue'
 import CodexPage from '@/views/codex/Index.vue'
@@ -102,6 +105,17 @@ const isLoginBeforeEnter = function (to: any, from: any, next: any) {
     }
 }
 
+const isAdminBeforeEnter = (to: any, from: any, next: any) => {
+    const authStore = useAuthStore(),
+        role: string[] = authStore?.user?.role ?? []
+
+    if (role.includes('admin') || role.includes('super') || role.includes('dev') || role.includes('root')) {
+        next()
+    } else {
+        next({path: '/', query: {backUrl: to.fullPath}})
+    }
+}
+
 const initAccountInfo = async function (to: any, from: any, next: any) {
     const authStore = useAuthStore(),
         useApi = useUserApi()
@@ -139,7 +153,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: '/account',
                 name: 'AccountHome',
                 component: AccountPage,
-                redirect: '/account/home/information',
+                redirect: '/account/information',
                 meta: {
                     title: 'account.title',
                     keywords: 'account.meta.keywords'
@@ -184,6 +198,28 @@ const routes: Readonly<RouteRecordRaw[]> = [
                         path: 'smugglersReport',
                         name: 'AccountSmugglersReport',
                         component: AccountSmugglersReport
+                    },
+                ]
+            },
+            {
+                path: '/admin',
+                name: 'AccountAdminHome',
+                component: AccountAdminPage,
+                redirect: '/admin/privilege-management',
+                meta: {
+                    title: 'admin.title',
+                    keywords: 'admin.meta.keywords'
+                },
+                beforeEnter: (to, from, next) => {
+                    isLoginBeforeEnter(to, from, next)
+                    initAccountInfo(to, from, next)
+                    isAdminBeforeEnter(to, from, next)
+                },
+                children: [
+                    {
+                        path: 'privilege-management',
+                        name: 'PrivilegeManagement',
+                        component: AccountAdminPrivilegeManagementPage
                     },
                 ]
             },

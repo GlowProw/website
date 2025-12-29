@@ -8,6 +8,8 @@ import {AxiosError} from "axios";
 import {PaginationParams} from "@/assets/types";
 import {ApiError} from "@/assets/types/Api";
 import EmptyView from "@/components/EmptyView.vue";
+import Time from "@/components/Time.vue";
+import TimeView from "@/components/TimeView.vue";
 
 const {t} = useI18n(),
     api = useMapApi(),
@@ -474,29 +476,31 @@ const executeDelete = async (): Promise<void> => {
       </v-col>
     </v-row>
 
-    <v-card v-for="(collection,index) in userCollections.data" :key="index" class="mb-2 pl-4"
-            v-if="userCollections && userCollections.data.length > 0">
-      <v-row align="center">
-        <v-col cols="auto">
-          <v-icon>mdi-folder</v-icon>
-        </v-col>
-        <v-col>
-          <div class="my-3">
-            <b>{{ collection.title }}</b>
-            <p class="text-caption opacity-60">{{ collection.description || collection.uuid }}</p>
+    <v-list border rounded lines="one" v-if="userCollections && userCollections.data.length > 0">
+      <v-list-item v-for="(collection,index) in userCollections.data" :key="index">
+        <template v-slot:prepend>
+          <v-icon size="38">mdi-folder</v-icon>
+        </template>
+        <v-list-item-title>{{ collection.title }}</v-list-item-title>
+        <v-list-item-subtitle>
+          <div class="d-flex text-caption opacity-60">
+            <v-icon>mdi-identifier</v-icon>
+            <p class="ml-2">{{ collection.description || collection.uuid }}</p>
           </div>
-        </v-col>
-        <v-spacer></v-spacer>
-        <v-col cols="auto" class="d-flex">
-          <v-btn class="h-100 px-8" elevation="0" tile @click="openPointManager(collection)"
-                 icon="mdi-map-marker-multiple"></v-btn>
-          <v-btn class="h-100 px-8" elevation="0" tile @click="editCollection(collection)"
-                 icon="mdi-pencil"></v-btn>
-          <v-btn class="h-100 px-8" elevation="0" tile @click="confirmDeleteCollection(collection)"
-                 icon="mdi-delete"></v-btn>
-        </v-col>
-      </v-row>
-    </v-card>
+        </v-list-item-subtitle>
+
+        <template v-slot:append>
+          <div class="d-flex ga-2">
+            <v-btn class="h-100 px-8" elevation="0" tile @click="openPointManager(collection)"
+                   icon="mdi-map-marker-multiple"></v-btn>
+            <v-btn class="h-100 px-8" elevation="0" tile @click="editCollection(collection)"
+                   icon="mdi-pencil"></v-btn>
+            <v-btn class="h-100 px-8" elevation="0" tile @click="confirmDeleteCollection(collection)"
+                   icon="mdi-delete"></v-btn>
+          </div>
+        </template>
+      </v-list-item>
+    </v-list>
     <div class="text-center" v-else>
       <EmptyView></EmptyView>
     </div>

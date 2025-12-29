@@ -45,7 +45,7 @@ export interface ChangePasswordParams {
 export interface UserLocalResult {
     token: string
     userId: string
-    privilege: string[]
+    role: string[]
     userAvatar?: string
     username?: string
     alternativeName?: string

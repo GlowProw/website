@@ -3,7 +3,8 @@ import {computed, ref} from "vue";
 import {useI18n} from "vue-i18n";
 
 const props = defineProps({
-  modelValue: String
+  modelValue: String,
+  placeholder: String
 })
 
 const dialog = ref(false)
@@ -60,7 +61,7 @@ const updateEvent = () => {
     <v-text-field
         :value="startDate && endDate ? `${new Date(startDate).toLocaleString()} - ${new Date(endDate).toLocaleString()}` : ''"
         readonly
-        placeholder="请选择日期范围"
+        :placeholder="placeholder ?? t('请选择日期')"
         @click.stop="dialog = true"
         prepend-inner-icon="mdi-calendar-range"
         clearable

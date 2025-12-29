@@ -6,7 +6,7 @@ import {useI18n} from "vue-i18n";
 import {useRoute, useRouter} from "vue-router";
 import {useNoticeStore} from "~/stores/noticeStore";
 
-import PrivilegesTagWidget from "@/components/PrivilegesTagWidget.vue";
+import RolesTagWidget from "@/components/RolesTagWidget.vue";
 import Textarea from "@/components/textarea"
 import UserAvatar from "@/components/UserAvatar.vue";
 
@@ -375,7 +375,7 @@ const onClearPasswordFrom = () => {
 
       <v-row>
         <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="8">
-          <PrivilegesTagWidget :data="userAccountData.privilege"/>
+          <RolesTagWidget :data="userAccountData.role"/>
         </v-col>
       </v-row>
     </v-form>

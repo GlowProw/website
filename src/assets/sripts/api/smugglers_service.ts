@@ -89,11 +89,15 @@ export function useSmugglersApi() {
     const {handleError, handleResponse} = createApiBase();
 
     /**
-     * 检查走私犯权限
+     * 检查权限
      */
-    const checkPrivilege = async () => {
+    const checkPrivilege = async (privileges: string[]) => {
         try {
-            const result = await http.get('smugglers/privileges/check');
+            const result = await http.post('smugglers/privileges/check', {
+                data: {
+                    privileges
+                }
+            });
             return handleResponse(result);
         } catch (error) {
             if (error instanceof ApiError) {
@@ -132,7 +136,7 @@ export function useSmugglersApi() {
      */
     const getRangeTimeReport = async (date?: Date | string) => {
         try {
-            const result = await http.get('smugglers/reports', {
+            const result = await http.get('smugglers/reports/byTime', {
                 params: {
                     date: date ?? new Date()
                 }
@@ -267,6 +271,29 @@ export function useSmugglersApi() {
     };
 
     /**
+     * 添加评论到周报
+     */
+    const editReportComment = async (
+        reportId: string,
+        commentId: string,
+        data: CreateReportCommentParams
+    ) => {
+        try {
+            const result = await http.put(`smugglers/reports/${reportId}/comments/${commentId}`, {
+                data: {
+                    content: data.content
+                }
+            });
+            return handleResponse(result);
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            return handleError(error);
+        }
+    };
+
+    /**
      * 删除周报评论
      */
     const delReportComment = async (reportId: string,) => {
@@ -354,6 +381,7 @@ export function useSmugglersApi() {
         // 评论相关
         getReportComments,
         addReportComment,
+        editReportComment,
         delReportComment
     };
 }

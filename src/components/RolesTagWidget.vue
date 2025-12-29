@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 import {onMounted, ref, watch} from "vue";
-import privileges from "@/../public/config/privilege.json"
+import privileges from "~/public/config/role.json"
 import {useI18n} from "vue-i18n";
 
 const {t} = useI18n()

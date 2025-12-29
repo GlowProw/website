@@ -7,7 +7,7 @@ import {useNoticeStore} from "~/stores/noticeStore";
 
 import Silk from "@/components/Silk.vue";
 import Textarea from "@/components/textarea/index.vue";
-import PrivilegesTagWidget from "@/components/PrivilegesTagWidget.vue";
+import RolesTagWidget from "@/components/RolesTagWidget.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
 
 const props = withDefaults(defineProps<{ id: string | null }>(), {id: null}),
@@ -103,7 +103,7 @@ const getUserInfo = async () => {
           </v-row>
         </router-link>
 
-        <PrivilegesTagWidget :data="userInfoData.privilege" v-if="userInfoData.privilege" class="mb-3 mt-1"></PrivilegesTagWidget>
+        <RolesTagWidget :data="userInfoData.role" v-if="userInfoData.role" class="mb-3 mt-1"></RolesTagWidget>
 
         <Textarea
             readonly

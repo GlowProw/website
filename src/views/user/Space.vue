@@ -9,7 +9,7 @@ import {ApiError} from "@/assets/types/Api";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {useI18n} from "vue-i18n";
 
-import PrivilegesTagWidget from "@/components/PrivilegesTagWidget.vue";
+import RolesTagWidget from "@/components/RolesTagWidget.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
 import EmptyView from "@/components/EmptyView.vue";
 import Time from "@/components/Time.vue";
@@ -223,7 +223,7 @@ const getUserAssemblysData = async () => {
             <v-col cols="8" class="ml-4">
               <h1 class="mb-1">{{ userData.username }}</h1>
               <div class="align-center d-flex ga-2 overflow-y-auto">
-                <PrivilegesTagWidget :data="userData.privilege" density="compact"></PrivilegesTagWidget>
+                <RolesTagWidget :data="userData.role" density="compact"></RolesTagWidget>
                 <v-divider vertical class="mx-3" inset opacity=".2"></v-divider>
                 <v-chip density="compact" v-if="userData.lastOnlineTime">
                   {{ t('space.lastOnlineTime') }}：

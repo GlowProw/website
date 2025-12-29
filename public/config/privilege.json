@@ -1,55 +1,17 @@
 {
-  "title": "privilege",
-  "child": [
+  "list": [
     {
-      "value": "root",
-      "class": "red",
-      "weight": 200
-    },
-    {
-      "value": "admin",
-      "class": "magenta",
-      "weight": 40
-    },
-    {
-      "value": "super",
-      "class": "primary",
-      "weight": 85
-    },
-    {
-      "value": "volunteer",
-      "class": "#8BC34A",
-      "weight": 5
-    },
-    {
-      "value": "normal",
-      "class": "success",
-      "weight": 5
-    },
-    {
-      "value": "dev",
-      "class": "blue",
-      "weight": 20
-    },
-    {
-      "value": "test",
-      "class": "geekblue",
-      "weight": 15
-    },
-    {
-      "value": "bot",
-      "class": "purple",
-      "weight": 5
-    },
-    {
-      "value": "blacklisted",
-      "class": "",
-      "weight": 0
-    },
-    {
-      "value": "freezed",
-      "class": "",
-      "weight": 0
+      "title": "smuggler_weekly",
+      "smuggler_weekly_report_ownership": {
+        "child": {
+          "smuggler_weekly_report_create": {},
+          "smuggler_weekly_report_update": {},
+          "smuggler_weekly_report_delete": {},
+          "smuggler_weekly_report_comment_create": {},
+          "smuggler_weekly_report_comment_update": {},
+          "smuggler_weekly_report_comment_delete": {}
+        }
+      }
     }
   ]
 }

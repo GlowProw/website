@@ -17,11 +17,12 @@ export function useI18nReadName() {
         return path.split('.').reduce((acc, key) => acc?.[key], obj)
     }
 
-    const item = (id: string) => {
+    const item = (id: string | number) => {
         let keys = [
-            `snb.items.${id}.name`,
-            `snb.items.${sanitizeString(id).cleaned}.name`,
-        ];
+                `snb.items.${id}.name`,
+                `snb.items.${sanitizeString(id as string).cleaned}.name`,
+            ],
+            idTier = sanitizeString(id as string).removedNumbers[0];
 
         return {
             keys,
@@ -31,7 +32,7 @@ export function useI18nReadName() {
                         backRawKey: true,
                         lang
                     })
-                    const tier = number.intToRoman(items[id].tier) || '';
+                    const tier = number.intToRoman(idTier || items[id].tier ) || '';
                     return `${translatedName} ${tier}`.trim()
                 }
                 return id;

@@ -4,13 +4,14 @@ import {apis} from "@/assets/sripts/index";
 import {ApiError} from "@/assets/types/Api";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {useI18n} from "vue-i18n";
+import {useAuthStore} from "~/stores/userAccountStore";
+
 import SmugglersReportShowItemWidget from "@/components/SmugglersReportShowItemWidget.vue";
 import SmugglersReportEditor from "@/components/SmugglersReportEditor.vue"
 import Textarea from "@/components/textarea/index.vue";
 import TimeFrame from "@/components/TimeFrame.vue";
 import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue";
-import {useAuthStore} from "~/stores/userAccountStore";
 
 const notice = useNoticeStore(),
     {t} = useI18n(),
@@ -18,8 +19,10 @@ const notice = useNoticeStore(),
 
 let isHasSmugglersReportPrivilege = ref(false),
     checkPermissionLoading = ref(false),
-    createModel = ref(false),
-    createCommentModel = ref(false),
+    smugglersReportModel = ref(false),
+    smugglersReportModelIsEdit = ref(false), // 是否编辑
+    commentModelIsEdit = ref(false), // 是否编辑
+    commentModel = ref(false),
     createSmugglersReportLoading = ref(false),
     createCommentLoading = ref(false),
     smugglersReportListLoading = ref(false),
@@ -64,7 +67,15 @@ const getCheckUserPermission = async () => {
   try {
     checkPermissionLoading.value = true
 
-    const result = await apis.smugglersApi().checkPrivilege(),
+    const result = await apis.smugglersApi().checkPrivilege([
+          "smuggler_weekly_report_ownership",
+          "smuggler_weekly_report_create",
+          "smuggler_weekly_report_update",
+          "smuggler_weekly_report_delete",
+          "smuggler_weekly_report_comment_create",
+          "smuggler_weekly_report_comment_update",
+          "smuggler_weekly_report_comment_delete",
+        ]),
         d = result.data;
 
     isHasSmugglersReportPrivilege.value = d.data.hasPrivilege || false;
@@ -129,6 +140,7 @@ const onCreateSmugglersReport = async () => {
         }),
         d = result.data;
 
+    await getSmugglersReportList()
   } catch (e) {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
@@ -144,11 +156,11 @@ const onCreateSmugglersReport = async () => {
 /**
  * 编辑报告
  */
-const onEditSmugglersReport = async (reportId: any) => {
+const onEditSmugglersReport = async () => {
   try {
     createSmugglersReportLoading.value = true
 
-    const {title, content} = createSmugglersReportData.value;
+    const {title, content, id: reportId} = createSmugglersReportData.value;
 
     const result = await apis.smugglersApi().updateReport(reportId, {
           title,
@@ -157,6 +169,7 @@ const onEditSmugglersReport = async (reportId: any) => {
         }),
         d = result.data;
 
+    await getSmugglersReportList()
   } catch (e) {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
@@ -166,15 +179,68 @@ const onEditSmugglersReport = async (reportId: any) => {
     console.error(e)
   } finally {
     createSmugglersReportLoading.value = false
+    smugglersReportModel.value = false
   }
 }
 
 /**
- * 打开创建评论创建
+ * 删除周报
  */
-const openCommendModel = (reportData: any) => {
-  createCommentModel.value = true
-  selectedSmugglersReport.value = reportData
+const onDeleteSmugglersReport = async (i) => {
+  try {
+    createCommentLoading.value = true
+
+    const result = await apis.smugglersApi().deleteReport(i.id),
+        d = result.data;
+
+    await getSmugglersReportList()
+  } catch (e) {
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.code
+      }))
+    }
+    console.error(e)
+  } finally {
+    createCommentLoading.value = false
+  }
+}
+
+/**
+ * 打开周报模版
+ */
+const openSmugglersReportModel = (reportData: any | null) => {
+  smugglersReportModel.value = true
+
+
+  if (reportData) {
+    // 编辑
+    smugglersReportModelIsEdit.value = true
+
+    createSmugglersReportData.value = reportData
+    createSmugglersReportData.value.startAndEnd = `${reportData.startTime},${reportData.endTime}`
+  } else {
+    // 创建
+    smugglersReportModelIsEdit.value = false
+  }
+}
+
+/**
+ * 打开评论模版
+ */
+const openCommendModel = (reportData: any | null) => {
+  commentModel.value = true
+
+  if (reportData.isUserComment) {
+    // 编辑
+    commentModelIsEdit.value = true
+
+    selectedSmugglersReport.value = reportData
+    smugglersReportComment.value.content = reportData.userComment.content ?? ''
+  } else {
+    // 创建
+    commentModelIsEdit.value = false
+  }
 }
 
 /**
@@ -192,6 +258,8 @@ const onCreateCommend = async () => {
           content: smugglersReportComment.value.content as string
         }),
         d = result.data;
+
+    await getSmugglersReportList()
   } catch (e) {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
@@ -201,13 +269,45 @@ const onCreateCommend = async () => {
     console.error(e)
   } finally {
     createCommentLoading.value = false
+    commentModel.value = false
+  }
+}
+
+/**
+ * 编辑评论
+ */
+const onEditCommend = async () => {
+  try {
+    createCommentLoading.value = true
+
+    const reportId = selectedSmugglersReport.value.id,
+        commentId = selectedSmugglersReport.value?.userComment.id
+
+    if (!reportId) return
+
+    const result = await apis.smugglersApi().editReportComment(reportId, commentId, {
+          content: smugglersReportComment.value.content as string
+        }),
+        d = result.data;
+
+    await getSmugglersReportList()
+  } catch (e) {
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.code
+      }))
+    }
+    console.error(e)
+  } finally {
+    createCommentLoading.value = false
+    commentModel.value = false
   }
 }
 
 /**
  * 删除评论
  */
-const onDeleteComment = async () =>{
+const onDeleteComment = async () => {
   try {
     createCommentLoading.value = true
 
@@ -217,6 +317,8 @@ const onDeleteComment = async () =>{
 
     const result = await apis.smugglersApi().delReportComment(reportId),
         d = result.data;
+
+    await getSmugglersReportList()
   } catch (e) {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
@@ -226,31 +328,7 @@ const onDeleteComment = async () =>{
     console.error(e)
   } finally {
     createCommentLoading.value = false
-  }
-}
-
-/**
- * 删除周报
- */
-const onDeleteSmugglersReport = async () => {
-  try {
-    // createCommentLoading.value = true
-
-    const reportId = selectedSmugglersReport.value.id;
-
-    if (!reportId) return
-
-    const result = await apis.smugglersApi().deleteReport(reportId),
-        d = result.data;
-  } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
-  } finally {
-    // createCommentLoading.value = false
+    commentModel.value = false
   }
 }
 </script>
@@ -291,7 +369,7 @@ const onDeleteSmugglersReport = async () => {
       </v-col>
       <v-divider vertical inset></v-divider>
       <v-col cols="auto" v-if="authStore.isLogin && authStore.checkPrivilegeGroup(authStore.user?.privilege,['smugglersReportConnoisseur', 'admin','super' ,'dev'])">
-        <v-btn class="bg-amber" @click="createModel = true">创建每周物品数据</v-btn>
+        <v-btn class="bg-amber" @click="openSmugglersReportModel">创建每周物品数据</v-btn>
       </v-col>
       <v-col cols="auto">
         <v-btn @click="getSmugglersReportList">
@@ -300,35 +378,46 @@ const onDeleteSmugglersReport = async () => {
       </v-col>
     </v-row>
 
-    <v-list>
+    <v-list border rounded lines="one">
       <v-list-item v-for="(i,index) in smugglersReportListData" :key="index">
+        <template v-slot:prepend>
+          <v-icon size="40">mdi-trophy-award</v-icon>
+        </template>
         <v-list-item-title>{{ i.title }}</v-list-item-title>
         <v-list-item-subtitle>
-          <div class="d-flex">
-            已有评论 {{ i?.comment_count || 0 }}
+          <div class="d-flex text-caption opacity-60">
+            <v-icon>mdi-comment</v-icon>
+            <p class="ml-2">
+              {{ i?.commentCount || 0 }}
+            </p>
+
             <v-divider vertical class="mx-2"></v-divider>
-            时间
-            <TimeView :time="i.startTime">
-              <Time :time="i.startTime"></Time>
-            </TimeView>
-            -
-            <TimeView :time="i.endTime">
-              <Time :time="i.endTime"></Time>
-            </TimeView>
+
+            <v-icon>mdi-clipboard-text-clock</v-icon>
+            <p class="ml-2">
+              <TimeView :time="i.startTime">
+                <Time :time="i.startTime"></Time>
+              </TimeView>
+              -
+              <TimeView :time="i.endTime">
+                <Time :time="i.endTime"></Time>
+              </TimeView>
+            </p>
           </div>
         </v-list-item-subtitle>
 
         <template v-slot:append>
-          <v-btn @click="openCommendModel(i)">{{ i.isUserComment ? '查看' : '创建' }}评论</v-btn>
-          <v-divider vertical></v-divider>
-          <v-btn @click="onDeleteSmugglersReport">删除</v-btn>
+          <div class="d-flex ga-2">
+            <v-btn @click="openSmugglersReportModel(i)">编辑周报</v-btn>
+            <v-btn @click="openCommendModel(i)">{{ i.isUserComment ? '查看' : '创建' }}评论</v-btn>
+          </div>
         </template>
       </v-list-item>
     </v-list>
   </div>
 
   <!-- 走私犯物品数据 S -->
-  <v-dialog v-model="createModel">
+  <v-dialog v-model="smugglersReportModel">
     <v-container>
       <v-card max-height="80vh" class="overflow-y-auto">
         <v-card-title>创建走私犯每周数据</v-card-title>
@@ -340,16 +429,18 @@ const onDeleteSmugglersReport = async () => {
               <v-text-field v-model="createSmugglersReportData.title"></v-text-field>
             </v-col>
             <v-col cols="3">
-              {{ createSmugglersReportData.startAndEnd }}
-              <TimeFrame v-model="createSmugglersReportData.startAndEnd"></TimeFrame>
+              <TimeFrame v-model="createSmugglersReportData.startAndEnd"
+                         :placeholder="createSmugglersReportData.startAndEnd"></TimeFrame>
             </v-col>
           </v-row>
 
           <v-row>
-            <v-col cols="6">
-              <SmugglersReportShowItemWidget :data="createSmugglersReportData.content"></SmugglersReportShowItemWidget>
+            <v-col cols="7">
+              <v-card variant="text" max-height="50vh" class="overflow-y-auto">
+                <SmugglersReportShowItemWidget :data="createSmugglersReportData.content"></SmugglersReportShowItemWidget>
+              </v-card>
             </v-col>
-            <v-col cols="6">
+            <v-col cols="5">
               <SmugglersReportEditor v-model="createSmugglersReportData.content"></SmugglersReportEditor>
             </v-col>
           </v-row>
@@ -357,9 +448,10 @@ const onDeleteSmugglersReport = async () => {
 
         <v-divider></v-divider>
         <v-card-actions>
+          <v-btn @click="onDeleteSmugglersReport(createSmugglersReportData)" v-if="smugglersReportModelIsEdit">删除周报</v-btn>
           <v-spacer></v-spacer>
-          <v-btn @click="createModel = !createModel">取消</v-btn>
-          <v-btn @click="onCreateSmugglersReport" :loading="createSmugglersReportLoading">创建</v-btn>
+          <v-btn @click="smugglersReportModel = !smugglersReportModel">取消</v-btn>
+          <v-btn @click="smugglersReportModelIsEdit ? onEditSmugglersReport() : onCreateSmugglersReport()" :loading="createSmugglersReportLoading">创建</v-btn>
         </v-card-actions>
       </v-card>
     </v-container>
@@ -367,7 +459,7 @@ const onDeleteSmugglersReport = async () => {
   <!-- 走私犯物品数据 E -->
 
   <!-- 走私犯物品评论 S -->
-  <v-dialog v-model="createCommentModel">
+  <v-dialog v-model="commentModel">
     <v-container>
       <v-card max-height="80vh" class="overflow-y-auto">
         <v-card-title>创建鉴赏</v-card-title>
@@ -376,7 +468,9 @@ const onDeleteSmugglersReport = async () => {
         <v-card-text>
           <v-row>
             <v-col cols="6">
-              <SmugglersReportShowItemWidget :data="selectedSmugglersReport.content"></SmugglersReportShowItemWidget>
+              <v-card variant="text" max-height="50vh" class="overflow-y-auto">
+                <SmugglersReportShowItemWidget :data="selectedSmugglersReport.content"></SmugglersReportShowItemWidget>
+              </v-card>
             </v-col>
             <v-divider vertical></v-divider>
             <v-col cols="6">
@@ -394,13 +488,13 @@ const onDeleteSmugglersReport = async () => {
 
         <v-divider></v-divider>
         <v-card-actions>
-          <v-btn @click="onDeleteComment">
+          <v-btn @click="onDeleteComment" v-if="commentModelIsEdit">
             删除评论
           </v-btn>
           <v-spacer></v-spacer>
-          <v-btn @click="createCommentModel = !createCommentModel">取消</v-btn>
-          <v-btn @click="onCreateCommend">
-            {{ selectedSmugglersReport.isUserComment ? '编辑' : '创建' }}
+          <v-btn @click="commentModel = !commentModel">取消</v-btn>
+          <v-btn @click="commentModelIsEdit ? onEditCommend : onCreateCommend">
+            {{ commentModelIsEdit ? '编辑' : '创建' }}
           </v-btn>
         </v-card-actions>
       </v-card>

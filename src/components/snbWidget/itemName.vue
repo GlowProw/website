@@ -11,6 +11,8 @@ const props = defineProps<{ data?: Item, id?: string, tier?: number }>(),
 let getTitle = computed(() => {
   return `${item(props.id || props.data?.id).name() || '-'}`
 })
+
+defineExpose({ name: getTitle })
 </script>
 
 <template>

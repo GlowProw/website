@@ -261,10 +261,6 @@ const onSlotRemove = (type, index?: number) => {
  * 选择船
  * @param shipId
  */
-/**
- * 选择船
- * @param shipId
- */
 const onSelectShip = (shipId: string) => {
   if (poops.readonly)
     return;

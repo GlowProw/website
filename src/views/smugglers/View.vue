@@ -15,6 +15,7 @@ import Time from "@/components/Time.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import NpcIconWidget from "@/components/snbWidget/npcIconWidget.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
+import EmptyView from "@/components/EmptyView.vue";
 
 const {t} = useI18n(),
     notice = useNoticeStore()
@@ -42,7 +43,7 @@ const getSmugglersData = async () => {
         d = result.data;
 
     smugglersData.value = d.data[0];
-    getSmugglersComment(smugglersData.value.id)
+    await getSmugglersComment(smugglersData.value.id)
   } catch (e) {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
@@ -108,26 +109,42 @@ const getSmugglersComment = async (reportId: string) => {
     </template>
   </v-card>
   <v-divider></v-divider>
+
   <v-container>
     <v-row>
-      <v-col cols="3">
-        <v-card height="40" variant="text" class="mb-5"></v-card>
+      <v-col cols="12" lg="3">
         <ItemSlotBase size="99px">
           <NpcIconWidget id="smugglersNetwork-sainteAnne"></NpcIconWidget>
         </ItemSlotBase>
 
-        <div class="mt-10">
-          <p class="text-amber mb-2 text-h5">{{ t('smugglersReport.title') }}</p>
-          <q class="opacity-60 quote">
-            {{ t('smugglersReport.description') }}
-          </q>
-        </div>
+        <v-row>
+          <v-col cols="12" sm="6" lg="12">
+            <div class="mt-10">
+              <p class="text-amber mb-2 text-h5">{{ t('smugglersReport.title') }}</p>
+              <q class="opacity-60 quote">
+                {{ t('smugglersReport.description') }}
+              </q>
+            </div>
+          </v-col>
 
-        <div class="mt-10 opacity-60">
-          <p><b class="d-block mb-3">{{ smugglersData.title ?? 'N/A' }}</b></p>
-          <p>开始: <TimeView :time="smugglersData.startTime"><Time :time="smugglersData.startTime"></Time></TimeView></p>
-          <p>结束: <TimeView :time="smugglersData.endTime"><Time :time="smugglersData.endTime"></Time></TimeView></p>
-        </div>
+          <template v-if="smugglersData.id">
+            <v-col cols="auto" sm="6" lg="12">
+              <div class="mt-10 opacity-60">
+                <p><b class="d-block mb-3">{{ smugglersData.title ?? 'N/A' }}</b></p>
+                <p>开始:
+                  <TimeView :time="smugglersData.startTime">
+                    <Time :time="smugglersData.startTime"></Time>
+                  </TimeView>
+                </p>
+                <p>结束:
+                  <TimeView :time="smugglersData.endTime">
+                    <Time :time="smugglersData.endTime"></Time>
+                  </TimeView>
+                </p>
+              </div>
+            </v-col>
+          </template>
+        </v-row>
       </v-col>
       <v-col cols="12" lg="9">
         <AffixBoxHasTitleView>
@@ -153,21 +170,22 @@ const getSmugglersComment = async (reportId: string) => {
       </v-col>
     </v-row>
 
-    <HorizontalScrollList>
+
+    <HorizontalScrollList v-if="commentData.length > 0">
       <v-card
           v-for="(i, index) in commentData" :key="index"
           tile
-          variant="text"
-          width="550px"
-          height="250px">
+          variant="text">
         <v-row no-gutters>
-<!--          <v-col cols="auto" class="mr-2">-->
-<!--            <v-card class="p-2 d-flex align-center justify-center" border width="30" height="30" tile>-->
-<!--              推-->
-<!--            </v-card>-->
-<!--          </v-col>-->
+          <!--          <v-col cols="auto" class="mr-2">-->
+          <!--            <v-card class="p-2 d-flex align-center justify-center" border width="30" height="30" tile>-->
+          <!--              推-->
+          <!--            </v-card>-->
+          <!--          </v-col>-->
           <v-col>
-            <v-card border class="py-5 px-10">
+            <v-card border class="py-5 px-10"
+                    width="550px"
+                    height="200px">
               <b>{{ i.username }}</b>
               <div class="text-caption">
                 <TimeView :time="i.createdTime">
@@ -183,8 +201,8 @@ const getSmugglersComment = async (reportId: string) => {
           </v-col>
         </v-row>
       </v-card>
-
     </HorizontalScrollList>
+    <EmptyView v-else></EmptyView>
   </v-container>
 </template>
 

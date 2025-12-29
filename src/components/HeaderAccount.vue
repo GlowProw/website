@@ -21,7 +21,7 @@ const authStore = useAuthStore(),
             <span v-else>{{ authStore.currentUser[0].toUpperCase() || 'U' }}</span>
           </v-avatar>
         </v-btn>
-        <v-btn variant="text" to="/account/signin" v-else>
+        <v-btn block variant="text" to="/account/signin" v-else>
           {{ t('signin.title') }}
         </v-btn>
       </div>
@@ -54,7 +54,9 @@ const authStore = useAuthStore(),
           </v-avatar>
         </v-col>
         <v-col>
-          {{ t('signin.title') }}
+          <v-btn block variant="tonal" to="/account/signin">
+            {{ t('signin.title') }}
+          </v-btn>
         </v-col>
       </v-row>
     </template>
