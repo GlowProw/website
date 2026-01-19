@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {assemblyViewConfig} from "@/assets/sripts/index";
+import {assemblyViewConfig, storage_account} from "@/assets/sripts/index";
 import ZoomableCanvas from "@/components/ZoomableCanvas.vue";
 import WarehouseShowWidget from "@/components/WarehouseShowWidget.vue";
 import WheelWidget from "@/components/WheelShowWidget.vue";
@@ -32,11 +32,12 @@ const props = withDefaults(defineProps<{
     emit = defineEmits(['update:tab', 'update:item-change', 'ready'])
 
 let isWorkshopFillScreen = ref(props.isWorkshopFillScreen),
+    viewRootRef = ref(null),
     zoomableAreaRef: Ref<ZoomableCanvas> = ref(null),
     assemblyWorkshopRef: Ref<AssemblyWidget> = ref(null),
     wheelWorkshopRef: Ref<WheelWidget> = ref(null),
     warehouseWorkshopRef: Ref<WarehouseShowWidget> = ref(null),
-    workshopHeight = ref(700),
+    workshopHeight = ref('700px'),
     tab = ref(assemblyViewConfig.onlyRead[0]),
     refs: Ref<{
       zoomableAreaRef: ZoomableCanvas,
@@ -49,6 +50,7 @@ let isWorkshopFillScreen = ref(props.isWorkshopFillScreen),
       wheel: null,
       warehouse: null
     }),
+    assemblyViewModel = ref('lock-window'),
     hasShip = computed(() => {
       return assemblyWorkshopRef.value?.onExport() == null;
     }),
@@ -61,6 +63,8 @@ let isWorkshopFillScreen = ref(props.isWorkshopFillScreen),
 
 onMounted(() => {
   nextTick(() => {
+    assemblyViewModel.value = storage_account.getConfigurationItem('assembly', 'viewModel', {defaultValue: 'lock-window'})
+
     refs.value = {
       zoomableAreaRef: zoomableAreaRef.value,
       assembly: assemblyWorkshopRef.value,
@@ -68,13 +72,16 @@ onMounted(() => {
       warehouse: warehouseWorkshopRef.value
     };
 
-    if (hasReadyEvent)
+    if (hasReadyEvent) {
       emit('ready', refs)
+    }
 
     // 初始验证
     if (hasItemChangeEvent) {
       emit('update:item-change', 'assembly')
     }
+
+    onWorkshopViewHeightUpdate()
   })
 })
 
@@ -99,6 +106,17 @@ const onWorkshopDelete = () => {
 };
 
 /**
+ * 更新画布高度
+ */
+const onWorkshopViewHeightUpdate = () => {
+  if (assemblyViewModel.value == 'full-extension') {
+    setTimeout(() => {
+      workshopHeight.value = `${viewRootRef.value.clientHeight + 100}px`
+    }, 500)
+  }
+}
+
+/**
  * 变动事件
  */
 const onUpdateEvent = (workshopName: string) => {
@@ -113,6 +131,8 @@ const onTabs = () => {
     onWorkshopRestorePosition()
 
   emit('update:tab', tab.value)
+
+  onWorkshopViewHeightUpdate()
 }
 
 /**
@@ -148,11 +168,13 @@ defineExpose({
              :key="index">{{ t(`assembly.additions.${i}`) }}
       </v-tab>
     </v-tabs>
+
     <v-divider opacity=".08"></v-divider>
 
     <ZoomableCanvas
         ref="zoomableAreaRef"
-        :style="isWorkshopFillScreen ? 'height: calc(100vh - 50px)' : `height: ${mobile ? 300 : workshopHeight}px`"
+        :disabled="assemblyViewModel != 'lock-window'"
+        :style="isWorkshopFillScreen ? 'height: calc(100vh - 50px)' : `height: ${mobile ? '300ox' : workshopHeight}`"
         :min-scale="mobile ? .1 : .8"
         :max-scale="1.4"
         :default-scale="mobile ? .4 : 1"
@@ -168,7 +190,7 @@ defineExpose({
                 top: -500,
                 bottom: 500
               }">
-      <div class="mb-5 ml-n10 mr-n10">
+      <div class="mb-5 ml-n10 mr-n10" ref="viewRootRef">
         <div v-show="tab === 'assembly'">
           <AssemblyWidget ref="assemblyWorkshopRef"
                           @update:item-change="onUpdateEvent"

@@ -2,11 +2,11 @@
   <span @click="openDialog">
     <slot></slot>
   </span>
-  <v-dialog v-model="model">
+  <v-dialog v-model="model" :fullscreen="mobile">
     <v-container>
       <v-card border>
         <v-row no-gutters>
-          <v-col cols="2">
+          <v-col cols="2" v-if="!mobile">
             <div class="d-flex bg-black mb-4 h-100 align-center justify-center">
               <v-icon size="80">mdi-image-search-outline</v-icon>
             </div>
@@ -178,7 +178,7 @@
                 <!-- 搜索进度显示 E -->
 
                 <template v-if="searchResults.length <= 0 && !searching && !queryImageData">
-                  <v-card class="pa-10 d-flex justify-center align-center" height="calc(100vh - 400px)" elevation="0" border>
+                  <v-card class="pa-10 d-flex justify-center align-center" :height="`calc(100vh - ${mobile ? 480 : 400}px)`" elevation="0" border>
                     <div class="text-center">
                       <v-icon size="66" class="mb-3 opacity-30">mdi-image-plus</v-icon>
                       <p>{{ t('codex.treasureMaps.comparison.uploadPrompt') }}</p>

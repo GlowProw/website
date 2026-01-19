@@ -1164,7 +1164,17 @@
   "setting": {
     "title": "设置",
     "routine": {
-      "title": "常规设置"
+      "title": "常规设置",
+      "assemblyViewModel": {
+        "full-extension": {
+          "name": "自动延伸视图",
+          "description": "按照内容配装延伸高度"
+        },
+        "lock-window": {
+          "name": "锁定窗口",
+          "description": "固定高度，溢出部分需要拖拽查看"
+        }
+      }
     },
     "ad": {
       "title": "广告"

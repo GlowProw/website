@@ -5,7 +5,6 @@ import CodexViewData from "@/components/CodexViewData.vue";
 import TreasureMapImageSimilarity from "@/components/TreasureMapImageSimilarity.vue";
 import {nextTick, onMounted, Ref, ref} from "vue";
 import {useRoute} from "vue-router";
-import ImageMagnifyingGlass from "@/components/ImageMagnifyingGlass.vue";
 
 const {t} = useI18n(),
     route = useRoute()

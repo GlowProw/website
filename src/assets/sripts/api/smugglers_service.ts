@@ -1,4 +1,3 @@
-// src/assets/sripts/api/smugglers.ts
 import {useHttpToken} from "@/assets/sripts/http_util";
 import {createApiBase} from "@/assets/sripts/api/api-util";
 import {ApiError} from "@/assets/types/Api";
@@ -17,7 +16,6 @@ export interface SmugglersReport {
     author_avatar?: string;
     comment_count?: number;
     isUserComment?: boolean;
-
 }
 
 export interface CreateReportParams {

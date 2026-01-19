@@ -1,7 +1,7 @@
 <template>
   <div class="canvas-container overlapping-circles" ref="container">
     <div class="canvas-container overlapping-pattern">
-      <v-container class="position-relative" v-if="isShowTool">
+      <v-container class="position-relative" v-if="isShowTool && !disabled">
         <ZoomableTool @event-center="resetView"
                       @event-minus="onScaleMinus"
                       @event-plus="onScalePlus"></ZoomableTool>
@@ -38,6 +38,10 @@ import ZoomableTool from "@/components/ZoomableTool.vue";
 
 const {mobile} = useDisplay()
 const props = defineProps({
+  disabled: {
+    type: Boolean,
+    default: false
+  },
   canvasWidth: {
     type: Number,
     default: 1200

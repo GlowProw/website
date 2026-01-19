@@ -7,6 +7,8 @@ import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import {appFuns, storage_account, storage_capacity_monitor} from "@/assets/sripts/index";
 import {onMounted, Ref, ref} from "vue";
 import {useI18n} from "vue-i18n";
+import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
+import SetIconWidget from "@/components/snbWidget/setIconWidget.vue";
 
 const {t} = useI18n()
 
@@ -20,7 +22,9 @@ let estimateCapacity: Ref<any> = ref({}),
     searchHotkey = ref(false),
     searchHint = ref(false),
 
-    posterSwitch = ref(false)
+    posterSwitch = ref(false),
+
+    assemblyViewModel = ref('lock-window')
 
 onMounted(() => {
   getConfig()
@@ -48,6 +52,8 @@ const getConfig = () => {
   searchHint.value = storage_account.getConfigurationItem('search', 'hint.switch')
 
   posterSwitch.value = storage_account.getConfigurationItem('poster', 'poster.switch')
+
+  assemblyViewModel.value =  storage_account.getConfigurationItem('assembly', 'viewModel', {defaultValue: assemblyViewModel.value})
 }
 
 const onUpdateAppFunConfig = () => {
@@ -75,6 +81,10 @@ const onSearchHint = () => {
 
 const onPosterSwitch = () => {
   storage_account.updateConfiguration('poster', 'poster.switch', posterSwitch.value)
+}
+
+const onAssemblyViewModel = () => {
+  storage_account.updateConfiguration('assembly', 'viewModel', assemblyViewModel.value)
 }
 
 /**
@@ -251,6 +261,35 @@ const clearStorage = () => {
         </v-row>
         <template v-slot:title>
           搜索
+        </template>
+      </AffixBoxHasTitleView>
+    </v-col>
+    <v-col cols="12" lg="4">
+      <AffixBoxHasTitleView>
+        <p class="text-caption opacity-60 mb-5">配装配装选项</p>
+
+        <v-row align="center" no-gutters>
+          <v-col>配装视图模式</v-col>
+          <v-col cols="auto">
+            <v-select hide-details inset density="compact" :items="['full-extension', 'lock-window']" v-model="assemblyViewModel" @update:modelValue="onAssemblyViewModel">
+              <template v-slot:item="{props, item}">
+                <v-list-item v-bind="props">
+                  <template v-slot:title>
+                    {{ t(`setting.routine.assemblyViewModel.${item.raw}.name`) }}
+                  </template>
+                </v-list-item>
+              </template>
+              <template v-slot:selection="{props, item}">
+                {{ t(`setting.routine.assemblyViewModel.${item.raw}.name`) }}
+              </template>
+            </v-select>
+          </v-col>
+        </v-row>
+
+        <p class="mt-3 text-caption opacity-60">{{ t(`setting.routine.assemblyViewModel.${assemblyViewModel}.description`) }}</p>
+
+        <template v-slot:title>
+          配装
         </template>
       </AffixBoxHasTitleView>
     </v-col>
