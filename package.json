@@ -13,7 +13,7 @@
     "build:no-check:production": "run-p \"build-only {@}\" --",
     "build:production": "run-p type-check \"build-only {@}\" --",
     "preview:production": "vite preview",
-    "build-only": "vite build"
+    "build-only": "vite build --mode production --debug"
   },
   "dependencies": {
     "@fontsource/roboto": "5.2.5",
