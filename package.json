@@ -47,7 +47,6 @@
     "vue-router": "^4.5.1",
     "vue3-google-adsense": "^1.2.2",
     "vuetify": "^3.8.1",
-    "vite": "^7.0.4",
     "glow-prow-data": "github:GlowProw/glow-prow-data",
     "glow-prow-assets": "github:GlowProw/glow-prow-assets",
     "glow-prow-data-languages": "github:GlowProw/glow-prow-data-languages"
@@ -66,6 +65,7 @@
     "terser": "^5.44.1",
     "typescript": "~5.8.3",
     "vite-plugin-vuetify": "^2.1.1",
-    "vue-tsc": "^2.2.12"
+    "vue-tsc": "^2.2.12",
+    "vite": "^7.0.4"
   }
 }
