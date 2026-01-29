@@ -70,7 +70,7 @@ const onReady = async () => {
   if (commoditiesAssets[props.id])
     commoditiesCardData.value.icon = commoditiesAssets[props.id] || ''
   else {
-    commoditiesCardData.value.icon = `https://skullandbonestools.de/api/imagesservice?src=commodities%2F${props.id}&width=128`
+    commoditiesCardData.value.icon = `https://skullandbonestools.de/api/imagesservice?src=icons%2Fcommodities%2F${props.id}&width=128`
   }
 }
 

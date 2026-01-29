@@ -68,7 +68,7 @@ const onReady = async () => {
   if (assetsCosmetics && assetsCosmetics[props.id])
     setCardData.value.icon = assetsCosmetics[props.id] || ''
   else {
-    setCardData.value.icon = `https://skullandbonestools.de/api/imagesservice?src=vanities%2F${props.id}&width=256`
+    setCardData.value.icon = `https://skullandbonestools.de/api/imagesservice?src=icons%2Fvanities%2F${props.id}&width=256`
   }
 }
 

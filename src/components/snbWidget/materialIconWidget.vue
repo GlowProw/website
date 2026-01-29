@@ -67,7 +67,7 @@ const onReady = async () => {
   if (materialsAssets[props.id])
     materialsCardData.value.icon = materialsAssets[props.id]
   else
-    materialsCardData.value.icon = `https://skullandbonestools.de/api/imagesservice?src=materials%2F${props.id}&width=128`
+    materialsCardData.value.icon = `https://skullandbonestools.de/api/imagesservice?src=icons%2Fmaterials%2F${props.id}&width=128`
 }
 </script>
 

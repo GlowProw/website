@@ -57,7 +57,7 @@ const onReady = async () => {
   if (modAssets[props.id])
     modsData.value.icon = modAssets[props.id] || ''
   else {
-    modsData.value.icon = `https://skullandbonestools.de/api/imagesservice?src=items%2F${props.id}&width=128`
+    modsData.value.icon = `https://skullandbonestools.de/api/imagesservice?src=icons%2Fmodifications%2F${props.id}&width=128`
   }
 }
 </script>
