@@ -874,7 +874,7 @@ const onSort = (field: SortField, order: SortOrder) => {
               </v-col>
 
               <v-col cols="6">
-                <div class="mb-2">{{ t('codex.filter.bySeason') }} ({{ setFilterAvailableOptions.length || 0 }})</div>
+                <div class="mb-2">{{ t('codex.filter.bySeason') }} ({{ seasonFilterAvailableOptions.length || 0 }})</div>
                 <v-select
                     variant="filled"
                     @update:model-value="onFilterSeason"
@@ -882,7 +882,7 @@ const onSort = (field: SortField, order: SortOrder) => {
                     item-title="text"
                     density="comfortable"
                     v-model="filterData.seasons"
-                    :disabled="setFilterAvailableOptions.length <= 0"
+                    :disabled="seasonFilterAvailableOptions.length <= 0"
                     :placeholder="t('codex.filter.bySeason')"
                     :counter="3"
                     :eager="false"

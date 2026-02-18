@@ -10,6 +10,7 @@ import Silk from "@/components/Silk.vue";
 import BlogWidget from "@/components/BlogWidget.vue";
 import AppVersionWidget from "@/components/AppVersionWidget.vue";
 import SeasonViewWidget from "@/components/SeasonViewWidget.vue";
+import NewSeasonShowItem from "@/components/newSeasonShowItem.vue";
 
 const {t} = useI18n()
 
@@ -80,7 +81,7 @@ const getCurrentSeason = (): Season | null => {
     <div class="portal-body pl-3 pr-3 pt-2 pb-2 pt-md-3 pb-md-3 pt-lg-10 pb-lg-10">
       <v-container>
         <v-row>
-          <v-col cols="12" md="8" lg="8" order="2" order-lg="1">
+          <v-col cols="12" md="8" lg="8">
             <v-row>
               <v-col cols="12" sm="6" md="6" lg="6"
                      :class="{'opacity-30': !i.to}"
@@ -101,7 +102,29 @@ const getCurrentSeason = (): Season | null => {
               </v-col>
             </v-row>
           </v-col>
-          <v-col order="1" order-lg="2" lg="4">
+          <v-col lg="4">
+            <div class="title card-enlargement-flavor pb-6">
+              <v-card width="100%" variant="text">
+                <template v-slot:title>
+                  <v-card height="180" class="bg-black d-flex justify-center align-center">
+                    <v-icon size="120">mdi-calendar-range</v-icon>
+                  </v-card>
+                </template>
+              </v-card>
+
+              <div class="mt-3 mx-5">
+                <v-btn block to="/calendar/history" size="50" prepend-icon="mdi-calendar-range">{{ t('calendar.title') }}</v-btn>
+              </div>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </div>
+
+    <div class="portal-body bg-black mt-5 pl-3 pr-3 pt-2 pb-2 pt-md-3 pb-md-3 pt-lg-10 pb-lg-10">
+      <v-container>
+        <v-row>
+          <v-col lg="4">
             <div class="title card-enlargement-flavor pb-6">
               <v-card width="100%">
                 <SeasonViewWidget v-if="currentlySeason" :data="currentlySeason"></SeasonViewWidget>
@@ -120,12 +143,11 @@ const getCurrentSeason = (): Season | null => {
                   </v-col>
                 </v-row>
               </h1>
-              <p class="px-10 py-3 font-weight-light opacity-80">{{ t(`snb.calendar.${currentlySeason?.id}.description`) }}</p>
-
-              <div class="mt-3 mx-10" >
-                <v-btn block to="/calendar/history" size="50" prepend-icon="mdi-calendar-range">{{ t('calendar.title')}}</v-btn>
-              </div>
+              <p class="px-5 py-3 font-weight-light opacity-80">{{ t(`snb.calendar.${currentlySeason?.id}.description`) }}</p>
             </div>
+          </v-col>
+          <v-col lg="8">
+            <NewSeasonShowItem></NewSeasonShowItem>
           </v-col>
         </v-row>
       </v-container>

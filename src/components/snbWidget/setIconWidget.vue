@@ -19,7 +19,7 @@ import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 
 const
     {asString, sanitizeString} = useI18nUtils(),
-    {items, raritys} = useAssetsStore(),
+    {raritys} = useAssetsStore(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
 
     {t} = useI18n(),
@@ -78,11 +78,6 @@ const onReady = async () => {
       category: 'sets'
     }
   });
-  // if (assetsCosmetics && assetsCosmetics[props.id])
-  //   setCardData.value.icon = assetsCosmetics[props.id] || ''
-  // else {
-  //   setCardData.value.icon = `https://skullandbonestools.de/api/imagesservice?src=icons%2Fvanities%2F${props.id}&width=256`
-  // }
 }
 
 const {targetElement, isVisible} = useIntersectionObserver({
