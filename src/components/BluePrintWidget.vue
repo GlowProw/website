@@ -5,8 +5,17 @@ import {Item} from "glow-prow-data";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 
 const props = defineProps<{ data: Item }>(),
-    {t} = useI18n(),
+    {t, tm} = useI18n(),
     {asString} = useI18nUtils()
+
+let seasonI18nMap = computed(() => {
+      return tm('snb.seasons')
+    }),
+    i18nAdditionalAttr = computed(() => {
+      return {
+        ...seasonI18nMap.value
+      }
+    })
 
 const bluePrintsList = computed(() => {
   const bluePrints = props.data?.blueprint;
@@ -19,6 +28,7 @@ const bluePrintsList = computed(() => {
       `snb.mapLocations.${blueprint}.name`,
       `snb.locations.${blueprint}`,
     ], {
+      variable: i18nAdditionalAttr,
       backRawKey: true
     })
   };

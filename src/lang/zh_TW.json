@@ -528,7 +528,8 @@
       }
     },
     "modifications": {
-      "title": "模组列表"
+      "title": "模组列表",
+      "lookDetail": "查看模组详情"
     },
     "material": {
       "title": "材料详情",

@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import {useRoute, useRouter} from "vue-router";
+import {useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {computed, onMounted, type Ref, ref, watch} from "vue";
 import {Item, Items} from "glow-prow-data/src/entity/Items.ts";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
-import {useIntersectionObserver} from "@/assets/sripts/intersection_observer";
 import {number, rarity} from "@/assets/sripts/index";
 import {useAssetsStore} from "~/stores/assetsStore";
 
@@ -17,14 +16,19 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
 import ItemDamageTypeWidget from "@/components/snbWidget/itemDamageTypeWidget.vue";
 import {useAppStore} from "~/stores/appStore";
+import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
+import EmptyView from "@/components/EmptyView.vue";
+import ShipBaseInfoSlotWidget from "@/components/snbWidget/shipBaseInfoSlotWidget.vue";
+import ShipWeaponInfoSlotWidget from "@/components/snbWidget/shipWeaponInfoSlotWidget.vue";
+import PerksWidget from "@/components/snbWidget/perksWidget.vue";
+import ShipDescription from "@/components/snbWidget/shipDescription.vue";
+import DamageMitigationWidget from "@/components/snbWidget/damageMitigationWidget.vue";
 
-const
-    {asString, sanitizeString} = useI18nUtils(),
-    route = useRoute(),
-    router = useRouter(),
+const router = useRouter(),
     appStore = useAppStore(),
     {t} = useI18n(),
-    {items: itemsAssets, raritys: raritysAssets} = useAssetsStore(),
+    {raritys: raritysAssets} = useAssetsStore(),
+    cdnStore = useCDNAssetsServiceStore(),
     props = withDefaults(defineProps<{
       id: string,
       isShowOpenDetail?: boolean,
@@ -47,8 +51,11 @@ const
     // 稀有度
     rarityColorConfig = rarity.color
 
+useI18nUtils();
+
 let itemsCardData = ref({
       icon: '',
+      panel: null
     }),
     i: Ref<Item | null> = ref(null),
 
@@ -56,6 +63,7 @@ let itemsCardData = ref({
       get: () => appStore.itemOpenNewWindow || props.isOpenNewWindow,
       set: (value) => appStore.toggleItemOpenNewWindow(value)
     })
+
 
 watch(() => props.id, () => {
   onReady()
@@ -68,16 +76,20 @@ onMounted(() => {
 const onReady = async () => {
   i.value = items[props.id] || null
 
-  if (itemsAssets[props.id])
-    itemsCardData.value.icon = itemsAssets[props.id] || ''
-  else {
-    itemsCardData.value.icon = `https://skullandbonestools.de/api/imagesservice?src=icons%2Fitems%2F${props.id}&width=128`
-  }
+  onSetIcon()
 }
 
-const {targetElement, isVisible} = useIntersectionObserver({
-  threshold: .7,
-})
+const onSetIcon = () => {
+  itemsCardData.value.icon = cdnStore.currentService.url({
+    id: props.id,
+    category: 'items'
+  })
+}
+
+watch(() => cdnStore.selectedService, (newValue, oldValue) => {
+  if (newValue != oldValue)
+    onSetIcon()
+}, {immediate: true})
 </script>
 
 <template>
@@ -94,7 +106,6 @@ const {targetElement, isVisible} = useIntersectionObserver({
       target="cursor">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
-          ref="targetElement"
           width="100%"
           v-bind="activatorProps"
           :color="`hsl(from ${rarityColorConfig[i?.rarity]} h s calc(l * .15))`"
@@ -181,13 +192,61 @@ const {targetElement, isVisible} = useIntersectionObserver({
           />
         </template>
       </div>
-      <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto">
+      <div class="demo-reel-content background-flavor overflow-auto">
+        <v-expansion-panels v-model="itemsCardData.panel">
+          <v-expansion-panel
+              class="bg-transparent"
+              color="transparent"
+              tile
+              static
+              v-if="typeof i.damageMitigation == 'object'">
+            <template v-slot:title>
+              <div class="title-long-flavor bg-black">
+                {{ t('codex.item.damageMitigation') }}
+              </div>
+            </template>
+            <template v-slot:text>
+              <DamageMitigationWidget :data="i"></DamageMitigationWidget>
+            </template>
+          </v-expansion-panel>
+          <v-expansion-panel
+              class="bg-transparent"
+              color="transparent"
+              tile
+              static>
+            <template v-slot:title>
+              <div class="title-long-flavor bg-black">
+                {{ t('codex.item.damageType') }}
+              </div>
+            </template>
+            <template v-slot:text>
+              <ItemDamageTypeWidget :data="itemsCardData"></ItemDamageTypeWidget>
+            </template>
+          </v-expansion-panel>
+          <v-expansion-panel
+              class="bg-transparent"
+              color="transparent"
+              tile
+              static>
+            <template v-slot:title>
+              <div class="title-long-flavor bg-black">
+                {{ t('codex.ship.perks') }}
+              </div>
+            </template>
+            <template v-slot:text>
+              <PerksWidget :data="i"></PerksWidget>
+            </template>
+          </v-expansion-panel>
+        </v-expansion-panels>
+      </div>
+      <v-divider v-if="isShowOpenDetail"></v-divider >
+      <v-card-actions class="pa-5 pt-0"
+                      v-if="isShowOpenDetail">
         <BtnWidget @action-complete="router.push(`/codex/item/${i.id}`)"
-                   class="mt-1"
-                   v-if="isShowOpenDetail">
+                   class="mt-1">
           {{ t('codex.item.lookDetail') }}
         </BtnWidget>
-      </div>
+      </v-card-actions>
     </v-card>
   </v-tooltip>
 </template>

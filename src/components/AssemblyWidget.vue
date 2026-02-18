@@ -448,8 +448,8 @@ defineExpose({
 </script>
 
 <template>
-  <v-row class="workshop-ship-interior position-relative pa-10 ml-5 mt-3" :class="poops.class">
-    <v-col class="position-relative" style="min-width: 650px;z-index: 5" cols="12" sm="12" md="10" lg="10" xl="10">
+  <v-row class="workshop-ship-interior position-relative pa-5 mt-3" :class="poops.class">
+    <v-col class="position-relative" style="min-width: 650px;z-index: 5" cols="12" sm="12" md="11" lg="11" xl="11">
       <v-col>
         <div class="mb-12">
           <v-row no-gutters align="end">
@@ -941,7 +941,7 @@ defineExpose({
                   </div>
 
                   <!-- 船甲模组插槽 仅展示 -->
-                  <div class="mb-2 mt-1" v-if="perfectDisplay">
+                  <div class="mb-2 mt-1" style="max-width: 300px" v-if="perfectDisplay">
                     <WeaponModificationOnlyShowWidget
                         :item-data="workshopData.data.armorSlot"
                         :mod-data="workshopData.data.armorModification[0]"></WeaponModificationOnlyShowWidget>

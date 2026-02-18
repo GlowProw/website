@@ -2,6 +2,7 @@
 import {onMounted, type Ref, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {useAssetsStore} from "~/stores/assetsStore";
+import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 
 let src: Ref<string | null> = ref(null)
 
@@ -13,7 +14,7 @@ const props = withDefaults(
         }
     ),
     {t} = useI18n(),
-    {factions: factionsAssets} = useAssetsStore(),
+    {currentService: currentImageService} = useCDNAssetsServiceStore(),
 
     // 阵营相同图标字典， 规划同类图标
     factionConvertDictionary = {
@@ -34,11 +35,10 @@ onMounted(() => {
 const onReady = () => {
   const key = factionConvertDictionary[props.name] || props.name;
 
-  if (factionsAssets[key]) {
-    src.value = factionsAssets[key];
-  } else {
-    src.value = null;
-  }
+  src.value = currentImageService.url({
+    id: key,
+    category: 'factions'
+  }, 'glow-prow')
 }
 
 </script>

@@ -362,7 +362,9 @@ const onCodexHistory = () => {
 
             <template v-if="shipDetailData.perks">
               <p class="mt-5 mb-1 font-weight-bold">{{ t('codex.ship.perks') }} ({{ shipDetailData.perks.length || 0 }})</p>
-              <PerksWidget :data="shipDetailData"></PerksWidget>
+              <div class="mt-4">
+                <PerksWidget :data="shipDetailData"></PerksWidget>
+              </div>
             </template>
           </v-col>
         </v-row>

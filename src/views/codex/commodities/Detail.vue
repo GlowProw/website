@@ -22,6 +22,7 @@ import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
 import {Commodities} from "glow-prow-data/src/entity/Commodities";
 import CommoditieIconWidget from "@/components/snbWidget/commoditieIconWidget.vue";
 import CommoditieName from "@/components/snbWidget/commoditieName.vue";
+import {Commodity} from "glow-prow-data";
 
 const
     {t, messages} = useI18n(),
@@ -34,7 +35,7 @@ const
     // 物品数据
     commodities: Commodities = Commodities
 
-let commoditieDetailData: Ref<Commoditie | null> = ref(null),
+let commoditieDetailData: Ref<Commodity | null> = ref(null),
     isCollect = ref(false),
 
     bluePrint = computed(() => {

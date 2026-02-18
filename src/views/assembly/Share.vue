@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed, nextTick, onMounted, Ref, ref, watch} from "vue";
-import {apis, assemblyViewConfig, storage_account} from "@/assets/sripts/index";
+import {apis, storage_account} from "@/assets/sripts/index";
 import {snapdom} from '@zumer/snapdom';
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
@@ -19,7 +19,7 @@ import AssemblySvgIcon from "@/components/AssemblySvgIcon.vue";
 import Silk from "@/components/Silk.vue";
 import {ApiError} from "@/assets/types/Api";
 import AdsWidget from "@/components/ads/google/index.vue";
-import {AssemblyItemResult, PublishAssemblyData} from "@/assets/types";
+import {AssemblyItemResult} from "@/assets/types";
 
 const route = useRoute(),
     router = useRouter(),
@@ -67,9 +67,15 @@ watch(() => [
 })
 
 watch(() => generateImageValue.value, (value) => {
+  router.push({
+    name: route.name,
+    query: {...route.query, ...generateImageValue.value},
+  })
+
   // 保存海报配置
-  if (value && posterSwitch.value)
+  if (value && posterSwitch.value) {
     storage_account.updateConfiguration('poster', 'poster.config', value)
+  }
 }, {deep: true})
 
 watch(() => route, () => {
@@ -84,6 +90,9 @@ onMounted(() => {
     generateImageValue.value = storage_account.getConfigurationItem('poster', 'poster.config', {
       defaultValue: generateImageValue.value
     })
+
+  if (route.query)
+    generateImageValue.value = Object.assign(generateImageValue.value, {...route.query})
 
   onGenerateQRCode(path.value)
   getAssemblyDetail()

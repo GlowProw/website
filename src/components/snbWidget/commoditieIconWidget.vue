@@ -17,6 +17,7 @@ import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
 import {Commodities, Commodity} from "glow-prow-data";
 import CommoditieName from "@/components/snbWidget/commoditieName.vue";
 import {useAppStore} from "~/stores/appStore";
+import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 
 const
     {asString, sanitizeString} = useI18nUtils(),
@@ -24,7 +25,8 @@ const
     router = useRouter(),
     appStore = useAppStore(),
     {t} = useI18n(),
-    {commodities: commoditiesAssets, raritys: raritysAssets} = useAssetsStore(),
+    {raritys: raritysAssets} = useAssetsStore(),
+    {currentService: currentImageService} = useCDNAssetsServiceStore(),
     props = withDefaults(defineProps<{
       id: string,
       isOpenDetail?: boolean,
@@ -67,11 +69,10 @@ onMounted(() => {
 const onReady = async () => {
   i.value = commodities[props.id] || null
 
-  if (commoditiesAssets[props.id])
-    commoditiesCardData.value.icon = commoditiesAssets[props.id] || ''
-  else {
-    commoditiesCardData.value.icon = `https://skullandbonestools.de/api/imagesservice?src=icons%2Fcommodities%2F${props.id}&width=128`
-  }
+  commoditiesCardData.value.icon = currentImageService.url({
+    id: props.id,
+    category: 'commodities'
+  });
 }
 
 const {targetElement, isVisible} = useIntersectionObserver({

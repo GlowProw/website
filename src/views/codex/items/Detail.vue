@@ -34,6 +34,7 @@ import WorldEventWidget from "@/components/WorldEventWidget.vue";
 import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
 import ShipUpgradeUseWidget from "@/components/snbWidget/shipUpgradeUseWidget.vue";
 import BluePrintWidget from "@/components/BluePrintWidget.vue";
+import DamageMitigationWidget from "@/components/snbWidget/damageMitigationWidget.vue";
 
 const
     {t, messages} = useI18n(),
@@ -364,23 +365,7 @@ const onStarItem = (data: Item) => {
                     <v-icon icon="mdi-shield" size="18" class="mr-2"></v-icon>
                     {{ t('codex.item.damageMitigation') }}
                   </p>
-                  <v-text-field :value="`${(dmValue * 100).toFixed(0)}%`"
-                                v-for="([dmKey,dmValue]) in Object.entries(itemDetailData.damageMitigation)"
-                                :key="dmValue"
-                                :class="[dmValue ? '' : 'opacity-30']"
-                                readonly
-                                hide-details
-                                variant="underlined"
-                                density="compact">
-                    <template v-slot:append-inner>
-                      <p class="text-no-wrap">{{ t(`assembly.tags.damageTypes.${dmKey}`) }}</p>
-                    </template>
-                    <template v-slot:append>
-                      <ItemSlotBase size="30px" :padding="0">
-                        <DamageIconWidget :id="dmKey"></DamageIconWidget>
-                      </ItemSlotBase>
-                    </template>
-                  </v-text-field>
+                  <DamageMitigationWidget :data="itemDetailData"></DamageMitigationWidget>
                 </template>
 
                 <template v-if="itemDetailData.reloadSpeed">
@@ -552,7 +537,9 @@ const onStarItem = (data: Item) => {
 
             <template v-if="itemDetailData.perks">
               <p class="mt-5 mb-1 font-weight-bold">{{ t('codex.item.perks') }} ({{ itemDetailData.perks.length || 0 }})</p>
-              <PerksWidget :data="itemDetailData"></PerksWidget>
+              <div class="mt-4">
+                <PerksWidget :data="itemDetailData"></PerksWidget>
+              </div>
             </template>
           </v-col>
         </v-row>

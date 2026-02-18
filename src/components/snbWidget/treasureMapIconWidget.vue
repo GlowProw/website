@@ -13,6 +13,7 @@ import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import {TreasureMap, TreasureMaps} from "glow-prow-data";
 import TreasureMapName from "@/components/snbWidget/treasureMapName.vue";
 import {useAppStore} from "~/stores/appStore";
+import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 
 const
     {asString, sanitizeString} = useI18nUtils(),
@@ -20,6 +21,7 @@ const
     router = useRouter(),
     {t} = useI18n(),
     {treasureMaps: treasureMapsAssets, raritys: raritysAssets} = useAssetsStore(),
+    {currentService: currentImageService} = useCDNAssetsServiceStore(),
     props = withDefaults(defineProps<{
       id: string,
       isShowOpenDetail?: boolean,
@@ -63,8 +65,10 @@ onMounted(() => {
 const onReady = async () => {
   i.value = treasureMaps[props.id] || null
 
-  if (treasureMapsAssets[props.id])
-    treasureMapsCardData.value.icon = treasureMapsAssets[props.id] || ''
+  treasureMapsCardData.value.icon = currentImageService.url({
+    id: props.id,
+    category: 'treasureMaps'
+  }, 'glow-prow')
 }
 
 const {targetElement, isVisible} = useIntersectionObserver({

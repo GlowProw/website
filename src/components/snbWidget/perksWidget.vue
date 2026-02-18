@@ -70,7 +70,7 @@ const getDescription = (key) => {
 </script>
 
 <template>
-  <v-card class="mt-4 background-flavor" border>
+  <v-card class="bg-translate" variant="text" border>
     <template v-if="props.data.perks && props.data.perks.length > 0">
       <div v-for="(p, pIndex) in props.data.perks" :key="pIndex" class="mb-5">
         <v-row no-gutters

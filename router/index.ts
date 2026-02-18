@@ -32,8 +32,8 @@ import ShipDetailPage from '@/views/codex/ships/Detail.vue'
 import ItemsPage from '@/views/codex/items/Index.vue'
 import ItemDetailPage from '@/views/codex/items/Detail.vue'
 
-import CommoditiesPage from '@/views/codex/commoditie/Index.vue'
-import CommoditieDetailPage from '@/views/codex/commoditie/Detail.vue'
+import CommoditiesPage from '@/views/codex/commodities/Index.vue'
+import CommoditieDetailPage from '@/views/codex/commodities/Detail.vue'
 
 import ModsPage from '@/views/codex/modifications/Index.vue'
 import ModDetailPage from '@/views/codex/modifications/Detail.vue'
@@ -94,6 +94,7 @@ import {useAuthStore} from "@/../stores/userAccountStore";
 import {useAssetsStore} from "@/../stores/assetsStore";
 import {useHead} from "@unhead/vue";
 import {useUserApi} from "@/assets/sripts/api";
+import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 
 const isLoginBeforeEnter = function (to: any, from: any, next: any) {
     const authStore = useAuthStore()
@@ -132,6 +133,12 @@ const initAccountInfo = async function (to: any, from: any, next: any) {
 const initItemAssets = () => {
     const {init} = useAssetsStore()
     init()
+    initCDNAssets()
+}
+
+const initCDNAssets = () => {
+    const {loadFromStorage} = useCDNAssetsServiceStore()
+    loadFromStorage()
 }
 
 const routes: Readonly<RouteRecordRaw[]> = [
@@ -269,6 +276,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: '/setting',
                 name: 'PortalSetting',
                 component: SettingPage,
+                beforeEnter: initCDNAssets,
                 redirect: '/setting/routine',
                 children: [
                     {

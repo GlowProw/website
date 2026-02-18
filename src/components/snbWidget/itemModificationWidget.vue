@@ -9,6 +9,8 @@ import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import ModName from "@/components/snbWidget/modName.vue";
 import ModDescription from "@/components/snbWidget/modDescription.vue";
 import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
+import HtmlLink from "@/components/HtmlLink.vue";
+import {useDisplay} from "vuetify/framework";
 
 const modImages = import.meta.glob('@/assets/images/snb/modTypeIcons/*.*', {eager: true})
 const props = withDefaults(defineProps<{ id: string, type: string | null }>(), {
@@ -16,14 +18,16 @@ const props = withDefaults(defineProps<{ id: string, type: string | null }>(), {
       type: null
     }),
     route = useRoute(),
+    {mobile} = useDisplay(),
     {t, locale} = useI18n(),
-    {asString} = useI18nUtils()
+    {asString} = useI18nUtils(),
+    modSlotBackgroundColor = {'basic': '#101e06', 'advanced': 'rgb(7 27 53)', 'special': '#231536'}
 
 let modData = ref({}),
     // 模组图标
     modIcons = ref({}),
     // 模式显示类型
-    displayMode = ref(1),
+    displayMode = ref(0),
     // 搜索关键词
     searchKeyword = ref(''),
     // 筛选等级
@@ -71,7 +75,7 @@ let modData = ref({}),
       return searchKeyword.value || filterGrades.value.length > 0;
     })
 
-watch(()=> locale.value, () => {
+watch(() => locale.value, () => {
   modData.value = onCategorizeByGrade(Modifications)
   onReady()
 })
@@ -157,110 +161,119 @@ const resetFilters = () => {
 </script>
 
 <template>
-  <slot name="title" v-if="isHasMod"></slot>
-
-  <template v-if="isHasMod" >
+  <template v-if="isHasMod">
     <!-- 搜索和筛选栏 S -->
-    <v-row class="pb-4" align="center">
-      <v-col cols="12" sm="6">
-        <v-text-field
-            :placeholder="t('basic.button.search')"
-            variant="filled"
-            density="compact"
-            hide-details
-            clearable
-            v-model="searchKeyword"
-            prepend-inner-icon="mdi-magnify"
-        ></v-text-field>
+    <v-row class="pb-2" align="end">
+      <v-col>
+        <slot name="title" v-if="isHasMod"></slot>
       </v-col>
+      <v-col>
+        <v-row align="center">
+          <v-col>
+            <v-text-field
+                :placeholder="t('basic.button.search')"
+                variant="filled"
+                density="compact"
+                hide-details
+                clearable
+                v-model="searchKeyword"
+                prepend-inner-icon="mdi-magnify"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="auto">
+            <v-menu open-on-click :close-on-content-click="false">
+              <template v-slot:activator="{ props }">
+                <div v-bind="props">
+                  <v-icon>{{ hasActiveFilters ? 'mdi-filter' : 'mdi-filter-outline' }}</v-icon>
+                  <v-icon>mdi-dots-vertical</v-icon>
+                </div>
+              </template>
 
-      <v-col cols="12" sm="4">
-        <v-select
-            variant="filled"
-            density="compact"
-            hide-details
-            multiple
-            chips
-            clearable
-            v-model="filterGrades"
-            item-title="text"
-            :items="availableGrades.map(grade => ({
+              <v-card border class="pa-5" :min-width="mobile ? '100%' : 350" :width="mobile ? '100%' : 580">
+                <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 mt-n5">
+                  <v-icon size="80">{{ hasActiveFilters ? 'mdi-filter' : 'mdi-filter-outline' }}</v-icon>
+                </v-card-title>
+
+                <v-row>
+                  <v-col cols="12">
+                    <v-select
+                        variant="filled"
+                        density="compact"
+                        hide-details
+                        multiple
+                        chips
+                        clearable
+                        v-model="filterGrades"
+                        item-title="text"
+                        :items="availableGrades.map(grade => ({
               value: grade,
               text: t(`assembly.tags.grade.${grade}`)
             }))"
-        ></v-select>
-      </v-col>
+                    ></v-select>
+                  </v-col>
 
-      <v-col cols="12" sm="2" class="text-right">
-        <v-btn
-            variant="text"
-            block
-            color="error"
-            :disabled="!hasActiveFilters"
-            @click="resetFilters"
-            prepend-icon="mdi-refresh">
-          {{ t('basic.button.reset') }}
-        </v-btn>
+                  <v-col cols="12">
+                    <v-btn
+                        variant="text"
+                        block
+                        color="error"
+                        :disabled="!hasActiveFilters"
+                        @click="resetFilters"
+                        prepend-icon="mdi-refresh">
+                      {{ t('basic.button.reset') }}
+                    </v-btn>
+                  </v-col>
+                </v-row>
+              </v-card>
+            </v-menu>
+          </v-col>
+        </v-row>
       </v-col>
     </v-row>
     <!-- 搜索和筛选栏 E -->
 
-    <v-card border class="mod pt-3" variant="flat">
+    <v-row class="mod d-flex">
       <template v-if="Object.keys(filteredModData).length > 0">
         <template v-for="(key, value) in filteredModData" :key="key">
-          <v-row class="px-5 title-long-flavor bg-black" align="center">
-            <v-col cols="auto">
-              <v-img :src="modIcons[value]" class="mt-1" width="25px" height="25px"/>
-            </v-col>
-            <v-col>
-              {{ t(`assembly.tags.grade.${value}`) }}
-            </v-col>
-            <v-spacer></v-spacer>
-            <v-col align="right">
-              <v-btn-toggle v-model="displayMode"
-                            style="height: 25px"
-                            @update:model-value="onSwitchModShow"
-                            density="compact"
-                            mandatory
-                            border
-                            selected-class="bg-amber">
-                <v-btn value="0">
-                  <v-icon size="20">mdi-format-list-bulleted-type</v-icon>
-                </v-btn>
+          <v-col cols="3">
+            <v-row no-gutters class="px-4 py-2 title-long-flavor" :style="`background: ${modSlotBackgroundColor[value]}`" align="center">
+              <v-col cols="auto">
+                <v-img :src="modIcons[value]" class="mt-1" width="25px" height="25px"/>
+              </v-col>
+              <v-col class="ml-2">
+                {{ t(`assembly.tags.grade.${value}`) }}
+              </v-col>
+            </v-row>
 
-                <v-btn value="1">
-                  <v-icon>mdi-dots-grid</v-icon>
-                </v-btn>
-              </v-btn-toggle>
-            </v-col>
-          </v-row>
-
-          <v-row class="pl-5 pr-5 pb-5">
-            <v-col v-for="(mod, modIndex) in key"
-                   :class="`grade-${mod.grade}`"
-                   :key="modIndex"
-                   :cols="{0: '12', 1: '1'}[displayMode]">
-              <template v-if="route.query.debug">{{ mod }}</template>
-              <template v-if="displayMode == 1">
-                <ItemSlotBase size="40px" class="d-flex justify-center align-center"
-                              v-tooltip="t(`snb.modifications.${mod.id}.name`)">
-                  <ModIconWidget :id="mod.id" :padding="0" :margin="0"></ModIconWidget>
-                </ItemSlotBase>
-              </template>
-              <template v-else-if="displayMode == 0">
-                <v-row class="pt-0 pl-3">
-                  <ItemSlotBase size="50px" class="mt-3 d-flex justify-center align-center">
-                    <ModIconWidget :id="mod.id" :padding="0" :margin="0"></ModIconWidget>
-                  </ItemSlotBase>
-
-                  <v-col cols="10">
-                    <ModName :id="mod.id" :grade="mod.grade"></ModName>
-                    <ModDescription :id="mod.id" :variants="mod.variants" :grade="mod.grade" :type="type"></ModDescription>
-                  </v-col>
-                </v-row>
-              </template>
-            </v-col>
-          </v-row>
+            <v-row class="pb-5 mod-list">
+              <v-col v-for="(mod, modIndex) in key"
+                     class="mod-item"
+                     :class="`grade-${mod.grade}`"
+                     :key="modIndex"
+                     :cols="{0: '12', 1: '1'}[displayMode]">
+                <template v-if="route.query.debug">{{ mod }}</template>
+                <template v-else-if="displayMode == 0">
+                  <v-row align="center" no-gutters>
+                    <v-col cols="auto">
+                      <ItemSlotBase size="40px">
+                        <ModIconWidget :id="mod.id" :padding="0" :margin="0">
+                          <template v-slot:description>
+                            <ModDescription :id="mod.id" :variants="mod.variants" :grade="mod.grade" :type="type"></ModDescription>
+                          </template>
+                        </ModIconWidget>
+                      </ItemSlotBase>
+                    </v-col>
+                    <v-col class="pl-2">
+                      <HtmlLink :href="`/codex/mod/${mod.id}`" :is-icon="false" :is-iframe-show="false">
+                        <ModName :id="mod.id" :variants="mod.variants" :grade="mod.grade" :type="type"></ModName>
+                      </HtmlLink>
+                    </v-col>
+                  </v-row>
+                </template>
+              </v-col>
+            </v-row>
+          </v-col>
+          <v-divider vertical class="mt-15 m-10"></v-divider>
         </template>
       </template>
 
@@ -283,12 +296,23 @@ const resetFilters = () => {
           </v-col>
         </v-row>
       </template>
-    </v-card>
+    </v-row>
   </template>
 </template>
 
 <style scoped lang="less">
 .mod {
+  .mod-list {
+    max-height: 500px;
+    overflow-y: auto;
+    mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
+
+    .mod-item:last-child {
+      margin-bottom: 50px;
+    }
+  }
+
+
   .description {
     font-size: .9rem;
   }

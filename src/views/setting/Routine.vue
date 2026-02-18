@@ -7,8 +7,6 @@ import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import {appFuns, storage_account, storage_capacity_monitor} from "@/assets/sripts/index";
 import {onMounted, Ref, ref} from "vue";
 import {useI18n} from "vue-i18n";
-import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
-import SetIconWidget from "@/components/snbWidget/setIconWidget.vue";
 
 const {t} = useI18n()
 
@@ -53,7 +51,7 @@ const getConfig = () => {
 
   posterSwitch.value = storage_account.getConfigurationItem('poster', 'poster.switch')
 
-  assemblyViewModel.value =  storage_account.getConfigurationItem('assembly', 'viewModel', {defaultValue: assemblyViewModel.value})
+  assemblyViewModel.value = storage_account.getConfigurationItem('assembly', 'viewModel', {defaultValue: assemblyViewModel.value})
 }
 
 const onUpdateAppFunConfig = () => {
@@ -138,7 +136,7 @@ const clearStorage = () => {
           <p class="text-caption">管理功能列表，由你决定是否显示</p>
         </div>
 
-        <v-list variant="text" lines density="compact" class="bg-transparent mx-n4" max-height="300px">
+        <v-list variant="text" density="compact" class="bg-transparent mx-n4" max-height="500px">
           <v-list-item v-for="(nav,index) in appFunConfig" :key="index" link density="compact">
             <template v-slot:append>
               <v-switch hide-details inset density="compact" v-model="appFunConfig[index].value" @update:modelValue="onUpdateAppFunConfig"></v-switch>
@@ -159,18 +157,9 @@ const clearStorage = () => {
     </v-col>
     <v-col cols="12" lg="4">
       <AffixBoxHasTitleView>
-        <p class="text-caption opacity-60 mb-5">管理海报设置</p>
-
-        <v-row align="center" no-gutters>
-          <v-col>自动保存生成海报选项</v-col>
-          <v-col cols="auto">
-            <v-switch hide-details inset v-model="posterSwitch" @update:modelValue="onPosterSwitch"></v-switch>
-          </v-col>
-        </v-row>
-
-        <p class="text-caption opacity-60 mt-1">当用户修改海报生成设置将立即保存记录，再次访问海报加载配置内容</p>
+        <ItemIconManager></ItemIconManager>
         <template v-slot:title>
-          海报
+          物品配置
         </template>
       </AffixBoxHasTitleView>
     </v-col>
@@ -222,9 +211,18 @@ const clearStorage = () => {
     </v-col>
     <v-col cols="12" lg="4">
       <AffixBoxHasTitleView>
-        <ItemIconManager></ItemIconManager>
+        <p class="text-caption opacity-60 mb-5">管理海报设置</p>
+
+        <v-row align="center" no-gutters>
+          <v-col>自动保存生成海报选项</v-col>
+          <v-col cols="auto">
+            <v-switch hide-details inset v-model="posterSwitch" @update:modelValue="onPosterSwitch"></v-switch>
+          </v-col>
+        </v-row>
+
+        <p class="text-caption opacity-60 mt-1">当用户修改海报生成设置将立即保存记录，再次访问海报加载配置内容</p>
         <template v-slot:title>
-          物品尺寸
+          海报
         </template>
       </AffixBoxHasTitleView>
     </v-col>

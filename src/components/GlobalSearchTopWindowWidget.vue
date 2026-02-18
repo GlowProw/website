@@ -36,7 +36,7 @@ const getConfig = () => {
 <template>
   <div @click.prevent="model = true"
        v-if="searchSettingConfig.headerSearchSwitch"
-       class="mx-2 cursor-pointer"
+       class="mx-2"
        :class="{'d-none': model || isSearchPage}">
     <slot></slot>
   </div>

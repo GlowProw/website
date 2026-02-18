@@ -9,9 +9,9 @@ const props = defineProps<{id: string, grade: string}>(),
 </script>
 
 <template>
-  <b :class="`grade-${grade}-title`">{{ t(`snb.modifications.${id}.name`) }}</b>
+  <span :class="`grade-${grade}-title`">{{ t(`snb.modifications.${id}.name`) }}</span>
   <v-spacer v-if="route.query.debug"></v-spacer>
-  <p class="opacity-30" v-if="route.query.debug">{{id}}</p>
+  <span class="opacity-30" v-if="route.query.debug">{{id}}</span>
 </template>
 
 <style scoped lang="less">

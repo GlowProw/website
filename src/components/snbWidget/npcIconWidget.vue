@@ -13,6 +13,7 @@ import NpcName from "@/components/snbWidget/npcName.vue";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import {Npc, Npcs} from "glow-prow-data";
 import {useAppStore} from "~/stores/appStore";
+import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 
 const
     {asString, sanitizeString} = useI18nUtils(),
@@ -20,7 +21,8 @@ const
     router = useRouter(),
     appStore = useAppStore(),
     {t} = useI18n(),
-    {npcs: npcsAssets, raritys: raritysAssets} = useAssetsStore(),
+    {raritys: raritysAssets} = useAssetsStore(),
+    {currentService: currentImageService} = useCDNAssetsServiceStore(),
     props = withDefaults(defineProps<{
       data?: Npc,
       id?: string,
@@ -76,20 +78,10 @@ onMounted(() => {
 const onReady = async () => {
   i.value = npcs[props?.data?.key || props?.id] || null
 
-  npcsCardData.value.icon = getIconId(i.value?.id) || ''
-}
-
-/**
- * 获取图标
- * @param id
- */
-const getIconId = (id) => {
-  let resultId = npcsAssets[id]
-  Object.entries(npcDictionaries).forEach((value, index, array) => {
-    if (value[1].includes(id))
-      resultId = npcsAssets[value[0]]
-  })
-  return resultId;
+  npcsCardData.value.icon = currentImageService.url({
+    id: i.value!.id,
+    category: 'npcs'
+  }, 'glow-prow')
 }
 
 const {targetElement, isVisible} = useIntersectionObserver({

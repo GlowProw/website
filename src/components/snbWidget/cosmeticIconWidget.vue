@@ -15,10 +15,13 @@ import {rarity} from "@/assets/sripts/index";
 import CosmeticPiecesTagWidget from "@/components/snbWidget/cosmeticPiecesTagWidget.vue";
 import CosmeticEffectTagWidget from "@/components/snbWidget/cosmeticEffectTagWidget.vue";
 import {useAppStore} from "~/stores/appStore";
+import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 
 const
     {asString, sanitizeString} = useI18nUtils(),
-    {items, raritys, cosmetic: assetsCosmetics} = useAssetsStore(),
+    {items, raritys} = useAssetsStore(),
+    {currentService: currentImageService} = useCDNAssetsServiceStore(),
+
     {t} = useI18n(),
     route = useRoute(),
     router = useRouter(),
@@ -65,11 +68,16 @@ onMounted(() => {
 const onReady = async () => {
   i.value = cosmetics[props.id] || null
 
-  if (assetsCosmetics && assetsCosmetics[props.id])
-    cosmeticCardData.value.icon = assetsCosmetics[props.id] || ''
-  else {
-    cosmeticCardData.value.icon = `https://skullandbonestools.de/api/imagesservice?src=icons%2Fvanities%2F${props.id}&width=256`
-  }
+  cosmeticCardData.value.icon = currentImageService.url({
+    'skull-and-bones-tools': {
+      id: props.id,
+      category: 'vanities'
+    },
+    'glow-prow': {
+      id: props.id,
+      category: 'commodities'
+    }
+  });
 }
 
 const {targetElement, isVisible} = useIntersectionObserver({

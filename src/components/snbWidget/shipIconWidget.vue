@@ -14,6 +14,7 @@ import EmptyView from "../EmptyView.vue";
 import PerksWidget from "./perksWidget.vue";
 import ShipDescription from "@/components/snbWidget/shipDescription.vue";
 import {useAppStore} from "~/stores/appStore";
+import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 
 const props = withDefaults(defineProps<{
       id: string,
@@ -38,7 +39,8 @@ const props = withDefaults(defineProps<{
     router = useRouter(),
     appStore = useAppStore(),
     {t} = useI18n(),
-    {ships: shipsAssets} = useAssetsStore()
+    {currentService: currentImageService} = useCDNAssetsServiceStore()
+
 
 let shipCardData = ref({
       icon: '',
@@ -65,11 +67,16 @@ const onReady = async () => {
   shipCardData.value.panel = null;
   shipCardData.value.model = false;
 
-  if (shipsAssets[props.id]) {
-    shipCardData.value.icon = shipsAssets[props.id];
-  } else {
-    shipCardData.value.icon = '';
-  }
+  shipCardData.value.icon = currentImageService.url({
+    'skull-and-bones-tools': {
+      id: props.id,
+      category: 'ships'
+    },
+    'glow-prow': {
+      id: props.id,
+      category: 'ships'
+    }
+  });
 }
 </script>
 
@@ -106,8 +113,8 @@ const onReady = async () => {
 
         <div class="d-flex ga-2">
           <v-chip inline
-                   class="badge-flavor text-center tag-badge"
-                   v-if="shipData && shipData.size">
+                  class="badge-flavor text-center tag-badge"
+                  v-if="shipData && shipData.size">
             {{ t(`codex.size.${shipData.size}`) }}
           </v-chip>
           <v-chip inline
@@ -171,6 +178,20 @@ const onReady = async () => {
             </template>
             <template v-slot:text>
               <ShipWeaponInfoSlotWidget :data="shipData"/>
+            </template>
+          </v-expansion-panel>
+          <v-expansion-panel
+              class="bg-transparent"
+              color="transparent"
+              tile
+              static>
+            <template v-slot:title>
+              <div class="title-long-flavor bg-black">
+                {{ t('codex.ship.perks') }}
+              </div>
+            </template>
+            <template v-slot:text>
+              <PerksWidget :data="shipCardData"></PerksWidget>
             </template>
           </v-expansion-panel>
         </v-expansion-panels>

@@ -46,10 +46,7 @@
     "vue-json-pretty": "^2.5.0",
     "vue-router": "^4.5.1",
     "vue3-google-adsense": "^1.2.2",
-    "vuetify": "^3.8.1",
-    "glow-prow-data": "github:GlowProw/glow-prow-data",
-    "glow-prow-assets": "github:GlowProw/glow-prow-assets",
-    "glow-prow-data-languages": "github:GlowProw/glow-prow-data-languages"
+    "vuetify": "^3.8.1"
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.0",
@@ -61,6 +58,9 @@
     "@vitejs/plugin-vue": "^6.0.1",
     "@vitejs/plugin-vue-jsx": "^5.0.1",
     "@vue/tsconfig": "^0.7.0",
+    "glow-prow-assets": "file:~/Code/glow-prow/glow-prow-assets",
+    "glow-prow-data": "file:~/Code/glow-prow/glow-prow-data",
+    "glow-prow-data-languages": "file:~/Code/glow-prow/glow-prow-data-languages",
     "npm-run-all2": "^7.0.2",
     "terser": "^5.44.1",
     "typescript": "~5.8.3",

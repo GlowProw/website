@@ -7,15 +7,22 @@ import EmptyView from "@/components/EmptyView.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import {Item, Materials, Ship} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
-import {nextTick, onMounted, type Ref, ref, UnwrapRef, watch} from "vue";
+import {nextTick, onMounted, type Ref, ref, UnwrapRef, useSlots, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import HtmlLink from "@/components/HtmlLink.vue";
 import MaterialNameRarity from "@/components/snbWidget/materialNameRarity.vue";
 
-const props = defineProps<{ data: Item | Ship }>(),
+const props = withDefaults(
+        defineProps<{ data: Item | Ship, isTitle?: boolean,isRawMaterials?: boolean }>(),
+        {
+          isTitle: true,
+          isRawMaterials: true
+        }
+    ),
     {t} = useI18n(),
     route = useRoute(),
     router = useRouter(),
+    slots = useSlots(),
     materials: Materials = Materials
 
 let itemDetailData: Ref<Item | null> = ref(null),
@@ -41,6 +48,8 @@ onMounted(() => {
  * 处理计算必要材料对应原材料
  */
 const onStatisticsRawMaterial = () => {
+  if (!props.isRawMaterials) return
+
   if (itemDetailData.value && itemDetailData.value.required)
     itemRawMaterials.value = Array.from(itemDetailData.value.required).reduce(
         (acc, [material, quantity]) => {
@@ -58,13 +67,13 @@ const onStatisticsRawMaterial = () => {
 
 <template>
   <v-row v-if="itemDetailData">
-    <v-col cols="12">
+    <v-col cols="12" v-if="slots.default">
       <slot></slot>
     </v-col>
 
     <!-- 物品建造所需物品 S -->
-    <v-col cols="12" sm="12" lg="6" xl="6">
-      <p class="mt-4 mb-2"><b>{{ t('codex.item.required') }}</b></p>
+    <v-col cols="12" sm="12" :lg="props.isRawMaterials ? 6 : 12" :xl="props.isRawMaterials ? 6 : 12">
+      <p class="mt-4 mb-2" v-if="isTitle"><b>{{ t('codex.item.required') }}</b></p>
       <template v-if="itemDetailData.required && Array.from(itemDetailData.required).length > 0">
         <div v-for="([i, value], rIndex) in itemDetailData.required"
              :key="rIndex">
@@ -112,8 +121,8 @@ const onStatisticsRawMaterial = () => {
 
 
     <!-- 所需物品原材料 S -->
-    <v-col cols="12" sm="12" lg="6" xl="6">
-      <v-row no-gutters class="mt-4 mb-2">
+    <v-col cols="12" sm="12" :lg="props.isRawMaterials ? 6 : 12" :xl="props.isRawMaterials ? 6 : 12" v-if="props.isRawMaterials">
+      <v-row no-gutters class="mt-4 mb-2" v-if="isTitle">
         <v-col>
           <p><b>{{ t('codex.item.rawMaterials') }}</b></p>
         </v-col>

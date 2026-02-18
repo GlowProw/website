@@ -14,9 +14,10 @@ import MaterialName from "@/components/snbWidget/materialName.vue";
 import MaterialNameRarity from "@/components/snbWidget/materialNameRarity.vue";
 import router from "~/router";
 import {useAppStore} from "~/stores/appStore";
+import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 
 const props = withDefaults(defineProps<{
-      id: string | undefined,
+      id: string,
       isShowOpenDetail?: boolean,
       isOpenDetail?: boolean,
       isOpenNewWindow?: boolean,
@@ -36,7 +37,8 @@ const props = withDefaults(defineProps<{
     }),
     appStore = useAppStore(),
     {t} = useI18n(),
-    {materials: materialsAssets, raritys: raritysAssets} = useAssetsStore(),
+    {raritys: raritysAssets} = useAssetsStore(),
+    {currentService: currentImageService} = useCDNAssetsServiceStore(),
     materials = Materials,
 
     // 稀有度
@@ -45,7 +47,7 @@ const props = withDefaults(defineProps<{
 let src = ref(''),
     materialsCardData = ref({
       icon: '',
-    }),
+    }) as Ref<{icon: null | string}>,
     i: Ref<Material | null> = ref(null),
 
     isOpenNewWindow = computed({
@@ -64,10 +66,10 @@ onMounted(() => {
 const onReady = async () => {
   i.value = materials[props.id] || null
 
-  if (materialsAssets[props.id])
-    materialsCardData.value.icon = materialsAssets[props.id]
-  else
-    materialsCardData.value.icon = `https://skullandbonestools.de/api/imagesservice?src=icons%2Fmaterials%2F${props.id}&width=128`
+  materialsCardData.value.icon = currentImageService.url({
+    id: props.id,
+    category: 'materials'
+  })
 }
 </script>
 
