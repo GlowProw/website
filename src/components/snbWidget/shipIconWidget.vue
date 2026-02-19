@@ -128,7 +128,7 @@ const onReady = async () => {
       </div>
       <div class="demo-reel-content background-flavor overflow-auto">
         <template v-if="isShowDescription">
-          <div class="mb-2 pa-5 description">
+          <div class="mb-5 px-6 description">
             <ShipDescription :id="props.id"></ShipDescription>
           </div>
         </template>
@@ -210,8 +210,4 @@ const onReady = async () => {
 
 <style scoped lang="less">
 @import "@/assets/styles/demo-reel";
-
-.description {
-  font-size: 18px;
-}
 </style>

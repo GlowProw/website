@@ -16,10 +16,11 @@ import CosmeticPiecesTagWidget from "@/components/snbWidget/cosmeticPiecesTagWid
 import CosmeticEffectTagWidget from "@/components/snbWidget/cosmeticEffectTagWidget.vue";
 import {useAppStore} from "~/stores/appStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
+import CosmeticDescription from "@/components/snbWidget/cosmeticDescription.vue";
 
 const
     {asString, sanitizeString} = useI18nUtils(),
-    {items, raritys} = useAssetsStore(),
+    {raritys} = useAssetsStore(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
 
     {t} = useI18n(),
@@ -30,6 +31,7 @@ const
       isShowOpenDetail?: boolean,
       isOpenDetail?: boolean,
       isOpenNewWindow?: boolean,
+      isShowDescription?: boolean,
       isShowTooltip?: boolean,
       padding?: number,
       margin?: number
@@ -38,6 +40,7 @@ const
       isShowOpenDetail: true,
       isOpenDetail: true,
       isOpenNewWindow: false,
+      isShowDescription: true,
       isShowTooltip: true,
       padding: 0,
       margin: 1,
@@ -52,6 +55,7 @@ let cosmeticCardData = ref({
       icon: '',
     }),
     i: Ref<UnwrapRef<Cosmetic> | Cosmetic> = ref(Cosmetic.fromRawData({})),
+    cosmeticDescription: Ref<CosmeticDescription> = ref(null),
     isOpenNewWindow = computed({
       get: () => appStore.itemOpenNewWindow || props.isOpenNewWindow,
       set: (value) => appStore.toggleItemOpenNewWindow(value)
@@ -174,6 +178,14 @@ const {targetElement, isVisible} = useIntersectionObserver({
           />
         </template>
       </div>
+      <div class="demo-reel-content background-flavor overflow-auto">
+        <template v-if="isShowDescription">
+          <div :class="cosmeticDescription && cosmeticDescription.isHasDescription ? 'mb-5 px-6 description' : ''">
+            <CosmeticDescription ref="cosmeticDescription" :id="props.id"></CosmeticDescription>
+          </div>
+        </template>
+      </div>
+      <v-divider v-if="isShowOpenDetail"></v-divider>
       <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto">
         <BtnWidget @action-complete="router.push(`/codex/cosmetic/${i.id}`)"
                    class="mt-1"
@@ -187,6 +199,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
 
 <style scoped lang="less">
 @import "@/assets/styles/demo-reel";
+
 .cosmetic-mirror-image {
   transform: scaleX(-1);
 }

@@ -24,7 +24,7 @@ watch(() => mobile.value, (value) => {
   <div class="sidebar-container" :class="{ 'collapsed': isCollapsed }">
     <v-list nav
             slim
-            class="bg-transparent pa-0"
+            class="bg-transparent pa-0 overflow-x-hidden"
             active-class="bg-amber">
       <v-row class="mb-5" align="center">
         <v-col>
@@ -77,7 +77,7 @@ watch(() => mobile.value, (value) => {
 
 <style scoped lang="less">
 .sidebar-container {
-  overflow: hidden;
+  overflow-x: hidden;
   padding-bottom: 10px;
 
   &.collapsed {

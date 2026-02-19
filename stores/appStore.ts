@@ -4,6 +4,7 @@ import {storage_account} from "@/assets/sripts/index";
 
 const CONFIG_KEYS = {
     OPEN_NEW_WINDOW: 'openNewWindow',
+    ICON_SIZE: 'iconSize',
     THEME: 'theme',
     LANGUAGE: 'language',
     SIDEBAR_COLLAPSED: 'sidebarCollapsed'
@@ -12,6 +13,13 @@ const CONFIG_KEYS = {
 export const useAppStore = defineStore('app', () => {
     // 是否在新窗口打开项目
     const itemOpenNewWindow = ref(false)
+
+    // 图标大小
+    const iconSize = ref({
+        icon: 99,
+        margin: 1,
+        padding: 1,
+    })
 
     // 应用主题
     const theme = ref('light')
@@ -40,6 +48,18 @@ export const useAppStore = defineStore('app', () => {
             'app',
             CONFIG_KEYS.OPEN_NEW_WINDOW,
             {defaultValue: false}
+        )
+
+        iconSize.value = storage_account.getConfigurationItem(
+            'app',
+            CONFIG_KEYS.ICON_SIZE,
+            {
+                defaultValue: {
+                    icon: 99,
+                    margin: 1,
+                    padding: 1,
+                }
+            }
         )
 
         theme.value = storage_account.getConfigurationItem(
@@ -81,6 +101,15 @@ export const useAppStore = defineStore('app', () => {
 
         // 保存到本地存储
         storage_account.updateConfiguration('app', CONFIG_KEYS.OPEN_NEW_WINDOW, newValue)
+
+        return newValue
+    }
+
+    const setIconSize = (newValue: any) => {
+        iconSize.value = newValue
+
+        // 保存到本地存储
+        storage_account.updateConfiguration('app', CONFIG_KEYS.ICON_SIZE, newValue)
 
         return newValue
     }
@@ -144,12 +173,22 @@ export const useAppStore = defineStore('app', () => {
      */
     const resetToDefaults = () => {
         itemOpenNewWindow.value = false
+        iconSize.value = {
+            icon: 99,
+            margin: 1,
+            padding: 1,
+        }
         theme.value = 'light'
         language.value = 'zh-CN'
         sidebarCollapsed.value = false
 
         // 保存到本地存储
         storage_account.updateConfiguration('app', CONFIG_KEYS.OPEN_NEW_WINDOW, false)
+        storage_account.updateConfiguration('app', CONFIG_KEYS.ICON_SIZE, {
+            icon: 99,
+            margin: 1,
+            padding: 1,
+        })
         storage_account.updateConfiguration('app', CONFIG_KEYS.THEME, 'light')
         storage_account.updateConfiguration('app', CONFIG_KEYS.LANGUAGE, 'zh-CN')
         storage_account.updateConfiguration('app', CONFIG_KEYS.SIDEBAR_COLLAPSED, false)
@@ -166,6 +205,7 @@ export const useAppStore = defineStore('app', () => {
     const getCurrentConfig = () => {
         return {
             openNewWindow: itemOpenNewWindow.value,
+            iconSize: iconSize.value,
             theme: theme.value,
             language: language.value,
             sidebarCollapsed: sidebarCollapsed.value,
@@ -202,6 +242,7 @@ export const useAppStore = defineStore('app', () => {
     return {
         // State
         itemOpenNewWindow,
+        iconSize,
         theme,
         language,
         sidebarCollapsed,
@@ -214,6 +255,7 @@ export const useAppStore = defineStore('app', () => {
         // Actions
         initializeAppConfig,
         toggleItemOpenNewWindow,
+        setIconSize,
         setTheme,
         toggleTheme,
         setLanguage,

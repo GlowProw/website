@@ -131,7 +131,7 @@ const onReady = async () => {
       </div>
       <div class="demo-reel-content background-flavor overflow-auto">
         <template v-if="isShowDescription">
-          <div class="mb-2 pa-5 description">
+          <div class="mb-5 px-6 description">
             <slot name="description"></slot>
           </div>
         </template>

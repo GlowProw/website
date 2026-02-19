@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {Cosmetics, Item, Items} from "glow-prow-data";
-import {onMounted, ref, watch} from "vue";
+import {onMounted, Ref, ref, watch} from "vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import ItemName from "@/components/snbWidget/itemName.vue";
@@ -13,7 +13,7 @@ const props = withDefaults(defineProps<{ data: Item | any }>(), {
     items = Items,
     cosmetics = Cosmetics
 
-let contents = ref([])
+let contents: Ref<any[]> = ref([])
 
 watch(() => props.data, () => {
   onReady()
@@ -31,10 +31,10 @@ const onReady = () => {
 
   contents.value = [
     ...filterByObtainable(Object.values(items), id).map(i => {
-      return {...i, _type: 'item'}
+      return i
     }),
     ...filterByObtainable(Object.values(cosmetics), id).map(i => {
-      return {...i, _type: 'cosmetic'}
+      return i
     })
   ]
 }

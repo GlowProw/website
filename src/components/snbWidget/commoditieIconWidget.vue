@@ -18,6 +18,8 @@ import {Commodities, Commodity} from "glow-prow-data";
 import CommoditieName from "@/components/snbWidget/commoditieName.vue";
 import {useAppStore} from "~/stores/appStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
+import MaterialDescription from "@/components/snbWidget/materialDescription.vue";
+import CommoditieDescription from "@/components/snbWidget/commoditieDescription.vue";
 
 const
     {asString, sanitizeString} = useI18nUtils(),
@@ -32,6 +34,7 @@ const
       isOpenDetail?: boolean,
       isOpenNewWindow?: boolean,
       isShowOpenDetail?: boolean,
+      isShowDescription?: boolean,
       isShowTooltip?: boolean,
       padding?: number,
       margin?: number
@@ -40,6 +43,7 @@ const
       isOpenDetail: true,
       isOpenNewWindow: false,
       isShowOpenDetail: true,
+      isShowDescription: true,
       isShowTooltip: true,
       padding: 0,
       margin: 1
@@ -53,6 +57,7 @@ let commoditiesCardData = ref({
       icon: '',
     }),
     i: Ref<Commodity | null> = ref(null),
+    commoditieDescription: Ref<CommoditieDescription> = ref(null),
     isOpenNewWindow = computed({
       get: () => appStore.itemOpenNewWindow || props.isOpenNewWindow,
       set: (value) => appStore.toggleItemOpenNewWindow(value)
@@ -177,6 +182,14 @@ const {targetElement, isVisible} = useIntersectionObserver({
           />
         </template>
       </div>
+      <div class="demo-reel-content background-flavor overflow-auto">
+        <template v-if="isShowDescription">
+          <div :class="commoditieDescription && commoditieDescription.isHasDescription ? 'mb-5 px-6 description' : ''">
+            <CommoditieDescription ref="commoditieDescription" :id="props.id"></CommoditieDescription>
+          </div>
+        </template>
+      </div>
+      <v-divider v-if="isShowOpenDetail"></v-divider>
       <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto">
         <BtnWidget @action-complete="router.push(`/codex/commoditie/${i.id}`)"
                    class="mt-1"

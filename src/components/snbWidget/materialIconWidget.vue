@@ -15,12 +15,15 @@ import MaterialNameRarity from "@/components/snbWidget/materialNameRarity.vue";
 import router from "~/router";
 import {useAppStore} from "~/stores/appStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
+import ShipDescription from "@/components/snbWidget/shipDescription.vue";
+import MaterialDescription from "@/components/snbWidget/materialDescription.vue";
 
 const props = withDefaults(defineProps<{
       id: string,
       isShowOpenDetail?: boolean,
       isOpenDetail?: boolean,
       isOpenNewWindow?: boolean,
+      isShowDescription?: boolean,
       isShowTooltip?: boolean,
       imageType?: string,
       size?: string | number,
@@ -30,6 +33,7 @@ const props = withDefaults(defineProps<{
       isShowOpenDetail: true,
       isOpenDetail: true,
       isOpenNewWindow: false,
+      isShowDescription: true,
       isShowTooltip: true,
       size: 20,
       padding: 1,
@@ -49,7 +53,7 @@ let src = ref(''),
       icon: '',
     }) as Ref<{icon: null | string}>,
     i: Ref<Material | null> = ref(null),
-
+    materialDescription = ref(null),
     isOpenNewWindow = computed({
       get: () => appStore.itemOpenNewWindow || props.isOpenNewWindow,
       set: (value) => appStore.toggleItemOpenNewWindow(value)
@@ -168,6 +172,14 @@ const onReady = async () => {
           />
         </template>
       </div>
+      <div class="demo-reel-content background-flavor overflow-auto">
+        <template v-if="isShowDescription">
+          <div :class="materialDescription && materialDescription.isHasDescription ? 'mb-5 px-6 description' : ''">
+            <MaterialDescription ref="materialDescription" :id="props.id"></MaterialDescription>
+          </div>
+        </template>
+      </div>
+      <v-divider v-if="isShowOpenDetail"></v-divider>
       <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto">
         <BtnWidget @action-complete="router.push(`/codex/material/${i.id}`)"
                    class="mt-1"

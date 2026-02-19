@@ -13,19 +13,41 @@ import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
 import CosmeticIconWidget from "@/components/snbWidget/cosmeticIconWidget.vue";
 
 import {Items, Seasons, Ships} from "glow-prow-data";
-import {computed} from "vue";
+import {computed, onMounted} from "vue";
 import {Season} from "glow-prow-data/src/entity/Seasons";
 import ItemName from "@/components/snbWidget/itemName.vue";
+import {useI18n} from "vue-i18n";
+import {useAppStore} from "~/stores/appStore";
+import {min} from "d3";
 
 const
+    appStore = useAppStore(),
     seasons = Seasons,
+    items = Object.values(Items),
+    ships = Object.values(Ships),
     all = []
-    .concat(Object.values(Items))
-    .concat(Object.values(Ships))
+        .concat(items)
+        .concat(ships),
+    {t} = useI18n()
 
-let newSeasonItem = computed(() => all.filter((i: any) => {
-  return i.bySeason?.id == getCurrentSeason()?.id
-}))
+const getIconSize = computed({
+  get: () => appStore.iconSize,
+  set: (value) => appStore.setIconSize(value)
+})
+
+let newSeasonItem: any = computed(() => onFilterCurrentSeason(all)),
+    tShips = computed(() => onFilterCurrentSeason(ships)),
+    tItems = computed(() => onFilterCurrentSeason(items))
+
+const onFilterCurrentSeason = (d: any[]) => {
+  return d.filter((i: any) => {
+    return i.bySeason?.id == getCurrentSeason()?.id
+  })
+}
+
+onMounted(() => {
+  console.log(items.filter((i: any) => i.type == 'chest'))
+})
 
 /**
  * 获取当前赛季
@@ -51,9 +73,21 @@ const getCurrentSeason = (): Season | null => {
 </script>
 
 <template>
+  <v-chip-group>
+    <v-chip
+        class="badge-flavor text-center tag-badge text-black"
+        :to="`/codex/items?season=${getCurrentSeason()?.id}`">
+      {{ t(`codex.items.title`) }} {{ tItems.length || 0 }}
+    </v-chip>
+    <v-chip
+        class="badge-flavor text-center tag-badge text-black"
+        :to="`/codex/ships?season=${getCurrentSeason()?.id}`">
+      {{ t(`codex.ships.title`) }} {{ tShips.length || 0 }}
+    </v-chip>
+  </v-chip-group>
   <v-row no-gutters>
-    <v-col cols="auto" v-for="(i,index) in newSeasonItem" :key="index" class="d-flex align-center mr-3">
-      <ItemSlotBase size="50px" :padding="0" class="bg-transparent">
+    <v-col cols="auto" v-for="(i,index) in newSeasonItem" :key="index" class="d-flex align-center mr-6">
+      <ItemSlotBase :size="`${Math.min(Math.max(getIconSize.icon, 48), 55)}px`" :padding="0" class="bg-transparent">
         <ShipIconWidget :id="i.id" v-if="i._typeStringName == 'Ship'"></ShipIconWidget>
         <ItemIconWidget :id="i.id" v-if="i._typeStringName == 'Item'"></ItemIconWidget>
         <CommoditieIconWidget :id="i.id" v-if="i._typeStringName == 'Commoditie'"></CommoditieIconWidget>

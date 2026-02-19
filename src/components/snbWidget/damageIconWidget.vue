@@ -2,24 +2,22 @@
 import {nextTick, onMounted, ref} from "vue";
 import {useAssetsStore} from "~/stores/assetsStore";
 
-const damagesImages = import.meta.glob('@glow-prow-assets/damages/*', {eager: true}),
-    modsImages = import.meta.glob('@glow-prow-assets/modifications/*', {eager: true}),
-    images = {...damagesImages, ...modsImages},
+const
     props = withDefaults(
         defineProps<{ id: string, size?: string | number, isBorder?: boolean }>(),
         {isBorder: true}
     ),
-    {serializationMap} = useAssetsStore()
+    damagesImages = import.meta.glob('@glow-prow-assets/damages/*', {eager: true}),
+    modsImages = import.meta.glob('@glow-prow-assets/modifications/*', {eager: true}),
+    images = {...damagesImages, ...modsImages},
+
+    {serializationMap} = useAssetsStore(),
+    // 属性字典
+    damageDictionaries = {
+      "fire": "burning"
+    }
 
 let icons = ref({})
-
-/**
- * 是否有图标
- * @param id
- */
-const hasIconAssets = (id) => {
-  return !!icons.value[id]
-}
 
 onMounted(() => {
   onReady()
@@ -33,8 +31,11 @@ const onReady = () => {
 </script>
 
 <template>
-  <v-card elevation="0" class="w-100 h-100 d-flex justify-center align-center" variant="text" :border="isBorder" v-if="hasIconAssets(id)">
-    <v-img :src="icons[id]" :width="size" :height="size"></v-img>
+  <v-card elevation="0"
+          class="w-100 h-100 d-flex justify-center align-center bg-transparent prohibit-drag"
+          variant="text"
+          :border="isBorder">
+    <v-img :src="icons[damageDictionaries[id] || id]" :width="size" :height="size"></v-img>
   </v-card>
 </template>
 

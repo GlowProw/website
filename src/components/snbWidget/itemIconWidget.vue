@@ -17,12 +17,10 @@ import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
 import ItemDamageTypeWidget from "@/components/snbWidget/itemDamageTypeWidget.vue";
 import {useAppStore} from "~/stores/appStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
-import EmptyView from "@/components/EmptyView.vue";
-import ShipBaseInfoSlotWidget from "@/components/snbWidget/shipBaseInfoSlotWidget.vue";
-import ShipWeaponInfoSlotWidget from "@/components/snbWidget/shipWeaponInfoSlotWidget.vue";
 import PerksWidget from "@/components/snbWidget/perksWidget.vue";
-import ShipDescription from "@/components/snbWidget/shipDescription.vue";
 import DamageMitigationWidget from "@/components/snbWidget/damageMitigationWidget.vue";
+import ObtainableWidget from "@/components/ObtainableWidget.vue";
+import ItemDescription from "@/components/snbWidget/itemDescription.vue";
 
 const router = useRouter(),
     appStore = useAppStore(),
@@ -34,6 +32,7 @@ const router = useRouter(),
       isShowOpenDetail?: boolean,
       isOpenDetail?: boolean,
       isOpenNewWindow?: boolean,
+      isShowDescription?: boolean,
       isShowTooltip?: boolean,
       padding?: number,
       margin?: number
@@ -42,6 +41,7 @@ const router = useRouter(),
       isShowOpenDetail: true,
       isOpenDetail: true,
       isOpenNewWindow: false,
+      isShowDescription: true,
       isShowTooltip: true,
       padding: 0,
       margin: 1
@@ -58,6 +58,7 @@ let itemsCardData = ref({
       panel: null
     }),
     i: Ref<Item | null> = ref(null),
+    itemDescription: Ref<ItemDescription> = ref(null),
 
     isOpenNewWindow = computed({
       get: () => appStore.itemOpenNewWindow || props.isOpenNewWindow,
@@ -193,22 +194,19 @@ watch(() => cdnStore.selectedService, (newValue, oldValue) => {
         </template>
       </div>
       <div class="demo-reel-content background-flavor overflow-auto">
+        <template v-if="isShowDescription">
+          <div :class="itemDescription && itemDescription.isHasDescription ? 'mb-5 px-6 description' : ''">
+            <ItemDescription ref="itemDescription" :id="props.id"></ItemDescription>
+          </div>
+        </template>
+
+        <template v-if="typeof i.damageMitigation == 'object'">
+          <div class="mb-5 px-6">
+            <DamageMitigationWidget showType="horizontal" :data="i"></DamageMitigationWidget>
+          </div>
+        </template>
+
         <v-expansion-panels v-model="itemsCardData.panel">
-          <v-expansion-panel
-              class="bg-transparent"
-              color="transparent"
-              tile
-              static
-              v-if="typeof i.damageMitigation == 'object'">
-            <template v-slot:title>
-              <div class="title-long-flavor bg-black">
-                {{ t('codex.item.damageMitigation') }}
-              </div>
-            </template>
-            <template v-slot:text>
-              <DamageMitigationWidget :data="i"></DamageMitigationWidget>
-            </template>
-          </v-expansion-panel>
           <v-expansion-panel
               class="bg-transparent"
               color="transparent"
@@ -237,16 +235,30 @@ watch(() => cdnStore.selectedService, (newValue, oldValue) => {
               <PerksWidget :data="i"></PerksWidget>
             </template>
           </v-expansion-panel>
+          <v-expansion-panel
+              class="bg-transparent"
+              color="transparent"
+              tile
+              static
+              v-if="i.obtainable">
+            <template v-slot:title>
+              <div class="title-long-flavor bg-black">
+                {{ t('codex.item.obtainable') }}
+              </div>
+            </template>
+            <template v-slot:text>
+              <ObtainableWidget :data="i" byType="item"></ObtainableWidget>
+            </template>
+          </v-expansion-panel>
         </v-expansion-panels>
       </div>
-      <v-divider v-if="isShowOpenDetail"></v-divider >
-      <v-card-actions class="pa-5 pt-0"
-                      v-if="isShowOpenDetail">
+      <v-divider v-if="isShowOpenDetail"></v-divider>
+      <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto" v-if="isShowOpenDetail">
         <BtnWidget @action-complete="router.push(`/codex/item/${i.id}`)"
                    class="mt-1">
           {{ t('codex.item.lookDetail') }}
         </BtnWidget>
-      </v-card-actions>
+      </div>
     </v-card>
   </v-tooltip>
 </template>

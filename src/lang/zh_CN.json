@@ -245,6 +245,7 @@
       "byCategory": "类别筛选",
       "byTier": "等级筛选",
       "bySeason": "赛季筛选",
+      "byWorldEvent": "世界事件筛选",
       "bySet": "集合筛选",
       "byLocation": "地点筛选",
       "sortBy": "排序",
@@ -986,6 +987,7 @@
         "special": "特殊"
       },
       "damageTypes": {
+        "armor": "护甲",
         "electric": "雷电",
         "explosive": "爆炸",
         "fire": "火",

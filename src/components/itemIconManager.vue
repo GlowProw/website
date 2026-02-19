@@ -13,10 +13,6 @@ const appStore = useAppStore(),
     items = Items
 
 let iconId = ref('culverin1'),
-    iconSize = ref({
-      margin: 0,
-      padding: 0,
-    }),
     sizes = ref([{
       icon: 48,
       padding: 1,
@@ -34,7 +30,7 @@ let iconId = ref('culverin1'),
       padding: 1,
       margin: 1,
     }]),
-    getSize = computed(() => `${iconSize.value.icon}px`),
+    getSize = computed(() => `${getIconSize.icon}px`),
     getItemOnlyIds = computed(() => Object.values(items).map((i: Item) => i.id)),
     itemIsOpenNewWindow = ref(false)
 
@@ -43,8 +39,12 @@ const openNewWindow = computed({
   set: (value) => appStore.toggleItemOpenNewWindow(value)
 })
 
+const getIconSize = computed({
+  get: () => appStore.iconSize || sizes.value[2],
+  set: (value) => appStore.setIconSize(value)
+})
+
 onMounted(() => {
-  iconSize.value = sizes.value[2]
   itemIsOpenNewWindow.value = openNewWindow.value
 })
 
@@ -55,10 +55,10 @@ const onUpdateAssetsImageServces = (value: any) => {
 </script>
 
 <template>
-  <v-card  :variant="'text'">
+  <v-card :variant="'text'">
     <div class="py-3 px-8 mb-5 d-flex align-center justify-center">
-      <ItemSlotBase :size="getSize">
-        <ItemIconWidget :id="iconId" :margin="iconSize.margin" :padding="iconSize.padding"></ItemIconWidget>
+      <ItemSlotBase :size="`${getIconSize.icon}px`">
+        <ItemIconWidget :id="iconId" :margin="getIconSize.margin" :padding="getIconSize.padding"></ItemIconWidget>
       </ItemSlotBase>
     </div>
     <v-select v-model="iconId" tile hide-details class="text-center" :density="'compact'" :items="getItemOnlyIds">
@@ -81,13 +81,14 @@ const onUpdateAssetsImageServces = (value: any) => {
 
 
   <div class="mt-5 opacity-60">
-    <p class="text-caption">你可以调整库存物品图标的尺寸以适配大多数地方，但有些位置图标无法改动。</p>
+    <p class="text-caption">你可以调整库存物品图标的尺寸以适配大多数地方，但有些位置图标无法改动或有范围约束。</p>
   </div>
 
   <v-select
       class="mt-4"
       density="comfortable"
-      v-model="iconSize"
+      v-model="getIconSize.icon"
+      item-value="icon"
       :items="sizes">
     <template v-slot:selection="{item,props}">
       <v-list-item v-bind="props">

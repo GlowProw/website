@@ -35,6 +35,7 @@ import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
 import ShipUpgradeUseWidget from "@/components/snbWidget/shipUpgradeUseWidget.vue";
 import BluePrintWidget from "@/components/BluePrintWidget.vue";
 import DamageMitigationWidget from "@/components/snbWidget/damageMitigationWidget.vue";
+import ItemDescription from "@/components/snbWidget/itemDescription.vue";
 
 const
     {t, messages} = useI18n(),
@@ -251,13 +252,7 @@ const onStarItem = (data: Item) => {
               </div>
               <v-col>
                 <p class="text-pre-wrap mb-4">
-                  <span v-for="(i ,index) in asArray([
-                      `snb.items.${itemDetailData.id}.description`,
-                      `snb.items.${itemDetailData.id}.description.general`,
-                      `snb.items.${sanitizeString(itemDetailData.id).cleaned}.description.general`
-                    ])" :key="index">
-                    {{ i }}
-                  </span>
+                  <ItemDescription :id="itemDetailData.id"></ItemDescription>
                 </p>
               </v-col>
             </v-row>
@@ -437,7 +432,9 @@ const onStarItem = (data: Item) => {
               <WorldEventWidget :data="itemDetailData"></WorldEventWidget>
             </template>
             <template v-if="itemDetailData.obtainable">
-              <ObtainableWidget :data="itemDetailData" byType="item"></ObtainableWidget>
+              <ObtainableWidget :data="itemDetailData" byType="item">
+                {{ t('codex.item.obtainable') }}
+              </ObtainableWidget>
             </template>
             <template v-if="itemDetailData.faction">
               <v-text-field

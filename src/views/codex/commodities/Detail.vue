@@ -23,6 +23,7 @@ import {Commodities} from "glow-prow-data/src/entity/Commodities";
 import CommoditieIconWidget from "@/components/snbWidget/commoditieIconWidget.vue";
 import CommoditieName from "@/components/snbWidget/commoditieName.vue";
 import {Commodity} from "glow-prow-data";
+import CommoditieDescription from "@/components/snbWidget/commoditieDescription.vue";
 
 const
     {t, messages} = useI18n(),
@@ -195,12 +196,7 @@ const onCodexHistory = () => {
               </div>
               <v-col>
                 <p class="text-pre-wrap mb-4">
-                  <span v-for="(i ,index) in asArray([
-                      `snb.commodities.${commoditieDetailData.id}.description`,
-                      `snb.commodities.${commoditieDetailData.id}.description.general`,
-                    ])" :key="index">
-                    {{ i }}
-                  </span>
+                  <CommoditieDescription :id="commoditieDetailData.id"></CommoditieDescription>
                 </p>
               </v-col>
             </v-row>
@@ -259,7 +255,9 @@ const onCodexHistory = () => {
               <WorldEventWidget :data="commoditieDetailData"></WorldEventWidget>
             </template>
             <template v-if="commoditieDetailData.obtainable">
-              <ObtainableWidget :data="commoditieDetailData" byType="item"></ObtainableWidget>
+              <ObtainableWidget :data="commoditieDetailData" byType="item">
+                {{ t('codex.item.obtainable') }}
+              </ObtainableWidget>
             </template>
             <template v-if="commoditieDetailData.faction">
               <v-text-field

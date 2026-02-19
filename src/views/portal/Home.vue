@@ -124,7 +124,7 @@ const getCurrentSeason = (): Season | null => {
     <div class="portal-body bg-black mt-5 pl-3 pr-3 pt-2 pb-2 pt-md-3 pb-md-3 pt-lg-10 pb-lg-10">
       <v-container>
         <v-row>
-          <v-col lg="4">
+          <v-col cols="12" md="5" lg="5">
             <div class="title card-enlargement-flavor pb-6">
               <v-card width="100%">
                 <SeasonViewWidget v-if="currentlySeason" :data="currentlySeason"></SeasonViewWidget>
@@ -146,7 +146,7 @@ const getCurrentSeason = (): Season | null => {
               <p class="px-5 py-3 font-weight-light opacity-80">{{ t(`snb.calendar.${currentlySeason?.id}.description`) }}</p>
             </div>
           </v-col>
-          <v-col lg="8">
+          <v-col cols="12" md="7" lg="7">
             <NewSeasonShowItem></NewSeasonShowItem>
           </v-col>
         </v-row>

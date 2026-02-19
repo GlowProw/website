@@ -65,7 +65,7 @@ let isDetailPage = computed(() => [
 
       <v-container class="py-0 mt-5" :class="{'ma-0': isDetailPage}" :style="isDetailPage ? 'max-width:100% !important': ''" :min-width="mobile ? '100%' : ''">
         <v-row>
-          <v-col cols="12" order-sm="1" order-lg="1" lg="2" v-if="!isDetailPage">
+          <v-col cols="12" order-sm="1" order-lg="1" lg="2" class="pa-0" v-if="!isDetailPage">
             <Sidebar></Sidebar>
           </v-col>
           <v-col cols="12" order-sm="2" order-lg="2" :lg="isDetailPage ? 12 : 10" class="pa-0">

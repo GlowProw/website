@@ -173,7 +173,9 @@ const onCodexHistory = () => {
               <WorldEventWidget :data="cosmeticDetailData"></WorldEventWidget>
             </template>
             <template v-if="cosmeticDetailData.obtainable">
-              <ObtainableWidget :data="cosmeticDetailData" byType="cosmetic"></ObtainableWidget>
+              <ObtainableWidget :data="cosmeticDetailData" byType="cosmetic">
+                {{ t('codex.item.obtainable') }}
+              </ObtainableWidget>
             </template>
 
             <v-row no-gutters align="center" class="mt-2">

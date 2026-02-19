@@ -239,7 +239,9 @@ const onCodexHistory = () => {
               <WorldEventWidget :data="setDetailData"></WorldEventWidget>
             </template>
             <template v-if="setDetailData.obtainable">
-              <ObtainableWidget :data="setDetailData" byType="item"></ObtainableWidget>
+              <ObtainableWidget :data="setDetailData" byType="item">
+                {{ t('codex.item.obtainable') }}
+              </ObtainableWidget>
             </template>
             <template v-if="setDetailData.faction">
               <v-text-field

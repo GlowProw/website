@@ -90,6 +90,8 @@ let data: any = ref([]),
       tierTags: [],
       seasons: [],
       seasonTags: [],
+      worldEvents: [],
+      worldEventTags: [],
       inputWidgetKeyValue: '',
       page: 1,
       limit: 50,
@@ -141,6 +143,13 @@ let data: any = ref([]),
         text: asString([`snb.seasons.${season}`], {backRawKey: false, variable: season})
       }))
     ]),
+    // 世界事件筛选器可选选项
+    worldEventFilterAvailableOptions = computed(() => [
+      ...filterData.value.worldEventTags.map(event => ({
+        value: event,
+        text: asString([`snb.worldEvents.${event}`], {backRawKey: false, variable: event})
+      }))
+    ]),
     // 地点筛选器可选选项
     locationFilterAvailableOptions = computed(() => [
       ...filterData.value.locationTags.map(location => ({
@@ -162,6 +171,7 @@ let data: any = ref([]),
           filterData.value.rarities.length > 0 ||
           filterData.value.tiers.length > 0 ||
           filterData.value.seasons.length > 0 ||
+          filterData.value.worldEvents.length > 0 ||
           filterData.value.sets.length > 0 ||
           filterData.value.locations.length > 0 ||
           filterData.value.sortField !== 'dateAdded' ||
@@ -188,6 +198,7 @@ const onProcessedData = computed(() => {
       let filterRarities = filterData.value.rarities;
       let filterTiers = filterData.value.tiers;
       let filterSeasons = filterData.value.seasons;
+      let filterWorldEvents = filterData.value.worldEvents;
       let filterSets = filterData.value.sets;
       let filterLocations = filterData.value.locations;
 
@@ -211,6 +222,8 @@ const onProcessedData = computed(() => {
           `snb.modifications.${sanitizeString(i.id).cleaned}.name`,
           `snb.treasureMaps.${i.id}.name`,
           `snb.treasureMaps.${sanitizeString(i.id).cleaned}.name`,
+          `snb.worldEvents.${i.id}.name`,
+          `snb.worldEvents.${sanitizeString(i.id).cleaned}.name`,
           `snb.mapLocations.${i.id}.name`,
           `snb.mapLocations.${sanitizeString(i.id).cleaned}.name`,
           `snb.npcs.${i.id}.name`,
@@ -246,7 +259,7 @@ const onProcessedData = computed(() => {
         const setMatch = filterSets.length === 0 ||
             (i.set && i.set.id && filterSets.includes(i.set.id))
 
-        // 检查地点匹配 - 修正逻辑
+        // 检查地点匹配
         const locationMatch = filterLocations.length === 0 ||
             (i.obtainable && Array.isArray(i.obtainable) &&
                 i.obtainable.some(location => filterLocations.includes(location)))
@@ -263,12 +276,31 @@ const onProcessedData = computed(() => {
           }
         }
 
+        // 检查世界事件匹配
+        let worldEventMatch = true;
+        if (filterWorldEvents.length > 0) {
+          worldEventMatch = false;
+
+          // 处理 worldEvent 可能是 string 或 string[] 的情况
+          if (i.worldEvent) {
+            if (Array.isArray(i.worldEvent)) {
+              // 如果是数组，检查是否有任何匹配
+              worldEventMatch = i.worldEvent.some((event: string) =>
+                  filterWorldEvents.includes(event.id)
+              );
+            } else if (typeof i.worldEvent === 'string') {
+              // 如果是字符串，直接检查
+              worldEventMatch = filterWorldEvents.includes(i.worldEvent.id);
+            }
+          }
+        }
+
         // 关键词匹配是基础条件，其他筛选条件可选
         const keywordMatch = nameMatch || idMatch;
 
         // 返回匹配结果
         return keywordMatch && typeMatch && categoryMatch && rarityMatch &&
-            tierMatch && seasonMatch && setMatch && locationMatch;
+            tierMatch && seasonMatch && worldEventMatch && setMatch && locationMatch; // 添加 worldEventMatch
       })
 
       // 排序
@@ -349,13 +381,14 @@ const onProcessedData = computed(() => {
     isRarity = computed(() => filterData.value.rarities.length > 0),
     isTier = computed(() => filterData.value.tiers.length > 0),
     isSeason = computed(() => filterData.value.seasons.length > 0),
+    isWorldEvent = computed(() => filterData.value.worldEvents.length > 0),
     isSet = computed(() => filterData.value.sets.length > 0),
     isLocation = computed(() => filterData.value.locations.length > 0),
 
     isFilterLocation = computed(() => props.loadDataType == 'treasureMap'),
     isFilterSet = computed(() => props.loadDataType == 'cosmetic'),
 
-    // 否应该显示无限滚动
+    // 是否应该显示无限滚动
     isShouldShowInfiniteScroll = computed(() =>
         !isSearching.value &&
         !isType.value &&
@@ -363,6 +396,7 @@ const onProcessedData = computed(() => {
         !isRarity.value &&
         !isTier.value &&
         !isSeason.value &&
+        !isWorldEvent.value &&
         !isSet.value &&
         !isLocation.value)
 
@@ -387,6 +421,9 @@ watch(() => route.query, (newQuery) => {
   if (newQuery.season) {
     filterData.value.seasons = Array.isArray(newQuery.season) ? newQuery.season : newQuery.season.split(',')
   }
+  if (newQuery.worldEvent) {
+    filterData.value.worldEvents = Array.isArray(newQuery.worldEvent) ? newQuery.worldEvent : newQuery.worldEvent.split(',')
+  }
   if (newQuery.location) {
     filterData.value.locations = Array.isArray(newQuery.location) ? newQuery.location : newQuery.location.split(',')
   }
@@ -407,6 +444,7 @@ onMounted(() => {
   onInitRarityLoad()
   onInitTierLoad()
   onInitSeasonLoad()
+  onInitWorldEventLoad()
   onInitSetLoad()
   onInitLocationLoad()
 })
@@ -456,6 +494,28 @@ const onInitSeasonLoad = () => {
   })
 
   filterData.value.seasonTags = [...allSeasons].sort()
+}
+
+/**
+ * 初始筛选可选世界事件选项
+ */
+const onInitWorldEventLoad = () => {
+  let d = originalData.value
+  const allWorldEvents = new Set<string>()
+
+  d.forEach(i => {
+    if (i.worldEvent) {
+      if (Array.isArray(i.worldEvent)) {
+        i.worldEvent.forEach(event => {
+          allWorldEvents.add(event.id)
+        })
+      } else {
+        allWorldEvents.add(i.worldEvent.id)
+      }
+    }
+  })
+
+  filterData.value.worldEventTags = [...allWorldEvents].sort()
 }
 
 /**
@@ -517,6 +577,9 @@ const updateQueryParams = () => {
   if (filterData.value.seasons.length > 0) {
     query.season = filterData.value.seasons.join(',')
   }
+  if (filterData.value.worldEvents.length > 0) {
+    query.worldEvent = filterData.value.worldEvents.join(',')
+  }
   if (filterData.value.locations.length > 0) {
     query.location = filterData.value.locations.join(',')
   }
@@ -544,6 +607,7 @@ const resetAllFilters = () => {
   filterData.value.rarities = [];
   filterData.value.tiers = [];
   filterData.value.seasons = [];
+  filterData.value.worldEvents = [];
   filterData.value.locations = [];
   filterData.value.sets = [];
   filterData.value.sortField = 'dateAdded';
@@ -564,10 +628,10 @@ const resetAllFilters = () => {
  * @param done
  */
 const onLoad = ({done}) => {
-  // 如果正在搜索或筛选类型、类别、稀有度、tier或赛季，直接返回空
+  // 如果正在搜索或筛选类型、类别、稀有度、tier、赛季或世界事件，直接返回空
   if (isSearching.value || isType.value || isCategory.value ||
       isRarity.value || isTier.value || isSeason.value ||
-      isSet.value || isLocation.value) {  // 添加 location 判断
+      isWorldEvent.value || isSet.value || isLocation.value) {  // 添加 worldEvent 判断
     done('empty')
     return
   }
@@ -669,6 +733,18 @@ const onFilterSeason = (value) => {
   filterData.value.seasons = value;
   updateQueryParams()
   // 赛季筛选时重置分页数据
+  if (value.length > 0) {
+    data.value = []
+  }
+}
+
+/**
+ * 过滤世界事件
+ */
+const onFilterWorldEvent = (value) => {
+  filterData.value.worldEvents = value;
+  updateQueryParams()
+  // 世界事件筛选时重置分页数据
   if (value.length > 0) {
     data.value = []
   }
@@ -888,6 +964,29 @@ const onSort = (field: SortField, order: SortOrder) => {
                     :eager="false"
                     :glow="false"
                     :items="seasonFilterAvailableOptions"
+                    hide-details
+                    multiple
+                    chips
+                    clearable
+                ></v-select>
+              </v-col>
+
+              <!-- 世界事件筛选 -->
+              <v-col cols="6">
+                <div class="mb-2">{{ t('codex.filter.byWorldEvent') }} ({{ worldEventFilterAvailableOptions.length || 0 }})</div>
+                <v-select
+                    variant="filled"
+                    @update:model-value="onFilterWorldEvent"
+                    item-value="value"
+                    item-title="text"
+                    density="comfortable"
+                    v-model="filterData.worldEvents"
+                    :disabled="worldEventFilterAvailableOptions.length <= 0"
+                    :placeholder="t('codex.filter.byWorldEvent')"
+                    :counter="3"
+                    :eager="false"
+                    :glow="false"
+                    :items="worldEventFilterAvailableOptions"
                     hide-details
                     multiple
                     chips

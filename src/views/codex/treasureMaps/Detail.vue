@@ -197,7 +197,9 @@ const onCodexHistory = () => {
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
             <BySeasonWidget :data="mapDetailData"></BySeasonWidget>
 
-            <ObtainableWidget :data="mapDetailData" byType="treasureMap"></ObtainableWidget>
+            <ObtainableWidget :data="mapDetailData" byType="treasureMap">
+              {{ t('codex.item.obtainable') }}
+            </ObtainableWidget>
 
             <template v-if="mapDetailData.rarity">
               <v-text-field readonly
