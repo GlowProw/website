@@ -22,7 +22,7 @@ import DamageMitigationWidget from "@/components/snbWidget/damageMitigationWidge
 import ObtainableWidget from "@/components/ObtainableWidget.vue";
 import ItemDescription from "@/components/snbWidget/itemDescription.vue";
 import ItemContentWidget from "@/components/snbWidget/itemContentWidget.vue";
-import {Cosmetics} from "../../../../glow-prow-data";
+import {Cosmetics} from "glow-prow-data";
 import ShipUpgradedDescription from "@/components/snbWidget/ShipUpgradedDescription.vue";
 import HtmlLink from "@/components/HtmlLink.vue";
 
