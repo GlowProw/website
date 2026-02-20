@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import AppMessageWidget from '@/components/AppMessageWidget'
+import {onMounted} from "vue";
+
+onMounted(() => {
+  document.dispatchEvent(new Event('render-event'));
+});
 </script>
 
 <template>

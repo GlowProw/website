@@ -11,7 +11,7 @@ import Textarea from "@/components/textarea"
 import UserAvatar from "@/components/UserAvatar.vue";
 
 import languages from "@/../public/config/languages.json"
-import {useUserApi} from "@/assets/sripts/api";
+import {apis} from "@/assets/sripts";
 import {ApiError} from "@/assets/types/Api";
 import {useRules} from "@/assets/sripts/rules_user";
 
@@ -20,7 +20,6 @@ const authStore = useAuthStore(),
     route = useRoute(),
     router = useRouter(),
     {t} = useI18n(),
-    api = useUserApi(),
     rules = useRules()
 
 let
@@ -73,7 +72,7 @@ onMounted(() => {
  */
 const getUserAccount = async () => {
   try {
-    const result = await api.getMe(),
+    const result = await apis.userApi().getMe(),
         d = result.data
 
     userAccountData.value = d.data;
@@ -97,7 +96,7 @@ const onChangePassword = async () => {
 
     changePasswordLoading.value = true;
 
-    const result = await api.changePassword(passwordFromData.value.data)
+    const result = await apis.userApi().changePassword(passwordFromData.value.data)
 
     authStore.logout()
     await router.push({name: 'AccountInformation'})
@@ -133,7 +132,7 @@ const onSaveAccountAttr = async () => {
     if (attr.language)
       attr.language = attr.language.value;
 
-    const result = await api.updateMeAttr(attr)
+    const result = await apis.userApi().updateMeAttr(attr)
 
     notice.success(t(`basic.tips.${result.code}`))
   } catch (e) {
@@ -158,7 +157,7 @@ const onChangeAlternativeName = async () => {
 
     userAlternativeNameLoading.value = true
 
-    const result = await api.changeAlternativeName(alternativeNameData.value.data.username)
+    const result = await apis.userApi().changeAlternativeName(alternativeNameData.value.data.username)
 
     authStore.updateAccountAttr({alternativeName: alternativeNameData.value.data.username})
     userAccountData.value.alternativeName = alternativeNameData.value.data.username

@@ -109,7 +109,7 @@ const {t} = useI18n()
     <v-col cols="12" lg="4">
       <AffixBoxHasTitleView>
         <ul>
-          <li>nickmiku+glowprow@gmail.com</li>
+          <li>glow-prow@cabbagelol.net</li>
           <li>
             <HtmlLink href="https://cabbagelol.net"></HtmlLink>
           </li>

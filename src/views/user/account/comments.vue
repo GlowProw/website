@@ -1,16 +1,17 @@
 <script setup lang="ts">
 
-import {useHttpToken} from "@/assets/sripts/http_util";
 import {onMounted, ref} from "vue";
-import {api} from "@/assets/sripts/index";
+import {apis} from "@/assets/sripts/index";
 
 import Loading from "@/components/Loading.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import EmptyView from "@/components/EmptyView.vue";
+import {ApiError} from "@/assets/types/Api";
+import {useNoticeStore} from "~/stores/noticeStore";
 
-const http = useHttpToken()
+const notice = useNoticeStore()
 
 let loading = ref(false),
     userCommentData = ref({})
@@ -25,13 +26,18 @@ onMounted(() => {
 const getMyCommentsData = async () => {
   try {
     loading.value = true;
-    const result = await http.get(api['user_comments']),
+
+    const result = await apis.userApi().getUserComments(),
         d = result.data
 
-    if (d.error == 1)
-      return;
-
     userCommentData.value = d.data;
+  } catch (e) {
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.code
+      }))
+    }
+    console.error(e)
   } finally {
     loading.value = false;
   }

@@ -245,12 +245,19 @@ const handleWheel = (e) => {
  * 重置视图
  */
 const resetView = () => {
-  scale.value =  props.defaultScale || 1
+  scale.value = props.defaultScale || 1
   centerCanvas()
 }
 
-const updateBackgroundPosition = (x, y) => {
+/**
+ * 更新背景位置
+ * @param x
+ * @param y
+ */
+const updateBackgroundPosition = (x: string | number, y: string | number) => {
   const elementCircles = document.querySelector('.overlapping-circles')
+
+  if (!elementCircles) return
 
   elementCircles.style.transition = '--offset-x 0.3s ease, --offset-y 0.3s ease'
   elementCircles.style.setProperty('--offset-x', `${x}px`)

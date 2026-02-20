@@ -10,6 +10,7 @@ import {ApiError} from "@/assets/types/Api";
 import EmptyView from "@/components/EmptyView.vue";
 import Time from "@/components/Time.vue";
 import TimeView from "@/components/TimeView.vue";
+import Loading from "@/components/Loading.vue";
 
 const {t} = useI18n(),
     api = useMapApi(),

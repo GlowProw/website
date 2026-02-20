@@ -1,13 +1,16 @@
 <script setup lang="ts">
 
-import {useHttpToken} from "@/assets/sripts/http_util";
 import {onMounted, ref} from "vue";
-import {api} from "@/assets/sripts/index";
+import {apis} from "@/assets/sripts/index";
 
 import Loading from "@/components/Loading.vue";
 import EmptyView from "@/components/EmptyView.vue";
+import {ApiError} from "@/assets/types/Api";
+import {useNoticeStore} from "~/stores/noticeStore";
+import {useI18n} from "vue-i18n";
 
-const http = useHttpToken()
+const notice = useNoticeStore(),
+    {t} = useI18n()
 
 let loading = ref(false),
     userTeamUpData = ref({})
@@ -22,13 +25,18 @@ onMounted(() => {
 const getMyTeamUpsData = async () => {
   try {
     loading.value = true;
-    const result = await http.get(api['user_me_teamups']),
+
+    const result = await apis.userApi().getUserTeamups(),
         d = result.data
 
-    if (d.error == 1)
-      return;
-
     userTeamUpData.value = d.data;
+  } catch (e) {
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.code
+      }))
+    }
+    console.error(e)
   } finally {
     loading.value = false;
   }

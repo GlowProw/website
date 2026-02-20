@@ -3,7 +3,7 @@ import {useAuthStore} from "~/stores/userAccountStore";
 import {onMounted, type Ref, ref, triggerRef, type UnwrapRef} from "vue";
 import {useRouter} from "vue-router";
 import EmptyView from "@/components/EmptyView.vue";
-import {api, http, storage, ws} from "@/assets/sripts";
+import {apis, http, storage, ws} from "@/assets/sripts";
 import TimeView from "@/components/TimeView.vue";
 import {useI18n} from "vue-i18n";
 import type {VForm} from "vuetify/components";
@@ -13,9 +13,9 @@ import Team from "./Team.vue";
 import Textarea from "@/components/textarea/index.vue";
 import {useNoticeStore} from "~/stores/noticeStore";
 import AdsWidget from "@/components/ads/google/index.vue";
+import {ApiError} from "@/assets/types/Api";
 
 const authStore = useAuthStore(),
-    router = useRouter(),
     notice = useNoticeStore(),
     {t} = useI18n()
 
@@ -31,7 +31,7 @@ enum getTeamsType {
   load
 }
 
-let teams: Ref<Team[]> = ref([]),
+let teams: Ref<any[]> = ref([]),
 
     // 服务
     service = ref({
@@ -44,11 +44,11 @@ let teams: Ref<Team[]> = ref([]),
     pushConfig = {
       rules: {
         player: [
-          v => !!v || 'Player ID is required',
+            (v: any) => !!v || 'Player ID is required',
         ],
         description: [
-          v => !!v || 'Description is required',
-          v => (v && v.length >= 3 && v.length <= 300) || 'content length >= 3 <= 300',
+            (v: any) => !!v || 'Description is required',
+            (v: string | any[]) => (v && v.length >= 3 && v.length <= 300) || 'content length >= 3 <= 300',
         ]
       },
       tags: [
@@ -87,8 +87,8 @@ let teams: Ref<Team[]> = ref([]),
     })
 
 onMounted(async () => {
-  await initWss()
-  await onWss()
+  initWss()
+  onWss()
   await getTeams(getTeamsType.none)
 
   readStoragePlayer()
@@ -103,18 +103,8 @@ const getTeams = async (type: getTeamsType = getTeamsType.none) => {
     try {
       teamsLoading.value = true;
 
-      const result = await http.get(api['teamups'], {
-            params: Object.fromEntries(
-                Object.entries(filtering.value).filter(([_, value]) =>
-                    value !== null && value !== undefined && value !== ''
-                )
-            ),
-          }),
+      const result = await apis.teamupApi().getTeamups(filtering.value.keyword),
           d = result.data;
-
-      if (d.error == 1) {
-        throw Error(d.code)
-      }
 
       switch (type) {
         case 0:
@@ -126,10 +116,12 @@ const getTeams = async (type: getTeamsType = getTeamsType.none) => {
       }
       resolve(_teams.value)
     } catch (e) {
-      if (e instanceof Error)
-        notice.error(t(`basic.tips.${e.response.data.code.replace('.', '_')}`))
-      else
-        console.error(e)
+      if (e instanceof ApiError) {
+        notice.error(t(`basic.tips.${e.code}`, {
+          context: e.code
+        }))
+      }
+      console.error(e)
     } finally {
       setTimeout(() => {
         teamsLoading.value = false

@@ -8,7 +8,7 @@ import {useNoticeStore} from "~/stores/noticeStore";
 import Captcha from "@/components/captcha/index.vue";
 import {useRules} from "@/assets/sripts/rules_user"
 import {SigninParams} from "@/assets/types/User.Login";
-import {useUserApi} from "@/assets/sripts/api";
+import {apis} from "@/assets/sripts";
 import {ApiError} from "@/assets/types/Api";
 
 const authStore = useAuthStore(),
@@ -16,7 +16,6 @@ const authStore = useAuthStore(),
     route = useRoute(),
     notice = useNoticeStore(),
     {t} = useI18n(),
-    {signin} = useUserApi(),
     rules = useRules()
 
 let signinFormLoading: Ref<boolean> = ref(false),
@@ -35,7 +34,7 @@ const onLogin = async () => {
   try {
     signinFormLoading.value = true
 
-    const result = await signin({
+    const result = await apis.userApi().signin({
           username: signinFrom.value.username,
           password: signinFrom.value.password,
           captcha: signinFrom.value.captcha,

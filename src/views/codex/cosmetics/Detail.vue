@@ -20,6 +20,7 @@ import SetIconWidget from "@/components/snbWidget/setIconWidget.vue";
 import {useDisplay} from "vuetify/framework";
 import CosmeticPiecesTagWidget from "@/components/snbWidget/cosmeticPiecesTagWidget.vue";
 import CosmeticEffectTagWidget from "@/components/snbWidget/cosmeticEffectTagWidget.vue";
+import WorldEventWidget from "@/components/WorldEventWidget.vue";
 
 const {t} = useI18n(),
     router = useRouter(),

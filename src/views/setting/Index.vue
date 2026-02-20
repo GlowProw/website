@@ -1,22 +1,18 @@
 <script setup lang="ts">
 
-import {onMounted, ref, watch} from "vue";
+import {onMounted, Ref, ref, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {useDisplay} from "vuetify/framework";
-import {useUserApi} from "@/assets/sripts/api";
-import {useNoticeStore} from "~/stores/noticeStore";
 import {useI18n} from "vue-i18n";
 
 import Silk from "@/components/Silk.vue";
 
 const route = useRoute(),
     router = useRouter(),
-    notice = useNoticeStore(),
     {mobile} = useDisplay(),
-    {t} = useI18n(),
-    api = useUserApi()
+    {t} = useI18n()
 
-let tabs = ref([
+let tabs: Ref<any[]> = ref([
       {
         name: t('setting.routine.title'),
         value: 'PortalSettingRoutine',
@@ -50,7 +46,7 @@ watch(() => tab.value, (value) => {
 })
 
 onMounted(() => {
-  const currentRouterName = tabs.value.findLast(i => i.value == router.resolve(route).name)
+  const currentRouterName = tabs.value.find(i => i.value == router.resolve(route).name)
   if (currentRouterName)
     tab.value = currentRouterName.value
 })

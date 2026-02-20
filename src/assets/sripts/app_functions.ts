@@ -20,12 +20,6 @@ export default class AppFuns {
             to: '/calendar'
         },
         {
-            title: 'smugglersReport.title',
-            icon: 'mdi-trophy-award',
-            description: 'smugglersReport.description',
-            to: '/smugglers-report'
-        },
-        {
             title: 'header.functions.maps.title',
             icon: 'mdi-map',
             description: 'header.functions.maps.description',
@@ -50,11 +44,23 @@ export default class AppFuns {
             to: `/assembly/browse?t=${new Date().getTime()}`
         },
         {
-            title: 'header.functions.captain-signature.title',
-            icon: 'mdi-draw-pen',
-            description: 'header.functions.captain-signature.description',
-            to: ''
+            title: 'header.functions.smugglers-report.title',
+            icon: 'mdi-trophy-award',
+            description: 'header.functions.smugglers-report.description',
+            to: '/smugglers-report'
         },
+        {
+            title: 'header.functions.empire-skill-simulation.title',
+            icon: 'mdi-hexagram-outline',
+            description: 'header.functions.empire-skill-simulation.description',
+            to: '/empire-skill-simulation'
+        },
+        // {
+        //     title: 'header.functions.captain-signature.title',
+        //     icon: 'mdi-draw-pen',
+        //     description: 'header.functions.captain-signature.description',
+        //     to: ''
+        // },
         {
             title: 'header.functions.ranking-of-designed-items.title',
             icon: 'mdi-format-list-numbered',
@@ -62,24 +68,18 @@ export default class AppFuns {
             to: '',
             testTo: '/ranking-designed-items'
         },
-        {
-            title: 'header.functions.impression-of-monsters.title',
-            icon: 'mdi-help',
-            description: 'header.functions.impression-of-monsters.description',
-            to: ''
-        },
-        {
-            title: 'header.functions.fashion-show.title',
-            icon: 'mdi-help',
-            description: 'header.functions.fashion-show.description',
-            to: ''
-        },
-        {
-            title: 'header.functions.empire-skill-simulation.title',
-            icon: 'mdi-hexagram-outline',
-            description: 'header.functions.empire-skill-simulation.description',
-            to: '/empire-skill-simulation'
-        }
+        // {
+        //     title: 'header.functions.impression-of-monsters.title',
+        //     icon: 'mdi-help',
+        //     description: 'header.functions.impression-of-monsters.description',
+        //     to: ''
+        // },
+        // {
+        //     title: 'header.functions.fashion-show.title',
+        //     icon: 'mdi-help',
+        //     description: 'header.functions.fashion-show.description',
+        //     to: ''
+        // }
     ]
 
     get list(): any[] {

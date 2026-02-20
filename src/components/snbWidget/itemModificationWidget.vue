@@ -235,7 +235,7 @@ const resetFilters = () => {
     <v-row class="mod d-flex">
       <template v-if="Object.keys(filteredModData).length > 0">
         <template v-for="(key, value) in filteredModData" :key="key">
-          <v-col cols="3">
+          <v-col cols="12" md="3" lg="3">
             <v-row no-gutters class="px-4 py-2 title-long-flavor" :style="`background: ${modSlotBackgroundColor[value]}`" align="center">
               <v-col cols="auto">
                 <v-img :src="modIcons[value]" class="mt-1" width="25px" height="25px"/>

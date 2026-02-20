@@ -4,7 +4,7 @@ import {computed, onMounted, type Ref, ref, toRaw, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {v6 as uuidv6} from "uuid";
 
-import {api, storageIntermediateTransfer} from "@/assets/sripts";
+import {apis, storageIntermediateTransfer} from "@/assets/sripts";
 import {StorageIntermediateTransferSaveType} from "@/assets/sripts/storage_assembly";
 import {useAuthStore} from "~/stores/userAccountStore";
 import {useHttpToken} from "@/assets/sripts/http_util";
@@ -16,12 +16,12 @@ import Loading from "@/components/Loading.vue";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import AssemblyDataProcessing from "@/assets/sripts/assembly_data_processing";
 import AssemblyMainSubjectView from "@/components/AssemblyMainSubjectView.vue";
+import {ApiError} from "@/assets/types/Api";
 
 const {t} = useI18n(),
     route = useRoute(),
     router = useRouter(),
-    httpToken = useHttpToken(),
-    authStore = useAuthStore(),
+    notice = useNoticeStore(),
     noticeStore = useNoticeStore()
 
 let
@@ -103,18 +103,19 @@ const getAssemblyDetail = async () => {
   try {
     const {uid} = route.params;
     assemblyLoading.value = true;
-    const result = await httpToken.get(api['assembly_item'], {
-          params: {
-            uuid: uid,
-          },
-        }),
-        d = result.data;
 
-    if (d.error == 1)
-      return;
+    const result = await apis.assemblyApi().getAssemblyItem(<string>uid),
+        d = result.data;
 
     assemblyDetailData.value = d.data;
     shareData.value = d.data;
+  } catch (e) {
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.code
+      }))
+    }
+    console.error(e)
   } finally {
     assemblyLoading.value = false;
   }

@@ -2,7 +2,6 @@
  * 包装器
  */
 import _Conf from './config';
-import _Api from './apis';
 import {Apis as _Apis} from './api';
 import _Http from './http';
 import _Ws from './ws'
@@ -22,7 +21,6 @@ import _AssemblyViewConfig from './assembly_view_config'
 
 export const conf = new _Conf()
 export const apis = _Apis;
-export const api = new _Api()
 export const http = new _Http()
 export const ws = new _Ws()
 export const storage = new _Storage()
@@ -40,7 +38,7 @@ export const rarity = new _Rarity()
 export const assemblyViewConfig = new _AssemblyViewConfig()
 
 export default {
-    api, apis, conf, ws, http,
+    apis, conf, ws, http,
     storage, storage_capacity_monitor, storage_account, storage_ads, storageIntermediateTransfer, storageCollect,
     sessionUserInfo,
     time, number, appFuns, appNavs, rarity, assemblyViewConfig

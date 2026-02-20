@@ -248,7 +248,6 @@ const onStarItem = (data: Item) => {
                 <ItemSlotBase size="130px">
                   <ItemIconWidget :id="itemDetailData.id" :isOpenDetail="false" :isShowOpenDetail="false"></ItemIconWidget>
                 </ItemSlotBase>
-                <WeaponModificationWidget :data="itemDetailData"></WeaponModificationWidget>
               </div>
               <v-col>
                 <p class="text-pre-wrap mb-4">
@@ -356,9 +355,10 @@ const onStarItem = (data: Item) => {
                   </v-text-field>
                 </template>
                 <template v-if="typeof itemDetailData.damageMitigation == 'object'">
-                  <p class="mb-2 font-weight-bold">
-                    <v-icon icon="mdi-shield" size="18" class="mr-2"></v-icon>
+                  <p class="mb-2 d-flex align-center font-weight-bold">
                     {{ t('codex.item.damageMitigation') }}
+                    <v-icon icon="mdi-help-circle-outline" size="18" class="mx-2"
+                            v-tooltip="t('codex.item.damageMitigationTip')"></v-icon>
                   </p>
                   <DamageMitigationWidget :data="itemDetailData"></DamageMitigationWidget>
                 </template>
@@ -529,7 +529,7 @@ const onStarItem = (data: Item) => {
 
             <template v-if="itemDetailData.id">
               <p class="mt-5 mb-4 font-weight-bold">{{ t('codex.item.damageType') }}</p>
-              <ItemDamageTypeWidget :data="itemDetailData"></ItemDamageTypeWidget>
+              <ItemDamageTypeWidget :iconType="'aggressivity'" :data="itemDetailData"></ItemDamageTypeWidget>
             </template>
 
             <template v-if="itemDetailData.perks">

@@ -82,13 +82,6 @@ export const useAppStore = defineStore('app', () => {
 
         // 应用主题
         applyTheme(theme.value)
-
-        console.log('App config initialized:', {
-            openNewWindow: itemOpenNewWindow.value,
-            theme: theme.value,
-            language: language.value,
-            sidebarCollapsed: sidebarCollapsed.value
-        })
     }
 
     /**

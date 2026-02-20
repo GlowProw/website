@@ -1,10 +1,11 @@
 <script setup lang="ts">
 
-import {useHttpToken} from "@/assets/sripts/http_util";
 import {nextTick, onMounted, ref, watch} from "vue";
-import {api} from "@/assets/sripts/index";
+import {apis} from "@/assets/sripts/index";
 import {useI18n} from "vue-i18n";
 import {ResultData} from "@/assets/types";
+import {ApiError} from "@/assets/types/Api";
+import {useNoticeStore} from "~/stores/noticeStore";
 
 import Loading from "@/components/Loading.vue";
 import AssemblySettingPanel from "@/components/AssemblySettingPanel.vue";
@@ -14,7 +15,7 @@ import UserAvatar from "@/components/UserAvatar.vue";
 import AssemblyTouring from "@/components/AssemblyTouring.vue";
 import AccountCardWidget from "@/components/AccountCardWidget.vue";
 
-const http = useHttpToken(),
+const notice = useNoticeStore(),
     {t} = useI18n()
 
 let loading = ref(false),
@@ -25,7 +26,7 @@ onMounted(() => {
   getMyAssemblysData()
 })
 
-watch(userAssemblysData, (newList: ResultData) => {
+watch(() => userAssemblysData, (newList: ResultData) => {
   if (newList && newList.data.length > 0) {
     nextTick(() => {
       const processBatch = (index = 0) => {
@@ -58,13 +59,18 @@ watch(userAssemblysData, (newList: ResultData) => {
 const getMyAssemblysData = async () => {
   try {
     loading.value = true;
-    const result = await http.get(api['user_me_assemblys']),
+
+    const result = await apis.userApi().getUserAssemblys(),
         d = result.data
 
-    if (d.error == 1)
-      return;
-
     userAssemblysData.value = d.data;
+  } catch (e) {
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.code
+      }))
+    }
+    console.error(e)
   } finally {
     loading.value = false;
   }

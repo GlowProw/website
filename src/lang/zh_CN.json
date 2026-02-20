@@ -507,7 +507,8 @@
       "damageType": "武器属性",
       "perks": "词条",
       "tier": "等级",
-      "damageMitigation": "损害减轻",
+      "damageMitigation": "护甲和损害减免",
+      "damageMitigationTip": "对特定属性伤害有减免，属性抗性越高，收到该属性伤害则越少",
       "lookDetail": "查看物品详情(按住)"
     },
     "commoditie": {
@@ -1133,7 +1134,7 @@
   "home": {
     "title": "首页",
     "meta": {
-      "keywords": "游戏,碧海黑帆,game,skull-and-bones,Skull And Bones,SNB,S And B,ubisoft,2025"
+      "keywords": "游戏,碧海黑帆,game,skull-and-bones,Skull And Bones,SNB,S And B,ubisoft,2025,Glow Prow,glowprow,glow,prow,glow-prow,闪耀,船首,闪耀船首,tool,app,website,mod,map,工具,wiki,维基百科,game,游戏,ubisoft,ubisoft.com,育碧,skullandbones,skull and bones,snb,碧海黑帆,Skull and Bones,SNB,育碧,Ubisoft,海盗游戏,海战游戏,开放世界,MMORPG,印度洋,17世纪末,海盗黄金时代,圣安妮,落草湾,非洲海岸,红岛,东印度群岛,公海,恶名系统,恶名等级,海盗船长,海盗王,私掠船,悬赏任务,赏金目标,海坨社,八里亚尔,银币,造船匠,木匠,铁匠,时装店,船只建造,船只改装,船只类型,火力舰,重装舰,支援舰,冲撞船,武器系统,火炮,长管炮,半加农炮,射石炮,culverin,装甲,陈设,家具,修理包,望远镜,猎矛,镐,锯子,镰刀,撬棍,采集资源,金合欢木材,登船战,鱼叉,抢登,薄弱部位,红色光圈,船帆控制,耐力系统,顺风航行,逆风航行,风向利用,航海技巧,海上生存,船员管理,负重系统,货舱,仓库,邮箱,快速旅行,据点,前哨站,定居点,约翰·斯科洛克,John Scurlock,海民,Sea Peoples,克兰·法拉,Clan of Fara,走私,贸易路线,跑商,违禁品,藏宝图,埋藏宝藏,寻宝线索,发光信标,沉船打捞,漂浮残骸,狩猎鲨鱼,捕鱼,野生动物,多人合作,三人组队,PvP模式,5v5对抗,争议水域,遇险信标,呼叫支援,社交菜单,跨平台游玩,跨平台进度,赛季更新,终局玩法,世界事件,海上霸主,血腥骷髅之歌典藏包,走私者通行证,灰海盗号任务,血腥骷髅的遗产,Ubisoft Connect,Epic商城,Steam,PS5,Xbox Series X,PC配置,画面设置,DLSS,FSR,XeSS,新手攻略,入门技巧,快速升级,赚钱方法,八里亚尔速刷,船只推荐,武器搭配,装备蓝图,材料位置,资源分布,据点坐标,悬赏任务攻略,海坨社差事,工厂收租,藏宝图位置,宝藏地点,BOSS打法,登船技巧,海战技巧,团队配合,独狼玩法,操作设置,键位说明,界面介绍,任务指引,成就解锁,奖杯攻略,DLC内容,版本更新,补丁说明,BUG修复,游戏评测,玩家社区,交流群,开黑,好友组队"
     }
   },
   "empireSkillSimulation": {
@@ -1206,11 +1207,15 @@
       },
       "maps": {
         "title": "地图",
-        "description": "地图物品清单"
+        "description": "地图物品清单，列出不同地点以及地点内藏宝图和设施"
       },
       "codex": {
         "title": "手稿",
         "description": "陈列物品信息, 检查它们如何获得"
+      },
+      "smugglers-report": {
+        "title": "鉴赏家",
+        "description": "社区共同推荐每周购买指南"
       },
       "assembly": {
         "title": "船只配装厂",

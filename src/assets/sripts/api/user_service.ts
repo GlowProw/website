@@ -133,10 +133,10 @@ export function useUserApi() {
      * @param userId
      * @param pagination
      */
-    const getUserTeamups = async (userId: string, pagination?: PaginationParams) => {
+    const getUserTeamups = async (pagination?: PaginationParams) => {
         try {
-            const result = await http.get('user/space/teamups', {
-                params: {id: userId, ...pagination}
+            const result = await http.get('user/me/teamups', {
+                params: {...pagination}
             })
             return handleResponse(result)
         } catch (error) {
@@ -149,13 +149,12 @@ export function useUserApi() {
 
     /**
      * 获取用户配装列表
-     * @param userId
      * @param pagination
      */
-    const getUserAssemblys = async (userId: string, pagination?: PaginationParams) => {
+    const getUserAssemblys = async (pagination?: PaginationParams) => {
         try {
-            const result = await http.get('user/space/assemblys', {
-                params: {id: userId, ...pagination}
+            const result = await http.get('user/me/assemblys', {
+                params: {...pagination}
             })
             return handleResponse(result)
         } catch (error) {
@@ -168,14 +167,12 @@ export function useUserApi() {
 
     /**
      * 获取用户评论
-     * @param userId
      * @param pagination
      */
-    const getUserComments = async (userId?: string, pagination?: PaginationParams) => {
+    const getUserComments = async (pagination?: PaginationParams) => {
         try {
-            const url = userId ? `user/space/comments` : 'user/comments';
-            const result = await http.get(url, {
-                params: {...pagination, userId}
+            const result = await http.get('user/comments', {
+                params: {...pagination}
             })
             return handleResponse(result)
         } catch (error) {

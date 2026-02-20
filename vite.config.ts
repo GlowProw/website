@@ -1,6 +1,5 @@
 import Vue from '@vitejs/plugin-vue'
 import Vuetify, {transformAssetUrls} from 'vite-plugin-vuetify'
-
 import {defineConfig} from 'vite'
 import path from "path";
 
@@ -16,7 +15,8 @@ export default defineConfig({
     ],
     optimizeDeps: {
         exclude: [
-            "glow-prow-assets", "glow-prow-data",
+            "glow-prow-assets",
+            "glow-prow-data",
             "vuetify", "fsevents", "file-type", "'@zumer/snapdom'"
         ],
     },

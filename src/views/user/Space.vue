@@ -4,7 +4,7 @@ import Silk from "@/components/Silk.vue";
 import {nextTick, onMounted, Ref, ref, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {useDisplay} from "vuetify/framework";
-import {useUserApi} from "@/assets/sripts/api";
+import {apis} from "@/assets/sripts";
 import {ApiError} from "@/assets/types/Api";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {useI18n} from "vue-i18n";
@@ -27,8 +27,7 @@ const route = useRoute(),
     router = useRouter(),
     notice = useNoticeStore(),
     {mobile} = useDisplay(),
-    {t} = useI18n(),
-    api = useUserApi()
+    {t} = useI18n()
 
 let loading = ref({
       userInfo: true,
@@ -98,7 +97,7 @@ onMounted(() => {
   onUpdateData(tab.value)
 })
 
-const onUpdateData = (value) => {
+const onUpdateData = (value: string) => {
   switch (value) {
     case 'teamUp':
       getUserTeamUpsData()
@@ -119,7 +118,7 @@ const getUserInfo = async () => {
     if (!id) return;
     loading.value.userInfo = true;
 
-    const result = await api.getUserInfo(id as string),
+    const result = await apis.userApi().getUserInfo(id as string),
         d = result.data;
 
     userData.value = d.data;
@@ -147,7 +146,7 @@ const getUserTeamUpsData = async () => {
 
     loading.value.teamUp = true;
 
-    const result = await api.getUserTeamups(id as string, spacePagination.value),
+    const result = await apis.userApi().getUserTeamups(id as string, spacePagination.value),
         d = result.data
 
     userTeamUpData.value = d.data;
@@ -175,7 +174,7 @@ const getUserAssemblysData = async () => {
 
     loading.value.assembly = true;
 
-    const result = await api.getUserAssemblys(id as string, spacePagination.value),
+    const result = await apis.userApi().getUserAssemblys(id as string, spacePagination.value),
         d = result.data
 
     userAssemblysData.value = d.data;

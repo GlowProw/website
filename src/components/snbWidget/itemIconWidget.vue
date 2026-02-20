@@ -168,7 +168,6 @@ watch(() => cdnStore.selectedService, (newValue, oldValue) => {
                   :to="`/codex/items?rarity=${i.rarity}`"
                   v-if="i.rarity">{{ t(`codex.raritys.${i.rarity}`) }}
           </v-chip>
-          <ItemDamageTypeWidget :data="i" sizeType="mini" :size="25"></ItemDamageTypeWidget>
         </div>
 
         <div class="right-show-image pointer-events-none position-absolute w-33">
@@ -206,7 +205,22 @@ watch(() => cdnStore.selectedService, (newValue, oldValue) => {
           </div>
         </template>
 
-        <v-expansion-panels v-model="itemsCardData.panel">
+        <template v-if="i.damagePerShot">
+          <v-row class="px-6" align="center">
+            <v-col cols="auto">
+              <v-card variant="text">
+                <p class="text-center text-caption opacity-60">{{ t('codex.item.damagePerShot') }}</p>
+                <p>{{i.damagePerShot || 0}}</p>
+              </v-card>
+            </v-col>
+            <v-divider vertical :opacity=".2" :thickness="2" inset class="my-4"></v-divider>
+            <v-col>
+              <ItemDamageTypeWidget :data="i" iconType="aggressivity" sizeType="mini" :size="28"></ItemDamageTypeWidget>
+            </v-col>
+          </v-row>
+        </template>
+
+        <v-expansion-panels class="mt-5" v-model="itemsCardData.panel">
           <v-expansion-panel
               class="bg-transparent"
               color="transparent"

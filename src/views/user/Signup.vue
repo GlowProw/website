@@ -6,14 +6,13 @@ import {useNoticeStore} from "~/stores/noticeStore";
 
 import Captcha from "@/components/captcha/index.vue";
 import {useRules} from "@/assets/sripts/rules_user"
-import {useUserApi} from "@/assets/sripts/api";
+import {apis} from "@/assets/sripts";
 import {ApiError} from "@/assets/types/Api";
 
 const router = useRouter(),
     noticeStore = useNoticeStore(),
     {t} = useI18n(),
     notice = useNoticeStore(),
-    userApi = useUserApi(),
     rules = useRules()
 
 let signupLoading: Ref<boolean> = ref(false),
@@ -38,7 +37,7 @@ const onRegister = async () => {
   try {
     signupLoading.value = true;
 
-    const result = await userApi.signup({
+    const result = await apis.userApi().signup({
           username: signupFrom.value.username,
           alternativeName: signupFrom.value.alternativeName || signupFrom.value.username,
           password: signupFrom.value.password,

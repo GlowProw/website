@@ -273,10 +273,6 @@ export const useCDNAssetsServiceStore = defineStore('cdnService', () => {
      */
     const initializeCDNConfig = () => {
         loadFromStorage();
-        console.log('CDN config initialized:', {
-            selectedService: selectedService.value,
-            services: services.value
-        });
     };
 
     /**

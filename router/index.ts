@@ -93,7 +93,7 @@ import Test from '@/views/Test.vue'
 import {useAuthStore} from "@/../stores/userAccountStore";
 import {useAssetsStore} from "@/../stores/assetsStore";
 import {useHead} from "@unhead/vue";
-import {useUserApi} from "@/assets/sripts/api";
+import {apis} from "@/assets/sripts";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 
 const isLoginBeforeEnter = function (to: any, from: any, next: any) {
@@ -118,11 +118,10 @@ const isAdminBeforeEnter = (to: any, from: any, next: any) => {
 }
 
 const initAccountInfo = async function (to: any, from: any, next: any) {
-    const authStore = useAuthStore(),
-        useApi = useUserApi()
+    const authStore = useAuthStore()
 
     try {
-        const result = await useApi.getMe()
+        const result = await apis.userApi().getMe()
 
         authStore.updateAccountAttr(result.data)
     } catch (e) {
@@ -723,7 +722,7 @@ router.beforeEach((to) => {
         if (to.meta && to.meta.title) {
             let meta = []
 
-            if (to.meta.keywords)
+            if (to.meta.keywords && to.meta.keywords != t(to.meta.keywords))
                 meta.push({name: 'keywords', content: t(to.meta.keywords)})
 
             useHead({

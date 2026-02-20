@@ -1,7 +1,6 @@
 <script setup lang="ts">
 
 import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
-import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
 import CommoditieIconWidget from "@/components/snbWidget/commoditieIconWidget.vue";
 import TreasureMapIconWidget from "@/components/snbWidget/treasureMapIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
@@ -18,7 +17,7 @@ import {Season} from "glow-prow-data/src/entity/Seasons";
 import ItemName from "@/components/snbWidget/itemName.vue";
 import {useI18n} from "vue-i18n";
 import {useAppStore} from "~/stores/appStore";
-import {min} from "d3";
+import ShipName from "@/components/snbWidget/shipName.vue";
 
 const
     appStore = useAppStore(),
@@ -44,10 +43,6 @@ const onFilterCurrentSeason = (d: any[]) => {
     return i.bySeason?.id == getCurrentSeason()?.id
   })
 }
-
-onMounted(() => {
-  console.log(items.filter((i: any) => i.type == 'chest'))
-})
 
 /**
  * 获取当前赛季
@@ -96,11 +91,11 @@ const getCurrentSeason = (): Season | null => {
         <MapLocationIconWidget :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationIconWidget>
         <TreasureMapIconWidget :id="i.id" v-if="i._typeStringName == 'TreasureMap'"></TreasureMapIconWidget>
         <CosmeticIconWidget :id="i.id" v-if="i._typeStringName == 'Cosmetic'"></CosmeticIconWidget>
-        <ModIconWidget :id="i.id" v-if="i._typeStringName == 'Mod'"></ModIconWidget>
         <NpcIconWidget :id="i.id" v-if="i._typeStringName == 'Npc'"></NpcIconWidget>
       </ItemSlotBase>
 
-      <ItemName :id="i.id"></ItemName>
+      <ItemName :id="i.id" v-if="i._typeStringName == 'Item'"></ItemName>
+      <ShipName :id="i.id" v-if="i._typeStringName == 'Ship'"></ShipName>
     </v-col>
   </v-row>
 </template>

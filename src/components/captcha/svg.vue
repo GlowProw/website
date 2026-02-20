@@ -48,9 +48,8 @@
 <script setup lang="ts">
 import {computed, onMounted, onUnmounted, Ref, ref} from 'vue'
 import {useRoute} from 'vue-router'
-import {storage} from '@/assets/sripts'
+import {storage, apis} from '@/assets/sripts'
 import {useI18n} from "vue-i18n";
-import {useCaptchaApi} from "@/assets/sripts/api";
 import {ApiError} from "@/assets/types/Api";
 import {useNoticeStore} from "~/stores/noticeStore";
 
@@ -76,7 +75,6 @@ const props = defineProps({
     route = useRoute(),
     notice = useNoticeStore(),
     {t} = useI18n(),
-    captchaApi = useCaptchaApi(),
     emit = defineEmits(['callbackDoneVerifies'])
 
 let loading = ref(false),
@@ -85,11 +83,7 @@ let loading = ref(false),
     inputValue: Ref<string> = ref(""),
     captchaHash: Ref<any> = ref({}),
 
-    captchaTime: Ref<{
-      fun: void | number,
-      count: number,
-      lock: boolean
-    }> = ref({
+    captchaTime: Ref<any> = ref({
       fun: null,
       count: 0,
       lock: false,
@@ -152,7 +146,7 @@ const refreshCaptcha = async () => {
 
     loading.value = true
 
-    const result = await captchaApi.get({isUpdateTime: true}),
+    const result = await apis.captchaApi().get({isUpdateTime: true}),
         d = result.data
 
     // 储存验证码hash
@@ -187,7 +181,7 @@ const refreshCaptcha = async () => {
  * 计时器
  * @param {number} num
  */
-const captchaTimeout = (num) => {
+const captchaTimeout = (num: number) => {
   if (captchaTime.value.lock) return false
 
   captchaTime.value.count = num
