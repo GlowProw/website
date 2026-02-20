@@ -36,6 +36,8 @@ import ShipUpgradeUseWidget from "@/components/snbWidget/shipUpgradeUseWidget.vu
 import BluePrintWidget from "@/components/BluePrintWidget.vue";
 import DamageMitigationWidget from "@/components/snbWidget/damageMitigationWidget.vue";
 import ItemDescription from "@/components/snbWidget/itemDescription.vue";
+import ShipUpgradedDescription from "@/components/snbWidget/ShipUpgradedDescription.vue";
+import EventWidget from "@/components/EventWidget.vue";
 
 const
     {t, messages} = useI18n(),
@@ -252,6 +254,10 @@ const onStarItem = (data: Item) => {
               <v-col>
                 <p class="text-pre-wrap mb-4">
                   <ItemDescription :id="itemDetailData.id"></ItemDescription>
+                  <template v-if="itemDetailData && itemDetailData.type == 'shipUpgrade'">
+                    <br/>
+                    <ShipUpgradedDescription :data="itemDetailData"></ShipUpgradedDescription>
+                  </template>
                 </p>
               </v-col>
             </v-row>
@@ -291,15 +297,6 @@ const onStarItem = (data: Item) => {
                 </template>
               </v-col>
               <v-col cols="12" sm="12" lg="6" xl="6">
-                <template v-if="itemDetailData.projectilesPerShot">
-                  <v-text-field :value="itemDetailData.projectilesPerShot" readonly
-                                hide-details
-                                variant="underlined" density="compact">
-                    <template v-slot:append-inner>
-                      <p class="text-no-wrap">{{ t('codex.item.projectilesPerShot') }}</p>
-                    </template>
-                  </v-text-field>
-                </template>
                 <template v-if="itemDetailData.rateOfFire">
                   <v-text-field :value="itemDetailData.rateOfFire * .001" readonly
                                 hide-details
@@ -309,24 +306,33 @@ const onStarItem = (data: Item) => {
                     </template>
                   </v-text-field>
                 </template>
-                <template v-if="DPS">
-                  <v-text-field :value="DPS" readonly
+                <template v-if="itemDetailData.projectilesPerShot">
+                  <v-text-field :value="itemDetailData.projectilesPerShot" readonly
                                 hide-details
                                 variant="underlined" density="compact">
                     <template v-slot:append-inner>
-                      <p class="text-no-wrap">{{ t('codex.item.DPS') }}</p>
+                      <p class="text-no-wrap">{{ t('codex.item.projectilesPerShot') }}</p>
                     </template>
                   </v-text-field>
                 </template>
-                <template v-if="DPSWithPerks">
-                  <v-text-field :value="DPSWithPerks" readonly
-                                hide-details
-                                variant="underlined" density="compact">
-                    <template v-slot:append-inner>
-                      <p class="text-no-wrap">{{ t('codex.item.DPSWithPerks') }}</p>
-                    </template>
-                  </v-text-field>
-                </template>
+<!--                <template v-if="DPS">-->
+<!--                  <v-text-field :value="DPS" readonly-->
+<!--                                hide-details-->
+<!--                                variant="underlined" density="compact">-->
+<!--                    <template v-slot:append-inner>-->
+<!--                      <p class="text-no-wrap">{{ t('codex.item.DPS') }}</p>-->
+<!--                    </template>-->
+<!--                  </v-text-field>-->
+<!--                </template>-->
+<!--                <template v-if="DPSWithPerks">-->
+<!--                  <v-text-field :value="DPSWithPerks" readonly-->
+<!--                                hide-details-->
+<!--                                variant="underlined" density="compact">-->
+<!--                    <template v-slot:append-inner>-->
+<!--                      <p class="text-no-wrap">{{ t('codex.item.DPSWithPerks') }}</p>-->
+<!--                    </template>-->
+<!--                  </v-text-field>-->
+<!--                </template>-->
                 <template v-if="itemDetailData.damagePerShot">
                   <v-text-field :value="itemDetailData.damagePerShot" readonly
                                 hide-details
@@ -336,15 +342,15 @@ const onStarItem = (data: Item) => {
                     </template>
                   </v-text-field>
                 </template>
-                <template v-if="DamagePerShotWithPerks">
-                  <v-text-field :value="DamagePerShotWithPerks" readonly
-                                hide-details
-                                variant="underlined" density="compact">
-                    <template v-slot:append-inner>
-                      <p class="text-no-wrap">Damage per Shot with Perks</p>
-                    </template>
-                  </v-text-field>
-                </template>
+<!--                <template v-if="DamagePerShotWithPerks">-->
+<!--                  <v-text-field :value="DamagePerShotWithPerks" readonly-->
+<!--                                hide-details-->
+<!--                                variant="underlined" density="compact">-->
+<!--                    <template v-slot:append-inner>-->
+<!--                      <p class="text-no-wrap">Damage per Shot with Perks</p>-->
+<!--                    </template>-->
+<!--                  </v-text-field>-->
+<!--                </template>-->
                 <template v-if="typeof itemDetailData.damageMitigation == 'string'">
                   <v-text-field :value="itemDetailData.damageMitigation" readonly
                                 hide-details
@@ -427,6 +433,9 @@ const onStarItem = (data: Item) => {
 
             <template v-if="itemDetailData.blueprint">
               <BluePrintWidget :data="itemDetailData"></BluePrintWidget>
+            </template>
+            <template v-if="itemDetailData.event">
+              <EventWidget :data="itemDetailData"></EventWidget>
             </template>
             <template v-if="itemDetailData.worldEvent">
               <WorldEventWidget :data="itemDetailData"></WorldEventWidget>

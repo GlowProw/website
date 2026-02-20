@@ -21,6 +21,10 @@ import PerksWidget from "@/components/snbWidget/perksWidget.vue";
 import DamageMitigationWidget from "@/components/snbWidget/damageMitigationWidget.vue";
 import ObtainableWidget from "@/components/ObtainableWidget.vue";
 import ItemDescription from "@/components/snbWidget/itemDescription.vue";
+import ItemContentWidget from "@/components/snbWidget/itemContentWidget.vue";
+import {Cosmetics} from "../../../../glow-prow-data";
+import ShipUpgradedDescription from "@/components/snbWidget/ShipUpgradedDescription.vue";
+import HtmlLink from "@/components/HtmlLink.vue";
 
 const router = useRouter(),
     appStore = useAppStore(),
@@ -46,7 +50,8 @@ const router = useRouter(),
       padding: 0,
       margin: 1
     }),
-    items: Items = Items,
+    items = Items,
+    cosmetics = Cosmetics,
 
     // 稀有度
     rarityColorConfig = rarity.color
@@ -55,10 +60,12 @@ useI18nUtils();
 
 let itemsCardData = ref({
       icon: '',
+      model: false,
       panel: null
     }),
     i: Ref<Item | null> = ref(null),
     itemDescription: Ref<ItemDescription> = ref(null),
+    itemContents: Ref<any[]> = ref([]),
 
     isOpenNewWindow = computed({
       get: () => appStore.itemOpenNewWindow || props.isOpenNewWindow,
@@ -70,6 +77,15 @@ watch(() => props.id, () => {
   onReady()
 })
 
+watch(() => itemsCardData.value.model, (value) => {
+  // 卡片打开时才加载掉落
+  if (value && itemContents.value <= 0)
+    itemContents.value = [
+      ...filterByObtainable(Object.values(items), props.id),
+      ...filterByObtainable(Object.values(cosmetics), props.id)
+    ]
+})
+
 onMounted(() => {
   onReady()
 })
@@ -79,6 +95,36 @@ const onReady = async () => {
 
   onSetIcon()
 }
+
+const filterByObtainable = (items: any[], targetId: string) => {
+  return items.filter(item => {
+    if (!item.obtainable) return false;
+
+    const obtainable = item.obtainable;
+
+    if (typeof obtainable === 'string') {
+      return obtainable === targetId;
+    }
+
+    if (obtainable && typeof obtainable === 'object' && 'id' in obtainable) {
+      return obtainable.id === targetId;
+    }
+
+    if (Array.isArray(obtainable)) {
+      const flatArray = obtainable.flat()
+      return flatArray.some(element => {
+        if (typeof element === 'string') {
+          return element === targetId;
+        } else if (element && typeof element === 'object' && 'id' in element) {
+          return element.id === targetId;
+        }
+        return false;
+      })
+    }
+
+    return false;
+  })
+};
 
 const onSetIcon = () => {
   itemsCardData.value.icon = cdnStore.currentService.url({
@@ -95,6 +141,7 @@ watch(() => cdnStore.selectedService, (newValue, oldValue) => {
 
 <template>
   <v-tooltip
+      v-model="itemsCardData.model"
       v-if="i && i.id"
       :disabled="!props.isShowTooltip"
       :offset="[40, 0]"
@@ -194,8 +241,13 @@ watch(() => cdnStore.selectedService, (newValue, oldValue) => {
       </div>
       <div class="demo-reel-content background-flavor overflow-auto">
         <template v-if="isShowDescription">
-          <div :class="itemDescription && itemDescription.isHasDescription ? 'mb-5 px-6 description' : ''">
-            <ItemDescription ref="itemDescription" :id="props.id"></ItemDescription>
+          <div class="mb-5">
+            <div :class="itemDescription && itemDescription.isHasDescription ? 'px-6 description' : ''">
+              <ItemDescription ref="itemDescription" :id="props.id"></ItemDescription>
+            </div>
+            <div v-if="i && i.type === 'shipUpgrade'" class="px-6 description">
+              <ShipUpgradedDescription :data="i"></ShipUpgradedDescription>
+            </div>
           </div>
         </template>
 
@@ -206,35 +258,33 @@ watch(() => cdnStore.selectedService, (newValue, oldValue) => {
         </template>
 
         <template v-if="i.damagePerShot">
-          <v-row class="px-6" align="center">
-            <v-col cols="auto">
-              <v-card variant="text">
-                <p class="text-center text-caption opacity-60">{{ t('codex.item.damagePerShot') }}</p>
-                <p>{{i.damagePerShot || 0}}</p>
-              </v-card>
-            </v-col>
-            <v-divider vertical :opacity=".2" :thickness="2" inset class="my-4"></v-divider>
-            <v-col>
-              <ItemDamageTypeWidget :data="i" iconType="aggressivity" sizeType="mini" :size="28"></ItemDamageTypeWidget>
-            </v-col>
+          <div class="px-6">
+            <v-row align="center">
+              <v-col cols="auto">
+                <v-card variant="text">
+                  <p class="text-caption opacity-60">{{ t('codex.item.damagePerShot') }}</p>
+                  <p class="tex-left">
+                    <span v-if="i.projectilesPerShot && i.projectilesPerShot > 1"><HtmlLink :isIframeShow="false" :isIcon="false" :isOpen="false">{{ (i.damagePerShot || 0) * (i.projectilesPerShot || 0) }}</HtmlLink><v-icon size="12">mdi-equal</v-icon></span>
+                    <span><HtmlLink :isIframeShow="false" :isIcon="false" :isOpen="false">{{ i.damagePerShot || 0 }}</HtmlLink></span>
+                    <span v-if="i.projectilesPerShot && i.projectilesPerShot > 1"><v-icon size="12">mdi-close</v-icon>{{i.projectilesPerShot || 1}}</span>
+                  </p>
+                </v-card>
+              </v-col>
+              <v-divider vertical :opacity=".2" :thickness="2" inset class="my-4"></v-divider>
+              <v-col>
+                <ItemDamageTypeWidget :data="i" iconType="aggressivity" sizeType="mini" :size="28"></ItemDamageTypeWidget>
+              </v-col>
+            </v-row>
+          </div>
+        </template>
+
+        <template v-if="i.type =='chest' && itemContents.length > 0">
+          <v-row class="px-6">
+            <ItemContentWidget ref="itemContentWidgetRef" :data="i" :size="40" :isOpenNewWindow="true" :isShowTitle="false" :isShowTooltip="false" :isCenter="false"></ItemContentWidget>
           </v-row>
         </template>
 
         <v-expansion-panels class="mt-5" v-model="itemsCardData.panel">
-          <v-expansion-panel
-              class="bg-transparent"
-              color="transparent"
-              tile
-              static>
-            <template v-slot:title>
-              <div class="title-long-flavor bg-black">
-                {{ t('codex.item.damageType') }}
-              </div>
-            </template>
-            <template v-slot:text>
-              <ItemDamageTypeWidget :data="itemsCardData"></ItemDamageTypeWidget>
-            </template>
-          </v-expansion-panel>
           <v-expansion-panel
               class="bg-transparent"
               color="transparent"

@@ -23,6 +23,7 @@ import Time from "@/components/Time.vue";
 import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
 import ItemMaterials from "@/components/snbWidget/itemMaterials.vue";
 import shipAvailableUpgradeWidget from "@/components/snbWidget/shipAvailableUpgradeWidget.vue";
+import ShipDescription from "@/components/snbWidget/shipDescription.vue";
 
 const shipImages = import.meta.glob('@glow-prow-assets/ships/*.png', {eager: true})
 
@@ -212,7 +213,7 @@ const onCodexHistory = () => {
               </ItemSlotBase>
               <v-col>
                 <p class="text-pre-wrap mb-4">
-                  {{ t(`snb.ships.${shipDetailData.id}.description.general`) }}
+                  <ShipDescription :id="shipDetailData.id"></ShipDescription>
                 </p>
 
                 <v-row class="mb-4">

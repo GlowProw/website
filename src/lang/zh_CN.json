@@ -447,10 +447,6 @@
       "title": "分享",
       "description": "分享你的{name}"
     },
-    "items": {
-      "title": "物品列表",
-      "description": "物品列表"
-    },
     "ships": {
       "title": "船只列表",
       "searchCountOverflowTip": "超出搜索显示最大{maximumSearchCount}，剩余{exceedingItemsCount}已节流,可以再精准填写关键词",
@@ -469,13 +465,17 @@
         }
       }
     },
+    "items": {
+      "title": "物品列表",
+      "description": "物品列表"
+    },
     "item": {
       "title": "物品详情",
       "meta": {
         "keywords": "物品详情,船物品,{keywords}"
       },
       "weight": "重量",
-      "projectilesPerShot": "单发伤害",
+      "projectilesPerShot": "单次发射弹丸数量",
       "rateOfFire": "开火间隔 (秒)",
       "DPS": "DPS (Damage per Second)",
       "DPSWithPerks": "DPS with Perks",
@@ -497,6 +497,7 @@
         "append": "赛季"
       },
       "obtainable": "线索",
+      "event": "事件",
       "worldEvent": "世界事件",
       "bluePrint": "设计图",
       "requiredRank": "最低使用等级",
@@ -1203,7 +1204,7 @@
       },
       "calendar": {
         "title": "日历",
-        "description": "查看本赛季活动信息(按住)"
+        "description": "查看赛季活动，订阅日历"
       },
       "maps": {
         "title": "地图",

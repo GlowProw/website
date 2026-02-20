@@ -227,7 +227,7 @@ const getOptionalShipWeaponDirection = () => {
  * @param type
  * @param index
  */
-const onSlotRemove = (type, index?: number) => {
+const onSlotRemove = (type: string, index?: number) => {
   switch (type) {
     case 'ship':
       workshopData.value.data.shipSlot = null

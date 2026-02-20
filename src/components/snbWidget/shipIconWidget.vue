@@ -180,20 +180,6 @@ const onReady = async () => {
               <ShipWeaponInfoSlotWidget :data="shipData"/>
             </template>
           </v-expansion-panel>
-          <v-expansion-panel
-              class="bg-transparent"
-              color="transparent"
-              tile
-              static>
-            <template v-slot:title>
-              <div class="title-long-flavor bg-black">
-                {{ t('codex.ship.perks') }}
-              </div>
-            </template>
-            <template v-slot:text>
-              <PerksWidget :data="shipCardData"></PerksWidget>
-            </template>
-          </v-expansion-panel>
         </v-expansion-panels>
       </div>
       <v-divider></v-divider>

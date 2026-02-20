@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import {computed, onMounted, ref, type Ref, watch} from "vue";
-import {Item, Material, Ship, Ultimate} from "glow-prow-data";
+import {Item, Material, Seasons, Ship, Ultimate} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 
-const {t,tm} = useI18n(),
+const {t, tm} = useI18n(),
     props = defineProps<{ data: Item | Ship | Material | Ultimate | unknown }>()
 
 let detailData: Ref<Item | Ship | Material | Ultimate | null> = ref(null),
@@ -15,13 +15,10 @@ let detailData: Ref<Item | Ship | Material | Ultimate | null> = ref(null),
         ...seasonI18nMap.value
       }
     }),
-    worldEvent = computed(() => {
+    getEvent = computed(() => {
       if (!detailData.value) return []
 
-      const events = detailData.value?.worldEvent
-
-      // 如果没有世界事件数据，返回空数组
-      if (!events) return []
+      const events = detailData.value?.event
 
       // 标准化处理：确保返回数组
       const eventsArray = Array.isArray(events) ? events : [events]
@@ -31,7 +28,7 @@ let detailData: Ref<Item | Ship | Material | Ultimate | null> = ref(null),
           .filter(event => event && event.id)
           .map(event => ({
             ...event,
-            worldEventId: event.id,
+            eventId: event.id,
             itemType: props.data?._typeStringName?.toLowerCase() || 'unknown',
             itemId: props.data?.id || 'unknown'
           }))
@@ -48,13 +45,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <p class="text-no-wrap font-weight-bold mb-2 mt-2">{{ t('codex.item.worldEvent') }}</p>
-  <v-chip v-for="(e,eIndex) in worldEvent"
+  <p class="text-no-wrap font-weight-bold mb-2 mt-2">{{ t('codex.item.event') }}</p>
+  <v-chip v-for="(e,eIndex) in getEvent"
           class="d-inline-flex mb-1 mr-1"
           target="_blank"
-          :to="`/codex/${e.itemType}s?worldEvent=${e.worldEventId}`"
           :key="eIndex">
-    {{ t(`snb.worldEvents.${e.worldEventId}`, {...i18nAdditionalAttr}) }}
+    {{ t(`snb.events.${e.eventId}`, {...i18nAdditionalAttr}) }}
   </v-chip>
 </template>
 

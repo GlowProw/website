@@ -7,8 +7,13 @@ import ItemName from "@/components/snbWidget/itemName.vue";
 import CosmeticIconWidget from "@/components/snbWidget/cosmeticIconWidget.vue";
 import CosmeticName from "@/components/snbWidget/cosmeticName.vue"
 
-const props = withDefaults(defineProps<{ data: Item | any }>(), {
-      data: null
+const props = withDefaults(defineProps<{ data: Item | any, size?: number, isShowTooltip?: boolean, isShowTitle?: boolean, isOpenNewWindow?: boolean, isCenter?: boolean }>(), {
+      data: null,
+      isShowTooltip: true,
+      isShowTitle: true,
+      isOpenNewWindow: false,
+      isCenter: true,
+      size: 50,
     }),
     items = Items,
     cosmetics = Cosmetics
@@ -30,13 +35,15 @@ const onReady = () => {
   let id = props.data.id;
 
   contents.value = [
-    ...filterByObtainable(Object.values(items), id).map(i => {
-      return i
-    }),
-    ...filterByObtainable(Object.values(cosmetics), id).map(i => {
-      return i
-    })
+    ...filterByObtainable(Object.values(items), id),
+    ...filterByObtainable(Object.values(cosmetics), id)
   ]
+
+  return contents.value
+}
+
+const getContents = () => {
+  return onReady()
 }
 
 const filterByObtainable = (items: any[], targetId: string) => {
@@ -69,30 +76,37 @@ const filterByObtainable = (items: any[], targetId: string) => {
   })
 };
 
+defineExpose({
+  getContents
+})
 </script>
 
 <template>
   <div v-if="contents.length > 0">
     <slot></slot>
-    <v-row align="end" justify="center" class="d-flex ga-2 mt-2">
+    <v-row align="end"
+           :no-gutters="props.size < 50"
+           :class="{'mt-2': props.size >= 50}"
+           :justify="props.isCenter ? 'center' : 'start'"
+           class="d-inline-flex ga-2">
       <v-col cols="auto" v-for="(i,index) in contents" :key="index">
         <div class="text-center">
           <template v-if="i._typeStringName == 'Item'">
-            <ItemSlotBase size="50px" :padding="0" class="mx-auto mb-2">
-              <ItemIconWidget :id="i.id" :padding="1"></ItemIconWidget>
+            <ItemSlotBase :size="`${size}px`" :padding="0" class="mx-auto mb-2">
+              <ItemIconWidget :id="i.id" :padding="1" :isOpenNewWindow="isOpenNewWindow" :isShowTooltip="props.isShowTooltip"></ItemIconWidget>
             </ItemSlotBase>
-            <ItemName :data="i"></ItemName>
+            <ItemName v-if="isShowTitle" :data="i"></ItemName>
           </template>
           <template v-if="i._typeStringName == 'Cosmetic'">
             <v-badge :offset-y="0" color="#000">
               <template v-slot:badge>
                 <v-icon size="15">mdi-brush-variant</v-icon>
               </template>
-              <ItemSlotBase size="50px" :padding="0" class="mx-auto mb-2">
-                <CosmeticIconWidget :id="i.id" :margin="1"></CosmeticIconWidget>
+              <ItemSlotBase :size="`${size}px`" :padding="0" class="mx-auto mb-2">
+                <CosmeticIconWidget :id="i.id" :margin="1" :isOpenNewWindow="isOpenNewWindow" :isShowTooltip="props.isShowTooltip"></CosmeticIconWidget>
               </ItemSlotBase>
             </v-badge>
-            <div>
+            <div v-if="isShowTitle">
               <CosmeticName :id="i.id" :grade="i.grade"></CosmeticName>
             </div>
           </template>

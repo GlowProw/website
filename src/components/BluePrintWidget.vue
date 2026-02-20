@@ -28,7 +28,7 @@ const bluePrintsList = computed(() => {
       `snb.mapLocations.${blueprint}.name`,
       `snb.locations.${blueprint}`,
     ], {
-      variable: i18nAdditionalAttr,
+      variable: i18nAdditionalAttr.value,
       backRawKey: true
     })
   };
