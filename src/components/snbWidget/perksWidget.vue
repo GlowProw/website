@@ -5,6 +5,7 @@ import {useI18n} from "vue-i18n";
 import {useI18nUtils} from "@/assets/sripts/i18n_util.ts";
 import {onUnmounted, ref, watch} from "vue";
 import {useRoute} from "vue-router";
+import {number} from "@/assets/sripts/index"
 
 const {asArray, sanitizeString} = useI18nUtils()
 
@@ -15,7 +16,8 @@ const {t, te, locale} = useI18n(),
     }),
     unwatch = watch(
         () => locale.value,
-        async () => {},
+        async () => {
+        },
         {immediate: true}
     )
 
@@ -27,12 +29,13 @@ onUnmounted(() => unwatch()) // 手动停止监听
  * 获取词条名
  * @param key
  */
-const getTitle = (key) => {
+const getTitle = (key: string) => {
   let keys = [
-    `snb.perks.${sanitizeString(key).cleaned}.name`
-  ];
+        `snb.perks.${sanitizeString(key).cleaned}.name`
+      ],
+      lv = sanitizeString(key).removedNumbers[0];
 
-  return asArray(keys)[0] || '';
+  return `${asArray(keys)[0]} ${number.intToRoman( Number.parseInt(lv) ).toString()}` || '';
 }
 
 /**
@@ -75,14 +78,20 @@ const getDescription = (key) => {
       <div v-for="(p, pIndex) in props.data.perks" :key="pIndex" class="mb-5">
         <v-row no-gutters
                style="width: calc(100% + 18px * 2);margin: 0 0 0 -20px"
-               class="bg-black text-amber title-long-flavor pt-5 pb-5 pl-10"
+               class="bg-black title-long-flavor py-2 pl-10"
                v-if="getTitle(p).length > 0">
-          <v-col cols="8">
-            <p class=" text-pre-wrap font-weight-bold"><b>{{ getTitle(p) }}</b>
-              <template v-if="route.query.debug">
-                - {{ p }}
-              </template>
-            </p>
+          <v-col cols="11">
+            <v-row no-gutters class="d-flex text-pre-wrap font-weight-bold">
+              <v-col>
+                <b class="text-amber">{{ getTitle(p) }}</b>
+                <template v-if="route.query.debug">
+                  - {{ p }}
+                </template>
+              </v-col>
+              <v-col cols="auto">
+                <v-icon icon="mdi-identifier" v-tooltip="p"></v-icon>
+              </v-col>
+            </v-row>
           </v-col>
           <v-spacer></v-spacer>
           <div class="pr-8">
