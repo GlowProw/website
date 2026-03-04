@@ -1,8 +1,4 @@
-<script lang="ts">
-export default { name: 'LikeWidget' }
-</script>
-
-<script setup>
+<script setup lang="ts">
 import {useLikeStore} from '~/stores/likeStore.js';
 import {onMounted, ref, useSlots, watch} from 'vue';
 import Loading from "./Loading.vue";
@@ -85,6 +81,10 @@ const handleLike = async () => {
     likeLoading.value = false;
   }
 };
+
+defineOptions({
+  name: 'LikeWidget'
+})
 </script>
 
 <template>

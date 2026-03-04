@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'AssmblySettingWidget' }
-</script>
-
 <script setup lang="ts">
 import {computed, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
@@ -101,6 +97,8 @@ const delAssembly = async () => {
 }
 
 const isDebug = computed(() => (route as any)?.query?.debug)
+
+defineOptions({ name: 'AssmblySettingWidget' })
 </script>
 
 <template>

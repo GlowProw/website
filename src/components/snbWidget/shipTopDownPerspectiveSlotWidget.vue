@@ -2,6 +2,8 @@
 const props = withDefaults(defineProps<{ activate: boolean }>(), {
   activate: false
 })
+
+defineOptions({ name: 'ShipTopDownPerspectiveSlotWidget' })
 </script>
 
 <template>

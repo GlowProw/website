@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'SeasonViewWidget' }
-</script>
-
 <script setup lang="ts">
 import {useAssetsStore} from "~/stores/assetsStore";
 import {computed, nextTick, onMounted, ref, watch} from "vue";
@@ -52,6 +48,8 @@ const updateSeason = () => {
 }
 
 const getId = (data: any) => data?.id
+
+defineOptions({ name: 'SeasonViewWidget' })
 </script>
 
 <template>

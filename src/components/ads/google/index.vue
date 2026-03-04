@@ -21,29 +21,13 @@
   </v-card>
 </template>
 
-<script lang="ts">
-export default { name: 'GoogleAd' }
-</script>
-
 <script setup lang="ts">
 import {onMounted, ref, watch} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
 import {storage_account} from "@/assets/sripts/index";
+import {AdConfig, GoogleAdProps} from "@/assets/types";
 
-interface AdConfig {
-  name?: string;
-  style?: string;
-  class?: string;
-  adFormat?: string;
-  fullWidthResponsive?: string;
-}
-
-interface Props {
-  id?: number | string;
-  class?: string;
-}
-
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<GoogleAdProps>(), {
   class: 'class',
   id: '',
 })
@@ -119,6 +103,8 @@ const offAd = () => {
 
   adIdSwitchStatus.value.value = status
 };
+
+defineOptions({ name: 'GoogleAd' })
 </script>
 
 <style lang="less">

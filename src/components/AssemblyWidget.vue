@@ -1,21 +1,17 @@
-<script lang="ts">
-export default { name: 'AssemblyWidget' }
-</script>
-
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import {computed, reactive, Ref, ref, toRaw, useAttrs, useSlots, watch} from "vue";
 import {useRoute} from "vue-router";
 
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
-import {AssemblyAttr} from "@/assets/types";
+import {AssemblyAttr, AssemblyWorkshopData, AssemblyWidgetProps} from "@/assets/types";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {number} from "@/assets/sripts/index"
 import {Ships, Ultimates} from "glow-prow-data";
 import {Item, Items} from "glow-prow-data/src/entity/Items";
 import {Ship} from "glow-prow-data/src/entity/Ships";
 
-import shipSlotMapping from "../../public/config/shipsConfig.json";
+import shipSlotMapping from "@/config/shipsConfig.json";
 
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
@@ -34,13 +30,7 @@ import AssemblySvgIcon from "@/components/AssemblySvgIcon.vue";
 
 const castToAny = (v: any) => v;
 
-const poops = withDefaults(defineProps<{
-      readonly?: boolean,
-      isFullName?: boolean,
-      isShowEmpty?: boolean,
-      perfectDisplay?: boolean,
-      class?: string,
-    }>(), {
+const poops = withDefaults(defineProps<AssemblyWidgetProps>(), {
       readonly: false,
       isShowEmpty: true,
       perfectDisplay: false,
@@ -58,45 +48,7 @@ const poops = withDefaults(defineProps<{
     {asString, sanitizeString} = useI18nUtils(),
     {t} = useI18n()
 
-interface WorkshopData {
-  shipModel: boolean;
-  frigateUpgradeModel: boolean;
-  displayModel: boolean;
-  weaponModel: boolean;
-  secondaryWeaponModel: boolean;
-  ultimateModel: boolean;
-  armorModel: boolean;
-  weaponSearchValue: string;
-  frigateUpgradeInsertIndex: number;
-  weaponInsertIndex: number;
-  secondaryWeaponInsertIndex: number;
-  secondaryWeaponSelect: number;
-  armorSelect: number;
-  ultimateSelect: number;
-  displayInsertIndex: number;
-  shipWorkshopSelect: any;
-  shipSelect: any;
-  shipFrigateUpgradeSelect: any;
-  shipDisplaySelect: any;
-  shipFrigateUpgradeList: any[];
-  data: {
-    shipSlot: Ship | null;
-    ultimateSlot: Item | null;
-    shipUpgradeSlot: Item | null;
-    weaponDirections: (string | null)[];
-    weaponModifications: any[];
-    weaponSlots: Item[];
-    armorSlot: Item | null;
-    armorModification: any[];
-    secondaryWeaponSlots: Item[];
-    secondaryWeaponModifications: any[];
-    displaySlots: Item[];
-    __version: string;
-    weaponModification: any[]; // Add missing property
-  };
-}
-
-let workshopData = ref<WorkshopData>({
+let workshopData = ref<AssemblyWorkshopData>({
       shipModel: false,
       frigateUpgradeModel: false,
       displayModel: false,
@@ -216,7 +168,7 @@ let // 获取陈设
             'aftWeapon': []
           },
           queryTags: string[] = []
-      
+
       const direction = workshopData.value.data.weaponDirections[workshopData.value.weaponInsertIndex];
       if (direction) {
           queryTags = queryTags.concat(
@@ -490,6 +442,8 @@ defineExpose({
   verify,
   data: workshopData.value.data
 })
+
+defineOptions({ name: 'AssemblyWidget' })
 </script>
 
 <template>
@@ -547,7 +501,7 @@ defineExpose({
                     v-bind="propsHoverClose">
                   <v-badge bordered rounded :color="`var(--main-color)`"
                               class="d-flex align-center justify-center"
-                               :offset-x="25" :offset-y="63" class="d-flex">
+                               :offset-x="25" :offset-y="63">
                     <template v-slot:badge
                               >
                       <div class="pt-2 pb-2">

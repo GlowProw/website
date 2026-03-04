@@ -16,7 +16,7 @@ const {t} = useI18n()
   </div>
 </template>
 
-<style scoped lang="css">
+<style scoped lang="less">
 .empty {
   text-align: center;
   padding: 20px 10px;

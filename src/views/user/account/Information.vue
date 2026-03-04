@@ -10,7 +10,7 @@ import RolesTagWidget from "@/components/RolesTagWidget.vue";
 import Textarea from "@/components/textarea/index.vue"
 import UserAvatar from "@/components/UserAvatar.vue";
 
-import languages from "@/../public/config/languages.json"
+import languages from "@/config/languages.json"
 import {apis} from "@/assets/sripts";
 import {ApiError} from "@/assets/types/Api";
 import {useRules} from "@/assets/sripts/rules_user";

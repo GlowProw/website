@@ -52,3 +52,14 @@ export interface UserLocalResult {
     alternativeName?: string
     privilege?: UserPrivilege[]
 }
+
+export interface AccountCardWidgetProps {
+    id: string | null
+}
+
+export interface RolesTagWidgetProps {
+    data: string[] | string
+    density?: string | any | null
+    size?: string
+    tagType?: string
+}

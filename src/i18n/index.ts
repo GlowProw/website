@@ -1,6 +1,6 @@
 import {createI18n, type MessageContext} from 'vue-i18n';
 
-import language from '@/../public/config/languages.json'
+import language from '@/config/languages.json'
 
 // 网站翻译
 import zh_CN_local from '../lang/zh_CN.json';

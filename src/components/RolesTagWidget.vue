@@ -12,18 +12,15 @@
     </span>
 </template>
 
-<script lang="ts">
-export default { name: 'RolesTagWidget' }
-</script>
-
 <script setup lang="ts">
 import {onMounted, ref, watch} from "vue";
-import privileges from "~/public/config/role.json"
+import privileges from "@/config/role.json"
 import {useI18n} from "vue-i18n";
+import {RolesTagWidgetProps} from "@/assets/types/User";
 
 const {t} = useI18n()
 
-const props = withDefaults(defineProps<{ data: string[] | string, density?: string | any | null, size?: string, tagType?: string }>(), {
+const props = withDefaults(defineProps<RolesTagWidgetProps>(), {
   density: 'default',
   size: 'default',
   tagType: 'border'

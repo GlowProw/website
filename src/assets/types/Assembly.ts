@@ -2,6 +2,10 @@
  * 配装
  */
 import {PaginationParams, PaginationResult} from "@/assets/types/Pagination";
+import {ResultData} from "@/assets/types/Result";
+import {Ship} from "glow-prow-data/src/entity/Ships";
+import {Item} from "glow-prow-data/src/entity/Items";
+import {Cosmetic, Material, Modification, Ultimate} from "glow-prow-data";
 
 /**
  * 配装id
@@ -24,6 +28,12 @@ export interface AssemblyItem extends AssemblyBasieIds {
     wheel?: AssemblyWheelParams
     warehouse?: WarehouseAttrParams
     // 配装内容 E
+    userId?: string
+    userAvatar?: string
+    username?: string
+    likes?: number
+    isLiked?: boolean
+    attr?: AssemblyAttr
 }
 
 /**
@@ -98,80 +108,84 @@ export interface WarehouseAttrParams {
  * 发布配装请求体
  */
 export interface PublishAssemblyData extends AssemblyItem {
-    tags?: string[] | any[]
 }
 
-/**
- * 编辑配装请求体
- */
+export interface AssemblyListParams extends PaginationParams {
+    keyword?: string;
+    tags?: string[];
+}
+
 export interface EditAssemblyData extends AssemblyItem {
-
 }
 
-/**
- * 配装返回
- */
-export interface AssemblyItemResult extends AssemblyItem, AssemblyBasieIds {
-
-}
-
-/**
- * 单个配装请求体
- * get src/routers/assembly.ts /item
- */
-export interface AssemblyItemParams {
-    uuid: string | null | unknown
-    password?: string | null | unknown
-    force?: boolean
-}
-
-/**
- * 单个配装返回体
- */
-export interface AssemblyItemResult extends AssemblyItem {
-    userId: string | null
-    username: string
-
-    // 收藏数量
-    likes?: string | number
-
-    // 是否已收藏
-    isLiked?: boolean
-    // 配装是否可见
-    isVisibility?: boolean
-    // 所有者
-    isOwner?: boolean
-    // 包含密码
-    isPassword?: boolean
-    // 是否强制更新，[AssemblyItemParams] force
-    isForce?: boolean
-
-    userAvatar?: string
-
-    // 配装数据和属性 S
-    attr?: AssemblyAttr
-    data?: any | {}
-    // 配装数据和属性 E
-
-    tags?: string[] | any[]
-    cloningUuid?: string | null
-    updatedTime: string | Date | null
-    createdTime: string | Date | null
-
-    valid: number | bigint | null
-}
-
-/**
- * 配装列表请求体
- */
-export interface AssemblyListParams {
-
-}
-
-/**
- * 配装列表返回体
- */
 export interface AssemblyListResult {
-    data: AssemblyItemResult[],
-    pagination?: PaginationResult
+    data: AssemblyItem[];
+    pagination?: PaginationResult;
+    code?: string;
+}
+
+export interface AssemblyItemResult extends ResultData<AssemblyItem> {
+}
+
+export type AvailableDataStructure = Ship | Item | Material | Cosmetic | Ultimate | Modification;
+
+export interface GroupedData {
+  type: string;
+  model: boolean;
+  child: AvailableDataStructure[];
+}
+
+export interface AssemblyClassificationShowListProps {
+  tags: string[];
+  sortBy?: "id" | "rarity" | "tier";
+  loadDataType?: "ship" | "item" | "material" | "cosmetic" | "ultimate" | "modification";
+  filterType?: string;
+  modelValue: any;
+  autoExpandFirst?: boolean;
+}
+
+export interface AssemblyWorkshopData {
+  shipModel: boolean;
+  frigateUpgradeModel: boolean;
+  displayModel: boolean;
+  weaponModel: boolean;
+  secondaryWeaponModel: boolean;
+  ultimateModel: boolean;
+  armorModel: boolean;
+  weaponSearchValue: string;
+  frigateUpgradeInsertIndex: number;
+  weaponInsertIndex: number;
+  secondaryWeaponInsertIndex: number;
+  secondaryWeaponSelect: number;
+  armorSelect: number;
+  ultimateSelect: number;
+  displayInsertIndex: number;
+  shipWorkshopSelect: any;
+  shipSelect: any;
+  shipFrigateUpgradeSelect: any;
+  shipDisplaySelect: any;
+  shipFrigateUpgradeList: any[];
+  data: {
+    shipSlot: Ship | null;
+    ultimateSlot: Item | null;
+    shipUpgradeSlot: Item | null;
+    weaponDirections: (string | null)[];
+    weaponModifications: any[];
+    weaponSlots: Item[];
+    armorSlot: Item | null;
+    armorModification: any[];
+    secondaryWeaponSlots: Item[];
+    secondaryWeaponModifications: any[];
+    displaySlots: Item[];
+    __version: string;
+    weaponModification: any[]; 
+  };
+}
+
+export interface AssemblyWidgetProps {
+  readonly?: boolean,
+  isFullName?: boolean,
+  isShowEmpty?: boolean,
+  perfectDisplay?: boolean,
+  class?: string,
 }

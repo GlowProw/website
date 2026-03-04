@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'AccountCardWidget' }
-</script>
-
 <script setup lang="ts">
 import {onMounted, ref, watch, computed} from "vue";
 import {apis, sessionUserInfo} from "@/assets/sripts/index";
@@ -13,8 +9,9 @@ import Silk from "@/components/Silk.vue";
 import Textarea from "@/components/textarea/index.vue";
 import RolesTagWidget from "@/components/RolesTagWidget.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
+import {AccountCardWidgetProps} from "@/assets/types/User";
 
-const props = withDefaults(defineProps<{ id: string | null }>(), {id: null}),
+const props = withDefaults(defineProps<AccountCardWidgetProps>(), {id: null}),
     notice = useNoticeStore(),
     {t} = useI18n()
 
@@ -69,6 +66,10 @@ const getUserInfo = async () => {
 }
 
 const userInfo = computed(() => userInfoData.value as any)
+
+defineOptions({
+  name: 'AccountCardWidget'
+})
 </script>
 
 <template>

@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'AffixBoxHasTitleView' }
-</script>
-
 <script setup lang="ts">
 import AffixView from "@/components/AffixView.vue";
 

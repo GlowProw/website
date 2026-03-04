@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'AssemblySettingPanel' }
-</script>
-
 <script setup lang="ts">
 import {computed, ref, watch, Ref} from "vue";
 import {useI18n} from "vue-i18n";
@@ -118,6 +114,8 @@ const setAssemblySetting = async () => {
     setSettingLoading.value = false
   }
 }
+
+defineOptions({ name: 'AssemblySettingPanel' })
 </script>
 
 <template>

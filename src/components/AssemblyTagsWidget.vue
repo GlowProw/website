@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'AssemblyTagsWidget' }
-</script>
-
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import {onMounted, ref, toRaw, watch} from "vue";
@@ -82,6 +78,8 @@ const onUpdateTags = (data: any) => {
 
   emit('change', toRaw(publishData.value.tags))
 }
+
+defineOptions({ name: 'AssemblyTagsWidget' })
 </script>
 
 <template>
