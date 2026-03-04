@@ -1,0 +1,17 @@
+{
+  "list": [
+    {
+      "title": "smuggler_weekly",
+      "smuggler_weekly_report_ownership": {
+        "child": {
+          "smuggler_weekly_report_create": {},
+          "smuggler_weekly_report_update": {},
+          "smuggler_weekly_report_delete": {},
+          "smuggler_weekly_report_comment_create": {},
+          "smuggler_weekly_report_comment_update": {},
+          "smuggler_weekly_report_comment_delete": {}
+        }
+      }
+    }
+  ]
+}

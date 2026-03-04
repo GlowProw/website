@@ -1,0 +1,1288 @@
+{
+  "name": "闪耀船首",
+  "about": {
+    "title": "关于",
+    "minor": "",
+    "description": ""
+  },
+  "pwa": {
+    "offlineReady": "应用已准备好离线工作",
+    "newContentAvailable": "有新内容可用",
+    "refreshToUpdate": "点击刷新按钮以更新。"
+  },
+  "basic": {
+    "button": {
+      "cancel": "取消",
+      "commit": "提交",
+      "insert": "插入",
+      "next": "下一步",
+      "prev": "上一步",
+      "change": "改变",
+      "reply": "回复",
+      "report": "举报",
+      "reset": "重置",
+      "save": "保存",
+      "submit": "确认",
+      "search": "搜索",
+      "go": "前往",
+      "edit": "编辑",
+      "delete": "删除"
+    },
+    "privilege": {
+      "admin": "社区管理",
+      "blacklisted": "黑名单",
+      "bot": "机器人",
+      "dev": "开发组",
+      "normal": "用户",
+      "root": "系统",
+      "super": "超级管理员"
+    },
+    "tips": {
+      "error": "应用程序错误: {content}",
+      "comment": {
+        "ok": "发布成功",
+        "bad": "发布格式错误，请检查内容是否符合要求",
+        "notFound": "回复的目标没有这样评论",
+        "notFoundOrNotOwner": "没有对应评论或用户",
+        "error": "评论错误: {context}",
+        "delete": {
+          "ok": "删除成功",
+          "bad": "错误请求格式，请检查网络工具接口"
+        }
+      },
+      "assembly": {
+        "list": {
+          "ok": "获取列表成功",
+          "error": "列表错误: {context}",
+          "bad": "错误请求格式，请检查网络工具接口"
+        },
+        "editAttr": {
+          "ok": "设置配装属性成功",
+          "invalidPassword": "错误的密码格式",
+          "passwordTooShort": "密码太短",
+          "error": "错误: {context}",
+          "bad": "错误请求格式，请检查网络工具接口"
+        },
+        "getAttr": {
+          "ok": "获取属性成功",
+          "notFound": "配装属性不存在或非所有者",
+          "error": "错误: {context}",
+          "bad": "错误请求格式，请检查网络工具接口"
+        },
+        "edit": {
+          "ok": "配装更新",
+          "notFound": "没找到对应配装或非所有者",
+          "invalidPassword": "错误密码",
+          "passwordTooShort": "密码太短",
+          "error": "错误: {context}",
+          "bad": "错误请求格式，请检查网络工具接口"
+        },
+        "delete": {
+          "ok": "删除成功",
+          "notFound": "没找到对应配装或非所有者",
+          "forbidden": "不允许操作，非法删除",
+          "error": "错误: {context}",
+          "bad": "错误请求格式，请检查网络工具接口"
+        },
+        "detail": {
+          "bad": "错误请求格式，请检查网络工具接口",
+          "notDisclosed": "不公开",
+          "noPermission": "无权访问，请检查是否需要密码或是合伙人身份",
+          "error": "错误: {context}",
+          "ok": "访问成功"
+        }
+      },
+      "publish": {
+        "ok": "发布成功",
+        "bad": "发布格式错误，请检查是否按照要求填写"
+      },
+      "captcha": {
+        "bad": "验证码错误",
+        "expired": "验证码过期",
+        "wrong": "输入的验证码错误"
+      },
+      "signin": {
+        "ok": "登陆成功",
+        "bad": "登陆错误: 请检查登陆信息格式",
+        "wrong": "登陆信息错误",
+        "expired": "用户身份过期,请重新登陆",
+        "accountIncorrect": "登陆信息错误"
+      },
+      "signup": {
+        "ok": "注册成功",
+        "userAlreadyHas": "注册帐号的名称已存在",
+        "error": "注册错误: {context}",
+        "bad": "注册错误: 请检查注册信息的格式要求"
+      },
+      "like": {
+        "ok": "赞处理成功",
+        "error": "点赞错误: {context}",
+        "bad": "点赞错误: {context}"
+      },
+      "user": {
+        "invalid": "错误用户",
+        "tokenExpired": "用户身份过期,请重新登陆"
+      },
+      "request": {
+        "rateLimited": "请求太快力，慢点"
+      },
+      "teamUp": {
+        "account": {
+          "rateLimit": "发布过快，请{remainingTime}分钟后再试"
+        },
+        "anonymous": {
+          "rateLimit": "匿名发布过快，请{remainingTime}小时稍后再试"
+        },
+        "pushSuccess": "发布成功",
+        "newTeamUp": "船长，有新组队",
+        "authFailed": "Token 无效或已过期, 重新登陆",
+        "error": "通信错误: {context}"
+      }
+    },
+    "rules": {
+      "username": {
+        "notEmpty": "必须填写用户名ID",
+        "blacklistRestriction": "{content}非法名称，请尝试使用其他",
+        "limitationLength": "用户名称长度需要{min}到{max}",
+        "incorrectFormat": "用户名ID格式不正确"
+      },
+      "alternativeName": {
+        "limitationLength": "别名长度需要{min}到{max}",
+        "incorrectFormat": "别名格式不正确"
+      },
+      "email": {
+        "incorrectFormat": "邮箱格式不正确"
+      },
+      "password": {
+        "notEmpty": "必须填写密码",
+        "limitationLength": "密码长度需要{min}到{max}"
+      },
+      "captcha": {
+        "notEmpty": "必须填写验证码",
+        "limitationLength": "验证码长度为{max}"
+      }
+    }
+  },
+  "comment": {
+    "title": "评论",
+    "edit": "编辑",
+    "save": "保存",
+    "publishSuccess": "评论发布成功",
+    "loginRequired": "请登陆发布评论",
+    "noComments": "暂无评论",
+    "beFirst": "成为第一个评论的人",
+    "me": "我",
+    "deleteConfirmation": "删除评论？",
+    "deleteWarning": "此操作不可逆。"
+  },
+  "portal": {
+    "title": "首页",
+    "seasonTimer": "本赛季 {seasonName} 剩余{day}天",
+    "appVersionLog": "更新",
+    "appVersionContext": "可以直接通过网站页脚预留<u><a href=\"https://kook.vip/2s0eQP\" target=\"_blank\">Kook 社区</a></u>中提出问题，以帮助修复问题",
+    "blogLog": "博客"
+  },
+  "account": {
+    "title": "账户",
+    "logout": "登出账号",
+    "information": {
+      "title": "个人信息",
+      "form": {
+        "uuid": {
+          "name": "账户唯一标识",
+          "description": "这是唯一标识，由系统分配"
+        },
+        "username": {
+          "name": "账户登陆id"
+        },
+        "alternativeName": {
+          "name": "别名",
+          "description": "显示账户别名名称",
+          "placeholder": "输入新用户名称",
+          "changeName": "修改别名",
+          "changeNameDescription": "设置新的名称，展示你独特名字"
+        },
+        "email": {
+          "name": "邮箱",
+          "placeholder": "账户邮箱"
+        },
+        "language": {
+          "name": "语种",
+          "description": "设置账户偏向语种",
+          "placeholder": "选择偏向语种"
+        },
+        "introduction": {
+          "name": "描述",
+          "description": "自我的描述，它会暂时在外部",
+          "placeholder": "自我介绍一下:D"
+        },
+        "password": {
+          "name": "密码",
+          "changePasswordName": "修改账户密码",
+          "changePasswordDescription": "此操作会在成功后推出登陆，需要重新登陆账号",
+          "oldPassword": "",
+          "oldPasswordPlaceholder": "输入旧的密码",
+          "newPassword": "",
+          "newPasswordPlaceholder": "输入新的密码"
+        }
+      }
+    },
+    "profile-picture": {
+      "title": "头像",
+      "description": "头像使用的是gravatar提供用户信息，需要修改头像信息前往gravatar.com上传",
+      "associatedEmailNotification": "头像关联的是{email}邮箱，请使用它来注册gravatar"
+    },
+    "myAssembly": "我的配装",
+    "myComment": "我的评论",
+    "myTeamup": "我的组队",
+    "myMap": "地图管理",
+    "mySmugglersReport": "走私犯奖赏家"
+  },
+  "codex": {
+    "title": "手稿",
+    "description": "嗨，船长, 要看看我的宝贝嘛",
+    "cabinetHistoryTitle": "游览历史",
+    "more": "更多",
+    "sidebar": "侧边栏",
+    "filter": {
+      "byType": "类型筛选",
+      "byRarity": "品质筛选",
+      "byCategory": "类别筛选",
+      "byTier": "等级筛选",
+      "bySeason": "赛季筛选",
+      "byWorldEvent": "世界事件筛选",
+      "bySet": "集合筛选",
+      "byLocation": "地点筛选",
+      "sortBy": "排序",
+      "dateAdded": "添加时间",
+      "lastUpdated": "更新时间",
+      "descending": "正序",
+      "ascending": "反序"
+    },
+    "size": {
+      "extraSmall": "超小型",
+      "small": "小型",
+      "medium": "中等",
+      "large": "大型"
+    },
+    "raritys": {
+      "none": "未知",
+      "common": "常见",
+      "uncommon": "不常见",
+      "rare": "少见",
+      "epic": "史诗",
+      "legendary": "传奇"
+    },
+    "types": {
+      "none": "无类型",
+      "ships": "船只",
+      "consumable": "消耗品",
+      "ammunition": "弹药",
+      "armor": "护甲",
+      "tool": "工具",
+      "chest": "宝箱",
+      "culverin": "长炮",
+      "longGun": "长管炮",
+      "demicannon": "半加农炮",
+      "bombard": "射石炮",
+      "torpedo": "鱼雷",
+      "ballista": "弩炮",
+      "seaFire": "海火",
+      "mortar": "迫击炮",
+      "rocket": "火箭",
+      "springloader": "浮漂发射器",
+      "offensiveFurniture": "攻击陈设",
+      "utilityFurniture": "功能陈设",
+      "majorFurniture": "主要陈设",
+      "shipUpgrade": "升级部件",
+      "quest": "任务",
+      "contract": "合同",
+      "sailsEmblem": "船帆徽章",
+      "hull": "船体",
+      "sailsColor": "船帆颜色",
+      "crowsNest": "瞭望台",
+      "trophy": "战利品",
+      "wheel": "舵轮",
+      "sailsPattern": "船帆图案",
+      "helmDecor": "舵轮装饰",
+      "ornaments": "装饰物",
+      "figureHead": "船首像",
+      "nameplate": "名牌",
+      "pet": "宠物",
+      "crewLook": "船员外观",
+      "headwear": "头部装备",
+      "torso": "上身装备",
+      "neck": "颈部装备",
+      "waist": "腰部装备",
+      "bottom": "下身装备",
+      "faceAccessory": "面部配饰",
+      "footwear": "足部装备",
+      "forearm": "前臂装备",
+      "firework": "烟花",
+      "emote": "表情",
+      "bodyCosmetics": "身体装饰",
+      "hand": "手部",
+      "hair": "发型",
+      "facialHair": "胡须",
+      "eyeColor": "眼睛颜色",
+      "aura": "光环",
+      "shipSkin": "船皮",
+      "armorSkin": "护甲皮肤",
+      "culverinWeaponSkin": "长管炮武器皮肤",
+      "demicannonWeaponSkin": "半长炮武器皮肤",
+      "longGunWeaponSkin": "长枪武器皮肤",
+      "ballistaWeaponSkin": "弩炮武器皮肤",
+      "torpedoWeaponSkin": "鱼雷武器皮肤",
+      "combatSkill": "combat Skill",
+      "legendaryEntity": "legendary Entity",
+      "powerWeapon": "power Weapon",
+      "treasure": "藏宝图"
+    },
+    "tier": "{num}级",
+    "category": {
+      "title": "分类"
+    },
+    "categorys": {
+      "none": "无类别",
+      "localFaction": "当地阵营杂货",
+      "megacorp": "超巨公司杂货",
+      "kingpin": "头目杂货",
+      "theHelm": "海舵社杂货",
+      "summoningBell": "召唤",
+      "unique": "独特的",
+      "event": "事件",
+      "refined": "精炼",
+      "specialized": "特殊",
+      "currency": "货币",
+      "helm": "掌舵",
+      "scrap": "废弃材料",
+      "raw": "原材料",
+      "exotic": "奇异"
+    },
+    "navs": {
+      "shipsAndCaptainTools": {
+        "name": "船只与船长工具"
+      },
+      "ships": {
+        "name": "船只"
+      },
+      "captainTools": {
+        "name": "船长工具"
+      },
+      "weapons": {
+        "name": "武器"
+      },
+      "allDeckWeapons": {
+        "name": "全甲板武器"
+      },
+      "topDeckWeapons": {
+        "name": "顶层甲板武器"
+      },
+      "bowWeapons": {
+        "name": "船首武器"
+      },
+      "auxiliaryWeapons": {
+        "name": "辅助武器"
+      },
+      "armor": {
+        "name": "装甲"
+      },
+      "hullArmor": {
+        "name": "船体装甲"
+      },
+      "furnTure": {
+        "name": "家具"
+      },
+      "majorFurniture": {
+        "name": "主要家具"
+      },
+      "offensiveFurnTure": {
+        "name": "进攻型家具"
+      },
+      "utilityFurnTure": {
+        "name": "实用家具"
+      },
+      "materials": {
+        "name": "材料"
+      },
+      "rawMaterials": {
+        "name": "原材料"
+      },
+      "refinedMaterials": {
+        "name": "精炼材料"
+      },
+      "specializedMaterials": {
+        "name": "专业材料"
+      },
+      "exoticMaterials": {
+        "name": "异域材料"
+      },
+      "helmMaterials": {
+        "name": "舵轮材料"
+      },
+      "scrapMaterials": {
+        "name": "废料材料"
+      },
+      "provisions": {
+        "name": "补给品"
+      },
+      "shipSupplies": {
+        "name": "船舶补给"
+      },
+      "crewProvision": {
+        "name": "船员给养"
+      },
+      "commodities": {
+        "name": "商品"
+      },
+      "localFactionCommodities": {
+        "name": "本地派系商品"
+      },
+      "megaCorpCommodities": {
+        "name": "大型企业商品"
+      },
+      "kingpinCommodities": {
+        "name": "龙头商品"
+      },
+      "theHelmItems": {
+        "name": "舵轮物品"
+      }
+    },
+    "share": {
+      "title": "分享",
+      "description": "分享你的{name}"
+    },
+    "ships": {
+      "title": "船只列表",
+      "searchCountOverflowTip": "超出搜索显示最大{maximumSearchCount}，剩余{exceedingItemsCount}已节流,可以再精准填写关键词",
+      "archetypes": {
+        "dps": {
+          "name": "火力舰",
+          "description": "火力舰适合喜欢进攻的玩家，擅长造成伤害与状态效果。"
+        },
+        "tank": {
+          "name": "重装舰",
+          "description": "重装舰更加的坚固，擅于防御来袭的炮火。"
+        },
+        "support": {
+          "name": "支援舰",
+          "description": "支援舰擅长支援友方船只，往往能够帮助扭转战局。"
+        }
+      }
+    },
+    "items": {
+      "title": "物品列表",
+      "description": "物品列表"
+    },
+    "item": {
+      "title": "物品详情",
+      "meta": {
+        "keywords": "物品详情,船物品,{keywords}"
+      },
+      "weight": "重量",
+      "projectilesPerShot": "单次发射弹丸数量",
+      "rateOfFire": "开火间隔 (秒)",
+      "DPS": "DPS (Damage per Second)",
+      "DPSWithPerks": "DPS with Perks",
+      "damagePerShot": "单发损伤",
+      "DamagePerShotWithPerks": "damage Mitigation",
+      "reloadSpeed": "重新加载速度（秒）",
+      "optimalRange": "范围（米）",
+      "projectileSpeed": "射弹速度（米/秒）",
+      "shipUpgradeUseTitle": "可用船只",
+      "shipUpgradesTitle": "可用升级",
+      "contentsTitle": "掉落内容",
+      "materialsTitle": "材料",
+      "faction": "阵营",
+      "required": "物品建造所需物品",
+      "rawMaterials": "所需物品原材料",
+      "modifications": "可安装模组",
+      "bySeason": {
+        "prepend": "出自",
+        "append": "赛季"
+      },
+      "obtainable": "线索",
+      "event": "事件",
+      "worldEvent": "世界事件",
+      "bluePrint": "设计图",
+      "requiredRank": "最低使用等级",
+      "gearScore": "分数",
+      "rarity": "稀有度",
+      "dateAdded": "添加日期",
+      "lastUpdated": "更新日期",
+      "damageType": "武器属性",
+      "perks": "词条",
+      "tier": "等级",
+      "damageMitigation": "护甲和损害减免",
+      "damageMitigationTip": "对特定属性伤害有减免，属性抗性越高，收到该属性伤害则越少",
+      "lookDetail": "查看物品详情(按住)"
+    },
+    "commoditie": {
+      "title": "杂货详情",
+      "meta": {
+        "keywords": "杂货,商品,{keywords}"
+      },
+      "lookDetail": "查看杂货详情(按住)"
+    },
+    "commodities": {
+      "title": "杂货列表"
+    },
+    "ship": {
+      "title": "船详详情",
+      "meta": {
+        "keywords": "船详详情,船,{keywords}"
+      },
+      "archetype": "承担类型",
+      "stamina": "体力",
+      "frontWeapon": "前方武器",
+      "leftSideWeapon": "左侧武器",
+      "rightSideWeapon": "右侧武器",
+      "aftWeapon": "后方武器",
+      "auxiliaryWeapon": "辅助武器",
+      "topDeck": "顶层甲板",
+      "lowerDeck": "下层甲板",
+      "furniture": "陈设",
+      "ultimate": "终极技能",
+      "hitPoints": "血量",
+      "braceStrength": "增强力量",
+      "sailSpeed": {
+        "title": "速度",
+        "knot": "(节/kts)",
+        "halfSail": "最低",
+        "fullSail": "全速",
+        "travelSail": "极限",
+        "unit": {
+          "knot": "节"
+        },
+        "boost": {
+          "title": "速度提升: +{percent}%",
+          "waterFlaskRemaining": "(水壶效果剩余 {time})",
+          "waterBarrelRemaining": "(水桶效果剩余 {time})",
+          "strongBreeze": "强风",
+          "strongBreezeEffect": "强风效果",
+          "cancelEffect": "终止效果",
+          "waterFlaskTooltip": "水壶：20秒内速度提升10%",
+          "waterBarrelTooltip": "水桶：20秒内速度提升15%",
+          "strongBreezeTooltip": "强风：速度提升50%"
+        },
+        "simulation": {
+          "windy": "有风",
+          "dust": "无风",
+          "slow": "慢速",
+          "normal": "正常",
+          "fast": "快速"
+        }
+      },
+      "cargo": "容器",
+      "cargoSlots": "容器格子",
+      "cargoMaxWeight": "容量承重",
+      "materialsTitle": "材料",
+      "required": "建造所需物品",
+      "rawMaterials": "原材料",
+      "bySeason": {
+        "prepend": "出自",
+        "append": "赛季"
+      },
+      "bluePrint": "设计图",
+      "requiredRank": "最低使用等级",
+      "dateAdded": "添加日期",
+      "lastUpdated": "更新日期",
+      "perks": "能力",
+      "baseInfo": "基础信息",
+      "deckInfo": "甲板信息",
+      "lookDetail": "查看船只详情(按住)"
+    },
+    "cosmetic": {
+      "title": "装饰品列表",
+      "lookDetail": "查看详情(按住)",
+      "effects": {
+        "emissive": "自发光",
+        "combatReactive": "战斗反应",
+        "killReactive": "击杀反应",
+        "bossKillReactive": "首领击杀反应",
+        "animated": "动画效果"
+      }
+    },
+    "cosmetics": {
+      "title": "装饰品列表",
+      "description": "陈列收录装饰品"
+    },
+    "set": {
+      "title": "集合详情",
+      "setAvailableTitle": "组合列表",
+      "lookDetail": "查看详情(按住)"
+    },
+    "sets": {
+      "title": "集合列表"
+    },
+    "ultimate": {
+      "title": "终结技详情"
+    },
+    "ultimates": {
+      "title": "终结技列表"
+    },
+    "modification": {
+      "title": "模组详情",
+      "effectType": {
+        "ignoreResistance": "忽略抵抗",
+        "addElementalDamage": "添加元素伤害",
+        "increaseDamage": "增加伤害",
+        "increaseElementalResistance": "提高元素抗性",
+        "increaseArmor": "增加护甲值",
+        "increaseHullHealth": "增加船体生命值",
+        "increaseReloadSpeed": "提高重新加载速度",
+        "extraElementalDamage": "额外元素伤害",
+        "extraDamage": "额外伤害",
+        "increaseProjectileSpeed": "增加弹丸速度",
+        "increaseProjectileRange": "增加弹道射程",
+        "reduceDamageWhileBracing": "防御时减少伤害",
+        "reduceTimeToTarget": "缩短至目标时间",
+        "increaseRepairAmountPerShot": "每枪增加的修复",
+        "increaseRepairAmount": "增加维修费用",
+        "increaseCritDamage": "增加暴击伤害",
+        "bonusElementalDamage": "额外元素伤害",
+        "increaseSiegeDamage": "增加攻城伤害"
+      }
+    },
+    "modifications": {
+      "title": "模组列表",
+      "lookDetail": "查看模组详情"
+    },
+    "material": {
+      "title": "材料详情",
+      "lookDetail": "查看材料详情(按住)"
+    },
+    "materials": {
+      "title": "材料列表"
+    },
+    "treasureMap": {
+      "title": "藏宝图详情",
+      "treasureMapSameArea": "同地区藏宝图",
+      "names": {
+        "none": "藏宝图",
+        "recent": "{location}",
+        "old": "藏宝图",
+        "veryOld": "藏宝图",
+        "legend": "藏宝图"
+      },
+      "lookDetail": "查看藏宝图详情(按住)",
+      "raritys": {
+        "recently": "近期"
+      },
+      "categorys": {
+        "none": "未知",
+        "recent": "新近",
+        "old": "老旧",
+        "veryOld": "古老",
+        "legend": "匪首"
+      },
+      "descriptions": {
+        "none": "未知地图",
+        "recent": "一张指向宝藏的地图。纸质清脆厚实，宝藏应该是不久前才被埋起来的",
+        "old": "一张指向宝藏的地图。纸质厚实，宝藏应该是有一段时间才被埋起来的",
+        "veryOld": "一张指向宝藏的地图。纸质残破，宝藏应该是很久时间才被埋起来的",
+        "legend": "一张指向宝藏的地图。纸质模糊不清，宝藏不知何时才被埋起来的"
+      }
+    },
+    "treasureMaps": {
+      "title": "藏宝图列表",
+      "comparison": {
+        "title": "比对藏宝图",
+        "description": "通过截图图片检索相似藏宝图，定位位置和信息",
+        "searchingProgress": "搜索进度",
+        "currentComparing": "正在比较",
+        "algorithms": {
+          "perceptual-hash": "感知哈希",
+          "color-histogram": "颜色直方图",
+          "feature-matching": "特征点匹配",
+          "structural-similarity": "结构相似性"
+        },
+        "selectAlgorithm": "选择比较算法",
+        "filter": {
+          "source": "来源筛选",
+          "category": "分类筛选",
+          "similarityPercent": "相似百分比",
+          "similarityHint": "此值越低图片相似越低，等于0时代表检索所有",
+          "searchRange": "检索范围",
+          "rangeHint": "取搜索结果前{range},超出的内容截断"
+        },
+        "uploadPrompt": "选择一张图片作为基准，查找藏宝图",
+        "selectImage": "选择图片",
+        "noResult": {
+          "algorithmIssue": "未找到相似藏宝图，这可能由于查询算法偏差或未收录藏宝图，请尝试更换查询算法再次尝试",
+          "useFilter": "如果知道藏宝图属性，适当使用筛选地图类型和藏宝图地区，可以减少检索等待时间",
+          "notInCollection": "未收录情况通过网站下方联系方式联系添加收藏"
+        }
+      }
+    },
+    "mapLocation": {
+      "title": "地图地点",
+      "lookDetail": "查看地图地点详情(按住)"
+    },
+    "mapLocations": {
+      "title": "地图地点列表"
+    },
+    "npc": {
+      "title": "NPC",
+      "lookDetail": "查看详情(按住)",
+      "workerTitle": "可加工列表",
+      "types": {
+        "npc": "非玩家人物",
+        "structure": "建筑体(不可移动)"
+      },
+      "categorys": {
+        "helmTask": "海舵社悬赏",
+        "water": "水源",
+        "powder": "篝火",
+        "task": "任务",
+        "shop": "商店",
+        "pvpMode": "对战模式",
+        "factory": "工厂(可加工物品)",
+        "mail": "邮箱",
+        "warehouse": "仓库",
+        "objective": "悬赏"
+      }
+    },
+    "npcs": {
+      "title": "NPC列表"
+    }
+  },
+  "calendar": {
+    "title": "日历",
+    "meta": {
+      "keywords": "游戏日历,日历,日程表,规划"
+    },
+    "timeRemaining": "剩余{time}天",
+    "label": {
+      "pastSeasons": "过往赛季"
+    },
+    "button": {
+      "subscribe": "订阅日历",
+      "addToCalendar": "添加到日历"
+    },
+    "dialog": {
+      "subscribeTitle": "订阅 {season}",
+      "subscribeDescription": "下载 .ics 文件，这是标准格式，可通过支持的应用打开并同步数据",
+      "eventSubscribeQuestion": "单独订阅 {event} 所有事件？"
+    },
+    "common": {
+      "na": "未知",
+      "none": "无"
+    },
+    "error": {
+      "invalidDate": "无效的日期",
+      "fetchFailed": "获取日历数据失败"
+    },
+    "day": "{day}日"
+  },
+  "map": {
+    "title": "地图",
+    "description": "所有地图物品清单",
+    "searchPlaceholder": "搜索地标",
+    "treasureMapAvailable": "可用藏宝图",
+    "npcAvailable": "NPC's",
+    "possibleLoot": "可能的赃物",
+    "locations": "地点",
+    "layerControl": "图层控制",
+    "hideAll": "隐藏所有",
+    "showAll": "显示所有",
+    "typeTitle": "类型",
+    "difficulty": "难度",
+    "selectCollection": "选择地图集",
+    "collectionManager": "地图集管理",
+    "myCollections": "我的地图集",
+    "createCollection": "创建地图集",
+    "collectionTitle": "地图集标题",
+    "collectionIsEmptyTip": "请先创建地图集后，再创建标记",
+    "collectionDescription": "地图集描述",
+    "layerCollection": "地图集",
+    "publicCollection": "公开地图集",
+    "sharedUsers": "共享用户",
+    "sharedUsersHint": "输入用户ID，用逗号分隔",
+    "personalMarkers": "个人标记",
+    "noDescription": "暂无描述",
+    "noCollections": "暂无地图集",
+    "titleRequired": "标题是必填项",
+    "collectionRequired": "请选择地图集",
+    "confirmDeleteCollection": "确定要删除地图集 \"{title}\" 吗？此操作将同时删除其中的所有标记。",
+    "markerName": "标记名称",
+    "markerDescription": "标记描述",
+    "nearbyMarker": "附近",
+    "createMarker": "创建标记",
+    "type": "类型",
+    "tags": "标签",
+    "publicMarker": "公开标记",
+    "types": {
+      "none": {
+        "name": "未知",
+        "description": "未知地点"
+      },
+      "den": {
+        "name": "窝点",
+        "description": "这里是海盗窝。为你下一次抢劫做计划、装配你的船只，或与其他志同道合的海贼相聚，一起痛饮。"
+      },
+      "weaver": {
+        "name": "织纺",
+        "description": "一处专注于收集并精制黄麻的小型定居点。你可以在这里购买布料或交易货物。"
+      },
+      "settlement": {
+        "name": "定居点",
+        "description": "一处小型阵营定居点，同时也是交易场所。你可以在此买卖货物.....或是尝试暴力夺取?"
+      },
+      "megafort": {
+        "name": "大型要塞",
+        "description": "与其他5名船长合作，偷取大型要塞内的一批晋阶型材料"
+      },
+      "shareLocation": {
+        "name": "分享位置",
+        "description": "此地点由用户分享"
+      },
+      "outpost": {
+        "name": "前哨站",
+        "description": ""
+      },
+      "foundry": {
+        "name": "铸造厂",
+        "description": "一处专注于收集并精炼原材料的小型定居点。你可以在这里购买铸锭或交易货物。"
+      },
+      "capitalSettlement": {
+        "name": "首府定居点",
+        "description": "这里是阵营的首府，一个富有且守卫森严、适合进行贸易的地方。"
+      },
+      "lumberyard": {
+        "name": "木材厂",
+        "description": "一处专注于收集并精制原木的小型定居点。你可以在这里购买木板或交易货物。"
+      },
+      "militaryBase": {
+        "name": "军营",
+        "description": "这是一座戒备森严的军营。虽然回报丰厚，但只有最强的海盗团队才有能力把它拿下"
+      }
+    }
+  },
+  "rankingDesignedItems": {
+    "title": "排序设计",
+    "workshop": {
+      "title": "工作台"
+    },
+    "browse": {
+      "title": "分享",
+      "newRanking": "创建新排行"
+    }
+  },
+  "teamUp": {
+    "title": "组队搜寻",
+    "meta": {
+      "keywords": "组队搜寻,最大交易,海上交易,争夺,pvp,pve,pvevp"
+    },
+    "emptyPlayer": "无",
+    "emptyUsername": "匿名船长",
+    "emptyDescription": "这个人很懒，什么都没写",
+    "copyPlayerBtn": "复制",
+    "copyPlayerSuccess": "复制成功",
+    "pushLoginInfo": "👋 {username}, 组建舰队吧，起航！",
+    "form": {
+      "player": "玩家id",
+      "time": "愿意等待时间",
+      "descriptionPlaceholder": "组队描述，也可以放置你的语音频道"
+    },
+    "time": {
+      "minutes": "{count}分钟",
+      "day": "{count}天"
+    },
+    "tags": {
+      "pve": "生存",
+      "pvp": "玩家战斗",
+      "timeWander": "世界游荡",
+      "plotTask": "剧情任务",
+      "sideQuest": "支线任务",
+      "reward": "悬赏",
+      "fortressRaiding": "要塞掠夺",
+      "transaction": "物品交易",
+      "other": "其他"
+    }
+  },
+  "assembly": {
+    "title": "配装厂",
+    "meta": {
+      "keywords": "配装厂,碧海黑帆配装,配装,套装,游戏配装"
+    },
+    "owner": "所有者",
+    "hasPassword": "包含密码",
+    "byCloningUuid": "克隆",
+    "editAssemblyBtn": "编辑此配装",
+    "anonymous": "匿名",
+    "commentPlaceholder": "你对此有何见解？",
+    "additions": {
+      "assembly": "配装",
+      "wheel": "轮盘",
+      "warehouse": "船仓"
+    },
+    "setting": {
+      "title": "设置",
+      "publicly": "公开",
+      "private": "私有",
+      "tagCommon": "常规",
+      "tagData": "数据",
+      "includePasswordHint": "含密码",
+      "existingPasswordButNewDelete": "当前配装已设密码，但新密码已删除",
+      "notPassword": "无密码",
+      "visibility": "是否可见",
+      "visibilityDescription": "决定是否被搜索或是直接访问",
+      "selectVisibility": "选择可见性",
+      "usePassword": "使用密码",
+      "passwordDescription": "创建密码后，配装页面必须输入密码才可访问",
+      "passwordInput": "密码",
+      "passwordHint": "至少6位到32位，仅可使用a-A 0-9 _",
+      "language": "配装语种",
+      "languageDescription": "你可以定义配装语言",
+      "selectLanguage": "选择语言",
+      "backgroundImage": "背景图片",
+      "backgroundImageDescription": "它仅在配装详情页展示，固定在配装后方，使用外部图床",
+      "backgroundImageAlt": "背景图片",
+      "backgroundImageUrl": "背景图片URL",
+      "showItemName": "是否展示名称",
+      "showItemNameDescription": "在物品图标下方显示物品名称",
+      "showFullName": "是否完整显示",
+      "showFullNameDescription": "决定于物品是否完整显示名称，而并非溢出隐藏",
+      "anonymous": "是否匿名",
+      "anonymousDescription": "是否将你在此配装中用户名称和ID删除",
+      "comments": "评论",
+      "commentsDescription": "是否开启评论",
+      "likes": "点赞",
+      "likesDescription": "是否开启点赞",
+      "other": "其他",
+      "rendererVersion": "配装渲染器版本",
+      "rendererVersionDescription": "决定对配装数据以何种格式加载，如果你不清楚作用可以不需要设置，让系统以最新版本来初始加载",
+      "wheelRendererVersion": "轮盘渲染器版本",
+      "wheelRendererVersionDescription": "决定对轮盘数据以何种格式加载，如果你不清楚作用可以不需要设置，让系统以最新版本来初始加载",
+      "warehouseRendererVersion": "船仓渲染器版本",
+      "warehouseRendererVersionDescription": "决定对船仓数据以何种格式加载，如果你不清楚作用可以不需要设置，让系统以最新版本来初始加载",
+      "version": "版本",
+      "selectVersion": "选择版本",
+      "enable": "启用",
+      "deleteDescription": "删除配装是不可逆行为, 将会删除对应评论和点赞",
+      "deleteConfirmation": "删除配装？",
+      "deleteWarning": "此操作不可逆，将永久删除配装及其评论和点赞。"
+    },
+    "modification": {
+      "basic": "基础",
+      "advanced": "高级",
+      "special": "特殊"
+    },
+    "tags": {
+      "modes": {
+        "pvp": "战斗",
+        "pve": "生存"
+      },
+      "teamFormationMethods": {
+        "singlePlayer": "单人",
+        "multiPlayer": "多人"
+      },
+      "difficultyOfAcquisitions": {
+        "simple": "简单",
+        "medium": "中等",
+        "difficulties": "困难"
+      },
+      "archetypes": {
+        "dps": "输出",
+        "tank": "坦克",
+        "support": "支援"
+      },
+      "grade": {
+        "basic": "基本",
+        "advanced": "高级",
+        "special": "特殊"
+      },
+      "damageTypes": {
+        "armor": "护甲",
+        "electric": "雷电",
+        "explosive": "爆炸",
+        "fire": "火",
+        "flooding": "进水",
+        "lifesteal": "吸血",
+        "piercing": "穿透",
+        "burning": "燃烧",
+        "repair": "维修",
+        "tearing": "撕裂",
+        "toxic": "剧毒"
+      }
+    },
+    "workshop": {
+      "title": "工作站",
+      "displayTitle": "陈设",
+      "weaponTitle": "武器",
+      "myFavorites": "我的最爱",
+      "armorTitle": "船甲",
+      "insertArmorTitle": "插入船甲",
+      "insertShipTitle": "插入船只",
+      "insertShipFrigateUpgradeTitle": "插入升级部件",
+      "mainWeapon": "主武器",
+      "secondaryWeapon": "副武器",
+      "insertWeaponTips": "请输入id来选中物体，id列表可见<a target=\"_blank\" href=\"{link}\">这里</a>",
+      "insertWeaponTitle": "插入武器",
+      "insertSecondaryWeaponTitle": "插入副武器",
+      "insertDisplayTitle": "插入陈设",
+      "exceedingDisplayLimitTip": "已到达主陈设上限，将主陈设隐藏",
+      "ultimateTitle": "终极技能",
+      "ignoreConditions": "无视模组条件",
+      "filter": {
+        "all": "所有",
+        "byType": "物品排序类型",
+        "byTitle": "物品以{key}排序",
+        "byId": "ID",
+        "byTier": "等级",
+        "byRarity": "稀有度"
+      },
+      "verifyTips": {
+        "shipEmpty": "船只未选择，<u>它是必须</u>",
+        "ultimateEmpty": "技能是空的",
+        "shipUpgradeEmpty": "船只升级部件是空的",
+        "weaponModificationsEmpty": "武器模组是空的",
+        "secondaryWeaponModificationsEmpty": "副武器的模组是空的",
+        "secondaryWeaponEmpty": "副武器是空的",
+        "weaponAllEmpty": "武器都是空的",
+        "weaponDirectionsEmpty": "武器的方向你未设置, <u>它是必须</u>",
+        "armorEmpty": "船甲是空的",
+        "displayAllEmpty": "陈设都是空的"
+      }
+    },
+    "detail": {
+      "title": "配装详情"
+    },
+    "share": {
+      "title": "分享配装",
+      "createPoster": "生成配装海报",
+      "configHint": "配置生成海报属性，决定海报样式以及格式等",
+      "format": "格式",
+      "width": "宽度",
+      "quality": "图片质量",
+      "filename": "文件名称",
+      "imageStyleTitle": "样式",
+      "showEmptySlot": "显示空卡槽",
+      "backgroundColor": "背景颜色",
+      "showItemName": "显示名称",
+      "fullName": "完整名称",
+      "showHeader": "海报头部标识",
+      "showTitle": "显示标题",
+      "showTabs": "显示标签",
+      "showDescription": "显示描述内容"
+    },
+    "browse": {
+      "title": "配装分享集",
+      "search": "搜索配装创建用户 或 是配装名称",
+      "newAssembly": "创建配装",
+      "filterTitle": "筛选",
+      "filter": {
+        "createdTime": "创建时间",
+        "updatedTime": "更新时间",
+        "likes": "赞",
+        "desc": "正序",
+        "asc": "反序"
+      }
+    },
+    "publish": {
+      "title": "发布"
+    }
+  },
+  "smugglersReport": {
+    "title": "走私犯鉴赏家",
+    "description": "走私犯鉴赏家是对每周走私犯刷新物品评价，给所有玩家推荐选购理由，让玩家们不要错过价值非常高物品"
+  },
+  "space": {
+    "title": "用户空间",
+    "lastOnlineTime": "最后在线",
+    "joinTime": "加入时间"
+  },
+  "signin": {
+    "title": "登陆",
+    "meta": {
+      "keywords": "账户登陆"
+    },
+    "form": {
+      "placeholder": {
+        "username": "输入帐号id",
+        "password": "输入密码"
+      },
+      "label": {
+        "username": "账户id",
+        "password": "密码"
+      }
+    },
+    "newUserRegistrationHint": "没有账户？前往注册"
+  },
+  "signup": {
+    "title": "注册",
+    "meta": {
+      "keywords": "账户注册"
+    },
+    "username": {
+      "name": "账户id",
+      "placeholder": "输入网址唯一标准",
+      "hint": "作为网站登陆唯一id，不可更改，至少3位到40位，使用a-z/A-Z/0-9/_来注册用户名"
+    },
+    "alternativeName": {
+      "name": "别名",
+      "placeholder": "输入展示名称",
+      "hint": "用于展示网站名称，如果不填将默认使用账户id，至少3位到40位，使用a-z/A-Z/0-9/_"
+    },
+    "password": {
+      "name": "密码",
+      "placeholder": "输入账户密码",
+      "hint": "至少8位到64位"
+    },
+    "email": {
+      "name": "邮箱",
+      "placeholder": "输入邮箱地址",
+      "hint": "可选邮箱，这将使得你的账户可寻回"
+    },
+    "register": "注册"
+  },
+  "home": {
+    "title": "首页",
+    "meta": {
+      "keywords": "游戏,碧海黑帆,game,skull-and-bones,Skull And Bones,SNB,S And B,ubisoft,2025,Glow Prow,glowprow,glow,prow,glow-prow,闪耀,船首,闪耀船首,tool,app,website,mod,map,工具,wiki,维基百科,game,游戏,ubisoft,ubisoft.com,育碧,skullandbones,skull and bones,snb,碧海黑帆,Skull and Bones,SNB,育碧,Ubisoft,海盗游戏,海战游戏,开放世界,MMORPG,印度洋,17世纪末,海盗黄金时代,圣安妮,落草湾,非洲海岸,红岛,东印度群岛,公海,恶名系统,恶名等级,海盗船长,海盗王,私掠船,悬赏任务,赏金目标,海坨社,八里亚尔,银币,造船匠,木匠,铁匠,时装店,船只建造,船只改装,船只类型,火力舰,重装舰,支援舰,冲撞船,武器系统,火炮,长管炮,半加农炮,射石炮,culverin,装甲,陈设,家具,修理包,望远镜,猎矛,镐,锯子,镰刀,撬棍,采集资源,金合欢木材,登船战,鱼叉,抢登,薄弱部位,红色光圈,船帆控制,耐力系统,顺风航行,逆风航行,风向利用,航海技巧,海上生存,船员管理,负重系统,货舱,仓库,邮箱,快速旅行,据点,前哨站,定居点,约翰·斯科洛克,John Scurlock,海民,Sea Peoples,克兰·法拉,Clan of Fara,走私,贸易路线,跑商,违禁品,藏宝图,埋藏宝藏,寻宝线索,发光信标,沉船打捞,漂浮残骸,狩猎鲨鱼,捕鱼,野生动物,多人合作,三人组队,PvP模式,5v5对抗,争议水域,遇险信标,呼叫支援,社交菜单,跨平台游玩,跨平台进度,赛季更新,终局玩法,世界事件,海上霸主,血腥骷髅之歌典藏包,走私者通行证,灰海盗号任务,血腥骷髅的遗产,Ubisoft Connect,Epic商城,Steam,PS5,Xbox Series X,PC配置,画面设置,DLSS,FSR,XeSS,新手攻略,入门技巧,快速升级,赚钱方法,八里亚尔速刷,船只推荐,武器搭配,装备蓝图,材料位置,资源分布,据点坐标,悬赏任务攻略,海坨社差事,工厂收租,藏宝图位置,宝藏地点,BOSS打法,登船技巧,海战技巧,团队配合,独狼玩法,操作设置,键位说明,界面介绍,任务指引,成就解锁,奖杯攻略,DLC内容,版本更新,补丁说明,BUG修复,游戏评测,玩家社区,交流群,开黑,好友组队"
+    }
+  },
+  "empireSkillSimulation": {
+    "searchPlaceholder": "搜索技能",
+    "effects": "效果",
+    "requirements": "要求",
+    "requiredCost": "需要材料",
+    "stage": "阶段{num}",
+    "other": "其他",
+    "effectsNotContent": "缺少描述",
+    "dateAdded": "创建时间",
+    "lastUpdated": "更新时间"
+  },
+  "search": {
+    "title": "搜索",
+    "placeholder": "输入关键词或使用字段查询，如：name:设备 或 id:exact_id",
+    "conditions": "查询条件",
+    "quickFilters": "快速筛选",
+    "recentSearches": "最近搜索",
+    "strictMatch": "精确匹配",
+    "fuzzyMatch": "模糊匹配",
+    "useTip": "高级使用提示",
+    "filters": {
+      "name": "名称",
+      "id": "ID",
+      "description": "描述",
+      "category": "分类",
+      "type": "类型"
+    }
+  },
+  "setting": {
+    "title": "设置",
+    "routine": {
+      "title": "常规设置",
+      "assemblyViewModel": {
+        "full-extension": {
+          "name": "自动延伸视图",
+          "description": "按照内容配装延伸高度"
+        },
+        "lock-window": {
+          "name": "锁定窗口",
+          "description": "固定高度，溢出部分需要拖拽查看"
+        }
+      }
+    },
+    "ad": {
+      "title": "广告"
+    },
+    "storage": {
+      "title": "数据报告"
+    },
+    "notification": {
+      "title": "通知"
+    }
+  },
+  "header": {
+    "navs": {
+      "blog": "闪耀船首博客",
+      "officialWebsite": "碧海黑帆官网",
+      "officialWebsiteDebug": "碧海黑帆官方问题集"
+    },
+    "functions": {
+      "team": {
+        "title": "组队寻求",
+        "description": "发布或寻找与你计划相同船长出航，面对真正敌人"
+      },
+      "calendar": {
+        "title": "日历",
+        "description": "查看赛季活动，订阅日历"
+      },
+      "maps": {
+        "title": "地图",
+        "description": "地图物品清单，列出不同地点以及地点内藏宝图和设施"
+      },
+      "codex": {
+        "title": "手稿",
+        "description": "陈列物品信息, 检查它们如何获得"
+      },
+      "smugglers-report": {
+        "title": "鉴赏家",
+        "description": "社区共同推荐每周购买指南"
+      },
+      "assembly": {
+        "title": "船只配装厂",
+        "description": "设计你船，让它到达性能极限，分享给好友"
+      },
+      "captain-signature": {
+        "title": "海盗签名(开发中)",
+        "description": "生成海盗签名图片，分享到社区网站上"
+      },
+      "ranking-of-designed-items": {
+        "title": "物品排名(开发中)",
+        "description": "生成物品玩家心中排名以及评价"
+      },
+      "impression-of-monsters": {
+        "title": "精英怪印象(开发中)",
+        "description": "分享你对游戏内不同怪物第一印象"
+      },
+      "fashion-show": {
+        "title": "时装秀(开发中)",
+        "description": "分享你的穿搭，成为时尚达人"
+      },
+      "empire-skill-simulation": {
+        "title": "帝国升级模拟 (BETA 1)",
+        "description": "海陀社升级模拟",
+        "keywords": "empire skill simulation"
+      }
+    }
+  },
+  "footer": {
+    "basic": {
+      "description": "碧海黑帆清单网站"
+    },
+    "col1": {
+      "title": "服务"
+    },
+    "col2": {
+      "title": "社区",
+      "baiduTieBa": "百度贴吧闪耀船首贴子",
+      "xiaoheihe": "小黑盒闪耀船首贴子",
+      "kook": "Kook社区"
+    },
+    "col3": {
+      "title": "联系",
+      "serviceStatus": "服务状态",
+      "translated": "📖帮助我们翻译",
+      "github": "项目开源地址"
+    }
+  },
+  "empty": {
+    "title": "空空如也",
+    "description": "船长！请调头，这里什么都没有"
+  },
+  "captcha": {
+    "get": "获得验证码",
+    "fresh": "刷新验证码",
+    "messages": {
+      "bad": "验证码错误，请联系管理员",
+      "expired": "验证码已过期",
+      "gen": "获取成功",
+      "wrong": "验证码错误"
+    },
+    "title": "验证码"
+  }
+}
