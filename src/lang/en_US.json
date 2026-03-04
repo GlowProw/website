@@ -5,6 +5,11 @@
     "minor": "",
     "description": ""
   },
+  "pwa": {
+    "offlineReady": "App ready to work offline",
+    "newContentAvailable": "New content available",
+    "refreshToUpdate": "Click on refresh button to update."
+  },
   "basic": {
     "button": {
       "cancel": "Cancel",

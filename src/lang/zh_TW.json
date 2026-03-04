@@ -5,6 +5,11 @@
     "minor": "",
     "description": ""
   },
+  "pwa": {
+    "offlineReady": "應用程式已準備好離線工作",
+    "newContentAvailable": "有新內容可用",
+    "refreshToUpdate": "點擊重新整理按鈕以更新。"
+  },
   "basic": {
     "button": {
       "cancel": "取消",

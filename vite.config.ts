@@ -1,5 +1,6 @@
 import Vue from '@vitejs/plugin-vue'
 import Vuetify, {transformAssetUrls} from 'vite-plugin-vuetify'
+import { VitePWA } from 'vite-plugin-pwa'
 import {defineConfig} from 'vite'
 import path from "path";
 
@@ -12,6 +13,31 @@ export default defineConfig({
             template: {transformAssetUrls},
         }),
         Vuetify({autoImport: true}),
+        VitePWA({
+            registerType: 'autoUpdate',
+            includeAssets: ['favicon.ico', 'favicon.png'],
+            manifest: {
+                name: 'Glow Prow',
+                short_name: 'GlowProw',
+                description: 'Glow Prow Client',
+                theme_color: '#222222ff',
+                icons: [
+                    {
+                        src: 'favicon.png',
+                        sizes: '192x192',
+                        type: 'image/png'
+                    },
+                    {
+                        src: 'favicon.png',
+                        sizes: '512x512',
+                        type: 'image/png'
+                    }
+                ]
+            },
+            workbox: {
+                maximumFileSizeToCacheInBytes: 4 * 1024 * 1024, // 4MB
+            }
+        }),
     ],
     optimizeDeps: {
         exclude: [

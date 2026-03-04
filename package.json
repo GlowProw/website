@@ -10,10 +10,11 @@
   },
   "scripts": {
     "serve": "vite",
+    "type-check": "vue-tsc",
     "build:no-check:production": "run-p \"build-only {@}\" --",
     "build:production": "run-p type-check \"build-only {@}\" --",
     "preview:production": "vite preview",
-    "build-only": "vite build --mode production --debug"
+    "build-only": "vite build --mode production"
   },
   "dependencies": {
     "@fontsource/roboto": "5.2.5",
@@ -65,6 +66,7 @@
     "terser": "^5.44.1",
     "typescript": "~5.8.3",
     "vite": "^7.0.4",
+    "vite-plugin-pwa": "^1.2.0",
     "vite-plugin-vuetify": "^2.1.1",
     "vue-tsc": "^2.2.12"
   }
