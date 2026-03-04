@@ -1,5 +1,7 @@
 # 介绍
 
+![git-banner.png](/src/assets/images/git-banner.png)
+
 这是`glow prow`前端，以node(>=22.17.0) + vue(>=3.0.0) + vite + ts实现
 
 ## 配置
