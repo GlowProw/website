@@ -5,8 +5,8 @@ export default {
 </script>
 
 <script setup lang="ts">
-import {computed, onMounted, Ref, ref, useSlots, watch} from "vue";
-import FlexSearch from "flexsearch";
+import {computed, onMounted, onUnmounted, Ref, ref, useSlots, watch} from "vue";
+import {useSearchWorkerService} from "@/assets/sripts/search_worker_service";
 
 import {Commodity, Cosmetic, Cosmetics, Item, Items, MapLocations, Material, Materials, Modification, Modifications, Ships, Ultimate} from "glow-prow-data";
 
@@ -42,19 +42,24 @@ import ShipName from "@/components/snbWidget/shipName.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
-const {t} = useI18n(),
+const {t, messages, locale} = useI18n(),
     os = useOS(),
     slots = useSlots(),
     router = useRouter(),
     route = useRoute(),
     {sanitizeString, asString} = useI18nUtils(),
     {commoditie} = useI18nReadName(),
-    emit = defineEmits(['close'])
+    emit = defineEmits(['close']),
+    {
+        initWorker,
+        performSearch: workerPerformSearch,
+        isLoading,
+        progress,
+        searchResult
+    } = useSearchWorkerService()
 
-let searchIndex: Ref<any | null> = ref(null),
-    searchValue = ref(''), // 展示搜索值
+let searchValue = ref(''), // 展示搜索值
     searchQuery = ref(''), // 实际搜索的值
-    searchResult = ref<any>({}),
     searchSettingConfig = ref<any>({}),
     fieldIndices = ref<any>({}),
 
@@ -92,46 +97,15 @@ watch(() => searchQuery.value, (value) => {
     searchResult.value = {};
     return;
   }
-
-  try {
-    // 解析高级查询
-    const parsed = AdvancedQueryParser.parse(value)
-
-    let matchedItems = [];
-
-    if (parsed.conditions.length > 0) {
-      // 使用高级查询匹配（混合严格和模糊匹配）
-      matchedItems = allItems.value.filter(item =>
-          matchesAdvancedQuery(item, parsed))
-
-    } else {
-      // 纯关键词搜索，使用模糊匹配
-      const resultIds = searchIndex.value.search(value, {
-        limit: 100,
-        suggest: true
-      })
-
-      matchedItems = resultIds
-          .map(resultId => allItems.value.find(item => item.id === resultId))
-          .filter(item => item !== undefined && item !== null)
-    }
-
-    // 按类型分组并限制每个类型最多20条
-    searchResult.value = groupResultsByType(matchedItems, 20)
-
-    // 添加到搜索历史
-    if (matchedItems.length > 0 && searchSettingConfig.value.searchIsLogs) {
-      addToHistory(value)
-    }
-
-  } catch (error) {
-    console.error('搜索错误:', error)
-    searchResult.value = {};
-  }
+  performSearch(value);
 })
+
 
 // 监听 searchValue 实现防抖
 watch(() => searchValue.value, (value) => {
+  // Check if loading
+  if (isLoading.value) return;
+
   // 清除之前的定时器
   if (searchTimer) {
     clearTimeout(searchTimer);
@@ -147,11 +121,12 @@ watch(() => searchValue.value, (value) => {
   // 设置新的定时器，1秒后执行搜索
   searchTimer = setTimeout(() => {
     searchQuery.value = value;
-  }, 3000);
+  }, 1000);
 })
 
 // 处理回车搜索
 const handleEnter = () => {
+  if (isLoading.value) return;
   // 清除定时器
   if (searchTimer) {
     clearTimeout(searchTimer);
@@ -162,250 +137,36 @@ const handleEnter = () => {
 };
 
 onMounted(() => {
-  let data: any = []
-
-  searchIndex.value = new FlexSearch.Index({
-    tokenize: "full",
-    charset: "latin:advanced",
-    preset: "default",
-    cache: true
-  } as any)
-
-  // 创建字段特定的索引
-  const indices = {
-    id: new FlexSearch.Index({preset: "default", cache: true}),
-    name: new FlexSearch.Index({tokenize: "forward", preset: "default", cache: true}),
-    description: new FlexSearch.Index({tokenize: "forward", preset: "default", cache: true})
-  };
-
-  data = data.concat(Object.values(Items).map((i: any) => {
-    const {id, type, description = '', category = ''} = i
-    const name = asString([
-      `snb.items.${i.id}.name`,
-      `snb.items.${sanitizeString(i.id).cleaned}.name`
-    ]);
-    const itemData = {
-      ...i,
-      name,
-      sourceType: i._typeStringName.toLowerCase(),
-      searchableFields: {
-        name,
-        id,
-        description,
-        category,
-        type
-      }
-    };
-
-    searchIndex.value.add(id, Object.values(itemData.searchableFields).join(' ').toLowerCase())
-    indices.id.add(id, itemData.searchableFields.id.toLowerCase())
-    indices.name.add(id, itemData.searchableFields.name.toLowerCase())
-    if (itemData.searchableFields.description) {
-      indices.description.add(id, itemData.searchableFields.description.toLowerCase())
+  // Initialize worker
+  initWorker(messages.value[locale.value], locale.value)?.then(() => {
+    // Perform initial search if there is a query
+    if (searchQuery.value) {
+      performSearch(searchQuery.value);
     }
-
-    return itemData;
-  }))
-  data = data.concat(Object.values(Ships).map((i: any) => {
-    const {id, type, description = '', category = ''} = i
-    const name = asString([
-      `snb.ships.${i.id}.name`,
-      `snb.ships.${sanitizeString(i.id).cleaned}.name`
-    ]);
-    const itemData = {
-      ...i,
-      name,
-      sourceType: i._typeStringName?.toLowerCase() || 'ship',
-      searchableFields: {
-        name,
-        id,
-        description,
-        category,
-        type
-      }
-    };
-
-    searchIndex.value.add(id, Object.values(itemData.searchableFields).join(' ').toLowerCase())
-    indices.id.add(id, itemData.searchableFields.id.toLowerCase())
-    indices.name.add(id, itemData.searchableFields.name.toLowerCase())
-    if (itemData.searchableFields.description) {
-      indices.description.add(id, itemData.searchableFields.description.toLowerCase())
-    }
-
-    return itemData;
-  }))
-  data = data.concat(Object.values(Commodities).map((i: any) => {
-    const {id, type, description = '', category = ''} = i
-    const name = asString([
-      commoditie(i.id).name(),
-    ]);
-    const itemData = {
-      ...i,
-      name,
-      sourceType: i._typeStringName?.toLowerCase() || 'commoditie',
-      searchableFields: {
-        name,
-        id,
-        description,
-        category,
-        type
-      }
-    };
-
-    searchIndex.value.add(id, Object.values(itemData.searchableFields).join(' ').toLowerCase())
-    indices.id.add(id, itemData.searchableFields.id.toLowerCase())
-    indices.name.add(id, itemData.searchableFields.name.toLowerCase())
-    if (itemData.searchableFields.description) {
-      indices.description.add(id, itemData.searchableFields.description.toLowerCase())
-    }
-
-    return itemData;
-  }))
-  data = data.concat(Object.values(Materials).map((i: any) => {
-    const {id, type, description = '', category = ''} = i
-    const name = asString([
-      `snb.materials.${i.id}.name`,
-    ]);
-    const itemData = {
-      ...i,
-      name,
-      sourceType: i._typeStringName?.toLowerCase() || 'material',
-      searchableFields: {
-        name,
-        id,
-        description,
-        category,
-        type
-      }
-    };
-
-    searchIndex.value.add(id, Object.values(itemData.searchableFields).join(' ').toLowerCase())
-    indices.id.add(id, itemData.searchableFields.id.toLowerCase())
-    indices.name.add(id, itemData.searchableFields.name.toLowerCase())
-    if (itemData.searchableFields.description) {
-      indices.description.add(id, itemData.searchableFields.description.toLowerCase())
-    }
-
-    return itemData;
-  }))
-  data = data.concat(Object.values(Modifications).map((i: any) => {
-    const {id, type, description = '', category = '', grade = ''} = i
-    const name = asString([
-      `snb.modifications.${i.id}.name`,
-    ]);
-    const itemData = {
-      ...i,
-      name,
-      sourceType: i._typeStringName?.toLowerCase() || 'modification',
-      searchableFields: {
-        name,
-        id,
-        description,
-        category,
-        type,
-        grade
-      }
-    };
-
-    searchIndex.value.add(id, Object.values(itemData.searchableFields).join(' ').toLowerCase())
-    indices.id.add(id, itemData.searchableFields.id.toLowerCase())
-    indices.name.add(id, itemData.searchableFields.name.toLowerCase())
-    if (itemData.searchableFields.description) {
-      indices.description.add(id, itemData.searchableFields.description.toLowerCase())
-    }
-
-    return itemData;
-  }))
-  data = data.concat(Object.values(Cosmetics).map((i: any) => {
-    const {id, type, description = '', category = ''} = i
-    const name = asString([
-      `snb.cosmetics.${i.id}.name`,
-    ]);
-    const itemData = {
-      ...i,
-      name,
-      sourceType: i._typeStringName?.toLowerCase() || 'cosmetic',
-      searchableFields: {
-        name,
-        id,
-        description,
-        category,
-        type
-      }
-    };
-
-    searchIndex.value.add(id, Object.values(itemData.searchableFields).join(' ').toLowerCase())
-    indices.id.add(id, itemData.searchableFields.id.toLowerCase())
-    indices.name.add(id, itemData.searchableFields.name.toLowerCase())
-    if (itemData.searchableFields.description) {
-      indices.description.add(id, itemData.searchableFields.description.toLowerCase())
-    }
-
-    return itemData;
-  }))
-  data = data.concat(Object.values(Ultimates).map((i: any) => {
-    const {id, type, description = '', category = ''} = i
-    const name = asString([
-      `snb.ultimates.${i.id}.name`,
-    ]);
-    const itemData = {
-      ...i,
-      name,
-      sourceType: i._typeStringName?.toLowerCase() || 'ultimate',
-      searchableFields: {
-        name,
-        id,
-        description,
-        category,
-        type
-      }
-    };
-
-    searchIndex.value.add(id, Object.values(itemData.searchableFields).join(' ').toLowerCase())
-    indices.id.add(id, itemData.searchableFields.id.toLowerCase())
-    indices.name.add(id, itemData.searchableFields.name.toLowerCase())
-    if (itemData.searchableFields.description) {
-      indices.description.add(id, itemData.searchableFields.description.toLowerCase())
-    }
-
-    return itemData;
-  }))
-  data = data.concat(Object.values(MapLocations).map((i: any) => {
-    const {id, type, description = '', category = ''} = i
-    const name = asString([
-      `snb.mapLocations.${i.id}.name`,
-    ]);
-    const itemData = {
-      ...i,
-      name,
-      sourceType: i._typeStringName?.toLowerCase() || 'mapLocation',
-      searchableFields: {
-        name,
-        id,
-        description,
-        category,
-        type
-      }
-    };
-
-    searchIndex.value.add(id, Object.values(itemData.searchableFields).join(' ').toLowerCase())
-    indices.id.add(id, itemData.searchableFields.id.toLowerCase())
-    indices.name.add(id, itemData.searchableFields.name.toLowerCase())
-    if (itemData.searchableFields.description) {
-      indices.description.add(id, itemData.searchableFields.description.toLowerCase())
-    }
-
-    return itemData;
-  }))
-
-  // 存储字段索引
-  allItems.value = data;
-
-  fieldIndices.value = indices;
+  });
 
   getConfig()
   initHotkey()
 })
+
+onUnmounted(() => {
+  // No need to terminate worker here as it's a singleton
+})
+
+const performSearch = (query: string) => {
+  try {
+    const parsed = AdvancedQueryParser.parse(query);
+    workerPerformSearch(query, parsed);
+    
+    if (searchSettingConfig.value.searchIsLogs) {
+        addToHistory(query)
+    }
+
+  } catch (e) {
+    console.error(e);
+  }
+};
+
 
 /**
  * 获取搜索配置
@@ -443,128 +204,6 @@ const initHotkey = () => {
     })
 }
 
-/**
- * 高级搜索匹配逻辑
- */
-const matchesAdvancedQuery = (item: any, parsedQuery: any): boolean => {
-  const {keywords, conditions} = parsedQuery;
-
-  // 检查关键词匹配（模糊匹配）
-  const keywordMatch = keywords.length === 0 || keywords.some(keyword => {
-    const searchContent = Object.values(item.searchableFields || {})
-        .filter(value => value)
-        .join(' ')
-        .toLowerCase()
-    return searchContent.includes(keyword.toLowerCase())
-  })
-
-  // 检查条件匹配
-  const conditionMatch = conditions.length === 0 || conditions.every(condition => {
-    const {field, operator, value, isStrict} = condition;
-    const itemValue = item.searchableFields?.[field] || item[field];
-
-    if (!itemValue) return false;
-
-    const itemValueStr = String(itemValue).toLowerCase()
-    const conditionValues = Array.isArray(value) ? value.map(v => v.toLowerCase()) : [String(value).toLowerCase()];
-
-    // 根据是否严格匹配使用不同的匹配策略
-    if (isStrict) {
-      // 严格匹配：精确比较
-      return matchesStrictCondition(itemValue, itemValueStr, conditionValues, operator)
-    } else {
-      // 模糊匹配：包含关系
-      return matchesFuzzyCondition(itemValueStr, conditionValues, operator)
-    }
-  })
-
-  return keywordMatch && conditionMatch;
-};
-
-/**
- * 严格匹配条件
- */
-const matchesStrictCondition = (itemValue: any, itemValueStr: string, conditionValues: string[], operator: string): boolean => {
-  switch (operator) {
-    case ':':
-    case '=':
-      // 严格匹配：完全相等或多值包含
-      return conditionValues.some(conditionValue =>
-          itemValueStr === conditionValue ||
-          (Array.isArray(itemValue) && itemValue.includes(conditionValue)))
-
-
-    case '!=':
-      // 严格不相等
-      return !conditionValues.some(conditionValue =>
-          itemValueStr === conditionValue)
-
-
-    case '>':
-      return Number(itemValue) > Number(conditionValues[0])
-
-    case '<':
-      return Number(itemValue) < Number(conditionValues[0])
-
-    case '>=':
-      return Number(itemValue) >= Number(conditionValues[0])
-
-    case '<=':
-      return Number(itemValue) <= Number(conditionValues[0])
-
-    default:
-      return itemValueStr === conditionValues[0];
-  }
-};
-
-/**
- * 模糊匹配条件
- */
-const matchesFuzzyCondition = (itemValueStr: string, conditionValues: string[], operator: string): boolean => {
-  switch (operator) {
-    case ':':
-    case '=':
-      // 模糊匹配：包含关系
-      return conditionValues.some(conditionValue =>
-          itemValueStr.includes(conditionValue))
-
-
-    case '!=':
-      // 模糊不匹配：不包含
-      return !conditionValues.some(conditionValue =>
-          itemValueStr.includes(conditionValue))
-
-
-    default:
-      // 其他操作符使用严格匹配
-      return conditionValues.some(conditionValue =>
-          itemValueStr.includes(conditionValue))
-
-  }
-};
-
-/**
- * 按类型分组并限制每个类型的数量
- * @param results
- * @param limitPerType
- */
-const groupResultsByType = (results: any[], limitPerType: number = 20) => {
-  const grouped: Record<string, any[]> = {};
-
-  results.forEach(item => {
-    const type = item.sourceType || 'unknown';
-    if (!grouped[type]) {
-      grouped[type] = [];
-    }
-
-    // 只添加前limitPerType个
-    if (grouped[type].length < limitPerType) {
-      grouped[type].push(item)
-    }
-  })
-
-  return grouped;
-};
 
 /**
  * 获取前往地址
@@ -673,11 +312,19 @@ defineExpose({
             hide-details
             clearable
             autofocus
+            :disabled="isLoading"
             @keyup.enter="handleEnter">
           <template v-slot:prepend-inner>
             <v-icon icon="mdi-magnify"/>
           </template>
         </v-text-field>
+        <v-progress-linear
+            v-if="isLoading"
+            :model-value="progress * 100"
+            color="var(--main-color)"
+            height="2"
+            class="mt-n3 mb-3"
+        ></v-progress-linear>
       </v-col>
       <!-- 搜索输入框 E -->
 

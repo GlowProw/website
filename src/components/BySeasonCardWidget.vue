@@ -21,14 +21,17 @@ defineOptions({ name: 'BySeasonCardWidget' })
       <SeasonViewWidget :data="getSeasonData(data)"></SeasonViewWidget>
     </v-card-text>
 
-    <v-card class="by-season-footer-context" tile :to="`/codex/items?season=${getSeasonId(data)}`">
-      <v-row no-gutters>
-        <v-col cols="12">
-          <v-chip class="w-100 pa-0 pl-2 pr-2 justify-center" label size="small" variant="text">
-            <div class="singe-line font-weight-bold">{{ t('codex.season') }}</div>
-          </v-chip>
-          <v-text-field readonly hide-details variant="plain" density="compact"
-                        class="h-100 bg-transparent" :value="t(`snb.seasons.${getSeasonId(data)}`) || 'none'"></v-text-field>
+    <v-card class="by-season-footer-context" tile :to="`/codex/items?season=${data?.bySeason?.id || 'release'}`">
+      <v-row class="px-5" align="center">
+        <v-col cols="auto">
+          <p class="text-no-wrap font-weight-bold">{{ t('codex.item.bySeason.prepend') }}</p>
+        </v-col>
+        <v-col>
+          <v-text-field hide-details variant="solo" elevation="0" density="compact" readonly tile
+                        class="h-100 bg-transparent" :value="t(`snb.seasons.${data?.bySeason?.id || 'release'}`) || 'none'"></v-text-field>
+        </v-col>
+        <v-col cols="auto">
+          <p class="text-no-wrap">{{ t('codex.item.bySeason.append') }}</p>
         </v-col>
       </v-row>
     </v-card>
@@ -40,7 +43,6 @@ defineOptions({ name: 'BySeasonCardWidget' })
 }
 
 .by-season-footer-context {
-  margin-top: 150px;
 }
 
 .by-season-content {

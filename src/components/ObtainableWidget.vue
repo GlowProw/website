@@ -136,9 +136,15 @@ const filterByObtainable = (d: Item | Material | Cosmetic | Npc | null | undefin
 };
 
 const tip = (o: any) => {
-  if (typeof o.tip == 'string') return o.tip
-  if (typeof o.tip == 'function') return o.tip(o)
-  return (tm(o.tip) as any)
+  return asString([
+    `snb.items.${o.id}.name`,
+    `snb.items.${sanitizeString(o.id).cleaned}.name`,
+    `snb.mapLocations.${o.id}.name`,
+    `snb.locations.${o.id}`,
+  ], {
+    variable: i18nAdditionalAttr,
+    backRawKey: true
+  })
 }
 
 /**

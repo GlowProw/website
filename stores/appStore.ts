@@ -30,6 +30,12 @@ export const useAppStore = defineStore('app', () => {
     // 侧边栏是否折叠
     const sidebarCollapsed = ref(false)
 
+    // PWA 状态
+    const isPwa = ref(false)
+    const pwaInstallPrompt = ref<any>(null)
+    const pwaNeedRefresh = ref(false)
+    const updateServiceWorker = ref<((reloadPage?: boolean) => Promise<void>) | undefined>(undefined)
+
     // 是否是深色主题
     const isDarkTheme = computed(() => theme.value === 'dark')
 
@@ -237,6 +243,10 @@ export const useAppStore = defineStore('app', () => {
         theme,
         language,
         sidebarCollapsed,
+        isPwa,
+        pwaInstallPrompt,
+        pwaNeedRefresh,
+        updateServiceWorker,
 
         // Getters
         isDarkTheme,

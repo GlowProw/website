@@ -1,5 +1,5 @@
 <script lang="ts">
-export default { name: 'ItemMaterials' }
+export default {name: 'ItemMaterials'}
 </script>
 
 <script setup lang="ts">
@@ -17,7 +17,7 @@ import HtmlLink from "@/components/HtmlLink.vue";
 import MaterialNameRarity from "@/components/snbWidget/materialNameRarity.vue";
 
 const props = withDefaults(
-        defineProps<{ data: Item | Ship, isTitle?: boolean,isRawMaterials?: boolean }>(),
+        defineProps<{ data: Item | Ship, isTitle?: boolean, isRawMaterials?: boolean }>(),
         {
           isTitle: true,
           isRawMaterials: true
@@ -55,21 +55,17 @@ const onStatisticsRawMaterial = () => {
   if (!props.isRawMaterials) return
 
   if (itemDetailData.value && itemDetailData.value.required)
-    itemRawMaterials.value = Array.from((itemDetailData.value as any).required).reduce(
-        (acc: any, [key, value]: any) => {
-          // 检查原材料是否有配方
-          if (materials[key] && materials[key].required) {
-            materials[key].required.forEach(([rawKey, rawValue]: any) => {
-              acc[rawKey] = (acc[rawKey] || 0) + rawValue * value;
-            });
-          } else {
-            // 如果没有配方，直接添加该材料
-            acc[key] = (acc[key] || 0) + value;
+    itemRawMaterials.value = Array.from(itemDetailData.value.required).reduce(
+        (acc, [material, quantity]) => {
+          if (materials[material.id]?.required) {
+            Array.from(materials[material.id].required).forEach(([raw, rawQuantity]) => {
+              acc[raw.id] = (acc[raw.id] || 0) + (rawQuantity as number) * quantity;
+            })
           }
           return acc;
         },
-        {}
-    )
+        {} as Record<string, number>
+    );
 }
 </script>
 
@@ -127,7 +123,6 @@ const onStatisticsRawMaterial = () => {
     </v-col>
     <!-- 物品建造所需物品 E -->
 
-
     <!-- 所需物品原材料 S -->
     <v-col cols="12" sm="12" :lg="props.isRawMaterials ? 6 : 12" :xl="props.isRawMaterials ? 6 : 12" v-if="props.isRawMaterials">
       <v-row no-gutters class="mt-4 mb-2" v-if="isTitle">
@@ -167,7 +162,7 @@ const onStatisticsRawMaterial = () => {
                   <MaterialIconWidget :id="key" :padding="0" :margin="0"></MaterialIconWidget>
                 </ItemSlotBase>
                 <ItemSlotBase size="25px" :padding="0"
-                              v-if="materials[key].faction">
+                              v-if="materials[key] && materials[key].faction">
                   <FactionIconWidget :name="materials[key].faction.id"></FactionIconWidget>
                 </ItemSlotBase>
               </div>
@@ -175,8 +170,8 @@ const onStatisticsRawMaterial = () => {
           </v-text-field>
 
           <!-- 所需物品原材料 二级 S -->
-          <ul class="ml-10 raw-list" v-if="!isShowShipRawList">
-            <li v-for="([raw,rawValue],rawIndex) in materials[key].required" :key="rawIndex + '_' + rawValue" class="ml-10">
+          <ul class="ml-10 raw-list" v-if="!isShowShipRawList && materials[key] && materials[key].required">
+            <li v-for="([raw,rawValue],rawIndex) in materials[key].required" :key="rawIndex" class="ml-10">
               <v-text-field
                   :value="value"
                   readonly
@@ -201,7 +196,7 @@ const onStatisticsRawMaterial = () => {
                       <MaterialIconWidget :id="raw.id" item-type="items" :padding="0" :margin="0"></MaterialIconWidget>
                     </ItemSlotBase>
                     <ItemSlotBase size="25px" :padding="0"
-                                  v-if="materials[raw.id].faction">
+                                  v-if="materials[key] && materials[raw.id].faction">
                       <FactionIconWidget :name="materials[raw.id].faction.id"
                                          size="25px"></FactionIconWidget>
                     </ItemSlotBase>
