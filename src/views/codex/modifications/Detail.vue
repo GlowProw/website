@@ -135,7 +135,7 @@ const onCodexHistory = () => {
                     </v-chip>
                   </div>
                   <div class="mt-3">
-                    <ModDescription :id="modDetailData.id" :variants="modDetailData.variants" :grade="modDetailData.grade" :type="i.itemType[0]"></ModDescription>
+                    <ModDescription class="opacity-50" :id="modDetailData.id" :variants="modDetailData.variants" :grade="modDetailData.grade" :type="i.itemType[0]"></ModDescription>
                   </div>
                 </div>
               </v-col>

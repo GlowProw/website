@@ -56,7 +56,7 @@ const onReady = () => {
             </ItemSlotBase>
             <div class="w-100 text-caption">
               <ModName :id="mod.value.id" :grade="mod.value.grade"></ModName>
-              <ModDescription :id="mod.value.id" :variants="mod.value.variants" :grade="mod.value.grade" :type="itemData.type"></ModDescription>
+              <ModDescription class="opacity-50" :id="mod.value.id" :variants="mod.value.variants" :grade="mod.value.grade" :type="itemData.type"></ModDescription>
             </div>
           </v-card>
         </template>

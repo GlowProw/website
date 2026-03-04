@@ -35,7 +35,10 @@ const getTitle = (key: string) => {
       ],
       lv = sanitizeString(key).removedNumbers[0];
 
-  return `${asArray(keys)[0]} ${number.intToRoman( Number.parseInt(lv) ).toString()}` || '';
+  if (!asArray(keys)[0])
+    return ''
+
+  return `${asArray(keys)[0]}${number.intToRoman( Number.parseInt(lv) )}` || '';
 }
 
 /**

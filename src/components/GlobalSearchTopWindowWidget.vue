@@ -42,9 +42,10 @@ const getConfig = () => {
   </div>
 
   <v-dialog z-index="800"
-            absolute
-            class="global-search"
+            class="global-search position-fixed"
             content-class="pt-8 overflow-y-auto"
+            noClickAnimation
+            transition
             v-model="model">
     <template v-slot:default>
       <v-container>

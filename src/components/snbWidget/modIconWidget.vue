@@ -131,7 +131,7 @@ const onReady = async () => {
       </div>
       <div class="demo-reel-content background-flavor overflow-auto">
         <template v-if="isShowDescription">
-          <div class="mb-5 px-6 description">
+          <div class="mb-5 px-6">
             <slot name="description"></slot>
           </div>
         </template>
@@ -157,9 +157,5 @@ const onReady = async () => {
   height: 100%;
   display: flex;
   align-items: center;
-}
-
-.description {
-  font-size: 18px;
 }
 </style>
