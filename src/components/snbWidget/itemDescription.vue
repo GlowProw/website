@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'ItemDescription' }
+</script>
+
 <script setup lang="ts">
 
 import {useI18nUtils} from "@/assets/sripts/i18n_util";

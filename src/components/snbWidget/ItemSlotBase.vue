@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'ItemSlotBase' }
+</script>
+
 <script setup lang="ts">
 const props = withDefaults(defineProps<{ size?: number | string, padding?: number | string }>(), {
   padding: 1,

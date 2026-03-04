@@ -33,9 +33,9 @@ const
     i18nReadName = useI18nReadName(),
 
     // 数据
-    sets: Sets = Sets
+    sets: any = Sets
 
-let setDetailData: Ref<Commoditie | null> = ref(null),
+let setDetailData: Ref<any> = ref(null),
 
     bluePrint = computed(() => {
       let bluePrints = setDetailData.value?.blueprint;
@@ -53,10 +53,10 @@ let setDetailData: Ref<Commoditie | null> = ref(null),
 
     // meta
     head = ref({
-      title: t(route.meta.title),
+      title: t(route.meta.title as string),
       titleTemplate: `%s | ${t('name')}`,
       meta: [
-        {name: 'keywords', content: t(route.meta.keywords)},
+        {name: 'keywords', content: t(route.meta.keywords as string)},
         {name: 'og:title', content: `%s | ${t('name')}`},
       ]
     })
@@ -79,23 +79,23 @@ const onReady = () => {
     return;
   }
 
-  if (!sets[id]) {
+  if (!sets[id as string]) {
     setInterval(() => router.push({name: 'NotFound'}), 1000)
     return;
   }
 
-  setDetailData.value = sets[id];
+  setDetailData.value = sets[id as string];
 
-  head.value.titleTemplate = `${i18nReadName.item(id).name()} - ${head.value.titleTemplate}`
+  head.value.titleTemplate = `${i18nReadName.item(id as string).name()} - ${head.value.titleTemplate}`
   head.value.meta = [
     {
-      name: 'keywords', content: t(route.meta.keywords, {
+      name: 'keywords', content: t(route.meta.keywords as string, {
         keywords: Object.keys(messages.value).map(lang => {
-          return i18nReadName.item(id).keys.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
-        }).concat([id])
+          return i18nReadName.item(id as string).keys.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
+        }).concat([id as string])
       })
     },
-    {name: 'og:title', content: `${t(route.meta.title)} | ${t('name')}`},
+    {name: 'og:title', content: `${t(route.meta.title as string)} | ${t('name')}`},
   ]
 
   onCodexHistory()
@@ -110,7 +110,7 @@ const onCodexHistory = () => {
 
   storage.session.set(name, {
     ...d?.data?.value || {},
-    [id]: {
+    [id as string]: {
       id,
       category: 'set',
       time: new Date().getTime()
@@ -229,12 +229,16 @@ const onCodexHistory = () => {
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
             <BySeasonWidget :data="setDetailData"></BySeasonWidget>
 
-            <template v-if="bluePrint">
-              <p class="text-no-wrap font-weight-bold mb-2 mt-2">{{ t('codex.item.bluePrint') }}</p>
-              <v-chip class="d-inline-flex mb-1">
+            <div class="mt-5 d-flex ga-2" v-if="bluePrint">
+              <v-chip class="badge-flavor text-center tag-badge text-black" v-if="typeof bluePrint == 'string'">
                 {{ t(bluePrint) }}
               </v-chip>
-            </template>
+              <template v-else>
+                  <v-chip class="badge-flavor text-center tag-badge text-black" v-for="(i, index) in bluePrint" :key="index">
+                    {{ i }}
+                  </v-chip>
+                </template>
+            </div>
             <template v-if="setDetailData.worldEvent">
               <WorldEventWidget :data="setDetailData"></WorldEventWidget>
             </template>

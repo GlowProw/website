@@ -9,11 +9,11 @@ import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 
 const {mobile} = useDisplay()
 
-let detailedReport = ref({
+let detailedReport = ref<any>({
       local: {},
       session: {}
     }),
-    estimateCapacity = ref({})
+    estimateCapacity = ref<any>({})
 
 onMounted(() => {
   loadLocalReport()

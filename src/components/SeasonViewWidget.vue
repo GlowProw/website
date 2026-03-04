@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'SeasonViewWidget' }
+</script>
+
 <script setup lang="ts">
 import {useAssetsStore} from "~/stores/assetsStore";
 import {computed, nextTick, onMounted, ref, watch} from "vue";
@@ -16,7 +20,7 @@ const {serializationMap} = useAssetsStore(),
 let images = ref({}),
     currentSeasonBannerAddress = ref('release'),
     bySeasonId = computed(() => {
-      return props.data?.id || props.data?.id || 'release'
+      return (props.data as any)?.id || (props.data as any)?.id || 'release'
     }),
     currentSeasonFormat = computed(() => {
       return extractFileFormat(currentSeasonBannerAddress.value)
@@ -47,6 +51,7 @@ const updateSeason = () => {
   })
 }
 
+const getId = (data: any) => data?.id
 </script>
 
 <template>
@@ -65,7 +70,7 @@ const updateSeason = () => {
             :src="currentSeasonBannerAddress"></v-img>
       </template>
     </template>
-    <v-img v-else-if="!currentSeasonBannerAddress || !data || !data?.id"
+    <v-img v-else-if="!currentSeasonBannerAddress || !data || !getId(data)"
            cover
            class="w-100 h-100 d-block by-season-content"
            min-width="400"

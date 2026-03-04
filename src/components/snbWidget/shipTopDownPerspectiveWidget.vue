@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'ShipTopDownPerspectiveWidget' }
+</script>
+
 <script setup lang="ts">
 
 import ShipTopDownPerspectiveSlotWidget from "./shipTopDownPerspectiveSlotWidget.vue";

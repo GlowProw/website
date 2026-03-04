@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'ItemMaterials' }
+</script>
+
 <script setup lang="ts">
 
 import MaterialName from "@/components/snbWidget/materialName.vue";
@@ -23,11 +27,11 @@ const props = withDefaults(
     route = useRoute(),
     router = useRouter(),
     slots = useSlots(),
-    materials: Materials = Materials
+    materials: any = Materials
 
-let itemDetailData: Ref<Item | null> = ref(null),
+let itemDetailData: Ref<any> = ref(null),
     // 后期处理所需物品 对应计算 原材料
-    itemRawMaterials: Ref<UnwrapRef<any[]>, UnwrapRef<any[]> | any[]> = ref([]),
+    itemRawMaterials = ref<any>({}),
     isShowShipRawList = ref(false)
 
 watch(() => props.data, (value) => {
@@ -51,17 +55,21 @@ const onStatisticsRawMaterial = () => {
   if (!props.isRawMaterials) return
 
   if (itemDetailData.value && itemDetailData.value.required)
-    itemRawMaterials.value = Array.from(itemDetailData.value.required).reduce(
-        (acc, [material, quantity]) => {
-          if (materials[material.id]?.required) {
-            Array.from(materials[material.id].required).forEach(([raw, rawQuantity]) => {
-              acc[raw.id] = (acc[raw.id] || 0) + (rawQuantity as number) * quantity;
-            })
+    itemRawMaterials.value = Array.from((itemDetailData.value as any).required).reduce(
+        (acc: any, [key, value]: any) => {
+          // 检查原材料是否有配方
+          if (materials[key] && materials[key].required) {
+            materials[key].required.forEach(([rawKey, rawValue]: any) => {
+              acc[rawKey] = (acc[rawKey] || 0) + rawValue * value;
+            });
+          } else {
+            // 如果没有配方，直接添加该材料
+            acc[key] = (acc[key] || 0) + value;
           }
           return acc;
         },
-        {} as Record<string, number>
-    );
+        {}
+    )
 }
 </script>
 
@@ -168,7 +176,7 @@ const onStatisticsRawMaterial = () => {
 
           <!-- 所需物品原材料 二级 S -->
           <ul class="ml-10 raw-list" v-if="!isShowShipRawList">
-            <li v-for="([raw,rawValue],rawIndex) in materials[key].required" :key="rawIndex += rawValue" class="ml-10">
+            <li v-for="([raw,rawValue],rawIndex) in materials[key].required" :key="rawIndex + '_' + rawValue" class="ml-10">
               <v-text-field
                   :value="value"
                   readonly

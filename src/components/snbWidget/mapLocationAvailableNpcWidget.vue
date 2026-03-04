@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'MapLocationAvailableNpcWidget' }
+</script>
+
 <script setup lang="ts">
 import {Npc, Npcs} from "glow-prow-data";
 import {computed} from "vue";
@@ -11,9 +15,9 @@ const props = defineProps<{ id: string, category: string }>(),
     npcs = computed(() =>
         Object.values(Npcs)
             .filter((i: Npc) => {
-              let anyoneOutpost = i.location.includes('anyoneOutpost') && props.category == 'outpost'
-              let anyoneDen = i.location.includes('anyoneDen') && props.category == 'den'
-              return i.location.indexOf(props.id) >= 0 || anyoneOutpost || anyoneDen
+              let anyoneOutpost = (i.location as any).includes('anyoneOutpost') && props.category == 'outpost'
+              let anyoneDen = (i.location as any).includes('anyoneDen') && props.category == 'den'
+              return (i.location as any).indexOf(props.id) >= 0 || anyoneOutpost || anyoneDen
             }) || []
     )
 
@@ -23,7 +27,7 @@ defineExpose({
 </script>
 
 <template>
-  <HorizontalScrollList btn-size="30" :is-indicator="false" v-if="npcs && npcs.length > 0">
+  <HorizontalScrollList :btn-size="30" :is-indicator="false" v-if="npcs && npcs.length > 0">
     <div class="d-inline-flex ga-4">
       <template v-for="(i, index) in npcs" :key="index">
         <v-card class="bg-transparent" width="99" variant="text" :class="{'ml-5': index == 0, 'mr-5': index == npcs.length - 1}">

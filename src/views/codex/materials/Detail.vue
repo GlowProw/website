@@ -23,12 +23,12 @@ const {t} = useI18n(),
     materials = Materials,
     rarityColorConfig = rarity.color
 
-let materialDetailData: Ref<Modification> = ref({})
+let materialDetailData: Ref<any> = ref({})
 
 watch(() => route, (value) => {
   if (value) {
     const {id} = route.params
-    materialDetailData.value = materials[id]
+    materialDetailData.value = materials[id as string]
   }
 }, {deep: true})
 
@@ -36,7 +36,7 @@ onMounted(() => {
   const {id} = route.params
 
   if (id)
-    materialDetailData.value = materials[id]
+    materialDetailData.value = materials[id as string]
 
   onCodexHistory()
 })
@@ -50,7 +50,7 @@ const onCodexHistory = () => {
 
   storage.session.set(name, {
     ...d?.data?.value || {},
-    [id]: {
+    [id as string]: {
       id,
       category: 'material',
       time: new Date().getTime()

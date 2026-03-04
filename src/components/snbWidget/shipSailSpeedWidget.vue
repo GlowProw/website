@@ -153,7 +153,7 @@ const onWaterBarrelClick = () => {
             <span>
               {{ t('codex.ship.sailSpeed.boost.title', { percent: totalSpeedBoost.toFixed(1) }) }}
               <span v-if="speedBoost > 0">
-                {{ boostDescription }}
+                <!-- {{ boostDescription }} -->
               </span>
               <span v-if="strongBreeze">
                 ({{ t('codex.ship.sailSpeed.boost.strongBreezeEffect') }})
@@ -181,7 +181,7 @@ const onWaterBarrelClick = () => {
             <div
                 class="mb-1 mt-1"
                 v-for="(i,index) in ticks"
-                :key="i += index">
+                :key="index">
               <RhombusWidget
                   :activateColor="ticks.length - 1 == index ? '#4CAF50' : 'rgba(242,242,242,0.76)'"
                   :solid="index <= simulationValue"

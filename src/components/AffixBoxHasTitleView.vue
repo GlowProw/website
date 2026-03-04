@@ -1,5 +1,17 @@
+<script lang="ts">
+export default { name: 'AffixBoxHasTitleView' }
+</script>
+
+<script setup lang="ts">
+import AffixView from "@/components/AffixView.vue";
+
+defineOptions({
+  name: 'AffixBoxHasTitleView',
+})
+</script>
+
 <template>
-  <AffixView direction="right" class="position-relative" offsetTop="80">
+  <AffixView direction="right" class="position-relative" :offsetTop="80">
     <div>
       <slot></slot>
     </div>
@@ -14,10 +26,6 @@
     </template>
   </AffixView>
 </template>
-
-<script setup>
-import AffixView from "@/components/AffixView.vue";
-</script>
 
 <style scoped>
 .affix-title {

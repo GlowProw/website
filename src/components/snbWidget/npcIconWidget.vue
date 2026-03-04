@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'NpcIconWidget' }
+</script>
+
 <script lang="ts" setup>
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
@@ -41,7 +45,7 @@ const
       padding: 0,
       margin: 1
     }),
-    npcs: Npcs = Npcs,
+    npcs: any = Npcs,
     // 同类图标字典
     npcDictionaries = {
       "vendor": ['vendor-rempahWarrior', 'vendor-overseasSmuggler'],
@@ -143,25 +147,21 @@ const {targetElement, isVisible} = useIntersectionObserver({
         </h1>
         <p class="mb-1 mt-2">{{ i.id }}</p>
 
-        <div class="d-flex ga-2 align-center mt-3">
-          <v-chip class="badge-flavor text-center tag-badge text-black"
-                  v-if="i.type"
-                  :to="`/codex/items?type=${i.type}`">
-            {{ t(`codex.npc.types.${i.type}`) || '' }}
-          </v-chip>
-          <v-chip class="badge-flavor text-center tag-badge text-black"
-                  v-if="Array.isArray(i.category)"
-                  v-for="(i, index) in i.category"
-                  :key="index">
-            {{ t(`codex.npc.categorys.${i}`) }}
-          </v-chip>
+        <div class="d-flex ga-2 mt-3">
+          <template v-for="i in npcs[i.id].category">
+            <v-chip inline
+                    class="badge-flavor text-center text-black"
+                    v-if="!npcDictionaries['job'].includes(i)">
+              {{ t(`codex.types.${i}`) }}
+            </v-chip>
+          </template>
         </div>
 
         <div class="right-show-image pointer-events-none position-absolute w-33">
           <v-img :src="npcsCardData.icon" class="npc-mirror-image"></v-img>
         </div>
 
-        <template v-if="i.rarity">
+        <template v-if="(i as any).rarity">
           <LightRays
               id="iconBackRight"
               ref="iconBackRight"
@@ -171,7 +171,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
               :mouse-influence="0"
               :noise-amount="0"
               :ray-length="10"
-              :rays-color="rarityColorConfig[i.rarity]"
+              :rays-color="rarityColorConfig[(i as any).rarity]"
               :rays-speed="2"
               class="w-100 h-100 pointer-events-none position-absolute top-0 right-0"
               quality="low"

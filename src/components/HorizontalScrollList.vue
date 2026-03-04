@@ -442,6 +442,10 @@ const scrollToItem = (index, behavior = 'smooth') => {
   })
 }
 
+defineOptions({
+  name: 'HorizontalScrollList',
+})
+
 defineExpose({
   scrollTo,
   scrollToItem,

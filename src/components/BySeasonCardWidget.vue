@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'BySeasonCardWidget' }
+</script>
+
 <script setup lang="ts">
 import {ref} from "vue";
 import {Cosmetic, Item, MapLocation, Material, Ship, TreasureMap, Ultimate} from "glow-prow-data";
@@ -11,24 +15,24 @@ const {t} = useI18n(),
 
 let images = ref({})
 
+const getSeasonData = (data: any) => data?.bySeason || data?.firstAppearingSeason
+const getSeasonId = (data: any) => data?.bySeason?.id || 'release'
 </script>
 
 <template>
   <v-card class="by-season-card mb-4 bg-transparent" :class="{'by-season-n-top': !mobile}">
-    <template v-slot:image>
-      <SeasonViewWidget :data="data?.bySeason || data?.firstAppearingSeason"></SeasonViewWidget>
-    </template>
-    <v-card class="by-season-footer-context" tile :to="`/codex/items?season=${data?.bySeason?.id || 'release'}`">
-      <v-row class="px-5" align="center">
-        <v-col cols="auto">
-          <p class="text-no-wrap font-weight-bold">{{ t('codex.item.bySeason.prepend') }}</p>
-        </v-col>
-        <v-col>
-          <v-text-field hide-details variant="solo" elevation="0" density="compact" readonly tile
-                        class="h-100 bg-transparent" :value="t(`snb.seasons.${data?.bySeason?.id || 'release'}`) || 'none'"></v-text-field>
-        </v-col>
-        <v-col cols="auto">
-          <p class="text-no-wrap">{{ t('codex.item.bySeason.append') }}</p>
+    <v-card-text class="pa-0 h-100">
+      <SeasonViewWidget :data="getSeasonData(data)"></SeasonViewWidget>
+    </v-card-text>
+
+    <v-card class="by-season-footer-context" tile :to="`/codex/items?season=${getSeasonId(data)}`">
+      <v-row no-gutters>
+        <v-col cols="12">
+          <v-chip class="w-100 pa-0 pl-2 pr-2 justify-center" label size="small" variant="text">
+            <div class="singe-line font-weight-bold">{{ t('codex.season') }}</div>
+          </v-chip>
+          <v-text-field readonly hide-details variant="plain" density="compact"
+                        class="h-100 bg-transparent" :value="t(`snb.seasons.${getSeasonId(data)}`) || 'none'"></v-text-field>
         </v-col>
       </v-row>
     </v-card>

@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'Textarea' }
+</script>
+
 <script setup lang="ts">
 import {computed, onBeforeUnmount, onMounted, Ref, ref, watch} from 'vue'
 import {Editor, EditorContent, EditorOptions, Extension} from '@tiptap/vue-3'
@@ -77,7 +81,7 @@ const emit = defineEmits([
     ]),
     {t} = useI18n(),
 
-    tiptap: Ref<Editor> = ref<Editor | null>(null),
+    tiptap: Ref<any> = ref<any>(null),
     isOpenEmoji = ref(false),
     isOpenMod = ref(false),
     isOpenUltimate = ref(false),
@@ -89,14 +93,14 @@ const emit = defineEmits([
 
     // editor widgets
     editorContent = ref(props.modelValue),
-    linkWidget = ref<InstanceType<typeof LinkWidget> | null>(null),
-    imgWidget = ref<InstanceType<typeof ImgWidget> | null>(null),
-    videoWidget = ref<InstanceType<typeof VideoWidget> | null>(null),
-    emoteWidget = ref<InstanceType<typeof EmoteView> | null>(null),
-    shipWidget = ref<InstanceType<typeof ShipView> | null>(null),
-    itemWidget = ref<InstanceType<typeof ItemView> | null>(null),
-    modWidget = ref<InstanceType<typeof ModView> | null>(null),
-    ultimateWidget = ref<InstanceType<typeof UltimateView> | null>(null)
+    linkWidget = ref<any>(null),
+    imgWidget = ref<any>(null),
+    videoWidget = ref<any>(null),
+    emoteWidget = ref<any>(null),
+    shipWidget = ref<any>(null),
+    itemWidget = ref<any>(null),
+    modWidget = ref<any>(null),
+    ultimateWidget = ref<any>(null)
 
 const
     tiptapTextEditor = ref<HTMLElement | null>(null),
@@ -150,17 +154,17 @@ const MaxLength = Extension.create({
   },
   addCommands() {
     return {
-      enforceMaxLength: () => ({commands}) => {
+      enforceMaxLength: () => ({commands}: any) => {
         const html = this.editor.getHTML()
         if (html.length > props.maxlength) {
           return commands.setContent(html.slice(0, props.maxlength - 3))
         }
         return true;
       },
-    };
+    } as any;
   },
   onUpdate() {
-    this.editor.commands.enforceMaxLength()
+    (this.editor.commands as any).enforceMaxLength()
   },
 })
 
@@ -288,7 +292,7 @@ const onInitEdit = () => {
         horizontalRule: false,
         codeBlock: false,
         heading: false,
-        paragraph: true
+        paragraph: {}
       }),
       Placeholder.configure({
         placeholder: props.placeholder
@@ -305,7 +309,7 @@ const onInitEdit = () => {
       ModWidget
     ],
     onCreate({editor}) {
-      editor.options.keyboardShortcuts = {}
+      (editor.options as any).keyboardShortcuts = {}
       emit('ready', editor)
     },
     onBlur({editor}) {

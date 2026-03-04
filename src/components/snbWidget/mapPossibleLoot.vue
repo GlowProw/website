@@ -10,12 +10,15 @@ import CommoditieIconWidget from "@/components/snbWidget/commoditieIconWidget.vu
 import MaterialNameRarity from "@/components/snbWidget/materialNameRarity.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 
-const props = defineProps<{possibleLoot: [] | any}>()
+const props = defineProps<{possibleLoot: any}>()
+
+import {computed} from "vue";
+const lootEntries = computed(() => Object.entries(props.possibleLoot) as any[])
 </script>
 
 <template>
   <v-row
-      v-for="(i,index) in Object.entries(possibleLoot)" :key="index" align="center" no-gutters class="mb-1">
+      v-for="(i,index) in lootEntries" :key="index" align="center" no-gutters class="mb-1">
     <v-col cols="auto" class="mr-2">
       <ItemSlotBase :size="`30px`" :padding="1">
         <template v-if="i[1].data?._typeStringName == 'Material'">

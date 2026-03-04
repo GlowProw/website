@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'ShipWeaponInfoSlotWidget' }
+</script>
+
 <script setup lang="ts">
 
 import ShipTopDownPerspectiveWidget from "@/components/snbWidget/shipTopDownPerspectiveWidget.vue";

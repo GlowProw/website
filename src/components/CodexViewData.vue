@@ -1,3 +1,9 @@
+<script lang="ts">
+export default {
+  name: "CodexViewData"
+}
+</script>
+
 <script setup lang="ts">
 import {Cosmetics, Items, MapLocations, Materials, Modifications, Npcs, Sets, Ships, TreasureMaps} from "glow-prow-data";
 import {Commodities} from "glow-prow-data/src/entity/Commodities";
@@ -43,15 +49,15 @@ type SortOrder = 'asc' | 'desc'
 
 const
     props = withDefaults(defineProps<{ loadDataType: LoadDataType[] }>(), {
-      loadDataType: ['item']
+      loadDataType: () => ['item'] as LoadDataType[]
     }),
 
     // 数据 手稿
     ships = Ships,
     items = Items,
-    commodities = Commodities,
+    commodities: any = Commodities,
     materials = Materials,
-    ultimates = Ultimates,
+    ultimates: any = Ultimates,
     cosmetics = Cosmetics,
     modifications = Modifications,
     sets = Sets,
@@ -285,7 +291,7 @@ const onProcessedData = computed(() => {
           if (i.worldEvent) {
             if (Array.isArray(i.worldEvent)) {
               // 如果是数组，检查是否有任何匹配
-              worldEventMatch = i.worldEvent.some((event: string) =>
+              worldEventMatch = i.worldEvent.some((event: any) =>
                   filterWorldEvents.includes(event.id)
               );
             } else if (typeof i.worldEvent === 'string') {
@@ -385,8 +391,8 @@ const onProcessedData = computed(() => {
     isSet = computed(() => filterData.value.sets.length > 0),
     isLocation = computed(() => filterData.value.locations.length > 0),
 
-    isFilterLocation = computed(() => props.loadDataType == 'treasureMap'),
-    isFilterSet = computed(() => props.loadDataType == 'cosmetic'),
+    isFilterLocation = computed(() => props.loadDataType.includes('treasureMap')),
+    isFilterSet = computed(() => props.loadDataType.includes('cosmetic')),
 
     // 是否应该显示无限滚动
     isShouldShowInfiniteScroll = computed(() =>
@@ -916,7 +922,7 @@ const onSort = (field: SortField, order: SortOrder) => {
                     </span>
                   </template>
 
-                  <template v-slot:chip="{ item, index }">
+                  <template v-slot:chip="{ item }">
                     <v-chip
                         :style="`color: ${rarityColorConfig[item.value]}; border-color: ${rarityColorConfig[item.value]}`"
                         variant="tonal"
@@ -1125,7 +1131,7 @@ const onSort = (field: SortField, order: SortOrder) => {
   <v-infinite-scroll class="mt-3" @load="onLoad">
     <template v-if="isShouldShowInfiniteScroll">
       <v-row class="list ga-4" no-gutters>
-        <v-card v-for="(i,index) in data" :key="index" :width="size" variant="text">
+        <v-card v-for="i in data" :key="i.id" :width="size" variant="text">
           <div class="position-relative">
             <ItemSlotBase :size="`${size}px`" class="position-relative">
               <ShipIconWidget :id="i.id" v-if="i._typeStringName == 'Ship'"></ShipIconWidget>
@@ -1172,7 +1178,7 @@ const onSort = (field: SortField, order: SortOrder) => {
     <template v-else>
       <!-- 搜索或筛选时的显示 S -->
       <v-row class="list ga-4" no-gutters>
-        <v-card v-for="(i,index) in onProcessedData" :key="index" :width="size" variant="text">
+        <v-card v-for="i in onProcessedData" :key="i.id" :width="size" variant="text">
           <div class="position-relative">
             <ItemSlotBase :size="`${size}px`" class="position-relative">
               <ShipIconWidget :id="i.id" v-if="i._typeStringName == 'Ship'"></ShipIconWidget>

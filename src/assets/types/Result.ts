@@ -7,6 +7,6 @@ export interface ResultBase {
     message?: string
 }
 
-export interface ResultData extends ResultBase {
-    data: any[] | {} | null | unknown
+export interface ResultData<T = any> extends ResultBase {
+    data: T
 }

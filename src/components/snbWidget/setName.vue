@@ -1,5 +1,8 @@
-<script setup lang="ts">
+<script lang="ts">
+export default { name: 'SetName' }
+</script>
 
+<script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import {useRoute} from "vue-router";
 

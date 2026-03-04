@@ -8,6 +8,8 @@ import Captcha from "@/components/captcha/index.vue";
 import {useRules} from "@/assets/sripts/rules_user"
 import {apis} from "@/assets/sripts";
 import {ApiError} from "@/assets/types/Api";
+import {SignupParams} from "@/assets/types/User.Signup";
+import {CaptchaParams} from "@/assets/types/Captcha";
 
 const router = useRouter(),
     noticeStore = useNoticeStore(),
@@ -22,12 +24,15 @@ let signupLoading: Ref<boolean> = ref(false),
     }),
 
     // 注册表单
-    signupFrom = ref({
+    signupFrom: Ref<SignupParams> = ref({
       username: '',
       alternativeName: '',
       password: '',
       email: '',
-      captcha: ''
+      captcha: {
+        encryptCaptcha: '',
+        response: ''
+      }
     })
 
 /**
@@ -67,7 +72,7 @@ const onRegister = async () => {
  * 处理验证码数据
  * @param data
  */
-const onCaptchaData = (data: any) => {
+const onCaptchaData = (data: CaptchaParams) => {
   signupFrom.value.captcha = data;
 }
 </script>

@@ -27,14 +27,14 @@ const {t} = useI18n(),
     route = useRoute(),
     {mobile} = useDisplay(),
     authStore = useAuthStore(),
-    cosmetics = Cosmetics
+    cosmetics: any = Cosmetics
 
-let cosmeticDetailData: Ref<Cosmetic> = ref({})
+let cosmeticDetailData: Ref<any> = ref({})
 
 watch(() => route, (value) => {
   if (value) {
     const {id} = route.params
-    cosmeticDetailData.value = cosmetics[id]
+    cosmeticDetailData.value = cosmetics[id as string]
   }
 }, {deep: true})
 
@@ -42,7 +42,7 @@ onMounted(() => {
   const {id} = route.params
 
   if (id)
-    cosmeticDetailData.value = cosmetics[id]
+    cosmeticDetailData.value = cosmetics[id as string]
 
   onCodexHistory()
 })
@@ -56,7 +56,7 @@ const onCodexHistory = () => {
 
   storage.session.set(name, {
     ...d?.data?.value || {},
-    [id]: {
+    [id as string]: {
       id,
       category: 'cosmetic',
       time: new Date().getTime()

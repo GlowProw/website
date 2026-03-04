@@ -1,7 +1,15 @@
+<script lang="ts">
+export default { name: 'AppMessageWidget' }
+</script>
+
 <script setup lang="ts">
 import {useNoticeStore} from "~/stores/noticeStore";
 
 const noticeStore = useNoticeStore()
+
+defineOptions({
+  name: 'AppMessageWidget',
+})
 </script>
 
 <template>

@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'AssemblyWidget' }
+</script>
+
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import {computed, reactive, Ref, ref, toRaw, useAttrs, useSlots, watch} from "vue";
@@ -8,8 +12,8 @@ import {AssemblyAttr} from "@/assets/types";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {number} from "@/assets/sripts/index"
 import {Ships, Ultimates} from "glow-prow-data";
-import {Item, Items} from "glow-prow-data/src/entity/Items.ts";
-import {Ship} from "glow-prow-data/src/entity/Ships.ts";
+import {Item, Items} from "glow-prow-data/src/entity/Items";
+import {Ship} from "glow-prow-data/src/entity/Ships";
 
 import shipSlotMapping from "../../public/config/shipsConfig.json";
 
@@ -28,6 +32,8 @@ import UltimateName from "@/components/snbWidget/ultimateName.vue";
 import WeaponModificationOnlyShowWidget from "@/components/snbWidget/weaponModificationOnlyShowWidget.vue";
 import AssemblySvgIcon from "@/components/AssemblySvgIcon.vue";
 
+const castToAny = (v: any) => v;
+
 const poops = withDefaults(defineProps<{
       readonly?: boolean,
       isFullName?: boolean,
@@ -44,7 +50,7 @@ const poops = withDefaults(defineProps<{
     attrs = useAttrs(),
     route = useRoute(),
     ships = Ships,
-    items: Items = Items,
+    items = Items,
     ultimates = Ultimates,
     assemblyDataProcessing = new AssemblyDataProcessing(),
     noticeStore = useNoticeStore(),
@@ -52,7 +58,45 @@ const poops = withDefaults(defineProps<{
     {asString, sanitizeString} = useI18nUtils(),
     {t} = useI18n()
 
-let workshopData = ref({
+interface WorkshopData {
+  shipModel: boolean;
+  frigateUpgradeModel: boolean;
+  displayModel: boolean;
+  weaponModel: boolean;
+  secondaryWeaponModel: boolean;
+  ultimateModel: boolean;
+  armorModel: boolean;
+  weaponSearchValue: string;
+  frigateUpgradeInsertIndex: number;
+  weaponInsertIndex: number;
+  secondaryWeaponInsertIndex: number;
+  secondaryWeaponSelect: number;
+  armorSelect: number;
+  ultimateSelect: number;
+  displayInsertIndex: number;
+  shipWorkshopSelect: any;
+  shipSelect: any;
+  shipFrigateUpgradeSelect: any;
+  shipDisplaySelect: any;
+  shipFrigateUpgradeList: any[];
+  data: {
+    shipSlot: Ship | null;
+    ultimateSlot: Item | null;
+    shipUpgradeSlot: Item | null;
+    weaponDirections: (string | null)[];
+    weaponModifications: any[];
+    weaponSlots: Item[];
+    armorSlot: Item | null;
+    armorModification: any[];
+    secondaryWeaponSlots: Item[];
+    secondaryWeaponModifications: any[];
+    displaySlots: Item[];
+    __version: string;
+    weaponModification: any[]; // Add missing property
+  };
+}
+
+let workshopData = ref<WorkshopData>({
       shipModel: false,
       frigateUpgradeModel: false,
       displayModel: false,
@@ -86,17 +130,12 @@ let workshopData = ref({
         secondaryWeaponSlots: [],           // 副武器
         secondaryWeaponModifications: [],   // 副武器 安装模组
         displaySlots: [],                   // 家具陈设
+        weaponModification: [],
 
         // 平台版本
         // ** 它可能不存在，如果有则依靠此__version识别，没有则主要使用attr.assemblyUseVersion, 否则降级 **
         __version: AssemblyDataProcessing.nowVersion,
       }
-      // as {
-      //   shipSlot: Ship, ultimateSlot: Item | null, armorSlot: Item | null, armorModification: any[],
-      //   displaySlots: Item[], weaponSlots: ItemAssemblySave[] | Item[], shipUpgradeSlot: Item | null,
-      //   secondaryWeaponSlots: Item[],
-      //   weaponDirections: string[], weaponModification: any[]
-      // }
     }),
     // 最大主陈设
     maxMajorDisplayCount = 1,
@@ -131,16 +170,16 @@ watch(() => workshopData.value?.data, (value) => {
 })
 
 watch(() => workshopData.value?.data?.shipSlot, (value) => {
-  let result = {},
+  let result: Record<string, any> = {},
       workshop_data = workshopData.value.data
 
   // 选择船只，如果它已经有数据则不处理
-  if (value && workshop_data.shipSlot.id != null && workshop_data.displaySlots.length <= 0) {
-    onSelectShip(workshopData.value.data.shipSlot.id)
+  if (value && workshop_data.shipSlot?.id != null && workshop_data.displaySlots.length <= 0) {
+    onSelectShip(workshopData.value.data.shipSlot!.id)
   }
 
   if (value && value.slots)
-    Object.entries(value.slots).forEach(i => {
+    Object.entries(value.slots).forEach((i: any) => {
       try {
         if (i && i[1] != undefined && i[1][1])
           return result[i[0]] = i[1][1];
@@ -170,17 +209,23 @@ let // 获取陈设
     // 获取武器列表
     getShipWeaponList = computed(() => {
       let tag = ['culverin', 'demicannon', 'bombard', 'longGun', 'torpedo'],
-          conditionsTag = {
+          conditionsTag: Record<string, string[]> = {
             'frontWeapon': ['ballista', 'seaFire'],
             'leftSideWeapon': [],
             'rightSideWeapon': [],
             'aftWeapon': []
           },
-          queryTags = []
-      queryTags = queryTags.concat(
-          tag,
-          conditionsTag[workshopData.value.data.weaponDirections[workshopData.value.weaponInsertIndex]]
-      )
+          queryTags: string[] = []
+      
+      const direction = workshopData.value.data.weaponDirections[workshopData.value.weaponInsertIndex];
+      if (direction) {
+          queryTags = queryTags.concat(
+              tag,
+              conditionsTag[direction] || []
+          )
+      } else {
+          queryTags = queryTags.concat(tag)
+      }
       return queryTags;
     }),
     // 获取副武器
@@ -312,7 +357,7 @@ const onSelectUltimate = () => {
   if (!workshopData.value.ultimateSelect)
     return;
 
-  workshopData.value.data.ultimateSlot = workshopData.value.ultimateSelect
+  workshopData.value.data.ultimateSlot = workshopData.value.ultimateSelect as any
   workshopData.value.ultimateSelect = null;
 }
 
@@ -500,10 +545,11 @@ defineExpose({
                     class="mx-auto"
                     width="80"
                     v-bind="propsHoverClose">
-                  <v-badge bordered rounded :color="`var(--main-color)`" :offset-x="25" :offset-y="63" class="d-flex">
+                  <v-badge bordered rounded :color="`var(--main-color)`"
+                              class="d-flex align-center justify-center"
+                               :offset-x="25" :offset-y="63" class="d-flex">
                     <template v-slot:badge
-                              id="ship_frigate_upgrade_select"
-                              class="d-flex align-center justify-center">
+                              >
                       <div class="pt-2 pb-2">
                         <v-icon icon="mdi-chevron-triple-up mr-1"></v-icon>
                         <b>{{ workshopData.data.shipUpgradeSlot.tier || 0 }}</b>
@@ -528,7 +574,7 @@ defineExpose({
                 </v-card>
 
                 <div class="mt-2 text-center text-caption text-grey w-100 " :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
-                  <ItemName :data="workshopData.data.shipUpgradeSlot"></ItemName>
+                  <ItemName :data="castToAny(workshopData.data.shipUpgradeSlot)"></ItemName>
                 </div>
               </v-hover>
 
@@ -590,7 +636,7 @@ defineExpose({
                               <ItemIconWidget :id="display.id" :is-open-detail="false" :is-show-tooltip="readonly"></ItemIconWidget>
                             </ItemSlotBase>
                             <div class="text-center text-caption text-grey w-100" :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName && display && display.id">
-                              <ItemName :data="display"></ItemName>
+                              <ItemName :data="castToAny(display)"></ItemName>
                             </div>
 
                             <v-overlay
@@ -689,7 +735,7 @@ defineExpose({
                                   <ItemIconWidget :id="i.id" :is-show-tooltip="readonly" :is-open-detail="false"></ItemIconWidget>
                                 </ItemSlotBase>
                                 <div class="text-center text-caption text-grey w-100" :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
-                                  <ItemName :data="i"></ItemName>
+                                  <ItemName :data="castToAny(i)"></ItemName>
                                 </div>
 
                                 <v-overlay
@@ -775,11 +821,11 @@ defineExpose({
                         </v-row>
 
                         <!-- 武器模组插槽 仅展示 -->
-                        <div class="mb-2 mt-1" v-if="perfectDisplay">
-                          <WeaponModificationOnlyShowWidget
-                              :item-data="i"
-                              :mod-data="workshopData.data.weaponModifications[index]"></WeaponModificationOnlyShowWidget>
-                        </div>
+                            <div class="mb-2 mt-1" v-if="perfectDisplay">
+                              <WeaponModificationOnlyShowWidget
+                                  :item-data="castToAny(i)"
+                                  :mod-data="workshopData.data.weaponModifications[index]"></WeaponModificationOnlyShowWidget>
+                            </div>
                       </v-col>
                     </v-row>
                     <v-divider></v-divider>
@@ -815,7 +861,7 @@ defineExpose({
                                   <ItemIconWidget :id="i.id" :is-show-tooltip="readonly"></ItemIconWidget>
                                 </ItemSlotBase>
                                 <div class="text-center text-caption text-grey w-100" :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
-                                  <ItemName :data="i"></ItemName>
+                                  <ItemName :data="castToAny(i)"></ItemName>
                                 </div>
 
                                 <v-overlay
@@ -877,7 +923,7 @@ defineExpose({
                         <!-- 武器模组插槽 仅展示 -->
                         <div class="mb-2 mt-1" v-if="perfectDisplay">
                           <WeaponModificationOnlyShowWidget
-                              :item-data="i"
+                              :item-data="castToAny(i)"
                               :mod-data="workshopData.data.secondaryWeaponModifications[index]"></WeaponModificationOnlyShowWidget>
                         </div>
                       </v-col>
@@ -902,7 +948,7 @@ defineExpose({
                           <ItemIconWidget :id="workshopData.data.armorSlot.id" :is-open-detail="false" :is-show-tooltip="readonly"></ItemIconWidget>
                         </ItemSlotBase>
                         <div class="text-center text-caption text-grey w-100 " :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
-                          <ItemName :data="workshopData.data.armorSlot"></ItemName>
+                          <ItemName :data="castToAny(workshopData.data.armorSlot)"></ItemName>
                         </div>
                         <v-overlay
                             v-if="!readonly"
@@ -943,7 +989,7 @@ defineExpose({
                   <!-- 船甲模组插槽 仅展示 -->
                   <div class="mb-2 mt-1" style="max-width: 300px" v-if="perfectDisplay">
                     <WeaponModificationOnlyShowWidget
-                        :item-data="workshopData.data.armorSlot"
+                        :item-data="castToAny(workshopData.data.armorSlot)"
                         :mod-data="workshopData.data.armorModification[0]"></WeaponModificationOnlyShowWidget>
                   </div>
                 </template>
@@ -985,7 +1031,7 @@ defineExpose({
                             <UltimateIconWidget :id="workshopData.data.ultimateSlot.id" :isOpenDetail="false"></UltimateIconWidget>
                           </ItemSlotBase>
                           <div class="text-center text-caption text-grey w-100 " :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
-                            <UltimateName :id="workshopData.data.ultimateSlot.id"></UltimateName>
+                            <UltimateName :id="castToAny(workshopData.data.ultimateSlot).id"></UltimateName>
                           </div>
                           <v-overlay
                               v-if="!readonly"
@@ -999,7 +1045,7 @@ defineExpose({
                         </v-card>
                       </v-hover>
                     </template>
-                    <v-card v-slot:default>
+                    <v-card>
                       <v-row class="ga-0 pa-2 pb-5">
                         <v-col cols="3"
                                v-for="(ultimate,ultimateIndex) in ultimates"
@@ -1007,9 +1053,9 @@ defineExpose({
                           <v-card width="92" elevation="0">
                             <ItemSlotBase
                                 size="92px" class="pa-1"
-                                @click="workshopData.ultimateSelect = ultimate"
+                                @click="workshopData.ultimateSelect = castToAny(ultimate)"
                                 :class="[
-                                          workshopData.ultimateSelect ? workshopData.ultimateSelect!.id == ultimate!.id ? 'bg-amber' : '' : ''
+                                          workshopData.ultimateSelect ? castToAny(workshopData.ultimateSelect)?.id == ultimate?.id ? 'bg-amber' : '' : ''
                                       ]">
                               <UltimateIconWidget :id="ultimate.id" :isOpenDetail="false"></UltimateIconWidget>
                             </ItemSlotBase>
@@ -1022,7 +1068,7 @@ defineExpose({
                       <v-card-actions class="bg-amber">
                         <v-spacer></v-spacer>
                         <v-btn variant="tonal" class="ml-1" @click="workshopData.ultimateModel = false">{{ t('basic.button.cancel') }}</v-btn>
-                        <v-btn variant="tonal" @click="onSelectUltimate(workshopData.ultimateSelect.id)">{{ t('basic.button.submit') }}</v-btn>
+                        <v-btn variant="tonal" @click="onSelectUltimate()">{{ t('basic.button.submit') }}</v-btn>
                       </v-card-actions>
                     </v-card>
                   </v-tooltip>
@@ -1079,7 +1125,7 @@ defineExpose({
               max-height="90%"
               min-width="450"
               max-width="700">
-      <v-card v-slot:default class="overflow-hidden">
+      <v-card class="overflow-hidden">
         <v-card-title>
           <v-row>
             <b class="font-weight-bold text-h5 pa-5">{{ t('assembly.workshop.insertShipFrigateUpgradeTitle') }}</b>

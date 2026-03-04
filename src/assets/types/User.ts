@@ -28,6 +28,7 @@ export interface User {
  */
 export interface SpaceUserResult extends User {
     joinTime?: string
+    role?: string[]
 }
 
 /**
@@ -49,4 +50,5 @@ export interface UserLocalResult {
     userAvatar?: string
     username?: string
     alternativeName?: string
+    privilege?: UserPrivilege[]
 }

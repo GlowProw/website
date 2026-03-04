@@ -1,8 +1,12 @@
+<script lang="ts">
+export default { name: 'PerksWidget' }
+</script>
+
 <script setup lang="ts">
 
 import EmptyView from "../EmptyView.vue";
 import {useI18n} from "vue-i18n";
-import {useI18nUtils} from "@/assets/sripts/i18n_util.ts";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {onUnmounted, ref, watch} from "vue";
 import {useRoute} from "vue-router";
 import {number} from "@/assets/sripts/index"
@@ -60,7 +64,7 @@ const getDescription = (key) => {
       `snb.perks.${perksName.cleaned}.description.${perksName.removedNumbers[0]}`,
     ];
 
-    for (let tKey: any of tString) {
+    for (let tKey of tString) {
       if (te(tKey)) {
         keys = [
           `snb.perks.${key}.description.general`,

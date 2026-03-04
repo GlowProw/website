@@ -1,12 +1,13 @@
 import {defineStore} from "pinia";
 import {Ref, ref} from "vue";
 
-type NoticeType = 'success' | 'error' | 'info' | 'warning' | 'primary' | any
+type NoticeTypeValue = 'success' | 'error' | 'info' | 'warning' | 'primary';
 
 interface NoticeOptions {
     text: string
     timeout?: number
-    color?: NoticeType
+    color?: NoticeTypeValue
+    showing?: boolean
 }
 
 const NoticeType = {
@@ -15,18 +16,19 @@ const NoticeType = {
     INFO: 'info',
     WARNING: 'warning',
     PRIMARY: 'primary'
-};
+} as const;
 
 export const useNoticeStore = defineStore('notice', () => {
     const messages: Ref<NoticeOptions[]> = ref([])
-    const currentMessage: Ref<any> = ref(null)
+    const currentMessage: Ref<NoticeOptions | null> = ref(null)
 
     // 添加消息到队列
-    const push = (options: any) => {
-        const message: NoticeOptions | any = {
+    const push = (options: NoticeOptions) => {
+        const message: NoticeOptions = {
             text: options.text,
             timeout: options.timeout || 3000,
             color: options.color || 'primary',
+            showing: false
         };
 
         messages.value.push(message)
@@ -40,8 +42,11 @@ export const useNoticeStore = defineStore('notice', () => {
     // 显示下一条消息
     const showNextMessage = () => {
         if (messages.value.length > 0) {
-            currentMessage.value = messages.value.shift()
-            currentMessage.value.showing = true;
+            const nextMessage = messages.value.shift();
+            if (nextMessage) {
+                currentMessage.value = nextMessage;
+                currentMessage.value.showing = true;
+            }
         } else {
             currentMessage.value = null;
         }
@@ -54,24 +59,24 @@ export const useNoticeStore = defineStore('notice', () => {
     };
 
     // 便捷方法
-    const success = (text: string, options = {}) => {
-        push({text, ...options, color: NoticeType.SUCCESS})
+    const success = (text: string, options: Partial<NoticeOptions> = {}) => {
+        push({text, ...options, color: NoticeType.SUCCESS});
     };
 
-    const error = (text: string, options = {}) => {
-        push({text, ...options, color: NoticeType.ERROR})
+    const error = (text: string, options: Partial<NoticeOptions> = {}) => {
+        push({text, ...options, color: NoticeType.ERROR});
     };
 
-    const info = (text: string, options = {}) => {
-        push({text, ...options, color: NoticeType.INFO})
+    const info = (text: string, options: Partial<NoticeOptions> = {}) => {
+        push({text, ...options, color: NoticeType.INFO});
     };
 
-    const warning = (text: string, options = {}) => {
-        push({text, ...options, color: NoticeType.WARNING})
+    const warning = (text: string, options: Partial<NoticeOptions> = {}) => {
+        push({text, ...options, color: NoticeType.WARNING});
     };
 
-    const primary = (text: string, options = {}) => {
-        push({text, ...options, color: NoticeType.PRIMARY})
+    const primary = (text: string, options: Partial<NoticeOptions> = {}) => {
+        push({text, ...options, color: NoticeType.PRIMARY});
     };
 
     return {

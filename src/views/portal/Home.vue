@@ -14,7 +14,7 @@ import NewSeasonShowItem from "@/components/newSeasonShowItem.vue";
 
 const {t} = useI18n()
 
-let seasons: Seasons = Seasons,
+let seasons: any = Seasons,
     // 当前赛季
     currentlySeason: Ref<Season> = ref(null)
 
@@ -71,7 +71,7 @@ const getCurrentSeason = (): Season | null => {
 
       <div class="portal-season-left-tip" v-if="currentlySeason && currentlySeason.id">
         <div class="opacity-30">
-          {{ t('portal.seasonTimer', {seasonName: currentlySeason.alternativeName.toUpperCase(), day: time.calcRemainingDays(currentlySeason.endDate)}) }}
+          {{ t('portal.seasonTimer', {seasonName: (currentlySeason as any).alternativeName.toUpperCase(), day: time.calcRemainingDays(currentlySeason.endDate)}) }}
           <v-divider thickness="3" vertical/>
           {{ t(`snb.seasons.${currentlySeason?.id}`) }}
         </div>

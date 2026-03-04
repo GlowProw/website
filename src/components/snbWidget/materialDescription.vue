@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'MaterialDescription' }
+</script>
+
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import {computed} from "vue";

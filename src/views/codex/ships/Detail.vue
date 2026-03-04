@@ -7,7 +7,7 @@ import {useRoute, useRouter} from "vue-router";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
 import PerksWidget from "@/components/snbWidget/perksWidget.vue";
-import {Ship} from "glow-prow-data/src/entity/Ships.ts";
+import {Ship} from "glow-prow-data/src/entity/Ships";
 import {number, storage} from "@/assets/sripts";
 import CommentWidget from "@/components/CommentWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
@@ -36,14 +36,14 @@ const
     authStore = useAuthStore(),
 
     // 船只数据
-    shipsData: Ships = Ships
+    shipsData: any = Ships
 
 let
     shipDetailPageData: Ref<{ img: string, loading: boolean }> = ref({
       img: '',
       loading: false
     }),
-    shipDetailData: Ref<Ship> = ref(shipsData['dhow'] as Ship),
+    shipDetailData: Ref<any> = ref(shipsData['dhow']),
 
     // 蓝图
     bluePrint = computed(() => {
@@ -64,17 +64,17 @@ let
         `snb.ranks.${r.cleaned}`
       ], {
         variable: {
-          lv: number.intToRoman(r.removedNumbers[0])
+          lv: number.intToRoman(r.removedNumbers[0] as unknown as number)
         }
       })
     }),
 
     // meta
     head = ref({
-      title: t(route.meta.title),
+      title: t(route.meta.title as string),
       titleTemplate: `%s | ${t('name')}`,
       meta: [
-        {name: 'keywords', content: t(route.meta.keywords)},
+        {name: 'keywords', content: t(route.meta.keywords as string)},
         {name: 'og:title', content: `%s | ${t('name')}`},
       ]
     })
@@ -93,22 +93,22 @@ onMounted(() => {
 
   const imageKey = `/node_modules/glow-prow-assets/ships/${id}.png`;
 
-  shipDetailData.value = shipsData[id];
+  shipDetailData.value = shipsData[id as string];
 
-  head.value.titleTemplate = `${i18nReadName.ship(id).name()} - ${head.value.titleTemplate}`
+  head.value.titleTemplate = `${i18nReadName.ship(id as string).name()} - ${head.value.titleTemplate}`
   head.value.meta = [
     {
-      name: 'keywords', content: t(route.meta.keywords, {
+      name: 'keywords', content: t(route.meta.keywords as string, {
         keywords: Object.keys(messages.value).map(lang => {
-          return i18nReadName.ship(id).keys.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
-        }).concat([id])
+          return i18nReadName.ship(id as string).keys.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
+        }).concat([id as string])
       })
     },
-    {name: 'og:title', content: `${t(route.meta.title)} | ${t('name')}`},
+    {name: 'og:title', content: `${t(route.meta.title as string)} | ${t('name')}`},
   ]
 
   if (shipImages[imageKey]) {
-    shipDetailPageData.value.img = shipImages[imageKey].default;
+    shipDetailPageData.value.img = (shipImages[imageKey] as any).default;
   } else {
     shipDetailPageData.value.img = "";
   }
@@ -127,7 +127,7 @@ const onCodexHistory = () => {
 
   storage.session.set(name, {
     ...d?.data?.value || {},
-    [id]: {
+    [id as string]: {
       id,
       category: 'ship',
       time: new Date().getTime()
@@ -301,7 +301,7 @@ const onCodexHistory = () => {
             <BySeasonWidget :data="shipDetailData"></BySeasonWidget>
 
             <template v-if="bluePrint">
-              <v-combobox v-model="bluePrint" multiple chips readonly
+              <v-combobox :model-value="Array.isArray(bluePrint) ? bluePrint : [bluePrint]" multiple chips readonly
                           hide-details
                           variant="underlined" density="compact">
                 <template v-slot:append-inner>

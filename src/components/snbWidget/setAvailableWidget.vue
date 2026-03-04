@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'SetAvailableWidget' }
+</script>
+
 <script setup lang="ts">
 import {Cosmetic, Cosmetics} from "glow-prow-data";
 import {computed} from "vue";

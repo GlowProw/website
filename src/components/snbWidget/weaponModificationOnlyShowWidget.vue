@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'WeaponModificationOnlyShowWidget' }
+</script>
+
 <script setup lang="ts">
 import ModName from "@/components/snbWidget/modName.vue";
 import ModDescription from "@/components/snbWidget/modDescription.vue";
@@ -7,7 +11,7 @@ import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 
 const modImages = import.meta.glob('@/assets/images/snb/modTypeIcons/*.*', {eager: true})
-const props = defineProps<{ itemData: Item, modData: [] }>()
+const props = defineProps<{ itemData: Item, modData: any[] }>()
 
 let modIconImages = ref({}),
     modStyleConfig = {
@@ -27,7 +31,7 @@ const onReady = () => {
         ?.toString()
         .replace('.webp', '')
         .replace('.png', '')
-    imageMap[key] = modImages[path].default;
+    imageMap[key] = (modImages[path] as any).default;
   }
   modIconImages.value = imageMap;
 }

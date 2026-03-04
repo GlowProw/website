@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'ItemView' }
+</script>
+
 <script setup lang="ts">
 import {ref} from "vue"
 import {useI18n} from "vue-i18n";
@@ -13,16 +17,16 @@ const {t} = useI18n(),
 
 let model = ref(false),
     value = ref(""),
-    type: ContentSelectorOption = ref("item"),
+    type = ref<ContentSelectorOption>("item"),
     tags = ref([])
 
 /**
  * 完成
  * @param data
  */
-const onFinish = (data: Item) => {
+const onFinish = (data: any) => {
   onPanelToggle()
-  emit('finish', data.id)
+  emit('finish', data.id || data)
 }
 
 /**
@@ -41,9 +45,6 @@ const onPanelToggle = () => {
  * @param typeRaw 大类类型
  */
 const openPanel = (tagsRaw: any[] = [], typeRaw: ContentSelectorOption = 'item') => {
-  if (!tagsRaw || !typeRaw)
-    return console.warn('panel not id')
-
   tags.value = tagsRaw
   type.value = typeRaw;
 

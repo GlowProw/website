@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'FullscreenBtn' }
+</script>
+
 <template>
   <v-btn tile stacked density="compact"
          v-if="isSupported"

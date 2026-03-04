@@ -19,14 +19,14 @@ const notice = useNoticeStore(),
     {t} = useI18n()
 
 let loading = ref(false),
-    userAssemblysData = ref({}),
-    userAssemblyWidgetRefs = ref([])
+    userAssemblysData = ref<any>({}),
+    userAssemblyWidgetRefs = ref<any[]>([])
 
 onMounted(() => {
   getMyAssemblysData()
 })
 
-watch(() => userAssemblysData, (newList: ResultData) => {
+watch(() => userAssemblysData.value, (newList: any) => {
   if (newList && newList.data.length > 0) {
     nextTick(() => {
       const processBatch = (index = 0) => {

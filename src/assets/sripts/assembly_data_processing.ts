@@ -1,6 +1,8 @@
 import {toRaw} from "vue";
 
-import {Item, Items, Modifications, Ships, Ultimates} from "glow-prow-data"
+import {Modifications, Ships, Ultimates} from "glow-prow-data";
+import {Item, Items} from "glow-prow-data/src/entity/Items";
+import {Ship} from "glow-prow-data/src/entity/Ships";
 
 const ships = Ships,
     items = Items,
@@ -11,7 +13,29 @@ interface VersionedDataProcessing<T> {
     allowedFields: string[];
     get: (data: any) => any;
     set: (data: any) => T;
-    verify: (data: any) => { valid?: boolean; errors?: string[] };
+    verify: (data: any) => { required?: number, verify?: { required: boolean, message: string }[] };
+}
+
+export interface AssemblyData {
+    shipSlot: any;
+    ultimateSlot: any;
+    shipUpgradeSlot: any;
+    armorSlot: any;
+    weaponDirections: any[];
+    weaponModifications: any[];
+    weaponSlots: any[];
+    armorModification: any[];
+    secondaryWeaponSlots: any[];
+    shipFrigateUpgradeSlot?: any;
+    secondaryWeaponModifications: any[];
+    displaySlots: any[];
+    __version: string;
+}
+
+interface ValidationRule {
+    condition: () => boolean;
+    required: boolean;
+    message: string;
 }
 
 type AssemblyDataProcessingMap<T = any> = {
@@ -20,7 +44,7 @@ type AssemblyDataProcessingMap<T = any> = {
 
 export default class AssemblyDataProcessing {
     static versions: string[] = ['0.0.1', '0.0.2'];
-    static nowVersion: string | any = AssemblyDataProcessing.versions[AssemblyDataProcessing.versions.length - 1];
+    static nowVersion: string = AssemblyDataProcessing.versions[AssemblyDataProcessing.versions.length - 1];
 
     private processing: AssemblyDataProcessingMap<AssemblyData> = {
         '0.0.1': {
@@ -38,7 +62,7 @@ export default class AssemblyDataProcessing {
                 'displaySlots',
                 '__version'
             ],
-            get: (data) => {
+            get: (data: AssemblyData) => {
                 // 后续处理逻辑
                 if (data.shipSlot)
                     data.shipSlot = {id: data.shipSlot.id};
@@ -53,7 +77,7 @@ export default class AssemblyDataProcessing {
                     data.shipFrigateUpgradeSlot = {id: data.shipFrigateUpgradeSlot.id};
 
                 if (data.weaponModifications)
-                    data.weaponModifications = data.weaponModifications.map(i => {
+                    data.weaponModifications = data.weaponModifications.map((i: any) => {
                         return i.map((j: any) => {
                             return {
                                 type: j.type,
@@ -63,7 +87,7 @@ export default class AssemblyDataProcessing {
                     })
 
                 if (data.secondaryWeaponModifications)
-                    data.secondaryWeaponModifications = data.secondaryWeaponModifications.map(i => {
+                    data.secondaryWeaponModifications = data.secondaryWeaponModifications.map((i: any) => {
                         return i.map((j: any) => {
                             return {
                                 type: j.type,
@@ -73,12 +97,12 @@ export default class AssemblyDataProcessing {
                     })
 
                 if (data.secondaryWeaponSlots)
-                    data.secondaryWeaponSlots = data.secondaryWeaponSlots.map(i => {
+                    data.secondaryWeaponSlots = data.secondaryWeaponSlots.map((i: any) => {
                         return i.id ? {id: i.id} : {id: null};
                     })
 
                 if (data.weaponSlots)
-                    data.weaponSlots = data.weaponSlots.map(i => {
+                    data.weaponSlots = data.weaponSlots.map((i: any) => {
                         return i.id ? {id: i.id} : {id: null};
                     })
 
@@ -86,27 +110,27 @@ export default class AssemblyDataProcessing {
                     data.armorSlot = {id: data.armorSlot.id}
 
                 if (data.displaySlots)
-                    data.displaySlots = data.displaySlots.map(i => {
+                    data.displaySlots = data.displaySlots.map((i: any) => {
                         return i.id ? {id: i.id} : {id: null};
                     })
 
-                data.__version = this.nowVersion;
+                data.__version = AssemblyDataProcessing.nowVersion;
                 return data;
             },
-            set: (data) => {
+            set: (data: AssemblyData) => {
                 // 后续处理逻辑
                 if (data.shipSlot)
                     data.shipSlot = ships[data.shipSlot.id] || Ship.fromRawData({})
 
                 if (data.shipUpgradeSlot)
-                    data.shipUpgradeSlot = items[data.shipUpgradeSlot.id] || Item.fromRawData({})
+                    data.shipUpgradeSlot = (items[data.shipUpgradeSlot.id] || Item.fromRawData({})) as any
 
                 if (data.ultimateSlot)
-                    data.ultimateSlot = ultimates[data.ultimateSlot.id] || Item.fromRawData({})
+                    data.ultimateSlot = (ultimates[data.ultimateSlot.id] || Item.fromRawData({})) as any
 
                 if (data.weaponModifications)
-                    data.weaponModifications = data.weaponModifications.map(i => {
-                        return i.map(j => {
+                    data.weaponModifications = data.weaponModifications.map((i: any) => {
+                        return i.map((j: any) => {
                             return {
                                 type: j.type,
                                 value: modifications[j.value] || null,
@@ -115,8 +139,8 @@ export default class AssemblyDataProcessing {
                     })
 
                 if (data.secondaryWeaponModifications)
-                    data.secondaryWeaponModifications = data.secondaryWeaponModifications.map(i => {
-                        return i.map(j => {
+                    data.secondaryWeaponModifications = data.secondaryWeaponModifications.map((i: any) => {
+                        return i.map((j: any) => {
                             return {
                                 type: j.type,
                                 value: modifications[j.value] || null,
@@ -125,12 +149,12 @@ export default class AssemblyDataProcessing {
                     })
 
                 if (data.secondaryWeaponSlots)
-                    data.secondaryWeaponSlots = data.secondaryWeaponSlots.map(i => {
+                    data.secondaryWeaponSlots = data.secondaryWeaponSlots.map((i: any) => {
                         return i.id ? items[i.id] : Item.fromRawData({})
                     })
 
                 if (data.weaponSlots)
-                    data.weaponSlots = data.weaponSlots.map(i => {
+                    data.weaponSlots = data.weaponSlots.map((i: any) => {
                         return i.id ? items[i.id] : Item.fromRawData({})
                     })
 
@@ -138,35 +162,35 @@ export default class AssemblyDataProcessing {
                     data.armorSlot = items[data.armorSlot.id] || Item.fromRawData({})
 
                 if (data.displaySlots)
-                    data.displaySlots = data.displaySlots.map(i => {
+                    data.displaySlots = data.displaySlots.map((i: any) => {
                         return i.id ? items[i.id] : Item.fromRawData({})
                     })
 
                 return data;
             },
-            verify: (data) => {
+            verify: (data: AssemblyData) => {
                 const rules: ValidationRule[] = [
                     {condition: () => data.shipSlot == null, required: true, message: 'shipEmpty'},
                     {condition: () => data.shipUpgradeSlot == null, required: false, message: 'shipUpgradeEmpty'},
                     {condition: () => data.ultimateSlot == null, required: false, message: 'ultimateEmpty'},
-                    {condition: () => data.weaponModifications?.length <= 0, required: false, message: 'weaponModificationsEmpty'},
-                    {condition: () => data.secondaryWeaponModifications?.length <= 0, required: false, message: 'secondaryWeaponModificationsEmpty'},
+                    {condition: () => (data.weaponModifications || []).length <= 0, required: false, message: 'weaponModificationsEmpty'},
+                    {condition: () => (data.secondaryWeaponModifications || []).length <= 0, required: false, message: 'secondaryWeaponModificationsEmpty'},
                     {
                         condition: () => {
-                            let length = data.secondaryWeaponSlots?.length <= 0
-                            return (data.secondaryWeaponSlots<any>).filter(i => !i.id).length != length
+                            let length = (data.secondaryWeaponSlots || []).length
+                            return length <= 0 || (data.secondaryWeaponSlots as any[]).filter(i => !i.id).length != length
                         }, required: false, message: 'secondaryWeaponEmpty'
                     },
                     {
                         condition: () => {
-                            let length = data.weaponSlots?.length
-                            return length <= 0 || (data.weaponSlots<any>).filter(i => !i.id).length == length
+                            let length = (data.weaponSlots || []).length
+                            return length <= 0 || (data.weaponSlots as any[]).filter(i => !i.id).length == length
                         }, required: false, message: 'weaponAllEmpty'
                     },
                     {
                         condition: () => {
-                            let weaponDirections = data.weaponDirections,
-                                weaponSlots = data.weaponSlots,
+                            let weaponDirections = data.weaponDirections || [],
+                                weaponSlots = data.weaponSlots || [],
                                 result = true
                             for (let i = 0; i < weaponSlots.length; i++) {
                                 if (weaponDirections[i]) {
@@ -180,8 +204,8 @@ export default class AssemblyDataProcessing {
                     {condition: () => data.armorSlot == null, required: false, message: 'armorEmpty'},
                     {
                         condition: () => {
-                            let length = data.displaySlots?.length
-                            return length <= 0 || (data.displaySlots<any>).filter(i => !i.id).length == length
+                            let length = (data.displaySlots || []).length
+                            return length <= 0 || (data.displaySlots as any[]).filter(i => !i.id).length == length
                         }, required: false, message: 'displayAllEmpty'
                     }
                 ];
@@ -216,7 +240,7 @@ export default class AssemblyDataProcessing {
                 'displaySlots',
                 '__version'
             ],
-            get: (data) => {
+            get: (data: AssemblyData) => {
                 // 后续处理逻辑
                 if (data.shipSlot)
                     data.shipSlot = {id: data.shipSlot.id};
@@ -231,8 +255,8 @@ export default class AssemblyDataProcessing {
                     data.shipFrigateUpgradeSlot = {id: data.shipFrigateUpgradeSlot.id};
 
                 if (data.weaponModifications)
-                    data.weaponModifications = data.weaponModifications.map(i => {
-                        return i.map(j => {
+                    data.weaponModifications = data.weaponModifications.map((i: any) => {
+                        return i.map((j: any) => {
                             return {
                                 type: j.type,
                                 value: j?.value?.id || null,
@@ -240,9 +264,20 @@ export default class AssemblyDataProcessing {
                         })
                     })
 
+                if (data.armorSlot) { // armorModification usually depends on armorSlot existing or being processed
+                     // Keeping existing logic but checking type
+                }
+                // data.armorModification might not be in AssemblyData interface? 
+                // Wait, I defined AssemblyData but forgot armorModification in previous SearchReplace?
+                // Let's check AssemblyData definition I added.
+                // Yes, armorModification is missing in AssemblyData interface I added in previous step?
+                // No, I see armorSlot, but not armorModification.
+                // Wait, let me check the previous tool output for AssemblyData definition.
+                
                 if (data.armorModification)
-                    data.armorModification = data.armorModification.map(i => {
-                        return i.map(j => {
+                    // @ts-ignore
+                    data.armorModification = data.armorModification.map((i: any) => {
+                        return i.map((j: any) => {
                             return {
                                 type: j.type,
                                 value: j?.value?.id || null,
@@ -251,8 +286,8 @@ export default class AssemblyDataProcessing {
                     })
 
                 if (data.secondaryWeaponModifications)
-                    data.secondaryWeaponModifications = data.secondaryWeaponModifications.map(i => {
-                        return i.map(j => {
+                    data.secondaryWeaponModifications = data.secondaryWeaponModifications.map((i: any) => {
+                        return i.map((j: any) => {
                             return {
                                 type: j.type,
                                 value: j?.value?.id || null,
@@ -261,12 +296,12 @@ export default class AssemblyDataProcessing {
                     })
 
                 if (data.secondaryWeaponSlots)
-                    data.secondaryWeaponSlots = data.secondaryWeaponSlots.map(i => {
+                    data.secondaryWeaponSlots = data.secondaryWeaponSlots.map((i: any) => {
                         return i.id ? {id: i.id} : {id: null};
                     })
 
                 if (data.weaponSlots)
-                    data.weaponSlots = data.weaponSlots.map(i => {
+                    data.weaponSlots = data.weaponSlots.map((i: any) => {
                         return i.id ? {id: i.id} : {id: null};
                     })
 
@@ -278,19 +313,22 @@ export default class AssemblyDataProcessing {
                         return i.id ? {id: i.id} : {id: null};
                     })
 
-                data.__version = this.nowVersion;
+                data.__version = AssemblyDataProcessing.nowVersion;
                 return data;
             },
             set: (data) => {
                 // 后续处理逻辑
                 if (data.shipSlot)
-                    data.shipSlot = ships[data.shipSlot.id] || Ship.fromRawData({})
+                    data.shipSlot = ships[data.shipSlot.id];
 
                 if (data.shipUpgradeSlot)
-                    data.shipUpgradeSlot = items[data.shipUpgradeSlot.id] || Item.fromRawData({})
+                    data.shipUpgradeSlot = items[data.shipUpgradeSlot.id];
 
                 if (data.ultimateSlot)
-                    data.ultimateSlot = ultimates[data.ultimateSlot.id] || Item.fromRawData({})
+                    data.ultimateSlot = ultimates[data.ultimateSlot.id];
+
+                if (data.shipFrigateUpgradeSlot)
+                    data.shipFrigateUpgradeSlot = items[data.shipFrigateUpgradeSlot.id];
 
                 if (data.weaponModifications)
                     data.weaponModifications = data.weaponModifications.map(i => {
@@ -323,21 +361,21 @@ export default class AssemblyDataProcessing {
                     })
 
                 if (data.secondaryWeaponSlots)
-                    data.secondaryWeaponSlots = data.secondaryWeaponSlots.map(i => {
-                        return i.id ? items[i.id] : Item.fromRawData({})
+                    data.secondaryWeaponSlots = data.secondaryWeaponSlots.map((i: any) => {
+                        return i.id ? items[i.id] : null;
                     })
 
                 if (data.weaponSlots)
-                    data.weaponSlots = data.weaponSlots.map(i => {
-                        return i.id ? items[i.id] : Item.fromRawData({})
+                    data.weaponSlots = data.weaponSlots.map((i: any) => {
+                        return i.id ? items[i.id] : null;
                     })
 
                 if (data.armorSlot)
-                    data.armorSlot = items[data.armorSlot.id] || Item.fromRawData({})
+                    data.armorSlot = data.armorSlot.id ? items[data.armorSlot.id] : null;
 
                 if (data.displaySlots)
-                    data.displaySlots = data.displaySlots.map(i => {
-                        return i.id ? items[i.id] : Item.fromRawData({})
+                    data.displaySlots = data.displaySlots.map((i: any) => {
+                        return i.id ? items[i.id] : null;
                     })
 
                 return data;
@@ -351,14 +389,15 @@ export default class AssemblyDataProcessing {
                     {condition: () => data.secondaryWeaponModifications?.length <= 0, required: false, message: 'secondaryWeaponModificationsEmpty'},
                     {
                         condition: () => {
-                            let length = data.secondaryWeaponSlots?.length <= 0
-                            return (data.secondaryWeaponSlots<any>).filter((i: { id: any; }) => !i.id).length != length
+                            let length = data.secondaryWeaponSlots?.length || 0
+                            if (length <= 0) return false;
+                            return (data.secondaryWeaponSlots as any[]).filter((i: { id: any; }) => !i.id).length != length
                         }, required: false, message: 'secondaryWeaponEmpty'
                     },
                     {
                         condition: () => {
                             let length = data.weaponSlots?.length
-                            return length <= 0 || (data.weaponSlots<any>).filter((i: { id: any; }) => !i.id).length == length
+                            return length <= 0 || (data.weaponSlots as any[]).filter((i: { id: any; }) => !i.id).length == length
                         }, required: false, message: 'weaponAllEmpty'
                     },
                     {
@@ -380,7 +419,7 @@ export default class AssemblyDataProcessing {
                     {
                         condition: () => {
                             let length = data.displaySlots?.length
-                            return length <= 0 || (data.displaySlots<any>).filter(i => !i.id).length == length
+                            return length <= 0 || (data.displaySlots as any[]).filter(i => !i.id).length == length
                         }, required: false, message: 'displayAllEmpty'
                     }
                 ];

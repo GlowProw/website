@@ -133,10 +133,11 @@ export function useUserApi() {
      * @param userId
      * @param pagination
      */
-    const getUserTeamups = async (pagination?: PaginationParams) => {
+    const getUserTeamups = async (userId?: string, pagination?: PaginationParams) => {
         try {
-            const result = await http.get('user/me/teamups', {
-                params: {...pagination}
+            const url = userId ? `user/space/teamups` : 'user/me/teamups';
+            const result = await http.get(url, {
+                params: {...pagination, userId}
             })
             return handleResponse(result)
         } catch (error) {
@@ -149,12 +150,14 @@ export function useUserApi() {
 
     /**
      * 获取用户配装列表
+     * @param userId
      * @param pagination
      */
-    const getUserAssemblys = async (pagination?: PaginationParams) => {
+    const getUserAssemblys = async (userId?: string, pagination?: PaginationParams) => {
         try {
-            const result = await http.get('user/me/assemblys', {
-                params: {...pagination}
+            const url = userId ? `user/space/assemblys` : 'user/me/assemblys';
+            const result = await http.get(url, {
+                params: {...pagination, userId}
             })
             return handleResponse(result)
         } catch (error) {

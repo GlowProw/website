@@ -38,19 +38,19 @@ const
     i18nReadName = useI18nReadName(),
 
     // 数据
-    npcs: Npcs = Npcs,
-    materials: Materials = Materials
+    npcs: any = Npcs,
+    materials: any = Materials
 
-let npcDetailData: Ref<Npc | null> = ref(null),
+let npcDetailData: Ref<any> = ref(null),
 
     rarityColorConfig = rarity.color,
 
     // meta
     head = ref({
-      title: t(route.meta.title),
+      title: t(route.meta.title as string),
       titleTemplate: `%s | ${t('name')}`,
       meta: [
-        {name: 'keywords', content: t(route.meta.keywords)},
+        {name: 'keywords', content: t(route.meta.keywords as string)},
         {name: 'og:title', content: `%s | ${t('name')}`},
       ]
     })
@@ -73,23 +73,23 @@ const onReady = () => {
     return;
   }
 
-  if (!npcs[id]) {
+  if (!npcs[id as string]) {
     setInterval(() => router.push({name: 'NotFound'}), 1000)
     return;
   }
 
-  npcDetailData.value = npcs[id];
+  npcDetailData.value = npcs[id as string];
 
-  head.value.titleTemplate = `${i18nReadName.item(id).name()} - ${head.value.titleTemplate}`
+  head.value.titleTemplate = `${i18nReadName.item(id as string).name()} - ${head.value.titleTemplate}`
   head.value.meta = [
     {
-      name: 'keywords', content: t(route.meta.keywords, {
+      name: 'keywords', content: t(route.meta.keywords as string, {
         keywords: Object.keys(messages.value).map(lang => {
-          return i18nReadName.item(id).keys.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
-        }).concat([id])
+          return i18nReadName.item(id as string).keys.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
+        }).concat([id as string])
       })
     },
-    {name: 'og:title', content: `${t(route.meta.title)} | ${t('name')}`},
+    {name: 'og:title', content: `${t(route.meta.title as string)} | ${t('name')}`},
   ]
 
   onCodexHistory()
@@ -104,7 +104,7 @@ const onCodexHistory = () => {
 
   storage.session.set(name, {
     ...d?.data?.value || {},
-    [id]: {
+    [id as string]: {
       id,
       category: 'npc',
       time: new Date().getTime()
@@ -145,12 +145,13 @@ const onCodexHistory = () => {
                       :to="`/codex/npcs?type=${npcDetailData.type}`">
                 {{ t(`codex.npc.types.${npcDetailData.type}`) || '' }}
               </v-chip>
-              <v-chip class="badge-flavor text-center tag-badge text-black"
-                      v-if="Array.isArray(npcDetailData.category)"
-                      v-for="(i, index) in npcDetailData.category"
-                      :key="index">
-                {{ t(`codex.npc.categorys.${i}`) }}
-              </v-chip>
+              <template v-if="Array.isArray(npcDetailData.category)">
+                <v-chip class="badge-flavor text-center tag-badge text-black"
+                        v-for="(i, index) in npcDetailData.category"
+                        :key="index">
+                  {{ t(`codex.npc.categorys.${i}`) }}
+                </v-chip>
+              </template>
             </div>
           </v-col>
           <v-spacer></v-spacer>

@@ -29,6 +29,9 @@ const onCheckI18nValue = (key) => {
     return {code: -1}
   }
 };
+
+const getCategory = (i: any) => i?.category
+const isUnknown = (i: any) => i?.isUnknown
 </script>
 
 <template>
@@ -61,13 +64,13 @@ const onCheckI18nValue = (key) => {
 
         <div class="mt-3 d-flex ga-2" v-if="data.droppeds && showDropped">
           <ItemSlotBase size="50px" class="d-flex justify-center align-center" v-for="(i, index) in Object.entries(data.droppeds).slice(0,showItemCount)" :key="index">
-            <template v-if="i[1].category == 'item' && !i[1].isUnknown">
+            <template v-if="(i[1] as any).category == 'item' && !(i[1] as any).isUnknown">
               <ItemIconWidget :padding="0" :margin="0" :id="i[0]"></ItemIconWidget>
             </template>
-            <template v-else-if="i[1].category == 'material' && !i[1].isUnknown">
+            <template v-else-if="(i[1] as any).category == 'material' && !(i[1] as any).isUnknown">
               <MaterialIconWidget :padding="0" :margin="0" :id="i[0]"></MaterialIconWidget>
             </template>
-            <template v-else-if="i[1].category == 'cosmetic' && !i[1].isUnknown">
+            <template v-else-if="(i[1] as any).category == 'cosmetic' && !(i[1] as any).isUnknown">
               <CosmeticIconWidget :padding="0" :margin="0" :id="i[0]"></CosmeticIconWidget>
             </template>
             <template v-else>

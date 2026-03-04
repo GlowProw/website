@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'TreasureMapIconWidget' }
+</script>
+
 <script setup lang="ts">
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
@@ -40,7 +44,7 @@ const
       margin: 1
     }),
     appStore = useAppStore(),
-    treasureMaps: TreasureMaps = TreasureMaps,
+    treasureMaps: any = TreasureMaps,
 
     // 稀有度
     rarityColorConfig = rarity.color

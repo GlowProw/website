@@ -94,7 +94,7 @@ const onPage = (type) => {
     <div class="position-relative">
       <template v-if="blogData.latestPosts">
         <div class="text-h5 font-weight-bold text-amber mb-2" v-html="blogData.latestPosts[showBlogIndex].title || ''"></div>
-        <p class="opacity-80 mb-1">{{ blogData.latestPosts[showBlogIndex].authors.join(',') }}</p>
+        <p class="opacity-80 mb-1">{{ (blogData.latestPosts[showBlogIndex] as any).authors.join(',') }}</p>
         <div class="content" v-html="md.render(blogData.latestPosts[showBlogIndex].content || '')"></div>
       </template>
       <EmptyView v-else></EmptyView>

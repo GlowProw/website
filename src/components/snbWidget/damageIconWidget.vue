@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'DamageIconWidget' }
+</script>
+
 <script setup lang="ts">
 import {computed, nextTick, onMounted, ref} from "vue";
 import {useAssetsStore} from "~/stores/assetsStore";

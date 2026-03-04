@@ -7,8 +7,8 @@ export function useRules() {
     const {t} = useI18n()
 
     const username = [
-        (v: any) => !!v || t('basic.rules.username.notEmpty'),
-        (v: string) => {
+        (v: string | null | undefined) => !!v || t('basic.rules.username.notEmpty'),
+        (v: string | null | undefined) => {
             const trimmed = v ? v.trim().toLowerCase() : '';
             const illegalNames = [
                 // JavaScript 关键字和保留字
@@ -49,23 +49,23 @@ export function useRules() {
             ];
             return !illegalNames.includes(trimmed) || t('basic.rules.username.blacklistRestriction', {content: trimmed})
         },
-        (v: string | any[]) => (v && v.length >= 3 && v.length <= 40) || t('basic.rules.username.limitationLength', {min: 3, max: 40}),
-        (v: string) => new RegExp(/^[a-zA-Z0-9_]+$/).test(v) || t('basic.rules.username.incorrectFormat'),
+        (v: string | null | undefined) => (v && v.length >= 3 && v.length <= 40) || t('basic.rules.username.limitationLength', {min: 3, max: 40}),
+        (v: string | null | undefined) => (v && new RegExp(/^[a-zA-Z0-9_]+$/).test(v)) || t('basic.rules.username.incorrectFormat'),
     ]
     const alternativeName = [
-        (v: string | any[]) => !v || (v && v.length >= 3 && v.length <= 40) || t('basic.rules.alternativeName.limitationLength', {min: 3, max: 40}),
-        (v: string) => !v || new RegExp(/^[a-zA-Z0-9_]+$/).test(v) || t('basic.rules.alternativeName.incorrectFormat'),
+        (v: string | null | undefined) => !v || (v && v.length >= 3 && v.length <= 40) || t('basic.rules.alternativeName.limitationLength', {min: 3, max: 40}),
+        (v: string | null | undefined) => !v || new RegExp(/^[a-zA-Z0-9_]+$/).test(v) || t('basic.rules.alternativeName.incorrectFormat'),
     ]
     const email = [
-        (v: string) => !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || t('basic.rules.email.incorrectFormat')
+        (v: string | null | undefined) => !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || t('basic.rules.email.incorrectFormat')
     ]
     const password = [
-        (v: any) => !!v || t('basic.rules.password.notEmpty'),
-        (v: string | any[]) => (v && v.length >= 6 && v.length <= 60) || t('basic.rules.password.limitationLength', {min: 6, max: 60}),
+        (v: string | null | undefined) => !!v || t('basic.rules.password.notEmpty'),
+        (v: string | null | undefined) => (v && v.length >= 6 && v.length <= 60) || t('basic.rules.password.limitationLength', {min: 6, max: 60}),
     ]
     const captcha = [
-        (v: any) => !!v || t('basic.rules.captcha.notEmpty'),
-        (v: string | any[]) => (v && v.length == 4) || t('basic.rules.captcha.limitationLength', {max: 4}),
+        (v: string | null | undefined) => !!v || t('basic.rules.captcha.notEmpty'),
+        (v: string | null | undefined) => (v && v.length == 4) || t('basic.rules.captcha.limitationLength', {max: 4}),
     ]
 
     return {

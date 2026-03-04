@@ -13,7 +13,7 @@ export default class Ws {
     reconnectAttempts: number = 0;
     private maxReconnectAttempts: number = 3;
     private reconnectInterval: number = 5000; // 5秒
-    private eventListeners: any = {};
+    private eventListeners: Partial<Record<keyof WebSocketEventMap, Function[]>> = {};
 
     public start(): void {
         const url = this.buildWebSocketUrl()
@@ -26,7 +26,7 @@ export default class Ws {
         return `${http.globalUrl.wsProtocol}://${http.host}:${http.globalUrl.wsPort || ''}${http.globalUrl.wsPathname || ''}`;
     }
 
-    private setupEventHandlers(callback?: any): void {
+    private setupEventHandlers(callback?: (result: { code: number }) => void): void {
         if (this.socket)
             this.socket.onopen = (event) => {
                 this.isConnected = true;
@@ -64,7 +64,7 @@ export default class Ws {
             };
     }
 
-    handleReconnect(callback?: any): void {
+    handleReconnect(callback?: (result: { code: number }) => void): void {
         if (this.reconnectAttempts < this.maxReconnectAttempts) {
             this.reconnectAttempts++;
             console.log(`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`)
@@ -73,7 +73,7 @@ export default class Ws {
                 const url = this.buildWebSocketUrl()
                 this.socket = new WebSocket(url)
 
-                this.setupEventHandlers(({code}: { code: any }) => {
+                this.setupEventHandlers(({code}) => {
                     if (callback)
                         callback({code})
                 })
@@ -89,9 +89,10 @@ export default class Ws {
     }
 
     // 检查连接状态
-    public get connected(): boolean | undefined {
+    public get connected(): boolean {
         if (this.socket)
             return this.isConnected && this.socket.readyState === WebSocket.OPEN;
+        return false;
     }
 
     // 获取原生 WebSocket 客户端
@@ -115,14 +116,14 @@ export default class Ws {
         if (!this.eventListeners[event]) {
             this.eventListeners[event] = [];
         }
-        this.eventListeners[event]!.push(listener)
+        this.eventListeners[event]!.push(listener as Function)
     }
 
     // 移除事件监听
     public off<K extends keyof WebSocketEventMap>(event: K, listener: WebSocketEventMap[K]): void {
         const listeners = this.eventListeners[event];
         if (listeners) {
-            this.eventListeners[event] = listeners.filter((l: any) => l !== listener)
+            this.eventListeners[event] = listeners.filter((l) => l !== listener)
         }
     }
 
@@ -130,7 +131,7 @@ export default class Ws {
     private emit<K extends keyof WebSocketEventMap>(event: K, ...args: Parameters<WebSocketEventMap[K]>): void {
         const listeners = this.eventListeners[event];
         if (listeners) {
-            listeners.forEach((listener: any) => listener(...args))
+            listeners.forEach((listener) => (listener as Function)(...args))
         }
     }
 

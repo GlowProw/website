@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'AssemblyClassificationShowList' }
+</script>
+
 <script lang="ts" setup>
 import {Cosmetic, Cosmetics, Item, Items, Material, Materials, Modification, Modifications, Ship, Ships, Ultimate, Ultimates} from "glow-prow-data";
 import {computed, onMounted, ref, watch} from "vue";
@@ -14,6 +18,8 @@ import ItemDamageTypeWidget from "@/components/snbWidget/itemDamageTypeWidget.vu
 import ItemName from "@/components/snbWidget/itemName.vue";
 import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
 import ShipName from "@/components/snbWidget/shipName.vue";
+
+const castToAny = (v: any) => v;
 
 interface GroupedData {
   type: string;
@@ -50,13 +56,13 @@ const emit = defineEmits(['update:modelValue', 'clickSelectItem'])
 // 搜索相关状态
 const searchQuery = ref('')
 const sortBy = ref('')
-const filterType = ref('')
+const filterType: any = ref('')
 
 // 加载状态
 const isLoading = ref(false)
 
 // 加载源数据
-const rawData = computed(() => {
+const rawData = computed<any>(() => {
   switch (props.loadDataType) {
     case "ship":
       return Ships;
@@ -90,6 +96,8 @@ const handleIDataName = (id: string) => {
   const sanitizeId = sanitizeString(id).cleaned;
 
   const name = asString([
+    `snb.ships.${rawId}.name`,
+    `snb.ships.${sanitizeId}.name`,
     `snb.items.${rawId}.name`,
     `snb.items.${sanitizeId}.name`,
     `snb.materials.${rawId}.name`,
@@ -109,16 +117,16 @@ const handleIDataName = (id: string) => {
 // 计算属性：处理筛选、排序和搜索
 const processedData = computed(() => {
   let filtered = props.tags.length > 0
-      ? Object.values(rawData.value).filter(i => props.tags.includes(i?.type))
+      ? Object.values(rawData.value).filter((i: any) => props.tags.includes(i?.type))
       : Object.values(rawData.value)
 
   // 类型筛选
   if (filterType.value) {
-    filtered = filtered.filter(i => i.type === filterType.value)
+    filtered = filtered.filter((i: any) => i.type === filterType.value)
   }
 
   // 转换格式并添加name字段
-  const mapped = filtered.map(i => ({
+  const mapped = filtered.map((i: any) => ({
     ...rawData.value[i.id],
     name: handleIDataName(i.id),
     rarity: i.rarity || 0,
@@ -140,14 +148,14 @@ const starData = ref<AvailableDataStructure[]>([])
 const isStar = computed(() => props.loadDataType === 'item')
 
 const processedStarData = computed(() => {
-  return starData.value.filter(i => props.tags.includes(i.type))
+  return starData.value.filter(i => props.tags.includes((i as any).type))
 })
 
 let updateTimeout: number;
 
 watch([searchQuery, filterType, sortBy], () => {
   clearTimeout(updateTimeout)
-  updateTimeout = setTimeout(updateData, 300)
+  updateTimeout = window.setTimeout(updateData, 300)
 })
 
 onMounted(() => {
@@ -187,6 +195,14 @@ const updateData = () => {
 
     resultData.value = grouped;
     isLoading.value = false;
+
+    // 滚动到底部
+    (setTimeout(() => {
+      const element = document.querySelector('.overflow-y-auto')
+      if (element) {
+        element.scrollTop = 0
+      }
+    }, 100) as any)
   })
 };
 
@@ -213,7 +229,7 @@ function sortItems(data: any[], sortBy: string): any[] {
 function groupByType(data: AvailableDataStructure[]): GroupedData[] {
   const typeMap = new Map<string, AvailableDataStructure[]>()
 
-  data.forEach(d => {
+  data.forEach((d: any) => {
     if (!typeMap.has(d.type)) {
       typeMap.set(d.type, [])
     }
@@ -352,42 +368,32 @@ defineExpose({
 
         <v-row class="pl-8 pr-8">
           <v-col v-for="(j, jIndex) in processedStarData" :key="`star-${j.id}`" cols="auto">
-            <div class="item" @click="onClickEvent(j)">
-              <ItemSlotBase
-                  :class="[modelValue && modelValue.id === j.id ? 'bg-amber' : '']"
-                  size="90px"
-              >
-                <ItemIconWidget
-                    :id="j.id"
-                    :is-open-detail="false"
-                    :is-show-tooltip="false"
-                ></ItemIconWidget>
-              </ItemSlotBase>
-              <div
-                  :class="[modelValue && modelValue.id === j.id ? 'text-amber' : '']"
-                  class="text-center d-flex justify-center"
-                  style="width: 90px"
-              >
-                <div class="singe-line">
-                  <ItemName :data="j"/>
-                </div>
-              </div>
-            </div>
-
-            <div class="text-center mt-1">
-              <div class="d-flex justify-center">
-                <ItemDamageTypeWidget :data="j" sizeType="mini"></ItemDamageTypeWidget>
-              </div>
-              <v-btn
-                  class="text-amber"
-                  density="compact"
-                  icon
-                  variant="text"
-                  @click.stop="onStarItem(j)"
-              >
-                <v-icon :icon="`mdi-${isCollect(j.id) ? 'star' : 'star-outline'}`" size="15"></v-icon>
-              </v-btn>
-            </div>
+            <div class="item" @click="onClickEvent(castToAny(j))">
+               <ItemSlotBase :size="40" :padding="0">
+                 <template v-if="castToAny(j).type == 'ship'">
+                   <ShipIconWidget :id="j.id" :padding="0" :margin="0"/>
+                 </template>
+                 <template v-else>
+                   <ItemIconWidget :id="j.id" :padding="0" :margin="0"/>
+                 </template>
+               </ItemSlotBase>
+               <div class="ml-2 singe-line">
+                 <template v-if="castToAny(j).type == 'ship'">
+                   <ShipName :data="castToAny(j)"/>
+                 </template>
+                 <template v-else>
+                   <ItemName :data="castToAny(j)"/>
+                 </template>
+               </div>
+               <div class="ml-auto">
+                 <v-btn
+                     @click.stop="onStarItem(castToAny(j))"
+                     :icon="isCollect(j.id) ? 'mdi-star' : 'mdi-star-outline'"
+                     :color="isCollect(j.id) ? 'amber' : ''"
+                     size="small"
+                     variant="text"></v-btn>
+               </div>
+             </div>
           </v-col>
         </v-row>
       </div>
@@ -405,7 +411,7 @@ defineExpose({
             <div
                 :class="{ 'mb-4': category.model }"
                 class="cursor-pointer text-center title-long-flavor text-amber font-weight-bold bg-black pl-4 lr-4 pt-4 pb-4 ml-n2 mr-n2"
-                @click="toggleCategory(category)"
+                @click="toggleCategory(castToAny(category))"
             >
               {{ t(`codex.types.${category.type}`) }} ({{ category.child.length }})
               <v-icon class="ml-3">
@@ -417,10 +423,10 @@ defineExpose({
               <v-col
                   v-for="item in category.child"
                   :key="item.id"
-                  :title="item.name"
+                  :title="castToAny(item).name"
                   cols="auto"
               >
-                <div class="item" @click="onClickEvent(item)">
+                <div class="item" @click="onClickEvent(castToAny(item))">
                   <!-- 根据类型渲染不同的组件 -->
                   <template v-if="loadDataType === 'ship'">
                     <ItemSlotBase
@@ -441,7 +447,7 @@ defineExpose({
                         style="width: 90px"
                     >
                       <div class="singe-line">
-                        <ShipName :data="item"/>
+                        <ShipName :data="castToAny(item)"/>
                       </div>
                     </div>
                   </template>
@@ -463,7 +469,7 @@ defineExpose({
                         style="width: 90px"
                     >
                       <div class="singe-line">
-                        <ItemName :data="item"/>
+                        <ItemName :data="castToAny(item)"/>
                       </div>
                     </div>
                   </template>
@@ -480,7 +486,7 @@ defineExpose({
                       density="compact"
                       icon
                       variant="text"
-                      @click.stop="onStarItem(item)"
+                      @click.stop="onStarItem(castToAny(item))"
                   >
                     <v-icon :icon="`mdi-${isCollect(item.id) ? 'star' : 'star-outline'}`" size="15"></v-icon>
                   </v-btn>

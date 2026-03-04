@@ -8,6 +8,10 @@
   />
 </template>
 
+<script lang="ts">
+export default { name: 'LightRays' }
+</script>
+
 <script setup lang="ts">
 import {computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch} from 'vue';
 import {Mesh, Program, Renderer, Triangle} from 'ogl';

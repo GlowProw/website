@@ -31,7 +31,7 @@ const {t, tm, te} = useI18n(),
     authStore = useAuthStore(),
     maps = TreasureMaps
 
-let mapDetailData: Ref<TreasureMap> = ref({}),
+let mapDetailData: Ref<any> = ref({}),
     rarityColorConfig = rarity.color,
     isTreasureMapDescription = computed(() => te(`snb.treasureMaps.${mapDetailData.value.id}.description`)),
     isTreasureMapTypeDescription = computed(() => te(`codex.treasureMap.descriptions.${mapDetailData.value.category}`))
@@ -51,7 +51,7 @@ const getData = () => {
   const {id} = route.params
 
   if (id)
-    mapDetailData.value = maps[id]
+    mapDetailData.value = maps[id as string]
 }
 
 const onCodexHistory = () => {
@@ -63,7 +63,7 @@ const onCodexHistory = () => {
 
   storage.session.set(name, {
     ...d?.data?.value || {},
-    [id]: {
+    [id as string]: {
       id,
       category: 'treasureMap',
       time: new Date().getTime()
@@ -158,11 +158,9 @@ const onCodexHistory = () => {
                       class="w-100"
                       :padding="4"
                       :id="mapDetailData.id"
-                      :is-open-detail="false"
                       :is-show-tooltip="false"
-                      :is-show-open-detail="false"
-                      :isOpenDetail="false"
-                      :isShowOpenDetail="false"></TreasureMapIconWidget>
+                      :is-open-detail="false"
+                      :is-show-open-detail="false"></TreasureMapIconWidget>
                 </ImageMagnifyingGlass>
               </v-col>
             </v-row>

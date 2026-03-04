@@ -127,25 +127,23 @@
                 </v-list-item>
 
                 <!-- 权限项 -->
-                <div v-for="(child, privilegeName) in category"
-                     :key="privilegeName"
-                     v-if="privilegeName !== 'title' && privilegeName !== 'child'"
-                >
+                <template v-for="(child, privilegeName) in category" :key="privilegeName">
+                  <div v-if="privilegeName !== 'title' && privilegeName !== 'child'">
                   <!-- 父权限 -->
                   <v-list-item class="pl-4">
                     <v-list-item-action>
                       <v-checkbox
                           v-model="selectedPrivileges"
                           :value="privilegeName"
-                          @change="onParentPrivilegeChange(privilegeName, $event)"
+                          @change="onParentPrivilegeChange(String(privilegeName), $event)"
                           hide-details
                       />
                     </v-list-item-action>
                     <v-list-item-content>
                       <v-list-item-title>
-                        {{ getPrivilegeName(privilegeName) }}
+                        {{ getPrivilegeName(String(privilegeName)) }}
                         <v-chip
-                            v-if="isPrivilegeExpiring(privilegeName)"
+                            v-if="isPrivilegeExpiring(String(privilegeName))"
                             small
                             color="warning"
                             class="ml-2"
@@ -153,7 +151,7 @@
                           即将过期
                         </v-chip>
                         <v-chip
-                            v-if="isPrivilegeExpired(privilegeName)"
+                            v-if="isPrivilegeExpired(String(privilegeName))"
                             small
                             color="error"
                             class="ml-2"
@@ -169,10 +167,10 @@
                       <v-btn
                           icon
                           small
-                          @click="toggleChildPrivileges(privilegeName)"
+                          @click="toggleChildPrivileges(String(privilegeName))"
                       >
                         <v-icon>
-                          {{ showChildPrivileges[privilegeName] ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
+                          {{ showChildPrivileges[String(privilegeName)] ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
                         </v-icon>
                       </v-btn>
                     </v-list-item-action>
@@ -180,9 +178,9 @@
 
                   <!-- 子权限（可展开） -->
                   <v-expand-transition>
-                    <div v-show="showChildPrivileges[privilegeName]">
+                    <div v-show="showChildPrivileges[String(privilegeName)]">
                       <v-list-item
-                          v-for="(subChild, subPrivilegeName) in child.child"
+                          v-for="(subChild, subPrivilegeName) in getChildPrivileges(child)"
                           :key="subPrivilegeName"
                           class="pl-12"
                       >
@@ -190,14 +188,14 @@
                           <v-checkbox
                               v-model="selectedPrivileges"
                               :value="subPrivilegeName"
-                              @change="onChildPrivilegeChange(privilegeName, subPrivilegeName, $event)"
-                              :disabled="selectedPrivileges.includes(privilegeName)"
+                              @change="onChildPrivilegeChange(String(privilegeName), String(subPrivilegeName), $event)"
+                              :disabled="selectedPrivileges.includes(String(privilegeName))"
                               hide-details
                           />
                         </v-list-item-action>
                         <v-list-item-content>
                           <v-list-item-title>
-                            {{ getPrivilegeName(subPrivilegeName) }}
+                            {{ getPrivilegeName(String(subPrivilegeName)) }}
                           </v-list-item-title>
                           <v-list-item-subtitle>
                             权限代码：{{ subPrivilegeName }}
@@ -209,6 +207,7 @@
 
                   <v-divider class="my-2" />
                 </div>
+                </template>
               </div>
 
               <!-- 空状态 -->
@@ -274,8 +273,8 @@
                 mdi-clock-outline
               </v-icon>
               <v-tooltip bottom v-if="privilege.expiryTime">
-                <template v-slot:activator="{ on }">
-                  <span v-on="on">{{ formatDate(privilege.expiryTime) }}</span>
+                <template v-slot:activator="{ props }">
+                  <span v-bind="props">{{ formatDate(privilege.expiryTime) }}</span>
                 </template>
                 <span>过期时间</span>
               </v-tooltip>
@@ -309,19 +308,35 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, Ref } from 'vue'
 import {useNoticeStore} from "~/stores/noticeStore";
 import {apis} from "@/assets/sripts/index";
+
+interface PrivilegeDetail {
+  title?: string;
+  child?: Record<string, any>;
+}
+
+interface PrivilegeCategory {
+  title?: string;
+  [key: string]: PrivilegeDetail | string | undefined;
+}
+
+interface UserPrivilegeItem {
+  privilegeType: string;
+  status: string;
+  expiryTime?: string;
+}
 
 // API
 const privilegeApi = apis.privilegeApi()
 const notice = useNoticeStore()
 
 // 数据
-const privilegesList = ref<any[]>([])
+const privilegesList: Ref<PrivilegeCategory[]> = ref([])
 const selectedPrivileges = ref<string[]>([])
 const currentUser = ref<any>({ id: '', username: '' })
-const currentUserPrivileges = ref<any[]>([])
+const currentUserPrivileges = ref<UserPrivilegeItem[]>([])
 const loading = ref(false)
 const searchLoading = ref(false)
 const batchLoading = ref(false)
@@ -345,9 +360,10 @@ const allPrivilegeNames = computed(() => {
   privilegesList.value.forEach(category => {
     Object.keys(category).forEach(key => {
       if (key !== 'title' && key !== 'child') {
+        const detail = category[key] as PrivilegeDetail;
         names.push(key)
-        if (category[key]?.child) {
-          names.push(...Object.keys(category[key].child))
+        if (detail?.child) {
+          names.push(...Object.keys(detail.child))
         }
       }
     })
@@ -356,7 +372,8 @@ const allPrivilegeNames = computed(() => {
 })
 
 // 方法
-const getCategoryTitle = (title: string) => {
+const getCategoryTitle = (title?: string) => {
+  if (!title) return ''
   const titles: Record<string, string> = {
     'smuggler_weekly': '走私犯周报权限'
   }
@@ -374,6 +391,13 @@ const getPrivilegeName = (privilegeType: string) => {
     'smuggler_weekly_report_comment_delete': '删除评论'
   }
   return names[privilegeType] || privilegeType
+}
+
+const getChildPrivileges = (child: PrivilegeDetail | string | undefined) => {
+    if (typeof child === 'object' && child !== null) {
+        return (child as PrivilegeDetail).child;
+    }
+    return {};
 }
 
 const toggleChildPrivileges = (privilegeName: string) => {
@@ -406,17 +430,20 @@ const onChildPrivilegeChange = (parentName: string, childName: string, isChecked
   }
 }
 
-const findPrivilege = (privilegeName: string) => {
+const findPrivilege = (privilegeName: string): PrivilegeDetail | null => {
   for (const category of privilegesList.value) {
     for (const [key, value] of Object.entries(category)) {
-      if (key === privilegeName) {
-        return value
+      if (key === privilegeName && typeof value !== 'string') {
+        return value as PrivilegeDetail
       }
-      if (key !== 'title' && (value as any).child) {
-        for (const [childKey] of Object.entries((value as any).child)) {
-          if (childKey === privilegeName) {
-            return { child: { [childKey]: {} } }
-          }
+      if (key !== 'title' && typeof value !== 'string' && (value as PrivilegeDetail).child) {
+        const detail = value as PrivilegeDetail;
+        if (detail.child) {
+            for (const [childKey] of Object.entries(detail.child)) {
+              if (childKey === privilegeName) {
+                return { child: { [childKey]: {} } }
+              }
+            }
         }
       }
     }
@@ -537,7 +564,7 @@ const batchGrant = async () => {
         const hasChild = selectedPrivileges.value.some(p =>
             p !== privilege && p.startsWith(privilege.replace('_ownership', ''))
         )
-        return !hasChild || !p.includes('_ownership')
+        return !hasChild || !privilege.includes('_ownership')
       })
 
       for (const privilege of parentPrivileges) {

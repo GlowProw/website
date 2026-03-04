@@ -1,9 +1,13 @@
+<script lang="ts">
+export default { name: 'WeaponModificationWidget' }
+</script>
+
 <script setup lang="ts">
 import RhombusWidget from "@/components/snbWidget/rhombusWidget.vue";
-import {Item} from "glow-prow-data/src/entity/Items.ts";
+import {Item} from "glow-prow-data/src/entity/Items";
 import {computed, nextTick, onMounted, ref, toRaw, watch} from "vue";
 import type {Rarity} from "glow-prow-data/src/types/Rarity";
-import {Modifications} from "glow-prow-data";
+import {Modification, Modifications} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 import EmptyView from "@/components/EmptyView.vue";
 import ModName from "@/components/snbWidget/modName.vue";

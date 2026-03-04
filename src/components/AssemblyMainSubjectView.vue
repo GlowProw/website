@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'AssemblyMainSubjectView' }
+</script>
+
 <script setup lang="ts">
 import {assemblyViewConfig, storage_account} from "@/assets/sripts/index";
 import ZoomableCanvas from "@/components/ZoomableCanvas.vue";
@@ -33,18 +37,14 @@ const props = withDefaults(defineProps<{
 
 let isWorkshopFillScreen = ref(props.isWorkshopFillScreen),
     viewRootRef = ref(null),
-    zoomableAreaRef: Ref<ZoomableCanvas> = ref(null),
-    assemblyWorkshopRef: Ref<AssemblyWidget> = ref(null),
-    wheelWorkshopRef: Ref<WheelWidget> = ref(null),
-    warehouseWorkshopRef: Ref<WarehouseShowWidget> = ref(null),
-    workshopHeight = ref('700px'),
+    zoomableAreaRef: Ref<any> = ref(null),
+    assemblyWorkshopRef: Ref<any> = ref(null),
+    wheelWorkshopRef: Ref<any> = ref(null),
+    warehouseWorkshopRef: Ref<any> = ref(null),
+    workshopHeight = ref<string | number>(600),
+    workshopZoom = ref(1),
     tab = ref(assemblyViewConfig.onlyRead[0]),
-    refs: Ref<{
-      zoomableAreaRef: ZoomableCanvas,
-      assembly: AssemblyWidget,
-      wheel: WheelWidget,
-      warehouse: WarehouseShowWidget
-    }> = ref({
+    refs: Ref<any> = ref({
       zoomableAreaRef: null,
       assembly: null,
       wheel: null,
@@ -225,7 +225,7 @@ defineExpose({
             <v-btn density="comfortable"
                    @click="onWorkshopRestorePosition"
                    icon="mdi-restore"></v-btn>
-            <v-btn @click="workshopHeight <= 1000 ? workshopHeight += 100 : null"
+            <v-btn @click="parseInt(String(workshopHeight)) <= 1000 ? workshopHeight = (parseInt(String(workshopHeight)) + 100) + 'px' : null"
                    density="comfortable" icon>
               <v-icon icon="mdi-arrow-expand-vertical"></v-icon>
             </v-btn>
@@ -233,7 +233,7 @@ defineExpose({
                    class="ml-1 mr-1"
                    @click="onWorkshopFullScreen"
                    :icon="`mdi-${!isWorkshopFillScreen ? 'fullscreen' : 'fullscreen-exit'}`"></v-btn>
-            <v-btn @click="workshopHeight >= 400 ? workshopHeight -= 100 : null"
+            <v-btn @click="parseInt(String(workshopHeight)) >= 400 ? workshopHeight = (parseInt(String(workshopHeight)) - 100) + 'px' : null"
                    density="comfortable" icon>
               <v-icon icon="mdi-arrow-collapse-vertical"></v-icon>
             </v-btn>

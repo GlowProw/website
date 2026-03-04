@@ -11,7 +11,7 @@ import {useI18n} from "vue-i18n";
 const {t} = useI18n()
 
 let estimateCapacity: Ref<any> = ref({}),
-    appFunConfig = ref([]),
+    appFunConfig = ref<any[]>([]),
 
     clearLoading = ref(false),
     headerSearchSwitch = ref(false),
@@ -277,7 +277,7 @@ const clearStorage = () => {
                   </template>
                 </v-list-item>
               </template>
-              <template v-slot:selection="{props, item}">
+              <template v-slot:selection="{item}">
                 {{ t(`setting.routine.assemblyViewModel.${item.raw}.name`) }}
               </template>
             </v-select>

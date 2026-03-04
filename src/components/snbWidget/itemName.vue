@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'ItemName' }
+</script>
+
 <script setup lang="ts">
 import {computed} from "vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name"
@@ -9,7 +13,7 @@ const props = defineProps<{ data?: Item, id?: string, tier?: number }>(),
     {item} = useI18nReadName()
 
 let getTitle = computed(() => {
-  return `${item(props.id || props.data?.id).name() || '-'}`
+  return `${item(props.id || props.data?.id || '').name() || '-'}`
 })
 
 defineExpose({ name: getTitle })

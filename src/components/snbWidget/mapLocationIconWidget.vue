@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'MapLocationIconWidget' }
+</script>
+
 <script setup lang="ts">
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
@@ -41,7 +45,7 @@ const
       padding: 0,
       margin: 1
     }),
-    mapLocations: MapLocations = MapLocations,
+    mapLocations: any = MapLocations,
 
     // 稀有度
     rarityColorConfig = rarity.color
@@ -80,6 +84,9 @@ const onReady = async () => {
 const {targetElement, isVisible} = useIntersectionObserver({
   threshold: .7,
 })
+
+const getRarity = (i: any) => i?.rarity
+const getType = (i: any) => i?.type
 </script>
 
 <template>
@@ -99,17 +106,17 @@ const {targetElement, isVisible} = useIntersectionObserver({
           ref="targetElement"
           width="100%"
           v-bind="activatorProps"
-          :color="`hsl(from ${rarityColorConfig[i?.rarity]} h s calc(l * .15))`"
+          :color="`hsl(from ${rarityColorConfig[(i as any)?.rarity]} h s calc(l * .15))`"
           :to="isOpenDetail ? `/codex/mapLocation/${i?.id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
           :class="[
               'prohibit-drag',
               `ma-${props.margin}`,
               `pa-${props.padding}`,
-              `mapLocation-card-header-rarity-${i.rarity}`
+              `mapLocation-card-header-rarity-${(i as any).rarity}`
           ]">
-        <template v-slot:image v-if="i.rarity">
-          <v-img :src="raritysAssets[`mapLocation-rarity-${i.rarity}`]" width="100%" height="100%" class="opacity-30 prohibit-drag"/>
+        <template v-slot:image v-if="(i as any).rarity">
+          <v-img :src="raritysAssets[`mapLocation-rarity-${(i as any).rarity}`]" width="100%" height="100%" class="opacity-30 prohibit-drag"/>
         </template>
 
         <div class="d-flex align-center justify-center h-100">
@@ -143,20 +150,20 @@ const {targetElement, isVisible} = useIntersectionObserver({
         <div class="d-flex ga-2 mt-3">
           <v-chip inline
                   :to="`/codex/mapLocations?category=${i.category}`"
-                  class="badge-flavor text-center text-black" v-if="i.type">{{ t(`codex.types.${i.category}`) }}
+                  class="badge-flavor text-center text-black" v-if="(i as any).type">{{ t(`codex.types.${i.category}`) }}
           </v-chip>
         </div>
         <div class="right-show-image pointer-events-none position-absolute w-33">
           <v-img :src="mapLocationsCardData.icon" class="map-location-mirror-image"></v-img>
         </div>
 
-        <template v-if="i.rarity">
+        <template v-if="(i as any).rarity">
           <LightRays
               id="iconBackRight"
               ref="iconBackRight"
               rays-origin="top-right"
               quality="low"
-              :rays-color="rarityColorConfig[i.rarity]"
+              :rays-color="rarityColorConfig[(i as any).rarity]"
               :rays-speed="2"
               :light-spread="10"
               :ray-length="10"

@@ -21,6 +21,10 @@
   </v-card>
 </template>
 
+<script lang="ts">
+export default { name: 'GoogleAd' }
+</script>
+
 <script setup lang="ts">
 import {onMounted, ref, watch} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
@@ -36,6 +40,7 @@ interface AdConfig {
 
 interface Props {
   id?: number | string;
+  class?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -81,11 +86,23 @@ watch(() => props.id, (value) => {
 
 
 onMounted(() => {
-  adIdSwitchStatus.value = storage_account.getConfigurationItem('ad', adId.value, {
+  adIdSwitchStatus.value = storage_account.getConfigurationItem('ad', String(adId.value), {
     defaultValue: {
       type: 'google',
       value: true
     }
+  })
+})
+
+/**
+ * 监听adIdSwitchStatus变化
+ */
+watch(() => adIdSwitchStatus.value, (value) => {
+  if (value === undefined) return
+  // 保持原有结构更新
+  storage_account.updateConfiguration('ad', String(adId.value), {
+    type: 'google',
+    value: value.value // 假设 val 是对象，取其中的 value
   })
 })
 
@@ -95,7 +112,7 @@ onMounted(() => {
 const offAd = () => {
   const status = false;
 
-  storage_account.updateConfiguration('ad', adId.value, {
+  storage_account.updateConfiguration('ad', String(adId.value), {
     type: 'google',
     value: status
   })

@@ -13,8 +13,8 @@
                :key="zIndex">
             <rhombus-widget
                 :size="6"
-                :activate="z == svgTransform.k"
-                :solid="z == svgTransform.k"
+                :activate="z.toFixed(1) == Math.abs(svgTransform.k).toFixed(1)"
+                :solid="z.toFixed(1) == Math.abs(svgTransform.k).toFixed(1)"
                 @click="setSvgScale(z)"
                 class="pa-1"></rhombus-widget>
           </div>
@@ -59,15 +59,15 @@
             class="skill-tree-container-cardInfo overflow-y-auto">
       <template v-slot:title>
         <div class="mb-1 d-flex align-center text-caption my-2 mr-2"
-             v-if="skills[selectShowKey] && skills[selectShowKey].type"
+             v-if="selectShowKey && skills[selectShowKey] && skills[selectShowKey].type"
              :title="t(`snb.empireSkills.${selectShowKey}.name`)">
           <ItemSlotBase size="20px" :padding="0" class="d-inline-flex">
             <FactionIconWidget :name="skills[selectShowKey].type" size="20px"></FactionIconWidget>
           </ItemSlotBase>
           <span class="ml-2">{{ t(`snb.factions.${skills[selectShowKey].type}.name`) }}</span>
         </div>
-        <span class="text-amber">{{ t(`snb.empireSkills.${skills[selectShowKey] && skills[selectShowKey].id}.name`) }}</span>
-        <template v-if="skillPointsInput[selectShowKey] > 1">
+        <span class="text-amber" v-if="selectShowKey">{{ t(`snb.empireSkills.${skills[selectShowKey] && skills[selectShowKey].id}.name`) }}</span>
+        <template v-if="selectShowKey && skillPointsInput[selectShowKey] > 1">
           <span class="font-weight-bold">
               {{ number.intToRoman(skillPointsInput[selectShowKey] || 0) }}
           </span>
@@ -81,12 +81,12 @@
 
       <div class="skill-tree-title px-10 mx-n6 py-2 text-amber-lighten-4">
         {{ t('empireSkillSimulation.effects') }}
-        <template v-if="skills[selectShowKey] && skills[selectShowKey].stage > 1">
+        <template v-if="selectShowKey && skills[selectShowKey] && skills[selectShowKey].stage > 1">
           ({{ skills[selectShowKey].stage }})
         </template>
       </div>
       <div class="py-2 px-5 mb-5 text-pre-line">
-        <template v-if="skills[selectShowKey] && skills[selectShowKey].stage && skills[selectShowKey].stage > 1">
+        <template v-if="selectShowKey && skills[selectShowKey] && skills[selectShowKey].stage && skills[selectShowKey].stage > 1">
           <template v-if="!skillPointsInput[selectShowKey]">
             <!-- 未选择模拟，预览所有 -->
             <p class="opacity-60" v-for="(to, toIndex) in skills[selectShowKey].stage" :key="toIndex">
@@ -98,7 +98,7 @@
             {{ t(`snb.empireSkills.${skills[selectShowKey] && skills[selectShowKey].id}.effects.${skillPointsInput[selectShowKey] || '1'}`, {...skills[selectShowKey].attr, faction: t(`snb.factions.${skills[selectShowKey].type}.name`)}) }}
           </template>
         </template>
-        <template v-else-if="skills[selectShowKey] && skills[selectShowKey].stage && skills[selectShowKey].stage == 1">
+        <template v-else-if="selectShowKey && skills[selectShowKey] && skills[selectShowKey].stage && skills[selectShowKey].stage == 1">
           {{ t(`snb.empireSkills.${skills[selectShowKey] && skills[selectShowKey].id}.effects.general`, {...skills[selectShowKey].attr, faction: t(`snb.factions.${skills[selectShowKey].type}.name`)}) || t('empireSkillSimulation.effectsNotContent') }}
         </template>
       </div>
@@ -106,10 +106,10 @@
       <div class="skill-tree-title px-10 mx-n6 py-2 text-amber-lighten-4">{{ t('empireSkillSimulation.requirements') }}</div>
       <div class="py-2 px-5 mb-5">
         <p class="mb-1">需拥有以下所有升级</p>
-        <div v-if="skills[selectShowKey] && skills[selectShowKey].requisite">
+        <div v-if="selectShowKey && skills[selectShowKey] && skills[selectShowKey].requisite">
           <v-row no-gutters v-for="(i, index) in skills[selectShowKey].requisite" :key="index" align="center">
             <v-col cols="auto" class="d-flex justify-center align-center mr-2">
-              <rhombus-widget size="6" :solid="!!skillPointsInput[skills[i].id]" :activate="skillPointsInput[skills[i].id]"></rhombus-widget>
+              <rhombus-widget size="6" :solid="!!skillPointsInput[skills[i].id]" :activate="!!skillPointsInput[skills[i].id]"></rhombus-widget>
             </v-col>
             <v-col @click="onMoveNode(skills[i].key)">
               <HtmlLink class="cursor-pointer"
@@ -124,17 +124,17 @@
 
       <div class="skill-tree-title px-10 mx-n6 py-2 text-amber-lighten-4">{{ t('empireSkillSimulation.requiredCost') }}</div>
       <div class="py-2">
-        <div v-if="skills[selectShowKey] && skills[selectShowKey].requiredCost">
+        <div v-if="selectShowKey && skills[selectShowKey] && skills[selectShowKey].requiredCost">
           <v-list density="compact" nav class="pt-0 bg-transparent">
             <v-list-item v-for="(i, key) in skills[selectShowKey].requiredCost" :key="key" class="pt-0">
               <v-row no-gutters align="center">
                 <v-col class="d-flex justify-start align-center">
                   <ItemSlotBase :size="`30px`" :padding="0">
-                    <MaterialIconWidget :id="key" item-type="items"></MaterialIconWidget>
+                    <MaterialIconWidget :id="String(key)" item-type="items"></MaterialIconWidget>
                   </ItemSlotBase>
                   <span class="ml-2">
                     <HtmlLink :is-icon="false" :is-iframe-show="false" :href="`/codex/material/${key}`">
-                      <MaterialName :id="key"></MaterialName>
+                      <MaterialName :id="String(key)"></MaterialName>
                     </HtmlLink>
                   </span>
                 </v-col>
@@ -161,7 +161,7 @@
 
       <div class="skill-tree-title px-10 mx-n6 py-2 text-amber-lighten-4">{{ t('empireSkillSimulation.other') }}</div>
       <div class="mx-5 mb-10 opacity-60"
-           v-if="skills[selectShowKey] && skills[selectShowKey].id">
+           v-if="selectShowKey && skills[selectShowKey] && skills[selectShowKey].id">
         <v-text-field :value="skills[selectShowKey].id" hide-details readonly variant="underlined" density="compact">
           <template v-slot:append-inner>
             <v-icon>mdi-identifier</v-icon>
@@ -256,29 +256,29 @@ import MaterialName from "@/components/snbWidget/materialName.vue";
 import HtmlLink from "@/components/HtmlLink.vue";
 import FullscreenBtn from "@/components/FullscreenBtn.vue";
 
-interface SkillData {
-  id: string;
-  requisite: string[];
-  stage?: number;
-  type?: string;
-  key?: string;
-}
-
 interface HierarchyNodeData {
   id: string;
   parentId: string | null;
-  data: SkillData;
+  data: any;
+  skillPointValue?: number;
+}
+
+interface SearchItem {
+  title: string;
+  value: string;
+  node: d3.HierarchyNode<HierarchyNodeData>;
 }
 
 const props = defineProps<{
-      skills: Record<string, SkillData>;
-    }>(),
-    skills = EmpireSkills,
-    svgScaleExtent = [0.6, 4],
-    router = useRouter(),
-    route = useRoute(),
-    {t, tm, te, rt, locale} = useI18n(),
-    {mobile} = useDisplay()
+      skills: Record<string, any>;
+    }>();
+
+const skillsData: any = EmpireSkills;
+const svgScaleExtent: [number, number] = [0.6, 4];
+const router = useRouter();
+const route = useRoute();
+const {t, tm, te, rt, locale} = useI18n();
+const {mobile} = useDisplay();
 
 let
     empireSkillSimulationViewRef = ref(null),
@@ -288,21 +288,21 @@ let
       1,
       svgScaleExtent[1],
     ]),
-    svgTransform = ref({k: 1}),
+    svgTransform = ref({k: 1, x: 0, y: 0}),
     model = ref(false),
     selectShowKey = ref<string | null>('manufactoryExpansion-compagnieRoyale-2'),
 
     searchQuery = ref(''),
-    searchItems = ref([]),
-    foundNodes = ref([]),
-    skillPointsInput = ref({}),
+    searchItems = ref<SearchItem[]>([]),
+    foundNodes = ref<SearchItem[]>([]),
+    skillPointsInput = ref<Record<string, number>>({});
 
     // 布局的节点间距
-    nodeWidth = 39,
-    nodeHeight = 39
+const nodeWidth = 60,
+    nodeHeight = 60
 
 let root: d3.HierarchyNode<HierarchyNodeData>;
-let svg: d3.Selection<SVGElement | null, unknown, null, undefined>;
+let svg: d3.Selection<SVGSVGElement | null, unknown, null, undefined>;
 let zoom: d3.ZoomBehavior<SVGSVGElement, unknown>;
 
 watch(locale, () => {
@@ -318,8 +318,8 @@ watch(skillPointsInput.value, () => {
  * @param key 技能的键名
  * @returns boolean 指示是否可以增加或减少模拟点
  */
-const getIsSkillPointPossible = (key) => {
-  const skill = skills[key];
+const getIsSkillPointPossible = (key: string) => {
+  const skill = skillsData[key];
   if (!skill) return false;
 
   const requisite = skill.requisite || [];
@@ -331,7 +331,7 @@ const getIsSkillPointPossible = (key) => {
   }
 
   let checkResultCount = 0;
-  requisite.forEach(i => {
+  requisite.forEach((i: string) => {
     // 检查前置条件技能是否已激活
     if (skillPointsInput.value[i]) {
       checkResultCount += 1;
@@ -347,9 +347,11 @@ const getIsSkillPointPossible = (key) => {
  * @param key
  * @param type
  */
-const onSetSkillPoint = (key, type = 'add') => {
-  const {stage} = skills[key];
+const onSetSkillPoint = (key: string, type = 'add') => {
+  const {stage} = skillsData[key];
   const currentValue = skillPointsInput.value[key] || 0;
+
+  if (!stage) return;
 
   switch (type) {
     case 'add':
@@ -365,7 +367,7 @@ const onSetSkillPoint = (key, type = 'add') => {
  * 聚焦节点
  * @param key
  */
-const onMoveNode = (key) => {
+const onMoveNode = (key: string) => {
   if (key == 'root')
     return;
 
@@ -389,13 +391,15 @@ const handleNodeClick = (event: MouseEvent, d: d3.HierarchyNode<HierarchyNodeDat
   if (!key && !d)
     return model.value = false;
 
-  selectShowKey.value = key;
+  selectShowKey.value = key || null;
   model.value = true;
 
-  router.push({
-    name: route.name,
-    query: {...route.query, key}
-  })
+  if (key) {
+      router.push({
+        name: route.name as string,
+        query: {...route.query, key}
+      })
+  }
 
   locateNode(d)
 };
@@ -415,13 +419,13 @@ const searchAndLocate = () => {
     const categoryName = skillData.type ? t(`snb.factions.${skillData.type}.name`).toLowerCase() : '';
 
     if (
-        node.id.toLowerCase().includes(query) ||
+        (node.id || '').toLowerCase().includes(query) ||
         skillName.includes(query) ||
         (skillData.type && categoryName.includes(query))
     ) {
       foundNodes.value.push({
         title: skillName,
-        value: node.id,
+        value: node.id || '',
         node: node
       })
     }
@@ -436,7 +440,7 @@ const searchAndLocate = () => {
  * 处理搜索内容输入
  * @param value
  */
-const handleSearchInput = (value) => {
+const handleSearchInput = (value: any) => {
   if (typeof value === 'object' && value && value.node) {
     // 用户从下拉列表中选择了一个项
     locateNode(value.node)
@@ -456,7 +460,7 @@ const handleSearchInput = (value) => {
  * @param node 要居中的 D3 节点数据
  */
 const locateNode = (node: d3.HierarchyNode<HierarchyNodeData>) => {
-  if (!svgRef.value) return;
+  if (!svgRef.value || node.x === undefined || node.y === undefined) return;
 
   const containerRect = svgRef.value.getBoundingClientRect()
   const svgWidth = containerRect.width;
@@ -470,9 +474,11 @@ const locateNode = (node: d3.HierarchyNode<HierarchyNodeData>) => {
   const newX = -node.y * targetScale + svgWidth / 2
   const newY = -node.x * targetScale + svgHeight / 2;
 
-  svg.transition()
-      .duration(450)
-      .call(zoom.transform as any, d3.zoomIdentity.translate(newX, newY).scale(targetScale))
+  if (svg) {
+      svg.transition()
+          .duration(450)
+          .call(zoom.transform as any, d3.zoomIdentity.translate(newX, newY).scale(targetScale))
+  }
 
   // 移除所有节点的高亮
   d3.select(svgRef.value).selectAll('.node-group .node-rect').classed('highlighted', false)
@@ -481,7 +487,7 @@ const locateNode = (node: d3.HierarchyNode<HierarchyNodeData>) => {
   d3.select(svgRef.value).select(`.node-${node.id} .node-rect`).classed('highlighted', true)
 
   // 更新信息卡片
-  selectShowKey.value = node.data.data.key;
+  selectShowKey.value = node.data.data.key || null;
   model.value = true;
 };
 
@@ -604,9 +610,11 @@ const drawTree = () => {
   treeLayout(root)
 
   // --- 3. D3 渲染 ---
-  svg = d3.select(svgRef.value)
-      .attr("width", "100%")
-      .attr("height", "100%")
+  if (svgRef.value) {
+      svg = d3.select<SVGSVGElement, unknown>(svgRef.value)
+          .attr("width", "100%")
+          .attr("height", "100%") as any
+  }
 
   svg.on('click', () => {
     model.value = false;
@@ -636,8 +644,10 @@ const drawTree = () => {
       .attr("class", "link")
       .attr("marker-mid", "url(#arrow)")
       .attr("d", d => {
-        const start = {x: d.source.y, y: d.source.x};
-        const end = {x: d.target.y, y: d.target.x};
+        const source = d.source as d3.HierarchyPointNode<HierarchyNodeData>;
+        const target = d.target as d3.HierarchyPointNode<HierarchyNodeData>;
+        const start = {x: source.y, y: source.x};
+        const end = {x: target.y, y: target.x};
         const mid = {x: (start.x + end.x) / 2, y: (start.y + end.y) / 2};
         return `M${start.x},${start.y} L${mid.x},${mid.y} L${end.x},${end.y}`;
       })
@@ -652,8 +662,10 @@ const drawTree = () => {
       .attr("fill", "none")
       .attr("stroke-dasharray", "15,20")
       .attr("d", d => {
-        const start = {x: d.source.y, y: d.source.x};
-        const end = {x: d.target.y, y: d.target.x};
+        const source = d.source as d3.HierarchyPointNode<HierarchyNodeData>;
+        const target = d.target as d3.HierarchyPointNode<HierarchyNodeData>;
+        const start = {x: source.y, y: source.x};
+        const end = {x: target.y, y: target.x};
 
         if (isNaN(start.x) || isNaN(start.y) || isNaN(end.x) || isNaN(end.y)) {
           console.error('Invalid coordinates:', {start, end})
@@ -682,10 +694,10 @@ const drawTree = () => {
       .attr("dominant-baseline", "central")
       .attr("transform", d => {
         const nodes = d[1];
-        const minX = d3.min(nodes, n => n.y)
-        const maxX = d3.max(nodes, n => n.y)
-        const minY = d3.min(nodes, n => n.x)
-        const maxY = d3.max(nodes, n => n.x)
+        const minX = d3.min(nodes, n => n.y) || 0
+        const maxX = d3.max(nodes, n => n.y) || 0
+        const minY = d3.min(nodes, n => n.x) || 0
+        const maxY = d3.max(nodes, n => n.x) || 0
 
         const centerX = (minX + maxX) / 2;
         const centerY = (minY + maxY) / 2;
@@ -704,7 +716,7 @@ const drawTree = () => {
       .attr("d", d => {
         const sourceNode = nodesById.get(d.source)
         const targetNode = nodesById.get(d.target)
-        if (!sourceNode || !targetNode) return "";
+        if (!sourceNode || !targetNode || sourceNode.x === undefined || sourceNode.y === undefined || targetNode.x === undefined || targetNode.y === undefined) return "";
         const start = {x: sourceNode.y, y: sourceNode.x};
         const end = {x: targetNode.y, y: targetNode.x};
         const mid = {x: (start.x + end.x) / 2, y: (start.y + end.y) / 2};
@@ -755,7 +767,7 @@ const drawTree = () => {
  * 大类名称转换
  * @param key
  */
-const categoryName = (key) => {
+const categoryName = (key: string) => {
   const keyPath = `snb.factions.${key}.name`;
   return te(keyPath) ? t(keyPath) : key
 }
@@ -765,7 +777,7 @@ onMounted(() => {
 
   drawTree()
 
-  if (key && skills[key])
+  if (key && typeof key === 'string' && skillsData[key])
     onMoveNode(key)
 
   // 添加窗口大小变化监听器

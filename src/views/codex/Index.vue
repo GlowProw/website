@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import Footer from "@/components/Footer";
-import Header from "@/components/Header";
+import Footer from "@/components/Footer.vue";
+import Header from "@/components/Header.vue";
 import Sidebar from "@/views/codex/Sidebar.vue";
 import {useI18n} from "vue-i18n";
 import {useDisplay} from "vuetify/framework";

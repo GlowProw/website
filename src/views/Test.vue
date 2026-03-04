@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {ref} from "vue";
 import LongPressButton from "@/components/snbWidget/btnWidget.vue";
-import WheelWidget from "@/components/wheelShowWidget.vue";
+import WheelWidget from "@/components/WheelShowWidget.vue";
 import WarehouseShowWidget from "@/components/WarehouseShowWidget.vue";
 import TreasureMapImageSimilarity from "@/components/TreasureMapImageSimilarity.vue";
 import TreasureMapImageSimilarityNew from "@/components/TreasureMapImageSimilarity.vue";

@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'ModDescription' }
+</script>
+
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import {computed} from "vue";
@@ -8,8 +12,8 @@ const props = defineProps<{ id: string, variants, grade, type, class?: string }>
 let
     // 查找模组对应变种
     // 按照item中的type来决定
-    modVariants: [] = computed(() => {
-      return props.variants.filter(e => e.itemType.indexOf(props.type) >= 0)
+    modVariants = computed(() => {
+      return props.variants.filter((e: any) => e.itemType.indexOf(props.type) >= 0)
     })
 
 /**
@@ -25,6 +29,9 @@ const onFormatRange = (data: []) => {
     }
   })
 }
+
+const getRange = (v: any) => v.range
+const getModDescription = () => (tm(`snb.modifications.${props.id}.description`) as any)
 </script>
 
 <template>
@@ -33,12 +40,12 @@ const onFormatRange = (data: []) => {
     <template v-if=" !Array.isArray(t(`snb.modifications.${id}.description`)) && te(`snb.modifications.${id}.description`)">
       {{
         t(`snb.modifications.${id}.description`, {
-          __: onFormatRange(v.range)
+          __: onFormatRange(getRange(v))
         })
       }}
     </template>
-    <template v-else v-for="content in tm(`snb.modifications.${id}.description`)" :key="content">
-      {{ rt(content, {__: onFormatRange(v.range)}) }}<br>
+    <template v-else v-for="content in getModDescription()" :key="content">
+      {{ rt(content, {__: onFormatRange(getRange(v))}) }}<br>
     </template>
   </div>
 </template>

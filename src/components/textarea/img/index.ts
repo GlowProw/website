@@ -35,7 +35,7 @@ const ImgNode = Node.create({
     },
     addCommands() {
         return {
-            insertImg: (src) => ({chain}: { commands: any }) => {
+            insertImg: (src) => ({chain}: any) => {
                 return chain()
                     .insertContent([
                         {

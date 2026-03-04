@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'ItemDamageTypeWidget' }
+</script>
+
 <script setup lang="ts">
 import {computed, nextTick, onMounted, Ref, ref} from "vue";
 

@@ -7,6 +7,10 @@
   <component :is="iconComponent" v-bind="$attrs" :class="props.class"/>
 </template>
 
+<script lang="ts">
+export default { name: 'AssemblySvgIcon' }
+</script>
+
 <script setup lang="ts">
 import {computed, h} from 'vue'
 import {mdiAccount, mdiBlockHelper, mdiLink, mdiTableFurniture,} from '@mdi/js'

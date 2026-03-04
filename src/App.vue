@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import AppMessageWidget from '@/components/AppMessageWidget'
+import AppMessageWidget from '@/components/AppMessageWidget.vue'
 import {onMounted} from "vue";
 
 onMounted(() => {

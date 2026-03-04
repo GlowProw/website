@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'ObtainableWidget' }
+</script>
+
 <script setup lang="ts">
 
 import ItemName from "@/components/snbWidget/itemName.vue";
@@ -21,15 +25,29 @@ const props = withDefaults(
     cosmetics = Cosmetics
 
 let obtainable = computed(() => {
+      const data = props.data as any;
+
+      // 赛季
+      if (data.bySeason && data.bySeason.seasons && data.bySeason.seasons.length > 0) {
+        let seasons: any = (tm as any)('snb.seasons');
+        return data.bySeason.seasons.map((season: any) => {
+          return {
+            to: `/codex/seasons`,
+            type: 'Season',
+            tip: seasons[season].name,
+          }
+        })
+      }
+
       return filterByObtainable(props.data)
     }),
     seasonI18nMap = computed(() => {
-      return tm('snb.seasons')
+      return (tm as any)('snb.seasons') as any
     }),
     i18nAdditionalAttr = computed(() => {
       return {
-        ...seasonI18nMap.value
-      }
+        ...(seasonI18nMap.value as any)
+      } as any
     })
 
 /**
@@ -117,15 +135,20 @@ const filterByObtainable = (d: Item | Material | Cosmetic | Npc | null | undefin
   return [];
 };
 
-const tip = (o) => {
-  return asString([
-    `snb.items.${o.id}.name`,
-    `snb.items.${sanitizeString(o.id).cleaned}.name`,
-    `snb.mapLocations.${o.id}.name`,
-    `snb.locations.${o.id}`,
-  ], {
-    variable: i18nAdditionalAttr,
-    backRawKey: true
+const tip = (o: any) => {
+  if (typeof o.tip == 'string') return o.tip
+  if (typeof o.tip == 'function') return o.tip(o)
+  return (tm(o.tip) as any)
+}
+
+/**
+ * 过滤可获得性
+ */
+const filterObtainable = (items: any[], targetId: string) => {
+  return items.filter(item => {
+    if (!item.obtainable) return false;
+    // ... rest of logic
+    return false
   })
 }
 </script>
@@ -145,7 +168,7 @@ const tip = (o) => {
             :to="o.to">
 
       <ItemSlotBase size="26px" class="mr-1" v-if="o && o.type=='Item'">
-        <ItemIconWidget :margin="0" :id="o.id"  :is-open-new-window="false" :is-open-detail="false" :is-show-open-detail="flase"></ItemIconWidget>
+        <ItemIconWidget :margin="0" :id="o.id"  :is-open-new-window="false" :is-open-detail="false" :is-show-open-detail="false"></ItemIconWidget>
       </ItemSlotBase>
 
       <template v-if="o.item">

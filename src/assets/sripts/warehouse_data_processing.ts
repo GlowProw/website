@@ -5,7 +5,8 @@ const items = Items
 
 interface VersionedDataProcessing<T> {
     get: (data: T) => any;
-    set: (data: T, value: any) => T;
+    set: (data: T) => T;
+    verify: (data: T) => { valid: boolean; errors?: string[] };
 }
 
 type WarehouseDataProcessingMap<T = any> = {
@@ -26,7 +27,7 @@ export default class WarehouseDataProcessing {
                     }
                 })
 
-                data.__version = this.nowVersion;
+                data.__version = WarehouseDataProcessing.nowVersion;
                 return data;
             },
             set: (data) => {
@@ -41,8 +42,8 @@ export default class WarehouseDataProcessing {
             },
             verify: (data) => {
                 return {
-                    required: 0,
-                    verify: [],
+                    valid: true,
+                    errors: [],
                 };
             }
         },
@@ -87,6 +88,6 @@ export default class WarehouseDataProcessing {
 
         let version = useVersion || data?.__version || WarehouseDataProcessing.nowVersion;
 
-        return this.processing[version].verify(data)
+        return this.processing[version].verify(data).valid
     }
 }

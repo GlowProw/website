@@ -12,9 +12,9 @@ class ItemData {
     // 船
     ship: Ship
     // 武器
-    weapons: []
+    weapons: any[] = []
     // 陈设
-    furnitures: []
+    furnitures: any[] = []
 }
 
 export class ItemCalc {
@@ -24,9 +24,9 @@ export class ItemCalc {
         this.data = new ItemData()
 
         return {
-            addShip,
-            addShipUpgrade
-        }
+            addShip: this.addShip.bind(this),
+            addShipUpgrade: this.addShipUpgrade.bind(this)
+        } as any
     }
 
     /**
@@ -37,8 +37,8 @@ export class ItemCalc {
         this.data.ship = data
 
         return {
-            addShipUpgrade,
-            addFurniture
+            addShipUpgrade: this.addShipUpgrade.bind(this),
+            addFurniture: this.addFurniture.bind(this)
         }
     }
 
@@ -48,8 +48,8 @@ export class ItemCalc {
      */
     addShipUpgrade(data: Item) {
         return {
-            addFurniture,
-            addWeapon,
+            addFurniture: this.addFurniture.bind(this),
+            addWeapon: this.addWeapon.bind(this),
         }
     }
 
@@ -61,7 +61,7 @@ export class ItemCalc {
         this.data.weapons.push(data)
 
         return {
-            addWeapon
+            addWeapon: this.addWeapon.bind(this)
         }
     }
 
@@ -72,7 +72,7 @@ export class ItemCalc {
     addWeapon(data: Item) {
         this.data.weapons.push(data)
         return {
-            run
+            run: this.run.bind(this)
         }
     }
 
@@ -82,7 +82,7 @@ export class ItemCalc {
      */
     addArmor(data: Item) {
         return {
-            run
+            run: this.run.bind(this)
         }
     }
 
@@ -90,5 +90,6 @@ export class ItemCalc {
      * 运算结果
      */
     run(): ItemCalcResult {
+        return new ItemCalcResult()
     }
 }

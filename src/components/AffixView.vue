@@ -23,13 +23,17 @@
   </div>
 </template>
 
+<script lang="ts">
+export default { name: 'AffixView' }
+</script>
+
 <script setup lang="ts">
 import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue'
 
 interface Props {
   direction?: 'left' | 'right'
-  offsetTop?: number | string
-  offsetBottom?: number | string
+  offsetTop?: number
+  offsetBottom?: number
   affixBgClass?: string
 }
 

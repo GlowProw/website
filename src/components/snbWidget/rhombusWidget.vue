@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'RhombusWidget' }
+</script>
+
 <script setup lang="ts">
 const props = withDefaults(defineProps<{ activate?: boolean, solid?: boolean, activateColor?: string, size?: string | number }>(), {
   activate: false,

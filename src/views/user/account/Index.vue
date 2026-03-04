@@ -98,12 +98,12 @@ const logout = () => {
   router.push('/')
 }
 
-const onChangeMenu = (key) => {
+const onChangeMenu = (key: any) => {
   if (primaryNavMenu.value == key)
     return
 
   primaryNavMenu.value = key
-  router.push(navs.value[key].child[0].to)
+  router.push((navs.value as any)[key].child[0].to)
 }
 </script>
 
@@ -198,7 +198,7 @@ const onChangeMenu = (key) => {
             </template>
           </v-toolbar>
 
-          <v-container :min-width="mobile ? width : null" :class="{'pt-10': mobile}" class="pa-5 w-100 overflow-y-auto overflow-x-auto">
+          <v-container :min-width="mobile ? width : undefined" :class="{'pt-10': mobile}" class="pa-5 w-100 overflow-y-auto overflow-x-auto">
             <router-view></router-view>
           </v-container>
         </v-main>

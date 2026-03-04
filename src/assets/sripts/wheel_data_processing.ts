@@ -5,7 +5,8 @@ const items = Items
 
 interface VersionedDataProcessing<T> {
     get: (data: T) => any;
-    set: (data: T, value: any) => T;
+    set: (data: T) => T;
+    verify: (data: T) => { valid: boolean; errors?: string[] };
 }
 
 type WheelDataProcessingMap<T = any> = {
@@ -19,21 +20,21 @@ export default class WheelDataProcessing {
     private processing: WheelDataProcessingMap = {
         '0.0.1': {
             get: (data) => {
-                data.map(i => {
+                data.map((i: any) => {
                     return {
                         ...i,
-                        data: i.data.map(j => j?.id || null)
+                        id: i && i.id || null
                     }
                 })
 
-                data.__version = this.nowVersion;
+                data.__version = WheelDataProcessing.nowVersion;
                 return data;
             },
             set: (data) => {
-                data.map(i => {
+                data.map((i: any) => {
                     return {
                         ...i,
-                        data: i.data.map(j => items[j])
+                        id: items[i && i.id] || null
                     }
                 })
 
@@ -41,8 +42,8 @@ export default class WheelDataProcessing {
             },
             verify: (data) => {
                 return {
-                    required: 0,
-                    verify: [],
+                    valid: true,
+                    errors: [],
                 };
             }
         },
@@ -82,11 +83,11 @@ export default class WheelDataProcessing {
      * @param dataRaw
      * @param useVersion
      */
-    public verify(dataRaw, useVersion?: string): boolean {
+    public verify(dataRaw: any, useVersion?: string): boolean {
         const data = toRaw(dataRaw)
 
         let version = useVersion || data?.__version || WheelDataProcessing.nowVersion;
 
-        return this.processing[version].verify(data)
+        return this.processing[version].verify(data).valid
     }
 }

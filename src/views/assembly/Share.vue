@@ -12,7 +12,7 @@ import QRCode from "qrcode"
 
 import AssemblyWidget from "@/components/AssemblyWidget.vue";
 import Loading from "@/components/Loading.vue";
-import Textarea from "@/components/textarea"
+import Textarea from "@/components/textarea/index.vue"
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import Logo from "@/components/Logo.vue";
 import AssemblySvgIcon from "@/components/AssemblySvgIcon.vue";
@@ -29,8 +29,8 @@ const route = useRoute(),
     {t} = useI18n(),
     {mobile} = useDisplay()
 
-let assemblyDetailData: Ref<AssemblyItemResult> = ref({}),
-    generateImageValue = ref({
+let assemblyDetailData: Ref<any> = ref({}),
+    generateImageValue: Ref<any> = ref({
       isShowEmptySlot: true,
       isShowItemName: true,
       isFullName: false,
@@ -68,8 +68,8 @@ watch(() => [
 
 watch(() => generateImageValue.value, (value) => {
   router.push({
-    name: route.name,
-    query: {...route.query, ...generateImageValue.value},
+    name: route.name as any,
+    query: {...route.query, ...generateImageValue.value} as any,
   })
 
   // 保存海报配置
@@ -156,7 +156,7 @@ const onGeneratedShare = async () => {
 
     await goto(0, {duration: 2000})
 
-    const d = await snapdom(node, {
+    const d = await snapdom(node as any, {
       width: generateImageValue.value.width,
       scale: mobile ? window.devicePixelRatio * 2 : window.devicePixelRatio,
       embedFonts: true,
@@ -170,9 +170,9 @@ const onGeneratedShare = async () => {
         return true;
       },
       cacheBust: false
-    })
+    } as any)
 
-    await d.download({quality: generateImageValue.value.quality, format: generateImageValue.value.format, filename: `${generateImageValue.value.filename}.${generateImageValue.value.format}`})
+    await d.download({quality: generateImageValue.value.quality, format: generateImageValue.value.format, filename: `${generateImageValue.value.filename}.${generateImageValue.value.format}`} as any)
   } catch (e) {
     console.error(e)
   } finally {

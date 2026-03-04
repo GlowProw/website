@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'WarehouseShowWidget' }
+</script>
+
 <script setup lang="ts">
 import {computed, onMounted, ref, toRaw, watch} from "vue";
 import {WarehouseAttr} from "@/assets/types";
@@ -22,10 +26,10 @@ let data = ref<{ id: number | null, count: number, timestamp?: number }[]>([]),
     maxSlot = ref(props.cargo.cargoSlots || 50),
     show = ref(false),
     selectIndex = ref(0),
-    selectItemValue = ref(null),
+    selectItemValue = ref<any>(null),
     wheelOptionalItemTags = ref(['consumable']),
     // 属性
-    attr = ref({
+    attr = ref<WarehouseAttr>({
       warehouseUseVersion: WarehouseDataProcessing.nowVersion
     }),
     // 已经使用的卡槽数量
@@ -37,19 +41,15 @@ let data = ref<{ id: number | null, count: number, timestamp?: number }[]>([]),
       const warehouseSlotCount = maxSlot.value
       let szatistical = 0
 
-      wheelTabs.value.forEach(i => i == null ? szatistical++ : null)
+      data.value.forEach(i => i.id == null ? szatistical++ : null)
 
       return szatistical == warehouseSlotCount
     })
 
-watch(() => props.slotCount, (value) => {
-  maxSlot.value = value
-})
-
-watch(data.value, (data) => {
+watch(data, (newVal) => {
   // 重新赋值回 data.value，确保响应式更新
-  if (data.value)
-    data.value = data.sort((a, b) => {
+  if (newVal)
+    newVal.sort((a, b) => {
       const aHasData = hasDataChecker(a)
       const bHasData = hasDataChecker(b)
 
@@ -77,7 +77,7 @@ onMounted(() => {
   })
 })
 
-const hasDataChecker = (d): boolean =>
+const hasDataChecker = (d: any): boolean =>
     d.id !== null && d.id !== undefined;
 
 /**
@@ -141,21 +141,21 @@ const onLoad = (importDataRaw) => {
   if (!importData || importData.length <= 0)
     return;
 
-  data.value = warehouseDataProcessing.import(importData, attr.value.assemblyUseVersion)
+  data.value = warehouseDataProcessing.import(importData, attr.value.warehouseUseVersion)
 }
 
 /**
  * 导出
  */
 const onExport = () => {
-  return warehouseDataProcessing.export(data.value, attr.value.assemblyUseVersion)
+  return warehouseDataProcessing.export(data.value)
 }
 
 /**
  * 验证
  */
 const verify = () => {
-  return warehouseDataProcessing.verify(data.value, attr.value.assemblyUseVersion)
+  return warehouseDataProcessing.verify(data.value, attr.value.warehouseUseVersion)
 }
 
 defineExpose({
@@ -186,14 +186,13 @@ defineExpose({
       <v-card width="100">
         <div @click="openShowPanel(index)">
           <ItemSlotBase size="100px" class="w-100 d-flex justify-center align-center">
-            <ItemIconWidget :id="i.id" v-if="i && i.id"></ItemIconWidget>
+            <ItemIconWidget :id="String(i.id)" v-if="i && i.id"></ItemIconWidget>
             <v-icon size="35" v-else>mdi-plus</v-icon>
           </ItemSlotBase>
         </div>
         <v-number-input hide-details hide-spin-buttons variant="solo"
                         density="compact"
                         control-variant="split"
-                        :hide-details="readonly"
                         :readonly="readonly"
                         inset
                         tile
@@ -215,7 +214,7 @@ defineExpose({
         <v-divider></v-divider>
       </v-card>
       <div class="w-100 singe-line mt-1" align="center" no-gutters>
-        <ItemName :id="i && i.id"></ItemName>
+        <ItemName :id="String(i.id)" v-if="i && i.id"></ItemName>
       </div>
     </v-col>
   </v-row>

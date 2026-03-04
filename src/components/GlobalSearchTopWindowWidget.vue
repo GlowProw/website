@@ -31,11 +31,13 @@ const getConfig = () => {
     headerSearchSwitch,
   }
 }
+
+const getHeaderSearchSwitch = () => (searchSettingConfig.value as any).headerSearchSwitch
 </script>
 
 <template>
   <div @click.prevent="model = true"
-       v-if="searchSettingConfig.headerSearchSwitch"
+       v-if="getHeaderSearchSwitch()"
        class="mx-2"
        :class="{'d-none': model || isSearchPage}">
     <slot></slot>

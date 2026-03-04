@@ -113,7 +113,7 @@ const getBrowseList = async () => {
           createdEnd,
           updatedStart,
           updatedEnd,
-        }),
+        } as any),
         d = result.data;
 
     browseData.value = d.data;
@@ -234,14 +234,14 @@ const getBrowseList = async () => {
         <AdsWidget class="mb-5" id="none"></AdsWidget>
 
         <v-row>
-          <v-col cols="12" md="6" lg="6" v-for="(i, index) in browseData.data"
-                 :key="index" class=""
-                 v-if="browseData.data.length > 0">
-            <v-card class="card-enlargement-flavor pa-5">
-              <v-row class="pt-5 pl-5 pr-5">
+          <template v-if="browseData.data.length > 0">
+            <v-col cols="12" md="6" lg="6" v-for="(i, index) in browseData.data"
+                   :key="index" class="">
+              <v-card class="card-enlargement-flavor pa-5">
+                <v-row class="pt-5 pl-5 pr-5">
                 <v-col cols="9">
                   <router-link :to="`/assembly/browse/${i.uuid}/detail`">
-                    <div :title="i.name || 'none'" class="text-amber text-h4 mb-1 font-weight-bold singe-line">{{ i.name || 'none' }}</div>
+                    <div :title="String(i.name || 'none')" class="text-amber text-h4 mb-1 font-weight-bold singe-line">{{ i.name || 'none' }}</div>
                   </router-link>
                   <div>
                     <AccountCardWidget :id="i.userId">
@@ -279,6 +279,7 @@ const getBrowseList = async () => {
               </v-hover>
             </v-card>
           </v-col>
+          </template>
         </v-row>
 
         <div class="w-100" v-if="!browseData.data && !browseLoading">

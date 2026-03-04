@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'I18nWidget' }
+</script>
+
 <script setup lang="ts">
 
 import {computed, onMounted, ref} from "vue";

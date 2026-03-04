@@ -7,7 +7,7 @@ import {useRoute, useRouter} from "vue-router";
 import {useNoticeStore} from "~/stores/noticeStore";
 
 import RolesTagWidget from "@/components/RolesTagWidget.vue";
-import Textarea from "@/components/textarea"
+import Textarea from "@/components/textarea/index.vue"
 import UserAvatar from "@/components/UserAvatar.vue";
 
 import languages from "@/../public/config/languages.json"

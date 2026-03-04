@@ -31,6 +31,7 @@ export const useAssetsStore = defineStore('assets', {
             if (this.npcs.size != 0)
                 return;
 
+            // @ts-ignore
             const npcImages = import.meta.glob('@glow-prow-assets/npcs/*', {eager: true});
 
             this.npcs = this.serializationMap(npcImages)
@@ -40,6 +41,7 @@ export const useAssetsStore = defineStore('assets', {
             if (this.treasureMaps.size != 0)
                 return;
 
+            // @ts-ignore
             const teasureMapsImages = import.meta.glob('@glow-prow-assets/treasureMaps/**/*.*', {eager: true});
 
             this.treasureMaps = this.serializationMap(teasureMapsImages);
@@ -49,6 +51,7 @@ export const useAssetsStore = defineStore('assets', {
             if (this.raritys.size != 0)
                 return;
 
+            // @ts-ignore
             const rarityImages = import.meta.glob('@/assets/images/item-rarity-*.png', {eager: true})
 
             this.raritys = this.serializationMap(rarityImages)

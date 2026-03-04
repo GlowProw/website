@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'AssmblySettingWidget' }
+</script>
+
 <script setup lang="ts">
 import {computed, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
@@ -95,6 +99,8 @@ const delAssembly = async () => {
     deleteDialog.value = false
   }
 }
+
+const isDebug = computed(() => (route as any)?.query?.debug)
 </script>
 
 <template>
@@ -138,7 +144,7 @@ const delAssembly = async () => {
                 <p class="text-caption">{{ t('assembly.setting.passwordDescription') }}</p>
               </v-col>
               <v-col>
-                <template v-if="route?.debug">
+                <template v-if="isDebug">
                   {{ modelValue.assembly.attr.password }}
                 </template>
 
