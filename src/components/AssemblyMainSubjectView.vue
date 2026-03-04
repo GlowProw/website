@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'AssemblyMainSubjectView' }
-</script>
-
 <script setup lang="ts">
 import {assemblyViewConfig, storage_account} from "@/assets/sripts/index";
 import ZoomableCanvas from "@/components/ZoomableCanvas.vue";
@@ -153,6 +149,8 @@ defineExpose({
   refs,
   tab
 })
+
+defineOptions({ name: 'AssemblyMainSubjectView' })
 </script>
 
 <template>

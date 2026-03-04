@@ -1,5 +1,5 @@
 <script>
-import emojis from "@/../public/config/emoji.json"
+import emojis from "@/config/emoji.json"
 
 export default {
   props: {

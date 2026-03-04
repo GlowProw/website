@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'AssemblyClassificationShowList' }
-</script>
-
 <script lang="ts" setup>
 import {Cosmetic, Cosmetics, Item, Items, Material, Materials, Modification, Modifications, Ship, Ships, Ultimate, Ultimates} from "glow-prow-data";
 import {computed, onMounted, ref, watch} from "vue";
@@ -9,6 +5,7 @@ import {useI18n} from "vue-i18n";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {storageCollect} from "@/assets/sripts/index";
 import {StorageCollectType} from "@/assets/sripts/storage_collect";
+import {AvailableDataStructure, GroupedData, AssemblyClassificationShowListProps} from "@/assets/types";
 
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
@@ -21,23 +18,8 @@ import ShipName from "@/components/snbWidget/shipName.vue";
 
 const castToAny = (v: any) => v;
 
-interface GroupedData {
-  type: string;
-  model: boolean;
-  child: AvailableDataStructure[];
-}
-
-type AvailableDataStructure = Ship | Item | Material | Cosmetic | Ultimate | Modification;
-
 const props = withDefaults(
-    defineProps<{
-      tags: string[];
-      sortBy?: "id" | "rarity" | "tier";
-      loadDataType?: "ship" | "item" | "material" | "cosmetic" | "ultimate" | "modification";
-      filterType?: string;
-      modelValue: any;
-      autoExpandFirst?: boolean;
-    }>(),
+    defineProps<AssemblyClassificationShowListProps>(),
     {
       tags: () => [],
       sortBy: "rarity",
@@ -299,6 +281,8 @@ const toggleCategory = (category: GroupedData) => {
 defineExpose({
   updateData,
 })
+
+defineOptions({ name: 'AssemblyClassificationShowList' })
 </script>
 
 <template>

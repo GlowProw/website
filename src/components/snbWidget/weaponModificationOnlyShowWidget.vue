@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'WeaponModificationOnlyShowWidget' }
-</script>
-
 <script setup lang="ts">
 import ModName from "@/components/snbWidget/modName.vue";
 import ModDescription from "@/components/snbWidget/modDescription.vue";
@@ -35,6 +31,8 @@ const onReady = () => {
   }
   modIconImages.value = imageMap;
 }
+
+defineOptions({ name: 'WeaponModificationOnlyShowWidget' })
 </script>
 
 <template>

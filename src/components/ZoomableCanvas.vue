@@ -304,6 +304,8 @@ onBeforeUnmount(() => {
   if (resizeObserver.value) resizeObserver.value.disconnect()
 })
 
+defineOptions({ name: 'Zoomable' })
+
 defineExpose({
   centerCanvas
 })

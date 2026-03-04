@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'BySeasonCardWidget' }
-</script>
-
 <script setup lang="ts">
 import {ref} from "vue";
 import {Cosmetic, Item, MapLocation, Material, Ship, TreasureMap, Ultimate} from "glow-prow-data";
@@ -13,10 +9,10 @@ const {t} = useI18n(),
     {mobile} = useDisplay(),
     props = defineProps<{ data: Item | Ship | Material | Cosmetic | Ultimate | MapLocation | TreasureMap | unknown }>()
 
-let images = ref({})
-
 const getSeasonData = (data: any) => data?.bySeason || data?.firstAppearingSeason
 const getSeasonId = (data: any) => data?.bySeason?.id || 'release'
+
+defineOptions({ name: 'BySeasonCardWidget' })
 </script>
 
 <template>

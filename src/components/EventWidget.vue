@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'EventWidget' }
-</script>
-
 <script setup lang="ts">
 import {computed, onMounted, ref, type Ref, watch} from "vue";
 import {Item, Material, Seasons, Ship, Ultimate} from "glow-prow-data";
@@ -46,6 +42,8 @@ watch(() => props.data, (value) => {
 onMounted(() => {
   detailData.value = props.data
 })
+
+defineOptions({ name: 'EventWidget' })
 </script>
 
 <template>

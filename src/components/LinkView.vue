@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'LinkView' }
-</script>
-
 <script setup lang="ts">
 import {ref} from "vue";
 import {Editor} from "@tiptap/vue-3";
@@ -53,6 +49,10 @@ const onClose = () => {
   onPanelToggle()
   emit('close')
 }
+
+defineOptions({
+  name: 'LinkView'
+})
 
 defineExpose({
   openPanel,

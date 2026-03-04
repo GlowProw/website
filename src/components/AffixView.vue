@@ -23,10 +23,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default { name: 'AffixView' }
-</script>
-
 <script setup lang="ts">
 import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue'
 
@@ -218,6 +214,8 @@ onMounted(() => {
 onUnmounted(() => {
   cleanup()
 })
+
+defineOptions({ name: 'AffixView' })
 </script>
 
 <style scoped>
