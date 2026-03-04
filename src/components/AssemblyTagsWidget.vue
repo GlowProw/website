@@ -124,7 +124,9 @@ const onUpdateTags = (data: any) => {
     <div class="mt-3">
       <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">伤害类型</p>
       <div class="mt-3 ga-2" :class="[readonly ? 'readonly' : '']">
-        <v-chip filter size="small" color="primary"
+        <v-chip filter
+                size="small"
+                color="primary"
                 v-for="(i, index) in tagsConfig.damageTypes"
                 :key="index"
                 :value="`damageType_${i}`">

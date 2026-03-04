@@ -421,6 +421,7 @@ defineExpose({
                               :grade="mod.value.grade"
                           />
                           <ModDescription
+                              class="opacity-50"
                               :id="mod.value.id"
                               :variants="mod.value.variants"
                               :grade="mod.value.grade"
@@ -540,6 +541,7 @@ defineExpose({
                                 :grade="modItem.grade"
                             />
                             <ModDescription
+                                class="opacity-50"
                                 :id="modItem.id"
                                 :variants="modItem.variants"
                                 :grade="modItem.grade"

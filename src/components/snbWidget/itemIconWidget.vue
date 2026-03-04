@@ -61,7 +61,7 @@ useI18nUtils();
 let itemsCardData = ref({
       icon: '',
       model: false,
-      panel: null
+      panel: 0
     }),
     i: Ref<Item | null> = ref(null),
     itemDescription: Ref<ItemDescription> = ref(null),
@@ -279,7 +279,7 @@ watch(() => cdnStore.selectedService, (newValue, oldValue) => {
         </template>
 
         <template v-if="i.type =='chest' && itemContents.length > 0">
-          <v-row class="px-6">
+          <v-row class="px-8 mt-2">
             <ItemContentWidget ref="itemContentWidgetRef" :data="i" :size="40" :isOpenNewWindow="true" :isShowTitle="false" :isShowTooltip="false" :isCenter="false"></ItemContentWidget>
           </v-row>
         </template>

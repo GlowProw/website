@@ -2,7 +2,7 @@
 import {useI18n} from "vue-i18n";
 import {computed} from "vue";
 
-const props = defineProps<{ id: string, variants, grade, type }>(),
+const props = defineProps<{ id: string, variants, grade, type, class?: string }>(),
     {t, rt, tm, te} = useI18n()
 
 let
@@ -29,7 +29,7 @@ const onFormatRange = (data: []) => {
 
 <template>
   <div v-for="(v, vIndex) in modVariants" :key="vIndex"
-       :class="`grade-${grade}-description`" class="opacity-50 description">
+       :class="`grade-${grade}-description ${props.class}`" class="description">
     <template v-if=" !Array.isArray(t(`snb.modifications.${id}.description`)) && te(`snb.modifications.${id}.description`)">
       {{
         t(`snb.modifications.${id}.description`, {

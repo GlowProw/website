@@ -2,10 +2,9 @@
 import {computed, onMounted, Ref, ref, useSlots, watch} from "vue";
 import FlexSearch from "flexsearch";
 
-import {Commodity, Cosmetic, Cosmetics, Items, MapLocations, Material, Materials, Modification, Modifications, Ships, Ultimate} from "glow-prow-data";
+import {Commodity, Cosmetic, Cosmetics, Item, Items, MapLocations, Material, Materials, Modification, Modifications, Ships, Ultimate} from "glow-prow-data";
 
 import {useI18n} from "vue-i18n";
-import {Item} from "glow-prow-data/src/entity/Items.ts";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useHotkey} from "vuetify";
 import {useOS} from "@/assets/sripts/os";
@@ -34,8 +33,8 @@ import {Commodities} from "glow-prow-data/src/entity/Commodities";
 import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
 import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
 import ShipName from "@/components/snbWidget/shipName.vue";
-import HtmlLink from "@/components/HtmlLink.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
 const {t} = useI18n(),
     os = useOS(),
@@ -43,17 +42,19 @@ const {t} = useI18n(),
     router = useRouter(),
     route = useRoute(),
     {sanitizeString, asString} = useI18nUtils(),
+    {commoditie} = useI18nReadName(),
     emit = defineEmits(['close'])
 
 let searchIndex: Ref<any | null> = ref(null),
-    searchValue = ref(''),
-    searchResult = ref<Record<string, any[]>>({}),
+    searchValue = ref(''), // 展示搜索值
+    searchQuery = ref(''), // 实际搜索的值
+    searchResult = ref({}),
     searchSettingConfig = ref({}),
 
     isShowHotKet = computed(() => route.name != 'Search' && searchSettingConfig.value.searchHotkey),
 
     // 扁平化所有数据
-    allItems = ref([]),
+    allItems: Ref<any[]> = ref([]),
     hotkey = computed(() => {
       let key: string[] = []
       if (os.isDesktop() && os.detectOS() == 'MacOS')
@@ -62,6 +63,9 @@ let searchIndex: Ref<any | null> = ref(null),
         key = ['ctrl', 's']
       return key;
     })
+
+// 添加防抖定时器
+let searchTimer: ReturnType<typeof setTimeout> | null = null;
 
 const {
   searchKey,
@@ -76,7 +80,7 @@ const {
   isEmpty
 } = advanced_search()
 
-watch(() => searchValue.value, (value) => {
+watch(() => searchQuery.value, (value) => {
   if (!value) {
     searchResult.value = {};
     return;
@@ -119,9 +123,42 @@ watch(() => searchValue.value, (value) => {
   }
 })
 
+// 监听 searchValue 实现防抖
+watch(() => searchValue.value, (value) => {
+  // 清除之前的定时器
+  if (searchTimer) {
+    clearTimeout(searchTimer);
+    searchTimer = null;
+  }
+
+  // 如果输入为空，立即清空搜索结果
+  if (!value) {
+    searchQuery.value = '';
+    return;
+  }
+
+  // 设置新的定时器，1秒后执行搜索
+  searchTimer = setTimeout(() => {
+    searchQuery.value = value;
+  }, 3000);
+})
+
+// 处理回车搜索
+const handleEnter = () => {
+  // 清除定时器
+  if (searchTimer) {
+    clearTimeout(searchTimer);
+    searchTimer = null;
+  }
+  // 立即执行搜索
+  searchQuery.value = searchValue.value;
+};
+
 onMounted(() => {
+  let data: any = []
+
   searchIndex.value = new FlexSearch.Index({
-    tokenize: "forward",
+    tokenize: "full",
     charset: "latin:advanced",
     preset: "default",
     cache: true
@@ -134,237 +171,219 @@ onMounted(() => {
     description: new FlexSearch.Index({tokenize: "forward", preset: "default", cache: true})
   };
 
-  const data = []
-      .concat(Object.values(Items).map(i => {
-        const itemData = {
-          ...i,
-          name: asString([
-            `snb.items.${i.id}.name`,
-            `snb.items.${sanitizeString(i.id).cleaned}.name`
-          ]),
-          sourceType: 'item',
-          searchableFields: {
-            name: asString([
-              `snb.items.${i.id}.name`,
-              `snb.items.${sanitizeString(i.id).cleaned}.name`
-            ]),
-            id: i.id,
-            description: i.description || '',
-            category: i.category || '',
-            type: i.type || ''
-          }
-        };
+  data = data.concat(Object.values(Items).map(i => {
+    const {id, type, description = '', category = ''} = i
+    const name = asString([
+      `snb.items.${i.id}.name`,
+      `snb.items.${sanitizeString(i.id).cleaned}.name`
+    ]);
+    const itemData = {
+      ...i,
+      name,
+      sourceType: i._typeStringName.toLowerCase(),
+      searchableFields: {
+        name,
+        id,
+        description,
+        category,
+        type
+      }
+    };
 
-        // 索引到各个字段
-        const itemId = i.id;
-        searchIndex.value.add(itemId, Object.values(itemData.searchableFields).join(' ').toLowerCase())
-        fieldIndices.id.add(itemId, itemData.searchableFields.id.toLowerCase())
-        fieldIndices.name.add(itemId, itemData.searchableFields.name.toLowerCase())
+    searchIndex.value.add(id, Object.values(itemData.searchableFields).join(' ').toLowerCase())
+    fieldIndices.id.add(id, itemData.searchableFields.id.toLowerCase())
+    fieldIndices.name.add(id, itemData.searchableFields.name.toLowerCase())
+    if (itemData.searchableFields.description) {
+      fieldIndices.description.add(id, itemData.searchableFields.description.toLowerCase())
+    }
 
-        if (itemData.searchableFields.description) {
-          fieldIndices.description.add(itemId, itemData.searchableFields.description.toLowerCase())
-        }
+    return itemData;
+  }))
+  data = data.concat(Object.values(Ships).map(i => {
+    const {id, type, description = '', category = ''} = i
+    const name = asString([
+      `snb.ships.${i.id}.name`,
+      `snb.ships.${sanitizeString(i.id).cleaned}.name`
+    ]);
+    const itemData = {
+      ...i,
+      name,
+      sourceType: i._typeStringName?.toLowerCase() || 'ship',
+      searchableFields: {
+        name,
+        id,
+        description,
+        category,
+        type
+      }
+    };
 
-        return itemData;
-      }))
-      .concat(Object.values(Ships).map(i => {
-        const itemData = {
-          ...i,
-          name: asString([
-            `snb.ships.${i.id}.name`,
-            `snb.ships.${sanitizeString(i.id).cleaned}.name`
-          ]),
-          sourceType: 'ship',
-          searchableFields: {
-            name: asString([
-              `snb.ships.${i.id}.name`,
-              `snb.ships.${sanitizeString(i.id).cleaned}.name`
-            ]),
-            id: i.id,
-            description: i.description || '',
-            category: i.category || '',
-            type: i.type || ''
-          }
-        };
+    searchIndex.value.add(id, Object.values(itemData.searchableFields).join(' ').toLowerCase())
+    fieldIndices.id.add(id, itemData.searchableFields.id.toLowerCase())
+    fieldIndices.name.add(id, itemData.searchableFields.name.toLowerCase())
+    if (itemData.searchableFields.description) {
+      fieldIndices.description.add(id, itemData.searchableFields.description.toLowerCase())
+    }
 
-        // 索引到各个字段
-        const itemId = i.id;
-        searchIndex.value.add(itemId, Object.values(itemData.searchableFields).join(' ').toLowerCase())
-        fieldIndices.id.add(itemId, itemData.searchableFields.id.toLowerCase())
-        fieldIndices.name.add(itemId, itemData.searchableFields.name.toLowerCase())
+    return itemData;
+  }))
+  data = data.concat(Object.values(Commodities).map(i => {
+    const {id, type, description = '', category = ''} = i
+    const name = asString([
+      commoditie(i.id).name(),
+    ]);
+    const itemData = {
+      ...i,
+      name,
+      sourceType: i._typeStringName?.toLowerCase() || 'commoditie',
+      searchableFields: {
+        name,
+        id,
+        description,
+        category,
+        type
+      }
+    };
 
-        if (itemData.searchableFields.description) {
-          fieldIndices.description.add(itemId, itemData.searchableFields.description.toLowerCase())
-        }
+    searchIndex.value.add(id, Object.values(itemData.searchableFields).join(' ').toLowerCase())
+    fieldIndices.id.add(id, itemData.searchableFields.id.toLowerCase())
+    fieldIndices.name.add(id, itemData.searchableFields.name.toLowerCase())
+    if (itemData.searchableFields.description) {
+      fieldIndices.description.add(id, itemData.searchableFields.description.toLowerCase())
+    }
 
-        return itemData;
-      }))
-      .concat(Object.values(Commodities).map(i => {
-        const itemData = {
-          ...i,
-          name: asString([
-            `snb.commodities.${i.id}.name`,
-            `snb.commodities.${sanitizeString(i.id).cleaned}.name`
-          ]),
-          sourceType: 'commoditie',
-          searchableFields: {
-            name: asString([
-              `snb.commodities.${i.id}.name`,
-              `snb.commodities.${sanitizeString(i.id).cleaned}.name`
-            ]),
-            id: i.id,
-            description: i.description || '',
-            category: i.category || '',
-            type: i.type || ''
-          }
-        };
+    return itemData;
+  }))
+  data = data.concat(Object.values(Materials).map(i => {
+    const {id, type, description = '', category = ''} = i
+    const name = t(`snb.materials.${i.id}.name`)
+    const itemData = {
+      ...i,
+      name,
+      sourceType: i._typeStringName?.toLowerCase() || 'material',
+      searchableFields: {
+        name,
+        id,
+        description,
+        category,
+        type
+      }
+    };
 
-        // 索引到各个字段
-        const itemId = i.id;
-        searchIndex.value.add(itemId, Object.values(itemData.searchableFields).join(' ').toLowerCase())
-        fieldIndices.id.add(itemId, itemData.searchableFields.id.toLowerCase())
-        fieldIndices.name.add(itemId, itemData.searchableFields.name.toLowerCase())
+    searchIndex.value.add(id, Object.values(itemData.searchableFields).join(' ').toLowerCase())
+    fieldIndices.id.add(id, itemData.searchableFields.id.toLowerCase())
+    fieldIndices.name.add(id, itemData.searchableFields.name.toLowerCase())
+    if (itemData.searchableFields.description) {
+      fieldIndices.description.add(id, itemData.searchableFields.description.toLowerCase())
+    }
 
-        if (itemData.searchableFields.description) {
-          fieldIndices.description.add(itemId, itemData.searchableFields.description.toLowerCase())
-        }
+    return itemData;
+  }))
+  data = data.concat(Object.values(Modifications).map(i => {
+    const {id, type, description = '', category = '', grade = ''} = i
+    const name = t(`snb.modifications.${i.id}.name`)
+    const itemData = {
+      ...i,
+      name,
+      sourceType: i._typeStringName?.toLowerCase() || 'modification',
+      searchableFields: {
+        name,
+        id,
+        description,
+        category,
+        type,
+        grade
+      }
+    };
 
-        return itemData;
-      }))
-      .concat(Object.values(Materials).map(i => {
-        const itemData = {
-          ...i,
-          name: t(`snb.materials.${i.id}.name`),
-          sourceType: 'material',
-          searchableFields: {
-            name: t(`snb.materials.${i.id}.name`),
-            id: i.id,
-            description: i.description || '',
-            category: i.category || '',
-            type: i.type || ''
-          }
-        };
+    searchIndex.value.add(id, Object.values(itemData.searchableFields).join(' ').toLowerCase())
+    fieldIndices.id.add(id, itemData.searchableFields.id.toLowerCase())
+    fieldIndices.name.add(id, itemData.searchableFields.name.toLowerCase())
+    if (itemData.searchableFields.description) {
+      fieldIndices.description.add(id, itemData.searchableFields.description.toLowerCase())
+    }
 
-        // 索引到各个字段
-        const itemId = i.id;
-        searchIndex.value.add(itemId, Object.values(itemData.searchableFields).join(' ').toLowerCase())
-        fieldIndices.id.add(itemId, itemData.searchableFields.id.toLowerCase())
-        fieldIndices.name.add(itemId, itemData.searchableFields.name.toLowerCase())
+    return itemData;
+  }))
+  data = data.concat(Object.values(Cosmetics).map(i => {
+    const {id, type, description = '', category = ''} = i
+    const name = t(`snb.cosmetics.${i.id}.name`)
+    const itemData = {
+      ...i,
+      name,
+      sourceType: i._typeStringName?.toLowerCase() || 'cosmetic',
+      searchableFields: {
+        name,
+        id,
+        description,
+        category,
+        type
+      }
+    };
 
-        if (itemData.searchableFields.description) {
-          fieldIndices.description.add(itemId, itemData.searchableFields.description.toLowerCase())
-        }
+    searchIndex.value.add(id, Object.values(itemData.searchableFields).join(' ').toLowerCase())
+    fieldIndices.id.add(id, itemData.searchableFields.id.toLowerCase())
+    fieldIndices.name.add(id, itemData.searchableFields.name.toLowerCase())
+    if (itemData.searchableFields.description) {
+      fieldIndices.description.add(id, itemData.searchableFields.description.toLowerCase())
+    }
 
-        return itemData;
-      }))
-      .concat(Object.values(Modifications).map(i => {
-        const itemData = {
-          ...i,
-          name: t(`snb.modifications.${i.id}.name`),
-          sourceType: 'modification',
-          searchableFields: {
-            name: t(`snb.modifications.${i.id}.name`),
-            id: i.id,
-            description: i.description || '',
-            category: i.category || '',
-            type: i.type || '',
-            grade: i.grade || ''
-          }
-        };
+    return itemData;
+  }))
+  data = data.concat(Object.values(Ultimates).map(i => {
+    const {id, type, description = '', category = ''} = i
+    const name = t(`snb.ultimates.${i.id}.name`)
+    const itemData = {
+      ...i,
+      name,
+      sourceType: i._typeStringName?.toLowerCase() || 'ultimate',
+      searchableFields: {
+        name,
+        id,
+        description,
+        category,
+        type
+      }
+    };
 
-        // 索引到各个字段
-        const itemId = i.id;
-        searchIndex.value.add(itemId, Object.values(itemData.searchableFields).join(' ').toLowerCase())
-        fieldIndices.id.add(itemId, itemData.searchableFields.id.toLowerCase())
-        fieldIndices.name.add(itemId, itemData.searchableFields.name.toLowerCase())
+    searchIndex.value.add(id, Object.values(itemData.searchableFields).join(' ').toLowerCase())
+    fieldIndices.id.add(id, itemData.searchableFields.id.toLowerCase())
+    fieldIndices.name.add(id, itemData.searchableFields.name.toLowerCase())
+    if (itemData.searchableFields.description) {
+      fieldIndices.description.add(id, itemData.searchableFields.description.toLowerCase())
+    }
 
-        if (itemData.searchableFields.description) {
-          fieldIndices.description.add(itemId, itemData.searchableFields.description.toLowerCase())
-        }
+    return itemData;
+  }))
+  data = data.concat(Object.values(MapLocations).map(i => {
+    const {id, type, description = '', category = ''} = i
+    const name = t(`snb.mapLocations.${i.id}.name`)
+    const itemData = {
+      ...i,
+      name,
+      sourceType: i._typeStringName?.toLowerCase() || 'mapLocation',
+      searchableFields: {
+        name,
+        id,
+        description,
+        category,
+        type
+      }
+    };
 
-        return itemData;
-      }))
-      .concat(Object.values(Cosmetics).map(i => {
-        const itemData = {
-          ...i,
-          name: t(`snb.cosmetics.${i.id}.name`),
-          sourceType: 'cosmetic',
-          searchableFields: {
-            name: t(`snb.cosmetics.${i.id}.name`),
-            id: i.id,
-            description: i.description || '',
-            category: i.category || '',
-            type: i.type || ''
-          }
-        };
+    searchIndex.value.add(id, Object.values(itemData.searchableFields).join(' ').toLowerCase())
+    fieldIndices.id.add(id, itemData.searchableFields.id.toLowerCase())
+    fieldIndices.name.add(id, itemData.searchableFields.name.toLowerCase())
+    if (itemData.searchableFields.description) {
+      fieldIndices.description.add(id, itemData.searchableFields.description.toLowerCase())
+    }
 
-        // 索引到各个字段
-        const itemId = i.id;
-        searchIndex.value.add(itemId, Object.values(itemData.searchableFields).join(' ').toLowerCase())
-        fieldIndices.id.add(itemId, itemData.searchableFields.id.toLowerCase())
-        fieldIndices.name.add(itemId, itemData.searchableFields.name.toLowerCase())
-
-        if (itemData.searchableFields.description) {
-          fieldIndices.description.add(itemId, itemData.searchableFields.description.toLowerCase())
-        }
-
-        return itemData;
-      }))
-      .concat(Object.values(Ultimates).map(i => {
-        const itemData = {
-          ...i,
-          name: t(`snb.ultimates.${i.id}.name`),
-          sourceType: 'ultimate',
-          searchableFields: {
-            name: t(`snb.ultimates.${i.id}.name`),
-            id: i.id,
-            description: i.description || '',
-            category: i.category || '',
-            type: i.type || ''
-          }
-        };
-
-        // 索引到各个字段
-        const itemId = i.id;
-        searchIndex.value.add(itemId, Object.values(itemData.searchableFields).join(' ').toLowerCase())
-        fieldIndices.id.add(itemId, itemData.searchableFields.id.toLowerCase())
-        fieldIndices.name.add(itemId, itemData.searchableFields.name.toLowerCase())
-
-        if (itemData.searchableFields.description) {
-          fieldIndices.description.add(itemId, itemData.searchableFields.description.toLowerCase())
-        }
-
-        return itemData;
-      }))
-      .concat(Object.values(MapLocations).map(i => {
-        const itemData = {
-          ...i,
-          name: t(`snb.mapLocations.${i.id}.name`),
-          sourceType: 'mapLocation',
-          searchableFields: {
-            name: t(`snb.mapLocations.${i.id}.name`),
-            id: i.id,
-            description: i.description || '',
-            category: i.category || '',
-            type: i.type || ''
-          }
-        };
-
-        // 索引到各个字段
-        const itemId = i.id;
-        searchIndex.value.add(itemId, Object.values(itemData.searchableFields).join(' ').toLowerCase())
-        fieldIndices.id.add(itemId, itemData.searchableFields.id.toLowerCase())
-        fieldIndices.name.add(itemId, itemData.searchableFields.name.toLowerCase())
-
-        if (itemData.searchableFields.description) {
-          fieldIndices.description.add(itemId, itemData.searchableFields.description.toLowerCase())
-        }
-
-        return itemData;
-      }))
+    return itemData;
+  }))
 
   // 存储字段索引
   allItems.value = data;
+
   fieldIndices.value = fieldIndices;
 
   getConfig()
@@ -403,7 +422,8 @@ const initHotkey = () => {
     key = hotkey.value.join('+')
 
   if (key)
-    useHotkey(key, () => {})
+    useHotkey(key, () => {
+    })
 }
 
 /**
@@ -567,6 +587,12 @@ const onCloseModel = () => {
  */
 const applyHistory = (query: string) => {
   searchValue.value = query;
+  // 应用历史记录时立即执行搜索
+  if (searchTimer) {
+    clearTimeout(searchTimer);
+    searchTimer = null;
+  }
+  searchQuery.value = query;
 };
 
 /**
@@ -630,7 +656,7 @@ defineExpose({
             hide-details
             clearable
             autofocus
-            @keyup.enter="searchValue = $event.target.value">
+            @keyup.enter="handleEnter">
           <template v-slot:prepend-inner>
             <v-icon icon="mdi-magnify"/>
           </template>
@@ -787,7 +813,7 @@ defineExpose({
         <!-- 按类型循环显示 E -->
       </v-col>
 
-      <v-col cols="12" v-else-if="searchValue" class="text-center text-grey py-8">
+      <v-col cols="12" v-else-if="searchQuery" class="text-center text-grey py-8">
         未找到匹配的结果
       </v-col>
       <!-- 搜索结果 E -->
