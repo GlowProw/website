@@ -9,7 +9,7 @@ import {useRoute} from "vue-router";
 const {t} = useI18n(),
     route = useRoute()
 
-let treasureMapImageSimilarity: Ref<TreasureMapImageSimilarity> = ref(null)
+let treasureMapImageSimilarity: Ref<any> = ref(null)
 
 onMounted(() => {
   nextTick(() => {

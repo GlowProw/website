@@ -27,7 +27,7 @@ const route = useRoute(),
     {t, locale} = useI18n()
 
 let // 发布信息
-    publishData: Ref<PublishAssemblyData> = ref({
+    publishData = ref<any>({
       assembly: {
         visibility: 'publicly',
         tags: [],

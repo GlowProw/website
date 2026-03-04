@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'HtmlLink' }
+</script>
+
 <script setup lang="ts">
 
 import {onMounted, ref} from "vue";
@@ -85,13 +89,13 @@ const getProtocol = () => {
       min-width="290"
       v-model="show"
       @update:modelValue="onPoptipShow"
-      :disabled="!isPoptip || getProtocol === 'mailto:'">
+      :disabled="!isPoptip || getProtocol() === 'mailto:'">
     <template v-slot:activator="{ props }">
        <span class="html-link cursor-pointer" v-bind="props">
-        <template v-if="isIcon || getProtocol === 'http:' || getProtocol === 'https:'">
+        <template v-if="isIcon || getProtocol() === 'http:' || getProtocol() === 'https:'">
           <v-icon icon="mdi-link" class="icon"/>
         </template>
-        <template v-else-if="getProtocol === 'mailto:'">
+        <template v-else-if="getProtocol() === 'mailto:'">
           <v-icon icon="mdi-email-outline" class="icon"/>
         </template>
         <a :href="isOpen ? afterData.href || null : null" :target="afterData.href ? isOpen ? '_blank' : null : null" rel="noopener noreferrer">
@@ -107,19 +111,16 @@ const getProtocol = () => {
             <v-icon icon="mdi-refresh" class="spin-icon-load" size="30"/>
           </div>
         </template>
-        <template v-show="!linkLoad" v-if="isIframeShow">
+        <div v-show="!linkLoad" v-if="isIframeShow">
           {{afterData.href}}
           <iframe :src="disableIframe ? '' : afterData.href"
                   allowTransparency="true"
                   security="restricted"
                   frameborder="no"
-                  allow="fullscreen"
-                  border="0"
-                  marginwidth="0"
-                  marginheight="0"
-                  scrolling="no"
-                  sandbox="allow-scripts allow-same-origin"></iframe>
-        </template>
+                  width="100%"
+                  height="100%"
+                  @load="linkLoad = false"></iframe>
+        </div>
       </v-card>
     </template>
   </v-tooltip>

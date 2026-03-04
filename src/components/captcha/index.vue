@@ -1,3 +1,9 @@
+<script lang="ts">
+export default {
+  name: "CaptchaIndex"
+}
+</script>
+
 <script setup lang="ts">
 import {computed, ref} from 'vue'
 import {useRoute} from 'vue-router'
@@ -19,7 +25,7 @@ const props = withDefaults(defineProps<{
     emit = defineEmits(['getCaptchaData']),
     route = useRoute()
 
-let svgCaptchaRef = ref(null)
+let svgCaptchaRef = ref<any>(null)
 
 const captchaType = computed(() => {
   return route.query.captcha || props.type

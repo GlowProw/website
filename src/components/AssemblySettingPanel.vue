@@ -1,5 +1,9 @@
+<script lang="ts">
+export default { name: 'AssemblySettingPanel' }
+</script>
+
 <script setup lang="ts">
-import {Ref, ref, watch} from "vue";
+import {computed, ref, watch, Ref} from "vue";
 import {useI18n} from "vue-i18n";
 import {useHttpToken} from "@/assets/sripts/http_util";
 import {apis} from "@/assets/sripts/index";
@@ -29,7 +33,7 @@ let show = ref(false),
     setSettingLoading = ref(false),
     tabValue = ref('conventional'),
     // 属性结构
-    settingData: Ref<PublishAssemblyData> = ref({
+    settingData: Ref<any> = ref({
       assembly: {
         visibility: 'publicly',
         attr: {

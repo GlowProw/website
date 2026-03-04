@@ -113,8 +113,8 @@
                           </v-col>
                           <v-col cols="12">
                             <v-number-input v-model="searchMinimumCondition"
-                                            max="100"
-                                            min="0"
+                                            :max="100"
+                                            :min="0"
                                             :label="t('codex.treasureMaps.comparison.filter.similarityPercent')"
                                             variant="outlined">
                               <template v-slot:append-inner>
@@ -128,7 +128,7 @@
                           <v-col cols="12">
                             <v-number-input v-model="searchRangeMax"
                                             :label="t('codex.treasureMaps.comparison.filter.searchRange')"
-                                            min="30"
+                                            :min="30"
                                             clearable
                                             variant="outlined">
                               <template v-slot:details>
@@ -183,7 +183,7 @@
                       <v-icon size="66" class="mb-3 opacity-30">mdi-image-plus</v-icon>
                       <p>{{ t('codex.treasureMaps.comparison.uploadPrompt') }}</p>
 
-                      <v-btn class="mt-7" variant="tonal" @click="$refs.fileInput.click()">
+                      <v-btn class="mt-7" variant="tonal" @click="triggerFileInput">
                         {{ t('codex.treasureMaps.comparison.selectImage') }}
                       </v-btn>
                     </div>
@@ -271,6 +271,10 @@
   </v-dialog>
 </template>
 
+<script lang="ts">
+export default { name: 'TreasureMapImageSimilarity' }
+</script>
+
 <script setup lang="ts">
 import {computed, onMounted, onUnmounted, ref, watch} from 'vue';
 import {calculateHashSimilarity, compareHistograms, compareStructuralFeatures, computeBlockFeatures, computeColorHistogram, computeStructuralFeatures, getImageHash} from '@/assets/sripts/image_similarity';
@@ -328,6 +332,11 @@ const treasureMaps = TreasureMaps;
 const { t } = useI18n()
 const { mobile } = useDisplay()
 
+const fileInput = ref<HTMLInputElement | null>(null)
+const triggerFileInput = () => {
+  fileInput.value?.click()
+}
+
 const model = ref(false)
 const searched = ref(false)
 const searching = ref(false)
@@ -373,8 +382,8 @@ const categoryOptions = computed(() => [
 
 const obtainableOptions = computed(() => {
   const allObtainables = new Set<string>()
-  Object.values(treasureMaps).forEach((map: TreasureMapData) => {
-    map.obtainable.forEach(obtain => allObtainables.add(obtain))
+  Object.values(treasureMaps).forEach((map: any) => {
+    map.obtainable.forEach((obtain: any) => allObtainables.add(obtain))
   })
   return Array.from(allObtainables).map(obtain => ({
     value: obtain,

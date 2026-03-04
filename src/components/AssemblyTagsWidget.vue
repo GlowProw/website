@@ -1,10 +1,14 @@
+<script lang="ts">
+export default { name: 'AssemblyTagsWidget' }
+</script>
+
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import {onMounted, ref, toRaw, watch} from "vue";
 import {useRoute} from "vue-router";
 
 import {Seasons, Ships} from "glow-prow-data";
-import {Items} from "glow-prow-data/src/entity/Items.ts";
+import {Items} from "glow-prow-data/src/entity/Items";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import DamageIconWidget from "@/components/snbWidget/damageIconWidget.vue";
 
@@ -15,7 +19,7 @@ const poops = withDefaults(defineProps<{ readonly?: boolean, tags: string[], cla
     }),
     route = useRoute(),
     ships = Ships,
-    items: Items = Items,
+    items: any = Items,
     {t} = useI18n()
 
 let publishData = ref({

@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'ServiceProviderWidget' }
+</script>
+
 <script setup lang="ts">
 
 import {Service_provider} from "@/assets/sripts/service_provider";

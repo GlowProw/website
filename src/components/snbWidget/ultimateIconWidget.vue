@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'UltimateIconWidget' }
+</script>
+
 <script setup lang="ts">
 import {Ultimates} from "glow-prow-data"
 import {computed, onMounted, ref} from "vue";
@@ -45,7 +49,7 @@ const onReady = async () => {
     ultimatesData.value.model[key] = false;
 
     if (ultimateImages[imageKey]) {
-      ultimatesData.value.images[key] = ultimateImages[imageKey].default;
+      ultimatesData.value.images[key] = (ultimateImages[imageKey] as any).default;
     } else {
       ultimatesData.value.images[key] = '';
     }

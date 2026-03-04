@@ -11,7 +11,7 @@ export class TranslateDataLinks {
     public item(data: Item): string {
         const {locale} = useI18n()
 
-        return `${Prefix}/${locale.value.replace('-', '_')}/item.json`
+        return `${this.Prefix}/${locale.value.replace('-', '_')}/item.json`
     }
 
     public ship(data: Ship) {

@@ -24,13 +24,13 @@ const {t} = useI18n(),
     authStore = useAuthStore(),
     mods = Modifications
 
-let modDetailData: Ref<Modification> = ref({})
+let modDetailData: Ref<any> = ref({})
 
 onMounted(() => {
   const {id} = route.params
 
   if (id)
-    modDetailData.value = mods[id]
+    modDetailData.value = mods[id as string]
 
   onCodexHistory()
 })
@@ -44,7 +44,7 @@ const onCodexHistory = () => {
 
   storage.session.set(name, {
     ...d?.data?.value || {},
-    [id]: {
+    [id as string]: {
       id,
       category: 'mod',
       time: new Date().getTime()

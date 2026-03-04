@@ -1,10 +1,14 @@
+<script lang="ts">
+export default { name: 'ShipUpgradeUseWidget' }
+</script>
+
 <script setup lang="ts">
 import {computed} from "vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
 import ShipName from "@/components/snbWidget/shipName.vue";
 import {Ships} from "glow-prow-data";
-import {Ship} from "glow-prow-data/src/entity/Ships.ts";
+import {Ship} from "glow-prow-data/src/entity/Ships";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 
 const props = defineProps<{ id: string }>(),

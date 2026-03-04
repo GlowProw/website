@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'ShipName' }
+</script>
+
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import {Ship} from "glow-prow-data";

@@ -25,16 +25,17 @@ const
 
 let
     ultimateDetailPageData: Ref<{ img: string, loading: boolean }> = ref({
-      loading: false
+      loading: false,
+      img: ''
     }),
-    ultimateDetailData: Ref<Ultimate> = ref(Ultimates['hunter'] as Ultimate),
+    ultimateDetailData: Ref<any> = ref(Ultimates['hunter']),
 
     // meta
     head = ref({
-      title: t(route.meta.title),
+      title: t(route.meta.title as string),
       titleTemplate: `%s | ${t('name')}`,
       meta: [
-        {name: 'keywords', content: t(route.meta.keywords)},
+        {name: 'keywords', content: t(route.meta.keywords as string)},
         {name: 'og:title', content: `%s | ${t('name')}`},
       ]
     })
@@ -42,7 +43,7 @@ let
 useHead(head)
 
 onMounted(() => {
-  const {id} = route.params;
+  const id = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
 
   if (!id) {
     router.push('/')
@@ -53,15 +54,13 @@ onMounted(() => {
 
   head.value.titleTemplate = `${i18nReadName.ultimate.name(id)} - ${head.value.titleTemplate}`
 
-  onUltimateHistory()
-  onCodexHistory()
+  onUltimateHistory(id)
+  onCodexHistory(id)
 
   ultimateDetailPageData.value.loading = false;
 })
 
-const onCodexHistory = () => {
-  const {id} = route.params;
-
+const onCodexHistory = (id: string) => {
   let name = 'codex.history'
 
   const d = storage.session.get(name)
@@ -76,9 +75,7 @@ const onCodexHistory = () => {
   })
 }
 
-const onUltimateHistory = () => {
-  const {id} = route.params;
-
+const onUltimateHistory = (id: string) => {
   let name = 'codex.history'
 
   const d = storage.session.get(name)

@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'LikeWidget' }
+</script>
+
 <script setup>
 import {useLikeStore} from '~/stores/likeStore.js';
 import {onMounted, ref, useSlots, watch} from 'vue';
@@ -14,7 +18,7 @@ const props = defineProps({
   userId: String,                 // 当前用户ID
 })
 
-watch(props.targetId, () => {
+watch(() => props.targetId, () => {
   onReady()
 }, {deep: true})
 
@@ -48,8 +52,8 @@ const onReady = async () => {
     likeCount.value = await likeStore.getLikeCount(props.targetType, props.targetId)
   } catch (e) {
     if (e instanceof AxiosError)
-      notice.error(t(`basic.tips.${e.response.data.code}`, {
-        context: e instanceof AxiosError ? e.response.data.code : e.code || e.message || ''
+      notice.error(t(`basic.tips.${(e as any).response.data.code}`, {
+        context: e instanceof AxiosError ? (e as any).response.data.code : (e as any).code || (e as any).message || ''
       }), {
         color: 'error'
       })
@@ -71,8 +75,8 @@ const handleLike = async () => {
     likeCount.value = await likeStore.getLikeCount(props.targetType, props.targetId)
   } catch (e) {
     if (e instanceof AxiosError)
-      notice.error(t(`basic.tips.${e.response.data.code}`, {
-        context: e instanceof AxiosError ? e.response.data.code : e.code || e.message || ''
+      notice.error(t(`basic.tips.${(e as any).response.data.code}`, {
+        context: e instanceof AxiosError ? (e as any).response.data.code : (e as any).code || (e as any).message || ''
       }), {
         color: 'error'
       })

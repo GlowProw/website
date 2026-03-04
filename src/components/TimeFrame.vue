@@ -1,5 +1,9 @@
+<script lang="ts">
+export default { name: 'TimeFrame' }
+</script>
+
 <script setup lang="ts">
-import {computed, ref} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 
 const props = defineProps({

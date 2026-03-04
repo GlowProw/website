@@ -1,8 +1,12 @@
+<script lang="ts">
+export default { name: 'ItemIconWidget' }
+</script>
+
 <script setup lang="ts">
 import {useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {computed, onMounted, type Ref, ref, watch} from "vue";
-import {Item, Items} from "glow-prow-data/src/entity/Items.ts";
+import {Item, Items} from "glow-prow-data/src/entity/Items";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {number, rarity} from "@/assets/sripts/index";
 import {useAssetsStore} from "~/stores/assetsStore";
@@ -64,7 +68,7 @@ let itemsCardData = ref({
       panel: 0
     }),
     i: Ref<Item | null> = ref(null),
-    itemDescription: Ref<ItemDescription> = ref(null),
+    itemDescription: Ref<any> = ref(null),
     itemContents: Ref<any[]> = ref([]),
 
     isOpenNewWindow = computed({
@@ -79,7 +83,7 @@ watch(() => props.id, () => {
 
 watch(() => itemsCardData.value.model, (value) => {
   // 卡片打开时才加载掉落
-  if (value && itemContents.value <= 0)
+  if (value && itemContents.value.length <= 0)
     itemContents.value = [
       ...filterByObtainable(Object.values(items), props.id),
       ...filterByObtainable(Object.values(cosmetics), props.id)
@@ -137,6 +141,16 @@ watch(() => cdnStore.selectedService, (newValue, oldValue) => {
   if (newValue != oldValue)
     onSetIcon()
 }, {immediate: true})
+
+const getType = (i: any) => i?.type
+const getTier = (i: any) => i?.tier
+const getRarity = (i: any) => i?.rarity
+
+defineExpose({
+  getType,
+  getTier,
+  getRarity
+})
 </script>
 
 <template>
@@ -245,7 +259,7 @@ watch(() => cdnStore.selectedService, (newValue, oldValue) => {
             <div :class="itemDescription && itemDescription.isHasDescription ? 'px-6 description' : ''">
               <ItemDescription ref="itemDescription" :id="props.id"></ItemDescription>
             </div>
-            <div v-if="i && i.type === 'shipUpgrade'" class="px-6 description">
+            <div v-if="i && getType(i) === 'shipUpgrade'" class="px-6 description">
               <ShipUpgradedDescription :data="i"></ShipUpgradedDescription>
             </div>
           </div>

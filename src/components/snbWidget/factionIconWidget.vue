@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'FactionIconWidget' }
+</script>
+
 <script setup lang="ts">
 import {onMounted, type Ref, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";

@@ -6,7 +6,7 @@
         maxlength="4"
         hide-details
         @change="onChangeValue"
-        :rules="rules"
+        :rules="(rules as any)"
         :placeholder="t('captcha.title')">
       <template v-slot:append-inner>
         <div
@@ -45,6 +45,12 @@
   </div>
 </template>
 
+<script lang="ts">
+export default {
+  name: "SvgCaptcha"
+}
+</script>
+
 <script setup lang="ts">
 import {computed, onMounted, onUnmounted, Ref, ref} from 'vue'
 import {useRoute} from 'vue-router'
@@ -54,7 +60,10 @@ import {ApiError} from "@/assets/types/Api";
 import {useNoticeStore} from "~/stores/noticeStore";
 
 const props = defineProps({
-      rules: [],
+      rules: {
+        type: Array,
+        default: () => []
+      },
       id: {
         type: String,
         default: '0',
@@ -105,7 +114,7 @@ onMounted(() => {
     captchaHash.value = captcha.data.value
   } else {
     storage.session.set('captcha', {
-      [`${props.id}_${route.name}`]: props.seconds
+      [`${props.id}_${String(route.name)}`]: props.seconds
     })
   }
 })
@@ -197,7 +206,7 @@ const captchaTimeout = (num: number) => {
     captchaTime.value.count -= 1
 
     captchaHash.value = {
-      [`${props.id}_${route.name}`]: captchaTime.value.count
+      [`${props.id}_${String(route.name)}`]: captchaTime.value.count
     }
     storage.session.set("captcha", captchaHash.value)
   }, 1000)

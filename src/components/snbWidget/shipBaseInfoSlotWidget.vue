@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'ShipBaseInfoSlotWidget' }
+</script>
+
 <script setup lang="ts">
 
 import ShipSailSpeedWidget from "@/components/snbWidget/shipSailSpeedWidget.vue";

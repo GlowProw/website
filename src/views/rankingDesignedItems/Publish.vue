@@ -5,6 +5,7 @@ import {useI18n} from "vue-i18n";
 import {storageIntermediateTransfer} from "@/assets/sripts";
 import {StorageIntermediateTransferSaveType} from "@/assets/sripts/storage_assembly";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
+import {AxiosError} from "axios";
 import {useNoticeStore} from "@/../stores/noticeStore";
 
 import Textarea from "@/components/textarea/index.vue"
@@ -23,7 +24,10 @@ const route = useRoute(),
     {t, locale} = useI18n()
 
 let // 发布信息
-    publishData = ref({
+    publishData = ref<any>({
+      uuid: '',
+      name: '',
+      description: '',
       ranking: {
         visibility: 'publicly',
         tags: [],
@@ -33,16 +37,6 @@ let // 发布信息
           isComment: true,
           isLike: true
         }
-      },
-    } as {
-      uuid: string,
-      name: string,
-      description: string,
-      ranking: {
-        tags: any[],
-        visibility: string,
-        attr: any,
-        data: any
       },
     }),
     dataLoading = ref(false),
@@ -143,7 +137,7 @@ const onEdit = async () => {
     // storageAssembly.delete(editPublishData.uuid as string, StorageAssemblyType.Data)
     // await router.push(`/assembly/browse/${editPublishData.uuid}/detail`)
 
-    noticeStore.success(t(`basic.tips.${d.code}`))
+    // noticeStore.success(t(`basic.tips.${d.code}`))
   } catch (e) {
     console.error(e)
     if (e instanceof Error)
@@ -178,12 +172,12 @@ const onPublish = async () => {
     //         `/assembly/browse`
     // )
 
-    noticeStore.success(t(`basic.tips.${d.code}`))
+    // noticeStore.success(t(`basic.tips.${d.code}`))
   } catch (e) {
     console.error(e)
-    if (e instanceof Error)
-      noticeStore.error(t(`basic.tips.${e.response.data.code}`, {
-        context: e.response.data.code
+    if (e instanceof AxiosError && e.response)
+      noticeStore.error(t(`basic.tips.${e.response?.data?.code}`, {
+        context: e.response?.data?.code
       }))
   } finally {
     publishLoading.value = false

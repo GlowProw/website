@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'TreasureMapName' }
+</script>
+
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import {TreasureMap} from "glow-prow-data";
@@ -12,7 +16,7 @@ const
 let title = computed(() => {
   const data = props.data;
   return `${t(`codex.treasureMap.names.${data?.category}`, {
-    location: data?.territory?.id ? t(`snb.territories.${data?.territory?.id}.name`) : sanitizeString(data?.id)?.cleaned?.replaceAll('-', '\t')
+    location: (data?.territory as any)?.id ? t(`snb.territories.${(data?.territory as any)?.id}.name`) : sanitizeString(data?.id)?.cleaned?.replaceAll('-', '\t')
   })} (${t(`codex.treasureMap.categorys.${data?.category}`)})`
 })
 </script>

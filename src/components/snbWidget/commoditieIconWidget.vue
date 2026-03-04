@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'CommoditieIconWidget' }
+</script>
+
 <script setup lang="ts">
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
@@ -48,7 +52,7 @@ const
       padding: 0,
       margin: 1
     }),
-    commodities: Commodities = Commodities,
+    commodities: any = Commodities,
 
     // 稀有度
     rarityColorConfig = rarity.color
@@ -57,7 +61,7 @@ let commoditiesCardData = ref({
       icon: '',
     }),
     i: Ref<Commodity | null> = ref(null),
-    commoditieDescription: Ref<CommoditieDescription> = ref(null),
+    commoditieDescription: Ref<any> = ref(null),
     isOpenNewWindow = computed({
       get: () => appStore.itemOpenNewWindow || props.isOpenNewWindow,
       set: (value) => appStore.toggleItemOpenNewWindow(value)

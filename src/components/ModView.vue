@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'ModView' }
+</script>
+
 <script setup lang="ts">
 import {computed, ref} from 'vue'
 import {Editor} from "@tiptap/vue-3";

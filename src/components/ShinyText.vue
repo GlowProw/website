@@ -1,5 +1,9 @@
+<script lang="ts">
+export default { name: 'ShinyText' }
+</script>
+
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onMounted, ref } from "vue";
 
 interface ShinyTextProps {
   text: string;

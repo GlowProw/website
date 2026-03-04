@@ -119,6 +119,10 @@ const onClickMenu = (tags = [], category) => {
     category,
   })
 }
+
+const getMenuValue = (i: any) => i.value
+const getMenuCategory = (i: any) => i.category
+const isDivider = (i: any) => i.divider
 </script>
 
 <template>
@@ -152,21 +156,21 @@ const onClickMenu = (tags = [], category) => {
               <v-menu :open-on-focus="false" :width="menuConfig.width" activator="parent" open-on-hover submenu>
                 <v-list>
                   <template v-for="(i, iIndex) in root.menus" :key="iIndex">
-                    <template v-if="!i.divider">
+                    <template v-if="!(i as any).divider">
                       <v-list-item link>
                         <v-list-item-title
                             @click="onClickMenu(
-                                i.value,
-                                i.category
+                                (i as any).value,
+                                (i as any).category
                             )">
-                          <span v-for="(tr, trIndex) in i.value" :key="trIndex">
+                          <span v-for="(tr, trIndex) in (i as any).value" :key="trIndex">
                             <template v-if="trIndex != 0">,</template>{{ t(`codex.types.${tr}`) }}
                           </span>
                         </v-list-item-title>
                       </v-list-item>
                     </template>
 
-                    <template v-else-if="i.divider">
+                    <template v-else-if="(i as any).divider">
                       <v-divider class="my-2"></v-divider>
                     </template>
                   </template>

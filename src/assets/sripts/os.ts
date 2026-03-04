@@ -20,7 +20,7 @@ export function useOS() {
      * 检测操作系统
      */
     function detectOS(): OperatingSystem {
-        userAgent.value = navigator.userAgent || navigator.vendor || window.opera || ''
+        userAgent.value = navigator.userAgent || navigator.vendor || (window as any).opera || ''
         platform.value = navigator.platform.toLowerCase()
 
         const ua = userAgent.value
@@ -32,7 +32,7 @@ export function useOS() {
         }
 
         // 判断iOS
-        if ((/iPad|iPhone|iPod/.test(ua) && !window.MSStream) ||
+        if ((/iPad|iPhone|iPod/.test(ua) && !(window as any).MSStream) ||
             ['iphone', 'ipad', 'ipod'].includes(plat)) {
             return 'iOS'
         }

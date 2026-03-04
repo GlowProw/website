@@ -1,5 +1,9 @@
+<script lang="ts">
+export default { name: 'ItemModificationWidget' }
+</script>
+
 <script setup lang="ts">
-import {computed, onMounted, ref, watch} from "vue";
+import {computed, nextTick, onMounted, ref, watch} from "vue";
 import {Modifications} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 import ItemSlotBase from "./ItemSlotBase.vue";
@@ -95,8 +99,18 @@ const onReady = () => {
     imageMap[key] = modImages[path];
   }
 
-  if (route.query.modeShowType)
-    displayMode.value = route.query.modeShowType as string;
+  displayMode.value = Number(route.query.modeShowType) || 0;
+
+  // 滚动
+  if (route.query.scrollTop) {
+    nextTick(() => {
+      window.scrollTo(0, 0)
+      router.replace({
+        name: 'CodexModification',
+        query: {...route.query, 'modeShowType': displayMode.value, 'scrollTop': undefined} as any,
+      })
+    })
+  }
 
   // 插槽图标
   for (let key in modData.value) {
@@ -116,9 +130,9 @@ const onCategorizeByGrade = (data): {} => {
 
   // 首先收集所有匹配的模组
   const allMods = [];
-  Object.values(data).forEach(item => {
+  Object.values(data).forEach((item: any) => {
     if (props.type) {
-      const hasMatchingVariant = item.variants?.some(variant =>
+      const hasMatchingVariant = item.variants?.some((variant: any) =>
           variant.itemType?.includes(props.type))
 
 
@@ -145,12 +159,15 @@ const onCategorizeByGrade = (data): {} => {
  */
 const onSwitchModShow = () => {
   router.push({
-    name: route.name,
-    query: {...route.query, 'modeShowType': displayMode.value, 'scrollTop': false},
+    name: route.name as any,
+    query: {...route.query, 'modeShowType': displayMode.value, 'scrollTop': undefined} as any,
     params: {...route.params}
   })
 }
 
+const getModGrade = (mod: any) => mod.grade
+const getModId = (mod: any) => mod.id
+const getModVariants = (mod: any) => mod.variants
 /**
  * 重置所有筛选条件
  */
@@ -248,7 +265,7 @@ const resetFilters = () => {
             <v-row class="pb-5 mod-list">
               <v-col v-for="(mod, modIndex) in key"
                      class="mod-item"
-                     :class="`grade-${mod.grade}`"
+                     :class="`grade-${getModGrade(mod)}`"
                      :key="modIndex"
                      :cols="{0: '12', 1: '1'}[displayMode]">
                 <template v-if="route.query.debug">{{ mod }}</template>
@@ -256,16 +273,16 @@ const resetFilters = () => {
                   <v-row align="center" no-gutters>
                     <v-col cols="auto">
                       <ItemSlotBase size="40px">
-                        <ModIconWidget :id="mod.id" :padding="0" :margin="0">
+                        <ModIconWidget :id="getModId(mod)" :padding="0" :margin="0">
                           <template v-slot:description>
-                            <ModDescription :id="mod.id" :variants="mod.variants" :grade="mod.grade" :type="type"></ModDescription>
+                            <ModDescription :id="getModId(mod)" :variants="getModVariants(mod)" :grade="getModGrade(mod)" :type="type"></ModDescription>
                           </template>
                         </ModIconWidget>
                       </ItemSlotBase>
                     </v-col>
                     <v-col class="pl-2">
-                      <HtmlLink :href="`/codex/mod/${mod.id}`" :is-icon="false" :is-iframe-show="false">
-                        <ModName :id="mod.id" :variants="mod.variants" :grade="mod.grade" :type="type"></ModName>
+                      <HtmlLink :href="`/codex/mod/${getModId(mod)}`" :is-icon="false" :is-iframe-show="false">
+                        <ModName :id="getModId(mod)" :variants="getModVariants(mod)" :grade="getModGrade(mod)" :type="type"></ModName>
                       </HtmlLink>
                     </v-col>
                   </v-row>

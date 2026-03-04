@@ -206,8 +206,6 @@ export const useAppStore = defineStore('app', () => {
         }
     }
 
-    // ========== Private Methods ==========
-
     /**
      * 应用主题到文档
      * @private

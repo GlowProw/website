@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import {useRoute, useRouter} from "vue-router";
-import {Item, Items} from "glow-prow-data/src/entity/Items.ts";
+import {Item, Items} from "glow-prow-data/src/entity/Items";
 import {computed, onMounted, ref, type Ref, watch} from "vue";
 
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
@@ -48,19 +48,19 @@ const
     i18nReadName = useI18nReadName(),
 
     // 物品数据
-    items: Items = Items,
-    materials: Materials = Materials
+    items: any = Items,
+    materials: any = Materials
 
-let itemDetailData: Ref<Item | null> = ref(null),
+let itemDetailData: Ref<any> = ref(null),
     isCollect = ref(false),
 
     DPS = computed(() => {
-      const {damagePerShot, rateOfFire, reloadSpeed} = itemDetailData.value;
-      return Math.round(damagePerShot / ((rateOfFire * 0.001) + (reloadSpeed * 0.001)))
+      const {damagePerShot, rateOfFire, reloadSpeed} = itemDetailData.value || {};
+      return Math.round(Number(damagePerShot || 0) / ((Number(rateOfFire || 0) * 0.001) + (Number(reloadSpeed || 0) * 0.001)))
     }),
     DPSWithPerks = computed(() => {
-      const {damageMitigation} = itemDetailData.value;
-      return DPS / damageMitigation?.piercing || 0
+      const {damageMitigation} = itemDetailData.value || {};
+      return DPS.value / damageMitigation?.piercing || 0
     }),
     DamagePerShotWithPerks = computed(() => 0),
 
@@ -70,13 +70,13 @@ let itemDetailData: Ref<Item | null> = ref(null),
       return !!storageCollect.get(itemDetailData.value.id, StorageCollectType.Item).data
     }),
     requiredRank = computed(() => {
-      const r = sanitizeString(itemDetailData.value.requiredRank)
+      const r = sanitizeString(itemDetailData.value?.requiredRank)
       return asString([
-        `snb.ranks.${itemDetailData.value.requiredRank}`,
+        `snb.ranks.${itemDetailData.value?.requiredRank}`,
         `snb.ranks.${r.cleaned}`
       ], {
         variable: {
-          lv: number.intToRoman(r.removedNumbers[0])
+          lv: number.intToRoman(r.removedNumbers[0] as unknown as number)
         }
       })
     }),
@@ -89,10 +89,10 @@ let itemDetailData: Ref<Item | null> = ref(null),
 
     // meta
     head = ref({
-      title: t(route.meta.title),
+      title: t(route.meta.title as string),
       titleTemplate: `%s | ${t('name')}`,
       meta: [
-        {name: 'keywords', content: t(route.meta.keywords)},
+        {name: 'keywords', content: t(route.meta.keywords as string)},
         {name: 'og:title', content: `%s | ${t('name')}`},
       ]
     })
@@ -115,23 +115,23 @@ const onReady = () => {
     return;
   }
 
-  if (!items[id]) {
+  if (!items[id as string]) {
     setInterval(() => router.push({name: 'NotFound'}), 1000)
     return;
   }
 
-  itemDetailData.value = items[id];
+  itemDetailData.value = items[id as string];
 
-  head.value.titleTemplate = `${i18nReadName.item(id).name()} - ${head.value.titleTemplate}`
+  head.value.titleTemplate = `${i18nReadName.item(id as string).name()} - ${head.value.titleTemplate}`
   head.value.meta = [
     {
-      name: 'keywords', content: t(route.meta.keywords, {
+      name: 'keywords', content: t(route.meta.keywords as string, {
         keywords: Object.keys(messages.value).map(lang => {
-          return i18nReadName.item(id).keys.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
-        }).concat([id])
+          return i18nReadName.item(id as string).keys.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
+        }).concat([id as string])
       })
     },
-    {name: 'og:title', content: `${t(route.meta.title)} | ${t('name')}`},
+    {name: 'og:title', content: `${t(route.meta.title as string)} | ${t('name')}`},
   ]
 
   onCodexHistory()
@@ -146,7 +146,7 @@ const onCodexHistory = () => {
 
   storage.session.set(name, {
     ...d?.data?.value || {},
-    [id]: {
+    [id as string]: {
       id,
       category: 'item',
       time: new Date().getTime()

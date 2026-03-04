@@ -1,30 +1,34 @@
+<script lang="ts">
+export default { name: 'WorldEventWidget' }
+</script>
+
 <script setup lang="ts">
 import {computed, onMounted, ref, type Ref, watch} from "vue";
 import {Item, Material, Ship, Ultimate} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 
 const {t,tm} = useI18n(),
-    props = defineProps<{ data: Item | Ship | Material | Ultimate | unknown }>()
+    props = defineProps<{ data: any }>()
 
-let detailData: Ref<Item | Ship | Material | Ultimate | null> = ref(null),
+let detailData: Ref<any> = ref(null),
     seasonI18nMap = computed(() => {
-      return tm('snb.seasons')
+      return (tm('snb.seasons') as any[])
     }),
     i18nAdditionalAttr = computed(() => {
       return {
-        ...seasonI18nMap.value
+        ...(seasonI18nMap.value as any)
       }
     }),
     worldEvent = computed(() => {
       if (!detailData.value) return []
 
-      const events = detailData.value?.worldEvent
+      const worldEvents = (detailData.value as any)?.worldEvent
 
-      // 如果没有世界事件数据，返回空数组
-      if (!events) return []
+      // 标准化处理：确保返回数组如果没有世界事件数据，返回空数组
+      if (!worldEvents) return []
 
       // 标准化处理：确保返回数组
-      const eventsArray = Array.isArray(events) ? events : [events]
+      const eventsArray = Array.isArray(worldEvents) ? worldEvents : [worldEvents]
 
       // 过滤掉无效的事件并添加元数据
       return eventsArray

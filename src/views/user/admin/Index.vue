@@ -57,12 +57,16 @@ const logout = () => {
   router.push('/')
 }
 
-const onChangeMenu = (key) => {
+const onChangeMenu = (key: string) => {
   if (primaryNavMenu.value == key)
     return
 
   primaryNavMenu.value = key
+  // @ts-ignore
   router.push(navs.value[key].child[0].to)
+}
+const getNavChild = (menuKey: string) => {
+  return (navs.value as any)[menuKey]?.child || []
 }
 </script>
 
@@ -131,7 +135,7 @@ const onChangeMenu = (key) => {
             permanent
             color="var(--v-theme-background)">
           <v-list class="pa-0">
-            <v-list-item v-for="(i, index) in navs[primaryNavMenu].child" :key="index"
+            <v-list-item v-for="(i, index) in getNavChild(primaryNavMenu)" :key="index"
                          :title="t(i.name)"
                          :to="i.to || i.href"
                          :target="i.target || null">
@@ -157,7 +161,7 @@ const onChangeMenu = (key) => {
             </template>
           </v-toolbar>
 
-          <v-container :min-width="mobile ? width : null" :class="{'pt-10': mobile}" class="pa-5 w-100 overflow-y-auto overflow-x-auto">
+          <v-container :min-width="mobile ? width : undefined" :class="{'pt-10': mobile}" class="pa-5 w-100 overflow-y-auto overflow-x-auto">
             <router-view></router-view>
           </v-container>
         </v-main>

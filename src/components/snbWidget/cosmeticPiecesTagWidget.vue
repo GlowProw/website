@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'CosmeticPiecesTagWidget' }
+</script>
+
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 
@@ -7,12 +11,13 @@ const props = withDefaults(defineProps<{ pieces?: [] | string | unknown }>(), {p
 
 <template>
   <div v-if="pieces">
-    <v-chip class="badge-flavor text-center tag-badge text-black bg-blue-accent-1 text-blue-darken-4"
-            v-for="(i, index) in pieces"
-            :key="index"
-            v-if="Array.isArray(pieces)">
-      {{ t(`codex.types.${i}`) }}
-    </v-chip>
+    <template v-if="Array.isArray(pieces)">
+      <v-chip class="badge-flavor text-center tag-badge text-black bg-blue-accent-1 text-blue-darken-4"
+              v-for="(i, index) in pieces"
+              :key="index">
+        {{ t(`codex.types.${i}`) }}
+      </v-chip>
+    </template>
     <v-chip class="badge-flavor text-center tag-badge text-black bg-blue-accent-1 text-blue-darken-4"
             v-else-if="!Array.isArray(pieces)">
       {{ t(`codex.types.${pieces}`) }}

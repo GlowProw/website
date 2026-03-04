@@ -23,13 +23,13 @@ const {t} = useI18n(),
     authStore = useAuthStore(),
     mapLocations = MapLocations
 
-let mapLocationDetailData: Ref<MapLocation> = ref({})
+let mapLocationDetailData: Ref<any> = ref({})
 
 onMounted(() => {
   const {id} = route.params
 
   if (id)
-    mapLocationDetailData.value = mapLocations[id]
+    mapLocationDetailData.value = mapLocations[id as string]
 
   onCodexHistory()
 })
@@ -43,7 +43,7 @@ const onCodexHistory = () => {
 
   storage.session.set(name, {
     ...d?.data?.value || {},
-    [id]: {
+    [id as string]: {
       id,
       category: 'mapLocation',
       time: new Date().getTime()

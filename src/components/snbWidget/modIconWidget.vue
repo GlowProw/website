@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'ModIconWidget' }
+</script>
+
 <script setup lang="ts">
 
 import {computed, onMounted, ref, useSlots, watch} from "vue";
@@ -80,7 +84,6 @@ const onReady = async () => {
       <v-card
           :to="isOpenDetail ? `/codex/mod/${id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
-          target="_blank"
           width="100%"
           v-bind="activatorProps"
           :class="[

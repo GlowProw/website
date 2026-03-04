@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'CommoditieDescription' }
+</script>
+
 <script setup lang="ts">
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {computed} from "vue";

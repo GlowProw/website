@@ -25,7 +25,7 @@ let
 
     workshopHeight = 700,
 
-    rankingDesignedView = ref(null),
+    rankingDesignedView = ref<any>(null),
     // 是否编辑模式
     isEditModel = computed(() => {
       switch (route.name) {
@@ -37,7 +37,8 @@ let
       }
     }),
     isWorkshopFillScreen = ref(false),
-    isAssemblyByUser = computed(() => isEditModel.value)
+    isAssemblyByUser = computed(() => isEditModel.value),
+    assemblyDetailData = ref<any>({})
 
 /**
  * 已发布数据
@@ -160,7 +161,7 @@ const onSaveAssembly = (saveType: StorageIntermediateTransferSaveType, uid?: str
                 top: -500,
                 bottom: 500
               }">
-    <RankingDesignedView ref="rankingDesignedView"></RankingDesignedView>
+    <RankingDesignedView ref="rankingDesignedView" :readonly="false"></RankingDesignedView>
   </ZoomableCanvas>
   <!-- Workshop E -->
 

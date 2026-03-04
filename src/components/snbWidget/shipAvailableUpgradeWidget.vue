@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'ShipAvailableUpgradeWidget' }
+</script>
+
 <script setup lang="ts">
 import {Item, Items, Material} from "glow-prow-data";
 import {computed} from "vue";
@@ -16,16 +20,16 @@ const props = defineProps<{ id: string }>(),
     {t} = useI18n(),
     {width, mobile} = useDisplay(),
     items = computed(() => Object.values(Items)
-        .filter((i: Item) => i.type == 'shipUpgrade' && i.id.indexOf(props.id) >= 0)
+        .filter((i: any) => i.type == 'shipUpgrade' && i.id.indexOf(props.id) >= 0)
         .reverse()
     )
 
-let totalMaterials = computed(() => items.value.reduce((acc, item) => {
+let totalMaterials = computed(() => {
   const result = new Map<Material, number>();
 
-  items.value.forEach(item => {
+  items.value.forEach((item: any) => {
     if (item.required) {
-      item.required.forEach((value, key) => {
+      item.required.forEach((value: number, key: Material) => {
         result.set(key, (result.get(key) || 0) + value);
       });
     }
@@ -33,8 +37,8 @@ let totalMaterials = computed(() => items.value.reduce((acc, item) => {
 
   return {
     required: result
-  };
-}, {} as Record<string, number>))
+  } as any;
+})
 
 /**
  * 复制所有材料链接

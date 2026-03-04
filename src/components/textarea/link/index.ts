@@ -51,7 +51,7 @@ const LinkNode = Node.create({
             setLink: (pos, href, text) => ({commands}) => {
                 return commands.updateAttributes(pos, undefined, {href, text})
             }
-        } as Partial<RawCommands>
+        } as any
     },
 })
 

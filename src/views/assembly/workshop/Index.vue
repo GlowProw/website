@@ -26,13 +26,13 @@ const {t} = useI18n(),
 
 let
     assemblyLoading = ref(false),
-    assemblyDetailData = ref({}),
-    assemblyMainSubjectView: Ref<AssemblyMainSubjectView> = ref(null),
+    assemblyDetailData: Ref<any> = ref({}),
+    assemblyMainSubjectView: Ref<any> = ref(null),
 
     draftModel = ref(false),
     draftNewSaveModel = ref(false),
     newDraftName = ref(''),
-    draftList: Ref<[]> = ref([]),
+    draftList: Ref<any[]> = ref([]),
     draftSaveQuickArchivingLoading = ref(false),
     draftSaveLoading = ref(false),
     shareData: Ref<any> = ref({
@@ -93,13 +93,21 @@ const onWorkshopUpdateEvent = (componentName: string) => {
   }
 
   verificationWorkshop.value.required = verification.required;
-  verificationWorkshop.value.verify = verification.verify;
+  verificationWorkshop.value.verify = verification.verify as any;
 }
 
 /**
  * 获取配装详情
  */
 const getAssemblyDetail = async () => {
+  if (isEditModel.value) {
+    const {uuid} = assemblyDetailData.value as any;
+    if (uuid) {
+      await router.push({name: 'AssemblyEdit', params: {uuid}})
+      return
+    }
+  }
+
   try {
     const {uid} = route.params;
     assemblyLoading.value = true;
@@ -359,7 +367,7 @@ const onDeleteDraft = (id) => {
             <v-btn class="mr-2" @click="router.go(-1)" v-if="isEditModel">
               取消
             </v-btn>
-            <v-tooltip location="left top" content-class="pa-0" :offset="[20, 0]" :disabled="verificationWorkshop && verificationWorkshop.verify <= 0">
+            <v-tooltip location="left top" content-class="pa-0" :offset="[20, 0]" :disabled="verificationWorkshop && verificationWorkshop.verify.length <= 0">
               <template v-slot:activator="{props}">
                 <span v-bind="props">
                   <v-btn :color="`var(--main-color)`" :disabled="!isAssemblyByUser || verificationWorkshop && verificationWorkshop.required >  0" @click="onSaveAssemblyPublish" v-if="!isEditModel">
@@ -370,7 +378,7 @@ const onDeleteDraft = (id) => {
                   </v-btn>
 
                   <v-icon class="ml-2" icon="mdi-alert-circle-outline" color="red" v-if="verificationWorkshop && verificationWorkshop.required > 0"></v-icon>
-                  <v-icon class="ml-2 text-green" icon="mdi-check" v-if="verificationWorkshop && verificationWorkshop.verify <= 0"></v-icon>
+                  <v-icon class="ml-2 text-green" icon="mdi-check" v-if="verificationWorkshop && verificationWorkshop.verify.length <= 0"></v-icon>
                 </span>
               </template>
 

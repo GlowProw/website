@@ -588,7 +588,7 @@ import {MapLocations} from "glow-prow-data"
 import {useI18n} from "vue-i18n";
 import {useAssetsStore} from "~/stores/assetsStore.js";
 import {useI18nUtils} from "@/assets/sripts/i18n_util.js";
-import type {MapCollection, MapPoint} from '@/assets/types/map';
+import type {MapCollection, MapPoint} from '@/assets/types/Map';
 import {useMapApi} from '@/assets/sripts/api/map_service';
 import {useAuthStore} from "~/stores/userAccountStore";
 

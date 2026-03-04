@@ -30,7 +30,7 @@ let iconId = ref('culverin1'),
       padding: 1,
       margin: 1,
     }]),
-    getSize = computed(() => `${getIconSize.icon}px`),
+    getSize = computed(() => `${getIconSize.value.icon}px`),
     getItemOnlyIds = computed(() => Object.values(items).map((i: Item) => i.id)),
     itemIsOpenNewWindow = ref(false)
 
@@ -43,6 +43,8 @@ const getIconSize = computed({
   get: () => appStore.iconSize || sizes.value[2],
   set: (value) => appStore.setIconSize(value)
 })
+
+const getItemRaw = (item: any) => item.raw
 
 onMounted(() => {
   itemIsOpenNewWindow.value = openNewWindow.value
@@ -69,12 +71,8 @@ const onUpdateAssetsImageServces = (value: any) => {
           </template>
         </v-list-item>
       </template>
-      <template v-slot:selection="{props,item}">
-        <v-list-item v-bind="props">
-          <template v-slot:title>
-            <ItemName :id="item.raw"></ItemName>
-          </template>
-        </v-list-item>
+      <template v-slot:selection="{ item }">
+        <ItemName :id="getItemRaw(item)"></ItemName>
       </template>
     </v-select>
   </v-card>
@@ -90,10 +88,10 @@ const onUpdateAssetsImageServces = (value: any) => {
       v-model="getIconSize.icon"
       item-value="icon"
       :items="sizes">
-    <template v-slot:selection="{item,props}">
-      <v-list-item v-bind="props">
+    <template v-slot:selection="{ item }">
+      <v-list-item>
         <template v-slot:title>
-          {{ item.raw.icon }}
+          {{ (item as any).raw.icon }}
         </template>
       </v-list-item>
     </template>

@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'MaterialIconWidget' }
+</script>
+
 <script setup lang="ts">
 import {computed, onMounted, type Ref, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";

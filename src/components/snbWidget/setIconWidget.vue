@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'SetIconWidget' }
+</script>
+
 <script setup lang="ts">
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
@@ -51,7 +55,7 @@ const
 let setCardData = ref({
       icon: '',
     }),
-    i: Ref<Set> = ref(Set),
+    i: Ref<any> = ref(Set),
     isOpenNewWindow = computed({
       get: () => appStore.itemOpenNewWindow || props.isOpenNewWindow,
       set: (value) => appStore.toggleItemOpenNewWindow(value)

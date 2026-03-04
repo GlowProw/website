@@ -31,9 +31,9 @@ let isHasSmugglersReportPrivilege = ref(false),
       pageSize: 6
     }),
     // 周报列表数据
-    smugglersReportListData = ref({}),
+    smugglersReportListData = ref<any>({}),
     // 选择周报
-    selectedSmugglersReport = ref({
+    selectedSmugglersReport = ref<any>({
       id: '',
       content: ''
     }),
@@ -42,7 +42,7 @@ let isHasSmugglersReportPrivilege = ref(false),
       content: ''
     }),
     // 创建周报数据表
-    createSmugglersReportData = ref({
+    createSmugglersReportData = ref<any>({
       title: '',
       startAndEnd: '',
       content: {
@@ -53,7 +53,8 @@ let isHasSmugglersReportPrivilege = ref(false),
         // 常见
         common: []
       }
-    })
+    }),
+    smugglersReportList = ref<any[]>([])
 
 onMounted(async () => {
   await getCheckUserPermission()
@@ -186,7 +187,7 @@ const onEditSmugglersReport = async () => {
 /**
  * 删除周报
  */
-const onDeleteSmugglersReport = async (i) => {
+const onDeleteSmugglersReport = async (i: any) => {
   try {
     createCommentLoading.value = true
 

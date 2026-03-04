@@ -1,6 +1,7 @@
 <script setup lang="ts">
 
 import {onMounted, ref} from "vue";
+import {useI18n} from "vue-i18n";
 import {apis} from "@/assets/sripts/index";
 
 import Loading from "@/components/Loading.vue";
@@ -11,10 +12,11 @@ import EmptyView from "@/components/EmptyView.vue";
 import {ApiError} from "@/assets/types/Api";
 import {useNoticeStore} from "~/stores/noticeStore";
 
+const { t } = useI18n()
 const notice = useNoticeStore()
 
 let loading = ref(false),
-    userCommentData = ref({})
+    userCommentData = ref<any>({})
 
 onMounted(() => {
   getMyCommentsData()
@@ -50,8 +52,9 @@ const getMyCommentsData = async () => {
       <Loading></Loading>
     </v-overlay>
 
-    <v-card v-for="(i,index) in userCommentData.data" :key="index" class="mb-2 pa-2 pl-4" v-if="userCommentData.data && userCommentData.data.length > 0">
-      <v-row align="center">
+    <template v-if="userCommentData.data && userCommentData.data.length > 0">
+      <v-card v-for="(i,index) in userCommentData.data" :key="index" class="mb-2 pa-2 pl-4">
+        <v-row align="center">
         <div class="pa-3">
           <template v-if="i.targetType == 'item'">
             <ItemSlotBase size="80px">
@@ -75,6 +78,7 @@ const getMyCommentsData = async () => {
         </v-col>
       </v-row>
     </v-card>
+    </template>
     <div class="text-center" v-else>
       <EmptyView></EmptyView>
     </div>

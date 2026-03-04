@@ -10,6 +10,7 @@ import {useRules} from "@/assets/sripts/rules_user"
 import {SigninParams} from "@/assets/types/User.Login";
 import {apis} from "@/assets/sripts";
 import {ApiError} from "@/assets/types/Api";
+import {CaptchaParams} from "@/assets/types/Captcha";
 
 const authStore = useAuthStore(),
     router = useRouter(),
@@ -24,7 +25,10 @@ let signinFormLoading: Ref<boolean> = ref(false),
     signinFrom: Ref<SigninParams> = ref({
       username: '',
       password: '',
-      captcha: {}
+      captcha: {
+        encryptCaptcha: '',
+        response: ''
+      }
     })
 
 /**
@@ -63,7 +67,8 @@ const onLogin = async () => {
  * 取消登陆返回上一层
  */
 const onBackRoute = async () => {
-  const {backurl = '', backUrl = ''} = route.query
+  const backurl = route.query.backurl as string || '';
+  const backUrl = route.query.backUrl as string || '';
 
   if (backurl || backUrl)
     return router.push({path: backurl || backUrl})
@@ -75,7 +80,7 @@ const onBackRoute = async () => {
  * 处理验证码数据
  * @param data
  */
-const onCaptchaData = (data: any) => {
+const onCaptchaData = (data: CaptchaParams) => {
   signinFrom.value.captcha = data;
 }
 </script>
@@ -123,7 +128,7 @@ const onCaptchaData = (data: any) => {
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="less">
 .signin {
   h1 {
     color: var(--main-color);

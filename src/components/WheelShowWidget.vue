@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'WheelShowWidget' }
+</script>
+
 <script setup lang="ts">
 
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
@@ -18,16 +22,16 @@ const props = withDefaults(defineProps<{
 
 let show = ref(false),
     wheelTabValue = ref(0),
-    wheelTabs = ref([]),
+    wheelTabs = ref<any[]>([]),
 
     wheelCount = 3,
     wheelSlotMax = 8,
     rotation = ref(0),
     selectWheelIndex = ref(0),
-    selectWheelValue = ref(null),
+    selectWheelValue = ref<any>(null),
     wheelOptionalItemTags = ref(['consumable']),
     // 属性
-    attr = ref({
+    attr = ref<WheelAttr>({
       wheelUseVersion: WheelDataProcessing.nowVersion
     }),
     // 是否空
@@ -126,21 +130,21 @@ const onLoad = (importDataRaw) => {
   if (!importData || Object.keys(importData).length <= 0)
     return;
 
-  wheelTabs.value = wheelDataProcessing.import(toRaw(importData), attr.value.assemblyUseVersion)
+  wheelTabs.value = wheelDataProcessing.import(toRaw(importData), attr.value.wheelUseVersion)
 }
 
 /**
  * 导出
  */
 const onExport = () => {
-  return wheelDataProcessing.export(toRaw(wheelTabs.value), attr.value.assemblyUseVersion)
+  return wheelDataProcessing.export(toRaw(wheelTabs.value))
 }
 
 /**
  * 验证
  */
 const verify = () => {
-  return wheelDataProcessing.verify(toRaw(wheelTabs.value), attr.value.assemblyUseVersion)
+  return wheelDataProcessing.verify(toRaw(wheelTabs.value), attr.value.wheelUseVersion)
 }
 
 defineExpose({

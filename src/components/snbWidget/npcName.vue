@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'NpcName' }
+</script>
+
 <script setup lang="ts">
 
 import {useI18n} from "vue-i18n";
@@ -9,10 +13,10 @@ const props = defineProps<{ id?: string, data?: Npc }>(),
     mapLocations = MapLocations
 
 let nameLocations = computed(() => {
-      let d = []
-      if (props.data.location.includes('anyoneOutpost'))
+      let d: any[] = []
+      if ((props.data.location as any).includes('anyoneOutpost'))
         d = d.concat(Object.values(mapLocations).filter((i: MapLocation) => i.category == 'outpost'))
-      if (props.data.location.includes('anyoneDen'))
+      if ((props.data.location as any).includes('anyoneDen'))
         d = d.concat(Object.values(mapLocations).filter((i: MapLocation) => i.category == 'den'))
       return d.concat(props.data.location || [])
     }),

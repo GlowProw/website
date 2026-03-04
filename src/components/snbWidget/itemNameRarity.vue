@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'ItemNameRarity' }
+</script>
+
 <script setup lang="ts">
 import {Items} from "glow-prow-data/src/entity/Items";
 import {rarity} from "@/assets/sripts/index";

@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'ShipIconWidget' }
+</script>
+
 <script setup lang="ts">
 
 import {computed, onMounted, type Ref, ref, watch} from "vue";
@@ -35,19 +39,19 @@ const props = withDefaults(defineProps<{
       padding: 1,
       margin: 1
     }),
-    ships: Ships = Ships,
+    ships: any = Ships,
     router = useRouter(),
     appStore = useAppStore(),
     {t} = useI18n(),
     {currentService: currentImageService} = useCDNAssetsServiceStore()
 
 
-let shipCardData = ref({
+let shipCardData = ref<any>({
       icon: '',
       model: false,
       panel: null
     }),
-    shipData: Ref<Ship> = ref({}),
+    shipData: Ref<any> = ref({}),
     isOpenNewWindow = computed({
       get: () => appStore.itemOpenNewWindow || props.isOpenNewWindow,
       set: (value) => appStore.toggleItemOpenNewWindow(value)

@@ -13,8 +13,8 @@ const
 
 let isWorkshopFillScreen = ref(false),
     workshopHeight = ref(700),
-    zoomableAreaRef: Ref<ZoomableCanvas> = ref(null),
-    rankingDesignedView: Ref<RankingDesignedView> = ref(null),
+    zoomableAreaRef: Ref<any> = ref(null),
+    rankingDesignedView: Ref<any> = ref(null),
     hasReadyEvent = computed(() => !!attrs.onReady),
     refs = ref({
       zoomableAreaRef: null,
@@ -45,7 +45,6 @@ defineExpose({
       :min-scale="mobile ? .1 : .8"
       :max-scale="1.4"
       :default-scale="mobile ? .4 : 1"
-      :is-show-tool="tab == 'assembly'"
       :boundary="mobile ? {
                 left: -100,
                 right: 100,

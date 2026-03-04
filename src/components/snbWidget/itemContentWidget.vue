@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'ItemContentWidget' }
+</script>
+
 <script setup lang="ts">
 import {Cosmetics, Item, Items} from "glow-prow-data";
 import {onMounted, Ref, ref, watch} from "vue";

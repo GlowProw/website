@@ -17,8 +17,8 @@ const {t} = useI18n(),
     notice = useNoticeStore()
 
 let collectionLoading = ref(false),
-    collectionFormRef = ref(null),
-    collectionPagination: Ref<PaginationParams> = ref({
+    collectionFormRef = ref<any>(null),
+    collectionPagination: Ref<any> = ref({
       page: 1,
       pageSize: 10
     }),
@@ -152,7 +152,7 @@ const onSearchPoints = async () => {
         d = result.data;
 
     // 前端过滤搜索结果
-    orphanPoints.value = (d.points || []).filter(point =>
+    orphanPoints.value = (d.points || []).filter((point: MapPoint) =>
         point.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
         point.description?.toLowerCase().includes(searchQuery.value.toLowerCase()))
 
@@ -250,17 +250,13 @@ const onRemoveSelectedPointsFromCollection = async () => {
     notice.success(t(`basic.tips.map.success`))
   } catch (e) {
     if (e instanceof AxiosError && e.response)
-      notice.error(t(`basic.tips.${e.response.data.code}`, {
-        content: e.response.data.message
-      }), {
-        color: 'red'
-      })
+      notice.error(t(`basic.tips.${e.response?.data?.code}`, {
+        content: e.response?.data?.message
+      }))
     else if (e instanceof AxiosError)
       notice.error(t(`basic.tips.error`, {
         content: e.toString()
-      }), {
-        color: 'red'
-      })
+      }))
     console.error(e)
   }
 }
@@ -289,11 +285,9 @@ const deleteSelectedPoints = async () => {
     notice.success(t(`basic.tips.map.success`))
   } catch (e) {
     if (e instanceof AxiosError)
-      notice.error(t(`basic.tips.${e.response.data.code}`, {
-        content: e.response.data.message
-      }), {
-        color: 'red'
-      })
+      notice.error(t(`basic.tips.${e.response?.data?.code}`, {
+        content: e.response?.data?.message
+      }))
     console.error(e)
   }
 }
@@ -337,17 +331,13 @@ const onSaveCollection = async (): Promise<void> => {
     notice.success(t(`basic.tips.map.success`))
   } catch (e) {
     if (e instanceof AxiosError && e.response)
-      notice.error(t(`basic.tips.${e.response.data.code}`, {
-        content: e.response.data.message
-      }), {
-        color: 'red'
-      })
+      notice.error(t(`basic.tips.${e.response?.data?.code}`, {
+        content: e.response?.data?.message
+      }))
     else if (e instanceof AxiosError)
       notice.error(t(`basic.tips.error`, {
         content: e.toString()
-      }), {
-        color: 'red'
-      })
+      }))
     console.error(e)
   } finally {
     savingCollectionLoading.value = false;

@@ -13,7 +13,9 @@ const notice = useNoticeStore(),
     {t} = useI18n()
 
 let loading = ref(false),
-    userTeamUpData = ref({})
+    userTeamUpData = ref<any>({
+      data: []
+    })
 
 onMounted(() => {
   getMyTeamUpsData()
@@ -61,8 +63,8 @@ const getMyTeamUpsData = async () => {
               {{ i.player }}
             </v-col>
             <v-col cols="auto">
-              <v-chip density="compact" v-for="(i, index) in i.tags" :key="index">
-                {{ i }}
+              <v-chip density="compact" v-for="(tag, index) in i.tags" :key="index">
+                {{ tag }}
               </v-chip>
             </v-col>
           </v-row>

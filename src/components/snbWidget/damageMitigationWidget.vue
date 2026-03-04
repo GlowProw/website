@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'DamageMitigationWidget' }
+</script>
+
 <script setup lang="ts">
 
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
@@ -23,6 +27,10 @@ let damageMitigation = computed(() => {
     armor = computed(() => {
       return props.data?.armor || 0
     })
+    let filteredDamageMitigation = computed(() => {
+      if (!damageMitigation.value) return []
+      return damageMitigation.value.filter(([_, dmValue]) => (dmValue as any) > 0)
+    })
 </script>
 
 <template>
@@ -44,8 +52,7 @@ let damageMitigation = computed(() => {
       </template>
     </v-text-field>
     <v-text-field :value="`${(dmValue * 100).toFixed(0)}%`"
-                  v-for="([dmKey,dmValue]) in damageMitigation"
-                  v-if="!dmValue"
+                  v-for="([dmKey,dmValue]) in filteredDamageMitigation"
                   :key="dmValue"
                   readonly
                   hide-details

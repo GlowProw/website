@@ -1,6 +1,7 @@
 import {Cosmetics, Items, Materials, Modifications, Ships} from "glow-prow-data"
 import {toRaw} from "vue";
 import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
+import {AssemblyData} from "@/assets/sripts/assembly_data_processing";
 
 const ships = Ships,
     items = Items,
@@ -27,7 +28,7 @@ export default class RankingDesignedItemsDataProcessing {
         '0.0.1': {
             get: (data) => {
                 // 后续处理逻辑
-                data.__version = this.nowVersion;
+                data.__version = RankingDesignedItemsDataProcessing.nowVersion;
                 return data;
             },
             set: (data) => {
@@ -36,8 +37,8 @@ export default class RankingDesignedItemsDataProcessing {
             },
             verify: (data) => {
                 return {
-                    required: [],
-                    verify: [],
+                    valid: true,
+                    errors: [],
                 };
             }
         },
@@ -74,6 +75,6 @@ export default class RankingDesignedItemsDataProcessing {
 
         let version = useVersion || data?.__version || RankingDesignedItemsDataProcessing.nowVersion;
 
-        return this.processing[version].verify(data)
+        return this.processing[version].verify(data).valid
     }
 }

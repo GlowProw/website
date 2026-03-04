@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'CommentWidget' }
+</script>
+
 <script setup lang="ts">
 import {onMounted, ref, watch} from "vue";
 import {apis} from "@/assets/sripts/index";
@@ -8,13 +12,13 @@ import {useI18n} from "vue-i18n";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {ApiError} from "@/assets/types/Api";
 
-import Textarea from "@/components/textarea"
+import Textarea from "@/components/textarea/index.vue"
 import EmptyView from "@/components/EmptyView.vue";
 import Captcha from "@/components/captcha/index.vue";
 import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue";
 
-type commentTargetType = 'assembly' | 'item' | 'commoditie' | 'ship' | 'ultimate' | 'mod' | 'material' | 'set' | 'treasureMap'
+type commentTargetType = 'assembly' | 'item' | 'commoditie' | 'ship' | 'ultimate' | 'mod' | 'material' | 'set' | 'treasureMap' | 'npc' | 'mapLocation' | 'cosmetic'
 
 const route = useRoute(),
     authStore = useAuthStore(),
@@ -93,7 +97,7 @@ const onPushComment = async () => {
           targetId: props.id,
           targetType: props.type,
           content: content.value,
-          captcha: captcha.value,
+          captcha: captcha.value as any,
         }),
         d = result.data;
 
@@ -104,6 +108,7 @@ const onPushComment = async () => {
       content: content.value
     })
 
+    content.value = ''
     notice.success('comment.ok')
   } catch (e) {
     if (e instanceof ApiError) {
@@ -185,10 +190,12 @@ const onEditComment = async (data: any) => {
 const onCaptchaData = (data: any) => {
   captcha.value = data;
 }
+
+const getCaptchaResponse = () => (captcha.value as any).response
 </script>
 
 <template>
-  <div class="mt-n3 w-100">
+  <div class="comment-widget">
     <v-timeline
         density="compact"
         side="end"
@@ -283,7 +290,7 @@ const onCaptchaData = (data: any) => {
       <v-col>
         <v-btn size="55" class="bg-amber" :max-width="150" block
                :loading="commentPushLoading"
-               :disabled="!content || !captcha && !captcha.response"
+               :disabled="!content"
                @click="onPushComment">
           {{ t('basic.button.submit') }}
         </v-btn>

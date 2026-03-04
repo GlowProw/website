@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'BluePrintWidget' }
+</script>
+
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import {computed} from "vue";
@@ -9,11 +13,11 @@ const props = defineProps<{ data: Item }>(),
     {asString} = useI18nUtils()
 
 let seasonI18nMap = computed(() => {
-      return tm('snb.seasons')
+      return (tm as any)('snb.seasons')
     }),
     i18nAdditionalAttr = computed(() => {
       return {
-        ...seasonI18nMap.value
+        ...(seasonI18nMap.value as any)
       }
     })
 

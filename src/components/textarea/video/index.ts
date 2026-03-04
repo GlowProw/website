@@ -35,7 +35,7 @@ const VideoNode = Node.create({
     },
     addCommands() {
         return {
-            insertVideo: (src) => ({chain}: { commands: any }) => {
+            insertVideo: (src) => ({chain}: any) => {
                 return chain()
                     .insertContent([
                         {

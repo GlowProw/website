@@ -14,9 +14,9 @@ import UserAvatar from "@/components/UserAvatar.vue";
 import EmptyView from "@/components/EmptyView.vue";
 import Time from "@/components/Time.vue";
 import TimeView from "@/components/TimeView.vue";
-import Textarea from "@/components/textarea"
+import Textarea from "@/components/textarea/index.vue"
 import Loading from "@/components/Loading.vue"
-import {AssemblyListResult, PaginationParams, ResultData} from "@/assets/types";
+import {AssemblyListResult, PaginationParams, ResultData, AssemblyItemResult} from "@/assets/types";
 import {SpaceUserResult} from "@/assets/types/User";
 import AssemblyWidget from "@/components/AssemblyWidget.vue";
 import AssemblyTouring from "@/components/AssemblyTouring.vue";
@@ -34,15 +34,17 @@ let loading = ref({
       assembly: true,
       teamUp: true
     }),
-    userData: Ref<SpaceUserResult> = ref({}),
-    userAssemblyWidgetRefs = ref([]),
-    userTeamUpData = ref({
+    userData: Ref<Partial<SpaceUserResult>> = ref({}),
+    userAssemblyWidgetRefs = ref<any[]>([]),
+    userTeamUpData = ref<ResultData<any[]>>({
+      code: '0',
       data: []
     }),
     userAssemblysData: Ref<AssemblyListResult> = ref({
+      code: '0',
       data: []
     }),
-    spacePagination: Ref<PaginationParams> = ref({
+    spacePagination = ref({
       page: 1,
       pageSize: 10
     }),
@@ -61,7 +63,7 @@ let loading = ref({
     ]),
     tab = ref(tabs.value[0].value)
 
-watch(userAssemblysData, (newList: ResultData) => {
+watch(userAssemblysData, (newList) => {
   if (newList && newList.data.length > 0) {
     nextTick(() => {
       const processBatch = (index = 0) => {
@@ -106,6 +108,10 @@ const onUpdateData = (value: string) => {
       getUserAssemblysData()
       break;
   }
+}
+
+const getName = (name: any) => {
+  return (name as string) || 'none';
 }
 
 /**
@@ -222,7 +228,7 @@ const getUserAssemblysData = async () => {
             <v-col cols="8" class="ml-4">
               <h1 class="mb-1">{{ userData.username }}</h1>
               <div class="align-center d-flex ga-2 overflow-y-auto">
-                <RolesTagWidget :data="userData.role" density="compact"></RolesTagWidget>
+                <RolesTagWidget :data="userData.role || []" density="compact"></RolesTagWidget>
                 <v-divider vertical class="mx-3" inset opacity=".2"></v-divider>
                 <v-chip density="compact" v-if="userData.lastOnlineTime">
                   {{ t('space.lastOnlineTime') }}：
@@ -295,8 +301,8 @@ const getUserAssemblysData = async () => {
                         {{ i.player }}
                       </v-col>
                       <v-col cols="auto">
-                        <v-chip density="compact" v-for="(i, index) in i.tags" :key="index">
-                          {{ i }}
+                        <v-chip density="compact" v-for="(tag, index) in i.tags" :key="index">
+                          {{ tag }}
                         </v-chip>
                       </v-col>
                     </v-row>
@@ -321,7 +327,7 @@ const getUserAssemblysData = async () => {
                     <v-row class="pt-5 pl-5 pr-5">
                       <v-col cols="9">
                         <router-link :to="`/assembly/browse/${i.uuid}/detail`">
-                          <div :title="i.name || 'none'" class="text-amber text-h4 mb-1 font-weight-bold singe-line">{{ i.name || 'none' }}</div>
+                          <div :title="getName(i.name)" class="text-amber text-h4 mb-1 font-weight-bold singe-line">{{ i.name || 'none' }}</div>
                         </router-link>
                         <div>
                           <AccountCardWidget :id="i.userId">
@@ -362,7 +368,7 @@ const getUserAssemblysData = async () => {
               <!-- 分页 S -->
               <v-pagination
                   v-if="userAssemblysData.pagination"
-                  v-model="spacePagination.page"
+                  v-model.number="spacePagination.page"
                   :length="userAssemblysData.pagination?.totalPages || 0"
                   @update:model-value="getUserAssemblysData"
                   class="mt-8"

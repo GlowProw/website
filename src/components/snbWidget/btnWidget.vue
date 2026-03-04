@@ -29,6 +29,10 @@
   </v-row>
 </template>
 
+<script lang="ts">
+export default { name: 'BtnWidget' }
+</script>
+
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 
@@ -71,13 +75,13 @@ const emit = defineEmits(['action-complete'])
 
 const isHolding = ref(false)
 const progress = ref(0)
-const holdTimer = ref(null)
+const holdTimer = ref<any>(null)
 const actionButton = ref(null)
 const startTime = ref(0)
 const keyAlreadyPressed = ref(false)
-const activationSource = ref(null) // 'mouse', 'touch' or 'keyboard'
+const activationSource = ref<string | null>(null) // 'mouse', 'touch' or 'keyboard'
 
-const iconSize = computed(() => props.size / 2)
+const iconSize = computed(() => Number(props.size) / 2)
 
 onMounted(() => {
   if (props.keyboardShortcut && !props.disabled) {

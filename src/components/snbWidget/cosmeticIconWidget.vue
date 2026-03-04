@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'CosmeticIconWidget' }
+</script>
+
 <script setup lang="ts">
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
@@ -51,11 +55,11 @@ const
     // 稀有度
     rarityColorConfig = rarity.color
 
-let cosmeticCardData = ref({
+    let cosmeticCardData = ref({
       icon: '',
     }),
     i: Ref<UnwrapRef<Cosmetic> | Cosmetic> = ref(Cosmetic.fromRawData({})),
-    cosmeticDescription: Ref<CosmeticDescription> = ref(null),
+    cosmeticDescription: Ref<any> = ref(null),
     isOpenNewWindow = computed({
       get: () => appStore.itemOpenNewWindow || props.isOpenNewWindow,
       set: (value) => appStore.toggleItemOpenNewWindow(value)

@@ -33,7 +33,7 @@ const route = useRoute(),
     {t} = useI18n(),
     {asString} = useI18nUtils()
 
-let detailData = ref({
+let detailData: Ref<any> = ref({
       cloningUuid: '',
       uuid: '',
       userId: null,
@@ -51,16 +51,16 @@ let detailData = ref({
       isPassword: false,
       isOwner: false,
     }),
-    assemblyMainSubjectView: Ref<AssemblyMainSubjectView> = ref(null),
+    assemblyMainSubjectView: Ref<any> = ref(null),
     assemblyLoading = ref(false),
     password = ref(''),
 
     // meta
     head = ref({
-      title: t(route.meta.title),
+      title: t(route.meta.title as string),
       titleTemplate: `%s | ${t('name')}`,
       meta: [
-        {name: 'keywords', content: t(route.meta.keywords)},
+        {name: 'keywords', content: t(route.meta.keywords as string)},
         {name: 'og:title', content: `%s | ${t('name')}`},
       ]
     })
@@ -77,7 +77,7 @@ onMounted(async () => {
   // set new title
   const title = `${detailData.value.name} - ${head.value.title} | ${t('name')}`;
   head.value.titleTemplate = title
-  head.value.meta = {name: 'og:title', content: title}
+  head.value.meta = [{name: 'og:title', content: title}]
 })
 
 /**

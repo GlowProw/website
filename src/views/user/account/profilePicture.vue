@@ -9,7 +9,7 @@ import UserAvatar from "@/components/UserAvatar.vue";
 const authStore = useAuthStore(),
     {t} = useI18n()
 
-let userAccountData = ref({})
+let userAccountData = ref<any>({})
 
 onMounted(() => {
   getUserAccount()
@@ -28,7 +28,7 @@ const getUserAccount = async () => {
     <div class="font-weight-bold text-h5 ">{{ t('account.profile-picture.title') }}</div>
     <p class="text-caption text-grey opacity-80 mb-10">{{ t('account.profile-picture.description') }} </p>
 
-    <v-row type="flex" align="end">
+    <v-row align="end">
       <v-col flex="1">
         <a href="https://gravatar.com" target="_blank">
           <svg class="ivu-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
@@ -43,13 +43,13 @@ const getUserAccount = async () => {
       <v-col>
         <a :href="userAccountData?.userAvatar ? 'https://gravatar.com/connect/' : 'https://gravatar.com/connect/?gravatar_from=signup'"
            target="_blank">
-          <Button>
-            <Icon type="md-link" size="20"></Icon>
-          </Button>
+          <v-btn>
+            <v-icon>mdi-link</v-icon>
+          </v-btn>
         </a>
       </v-col>
     </v-row>
-    <v-row :gutter="5" type="flex" align="top">
+    <v-row :gutter="5" align="start">
       <v-col cols="auto" v-for="(i, index) in [150,80,50,45,30,22]" :key="index">
         <p class="mb-2 font-weight-bold">{{ i }}</p>
         <v-card>

@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'Header' }
+</script>
+
 <script setup lang="ts">
 import {useAuthStore} from "~/stores/userAccountStore";
 import Logo from "./Logo.vue";

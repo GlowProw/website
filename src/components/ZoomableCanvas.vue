@@ -128,15 +128,15 @@ const startTouchDrag = (e) => {
  * 处理拖拽
  * @param e
  */
-const handleTouchDrag = (e) => {
+const handleTouchDrag = (e: any) => {
   if (!isDragging.value || e.touches.length !== 1) return
 
   // Find the corresponding touch point
-  const touch = Array.from(e.touches).find(t => t.identifier === touchIdentifier.value)
+  const touch = Array.from(e.touches).find((t: any) => t.identifier === touchIdentifier.value)
   if (!touch) return
 
-  position.value.x = touch.clientX - startPos.value.x
-  position.value.y = touch.clientY - startPos.value.y
+  position.value.x = (touch as any).clientX - startPos.value.x
+  position.value.y = (touch as any).clientY - startPos.value.y
 
   updateBackgroundPosition((-position.value.x + 100) * .5, (-position.value.y + 100) * .5)
 }
@@ -147,7 +147,7 @@ const handleTouchDrag = (e) => {
 const setupResizeObserver = () => {
   if (typeof ResizeObserver === 'undefined') return
 
-  resizeObserver.value = new ResizeObserver(entries => {
+  resizeObserver.value = new ResizeObserver((entries: any) => {
     for (let entry of entries) {
       contentHeight.value = entry.contentRect.height
     }
@@ -184,8 +184,8 @@ const centerCanvas = () => {
  * 开始拖拽
  * @param e
  */
-const startDrag = (e) => {
-  if (e.button !== 0 && !!Array.from(e.target.classList).findLast(i => i == 'prohibit-drag')) return
+const startDrag = (e: any) => {
+  if (e.button !== 0 && !!Array.from((e.target as Element).classList).reverse().find((i: any) => i == 'prohibit-drag')) return
   isDragging.value = true
   startPos.value = {
     x: e.clientX - position.value.x,
@@ -255,7 +255,7 @@ const resetView = () => {
  * @param y
  */
 const updateBackgroundPosition = (x: string | number, y: string | number) => {
-  const elementCircles = document.querySelector('.overlapping-circles')
+  const elementCircles = document.querySelector('.overlapping-circles') as HTMLElement
 
   if (!elementCircles) return
 
@@ -278,7 +278,7 @@ onMounted(() => {
   }
 
   // 禁止缩放
-  const originalViewport = document.querySelector('meta[name="viewport"]')
+  const originalViewport = document.querySelector('meta[name="viewport"]') as HTMLMetaElement
   const originalContent = originalViewport?.content || '';
 
   // 设置不允许缩放
@@ -297,8 +297,8 @@ onBeforeUnmount(() => {
   window.removeEventListener('mouseup', stopDrag)
 
   if (window.innerWidth <= 768) {
-    window.removeEventListener('touchmove', handleTouchDrag, {passive: false})
-    window.removeEventListener('touchend', stopDrag, {passive: false})
+    window.removeEventListener('touchmove', handleTouchDrag)
+    window.removeEventListener('touchend', stopDrag)
   }
 
   if (resizeObserver.value) resizeObserver.value.disconnect()

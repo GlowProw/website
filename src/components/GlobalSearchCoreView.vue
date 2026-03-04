@@ -1,3 +1,9 @@
+<script lang="ts">
+export default {
+  name: "GlobalSearchCoreView"
+}
+</script>
+
 <script setup lang="ts">
 import {computed, onMounted, Ref, ref, useSlots, watch} from "vue";
 import FlexSearch from "flexsearch";
@@ -48,8 +54,9 @@ const {t} = useI18n(),
 let searchIndex: Ref<any | null> = ref(null),
     searchValue = ref(''), // 展示搜索值
     searchQuery = ref(''), // 实际搜索的值
-    searchResult = ref({}),
-    searchSettingConfig = ref({}),
+    searchResult = ref<any>({}),
+    searchSettingConfig = ref<any>({}),
+    fieldIndices = ref<any>({}),
 
     isShowHotKet = computed(() => route.name != 'Search' && searchSettingConfig.value.searchHotkey),
 
@@ -162,16 +169,16 @@ onMounted(() => {
     charset: "latin:advanced",
     preset: "default",
     cache: true
-  })
+  } as any)
 
   // 创建字段特定的索引
-  const fieldIndices = {
+  const indices = {
     id: new FlexSearch.Index({preset: "default", cache: true}),
     name: new FlexSearch.Index({tokenize: "forward", preset: "default", cache: true}),
     description: new FlexSearch.Index({tokenize: "forward", preset: "default", cache: true})
   };
 
-  data = data.concat(Object.values(Items).map(i => {
+  data = data.concat(Object.values(Items).map((i: any) => {
     const {id, type, description = '', category = ''} = i
     const name = asString([
       `snb.items.${i.id}.name`,
@@ -191,15 +198,15 @@ onMounted(() => {
     };
 
     searchIndex.value.add(id, Object.values(itemData.searchableFields).join(' ').toLowerCase())
-    fieldIndices.id.add(id, itemData.searchableFields.id.toLowerCase())
-    fieldIndices.name.add(id, itemData.searchableFields.name.toLowerCase())
+    indices.id.add(id, itemData.searchableFields.id.toLowerCase())
+    indices.name.add(id, itemData.searchableFields.name.toLowerCase())
     if (itemData.searchableFields.description) {
-      fieldIndices.description.add(id, itemData.searchableFields.description.toLowerCase())
+      indices.description.add(id, itemData.searchableFields.description.toLowerCase())
     }
 
     return itemData;
   }))
-  data = data.concat(Object.values(Ships).map(i => {
+  data = data.concat(Object.values(Ships).map((i: any) => {
     const {id, type, description = '', category = ''} = i
     const name = asString([
       `snb.ships.${i.id}.name`,
@@ -219,15 +226,15 @@ onMounted(() => {
     };
 
     searchIndex.value.add(id, Object.values(itemData.searchableFields).join(' ').toLowerCase())
-    fieldIndices.id.add(id, itemData.searchableFields.id.toLowerCase())
-    fieldIndices.name.add(id, itemData.searchableFields.name.toLowerCase())
+    indices.id.add(id, itemData.searchableFields.id.toLowerCase())
+    indices.name.add(id, itemData.searchableFields.name.toLowerCase())
     if (itemData.searchableFields.description) {
-      fieldIndices.description.add(id, itemData.searchableFields.description.toLowerCase())
+      indices.description.add(id, itemData.searchableFields.description.toLowerCase())
     }
 
     return itemData;
   }))
-  data = data.concat(Object.values(Commodities).map(i => {
+  data = data.concat(Object.values(Commodities).map((i: any) => {
     const {id, type, description = '', category = ''} = i
     const name = asString([
       commoditie(i.id).name(),
@@ -246,17 +253,19 @@ onMounted(() => {
     };
 
     searchIndex.value.add(id, Object.values(itemData.searchableFields).join(' ').toLowerCase())
-    fieldIndices.id.add(id, itemData.searchableFields.id.toLowerCase())
-    fieldIndices.name.add(id, itemData.searchableFields.name.toLowerCase())
+    indices.id.add(id, itemData.searchableFields.id.toLowerCase())
+    indices.name.add(id, itemData.searchableFields.name.toLowerCase())
     if (itemData.searchableFields.description) {
-      fieldIndices.description.add(id, itemData.searchableFields.description.toLowerCase())
+      indices.description.add(id, itemData.searchableFields.description.toLowerCase())
     }
 
     return itemData;
   }))
-  data = data.concat(Object.values(Materials).map(i => {
+  data = data.concat(Object.values(Materials).map((i: any) => {
     const {id, type, description = '', category = ''} = i
-    const name = t(`snb.materials.${i.id}.name`)
+    const name = asString([
+      `snb.materials.${i.id}.name`,
+    ]);
     const itemData = {
       ...i,
       name,
@@ -271,17 +280,19 @@ onMounted(() => {
     };
 
     searchIndex.value.add(id, Object.values(itemData.searchableFields).join(' ').toLowerCase())
-    fieldIndices.id.add(id, itemData.searchableFields.id.toLowerCase())
-    fieldIndices.name.add(id, itemData.searchableFields.name.toLowerCase())
+    indices.id.add(id, itemData.searchableFields.id.toLowerCase())
+    indices.name.add(id, itemData.searchableFields.name.toLowerCase())
     if (itemData.searchableFields.description) {
-      fieldIndices.description.add(id, itemData.searchableFields.description.toLowerCase())
+      indices.description.add(id, itemData.searchableFields.description.toLowerCase())
     }
 
     return itemData;
   }))
-  data = data.concat(Object.values(Modifications).map(i => {
+  data = data.concat(Object.values(Modifications).map((i: any) => {
     const {id, type, description = '', category = '', grade = ''} = i
-    const name = t(`snb.modifications.${i.id}.name`)
+    const name = asString([
+      `snb.modifications.${i.id}.name`,
+    ]);
     const itemData = {
       ...i,
       name,
@@ -297,17 +308,19 @@ onMounted(() => {
     };
 
     searchIndex.value.add(id, Object.values(itemData.searchableFields).join(' ').toLowerCase())
-    fieldIndices.id.add(id, itemData.searchableFields.id.toLowerCase())
-    fieldIndices.name.add(id, itemData.searchableFields.name.toLowerCase())
+    indices.id.add(id, itemData.searchableFields.id.toLowerCase())
+    indices.name.add(id, itemData.searchableFields.name.toLowerCase())
     if (itemData.searchableFields.description) {
-      fieldIndices.description.add(id, itemData.searchableFields.description.toLowerCase())
+      indices.description.add(id, itemData.searchableFields.description.toLowerCase())
     }
 
     return itemData;
   }))
-  data = data.concat(Object.values(Cosmetics).map(i => {
+  data = data.concat(Object.values(Cosmetics).map((i: any) => {
     const {id, type, description = '', category = ''} = i
-    const name = t(`snb.cosmetics.${i.id}.name`)
+    const name = asString([
+      `snb.cosmetics.${i.id}.name`,
+    ]);
     const itemData = {
       ...i,
       name,
@@ -322,17 +335,19 @@ onMounted(() => {
     };
 
     searchIndex.value.add(id, Object.values(itemData.searchableFields).join(' ').toLowerCase())
-    fieldIndices.id.add(id, itemData.searchableFields.id.toLowerCase())
-    fieldIndices.name.add(id, itemData.searchableFields.name.toLowerCase())
+    indices.id.add(id, itemData.searchableFields.id.toLowerCase())
+    indices.name.add(id, itemData.searchableFields.name.toLowerCase())
     if (itemData.searchableFields.description) {
-      fieldIndices.description.add(id, itemData.searchableFields.description.toLowerCase())
+      indices.description.add(id, itemData.searchableFields.description.toLowerCase())
     }
 
     return itemData;
   }))
-  data = data.concat(Object.values(Ultimates).map(i => {
+  data = data.concat(Object.values(Ultimates).map((i: any) => {
     const {id, type, description = '', category = ''} = i
-    const name = t(`snb.ultimates.${i.id}.name`)
+    const name = asString([
+      `snb.ultimates.${i.id}.name`,
+    ]);
     const itemData = {
       ...i,
       name,
@@ -347,17 +362,19 @@ onMounted(() => {
     };
 
     searchIndex.value.add(id, Object.values(itemData.searchableFields).join(' ').toLowerCase())
-    fieldIndices.id.add(id, itemData.searchableFields.id.toLowerCase())
-    fieldIndices.name.add(id, itemData.searchableFields.name.toLowerCase())
+    indices.id.add(id, itemData.searchableFields.id.toLowerCase())
+    indices.name.add(id, itemData.searchableFields.name.toLowerCase())
     if (itemData.searchableFields.description) {
-      fieldIndices.description.add(id, itemData.searchableFields.description.toLowerCase())
+      indices.description.add(id, itemData.searchableFields.description.toLowerCase())
     }
 
     return itemData;
   }))
-  data = data.concat(Object.values(MapLocations).map(i => {
+  data = data.concat(Object.values(MapLocations).map((i: any) => {
     const {id, type, description = '', category = ''} = i
-    const name = t(`snb.mapLocations.${i.id}.name`)
+    const name = asString([
+      `snb.mapLocations.${i.id}.name`,
+    ]);
     const itemData = {
       ...i,
       name,
@@ -372,10 +389,10 @@ onMounted(() => {
     };
 
     searchIndex.value.add(id, Object.values(itemData.searchableFields).join(' ').toLowerCase())
-    fieldIndices.id.add(id, itemData.searchableFields.id.toLowerCase())
-    fieldIndices.name.add(id, itemData.searchableFields.name.toLowerCase())
+    indices.id.add(id, itemData.searchableFields.id.toLowerCase())
+    indices.name.add(id, itemData.searchableFields.name.toLowerCase())
     if (itemData.searchableFields.description) {
-      fieldIndices.description.add(id, itemData.searchableFields.description.toLowerCase())
+      indices.description.add(id, itemData.searchableFields.description.toLowerCase())
     }
 
     return itemData;
@@ -384,7 +401,7 @@ onMounted(() => {
   // 存储字段索引
   allItems.value = data;
 
-  fieldIndices.value = fieldIndices;
+  fieldIndices.value = indices;
 
   getConfig()
   initHotkey()
@@ -728,58 +745,58 @@ defineExpose({
               <v-list-item
                   v-for="(i, index) in items"
                   :key="i.id || index"
-                  @click="onPage(i, type)"
+                  @click="onPage(i, String(type))"
                   three-line>
                 <v-list-item-title class="font-weight-medium d-flex align-center">
                   <ItemSlotBase size="30px" :padding="0" class="mr-2">
-                    <template v-if="type=='item'">
+                    <template v-if="String(type)=='item'">
                       <ItemIconWidget :id="i.id"></ItemIconWidget>
                     </template>
-                    <template v-if="type=='ship'">
+                    <template v-if="String(type)=='ship'">
                       <ShipIconWidget :id="i.id"></ShipIconWidget>
                     </template>
-                    <template v-if="type=='commoditie'">
+                    <template v-if="String(type)=='commoditie'">
                       <CommoditieIconWidget :id="i.id"></CommoditieIconWidget>
                     </template>
-                    <template v-else-if="type=='material'">
+                    <template v-else-if="String(type)=='material'">
                       <MaterialIconWidget :id="i.id"></MaterialIconWidget>
                     </template>
-                    <template v-else-if="type=='modification'">
+                    <template v-else-if="String(type)=='modification'">
                       <ModIconWidget :id="i.id"></ModIconWidget>
                     </template>
-                    <template v-else-if="type=='cosmetic'">
+                    <template v-else-if="String(type)=='cosmetic'">
                       <CosmeticIconWidget :id="i.id"></CosmeticIconWidget>
                     </template>
-                    <template v-else-if="type=='ultimate'">
+                    <template v-else-if="String(type)=='ultimate'">
                       <UltimateIconWidget :id="i.id"></UltimateIconWidget>
                     </template>
-                    <template v-else-if="type=='mapLocation'">
+                    <template v-else-if="String(type)=='mapLocation'">
                       <MapLocationIconWidget :id="i.id"></MapLocationIconWidget>
                     </template>
                   </ItemSlotBase>
 
-                  <template v-if="type=='item'">
+                  <template v-if="String(type)=='item'">
                     <ItemName :id="i.id"></ItemName>
                   </template>
-                  <template v-if="type=='ship'">
+                  <template v-if="String(type)=='ship'">
                     <ShipName :id="i.id"></ShipName>
                   </template>
-                  <template v-if="type=='commoditie'">
+                  <template v-if="String(type)=='commoditie'">
                     <CommoditieName :id="i.id"></CommoditieName>
                   </template>
-                  <template v-else-if="type=='material'">
+                  <template v-else-if="String(type)=='material'">
                     <MaterialName :id="i.id"></MaterialName>
                   </template>
-                  <template v-else-if="type=='modification'">
+                  <template v-else-if="String(type)=='modification'">
                     <ModName :id="i.id" :grade="i.grade"></ModName>
                   </template>
-                  <template v-else-if="type=='cosmetic'">
+                  <template v-else-if="String(type)=='cosmetic'">
                     <CosmeticName :id="i.id"></CosmeticName>
                   </template>
-                  <template v-else-if="type=='ultimate'">
+                  <template v-else-if="String(type)=='ultimate'">
                     <UltimateName :id="i.id"></UltimateName>
                   </template>
-                  <template v-else-if="type=='mapLocation'">
+                  <template v-else-if="String(type)=='mapLocation'">
                     <MapLocationNameWidget :id="i.id"></MapLocationNameWidget>
                   </template>
                 </v-list-item-title>
@@ -830,7 +847,7 @@ defineExpose({
           <p>支持高级查询如：name:item_name id:id1 category:ship type:ships</p>
 
           <ul class="mt-5 text-caption text-grey ml-4">
-            <li>模糊检索: <u>id=id1</u> · <u>id>=id1</u> · <u>id<=id1</u> · <u>id< id1 </u> · <u>id>id1</u></li>
+            <li>模糊检索: <u>id=id1</u> · <u>id>=id1</u> · <u>id&lt;=id1</u> · <u>id&lt; id1 </u> · <u>id>id1</u></li>
             <li>精准id检索: <u>id:id1</u></li>
             <li>category单一和组合: <u>category:ship,ships</u> (仅限category)</li>
           </ul>

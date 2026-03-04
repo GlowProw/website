@@ -1,5 +1,9 @@
+<script lang="ts">
+export default { name: 'AccountCardWidget' }
+</script>
+
 <script setup lang="ts">
-import {onMounted, ref, watch} from "vue";
+import {onMounted, ref, watch, computed} from "vue";
 import {apis, sessionUserInfo} from "@/assets/sripts/index";
 import {ApiError} from "@/assets/types/Api";
 import {useI18n} from "vue-i18n";
@@ -63,6 +67,8 @@ const getUserInfo = async () => {
     loading.value = false
   }
 }
+
+const userInfo = computed(() => userInfoData.value as any)
 </script>
 
 <template>
@@ -88,33 +94,36 @@ const getUserInfo = async () => {
             class="bg-black"></Silk>
       </v-card>
       <v-divider></v-divider>
-      <div class="mt-5 px-5">
-        <router-link
-            :to="`/space/${userInfoData.userId || id}`">
-          <v-row align="center">
-            <v-col cols="auto" v-if="userInfoData.userAvatar">
-              <v-card>
-                <UserAvatar size="25" :src="userInfoData.userAvatar"></UserAvatar>
-              </v-card>
-            </v-col>
-            <v-col>
-              <div class="text-h5 text-amber">{{ userInfoData.username }}</div>
-            </v-col>
-          </v-row>
-        </router-link>
+      <v-card-text>
+        <v-row align="center">
+          <v-btn variant="text"
+                 class="px-0 h-auto"
+                 :to="`/space/${userInfo.userId || id}`">
+            <v-row align="center" no-gutters>
+              <v-col cols="auto" v-if="userInfo.userAvatar">
+                <v-avatar size="50" class="mr-3">
+                  <UserAvatar size="50" :src="userInfo.userAvatar"></UserAvatar>
+                </v-avatar>
+              </v-col>
+              <v-col>
+                <div class="text-h5 text-amber">{{ userInfo.username }}</div>
+              </v-col>
+            </v-row>
+          </v-btn>
 
-        <RolesTagWidget :data="userInfoData.role" v-if="userInfoData.role" class="mb-3 mt-1"></RolesTagWidget>
+          <RolesTagWidget :data="userInfo.role" v-if="userInfo.role" class="mb-3 mt-1"></RolesTagWidget>
 
-        <Textarea
-            readonly
-            class="text-caption opacity-60"
-            min-height="120"
-            :value="userInfoData?.attr?.introduction"></Textarea>
+          <Textarea
+              readonly
+              class="text-caption opacity-60"
+              min-height="120"
+              :value="userInfo.attr?.introduction"></Textarea>
 
-        <v-btn class="mt-6" variant="tonal" :to="`/space/${userInfoData.userId || id}`" block>
-          {{ t('basic.button.go') }}
-        </v-btn>
-      </div>
+          <v-btn class="mt-6" variant="tonal" :to="`/space/${userInfo.userId || id}`" block>
+            {{ t('account.space.title') }}
+          </v-btn>
+        </v-row>
+      </v-card-text>
     </v-card>
   </v-menu>
 </template>

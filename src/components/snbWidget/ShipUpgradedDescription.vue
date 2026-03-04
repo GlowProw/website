@@ -1,9 +1,13 @@
+<script lang="ts">
+export default { name: 'ShipUpgradedDescription' }
+</script>
+
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
-import {Item} from "glow-prow-data";
+import {Item, Ship} from "glow-prow-data";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 
-const props = defineProps<{ data: Item | Ship }>(),
+const props = defineProps<{ data: any }>(),
     {t} = useI18n(),
     {sanitizeString} = useI18nUtils()
 </script>

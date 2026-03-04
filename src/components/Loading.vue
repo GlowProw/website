@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'Loading' }
+</script>
+
 <script setup lang="ts">
 withDefaults(defineProps<{ size?: number | string }>(), {
   size: '20px'

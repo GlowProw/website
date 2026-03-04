@@ -264,14 +264,12 @@ const initWss = () => {
   ws.start()
 
   ws.client.onopen = function (event: any) {
-    if (authStore.isLogin) {
-      ws.client.send(
-          JSON.stringify(
-              {
-                type: 'authenticate', payload: {token: authStore.user.token}
-              }
-          )
-      )
+    if (authStore.isLogin && ws.client?.readyState === WebSocket.OPEN) {
+      ws.client?.send(
+          JSON.stringify({
+            type: 'authenticate', payload: {token: authStore.user?.token}
+          })
+      );
     }
     service.value.status = 1;
   };
@@ -464,7 +462,7 @@ const onWsReconnect = () => {
 
         <template v-if="teams.length > 0">
           <div class="mt-5">
-            <v-infinite-scroll :items="teams.value"
+            <v-infinite-scroll :items="teams"
                                mode="manual"
                                @load="onTeamLoad">
               <template v-for="(i, index) in teams" :key="index">

@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'Footer' }
+</script>
+
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import I18nWidget from "./i18nWidget.vue";
@@ -153,7 +157,7 @@ const {t} = useI18n()
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="less">
 .footer {
   background-color: hsl(from var(--main-color) h s calc(l * 0.03));
 

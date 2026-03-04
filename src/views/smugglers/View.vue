@@ -20,8 +20,8 @@ import EmptyView from "@/components/EmptyView.vue";
 const {t} = useI18n(),
     notice = useNoticeStore()
 
-let smugglersData = ref({}),
-    commentData = ref({}),
+let smugglersData = ref<any>({}),
+    commentData = ref<any[]>([]),
     browseLoading = ref(false),
     browsePagination = ref({
       page: 1,

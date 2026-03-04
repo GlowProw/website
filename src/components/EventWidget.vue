@@ -1,24 +1,28 @@
+<script lang="ts">
+export default { name: 'EventWidget' }
+</script>
+
 <script setup lang="ts">
 import {computed, onMounted, ref, type Ref, watch} from "vue";
 import {Item, Material, Seasons, Ship, Ultimate} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 
 const {t, tm} = useI18n(),
-    props = defineProps<{ data: Item | Ship | Material | Ultimate | unknown }>()
+    props = defineProps<{ data: any }>()
 
-let detailData: Ref<Item | Ship | Material | Ultimate | null> = ref(null),
+let detailData: Ref<any> = ref(null),
     seasonI18nMap = computed(() => {
-      return tm('snb.seasons')
+      return (tm as any)('snb.seasons')
     }),
     i18nAdditionalAttr = computed(() => {
       return {
-        ...seasonI18nMap.value
+        ...(seasonI18nMap.value as any)
       }
     }),
     getEvent = computed(() => {
       if (!detailData.value) return []
 
-      const events = detailData.value?.event
+      const events = (detailData.value as any)?.event
 
       // 标准化处理：确保返回数组
       const eventsArray = Array.isArray(events) ? events : [events]
@@ -29,8 +33,8 @@ let detailData: Ref<Item | Ship | Material | Ultimate | null> = ref(null),
           .map(event => ({
             ...event,
             eventId: event.id,
-            itemType: props.data?._typeStringName?.toLowerCase() || 'unknown',
-            itemId: props.data?.id || 'unknown'
+            itemType: (detailData.value as any)?._typeStringName?.toLowerCase() || 'unknown',
+            itemId: (detailData.value as any)?.id || 'unknown'
           }))
     })
 

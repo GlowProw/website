@@ -1,3 +1,7 @@
+<script lang="ts">
+export default { name: 'I18nMembersWidget' }
+</script>
+
 <script setup lang="ts">
 
 import {onMounted, ref, toRaw} from "vue";
@@ -33,7 +37,7 @@ const getLanguageMembers = async () => {
   // public key, only read members
   const key = '5ce0d2b299f679b2bd8ecabe8317a1e7c3badc9d25f24d85865a9ddbe4d5d1835bebe89d951013fb'
   const result = await http.request('https://api.crowdin.com/api/v2/projects/810804/members', {
-    method: 'get',
+    method: 'get' as any,
     headers: {
       "Authorization": `Bearer ${key}`,
       // "Accept": "application/json"
