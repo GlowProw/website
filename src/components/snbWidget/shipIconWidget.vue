@@ -14,6 +14,7 @@ import PerksWidget from "./perksWidget.vue";
 import ShipDescription from "@/components/snbWidget/shipDescription.vue";
 import {useAppStore} from "~/stores/appStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
+import DamageMitigationWidget from "@/components/snbWidget/damageMitigationWidget.vue";
 
 const props = withDefaults(defineProps<{
       id: string,
@@ -135,6 +136,10 @@ defineOptions({
             <ShipDescription :id="props.id"></ShipDescription>
           </div>
         </template>
+
+        <div class="mb-5 px-7">
+          <DamageMitigationWidget direction="horizontal" type="armor" :isForciblyIcon="true" :data="shipData"></DamageMitigationWidget>
+        </div>
 
         <v-expansion-panels v-model="shipCardData.panel">
           <v-expansion-panel

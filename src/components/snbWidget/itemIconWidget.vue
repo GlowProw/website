@@ -266,8 +266,8 @@ defineExpose({
         </template>
 
         <template v-if="typeof i.damageMitigation == 'object'">
-          <div class="mb-5 px-6">
-            <DamageMitigationWidget showType="horizontal" :data="i"></DamageMitigationWidget>
+          <div class="mb-5 px-7">
+            <DamageMitigationWidget direction="horizontal" type="armor" :isForciblyIcon="true" :data="i"></DamageMitigationWidget>
           </div>
         </template>
 
@@ -286,7 +286,7 @@ defineExpose({
               </v-col>
               <v-divider vertical :opacity=".2" :thickness="2" inset class="my-4"></v-divider>
               <v-col>
-                <ItemDamageTypeWidget :data="i" iconType="aggressivity" sizeType="mini" :size="28"></ItemDamageTypeWidget>
+                <ItemDamageTypeWidget :data="i" iconType="aggressivity" sizeType="mini" :size="35"></ItemDamageTypeWidget>
               </v-col>
             </v-row>
           </div>

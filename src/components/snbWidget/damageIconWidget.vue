@@ -12,7 +12,6 @@ const props = withDefaults(
     ),
     damagesAggressivityImages = import.meta.glob(`@glow-prow-assets/damages/aggressivity/*.*`, {eager: true}),
     damagesArmorImages = import.meta.glob(`@glow-prow-assets/damages/armor/*.*`, {eager: true}),
-    modsImages = import.meta.glob('@glow-prow-assets/modifications/*', {eager: true}),
 
     emit = defineEmits(['read-end']),
     {serializationMap} = useAssetsStore(),
@@ -23,7 +22,7 @@ const props = withDefaults(
     }
 
 let icons = ref({}),
-    images = ref({...modsImages}),
+    images = ref({}),
     getIcon = computed(() => icons.value[damageDictionaries[props.id] || props.id]),
     isHasIcon = computed(() => !!getIcon.value)
 
