@@ -144,7 +144,7 @@ defineOptions({ name: 'AssemblyTagsWidget' })
         <v-chip filter size="small" color="primary"
                 v-for="(i, index) in tagsConfig.archeTypes"
                 :key="index"
-                :value="`archetype_${i}`">{{ t(`assembly.tags.archetypes.${i}`) }}</v-chip>
+                :value="`archetype_${i}`">{{ t(`codex.ships.archetypes.${i}.name`) }}</v-chip>
       </div>
     </div>
   </v-chip-group>

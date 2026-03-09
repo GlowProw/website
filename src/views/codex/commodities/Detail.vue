@@ -16,8 +16,8 @@ import {useAuthStore} from "~/stores/userAccountStore";
 import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
-import ObtainableWidget from "@/components/ObtainableWidget.vue";
-import WorldEventWidget from "@/components/WorldEventWidget.vue";
+import ByObtainableWidget from "@/components/ByObtainableWidget.vue";
+import ByWorldEventWidget from "@/components/ByWorldEventWidget.vue";
 import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
 import {Commodities} from "glow-prow-data/src/entity/Commodities";
 import CommoditieIconWidget from "@/components/snbWidget/commoditieIconWidget.vue";
@@ -257,12 +257,12 @@ const onCodexHistory = () => {
               </template>
             </div>
             <template v-if="commoditieDetailData.worldEvent">
-              <WorldEventWidget :data="commoditieDetailData"></WorldEventWidget>
+              <ByWorldEventWidget :data="commoditieDetailData"></ByWorldEventWidget>
             </template>
             <template v-if="commoditieDetailData.obtainable">
-              <ObtainableWidget :data="commoditieDetailData" byType="item">
+              <ByObtainableWidget :data="commoditieDetailData" byType="item">
                 {{ t('codex.item.obtainable') }}
-              </ObtainableWidget>
+              </ByObtainableWidget>
             </template>
             <template v-if="commoditieDetailData.faction">
               <v-text-field

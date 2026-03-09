@@ -16,7 +16,7 @@ export default { name: 'FullscreenBtn' }
 </template>
 
 <script setup lang="ts">
-import {useFullscreen} from '@/assets/sripts/useFullscreen'
+import {use_full_screen} from '@/assets/sripts/use_full_screen'
 import {watch} from "vue";
 import {onBeforeRouteLeave, useRoute} from "vue-router";
 
@@ -25,7 +25,7 @@ const props = defineProps<{ viewRef?: any }>(),
       isFullscreen,
       toggleFullscreen,
       isSupported
-    } = useFullscreen(props.viewRef),
+    } = use_full_screen(props.viewRef),
     route = useRoute(),
     emit = defineEmits(['update:isFull'])
 

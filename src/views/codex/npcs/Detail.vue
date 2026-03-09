@@ -19,8 +19,8 @@ import {useAuthStore} from "~/stores/userAccountStore";
 import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
-import ObtainableWidget from "@/components/ObtainableWidget.vue";
-import WorldEventWidget from "@/components/WorldEventWidget.vue";
+import ByObtainableWidget from "@/components/ByObtainableWidget.vue";
+import ByWorldEventWidget from "@/components/ByWorldEventWidget.vue";
 import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
 import NpcName from "@/components/snbWidget/npcName.vue";
 import NpcIconWidget from "@/components/snbWidget/npcIconWidget.vue";
@@ -255,12 +255,12 @@ const onCodexHistory = () => {
             <BySeasonWidget :data="npcDetailData"></BySeasonWidget>
 
             <template v-if="npcDetailData.worldEvent">
-              <WorldEventWidget :data="npcDetailData"></WorldEventWidget>
+              <ByWorldEventWidget :data="npcDetailData"></ByWorldEventWidget>
             </template>
             <template v-if="npcDetailData.obtainable || npcDetailData.location">
-              <ObtainableWidget :data="npcDetailData" byType="item">
+              <ByObtainableWidget :data="npcDetailData" byType="item">
                 {{ t('codex.item.obtainable') }}
-              </ObtainableWidget>
+              </ByObtainableWidget>
             </template>
             <template v-if="npcDetailData.faction">
               <v-text-field

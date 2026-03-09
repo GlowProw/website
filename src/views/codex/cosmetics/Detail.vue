@@ -14,13 +14,13 @@ import CosmeticIconWidget from "@/components/snbWidget/cosmeticIconWidget.vue";
 import CosmeticDescription from "@/components/snbWidget/cosmeticDescription.vue";
 import Time from "@/components/Time.vue";
 import TimeView from "@/components/TimeView.vue";
-import ObtainableWidget from "@/components/ObtainableWidget.vue";
+import ByObtainableWidget from "@/components/ByObtainableWidget.vue";
 import {storage} from "@/assets/sripts/index";
 import SetIconWidget from "@/components/snbWidget/setIconWidget.vue";
 import {useDisplay} from "vuetify/framework";
 import CosmeticPiecesTagWidget from "@/components/snbWidget/cosmeticPiecesTagWidget.vue";
 import CosmeticEffectTagWidget from "@/components/snbWidget/cosmeticEffectTagWidget.vue";
-import WorldEventWidget from "@/components/WorldEventWidget.vue";
+import ByWorldEventWidget from "@/components/ByWorldEventWidget.vue";
 
 const {t} = useI18n(),
     router = useRouter(),
@@ -171,12 +171,12 @@ const onCodexHistory = () => {
                 :data="cosmeticDetailData.firstAppearingSeason || cosmeticDetailData.bySeason"></BySeasonWidget>
 
             <template v-if="cosmeticDetailData.worldEvent">
-              <WorldEventWidget :data="cosmeticDetailData"></WorldEventWidget>
+              <ByWorldEventWidget :data="cosmeticDetailData"></ByWorldEventWidget>
             </template>
             <template v-if="cosmeticDetailData.obtainable">
-              <ObtainableWidget :data="cosmeticDetailData" byType="cosmetic">
+              <ByObtainableWidget :data="cosmeticDetailData" byType="cosmetic">
                 {{ t('codex.item.obtainable') }}
-              </ObtainableWidget>
+              </ByObtainableWidget>
             </template>
 
             <v-row no-gutters align="center" class="mt-2">

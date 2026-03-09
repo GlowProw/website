@@ -15,7 +15,7 @@ import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
 import TreasureMapIconWidget from "@/components/snbWidget/treasureMapIconWidget.vue";
 import TreasureMapName from "@/components/snbWidget/treasureMapName.vue";
-import ObtainableWidget from "@/components/ObtainableWidget.vue";
+import ByObtainableWidget from "@/components/ByObtainableWidget.vue";
 import ImageMagnifyingGlass from "@/components/ImageMagnifyingGlass.vue";
 import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
 import TreasureMapSameArea from "@/components/snbWidget/treasureMapSameArea.vue";
@@ -195,9 +195,9 @@ const onCodexHistory = () => {
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
             <BySeasonWidget :data="mapDetailData"></BySeasonWidget>
 
-            <ObtainableWidget :data="mapDetailData" byType="treasureMap">
+            <ByObtainableWidget :data="mapDetailData" byType="treasureMap">
               {{ t('codex.item.obtainable') }}
-            </ObtainableWidget>
+            </ByObtainableWidget>
 
             <template v-if="mapDetailData.rarity">
               <v-text-field readonly

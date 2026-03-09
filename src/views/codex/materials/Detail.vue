@@ -15,6 +15,13 @@ import MaterialDescription from "@/components/snbWidget/materialDescription.vue"
 import {rarity, storage} from "@/assets/sripts/index";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 import ItemMaterials from "@/components/snbWidget/itemMaterials.vue";
+import ByWorldEventWidget from "@/components/ByWorldEventWidget.vue";
+import TimeView from "@/components/TimeView.vue";
+import BluePrintWidget from "@/components/BluePrintWidget.vue";
+import ByEventWidget from "@/components/ByEventWidget.vue";
+import Time from "@/components/Time.vue";
+import ByObtainableWidget from "@/components/ByObtainableWidget.vue";
+import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
 
 const {t} = useI18n(),
     router = useRouter(),
@@ -171,6 +178,21 @@ const onCodexHistory = () => {
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
             <BySeasonWidget
                 :data="materialDetailData.firstAppearingSeason"></BySeasonWidget>
+
+            <template v-if="materialDetailData.blueprint">
+              <BluePrintWidget :data="materialDetailData"></BluePrintWidget>
+            </template>
+            <template v-if="materialDetailData.event">
+              <ByEventWidget :data="materialDetailData"></ByEventWidget>
+            </template>
+            <template v-if="materialDetailData.worldEvent">
+              <ByWorldEventWidget :data="materialDetailData"></ByWorldEventWidget>
+            </template>
+            <template v-if="materialDetailData.obtainable">
+              <ByObtainableWidget :data="materialDetailData" byType="item">
+                {{ t('codex.item.obtainable') }}
+              </ByObtainableWidget>
+            </template>
             <template v-if="materialDetailData.faction">
               <v-text-field
                   :value="t(`snb.factions.${materialDetailData.faction.id}.name`)"
@@ -188,6 +210,54 @@ const onCodexHistory = () => {
                 </template>
               </v-text-field>
             </template>
+
+            <template v-if="materialDetailData.rarity">
+              <v-text-field readonly
+                            hide-details
+                            variant="underlined" density="compact">
+                <template v-slot:prepend>
+                  <v-badge dot inline :color="rarityColorConfig[materialDetailData.rarity]" class="ma-1 pt-0"></v-badge>
+                </template>
+                <template v-slot:prepend-inner>
+                  <ItemNameRarity :id="materialDetailData.id">
+                    <router-link :to="`/codex/materials?rarity=${materialDetailData.rarity}`" class="text-no-wrap">
+                      {{ t(`codex.raritys.${materialDetailData.rarity}`) || 'none' }}
+                    </router-link>
+                  </ItemNameRarity>
+                </template>
+                <template v-slot:append-inner>
+                  <p class="text-no-wrap">{{ t('codex.item.rarity') }}</p>
+                </template>
+              </v-text-field>
+            </template>
+
+            <v-row no-gutters align="center" class="mt-2">
+              <v-col cols="auto">
+                <v-icon icon="mdi-calendar-range" class="mr-3"></v-icon>
+              </v-col>
+              <v-col>
+                <TimeView class="mt-1" :time="materialDetailData.dateAdded">
+                  <Time :time="materialDetailData.dateAdded"/>
+                </TimeView>
+              </v-col>
+              <v-col cols="auto">
+                <p class="text-no-wrap">{{ t('codex.item.dateAdded') }}</p>
+              </v-col>
+            </v-row>
+
+            <v-row no-gutters align="center" class="mt-2">
+              <v-col cols="auto">
+                <v-icon icon="mdi-calendar-range" class="mr-3"></v-icon>
+              </v-col>
+              <v-col>
+                <TimeView class="mt-1" :time="materialDetailData.lastUpdated">
+                  <Time :time="materialDetailData.lastUpdated"/>
+                </TimeView>
+              </v-col>
+              <v-col cols="auto">
+                <p class="text-no-wrap">{{ t('codex.item.lastUpdated') }}</p>
+              </v-col>
+            </v-row>
           </v-col>
         </v-row>
       </v-container>

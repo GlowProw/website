@@ -1,11 +1,6 @@
-<script lang="ts">
-export default { name: 'MapLocationAvailableTreasureMapWidget' }
-</script>
-
 <script setup lang="ts">
-import {TreasureMap, TreasureMaps} from "glow-prow-data";
+import {TreasureMaps} from "glow-prow-data";
 import {computed} from "vue";
-import {Item} from "glow-prow-data/src/entity/Items";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import TreasureMapIconWidget from "@/components/snbWidget/treasureMapIconWidget.vue";
 import EmptyView from "@/components/EmptyView.vue";
@@ -15,9 +10,11 @@ const props = defineProps<{ id: string }>(),
     treasureMaps = computed(() =>
         Object.values(TreasureMaps)
             .filter((i: any) => {
-              return i.bySeason.isSeason(2) &&
-                  i.territory == props.id
-            })
+              if (typeof i.obtainable == 'object')
+                return (i.obtainable as any).indexOf(props.id) >= 0
+              else if (typeof i.obtainable == 'string')
+                return i.obtainable == props.id
+            }) || []
     )
 
 /**

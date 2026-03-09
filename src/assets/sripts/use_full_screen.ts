@@ -11,7 +11,7 @@ export interface UseFullscreenReturn {
 /**
  * 全屏功能
  */
-export function useFullscreen(target?: Ref<Element | null>): UseFullscreenReturn {
+export function use_full_screen(target?: Ref<Element | null>): UseFullscreenReturn {
     const isFullscreen = ref(false)
     const isSupported = ref(false)
 

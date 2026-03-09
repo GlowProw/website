@@ -264,9 +264,8 @@ const onPenPassword = () => {
                 asString([
                   `${i}`,
                   `assembly.tags.teamFormationMethods.${i.split('_')[1]}`,
-                  `assembly.tags.archetypes.${i.split('_')[1]}`,
                   `assembly.tags.modes.${i.split('_')[0]}`,
-                  `assembly.tags.damageTypes.${i.split('_')[1]}`,
+                  `codex.ships.archetypes.${i.split('_')[1]}.name`,
                   `snb.seasons.${i.split('_')[1]}`,
                 ], {
                   backRawKey: true

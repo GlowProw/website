@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 
+defineOptions({ name: 'FactionNameWidget' });
+
 const props = defineProps<{ id: string }>(),
     {t} = useI18n()
 </script>

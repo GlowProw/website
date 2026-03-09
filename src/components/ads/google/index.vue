@@ -104,7 +104,7 @@ const offAd = () => {
   adIdSwitchStatus.value.value = status
 };
 
-defineOptions({ name: 'GoogleAd' })
+defineOptions({ name: 'AdsWidget' })
 </script>
 
 <style lang="less">

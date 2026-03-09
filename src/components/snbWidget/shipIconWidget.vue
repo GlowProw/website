@@ -1,14 +1,9 @@
-<script lang="ts">
-export default { name: 'ShipIconWidget' }
-</script>
-
 <script setup lang="ts">
 
 import {computed, onMounted, type Ref, ref, watch} from "vue";
 import {Ship, Ships} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 import {useRouter} from "vue-router";
-import {useAssetsStore} from "~/stores/assetsStore";
 
 import ShinyText from "@/components/ShinyText.vue";
 import ShipBaseInfoSlotWidget from "@/components/snbWidget/shipBaseInfoSlotWidget.vue";
@@ -82,6 +77,10 @@ const onReady = async () => {
     }
   });
 }
+
+defineOptions({
+  name: 'ShipIconWidget'
+})
 </script>
 
 <template>

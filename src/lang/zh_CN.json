@@ -501,10 +501,11 @@
         "prepend": "出自",
         "append": "赛季"
       },
+      "byMap": "地图位置",
       "obtainable": "线索",
       "event": "事件",
       "worldEvent": "世界事件",
-      "bluePrint": "设计图",
+      "bluePrint": "蓝图",
       "requiredRank": "最低使用等级",
       "gearScore": "分数",
       "rarity": "稀有度",
@@ -533,7 +534,7 @@
         "keywords": "船详详情,船,{keywords}"
       },
       "archetype": "承担类型",
-      "stamina": "体力",
+      "stamina": "船员体力",
       "frontWeapon": "前方武器",
       "leftSideWeapon": "左侧武器",
       "rightSideWeapon": "右侧武器",
@@ -543,7 +544,8 @@
       "lowerDeck": "下层甲板",
       "furniture": "陈设",
       "ultimate": "终极技能",
-      "hitPoints": "血量",
+      "baseRank": "基础船只等级",
+      "hitPoints": "船身生命值",
       "braceStrength": "增强力量",
       "sailSpeed": {
         "title": "速度",
@@ -575,7 +577,7 @@
       },
       "cargo": "容器",
       "cargoSlots": "容器格子",
-      "cargoMaxWeight": "容量承重",
+      "cargoMaxWeight": "承重上限",
       "materialsTitle": "材料",
       "required": "建造所需物品",
       "rawMaterials": "原材料",
@@ -583,7 +585,7 @@
         "prepend": "出自",
         "append": "赛季"
       },
-      "bluePrint": "设计图",
+      "bluePrint": "蓝图",
       "requiredRank": "最低使用等级",
       "dateAdded": "添加日期",
       "lastUpdated": "更新日期",
@@ -982,11 +984,6 @@
         "simple": "简单",
         "medium": "中等",
         "difficulties": "困难"
-      },
-      "archetypes": {
-        "dps": "输出",
-        "tank": "坦克",
-        "support": "支援"
       },
       "grade": {
         "basic": "基本",
