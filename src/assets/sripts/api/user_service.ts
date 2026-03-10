@@ -129,15 +129,15 @@ export function useUserApi() {
     };
 
     /**
-     * 获取用户组队列表
+     * 获取站内用户组队列表
      * @param userId
      * @param pagination
      */
-    const getUserTeamups = async (userId?: string, pagination?: PaginationParams) => {
+    const getUserTeamups = async (userId: string, pagination?: PaginationParams) => {
         try {
-            const url = userId ? `user/space/teamups` : 'user/me/teamups';
+            const url = `user/space/teamups`;
             const result = await http.get(url, {
-                params: {...pagination, userId}
+                params: {...pagination, id: userId}
             })
             return handleResponse(result)
         } catch (error) {
@@ -149,15 +149,53 @@ export function useUserApi() {
     };
 
     /**
-     * 获取用户配装列表
+     * 获取站内用户组队列表
+     * @param pagination
+     */
+    const getMeTeamups = async (pagination?: PaginationParams) => {
+        try {
+            const url = `user/userId?: string, /teamups`;
+            const result = await http.get(url, {
+                params: {...pagination}
+            })
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            return handleError(error)
+        }
+    };
+
+    /**
+     * 获取站内用户配装列表
      * @param userId
      * @param pagination
      */
-    const getUserAssemblys = async (userId?: string, pagination?: PaginationParams) => {
+    const getUserAssemblys = async (userId: string, pagination?: PaginationParams) => {
         try {
-            const url = userId ? `user/space/assemblys` : 'user/me/assemblys';
+            const url = `user/space/assemblys`;
             const result = await http.get(url, {
-                params: {...pagination, userId}
+                params: {...pagination, id: userId}
+            })
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            return handleError(error)
+        }
+    };
+
+    /**
+     * 获取自己配装列表
+     * @param pagination
+     */
+    const getMeAssemblys = async (pagination?: PaginationParams) => {
+        try {
+            const url = `user/me/assemblys`;
+            const result = await http.get(url, {
+                params: {...pagination}
             })
             return handleResponse(result)
         } catch (error) {
@@ -213,7 +251,9 @@ export function useUserApi() {
         changePassword,
         changeAlternativeName,
         getUserTeamups,
+        getMeTeamups,
         getUserAssemblys,
+        getMeAssemblys,
         getUserComments,
         getUserLikes,
     };
