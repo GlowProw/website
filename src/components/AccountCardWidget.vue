@@ -121,7 +121,7 @@ defineOptions({
               :value="userInfo.attr?.introduction"></Textarea>
 
           <v-btn class="mt-6" variant="tonal" :to="`/space/${userInfo.userId || id}`" block>
-            {{ t('account.space.title') }}
+            {{ t('space.title') }}
           </v-btn>
         </v-row>
       </v-card-text>

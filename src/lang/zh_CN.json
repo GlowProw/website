@@ -1,5 +1,34 @@
 {
   "name": "闪耀船首",
+  "apps": {
+    "title": "应用程序列表",
+    "description": "这里陈列由闪耀船首开发社区套件，目的集成闪耀船首开放资源链接第三方社区平台",
+    "detail": "内容",
+    "meta": {
+      "keywords": "应用程序,机器人,爬虫,{keywords}"
+    },
+    "filter": {
+      "byTag": "按标签筛选",
+      "byName": "按名称",
+      "byId": "按ID"
+    },
+    "qqBot": {
+      "name": "QQ 机器人",
+      "description": "机器人套件，将闪耀船首机器人的分享到你的群组。即可分享配置，物品查询，时刻掌握碧海黑帆动态。",
+      "features": {
+        "assembly": {
+          "title": "生成配置海报"
+        },
+        "codex": {
+          "title": "物品查询"
+        },
+        "command": {
+          "title": "斜杠命令唤起",
+          "description": "所有群组免费使用，仅需要简单的斜杠命令唤醒机器人。通过在企鹅聊天添加机器人中搜索此id(3889974138),来添加"
+        }
+      }
+    }
+  },
   "about": {
     "title": "关于",
     "minor": "",
@@ -1244,6 +1273,10 @@
         "title": "帝国升级模拟 (BETA 1)",
         "description": "海陀社升级模拟",
         "keywords": "empire skill simulation"
+      },
+      "apps": {
+        "title": "应用程序",
+        "description": "使用扩展套件提升体验"
       }
     }
   },

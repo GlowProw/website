@@ -80,6 +80,12 @@ export default class AppFuns {
         //     description: 'header.functions.fashion-show.description',
         //     to: ''
         // }
+        {
+            title: 'header.functions.apps.title',
+            icon: 'mdi-application-outline',
+            description: 'header.functions.apps.description',
+            to: '/apps',
+        },
     ]
 
     get list(): any[] {

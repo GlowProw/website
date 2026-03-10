@@ -14,6 +14,7 @@ import {StorageCollect as _StorageCollect} from './storage_collect'
 import _UserInfoSession from './session_user_info'
 import _Date from './date';
 import _Number from './number';
+import _AppApps from './app_applications'
 import _AppFuns from './app_functions'
 import _AppNavs from './app_navs'
 import _Rarity from './rarity'
@@ -32,6 +33,7 @@ export const storageCollect = new _StorageCollect()
 export const sessionUserInfo = new _UserInfoSession()
 export const time = new _Date()
 export const number = new _Number()
+export const appApps = new _AppApps()
 export const appFuns = new _AppFuns()
 export const appNavs = new _AppNavs()
 export const rarity = new _Rarity()
@@ -41,5 +43,5 @@ export default {
     apis, conf, ws, http,
     storage, storage_capacity_monitor, storage_account, storage_ads, storageIntermediateTransfer, storageCollect,
     sessionUserInfo,
-    time, number, appFuns, appNavs, rarity, assemblyViewConfig
+    time, number, appApps, appFuns, appNavs, rarity, assemblyViewConfig
 };
