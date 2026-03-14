@@ -8,7 +8,6 @@ import {computed, onMounted, type Ref, ref, watch} from "vue";
 import {Ship, Ships} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 import {useRouter} from "vue-router";
-import {useAssetsStore} from "~/stores/assetsStore";
 
 import ShinyText from "@/components/ShinyText.vue";
 import ShipBaseInfoSlotWidget from "@/components/snbWidget/shipBaseInfoSlotWidget.vue";
@@ -19,6 +18,7 @@ import PerksWidget from "./perksWidget.vue";
 import ShipDescription from "@/components/snbWidget/shipDescription.vue";
 import {useAppStore} from "~/stores/appStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
+import DamageMitigationWidget from "@/components/snbWidget/damageMitigationWidget.vue";
 
 const props = withDefaults(defineProps<{
       id: string,
@@ -82,6 +82,10 @@ const onReady = async () => {
     }
   });
 }
+
+defineOptions({
+  name: 'ShipIconWidget'
+})
 </script>
 
 <template>
@@ -136,6 +140,10 @@ const onReady = async () => {
             <ShipDescription :id="props.id"></ShipDescription>
           </div>
         </template>
+
+        <div class="mb-5 px-7">
+          <DamageMitigationWidget direction="horizontal" type="armor" :isForciblyIcon="true" :data="shipData"></DamageMitigationWidget>
+        </div>
 
         <v-expansion-panels v-model="shipCardData.panel">
           <v-expansion-panel

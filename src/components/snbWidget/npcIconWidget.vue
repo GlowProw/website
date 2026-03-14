@@ -151,7 +151,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
           <template v-for="i in npcs[i.id].category">
             <v-chip inline
                     class="badge-flavor text-center text-black"
-                    v-if="!npcDictionaries['job'].includes(i)">
+                    v-if="npcDictionaries['job'] && !npcDictionaries['job'].includes(i)">
               {{ t(`codex.types.${i}`) }}
             </v-chip>
           </template>

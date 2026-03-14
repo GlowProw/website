@@ -23,7 +23,7 @@ import {useAppStore} from "~/stores/appStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import PerksWidget from "@/components/snbWidget/perksWidget.vue";
 import DamageMitigationWidget from "@/components/snbWidget/damageMitigationWidget.vue";
-import ObtainableWidget from "@/components/ObtainableWidget.vue";
+import ByObtainableWidget from "@/components/ByObtainableWidget.vue";
 import ItemDescription from "@/components/snbWidget/itemDescription.vue";
 import ItemContentWidget from "@/components/snbWidget/itemContentWidget.vue";
 import {Cosmetics} from "glow-prow-data";
@@ -266,8 +266,8 @@ defineExpose({
         </template>
 
         <template v-if="typeof i.damageMitigation == 'object'">
-          <div class="mb-5 px-6">
-            <DamageMitigationWidget showType="horizontal" :data="i"></DamageMitigationWidget>
+          <div class="mb-5 px-7">
+            <DamageMitigationWidget direction="horizontal" type="armor" :isForciblyIcon="true" :data="i"></DamageMitigationWidget>
           </div>
         </template>
 
@@ -286,7 +286,7 @@ defineExpose({
               </v-col>
               <v-divider vertical :opacity=".2" :thickness="2" inset class="my-4"></v-divider>
               <v-col>
-                <ItemDamageTypeWidget :data="i" iconType="aggressivity" sizeType="mini" :size="28"></ItemDamageTypeWidget>
+                <ItemDamageTypeWidget :data="i" iconType="aggressivity" sizeType="mini" :size="35"></ItemDamageTypeWidget>
               </v-col>
             </v-row>
           </div>
@@ -325,7 +325,7 @@ defineExpose({
               </div>
             </template>
             <template v-slot:text>
-              <ObtainableWidget :data="i" byType="item"></ObtainableWidget>
+              <ByObtainableWidget :data="i" byType="item"></ByObtainableWidget>
             </template>
           </v-expansion-panel>
         </v-expansion-panels>

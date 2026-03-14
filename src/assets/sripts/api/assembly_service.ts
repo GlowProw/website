@@ -124,7 +124,7 @@ export function useAssemblyApi() {
     };
 
     /**
-     * 获取用户组件
+     * 获取用户配置
      */
     const getUserAssemblies = async (userId?: string, pagination?: PaginationParams) => {
         try {

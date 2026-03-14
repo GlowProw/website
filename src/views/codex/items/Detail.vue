@@ -8,7 +8,7 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 
-import {Materials, Npc} from "glow-prow-data";
+import {Materials} from "glow-prow-data";
 import ItemModificationWidget from "@/components/snbWidget/itemModificationWidget.vue";
 import PerksWidget from "@/components/snbWidget/perksWidget.vue";
 
@@ -17,7 +17,6 @@ import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue"
 import ItemDamageTypeWidget from "@/components/snbWidget/itemDamageTypeWidget.vue";
 import {number, rarity, storage, storageCollect} from "@/assets/sripts";
-import WeaponModificationWidget from "@/components/snbWidget/weaponModificationWidget.vue";
 import CommentWidget from "@/components/CommentWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
 import {useAuthStore} from "~/stores/userAccountStore";
@@ -27,17 +26,17 @@ import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import ItemContentWidget from "@/components/snbWidget/itemContentWidget.vue";
 import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
-import DamageIconWidget from "@/components/snbWidget/damageIconWidget.vue";
 import ItemMaterials from "@/components/snbWidget/itemMaterials.vue";
-import ObtainableWidget from "@/components/ObtainableWidget.vue";
-import WorldEventWidget from "@/components/WorldEventWidget.vue";
+import ByObtainableWidget from "@/components/ByObtainableWidget.vue";
+import ByWorldEventWidget from "@/components/ByWorldEventWidget.vue";
 import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
 import ShipUpgradeUseWidget from "@/components/snbWidget/shipUpgradeUseWidget.vue";
 import BluePrintWidget from "@/components/BluePrintWidget.vue";
 import DamageMitigationWidget from "@/components/snbWidget/damageMitigationWidget.vue";
 import ItemDescription from "@/components/snbWidget/itemDescription.vue";
 import ShipUpgradedDescription from "@/components/snbWidget/ShipUpgradedDescription.vue";
-import EventWidget from "@/components/EventWidget.vue";
+import ByEventWidget from "@/components/ByEventWidget.vue";
+import ByMapWidget from "@/components/ByMapWidget.vue";
 
 const
     {t, messages} = useI18n(),
@@ -315,24 +314,24 @@ const onStarItem = (data: Item) => {
                     </template>
                   </v-text-field>
                 </template>
-<!--                <template v-if="DPS">-->
-<!--                  <v-text-field :value="DPS" readonly-->
-<!--                                hide-details-->
-<!--                                variant="underlined" density="compact">-->
-<!--                    <template v-slot:append-inner>-->
-<!--                      <p class="text-no-wrap">{{ t('codex.item.DPS') }}</p>-->
-<!--                    </template>-->
-<!--                  </v-text-field>-->
-<!--                </template>-->
-<!--                <template v-if="DPSWithPerks">-->
-<!--                  <v-text-field :value="DPSWithPerks" readonly-->
-<!--                                hide-details-->
-<!--                                variant="underlined" density="compact">-->
-<!--                    <template v-slot:append-inner>-->
-<!--                      <p class="text-no-wrap">{{ t('codex.item.DPSWithPerks') }}</p>-->
-<!--                    </template>-->
-<!--                  </v-text-field>-->
-<!--                </template>-->
+                <!--                <template v-if="DPS">-->
+                <!--                  <v-text-field :value="DPS" readonly-->
+                <!--                                hide-details-->
+                <!--                                variant="underlined" density="compact">-->
+                <!--                    <template v-slot:append-inner>-->
+                <!--                      <p class="text-no-wrap">{{ t('codex.item.DPS') }}</p>-->
+                <!--                    </template>-->
+                <!--                  </v-text-field>-->
+                <!--                </template>-->
+                <!--                <template v-if="DPSWithPerks">-->
+                <!--                  <v-text-field :value="DPSWithPerks" readonly-->
+                <!--                                hide-details-->
+                <!--                                variant="underlined" density="compact">-->
+                <!--                    <template v-slot:append-inner>-->
+                <!--                      <p class="text-no-wrap">{{ t('codex.item.DPSWithPerks') }}</p>-->
+                <!--                    </template>-->
+                <!--                  </v-text-field>-->
+                <!--                </template>-->
                 <template v-if="itemDetailData.damagePerShot">
                   <v-text-field :value="itemDetailData.damagePerShot" readonly
                                 hide-details
@@ -342,15 +341,15 @@ const onStarItem = (data: Item) => {
                     </template>
                   </v-text-field>
                 </template>
-<!--                <template v-if="DamagePerShotWithPerks">-->
-<!--                  <v-text-field :value="DamagePerShotWithPerks" readonly-->
-<!--                                hide-details-->
-<!--                                variant="underlined" density="compact">-->
-<!--                    <template v-slot:append-inner>-->
-<!--                      <p class="text-no-wrap">Damage per Shot with Perks</p>-->
-<!--                    </template>-->
-<!--                  </v-text-field>-->
-<!--                </template>-->
+                <!--                <template v-if="DamagePerShotWithPerks">-->
+                <!--                  <v-text-field :value="DamagePerShotWithPerks" readonly-->
+                <!--                                hide-details-->
+                <!--                                variant="underlined" density="compact">-->
+                <!--                    <template v-slot:append-inner>-->
+                <!--                      <p class="text-no-wrap">Damage per Shot with Perks</p>-->
+                <!--                    </template>-->
+                <!--                  </v-text-field>-->
+                <!--                </template>-->
                 <template v-if="typeof itemDetailData.damageMitigation == 'string'">
                   <v-text-field :value="itemDetailData.damageMitigation" readonly
                                 hide-details
@@ -435,15 +434,15 @@ const onStarItem = (data: Item) => {
               <BluePrintWidget :data="itemDetailData"></BluePrintWidget>
             </template>
             <template v-if="itemDetailData.event">
-              <EventWidget :data="itemDetailData"></EventWidget>
+              <ByEventWidget :data="itemDetailData"></ByEventWidget>
             </template>
             <template v-if="itemDetailData.worldEvent">
-              <WorldEventWidget :data="itemDetailData"></WorldEventWidget>
+              <ByWorldEventWidget :data="itemDetailData"></ByWorldEventWidget>
             </template>
             <template v-if="itemDetailData.obtainable">
-              <ObtainableWidget :data="itemDetailData" byType="item">
+              <ByObtainableWidget :data="itemDetailData" byType="item">
                 {{ t('codex.item.obtainable') }}
-              </ObtainableWidget>
+              </ByObtainableWidget>
             </template>
             <template v-if="itemDetailData.faction">
               <v-text-field
@@ -497,7 +496,7 @@ const onStarItem = (data: Item) => {
                 </template>
                 <template v-slot:prepend-inner>
                   <ItemNameRarity :id="itemDetailData.id">
-                    <router-link :to="`/codex/item/rarity/${itemDetailData.rarity}`" class="text-no-wrap">
+                    <router-link :to="`/codex/items?rarity=${itemDetailData.rarity}`" class="text-no-wrap">
                       {{ t(`codex.raritys.${itemDetailData.rarity}`) || 'none' }}
                     </router-link>
                   </ItemNameRarity>

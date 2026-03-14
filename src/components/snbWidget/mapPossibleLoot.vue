@@ -10,6 +10,8 @@ import CommoditieIconWidget from "@/components/snbWidget/commoditieIconWidget.vu
 import MaterialNameRarity from "@/components/snbWidget/materialNameRarity.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 
+defineOptions({ name: 'MapPossibleLoot' });
+
 const props = defineProps<{possibleLoot: any}>()
 
 import {computed} from "vue";

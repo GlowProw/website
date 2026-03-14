@@ -2,7 +2,7 @@
 
 import {useI18n} from "vue-i18n";
 import {onMounted, Ref, ref} from "vue";
-import {MapLocation, MapLocations} from "glow-prow-data";
+import {MapLocations} from "glow-prow-data";
 import {useRoute, useRouter} from "vue-router";
 import {useAuthStore} from "~/stores/userAccountStore";
 import Time from "@/components/Time.vue";
@@ -16,6 +16,12 @@ import MapLocationNameWidget from "@/components/snbWidget/mapLocationNameWidget.
 import MapLocationIconWidget from "@/components/snbWidget/mapLocationIconWidget.vue";
 import MapLocationAvailableTreasureMapWidget from "@/components/snbWidget/mapLocationAvailableTreasureMapWidget.vue";
 import MapLocationAvailableNpcWidget from "@/components/snbWidget/mapLocationAvailableNpcWidget.vue";
+import ByMapWidget from "@/components/ByMapWidget.vue";
+import ByWorldEventWidget from "@/components/ByWorldEventWidget.vue";
+import BluePrintWidget from "@/components/BluePrintWidget.vue";
+import ByEventWidget from "@/components/ByEventWidget.vue";
+import ByObtainableWidget from "@/components/ByObtainableWidget.vue";
+import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 
 const {t} = useI18n(),
     router = useRouter(),
@@ -116,6 +122,13 @@ const onCodexHistory = () => {
                   <MapLocationIconWidget :id="mapLocationDetailData.id" :isOpenDetail="false" :isShowOpenDetail="false"></MapLocationIconWidget>
                 </ItemSlotBase>
               </div>
+              <v-col>
+                <template v-if="t(`map.types.${mapLocationDetailData.category}.description`)">
+                  <div class="mx-5 mb-3 pb-2">
+                    {{ t(`map.types.${mapLocationDetailData.category}.description`) }}
+                  </div>
+                </template>
+              </v-col>
             </v-row>
             <v-divider class="mt-10 mb-6"></v-divider>
 
@@ -151,6 +164,44 @@ const onCodexHistory = () => {
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
             <BySeasonWidget :data="mapLocationDetailData"></BySeasonWidget>
+
+            <template v-if="mapLocationDetailData.id">
+              <ByMapWidget :target-x="mapLocationDetailData.latitude" :target-y="mapLocationDetailData.longitude">
+                {{ t('codex.item.byMap') }}
+              </ByMapWidget>
+            </template>
+
+            <template v-if="mapLocationDetailData.blueprint">
+              <BluePrintWidget :data="mapLocationDetailData"></BluePrintWidget>
+            </template>
+            <template v-if="mapLocationDetailData.event">
+              <ByEventWidget :data="mapLocationDetailData"></ByEventWidget>
+            </template>
+            <template v-if="mapLocationDetailData.worldEvent">
+              <ByWorldEventWidget :data="mapLocationDetailData"></ByWorldEventWidget>
+            </template>
+            <template v-if="mapLocationDetailData.obtainable">
+              <ByObtainableWidget :data="mapLocationDetailData" byType="item">
+                {{ t('codex.item.obtainable') }}
+              </ByObtainableWidget>
+            </template>
+            <template v-if="mapLocationDetailData.faction">
+              <v-text-field
+                  :value="t(`snb.factions.${mapLocationDetailData.faction.id}.name`)"
+                  readonly
+                  hide-details
+                  variant="underlined" density="compact">
+                <template v-slot:prepend-inner>
+                  <ItemSlotBase size="25px" class="d-flex justify-center align-center mb-2" :padding="0">
+                    <FactionIconWidget :name="mapLocationDetailData.faction.id"
+                                       size="25px"></FactionIconWidget>
+                  </ItemSlotBase>
+                </template>
+                <template v-slot:append-inner>
+                  <p class="text-no-wrap">{{ t('codex.item.faction') }}</p>
+                </template>
+              </v-text-field>
+            </template>
 
             <v-row no-gutters align="center" class="mt-2">
               <v-col cols="auto">

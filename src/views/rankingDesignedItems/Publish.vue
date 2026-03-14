@@ -293,9 +293,8 @@ const onUpdateTags = (data: any) => {
                     asString([
                       `${item.raw}`,
                       `assembly.tags.teamFormationMethods.${item.raw.toString().split('_')[1]}`,
-                      `assembly.tags.archetypes.${item.raw.toString().split('_')[1]}`,
                       `assembly.tags.modes.${item.raw.toString().split('_')[0]}`,
-                      `assembly.tags.damageTypes.${item.raw.toString().split('_')[1]}`,
+                      `codex.ships.archetypes.${item.raw.toString().split('_')[1]}.name`,
                       `snb.seasons.${item.raw.toString().split('_')[1]}`,
                     ], {
                       backRawKey: true

@@ -16,8 +16,8 @@ import {useAuthStore} from "~/stores/userAccountStore";
 import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
-import ObtainableWidget from "@/components/ObtainableWidget.vue";
-import WorldEventWidget from "@/components/WorldEventWidget.vue";
+import ByObtainableWidget from "@/components/ByObtainableWidget.vue";
+import ByWorldEventWidget from "@/components/ByWorldEventWidget.vue";
 import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
 import {Sets} from "glow-prow-data";
 import CommoditieName from "@/components/snbWidget/commoditieName.vue";
@@ -240,12 +240,12 @@ const onCodexHistory = () => {
                 </template>
             </div>
             <template v-if="setDetailData.worldEvent">
-              <WorldEventWidget :data="setDetailData"></WorldEventWidget>
+              <ByWorldEventWidget :data="setDetailData"></ByWorldEventWidget>
             </template>
             <template v-if="setDetailData.obtainable">
-              <ObtainableWidget :data="setDetailData" byType="item">
+              <ByObtainableWidget :data="setDetailData" byType="item">
                 {{ t('codex.item.obtainable') }}
-              </ObtainableWidget>
+              </ByObtainableWidget>
             </template>
             <template v-if="setDetailData.faction">
               <v-text-field

@@ -74,6 +74,10 @@ import AssemblySharePage from '@/views/assembly/Share.vue'
 import MapsPage from '@/views/map/Index.vue';
 import MapViewPage from '@/views/map/View.vue';
 
+import AppsPage from '@/views/apps/Index.vue';
+import AppsViewPage from '@/views/apps/View.vue';
+import QQBotPage from '@/views/apps/QQBot.vue'
+
 import TeamPage from '@/views/Team.vue'
 import SearchPage from '@/views/Search.vue'
 
@@ -661,6 +665,24 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: 'view',
                 name: 'mapView',
                 component: MapViewPage
+            }
+        ]
+    },
+    {
+        path: '/apps',
+        name: 'apps',
+        redirect: '/apps/view',
+        component: AppsPage,
+        children: [
+            {
+                path: 'view',
+                name: 'AppsView',
+                component: AppsViewPage
+            },
+            {
+                path: 'qq-bot',
+                name: 'QQBot',
+                component: QQBotPage
             }
         ]
     },

@@ -24,6 +24,7 @@ import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
 import ItemMaterials from "@/components/snbWidget/itemMaterials.vue";
 import shipAvailableUpgradeWidget from "@/components/snbWidget/shipAvailableUpgradeWidget.vue";
 import ShipDescription from "@/components/snbWidget/shipDescription.vue";
+import ByBluePrint from "@/components/byBluePrint.vue";
 
 const shipImages = import.meta.glob('@glow-prow-assets/ships/*.png', {eager: true})
 
@@ -45,18 +46,6 @@ let
     }),
     shipDetailData: Ref<any> = ref(shipsData['dhow']),
 
-    // 蓝图
-    bluePrint = computed(() => {
-      const bluePrints = shipDetailData.value?.blueprint;
-
-      if (!bluePrints)
-        return null;
-
-      if (bluePrints)
-        return t(`snb.locations.${bluePrints}`)
-
-      return Object.values(bluePrints).map(i => t(`snb.locations.${i}`))
-    }),
     requiredRank = computed(() => {
       const r = sanitizeString(shipDetailData.value.requiredRank)
       return asString([
@@ -300,23 +289,25 @@ const onCodexHistory = () => {
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
             <BySeasonWidget :data="shipDetailData"></BySeasonWidget>
 
-            <template v-if="bluePrint">
-              <v-combobox :model-value="Array.isArray(bluePrint) ? bluePrint : [bluePrint]" multiple chips readonly
-                          hide-details
-                          variant="underlined" density="compact">
+            <template v-if="shipDetailData.blueprint">
+              <ByBluePrint :data="shipDetailData">
+                {{ t('codex.ship.bluePrint') }}
+              </ByBluePrint>
+            </template>
+
+            <template v-if="shipDetailData.baseRank">
+              <v-text-field :value="shipDetailData.baseRank"
+                            readonly
+                            hide-details
+                            variant="underlined" density="compact">
                 <template v-slot:append-inner>
-                  <p class="text-no-wrap">{{ t('codex.ship.bluePrint') }}</p>
+                  <p class="text-no-wrap">{{ t('codex.ship.baseRank') }}</p>
                 </template>
-                <template v-slot:append>
-                  <ItemSlotBase :size="10" class="pa-0">
-                    <v-icon icon="mdi-book"></v-icon>
-                  </ItemSlotBase>
-                </template>
-              </v-combobox>
+              </v-text-field>
             </template>
 
             <template v-if="shipDetailData.archetype">
-              <v-text-field :value="t(`assembly.tags.archetypes.${shipDetailData.archetype}`)"
+              <v-text-field :value="t(`codex.ships.archetypes.${shipDetailData.archetype}.name`)"
                             readonly
                             hide-details
                             variant="underlined" density="compact">

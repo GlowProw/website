@@ -1,4 +1,5 @@
 <script setup lang="ts">
+defineOptions({ name: 'ShieldWidget' });
 const props = withDefaults(
     defineProps<{ size: number }>(),
     {
@@ -8,7 +9,7 @@ const props = withDefaults(
 </script>
 
 <template>
-  <v-card variant="text" class="text-no-wrap pointer-events-none shieid-card d-flex justify-center align-center" :width="size" :height="size">
+  <v-card variant="text" class="text-no-wrap pointer-events-none shield-card d-flex justify-center align-center" :width="size" :height="size">
     <template v-slot:image>
       <v-icon :size="size" style="position: absolute; top: 0;left: 0;color: black">mdi-shield</v-icon>
       <v-icon :size="size" style="font-weight: lighter">mdi-shield-outline</v-icon>
@@ -20,7 +21,7 @@ const props = withDefaults(
 </template>
 
 <style scoped lang="less">
-.shieid-card .text {
+.shield-card .text {
   font-size: 13px;
 }
 </style>

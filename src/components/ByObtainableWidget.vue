@@ -1,5 +1,5 @@
 <script lang="ts">
-export default { name: 'ObtainableWidget' }
+export default {name: 'ObtainableWidget'}
 </script>
 
 <script setup lang="ts">
@@ -78,7 +78,7 @@ const filterByObtainable = (d: Item | Material | Cosmetic | Npc | null | undefin
     }];
   }
 
-  // 兜底方案
+      // 兜底方案
   // 处理字符串类型的 obtainable
   else if (typeof obtainable === 'string') {
     return [{
@@ -125,6 +125,7 @@ const filterByObtainable = (d: Item | Material | Cosmetic | Npc | null | undefin
       else if (typeof element === 'string') {
         acc.push({
           id: element,
+          type: element._typeStringName,
         })
       }
 
@@ -135,26 +136,19 @@ const filterByObtainable = (d: Item | Material | Cosmetic | Npc | null | undefin
   return [];
 };
 
-const tip = (o: any) => {
+/**
+ * 获取文本
+ * @param o
+ */
+const getChipText = (o: any) => {
   return asString([
     `snb.items.${o.id}.name`,
     `snb.items.${sanitizeString(o.id).cleaned}.name`,
     `snb.mapLocations.${o.id}.name`,
     `snb.locations.${o.id}`,
   ], {
-    variable: i18nAdditionalAttr,
+    variable: i18nAdditionalAttr.value,
     backRawKey: true
-  })
-}
-
-/**
- * 过滤可获得性
- */
-const filterObtainable = (items: any[], targetId: string) => {
-  return items.filter(item => {
-    if (!item.obtainable) return false;
-    // ... rest of logic
-    return false
   })
 }
 </script>
@@ -174,15 +168,15 @@ const filterObtainable = (items: any[], targetId: string) => {
             :to="o.to">
 
       <ItemSlotBase size="26px" class="mr-1" v-if="o && o.type=='Item'">
-        <ItemIconWidget :margin="0" :id="o.id"  :is-open-new-window="false" :is-open-detail="false" :is-show-open-detail="false"></ItemIconWidget>
+        <ItemIconWidget :margin="0" :id="o.id" :is-open-new-window="false" :is-open-detail="false" :is-show-open-detail="false"></ItemIconWidget>
       </ItemSlotBase>
 
-      <template v-if="o.item">
+      <template v-if="o.item =='Item'">
         <ItemName :id="o.item.id"></ItemName>
       </template>
       <template v-else>
-        <div class="singe-line w-100 multiline-chip obtainable-item" v-tooltip="tip(o)">
-          {{ tip(o) }}
+        <div class="singe-line w-100 multiline-chip obtainable-item" v-tooltip="getChipText(o)">
+          {{ getChipText(o) }}
         </div>
       </template>
     </v-chip>
