@@ -21,7 +21,7 @@ defineOptions({ name: 'BySeasonCardWidget' })
       <SeasonViewWidget :data="getSeasonData(data)"></SeasonViewWidget>
     </v-card-text>
 
-    <v-card class="by-season-footer-context" tile :to="`/codex/items?season=${data?.bySeason?.id || 'release'}`">
+    <v-card class="by-season-footer-context mt-n2" tile :to="`/codex/items?season=${data?.bySeason?.id || 'release'}`">
       <v-row class="px-5" align="center">
         <v-col cols="auto">
           <p class="text-no-wrap font-weight-bold">{{ t('codex.item.bySeason.prepend') }}</p>

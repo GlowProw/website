@@ -111,7 +111,7 @@ const getChipText = (o: any) => {
   <p class="text-no-wrap font-weight-bold mb-2 mt-2">
     <slot></slot>
   </p>
-  <v-chip-group class="" :column="true">
+  <v-chip-group :column="true">
     <v-chip v-for="(o,oIndex) in blueprint"
             class="mb-1 mr-1 py-2 "
             exact

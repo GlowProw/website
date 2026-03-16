@@ -154,7 +154,7 @@ export function useUserApi() {
      */
     const getMeTeamups = async (pagination?: PaginationParams) => {
         try {
-            const url = `user/userId?: string, /teamups`;
+            const url = `user/me/teamups`;
             const result = await http.get(url, {
                 params: {...pagination}
             })

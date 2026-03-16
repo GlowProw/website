@@ -28,7 +28,7 @@ const getMyTeamUpsData = async () => {
   try {
     loading.value = true;
 
-    const result = await apis.userApi().getUserTeamups(),
+    const result = await apis.userApi().getMeTeamups(),
         d = result.data
 
     userTeamUpData.value = d.data;

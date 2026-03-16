@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {computed, onMounted, ref, type Ref, watch} from "vue";
-import {Item, Material, Seasons, Ship, Ultimate} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 
 const {t, tm} = useI18n(),
@@ -43,17 +42,40 @@ onMounted(() => {
   detailData.value = props.data
 })
 
-defineOptions({ name: 'EventWidget' })
+/**
+ * 获取文本
+ * @param o
+ */
+const getChipText = (o: any) => {
+  return t(`snb.events.${o.eventId}`, {...i18nAdditionalAttr.value})
+}
+
+defineOptions({name: 'EventWidget'})
 </script>
 
 <template>
   <p class="text-no-wrap font-weight-bold mb-2 mt-2">{{ t('codex.item.event') }}</p>
-  <v-chip v-for="(e,eIndex) in getEvent"
-          class="d-inline-flex mb-1 mr-1"
-          target="_blank"
-          :key="eIndex">
-    {{ t(`snb.events.${e.eventId}`, {...i18nAdditionalAttr}) }}
-  </v-chip>
+  <v-chip-group :column="true">
+    <v-chip v-for="(o,oIndex) in getEvent"
+            class="mb-1 mr-1 py-2 "
+            exact
+            pill
+            replace
+            target="_blank"
+            :key="oIndex"
+            :to="o.to">
+      <v-tooltip content-class="pa-0">
+        <template v-slot:default>
+          <v-card border class="py-3 px-10">
+            <span v-html="getChipText(o)"></span>
+          </v-card>
+        </template>
+        <template v-slot:activator="{props}">
+          <div class="singe-line w-100 multiline-chip blueprint-item" v-bind="props" v-html="getChipText(o)"></div>
+        </template>
+      </v-tooltip>
+    </v-chip>
+  </v-chip-group>
 </template>
 
 <style scoped lang="less">

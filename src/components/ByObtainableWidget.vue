@@ -157,7 +157,7 @@ const getChipText = (o: any) => {
   <p class="text-no-wrap font-weight-bold mb-2 mt-2">
     <slot></slot>
   </p>
-  <v-chip-group class="" :column="true">
+  <v-chip-group :column="true">
     <v-chip v-for="(o,oIndex) in obtainable"
             class="mb-1 mr-1 py-2 "
             exact
@@ -166,19 +166,29 @@ const getChipText = (o: any) => {
             target="_blank"
             :key="oIndex"
             :to="o.to">
+      <v-tooltip content-class="pa-0">
+        <template v-slot:default>
+          <v-card border class="py-3 px-10">
+            <span v-html="getChipText(o)"></span>
+          </v-card>
+        </template>
+        <template v-slot:activator="{props}">
+          <div class="d-flex align-center singe-line w-100 multiline-chip blueprint-item" v-bind="props">
+            <ItemSlotBase size="26px" class="mr-1" v-if="o && o.type=='Item'">
+              <ItemIconWidget :margin="0" :id="o.id" :is-open-new-window="false" :is-open-detail="false" :is-show-open-detail="false"></ItemIconWidget>
+            </ItemSlotBase>
 
-      <ItemSlotBase size="26px" class="mr-1" v-if="o && o.type=='Item'">
-        <ItemIconWidget :margin="0" :id="o.id" :is-open-new-window="false" :is-open-detail="false" :is-show-open-detail="false"></ItemIconWidget>
-      </ItemSlotBase>
-
-      <template v-if="o.item =='Item'">
-        <ItemName :id="o.item.id"></ItemName>
-      </template>
-      <template v-else>
-        <div class="singe-line w-100 multiline-chip obtainable-item" v-tooltip="getChipText(o)">
-          {{ getChipText(o) }}
-        </div>
-      </template>
+            <template v-if="o.item =='Item'">
+              <ItemName :id="o.item.id"></ItemName>
+            </template>
+            <template v-else>
+              <div class="singe-line w-100 multiline-chip obtainable-item">
+                {{ getChipText(o) }}
+              </div>
+            </template>
+          </div>
+        </template>
+      </v-tooltip>
     </v-chip>
   </v-chip-group>
   <EmptyView v-if="obtainable.length <= 0"></EmptyView>

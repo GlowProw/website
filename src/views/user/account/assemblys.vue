@@ -60,7 +60,7 @@ const getMyAssemblysData = async () => {
   try {
     loading.value = true;
 
-    const result = await apis.userApi().getUserAssemblys(),
+    const result = await apis.userApi().getMeAssemblys(),
         d = result.data
 
     userAssemblysData.value = d.data;

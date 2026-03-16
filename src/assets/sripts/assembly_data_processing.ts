@@ -267,13 +267,13 @@ export default class AssemblyDataProcessing {
                 if (data.armorSlot) { // armorModification usually depends on armorSlot existing or being processed
                      // Keeping existing logic but checking type
                 }
-                // data.armorModification might not be in AssemblyData interface? 
+                // data.armorModification might not be in AssemblyData interface?
                 // Wait, I defined AssemblyData but forgot armorModification in previous SearchReplace?
                 // Let's check AssemblyData definition I added.
                 // Yes, armorModification is missing in AssemblyData interface I added in previous step?
                 // No, I see armorSlot, but not armorModification.
                 // Wait, let me check the previous tool output for AssemblyData definition.
-                
+
                 if (data.armorModification)
                     // @ts-ignore
                     data.armorModification = data.armorModification.map((i: any) => {
@@ -300,9 +300,9 @@ export default class AssemblyDataProcessing {
                         return i.id ? {id: i.id} : {id: null};
                     })
 
-                if (data.weaponSlots)
+                if (data.weaponSlots && data.weaponSlots.length > 0)
                     data.weaponSlots = data.weaponSlots.map((i: any) => {
-                        return i.id ? {id: i.id} : {id: null};
+                        return i?.id ? {id: i.id} : {id: null};
                     })
 
                 if (data.armorSlot)

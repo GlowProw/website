@@ -717,7 +717,7 @@ defineOptions({ name: 'AssemblyWidget' })
                             </ItemSlotBase>
 
                             <!-- 武器模组插槽 -->
-                            <div class="mb-2 mt-1" v-if="!perfectDisplay">
+                            <div class="mb-2 mt-1" v-if="!perfectDisplay && workshopData.data.weaponSlots && workshopData.data.weaponSlots[index] && workshopData.data.weaponSlots[index].id != null">
                               <WeaponModificationWidget :readonly="readonly"
                                                         :disabled="workshopData.data.weaponSlots[index].id == null"
                                                         :data="i"

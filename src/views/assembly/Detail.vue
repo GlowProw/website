@@ -97,7 +97,7 @@ const getAssemblyDetail = async (force: boolean = false) => {
         d = result.data;
 
     detailData.value = d.data;
-    detailData.value.description = decodeURI(detailData.value.description || '这个人很懒什么,对此配装什么都没说')
+    detailData.value.description = decodeURI(detailData.value?.description || '这个人很懒什么,对此配装什么都没说')
   } catch (e) {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {

@@ -188,7 +188,7 @@ const getBrowseList = async () => {
         <!-- 配装筛选 S -->
         <AffixBoxHasTitleView>
           <v-row no-gutters>
-            <v-col cols="8">
+            <v-col cols="12">
               <v-select
                   tile
                   label="排序"
@@ -197,7 +197,7 @@ const getBrowseList = async () => {
                   item-value="value"
                   :items="browseFilter.assumption.timeRanges"></v-select>
             </v-col>
-            <v-col>
+            <v-col cols="12">
               <v-select
                   tile
                   v-model="browseFilter.data.sortOrder"

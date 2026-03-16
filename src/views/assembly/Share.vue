@@ -156,14 +156,14 @@ const onGeneratedShare = async () => {
 
     await goto(0, {duration: 2000})
 
-    const d = await snapdom(node as any, {
+    const d = await snapdom(document.getElementById('capture'), {
       width: generateImageValue.value.width,
       scale: mobile ? window.devicePixelRatio * 2 : window.devicePixelRatio,
       embedFonts: true,
       iconFonts: ['Material Design Icons', 'Material Icons'],
       useProxy: 'https://proxy.corsfix.com/?',
       quality: generateImageValue.value.quality,
-      filter: (node) => {
+      filter: (node: any) => {
         if (node instanceof HTMLElement) {
           return !(node.tagName === 'IMG' && node.classList.contains('ProseMirror-separator'))
         }
@@ -242,7 +242,7 @@ const onGenerateQRCode = async (text) => {
   <v-container class="my-5 position-relative overflow-auto">
     <AdsWidget class="my-5" id="none"></AdsWidget>
 
-    <v-card min-height="300" variant="text" ref="captureRef" class="share mx-auto pt-5" :style="`background: ${generateImageValue.background};width:${generateImageValue.width}px`">
+    <v-card id="capture" min-height="300" variant="text" ref="captureRef" class="share mx-auto pt-5" :style="`background: ${generateImageValue.background};width:${generateImageValue.width}px`">
       <v-row no-gutters class="px-5" align="center" v-if="generateImageValue.isShowHeader">
         <v-col cols="auto">
           <Logo></Logo>

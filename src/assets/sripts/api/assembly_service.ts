@@ -123,21 +123,6 @@ export function useAssemblyApi() {
         }
     };
 
-    /**
-     * 获取用户配置
-     */
-    const getUserAssemblies = async (userId?: string, pagination?: PaginationParams) => {
-        try {
-            const url = userId ? 'user/space/assemblys' : 'user/me/assemblys';
-            const result = await http.get(url, {
-                params: {...pagination, userId}
-            })
-            return handleResponse(result)
-        } catch (error) {
-            return handleError(error)
-        }
-    };
-
     return {
         publishAssembly,
         getAssemblyList,
@@ -146,6 +131,5 @@ export function useAssemblyApi() {
         deleteAssembly,
         getAssemblyAttr,
         editAssemblyAttr,
-        getUserAssemblies,
     };
 }
