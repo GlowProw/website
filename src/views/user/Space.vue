@@ -24,7 +24,6 @@ import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import AccountCardWidget from "@/components/AccountCardWidget.vue";
 
 const route = useRoute(),
-    router = useRouter(),
     notice = useNoticeStore(),
     {mobile} = useDisplay(),
     {t} = useI18n()

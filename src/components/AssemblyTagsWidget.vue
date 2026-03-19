@@ -132,7 +132,7 @@ defineOptions({ name: 'AssemblyTagsWidget' })
                 v-for="(i, index) in tagsConfig.damageTypes"
                 :key="index"
                 :value="`damageType_${i}`">
-          <DamageIconWidget :id="i" size="20px" class="mr-1" :is-border="false"></DamageIconWidget>
+          <DamageIconWidget :id="i" size="20px" class="mr-1" iconType="aggressivity" :is-border="false"></DamageIconWidget>
           {{ t(`assembly.tags.damageTypes.${i}`) }}
         </v-chip>
       </div>

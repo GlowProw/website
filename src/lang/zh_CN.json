@@ -29,6 +29,10 @@
       }
     }
   },
+  "ad": {
+    "title": "广告",
+    "description": "广告内容 {id}"
+  },
   "about": {
     "title": "关于",
     "minor": "",

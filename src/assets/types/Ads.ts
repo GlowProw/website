@@ -1,4 +1,5 @@
 export interface AdConfig {
+  slot: string;
   name?: string;
   style?: string;
   class?: string;

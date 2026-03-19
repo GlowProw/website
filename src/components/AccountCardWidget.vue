@@ -95,28 +95,27 @@ defineOptions({
             class="bg-black"></Silk>
       </v-card>
       <v-divider></v-divider>
-      <v-card-text>
+      <v-card-text class="px-10 pt-10">
         <v-row align="center">
           <v-btn variant="text"
                  class="px-0 h-auto"
                  :to="`/space/${userInfo.userId || id}`">
             <v-row align="center" no-gutters>
               <v-col cols="auto" v-if="userInfo.userAvatar">
-                <v-avatar size="50" class="mr-3">
-                  <UserAvatar size="50" :src="userInfo.userAvatar"></UserAvatar>
+                <v-avatar size="80" class="mr-3">
+                  <UserAvatar size="80" :src="userInfo.userAvatar"></UserAvatar>
                 </v-avatar>
               </v-col>
               <v-col>
                 <div class="text-h5 text-amber">{{ userInfo.username }}</div>
+                <RolesTagWidget :data="userInfo.role" v-if="userInfo.role" class="mt-2"></RolesTagWidget>
               </v-col>
             </v-row>
           </v-btn>
 
-          <RolesTagWidget :data="userInfo.role" v-if="userInfo.role" class="mb-3 mt-1"></RolesTagWidget>
-
           <Textarea
               readonly
-              class="text-caption opacity-60"
+              class="text-caption opacity-60 mt-3 w-100"
               min-height="120"
               :value="userInfo.attr?.introduction"></Textarea>
 

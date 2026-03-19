@@ -253,7 +253,7 @@ const onPenPassword = () => {
   <!-- Assembly Preview E -->
 
   <v-container v-if="detailData.isVisibility">
-    <AdsWidget class="my-5" id="none"></AdsWidget>
+    <AdsWidget id="assembly-detail-up"></AdsWidget>
 
     <div>
       <v-row>
@@ -280,7 +280,7 @@ const onPenPassword = () => {
                     v-model="detailData.description"
                     placeholder="输入描述描述"></Textarea>
 
-          <AdsWidget class="my-5" id="none"></AdsWidget>
+          <AdsWidget class="my-5" id="assembly-detail-content"></AdsWidget>
 
           <template v-if="detailData.assembly.attr.isComment">
             <v-divider>{{ t('comment.title') }}</v-divider>

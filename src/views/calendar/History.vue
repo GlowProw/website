@@ -376,7 +376,7 @@ const getEventName = (eventId: string) => {
   <v-divider class="mb-5"></v-divider>
 
   <v-container>
-    <AdsWidget class="my-5" id="none"></AdsWidget>
+    <AdsWidget class="my-5" id="snb-calendar-up"></AdsWidget>
   </v-container>
 
   <!-- 日历 内容 S -->
@@ -459,7 +459,7 @@ const getEventName = (eventId: string) => {
   <!-- 日历 内容 E -->
 
   <v-container>
-    <AdsWidget class="my-5" id="none"></AdsWidget>
+    <AdsWidget class="my-5" id="snb-calendar-down"></AdsWidget>
   </v-container>
 
   <div class="text-center" v-if="calendarLoading">

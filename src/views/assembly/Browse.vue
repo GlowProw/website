@@ -228,10 +228,10 @@ const getBrowseList = async () => {
         </AffixBoxHasTitleView>
         <!-- 配装筛选 E -->
 
-        <AdsWidget class="my-10" id="none2"></AdsWidget>
+        <AdsWidget class="my-10" id="assembly-sidebar-browse"></AdsWidget>
       </v-col>
       <v-col cols="12" md="9" lg="9" class="position-relative">
-        <AdsWidget class="mb-5" id="none"></AdsWidget>
+        <AdsWidget class="mb-5" id="assembly-browse-up"></AdsWidget>
 
         <v-row>
           <template v-if="browseData.data.length > 0">
@@ -300,7 +300,7 @@ const getBrowseList = async () => {
         ></v-pagination>
         <!-- 分页 E -->
 
-        <AdsWidget class="my-5" id="none"></AdsWidget>
+        <AdsWidget id="assembly-browse-down"></AdsWidget>
       </v-col>
     </v-row>
   </v-container>
