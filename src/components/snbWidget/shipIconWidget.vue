@@ -72,14 +72,8 @@ const onReady = async () => {
   shipCardData.value.model = false;
 
   shipCardData.value.icon = currentImageService.url({
-    'skull-and-bones-tools': {
-      id: props.id,
-      category: 'ships'
-    },
-    'glow-prow': {
-      id: props.id,
-      category: 'ships'
-    }
+    id: props.id,
+    category: 'ships'
   });
 }
 

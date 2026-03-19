@@ -37,18 +37,18 @@ import ItemDescription from "@/components/snbWidget/itemDescription.vue";
 import ShipUpgradedDescription from "@/components/snbWidget/ShipUpgradedDescription.vue";
 import ByEventWidget from "@/components/ByEventWidget.vue";
 import ByMapWidget from "@/components/ByMapWidget.vue";
+import ItemAmmunitionType from "@/components/snbWidget/itemAmmunitionType.vue";
 
 const
     {t, messages} = useI18n(),
     router = useRouter(),
     route = useRoute(),
     authStore = useAuthStore(),
-    {asArray, asString, sanitizeString} = useI18nUtils(),
+    {asString, sanitizeString} = useI18nUtils(),
     i18nReadName = useI18nReadName(),
 
     // 物品数据
-    items: any = Items,
-    materials: any = Materials
+    items: any = Items
 
 let itemDetailData: Ref<any> = ref(null),
     isCollect = ref(false),
@@ -291,6 +291,18 @@ const onStarItem = (data: Item) => {
                                 variant="underlined" density="compact">
                     <template v-slot:append-inner>
                       <p class="text-no-wrap">{{ t('codex.item.weight') }}</p>
+                    </template>
+                  </v-text-field>
+                </template>
+                <template v-if="itemDetailData.ammunitionType">
+                  <v-text-field readonly
+                                hide-details
+                                variant="underlined" density="compact">
+                    <template v-slot:default>
+                      <ItemAmmunitionType :data="itemDetailData"></ItemAmmunitionType>
+                    </template>
+                    <template v-slot:append-inner>
+                      <p class="text-no-wrap">{{ t('codex.item.ammunitionType') }}</p>
                     </template>
                   </v-text-field>
                 </template>

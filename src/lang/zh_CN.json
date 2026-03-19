@@ -509,6 +509,7 @@
         "keywords": "物品详情,船物品,{keywords}"
       },
       "weight": "重量",
+      "ammunitionType": "弹药",
       "projectilesPerShot": "单次发射弹丸数量",
       "rateOfFire": "开火间隔 (秒)",
       "DPS": "DPS (Damage per Second)",
