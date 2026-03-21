@@ -741,6 +741,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
     if (staticFilePaths.includes(to.path)) {
+        window.location.replace(to.fullPath);
         return false;
     }
 
