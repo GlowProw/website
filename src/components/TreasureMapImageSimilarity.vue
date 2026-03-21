@@ -162,6 +162,12 @@
                         rounded
                     ></v-progress-linear>
 
+                    <div class="mt-2 d-flex justify-end">
+                      <v-btn size="small" variant="text" color="error" @click="abortSearch">
+                        {{ t('basic.button.cancel') }}
+                      </v-btn>
+                    </div>
+
                     <!-- 当前正在比较的图片 -->
                     <v-row v-if="currentComparingImage" class="mt-4">
                       <v-col cols="auto" class="text-caption text-grey mb-1">
@@ -282,9 +288,11 @@ import {TreasureMapType} from "glow-prow-data/src/types/TreasureMapProperties";
 import {TreasureMaps} from "glow-prow-data";
 import {useDisplay} from "vuetify/framework";
 import {useI18n} from "vue-i18n";
+import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 
 import TreasureMapIconWidget from "@/components/snbWidget/treasureMapIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
+import {useSimilarityStore} from "~/stores/similarityStore";
 
 interface QueryImageData {
   url: string;
@@ -327,10 +335,10 @@ interface ComparingImage {
   index: number;
 }
 
-const mockCollectionMap: Record<string, { default: string }> = import.meta.glob('@glow-prow-assets/treasureMaps/**/*.*', { eager: true })
 const treasureMaps = TreasureMaps;
 const { t } = useI18n()
 const { mobile } = useDisplay()
+const { currentService: currentImageService } = useCDNAssetsServiceStore()
 
 const fileInput = ref<HTMLInputElement | null>(null)
 const triggerFileInput = () => {
@@ -339,19 +347,20 @@ const triggerFileInput = () => {
 
 const model = ref(false)
 const searched = ref(false)
-const searching = ref(false)
+// const searching = ref(false)
 const queryImageData = ref<QueryImageData | null>(null)
 const searchResults = ref<SearchResult[]>([])
 const searchMinimumCondition = ref(50)
 const searchRangeMax = ref(100)
 const selectedAlgorithm = ref<string>('feature-matching')
 const imageList = ref<string[]>([])
-const imageFeaturesCache = ref<Map<number, any>>(new Map())
+const similarityStore = useSimilarityStore()
+
 const selectedCategories = ref<string[]>([])
 const selectedObtainables = ref<string[]>([])
-
-const currentProgress = ref(0)
-const totalImages = ref(0)
+const currentProgress = computed(() => similarityStore.progress)
+const totalImages = computed(() => similarityStore.total)
+const searching = computed(() => similarityStore.isProcessing)
 const currentComparingImage = ref<ComparingImage | null>(null)
 
 const algorithms: Algorithm[] = [
@@ -415,8 +424,12 @@ const filteredImageList = computed(() => {
 })
 
 onMounted(() => {
-  imageList.value = Object.entries(mockCollectionMap).map(([path, module]) => module.default)
-  console.log(imageList.value )
+  imageList.value = Object.keys(treasureMaps).map((id: any) => {
+    return currentImageService.url({
+      id: id,
+      category: 'treasureMaps'
+    }, 'glow-prow')
+  })
 })
 
 onUnmounted(() => {
@@ -454,16 +467,25 @@ const resetSearch = () => {
   queryImageData.value = null;
   searchResults.value = [];
   searched.value = false;
-  searching.value = false;
-  currentProgress.value = 0;
-  totalImages.value = 0;
+  similarityStore.abortProcessing();
   currentComparingImage.value = null;
+};
+
+const abortSearch = () => {
+  similarityStore.abortProcessing();
 };
 
 /**
  * 从图片URL中提取ID
  */
 const getImageIdFromUrl = (url: string): string => {
+  try {
+    const urlObj = new URL(url, window.location.origin);
+    const id = urlObj.searchParams.get('id');
+    if (id) return id;
+  } catch (e) {
+    // Ignore URL parsing errors for non-URL strings
+  }
   const filename = url.split('/').pop() || '';
   return filename.split('.')[0];
 };
@@ -474,7 +496,7 @@ const getImageIdFromUrl = (url: string): string => {
 const loadImageToImageData = (imageUrl: string): Promise<ImageData> => {
   return new Promise((resolve, reject) => {
     const img = new Image()
-    img.crossOrigin = 'Anonymous';
+    img.crossOrigin = 'anonymous';
     img.onload = () => {
       const canvas = document.createElement('canvas')
       const ctx = canvas.getContext('2d')
@@ -547,31 +569,17 @@ const onQueryImageUpload = async (event: Event) => {
 };
 
 /**
- * 获取或缓存图片特征
+ * 获取或缓存图片特征 (代理到 Store)
  */
-const getOrCreateImageFeatures = async (imgUrl: string, index: number): Promise<any> => {
-  if (imageFeaturesCache.value.has(index)) {
-    return imageFeaturesCache.value.get(index)!;
-  }
-
-  // 加载图片并计算所有特征
-  const imageData = await loadImageToImageData(imgUrl)
-  const features: any = {};
-
-  // 预计算所有可能用到的特征（缓存优化）
-  features.hash = await getImageHash(imgUrl)
-  features.colorHistogram = computeColorHistogram(imageData)
-  features.structuralFeatures = computeStructuralFeatures(imageData)
-  features.blockFeatures = computeBlockFeatures(imageData)
-
-  imageFeaturesCache.value.set(index, features)
-  return features;
+const getOrCreateImageFeatures = async (imgUrl: string): Promise<any> => {
+    return similarityStore.featuresCache.get(imgUrl);
 };
 
 /**
  * 计算图片相似度
  */
 const calculateSimilarity = (queryData: QueryImageData, features: any): number => {
+  if (!features) return 0;
   switch (selectedAlgorithm.value) {
     case 'perceptual-hash':
       return queryData.hash ? calculateHashSimilarity(queryData.hash, features.hash) : 0;
@@ -580,7 +588,8 @@ const calculateSimilarity = (queryData: QueryImageData, features: any): number =
     case 'structural-similarity':
       return queryData.structuralFeatures ? compareStructuralFeatures(queryData.structuralFeatures, features.structuralFeatures) : 0;
     case 'feature-matching':
-      return queryData.structuralFeatures ? compareStructuralFeatures(queryData.structuralFeatures, features.blockFeatures) : 0;
+      // 在 Worker 中我们计算了 blockFeatures，这里使用它进行对比
+      return queryData.structuralFeatures ? compareStructuralFeatures(queryData.structuralFeatures, features.blockFeatures || features.structuralFeatures) : 0;
     default:
       return 0;
   }
@@ -592,37 +601,26 @@ const calculateSimilarity = (queryData: QueryImageData, features: any): number =
 const searchSimilarImages = async () => {
   if (!queryImageData.value) return;
 
-  searching.value = true;
   searchResults.value = [];
   searched.value = false;
-  currentProgress.value = 0;
   currentComparingImage.value = null;
 
   try {
-    const results: SearchResult[] = [];
     const filteredList = filteredImageList.value;
-    totalImages.value = filteredList.length;
 
-    // 并行处理所有图片比较（按顺序但异步）
+    // 1. 启动/继续 后台数据处理 (Worker 线程)
+    await similarityStore.startProcessing(filteredList);
+
+    // 2. 遍历缓存中的特征并计算相似度
+    const results: SearchResult[] = [];
     for (let index = 0; index < filteredList.length; index++) {
       const imgUrl = filteredList[index];
       const imageId = getImageIdFromUrl(imgUrl)
       const mapData = treasureMaps[imageId];
+      const features = similarityStore.featuresCache.get(imgUrl);
 
-      // 更新当前比较的图片信息
-      if (mapData) {
-        currentComparingImage.value = {
-          id: imageId,
-          url: imgUrl,
-          category: mapData.category,
-          index: index
-        };
-      }
-
-      const features = await getOrCreateImageFeatures(imgUrl, index)
-      const similarity = calculateSimilarity(queryImageData.value, features)
-
-      if (mapData) {
+      if (features && mapData) {
+        const similarity = calculateSimilarity(queryImageData.value, features)
         results.push({
           id: imageId,
           index,
@@ -633,9 +631,6 @@ const searchSimilarImages = async () => {
           obtainable: mapData.obtainable
         })
       }
-
-      // 更新进度
-      currentProgress.value = index + 1;
     }
 
     // 筛选、排序并截取结果
@@ -644,10 +639,11 @@ const searchSimilarImages = async () => {
         .sort((a, b) => b.similarity - a.similarity)
         .slice(0, searchRangeMax.value)
 
-  } catch (error) {
-    console.error('搜索过程中出错:', error)
+  } catch (error: any) {
+    if (error.message !== 'Operation aborted') {
+        console.error('搜索过程中出错:', error)
+    }
   } finally {
-    searching.value = false;
     searched.value = true;
     currentComparingImage.value = null;
   }

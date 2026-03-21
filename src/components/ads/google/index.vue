@@ -13,11 +13,11 @@
 
     <Adsense
         v-if="ads[adName]?.slot && adName"
-        :client-id="adClient.toString()"
-        :slot-id="ads[adName]?.slot.toString()"
+        :clientId="adClient.toString()"
+        :slotId="ads[adName]?.slot.toString()"
         :format="ads[adName]?.adFormat || 'autorelaxed'"
-        :ad-style="ads[adName]?.style || ''"
-        :full-width-responsive="ads[adName]?.fullWidthResponsive || ''">
+        :adStyle="ads[adName]?.style || ''"
+        :fullWidthResponsive="ads[adName]?.fullWidthResponsive || ''">
     </Adsense>
   </v-card>
 </template>
@@ -28,6 +28,7 @@ import {storage_account} from "@/assets/sripts/index";
 import {AdConfig, GoogleAdProps} from "@/assets/types";
 import {useI18n} from "vue-i18n";
 import {useRoute, useRouter} from "vue-router";
+import Adsense from 'vue3-google-adsense/src/Adsense.vue'
 
 const props = withDefaults(defineProps<GoogleAdProps>(), {
       class: 'class',

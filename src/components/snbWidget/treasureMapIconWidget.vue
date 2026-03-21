@@ -24,7 +24,7 @@ const
     route = useRoute(),
     router = useRouter(),
     {t} = useI18n(),
-    {treasureMaps: treasureMapsAssets, raritys: raritysAssets} = useAssetsStore(),
+    {raritys: raritysAssets} = useAssetsStore(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
     props = withDefaults(defineProps<{
       id: string,

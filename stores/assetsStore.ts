@@ -6,7 +6,6 @@ import {defineStore} from "pinia";
 export const useAssetsStore = defineStore('assets', {
     state: () => ({
         raritys: new Map(),
-        treasureMaps: new Map(),
         npcs: new Map(),
     }),
     actions: {
@@ -21,8 +20,6 @@ export const useAssetsStore = defineStore('assets', {
         }) {
             if (options.npc || options.all)
                 this.initNpcs()
-            if (options.teasureMap || options.all)
-                this.initTeasureMaps()
             if (options.rarity || options.all)
                 this.initRarity()
         },
@@ -35,16 +32,6 @@ export const useAssetsStore = defineStore('assets', {
             const npcImages = import.meta.glob('@glow-prow-assets/npcs/*', {eager: true});
 
             this.npcs = this.serializationMap(npcImages)
-        },
-
-        initTeasureMaps() {
-            if (this.treasureMaps.size != 0)
-                return;
-
-            // @ts-ignore
-            const teasureMapsImages = import.meta.glob('@glow-prow-assets/treasureMaps/**/*.*', {eager: true});
-
-            this.treasureMaps = this.serializationMap(teasureMapsImages);
         },
 
         initRarity() {

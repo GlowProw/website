@@ -13,7 +13,7 @@
 export async function loadImageToImageData(imageUrl: string): Promise<ImageData> {
     return new Promise((resolve, reject) => {
         const img = new Image()
-        img.crossOrigin = 'Anonymous'
+        img.crossOrigin = 'anonymous'
         img.onload = () => {
             const canvas = document.createElement('canvas')
             const ctx = canvas.getContext('2d')
@@ -35,32 +35,36 @@ export async function loadImageToImageData(imageUrl: string): Promise<ImageData>
 }
 
 /**
- * 将图像缩放到指定尺寸
+ * 将图像缩放到指定尺寸 (支持 Worker 环境)
  * @param imageData - 原始ImageData
  * @param width - 目标宽度
  * @param height - 目标高度
  * @returns 缩放后的ImageData
  */
-function resizeImageData(imageData: ImageData, width: number, height: number): ImageData {
-    const canvas = document.createElement('canvas')
-    const ctx = canvas.getContext('2d')
-    if (!ctx) throw new Error('Failed to get canvas context')
+export function resizeImageData(imageData: ImageData, width: number, height: number): ImageData {
+    let canvas: any;
+    let tempCanvas: any;
 
-    // 创建临时canvas绘制原始图像
-    const tempCanvas = document.createElement('canvas')
-    const tempCtx = tempCanvas.getContext('2d')
-    if (!tempCtx) throw new Error('Failed to get canvas context')
+    if (typeof OffscreenCanvas !== 'undefined') {
+        canvas = new OffscreenCanvas(width, height);
+        tempCanvas = new OffscreenCanvas(imageData.width, imageData.height);
+    } else {
+        canvas = document.createElement('canvas');
+        tempCanvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        tempCanvas.width = imageData.width;
+        tempCanvas.height = imageData.height;
+    }
 
-    tempCanvas.width = imageData.width;
-    tempCanvas.height = imageData.height;
-    tempCtx.putImageData(imageData, 0, 0)
+    const ctx = canvas.getContext('2d');
+    const tempCtx = tempCanvas.getContext('2d');
+    if (!ctx || !tempCtx) throw new Error('Failed to get canvas context');
 
-    // 缩放到目标尺寸
-    canvas.width = width;
-    canvas.height = height;
-    ctx.drawImage(tempCanvas, 0, 0, width, height)
+    tempCtx.putImageData(imageData, 0, 0);
+    ctx.drawImage(tempCanvas, 0, 0, width, height);
 
-    return ctx.getImageData(0, 0, width, height)
+    return ctx.getImageData(0, 0, width, height);
 }
 
 /**
@@ -68,7 +72,7 @@ function resizeImageData(imageData: ImageData, width: number, height: number): I
  * @param imageData - ImageData对象
  * @returns 灰度值数组
  */
-function imageDataToGrayValues(imageData: ImageData): number[] {
+export function imageDataToGrayValues(imageData: ImageData): number[] {
     const data = imageData.data;
     const grayValues: number[] = [];
 
@@ -87,17 +91,9 @@ function imageDataToGrayValues(imageData: ImageData): number[] {
 // ==================== 感知哈希算法 ====================
 
 /**
- * 生成感知哈希（pHash）
- * 算法步骤：
- * 1. 缩放到8x8像素（统一尺寸）
- * 2. 转换为灰度图
- * 3. 计算平均灰度值
- * 4. 生成二进制哈希串
- * @param imageUrl - 图片URL
- * @returns 64位二进制哈希字符串
+ * 从 ImageData 计算哈希值
  */
-export async function getImageHash(imageUrl: string): Promise<string> {
-    const imageData = await loadImageToImageData(imageUrl)
+export function computeHash(imageData: ImageData): string {
     const resizedData = resizeImageData(imageData, 8, 8) // 统一缩放到8x8
     const grayValues = imageDataToGrayValues(resizedData)
 
@@ -106,6 +102,16 @@ export async function getImageHash(imageUrl: string): Promise<string> {
 
     // 生成哈希字符串：大于等于平均值为'1'，否则为'0'
     return grayValues.map(gray => (gray >= average ? '1' : '0')).join('');
+}
+
+/**
+ * 生成感知哈希（pHash）
+ * @param imageUrl - 图片URL
+ * @returns 64位二进制哈希字符串
+ */
+export async function getImageHash(imageUrl: string): Promise<string> {
+    const imageData = await loadImageToImageData(imageUrl)
+    return computeHash(imageData);
 }
 
 /**
