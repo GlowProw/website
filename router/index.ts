@@ -144,6 +144,8 @@ const initCDNAssets = () => {
     loadFromStorage()
 }
 
+const staticFilePaths = ['/robots.txt', '/sitemap.xml', '/ads.txt'];
+
 const routes: Readonly<RouteRecordRaw[]> = [
     {
         path: '/',
@@ -737,7 +739,11 @@ const router = createRouter({
     }
 });
 
-router.beforeEach((to) => {
+router.beforeEach((to, from, next) => {
+    if (staticFilePaths.includes(to.path)) {
+        return false;
+    }
+
     try {
         // @ts-ignore
         let t: any = i18n.global.t
@@ -755,6 +761,8 @@ router.beforeEach((to) => {
     } catch (e) {
         console.error('router error:' + e)
     }
+
+    next()
 })
 
 export default router;
