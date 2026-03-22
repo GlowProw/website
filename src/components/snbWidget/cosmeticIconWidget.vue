@@ -77,14 +77,8 @@ const onReady = async () => {
   i.value = cosmetics[props.id] || null
 
   cosmeticCardData.value.icon = currentImageService.url({
-    'skull-and-bones-tools': {
-      id: props.id,
-      category: 'vanities'
-    },
-    'glow-prow': {
-      id: props.id,
-      category: 'commodities'
-    }
+    id: props.id,
+    category: 'vanities'
   });
 }
 

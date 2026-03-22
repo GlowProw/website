@@ -104,7 +104,7 @@ const getRoutes = () => {
 }
 
 export default defineConfig({
-    base: './',
+    base: '/',
     plugins: [
         Vue({
             template: { transformAssetUrls },

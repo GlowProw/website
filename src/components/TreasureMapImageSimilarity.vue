@@ -163,7 +163,12 @@
                     ></v-progress-linear>
 
                     <div class="mt-2 d-flex justify-end">
-                      <v-btn size="small" variant="text" color="error" @click="abortSearch">
+                      <v-btn 
+                          type="button" 
+                          size="small" 
+                          variant="text" 
+                          color="error" 
+                          @click.stop.prevent="abortSearch">
                         {{ t('basic.button.cancel') }}
                       </v-btn>
                     </div>
@@ -189,7 +194,11 @@
                       <v-icon size="66" class="mb-3 opacity-30">mdi-image-plus</v-icon>
                       <p>{{ t('codex.treasureMaps.comparison.uploadPrompt') }}</p>
 
-                      <v-btn class="mt-7" variant="tonal" @click="triggerFileInput">
+                      <v-btn 
+                          type="button" 
+                          class="mt-7" 
+                          variant="tonal" 
+                          @click.stop.prevent="triggerFileInput">
                         {{ t('codex.treasureMaps.comparison.selectImage') }}
                       </v-btn>
                     </div>
@@ -257,14 +266,16 @@
             <div class="d-flex align-center ga-2 mb-4 px-5 mt-2">
               <v-spacer></v-spacer>
               <v-btn
+                  type="button"
                   variant="text"
-                  @click="resetSearch"
+                  @click.stop.prevent="resetSearch"
                   :disabled="!queryImageData && searchResults.length === 0">
                 {{ t('basic.button.reset') }}
               </v-btn>
               <v-btn
+                  type="button"
                   color="var(--main-color)"
-                  @click="searchSimilarImages"
+                  @click.stop.prevent="searchSimilarImages"
                   :disabled="!queryImageData"
                   :loading="searching">
                 {{ t('basic.button.search') }}

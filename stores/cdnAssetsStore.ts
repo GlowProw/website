@@ -84,25 +84,28 @@ export const useCDNAssetsServiceStore = defineStore('cdnService', () => {
             if (isMultiService) {
                 const multiParams = params as MultiServiceParams;
 
-                // 按优先级排序的服务列表
+                // 优先检查用户选中的服务
+                const selected = services.value.find(s => s.name === selectedService.value);
+                if (selected && selected.enabled && multiParams[selected.name]) {
+                    return buildServiceUrl(selected, multiParams[selected.name]);
+                }
+
+                // 如果选中的服务不可用/无参数，则按优先级查找其他可用服务
                 const sortedServices = [...services.value]
                     .filter(s => s.enabled)
                     .sort((a, b) => a.priority - b.priority);
 
-                // 遍历所有服务，找到第一个有对应参数且启用的服务
                 for (const service of sortedServices) {
+                    // 跳过已经检查过的选中服务
+                    if (service.name === selectedService.value) continue;
+
                     if (multiParams[service.name]) {
                         const serviceParams = multiParams[service.name];
                         return buildServiceUrl(service, serviceParams);
                     }
                 }
 
-                // 如果没有找到匹配的服务，使用当前服务的参数（如果有）
-                if (multiParams[targetService.value.name]) {
-                    return buildServiceUrl(targetService.value, multiParams[targetService.value.name]);
-                }
-
-                // 最后fallback：使用第一个可用的参数
+                // fallback 到第一个可用的参数
                 const firstServiceName = Object.keys(multiParams)[0];
                 const firstService = services.value.find(s => s.name === firstServiceName);
                 if (firstService && multiParams[firstServiceName]) {
