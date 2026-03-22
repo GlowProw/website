@@ -104,7 +104,7 @@ const getRoutes = () => {
 }
 
 export default defineConfig({
-    base: '/',
+    base: './',
     plugins: [
         Vue({
             template: { transformAssetUrls },
@@ -214,11 +214,6 @@ export default defineConfig({
                 target: 'http://localhost:3000',
                 changeOrigin: true,
                 rewrite: (path: any) => path.replace(/^\/api/, ''),
-            },
-            "/assets-cdn": {
-                target: 'https://assets.glow-prow.org.cn',
-                changeOrigin: true,
-                rewrite: (path: any) => path.replace(/^\/assets-cdn/, ''),
             }
         }
     },

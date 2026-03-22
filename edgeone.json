@@ -1,16 +1,19 @@
 {
-  "rewrites": [
+  "redirects": [
     {
       "source": "/robots.txt",
-      "destination": "/robots.txt"
+      "destination": "/robots.txt",
+      "statusCode": 200
     },
     {
       "source": "/sitemap.xml",
-      "destination": "/sitemap.xml"
+      "destination": "/sitemap.xml",
+      "statusCode": 200
     },
     {
       "source": "/ads.txt",
-      "destination": "/ads.txt"
+      "destination": "/ads.txt",
+      "statusCode": 200
     }
   ]
 }

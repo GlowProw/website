@@ -701,7 +701,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
         beforeEnter: initItemAssets
     },
 
-    // 404 路由（必须放在最后）
+    // 404 路由
     {
         path: '/:pathMatch(.*)*',
         name: 'NotFound',
@@ -713,6 +713,10 @@ const router = createRouter({
     history: createWebHistory(),
     routes,
     scrollBehavior(to, from, savedPosition) {
+        if (staticFilePaths.includes(to.path)) {
+            return false;
+        }
+
         return new Promise((resolve) => {
             setTimeout(() => {
                 // 检查是否有 scrollTop=false 查询参数
@@ -741,7 +745,6 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
     if (staticFilePaths.includes(to.path)) {
-        window.location.replace(to.fullPath);
         return false;
     }
 
