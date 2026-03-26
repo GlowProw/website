@@ -1,4 +1,25 @@
 {
+  "caches": [
+    {
+      "source": "/robots.xml",
+      "cacheTtl": 0
+    },
+    {
+      "source": "/sitemap.xml",
+      "cacheTtl": 0
+    }
+  ],
+  "headers": [
+    {
+      "source": "/sitemap.xml",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/xml"
+        }
+      ]
+    }
+  ],
   "redirects": [
     {
       "source": "/robots.txt",
