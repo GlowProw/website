@@ -3,11 +3,17 @@ import {createI18n, type MessageContext} from 'vue-i18n';
 import language from '@/config/languages.json'
 
 // 网站翻译
-import zh_CN_local from '../lang/zh_CN.json';
-import en_US_local from '../lang/en_US.json';
+import zh_CN_local from '@/lang/zh_CN/data.json';
+import zh_CN_meta from '@/lang/zh_CN/meta.json';
+
+import zh_TW_local from '@/lang/zh_TW/data.json';
+import zh_TW_meta from '@/lang/zh_TW/meta.json';
+
+import en_US_local from '@/lang/en_US/data.json';
+import en_US_meta from '@/lang/en_US/meta.json';
 
 // 数据翻译
-import {en_US as en_US_snb, zh_CN as zh_CN_snb} from 'glow-prow-data-languages/src'
+import {en_US as en_US_snb, zh_CN as zh_CN_snb, zh_TW as zh_TW_snb} from 'glow-prow-data-languages/src'
 import {storage} from "@/assets/sripts";
 
 export const messageCompiler = (message: any) => {
@@ -58,8 +64,9 @@ const i18n = createI18n({
     missingWarn: false,
     fallbackWarn: false,
     messages: {
-        'zh-CN': Object.assign(zh_CN_local, {'snb': zh_CN_snb}),
-        'en-US': Object.assign(en_US_local, {'snb': en_US_snb}),
+        'zh-CN': Object.assign(zh_CN_local, zh_CN_meta, {'snb': zh_CN_snb}),
+        'zh-TW': Object.assign(zh_TW_local, zh_TW_meta, {'snb': zh_TW_snb}),
+        'en-US': Object.assign(en_US_local, en_US_meta, {'snb': en_US_snb}),
     },
     globalInjection: false,
 })

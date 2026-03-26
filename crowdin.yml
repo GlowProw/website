@@ -1,9 +1,7 @@
-base_path: .
+preserve_hierarchy: true
+
 files:
-  - source: /src/lang/en_US.json
-    translation: /src/lang/%locale%.json
-    type: i18n_json
-    languages_mapping:
-      locale:
-        zh_CN: zh_CN
-        zh_TW: zh_TW
+  - source: /src/lang/en_US/data.json
+    translation: /src/data/%locale_with_underscore%/data.json
+  - source: /src/lang/en_US/meta.json
+    translation: /src/data/%locale_with_underscore%/meta.json
