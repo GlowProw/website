@@ -103,7 +103,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
           ref="targetElement"
           width="100%"
           v-bind="activatorProps"
-          :to="isOpenDetail ? `/codex/cosmetic/${i.id}` : ''"
+          :to="isOpenDetail ? `/codex/commoditie/${i.id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
           :class="[
               'prohibit-drag',
@@ -185,7 +185,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
       </div>
       <v-divider v-if="isShowOpenDetail"></v-divider>
       <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto">
-        <BtnWidget @action-complete="router.push(`/codex/cosmetic/${i.id}`)"
+        <BtnWidget @action-complete="router.push(`/codex/commoditie/${i.id}`)"
                    class="mt-1"
                    v-if="isShowOpenDetail">
           {{ t('codex.cosmetic.lookDetail') }}

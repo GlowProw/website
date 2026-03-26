@@ -179,13 +179,11 @@ defineExpose({
               `pa-${props.padding}`,
               `item-card-header-rarity-${i.rarity}`
           ]">
-        <template v-slot:image v-if="i.rarity">
-          <v-img :src="raritysAssets[`item-rarity-${i.rarity}`]" width="100%" height="100%" class="opacity-30 prohibit-drag"/>
-        </template>
 
         <div class="d-flex align-center justify-center h-100">
           <v-img
               class="prohibit-drag"
+              crossorigin="anonymous"
               :src="itemsCardData.icon">
             <template v-slot:error>
               <div class="fill-height repeating-gradient d-flex justify-center align-center h-100">
@@ -232,7 +230,7 @@ defineExpose({
         </div>
 
         <div class="right-show-image pointer-events-none position-absolute w-33">
-          <v-img :src="itemsCardData.icon" class="material-mirror-image"></v-img>
+          <v-img :src="itemsCardData.icon" crossorigin="anonymous" class="material-mirror-image"></v-img>
         </div>
 
         <template v-if="i.rarity">

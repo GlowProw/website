@@ -24,8 +24,8 @@ const getDynamicDataRoutes = () => {
         'ships.json': '/codex/ship/',
         'commodities.json': '/codex/commoditie/',
         'ultimates.json': '/codex/ultimate/',
-        'modifications.json': '/codex/mod/',
-        'cosmetics.json': '/codex/cosmetic/',
+        'modifications.json': '/codex/modification/',
+        'cosmetics.json': '/codex/commodity/',
         'sets.json': '/codex/set/',
         'treasureMaps.json': '/codex/treasureMap/',
         'mapLocations.json': '/codex/mapLocation/',
@@ -214,6 +214,11 @@ export default defineConfig({
                 target: 'http://localhost:3000',
                 changeOrigin: true,
                 rewrite: (path: any) => path.replace(/^\/api/, ''),
+            },
+            "/assets-proxy": {
+                target: 'http://localhost:8088',
+                changeOrigin: true,
+                rewrite: (path: any) => path.replace(/^\/assets-proxy/, '/api'),
             }
         }
     },

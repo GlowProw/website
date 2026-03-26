@@ -59,13 +59,17 @@ export const useSearchWorkerService = () => {
 
         const isAdvanced = parsedQuery && parsedQuery.conditions.length > 0;
 
+        const payload = {
+            query,
+            isAdvanced,
+            parsedQuery,
+            limit: parsedQuery.limit,
+            types: parsedQuery.types
+        };
+
         searchWorker.value.postMessage({
             type: 'search',
-            payload: {
-                query,
-                isAdvanced,
-                parsedQuery: JSON.parse(JSON.stringify(parsedQuery))
-            }
+            payload: JSON.parse(JSON.stringify(payload))
         });
     };
 

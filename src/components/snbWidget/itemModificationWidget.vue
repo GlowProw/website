@@ -281,7 +281,7 @@ const resetFilters = () => {
                       </ItemSlotBase>
                     </v-col>
                     <v-col class="pl-2">
-                      <HtmlLink :href="`/codex/mod/${getModId(mod)}`" :is-icon="false" :is-iframe-show="false">
+                      <HtmlLink :href="`/codex/modification/${getModId(mod)}`" :is-icon="false" :is-iframe-show="false">
                         <ModName :id="getModId(mod)" :variants="getModVariants(mod)" :grade="getModGrade(mod)" :type="type"></ModName>
                       </HtmlLink>
                     </v-col>

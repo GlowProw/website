@@ -168,7 +168,7 @@ export default class AppCodexNav {
         },
         {
             title: 'codex.modifications.title',
-            to: '/codex/mods'
+            to: '/codex/modifications'
         },
         {
             title: 'codex.items.title',
@@ -176,7 +176,7 @@ export default class AppCodexNav {
         },
         {
             title: 'codex.cosmetics.title',
-            to: '/codex/cosmetics'
+            to: '/codex/commoditys'
         },
         {
             title: 'codex.materials.title',

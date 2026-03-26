@@ -60,7 +60,7 @@ const onCodexHistory = () => {
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
       <v-breadcrumbs-item to="/codex">{{ t('codex.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item to="/codex/mods">{{ t('codex.modifications.title') }}</v-breadcrumbs-item>
+      <v-breadcrumbs-item to="/codex/modifications">{{ t('codex.modifications.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
       <v-breadcrumbs-item>{{ t('codex.modification.title') }}</v-breadcrumbs-item>
     </v-container>

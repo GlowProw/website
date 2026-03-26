@@ -415,21 +415,21 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 component: UltimateDetailPage,
             },
             {
-                path: 'mods',
+                path: 'modifications',
                 name: 'Mods',
                 meta: {
                     title: 'codex.modifications.title',
-                    keywords: 'codex.mods.meta.keywords'
+                    keywords: 'codex.modifications.meta.keywords'
                 },
                 component: ModsPage,
 
             },
             {
-                path: 'mod/:id',
+                path: 'modification/:id',
                 name: 'ModDetail',
                 meta: {
-                    title: 'codex.mod.title',
-                    keywords: 'codex.mod.meta.keywords'
+                    title: 'codex.modification.title',
+                    keywords: 'codex.modification.meta.keywords'
                 },
                 component: ModDetailPage,
             },
@@ -452,20 +452,20 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 component: MaterialDetailPage,
             },
             {
-                path: 'cosmetics',
+                path: 'commoditys',
                 name: 'Cosmetics',
                 meta: {
-                    title: 'codex.cosmetics.title',
-                    keywords: 'codex.cosmetics.meta.keywords'
+                    title: 'codex.commoditys.title',
+                    keywords: 'codex.commoditys.meta.keywords'
                 },
                 component: CosmeticsPage,
             },
             {
-                path: 'cosmetic/:id',
+                path: 'commodity/:id',
                 name: 'CosmeticDetail',
                 meta: {
-                    title: 'codex.cosmetic.title',
-                    keywords: 'codex.cosmetic.meta.keywords'
+                    title: 'codex.commodity.title',
+                    keywords: 'codex.commodity.meta.keywords'
                 },
                 component: CosmeticDetailPage,
             },

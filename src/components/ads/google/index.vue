@@ -1,6 +1,6 @@
 <template>
   <v-card
-      v-if="adName && adIdSwitchStatus.value"
+      v-if="adName && adIdSwitchStatus.value && isGlobalAdEnabled"
       min-height="120"
       class="bg-transparent"
       elevation="0"
@@ -25,88 +25,23 @@
 <script setup lang="ts">
 import {computed, onMounted, ref, watch} from 'vue';
 import {storage_account} from "@/assets/sripts/index";
-import {AdConfig, GoogleAdProps} from "@/assets/types";
+import {GoogleAdProps} from "@/assets/types";
 import {useI18n} from "vue-i18n";
-import {useRoute, useRouter} from "vue-router";
 import Adsense from 'vue3-google-adsense/src/Adsense.vue'
+import {ads, adClient} from "~/public/config/ad";
 
 const props = withDefaults(defineProps<GoogleAdProps>(), {
       class: 'class',
       id: '',
     }),
-    router = useRouter(),
-    route = useRoute(),
     {t} = useI18n(),
-    adName = ref<string | number>(props.id),
-    adClient = "ca-pub-6625226616103631",
-    ads: Record<string, AdConfig> = {
-      'snb-calendar-up': {
-        slot: '7953770612',
-        style: "width: 100%;min-height: 150px;",
-        class: '',
-        adFormat: 'true',
-        fullWidthResponsive: 'true'
-      },
-      'snb-calendar-down': {
-        slot: '4014525608',
-        style: "width: 100%;min-height: 150px;",
-        class: '',
-        adFormat: 'true',
-        fullWidthResponsive: 'true'
-      },
-      'assembly-sidebar-browse': {
-        slot: '6604763023',
-        style: "width: 100%;min-height: 400px;",
-        class: '',
-        adFormat: 'true',
-        fullWidthResponsive: 'true'
-      },
-      'assembly-browse-up': {
-        slot: '1388362267',
-        style: "width: 100%;min-height: 150px;",
-        class: 'mb-5',
-        adFormat: 'true',
-        fullWidthResponsive: 'true'
-      },
-      'assembly-browse-down': {
-        slot: '9616404329',
-        style: "width: 100%;min-height: 150px;",
-        class: 'my-5',
-        adFormat: 'true',
-        fullWidthResponsive: 'true'
-      },
-      'assembly-detail-up': {
-        slot: '8616115593',
-        style: "width: 100%;min-height: 150px;",
-        class: 'my-5',
-        adFormat: 'true',
-        fullWidthResponsive: 'true'
-      },
-      'assembly-detail-content':{
-        slot: '6333300283',
-        style: "width: 100%;min-height: 150px;",
-        class: 'my-5',
-        adFormat: 'true',
-        fullWidthResponsive: 'true'
-      },
-      'codex-up': {
-        slot: '4172505952',
-        style: "width: 100%;min-height: 150px;",
-        class: 'my-5',
-        adFormat: 'true',
-        fullWidthResponsive: 'true'
-      },
-      'codex-down': {
-        slot: '7002683426',
-        style: "width: 100%;min-height: 150px;",
-        class: 'my-5',
-        adFormat: 'true',
-        fullWidthResponsive: 'true'
-      }
-    };
+    adName = ref<string | number>(props.id);
 
 // 当前广告开关状态
-let adIdSwitchStatus = ref({type: 'google', value: true}),
+const adIdSwitchStatus = ref({type: 'google', value: true}),
+    isGlobalAdEnabled = computed<boolean>(() => {
+      return storage_account.getConfigurationItem('ad', 'google.switch', {defaultValue: true}) !== false;
+    }),
     adContainerStyle = computed(() => {
       return {
         '--ad-fill-content': `"${t('ad.title')}"`,

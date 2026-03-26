@@ -1,9 +1,3 @@
-<script lang="ts">
-export default {
-  name: "GlobalSearchCoreView"
-}
-</script>
-
 <script setup lang="ts">
 import {computed, onMounted, onUnmounted, Ref, ref, useSlots, watch} from "vue";
 import {useSearchWorkerService} from "@/assets/sripts/search_worker_service";
@@ -41,6 +35,7 @@ import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
 import ShipName from "@/components/snbWidget/shipName.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
+import ItemMaterials from "@/components/snbWidget/itemMaterials.vue";
 
 const {t, messages, locale} = useI18n(),
     os = useOS(),
@@ -48,15 +43,24 @@ const {t, messages, locale} = useI18n(),
     router = useRouter(),
     route = useRoute(),
     {sanitizeString, asString} = useI18nUtils(),
-    {commoditie} = useI18nReadName(),
     emit = defineEmits(['close']),
     {
-        initWorker,
-        performSearch: workerPerformSearch,
-        isLoading,
-        progress,
-        searchResult
-    } = useSearchWorkerService()
+      initWorker,
+      performSearch: workerPerformSearch,
+      isLoading,
+      progress,
+      searchResult
+    } = useSearchWorkerService(),
+
+    // Result type tabs
+    selectedType = ref('all'),
+    allTypes = ['item', 'ship', 'commoditie', 'material', 'modification', 'cosmetic', 'ultimate', 'mapLocation'],
+
+    // Search configuration
+    searchConfig = ref({
+      limit: 100,
+      enabledTypes: [...allTypes]
+    })
 
 let searchValue = ref(''), // 展示搜索值
     searchQuery = ref(''), // 实际搜索的值
@@ -137,6 +141,9 @@ const handleEnter = () => {
 };
 
 onMounted(() => {
+  getConfig()
+  initHotkey()
+
   // Initialize worker
   initWorker(messages.value[locale.value], locale.value)?.then(() => {
     // Perform initial search if there is a query
@@ -144,9 +151,6 @@ onMounted(() => {
       performSearch(searchQuery.value);
     }
   });
-
-  getConfig()
-  initHotkey()
 })
 
 onUnmounted(() => {
@@ -156,10 +160,14 @@ onUnmounted(() => {
 const performSearch = (query: string) => {
   try {
     const parsed = AdvancedQueryParser.parse(query);
-    workerPerformSearch(query, parsed);
-    
+    workerPerformSearch(query, {
+      ...parsed,
+      limit: searchConfig.value.limit,
+      types: searchConfig.value.enabledTypes
+    });
+
     if (searchSettingConfig.value.searchIsLogs) {
-        addToHistory(query)
+      addToHistory(query)
     }
 
   } catch (e) {
@@ -177,12 +185,26 @@ const getConfig = () => {
   const searchHotkey = storage_account.getConfigurationItem('search', 'hotkey.switch')
   const searchHint = storage_account.getConfigurationItem('search', 'hint.switch')
 
+  // Load search configuration
+  const savedConfig = storage_account.getConfigurationItem('search', 'filter.config')
+  if (savedConfig) {
+    searchConfig.value = Object.assign(searchConfig.value, savedConfig)
+  }
+
   searchSettingConfig.value = {
     headerSearchSwitch,
     searchIsLogs,
     searchHotkey,
     searchHint
   }
+}
+
+/**
+ * 保存搜索配置
+ */
+const saveConfig = () => {
+  storage_account.updateConfiguration('search', 'filter.config', searchConfig.value)
+  performSearch(searchValue.value)
 }
 
 /**
@@ -214,14 +236,13 @@ const toPage = (data: Item | Commodity | Material | Modification | Cosmetic | Ul
   switch (type) {
     case "item":
       return `/codex/item/${data.id}`
-    case "commodity":
-      return `/codex/commodity/${data.id}`
     case "material":
       return `/codex/material/${data.id}`
     case "modification":
-      return `/codex/mod/${data.id}`
-    case "cosmetic":
-      return `/codex/cosmetic/${data.id}`
+      return `/codex/modification/${data.id}`
+    case "commodity":
+    case "commoditie":
+      return `/codex/commoditie/${data.id}`
     case "ultimate":
       return `/codex/ultimate/${data.id}`
     case "mapLocation":
@@ -274,17 +295,21 @@ defineExpose({
   onPage,
   onCloseModel
 })
+
+defineOptions({
+  name: 'GlobalSearchCoreView'
+})
 </script>
 
 <template>
   <v-card elevation="0" class="bg-transparent pa-3">
     <v-row class="mb-0" no-gutters align="center">
-      <v-col class="font-weight-bold text-h5">
+      <v-col cols="auto" class="font-weight-bold text-h5">
         <v-icon>mdi-magnify</v-icon>
-        <span class="ml-3 opacity-80">全局搜索</span>
+        <span class="ml-3 opacity-80">{{ t('search.title') }}</span>
       </v-col>
-      <v-spacer></v-spacer>
-      <v-col cols="auto" class="d-flex ga-2 align-center"
+
+      <v-col cols="auto" class="d-flex ga-2 align-center ml-5"
              v-if="os.isDesktop() && isShowHotKet">
         <template v-for="(i, index) in hotkey" :key="index">
           <v-chip variant="tonal" density="comfortable">{{ i }}</v-chip>
@@ -293,7 +318,67 @@ defineExpose({
           </template>
         </template>
       </v-col>
-      <v-col cols="auto" class="ml-2" v-if="slots.close">
+
+      <v-spacer></v-spacer>
+
+      <!-- 搜索筛选配置 S -->
+      <v-col cols="auto" class="ml-10">
+        <v-menu open-on-click :close-on-content-click="false" location="bottom end">
+          <template v-slot:activator="{ props }">
+            <div v-bind="props">
+              <v-icon>mdi-filter</v-icon>
+              <v-icon>mdi-dots-vertical</v-icon>
+            </div>
+          </template>
+
+          <v-card border min-width="300" max-width="600" class="pa-4 overflow-x-hidden">
+            <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 mt-n5">
+              <v-icon size="80">mdi-filter</v-icon>
+            </v-card-title>
+
+            <div class="text-subtitle-1 mb-2">{{ t('search.configTitle') }}</div>
+
+            <div class="text-caption text-grey mb-1">{{ t('search.scope') }}</div>
+            <v-row no-gutters>
+              <v-col cols="6" v-for="type in allTypes" :key="type">
+                <v-checkbox
+                    v-model="searchConfig.enabledTypes"
+                    :label="t(`codex.${type}s.title`)"
+                    :value="type"
+                    density="compact"
+                    hide-details
+                ></v-checkbox>
+              </v-col>
+            </v-row>
+
+            <v-divider class="my-3"></v-divider>
+
+            <div class="text-caption text-grey mb-1">
+              {{ t('search.limitPerType') }}: {{ searchConfig.limit === 0 ? t('search.infinite') : searchConfig.limit }}
+            </div>
+            <v-slider
+                v-model="searchConfig.limit"
+                :min="0"
+                :max="100"
+                :step="5"
+                color="var(--main-color)"
+                thumb-label
+                density="compact"
+                hide-details
+            ></v-slider>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="var(--main-color)" class="mt-4" @click="saveConfig">
+                {{ t('basic.button.submit') }}
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-menu>
+      </v-col>
+      <!-- 搜索筛选配置 E -->
+
+      <v-col cols="auto" v-if="slots.close">
         <slot name="close"></slot>
       </v-col>
     </v-row>
@@ -328,33 +413,6 @@ defineExpose({
       </v-col>
       <!-- 搜索输入框 E -->
 
-      <!-- 查询条件展示 S -->
-      <div v-if="hasConditions && parsedQuery.conditions.length > 0" class="conditions-container mb-3">
-        <div class="conditions-header">
-          <span class="text-caption text-medium-emphasis">
-            {{ t('search.conditions') }}
-          </span>
-        </div>
-
-        <div class="conditions-list">
-          <v-chip
-              v-for="(condition, index) in parsedQuery.conditions"
-              :key="index"
-              variant="outlined"
-              size="small"
-              closable
-              @click:close="removeCondition(index)"
-              class="condition-chip">
-            <span class="field">{{ condition.field }}</span>
-            <span class="operator">{{ condition.operator }}</span>
-            <span class="value">
-              {{ Array.isArray(condition.value) ? condition.value.join(', ') : condition.value }}
-            </span>
-          </v-chip>
-        </div>
-      </div>
-      <!-- 查询条件展示 E -->
-
       <!-- 搜索历史 S -->
       <v-col cols="6" v-if="searchSettingConfig.searchIsLogs && searchHistory.length && !searchValue" class="search-history mb-4">
         <div class="history-header">
@@ -383,104 +441,32 @@ defineExpose({
       </v-col>
       <!-- 搜索历史 E -->
 
-      <!-- 搜索结果 S -->
-      <v-col cols="12" v-if="Object.keys(searchResult).length > 0">
-        <!-- 按类型循环显示 S -->
-        <div v-for="(items, type) in searchResult" :key="type" class="mb-6">
-          <AffixBoxHasTitleView>
-            <v-list class="elevation-1">
-              <v-list-item
-                  v-for="(i, index) in items"
-                  :key="i.id || index"
-                  @click="onPage(i, String(type))"
-                  three-line>
-                <v-list-item-title class="font-weight-medium d-flex align-center">
-                  <ItemSlotBase size="30px" :padding="0" class="mr-2">
-                    <template v-if="String(type)=='item'">
-                      <ItemIconWidget :id="i.id"></ItemIconWidget>
-                    </template>
-                    <template v-if="String(type)=='ship'">
-                      <ShipIconWidget :id="i.id"></ShipIconWidget>
-                    </template>
-                    <template v-if="String(type)=='commoditie'">
-                      <CommoditieIconWidget :id="i.id"></CommoditieIconWidget>
-                    </template>
-                    <template v-else-if="String(type)=='material'">
-                      <MaterialIconWidget :id="i.id"></MaterialIconWidget>
-                    </template>
-                    <template v-else-if="String(type)=='modification'">
-                      <ModIconWidget :id="i.id"></ModIconWidget>
-                    </template>
-                    <template v-else-if="String(type)=='cosmetic'">
-                      <CosmeticIconWidget :id="i.id"></CosmeticIconWidget>
-                    </template>
-                    <template v-else-if="String(type)=='ultimate'">
-                      <UltimateIconWidget :id="i.id"></UltimateIconWidget>
-                    </template>
-                    <template v-else-if="String(type)=='mapLocation'">
-                      <MapLocationIconWidget :id="i.id"></MapLocationIconWidget>
-                    </template>
-                  </ItemSlotBase>
-
-                  <template v-if="String(type)=='item'">
-                    <ItemName :id="i.id"></ItemName>
-                  </template>
-                  <template v-if="String(type)=='ship'">
-                    <ShipName :id="i.id"></ShipName>
-                  </template>
-                  <template v-if="String(type)=='commoditie'">
-                    <CommoditieName :id="i.id"></CommoditieName>
-                  </template>
-                  <template v-else-if="String(type)=='material'">
-                    <MaterialName :id="i.id"></MaterialName>
-                  </template>
-                  <template v-else-if="String(type)=='modification'">
-                    <ModName :id="i.id" :grade="i.grade"></ModName>
-                  </template>
-                  <template v-else-if="String(type)=='cosmetic'">
-                    <CosmeticName :id="i.id"></CosmeticName>
-                  </template>
-                  <template v-else-if="String(type)=='ultimate'">
-                    <UltimateName :id="i.id"></UltimateName>
-                  </template>
-                  <template v-else-if="String(type)=='mapLocation'">
-                    <MapLocationNameWidget :id="i.id"></MapLocationNameWidget>
-                  </template>
-                </v-list-item-title>
-
-                <!-- 显示需求材料 -->
-                <div v-if="i.required && Object.keys(i.required).length > 0" class="text-caption mt-1">
-                  <strong>需求材料:</strong>
-                  <span v-for="(amount, material) in i.required" :key="material" class="ml-2">
-                  {{ material }}: {{ amount }}
-                </span>
-                </div>
-
-                <template v-slot:append>
-                  <v-icon icon="mdi-arrow-right"></v-icon>
-                </template>
-              </v-list-item>
-            </v-list>
-
-            <template v-slot:title>
-              {{ t(`codex.${type}s.title`) }} ({{ items.length }})
-
-
-              <v-divider class="my-5"></v-divider>
-
-              <v-btn icon density="compact" :to="`/codex/${type}s?key=${searchValue}`" variant="text" @click="onCloseModel">
-                {{ t('codex.more') }}
-              </v-btn>
-            </template>
-          </AffixBoxHasTitleView>
+      <!-- 查询条件展示 S -->
+      <v-col cols="6" v-if="hasConditions && parsedQuery.conditions.length > 0" class="conditions-container">
+        <div class="conditions-header">
+          <span class="text-caption text-medium-emphasis">
+            {{ t('search.conditions') }}
+          </span>
         </div>
-        <!-- 按类型循环显示 E -->
-      </v-col>
 
-      <v-col cols="12" v-else-if="searchQuery" class="text-center text-grey py-8">
-        未找到匹配的结果
+        <div class="conditions-list">
+          <v-chip
+              v-for="(condition, index) in parsedQuery.conditions"
+              :key="index"
+              variant="outlined"
+              size="small"
+              closable
+              @click:close="removeCondition(index)"
+              class="condition-chip">
+            <span class="field">{{ condition.field }}</span>
+            <span class="operator">{{ condition.operator }}</span>
+            <span class="value">
+              {{ Array.isArray(condition.value) ? condition.value.join(', ') : condition.value }}
+            </span>
+          </v-chip>
+        </div>
       </v-col>
-      <!-- 搜索结果 E -->
+      <!-- 查询条件展示 E -->
 
       <v-col cols="6" class="mb-4" v-else-if="!searchValue && searchSettingConfig.searchHint">
         <div class="history-header text-grey">
@@ -491,20 +477,138 @@ defineExpose({
         </div>
 
         <div class="mt-3">
-          <p>支持高级查询如：name:item_name id:id1 category:ship type:ships</p>
+          <p>{{ t('search.tips.advanced', { example: 'name:item_name id:id1 category:ship type:ships' }) }}</p>
 
           <ul class="mt-5 text-caption text-grey ml-4">
-            <li>模糊检索: <u>id=id1</u> · <u>id>=id1</u> · <u>id&lt;=id1</u> · <u>id&lt; id1 </u> · <u>id>id1</u></li>
-            <li>精准id检索: <u>id:id1</u></li>
-            <li>category单一和组合: <u>category:ship,ships</u> (仅限category)</li>
+            <li>{{ t('search.tips.fuzzy') }}: <u>id=id1</u> · <u>id>=id1</u> · <u>id&lt;=id1</u> · <u>id&lt; id1 </u> · <u>id>id1</u></li>
+            <li>{{ t('search.tips.exactId') }}: <u>id:id1</u></li>
+            <li>{{ t('search.tips.category') }}: <u>category:ship,ships</u> {{ t('search.tips.categoryOnly') }}</li>
           </ul>
 
           <ul class="mt-2 text-caption text-grey ml-4">
-            <li>字段: <u>name</u> · <u>id</u> · <u>category</u> · <u>type</u> · <u>description</u></li>
-            <li>支持同时使用以上字段查询</li>
+            <li>{{ t('search.tips.fields') }}: <u>name</u> · <u>id</u> · <u>category</u> · <u>type</u> · <u>description</u></li>
+            <li>{{ t('search.tips.combinedFields') }}</li>
           </ul>
         </div>
       </v-col>
+
+      <!-- 搜索结果 Tabs S -->
+      <v-col cols="12" class="mb-0 pb-0">
+        <v-tabs
+            v-if="Object.keys(searchResult).length > 0"
+            v-model="selectedType"
+            color="var(--main-color)"
+            align-tabs="start"
+            class="ml-15"
+            density="comfortable">
+          <v-tab value="all">{{ t('search.all') }} ({{ Object.values(searchResult).flat().length }})</v-tab>
+          <template v-for="(items, type) in searchResult" :key="type">
+            <v-tab :value="type" v-if="items.length > 0">
+              {{ t(`codex.${type}s.title`) }} ({{ items.length }})
+            </v-tab>
+          </template>
+        </v-tabs>
+      </v-col>
+      <!-- 搜索结果 Tabs E -->
+
+      <!-- 搜索结果 S -->
+      <v-col cols="12"
+             v-if="Object.keys(searchResult).length > 0"
+             class="search-results-container">
+        <!-- 按类型循环显示 S -->
+        <template v-for="(items, type) in searchResult" :key="type">
+          <template v-if="selectedType === 'all' || selectedType === String(type)">
+            <AffixBoxHasTitleView class="mb-6">
+              <v-list class="elevation-1">
+                <v-list-item
+                    v-for="(i, index) in items"
+                    :key="i.id || index"
+                    @click="onPage(i, String(type))"
+                    three-line>
+                  <template v-slot:prepend>
+                    <ItemSlotBase size="50px" :padding="0" class="mr-2">
+                      <template v-if="String(type)=='item'">
+                        <ItemIconWidget :id="i.id"></ItemIconWidget>
+                      </template>
+                      <template v-if="String(type)=='ship'">
+                        <ShipIconWidget :id="i.id"></ShipIconWidget>
+                      </template>
+                      <template v-if="String(type)=='commodity' || String(type)=='commoditie'">
+                        <CommoditieIconWidget :id="i.id"></CommoditieIconWidget>
+                      </template>
+                      <template v-else-if="String(type)=='material'">
+                        <MaterialIconWidget :id="i.id"></MaterialIconWidget>
+                      </template>
+                      <template v-else-if="String(type)=='modification'">
+                        <ModIconWidget :id="i.id"></ModIconWidget>
+                      </template>
+                      <template v-else-if="String(type)=='cosmetic'">
+                        <CosmeticIconWidget :id="i.id"></CosmeticIconWidget>
+                      </template>
+                      <template v-else-if="String(type)=='ultimate'">
+                        <UltimateIconWidget :id="i.id"></UltimateIconWidget>
+                      </template>
+                      <template v-else-if="String(type)=='mapLocation'">
+                        <MapLocationIconWidget :id="i.id"></MapLocationIconWidget>
+                      </template>
+                    </ItemSlotBase>
+                  </template>
+                  <v-list-item-title class="font-weight-medium d-flex align-center">
+                    <template v-if="String(type)=='item'">
+                      <ItemName :id="i.id"></ItemName>
+                    </template>
+                    <template v-if="String(type)=='ship'">
+                      <ShipName :id="i.id"></ShipName>
+                    </template>
+                    <template v-if="String(type)=='commodity' || String(type)=='commoditie'">
+                      <CommoditieName :id="i.id"></CommoditieName>
+                    </template>
+                    <template v-else-if="String(type)=='material'">
+                      <MaterialName :id="i.id"></MaterialName>
+                    </template>
+                    <template v-else-if="String(type)=='modification'">
+                      <ModName :id="i.id" :grade="i.grade"></ModName>
+                    </template>
+                    <template v-else-if="String(type)=='cosmetic'">
+                      <CosmeticName :id="i.id"></CosmeticName>
+                    </template>
+                    <template v-else-if="String(type)=='ultimate'">
+                      <UltimateName :id="i.id"></UltimateName>
+                    </template>
+                    <template v-else-if="String(type)=='mapLocation'">
+                      <MapLocationNameWidget :id="i.id"></MapLocationNameWidget>
+                    </template>
+                  </v-list-item-title>
+                  <v-list-item-subtitle>
+                    {{i.id}}
+                  </v-list-item-subtitle>
+
+                  <template v-slot:append>
+                    <v-icon icon="mdi-arrow-right"></v-icon>
+                  </template>
+                </v-list-item>
+              </v-list>
+
+              <template v-slot:title>
+                {{ t(`codex.${type}s.title`) }} ({{ items.length }})
+
+                <v-divider class="my-5"></v-divider>
+
+                <v-btn icon density="compact" :to="`/codex/${type}s?key=${searchValue}`" variant="text" @click="onCloseModel">
+                  {{ t('codex.more') }}
+                </v-btn>
+              </template>
+            </AffixBoxHasTitleView>
+          </template>
+        </template>
+        <!-- 按类型循环显示 E -->
+      </v-col>
+
+      <v-col cols="12" v-else-if="searchQuery" class="text-center text-grey py-8">
+        {{ t('search.noResults') }}
+      </v-col>
+      <!-- 搜索结果 E -->
+
     </v-row>
   </v-card>
 </template>
@@ -555,5 +659,9 @@ defineExpose({
 
 .history-list {
   margin-top: 8px;
+}
+
+.search-results-container {
+  overflow-y: auto;
 }
 </style>

@@ -2,6 +2,9 @@
 import {onMounted, ref} from "vue";
 import {storage_account} from "@/assets/sripts/index";
 import EmptyView from "@/components/EmptyView.vue";
+import {useI18n} from "vue-i18n";
+
+const {t} = useI18n();
 
 let adsList = ref([]),
     ads = ref([]),
@@ -40,7 +43,7 @@ const updateAdStatus = (i) => {
 <template>
   <v-row class="mb-1">
     <v-col>
-      <p class="text-caption opacity-60">下方是已关闭广告列表</p>
+      <p class="text-caption opacity-60">{{ t('setting.ad.closedAdsHint') }}</p>
     </v-col>
     <v-spacer></v-spacer>
     <v-col cols="auto">
@@ -57,7 +60,7 @@ const updateAdStatus = (i) => {
           {{ i[0] }}
         </template>
         <template v-slot:append>
-          <v-switch v-model="i[1].value" hide-details inset indeterminate @update:modelValue="updateAdStatus(i)"></v-switch>
+          <v-switch v-model="i[1].value" hide-details inset @update:modelValue="updateAdStatus(i)"></v-switch>
         </template>
       </v-list-item>
     </v-list>

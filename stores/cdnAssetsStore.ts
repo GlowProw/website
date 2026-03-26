@@ -36,7 +36,7 @@ export const useCDNAssetsServiceStore = defineStore('cdnService', () => {
     const services = ref<CDNAssetsService[]>([
         {
             name: 'local-test',
-            urlTemplate: 'http://localhost:8088/api?src={category}&id={id}',
+            urlTemplate: import.meta.env.DEV ? '/assets-proxy?t={category}&id={id}' : 'https://assets.glow-prow.org.cn/api?t={category}&id={id}',
             enabled: true,
             priority: 1
         },
@@ -48,7 +48,7 @@ export const useCDNAssetsServiceStore = defineStore('cdnService', () => {
         },
         {
             name: 'glow-prow',
-            urlTemplate: 'https://assets.glow-prow.org.cn/api?src={category}&id={id}',
+            urlTemplate: 'https://assets.glow-prow.org.cn/api?t={category}&id={id}',
             enabled: true,
             priority: 3
         }
@@ -285,7 +285,7 @@ export const useCDNAssetsServiceStore = defineStore('cdnService', () => {
         services.value = [
             {
                 name: 'local',
-                urlTemplate: 'http://localhost:8088/api?src={category}&id={id}',
+                urlTemplate: import.meta.env.DEV ? '/assets-proxy?src={category}&id={id}' : 'https://assets.glow-prow.org.cn/api?src={category}&id={id}',
                 enabled: true,
                 priority: 1
             },

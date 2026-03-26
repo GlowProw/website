@@ -4,7 +4,7 @@ import {computed, reactive, Ref, ref, toRaw, useAttrs, useSlots, watch} from "vu
 import {useRoute} from "vue-router";
 
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
-import {AssemblyAttr, AssemblyWorkshopData, AssemblyWidgetProps} from "@/assets/types";
+import {AssemblyAttr, AssemblyWidgetProps, AssemblyWorkshopData} from "@/assets/types";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {number} from "@/assets/sripts/index"
 import {Ships, Ultimates} from "glow-prow-data";
@@ -171,12 +171,12 @@ let // 获取陈设
 
       const direction = workshopData.value.data.weaponDirections[workshopData.value.weaponInsertIndex];
       if (direction) {
-          queryTags = queryTags.concat(
-              tag,
-              conditionsTag[direction] || []
-          )
+        queryTags = queryTags.concat(
+            tag,
+            conditionsTag[direction] || []
+        )
       } else {
-          queryTags = queryTags.concat(tag)
+        queryTags = queryTags.concat(tag)
       }
       return queryTags;
     }),
@@ -443,7 +443,7 @@ defineExpose({
   data: workshopData.value.data
 })
 
-defineOptions({ name: 'AssemblyWidget' })
+defineOptions({name: 'AssemblyWidget'})
 </script>
 
 <template>
@@ -467,11 +467,16 @@ defineOptions({ name: 'AssemblyWidget' })
                     v-bind="propsHoverClose"
                     class="mx-auto"
                     width="110">
-                  <ItemSlotBase size="110px" class="pa-2"
+                  <ItemSlotBase size="110px"
                                 v-if="workshopData.data.shipSlot && workshopData.data.shipSlot.id"
+                                :padding="2"
                                 :class="[workshopData.data.shipSlot && workshopData.data.shipSlot.id ? 'bg-amber' : '']">
                     <v-card class="w-100">
-                      <ShipIconWidget :id="workshopData.data.shipSlot.id" :is-show-tooltip="false" :isOpenDetail="false"/>
+                      <ShipIconWidget :id="workshopData.data.shipSlot.id"
+                                      :is-show-tooltip="false"
+                                      :isOpenDetail="false"
+                                      :margin="0"
+                                      :padding="0"/>
                     </v-card>
                   </ItemSlotBase>
 
@@ -500,10 +505,10 @@ defineOptions({ name: 'AssemblyWidget' })
                     width="80"
                     v-bind="propsHoverClose">
                   <v-badge bordered rounded :color="`var(--main-color)`"
-                              class="d-flex align-center justify-center"
-                               :offset-x="25" :offset-y="63">
+                           class="d-flex align-center justify-center"
+                           :offset-x="25" :offset-y="63">
                     <template v-slot:badge
-                              >
+                    >
                       <div class="pt-2 pb-2">
                         <v-icon icon="mdi-chevron-triple-up mr-1"></v-icon>
                         <b>{{ workshopData.data.shipUpgradeSlot.tier || 0 }}</b>
@@ -775,11 +780,11 @@ defineOptions({ name: 'AssemblyWidget' })
                         </v-row>
 
                         <!-- 武器模组插槽 仅展示 -->
-                            <div class="mb-2 mt-1" v-if="perfectDisplay">
-                              <WeaponModificationOnlyShowWidget
-                                  :item-data="castToAny(i)"
-                                  :mod-data="workshopData.data.weaponModifications[index]"></WeaponModificationOnlyShowWidget>
-                            </div>
+                        <div class="mb-2 mt-1" v-if="perfectDisplay">
+                          <WeaponModificationOnlyShowWidget
+                              :item-data="castToAny(i)"
+                              :mod-data="workshopData.data.weaponModifications[index]"></WeaponModificationOnlyShowWidget>
+                        </div>
                       </v-col>
                     </v-row>
                     <v-divider></v-divider>

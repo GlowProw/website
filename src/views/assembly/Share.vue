@@ -152,16 +152,15 @@ const onGeneratedShare = async () => {
 
     await goto('#share-footer')
 
-    let node = captureRef.value;
+    let node = captureRef.value?.$el || captureRef.value;
 
     await goto(0, {duration: 2000})
 
-    const d = await snapdom(document.getElementById('capture'), {
+    const d = await snapdom(node, {
       width: generateImageValue.value.width,
       scale: mobile ? window.devicePixelRatio * 2 : window.devicePixelRatio,
       embedFonts: true,
       iconFonts: ['Material Design Icons', 'Material Icons'],
-      useProxy: 'https://proxy.corsfix.com/?',
       quality: generateImageValue.value.quality,
       filter: (node: any) => {
         if (node instanceof HTMLElement) {
@@ -169,7 +168,8 @@ const onGeneratedShare = async () => {
         }
         return true;
       },
-      cacheBust: false
+      // useProxy: 'https://proxy.corsfix.com/?',
+      // cacheBust: false
     } as any)
 
     await d.download({quality: generateImageValue.value.quality, format: generateImageValue.value.format, filename: `${generateImageValue.value.filename}.${generateImageValue.value.format}`} as any)
@@ -489,8 +489,11 @@ const onGenerateQRCode = async (text) => {
           </v-btn-group>
         </v-col>
       </v-row>
+
     </v-container>
   </div>
+
+  <div id="share-footer"></div>
 </template>
 
 <style scoped lang="less">

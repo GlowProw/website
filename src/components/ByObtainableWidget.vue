@@ -109,7 +109,7 @@ const filterByObtainable = (d: Item | Material | Cosmetic | Npc | null | undefin
           acc.push({
             id: element.id,
             type: element._typeStringName,
-            to: `/codex/cosmetic/${element.id}`,
+            to: `/codex/commoditie/${element.id}`,
           })
         }
       }

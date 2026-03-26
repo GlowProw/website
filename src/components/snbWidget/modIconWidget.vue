@@ -82,7 +82,7 @@ const onReady = async () => {
              content-class="pa-0" target="cursor">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
-          :to="isOpenDetail ? `/codex/mod/${id}` : ''"
+          :to="isOpenDetail ? `/codex/modification/${id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
           width="100%"
           v-bind="activatorProps"
