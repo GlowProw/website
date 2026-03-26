@@ -1,1 +1,49 @@
-{}
+{
+  "codex": {
+    "item": {
+      "meta": {
+        "keywords": "物品详情,船物品,{keywords}"
+      }
+    },
+    "commoditie": {
+      "meta": {
+        "keywords": "杂货,商品,{keywords}"
+      }
+    },
+    "ship": {
+      "meta": {
+        "keywords": "船详详情,船,{keywords}"
+      }
+    }
+  },
+  "calendar": {
+    "meta": {
+      "keywords": "游戏日历,日历,日程表,规划,{keywords}"
+    }
+  },
+  "teamUp": {
+    "meta": {
+      "keywords": "组队搜寻,最大交易,海上交易,争夺,pvp,pve,pvevp,{keywords}"
+    }
+  },
+  "assembly": {
+    "meta": {
+      "keywords": "配装厂,碧海黑帆配装,配装,套装,游戏配装,{keywords}"
+    }
+  },
+  "login": {
+    "meta": {
+      "keywords": "账户登陆,{keywords}"
+    }
+  },
+  "signup": {
+    "meta": {
+      "keywords": "账户注册,{keywords}"
+    }
+  },
+  "home": {
+    "meta": {
+      "keywords": "游戏,碧海黑帆,game,skull-and-bones,Skull And Bones,SNB,S And B,ubisoft,2025,{keywords}"
+    }
+  }
+}
