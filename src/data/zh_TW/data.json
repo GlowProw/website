@@ -464,9 +464,6 @@
     },
     "item": {
       "title": "Item Details",
-      "meta": {
-        "keywords": "Item details, ship item, {keywords}"
-      },
       "weight": "Weight",
       "projectilesPerShot": "Projectiles Per Shot",
       "rateOfFire": "Rate of Fire (sec)",
@@ -505,9 +502,6 @@
     },
     "commoditie": {
       "title": "Commodity Details",
-      "meta": {
-        "keywords": "Commodity, goods, {keywords}"
-      },
       "lookDetail": "View Commodity Details (Hold)"
     },
     "commodities": {
@@ -515,9 +509,6 @@
     },
     "ship": {
       "title": "Ship Details",
-      "meta": {
-        "keywords": "Ship details, ship, {keywords}"
-      },
       "archetype": "Archetype",
       "stamina": "Stamina",
       "frontWeapon": "Front Weapon",
@@ -734,9 +725,6 @@
   },
   "calendar": {
     "title": "Calendar",
-    "meta": {
-      "keywords": "Game calendar, calendar, schedule, planning"
-    },
     "timeRemaining": "{time} days remaining",
     "label": {
       "pastSeasons": "Past Seasons"
@@ -856,9 +844,6 @@
   },
   "teamUp": {
     "title": "Team Up Search",
-    "meta": {
-      "keywords": "Team up search, max trade, sea trade, contest, pvp, pve, pvevp"
-    },
     "emptyPlayer": "None",
     "emptyUsername": "Anonymous Captain",
     "emptyDescription": "This person is lazy and hasn't written anything",
@@ -888,9 +873,6 @@
   },
   "assembly": {
     "title": "Assembly Workshop",
-    "meta": {
-      "keywords": "Assembly workshop, Skull and Bones assembly, assembly, build, game build"
-    },
     "owner": "Owner",
     "hasPassword": "Has Password",
     "byCloningUuid": "Clone",
@@ -1084,9 +1066,6 @@
   },
   "signin": {
     "title": "Sign In",
-    "meta": {
-      "keywords": "Account sign in"
-    },
     "form": {
       "placeholder": {
         "username": "Enter account ID",
@@ -1101,9 +1080,6 @@
   },
   "signup": {
     "title": "Sign Up",
-    "meta": {
-      "keywords": "Account registration"
-    },
     "username": {
       "name": "Account ID",
       "placeholder": "Enter unique website identifier",
@@ -1127,10 +1103,7 @@
     "register": "Register"
   },
   "home": {
-    "title": "Home",
-    "meta": {
-      "keywords": "game, Skull and Bones, skull-and-bones, Skull And Bones, SNB, S And B, ubisoft, 2025, Glow Prow, glowprow, glow, prow, glow-prow, shine, figurehead, shining figurehead, tool, app, website, mod, map, tool, wiki, encyclopedia, game, ubisoft, ubisoft.com, Ubisoft, Skull and Bones, skullandbones, snb, Skull and Bones, SNB, Ubisoft, pirate game, naval combat game, open world, MMORPG, Indian Ocean, late 17th century, Golden Age of Piracy, Sainte-Anne, Fallen Woods, African Coast, Red Isle, East Indies, Open Seas, Infamy System, Infamy Rank, Pirate Captain, Pirate King, privateer, bounty missions, bounty targets, Helm, Pieces of Eight, Silver, shipwright, carpenter, blacksmith, tailor shop, ship building, ship modification, ship types, firepower ship, tank ship, support ship, ramming ship, weapon systems, cannons, long guns, demi-cannons, culverins, culverin, armor, furnishings, furniture, repair kits, spyglass, hunting spear, pickaxe, saw, sickle, crowbar, resource gathering, acacia wood, boarding combat, harpoon, boarding, weak points, red光圈, sail control, stamina system, downwind sailing, upwind sailing, wind tactics, sailing techniques, maritime survival, crew management, weight system, cargo hold, warehouse, mailbox, fast travel, outposts, settlements, John Scurlock, Sea Peoples, Clan of Fara, smuggling, trade routes, trading, contraband, treasure maps, buried treasure, treasure clues, glowing beacons, shipwreck salvage, floating debris, shark hunting, fishing, wildlife, multiplayer co-op, three-player team, PvP mode, 5v5 combat, contested waters, distress beacon, call for reinforcements, social menu, cross-platform play, cross-platform progression, season updates, endgame content, world events, Sea Lord, Bloody Skulls & Bones Collector's Pack, Smuggler Pass, Grey Corsair mission, Legacy of the Bloody Skull, Ubisoft Connect, Epic Games Store, Steam, PS5, Xbox Series X, PC specifications, graphics settings, DLSS, FSR, XeSS, beginner's guide, getting started tips, fast leveling, money making methods, Pieces of Eight farming, ship recommendations, weapon loadouts, equipment blueprints, material locations, resource distribution, outpost coordinates, bounty mission guides, Helm missions, factory collection, treasure map locations, treasure sites, boss strategies, boarding techniques, naval combat tactics, team coordination, solo player guide, control settings, key bindings, interface guide, mission walkthroughs, achievement unlocks, trophy guide, DLC content, patch notes, update notes, bug fixes, game reviews, player community, discussion groups, voice chat, friend teaming"
-    }
+    "title": "Home"
   },
   "empireSkillSimulation": {
     "searchPlaceholder": "Search Skill",
