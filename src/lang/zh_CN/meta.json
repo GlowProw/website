@@ -5,9 +5,17 @@
     }
   },
   "codex": {
+    "meta": {
+      "keywords": "手稿,wiki,维基,维基大全,说明书,{keywords}"
+    },
     "item": {
       "meta": {
         "keywords": "物品详情,船物品,{keywords}"
+      }
+    },
+    "items": {
+      "meta": {
+        "keywords": "物品列表,物品,{keywords}"
       }
     },
     "commoditie": {
@@ -15,9 +23,89 @@
         "keywords": "杂货,商品,{keywords}"
       }
     },
+    "commodities": {
+      "meta": {
+        "keywords": "杂货列表,商品,{keywords}"
+      }
+    },
     "ship": {
       "meta": {
         "keywords": "船详详情,船,{keywords}"
+      }
+    },
+    "ships": {
+      "meta": {
+        "keywords": "船详列表,船,{keywords}"
+      }
+    },
+    "modification": {
+      "meta": {
+        "keywords": "模组,词条,{keywords}"
+      }
+    },
+    "modifications": {
+      "meta": {
+        "keywords": "模组列表,词条,{keywords}"
+      }
+    },
+    "npc": {
+      "meta": {
+        "keywords": "NPC,非玩家,任务,{keywords}"
+      }
+    },
+    "npcs": {
+      "meta": {
+        "keywords": "NPC列表,非玩家,任务,{keywords}"
+      }
+    },
+    "set": {
+      "meta": {
+        "keywords": "集合,装扮,装饰,船,玩家,身体,皮肤,{keywords}"
+      }
+    },
+    "sets": {
+      "meta": {
+        "keywords": "集合列表,装扮,装饰,船,玩家,身体,皮肤,{keywords}"
+      }
+    },
+    "ultimate": {
+      "meta": {
+        "keywords": "船,终极,技能,PVP,对战,{keywords}"
+      }
+    },
+    "ultimates": {
+      "meta": {
+        "keywords": "船,终极列表,技能,PVP,对战,{keywords}"
+      }
+    },
+    "material": {
+      "meta": {
+        "keywords": "材料,升级材料,船只,{keywords}"
+      }
+    },
+    "materials": {
+      "meta": {
+        "keywords": "材料列表,升级材料,船只,{keywords}"
+      }
+    },
+    "mapLocation": {
+      "meta": {
+        "keywords": "地点,地图,位置,地区,视图,可视化,{keywords}"
+      }
+    },
+    "mapLocations": {
+      "meta": {
+        "keywords": "地点列表,地图,位置,地区,视图,可视化,{keywords}"
+      }
+    },
+    "treasureMap": {
+      "meta": {
+        "keywords": "藏宝图,常见,不常见,老旧,古旧,匪首,图库,材料,武器,杂货,地图,{keywords}"
+      }
+    },
+    "treasureMaps": {
+      "meta": {
+        "keywords": "藏宝图列表,常见,不常见,老旧,古旧,匪首,图库,材料,武器,杂货,地图,{keywords}"
       }
     }
   },
@@ -44,6 +132,11 @@
   "signup": {
     "meta": {
       "keywords": "账户注册,{keywords}"
+    }
+  },
+  "search": {
+    "meta": {
+      "keywords": "检索,搜索,物品搜索,查找,查询,咨询,信息,详情,数据,{keywords}"
     }
   },
   "home": {

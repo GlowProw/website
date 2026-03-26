@@ -2,8 +2,8 @@
 
 import {useI18n} from "vue-i18n";
 import {onMounted, Ref, ref, watch} from "vue";
-import {Cosmetic, Cosmetics} from "glow-prow-data";
-import {useRoute, useRouter} from "vue-router";
+import {Cosmetics} from "glow-prow-data";
+import {useRoute} from "vue-router";
 import {useAuthStore} from "~/stores/userAccountStore";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import CommentWidget from "@/components/CommentWidget.vue";
@@ -17,17 +17,26 @@ import TimeView from "@/components/TimeView.vue";
 import ByObtainableWidget from "@/components/ByObtainableWidget.vue";
 import {storage} from "@/assets/sripts/index";
 import SetIconWidget from "@/components/snbWidget/setIconWidget.vue";
-import {useDisplay} from "vuetify/framework";
 import CosmeticPiecesTagWidget from "@/components/snbWidget/cosmeticPiecesTagWidget.vue";
 import CosmeticEffectTagWidget from "@/components/snbWidget/cosmeticEffectTagWidget.vue";
 import ByWorldEventWidget from "@/components/ByWorldEventWidget.vue";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
-const {t} = useI18n(),
-    router = useRouter(),
+const {t, messages} = useI18n(),
     route = useRoute(),
-    {mobile} = useDisplay(),
     authStore = useAuthStore(),
-    cosmetics: any = Cosmetics
+    i18nReadName = useI18nReadName(),
+    cosmetics: any = Cosmetics,
+
+    // meta
+    head = ref({
+      title: t(route.meta.title as string),
+      titleTemplate: `%s | ${t('name')}`,
+      meta: [
+        {name: 'keywords', content: t(route.meta.keywords as string)},
+        {name: 'og:title', content: `%s | ${t('name')}`},
+      ]
+    })
 
 let cosmeticDetailData: Ref<any> = ref({})
 
@@ -43,6 +52,18 @@ onMounted(() => {
 
   if (id)
     cosmeticDetailData.value = cosmetics[id as string]
+
+  head.value.titleTemplate = `${i18nReadName.cosmetic(id as string).name()} - ${head.value.titleTemplate}`
+  head.value.meta = [
+    {
+      name: 'keywords', content: t(route.meta.keywords as string, {
+        keywords: Object.keys(messages.value).map(lang => {
+          return i18nReadName.cosmetic(id as string).keys.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
+        }).concat([id as string]) + `,${t('home.meta.keywords')}`
+      })
+    },
+    {name: 'og:title', content: `${t(route.meta.title as string)} | ${t('name')}`},
+  ]
 
   onCodexHistory()
 })
@@ -72,7 +93,7 @@ const onCodexHistory = () => {
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
       <v-breadcrumbs-item to="/codex">{{ t('codex.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item to="/codex/cosmetics">{{ t('codex.cosmetics.title') }}</v-breadcrumbs-item>
+      <v-breadcrumbs-item to="/codex/commoditys">{{ t('codex.cosmetics.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
       <v-breadcrumbs-item>{{ t('codex.cosmetic.title') }}</v-breadcrumbs-item>
     </v-container>

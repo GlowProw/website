@@ -86,13 +86,13 @@ const onReady = () => {
 
   setDetailData.value = sets[id as string];
 
-  head.value.titleTemplate = `${i18nReadName.item(id as string).name()} - ${head.value.titleTemplate}`
+  head.value.titleTemplate = `${i18nReadName.set(id as string).name()} - ${head.value.titleTemplate}`
   head.value.meta = [
     {
       name: 'keywords', content: t(route.meta.keywords as string, {
         keywords: Object.keys(messages.value).map(lang => {
-          return i18nReadName.item(id as string).keys.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
-        }).concat([id as string])
+          return i18nReadName.set(id as string).keys.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
+        }).concat([id as string]) + `,${t('home.meta.keywords')}`
       })
     },
     {name: 'og:title', content: `${t(route.meta.title as string)} | ${t('name')}`},
@@ -234,10 +234,10 @@ const onCodexHistory = () => {
                 {{ t(bluePrint) }}
               </v-chip>
               <template v-else>
-                  <v-chip class="badge-flavor text-center tag-badge text-black" v-for="(i, index) in bluePrint" :key="index">
-                    {{ i }}
-                  </v-chip>
-                </template>
+                <v-chip class="badge-flavor text-center tag-badge text-black" v-for="(i, index) in bluePrint" :key="index">
+                  {{ i }}
+                </v-chip>
+              </template>
             </div>
             <template v-if="setDetailData.worldEvent">
               <ByWorldEventWidget :data="setDetailData"></ByWorldEventWidget>

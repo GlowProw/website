@@ -103,7 +103,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
           ref="targetElement"
           width="100%"
           v-bind="activatorProps"
-          :to="isOpenDetail ? `/codex/commoditie/${i.id}` : ''"
+          :to="isOpenDetail ? `/codex/commodity/${i.id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
           :class="[
               'prohibit-drag',

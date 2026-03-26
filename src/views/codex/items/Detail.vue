@@ -53,16 +53,6 @@ const
 let itemDetailData: Ref<any> = ref(null),
     isCollect = ref(false),
 
-    DPS = computed(() => {
-      const {damagePerShot, rateOfFire, reloadSpeed} = itemDetailData.value || {};
-      return Math.round(Number(damagePerShot || 0) / ((Number(rateOfFire || 0) * 0.001) + (Number(reloadSpeed || 0) * 0.001)))
-    }),
-    DPSWithPerks = computed(() => {
-      const {damageMitigation} = itemDetailData.value || {};
-      return DPS.value / damageMitigation?.piercing || 0
-    }),
-    DamagePerShotWithPerks = computed(() => 0),
-
     getCollectStatus = computed(() => {
       if (!itemDetailData.value && !itemDetailData.value.id) return false;
       isCollect.value = !isCollect.value;
@@ -78,10 +68,6 @@ let itemDetailData: Ref<any> = ref(null),
           lv: number.intToRoman(r.removedNumbers[0] as unknown as number)
         }
       })
-    }),
-    rateFire = computed(() => 1),
-    dpsWithPerksArmed = computed(() => {
-      return itemDetailData.value?.damagePerShot + 1;
     }),
 
     rarityColorConfig = rarity.color,
@@ -127,7 +113,7 @@ const onReady = () => {
       name: 'keywords', content: t(route.meta.keywords as string, {
         keywords: Object.keys(messages.value).map(lang => {
           return i18nReadName.item(id as string).keys.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
-        }).concat([id as string])
+        }).concat([id as string]) + `,${t('home.meta.keywords')}`
       })
     },
     {name: 'og:title', content: `${t(route.meta.title as string)} | ${t('name')}`},

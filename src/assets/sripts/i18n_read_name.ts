@@ -1,14 +1,20 @@
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 
-import {Items, Ships} from "glow-prow-data";
+import {Items, MapLocations, Materials, Modifications, Npcs, Sets, Ships, TreasureMap, TreasureMaps} from "glow-prow-data";
 import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
 import {number} from "@/assets/sripts/index";
 import {Commodities} from "glow-prow-data/src/entity/Commodities";
 
 const items = Items,
+    materials = Materials,
     commodities = Commodities,
     ships = Ships,
-    ultimates = Ultimates
+    npcs = Npcs,
+    modifications = Modifications,
+    mapLocations = MapLocations,
+    treasureMaps = TreasureMaps,
+    ultimates = Ultimates,
+    sets = Sets
 
 export function useI18nReadName() {
     const {asString, sanitizeString} = useI18nUtils()
@@ -40,6 +46,50 @@ export function useI18nReadName() {
         };
     }
 
+    const modification = (id: string) => {
+        let keys = [
+            `snb.modifications.${id}.name`,
+            `snb.modifications.${sanitizeString(id).cleaned}.name`,
+        ];
+
+        return {
+            keys,
+            name: (lang?: string) => {
+                if (modifications[id]) {
+                    const translatedName = asString(keys, {
+                        backRawKey: true,
+                        lang
+                    })
+                    const tier = number.intToRoman(commodities[id].tier) || '';
+                    return `${translatedName} ${tier}`.trim()
+                }
+                return id;
+            }
+        };
+    }
+
+    const cosmetic = (id: string) => {
+        let keys = [
+            `snb.cosmetics.${id}.name`,
+            `snb.cosmetics.${sanitizeString(id).cleaned}.name`,
+        ];
+
+        return {
+            keys,
+            name: (lang?: string) => {
+                if (commodities[id]) {
+                    const translatedName = asString(keys, {
+                        backRawKey: true,
+                        lang
+                    })
+                    const tier = number.intToRoman(commodities[id].tier) || '';
+                    return `${translatedName} ${tier}`.trim()
+                }
+                return id;
+            }
+        };
+    }
+
     const commoditie = (id: string) => {
         let keys = [
             `snb.commodities.${id}.name`,
@@ -62,6 +112,24 @@ export function useI18nReadName() {
         };
     }
 
+    const material = (id: string) => {
+        const keys = [
+            `snb.materials.${id}.name`,
+        ];
+
+        return {
+            keys,
+            name: (lang?: string) => {
+                if (materials[id])
+                    return asString(keys, {
+                        backRawKey: true,
+                        lang
+                    })
+                return id
+            }
+        }
+    }
+
     const ship = (id: string) => {
         const keys = [
             `snb.ships.${id}.name`,
@@ -80,15 +148,15 @@ export function useI18nReadName() {
         }
     }
 
-    const treasureMap = (id: string | number) => {
+    const npc = (id: string) => {
         const keys = [
-            `snb.treasureMaps.${id}.name`,
+            `snb.npcs.${id}.name`,
         ];
 
         return {
             keys,
             name: (lang?: string) => {
-                if (ships[id])
+                if (npcs[id])
                     return asString(keys, {
                         backRawKey: true,
                         lang
@@ -98,23 +166,90 @@ export function useI18nReadName() {
         }
     }
 
-    const ultimate = {
-        name: (id: string) => {
-            if (ultimates[id])
-                return asString([
-                    `snb.ultimates.${id}.name`,
-                ], {
-                    backRawKey: true
-                })
-            return id
+    const mapLocation = (id: string) => {
+        const keys = [
+            `snb.mapLocations.${id}.name`,
+        ];
+
+        return {
+            keys,
+            name: (lang?: string) => {
+                if (mapLocations[id])
+                    return asString(keys, {
+                        backRawKey: true,
+                        lang
+                    })
+                return id
+            }
+        }
+    }
+
+    const treasureMap = (id: string | number) => {
+        const keys = [
+            `snb.treasureMaps.${id}.name`,
+        ];
+
+        return {
+            keys,
+            name: (lang?: string) => {
+                if (treasureMaps[id])
+                    return asString(keys, {
+                        backRawKey: true,
+                        lang
+                    })
+                return id
+            }
+        }
+    }
+
+    const ultimate = (id: string | number) => {
+        const keys = [
+            `snb.ultimates.${id}.name`,
+        ];
+
+        return {
+            keys,
+            name: (lang?: string) => {
+                if (ultimates[id])
+                    return asString(keys, {
+                        backRawKey: true,
+                        lang
+                    })
+                return id
+            }
+        }
+    }
+
+    const set = (id: string | number) => {
+        const keys = [
+            `snb.sets.${id}`,
+            `snb.sets.${id}.name`,
+        ];
+
+        return {
+            keys,
+            name: (lang?: string) => {
+                if (sets[id])
+                    return asString(keys, {
+                        backRawKey: true,
+                        lang
+                    })
+                return id
+            }
         }
     }
 
     return {
         ship,
+        npc,
+        set,
+        material,
         item,
+        cosmetic,
+        modification,
         commoditie,
         ultimate,
+        mapLocation,
         treasureMap,
         getValue
     }

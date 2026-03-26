@@ -7,7 +7,6 @@ import {useRoute, useRouter} from "vue-router";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import {storage} from "@/assets/sripts";
 import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
-import {Ultimate} from "glow-prow-data/src/entity/Ultimates";
 import CommentWidget from "@/components/CommentWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
 import {useAuthStore} from "~/stores/userAccountStore";
@@ -17,7 +16,7 @@ import UltimateName from "@/components/snbWidget/ultimateName.vue";
 import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
 
 const
-    {t} = useI18n(),
+    {t, messages} = useI18n(),
     i18nReadName = useI18nReadName(),
     router = useRouter(),
     route = useRoute(),
@@ -52,7 +51,17 @@ onMounted(() => {
 
   ultimateDetailPageData.value.loading = true;
 
-  head.value.titleTemplate = `${i18nReadName.ultimate.name(id)} - ${head.value.titleTemplate}`
+  head.value.titleTemplate = `${i18nReadName.ultimate(id as string).name()} - ${head.value.titleTemplate}`
+  head.value.meta = [
+    {
+      name: 'keywords', content: t(route.meta.keywords as string, {
+        keywords: Object.keys(messages.value).map(lang => {
+          return i18nReadName.ultimate(id as string).keys.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
+        }).concat([id as string]) + `,${t('home.meta.keywords')}`
+      })
+    },
+    {name: 'og:title', content: `${t(route.meta.title as string)} | ${t('name')}`},
+  ]
 
   onUltimateHistory(id)
   onCodexHistory(id)

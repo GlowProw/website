@@ -2,8 +2,8 @@
 
 import {useI18n} from "vue-i18n";
 import {onMounted, Ref, ref, watch} from "vue";
-import {Materials, Modification} from "glow-prow-data";
-import {useRoute, useRouter} from "vue-router";
+import {Materials} from "glow-prow-data";
+import {useRoute} from "vue-router";
 import {useAuthStore} from "~/stores/userAccountStore";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import CommentWidget from "@/components/CommentWidget.vue";
@@ -22,15 +22,29 @@ import ByEventWidget from "@/components/ByEventWidget.vue";
 import Time from "@/components/Time.vue";
 import ByObtainableWidget from "@/components/ByObtainableWidget.vue";
 import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
+import {useHead} from "@unhead/vue";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
-const {t} = useI18n(),
-    router = useRouter(),
+const {t, messages} = useI18n(),
     route = useRoute(),
+    i18nReadName = useI18nReadName(),
     authStore = useAuthStore(),
     materials = Materials,
     rarityColorConfig = rarity.color
 
-let materialDetailData: Ref<any> = ref({})
+let materialDetailData: Ref<any> = ref({}),
+
+    // meta
+    head = ref({
+      title: t(route.meta.title as string),
+      titleTemplate: `%s | ${t('name')}`,
+      meta: [
+        {name: 'keywords', content: t(route.meta.keywords as string)},
+        {name: 'og:title', content: `%s | ${t('name')}`},
+      ]
+    })
+
+useHead(head)
 
 watch(() => route, (value) => {
   if (value) {
@@ -44,6 +58,18 @@ onMounted(() => {
 
   if (id)
     materialDetailData.value = materials[id as string]
+
+  head.value.titleTemplate = `${i18nReadName.material(id as string).name()} - ${head.value.titleTemplate}`
+  head.value.meta = [
+    {
+      name: 'keywords', content: t(route.meta.keywords as string, {
+        keywords: Object.keys(messages.value).map(lang => {
+          return i18nReadName.material(id as string).keys.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
+        }).concat([id as string]) + `,${t('home.meta.keywords')}`
+      })
+    },
+    {name: 'og:title', content: `${t(route.meta.title as string)} | ${t('name')}`},
+  ]
 
   onCodexHistory()
 })

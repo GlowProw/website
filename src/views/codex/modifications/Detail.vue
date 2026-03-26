@@ -2,8 +2,8 @@
 
 import {useI18n} from "vue-i18n";
 import {onMounted, Ref, ref} from "vue";
-import {Modification, Modifications} from "glow-prow-data";
-import {useRoute, useRouter} from "vue-router";
+import {Modifications} from "glow-prow-data";
+import {useRoute} from "vue-router";
 import {useAuthStore} from "~/stores/userAccountStore";
 
 import ModName from "@/components/snbWidget/modName.vue";
@@ -17,20 +17,46 @@ import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
 import ModDescription from "@/components/snbWidget/modDescription.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
 import {storage} from "@/assets/sripts/index";
+import {useHead} from "@unhead/vue";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
-const {t} = useI18n(),
-    router = useRouter(),
+const {t, messages} = useI18n(),
     route = useRoute(),
+    i18nReadName = useI18nReadName(),
     authStore = useAuthStore(),
     mods = Modifications
 
-let modDetailData: Ref<any> = ref({})
+let modDetailData: Ref<any> = ref({}),
+
+    // meta
+    head = ref({
+      title: t(route.meta.title as string),
+      titleTemplate: `%s | ${t('name')}`,
+      meta: [
+        {name: 'keywords', content: t(route.meta.keywords as string)},
+        {name: 'og:title', content: `%s | ${t('name')}`},
+      ]
+    })
+
+useHead(head)
 
 onMounted(() => {
   const {id} = route.params
 
   if (id)
     modDetailData.value = mods[id as string]
+
+  head.value.titleTemplate = `${i18nReadName.modification(id as string).name()} - ${head.value.titleTemplate}`
+  head.value.meta = [
+    {
+      name: 'keywords', content: t(route.meta.keywords as string, {
+        keywords: Object.keys(messages.value).map(lang => {
+          return i18nReadName.modification(id as string).keys.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
+        }).concat([id as string]) + `,${t('home.meta.keywords')}`
+      })
+    },
+    {name: 'og:title', content: `${t(route.meta.title as string)} | ${t('name')}`},
+  ]
 
   onCodexHistory()
 })
@@ -46,7 +72,7 @@ const onCodexHistory = () => {
     ...d?.data?.value || {},
     [id as string]: {
       id,
-      category: 'mod',
+      category: 'modification',
       time: new Date().getTime()
     }
   })

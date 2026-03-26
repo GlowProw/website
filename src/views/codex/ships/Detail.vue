@@ -90,7 +90,7 @@ onMounted(() => {
       name: 'keywords', content: t(route.meta.keywords as string, {
         keywords: Object.keys(messages.value).map(lang => {
           return i18nReadName.ship(id as string).keys.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
-        }).concat([id as string])
+        }).concat([id as string]) + `,${t('home.meta.keywords')}`
       })
     },
     {name: 'og:title', content: `${t(route.meta.title as string)} | ${t('name')}`},

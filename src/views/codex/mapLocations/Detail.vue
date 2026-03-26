@@ -22,12 +22,27 @@ import BluePrintWidget from "@/components/BluePrintWidget.vue";
 import ByEventWidget from "@/components/ByEventWidget.vue";
 import ByObtainableWidget from "@/components/ByObtainableWidget.vue";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
+import {useHead} from "@unhead/vue";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
-const {t} = useI18n(),
+const {t, messages} = useI18n(),
     router = useRouter(),
     route = useRoute(),
     authStore = useAuthStore(),
-    mapLocations = MapLocations
+    mapLocations = MapLocations,
+    i18nReadName = useI18nReadName(),
+
+    // meta
+    head = ref({
+      title: t(route.meta.title as string),
+      titleTemplate: `%s | ${t('name')}`,
+      meta: [
+        {name: 'keywords', content: t(route.meta.keywords as string)},
+        {name: 'og:title', content: `%s | ${t('name')}`},
+      ]
+    })
+
+useHead(head)
 
 let mapLocationDetailData: Ref<any> = ref({})
 
@@ -36,6 +51,18 @@ onMounted(() => {
 
   if (id)
     mapLocationDetailData.value = mapLocations[id as string]
+
+  head.value.titleTemplate = `${i18nReadName.mapLocation(id as string).name()} - ${head.value.titleTemplate}`
+  head.value.meta = [
+    {
+      name: 'keywords', content: t(route.meta.keywords as string, {
+        keywords: Object.keys(messages.value).map(lang => {
+          return i18nReadName.mapLocation(id as string).keys.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
+        }).concat([id as string]) + `,${t('home.meta.keywords')}`
+      })
+    },
+    {name: 'og:title', content: `${t(route.meta.title as string)} | ${t('name')}`},
+  ]
 
   onCodexHistory()
 })

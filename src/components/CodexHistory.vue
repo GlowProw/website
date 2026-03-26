@@ -72,7 +72,7 @@ const onCleaningHistory = () => {
           <MapLocationIconWidget :id="i.id" v-if="i.category == 'mapLocation'"></MapLocationIconWidget>
           <TreasureMapIconWidget :id="i.id" v-if="i.category == 'treasureMap'"></TreasureMapIconWidget>
           <CosmeticIconWidget :id="i.id" v-if="i.category == 'cosmetic'"></CosmeticIconWidget>
-          <ModIconWidget :id="i.id" v-if="i.category == 'mod'"></ModIconWidget>
+          <ModIconWidget :id="i.id" v-if="i.category == 'modification'"></ModIconWidget>
           <NpcIconWidget :id="i.id" v-if="i.category == 'npc'"></NpcIconWidget>
         </ItemSlotBase>
       </v-col>

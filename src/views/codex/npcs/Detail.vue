@@ -38,8 +38,7 @@ const
     i18nReadName = useI18nReadName(),
 
     // 数据
-    npcs: any = Npcs,
-    materials: any = Materials
+    npcs: any = Npcs
 
 let npcDetailData: Ref<any> = ref(null),
 
@@ -80,13 +79,13 @@ const onReady = () => {
 
   npcDetailData.value = npcs[id as string];
 
-  head.value.titleTemplate = `${i18nReadName.item(id as string).name()} - ${head.value.titleTemplate}`
+  head.value.titleTemplate = `${i18nReadName.npc(id as string).name()} - ${head.value.titleTemplate}`
   head.value.meta = [
     {
       name: 'keywords', content: t(route.meta.keywords as string, {
         keywords: Object.keys(messages.value).map(lang => {
-          return i18nReadName.item(id as string).keys.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
-        }).concat([id as string])
+          return i18nReadName.npc(id as string).keys.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
+        }).concat([id as string]) + `,${t('home.meta.keywords')}`
       })
     },
     {name: 'og:title', content: `${t(route.meta.title as string)} | ${t('name')}`},

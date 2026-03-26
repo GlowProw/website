@@ -22,7 +22,6 @@ import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
 import {Commodities} from "glow-prow-data/src/entity/Commodities";
 import CommoditieIconWidget from "@/components/snbWidget/commoditieIconWidget.vue";
 import CommoditieName from "@/components/snbWidget/commoditieName.vue";
-import {Commodity} from "glow-prow-data";
 import CommoditieDescription from "@/components/snbWidget/commoditieDescription.vue";
 
 const
@@ -37,7 +36,6 @@ const
     commodities: any = Commodities
 
 let commoditieDetailData: Ref<any> = ref(null),
-    isCollect = ref(false),
 
     bluePrint = computed(() => {
       let bluePrints = commoditieDetailData.value?.blueprint;
@@ -94,7 +92,7 @@ const onReady = () => {
       name: 'keywords', content: t(route.meta.keywords as string, {
         keywords: Object.keys(messages.value).map(lang => {
           return i18nReadName.item(id as string).keys.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
-        }).concat([id as string])
+        }).concat([id as string]) + `,${t('home.meta.keywords')}`
       })
     },
     {name: 'og:title', content: `${t(route.meta.title as string)} | ${t('name')}`},

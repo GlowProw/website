@@ -24,17 +24,32 @@ import CosmeticIconWidget from "@/components/snbWidget/cosmeticIconWidget.vue";
 import ItemName from "@/components/snbWidget/itemName.vue";
 import CosmeticName from "@/components/snbWidget/cosmeticName.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
+import {useHead} from "@unhead/vue";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
-const {t, tm, te} = useI18n(),
+const {t, tm, te, messages} = useI18n(),
     router = useRouter(),
     route = useRoute(),
+    i18nReadName = useI18nReadName(),
     authStore = useAuthStore(),
-    maps = TreasureMaps
+    maps = TreasureMaps,
+
+    // meta
+    head = ref({
+      title: t(route.meta.title as string),
+      titleTemplate: `%s | ${t('name')}`,
+      meta: [
+        {name: 'keywords', content: t(route.meta.keywords as string)},
+        {name: 'og:title', content: `%s | ${t('name')}`},
+      ]
+    })
 
 let mapDetailData: Ref<any> = ref({}),
     rarityColorConfig = rarity.color,
     isTreasureMapDescription = computed(() => te(`snb.treasureMaps.${mapDetailData.value.id}.description`)),
     isTreasureMapTypeDescription = computed(() => te(`codex.treasureMap.descriptions.${mapDetailData.value.category}`))
+
+useHead(head)
 
 watch(() => route.params, (value) => {
   if (value)
@@ -43,7 +58,22 @@ watch(() => route.params, (value) => {
 
 
 onMounted(() => {
+  const {id} = route.params;
+
   getData()
+
+  head.value.titleTemplate = `${i18nReadName.treasureMap(id as string).name()} - ${head.value.titleTemplate}`
+  head.value.meta = [
+    {
+      name: 'keywords', content: t(route.meta.keywords as string, {
+        keywords: Object.keys(messages.value).map(lang => {
+          return i18nReadName.treasureMap(id as string).keys.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
+        }).concat([id as string]) + `,${t('home.meta.keywords')}`
+      })
+    },
+    {name: 'og:title', content: `${t(route.meta.title as string)} | ${t('name')}`},
+  ]
+
   onCodexHistory()
 })
 

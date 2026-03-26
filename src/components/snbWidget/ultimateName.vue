@@ -12,7 +12,7 @@ const props = defineProps<{id: string}>(),
 </script>
 
 <template>
-  {{ i18nReadName.ultimate.name(props.id) }}
+  {{ i18nReadName.ultimate(props.id).name() }}
 </template>
 
 <style scoped lang="less">

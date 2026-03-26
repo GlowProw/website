@@ -6,19 +6,42 @@ import {useAssetsStore} from "~/stores/assetsStore";
 
 import AppCodexNav from "@/assets/sripts/app_codex_nav";
 import CodexHistory from "@/components/CodexHistory.vue";
+import {useRoute} from "vue-router";
+import {useHead} from "@unhead/vue";
 
 const codexImages = import.meta.glob('@/assets/images/snb/codexIcons/*', {eager: true})
 
 const
     {t} = useI18n(),
+    route = useRoute(),
     {mobile} = useDisplay(),
     {serializationMap} = useAssetsStore(),
     appCodexNav = new AppCodexNav()
 
-let codexIcons = ref({})
+let codexIcons = ref({}),
+
+    // meta
+    head = ref({
+      title: t(route.meta.title as string),
+      titleTemplate: `%s | ${t('name')}`,
+      meta: [
+        {name: 'keywords', content: t(route.meta.keywords as string)},
+        {name: 'og:title', content: `%s | ${t('name')}`},
+      ]
+    })
+
+useHead(head)
 
 onMounted(() => {
   codexIcons.value = serializationMap(codexImages)
+
+  head.value.titleTemplate = `${t('codex.title')} - ${head.value.titleTemplate}`
+  head.value.meta = [
+    {
+      name: 'keywords', content: t(route.meta.keywords as string + ',' + t('home.meta.keywords'))
+    },
+    {name: 'og:title', content: `${t(route.meta.title as string)} | ${t('name')}`},
+  ]
 })
 
 </script>

@@ -334,16 +334,16 @@ const routes: Readonly<RouteRecordRaw[]> = [
         name: 'Codex',
         component: CodexPage,
         beforeEnter: initItemAssets,
-        meta: {
-            title: 'codex.title',
-            keywords: 'codex.keywords'
-        },
         redirect: '/codex',
         children: [
             {
                 path: '',
                 name: 'codexOverview',
                 component: CodexOverviewPage,
+                meta: {
+                    title: 'codex.meta.title',
+                    keywords: 'codex.meta.keywords'
+                },
             },
             {
                 path: 'ships',
@@ -512,8 +512,8 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: 'mapLocations',
                 name: 'MapLocations',
                 meta: {
-                    title: 'codex.treasureMaps.title',
-                    keywords: 'codex.treasureMaps.meta.keywords'
+                    title: 'codex.mapLocations.title',
+                    keywords: 'codex.mapLocations.meta.keywords'
                 },
                 component: MapLocationPage,
             },
@@ -521,8 +521,8 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: 'mapLocation/:id',
                 name: 'MapLocationDetail',
                 meta: {
-                    title: 'codex.treasureMaps.title',
-                    keywords: 'codex.treasureMaps.meta.keywords'
+                    title: 'codex.mapLocation.title',
+                    keywords: 'codex.mapLocation.meta.keywords'
                 },
                 component: MapLocationsDetailPage,
             },
