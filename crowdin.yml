@@ -1,6 +1,6 @@
 base_path: .
 files:
-  - source: /src/lang/zh_CN.json
+  - source: /src/lang/en_US.json
     translation: /src/lang/%locale%.json
     languages_mapping:
       locale:
