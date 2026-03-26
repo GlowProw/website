@@ -2,6 +2,7 @@ base_path: .
 files:
   - source: /src/lang/en_US.json
     translation: /src/lang/%locale%.json
+    type: i18n_json
     languages_mapping:
       locale:
         zh_CN: zh_CN
