@@ -56,6 +56,28 @@ export const messageCompiler = (message: any) => {
     };
 };
 
+const isObject = (item: any) => {
+    return (item && typeof item === 'object' && !Array.isArray(item));
+}
+
+const deepMerge = (target: any, ...sources: any[]): any => {
+    if (!sources.length) return target;
+    const source = sources.shift();
+
+    if (isObject(target) && isObject(source)) {
+        for (const key in source) {
+            if (isObject(source[key])) {
+                if (!target[key]) Object.assign(target, { [key]: {} });
+                deepMerge(target[key], source[key]);
+            } else {
+                Object.assign(target, { [key]: source[key] });
+            }
+        }
+    }
+
+    return deepMerge(target, ...sources);
+}
+
 const i18n = createI18n({
     legacy: false,
     messageCompiler,
@@ -64,9 +86,9 @@ const i18n = createI18n({
     missingWarn: false,
     fallbackWarn: false,
     messages: {
-        'zh-CN': Object.assign(zh_CN_local, zh_CN_meta, {'snb': zh_CN_snb}),
-        'zh-TW': Object.assign(zh_TW_local, zh_TW_meta, {'snb': zh_TW_snb}),
-        'en-US': Object.assign(en_US_local, en_US_meta, {'snb': en_US_snb}),
+        'zh-CN': deepMerge({}, zh_CN_local, zh_CN_meta, { 'snb': zh_CN_snb }),
+        'zh-TW': deepMerge({}, zh_TW_local, zh_TW_meta, { 'snb': zh_TW_snb }),
+        'en-US': deepMerge({}, en_US_local, en_US_meta, { 'snb': en_US_snb }),
     },
     globalInjection: false,
 })
