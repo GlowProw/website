@@ -94,6 +94,9 @@ import NotFoundPage from '@/views/NotFound.vue';
 
 import Test from '@/views/Test.vue'
 
+import WidgetIndexPage from '@/widgets/Index.vue';
+import WidgetAssemblyPage from '@/widgets/assembly/Index.vue';
+
 import {useAuthStore} from "@/../stores/userAccountStore";
 import {useAssetsStore} from "@/../stores/assetsStore";
 import {useHead} from "@unhead/vue";
@@ -647,7 +650,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
     },
     {
         path: '/empire-skill-simulation',
-        name: 'empireSkillSimulation',
+        name: 'EmpireSkillSimulation',
         component: EmpireSkillSimulationPage,
         meta: {
             title: 'header.functions.empire-skill-simulation.title',
@@ -658,7 +661,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
 
     {
         path: '/map',
-        name: 'map',
+        name: 'Map',
         redirect: '/map/view',
         component: MapsPage,
         beforeEnter: initItemAssets,
@@ -672,7 +675,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
     },
     {
         path: '/apps',
-        name: 'apps',
+        name: 'Apps',
         redirect: '/apps/view',
         component: AppsPage,
         children: [
@@ -695,8 +698,22 @@ const routes: Readonly<RouteRecordRaw[]> = [
     },
 
     {
+        path: '/widgets',
+        name: 'Widgets',
+        component: WidgetIndexPage,
+        beforeEnter: initItemAssets,
+        children: [
+            {
+                path: 'assembly/:uid',
+                name: 'AssemblyWidget',
+                component: WidgetAssemblyPage,
+            }
+        ]
+    },
+
+    {
         path: '/test',
-        name: 'test',
+        name: 'Test',
         component: Test,
         beforeEnter: initItemAssets
     },

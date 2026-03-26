@@ -8,14 +8,8 @@ import {useDisplay} from "vuetify/framework";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {useGoTo} from "vuetify";
-import QRCode from "qrcode"
-
-import AssemblyWidget from "@/components/AssemblyWidget.vue";
-import Loading from "@/components/Loading.vue";
-import Textarea from "@/components/textarea/index.vue"
+import AssemblyPoster from "@/components/AssemblyPoster.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
-import Logo from "@/components/Logo.vue";
-import AssemblySvgIcon from "@/components/AssemblySvgIcon.vue";
 import Silk from "@/components/Silk.vue";
 import {ApiError} from "@/assets/types/Api";
 import AdsWidget from "@/components/ads/google/index.vue";
@@ -51,9 +45,7 @@ let assemblyDetailData: Ref<any> = ref({}),
       backgrounds: ['#1a1a1a', '#000', 'rgb(35,26,0)']
     }),
     captureRef = ref(null),
-    qrCanvasRef = ref(null),
     assemblyLoading = ref(false),
-    assemblyDetailRef = ref(null),
     generatedLoading = ref(false),
     posterSwitch = ref(true),
     path = ref(""),
@@ -91,10 +83,26 @@ onMounted(() => {
       defaultValue: generateImageValue.value
     })
 
-  if (route.query)
-    generateImageValue.value = Object.assign(generateImageValue.value, {...route.query})
+  if (route.query) {
+    const query = {...route.query} as any;
+    const booleanKeys = ['isShowEmptySlot', 'isShowItemName', 'isFullName', 'isShowHeader', 'isShowTitle', 'isShowTabs', 'isShowDescription'];
+    const numberKeys = ['width', 'quality'];
 
-  onGenerateQRCode(path.value)
+    booleanKeys.forEach(key => {
+      if (query[key] !== undefined) {
+        query[key] = query[key] === 'true';
+      }
+    });
+
+    numberKeys.forEach(key => {
+      if (query[key] !== undefined) {
+        query[key] = Number(query[key]);
+      }
+    });
+
+    generateImageValue.value = Object.assign(generateImageValue.value, query);
+  }
+
   getAssemblyDetail()
 })
 
@@ -132,14 +140,10 @@ const getAssemblyDetail = async () => {
  */
 const loadAssemblyData = async () => {
   await nextTick(() => {
-    if (assemblyDetailRef.value)
-      assemblyDetailRef.value
-          .setSetting({
-            isShowItemName: generateImageValue.value.isShowItemName,
-            isFullName: generateImageValue.value.isFullName,
-            assemblyUseVersion: assemblyDetailData.value.assembly?.attr?.assemblyUseVersion
-          })
-          .onLoad(assemblyDetailData.value.data || assemblyDetailData.value.assembly?.data)
+    if (captureRef.value) {
+      // @ts-ignore
+      captureRef.value.loadAssemblyData();
+    }
   })
 }
 
@@ -152,7 +156,7 @@ const onGeneratedShare = async () => {
 
     await goto('#share-footer')
 
-    let node = captureRef.value?.$el || captureRef.value;
+    let node = captureRef.value?.posterEl;
 
     await goto(0, {duration: 2000})
 
@@ -169,7 +173,7 @@ const onGeneratedShare = async () => {
         return true;
       },
       // useProxy: 'https://proxy.corsfix.com/?',
-      // cacheBust: false
+      cacheBust: false
     } as any)
 
     await d.download({quality: generateImageValue.value.quality, format: generateImageValue.value.format, filename: `${generateImageValue.value.filename}.${generateImageValue.value.format}`} as any)
@@ -187,25 +191,6 @@ const onGeneratedShare = async () => {
  */
 const onBackDetail = () => {
   router.push({name: 'AssemblyDetail'})
-}
-
-/**
- * 生成二维码
- * @param text
- */
-const onGenerateQRCode = async (text) => {
-  try {
-    await QRCode.toCanvas(qrCanvasRef.value, text, {
-      width: 100,
-      margin: 2,
-      color: {
-        dark: '#000000',
-        light: '#ffffff'
-      }
-    })
-  } catch (err) {
-    console.error(err)
-  }
 }
 </script>
 
@@ -242,70 +227,14 @@ const onGenerateQRCode = async (text) => {
   <v-container class="my-5 position-relative overflow-auto">
     <AdsWidget class="my-5" id="none"></AdsWidget>
 
-    <v-card id="capture" min-height="300" variant="text" ref="captureRef" class="share mx-auto pt-5" :style="`background: ${generateImageValue.background};width:${generateImageValue.width}px`">
-      <v-row no-gutters class="px-5" align="center" v-if="generateImageValue.isShowHeader">
-        <v-col cols="auto">
-          <Logo></Logo>
-        </v-col>
-        <v-col class="d-flex">
-          {{ t('name') }}
-          <v-divider vertical inset class="mx-3" thickness="2" opacity=".3"></v-divider>
-          {{ webPath }}
-        </v-col>
-        <v-col cols="auto" class="opacity-30">
-          {{ assemblyDetailData?.uuid || '' }}
-        </v-col>
-      </v-row>
-
-      <v-row class="px-10" :class="{'pt-5': !generateImageValue.isShowHeader}" v-if="assemblyDetailData.name && generateImageValue.isShowTitle">
-        <b class="text-amber text-h4 w-100">{{ assemblyDetailData.name }}</b>
-      </v-row>
-
-      <!-- Assembly Preview S -->
-      <v-card variant="text" v-if="assemblyDetailData.isVisibility">
-        <AssemblyWidget ref="assemblyDetailRef" :readonly="true" :is-show-empty="generateImageValue.isShowEmptySlot" :perfect-display="true" :is-full-name="true">
-          <template v-slot:image v-if="assemblyDetailData.assembly?.attr?.backgroundPresentation">
-            <v-img cover class="pointer-events-none" :src="assemblyDetailData.assembly.attr?.backgroundPresentation"></v-img>
-          </template>
-        </AssemblyWidget>
-      </v-card>
-      <!-- Assembly Preview E -->
-
-      <div class="px-10 mx-10">
-        <div class="ga-2 mb-6 mt-4" v-if="assemblyDetailData.tags && generateImageValue.isShowTabs">
-          <v-chip class="mr-2 mb-2 pt-1 pb-1 pl-5 pr-5" v-for="(i, index) in assemblyDetailData.tags" :key="index">
-            {{
-              asString([
-                `${i}`,
-                `assembly.tags.teamFormationMethods.${i.split('_')[1]}`,
-                `assembly.tags.modes.${i.split('_')[0]}`,
-                `codex.ships.archetypes.${i.split('_')[1]}.name`,
-                `snb.seasons.${i.split('_')[1]}`,
-              ], {backRawKey: true})
-            }}
-          </v-chip>
-        </div>
-
-        <Textarea class="mt-5" v-if="assemblyDetailData.description && generateImageValue.isShowDescription"
-                  :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
-                  readonly v-model="assemblyDetailData.description"></Textarea>
-
-        <v-row class="opacity-80 mt-5 pb-5" v-show="!assemblyLoading">
-          <v-col>
-            <AssemblySvgIcon name="link"></AssemblySvgIcon>
-            {{ path }}
-          </v-col>
-          <v-spacer></v-spacer>
-          <v-col cols="auto">
-            <canvas ref="qrCanvasRef" class="rounded-sm"></canvas>
-          </v-col>
-        </v-row>
-      </div>
-
-      <v-overlay v-model="assemblyLoading" contained opacity="1" class="d-flex justify-center align-center">
-        <Loading size="120"></Loading>
-      </v-overlay>
-    </v-card>
+    <AssemblyPoster
+      ref="captureRef"
+      :assembly-detail-data="assemblyDetailData"
+      :generate-image-value="generateImageValue"
+      :path="path"
+      :web-path="webPath"
+      :assembly-loading="assemblyLoading"
+    />
   </v-container>
 
   <div class="position-fixed bottom-0 w-100 bg-black" style="z-index: 120">
