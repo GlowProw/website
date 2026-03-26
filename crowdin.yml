@@ -1,4 +1,9 @@
+base_path: .
 files:
-  - source: /src/lang/en_US.json
-    translation: /src/lang/%locale_with_underscore%.json
-    multilingual: 1
+  - source: /src/lang/zh_CN.json
+    translation: /src/lang/%locale%.json
+    languages_mapping:
+      locale:
+        zh_CN: zh_CN
+        zh_TW: zh_TW
+        en_US: en_US

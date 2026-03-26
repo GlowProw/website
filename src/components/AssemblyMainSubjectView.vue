@@ -170,26 +170,8 @@ defineOptions({ name: 'AssemblyMainSubjectView' })
 
     <v-divider opacity=".08"></v-divider>
 
-    <ZoomableCanvas
-        ref="zoomableAreaRef"
-        :disabled="assemblyViewModel != 'lock-window'"
-        :style="isWorkshopFillScreen ? 'height: calc(100vh - 50px)' : `height: ${mobile ? '300ox' : workshopHeight}`"
-        :min-scale="mobile ? .1 : .8"
-        :max-scale="1.4"
-        :default-scale="mobile ? .4 : 1"
-        :is-show-tool="tab == 'assembly'"
-        :boundary="mobile ? {
-                left: -100,
-                right: 100,
-                top: -100,
-                bottom: 100
-              } : {
-                left: -1500,
-                right: 1500,
-                top: -500,
-                bottom: 500
-              }">
-      <div class="mb-5 ml-n10 mr-n10" ref="viewRootRef">
+    <v-container ref="zoomableAreaRef">
+      <div class="mb-5" ref="viewRootRef">
         <div v-show="tab === 'assembly'">
           <AssemblyWidget ref="assemblyWorkshopRef"
                           @update:item-change="onUpdateEvent"
@@ -212,7 +194,7 @@ defineOptions({ name: 'AssemblyMainSubjectView' })
                                :readonly="readonly"></WarehouseShowWidget>
         </div>
       </div>
-    </ZoomableCanvas>
+    </v-container>
   </v-card>
 
   <div v-if="isShowFooterTool"

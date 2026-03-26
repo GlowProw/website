@@ -9,12 +9,14 @@ import ServiceProviderWidget from "@/components/ServiceProviderWidget.vue";
 import {appFuns, appNavs} from "@/assets/sripts/index";
 import Logo from "@/components/Logo.vue";
 import HtmlLink from "@/components/HtmlLink.vue";
+import {useAppStore} from "~/stores/appStore";
 
-const {t} = useI18n()
+const {t} = useI18n(),
+    appStore = useAppStore()
 </script>
 
 <template>
-  <div class="footer">
+  <div class="footer" v-if="!appStore.isPwa">
     <v-skeleton-loader type="image" height="2px" :color="`var(--main-color)`" class="opacity-10 overflow-hidden"></v-skeleton-loader>
     <v-container class="pt-0">
       <footer class="mt-10 mb-10">
