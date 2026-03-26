@@ -1,909 +1,891 @@
 {
-  "name": "Glow Prow",
+  "name": "闪耀船首",
   "about": {
-    "title": "About",
+    "title": "关于",
     "minor": "",
     "description": ""
   },
   "pwa": {
-    "offlineReady": "App ready to work offline",
-    "newContentAvailable": "New content available",
-    "refreshToUpdate": "Click on refresh button to update."
+    "offlineReady": "应用已准备好离线工作",
+    "newContentAvailable": "有新内容可用",
+    "refreshToUpdate": "点击刷新按钮以更新。"
   },
   "basic": {
     "button": {
-      "cancel": "Cancel",
-      "commit": "Commit",
-      "insert": "Insert",
-      "next": "Next",
-      "prev": "Previous",
-      "change": "Change",
-      "reply": "Reply",
-      "report": "Report",
-      "reset": "Reset",
-      "save": "Save",
-      "submit": "Submit",
-      "search": "Search",
-      "go": "Go",
-      "edit": "Edit",
-      "delete": "Delete"
+      "cancel": "取消",
+      "commit": "提交",
+      "insert": "插入",
+      "next": "下一步",
+      "prev": "上一步",
+      "change": "改变",
+      "reply": "回复",
+      "report": "举报",
+      "reset": "重置",
+      "save": "保存",
+      "submit": "确认",
+      "search": "搜索",
+      "go": "前往",
+      "edit": "编辑",
+      "delete": "删除"
     },
     "privilege": {
-      "admin": "Community Admin",
-      "blacklisted": "Blacklisted",
-      "bot": "Bot",
-      "dev": "Development Team",
-      "normal": "User",
-      "root": "System",
-      "super": "Super Admin"
+      "admin": "社区管理",
+      "blacklisted": "黑名单",
+      "bot": "机器人",
+      "dev": "开发组",
+      "normal": "用户",
+      "root": "系统",
+      "super": "超级管理员"
     },
     "tips": {
-      "error": "Application Error: {content}",
+      "error": "应用程序错误: {content}",
       "comment": {
-        "ok": "Published Successfully",
-        "bad": "Publish format error, please check if the content meets the requirements",
-        "notFound": "The target of the reply does not have such a comment",
-        "notFoundOrNotOwner": "Corresponding comment or user not found",
-        "error": "Comment Error: {context}",
+        "ok": "发布成功",
+        "bad": "发布格式错误，请检查内容是否符合要求",
+        "notFound": "回复的目标没有这样评论",
+        "notFoundOrNotOwner": "没有对应评论或用户",
+        "error": "评论错误: {context}",
         "delete": {
-          "ok": "Deleted Successfully",
-          "bad": "Bad request format, please check the network tool interface"
+          "ok": "删除成功",
+          "bad": "错误请求格式，请检查网络工具接口"
         }
       },
       "assembly": {
         "list": {
-          "ok": "List retrieved successfully",
-          "error": "List Error: {context}",
-          "bad": "Bad request format, please check the network tool interface"
+          "ok": "获取列表成功",
+          "error": "列表错误: {context}",
+          "bad": "错误请求格式，请检查网络工具接口"
         },
         "editAttr": {
-          "ok": "Assembly attributes set successfully",
-          "invalidPassword": "Invalid password format",
-          "passwordTooShort": "Password too short",
-          "error": "Error: {context}",
-          "bad": "Bad request format, please check the network tool interface"
+          "ok": "设置配装属性成功",
+          "invalidPassword": "错误的密码格式",
+          "passwordTooShort": "密码太短",
+          "error": "错误: {context}",
+          "bad": "错误请求格式，请检查网络工具接口"
         },
         "getAttr": {
-          "ok": "Attributes retrieved successfully",
-          "notFound": "Assembly attribute not found or not owner",
-          "error": "Error: {context}",
-          "bad": "Bad request format, please check the network tool interface"
+          "ok": "获取属性成功",
+          "notFound": "配装属性不存在或非所有者",
+          "error": "错误: {context}",
+          "bad": "错误请求格式，请检查网络工具接口"
         },
         "edit": {
-          "ok": "Assembly updated",
-          "notFound": "Corresponding assembly not found or not owner",
-          "invalidPassword": "Invalid password",
-          "passwordTooShort": "Password too short",
-          "error": "Error: {context}",
-          "bad": "Bad request format, please check the network tool interface"
+          "ok": "配装更新",
+          "notFound": "没找到对应配装或非所有者",
+          "invalidPassword": "错误密码",
+          "passwordTooShort": "密码太短",
+          "error": "错误: {context}",
+          "bad": "错误请求格式，请检查网络工具接口"
         },
         "delete": {
-          "ok": "Deleted successfully",
-          "notFound": "Corresponding assembly not found or not owner",
-          "forbidden": "Operation forbidden, illegal deletion",
-          "error": "Error: {context}",
-          "bad": "Bad request format, please check the network tool interface"
+          "ok": "删除成功",
+          "notFound": "没找到对应配装或非所有者",
+          "forbidden": "不允许操作，非法删除",
+          "error": "错误: {context}",
+          "bad": "错误请求格式，请检查网络工具接口"
         },
         "detail": {
-          "bad": "Bad request format, please check the network tool interface",
-          "notDisclosed": "Not disclosed",
-          "noPermission": "No access permission, please check if a password is required or if you need partner status",
-          "error": "Error: {context}",
-          "ok": "Access successful"
+          "bad": "错误请求格式，请检查网络工具接口",
+          "notDisclosed": "不公开",
+          "noPermission": "无权访问，请检查是否需要密码或是合伙人身份",
+          "error": "错误: {context}",
+          "ok": "访问成功"
         }
       },
       "publish": {
-        "ok": "Published successfully",
-        "bad": "Publish format error, please check if filled out as required"
+        "ok": "发布成功",
+        "bad": "发布格式错误，请检查是否按照要求填写"
       },
       "captcha": {
-        "bad": "Captcha error",
-        "expired": "Captcha expired",
-        "wrong": "Incorrect captcha entered"
+        "bad": "验证码错误",
+        "expired": "验证码过期",
+        "wrong": "输入的验证码错误"
       },
       "signin": {
-        "ok": "Login successful",
-        "bad": "Login error: Please check login information format",
-        "wrong": "Incorrect login information",
-        "expired": "User identity expired, please log in again",
-        "accountIncorrect": "Incorrect login information"
+        "ok": "登陆成功",
+        "bad": "登陆错误: 请检查登陆信息格式",
+        "wrong": "登陆信息错误",
+        "expired": "用户身份过期,请重新登陆",
+        "accountIncorrect": "登陆信息错误"
       },
       "signup": {
-        "ok": "Registration successful",
-        "userAlreadyHas": "Account name already exists",
-        "error": "Registration error: {context}",
-        "bad": "Registration error: Please check the format requirements for registration information"
+        "ok": "注册成功",
+        "userAlreadyHas": "注册帐号的名称已存在",
+        "error": "注册错误: {context}",
+        "bad": "注册错误: 请检查注册信息的格式要求"
       },
       "like": {
-        "ok": "Like processed successfully",
-        "error": "Like error: {context}",
-        "bad": "Like error: {context}"
+        "ok": "赞处理成功",
+        "error": "点赞错误: {context}",
+        "bad": "点赞错误: {context}"
       },
       "user": {
-        "invalid": "Invalid user",
-        "tokenExpired": "User identity expired, please log in again"
+        "invalid": "错误用户",
+        "tokenExpired": "用户身份过期,请重新登陆"
       },
       "request": {
-        "rateLimited": "Request too fast, please slow down"
+        "rateLimited": "请求太快力，慢点"
       },
       "teamUp": {
         "account": {
-          "rateLimit": "Posting too fast, please try again in {remainingTime} minutes"
+          "rateLimit": "发布过快，请{remainingTime}分钟后再试"
         },
         "anonymous": {
-          "rateLimit": "Anonymous posting too fast, please try again in {remainingTime} hours"
+          "rateLimit": "匿名发布过快，请{remainingTime}小时稍后再试"
         },
-        "pushSuccess": "Published successfully",
-        "newTeamUp": "Captain, there's a new team-up",
-        "authFailed": "Token is invalid or expired, please log in again",
-        "error": "Communication error: {context}"
+        "pushSuccess": "发布成功",
+        "newTeamUp": "船长，有新组队",
+        "authFailed": "Token 无效或已过期, 重新登陆",
+        "error": "通信错误: {context}"
       }
     },
     "rules": {
       "username": {
-        "notEmpty": "Username ID must be filled in",
-        "blacklistRestriction": "{content} is an illegal name, please try another",
-        "limitationLength": "Username length must be between {min} and {max}",
-        "incorrectFormat": "Username ID format is incorrect"
+        "notEmpty": "必须填写用户名ID",
+        "blacklistRestriction": "{content}非法名称，请尝试使用其他",
+        "limitationLength": "用户名称长度需要{min}到{max}",
+        "incorrectFormat": "用户名ID格式不正确"
       },
       "alternativeName": {
-        "limitationLength": "Alias length must be between {min} and {max}",
-        "incorrectFormat": "Alias format is incorrect"
+        "limitationLength": "别名长度需要{min}到{max}",
+        "incorrectFormat": "别名格式不正确"
       },
       "email": {
-        "incorrectFormat": "Email format is incorrect"
+        "incorrectFormat": "邮箱格式不正确"
       },
       "password": {
-        "notEmpty": "Password must be filled in",
-        "limitationLength": "Password length must be between {min} and {max}"
+        "notEmpty": "必须填写密码",
+        "limitationLength": "密码长度需要{min}到{max}"
       },
       "captcha": {
-        "notEmpty": "Captcha must be filled in",
-        "limitationLength": "Captcha length is {max}"
+        "notEmpty": "必须填写验证码",
+        "limitationLength": "验证码长度为{max}"
       }
     }
   },
   "comment": {
-    "title": "Comment",
-    "edit": "Edit",
-    "save": "Save",
-    "publishSuccess": "Comment published successfully",
-    "loginRequired": "Please log in to publish a comment",
-    "noComments": "No comments yet",
-    "beFirst": "Be the first to comment",
-    "me": "Me",
-    "deleteConfirmation": "Delete comment?",
-    "deleteWarning": "This operation is irreversible."
+    "title": "评论",
+    "edit": "编辑",
+    "save": "保存",
+    "publishSuccess": "评论发布成功",
+    "loginRequired": "请登陆发布评论",
+    "noComments": "暂无评论",
+    "beFirst": "成为第一个评论的人",
+    "me": "我",
+    "deleteConfirmation": "删除评论？",
+    "deleteWarning": "此操作不可逆。"
   },
   "portal": {
-    "title": "Portal",
-    "seasonTimer": "Season {seasonName} remaining {day} days",
-    "appVersionLog": "Updates",
-    "appVersionContext": "You can report issues directly through the <u><a href=\"https://kook.vip/2s0eQP\" target=\"_blank\">Kook Community</a></u> link reserved in the website footer to help fix problems",
-    "blogLog": "Blog"
+    "title": "首页",
+    "seasonTimer": "本赛季 {seasonName} 剩余{day}天",
+    "appVersionLog": "更新",
+    "appVersionContext": "可以直接通过网站页脚预留<u><a href=\"https://kook.vip/2s0eQP\" target=\"_blank\">Kook 社区</a></u>中提出问题，以帮助修复问题",
+    "blogLog": "博客"
   },
   "account": {
-    "title": "Account",
+    "title": "账户",
     "information": {
-      "title": "Personal Information",
+      "title": "个人信息",
       "form": {
         "uuid": {
-          "name": "Account Unique Identifier",
-          "description": "This is a unique identifier, assigned by the system"
+          "name": "账户唯一标识",
+          "description": "这是唯一标识，由系统分配"
         },
         "username": {
-          "name": "Account Login ID"
+          "name": "账户登陆id"
         },
         "alternativeName": {
-          "name": "Alias",
-          "description": "Display account alias name",
-          "placeholder": "Enter new username",
-          "changeName": "Change Alias",
-          "changeNameDescription": "Set a new name to display your unique name"
+          "name": "别名",
+          "description": "显示账户别名名称",
+          "placeholder": "输入新用户名称",
+          "changeName": "修改别名",
+          "changeNameDescription": "设置新的名称，展示你独特名字"
         },
         "email": {
-          "name": "Email",
-          "placeholder": "Account Email"
+          "name": "邮箱",
+          "placeholder": "账户邮箱"
         },
         "language": {
-          "name": "Language",
-          "description": "Set account preferred language",
-          "placeholder": "Select preferred language"
+          "name": "语种",
+          "description": "设置账户偏向语种",
+          "placeholder": "选择偏向语种"
         },
         "introduction": {
-          "name": "Description",
-          "description": "Self-description, it will be temporarily displayed externally",
-          "placeholder": "Introduce yourself :D"
+          "name": "描述",
+          "description": "自我的描述，它会暂时在外部",
+          "placeholder": "自我介绍一下:D"
         },
         "password": {
-          "name": "Password",
-          "changePasswordName": "Change Account Password",
-          "changePasswordDescription": "This operation will log you out upon success and require you to log in again",
+          "name": "密码",
+          "changePasswordName": "修改账户密码",
+          "changePasswordDescription": "此操作会在成功后推出登陆，需要重新登陆账号",
           "oldPassword": "",
-          "oldPasswordPlaceholder": "Enter old password",
+          "oldPasswordPlaceholder": "输入旧的密码",
           "newPassword": "",
-          "newPasswordPlaceholder": "Enter new password"
+          "newPasswordPlaceholder": "输入新的密码"
         }
       }
     }
   },
   "codex": {
-    "title": "Codex",
-    "description": "Ahoy, Captain, wanna check out my treasures?",
-    "cabinetHistoryTitle": "Browsing History",
-    "more": "More",
-    "sidebar": "Sidebar",
+    "title": "手稿",
+    "description": "嗨，船长, 要看看我的宝贝嘛",
+    "cabinetHistoryTitle": "游览历史",
+    "more": "更多",
+    "sidebar": "侧边栏",
     "filter": {
-      "byType": "Filter by Type",
-      "byRarity": "Filter by Rarity",
-      "byCategory": "Filter by Category",
-      "byTier": "Filter by Tier",
-      "bySeason": "Filter by Season",
-      "bySet": "Filter by Set",
-      "byLocation": "Filter by Location",
-      "sortBy": "Sort by",
-      "dateAdded": "Date Added",
-      "lastUpdated": "Last Updated",
-      "descending": "Descending",
-      "ascending": "Ascending"
+      "byType": "类型筛选",
+      "byRarity": "品质筛选",
+      "byCategory": "类别筛选",
+      "byTier": "等级筛选",
+      "bySeason": "赛季筛选",
+      "bySet": "集合筛选",
+      "byLocation": "地点筛选",
+      "sortBy": "排序",
+      "dateAdded": "添加时间",
+      "lastUpdated": "更新时间",
+      "descending": "正序",
+      "ascending": "反序"
     },
     "size": {
-      "extraSmall": "Extra Small",
-      "small": "Small",
-      "medium": "Medium",
-      "large": "Large"
+      "extraSmall": "超小型",
+      "small": "小型",
+      "medium": "中等",
+      "large": "大型"
     },
     "raritys": {
-      "none": "Unknown",
-      "common": "Common",
-      "uncommon": "Uncommon",
-      "rare": "Rare",
-      "epic": "Epic",
-      "legendary": "Legendary"
+      "none": "未知",
+      "common": "常见",
+      "uncommon": "不常见",
+      "rare": "少见",
+      "epic": "史诗",
+      "legendary": "传奇"
     },
     "types": {
-      "none": "No Type",
-      "ships": "Ships",
-      "consumable": "Consumable",
-      "ammunition": "Ammunition",
-      "armor": "Armor",
-      "tool": "Tool",
-      "chest": "Chest",
+      "none": "无类型",
+      "ships": "船只",
+      "consumable": "消耗品",
+      "ammunition": "弹药",
+      "armor": "护甲",
+      "tool": "工具",
+      "chest": "宝箱",
       "culverin": "长炮",
       "longGun": "长管炮",
-      "demicannon": "Demi-cannon",
+      "demicannon": "半加农炮",
       "bombard": "射石炮",
       "torpedo": "鱼雷",
       "ballista": "弩炮",
-      "seaFire": "海洋之火",
+      "seaFire": "海火",
       "mortar": "迫击炮",
       "rocket": "火箭",
-      "springloader": "Springloader",
-      "offensiveFurniture": "Offensive Furniture",
-      "utilityFurniture": "Utility Furniture",
-      "majorFurniture": "Major Furniture",
-      "shipUpgrade": "Ship Upgrade",
-      "quest": "Quest",
-      "contract": "Contract",
-      "sailsEmblem": "Sails Emblem",
-      "hull": "Hull",
-      "sailsColor": "Sails Color",
-      "crowsNest": "Crow's Nest",
-      "trophy": "Trophy",
-      "wheel": "Wheel",
-      "sailsPattern": "Sails Pattern",
-      "helmDecor": "Helm Decor",
-      "ornaments": "Ornaments",
-      "figureHead": "Figurehead",
-      "nameplate": "Nameplate",
-      "pet": "Pet",
-      "crewLook": "Crew Look",
-      "headwear": "Headwear",
-      "torso": "Torso",
-      "neck": "Neck",
-      "waist": "Waist",
-      "bottom": "Bottom",
-      "faceAccessory": "Face Accessory",
-      "footwear": "Footwear",
-      "forearm": "Forearm",
-      "firework": "Firework",
-      "emote": "Emote",
-      "bodyCosmetics": "Body Cosmetics",
-      "hand": "Hand",
-      "hair": "Hair",
-      "facialHair": "Facial Hair",
-      "eyeColor": "Eye Color",
-      "aura": "Aura",
-      "shipSkin": "Ship Skin",
-      "armorSkin": "Armor Skin",
-      "culverinWeaponSkin": "Culverin Weapon Skin",
-      "demicannonWeaponSkin": "Demi-cannon Weapon Skin",
-      "longGunWeaponSkin": "Long Gun Weapon Skin",
-      "ballistaWeaponSkin": "Ballista Weapon Skin",
-      "torpedoWeaponSkin": "Torpedo Weapon Skin",
-      "combatSkill": "Combat Skill",
-      "legendaryEntity": "Legendary Entity",
-      "powerWeapon": "Power Weapon",
-      "treasure": "Treasure Map"
+      "springloader": "浮漂发射器",
+      "offensiveFurniture": "攻击陈设",
+      "utilityFurniture": "功能陈设",
+      "majorFurniture": "主要陈设",
+      "shipUpgrade": "升级部件",
+      "quest": "任务",
+      "contract": "合同",
+      "sailsEmblem": "船帆徽章",
+      "hull": "船体",
+      "sailsColor": "船帆颜色",
+      "crowsNest": "瞭望台",
+      "trophy": "战利品",
+      "wheel": "舵轮",
+      "sailsPattern": "船帆图案",
+      "helmDecor": "舵轮装饰",
+      "ornaments": "装饰物",
+      "figureHead": "船首像",
+      "nameplate": "名牌",
+      "pet": "宠物",
+      "crewLook": "船员外观",
+      "headwear": "头部装备",
+      "torso": "上身装备",
+      "neck": "颈部装备",
+      "waist": "腰部装备",
+      "bottom": "下身装备",
+      "faceAccessory": "面部配饰",
+      "footwear": "足部装备",
+      "forearm": "前臂装备",
+      "firework": "烟花",
+      "emote": "表情",
+      "bodyCosmetics": "身体装饰",
+      "hand": "手部",
+      "hair": "发型",
+      "facialHair": "胡须",
+      "eyeColor": "眼睛颜色",
+      "aura": "光环",
+      "shipSkin": "船皮",
+      "armorSkin": "护甲皮肤",
+      "culverinWeaponSkin": "长管炮武器皮肤",
+      "demicannonWeaponSkin": "半长炮武器皮肤",
+      "longGunWeaponSkin": "长枪武器皮肤",
+      "ballistaWeaponSkin": "弩炮武器皮肤",
+      "torpedoWeaponSkin": "鱼雷武器皮肤",
+      "combatSkill": "combat Skill",
+      "legendaryEntity": "legendary Entity",
+      "powerWeapon": "power Weapon",
+      "treasure": "藏宝图"
     },
-    "tier": "Tier {num}",
+    "tier": "{num}级",
     "category": {
-      "title": "Category"
+      "title": "分类"
     },
     "categorys": {
-      "none": "No Category",
-      "localFaction": "Local Faction Commodities",
-      "megacorp": "Megacorp Commodities",
-      "kingpin": "Kingpin Commodities",
-      "theHelm": "The Helm Commodities",
-      "summoningBell": "Summoning",
-      "unique": "Unique",
-      "event": "Event",
-      "refined": "Refined",
-      "specialized": "Specialized",
-      "currency": "Currency",
-      "helm": "海舵会",
-      "scrap": "Scrap",
-      "raw": "Raw",
-      "exotic": "Exotic"
+      "none": "无类别",
+      "localFaction": "当地阵营杂货",
+      "megacorp": "超巨公司杂货",
+      "kingpin": "头目杂货",
+      "theHelm": "海舵社杂货",
+      "summoningBell": "召唤",
+      "unique": "独特的",
+      "event": "事件",
+      "refined": "精炼",
+      "specialized": "特殊",
+      "currency": "货币",
+      "helm": "掌舵",
+      "scrap": "废弃材料",
+      "raw": "原材料",
+      "exotic": "奇异"
     },
     "navs": {
       "shipsAndCaptainTools": {
-        "name": "Ships and Captain Tools"
+        "name": "船只与船长工具"
       },
       "ships": {
-        "name": "Ships"
+        "name": "船只"
       },
       "captainTools": {
-        "name": "Captain Tools"
+        "name": "船长工具"
       },
       "weapons": {
-        "name": "Weapons"
+        "name": "武器"
       },
       "allDeckWeapons": {
-        "name": "All Deck Weapons"
+        "name": "全甲板武器"
       },
       "topDeckWeapons": {
-        "name": "Top Deck Weapons"
+        "name": "顶层甲板武器"
       },
       "bowWeapons": {
-        "name": "Bow Weapons"
+        "name": "船首武器"
       },
       "auxiliaryWeapons": {
-        "name": "Auxiliary Weapons"
+        "name": "辅助武器"
       },
       "armor": {
-        "name": "Armor"
+        "name": "装甲"
       },
       "hullArmor": {
-        "name": "Hull Armor"
+        "name": "船体装甲"
       },
       "furnTure": {
-        "name": "Furniture"
+        "name": "家具"
       },
       "majorFurniture": {
-        "name": "Major Furniture"
+        "name": "主要家具"
       },
       "offensiveFurnTure": {
-        "name": "Offensive Furniture"
+        "name": "进攻型家具"
       },
       "utilityFurnTure": {
-        "name": "Utility Furniture"
+        "name": "实用家具"
       },
       "materials": {
-        "name": "Materials"
+        "name": "材料"
       },
       "rawMaterials": {
-        "name": "Raw Materials"
+        "name": "原材料"
       },
       "refinedMaterials": {
-        "name": "Refined Materials"
+        "name": "精炼材料"
       },
       "specializedMaterials": {
-        "name": "Specialized Materials"
+        "name": "专业材料"
       },
       "exoticMaterials": {
-        "name": "Exotic Materials"
+        "name": "异域材料"
       },
       "helmMaterials": {
-        "name": "The Helm Materials"
+        "name": "舵轮材料"
       },
       "scrapMaterials": {
-        "name": "Scrap Materials"
+        "name": "废料材料"
       },
       "provisions": {
-        "name": "Provisions"
+        "name": "补给品"
       },
       "shipSupplies": {
-        "name": "Ship Supplies"
+        "name": "船舶补给"
       },
       "crewProvision": {
-        "name": "Crew Provision"
+        "name": "船员给养"
       },
       "commodities": {
-        "name": "Commodities"
+        "name": "商品"
       },
       "localFactionCommodities": {
-        "name": "Local Faction Commodities"
+        "name": "本地派系商品"
       },
       "megaCorpCommodities": {
-        "name": "Mega Corp Commodities"
+        "name": "大型企业商品"
       },
       "kingpinCommodities": {
-        "name": "Kingpin Commodities"
+        "name": "龙头商品"
       },
       "theHelmItems": {
-        "name": "The Helm Items"
+        "name": "舵轮物品"
       }
     },
     "share": {
-      "title": "Share",
-      "description": "Share your {name}"
+      "title": "分享",
+      "description": "分享你的{name}"
     },
     "items": {
-      "title": "Item List",
-      "description": "Item List"
+      "title": "物品列表",
+      "description": "物品列表"
     },
     "ships": {
-      "title": "Ship List",
-      "searchCountOverflowTip": "Exceeded maximum search display of {maximumSearchCount}, {exceedingItemsCount} items were truncated. Please enter more precise keywords.",
+      "title": "船只列表",
+      "searchCountOverflowTip": "超出搜索显示最大{maximumSearchCount}，剩余{exceedingItemsCount}已节流,可以再精准填写关键词",
       "archetypes": {
         "dps": {
-          "name": "Damage Ship",
-          "description": "Damage Ships are suitable for offensive players, excelling at dealing damage and status effects."
+          "name": "火力舰",
+          "description": "火力舰适合喜欢进攻的玩家，擅长造成伤害与状态效果。"
         },
         "tank": {
-          "name": "Tank Ship",
-          "description": "Tank Ships are more robust, specializing in defending against incoming cannon fire."
+          "name": "重装舰",
+          "description": "重装舰更加的坚固，擅于防御来袭的炮火。"
         },
         "support": {
-          "name": "Support Ship",
-          "description": "Support Ships excel at assisting friendly vessels, often helping to turn the tide of battle."
+          "name": "支援舰",
+          "description": "支援舰擅长支援友方船只，往往能够帮助扭转战局。"
         }
       }
     },
     "item": {
-      "title": "Item Details",
-      "meta": {
-        "keywords": "Item details, ship item, {keywords}"
-      },
-      "weight": "Weight",
-      "projectilesPerShot": "Projectiles Per Shot",
-      "rateOfFire": "Rate of Fire (sec)",
+      "title": "物品详情",
+      "weight": "重量",
+      "projectilesPerShot": "单次发射弹丸数量",
+      "rateOfFire": "开火间隔 (秒)",
       "DPS": "DPS (Damage per Second)",
       "DPSWithPerks": "DPS with Perks",
-      "damagePerShot": "Damage Per Shot",
-      "DamagePerShotWithPerks": "Damage Mitigation",
-      "reloadSpeed": "Reload Speed (sec)",
-      "optimalRange": "Range (m)",
-      "projectileSpeed": "Projectile Speed (m/s)",
-      "shipUpgradeUseTitle": "Available Ships",
-      "shipUpgradesTitle": "Available Upgrades",
-      "contentsTitle": "Loot Contents",
-      "materialsTitle": "Materials",
-      "faction": "Faction",
-      "required": "Items Required for Crafting",
-      "rawMaterials": "Raw Materials Required",
-      "modifications": "Modifications Installable",
+      "damagePerShot": "单发损伤",
+      "DamagePerShotWithPerks": "damage Mitigation",
+      "reloadSpeed": "重新加载速度（秒）",
+      "optimalRange": "范围（米）",
+      "projectileSpeed": "射弹速度（米/秒）",
+      "shipUpgradeUseTitle": "可用船只",
+      "shipUpgradesTitle": "可用升级",
+      "contentsTitle": "掉落内容",
+      "materialsTitle": "材料",
+      "faction": "阵营",
+      "required": "物品建造所需物品",
+      "rawMaterials": "所需物品原材料",
+      "modifications": "可安装模组",
       "bySeason": {
-        "prepend": "From",
-        "append": "Season"
+        "prepend": "出自",
+        "append": "赛季"
       },
-      "obtainable": "How to Obtain",
-      "worldEvent": "World Event",
-      "bluePrint": "Blueprint",
-      "requiredRank": "Minimum Required Rank",
-      "gearScore": "Gear Score",
-      "rarity": "Rarity",
-      "dateAdded": "Date Added",
-      "lastUpdated": "Last Updated",
-      "damageType": "Weapon Property",
-      "perks": "Perks",
-      "tier": "Tier",
-      "damageMitigation": "Damage Mitigation",
-      "lookDetail": "View Item Details (Hold)"
+      "obtainable": "线索",
+      "worldEvent": "世界事件",
+      "bluePrint": "蓝图",
+      "requiredRank": "最低使用等级",
+      "gearScore": "分数",
+      "rarity": "稀有度",
+      "dateAdded": "添加日期",
+      "lastUpdated": "更新日期",
+      "damageType": "武器属性",
+      "perks": "词条",
+      "tier": "等级",
+      "damageMitigation": "护甲和损害减免",
+      "lookDetail": "查看物品详情(按住)"
     },
     "commoditie": {
-      "title": "Commodity Details",
-      "meta": {
-        "keywords": "Commodity, goods, {keywords}"
-      },
-      "lookDetail": "View Commodity Details (Hold)"
+      "title": "杂货详情",
+      "lookDetail": "查看杂货详情(按住)"
     },
     "commodities": {
-      "title": "Commodity List"
+      "title": "杂货列表"
     },
     "ship": {
-      "title": "Ship Details",
-      "meta": {
-        "keywords": "Ship details, ship, {keywords}"
-      },
-      "archetype": "Archetype",
-      "stamina": "Stamina",
-      "frontWeapon": "Front Weapon",
-      "leftSideWeapon": "Left Side Weapon",
-      "rightSideWeapon": "Right Side Weapon",
-      "aftWeapon": "Aft Weapon",
-      "auxiliaryWeapon": "Auxiliary Weapon",
-      "topDeck": "Top Deck",
-      "lowerDeck": "Lower Deck",
-      "furniture": "Furniture",
-      "ultimate": "Ultimate Skill",
-      "hitPoints": "Hit Points",
-      "braceStrength": "Brace Strength",
+      "title": "船详详情",
+      "archetype": "承担类型",
+      "stamina": "船员体力",
+      "frontWeapon": "前方武器",
+      "leftSideWeapon": "左侧武器",
+      "rightSideWeapon": "右侧武器",
+      "aftWeapon": "后方武器",
+      "auxiliaryWeapon": "辅助武器",
+      "topDeck": "顶层甲板",
+      "lowerDeck": "下层甲板",
+      "furniture": "陈设",
+      "ultimate": "终极技能",
+      "hitPoints": "船身生命值",
+      "braceStrength": "增强力量",
       "sailSpeed": {
-        "title": "Speed",
-        "knot": "(knots/kts)",
-        "halfSail": "Minimum",
-        "fullSail": "Full Speed",
-        "travelSail": "Travel Speed",
+        "title": "速度",
+        "knot": "(节/kts)",
+        "halfSail": "最低",
+        "fullSail": "全速",
+        "travelSail": "极限",
         "unit": {
-          "knot": "knots"
+          "knot": "节"
         },
         "boost": {
-          "title": "Speed Boost: +{percent}%",
-          "waterFlaskRemaining": "(Water Flask effect remaining {time})",
-          "waterBarrelRemaining": "(Water Barrel effect remaining {time})",
-          "strongBreeze": "Strong Breeze",
-          "strongBreezeEffect": "Strong Breeze Effect",
-          "cancelEffect": "Cancel Effect",
-          "waterFlaskTooltip": "Water Flask: 10% speed boost for 20s",
-          "waterBarrelTooltip": "Water Barrel: 15% speed boost for 20s",
-          "strongBreezeTooltip": "Strong Breeze: 50% speed boost"
+          "title": "速度提升: +{percent}%",
+          "waterFlaskRemaining": "(水壶效果剩余 {time})",
+          "waterBarrelRemaining": "(水桶效果剩余 {time})",
+          "strongBreeze": "强风",
+          "strongBreezeEffect": "强风效果",
+          "cancelEffect": "终止效果",
+          "waterFlaskTooltip": "水壶：20秒内速度提升10%",
+          "waterBarrelTooltip": "水桶：20秒内速度提升15%",
+          "strongBreezeTooltip": "强风：速度提升50%"
         },
         "simulation": {
-          "windy": "Windy",
-          "dust": "No Wind",
-          "slow": "Slow",
-          "normal": "Normal",
-          "fast": "Fast"
+          "windy": "有风",
+          "dust": "无风",
+          "slow": "慢速",
+          "normal": "正常",
+          "fast": "快速"
         }
       },
-      "cargo": "Cargo",
-      "cargoSlots": "Cargo Slots",
-      "cargoMaxWeight": "Max Cargo Weight",
-      "materialsTitle": "Materials",
-      "required": "Items Required for Crafting",
-      "rawMaterials": "Raw Materials",
+      "cargo": "容器",
+      "cargoSlots": "容器格子",
+      "cargoMaxWeight": "承重上限",
+      "materialsTitle": "材料",
+      "required": "建造所需物品",
+      "rawMaterials": "原材料",
       "bySeason": {
-        "prepend": "From",
-        "append": "Season"
+        "prepend": "出自",
+        "append": "赛季"
       },
-      "bluePrint": "Blueprint",
-      "requiredRank": "Minimum Required Rank",
-      "dateAdded": "Date Added",
-      "lastUpdated": "Last Updated",
-      "perks": "Abilities",
-      "baseInfo": "Base Info",
-      "deckInfo": "Deck Info",
-      "lookDetail": "View Ship Details (Hold)"
+      "bluePrint": "蓝图",
+      "requiredRank": "最低使用等级",
+      "dateAdded": "添加日期",
+      "lastUpdated": "更新日期",
+      "perks": "能力",
+      "baseInfo": "基础信息",
+      "deckInfo": "甲板信息",
+      "lookDetail": "查看船只详情(按住)"
     },
     "cosmetic": {
-      "title": "Cosmetic List",
-      "lookDetail": "View Details (Hold)",
+      "title": "装饰品列表",
+      "lookDetail": "查看详情(按住)",
       "effects": {
-        "emissive": "Emissive",
-        "combatReactive": "Combat Reactive",
-        "killReactive": "Kill Reactive",
-        "bossKillReactive": "Boss Kill Reactive",
-        "animated": "Animated"
+        "emissive": "自发光",
+        "combatReactive": "战斗反应",
+        "killReactive": "击杀反应",
+        "bossKillReactive": "首领击杀反应",
+        "animated": "动画效果"
       }
     },
     "cosmetics": {
-      "title": "Cosmetic List",
-      "description": "Collection of cosmetics"
+      "title": "装饰品列表",
+      "description": "陈列收录装饰品"
     },
     "set": {
-      "title": "Set Details",
-      "setAvailableTitle": "Set List",
-      "lookDetail": "View Details (Hold)"
+      "title": "集合详情",
+      "setAvailableTitle": "组合列表",
+      "lookDetail": "查看详情(按住)"
     },
     "sets": {
-      "title": "Set List"
+      "title": "集合列表"
     },
     "ultimate": {
-      "title": "Ultimate Skill Details"
+      "title": "终结技详情"
     },
     "ultimates": {
-      "title": "Ultimate Skill List"
+      "title": "终结技列表"
     },
     "modification": {
-      "title": "Modification Details",
+      "title": "模组详情",
       "effectType": {
-        "ignoreResistance": "Ignore Resistance",
-        "addElementalDamage": "Add Elemental Damage",
-        "increaseDamage": "Increase Damage",
-        "increaseElementalResistance": "Increase Elemental Resistance",
-        "increaseArmor": "Increase Armor Value",
-        "increaseHullHealth": "Increase Hull Health",
-        "increaseReloadSpeed": "Increase Reload Speed",
-        "extraElementalDamage": "Extra Elemental Damage",
-        "extraDamage": "Extra Damage",
-        "increaseProjectileSpeed": "Increase Projectile Speed",
-        "increaseProjectileRange": "Increase Projectile Range",
-        "reduceDamageWhileBracing": "Reduce Damage While Bracing",
-        "reduceTimeToTarget": "Reduce Time to Target",
-        "increaseRepairAmountPerShot": "Increase Repair Amount Per Shot",
-        "increaseRepairAmount": "Increase Repair Amount",
-        "increaseCritDamage": "Increase Crit Damage",
-        "bonusElementalDamage": "Bonus Elemental Damage",
-        "increaseSiegeDamage": "Increase Siege Damage"
+        "ignoreResistance": "忽略抵抗",
+        "addElementalDamage": "添加元素伤害",
+        "increaseDamage": "增加伤害",
+        "increaseElementalResistance": "提高元素抗性",
+        "increaseArmor": "增加护甲值",
+        "increaseHullHealth": "增加船体生命值",
+        "increaseReloadSpeed": "提高重新加载速度",
+        "extraElementalDamage": "额外元素伤害",
+        "extraDamage": "额外伤害",
+        "increaseProjectileSpeed": "增加弹丸速度",
+        "increaseProjectileRange": "增加弹道射程",
+        "reduceDamageWhileBracing": "防御时减少伤害",
+        "reduceTimeToTarget": "缩短至目标时间",
+        "increaseRepairAmountPerShot": "每枪增加的修复",
+        "increaseRepairAmount": "增加维修费用",
+        "increaseCritDamage": "增加暴击伤害",
+        "bonusElementalDamage": "额外元素伤害",
+        "increaseSiegeDamage": "增加攻城伤害"
       }
     },
     "modifications": {
-      "title": "Modification List"
+      "title": "模组列表"
     },
     "material": {
-      "title": "Material Details",
-      "lookDetail": "View Material Details (Hold)"
+      "title": "材料详情",
+      "lookDetail": "查看材料详情(按住)"
     },
     "materials": {
-      "title": "Material List"
+      "title": "材料列表"
     },
     "treasureMap": {
-      "title": "Treasure Map Details",
-      "treasureMapSameArea": "Treasure Maps in the Same Area",
+      "title": "藏宝图详情",
+      "treasureMapSameArea": "同地区藏宝图",
       "names": {
-        "none": "Treasure Map",
+        "none": "藏宝图",
         "recent": "{location}",
-        "old": "Treasure Map",
-        "veryOld": "Treasure Map",
-        "legend": "Treasure Map"
+        "old": "藏宝图",
+        "veryOld": "藏宝图",
+        "legend": "藏宝图"
       },
-      "lookDetail": "View Treasure Map Details (Hold)",
+      "lookDetail": "查看藏宝图详情(按住)",
       "raritys": {
-        "recently": "Recent"
+        "recently": "近期"
       },
       "categorys": {
-        "none": "Unknown",
-        "recent": "Recent",
-        "old": "Old",
-        "veryOld": "Very Old",
-        "legend": "Kingpin"
+        "none": "未知",
+        "recent": "新近",
+        "old": "老旧",
+        "veryOld": "古老",
+        "legend": "匪首"
       },
       "descriptions": {
-        "none": "Unknown Map",
-        "recent": "A map pointing to a treasure. The paper is crisp and thick; the treasure should have been buried recently.",
-        "old": "A map pointing to a treasure. The paper is thick; the treasure should have been buried for some time.",
-        "veryOld": "A map pointing to a treasure. The paper is tattered; the treasure should have been buried for a long time.",
-        "legend": "A map pointing to a treasure. The paper is blurry and indistinct; it is unknown when the treasure was buried."
+        "none": "未知地图",
+        "recent": "一张指向宝藏的地图。纸质清脆厚实，宝藏应该是不久前才被埋起来的",
+        "old": "一张指向宝藏的地图。纸质厚实，宝藏应该是有一段时间才被埋起来的",
+        "veryOld": "一张指向宝藏的地图。纸质残破，宝藏应该是很久时间才被埋起来的",
+        "legend": "一张指向宝藏的地图。纸质模糊不清，宝藏不知何时才被埋起来的"
       }
     },
     "treasureMaps": {
-      "title": "Treasure Map List",
+      "title": "藏宝图列表",
       "comparison": {
-        "title": "Compare Treasure Maps",
-        "description": "Retrieve similar treasure maps by image screenshot, locate position and information",
-        "searchingProgress": "Search Progress",
-        "currentComparing": "Currently Comparing",
+        "title": "比对藏宝图",
+        "description": "通过截图图片检索相似藏宝图，定位位置和信息",
+        "searchingProgress": "搜索进度",
+        "currentComparing": "正在比较",
         "algorithms": {
-          "perceptual-hash": "Perceptual Hash",
-          "color-histogram": "Color Histogram",
-          "feature-matching": "Feature Matching",
-          "structural-similarity": "Structural Similarity"
+          "perceptual-hash": "感知哈希",
+          "color-histogram": "颜色直方图",
+          "feature-matching": "特征点匹配",
+          "structural-similarity": "结构相似性"
         },
-        "selectAlgorithm": "Select Comparison Algorithm",
+        "selectAlgorithm": "选择比较算法",
         "filter": {
-          "source": "Filter by Source",
-          "category": "Filter by Category",
-          "similarityPercent": "Similarity Percentage",
-          "similarityHint": "The lower this value, the lower the image similarity. 0 means all are retrieved.",
-          "searchRange": "Search Range",
-          "rangeHint": "Take the top {range} search results, exceeding content is truncated"
+          "source": "来源筛选",
+          "category": "分类筛选",
+          "similarityPercent": "相似百分比",
+          "similarityHint": "此值越低图片相似越低，等于0时代表检索所有",
+          "searchRange": "检索范围",
+          "rangeHint": "取搜索结果前{range},超出的内容截断"
         },
-        "uploadPrompt": "Select an image as a baseline to find treasure maps",
-        "selectImage": "Select Image",
+        "uploadPrompt": "选择一张图片作为基准，查找藏宝图",
+        "selectImage": "选择图片",
         "noResult": {
-          "algorithmIssue": "No similar treasure maps found. This might be due to a query algorithm bias or the treasure map not being in the collection. Please try changing the query algorithm and try again.",
-          "useFilter": "If you know the treasure map attributes, appropriately filtering by map type and treasure map area can reduce the search wait time.",
-          "notInCollection": "If not in the collection, please contact us using the contact information at the bottom of the website to add it to the collection."
+          "algorithmIssue": "未找到相似藏宝图，这可能由于查询算法偏差或未收录藏宝图，请尝试更换查询算法再次尝试",
+          "useFilter": "如果知道藏宝图属性，适当使用筛选地图类型和藏宝图地区，可以减少检索等待时间",
+          "notInCollection": "未收录情况通过网站下方联系方式联系添加收藏"
         }
       }
     },
     "mapLocation": {
-      "title": "Map Location",
-      "lookDetail": "View Map Location Details (Hold)"
+      "title": "地图地点",
+      "lookDetail": "查看地图地点详情(按住)"
     },
     "mapLocations": {
-      "title": "Map Location List"
+      "title": "地图地点列表"
     },
     "npc": {
       "title": "NPC",
-      "lookDetail": "View Details (Hold)",
-      "workerTitle": "Processable List",
+      "lookDetail": "查看详情(按住)",
+      "workerTitle": "可加工列表",
       "types": {
-        "npc": "Non-Player Character",
-        "structure": "Structure (Immovable)"
+        "npc": "非玩家人物",
+        "structure": "建筑体(不可移动)"
       },
       "categorys": {
-        "helmTask": "The Helm Bounty",
-        "water": "Water Source",
-        "powder": "Bonfire",
-        "task": "Task",
-        "shop": "Shop",
-        "pvpMode": "PvP Mode",
-        "factory": "Factory (Processable Items)",
-        "mail": "Mailbox",
-        "warehouse": "船仓",
-        "objective": "Objective"
+        "helmTask": "海舵社悬赏",
+        "water": "水源",
+        "powder": "篝火",
+        "task": "任务",
+        "shop": "商店",
+        "pvpMode": "对战模式",
+        "factory": "工厂(可加工物品)",
+        "mail": "邮箱",
+        "warehouse": "仓库",
+        "objective": "悬赏"
       }
     },
     "npcs": {
-      "title": "NPC List"
+      "title": "NPC列表"
     }
   },
   "calendar": {
-    "title": "Calendar",
-    "meta": {
-      "keywords": "Game calendar, calendar, schedule, planning"
-    },
-    "timeRemaining": "{time} days remaining",
+    "title": "日历",
+    "timeRemaining": "剩余{time}天",
     "label": {
-      "pastSeasons": "Past Seasons"
+      "pastSeasons": "过往赛季"
     },
     "button": {
-      "subscribe": "Subscribe to Calendar",
-      "addToCalendar": "Add to Calendar"
+      "subscribe": "订阅日历",
+      "addToCalendar": "添加到日历"
     },
     "dialog": {
-      "subscribeTitle": "Subscribe to {season}",
-      "subscribeDescription": "Download the .ics file, a standard format that can be opened and synced by supporting applications",
-      "eventSubscribeQuestion": "Subscribe to all events for {event} separately?"
+      "subscribeTitle": "订阅 {season}",
+      "subscribeDescription": "下载 .ics 文件，这是标准格式，可通过支持的应用打开并同步数据",
+      "eventSubscribeQuestion": "单独订阅 {event} 所有事件？"
     },
     "common": {
-      "na": "N/A",
-      "none": "None"
+      "na": "未知",
+      "none": "无"
     },
     "error": {
-      "invalidDate": "Invalid date",
-      "fetchFailed": "Failed to fetch calendar data"
+      "invalidDate": "无效的日期",
+      "fetchFailed": "获取日历数据失败"
     },
-    "day": "Day {day}"
+    "day": "{day}日"
   },
   "map": {
-    "title": "Map",
-    "description": "Inventory of all map items",
-    "searchPlaceholder": "Search Landmark",
-    "treasureMapAvailable": "Available Treasure Maps",
+    "title": "地图",
+    "description": "所有地图物品清单",
+    "searchPlaceholder": "搜索地标",
+    "treasureMapAvailable": "可用藏宝图",
     "npcAvailable": "NPC's",
-    "possibleLoot": "Possible Loot",
-    "locations": "Locations",
-    "layerControl": "Layer Control",
-    "hideAll": "Hide All",
-    "showAll": "Show All",
-    "typeTitle": "Type",
-    "difficulty": "Difficulty",
-    "selectCollection": "Select Collection",
-    "collectionManager": "Collection Manager",
-    "myCollections": "My Collections",
-    "createCollection": "Create Collection",
-    "collectionTitle": "Collection Title",
-    "collectionIsEmptyTip": "Please create a collection first before creating markers",
-    "collectionDescription": "Collection Description",
-    "layerCollection": "Collection",
-    "publicCollection": "Public Collection",
-    "sharedUsers": "Shared Users",
-    "sharedUsersHint": "Enter user IDs, separated by commas",
-    "personalMarkers": "Personal Markers",
-    "noDescription": "No description yet",
-    "noCollections": "No collections yet",
-    "titleRequired": "Title is required",
-    "collectionRequired": "Please select a collection",
-    "confirmDeleteCollection": "Are you sure you want to delete the collection \"{title}\"? This action will also delete all markers within it.",
-    "markerName": "Marker Name",
-    "markerDescription": "Marker Description",
-    "nearbyMarker": "Nearby",
-    "createMarker": "Create Marker",
-    "type": "Type",
-    "tags": "Tags",
-    "publicMarker": "Public Marker",
+    "possibleLoot": "可能的赃物",
+    "locations": "地点",
+    "layerControl": "图层控制",
+    "hideAll": "隐藏所有",
+    "showAll": "显示所有",
+    "typeTitle": "类型",
+    "difficulty": "难度",
+    "selectCollection": "选择地图集",
+    "collectionManager": "地图集管理",
+    "myCollections": "我的地图集",
+    "createCollection": "创建地图集",
+    "collectionTitle": "地图集标题",
+    "collectionIsEmptyTip": "请先创建地图集后，再创建标记",
+    "collectionDescription": "地图集描述",
+    "layerCollection": "地图集",
+    "publicCollection": "公开地图集",
+    "sharedUsers": "共享用户",
+    "sharedUsersHint": "输入用户ID，用逗号分隔",
+    "personalMarkers": "个人标记",
+    "noDescription": "暂无描述",
+    "noCollections": "暂无地图集",
+    "titleRequired": "标题是必填项",
+    "collectionRequired": "请选择地图集",
+    "confirmDeleteCollection": "确定要删除地图集 \"{title}\" 吗？此操作将同时删除其中的所有标记。",
+    "markerName": "标记名称",
+    "markerDescription": "标记描述",
+    "nearbyMarker": "附近",
+    "createMarker": "创建标记",
+    "type": "类型",
+    "tags": "标签",
+    "publicMarker": "公开标记",
     "types": {
       "none": {
-        "name": "Unknown",
-        "description": "Unknown location"
+        "name": "未知",
+        "description": "未知地点"
       },
       "den": {
-        "name": "Den",
-        "description": "This is a pirate den. Plan your next heist, outfit your ship, or meet up with other like-minded freebooters for a drink."
+        "name": "窝点",
+        "description": "这里是海盗窝。为你下一次抢劫做计划、装配你的船只，或与其他志同道合的海贼相聚，一起痛饮。"
       },
       "weaver": {
-        "name": "Weaver",
-        "description": "A small settlement focused on collecting and refining Jute. You can purchase cloth or trade goods here."
+        "name": "织纺",
+        "description": "一处专注于收集并精制黄麻的小型定居点。你可以在这里购买布料或交易货物。"
       },
       "settlement": {
-        "name": "Settlement",
-        "description": "A small faction settlement, also a trading post. You can buy and sell goods here... or try to take them by force?"
+        "name": "定居点",
+        "description": "一处小型阵营定居点，同时也是交易场所。你可以在此买卖货物.....或是尝试暴力夺取?"
       },
       "megafort": {
-        "name": "Megafort",
-        "description": "Cooperate with 5 other captains to steal a batch of advanced materials from within the Megafort"
+        "name": "大型要塞",
+        "description": "与其他5名船长合作，偷取大型要塞内的一批晋阶型材料"
       },
       "shareLocation": {
-        "name": "Shared Location",
-        "description": "This location is shared by a user"
+        "name": "分享位置",
+        "description": "此地点由用户分享"
       },
       "outpost": {
-        "name": "Outpost",
+        "name": "前哨站",
         "description": ""
       },
       "foundry": {
-        "name": "Foundry",
-        "description": "A small settlement focused on collecting and refining raw materials. You can purchase ingots or trade goods here."
+        "name": "铸造厂",
+        "description": "一处专注于收集并精炼原材料的小型定居点。你可以在这里购买铸锭或交易货物。"
       },
       "capitalSettlement": {
-        "name": "Capital Settlement",
-        "description": "The capital of a faction, a wealthy and well-guarded place suitable for trade."
+        "name": "首府定居点",
+        "description": "这里是阵营的首府，一个富有且守卫森严、适合进行贸易的地方。"
       },
       "lumberyard": {
-        "name": "Lumberyard",
-        "description": "A small settlement focused on collecting and refining raw logs. You can purchase planks or trade goods here."
+        "name": "木材厂",
+        "description": "一处专注于收集并精制原木的小型定居点。你可以在这里购买木板或交易货物。"
       },
       "militaryBase": {
-        "name": "Military Base",
-        "description": "This is a heavily guarded military base. Although the rewards are rich, only the strongest pirate teams can take it down."
+        "name": "军营",
+        "description": "这是一座戒备森严的军营。虽然回报丰厚，但只有最强的海盗团队才有能力把它拿下"
       }
     }
   },
   "rankingDesignedItems": {
-    "title": "Ranking Design",
+    "title": "排序设计",
     "workshop": {
-      "title": "Workshop"
+      "title": "工作台"
     },
     "browse": {
-      "title": "Share",
-      "newRanking": "Create New Ranking"
+      "title": "分享",
+      "newRanking": "创建新排行"
     }
   },
   "teamUp": {
-    "title": "Team Up Search",
-    "meta": {
-      "keywords": "Team up search, max trade, sea trade, contest, pvp, pve, pvevp"
-    },
-    "emptyPlayer": "None",
-    "emptyUsername": "Anonymous Captain",
-    "emptyDescription": "This person is lazy and hasn't written anything",
-    "copyPlayerBtn": "Copy",
-    "copyPlayerSuccess": "Copied successfully",
-    "pushLoginInfo": "👋 {username}, form a fleet, and set sail!",
+    "title": "组队搜寻",
+    "emptyPlayer": "无",
+    "emptyUsername": "匿名船长",
+    "emptyDescription": "这个人很懒，什么都没写",
+    "copyPlayerBtn": "复制",
+    "copyPlayerSuccess": "复制成功",
+    "pushLoginInfo": "👋 {username}, 组建舰队吧，起航！",
     "form": {
-      "player": "Player ID",
-      "time": "Willing Wait Time",
-      "descriptionPlaceholder": "Team up description, you can also include your voice channel"
+      "player": "玩家id",
+      "time": "愿意等待时间",
+      "descriptionPlaceholder": "组队描述，也可以放置你的语音频道"
     },
     "time": {
-      "minutes": "{count} minutes",
-      "day": "{count} days"
+      "minutes": "{count}分钟",
+      "day": "{count}天"
     },
     "tags": {
-      "pve": "Survival",
-      "pvp": "Player Versus Player",
-      "timeWander": "World Wandering",
-      "plotTask": "Main Story Quest",
-      "sideQuest": "Side Quest",
-      "reward": "Bounty",
-      "fortressRaiding": "Fortress Raiding",
-      "transaction": "Item Transaction",
+      "pve": "生存",
+      "pvp": "玩家战斗",
+      "timeWander": "世界游荡",
+      "plotTask": "剧情任务",
+      "sideQuest": "支线任务",
+      "reward": "悬赏",
+      "fortressRaiding": "要塞掠夺",
+      "transaction": "物品交易",
       "other": "其他"
     }
   },
   "assembly": {
-    "title": "Assembly Workshop",
-    "meta": {
-      "keywords": "Assembly workshop, Skull and Bones assembly, assembly, build, game build"
-    },
-    "owner": "Owner",
-    "hasPassword": "Has Password",
-    "byCloningUuid": "Clone",
-    "editAssemblyBtn": "Edit this Assembly",
-    "anonymous": "Anonymous",
-    "commentPlaceholder": "What are your thoughts on this?",
+    "title": "配装厂",
+    "owner": "所有者",
+    "hasPassword": "包含密码",
+    "byCloningUuid": "克隆",
+    "editAssemblyBtn": "编辑此配装",
+    "anonymous": "匿名",
+    "commentPlaceholder": "你对此有何见解？",
     "additions": {
-      "assembly": "Assembly",
-      "wheel": "Wheel",
+      "assembly": "配装",
+      "wheel": "轮盘",
       "warehouse": "船仓"
     },
     "setting": {
-      "title": "Settings",
+      "title": "设置",
       "routine": {
         "title": "General Settings"
       },
@@ -916,69 +898,69 @@
         "excludeList": "Exclude List",
         "closedAdsHint": "Below is the list of disabled ads"
       },
-      "publicly": "Public",
-      "private": "Private",
-      "tagCommon": "General",
-      "tagData": "Data",
-      "includePasswordHint": "Include Password",
-      "existingPasswordButNewDelete": "The current assembly has a password, but the new password has been deleted",
-      "notPassword": "No Password",
-      "visibility": "Visibility",
-      "visibilityDescription": "Determines whether it can be searched or accessed directly",
-      "selectVisibility": "Select Visibility",
-      "usePassword": "Use Password",
-      "passwordDescription": "After creating a password, the assembly page requires a password to access",
-      "passwordInput": "Password",
-      "passwordHint": "At least 6 to 32 characters, only a-A 0-9 _ are allowed",
-      "language": "Assembly Language",
-      "languageDescription": "You can define the assembly language",
-      "selectLanguage": "Select Language",
-      "backgroundImage": "Background Image",
-      "backgroundImageDescription": "It is only displayed on the assembly detail page, fixed behind the assembly, use an external image hosting service",
-      "backgroundImageAlt": "Background Image",
-      "backgroundImageUrl": "Background Image URL",
-      "showItemName": "Show Item Name",
-      "showItemNameDescription": "Display the item name below the item icon",
-      "showFullName": "Show Full Name",
-      "showFullNameDescription": "Determines whether the item name is displayed in full, rather than being hidden when overflowing",
-      "anonymous": "Anonymous",
-      "anonymousDescription": "Whether to remove your username and ID in this assembly",
-      "comments": "Comments",
-      "commentsDescription": "Enable comments",
-      "likes": "Likes",
-      "likesDescription": "Enable likes",
+      "publicly": "公开",
+      "private": "私有",
+      "tagCommon": "常规",
+      "tagData": "数据",
+      "includePasswordHint": "含密码",
+      "existingPasswordButNewDelete": "当前配装已设密码，但新密码已删除",
+      "notPassword": "无密码",
+      "visibility": "是否可见",
+      "visibilityDescription": "决定是否被搜索或是直接访问",
+      "selectVisibility": "选择可见性",
+      "usePassword": "使用密码",
+      "passwordDescription": "创建密码后，配装页面必须输入密码才可访问",
+      "passwordInput": "密码",
+      "passwordHint": "至少6位到32位，仅可使用a-A 0-9 _",
+      "language": "配装语种",
+      "languageDescription": "你可以定义配装语言",
+      "selectLanguage": "选择语言",
+      "backgroundImage": "背景图片",
+      "backgroundImageDescription": "它仅在配装详情页展示，固定在配装后方，使用外部图床",
+      "backgroundImageAlt": "背景图片",
+      "backgroundImageUrl": "背景图片URL",
+      "showItemName": "是否展示名称",
+      "showItemNameDescription": "在物品图标下方显示物品名称",
+      "showFullName": "是否完整显示",
+      "showFullNameDescription": "决定于物品是否完整显示名称，而并非溢出隐藏",
+      "anonymous": "是否匿名",
+      "anonymousDescription": "是否将你在此配装中用户名称和ID删除",
+      "comments": "评论",
+      "commentsDescription": "是否开启评论",
+      "likes": "点赞",
+      "likesDescription": "是否开启点赞",
       "other": "其他",
-      "rendererVersion": "Assembly Renderer Version",
-      "rendererVersionDescription": "Determines the format in which the assembly data is loaded. If you don't know what this does, you don't need to set it; the system will use the latest version to initialize the load.",
-      "wheelRendererVersion": "Wheel Renderer Version",
-      "wheelRendererVersionDescription": "Determines the format in which the wheel data is loaded. If you don't know what this does, you don't need to set it; the system will use the latest version to initialize the load.",
-      "warehouseRendererVersion": "Warehouse Renderer Version",
-      "warehouseRendererVersionDescription": "Determines the format in which the warehouse data is loaded. If you don't know what this does, you don't need to set it; the system will use the latest version to initialize the load.",
-      "version": "Version",
-      "selectVersion": "Select Version",
-      "enable": "Enable",
-      "deleteDescription": "Deleting an assembly is irreversible and will delete corresponding comments and likes",
-      "deleteConfirmation": "Delete Assembly?",
-      "deleteWarning": "This operation is irreversible and will permanently delete the assembly, its comments, and likes."
+      "rendererVersion": "配装渲染器版本",
+      "rendererVersionDescription": "决定对配装数据以何种格式加载，如果你不清楚作用可以不需要设置，让系统以最新版本来初始加载",
+      "wheelRendererVersion": "轮盘渲染器版本",
+      "wheelRendererVersionDescription": "决定对轮盘数据以何种格式加载，如果你不清楚作用可以不需要设置，让系统以最新版本来初始加载",
+      "warehouseRendererVersion": "船仓渲染器版本",
+      "warehouseRendererVersionDescription": "决定对船仓数据以何种格式加载，如果你不清楚作用可以不需要设置，让系统以最新版本来初始加载",
+      "version": "版本",
+      "selectVersion": "选择版本",
+      "enable": "启用",
+      "deleteDescription": "删除配装是不可逆行为, 将会删除对应评论和点赞",
+      "deleteConfirmation": "删除配装？",
+      "deleteWarning": "此操作不可逆，将永久删除配装及其评论和点赞。"
     },
     "modification": {
-      "basic": "Basic",
-      "advanced": "Advanced",
-      "special": "Special"
+      "basic": "基础",
+      "advanced": "高级",
+      "special": "特殊"
     },
     "tags": {
       "modes": {
-        "pvp": "Combat",
-        "pve": "Survival"
+        "pvp": "战斗",
+        "pve": "生存"
       },
       "teamFormationMethods": {
-        "singlePlayer": "Single Player",
-        "multiPlayer": "Multiplayer"
+        "singlePlayer": "单人",
+        "multiPlayer": "多人"
       },
       "difficultyOfAcquisitions": {
-        "simple": "Simple",
-        "medium": "Medium",
-        "difficulties": "Difficult"
+        "simple": "简单",
+        "medium": "中等",
+        "difficulties": "困难"
       },
       "archetypes": {
         "dps": "额外伤害",
@@ -986,278 +968,269 @@
         "support": "Support"
       },
       "grade": {
-        "basic": "Basic",
-        "advanced": "Advanced",
-        "special": "Special"
+        "basic": "基本",
+        "advanced": "高级",
+        "special": "特殊"
       },
       "damageTypes": {
-        "electric": "电击",
+        "electric": "雷电",
         "explosive": "爆炸",
-        "fire": "Fire",
+        "fire": "火",
         "flooding": "进水",
-        "lifesteal": "Lifesteal",
+        "lifesteal": "吸血",
         "piercing": "穿透",
-        "burning": "火焰型",
-        "repair": "修复",
+        "burning": "燃烧",
+        "repair": "维修",
         "tearing": "撕裂",
         "toxic": "剧毒"
       }
     },
     "workshop": {
-      "title": "Workshop",
-      "displayTitle": "Furniture",
-      "weaponTitle": "Weapons",
-      "myFavorites": "My Favorites",
-      "armorTitle": "Ship Armor",
-      "insertArmorTitle": "Insert Ship Armor",
-      "insertShipTitle": "Insert Ship",
-      "insertShipFrigateUpgradeTitle": "Insert Upgrade Part",
-      "mainWeapon": "Main Weapon",
-      "secondaryWeapon": "Secondary Weapon",
-      "insertWeaponTips": "Please enter the ID to select the item. The list of IDs is available <a target=\"_blank\" href=\"{link}\">here</a>",
-      "insertWeaponTitle": "Insert Weapon",
-      "insertSecondaryWeaponTitle": "Insert Secondary Weapon",
-      "insertDisplayTitle": "Insert Furniture",
-      "exceedingDisplayLimitTip": "Maximum Major Furniture limit reached, Major Furniture will be hidden",
-      "ultimateTitle": "Ultimate Skill",
-      "ignoreConditions": "Ignore Mod Conditions",
+      "title": "工作站",
+      "displayTitle": "陈设",
+      "weaponTitle": "武器",
+      "myFavorites": "我的最爱",
+      "armorTitle": "船甲",
+      "insertArmorTitle": "插入船甲",
+      "insertShipTitle": "插入船只",
+      "insertShipFrigateUpgradeTitle": "插入升级部件",
+      "mainWeapon": "主武器",
+      "secondaryWeapon": "副武器",
+      "insertWeaponTips": "请输入id来选中物体，id列表可见<a target=\"_blank\" href=\"{link}\">这里</a>",
+      "insertWeaponTitle": "插入武器",
+      "insertSecondaryWeaponTitle": "插入副武器",
+      "insertDisplayTitle": "插入陈设",
+      "exceedingDisplayLimitTip": "已到达主陈设上限，将主陈设隐藏",
+      "ultimateTitle": "终极技能",
+      "ignoreConditions": "无视模组条件",
       "filter": {
-        "all": "All",
-        "byType": "Sort by Item Type",
-        "byTitle": "Sort Items by {key}",
+        "all": "所有",
+        "byType": "物品排序类型",
+        "byTitle": "物品以{key}排序",
         "byId": "ID",
-        "byTier": "Tier",
-        "byRarity": "Rarity"
+        "byTier": "等级",
+        "byRarity": "稀有度"
       },
       "verifyTips": {
-        "shipEmpty": "Ship not selected, <u>it is required</u>",
-        "ultimateEmpty": "Ultimate skill is empty",
-        "shipUpgradeEmpty": "Ship upgrade part is empty",
-        "weaponModificationsEmpty": "Weapon modifications are empty",
-        "secondaryWeaponModificationsEmpty": "Secondary weapon modifications are empty",
-        "secondaryWeaponEmpty": "Secondary weapon is empty",
-        "weaponAllEmpty": "All weapons are empty",
-        "weaponDirectionsEmpty": "Weapon direction is not set, <u>it is required</u>",
-        "armorEmpty": "Ship armor is empty",
-        "displayAllEmpty": "All furniture is empty"
+        "shipEmpty": "船只未选择，<u>它是必须</u>",
+        "ultimateEmpty": "技能是空的",
+        "shipUpgradeEmpty": "船只升级部件是空的",
+        "weaponModificationsEmpty": "武器模组是空的",
+        "secondaryWeaponModificationsEmpty": "副武器的模组是空的",
+        "secondaryWeaponEmpty": "副武器是空的",
+        "weaponAllEmpty": "武器都是空的",
+        "weaponDirectionsEmpty": "武器的方向你未设置, <u>它是必须</u>",
+        "armorEmpty": "船甲是空的",
+        "displayAllEmpty": "陈设都是空的"
       }
     },
     "detail": {
-      "title": "Assembly Details"
+      "title": "配装详情"
     },
     "share": {
-      "title": "Share Assembly",
-      "createPoster": "Generate Assembly Poster",
-      "configHint": "Configure poster generation attributes, determining poster style and format, etc.",
-      "format": "Format",
-      "width": "Width",
-      "quality": "Image Quality",
-      "filename": "File Name",
-      "showEmptySlot": "Show Empty Slots",
-      "backgroundColor": "Background Color",
-      "showItemName": "Show Name",
-      "fullName": "Full Name",
-      "showHeader": "Poster Header Identifier",
-      "showTitle": "Show Title"
+      "title": "分享配装",
+      "createPoster": "生成配装海报",
+      "configHint": "配置生成海报属性，决定海报样式以及格式等",
+      "format": "格式",
+      "width": "宽度",
+      "quality": "图片质量",
+      "filename": "文件名称",
+      "showEmptySlot": "显示空卡槽",
+      "backgroundColor": "背景颜色",
+      "showItemName": "显示名称",
+      "fullName": "完整名称",
+      "showHeader": "海报头部标识",
+      "showTitle": "显示标题"
     },
     "browse": {
-      "title": "Assembly Share Collection",
-      "search": "Search for Assembly Creator or Assembly Name",
-      "newAssembly": "Create Assembly",
-      "filterTitle": "Filter",
+      "title": "配装分享集",
+      "search": "搜索配装创建用户 或 是配装名称",
+      "newAssembly": "创建配装",
+      "filterTitle": "筛选",
       "filter": {
-        "createdTime": "Creation Time",
-        "updatedTime": "Update Time",
-        "likes": "Likes",
-        "desc": "Descending",
-        "asc": "Ascending"
+        "createdTime": "创建时间",
+        "updatedTime": "更新时间",
+        "likes": "赞",
+        "desc": "正序",
+        "asc": "反序"
       }
     },
     "publish": {
-      "title": "Publish"
+      "title": "发布"
     }
   },
   "space": {
-    "title": "User Space",
-    "lastOnlineTime": "Last Online",
-    "joinTime": "Join Time"
+    "title": "用户空间",
+    "lastOnlineTime": "最后在线",
+    "joinTime": "加入时间"
   },
   "signin": {
-    "title": "Sign In",
-    "meta": {
-      "keywords": "Account sign in"
-    },
+    "title": "登陆",
     "form": {
       "placeholder": {
-        "username": "Enter account ID",
-        "password": "Enter password"
+        "username": "输入帐号id",
+        "password": "输入密码"
       },
       "label": {
-        "username": "Account ID",
-        "password": "Password"
+        "username": "账户id",
+        "password": "密码"
       }
     },
-    "newUserRegistrationHint": "No account? Go to register"
+    "newUserRegistrationHint": "没有账户？前往注册"
   },
   "signup": {
-    "title": "Sign Up",
-    "meta": {
-      "keywords": "Account registration"
-    },
+    "title": "注册",
     "username": {
-      "name": "Account ID",
-      "placeholder": "Enter unique website identifier",
-      "hint": "Used as the unique login ID for the website, cannot be changed, at least 3 to 40 characters, use a-z/A-Z/0-9/_ to register username"
+      "name": "账户id",
+      "placeholder": "输入网址唯一标准",
+      "hint": "作为网站登陆唯一id，不可更改，至少3位到40位，使用a-z/A-Z/0-9/_来注册用户名"
     },
     "alternativeName": {
-      "name": "Alias",
-      "placeholder": "Enter display name",
-      "hint": "Used as the display name on the website. If left blank, your account ID will be used by default. At least 3 to 40 characters, use a-z/A-Z/0-9/_"
+      "name": "别名",
+      "placeholder": "输入展示名称",
+      "hint": "用于展示网站名称，如果不填将默认使用账户id，至少3位到40位，使用a-z/A-Z/0-9/_"
     },
     "password": {
-      "name": "Password",
-      "placeholder": "Enter account password",
-      "hint": "At least 8 to 64 characters"
+      "name": "密码",
+      "placeholder": "输入账户密码",
+      "hint": "至少8位到64位"
     },
     "email": {
-      "name": "Email",
-      "placeholder": "Enter email address",
-      "hint": "Optional email, which will allow your account to be recoverable"
+      "name": "邮箱",
+      "placeholder": "输入邮箱地址",
+      "hint": "可选邮箱，这将使得你的账户可寻回"
     },
-    "register": "Register"
+    "register": "注册"
   },
   "home": {
-    "title": "Home",
-    "meta": {
-      "keywords": "game, Skull and Bones, skull-and-bones, Skull And Bones, SNB, S And B, ubisoft, 2025, Glow Prow, glowprow, glow, prow, glow-prow, shine, figurehead, shining figurehead, tool, app, website, mod, map, tool, wiki, encyclopedia, game, ubisoft, ubisoft.com, Ubisoft, Skull and Bones, skullandbones, snb, Skull and Bones, SNB, Ubisoft, pirate game, naval combat game, open world, MMORPG, Indian Ocean, late 17th century, Golden Age of Piracy, Sainte-Anne, Fallen Woods, African Coast, Red Isle, East Indies, Open Seas, Infamy System, Infamy Rank, Pirate Captain, Pirate King, privateer, bounty missions, bounty targets, Helm, Pieces of Eight, Silver, shipwright, carpenter, blacksmith, tailor shop, ship building, ship modification, ship types, firepower ship, tank ship, support ship, ramming ship, weapon systems, cannons, long guns, demi-cannons, culverins, culverin, armor, furnishings, furniture, repair kits, spyglass, hunting spear, pickaxe, saw, sickle, crowbar, resource gathering, acacia wood, boarding combat, harpoon, boarding, weak points, red光圈, sail control, stamina system, downwind sailing, upwind sailing, wind tactics, sailing techniques, maritime survival, crew management, weight system, cargo hold, warehouse, mailbox, fast travel, outposts, settlements, John Scurlock, Sea Peoples, Clan of Fara, smuggling, trade routes, trading, contraband, treasure maps, buried treasure, treasure clues, glowing beacons, shipwreck salvage, floating debris, shark hunting, fishing, wildlife, multiplayer co-op, three-player team, PvP mode, 5v5 combat, contested waters, distress beacon, call for reinforcements, social menu, cross-platform play, cross-platform progression, season updates, endgame content, world events, Sea Lord, Bloody Skulls & Bones Collector's Pack, Smuggler Pass, Grey Corsair mission, Legacy of the Bloody Skull, Ubisoft Connect, Epic Games Store, Steam, PS5, Xbox Series X, PC specifications, graphics settings, DLSS, FSR, XeSS, beginner's guide, getting started tips, fast leveling, money making methods, Pieces of Eight farming, ship recommendations, weapon loadouts, equipment blueprints, material locations, resource distribution, outpost coordinates, bounty mission guides, Helm missions, factory collection, treasure map locations, treasure sites, boss strategies, boarding techniques, naval combat tactics, team coordination, solo player guide, control settings, key bindings, interface guide, mission walkthroughs, achievement unlocks, trophy guide, DLC content, patch notes, update notes, bug fixes, game reviews, player community, discussion groups, voice chat, friend teaming"
-    }
+    "title": "首页"
   },
   "empireSkillSimulation": {
-    "searchPlaceholder": "Search Skill",
-    "effects": "Effects",
-    "requirements": "Requirements",
-    "requiredCost": "Required Cost",
-    "stage": "Stage {num}",
+    "searchPlaceholder": "搜索技能",
+    "effects": "效果",
+    "requirements": "要求",
+    "requiredCost": "需要材料",
+    "stage": "阶段{num}",
     "other": "其他",
-    "effectsNotContent": "Missing Description",
-    "dateAdded": "Date Added",
-    "lastUpdated": "Last Updated"
+    "effectsNotContent": "缺少描述",
+    "dateAdded": "创建时间",
+    "lastUpdated": "更新时间"
   },
   "search": {
-    "title": "Search",
-    "placeholder": "Enter keywords or use field query, e.g.: name:device or id:exact_id",
-    "conditions": "Query Conditions",
-    "quickFilters": "Quick Filters",
-    "recentSearches": "Recent Searches",
-    "strictMatch": "Strict Match",
-    "fuzzyMatch": "Fuzzy Match",
-    "useTip": "Advanced Usage Tips",
+    "title": "搜索",
+    "placeholder": "输入关键词或使用字段查询，如：name:设备 或 id:exact_id",
+    "conditions": "查询条件",
+    "quickFilters": "快速筛选",
+    "recentSearches": "最近搜索",
+    "strictMatch": "精确匹配",
+    "fuzzyMatch": "模糊匹配",
+    "useTip": "高级使用提示",
     "filters": {
-      "name": "Name",
+      "name": "名称",
       "id": "ID",
-      "description": "Description",
-      "category": "Category",
-      "type": "Type"
+      "description": "描述",
+      "category": "分类",
+      "type": "类型"
     },
-    "configTitle": "Search Configuration",
-    "scope": "Search Scope",
-    "limitPerType": "Limit per type",
-    "infinite": "Infinite",
-    "all": "All",
-    "noResults": "No results found",
+    "configTitle": "搜索配置",
+    "scope": "搜索范围",
+    "limitPerType": "每类结果上限",
+    "infinite": "无限",
+    "all": "全部",
+    "noResults": "未找到匹配的结果",
     "tips": {
-      "advanced": "Supports advanced queries like: {example}",
-      "fuzzy": "Fuzzy Search",
-      "exactId": "Exact ID Search",
-      "category": "Category single and combined",
-      "categoryOnly": "(category only)",
-      "fields": "Fields",
-      "combinedFields": "Supports simultaneous use of the above fields for querying"
+      "advanced": "支持高级查询如：{example}",
+      "fuzzy": "模糊检索",
+      "exactId": "精准id检索",
+      "category": "category单一和组合",
+      "categoryOnly": "(仅限category)",
+      "fields": "字段",
+      "combinedFields": "支持同时使用以上字段查询"
     }
   },
   "header": {
     "navs": {
-      "blog": "Shining Prow Blog",
-      "officialWebsite": "Skull and Bones Official Website",
-      "officialWebsiteDebug": "Skull and Bones Official Issues Collection"
+      "blog": "闪耀船首博客",
+      "officialWebsite": "碧海黑帆官网",
+      "officialWebsiteDebug": "碧海黑帆官方问题集"
     },
     "functions": {
       "team": {
-        "title": "Team Up Search",
-        "description": "Post or find captains with the same plan to set sail and face real enemies"
+        "title": "组队寻求",
+        "description": "发布或寻找与你计划相同船长出航，面对真正敌人"
       },
       "calendar": {
-        "title": "Calendar",
-        "description": "View this season's event information (Hold)"
+        "title": "日历",
+        "description": "查看赛季活动，订阅日历"
       },
       "maps": {
-        "title": "Map",
-        "description": "Map item inventory"
+        "title": "地图",
+        "description": "地图物品清单，列出不同地点以及地点内藏宝图和设施"
       },
       "codex": {
-        "title": "Codex",
-        "description": "Display item information, check how to obtain them"
+        "title": "手稿",
+        "description": "陈列物品信息, 检查它们如何获得"
       },
       "assembly": {
-        "title": "Ship Assembly Workshop",
-        "description": "Design your ship, push it to its performance limit, and share it with friends"
+        "title": "船只配装厂",
+        "description": "设计你船，让它到达性能极限，分享给好友"
       },
       "captain-signature": {
-        "title": "Pirate Signature (Under Development)",
-        "description": "Generate pirate signature images to share on community websites"
+        "title": "海盗签名(开发中)",
+        "description": "生成海盗签名图片，分享到社区网站上"
       },
       "ranking-of-designed-items": {
-        "title": "Item Ranking (Under Development)",
-        "description": "Generate player rankings and evaluations for items"
+        "title": "物品排名(开发中)",
+        "description": "生成物品玩家心中排名以及评价"
       },
       "impression-of-monsters": {
-        "title": "Elite Monster Impression (Under Development)",
-        "description": "Share your first impression of different in-game monsters"
+        "title": "精英怪印象(开发中)",
+        "description": "分享你对游戏内不同怪物第一印象"
       },
       "fashion-show": {
-        "title": "Fashion Show (Under Development)",
-        "description": "Share your outfit and become a fashionista"
+        "title": "时装秀(开发中)",
+        "description": "分享你的穿搭，成为时尚达人"
       },
       "empire-skill-simulation": {
-        "title": "Empire Upgrade Simulation (BETA 1)",
-        "description": "The Helm Upgrade Simulation",
+        "title": "帝国升级模拟 (BETA 1)",
+        "description": "海陀社升级模拟",
         "keywords": "empire skill simulation"
       }
     }
   },
   "footer": {
     "basic": {
-      "description": "Skull and Bones Inventory Website"
+      "description": "碧海黑帆清单网站"
     },
     "col1": {
-      "title": "维护"
+      "title": "服务"
     },
     "col2": {
-      "title": "Community",
-      "baiduTieBa": "Baidu Tieba Shining Prow Posts",
-      "xiaoheihe": "Xiaoheihe Shining Prow Posts",
-      "kook": "Kook Community"
+      "title": "社区",
+      "baiduTieBa": "百度贴吧闪耀船首贴子",
+      "xiaoheihe": "小黑盒闪耀船首贴子",
+      "kook": "Kook社区"
     },
     "col3": {
-      "title": "Contact",
-      "serviceStatus": "Service Status",
-      "translated": "📖Help us translate",
-      "github": "Project Open Source Address"
+      "title": "联系",
+      "serviceStatus": "服务状态",
+      "translated": "📖帮助我们翻译",
+      "github": "项目开源地址"
     }
   },
   "empty": {
-    "title": "Empty",
-    "description": "Captain! Turn around, there's nothing here"
+    "title": "空空如也",
+    "description": "船长！请调头，这里什么都没有"
   },
   "captcha": {
-    "get": "Get Captcha",
-    "fresh": "Refresh Captcha",
+    "get": "获得验证码",
+    "fresh": "刷新验证码",
     "messages": {
-      "bad": "Captcha error, please contact administrator",
-      "expired": "Captcha expired",
-      "gen": "Acquired successfully",
-      "wrong": "Incorrect captcha"
+      "bad": "验证码错误，请联系管理员",
+      "expired": "验证码已过期",
+      "gen": "获取成功",
+      "wrong": "验证码错误"
     },
-    "title": "Captcha"
+    "title": "验证码"
   }
 }
