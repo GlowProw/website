@@ -14,6 +14,11 @@
       "meta": {
         "keywords": "Ship details, ship,{keywords}"
       }
+    },
+    "treasureMaps": {
+      "meta": {
+        "keywords": "地点,地图,位置,地区,视图,可视化,{keywords}"
+      }
     }
   },
   "calendar": {
