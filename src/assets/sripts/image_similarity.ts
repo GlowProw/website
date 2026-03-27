@@ -196,8 +196,8 @@ export function compareHistograms(hist1: number[], hist2: number[]): number {
         similarity += Math.sqrt(hist1[i] * hist2[i])
     }
 
-    // 归一化并转换为百分比
-    return (similarity / minLength) * 100;
+    // 巴氏距离计算结果本身就是 [0, 1] 的值，直接转换为百分比
+    return similarity * 100;
 }
 
 // ==================== 结构相似性算法 ====================
@@ -325,6 +325,30 @@ export function computeBlockFeatures(imageData: ImageData): number[] {
     return features;
 }
 
+/**
+ * 比较分块特征相似度
+ * 逐个块比对特征差异
+ * @param blocks1 - 第一个特征数组
+ * @param blocks2 - 第二个特征数组
+ * @returns 相似度百分比 (0-100)
+ */
+export function compareBlockFeatures(
+    blocks1: number[],
+    blocks2: number[]
+): number {
+    const minLength = Math.min(blocks1.length, blocks2.length)
+    if (minLength === 0) return 0;
+
+    let similarity = 0;
+    for (let i = 0; i < minLength; i++) {
+        // blockLuminance 和 blockSaturation 都是 [0, 1] 之间的值
+        const diff = Math.abs(blocks1[i] - blocks2[i])
+        similarity += (1 - diff);
+    }
+
+    return (similarity / minLength) * 100;
+}
+
 // ==================== 综合相似度计算 ====================
 
 /**
@@ -364,7 +388,7 @@ export async function calculateImageSimilarity(
             const blockData2 = await loadImageToImageData(imageUrl2)
             const blocks1 = computeBlockFeatures(blockData1)
             const blocks2 = computeBlockFeatures(blockData2)
-            return compareStructuralFeatures(blocks1, blocks2)
+            return compareBlockFeatures(blocks1, blocks2)
 
         default:
             return 0; // 默认返回0而不是抛出错误

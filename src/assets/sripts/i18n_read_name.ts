@@ -361,12 +361,12 @@ export function useI18nReadName() {
             keysDescription,
             name: (category: any, lang?: string): string => {
                 let befId = (id || '').toString()
-                        .replace(/recent|old|veryOld|legend/g, '')
+                        .replace(/-(recent|old|veryOld|legendary)(?=-|$)/g, '')
                         .replace(/\d+/g, '')
                         .replaceAll('-', ''),
                     keysLocations = [
-                        `snb.territories.${befId}.name`,
                         `snb.mapLocations.${befId}.name`,
+                        `snb.territories.${befId}.name`,
                         `snb.locations.${befId}`,
                     ],
                     befLocationName = asString(keysLocations, {backRawKey: true})

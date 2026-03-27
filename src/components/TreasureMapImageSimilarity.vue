@@ -294,7 +294,7 @@ export default { name: 'TreasureMapImageSimilarity' }
 
 <script setup lang="ts">
 import {computed, onMounted, onUnmounted, ref, watch} from 'vue';
-import {calculateHashSimilarity, compareHistograms, compareStructuralFeatures, computeBlockFeatures, computeColorHistogram, computeStructuralFeatures, getImageHash} from '@/assets/sripts/image_similarity';
+import {calculateHashSimilarity, compareHistograms, compareStructuralFeatures, compareBlockFeatures, computeBlockFeatures, computeColorHistogram, computeStructuralFeatures, getImageHash} from '@/assets/sripts/image_similarity';
 import {TreasureMapType} from "glow-prow-data/src/types/TreasureMapProperties";
 import {TreasureMaps} from "glow-prow-data";
 import {useDisplay} from "vuetify/framework";
@@ -310,6 +310,7 @@ interface QueryImageData {
   hash?: string;
   colorHistogram?: number[];
   structuralFeatures?: number[];
+  blockFeatures?: number[];
   imageData?: ImageData;
 }
 
@@ -558,9 +559,12 @@ const onQueryImageUpload = async (event: Event) => {
         features.colorHistogram = computeColorHistogram(colorImageData)
         break;
       case 'structural-similarity':
-      case 'feature-matching':
         const structImageData = await loadImageToImageData(imageUrl)
         features.structuralFeatures = computeStructuralFeatures(structImageData)
+        break;
+      case 'feature-matching':
+        const blockImageData = await loadImageToImageData(imageUrl)
+        features.blockFeatures = computeBlockFeatures(blockImageData)
         break;
     }
 
@@ -600,7 +604,7 @@ const calculateSimilarity = (queryData: QueryImageData, features: any): number =
       return queryData.structuralFeatures ? compareStructuralFeatures(queryData.structuralFeatures, features.structuralFeatures) : 0;
     case 'feature-matching':
       // 在 Worker 中我们计算了 blockFeatures，这里使用它进行对比
-      return queryData.structuralFeatures ? compareStructuralFeatures(queryData.structuralFeatures, features.blockFeatures || features.structuralFeatures) : 0;
+      return queryData.blockFeatures ? compareBlockFeatures(queryData.blockFeatures, features.blockFeatures || features.structuralFeatures) : 0;
     default:
       return 0;
   }
