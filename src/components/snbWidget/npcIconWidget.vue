@@ -18,6 +18,7 @@ import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import {Npc, Npcs} from "glow-prow-data";
 import {useAppStore} from "~/stores/appStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
+import {useTooltipFollow} from "@/assets/sripts/useTooltipFollow";
 
 const
     {asString, sanitizeString} = useI18nUtils(),
@@ -27,6 +28,7 @@ const
     {t} = useI18n(),
     {raritys: raritysAssets} = useAssetsStore(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
+    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
     props = withDefaults(defineProps<{
       data?: Npc,
       id?: string,
@@ -104,9 +106,11 @@ const {targetElement, isVisible} = useIntersectionObserver({
       location="right top"
       max-width="450"
       min-width="450"
-      target="cursor">
+      :target="[tooltipPos.x, tooltipPos.y]">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
+          @mousemove="onMouseMove"
+          @mouseenter="onMouseEnter"
           ref="targetElement"
           :class="[
               'prohibit-drag',
@@ -148,11 +152,11 @@ const {targetElement, isVisible} = useIntersectionObserver({
         <p class="mb-1 mt-2">{{ i.id }}</p>
 
         <div class="d-flex ga-2 mt-3" v-if="npcs[i.id] && npcs[i.id].category">
-          <template v-for="i in npcs[i.id].category">
+          <template v-for="cat in npcs[i.id].category">
             <v-chip inline
                     class="badge-flavor text-center text-black"
-                    v-if="npcDictionaries['job'] && !npcDictionaries['job'].includes(i)">
-              {{ t(`codex.types.${i}`) }}
+                    v-if="npcDictionaries['job'] && !npcDictionaries['job'].includes(cat)">
+              {{ t(`codex.types.${cat}`) }}
             </v-chip>
           </template>
         </div>

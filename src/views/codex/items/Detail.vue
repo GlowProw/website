@@ -7,8 +7,6 @@ import {computed, onMounted, ref, type Ref, watch} from "vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
-
-import {Materials} from "glow-prow-data";
 import ItemModificationWidget from "@/components/snbWidget/itemModificationWidget.vue";
 import PerksWidget from "@/components/snbWidget/perksWidget.vue";
 
@@ -36,7 +34,6 @@ import DamageMitigationWidget from "@/components/snbWidget/damageMitigationWidge
 import ItemDescription from "@/components/snbWidget/itemDescription.vue";
 import ShipUpgradedDescription from "@/components/snbWidget/shipUpgradedDescription.vue";
 import ByEventWidget from "@/components/ByEventWidget.vue";
-import ByMapWidget from "@/components/ByMapWidget.vue";
 import ItemAmmunitionType from "@/components/snbWidget/itemAmmunitionType.vue";
 
 const

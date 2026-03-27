@@ -473,7 +473,7 @@ defineOptions({name: 'AssemblyWidget'})
                                 :class="[workshopData.data.shipSlot && workshopData.data.shipSlot.id ? 'bg-amber' : '']">
                     <v-card class="w-100">
                       <ShipIconWidget :id="workshopData.data.shipSlot.id"
-                                      :is-show-tooltip="false"
+                                      :is-show-tooltip="poops.perfectDisplay"
                                       :isOpenDetail="false"
                                       :margin="0"
                                       :padding="0"/>
@@ -507,8 +507,7 @@ defineOptions({name: 'AssemblyWidget'})
                   <v-badge bordered rounded :color="`var(--main-color)`"
                            class="d-flex align-center justify-center"
                            :offset-x="25" :offset-y="63">
-                    <template v-slot:badge
-                    >
+                    <template v-slot:badge>
                       <div class="pt-2 pb-2">
                         <v-icon icon="mdi-chevron-triple-up mr-1"></v-icon>
                         <b>{{ workshopData.data.shipUpgradeSlot.tier || 0 }}</b>
@@ -517,7 +516,9 @@ defineOptions({name: 'AssemblyWidget'})
                     <ItemSlotBase
                         size="80px" class="pa-1"
                         :class="[workshopData.data.shipUpgradeSlot ? 'bg-amber' : '']">
-                      <ItemIconWidget :id="workshopData.data.shipUpgradeSlot.id" :is-open-detail="false" :is-show-tooltip="!readonly"></ItemIconWidget>
+                      <ItemIconWidget :id="workshopData.data.shipUpgradeSlot.id"
+                                      :is-open-detail="!readonly"
+                                      :is-show-tooltip="poops.perfectDisplay"></ItemIconWidget>
                     </ItemSlotBase>
                   </v-badge>
 

@@ -363,9 +363,9 @@
       "longGunWeaponSkin": "长枪武器皮肤",
       "ballistaWeaponSkin": "弩炮武器皮肤",
       "torpedoWeaponSkin": "鱼雷武器皮肤",
-      "combatSkill": "combat Skill",
-      "legendaryEntity": "legendary Entity",
-      "powerWeapon": "power Weapon",
+      "combatSkill": "战斗技能",
+      "legendaryEntity": "传奇实体",
+      "powerWeapon": "强力武器",
       "treasure": "藏宝图"
     },
     "tier": "{num}级",
@@ -643,7 +643,8 @@
       "title": "集合列表"
     },
     "ultimate": {
-      "title": "终结技详情"
+      "title": "终结技详情",
+      "lookDetail": "查看终结技详情"
     },
     "ultimates": {
       "title": "终结技列表"

@@ -19,6 +19,7 @@ import MaterialNameRarity from "@/components/snbWidget/materialNameRarity.vue";
 import router from "~/router";
 import {useAppStore} from "~/stores/appStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
+import {useTooltipFollow} from "@/assets/sripts/useTooltipFollow";
 import ShipDescription from "@/components/snbWidget/shipDescription.vue";
 import MaterialDescription from "@/components/snbWidget/materialDescription.vue";
 
@@ -47,6 +48,7 @@ const props = withDefaults(defineProps<{
     {t} = useI18n(),
     {raritys: raritysAssets} = useAssetsStore(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
+    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
     materials = Materials,
 
     // 稀有度
@@ -92,9 +94,11 @@ const onReady = async () => {
       interactive
       class="material-card"
       content-class="pa-0"
-      target="cursor">
+      :target="[tooltipPos.x, tooltipPos.y]">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
+          @mousemove="onMouseMove"
+          @mouseenter="onMouseEnter"
           ref="targetElement"
           width="100%"
           v-bind="activatorProps"

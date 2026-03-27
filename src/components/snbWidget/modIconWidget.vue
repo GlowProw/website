@@ -5,6 +5,7 @@ import {useI18n} from "vue-i18n";
 import Loading from "@/components/Loading.vue";
 import {useAppStore} from "~/stores/appStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
+import {useTooltipFollow} from "@/assets/sripts/useTooltipFollow";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import {useRouter} from "vue-router";
 import ModName from "@/components/snbWidget/modName.vue";
@@ -36,6 +37,7 @@ const props = withDefaults(defineProps<{
 
     {t} = useI18n(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
+    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
 
     modifications = Modifications
 
@@ -80,9 +82,12 @@ defineOptions({
              :disabled="!props.isShowTooltip"
              :offset="[40, 0]"
              location="right top"
-             content-class="pa-0" target="cursor">
+             content-class="pa-0" 
+             :target="[tooltipPos.x, tooltipPos.y]">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
+          @mousemove="onMouseMove"
+          @mouseenter="onMouseEnter"
           :to="isOpenDetail ? `/codex/modification/${id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
           width="100%"

@@ -21,12 +21,14 @@ import CosmeticEffectTagWidget from "@/components/snbWidget/cosmeticEffectTagWid
 import {useAppStore} from "~/stores/appStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import CosmeticDescription from "@/components/snbWidget/cosmeticDescription.vue";
+import {useTooltipFollow} from "@/assets/sripts/useTooltipFollow";
 
 const {raritys} = useAssetsStore(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
 
     {t} = useI18n(),
     router = useRouter(),
+    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
     props = withDefaults(defineProps<{
       id: string,
       isShowOpenDetail?: boolean,
@@ -94,9 +96,11 @@ const {targetElement, isVisible} = useIntersectionObserver({
       max-width="450"
       interactive
       content-class="pa-0"
-      target="cursor">
+      :target="[tooltipPos.x, tooltipPos.y]">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
+          @mousemove="onMouseMove"
+          @mouseenter="onMouseEnter"
           ref="targetElement"
           width="100%"
           v-bind="activatorProps"

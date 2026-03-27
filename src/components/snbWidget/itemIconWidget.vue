@@ -1,5 +1,5 @@
 <script lang="ts">
-export default { name: 'ItemIconWidget' }
+export default {name: 'ItemIconWidget'}
 </script>
 
 <script setup lang="ts">
@@ -29,12 +29,13 @@ import ItemContentWidget from "@/components/snbWidget/itemContentWidget.vue";
 import {Cosmetics} from "glow-prow-data";
 import ShipUpgradedDescription from "@/components/snbWidget/shipUpgradedDescription.vue";
 import HtmlLink from "@/components/HtmlLink.vue";
+import {useTooltipFollow} from "@/assets/sripts/useTooltipFollow";
 
 const router = useRouter(),
     appStore = useAppStore(),
     {t} = useI18n(),
-    {raritys: raritysAssets} = useAssetsStore(),
     cdnStore = useCDNAssetsServiceStore(),
+    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
     props = withDefaults(defineProps<{
       id: string,
       isShowOpenDetail?: boolean,
@@ -165,11 +166,13 @@ defineExpose({
       interactive
       class="item-card"
       content-class="pa-0"
-      target="cursor">
+      :target="[tooltipPos.x, tooltipPos.y]">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
           width="100%"
           v-bind="activatorProps"
+          @mousemove="onMouseMove"
+          @mouseenter="onMouseEnter"
           :color="`hsl(from ${rarityColorConfig[i?.rarity]} h s calc(l * .15))`"
           :to="isOpenDetail ? `/codex/item/${i?.id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
@@ -278,7 +281,7 @@ defineExpose({
                   <p class="tex-left">
                     <span v-if="i.projectilesPerShot && i.projectilesPerShot > 1"><HtmlLink :isIframeShow="false" :isIcon="false" :isOpen="false">{{ (i.damagePerShot || 0) * (i.projectilesPerShot || 0) }}</HtmlLink><v-icon size="12">mdi-equal</v-icon></span>
                     <span><HtmlLink :isIframeShow="false" :isIcon="false" :isOpen="false">{{ i.damagePerShot || 0 }}</HtmlLink></span>
-                    <span v-if="i.projectilesPerShot && i.projectilesPerShot > 1"><v-icon size="12">mdi-close</v-icon>{{i.projectilesPerShot || 1}}</span>
+                    <span v-if="i.projectilesPerShot && i.projectilesPerShot > 1"><v-icon size="12">mdi-close</v-icon>{{ i.projectilesPerShot || 1 }}</span>
                   </p>
                 </v-card>
               </v-col>

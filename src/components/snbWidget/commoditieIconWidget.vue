@@ -24,6 +24,7 @@ import {useAppStore} from "~/stores/appStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import MaterialDescription from "@/components/snbWidget/materialDescription.vue";
 import CommoditieDescription from "@/components/snbWidget/commoditieDescription.vue";
+import {useTooltipFollow} from "@/assets/sripts/useTooltipFollow";
 
 const
     {asString, sanitizeString} = useI18nUtils(),
@@ -33,6 +34,7 @@ const
     {t} = useI18n(),
     {raritys: raritysAssets} = useAssetsStore(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
+    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
     props = withDefaults(defineProps<{
       id: string,
       isOpenDetail?: boolean,
@@ -100,9 +102,11 @@ const {targetElement, isVisible} = useIntersectionObserver({
       interactive
       class="item-card"
       content-class="pa-0"
-      target="cursor">
+      :target="[tooltipPos.x, tooltipPos.y]">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
+          @mousemove="onMouseMove"
+          @mouseenter="onMouseEnter"
           ref="targetElement"
           width="100%"
           v-bind="activatorProps"

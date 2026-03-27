@@ -1,5 +1,5 @@
 <script lang="ts">
-export default { name: 'TreasureMapIconWidget' }
+export default {name: 'TreasureMapIconWidget'}
 </script>
 
 <script setup lang="ts">
@@ -18,14 +18,15 @@ import {TreasureMap, TreasureMaps} from "glow-prow-data";
 import TreasureMapName from "@/components/snbWidget/treasureMapName.vue";
 import {useAppStore} from "~/stores/appStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
+import {useTooltipFollow} from "@/assets/sripts/useTooltipFollow";
 
 const
     {asString, sanitizeString} = useI18nUtils(),
-    route = useRoute(),
     router = useRouter(),
     {t} = useI18n(),
     {raritys: raritysAssets} = useAssetsStore(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
+    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
     props = withDefaults(defineProps<{
       id: string,
       isShowOpenDetail?: boolean,
@@ -91,9 +92,11 @@ const {targetElement, isVisible} = useIntersectionObserver({
       interactive
       class="treasureMap-card"
       content-class="pa-0"
-      target="cursor">
+      :target="[tooltipPos.x, tooltipPos.y]">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
+          @mousemove="onMouseMove"
+          @mouseenter="onMouseEnter"
           ref="targetElement"
           width="100%"
           v-bind="activatorProps"

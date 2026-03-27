@@ -18,6 +18,7 @@ import PerksWidget from "./perksWidget.vue";
 import ShipDescription from "@/components/snbWidget/shipDescription.vue";
 import {useAppStore} from "~/stores/appStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
+import {useTooltipFollow} from "@/assets/sripts/useTooltipFollow";
 import DamageMitigationWidget from "@/components/snbWidget/damageMitigationWidget.vue";
 
 const props = withDefaults(defineProps<{
@@ -43,7 +44,8 @@ const props = withDefaults(defineProps<{
     router = useRouter(),
     appStore = useAppStore(),
     {t} = useI18n(),
-    {currentService: currentImageService} = useCDNAssetsServiceStore()
+    {currentService: currentImageService} = useCDNAssetsServiceStore(),
+    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow()
 
 
 let shipCardData = ref<any>({
@@ -90,9 +92,11 @@ defineOptions({
              :disabled="!props.isShowTooltip"
              :offset="[40, 0]"
              location="right top"
-             content-class="pa-0" target="cursor">
+             content-class="pa-0" :target="[tooltipPos.x, tooltipPos.y]">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
+          @mousemove="onMouseMove"
+          @mouseenter="onMouseEnter"
           v-bind="activatorProps"
           width="100%"
           :to="isOpenDetail ? `/codex/ship/${id}` : ''"

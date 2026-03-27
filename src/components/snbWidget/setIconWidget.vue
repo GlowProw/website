@@ -20,8 +20,10 @@ import Loading from "../Loading.vue";
 import LightRays from "../LightRays.vue"
 import {useAppStore} from "~/stores/appStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
+import {useTooltipFollow} from "@/assets/sripts/useTooltipFollow";
 
 const
+    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
     {asString, sanitizeString} = useI18nUtils(),
     {raritys} = useAssetsStore(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
@@ -103,12 +105,14 @@ const {targetElement, isVisible} = useIntersectionObserver({
       max-width="450"
       interactive
       content-class="pa-0"
-      target="cursor">
+      :target="[tooltipPos.x, tooltipPos.y]">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
           ref="targetElement"
           width="100%"
           v-bind="activatorProps"
+          @mousemove="onMouseMove"
+          @mouseenter="onMouseEnter"
           :to="isOpenDetail ? `/codex/set/${i.id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
           :class="[

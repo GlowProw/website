@@ -17,6 +17,7 @@ import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import {MapLocation, MapLocations} from "glow-prow-data";
 import MapLocationName from "@/components/snbWidget/mapLocationName.vue";
 import {useAppStore} from "~/stores/appStore";
+import {useTooltipFollow} from "@/assets/sripts/useTooltipFollow";
 
 const mapImages = import.meta.glob('/src/assets/images/map/*.*', {eager: true})
 
@@ -26,6 +27,7 @@ const
     route = useRoute(),
     router = useRouter(),
     appStore = useAppStore(),
+    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
     {t} = useI18n(),
     {raritys: raritysAssets} = useAssetsStore(),
     props = withDefaults(defineProps<{
@@ -100,9 +102,11 @@ const getType = (i: any) => i?.type
       interactive
       class="map-location-card"
       content-class="pa-0"
-      target="cursor">
+      :target="[tooltipPos.x, tooltipPos.y]">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
+          @mousemove="onMouseMove"
+          @mouseenter="onMouseEnter"
           ref="targetElement"
           width="100%"
           v-bind="activatorProps"
