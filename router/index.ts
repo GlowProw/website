@@ -455,7 +455,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 component: MaterialDetailPage,
             },
             {
-                path: 'commoditys',
+                path: 'cosmetics',
                 name: 'Cosmetics',
                 meta: {
                     title: 'codex.commoditys.title',
@@ -464,11 +464,11 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 component: CosmeticsPage,
             },
             {
-                path: 'commodity/:id',
+                path: 'cosmetic/:id',
                 name: 'CosmeticDetail',
                 meta: {
-                    title: 'codex.commodity.title',
-                    keywords: 'codex.commodity.meta.keywords'
+                    title: 'codex.cosmetic.title',
+                    keywords: 'codex.cosmetic.meta.keywords'
                 },
                 component: CosmeticDetailPage,
             },
@@ -503,8 +503,8 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: 'treasureMap/:id',
                 name: 'TreasureMapDetail',
                 meta: {
-                    title: 'codex.treasureMaps.title',
-                    keywords: 'codex.treasureMaps.meta.keywords'
+                    title: 'codex.treasureMap.title',
+                    keywords: 'codex.treasureMap.meta.keywords'
                 },
                 component: TreasureMapDetailPage,
             },

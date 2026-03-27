@@ -2,20 +2,20 @@
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import {computed} from "vue";
 
-const props = defineProps<{ id: string, grade?: string }>(),
-    {cosmetic} = useI18nReadName()
+const props = defineProps<{ id: string }>(),
+    {mapLocation} = useI18nReadName()
 
 let getTitle = computed(() => {
-  return `${cosmetic(props.id).name() || '-'}`
+  return `${mapLocation(props.id).name() || '-'}`
 })
 
 defineOptions({
-  name: "CosmeticName",
+  name: "MapLocationNameWidget"
 })
 </script>
 
 <template>
-  <span :class="`grade-${grade}-title`">{{ getTitle }}</span>
+  <span>{{ getTitle }}</span>
 </template>
 
 <style scoped lang="less">

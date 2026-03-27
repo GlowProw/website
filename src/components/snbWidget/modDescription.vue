@@ -1,13 +1,11 @@
-<script lang="ts">
-export default { name: 'ModDescription' }
-</script>
-
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import {computed} from "vue";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
-const props = defineProps<{ id: string, variants, grade, type, class?: string }>(),
-    {t, rt, tm, te} = useI18n()
+const props = defineProps<{ id: string, variants, grade, type?, class?: string }>(),
+    {t, rt, tm, te} = useI18n(),
+    {modification} = useI18nReadName()
 
 let
     // 查找模组对应变种
@@ -32,22 +30,32 @@ const onFormatRange = (data: []) => {
 
 const getRange = (v: any) => v.range
 const getModDescription = () => (tm(`snb.modifications.${props.id}.description`) as any)
+const getAllModDescription = computed(() => modification(props.id).description(null,props.type))
+
+defineOptions({
+  name: "ModDescription"
+})
 </script>
 
 <template>
-  <div v-for="(v, vIndex) in modVariants" :key="vIndex"
+  <template v-if="type">
+    <div v-for="(v, vIndex) in modVariants" :key="vIndex"
        :class="`grade-${grade}-description ${props.class}`" class="description">
-    <template v-if=" !Array.isArray(t(`snb.modifications.${id}.description`)) && te(`snb.modifications.${id}.description`)">
-      {{
-        t(`snb.modifications.${id}.description`, {
-          __: onFormatRange(getRange(v))
-        })
-      }}
-    </template>
-    <template v-else v-for="content in getModDescription()" :key="content">
-      {{ rt(content, {__: onFormatRange(getRange(v))}) }}<br>
-    </template>
-  </div>
+      <template v-if=" !Array.isArray(t(`snb.modifications.${id}.description`)) && te(`snb.modifications.${id}.description`)">
+        {{
+          t(`snb.modifications.${id}.description`, {
+            __: onFormatRange(getRange(v))
+          })
+        }}
+      </template>
+      <template v-else v-for="content in getModDescription()" :key="content">
+        {{ rt(content, {__: onFormatRange(getRange(v))}) }}<br>
+      </template>
+    </div>
+  </template>
+  <template v-else>
+    <span class="text-pre">{{ getAllModDescription }}</span>
+  </template>
 </template>
 
 <style scoped lang="less">

@@ -115,17 +115,17 @@ const filterByObtainable = (d: Item | Material | Cosmetic | Npc | null | undefin
       }
       // 地点
       else if (element && element._typeStringName == 'MapLocation') {
-        return [{
+        acc.push({
           id: element.id,
           type: element._typeStringName,
           to: `/codex/map/view?key=${element.id}`,
-        }];
+        });
       }
       // 兜底
       else if (typeof element === 'string') {
         acc.push({
           id: element,
-          type: element._typeStringName,
+          type: 'Unknown',
         })
       }
 

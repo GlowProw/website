@@ -1,18 +1,21 @@
-<script lang="ts">
-export default { name: 'SetName' }
-</script>
-
 <script setup lang="ts">
-import {useI18n} from "vue-i18n";
-import {useRoute} from "vue-router";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
+import {computed} from "vue";
 
-const props = defineProps<{id: string | unknown, grade?: string}>(),
-    route = useRoute(),
-    {t} = useI18n()
+const props = defineProps<{ id: string, grade?: string }>(),
+    {set} = useI18nReadName()
+
+let getTitle = computed(() => {
+  return `${set(props.id).name() || '-'}`
+})
+
+defineOptions({
+  name: "SetName"
+})
 </script>
 
 <template>
-  <span :class="`grade-${grade}-title`">{{ t(`snb.sets.${id}`) }}</span>
+  <span :class="`grade-${grade}-title`" :title="getTitle">{{ getTitle }}</span>
 </template>
 
 <style scoped lang="less">

@@ -15,7 +15,7 @@ import Loading from "../Loading.vue";
 import LightRays from "../LightRays.vue"
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import {MapLocation, MapLocations} from "glow-prow-data";
-import MapLocationNameWidget from "@/components/snbWidget/mapLocationNameWidget.vue";
+import MapLocationName from "@/components/snbWidget/mapLocationName.vue";
 import {useAppStore} from "~/stores/appStore";
 
 const mapImages = import.meta.glob('/src/assets/images/map/*.*', {eager: true})
@@ -143,7 +143,7 @@ const getType = (i: any) => i?.type
         <div class="v-skeleton-loader__bone v-skeleton-loader__image opacity-30 position-absolute left-0 top-0 w-100 h-100"></div>
 
         <h1 class="map-location-card-name font-weight-bold w-66">
-          <MapLocationNameWidget :id="i.id"></MapLocationNameWidget>
+          <MapLocationName :id="i.id"></MapLocationName>
         </h1>
         <p class="mb-1 mt-2">{{ i.id }}</p>
 

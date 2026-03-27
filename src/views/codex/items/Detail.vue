@@ -34,7 +34,7 @@ import ShipUpgradeUseWidget from "@/components/snbWidget/shipUpgradeUseWidget.vu
 import BluePrintWidget from "@/components/BluePrintWidget.vue";
 import DamageMitigationWidget from "@/components/snbWidget/damageMitigationWidget.vue";
 import ItemDescription from "@/components/snbWidget/itemDescription.vue";
-import ShipUpgradedDescription from "@/components/snbWidget/ShipUpgradedDescription.vue";
+import ShipUpgradedDescription from "@/components/snbWidget/shipUpgradedDescription.vue";
 import ByEventWidget from "@/components/ByEventWidget.vue";
 import ByMapWidget from "@/components/ByMapWidget.vue";
 import ItemAmmunitionType from "@/components/snbWidget/itemAmmunitionType.vue";
@@ -77,8 +77,11 @@ let itemDetailData: Ref<any> = ref(null),
       title: t(route.meta.title as string),
       titleTemplate: `%s | ${t('name')}`,
       meta: [
+        {name: 'description', content: ''},
         {name: 'keywords', content: t(route.meta.keywords as string)},
         {name: 'og:title', content: `%s | ${t('name')}`},
+        {name: 'og:description', content: ''},
+        {name: 'og:site_name', content: t('name')},
       ]
     })
 
@@ -107,16 +110,22 @@ const onReady = () => {
 
   itemDetailData.value = items[id as string];
 
-  head.value.titleTemplate = `${i18nReadName.item(id as string).name()} - ${head.value.titleTemplate}`
+  const headData = i18nReadName.item(id as string),
+      headName = headData.name() as string,
+      headDescription = headData.description() as string
+
+  head.value.titleTemplate = `${headName} - ${head.value.titleTemplate}`
   head.value.meta = [
+    {name: 'description', content: headDescription},
     {
       name: 'keywords', content: t(route.meta.keywords as string, {
         keywords: Object.keys(messages.value).map(lang => {
-          return i18nReadName.item(id as string).keys.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
+          return headData.keysName.map((key: any) => i18nReadName.getValue(messages.value[lang], key)).filter((i: any) => i != null)
         }).concat([id as string]) + `,${t('home.meta.keywords')}`
       })
     },
     {name: 'og:title', content: `${t(route.meta.title as string)} | ${t('name')}`},
+    {name: 'og:description', content: headDescription},
   ]
 
   onCodexHistory()

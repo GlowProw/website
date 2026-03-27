@@ -1,21 +1,26 @@
-<script lang="ts">
-export default { name: 'ModName' }
-</script>
-
 <script setup lang="ts">
 
-import {useI18n} from "vue-i18n";
 import {useRoute} from "vue-router";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
+import {computed} from "vue";
 
-const props = defineProps<{id: string, grade: string}>(),
+const props = defineProps<{ id: string, grade: string }>(),
     route = useRoute(),
-    {t} = useI18n()
+    {modification} = useI18nReadName()
+
+let getTitle = computed(() => {
+  return `${modification(props.id).name() || '-'}`
+})
+
+defineOptions({
+  name:"ModName"
+})
 </script>
 
 <template>
-  <span :class="`grade-${grade}-title`">{{ t(`snb.modifications.${id}.name`) }}</span>
+  <span :class="`grade-${grade}-title`">{{ getTitle }}</span>
   <v-spacer v-if="route.query.debug"></v-spacer>
-  <span class="opacity-30" v-if="route.query.debug">{{id}}</span>
+  <span class="opacity-30" v-if="route.query.debug">{{ id }}</span>
 </template>
 
 <style scoped lang="less">

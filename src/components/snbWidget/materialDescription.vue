@@ -1,19 +1,19 @@
-<script lang="ts">
-export default { name: 'MaterialDescription' }
-</script>
-
 <script setup lang="ts">
-import {useI18n} from "vue-i18n";
 import {computed} from "vue";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
-const {t} = useI18n(),
-    props = defineProps<{ id: string | undefined }>()
+const props = defineProps<{ id: string | undefined }>(),
+    {material} = useI18nReadName()
 
-const getDescription = computed(() => t(`snb.materials.${props.id}.description`)),
+const getDescription = computed(() => material(props.id).description()),
     isHasDescription = computed(() => !!getDescription.value)
 
 defineExpose({
   isHasDescription
+})
+
+defineOptions({
+  name: "MaterialDescription",
 })
 </script>
 

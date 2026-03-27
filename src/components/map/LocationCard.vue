@@ -23,7 +23,7 @@
                 <div
                     class="d-flex align-center text-amber singe-line"
                     :title="t(`snb.locations.${selectedLocation.id}`)">
-                  <MapLocationNameWidget :id="selectedLocation.id" v-if="selectedLocation.id"></MapLocationNameWidget>
+                  <MapLocationName :id="selectedLocation.id" v-if="selectedLocation.id"></MapLocationName>
                 </div>
               </router-link>
             </template>
@@ -217,7 +217,7 @@ import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useDisplay } from 'vuetify/framework';
 import ShieldWidget from "@/components/snbWidget/shieldWidget.vue";
-import MapLocationNameWidget from "@/components/snbWidget/mapLocationNameWidget.vue";
+import MapLocationName from "@/components/snbWidget/mapLocationName.vue";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import FactionNameWidget from "@/components/snbWidget/factionNameWidget.vue";

@@ -29,14 +29,14 @@ const
     router = useRouter(),
     route = useRoute(),
     authStore = useAuthStore(),
-    {asArray, asString, sanitizeString} = useI18nUtils(),
+    {asString, sanitizeString} = useI18nUtils(),
     i18nReadName = useI18nReadName(),
+    rarityColorConfig = rarity.color,
 
     // 物品数据
     commodities: any = Commodities
 
 let commoditieDetailData: Ref<any> = ref(null),
-
     bluePrint = computed(() => {
       let bluePrints = commoditieDetailData.value?.blueprint;
 
@@ -49,15 +49,16 @@ let commoditieDetailData: Ref<any> = ref(null),
       return Object.values(bluePrints[0]).map(i => t(`snb.locations.${i}`))
     }),
 
-    rarityColorConfig = rarity.color,
-
     // meta
     head = ref({
       title: t(route.meta.title as string),
       titleTemplate: `%s | ${t('name')}`,
       meta: [
+        {name: 'description', content: ''},
         {name: 'keywords', content: t(route.meta.keywords as string)},
         {name: 'og:title', content: `%s | ${t('name')}`},
+        {name: 'og:description', content: ''},
+        {name: 'og:site_name', content: t('name')},
       ]
     })
 
@@ -86,16 +87,22 @@ const onReady = () => {
 
   commoditieDetailData.value = commodities[id as string];
 
-  head.value.titleTemplate = `${i18nReadName.item(id as string).name()} - ${head.value.titleTemplate}`
+  const headData = i18nReadName.commoditie(id as string),
+      headName = headData.name(),
+      headDescription = headData.description()
+
+  head.value.titleTemplate = `${headName} - ${head.value.titleTemplate}`
   head.value.meta = [
+    {name: 'description', content: headDescription},
     {
       name: 'keywords', content: t(route.meta.keywords as string, {
         keywords: Object.keys(messages.value).map(lang => {
-          return i18nReadName.item(id as string).keys.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
+          return headData.keysName.map((key: any) => i18nReadName.getValue(messages.value[lang], key)).filter((i: any) => i != null)
         }).concat([id as string]) + `,${t('home.meta.keywords')}`
       })
     },
     {name: 'og:title', content: `${t(route.meta.title as string)} | ${t('name')}`},
+    {name: 'og:description', content: headDescription},
   ]
 
   onCodexHistory()

@@ -12,7 +12,7 @@ import CommentWidget from "@/components/CommentWidget.vue";
 import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
 import {storage} from "@/assets/sripts/index";
-import MapLocationNameWidget from "@/components/snbWidget/mapLocationNameWidget.vue";
+import MapLocationName from "@/components/snbWidget/mapLocationName.vue";
 import MapLocationIconWidget from "@/components/snbWidget/mapLocationIconWidget.vue";
 import MapLocationAvailableTreasureMapWidget from "@/components/snbWidget/mapLocationAvailableTreasureMapWidget.vue";
 import MapLocationAvailableNpcWidget from "@/components/snbWidget/mapLocationAvailableNpcWidget.vue";
@@ -37,8 +37,11 @@ const {t, messages} = useI18n(),
       title: t(route.meta.title as string),
       titleTemplate: `%s | ${t('name')}`,
       meta: [
+        {name: 'description', content: ''},
         {name: 'keywords', content: t(route.meta.keywords as string)},
         {name: 'og:title', content: `%s | ${t('name')}`},
+        {name: 'og:description', content: ''},
+        {name: 'og:site_name', content: t('name')},
       ]
     })
 
@@ -52,16 +55,22 @@ onMounted(() => {
   if (id)
     mapLocationDetailData.value = mapLocations[id as string]
 
-  head.value.titleTemplate = `${i18nReadName.mapLocation(id as string).name()} - ${head.value.titleTemplate}`
+  const headData = i18nReadName.mapLocation(id as string),
+      headName = headData.name(),
+      headDescription = headData.description()
+
+  head.value.titleTemplate = `${headName} - ${head.value.titleTemplate}`
   head.value.meta = [
+    {name: 'description', content: headDescription},
     {
       name: 'keywords', content: t(route.meta.keywords as string, {
         keywords: Object.keys(messages.value).map(lang => {
-          return i18nReadName.mapLocation(id as string).keys.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
+          return headData.keysName.map((key: any) => i18nReadName.getValue(messages.value[lang], key)).filter((i: any) => i != null)
         }).concat([id as string]) + `,${t('home.meta.keywords')}`
       })
     },
     {name: 'og:title', content: `${t(route.meta.title as string)} | ${t('name')}`},
+    {name: 'og:description', content: headDescription},
   ]
 
   onCodexHistory()
@@ -104,7 +113,7 @@ const onCodexHistory = () => {
         <v-row class="mt-5">
           <v-col cols="8">
             <h1 class="text-amber text-h2 singe-line">
-              <MapLocationNameWidget :id="mapLocationDetailData.id"></MapLocationNameWidget>
+              <MapLocationName :id="mapLocationDetailData.id"></MapLocationName>
             </h1>
             <p class="mt-2 mb-3">
               <v-icon icon="mdi-identifier"/>

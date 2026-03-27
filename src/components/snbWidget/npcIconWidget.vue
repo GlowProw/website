@@ -147,7 +147,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
         </h1>
         <p class="mb-1 mt-2">{{ i.id }}</p>
 
-        <div class="d-flex ga-2 mt-3">
+        <div class="d-flex ga-2 mt-3" v-if="npcs[i.id] && npcs[i.id].category">
           <template v-for="i in npcs[i.id].category">
             <v-chip inline
                     class="badge-flavor text-center text-black"

@@ -1,15 +1,21 @@
-<script lang="ts">
-export default { name: 'ShipDescription' }
-</script>
-
 <script setup lang="ts">
-import {useI18n} from "vue-i18n";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
+import {computed} from "vue";
 
-const props = defineProps<{ id: string }>(), {t} = useI18n()
+const props = defineProps<{ id: string }>(),
+    {ship} = useI18nReadName()
+
+let getDescription = computed(() => {
+  return `${ship(props.id).description() || '-'}`
+})
+
+defineOptions({
+  name: "ShipDescription"
+})
 </script>
 
 <template>
-  {{ t(`snb.ships.${id}.description.general`) }}
+  <span>{{ getDescription }}</span>
 </template>
 
 <style scoped lang="less">

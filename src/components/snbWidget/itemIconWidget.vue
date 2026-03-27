@@ -27,7 +27,7 @@ import ByObtainableWidget from "@/components/ByObtainableWidget.vue";
 import ItemDescription from "@/components/snbWidget/itemDescription.vue";
 import ItemContentWidget from "@/components/snbWidget/itemContentWidget.vue";
 import {Cosmetics} from "glow-prow-data";
-import ShipUpgradedDescription from "@/components/snbWidget/ShipUpgradedDescription.vue";
+import ShipUpgradedDescription from "@/components/snbWidget/shipUpgradedDescription.vue";
 import HtmlLink from "@/components/HtmlLink.vue";
 
 const router = useRouter(),

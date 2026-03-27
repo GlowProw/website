@@ -1,13 +1,12 @@
 <script setup lang="ts">
-
 import {computed} from "vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
 const props = defineProps<{ id: string }>(),
-    {item} = useI18nReadName()
+    {mapLocation} = useI18nReadName()
 
 let getDescription = computed(() => {
-      return item(props.id).description()
+      return mapLocation(props.id as string).description()
     }),
     isHasDescription = computed(() => getDescription.value.length > 0)
 
@@ -16,7 +15,7 @@ defineExpose({
 })
 
 defineOptions({
-  name: "ItemDescription"
+  name: "mapLocationDescription"
 })
 </script>
 

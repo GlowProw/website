@@ -21,7 +21,7 @@ import CosmeticIconWidget from "@/components/snbWidget/cosmeticIconWidget.vue";
 import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import MapLocationIconWidget from "@/components/snbWidget/mapLocationIconWidget.vue";
-import MapLocationNameWidget from "@/components/snbWidget/mapLocationNameWidget.vue";
+import MapLocationName from "@/components/snbWidget/mapLocationName.vue";
 import CommoditieIconWidget from "@/components/snbWidget/commoditieIconWidget.vue";
 import CommoditieName from "@/components/snbWidget/commoditieName.vue";
 import {useRoute, useRouter} from "vue-router";
@@ -576,7 +576,7 @@ defineOptions({
                       <UltimateName :id="i.id"></UltimateName>
                     </template>
                     <template v-else-if="String(type)=='mapLocation'">
-                      <MapLocationNameWidget :id="i.id"></MapLocationNameWidget>
+                      <MapLocationName :id="i.id"></MapLocationName>
                     </template>
                   </v-list-item-title>
                   <v-list-item-subtitle>

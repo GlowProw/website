@@ -1,16 +1,40 @@
 {
-  "rewrites": [
+  "caches": [
     {
-      "source": "/robots.txt",
-      "destination": "/robots.txt"
+      "source": "/robots.xml",
+      "cacheTtl": 0
     },
     {
       "source": "/sitemap.xml",
-      "destination": "/sitemap.xml"
+      "cacheTtl": 0
+    }
+  ],
+  "headers": [
+    {
+      "source": "/sitemap.xml",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/xml"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/robots.txt",
+      "destination": "/robots.txt",
+      "statusCode": 200
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/sitemap.xml",
+      "statusCode": 200
     },
     {
       "source": "/ads.txt",
-      "destination": "/ads.txt"
+      "destination": "/ads.txt",
+      "statusCode": 200
     }
   ]
 }

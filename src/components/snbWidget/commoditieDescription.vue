@@ -1,24 +1,21 @@
-<script lang="ts">
-export default { name: 'CommoditieDescription' }
-</script>
-
 <script setup lang="ts">
-import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {computed} from "vue";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
 const props = defineProps<{ id: string }>(),
-    {sanitizeString, asArray} = useI18nUtils()
+    {commoditie} = useI18nReadName()
 
 let getDescription = computed(() => {
-      return asArray([
-        `snb.commodities.${props.id}.description`,
-        `snb.commodities.${props.id}.description.general`,
-      ])
+      return commoditie(props.id as string).description()
     }),
     isHasDescription = computed(() => getDescription.value.length > 0)
 
 defineExpose({
   isHasDescription
+})
+
+defineOptions({
+  name: "CommoditieDescription"
 })
 </script>
 

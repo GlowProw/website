@@ -33,7 +33,7 @@ import UltimateName from "@/components/snbWidget/ultimateName.vue";
 import CosmeticName from "@/components/snbWidget/cosmeticName.vue";
 import ModName from "@/components/snbWidget/modName.vue";
 import TreasureMapName from "@/components/snbWidget/treasureMapName.vue";
-import MapLocationNameWidget from "@/components/snbWidget/mapLocationNameWidget.vue";
+import MapLocationName from "@/components/snbWidget/mapLocationName.vue";
 import MaterialNameRarity from "@/components/snbWidget/materialNameRarity.vue";
 import MaterialName from "@/components/snbWidget/materialName.vue";
 import EmptyView from "@/components/EmptyView.vue";
@@ -1169,7 +1169,7 @@ const onSort = (field: SortField, order: SortOrder) => {
             <ModName :id="i.id" v-if="i._typeStringName == 'Modification'" :grade="i.grade"></ModName>
 
             <TreasureMapName :data="i" v-if="i._typeStringName == 'TreasureMap'"></TreasureMapName>
-            <MapLocationNameWidget :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationNameWidget>
+            <MapLocationName :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationName>
             <NpcName :data="i" v-if="i._typeStringName == 'Npc'"></NpcName>
           </div>
         </v-card>
@@ -1216,7 +1216,7 @@ const onSort = (field: SortField, order: SortOrder) => {
             <ModName :id="i.id" v-if="i._typeStringName == 'Modification'" :grade="i.grade"></ModName>
 
             <TreasureMapName :data="i" v-if="i._typeStringName == 'TreasureMap'"></TreasureMapName>
-            <MapLocationNameWidget :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationNameWidget>
+            <MapLocationName :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationName>
             <NpcName :data="i" v-if="i._typeStringName == 'Npc'"></NpcName>
           </div>
         </v-card>

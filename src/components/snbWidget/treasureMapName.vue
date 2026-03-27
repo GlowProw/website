@@ -1,28 +1,22 @@
-<script lang="ts">
-export default { name: 'TreasureMapName' }
-</script>
-
 <script setup lang="ts">
-import {useI18n} from "vue-i18n";
 import {TreasureMap} from "glow-prow-data";
-import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {computed} from "vue";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
-const
-    props = defineProps<{ data: TreasureMap }>(),
-    {t} = useI18n(),
-    {sanitizeString} = useI18nUtils()
+const props = defineProps<{ data: TreasureMap }>(),
+    {treasureMap} = useI18nReadName()
 
-let title = computed(() => {
-  const data = props.data;
-  return `${t(`codex.treasureMap.names.${data?.category}`, {
-    location: (data?.territory as any)?.id ? t(`snb.territories.${(data?.territory as any)?.id}.name`) : sanitizeString(data?.id)?.cleaned?.replaceAll('-', '\t')
-  })} (${t(`codex.treasureMap.categorys.${data?.category}`)})`
+let getTitle = computed(() => {
+  return `${treasureMap(props?.data?.id).name(props.data?.category) || '-'}`
+})
+
+defineOptions({
+  name: "TreasureMapName"
 })
 </script>
 
 <template>
-  <span :title="title">{{ title }}</span>
+  <span :title="getTitle">{{ getTitle }}</span>
 </template>
 
 <style scoped lang="less">

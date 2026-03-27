@@ -1,15 +1,13 @@
-<script lang="ts">
-export default { name: 'ItemName' }
-</script>
-
 <script setup lang="ts">
 import {computed} from "vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name"
 import {Item} from "glow-prow-data";
-import {useI18nUtils} from "@/assets/sripts/i18n_util";
 
-const props = defineProps<{ data?: Item, id?: string, tier?: number }>(),
-    {asString, sanitizeString} = useI18nUtils(),
+type EitherDataOrIdAndTier =
+    | { data: Item; id?: never; tier?: never }
+    | { data?: never; id: string; tier: number };
+
+const props = defineProps<EitherDataOrIdAndTier>(),
     {item} = useI18nReadName()
 
 let getTitle = computed(() => {
@@ -17,6 +15,10 @@ let getTitle = computed(() => {
 })
 
 defineExpose({ name: getTitle })
+
+defineOptions({
+  name: "ItemName"
+})
 </script>
 
 <template>

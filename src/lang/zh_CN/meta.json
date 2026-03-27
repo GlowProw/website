@@ -28,6 +28,16 @@
         "keywords": "杂货列表,商品,{keywords}"
       }
     },
+    "cosmetic": {
+      "meta": {
+        "keywords": "装饰品,物品,皮肤,{keywords}"
+      }
+    },
+    "cosmetics": {
+      "meta": {
+        "keywords": "装饰品,物品,皮肤,{keywords}"
+      }
+    },
     "ship": {
       "meta": {
         "keywords": "船详详情,船,{keywords}"

@@ -1,5 +1,5 @@
 <script lang="ts">
-export default { name: 'CosmeticIconWidget' }
+export default {name: 'CosmeticIconWidget'}
 </script>
 
 <script setup lang="ts">
@@ -22,13 +22,10 @@ import {useAppStore} from "~/stores/appStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import CosmeticDescription from "@/components/snbWidget/cosmeticDescription.vue";
 
-const
-    {asString, sanitizeString} = useI18nUtils(),
-    {raritys} = useAssetsStore(),
+const {raritys} = useAssetsStore(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
 
     {t} = useI18n(),
-    route = useRoute(),
     router = useRouter(),
     props = withDefaults(defineProps<{
       id: string,
@@ -55,7 +52,7 @@ const
     // 稀有度
     rarityColorConfig = rarity.color
 
-    let cosmeticCardData = ref({
+let cosmeticCardData = ref({
       icon: '',
     }),
     i: Ref<UnwrapRef<Cosmetic> | Cosmetic> = ref(Cosmetic.fromRawData({})),
@@ -103,7 +100,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
           ref="targetElement"
           width="100%"
           v-bind="activatorProps"
-          :to="isOpenDetail ? `/codex/commodity/${i.id}` : ''"
+          :to="isOpenDetail ? `/codex/cosmetic/${i.id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
           :class="[
               'prohibit-drag',

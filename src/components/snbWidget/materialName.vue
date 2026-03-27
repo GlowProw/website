@@ -1,22 +1,23 @@
-<script lang="ts">
-export default { name: 'MaterialName' }
-</script>
-
 <script setup lang="ts">
-import {useI18n} from "vue-i18n";
+import {computed} from "vue";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
-const {t} = useI18n(),
-    props = defineProps<{ id: string | undefined }>()
+const props = defineProps<{ id: string | undefined }>(),
+    {material} = useI18nReadName()
+
+let getTitle = computed(() => {
+  return `${material(props.id).name() || '-'}`
+})
+
+defineOptions({
+  name: "MaterialName"
+})
 </script>
 
 <template>
-    <span :title="t(`snb.materials.${id}.name`)"
-          v-tooltip="t(`snb.materials.${id}.name`)"
-          v-if="id">{{ t(`snb.materials.${id}.name`) }}</span>
+  <span :title="getTitle" v-if="id">{{ getTitle }}</span>
 </template>
 
 <style scoped lang="less">
-.a {
-  color: hal()
-}
+
 </style>

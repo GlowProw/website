@@ -39,8 +39,11 @@ let materialDetailData: Ref<any> = ref({}),
       title: t(route.meta.title as string),
       titleTemplate: `%s | ${t('name')}`,
       meta: [
+        {name: 'description', content: ''},
         {name: 'keywords', content: t(route.meta.keywords as string)},
         {name: 'og:title', content: `%s | ${t('name')}`},
+        {name: 'og:description', content: ''},
+        {name: 'og:site_name', content: t('name')},
       ]
     })
 
@@ -59,16 +62,22 @@ onMounted(() => {
   if (id)
     materialDetailData.value = materials[id as string]
 
-  head.value.titleTemplate = `${i18nReadName.material(id as string).name()} - ${head.value.titleTemplate}`
+  const headData = i18nReadName.material(id as string),
+      headName = headData.name(),
+      headDescription = headData.description()
+
+  head.value.titleTemplate = `${headName} - ${head.value.titleTemplate}`
   head.value.meta = [
+    {name: 'description', content: headDescription},
     {
       name: 'keywords', content: t(route.meta.keywords as string, {
         keywords: Object.keys(messages.value).map(lang => {
-          return i18nReadName.material(id as string).keys.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
+          return headData.keysName.map((key: any) => i18nReadName.getValue(messages.value[lang], key)).filter((i: any) => i != null)
         }).concat([id as string]) + `,${t('home.meta.keywords')}`
       })
     },
     {name: 'og:title', content: `${t(route.meta.title as string)} | ${t('name')}`},
+    {name: 'og:description', content: headDescription},
   ]
 
   onCodexHistory()

@@ -28,7 +28,7 @@
                 cover/>
           </template>
           <template v-slot:title>
-            <MapLocationNameWidget :id="item.raw.id" v-if="item.raw.id"></MapLocationNameWidget>
+            <MapLocationName :id="item.raw.id" v-if="item.raw.id"></MapLocationName>
           </template>
         </v-list-item>
       </template>
@@ -46,7 +46,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 import { useDisplay } from 'vuetify/framework';
-import MapLocationNameWidget from "@/components/snbWidget/mapLocationNameWidget.vue";
+import MapLocationName from "@/components/snbWidget/mapLocationName.vue";
 import FullscreenBtn from "@/components/FullscreenBtn.vue";
 
 const model = defineModel<any | null>({ required: true });

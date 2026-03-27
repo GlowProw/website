@@ -1,19 +1,19 @@
-<script lang="ts">
-export default { name: 'CosmeticDescription' }
-</script>
-
 <script setup lang="ts">
-import {useI18n} from "vue-i18n";
 import {computed} from "vue";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
-const {t} = useI18n(),
-    props = defineProps<{ id: string | undefined }>()
+const props = defineProps<{ id: string | undefined }>(),
+    {cosmetic} = useI18nReadName()
 
-let getDescription = computed(() => t(`snb.cosmetics.${props.id}.description.general`)),
+let getDescription = computed(() => cosmetic(props.id).description()),
     isHasDescription = computed(() => !!getDescription.value)
 
 defineExpose({
   isHasDescription
+})
+
+defineOptions({
+  name: "CosmeticDescription"
 })
 </script>
 

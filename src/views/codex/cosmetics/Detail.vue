@@ -21,24 +21,30 @@ import CosmeticPiecesTagWidget from "@/components/snbWidget/cosmeticPiecesTagWid
 import CosmeticEffectTagWidget from "@/components/snbWidget/cosmeticEffectTagWidget.vue";
 import ByWorldEventWidget from "@/components/ByWorldEventWidget.vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
+import {useHead} from "@unhead/vue";
 
 const {t, messages} = useI18n(),
     route = useRoute(),
     authStore = useAuthStore(),
     i18nReadName = useI18nReadName(),
-    cosmetics: any = Cosmetics,
+    cosmetics: any = Cosmetics
+
+let cosmeticDetailData: Ref<any> = ref({}),
 
     // meta
     head = ref({
       title: t(route.meta.title as string),
       titleTemplate: `%s | ${t('name')}`,
       meta: [
+        {name: 'description', content: ''},
         {name: 'keywords', content: t(route.meta.keywords as string)},
         {name: 'og:title', content: `%s | ${t('name')}`},
+        {name: 'og:description', content: ''},
+        {name: 'og:site_name', content: t('name')},
       ]
     })
 
-let cosmeticDetailData: Ref<any> = ref({})
+useHead(head)
 
 watch(() => route, (value) => {
   if (value) {
@@ -53,16 +59,22 @@ onMounted(() => {
   if (id)
     cosmeticDetailData.value = cosmetics[id as string]
 
-  head.value.titleTemplate = `${i18nReadName.cosmetic(id as string).name()} - ${head.value.titleTemplate}`
+  const headData = i18nReadName.cosmetic(id as string),
+      headName = headData.name(),
+      headDescription = headData.description()
+
+  head.value.titleTemplate = `${headName} - ${head.value.titleTemplate}`
   head.value.meta = [
+    {name: 'description', content: headDescription},
     {
       name: 'keywords', content: t(route.meta.keywords as string, {
         keywords: Object.keys(messages.value).map(lang => {
-          return i18nReadName.cosmetic(id as string).keys.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
+          return headData.keysName.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
         }).concat([id as string]) + `,${t('home.meta.keywords')}`
       })
     },
     {name: 'og:title', content: `${t(route.meta.title as string)} | ${t('name')}`},
+    {name: 'og:description', content: headDescription},
   ]
 
   onCodexHistory()
@@ -93,7 +105,7 @@ const onCodexHistory = () => {
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
       <v-breadcrumbs-item to="/codex">{{ t('codex.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
-      <v-breadcrumbs-item to="/codex/commoditys">{{ t('codex.cosmetics.title') }}</v-breadcrumbs-item>
+      <v-breadcrumbs-item to="/codex/cosmetics">{{ t('codex.cosmetics.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
       <v-breadcrumbs-item>{{ t('codex.cosmetic.title') }}</v-breadcrumbs-item>
     </v-container>
