@@ -56,7 +56,8 @@ const
     })
 
 watch(() => props.data, (value) => {
-  simulationArray.value = Object.values(value.sailSpeed)
+  if (value && value.sailSpeed)
+    simulationArray.value = Object.values(value.sailSpeed)
 }, {immediate: true})
 
 onUnmounted(() => {
@@ -151,7 +152,7 @@ const onWaterBarrelClick = () => {
           <div class="d-flex align-center">
             <v-icon :icon="strongBreeze ? 'mdi-weather-windy' : 'mdi-sail-boat'" class="mr-2"></v-icon>
             <span>
-              {{ t('codex.ship.sailSpeed.boost.title', { percent: totalSpeedBoost.toFixed(1) }) }}
+              {{ t('codex.ship.sailSpeed.boost.title', {percent: totalSpeedBoost.toFixed(1)}) }}
               <span v-if="speedBoost > 0">
                 <!-- {{ boostDescription }} -->
               </span>
@@ -307,21 +308,21 @@ const onWaterBarrelClick = () => {
     </v-card>
 
     <!-- 速度 S -->
-    <v-text-field :value="data.sailSpeed.halfSail" readonly
+    <v-text-field :value="data?.sailSpeed?.halfSail" readonly
                   hide-details
                   variant="underlined" density="compact">
       <template v-slot:append-inner>
         <p class="text-no-wrap">{{ t('codex.ship.sailSpeed.halfSail') }}</p>
       </template>
     </v-text-field>
-    <v-text-field :value="data.sailSpeed.fullSail" readonly
+    <v-text-field :value="data?.sailSpeed?.fullSail" readonly
                   hide-details
                   variant="underlined" density="compact">
       <template v-slot:append-inner>
         <p class="text-no-wrap">{{ t('codex.ship.sailSpeed.fullSail') }}</p>
       </template>
     </v-text-field>
-    <v-text-field :value="data.sailSpeed.travelSail" readonly
+    <v-text-field :value="data?.sailSpeed?.travelSail" readonly
                   hide-details
                   variant="underlined" density="compact">
       <template v-slot:append-inner>

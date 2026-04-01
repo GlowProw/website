@@ -46,14 +46,14 @@ const props = withDefaults(defineProps<{ data: Ship, isSimulationShipSailSpeed?:
     <ShipSailSpeedWidget :data="data" :isSimulationShipSailSpeed="isSimulationShipSailSpeed"></ShipSailSpeedWidget>
 
     <p class="mt-4"><b>{{ t('codex.ship.cargo') }}</b></p>
-    <v-text-field :value="data.cargo.cargoSlots" readonly
+    <v-text-field :value="data?.cargo?.cargoSlots" readonly
                   hide-details
                   variant="underlined" density="compact">
       <template v-slot:append-inner>
         <p class="text-no-wrap">{{ t('codex.ship.cargoSlots') }}</p>
       </template>
     </v-text-field>
-    <v-text-field :value="data.cargo.cargoMaxWeight" readonly
+    <v-text-field :value="data?.cargo?.cargoMaxWeight" readonly
                   hide-details
                   variant="underlined" density="compact">
       <template v-slot:append-inner>

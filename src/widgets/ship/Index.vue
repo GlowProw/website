@@ -12,7 +12,7 @@ const id = (route.params.id as string) || 'dhow';
         :id="id"
         :is-widget="true"
         :is-show-description="true"
-        :is-show-open-detail="true"
+        :is-show-open-detail="false"
     />
   </div>
 </template>
@@ -22,8 +22,8 @@ const id = (route.params.id as string) || 'dhow';
   background-color: transparent;
 }
 .ship-widget > :first-child {
-  min-width: 500px;
-  max-width: 550px;
+  min-width: 800px;
+  max-width: 800px;
   width: 100%;
 }
 </style>

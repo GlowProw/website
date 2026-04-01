@@ -9,14 +9,19 @@ import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import LightRays from "../LightRays.vue"
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import UltimateName from "@/components/snbWidget/ultimateName.vue";
+import ShipUpgradedDescription from "@/components/snbWidget/shipUpgradedDescription.vue";
+import ItemDescription from "@/components/snbWidget/itemDescription.vue";
+import UltimateDescription from "@/components/snbWidget/ultimateDescription.vue";
 
 const props = withDefaults(defineProps<{
   id: string,
   isShowOpenDetail?: boolean,
+  isShowDescription?: boolean,
   isWidget?: boolean,
 }>(), {
   id: 'dhow',
   isShowOpenDetail: true,
+  isShowDescription: true,
   isWidget: false,
 })
 
@@ -95,7 +100,15 @@ defineOptions({
         />
       </template>
     </div>
-    <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto"
+    <div :class="{'demo-reel-content': isWidget}" class="background-flavor overflow-auto">
+      <template v-if="isShowDescription">
+        <div class="mb-5 px-6 description">
+          <UltimateDescription :id="i.id"></UltimateDescription>
+        </div>
+      </template>
+    </div>
+    <v-divider v-if="isShowOpenDetail"></v-divider>
+    <div :class="{'demo-reel-content': isWidget}" class="pl-10 pr-10 background-flavor overflow-auto"
          v-if="isShowOpenDetail">
       <BtnWidget @action-complete="router.push(`/codex/ultimate/${i.id}`)"
                  class="mt-1">

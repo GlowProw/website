@@ -14,6 +14,7 @@ import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import UltimateName from "@/components/snbWidget/ultimateName.vue";
 import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
+import UltimateDescription from "@/components/snbWidget/ultimateDescription.vue";
 
 const
     {t, messages} = useI18n(),
@@ -175,7 +176,7 @@ const onUltimateHistory = (id: string) => {
               </ItemSlotBase>
               <v-col>
                 <p class="text-pre-wrap mb-4">
-                  {{ t(`snb.ultimates.${ultimateDetailData.id}.description`) }}
+                  <UltimateDescription :id="ultimateDetailData.id"></UltimateDescription>
                 </p>
               </v-col>
             </v-row>

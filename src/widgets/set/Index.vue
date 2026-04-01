@@ -11,7 +11,7 @@ const id = (route.params.id as string) || '';
     <SetCardDetail
         :id="id"
         :is-widget="true"
-        :is-show-open-detail="true"
+        :is-show-open-detail="false"
     />
   </div>
 </template>
@@ -21,8 +21,8 @@ const id = (route.params.id as string) || '';
   background-color: transparent;
 }
 .set-widget > :first-child {
-  min-width: 500px;
-  max-width: 550px;
+  min-width: 800px;
+  max-width: 800px;
   width: 100%;
 }
 </style>

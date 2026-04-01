@@ -27,3 +27,6 @@ dist-ssr
 .edgeone/*
 .tef_dist/*
 /.vscode/extensions.json
+
+# DEV sw
+/dev-dist/

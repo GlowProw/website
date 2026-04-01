@@ -22,8 +22,8 @@ const id = (route.params.id as string) || 'culverin1';
   background-color: transparent;
 }
 .item-widget > :first-child {
-  min-width: 500px;
-  max-width: 550px;
+  min-width: 800px;
+  max-width: 800px;
   width: 100%;
 }
 </style>

@@ -60,7 +60,7 @@ defineOptions({
 </script>
 
 <template>
-  <v-card class="demo-reel bg-black" flat border>
+  <v-card class="demo-reel bg-black" flat border v-if="shipData && shipData.id">
     <div class="demo-reel-header pa-10 position-relative">
       <h1 class="font-weight-bold">
         <ShinyText :text="t(`snb.ships.${props.id}.name`)" :speed="1" class-name="text-amber" class=""></ShinyText>
@@ -82,7 +82,7 @@ defineOptions({
 
       <v-img :src="shipCardData.icon" class="prohibit-drag right-show-image position-absolute w-33"></v-img>
     </div>
-    <div class="demo-reel-content background-flavor overflow-auto">
+    <div :class="{'demo-reel-content': isWidget}" class="background-flavor overflow-auto">
       <template v-if="isShowDescription">
         <div class="mb-5 px-6 description">
           <ShipDescription :id="props.id"></ShipDescription>
@@ -120,7 +120,7 @@ defineOptions({
             </div>
           </template>
           <template v-slot:text>
-            <PerksWidget class="mt-n0" :data="shipData" v-if="shipData.perks.length > 0"></PerksWidget>
+            <PerksWidget class="mt-n0" :data="shipData" v-if="shipData?.perks?.length > 0"></PerksWidget>
             <template v-else>
               <EmptyView></EmptyView>
             </template>
