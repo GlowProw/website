@@ -74,7 +74,7 @@ defineOptions({
       interactive
       :offset="[30,10]"
       location="right top"
-      content-class="pa-0"
+      content-class="pa-0 bg-transparent"
       :target="[tooltipPos.x, tooltipPos.y]">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
@@ -134,10 +134,10 @@ defineOptions({
           />
         </template>
       </div>
-      <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto">
+      <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto"
+           v-if="isShowOpenDetail">
         <BtnWidget @action-complete="router.push(`/codex/treasureMap/${i.id}`)"
-                   class="mt-1"
-                   v-if="isShowOpenDetail">
+                   class="mt-1">
           {{ t('codex.ultimate.lookDetail') }}
         </BtnWidget>
       </div>

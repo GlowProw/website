@@ -101,7 +101,7 @@ const getType = (i: any) => i?.type
       max-width="450"
       interactive
       class="map-location-card"
-      content-class="pa-0"
+      content-class="pa-0 bg-transparent"
       :target="[tooltipPos.x, tooltipPos.y]">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
@@ -125,6 +125,7 @@ const getType = (i: any) => i?.type
 
         <div class="d-flex align-center justify-center h-100">
           <v-img
+              referrerpolicy="no-referrer"
               class="prohibit-drag"
               :src="mapLocationsCardData.icon">
             <template v-slot:error>
@@ -179,10 +180,10 @@ const getType = (i: any) => i?.type
           />
         </template>
       </div>
-      <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto">
+      <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto"
+           v-if="isShowOpenDetail">
         <BtnWidget @action-complete="router.push(`/codex/mapLocation/${i.id}`)"
-                   class="mt-1"
-                   v-if="isShowOpenDetail">
+                   class="mt-1">
           {{ t('codex.mapLocation.lookDetail') }}
         </BtnWidget>
       </div>

@@ -92,7 +92,8 @@ defineOptions({
              :disabled="!props.isShowTooltip"
              :offset="[40, 0]"
              location="right top"
-             content-class="pa-0" :target="[tooltipPos.x, tooltipPos.y]">
+             content-class="pa-0 bg-transparent"
+             :target="[tooltipPos.x, tooltipPos.y]">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
           @mousemove="onMouseMove"
@@ -193,10 +194,10 @@ defineOptions({
         </v-expansion-panels>
       </div>
       <v-divider></v-divider>
-      <v-card-actions class="pa-5 pt-0">
+      <v-card-actions class="pa-5 pt-0"
+                      v-if="isShowOpenDetail">
         <BtnWidget @action-complete="router.push(`/codex/ship/${props.id}`)"
-                   class="mt-1 ml-1"
-                   v-if="isShowOpenDetail">
+                   class="mt-1 ml-1">
           {{ t('codex.ship.lookDetail') }}
         </BtnWidget>
       </v-card-actions>

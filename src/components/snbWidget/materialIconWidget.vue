@@ -1,5 +1,5 @@
 <script lang="ts">
-export default { name: 'MaterialIconWidget' }
+export default {name: 'MaterialIconWidget'}
 </script>
 
 <script setup lang="ts">
@@ -54,10 +54,9 @@ const props = withDefaults(defineProps<{
     // 稀有度
     rarityColorConfig = rarity.color
 
-let src = ref(''),
-    materialsCardData = ref({
+let materialsCardData = ref({
       icon: '',
-    }) as Ref<{icon: null | string}>,
+    }) as Ref<{ icon: null | string }>,
     i: Ref<Material | null> = ref(null),
     materialDescription = ref(null),
     isOpenNewWindow = computed({
@@ -93,7 +92,7 @@ const onReady = async () => {
       max-width="450"
       interactive
       class="material-card"
-      content-class="pa-0"
+      content-class="pa-0 bg-transparent"
       :target="[tooltipPos.x, tooltipPos.y]">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
@@ -101,17 +100,20 @@ const onReady = async () => {
           @mouseenter="onMouseEnter"
           ref="targetElement"
           width="100%"
+          variant="text"
+          translate
           v-bind="activatorProps"
-          :color="`hsl(from ${rarityColorConfig[i?.rarity]} h s calc(l * .15))`"
           :to="isOpenDetail ? `/codex/material/${i?.id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
+          :style="`background: hsl(from ${rarityColorConfig[i?.rarity]} h s calc(l * .2))`"
           :class="[
               'prohibit-drag',
               `ma-${props.margin}`,
               `pa-${props.padding}`,
           ]">
-        <div class="d-flex justify-center align-center h-100">
+        <div class="d-flex align-center justify-center w-100 h-100">
           <v-img
+              referrerpolicy="no-referrer"
               class="prohibit-drag"
               :src="materialsCardData.icon">
             <template v-slot:error>
@@ -184,10 +186,10 @@ const onReady = async () => {
         </template>
       </div>
       <v-divider v-if="isShowOpenDetail"></v-divider>
-      <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto">
+      <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto"
+           v-if="isShowOpenDetail">
         <BtnWidget @action-complete="router.push(`/codex/material/${i.id}`)"
-                   class="mt-1"
-                   v-if="isShowOpenDetail">
+                   class="mt-1">
           {{ t('codex.material.lookDetail') }}
         </BtnWidget>
       </div>

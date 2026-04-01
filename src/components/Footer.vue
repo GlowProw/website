@@ -10,9 +10,16 @@ import {appFuns, appNavs} from "@/assets/sripts/index";
 import Logo from "@/components/Logo.vue";
 import HtmlLink from "@/components/HtmlLink.vue";
 import {useAppStore} from "~/stores/appStore";
+import { usePWAEnvironment } from "@/assets/sripts/use_pwa_environment";
+import {onMounted} from "vue";
 
 const {t} = useI18n(),
-    appStore = useAppStore()
+    appStore = useAppStore(),
+    pwa = usePWAEnvironment()
+
+onMounted(() => {
+  pwa.isPWA
+})
 </script>
 
 <template>

@@ -165,7 +165,7 @@ defineExpose({
       max-width="450"
       interactive
       class="item-card"
-      content-class="pa-0"
+      content-class="pa-0 bg-transparent"
       :target="[tooltipPos.x, tooltipPos.y]">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
@@ -185,8 +185,8 @@ defineExpose({
 
         <div class="d-flex align-center justify-center h-100">
           <v-img
+              referrerpolicy="no-referrer"
               class="prohibit-drag"
-              crossorigin="anonymous"
               :src="itemsCardData.icon">
             <template v-slot:error>
               <div class="fill-height repeating-gradient d-flex justify-center align-center h-100">

@@ -101,7 +101,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
       :disabled="!props.isShowTooltip"
       :offset="[40, 0]"
       class="npc-card"
-      content-class="pa-0"
+      content-class="pa-0 bg-transparent"
       interactive
       location="right top"
       max-width="450"
@@ -126,6 +126,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
               :src="npcsCardData.icon"
               width="50%"
               height="50%"
+              referrerpolicy="no-referrer"
               class="prohibit-drag">
             <template v-slot:error>
               <div class="fill-height repeating-gradient d-flex justify-center align-center h-100">

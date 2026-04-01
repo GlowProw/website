@@ -101,7 +101,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
       max-width="450"
       interactive
       class="item-card"
-      content-class="pa-0"
+      content-class="pa-0 bg-transparent"
       :target="[tooltipPos.x, tooltipPos.y]">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
@@ -122,6 +122,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
 
         <div class="d-flex align-center justify-center h-100">
           <v-img
+              referrerpolicy="no-referrer"
               class="prohibit-drag"
               :src="commoditiesCardData.icon">
             <template v-slot:error>
@@ -195,10 +196,10 @@ const {targetElement, isVisible} = useIntersectionObserver({
         </template>
       </div>
       <v-divider v-if="isShowOpenDetail"></v-divider>
-      <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto">
+      <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto"
+           v-if="isShowOpenDetail">
         <BtnWidget @action-complete="router.push(`/codex/commoditie/${i.id}`)"
-                   class="mt-1"
-                   v-if="isShowOpenDetail">
+                   class="mt-1">
           {{ t('codex.commoditie.lookDetail') }}
         </BtnWidget>
       </div>

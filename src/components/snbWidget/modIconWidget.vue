@@ -82,7 +82,7 @@ defineOptions({
              :disabled="!props.isShowTooltip"
              :offset="[40, 0]"
              location="right top"
-             content-class="pa-0" 
+             content-class="pa-0 bg-transparent"
              :target="[tooltipPos.x, tooltipPos.y]">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
