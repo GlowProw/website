@@ -3,13 +3,11 @@ import {Ultimate, Ultimates} from "glow-prow-data"
 import {computed, onMounted, type Ref, ref} from "vue";
 import {useAppStore} from "~/stores/appStore";
 import {useTooltipFollow} from "@/assets/sripts/useTooltipFollow";
-import BtnWidget from "@/components/snbWidget/btnWidget.vue";
-import LightRays from "@/components/LightRays.vue";
 import {rarity} from "@/assets/sripts/index";
 import {useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
-import UltimateName from "@/components/snbWidget/ultimateName.vue";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
+import UltimateCardDetail from "@/components/snbWidget/ultimateCardDetail.vue";
 
 const props = withDefaults(defineProps<{
       id: string,
@@ -92,56 +90,10 @@ defineOptions({
         <v-img :src="ultimatesData.icon" class="pointer-events-none"></v-img>
       </v-card>
     </template>
-    <v-card class="demo-reel bg-black" flat border>
-      <div class="demo-reel-header pa-10 position-relative"
-           :style="`background-color: color-mix(in srgb, hsl(from ${rarityColorConfig[ i?.rarity || '' ]} h s l) 10%, #000)`">
-        <div class="v-skeleton-loader__bone v-skeleton-loader__image opacity-30 position-absolute left-0 top-0 w-100 h-100"></div>
-
-        <h1 class="treasure-card-name card-name font-weight-bold w-66">
-          <UltimateName :id="i.id"></UltimateName>
-        </h1>
-        <p class="card-id mb-1 mt-2">{{ i.id }}</p>
-
-        <div class="card-chip d-flex ga-2 mt-3">
-          <v-chip inline
-                  :to="`/codex/ultimates?type=${i.type}`"
-                  class="badge-flavor text-center text-black" v-if="i.type">{{ t(`codex.types.${i.type}`) }}
-          </v-chip>
-          <v-chip inline
-                  :to="`/codex/ultimates?type=${i.rarity}`"
-                  class="badge-flavor text-center text-black" v-if="i.rarity">{{ t(`codex.raritys.${i.rarity}`) }}
-          </v-chip>
-        </div>
-        <div class="right-show-image pointer-events-none position-absolute w-50">
-          <v-img :src="ultimatesData.icon" class="treasure-mirror-image"></v-img>
-        </div>
-
-        <template v-if="i.rarity">
-          <LightRays
-              id="iconBackRight"
-              ref="iconBackRight"
-              rays-origin="top-right"
-              quality="low"
-              :rays-color="rarityColorConfig[i.rarity]"
-              :rays-speed="2"
-              :light-spread="10"
-              :ray-length="10"
-              :follow-mouse="false"
-              :mouse-influence="0"
-              :noise-amount="0"
-              :distortion="0"
-              class="w-100 h-100 pointer-events-none position-absolute top-0 right-0"
-          />
-        </template>
-      </div>
-      <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto"
-           v-if="isShowOpenDetail">
-        <BtnWidget @action-complete="router.push(`/codex/treasureMap/${i.id}`)"
-                   class="mt-1">
-          {{ t('codex.ultimate.lookDetail') }}
-        </BtnWidget>
-      </div>
-    </v-card>
+    <UltimateCardDetail
+        :id="props.id"
+        :is-show-open-detail="props.isShowOpenDetail"
+    />
   </v-tooltip>
 </template>
 

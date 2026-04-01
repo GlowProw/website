@@ -1,4 +1,4 @@
-import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router';
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import i18n from "@/i18n";
 
 import PortalMainBasePage from '@/views/portal/Index.vue'
@@ -96,12 +96,23 @@ import Test from '@/views/Test.vue'
 
 import WidgetIndexPage from '@/widgets/Index.vue';
 import WidgetAssemblyPage from '@/widgets/assembly/Index.vue';
+import WidgetShipPage from '@/widgets/ship/Index.vue';
+import WidgetItemPage from '@/widgets/item/Index.vue';
+import WidgetMaterialPage from '@/widgets/material/Index.vue';
+import WidgetNpcPage from '@/widgets/npc/Index.vue';
+import WidgetModPage from '@/widgets/modifications/Index.vue';
+import WidgetCosmeticPage from '@/widgets/cosmetic/Index.vue';
+import WidgetCommoditiePage from '@/widgets/commoditie/Index.vue';
+import WidgetTreasureMapPage from '@/widgets/treasureMap/Index.vue';
+import WidgetUltimatePage from '@/widgets/ultimate/Index.vue';
+import WidgetSetPage from '@/widgets/set/Index.vue';
+import WidgetMapLocationPage from '@/widgets/mapLocation/Index.vue';
 
-import {useAuthStore} from "@/../stores/userAccountStore";
-import {useAssetsStore} from "@/../stores/assetsStore";
-import {useHead} from "@unhead/vue";
-import {apis} from "@/assets/sripts";
-import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
+import { useAuthStore } from "@/../stores/userAccountStore";
+import { useAssetsStore } from "@/../stores/assetsStore";
+import { useHead } from "@unhead/vue";
+import { apis } from "@/assets/sripts";
+import { useCDNAssetsServiceStore } from "~/stores/cdnAssetsStore";
 
 const isLoginBeforeEnter = function (to: any, from: any, next: any) {
     const authStore = useAuthStore()
@@ -109,7 +120,7 @@ const isLoginBeforeEnter = function (to: any, from: any, next: any) {
     if (authStore.user) {
         next()
     } else {
-        next({path: '/account/signin', query: {backUrl: to.fullPath}})
+        next({ path: '/account/signin', query: { backUrl: to.fullPath } })
     }
 }
 
@@ -120,7 +131,7 @@ const isAdminBeforeEnter = (to: any, from: any, next: any) => {
     if (role.includes('admin') || role.includes('super') || role.includes('dev') || role.includes('root')) {
         next()
     } else {
-        next({path: '/', query: {backUrl: to.fullPath}})
+        next({ path: '/', query: { backUrl: to.fullPath } })
     }
 }
 
@@ -137,13 +148,13 @@ const initAccountInfo = async function (to: any, from: any, next: any) {
 }
 
 const initItemAssets = () => {
-    const {init} = useAssetsStore()
+    const { init } = useAssetsStore()
     init()
     initCDNAssets()
 }
 
 const initCDNAssets = () => {
-    const {loadFromStorage} = useCDNAssetsServiceStore()
+    const { loadFromStorage } = useCDNAssetsServiceStore()
     loadFromStorage()
 }
 
@@ -707,6 +718,61 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: 'assembly/:uid',
                 name: 'AssemblyWidget',
                 component: WidgetAssemblyPage,
+            },
+            {
+                path: 'ship/:id',
+                name: 'ShipWidget',
+                component: WidgetShipPage,
+            },
+            {
+                path: 'item/:id',
+                name: 'ItemWidget',
+                component: WidgetItemPage,
+            },
+            {
+                path: 'material/:id',
+                name: 'MaterialWidget',
+                component: WidgetMaterialPage,
+            },
+            {
+                path: 'npc/:id',
+                name: 'NPCWidget',
+                component: WidgetNpcPage,
+            },
+            {
+                path: 'modification/:id',
+                name: 'ModWidget',
+                component: WidgetModPage,
+            },
+            {
+                path: 'cosmetic/:id',
+                name: 'CosmeticWidget',
+                component: WidgetCosmeticPage,
+            },
+            {
+                path: 'commoditie/:id',
+                name: 'CommoditieWidget',
+                component: WidgetCommoditiePage,
+            },
+            {
+                path: 'treasureMap/:id',
+                name: 'TreasureMapWidget',
+                component: WidgetTreasureMapPage,
+            },
+            {
+                path: 'ultimate/:id',
+                name: 'UltimateWidget',
+                component: WidgetUltimatePage,
+            },
+            {
+                path: 'set/:id',
+                name: 'SetWidget',
+                component: WidgetSetPage,
+            },
+            {
+                path: 'mapLocation/:id',
+                name: 'MapLocationWidget',
+                component: WidgetMapLocationPage,
             }
         ]
     },
@@ -753,7 +819,7 @@ const router = createRouter({
                 } else if (savedPosition) {
                     resolve(savedPosition)
                 } else {
-                    resolve({top: 0, behavior: 'smooth'})
+                    resolve({ top: 0, behavior: 'smooth' })
                 }
             }, 300)
         })
@@ -772,7 +838,7 @@ router.beforeEach((to, from, next) => {
             let meta = []
 
             if (to.meta.keywords && to.meta.keywords != t(to.meta.keywords))
-                meta.push({name: 'keywords', content: t(to.meta.keywords)})
+                meta.push({ name: 'keywords', content: t(to.meta.keywords) })
 
             useHead({
                 title: t(to.meta.title) + ' | ' + t('name'),

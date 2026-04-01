@@ -9,19 +9,11 @@ import {useAssetsStore} from "~/stores/assetsStore";
 import {number, rarity} from "@/assets/sripts/index";
 import {Material, Materials} from "glow-prow-data";
 
-import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
-import Loading from "@/components/Loading.vue";
-import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
-import LightRays from "@/components/LightRays.vue";
-import BtnWidget from "@/components/snbWidget/btnWidget.vue";
-import MaterialName from "@/components/snbWidget/materialName.vue";
-import MaterialNameRarity from "@/components/snbWidget/materialNameRarity.vue";
-import router from "~/router";
-import {useAppStore} from "~/stores/appStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import {useTooltipFollow} from "@/assets/sripts/useTooltipFollow";
-import ShipDescription from "@/components/snbWidget/shipDescription.vue";
-import MaterialDescription from "@/components/snbWidget/materialDescription.vue";
+import MaterialCardDetail from "@/components/snbWidget/materialCardDetail.vue";
+import {useAppStore} from "~/stores/appStore";
+import router from "~/router";
 
 const props = withDefaults(defineProps<{
       id: string,
@@ -58,7 +50,6 @@ let materialsCardData = ref({
       icon: '',
     }) as Ref<{ icon: null | string }>,
     i: Ref<Material | null> = ref(null),
-    materialDescription = ref(null),
     isOpenNewWindow = computed({
       get: () => appStore.itemOpenNewWindow || props.isOpenNewWindow,
       set: (value) => appStore.toggleItemOpenNewWindow(value)
@@ -130,70 +121,11 @@ const onReady = async () => {
         </div>
       </v-card>
     </template>
-    <v-card class="demo-reel bg-black" flat border>
-      <div class="demo-reel-header pa-10 position-relative"
-           :style="`background-color: color-mix(in srgb, hsl(from ${rarityColorConfig[ materials[i.id]?.rarity || '' ]} h s l) 10%, #000)`">
-        <div class="v-skeleton-loader__bone v-skeleton-loader__image opacity-30 position-absolute left-0 top-0 w-100 h-100"></div>
-
-        <h1 class="material-card-name font-weight-bold w-66">
-          <ItemSlotBase size="28px" class="mb-2" :padding="0" v-if="i.faction">
-            <FactionIconWidget class="d-inline-flex" :name="i.faction.id" v-if="i.faction"></FactionIconWidget>
-          </ItemSlotBase>
-          <MaterialNameRarity :id="i.id">
-            <MaterialName :id="i.id"></MaterialName>
-          </MaterialNameRarity>
-        </h1>
-        <p class="mb-1 mt-2">{{ i.id }}</p>
-
-        <div class="d-flex ga-2 mt-3">
-          <v-chip inline
-                  :to="`/codex/materials?category=${i.category}`"
-                  class="badge-flavor text-center text-black" v-if="i.category">
-            {{ t(`codex.categorys.${i.category}`) }}
-          </v-chip>
-          <v-chip class="badge-flavor text-center tag-badge text-black"
-                  :to="`/codex/materials?rarity=${i.rarity}`"
-                  v-if="i.rarity">{{ t(`codex.raritys.${i.rarity}`) }}
-          </v-chip>
-        </div>
-        <div class="right-show-image pointer-events-none position-absolute w-33">
-          <v-img :src="materialsCardData.icon" class="material-mirror-image"></v-img>
-        </div>
-
-        <template v-if="i.rarity">
-          <LightRays
-              id="iconBackRight"
-              ref="iconBackRight"
-              rays-origin="top-right"
-              quality="low"
-              :rays-color="rarityColorConfig[i.rarity]"
-              :rays-speed="2"
-              :light-spread="10"
-              :ray-length="10"
-              :follow-mouse="false"
-              :mouse-influence="0"
-              :noise-amount="0"
-              :distortion="0"
-              class="w-100 h-100 pointer-events-none position-absolute top-0 right-0"
-          />
-        </template>
-      </div>
-      <div class="demo-reel-content background-flavor overflow-auto">
-        <template v-if="isShowDescription">
-          <div :class="materialDescription && materialDescription.isHasDescription ? 'mb-5 px-6 description' : ''">
-            <MaterialDescription ref="materialDescription" :id="props.id"></MaterialDescription>
-          </div>
-        </template>
-      </div>
-      <v-divider v-if="isShowOpenDetail"></v-divider>
-      <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto"
-           v-if="isShowOpenDetail">
-        <BtnWidget @action-complete="router.push(`/codex/material/${i.id}`)"
-                   class="mt-1">
-          {{ t('codex.material.lookDetail') }}
-        </BtnWidget>
-      </div>
-    </v-card>
+    <MaterialCardDetail
+        :id="props.id"
+        :is-show-description="props.isShowDescription"
+        :is-show-open-detail="props.isShowOpenDetail"
+    />
   </v-tooltip>
 </template>
 

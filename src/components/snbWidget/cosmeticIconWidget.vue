@@ -6,21 +6,14 @@ export default {name: 'CosmeticIconWidget'}
 import {useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
 import Loading from "../Loading.vue";
-import LightRays from "../LightRays.vue"
 import {computed, onMounted, type Ref, ref, UnwrapRef, watch} from "vue";
 import {useIntersectionObserver} from "@/assets/sripts/intersection_observer";
 import {useAssetsStore} from "~/stores/assetsStore";
-import CosmeticName from "@/components/snbWidget/cosmeticName.vue";
-import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import {Cosmetic, Cosmetics} from "glow-prow-data";
-import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
-import {rarity} from "@/assets/sripts/index";
-import CosmeticPiecesTagWidget from "@/components/snbWidget/cosmeticPiecesTagWidget.vue";
-import CosmeticEffectTagWidget from "@/components/snbWidget/cosmeticEffectTagWidget.vue";
 import {useAppStore} from "~/stores/appStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
-import CosmeticDescription from "@/components/snbWidget/cosmeticDescription.vue";
 import {useTooltipFollow} from "@/assets/sripts/useTooltipFollow";
+import CosmeticCardDetail from "@/components/snbWidget/cosmeticCardDetail.vue";
 
 const {raritys} = useAssetsStore(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
@@ -48,16 +41,14 @@ const {raritys} = useAssetsStore(),
       margin: 1,
     }),
     appStore = useAppStore(),
-    cosmetics = Cosmetics,
+    cosmetics = Cosmetics;
 
-    // 稀有度
-    rarityColorConfig = rarity.color
+
 
 let cosmeticCardData = ref({
       icon: '',
     }),
     i: Ref<UnwrapRef<Cosmetic> | Cosmetic> = ref(Cosmetic.fromRawData({})),
-    cosmeticDescription: Ref<any> = ref(null),
     isOpenNewWindow = computed({
       get: () => appStore.itemOpenNewWindow || props.isOpenNewWindow,
       set: (value) => appStore.toggleItemOpenNewWindow(value)
@@ -134,65 +125,11 @@ const {targetElement, isVisible} = useIntersectionObserver({
         </div>
       </v-card>
     </template>
-    <v-card class="demo-reel bg-black" flat border>
-      <div class="demo-reel-header pa-10 position-relative" :class="[
-                    `cosmetic-card-header-rarity-${i?.rarity}`
-                ]">
-        <div class="v-skeleton-loader__bone v-skeleton-loader__image opacity-30 position-absolute left-0 top-0 w-100 h-100"></div>
-
-        <h1 class="font-weight-bold">
-          <FactionIconWidget class="bg-red d-inline-flex" :name="i.faction.id" size="28px" v-if="i.faction"></FactionIconWidget>
-          <CosmeticName :id="i.id"></CosmeticName>
-        </h1>
-        <p class="mb-1">{{ i.id }}</p>
-
-        <div class="d-flex ga-2 align-center mt-3">
-          <v-chip class="badge-flavor text-center tag-badge text-black"
-                  v-if="i.type">
-            {{ t(`codex.types.${i.type}`) }}
-          </v-chip>
-          <CosmeticPiecesTagWidget :pieces="i.pieces"></CosmeticPiecesTagWidget>
-          <CosmeticEffectTagWidget :effect="i.effect"></CosmeticEffectTagWidget>
-        </div>
-
-        <div class="right-show-image pointer-events-none position-absolute w-33">
-          <v-img :src="cosmeticCardData.icon" class="cosmetic-mirror-image"></v-img>
-        </div>
-
-        <template v-if="i.rarity">
-          <LightRays
-              id="iconBackRight"
-              ref="iconBackRight"
-              rays-origin="top-right"
-              quality="low"
-              :rays-color="rarityColorConfig[i.rarity]"
-              :rays-speed="2"
-              :light-spread="10"
-              :ray-length="10"
-              :follow-mouse="false"
-              :mouse-influence="0"
-              :noise-amount="0"
-              :distortion="0"
-              class="w-100 h-100 pointer-events-none position-absolute top-0 right-0"
-          />
-        </template>
-      </div>
-      <div class="demo-reel-content background-flavor overflow-auto">
-        <template v-if="isShowDescription">
-          <div :class="cosmeticDescription && cosmeticDescription.isHasDescription ? 'mb-5 px-6 description' : ''">
-            <CosmeticDescription ref="cosmeticDescription" :id="props.id"></CosmeticDescription>
-          </div>
-        </template>
-      </div>
-      <v-divider v-if="isShowOpenDetail"></v-divider>
-      <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto"
-           v-if="isShowOpenDetail">
-        <BtnWidget @action-complete="router.push(`/codex/commoditie/${i.id}`)"
-                   class="mt-1">
-          {{ t('codex.cosmetic.lookDetail') }}
-        </BtnWidget>
-      </div>
-    </v-card>
+    <CosmeticCardDetail
+        :id="props.id"
+        :is-show-description="props.isShowDescription"
+        :is-show-open-detail="props.isShowOpenDetail"
+    />
   </v-tooltip>
 </template>
 

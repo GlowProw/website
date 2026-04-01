@@ -12,12 +12,10 @@ import {rarity} from "@/assets/sripts/index";
 import {useAssetsStore} from "~/stores/assetsStore";
 
 import Loading from "../Loading.vue";
-import LightRays from "../LightRays.vue"
-import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import {MapLocation, MapLocations} from "glow-prow-data";
-import MapLocationName from "@/components/snbWidget/mapLocationName.vue";
 import {useAppStore} from "~/stores/appStore";
 import {useTooltipFollow} from "@/assets/sripts/useTooltipFollow";
+import MapLocationCardDetail from "@/components/snbWidget/mapLocationCardDetail.vue";
 
 const mapImages = import.meta.glob('/src/assets/images/map/*.*', {eager: true})
 
@@ -48,9 +46,7 @@ const
       margin: 1
     }),
     mapLocations: any = MapLocations,
-
-    // 稀有度
-    rarityColorConfig = rarity.color
+    rarityColorConfig = rarity.color;
 
 let mapLocationsCardData = ref({
       icon: '',
@@ -142,52 +138,10 @@ const getType = (i: any) => i?.type
         </div>
       </v-card>
     </template>
-    <v-card class="demo-reel bg-black" flat border>
-      <div class="demo-reel-header pa-10 position-relative"
-           :style="`background-color: color-mix(in srgb, hsl(from ${rarityColorConfig[ mapLocations[i.id]?.rarity || '' ]} h s l) 10%, #000)`">
-        <div class="v-skeleton-loader__bone v-skeleton-loader__image opacity-30 position-absolute left-0 top-0 w-100 h-100"></div>
-
-        <h1 class="map-location-card-name font-weight-bold w-66">
-          <MapLocationName :id="i.id"></MapLocationName>
-        </h1>
-        <p class="mb-1 mt-2">{{ i.id }}</p>
-
-        <div class="d-flex ga-2 mt-3">
-          <v-chip inline
-                  :to="`/codex/mapLocations?category=${i.category}`"
-                  class="badge-flavor text-center text-black" v-if="(i as any).type">{{ t(`codex.types.${i.category}`) }}
-          </v-chip>
-        </div>
-        <div class="right-show-image pointer-events-none position-absolute w-33">
-          <v-img :src="mapLocationsCardData.icon" class="map-location-mirror-image"></v-img>
-        </div>
-
-        <template v-if="(i as any).rarity">
-          <LightRays
-              id="iconBackRight"
-              ref="iconBackRight"
-              rays-origin="top-right"
-              quality="low"
-              :rays-color="rarityColorConfig[(i as any).rarity]"
-              :rays-speed="2"
-              :light-spread="10"
-              :ray-length="10"
-              :follow-mouse="false"
-              :mouse-influence="0"
-              :noise-amount="0"
-              :distortion="0"
-              class="w-100 h-100 pointer-events-none position-absolute top-0 right-0"
-          />
-        </template>
-      </div>
-      <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto"
-           v-if="isShowOpenDetail">
-        <BtnWidget @action-complete="router.push(`/codex/mapLocation/${i.id}`)"
-                   class="mt-1">
-          {{ t('codex.mapLocation.lookDetail') }}
-        </BtnWidget>
-      </div>
-    </v-card>
+    <MapLocationCardDetail
+        :id="props.id"
+        :is-show-open-detail="props.isShowOpenDetail"
+    />
   </v-tooltip>
 </template>
 

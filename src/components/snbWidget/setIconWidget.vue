@@ -5,7 +5,6 @@ export default { name: 'SetIconWidget' }
 <script setup lang="ts">
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
-
 import {computed, onMounted, type Ref, ref, watch} from "vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useIntersectionObserver} from "@/assets/sripts/intersection_observer";
@@ -13,14 +12,11 @@ import {useAssetsStore} from "~/stores/assetsStore";
 import {Sets, Set} from "glow-prow-data";
 import {rarity} from "@/assets/sripts/index";
 
-import BtnWidget from "@/components/snbWidget/btnWidget.vue";
-import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
-import SetName from "@/components/snbWidget/setName.vue";
 import Loading from "../Loading.vue";
-import LightRays from "../LightRays.vue"
 import {useAppStore} from "~/stores/appStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import {useTooltipFollow} from "@/assets/sripts/useTooltipFollow";
+import SetCardDetail from "@/components/snbWidget/setCardDetail.vue";
 
 const
     {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
@@ -49,10 +45,7 @@ const
       margin: 1,
     }),
     appStore = useAppStore(),
-    sets = Sets,
-
-    // 稀有度
-    rarityColorConfig = rarity.color
+    sets = Sets;
 
 let setCardData = ref({
       icon: '',
@@ -144,46 +137,10 @@ const {targetElement, isVisible} = useIntersectionObserver({
         </div>
       </v-card>
     </template>
-    <v-card class="demo-reel bg-black" flat border>
-      <div class="demo-reel-header pa-10 position-relative" :class="[`set-card-header-rarity-${i?.rarity}`]">
-        <div class="v-skeleton-loader__bone v-skeleton-loader__image opacity-30 position-absolute left-0 top-0 w-100 h-100"></div>
-
-        <h1 class="font-weight-bold">
-          <FactionIconWidget class="bg-red d-inline-flex" :name="i.faction.id" size="28px" v-if="i.faction"></FactionIconWidget>
-          <SetName :id="i.id"></SetName>
-        </h1>
-        <p class="mb-1">{{ i.id }}</p>
-
-        <div class="right-show-image pointer-events-none position-absolute w-33">
-          <v-img :src="setCardData.icon" class="set-mirror-image"></v-img>
-        </div>
-
-        <template v-if="i.rarity">
-          <LightRays
-              id="iconBackRight"
-              ref="iconBackRight"
-              rays-origin="top-right"
-              quality="low"
-              :rays-color="rarityColorConfig[i.rarity]"
-              :rays-speed="2"
-              :light-spread="10"
-              :ray-length="10"
-              :follow-mouse="false"
-              :mouse-influence="0"
-              :noise-amount="0"
-              :distortion="0"
-              class="w-100 h-100 pointer-events-none position-absolute top-0 right-0"
-          />
-        </template>
-      </div>
-      <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto"
-           v-if="isShowOpenDetail">
-        <BtnWidget @action-complete="router.push(`/codex/set/${i.id}`)"
-                   class="mt-1">
-          {{ t('codex.set.lookDetail') }}
-        </BtnWidget>
-      </div>
-    </v-card>
+    <SetCardDetail
+        :id="props.id"
+        :is-show-open-detail="props.isShowOpenDetail"
+    />
   </v-tooltip>
 </template>
 

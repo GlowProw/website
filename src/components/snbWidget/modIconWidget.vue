@@ -3,14 +3,11 @@
 import {computed, onMounted, ref, useSlots, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import Loading from "@/components/Loading.vue";
-import {useAppStore} from "~/stores/appStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import {useTooltipFollow} from "@/assets/sripts/useTooltipFollow";
-import BtnWidget from "@/components/snbWidget/btnWidget.vue";
+import ModCardDetail from "@/components/snbWidget/modCardDetail.vue";
+import {useAppStore} from "~/stores/appStore";
 import {useRouter} from "vue-router";
-import ModName from "@/components/snbWidget/modName.vue";
-import {Modifications} from "glow-prow-data";
-import ModDescription from "@/components/snbWidget/modDescription.vue";
 
 const props = withDefaults(defineProps<{
       id: string,
@@ -37,12 +34,11 @@ const props = withDefaults(defineProps<{
 
     {t} = useI18n(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
-    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
+    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow();
 
-    modifications = Modifications
 
-let i = ref(null),
-    modsData = ref({
+
+let modsData = ref({
       icon: '',
       model: false,
       panel: {}
@@ -61,7 +57,6 @@ onMounted(() => {
 })
 
 const onReady = async () => {
-  i.value = modifications[props.id] || {}
 
   modsData.value.icon = currentImageService.url({
     id: props.id,
@@ -129,36 +124,15 @@ defineOptions({
       </v-card>
     </template>
 
-    <v-card class="demo-reel bg-black" flat border>
-      <div class="demo-reel-header pa-10 position-relative">
-        <h1 class="font-weight-bold">
-          <ModName v-if="i?.id" :id="i.id" :grade="i.grade"></ModName>
-        </h1>
-        <p class="mb-1">{{ props.id }}</p>
-
-        <v-img :src="modsData.icon" class="prohibit-drag right-show-image position-absolute w-33"></v-img>
-      </div>
-      <div class="demo-reel-content background-flavor overflow-auto">
-        <template v-if="isShowDescription">
-          <div class="mb-5 px-6">
-            <slot name="description"></slot>
-          </div>
-        </template>
-        <template v-if="isShowDescription && i && i.id">
-          <div class="mb-5 px-6 description">
-            <ModDescription :id="props.id" :grade="i.grade" :variants="i.variants"></ModDescription>
-          </div>
-        </template>
-      </div>
-      <v-divider v-if="isShowOpenDetail"></v-divider>
-      <v-card-actions class="pa-5 pt-0"
-                      v-if="isShowOpenDetail">
-        <BtnWidget @action-complete="router.push(`/codex/modification/${props.id}`)"
-                   class="mt-1 ml-1">
-          {{ t('codex.modifications.lookDetail') }}
-        </BtnWidget>
-      </v-card-actions>
-    </v-card>
+    <ModCardDetail 
+        :id="props.id"
+        :is-show-description="props.isShowDescription"
+        :is-show-open-detail="props.isShowOpenDetail"
+    >
+      <template v-slot:description>
+        <slot name="description"></slot>
+      </template>
+    </ModCardDetail>
   </v-tooltip>
 </template>
 

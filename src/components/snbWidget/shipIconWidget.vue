@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'ShipIconWidget' }
-</script>
-
 <script setup lang="ts">
 
 import {computed, onMounted, type Ref, ref, watch} from "vue";
@@ -9,17 +5,10 @@ import {Ship, Ships} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 import {useRouter} from "vue-router";
 
-import ShinyText from "@/components/ShinyText.vue";
-import ShipBaseInfoSlotWidget from "@/components/snbWidget/shipBaseInfoSlotWidget.vue";
-import ShipWeaponInfoSlotWidget from "@/components/snbWidget/shipWeaponInfoSlotWidget.vue";
-import BtnWidget from "@/components/snbWidget/btnWidget.vue";
-import EmptyView from "../EmptyView.vue";
-import PerksWidget from "./perksWidget.vue";
-import ShipDescription from "@/components/snbWidget/shipDescription.vue";
-import {useAppStore} from "~/stores/appStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import {useTooltipFollow} from "@/assets/sripts/useTooltipFollow";
-import DamageMitigationWidget from "@/components/snbWidget/damageMitigationWidget.vue";
+import ShipCardDetail from "@/components/snbWidget/shipCardDetail.vue";
+import {useAppStore} from "~/stores/appStore";
 
 const props = withDefaults(defineProps<{
       id: string,
@@ -53,7 +42,6 @@ let shipCardData = ref<any>({
       model: false,
       panel: null
     }),
-    shipData: Ref<any> = ref({}),
     isOpenNewWindow = computed({
       get: () => appStore.itemOpenNewWindow || props.isOpenNewWindow,
       set: (value) => appStore.toggleItemOpenNewWindow(value)
@@ -68,7 +56,6 @@ onMounted(() => {
 })
 
 const onReady = async () => {
-  shipData.value = ships[props.id];
 
   shipCardData.value.panel = null;
   shipCardData.value.model = false;
@@ -111,97 +98,11 @@ defineOptions({
       </v-card>
     </template>
 
-    <v-card class="demo-reel bg-black" flat border>
-      <div class="demo-reel-header pa-10 position-relative">
-        <h1 class="font-weight-bold">
-          <ShinyText :text="t(`snb.ships.${props.id}.name`)" :speed="1" class-name="text-amber" class=""></ShinyText>
-        </h1>
-        <p class="mb-1">{{ props.id }}</p>
-
-        <div class="d-flex ga-2">
-          <v-chip inline
-                  class="badge-flavor text-center tag-badge"
-                  v-if="shipData && shipData.size">
-            {{ t(`codex.size.${shipData.size}`) }}
-          </v-chip>
-          <v-chip inline
-                  class="badge-flavor text-center text-black tag-badge"
-                  v-if="shipData.archetype">
-            {{ t(`codex.ships.archetypes.${shipData.archetype}.name`) }}
-          </v-chip>
-        </div>
-
-        <v-img :src="shipCardData.icon" class="prohibit-drag right-show-image position-absolute w-33"></v-img>
-      </div>
-      <div class="demo-reel-content background-flavor overflow-auto">
-        <template v-if="isShowDescription">
-          <div class="mb-5 px-6 description">
-            <ShipDescription :id="props.id"></ShipDescription>
-          </div>
-        </template>
-
-        <div class="mb-5 px-7">
-          <DamageMitigationWidget direction="horizontal" type="armor" :isForciblyIcon="true" :data="shipData"></DamageMitigationWidget>
-        </div>
-
-        <v-expansion-panels v-model="shipCardData.panel">
-          <v-expansion-panel
-              selected-class="bg-black"
-              class="bg-transparent"
-              color="transparent"
-              tile
-              static>
-            <template v-slot:title>
-              <div class="title-long-flavor bg-black">
-                {{ t('codex.ship.baseInfo') }}
-              </div>
-            </template>
-            <template v-slot:text>
-              <ShipBaseInfoSlotWidget :data="shipData" :isSimulationShipSailSpeed="false"/>
-            </template>
-          </v-expansion-panel>
-          <v-expansion-panel
-              class="bg-transparent"
-              color="transparent"
-              tile
-              static>
-            <template v-slot:title>
-              <div class="title-long-flavor bg-black">
-                {{ t('codex.ship.perks') }}
-              </div>
-            </template>
-            <template v-slot:text>
-              <PerksWidget class="mt-n0" :data="shipData" v-if="shipData.perks.length > 0"></PerksWidget>
-              <template v-else>
-                <EmptyView></EmptyView>
-              </template>
-            </template>
-          </v-expansion-panel>
-          <v-expansion-panel
-              class="bg-transparent"
-              color="transparent"
-              tile
-              static>
-            <template v-slot:title>
-              <div class="title-long-flavor bg-black">
-                {{ t('codex.ship.deckInfo') }}
-              </div>
-            </template>
-            <template v-slot:text>
-              <ShipWeaponInfoSlotWidget :data="shipData"/>
-            </template>
-          </v-expansion-panel>
-        </v-expansion-panels>
-      </div>
-      <v-divider></v-divider>
-      <v-card-actions class="pa-5 pt-0"
-                      v-if="isShowOpenDetail">
-        <BtnWidget @action-complete="router.push(`/codex/ship/${props.id}`)"
-                   class="mt-1 ml-1">
-          {{ t('codex.ship.lookDetail') }}
-        </BtnWidget>
-      </v-card-actions>
-    </v-card>
+    <ShipCardDetail
+        :id="props.id"
+        :is-show-description="props.isShowDescription"
+        :is-show-open-detail="props.isShowOpenDetail"
+    />
   </v-tooltip>
 </template>
 

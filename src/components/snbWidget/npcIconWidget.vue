@@ -11,14 +11,11 @@ import {useIntersectionObserver} from "@/assets/sripts/intersection_observer";
 import {rarity} from "@/assets/sripts/index";
 import {useAssetsStore} from "~/stores/assetsStore";
 
-import Loading from "../Loading.vue";
-import LightRays from "../LightRays.vue"
-import NpcName from "@/components/snbWidget/npcName.vue";
-import BtnWidget from "@/components/snbWidget/btnWidget.vue";
-import {Npc, Npcs} from "glow-prow-data";
-import {useAppStore} from "~/stores/appStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import {useTooltipFollow} from "@/assets/sripts/useTooltipFollow";
+import NpcCardDetail from "@/components/snbWidget/npcCardDetail.vue";
+import {useAppStore} from "~/stores/appStore";
+import {Npc, Npcs} from "glow-prow-data";
 
 const
     {asString, sanitizeString} = useI18nUtils(),
@@ -47,17 +44,7 @@ const
       padding: 0,
       margin: 1
     }),
-    npcs: any = Npcs,
-    // 同类图标字典
-    npcDictionaries = {
-      "vendor": ['vendor-rempahWarrior', 'vendor-overseasSmuggler'],
-      "trader": ['rempahTrader', 'rogueTrader'],
-      "cache": ['warehouse', 'cache'],
-      "theHelm": ['managerOfLePontMuet', 'helmLiaison']
-    },
-
-    // 稀有度
-    rarityColorConfig = rarity.color
+    npcs: any = Npcs;
 
 let npcsCardData = ref({
       icon: '',
@@ -142,56 +129,11 @@ const {targetElement, isVisible} = useIntersectionObserver({
         </div>
       </v-card>
     </template>
-    <v-card border class="demo-reel bg-black" flat>
-      <div :style="`background-color: color-mix(in srgb, hsl(from ${rarityColorConfig[ npcs[i.id]?.rarity || '' ]} h s l) 10%, #000)`"
-           class="demo-reel-header pa-10 position-relative">
-        <div class="v-skeleton-loader__bone v-skeleton-loader__image opacity-30 position-absolute left-0 top-0 w-100 h-100"></div>
-
-        <h1 class="material-card-name font-weight-bold w-66">
-          <NpcName :data="i"></NpcName>
-        </h1>
-        <p class="mb-1 mt-2">{{ i.id }}</p>
-
-        <div class="d-flex ga-2 mt-3" v-if="npcs[i.id] && npcs[i.id].category">
-          <template v-for="cat in npcs[i.id].category">
-            <v-chip inline
-                    class="badge-flavor text-center text-black"
-                    v-if="npcDictionaries['job'] && !npcDictionaries['job'].includes(cat)">
-              {{ t(`codex.types.${cat}`) }}
-            </v-chip>
-          </template>
-        </div>
-
-        <div class="right-show-image pointer-events-none position-absolute w-33">
-          <v-img :src="npcsCardData.icon" class="npc-mirror-image"></v-img>
-        </div>
-
-        <template v-if="(i as any).rarity">
-          <LightRays
-              id="iconBackRight"
-              ref="iconBackRight"
-              :distortion="0"
-              :follow-mouse="false"
-              :light-spread="10"
-              :mouse-influence="0"
-              :noise-amount="0"
-              :ray-length="10"
-              :rays-color="rarityColorConfig[(i as any).rarity]"
-              :rays-speed="2"
-              class="w-100 h-100 pointer-events-none position-absolute top-0 right-0"
-              quality="low"
-              rays-origin="top-right"
-          />
-        </template>
-      </div>
-      <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto">
-        <BtnWidget v-if="isShowOpenDetail"
-                   class="mt-1"
-                   @action-complete="router.push(`/codex/npc/${i.key}`)">
-          {{ t('codex.npc.lookDetail') }}
-        </BtnWidget>
-      </div>
-    </v-card>
+    <NpcCardDetail
+        :id="props.id"
+        :data="props.data"
+        :is-show-open-detail="props.isShowOpenDetail"
+    />
   </v-tooltip>
 </template>
 
