@@ -183,7 +183,9 @@
         "notEmpty": "必须填写验证码",
         "limitationLength": "验证码长度为{max}"
       }
-    }
+    },
+    "yes": "Yes",
+    "no": "No"
   },
   "comment": {
     "title": "评论",
@@ -1257,5 +1259,75 @@
       "wrong": "验证码错误"
     },
     "title": "验证码"
+  },
+  "calculator": {
+    "title": "Calculator",
+    "description": "Material quantification tool. Set target items to calculate all required materials.",
+    "addTo": "Add to Calculator",
+    "addedSuccess": "Added to calculator",
+    "meta": {
+      "keywords": "calculator, material calculation, requirements, sankey"
+    },
+    "targets": {
+      "title": "Targets",
+      "addTarget": "Add Target",
+      "searchPlaceholder": "Search items or ships...",
+      "quantity": "Quantity",
+      "type": "类型",
+      "item": "Item",
+      "ship": "Ship",
+      "material": "Material",
+      "noTargets": "No targets yet, please add items or ships"
+    },
+    "results": {
+      "title": "Results",
+      "listView": "List View",
+      "sankeyView": "Sankey Flow",
+      "columns": {
+        "name": "名称",
+        "quantity": "Quantity",
+        "link": "Link"
+      }
+    },
+    "exclude": {
+      "title": "Exclude",
+      "searchPlaceholder": "Search materials to exclude...",
+      "noExcludes": "No excluded materials",
+      "description": "Excluded materials will not be further broken down"
+    },
+    "config": {
+      "title": "Config",
+      "save": "Save Config",
+      "load": "Load Config",
+      "delete": "Delete Config",
+      "name": "Config Name",
+      "savedConfigs": "Saved Configs",
+      "noSavedConfigs": "No saved configs yet"
+    },
+    "export": {
+      "title": "Export",
+      "json": "Export JSON",
+      "csv": "Export CSV",
+      "csvHeaders": "Material ID,Name,Quantity,Is Raw Material"
+    },
+    "import": {
+      "title": "Import",
+      "json": "Import JSON",
+      "csv": "Import CSV"
+    },
+    "sankey": {
+      "showName": "显示名称",
+      "showQuantity": "Show Quantity"
+    },
+    "ui": {
+      "expandAll": "Expand All",
+      "collapseAll": "Collapse All",
+      "tree": "Material Tree",
+      "summary": "Material Summary",
+      "emptyTree": "Add targets to view material tree",
+      "emptySankey": "Add targets to view sankey diagram",
+      "excluded": "Excluded",
+      "addToExclude": "Add to Exclude"
+    }
   }
 }
