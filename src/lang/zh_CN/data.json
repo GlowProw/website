@@ -1342,5 +1342,56 @@
       "wrong": "验证码错误"
     },
     "title": "验证码"
+  },
+  "calculator": {
+    "title": "量化计算",
+    "description": "材料量化计算工具，设定目标物品计算所需全部材料",
+    "meta": {
+      "keywords": "量化计算,材料计算,材料需求,工序图"
+    },
+    "targets": {
+      "title": "目标",
+      "addTarget": "添加目标",
+      "searchPlaceholder": "搜索物品或船只...",
+      "quantity": "数量",
+      "type": "类型",
+      "item": "物品",
+      "ship": "船只",
+      "noTargets": "暂无目标，请添加物品或船只"
+    },
+    "results": {
+      "title": "计算结果",
+      "listView": "列表视图",
+      "sankeyView": "工序图",
+      "columns": {
+        "name": "名称",
+        "quantity": "数量",
+        "link": "链接"
+      }
+    },
+    "exclude": {
+      "title": "排除材料",
+      "searchPlaceholder": "搜索要排除的材料...",
+      "noExcludes": "无排除材料",
+      "description": "排除的材料不会被进一步分解"
+    },
+    "config": {
+      "title": "配置管理",
+      "save": "保存配置",
+      "load": "加载配置",
+      "delete": "删除配置",
+      "name": "配置名称",
+      "savedConfigs": "已保存配置",
+      "noSavedConfigs": "暂无保存的配置"
+    },
+    "export": {
+      "title": "导出",
+      "json": "导出 JSON",
+      "csv": "导出 CSV"
+    },
+    "sankey": {
+      "showName": "显示名称",
+      "showQuantity": "显示数量"
+    }
   }
 }

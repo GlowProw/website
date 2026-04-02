@@ -55,6 +55,12 @@ export default class AppFuns {
             description: 'header.functions.empire-skill-simulation.description',
             to: '/empire-skill-simulation'
         },
+        {
+            title: 'header.functions.calculator.title',
+            icon: 'mdi-hexagram-outline',
+            description: 'header.functions.calculator.description',
+            to: '/calculator'
+        },
         // {
         //     title: 'header.functions.captain-signature.title',
         //     icon: 'mdi-draw-pen',

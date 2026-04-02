@@ -95,6 +95,8 @@ import NotFoundPage from '@/views/NotFound.vue';
 
 import Test from '@/views/Test.vue'
 
+import CalculatorPage from '@/views/calculator/Index.vue'
+
 import WidgetIndexPage from '@/widgets/Index.vue';
 import WidgetAssemblyPage from '@/widgets/assembly/Index.vue';
 import WidgetShipPage from '@/widgets/ship/Index.vue';
@@ -672,6 +674,16 @@ const routes: Readonly<RouteRecordRaw[]> = [
         meta: {
             title: 'header.functions.empire-skill-simulation.title',
             keywords: 'header.functions.empire-skill-simulation.keywords'
+        },
+        beforeEnter: initItemAssets,
+    },
+    {
+        path: '/calculator',
+        name: 'Calculator',
+        component: CalculatorPage,
+        meta: {
+            title: 'calculator.title',
+            keywords: 'calculator.meta.keywords'
         },
         beforeEnter: initItemAssets,
     },
