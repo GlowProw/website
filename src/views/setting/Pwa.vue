@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { usePwa } from '@/composables/usePwa'
+import { use_pwa } from '@/assets/sripts/use_pwa'
 import { onMounted } from 'vue'
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 
 const { t } = useI18n()
-const { status, reload, install, isInstalled, needRefresh, offlineReady, installPrompt } = usePwa()
+const { status, reload, install, isInstalled, needRefresh, offlineReady, installPrompt } = use_pwa()
 
 /**
  * 刷新页面

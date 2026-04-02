@@ -15,7 +15,7 @@ if (typeof window !== 'undefined') {
     window.addEventListener('wheel', updateGlobal as EventListener, { passive: true, capture: true });
 }
 
-export function useTooltipFollow() {
+export function use_tooltip_follow() {
     // Only local reactivity! Prevents 100+ instances from evaluating target positions simultaneously causing lag.
     const tooltipPos = ref({ x: 0, y: 0 });
     let ticking = false;

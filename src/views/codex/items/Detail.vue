@@ -454,7 +454,7 @@ const onStarItem = (data: Item) => {
             <BySeasonWidget :data="itemDetailData"></BySeasonWidget>
 
             <template v-if="itemDetailData.blueprint">
-              <BluePrintWidget :data="itemDetailData"></BluePrintWidget>
+              <ByBluePrint :data="itemDetailData"></ByBluePrint>
             </template>
             <template v-if="itemDetailData.event">
               <ByEventWidget :data="itemDetailData"></ByEventWidget>

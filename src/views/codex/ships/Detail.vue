@@ -24,8 +24,9 @@ import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
 import ItemMaterials from "@/components/snbWidget/itemMaterials.vue";
 import shipAvailableUpgradeWidget from "@/components/snbWidget/shipAvailableUpgradeWidget.vue";
 import ShipDescription from "@/components/snbWidget/shipDescription.vue";
-import ByBluePrint from "@/components/byBluePrint.vue";
+import ByBluePrintWidget from "@/components/ByBluePrintWidget.vue";
 import ShareWidget from "@/components/ShareWidget.vue";
+import BluePrintWidget from "@/components/BluePrintWidget.vue";
 
 const shipImages = import.meta.glob('@glow-prow-assets/ships/*.png', {eager: true})
 
@@ -311,9 +312,9 @@ const onCodexHistory = () => {
             <BySeasonWidget :data="shipDetailData"></BySeasonWidget>
 
             <template v-if="shipDetailData.blueprint">
-              <ByBluePrint :data="shipDetailData">
+              <ByBluePrintWidget :data="shipDetailData">
                 {{ t('codex.ship.bluePrint') }}
-              </ByBluePrint>
+              </ByBluePrintWidget>
             </template>
 
             <template v-if="shipDetailData.baseRank">

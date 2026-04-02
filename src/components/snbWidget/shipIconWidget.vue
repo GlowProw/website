@@ -6,7 +6,7 @@ import {useI18n} from "vue-i18n";
 import {useRouter} from "vue-router";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
-import {useTooltipFollow} from "@/assets/sripts/useTooltipFollow";
+import {use_tooltip_follow} from "@/assets/sripts/use_tooltip_follow";
 import ShipCardDetail from "@/components/snbWidget/shipCardDetail.vue";
 import {useAppStore} from "~/stores/appStore";
 
@@ -34,7 +34,7 @@ const props = withDefaults(defineProps<{
     appStore = useAppStore(),
     {t} = useI18n(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
-    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow()
+    {tooltipPos, onMouseMove, onMouseEnter} = use_tooltip_follow()
 
 
 let shipCardData = ref<any>({

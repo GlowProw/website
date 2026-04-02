@@ -14,7 +14,7 @@ import {useAssetsStore} from "~/stores/assetsStore";
 import Loading from "../Loading.vue";
 import {MapLocation, MapLocations} from "glow-prow-data";
 import {useAppStore} from "~/stores/appStore";
-import {useTooltipFollow} from "@/assets/sripts/useTooltipFollow";
+import {use_tooltip_follow} from "@/assets/sripts/use_tooltip_follow";
 import MapLocationCardDetail from "@/components/snbWidget/mapLocationCardDetail.vue";
 
 const mapImages = import.meta.glob('/src/assets/images/map/*.*', {eager: true})
@@ -25,7 +25,7 @@ const
     route = useRoute(),
     router = useRouter(),
     appStore = useAppStore(),
-    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
+    {tooltipPos, onMouseMove, onMouseEnter} = use_tooltip_follow(),
     {t} = useI18n(),
     {raritys: raritysAssets} = useAssetsStore(),
     props = withDefaults(defineProps<{

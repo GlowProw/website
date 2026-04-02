@@ -17,7 +17,7 @@ import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 import ItemMaterials from "@/components/snbWidget/itemMaterials.vue";
 import ByWorldEventWidget from "@/components/ByWorldEventWidget.vue";
 import TimeView from "@/components/TimeView.vue";
-import BluePrintWidget from "@/components/BluePrintWidget.vue";
+import ByBluePrintWidget from "@/components/ByBluePrintWidget.vue";
 import ByEventWidget from "@/components/ByEventWidget.vue";
 import Time from "@/components/Time.vue";
 import ByObtainableWidget from "@/components/ByObtainableWidget.vue";
@@ -179,7 +179,7 @@ const onCodexHistory = () => {
                 </LikeWidget>
               </v-btn>
 
-              <ShareWidget type="material" :target-id="materialDetailData.id" />
+              <ShareWidget type="material" :target-id="materialDetailData.id"/>
             </div>
           </v-col>
         </v-row>
@@ -234,7 +234,7 @@ const onCodexHistory = () => {
                 :data="materialDetailData.firstAppearingSeason"></BySeasonWidget>
 
             <template v-if="materialDetailData.blueprint">
-              <BluePrintWidget :data="materialDetailData"></BluePrintWidget>
+              <ByBluePrintWidget :data="materialDetailData"></ByBluePrintWidget>
             </template>
             <template v-if="materialDetailData.event">
               <ByEventWidget :data="materialDetailData"></ByEventWidget>

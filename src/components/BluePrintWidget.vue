@@ -7,6 +7,7 @@ import {useI18n} from "vue-i18n";
 import {computed} from "vue";
 import {Item} from "glow-prow-data";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
+import BlueprintTypeIcon from "@/components/snbWidget/blueprintTypeIcon.vue";
 
 const props = defineProps<{ data: Item }>(),
     {t, tm} = useI18n(),
@@ -82,12 +83,17 @@ const bluePrintsList = computed(() => {
   <div v-if="bluePrintsList.length > 0">
     <p class="text-no-wrap font-weight-bold mb-2 mt-2">{{ t('codex.item.bluePrint') }}</p>
     <div>
-      <v-chip
-          v-for="(blueprint, index) in bluePrintsList"
-          :key="index"
-          class="d-inline-flex mb-1 mr-1">
-        {{ blueprint }}
-      </v-chip>
+      <v-row no-gutters class="ga-2">
+        <BlueprintTypeIcon :data="data.type" :size="36"></BlueprintTypeIcon>
+        <v-col>
+          <v-chip
+              v-for="(blueprint, index) in bluePrintsList"
+              :key="index"
+              class="d-inline-flex mb-1 mr-1">
+            {{ blueprint }}
+          </v-chip>
+        </v-col>
+      </v-row>
     </div>
   </div>
 </template>

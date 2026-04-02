@@ -12,7 +12,7 @@ import {number, rarity} from "@/assets/sripts/index";
 import {useAssetsStore} from "~/stores/assetsStore";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
-import {useTooltipFollow} from "@/assets/sripts/useTooltipFollow";
+import {use_tooltip_follow} from "@/assets/sripts/use_tooltip_follow";
 import ItemCardDetail from "@/components/snbWidget/itemCardDetail.vue";
 import {useAppStore} from "~/stores/appStore";
 
@@ -20,7 +20,7 @@ const router = useRouter(),
     appStore = useAppStore(),
     {t} = useI18n(),
     cdnStore = useCDNAssetsServiceStore(),
-    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
+    {tooltipPos, onMouseMove, onMouseEnter} = use_tooltip_follow(),
     props = withDefaults(defineProps<{
       id: string,
       isShowOpenDetail?: boolean,

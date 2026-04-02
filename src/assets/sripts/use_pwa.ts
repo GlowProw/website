@@ -5,7 +5,7 @@ import { computed } from 'vue'
  * PWA 相关组合式函数
  * 现在作为 appStore 中单例 PWA 逻辑的包装器
  */
-export function usePwa() {
+export function use_pwa() {
   const appStore = useAppStore()
 
   /**

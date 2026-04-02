@@ -12,7 +12,7 @@ import {useAssetsStore} from "~/stores/assetsStore";
 import {Cosmetic, Cosmetics} from "glow-prow-data";
 import {useAppStore} from "~/stores/appStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
-import {useTooltipFollow} from "@/assets/sripts/useTooltipFollow";
+import {use_tooltip_follow} from "@/assets/sripts/use_tooltip_follow";
 import CosmeticCardDetail from "@/components/snbWidget/cosmeticCardDetail.vue";
 
 const {raritys} = useAssetsStore(),
@@ -20,7 +20,7 @@ const {raritys} = useAssetsStore(),
 
     {t} = useI18n(),
     router = useRouter(),
-    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
+    {tooltipPos, onMouseMove, onMouseEnter} = use_tooltip_follow(),
     props = withDefaults(defineProps<{
       id: string,
       isShowOpenDetail?: boolean,

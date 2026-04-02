@@ -2,7 +2,7 @@
 import AppMessageWidget from '@/components/AppMessageWidget.vue'
 import {computed, onMounted} from "vue";
 import {useI18n} from 'vue-i18n';
-import {usePwa} from '@/composables/usePwa';
+import {use_pwa} from '@/assets/sripts/use_pwa';
 import {useRoute} from "vue-router";
 import {useHead} from "@unhead/vue";
 
@@ -13,7 +13,7 @@ const {
       needRefresh,
       updateServiceWorker,
       closePwaUpdate,
-    } = usePwa(),
+    } = use_pwa(),
     route = useRoute();
 
 // 全局响应式 Meta 信息配置

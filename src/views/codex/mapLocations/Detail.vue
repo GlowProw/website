@@ -18,7 +18,7 @@ import MapLocationAvailableTreasureMapWidget from "@/components/snbWidget/mapLoc
 import MapLocationAvailableNpcWidget from "@/components/snbWidget/mapLocationAvailableNpcWidget.vue";
 import ByMapWidget from "@/components/ByMapWidget.vue";
 import ByWorldEventWidget from "@/components/ByWorldEventWidget.vue";
-import BluePrintWidget from "@/components/BluePrintWidget.vue";
+import ByBluePrintWidget from "@/components/ByBluePrintWidget.vue";
 import ByEventWidget from "@/components/ByEventWidget.vue";
 import ByObtainableWidget from "@/components/ByObtainableWidget.vue";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
@@ -216,7 +216,7 @@ const onCodexHistory = () => {
             </template>
 
             <template v-if="mapLocationDetailData.blueprint">
-              <BluePrintWidget :data="mapLocationDetailData"></BluePrintWidget>
+              <ByBluePrintWidget :data="mapLocationDetailData"></ByBluePrintWidget>
             </template>
             <template v-if="mapLocationDetailData.event">
               <ByEventWidget :data="mapLocationDetailData"></ByEventWidget>

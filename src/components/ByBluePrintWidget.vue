@@ -1,18 +1,12 @@
-<script lang="ts">
-export default {name: 'ObtainableWidget'}
-</script>
-
 <script setup lang="ts">
 
-import ItemName from "@/components/snbWidget/itemName.vue";
 import {computed} from "vue";
-import {Commodity, Cosmetic, Cosmetics, Item, Items, Material, Npc} from "glow-prow-data";
+import {Commodity, Cosmetic, Item, Material, Npc} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 import EmptyView from "@/components/EmptyView.vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
-import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
-import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import {Ship} from "glow-prow-data/src/entity/Ships";
+import BlueprintTypeIcon from "@/components/snbWidget/blueprintTypeIcon.vue";
 
 const props = defineProps<{ data: Item | Ship | Material | Commodity | Cosmetic }>(),
     {t, tm} = useI18n(),
@@ -52,7 +46,7 @@ const filterByBluePrint = (d: Item | Material | Cosmetic | Npc | null | undefine
     }];
   }
 
-  // 兜底方案
+      // 兜底方案
   // 处理字符串类型的 bluePrint
   else if (typeof bluePrint === 'string') {
     return [{
@@ -105,33 +99,42 @@ const getChipText = (o: any) => {
     backRawKey: true
   })
 }
+
+defineOptions({
+  name: 'ByBluePrintWidget'
+})
 </script>
 
 <template>
   <p class="text-no-wrap font-weight-bold mb-2 mt-2">
     <slot></slot>
   </p>
-  <v-chip-group :column="true">
-    <v-chip v-for="(o,oIndex) in blueprint"
-            class="mb-1 mr-1 py-2 "
-            exact
-            pill
-            replace
-            target="_blank"
-            :key="oIndex"
-            :to="o.to">
-      <v-tooltip content-class="pa-0">
-        <template v-slot:default>
-          <v-card border class="py-3 px-10">
-            <span v-html="getChipText(o)"></span>
-          </v-card>
-        </template>
-        <template v-slot:activator="{props}">
-          <div class="singe-line w-100 multiline-chip blueprint-item" v-bind="props" v-html="getChipText(o)"></div>
-        </template>
-      </v-tooltip>
-    </v-chip>
-  </v-chip-group>
+  <v-row no-gutters class="ga-2" v-if="blueprint.length > 0">
+    <BlueprintTypeIcon :data="data?.type" :size="36"></BlueprintTypeIcon>
+    <v-col>
+      <v-chip-group :column="true">
+        <v-chip v-for="(o,oIndex) in blueprint"
+                class="mb-1 mr-1 py-2 "
+                exact
+                pill
+                replace
+                target="_blank"
+                :key="oIndex"
+                :to="o.to">
+          <v-tooltip content-class="pa-0">
+            <template v-slot:default>
+              <v-card border class="py-3 px-10">
+                <span v-html="getChipText(o)"></span>
+              </v-card>
+            </template>
+            <template v-slot:activator="{props}">
+              <div class="singe-line w-100 multiline-chip blueprint-item" v-bind="props" v-html="getChipText(o)"></div>
+            </template>
+          </v-tooltip>
+        </v-chip>
+      </v-chip-group>
+    </v-col>
+  </v-row>
   <EmptyView v-if="blueprint.length <= 0"></EmptyView>
 </template>
 

@@ -10,7 +10,7 @@ import {number, rarity} from "@/assets/sripts/index";
 import {Material, Materials} from "glow-prow-data";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
-import {useTooltipFollow} from "@/assets/sripts/useTooltipFollow";
+import {use_tooltip_follow} from "@/assets/sripts/use_tooltip_follow";
 import MaterialCardDetail from "@/components/snbWidget/materialCardDetail.vue";
 import {useAppStore} from "~/stores/appStore";
 import router from "~/router";
@@ -40,7 +40,7 @@ const props = withDefaults(defineProps<{
     {t} = useI18n(),
     {raritys: raritysAssets} = useAssetsStore(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
-    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
+    {tooltipPos, onMouseMove, onMouseEnter} = use_tooltip_follow(),
     materials = Materials,
 
     // 稀有度
