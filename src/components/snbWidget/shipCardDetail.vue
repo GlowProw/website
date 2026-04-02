@@ -82,7 +82,7 @@ defineOptions({
 
       <v-img :src="shipCardData.icon" class="prohibit-drag right-show-image position-absolute w-33"></v-img>
     </div>
-    <div :class="{'demo-reel-content': isWidget}" class="background-flavor overflow-auto">
+    <div :class="{'demo-reel-content': !isWidget}" class="background-flavor overflow-auto">
       <template v-if="isShowDescription">
         <div class="mb-5 px-6 description">
           <ShipDescription :id="props.id"></ShipDescription>

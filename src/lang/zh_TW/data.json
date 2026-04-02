@@ -8,7 +8,29 @@
   "pwa": {
     "offlineReady": "應用程式已準備好離線工作",
     "newContentAvailable": "有新內容可用",
-    "refreshToUpdate": "點擊重新整理按鈕以更新。"
+    "refreshToUpdate": "點擊重新整理按鈕以更新。",
+    "status": {
+      "title": "PWA 狀態",
+      "description": "管理應用的離線和安裝狀態",
+      "label": "目前狀態",
+      "ready": "已就緒",
+      "needRefresh": "需要更新",
+      "offlineReady": "可離線使用",
+      "installed": "已安裝",
+      "installed_message": "應用程式已在獨立視窗模式下運行。"
+    },
+    "install": {
+      "title": "安置桌面應用",
+      "description": "將應用安裝到桌面，以獲得更好的體驗",
+      "button": "安裝",
+      "unavailable": "目前環境不支援直接安裝或尚未觸發安裝提示",
+      "help": {
+        "title": "如果您沒有看到安裝按鈕：",
+        "step1": "1. 檢查瀏覽器是否支援 PWA。",
+        "step2": "2. 確保之前沒有拒絕過安裝提示（可能需要清除站點資料後重試）。",
+        "step3": "3. 部分瀏覽器需要一定的頁面互動（如點擊、滾動）才會觸發安裝提示。"
+      }
+    }
   },
   "basic": {
     "button": {
@@ -361,7 +383,10 @@
     },
     "share": {
       "title": "分享",
-      "description": "分享你的{name}"
+      "description": "分享你的{name}",
+      "copyLink": "複製目前連結",
+      "iframe": "iframe代碼",
+      "copySuccess": "已複製到剪貼簿"
     },
     "items": {
       "title": "物品列表",

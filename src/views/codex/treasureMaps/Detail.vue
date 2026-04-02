@@ -26,6 +26,7 @@ import CosmeticName from "@/components/snbWidget/cosmeticName.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
+import ShareWidget from "@/components/ShareWidget.vue";
 
 const {t, tm, te, messages} = useI18n(),
     router = useRouter(),
@@ -165,7 +166,7 @@ const onCodexHistory = () => {
                 </LikeWidget>
               </v-btn>
 
-              <v-btn>{{ t('codex.share.title') }}</v-btn>
+              <ShareWidget type="treasureMap" :target-id="mapDetailData.id" />
             </div>
           </v-col>
         </v-row>

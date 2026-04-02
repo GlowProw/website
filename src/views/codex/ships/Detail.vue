@@ -25,6 +25,7 @@ import ItemMaterials from "@/components/snbWidget/itemMaterials.vue";
 import shipAvailableUpgradeWidget from "@/components/snbWidget/shipAvailableUpgradeWidget.vue";
 import ShipDescription from "@/components/snbWidget/shipDescription.vue";
 import ByBluePrint from "@/components/byBluePrint.vue";
+import ShareWidget from "@/components/ShareWidget.vue";
 
 const shipImages = import.meta.glob('@glow-prow-assets/ships/*.png', {eager: true})
 
@@ -187,7 +188,7 @@ const onCodexHistory = () => {
                 </LikeWidget>
               </v-btn>
 
-              <v-btn>{{ t('codex.share.title') }}</v-btn>
+              <ShareWidget type="ship" :target-id="shipDetailData.id" />
             </div>
           </v-col>
         </v-row>

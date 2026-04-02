@@ -103,7 +103,7 @@ defineOptions({
         />
       </template>
     </div>
-    <div :class="{'demo-reel-content': isWidget}" class="background-flavor overflow-auto">
+    <div :class="{'demo-reel-content': !isWidget}" class="background-flavor overflow-auto">
       <template v-if="isShowDescription">
         <div :class="cosmeticDescription && cosmeticDescription.isHasDescription ? 'mb-5 px-6 description' : ''">
           <CosmeticDescription ref="cosmeticDescription" :id="props.id"></CosmeticDescription>

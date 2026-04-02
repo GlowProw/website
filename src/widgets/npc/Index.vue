@@ -21,7 +21,7 @@ const id = (route.params.id as string) || '';
   background-color: transparent;
 }
 .npc-widget > :first-child {
-  min-width: 800px;
+  min-width: 600px;
   max-width: 800px;
   width: 100%;
 }

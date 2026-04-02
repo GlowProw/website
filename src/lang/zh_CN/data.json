@@ -38,7 +38,29 @@
   "pwa": {
     "offlineReady": "应用已准备好离线工作",
     "newContentAvailable": "有新内容可用",
-    "refreshToUpdate": "点击刷新按钮以更新。"
+    "refreshToUpdate": "点击刷新按钮以更新。",
+    "status": {
+      "title": "PWA 状态",
+      "description": "管理应用的离线和安装状态",
+      "label": "当前状态",
+      "ready": "已就绪",
+      "needRefresh": "需要更新",
+      "offlineReady": "可离线使用",
+      "installed": "已安装",
+      "installed_message": "应用已处于独立窗口模式运行。"
+    },
+    "install": {
+      "title": "安装桌面应用",
+      "description": "将应用安装到桌面，以获得更好的体验",
+      "button": "安装",
+      "unavailable": "当前环境不支持直接安装或尚未触发安装提示",
+      "help": {
+        "title": "如果您未看到安装按钮：",
+        "step1": "1. 检查浏览器是否支持 PWA。",
+        "step2": "2. 确保之前没有拒绝过安装提示（可能需要清除站点数据后重试）。",
+        "step3": "3. 部分浏览器需要一定的页面互动（如点击、滚动）才会触发安装提示。"
+      }
+    }
   },
   "basic": {
     "button": {
@@ -480,7 +502,10 @@
     },
     "share": {
       "title": "分享",
-      "description": "分享你的{name}"
+      "description": "分享你的{name}",
+      "copyLink": "复制当前链接",
+      "iframe": "iframe代码",
+      "copySuccess": "已复制到剪贴板"
     },
     "ships": {
       "title": "船只列表",
@@ -1220,6 +1245,9 @@
     },
     "notification": {
       "title": "通知"
+    },
+    "pwa": {
+      "title": "PWA"
     }
   },
   "header": {

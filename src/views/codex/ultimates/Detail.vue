@@ -12,6 +12,7 @@ import LikeWidget from "@/components/LikeWidget.vue";
 import {useAuthStore} from "~/stores/userAccountStore";
 import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
+import ShareWidget from "@/components/ShareWidget.vue";
 import UltimateName from "@/components/snbWidget/ultimateName.vue";
 import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
 import UltimateDescription from "@/components/snbWidget/ultimateDescription.vue";
@@ -154,6 +155,7 @@ const onUltimateHistory = (id: string) => {
                 </template>
               </LikeWidget>
             </v-btn>
+            <ShareWidget type="ultimate" :target-id="ultimateDetailData.id" />
           </v-col>
         </v-row>
 

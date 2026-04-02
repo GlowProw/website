@@ -23,6 +23,7 @@ import {Commodities} from "glow-prow-data/src/entity/Commodities";
 import CommoditieIconWidget from "@/components/snbWidget/commoditieIconWidget.vue";
 import CommoditieName from "@/components/snbWidget/commoditieName.vue";
 import CommoditieDescription from "@/components/snbWidget/commoditieDescription.vue";
+import ShareWidget from "@/components/ShareWidget.vue";
 
 const
     {t, messages} = useI18n(),
@@ -183,7 +184,7 @@ const onCodexHistory = () => {
                 </LikeWidget>
               </v-btn>
 
-              <v-btn>{{ t('codex.share.title') }}</v-btn>
+              <ShareWidget type="commoditie" :target-id="commoditieDetailData.id" />
             </div>
           </v-col>
         </v-row>

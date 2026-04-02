@@ -100,7 +100,7 @@ defineOptions({
         />
       </template>
     </div>
-    <div :class="{'demo-reel-content': isWidget}" class="background-flavor overflow-auto">
+    <div :class="{'demo-reel-content': !isWidget}" class="background-flavor overflow-auto">
       <template v-if="isShowDescription">
         <div class="mb-5 px-6 description">
           <UltimateDescription :id="i.id"></UltimateDescription>
@@ -108,7 +108,7 @@ defineOptions({
       </template>
     </div>
     <v-divider v-if="isShowOpenDetail"></v-divider>
-    <div :class="{'demo-reel-content': isWidget}" class="pl-10 pr-10 background-flavor overflow-auto"
+    <div :class="{'demo-reel-content': !isWidget}" class="pl-10 pr-10 background-flavor overflow-auto"
          v-if="isShowOpenDetail">
       <BtnWidget @action-complete="router.push(`/codex/ultimate/${i.id}`)"
                  class="mt-1">

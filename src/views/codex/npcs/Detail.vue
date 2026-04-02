@@ -18,6 +18,7 @@ import LikeWidget from "@/components/LikeWidget.vue";
 import {useAuthStore} from "~/stores/userAccountStore";
 import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
+import ShareWidget from "@/components/ShareWidget.vue";
 import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
 import ByObtainableWidget from "@/components/ByObtainableWidget.vue";
 import ByWorldEventWidget from "@/components/ByWorldEventWidget.vue";
@@ -178,7 +179,7 @@ const onCodexHistory = () => {
                 </LikeWidget>
               </v-btn>
 
-              <v-btn>{{ t('codex.share.title') }}</v-btn>
+              <ShareWidget type="npc" :target-id="npcDetailData.id" />
             </div>
           </v-col>
         </v-row>

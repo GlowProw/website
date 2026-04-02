@@ -90,6 +90,7 @@ import SettingRoutinePage from '@/views/setting/Routine.vue'
 import SettingStoragePage from '@/views/setting/Storage.vue'
 
 import AboutPage from '@/views/setting/About.vue'
+import SettingPwaPage from '@/views/setting/Pwa.vue'
 import NotFoundPage from '@/views/NotFound.vue';
 
 import Test from '@/views/Test.vue'
@@ -317,6 +318,11 @@ const routes: Readonly<RouteRecordRaw[]> = [
                         path: 'about',
                         name: 'PortalSettingAbout',
                         component: AboutPage,
+                    },
+                    {
+                        path: 'pwa',
+                        name: 'PortalSettingPwa',
+                        component: SettingPwaPage,
                     }
                 ]
             },

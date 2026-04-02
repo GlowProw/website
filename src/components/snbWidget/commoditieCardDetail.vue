@@ -109,7 +109,7 @@ defineOptions({
         />
       </template>
     </div>
-    <div :class="{'demo-reel-content': isWidget}" class="background-flavor overflow-auto">
+    <div :class="{'demo-reel-content': !isWidget}" class="background-flavor overflow-auto">
       <template v-if="isShowDescription">
         <div :class="commoditieDescription && commoditieDescription.isHasDescription ? 'mb-5 px-6 description' : ''">
           <CommoditieDescription ref="commoditieDescription" :id="props.id"></CommoditieDescription>

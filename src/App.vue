@@ -1,44 +1,21 @@
 <script setup lang="ts">
 import AppMessageWidget from '@/components/AppMessageWidget.vue'
-import {onMounted, watch} from "vue";
-import {useRegisterSW} from 'virtual:pwa-register/vue'
-import {useAppStore} from '~/stores/appStore';
+import {onMounted} from "vue";
 import {useI18n} from 'vue-i18n';
+import {usePwa} from '@/composables/usePwa';
 
-const appStore = useAppStore();
 const {t} = useI18n();
 
 const {
   offlineReady,
   needRefresh,
   updateServiceWorker,
-} = useRegisterSW({
-  immediate: true,
-})
-
-
-
-watch(needRefresh, (value) => {
-  appStore.pwaNeedRefresh = value
-})
+  closePwaUpdate,
+} = usePwa();
 
 onMounted(() => {
-  appStore.pwaNeedRefresh = needRefresh.value
-  appStore.updateServiceWorker = updateServiceWorker
-
   document.dispatchEvent(new Event('render-event'));
-
-  // Capture PWA install prompt
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    appStore.pwaInstallPrompt = e;
-  });
 });
-
-const closePwaUpdate = () => {
-  offlineReady.value = false;
-  needRefresh.value = false;
-}
 </script>
 
 <template>

@@ -22,6 +22,7 @@ import CosmeticEffectTagWidget from "@/components/snbWidget/cosmeticEffectTagWid
 import ByWorldEventWidget from "@/components/ByWorldEventWidget.vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import {useHead} from "@unhead/vue";
+import ShareWidget from "@/components/ShareWidget.vue";
 
 const {t, messages} = useI18n(),
     route = useRoute(),
@@ -149,7 +150,7 @@ const onCodexHistory = () => {
                 </LikeWidget>
               </v-btn>
 
-              <v-btn>{{ t('codex.share.title') }}</v-btn>
+              <ShareWidget type="cosmetic" :target-id="cosmeticDetailData.id" />
             </div>
           </v-col>
         </v-row>

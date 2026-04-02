@@ -35,6 +35,7 @@ import ItemDescription from "@/components/snbWidget/itemDescription.vue";
 import ShipUpgradedDescription from "@/components/snbWidget/shipUpgradedDescription.vue";
 import ByEventWidget from "@/components/ByEventWidget.vue";
 import ItemAmmunitionType from "@/components/snbWidget/itemAmmunitionType.vue";
+import ShareWidget from "@/components/ShareWidget.vue";
 
 const
     {t, messages} = useI18n(),
@@ -226,7 +227,7 @@ const onStarItem = (data: Item) => {
                 </LikeWidget>
               </v-btn>
 
-              <v-btn>{{ t('codex.share.title') }}</v-btn>
+              <ShareWidget type="item" :target-id="itemDetailData.id" />
             </div>
           </v-col>
         </v-row>

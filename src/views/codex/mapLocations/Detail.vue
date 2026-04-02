@@ -24,6 +24,7 @@ import ByObtainableWidget from "@/components/ByObtainableWidget.vue";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
+import ShareWidget from "@/components/ShareWidget.vue";
 
 const {t, messages} = useI18n(),
     router = useRouter(),
@@ -142,7 +143,7 @@ const onCodexHistory = () => {
                 </LikeWidget>
               </v-btn>
 
-              <v-btn>{{ t('codex.share.title') }}</v-btn>
+              <ShareWidget type="mapLocation" :target-id="mapLocationDetailData.id" />
             </div>
           </v-col>
         </v-row>

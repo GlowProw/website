@@ -1,6 +1,7 @@
-import {computed, ref} from 'vue'
+import {computed, ref, onMounted} from 'vue'
 import {defineStore} from 'pinia'
 import {storage_account} from "@/assets/sripts/index";
+import { useRegisterSW } from 'virtual:pwa-register/vue'
 
 const CONFIG_KEYS = {
     OPEN_NEW_WINDOW: 'openNewWindow',
@@ -31,10 +32,17 @@ export const useAppStore = defineStore('app', () => {
     const sidebarCollapsed = ref(false)
 
     // PWA 状态
+    const {
+        offlineReady: pwaOfflineReady,
+        needRefresh: pwaNeedRefresh,
+        updateServiceWorker: pwaUpdateServiceWorker,
+    } = useRegisterSW({
+        immediate: true,
+    })
+
     const isPwa = ref(false)
     const pwaInstallPrompt = ref<any>(null)
-    const pwaNeedRefresh = ref(false)
-    const updateServiceWorker = ref<((reloadPage?: boolean) => Promise<void>) | undefined>(undefined)
+    const isPwaInstalled = ref(false)
 
     // 是否是深色主题
     const isDarkTheme = computed(() => theme.value === 'dark')
@@ -234,7 +242,29 @@ export const useAppStore = defineStore('app', () => {
         html.setAttribute('data-theme', themeName)
     }
 
+    const initializePwa = () => {
+        // 捕获 PWA 安装提示
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault()
+            pwaInstallPrompt.value = e
+        })
+
+        // 监听安装完成事件
+        window.addEventListener('appinstalled', () => {
+            pwaInstallPrompt.value = null
+            console.log('PWA was installed')
+        })
+
+        // 定时更新 PWA 安装状态
+        const updateInstallStatus = () => {
+            isPwaInstalled.value = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true
+        }
+        updateInstallStatus()
+        window.addEventListener('resize', updateInstallStatus)
+    }
+
     initializeAppConfig()
+    initializePwa()
 
     return {
         // State
@@ -243,10 +273,11 @@ export const useAppStore = defineStore('app', () => {
         theme,
         language,
         sidebarCollapsed,
-        isPwa,
+        pwaOfflineReady,
         pwaInstallPrompt,
         pwaNeedRefresh,
-        updateServiceWorker,
+        isPwaInstalled,
+        pwaUpdateServiceWorker,
 
         // Getters
         isDarkTheme,
@@ -255,6 +286,7 @@ export const useAppStore = defineStore('app', () => {
 
         // Actions
         initializeAppConfig,
+        initializePwa,
         toggleItemOpenNewWindow,
         setIconSize,
         setTheme,

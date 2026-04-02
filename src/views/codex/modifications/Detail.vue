@@ -18,6 +18,7 @@ import ModDescription from "@/components/snbWidget/modDescription.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
 import {storage} from "@/assets/sripts/index";
 import {useHead} from "@unhead/vue";
+import ShareWidget from "@/components/ShareWidget.vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
 const {t, messages} = useI18n(),
@@ -142,7 +143,7 @@ const onCodexHistory = () => {
                 </LikeWidget>
               </v-btn>
 
-              <v-btn>{{ t('codex.share.title') }}</v-btn>
+              <ShareWidget type="modification" :target-id="modDetailData.id" />
             </div>
           </v-col>
         </v-row>
