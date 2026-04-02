@@ -1,7 +1,7 @@
-import {defineStore} from 'pinia'
-import {ref, computed} from 'vue'
-import {Items, Ships, Materials, Material} from 'glow-prow-data'
-import {v4 as uuidv4} from 'uuid'
+import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
+import { Items, Ships, Materials, Material } from 'glow-prow-data'
+import { v4 as uuidv4 } from 'uuid'
 
 export interface CalculatorTarget {
     uid: string
@@ -264,7 +264,6 @@ export const useCalculatorStore = defineStore('calculator', () => {
         const existing = targets.value.find(t => t.id === id && t.type === type)
         if (existing) {
             existing.quantity += quantity
-            // 替换数组引用以确保响应性
             targets.value = [...targets.value]
             return
         }
@@ -374,20 +373,66 @@ export const useCalculatorStore = defineStore('calculator', () => {
             results: flatMaterials.value,
             trees: materialTrees.value
         }
-        const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'})
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
         downloadBlob(blob, 'calculator-export.json')
     }
 
-    function exportCSV() {
-        const headers = ['Material ID', 'Quantity', 'Is Raw Material']
+    function exportCSV(headersStr?: string) {
+        const headers = headersStr || 'Material ID,Quantity,Is Raw Material'
         const rows = flatMaterials.value.map(m => [m.id, m.totalQuantity, m.isRaw])
         const csvContent = [
-            headers.join(','),
+            headers,
             ...rows.map(r => r.join(','))
         ].join('\n')
 
-        const blob = new Blob([csvContent], {type: 'text/csv;charset=utf-8;'})
+        const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' })
         downloadBlob(blob, 'calculator-export.csv')
+    }
+
+    function importFile(file: File, type: 'json' | 'csv') {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+            if (!e.target?.result) return
+            const content = e.target.result as string
+            if (type === 'json') {
+                try {
+                    const data = JSON.parse(content)
+                    if (data.targets) targets.value = data.targets
+                    if (data.excludedMaterials) excludedMaterials.value = data.excludedMaterials
+                } catch (err) {
+                    console.error('Failed to parse JSON', err)
+                }
+            } else if (type === 'csv') {
+                try {
+                    const rows = content.trim().split('\n')
+                    rows.shift() // remove headers
+                    const newTargets: CalculatorTarget[] = []
+                    for (const row of rows) {
+                        const cols = row.split(',')
+                        if (cols.length >= 2) {
+                            const id = cols[0].trim()
+                            const qty = parseInt(cols[1].trim()) || 1
+                            if (id) {
+                                let tType: 'item' | 'ship' = 'item'
+                                if (Ships[id]) tType = 'ship'
+                                newTargets.push({
+                                    uid: uuidv4(),
+                                    id: id,
+                                    type: tType,
+                                    quantity: qty
+                                })
+                            }
+                        }
+                    }
+                    if (newTargets.length > 0) {
+                        targets.value = newTargets
+                    }
+                } catch (err) {
+                    console.error('Failed to parse CSV', err)
+                }
+            }
+        }
+        reader.readAsText(file)
     }
 
     function downloadBlob(blob: Blob, filename: string) {
@@ -401,6 +446,23 @@ export const useCalculatorStore = defineStore('calculator', () => {
         URL.revokeObjectURL(url)
     }
 
+    // === 跨标签页同步 ===
+    if (typeof window !== 'undefined') {
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'calculator' && e.newValue) {
+                try {
+                    const state = JSON.parse(e.newValue)
+                    if (state.targets) targets.value = state.targets
+                    if (state.excludedMaterials) excludedMaterials.value = state.excludedMaterials
+                    if (state.savedConfigs) savedConfigs.value = state.savedConfigs
+                    if (state.displaySettings) displaySettings.value = state.displaySettings
+                } catch (err) {
+                    console.error('Failed to parse calculator storage sync:', err)
+                }
+            }
+        })
+    }
+
     return {
         targets,
         excludedMaterials,
@@ -412,6 +474,7 @@ export const useCalculatorStore = defineStore('calculator', () => {
         clearTargets,
         addExcludedMaterial,
         removeExcludedMaterial,
+        importFile,
         clearExcludedMaterials,
         materialTrees,
         flatMaterials,

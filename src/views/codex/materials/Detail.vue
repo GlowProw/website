@@ -25,6 +25,8 @@ import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
 import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import ShareWidget from "@/components/ShareWidget.vue";
+import {useCalculatorStore} from "~/stores/calculatorStore";
+import {useNoticeStore} from "~/stores/noticeStore";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 
@@ -33,6 +35,8 @@ const {t, messages} = useI18n(),
     i18nReadName = useI18nReadName(),
     authStore = useAuthStore(),
     cdnStore = useCDNAssetsServiceStore(),
+    calculatorStore = useCalculatorStore(),
+    noticeStore = useNoticeStore(),
     materials = Materials,
     rarityColorConfig = rarity.color
 
@@ -118,6 +122,16 @@ const onCodexHistory = () => {
     }
   })
 }
+
+/**
+ * 添加到量化
+ */
+const onAddCalculator = () => {
+  if (materialDetailData.value && materialDetailData.value.id) {
+    calculatorStore.addTarget(materialDetailData.value.id, 'item')
+    noticeStore.success(t('calculator.addedSuccess'))
+  }
+}
 </script>
 
 <template>
@@ -177,6 +191,10 @@ const onCodexHistory = () => {
                     <v-icon icon="mdi-thumb-up-outline"></v-icon>
                   </template>
                 </LikeWidget>
+              </v-btn>
+
+              <v-btn variant="text" @click="onAddCalculator" :title="t('calculator.addTo')" v-tooltip:bottom="t('calculator.addTo')">
+                <v-icon icon="mdi-chart-box-outline"></v-icon>
               </v-btn>
 
               <ShareWidget type="material" :target-id="materialDetailData.id"/>

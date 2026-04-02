@@ -27,6 +27,8 @@ import ShipDescription from "@/components/snbWidget/shipDescription.vue";
 import ByBluePrintWidget from "@/components/ByBluePrintWidget.vue";
 import ShareWidget from "@/components/ShareWidget.vue";
 import BluePrintWidget from "@/components/BluePrintWidget.vue";
+import {useCalculatorStore} from "~/stores/calculatorStore";
+import {useNoticeStore} from "~/stores/noticeStore";
 
 const shipImages = import.meta.glob('@glow-prow-assets/ships/*.png', {eager: true})
 
@@ -37,6 +39,8 @@ const
     router = useRouter(),
     route = useRoute(),
     authStore = useAuthStore(),
+    calculatorStore = useCalculatorStore(),
+    noticeStore = useNoticeStore(),
 
     // 船只数据
     shipsData: any = Ships
@@ -145,6 +149,16 @@ const onCodexHistory = () => {
     }
   })
 }
+
+/**
+ * 添加到量化
+ */
+const onAddCalculator = () => {
+  if (shipDetailData.value && shipDetailData.value.id) {
+    calculatorStore.addTarget(shipDetailData.value.id, 'ship')
+    noticeStore.success(t('calculator.addedSuccess'))
+  }
+}
 </script>
 
 <template>
@@ -198,6 +212,10 @@ const onCodexHistory = () => {
                     <v-icon icon="mdi-thumb-up-outline"></v-icon>
                   </template>
                 </LikeWidget>
+              </v-btn>
+
+              <v-btn variant="text" @click="onAddCalculator" :title="t('calculator.addTo')" v-tooltip:bottom="t('calculator.addTo')">
+                <v-icon icon="mdi-chart-box-outline"></v-icon>
               </v-btn>
 
               <ShareWidget type="ship" :target-id="shipDetailData.id" />

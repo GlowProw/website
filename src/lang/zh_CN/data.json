@@ -1350,6 +1350,8 @@
   "calculator": {
     "title": "量化计算",
     "description": "材料量化计算工具，设定目标物品计算所需全部材料",
+    "addTo": "添加至量化",
+    "addedSuccess": "已添加至量化计算",
     "meta": {
       "keywords": "量化计算,材料计算,材料需求,工序图"
     },
@@ -1391,7 +1393,13 @@
     "export": {
       "title": "导出",
       "json": "导出 JSON",
-      "csv": "导出 CSV"
+      "csv": "导出 CSV",
+      "csvHeaders": "材料标识,数量,是否为原材料"
+    },
+    "import": {
+      "title": "导入",
+      "json": "导入 JSON",
+      "csv": "导入 CSV"
     },
     "sankey": {
       "showName": "显示名称",

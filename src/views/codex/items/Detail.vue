@@ -36,6 +36,8 @@ import ShipUpgradedDescription from "@/components/snbWidget/shipUpgradedDescript
 import ByEventWidget from "@/components/ByEventWidget.vue";
 import ItemAmmunitionType from "@/components/snbWidget/itemAmmunitionType.vue";
 import ShareWidget from "@/components/ShareWidget.vue";
+import {useCalculatorStore} from "~/stores/calculatorStore";
+import {useNoticeStore} from "~/stores/noticeStore";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 
@@ -47,6 +49,8 @@ const
     {asString, sanitizeString} = useI18nUtils(),
     i18nReadName = useI18nReadName(),
     cdnStore = useCDNAssetsServiceStore(),
+    calculatorStore = useCalculatorStore(),
+    noticeStore = useNoticeStore(),
 
     // 物品数据
     items: any = Items
@@ -180,6 +184,17 @@ const onStarItem = (data: Item) => {
   )
 }
 
+/**
+ * 添加到量化
+ */
+const onAddCalculator = () => {
+  if (itemDetailData.value && itemDetailData.value.id) {
+    calculatorStore.addTarget(itemDetailData.value.id, 'item')
+    noticeStore.success(t('calculator.addedSuccess'))
+  }
+}
+
+
 </script>
 
 <template>
@@ -243,6 +258,10 @@ const onStarItem = (data: Item) => {
                     <v-icon icon="mdi-thumb-up-outline"></v-icon>
                   </template>
                 </LikeWidget>
+              </v-btn>
+
+              <v-btn border @click="onAddCalculator" :title="t('calculator.addTo')" v-tooltip:bottom="t('calculator.addTo')">
+                <v-icon icon="mdi-chart-box-outline"></v-icon>
               </v-btn>
 
               <ShareWidget type="item" :target-id="itemDetailData.id" />

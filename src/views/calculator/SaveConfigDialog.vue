@@ -2,8 +2,10 @@
 import {useI18n} from "vue-i18n";
 import {ref} from "vue";
 import {useCalculatorStore} from "~/stores/calculatorStore";
+import {useDisplay} from "vuetify/framework";
 
 const {t} = useI18n()
+const {mobile} = useDisplay()
 const store = useCalculatorStore()
 
 const dialog = ref(false)
@@ -35,22 +37,20 @@ defineExpose({dialog})
 
 <template>
   <v-dialog v-model="dialog" max-width="600" scrollable>
-    <v-card>
-      <v-card-title class="d-flex align-center ga-2">
-        <v-icon icon="mdi-content-save-cog" color="amber"/>
-        {{ t('calculator.config.title') }}
+    <v-card border class="pa-5" :min-width="mobile ? '100%' : 350" :width="mobile ? '100%' : 580">
+      <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 mt-n5">
+        <v-icon size="80">mdi-content-save-cog</v-icon>
+        <p>{{ t('calculator.config.title') }}</p>
       </v-card-title>
-
-      <v-divider/>
 
       <v-card-text>
         <!-- 保存新配置 -->
-        <p class="text-subtitle-2 mb-2 font-weight-bold">{{ t('calculator.config.save') }}</p>
-        <v-row dense>
+        <v-row dense align="center">
           <v-col>
             <v-text-field
                 v-model="configName"
-                :label="t('calculator.config.name')"
+                :placeholder="t('calculator.config.name')"
+                :label="t('calculator.config.save')"
                 density="compact"
                 variant="outlined"
                 hide-details
@@ -62,8 +62,7 @@ defineExpose({dialog})
                 color="amber"
                 variant="tonal"
                 @click="onSave"
-                :disabled="!configName.trim()"
-            >
+                :disabled="!configName.trim()">
               <v-icon icon="mdi-content-save" class="mr-1"/>
               {{ t('basic.button.save') }}
             </v-btn>

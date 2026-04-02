@@ -9,6 +9,7 @@ import MaterialNameRarity from "@/components/snbWidget/materialNameRarity.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import HtmlLink from "@/components/HtmlLink.vue";
 import TreeNodeItem from "./TreeNodeItem.vue";
+import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 
 const {t} = useI18n()
 const store = useCalculatorStore()
@@ -53,17 +54,18 @@ function collapseAll() {
 <template>
   <div class="result-list-view">
     <!-- 汇总面板 -->
-    <v-card variant="text" class="mb-4 summary-card" v-if="store.flatMaterials.length > 0">
-      <v-row class="text-body-1 d-flex align-center ga-2">
-        <v-col>
-          <v-icon icon="mdi-sigma" size="20" color="amber"/>
-          材料汇总 ({{ store.flatMaterials.length }})
+    <AffixBoxHasTitleView>
+      <v-row no-gutters align="center">
+        <v-col cols="auto">
+          <v-icon icon="mdi-sigma" color="amber" class="mb-2"/>
         </v-col>
-        <v-spacer></v-spacer>
+        <v-col>
+          <v-divider :thickness="4" class="mt-n1"></v-divider>
+        </v-col>
         <v-col cols="auto">
           <v-menu>
             <template v-slot:activator="{props}">
-              <v-btn density="compact" variant="text" icon="mdi-cog" v-bind="props" size="small"/>
+              <v-btn variant="text" icon="mdi-filter" v-bind="props"/>
             </template>
             <v-card min-width="200">
               <v-card-text class="pa-2">
@@ -91,81 +93,93 @@ function collapseAll() {
           </v-menu>
         </v-col>
       </v-row>
+      <v-card variant="text" class="mb-4 summary-card" v-if="store.flatMaterials.length > 0">
+        <v-table density="compact" class="bg-transparent">
+          <thead>
+          <tr>
+            <th class="text-left" style="width: 40px;"></th>
+            <th class="text-left" v-if="store.displaySettings.listColumns.name">
+              {{ t('calculator.results.columns.name') }}
+            </th>
+            <th class="text-right" v-if="store.displaySettings.listColumns.quantity">
+              {{ t('calculator.results.columns.quantity') }}
+            </th>
+            <th class="text-center" v-if="store.displaySettings.listColumns.link" style="width: 50px;">
+              {{ t('calculator.results.columns.link') }}
+            </th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr v-for="mat in store.flatMaterials" :key="mat.id">
+            <td>
+              <ItemSlotBase size="30px" :padding="0">
+                <MaterialIconWidget :id="mat.id" :padding="0" :margin="0"/>
+              </ItemSlotBase>
+            </td>
+            <td v-if="store.displaySettings.listColumns.name">
+              <MaterialNameRarity :id="mat.id">
+                <MaterialName :id="mat.id"/>
+              </MaterialNameRarity>
+            </td>
+            <td class="text-right font-weight-bold text-amber" v-if="store.displaySettings.listColumns.quantity">
+              {{ mat.totalQuantity }}
+            </td>
+            <td class="text-center" v-if="store.displaySettings.listColumns.link">
+              <HtmlLink :is-icon="false" :is-iframe-show="false" :href="`/codex/material/${mat.id}`" target="_blank">
+                <v-icon size="14" icon="mdi-open-in-new"/>
+              </HtmlLink>
+            </td>
+          </tr>
+          </tbody>
+        </v-table>
+      </v-card>
 
-      <v-table density="compact" class="bg-transparent">
-        <thead>
-        <tr>
-          <th class="text-left" style="width: 40px;"></th>
-          <th class="text-left" v-if="store.displaySettings.listColumns.name">
-            {{ t('calculator.results.columns.name') }}
-          </th>
-          <th class="text-right" v-if="store.displaySettings.listColumns.quantity">
-            {{ t('calculator.results.columns.quantity') }}
-          </th>
-          <th class="text-center" v-if="store.displaySettings.listColumns.link" style="width: 50px;">
-            {{ t('calculator.results.columns.link') }}
-          </th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="mat in store.flatMaterials" :key="mat.id">
-          <td>
-            <ItemSlotBase size="25px" :padding="0">
-              <MaterialIconWidget :id="mat.id" :padding="0" :margin="0"/>
-            </ItemSlotBase>
-          </td>
-          <td v-if="store.displaySettings.listColumns.name">
-            <MaterialNameRarity :id="mat.id">
-              <MaterialName :id="mat.id"/>
-            </MaterialNameRarity>
-          </td>
-          <td class="text-right font-weight-bold text-amber" v-if="store.displaySettings.listColumns.quantity">
-            {{ mat.totalQuantity }}
-          </td>
-          <td class="text-center" v-if="store.displaySettings.listColumns.link">
-            <HtmlLink :is-icon="false" :is-iframe-show="false" :href="`/codex/material/${mat.id}`" target="_blank">
-              <v-icon size="14" icon="mdi-open-in-new"/>
-            </HtmlLink>
-          </td>
-        </tr>
-        </tbody>
-      </v-table>
-    </v-card>
+      <template v-slot:title>
+        <span>材料汇总 ({{ store.flatMaterials.length }})</span>
+      </template>
+    </AffixBoxHasTitleView>
 
     <!-- 树状展开 -->
-    <v-card variant="text" class="tree-card" v-if="store.materialTrees.length > 0">
-      <v-row no-gutters align="center">
-        <v-col>
-          <v-icon icon="mdi-file-tree" size="20" color="cyan"/>
-          材料树
-        </v-col>
-        <v-spacer></v-spacer>
-        <v-col cols="auto">
+    <AffixBoxHasTitleView>
+      <v-card variant="text" class="tree-card" v-if="store.materialTrees.length > 0">
+        <v-row no-gutters align="center">
           <v-col cols="auto">
-            <v-btn-group density="compact" variant="outlined">
-              <v-btn size="small" @click="expandAll">
-                <v-icon icon="mdi-unfold-more-horizontal" size="16" class="mr-1"/>
-                展开全部
-              </v-btn>
-              <v-btn size="small" @click="collapseAll">
-                <v-icon icon="mdi-unfold-less-horizontal" size="16" class="mr-1"/>
-                折叠全部
-              </v-btn>
-            </v-btn-group>
+            <v-icon icon="mdi-file-tree" color="cyan" class="mb-2"/>
           </v-col>
-        </v-col>
-      </v-row>
+          <v-col>
+            <v-divider :thickness="4" class="mt-n1"></v-divider>
+          </v-col>
+          <v-col cols="auto">
+            <v-col cols="auto">
+              <v-btn-group density="compact" variant="outlined">
+                <v-btn size="small" @click="expandAll">
+                  <v-icon icon="mdi-unfold-more-horizontal" size="16" class="mr-1"/>
+                  展开全部
+                </v-btn>
+                <v-btn size="small" @click="collapseAll">
+                  <v-icon icon="mdi-unfold-less-horizontal" size="16" class="mr-1"/>
+                  折叠全部
+                </v-btn>
+              </v-btn-group>
+            </v-col>
+          </v-col>
+        </v-row>
 
-      <TreeNodeItem
-          v-for="(node, index) in store.materialTrees"
-          :key="`root-${node.id}-${index}`"
-          :node="node"
-          :depth="0"
-          :node-key="`${node.id}-${index}`"
-          :expanded-nodes="expandedNodes"
-          @toggle="toggleNode"
-      />
-    </v-card>
+        <TreeNodeItem
+            v-for="(node, index) in store.materialTrees"
+            :key="`root-${node.id}-${index}`"
+            :node="node"
+            :depth="0"
+            :node-key="`${node.id}-${index}`"
+            :expanded-nodes="expandedNodes"
+            @toggle="toggleNode"
+        />
+      </v-card>
+
+      <template v-slot:title>
+        <span>材料树</span>
+      </template>
+    </AffixBoxHasTitleView>
 
     <!-- 空状态 -->
     <v-card border v-if="store.materialTrees.length === 0" class="d-flex align-center justify-center py-10 opacity-40 h-screen">

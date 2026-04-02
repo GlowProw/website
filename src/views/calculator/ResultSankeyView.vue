@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
-import {onMounted, onBeforeUnmount, ref, watch, nextTick} from "vue";
+import {nextTick, onBeforeUnmount, onMounted, ref, watch} from "vue";
 import {useCalculatorStore} from "~/stores/calculatorStore";
 import * as d3 from 'd3';
 import {sankey, sankeyLinkHorizontal} from 'd3-sankey';
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
+import {Items, Materials, Ships} from 'glow-prow-data';
+import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 
 const {t} = useI18n()
+const {currentService: currentImageService} = useCDNAssetsServiceStore()
 const store = useCalculatorStore()
 const i18nReadName = useI18nReadName()
 
@@ -37,7 +40,17 @@ interface SLink {
 
 function getDisplayName(id: string): string {
   try {
-    const nameData = i18nReadName.material(id)
+    let nameData: any = null
+    if (Materials[id]) {
+      nameData = i18nReadName.material(id)
+    } else if (Items[id]) {
+      nameData = i18nReadName.item(id)
+    } else if (Ships[id]) {
+      nameData = i18nReadName.ship(id)
+    } else {
+      nameData = i18nReadName.material(id) // fallback
+    }
+
     const name = nameData.name()
     if (name && typeof name === 'string' && name !== id) return name
   } catch (e) {
@@ -57,12 +70,12 @@ function drawSankey() {
   zoomBehavior = null
   svgSelection = null
 
-  const margin = {top: 20, right: 160, bottom: 20, left: 160}
+  const margin = {top: 3, right: 200, bottom: 50, left: 0}
   const width = Math.max(400, containerWidth.value - margin.left - margin.right)
   const calculatedHeight = Math.max(300, Math.min(800, data.nodes.length * 40))
   const height = calculatedHeight - margin.top - margin.bottom
 
-  // 外层 SVG
+  // Root SVG
   const svgRoot = d3.select(svgContainer.value)
       .append('svg')
       .attr('width', '100%')
@@ -115,7 +128,8 @@ function drawSankey() {
     links: validLinks.map(l => ({...l}))
   })
 
-  // Tooltip（挂在 svgContainer 上，不受 zoom 影响）
+  // Tooltip
+  // 挂在 svgContainer 上，不受 zoom 影响
   const tooltip = d3.select(svgContainer.value)
       .append('div')
       .attr('class', 'sankey-tooltip')
@@ -187,6 +201,23 @@ function drawSankey() {
         tooltip.style('visibility', 'hidden')
       })
 
+  // 节点图标
+  svg.append('g')
+      .selectAll('.sankey-icon')
+      .data(sankeyData.nodes)
+      .join('image')
+      .attr('class', 'sankey-icon')
+      .attr('href', (d: any) => {
+        let category = 'materials'
+        if (Ships[d.name]) category = 'ships'
+        else if (Items[d.name]) category = 'items'
+        return currentImageService.url({ id: d.name, category })
+      })
+      .attr('x', (d: any) => d.x1 + 6)
+      .attr('y', (d: any) => ((d.y0 + d.y1) / 2) - 8)
+      .attr('width', 16)
+      .attr('height', 16)
+
   // 节点标签
   if (store.displaySettings.sankey.showName || store.displaySettings.sankey.showQuantity) {
     svg.append('g')
@@ -194,10 +225,10 @@ function drawSankey() {
         .data(sankeyData.nodes)
         .join('text')
         .attr('class', 'sankey-label')
-        .attr('x', (d: any) => d.x0 < width / 2 ? d.x0 - 6 : d.x1 + 6)
+        .attr('x', (d: any) => d.x1 + 6 + 16 + 4)
         .attr('y', (d: any) => (d.y0 + d.y1) / 2)
         .attr('dy', '0.35em')
-        .attr('text-anchor', (d: any) => d.x0 < width / 2 ? 'end' : 'start')
+        .attr('text-anchor', 'start')
         .attr('fill', '#ddd')
         .attr('font-size', '11px')
         .text((d: any) => {
@@ -266,15 +297,46 @@ onBeforeUnmount(() => {
       <div ref="svgContainer" class="sankey-svg-wrapper"/>
 
       <!-- 缩放控制 -->
-      <div class="zoom-controls">
-        <v-btn-group density="compact" variant="tonal" color="grey" direction="vertical">
-          <v-btn icon="mdi-plus" size="small" @click="zoomIn" title="放大"/>
-          <v-btn size="small" @click="zoomReset" :title="'重置 (' + currentZoomScale + '%)'">
-            <span class="text-caption">{{ currentZoomScale }}%</span>
-          </v-btn>
-          <v-btn icon="mdi-minus" size="small" @click="zoomOut" title="缩小"/>
-        </v-btn-group>
-      </div>
+      <v-row class="controls">
+        <!-- 设置 -->
+        <v-col cols="auto">
+          <v-row dense class="" align="center" v-if="store.sankeyData.nodes.length > 0">
+            <v-spacer></v-spacer>
+            <v-col cols="auto">
+              <v-checkbox
+                  v-model="store.displaySettings.sankey.showName"
+                  :label="t('calculator.sankey.showName')"
+                  density="compact"
+                  hide-details
+                  class="d-inline-flex mr-4"
+              />
+            </v-col>
+            <v-col cols="auto">
+              <v-checkbox
+                  v-model="store.displaySettings.sankey.showQuantity"
+                  :label="t('calculator.sankey.showQuantity')"
+                  density="compact"
+                  hide-details
+                  class="d-inline-flex"
+              />
+            </v-col>
+          </v-row>
+        </v-col>
+
+        <v-spacer></v-spacer>
+
+        <v-col cols="auto">
+          <v-btn-group border density="compact" variant="tonal" class="btn-group-flavor">
+            <v-btn icon="mdi-plus" size="small" class="px-5" @click="zoomIn"/>
+            <v-divider vertical></v-divider>
+            <v-btn size="small" @click="zoomReset" :title="'(' + currentZoomScale + '%)'">
+              <span class="text-caption">{{ currentZoomScale }}%</span>
+            </v-btn>
+            <v-divider vertical></v-divider>
+            <v-btn icon="mdi-minus" size="small" class="px-5" @click="zoomOut"/>
+          </v-btn-group>
+        </v-col>
+      </v-row>
     </div>
 
     <!-- 空状态 -->
@@ -284,29 +346,6 @@ onBeforeUnmount(() => {
         <p class="text-body-1">添加目标以查看桑基图</p>
       </div>
     </v-card>
-
-    <!-- 设置 -->
-    <v-row dense class="" align="center" v-if="store.sankeyData.nodes.length > 0">
-      <v-spacer></v-spacer>
-      <v-col cols="auto">
-        <v-checkbox
-            v-model="store.displaySettings.sankey.showName"
-            :label="t('calculator.sankey.showName')"
-            density="compact"
-            hide-details
-            class="d-inline-flex mr-4"
-        />
-      </v-col>
-      <v-col cols="auto">
-        <v-checkbox
-            v-model="store.displaySettings.sankey.showQuantity"
-            :label="t('calculator.sankey.showQuantity')"
-            density="compact"
-            hide-details
-            class="d-inline-flex"
-        />
-      </v-col>
-    </v-row>
   </div>
 </template>
 
@@ -330,11 +369,17 @@ onBeforeUnmount(() => {
     }
   }
 
-  .zoom-controls {
+  .controls {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    bottom: -10px;
+    left: 10px;
+    width: 100%;
     z-index: 5;
+  }
+
+  .btn-group-flavor {
+    backdrop-filter: blur(30px);
+    background: hsl(from #000 h s l /.7);
   }
 }
 </style>

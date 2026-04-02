@@ -32,17 +32,15 @@ function onChildToggle(key: string) {
     <div
         class="tree-node-row d-flex align-center ga-2 py-1"
         :class="{'tree-node-excluded': node.isExcluded}"
-        @click="onToggle"
-    >
+        @click="onToggle">
       <v-icon
           v-if="node.children.length > 0 && !node.isExcluded"
           :icon="isExpanded ? 'mdi-chevron-down' : 'mdi-chevron-right'"
           size="16"
-          class="cursor-pointer flex-shrink-0"
-      />
+          class="cursor-pointer flex-shrink-0"/>
       <div v-else style="width: 16px;" class="flex-shrink-0"/>
 
-      <ItemSlotBase size="22px" :padding="0" class="flex-shrink-0">
+      <ItemSlotBase size="30px" :padding="0" class="flex-shrink-0">
         <MaterialIconWidget :id="node.id" :padding="0" :margin="0"/>
       </ItemSlotBase>
 

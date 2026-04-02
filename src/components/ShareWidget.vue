@@ -44,11 +44,11 @@ const onCopyIframe = () => {
 </script>
 
 <template>
-  <v-btn-group variant="flat" border class="share-widget">
+  <v-btn-group variant="flat" border class="share-widget" density="compact">
     <v-btn @click="onShareMain" prepend-icon="mdi-share-variant">
       {{ t('codex.share.title') }}
     </v-btn>
-    
+
     <v-menu location="bottom end">
       <template v-slot:activator="{ props }">
         <v-btn
@@ -67,7 +67,7 @@ const onCopyIframe = () => {
           </template>
           <v-list-item-title>{{ t('codex.share.copyLink') }}</v-list-item-title>
         </v-list-item>
-        
+
         <v-list-item @click="onCopyIframe">
           <template v-slot:prepend>
             <v-icon icon="mdi-code-tags"></v-icon>

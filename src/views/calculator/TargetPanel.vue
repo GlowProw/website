@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
-import {computed, ref, watch} from "vue";
-import {Items, Ships, Materials, Material} from "glow-prow-data";
+import {computed, ref} from "vue";
+import {Items, Ships} from "glow-prow-data";
 import {useCalculatorStore} from "~/stores/calculatorStore";
-import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
-import MaterialName from "@/components/snbWidget/materialName.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import ItemName from "@/components/snbWidget/itemName.vue";
@@ -12,9 +10,12 @@ import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
 import ShipName from "@/components/snbWidget/shipName.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
+import {useDisplay} from "vuetify/framework";
+import EmptyView from "@/components/EmptyView.vue";
 
 const {t} = useI18n()
 const store = useCalculatorStore()
+const {mobile} = useDisplay()
 const i18nReadName = useI18nReadName()
 
 const items: Record<string, any> = Items
@@ -23,6 +24,7 @@ const ships: Record<string, any> = Ships
 const searchQuery = ref('')
 const searchType = ref<'item' | 'ship'>('item')
 const addQuantity = ref(1)
+const selectedTargetObj = ref(null)
 
 const isSearchDialogOpen = ref(store.targets.length === 0)
 
@@ -38,10 +40,14 @@ const searchResults = computed(() => {
     if (results.length >= 20) break
     const data = value as any
     let localName = ''
+    let displayName = key
     try {
       const nameData = searchType.value === 'item' ? i18nReadName.item(key) : i18nReadName.ship(key)
       const name = nameData.name()
-      if (typeof name === 'string') localName = name.toLowerCase()
+      if (typeof name === 'string') {
+        localName = name.toLowerCase()
+        displayName = name
+      }
     } catch (e) {
       // fallback
     }
@@ -49,18 +55,27 @@ const searchResults = computed(() => {
     if (key.toLowerCase().includes(query) || localName.includes(query) || (data.id && data.id.toLowerCase().includes(query))) {
       results.push({
         id: key,
+        name: displayName,
         type: searchType.value,
         hasRequired: !!data.required
-      })
+      } as any)
     }
   }
 
-  return results
+  return results.slice(0, 50)
 })
 
 function onAddTarget(id: string, type: 'item' | 'ship') {
   store.addTarget(id, type, addQuantity.value)
   searchQuery.value = ''
+}
+
+function onConfirmAddTarget() {
+  if (selectedTargetObj.value) {
+    onAddTarget(selectedTargetObj.value.id, selectedTargetObj.value.type || selectedTargetObj.value.raw?.type)
+    selectedTargetObj.value = null
+    isSearchDialogOpen.value = false
+  }
 }
 
 function onRemoveTarget(uid: string) {
@@ -76,89 +91,94 @@ function onQuantityChange(uid: string, val: number) {
   <AffixBoxHasTitleView>
     <v-card variant="text" class="target-panel">
       <v-dialog v-model="isSearchDialogOpen" max-width="500">
-        <v-card>
-          <v-card-title>{{ t('calculator.targets.addTarget') }}</v-card-title>
+        <v-card border class="pa-5" :min-width="mobile ? '100%' : 350" :width="mobile ? '100%' : 580">
+          <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 mt-n5">
+            <v-icon size="80">mdi-plus</v-icon>
+            <p>{{ t('calculator.targets.addTarget') }}</p>
+          </v-card-title>
           <v-card-text>
-            <!-- 搜索类型切换 -->
-            <v-btn-toggle v-model="searchType" mandatory density="compact" class="mb-3" color="amber">
-              <v-btn value="item">
-                {{ t('calculator.targets.item') }}
-              </v-btn>
-              <v-btn value="ship">
-                {{ t('calculator.targets.ship') }}
-              </v-btn>
-            </v-btn-toggle>
+            <v-select
+                v-model="searchType"
+                :items="[
+                { title: t('calculator.targets.item'), value: 'item' },
+                { title: t('calculator.targets.ship'), value: 'ship' }
+              ]"
+                density="compact"
+                variant="outlined"
+                class="mb-3">
+              <template v-slot:no-data>
+                <EmptyView></EmptyView>
+              </template>
+            </v-select>
 
             <!-- 搜索 + 数量 -->
             <v-row dense>
               <v-col>
-                <v-text-field
-                    v-model="searchQuery"
+                <v-autocomplete
+                    v-model="selectedTargetObj"
+                    v-model:search="searchQuery"
+                    :items="searchResults"
+                    item-title="name"
+                    item-value="id"
+                    return-object
+                    no-filter
                     :placeholder="t('calculator.targets.searchPlaceholder')"
                     density="compact"
                     variant="outlined"
                     prepend-inner-icon="mdi-magnify"
                     hide-details
-                    clearable
-                />
+                    clearable>
+                  <template v-slot:item="{ props, item }">
+                    <v-list-item
+                        v-bind="props"
+                        three-line
+                        :disabled="!item.raw.hasRequired">
+                      <template v-slot:prepend>
+                        <ItemSlotBase size="30px" class="mr-2">
+                          <ItemIconWidget
+                              v-if="item.raw.type === 'item'"
+                              :id="item.raw.id"
+                              :isOpenDetail="false"
+                              :isShowOpenDetail="false"
+                              :padding="0"
+                              :margin="0"/>
+                          <ShipIconWidget
+                              v-else
+                              :id="item.raw.id"
+                              :isOpenDetail="false"/>
+                        </ItemSlotBase>
+                      </template>
+                    </v-list-item>
+                  </template>
+                  <template v-slot:no-data>
+                    <EmptyView></EmptyView>
+                  </template>
+                </v-autocomplete>
               </v-col>
               <v-col cols="auto">
-                <v-text-field
+                <v-combobox
                     v-model.number="addQuantity"
+                    :items="[1, 5, 10, 50, 100]"
                     type="number"
                     :min="1"
                     density="compact"
                     variant="outlined"
                     hide-details
-                    style="width: 80px;"
-                    :label="t('calculator.targets.quantity')"
-                />
+                    style="width: 200px;"
+                    :label="t('calculator.targets.quantity')">
+                  <template v-slot:no-data>
+                    <EmptyView></EmptyView>
+                  </template>
+                </v-combobox>
               </v-col>
             </v-row>
-
-            <!-- 搜索结果下拉 -->
-            <v-list
-                v-if="searchResults.length > 0"
-                class="search-results-list mt-1"
-                density="compact">
-              <v-list-item
-                  v-for="result in searchResults"
-                  :key="result.id"
-                  @click="onAddTarget(result.id, result.type)"
-                  :disabled="!result.hasRequired">
-                <template v-slot:prepend>
-                  <ItemSlotBase size="30px" :padding="0">
-                    <ItemIconWidget
-                        v-if="result.type === 'item'"
-                        :id="result.id"
-                        :isOpenDetail="false"
-                        :isShowOpenDetail="false"
-                        :padding="0"
-                        :margin="0"
-                    />
-                    <ShipIconWidget
-                        v-else
-                        :id="result.id"
-                        :isOpenDetail="false"
-                    />
-                  </ItemSlotBase>
-                </template>
-                <v-list-item-title class="text-body-2 d-flex align-center ga-2">
-                  <ItemName v-if="result.type === 'item'" :data="items[result.id]"/>
-                  <ShipName v-else :id="result.id"/>
-                  <v-chip v-if="!result.hasRequired" size="x-small" color="grey" variant="tonal">
-                    无材料
-                  </v-chip>
-                </v-list-item-title>
-                <v-list-item-subtitle class="text-caption opacity-50">
-                  {{ result.id }}
-                </v-list-item-subtitle>
-              </v-list-item>
-            </v-list>
           </v-card-text>
-          <v-card-actions>
+          <v-card-actions class="px-5 pb-5">
             <v-spacer/>
             <v-btn variant="text" @click="isSearchDialogOpen = false">{{ t('basic.button.cancel') }}</v-btn>
+            <v-btn variant="elevated" color="amber" class="text-black" :disabled="!selectedTargetObj" @click="onConfirmAddTarget()">
+              {{ t('basic.button.submit') }}
+            </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -176,7 +196,7 @@ function onQuantityChange(uid: string, val: number) {
             variant="flat"
             class="mb-2 target-item">
           <div class="pl-2 py-0 d-flex align-center">
-            <ItemSlotBase size="35px" :padding="0">
+            <ItemSlotBase size="38px">
               <ItemIconWidget
                   v-if="target.type === 'item'"
                   :id="target.id"
@@ -200,12 +220,11 @@ function onQuantityChange(uid: string, val: number) {
                 type="number"
                 :min="1"
                 elevation="0"
-                density="compact"
+                density="comfortable"
                 tile
-                class="pa-0 mx-0"
                 variant="solo-filled"
                 hide-details
-                style="max-width: 80px;"/>
+                style="max-width: 80px;height: 47px;"/>
 
             <v-divider vertical thickness="1"></v-divider>
 
