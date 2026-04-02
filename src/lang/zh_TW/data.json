@@ -157,7 +157,9 @@
         "authFailed": "Token 无效或已过期, 重新登陆",
         "error": "通信错误: {context}"
       }
-    }
+    },
+    "yes": "是",
+    "no": "否"
   },
   "portal": {
     "title": "首页",
@@ -1016,5 +1018,75 @@
       "wrong": "验证码错误"
     },
     "title": "验证码"
+  },
+  "calculator": {
+    "title": "量化計算",
+    "description": "材料量化計算工具，设定目標物品計算所需全部材料",
+    "addTo": "添加至量化",
+    "addedSuccess": "已添加至量化計算",
+    "meta": {
+      "keywords": "量化計算,材料計算,材料需求,工序图"
+    },
+    "targets": {
+      "title": "目標",
+      "addTarget": "添加目標",
+      "searchPlaceholder": "搜索物品或船只...",
+      "quantity": "數量",
+      "type": "类型",
+      "item": "物品",
+      "ship": "船只",
+      "material": "材料",
+      "noTargets": "暂无目標，请添加物品或船只"
+    },
+    "results": {
+      "title": "計算结果",
+      "listView": "列表視圖",
+      "sankeyView": "工序图",
+      "columns": {
+        "name": "名称",
+        "quantity": "數量",
+        "link": "連結"
+      }
+    },
+    "exclude": {
+      "title": "排除材料",
+      "searchPlaceholder": "搜索要排除的材料...",
+      "noExcludes": "无排除材料",
+      "description": "排除的材料不会被进一步分解"
+    },
+    "config": {
+      "title": "配置管理",
+      "save": "保存配置",
+      "load": "加载配置",
+      "delete": "删除配置",
+      "name": "配置名称",
+      "savedConfigs": "已保存配置",
+      "noSavedConfigs": "暂无保存的配置"
+    },
+    "export": {
+      "title": "匯出",
+      "json": "匯出 JSON",
+      "csv": "匯出 CSV",
+      "csvHeaders": "材料標識,名称,數量,是否為原材料"
+    },
+    "import": {
+      "title": "匯入",
+      "json": "匯入 JSON",
+      "csv": "匯入 CSV"
+    },
+    "sankey": {
+      "showName": "顯示名称",
+      "showQuantity": "顯示數量"
+    },
+    "ui": {
+      "expandAll": "展開全部",
+      "collapseAll": "折疊全部",
+      "tree": "材料樹",
+      "summary": "材料匯總",
+      "emptyTree": "添加目標以查看材料樹",
+      "emptySankey": "添加目標以查看桑基圖",
+      "excluded": "排除",
+      "addToExclude": "加入排除"
+    }
   }
 }

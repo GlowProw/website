@@ -213,7 +213,9 @@
         "notEmpty": "必须填写验证码",
         "limitationLength": "验证码长度为{max}"
       }
-    }
+    },
+    "yes": "是",
+    "no": "否"
   },
   "comment": {
     "title": "评论",
@@ -1363,6 +1365,7 @@
       "type": "类型",
       "item": "物品",
       "ship": "船只",
+      "material": "材料",
       "noTargets": "暂无目标，请添加物品或船只"
     },
     "results": {
@@ -1394,7 +1397,7 @@
       "title": "导出",
       "json": "导出 JSON",
       "csv": "导出 CSV",
-      "csvHeaders": "材料标识,数量,是否为原材料"
+      "csvHeaders": "材料标识,名称,数量,是否为原材料"
     },
     "import": {
       "title": "导入",
@@ -1404,6 +1407,17 @@
     "sankey": {
       "showName": "显示名称",
       "showQuantity": "显示数量"
+    },
+    "ui": {
+      "hasNotRequired": "没有材料建造",
+      "expandAll": "展开全部",
+      "collapseAll": "折叠全部",
+      "tree": "材料树",
+      "summary": "材料汇总",
+      "emptyTree": "添加目标以查看材料树",
+      "emptySankey": "添加目标以查看桑基图",
+      "excluded": "排除",
+      "addToExclude": "加入排除"
     }
   }
 }

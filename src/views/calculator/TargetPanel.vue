@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import {computed, ref} from "vue";
-import {Items, Ships} from "glow-prow-data";
+import {Items, Materials, Ships} from "glow-prow-data";
 import {useCalculatorStore} from "~/stores/calculatorStore";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
@@ -12,6 +12,8 @@ import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import {useDisplay} from "vuetify/framework";
 import EmptyView from "@/components/EmptyView.vue";
+import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
+import MaterialName from "@/components/snbWidget/materialName.vue";
 
 const {t} = useI18n()
 const store = useCalculatorStore()
@@ -20,9 +22,10 @@ const i18nReadName = useI18nReadName()
 
 const items: Record<string, any> = Items
 const ships: Record<string, any> = Ships
+const material: Record<string, any> = Materials
 
 const searchQuery = ref('')
-const searchType = ref<'item' | 'ship'>('item')
+const searchType = ref<'item' | 'ship' | 'material'>('item')
 const addQuantity = ref(1)
 const selectedTargetObj = ref(null)
 
@@ -33,8 +36,21 @@ const searchResults = computed(() => {
   const query = searchQuery.value.toLowerCase().trim()
   if (!query) return []
 
-  const source = searchType.value === 'item' ? items : ships
-  const results: Array<{ id: string, type: 'item' | 'ship', hasRequired: boolean }> = []
+  let source = null
+
+  switch (searchType.value) {
+    case 'ship':
+      source = ships
+      break
+    case 'item':
+      source = items
+      break
+    case 'material':
+      source = material
+      break
+  }
+
+  const results: Array<{ id: string, type: 'item' | 'ship' | 'material', hasRequired: boolean }> = []
 
   for (const [key, value] of Object.entries(source)) {
     if (results.length >= 20) break
@@ -42,7 +58,20 @@ const searchResults = computed(() => {
     let localName = ''
     let displayName = key
     try {
-      const nameData = searchType.value === 'item' ? i18nReadName.item(key) : i18nReadName.ship(key)
+      let nameData = null;
+
+      switch (searchType.value) {
+        case 'ship':
+          nameData = i18nReadName.ship(key)
+          break
+        case 'item':
+          nameData = i18nReadName.item(key)
+          break
+        case 'material':
+          nameData = i18nReadName.material(key)
+          break
+      }
+
       const name = nameData.name()
       if (typeof name === 'string') {
         localName = name.toLowerCase()
@@ -65,7 +94,7 @@ const searchResults = computed(() => {
   return results.slice(0, 50)
 })
 
-function onAddTarget(id: string, type: 'item' | 'ship') {
+function onAddTarget(id: string, type: 'item' | 'ship' | 'material') {
   store.addTarget(id, type, addQuantity.value)
   searchQuery.value = ''
 }
@@ -101,7 +130,8 @@ function onQuantityChange(uid: string, val: number) {
                 v-model="searchType"
                 :items="[
                 { title: t('calculator.targets.item'), value: 'item' },
-                { title: t('calculator.targets.ship'), value: 'ship' }
+                { title: t('calculator.targets.ship'), value: 'ship' },
+                { title: t('calculator.targets.material'), value: 'material' }
               ]"
                 density="compact"
                 variant="outlined"
@@ -138,15 +168,19 @@ function onQuantityChange(uid: string, val: number) {
                           <ItemIconWidget
                               v-if="item.raw.type === 'item'"
                               :id="item.raw.id"
-                              :isOpenDetail="false"
-                              :isShowOpenDetail="false"
-                              :padding="0"
-                              :margin="0"/>
+                              :isOpenDetail="false"/>
                           <ShipIconWidget
-                              v-else
+                              v-if="item.raw.type === 'ship'"
+                              :id="item.raw.id"
+                              :isOpenDetail="false"/>
+                          <MaterialIconWidget
+                              v-if="item.raw.type === 'material'"
                               :id="item.raw.id"
                               :isOpenDetail="false"/>
                         </ItemSlotBase>
+                      </template>
+                      <template v-slot:append>
+                        <v-chip v-if="!item.raw.hasRequired" size="x-small" color="orange" variant="tonal">{{ t('calculator.ui.hasNotRequired') }}</v-chip>
                       </template>
                     </v-list-item>
                   </template>
@@ -196,21 +230,23 @@ function onQuantityChange(uid: string, val: number) {
             variant="flat"
             class="mb-2 target-item">
           <div class="pl-2 py-0 d-flex align-center">
-            <ItemSlotBase size="38px">
+            <ItemSlotBase size="38px" :padding="0">
               <ItemIconWidget
                   v-if="target.type === 'item'"
-                  :id="target.id"
-                  :padding="0"
-                  :margin="0"/>
+                  :id="target.id"/>
               <ShipIconWidget
-                  v-else
+                  v-if="target.type === 'ship'"
+                  :id="target.id"/>
+              <MaterialIconWidget
+                  v-if="target.type === 'material'"
                   :id="target.id"/>
             </ItemSlotBase>
 
             <div class="flex-grow-1 py-1 ml-2">
               <p class="text-body-2 font-weight-medium">
                 <ItemName v-if="target.type === 'item'" :data="items[target.id]"/>
-                <ShipName v-else :id="target.id"/>
+                <ShipName v-if="target.type === 'ship'" :id="target.id"/>
+                <MaterialName v-if="target.type === 'material'" :id="target.id"></MaterialName>
               </p>
             </div>
 

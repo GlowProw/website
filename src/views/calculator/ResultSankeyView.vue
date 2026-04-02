@@ -38,6 +38,10 @@ interface SLink {
   color: string
 }
 
+/**
+ * 获取名称
+ * @param id
+ */
 function getDisplayName(id: string): string {
   try {
     let nameData: any = null
@@ -48,7 +52,7 @@ function getDisplayName(id: string): string {
     } else if (Ships[id]) {
       nameData = i18nReadName.ship(id)
     } else {
-      nameData = i18nReadName.material(id) // fallback
+      nameData = i18nReadName.material(id)
     }
 
     const name = nameData.name()
@@ -59,6 +63,9 @@ function getDisplayName(id: string): string {
   return id
 }
 
+/**
+ * 生成图
+ */
 function drawSankey() {
   if (!svgContainer.value) return
 
@@ -240,7 +247,9 @@ function drawSankey() {
   }
 }
 
-// 缩放控制按钮
+/**
+ * 缩放控制按钮
+ */
 function zoomIn() {
   if (zoomBehavior && svgSelection) {
     svgSelection.transition().duration(300).call(zoomBehavior.scaleBy, 1.3)
@@ -259,7 +268,9 @@ function zoomReset() {
   }
 }
 
-// 监听数据变化重绘
+/**
+ * 监听数据变化重绘
+ */
 watch(
     () => [store.sankeyData, store.displaySettings.sankey],
     () => {
@@ -343,7 +354,7 @@ onBeforeUnmount(() => {
     <v-card border v-else class="d-flex align-center justify-center py-10 opacity-40 h-screen">
       <div class="text-center">
         <v-icon icon="mdi-chart-sankey" size="160" class="mb-3"/>
-        <p class="text-body-1">添加目标以查看桑基图</p>
+        <p class="text-body-1">{{ t('calculator.ui.emptySankey') }}</p>
       </div>
     </v-card>
   </div>

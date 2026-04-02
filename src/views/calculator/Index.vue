@@ -11,9 +11,36 @@ import ResultListView from "./ResultListView.vue";
 import ResultSankeyView from "./ResultSankeyView.vue";
 import SaveConfigDialog from "./SaveConfigDialog.vue";
 import Silk from "@/components/Silk.vue";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
+import {Items, Materials, Ships} from 'glow-prow-data';
 
 const {t} = useI18n()
 const store = useCalculatorStore()
+const i18nReadName = useI18nReadName()
+
+function getDisplayName(id: string): string {
+  try {
+    let nameData: any = null
+    if (Materials[id]) nameData = i18nReadName.material(id)
+    else if (Items[id]) nameData = i18nReadName.item(id)
+    else if (Ships[id]) nameData = i18nReadName.ship(id)
+    else nameData = i18nReadName.material(id)
+
+    const name = nameData.name()
+    if (name && typeof name === 'string' && name !== id) return name
+  } catch (e) {
+  }
+  return id
+}
+
+function handleExportCSV() {
+  store.exportCSV(
+    t('calculator.export.csvHeaders'),
+    t('basic.yes'),
+    t('basic.no'),
+    getDisplayName
+  )
+}
 
 const configDialog = ref<InstanceType<typeof SaveConfigDialog> | null>(null)
 
@@ -147,7 +174,7 @@ function onFileImport(e: Event) {
                           </template>
                           <v-list-item-title>{{ t('calculator.export.json') }}</v-list-item-title>
                         </v-list-item>
-                        <v-list-item @click="store.exportCSV(t('calculator.export.csvHeaders'))">
+                        <v-list-item @click="handleExportCSV()">
                           <template v-slot:prepend>
                             <v-icon icon="mdi-file-delimited"/>
                           </template>

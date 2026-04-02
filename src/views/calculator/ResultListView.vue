@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import {ref} from "vue";
-import {Materials} from "glow-prow-data";
-import {useCalculatorStore, MaterialTreeNode} from "~/stores/calculatorStore";
+import {MaterialTreeNode, useCalculatorStore} from "~/stores/calculatorStore";
 import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
 import MaterialName from "@/components/snbWidget/materialName.vue";
 import MaterialNameRarity from "@/components/snbWidget/materialNameRarity.vue";
@@ -13,7 +12,6 @@ import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 
 const {t} = useI18n()
 const store = useCalculatorStore()
-const materials: Record<string, any> = Materials
 
 // 控制展开的节点
 const expandedNodes = ref<Set<string>>(new Set())
@@ -27,6 +25,10 @@ function toggleNode(nodeKey: string) {
     next.add(nodeKey)
   }
   expandedNodes.value = next
+}
+
+function excludedNode(nodeId: string) {
+  store.addExcludedMaterial(nodeId)
 }
 
 function expandAll() {
@@ -112,7 +114,7 @@ function collapseAll() {
           <tbody>
           <tr v-for="mat in store.flatMaterials" :key="mat.id">
             <td>
-              <ItemSlotBase size="30px" :padding="0">
+              <ItemSlotBase size="30px">
                 <MaterialIconWidget :id="mat.id" :padding="0" :margin="0"/>
               </ItemSlotBase>
             </td>
@@ -134,8 +136,16 @@ function collapseAll() {
         </v-table>
       </v-card>
 
+      <!-- 空状态 -->
+      <v-card border v-if="store.flatMaterials.length === 0" class="d-flex align-center justify-center py-10 opacity-40 mb-10">
+        <div class="text-center">
+          <v-icon icon="mdi-tree" size="160" class="mb-3"/>
+          <p class="text-body-1">{{ t('calculator.ui.emptyTree') }}</p>
+        </div>
+      </v-card>
+
       <template v-slot:title>
-        <span>材料汇总 ({{ store.flatMaterials.length }})</span>
+        <span>{{ t('calculator.ui.summary') }} ({{ store.flatMaterials.length }})</span>
       </template>
     </AffixBoxHasTitleView>
 
@@ -154,11 +164,11 @@ function collapseAll() {
               <v-btn-group density="compact" variant="outlined">
                 <v-btn size="small" @click="expandAll">
                   <v-icon icon="mdi-unfold-more-horizontal" size="16" class="mr-1"/>
-                  展开全部
+                  {{ t('calculator.ui.expandAll') }}
                 </v-btn>
                 <v-btn size="small" @click="collapseAll">
                   <v-icon icon="mdi-unfold-less-horizontal" size="16" class="mr-1"/>
-                  折叠全部
+                  {{ t('calculator.ui.collapseAll') }}
                 </v-btn>
               </v-btn-group>
             </v-col>
@@ -173,21 +183,22 @@ function collapseAll() {
             :node-key="`${node.id}-${index}`"
             :expanded-nodes="expandedNodes"
             @toggle="toggleNode"
+            @excluded="excludedNode"
         />
       </v-card>
 
+      <!-- 空状态 -->
+      <v-card border v-if="store.materialTrees.length === 0" class="d-flex align-center justify-center py-10 opacity-40 mb-10">
+        <div class="text-center">
+          <v-icon icon="mdi-tree" size="160" class="mb-3"/>
+          <p class="text-body-1">{{ t('calculator.ui.emptyTree') }}</p>
+        </div>
+      </v-card>
+
       <template v-slot:title>
-        <span>材料树</span>
+        <span>{{ t('calculator.ui.tree') }}</span>
       </template>
     </AffixBoxHasTitleView>
-
-    <!-- 空状态 -->
-    <v-card border v-if="store.materialTrees.length === 0" class="d-flex align-center justify-center py-10 opacity-40 h-screen">
-      <div class="text-center">
-        <v-icon icon="mdi-tree" size="160" class="mb-3"/>
-        <p class="text-body-1">添加目标以查看材料树</p>
-      </div>
-    </v-card>
   </div>
 </template>
 

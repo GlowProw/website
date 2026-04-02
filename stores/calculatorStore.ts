@@ -2,11 +2,12 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { Items, Ships, Materials, Material } from 'glow-prow-data'
 import { v4 as uuidv4 } from 'uuid'
+import {useI18n} from "vue-i18n";
 
 export interface CalculatorTarget {
     uid: string
     id: string
-    type: 'item' | 'ship'
+    type: 'item' | 'ship' | 'material'
     quantity: number
 }
 
@@ -235,6 +236,8 @@ function buildSankeyData(
 }
 
 export const useCalculatorStore = defineStore('calculator', () => {
+    const {t} = useI18n()
+
     // === 目标列表 ===
     const targets = ref<CalculatorTarget[]>([])
 
@@ -259,7 +262,7 @@ export const useCalculatorStore = defineStore('calculator', () => {
     })
 
     // === 目标操作 ===
-    function addTarget(id: string, type: 'item' | 'ship', quantity: number = 1) {
+    function addTarget(id: string, type: 'item' | 'ship' | 'material', quantity: number = 1) {
         // 检查是否已存在相同目标
         const existing = targets.value.find(t => t.id === id && t.type === type)
         if (existing) {
@@ -374,19 +377,23 @@ export const useCalculatorStore = defineStore('calculator', () => {
             trees: materialTrees.value
         }
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
-        downloadBlob(blob, 'calculator-export.json')
+        downloadBlob(blob, `${t('name')}.calculator-export.json`)
     }
 
-    function exportCSV(headersStr?: string) {
-        const headers = headersStr || 'Material ID,Quantity,Is Raw Material'
-        const rows = flatMaterials.value.map(m => [m.id, m.totalQuantity, m.isRaw])
+    function exportCSV(headersStr?: string, yesLabel?: string, noLabel?: string, getNameCallback?: (id: string) => string) {
+        const headers = headersStr || 'Material ID,Name,Quantity,Is Raw Material'
+        const rows = flatMaterials.value.map(m => {
+            const name = getNameCallback ? getNameCallback(m.id) : m.id
+            const isRawStr = m.isRaw ? (yesLabel || 'Yes') : (noLabel || 'No')
+            return [m.id, name, m.totalQuantity, isRawStr]
+        })
         const csvContent = [
             headers,
             ...rows.map(r => r.join(','))
         ].join('\n')
 
         const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' })
-        downloadBlob(blob, 'calculator-export.csv')
+        downloadBlob(blob, `${t('name')}.calculator-export.csv`)
     }
 
     function importFile(file: File, type: 'json' | 'csv') {

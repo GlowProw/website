@@ -69,15 +69,11 @@ let isDetailPage = computed(() => [
             <Sidebar></Sidebar>
           </v-col>
           <v-col cols="12" order-sm="2" order-lg="2" :lg="isDetailPage ? 12 : 10" class="pa-0">
-            <v-container class="pa-0 px-3">
-              <AdsWidget id="codex-up"></AdsWidget>
-            </v-container>
+            <AdsWidget id="codex-up" class="pa-0 mx-auto v-container"></AdsWidget>
 
             <router-view></router-view>
 
-            <v-container class="pa-0 px-3 mb-5">
-              <AdsWidget id="codex-down"></AdsWidget>
-            </v-container>
+            <AdsWidget id="codex-down" class="pa-0 mx-auto v-container"></AdsWidget>
           </v-col>
         </v-row>
       </v-container>

@@ -4,6 +4,9 @@ import type {MaterialTreeNode} from "~/stores/calculatorStore";
 import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
 import MaterialName from "@/components/snbWidget/materialName.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
+import {useI18n} from "vue-i18n";
+
+const {t} = useI18n()
 
 const props = defineProps<{
   node: MaterialTreeNode
@@ -14,6 +17,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   toggle: [key: string]
+  excluded: [key: any]
 }>()
 
 const isExpanded = computed(() => props.expandedNodes.has(props.nodeKey))
@@ -24,6 +28,10 @@ function onToggle() {
 
 function onChildToggle(key: string) {
   emit('toggle', key)
+}
+
+function onAddExcluded (key: string) {
+  emit('excluded', key);
 }
 </script>
 
@@ -40,14 +48,17 @@ function onChildToggle(key: string) {
           class="cursor-pointer flex-shrink-0"/>
       <div v-else style="width: 16px;" class="flex-shrink-0"/>
 
-      <ItemSlotBase size="30px" :padding="0" class="flex-shrink-0">
+      <ItemSlotBase size="30px"  class="flex-shrink-0">
         <MaterialIconWidget :id="node.id" :padding="0" :margin="0"/>
       </ItemSlotBase>
 
       <span class="text-body-2 flex-grow-1 d-flex align-center ga-1">
         <MaterialName :id="node.id"/>
-        <v-chip v-if="node.isExcluded" size="x-small" color="orange" variant="tonal">排除</v-chip>
+        <v-chip v-if="node.isExcluded" size="x-small" color="orange" variant="tonal">{{ t('calculator.ui.excluded') }}</v-chip>
       </span>
+
+      <v-chip v-if="!node.isExcluded" @click="onAddExcluded(node.id)" size="x-small" color="orange" variant="tonal">{{ t('calculator.ui.addToExclude') }}</v-chip>
+
       <span class="text-body-2 font-weight-bold text-amber">×{{ node.quantity }}</span>
     </div>
 
@@ -60,6 +71,7 @@ function onChildToggle(key: string) {
           :node-key="nodeKey + '/' + child.id + '-' + cIndex"
           :expanded-nodes="expandedNodes"
           @toggle="onChildToggle"
+          @excluded="onAddExcluded"
       />
     </template>
   </div>

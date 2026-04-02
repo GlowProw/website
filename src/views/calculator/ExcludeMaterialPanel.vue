@@ -133,10 +133,10 @@ function onRemoveExclude(id: string) {
             closable
             variant="tonal"
             color="amber"
-            size="small"
+            size="large"
             @click:close="onRemoveExclude(matId)">
           <template v-slot:prepend>
-            <ItemSlotBase size="18px" :padding="0" class="mr-1">
+            <ItemSlotBase size="30px" class="mr-1">
               <MaterialIconWidget :id="matId" :padding="0" :margin="0"/>
             </ItemSlotBase>
           </template>

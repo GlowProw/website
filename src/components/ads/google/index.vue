@@ -31,7 +31,7 @@ import Adsense from 'vue3-google-adsense/src/Adsense.vue'
 import {ads, adClient} from "~/public/config/ad";
 
 const props = withDefaults(defineProps<GoogleAdProps>(), {
-      class: 'class',
+      class: '',
       id: '',
     }),
     {t} = useI18n(),

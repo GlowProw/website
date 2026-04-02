@@ -128,7 +128,7 @@ const onCodexHistory = () => {
  */
 const onAddCalculator = () => {
   if (materialDetailData.value && materialDetailData.value.id) {
-    calculatorStore.addTarget(materialDetailData.value.id, 'item')
+    calculatorStore.addTarget(materialDetailData.value.id, 'material')
     noticeStore.success(t('calculator.addedSuccess'))
   }
 }
@@ -193,7 +193,7 @@ const onAddCalculator = () => {
                 </LikeWidget>
               </v-btn>
 
-              <v-btn variant="text" @click="onAddCalculator" :title="t('calculator.addTo')" v-tooltip:bottom="t('calculator.addTo')">
+              <v-btn border variant="flat" @click="onAddCalculator" :title="t('calculator.addTo')" v-tooltip:bottom="t('calculator.addTo')">
                 <v-icon icon="mdi-chart-box-outline"></v-icon>
               </v-btn>
 
