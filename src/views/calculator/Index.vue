@@ -65,6 +65,27 @@ function openConfigDialog() {
           <div class="bg-black">
             <v-container class="position-relative">
               <v-row align="center">
+                <v-col>
+                  <!-- 视图切换 -->
+                  <div>
+                    <v-card-text class="pa-0">
+                      <v-btn-toggle
+                          v-model="store.displaySettings.viewMode"
+                          mandatory
+                          density="compact"
+                          color="amber">
+                        <v-btn value="list">
+                          <v-icon icon="mdi-format-list-bulleted-type" class="mr-1" size="18"/>
+                          {{ t('calculator.results.listView') }}
+                        </v-btn>
+                        <v-btn value="sankey">
+                          <v-icon icon="mdi-chart-sankey" class="mr-1" size="18"/>
+                          {{ t('calculator.results.sankeyView') }}
+                        </v-btn>
+                      </v-btn-toggle>
+                    </v-card-text>
+                  </div>
+                </v-col>
                 <v-spacer/>
                 <v-col cols="auto">
                   <div class="d-flex ga-2">
@@ -105,7 +126,7 @@ function openConfigDialog() {
 
           <v-divider></v-divider>
 
-          <v-container class="mt-4">
+          <v-container>
             <v-row>
               <!-- 左侧：设置面板 -->
               <v-col cols="12" md="5" lg="4">
@@ -115,29 +136,10 @@ function openConfigDialog() {
 
               <!-- 右侧：结果展示 -->
               <v-col cols="12" md="7" lg="8">
-                <!-- 视图切换 -->
-                <div class="mb-4">
-                  <v-card-text class="pa-0">
-                    <v-btn-toggle
-                        v-model="store.displaySettings.viewMode"
-                        mandatory
-                        density="compact"
-                        color="amber">
-                      <v-btn value="list">
-                        <v-icon icon="mdi-format-list-bulleted-type" class="mr-1" size="18"/>
-                        {{ t('calculator.results.listView') }}
-                      </v-btn>
-                      <v-btn value="sankey">
-                        <v-icon icon="mdi-chart-sankey" class="mr-1" size="18"/>
-                        {{ t('calculator.results.sankeyView') }}
-                      </v-btn>
-                    </v-btn-toggle>
-                  </v-card-text>
-                </div>
-
-                <!-- 结果视图 -->
+                <!-- 结果视图 S -->
                 <ResultListView v-if="store.displaySettings.viewMode === 'list'"/>
                 <ResultSankeyView v-else/>
+                <!-- 结果视图 E -->
               </v-col>
             </v-row>
           </v-container>

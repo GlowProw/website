@@ -1302,6 +1302,10 @@
         "description": "海陀社升级模拟",
         "keywords": "empire skill simulation"
       },
+      "calculator": {
+        "title": "量化计算",
+        "description": "协助批量计算所需材料"
+      },
       "apps": {
         "title": "应用程序",
         "description": "使用扩展套件提升体验"

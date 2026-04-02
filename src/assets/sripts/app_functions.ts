@@ -57,7 +57,7 @@ export default class AppFuns {
         },
         {
             title: 'header.functions.calculator.title',
-            icon: 'mdi-hexagram-outline',
+            icon: 'mdi-calculator',
             description: 'header.functions.calculator.description',
             to: '/calculator'
         },

@@ -264,14 +264,16 @@ export const useCalculatorStore = defineStore('calculator', () => {
         const existing = targets.value.find(t => t.id === id && t.type === type)
         if (existing) {
             existing.quantity += quantity
+            // 替换数组引用以确保响应性
+            targets.value = [...targets.value]
             return
         }
-        targets.value.push({
+        targets.value = [...targets.value, {
             uid: uuidv4(),
             id,
             type,
             quantity
-        })
+        }]
     }
 
     function removeTarget(uid: string) {
@@ -292,7 +294,7 @@ export const useCalculatorStore = defineStore('calculator', () => {
     // === 排除材料操作 ===
     function addExcludedMaterial(id: string) {
         if (!excludedMaterials.value.includes(id)) {
-            excludedMaterials.value.push(id)
+            excludedMaterials.value = [...excludedMaterials.value, id]
         }
     }
 
@@ -307,6 +309,8 @@ export const useCalculatorStore = defineStore('calculator', () => {
     // === 计算结果 ===
     const materialTrees = computed(() => {
         const trees: MaterialTreeNode[] = []
+        // 显式读取排除列表长度以确保 Vue 跟踪依赖
+        const currentExcludes = [...excludedMaterials.value]
 
         for (const target of targets.value) {
             const data = target.type === 'item' ? items[target.id] : ships[target.id]
@@ -315,7 +319,7 @@ export const useCalculatorStore = defineStore('calculator', () => {
             const requiredEntries = Array.from(data.required) as Array<[Material, number]>
             for (const [mat, qty] of requiredEntries) {
                 trees.push(
-                    buildMaterialTree(mat.id, qty * target.quantity, excludedMaterials.value)
+                    buildMaterialTree(mat.id, qty * target.quantity, currentExcludes)
                 )
             }
         }
@@ -332,7 +336,8 @@ export const useCalculatorStore = defineStore('calculator', () => {
     })
 
     const sankeyData = computed(() => {
-        return buildSankeyData(targets.value, excludedMaterials.value)
+        const currentExcludes = [...excludedMaterials.value]
+        return buildSankeyData(targets.value, currentExcludes)
     })
 
     // === 配置管理 ===

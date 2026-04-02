@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
-import {computed, onMounted, ref, watch, nextTick} from "vue";
+import {onMounted, onBeforeUnmount, ref, watch, nextTick} from "vue";
 import {useCalculatorStore} from "~/stores/calculatorStore";
 import * as d3 from 'd3';
-import {sankey, sankeyLinkHorizontal, SankeyNode, SankeyLink} from 'd3-sankey';
+import {sankey, sankeyLinkHorizontal} from 'd3-sankey';
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
 const {t} = useI18n()
@@ -12,7 +12,12 @@ const i18nReadName = useI18nReadName()
 
 const svgContainer = ref<HTMLElement | null>(null)
 const containerWidth = ref(900)
-const containerHeight = ref(500)
+const currentZoomScale = ref(1)
+
+// 保存 zoom 行为引用以供按钮控制
+let zoomBehavior: d3.ZoomBehavior<SVGSVGElement, unknown> | null = null
+let svgSelection: d3.Selection<SVGSVGElement, unknown, null, undefined> | null = null
+let resizeObserver: ResizeObserver | null = null
 
 interface SNode {
   id: string
@@ -47,22 +52,47 @@ function drawSankey() {
   const data = store.sankeyData
   if (data.nodes.length === 0) return
 
-  // 清除
+  // 清除旧内容
   d3.select(svgContainer.value).selectAll('*').remove()
+  zoomBehavior = null
+  svgSelection = null
 
   const margin = {top: 20, right: 160, bottom: 20, left: 160}
-  const width = containerWidth.value - margin.left - margin.right
-  const height = Math.max(containerHeight.value, data.nodes.length * 40) - margin.top - margin.bottom
+  const width = Math.max(400, containerWidth.value - margin.left - margin.right)
+  const calculatedHeight = Math.max(300, Math.min(800, data.nodes.length * 40))
+  const height = calculatedHeight - margin.top - margin.bottom
 
-  const svg = d3.select(svgContainer.value)
+  // 外层 SVG
+  const svgRoot = d3.select(svgContainer.value)
       .append('svg')
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
-      .append('g')
+      .attr('width', '100%')
+      .attr('height', calculatedHeight)
+      .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${calculatedHeight}`)
+      .style('cursor', 'grab') as d3.Selection<SVGSVGElement, unknown, null, undefined>
+
+  svgSelection = svgRoot
+
+  // 可缩放/平移的 g 容器
+  const zoomGroup = svgRoot.append('g')
+      .attr('class', 'zoom-group')
+
+  // 内容 g（带 margin）
+  const svg = zoomGroup.append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`)
 
+  // 设置 D3 zoom
+  zoomBehavior = d3.zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.2, 4])
+      .on('zoom', (event) => {
+        zoomGroup.attr('transform', event.transform)
+        currentZoomScale.value = Math.round(event.transform.k * 100)
+      })
+
+  svgRoot.call(zoomBehavior)
+  // 禁用双击缩放
+  svgRoot.on('dblclick.zoom', null)
+
   // 构建节点索引映射
-  const nodeIds = data.nodes.map(n => n.id)
   const nodeMap = new Map(data.nodes.map((n, i) => [n.id, i]))
 
   // 过滤有效链接
@@ -85,6 +115,7 @@ function drawSankey() {
     links: validLinks.map(l => ({...l}))
   })
 
+  // Tooltip（挂在 svgContainer 上，不受 zoom 影响）
   const tooltip = d3.select(svgContainer.value)
       .append('div')
       .attr('class', 'sankey-tooltip')
@@ -99,7 +130,7 @@ function drawSankey() {
       .style('z-index', '10')
 
   // 绘制链接
-  const links = svg.append('g')
+  svg.append('g')
       .selectAll('.sankey-link')
       .data(sankeyData.links)
       .join('path')
@@ -127,7 +158,7 @@ function drawSankey() {
       })
 
   // 绘制节点
-  const nodes = svg.append('g')
+  svg.append('g')
       .selectAll('.sankey-node')
       .data(sankeyData.nodes)
       .join('rect')
@@ -178,6 +209,25 @@ function drawSankey() {
   }
 }
 
+// 缩放控制按钮
+function zoomIn() {
+  if (zoomBehavior && svgSelection) {
+    svgSelection.transition().duration(300).call(zoomBehavior.scaleBy, 1.3)
+  }
+}
+
+function zoomOut() {
+  if (zoomBehavior && svgSelection) {
+    svgSelection.transition().duration(300).call(zoomBehavior.scaleBy, 0.7)
+  }
+}
+
+function zoomReset() {
+  if (zoomBehavior && svgSelection) {
+    svgSelection.transition().duration(300).call(zoomBehavior.transform, d3.zoomIdentity)
+  }
+}
+
 // 监听数据变化重绘
 watch(
     () => [store.sankeyData, store.displaySettings.sankey],
@@ -187,26 +237,57 @@ watch(
     {deep: true}
 )
 
-// 容器尺寸监听
+// 容器宽度监听
 onMounted(() => {
   if (svgContainer.value) {
-    const observer = new ResizeObserver(entries => {
+    resizeObserver = new ResizeObserver(entries => {
       for (const entry of entries) {
-        containerWidth.value = entry.contentRect.width
-        containerHeight.value = Math.max(400, entry.contentRect.height)
+        const newWidth = entry.contentRect.width
+        if (Math.abs(newWidth - containerWidth.value) > 5) {
+          containerWidth.value = newWidth
+          nextTick(drawSankey)
+        }
       }
-      nextTick(drawSankey)
     })
-    observer.observe(svgContainer.value)
+    resizeObserver.observe(svgContainer.value)
   }
   nextTick(drawSankey)
+})
+
+onBeforeUnmount(() => {
+  resizeObserver?.disconnect()
 })
 </script>
 
 <template>
   <div class="result-sankey-view">
-    <!-- 桑基图设置 -->
-    <v-row dense class="mb-2" align="center">
+    <!-- 容器 -->
+    <div class="sankey-container" v-if="store.sankeyData.nodes.length > 0">
+      <div ref="svgContainer" class="sankey-svg-wrapper"/>
+
+      <!-- 缩放控制 -->
+      <div class="zoom-controls">
+        <v-btn-group density="compact" variant="tonal" color="grey" direction="vertical">
+          <v-btn icon="mdi-plus" size="small" @click="zoomIn" title="放大"/>
+          <v-btn size="small" @click="zoomReset" :title="'重置 (' + currentZoomScale + '%)'">
+            <span class="text-caption">{{ currentZoomScale }}%</span>
+          </v-btn>
+          <v-btn icon="mdi-minus" size="small" @click="zoomOut" title="缩小"/>
+        </v-btn-group>
+      </div>
+    </div>
+
+    <!-- 空状态 -->
+    <v-card border v-else class="d-flex align-center justify-center py-10 opacity-40 h-screen">
+      <div class="text-center">
+        <v-icon icon="mdi-chart-sankey" size="160" class="mb-3"/>
+        <p class="text-body-1">添加目标以查看桑基图</p>
+      </div>
+    </v-card>
+
+    <!-- 设置 -->
+    <v-row dense class="" align="center" v-if="store.sankeyData.nodes.length > 0">
+      <v-spacer></v-spacer>
       <v-col cols="auto">
         <v-checkbox
             v-model="store.displaySettings.sankey.showName"
@@ -226,31 +307,34 @@ onMounted(() => {
         />
       </v-col>
     </v-row>
-
-    <!-- 桑基图容器 -->
-    <v-card variant="text" class="sankey-container" v-if="store.sankeyData.nodes.length > 0">
-      <div ref="svgContainer" class="sankey-svg-wrapper"/>
-    </v-card>
-
-    <!-- 空状态 -->
-    <div v-else class="text-center py-10 opacity-40">
-      <v-icon icon="mdi-chart-sankey" size="60" class="mb-3"/>
-      <p class="text-body-1">添加目标以查看桑基图</p>
-    </div>
   </div>
 </template>
 
 <style scoped lang="less">
 .result-sankey-view {
   .sankey-container {
-    overflow-x: auto;
-    border-color: rgba(0, 188, 212, 0.15);
+    position: relative;
   }
 
   .sankey-svg-wrapper {
     position: relative;
-    min-height: 400px;
     width: 100%;
+    overflow: hidden;
+
+    :deep(svg) {
+      display: block;
+
+      &:active {
+        cursor: grabbing;
+      }
+    }
+  }
+
+  .zoom-controls {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 5;
   }
 }
 </style>
