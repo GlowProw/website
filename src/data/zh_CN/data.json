@@ -8,7 +8,29 @@
   "pwa": {
     "offlineReady": "应用已准备好离线工作",
     "newContentAvailable": "有新内容可用",
-    "refreshToUpdate": "点击刷新按钮以更新。"
+    "refreshToUpdate": "点击刷新按钮以更新。",
+    "status": {
+      "title": "PWA Status",
+      "description": "Manage app's offline and installation status",
+      "label": "Current Status",
+      "ready": "Ready",
+      "needRefresh": "Update Available",
+      "offlineReady": "Offline Ready",
+      "installed": "Installed",
+      "installed_message": "The application is currently running in standalone mode."
+    },
+    "install": {
+      "title": "Install Desktop App",
+      "description": "Install the application to your desktop for a better experience",
+      "button": "Install",
+      "unavailable": "Current environment doesn't support direct installation or hasn't triggered installation prompt",
+      "help": {
+        "title": "If you don't see the install button:",
+        "step1": "1. Check if the browser supports PWA.",
+        "step2": "2. Ensure you haven't rejected the installation prompt (you may need to clear site data and try again).",
+        "step3": "3. Some browsers require page interaction (click, scroll) to trigger the prompt."
+      }
+    }
   },
   "basic": {
     "button": {
@@ -438,7 +460,10 @@
     },
     "share": {
       "title": "分享",
-      "description": "分享你的{name}"
+      "description": "分享你的{name}",
+      "copyLink": "Copy current link",
+      "iframe": "Iframe code",
+      "copySuccess": "Copied to clipboard"
     },
     "items": {
       "title": "物品列表",
@@ -668,7 +693,7 @@
         "searchingProgress": "搜索进度",
         "currentComparing": "正在比较",
         "algorithms": {
-          "perceptual-hash": "感知哈希",
+          "perceptual-hash": "Perceptual Hash (Fast)",
           "color-histogram": "颜色直方图",
           "feature-matching": "特征点匹配",
           "structural-similarity": "结构相似性"
