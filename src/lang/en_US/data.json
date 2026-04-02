@@ -693,7 +693,7 @@
         "searchingProgress": "Search Progress",
         "currentComparing": "Currently Comparing",
         "algorithms": {
-          "perceptual-hash": "Perceptual Hash",
+          "perceptual-hash": "Perceptual Hash (Fast)",
           "color-histogram": "Color Histogram",
           "feature-matching": "Feature Matching",
           "structural-similarity": "Structural Similarity"

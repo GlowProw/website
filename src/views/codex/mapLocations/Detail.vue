@@ -34,15 +34,16 @@ const {t, messages} = useI18n(),
     i18nReadName = useI18nReadName(),
 
     // meta
-    head = ref({
+    head: Ref<any> = ref({
       title: t(route.meta.title as string),
       titleTemplate: `%s | ${t('name')}`,
       meta: [
         {name: 'description', content: ''},
         {name: 'keywords', content: t(route.meta.keywords as string)},
-        {name: 'og:title', content: `%s | ${t('name')}`},
-        {name: 'og:description', content: ''},
-        {name: 'og:site_name', content: t('name')},
+        {property: 'og:type', content: 'website'},
+        {property: 'og:title', content: `%s | ${t('name')}`},
+        {property: 'og:description', content: ''},
+        {property: 'og:site_name', content: t('name')},
       ]
     })
 
@@ -70,8 +71,14 @@ onMounted(() => {
         }).concat([id as string]) + `,${t('home.meta.keywords')}`
       })
     },
-    {name: 'og:title', content: `${t(route.meta.title as string)} | ${t('name')}`},
-    {name: 'og:description', content: headDescription},
+    {property: 'og:type', content: 'website'},
+    {property: 'og:title', content: `${headName} | ${t('name')}`},
+    {property: 'og:description', content: headDescription},
+    {property: 'og:url', content: window.location.href},
+    {property: 'og:site_name', content: t('name')},
+    {name: 'twitter:card', content: 'summary'},
+    {name: 'twitter:title', content: `${headName} | ${t('name')}`},
+    {name: 'twitter:description', content: headDescription},
   ]
 
   onCodexHistory()

@@ -25,6 +25,8 @@ import CommoditieName from "@/components/snbWidget/commoditieName.vue";
 import CommoditieDescription from "@/components/snbWidget/commoditieDescription.vue";
 import ShareWidget from "@/components/ShareWidget.vue";
 
+import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
+
 const
     {t, messages} = useI18n(),
     router = useRouter(),
@@ -33,6 +35,7 @@ const
     {asString, sanitizeString} = useI18nUtils(),
     i18nReadName = useI18nReadName(),
     rarityColorConfig = rarity.color,
+    cdnStore = useCDNAssetsServiceStore(),
 
     // 物品数据
     commodities: any = Commodities
@@ -51,15 +54,16 @@ let commoditieDetailData: Ref<any> = ref(null),
     }),
 
     // meta
-    head = ref({
+    head: Ref<any> = ref({
       title: t(route.meta.title as string),
       titleTemplate: `%s | ${t('name')}`,
       meta: [
         {name: 'description', content: ''},
         {name: 'keywords', content: t(route.meta.keywords as string)},
-        {name: 'og:title', content: `%s | ${t('name')}`},
-        {name: 'og:description', content: ''},
-        {name: 'og:site_name', content: t('name')},
+        {property: 'og:type', content: 'website'},
+        {property: 'og:title', content: `%s | ${t('name')}`},
+        {property: 'og:description', content: ''},
+        {property: 'og:site_name', content: t('name')},
       ]
     })
 
@@ -93,6 +97,12 @@ const onReady = () => {
       headDescription = headData.description()
 
   head.value.titleTemplate = `${headName} - ${head.value.titleTemplate}`
+
+  const imageUrl = cdnStore.currentService.url({
+    id: id as string,
+    category: 'commodities'
+  });
+
   head.value.meta = [
     {name: 'description', content: headDescription},
     {
@@ -102,8 +112,16 @@ const onReady = () => {
         }).concat([id as string]) + `,${t('home.meta.keywords')}`
       })
     },
-    {name: 'og:title', content: `${t(route.meta.title as string)} | ${t('name')}`},
-    {name: 'og:description', content: headDescription},
+    {property: 'og:type', content: 'website'},
+    {property: 'og:title', content: `${headName} | ${t('name')}`},
+    {property: 'og:description', content: headDescription},
+    {property: 'og:image', content: imageUrl},
+    {property: 'og:url', content: window.location.href},
+    {property: 'og:site_name', content: t('name')},
+    {name: 'twitter:card', content: 'summary_large_image'},
+    {name: 'twitter:title', content: `${headName} | ${t('name')}`},
+    {name: 'twitter:description', content: headDescription},
+    {name: 'twitter:image', content: imageUrl}
   ]
 
   onCodexHistory()

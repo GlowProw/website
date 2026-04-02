@@ -1,7 +1,8 @@
 {
   "apps": {
     "meta": {
-      "keywords": "应用程序,机器人,爬虫,{keywords}"
+      "keywords": "应用程序,机器人,爬虫,{keywords}",
+      "description": "碧海黑帆清单网站"
     }
   },
   "codex": {

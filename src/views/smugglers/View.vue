@@ -2,7 +2,7 @@
 
 import Silk from "@/components/Silk.vue";
 import {useI18n} from "vue-i18n";
-import {onMounted, ref} from "vue";
+import {onMounted, ref, type Ref} from "vue";
 import {apis} from "@/assets/sripts/index";
 import {ApiError} from "@/assets/types/Api";
 import {useNoticeStore} from "~/stores/noticeStore";
@@ -17,8 +17,32 @@ import NpcIconWidget from "@/components/snbWidget/npcIconWidget.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import EmptyView from "@/components/EmptyView.vue";
 
+import {useHead} from "@unhead/vue";
+import {useRoute} from "vue-router";
+
 const {t} = useI18n(),
-    notice = useNoticeStore()
+    route = useRoute(),
+    notice = useNoticeStore(),
+
+    // meta
+    head: Ref<any> = ref({
+      title: t(route.meta.title as string),
+      titleTemplate: `%s | ${t('name')}`,
+      meta: [
+        {name: 'description', content: t('smugglersReport.description')},
+        {name: 'keywords', content: t(route.meta.keywords as string)},
+        {property: 'og:type', content: 'website'},
+        {property: 'og:title', content: `${t(route.meta.title as string)} | ${t('name')}`},
+        {property: 'og:description', content: t('smugglersReport.description')},
+        {property: 'og:site_name', content: t('name')},
+        {property: 'og:url', content: window.location.href},
+        {name: 'twitter:card', content: 'summary'},
+        {name: 'twitter:title', content: `${t(route.meta.title as string)} | ${t('name')}`},
+        {name: 'twitter:description', content: t('smugglersReport.description')},
+      ]
+    })
+
+useHead(head)
 
 let smugglersData = ref<any>({}),
     commentData = ref<any[]>([]),

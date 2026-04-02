@@ -745,7 +745,7 @@
         "searchingProgress": "搜索进度",
         "currentComparing": "正在比较",
         "algorithms": {
-          "perceptual-hash": "感知哈希",
+          "perceptual-hash": "感知哈希 (快速)",
           "color-histogram": "颜色直方图",
           "feature-matching": "特征点匹配",
           "structural-similarity": "结构相似性"

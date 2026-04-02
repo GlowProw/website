@@ -49,7 +49,7 @@ export const useSimilarityStore = defineStore('similarity', () => {
             // 创建固定数量的 Worker 线程池
             const poolSize = Math.min(concurrency, queue.length);
             for (let i = 0; i < poolSize; i++) {
-                const worker = new Worker(new URL('../src/assets/sripts/similarity_worker.ts', import.meta.url), {
+                const worker = new Worker(new URL('../src/workers/similarity.worker.ts', import.meta.url), {
                     type: 'module'
                 });
                 workers.push(worker);

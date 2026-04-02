@@ -56,12 +56,19 @@ let detailData: Ref<any> = ref({
     password = ref(''),
 
     // meta
-    head = ref({
+    head: Ref<any> = ref({
       title: t(route.meta.title as string),
       titleTemplate: `%s | ${t('name')}`,
       meta: [
         {name: 'keywords', content: t(route.meta.keywords as string)},
-        {name: 'og:title', content: `%s | ${t('name')}`},
+        {property: 'og:type', content: 'website'},
+        {property: 'og:title', content: `%s | ${t('name')}`},
+        {property: 'og:description', content: ''},
+        {property: 'og:site_name', content: t('name')},
+        {property: 'og:url', content: window.location.href},
+        {name: 'twitter:card', content: 'summary'},
+        {name: 'twitter:title', content: `%s | ${t('name')}`},
+        {name: 'twitter:description', content: ''},
       ]
     })
 
@@ -75,9 +82,19 @@ onMounted(async () => {
   await getAssemblyDetail()
 
   // set new title
-  const title = `${detailData.value.name} - ${head.value.title} | ${t('name')}`;
+  const title = `${detailData.value.name} - ${t(route.meta.title as string)} | ${t('name')}`;
   head.value.titleTemplate = title
-  head.value.meta = [{name: 'og:title', content: title}]
+  head.value.meta = [
+    {name: 'keywords', content: t(route.meta.keywords as string)},
+    {property: 'og:type', content: 'website'},
+    {property: 'og:title', content: title},
+    {property: 'og:description', content: detailData.value.description},
+    {property: 'og:site_name', content: t('name')},
+    {property: 'og:url', content: window.location.href},
+    {name: 'twitter:card', content: 'summary'},
+    {name: 'twitter:title', content: title},
+    {name: 'twitter:description', content: detailData.value.description}
+  ]
 })
 
 /**

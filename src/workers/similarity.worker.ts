@@ -1,8 +1,9 @@
 /**
  * 图像相似度计算 Web Worker
+ * 处理图像特征提取的后台线程
  */
 
-import { computeBlockFeatures, computeColorHistogram, computeStructuralFeatures, computeHash } from './image_similarity';
+import { computeBlockFeatures, computeColorHistogram, computeStructuralFeatures, computeHash } from '../assets/sripts/image_similarity';
 
 self.onmessage = async (e) => {
     const { imageUrl } = e.data;
@@ -22,7 +23,7 @@ self.onmessage = async (e) => {
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
         // 3. 计算所有特征
-        const features: any = {
+        const features = {
             hash: computeHash(imageData),
             colorHistogram: computeColorHistogram(imageData),
             structuralFeatures: computeStructuralFeatures(imageData),

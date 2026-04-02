@@ -304,48 +304,8 @@ import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import TreasureMapIconWidget from "@/components/snbWidget/treasureMapIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import {useSimilarityStore} from "~/stores/similarityStore";
+import { QueryImageData, SearchResult, Algorithm, ComparingImage } from '@/assets/types/Similarity';
 
-interface QueryImageData {
-  url: string;
-  hash?: string;
-  colorHistogram?: number[];
-  structuralFeatures?: number[];
-  blockFeatures?: number[];
-  imageData?: ImageData;
-}
-
-interface TreasureMapData {
-  id: string;
-  rarity: string;
-  category: TreasureMapType;
-  territory: string;
-  obtainable: string[];
-  type: string;
-  dateAdded: string;
-  lastUpdated: string;
-}
-
-interface SearchResult {
-  id: string;
-  index: number;
-  similarity: number;
-  imageUrl: string;
-  rarity: string;
-  category: string;
-  obtainable: string[];
-}
-
-interface Algorithm {
-  value: string;
-  label: string;
-}
-
-interface ComparingImage {
-  id: string;
-  url: string;
-  category: string;
-  index: number;
-}
 
 const treasureMaps = TreasureMaps;
 const { t } = useI18n()
@@ -376,10 +336,10 @@ const searching = computed(() => similarityStore.isProcessing)
 const currentComparingImage = ref<ComparingImage | null>(null)
 
 const algorithms: Algorithm[] = [
-  { value: 'perceptual-hash', label: '感知哈希 (快速)' },
-  { value: 'color-histogram', label: '颜色直方图' },
-  { value: 'feature-matching', label: '特征点匹配' },
-  { value: 'structural-similarity', label: '结构相似性' }
+  { value: 'perceptual-hash' },
+  { value: 'color-histogram' },
+  { value: 'feature-matching' },
+  { value: 'structural-similarity' }
 ];
 
 const hasActiveFilters = computed(() => {
@@ -575,7 +535,6 @@ const onQueryImageUpload = async (event: Event) => {
 
     searchResults.value = [];
     searched.value = false;
-    currentProgress.value = 0;
     currentComparingImage.value = null;
   } catch (error) {
     console.error('图片上传失败:', error)

@@ -581,7 +581,20 @@
       }
     },
     "treasureMaps": {
-      "title": "藏宝图列表"
+      "title": "藏寶圖列表",
+      "comparison": {
+        "title": "比對藏寶圖",
+        "description": "透過截圖圖片檢索相似藏寶圖，定位位置和信息",
+        "searchingProgress": "搜尋進度",
+        "currentComparing": "正在比較",
+        "algorithms": {
+          "perceptual-hash": "感知哈希 (快速)",
+          "color-histogram": "顏色直方圖",
+          "feature-matching": "特徵點匹配",
+          "structural-similarity": "結構相似性"
+        },
+        "selectAlgorithm": "選擇比較算法"
+      }
     },
     "mapLocation": {
       "title": "地图地点",
