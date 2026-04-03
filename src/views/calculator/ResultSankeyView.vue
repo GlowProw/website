@@ -7,8 +7,12 @@ import {sankey, sankeyLinkHorizontal} from 'd3-sankey';
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import {Items, Materials, Ships} from 'glow-prow-data';
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
+import {useDisplay} from "vuetify/framework";
+import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
+import EmptyView from "@/components/EmptyView.vue";
 
-const {t} = useI18n()
+const {t, locale} = useI18n()
+const {mobile} = useDisplay()
 const {currentService: currentImageService} = useCDNAssetsServiceStore()
 const store = useCalculatorStore()
 const i18nReadName = useI18nReadName()
@@ -17,7 +21,6 @@ const svgContainer = ref<HTMLElement | null>(null)
 const containerWidth = ref(900)
 const currentZoomScale = ref(1)
 
-// 保存 zoom 行为引用以供按钮控制
 let zoomBehavior: d3.ZoomBehavior<SVGSVGElement, unknown> | null = null
 let svgSelection: d3.Selection<SVGSVGElement, unknown, null, undefined> | null = null
 let resizeObserver: ResizeObserver | null = null
@@ -77,7 +80,7 @@ function drawSankey() {
   zoomBehavior = null
   svgSelection = null
 
-  const margin = {top: 3, right: 200, bottom: 50, left: 0}
+  const margin = {top: 3, right: 200, bottom: 3, left: 0}
   const width = Math.max(400, containerWidth.value - margin.left - margin.right)
   const calculatedHeight = Math.max(700, Math.min(1000, data.nodes.length * 40))
   const height = calculatedHeight - margin.top - margin.bottom
@@ -139,16 +142,38 @@ function drawSankey() {
   // 挂在 svgContainer 上，不受 zoom 影响
   const tooltip = d3.select(svgContainer.value)
       .append('div')
-      .attr('class', 'sankey-tooltip')
+      .attr('class', 'sankey-tooltip sankey-tooltip px-5 py-2')
       .style('position', 'absolute')
       .style('visibility', 'hidden')
-      .style('background', 'rgba(0,0,0,0.85)')
-      .style('color', '#fff')
-      .style('padding', '6px 10px')
+      .style('background', 'hsl(from #000 h s l /.8)')
+      .style('backdrop-filter', 'blur(30px)')
+      .style('color', '#d3d3d3')
       .style('border-radius', '6px')
       .style('font-size', '12px')
       .style('pointer-events', 'none')
       .style('z-index', '10')
+
+  const style = document.createElement('style');
+  style.textContent = `
+        .sankey-tooltip::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          border: 0.75px solid rgba(255, 255, 255, 0.8);
+          transition-duration: 0.25s;
+          transition-property: opacity;
+          transition-timing-function: ease;
+          mix-blend-mode: overlay;
+          opacity: 1;
+          pointer-events: none;
+          border-radius: 6px;
+          box-sizing: border-box;
+        }
+      `;
+  document.head.appendChild(style);
 
   // 绘制链接
   svg.append('g')
@@ -218,12 +243,33 @@ function drawSankey() {
         let category = 'materials'
         if (Ships[d.name]) category = 'ships'
         else if (Items[d.name]) category = 'items'
-        return currentImageService.url({ id: d.name, category })
+        return currentImageService.url({id: d.name, category})
       })
       .attr('x', (d: any) => d.x1 + 6)
       .attr('y', (d: any) => ((d.y0 + d.y1) / 2) - 8)
       .attr('width', 16)
       .attr('height', 16)
+      .on('mouseover', function (event: any, d: any) {
+        let icon = '';
+        let category = 'materials'
+        if (Ships[d.name]) category = 'ships'
+        else if (Items[d.name]) category = 'items'
+        icon = currentImageService.url({id: d.name, category})
+
+        d3.select(this).attr('opacity', 1)
+        tooltip
+            .style('visibility', 'visible')
+            .html(`<img src="${icon}" width="100" height="100" /><p class="text-center">${getDisplayName(d.name)}</p>`)
+      })
+      .on('mousemove', function (event: any) {
+        const [x, y] = d3.pointer(event, svgContainer.value)
+        tooltip
+            .style('left', `${x + 15}px`)
+            .style('top', `${y - 10}px`)
+      })
+      .on('mouseout', function () {
+        tooltip.style('visibility', 'hidden')
+      })
 
   // 节点标签
   if (store.displaySettings.sankey.showName || store.displaySettings.sankey.showQuantity) {
@@ -272,7 +318,7 @@ function zoomReset() {
  * 监听数据变化重绘
  */
 watch(
-    () => [store.sankeyData, store.displaySettings.sankey],
+    () => [store.sankeyData, store.displaySettings.sankey, store.useColorPanel, locale.value],
     () => {
       nextTick(drawSankey)
     },
@@ -302,58 +348,123 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="result-sankey-view">
-    <!-- 容器 -->
-    <div class="sankey-container" v-if="store.sankeyData.nodes.length > 0">
-      <div ref="svgContainer" class="sankey-svg-wrapper"/>
-
-      <!-- 缩放控制 -->
-      <v-divider></v-divider>
-      <v-row dense class="controls py-2" no-gutters>
-        <v-col cols="auto" v-if="store.sankeyData.nodes.length > 0">
-          <v-checkbox-btn
-              v-model="store.displaySettings.sankey.showName"
-              :label="t('calculator.sankey.showName')"
-              density="compact"
-              hide-spin-buttons
-              hide-details
-              class="pa-0 ml-n1 d-inline-flex mr-4"
-          />
-        </v-col>
-        <v-col cols="auto" v-if="store.sankeyData.nodes.length > 0">
-          <v-checkbox-btn
-              v-model="store.displaySettings.sankey.showQuantity"
-              :label="t('calculator.sankey.showQuantity')"
-              density="compact"
-              hide-details
-              class="d-inline-flex"
-          />
-        </v-col>
-
-        <v-spacer></v-spacer>
-
+  <AffixBoxHasTitleView>
+    <div class="result-sankey-view">
+      <v-row no-gutters align="center">
         <v-col cols="auto">
-          <v-btn-group border density="compact" variant="tonal" class="btn-group-flavor">
-            <v-btn icon="mdi-plus" size="small" class="px-5" @click="zoomIn"/>
-            <v-divider vertical></v-divider>
-            <v-btn size="small" @click="zoomReset" :title="'(' + currentZoomScale + '%)'">
-              <span class="text-caption">{{ currentZoomScale }}%</span>
-            </v-btn>
-            <v-divider vertical></v-divider>
-            <v-btn icon="mdi-minus" size="small" class="px-5" @click="zoomOut"/>
-          </v-btn-group>
+          <v-icon icon="mdi-chart-sankey" color="green" class="mb-2"/>
+        </v-col>
+        <v-col>
+          <v-divider :thickness="4" class="mt-n1"></v-divider>
+        </v-col>
+        <v-col cols="auto">
+          <v-menu :close-on-content-click="false">
+            <template v-slot:activator="{props}">
+              <v-btn variant="text" icon="mdi-filter" v-bind="props"/>
+            </template>
+            <v-card border class="pa-5" :min-width="mobile ? '100%' : 350" :width="mobile ? '100%' : 580">
+              <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 mt-n5">
+                <v-icon size="80">mdi-filter</v-icon>
+              </v-card-title>
+              <v-card-text class="pa-2">
+                <v-select
+                    v-model="store.useColorPanel"
+                    item-value="item"
+                    :items="store.color">
+                  <template v-slot:item="{ props, item }">
+                    <v-list-item v-bind="props" width="600">
+                      <template v-slot:title>
+                        <div class="color-strip my-2">
+                          <div
+                              v-for="(c, cIndex) in item.raw.value"
+                              :key="cIndex"
+                              class="color-dot"
+                              :style="{ backgroundColor: c }"
+                              :title="c">
+                          </div>
+                        </div>
+                      </template>
+                    </v-list-item>
+                  </template>
+
+                  <template v-slot:chip="{ item }">
+                    <div class="d-flex align-center">
+                      <span class="mr-2">
+                        {{ t(`calculator.sankey.${item.raw.name}`) }}
+                      </span>
+                      <div class="color-strip">
+                        <div
+                            v-for="(c, cIndex) in item.raw.value.slice(0, 5)"
+                            :key="cIndex"
+                            class="color-dot small"
+                            :style="{ backgroundColor: c }"
+                            :title="c">
+                        </div>
+                        <v-chip v-if="item.raw.value.length > 5">+{{ item.raw.value.length - 5 }}</v-chip>
+                      </div>
+                    </div>
+                  </template>
+
+                  <template v-slot:no-data>
+                    <EmptyView/>
+                  </template>
+                </v-select>
+
+                <v-checkbox
+                    v-model="store.displaySettings.sankey.showName"
+                    :label="t('calculator.sankey.showName')"
+                    density="compact"
+                    hide-spin-buttons
+                    hide-details
+                />
+                <v-checkbox
+                    v-model="store.displaySettings.sankey.showQuantity"
+                    :label="t('calculator.sankey.showQuantity')"
+                    density="compact"
+                    hide-details
+                />
+              </v-card-text>
+            </v-card>
+          </v-menu>
         </v-col>
       </v-row>
+
+      <!-- 容器 -->
+      <div class="sankey-container" v-if="store.sankeyData.nodes.length > 0">
+        <div ref="svgContainer" class="sankey-svg-wrapper"/>
+
+        <!-- 缩放控制 -->
+        <v-divider></v-divider>
+        <v-row dense class="controls py-2" no-gutters>
+          <v-spacer></v-spacer>
+
+          <v-col cols="auto">
+            <v-btn-group border density="compact" variant="tonal" class="btn-group-flavor">
+              <v-btn icon="mdi-plus" size="small" class="px-5" @click="zoomIn"/>
+              <v-divider vertical></v-divider>
+              <v-btn size="small" @click="zoomReset" :title="'(' + currentZoomScale + '%)'">
+                <span class="text-caption">{{ currentZoomScale }}%</span>
+              </v-btn>
+              <v-divider vertical></v-divider>
+              <v-btn icon="mdi-minus" size="small" class="px-5" @click="zoomOut"/>
+            </v-btn-group>
+          </v-col>
+        </v-row>
+      </div>
+
+      <!-- 空状态 -->
+      <v-card border v-else class="d-flex align-center justify-center py-10 opacity-40 h-screen">
+        <div class="text-center">
+          <v-icon icon="mdi-chart-sankey" size="160" class="mb-3"/>
+          <p class="text-body-1">{{ t('calculator.ui.emptySankey') }}</p>
+        </div>
+      </v-card>
     </div>
 
-    <!-- 空状态 -->
-    <v-card border v-else class="d-flex align-center justify-center py-10 opacity-40 h-screen">
-      <div class="text-center">
-        <v-icon icon="mdi-chart-sankey" size="160" class="mb-3"/>
-        <p class="text-body-1">{{ t('calculator.ui.emptySankey') }}</p>
-      </div>
-    </v-card>
-  </div>
+    <template v-slot:title>
+      {{ t('calculator.results.sankeyView') }}
+    </template>
+  </AffixBoxHasTitleView>
 </template>
 
 <style scoped lang="less">
@@ -365,7 +476,6 @@ onBeforeUnmount(() => {
   .sankey-svg-wrapper {
     position: relative;
     width: 100%;
-    overflow: hidden;
 
     :deep(svg) {
       display: block;
@@ -384,5 +494,38 @@ onBeforeUnmount(() => {
     backdrop-filter: blur(30px);
     background: hsl(from #000 h s l /.7);
   }
+}
+
+.color-strip {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.color-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.color-dot:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.color-dot.small {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+}
+
+.color-more {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+  margin-left: 4px;
 }
 </style>

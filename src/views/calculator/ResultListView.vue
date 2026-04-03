@@ -67,7 +67,7 @@ function collapseAll() {
           <v-divider :thickness="4" class="mt-n1"></v-divider>
         </v-col>
         <v-col cols="auto">
-          <v-menu>
+          <v-menu :close-on-content-click="false">
             <template v-slot:activator="{props}">
               <v-btn variant="text" icon="mdi-filter" v-bind="props"/>
             </template>

@@ -1,105 +1,3 @@
-<script setup lang="ts">
-
-import I18nWidget from "@/components/i18nWidget.vue";
-import ItemIconManager from "@/components/itemIconManager.vue";
-import HtmlLink from "@/components/HtmlLink.vue";
-import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
-import {appFuns, storage_account, storage_capacity_monitor} from "@/assets/sripts/index";
-import {onMounted, Ref, ref} from "vue";
-import {useI18n} from "vue-i18n";
-
-const {t} = useI18n()
-
-let estimateCapacity: Ref<any> = ref({}),
-    appFunConfig = ref<any[]>([]),
-
-    clearLoading = ref(false),
-    headerSearchSwitch = ref(false),
-
-    searchIsLogs = ref(false),
-    searchHotkey = ref(false),
-    searchHint = ref(false),
-
-    posterSwitch = ref(false),
-
-    assemblyViewModel = ref('lock-window')
-
-onMounted(() => {
-  getConfig()
-})
-
-/**
- * 格式化应用列表
- */
-const appFunFormatting = () => {
-  return appFuns.original.map(i => ({
-    key: i.title,
-    description: i.title,
-    value: true
-  }))
-}
-
-const getConfig = () => {
-  estimateCapacity.value = storage_capacity_monitor.estimateCapacity()
-
-  appFunConfig.value = storage_account.getConfigurationItem('appFun', 'config', {defaultValue: appFunFormatting()})
-  headerSearchSwitch.value = storage_account.getConfigurationItem('search', 'header.switch')
-
-  searchIsLogs.value = storage_account.getConfigurationItem('search', 'log.switch')
-  searchHotkey.value = storage_account.getConfigurationItem('search', 'hotkey.switch')
-  searchHint.value = storage_account.getConfigurationItem('search', 'hint.switch')
-
-  posterSwitch.value = storage_account.getConfigurationItem('poster', 'poster.switch')
-
-  assemblyViewModel.value = storage_account.getConfigurationItem('assembly', 'viewModel', {defaultValue: assemblyViewModel.value})
-}
-
-const onUpdateAppFunConfig = () => {
-  storage_account.updateConfiguration('appFun', 'config', appFunConfig.value)
-}
-
-/**
- * 处理搜索设置
- */
-const onHeaderSearchSwitch = async () => {
-  storage_account.updateConfiguration('search', 'header.switch', headerSearchSwitch.value)
-}
-
-const onSearchIsLogs = () => {
-  storage_account.updateConfiguration('search', 'log.switch', searchIsLogs.value)
-}
-
-const onSearchHotkey = () => {
-  storage_account.updateConfiguration('search', 'hotkey.switch', searchHotkey.value)
-}
-
-const onSearchHint = () => {
-  storage_account.updateConfiguration('search', 'hint.switch', searchHint.value)
-}
-
-const onPosterSwitch = () => {
-  storage_account.updateConfiguration('poster', 'poster.switch', posterSwitch.value)
-}
-
-const onAssemblyViewModel = () => {
-  storage_account.updateConfiguration('assembly', 'viewModel', assemblyViewModel.value)
-}
-
-/**
- * 擦除数据
- */
-const clearStorage = () => {
-  clearLoading.value = true
-
-  storage_capacity_monitor.clearStorage(localStorage)
-  storage_capacity_monitor.clearStorage(sessionStorage)
-
-  getConfig()
-
-  clearLoading.value = false
-}
-</script>
-
 <template>
   <v-row>
     <v-col cols="12" lg="4">
@@ -126,29 +24,63 @@ const clearStorage = () => {
     </v-col>
     <v-col cols="12" lg="4">
       <AffixBoxHasTitleView>
-        <v-row align="start" no-gutters>
-          <v-col></v-col>
-          <v-col cols="auto">
-          </v-col>
-        </v-row>
-
         <div class="mb-5 opacity-60">
           <p class="text-caption">管理功能列表，由你决定是否显示</p>
+          <p class="text-caption text-grey">从下拉列表选择功能来激活，点击已激活标签可移除</p>
         </div>
 
-        <v-list variant="text" density="compact" class="bg-transparent mx-n4" max-height="500px">
-          <v-list-item v-for="(nav,index) in appFunConfig" :key="index" link density="compact">
-            <template v-slot:append>
-              <v-switch hide-details inset density="compact" v-model="appFunConfig[index].value" @update:modelValue="onUpdateAppFunConfig"></v-switch>
-            </template>
-            <template v-slot:title>
-              {{ t(nav.key) }}
-            </template>
-            <template v-slot:subtitle>
-              <p class="opacity-50 text-caption">{{ t(nav.description) }}</p>
-            </template>
-          </v-list-item>
-        </v-list>
+        <!-- 未激活列表 -->
+        <v-select
+            v-model="selectedToActivate"
+            :items="inactiveFunctions"
+            item-title="title"
+            item-value="key"
+            :label="`未激活功能 (${inactiveFunctions.length})`"
+            multiple
+            chips
+            variant="outlined"
+            density="compact"
+            hide-details
+            class="mb-4"
+            @update:model-value="onActivateFunctions">
+          <template v-slot:chip="{ props, item }">
+            <v-chip v-bind="props" size="small" color="info">
+              {{ t(item.raw.key) }}
+            </v-chip>
+          </template>
+          <template v-slot:item="{ props, item }">
+            <v-list-item v-bind="props">
+              <template v-slot:title>
+                {{ t(item.raw.key) }}
+              </template>
+              <template v-slot:subtitle>
+                <p class="opacity-50 text-caption">{{ t(item.raw.description) }}</p>
+              </template>
+            </v-list-item>
+          </template>
+          <template v-slot:no-data>
+            <EmptyView></EmptyView>
+          </template>
+        </v-select>
+
+        <!-- 激活列表 -->
+        <div class="mt-4">
+          <div class="d-flex flex-wrap ga-2">
+            <v-chip
+                v-for="func in activeFunctions"
+                :key="func.key"
+                size="x-small"
+                variant="tonal"
+                color="amber"
+                closable
+                @click:close="deactivateFunction(func.key)">
+              {{ t(func.key) }}
+            </v-chip>
+            <span v-if="activeFunctions.length === 0" class="text-caption opacity-50">
+              暂无激活的功能，请从上方下拉列表中选择
+            </span>
+          </div>
+        </div>
 
         <template v-slot:title>
           功能
@@ -206,6 +138,14 @@ const clearStorage = () => {
         </div>
         <template v-slot:title>
           记录
+        </template>
+      </AffixBoxHasTitleView>
+    </v-col>
+    <v-col cols="12" lg="4">
+      <AffixBoxHasTitleView>
+        <ItemIconCdnAssets></ItemIconCdnAssets>
+        <template v-slot:title>
+          CDN资源分发
         </template>
       </AffixBoxHasTitleView>
     </v-col>
@@ -294,6 +234,147 @@ const clearStorage = () => {
   </v-row>
 </template>
 
-<style scoped lang="less">
+<script setup lang="ts">
+import I18nWidget from "@/components/i18nWidget.vue";
+import ItemIconManager from "@/components/itemIconManager.vue";
+import HtmlLink from "@/components/HtmlLink.vue";
+import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
+import {appFuns, storage_account, storage_capacity_monitor} from "@/assets/sripts/index";
+import {onMounted, Ref, ref, computed} from "vue";
+import {useI18n} from "vue-i18n";
+import ItemIconCdnAssets from "@/components/itemIconCdnAssets.vue";
+import EmptyView from "@/components/EmptyView.vue";
 
+const {t} = useI18n()
+
+let estimateCapacity: Ref<any> = ref({}),
+    appFunConfig = ref<any[]>([]),
+
+    // 下拉框选中的待激活功能
+    selectedToActivate = ref<string[]>([]),
+
+    clearLoading = ref(false),
+    headerSearchSwitch = ref(false),
+
+    searchIsLogs = ref(false),
+    searchHotkey = ref(false),
+    searchHint = ref(false),
+
+    posterSwitch = ref(false),
+
+    assemblyViewModel = ref('lock-window')
+
+// 计算属性：已激活的功能列表 (value === true)
+const activeFunctions = computed(() => {
+  return appFunConfig.value.filter(item => item.value === true)
+})
+
+// 计算属性：未激活的功能列表 (value === false)
+const inactiveFunctions = computed(() => {
+  return appFunConfig.value.filter(item => item.value === false)
+})
+
+// 激活功能：从下拉框选择后，将选中的功能设置为激活状态
+const onActivateFunctions = (selectedKeys: string[]) => {
+  if (!selectedKeys || selectedKeys.length === 0) return
+
+  appFunConfig.value.forEach(item => {
+    if (selectedKeys.includes(item.key) && !item.value) {
+      item.value = true
+    }
+  })
+
+  // 保存配置
+  onUpdateAppFunConfig()
+
+  // 清空下拉框选中状态
+  selectedToActivate.value = []
+}
+
+// 反激活功能：点击已激活标签的关闭按钮，将其设置为未激活
+const deactivateFunction = (key: string) => {
+  const target = appFunConfig.value.find(item => item.key === key)
+  if (target && target.value) {
+    target.value = false
+    onUpdateAppFunConfig()
+  }
+}
+
+onMounted(() => {
+  getConfig()
+})
+
+/**
+ * 格式化应用列表
+ */
+const appFunFormatting = () => {
+  return appFuns.original.map(i => ({
+    key: i.title,
+    description: i.title,
+    value: true
+  }))
+}
+
+const getConfig = () => {
+  estimateCapacity.value = storage_capacity_monitor.estimateCapacity()
+
+  appFunConfig.value = storage_account.getConfigurationItem('appFun', 'config', {defaultValue: appFunFormatting()})
+  headerSearchSwitch.value = storage_account.getConfigurationItem('search', 'header.switch')
+
+  searchIsLogs.value = storage_account.getConfigurationItem('search', 'log.switch')
+  searchHotkey.value = storage_account.getConfigurationItem('search', 'hotkey.switch')
+  searchHint.value = storage_account.getConfigurationItem('search', 'hint.switch')
+
+  posterSwitch.value = storage_account.getConfigurationItem('poster', 'poster.switch')
+
+  assemblyViewModel.value = storage_account.getConfigurationItem('assembly', 'viewModel', {defaultValue: assemblyViewModel.value})
+}
+
+const onUpdateAppFunConfig = () => {
+  storage_account.updateConfiguration('appFun', 'config', appFunConfig.value)
+}
+
+/**
+ * 处理搜索设置
+ */
+const onHeaderSearchSwitch = async () => {
+  storage_account.updateConfiguration('search', 'header.switch', headerSearchSwitch.value)
+}
+
+const onSearchIsLogs = () => {
+  storage_account.updateConfiguration('search', 'log.switch', searchIsLogs.value)
+}
+
+const onSearchHotkey = () => {
+  storage_account.updateConfiguration('search', 'hotkey.switch', searchHotkey.value)
+}
+
+const onSearchHint = () => {
+  storage_account.updateConfiguration('search', 'hint.switch', searchHint.value)
+}
+
+const onPosterSwitch = () => {
+  storage_account.updateConfiguration('poster', 'poster.switch', posterSwitch.value)
+}
+
+const onAssemblyViewModel = () => {
+  storage_account.updateConfiguration('assembly', 'viewModel', assemblyViewModel.value)
+}
+
+/**
+ * 擦除数据
+ */
+const clearStorage = () => {
+  clearLoading.value = true
+
+  storage_capacity_monitor.clearStorage(localStorage)
+  storage_capacity_monitor.clearStorage(sessionStorage)
+
+  getConfig()
+
+  clearLoading.value = false
+}
+</script>
+
+<style scoped lang="less">
 </style>

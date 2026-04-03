@@ -113,10 +113,10 @@ export default defineConfig({
         VitePWA({
             registerType: 'autoUpdate',
             includeAssets: ['favicon.ico', 'favicon.png'],
-            devOptions: {
-                enabled: false,
-                type: 'module',
-            },
+            // devOptions: {
+            //     enabled: false,
+            //     type: 'module',
+            // },
             manifest: {
                 name: 'Glow Prow',
                 short_name: 'GlowProw',

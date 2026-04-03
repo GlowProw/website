@@ -9,7 +9,7 @@ import {onMounted, ref} from "vue";
 const props = withDefaults(
     defineProps<{ href?: string, text?: string, isPoptip?: boolean, isOpen?: boolean, isIcon?: boolean, isIframeShow?: boolean }>(),
     {
-      src: '',
+      href: '',
       text: '',
       isPoptip: true,
       isOpen: true,
@@ -19,13 +19,13 @@ const props = withDefaults(
 )
 
 let afterData = ref({
-      href: '',
+      href: 'https://vuejs.org',
       text: ''
     }),
-    disableIframe = ref(true),
     linkLoad = ref(true),
     linkTime = ref(null),
-    show = ref(false)
+    show = ref(false),
+    iframeError = ref(false)
 
 onMounted(() => {
   loadData()
@@ -47,21 +47,29 @@ const loadData = () => {
  */
 const onPoptipShow = () => {
   let status = show.value
-  disableIframe.value = status;
 
   // 展开
   if (status == true) {
+    // 重置错误状态
+    iframeError.value = false
     // 加载动画
     linkLoad.value = true;
+    if (linkTime.value) clearTimeout(linkTime.value)
     linkTime.value = setTimeout(function () {
-      linkLoad.value = false;
+      if (linkLoad.value) {
+        linkLoad.value = false;
+        iframeError.value = true;
+      }
       linkTime.value = null;
-    }, 2000)
+    }, 5000)
   }
   // 收起
   if (status == false) {
+    if (linkTime.value) {
+      clearTimeout(linkTime.value)
+      linkTime.value = null;
+    }
     linkLoad.value = false;
-    linkTime.value = null;
   }
 }
 
@@ -77,6 +85,43 @@ const getProtocol = () => {
     return '';
   }
 }
+
+/**
+ * iframe 加载完成
+ */
+const onIframeLoad = () => {
+  linkLoad.value = false
+  iframeError.value = false
+  if (linkTime.value) {
+    clearTimeout(linkTime.value)
+    linkTime.value = null
+  }
+}
+
+/**
+ * iframe 加载错误
+ */
+const onIframeError = () => {
+  linkLoad.value = false
+  iframeError.value = true
+  if (linkTime.value) {
+    clearTimeout(linkTime.value)
+    linkTime.value = null
+  }
+}
+
+/**
+ * 获取域名用于显示
+ */
+const getDomain = () => {
+  try {
+    if (!afterData.value.href) return ''
+    const url = new URL(afterData.value.href)
+    return url.hostname
+  } catch {
+    return afterData.value.href
+  }
+}
 </script>
 
 <template>
@@ -85,13 +130,13 @@ const getProtocol = () => {
       content-class="pa-0 bg-black"
       interactive
       target="cursor"
-      max-width="300"
-      min-width="290"
+      max-width="350"
+      min-width="300"
       v-model="show"
       @update:modelValue="onPoptipShow"
       :disabled="!isPoptip || getProtocol() === 'mailto:'">
-    <template v-slot:activator="{ props }">
-       <span class="html-link cursor-pointer" v-bind="props">
+    <template v-slot:activator="{ props: tooltipProps }">
+       <span class="html-link cursor-pointer" v-bind="tooltipProps">
         <template v-if="isIcon || getProtocol() === 'http:' || getProtocol() === 'https:'">
           <v-icon icon="mdi-link" class="icon"/>
         </template>
@@ -106,20 +151,36 @@ const getProtocol = () => {
 
     <template v-if="isIframeShow && isPoptip">
       <v-card border class="link-iframe">
+        <!-- 加载状态 -->
         <template v-if="linkLoad">
-          <div class="link-load link-box" style="position: relative; z-index: 1;">
-            <v-icon icon="mdi-refresh" class="spin-icon-load" size="30"/>
+          <div class="link-load">
+            <v-icon icon="mdi-loading" class="spin-icon-load" size="30"/>
           </div>
         </template>
-        <div v-show="!linkLoad" v-if="isIframeShow">
-          {{afterData.href}}
-          <iframe :src="disableIframe ? '' : afterData.href"
-                  allowTransparency="true"
-                  security="restricted"
-                  frameborder="no"
-                  width="100%"
-                  height="100%"
-                  @load="linkLoad = false"></iframe>
+
+        <!-- 错误状态 -->
+        <template v-else-if="iframeError">
+          <div class="link-load">
+            <v-icon icon="mdi-alert-circle-outline" size="30" color="warning"/>
+            <v-btn variant="tonal" size="small" :href="afterData.href" target="_blank" class="mt-2">
+              <v-icon icon="mdi-open-in-new" size="14"/>
+              <span class="text-caption ms-1">{{ getDomain() }}</span>
+            </v-btn>
+          </div>
+        </template>
+
+        <!-- iframe 内容 - 使用更好的缩放方案 -->
+        <div v-else class="iframe-container">
+          <iframe
+              :src="afterData.href"
+              frameborder="0"
+              width="100%"
+              height="100%"
+              sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-top-navigation"
+              referrerpolicy="no-referrer"
+              @load="onIframeLoad"
+              @error="onIframeError">
+          </iframe>
         </div>
       </v-card>
     </template>
@@ -129,48 +190,38 @@ const getProtocol = () => {
 <style scoped lang="less">
 .link-load {
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  align-content: center;
   align-items: center;
   height: 200px;
-  width: 300px;
+  width: 100%;
   text-align: center;
+  background: var(--v-theme-surface);
 }
 
 .link-iframe {
-  border-radius: 3px;
+  border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
-  margin-bottom: -10px;
   position: relative;
-  height: 200px;
   width: 100%;
+  background: var(--v-theme-surface);
 
-  iframe {
-    overflow: hidden !important;
+  .iframe-container {
     position: relative;
-    outline: 0;
-    border: 0;
-    width: 400%;
-    height: 400%;
-    transform: scale(0.25);
-    transform-origin: top left;
-
-    body {
-      overflow: hidden
-    }
-  }
-
-  &::after {
-    overflow: hidden;
-    content: "";
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
     width: 100%;
-    height: 100%;
-    z-index: 10;
+    height: 200px;
+    overflow: hidden;
+    background: white;
+
+    iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
   }
 }
 
@@ -182,6 +233,7 @@ const getProtocol = () => {
 
   a {
     color: hsl(from var(--text-color) h s calc(l * .8));
+    text-decoration: none;
 
     &:before {
       display: none;
@@ -191,16 +243,31 @@ const getProtocol = () => {
 
   a:hover {
     color: hsl(from var(--text-color) h s calc(l * 1));
+    text-decoration: underline;
   }
 
   .icon {
-    margin-right: 2px;
+    margin-right: 4px;
     color: hsl(from var(--text-color) h s calc(l * .9));
+    font-size: 14px;
   }
 }
 
 .html-link:hover {
   backdrop-filter: blur(20px);
   border-bottom-style: solid;
+}
+
+.spin-icon-load {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>

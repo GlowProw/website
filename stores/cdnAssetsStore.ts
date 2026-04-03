@@ -1,6 +1,6 @@
-import { computed, ref } from 'vue';
-import { defineStore } from 'pinia';
-import { storage } from "@/assets/sripts/index";
+import {computed, ref} from 'vue';
+import {defineStore} from 'pinia';
+import {storage} from "@/assets/sripts/index";
 
 interface CDNAssetsService {
     name: string;
@@ -12,6 +12,7 @@ interface CDNAssetsService {
 interface CDNAssetsParams {
     id: string;
     category: string;
+
     [key: string]: string;
 }
 
@@ -51,6 +52,12 @@ export const useCDNAssetsServiceStore = defineStore('cdnService', () => {
             urlTemplate: 'https://assets.glow-prow.org.cn/api?t={category}&id={id}',
             enabled: true,
             priority: 3
+        },
+        {
+            name: 'glow-prow-zh-cn',
+            urlTemplate: 'https://assets.glow-prow.top/api?t={category}&id={id}',
+            enabled: true,
+            priority: 3
         }
     ]);
 
@@ -64,7 +71,11 @@ export const useCDNAssetsServiceStore = defineStore('cdnService', () => {
         services.value.find(s => s.name === selectedService.value) || services.value[0]
     );
 
-    // 构建URL
+    /**
+     * 构建URL
+     * @param service
+     * @param params
+     */
     const buildServiceUrl = (service: CDNAssetsService, params: CDNAssetsParams): string => {
         let url = service.urlTemplate;
         Object.keys(params).forEach(key => {
@@ -258,12 +269,22 @@ export const useCDNAssetsServiceStore = defineStore('cdnService', () => {
      */
     const loadFromStorage = () => {
         try {
+            const lang = storage.local.get('lang');
             const saved = storage.local.get(STORAGE_KEYS.SELECTED_SERVICE);
+
+            console.log(lang, '===========')
 
             if (saved?.code === 0) {
                 const name = saved?.data?.value?.name;
                 if (name && services.value.some(s => s.name === name)) {
                     selectedService.value = name;
+                }
+            } else {
+                // 没有设置图片服务，初始前
+                // 如果本地语言，图片服务使用中国站镜像资源
+                console.log(lang, 'locale.value')
+                if (lang.data.value.value == 'zh-CN') {
+                    selectedService.value = 'glow-prow-zh-cn'
                 }
             }
         } catch (e) {

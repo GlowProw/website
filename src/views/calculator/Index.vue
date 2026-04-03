@@ -35,10 +35,10 @@ function getDisplayName(id: string): string {
 
 function handleExportCSV() {
   store.exportCSV(
-    t('calculator.export.csvHeaders'),
-    t('basic.yes'),
-    t('basic.no'),
-    getDisplayName
+      t('calculator.export.csvHeaders'),
+      t('basic.yes'),
+      t('basic.no'),
+      getDisplayName
   )
 }
 
@@ -135,15 +135,26 @@ function onFileImport(e: Event) {
                 <v-spacer/>
                 <v-col cols="auto">
                   <div class="d-flex ga-2">
-                    <!-- 导入 -->
+                    <!-- 配置管理 S -->
+                    <v-btn variant="tonal" color="amber" @click="openConfigDialog">
+                      <v-icon icon="mdi-content-save-cog" class="mr-1"/>
+                      {{ t('calculator.config.title') }}
+                    </v-btn>
+                    <!-- 配置管理 E -->
+
+                    <v-divider vertical inset opacity=".5"></v-divider>
+
                     <v-menu>
                       <template v-slot:activator="{props}">
-                        <v-btn variant="tonal" v-bind="props">
-                          <v-icon icon="mdi-import" class="mr-1"/>
-                          {{ t('calculator.import.title') }}
+                        <v-btn v-bind="props">
+                          <v-icon>mdi-dots-vertical</v-icon>
                         </v-btn>
                       </template>
-                      <v-list density="compact">
+                      <v-list min-width="300">
+                        <!-- 导入 -->
+                        <v-list-subheader>
+                          {{ t('calculator.import.title') }}
+                        </v-list-subheader>
                         <v-list-item @click="triggerImport('json')">
                           <template v-slot:prepend>
                             <v-icon icon="mdi-code-json"/>
@@ -156,18 +167,9 @@ function onFileImport(e: Event) {
                           </template>
                           <v-list-item-title>{{ t('calculator.import.csv') }}</v-list-item-title>
                         </v-list-item>
-                      </v-list>
-                    </v-menu>
 
-                    <!-- 导出 -->
-                    <v-menu>
-                      <template v-slot:activator="{props}">
-                        <v-btn variant="tonal" v-bind="props">
-                          <v-icon icon="mdi-export" class="mr-1"/>
-                          {{ t('calculator.export.title') }}
-                        </v-btn>
-                      </template>
-                      <v-list density="compact">
+                        <!-- 导出 -->
+                        <v-list-subheader>{{ t('calculator.export.title') }}</v-list-subheader>
                         <v-list-item @click="store.exportJSON()">
                           <template v-slot:prepend>
                             <v-icon icon="mdi-code-json"/>
@@ -182,14 +184,6 @@ function onFileImport(e: Event) {
                         </v-list-item>
                       </v-list>
                     </v-menu>
-
-                    <v-divider vertical inset opacity=".5"></v-divider>
-
-                    <!-- 配置管理 -->
-                    <v-btn variant="tonal" color="amber" @click="openConfigDialog">
-                      <v-icon icon="mdi-content-save-cog" class="mr-1"/>
-                      {{ t('calculator.config.title') }}
-                    </v-btn>
                   </div>
                 </v-col>
               </v-row>
@@ -221,7 +215,7 @@ function onFileImport(e: Event) {
     <Footer/>
 
     <!-- 配置文件上传 -->
-    <input type="file" ref="fileInput" @change="onFileImport" style="display: none" />
+    <input type="file" ref="fileInput" @change="onFileImport" style="display: none"/>
 
     <!-- 配置对话框 -->
     <SaveConfigDialog ref="configDialog"/>

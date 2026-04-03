@@ -1407,7 +1407,11 @@
     },
     "sankey": {
       "showName": "显示名称",
-      "showQuantity": "显示数量"
+      "showQuantity": "显示数量",
+      "basicColor": "基础色",
+      "richVividColor": "丰富鲜艳色",
+      "coolBlack": "酷黑",
+      "milkWhite": "奶白"
     },
     "ui": {
       "hasNotRequired": "没有材料建造",
