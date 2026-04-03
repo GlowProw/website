@@ -60,7 +60,6 @@ const onChangeLang = () => {
             density="compact"
             v-model="selectLang" @update:modelValue="onChangeLang"></v-select>
 
-  <p class="mb-2 opacity-60 text-body-1">感谢以下翻译成员:</p>
   <keep-alive>
     <I18nMembersWidget></I18nMembersWidget>
   </keep-alive>

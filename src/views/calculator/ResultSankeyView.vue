@@ -79,7 +79,7 @@ function drawSankey() {
 
   const margin = {top: 3, right: 200, bottom: 50, left: 0}
   const width = Math.max(400, containerWidth.value - margin.left - margin.right)
-  const calculatedHeight = Math.max(300, Math.min(800, data.nodes.length * 40))
+  const calculatedHeight = Math.max(700, Math.min(1000, data.nodes.length * 40))
   const height = calculatedHeight - margin.top - margin.bottom
 
   // Root SVG
@@ -102,7 +102,7 @@ function drawSankey() {
 
   // 设置 D3 zoom
   zoomBehavior = d3.zoom<SVGSVGElement, unknown>()
-      .scaleExtent([0.2, 4])
+      .scaleExtent([0.7, 3])
       .on('zoom', (event) => {
         zoomGroup.attr('transform', event.transform)
         currentZoomScale.value = Math.round(event.transform.k * 100)
@@ -308,30 +308,26 @@ onBeforeUnmount(() => {
       <div ref="svgContainer" class="sankey-svg-wrapper"/>
 
       <!-- 缩放控制 -->
-      <v-row class="controls">
-        <!-- 设置 -->
-        <v-col cols="auto">
-          <v-row dense class="" align="center" v-if="store.sankeyData.nodes.length > 0">
-            <v-spacer></v-spacer>
-            <v-col cols="auto">
-              <v-checkbox
-                  v-model="store.displaySettings.sankey.showName"
-                  :label="t('calculator.sankey.showName')"
-                  density="compact"
-                  hide-details
-                  class="d-inline-flex mr-4"
-              />
-            </v-col>
-            <v-col cols="auto">
-              <v-checkbox
-                  v-model="store.displaySettings.sankey.showQuantity"
-                  :label="t('calculator.sankey.showQuantity')"
-                  density="compact"
-                  hide-details
-                  class="d-inline-flex"
-              />
-            </v-col>
-          </v-row>
+      <v-divider></v-divider>
+      <v-row dense class="controls py-2" no-gutters>
+        <v-col cols="auto" v-if="store.sankeyData.nodes.length > 0">
+          <v-checkbox-btn
+              v-model="store.displaySettings.sankey.showName"
+              :label="t('calculator.sankey.showName')"
+              density="compact"
+              hide-spin-buttons
+              hide-details
+              class="pa-0 ml-n1 d-inline-flex mr-4"
+          />
+        </v-col>
+        <v-col cols="auto" v-if="store.sankeyData.nodes.length > 0">
+          <v-checkbox-btn
+              v-model="store.displaySettings.sankey.showQuantity"
+              :label="t('calculator.sankey.showQuantity')"
+              density="compact"
+              hide-details
+              class="d-inline-flex"
+          />
         </v-col>
 
         <v-spacer></v-spacer>
@@ -381,11 +377,7 @@ onBeforeUnmount(() => {
   }
 
   .controls {
-    position: absolute;
-    bottom: -10px;
-    left: 10px;
     width: 100%;
-    z-index: 5;
   }
 
   .btn-group-flavor {

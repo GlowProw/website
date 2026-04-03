@@ -55,6 +55,7 @@ export interface DisplaySettings {
     listColumns: {
         name: boolean
         quantity: boolean
+        id: boolean
         link: boolean
     }
     sankey: {
@@ -252,6 +253,7 @@ export const useCalculatorStore = defineStore('calculator', () => {
         viewMode: 'list',
         listColumns: {
             name: true,
+            id: true,
             quantity: true,
             link: true
         },

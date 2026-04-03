@@ -15,6 +15,7 @@ import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import {use_tooltip_follow} from "@/assets/sripts/use_tooltip_follow";
 import ItemCardDetail from "@/components/snbWidget/itemCardDetail.vue";
 import {useAppStore} from "~/stores/appStore";
+import Loading from "@/components/Loading.vue";
 
 const router = useRouter(),
     appStore = useAppStore(),
@@ -131,8 +132,7 @@ defineExpose({
               `pa-${props.padding}`,
               `item-card-header-rarity-${i.rarity}`
           ]">
-
-        <div class="d-flex align-center justify-center h-100">
+        <div class="d-flex align-center justify-center w-100 h-100">
           <v-img
               referrerpolicy="no-referrer"
               class="prohibit-drag"

@@ -78,10 +78,56 @@ const deepMerge = (target: any, ...sources: any[]): any => {
     return deepMerge(target, ...sources);
 }
 
+/**
+ * 获取浏览器语言并匹配支持的语言
+ */
+const getBrowserLocale = (): string => {
+    // 支持的语言列表
+    const supportedLocales = ['zh-CN', 'zh-TW', 'en-US'];
+    // 默认语言
+    const defaultLocale = 'zh-CN';
+
+    // 获取浏览器语言
+    const browserLang = navigator.language || (navigator as any).userLanguage || defaultLocale;
+
+    // 检查是否完全匹配
+    if (supportedLocales.includes(browserLang)) {
+        return browserLang;
+    }
+
+    // 处理简写形式，如 'zh' -> 'zh-CN', 'en' -> 'en-US'
+    const shortLang = browserLang.split('-')[0];
+    for (const locale of supportedLocales) {
+        if (locale.split('-')[0] === shortLang) {
+            return locale;
+        }
+    }
+
+    // 都不匹配，返回默认语言
+    return defaultLocale;
+};
+
+/**
+ * 获取最终使用的语言
+ */
+const getInitialLocale = (): string => {
+    // 优先使用存储的语言
+    const storedLang = storage.local.get('lang')?.data?.value?.value;
+    if (storedLang && ['zh-CN', 'zh-TW', 'en-US'].includes(storedLang)) {
+        return storedLang;
+    }
+
+    // 其次使用浏览器语言
+    const browserLocale = getBrowserLocale();
+
+    // 最后使用配置文件中的默认语言或 'zh-CN'
+    return browserLocale || language.default || 'zh-CN';
+};
+
 const i18n = createI18n({
     legacy: false,
     messageCompiler,
-    locale: storage.local.get('lang')?.data?.value?.value || language.default || 'zh-CN',
+    locale: getInitialLocale(),
     fallbackLocale: 'en-US',
     missingWarn: false,
     fallbackWarn: false,

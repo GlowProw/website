@@ -1374,6 +1374,7 @@
       "sankeyView": "工序图",
       "columns": {
         "name": "名称",
+        "id": "标识",
         "quantity": "数量",
         "link": "链接"
       }
@@ -1414,6 +1415,7 @@
       "collapseAll": "折叠全部",
       "tree": "材料树",
       "summary": "材料汇总",
+      "emptyFlatMaterials": "添加目标以查看材料汇总",
       "emptyTree": "添加目标以查看材料树",
       "emptySankey": "添加目标以查看桑基图",
       "excluded": "排除",

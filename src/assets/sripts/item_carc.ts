@@ -17,7 +17,7 @@ class ItemData {
     furnitures: any[] = []
 }
 
-export class ItemCalc {
+export class CoreCalc {
     data: ItemData
 
     constructor() {
@@ -58,6 +58,10 @@ export class ItemCalc {
      * @param data
      */
     addFurniture(data: Item) {
+        if (data.type == 'majorFurniture' || data.type == 'utilityFurniture' || data.type == 'offensiveFurniture') {
+            return
+        }
+
         this.data.weapons.push(data)
 
         return {
@@ -72,6 +76,8 @@ export class ItemCalc {
     addWeapon(data: Item) {
         this.data.weapons.push(data)
         return {
+            addEnemy: this.addEnemy,
+            addCustomEnemy: this.addCustomEnemy,
             run: this.run.bind(this)
         }
     }
@@ -83,6 +89,29 @@ export class ItemCalc {
     addArmor(data: Item) {
         return {
             run: this.run.bind(this)
+        }
+    }
+
+    /**
+     * 自定义敌人
+     * @param opt
+     */
+    addCustomEnemy (opt = {}) {
+        return {
+            run: this.run.bind(this)
+        }
+    }
+
+    /**
+     * 敌人
+     */
+    get addEnemy () {
+        return {
+            // 建筑
+            tower () {
+
+            },
+            // todo 精英敌人/普通敌人
         }
     }
 

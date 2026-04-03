@@ -36,7 +36,7 @@ export const useCDNAssetsServiceStore = defineStore('cdnService', () => {
     const services = ref<CDNAssetsService[]>([
         {
             name: 'local-test',
-            urlTemplate: import.meta.env.DEV ? '/assets-proxy?t={category}&id={id}' : 'https://assets.glow-prow.org.cn/api?t={category}&id={id}',
+            urlTemplate: '/assets-proxy?t={category}&id={id}',
             enabled: true,
             priority: 1
         },

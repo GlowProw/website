@@ -9,8 +9,10 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import HtmlLink from "@/components/HtmlLink.vue";
 import TreeNodeItem from "./TreeNodeItem.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
+import {useDisplay} from "vuetify/framework";
 
 const {t} = useI18n()
+const {mobile} = useDisplay()
 const store = useCalculatorStore()
 
 // 控制展开的节点
@@ -69,12 +71,20 @@ function collapseAll() {
             <template v-slot:activator="{props}">
               <v-btn variant="text" icon="mdi-filter" v-bind="props"/>
             </template>
-            <v-card min-width="200">
+            <v-card border class="pa-5" :min-width="mobile ? '100%' : 350" :width="mobile ? '100%' : 580">
+              <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 mt-n5">
+                <v-icon size="80">mdi-filter</v-icon>
+              </v-card-title>
               <v-card-text class="pa-2">
-                <p class="text-caption font-weight-bold mb-1">{{ t('calculator.results.columns.name') }}</p>
                 <v-checkbox
                     v-model="store.displaySettings.listColumns.name"
                     :label="t('calculator.results.columns.name')"
+                    density="compact"
+                    hide-details
+                />
+                <v-checkbox
+                    v-model="store.displaySettings.listColumns.id"
+                    :label="t('calculator.results.columns.id')"
                     density="compact"
                     hide-details
                 />
@@ -103,10 +113,13 @@ function collapseAll() {
             <th class="text-left" v-if="store.displaySettings.listColumns.name">
               {{ t('calculator.results.columns.name') }}
             </th>
+            <th class="text-left" v-if="store.displaySettings.listColumns.id">
+              {{ t('calculator.results.columns.id') }}
+            </th>
             <th class="text-right" v-if="store.displaySettings.listColumns.quantity">
               {{ t('calculator.results.columns.quantity') }}
             </th>
-            <th class="text-center" v-if="store.displaySettings.listColumns.link" style="width: 50px;">
+            <th class="text-center singe-line" v-if="store.displaySettings.listColumns.link" width="10">
               {{ t('calculator.results.columns.link') }}
             </th>
           </tr>
@@ -122,6 +135,9 @@ function collapseAll() {
               <MaterialNameRarity :id="mat.id">
                 <MaterialName :id="mat.id"/>
               </MaterialNameRarity>
+            </td>
+            <td v-if="store.displaySettings.listColumns.id">
+              {{ mat.id }}
             </td>
             <td class="text-right font-weight-bold text-amber" v-if="store.displaySettings.listColumns.quantity">
               {{ mat.totalQuantity }}
@@ -139,8 +155,8 @@ function collapseAll() {
       <!-- 空状态 -->
       <v-card border v-if="store.flatMaterials.length === 0" class="d-flex align-center justify-center py-10 opacity-40 mb-10">
         <div class="text-center">
-          <v-icon icon="mdi-tree" size="160" class="mb-3"/>
-          <p class="text-body-1">{{ t('calculator.ui.emptyTree') }}</p>
+          <v-icon icon="mdi-database-off-outline" size="160" class="mb-3"/>
+          <p class="text-body-1">{{ t('calculator.ui.emptyFlatMaterials') }}</p>
         </div>
       </v-card>
 
@@ -151,30 +167,30 @@ function collapseAll() {
 
     <!-- 树状展开 -->
     <AffixBoxHasTitleView>
-      <v-card variant="text" class="tree-card" v-if="store.materialTrees.length > 0">
-        <v-row no-gutters align="center">
+      <v-row no-gutters align="center">
+        <v-col cols="auto">
+          <v-icon icon="mdi-file-tree" color="cyan" class="mb-2"/>
+        </v-col>
+        <v-col>
+          <v-divider :thickness="4" class="mt-n1"></v-divider>
+        </v-col>
+        <v-col cols="auto">
           <v-col cols="auto">
-            <v-icon icon="mdi-file-tree" color="cyan" class="mb-2"/>
+            <v-btn-group density="compact" variant="outlined">
+              <v-btn :disabled="store.materialTrees.length === 0" size="small" @click="expandAll">
+                <v-icon icon="mdi-unfold-more-horizontal" size="16" class="mr-1"/>
+                {{ t('calculator.ui.expandAll') }}
+              </v-btn>
+              <v-btn :disabled="store.materialTrees.length === 0" size="small" @click="collapseAll">
+                <v-icon icon="mdi-unfold-less-horizontal" size="16" class="mr-1"/>
+                {{ t('calculator.ui.collapseAll') }}
+              </v-btn>
+            </v-btn-group>
           </v-col>
-          <v-col>
-            <v-divider :thickness="4" class="mt-n1"></v-divider>
-          </v-col>
-          <v-col cols="auto">
-            <v-col cols="auto">
-              <v-btn-group density="compact" variant="outlined">
-                <v-btn size="small" @click="expandAll">
-                  <v-icon icon="mdi-unfold-more-horizontal" size="16" class="mr-1"/>
-                  {{ t('calculator.ui.expandAll') }}
-                </v-btn>
-                <v-btn size="small" @click="collapseAll">
-                  <v-icon icon="mdi-unfold-less-horizontal" size="16" class="mr-1"/>
-                  {{ t('calculator.ui.collapseAll') }}
-                </v-btn>
-              </v-btn-group>
-            </v-col>
-          </v-col>
-        </v-row>
+        </v-col>
+      </v-row>
 
+      <v-card variant="text" class="tree-card" v-if="store.materialTrees.length > 0">
         <TreeNodeItem
             v-for="(node, index) in store.materialTrees"
             :key="`root-${node.id}-${index}`"
@@ -190,7 +206,7 @@ function collapseAll() {
       <!-- 空状态 -->
       <v-card border v-if="store.materialTrees.length === 0" class="d-flex align-center justify-center py-10 opacity-40 mb-10">
         <div class="text-center">
-          <v-icon icon="mdi-tree" size="160" class="mb-3"/>
+          <v-icon icon="mdi-database-off-outline" size="160" class="mb-3"/>
           <p class="text-body-1">{{ t('calculator.ui.emptyTree') }}</p>
         </div>
       </v-card>

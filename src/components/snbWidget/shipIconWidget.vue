@@ -26,7 +26,7 @@ const props = withDefaults(defineProps<{
       isShowOpenDetail: true,
       isShowDescription: true,
       isShowTooltip: true,
-      padding: 1,
+      padding: 0,
       margin: 1
     }),
     ships: any = Ships,

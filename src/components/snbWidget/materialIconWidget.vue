@@ -6,14 +6,14 @@ export default {name: 'MaterialIconWidget'}
 import {computed, onMounted, type Ref, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {useAssetsStore} from "~/stores/assetsStore";
-import {number, rarity} from "@/assets/sripts/index";
+import {rarity} from "@/assets/sripts/index";
 import {Material, Materials} from "glow-prow-data";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import {use_tooltip_follow} from "@/assets/sripts/use_tooltip_follow";
 import MaterialCardDetail from "@/components/snbWidget/materialCardDetail.vue";
 import {useAppStore} from "~/stores/appStore";
-import router from "~/router";
+import Loading from "@/components/Loading.vue";
 
 const props = withDefaults(defineProps<{
       id: string,
@@ -33,7 +33,7 @@ const props = withDefaults(defineProps<{
       isShowDescription: true,
       isShowTooltip: true,
       size: 20,
-      padding: 1,
+      padding: 0,
       margin: 1
     }),
     appStore = useAppStore(),
