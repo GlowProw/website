@@ -1198,6 +1198,10 @@
         "title": "手稿",
         "description": "陈列物品信息, 检查它们如何获得"
       },
+      "smugglers-report": {
+        "title": "Connoisseur",
+        "description": "Community jointly recommends the weekly shopping guide"
+      },
       "assembly": {
         "title": "船只配装厂",
         "description": "设计你船，让它到达性能极限，分享给好友"
@@ -1222,6 +1226,14 @@
         "title": "帝国升级模拟 (BETA 1)",
         "description": "海陀社升级模拟",
         "keywords": "empire skill simulation"
+      },
+      "calculator": {
+        "title": "Quantitative Calculator",
+        "description": "Assist in the batch calculation of the required materials"
+      },
+      "apps": {
+        "title": "Apps",
+        "description": "Enhance the experience with extension packages"
       }
     }
   },
@@ -1324,6 +1336,7 @@
       "collapseAll": "Collapse All",
       "tree": "Material Tree",
       "summary": "Material Summary",
+      "emptyFlatMaterials": "Add a target to view the material summary",
       "emptyTree": "Add targets to view material tree",
       "emptySankey": "Add targets to view sankey diagram",
       "excluded": "Excluded",
