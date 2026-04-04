@@ -1,11 +1,35 @@
 {
   "routes": [
-    { "src": "/sitemap.xml", "dest": "/sitemap.xml" },
-    { "src": "/robots.txt",  "dest": "/robots.txt"  },
-    { "src": "/ads.txt",     "dest": "/ads.txt"     },
-    { "src": "/favicon.ico", "dest": "/favicon.ico" },
-    { "src": "/favicon.png", "dest": "/favicon.png" },
-    { "src": "/(.*)",        "dest": "/index.html"  }
+    {
+      "src": "/sitemap.xml",
+      "dest": "/sitemap.xml",
+      "status": 200
+    },
+    {
+      "src": "/robots.txt",
+      "dest": "/robots.txt",
+      "status": 200
+    },
+    {
+      "src": "/ads.txt",
+      "dest": "/ads.txt",
+      "status": 200
+    },
+    {
+      "src": "/favicon.ico",
+      "dest": "/favicon.ico",
+      "status": 200
+    },
+    {
+      "src": "/favicon.png",
+      "dest": "/favicon.png",
+      "status": 200
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html",
+      "status": 200
+    }
   ],
   "caches": [
     {
