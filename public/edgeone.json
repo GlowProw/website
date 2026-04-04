@@ -16,6 +16,11 @@
       "status": 200
     },
     {
+      "src": "/2b62795cf566484f8bc243e7055ae616.txt",
+      "dest": "/2b62795cf566484f8bc243e7055ae616.txt",
+      "status": 200
+    },
+    {
       "src": "/favicon.ico",
       "dest": "/favicon.ico",
       "status": 200
@@ -63,28 +68,13 @@
       "statusCode": 200
     },
     {
-      "source": "/robots.txt",
-      "destination": "/as/robots.txt",
-      "statusCode": 200
-    },
-    {
       "source": "/sitemap.xml",
       "destination": "/sitemap.xml",
       "statusCode": 200
     },
     {
-      "source": "/sitemap.xml",
-      "destination": "/as/sitemap.xml",
-      "statusCode": 200
-    },
-    {
       "source": "/ads.txt",
       "destination": "/ads.txt",
-      "statusCode": 200
-    },
-    {
-      "source": "/ads.xml",
-      "destination": "/as/ads.xml",
       "statusCode": 200
     }
   ]

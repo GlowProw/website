@@ -142,6 +142,7 @@ export default defineConfig({
                     /^\/sitemap\.xml$/,
                     /^\/robots\.txt$/,
                     /^\/ads\.txt$/,
+                    /^\/5c65fd69dada4307bab754a14cf3d16c\.txt$/,
                     /^\/favicon\.ico$/,
                     /^\/favicon\.png$/,
                 ],
