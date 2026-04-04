@@ -29,7 +29,7 @@ onMounted(() => {
 
 <template>
   <v-row>
-    <v-col cols="12" lg="6">
+    <v-col cols="12" lg="12">
       <AffixBoxHasTitleView>
         <p class="text-caption">{{ t('pwa.status.description') }}</p>
 
@@ -37,11 +37,11 @@ onMounted(() => {
           <v-list lines="two" class="bg-transparent">
             <v-list-item>
               <template v-slot:prepend>
-                <v-icon :color="status === 'ready' || status === 'installed' ? 'success' : 'warning'">
+                <v-icon :color="status === 'ready' || status === 'installed' ? '' : 'warning'">
                   {{ isInstalled ? 'mdi-cellphone-check' : 'mdi-web' }}
                 </v-icon>
               </template>
-              <v-list-item-title>{{ t('pwa.status.label') || '当前状态' }}</v-list-item-title>
+              <v-list-item-title>{{ t('pwa.status.label') }}</v-list-item-title>
               <v-list-item-subtitle>
                 {{ t(`pwa.status.${status}`) || status }}
               </v-list-item-subtitle>
@@ -65,7 +65,7 @@ onMounted(() => {
             <!-- 安装选项 S -->
             <v-list-item v-if="!isInstalled">
               <template v-slot:prepend>
-                <v-icon :color="installPrompt ? 'primary' : 'grey-lighten-1'">
+                <v-icon :color="installPrompt ? 'amber' : 'grey-lighten-1'">
                   {{ installPrompt ? 'mdi-download' : 'mdi-download-off' }}
                 </v-icon>
               </template>
@@ -74,13 +74,15 @@ onMounted(() => {
                 {{ installPrompt ? (t('pwa.install.description')) : (t('pwa.install.unavailable')) }}
               </v-list-item-subtitle>
               <template v-slot:append>
-                <v-btn :disabled="!installPrompt" variant="tonal" @click="onInstall" :color="installPrompt ? 'primary' : ''">
+                <v-btn :disabled="!installPrompt"
+                       variant="tonal"
+                       @click="onInstall"
+                       :color="installPrompt ? 'amber' : ''">
                   {{ t('pwa.install.button')}}
                 </v-btn>
               </template>
             </v-list-item>
             <!-- 安装选项 E -->
-
           </v-list>
         </div>
 

@@ -56,7 +56,7 @@ const updateAdStatus = (i) => {
     <v-list v-if="ads.length > 0">
       <v-list-item v-for="(i, index) in ads" :key="index" link>
         <template v-slot:title>
-          <v-chip variant="tonal" density="compact">{{ i[1].type }}</v-chip>
+          <v-chip variant="tonal" density="compact">AD</v-chip>
           {{ i[0] }}
         </template>
         <template v-slot:append>

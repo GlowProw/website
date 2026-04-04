@@ -187,7 +187,7 @@ function buildSankeyData(
     const nodesMap = new Map<string, SankeyNode>()
     const linksMap = new Map<string, SankeyLink>()
 
-    const colorPalette: { name: string; value: any[] } | any[] = useColorPalette || useColorPalette?.value
+    const colorPalette: { name: string; value: any[] } | any[] = useColorPalette.value
 
     function getColor(id: string): string {
         if (!nodesMap.has(id)) {

@@ -13,7 +13,6 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import Silk from "@/components/Silk.vue";
 import {ApiError} from "@/assets/types/Api";
 import AdsWidget from "@/components/ads/google/index.vue";
-import {AssemblyItemResult} from "@/assets/types";
 
 const route = useRoute(),
     router = useRouter(),

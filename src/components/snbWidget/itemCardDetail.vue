@@ -150,9 +150,8 @@ defineOptions({
                 v-if="i.rarity">{{ t(`codex.raritys.${i.rarity}`) }}
         </v-chip>
       </div>
-
-      <div class="right-show-image pointer-events-none position-absolute w-33">
-        <v-img :src="itemsCardData.icon" crossorigin="anonymous" class="material-mirror-image"></v-img>
+      <div class="right-show-image pointer-events-none position-absolute w-33" v-if="isWidget">
+        <v-img :src="itemsCardData.icon" class="material-mirror-image"></v-img>
       </div>
 
       <template v-if="i.rarity">

@@ -29,7 +29,7 @@ let tabs: Ref<any[]> = ref([
         icon: 'mdi-database'
       },
       {
-        name: t('setting.pwa.title') || 'PWA',
+        name: t('setting.pwa.title'),
         value: 'PortalSettingPwa',
         icon: 'mdi-cellphone-arrow-down'
       },

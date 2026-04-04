@@ -113,10 +113,10 @@ export default defineConfig({
         VitePWA({
             registerType: 'autoUpdate',
             includeAssets: ['favicon.ico', 'favicon.png'],
-            // devOptions: {
-            //     enabled: false,
-            //     type: 'module',
-            // },
+            devOptions: {
+                enabled: false,
+                type: 'module',
+            },
             manifest: {
                 name: 'Glow Prow',
                 short_name: 'GlowProw',
@@ -140,7 +140,7 @@ export default defineConfig({
             }
         }),
         Sitemap({
-            hostname: 'https://glow-prow.org.cn',
+            hostname: 'https://glow-prow.top',
             dynamicRoutes: getRoutes(),
             changefreq: 'weekly',
             priority: 0.8,
@@ -226,4 +226,5 @@ export default defineConfig({
             }
         }
     },
+    publicDir: 'public',
 })

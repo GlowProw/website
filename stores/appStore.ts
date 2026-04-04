@@ -40,7 +40,6 @@ export const useAppStore = defineStore('app', () => {
         immediate: true,
     })
 
-    const isPwa = ref(false)
     const pwaInstallPrompt = ref<any>(null)
     const isPwaInstalled = ref(false)
 

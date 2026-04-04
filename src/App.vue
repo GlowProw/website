@@ -24,8 +24,7 @@ const head = computed(() => {
       siteName = t('name');
 
   return {
-    title: titleStr,
-    titleTemplate: `%s | ${siteName}`,
+    title: `${titleStr} | ${siteName}`,
     meta: [
       { name: 'description', content: descStr },
       { property: 'og:type', content: 'website' },
