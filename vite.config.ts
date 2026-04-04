@@ -137,6 +137,14 @@ export default defineConfig({
             },
             workbox: {
                 maximumFileSizeToCacheInBytes: 4 * 1024 * 1024, // 4MB
+                navigateFallback: '/index.html',
+                navigateFallbackDenylist: [
+                    /^\/sitemap\.xml$/,
+                    /^\/robots\.txt$/,
+                    /^\/ads\.txt$/,
+                    /^\/favicon\.ico$/,
+                    /^\/favicon\.png$/,
+                ],
             }
         }),
         Sitemap({
