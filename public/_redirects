@@ -1,0 +1,9 @@
+/sitemap.xml  /sitemap.xml  200
+/ads.txt  /ads.txt  200
+/robots.txt  /robots.txt  200
+
+# SPA fallback
+/*  /index.html  200
+
+/favicon.ico  /favicon.ico  200
+/favicon.png  /favicon.png  200
