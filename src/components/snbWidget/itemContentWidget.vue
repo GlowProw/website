@@ -1,15 +1,13 @@
-<script lang="ts">
-export default { name: 'ItemContentWidget' }
-</script>
-
 <script setup lang="ts">
-import {Cosmetics, Item, Items} from "glow-prow-data";
+import {Cosmetics, Item, Items, Ships} from "glow-prow-data";
 import {onMounted, Ref, ref, watch} from "vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import ItemName from "@/components/snbWidget/itemName.vue";
 import CosmeticIconWidget from "@/components/snbWidget/cosmeticIconWidget.vue";
 import CosmeticName from "@/components/snbWidget/cosmeticName.vue"
+import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
+import ShipName from "@/components/snbWidget/shipName.vue";
 
 const props = withDefaults(defineProps<{ data: Item | any, size?: number, isShowTooltip?: boolean, isShowTitle?: boolean, isOpenNewWindow?: boolean, isCenter?: boolean }>(), {
       data: null,
@@ -19,6 +17,7 @@ const props = withDefaults(defineProps<{ data: Item | any, size?: number, isShow
       isCenter: true,
       size: 50,
     }),
+    ships = Ships,
     items = Items,
     cosmetics = Cosmetics
 
@@ -39,6 +38,7 @@ const onReady = () => {
   let id = props.data.id;
 
   contents.value = [
+    ...filterByObtainable(Object.values(ships), id),
     ...filterByObtainable(Object.values(items), id),
     ...filterByObtainable(Object.values(cosmetics), id)
   ]
@@ -83,6 +83,10 @@ const filterByObtainable = (items: any[], targetId: string) => {
 defineExpose({
   getContents
 })
+
+defineOptions({
+  name: 'ItemContentWidget'
+})
 </script>
 
 <template>
@@ -95,6 +99,12 @@ defineExpose({
            class="d-inline-flex ga-2">
       <v-col cols="auto" v-for="(i,index) in contents" :key="index">
         <div class="text-center">
+          <template v-if="i._typeStringName == 'Ship'">
+            <ItemSlotBase :size="`${size}px`" :padding="0" class="mx-auto mb-2">
+              <ShipIconWidget :id="i.id" :padding="1" :isOpenNewWindow="isOpenNewWindow" :isShowTooltip="props.isShowTooltip"></ShipIconWidget>
+            </ItemSlotBase>
+            <ShipName v-if="isShowTitle" :data="i"></ShipName>
+          </template>
           <template v-if="i._typeStringName == 'Item'">
             <ItemSlotBase :size="`${size}px`" :padding="0" class="mx-auto mb-2">
               <ItemIconWidget :id="i.id" :padding="1" :isOpenNewWindow="isOpenNewWindow" :isShowTooltip="props.isShowTooltip"></ItemIconWidget>
