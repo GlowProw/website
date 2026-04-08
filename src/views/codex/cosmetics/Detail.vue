@@ -186,7 +186,7 @@ const onCodexHistory = () => {
                       :id="cosmeticDetailData.id" :isOpenDetail="false" :isShowOpenDetail="false"></CosmeticIconWidget>
                 </ItemSlotBase>
 
-                <ItemSlotBase size="63px" v-if="cosmeticDetailData?.set && cosmeticDetailData.set.id">
+                <ItemSlotBase size="60px" v-if="cosmeticDetailData?.set && cosmeticDetailData.set.id">
                   <SetIconWidget :id="cosmeticDetailData?.set.id"></SetIconWidget>
                 </ItemSlotBase>
               </v-col>

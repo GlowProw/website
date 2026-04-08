@@ -1,18 +1,11 @@
-<script lang="ts">
-export default { name: 'I18nMembersWidget' }
-</script>
-
 <script setup lang="ts">
 
 import {onMounted, ref, toRaw} from "vue";
 import {useI18n} from "vue-i18n";
 import {http, storage} from "@/assets/sripts";
-import {useRoute, useRouter} from "vue-router";
 
-const {t, locale} = useI18n(),
-    router = useRouter(),
-    route = useRoute(),
-    props = withDefaults(defineProps<{size?: number}>(), {
+const {locale} = useI18n(),
+    props = withDefaults(defineProps<{ size?: number }>(), {
       size: 25
     })
 
@@ -52,6 +45,10 @@ const getLanguageMembers = async () => {
     storage.session.set('lang.members', toRaw(members.value))
   }
 }
+
+defineOptions({
+  name: "I18nMembersWidget",
+})
 </script>
 
 <template>

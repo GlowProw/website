@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import {ref} from 'vue';
 
 let globalX = 0;
 let globalY = 0;
@@ -11,13 +11,13 @@ if (typeof window !== 'undefined') {
             globalY = e.clientY;
         }
     };
-    window.addEventListener('mousemove', updateGlobal, { passive: true, capture: true });
-    window.addEventListener('wheel', updateGlobal as EventListener, { passive: true, capture: true });
+    window.addEventListener('mousemove', updateGlobal, {passive: true, capture: true});
+    window.addEventListener('wheel', updateGlobal as EventListener, {passive: true, capture: true});
 }
 
-export function use_tooltip_follow() {
+export function useTooltipFollow() {
     // Only local reactivity! Prevents 100+ instances from evaluating target positions simultaneously causing lag.
-    const tooltipPos = ref({ x: 0, y: 0 });
+    const tooltipPos = ref({x: 0, y: 0});
     let ticking = false;
 
     const updatePos = (e: MouseEvent) => {

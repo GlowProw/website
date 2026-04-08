@@ -2,7 +2,7 @@
 import {Ultimate, Ultimates} from "glow-prow-data"
 import {computed, onMounted, type Ref, ref} from "vue";
 import {useAppStore} from "~/stores/appStore";
-import {use_tooltip_follow} from "@/assets/sripts/use_tooltip_follow";
+import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 import {rarity} from "@/assets/sripts/index";
 import {useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
@@ -30,7 +30,7 @@ const props = withDefaults(defineProps<{
     router = useRouter(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
     appStore = useAppStore(),
-    {tooltipPos, onMouseMove, onMouseEnter} = use_tooltip_follow(),
+    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
     ultimatesMap = Ultimates,
 
     // 稀有度

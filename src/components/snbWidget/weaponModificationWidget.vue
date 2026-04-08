@@ -362,7 +362,7 @@ defineExpose({
     <v-container class="pa-0">
       <v-card border class="bg-black py-2 px-4 modification-dialog">
         <v-card-title class="d-flex align-center">
-          <ItemSlotBase size="75px" class="mr-4" :padding="0" v-if="data.id">
+          <ItemSlotBase size="80px" class="mr-4" :padding="0" v-if="data.id">
             <ItemIconWidget :id="data.id" :margin="0" :padding="0" :is-open-detail="false" :is-show-open-detail="false"></ItemIconWidget>
           </ItemSlotBase>
           <div>

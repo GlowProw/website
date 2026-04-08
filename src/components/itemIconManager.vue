@@ -2,7 +2,7 @@
 
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, Ref, ref} from "vue";
 import {useAppStore} from "~/stores/appStore";
 import {Item, Items} from "glow-prow-data";
 import ItemName from "@/components/snbWidget/itemName.vue";
@@ -10,24 +10,153 @@ import ItemName from "@/components/snbWidget/itemName.vue";
 const appStore = useAppStore(),
     items = Items
 
+interface sizeConfig {
+  size: number | string
+  box: {
+    margin: number,
+    padding: number,
+  },
+  icon: {
+    margin: number,
+    padding: number,
+  },
+}
+
 let iconId = ref('culverin1'),
-    sizes = ref([{
-      icon: 48,
-      padding: 1,
-      margin: 0,
-    }, {
-      icon: 60,
-      padding: 1,
-      margin: 0,
-    }, {
-      icon: 99,
-      padding: 1,
-      margin: 1,
-    }, {
-      icon: 120,
-      padding: 1,
-      margin: 1,
-    }]),
+    sizes: Ref<any, sizeConfig[]> = ref([
+      {
+        size: 30,
+        box: {
+          margin: 0,
+          padding: 0,
+        },
+        icon: {
+          margin: 0,
+          padding: 0,
+        },
+      },
+      {
+        size: 40,
+        box: {
+          margin: 0,
+          padding: 0,
+        },
+        icon: {
+          margin: 0,
+          padding: 0,
+        },
+      },
+      {
+        size: 45,
+        box: {
+          margin: 0,
+          padding: 1,
+        },
+        icon: {
+          margin: 0,
+          padding: 1,
+        },
+      },
+      {
+        size: 48,
+        box: {
+          margin: 0,
+          padding: 1,
+        },
+        icon: {
+          margin: 0,
+          padding: 1,
+        },
+      },
+      {
+        size: 50,
+        box: {
+          margin: 0,
+          padding: 1,
+        },
+        icon: {
+          margin: 0,
+          padding: 1,
+        },
+      },
+      {
+        size: 60,
+        box: {
+          margin: 0,
+          padding: 1,
+        },
+        icon: {
+          margin: 0,
+          padding: 1,
+        },
+      },
+      {
+        size: 90,
+        box: {
+          margin: 0,
+          padding: 1,
+        },
+        icon: {
+          margin: 0,
+          padding: 1,
+        },
+      },
+      {
+        size: 99,
+        box: {
+          margin: 1,
+          padding: 1,
+        },
+        icon: {
+          margin: 1,
+          padding: 1,
+        },
+      },
+      {
+        size: 110,
+        box: {
+          margin: 1,
+          padding: 1,
+        },
+        icon: {
+          margin: 1,
+          padding: 1,
+        },
+      },
+      {
+        size: 120,
+        box: {
+          margin: 1,
+          padding: 1,
+        },
+        icon: {
+          margin: 1,
+          padding: 1,
+        },
+      },
+      {
+        size: 130,
+        box: {
+          margin: 1,
+          padding: 1,
+        },
+        icon: {
+          margin: 1,
+          padding: 1,
+        },
+      },
+      {
+        size: 150,
+        box: {
+          margin: 1,
+          padding: 1,
+        },
+        icon: {
+          margin: 1,
+          padding: 1,
+        },
+      }
+    ]),
     getItemOnlyIds = computed(() => Object.values(items).map((i: Item) => i.id)),
     itemIsOpenNewWindow = ref(false)
 
@@ -70,8 +199,13 @@ onMounted(() => {
         </div>
       </v-col>
       <v-col cols="auto" class="py-3 d-flex justify-center">
-        <ItemSlotBase :size="`${getIconSize.icon}px`">
-          <ItemIconWidget :id="iconId" :margin="getIconSize.margin" :padding="getIconSize.padding"></ItemIconWidget>
+        {{getIconSize}}
+        <ItemSlotBase :size="`${getIconSize.size}px`"
+                      :margin="getIconSize?.box?.margin"
+                      :padding="getIconSize?.box?.padding">
+          <ItemIconWidget :id="iconId"
+                          :margin="getIconSize?.icon?.margin"
+                          :padding="getIconSize?.icon?.padding"></ItemIconWidget>
         </ItemSlotBase>
       </v-col>
     </v-row>
@@ -82,20 +216,20 @@ onMounted(() => {
       density="compact"
       tile
       hide-details
-      v-model="getIconSize.icon"
-      item-value="icon"
+      v-model="getIconSize"
+      item-value="value"
       :items="sizes">
     <template v-slot:selection="{ item }">
       <v-list-item>
         <template v-slot:title>
-          {{ (item as any).raw.icon }}
+          {{ (item as any).raw.size }}
         </template>
       </v-list-item>
     </template>
     <template v-slot:item="{item,props}">
       <v-list-item v-bind="props">
         <template v-slot:title>
-          {{ item.raw.icon }}
+          {{ item.raw.size }}
         </template>
       </v-list-item>
     </template>

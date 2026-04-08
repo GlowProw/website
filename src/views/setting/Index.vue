@@ -4,37 +4,39 @@ import {onMounted, Ref, ref, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {useDisplay} from "vuetify/framework";
 import {useI18n} from "vue-i18n";
+import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 
 import Silk from "@/components/Silk.vue";
 
 const route = useRoute(),
     router = useRouter(),
     {mobile} = useDisplay(),
-    {t} = useI18n()
+    {t} = useI18n(),
+    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow()
 
 let tabs: Ref<any[]> = ref([
       {
-        name: t('setting.routine.title'),
+        name: 'setting.routine.title',
         value: 'PortalSettingRoutine',
         icon: 'mdi-cog'
       },
       {
-        name: t('setting.ad.title'),
+        name: 'setting.ad.title',
         value: 'PortalSettingAds',
         icon: 'mdi-advertisements'
       },
       {
-        name: t('setting.storage.title'),
+        name: 'setting.storage.title',
         value: 'PortalSettingStorage',
         icon: 'mdi-database'
       },
       {
-        name: t('setting.pwa.title'),
+        name: 'pwa.title',
         value: 'PortalSettingPwa',
         icon: 'mdi-cellphone-arrow-down'
       },
       {
-        name: t('about.title'),
+        name: 'about.title',
         value: 'PortalSettingAbout',
         icon: 'mdi-information'
       },
@@ -90,28 +92,42 @@ onMounted(() => {
             border
             hide-slider
             v-model="tab"
-            height="80"
-            :class="{'mb-10': mobile}"
+            :class="{'mb-10 tabs-box-mobile': mobile, 'tabs-box-desktop': !mobile}"
             :fixed="mobile"
             :direction="!mobile ? 'vertical' : 'horizontal'">
-          <v-tab :value="i.value"
-                 v-for="(i, index) in tabs"
-                 :key="index"
-                 :class="{'mb-5': !mobile, 'mr-5': mobile}"
-                 selected-class="bg-amber"
-                 class="mb-5 d-flex align-center justify-center"
-                 min-width="80"
-                 width="80"
-                 height="80"
-                 border
-                 replaceb ripple slim>
-            <template v-slot:default>
-              <div>
-                <v-icon size="30">{{ i.icon }}</v-icon>
-                <p class="mt-2 singe-line">{{ i.name }}</p>
-              </div>
-            </template>
-          </v-tab>
+          <template v-for="(i, index) in tabs"
+                    :key="index">
+            <v-tooltip content-class="pa-0"
+                       :target="[tooltipPos.x, tooltipPos.y]">
+              <template v-slot:default>
+                <v-card border class="py-3 px-10">
+                  {{ t(i.name) }}
+                </v-card>
+              </template>
+              <template v-slot:activator="{props}">
+                <div :class="{'mb-2': !mobile, 'mr-5': mobile}">
+                  <v-tab :value="i.value"
+                         selected-class="bg-amber"
+                         class="d-flex align-center justify-center"
+                         min-width="80"
+                         width="80"
+                         height="80"
+                         border
+                         @mousemove="onMouseMove"
+                         @mouseenter="onMouseEnter"
+                         v-bind="props"
+                         replaceb
+                         ripple
+                         slim>
+                    <div>
+                      <v-icon size="40">{{ i.icon }}</v-icon>
+                    </div>
+                  </v-tab>
+                  <p class="mt-1 mb-3 text-center singe-line w-100 tab-item" :title="t(i.name)">{{ t(i.name) }}</p>
+                </div>
+              </template>
+            </v-tooltip>
+          </template>
         </v-tabs>
 
         <v-main min-height="80vh" class="pl-lg-5">
@@ -123,5 +139,15 @@ onMounted(() => {
 </template>
 
 <style scoped lang="less">
+.tabs-box-mobile {
+  height: auto;
 
+  .tab-item {
+    max-width: 80px;
+  }
+}
+
+.tabs-box-desktop {
+  width: 80px;
+}
 </style>

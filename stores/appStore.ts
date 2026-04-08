@@ -17,7 +17,15 @@ export const useAppStore = defineStore('app', () => {
 
     // 图标大小
     const iconSize = ref({
-        icon: 99,
+        size: 99,
+        box: {
+            margin: 1,
+            padding: 1,
+        },
+        icon: {
+            margin: 1,
+            padding: 1,
+        },
         margin: 1,
         padding: 1,
     })

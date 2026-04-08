@@ -269,7 +269,7 @@ function onFileImport(e: Event) {
             variant="flat"
             class="mb-2 target-item">
           <div class="pl-2 py-0 d-flex align-center">
-            <ItemSlotBase size="38px" :padding="0">
+            <ItemSlotBase size="40px" :padding="0">
               <ItemIconWidget
                   v-if="target.type === 'item'"
                   :id="target.id"/>

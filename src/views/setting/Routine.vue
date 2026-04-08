@@ -5,8 +5,8 @@
         <I18nWidget></I18nWidget>
 
         <div class="my-10 opacity-60">
-          <p class="text-caption mb-1">如果你对翻译感兴趣，可以通过下方链接这里帮助我们内容纠正或翻译，对于翻译成员我们将公示中网站中，并为账户赋予译者身份</p>
-          <p class="text-caption d-flex align-center">翻译服务由<img class="mx-3" src="../../assets/images/logos/crowdin.svg" height="15"/>来提供</p>
+          <p class="text-caption mb-1">{{ t('setting.routine.translationHelp') }}</p>
+          <p class="text-caption d-flex align-center">{{ t('setting.routine.translationService') }}<img class="mx-3" src="../../assets/images/logos/crowdin.svg" height="15"/></p>
 
           <div class="text-caption mt-3">
             <p>
@@ -18,15 +18,15 @@
           </div>
         </div>
         <template v-slot:title>
-          语言
+          {{ t('setting.routine.languageTitle') }}
         </template>
       </AffixBoxHasTitleView>
     </v-col>
     <v-col cols="12" lg="4">
       <AffixBoxHasTitleView>
         <div class="mb-5 opacity-60">
-          <p class="text-caption">管理功能列表，由你决定是否显示</p>
-          <p class="text-caption text-grey">从下拉列表选择功能来激活，点击已激活标签可移除</p>
+          <p class="text-caption">{{ t('setting.routine.featureDesc') }}</p>
+          <p class="text-caption text-grey">{{ t('setting.routine.featureHint') }}</p>
         </div>
 
         <!-- 未激活列表 -->
@@ -35,7 +35,7 @@
             :items="inactiveFunctions"
             item-title="title"
             item-value="key"
-            :label="`未激活功能 (${inactiveFunctions.length})`"
+            :label="t('setting.routine.inactiveFunctions', { count: inactiveFunctions.length })"
             multiple
             chips
             variant="outlined"
@@ -77,13 +77,13 @@
               {{ t(func.key) }}
             </v-chip>
             <span v-if="activeFunctions.length === 0" class="text-caption opacity-50">
-              暂无激活的功能，请从上方下拉列表中选择
+              {{ t('setting.routine.noActiveFunctions') }}
             </span>
           </div>
         </div>
 
         <template v-slot:title>
-          功能
+          {{ t('setting.routine.featuresTitle') }}
         </template>
       </AffixBoxHasTitleView>
     </v-col>
@@ -91,7 +91,7 @@
       <AffixBoxHasTitleView>
         <ItemIconManager></ItemIconManager>
         <template v-slot:title>
-          物品配置
+          {{ t('setting.routine.itemConfigTitle') }}
         </template>
       </AffixBoxHasTitleView>
     </v-col>
@@ -113,31 +113,31 @@
               <v-col cols="auto">{{ estimateCapacity?.usedFormatted }} / {{ estimateCapacity?.estimatedMaxFormatted }}</v-col>
             </v-row>
 
-            <p class="text-caption opacity-60">闪耀船首使用本地缓存存储数据，包含用户配置/操作记录等</p>
+            <p class="text-caption opacity-60">{{ t('setting.routine.storageReportDesc') }}</p>
           </div>
 
           <div class="mb-6">
             <v-row class="mb-0">
               <v-col>
-                <v-btn @click="clearStorage" :disabled="estimateCapacity.used == 0">清空缓存</v-btn>
+                <v-btn @click="clearStorage" :disabled="estimateCapacity.used == 0">{{ t('setting.routine.clearStorage') }}</v-btn>
               </v-col>
             </v-row>
 
-            <p class="text-caption opacity-60">前往这里查看具体数据报告</p>
+            <p class="text-caption opacity-60">{{ t('setting.routine.storageReportLinkHint') }}</p>
           </div>
 
           <div class="mb-6">
             <v-row class="mb-0">
               <v-col>
-                <v-btn to="/setting/storage">使用报告</v-btn>
+                <v-btn to="/setting/storage">{{ t('setting.routine.storageReportBtn') }}</v-btn>
               </v-col>
             </v-row>
 
-            <p class="text-caption opacity-60">查看具体数据使用报告，不要分享它们，包含用户操作隐私记录</p>
+            <p class="text-caption opacity-60">{{ t('setting.routine.storagePrivacyHint') }}</p>
           </div>
         </div>
         <template v-slot:title>
-          记录
+          {{ t('setting.routine.recordsTitle') }}
         </template>
       </AffixBoxHasTitleView>
     </v-col>
@@ -145,89 +145,89 @@
       <AffixBoxHasTitleView>
         <ItemIconCdnAssets></ItemIconCdnAssets>
         <template v-slot:title>
-          CDN资源分发
+          {{ t('setting.routine.cdnTitle') }}
         </template>
       </AffixBoxHasTitleView>
     </v-col>
     <v-col cols="12" lg="4">
       <AffixBoxHasTitleView>
-        <p class="text-caption opacity-60 mb-5">管理海报设置</p>
+        <p class="text-caption opacity-60 mb-5">{{ t('setting.routine.posterDesc') }}</p>
 
         <v-row align="center" no-gutters>
-          <v-col>自动保存生成海报选项</v-col>
+          <v-col>{{ t('setting.routine.posterAutoSave') }}</v-col>
           <v-col cols="auto">
             <v-switch hide-details inset v-model="posterSwitch" @update:modelValue="onPosterSwitch"></v-switch>
           </v-col>
         </v-row>
 
-        <p class="text-caption opacity-60 mt-1">当用户修改海报生成设置将立即保存记录，再次访问海报加载配置内容</p>
+        <p class="text-caption opacity-60 mt-1">{{ t('setting.routine.posterHint') }}</p>
         <template v-slot:title>
-          海报
+          {{ t('setting.routine.posterTitle') }}
         </template>
       </AffixBoxHasTitleView>
     </v-col>
     <v-col cols="12" lg="4">
       <AffixBoxHasTitleView>
-        <p class="text-caption opacity-60 mb-5">管理全局搜索配置</p>
+        <p class="text-caption opacity-60 mb-5">{{ t('setting.routine.searchDesc') }}</p>
 
         <v-row align="center" no-gutters>
-          <v-col>网页头搜索开启</v-col>
+          <v-col>{{ t('setting.routine.searchHeaderSwitch') }}</v-col>
           <v-col cols="auto">
             <v-switch hide-details inset density="compact" v-model="headerSearchSwitch" @update:modelValue="onHeaderSearchSwitch"></v-switch>
           </v-col>
         </v-row>
 
         <v-row align="center" no-gutters>
-          <v-col>保存搜索记录</v-col>
+          <v-col>{{ t('setting.routine.searchIsLogs') }}</v-col>
           <v-col cols="auto">
             <v-switch hide-details inset density="compact" v-model="searchIsLogs" @update:modelValue="onSearchIsLogs"></v-switch>
           </v-col>
         </v-row>
 
         <v-row align="center" no-gutters>
-          <v-col>是否快捷键触发</v-col>
+          <v-col>{{ t('setting.routine.searchHotkey') }}</v-col>
           <v-col cols="auto">
             <v-switch hide-details inset density="compact" v-model="searchHotkey" @update:modelValue="onSearchHotkey"></v-switch>
           </v-col>
         </v-row>
 
         <v-row align="center" no-gutters>
-          <v-col>关闭提示</v-col>
+          <v-col>{{ t('setting.routine.searchHint') }}</v-col>
           <v-col cols="auto">
             <v-switch hide-details inset density="compact" v-model="searchHint" @update:modelValue="onSearchHint"></v-switch>
           </v-col>
         </v-row>
         <template v-slot:title>
-          搜索
+          {{ t('setting.routine.searchTitle') }}
         </template>
       </AffixBoxHasTitleView>
     </v-col>
     <v-col cols="12" lg="4">
       <AffixBoxHasTitleView>
-        <p class="text-caption opacity-60 mb-5">配装配装选项</p>
+        <p class="text-caption opacity-60 mb-5">{{ t('setting.routine.assemblyDesc') }}</p>
 
         <v-row align="center" no-gutters>
-          <v-col>配装视图模式</v-col>
+          <v-col>{{ t('setting.routine.assemblyViewModel') }}</v-col>
           <v-col cols="auto">
             <v-select hide-details inset density="compact" :items="['full-extension', 'lock-window']" v-model="assemblyViewModel" @update:modelValue="onAssemblyViewModel">
               <template v-slot:item="{props, item}">
                 <v-list-item v-bind="props">
                   <template v-slot:title>
-                    {{ t(`setting.routine.assemblyViewModel.${item.raw}.name`) }}
+                    {{ t(`setting.routine.assemblyViewModelOptions.${item.raw}.name`) }}
                   </template>
                 </v-list-item>
               </template>
               <template v-slot:selection="{item}">
-                {{ t(`setting.routine.assemblyViewModel.${item.raw}.name`) }}
+                {{ t(`setting.routine.assemblyViewModelOptions.${item.raw}.name`) }}
               </template>
             </v-select>
           </v-col>
         </v-row>
 
-        <p class="mt-3 text-caption opacity-60">{{ t(`setting.routine.assemblyViewModel.${assemblyViewModel}.description`) }}</p>
+        <p class="mt-3 text-caption opacity-60">{{ t(`setting.routine.assemblyViewModelOptions.${assemblyViewModel}.description`) }}</p>
 
         <template v-slot:title>
-          配装
+          {{ t('setting.routine.assemblyTitle') }}
         </template>
       </AffixBoxHasTitleView>
     </v-col>

@@ -259,7 +259,7 @@ const onWaterBarrelClick = () => {
               :disabled="speedBoost > 0"
               :color="currentBoostType === 'waterFlask' ? '' : undefined"
               :title="t('codex.ship.sailSpeed.boost.waterFlaskTooltip')">
-            <ItemSlotBase size="32px" :padding="0" class="mr-2">
+            <ItemSlotBase size="30px" :padding="0" class="mr-2">
               <ItemIconWidget :id="'waterFlask'" :is-show-tooltip="false" :is-open-detail="false"></ItemIconWidget>
             </ItemSlotBase>
             <ItemName id="waterFlask"></ItemName>
@@ -279,7 +279,7 @@ const onWaterBarrelClick = () => {
               :disabled="speedBoost > 0"
               :color="currentBoostType === 'waterBarrel' ? '' : undefined"
               :title="t('codex.ship.sailSpeed.boost.waterBarrelTooltip')">
-            <ItemSlotBase size="32px" :padding="0" class="mr-2">
+            <ItemSlotBase size="30px" :padding="0" class="mr-2">
               <ItemIconWidget :id="'waterBarrel'" :is-show-tooltip="false" :is-open-detail="false"></ItemIconWidget>
             </ItemSlotBase>
             <ItemName id="waterBarrel"></ItemName>

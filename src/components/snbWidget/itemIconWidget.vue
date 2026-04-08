@@ -3,25 +3,20 @@ export default {name: 'ItemIconWidget'}
 </script>
 
 <script setup lang="ts">
-import {useRouter} from "vue-router";
-import {useI18n} from "vue-i18n";
 import {computed, onMounted, type Ref, ref, watch} from "vue";
 import {Item, Items} from "glow-prow-data/src/entity/Items";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
-import {number, rarity} from "@/assets/sripts/index";
-import {useAssetsStore} from "~/stores/assetsStore";
+import {rarity} from "@/assets/sripts/index";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
-import {use_tooltip_follow} from "@/assets/sripts/use_tooltip_follow";
+import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 import ItemCardDetail from "@/components/snbWidget/itemCardDetail.vue";
 import {useAppStore} from "~/stores/appStore";
 import Loading from "@/components/Loading.vue";
 
-const router = useRouter(),
-    appStore = useAppStore(),
-    {t} = useI18n(),
+const appStore = useAppStore(),
     cdnStore = useCDNAssetsServiceStore(),
-    {tooltipPos, onMouseMove, onMouseEnter} = use_tooltip_follow(),
+    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
     props = withDefaults(defineProps<{
       id: string,
       isShowOpenDetail?: boolean,

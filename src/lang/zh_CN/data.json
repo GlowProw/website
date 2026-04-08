@@ -32,10 +32,32 @@
   },
   "about": {
     "title": "关于",
-    "minor": "",
-    "description": ""
+    "disclaimer": "闪耀船首程序以及附属遵循不同协议，主程序以及附属不隶属于碧海黑帆或Ubisoft集团。",
+    "manifesto": {
+      "title": "闪光船首诞生于此 ——————",
+      "p1": "在无尽的游戏海洋中，每位玩家都是一位独自航行的冒险者。前方是未知的迷雾，身后是探索的轨迹。",
+      "p2": "闪光船首不仅是船头的装饰，更是穿透迷雾的光芒。当您迷茫时，它是照亮前路的灯塔；当您困惑时，它是解读谜题的智慧。",
+      "p3": "我们相信，每一款游戏都是一个等待探索的世界，每一位玩家都值得最清晰的指引。闪光船首汇聚社区智慧，提炼实用工具，化作永恒星光，陪伴您的每一次航行。从最初的微光到如今的明灯，我们始终坚守一个信念：为航海者服务，为探索者引路。",
+      "p4": "加入我们，让您的游戏之旅不再孤单。闪光船首，永远在前方闪光。"
+    },
+    "thanks": "同时感谢 <u>@SkullAndBonesTools/SkullAndBonesData</u> 项目提供原始数据源，这使得闪耀船首得以开发",
+    "openSourceContribution": "为开源贡献🎉，热爱发电",
+    "osList": {
+      "main": "闪耀船首主程序，包含前端程序/后端程序，遵循MIT协议",
+      "data": "闪耀船首数据，碧海黑帆物品/日历等数据，遵循AGPL-3.0协议",
+      "assets": "闪耀船首资源，碧海黑帆图片材料资源，遵循AGPL-3.0协议",
+      "translations": "闪耀船首翻译数据，遵循AGPL-3.0协议"
+    },
+    "openSourceTitle": "开源",
+    "developersHonor": "特此表彰那些无偿参与程序开发的成员, 作为基石开拓先锋",
+    "developersTitle": "开发者",
+    "translatorsHonor": "表彰杰出翻译成员，感谢为程序进行翻译工作成员",
+    "translatorsTitle": "翻译成员",
+    "contactHonor": "你可以通过下方任意方式联系到开发者，咨询关于网站或是寻求合作",
+    "contactTitle": "联系"
   },
   "pwa": {
+    "title": "渐进式网页应用(PWA)",
     "offlineReady": "应用已准备好离线工作",
     "newContentAvailable": "有新内容可用",
     "refreshToUpdate": "点击刷新按钮以更新。",
@@ -1222,14 +1244,43 @@
     "title": "设置",
     "routine": {
       "title": "常规设置",
-      "assemblyViewModel": {
+      "translationHelp": "如果你对翻译感兴趣，可以通过下方链接这里帮助我们内容纠正或翻译，对于翻译成员我们将公示中网站中，并为账户赋予译者身份",
+      "translationService": "翻译服务由 Crowdin 来提供",
+      "languageTitle": "语言",
+      "featureDesc": "管理功能列表，由你决定是否显示",
+      "featureHint": "从下拉列表选择功能来激活，点击已激活标签可移除",
+      "inactiveFunctions": "未激活功能 ({count})",
+      "noActiveFunctions": "暂无激活的功能，请从上方下拉列表中选择",
+      "featuresTitle": "功能",
+      "itemConfigTitle": "物品配置",
+      "storageReportDesc": "闪耀船首使用本地缓存存储数据，包含用户配置/操作记录等",
+      "clearStorage": "清空缓存",
+      "storageReportLinkHint": "前往这里查看具体数据报告",
+      "storageReportBtn": "使用报告",
+      "storagePrivacyHint": "查看具体数据使用报告，不要分享它们，包含用户操作隐私记录",
+      "recordsTitle": "记录",
+      "cdnTitle": "CDN资源分发",
+      "posterDesc": "管理海报设置",
+      "posterAutoSave": "自动保存生成海报选项",
+      "posterHint": "当用户修改海报生成设置将立即保存记录，再次访问海报加载配置内容",
+      "posterTitle": "海报",
+      "searchDesc": "管理全局搜索配置",
+      "searchHeaderSwitch": "网页头搜索开启",
+      "searchIsLogs": "保存搜索记录",
+      "searchHotkey": "是否快捷键触发",
+      "searchHint": "关闭提示",
+      "searchTitle": "搜索",
+      "assemblyDesc": "配装选项",
+      "assemblyViewModel": "配装视图模式",
+      "assemblyTitle": "配装",
+      "assemblyViewModelOptions": {
         "full-extension": {
-          "name": "自动延伸视图",
-          "description": "按照内容配装延伸高度"
+          "name": "全宽模式",
+          "description": "配装视图将占据整个屏幕宽度"
         },
         "lock-window": {
-          "name": "锁定窗口",
-          "description": "固定高度，溢出部分需要拖拽查看"
+          "name": "分窗模式",
+          "description": "配装视图将固定在一个限制宽度的窗口中"
         }
       }
     },
@@ -1243,13 +1294,15 @@
       "closedAdsHint": "下方是已关闭广告列表"
     },
     "storage": {
-      "title": "数据报告"
+      "title": "数据报告",
+      "reportDesc": "数据报告，统计所有本地缓存数据统计",
+      "usageDesc": "闪耀船首使用本地缓存存储数据，包含用户配置/操作记录等",
+      "dataTitle": "数据",
+      "persistentStorage": "持久储存数据",
+      "sessionStorage": "会话储存数据"
     },
     "notification": {
       "title": "通知"
-    },
-    "pwa": {
-      "title": "PWA"
     }
   },
   "header": {
@@ -1431,3 +1484,4 @@
     }
   }
 }
+

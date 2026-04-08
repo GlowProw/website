@@ -1,9 +1,10 @@
 <script setup lang="ts">
 
-import {useI18n} from "vue-i18n";
-import I18nMembersWidget from "@/components/i18nMembersWidget.vue";
-import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
-import HtmlLink from "@/components/HtmlLink.vue";
+import {useI18n} from"vue-i18n";
+import I18nMembersWidget from"@/components/i18nMembersWidget.vue";
+import AffixBoxHasTitleView from"@/components/AffixBoxHasTitleView.vue";
+import HtmlLink from"@/components/HtmlLink.vue";
+import DevMembersWidget from"@/components/DevMembersWidget.vue";
 
 const {t} = useI18n()
 </script>
@@ -14,31 +15,31 @@ const {t} = useI18n()
       <v-col cols="12" lg="8">
         <v-col cols="12" lg="12">
           <AffixBoxHasTitleView>
-            <p>闪耀船首程序以及附属遵循不同协议，主程序以及附属不隶属于碧海黑帆或Ubisoft集团。</p>
+            <p>{{ t('about.disclaimer') }}</p>
             <h1 class="mt-5 opacity-60 pa-0 text-caption" style="text-wrap: auto">
-在无尽的游戏海洋中，每位玩家都是一位独自航行的冒险者。前方是未知的迷雾，身后是探索的轨迹。
-
-闪光船首诞生于此 ——————
-它不仅是船头的装饰，更是穿透迷雾的光芒。当您迷茫时，它是照亮前路的灯塔；当您困惑时，它是解读谜题的智慧。
-
-我们相信，每一款游戏都是一个等待探索的世界，每一位玩家都值得最清晰的指引。闪光船首汇聚社区智慧，提炼实用工具，化作永恒星光，陪伴您的每一次航行。
-从最初的微光到如今的明灯，我们始终坚守一个信念：为航海者服务，为探索者引路。
-
-加入我们，让您的游戏之旅不再孤单。闪光船首，永远在前方闪光。
-        </h1>
-            <p>同时感谢 <u>@SkullAndBonesTools/SkullAndBonesData</u> 项目提供原始数据源，这使得闪耀船首得以开发</p>
+              {{ t('about.manifesto.p1') }}
+              <br><br>
+              {{ t('about.manifesto.title') }}
+              <br>
+              {{ t('about.manifesto.p2') }}
+              <br><br>
+              {{ t('about.manifesto.p3') }}
+              <br><br>
+              {{ t('about.manifesto.p4') }}
+            </h1>
+            <p v-html="t('about.thanks')"></p>
             <template v-slot:title>
-              关于
+              {{ t('about.title') }}
             </template>
           </AffixBoxHasTitleView>
         </v-col>
         <v-col cols="12" lg="12">
           <AffixBoxHasTitleView>
-            <p class="mb-5 text-caption opacity-60">为开源贡献🎉，热爱发电</p>
+            <p class="mb-5 text-caption opacity-60">{{ t('about.openSourceContribution') }}</p>
 
             <ul class="open-source-list">
               <li>
-                闪耀船首主程序，包含前端程序/后端程序，遵循MIT协议
+                {{ t('about.osList.main') }}
                 <div class="text-caption opacity-60">
                   <p>
                     <HtmlLink href="https://github.com/GlowProw/website"></HtmlLink>
@@ -47,43 +48,59 @@ const {t} = useI18n()
                     <HtmlLink href="https://github.com/GlowProw/website?tab=MIT-1-ov-file"></HtmlLink>
                   </p>
                 </div>
+
+                <div class="mt-3">
+                  <DevMembersWidget :size="30" reop="website"></DevMembersWidget>
+                </div>
               </li>
               <li>
-                闪耀船首数据，碧海黑帆物品/日历等数据，遵循AGPL-3.0协议
+                {{ t('about.osList.data') }}
                 <div class="text-caption opacity-60">
-                  <p class="w-100 ">
-                    <HtmlLink href="https://github.com/GlowProw/glow-prow-data-languages"></HtmlLink>
+                  <p class="w-100">
+                    <HtmlLink href="https://github.com/GlowProw/glow-prow-data"></HtmlLink>
                   </p>
-                  <p class="w-100 ">
+                  <p class="w-100">
                     <HtmlLink href="https://github.com/GlowProw/glow-prow-data?tab=AGPL-3.0-1-ov-file"></HtmlLink>
                   </p>
                 </div>
-              </li>
-              <li>
-                闪耀船首资源，碧海黑帆图片材料资源，遵循AGPL-3.0协议
-                <div class="text-caption opacity-60">
-                  <p class="w-100 ">
-                    <HtmlLink href="https://github.com/GlowProw/glow-prow-assets"></HtmlLink>
-                  </p>
-                  <p class="w-100 ">
-                    <HtmlLink href="https://github.com/GlowProw/glow-prow-assets?tab=AGPL-3.0-1-ov-file"></HtmlLink>
-                  </p>
+
+                <div class="mt-3">
+                  <DevMembersWidget :size="30" reop="glow-prow-data"></DevMembersWidget>
                 </div>
               </li>
               <li>
-                闪耀船首翻译数据，遵循AGPL-3.0协议
+                {{ t('about.osList.assets') }}
                 <div class="text-caption opacity-60">
-                  <p class="w-100 ">
+                  <p class="w-100">
+                    <HtmlLink href="https://github.com/GlowProw/glow-prow-assets"></HtmlLink>
+                  </p>
+                  <p class="w-100">
+                    <HtmlLink href="https://github.com/GlowProw/glow-prow-assets?tab=AGPL-3.0-1-ov-file"></HtmlLink>
+                  </p>
+                </div>
+
+                <div class="mt-3">
+                  <DevMembersWidget :size="30" reop="glow-prow-assets"></DevMembersWidget>
+                </div>
+              </li>
+              <li>
+                {{ t('about.osList.translations') }}
+                <div class="text-caption opacity-60">
+                  <p class="w-100">
                     <HtmlLink href="https://github.com/GlowProw/glow-prow-data-languages"></HtmlLink>
                   </p>
-                  <p class="w-100 ">
+                  <p class="w-100">
                     <HtmlLink href="https://github.com/GlowProw/glow-prow-data-languages?tab=AGPL-3.0-1-ov-file"></HtmlLink>
                   </p>
+                </div>
+
+                <div class="mt-3">
+                  <DevMembersWidget :size="30" reop="glow-prow-data-languages"></DevMembersWidget>
                 </div>
               </li>
             </ul>
             <template v-slot:title>
-              开源
+              {{ t('about.openSourceTitle') }}
             </template>
           </AffixBoxHasTitleView>
         </v-col>
@@ -91,28 +108,26 @@ const {t} = useI18n()
       <v-col cols="12" lg="4">
         <v-col cols="12" lg="12">
           <AffixBoxHasTitleView>
-            <p class="opacity-80 mb-3">特此表彰那些无偿参与程序开发的成员, 作为基石开拓先锋</p>
+            <p class="opacity-80 mb-3">{{ t('about.developersHonor') }}</p>
+            <DevMembersWidget :size="40"></DevMembersWidget>
 
-            <ul>
-              <li>Cabbagelol</li>
-            </ul>
             <template v-slot:title>
-              <span class="d-block mb-5">🎉</span>开发者
+              <span class="d-block mb-5">🎉</span>{{ t('about.developersTitle') }}
             </template>
           </AffixBoxHasTitleView>
         </v-col>
         <v-col cols="12" lg="12">
           <AffixBoxHasTitleView>
-            <p class="opacity-80 mb-3">表彰杰出翻译成员，感谢为程序进行翻译工作成员</p>
+            <p class="opacity-80 mb-3">{{ t('about.translatorsHonor') }}</p>
             <I18nMembersWidget :size="40"></I18nMembersWidget>
             <template v-slot:title>
-              <span class="d-block mb-5">🎉</span> 翻译成员
+              <span class="d-block mb-5">🎉</span> {{ t('about.translatorsTitle') }}
             </template>
           </AffixBoxHasTitleView>
         </v-col>
         <v-col cols="12" lg="12">
           <AffixBoxHasTitleView>
-            <p class="opacity-80 mb-3">你可以通过下方任意方式联系到开发者，咨询关于网站或是寻求合作</p>
+            <p class="opacity-80 mb-3">{{ t('about.contactHonor') }}</p>
             <div class="pa-0">
               <p>
                 <HtmlLink href="mailto:glow-prow@cabbagelol.net"></HtmlLink>
@@ -122,7 +137,7 @@ const {t} = useI18n()
               </p>
             </div>
             <template v-slot:title>
-              <span class="d-block mb-5">📮</span> 联系
+              <span class="d-block mb-5">📮</span> {{ t('about.contactTitle') }}
             </template>
           </AffixBoxHasTitleView>
         </v-col>

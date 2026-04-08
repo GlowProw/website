@@ -764,8 +764,84 @@
       "warehouse": "船仓"
     },
     "setting": {
-      "title": "设置",
-      "publicly": "公开",
+      "title": "設置",
+      "routine": {
+        "title": "常規設置",
+        "translationHelp": "如果您對翻譯感興趣，可以通過下方連結這裡幫助我們內容糾正或翻譯，對於翻譯成員我們將公示中網站中，並為帳戶賦予譯者身份",
+        "translationService": "翻譯服務由 Crowdin 來提供",
+        "languageTitle": "語言",
+        "featureDesc": "管理功能列表，由你決定是否顯示",
+        "featureHint": "從下拉列表選擇功能來激活，點擊已激活標籤可移除",
+        "inactiveFunctions": "未激活功能 ({count})",
+        "noActiveFunctions": "暫無激活的功能，請從上方下拉列表中選擇",
+        "featuresTitle": "功能",
+        "itemConfigTitle": "物品配置",
+        "storageReportDesc": "閃耀船首使用本地快取存儲數據，包含用戶配置/操作記錄等",
+        "clearStorage": "清空快取",
+        "storageReportLinkHint": "前往這裡查看具體數據報告",
+        "storageReportBtn": "使用報告",
+        "storagePrivacyHint": "查看具體數據使用報告，不要分享它們，包含用戶操作隱私記錄",
+        "recordsTitle": "記錄",
+        "cdnTitle": "CDN資源分發",
+        "posterDesc": "管理海報設置",
+        "posterAutoSave": "自動保存生成海報選項",
+        "posterHint": "當用戶修改海報生成設置將立即保存記錄，再次訪問海報加載配置內容",
+        "posterTitle": "海報",
+        "searchDesc": "管理全局搜索配置",
+        "searchHeaderSwitch": "網頁頭搜索開啟",
+        "searchIsLogs": "保存搜索記錄",
+        "searchHotkey": "是否快捷鍵觸發",
+        "searchHint": "關閉提示",
+        "searchTitle": "搜索",
+        "assemblyDesc": "配裝選項",
+        "assemblyViewModel": "配裝視圖模式",
+        "assemblyTitle": "配裝",
+        "assemblyViewModelOptions": {
+          "full-extension": {
+            "name": "全寬模式",
+            "description": "配裝視圖將佔據整個螢幕寬度"
+          },
+          "lock-window": {
+            "name": "分窗模式",
+            "description": "配裝視圖將固定在一個限制寬度的視窗中"
+          }
+        }
+      },
+      "about": {
+        "title": "關於",
+        "disclaimer": "閃耀船首程序以及附屬遵循不同協議，主程序以及附屬不隸屬於碧海黑帆或Ubisoft集團。",
+        "manifesto": {
+          "title": "閃光船首誕生於此 ——————",
+          "p1": "在無盡的遊戲海洋中，每位玩家都是一位獨自航行的冒險者。前方是未知的迷霧，身後是探索的軌跡。",
+          "p2": "閃光船首不僅是船頭的裝飾，更是穿透迷霧的光芒。當您迷茫時，它是照亮前路的燈塔；當您困惑時，它是解讀謎題的智慧。",
+          "p3": "我們相信，每一款遊戲都是一個等待探索的世界，每一位玩家都值得最清晰的指引。閃光船首匯聚社區智慧，提煉實用工具，化作永恆星光，陪伴您的每一次航行。從最初的微光到如今的明燈，我們始終堅守一個信念：為航海者服務，為探索者引路。",
+          "p4": "加入我們，讓您的遊戲之旅不再孤單。閃光船首，永遠在前方閃光。"
+        },
+        "thanks": "同時感謝 <u>@SkullAndBonesTools/SkullAndBonesData</u> 項目提供原始數據源，這使得閃耀船首得以開發",
+        "openSourceContribution": "為開源貢獻🎉，熱愛發電",
+        "osList": {
+          "main": "閃耀船首主程序，包含前端程序/後端程序，遵循MIT協議",
+          "data": "閃耀船首數據，碧海黑帆物品/日歷等數據，遵循AGPL-3.0協議",
+          "assets": "閃耀船首資源，碧海黑帆圖片材料資源，遵循AGPL-3.0協議",
+          "translations": "閃耀船首翻譯數據，遵循AGPL-3.0協議"
+        },
+        "openSourceTitle": "開源",
+        "developersHonor": "特此表彰那些無償參與程序開發的成員, 作為基石開拓先鋒",
+        "developersTitle": "開發者",
+        "translatorsHonor": "表彰傑出翻譯成員，感謝為程序進行翻譯工作成員",
+        "translatorsTitle": "翻譯成員",
+        "contactHonor": "您可以通過下方任意方式聯繫到開發者，諮詢關於網站或是尋求合作",
+        "contactTitle": "聯繫"
+      },
+      "storage": {
+        "title": "數據報告",
+        "reportDesc": "數據報告，統計所有本地快取數據統計",
+        "usageDesc": "閃耀船首使用本地快取存儲數據，包含用戶配置/操作記錄等",
+        "dataTitle": "數據",
+        "persistentStorage": "持久儲存數據",
+        "sessionStorage": "會話儲存數據"
+      },
+      "publicly": "公開",
       "private": "私有"
     },
     "modification": {

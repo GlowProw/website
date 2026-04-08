@@ -4,7 +4,7 @@ import {computed, onMounted, ref, useSlots, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import Loading from "@/components/Loading.vue";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
-import {use_tooltip_follow} from "@/assets/sripts/use_tooltip_follow";
+import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 import ModCardDetail from "@/components/snbWidget/modCardDetail.vue";
 import {useAppStore} from "~/stores/appStore";
 import {useRouter} from "vue-router";
@@ -34,7 +34,7 @@ const props = withDefaults(defineProps<{
 
     {t} = useI18n(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
-    {tooltipPos, onMouseMove, onMouseEnter} = use_tooltip_follow();
+    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow();
 
 
 

@@ -12,7 +12,7 @@ import {rarity} from "@/assets/sripts/index";
 import {useAssetsStore} from "~/stores/assetsStore";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
-import {use_tooltip_follow} from "@/assets/sripts/use_tooltip_follow";
+import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 import CommoditieCardDetail from "@/components/snbWidget/commoditieCardDetail.vue";
 import {useAppStore} from "~/stores/appStore";
 import {Commodities, Commodity} from "glow-prow-data";
@@ -25,7 +25,7 @@ const
     {t} = useI18n(),
     {raritys: raritysAssets} = useAssetsStore(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
-    {tooltipPos, onMouseMove, onMouseEnter} = use_tooltip_follow(),
+    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
     props = withDefaults(defineProps<{
       id: string,
       isOpenDetail?: boolean,

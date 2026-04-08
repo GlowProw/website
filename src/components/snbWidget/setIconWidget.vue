@@ -15,11 +15,11 @@ import {rarity} from "@/assets/sripts/index";
 import Loading from "../Loading.vue";
 import {useAppStore} from "~/stores/appStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
-import {use_tooltip_follow} from "@/assets/sripts/use_tooltip_follow";
+import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 import SetCardDetail from "@/components/snbWidget/setCardDetail.vue";
 
 const
-    {tooltipPos, onMouseMove, onMouseEnter} = use_tooltip_follow(),
+    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
     {asString, sanitizeString} = useI18nUtils(),
     {raritys} = useAssetsStore(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),

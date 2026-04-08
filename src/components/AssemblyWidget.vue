@@ -1012,7 +1012,7 @@ defineOptions({name: 'AssemblyWidget'})
                                :key="ultimateIndex">
                           <v-card width="92" elevation="0">
                             <ItemSlotBase
-                                size="92px" class="pa-1"
+                                size="90px" class="pa-1"
                                 @click="workshopData.ultimateSelect = castToAny(ultimate)"
                                 :class="[
                                           workshopData.ultimateSelect ? castToAny(workshopData.ultimateSelect)?.id == ultimate?.id ? 'bg-amber' : '' : ''

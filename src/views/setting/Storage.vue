@@ -3,11 +3,13 @@
 import {onMounted, ref} from "vue";
 import {storage_capacity_monitor} from "@/assets/sripts/index";
 import {useDisplay} from "vuetify/framework";
+import {useI18n} from "vue-i18n";
 
 import HtmlLink from "@/components/HtmlLink.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 
 const {mobile} = useDisplay()
+const {t} = useI18n()
 
 let detailedReport = ref<any>({
       local: {},
@@ -32,7 +34,7 @@ const loadLocalReport = () => {
   <v-row>
     <v-col cols="12" lg="4">
       <AffixBoxHasTitleView>
-        <p class="text-caption">数据报告，统计所有本地缓存数据统计</p>
+        <p class="text-caption">{{ t('setting.storage.reportDesc') }}</p>
 
         <div class="my-10">
           <v-row align="center" class="mb-1">
@@ -49,10 +51,10 @@ const loadLocalReport = () => {
             <v-col cols="auto">{{ estimateCapacity?.usedFormatted }} / {{ estimateCapacity?.estimatedMaxFormatted }}</v-col>
           </v-row>
 
-          <p class="text-caption opacity-60">闪耀船首使用本地缓存存储数据，包含用户配置/操作记录等</p>
+          <p class="text-caption opacity-60">{{ t('setting.storage.usageDesc') }}</p>
         </div>
         <template v-slot:title>
-          数据
+          {{ t('setting.storage.dataTitle') }}
         </template>
       </AffixBoxHasTitleView>
     </v-col>
@@ -82,7 +84,7 @@ const loadLocalReport = () => {
               </v-row>
             </div>
             <template v-slot:title>
-              持久储存数据
+              {{ t('setting.storage.persistentStorage') }}
             </template>
           </AffixBoxHasTitleView>
         </v-col>
@@ -110,7 +112,7 @@ const loadLocalReport = () => {
               </v-row>
             </div>
             <template v-slot:title>
-              会话储存数据
+              {{ t('setting.storage.sessionStorage') }}
             </template>
           </AffixBoxHasTitleView>
         </v-col>
