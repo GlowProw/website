@@ -603,6 +603,7 @@
       "cargoSlots": "Cargo Slots",
       "cargoMaxWeight": "Max Cargo Weight",
       "materialsTitle": "Materials",
+      "allShipUpgradeMaterials": "All ShipUpgrade Materials",
       "required": "Items Required for Crafting",
       "rawMaterials": "Raw Materials",
       "bySeason": {
@@ -986,6 +987,14 @@
       "special": "Special"
     },
     "tags": {
+      "titles": {
+        "applicableModes": "Applicable Modes",
+        "teamFormation": "Team Formation",
+        "seasons": "Applicable Seasons",
+        "damageTypes": "Damage Types",
+        "archetypes": "Ship Archetypes",
+        "difficultyOfAcquisition": "Difficulty of Acquisition"
+      },
       "modes": {
         "pvp": "Combat",
         "pve": "Survival"
@@ -1205,6 +1214,11 @@
       "storagePrivacyHint": "View specific data usage reports; do not share them, as they contain private user operation records.",
       "recordsTitle": "Records",
       "cdnTitle": "CDN Resource Distribution",
+      "cdnDesc": "Determines the source for acquiring resources such as icons; different resources may have difference in styles and speeds. After modification, the webpage needs to be reloaded.",
+      "itemIconSizeTitle": "Item Icon Size",
+      "itemIconSizeDesc": "You can adjust the size of inventory item icons to fit most places, but some location icons cannot be changed or have range constraints.",
+      "itemOpenNewWindowTitle": "New Window",
+      "itemOpenNewWindowDesc": "By default, transitions happen in the same window; if turned on, all item icon clicks or touches will open in a new window.",
       "posterDesc": "Manage poster settings.",
       "posterAutoSave": "Auto-save generated poster options.",
       "posterHint": "When user modifications to poster generation settings are made, they will be saved immediately; next time the poster is accessed, the configuration will load.",

@@ -1200,7 +1200,7 @@ const onSort = (field: SortField, order: SortOrder) => {
       <!-- 搜索或筛选时的显示 S -->
       <v-row class="list ga-4" no-gutters :style="`--grid-min-width: ${size}px`">
         <v-card v-for="i in onProcessedData" :key="i.id" :width="size" variant="text">
-          <div class="position-relative">
+          <div class="position-relative d-flex justify-center">
             <ItemSlotBase :size="`${baseSize}px`" class="position-relative">
               <ShipIconWidget :id="i.id" v-if="i._typeStringName == 'Ship'"></ShipIconWidget>
               <ItemIconWidget :id="i.id" v-if="i._typeStringName == 'Item'"></ItemIconWidget>

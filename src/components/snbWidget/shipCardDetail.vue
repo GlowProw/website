@@ -80,7 +80,7 @@ defineOptions({
         </v-chip>
       </div>
 
-      <v-img :src="shipCardData.icon" class="prohibit-drag right-show-image position-absolute w-33"></v-img>
+      <v-img :src="shipCardData.icon" class="prohibit-drag right-show-image position-absolute w-33" v-if="isWidget"></v-img>
     </div>
     <div :class="{'demo-reel-content': !isWidget}" class="background-flavor overflow-auto">
       <template v-if="isShowDescription">

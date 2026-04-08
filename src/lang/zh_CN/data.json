@@ -653,6 +653,7 @@
       "cargoSlots": "容器格子",
       "cargoMaxWeight": "承重上限",
       "materialsTitle": "材料",
+      "allShipUpgradeMaterials": "所有升级部件合计材料",
       "required": "建造所需物品",
       "rawMaterials": "原材料",
       "bySeason": {
@@ -1038,6 +1039,14 @@
       "special": "特殊"
     },
     "tags": {
+      "titles": {
+        "applicableModes": "配装适用模式",
+        "teamFormation": "配装组队",
+        "seasons": "适用赛季",
+        "damageTypes": "伤害类型",
+        "archetypes": "船只定位",
+        "difficultyOfAcquisition": "获取难度"
+      },
       "modes": {
         "pvp": "战斗",
         "pve": "生存"
@@ -1260,6 +1269,11 @@
       "storagePrivacyHint": "查看具体数据使用报告，不要分享它们，包含用户操作隐私记录",
       "recordsTitle": "记录",
       "cdnTitle": "CDN资源分发",
+      "cdnDesc": "决定图标等资源获取来源,不同的资源可能存在图标风格差异以及响应速度等,在修改后需要重新载入网页",
+      "itemIconSizeTitle": "物品图标尺寸",
+      "itemIconSizeDesc": "你可以调整库存物品图标的尺寸以适配大多数地方，但有些位置图标无法改动或有范围约束。",
+      "itemOpenNewWindowTitle": "新窗口",
+      "itemOpenNewWindowDesc": "默认是在同一个窗口转移，如果打开，所有物品图标点击或触摸都是新窗口访问",
       "posterDesc": "管理海报设置",
       "posterAutoSave": "自动保存生成海报选项",
       "posterHint": "当用户修改海报生成设置将立即保存记录，再次访问海报加载配置内容",

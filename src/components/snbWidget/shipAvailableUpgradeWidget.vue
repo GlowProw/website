@@ -88,7 +88,7 @@ const copyToAllShipUpgradeMaterials = async () => {
   <v-row class="mb-2 mt-3" justify="center" id="total-materials">
     <v-col>
       <v-divider>
-        <b>所有升级部件合计材料</b>
+        <b>{{ t('codex.ship.allShipUpgradeMaterials') }}</b>
         <v-btn class="ml-2" icon density="compact" @click="copyToAllShipUpgradeMaterials">
           <v-icon size="15">mdi-share-variant-outline</v-icon>
         </v-btn>

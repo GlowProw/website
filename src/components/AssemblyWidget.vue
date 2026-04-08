@@ -66,7 +66,6 @@ let workshopData = ref<AssemblyWorkshopData>({
       displayInsertIndex: 0,
       shipWorkshopSelect: null,
       shipSelect: null,
-      shipFrigateUpgradeSelect: null,
       shipDisplaySelect: null,
       shipFrigateUpgradeList: [],
 
@@ -94,6 +93,7 @@ let workshopData = ref<AssemblyWorkshopData>({
     hasImageSlot = computed(() => !!slots.image),
     hasItemChangeEvent = computed(() => !!attrs.onUpdateItemChange),
     hasModelValueEvent = computed(() => !!attrs.onUpdateModelValue),
+    frigateUpgradeRef = ref(null),
 
     // 临时缓存
     cache = ref({
@@ -119,6 +119,13 @@ watch(() => workshopData.value?.data, (value) => {
     emit('update:item-change', 'assembly')
 }, {
   deep: true
+})
+
+watch(() => workshopData.value?.frigateUpgradeModel, (value) => {
+  // 更新升级部件可用列表
+  console.log(frigateUpgradeRef)
+  if (frigateUpgradeRef.value)
+    frigateUpgradeRef.value.updateData()
 })
 
 watch(() => workshopData.value?.data?.shipSlot, (value) => {
@@ -153,6 +160,10 @@ let // 获取陈设
       if (!hasMajorDisplayUpperLimit.value)
         tags.push('majorFurniture')
       return tags;
+    }),
+    // 获取船只列表
+    getShipUpgradeList = computed(() => {
+      return ['shipUpgrade']; // get All
     }),
     // 获取船只列表
     getShipList = computed(() => {
@@ -255,6 +266,20 @@ const onSlotRemove = (type: string, index?: number) => {
 }
 
 /**
+ * 可选船只升级
+ * 自定义选择器，获取符合的船只的升级部件
+ */
+const getShipUpgradeFilterList = (i): boolean => {
+  // <- 这里返回都是升级部件
+  // <id>Upgrade<数字>
+  const prefix = `${workshopData.value.data.shipSlot.id}Upgrade`
+  if (i.id.startsWith(prefix) && /^\d+$/.test(i.id.slice(prefix.length))) {
+    return  true
+  }
+  return false
+}
+
+/**
  * 选择船
  * @param shipId
  */
@@ -311,36 +336,6 @@ const onSelectUltimate = () => {
 
   workshopData.value.data.ultimateSlot = workshopData.value.ultimateSelect as any
   workshopData.value.ultimateSelect = null;
-}
-
-/**
- * 选择升级部件
- */
-const onSelectFrigteUpgrad = () => {
-  if (poops.readonly)
-    return;
-
-  workshopData.value.frigateUpgradeModel = false;
-  workshopData.value.data.shipUpgradeSlot = workshopData.value.shipFrigateUpgradeSelect;
-
-  // 更新插槽
-  let furnitureBaseSlotCount = workshopData.value.data.shipSlot.slots.furniture[0],
-      selectFurnitureTier = workshopData.value.shipFrigateUpgradeSelect.tier - 1,
-      resultFurnitureSlotCount: any;
-
-  resultFurnitureSlotCount = shipSlotMapping.f[workshopData.value.data.shipSlot.id].furnitureSlotCount[workshopData.value.data.shipUpgradeSlot ? selectFurnitureTier : furnitureBaseSlotCount]
-
-  // 创建陈设插槽
-  workshopData.value.data.displaySlots = Array.from({length: resultFurnitureSlotCount}, () => {
-    return Item.fromRawData({})
-  })
-
-  // 创建武器插槽
-  workshopData.value.data.weaponSlots = Array.from({
-    length: shipSlotMapping.f[workshopData.value.data.shipSlot.id].weaponsSlotCount[selectFurnitureTier].gunSlotCount
-  }, () => {
-    return Item.fromRawData({})
-  })
 }
 
 /**
@@ -499,14 +494,15 @@ defineOptions({name: 'AssemblyWidget'})
               <!-- 升级部件 视图卡槽 S -->
               <v-hover v-slot="{ isHovering, props : propsHoverClose }"
                        v-if="workshopData.data.shipUpgradeSlot">
+                <div class="px" v-if="workshopData.data.shipUpgradeSlot.tier">
+                  <v-icon icon="mdi-chevron-triple-up" class="mr-1"></v-icon>
+                  <b>{{ workshopData.data.shipUpgradeSlot.tier || 0 }}</b>
+                </div>
+
                 <v-card
                     class="mx-auto"
                     variant="text"
                     v-bind="propsHoverClose">
-                  <div class="px" v-if="workshopData.data.shipUpgradeSlot.tier">
-                    <v-icon icon="mdi-chevron-triple-up" class="mr-1"></v-icon>
-                    <b>{{ workshopData.data.shipUpgradeSlot.tier || 0 }}</b>
-                  </div>
                   <ItemSlotBase
                       size="80px"
                       :class="[workshopData.data.shipUpgradeSlot ? 'bg-amber' : '']">
@@ -1116,36 +1112,15 @@ defineOptions({name: 'AssemblyWidget'})
             </v-col>
           </v-row>
         </v-card-title>
-        <v-card class="demo-reel bg-black pt-3" flat border>
-          <v-row class="ga-0 pa-5 pb-5">
-            <v-col cols="auto"
-                   v-for="(upgrade,upgradeIndex) in workshopData.shipFrigateUpgradeList"
-                   :key="upgradeIndex">
-              <v-card variant="text" width="99">
-                <ItemSlotBase
-                    size="99px"
-                    @click="workshopData.shipFrigateUpgradeSelect = upgrade"
-                    :class="[workshopData.shipFrigateUpgradeSelect ? workshopData.shipFrigateUpgradeSelect!.id == upgrade!.id ? 'bg-amber' : '' : '']">
-                  <ItemIconWidget :padding="2" :id="upgrade.id" :is-open-detail="false" :is-show-tooltip="false"></ItemIconWidget>
-                </ItemSlotBase>
-
-                <div class="text-center d-flex w-100" :class="{'singe-line': !(isFullName || attr.isFullName)}">
-                  <ItemName :id="upgrade.id"></ItemName>
-                </div>
-              </v-card>
-            </v-col>
-          </v-row>
-          <v-card-actions class="bg-amber-lighten-1">
-            <v-spacer></v-spacer>
-            <v-btn variant="text" class="ml-2" @click="workshopData.frigateUpgradeModel = false">{{ t('basic.button.cancel') }}</v-btn>
-            <v-btn variant="tonal"
-                   class="bg-amber"
-                   v-if="workshopData.shipFrigateUpgradeSelect"
-                   @click="onSelectFrigteUpgrad">
-              {{ t('basic.button.submit') }}
-            </v-btn>
-          </v-card-actions>
-        </v-card>
+        <v-row>
+          <AssemblyClassificationShowList
+              ref="frigateUpgradeRef"
+              v-model="workshopData.data.shipUpgradeSlot"
+              @clickSelectItem="workshopData.frigateUpgradeModel = false"
+              loadDataType="item"
+              :filterFun="getShipUpgradeFilterList"
+              :tags="getShipUpgradeList"></AssemblyClassificationShowList>
+        </v-row>
       </v-card>
     </v-dialog>
     <!-- 船只 升级部件 选择器 E -->

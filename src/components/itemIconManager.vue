@@ -1,5 +1,5 @@
 <script setup lang="ts">
-
+import {useI18n} from "vue-i18n";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import {computed, onMounted, Ref, ref} from "vue";
@@ -7,6 +7,7 @@ import {useAppStore} from "~/stores/appStore";
 import {Item, Items} from "glow-prow-data";
 import ItemName from "@/components/snbWidget/itemName.vue";
 
+const {t} = useI18n()
 const appStore = useAppStore(),
     items = Items
 
@@ -108,7 +109,7 @@ let iconId = ref('culverin1'),
           padding: 1,
         },
         icon: {
-          margin: 0,
+          margin: 1,
           padding: 0,
         },
       },
@@ -119,7 +120,7 @@ let iconId = ref('culverin1'),
           padding: 1,
         },
         icon: {
-          margin: 0,
+          margin: 1,
           padding: 0,
         },
       },
@@ -130,7 +131,7 @@ let iconId = ref('culverin1'),
           padding: 1,
         },
         icon: {
-          margin: 0,
+          margin: 1,
           padding: 0,
         },
       },
@@ -141,7 +142,7 @@ let iconId = ref('culverin1'),
           padding: 1,
         },
         icon: {
-          margin: 0,
+          margin: 1,
           padding: 0,
         },
       },
@@ -152,7 +153,7 @@ let iconId = ref('culverin1'),
           padding: 1,
         },
         icon: {
-          margin: 0,
+          margin: 1,
           padding: 0,
         },
       }
@@ -195,11 +196,10 @@ onMounted(() => {
         </v-select>
 
         <div class="mt-5 opacity-60">
-          <p class="text-caption">你可以调整库存物品图标的尺寸以适配大多数地方，但有些位置图标无法改动或有范围约束。</p>
+          <p class="text-caption">{{ t('setting.routine.itemIconSizeDesc') }}</p>
         </div>
       </v-col>
       <v-col cols="auto" class="py-3 d-flex justify-center">
-        {{getIconSize}}
         <ItemSlotBase :size="`${getIconSize.size}px`"
                       :margin="getIconSize?.box?.margin"
                       :padding="getIconSize?.box?.padding">
@@ -237,14 +237,14 @@ onMounted(() => {
 
   <div>
     <v-row align="center">
-      <v-col>新窗口</v-col>
+      <v-col>{{ t('setting.routine.itemOpenNewWindowTitle') }}</v-col>
       <v-col cols="auto">
         <v-switch hide-details hide-spin-buttons inset v-model="openNewWindow"></v-switch>
       </v-col>
     </v-row>
 
     <div class="mt-0 opacity-60">
-      <p class="text-caption">默认是在同一个窗口转移，如果打开，所有物品图标点击或触摸都是新窗口访问</p>
+      <p class="text-caption">{{ t('setting.routine.itemOpenNewWindowDesc') }}</p>
     </div>
   </div>
 </template>

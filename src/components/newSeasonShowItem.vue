@@ -12,7 +12,7 @@ import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
 import CosmeticIconWidget from "@/components/snbWidget/cosmeticIconWidget.vue";
 
 import {Items, Seasons, Ships} from "glow-prow-data";
-import {computed, onMounted} from "vue";
+import {computed} from "vue";
 import {Season} from "glow-prow-data/src/entity/Seasons";
 import ItemName from "@/components/snbWidget/itemName.vue";
 import {useI18n} from "vue-i18n";
@@ -81,8 +81,8 @@ const getCurrentSeason = (): Season | null => {
     </v-chip>
   </v-chip-group>
   <v-row no-gutters>
-    <v-col cols="auto" v-for="(i,index) in newSeasonItem" :key="index" class="d-flex align-center mr-6">
-      <ItemSlotBase :size="`${Math.min(Math.max(getIconSize.icon, 48), 55)}px`" :padding="0" class="bg-transparent">
+    <v-col cols="auto" v-for="(i,index) in newSeasonItem" :key="index" class="d-flex align-center">
+      <ItemSlotBase :size="`${Math.min(Math.max(getIconSize.size, 50), 60)}px`" :padding="0" :margin="0" class="bg-transparent">
         <ShipIconWidget :id="i.id" v-if="i._typeStringName == 'Ship'"></ShipIconWidget>
         <ItemIconWidget :id="i.id" v-if="i._typeStringName == 'Item'"></ItemIconWidget>
         <CommoditieIconWidget :id="i.id" v-if="i._typeStringName == 'Commoditie'"></CommoditieIconWidget>

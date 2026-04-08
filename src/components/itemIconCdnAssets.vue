@@ -1,7 +1,8 @@
 <script setup lang="ts">
-
+import {useI18n} from "vue-i18n";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 
+const {t} = useI18n()
 const {services, setSelectedService, selectedService} = useCDNAssetsServiceStore()
 
 const onUpdateAssetsImageServces = (value: any) => {
@@ -15,9 +16,9 @@ const onUpdateAssetsImageServces = (value: any) => {
     <div>
       <v-row align="center">
         <v-col cols="12">
-          资源来源
+          {{ t('setting.routine.cdnTitle') }}
           <div class="mt-2 opacity-60">
-            <p class="text-caption">决定图标等资源获取来源,不同的资源可能存在图标风格差异以及响应速度等,在修改后需要重新载入网页</p>
+            <p class="text-caption">{{ t('setting.routine.cdnDesc') }}</p>
           </div>
         </v-col>
         <v-col cols="12">

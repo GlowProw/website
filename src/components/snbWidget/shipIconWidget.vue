@@ -28,12 +28,9 @@ const props = withDefaults(defineProps<{
       isShowDescription: true,
       isShowTooltip: true,
       padding: 0,
-      margin: 1
+      margin: 0
     }),
-    ships: any = Ships,
-    router = useRouter(),
     appStore = useAppStore(),
-    {t} = useI18n(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
     {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow()
 

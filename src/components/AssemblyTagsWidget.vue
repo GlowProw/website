@@ -1,11 +1,8 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import {onMounted, ref, toRaw, watch} from "vue";
-import {useRoute} from "vue-router";
 
-import {Seasons, Ships} from "glow-prow-data";
-import {Items} from "glow-prow-data/src/entity/Items";
-import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
+import {Seasons} from "glow-prow-data";
 import DamageIconWidget from "@/components/snbWidget/damageIconWidget.vue";
 
 const poops = withDefaults(defineProps<{ readonly?: boolean, tags: string[], class?: string }>(), {
@@ -13,9 +10,6 @@ const poops = withDefaults(defineProps<{ readonly?: boolean, tags: string[], cla
       tags: () => [],
       class: ''
     }),
-    route = useRoute(),
-    ships = Ships,
-    items: any = Items,
     {t} = useI18n()
 
 let publishData = ref({
@@ -79,7 +73,7 @@ const onUpdateTags = (data: any) => {
   emit('change', toRaw(publishData.value.tags))
 }
 
-defineOptions({ name: 'AssemblyTagsWidget' })
+defineOptions({name: 'AssemblyTagsWidget'})
 </script>
 
 <template>
@@ -91,18 +85,18 @@ defineOptions({ name: 'AssemblyTagsWidget' })
       column
       multiple>
     <div class="mt-3 w-100">
-      <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">配装适用模式</p>
+      <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">{{ t('assembly.tags.titles.applicableModes') }}</p>
       <div class="mt-3 d-flex ga-2" :class="[readonly ? 'readonly' : '']">
         <v-chip filter size="small" color="primary"
                 v-for="(i, index) in ['pvp', 'pve']"
                 :key="index"
-                :value="i">{{ i.toUpperCase() }}
+                :value="i">{{ t('assembly.tags.modes.' + i) }}
         </v-chip>
       </div>
     </div>
 
     <div class="mt-3 w-100">
-      <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">配装组队</p>
+      <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">{{ t('assembly.tags.titles.teamFormation') }}</p>
       <div class="mt-3 d-flex ga-2" :class="[readonly ? 'readonly' : '']">
         <v-chip size="small" color="primary"
                 v-for="(i, index) in ['singlePlayer', 'multiPlayer']"
@@ -114,17 +108,18 @@ defineOptions({ name: 'AssemblyTagsWidget' })
     </div>
 
     <div class="mt-3 w-100">
-      <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">适用赛季</p>
+      <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">{{ t('assembly.tags.titles.seasons') }}</p>
       <div class="mt-3 ga-2" :class="[readonly ? 'readonly' : '']">
         <v-chip filter size="small" color="primary"
                 v-for="(i, index) in tagsConfig.seasons"
                 :key="index"
-                :value="`season_${i}`">{{ t(`snb.seasons.${i}`) }}</v-chip>
+                :value="`season_${i}`">{{ t(`snb.seasons.${i}`) }}
+        </v-chip>
       </div>
     </div>
 
     <div class="mt-3">
-      <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">伤害类型</p>
+      <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">{{ t('assembly.tags.titles.damageTypes') }}</p>
       <div class="mt-3 ga-2" :class="[readonly ? 'readonly' : '']">
         <v-chip filter
                 size="small"
@@ -139,12 +134,25 @@ defineOptions({ name: 'AssemblyTagsWidget' })
     </div>
 
     <div class="mt-3 w-100">
-      <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">船只定位</p>
+      <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">{{ t('assembly.tags.titles.archetypes') }}</p>
       <div class="mt-3 d-flex ga-2" :class="[readonly ? 'readonly' : '']">
         <v-chip filter size="small" color="primary"
                 v-for="(i, index) in tagsConfig.archeTypes"
                 :key="index"
-                :value="`archetype_${i}`">{{ t(`codex.ships.archetypes.${i}.name`) }}</v-chip>
+                :value="`archetype_${i}`">{{ t(`codex.ships.archetypes.${i}.name`) }}
+        </v-chip>
+      </div>
+    </div>
+
+    <div class="mt-3 w-100">
+      <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">{{ t('assembly.tags.titles.difficultyOfAcquisition') }}</p>
+      <div class="mt-3 d-flex ga-2" :class="[readonly ? 'readonly' : '']">
+        <v-chip filter size="small" color="primary"
+                v-for="(i, index) in tagsConfig.difficultyOfAcquisitions"
+                :key="index"
+                :value="`difficultyOfAcquisition_${i}`">
+          {{ t(`assembly.tags.difficultyOfAcquisitions.${i}`) }}
+        </v-chip>
       </div>
     </div>
   </v-chip-group>

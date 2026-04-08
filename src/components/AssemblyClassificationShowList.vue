@@ -21,10 +21,12 @@ const castToAny = (v: any) => v;
 const props = withDefaults(
     defineProps<AssemblyClassificationShowListProps>(),
     {
+      v: 1,
       tags: () => [],
       sortBy: "rarity",
       loadDataType: "item",
       filterType: "",
+      filterFun: (i: any) => true,
       modelValue: "",
       autoExpandFirst: true,
     })
@@ -96,15 +98,22 @@ const handleIDataName = (id: string) => {
   return name;
 };
 
-// 计算属性：处理筛选、排序和搜索
+// 计算属性
+// 处理筛选、排序和搜索
 const processedData = computed(() => {
   let filtered = props.tags.length > 0
-      ? Object.values(rawData.value).filter((i: any) => props.tags.includes(i?.type))
+      ? Object.values(rawData.value)
+          .filter((i: any) => props.tags.includes(i?.type))
       : Object.values(rawData.value)
 
   // 类型筛选
   if (filterType.value) {
     filtered = filtered.filter((i: any) => i.type === filterType.value)
+  }
+
+  // 自定筛选
+  if (props?.filterFun) {
+    filtered = filtered.filter(props.filterFun)
   }
 
   // 转换格式并添加name字段
@@ -296,8 +305,7 @@ defineOptions({ name: 'AssemblyClassificationShowList' })
             clearable
             hide-details
             variant="underlined"
-            @keydown.enter="updateData"
-        >
+            @keydown.enter="updateData">
           <template v-slot:append-inner>
             <v-icon @click="updateData">mdi-magnify</v-icon>
           </template>

@@ -6,6 +6,8 @@ import {ResultData} from "@/assets/types/Result";
 import {Ship} from "glow-prow-data/src/entity/Ships";
 import {Item} from "glow-prow-data/src/entity/Items";
 import {Cosmetic, Material, Modification, Ultimate} from "glow-prow-data";
+import ol from "ol/dist/ol";
+import functions = ol.functions;
 
 /**
  * 配装id
@@ -130,62 +132,64 @@ export interface AssemblyItemResult extends ResultData<AssemblyItem> {
 export type AvailableDataStructure = Ship | Item | Material | Cosmetic | Ultimate | Modification;
 
 export interface GroupedData {
-  type: string;
-  model: boolean;
-  child: AvailableDataStructure[];
+    type: string;
+    model: boolean;
+    child: AvailableDataStructure[];
 }
 
 export interface AssemblyClassificationShowListProps {
-  tags: string[];
-  sortBy?: "id" | "rarity" | "tier";
-  loadDataType?: "ship" | "item" | "material" | "cosmetic" | "ultimate" | "modification";
-  filterType?: string;
-  modelValue: any;
-  autoExpandFirst?: boolean;
+    tags: string[];
+    sortBy?: "id" | "rarity" | "tier";
+    loadDataType?: "ship" | "item" | "material" | "cosmetic" | "ultimate" | "modification";
+    filterType?: string;
+    v?: number,
+    filterFun?: (item: any) => boolean;
+    modelValue: any;
+    autoExpandFirst?: boolean;
 }
 
 export interface AssemblyWorkshopData {
-  shipModel: boolean;
-  frigateUpgradeModel: boolean;
-  displayModel: boolean;
-  weaponModel: boolean;
-  secondaryWeaponModel: boolean;
-  ultimateModel: boolean;
-  armorModel: boolean;
-  weaponSearchValue: string;
-  frigateUpgradeInsertIndex: number;
-  weaponInsertIndex: number;
-  secondaryWeaponInsertIndex: number;
-  secondaryWeaponSelect: number;
-  armorSelect: number;
-  ultimateSelect: number;
-  displayInsertIndex: number;
-  shipWorkshopSelect: any;
-  shipSelect: any;
-  shipFrigateUpgradeSelect: any;
-  shipDisplaySelect: any;
-  shipFrigateUpgradeList: any[];
-  data: {
-    shipSlot: Ship | null;
-    ultimateSlot: Item | null;
-    shipUpgradeSlot: Item | null;
-    weaponDirections: (string | null)[];
-    weaponModifications: any[];
-    weaponSlots: Item[];
-    armorSlot: Item | null;
-    armorModification: any[];
-    secondaryWeaponSlots: Item[];
-    secondaryWeaponModifications: any[];
-    displaySlots: Item[];
-    __version: string;
-    weaponModification: any[]; 
-  };
+    shipModel: boolean;
+    frigateUpgradeModel: boolean;
+    displayModel: boolean;
+    weaponModel: boolean;
+    secondaryWeaponModel: boolean;
+    ultimateModel: boolean;
+    armorModel: boolean;
+    weaponSearchValue: string;
+    frigateUpgradeInsertIndex: number;
+    weaponInsertIndex: number;
+    secondaryWeaponInsertIndex: number;
+    secondaryWeaponSelect: number;
+    armorSelect: number;
+    ultimateSelect: number;
+    displayInsertIndex: number;
+    shipWorkshopSelect: any;
+    shipSelect: any;
+    shipFrigateUpgradeSelect: any;
+    shipDisplaySelect: any;
+    shipFrigateUpgradeList: any[];
+    data: {
+        shipSlot: Ship | null;
+        ultimateSlot: Item | null;
+        shipUpgradeSlot: Item | null;
+        weaponDirections: (string | null)[];
+        weaponModifications: any[];
+        weaponSlots: Item[];
+        armorSlot: Item | null;
+        armorModification: any[];
+        secondaryWeaponSlots: Item[];
+        secondaryWeaponModifications: any[];
+        displaySlots: Item[];
+        __version: string;
+        weaponModification: any[];
+    };
 }
 
 export interface AssemblyWidgetProps {
-  readonly?: boolean,
-  isFullName?: boolean,
-  isShowEmpty?: boolean,
-  perfectDisplay?: boolean,
-  class?: string,
+    readonly?: boolean,
+    isFullName?: boolean,
+    isShowEmpty?: boolean,
+    perfectDisplay?: boolean,
+    class?: string,
 }
