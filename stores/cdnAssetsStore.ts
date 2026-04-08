@@ -272,8 +272,6 @@ export const useCDNAssetsServiceStore = defineStore('cdnService', () => {
             const lang = storage.local.get('lang');
             const saved = storage.local.get(STORAGE_KEYS.SELECTED_SERVICE);
 
-            console.log(lang, '===========')
-
             if (saved?.code === 0) {
                 const name = saved?.data?.value?.name;
                 if (name && services.value.some(s => s.name === name)) {
@@ -282,7 +280,6 @@ export const useCDNAssetsServiceStore = defineStore('cdnService', () => {
             } else {
                 // 没有设置图片服务，初始前
                 // 如果本地语言，图片服务使用中国站镜像资源
-                console.log(lang, 'locale.value')
                 if (lang.data.value.value == 'zh-CN') {
                     selectedService.value = 'glow-prow-zh-cn'
                 }

@@ -222,8 +222,8 @@ defineExpose({
         <div @click="openShowPanel(index)">
           <ItemSlotBase :size="`${size}px`" class="d-flex justify-center align-center">
             <ItemIconWidget :id="String(i.id)" v-if="i && i.id" :padding="0" :margin="0"></ItemIconWidget>
-            <v-icon size="35" v-else class="opacity-30">mdi-block-helper</v-icon>
-            <v-icon size="35" v-if="!readonly && i && i.id">mdi-plus</v-icon>
+            <v-icon size="35" v-else-if="readonly && !i?.id" class="opacity-30">mdi-block-helper</v-icon>
+            <v-icon size="35" v-if="!readonly && i && i.id == null">mdi-plus</v-icon>
           </ItemSlotBase>
         </div>
 

@@ -32,7 +32,6 @@ export class StorageIntermediateTransfer {
         try {
             const d = storage.local.get(`${this.NAME}${options?.category}.${options?.saveType}`)
 
-            console.log(d.data.value)
             return {
                 code: 0,
                 data: d.data.value[uid]

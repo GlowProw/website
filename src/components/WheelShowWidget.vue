@@ -228,7 +228,7 @@ defineExpose({
                                         :margin="0"
                                         :is-open-detail="readonly"
                                         :is-show-tooltip="readonly"
-                                        :id="wheelTabs[wheelTabValue].data[index].id"></ItemIconWidget>
+                                        :id="wheelTabs[wheelTabValue].data[index]?.id"></ItemIconWidget>
                       </ItemSlotBase>
 
                       <v-overlay
@@ -273,7 +273,7 @@ defineExpose({
                                         :margin="0"
                                         :is-open-detail="readonly"
                                         :is-show-tooltip="readonly"
-                                        :id="wheelTabs[wheelTabValue].data[index].id"></ItemIconWidget>
+                                        :id="wheelTabs[wheelTabValue].data[index]?.id"></ItemIconWidget>
                       </ItemSlotBase>
 
                       <v-overlay

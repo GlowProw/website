@@ -297,7 +297,7 @@ export default class AssemblyDataProcessing {
 
                 if (data.secondaryWeaponSlots)
                     data.secondaryWeaponSlots = data.secondaryWeaponSlots.map((i: any) => {
-                        return i.id ? {id: i.id} : {id: null};
+                        return i?.id ? {id: i.id} : {id: null};
                     })
 
                 if (data.weaponSlots && data.weaponSlots.length > 0)
@@ -310,7 +310,7 @@ export default class AssemblyDataProcessing {
 
                 if (data.displaySlots)
                     data.displaySlots = data.displaySlots.map(i => {
-                        return i.id ? {id: i.id} : {id: null};
+                        return i?.id ? {id: i.id} : {id: null};
                     })
 
                 data.__version = AssemblyDataProcessing.nowVersion;
@@ -362,20 +362,20 @@ export default class AssemblyDataProcessing {
 
                 if (data.secondaryWeaponSlots)
                     data.secondaryWeaponSlots = data.secondaryWeaponSlots.map((i: any) => {
-                        return i.id ? items[i.id] : null;
+                        return i?.id ? items[i.id] : null;
                     })
 
                 if (data.weaponSlots)
                     data.weaponSlots = data.weaponSlots.map((i: any) => {
-                        return i.id ? items[i.id] : null;
+                        return i?.id ? items[i.id] : null;
                     })
 
                 if (data.armorSlot)
-                    data.armorSlot = data.armorSlot.id ? items[data.armorSlot.id] : null;
+                    data.armorSlot = data.armorSlot?.id ? items[data.armorSlot.id] : null;
 
                 if (data.displaySlots)
                     data.displaySlots = data.displaySlots.map((i: any) => {
-                        return i.id ? items[i.id] : null;
+                        return i?.id ? items[i.id] : null;
                     })
 
                 return data;
