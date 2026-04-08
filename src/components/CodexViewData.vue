@@ -1170,7 +1170,7 @@ const onSort = (field: SortField, order: SortOrder) => {
             </ItemSlotBase>
 
             <div v-if="i.set && i.set.id && isFilterSet" class="position-absolute subordinate-data">
-              <ItemSlotBase size="40px" :padding="0">
+              <ItemSlotBase size="50px" :padding="0" :margin="0">
                 <SetIconWidget :id="i.set.id"></SetIconWidget>
               </ItemSlotBase>
             </div>
@@ -1277,10 +1277,10 @@ const onSort = (field: SortField, order: SortOrder) => {
   gap: 16px;
 
   .subordinate-data {
-    width: 40px;
-    height: 40px;
-    right: 5px;
-    bottom: 5px;
+    width: auto;
+    height: auto;
+    right: 0px;
+    bottom: 0px;
   }
 }
 

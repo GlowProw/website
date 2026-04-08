@@ -48,13 +48,11 @@ const onReady = () => {
 
 
 const { useIconImagePadding, useIconImageMargin } = useIconGlobalStyle();
-const computedPadding = useIconImagePadding(props.padding);
-const computedMargin = useIconImageMargin(props.margin);
 </script>
 
 <template>
   <v-card :class="props.class" class="w-100 h-100"
-          variant="flat">
+          variant="text">
     <v-img :src="src"
            v-if="!!src"
            width="100%"

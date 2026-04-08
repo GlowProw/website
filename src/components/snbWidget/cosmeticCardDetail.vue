@@ -69,7 +69,9 @@ defineOptions({
       <div class="v-skeleton-loader__bone v-skeleton-loader__image opacity-30 position-absolute left-0 top-0 w-100 h-100"></div>
 
       <h1 class="font-weight-bold">
-        <FactionIconWidget class="bg-red d-inline-flex" :name="i.faction.id" size="28px" v-if="i.faction"></FactionIconWidget>
+        <v-card variant="text" width="30" height="30" class="mb-2" v-if="i.faction">
+          <FactionIconWidget class="bg-red d-inline-flex" size="30px" :name="i.faction.id" v-if="i.faction"></FactionIconWidget>
+        </v-card>
         <CosmeticName :id="i.id"></CosmeticName>
       </h1>
       <p class="mb-1">{{ i.id }}</p>
@@ -83,7 +85,7 @@ defineOptions({
         <CosmeticEffectTagWidget :effect="i.effect"></CosmeticEffectTagWidget>
       </div>
 
-      <div class="right-show-image pointer-events-none position-absolute w-33">
+      <div class="right-show-image pointer-events-none position-absolute w-33" v-if="isWidget">
         <v-img :src="cosmeticCardData.icon" class="cosmetic-mirror-image"></v-img>
       </div>
 

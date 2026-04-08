@@ -1,17 +1,14 @@
 <script lang="ts">
-export default { name: 'SetIconWidget' }
+export default {name: 'SetIconWidget'}
 </script>
 
 <script setup lang="ts">
-import { useIconGlobalStyle } from "@/assets/sripts/useIconGlobalStyle";
-import {useRoute, useRouter} from "vue-router";
-import {useI18n} from "vue-i18n";
+import {useIconGlobalStyle} from "@/assets/sripts/useIconGlobalStyle";
 import {computed, onMounted, type Ref, ref, watch} from "vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useIntersectionObserver} from "@/assets/sripts/intersection_observer";
 import {useAssetsStore} from "~/stores/assetsStore";
 import {Sets, Set} from "glow-prow-data";
-import {rarity} from "@/assets/sripts/index";
 
 import Loading from "../Loading.vue";
 import {useAppStore} from "~/stores/appStore";
@@ -25,9 +22,6 @@ const
     {raritys} = useAssetsStore(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
 
-    {t} = useI18n(),
-    route = useRoute(),
-    router = useRouter(),
     props = withDefaults(defineProps<{
       id: string,
       isOpenDetail?: boolean,
@@ -88,7 +82,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
   threshold: .7,
 })
 
-const { useIconImagePadding, useIconImageMargin } = useIconGlobalStyle();
+const {useIconImagePadding, useIconImageMargin} = useIconGlobalStyle();
 const computedPadding = useIconImagePadding(props.padding);
 const computedMargin = useIconImageMargin(props.margin);
 </script>

@@ -61,7 +61,7 @@ defineOptions({
       </h1>
       <p class="mb-1">{{ props.id }}</p>
 
-      <v-img :src="modsData.icon" class="prohibit-drag right-show-image position-absolute w-33"></v-img>
+      <v-img :src="modsData.icon" class="prohibit-drag right-show-image position-absolute w-33"  v-if="isWidget"></v-img>
     </div>
     <div class="demo-reel-content background-flavor overflow-auto">
       <template v-if="isShowDescription">

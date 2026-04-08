@@ -1,9 +1,9 @@
 <script lang="ts">
-export default { name: 'ItemSlotBase' }
+export default {name: 'ItemSlotBase'}
 </script>
 
 <script setup lang="ts">
-import { useIconGlobalStyle } from '@/assets/sripts/useIconGlobalStyle';
+import {useIconGlobalStyle} from '@/assets/sripts/useIconGlobalStyle';
 
 const props = defineProps<{
   size?: number | string,
@@ -11,17 +11,19 @@ const props = defineProps<{
   margin?: number | string
 }>();
 
-const { useIconAdaptiveSize, useIconBoxPadding, useIconBoxMargin } = useIconGlobalStyle();
+const {useIconAdaptiveSize, useIconBoxPadding, useIconBoxMargin} = useIconGlobalStyle();
 
-const computedSize = useIconAdaptiveSize(() => props.size, 80);
+const computedSize = useIconAdaptiveSize(() => props.size, 99);
 const computedPadding = useIconBoxPadding(() => props.padding, 1);
 const computedMargin = useIconBoxMargin(() => props.margin, 0);
 </script>
 
 <template>
-  <span class="card-enlargement-flavor" :class="`item-base-slot pa-${computedPadding} ma-${computedMargin}`" :style="`height: ${computedSize}; width: ${computedSize};min-height: ${computedSize}; min-width: ${computedSize}`">
+  <div class="card-enlargement-flavor"
+       :class="`item-base-slot pa-${computedPadding} ma-${computedMargin}`"
+       :style="`height: ${computedSize}; width: ${computedSize};min-height: ${computedSize}; min-width: ${computedSize}`">
     <slot></slot>
-  </span>
+  </div>
 </template>
 
 <style scoped lang="less">

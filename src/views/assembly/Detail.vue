@@ -220,9 +220,10 @@ const onPenPassword = () => {
 
               <v-spacer></v-spacer>
 
-              <div class="d-flex ga-1 mr-2">
+              <v-btn class="d-flex ga-1 mr-2"
+                     v-if="authStore.isLogin && detailData.isVisibility && detailData.assembly?.attr?.isLike"
+                     border>
                 <LikeWidget targetType="assembly"
-                            v-if="authStore.isLogin && detailData.isVisibility && detailData.assembly?.attr?.isLike"
                             :targetId="detailData.uuid"
                             :userId="authStore.user.userId">
                   <template v-slot:activate>
@@ -234,7 +235,7 @@ const onPenPassword = () => {
                 </LikeWidget>
                 <v-btn variant="text" v-if="detailData.uuid" :to="`/assembly/browse/${detailData.uuid}/share`" icon="mdi-share-variant-outline"></v-btn>
                 <v-btn variant="text" v-if="detailData.uuid" @click="getAssemblyDetail(true)" icon="mdi-refresh"></v-btn>
-              </div>
+              </v-btn>
 
               <template v-if="detailData.isVisibility && authStore.isLogin && detailData.isOwner">
                 <v-btn-group class="ml-2">

@@ -25,50 +25,51 @@ interface sizeConfig {
 
 let iconId = ref('culverin1'),
     sizes: Ref<any, sizeConfig[]> = ref([
-      {
-        size: 30,
-        box: {
-          margin: 0,
-          padding: 0,
-        },
-        icon: {
-          margin: 0,
-          padding: 0,
-        },
-      },
-      {
-        size: 40,
-        box: {
-          margin: 0,
-          padding: 0,
-        },
-        icon: {
-          margin: 0,
-          padding: 0,
-        },
-      },
-      {
-        size: 45,
-        box: {
-          margin: 0,
-          padding: 1,
-        },
-        icon: {
-          margin: 0,
-          padding: 0,
-        },
-      },
-      {
-        size: 48,
-        box: {
-          margin: 0,
-          padding: 1,
-        },
-        icon: {
-          margin: 0,
-          padding: 0,
-        },
-      },
+      // {
+      //   size: 30,
+      //   box: {
+      //     margin: 0,
+      //     padding: 0,
+      //   },
+      //   icon: {
+      //     margin: 0,
+      //     padding: 0,
+      //   },
+      // },
+      // {
+      //   size: 40,
+      //   box: {
+      //     margin: 0,
+      //     padding: 0,
+      //   },
+      //   icon: {
+      //     margin: 0,
+      //     padding: 0,
+      //   },
+      // },
+      // {
+      //   size: 45,
+      //   box: {
+      //     margin: 0,
+      //     padding: 1,
+      //   },
+      //   icon: {
+      //     margin: 0,
+      //     padding: 0,
+      //   },
+      // },
+      // {
+      //   size: 48,
+      //   box: {
+      //     margin: 0,
+      //     padding: 1,
+      //   },
+      //   icon: {
+      //     margin: 0,
+      //     padding: 0,
+      //   },
+      // },
+      // <-- 过于小
       {
         size: 50,
         box: {
@@ -76,7 +77,7 @@ let iconId = ref('culverin1'),
           padding: 1,
         },
         icon: {
-          margin: 0,
+          margin: 1,
           padding: 0,
         },
       },
@@ -87,7 +88,7 @@ let iconId = ref('culverin1'),
           padding: 1,
         },
         icon: {
-          margin: 0,
+          margin: 1,
           padding: 0,
         },
       },
@@ -98,7 +99,7 @@ let iconId = ref('culverin1'),
           padding: 1,
         },
         icon: {
-          margin: 0,
+          margin: 1,
           padding: 0,
         },
       },

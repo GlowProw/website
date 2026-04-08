@@ -26,7 +26,6 @@ import shipAvailableUpgradeWidget from "@/components/snbWidget/shipAvailableUpgr
 import ShipDescription from "@/components/snbWidget/shipDescription.vue";
 import ByBluePrintWidget from "@/components/ByBluePrintWidget.vue";
 import ShareWidget from "@/components/ShareWidget.vue";
-import BluePrintWidget from "@/components/BluePrintWidget.vue";
 import {useCalculatorStore} from "~/stores/calculatorStore";
 import {useNoticeStore} from "~/stores/noticeStore";
 
@@ -201,7 +200,7 @@ const onAddCalculator = () => {
           </v-col>
           <v-col cols="auto">
             <div class="d-flex ga-2">
-              <v-btn v-if="authStore.isLogin">
+              <v-btn v-if="authStore.isLogin" border>
                 <LikeWidget targetType="ship"
                             :isShowCount="true"
                             :targetId="shipDetailData.id">
@@ -218,7 +217,7 @@ const onAddCalculator = () => {
                 <v-icon icon="mdi-chart-box-outline"></v-icon>
               </v-btn>
 
-              <ShareWidget type="ship" :target-id="shipDetailData.id" />
+              <ShareWidget type="ship" :target-id="shipDetailData.id"/>
             </div>
           </v-col>
         </v-row>
@@ -369,6 +368,7 @@ const onAddCalculator = () => {
             </template>
             <v-text-field readonly
                           hide-details
+                          v-if="shipDetailData.dateAdded"
                           variant="underlined" density="compact">
               <template v-slot:prepend-inner>
                 <TimeView :time="shipDetailData.dateAdded" class="singe-line">
@@ -381,6 +381,7 @@ const onAddCalculator = () => {
             </v-text-field>
             <v-text-field readonly
                           hide-details
+                          v-if="shipDetailData.lastUpdated"
                           variant="underlined" density="compact">
               <template v-slot:prepend-inner>
                 <TimeView :time="shipDetailData.lastUpdated" class="singe-line">

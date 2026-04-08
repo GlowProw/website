@@ -1496,6 +1496,19 @@
       "excluded": "排除",
       "addToExclude": "加入排除"
     }
+  },
+  "detail": {
+    "dateView": {
+      "primitive": "原始值",
+      "primitives": {
+        "primitive": "原始字符",
+        "primitiveDateString": "原始日期字符"
+      },
+      "primitiveDescription": "展示时间在程序内的原始记录值",
+      "localTimeZoneName": "当地时区",
+      "localeTime": "当地时间(已转化)",
+      "localeTimeDescription": "根据系统当地时区，以及语种环境转换后的时间数据"
+    }
   }
 }
 

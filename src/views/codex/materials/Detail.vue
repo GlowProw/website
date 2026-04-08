@@ -180,7 +180,7 @@ const onAddCalculator = () => {
           <v-spacer></v-spacer>
           <v-col cols="auto">
             <div class="d-flex ga-2">
-              <v-btn v-if="authStore.isLogin">
+              <v-btn v-if="authStore.isLogin" border>
                 <LikeWidget targetType="material"
                             :isShowCount="true"
                             :targetId="materialDetailData.id">
@@ -303,33 +303,32 @@ const onAddCalculator = () => {
               </v-text-field>
             </template>
 
-            <v-row no-gutters align="center" class="mt-2">
-              <v-col cols="auto">
-                <v-icon icon="mdi-calendar-range" class="mr-3"></v-icon>
-              </v-col>
-              <v-col>
-                <TimeView class="mt-1" :time="materialDetailData.dateAdded">
-                  <Time :time="materialDetailData.dateAdded"/>
+            <v-text-field readonly
+                          hide-details
+                          v-if="materialDetailData.dateAdded"
+                          variant="underlined" density="compact">
+              <template v-slot:prepend-inner>
+                <TimeView :time="materialDetailData.dateAdded" class="singe-line">
+                  <Time :time="materialDetailData.dateAdded"></Time>
                 </TimeView>
-              </v-col>
-              <v-col cols="auto">
-                <p class="text-no-wrap">{{ t('codex.item.dateAdded') }}</p>
-              </v-col>
-            </v-row>
-
-            <v-row no-gutters align="center" class="mt-2">
-              <v-col cols="auto">
-                <v-icon icon="mdi-calendar-range" class="mr-3"></v-icon>
-              </v-col>
-              <v-col>
-                <TimeView class="mt-1" :time="materialDetailData.lastUpdated">
-                  <Time :time="materialDetailData.lastUpdated"/>
+              </template>
+              <template v-slot:append-inner>
+                <p class="text-no-wrap">{{ t('codex.ship.dateAdded') }}</p>
+              </template>
+            </v-text-field>
+            <v-text-field readonly
+                          hide-details
+                          v-if="materialDetailData.lastUpdated"
+                          variant="underlined" density="compact">
+              <template v-slot:prepend-inner>
+                <TimeView :time="materialDetailData.lastUpdated" class="singe-line">
+                  <Time :time="materialDetailData.lastUpdated"></Time>
                 </TimeView>
-              </v-col>
-              <v-col cols="auto">
-                <p class="text-no-wrap">{{ t('codex.item.lastUpdated') }}</p>
-              </v-col>
-            </v-row>
+              </template>
+              <template v-slot:append-inner>
+                <p class="text-no-wrap">{{ t('codex.ship.lastUpdated') }}</p>
+              </template>
+            </v-text-field>
           </v-col>
         </v-row>
       </v-container>

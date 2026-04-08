@@ -1428,5 +1428,14 @@
       "excluded": "Excluded",
       "addToExclude": "Add to Exclude"
     }
+  },
+  "detail": {
+    "dateView": {
+      "primitive": "Primitive",
+      "primitiveDescription": "Primitive value of time recorded in the program",
+      "localTimeZoneName": "Local Time Zone",
+      "localeTime": "Local Time",
+      "localeTimeDescription": "Time data converted according to the local time zone and locale environment"
+    }
   }
 }

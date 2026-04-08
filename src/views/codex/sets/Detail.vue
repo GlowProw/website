@@ -177,7 +177,7 @@ const onCodexHistory = () => {
           <v-spacer></v-spacer>
           <v-col cols="auto">
             <div class="d-flex ga-2">
-              <v-btn v-if="authStore.isLogin">
+              <v-btn v-if="authStore.isLogin" border>
                 <LikeWidget targetType="set"
                             :isShowCount="true"
                             :targetId="setDetailData.id">
@@ -312,33 +312,32 @@ const onCodexHistory = () => {
               </v-text-field>
             </template>
 
-            <v-row no-gutters align="center" class="mt-2">
-              <v-col cols="auto">
-                <v-icon icon="mdi-calendar-range" class="mr-3"></v-icon>
-              </v-col>
-              <v-col>
-                <TimeView class="mt-1" :time="setDetailData.dateAdded">
-                  <Time :time="setDetailData.dateAdded"/>
+            <v-text-field readonly
+                          hide-details
+                          v-if="setDetailData.dateAdded"
+                          variant="underlined" density="compact">
+              <template v-slot:prepend-inner>
+                <TimeView :time="setDetailData.dateAdded" class="singe-line">
+                  <Time :time="setDetailData.dateAdded"></Time>
                 </TimeView>
-              </v-col>
-              <v-col cols="auto">
-                <p class="text-no-wrap">{{ t('codex.item.dateAdded') }}</p>
-              </v-col>
-            </v-row>
-
-            <v-row no-gutters align="center" class="mt-2">
-              <v-col cols="auto">
-                <v-icon icon="mdi-calendar-range" class="mr-3"></v-icon>
-              </v-col>
-              <v-col>
-                <TimeView class="mt-1" :time="setDetailData.lastUpdated">
-                  <Time :time="setDetailData.lastUpdated"/>
+              </template>
+              <template v-slot:append-inner>
+                <p class="text-no-wrap">{{ t('codex.ship.dateAdded') }}</p>
+              </template>
+            </v-text-field>
+            <v-text-field readonly
+                          hide-details
+                          v-if="setDetailData.lastUpdated"
+                          variant="underlined" density="compact">
+              <template v-slot:prepend-inner>
+                <TimeView :time="setDetailData.lastUpdated" class="singe-line">
+                  <Time :time="setDetailData.lastUpdated"></Time>
                 </TimeView>
-              </v-col>
-              <v-col cols="auto">
-                <p class="text-no-wrap">{{ t('codex.item.lastUpdated') }}</p>
-              </v-col>
-            </v-row>
+              </template>
+              <template v-slot:append-inner>
+                <p class="text-no-wrap">{{ t('codex.ship.lastUpdated') }}</p>
+              </template>
+            </v-text-field>
           </v-col>
         </v-row>
       </v-container>

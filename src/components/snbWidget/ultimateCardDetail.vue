@@ -80,7 +80,7 @@ defineOptions({
                 class="badge-flavor text-center text-black" v-if="i.rarity">{{ t(`codex.raritys.${i.rarity}`) }}
         </v-chip>
       </div>
-      <div class="right-show-image pointer-events-none position-absolute w-50">
+      <div class="right-show-image pointer-events-none position-absolute w-50" v-if="isWidget">
         <v-img :src="ultimatesData.icon" class="treasure-mirror-image"></v-img>
       </div>
 

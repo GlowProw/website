@@ -186,9 +186,15 @@ export const useAppStore = defineStore('app', () => {
     const resetToDefaults = () => {
         itemOpenNewWindow.value = false
         iconSize.value = {
-            icon: 99,
-            margin: 1,
-            padding: 1,
+            size: 99,
+            box: {
+                margin: 1,
+                padding: 1,
+            },
+            icon: {
+                margin: 0,
+                padding: 0,
+            }
         }
         theme.value = 'light'
         language.value = 'zh-CN'

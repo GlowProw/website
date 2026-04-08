@@ -247,33 +247,32 @@ const onCodexHistory = () => {
               </v-text-field>
             </template>
 
-            <v-row no-gutters align="center" class="mt-2">
-              <v-col cols="auto">
-                <v-icon icon="mdi-calendar-range" class="mr-3"></v-icon>
-              </v-col>
-              <v-col>
-                <TimeView class="mt-1" :time="mapLocationDetailData.dateAdded">
-                  <Time :time="mapLocationDetailData.dateAdded"/>
+            <v-text-field readonly
+                          hide-details
+                          v-if="mapLocationDetailData.dateAdded"
+                          variant="underlined" density="compact">
+              <template v-slot:prepend-inner>
+                <TimeView :time="mapLocationDetailData.dateAdded" class="singe-line">
+                  <Time :time="mapLocationDetailData.dateAdded"></Time>
                 </TimeView>
-              </v-col>
-              <v-col cols="auto">
-                <p class="text-no-wrap">{{ t('codex.item.dateAdded') }}</p>
-              </v-col>
-            </v-row>
-
-            <v-row no-gutters align="center" class="mt-2">
-              <v-col cols="auto">
-                <v-icon icon="mdi-calendar-range" class="mr-3"></v-icon>
-              </v-col>
-              <v-col>
-                <TimeView class="mt-1" :time="mapLocationDetailData.lastUpdated">
-                  <Time :time="mapLocationDetailData.lastUpdated"/>
+              </template>
+              <template v-slot:append-inner>
+                <p class="text-no-wrap">{{ t('codex.ship.dateAdded') }}</p>
+              </template>
+            </v-text-field>
+            <v-text-field readonly
+                          hide-details
+                          v-if="mapLocationDetailData.lastUpdated"
+                          variant="underlined" density="compact">
+              <template v-slot:prepend-inner>
+                <TimeView :time="mapLocationDetailData.lastUpdated" class="singe-line">
+                  <Time :time="mapLocationDetailData.lastUpdated"></Time>
                 </TimeView>
-              </v-col>
-              <v-col cols="auto">
-                <p class="text-no-wrap">{{ t('codex.item.lastUpdated') }}</p>
-              </v-col>
-            </v-row>
+              </template>
+              <template v-slot:append-inner>
+                <p class="text-no-wrap">{{ t('codex.ship.lastUpdated') }}</p>
+              </template>
+            </v-text-field>
           </v-col>
         </v-row>
       </v-container>

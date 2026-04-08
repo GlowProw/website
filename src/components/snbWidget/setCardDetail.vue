@@ -76,7 +76,7 @@ defineOptions({
       </h1>
       <p class="mb-1">{{ i.id }}</p>
 
-      <div class="right-show-image pointer-events-none position-absolute w-33">
+      <div class="right-show-image pointer-events-none position-absolute w-33" v-if="isWidget">
         <v-img :src="setCardData.icon" class="set-mirror-image"></v-img>
       </div>
 

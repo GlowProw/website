@@ -68,9 +68,9 @@ defineOptions({
       <div class="v-skeleton-loader__bone v-skeleton-loader__image opacity-30 position-absolute left-0 top-0 w-100 h-100"></div>
 
       <h1 class="material-card-name font-weight-bold w-66">
-        <ItemSlotBase size="28px" class="mb-2" :padding="0" v-if="i.faction">
-          <FactionIconWidget class="bg-red d-inline-flex" :name="i.faction.id" v-if="i.faction"></FactionIconWidget>
-        </ItemSlotBase>
+        <v-card variant="text" width="30" height="30" class="mb-2" v-if="i.faction">
+          <FactionIconWidget class="d-inline-flex" size="30px" :name="i.faction.id" v-if="i.faction"></FactionIconWidget>
+        </v-card>
         <ItemNameRarity :id="i.id">
           <CommoditieName :data="i"></CommoditieName>
         </ItemNameRarity>
@@ -89,7 +89,7 @@ defineOptions({
                 v-if="i.rarity">{{ t(`codex.raritys.${i.rarity}`) }}
         </v-chip>
       </div>
-      <div class="right-show-image pointer-events-none position-absolute w-33">
+      <div class="right-show-image pointer-events-none position-absolute w-33" v-if="isWidget">
         <v-img :src="commoditiesCardData.icon" class="material-mirror-image"></v-img>
       </div>
 

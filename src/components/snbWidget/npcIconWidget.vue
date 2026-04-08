@@ -1,5 +1,5 @@
 <script lang="ts">
-export default { name: 'NpcIconWidget' }
+export default {name: 'NpcIconWidget'}
 </script>
 
 <script lang="ts" setup>
@@ -16,6 +16,8 @@ import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 import NpcCardDetail from "@/components/snbWidget/npcCardDetail.vue";
 import {useAppStore} from "~/stores/appStore";
 import {Npc, Npcs} from "glow-prow-data";
+import {useIconGlobalStyle} from "@/assets/sripts/useIconGlobalStyle";
+import Loading from "@/components/Loading.vue";
 
 const
     {asString, sanitizeString} = useI18nUtils(),
@@ -81,7 +83,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
   threshold: .7,
 })
 
-const { useIconImagePadding, useIconImageMargin } = useIconGlobalStyle();
+const {useIconImagePadding, useIconImageMargin} = useIconGlobalStyle();
 const computedPadding = useIconImagePadding(props.padding);
 const computedMargin = useIconImageMargin(props.margin);
 </script>
