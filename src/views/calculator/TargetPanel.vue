@@ -28,6 +28,8 @@ const searchQuery = ref('')
 const searchType = ref<'item' | 'ship' | 'material'>('item')
 const addQuantity = ref(1)
 const selectedTargetObj = ref(null)
+const fileInput = ref<HTMLInputElement | null>(null)
+const importType = ref<'json' | 'csv'>('json')
 
 const isSearchDialogOpen = ref(store.targets.length === 0)
 
@@ -113,6 +115,23 @@ function onRemoveTarget(uid: string) {
 
 function onQuantityChange(uid: string, val: number) {
   store.updateTargetQuantity(uid, val)
+}
+
+function triggerImport(type: 'json' | 'csv') {
+  importType.value = type
+  if (fileInput.value) {
+    fileInput.value.value = ''
+    fileInput.value.accept = type === 'json' ? '.json' : '.csv'
+    fileInput.value.click()
+  }
+}
+
+function onFileImport(e: Event) {
+  const target = e.target as HTMLInputElement
+  if (!target.files || target.files.length === 0) return
+  const file = target.files[0]
+  store.importFile(file, importType.value)
+  isSearchDialogOpen.value = false
 }
 </script>
 
@@ -206,6 +225,26 @@ function onQuantityChange(uid: string, val: number) {
                 </v-combobox>
               </v-col>
             </v-row>
+
+            <div class="mt-10">
+              <v-divider>{{ t('calculator.or') }}</v-divider>
+
+              <!-- 导入 -->
+              <v-list density="compact" slim>
+                <v-list-item @click="triggerImport('json')">
+                  <template v-slot:prepend>
+                    <v-icon icon="mdi-code-json"/>
+                  </template>
+                  <v-list-item-title>{{ t('calculator.import.json') }}</v-list-item-title>
+                </v-list-item>
+                <v-list-item @click="triggerImport('csv')">
+                  <template v-slot:prepend>
+                    <v-icon icon="mdi-file-delimited"/>
+                  </template>
+                  <v-list-item-title>{{ t('calculator.import.csv') }}</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </div>
           </v-card-text>
           <v-card-actions class="px-5 pb-5">
             <v-spacer/>
@@ -298,6 +337,9 @@ function onQuantityChange(uid: string, val: number) {
       </div>
     </template>
   </AffixBoxHasTitleView>
+
+  <!-- 配置文件上传 -->
+  <input type="file" ref="fileInput" @change="onFileImport" style="display: none"/>
 </template>
 
 <style scoped lang="less">

@@ -82,8 +82,7 @@ defineExpose({dialog})
         <v-list v-else density="compact">
           <v-list-item
               v-for="config in store.savedConfigs"
-              :key="config.uid"
-          >
+              :key="config.uid">
             <v-list-item-title class="font-weight-medium">
               {{ config.name }}
             </v-list-item-title>

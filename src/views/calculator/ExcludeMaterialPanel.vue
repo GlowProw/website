@@ -82,6 +82,7 @@ function onRemoveExclude(id: string) {
             <v-icon size="80">mdi-plus</v-icon>
             <p>{{ t('calculator.exclude.title') }}</p>
           </v-card-title>
+
           <v-card-text>
                 <v-autocomplete
                     v-model="selectedExcludeObj"

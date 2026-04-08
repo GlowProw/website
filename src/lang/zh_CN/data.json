@@ -1354,6 +1354,7 @@
     "description": "材料量化计算工具，设定目标物品计算所需全部材料",
     "addTo": "添加至量化",
     "addedSuccess": "已添加至量化计算",
+    "or": "或",
     "meta": {
       "keywords": "量化计算,材料计算,材料需求,工序图"
     },
@@ -1398,7 +1399,10 @@
       "title": "导出",
       "json": "导出 JSON",
       "csv": "导出 CSV",
-      "csvHeaders": "材料标识,名称,数量,是否为原材料"
+      "exportedTime": "导出时间: {time}",
+      "version": "版本: {version}",
+      "totalTargets": "目标数量: {number}",
+      "csvHeaders": "材料标识,名称,类型,数量"
     },
     "import": {
       "title": "导入",

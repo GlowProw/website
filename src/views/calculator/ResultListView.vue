@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
-import {ref} from "vue";
+import {computed, ref} from "vue";
 import {MaterialTreeNode, useCalculatorStore} from "~/stores/calculatorStore";
 import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
 import MaterialName from "@/components/snbWidget/materialName.vue";
@@ -15,10 +15,52 @@ const {t} = useI18n()
 const {mobile} = useDisplay()
 const store = useCalculatorStore()
 
-// 控制展开的节点
+type SortField = 'name' | 'id' | 'quantity'
+type SortOrder = 'asc' | 'desc'
+
+const sortField = ref<SortField>('quantity')
+const sortOrder = ref<SortOrder>('desc')
+
+// 获取排序后的材料列表
+const sortedMaterials = computed(() => {
+  const materials = [...store.flatMaterials]
+
+  if (materials.length === 0) return materials
+
+  return materials.sort((a: any, b: any) => {
+    let comparison = 0
+
+    switch (sortField.value) {
+      case 'name':
+        // 假设 MaterialName 组件能通过 id 获取名称，这里简化处理
+        // 实际项目中可能需要从 store 或 i18n 获取真实名称
+        comparison = (a.name || a.id).localeCompare(b.name || b.id, undefined, {numeric: true})
+        break
+      case 'id':
+        comparison = String(a.id).localeCompare(String(b.id), undefined, {numeric: true})
+        break
+      case 'quantity':
+        comparison = a.totalQuantity - b.totalQuantity
+        break
+    }
+
+    return sortOrder.value === 'asc' ? comparison : -comparison
+  })
+})
 const expandedNodes = ref<Set<string>>(new Set())
 
-function toggleNode(nodeKey: string) {
+const toggleSort = (field: SortField) => {
+  if (sortField.value === field) {
+    // 同一字段：切换排序方向
+    sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    // 不同字段：设置为该字段并默认降序（数量）或升序（名称/ID）
+    sortField.value = field
+    sortOrder.value = (field === 'quantity') ? 'desc' : 'asc'
+  }
+}
+
+const toggleNode = (nodeKey: string) => {
   // 创建新 Set 触发响应性
   const next = new Set(expandedNodes.value)
   if (next.has(nodeKey)) {
@@ -29,11 +71,11 @@ function toggleNode(nodeKey: string) {
   expandedNodes.value = next
 }
 
-function excludedNode(nodeId: string) {
+const excludedNode = (nodeId: string) => {
   store.addExcludedMaterial(nodeId)
 }
 
-function expandAll() {
+const expandAll = () => {
   const next = new Set<string>()
 
   function collectKeys(nodes: MaterialTreeNode[], prefix: string = '') {
@@ -50,14 +92,23 @@ function expandAll() {
   expandedNodes.value = next
 }
 
-function collapseAll() {
+const collapseAll = () => {
   expandedNodes.value = new Set()
+}
+
+/**
+ * 获取排序指示器图标
+ * @param field
+ */
+const getSortIcon = (field: SortField) => {
+  if (sortField.value !== field) return 'mdi-arrow-up-down'
+  return sortOrder.value === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down'
 }
 </script>
 
 <template>
   <div class="result-list-view">
-    <!-- 汇总面板 -->
+    <!-- 汇总面板 S -->
     <AffixBoxHasTitleView>
       <v-row no-gutters align="center">
         <v-col cols="auto">
@@ -110,14 +161,32 @@ function collapseAll() {
           <thead>
           <tr>
             <th class="text-left" style="width: 40px;"></th>
-            <th class="text-left" v-if="store.displaySettings.listColumns.name">
-              {{ t('calculator.results.columns.name') }}
+            <th
+                v-if="store.displaySettings.listColumns.name"
+                class="text-left sortable-header"
+                @click="toggleSort('name')">
+              <div class="d-flex align-center">
+                {{ t('calculator.results.columns.name') }}
+                <v-icon :icon="getSortIcon('name')" size="16" class="ml-1 sort-icon"/>
+              </div>
             </th>
-            <th class="text-left" v-if="store.displaySettings.listColumns.id">
-              {{ t('calculator.results.columns.id') }}
+            <th
+                v-if="store.displaySettings.listColumns.id"
+                class="text-left sortable-header"
+                @click="toggleSort('id')">
+              <div class="d-flex align-center">
+                {{ t('calculator.results.columns.id') }}
+                <v-icon :icon="getSortIcon('id')" size="16" class="ml-1 sort-icon"/>
+              </div>
             </th>
-            <th class="text-right" v-if="store.displaySettings.listColumns.quantity">
-              {{ t('calculator.results.columns.quantity') }}
+            <th
+                v-if="store.displaySettings.listColumns.quantity"
+                class="text-right sortable-header"
+                @click="toggleSort('quantity')">
+              <div class="d-flex align-center justify-end">
+                {{ t('calculator.results.columns.quantity') }}
+                <v-icon :icon="getSortIcon('quantity')" size="16" class="ml-1 sort-icon"/>
+              </div>
             </th>
             <th class="text-center singe-line" v-if="store.displaySettings.listColumns.link" width="10">
               {{ t('calculator.results.columns.link') }}
@@ -125,7 +194,7 @@ function collapseAll() {
           </tr>
           </thead>
           <tbody>
-          <tr v-for="mat in store.flatMaterials" :key="mat.id">
+          <tr v-for="mat in sortedMaterials" :key="mat.id">
             <td>
               <ItemSlotBase size="30px">
                 <MaterialIconWidget :id="mat.id" :padding="0" :margin="0"/>
@@ -164,8 +233,9 @@ function collapseAll() {
         <span>{{ t('calculator.ui.summary') }} ({{ store.flatMaterials.length }})</span>
       </template>
     </AffixBoxHasTitleView>
+    <!-- 汇总面板 E -->
 
-    <!-- 树状展开 -->
+    <!-- 树状展开 S -->
     <AffixBoxHasTitleView>
       <v-row no-gutters align="center">
         <v-col cols="auto">
@@ -215,6 +285,7 @@ function collapseAll() {
         <span>{{ t('calculator.ui.tree') }}</span>
       </template>
     </AffixBoxHasTitleView>
+    <!-- 树状展开 E -->
   </div>
 </template>
 
@@ -226,6 +297,25 @@ function collapseAll() {
 
   .tree-card {
     border-color: rgba(0, 188, 212, 0.15);
+  }
+
+  .sortable-header {
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .sort-icon {
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+
+    &:hover .sort-icon {
+      opacity: 1;
+    }
   }
 }
 </style>

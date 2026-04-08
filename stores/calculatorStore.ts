@@ -3,6 +3,10 @@ import {computed, ref} from 'vue'
 import {Items, Material, Materials, Ships} from 'glow-prow-data'
 import {v4 as uuidv4} from 'uuid'
 import {useI18n} from "vue-i18n";
+import {storage} from "@/assets/sripts/index"
+
+// 版本号
+const STORE_VERSION = '1.0.0'
 
 export interface CalculatorTarget {
     uid: string
@@ -112,6 +116,39 @@ const color = [
     },
 ]
 
+const STORAGE_KEY = 'calculator'
+
+interface PersistedState {
+    useColorPanel: { name: string, value: string[] }
+    targets: CalculatorTarget[]
+    excludedMaterials: string[]
+    savedConfigs: SavedConfig[]
+    displaySettings: DisplaySettings
+}
+
+/**
+ * 从 localStorage 加载状态
+ */
+function loadPersistedState(): PersistedState | null {
+    const data = storage.local.get(STORAGE_KEY)
+    if (data.code == 0) {
+        return data.data.value
+    }
+
+    return null
+}
+
+/**
+ * 保存状态到 localStorage
+ */
+function savePersistedState(state: PersistedState) {
+    try {
+        storage.local.set(STORAGE_KEY, state)
+    } catch (err) {
+        console.error('Failed to save persisted state:', err)
+    }
+}
+
 /**
  * 递归计算材料树
  */
@@ -188,10 +225,11 @@ function buildSankeyData(
     const linksMap = new Map<string, SankeyLink>()
 
     const colorPalette: { name: string; value: any[] } | any[] = useColorPalette.value
+    let colorIndex = 0
 
     function getColor(id: string): string {
         if (!nodesMap.has(id)) {
-            return colorPalette[0]
+            return colorPalette[colorIndex++ % useColorPalette.value.length]
         }
         return nodesMap.get(id)!.color
     }
@@ -281,16 +319,16 @@ export const useCalculatorStore = defineStore('calculator', () => {
     // 色板
     const useColorPanel = ref<any>(color[0])
 
-    //  目标列表
+    // 目标列表
     const targets = ref<CalculatorTarget[]>([])
 
-    //  排除材料
+    // 排除材料
     const excludedMaterials = ref<string[]>([])
 
-    //  保存的配置
+    // 保存的配置
     const savedConfigs = ref<SavedConfig[]>([])
 
-    //  显示设置
+    // 显示设置
     const displaySettings = ref<DisplaySettings>({
         viewMode: 'list',
         listColumns: {
@@ -305,6 +343,32 @@ export const useCalculatorStore = defineStore('calculator', () => {
         }
     })
 
+    // 保存状态到 localStorage 的辅助函数
+    const persistState = () => {
+        savePersistedState({
+            useColorPanel: useColorPanel.value,
+            targets: targets.value,
+            excludedMaterials: excludedMaterials.value,
+            savedConfigs: savedConfigs.value,
+            displaySettings: displaySettings.value
+        })
+    }
+
+    // 加载持久化状态
+    const loadState = () => {
+        const persisted = loadPersistedState()
+        if (persisted) {
+            useColorPanel.value = persisted.useColorPanel
+            targets.value = persisted.targets
+            excludedMaterials.value = persisted.excludedMaterials
+            savedConfigs.value = persisted.savedConfigs
+            displaySettings.value = persisted.displaySettings
+        }
+    }
+
+    // 立即加载保存的状态
+    loadState()
+
     /**
      * 目标操作
      * @param id
@@ -317,6 +381,7 @@ export const useCalculatorStore = defineStore('calculator', () => {
         if (existing) {
             existing.quantity += quantity
             targets.value = [...targets.value]
+            persistState() // 保存
             return
         }
         targets.value = [...targets.value, {
@@ -325,6 +390,7 @@ export const useCalculatorStore = defineStore('calculator', () => {
             type,
             quantity
         }]
+        persistState() // 保存
     }
 
     /**
@@ -333,6 +399,7 @@ export const useCalculatorStore = defineStore('calculator', () => {
      */
     function removeTarget(uid: string) {
         targets.value = targets.value.filter(t => t.uid !== uid)
+        persistState() // 保存
     }
 
     /**
@@ -344,6 +411,7 @@ export const useCalculatorStore = defineStore('calculator', () => {
         const target = targets.value.find(t => t.uid === uid)
         if (target) {
             target.quantity = Math.max(1, quantity)
+            persistState() // 保存
         }
     }
 
@@ -352,6 +420,7 @@ export const useCalculatorStore = defineStore('calculator', () => {
      */
     function clearTargets() {
         targets.value = []
+        persistState() // 保存
     }
 
     /**
@@ -361,15 +430,18 @@ export const useCalculatorStore = defineStore('calculator', () => {
     function addExcludedMaterial(id: string) {
         if (!excludedMaterials.value.includes(id)) {
             excludedMaterials.value = [...excludedMaterials.value, id]
+            persistState() // 保存
         }
     }
 
     function removeExcludedMaterial(id: string) {
         excludedMaterials.value = excludedMaterials.value.filter(m => m !== id)
+        persistState() // 保存
     }
 
     function clearExcludedMaterials() {
         excludedMaterials.value = []
+        persistState() // 保存
     }
 
     /**
@@ -422,6 +494,7 @@ export const useCalculatorStore = defineStore('calculator', () => {
             displaySettings: JSON.parse(JSON.stringify(displaySettings.value))
         }
         savedConfigs.value.push(config)
+        persistState() // 保存
     }
 
     function loadConfig(uid: string) {
@@ -431,40 +504,120 @@ export const useCalculatorStore = defineStore('calculator', () => {
         targets.value = JSON.parse(JSON.stringify(config.targets))
         excludedMaterials.value = [...config.excludedMaterials]
         displaySettings.value = JSON.parse(JSON.stringify(config.displaySettings))
+        persistState() // 保存
     }
 
     function deleteConfig(uid: string) {
         savedConfigs.value = savedConfigs.value.filter(c => c.uid !== uid)
+        persistState() // 保存
     }
 
     /**
-     * 导出
+     * 导出 JSON - 导出目标列表，包含时间和版本信息
      */
     function exportJSON() {
-        const data = {
-            targets: targets.value,
-            excludedMaterials: excludedMaterials.value,
-            results: flatMaterials.value,
-            trees: materialTrees.value
+        const exportData = {
+            version: STORE_VERSION,
+            exportTime: Date.now(),
+            exportTimeLocale: new Date().toLocaleString(),
+            data: {
+                targets: targets.value,
+                excludedMaterials: excludedMaterials.value,
+                displaySettings: displaySettings.value
+            },
+            metadata: {
+                totalTargets: targets.value.length,
+                totalExcludedMaterials: excludedMaterials.value.length
+            }
         }
-        const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'})
-        downloadBlob(blob, `${t('name')}.calculator-export.json`)
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], {type: 'application/json'})
+        const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-')
+        downloadBlob(blob, `${t('name')}.targets.${timestamp}.json`)
     }
 
-    function exportCSV(headersStr?: string, yesLabel?: string, noLabel?: string, getNameCallback?: (id: string) => string) {
+    /**
+     * 导出 CSV - 导出目标列表，包含时间和版本信息
+     * @param getNameCallback 获取目标名称的回调函数
+     */
+    function exportCSV(getNameCallback?: (id: string, type: string) => string) {
+        // CSV 头部
+        const headers = t('calculator.export.csvHeaders').split(',')
+
+        // 构建数据行
+        const rows = targets.value.map(target => {
+            const name = getNameCallback
+                ? getNameCallback(target.id, target.type)
+                : `${target.id} (${target.type})`
+            return [
+                target.id,
+                name,
+                target.type,
+                target.quantity,
+            ]
+        })
+
+        // 添加元数据行（注释形式）
+        const exportTime = new Date().toLocaleString()
+        const versionInfo = '# ' + t('calculator.export.exportedTime', {time: exportTime})
+        const versionLine = '# ' + t(`calculator.export.version`, {version: STORE_VERSION})
+        const totalLine = '# ' + t(`calculator.export.totalTargets`, {number: targets.value.length})
+        const separator = '#'
+
+        // 构建 CSV 内容
+        const csvRows = [
+            versionInfo,
+            versionLine,
+            totalLine,
+            separator,
+            headers.join(','),
+            ...rows.map(r => r.map(cell => {
+                // 处理可能包含逗号的内容
+                if (typeof cell === 'string' && (cell.includes(',') || cell.includes('"'))) {
+                    return `"${cell.replace(/"/g, '""')}"`
+                }
+                return cell
+            }).join(','))
+        ]
+
+        const csvContent = csvRows.join('\n')
+        const blob = new Blob(['\uFEFF' + csvContent], {type: 'text/csv;charset=utf-8;'})
+        const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-')
+        downloadBlob(blob, `${t('name')}.targets.${timestamp}.csv`)
+    }
+
+    /**
+     * 导出材料清单为 CSV
+     * @param headersStr 表头
+     * @param yesLabel 是标签
+     * @param noLabel 否标签
+     * @param getNameCallback 获取材料名称的回调
+     */
+    function exportMaterialsCSV(headersStr?: string, yesLabel?: string, noLabel?: string, getNameCallback?: (id: string) => string) {
         const headers = headersStr || 'Material ID,Name,Quantity,Is Raw Material'
         const rows = flatMaterials.value.map(m => {
             const name = getNameCallback ? getNameCallback(m.id) : m.id
             const isRawStr = m.isRaw ? (yesLabel || 'Yes') : (noLabel || 'No')
             return [m.id, name, m.totalQuantity, isRawStr]
         })
+
+        // 添加元数据
+        const exportTime = new Date().toLocaleString()
+        const versionInfo = '# ' + t('calculator.export.exportedTime', {time: exportTime})
+        const versionLine = '# ' + t(`calculator.export.version`, {version: STORE_VERSION})
+        const totalLine = '# ' + t(`calculator.export.totalTargets`, {number: targets.value.length})
+
         const csvContent = [
+            versionInfo,
+            versionLine,
+            totalLine,
+            '#',
             headers,
             ...rows.map(r => r.join(','))
         ].join('\n')
 
         const blob = new Blob(['\uFEFF' + csvContent], {type: 'text/csv;charset=utf-8;'})
-        downloadBlob(blob, `${t('name')}.calculator-export.csv`)
+        const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-')
+        downloadBlob(blob, `${t('name')}.materials.${timestamp}.csv`)
     }
 
     function importFile(file: File, type: 'json' | 'csv') {
@@ -474,36 +627,70 @@ export const useCalculatorStore = defineStore('calculator', () => {
             const content = e.target.result as string
             if (type === 'json') {
                 try {
-                    const data = JSON.parse(content)
-                    if (data.targets) targets.value = data.targets
-                    if (data.excludedMaterials) excludedMaterials.value = data.excludedMaterials
+                    const importData = JSON.parse(content)
+                    // 支持新格式（带版本信息）和旧格式
+                    let targetsData: CalculatorTarget[] = []
+                    let excludedData: string[] = []
+
+                    if (importData.data && importData.data.targets) {
+                        // 新格式
+                        targetsData = importData.data.targets
+                        excludedData = importData.data.excludedMaterials || []
+                        console.log(`Imported from version: ${importData.version}, time: ${importData.exportTimeLocale}`)
+                    } else if (importData.targets) {
+                        // 旧格式兼容
+                        targetsData = importData.targets
+                        excludedData = importData.excludedMaterials || []
+                    }
+
+                    if (targetsData.length > 0) {
+                        targets.value = targetsData
+                    }
+                    if (excludedData.length > 0) {
+                        excludedMaterials.value = excludedData
+                    }
+                    persistState() // 保存
                 } catch (err) {
                     console.error('Failed to parse JSON', err)
                 }
             } else if (type === 'csv') {
                 try {
-                    const rows = content.trim().split('\n')
-                    rows.shift() // remove headers
+                    const lines = content.trim().split('\n')
+                    // 过滤掉注释行（以 # 开头）
+                    const dataLines = lines.filter(line => !line.trim().startsWith('#'))
+                    if (dataLines.length === 0) return
+
+                    const headers = dataLines[0].split(',')
+                    const targetIndex = headers.findIndex(h => h === 'ID' || h === 'id')
+                    const quantityIndex = headers.findIndex(h => h === 'Quantity' || h === 'quantity')
+                    const typeIndex = headers.findIndex(h => h === 'Type' || h === 'type')
+
                     const newTargets: CalculatorTarget[] = []
-                    for (const row of rows) {
-                        const cols = row.split(',')
-                        if (cols.length >= 2) {
-                            const id = cols[0].trim()
-                            const qty = parseInt(cols[1].trim()) || 1
-                            if (id) {
-                                let tType: 'item' | 'ship' = 'item'
-                                if (Ships[id]) tType = 'ship'
-                                newTargets.push({
-                                    uid: uuidv4(),
-                                    id: id,
-                                    type: tType,
-                                    quantity: qty
-                                })
-                            }
+                    for (let i = 1; i < dataLines.length; i++) {
+                        const cols = parseCSVLine(dataLines[i])
+                        if (cols.length < 2) continue
+
+                        const id = targetIndex >= 0 ? cols[targetIndex]?.trim() : cols[0]?.trim()
+                        const qty = parseInt((quantityIndex >= 0 ? cols[quantityIndex] : cols[1])?.trim()) || 1
+
+                        if (id) {
+                            let tType: 'item' | 'ship' | 'material' = 'item'
+                            const typeStr = typeIndex >= 0 ? cols[typeIndex]?.trim().toLowerCase() : ''
+                            if (typeStr === 'ship') tType = 'ship'
+                            else if (typeStr === 'material') tType = 'material'
+                            else if (Ships[id]) tType = 'ship'
+
+                            newTargets.push({
+                                uid: uuidv4(),
+                                id: id,
+                                type: tType,
+                                quantity: qty
+                            })
                         }
                     }
                     if (newTargets.length > 0) {
                         targets.value = newTargets
+                        persistState() // 保存
                     }
                 } catch (err) {
                     console.error('Failed to parse CSV', err)
@@ -511,6 +698,32 @@ export const useCalculatorStore = defineStore('calculator', () => {
             }
         }
         reader.readAsText(file)
+    }
+
+    // 辅助函数：解析 CSV 行（处理引号）
+    function parseCSVLine(line: string): string[] {
+        const result: string[] = []
+        let current = ''
+        let inQuotes = false
+
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i]
+            if (char === '"') {
+                if (inQuotes && line[i + 1] === '"') {
+                    current += '"'
+                    i++
+                } else {
+                    inQuotes = !inQuotes
+                }
+            } else if (char === ',' && !inQuotes) {
+                result.push(current.trim())
+                current = ''
+            } else {
+                current += char
+            }
+        }
+        result.push(current.trim())
+        return result
     }
 
     function downloadBlob(blob: Blob, filename: string) {
@@ -527,9 +740,10 @@ export const useCalculatorStore = defineStore('calculator', () => {
     // 跨标签页同步
     if (typeof window !== 'undefined') {
         window.addEventListener('storage', (e) => {
-            if (e.key === 'calculator' && e.newValue) {
+            if (e.key === storage.local.name(STORAGE_KEY) && e.newValue) {
                 try {
-                    const state = JSON.parse(e.newValue)
+                    const state: any = JSON.parse(e.newValue).value
+
                     if (state.targets) targets.value = state.targets
                     if (state.excludedMaterials) excludedMaterials.value = state.excludedMaterials
                     if (state.savedConfigs) savedConfigs.value = state.savedConfigs
@@ -563,10 +777,7 @@ export const useCalculatorStore = defineStore('calculator', () => {
         loadConfig,
         deleteConfig,
         exportJSON,
-        exportCSV
-    }
-}, {
-    persist: {
-        pick: ['targets', 'excludedMaterials', 'savedConfigs', 'displaySettings']
+        exportCSV,
+        exportMaterialsCSV
     }
 })

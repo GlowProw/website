@@ -35,10 +35,7 @@ function getDisplayName(id: string): string {
 
 function handleExportCSV() {
   store.exportCSV(
-      t('calculator.export.csvHeaders'),
-      t('basic.yes'),
-      t('basic.no'),
-      getDisplayName
+      getDisplayName,
   )
 }
 
