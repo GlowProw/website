@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useIconGlobalStyle } from "@/assets/sripts/useIconGlobalStyle";
 
 import {computed, onMounted, type Ref, ref, watch} from "vue";
 import {Ship, Ships} from "glow-prow-data";
@@ -69,6 +70,10 @@ const onReady = async () => {
 defineOptions({
   name: 'ShipIconWidget'
 })
+
+const { useIconImagePadding, useIconImageMargin } = useIconGlobalStyle();
+const computedPadding = useIconImagePadding(props.padding);
+const computedMargin = useIconImageMargin(props.margin);
 </script>
 
 <template>
@@ -91,8 +96,8 @@ defineOptions({
           :target="isOpenNewWindow ? '_blank' : '_self'"
           :class="[
               'prohibit-drag',
-              `ma-${props.margin}`,
-              `pa-${props.padding}`,
+              `ma-${computedMargin}`,
+              `pa-${computedPadding}`,
           ]">
         <v-img :src="shipCardData.icon" class="pointer-events-none prohibit-drag"></v-img>
       </v-card>

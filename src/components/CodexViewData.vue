@@ -14,6 +14,7 @@ import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useDisplay} from "vuetify/framework";
 import {number, rarity} from "@/assets/sripts/index";
+import { useIconGlobalStyle } from "@/assets/sripts/useIconGlobalStyle";
 
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
@@ -75,7 +76,8 @@ const
     slots = useSlots(),
     {t} = useI18n(),
     {mobile, sm, md, lg} = useDisplay(),
-    {asString, sanitizeString} = useI18nUtils()
+    {asString, sanitizeString} = useI18nUtils(),
+    { useIconAdaptiveSize } = useIconGlobalStyle()
 
 let data: any = ref([]),
     exceedingItemsCount = ref(0),
@@ -185,12 +187,31 @@ let data: any = ref([]),
           filterData.value.keyValue !== '' ||
           filterData.value.inputWidgetKeyValue !== '';
     }),
-    size = computed(() => {
+    baseSize = computed(() => {
       let s = 120
       if (mobile.value) {
         s = 99
       }
       return s;
+    }),
+    sizeRef = useIconAdaptiveSize(baseSize, 120),
+    computedOuterPadding = useIconGlobalStyle().useIconBoxPadding(1),
+    computedOuterMargin = useIconGlobalStyle().useIconBoxMargin(1),
+    computedInnerPadding = useIconGlobalStyle().useIconImagePadding(0),
+    computedInnerMargin = useIconGlobalStyle().useIconImageMargin(1),
+
+    size = computed(() => {
+      let coreSize = parseInt(String(sizeRef.value)) || baseSize.value;
+      // Vuetify scale multiplier (1 unit = 4px padding/margin)
+      // Multiplied by 2 for both sides (left + right = 8px)
+      const outerPad = (computedOuterPadding.value as number) * 8;
+      const outerMar = (computedOuterMargin.value as number) * 8;
+      const innerPad = (computedInnerPadding.value as number) * 8;
+      const innerMar = (computedInnerMargin.value as number) * 8;
+
+      // To guarantee no overflow or clipping, we aggregate the physical space demands
+      // based on the impact of padded and margined flex items inside the item wrapper.
+      return coreSize + outerPad + outerMar + innerPad + innerMar;
     })
 
 /**
@@ -1130,10 +1151,10 @@ const onSort = (field: SortField, order: SortOrder) => {
 
   <v-infinite-scroll class="mt-3" @load="onLoad">
     <template v-if="isShouldShowInfiniteScroll">
-      <v-row class="list ga-4" no-gutters>
+      <v-row class="list ga-4" no-gutters :style="`--grid-min-width: ${size}px`">
         <v-card v-for="i in data" :key="i.id" :width="size" variant="text">
-          <div class="position-relative">
-            <ItemSlotBase :size="`${size}px`" class="position-relative">
+          <div class="position-relative d-flex justify-center">
+            <ItemSlotBase :size="`${baseSize}px`" class="position-relative">
               <ShipIconWidget :id="i.id" v-if="i._typeStringName == 'Ship'"></ShipIconWidget>
               <ItemIconWidget :id="i.id" v-if="i._typeStringName == 'Item'"></ItemIconWidget>
               <CommoditieIconWidget :id="i.id" v-if="i._typeStringName == 'Commodity'"></CommoditieIconWidget>
@@ -1177,10 +1198,10 @@ const onSort = (field: SortField, order: SortOrder) => {
     </template>
     <template v-else>
       <!-- 搜索或筛选时的显示 S -->
-      <v-row class="list ga-4" no-gutters>
+      <v-row class="list ga-4" no-gutters :style="`--grid-min-width: ${size}px`">
         <v-card v-for="i in onProcessedData" :key="i.id" :width="size" variant="text">
           <div class="position-relative">
-            <ItemSlotBase :size="`${size}px`" class="position-relative">
+            <ItemSlotBase :size="`${baseSize}px`" class="position-relative">
               <ShipIconWidget :id="i.id" v-if="i._typeStringName == 'Ship'"></ShipIconWidget>
               <ItemIconWidget :id="i.id" v-if="i._typeStringName == 'Item'"></ItemIconWidget>
               <CommoditieIconWidget :id="i.id" v-if="i._typeStringName == 'Commodity'"></CommoditieIconWidget>
@@ -1252,7 +1273,7 @@ const onSort = (field: SortField, order: SortOrder) => {
 <style scoped lang="less">
 .list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(var(--grid-min-width, 120px), 1fr));
   gap: 16px;
 
   .subordinate-data {
@@ -1265,7 +1286,7 @@ const onSort = (field: SortField, order: SortOrder) => {
 
 @media (max-width: 480px) {
   .list {
-    grid-template-columns: repeat(auto-fill, minmax(99px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(var(--grid-min-width, 99px), 1fr));
     gap: 10px;
     justify-items: center;
   }
@@ -1273,7 +1294,7 @@ const onSort = (field: SortField, order: SortOrder) => {
 
 @media (max-width: 390px) {
   .list {
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(var(--grid-min-width, 80px), 1fr));
     gap: 8px;
     justify-items: center;
   }

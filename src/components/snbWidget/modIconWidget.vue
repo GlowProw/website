@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useIconGlobalStyle } from "@/assets/sripts/useIconGlobalStyle";
 
 import {computed, onMounted, ref, useSlots, watch} from "vue";
 import {useI18n} from "vue-i18n";
@@ -67,6 +68,10 @@ const onReady = async () => {
 defineOptions({
   name: "ModIconWidget"
 })
+
+const { useIconImagePadding, useIconImageMargin } = useIconGlobalStyle();
+const computedPadding = useIconImagePadding(props.padding);
+const computedMargin = useIconImageMargin(props.margin);
 </script>
 
 <template>
@@ -89,8 +94,8 @@ defineOptions({
           v-bind="activatorProps"
           :class="[
           'prohibit-drag',
-          `ma-${props.margin}`,
-          `pa-${props.padding}`,
+          `ma-${computedMargin}`,
+          `pa-${computedPadding}`,
       ]">
         <template v-if="modsData.icon">
           <v-img :src="modsData.icon"

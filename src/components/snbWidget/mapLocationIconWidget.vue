@@ -3,6 +3,7 @@ export default { name: 'MapLocationIconWidget' }
 </script>
 
 <script setup lang="ts">
+import { useIconGlobalStyle } from "@/assets/sripts/useIconGlobalStyle";
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {computed, onMounted, type Ref, ref, watch} from "vue";
@@ -85,6 +86,10 @@ const {targetElement, isVisible} = useIntersectionObserver({
 
 const getRarity = (i: any) => i?.rarity
 const getType = (i: any) => i?.type
+
+const { useIconImagePadding, useIconImageMargin } = useIconGlobalStyle();
+const computedPadding = useIconImagePadding(props.padding);
+const computedMargin = useIconImageMargin(props.margin);
 </script>
 
 <template>
@@ -111,8 +116,8 @@ const getType = (i: any) => i?.type
           :target="isOpenNewWindow ? '_blank' : '_self'"
           :class="[
               'prohibit-drag',
-              `ma-${props.margin}`,
-              `pa-${props.padding}`,
+              `ma-${computedMargin}`,
+              `pa-${computedPadding}`,
               `mapLocation-card-header-rarity-${(i as any).rarity}`
           ]">
         <template v-slot:image v-if="(i as any).rarity">

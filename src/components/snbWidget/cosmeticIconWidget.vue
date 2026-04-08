@@ -3,6 +3,7 @@ export default {name: 'CosmeticIconWidget'}
 </script>
 
 <script setup lang="ts">
+import { useIconGlobalStyle } from "@/assets/sripts/useIconGlobalStyle";
 import {useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
 import Loading from "../Loading.vue";
@@ -74,6 +75,10 @@ const onReady = async () => {
 const {targetElement, isVisible} = useIntersectionObserver({
   threshold: .7,
 })
+
+const { useIconImagePadding, useIconImageMargin } = useIconGlobalStyle();
+const computedPadding = useIconImagePadding(props.padding);
+const computedMargin = useIconImageMargin(props.margin);
 </script>
 
 <template>
@@ -98,8 +103,8 @@ const {targetElement, isVisible} = useIntersectionObserver({
           :target="isOpenNewWindow ? '_blank' : '_self'"
           :class="[
               'prohibit-drag',
-              `ma-${props.margin}`,
-              `pa-${props.padding}`,
+              `ma-${computedMargin}`,
+              `pa-${computedPadding}`,
               `cosmetic-card-header-rarity-${i.rarity}`
           ]">
         <template v-slot:image v-if="i.rarity">

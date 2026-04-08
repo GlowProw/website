@@ -3,14 +3,23 @@ export default { name: 'ItemSlotBase' }
 </script>
 
 <script setup lang="ts">
-const props = withDefaults(defineProps<{ size?: number | string, padding?: number | string }>(), {
-  padding: 1,
-  size: '80px'
-})
+import { useIconGlobalStyle } from '@/assets/sripts/useIconGlobalStyle';
+
+const props = defineProps<{
+  size?: number | string,
+  padding?: number | string,
+  margin?: number | string
+}>();
+
+const { useIconAdaptiveSize, useIconBoxPadding, useIconBoxMargin } = useIconGlobalStyle();
+
+const computedSize = useIconAdaptiveSize(() => props.size, 80);
+const computedPadding = useIconBoxPadding(() => props.padding, 1);
+const computedMargin = useIconBoxMargin(() => props.margin, 0);
 </script>
 
 <template>
-  <span class="card-enlargement-flavor" :class="`item-base-slot pa-${padding}`" :style="`height: ${size}; width: ${size};min-height: ${size}; min-width: ${size}`">
+  <span class="card-enlargement-flavor" :class="`item-base-slot pa-${computedPadding} ma-${computedMargin}`" :style="`height: ${computedSize}; width: ${computedSize};min-height: ${computedSize}; min-width: ${computedSize}`">
     <slot></slot>
   </span>
 </template>

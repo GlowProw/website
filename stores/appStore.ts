@@ -23,11 +23,9 @@ export const useAppStore = defineStore('app', () => {
             padding: 1,
         },
         icon: {
-            margin: 1,
-            padding: 1,
+            margin: 0,
+            padding: 0,
         },
-        margin: 1,
-        padding: 1,
     })
 
     // 应用主题
@@ -76,9 +74,9 @@ export const useAppStore = defineStore('app', () => {
             CONFIG_KEYS.ICON_SIZE,
             {
                 defaultValue: {
-                    icon: 99,
-                    margin: 1,
-                    padding: 1,
+                    size: 99,
+                    box: { margin: 1, padding: 0 },
+                    icon: { margin: 1, padding: 0 },
                 }
             }
         )

@@ -54,7 +54,7 @@ let iconId = ref('culverin1'),
         },
         icon: {
           margin: 0,
-          padding: 1,
+          padding: 0,
         },
       },
       {
@@ -65,7 +65,7 @@ let iconId = ref('culverin1'),
         },
         icon: {
           margin: 0,
-          padding: 1,
+          padding: 0,
         },
       },
       {
@@ -76,7 +76,7 @@ let iconId = ref('culverin1'),
         },
         icon: {
           margin: 0,
-          padding: 1,
+          padding: 0,
         },
       },
       {
@@ -87,7 +87,7 @@ let iconId = ref('culverin1'),
         },
         icon: {
           margin: 0,
-          padding: 1,
+          padding: 0,
         },
       },
       {
@@ -98,7 +98,7 @@ let iconId = ref('culverin1'),
         },
         icon: {
           margin: 0,
-          padding: 1,
+          padding: 0,
         },
       },
       {
@@ -108,8 +108,8 @@ let iconId = ref('culverin1'),
           padding: 1,
         },
         icon: {
-          margin: 1,
-          padding: 1,
+          margin: 0,
+          padding: 0,
         },
       },
       {
@@ -119,8 +119,8 @@ let iconId = ref('culverin1'),
           padding: 1,
         },
         icon: {
-          margin: 1,
-          padding: 1,
+          margin: 0,
+          padding: 0,
         },
       },
       {
@@ -130,8 +130,8 @@ let iconId = ref('culverin1'),
           padding: 1,
         },
         icon: {
-          margin: 1,
-          padding: 1,
+          margin: 0,
+          padding: 0,
         },
       },
       {
@@ -141,8 +141,8 @@ let iconId = ref('culverin1'),
           padding: 1,
         },
         icon: {
-          margin: 1,
-          padding: 1,
+          margin: 0,
+          padding: 0,
         },
       },
       {
@@ -152,8 +152,8 @@ let iconId = ref('culverin1'),
           padding: 1,
         },
         icon: {
-          margin: 1,
-          padding: 1,
+          margin: 0,
+          padding: 0,
         },
       }
     ]),

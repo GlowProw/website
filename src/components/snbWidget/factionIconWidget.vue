@@ -3,6 +3,7 @@ export default { name: 'FactionIconWidget' }
 </script>
 
 <script setup lang="ts">
+import { useIconGlobalStyle } from "@/assets/sripts/useIconGlobalStyle";
 import {onMounted, type Ref, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
@@ -45,6 +46,10 @@ const onReady = () => {
   }, 'glow-prow')
 }
 
+
+const { useIconImagePadding, useIconImageMargin } = useIconGlobalStyle();
+const computedPadding = useIconImagePadding(props.padding);
+const computedMargin = useIconImageMargin(props.margin);
 </script>
 
 <template>

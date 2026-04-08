@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useIconGlobalStyle } from "@/assets/sripts/useIconGlobalStyle";
 import {Ultimate, Ultimates} from "glow-prow-data"
 import {computed, onMounted, type Ref, ref} from "vue";
 import {useAppStore} from "~/stores/appStore";
@@ -61,6 +62,10 @@ const onReady = async () => {
 defineOptions({
   name: "UltimateIconWidget"
 })
+
+const { useIconImagePadding, useIconImageMargin } = useIconGlobalStyle();
+const computedPadding = useIconImagePadding(props.padding);
+const computedMargin = useIconImageMargin(props.margin);
 </script>
 
 <template>
@@ -84,8 +89,8 @@ defineOptions({
           width="100%"
           :class="[
               'prohibit-drag',
-              `ma-${props.margin}`,
-              `pa-${props.padding}`,
+              `ma-${computedMargin}`,
+              `pa-${computedPadding}`,
           ]">
         <v-img :src="ultimatesData.icon" class="pointer-events-none"></v-img>
       </v-card>

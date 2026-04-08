@@ -465,19 +465,16 @@ defineOptions({name: 'AssemblyWidget'})
               <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-else>
                 <v-card
                     v-bind="propsHoverClose"
-                    class="mx-auto"
-                    width="110">
+                    class="mx-auto">
                   <ItemSlotBase size="110px"
                                 v-if="workshopData.data.shipSlot && workshopData.data.shipSlot.id"
                                 :padding="2"
                                 :class="[workshopData.data.shipSlot && workshopData.data.shipSlot.id ? 'bg-amber' : '']">
-                    <v-card class="w-100">
-                      <ShipIconWidget :id="workshopData.data.shipSlot.id"
-                                      :is-show-tooltip="poops.perfectDisplay"
-                                      :isOpenDetail="false"
-                                      :margin="0"
-                                      :padding="0"/>
-                    </v-card>
+                    <ShipIconWidget :id="workshopData.data.shipSlot.id"
+                                    :is-show-tooltip="poops.perfectDisplay"
+                                    :isOpenDetail="false"
+                                    :margin="0"
+                                    :padding="0"/>
                   </ItemSlotBase>
 
                   <v-overlay
@@ -556,7 +553,10 @@ defineOptions({name: 'AssemblyWidget'})
             <v-row justify="space-around">
               <!-- 陈设 卡槽 S -->
               <v-col cols="auto" class="mr-5">
-                <p class="mb-2 px-5 font-weight-bold badge-flavor text-center text-black">{{ t('assembly.workshop.displayTitle') }} ({{ workshopData.data.displaySlots.length || 0 }})</p>
+                <v-card variant="tonal" class="mb-2 py-2 px-10 font-weight-bold text-center">
+                  {{ t('assembly.workshop.displayTitle') }} ({{ workshopData.data.displaySlots.length || 0 }})
+                </v-card>
+
                 <template v-if="route.query.debug">
                   {{ workshopData.data.displaySlots || [] }}
                 </template>
@@ -567,7 +567,7 @@ defineOptions({name: 'AssemblyWidget'})
 
                   <template v-if="isShowEmpty || workshopData.data.displaySlots[displayIndex] && workshopData.data.displaySlots[displayIndex]?.id != null">
                     <v-col cols="auto">
-                      <v-card class="bg-transparent text-center pt-1" min-height="40" min-width="30">
+                      <v-card variant="text" class="bg-transparent text-center pt-1" min-height="40" min-width="30">
                         <span class="text-amber-lighten-5">{{ number.intToRoman(displayIndex + 1) }}</span>
                         <template v-slot:image>
                           <AssemblySvgIcon name="tableFurniture" class="opacity-20" size="30"></AssemblySvgIcon>
@@ -591,7 +591,7 @@ defineOptions({name: 'AssemblyWidget'})
                         </ItemSlotBase>
 
                         <v-hover v-slot="{ isHovering, props : propsHoverClose }">
-                          <v-card v-bind="propsHoverClose" max-width="80">
+                          <v-card variant="text" v-bind="propsHoverClose">
                             <ItemSlotBase size="80px" class="pa-1" v-if="display && display.id">
                               <ItemIconWidget :id="display.id" :is-open-detail="false" :is-show-tooltip="readonly"></ItemIconWidget>
                             </ItemSlotBase>
@@ -621,9 +621,21 @@ defineOptions({name: 'AssemblyWidget'})
               <!-- 武器列表 卡槽 S -->
               <v-col>
                 <!-- 主 -->
-                <p class="mb-2 px-3 font-weight-bold badge-flavor text-center text-black">{{ t('assembly.workshop.weaponTitle') }}</p>
+                <v-card variant="tonal" class="mb-2 py-2 font-weight-bold text-center">
+                  {{ t('assembly.workshop.weaponTitle') }}
+                </v-card>
 
-                <p class="mb-3 card-flavor bg-black">{{ t('assembly.workshop.mainWeapon') }}</p>
+                <v-row class="font-weight-bold" align="center">
+                  <v-col cols="auto">
+                    <img src="../assets/images/icon-weapon.png" height="28" width="28"/>
+                  </v-col>
+                  <v-col>
+                    <v-divider opacity=".2" thickness="2"></v-divider>
+                  </v-col>
+                  <v-col cols="auto" class="opacity-50">
+                    {{ t('assembly.workshop.mainWeapon') }}
+                  </v-col>
+                </v-row>
                 <div class="ml-5 mb-2"
                      v-if="workshopData.data.weaponSlots && workshopData.data.weaponSlots.length > 0"
                      v-for="(i, index) in workshopData.data.weaponSlots"
@@ -639,7 +651,6 @@ defineOptions({name: 'AssemblyWidget'})
                             :center-down="workshopData.data.weaponDirections[index] == 'aftWeapon'"
                             class="ml-5"></ShipTopDownPerspectiveWidget>
                       </v-col>
-                      <v-divider vertical inset class="ml-3 mr-2"></v-divider>
                       <v-col>
                         <!-- 武器方向 -->
                         <p class="mb-2 ml-n5 mr-n5 pl-5">
@@ -690,7 +701,7 @@ defineOptions({name: 'AssemblyWidget'})
                         <v-row>
                           <v-col cols="auto">
                             <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.weaponSlots[index] && workshopData.data.weaponSlots[index].id">
-                              <v-card class="position-relative" v-bind="propsHoverClose" max-width="80">
+                              <v-card variant="text" class="position-relative" v-bind="propsHoverClose">
                                 <ItemSlotBase size="80px" class="pa-1">
                                   <ItemIconWidget :id="i.id" :is-show-tooltip="readonly" :is-open-detail="false"></ItemIconWidget>
                                 </ItemSlotBase>
@@ -710,12 +721,13 @@ defineOptions({name: 'AssemblyWidget'})
                               </v-card>
                             </v-hover>
                             <ItemSlotBase size="80px" v-else-if="!workshopData.data.weaponDirections[index]">
-                              <v-card class="w-100 d-flex align-center justify-center">
+                              <v-card variant="text" class="w-100 d-flex align-center justify-center">
                                 <AssemblySvgIcon name="blockHelper" class="opacity-30" size="20"></AssemblySvgIcon>
                               </v-card>
                             </ItemSlotBase>
                             <ItemSlotBase size="80px" v-else>
                               <v-card class="w-100 d-flex align-center justify-center"
+                                      variant="text"
                                       :disabled="readonly"
                                       @click="workshopData.weaponModel = true;workshopData.weaponInsertIndex = index">
                                 <v-icon icon="mdi-plus"></v-icon>
@@ -747,9 +759,12 @@ defineOptions({name: 'AssemblyWidget'})
                               <v-col align="center" class="mt-n1">
                                 <v-icon icon="mdi-chevron-up" size="16"></v-icon>
                                 <ItemSlotBase size="30px"
-                                              padding="0"
+                                              :padding="0"
+                                              :margin="0"
                                               v-for="(p, pIndex) in getDeckInformation(index).top" :key="pIndex + p">
                                   <ItemIconWidget :id="i.id" v-if="i.id"
+                                                  :padding="0"
+                                                  :margin="0"
                                                   :is-show-tooltip="false"
                                                   :is-open-detail="false"></ItemIconWidget>
                                 </ItemSlotBase>
@@ -757,27 +772,20 @@ defineOptions({name: 'AssemblyWidget'})
                               <v-col align="center" class="mt-n1">
                                 <v-icon icon="mdi-chevron-down" size="16"></v-icon>
                                 <ItemSlotBase size="30px"
-                                              padding="0"
+                                              :padding="0"
+                                              :margin="0"
                                               :id="i.id"
                                               v-if="i.id"
                                               v-for="(p, pIndex) in getDeckInformation(index).lower" :key="pIndex">
                                   <ItemIconWidget :id="i.id"
+                                                  :padding="0"
+                                                  :margin="0"
                                                   :is-show-tooltip="false"
                                                   :is-open-detail="false"></ItemIconWidget>
                                 </ItemSlotBase>
                               </v-col>
                             </v-row>
                           </v-col>
-                          <template v-if="false">
-                            <v-col class="d-flex align-start">
-                              <v-divider thickness="4" opacity="1" color="#000" class="mt-2"></v-divider>
-                            </v-col>
-                            <v-col cols="1">
-                              <ItemSlotBase size="60px">
-                                皮肤
-                              </ItemSlotBase>
-                            </v-col>
-                          </template>
                         </v-row>
 
                         <!-- 武器模组插槽 仅展示 -->
@@ -790,15 +798,23 @@ defineOptions({name: 'AssemblyWidget'})
                     </v-row>
                     <v-divider></v-divider>
                   </template>
-
-
                 </div>
                 <div v-else>
                   <EmptyView></EmptyView>
                 </div>
 
                 <!-- 副 -->
-                <p class="mt-2 mb-3 card-flavor bg-black">{{ t('assembly.workshop.secondaryWeapon') }}</p>
+                <v-row class="font-weight-bold" align="center">
+                  <v-col cols="auto">
+                    <img src="../assets/images/icon-weapon.png" height="28" width="28"/>
+                  </v-col>
+                  <v-col>
+                    <v-divider opacity=".2" thickness="2"></v-divider>
+                  </v-col>
+                  <v-col cols="auto" class="opacity-50">
+                    {{ t('assembly.workshop.secondaryWeapon') }}
+                  </v-col>
+                </v-row>
 
                 <div class="ml-5 mb-2"
                      v-if="workshopData.data.secondaryWeaponSlots && workshopData.data.secondaryWeaponSlots.length > 0"
@@ -811,12 +827,11 @@ defineOptions({name: 'AssemblyWidget'})
                             :centerCenter="i && !!i.id"
                             class="ml-5"></ShipTopDownPerspectiveWidget>
                       </v-col>
-                      <v-divider vertical class="ml-3 mr-2"></v-divider>
                       <v-col>
                         <v-row>
                           <v-col cols="auto">
                             <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.secondaryWeaponSlots[index] && workshopData.data.secondaryWeaponSlots[index].id">
-                              <v-card class="position-relative" v-bind="propsHoverClose" max-width="80">
+                              <v-card variant="text" class="position-relative" v-bind="propsHoverClose">
                                 <ItemSlotBase size="80px" class="pa-1">
                                   <ItemIconWidget :id="i.id" :is-show-tooltip="readonly"></ItemIconWidget>
                                 </ItemSlotBase>
@@ -836,12 +851,13 @@ defineOptions({name: 'AssemblyWidget'})
                               </v-card>
                             </v-hover>
                             <ItemSlotBase size="80px" v-else-if="readonly && workshopData.data.secondaryWeaponSlots[index] && workshopData.data.secondaryWeaponSlots[index].id == null">
-                              <v-card class="w-100 d-flex align-center justify-center">
+                              <v-card variant="text" class="w-100 d-flex align-center justify-center">
                                 <AssemblySvgIcon name="blockHelper" class="opacity-30" size="20"></AssemblySvgIcon>
                               </v-card>
                             </ItemSlotBase>
                             <ItemSlotBase size="80px" v-else>
                               <v-card class="w-100 d-flex align-center justify-center"
+                                      variant="text"
                                       :disabled="readonly"
                                       @click="workshopData.secondaryWeaponModel = true;workshopData.secondaryWeaponInsertIndex = index">
                                 <v-icon icon="mdi-plus"></v-icon>
@@ -898,12 +914,14 @@ defineOptions({name: 'AssemblyWidget'})
 
               <!-- 船甲 卡槽 S -->
               <v-col cols="auto">
-                <p class="mb-3 px-3 font-weight-bold badge-flavor text-center text-black">{{ t('assembly.workshop.armorTitle') }}</p>
+                <v-card variant="tonal" class="mb-2 py-2 font-weight-bold text-center">
+                  {{ t('assembly.workshop.armorTitle') }}
+                </v-card>
 
                 <div>
                   <template v-if="isShowEmpty || workshopData.data.armorSlot">
                     <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.armorSlot">
-                      <v-card v-bind="propsHoverClose" class="position-relative" width="80">
+                      <v-card variant="text" v-bind="propsHoverClose" class="position-relative">
                         <ItemSlotBase size="80px" class="pa-1">
                           <ItemIconWidget :id="workshopData.data.armorSlot.id" :is-open-detail="false" :is-show-tooltip="readonly"></ItemIconWidget>
                         </ItemSlotBase>
@@ -922,15 +940,16 @@ defineOptions({name: 'AssemblyWidget'})
                       </v-card>
                     </v-hover>
 
-                    <ItemSlotBase id="ship_select" size="80px" v-if="!readonly && !workshopData.data.armorSlot">
+                    <ItemSlotBase size="80px" v-if="!readonly && !workshopData.data.armorSlot">
                       <v-card class="w-100 d-flex align-center justify-center"
+                              variant="text"
                               @click="workshopData.armorModel = true"
                               :disabled="readonly">
                         <v-icon icon="mdi-plus" size="30"></v-icon>
                       </v-card>
                     </ItemSlotBase>
                     <ItemSlotBase size="80px" class="pa-2 d-flex justify-center align-center" v-else-if="readonly && !workshopData.data.armorSlot">
-                      <v-card class="w-100 h-100 d-flex align-center justify-center">
+                      <v-card variant="text" class="w-100 h-100 d-flex align-center justify-center">
                         <AssemblySvgIcon name="blockHelper" class="opacity-30" size="20"></AssemblySvgIcon>
                       </v-card>
                     </ItemSlotBase>
@@ -958,7 +977,9 @@ defineOptions({name: 'AssemblyWidget'})
 
               <!-- 终极技能 卡槽 S -->
               <v-col cols="auto">
-                <p class="mb-3 px-3 font-weight-bold badge-flavor text-center text-black">{{ t('assembly.workshop.ultimateTitle') }}</p>
+                <v-card variant="tonal" class="mb-2 py-2 font-weight-bold text-center">
+                  {{ t('assembly.workshop.ultimateTitle') }}
+                </v-card>
 
                 <template v-if="isShowEmpty || workshopData.ultimateModel">
                   <v-tooltip
@@ -972,20 +993,21 @@ defineOptions({name: 'AssemblyWidget'})
                       interactive
                       open-on-click>
                     <template v-slot:activator="{ props: propsSlot }">
-                      <ItemSlotBase id="ship_select" size="80px" v-if="!readonly && !workshopData.data.ultimateSlot">
-                        <v-card class="w-100 d-flex align-center justify-center" v-bind="propsSlot"
+                      <ItemSlotBase size="80px" v-if="!readonly && !workshopData.data.ultimateSlot">
+                        <v-card variant="text" class="w-100 d-flex align-center justify-center"
+                                v-bind="propsSlot"
                                 :disabled="readonly">
                           <v-icon icon="mdi-plus" size="30"></v-icon>
                         </v-card>
                       </ItemSlotBase>
                       <ItemSlotBase size="80px" class="pa-2 d-flex justify-center align-center" v-else-if="readonly && !workshopData.data.ultimateSlot">
-                        <v-card class="w-100 h-100 d-flex align-center justify-center">
+                        <v-card variant="text" class="w-100 h-100 d-flex align-center justify-center">
                           <AssemblySvgIcon name="blockHelper" class="opacity-30" size="20"></AssemblySvgIcon>
                         </v-card>
                       </ItemSlotBase>
 
                       <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-else>
-                        <v-card v-bind="propsHoverClose" class="position-relative" width="80">
+                        <v-card v-bind="propsHoverClose" variant="text" class="position-relative">
                           <ItemSlotBase size="80px" class="pa-2"
                                         v-if="workshopData.data.ultimateSlot && workshopData.data.ultimateSlot.id">
                             <UltimateIconWidget :id="workshopData.data.ultimateSlot.id" :isOpenDetail="false"></UltimateIconWidget>
@@ -1010,7 +1032,7 @@ defineOptions({name: 'AssemblyWidget'})
                         <v-col cols="3"
                                v-for="(ultimate,ultimateIndex) in ultimates"
                                :key="ultimateIndex">
-                          <v-card width="92" elevation="0">
+                          <v-card variant="text" width="92" elevation="0">
                             <ItemSlotBase
                                 size="90px" class="pa-1"
                                 @click="workshopData.ultimateSelect = castToAny(ultimate)"

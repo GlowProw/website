@@ -80,6 +80,10 @@ const onReady = async () => {
 const {targetElement, isVisible} = useIntersectionObserver({
   threshold: .7,
 })
+
+const { useIconImagePadding, useIconImageMargin } = useIconGlobalStyle();
+const computedPadding = useIconImagePadding(props.padding);
+const computedMargin = useIconImageMargin(props.margin);
 </script>
 
 <template>
@@ -101,8 +105,8 @@ const {targetElement, isVisible} = useIntersectionObserver({
           ref="targetElement"
           :class="[
               'prohibit-drag',
-              `ma-${props.margin}`,
-              `pa-${props.padding}`,
+              `ma-${computedMargin}`,
+              `pa-${computedPadding}`,
           ]"
           :to="isOpenDetail ? `/codex/npc/${i.key}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"

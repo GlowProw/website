@@ -3,6 +3,7 @@ export default {name: 'MaterialIconWidget'}
 </script>
 
 <script setup lang="ts">
+import { useIconGlobalStyle } from "@/assets/sripts/useIconGlobalStyle";
 import {computed, onMounted, type Ref, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {useAssetsStore} from "~/stores/assetsStore";
@@ -71,6 +72,10 @@ const onReady = async () => {
     category: 'materials'
   })
 }
+
+const { useIconImagePadding, useIconImageMargin } = useIconGlobalStyle();
+const computedPadding = useIconImagePadding(props.padding);
+const computedMargin = useIconImageMargin(props.margin);
 </script>
 
 <template>
@@ -99,8 +104,8 @@ const onReady = async () => {
           :style="`background: hsl(from ${rarityColorConfig[i?.rarity]} h s calc(l * .2))`"
           :class="[
               'prohibit-drag',
-              `ma-${props.margin}`,
-              `pa-${props.padding}`,
+              `ma-${computedMargin}`,
+              `pa-${computedPadding}`,
           ]">
         <div class="d-flex align-center justify-center w-100 h-100">
           <v-img

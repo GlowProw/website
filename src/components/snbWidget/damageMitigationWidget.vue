@@ -92,6 +92,7 @@ defineOptions({
 </script>
 
 <template>
+  <!-- 属性 垂直 -->
   <template v-if="direction == 'vertical'">
     <v-text-field :value="armor"
                   v-if="armor || isForciblyIcon"
@@ -104,9 +105,9 @@ defineOptions({
         <p class="text-no-wrap">{{ t(`assembly.tags.damageTypes.armor`) }}</p>
       </template>
       <template v-slot:append>
-        <ItemSlotBase size="30px" :padding="0">
+        <v-card variant="text" width="30" class="bg-transparent" elevation="0">
           <DamageIconWidget id="armor" :iconType="type"></DamageIconWidget>
-        </ItemSlotBase>
+        </v-card>
       </template>
     </v-text-field>
 
@@ -121,20 +122,21 @@ defineOptions({
         <p class="text-no-wrap">{{ t(`assembly.tags.damageTypes.${dmKey}`) }}</p>
       </template>
       <template v-slot:append>
-        <ItemSlotBase size="30px" :padding="0">
+        <v-card variant="text" width="30" class="bg-transparent" elevation="0">
           <DamageIconWidget :id="dmKey" :iconType="type"></DamageIconWidget>
-        </ItemSlotBase>
+        </v-card>
       </template>
     </v-text-field>
   </template>
 
+  <!-- 属性 横向 -->
   <template v-else-if="direction == 'horizontal'">
     <v-row>
       <v-col cols="auto" class="pa-2" v-if="armor || isForciblyIcon">
         <v-card variant="text">
-          <ItemSlotBase size="30px" :padding="0" class="bg-transparent">
+          <v-card variant="text" width="30" class="bg-transparent" elevation="0">
             <DamageIconWidget id="armor" :iconType="type" :is-border="false"></DamageIconWidget>
-          </ItemSlotBase>
+          </v-card>
           <p class="text-no-wrap text-caption text-center">{{ armor }}</p>
         </v-card>
       </v-col>
@@ -150,9 +152,9 @@ defineOptions({
             cols="auto"
             class="pa-2">
           <v-card variant="text">
-            <ItemSlotBase size="30px" :padding="0" class="bg-transparent">
+            <v-card variant="text" width="30" class="bg-transparent" elevation="0">
               <DamageIconWidget :id="dmKey" :iconType="type" :is-border="false"></DamageIconWidget>
-            </ItemSlotBase>
+            </v-card>
             <p class="text-no-wrap text-caption text-center">{{ `${(dmValue * 100).toFixed(0)}%` }}</p>
           </v-card>
         </v-col>

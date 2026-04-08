@@ -3,6 +3,7 @@ export default {name: 'ItemIconWidget'}
 </script>
 
 <script setup lang="ts">
+import { useIconGlobalStyle } from "@/assets/sripts/useIconGlobalStyle";
 import {computed, onMounted, type Ref, ref, watch} from "vue";
 import {Item, Items} from "glow-prow-data/src/entity/Items";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
@@ -97,6 +98,10 @@ defineExpose({
   getTier,
   getRarity
 })
+
+const { useIconImagePadding, useIconImageMargin } = useIconGlobalStyle();
+const computedPadding = useIconImagePadding(props.padding);
+const computedMargin = useIconImageMargin(props.margin);
 </script>
 
 <template>
@@ -123,8 +128,8 @@ defineExpose({
           :target="isOpenNewWindow ? '_blank' : '_self'"
           :class="[
               'prohibit-drag',
-              `ma-${props.margin}`,
-              `pa-${props.padding}`,
+              `ma-${computedMargin}`,
+              `pa-${computedPadding}`,
               `item-card-header-rarity-${i.rarity}`
           ]">
         <div class="d-flex align-center justify-center w-100 h-100">

@@ -41,12 +41,13 @@ defineOptions({ name: 'WeaponModificationOnlyShowWidget' })
        :key="modIndex">
     <v-row no-gutters>
       <v-col cols="auto" class="d-flex justify-center align-center">
-        <v-card
-            class="pa-1"
-            variant="flat"
-            :color="modStyleConfig[mod.type]">
-          <v-img :src="modIconImages[mod.type]" width="20px" height="20px"/>
-        </v-card>
+        <ItemSlotBase size="45px">
+          <v-card
+              class="pa-1 w-100 h-100"
+              :color="modStyleConfig[mod.type]">
+            <v-img :src="modIconImages[mod.type]"/>
+          </v-card>
+        </ItemSlotBase>
       </v-col>
       <v-col>
         <template v-if="mod.value">
