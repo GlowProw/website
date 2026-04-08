@@ -1,12 +1,11 @@
 <template>
-  <div class="wind-flow-container">
+  <div class="wind-flow-container mt-3">
     <svg
         ref="svgElement"
         width="150"
         height="50"
         class="wind-flow-svg"
-        :style="{ backgroundColor: background }"
-    >
+        :style="{ backgroundColor: background }">
       <defs>
         <linearGradient
             id="windGradient"

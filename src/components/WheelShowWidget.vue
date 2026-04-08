@@ -12,6 +12,8 @@ import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import RhombusWidget from "@/components/snbWidget/rhombusWidget.vue";
 import WheelDataProcessing from "@/assets/sripts/wheel_data_processing";
 import {WheelAttr} from "@/assets/types";
+import {useI18n} from "vue-i18n";
+import { useIconGlobalStyle } from "@/assets/sripts/useIconGlobalStyle";
 
 const props = withDefaults(defineProps<{
       readonly?: boolean,
@@ -30,6 +32,24 @@ let show = ref(false),
     selectWheelIndex = ref(0),
     selectWheelValue = ref<any>(null),
     wheelOptionalItemTags = ref(['consumable']),
+    {t} = useI18n(),
+    { useIconAdaptiveSize, useIconBoxMargin, useIconBoxPadding, useIconImageMargin, useIconImagePadding } = useIconGlobalStyle(),
+    baseSize = 90,
+    sizeRef = useIconAdaptiveSize(baseSize, 90),
+    computedOuterPadding = useIconBoxPadding(1),
+    computedOuterMargin = useIconBoxMargin(1),
+    computedInnerPadding = useIconImagePadding(0),
+    computedInnerMargin = useIconImageMargin(1),
+
+    size = computed(() => {
+        let coreSize = parseInt(String(sizeRef.value)) || baseSize;
+        const outerPad = (computedOuterPadding.value as number) * 8;
+        const outerMar = (computedOuterMargin.value as number) * 8;
+        const innerPad = (computedInnerPadding.value as number) * 8;
+        const innerMar = (computedInnerMargin.value as number) * 8;
+        return coreSize + outerPad + outerMar + innerPad + innerMar;
+    }),
+
     // 属性
     attr = ref<WheelAttr>({
       wheelUseVersion: WheelDataProcessing.nowVersion
@@ -157,7 +177,7 @@ defineExpose({
 </script>
 
 <template>
-  <div class="position-relative">
+  <div class="position-relative mt-3">
     <div class="wheel-controller">
       <v-row align="center" justify="center">
         <v-col cols="auto">
@@ -181,15 +201,15 @@ defineExpose({
     <v-tabs-window v-model="wheelTabValue" class="wheel-padding-box">
       <v-tabs-window-item :value="tabIndex" v-for="(tab, tabIndex) in wheelTabs" :key="tabIndex">
         <div class="wheel-box">
-          <div class="wheel" :style="{ transform: `rotate(${rotation}deg)` }">
+          <div class="wheel" :style="{ transform: `rotate(${rotation}deg)`, '--slot-size': `${size}px` }">
             <template v-for="(i,index) in tab.data" :key="index">
 
               <!-- 1 -->
-              <v-badge :color="`rgb(57 57 57)`" :location="'bottom center'" class="slot" v-if="(index + 1) % 2">
+              <v-badge :color="`rgb(57 57 57)`" :location="'bottom center'" class="slot bg-amber" v-if="(index + 1) % 2">
                 <v-card border
                         class="rounded-circle position-relative"
                         :disabled="readonly">
-                  <ItemSlotBase size="90px"
+                  <ItemSlotBase :size="`${baseSize}px`"
                                 :padding="0"
                                 @click=" readonly ? null :onAddItem(index)"
                                 v-if="!wheelTabs[wheelTabValue].data[index]?.id"
@@ -202,7 +222,7 @@ defineExpose({
                   <v-hover v-slot="{ isHovering, props }"
                            v-else-if="wheelTabs[wheelTabValue].data[index]?.id">
                     <v-card v-bind="props">
-                      <ItemSlotBase size="90px" :padding="0"
+                      <ItemSlotBase :size="`${baseSize}px`" :padding="0"
                                     class="overflow-hidden d-flex justify-center align-center">
                         <ItemIconWidget :padding="0"
                                         :margin="0"
@@ -229,15 +249,15 @@ defineExpose({
               </v-badge>
 
               <!-- 2 -->
-              <div class="slot" v-else>
+              <div class="slot bg-amber" v-else>
                 <v-card border
                         class="rounded-circle position-relative">
-                  <ItemSlotBase size="90px"
+                  <ItemSlotBase :size="`${baseSize}px`"
                                 @click="readonly ? null :onAddItem(index)"
                                 v-if="wheelTabs[wheelTabValue].data[index] == null"
                                 :padding="0"
                                 class="rounded-circle d-flex justify-center align-center">
-                    <v-icon size="40">
+                    <v-icon size="40" class="opacity-60">
                       {{ !readonly ? 'mdi-plus' : 'mdi-close' }}
                     </v-icon>
                   </ItemSlotBase>
@@ -246,7 +266,7 @@ defineExpose({
                   <v-hover v-slot="{ isHovering, props }"
                            v-else-if="wheelTabs[wheelTabValue].data[index] != null">
                     <div v-bind="props">
-                      <ItemSlotBase size="90px"
+                      <ItemSlotBase :size="`${baseSize}px`"
                                     :padding="0"
                                     class="rounded-circle d-flex justify-center align-center">
                         <ItemIconWidget :padding="0"
@@ -280,12 +300,12 @@ defineExpose({
     <v-dialog v-model="show" max-width="1024">
       <v-card>
         <v-card-title>
-          插入物品
+          {{ t('wheel.insertItem') }}
         </v-card-title>
         <AssemblyClassificationShowList :tags="wheelOptionalItemTags" v-model="selectWheelValue"></AssemblyClassificationShowList>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn @click="onInsertSlot">确认</v-btn>
+          <v-btn @click="onInsertSlot">{{ t('basic.button.submit') }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -324,8 +344,8 @@ defineExpose({
 
 .slot {
   position: absolute;
-  width: 90px;
-  height: 90px;
+  width: var(--slot-size, 90px);
+  height: var(--slot-size, 90px);
   display: flex;
   justify-content: center;
   align-items: center;

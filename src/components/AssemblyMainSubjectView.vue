@@ -155,13 +155,15 @@ defineOptions({ name: 'AssemblyMainSubjectView' })
 
 <template>
   <v-card class="card-enlargement-flavor mt-n3 mb-5 ml-n10 mr-n10"
-          min-height="300"
+          min-height="500"
           :class="[isWorkshopFillScreen ? 'fill-screen bg-black' : 'position-relative mb-n2', props.class]">
     <v-tabs
         v-model="tab"
+        height="70"
         @update:model-value="onTabs"
         align-tabs="center">
       <v-tab :value="i"
+             class="pt-6"
              v-for="(i,index) in assemblyViewConfig.onlyRead"
              :disabled="i === 'warehouse' && hasShip || hasData(i)"
              :key="index">{{ t(`assembly.additions.${i}`) }}
@@ -190,6 +192,7 @@ defineOptions({ name: 'AssemblyMainSubjectView' })
         <div v-show="tab === 'warehouse'">
           <WarehouseShowWidget ref="warehouseWorkshopRef"
                                @update:item-change="onUpdateEvent"
+                               :ship="shipDetailInfo"
                                :cargo="shipDetailInfo?.cargo"
                                :readonly="readonly"></WarehouseShowWidget>
         </div>

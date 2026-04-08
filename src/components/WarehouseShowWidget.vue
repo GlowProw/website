@@ -1,5 +1,5 @@
 <script lang="ts">
-export default { name: 'WarehouseShowWidget' }
+export default {name: 'WarehouseShowWidget'}
 </script>
 
 <script setup lang="ts">
@@ -10,12 +10,18 @@ import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemName from "@/components/snbWidget/itemName.vue";
 import AssemblyClassificationShowList from "@/components/AssemblyClassificationShowList.vue";
+import {useI18n} from "vue-i18n";
+import {useIconGlobalStyle} from "@/assets/sripts/useIconGlobalStyle";
 
 import WarehouseDataProcessing from "@/assets/sripts/warehouse_data_processing";
+import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
+import {Ship} from "glow-prow-data/src/entity/Ships";
+import ShipName from "@/components/snbWidget/shipName.vue";
 
 const props = withDefaults(defineProps<{
       readonly?: boolean,
       cargo?: any,
+      ship?: Ship,
     }>(), {
       readonly: false,
       cargo: {}
@@ -28,9 +34,30 @@ let data = ref<{ id: number | null, count: number, timestamp?: number }[]>([]),
     selectIndex = ref(0),
     selectItemValue = ref<any>(null),
     wheelOptionalItemTags = ref(['consumable']),
+    {t} = useI18n(),
+    {useIconAdaptiveSize, useIconBoxMargin, useIconBoxPadding, useIconImageMargin, useIconImagePadding} = useIconGlobalStyle(),
+    baseSize = 99,
+    sizeRef = useIconAdaptiveSize(baseSize, 99),
+    computedOuterPadding = useIconBoxPadding(1),
+    computedOuterMargin = useIconBoxMargin(1),
+    computedInnerPadding = useIconImagePadding(0),
+    computedInnerMargin = useIconImageMargin(1),
+
+    size = computed(() => {
+      let coreSize = parseInt(String(sizeRef.value)) || baseSize;
+      const outerPad = (computedOuterPadding.value as number) * 8;
+      const outerMar = (computedOuterMargin.value as number) * 8;
+      const innerPad = (computedInnerPadding.value as number) * 8;
+      const innerMar = (computedInnerMargin.value as number) * 8;
+      return coreSize + outerPad + outerMar + innerPad + innerMar;
+    }),
+
     // 属性
     attr = ref<WarehouseAttr>({
       warehouseUseVersion: WarehouseDataProcessing.nowVersion
+    }),
+    useShip = computed(() => {
+      return props?.ship?.id || null;
     }),
     // 已经使用的卡槽数量
     usedSlotCount = computed(() => {
@@ -169,7 +196,15 @@ defineExpose({
 
 <template>
   <v-row align="center">
-    <v-spacer></v-spacer>
+    <v-col cols="auto" v-if="useShip" class="d-flex ga-2 align-center">
+      <ItemSlotBase size="40px">
+        <ShipIconWidget :id="useShip"></ShipIconWidget>
+      </ItemSlotBase>
+      <ShipName :id="useShip"></ShipName>
+    </v-col>
+    <v-col>
+      <v-divider opacity=".2"></v-divider>
+    </v-col>
     <v-col cols="auto">
       <template v-if="cargo.cargoMaxWeight">
         {{ cargo.cargoMaxWeight || 0 }}
@@ -178,44 +213,49 @@ defineExpose({
       <template v-if="cargo.cargoSlots">
         {{ usedSlotCount }} / {{ cargo.cargoSlots }}
       </template>
-      <v-icon class="ml-2" size="15" v-tooltip="'仓库的容量由所选船只或升级部件来影响'">mdi-help</v-icon>
+      <v-icon class="ml-2" size="15" v-tooltip="t('warehouse.capacityImpact')">mdi-help</v-icon>
     </v-col>
   </v-row>
-  <v-row align="center" justify="center">
+  <v-row align="center" justify="center" :style="`--grid-min-width: ${size}px`">
     <v-col cols="auto" v-for="(i, index) in data" :key="index">
-      <v-card width="100">
+      <v-card variant="text" :class="{'bg-amber': i && i.id}">
         <div @click="openShowPanel(index)">
-          <ItemSlotBase size="99px" class="w-100 d-flex justify-center align-center">
-            <ItemIconWidget :id="String(i.id)" v-if="i && i.id"></ItemIconWidget>
-            <v-icon size="35" v-else>mdi-plus</v-icon>
+          <ItemSlotBase :size="`${size}px`" class="d-flex justify-center align-center">
+            <ItemIconWidget :id="String(i.id)" v-if="i && i.id" :padding="0" :margin="0"></ItemIconWidget>
+            <v-icon size="35" v-else class="opacity-30">mdi-block-helper</v-icon>
+            <v-icon size="35" v-if="!readonly && i && i.id">mdi-plus</v-icon>
           </ItemSlotBase>
         </div>
-        <v-number-input hide-details hide-spin-buttons variant="solo"
-                        density="compact"
-                        control-variant="split"
-                        :readonly="readonly"
-                        inset
-                        tile
-                        :min="1"
-                        :max="999999"
-                        :disabled="!i.id"
-                        v-model="i.count">
-          <template v-slot:increment="{props}">
-            <v-btn density="compact" v-bind="props">
-              <v-icon>mdi-plus</v-icon>
-            </v-btn>
-          </template>
-          <template v-slot:decrement="{props}">
-            <v-btn density="compact" v-bind="props">
-              <v-icon>mdi-minus</v-icon>
-            </v-btn>
-          </template>
-        </v-number-input>
-        <v-divider></v-divider>
+
+        <template v-if="!readonly">
+          <v-number-input hide-details hide-spin-buttons variant="solo"
+                          density="compact"
+                          control-variant="split"
+                          :readonly="readonly"
+                          inset
+                          tile
+                          :min="1"
+                          :max="999999"
+                          :disabled="!i.id"
+                          v-model="i.count">
+            <template v-slot:increment="{props}">
+              <v-btn density="compact" v-bind="props">
+                <v-icon>mdi-plus</v-icon>
+              </v-btn>
+            </template>
+            <template v-slot:decrement="{props}">
+              <v-btn density="compact" v-bind="props">
+                <v-icon>mdi-minus</v-icon>
+              </v-btn>
+            </template>
+          </v-number-input>
+        </template>
+        <template v-else-if="readonly && i && i.id">
+          <div class="my-1 d-flex align-center justify-center">
+            <ItemName :id="i.id"></ItemName> x {{ i.count || 0 }}
+          </div>
+        </template>
       </v-card>
-      <div class="w-100 singe-line mt-1" align="center" no-gutters>
-        <ItemName :id="String(i.id)" v-if="i && i.id"></ItemName>
-      </div>
     </v-col>
   </v-row>
 
@@ -223,12 +263,12 @@ defineExpose({
     <v-dialog v-model="show" max-width="1024">
       <v-card>
         <v-card-title>
-          插入物品
+          {{ t('warehouse.insertItem') }}
         </v-card-title>
         <AssemblyClassificationShowList :tags="wheelOptionalItemTags" v-model="selectItemValue"></AssemblyClassificationShowList>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn @click="onInsertSlot(selectIndex)">确认</v-btn>
+          <v-btn @click="onInsertSlot(selectIndex)">{{ t('basic.button.submit') }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

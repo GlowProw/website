@@ -506,7 +506,7 @@ defineOptions({name: 'AssemblyWidget'})
                            :offset-x="25" :offset-y="63">
                     <template v-slot:badge>
                       <div class="pt-2 pb-2">
-                        <v-icon icon="mdi-chevron-triple-up mr-1"></v-icon>
+                        <v-icon icon="mdi-chevron-triple-up" class="mr-1"></v-icon>
                         <b>{{ workshopData.data.shipUpgradeSlot.tier || 0 }}</b>
                       </div>
                     </template>
@@ -1008,7 +1008,7 @@ defineOptions({name: 'AssemblyWidget'})
 
                       <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-else>
                         <v-card v-bind="propsHoverClose" variant="text" class="position-relative">
-                          <ItemSlotBase size="80px" class="pa-2"
+                          <ItemSlotBase size="80px"
                                         v-if="workshopData.data.ultimateSlot && workshopData.data.ultimateSlot.id">
                             <UltimateIconWidget :id="workshopData.data.ultimateSlot.id" :isOpenDetail="false"></UltimateIconWidget>
                           </ItemSlotBase>
@@ -1034,7 +1034,7 @@ defineOptions({name: 'AssemblyWidget'})
                                :key="ultimateIndex">
                           <v-card variant="text" width="92" elevation="0">
                             <ItemSlotBase
-                                size="90px" class="pa-1"
+                                size="90px"
                                 @click="workshopData.ultimateSelect = castToAny(ultimate)"
                                 :class="[
                                           workshopData.ultimateSelect ? castToAny(workshopData.ultimateSelect)?.id == ultimate?.id ? 'bg-amber' : '' : ''
