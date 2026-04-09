@@ -29,11 +29,8 @@ const props = withDefaults(defineProps<{
       margin: 1,
       padding: 1
     }),
-    router = useRouter(),
-    slots = useSlots(),
     appStore = useAppStore(),
 
-    {t} = useI18n(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
     {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow();
 
@@ -132,8 +129,7 @@ const computedMargin = useIconImageMargin(props.margin);
     <ModCardDetail
         :id="props.id"
         :is-show-description="props.isShowDescription"
-        :is-show-open-detail="props.isShowOpenDetail"
-    >
+        :is-show-open-detail="props.isShowOpenDetail">
       <template v-slot:description>
         <slot name="description"></slot>
       </template>

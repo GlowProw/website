@@ -274,7 +274,7 @@ const getShipUpgradeFilterList = (i): boolean => {
   // <id>Upgrade<数字>
   const prefix = `${workshopData.value.data.shipSlot.id}Upgrade`
   if (i.id.startsWith(prefix) && /^\d+$/.test(i.id.slice(prefix.length))) {
-    return  true
+    return true
   }
   return false
 }
@@ -443,7 +443,7 @@ defineOptions({name: 'AssemblyWidget'})
 
 <template>
   <v-row class="workshop-ship-interior position-relative pa-5 mt-3" :class="poops.class">
-    <v-col class="position-relative" style="min-width: 650px;z-index: 5" cols="12" sm="12" md="11" lg="11" xl="11">
+    <v-col class="position-relative" style="z-index: 5" cols="12" sm="12" md="11" lg="11" xl="11">
       <v-col>
         <div class="mb-12">
           <v-row no-gutters align="end">
@@ -494,7 +494,7 @@ defineOptions({name: 'AssemblyWidget'})
               <!-- 升级部件 视图卡槽 S -->
               <v-hover v-slot="{ isHovering, props : propsHoverClose }"
                        v-if="workshopData.data.shipUpgradeSlot">
-                <div class="px" v-if="workshopData.data.shipUpgradeSlot.tier">
+                <div class="mb-1" v-if="workshopData.data.shipUpgradeSlot.tier">
                   <v-icon icon="mdi-chevron-triple-up" class="mr-1"></v-icon>
                   <b>{{ workshopData.data.shipUpgradeSlot.tier || 0 }}</b>
                 </div>
@@ -542,9 +542,9 @@ defineOptions({name: 'AssemblyWidget'})
 
         <div>
           <div>
-            <v-row justify="space-around">
+            <v-row justify="start">
               <!-- 陈设 卡槽 S -->
-              <v-col cols="auto" class="mr-5">
+              <v-col cols="12" lg="auto" class="mr-5">
                 <v-card variant="tonal" class="mb-2 py-2 px-10 font-weight-bold text-center">
                   {{ t('assembly.workshop.displayTitle') }} ({{ workshopData.data.displaySlots.length || 0 }})
                 </v-card>
@@ -612,7 +612,7 @@ defineOptions({name: 'AssemblyWidget'})
               <!-- 陈设 卡槽 E -->
 
               <!-- 武器列表 卡槽 S -->
-              <v-col>
+              <v-col cols="12" lg="7">
                 <!-- 主 -->
                 <v-card variant="tonal" class="mb-2 py-2 font-weight-bold text-center">
                   {{ t('assembly.workshop.weaponTitle') }}
@@ -635,17 +635,17 @@ defineOptions({name: 'AssemblyWidget'})
                      :key="index">
 
                   <template v-if="isShowEmpty || workshopData.data.weaponSlots[index] && workshopData.data.weaponSlots[index]?.id">
-                    <v-row align="center">
-                      <v-col cols="auto" class="pa-0">
+                    <v-row align="start">
+                      <v-col cols="auto" class="d-dlex justify-center align-center">
                         <ShipTopDownPerspectiveWidget
                             :left="workshopData.data.weaponDirections[index] == 'leftSideWeapon'"
                             :right="workshopData.data.weaponDirections[index] == 'rightSideWeapon'"
                             :center-top="workshopData.data.weaponDirections[index] == 'frontWeapon'"
                             :center-down="workshopData.data.weaponDirections[index] == 'aftWeapon'"
-                            class="ml-5"></ShipTopDownPerspectiveWidget>
+                            class="mx-5 mt-2"></ShipTopDownPerspectiveWidget>
                       </v-col>
                       <v-col>
-                        <!-- 武器方向 -->
+                        <!-- 武器方向 S -->
                         <p class="mb-2 ml-n5 pl-5">
                           <v-select v-if="!readonly" v-model="workshopData.data.weaponDirections[index]"
                                     hide-details
@@ -661,14 +661,14 @@ defineOptions({name: 'AssemblyWidget'})
                               <v-list-item v-bind="itemProps">
                                 <template v-slot:title>
                                   <v-row align="center">
-                                    <v-col cols="auto" class="pa-0">
+                                    <v-col cols="auto" class="d-dlex justify-center align-center">
                                       <ShipTopDownPerspectiveWidget
                                           :size="'sm'"
                                           :left="item.raw[0] == 'leftSideWeapon'"
                                           :right="item.raw[0] == 'rightSideWeapon'"
                                           :center-top="item.raw[0] == 'frontWeapon'"
                                           :center-down="item.raw[0] == 'aftWeapon'"
-                                          class="ml-5"></ShipTopDownPerspectiveWidget>
+                                          class="mx-5 mt-2"></ShipTopDownPerspectiveWidget>
                                     </v-col>
                                     <v-col>
                                       {{ t(`codex.ship.${item.raw[0]}`) }}
@@ -684,12 +684,8 @@ defineOptions({name: 'AssemblyWidget'})
                               <EmptyView></EmptyView>
                             </template>
                           </v-select>
-                          <template v-else>
-                            <template v-if="workshopData.data.weaponDirections[index]">
-                              {{ t(`codex.ship.${workshopData.data.weaponDirections[index]}`) }}
-                            </template>
-                          </template>
                         </p>
+                        <!-- 武器方向 E -->
 
                         <v-row>
                           <v-col cols="auto">
@@ -738,7 +734,7 @@ defineOptions({name: 'AssemblyWidget'})
                           </v-col>
                           <v-col class="d-flex align-start">
                             <div class="w-100">
-                              <v-divider thickness="4" opacity="1" color="#000" class="w-100 mt-2 mb-2"></v-divider>
+                              <v-divider thickness="2" opacity=".2" class="w-100 mt-2 mb-2"></v-divider>
                               <p class="opacity-80 text-deck-information">{{ t('codex.ship.topDeck') }}
                                 <v-chip size="x-small" density="compact" :variant="getDeckInformation(index).top ? 'flat' : 'tonal'">{{ getDeckInformation(index).top || 0 }}</v-chip>
                               </p>
@@ -746,38 +742,6 @@ defineOptions({name: 'AssemblyWidget'})
                                 <v-chip size="x-small" density="compact" :variant="getDeckInformation(index).lower ? 'flat' : 'tonal'">{{ getDeckInformation(index).lower || 0 }}</v-chip>
                               </p>
                             </div>
-                          </v-col>
-                          <v-col cols="auto">
-                            <v-row no-gutters v-if="i && i.id" :class="[!i.id ? 'opacity-30' : '']">
-                              <v-col align="center" class="mt-n1">
-                                <v-icon icon="mdi-chevron-up" size="16"></v-icon>
-                                <ItemSlotBase size="30px"
-                                              :padding="0"
-                                              :margin="0"
-                                              v-for="(p, pIndex) in getDeckInformation(index).top" :key="pIndex + p">
-                                  <ItemIconWidget :id="i.id" v-if="i.id"
-                                                  :padding="0"
-                                                  :margin="0"
-                                                  :is-show-tooltip="false"
-                                                  :is-open-detail="false"></ItemIconWidget>
-                                </ItemSlotBase>
-                              </v-col>
-                              <v-col align="center" class="mt-n1">
-                                <v-icon icon="mdi-chevron-down" size="16"></v-icon>
-                                <ItemSlotBase size="30px"
-                                              :padding="0"
-                                              :margin="0"
-                                              :id="i.id"
-                                              v-if="i.id"
-                                              v-for="(p, pIndex) in getDeckInformation(index).lower" :key="pIndex">
-                                  <ItemIconWidget :id="i.id"
-                                                  :padding="0"
-                                                  :margin="0"
-                                                  :is-show-tooltip="false"
-                                                  :is-open-detail="false"></ItemIconWidget>
-                                </ItemSlotBase>
-                              </v-col>
-                            </v-row>
                           </v-col>
                         </v-row>
 
@@ -788,8 +752,39 @@ defineOptions({name: 'AssemblyWidget'})
                               :mod-data="workshopData.data.weaponModifications[index]"></WeaponModificationOnlyShowWidget>
                         </div>
                       </v-col>
+                      <v-col cols="auto">
+                        <v-row no-gutters v-if="i && i.id" :class="[!i.id ? 'opacity-30' : '']">
+                          <v-col align="center" class="mt-n1">
+                            <v-icon icon="mdi-chevron-up" size="16"></v-icon>
+                            <ItemSlotBase size="40px"
+                                          :padding="0"
+                                          :margin="0"
+                                          v-for="(p, pIndex) in getDeckInformation(index).top" :key="pIndex + p">
+                              <ItemIconWidget :id="i.id" v-if="i.id"
+                                              :padding="0"
+                                              :margin="0"
+                                              :is-show-tooltip="false"
+                                              :is-open-detail="false"></ItemIconWidget>
+                            </ItemSlotBase>
+                          </v-col>
+                          <v-col align="center" class="mt-n1">
+                            <v-icon icon="mdi-chevron-down" size="16"></v-icon>
+                            <ItemSlotBase size="40px"
+                                          :padding="0"
+                                          :margin="0"
+                                          :id="i.id"
+                                          v-if="i.id"
+                                          v-for="(p, pIndex) in getDeckInformation(index).lower" :key="pIndex">
+                              <ItemIconWidget :id="i.id"
+                                              :padding="0"
+                                              :margin="0"
+                                              :is-show-tooltip="false"
+                                              :is-open-detail="false"></ItemIconWidget>
+                            </ItemSlotBase>
+                          </v-col>
+                        </v-row>
+                      </v-col>
                     </v-row>
-                    <v-divider></v-divider>
                   </template>
                 </div>
                 <div v-else>
@@ -815,10 +810,10 @@ defineOptions({name: 'AssemblyWidget'})
 
                   <template v-if="isShowEmpty || workshopData.data.secondaryWeaponSlots[index] && workshopData.data.secondaryWeaponSlots[index]?.id != null">
                     <v-row align="center">
-                      <v-col cols="auto" class="pa-0">
+                      <v-col cols="auto" class="d-dlex justify-center align-center">
                         <ShipTopDownPerspectiveWidget
                             :centerCenter="i && !!i.id"
-                            class="ml-5"></ShipTopDownPerspectiveWidget>
+                            class="mx-5 mt-2"></ShipTopDownPerspectiveWidget>
                       </v-col>
                       <v-col>
                         <v-row>
@@ -867,7 +862,7 @@ defineOptions({name: 'AssemblyWidget'})
                           </v-col>
                           <v-col class="d-flex align-start">
                             <div class="w-100">
-                              <v-divider thickness="4" opacity="1" color="#000" class="w-100 mt-2 mb-2"></v-divider>
+                              <v-divider thickness="2" opacity=".2" class="w-100 mt-2 mb-2"></v-divider>
                               <p class="opacity-80 text-deck-information">{{ t('codex.ship.topDeck') }}
                                 <v-chip size="x-small" density="compact" :variant="getDeckInformation(index, 'secondaryWeapon').top ? 'flat' : 'tonal'">{{ getDeckInformation(index, 'secondaryWeapon').top || 0 }}</v-chip>
                               </p>
@@ -877,7 +872,7 @@ defineOptions({name: 'AssemblyWidget'})
                             <v-row no-gutters v-if="i && i.id" :class="[!i.id ? 'opacity-30' : '']">
                               <v-col align="center" class="mt-n1">
                                 <v-icon icon="mdi-chevron-up" size="16"></v-icon>
-                                <ItemSlotBase size="30px"
+                                <ItemSlotBase size="40px"
                                               padding="0"
                                               v-for="(p, pIndex) in getDeckInformation(index, 'secondaryWeapon').top" :key="pIndex + p">
                                   <ItemIconWidget :id="i.id" v-if="i.id"
@@ -906,7 +901,7 @@ defineOptions({name: 'AssemblyWidget'})
               <!-- 武器列表 卡槽 E -->
 
               <!-- 船甲 卡槽 S -->
-              <v-col cols="auto">
+              <v-col cols="12" lg="auto">
                 <v-card variant="tonal" class="mb-2 py-2 font-weight-bold text-center">
                   {{ t('assembly.workshop.armorTitle') }}
                 </v-card>
@@ -969,7 +964,7 @@ defineOptions({name: 'AssemblyWidget'})
               <!-- 船甲 卡槽 E -->
 
               <!-- 终极技能 卡槽 S -->
-              <v-col cols="auto">
+              <v-col cols="12" lg="auto">
                 <v-card variant="tonal" class="mb-2 py-2 font-weight-bold text-center">
                   {{ t('assembly.workshop.ultimateTitle') }}
                 </v-card>

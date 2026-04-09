@@ -4,6 +4,7 @@
       min-height="120"
       class="bg-transparent"
       elevation="0"
+      :tile="tile"
       :min-width="120 * 2"
       :class="`ad-container w-100 ${ads[adName]?.class} ${props?.class}`"
       :style="[adName && ads[adName] ? ads[adName].style : {}, adContainerStyle]">
@@ -33,6 +34,7 @@ import {ads, adClient} from "~/public/config/ad";
 const props = withDefaults(defineProps<GoogleAdProps>(), {
       class: '',
       id: '',
+      tile: false,
     }),
     {t} = useI18n(),
     adName = ref<string | number>(props.id);

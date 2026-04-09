@@ -9,7 +9,7 @@
       :style="mobile ? modelValue ? 'min-width: 100%' : 'width: 0' : ''"
       :width="mobile ? '100vh' : 510">
 
-    <AdsWidget id="none" class="px-7 my-5 w-100"></AdsWidget>
+    <AdsWidget id="none" class="my-5 w-100" tile></AdsWidget>
 
     <div>
       <v-card
@@ -148,11 +148,11 @@
             </template>
           </v-expansion-panels>
 
-          <v-divider class="my-3"></v-divider>
+          <v-divider class="my-3" v-if="authStore.isLogin"></v-divider>
 
           <!-- 面板 Markers S -->
-          <v-list density="compact" class="bg-transparent px-3">
-            <v-list-item v-if="authStore.isLogin">
+          <v-list density="compact" class="bg-transparent px-3" v-if="authStore.isLogin">
+            <v-list-item>
               <template v-slot:prepend>
                 <v-checkbox
                     :model-value="layerVisibility.shareLocation"

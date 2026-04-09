@@ -10,4 +10,5 @@ export interface AdConfig {
 export interface GoogleAdProps {
   id?: number | string;
   class?: string;
+  tile?: boolean
 }

@@ -32,7 +32,7 @@ const onReady = () => {
   modIconImages.value = imageMap;
 }
 
-defineOptions({ name: 'WeaponModificationOnlyShowWidget' })
+defineOptions({name: 'WeaponModificationOnlyShowWidget'})
 </script>
 
 <template>
@@ -44,25 +44,24 @@ defineOptions({ name: 'WeaponModificationOnlyShowWidget' })
         <ItemSlotBase size="45px">
           <v-card
               class="pa-1 w-100 h-100"
-              :color="modStyleConfig[mod.type]">
+              :color="`color-mix(in srgb, ${modStyleConfig[mod.type]} 5%, #000 95%)`">
             <v-img :src="modIconImages[mod.type]"/>
           </v-card>
         </ItemSlotBase>
       </v-col>
-      <v-col>
-        <template v-if="mod.value">
-          <v-card tile
-                  variant="flat"
-                  class="bg-transparent h-100 d-flex align-center">
-            <ItemSlotBase size="45px">
-              <ModIconWidget :id="mod.value.id"></ModIconWidget>
-            </ItemSlotBase>
-            <div class="w-100 text-caption">
-              <ModName :id="mod.value.id" :grade="mod.value.grade"></ModName>
-              <ModDescription class="opacity-50" :id="mod.value.id" :variants="mod.value.variants" :grade="mod.value.grade" :type="itemData.type"></ModDescription>
-            </div>
-          </v-card>
-        </template>
+      <v-col v-if="mod.value">
+        <v-card tile
+                variant="text"
+                class="bg-transparent h-100 d-flex align-center ga-2">
+          <ItemSlotBase size="45px"
+                        :is-auto-size="false">
+            <ModIconWidget :id="mod.value.id"></ModIconWidget>
+          </ItemSlotBase>
+          <div class="w-100 text-caption">
+            <ModName :id="mod.value.id" :grade="mod.value.grade"></ModName>
+            <ModDescription class="opacity-50" :id="mod.value.id" :variants="mod.value.variants" :grade="mod.value.grade" :type="itemData.type"></ModDescription>
+          </div>
+        </v-card>
       </v-col>
     </v-row>
   </div>
