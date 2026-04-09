@@ -1,11 +1,7 @@
 {
   "name": "闪耀船首",
-  "about": {
-    "title": "关于",
-    "minor": "",
-    "description": ""
-  },
   "pwa": {
+    "title": "PWA",
     "offlineReady": "应用已准备好离线工作",
     "newContentAvailable": "有新内容可用",
     "refreshToUpdate": "点击刷新按钮以更新。",
@@ -31,6 +27,36 @@
         "step3": "3. Some browsers require page interaction (click, scroll) to trigger the prompt."
       }
     }
+  },
+  "ad": {
+    "title": "AD",
+    "description": "AD Content {id}"
+  },
+  "about": {
+    "title": "关于",
+    "disclaimer": "The Shining Prow application and its affiliates follow different agreements; the main program and its affiliates are not affiliated with Skull and Bones or the Ubisoft Group.",
+    "manifesto": {
+      "title": "Shining Prow was born here ——————",
+      "p1": "In the endless ocean of games, every player is an adventurer sailing alone. Ahead is the unknown mist, behind is the track of exploration.",
+      "p2": "Shining Prow is not just a decoration on the bow, but the light that pierces through the mist. When you are lost, it is the lighthouse that illuminates the path ahead; when you are confused, it is the wisdom that deciphers the puzzles.",
+      "p3": "We believe that every game is a world waiting to be explored, and every player deserves the clearest guidance. Shining Prow gathers community wisdom, refines practical tools, and turns them into eternal starlight to accompany your every voyage. From the initial glimmer to today's beacon, we have always held a single belief: serving the voyagers and guiding the explorers.",
+      "p4": "Join us and let your gaming journey no longer be lonely. Shining Prow, always shining ahead."
+    },
+    "thanks": "At the same time, thanks to the <u>@SkullAndBonesTools/SkullAndBonesData</u> project for providing the original data sources, which made the development of Shining Prow possible.",
+    "openSourceContribution": "Contributing to Open Source 🎉, loving what we do.",
+    "osList": {
+      "main": "Shining Prow Main Program, including frontend/backend, follows the MIT license.",
+      "data": "Shining Prow Data, such as items/calendars, follows the AGPL-3.0 license.",
+      "assets": "Shining Prow Assets, item images and materials, follows the AGPL-3.0 license.",
+      "translations": "Shining Prow Translation Data, follows the AGPL-3.0 license."
+    },
+    "openSourceTitle": "Open Source",
+    "developersHonor": "Special recognition for those who volunteered to participate in program development, as the cornerstone pioneers.",
+    "developersTitle": "Developers",
+    "translatorsHonor": "Recognizing outstanding translators, thanks to those who worked on the program's translations.",
+    "translatorsTitle": "Translators",
+    "contactHonor": "You can contact the developer through any of the methods below for inquiries about the website or cooperation.",
+    "contactTitle": "联系"
   },
   "basic": {
     "button": {
@@ -581,6 +607,7 @@
       "cargoSlots": "容器格子",
       "cargoMaxWeight": "承重上限",
       "materialsTitle": "材料",
+      "allShipUpgradeMaterials": "All ShipUpgrade Materials",
       "required": "建造所需物品",
       "rawMaterials": "原材料",
       "bySeason": {
@@ -812,6 +839,13 @@
     "type": "类型",
     "tags": "标签",
     "publicMarker": "公开标记",
+    "groups": {
+      "pirateBases": "Pirate Bases",
+      "settlements": "Settlements",
+      "productionSites": "Production Sites",
+      "fortifications": "Fortifications",
+      "other": "其他"
+    },
     "types": {
       "none": {
         "name": "未知",
@@ -913,18 +947,6 @@
     },
     "setting": {
       "title": "设置",
-      "routine": {
-        "title": "General Settings"
-      },
-      "ad": {
-        "title": "Ads",
-        "description1": "The website is powered by passion; we provide public services to players and open-source our projects. To continue providing these services, we need players to trigger the ads.",
-        "description2": "Of course, we provide ad management and a one-click closure function to reduce reading difficulties on the website.",
-        "description3": "Ads use third-party services. You can go to third-party ad management for cookie privacy issues.",
-        "mainSwitch": "Main Switch",
-        "excludeList": "Exclude List",
-        "closedAdsHint": "Below is the list of disabled ads"
-      },
       "publicly": "公开",
       "private": "私有",
       "tagCommon": "常规",
@@ -976,6 +998,14 @@
       "special": "特殊"
     },
     "tags": {
+      "titles": {
+        "applicableModes": "Applicable Modes",
+        "teamFormation": "Team Formation",
+        "seasons": "Applicable Seasons",
+        "damageTypes": "Damage Types",
+        "archetypes": "Ship Archetypes",
+        "difficultyOfAcquisition": "Difficulty of Acquisition"
+      },
       "modes": {
         "pvp": "战斗",
         "pve": "生存"
@@ -1175,6 +1205,73 @@
       "combinedFields": "支持同时使用以上字段查询"
     }
   },
+  "setting": {
+    "title": "Setting",
+    "routine": {
+      "title": "General Settings",
+      "translationHelp": "If you are interested in translation, you can help us correct content or translate via the link below. Translators will be acknowledged on the website and granted a 'Translator' status.",
+      "translationService": "Translation services are provided by Crowdin.",
+      "languageTitle": "语种",
+      "featureDesc": "Manage feature list, you decide what to display.",
+      "featureHint": "Select features from the dropdown list to activate, click activated chips to remove.",
+      "inactiveFunctions": "Inactive Features ({count})",
+      "noActiveFunctions": "No active features, please select from the dropdown above.",
+      "featuresTitle": "Features",
+      "itemConfigTitle": "Item Configuration",
+      "storageReportDesc": "Shining Prow uses local cache to store data, including user configurations/action records, etc.",
+      "clearStorage": "Clear Cache",
+      "storageReportLinkHint": "Go here to see detailed data reports.",
+      "storageReportBtn": "Usage Report",
+      "storagePrivacyHint": "View specific data usage reports; do not share them, as they contain private user operation records.",
+      "recordsTitle": "Records",
+      "cdnTitle": "CDN Resource Distribution",
+      "cdnDesc": "Determines the source for acquiring resources such as icons; different resources may have difference in styles and speeds. After modification, the webpage needs to be reloaded.",
+      "itemIconSizeTitle": "Item Icon Size",
+      "itemIconSizeDesc": "You can adjust the size of inventory item icons to fit most places, but some location icons cannot be changed or have range constraints.",
+      "itemOpenNewWindowTitle": "New Window",
+      "itemOpenNewWindowDesc": "By default, transitions happen in the same window; if turned on, all item icon clicks or touches will open in a new window.",
+      "posterDesc": "Manage poster settings.",
+      "posterAutoSave": "Auto-save generated poster options.",
+      "posterHint": "When user modifications to poster generation settings are made, they will be saved immediately; next time the poster is accessed, the configuration will load.",
+      "posterTitle": "Poster",
+      "searchDesc": "Manage global search configuration.",
+      "searchHeaderSwitch": "Header search enabled",
+      "searchIsLogs": "Save search history",
+      "searchHotkey": "Trigger by hotkey",
+      "searchHint": "Disable hints",
+      "searchTitle": "搜索",
+      "assemblyDesc": "Assembly options",
+      "assemblyViewModel": "Assembly View Model",
+      "assemblyTitle": "配装",
+      "assemblyViewModelOptions": {
+        "full-extension": {
+          "name": "Full Width Mode",
+          "description": "The assembly view will occupy the full screen width."
+        },
+        "lock-window": {
+          "name": "Window Mode",
+          "description": "The assembly view will be fixed within a window of limited width."
+        }
+      }
+    },
+    "ad": {
+      "title": "Ads",
+      "description1": "The website is powered by passion; we provide public services to players and open-source our projects. To continue providing these services, we need players to trigger the ads.",
+      "description2": "Of course, we provide ad management and a one-click closure function to reduce reading difficulties on the website.",
+      "description3": "Ads use third-party services. You can go to third-party ad management for cookie privacy issues.",
+      "mainSwitch": "Main Switch",
+      "excludeList": "Exclude List",
+      "closedAdsHint": "Below is the list of disabled ads"
+    },
+    "storage": {
+      "title": "Usage Report",
+      "reportDesc": "Data report, statistics for all local cache data.",
+      "usageDesc": "Shining Prow uses local cache to store data, including user configurations/action records, etc.",
+      "dataTitle": "数据",
+      "persistentStorage": "Persistent Storage",
+      "sessionStorage": "Session Storage"
+    }
+  },
   "header": {
     "navs": {
       "blog": "闪耀船首博客",
@@ -1341,6 +1438,15 @@
       "emptySankey": "Add targets to view sankey diagram",
       "excluded": "Excluded",
       "addToExclude": "Add to Exclude"
+    }
+  },
+  "detail": {
+    "dateView": {
+      "primitive": "Primitive",
+      "primitiveDescription": "Primitive value of time recorded in the program",
+      "localTimeZoneName": "Local Time Zone",
+      "localeTime": "Local Time",
+      "localeTimeDescription": "Time data converted according to the local time zone and locale environment"
     }
   }
 }
