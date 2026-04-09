@@ -3,7 +3,7 @@
  */
 import Storage from './storage';
 
-type AccountStorageType = 'app' | 'ad' | 'search' | 'poster' | 'appFun' | 'assembly'
+type AccountStorageType = 'app' | 'ad' | 'search' | 'poster' | 'appFun' | 'assembly' | 'map'
 
 export default class AccountStorage extends Storage {
     NAME = 'user.configuration';

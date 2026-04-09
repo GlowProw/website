@@ -5,6 +5,7 @@ import {useDisplay} from 'vuetify';
 import {useAssetsStore} from '~/stores/assetsStore';
 import {useAuthStore} from '~/stores/userAccountStore';
 import {useNoticeStore} from '~/stores/noticeStore';
+import Storage from '@/assets/sripts/storage';
 import {useMapApi} from '@/assets/sripts/api/map_service';
 import {useI18nUtils} from "@/assets/sripts/i18n_util.js";
 import {MapLocations} from "glow-prow-data";
@@ -36,6 +37,14 @@ export function use_map_controller() {
     const {asString} = useI18nUtils();
     const {mobile} = useDisplay();
     const {serializationMap} = useAssetsStore();
+    const storageObj = new Storage();
+
+    const CATEGORY_GROUPS: Record<string, string[]> = {
+        'pirateBases': ['den', 'outpost'],              // 海盗据点
+        'settlements': ['settlement', 'capitalSettlement'], // 定居点
+        'productionSites': ['foundry', 'lumberyard', 'weaver'], // 生产设施  
+        'fortifications': ['megafort', 'militaryBase'],  // 军事要塞
+    };
 
     const mapInstance: Ref<Map | null> = ref(null);
     const vectorLayerRef: Ref<VectorLayer<VectorSource> | null> = ref(null);
@@ -58,7 +67,8 @@ export function use_map_controller() {
     const searchSuggestions = ref<any[]>([]);
 
     const isShowMarkModel = ref(false);
-    const layerVisibility: Ref<Record<string, boolean>> = ref({shareLocation: false});
+    const layerVisibility: Ref<Record<string, boolean>> = ref({});
+    const groupVisibility: Ref<Record<string, boolean>> = ref({});
     const allLayersVisible = ref(true);
 
     const userCollections = ref<MapCollection[]>([]);
@@ -89,6 +99,33 @@ export function use_map_controller() {
             value: category,
             text: t(`map.types.${category}.name`),
         }));
+    });
+
+    const groupedCategories = computed(() => {
+        const result: Record<string, any[]> = {};
+        
+        Object.keys(CATEGORY_GROUPS).forEach(group => {
+            result[group] = [];
+        });
+
+        result['other'] = [];
+
+        availableCategories.value.forEach(category => {
+            let foundGroup = false;
+            for (const [groupTitle, categories] of Object.entries(CATEGORY_GROUPS)) {
+                if (categories.includes(category.value)) {
+                    result[groupTitle].push(category);
+                    foundGroup = true;
+                    break;
+                }
+            }
+            if (!foundGroup) {
+                result['other'].push(category);
+            }
+        });
+
+        // Filter out empty groups
+        return Object.fromEntries(Object.entries(result).filter(([_, items]) => items.length > 0));
     });
 
     const personalMarkersCount = computed(() => personalMarkers.value.length);
@@ -132,8 +169,10 @@ export function use_map_controller() {
         if (!authStore.isLogin) return;
 
         if (newCollectionUuid) {
+            storageObj.local.set('map.selectedCollection', newCollectionUuid);
             await loadCollectionPoints(newCollectionUuid);
         } else {
+            storageObj.local.rem('map.selectedCollection');
             personalMarkers.value = [];
             onRemovePersonalMarkersFromMap();
         }
@@ -306,8 +345,16 @@ export function use_map_controller() {
             const result = await api.getCollections();
             userCollections.value = result.data.data;
 
-            if (userCollections.value.length > 0 && !selectedCollectionUuid.value) {
-                selectedCollectionUuid.value = userCollections.value[0].uuid;
+            const savedCollectionResp = storageObj.local.get('map.selectedCollection');
+            const savedCollectionUuid = savedCollectionResp.code === 0 ? savedCollectionResp.data : null;
+
+            if (savedCollectionUuid) {
+                const exists = userCollections.value.some(col => col.uuid === savedCollectionUuid);
+                if (exists) {
+                    selectedCollectionUuid.value = savedCollectionUuid;
+                } else {
+                    storageObj.local.rem('map.selectedCollection');
+                }
             }
         } catch (e) {
             if (e instanceof ApiError) {
@@ -478,8 +525,89 @@ export function use_map_controller() {
         }
     };
 
-    const onToggleLayer = () => {
+    const onInitVisibility = (payload: { layerVisibility: Record<string, boolean>; groupVisibility: Record<string, boolean> }) => {
+        if (payload?.layerVisibility) {
+            for (const [key, value] of Object.entries(payload.layerVisibility)) {
+                layerVisibility.value[key] = value as boolean;
+            }
+        }
+        if (payload?.groupVisibility) {
+             for (const [key, value] of Object.entries(payload.groupVisibility)) {
+                 groupVisibility.value[key] = value as boolean;
+             }
+        }
+
         if (!vectorLayerRef.value) return;
+
+        vectorLayerRef.value.setStyle((feature: any) => {
+            const originalData = feature.get('originalData');
+            const featureCategory = originalData?.category;
+            if (originalData?.category === 'shareLocation') {
+                const isPersonalVisible = layerVisibility.value.shareLocation;
+                return isPersonalVisible ? onCreatePersonalMarkerStyle() : null;
+            }
+            const isSystemVisible = layerVisibility.value[featureCategory];
+            return isSystemVisible ? onCreateMarkerStyle(feature) : null;
+        });
+        vectorLayerRef.value.changed();
+        updateGroupVisibilityState();
+        onUpdateAllLayersVisibleState();
+    };
+
+    const updateGroupVisibilityState = () => {
+        Object.entries(CATEGORY_GROUPS).forEach(([groupName, categories]) => {
+            let isGroupVisible = false;
+            let groupHasCategory = false;
+            for (const category of categories) {
+                if (layerVisibility.value.hasOwnProperty(category)) {
+                    groupHasCategory = true;
+                    if (layerVisibility.value[category]) {
+                        isGroupVisible = true;
+                        break;
+                    }
+                }
+            }
+            if (groupHasCategory) {
+               groupVisibility.value[groupName] = isGroupVisible;
+            }
+        });
+    };
+
+    const onToggleLayer = (payload?: { category: string; visible: boolean }) => {
+        if (!vectorLayerRef.value) return;
+
+        if (payload) {
+            layerVisibility.value[payload.category] = payload.visible;
+        }
+
+        vectorLayerRef.value.setStyle((feature: any) => {
+            const originalData = feature.get('originalData');
+            const featureCategory = originalData?.category;
+            if (originalData?.category === 'shareLocation') {
+                const isPersonalVisible = layerVisibility.value.shareLocation;
+                return isPersonalVisible ? onCreatePersonalMarkerStyle() : null;
+            }
+            const isSystemVisible = layerVisibility.value[featureCategory];
+            return isSystemVisible ? onCreateMarkerStyle(feature) : null;
+        });
+        vectorLayerRef.value.changed();
+        onUpdateAllLayersVisibleState();
+        updateGroupVisibilityState();
+    };
+
+    const onToggleGroupLayer = (payload: { group: string; visible: boolean }) => {
+        if (!vectorLayerRef.value) return;
+
+        groupVisibility.value[payload.group] = payload.visible;
+
+        if (CATEGORY_GROUPS[payload.group]) {
+            CATEGORY_GROUPS[payload.group].forEach(category => {
+                if (layerVisibility.value.hasOwnProperty(category)) {
+                    layerVisibility.value[category] = payload.visible;
+                }
+            });
+        }
+
         vectorLayerRef.value.setStyle((feature: any) => {
             const originalData = feature.get('originalData');
             const featureCategory = originalData?.category;
@@ -512,6 +640,7 @@ export function use_map_controller() {
             return newVisibility ? onCreateMarkerStyle(feature) : null;
         });
         vectorLayerRef.value.changed();
+        updateGroupVisibilityState();
     };
 
     const onUpdateAllLayersVisibleState = () => {
@@ -525,10 +654,16 @@ export function use_map_controller() {
         const allCategories = [...new Set(locations.value.map(loc => loc.category))];
 
         allCategories.forEach(category => {
-            layerVisibility.value[category] = true;
+            if (layerVisibility.value[category] === undefined) {
+                layerVisibility.value[category] = true;
+            }
         });
 
-        layerVisibility.value.shareLocation = true;
+        if (layerVisibility.value.shareLocation === undefined) {
+             layerVisibility.value.shareLocation = true;
+        }
+
+        updateGroupVisibilityState();
     };
 
     const getLocationDisplayName = (data: any): string => {
@@ -618,6 +753,7 @@ export function use_map_controller() {
         searchSuggestions,
         isShowMarkModel,
         layerVisibility,
+        groupVisibility,
         allLayersVisible,
         userCollections,
         selectedCollectionUuid,
@@ -630,6 +766,7 @@ export function use_map_controller() {
         newMarkerData,
         editingMarker,
         availableCategories,
+        groupedCategories,
         personalMarkersCount,
         userCollectionsSelect,
         isDebug,
@@ -652,7 +789,9 @@ export function use_map_controller() {
         onSelectLocation,
         handleSearch,
         onToggleLayer,
+        onToggleGroupLayer,
         onToggleAllLayers,
+        onInitVisibility,
         onUpdateAllLayersVisibleState,
         initializeLayerVisibility,
         getLocationDisplayName,

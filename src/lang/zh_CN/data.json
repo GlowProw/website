@@ -887,6 +887,13 @@
     "type": "类型",
     "tags": "标签",
     "publicMarker": "公开标记",
+    "groups": {
+      "pirateBases": "海盗据点",
+      "settlements": "定居点",
+      "productionSites": "生产设施",
+      "fortifications": "军事要塞",
+      "other": "其他"
+    },
     "types": {
       "none": {
         "name": "未知",

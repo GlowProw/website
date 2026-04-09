@@ -1,33 +1,41 @@
 <script setup lang="ts">
 import {nodeViewProps, NodeViewWrapper} from "@tiptap/vue-3";
 import {useI18n} from "vue-i18n";
-import {useI18nUtils} from "@/assets/sripts/i18n_util";
 
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
+import ModName from "@/components/snbWidget/modName.vue";
 
 const props = defineProps(nodeViewProps)
-const {t} = useI18n(),
-    {asString, sanitizeString} = useI18nUtils()
 </script>
 
 <template>
   <node-view-wrapper :as="'span'" class="mod-span-box">
-    <ItemSlotBase size="25px" :padding="0" class="mod-icon">
+    <ItemSlotBase size="30px"
+                  :is-auto-size="false"
+                  :is-auto-margin="false"
+                  :is-auto-padding="false"
+                  :padding="0"
+                  :margin="0"
+                  class="mod-icon">
       <ModIconWidget :id="node.attrs.id"></ModIconWidget>
     </ItemSlotBase>
-    <u class="ship-name text-no-wrap">{{ t(`snb.modifications.${node.attrs.id}.name`) }}</u>
+    <u class="u ship-name text-no-wrap">
+      <ModName :id="node.attrs.id" :grade="node.attrs.grade"></ModName>
+    </u>
   </node-view-wrapper>
 </template>
 
 <style scoped lang="less">
+@import "@/assets/styles/link";
+
 .mod-span-box {
   position: relative;
   display: inline-flex;
   width: auto;
-  height: 25px;
+  height: inherit;
   align-items: baseline;
-  gap: 1px;
+  gap: 2px;
 
   .mod-icon {
     position: relative;

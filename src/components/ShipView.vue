@@ -1,75 +1,103 @@
-<script>
-import {Editor} from "@tiptap/vue-3";
+<script setup lang="ts">
+import {ref} from "vue"
+import {useI18n} from "vue-i18n";
 
-import {Ships} from "glow-prow-data";
-import ItemSlotBase from "./snbWidget/ItemSlotBase.vue";
-import ShipIconWidget from "./snbWidget/shipIconWidget.vue";
+import AssemblyClassificationShowList from "@/components/AssemblyClassificationShowList.vue";
 
-export default {
-  components: {ShipWidget: ShipIconWidget, ItemSlotBase},
-  props: {
-    editor: {
-      type: Editor,
-    }
-  },
-  data() {
-    return {
-      show: false,
-    }
-  },
-  created() {
-  },
-  methods: {
-    /**
-     * 完成
-     * @param id
-     */
-    onFinish(id) {
-      this.onPanelToggle(
-      this.$emit('finish', id))
-    },
-    /**
-     * 面板开关
-     */
-    onPanelToggle() {
-      this.show = !this.show;
+// 选择器所加载的类型
+type ContentSelectorOption = "item" | "material" | "cosmetic" | "ultimate" | "modification"
 
-      if (this.show === false)
-        this.$emit('close')
-    },
-    /**
-     * 打开面板
-     */
-    openPanel() {
-      this.onPanelToggle()
-    },
-  },
-  computed: {
-    ships: () => Ships,
-  }
+const {t} = useI18n(),
+    emit = defineEmits(["finish", "close"])
+
+let model = ref(false),
+    value = ref(""),
+    type = ref<ContentSelectorOption>("item"),
+    tags = ref([])
+
+/**
+ * 完成
+ * @param data
+ */
+const onFinish = (data: any) => {
+  onPanelToggle()
+  emit('finish', data.id || data)
 }
+
+/**
+ * 面板开关
+ */
+const onPanelToggle = () => {
+  model.value = !model.value
+
+  if (model.value === false)
+    emit('close')
+}
+
+/**
+ * 打开面板
+ * @param tagsRaw 可选数据类型
+ * @param typeRaw 大类类型
+ */
+const openPanel = (tagsRaw: any[] = [], typeRaw: ContentSelectorOption = 'item') => {
+  tags.value = tagsRaw
+  type.value = typeRaw;
+
+  onPanelToggle()
+}
+
+/**
+ * 关闭面包
+ */
+const onClose = () => {
+  onPanelToggle()
+  emit('close')
+}
+
+defineExpose({
+  openPanel,
+  onPanelToggle,
+})
+
+defineOptions({
+  name: "ShipView",
+})
 </script>
 
 <template>
-  <v-dialog v-model="show"
-            class="item"
-            class-name="ship-window-box"
-            :width="600"
-            @update:modelValue="(status) => !status ? $emit('close') : null"
+  <v-dialog v-model="model"
+            class="content-selector"
             sticky
-            transfer
-            footer-hide>
-    <v-card class="pa-10 card-flavor">
-      <v-row>
-        <v-col v-for="(i, index) in ships" :key="index">
-          <ItemSlotBase size="80px"
-                        @click="onFinish(i.id)">
-            <ShipWidget :id="i.id" :is-show-open-detail="false"
-                        :is-click-open-detail="false"></ShipWidget>
-          </ItemSlotBase>
-        </v-col>
-      </v-row>
-    </v-card>
+            scrim
+            footer-hide
+            @update:modelValue="(status) => !status ? onClose() : null">
+    <v-container>
+      <v-card>
+        <v-card-title>
+          <v-row>
+            <b class="font-weight-bold text-h5 pa-5">{{ t(`codex.${type}s.title`) }}</b>
+            <v-spacer></v-spacer>
+            <v-col cols="auto">
+              <v-btn icon variant="text" class="ml-1" @click="onClose">
+                <v-icon icon="mdi-close"/>
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card-title>
+
+        <AssemblyClassificationShowList v-model="value" load-data-type="ship" :tags="tags"></AssemblyClassificationShowList>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn @click="onClose">
+            {{ t('basic.button.cancel') }}
+          </v-btn>
+          <v-btn @click="onFinish(value)" :disabled="!value" class="bg-amber">
+            {{ t('basic.button.submit') }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-container>
   </v-dialog>
 </template>
 
@@ -80,7 +108,7 @@ export default {
   }
 }
 
-.item {
+.content-selector {
   .insert-preview {
     position: absolute;
     top: -50px;

@@ -18,7 +18,6 @@ const route = useRoute(),
     router = useRouter(),
     goto = useGoTo(),
     notice = useNoticeStore(),
-    {asString} = useI18nUtils(),
     {t} = useI18n(),
     {mobile} = useDisplay()
 
@@ -227,12 +226,12 @@ const onBackDetail = () => {
     <AdsWidget class="my-5" id="none"></AdsWidget>
 
     <AssemblyPoster
-      ref="captureRef"
-      :assembly-detail-data="assemblyDetailData"
-      :generate-image-value="generateImageValue"
-      :path="path"
-      :web-path="webPath"
-      :assembly-loading="assemblyLoading"
+        ref="captureRef"
+        :assembly-detail-data="assemblyDetailData"
+        :generate-image-value="generateImageValue"
+        :path="path"
+        :web-path="webPath"
+        :assembly-loading="assemblyLoading"
     />
   </v-container>
 

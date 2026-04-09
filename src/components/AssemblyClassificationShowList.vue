@@ -15,6 +15,10 @@ import ItemDamageTypeWidget from "@/components/snbWidget/itemDamageTypeWidget.vu
 import ItemName from "@/components/snbWidget/itemName.vue";
 import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
 import ShipName from "@/components/snbWidget/shipName.vue";
+import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
+import UltimateName from "@/components/snbWidget/ultimateName.vue";
+import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
+import ModName from "@/components/snbWidget/modName.vue";
 
 const castToAny = (v: any) => v;
 
@@ -398,13 +402,11 @@ defineOptions({ name: 'AssemblyClassificationShowList' })
           <div
               v-for="(category, index) in resultData"
               :key="category.type"
-              :class="{ 'mb-8': category.model }"
-          >
+              :class="{ 'mb-8': category.model }">
             <div
                 :class="{ 'mb-4': category.model }"
                 class="cursor-pointer text-center title-long-flavor text-amber font-weight-bold bg-black pl-4 lr-4 pt-4 pb-4 ml-n2 mr-n2"
-                @click="toggleCategory(castToAny(category))"
-            >
+                @click="toggleCategory(castToAny(category))">
               {{ t(`codex.types.${category.type}`) }} ({{ category.child.length }})
               <v-icon class="ml-3">
                 {{ category.model ? 'mdi-triangle-small-up' : 'mdi-triangle-small-down' }}
@@ -416,15 +418,13 @@ defineOptions({ name: 'AssemblyClassificationShowList' })
                   v-for="item in category.child"
                   :key="item.id"
                   :title="castToAny(item).name"
-                  cols="auto"
-              >
+                  cols="auto">
                 <div class="item" @click="onClickEvent(castToAny(item))">
                   <!-- 根据类型渲染不同的组件 -->
                   <template v-if="loadDataType === 'ship'">
                     <ItemSlotBase
                         :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
-                        size="90px"
-                    >
+                        size="99px">
                       <ShipIconWidget
                           :id="item.id"
                           :is-click-open-detail="false"
@@ -436,8 +436,7 @@ defineOptions({ name: 'AssemblyClassificationShowList' })
                     <div
                         :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
                         class="text-center d-flex justify-center"
-                        style="width: 90px"
-                    >
+                        style="width: 99px">
                       <div class="singe-line">
                         <ShipName :data="castToAny(item)"/>
                       </div>
@@ -447,8 +446,7 @@ defineOptions({ name: 'AssemblyClassificationShowList' })
                   <template v-else-if="loadDataType === 'item'">
                     <ItemSlotBase
                         :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
-                        size="90px"
-                    >
+                        size="99px">
                       <ItemIconWidget
                           :id="item.id"
                           :is-open-detail="false"
@@ -458,10 +456,49 @@ defineOptions({ name: 'AssemblyClassificationShowList' })
                     <div
                         :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
                         class="text-center d-flex justify-center"
-                        style="width: 90px"
-                    >
+                        style="width: 99px">
                       <div class="singe-line">
                         <ItemName :data="castToAny(item)"/>
+                      </div>
+                    </div>
+                  </template>
+
+                  <template v-else-if="loadDataType === 'ultimate'">
+                    <ItemSlotBase
+                        :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
+                        size="99px">
+                      <UltimateIconWidget
+                          :id="item.id"
+                          :is-open-detail="false"
+                          :is-show-tooltip="false"
+                      ></UltimateIconWidget>
+                    </ItemSlotBase>
+                    <div
+                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
+                        class="text-center d-flex justify-center"
+                        style="width: 99px">
+                      <div class="singe-line">
+                        <UltimateName :id="item.id"></UltimateName>
+                      </div>
+                    </div>
+                  </template>
+
+                  <template v-else-if="loadDataType === 'modification'">
+                    <ItemSlotBase
+                        :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
+                        size="99px">
+                      <ModIconWidget
+                          :id="item.id"
+                          :is-open-detail="false"
+                          :is-show-tooltip="false"
+                      ></ModIconWidget>
+                    </ItemSlotBase>
+                    <div
+                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
+                        class="text-center d-flex justify-center"
+                        style="width: 99px">
+                      <div class="singe-line">
+                        <ModName :id="item.id"></ModName>
                       </div>
                     </div>
                   </template>
@@ -478,8 +515,7 @@ defineOptions({ name: 'AssemblyClassificationShowList' })
                       density="compact"
                       icon
                       variant="text"
-                      @click.stop="onStarItem(castToAny(item))"
-                  >
+                      @click.stop="onStarItem(castToAny(item))">
                     <v-icon :icon="`mdi-${isCollect(item.id) ? 'star' : 'star-outline'}`" size="15"></v-icon>
                   </v-btn>
                 </div>
@@ -515,6 +551,6 @@ defineOptions({ name: 'AssemblyClassificationShowList' })
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 90px;
+  max-width: 99px;
 }
 </style>

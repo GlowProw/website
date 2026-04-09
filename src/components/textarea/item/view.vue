@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import {nodeViewProps, NodeViewWrapper} from "@tiptap/vue-3";
-import {useI18n} from "vue-i18n";
-import {useI18nUtils} from "@/assets/sripts/i18n_util";
 
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
@@ -10,19 +8,22 @@ import ItemName from "@/components/snbWidget/itemName.vue";
 import {Items} from "glow-prow-data";
 
 const props = defineProps(nodeViewProps)
-const
-    items = Items,
-    {t} = useI18n(),
-    {asString, sanitizeString} = useI18nUtils()
+const items = Items
 </script>
 
 <template>
   <node-view-wrapper :as="'span'" class="ultimate-span-box">
-    <ItemSlotBase size="25px" :padding="0" class="item-icon">
+    <ItemSlotBase size="30px"
+                  :is-auto-size="false"
+                  :is-auto-margin="false"
+                  :is-auto-padding="false"
+                  :padding="0"
+                  :margin="0"
+                  class="item-icon">
       <ItemIconWidget :id="node.attrs.id" :padding="0" :margin="0" class="ma-0"></ItemIconWidget>
     </ItemSlotBase>
     <ItemNameRarity :id="node.attrs.id" class="item-name text-no-wrap">
-      <u>
+      <u class="u">
         <ItemName :data="items[node.attrs.id]"></ItemName>
       </u>
     </ItemNameRarity>
@@ -30,13 +31,15 @@ const
 </template>
 
 <style scoped lang="less">
+@import "@/assets/styles/link";
+
 .ultimate-span-box {
   position: relative;
   display: inline-flex;
   width: auto;
-  height: 25px;
+  height: inherit;
   align-items: baseline;
-  gap: 1px;
+  gap: 2px;
 
   .item-icon {
     position: relative;

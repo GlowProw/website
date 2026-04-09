@@ -1,101 +1,103 @@
-<script lang="ts">
-export default { name: 'UltimateView' }
-</script>
-
 <script setup lang="ts">
-import {computed, ref} from 'vue'
-import {Editor} from "@tiptap/vue-3";
-import ItemSlotBase from "./snbWidget/ItemSlotBase.vue";
-import {Ultimates} from 'glow-prow-data/src/entity/Ultimates'
+import {ref} from "vue"
 import {useI18n} from "vue-i18n";
-import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
 
-const props = defineProps({
-      editor: {
-        type: Editor,
-      }
-    }),
-    {t} = useI18n()
+import AssemblyClassificationShowList from "@/components/AssemblyClassificationShowList.vue";
 
-const emit = defineEmits(['finish', 'close'])
+// 选择器所加载的类型
+type ContentSelectorOption = "item" | "material" | "cosmetic" | "ultimate" | "modification"
 
-const show = ref(false)
-const value = ref('')
+const {t} = useI18n(),
+    emit = defineEmits(["finish", "close"])
+
+let model = ref(false),
+    value = ref(""),
+    type = ref<ContentSelectorOption>("item"),
+    tags = ref([])
 
 /**
  * 完成
- * @param id
+ * @param data
  */
-const onFinish = (id) => {
+const onFinish = (data: any) => {
   onPanelToggle()
-  emit('finish', id)
+  emit('finish', data.id || data)
 }
 
 /**
  * 面板开关
  */
 const onPanelToggle = () => {
-  show.value = !show.value
+  model.value = !model.value
 
-  if (show.value === false)
+  if (model.value === false)
     emit('close')
 }
 
 /**
  * 打开面板
+ * @param tagsRaw 可选数据类型
+ * @param typeRaw 大类类型
  */
-const openPanel = () => {
+const openPanel = (tagsRaw: any[] = [], typeRaw: ContentSelectorOption = 'item') => {
+  tags.value = tagsRaw
+  type.value = typeRaw;
+
   onPanelToggle()
 }
 
-const ultimates = computed(() => Ultimates)
+/**
+ * 关闭面包
+ */
+const onClose = () => {
+  onPanelToggle()
+  emit('close')
+}
 
 defineExpose({
   openPanel,
   onPanelToggle,
 })
+
+defineOptions({
+  name: "ShipView",
+})
 </script>
 
 <template>
-  <v-dialog v-model="show"
-            class="item"
-            class-name="ship-window-box"
-            :width="600"
-            @update:modelValue="(status) => !status ? $emit('close') : null"
+  <v-dialog v-model="model"
+            class="content-selector"
             sticky
-            footer-hide>
-    <v-card class="pl-10 pr-10 pt-10 card-flavor">
-      <v-row>
-        <ItemSlotBase size="60px" v-if="value">
-          <UltimateIconWidget :id="value"></UltimateIconWidget>
-        </ItemSlotBase>
-        <ItemSlotBase size="60px" class="d-flex justify-center align-center" v-else>
-          <v-icon icon="mdi-close-octagon-outline"/>
-        </ItemSlotBase>
-        <v-combobox
-            v-model="value"
-            v-model:search="value"
-            :hide-no-data="false"
-            :items="Object.values(ultimates)"
-            hide-selected
-            item-value="id"
-            item-title="id"
-            class="ml-4"
-            clearable
-            persistent-hint>
-          <template v-slot:details>
-            <span v-html="t('assembly.workshop.insertWeaponTips', {link: '/codex'})"></span>
-            <v-icon icon="mdi-share"></v-icon>
-          </template>
-        </v-combobox>
-      </v-row>
+            scrim
+            footer-hide
+            @update:modelValue="(status) => !status ? onClose() : null">
+    <v-container>
+      <v-card>
+        <v-card-title>
+          <v-row>
+            <b class="font-weight-bold text-h5 pa-5">{{ t(`codex.${type}s.title`) }}</b>
+            <v-spacer></v-spacer>
+            <v-col cols="auto">
+              <v-btn icon variant="text" class="ml-1" @click="onClose">
+                <v-icon icon="mdi-close"/>
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card-title>
 
-      <v-card-actions class="mt-4">
-        <v-btn @click="onFinish(value)" block :disabled="!value || !ultimates[value]" class="bg-amber">
-          {{ t('basic.button.submit') }}
-        </v-btn>
-      </v-card-actions>
-    </v-card>
+        <AssemblyClassificationShowList v-model="value" load-data-type="ultimate" :tags="tags"></AssemblyClassificationShowList>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn @click="onClose">
+            {{ t('basic.button.cancel') }}
+          </v-btn>
+          <v-btn @click="onFinish(value)" :disabled="!value" class="bg-amber">
+            {{ t('basic.button.submit') }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-container>
   </v-dialog>
 </template>
 
@@ -106,7 +108,7 @@ defineExpose({
   }
 }
 
-.item {
+.content-selector {
   .insert-preview {
     position: absolute;
     top: -50px;

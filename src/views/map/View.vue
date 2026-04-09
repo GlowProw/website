@@ -27,14 +27,18 @@
         :user-collections-select="userCollectionsSelect"
         :all-layers-visible="allLayersVisible"
         :available-categories="availableCategories"
+        :grouped-categories="groupedCategories"
         :layer-visibility="layerVisibility"
+        :group-visibility="groupVisibility"
         :get-category-icon="getCategoryIcon"
         :get-category-count="getCategoryCount"
         :get-personal-marker-icon="getPersonalMarkerIcon"
         :personal-markers-count="personalMarkersCount"
         @update:selected-collection-uuid="selectedCollectionUuid = $event"
         @toggle-all-layers="onToggleAllLayers"
-        @update:layer-visibility="onToggleLayer()"
+        @init-visibility="onInitVisibility"
+        @update:layer-visibility="onToggleLayer"
+        @update:group-visibility="onToggleGroupLayer"
     />
 
     <LocationCard
@@ -99,6 +103,7 @@ const {
   searchSuggestions,
   isShowMarkModel,
   layerVisibility,
+  groupVisibility,
   allLayersVisible,
   userCollections,
   selectedCollectionUuid,
@@ -111,6 +116,7 @@ const {
   newMarkerData,
   editingMarker,
   availableCategories,
+  groupedCategories,
   personalMarkersCount,
   userCollectionsSelect,
   isDebug,
@@ -132,7 +138,9 @@ const {
   getCategoryIcon,
   handleSearch,
   onToggleLayer,
+  onToggleGroupLayer,
   onToggleAllLayers,
+  onInitVisibility,
   onUpdateAllLayersVisibleState,
   initializeLayerVisibility,
   getLocationDisplayName,

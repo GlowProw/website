@@ -839,6 +839,13 @@
     "type": "Type",
     "tags": "Tags",
     "publicMarker": "Public Marker",
+    "groups": {
+      "pirateBases": "Pirate Bases",
+      "settlements": "Settlements",
+      "productionSites": "Production Sites",
+      "fortifications": "Fortifications",
+      "other": "Other"
+    },
     "types": {
       "none": {
         "name": "Unknown",

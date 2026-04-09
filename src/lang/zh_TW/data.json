@@ -669,6 +669,13 @@
     "type": "类型",
     "tags": "标签",
     "publicMarker": "公开标记",
+    "groups": {
+      "pirateBases": "海盜據點",
+      "settlements": "定居點",
+      "productionSites": "生產設施",
+      "fortifications": "軍事要塞",
+      "other": "其他"
+    },
     "types": {
       "none": {
         "name": "未知",
