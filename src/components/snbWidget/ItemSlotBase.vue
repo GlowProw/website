@@ -1,21 +1,31 @@
-<script lang="ts">
-export default {name: 'ItemSlotBase'}
-</script>
-
 <script setup lang="ts">
 import {useIconGlobalStyle} from '@/assets/sripts/useIconGlobalStyle';
 
-const props = defineProps<{
-  size?: number | string,
-  padding?: number | string,
-  margin?: number | string
-}>();
+const props = withDefaults(
+    defineProps<{
+      size?: number | string,
+      padding?: number | string,
+      margin?: number | string,
+      isAutoSize?: boolean,
+      isAutoPadding?: boolean,
+      isAutoMargin?: boolean,
+    }>(),
+    {
+      isAutoSize: true,
+      isAutoPadding: true,
+      isAutoMargin: true
+    }
+);
 
 const {useIconAdaptiveSize, useIconBoxPadding, useIconBoxMargin} = useIconGlobalStyle();
 
-const computedSize = useIconAdaptiveSize(() => props.size, 99);
-const computedPadding = useIconBoxPadding(() => props.padding, 1);
-const computedMargin = useIconBoxMargin(() => props.margin, 0);
+const computedSize = props.isAutoSize ? useIconAdaptiveSize(() => props.size, 99) : props.size;
+const computedPadding = props.isAutoSize ? useIconBoxPadding(() => props.padding, 1) : props.padding;
+const computedMargin = props.isAutoSize ? useIconBoxMargin(() => props.margin, 0) : props.margin;
+
+defineOptions({
+  name: "ItemSlotBase"
+})
 </script>
 
 <template>

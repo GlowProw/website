@@ -102,13 +102,22 @@ const onStatisticsRawMaterial = () => {
             </template>
             <template v-slot:prepend>
               <div class="d-flex ga-2">
-                <ItemSlotBase size="25px" :padding="0">
+                <ItemSlotBase size="30px"
+                              :is-auto-size="false"
+                              :is-auto-margin="false"
+                              :is-auto-padding="false"
+                              :padding="0"
+                              :margin="0">
                   <MaterialIconWidget :id="i.id" item-type="items" :padding="0" :margin="0"></MaterialIconWidget>
                 </ItemSlotBase>
-                <ItemSlotBase size="25px" :padding="0"
+                <ItemSlotBase size="30px"
+                              :is-auto-size="false"
+                              :is-auto-margin="false"
+                              :is-auto-padding="false"
+                              :padding="1"
+                              :margin="0"
                               v-if="materials[i.id].faction">
-                  <FactionIconWidget :name="materials[i.id].faction.id"
-                                     size="25px"></FactionIconWidget>
+                  <FactionIconWidget :name="materials[i.id].faction.id"></FactionIconWidget>
                 </ItemSlotBase>
               </div>
             </template>
@@ -158,10 +167,20 @@ const onStatisticsRawMaterial = () => {
             </template>
             <template v-slot:prepend>
               <div class="d-flex ga-2">
-                <ItemSlotBase size="25px" :padding="0">
+                <ItemSlotBase size="30px"
+                              :is-auto-size="false"
+                              :is-auto-margin="false"
+                              :is-auto-padding="false"
+                              :padding="0"
+                              :margin="0">
                   <MaterialIconWidget :id="key" :padding="0" :margin="0"></MaterialIconWidget>
                 </ItemSlotBase>
-                <ItemSlotBase size="25px" :padding="0"
+                <ItemSlotBase size="30px"
+                              :is-auto-size="false"
+                              :is-auto-margin="false"
+                              :is-auto-padding="false"
+                              :padding="1"
+                              :margin="0"
                               v-if="materials[key] && materials[key].faction">
                   <FactionIconWidget :name="materials[key].faction.id"></FactionIconWidget>
                 </ItemSlotBase>
@@ -192,13 +211,22 @@ const onStatisticsRawMaterial = () => {
                 </template>
                 <template v-slot:prepend>
                   <div class="d-flex ga-2">
-                    <ItemSlotBase size="25px" :padding="0">
+                    <ItemSlotBase size="30px"
+                                  :is-auto-size="false"
+                                  :is-auto-margin="false"
+                                  :is-auto-padding="false"
+                                  :padding="0"
+                                  :margin="0">
                       <MaterialIconWidget :id="raw.id" item-type="items" :padding="0" :margin="0"></MaterialIconWidget>
                     </ItemSlotBase>
-                    <ItemSlotBase size="25px" :padding="0"
+                    <ItemSlotBase size="30px"
+                                  :is-auto-size="false"
+                                  :is-auto-margin="false"
+                                  :is-auto-padding="false"
+                                  :padding="1"
+                                  :margin="0"
                                   v-if="materials[key] && materials[raw.id].faction">
-                      <FactionIconWidget :name="materials[raw.id].faction.id"
-                                         size="25px"></FactionIconWidget>
+                      <FactionIconWidget :name="materials[raw.id].faction.id"></FactionIconWidget>
                     </ItemSlotBase>
                   </div>
                 </template>
