@@ -14,7 +14,7 @@ import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useDisplay} from "vuetify/framework";
 import {number, rarity} from "@/assets/sripts/index";
-import { useIconGlobalStyle } from "@/assets/sripts/useIconGlobalStyle";
+import {useIconGlobalStyle} from "@/assets/sripts/useIconGlobalStyle";
 
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
@@ -77,10 +77,11 @@ const
     {t} = useI18n(),
     {mobile, sm, md, lg} = useDisplay(),
     {asString, sanitizeString} = useI18nUtils(),
-    { useIconAdaptiveSize } = useIconGlobalStyle()
+    {useIconAdaptiveSize} = useIconGlobalStyle()
 
 let data: any = ref([]),
     exceedingItemsCount = ref(0),
+    menuModel = ref(false),
     // 筛选
     filterData = ref({
       keyValue: '',
@@ -814,27 +815,20 @@ const onSort = (field: SortField, order: SortOrder) => {
 <template>
   <div>
     <v-row align="center">
+      <v-col cols="auto">
+        <v-icon>mdi-format-list-bulleted-type</v-icon>
+      </v-col>
       <v-col>
-        <v-text-field :placeholder="t('basic.button.search')" hide-details
-                      variant="filled"
-                      density="comfortable"
-                      clearable
-                      @keydown.enter="onSearchItem"
-                      @click:clear="onSearchItem"
-                      v-model="filterData.inputWidgetKeyValue">
-          <template v-slot:append-inner>
-            <v-btn @click="onSearchItem" icon variant="text" density="comfortable">
-              <v-icon icon="mdi-magnify"></v-icon>
-            </v-btn>
-          </template>
-        </v-text-field>
+        <v-divider opacity=".2" thickness="2"></v-divider>
       </v-col>
       <v-col cols="auto" v-if="slots.action">
         <slot name="action"></slot>
       </v-col>
       <v-divider vertical v-if="slots.action" inset></v-divider>
       <v-col cols="auto">
-        <v-menu open-on-click :close-on-content-click="false">
+        <v-menu v-model="menuModel"
+                open-on-click
+                :close-on-content-click="false">
           <template v-slot:activator="{ props }">
             <div v-bind="props">
               <v-icon>{{ hasActiveFilters ? 'mdi-filter' : 'mdi-filter-outline' }}</v-icon>
@@ -842,301 +836,320 @@ const onSort = (field: SortField, order: SortOrder) => {
             </div>
           </template>
 
-          <v-card border class="pa-5" :min-width="mobile ? '100%' : 350" :width="mobile ? '100%' : 580">
-            <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 mt-n5">
+          <v-card border :min-width="mobile ? '100%' : 350" :width="mobile ? '100%' : 580">
+            <v-card-title class="py-10 text-center bg-black mb-4">
               <v-icon size="80">{{ hasActiveFilters ? 'mdi-filter' : 'mdi-filter-outline' }}</v-icon>
             </v-card-title>
+            <div class="pa-5">
+              <v-row>
+                <v-col cols="12">
+                  <v-text-field :placeholder="t('basic.button.search')" hide-details
+                                variant="filled"
+                                density="comfortable"
+                                clearable
+                                @keydown.enter="onSearchItem"
+                                @click:clear="onSearchItem"
+                                v-model="filterData.inputWidgetKeyValue">
+                    <template v-slot:append-inner>
+                      <v-btn @click="onSearchItem" icon variant="text" density="comfortable">
+                        <v-icon icon="mdi-magnify"></v-icon>
+                      </v-btn>
+                    </template>
+                  </v-text-field>
+                </v-col>
+                <v-col cols="12">
+                  <div class="mb-2">{{ t('codex.filter.byType') }} ({{ typeFilterAvailableOptions.length || 0 }})</div>
+                  <v-select
+                      variant="filled"
+                      @update:model-value="onFilterItemType"
+                      item-value="value"
+                      item-title="text"
+                      density="comfortable"
+                      v-model="filterData.types"
+                      :disabled="typeFilterAvailableOptions.length == 0"
+                      :placeholder="t('codex.filter.byType')"
+                      :counter="3"
+                      :eager="false"
+                      :glow="false"
+                      :items="typeFilterAvailableOptions"
+                      hide-details
+                      multiple
+                      chips
+                      clearable
+                  ></v-select>
+                </v-col>
 
-            <v-row>
-              <v-col cols="12">
-                <div class="mb-2">{{ t('codex.filter.byType') }} ({{ typeFilterAvailableOptions.length || 0 }})</div>
-                <v-select
-                    variant="filled"
-                    @update:model-value="onFilterItemType"
-                    item-value="value"
-                    item-title="text"
-                    density="comfortable"
-                    v-model="filterData.types"
-                    :disabled="typeFilterAvailableOptions.length == 0"
-                    :placeholder="t('codex.filter.byType')"
-                    :counter="3"
-                    :eager="false"
-                    :glow="false"
-                    :items="typeFilterAvailableOptions"
-                    hide-details
-                    multiple
-                    chips
-                    clearable
-                ></v-select>
-              </v-col>
+                <v-col cols="12">
+                  <div class="mb-2">{{ t('codex.filter.byCategory') }} ({{ categoryFilterAvailableOptions.length || 0 }})</div>
+                  <v-select
+                      variant="filled"
+                      @update:model-value="onFilterCategory"
+                      item-value="value"
+                      item-title="text"
+                      density="comfortable"
+                      v-model="filterData.categorys"
+                      :disabled="categoryFilterAvailableOptions.length == 0"
+                      :placeholder="t('codex.filter.byCategory')"
+                      :counter="3"
+                      :eager="false"
+                      :glow="false"
+                      :items="categoryFilterAvailableOptions"
+                      hide-details
+                      multiple
+                      chips
+                      clearable
+                  ></v-select>
+                </v-col>
 
-              <v-col cols="12">
-                <div class="mb-2">{{ t('codex.filter.byCategory') }} ({{ categoryFilterAvailableOptions.length || 0 }})</div>
-                <v-select
-                    variant="filled"
-                    @update:model-value="onFilterCategory"
-                    item-value="value"
-                    item-title="text"
-                    density="comfortable"
-                    v-model="filterData.categorys"
-                    :disabled="categoryFilterAvailableOptions.length == 0"
-                    :placeholder="t('codex.filter.byCategory')"
-                    :counter="3"
-                    :eager="false"
-                    :glow="false"
-                    :items="categoryFilterAvailableOptions"
-                    hide-details
-                    multiple
-                    chips
-                    clearable
-                ></v-select>
-              </v-col>
+                <v-col cols="6">
+                  <div class="mb-2">{{ t('codex.filter.byRarity') }} ({{ rarityFilterAvailableOptions.length || 0 }})</div>
+                  <v-select
+                      variant="filled"
+                      @update:model-value="onFilterRarity"
+                      item-value="value"
+                      item-title="text"
+                      density="comfortable"
+                      v-model="filterData.rarities"
+                      :disabled="rarityFilterAvailableOptions.length == 0"
+                      :placeholder="t('codex.filter.byRarity')"
+                      :counter="3"
+                      :eager="false"
+                      :glow="false"
+                      :items="rarityFilterAvailableOptions"
+                      hide-details
+                      multiple
+                      chips
+                      clearable>
+                    <template v-slot:item="{ item, props }">
+                      <v-list-item
+                          v-bind="props"
+                          :style="`color: ${rarityColorConfig[item.value]}`">
+                        <template v-slot:prepend>
+                          <v-checkbox
+                              class="pa-0 ma-0"
+                              density="compact"
+                              hide-spin-buttons
+                              hide-details
+                              :model-value="filterData.rarities.includes(item.value)"
+                              @click.stop
+                          ></v-checkbox>
+                        </template>
+                      </v-list-item>
+                    </template>
 
-              <v-col cols="6">
-                <div class="mb-2">{{ t('codex.filter.byRarity') }} ({{ rarityFilterAvailableOptions.length || 0 }})</div>
-                <v-select
-                    variant="filled"
-                    @update:model-value="onFilterRarity"
-                    item-value="value"
-                    item-title="text"
-                    density="comfortable"
-                    v-model="filterData.rarities"
-                    :disabled="rarityFilterAvailableOptions.length == 0"
-                    :placeholder="t('codex.filter.byRarity')"
-                    :counter="3"
-                    :eager="false"
-                    :glow="false"
-                    :items="rarityFilterAvailableOptions"
-                    hide-details
-                    multiple
-                    chips
-                    clearable>
-                  <template v-slot:item="{ item, props }">
-                    <v-list-item
-                        v-bind="props"
-                        :style="`color: ${rarityColorConfig[item.value]}`">
-                      <template v-slot:prepend>
-                        <v-checkbox
-                            class="pa-0 ma-0"
-                            density="compact"
-                            hide-spin-buttons
-                            hide-details
-                            :model-value="filterData.rarities.includes(item.value)"
-                            @click.stop
-                        ></v-checkbox>
-                      </template>
-                    </v-list-item>
-                  </template>
-
-                  <template v-slot:selection="{ item, index }">
-                    <v-chip
-                        v-if="index < 2"
-                        :style="`color: ${rarityColorConfig[item.value]}; border-color: ${rarityColorConfig[item.value]}`"
-                        variant="outlined"
-                        size="small">
-                      {{ item.title }}
-                    </v-chip>
-                    <span
-                        v-if="index === 2"
-                        class="text-grey text-caption">
+                    <template v-slot:selection="{ item, index }">
+                      <v-chip
+                          v-if="index < 2"
+                          :style="`color: ${rarityColorConfig[item.value]}; border-color: ${rarityColorConfig[item.value]}`"
+                          variant="outlined"
+                          size="small">
+                        {{ item.title }}
+                      </v-chip>
+                      <span
+                          v-if="index === 2"
+                          class="text-grey text-caption">
                       +{{ filterData.rarities.length - 2 }} more
                     </span>
-                  </template>
+                    </template>
 
-                  <template v-slot:chip="{ item }">
-                    <v-chip
-                        :style="`color: ${rarityColorConfig[item.value]}; border-color: ${rarityColorConfig[item.value]}`"
-                        variant="tonal"
-                        size="small">
-                      {{ item.title }}
-                    </v-chip>
-                  </template>
-                </v-select>
-              </v-col>
+                    <template v-slot:chip="{ item }">
+                      <v-chip
+                          :style="`color: ${rarityColorConfig[item.value]}; border-color: ${rarityColorConfig[item.value]}`"
+                          variant="tonal"
+                          size="small">
+                        {{ item.title }}
+                      </v-chip>
+                    </template>
+                  </v-select>
+                </v-col>
 
-              <v-col cols="6">
-                <div class="mb-2">{{ t('codex.filter.byTier') }} ({{ tierFilterAvailableOptions.length || 0 }})</div>
-                <v-select
-                    variant="filled"
-                    @update:model-value="onFilterTier"
-                    item-value="value"
-                    item-title="text"
-                    density="comfortable"
-                    v-model="filterData.tiers"
-                    :disabled="tierFilterAvailableOptions.length == 0"
-                    :placeholder="t('codex.filter.byTier')"
-                    :counter="3"
-                    :eager="false"
-                    :glow="false"
-                    :items="tierFilterAvailableOptions"
-                    hide-details
-                    multiple
-                    chips
-                    clearable
-                ></v-select>
-              </v-col>
+                <v-col cols="6">
+                  <div class="mb-2">{{ t('codex.filter.byTier') }} ({{ tierFilterAvailableOptions.length || 0 }})</div>
+                  <v-select
+                      variant="filled"
+                      @update:model-value="onFilterTier"
+                      item-value="value"
+                      item-title="text"
+                      density="comfortable"
+                      v-model="filterData.tiers"
+                      :disabled="tierFilterAvailableOptions.length == 0"
+                      :placeholder="t('codex.filter.byTier')"
+                      :counter="3"
+                      :eager="false"
+                      :glow="false"
+                      :items="tierFilterAvailableOptions"
+                      hide-details
+                      multiple
+                      chips
+                      clearable
+                  ></v-select>
+                </v-col>
 
-              <v-col cols="6">
-                <div class="mb-2">{{ t('codex.filter.bySeason') }} ({{ seasonFilterAvailableOptions.length || 0 }})</div>
-                <v-select
-                    variant="filled"
-                    @update:model-value="onFilterSeason"
-                    item-value="value"
-                    item-title="text"
-                    density="comfortable"
-                    v-model="filterData.seasons"
-                    :disabled="seasonFilterAvailableOptions.length <= 0"
-                    :placeholder="t('codex.filter.bySeason')"
-                    :counter="3"
-                    :eager="false"
-                    :glow="false"
-                    :items="seasonFilterAvailableOptions"
-                    hide-details
-                    multiple
-                    chips
-                    clearable
-                ></v-select>
-              </v-col>
+                <v-col cols="6">
+                  <div class="mb-2">{{ t('codex.filter.bySeason') }} ({{ seasonFilterAvailableOptions.length || 0 }})</div>
+                  <v-select
+                      variant="filled"
+                      @update:model-value="onFilterSeason"
+                      item-value="value"
+                      item-title="text"
+                      density="comfortable"
+                      v-model="filterData.seasons"
+                      :disabled="seasonFilterAvailableOptions.length <= 0"
+                      :placeholder="t('codex.filter.bySeason')"
+                      :counter="3"
+                      :eager="false"
+                      :glow="false"
+                      :items="seasonFilterAvailableOptions"
+                      hide-details
+                      multiple
+                      chips
+                      clearable
+                  ></v-select>
+                </v-col>
 
-              <!-- 世界事件筛选 -->
-              <v-col cols="6">
-                <div class="mb-2">{{ t('codex.filter.byWorldEvent') }} ({{ worldEventFilterAvailableOptions.length || 0 }})</div>
-                <v-select
-                    variant="filled"
-                    @update:model-value="onFilterWorldEvent"
-                    item-value="value"
-                    item-title="text"
-                    density="comfortable"
-                    v-model="filterData.worldEvents"
-                    :disabled="worldEventFilterAvailableOptions.length <= 0"
-                    :placeholder="t('codex.filter.byWorldEvent')"
-                    :counter="3"
-                    :eager="false"
-                    :glow="false"
-                    :items="worldEventFilterAvailableOptions"
-                    hide-details
-                    multiple
-                    chips
-                    clearable
-                ></v-select>
-              </v-col>
+                <!-- 世界事件筛选 -->
+                <v-col cols="6">
+                  <div class="mb-2">{{ t('codex.filter.byWorldEvent') }} ({{ worldEventFilterAvailableOptions.length || 0 }})</div>
+                  <v-select
+                      variant="filled"
+                      @update:model-value="onFilterWorldEvent"
+                      item-value="value"
+                      item-title="text"
+                      density="comfortable"
+                      v-model="filterData.worldEvents"
+                      :disabled="worldEventFilterAvailableOptions.length <= 0"
+                      :placeholder="t('codex.filter.byWorldEvent')"
+                      :counter="3"
+                      :eager="false"
+                      :glow="false"
+                      :items="worldEventFilterAvailableOptions"
+                      hide-details
+                      multiple
+                      chips
+                      clearable
+                  ></v-select>
+                </v-col>
 
-              <v-col cols="6" v-if="isFilterSet">
-                <div class="mb-2">{{ t('codex.filter.bySet') }} ({{ setFilterAvailableOptions.length || 0 }})</div>
-                <v-select
-                    variant="filled"
-                    @update:model-value="onFilterSet"
-                    item-value="value"
-                    item-title="text"
-                    density="comfortable"
-                    v-model="filterData.sets"
-                    :disabled="setFilterAvailableOptions.length <= 0"
-                    :placeholder="t('codex.filter.bySet')"
-                    :counter="3"
-                    :eager="true"
-                    :glow="false"
-                    :items="setFilterAvailableOptions"
-                    hide-details
-                    multiple
-                    chips
-                    clearable>
-                  <template v-slot:item="{props, item}">
-                    <v-list-item v-bind="props">
-                      <template v-slot:prepend>
-                        <v-checkbox
-                            class="pa-0 ma-0"
-                            density="compact"
-                            hide-spin-buttons
-                            hide-details
-                            :model-value="filterData.sets.includes(item.value)"
-                            @click.stop
-                        ></v-checkbox>
-                      </template>
-                      <template v-slot:append>
-                        <ItemSlotBase size="30px" :padding="0">
-                          <SetIconWidget :id="item.raw.value" :is-open-detail="false" :is-show-tooltip="false" :is-show-open-detail="false"></SetIconWidget>
-                        </ItemSlotBase>
-                      </template>
-                      <template v-slot:title>
-                        {{ item.title || item.value }}
-                      </template>
-                    </v-list-item>
-                  </template>
-                </v-select>
-              </v-col>
+                <v-col cols="6" v-if="isFilterSet">
+                  <div class="mb-2">{{ t('codex.filter.bySet') }} ({{ setFilterAvailableOptions.length || 0 }})</div>
+                  <v-select
+                      variant="filled"
+                      @update:model-value="onFilterSet"
+                      item-value="value"
+                      item-title="text"
+                      density="comfortable"
+                      v-model="filterData.sets"
+                      :disabled="setFilterAvailableOptions.length <= 0"
+                      :placeholder="t('codex.filter.bySet')"
+                      :counter="3"
+                      :eager="true"
+                      :glow="false"
+                      :items="setFilterAvailableOptions"
+                      hide-details
+                      multiple
+                      chips
+                      clearable>
+                    <template v-slot:item="{props, item}">
+                      <v-list-item v-bind="props">
+                        <template v-slot:prepend>
+                          <v-checkbox
+                              class="pa-0 ma-0"
+                              density="compact"
+                              hide-spin-buttons
+                              hide-details
+                              :model-value="filterData.sets.includes(item.value)"
+                              @click.stop
+                          ></v-checkbox>
+                        </template>
+                        <template v-slot:append>
+                          <ItemSlotBase size="30px" :padding="0">
+                            <SetIconWidget :id="item.raw.value" :is-open-detail="false" :is-show-tooltip="false" :is-show-open-detail="false"></SetIconWidget>
+                          </ItemSlotBase>
+                        </template>
+                        <template v-slot:title>
+                          {{ item.title || item.value }}
+                        </template>
+                      </v-list-item>
+                    </template>
+                  </v-select>
+                </v-col>
 
-              <v-col cols="6" v-if="isFilterLocation">
-                <div class="mb-2">{{ t('codex.filter.byLocation') }} ({{ locationFilterAvailableOptions.length || 0 }})</div>
-                <v-select
-                    variant="filled"
-                    @update:model-value="onFilterLocation"
-                    item-value="value"
-                    item-title="text"
-                    density="comfortable"
-                    v-model="filterData.locations"
-                    :disabled="locationFilterAvailableOptions.length <= 0"
-                    :placeholder="t('codex.filter.byLocation')"
-                    :counter="3"
-                    :eager="true"
-                    :glow="false"
-                    :items="locationFilterAvailableOptions"
-                    hide-details
-                    multiple
-                    chips
-                    clearable></v-select>
-              </v-col>
-              <v-col cols="12">
-                <div class="mb-2">{{ t('codex.filter.sortBy') }}</div>
-                <v-row>
-                  <v-col cols="6">
-                    <v-select
-                        variant="filled"
-                        @update:model-value="onSort(filterData.sortField, filterData.sortOrder)"
-                        item-value="value"
-                        item-title="text"
-                        density="comfortable"
-                        v-model="filterData.sortField"
-                        :items="[
+                <v-col cols="6" v-if="isFilterLocation">
+                  <div class="mb-2">{{ t('codex.filter.byLocation') }} ({{ locationFilterAvailableOptions.length || 0 }})</div>
+                  <v-select
+                      variant="filled"
+                      @update:model-value="onFilterLocation"
+                      item-value="value"
+                      item-title="text"
+                      density="comfortable"
+                      v-model="filterData.locations"
+                      :disabled="locationFilterAvailableOptions.length <= 0"
+                      :placeholder="t('codex.filter.byLocation')"
+                      :counter="3"
+                      :eager="true"
+                      :glow="false"
+                      :items="locationFilterAvailableOptions"
+                      hide-details
+                      multiple
+                      chips
+                      clearable></v-select>
+                </v-col>
+                <v-col cols="12">
+                  <div class="mb-2">{{ t('codex.filter.sortBy') }}</div>
+                  <v-row>
+                    <v-col cols="6">
+                      <v-select
+                          variant="filled"
+                          @update:model-value="onSort(filterData.sortField, filterData.sortOrder)"
+                          item-value="value"
+                          item-title="text"
+                          density="comfortable"
+                          v-model="filterData.sortField"
+                          :items="[
                           { value: 'dateAdded', text: t('codex.filter.dateAdded') },
                           { value: 'lastUpdated', text: t('codex.filter.lastUpdated') }
                         ]"
-                        hide-details
-                    ></v-select>
-                  </v-col>
-                  <v-col cols="6">
-                    <v-select
-                        variant="filled"
-                        @update:model-value="onSort(filterData.sortField, filterData.sortOrder)"
-                        item-value="value"
-                        item-title="text"
-                        density="comfortable"
-                        v-model="filterData.sortOrder"
-                        :items="[
+                          hide-details
+                      ></v-select>
+                    </v-col>
+                    <v-col cols="6">
+                      <v-select
+                          variant="filled"
+                          @update:model-value="onSort(filterData.sortField, filterData.sortOrder)"
+                          item-value="value"
+                          item-title="text"
+                          density="comfortable"
+                          v-model="filterData.sortOrder"
+                          :items="[
                           { value: 'desc', text: t('codex.filter.descending') },
                           { value: 'asc', text: t('codex.filter.ascending') }
                         ]"
-                        hide-details
-                    ></v-select>
-                  </v-col>
-                </v-row>
-              </v-col>
-            </v-row>
-
-            <v-card-actions class="mx-n4 mt-4 px-4">
-              <v-row>
-                <v-spacer></v-spacer>
-                <v-col cols="auto" class="text-right">
-                  <v-btn
-                      @click="resetAllFilters"
-                      variant="outlined"
-                      color="error"
-                      :disabled="!hasActiveFilters"
-                      prepend-icon="mdi-refresh">
-                    {{ t('basic.button.reset') }}
-                  </v-btn>
+                          hide-details
+                      ></v-select>
+                    </v-col>
+                  </v-row>
                 </v-col>
               </v-row>
-            </v-card-actions>
+
+              <v-card-actions class="mx-n4 mt-4 px-4">
+                <v-row>
+                  <v-spacer></v-spacer>
+                  <v-col cols="auto" class="text-right d-flex ga-2">
+                    <v-btn @click="menuModel = false">
+                      {{ t('basic.button.cancel') }}
+                    </v-btn>
+                    <v-btn
+                        @click="resetAllFilters"
+                        variant="outlined"
+                        color="error"
+                        :disabled="!hasActiveFilters"
+                        prepend-icon="mdi-refresh">
+                      {{ t('basic.button.reset') }}
+                    </v-btn>
+                  </v-col>
+                </v-row>
+              </v-card-actions>
+            </div>
           </v-card>
         </v-menu>
       </v-col>
@@ -1151,7 +1164,7 @@ const onSort = (field: SortField, order: SortOrder) => {
 
   <v-infinite-scroll class="mt-3" @load="onLoad">
     <template v-if="isShouldShowInfiniteScroll">
-      <v-row class="list ga-4" no-gutters :style="`--grid-min-width: ${size}px`">
+      <v-row class="list" no-gutters :style="`--grid-min-width: ${size}px`">
         <v-card v-for="i in data" :key="i.id" :width="size" variant="text">
           <div class="position-relative d-flex justify-center">
             <ItemSlotBase :size="`${baseSize}px`" class="position-relative">
@@ -1198,7 +1211,7 @@ const onSort = (field: SortField, order: SortOrder) => {
     </template>
     <template v-else>
       <!-- 搜索或筛选时的显示 S -->
-      <v-row class="list ga-4" no-gutters :style="`--grid-min-width: ${size}px`">
+      <v-row class="list" no-gutters :style="`--grid-min-width: ${size}px`">
         <v-card v-for="i in onProcessedData" :key="i.id" :width="size" variant="text">
           <div class="position-relative d-flex justify-center">
             <ItemSlotBase :size="`${baseSize}px`" class="position-relative">
@@ -1273,8 +1286,8 @@ const onSort = (field: SortField, order: SortOrder) => {
 <style scoped lang="less">
 .list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(var(--grid-min-width, 120px), 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(var(--grid-min-width, 99px), 1fr));
+  gap: inherit;
 
   .subordinate-data {
     width: auto;

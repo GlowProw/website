@@ -220,22 +220,23 @@ const onPenPassword = () => {
 
               <v-spacer></v-spacer>
 
-              <v-btn class="d-flex ga-1 mr-2"
-                     v-if="authStore.isLogin && detailData.isVisibility && detailData.assembly?.attr?.isLike"
-                     border>
-                <LikeWidget targetType="assembly"
-                            :targetId="detailData.uuid"
-                            :userId="authStore.user.userId">
-                  <template v-slot:activate>
-                    <v-btn variant="text" icon="mdi-thumb-up"></v-btn>
-                  </template>
-                  <template v-slot:unActivate>
-                    <v-btn variant="text" icon="mdi-thumb-up-outline"></v-btn>
-                  </template>
-                </LikeWidget>
+              <div class="ga-2 d-flex">
+                <v-btn icon v-if="authStore.isLogin && detailData.isVisibility && detailData.assembly?.attr?.isLike">
+                  <LikeWidget targetType="assembly"
+                              :targetId="detailData.uuid"
+                              :userId="authStore.user.userId">
+                    <template v-slot:activate>
+                      <v-btn variant="text" icon="mdi-thumb-up"></v-btn>
+                    </template>
+                    <template v-slot:unActivate>
+                      <v-btn variant="text" icon="mdi-thumb-up-outline"></v-btn>
+                    </template>
+                  </LikeWidget>
+                </v-btn>
+
                 <v-btn variant="text" v-if="detailData.uuid" :to="`/assembly/browse/${detailData.uuid}/share`" icon="mdi-share-variant-outline"></v-btn>
                 <v-btn variant="text" v-if="detailData.uuid" @click="getAssemblyDetail(true)" icon="mdi-refresh"></v-btn>
-              </v-btn>
+              </div>
 
               <template v-if="detailData.isVisibility && authStore.isLogin && detailData.isOwner">
                 <v-btn-group class="ml-2">

@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'Sidebar' }
-</script>
-
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import AppCodexNav from "@/assets/sripts/app_codex_nav";
@@ -22,26 +18,32 @@ const toggleCollapse = () => {
 watch(() => mobile.value, (value) => {
   isCollapsed.value = false
 })
+
+defineOptions({
+  name: "Sidebar"
+})
 </script>
 
 <template>
-  <div class="sidebar-container" :class="{ 'collapsed': isCollapsed }">
+  <div class="sidebar-container pt-3" :class="{ 'collapsed': isCollapsed }">
     <v-list nav
             slim
             class="bg-transparent pa-0 overflow-x-hidden"
             active-class="bg-amber">
-      <v-row class="mb-5" align="center">
+      <v-row class="mb-2" align="center">
         <v-col>
           <v-list-item to="/codex/" prepend-icon="mdi-home" slim :active="route.name == 'codexOverview'">
             {{ t('codex.title') }}
           </v-list-item>
         </v-col>
-        <v-col cols="auto">
-          <v-card class="collapse-header bg-amber" @click="toggleCollapse" v-if="mobile">
+        <v-col cols="auto" v-if="mobile">
+          <v-card class="collapse-header bg-amber" @click="toggleCollapse">
             <v-icon class="collapse-icon">{{ isCollapsed ? 'mdi-chevron-down' : 'mdi-chevron-up' }}</v-icon>
           </v-card>
         </v-col>
       </v-row>
+
+      <v-divider></v-divider>
 
       <template v-if="!isCollapsed">
         <v-list-item :to="`${i.to}`"

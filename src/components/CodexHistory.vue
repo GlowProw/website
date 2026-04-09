@@ -14,6 +14,7 @@ import NpcIconWidget from "@/components/snbWidget/npcIconWidget.vue";
 import {onMounted, ref} from "vue";
 import {storage} from "@/assets/sripts/index";
 import {useI18n} from "vue-i18n";
+import SetIconWidget from "@/components/snbWidget/setIconWidget.vue";
 
 const {t} = useI18n()
 
@@ -50,13 +51,16 @@ const onCleaningHistory = () => {
 <template>
   <div class="w-100 mb-10" v-if="codexHistorys.length > 0">
     <v-toolbar class="py-0 px-5 bg-transparent">
-      <div class="font-weight-bold text-amber text-h5">
+      <div class="font-weight-bold text-amber">
         <v-icon>mdi-history</v-icon>
-        {{ t('codex.cabinetHistoryTitle') }}
-        ({{ codexHistorys.length || 0 }})
       </div>
-      <v-spacer></v-spacer>
-      <v-col cols="auto" class="mr-4">
+      <v-col class="text-amber">
+        <v-divider opacity=".2" thickness="2">
+          {{ t('codex.cabinetHistoryTitle') }}
+          ({{ codexHistorys.length || 0 }})
+        </v-divider>
+      </v-col>
+      <v-col cols="auto">
         <v-btn icon="mdi-delete" @click="onCleaningHistory" v-if="codexHistorys.length >= 0"></v-btn>
       </v-col>
     </v-toolbar>
@@ -71,6 +75,7 @@ const onCleaningHistory = () => {
           <MaterialIconWidget :id="i.id" v-if="i.category == 'material'"></MaterialIconWidget>
           <MapLocationIconWidget :id="i.id" v-if="i.category == 'mapLocation'"></MapLocationIconWidget>
           <TreasureMapIconWidget :id="i.id" v-if="i.category == 'treasureMap'"></TreasureMapIconWidget>
+          <SetIconWidget :id="i.id" v-if="i.category == 'set'"></SetIconWidget>
           <CosmeticIconWidget :id="i.id" v-if="i.category == 'cosmetic'"></CosmeticIconWidget>
           <ModIconWidget :id="i.id" v-if="i.category == 'modification'"></ModIconWidget>
           <NpcIconWidget :id="i.id" v-if="i.category == 'npc'"></NpcIconWidget>

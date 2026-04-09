@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {onMounted, ref} from "vue";
 import {useI18n} from "vue-i18n";
-import {useDisplay} from "vuetify/framework";
 import {useAssetsStore} from "~/stores/assetsStore";
 
 import AppCodexNav from "@/assets/sripts/app_codex_nav";
@@ -14,7 +13,6 @@ const codexImages = import.meta.glob('@/assets/images/snb/codexIcons/*', {eager:
 const
     {t} = useI18n(),
     route = useRoute(),
-    {mobile} = useDisplay(),
     {serializationMap} = useAssetsStore(),
     appCodexNav = new AppCodexNav()
 
@@ -55,17 +53,17 @@ onMounted(() => {
 
       <div class="w-100">
         <template v-for="(i, index) in appCodexNav.codex" :key="index">
-          <v-toolbar class="py-0 px-5 bg-transparent">
-            <div class="font-weight-bold text-amber text-h5">
+          <v-row class="py-0 px-5" align="center">
+            <v-col cols="auto" class="font-weight-bold text-amber text-h5">
               {{ t(i.title) }}
-            </div>
-            <v-spacer></v-spacer>
-          </v-toolbar>
+            </v-col>
+            <v-col>
+              <v-divider opacity=".2" thickness="2"></v-divider>
+            </v-col>
+          </v-row>
 
-          <v-divider class="mb-5"></v-divider>
-
-          <v-row class="mb-2 px-3 mb-16">
-            <v-col cols="12" sm="12" md="4" lg="3" v-for="(n, nIndex) in i.childs" :key="nIndex" v-if="i.childs">
+          <v-row class="mb-2 pb-3 mb-10 mx-1">
+            <v-col cols="12" sm="12" md="4" lg="4" v-for="(n, nIndex) in i.childs" :key="nIndex" v-if="i.childs">
               <router-link :to="n.to" class="codex-overview-item">
                 <div class="card-flavor px-0 py-1">
                   <v-card class="card-enlargement-flavor card px-8 py-5">

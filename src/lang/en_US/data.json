@@ -28,6 +28,10 @@
       }
     }
   },
+  "ad": {
+    "title": "AD",
+    "description": "AD Content {id}"
+  },
   "about": {
     "title": "About",
     "disclaimer": "The Shining Prow application and its affiliates follow different agreements; the main program and its affiliates are not affiliated with Skull and Bones or the Ubisoft Group.",
