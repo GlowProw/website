@@ -30,8 +30,7 @@ import ShareWidget from "@/components/ShareWidget.vue";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 
-const {t, tm, te, messages} = useI18n(),
-    router = useRouter(),
+const {t, te, messages} = useI18n(),
     route = useRoute(),
     i18nReadName = useI18nReadName(),
     authStore = useAuthStore(),

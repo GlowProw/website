@@ -5,7 +5,7 @@ export default {name: 'ObtainableWidget'}
 <script setup lang="ts">
 
 import ItemName from "@/components/snbWidget/itemName.vue";
-import {computed} from "vue";
+import {computed, useSlots} from "vue";
 import {Commodity, Cosmetic, Cosmetics, Item, Items, Material, Npc} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 import EmptyView from "@/components/EmptyView.vue";
@@ -19,8 +19,9 @@ const props = withDefaults(
           byType: ''
         }
     ),
-    {t, tm} = useI18n(),
+    {tm} = useI18n(),
     {asString, sanitizeString} = useI18nUtils(),
+    slots = useSlots(),
     items = Items,
     cosmetics = Cosmetics
 
@@ -154,7 +155,7 @@ const getChipText = (o: any) => {
 </script>
 
 <template>
-  <p class="text-no-wrap font-weight-bold mb-2 mt-2">
+  <p class="text-no-wrap font-weight-bold mb-2 mt-2" v-if="slots.default">
     <slot></slot>
   </p>
   <v-chip-group :column="true">

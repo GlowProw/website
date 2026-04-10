@@ -144,8 +144,9 @@ export function calculateHashSimilarity(hash1: string, hash2: string): number {
         }
     }
 
-    // 将汉明距离转换为相似度百分比
-    return (1 - distance / hash1.length) * 100;
+    const diffRatio = distance / hash1.length;
+    // 汉明距离>0.4 通常意味着完全不同的图片
+    return Math.max(0, (1 - diffRatio * 2.5) * 100);
 }
 
 // ==================== 颜色直方图算法 ====================
@@ -190,14 +191,15 @@ export function computeColorHistogram(
 export function compareHistograms(hist1: number[], hist2: number[]): number {
     // 使用最短的长度作为比较基准
     const minLength = Math.min(hist1.length, hist2.length)
-    let similarity = 0;
+    let bhattacharyyaDist = 0;
 
     for (let i = 0; i < minLength; i++) {
-        similarity += Math.sqrt(hist1[i] * hist2[i])
+        bhattacharyyaDist += Math.sqrt(hist1[i] * hist2[i])
     }
 
-    // 巴氏距离计算结果本身就是 [0, 1] 的值，直接转换为百分比
-    return similarity * 100;
+    // 通过平方根和指数放大差异的敏感度
+    let similarity = Math.pow(bhattacharyyaDist, 3) * 100;
+    return similarity;
 }
 
 // ==================== 结构相似性算法 ====================
@@ -260,10 +262,11 @@ export function compareStructuralFeatures(
     for (let i = 0; i < minLength; i++) {
         const weight = i < weights.length ? weights[i] : 1 / minLength;
         const diff = Math.abs(features1[i] - features2[i])
-        similarity += (1 - diff) * weight;
+        // 使用更严厉的惩罚
+        similarity += Math.max(0, 1 - diff * 2.5) * weight;
     }
 
-    return similarity * 100;
+    return Math.pow(similarity, 3) * 100;
 }
 
 // ==================== 分块特征匹配算法 ====================
@@ -275,15 +278,15 @@ export function compareStructuralFeatures(
  * @returns 分块特征数组
  */
 export function computeBlockFeatures(imageData: ImageData): number[] {
-    const width = imageData.width;
-    const height = imageData.height;
-    const data = imageData.data;
+    // 强制把图片变为一个固定大小 (例如64x64) 以使得特征数组长度永远相同并且空间对齐
+    const width = 64;
+    const height = 64;
+    const resizedData = resizeImageData(imageData, width, height);
+    const data = resizedData.data;
     const features: number[] = [];
 
-    // 自适应网格：小图片用2x2，中等用3x3，大图片用4x4
-    let gridSize = 2;
-    if (width > 200 || height > 200) gridSize = 3;
-    if (width > 400 || height > 400) gridSize = 4;
+    // 固定网格: 8x8，能够提取64个块的信息
+    let gridSize = 8;
 
     const blockWidth = Math.floor(width / gridSize)
     const blockHeight = Math.floor(height / gridSize)
@@ -292,9 +295,9 @@ export function computeBlockFeatures(imageData: ImageData): number[] {
         for (let col = 0; col < gridSize; col++) {
             let blockLuminance = 0;
             let pixelCount = 0;
-            let blockSaturation = 0; // 添加饱和度特征
+            let blockSaturation = 0; 
+            let blockColorRed = 0, blockColorGreen = 0, blockColorBlue = 0;
 
-            // 计算当前网格内的特征
             for (let y = row * blockHeight; y < (row + 1) * blockHeight && y < height; y++) {
                 for (let x = col * blockWidth; x < (col + 1) * blockWidth && x < width; x++) {
                     const index = (y * width + x) * 4;
@@ -302,23 +305,27 @@ export function computeBlockFeatures(imageData: ImageData): number[] {
                     const g = data[index + 1];
                     const b = data[index + 2];
 
-                    // 亮度
                     const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
                     blockLuminance += luminance;
 
-                    // 饱和度（简单的估算）
                     const max = Math.max(r, g, b)
                     const min = Math.min(r, g, b)
                     const saturation = max === 0 ? 0 : (max - min) / max;
                     blockSaturation += saturation;
+                    
+                    blockColorRed += r;
+                    blockColorGreen += g;
+                    blockColorBlue += b;
 
                     pixelCount++;
                 }
             }
 
-            // 添加多个特征：亮度、饱和度、亮度方差（粗糙度）
-            features.push(blockLuminance / pixelCount / 255) // 归一化亮度
-            features.push(blockSaturation / pixelCount)      // 平均饱和度
+            features.push(blockLuminance / pixelCount / 255) 
+            features.push(blockSaturation / pixelCount)      
+            features.push(blockColorRed / pixelCount / 255)
+            features.push(blockColorGreen / pixelCount / 255)
+            features.push(blockColorBlue / pixelCount / 255)
         }
     }
 
@@ -339,14 +346,21 @@ export function compareBlockFeatures(
     const minLength = Math.min(blocks1.length, blocks2.length)
     if (minLength === 0) return 0;
 
-    let similarity = 0;
+    let sumSq = 0;
     for (let i = 0; i < minLength; i++) {
-        // blockLuminance 和 blockSaturation 都是 [0, 1] 之间的值
-        const diff = Math.abs(blocks1[i] - blocks2[i])
-        similarity += (1 - diff);
+        const diff = blocks1[i] - blocks2[i]
+        sumSq += diff * diff;
     }
 
-    return (similarity / minLength) * 100;
+    // 均方根差异
+    const rmsDiff = Math.sqrt(sumSq / minLength);
+
+    // 把可容忍范围压得非常低，稍微不同（如RGB各差异过0.15）就导致分数为0
+    // rmsDiff 是个均方根百分比差异，通常即使完全不同的图也在0.2~0.4之间
+    const similarity = Math.max(0, 1 - rmsDiff * 3);
+    
+    // 指数惩罚让视觉拉开差距
+    return Math.pow(similarity, 3) * 100;
 }
 
 // ==================== 综合相似度计算 ====================

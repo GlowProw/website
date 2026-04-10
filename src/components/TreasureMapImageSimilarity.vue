@@ -2,17 +2,36 @@
   <span @click="openDialog">
     <slot></slot>
   </span>
-  <v-dialog v-model="model" :fullscreen="mobile">
+  <v-dialog v-model="model"
+            @close="onResetSearch"
+            :fullscreen="mobile">
     <v-container>
       <v-card border>
-        <v-row no-gutters>
+        <template v-if="showCropper">
+          <v-card-title class="d-flex align-center py-4 px-6 border-bottom">
+            <div class="text-h6 text-amber">
+              <v-icon>mdi-image-search-outline</v-icon>
+            </div>
+            <v-spacer/>
+            <v-btn variant="tonal" icon @click="cancelCrop">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+          </v-card-title>
+          <div style="height: 65vh" class="bg-black d-flex align-center justify-center overflow-hidden">
+            <img ref="cropperImageRef"
+                 :src="croppingImageUrl"
+                 style="max-width: 100%; max-height: 100%;display: block"/>
+          </div>
+        </template>
+
+        <v-row no-gutters v-else>
           <v-col cols="2" v-if="!mobile">
             <div class="d-flex bg-black mb-4 h-100 align-center justify-center">
               <v-icon size="80">mdi-image-search-outline</v-icon>
             </div>
           </v-col>
           <v-col>
-            <v-card tile min-height="80vh" variant="text">
+            <v-card tile variant="text">
               <template v-slot:title>
                 <div class="text-h5 text-amber">{{ t('codex.treasureMaps.comparison.title') }}</div>
               </template>
@@ -26,23 +45,25 @@
                 <!-- 筛选条件 S -->
                 <v-row class="mb-2" align="center">
                   <v-col cols="auto" v-if="queryImageData">
-                    <v-tooltip width="400" content-class="pa-0 bg-black" location="bottom">
+                    <v-tooltip width="38%" height="38%" min-width="400" content-class="pa-0" location="bottom">
                       <template v-slot:activator="{props}">
-                        <div class="bg-black" v-bind="props">
+                        <v-card border v-bind="props">
                           <v-img
                               :src="queryImageData.url"
-                              width="55"
-                              height="55"
+                              width="50"
+                              height="50"
                               class="mx-auto"
                               aspect-ratio="1"
                           ></v-img>
-                        </div>
+                        </v-card>
                       </template>
-                      <v-img
-                          :src="queryImageData.url"
-                          class="mx-2"
-                          aspect-ratio="1"
-                      ></v-img>
+                      <v-card border class="bg-black">
+                        <v-img
+                            :src="queryImageData.url"
+                            class="mx-2"
+                            aspect-ratio="1"
+                        ></v-img>
+                      </v-card>
                     </v-tooltip>
                   </v-col>
                   <v-col cols="6">
@@ -132,7 +153,7 @@
                                             clearable
                                             variant="outlined">
                               <template v-slot:details>
-                                {{ t('codex.treasureMaps.comparison.filter.rangeHint', { range: searchRangeMax }) }}
+                                {{ t('codex.treasureMaps.comparison.filter.rangeHint', {range: searchRangeMax}) }}
                               </template>
                             </v-number-input>
                           </v-col>
@@ -162,17 +183,6 @@
                         rounded
                     ></v-progress-linear>
 
-                    <div class="mt-2 d-flex justify-end">
-                      <v-btn 
-                          type="button" 
-                          size="small" 
-                          variant="text" 
-                          color="error" 
-                          @click.stop.prevent="abortSearch">
-                        {{ t('basic.button.cancel') }}
-                      </v-btn>
-                    </div>
-
                     <!-- 当前正在比较的图片 -->
                     <v-row v-if="currentComparingImage" class="mt-4">
                       <v-col cols="auto" class="text-caption text-grey mb-1">
@@ -191,16 +201,17 @@
                 <template v-if="searchResults.length <= 0 && !searching && !queryImageData">
                   <v-card class="pa-10 d-flex justify-center align-center" :height="`calc(100vh - ${mobile ? 480 : 400}px)`" elevation="0" border>
                     <div class="text-center">
-                      <v-icon size="66" class="mb-3 opacity-30">mdi-image-plus</v-icon>
-                      <p>{{ t('codex.treasureMaps.comparison.uploadPrompt') }}</p>
-
-                      <v-btn 
-                          type="button" 
-                          class="mt-7" 
-                          variant="tonal" 
+                      <v-btn
+                          type="button"
+                          class="mt-7"
+                          size="x-large"
+                          variant="tonal"
                           @click.stop.prevent="triggerFileInput">
+                        <v-icon>mdi-image-plus</v-icon>
                         {{ t('codex.treasureMaps.comparison.selectImage') }}
                       </v-btn>
+
+                      <p class="mt-3 opacity-60 text-caption">{{ t('codex.treasureMaps.comparison.uploadPrompt') }}</p>
                     </div>
                     <input
                         ref="fileInput"
@@ -219,81 +230,107 @@
                 </template>
 
                 <!-- 查询图片预览 S -->
-                <v-card variant="text" class="overflow-y-auto" min-height="200" max-height="calc(100vh - 280px)" v-if="searchResults.length > 0">
+                <v-card variant="text"
+                        class="overflow-y-auto"
+                        min-height="200"
+                        max-height="70vh"
+                        v-if="searchResults.length > 0">
                   <v-row>
-                    <v-col cols="auto" class="overflow-y-auto w-100">
+                    <v-col cols="auto" class="overflow-y-auto w-100 mb-3">
                       <!-- 搜索结果 -->
-                      <div v-if="searchResults.length > 0">
-                        <div class="results-grid">
-                          <v-card
-                              class="bg-black"
-                              border
-                              v-for="(result, index) in searchResults"
-                              :key="result.id">
-                            <div class="bg-black">
-                              <v-img :src="result.imageUrl"
-                                     height="175"
-                                     aspect-ratio="1"></v-img>
+                      <div class="results-grid">
+                        <v-card
+                            border
+                            v-for="(result, index) in searchResults"
+                            :key="index">
+                          <v-card-text class="text-center px-2 bg-black">
+                            <div>
+                              <ItemSlotBase class="position-relative mx-auto">
+                                <TreasureMapIconWidget :id="result.id "></TreasureMapIconWidget>
+                              </ItemSlotBase>
                             </div>
-
-                            <v-card-text class="text-center px-2">
-                              <div>
-                                <ItemSlotBase :size="`99px`" class="position-relative mx-auto">
-                                  <TreasureMapIconWidget :id="result.id "></TreasureMapIconWidget>
-                                </ItemSlotBase>
-                              </div>
-                              <div class="similarity text-amber">{{ result.similarity.toFixed(2) }}%</div>
-                            </v-card-text>
-                          </v-card>
-                        </div>
-                      </div>
-
-                      <!-- 无结果提示 -->
-                      <div v-else-if="searched" class="text-center py-4">
-                        <v-icon size="48" color="grey" class="mb-2">mdi-image-off</v-icon>
-                        <div class="text-caption">
-                          <p>{{ t('codex.treasureMaps.comparison.noResult.algorithmIssue') }}</p>
-                          <p>{{ t('codex.treasureMaps.comparison.noResult.notInCollection') }}</p>
-                        </div>
+                          </v-card-text>
+                          <v-divider></v-divider>
+                          <v-row no-gutters align="center" class="py-2 px-4">
+                            <v-col>
+                              <div class="text-amber singe-line"><u class="u">{{ result.similarity.toFixed(1) }}%</u></div>
+                            </v-col>
+                            <v-col cols="auto">
+                              <div class="singe-line"><span class="opacity-60 mr-1">{{ result.index }}</span>#</div>
+                            </v-col>
+                          </v-row>
+                          <div class="px-4 mb-2">
+                            <ByObtainableWidget :data="result.original" byType="treasureMap"></ByObtainableWidget>
+                          </div>
+                        </v-card>
                       </div>
                     </v-col>
                   </v-row>
                 </v-card>
                 <!-- 查询图片预览 E -->
+
+                <!-- 无结果提示 S -->
+                <v-card variant="text"
+                        border
+                        class="overflow-y-auto text-center py-10 mb-3"
+                        v-if="searched && searchResults.length <= 0">
+                  <v-icon size="48" color="grey" class="mb-2">mdi-image-off</v-icon>
+                  <div class="text-caption">
+                    <p>{{ t('codex.treasureMaps.comparison.noResult.algorithmIssue') }}</p>
+                    <p>{{ t('codex.treasureMaps.comparison.noResult.notInCollection') }}</p>
+                  </div>
+                </v-card>
+                <!-- 无结果提示 E -->
               </div>
             </v-card>
-
-            <div class="d-flex align-center ga-2 mb-4 px-5 mt-2">
-              <v-spacer></v-spacer>
-              <v-btn
-                  type="button"
-                  variant="text"
-                  @click.stop.prevent="resetSearch"
-                  :disabled="!queryImageData && searchResults.length === 0">
-                {{ t('basic.button.reset') }}
-              </v-btn>
-              <v-btn
-                  type="button"
-                  color="var(--main-color)"
-                  @click.stop.prevent="searchSimilarImages"
-                  :disabled="!queryImageData"
-                  :loading="searching">
-                {{ t('basic.button.search') }}
-              </v-btn>
-            </div>
           </v-col>
         </v-row>
+
+        <v-divider></v-divider>
+        <v-card-actions class="d-flex align-center ga-2">
+          <v-spacer></v-spacer>
+          <template v-if="!showCropper">
+            <v-btn
+                v-if="!searching"
+                type="button"
+                variant="text"
+                @click.stop.prevent="onResetSearch"
+                :disabled="!queryImageData && searchResults.length === 0">
+              {{ t('basic.button.reset') }}
+            </v-btn>
+            <v-btn
+                v-if="searching"
+                type="button"
+                variant="text"
+                color="error"
+                @click.stop.prevent="onAbortSearch">
+              {{ t('basic.button.cancel') }}
+            </v-btn>
+            <v-btn
+                type="button"
+                color="var(--main-color)"
+                @click.stop.prevent="onSearchSimilarImages"
+                :disabled="!queryImageData"
+                :loading="searching">
+              {{ t('basic.button.search') }}
+            </v-btn>
+          </template>
+          <template v-if="showCropper">
+            <v-btn variant="text" @click="cancelCrop">{{ t('basic.button.cancel') }}</v-btn>
+            <v-btn color="var(--main-color)" @click="confirmCrop">{{ t('basic.button.submit') }}</v-btn>
+          </template>
+        </v-card-actions>
       </v-card>
     </v-container>
   </v-dialog>
 </template>
 
 <script lang="ts">
-export default { name: 'TreasureMapImageSimilarity' }
+export default {name: 'TreasureMapImageSimilarity'}
 </script>
 
 <script setup lang="ts">
-import {computed, onMounted, onUnmounted, ref, watch} from 'vue';
+import {computed, onMounted, onUnmounted, ref, watch, nextTick} from 'vue';
 import {calculateHashSimilarity, compareHistograms, compareStructuralFeatures, compareBlockFeatures, computeBlockFeatures, computeColorHistogram, computeStructuralFeatures, getImageHash} from '@/assets/sripts/image_similarity';
 import {TreasureMapType} from "glow-prow-data/src/types/TreasureMapProperties";
 import {TreasureMaps} from "glow-prow-data";
@@ -304,22 +341,27 @@ import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import TreasureMapIconWidget from "@/components/snbWidget/treasureMapIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import {useSimilarityStore} from "~/stores/similarityStore";
-import { QueryImageData, SearchResult, Algorithm, ComparingImage } from '@/assets/types/Similarity';
-
+import {QueryImageData, SearchResult, Algorithm, ComparingImage} from '@/assets/types/Similarity';
+import Cropper from 'cropperjs';
+import 'cropperjs/dist/cropper.css';
+import ByObtainableWidget from "@/components/ByObtainableWidget.vue";
 
 const treasureMaps = TreasureMaps;
-const { t } = useI18n()
-const { mobile } = useDisplay()
-const { currentService: currentImageService } = useCDNAssetsServiceStore()
+const {t} = useI18n()
+const {mobile} = useDisplay()
+const {currentService: currentImageService} = useCDNAssetsServiceStore()
 
 const fileInput = ref<HTMLInputElement | null>(null)
+const showCropper = ref(false)
+const croppingImageUrl = ref('')
+const cropperImageRef = ref<HTMLImageElement | null>(null)
+let cropperInstance: Cropper | null = null;
 const triggerFileInput = () => {
   fileInput.value?.click()
 }
 
 const model = ref(false)
 const searched = ref(false)
-// const searching = ref(false)
 const queryImageData = ref<QueryImageData | null>(null)
 const searchResults = ref<SearchResult[]>([])
 const searchMinimumCondition = ref(50)
@@ -336,10 +378,10 @@ const searching = computed(() => similarityStore.isProcessing)
 const currentComparingImage = ref<ComparingImage | null>(null)
 
 const algorithms: Algorithm[] = [
-  { value: 'perceptual-hash' },
-  { value: 'color-histogram' },
-  { value: 'feature-matching' },
-  { value: 'structural-similarity' }
+  {value: 'perceptual-hash'},
+  {value: 'color-histogram'},
+  {value: 'feature-matching'},
+  {value: 'structural-similarity'}
 ];
 
 const hasActiveFilters = computed(() => {
@@ -352,10 +394,10 @@ const progressPercentage = computed(() => {
 })
 
 const categoryOptions = computed(() => [
-  { value: 'recent' },
-  { value: 'old' },
-  { value: 'veryOld' },
-  { value: 'legend' }
+  {value: 'recent'},
+  {value: 'old'},
+  {value: 'veryOld'},
+  {value: 'legend'}
 ].map(i => {
   i['title'] = t(`codex.treasureMap.categorys.${i.value}`)
   return i;
@@ -413,7 +455,7 @@ onUnmounted(() => {
 
 watch(() => queryImageData.value, (value, oldValue) => {
   if (value && value !== oldValue) {
-    searchSimilarImages()
+    onSearchSimilarImages()
   }
 })
 
@@ -429,22 +471,26 @@ const openDialog = () => {
  */
 const closeDialog = () => {
   model.value = false;
-  resetSearch()
+  onResetSearch()
 };
 
 /**
  * 重置搜索状态
  */
-const resetSearch = () => {
+const onResetSearch = () => {
   queryImageData.value = null;
   searchResults.value = [];
   searched.value = false;
   similarityStore.abortProcessing();
   currentComparingImage.value = null;
+  if (fileInput.value) {
+    fileInput.value.value = '';
+  }
 };
 
-const abortSearch = () => {
+const onAbortSearch = () => {
   similarityStore.abortProcessing();
+  onResetSearch();
 };
 
 /**
@@ -491,54 +537,101 @@ const loadImageToImageData = (imageUrl: string): Promise<ImageData> => {
 /**
  * 处理查询图片
  */
-const onQueryImageUpload = async (event: Event) => {
+const onQueryImageUpload = (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (!target.files || target.files.length === 0) return;
 
   const file = target.files[0];
-  const imageUrl = URL.createObjectURL(file)
+  const imageUrl = URL.createObjectURL(file);
+
+  croppingImageUrl.value = imageUrl;
+  showCropper.value = true;
+
+  nextTick(() => {
+    if (cropperImageRef.value) {
+      if (cropperInstance) {
+        cropperInstance.destroy();
+      }
+      cropperInstance = new Cropper(cropperImageRef.value, {
+        viewMode: 1,
+        dragMode: 'crop',
+        autoCropArea: 0.9,
+        restore: false,
+        zoomable: true,
+        guides: false,
+        background: false,
+        center: true,
+        highlight: false,
+        cropBoxMovable: true,
+        cropBoxResizable: true,
+        toggleDragModeOnDblclick: false,
+      });
+    }
+  });
+};
+
+const cancelCrop = () => {
+  showCropper.value = false;
+  if (croppingImageUrl.value) {
+    URL.revokeObjectURL(croppingImageUrl.value);
+    croppingImageUrl.value = '';
+  }
+  if (cropperInstance) {
+    cropperInstance.destroy();
+    cropperInstance = null;
+  }
+  onResetSearch();
+};
+
+const confirmCrop = async () => {
+  if (!cropperInstance) return;
+
+  const canvas = cropperInstance.getCroppedCanvas();
+  // Using png works better for hashing compared to low-quality jpeg
+  const croppedUrl = canvas.toDataURL('image/png');
+
+  showCropper.value = false;
+  if (cropperInstance) {
+    cropperInstance.destroy();
+    cropperInstance = null;
+  }
 
   try {
-    // 等待图片加载
-    await new Promise<void>((resolve, reject) => {
-      const img = new Image()
-      img.onload = () => resolve()
-      img.onerror = () => reject(new Error('图片加载失败'))
-      img.src = imageUrl;
-    })
-
-    // 根据算法类型预计算特征
     const features: Partial<QueryImageData> = {};
 
     switch (selectedAlgorithm.value) {
       case 'perceptual-hash':
-        features.hash = await getImageHash(imageUrl)
+        features.hash = await getImageHash(croppedUrl)
         break;
       case 'color-histogram':
-        const colorImageData = await loadImageToImageData(imageUrl)
+        const colorImageData = await loadImageToImageData(croppedUrl)
         features.colorHistogram = computeColorHistogram(colorImageData)
         break;
       case 'structural-similarity':
-        const structImageData = await loadImageToImageData(imageUrl)
+        const structImageData = await loadImageToImageData(croppedUrl)
         features.structuralFeatures = computeStructuralFeatures(structImageData)
         break;
       case 'feature-matching':
-        const blockImageData = await loadImageToImageData(imageUrl)
+        const blockImageData = await loadImageToImageData(croppedUrl)
         features.blockFeatures = computeBlockFeatures(blockImageData)
         break;
     }
 
     queryImageData.value = {
-      url: imageUrl,
+      url: croppedUrl,
       ...features
     };
 
     searchResults.value = [];
     searched.value = false;
     currentComparingImage.value = null;
+
+    if (croppingImageUrl.value) {
+      URL.revokeObjectURL(croppingImageUrl.value);
+      croppingImageUrl.value = '';
+    }
   } catch (error) {
-    console.error('图片上传失败:', error)
-    URL.revokeObjectURL(imageUrl)
+    console.error('图片处理失败:', error)
   }
 };
 
@@ -546,7 +639,7 @@ const onQueryImageUpload = async (event: Event) => {
  * 获取或缓存图片特征 (代理到 Store)
  */
 const getOrCreateImageFeatures = async (imgUrl: string): Promise<any> => {
-    return similarityStore.featuresCache.get(imgUrl);
+  return similarityStore.featuresCache.get(imgUrl);
 };
 
 /**
@@ -572,7 +665,7 @@ const calculateSimilarity = (queryData: QueryImageData, features: any): number =
 /**
  * 执行相似图片搜索
  */
-const searchSimilarImages = async () => {
+const onSearchSimilarImages = async () => {
   if (!queryImageData.value) return;
 
   searchResults.value = [];
@@ -600,7 +693,7 @@ const searchSimilarImages = async () => {
           index,
           similarity,
           imageUrl: imgUrl,
-          rarity: mapData.rarity,
+          original: mapData,
           category: mapData.category,
           obtainable: mapData.obtainable
         })
@@ -615,7 +708,7 @@ const searchSimilarImages = async () => {
 
   } catch (error: any) {
     if (error.message !== 'Operation aborted') {
-        console.error('搜索过程中出错:', error)
+      console.error('搜索过程中出错:', error)
     }
   } finally {
     searched.value = true;
@@ -635,7 +728,9 @@ defineExpose({
 })
 </script>
 
-<style scoped>
+<style scoped lang="less">
+@import "@/assets/styles/link";
+
 .results-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(calc(180px * 1.3), 1fr));
@@ -646,5 +741,27 @@ defineExpose({
   font-size: 1.1em;
   font-weight: bold;
   margin: 4px 0;
+}
+
+/* Cropper Theme Override */
+:deep(.cropper-view-box) {
+  outline-color: var(--main-color) !important;
+}
+
+:deep(.cropper-point) {
+  background-color: var(--main-color) !important;
+}
+
+:deep(.cropper-line) {
+  background-color: var(--main-color) !important;
+}
+
+:deep(.cropper-center::before),
+:deep(.cropper-center::after) {
+  background-color: var(--main-color) !important;
+}
+
+:deep(.cropper-dashed) {
+  border-color: hsl(from var(--main-color) h s l / .5) !important;
 }
 </style>

@@ -34,7 +34,7 @@ export interface SearchResult {
   index: number;
   similarity: number;
   imageUrl: string;
-  rarity: string;
+  original: any;
   category: string;
   obtainable: string[];
 }
