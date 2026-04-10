@@ -68,10 +68,11 @@
                   </v-col>
                   <v-col cols="6">
                     <v-select
-                        :label="t('codex.treasureMaps.comparison.selectAlgorithm')"
                         variant="outlined"
                         density="comfortable"
                         hide-details
+                        @update:model-value="onSearchSimilarImages"
+                        :label="t('codex.treasureMaps.comparison.selectAlgorithm')"
                         :disabled="searching"
                         :items="algorithms"
                         v-model="selectedAlgorithm">
