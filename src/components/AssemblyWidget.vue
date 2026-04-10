@@ -667,8 +667,7 @@ defineOptions({name: 'AssemblyWidget'})
                                           :left="item.raw[0] == 'leftSideWeapon'"
                                           :right="item.raw[0] == 'rightSideWeapon'"
                                           :center-top="item.raw[0] == 'frontWeapon'"
-                                          :center-down="item.raw[0] == 'aftWeapon'"
-                                          class="mx-5 mt-2"></ShipTopDownPerspectiveWidget>
+                                          :center-down="item.raw[0] == 'aftWeapon'"></ShipTopDownPerspectiveWidget>
                                     </v-col>
                                     <v-col>
                                       {{ t(`codex.ship.${item.raw[0]}`) }}
@@ -1062,177 +1061,168 @@ defineOptions({name: 'AssemblyWidget'})
   <template v-if="!readonly">
     <!-- 船只 选择器 S -->
     <v-dialog v-model="workshopData.shipModel"
-              content-class="pa-0"
-              max-height="90%"
-              min-width="450"
-              max-width="700">
-      <v-card class="overflow-hidden">
-        <v-card-title>
+              content-class="pa-0">
+      <v-container>
+        <v-card class="overflow-hidden">
+          <v-card-title>
+            <v-row>
+              <b class="font-weight-bold text-h5 pa-5">{{ t('assembly.workshop.insertShipTitle') }}</b>
+              <v-spacer></v-spacer>
+              <v-col cols="auto">
+                <v-btn icon variant="text" class="ml-1" @click="workshopData.shipModel = false">
+                  <v-icon icon="mdi-close"/>
+                </v-btn>
+              </v-col>
+            </v-row>
+          </v-card-title>
           <v-row>
-            <b class="font-weight-bold text-h5 pa-5">{{ t('assembly.workshop.insertShipTitle') }}</b>
-            <v-spacer></v-spacer>
-            <v-col cols="auto">
-              <v-btn icon variant="text" class="ml-1" @click="workshopData.shipModel = false">
-                <v-icon icon="mdi-close"/>
-              </v-btn>
-            </v-col>
+            <AssemblyClassificationShowList
+                v-model="workshopData.data.shipSlot"
+                @clickSelectItem="workshopData.shipModel = false"
+                loadDataType="ship"
+                :tags="getShipList"></AssemblyClassificationShowList>
           </v-row>
-        </v-card-title>
-        <v-row>
-          <AssemblyClassificationShowList
-              v-model="workshopData.data.shipSlot"
-              @clickSelectItem="workshopData.shipModel = false"
-              loadDataType="ship"
-              :tags="getShipList"></AssemblyClassificationShowList>
-        </v-row>
-      </v-card>
+        </v-card>
+      </v-container>
     </v-dialog>
     <!-- 船只 选择器 E -->
 
     <!-- 船只 升级部件 选择器 S -->
     <v-dialog v-model="workshopData.frigateUpgradeModel"
-              content-class="pa-0"
-              max-height="90%"
-              min-width="450"
-              max-width="700">
-      <v-card class="overflow-hidden">
-        <v-card-title>
+              content-class="pa-0">
+      <v-container>
+        <v-card class="overflow-hidden">
+          <v-card-title>
+            <v-row>
+              <b class="font-weight-bold text-h5 pa-5">{{ t('assembly.workshop.insertShipFrigateUpgradeTitle') }}</b>
+              <v-spacer></v-spacer>
+              <v-col cols="auto">
+                <v-btn icon variant="text" class="ml-1" @click="workshopData.frigateUpgradeModel = false">
+                  <v-icon icon="mdi-close"/>
+                </v-btn>
+              </v-col>
+            </v-row>
+          </v-card-title>
           <v-row>
-            <b class="font-weight-bold text-h5 pa-5">{{ t('assembly.workshop.insertShipFrigateUpgradeTitle') }}</b>
-            <v-spacer></v-spacer>
-            <v-col cols="auto">
-              <v-btn icon variant="text" class="ml-1" @click="workshopData.frigateUpgradeModel = false">
-                <v-icon icon="mdi-close"/>
-              </v-btn>
-            </v-col>
+            <AssemblyClassificationShowList
+                ref="frigateUpgradeRef"
+                v-model="workshopData.data.shipUpgradeSlot"
+                @clickSelectItem="workshopData.frigateUpgradeModel = false"
+                loadDataType="item"
+                :filterFun="getShipUpgradeFilterList"
+                :tags="getShipUpgradeList"></AssemblyClassificationShowList>
           </v-row>
-        </v-card-title>
-        <v-row>
-          <AssemblyClassificationShowList
-              ref="frigateUpgradeRef"
-              v-model="workshopData.data.shipUpgradeSlot"
-              @clickSelectItem="workshopData.frigateUpgradeModel = false"
-              loadDataType="item"
-              :filterFun="getShipUpgradeFilterList"
-              :tags="getShipUpgradeList"></AssemblyClassificationShowList>
-        </v-row>
-      </v-card>
+        </v-card>
+      </v-container>
     </v-dialog>
     <!-- 船只 升级部件 选择器 E -->
 
     <!-- 武器 选择器 S -->
     <v-dialog v-model="workshopData.weaponModel"
-              content-class="pa-0"
-              max-height="90%"
-              min-width="450"
-              max-width="700">
-      <v-card v-slot:default class="overflow-hidden">
-        <v-card-title>
+              content-class="pa-0">
+      <v-container>
+        <v-card v-slot:default class="overflow-hidden">
+          <v-card-title>
+            <v-row>
+              <b class="font-weight-bold text-h5 pa-5">{{ t('assembly.workshop.insertWeaponTitle') }}</b>
+              <v-spacer></v-spacer>
+              <v-col cols="auto">
+                <v-btn icon variant="text" class="ml-1" @click="workshopData.weaponModel = false">
+                  <v-icon icon="mdi-close"/>
+                </v-btn>
+              </v-col>
+            </v-row>
+          </v-card-title>
           <v-row>
-            <b class="font-weight-bold text-h5 pa-5">{{ t('assembly.workshop.insertWeaponTitle') }}</b>
-            <v-spacer></v-spacer>
-            <v-col cols="auto">
-              <v-btn icon variant="text" class="ml-1" @click="workshopData.weaponModel = false">
-                <v-icon icon="mdi-close"/>
-              </v-btn>
-            </v-col>
+            <AssemblyClassificationShowList
+                v-model="workshopData.data.weaponSlots[workshopData.weaponInsertIndex]"
+                @clickSelectItem="workshopData.weaponModel = false"
+                :tags="getShipWeaponList"></AssemblyClassificationShowList>
           </v-row>
-        </v-card-title>
-        <v-row>
-          <AssemblyClassificationShowList
-              v-model="workshopData.data.weaponSlots[workshopData.weaponInsertIndex]"
-              @clickSelectItem="workshopData.weaponModel = false"
-              :tags="getShipWeaponList"></AssemblyClassificationShowList>
-        </v-row>
-      </v-card>
+        </v-card>
+      </v-container>
     </v-dialog>
     <!-- 武器 选择器 E -->
 
     <!-- 副武器 选择器 S -->
     <v-dialog v-model="workshopData.secondaryWeaponModel"
               ref="secondaryWeaponModel"
-              content-class="pa-0"
-              max-height="90%"
-              min-height="300"
-              min-width="450"
-              max-width="700">
-      <v-card v-slot:default>
-        <v-card-title>
+              content-class="pa-0">
+      <v-container>
+        <v-card v-slot:default>
+          <v-card-title>
+            <v-row>
+              <b class="font-weight-bold text-h5 pa-5">{{ t('assembly.workshop.insertSecondaryWeaponTitle') }}</b>
+              <v-spacer></v-spacer>
+              <v-col cols="auto">
+                <v-btn icon variant="text" class="ml-1" @click="workshopData.secondaryWeaponModel = false">
+                  <v-icon icon="mdi-close"/>
+                </v-btn>
+              </v-col>
+            </v-row>
+          </v-card-title>
           <v-row>
-            <b class="font-weight-bold text-h5 pa-5">{{ t('assembly.workshop.insertSecondaryWeaponTitle') }}</b>
-            <v-spacer></v-spacer>
-            <v-col cols="auto">
-              <v-btn icon variant="text" class="ml-1" @click="workshopData.secondaryWeaponModel = false">
-                <v-icon icon="mdi-close"/>
-              </v-btn>
-            </v-col>
+            <AssemblyClassificationShowList
+                v-model="workshopData.data.secondaryWeaponSlots[workshopData.secondaryWeaponInsertIndex]"
+                @clickSelectItem="workshopData.secondaryWeaponModel = false"
+                :tags="getSecondaryWeapon"></AssemblyClassificationShowList>
           </v-row>
-        </v-card-title>
-        <v-row>
-          <AssemblyClassificationShowList
-              v-model="workshopData.data.secondaryWeaponSlots[workshopData.secondaryWeaponInsertIndex]"
-              @clickSelectItem="workshopData.secondaryWeaponModel = false"
-              :tags="getSecondaryWeapon"></AssemblyClassificationShowList>
-        </v-row>
-      </v-card>
+        </v-card>
+      </v-container>
     </v-dialog>
     <!-- 副武器 选择器 E -->
 
     <!-- 陈设 选择器 S-->
     <v-dialog v-model="workshopData.displayModel"
-              content-class="pa-0"
-              max-height="90%"
-              min-height="300"
-              min-width="450"
-              max-width="700">
-      <v-card v-slot:default class="overflow-hidden">
-        <v-card-title>
+              content-class="pa-0">
+      <v-container>
+        <v-card v-slot:default class="overflow-hidden">
+          <v-card-title>
+            <v-row>
+              <b class="font-weight-bold text-h5 pa-5">{{ t('assembly.workshop.insertDisplayTitle') }}</b>
+              <v-spacer></v-spacer>
+              <v-col cols="auto">
+                <v-btn icon variant="text" class="ml-1" @click="workshopData.displayModel = false">
+                  <v-icon icon="mdi-close"/>
+                </v-btn>
+              </v-col>
+            </v-row>
+          </v-card-title>
           <v-row>
-            <b class="font-weight-bold text-h5 pa-5">{{ t('assembly.workshop.insertDisplayTitle') }}</b>
-            <v-spacer></v-spacer>
-            <v-col cols="auto">
-              <v-btn icon variant="text" class="ml-1" @click="workshopData.displayModel = false">
-                <v-icon icon="mdi-close"/>
-              </v-btn>
-            </v-col>
+            <AssemblyClassificationShowList
+                v-model="workshopData.data.displaySlots[workshopData.displayInsertIndex]"
+                @clickSelectItem="workshopData.displayModel = false"
+                :tags="getShipDisplayList"></AssemblyClassificationShowList>
           </v-row>
-        </v-card-title>
-        <v-row>
-          <AssemblyClassificationShowList
-              v-model="workshopData.data.displaySlots[workshopData.displayInsertIndex]"
-              @clickSelectItem="workshopData.displayModel = false"
-              :tags="getShipDisplayList"></AssemblyClassificationShowList>
-        </v-row>
-      </v-card>
+        </v-card>
+      </v-container>
     </v-dialog>
     <!-- 陈设 选择器 E-->
 
     <!-- 船甲 选择器 S-->
     <v-dialog v-model="workshopData.armorModel"
-              content-class="pa-0"
-              max-height="90%"
-              min-height="300"
-              min-width="450"
-              max-width="700">
-      <v-card v-slot:default class="overflow-hidden">
-        <v-card-title>
+              content-class="pa-0">
+      <v-container>
+        <v-card v-slot:default class="overflow-hidden">
+          <v-card-title>
+            <v-row>
+              <b class="font-weight-bold text-h5 pa-5">{{ t('assembly.workshop.insertArmorTitle') }}</b>
+              <v-spacer></v-spacer>
+              <v-col cols="auto">
+                <v-btn icon variant="text" class="ml-1" @click="workshopData.armorModel = false">
+                  <v-icon icon="mdi-close"/>
+                </v-btn>
+              </v-col>
+            </v-row>
+          </v-card-title>
           <v-row>
-            <b class="font-weight-bold text-h5 pa-5">{{ t('assembly.workshop.insertArmorTitle') }}</b>
-            <v-spacer></v-spacer>
-            <v-col cols="auto">
-              <v-btn icon variant="text" class="ml-1" @click="workshopData.armorModel = false">
-                <v-icon icon="mdi-close"/>
-              </v-btn>
-            </v-col>
+            <AssemblyClassificationShowList
+                v-model="workshopData.data.armorSlot"
+                @clickSelectItem="workshopData.armorModel = false"
+                :tags="getShipArmorList"></AssemblyClassificationShowList>
           </v-row>
-        </v-card-title>
-        <v-row>
-          <AssemblyClassificationShowList
-              v-model="workshopData.data.armorSlot"
-              @clickSelectItem="workshopData.armorModel = false"
-              :tags="getShipArmorList"></AssemblyClassificationShowList>
-        </v-row>
-      </v-card>
+        </v-card>
+      </v-container>
     </v-dialog>
     <!-- 船甲 选择器 E-->
 

@@ -56,9 +56,6 @@ defineOptions({
 
         <v-list-item to="/codex/treasureMaps">
           {{ t('codex.treasureMaps.title') }}
-          <template v-slot:append>
-            <v-btn size="x-small" variant="tonal">BETA</v-btn>
-          </template>
         </v-list-item>
         <v-list-item to="/codex/mapLocations">
           {{ t('codex.mapLocations.title') }}

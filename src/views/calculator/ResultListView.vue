@@ -206,15 +206,19 @@ const getSortIcon = (field: SortField) => {
               </MaterialNameRarity>
             </td>
             <td v-if="store.displaySettings.listColumns.id">
-              {{ mat.id }}
+              <u class="u">
+                {{ mat.id }}
+              </u>
             </td>
             <td class="text-right font-weight-bold text-amber" v-if="store.displaySettings.listColumns.quantity">
-              {{ mat.totalQuantity }}
+              <u class="u">
+                {{ mat.totalQuantity }}
+              </u>
             </td>
             <td class="text-center" v-if="store.displaySettings.listColumns.link">
-              <HtmlLink :is-icon="false" :is-iframe-show="false" :href="`/codex/material/${mat.id}`" target="_blank">
+              <a :href="`/codex/material/${mat.id}`" target="_blank">
                 <v-icon size="14" icon="mdi-open-in-new"/>
-              </HtmlLink>
+              </a>
             </td>
           </tr>
           </tbody>
@@ -290,6 +294,8 @@ const getSortIcon = (field: SortField) => {
 </template>
 
 <style scoped lang="less">
+@import "@/assets/styles/link";
+
 .result-list-view {
   .summary-card {
     border-color: rgba(255, 193, 7, 0.15);

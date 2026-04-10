@@ -30,7 +30,7 @@ function onChildToggle(key: string) {
   emit('toggle', key)
 }
 
-function onAddExcluded (key: string) {
+function onAddExcluded(key: string) {
   emit('excluded', key);
 }
 </script>
@@ -48,18 +48,25 @@ function onAddExcluded (key: string) {
           class="cursor-pointer flex-shrink-0"/>
       <div v-else style="width: 16px;" class="flex-shrink-0"/>
 
-      <ItemSlotBase size="30px"  class="flex-shrink-0">
+      <ItemSlotBase size="30px" class="flex-shrink-0">
         <MaterialIconWidget :id="node.id" :padding="0" :margin="0"/>
       </ItemSlotBase>
 
-      <span class="text-body-2 flex-grow-1 d-flex align-center ga-1">
+      <div class="text-body-2 flex-grow-1 d-flex singe-line align-center ga-1">
         <MaterialName :id="node.id"/>
         <v-chip v-if="node.isExcluded" size="x-small" color="orange" variant="tonal">{{ t('calculator.ui.excluded') }}</v-chip>
+      </div>
+
+      <v-chip v-if="!node.isExcluded"
+              @click="onAddExcluded(node.id)"
+              class="item-excluded"
+              size="x-small" color="orange" variant="tonal">
+        {{ t('calculator.ui.addToExclude') }}
+      </v-chip>
+
+      <span class="text-body-2 font-weight-bold text-amber">
+        <u class="u">{{ node.quantity }}</u>
       </span>
-
-      <v-chip v-if="!node.isExcluded" @click="onAddExcluded(node.id)" size="x-small" color="orange" variant="tonal">{{ t('calculator.ui.addToExclude') }}</v-chip>
-
-      <span class="text-body-2 font-weight-bold text-amber">×{{ node.quantity }}</span>
     </div>
 
     <template v-if="isExpanded && node.children.length > 0">
@@ -78,6 +85,8 @@ function onAddExcluded (key: string) {
 </template>
 
 <style scoped lang="less">
+@import "@/assets/styles/link";
+
 .tree-node {
   .tree-node-row {
     border-radius: 4px;
@@ -91,6 +100,14 @@ function onAddExcluded (key: string) {
 
     &.tree-node-excluded {
       opacity: 0.6;
+    }
+
+    &:hover .item-excluded {
+      display: inherit;
+    }
+
+    .item-excluded {
+      display: none;
     }
   }
 }

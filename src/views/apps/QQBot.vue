@@ -86,14 +86,8 @@
     </v-row>
 
     <HorizontalScrollList :forceDraggable="true" :showControls="true">
-      <v-card border width="400" height="500">
-        <v-img height="100%" cover src="@/assets/images/apps/qqBot/use-1.png"></v-img>
-      </v-card>
-      <v-card border width="400" height="500">
-        <v-img height="100%" cover src="@/assets/images/apps/qqBot/use-2.png"></v-img>
-      </v-card>
-      <v-card border width="400" height="500">
-        <v-img height="100%" cover src="@/assets/images/apps/qqBot/use-3.png"></v-img>
+      <v-card border width="400" height="500" class="bg-black" v-for="i in 3" :key="i">
+        <v-img height="100%" :src="getUseImage(String(i))"></v-img>
       </v-card>
     </HorizontalScrollList>
   </v-container>
@@ -104,13 +98,29 @@ import Silk from "@/components/Silk.vue";
 import {useI18n} from "vue-i18n";
 import HorizontalScrollList from "@/components/HorizontalScrollList.vue";
 import {appApps} from "@/assets/sripts/index";
-import {useRouter} from "vue-router";
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
+import {useAssetsStore} from "~/stores/assetsStore";
+import ZoomableCanvas from "@/components/ZoomableCanvas.vue";
+import RankingDesignedView from "@/components/RankingDesignedView.vue";
 
+const images = import.meta.glob('@/assets/images/apps/qqBot/*', {eager: true});
 const {t} = useI18n(),
-    router = useRouter();
+    {serializationMap} = useAssetsStore()
 
-let id = ref('qqBot')
+let id = ref('qqBot'),
+    contentImages = ref({})
+
+onMounted(() => {
+  contentImages.value = serializationMap(images)
+})
+
+/**
+ * 获取图片
+ * @param id
+ */
+const getUseImage = (id: string) => {
+  return contentImages.value[`use-${id}`]
+}
 </script>
 
 <style scoped lang="less">
