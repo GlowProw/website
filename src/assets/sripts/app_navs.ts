@@ -5,7 +5,7 @@ export default class AppNavs {
     public list = [
         {
             title: 'header.navs.blog',
-            href: 'https://blog.glow-prow.org.cn/blog'
+            href: 'https://blog.glow-prow.top/blog'
         },
         {
             title: 'header.navs.officialWebsite',

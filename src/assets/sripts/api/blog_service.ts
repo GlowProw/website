@@ -7,7 +7,7 @@ import {http} from "@/assets/sripts/index";
  */
 export function useBlogApi() {
     const {handleError, handleResponse} = createApiBase()
-    const blogBaseUrl = 'https://glow-prow-blog.cabbagelol.net'
+    const blogBaseUrl = 'https:/blog.glow-prow.top'
 
     /**
      * 获取当前用户信息

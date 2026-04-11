@@ -11,6 +11,7 @@ import BlogWidget from "@/components/BlogWidget.vue";
 import AppVersionWidget from "@/components/AppVersionWidget.vue";
 import SeasonViewWidget from "@/components/SeasonViewWidget.vue";
 import NewSeasonShowItem from "@/components/newSeasonShowItem.vue";
+import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 
 const {t} = useI18n()
 
@@ -159,29 +160,34 @@ const getCurrentSeason = (): Season | null => {
       <v-container>
         <v-row>
           <v-col cols="12" sm="12" md="4" lg="4">
-            <v-row class="mb-5">
-              <v-col class="">
-                <b class="text-h4 btn-flavor px-4">{{ t('portal.appVersionLog') }}</b>
-                <p class="mt-2 opacity-60" v-html="t('portal.appVersionContext')"></p>
-              </v-col>
-            </v-row>
-            <AppVersionWidget></AppVersionWidget>
+            <AffixBoxHasTitleView>
+              <p class="mb-2 opacity-60 text-caption" v-html="t('portal.appVersionContext')"></p>
+
+              <AppVersionWidget></AppVersionWidget>
+
+              <template v-slot:title>
+                <div>
+                  {{ t('portal.appVersionLog') }}
+                </div>
+              </template>
+            </AffixBoxHasTitleView>
           </v-col>
           <v-col cols="12" sm="12" md="8" lg="8">
-            <v-row align="center">
-              <v-col>
-                <span class="btn-flavor text-h4 px-4">
+            <AffixBoxHasTitleView>
+              <BlogWidget></BlogWidget>
+
+              <template v-slot:title>
+                <div>
                   {{ t('portal.blogLog') }}
-                </span>
-              </v-col>
-              <v-spacer></v-spacer>
-              <v-col cols="auto">
-                <a href="https://glow-prow-blog.cabbagelol.net/blog" target="_blank">
-                  {{ t('codex.more') }}
-                </a>
-              </v-col>
-            </v-row>
-            <BlogWidget></BlogWidget>
+                </div>
+
+                <div class="mt-3">
+                  <a href="https://blog.glow-prow.top/blog" target="_blank">
+                    {{ t('codex.more') }}
+                  </a>
+                </div>
+              </template>
+            </AffixBoxHasTitleView>
           </v-col>
         </v-row>
       </v-container>

@@ -17,9 +17,16 @@ const md = new MarkdownIt({
 
 let loading = ref(true),
     showVersionIndex = ref(0),
+    showBlogIndex: Ref<number> = ref(0),
     versionData: Ref<VersionData> = ref({})
 
+
 onMounted(() => {
+  md.renderer.rules.image = function (tokens, idx, options, env, self) {
+    const token = tokens[idx];
+    return `<div class="img"><img src="${api.blogBaseUrl}/images/blog/${versionData.value.latestPosts[showBlogIndex.value].slug}/${token.content}" alt="${token.content}" /></div>`;
+  };
+
   getVersionData()
 })
 
@@ -45,7 +52,16 @@ const getVersionData = async () => {
 <template>
   <div class="app-version read-view">
     <template v-if="versionData.latestPosts">
-      <b class="text-amber">{{ versionData.latestPosts[showVersionIndex].slug || '' }}</b>
+      <v-row align="center">
+        <v-col cols="auto">
+          <a :href="`${api.blogBaseUrl}/versions/${versionData.latestPosts[showBlogIndex].slug}`" target="_blank">
+            <b class="text-amber">{{ versionData.latestPosts[showVersionIndex].title || '' }}</b>
+          </a>
+        </v-col>
+        <v-col>
+          <v-divider thickness="2" opacity=".2"></v-divider>
+        </v-col>
+      </v-row>
     </template>
 
     <div class="position-relative">

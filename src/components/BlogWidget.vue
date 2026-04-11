@@ -75,26 +75,36 @@ const onPage = (type) => {
 
 <template>
   <div class="blog read-view">
-    <v-row class="mb-1" align="center">
-      <v-col>
-        <v-icon>mdi-post-outline</v-icon>: <span class="opacity-60">{{ blogData.totalCount }}</span>
-      </v-col>
-      <v-spacer></v-spacer>
-      <v-col cols="auto">
-        <v-btn-group border class="page-btn">
-          <v-btn density="compact" @click="onPage('prev')" :disabled="isPrev">
-            <v-icon icon="mdi-arrow-left"></v-icon>
-          </v-btn>
-          <v-btn density="compact" @click="onPage('next')" :disabled="isNext">
-            <v-icon icon="mdi-arrow-right"></v-icon>
-          </v-btn>
-        </v-btn-group>
-      </v-col>
-    </v-row>
     <div class="position-relative">
       <template v-if="blogData.latestPosts">
-        <div class="text-h5 font-weight-bold text-amber mb-2" v-html="blogData.latestPosts[showBlogIndex].title || ''"></div>
-        <p class="opacity-80 mb-1">{{ (blogData.latestPosts[showBlogIndex] as any).authors.join(',') }}</p>
+        <v-row align="center" class="mb-2">
+          <v-col cols="auto">
+            <a :href="`${api.blogBaseUrl}/blog/${blogData.latestPosts[showBlogIndex].slug}`" target="_blank">
+              <div class="text-h5 font-weight-bold card-flavor bg-amber" v-html="blogData.latestPosts[showBlogIndex].title || ''"></div>
+            </a>
+          </v-col>
+          <v-col>
+            <v-divider thickness="2" opacity=".2"></v-divider>
+          </v-col>
+          <v-col cols="auto">
+            <p class="u opacity-80 mb-1">{{ (blogData.latestPosts[showBlogIndex] as any).authors.join(',') }}</p>
+          </v-col>
+          <v-divider vertical inset class="mx-2"></v-divider>
+          <v-col cols="auto" class="d-flex align-center ga-1 opacity-60">
+            <v-icon>mdi-post-outline</v-icon><span>{{ blogData.totalCount }}</span>
+          </v-col>
+          <v-col cols="auto">
+            <v-btn-group border class="page-btn">
+              <v-btn density="compact" @click="onPage('prev')" :disabled="isPrev">
+                <v-icon icon="mdi-arrow-left"></v-icon>
+              </v-btn>
+              <v-btn density="compact" @click="onPage('next')" :disabled="isNext">
+                <v-icon icon="mdi-arrow-right"></v-icon>
+              </v-btn>
+            </v-btn-group>
+          </v-col>
+        </v-row>
+
         <div class="content" v-html="md.render(blogData.latestPosts[showBlogIndex].content || '')"></div>
       </template>
       <EmptyView v-else></EmptyView>
@@ -106,6 +116,8 @@ const onPage = (type) => {
 </template>
 
 <style scoped lang="less">
+@import "@/assets/styles/link";
+
 .page-btn {
   height: 30px !important;
 }
