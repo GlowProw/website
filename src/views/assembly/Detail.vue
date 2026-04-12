@@ -210,8 +210,9 @@ const getTagTitle = (data: any) => {
         <v-overlay
             :model-value="assemblyLoading"
             transition
+            contained
             scrim
-            class="align-center justify-center background-flavor">
+            class="align-center justify-center">
           <Loading size="120"></Loading>
         </v-overlay>
 
