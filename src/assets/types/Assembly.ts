@@ -166,7 +166,6 @@ export interface AssemblyWorkshopData {
     displayInsertIndex: number;
     shipWorkshopSelect: any;
     shipSelect: any;
-    shipFrigateUpgradeSelect: any;
     shipDisplaySelect: any;
     shipFrigateUpgradeList: any[];
     data: {
