@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed, onMounted, type Ref, ref, watch} from "vue";
-import {useI18n} from "vue-i18n";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useRouter} from "vue-router";
 import {Item, Items} from "glow-prow-data/src/entity/Items";
 import {Cosmetics} from "glow-prow-data";
@@ -35,7 +35,7 @@ const props = withDefaults(defineProps<{
   isWidget: false,
 })
 
-const {t} = useI18n()
+const {t} = useI18nUtils()
 const router = useRouter()
 const cdnStore = useCDNAssetsServiceStore()
 

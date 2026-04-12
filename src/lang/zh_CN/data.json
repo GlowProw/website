@@ -1150,7 +1150,7 @@
       "showDescription": "显示描述内容",
       "language": "语言",
       "generating": "正在生成海报...",
-      "generatingHint": "正在导出极高画质图像，请稍候"
+      "generatingHint": "正在导出图像，请稍候"
     },
     "browse": {
       "title": "配装分享集",

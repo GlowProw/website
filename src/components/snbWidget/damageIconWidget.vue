@@ -3,7 +3,7 @@ export default { name: 'DamageIconWidget' }
 </script>
 
 <script setup lang="ts">
-import { useIconGlobalStyle } from "@/assets/sripts/useIconGlobalStyle";
+import { use_icon_global_Style } from "@/assets/sripts/use_icon_global_Style";
 import {computed, nextTick, onMounted, ref} from "vue";
 import {useAssetsStore} from "~/stores/assetsStore";
 
@@ -53,7 +53,7 @@ defineExpose({
   damageDictionaries,
 })
 
-const { useIconImagePadding, useIconImageMargin } = useIconGlobalStyle();
+const { useIconImagePadding, useIconImageMargin } = use_icon_global_Style();
 const computedPadding = useIconImagePadding(props.padding);
 const computedMargin = useIconImageMargin(props.margin);
 </script>

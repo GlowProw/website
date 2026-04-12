@@ -8,7 +8,7 @@ function resolveValue<T>(val: MaybeRefOrGetter<T>): T {
     return (typeof val === 'function' ? (val as any)() : unref(val)) as T;
 }
 
-export function useIconGlobalStyle() {
+export function use_icon_global_Style() {
     const appStore = useAppStore();
 
     const useIconAdaptiveSize = (propsSize: MaybeRefOrGetter<number | string | undefined>, defaultSize: number = 80, opt = {isOffset: false}) => {

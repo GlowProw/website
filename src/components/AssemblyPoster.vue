@@ -11,22 +11,7 @@ import Logo from "@/components/Logo.vue";
 import AssemblySvgIcon from "@/components/AssemblySvgIcon.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
 
-const {t: rawT} = useI18n();
-const {asString: rawAsString} = useI18nUtils();
-
-const t = (key: string, ...args: any[]) => {
-  if (props.generateImageValue.language) {
-    return rawT(key, ...args, props.generateImageValue.language)
-  }
-  return rawT(key, ...args)
-}
-
-const asString = (keys: string[], options: any = {}) => {
-  if (props.generateImageValue.language) {
-    options.lang = props.generateImageValue.language
-  }
-  return rawAsString(keys, options)
-}
+const {t, asString} = useI18nUtils(computed(() => props.generateImageValue.language));
 
 const props = defineProps({
   assemblyDetailData: {
@@ -139,7 +124,12 @@ defineExpose({
 
       <!-- Assembly Preview S -->
       <v-card variant="text" v-if="assemblyDetailData.isVisibility">
-        <AssemblyWidget ref="assemblyDetailRef" :readonly="true" :is-show-empty="generateImageValue.isShowEmptySlot" :perfect-display="true" :is-full-name="true" :locale="generateImageValue.language">
+        <AssemblyWidget ref="assemblyDetailRef"
+                        :readonly="true"
+                        :is-show-empty="generateImageValue.isShowEmptySlot"
+                        :perfect-display="true"
+                        :is-full-name="true"
+                        :locale="generateImageValue.language">
           <template v-slot:image v-if="assemblyDetailData.assembly?.attr?.backgroundPresentation">
             <v-img cover class="pointer-events-none" :src="assemblyDetailData.assembly.attr?.backgroundPresentation"></v-img>
           </template>

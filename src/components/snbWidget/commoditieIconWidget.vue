@@ -3,7 +3,7 @@ export default { name: 'CommoditieIconWidget' }
 </script>
 
 <script setup lang="ts">
-import { useIconGlobalStyle } from "@/assets/sripts/useIconGlobalStyle";
+import { use_icon_global_Style } from "@/assets/sripts/use_icon_global_Style";
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {computed, onMounted, type Ref, ref, watch} from "vue";
@@ -79,7 +79,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
   threshold: .7,
 })
 
-const { useIconImagePadding, useIconImageMargin } = useIconGlobalStyle();
+const { useIconImagePadding, useIconImageMargin } = use_icon_global_Style();
 const computedPadding = useIconImagePadding(props.padding);
 const computedMargin = useIconImageMargin(props.margin);
 </script>

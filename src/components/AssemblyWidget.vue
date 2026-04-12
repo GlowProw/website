@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import {useI18n} from "vue-i18n";
-import {computed, reactive, Ref, ref, toRaw, useAttrs, useSlots, watch} from "vue";
+import {computed, provide, reactive, Ref, ref, toRaw, useAttrs, useSlots, watch} from "vue";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useRoute} from "vue-router";
 import {AssemblyAttr, AssemblyWidgetProps, AssemblyWorkshopData} from "@/assets/types";
 import {number} from "@/assets/sripts/index"
@@ -26,8 +26,6 @@ import WeaponModificationOnlyShowWidget from "@/components/snbWidget/weaponModif
 import AssemblySvgIcon from "@/components/AssemblySvgIcon.vue";
 import {useDisplay} from "vuetify/framework";
 
-const castToAny = (v: any) => v;
-
 const poops = withDefaults(defineProps<AssemblyWidgetProps>(), {
       readonly: false,
       isShowEmpty: true,
@@ -42,15 +40,19 @@ const poops = withDefaults(defineProps<AssemblyWidgetProps>(), {
     ultimates = Ultimates,
     assemblyDataProcessing = new AssemblyDataProcessing(),
     emit = defineEmits(['update:model-value', 'update:item-change']),
-    {t: rawT} = useI18n(),
-    {mobile, sm, md, lg} = useDisplay()
+    {t} = useI18nUtils(computed(() => poops.locale)),
+    {mobile} = useDisplay()
 
-const t = (key: string, ...args: any[]) => {
-  if (poops.locale) {
-    return rawT(key, ...args, poops.locale)
-  }
-  return rawT(key, ...args)
-}
+import i18n from "@/i18n";
+import {useI18n} from "vue-i18n";
+
+provide('context-locale', computed(() => poops.locale));
+
+watch(() => poops.locale, (newLoc) => {
+  console.log('[AssemblyWidget Debug] Prop Locale changed ->', newLoc);
+}, { immediate: true });
+
+const castToAny = (v: any) => v;
 
 let workshopData = ref<AssemblyWorkshopData>({
       shipModel: false,
@@ -549,7 +551,7 @@ defineOptions({name: 'AssemblyWidget'})
             <v-row justify="start">
               <!-- 陈设 卡槽 S -->
               <v-col cols="12" sm="4" md="2" lg="2">
-                <v-card variant="tonal" class="mb-2 py-2 px-10 font-weight-bold text-center">
+                <v-card variant="tonal" class="mb-2 py-2 px-10 font-weight-bold text-center singe-line">
                   {{ t('assembly.workshop.displayTitle') }} ({{ workshopData.data.displaySlots.length || 0 }})
                 </v-card>
 
@@ -658,6 +660,7 @@ defineOptions({name: 'AssemblyWidget'})
                           <v-select v-if="!readonly" v-model="workshopData.data.weaponDirections[index]"
                                     hide-details
                                     clearable
+                                    :context-locale="poops.locale"
                                     placeholder="选择武器方向"
                                     variant="solo-filled"
                                     density="compact"
@@ -909,7 +912,7 @@ defineOptions({name: 'AssemblyWidget'})
 
               <!-- 船甲 卡槽 S -->
               <v-col cols="12" md="auto" lg="auto">
-                <v-card variant="tonal" class="mb-2 py-2 font-weight-bold text-center">
+                <v-card variant="tonal" class="mb-2 py-2 px-10 font-weight-bold text-center singe-line">
                   {{ t('assembly.workshop.armorTitle') }}
                 </v-card>
 
@@ -972,7 +975,7 @@ defineOptions({name: 'AssemblyWidget'})
 
               <!-- 终极技能 卡槽 S -->
               <v-col cols="12" md="auto" lg="auto">
-                <v-card variant="tonal" class="mb-2 py-2 font-weight-bold text-center">
+                <v-card variant="tonal" class="mb-2 py-2 px-10 font-weight-bold text-center singe-line">
                   {{ t('assembly.workshop.ultimateTitle') }}
                 </v-card>
 

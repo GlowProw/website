@@ -3,7 +3,7 @@ export default {name: 'ItemIconWidget'}
 </script>
 
 <script setup lang="ts">
-import { useIconGlobalStyle } from "@/assets/sripts/useIconGlobalStyle";
+import { use_icon_global_Style } from "@/assets/sripts/use_icon_global_Style";
 import {computed, onMounted, type Ref, ref, watch} from "vue";
 import {Item, Items} from "glow-prow-data/src/entity/Items";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
@@ -42,7 +42,7 @@ const appStore = useAppStore(),
     // 稀有度
     rarityColorConfig = rarity.color
 
-useI18nUtils();
+const {t} = useI18nUtils();
 
 let itemsCardData = ref({
       icon: '',
@@ -99,7 +99,7 @@ defineExpose({
   getRarity
 })
 
-const { useIconImagePadding, useIconImageMargin } = useIconGlobalStyle();
+const { useIconImagePadding, useIconImageMargin } = use_icon_global_Style();
 const computedPadding = useIconImagePadding(props.padding);
 const computedMargin = useIconImageMargin(props.margin);
 </script>

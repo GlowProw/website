@@ -16,7 +16,7 @@ import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 import NpcCardDetail from "@/components/snbWidget/npcCardDetail.vue";
 import {useAppStore} from "~/stores/appStore";
 import {Npc, Npcs} from "glow-prow-data";
-import {useIconGlobalStyle} from "@/assets/sripts/useIconGlobalStyle";
+import {use_icon_global_Style} from "@/assets/sripts/use_icon_global_Style";
 import Loading from "@/components/Loading.vue";
 
 const
@@ -83,7 +83,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
   threshold: .7,
 })
 
-const {useIconImagePadding, useIconImageMargin} = useIconGlobalStyle();
+const {useIconImagePadding, useIconImageMargin} = use_icon_global_Style();
 const computedPadding = useIconImagePadding(props.padding);
 const computedMargin = useIconImageMargin(props.margin);
 </script>

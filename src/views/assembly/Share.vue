@@ -13,6 +13,7 @@ import Silk from "@/components/Silk.vue";
 import {ApiError} from "@/assets/types/Api";
 import AdsWidget from "@/components/ads/google/index.vue";
 import languagesConfig from "@/config/languages.json";
+import Loading from "@/components/Loading.vue";
 
 const route = useRoute(),
     router = useRouter(),
@@ -312,7 +313,7 @@ const onBackDetail = () => {
   <v-overlay :model-value="generatedLoading" persistent
              class="blur-load d-flex align-center justify-center" opacity=".92">
     <v-card variant="text" class="text-center">
-      <v-progress-circular indeterminate size="80" width="8" color="amber" class="mb-5"></v-progress-circular>
+      <Loading size="120" class="mb-5">></Loading>
       <div class="text-h5 text-amber font-weight-bold" style="text-shadow: 0 2px 10px rgba(0,0,0,0.5)">
         {{ t('assembly.share.generating') }}
       </div>

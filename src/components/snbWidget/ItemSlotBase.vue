@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {useIconGlobalStyle} from '@/assets/sripts/useIconGlobalStyle';
+import {use_icon_global_Style} from '@/assets/sripts/use_icon_global_Style';
 
 const props = withDefaults(
     defineProps<{
@@ -17,7 +17,7 @@ const props = withDefaults(
     }
 );
 
-const {useIconAdaptiveSize, useIconBoxPadding, useIconBoxMargin} = useIconGlobalStyle();
+const {useIconAdaptiveSize, useIconBoxPadding, useIconBoxMargin} = use_icon_global_Style();
 
 const computedSize = props.isAutoSize ? useIconAdaptiveSize(() => props.size, 99) : props.size;
 const computedPadding = props.isAutoPadding ? useIconBoxPadding(() => props.padding, 1) : props.padding;
