@@ -42,8 +42,15 @@ const poops = withDefaults(defineProps<AssemblyWidgetProps>(), {
     ultimates = Ultimates,
     assemblyDataProcessing = new AssemblyDataProcessing(),
     emit = defineEmits(['update:model-value', 'update:item-change']),
-    {t} = useI18n(),
+    {t: rawT} = useI18n(),
     {mobile, sm, md, lg} = useDisplay()
+
+const t = (key: string, ...args: any[]) => {
+  if (poops.locale) {
+    return rawT(key, ...args, poops.locale)
+  }
+  return rawT(key, ...args)
+}
 
 let workshopData = ref<AssemblyWorkshopData>({
       shipModel: false,
@@ -466,7 +473,8 @@ defineOptions({name: 'AssemblyWidget'})
                                     :is-show-tooltip="poops.perfectDisplay"
                                     :isOpenDetail="false"
                                     :margin="0"
-                                    :padding="0"/>
+                                    :padding="0"
+                                    :is-eager="poops.isEager"/>
                   </ItemSlotBase>
 
                   <v-overlay
@@ -481,7 +489,7 @@ defineOptions({name: 'AssemblyWidget'})
                 </v-card>
 
                 <div class="mt-2 text-center text-caption text-grey w-100 " :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
-                  <ShipName :id="workshopData.data.shipSlot.id"></ShipName>
+                  <ShipName :id="workshopData.data.shipSlot.id" :locale="poops.locale"></ShipName>
                 </div>
               </v-hover>
               <!-- 船只 视图卡槽 E -->
@@ -505,7 +513,8 @@ defineOptions({name: 'AssemblyWidget'})
                       :class="[workshopData.data.shipUpgradeSlot ? 'bg-amber' : '']">
                     <ItemIconWidget :id="workshopData.data.shipUpgradeSlot.id"
                                     :is-open-detail="!readonly"
-                                    :is-show-tooltip="poops.perfectDisplay"></ItemIconWidget>
+                                    :is-show-tooltip="poops.perfectDisplay"
+                                    :is-eager="poops.isEager"></ItemIconWidget>
                   </ItemSlotBase>
 
                   <v-overlay
@@ -520,7 +529,7 @@ defineOptions({name: 'AssemblyWidget'})
                 </v-card>
 
                 <div class="mt-2 text-center text-caption text-grey w-100 " :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
-                  <ItemName :data="castToAny(workshopData.data.shipUpgradeSlot)"></ItemName>
+                  <ItemName :data="castToAny(workshopData.data.shipUpgradeSlot)" :locale="poops.locale"></ItemName>
                 </div>
               </v-hover>
 
@@ -587,10 +596,10 @@ defineOptions({name: 'AssemblyWidget'})
                           <v-hover v-slot="{ isHovering, props : propsHoverClose }">
                             <v-card variant="text" v-bind="propsHoverClose">
                               <ItemSlotBase size="80px" class="pa-1" v-if="display && display.id">
-                                <ItemIconWidget :id="display.id" :is-open-detail="false" :is-show-tooltip="readonly"></ItemIconWidget>
+                                <ItemIconWidget :id="display.id" :is-open-detail="false" :is-show-tooltip="readonly" :is-eager="poops.isEager"></ItemIconWidget>
                               </ItemSlotBase>
                               <div class="text-center text-caption text-grey w-100" :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName && display && display.id">
-                                <ItemName :data="castToAny(display)"></ItemName>
+                                <ItemName :data="castToAny(display)" :locale="poops.locale"></ItemName>
                               </div>
 
                               <v-overlay
@@ -691,11 +700,11 @@ defineOptions({name: 'AssemblyWidget'})
                           <v-col cols="auto">
                             <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.weaponSlots[index] && workshopData.data.weaponSlots[index]?.id">
                               <v-card variant="text" class="position-relative" v-bind="propsHoverClose">
-                                <ItemSlotBase size="80px" class="pa-1">
-                                  <ItemIconWidget :id="i.id" :is-show-tooltip="readonly" :is-open-detail="false"></ItemIconWidget>
+                                <ItemSlotBase size="80px" class="pa-1" v-if="i && i.id">
+                                  <ItemIconWidget :id="i.id" :is-show-tooltip="readonly" :is-open-detail="false" :is-eager="poops.isEager"></ItemIconWidget>
                                 </ItemSlotBase>
                                 <div class="text-center text-caption text-grey w-100" :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
-                                  <ItemName :data="castToAny(i)"></ItemName>
+                                  <ItemName :data="castToAny(i)" :locale="poops.locale"></ItemName>
                                 </div>
 
                                 <v-overlay
@@ -764,7 +773,8 @@ defineOptions({name: 'AssemblyWidget'})
                                               :padding="0"
                                               :margin="0"
                                               :is-show-tooltip="false"
-                                              :is-open-detail="false"></ItemIconWidget>
+                                              :is-open-detail="false"
+                                              :is-eager="poops.isEager"></ItemIconWidget>
                             </ItemSlotBase>
                           </v-col>
                           <v-col align="center" class="mt-n1">
@@ -779,7 +789,8 @@ defineOptions({name: 'AssemblyWidget'})
                                               :padding="0"
                                               :margin="0"
                                               :is-show-tooltip="false"
-                                              :is-open-detail="false"></ItemIconWidget>
+                                              :is-open-detail="false"
+                                              :is-eager="poops.isEager"></ItemIconWidget>
                             </ItemSlotBase>
                           </v-col>
                         </v-row>
@@ -820,11 +831,11 @@ defineOptions({name: 'AssemblyWidget'})
                           <v-col cols="auto">
                             <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.secondaryWeaponSlots[index] && workshopData.data.secondaryWeaponSlots[index]?.id">
                               <v-card variant="text" class="position-relative" v-bind="propsHoverClose">
-                                <ItemSlotBase size="80px" class="pa-1">
-                                  <ItemIconWidget :id="i.id" :is-show-tooltip="readonly"></ItemIconWidget>
+                                <ItemSlotBase size="80px" class="pa-1" v-if="i && i.id">
+                                  <ItemIconWidget :id="i.id" :is-show-tooltip="readonly" :is-eager="poops.isEager"></ItemIconWidget>
                                 </ItemSlotBase>
                                 <div class="text-center text-caption text-grey w-100" :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
-                                  <ItemName :data="castToAny(i)"></ItemName>
+                                  <ItemName :data="castToAny(i)" :locale="poops.locale"></ItemName>
                                 </div>
 
                                 <v-overlay
@@ -877,7 +888,8 @@ defineOptions({name: 'AssemblyWidget'})
                                               v-for="(p, pIndex) in getDeckInformation(index, 'secondaryWeapon').top" :key="pIndex + p">
                                   <ItemIconWidget :id="i.id" v-if="i.id"
                                                   :is-show-tooltip="false"
-                                                  :is-open-detail="false"></ItemIconWidget>
+                                                  :is-open-detail="false"
+                                                  :is-eager="poops.isEager"></ItemIconWidget>
                                 </ItemSlotBase>
                               </v-col>
                             </v-row>
@@ -911,10 +923,10 @@ defineOptions({name: 'AssemblyWidget'})
                     <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.armorSlot">
                       <v-card variant="text" v-bind="propsHoverClose" class="position-relative">
                         <ItemSlotBase size="80px" class="pa-1">
-                          <ItemIconWidget :id="workshopData.data.armorSlot.id" :is-open-detail="false" :is-show-tooltip="readonly"></ItemIconWidget>
+                          <ItemIconWidget :id="workshopData.data.armorSlot.id" :is-open-detail="false" :is-show-tooltip="readonly" :is-eager="poops.isEager"></ItemIconWidget>
                         </ItemSlotBase>
                         <div class="text-center text-caption text-grey w-100 " :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
-                          <ItemName :data="castToAny(workshopData.data.armorSlot)"></ItemName>
+                          <ItemName :data="castToAny(workshopData.data.armorSlot)" :locale="poops.locale"></ItemName>
                         </div>
                         <v-overlay
                             v-if="!readonly"
@@ -998,10 +1010,10 @@ defineOptions({name: 'AssemblyWidget'})
                         <v-card v-bind="propsHoverClose" variant="text" class="position-relative">
                           <ItemSlotBase size="80px"
                                         v-if="workshopData.data.ultimateSlot && workshopData.data.ultimateSlot.id">
-                            <UltimateIconWidget :id="workshopData.data.ultimateSlot.id" :isOpenDetail="false"></UltimateIconWidget>
+                            <UltimateIconWidget :id="workshopData.data.ultimateSlot.id" :isOpenDetail="false" :is-eager="poops.isEager"></UltimateIconWidget>
                           </ItemSlotBase>
                           <div class="text-center text-caption text-grey w-100 " :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
-                            <UltimateName :id="castToAny(workshopData.data.ultimateSlot).id"></UltimateName>
+                            <UltimateName :id="castToAny(workshopData.data.ultimateSlot).id" :locale="poops.locale"></UltimateName>
                           </div>
                           <v-overlay
                               v-if="!readonly"
@@ -1027,10 +1039,10 @@ defineOptions({name: 'AssemblyWidget'})
                                 :class="[
                                           workshopData.ultimateSelect ? castToAny(workshopData.ultimateSelect)?.id == ultimate?.id ? 'bg-amber' : '' : ''
                                       ]">
-                              <UltimateIconWidget :id="ultimate.id" :isOpenDetail="false"></UltimateIconWidget>
+                              <UltimateIconWidget :id="ultimate.id" :isOpenDetail="false" :is-eager="poops.isEager"></UltimateIconWidget>
                             </ItemSlotBase>
                             <div class="text-center text-caption text-grey w-100 " :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
-                              <UltimateName :id="ultimate.id"></UltimateName>
+                              <UltimateName :id="ultimate.id" :locale="poops.locale"></UltimateName>
                             </div>
                           </v-card>
                         </v-col>

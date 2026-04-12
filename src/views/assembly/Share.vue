@@ -5,7 +5,6 @@ import {snapdom} from '@zumer/snapdom';
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useDisplay} from "vuetify/framework";
-import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {useGoTo} from "vuetify";
 import AssemblyPoster from "@/components/AssemblyPoster.vue";
@@ -13,12 +12,13 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import Silk from "@/components/Silk.vue";
 import {ApiError} from "@/assets/types/Api";
 import AdsWidget from "@/components/ads/google/index.vue";
+import languagesConfig from "@/config/languages.json";
 
 const route = useRoute(),
     router = useRouter(),
     goto = useGoTo(),
     notice = useNoticeStore(),
-    {t} = useI18n(),
+    {t, locale} = useI18n(),
     {mobile} = useDisplay()
 
 let assemblyDetailData: Ref<any> = ref({}),
@@ -35,12 +35,14 @@ let assemblyDetailData: Ref<any> = ref({}),
       format: 'jpg',
       quality: 1,
       background: '#000',
+      language: locale.value,
     }),
     generateImageConfig = ref({
       widths: [1050, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 2048],
       formats: ['png', 'jpg', 'webp'],
       qualitys: [.6, .8, .9, 1],
-      backgrounds: ['#1a1a1a', '#000', 'rgb(35,26,0)']
+      backgrounds: ['#1a1a1a', '#000', 'rgb(35,26,0)'],
+      languages: languagesConfig.child
     }),
     captureRef = ref(null),
     assemblyLoading = ref(false),
@@ -146,17 +148,56 @@ const loadAssemblyData = async () => {
 }
 
 /**
+ * 确保所有图片已加载
+ */
+const ensureImagesLoaded = async (element: HTMLElement) => {
+  const imgs = Array.from(element.querySelectorAll('img'));
+  await Promise.all(imgs.map(async (img) => {
+    try {
+      if (img.complete) {
+        await img.decode().catch(() => {});
+        return;
+      }
+      await new Promise((resolve) => {
+        img.onload = resolve;
+        img.onerror = resolve;
+      });
+      await img.decode().catch(() => {});
+    } catch (e) {
+      console.warn('Image load failed:', img.src);
+    }
+  }));
+};
+
+/**
  * 生成分享图片
  */
 const onGeneratedShare = async () => {
   try {
     generatedLoading.value = true
+    await nextTick()
 
-    await goto('#share-footer')
+    // await goto('#share-footer')
 
     let node = captureRef.value?.posterEl;
+    if (!node) return;
 
-    await goto(0, {duration: 2000})
+    // await goto(0, {duration: 2000})
+
+    // 临时设置样式以确保截图完整性 (主要解决视口过小导致的问题)
+    const originalStyles = node.style.cssText;
+    const width = generateImageValue.value.width;
+    // 使用 fixed 和巨大的偏移量将其移出视角，但保持渲染
+    node.style.cssText += `; position: fixed !important; left: -${width * 2}px !important; top: 0 !important; z-index: 99999 !important; width: ${width}px !important; min-width: ${width}px !important; opacity: 1 !important; visibility: visible !important; display: block !important;`;
+
+    // 确保所有图片已加载并解码
+    await ensureImagesLoaded(node);
+
+    // 添加捕获中标记
+    node.classList.add('is-capturing');
+
+    // 等待两帧确保渲染管线同步
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
     const d = await snapdom(node, {
       width: generateImageValue.value.width,
@@ -175,10 +216,17 @@ const onGeneratedShare = async () => {
     } as any)
 
     await d.download({quality: generateImageValue.value.quality, format: generateImageValue.value.format, filename: `${generateImageValue.value.filename}.${generateImageValue.value.format}`} as any)
+
+    // 移除标记并恢复原始样式
+    node.classList.remove('is-capturing');
+    node.style.cssText = originalStyles;
   } catch (e) {
     console.error(e)
+    if (captureRef.value?.posterEl) {
+      captureRef.value.posterEl.classList.remove('is-capturing');
+    }
   } finally {
-    setInterval(() => {
+    setTimeout(() => {
       generatedLoading.value = false
     }, 500)
   }
@@ -225,15 +273,30 @@ const onBackDetail = () => {
   <v-container class="my-5 position-relative overflow-auto">
     <AdsWidget class="my-5" id="none"></AdsWidget>
 
-    <AssemblyPoster
-        ref="captureRef"
-        :assembly-detail-data="assemblyDetailData"
-        :generate-image-value="generateImageValue"
-        :path="path"
-        :web-path="webPath"
-        :assembly-loading="assemblyLoading"
-    />
+    <div class="position-relative">
+      <AssemblyPoster
+          ref="captureRef"
+          :assembly-detail-data="assemblyDetailData"
+          :generate-image-value="generateImageValue"
+          :path="path"
+          :web-path="webPath"
+          :assembly-loading="assemblyLoading"
+      />
+
+    </div>
   </v-container>
+
+  <v-overlay :model-value="generatedLoading" persistent class="blur-load d-flex align-center justify-center" opacity=".8">
+    <v-card variant="text" min-height="400" class="text-center">
+      <v-progress-circular indeterminate size="80" width="8" color="amber" class="mb-5"></v-progress-circular>
+      <div class="text-h5 text-amber font-weight-bold" style="text-shadow: 0 2px 10px rgba(0,0,0,0.5)">
+        {{ t('assembly.share.generating') }}
+      </div>
+      <div class="text-caption text-grey-lighten-1 mt-2">
+        {{ t('assembly.share.generatingHint') }}
+      </div>
+    </v-card>
+  </v-overlay>
 
   <div class="position-fixed bottom-0 w-100 bg-black" style="z-index: 120">
     <v-divider thickness="2" opacity=".3"></v-divider>
@@ -305,6 +368,18 @@ const onBackDetail = () => {
                         density="comfortable"
                         v-model="generateImageValue.quality"
                         :items="generateImageConfig.qualitys"
+                        hide-details>
+                    </v-select>
+                  </v-col>
+                  <v-col cols="6">
+                    <div class="mb-2">{{ t('assembly.share.language') }}</div>
+                    <v-select
+                        variant="filled"
+                        item-value="value"
+                        item-title="label"
+                        density="comfortable"
+                        v-model="generateImageValue.language"
+                        :items="generateImageConfig.languages"
                         hide-details>
                     </v-select>
                   </v-col>

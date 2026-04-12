@@ -15,6 +15,7 @@ import {ModNode as ModWidget} from './mod/index'
 import {LinkNode as LinkWidget} from './link/index'
 import {ImgNode as ImgWidget} from './img/index'
 import {VideoNode as VideoWidget} from './video/index'
+import {LangNode as LangWidget} from './lang/index'
 
 import ShipView from '../ShipView.vue'
 import ItemView from '../ItemView.vue'
@@ -25,6 +26,7 @@ import {useI18n} from "vue-i18n";
 import LinkView from "@/components/LinkView.vue";
 import ImgView from "@/components/ImgView.vue";
 import VideoView from "@/components/VideoView.vue";
+import languagesConfig from '@/config/languages.json';
 
 interface ToolbarItem {
   list?: any
@@ -53,6 +55,18 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
+  forceShowAllLang: {
+    type: Boolean,
+    default: false
+  },
+  locale: {
+    type: String,
+    default: null
+  },
+  locale: {
+    type: String,
+    default: null
+  },
   placeholder: {
     type: String,
     default: ''
@@ -71,7 +85,7 @@ const props = defineProps({
   },
   toolbar: {
     type: Array as () => Array<string | ToolbarItem>,
-    default: () => ['link', 'img', 'video', 'emote', 'item', 'ship', 'mod', 'ultimate']
+    default: () => ['link', 'img', 'video', 'emote', 'item', 'ship', 'mod', 'ultimate', 'lang']
   }
 })
 
@@ -88,6 +102,8 @@ const emit = defineEmits([
     isOpenLink = ref(false),
     isOpenImg = ref(false),
     isOpenVideo = ref(false),
+    isOpenLang = ref(false),
+    isLangActive = ref(false),
     isOpenShip = ref(false),
     isOpenItem = ref(false),
 
@@ -271,6 +287,11 @@ const onInsertMod = (id: string) => {
   isOpenMod.value = !isOpenMod
 }
 
+const onInsertLang = (lang: string) => {
+  editor.value?.commands.insertLang({lang})
+  isOpenLang.value = false
+}
+
 const onEditorChange = (data: string) => {
   if (props.disabled && !data) return
 
@@ -306,7 +327,8 @@ const onInitEdit = () => {
       ShipWidget,
       EmoteWidget,
       UltimatesWidget,
-      ModWidget
+      ModWidget,
+      LangWidget
     ],
     onCreate({editor}) {
       (editor.options as any).keyboardShortcuts = {}
@@ -318,7 +340,11 @@ const onInitEdit = () => {
     onFocus({editor}) {
       emit('focused', editor.isEmpty ? '' : editor.getHTML())
     },
+    onSelectionUpdate({editor}) {
+      isLangActive.value = editor.isActive('Lang')
+    },
     onUpdate({editor}) {
+      isLangActive.value = editor.isActive('Lang')
       // const html = editor.getHTML(
       // if (html.length > props.maxlength) {
       //   // 撤销最后一步操作
@@ -336,7 +362,7 @@ const onInitEdit = () => {
 </script>
 
 <template>
-  <div v-if="tiptap" class="container html-widget-box bg-transparent">
+  <div v-if="tiptap" class="textarea-wrapper container readonly html-widget-box bg-transparent" :class="{ 'force-show-all-lang': forceShowAllLang }" :data-locale="props.locale">
     <div class="mb-3 control-group editor-toolbar" v-if="!props.readonly">
       <v-row :gutter="20" type="flex" align="center">
         <v-col>
@@ -474,6 +500,27 @@ const onInitEdit = () => {
                 v-if="toolbarAs.indexOf('ultimate') >= 0">
               <v-icon icon="mdi-multiplication"></v-icon>
             </v-btn>
+
+            <v-menu location="bottom right"
+                    v-if="toolbarAs.indexOf('lang') >= 0">
+              <template v-slot:activator="{ props }">
+                <v-btn
+                    icon
+                    class="btn mr-2"
+                    density="compact"
+                    v-bind="props"
+                    :disabled="isOpenLang || isLangActive"
+                    v-tooltip="'语言'">
+                  <v-icon icon="mdi-translate"></v-icon>
+                </v-btn>
+              </template>
+
+              <v-list min-width="150" density="compact">
+                <v-list-item link v-for="l in languagesConfig.child" :key="l.value" @click="onInsertLang(l.value)">
+                  <v-list-item-title>{{ l.label }}</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
           </div>
         </v-col>
       </v-row>
@@ -498,6 +545,15 @@ const onInitEdit = () => {
 </template>
 
 <style lang="less">
+html[lang="zh-CN"] div.textarea-wrapper:not([data-locale]) div[data-lang]:not([data-lang="zh-CN"]):not(.ProseMirror[contenteditable="true"] *):not(.force-show-all-lang *),
+html[lang="en-US"] div.textarea-wrapper:not([data-locale]) div[data-lang]:not([data-lang="en-US"]):not(.ProseMirror[contenteditable="true"] *):not(.force-show-all-lang *),
+html[lang="zh-TW"] div.textarea-wrapper:not([data-locale]) div[data-lang]:not([data-lang="zh-TW"]):not(.ProseMirror[contenteditable="true"] *):not(.force-show-all-lang *),
+div[data-locale="zh-CN"] div[data-lang]:not([data-lang="zh-CN"]):not(.ProseMirror[contenteditable="true"] *):not(.force-show-all-lang *),
+div[data-locale="en-US"] div[data-lang]:not([data-lang="en-US"]):not(.ProseMirror[contenteditable="true"] *):not(.force-show-all-lang *),
+div[data-locale="zh-TW"] div[data-lang]:not([data-lang="zh-TW"]):not(.ProseMirror[contenteditable="true"] *):not(.force-show-all-lang *) {
+  display: none !important;
+}
+
 .tiptap {
   font-family: "Ionicons", sans-serif;
 

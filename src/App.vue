@@ -6,7 +6,7 @@ import {use_pwa} from '@/assets/sripts/use_pwa';
 import {useRoute} from "vue-router";
 import {useHead} from "@unhead/vue";
 
-const {t} = useI18n();
+const {t, locale} = useI18n();
 
 const {
       offlineReady,
@@ -37,7 +37,10 @@ const head = computed(() => {
       { name: 'twitter:title', content: `${titleStr} | ${siteName}` },
       { name: 'twitter:description', content: descStr },
       { name: 'twitter:image', content: `${window.location.origin}/favicon.png` }
-    ]
+    ],
+    htmlAttrs: {
+      lang: locale.value
+    }
   }
 })
 

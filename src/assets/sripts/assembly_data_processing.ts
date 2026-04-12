@@ -397,7 +397,7 @@ export default class AssemblyDataProcessing {
                     {
                         condition: () => {
                             let length = data.weaponSlots?.length
-                            return length <= 0 || (data.weaponSlots as any[]).filter((i: { id: any; }) => !i.id).length == length
+                            return length <= 0 || (data.weaponSlots as any[]).filter((i: { id: any; }) => !i?.id).length == length
                         }, required: false, message: 'weaponAllEmpty'
                     },
                     {

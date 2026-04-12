@@ -18,8 +18,9 @@ const props = withDefaults(defineProps<{
       isShowOpenDetail?: boolean,
       isShowDescription?: boolean,
       isShowTooltip?: boolean,
-      padding?: number
-      margin?: number
+      padding?: number,
+      margin?: number,
+      isEager?: boolean
     }>(), {
       id: 'dhow',
       isOpenDetail: true,
@@ -28,7 +29,8 @@ const props = withDefaults(defineProps<{
       isShowDescription: true,
       isShowTooltip: true,
       padding: 0,
-      margin: 0
+      margin: 0,
+      isEager: false
     }),
     appStore = useAppStore(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
@@ -96,7 +98,7 @@ const computedMargin = useIconImageMargin(props.margin);
               `ma-${computedMargin}`,
               `pa-${computedPadding}`,
           ]">
-        <v-img :src="shipCardData.icon" class="pointer-events-none prohibit-drag"></v-img>
+        <v-img :src="shipCardData.icon" :eager="props.isEager" class="pointer-events-none prohibit-drag"></v-img>
       </v-card>
     </template>
 

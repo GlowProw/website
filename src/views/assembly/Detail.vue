@@ -163,6 +163,24 @@ const onPenPassword = () => {
 
   getAssemblyDetail()
 }
+
+/**
+ * 转化标签i18n
+ * @param data
+ */
+const getTagTitle = (data: any) => {
+  return asString([
+    `${data}`,
+    `assembly.tags.teamFormationMethods.${data.toString().split('_')[1]}`,
+    `assembly.tags.modes.${data.toString().split('_')[0]}`,
+    `assembly.tags.damageTypes.${data.toString().split('_')[1]}`,
+    `assembly.tags.difficultyOfAcquisitions.${data.toString().split('_')[1]}`,
+    `codex.ships.archetypes.${data.toString().split('_')[1]}.name`,
+    `snb.seasons.${data.toString().split('_')[1]}`,
+  ], {
+    backRawKey: true
+  })
+}
 </script>
 
 <template>
@@ -240,10 +258,23 @@ const onPenPassword = () => {
 
               <template v-if="detailData.isVisibility && authStore.isLogin && detailData.isOwner">
                 <v-btn-group class="ml-2">
-                  <v-btn variant="flat" :to="`/assembly/workshop/${detailData.uuid}/edit`">
-                    <v-icon icon="mdi-pencil" class="mr-2"></v-icon>
-                    {{ t('assembly.editAssemblyBtn') }}
-                  </v-btn>
+                  <v-menu location="bottom end">
+                    <template v-slot:activator="{ props }">
+                      <v-btn variant="flat" v-bind="props">
+                        <v-icon icon="mdi-pencil" class="mr-2"></v-icon>
+                        {{ t('assembly.editAssemblyBtn') }}
+                        <v-icon icon="mdi-menu-down" class="ml-1"></v-icon>
+                      </v-btn>
+                    </template>
+                    <v-list density="compact">
+                      <v-list-item link :to="`/assembly/edit/${detailData.uuid}`">
+                        <v-list-item-title>{{ t('assembly.editInfoBtn') }}</v-list-item-title>
+                      </v-list-item>
+                      <v-list-item link :to="`/assembly/workshop/${detailData.uuid}/edit`">
+                        <v-list-item-title>{{ t('assembly.editWorkshopBtn') }}</v-list-item-title>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
                   <v-divider vertical></v-divider>
                   <AssemblySettingPanel :id="detailData.uuid"
                                         :data="detailData || {}"
@@ -274,22 +305,12 @@ const onPenPassword = () => {
   <v-container v-if="detailData.isVisibility">
     <AdsWidget id="assembly-detail-up"></AdsWidget>
 
-    <div>
+    <div class="mt-2">
       <v-row>
         <v-col cols="12" sm="12" lg="8" xl="8">
           <div class="ga-2 mb-6" v-if="detailData.tags">
             <v-chip class="mr-2 mb-2 pt-1 pb-1 pl-5 pr-5" v-for="(i, index) in detailData.tags" :key="index">
-              {{
-                asString([
-                  `${i}`,
-                  `assembly.tags.teamFormationMethods.${i.split('_')[1]}`,
-                  `assembly.tags.modes.${i.split('_')[0]}`,
-                  `codex.ships.archetypes.${i.split('_')[1]}.name`,
-                  `snb.seasons.${i.split('_')[1]}`,
-                ], {
-                  backRawKey: true
-                })
-              }}
+              {{getTagTitle(i)}}
             </v-chip>
           </div>
 
@@ -316,11 +337,11 @@ const onPenPassword = () => {
           </AccountCardWidget>
 
           <v-row class="mt-5">
-            <v-col cols="auto">
-              <v-icon icon="mdi-calendar-range"></v-icon>
-              创建时间
-            </v-col>
             <v-col>
+              <v-icon icon="mdi-calendar-range"></v-icon>
+              {{ t('assembly.browse.filter.createdTime') }}
+            </v-col>
+            <v-col cols="auto">
               <TimeView :time="detailData.createdTime" v-if="detailData.createdTime">
                 <Time :time="detailData.createdTime"></Time>
               </TimeView>
@@ -328,11 +349,11 @@ const onPenPassword = () => {
           </v-row>
 
           <v-row class="mt-1">
-            <v-col cols="auto">
-              <v-icon icon="mdi-calendar-range"></v-icon>
-              更新时间
-            </v-col>
             <v-col>
+              <v-icon icon="mdi-calendar-range"></v-icon>
+              {{ t('assembly.browse.filter.updatedTime') }}
+            </v-col>
+            <v-col cols="auto">
               <TimeView :time="detailData.updatedTime" v-if="detailData.updatedTime">
                 <Time :time="detailData.updatedTime"></Time>
               </TimeView>
@@ -340,9 +361,9 @@ const onPenPassword = () => {
           </v-row>
 
           <AssemblyTagsWidget
+              v-model="detailData.tags"
               class="mt-4"
-              :readonly="true"
-              :tags="detailData.tags"></AssemblyTagsWidget>
+              :readonly="true"></AssemblyTagsWidget>
         </v-col>
       </v-row>
     </div>

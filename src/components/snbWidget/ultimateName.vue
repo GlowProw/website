@@ -6,13 +6,13 @@ export default { name: 'UltimateName' }
 import {useI18n} from "vue-i18n";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
-const props = defineProps<{id: string}>(),
+const props = defineProps<{id: string, locale?: string}>(),
     {t} = useI18n(),
     i18nReadName = useI18nReadName()
 </script>
 
 <template>
-  {{ i18nReadName.ultimate(props.id).name() }}
+  {{ i18nReadName.ultimate(props.id).name(props.locale) }}
 </template>
 
 <style scoped lang="less">

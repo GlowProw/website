@@ -938,6 +938,8 @@
     "hasPassword": "Has Password",
     "byCloningUuid": "Clone",
     "editAssemblyBtn": "Edit this Assembly",
+    "editInfoBtn": "Edit Information",
+    "editWorkshopBtn": "Workshop",
     "anonymous": "Anonymous",
     "commentPlaceholder": "What are your thoughts on this?",
     "additions": {
@@ -1097,7 +1099,13 @@
       "showItemName": "Show Name",
       "fullName": "Full Name",
       "showHeader": "Poster Header Identifier",
-      "showTitle": "Show Title"
+      "showTitle": "Show Title",
+      "showTabs": "Show Tags",
+      "showDescription": "Show Description",
+      "imageStyleTitle": "Style",
+      "language": "Language",
+      "generating": "Generating poster...",
+      "generatingHint": "Exporting high-quality image, please wait"
     },
     "browse": {
       "title": "Assembly Share Collection",

@@ -17,7 +17,8 @@ const props = withDefaults(defineProps<{
       isOpenNewWindow?: boolean,
       isShowTooltip?: boolean,
       margin?: number,
-      padding?: number
+      padding?: number,
+      isEager?: boolean
     }>(), {
       id: 'dhow',
       isShowOpenDetail: true,
@@ -25,7 +26,8 @@ const props = withDefaults(defineProps<{
       isOpenNewWindow: false,
       isShowTooltip: true,
       margin: 1,
-      padding: 1
+      padding: 1,
+      isEager: false
     }),
     {t} = useI18n(),
     router = useRouter(),
@@ -92,7 +94,7 @@ const computedMargin = useIconImageMargin(props.margin);
               `ma-${computedMargin}`,
               `pa-${computedPadding}`,
           ]">
-        <v-img :src="ultimatesData.icon" class="pointer-events-none"></v-img>
+        <v-img :src="ultimatesData.icon" :eager="props.isEager" class="pointer-events-none"></v-img>
       </v-card>
     </template>
     <UltimateCardDetail

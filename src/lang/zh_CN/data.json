@@ -986,6 +986,8 @@
     "hasPassword": "包含密码",
     "byCloningUuid": "克隆",
     "editAssemblyBtn": "编辑此配装",
+    "editInfoBtn": "编辑信息",
+    "editWorkshopBtn": "配装",
     "anonymous": "匿名",
     "commentPlaceholder": "你对此有何见解？",
     "additions": {
@@ -1144,7 +1146,10 @@
       "showHeader": "海报头部标识",
       "showTitle": "显示标题",
       "showTabs": "显示标签",
-      "showDescription": "显示描述内容"
+      "showDescription": "显示描述内容",
+      "language": "语言",
+      "generating": "正在生成海报...",
+      "generatingHint": "正在导出极高画质图像，请稍候"
     },
     "browse": {
       "title": "配装分享集",

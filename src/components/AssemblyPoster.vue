@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {ref, watch, nextTick, onMounted, computed} from "vue";
+import {computed, nextTick, onMounted, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import QRCode from "qrcode";
@@ -9,9 +9,24 @@ import Loading from "@/components/Loading.vue";
 import Textarea from "@/components/textarea/index.vue";
 import Logo from "@/components/Logo.vue";
 import AssemblySvgIcon from "@/components/AssemblySvgIcon.vue";
+import UserAvatar from "@/components/UserAvatar.vue";
 
-const {t} = useI18n();
-const {asString} = useI18nUtils();
+const {t: rawT} = useI18n();
+const {asString: rawAsString} = useI18nUtils();
+
+const t = (key: string, ...args: any[]) => {
+  if (props.generateImageValue.language) {
+    return rawT(key, ...args, props.generateImageValue.language)
+  }
+  return rawT(key, ...args)
+}
+
+const asString = (keys: string[], options: any = {}) => {
+  if (props.generateImageValue.language) {
+    options.lang = props.generateImageValue.language
+  }
+  return rawAsString(keys, options)
+}
 
 const props = defineProps({
   assemblyDetailData: {
@@ -85,12 +100,12 @@ const loadAssemblyData = async () => {
     if (assemblyDetailRef.value) {
       // @ts-ignore
       assemblyDetailRef.value
-        .setSetting({
-          isShowItemName: props.generateImageValue.isShowItemName,
-          isFullName: props.generateImageValue.isFullName,
-          assemblyUseVersion: props.assemblyDetailData.assembly?.attr?.assemblyUseVersion
-        })
-        .onLoad(props.assemblyDetailData.data || props.assemblyDetailData.assembly?.data);
+          .setSetting({
+            isShowItemName: props.generateImageValue.isShowItemName,
+            isFullName: props.generateImageValue.isFullName,
+            assemblyUseVersion: props.assemblyDetailData.assembly?.attr?.assemblyUseVersion
+          })
+          .onLoad(props.assemblyDetailData.data || props.assemblyDetailData.assembly?.data);
     }
   });
 };
@@ -123,15 +138,15 @@ defineExpose({
 
     <!-- Assembly Preview S -->
     <v-card variant="text" v-if="assemblyDetailData.isVisibility">
-      <AssemblyWidget ref="assemblyDetailRef" :readonly="true" :is-show-empty="generateImageValue.isShowEmptySlot" :perfect-display="true" :is-full-name="true">
+      <AssemblyWidget ref="assemblyDetailRef" :readonly="true" :is-show-empty="generateImageValue.isShowEmptySlot" :perfect-display="true" :is-full-name="true" :locale="generateImageValue.language" :is-eager="true">
         <template v-slot:image v-if="assemblyDetailData.assembly?.attr?.backgroundPresentation">
-          <v-img cover class="pointer-events-none" :src="assemblyDetailData.assembly.attr?.backgroundPresentation"></v-img>
+          <v-img cover class="pointer-events-none" :src="assemblyDetailData.assembly.attr?.backgroundPresentation" eager></v-img>
         </template>
       </AssemblyWidget>
     </v-card>
     <!-- Assembly Preview E -->
 
-    <div class="px-10 mx-10">
+    <div class="px-10">
       <div class="ga-2 mb-6 mt-4" v-if="assemblyDetailData.tags && generateImageValue.isShowTabs">
         <v-chip class="mr-2 mb-2 pt-1 pb-1 pl-5 pr-5" v-for="(i, index) in assemblyDetailData.tags" :key="index">
           {{
@@ -147,11 +162,23 @@ defineExpose({
       </div>
 
       <Textarea class="mt-5" v-if="assemblyDetailData.description && generateImageValue.isShowDescription"
+                readonly
                 :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
-                readonly :model-value="assemblyDetailData.description"></Textarea>
+                :min-height="'0'"
+                :model-value="assemblyDetailData.description"
+                :locale="generateImageValue.language"></Textarea>
 
       <v-row class="opacity-80 mt-5 pb-5" v-show="!assemblyLoading">
         <v-col>
+          <p v-if="assemblyDetailData.userAvatar" class="mb-1">
+            <div class="d-inline-flex">
+              <v-card class="mr-1">
+                <UserAvatar size="25" :src="assemblyDetailData.userAvatar"></UserAvatar>
+              </v-card>
+              {{ assemblyDetailData.username || t('assembly.anonymous') }}
+            </div>
+          </p>
+
           <AssemblySvgIcon name="link"></AssemblySvgIcon>
           {{ path }}
         </v-col>

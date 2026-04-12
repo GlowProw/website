@@ -7,11 +7,11 @@ type EitherDataOrIdAndTier =
     | { data: Item; id?: never; tier?: never }
     | { data?: never; id: string; tier?: number };
 
-const props = defineProps<EitherDataOrIdAndTier>(),
+const props = defineProps<EitherDataOrIdAndTier & { locale?: string }>(),
     {item} = useI18nReadName()
 
 let getTitle = computed(() => {
-  return `${item(props.id || props.data?.id || '').name() || '-'}`
+  return `${item(props.id || props.data?.id || '').name(props.locale) || '-'}`
 })
 
 defineExpose({ name: getTitle })

@@ -763,7 +763,13 @@
     }
   },
   "assembly": {
-    "title": "配装厂",
+    "title": "配裝廠",
+    "owner": "所有者",
+    "hasPassword": "包含密碼",
+    "byCloningUuid": "克隆",
+    "editAssemblyBtn": "編輯此配裝",
+    "editInfoBtn": "編輯信息",
+    "editWorkshopBtn": "配裝",
     "anonymous": "匿名",
     "additions": {
       "assembly": "配装",
@@ -936,8 +942,25 @@
       "title": "配装详情"
     },
     "share": {
-      "title": "分享配装",
-      "createPoster": "生成配装海报"
+      "title": "分享配裝",
+      "createPoster": "生成配裝海報",
+      "configHint": "配置生成海報屬性，決定海報樣式以及格式等",
+      "format": "格式",
+      "width": "寬度",
+      "quality": "圖片質量",
+      "filename": "文件名稱",
+      "imageStyleTitle": "樣式",
+      "showEmptySlot": "顯示空卡槽",
+      "backgroundColor": "背景顏色",
+      "showItemName": "顯示名稱",
+      "fullName": "完整名稱",
+      "showHeader": "海報頭部標識",
+      "showTitle": "顯示標題",
+      "showTabs": "顯示標籤",
+      "showDescription": "顯示描述內容",
+      "language": "語言",
+      "generating": "正在生成海報...",
+      "generatingHint": "正在導出極高畫質圖像，請稍候"
     },
     "browse": {
       "title": "配装分享集",
