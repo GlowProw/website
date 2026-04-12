@@ -11,8 +11,8 @@ const props = defineProps<{ id: string }>(),
         Object.values(TreasureMaps)
             .filter((i: any) => {
               if (typeof i.obtainable == 'object')
-                return (i.obtainable as any).indexOf(props.id) >= 0
-              else if (typeof i.obtainable == 'string')
+                return i.obtainable.filter(i => i.id == props.id).length > 0
+              else if (typeof i.obtainable == 'object')
                 return i.obtainable == props.id
             }) || []
     )
@@ -22,12 +22,12 @@ const props = defineProps<{ id: string }>(),
  */
 const getTreasureMapSetObtainables = () => {
   let d = treasureMaps.value
-  const allLocation = new Set<string>()
+  const allLocation = new Set<any>()
 
   d.forEach(i => {
     if (i.obtainable && Array.isArray(i.obtainable)) {
       i.obtainable.forEach(location => {
-        if (location && typeof location === 'string') {
+        if (location) {
           allLocation.add(location)
         }
       })

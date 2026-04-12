@@ -1,20 +1,17 @@
-<script lang="ts">
-export default {name: 'ObtainableWidget'}
-</script>
-
 <script setup lang="ts">
 
 import ItemName from "@/components/snbWidget/itemName.vue";
 import {computed, useSlots} from "vue";
-import {Commodity, Cosmetic, Cosmetics, Item, Items, Material, Npc} from "glow-prow-data";
+import {Commodity, Cosmetic, Cosmetics, Item, Items, MapLocation, Material, Npc, TreasureMap} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 import EmptyView from "@/components/EmptyView.vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
+import MapLocationNameWidget from "@/components/snbWidget/mapLocationName.vue";
 
 const props = withDefaults(
-        defineProps<{ data: Item | Material | Commodity | Cosmetic, byType: string }>(),
+        defineProps<{ data: Item | Material | Commodity | Cosmetic | TreasureMap, byType: string }>(),
         {
           byType: ''
         }
@@ -26,20 +23,6 @@ const props = withDefaults(
     cosmetics = Cosmetics
 
 let obtainable = computed(() => {
-      const data = props.data as any;
-
-      // 赛季
-      if (data.bySeason && data.bySeason.seasons && data.bySeason.seasons.length > 0) {
-        let seasons: any = (tm as any)('snb.seasons');
-        return data.bySeason.seasons.map((season: any) => {
-          return {
-            to: `/codex/seasons`,
-            type: 'Season',
-            tip: seasons[season].name,
-          }
-        })
-      }
-
       return filterByObtainable(props.data)
     }),
     seasonI18nMap = computed(() => {
@@ -55,7 +38,7 @@ let obtainable = computed(() => {
  * 处理数据
  * @param d
  */
-const filterByObtainable = (d: Item | Material | Cosmetic | Npc | null | undefined | any): any[] => {
+const filterByObtainable = (d: Item | Material | Cosmetic | Npc | TreasureMap | MapLocation | null | undefined | any): any[] => {
   // 返回检查
   if (!d?.id) return [];
 
@@ -75,15 +58,15 @@ const filterByObtainable = (d: Item | Material | Cosmetic | Npc | null | undefin
     return [{
       id: obtainable.id,
       type: obtainable._typeStringName,
-      to: `/codex/map/view?key=${obtainable.id}`,
+      to: `/map/view?key=${obtainable.id}`,
     }];
   }
 
-      // 兜底方案
-  // 处理字符串类型的 obtainable
+  // 兜底方案: 处理字符串类型的 obtainable
   else if (typeof obtainable === 'string') {
     return [{
       id: obtainable,
+      type: 'Unknown',
     }];
   }
 
@@ -119,7 +102,7 @@ const filterByObtainable = (d: Item | Material | Cosmetic | Npc | null | undefin
         acc.push({
           id: element.id,
           type: element._typeStringName,
-          to: `/codex/map/view?key=${element.id}`,
+          to: `/map/view?key=${element.id}`,
         });
       }
       // 兜底
@@ -152,6 +135,10 @@ const getChipText = (o: any) => {
     backRawKey: true
   })
 }
+
+defineOptions({
+  name: "ObtainableWidget"
+})
 </script>
 
 <template>
@@ -181,6 +168,10 @@ const getChipText = (o: any) => {
 
             <template v-if="o.item =='Item'">
               <ItemName :id="o.item.id"></ItemName>
+            </template>
+            <template v-else-if="o && o.type == 'MapLocation'">
+              <MapLocationNameWidget :id="o.id"></MapLocationNameWidget>
+              <v-icon icon="mdi-open-in-new" class="ml-1 opacity-60"/>
             </template>
             <template v-else>
               <div class="singe-line w-100 multiline-chip obtainable-item">

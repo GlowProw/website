@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'CommentWidget' }
-</script>
-
 <script setup lang="ts">
 import {onMounted, ref, watch} from "vue";
 import {apis} from "@/assets/sripts/index";
@@ -192,6 +188,15 @@ const onCaptchaData = (data: any) => {
 }
 
 const getCaptchaResponse = () => (captcha.value as any).response
+
+defineExpose({
+  getCaptchaResponse,
+  onCaptchaData,
+})
+
+defineOptions({
+  name: "CommentWidget"
+})
 </script>
 
 <template>

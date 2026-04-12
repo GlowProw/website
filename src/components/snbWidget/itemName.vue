@@ -5,7 +5,7 @@ import {Item} from "glow-prow-data";
 
 type EitherDataOrIdAndTier =
     | { data: Item; id?: never; tier?: never }
-    | { data?: never; id: string; tier: number };
+    | { data?: never; id: string; tier?: number };
 
 const props = defineProps<EitherDataOrIdAndTier>(),
     {item} = useI18nReadName()

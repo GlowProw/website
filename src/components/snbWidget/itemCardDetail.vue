@@ -220,7 +220,8 @@ defineOptions({
             class="bg-transparent"
             color="transparent"
             tile
-            static>
+            static
+            v-if="i.perks && i.perks.length > 0">
           <template v-slot:title>
             <div class="title-long-flavor bg-black">
               {{ t('codex.ship.perks') }}

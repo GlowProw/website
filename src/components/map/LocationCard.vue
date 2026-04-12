@@ -251,7 +251,8 @@ const mapLocationAvailableTreasureMapWidget = ref(null);
 const treasureMapObtainables = computed(() => {
   if (!props.selectedLocation.id || !mapLocationAvailableTreasureMapWidget.value)
     return [].join(',');
-  return (mapLocationAvailableTreasureMapWidget.value as any)?.getObtainables().join(',') || [];
+
+  return (mapLocationAvailableTreasureMapWidget.value as any)?.getObtainables().map(i => i.id).join(',') || [];
 });
 
 defineOptions({ name: 'LocationCard' });

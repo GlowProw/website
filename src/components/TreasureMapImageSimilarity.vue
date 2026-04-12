@@ -242,6 +242,7 @@
                       <div class="results-grid">
                         <v-card
                             border
+                            min-height="235"
                             v-for="(result, index) in searchResults"
                             :key="index">
                           <v-card-text class="text-center px-2 bg-black">

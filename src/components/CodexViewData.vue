@@ -290,7 +290,7 @@ const onProcessedData = computed(() => {
         // 检查地点匹配
         const locationMatch = filterLocations.length === 0 ||
             (i.obtainable && Array.isArray(i.obtainable) &&
-                i.obtainable.some(location => filterLocations.includes(location)))
+                i.obtainable.some(location => filterLocations.includes(location.id)))
 
         // 检查赛季匹配
         let seasonMatch = true;
@@ -572,8 +572,8 @@ const onInitLocationLoad = () => {
   d.forEach(i => {
     if (i.obtainable && Array.isArray(i.obtainable)) {
       i.obtainable.forEach(location => {
-        if (location && typeof location === 'string') {
-          allLocation.add(location)
+        if (location) {
+          allLocation.add(location.id)
         }
       })
     }
