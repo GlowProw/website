@@ -26,8 +26,7 @@ const appStore = useAppStore(),
       isShowDescription?: boolean,
       isShowTooltip?: boolean,
       padding?: number,
-      margin?: number,
-      isEager?: boolean
+      margin?: number
     }>(), {
       id: 'culverin1',
       isShowOpenDetail: true,
@@ -36,8 +35,7 @@ const appStore = useAppStore(),
       isShowDescription: true,
       isShowTooltip: true,
       padding: 0,
-      margin: 1,
-      isEager: false
+      margin: 1
     }),
     items = Items,
 
@@ -138,7 +136,6 @@ const computedMargin = useIconImageMargin(props.margin);
           <v-img
               referrerpolicy="no-referrer"
               class="prohibit-drag"
-              :eager="props.isEager"
               :src="itemsCardData.icon">
             <template v-slot:error>
               <div class="fill-height repeating-gradient d-flex justify-center align-center h-100">

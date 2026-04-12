@@ -192,5 +192,4 @@ export interface AssemblyWidgetProps {
     perfectDisplay?: boolean,
     class?: string,
     locale?: string,
-    isEager?: boolean,
 }

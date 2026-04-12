@@ -152,21 +152,31 @@ const loadAssemblyData = async () => {
  */
 const ensureImagesLoaded = async (element: HTMLElement) => {
   const imgs = Array.from(element.querySelectorAll('img'));
-  await Promise.all(imgs.map(async (img) => {
-    try {
-      if (img.complete) {
-        await img.decode().catch(() => {});
-        return;
-      }
-      await new Promise((resolve) => {
-        img.onload = resolve;
-        img.onerror = resolve;
-      });
-      await img.decode().catch(() => {});
-    } catch (e) {
-      console.warn('Image load failed:', img.src);
-    }
-  }));
+  const backgrounds = Array.from(element.querySelectorAll('*')).filter(el => {
+    const bg = window.getComputedStyle(el).backgroundImage;
+    return bg && bg !== 'none' && bg.startsWith('url');
+  });
+
+  const loadImg = async (src: string) => {
+    if (!src) return;
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => img.decode().then(resolve).catch(resolve);
+      img.onerror = resolve;
+      img.src = src;
+    });
+  };
+
+  const tasks = [
+    ...imgs.map(img => loadImg(img.src)),
+    ...backgrounds.map(el => {
+      const bg = window.getComputedStyle(el).backgroundImage;
+      const url = bg.match(/url\(["']?([^"']+)["']?\)/)?.[1];
+      return url ? loadImg(url) : Promise.resolve();
+    })
+  ];
+
+  await Promise.all(tasks);
 };
 
 /**
@@ -177,18 +187,31 @@ const onGeneratedShare = async () => {
     generatedLoading.value = true
     await nextTick()
 
-    // await goto('#share-footer')
+    await goto('#share-footer')
 
     let node = captureRef.value?.posterEl;
     if (!node) return;
 
-    // await goto(0, {duration: 2000})
+    await goto(0, {duration: 2000})
+
+    // 构造渲染沙盒：强制所有父级容器可见，防止裁剪导致的图片不加载
+    const sandboxElements: { el: HTMLElement, style: string }[] = [];
+    let current: HTMLElement | null = node.parentElement;
+    while (current) {
+      sandboxElements.push({ el: current, style: current.style.cssText });
+      current.style.setProperty('overflow', 'visible', 'important');
+      current.style.setProperty('clip-path', 'none', 'important');
+      current = current.parentElement;
+    }
 
     // 临时设置样式以确保截图完整性 (主要解决视口过小导致的问题)
     const originalStyles = node.style.cssText;
     const width = generateImageValue.value.width;
     // 使用 fixed 和巨大的偏移量将其移出视角，但保持渲染
-    node.style.cssText += `; position: fixed !important; left: -${width * 2}px !important; top: 0 !important; z-index: 99999 !important; width: ${width}px !important; min-width: ${width}px !important; opacity: 1 !important; visibility: visible !important; display: block !important;`;
+    node.style.cssText += `; position: fixed !important; left: -${width * 3}px !important; top: 0 !important; z-index: 99999 !important; width: ${width}px !important; min-width: ${width}px !important; opacity: 1 !important; visibility: visible !important; display: block !important; height: auto !important; max-height: none !important;`;
+
+    // 增加一个较长时间的渲染缓冲
+    await new Promise(r => setTimeout(r, 500));
 
     // 确保所有图片已加载并解码
     await ensureImagesLoaded(node);
@@ -220,6 +243,7 @@ const onGeneratedShare = async () => {
     // 移除标记并恢复原始样式
     node.classList.remove('is-capturing');
     node.style.cssText = originalStyles;
+    sandboxElements.forEach(({ el, style }) => el.style.cssText = style);
   } catch (e) {
     console.error(e)
     if (captureRef.value?.posterEl) {
@@ -273,7 +297,7 @@ const onBackDetail = () => {
   <v-container class="my-5 position-relative overflow-auto">
     <AdsWidget class="my-5" id="none"></AdsWidget>
 
-    <div class="position-relative">
+    <div class="position-relative" :class="{'opacity-20': mobile}">
       <AssemblyPoster
           ref="captureRef"
           :assembly-detail-data="assemblyDetailData"
@@ -282,12 +306,12 @@ const onBackDetail = () => {
           :web-path="webPath"
           :assembly-loading="assemblyLoading"
       />
-
     </div>
   </v-container>
 
-  <v-overlay :model-value="generatedLoading" persistent class="blur-load d-flex align-center justify-center" opacity=".8">
-    <v-card variant="text" min-height="400" class="text-center">
+  <v-overlay :model-value="generatedLoading" persistent
+             class="blur-load d-flex align-center justify-center" opacity=".92">
+    <v-card variant="text" class="text-center">
       <v-progress-circular indeterminate size="80" width="8" color="amber" class="mb-5"></v-progress-circular>
       <div class="text-h5 text-amber font-weight-bold" style="text-shadow: 0 2px 10px rgba(0,0,0,0.5)">
         {{ t('assembly.share.generating') }}
@@ -300,7 +324,12 @@ const onBackDetail = () => {
 
   <div class="position-fixed bottom-0 w-100 bg-black" style="z-index: 120">
     <v-divider thickness="2" opacity=".3"></v-divider>
-    <v-container class="2">
+
+    <v-container>
+      <v-alert v-if="mobile" type="error" variant="tonal" density="compact" class="mb-3">
+        {{ t('assembly.share.notMobile') }}
+      </v-alert>
+
       <v-row>
         <v-col>
           <v-btn height="50" @click="getAssemblyDetail" class="mr-3" :loading="assemblyLoading">
@@ -312,13 +341,13 @@ const onBackDetail = () => {
           <v-btn height="50" @click="onBackDetail" class="mr-3">{{ t('basic.button.cancel') }}</v-btn>
 
           <v-btn-group>
-            <v-btn height="50" class="bg-amber" :loading="generatedLoading" :disabled="generatedLoading || assemblyDetailData.uuid == null" @click="onGeneratedShare">
+            <v-btn height="50" class="bg-amber" :loading="generatedLoading" :disabled="mobile || generatedLoading || assemblyDetailData.uuid == null" @click="onGeneratedShare">
               {{ t('assembly.share.createPoster') }}
             </v-btn>
             <v-divider vertical></v-divider>
             <v-menu open-on-click :close-on-content-click="false">
               <template v-slot:activator="{ props }">
-                <v-btn height="50" class="bg-amber" icon v-bind="props">
+                <v-btn height="50" class="bg-amber" icon :disabled="mobile" v-bind="props">
                   <v-icon>mdi-cog</v-icon>
                 </v-btn>
               </template>
