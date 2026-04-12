@@ -76,7 +76,7 @@ function onRemoveExclude(id: string) {
     <v-card variant="text" class="exclude-panel">
       <p class="text-caption opacity-60 mb-2">{{ t('calculator.exclude.description') }}</p>
 
-      <v-dialog v-model="isSearchDialogOpen" max-width="500">
+      <v-dialog v-model="isSearchDialogOpen" max-width="580">
         <v-card border class="pa-5" :min-width="mobile ? '100%' : 350" :width="mobile ? '100%' : 580">
           <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 mt-n5">
             <v-icon size="80">mdi-plus</v-icon>

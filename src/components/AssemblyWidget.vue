@@ -744,7 +744,7 @@ defineOptions({name: 'AssemblyWidget'})
                           <v-col class="d-flex align-start">
                             <div class="w-100">
                               <div class="opacity-80 text-deck-information d-flex align-center singe-line w-100 mt-2 mb-2">
-                                <span v-if="workshopData.data.weaponDirections[index]">{{ t(`codex.ship.${workshopData.data.weaponDirections[index]}`) }}</span>
+                                <span class="u" v-if="workshopData.data.weaponDirections[index]">{{ t(`codex.ship.${workshopData.data.weaponDirections[index]}`) }}</span>
                                 <v-divider thickness="2" opacity=".2"></v-divider>
                               </div>
                               <p class="opacity-80 text-deck-information">{{ t('codex.ship.topDeck') }}
@@ -1244,6 +1244,8 @@ defineOptions({name: 'AssemblyWidget'})
 </template>
 
 <style lang="less">
+@import "@/assets/styles/link";
+
 .workshop-ships-show-image {
   img {
     position: relative;

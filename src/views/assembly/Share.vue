@@ -14,6 +14,7 @@ import {ApiError} from "@/assets/types/Api";
 import AdsWidget from "@/components/ads/google/index.vue";
 import languagesConfig from "@/config/languages.json";
 import Loading from "@/components/Loading.vue";
+import HorizontalScrollList from "@/components/HorizontalScrollList.vue";
 
 const route = useRoute(),
     router = useRouter(),
@@ -217,8 +218,39 @@ const onGeneratedShare = async () => {
     // 确保所有图片已加载并解码
     await ensureImagesLoaded(node);
 
+    // 确保字体已加载
+    await document.fonts.ready;
+
+    // 注入 MDI 样式，确保 snapdom 的 capture 能够识别 icon 字体
+    const mdiStyle = document.createElement('style');
+    mdiStyle.id = 'mdi-style-inject';
+    let mdiCss = '';
+    try {
+      for (const sheet of Array.from(document.styleSheets)) {
+        try {
+          // 寻找包含 MDI 定义的样式表
+          const isMdi = sheet.href?.includes('materialdesignicons') || 
+                        Array.from(sheet.cssRules).some(r => r.cssText.includes('Material Design Icons'));
+          if (isMdi) {
+            for (const rule of Array.from(sheet.cssRules)) {
+              mdiCss += rule.cssText;
+            }
+          }
+        } catch (e) {
+          // 跨域样式表可能无法访问 rules
+        }
+      }
+    } catch (e) {
+      console.warn('MDI Style injection failed:', e);
+    }
+    mdiStyle.innerHTML = mdiCss;
+    node.appendChild(mdiStyle);
+
     // 添加捕获中标记
     node.classList.add('is-capturing');
+
+    // 等待一会确保图标渲染
+    await new Promise(r => setTimeout(r, 350));
 
     // 等待两帧确保渲染管线同步
     await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
@@ -227,7 +259,7 @@ const onGeneratedShare = async () => {
       width: generateImageValue.value.width,
       scale: mobile ? window.devicePixelRatio * 2 : window.devicePixelRatio,
       embedFonts: true,
-      iconFonts: ['Material Design Icons', 'Material Icons'],
+      iconFonts: ['Material Design Icons', 'MaterialDesignIcons', 'materialdesignicons', 'Material Icons'],
       quality: generateImageValue.value.quality,
       filter: (node: any) => {
         if (node instanceof HTMLElement) {
@@ -299,14 +331,16 @@ const onBackDetail = () => {
     <AdsWidget class="my-5" id="none"></AdsWidget>
 
     <div class="position-relative" :class="{'opacity-20': mobile}">
-      <AssemblyPoster
-          ref="captureRef"
-          :assembly-detail-data="assemblyDetailData"
-          :generate-image-value="generateImageValue"
-          :path="path"
-          :web-path="webPath"
-          :assembly-loading="assemblyLoading"
-      />
+      <HorizontalScrollList :is-indicator="false" :is-follow-screen-center="true" :follow-screen-safe-distance="300">
+        <AssemblyPoster
+            ref="captureRef"
+            :assembly-detail-data="assemblyDetailData"
+            :generate-image-value="generateImageValue"
+            :path="path"
+            :web-path="webPath"
+            :assembly-loading="assemblyLoading"
+        />
+      </HorizontalScrollList>
     </div>
   </v-container>
 
