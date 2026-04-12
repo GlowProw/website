@@ -7,15 +7,14 @@ import {type ComputedRef} from "vue"
  */
 export function useI18nUtils(manualLocale?: ComputedRef<string | undefined>) {
     const {localLocale} = use_local_locale(manualLocale)
-    const {tm, locale: globalLocale} = i18n.global;
+    const {tm: rawTm, locale: globalLocale} = i18n.global;
 
     const t = (key: string, variable: any = null, lang?: string) => {
         const targetLocale = lang || localLocale.value;
         // 使用针对 Composer (Vue 3) 全局实例最明确的签名
         // @ts-ignore
-        const result = i18n.global.t(key, variable || {}, { locale: targetLocale });
-        
-        // console.log(`[useI18nUtils Global] t('${key}', locale: ${targetLocale}) -> ${result.substring(0, 20)}`);
+        const result = i18n.global.t(key, variable || {}, {locale: targetLocale});
+
         return result;
     }
 
@@ -57,14 +56,28 @@ export function useI18nUtils(manualLocale?: ComputedRef<string | undefined>) {
     }
 
     /**
+     * 获取翻译数组（支持指定语言）
+     * @param key
+     * @param lang
+     */
+    const tm = (key: string, lang?: string) => {
+        const targetLocale = lang || localLocale.value;
+        const messages = i18n.global.getLocaleMessage(targetLocale);
+
+        // 简单的点路径解析逻辑
+        return key.split('.').reduce((acc, part) => acc?.[part], messages as any);
+    }
+
+    /**
      * 获取翻译数组
      * @param keys
+     * @param lang
      */
-    const asArray = (keys: string[]) => {
+    const asArray = (keys: string[], lang?: string) => {
         let result: Record<string, any> = {}
 
         for (const i18nKey of keys) {
-            const content = tm(i18nKey)
+            const content = tm(i18nKey, lang)
             if (result[i18nKey]) break
 
             if (content && typeof content === 'string') {
@@ -117,5 +130,6 @@ export function useI18nUtils(manualLocale?: ComputedRef<string | undefined>) {
         t,
         te,
         tm,
+        rt: i18n.global.rt,
     }
 }

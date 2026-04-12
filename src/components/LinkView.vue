@@ -73,7 +73,6 @@ defineExpose({
             footer-hide>
     <v-card>
       <v-card-text>
-        {{data}}
         <v-text-field v-model="data.href" label="Href"></v-text-field>
         <v-text-field v-model="data.text" label="Href Text"></v-text-field>
       </v-card-text>

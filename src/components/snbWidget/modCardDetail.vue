@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {onMounted, ref, watch} from "vue";
-import {useI18n} from "vue-i18n";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useRouter} from "vue-router";
 import {Modifications} from "glow-prow-data";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
@@ -21,7 +21,7 @@ const props = withDefaults(defineProps<{
   isWidget: false,
 })
 
-const {t} = useI18n()
+const {t} = useI18nUtils()
 const router = useRouter()
 const {currentService: currentImageService} = useCDNAssetsServiceStore()
 

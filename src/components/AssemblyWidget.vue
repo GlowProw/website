@@ -43,14 +43,11 @@ const poops = withDefaults(defineProps<AssemblyWidgetProps>(), {
     {t} = useI18nUtils(computed(() => poops.locale)),
     {mobile} = useDisplay()
 
-import i18n from "@/i18n";
-import {useI18n} from "vue-i18n";
-
 provide('context-locale', computed(() => poops.locale));
 
 watch(() => poops.locale, (newLoc) => {
   console.log('[AssemblyWidget Debug] Prop Locale changed ->', newLoc);
-}, { immediate: true });
+}, {immediate: true});
 
 const castToAny = (v: any) => v;
 
@@ -567,7 +564,9 @@ defineOptions({name: 'AssemblyWidget'})
                       sm="6"
                       md="12"
                       lg="12">
-                    <v-row :justify="mobile ? 'center' : 'start'" v-if="isShowEmpty || workshopData.data.displaySlots[displayIndex] && workshopData.data.displaySlots[displayIndex]?.id != null">
+                    <v-row :justify="mobile ? 'center' : 'start'"
+                           style="  display: flex;flex-wrap: nowrap;"
+                           v-if="isShowEmpty || workshopData.data.displaySlots[displayIndex] && workshopData.data.displaySlots[displayIndex]?.id != null">
                       <v-col cols="auto">
                         <v-card variant="text" class="bg-transparent text-center pt-1" min-height="40" min-width="30">
                           <span class="text-amber-lighten-5">{{ number.intToRoman(displayIndex + 1) }}</span>
@@ -622,7 +621,7 @@ defineOptions({name: 'AssemblyWidget'})
               <!-- 陈设 卡槽 E -->
 
               <!-- 武器列表 卡槽 S -->
-              <v-col cols="12" sm="8" md="10" lg="7">
+              <v-col cols="12" sm="8" md="10" lg="6">
                 <!-- 主 -->
                 <v-card variant="tonal" class="mb-2 py-2 font-weight-bold text-center">
                   {{ t('assembly.workshop.weaponTitle') }}
@@ -744,7 +743,10 @@ defineOptions({name: 'AssemblyWidget'})
                           </v-col>
                           <v-col class="d-flex align-start">
                             <div class="w-100">
-                              <v-divider thickness="2" opacity=".2" class="w-100 mt-2 mb-2"></v-divider>
+                              <div class="opacity-80 text-deck-information d-flex align-center singe-line w-100 mt-2 mb-2">
+                                <span v-if="workshopData.data.weaponDirections[index]">{{ t(`codex.ship.${workshopData.data.weaponDirections[index]}`) }}</span>
+                                <v-divider thickness="2" opacity=".2"></v-divider>
+                              </div>
                               <p class="opacity-80 text-deck-information">{{ t('codex.ship.topDeck') }}
                                 <v-chip size="x-small" density="compact" :variant="getDeckInformation(index).top ? 'flat' : 'tonal'">{{ getDeckInformation(index).top || 0 }}</v-chip>
                               </p>
@@ -764,7 +766,7 @@ defineOptions({name: 'AssemblyWidget'})
                       </v-col>
                       <v-col cols="auto">
                         <v-row no-gutters v-if="i && i.id" :class="[!i.id ? 'opacity-30' : '']">
-                          <v-col align="center" class="mt-n1">
+                          <v-col align="center" class="mt-n1" v-if="getDeckInformation(index).top">
                             <v-icon icon="mdi-chevron-up" size="16"></v-icon>
                             <ItemSlotBase size="40px"
                                           :padding="0"
@@ -777,14 +779,15 @@ defineOptions({name: 'AssemblyWidget'})
                                               :is-open-detail="false"></ItemIconWidget>
                             </ItemSlotBase>
                           </v-col>
-                          <v-col align="center" class="mt-n1">
+                          <v-col align="center" class="mt-n1" v-if="getDeckInformation(index).lower">
                             <v-icon icon="mdi-chevron-down" size="16"></v-icon>
                             <ItemSlotBase size="40px"
                                           :padding="0"
                                           :margin="0"
                                           :id="i.id"
                                           v-if="i.id"
-                                          v-for="(p, pIndex) in getDeckInformation(index).lower" :key="pIndex">
+                                          v-for="(p, pIndex) in getDeckInformation(index).lower"
+                                          :key="pIndex">
                               <ItemIconWidget :id="i.id"
                                               :padding="0"
                                               :margin="0"
