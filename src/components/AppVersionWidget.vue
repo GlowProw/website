@@ -23,12 +23,25 @@ let loading = ref(true),
 
 onMounted(() => {
   md.renderer.rules.image = function (tokens, idx, options, env, self) {
-    const token = tokens[idx];
-    return `<div class="img"><img src="${api.blogBaseUrl}/images/blog/${versionData.value.latestPosts[showBlogIndex.value].slug}/${token.content}" alt="${token.content}" /></div>`;
+    let token = tokens[idx],
+        src = token.attrs.find(i => i[0] == 'src')[1];
+    return `<div class="img"><img src="${convertPath(src, api.blogBaseUrl)}" alt="${token.content}" /></div>`;
   };
 
   getVersionData()
 })
+
+/**
+ * 转化地址
+ * @param path
+ * @param apiBlogBaseUrl
+ */
+function convertPath(path, apiBlogBaseUrl) {
+  return path.replace(
+      /\.\.\/static\/images\/version\/([^/]+)\/([^/]+\.png)/,
+      `${apiBlogBaseUrl}/images/version/$1/$2`
+  );
+}
 
 /**
  * 取得版本更新信息
@@ -36,7 +49,7 @@ onMounted(() => {
 const getVersionData = async () => {
   try {
     loading.value = true
-    const result = await api.versions(),
+    const result = await api.versions({isUpdateTime: false}),
         d = result.data
 
     if (d) {

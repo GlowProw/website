@@ -243,7 +243,7 @@ const onAddCalculator = () => {
           <v-spacer></v-spacer>
           <v-col cols="auto">
             <div class="d-flex ga-2">
-              <v-btn @click="onStarItem(itemDetailData)" variant="tonal" border :class="getCollectStatus ? 'text-amber' : ''">
+              <v-btn @click="onStarItem(itemDetailData)" variant="text" border :class="getCollectStatus ? 'text-amber' : ''">
                 <v-icon :icon="`mdi-${getCollectStatus ? 'star' : 'star-outline'}`"></v-icon>
               </v-btn>
 

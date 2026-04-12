@@ -27,7 +27,7 @@ export function useIconGlobalStyle() {
 
             let targetSize = numVal + <number>(opt.isOffset ? offset : 0);
             targetSize = Math.max(numVal - 10, Math.min(numVal + 10, targetSize));
-            targetSize = Math.max(30, Math.min(150, targetSize));
+            targetSize = Math.max(25, Math.min(150, targetSize));
 
             return isPx ? `${targetSize}px` : targetSize;
         });

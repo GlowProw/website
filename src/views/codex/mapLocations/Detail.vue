@@ -236,7 +236,7 @@ const onCodexHistory = () => {
                   hide-details
                   variant="underlined" density="compact">
                 <template v-slot:prepend-inner>
-                  <ItemSlotBase size="25px" class="d-flex justify-center align-center mb-2" :padding="0">
+                  <ItemSlotBase size="25px" class="d-flex justify-center align-center mb-2" :is-auto-padding="false" :is-auto-margin="false" :padding="0" :margin="0">
                     <FactionIconWidget :name="mapLocationDetailData.faction.id"
                                        size="25px"></FactionIconWidget>
                   </ItemSlotBase>

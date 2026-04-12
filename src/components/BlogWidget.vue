@@ -21,8 +21,10 @@ let loading: Ref<boolean> = ref(true),
 
 onMounted(() => {
   md.renderer.rules.image = function (tokens, idx, options, env, self) {
-    const token = tokens[idx];
-    return `<div class="img"><img src="${api.blogBaseUrl}/images/blog/${blogData.value.latestPosts[showBlogIndex.value].slug}/${token.content}" alt="${token.content}" /></div>`;
+    const token = tokens[idx],
+        src = token.attrs.find(i => i[0] == 'src')[1];
+    console.log(src)
+    return `<div class="img"><img src="${convertPath(src, api.blogBaseUrl)}" alt="${token.content}" /></div>`;
   };
 
   getBlogData()
@@ -36,12 +38,24 @@ let isNext = computed(() => {
     })
 
 /**
+ * 转化地址
+ * @param path
+ * @param apiBlogBaseUrl
+ */
+function convertPath(path, apiBlogBaseUrl) {
+  return path.replace(
+      /\.\.\/\.\.\/static\/images\/blog\/([^/]+)\/([^/]+\.png)/,
+      `${apiBlogBaseUrl}/images/blog/$1/$2`
+  );
+}
+
+/**
  * 取得博客信息内容
  */
 const getBlogData = async () => {
   try {
     loading.value = true
-    const result = await api.blogs(),
+    const result = await api.blogs({isUpdateTime: false}),
         d = result.data
 
     if (d) {
@@ -91,7 +105,8 @@ const onPage = (type) => {
           </v-col>
           <v-divider vertical inset class="mx-2"></v-divider>
           <v-col cols="auto" class="d-flex align-center ga-1 opacity-60">
-            <v-icon>mdi-post-outline</v-icon><span>{{ blogData.totalCount }}</span>
+            <v-icon>mdi-post-outline</v-icon>
+            <span>{{ blogData.totalCount }}</span>
           </v-col>
           <v-col cols="auto">
             <v-btn-group border class="page-btn">

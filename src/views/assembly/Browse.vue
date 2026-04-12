@@ -238,47 +238,52 @@ const getBrowseList = async () => {
             <v-col cols="12" md="6" lg="6" v-for="(i, index) in browseData.data"
                    :key="index" class="">
               <v-card class="card-enlargement-flavor pa-5">
-                <v-row class="pt-5 pl-5 pr-5">
-                <v-col cols="9">
-                  <router-link :to="`/assembly/browse/${i.uuid}/detail`">
-                    <div :title="String(i.name || 'none')" class="text-amber text-h4 mb-1 font-weight-bold singe-line">{{ i.name || 'none' }}</div>
-                  </router-link>
-                  <div>
-                    <AccountCardWidget :id="i.userId">
-                      <div class="d-flex align-center">
-                        <v-card v-if="i.userAvatar" class="mr-1">
-                          <UserAvatar size="20" :src="i.userAvatar"></UserAvatar>
-                        </v-card>
-                        {{ i.username || t('assembly.anonymous') }}
-                      </div>
-                    </AccountCardWidget>
-                  </div>
-                </v-col>
-                <v-col cols="3">
-                  <v-chip density="compact" class="badge-flavor pl-5 pr-5" :disabled="!!i.isLiked">
-                    赞 {{ i.likes || 0 }}
-                  </v-chip>
-                </v-col>
-              </v-row>
+                <v-row class="pt-2 px-1">
+                  <v-col>
+                    <router-link :to="`/assembly/browse/${i.uuid}/detail`">
+                      <div :title="String(i.name || 'none')" class="text-amber text-h4 mb-1 font-weight-bold singe-line">{{ i.name || 'none' }}</div>
+                    </router-link>
+                    <v-row>
+                      <v-col>
+                        <AccountCardWidget :id="i.userId">
+                          <div class="d-flex align-center">
+                            <v-card v-if="i.userAvatar" class="mr-1">
+                              <UserAvatar size="20" :src="i.userAvatar"></UserAvatar>
+                            </v-card>
+                            <span class="u">{{ i.username || t('assembly.anonymous') }}</span>
+                          </div>
+                        </AccountCardWidget>
+                      </v-col>
 
-              <v-hover v-slot="{ isHovering, props }">
-                <div v-bind="props" class="position-relative">
-                  <AssemblyTouring>
-                    <AssemblyWidget
-                        class="card-flavor mb-5 ml-n10 mr-n10"
-                        :readonly="true"
-                        :ref="(el) => { if (el) browseAssemblyWidgetRefs[index] = el }">
-                    </AssemblyWidget>
-                  </AssemblyTouring>
-                  <router-link :to="`/assembly/browse/${i.uuid}/detail`" target="_blank">
-                    <v-overlay scrim="#000" contained class="d-flex justify-center align-center" :model-value="!!isHovering">
-                      <v-icon icon="mdi-open-in-new" size="30"></v-icon>
-                    </v-overlay>
-                  </router-link>
-                </div>
-              </v-hover>
-            </v-card>
-          </v-col>
+                      <v-col cols="auto">
+                        <v-chip density="compact" class="badge-flavor px-3" :disabled="!!i.isLiked">
+                          <v-icon color="red">{{ i.likes <= 0 ? 'mdi-heart-outline'  : 'mdi-heart'}}</v-icon>
+                          <span class="ml-1 text-red-accent-4" v-if="i.likes">{{ i.likes || 0 }}</span>
+                        </v-chip>
+                      </v-col>
+                    </v-row>
+                  </v-col>
+                </v-row>
+
+                <v-hover v-slot="{ isHovering, props }">
+                  <div v-bind="props" class="position-relative">
+                    <AssemblyTouring>
+                      <AssemblyWidget
+                          class="card-flavor mb-5 ml-n10 mr-n10"
+                          :readonly="true"
+                          :perfect-display="true"
+                          :ref="(el) => { if (el) browseAssemblyWidgetRefs[index] = el }">
+                      </AssemblyWidget>
+                    </AssemblyTouring>
+                    <router-link :to="`/assembly/browse/${i.uuid}/detail`" target="_blank">
+                      <v-overlay scrim="#000" contained class="d-flex justify-center align-center" :model-value="!!isHovering">
+                        <v-icon icon="mdi-open-in-new" size="30"></v-icon>
+                      </v-overlay>
+                    </router-link>
+                  </div>
+                </v-hover>
+              </v-card>
+            </v-col>
           </template>
         </v-row>
 
@@ -307,4 +312,5 @@ const getBrowseList = async () => {
 </template>
 
 <style scoped lang="less">
+@import "@/assets/styles/link";
 </style>

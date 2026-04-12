@@ -182,7 +182,7 @@ const getCurrentSeason = (): Season | null => {
                 </div>
 
                 <div class="mt-3">
-                  <a href="https://blog.glow-prow.top/blog" target="_blank">
+                  <a href="https://help.glow-prow.top/blog" target="_blank">
                     {{ t('codex.more') }}
                   </a>
                 </div>

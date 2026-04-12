@@ -52,9 +52,30 @@ const lensStyle = computed(() => {
     display: 'block',
     width: `${props.lensSize}px`,
     height: `${props.lensSize}px`,
-    left: `${left}px`,
-    top: `${top}px`
+    top: '0',
+    left: '0',
+    transform: `translate3d(${left}px, ${top}px, 0)`
   }
+})
+
+// 动态计算防遮挡位置
+const dynamicPosition = computed(() => {
+  if (!containerRect.value || isTouchDevice.value) return props.position
+
+  const { width, height } = containerRect.value
+  const x = mouseX.value
+  const y = mouseY.value
+
+  // 将区域分为4个象限，放大镜放在对角象限防止遮挡
+  const isLeft = x < width / 2
+  const isTop = y < height / 2
+
+  if (isLeft && isTop) return 'bottom-right'
+  if (!isLeft && isTop) return 'bottom-left'
+  if (isLeft && !isTop) return 'top-right'
+  if (!isLeft && !isTop) return 'top-left'
+
+  return props.position
 })
 
 // 计算放大视图位置
@@ -70,16 +91,18 @@ const zoomViewStyle = computed(() => {
   }
 
   const positionStyles = {
-    'top-right': { top: '0', right: '0' },
-    'bottom-right': { bottom: '0', right: '0' },
-    'top-left': { top: '0', left: '0' },
-    'bottom-left': { bottom: '0', left: '0' }
+    'top-right': { top: '0', right: '0', bottom: 'auto', left: 'auto' },
+    'bottom-right': { bottom: '0', right: '0', top: 'auto', left: 'auto' },
+    'top-left': { top: '0', left: '0', bottom: 'auto', right: 'auto' },
+    'bottom-left': { bottom: '0', left: '0', top: 'auto', right: 'auto' }
   }
+
+  const currentPosition = dynamicPosition.value
 
   return {
     ...baseStyle,
     display: 'block',
-    ...positionStyles[props.position]
+    ...positionStyles[currentPosition]
   }
 })
 
@@ -205,8 +228,7 @@ const updateZoomViewPosition = () => {
   const offsetX = -scaledMouseX + (props.lensSize / 2)
   const offsetY = -scaledMouseY + (props.lensSize / 2)
 
-  cloneRef.value.style.left = `${offsetX}px`
-  cloneRef.value.style.top = `${offsetY}px`
+  cloneRef.value.style.transform = `translate3d(${offsetX}px, ${offsetY}px, 0) scale(${props.scale})`
 }
 
 /**
@@ -371,6 +393,8 @@ const handleResize = () => {
   overflow: hidden;
   border-radius: 4px;
   pointer-events: none;
+  // 平滑过渡方向改变
+  transition: top 0.2s ease, bottom 0.2s ease, left 0.2s ease, right 0.2s ease, opacity 0.3s ease;
 
   &[style*="top"] {
     margin-top: 10px;
@@ -400,10 +424,6 @@ const handleResize = () => {
 }
 
 // 动画效果
-.magnifier-lens {
-  transition: all 0.1s ease;
-}
-
 .magnifier-zoom-view {
   transition: opacity 0.3s ease;
 

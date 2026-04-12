@@ -19,7 +19,7 @@ const props = withDefaults(
 )
 
 let afterData = ref({
-      href: 'https://vuejs.org',
+      href: '',
       text: ''
     }),
     linkLoad = ref(true),

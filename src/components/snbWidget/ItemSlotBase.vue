@@ -20,8 +20,8 @@ const props = withDefaults(
 const {useIconAdaptiveSize, useIconBoxPadding, useIconBoxMargin} = useIconGlobalStyle();
 
 const computedSize = props.isAutoSize ? useIconAdaptiveSize(() => props.size, 99) : props.size;
-const computedPadding = props.isAutoSize ? useIconBoxPadding(() => props.padding, 1) : props.padding;
-const computedMargin = props.isAutoSize ? useIconBoxMargin(() => props.margin, 0) : props.margin;
+const computedPadding = props.isAutoPadding ? useIconBoxPadding(() => props.padding, 1) : props.padding;
+const computedMargin = props.isAutoMargin ? useIconBoxMargin(() => props.margin, 0) : props.margin;
 
 defineOptions({
   name: "ItemSlotBase"
