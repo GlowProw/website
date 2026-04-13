@@ -53,7 +53,18 @@ const onLogin = async () => {
     await router.push('/')
   } catch (e) {
     if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
+      if (e.code === 'signin.notActivated') {
+        notice.error(t(`basic.tips.signin.${e.code}`))
+        setTimeout(() => {
+          router.push({
+            path: '/account/activate',
+            query: {username: signinFrom.value.username}
+          })
+        }, 1500)
+        return
+      }
+
+      notice.error(t(`basic.tips.signin.${e.code}`, {
         context: e.code
       }))
     }

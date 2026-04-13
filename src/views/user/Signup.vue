@@ -54,7 +54,10 @@ const onRegister = async () => {
     noticeStore.success(t(`basic.tips.${d.code}`))
 
     setTimeout(async () => {
-      await router.push('/account/signin')
+      await router.push({
+        path: '/account/activate',
+        query: {username: signupFrom.value.username}
+      })
     }, 1000)
   } catch (e) {
     if (e instanceof ApiError) {

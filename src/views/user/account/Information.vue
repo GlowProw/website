@@ -58,6 +58,18 @@ let
       }
     }),
 
+    // 换绑邮箱
+    changeEmailModel = ref(false),
+    changeEmailLoading = ref(false),
+    changeEmailRequestLoading = ref(false),
+    emailChangeFrom: Ref<any> = ref(null),
+    emailChangeData = ref({
+      data: {
+        newEmail: '',
+        code: ''
+      }
+    }),
+
     // 获取语言列表
     userAttrLanguages = computed(() => {
       return languages.child
@@ -184,6 +196,62 @@ const onClearPasswordFrom = () => {
   passwordFromData.value.data.newPassword = ''
   passwordFromData.value.data.oldPassword = ''
 }
+
+/**
+ * 请求换绑邮箱验证码
+ */
+const onChangeEmailRequest = async () => {
+  try {
+    if (!emailChangeData.value.data.newEmail) {
+      notice.error(t('account.information.form.email.error.required'))
+      return
+    }
+
+    changeEmailRequestLoading.value = true
+    const result = await apis.userApi().requestEmailChangeCode(emailChangeData.value.data.newEmail)
+    notice.success(t(`basic.tips.${result.code}`))
+  } catch (e) {
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.code
+      }))
+    }
+    console.error(e)
+  } finally {
+    changeEmailRequestLoading.value = false
+  }
+}
+
+/**
+ * 确认换绑邮箱
+ */
+const onChangeEmailConfirm = async () => {
+  try {
+    const {valid} = await emailChangeFrom.value.validate()
+    if (!valid) return
+
+    changeEmailLoading.value = true
+    const {newEmail, code} = emailChangeData.value.data
+    const result = await apis.userApi().confirmEmailChange(newEmail, code)
+
+    notice.success(t(`basic.tips.${result.code}`))
+    
+    // 更新本地数据
+    userAccountData.value.email = newEmail
+    changeEmailModel.value = false
+    emailChangeData.value.data.newEmail = ''
+    emailChangeData.value.data.code = ''
+  } catch (e) {
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.code
+      }))
+    }
+    console.error(e)
+  } finally {
+    changeEmailLoading.value = false
+  }
+}
 </script>
 
 <template>
@@ -286,7 +354,48 @@ const onClearPasswordFrom = () => {
                         density="compact"
                         hide-details
                         readonly>
+            <template v-slot:append-inner>
+              <v-btn class="mb-2" density="compact" @click="changeEmailModel = true">
+                {{ t('basic.button.change') }}
+              </v-btn>
+            </template>
           </v-text-field>
+
+          <v-dialog max-width="500" v-model="changeEmailModel">
+            <v-card border>
+              <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 mt-n1">
+                <v-icon size="80">mdi-email-sync</v-icon>
+                <p class="mt-3">{{ t('account.information.form.email.changeName') }}</p>
+              </v-card-title>
+              <v-card-text>
+                <v-alert class="mb-5" type="info" density="comfortable" variant="tonal">
+                  {{ t('account.information.form.email.changeDescription') }}
+                </v-alert>
+
+                <v-form ref="emailChangeFrom">
+                  <v-text-field v-model="emailChangeData.data.newEmail"
+                                :rules="rules.email"
+                                :placeholder="t('account.information.form.email.newEmailPlaceholder')">
+                    <template v-slot:append-inner>
+                      <v-btn variant="text" size="small" @click="onChangeEmailRequest" :loading="changeEmailRequestLoading">
+                        {{ t('account.information.form.email.sendCode') }}
+                      </v-btn>
+                    </template>
+                  </v-text-field>
+                  <v-text-field v-model="emailChangeData.data.code"
+                                :rules="rules.code"
+                                :placeholder="t('account.information.form.email.codePlaceholder')">
+                  </v-text-field>
+                </v-form>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="var(--main-color)" @click="onChangeEmailConfirm" :loading="changeEmailLoading">
+                  {{ t('basic.button.change') }}
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
         </v-col>
       </v-row>
 

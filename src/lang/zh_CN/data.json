@@ -180,13 +180,25 @@
         "bad": "登陆错误: 请检查登陆信息格式",
         "wrong": "登陆信息错误",
         "expired": "用户身份过期,请重新登陆",
-        "accountIncorrect": "登陆信息错误"
+        "accountIncorrect": "登陆信息错误",
+        "notActivated": "账户由于未激活而被禁用，请前往激活"
       },
       "signup": {
-        "ok": "注册成功",
+        "ok": "注册成功，请激活账户",
         "userAlreadyHas": "注册帐号的名称已存在",
         "error": "注册错误: {context}",
         "bad": "注册错误: 请检查注册信息的格式要求"
+      },
+      "activate": {
+        "ok": "账户激活成功，请登录",
+        "invalidCode": "激活码无效或已过期",
+        "alreadyActive": "账户已激活，请直接登录",
+        "userNotFound": "未找到对应账户",
+        "emailQuotaExceeded": "邮件发送达到每日上限，请稍后再试",
+        "resend": {
+          "ok": "激活码已重发，请检查邮箱"
+        },
+        "error": "激活错误: {context}"
       },
       "like": {
         "ok": "赞处理成功",
@@ -196,6 +208,17 @@
       "user": {
         "invalid": "错误用户",
         "tokenExpired": "用户身份过期,请重新登陆"
+      },
+      "emailChange": {
+        "alreadyUsed": "该邮箱已被占用",
+        "quotaExceeded": "邮件发送达到每日上限，请稍后再试",
+        "invalidCode": "验证码无效或已过期",
+        "request": {
+          "ok": "验证码已发送到新邮箱"
+        },
+        "confirm": {
+          "ok": "邮箱更换成功"
+        }
       },
       "request": {
         "rateLimited": "请求太快力，慢点"
@@ -280,7 +303,15 @@
         },
         "email": {
           "name": "邮箱",
-          "placeholder": "账户邮箱"
+          "placeholder": "账户邮箱",
+          "changeName": "修改邮箱",
+          "changeDescription": "更改您的账户邮箱，需要向新邮箱发送验证码并验证。",
+          "newEmailPlaceholder": "输入新邮箱地址",
+          "sendCode": "发送验证码",
+          "codePlaceholder": "输入 6 位验证码",
+          "error": {
+            "required": "请输入新邮箱"
+          }
         },
         "language": {
           "name": "语种",
@@ -313,6 +344,23 @@
     "myTeamup": "我的组队",
     "myMap": "地图管理",
     "mySmugglersReport": "走私犯奖赏家"
+  },
+  "activate": {
+    "title": "账户激活",
+    "description": "请输入发送到您邮箱的 6 位激活码以完成注册。",
+    "form": {
+      "username": {
+        "name": "账户名称",
+        "placeholder": "请输入用户名"
+      },
+      "code": {
+        "name": "激活码",
+        "placeholder": "输入 6 位激活码"
+      }
+    },
+    "resendCode": "重新发送激活码",
+    "submit": "激活账户",
+    "backToSignin": "返回登录"
   },
   "codex": {
     "title": "手稿",

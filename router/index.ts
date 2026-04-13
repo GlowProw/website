@@ -19,6 +19,7 @@ import AccountAdminPrivilegeManagementPage from '@/views/user/admin/PrivilegeMan
 
 import SigninPage from '@/views/user/Signin.vue'
 import SignupPage from '@/views/user/Signup.vue'
+import ActivatePage from '@/views/user/Activate.vue'
 import CodexPage from '@/views/codex/Index.vue'
 import CodexOverviewPage from '@/views/codex/Overview.vue'
 import RankingDesignedItemsPage from '@/views/rankingDesignedItems/Index.vue'
@@ -274,6 +275,15 @@ const routes: Readonly<RouteRecordRaw[]> = [
                     keywords: 'signup.meta.keywords'
                 },
                 component: SignupPage
+            },
+            {
+                path: '/account/activate',
+                name: 'activate',
+                meta: {
+                    title: 'activate.title',
+                    keywords: 'activate.meta.keywords'
+                },
+                component: ActivatePage
             },
             {
                 path: '/team',
