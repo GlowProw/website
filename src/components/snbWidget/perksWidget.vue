@@ -3,7 +3,7 @@
 import EmptyView from "../EmptyView.vue";
 import {useI18n} from "vue-i18n";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
-import {onUnmounted, ref, watch} from "vue";
+import {onUnmounted, watch} from "vue";
 import {useRoute} from "vue-router";
 import {number} from "@/assets/sripts/index"
 
@@ -11,7 +11,7 @@ const {asArray, sanitizeString} = useI18nUtils()
 
 const {te, locale} = useI18n(),
     route = useRoute(),
-    props = withDefaults(defineProps<{ data }>(), {
+    props = withDefaults(defineProps<{ data: any }>(), {
       data: null
     }),
     unwatch = watch(
@@ -29,15 +29,18 @@ onUnmounted(() => unwatch())
  * @param key
  */
 const getTitle = (key: string) => {
+  const perksName = sanitizeString(key)
+
   let keys = [
-        `snb.perks.${sanitizeString(key).cleaned}.name`
+        `snb.items.${key}.name`,
+        `snb.perks.${perksName.cleaned}.name`
       ],
-      lv = sanitizeString(key).removedNumbers[0];
+      lv = perksName.removedNumbers[0];
 
   if (!asArray(keys)[0])
     return ''
 
-  return `${asArray(keys)[0]}${number.intToRoman( Number.parseInt(lv) )}` || '';
+  return `${asArray(keys)[0]}${number.intToRoman(Number.parseInt(lv))}` || '';
 }
 
 /**
@@ -47,31 +50,34 @@ const getDescription = (key) => {
   const perksName = sanitizeString(key)
   let keys = []
 
-  if (props.data.type == "shipUpgrade") {
-    keys = [
-      `snb.perks.${perksName.cleaned}.description.${props.data.tier}`,
-      `snb.perks.${perksName.cleaned}.description.general`,
-    ]
-  } else {
-    let tString: any = [
-      `snb.items.${perksName.cleaned}.name`,
-      `snb.perks.${perksName.cleaned}.name`,
-      `snb.perks.${perksName.cleaned}.description.${perksName.removedNumbers[0]}`,
-    ];
+  switch (props.data.type) {
+    case "shipUpgrade":
+      keys = [
+        `snb.perks.${perksName.cleaned}.description.${props.data.tier}`,
+        `snb.perks.${perksName.cleaned}.description.general`,
+      ]
 
-    for (let tKey: any of tString) {
-      for (let tKey of tString) {
-        if (te(tKey)) {
-          keys = [
-            `snb.perks.${key}.description.general`,
-            `snb.perks.${perksName.cleaned}.description.general`,
-            `snb.perks.${perksName.cleaned}.description.${perksName.removedNumbers[0]}`,
-          ]
+      return asArray(keys)
+    default:
+      let tString: any = [
+        `snb.items.${key}.name`,
+        `snb.perks.${perksName.cleaned}.name`,
+        `snb.perks.${perksName.cleaned}.description.${perksName.removedNumbers[0]}`,
+      ];
+
+      for (let tKey: any of tString) {
+        for (let tKey of tString) {
+          if (te(tKey)) {
+            keys = [
+              `snb.perks.${key}.description.general`,
+              `snb.perks.${perksName.cleaned}.description.general`,
+              `snb.perks.${perksName.cleaned}.description.${perksName.removedNumbers[0]}`,
+            ]
+          }
         }
       }
-    }
 
-    return asArray(keys)
+      return asArray(keys)
   }
 }
 
@@ -102,9 +108,6 @@ defineOptions({
             </v-row>
           </v-col>
           <v-spacer></v-spacer>
-          <div class="pr-8">
-
-          </div>
         </v-row>
         <p class="opacity-80 text-pre-wrap mt-3 pl-5 pr-5" v-for="(pPkey, pIndex) in getDescription(p)" :key="pIndex">
           {{ pPkey }}
