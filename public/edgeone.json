@@ -21,6 +21,11 @@
       "status": 200
     },
     {
+      "src": "/WW_verify_HnH1pdutwpAkO0XY.txt",
+      "dest": "/WW_verify_HnH1pdutwpAkO0XY.txt",
+      "status": 200
+    },
+    {
       "src": "/favicon.ico",
       "dest": "/favicon.ico",
       "status": 200
