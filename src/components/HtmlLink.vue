@@ -143,7 +143,7 @@ const getDomain = () => {
         <template v-else-if="getProtocol() === 'mailto:'">
           <v-icon icon="mdi-email-outline" class="icon"/>
         </template>
-        <a :href="isOpen ? afterData.href || null : null" :target="afterData.href ? isOpen ? '_blank' : null : null" rel="noopener noreferrer">
+        <a class="u" :href="isOpen ? afterData.href || null : null" :target="afterData.href ? isOpen ? '_blank' : null : null" rel="noopener noreferrer">
           <slot>{{ afterData.text || afterData.href }}</slot>
         </a>
       </span>
@@ -188,6 +188,8 @@ const getDomain = () => {
 </template>
 
 <style scoped lang="less">
+@import "@/assets/styles/link";
+
 .link-load {
   display: flex;
   flex-direction: column;
@@ -227,13 +229,11 @@ const getDomain = () => {
 
 .html-link {
   padding-bottom: 1px;
-  border-bottom-width: 1px;
-  border-bottom-style: dashed;
   transition: all .25s;
 
   a {
     color: hsl(from var(--text-color) h s calc(l * .8));
-    text-decoration: none;
+    //text-decoration: none;
 
     &:before {
       display: none;
@@ -243,7 +243,6 @@ const getDomain = () => {
 
   a:hover {
     color: hsl(from var(--text-color) h s calc(l * 1));
-    text-decoration: underline;
   }
 
   .icon {
@@ -255,7 +254,6 @@ const getDomain = () => {
 
 .html-link:hover {
   backdrop-filter: blur(20px);
-  border-bottom-style: solid;
 }
 
 .spin-icon-load {

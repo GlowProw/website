@@ -22,11 +22,13 @@ import AssemblyWidget from "@/components/AssemblyWidget.vue";
 import AssemblyTouring from "@/components/AssemblyTouring.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import AccountCardWidget from "@/components/AccountCardWidget.vue";
+import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 
 const route = useRoute(),
     notice = useNoticeStore(),
     {mobile} = useDisplay(),
-    {t} = useI18n()
+    {t} = useI18n(),
+    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow()
 
 let loading = ref({
       userInfo: true,
@@ -198,7 +200,7 @@ const getUserAssemblysData = async () => {
 
 <template>
   <v-app>
-    <v-card height="200px">
+    <v-card height="300">
       <template v-slot:image>
         <Silk
             :speed="3"
@@ -211,13 +213,13 @@ const getUserAssemblysData = async () => {
       </template>
       <template v-slot:append>
         <v-container class="position-relative">
-          <div class="position-absolute top-0 right-0 opacity-10 d-flex pt-10 ga-2">
+          <div class="position-absolute top-0 right-0 opacity-10 d-flex pt-16 ga-2">
             <v-icon icon="mdi-account" size="200"></v-icon>
           </div>
         </v-container>
       </template>
       <template v-slot:default>
-        <v-container class="mt-3 ">
+        <v-container class="position-relative d-flex align-end h-75">
           <v-row no-gutters align="center">
             <v-col cols="auto">
               <v-card border>
@@ -260,27 +262,43 @@ const getUserAssemblysData = async () => {
             hide-slider
             v-model="tab"
             height="80"
-            :class="{'mb-10': mobile}"
+            :class="{'mb-10 tabs-box-mobile': mobile, 'tabs-box-desktop': !mobile}"
             :fixed="mobile"
             :direction="!mobile ? 'vertical' : 'horizontal'">
-          <v-tab :value="i.value"
-                 v-for="(i, index) in tabs"
-                 :key="index"
-                 :class="{'mb-5': !mobile, 'mr-5': mobile}"
-                 selected-class="bg-amber"
-                 class="mb-5 d-flex align-center justify-center"
-                 min-width="80"
-                 width="80"
-                 height="80"
-                 border
-                 replaceb ripple slim>
-            <template v-slot:default>
-              <div>
-                <v-icon size="30">{{ i.icon }}</v-icon>
-                <p class="mt-2 singe-line">{{ i.name }}</p>
-              </div>
-            </template>
-          </v-tab>
+          <template
+              v-for="(i, index) in tabs"
+              :key="index">
+            <v-tooltip content-class="pa-0"
+                       :target="[tooltipPos.x, tooltipPos.y]">
+              <template v-slot:default>
+                <v-card border class="py-3 px-10">
+                  {{ t(i.name) }}
+                </v-card>
+              </template>
+              <template v-slot:activator="{props}">
+                <div :class="{'mb-2': !mobile, 'mr-5': mobile}">
+                  <v-tab :value="i.value"
+                         selected-class="bg-amber"
+                         class="d-flex align-center justify-center"
+                         min-width="80"
+                         width="80"
+                         height="80"
+                         border
+                         @mousemove="onMouseMove"
+                         @mouseenter="onMouseEnter"
+                         v-bind="props"
+                         replaceb
+                         ripple
+                         slim>
+                    <div>
+                      <v-icon size="40">{{ i.icon }}</v-icon>
+                    </div>
+                  </v-tab>
+                  <p class="mt-1 mb-3 text-center singe-line w-100 tab-item" :title="t(i.name)">{{ t(i.name) }}</p>
+                </div>
+              </template>
+            </v-tooltip>
+          </template>
         </v-tabs>
 
         <v-main min-height="80vh" class="pl-lg-5">
@@ -318,26 +336,35 @@ const getUserAssemblysData = async () => {
               </v-overlay>
             </v-tabs-window-item>
             <v-tabs-window-item value="assembly" class="position-relative">
-              <v-row v-if="userAssemblysData.data && userAssemblysData.data.length > 0" class="mr-16">
+              <v-row v-if="userAssemblysData.data && userAssemblysData.data.length > 0" class="mr-lg-10">
                 <v-col cols="12" md="6" lg="6" v-for="(i, index) in userAssemblysData.data"
                        :key="index"
                        v-if="userAssemblysData.data.length > 0">
-                  <v-card class="card-enlargement-flavor pa-5">
-                    <v-row class="pt-5 pl-5 pr-5">
-                      <v-col cols="9">
+                  <v-card class="card-enlargement-flavor pa-5 ma-n1">
+                    <v-row class="pt-2 px-1">
+                      <v-col>
                         <router-link :to="`/assembly/browse/${i.uuid}/detail`">
-                          <div :title="getName(i.name)" class="text-amber text-h4 mb-1 font-weight-bold singe-line">{{ i.name || 'none' }}</div>
+                          <div :title="String(i.name || 'none')" class="text-amber text-h4 mb-1 font-weight-bold singe-line">{{ i.name || 'none' }}</div>
                         </router-link>
-                        <div>
-                          <AccountCardWidget :id="i.userId">
-                            <div class="d-flex align-center">
-                              <v-card v-if="i.userAvatar" class="mr-1">
-                                <UserAvatar size="20" :src="i.userAvatar"></UserAvatar>
-                              </v-card>
-                              {{ i.username || t('assembly.anonymous') }}
-                            </div>
-                          </AccountCardWidget>
-                        </div>
+                        <v-row>
+                          <v-col>
+                            <AccountCardWidget :id="i.userId">
+                              <div class="d-flex align-center">
+                                <v-card v-if="i.userAvatar" class="mr-1">
+                                  <UserAvatar size="20" :src="i.userAvatar"></UserAvatar>
+                                </v-card>
+                                <span class="u">{{ i.username || t('assembly.anonymous') }}</span>
+                              </div>
+                            </AccountCardWidget>
+                          </v-col>
+
+                          <v-col cols="auto">
+                            <v-chip density="compact" class="badge-flavor px-3" :disabled="!!i.isLiked">
+                              <v-icon color="red">{{ i.likes <= 0 ? 'mdi-heart-outline'  : 'mdi-heart'}}</v-icon>
+                              <span class="ml-1 text-red-accent-4" v-if="i.likes">{{ i.likes || 0 }}</span>
+                            </v-chip>
+                          </v-col>
+                        </v-row>
                       </v-col>
                     </v-row>
 
@@ -386,5 +413,15 @@ const getUserAssemblysData = async () => {
 </template>
 
 <style scoped lang="less">
+.tabs-box-mobile {
+  height: auto;
 
+  .tab-item {
+    max-width: 80px;
+  }
+}
+
+.tabs-box-desktop {
+  width: 80px;
+}
 </style>
