@@ -63,3 +63,19 @@ export interface RolesTagWidgetProps {
     size?: string
     tagType?: string
 }
+/**
+ * 忘记密码请求体
+ */
+export interface ForgotPasswordParams {
+    identifier: string
+    email: string
+}
+
+/**
+ * 重置密码请求体
+ */
+export interface ResetPasswordParams {
+    username: string
+    code: string
+    newPassword: string
+}

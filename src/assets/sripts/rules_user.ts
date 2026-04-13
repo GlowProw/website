@@ -69,12 +69,18 @@ export function useRules() {
         (v: string | null | undefined) => !!v || t('basic.rules.captcha.notEmpty'),
         (v: string | null | undefined) => (v && v.length == 4) || t('basic.rules.captcha.limitationLength', {max: 4}),
     ]
+    const code = [
+        (v: string | null | undefined) => !!v || t('basic.rules.captcha.notEmpty'),
+        (v: string | null | undefined) => (v && v.length == 6) || t('basic.rules.captcha.limitationLength', {max: 6}),
+    ]
+
 
     return {
         username,
         alternativeName,
         email,
         password,
-        captcha
+        captcha,
+        code
     }
 }

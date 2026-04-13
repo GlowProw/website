@@ -161,14 +161,14 @@ defineExpose({
 
         <v-row class="opacity-80 mt-5 pb-5" v-show="!assemblyLoading">
           <v-col>
-            <p v-if="assemblyDetailData.userAvatar" class="mb-1">
+            <div v-if="assemblyDetailData.userAvatar" class="mb-1">
               <div class="d-inline-flex">
                 <v-card class="mr-1">
                   <UserAvatar size="25" :src="assemblyDetailData.userAvatar"></UserAvatar>
                 </v-card>
                 {{ assemblyDetailData.username || t('assembly.anonymous') }}
               </div>
-            </p>
+            </div>
 
             <AssemblySvgIcon name="link"></AssemblySvgIcon>
             {{ path }}

@@ -87,98 +87,100 @@ const onCaptchaData = (data: CaptchaParams) => {
       <v-card dense variant="flat" class="mt-10 signup-box card-enlargement-flavor">
         <h1 class="pl-8 pt-5 pb-5 background-flavor">{{ t('signup.title') }}</h1>
 
-        <v-row class="pa-8">
-          <v-col>
-            <v-row>
-              <v-col order="1" order-sm="1" order-lg="1" cols="12" sm="12" :lg="signupStyle.hintCol">
-                <b>{{ t('signup.username.name') }}</b>
-                <p class="text-caption text-grey opacity-80">{{ t('signup.username.hint') }}</p>
-              </v-col>
-              <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="signupStyle.inputCol">
-                <v-text-field v-model="signupFrom.username"
-                              :rules="rules.username"
-                              clearable
-                              variant="solo-filled"
-                              prepend-inner-icon="mdi-account-key"
-                              min-length="3"
-                              max-length="40"
-                              :placeholder="t('signup.username.placeholder')">
-                </v-text-field>
-              </v-col>
-            </v-row>
+        <v-card border class="bg-black mx-8 my-5">
+          <v-row class="pa-8">
+            <v-col>
+              <v-row>
+                <v-col order="1" order-sm="1" order-lg="1" cols="12" sm="12" :lg="signupStyle.hintCol">
+                  <b>{{ t('signup.username.name') }}</b>
+                  <p class="text-caption text-grey opacity-80">{{ t('signup.username.hint') }}</p>
+                </v-col>
+                <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="signupStyle.inputCol">
+                  <v-text-field v-model="signupFrom.username"
+                                :rules="rules.username"
+                                clearable
+                                variant="solo-filled"
+                                prepend-inner-icon="mdi-account-key"
+                                min-length="3"
+                                max-length="40"
+                                :placeholder="t('signup.username.placeholder')">
+                  </v-text-field>
+                </v-col>
+              </v-row>
 
-            <v-row>
-              <v-col order="1" order-sm="1" order-lg="1" cols="12" sm="12" :lg="signupStyle.hintCol">
-                <b>{{ t('signup.alternativeName.name') }}</b>
-                <p class="text-caption text-grey opacity-80">{{ t('signup.alternativeName.hint') }}</p>
-              </v-col>
-              <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="signupStyle.inputCol">
-                <v-text-field v-model="signupFrom.alternativeName"
-                              :rules="rules.alternativeName"
-                              name="alternativeName"
-                              variant="solo-filled"
-                              prepend-inner-icon="mdi-rename"
-                              class="mb-2"
-                              clearable
-                              :placeholder="t('signup.alternativeName.placeholder')">
-                </v-text-field>
-              </v-col>
-            </v-row>
+              <v-row>
+                <v-col order="1" order-sm="1" order-lg="1" cols="12" sm="12" :lg="signupStyle.hintCol">
+                  <b>{{ t('signup.alternativeName.name') }}</b>
+                  <p class="text-caption text-grey opacity-80">{{ t('signup.alternativeName.hint') }}</p>
+                </v-col>
+                <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="signupStyle.inputCol">
+                  <v-text-field v-model="signupFrom.alternativeName"
+                                :rules="rules.alternativeName"
+                                name="alternativeName"
+                                variant="solo-filled"
+                                prepend-inner-icon="mdi-rename"
+                                class="mb-2"
+                                clearable
+                                :placeholder="t('signup.alternativeName.placeholder')">
+                  </v-text-field>
+                </v-col>
+              </v-row>
 
-            <v-row>
-              <v-col order="1" order-sm="1" order-lg="1" cols="12" sm="12" :lg="signupStyle.hintCol">
-              </v-col>
-              <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="signupStyle.inputCol">
-                <v-text-field v-model="signupFrom.password"
-                              :rules="rules.password"
-                              :type="signupPasswordMode ? 'text' : 'password'"
-                              variant="solo-filled"
-                              prepend-inner-icon="mdi-form-textbox-password"
-                              clearable
-                              min-length="8"
-                              max-length="64"
-                              :placeholder="t('signin.form.placeholder.password')">
-                  <template v-slot:details>
-                    {{ t('signup.password.hint') }}
-                  </template>
-                  <template v-slot:append v-if="signupFrom.password">
-                    <v-checkbox hide-details density="compact" v-model="signupPasswordMode"></v-checkbox>
-                  </template>
-                </v-text-field>
-              </v-col>
-            </v-row>
+              <v-row>
+                <v-col order="1" order-sm="1" order-lg="1" cols="12" sm="12" :lg="signupStyle.hintCol">
+                </v-col>
+                <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="signupStyle.inputCol">
+                  <v-text-field v-model="signupFrom.password"
+                                :rules="rules.password"
+                                :type="signupPasswordMode ? 'text' : 'password'"
+                                variant="solo-filled"
+                                prepend-inner-icon="mdi-form-textbox-password"
+                                clearable
+                                min-length="8"
+                                max-length="64"
+                                :placeholder="t('signin.form.placeholder.password')">
+                    <template v-slot:details>
+                      {{ t('signup.password.hint') }}
+                    </template>
+                    <template v-slot:append v-if="signupFrom.password">
+                      <v-checkbox hide-details density="compact" v-model="signupPasswordMode"></v-checkbox>
+                    </template>
+                  </v-text-field>
+                </v-col>
+              </v-row>
 
-            <v-row>
-              <v-col order="1" order-sm="1" order-lg="1" cols="12" sm="12" :lg="signupStyle.hintCol">
-                <b>{{ t('signup.email.name') }}</b>
-                <p class="text-caption text-grey opacity-80">{{ t('signup.email.hint') }}</p>
-              </v-col>
-              <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="signupStyle.inputCol">
-                <v-text-field v-model="signupFrom.email"
-                              :rules="rules.email"
-                              :label="t('signup.email.name')"
-                              variant="solo-filled"
-                              prepend-inner-icon="mdi-email"
-                              :placeholder="t('signup.email.hint')">
-                </v-text-field>
-              </v-col>
-            </v-row>
+              <v-row>
+                <v-col order="1" order-sm="1" order-lg="1" cols="12" sm="12" :lg="signupStyle.hintCol">
+                  <b>{{ t('signup.email.name') }}</b>
+                  <p class="text-caption text-grey opacity-80">{{ t('signup.email.hint') }}</p>
+                </v-col>
+                <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="signupStyle.inputCol">
+                  <v-text-field v-model="signupFrom.email"
+                                :rules="rules.email"
+                                :label="t('signup.email.name')"
+                                variant="solo-filled"
+                                prepend-inner-icon="mdi-email"
+                                :placeholder="t('signup.email.hint')">
+                  </v-text-field>
+                </v-col>
+              </v-row>
 
-            <v-row class="mt-5">
-              <v-col order="1" order-sm="1" order-lg="1" cols="12" sm="12" :lg="signupStyle.hintCol">
-              </v-col>
-              <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="signupStyle.inputCol">
-                <Captcha @getCaptchaData="onCaptchaData"
-                         :rules="rules.captcha"
-                         type="svg" class="captcha"></Captcha>
-              </v-col>
-            </v-row>
-          </v-col>
-        </v-row>
+              <v-row class="mt-5">
+                <v-col order="1" order-sm="1" order-lg="1" cols="12" sm="12" :lg="signupStyle.hintCol">
+                </v-col>
+                <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="signupStyle.inputCol">
+                  <Captcha @getCaptchaData="onCaptchaData"
+                           :rules="rules.captcha"
+                           type="svg" class="captcha"></Captcha>
+                </v-col>
+              </v-row>
+            </v-col>
+          </v-row>
+        </v-card>
 
-        <v-card-actions class="pr-8 pl-8">
+        <v-card-actions class="px-8 mb-5">
           <v-spacer></v-spacer>
-          <v-btn class="btn-flavor ml-8 mb-5" size="50" :loading="signupLoading" @click="onRegister" :disabled="!signupFrom.username && !signupFrom.password">
+          <v-btn class="px-16 bg-amber" size="50" :loading="signupLoading" @click="onRegister" :disabled="!signupFrom.username && !signupFrom.password">
             {{ t('signup.register') }}
           </v-btn>
         </v-card-actions>
