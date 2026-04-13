@@ -108,12 +108,14 @@ const onCaptchaData = (data: CaptchaParams) => {
                           :rules="rules.username"
                           name="username"
                           variant="solo-filled"
+                          prepend-inner-icon="mdi-account-key"
                           :label="t('signin.form.label.username')"
                           :placeholder="t('signin.form.placeholder.username')"></v-text-field>
             <v-text-field v-model="signinFrom.password"
                           :rules="rules.password"
                           name="password"
                           variant="solo-filled"
+                          prepend-inner-icon="mdi-form-textbox-password"
                           :label="t('signin.form.label.password')"
                           :placeholder="t('signin.form.placeholder.password')"
                           type="password"></v-text-field>

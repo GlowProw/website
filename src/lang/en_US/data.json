@@ -158,10 +158,14 @@
         "notActivated": "Account disabled due to non-activation, please activate it."
       },
       "signup": {
-        "ok": "Registration successful, please activate your account.",
-        "userAlreadyHas": "Account name already exists",
-        "error": "Registration error: {context}",
-        "bad": "Registration error: Please check the format requirements for registration information"
+        "ok": "Registration successful, please check your email to activate.",
+        "bad": "Invalid parameters submitted.",
+        "illegalFormat": "Username contains illegal characters.",
+        "userAlreadyHas": "Username already exists.",
+        "emailAlreadyHas": "This email is already bound, please log in directly.",
+        "emailQuotaExceeded": "Registration email limit reached, please try again later.",
+        "dailyLimitExceeded": "Daily registration limit reached, please try again tomorrow.",
+        "error": "Registration failed."
       },
       "activate": {
         "ok": "Account activated successfully, please log in.",
@@ -169,6 +173,7 @@
         "alreadyActive": "Account already active, please log in.",
         "userNotFound": "Account not found.",
         "emailQuotaExceeded": "Email daily limit reached, please try again later.",
+        "resendLimitExceeded": "Daily activation resend limit reached, please try again tomorrow.",
         "resend": {
           "ok": "Activation code resent, please check your email."
         },
@@ -185,6 +190,7 @@
       },
       "emailChange": {
         "alreadyUsed": "This email is already in use",
+        "tooFrequent": "Changing email too frequently, please try again in {context} days.",
         "quotaExceeded": "Email daily limit reached, please try again later",
         "invalidCode": "Verification code is invalid or has expired",
         "request": {

@@ -248,7 +248,8 @@
         "incorrectFormat": "别名格式不正确"
       },
       "email": {
-        "incorrectFormat": "邮箱格式不正确"
+        "notEmpty": "必须填写邮箱",
+        "incorrectFormat": "邮箱格式不正确，如: usename@exp.com"
       },
       "password": {
         "notEmpty": "必须填写密码",
@@ -1260,7 +1261,7 @@
     "email": {
       "name": "邮箱",
       "placeholder": "输入邮箱地址",
-      "hint": "可选邮箱，这将使得你的账户可寻回"
+      "hint": "实现账户寻回头像定制功能，程序将验证你的邮箱"
     },
     "register": "注册"
   },
@@ -1580,4 +1581,3 @@
     }
   }
 }
-

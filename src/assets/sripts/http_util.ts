@@ -12,25 +12,22 @@ export function useHttpToken() {
     const authStore = useAuthStore()
 
     /**
-     * token
-     * @param data
-     * @returns {{}}
+     * token & lang headers
      */
-    const token = (data: any) => {
+    const addHeaders = (data: any) => {
+        const headers = data?.headers || {}
+
         if (authStore.user && authStore.user.token) {
             const token = authStore.user.token;
-            if (token != null || token !== '') {
-                const headers = data?.headers || {}
-                data = {
-                    ...data,
-                    headers: {
-                        'x-access-token': token,
-                        ...headers
-                    }
-                }
+            if (token != null && token !== '') {
+                headers['x-access-token'] = token;
             }
         }
-        return data;
+
+        return {
+            ...data,
+            headers
+        };
     }
 
     // Add response interceptor to handle token expiration
@@ -45,19 +42,19 @@ export function useHttpToken() {
 
 
     const post = (url = '', data?: { data?: {} }) => {
-        return http.post(url, token(data))
+        return http.post(url, addHeaders(data))
     }
 
     const get = (url = '', data?: { data?: {}, params?: {} }) => {
-        return http.get(url, token(data))
+        return http.get(url, addHeaders(data))
     }
 
     const put = (url = '', data?: { data?: {}, params?: {} }) => {
-        return http.put(url, token(data))
+        return http.put(url, addHeaders(data))
     }
 
     const del = (url = '', data?: { data?: {}, params?: {} }) => {
-        return http.delete(url, token(data))
+        return http.delete(url, addHeaders(data))
     }
 
     return {

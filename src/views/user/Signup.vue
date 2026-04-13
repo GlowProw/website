@@ -22,6 +22,7 @@ let signupLoading: Ref<boolean> = ref(false),
       hintCol: 6,
       inputCol: 6,
     }),
+    signupPasswordMode = ref(false),
 
     // 注册表单
     signupFrom: Ref<SignupParams> = ref({
@@ -98,6 +99,7 @@ const onCaptchaData = (data: CaptchaParams) => {
                               :rules="rules.username"
                               clearable
                               variant="solo-filled"
+                              prepend-inner-icon="mdi-account-key"
                               min-length="3"
                               max-length="40"
                               :placeholder="t('signup.username.placeholder')">
@@ -115,6 +117,7 @@ const onCaptchaData = (data: CaptchaParams) => {
                               :rules="rules.alternativeName"
                               name="alternativeName"
                               variant="solo-filled"
+                              prepend-inner-icon="mdi-rename"
                               class="mb-2"
                               clearable
                               :placeholder="t('signup.alternativeName.placeholder')">
@@ -128,14 +131,18 @@ const onCaptchaData = (data: CaptchaParams) => {
               <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="signupStyle.inputCol">
                 <v-text-field v-model="signupFrom.password"
                               :rules="rules.password"
+                              :type="signupPasswordMode ? 'text' : 'password'"
                               variant="solo-filled"
-                              type="password"
+                              prepend-inner-icon="mdi-form-textbox-password"
                               clearable
                               min-length="8"
                               max-length="64"
                               :placeholder="t('signin.form.placeholder.password')">
                   <template v-slot:details>
                     {{ t('signup.password.hint') }}
+                  </template>
+                  <template v-slot:append v-if="signupFrom.password">
+                    <v-checkbox hide-details density="compact" v-model="signupPasswordMode"></v-checkbox>
                   </template>
                 </v-text-field>
               </v-col>
@@ -151,6 +158,7 @@ const onCaptchaData = (data: CaptchaParams) => {
                               :rules="rules.email"
                               :label="t('signup.email.name')"
                               variant="solo-filled"
+                              prepend-inner-icon="mdi-email"
                               :placeholder="t('signup.email.hint')">
                 </v-text-field>
               </v-col>
