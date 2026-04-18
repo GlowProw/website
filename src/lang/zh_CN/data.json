@@ -293,8 +293,12 @@
     "blogLog": "博客"
   },
   "account": {
+    "trash": "回收站",
+    "logout": "退出登录",
+    "selectAll": "全选",
+    "itemsSelected": "已选择 {count} 项",
+    "deletedAt": "删除时间",
     "title": "账户",
-    "logout": "登出账号",
     "information": {
       "title": "个人信息",
       "form": {
@@ -354,7 +358,8 @@
     "myComment": "我的评论",
     "myTeamup": "我的组队",
     "myMap": "地图管理",
-    "mySmugglersReport": "走私犯奖赏家"
+    "mySmugglersReport": "走私犯奖赏家",
+    "trash": "回收站"
   },
   "activate": {
     "title": "账户激活",
@@ -1067,6 +1072,9 @@
     "editInfoBtn": "编辑信息",
     "editWorkshopBtn": "配装",
     "anonymous": "匿名",
+    "restore": "恢复",
+    "restoreConfirm": "确定要恢复这个配装吗？",
+    "restoreSuccess": "恢复成功",
     "commentPlaceholder": "你对此有何见解？",
     "additions": {
       "assembly": "配装",
@@ -1408,6 +1416,34 @@
     },
     "notification": {
       "title": "通知"
+    },
+    "wishlist": {
+      "title": "愿望清单",
+      "description": "管理格式愿望清单，匹配的物品将在卡片中显示推荐标记",
+      "importTitle": "导入愿望清单",
+      "importFromUrl": "从URL导入",
+      "importFromFile": "上传文件",
+      "importFromText": "粘贴文本",
+      "urlPlaceholder": "输入愿望清单原始文本URL",
+      "importBtn": "导入",
+      "listTitle": "已导入的愿望清单",
+      "rules": "{count} 条规则",
+      "source": "来源",
+      "export": "导出",
+      "delete": "删除",
+      "deleteConfirm": "确定要删除此愿望清单吗？",
+      "enableAll": "全部启用",
+      "disableAll": "全部禁用",
+      "clearAll": "清空所有",
+      "clearAllConfirm": "确定要清空所有愿望清单吗？",
+      "noWishlists": "暂无导入的愿望清单",
+      "importSuccess": "成功导入愿望清单",
+      "importError": "导入失败",
+      "enabled": "已启用",
+      "disabled": "已禁用",
+      "pasteTitle": "粘贴愿望清单文本",
+      "pastePlaceholder": "在此粘贴愿望清单文本内容...",
+      "matchedItems": "统计"
     }
   },
   "header": {

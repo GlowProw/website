@@ -94,6 +94,7 @@ import SettingStoragePage from '@/views/setting/Storage.vue'
 
 import AboutPage from '@/views/setting/About.vue'
 import SettingPwaPage from '@/views/setting/Pwa.vue'
+import SettingWishlistPage from '@/views/setting/Wishlist.vue'
 import NotFoundPage from '@/views/NotFound.vue';
 
 import Test from '@/views/Test.vue'
@@ -231,6 +232,12 @@ const routes: Readonly<RouteRecordRaw[]> = [
                         name: 'AccountSmugglersReport',
                         component: AccountSmugglersReport
                     },
+                    {
+                        path: 'trash',
+                        name: 'AccountTrash',
+                        component: () => import('@/views/user/account/Trash.vue'),
+                        meta: { title: 'account.trash', auth: true }
+                    },
                 ]
             },
             {
@@ -353,6 +360,11 @@ const routes: Readonly<RouteRecordRaw[]> = [
                         path: 'pwa',
                         name: 'PortalSettingPwa',
                         component: SettingPwaPage,
+                    },
+                    {
+                        path: 'wishlist',
+                        name: 'PortalSettingWishlist',
+                        component: SettingWishlistPage,
                     }
                 ]
             },

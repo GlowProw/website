@@ -12,7 +12,6 @@ import {ApiError} from "@/assets/types/Api";
 import {useNoticeStore} from "~/stores/noticeStore";
 
 const {t, messages} = useI18n(),
-    http = useHttpToken(),
     route = useRoute(),
     router = useRouter(),
     notice = useNoticeStore(),
@@ -74,8 +73,10 @@ const isEqual = (a, b) => {
  */
 const delAssembly = async () => {
   try {
-    const {uuid} = route.params;
+    const uuid = props.modelValue.uuid;
     delAssemblyLoading.value = true
+
+    console.log(props.modelValue)
 
     const result = await apis.assemblyApi().deleteAssembly(<string>uuid),
         d = result.data;
@@ -308,8 +309,7 @@ defineOptions({ name: 'AssmblySettingWidget' })
                 <v-btn
                     class="bg-red"
                     @click="deleteDialog = true"
-                    :loading="delAssemblyLoading"
-                >
+                    :loading="delAssemblyLoading">
                   {{ t('basic.button.delete') }}
                 </v-btn>
               </v-col>
@@ -360,8 +360,8 @@ defineOptions({ name: 'AssmblySettingWidget' })
       <v-card-text>{{ t('assembly.setting.deleteWarning') }}</v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn @click="deleteDialog = false">{{ t('basic.cancel') }}</v-btn>
-        <v-btn color="red" @click="delAssembly" :loading="delAssemblyLoading">{{ t('basic.confirm') }}</v-btn>
+        <v-btn @click="deleteDialog = false">{{ t('basic.button.cancel') }}</v-btn>
+        <v-btn color="red" @click="delAssembly" :loading="delAssemblyLoading">{{ t('basic.button.submit') }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

@@ -62,10 +62,15 @@ let drawer = ref(true),
             primaryValue: 'MeDataList'
           },
           {
+            name: 'account.trash',
+            to: '/account/trash',
+            primaryValue: 'MeDataList'
+          },
+          {
             name: 'account.mySmugglersReport',
             to: '/account/smugglersReport',
             primaryValue: 'MeDataList'
-          }
+          },
         ]
       },
     })

@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import {computed} from 'vue';
 import {use_icon_global_Style} from '@/assets/sripts/use_icon_global_Style';
+import {useWishlistStore} from '~/stores/wishlistStore';
 
 const props = withDefaults(
     defineProps<{
@@ -9,19 +11,27 @@ const props = withDefaults(
       isAutoSize?: boolean,
       isAutoPadding?: boolean,
       isAutoMargin?: boolean,
+      id?: string,
     }>(),
     {
       isAutoSize: true,
       isAutoPadding: true,
-      isAutoMargin: true
+      isAutoMargin: true,
+      id: '',
     }
 );
 
 const {useIconAdaptiveSize, useIconBoxPadding, useIconBoxMargin} = use_icon_global_Style();
+const wishlistStore = useWishlistStore();
 
 const computedSize = props.isAutoSize ? useIconAdaptiveSize(() => props.size, 99) : props.size;
 const computedPadding = props.isAutoPadding ? useIconBoxPadding(() => props.padding, 1) : props.padding;
 const computedMargin = props.isAutoMargin ? useIconBoxMargin(() => props.margin, 0) : props.margin;
+
+const isWishlisted = computed(() => {
+  if (!props.id) return false;
+  return wishlistStore.isItemWishlisted(props.id);
+});
 
 defineOptions({
   name: "ItemSlotBase"
@@ -29,14 +39,38 @@ defineOptions({
 </script>
 
 <template>
-  <div class="card-enlargement-flavor"
+  <div class="card-enlargement-flavor position-relative"
        :class="`item-base-slot pa-${computedPadding} ma-${computedMargin}`"
        :style="`height: ${computedSize}; width: ${computedSize};min-height: ${computedSize}; min-width: ${computedSize}`">
     <slot></slot>
+    <div v-if="isWishlisted" class="wishlist-badge">
+      <v-icon icon="mdi-thumb-up" class="text-amber" size="14"></v-icon>
+    </div>
   </div>
 </template>
 
 <style scoped lang="less">
+.wishlist-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  z-index: 10;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  animation: wishlist-pop 0.3s ease-out;
+}
+
+@keyframes wishlist-pop {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
 .item-base-slot {
   display: flex;
   background-color: color-mix(in srgb, var(--main-color) 5%, #000 95%);

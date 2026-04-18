@@ -123,6 +123,32 @@ export function useAssemblyApi() {
         }
     };
 
+    /**
+     * 获取回收站列表
+     */
+    const getTrashList = async (params?: PaginationParams) => {
+        try {
+            const result = await http.get(`assembly/trash`, {params})
+            return handleResponse(result)
+        } catch (error) {
+            return handleError(error)
+        }
+    };
+
+    /**
+     * 恢复组件
+     */
+    const restoreAssembly = async (assemblyUuid: string) => {
+        try {
+            const result = await http.post(`assembly/restore`, {
+                data: {uuid: assemblyUuid}
+            })
+            return handleResponse(result)
+        } catch (error) {
+            return handleError(error)
+        }
+    };
+
     return {
         publishAssembly,
         getAssemblyList,
@@ -131,5 +157,7 @@ export function useAssemblyApi() {
         deleteAssembly,
         getAssemblyAttr,
         editAssemblyAttr,
+        getTrashList,
+        restoreAssembly,
     };
 }

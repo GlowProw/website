@@ -594,7 +594,7 @@ defineOptions({name: 'AssemblyWidget'})
 
                           <v-hover v-slot="{ isHovering, props : propsHoverClose }">
                             <v-card variant="text" v-bind="propsHoverClose">
-                              <ItemSlotBase size="80px" class="pa-1" v-if="display && display.id">
+                              <ItemSlotBase size="80px" class="pa-1" v-if="display && display.id" :id="display.id">
                                 <ItemIconWidget :id="display.id" :is-open-detail="false" :is-show-tooltip="readonly"></ItemIconWidget>
                               </ItemSlotBase>
                               <div class="text-center text-caption text-grey w-100" :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName && display && display.id">
@@ -700,7 +700,7 @@ defineOptions({name: 'AssemblyWidget'})
                           <v-col cols="auto">
                             <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.weaponSlots[index] && workshopData.data.weaponSlots[index]?.id">
                               <v-card variant="text" class="position-relative" v-bind="propsHoverClose">
-                                <ItemSlotBase size="80px" class="pa-1" v-if="i && i.id">
+                                <ItemSlotBase size="80px" class="pa-1" v-if="i && i.id" :id="i.id">
                                   <ItemIconWidget :id="i.id" :is-show-tooltip="readonly" :is-open-detail="false"></ItemIconWidget>
                                 </ItemSlotBase>
                                 <div class="text-center text-caption text-grey w-100" :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
@@ -833,7 +833,7 @@ defineOptions({name: 'AssemblyWidget'})
                           <v-col cols="auto">
                             <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.secondaryWeaponSlots[index] && workshopData.data.secondaryWeaponSlots[index]?.id">
                               <v-card variant="text" class="position-relative" v-bind="propsHoverClose">
-                                <ItemSlotBase size="80px" class="pa-1" v-if="i && i.id">
+                                <ItemSlotBase size="80px" class="pa-1" v-if="i && i.id" :id="i.id">
                                   <ItemIconWidget :id="i.id" :is-show-tooltip="readonly"></ItemIconWidget>
                                 </ItemSlotBase>
                                 <div class="text-center text-caption text-grey w-100" :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
@@ -923,7 +923,7 @@ defineOptions({name: 'AssemblyWidget'})
                   <template v-if="isShowEmpty || workshopData.data.armorSlot">
                     <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.armorSlot">
                       <v-card variant="text" v-bind="propsHoverClose" class="position-relative">
-                        <ItemSlotBase size="80px" class="pa-1">
+                        <ItemSlotBase size="80px" class="pa-1" :id="workshopData.data.armorSlot.id">
                           <ItemIconWidget :id="workshopData.data.armorSlot.id" :is-open-detail="false" :is-show-tooltip="readonly"></ItemIconWidget>
                         </ItemSlotBase>
                         <div class="text-center text-caption text-grey w-100 " :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
