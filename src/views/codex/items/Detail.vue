@@ -276,7 +276,7 @@ const onAddCalculator = () => {
           <v-col cols="12" sm="12" md="8" lg="8" order="2" order-sm="1">
             <v-row>
               <div>
-                <ItemSlotBase size="130px">
+                <ItemSlotBase size="130px" :id="itemDetailData.id">
                   <ItemIconWidget :id="itemDetailData.id" :isOpenDetail="false" :isShowOpenDetail="false"></ItemIconWidget>
                 </ItemSlotBase>
               </div>

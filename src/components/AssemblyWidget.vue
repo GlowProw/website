@@ -450,9 +450,9 @@ defineOptions({name: 'AssemblyWidget'})
       <v-col>
         <div class="mb-12">
           <v-row no-gutters align="end">
-            <v-col cols="auto">
+            <v-col cols="auto" id="ship_select">
               <!-- 船只 视图卡槽 S -->
-              <ItemSlotBase id="ship_select" size="110px" v-if="!workshopData.data.shipSlot"
+              <ItemSlotBase size="110px" v-if="!workshopData.data.shipSlot"
                             @click="workshopData.shipModel = true">
                 <v-card class="w-100 d-flex align-center justify-center"
                         :disabled="readonly">
@@ -769,6 +769,7 @@ defineOptions({name: 'AssemblyWidget'})
                           <v-col align="center" class="mt-n1" v-if="getDeckInformation(index).top">
                             <v-icon icon="mdi-chevron-up" size="16"></v-icon>
                             <ItemSlotBase size="40px"
+                                          v-if="i.id"
                                           :padding="0"
                                           :margin="0"
                                           v-for="(p, pIndex) in getDeckInformation(index).top" :key="pIndex + p">
@@ -782,10 +783,9 @@ defineOptions({name: 'AssemblyWidget'})
                           <v-col align="center" class="mt-n1" v-if="getDeckInformation(index).lower">
                             <v-icon icon="mdi-chevron-down" size="16"></v-icon>
                             <ItemSlotBase size="40px"
+                                          v-if="i.id"
                                           :padding="0"
                                           :margin="0"
-                                          :id="i.id"
-                                          v-if="i.id"
                                           v-for="(p, pIndex) in getDeckInformation(index).lower"
                                           :key="pIndex">
                               <ItemIconWidget :id="i.id"

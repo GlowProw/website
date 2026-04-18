@@ -457,6 +457,37 @@ export function useI18nReadName() {
         }
     }
 
+    const perk = (id: string | number) => {
+        const keysName = [
+                `snb.perks.${id}.name`,
+                `snb.perks.${sanitizeString(<string>id).cleaned}.name`,
+            ],
+            keysDescription = [
+                // todo
+            ];
+
+        return {
+            keysName,
+            keysDescription,
+            name: (lang?: string): string => {
+                return asString(keysName, {
+                    backRawKey: true,
+                    lang
+                }) + `${number.intToRoman(<any>sanitizeString(<string>id).removedNumbers[0])}`
+            },
+            description: (lang?: string): string => {
+                if (sets[id]) {
+                    const translatedDesc = asString(keysDescription, {
+                        backRawKey: true,
+                        lang
+                    })
+                    return `${translatedDesc}`.trim()
+                }
+                return String(id);
+            }
+        }
+    }
+
     return {
         ship,
         npc,
@@ -469,6 +500,7 @@ export function useI18nReadName() {
         ultimate,
         mapLocation,
         treasureMap,
+        perk,
         getValue
     }
 }

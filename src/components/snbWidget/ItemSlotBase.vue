@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed} from 'vue';
+import {computed, onMounted, ref} from 'vue';
 import {use_icon_global_Style} from '@/assets/sripts/use_icon_global_Style';
 import {useWishlistStore} from '~/stores/wishlistStore';
 
@@ -23,14 +23,34 @@ const props = withDefaults(
 
 const {useIconAdaptiveSize, useIconBoxPadding, useIconBoxMargin} = use_icon_global_Style();
 const wishlistStore = useWishlistStore();
+const containerRef = ref<HTMLElement | null>(null);
+const actualSize = ref(0);
 
 const computedSize = props.isAutoSize ? useIconAdaptiveSize(() => props.size, 99) : props.size;
 const computedPadding = props.isAutoPadding ? useIconBoxPadding(() => props.padding, 1) : props.padding;
 const computedMargin = props.isAutoMargin ? useIconBoxMargin(() => props.margin, 0) : props.margin;
 
-const isWishlisted = computed(() => {
-  if (!props.id) return false;
-  return wishlistStore.isItemWishlisted(props.id);
+onMounted(() => {
+  if (containerRef.value) {
+    actualSize.value = containerRef.value.clientWidth;
+  }
+});
+
+const wishlistMatch = computed(() => {
+  if (!props.id) return null;
+  return wishlistStore.getMatchForItem(props.id);
+});
+
+const iconSize = computed(() => {
+  if (actualSize.value > 0) {
+    // 容器宽度的 10%
+    return Math.max(15, actualSize.value * 0.10);
+  }
+  // 回退方案
+  const sizeValue: any = typeof computedSize === 'string'
+      ? parseFloat(computedSize)
+      : (computedSize || 1);
+  return 12 * sizeValue;
 });
 
 defineOptions({
@@ -39,12 +59,15 @@ defineOptions({
 </script>
 
 <template>
-  <div class="card-enlargement-flavor position-relative"
+  <div ref="containerRef"
+       class="card-enlargement-flavor"
        :class="`item-base-slot pa-${computedPadding} ma-${computedMargin}`"
        :style="`height: ${computedSize}; width: ${computedSize};min-height: ${computedSize}; min-width: ${computedSize}`">
     <slot></slot>
-    <div v-if="isWishlisted" class="wishlist-badge">
-      <v-icon icon="mdi-thumb-up" class="text-amber" size="14"></v-icon>
+    <div v-if="wishlistMatch">
+      <div class="wishlist-badge">
+        <v-icon icon="mdi-thumb-up" class="text-amber" :size="iconSize"></v-icon>
+      </div>
     </div>
   </div>
 </template>
@@ -52,24 +75,16 @@ defineOptions({
 <style scoped lang="less">
 .wishlist-badge {
   position: absolute;
-  top: -5px;
-  right: -5px;
+  top: 3px;
+  right: 3px;
   z-index: 10;
   border-radius: 50%;
-  width: 22px;
-  height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
   pointer-events: none;
-  animation: wishlist-pop 0.3s ease-out;
 }
 
-@keyframes wishlist-pop {
-  0% { transform: scale(0); opacity: 0; }
-  60% { transform: scale(1.2); }
-  100% { transform: scale(1); opacity: 1; }
-}
 
 .item-base-slot {
   display: flex;

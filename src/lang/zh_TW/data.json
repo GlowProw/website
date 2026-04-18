@@ -1206,7 +1206,7 @@
       "urlPlaceholder": "輸入願望清單原始文字URL",
       "importBtn": "匯入",
       "listTitle": "已匯入的願望清單",
-      "rules": "{count} 條規則",
+      "rules": "條規則",
       "source": "來源",
       "export": "匯出",
       "delete": "刪除",
@@ -1222,7 +1222,19 @@
       "disabled": "已停用",
       "pasteTitle": "貼上願望清單文字",
       "pastePlaceholder": "在此貼上願望清單文字內容...",
-      "matchedItems": "統計"
+      "matchedItems": "統計",
+      "update": "更新",
+      "updateError": "更新失敗",
+      "lastUpdated": "最近更新",
+      "duplicatesRemoved": "已去重 {count} 條",
+      "requiredFieldsMissing": "缺少必填欄位: {fields}",
+      "field_title": "標題",
+      "field_description": "描述",
+      "field_max_limit": "匯入數量達到上限（最多10個）",
+      "notes": "註解",
+      "mod": "模組",
+      "item": "相關物品",
+      "perk": "匹配詞條"
     }
   }
 }

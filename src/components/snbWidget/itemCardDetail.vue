@@ -22,6 +22,9 @@ import ItemDescription from "@/components/snbWidget/itemDescription.vue";
 import ItemContentWidget from "@/components/snbWidget/itemContentWidget.vue";
 import ShipUpgradedDescription from "@/components/snbWidget/shipUpgradedDescription.vue";
 import HtmlLink from "@/components/HtmlLink.vue";
+import {useWishlistStore} from "~/stores/wishlistStore";
+import PerksName from "@/components/snbWidget/perksName.vue";
+import WishlistMatchWidget from "@/components/snbWidget/wishlistMatchWidget.vue";
 
 const props = withDefaults(defineProps<{
   id: string,
@@ -38,6 +41,7 @@ const props = withDefaults(defineProps<{
 const {t} = useI18nUtils()
 const router = useRouter()
 const cdnStore = useCDNAssetsServiceStore()
+const wishlistStore = useWishlistStore()
 
 const rarityColorConfig = rarity.color
 const items = Items
@@ -114,6 +118,11 @@ onMounted(() => {
 })
 
 const getType = (i: any) => i?.type
+
+const wishlistMatch = computed(() => {
+  if (!i.value?.id) return null;
+  return wishlistStore.getMatchForItem(i.value.id) || wishlistStore.getMatchForMod(i.value.id);
+});
 
 defineOptions({
   name: 'ItemCardDetail'
@@ -236,6 +245,21 @@ defineOptions({
             color="transparent"
             tile
             static
+            v-if="wishlistMatch">
+          <template v-slot:title>
+            <div class="title-long-flavor bg-black d-flex align-center ga-2 bg-black">
+              {{ t('setting.wishlist.title') }}
+            </div>
+          </template>
+          <template v-slot:text>
+            <WishlistMatchWidget :id="i.id"></WishlistMatchWidget>
+          </template>
+        </v-expansion-panel>
+        <v-expansion-panel
+            class="bg-transparent"
+            color="transparent"
+            tile
+            static
             v-if="i.obtainable">
           <template v-slot:title>
             <div class="title-long-flavor bg-black">
@@ -260,6 +284,7 @@ defineOptions({
 
 <style scoped lang="less">
 @import "@/assets/styles/demo-reel";
+@import "@/assets/styles/link";
 
 .material-mirror-image {
   transform: scaleX(-1);

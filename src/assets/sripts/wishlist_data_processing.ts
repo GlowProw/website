@@ -3,51 +3,64 @@
  */
 
 import { v6 as uuidV6 } from 'uuid';
+import type { DeduplicateResult, WishlistFile, WishlistMatch, WishlistMeta, WishlistRule, WishlistValidation, } from '@/assets/types/Wishlist';
+
+export type {
+    WishlistRule,
+    WishlistFile,
+    WishlistMatch,
+    WishlistValidation,
+    DeduplicateResult,
+    WishlistMeta,
+};
 
 /**
- * 单条愿望清单规则
+ * 生成规则的去重 key
  */
-export interface WishlistRule {
-    /** 物品 hash 或 ID */
-    itemId: string;
-    /** perk/mod hash 列表 */
-    perks: string[];
-    /** 备注 */
-    notes: string;
-    /** 标签（如 pve, pvp） */
-    tags: string[];
+function ruleKey(rule: WishlistRule): string {
+    const sortedPerks = [...rule.perks].sort().join(',');
+    const sortedMods = rule.mods ? [...rule.mods].sort().join(',') : '';
+    return `${rule.id}|${sortedPerks}|${sortedMods}`;
 }
 
 /**
- * 愿望清单文件
+ * 对规则列表去重
  */
-export interface WishlistFile {
-    /** 唯一 ID */
-    id: string;
-    /** 清单标题 */
-    title: string;
-    /** 清单描述 */
-    description: string;
-    /** 所有规则 */
-    rules: WishlistRule[];
-    /** 是否启用 */
-    enabled: boolean;
-    /** 来源（URL 或文件名） */
-    source: string;
-    /** 导入时间 */
-    importedAt: number;
+export function deduplicateRules(rules: WishlistRule[]): DeduplicateResult {
+    const seen = new Set<string>();
+    const deduplicated: WishlistRule[] = [];
+
+    for (const rule of rules) {
+        const key = ruleKey(rule);
+        if (!seen.has(key)) {
+            seen.add(key);
+            deduplicated.push(rule);
+        }
+    }
+
+    return {
+        rules: deduplicated,
+        duplicatesRemoved: rules.length - deduplicated.length,
+    };
 }
 
 /**
- * 愿望清单匹配结果
+ * 验证愿望清单（标题和描述必填）
  */
-export interface WishlistMatch {
-    /** 是否匹配 */
-    matched: boolean;
-    /** 匹配到的规则 */
-    rules: WishlistRule[];
-    /** 来源清单名 */
-    wishlistNames: string[];
+export function validateWishlist(wl: Partial<WishlistFile>): WishlistValidation {
+    const errors: string[] = [];
+
+    if (!wl.title || wl.title.trim().length === 0) {
+        errors.push('title');
+    }
+    if (!wl.description || wl.description.trim().length === 0) {
+        errors.push('description');
+    }
+
+    return {
+        valid: errors.length === 0,
+        errors,
+    };
 }
 
 /**
@@ -57,6 +70,10 @@ export function parseWishlistText(text: string, source: string = ''): WishlistFi
     const lines = text.split(/\r?\n/);
     let title = '';
     let description = '';
+    const updateUrls: string[] = [];
+    let version = '';
+    let author = '';
+    let authorUrl = '';
     const rules: WishlistRule[] = [];
 
     let currentNotes = '';
@@ -77,6 +94,31 @@ export function parseWishlistText(text: string, source: string = ''): WishlistFi
         // 解析 description: 行
         if (line.startsWith('description:')) {
             description = line.slice('description:'.length).trim();
+            continue;
+        }
+
+        // 解析 update_url: 行（支持多行收集为数组）
+        if (line.startsWith('update_url:')) {
+            const url = line.slice('update_url:'.length).trim();
+            if (url) updateUrls.push(url);
+            continue;
+        }
+
+        // 解析 version: 行
+        if (line.startsWith('version:')) {
+            version = line.slice('version:'.length).trim();
+            continue;
+        }
+
+        // 解析 author: 行
+        if (line.startsWith('author:')) {
+            author = line.slice('author:'.length).trim();
+            continue;
+        }
+
+        // 解析 author_url: 行
+        if (line.startsWith('author_url:')) {
+            authorUrl = line.slice('author_url:'.length).trim();
             continue;
         }
 
@@ -120,16 +162,19 @@ export function parseWishlistText(text: string, source: string = ''): WishlistFi
                 paramPart = content.slice(0, hashIndex);
             }
 
-            // 解析 item=xxx&perks=xxx
+            // 解析 item=xxx&perks=xxx&mods=xxx
             const params = new URLSearchParams(paramPart);
             const itemId = params.get('item') || '';
             const perksRaw = params.get('perks') || '';
             const perks = perksRaw ? perksRaw.split(',').map(p => p.trim()).filter(Boolean) : [];
+            const modsRaw = params.get('mods') || '';
+            const mods = modsRaw ? modsRaw.split(',').map(m => m.trim()).filter(Boolean) : undefined;
 
             if (itemId) {
                 rules.push({
-                    itemId,
+                    id: itemId,
                     perks,
+                    ...(mods && mods.length > 0 ? { mods } : {}),
                     notes: lineNotes,
                     tags: lineTags,
                 });
@@ -138,33 +183,93 @@ export function parseWishlistText(text: string, source: string = ''): WishlistFi
         }
     }
 
+    // 去重
+    const { rules: dedupedRules, duplicatesRemoved } = deduplicateRules(rules);
+
     return {
         id: uuidV6(),
-        title: title || source || 'Unnamed Wishlist',
-        description,
-        rules,
+        title: title || '',
+        description: description || '',
+        rules: dedupedRules,
         enabled: true,
         source,
         importedAt: Date.now(),
+        updateUrls: updateUrls.length > 0 ? updateUrls : undefined,
+        version: version || undefined,
+        author: author || undefined,
+        authorUrl: authorUrl || undefined,
+        lastUpdatedAt: undefined,
+        duplicatesRemoved: duplicatesRemoved > 0 ? duplicatesRemoved : undefined,
     };
 }
 
 /**
  * 从已解析的愿望清单列表中构建物品查找 Map
- * key: itemId, value: WishlistRule[]
+ * key: itemId, value: { rules, wishlistNames }
  */
-export function buildWishlistLookup(wishlists: WishlistFile[]): Map<string, WishlistRule[]> {
-    const map = new Map<string, WishlistRule[]>();
+export function buildWishlistLookup(
+    wishlists: WishlistFile[]
+): Map<string, { rules: WishlistRule[]; wishlistNames: string[] }> {
+    const map = new Map<string, { rules: WishlistRule[]; wishlistNames: string[] }>();
 
     for (const wl of wishlists) {
         if (!wl.enabled) continue;
 
         for (const rule of wl.rules) {
-            const existing = map.get(rule.itemId);
+            const existing = map.get(rule.id);
             if (existing) {
-                existing.push(rule);
+                existing.rules.push(rule);
+                if (!existing.wishlistNames.includes(wl.title)) {
+                    existing.wishlistNames.push(wl.title);
+                }
             } else {
-                map.set(rule.itemId, [rule]);
+                map.set(rule.id, {
+                    rules: [rule],
+                    wishlistNames: [wl.title],
+                });
+            }
+        }
+    }
+
+    return map;
+}
+
+/**
+ * 从已解析的愿望清单列表中构建模组查找 Map
+ * key: perkId(modId), value: { rules, wishlistNames }
+ */
+export function buildWishlistModLookup(
+    wishlists: WishlistFile[]
+): Map<string, { rules: WishlistRule[]; wishlistNames: string[] }> {
+    const map = new Map<string, { rules: WishlistRule[]; wishlistNames: string[] }>();
+
+    const addEntry = (key: string, rule: WishlistRule, title: string) => {
+        const id = key.includes(':') ? key.split(':').pop()! : key;
+        const existing = map.get(id);
+        if (existing) {
+            existing.rules.push(rule);
+            if (!existing.wishlistNames.includes(title)) {
+                existing.wishlistNames.push(title);
+            }
+        } else {
+            map.set(id, {
+                rules: [rule],
+                wishlistNames: [title],
+            });
+        }
+    };
+
+    for (const wl of wishlists) {
+        if (!wl.enabled) continue;
+
+        for (const rule of wl.rules) {
+            for (const perk of rule.perks) {
+                addEntry(perk, rule, wl.title);
+            }
+            if (rule.mods) {
+                for (const mod of rule.mods) {
+                    addEntry(mod, rule, wl.title);
+                }
             }
         }
     }
@@ -177,18 +282,36 @@ export function buildWishlistLookup(wishlists: WishlistFile[]): Map<string, Wish
  */
 export function checkItemInWishlist(
     itemId: string,
-    lookup: Map<string, WishlistRule[]>,
-    wishlistNames?: Map<string, string>
+    lookup: Map<string, { rules: WishlistRule[]; wishlistNames: string[] }>
 ): WishlistMatch | null {
     if (!itemId || !lookup) return null;
 
-    const rules = lookup.get(itemId);
-    if (!rules || rules.length === 0) return null;
+    const entry = lookup.get(itemId);
+    if (!entry || entry.rules.length === 0) return null;
 
     return {
         matched: true,
-        rules,
-        wishlistNames: [],
+        rules: entry.rules,
+        wishlistNames: entry.wishlistNames,
+    };
+}
+
+/**
+ * 检查模组是否在愿望清单中
+ */
+export function checkModInWishlist(
+    modId: string,
+    lookup: Map<string, { rules: WishlistRule[]; wishlistNames: string[] }>
+): WishlistMatch | null {
+    if (!modId || !lookup) return null;
+
+    const entry = lookup.get(modId);
+    if (!entry || entry.rules.length === 0) return null;
+
+    return {
+        matched: true,
+        rules: entry.rules,
+        wishlistNames: entry.wishlistNames,
     };
 }
 
@@ -203,6 +326,20 @@ export function exportWishlistToText(wishlist: WishlistFile): string {
     }
     if (wishlist.description) {
         lines.push(`description:${wishlist.description}`);
+    }
+    if (wishlist.version) {
+        lines.push(`version:${wishlist.version}`);
+    }
+    if (wishlist.author) {
+        lines.push(`author:${wishlist.author}`);
+    }
+    if (wishlist.authorUrl) {
+        lines.push(`author_url:${wishlist.authorUrl}`);
+    }
+    if (wishlist.updateUrls && wishlist.updateUrls.length > 0) {
+        for (const url of wishlist.updateUrls) {
+            lines.push(`update_url:${url}`);
+        }
     }
     lines.push('');
 
@@ -219,8 +356,21 @@ export function exportWishlistToText(wishlist: WishlistFile): string {
         }
 
         const perksStr = rule.perks.length > 0 ? `&perks=${rule.perks.join(',')}` : '';
-        lines.push(`wishlist:item=${rule.itemId}${perksStr}`);
+        const modsStr = rule.mods && rule.mods.length > 0 ? `&mods=${rule.mods.join(',')}` : '';
+        lines.push(`wishlist:item=${rule.id}${perksStr}${modsStr}`);
     }
 
     return lines.join('\r\n');
+}
+
+/**
+ * 从 WishlistFile 提取 WishlistMeta（不含 rules，用于索引存储）
+ */
+export function toWishlistMeta(wl: WishlistFile): WishlistMeta {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { rules, ...rest } = wl;
+    return {
+        ...rest,
+        rulesCount: rules.length,
+    };
 }

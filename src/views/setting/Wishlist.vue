@@ -77,7 +77,7 @@
           <v-row no-gutters align="center">
             <v-col>
               <span class="text-h4 font-weight-bold">{{ wishlistStore.enabledRules.toLocaleString() }}</span>
-              <span class="ml-2 opacity-60">{{ t('setting.wishlist.rules', {count: wishlistStore.enabledRules}) }}</span>
+              <span class="ml-2 opacity-60">{{ t('setting.wishlist.rules') }}</span>
             </v-col>
           </v-row>
 
@@ -85,7 +85,7 @@
           <v-divider class="my-2"></v-divider>
           <v-row no-gutters class="ga-2">
             <v-col cols="auto">
-              <v-btn size="small" variant="tonal" color="green" @click="wishlistStore.enableAll()"
+              <v-btn size="small" variant="tonal" color="var(--main-color)" @click="wishlistStore.enableAll()"
                      :disabled="wishlistStore.wishlists.length === 0">
                 <v-icon icon="mdi-check-all" class="mr-1"></v-icon>
                 {{ t('setting.wishlist.enableAll') }}
@@ -133,7 +133,7 @@
                 class="wishlist-card pa-4">
               <v-row align="start">
                 <v-col cols="9">
-                  <div class="font-weight-bold singe-line text-amber" :title="wl.title">
+                  <div class="font-weight-bold singe-line" :title="wl.title">
                     {{ wl.title }}
                   </div>
                   <!-- 描述 -->
@@ -152,28 +152,65 @@
                 </v-col>
               </v-row>
 
-              <!-- 规则数 -->
-              <v-chip size="x-small" variant="tonal" :color="wl.enabled ? 'amber' : 'grey'" class="mr-1">
-                {{ t('setting.wishlist.rules', {count: wl.rules.length}) }}
-              </v-chip>
+              <!-- 元数据标签 -->
+              <div class="d-flex flex-wrap ga-1 mb-2">
+                <!-- 规则数 -->
+                <v-chip size="x-small" variant="tonal" :color="wl.enabled ? 'amber' : 'grey'">
+                  {{ t('setting.wishlist.rules', {count: wl.rules.length}) }}
+                </v-chip>
+                <!-- 去重数 -->
+                <v-chip size="x-small" variant="tonal" v-if="wl.duplicatesRemoved && wl.duplicatesRemoved > 0">
+                  {{ t('setting.wishlist.duplicatesRemoved', {count: wl.duplicatesRemoved}) }}
+                </v-chip>
+                <!-- 版本 -->
+                <v-chip size="x-small" variant="tonal" v-if="wl.version" prepend-icon="mdi-tag">
+                  v{{ wl.version }}
+                </v-chip>
+              </div>
+
+              <!-- 作者 -->
+              <p class="text-caption opacity-50 singe-line" v-if="wl.author">
+                <a v-if="wl.authorUrl" :href="wl.authorUrl" target="_blank" class="text-decoration-none">{{ wl.author }}</a>
+                <span v-else>{{ wl.author }}</span>
+              </p>
 
               <!-- 来源 -->
-              <p class="text-caption opacity-40 mt-2 singe-line" :title="wl.source" v-if="wl.source">
+              <p class="text-caption opacity-40 singe-line" :title="wl.source" v-if="wl.source">
                 {{ t('setting.wishlist.source') }}: {{ truncateSource(wl.source) }}
               </p>
 
-              <v-row no-gutters class="mt-3 ga-1">
-                <v-col cols="auto">
-                  <v-btn size="x-small" variant="tonal" @click="onExport(wl.id)">
-                    <v-icon icon="mdi-export" class="mr-1"></v-icon>
-                    {{ t('setting.wishlist.export') }}
+              <!-- 更新时间 -->
+              <p class="text-caption opacity-40" v-if="wl.lastUpdatedAt">
+                {{ t('setting.wishlist.lastUpdated') }}: {{ formatTime(wl.lastUpdatedAt) }}
+              </p>
+
+              <v-row no-gutters class="mt-3 ga-1" align="center">
+                <!-- 更新按钮 -->
+                <v-col cols="auto" v-if="wl.updateUrls && wl.updateUrls.length > 0">
+                  <v-btn size="x-small" variant="tonal" color="var(--main-color)"
+                         :loading="wishlistStore.isUpdating(wl.id)"
+                         @click="onUpdate(wl.id)">
+                    <v-icon icon="mdi-refresh" class="mr-1"></v-icon>
+                    {{ t('setting.wishlist.update') }}
                   </v-btn>
                 </v-col>
+                <v-spacer></v-spacer>
                 <v-col cols="auto">
-                  <v-btn size="x-small" variant="tonal" color="red" @click="confirmDelete(wl.id)">
-                    <v-icon icon="mdi-delete" class="mr-1"></v-icon>
-                    {{ t('setting.wishlist.delete') }}
-                  </v-btn>
+                  <v-menu>
+                    <template v-slot:activator="{ props }">
+                      <v-btn size="x-small" variant="text" v-bind="props" icon slim>
+                        <v-icon icon="mdi-dots-vertical"></v-icon>
+                      </v-btn>
+                    </template>
+                    <v-list slim density="compact">
+                      <v-list-item prepend-icon="mdi-export" @click="onExport(wl.id)">
+                        {{ t('setting.wishlist.export') }}
+                      </v-list-item>
+                      <v-list-item prepend-icon="mdi-delete" @click="confirmDelete(wl.id)">
+                        {{ t('setting.wishlist.delete') }}
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
                 </v-col>
               </v-row>
             </v-card>
@@ -202,10 +239,14 @@
             hide-details>
         </v-textarea>
       </v-card-text>
+      <!-- 预览提示 -->
+      <v-alert v-if="pastePreviewError" type="warning" variant="tonal" density="compact" class="mx-5 mb-2">
+        {{ pastePreviewError }}
+      </v-alert>
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn @click="pasteDialog = false">{{ t('basic.button.cancel') }}</v-btn>
-        <v-btn color="amber" :disabled="!pasteText" @click="onImportFromPaste">
+        <v-btn color="amber" :disabled="!pasteText || !!pastePreviewError" @click="onImportFromPaste">
           {{ t('setting.wishlist.importBtn') }}
         </v-btn>
       </v-card-actions>
@@ -243,10 +284,12 @@
 </template>
 
 <script setup lang="ts">
-import {ref} from 'vue';
+import {computed, ref} from 'vue';
 import {useI18n} from 'vue-i18n';
 import {useWishlistStore} from '~/stores/wishlistStore';
+import {parseWishlistText, validateWishlist} from '@/assets/sripts/wishlist_data_processing';
 import AffixBoxHasTitleView from '@/components/AffixBoxHasTitleView.vue';
+import {useNoticeStore} from "~/stores/noticeStore";
 
 const {t} = useI18n();
 const wishlistStore = useWishlistStore();
@@ -259,6 +302,41 @@ const deleteDialog = ref(false);
 const deleteTargetId = ref('');
 const clearAllDialog = ref(false);
 const fileInputRef = ref<HTMLInputElement | null>(null);
+const not = useNoticeStore()
+
+/**
+ * 粘贴文本实时预览验证
+ */
+const pastePreviewError = computed(() => {
+  if (!pasteText.value) return '';
+  const parsed = parseWishlistText(pasteText.value, 'preview');
+  const validation = validateWishlist(parsed);
+  if (!validation.valid) {
+    const missing = validation.errors.map(e => t(`setting.wishlist.field_${e}`)).join(', ');
+    return t('setting.wishlist.requiredFieldsMissing', {fields: missing});
+  }
+  return '';
+});
+
+/**
+ * 处理导入结果
+ */
+function handleImportResult(result: { success: boolean; wishlist?: any; errors?: string[] }, source: string) {
+  if (result.success) {
+    const wl = result.wishlist;
+    const dupMsg = wl?.duplicatesRemoved && wl.duplicatesRemoved > 0
+        ? ` (${t('setting.wishlist.duplicatesRemoved', {count: wl.duplicatesRemoved})})`
+        : '';
+    not.success(t('setting.wishlist.importSuccess') + dupMsg);
+  } else {
+    if (result.errors?.includes('max_limit')) {
+      not.error(t('setting.wishlist.field_max_limit'));
+    } else {
+      const missing = result.errors?.map(e => t(`setting.wishlist.field_${e}`)).join(', ') || '';
+      not.error(t('setting.wishlist.requiredFieldsMissing', {fields: missing}));
+    }
+  }
+}
 
 /**
  * 从 URL 导入
@@ -267,10 +345,11 @@ const onImportFromUrl = async () => {
   if (!importUrl.value) return;
   importLoading.value = true;
   try {
-    await wishlistStore.importFromUrl(importUrl.value);
-    importUrl.value = '';
-  } catch (e) {
-    console.error('Import from URL failed:', e);
+    const result = await wishlistStore.importFromUrl(importUrl.value);
+    handleImportResult(result, importUrl.value);
+    if (result.success) importUrl.value = '';
+  } catch (e: any) {
+    not.error(t('setting.wishlist.importError') + ': ' + (e.message || e));
   } finally {
     importLoading.value = false;
   }
@@ -295,7 +374,8 @@ const onFileUpload = (event: Event) => {
   reader.onload = (e) => {
     const text = e.target?.result as string;
     if (text) {
-      wishlistStore.importFromText(text, file.name);
+      const result = wishlistStore.importFromText(text, file.name);
+      handleImportResult(result, file.name);
     }
   };
   reader.readAsText(file);
@@ -309,9 +389,24 @@ const onFileUpload = (event: Event) => {
  */
 const onImportFromPaste = () => {
   if (!pasteText.value) return;
-  wishlistStore.importFromText(pasteText.value, 'paste');
-  pasteText.value = '';
-  pasteDialog.value = false;
+  const result = wishlistStore.importFromText(pasteText.value, 'paste');
+  handleImportResult(result, 'paste');
+  if (result.success) {
+    pasteText.value = '';
+    pasteDialog.value = false;
+  }
+};
+
+/**
+ * 更新愿望清单
+ */
+const onUpdate = async (id: string) => {
+  const result = await wishlistStore.updateFromUrls(id);
+  if (result.success) {
+    not.success(t('setting.wishlist.importSuccess'));
+  } else {
+    not.error(t('setting.wishlist.updateError') + (result.error ? ': ' + result.error : ''));
+  }
 };
 
 /**
@@ -361,6 +456,13 @@ const onConfirmClearAll = () => {
 const truncateSource = (source: string): string => {
   if (source.length <= 50) return source;
   return source.slice(0, 20) + '...' + source.slice(-25);
+};
+
+/**
+ * 格式化时间戳
+ */
+const formatTime = (ts: number): string => {
+  return new Date(ts).toLocaleString();
 };
 </script>
 

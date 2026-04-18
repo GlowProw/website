@@ -1343,7 +1343,7 @@
       "urlPlaceholder": "Enter wishlist raw text URL",
       "importBtn": "Import",
       "listTitle": "Imported Wishlists",
-      "rules": "{count} rules",
+      "rules": "rules",
       "source": "Source",
       "export": "Export",
       "delete": "Delete",
@@ -1359,7 +1359,19 @@
       "disabled": "Disabled",
       "pasteTitle": "Paste Wishlist Text",
       "pastePlaceholder": "Paste wishlist text content here...",
-      "matchedItems": "Stats"
+      "matchedItems": "Stats",
+      "update": "Update",
+      "updateError": "Update failed",
+      "lastUpdated": "Last updated",
+      "duplicatesRemoved": "{count} duplicates removed",
+      "requiredFieldsMissing": "Missing required fields: {fields}",
+      "field_title": "Title",
+      "field_description": "Description",
+      "field_max_limit": "Max import limit reached (max 10 list)",
+      "notes": "Notes",
+      "mod": "Mods",
+      "item": "Related Item",
+      "perk": "Matched Perks"
     }
   },
   "header": {
