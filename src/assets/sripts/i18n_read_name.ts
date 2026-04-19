@@ -1,7 +1,7 @@
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useI18n} from "vue-i18n";
 
-import {Cosmetics, Items, MapLocations, Materials, Modifications, Npcs, Sets, Ships, TreasureMaps} from "glow-prow-data";
+import {Cosmetics, Item, Items, MapLocations, Materials, Modifications, Npcs, Sets, Ship, Ships, TreasureMaps} from "glow-prow-data";
 import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
 import {number} from "@/assets/sripts/index";
 import {Commodities} from "glow-prow-data/src/entity/Commodities";
@@ -19,7 +19,7 @@ const items = Items,
     sets = Sets
 
 export function useI18nReadName() {
-    const {asString, sanitizeString, te, tm, t} = useI18nUtils()
+    const {asString, asArray, sanitizeString, te, tm, t} = useI18nUtils()
     const {rt} = useI18n();
 
     const getValue = (obj: any, path: string) => {
@@ -457,33 +457,58 @@ export function useI18nReadName() {
         }
     }
 
-    const perk = (id: string | number) => {
+    const perk = (id?: string | number) => {
         const keysName = [
-                `snb.perks.${id}.name`,
-                `snb.perks.${sanitizeString(<string>id).cleaned}.name`,
-            ],
-            keysDescription = [
-                // todo
-            ];
+            `snb.perks.${id}.name`,
+            `snb.perks.${sanitizeString(<string>id).cleaned}.name`,
+        ]
 
         return {
             keysName,
-            keysDescription,
             name: (lang?: string): string => {
-                return asString(keysName, {
-                    backRawKey: true,
+                let name = asString(keysName, {
+                    backRawKey: false,
                     lang
-                }) + `${number.intToRoman(<any>sanitizeString(<string>id).removedNumbers[0])}`
+                })
+                if (name)
+                    name += `${number.intToRoman(<any>sanitizeString(<string>id).removedNumbers[0])}`
+                return name
             },
-            description: (lang?: string): string => {
-                if (sets[id]) {
-                    const translatedDesc = asString(keysDescription, {
-                        backRawKey: true,
-                        lang
-                    })
-                    return `${translatedDesc}`.trim()
+            /**
+             * data 泛用类型，不是指perk的
+             * @param data
+             * @param lang
+             */
+            description: (data: Item | Ship, lang?: string): any[] => {
+                let result: any[] = [String(id)]
+
+                for (const perkKey of data.perks) {
+                    console.log(perkKey, data.type)
+                    const perksName = sanitizeString(perkKey)
+                    let keys = []
+
+                    switch (data?.type) {
+                        case "shipUpgrade":
+                            keys = [
+                                `snb.perks.${perksName.cleaned}.description.${(data as any)?.tier}`,
+                                `snb.perks.${perksName.cleaned}.description.general`,
+                            ]
+
+                            result = asArray(keys)
+                            break;
+                        default:
+                            keys = [
+                                `snb.perks.${perkKey}.description.general`,
+                                `snb.perks.${perksName.cleaned}.description.general`,
+                                `snb.perks.${perksName.cleaned}.description.${perksName.removedNumbers[0]}`
+                            ]
+
+                            result = asArray(keys)
+                            break;
+                    }
                 }
-                return String(id);
+
+                return result;
             }
         }
     }

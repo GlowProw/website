@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
+import {Item, Ship} from "glow-prow-data";
 
-const props = defineProps<{ data: any, perkKey: string, class?: string }>(),
+const props = defineProps<{ data: Item | Ship, class?: string }>(),
     {t, te, tm, sanitizeString, asArray} = useI18nUtils(),
     {perk} = useI18nReadName()
 
@@ -10,27 +11,7 @@ const props = defineProps<{ data: any, perkKey: string, class?: string }>(),
  * 获取词条描述内容
  */
 const getDescription = () => {
-  const perksName = sanitizeString(props.perkKey)
-  let keys = []
-
-  switch (props.data?.type) {
-    case "shipUpgrade":
-      keys = [
-        `snb.perks.${perksName.cleaned}.description.${props.data.tier}`,
-        `snb.perks.${perksName.cleaned}.description.general`,
-      ]
-
-      return asArray(keys)
-    case "":
-    default:
-      keys = [
-        `snb.perks.${props.perkKey}.description.general`,
-        `snb.perks.${perksName.cleaned}.description.general`,
-        `snb.perks.${perksName.cleaned}.description.${perksName.removedNumbers[0]}`
-      ]
-
-      return asArray(keys)
-  }
+  return perk().description(<any>props.data)
 }
 
 defineOptions({

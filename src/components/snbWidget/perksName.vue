@@ -8,7 +8,12 @@ const props = defineProps<{ id: string }>(),
 
 
 let getTitle = computed(() => {
-  return `${perk(props.id).name() || '-'}`
+      return `${perk(props.id).name() || ''}`
+    }),
+    isTitleEmpty = computed(() => getTitle.value === '')
+
+defineExpose({
+  isTitleEmpty
 })
 
 defineOptions({
