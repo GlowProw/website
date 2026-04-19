@@ -57,7 +57,7 @@ defineOptions({
         <!-- 词条标题 E -->
 
         <!-- 词条描述 S -->
-        <PerkDescription :data="data"></PerkDescription>
+        <PerkDescription :data="data" :id="p"></PerkDescription>
         <!-- 词条描述 E -->
       </div>
     </template>

@@ -457,7 +457,7 @@ export function useI18nReadName() {
         }
     }
 
-    const perk = (id?: string | number) => {
+    const perk = (id: string | number) => {
         const keysName = [
             `snb.perks.${id}.name`,
             `snb.perks.${sanitizeString(<string>id).cleaned}.name`,
@@ -480,12 +480,11 @@ export function useI18nReadName() {
              * @param lang
              */
             description: (data: Item | Ship, lang?: string): any[] => {
-                let result: any[] = [String(id)]
+                let result = []
 
                 for (const perkKey of data.perks) {
-                    console.log(perkKey, data.type)
                     const perksName = sanitizeString(perkKey)
-                    let keys = []
+                    let keys: any[] = []
 
                     switch (data?.type) {
                         case "shipUpgrade":
@@ -494,16 +493,17 @@ export function useI18nReadName() {
                                 `snb.perks.${perksName.cleaned}.description.general`,
                             ]
 
-                            result = asArray(keys)
+                            result.push({id: perkKey, value: asArray(keys)})
                             break;
                         default:
+                            console.log(perkKey)
                             keys = [
                                 `snb.perks.${perkKey}.description.general`,
                                 `snb.perks.${perksName.cleaned}.description.general`,
                                 `snb.perks.${perksName.cleaned}.description.${perksName.removedNumbers[0]}`
                             ]
 
-                            result = asArray(keys)
+                            result.push({id: perkKey, value: asArray(keys)})
                             break;
                     }
                 }

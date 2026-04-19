@@ -44,15 +44,15 @@ defineOptions({
 </script>
 
 <template>
-  <v-card border variant="text" class="d-flex mt-2" v-if="wishlistMatch">
+  <v-card border variant="text" class="d-flex mt-2" v-if="wishlistMatch"
+          v-for="(rule, index) in wishlistMatch.rules" :key="index">
     <v-card width="50" class="bg-black d-flex align-center justify-center">
       <v-icon icon="mdi-playlist-star"></v-icon>
     </v-card>
     <v-divider vertical></v-divider>
-    <v-card class="pa-3" variant="text"
-            v-for="(rule, index) in wishlistMatch.rules" :key="index">
+    <v-card class="pa-3" variant="text">
       <div class="d-flex flex-wrap text-amber text-amber font-weight-bold mb-1">
-        <span v-for="name in wishlistMatch.wishlistNames" :key="name">
+        <span v-for="name in wishlistMatch.wishlistNames" :key="name" :title="name">
           {{ name }}
         </span>
       </div>
