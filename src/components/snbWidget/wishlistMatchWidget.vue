@@ -44,13 +44,17 @@ defineOptions({
 </script>
 
 <template>
-  <div class="d-flex flex-column ga-2 mt-2" v-if="wishlistMatch">
-    <v-card variant="tonal" class="pa-3" border
+  <v-card border variant="text" class="d-flex mt-2" v-if="wishlistMatch">
+    <v-card width="50" class="bg-black d-flex align-center justify-center">
+      <v-icon icon="mdi-playlist-star"></v-icon>
+    </v-card>
+    <v-divider vertical></v-divider>
+    <v-card class="pa-3" variant="text"
             v-for="(rule, index) in wishlistMatch.rules" :key="index">
-      <div class="d-flex flex-wrap text-amber ga-1 text-amber font-weight-bold">
-        <div v-for="name in wishlistMatch.wishlistNames" :key="name">
+      <div class="d-flex flex-wrap text-amber text-amber font-weight-bold mb-1">
+        <span v-for="name in wishlistMatch.wishlistNames" :key="name">
           {{ name }}
-        </div>
+        </span>
       </div>
 
       <div v-if="rule.notes" class="text-caption opacity-60 text-pre-wrap">
@@ -89,7 +93,7 @@ defineOptions({
         </div>
       </div>
     </v-card>
-  </div>
+  </v-card>
 </template>
 
 <style scoped lang="less">

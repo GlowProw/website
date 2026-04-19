@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {assemblyViewConfig, storage_account} from "@/assets/sripts/index";
-import ZoomableCanvas from "@/components/ZoomableCanvas.vue";
 import WarehouseShowWidget from "@/components/WarehouseShowWidget.vue";
 import WheelWidget from "@/components/WheelShowWidget.vue";
 import AssemblyWidget from "@/components/AssemblyWidget.vue"; // 确保导入了正确的组件
@@ -150,7 +149,7 @@ defineExpose({
   tab
 })
 
-defineOptions({ name: 'AssemblyMainSubjectView' })
+defineOptions({name: 'AssemblyMainSubjectView'})
 </script>
 
 <template>

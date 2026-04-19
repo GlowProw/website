@@ -81,6 +81,8 @@ const computedMargin = useIconImageMargin(props.margin);
              interactive
              :disabled="!props.isShowTooltip"
              :offset="[40, 0]"
+             scroll-strategy="close"
+             transition="opacity 300ms ease-in"
              location="right top"
              content-class="pa-0 bg-transparent"
              :target="[tooltipPos.x, tooltipPos.y]">

@@ -25,6 +25,19 @@ export function useI18nUtils(manualLocale?: ComputedRef<string | undefined>) {
     }
 
     /**
+     * 获取翻译数组（支持指定语言）
+     * @param key
+     * @param lang
+     */
+    const tm = (key: string, lang?: string) => {
+        const targetLocale = lang || localLocale.value;
+        const messages = i18n.global.getLocaleMessage(targetLocale);
+
+        // 简单的点路径解析逻辑
+        return key.split('.').reduce((acc, part) => acc?.[part], messages as any);
+    }
+
+    /**
      * 清理字符串（移除数字）
      * @param input
      */
@@ -56,19 +69,6 @@ export function useI18nUtils(manualLocale?: ComputedRef<string | undefined>) {
     }
 
     /**
-     * 获取翻译数组（支持指定语言）
-     * @param key
-     * @param lang
-     */
-    const tm = (key: string, lang?: string) => {
-        const targetLocale = lang || localLocale.value;
-        const messages = i18n.global.getLocaleMessage(targetLocale);
-
-        // 简单的点路径解析逻辑
-        return key.split('.').reduce((acc, part) => acc?.[part], messages as any);
-    }
-
-    /**
      * 获取翻译数组
      * @param keys
      * @param lang
@@ -81,15 +81,15 @@ export function useI18nUtils(manualLocale?: ComputedRef<string | undefined>) {
             if (result[i18nKey]) break
 
             if (content && typeof content === 'string') {
-                result[content] = -1
+                result[content] = i18nKey
             } else if (content && typeof content === 'object' && JSON.stringify(content) !== '{}') {
                 Object.values(content).forEach((i: any) => {
                     if (typeof i === 'object') {
                         Object.values(i).forEach((d: any) => {
-                            result[d] = 0
+                            result[d] = d
                         })
                     } else if (i) {
-                        result[i] = -1
+                        result[i] = i18nKey
                     }
                 })
             }

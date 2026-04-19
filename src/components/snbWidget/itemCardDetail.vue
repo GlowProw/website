@@ -31,6 +31,7 @@ const props = withDefaults(defineProps<{
   isShowOpenDetail?: boolean,
   isShowDescription?: boolean,
   isWidget?: boolean,
+  data?: any,
 }>(), {
   id: 'culverin1',
   isShowOpenDetail: true,
@@ -49,14 +50,14 @@ const cosmetics = Cosmetics
 
 let itemsCardData = ref({
   icon: '',
-  panel: props.isWidget ? Array.from({length: 100}, (i, index) => index) : 0
+  panel: props.isWidget ? ['perks', 'wishlist', 'obtainable'] : 'perks'
 })
 const i: Ref<Item | null> = ref(null)
 const itemDescription: Ref<any> = ref(null)
 const itemContents: Ref<any[]> = ref([])
 
 const onReady = async () => {
-  i.value = items[props.id] || null
+  i.value = props.data ? props.data : (items[props.id] || null)
   onSetIcon()
 
   if (i.value) {
@@ -223,13 +224,13 @@ defineOptions({
           <ItemContentWidget :data="i" :size="40" :isOpenNewWindow="true" :isShowTitle="false" :isShowTooltip="false" :isCenter="false"></ItemContentWidget>
         </v-row>
       </template>
-
-      <v-expansion-panels class="mt-5" v-model="itemsCardData.panel" :multiple="isWidget" :static="true">
+      <v-expansion-panels class="mt-5" v-model="itemsCardData.panel" :multiple="isWidget">
         <v-expansion-panel
             class="bg-transparent"
             color="transparent"
             tile
             static
+            value="perks"
             v-if="i.perks && i.perks.length > 0">
           <template v-slot:title>
             <div class="title-long-flavor bg-black">
@@ -245,6 +246,7 @@ defineOptions({
             color="transparent"
             tile
             static
+            value="wishlist"
             v-if="wishlistMatch">
           <template v-slot:title>
             <div class="title-long-flavor bg-black d-flex align-center ga-2 bg-black">
@@ -260,6 +262,7 @@ defineOptions({
             color="transparent"
             tile
             static
+            value="obtainable"
             v-if="i.obtainable">
           <template v-slot:title>
             <div class="title-long-flavor bg-black">

@@ -193,8 +193,6 @@ const onAddCalculator = () => {
     noticeStore.success(t('calculator.addedSuccess'))
   }
 }
-
-
 </script>
 
 <template>

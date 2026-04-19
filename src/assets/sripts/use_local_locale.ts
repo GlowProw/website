@@ -20,7 +20,10 @@ export function use_local_locale(manualLocale?: ComputedRef<string | undefined>)
     }
     // 2. 其次使用注入的语言上下文 (Consumer 层)
     else if (contextLocale) {
-      result = typeof contextLocale === 'string' ? contextLocale : contextLocale.value;
+      const val = typeof contextLocale === 'string' ? contextLocale : contextLocale.value;
+      if (val) {
+        result = val;
+      }
     }
     
     // console.log('[use_local_locale] Computed Locale:', result);

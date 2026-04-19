@@ -93,6 +93,8 @@ const computedMargin = useIconImageMargin(props.margin);
       v-if="i && i.id"
       :disabled="!props.isShowTooltip"
       :offset="[40, 0]"
+      scroll-strategy="close"
+      transition="opacity 300ms ease-in"
       class="npc-card"
       content-class="pa-0 bg-transparent"
       interactive

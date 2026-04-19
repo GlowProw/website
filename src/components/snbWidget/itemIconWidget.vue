@@ -1,12 +1,7 @@
-<script lang="ts">
-export default {name: 'ItemIconWidget'}
-</script>
-
 <script setup lang="ts">
-import { use_icon_global_Style } from "@/assets/sripts/use_icon_global_Style";
+import {use_icon_global_Style} from "@/assets/sripts/use_icon_global_Style";
 import {computed, onMounted, type Ref, ref, watch} from "vue";
 import {Item, Items} from "glow-prow-data/src/entity/Items";
-import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {rarity} from "@/assets/sripts/index";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
@@ -42,7 +37,9 @@ const appStore = useAppStore(),
     // 稀有度
     rarityColorConfig = rarity.color
 
-const {t} = useI18nUtils();
+const {useIconImagePadding, useIconImageMargin} = use_icon_global_Style();
+const computedPadding = useIconImagePadding(props.padding);
+const computedMargin = useIconImageMargin(props.margin);
 
 let itemsCardData = ref({
       icon: '',
@@ -75,8 +72,6 @@ const onReady = async () => {
   onSetIcon()
 }
 
-// filterByObtainable removed as it's now in ItemCardDetail
-
 const onSetIcon = () => {
   itemsCardData.value.icon = cdnStore.currentService.url({
     id: props.id,
@@ -99,9 +94,9 @@ defineExpose({
   getRarity
 })
 
-const { useIconImagePadding, useIconImageMargin } = use_icon_global_Style();
-const computedPadding = useIconImagePadding(props.padding);
-const computedMargin = useIconImageMargin(props.margin);
+defineOptions({
+  name: "ItemIconWidget"
+})
 </script>
 
 <template>
@@ -110,6 +105,8 @@ const computedMargin = useIconImageMargin(props.margin);
       v-if="i && i.id"
       :disabled="!props.isShowTooltip"
       :offset="[40, 0]"
+      scroll-strategy="close"
+      transition="opacity 300ms ease-in"
       location="right top"
       min-width="450"
       max-width="450"

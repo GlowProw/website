@@ -3,7 +3,6 @@
 import {useRoute, useRouter} from "vue-router";
 import {onMounted, Ref, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
-import {useHttpToken} from "@/assets/sripts/http_util";
 import {useAuthStore} from "~/stores/userAccountStore";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useHead} from "@unhead/vue";
@@ -27,7 +26,6 @@ import AccountCardWidget from "@/components/AccountCardWidget.vue";
 
 const route = useRoute(),
     router = useRouter(),
-    http = useHttpToken(),
     authStore = useAuthStore(),
     notice = useNoticeStore(),
     {t} = useI18n(),
@@ -311,7 +309,7 @@ const getTagTitle = (data: any) => {
         <v-col cols="12" sm="12" lg="8" xl="8">
           <div class="ga-2 mb-6" v-if="detailData.tags">
             <v-chip class="mr-2 mb-2 pt-1 pb-1 pl-5 pr-5" v-for="(i, index) in detailData.tags" :key="index">
-              {{getTagTitle(i)}}
+              {{ getTagTitle(i) }}
             </v-chip>
           </div>
 

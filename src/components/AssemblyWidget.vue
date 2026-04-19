@@ -126,7 +126,6 @@ watch(() => workshopData.value?.data, (value) => {
 
 watch(() => workshopData.value?.frigateUpgradeModel, (value) => {
   // 更新升级部件可用列表
-  console.log(frigateUpgradeRef)
   if (frigateUpgradeRef.value)
     frigateUpgradeRef.value.updateData()
 })

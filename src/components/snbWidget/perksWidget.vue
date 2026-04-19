@@ -3,13 +3,13 @@
 import EmptyView from "../EmptyView.vue";
 import {useI18n} from "vue-i18n";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
-import {onUnmounted, watch} from "vue";
+import {onMounted, onUnmounted, ref, watch} from "vue";
 import {useRoute} from "vue-router";
 import {number} from "@/assets/sripts/index"
 
-const {asArray, sanitizeString} = useI18nUtils()
+const {asString, asArray, sanitizeString, tm} = useI18nUtils()
 
-const {te, locale} = useI18n(),
+const {t, te, locale} = useI18n(),
     route = useRoute(),
     props = withDefaults(defineProps<{ data: any }>(), {
       data: null
@@ -21,7 +21,6 @@ const {te, locale} = useI18n(),
         {immediate: true}
     )
 
-// 手动停止监听
 onUnmounted(() => unwatch())
 
 /**
@@ -32,50 +31,38 @@ const getTitle = (key: string) => {
   const perksName = sanitizeString(key)
 
   let keys = [
-        `snb.items.${key}.name`,
+        `snb.perks.${key}.name`,
         `snb.perks.${perksName.cleaned}.name`
       ],
       lv = perksName.removedNumbers[0];
 
-  if (!asArray(keys)[0])
+  if (!asString(keys))
     return ''
 
-  return `${asArray(keys)[0]}${number.intToRoman(Number.parseInt(lv))}` || '';
+  return `${asString(keys)}${number.intToRoman(Number.parseInt(lv))}` || '';
 }
 
 /**
  * 获取词条描述内容
  */
-const getDescription = (key) => {
+const getDescription = (key: any) => {
   const perksName = sanitizeString(key)
   let keys = []
 
-  switch (props.data.type) {
+  switch (props.data?.type) {
     case "shipUpgrade":
       keys = [
-        `snb.perks.${perksName.cleaned}.description.${props.data.tier}`,
+        `snb.perks.${perksName.cleaned}.description.${props.data?.tier}`,
         `snb.perks.${perksName.cleaned}.description.general`,
       ]
 
       return asArray(keys)
     default:
-      let tString: any = [
-        `snb.items.${key}.name`,
-        `snb.perks.${perksName.cleaned}.name`,
-        `snb.perks.${perksName.cleaned}.description.${perksName.removedNumbers[0]}`,
-      ];
-
-      for (let tKey: any of tString) {
-        for (let tKey of tString) {
-          if (te(tKey)) {
-            keys = [
-              `snb.perks.${key}.description.general`,
-              `snb.perks.${perksName.cleaned}.description.general`,
-              `snb.perks.${perksName.cleaned}.description.${perksName.removedNumbers[0]}`,
-            ]
-          }
-        }
-      }
+      keys = [
+        `snb.perks.${key}.description.general`,
+        `snb.perks.${perksName.cleaned}.description.general`,
+        `snb.perks.${perksName.cleaned}.description.${perksName.removedNumbers[0]}`
+      ]
 
       return asArray(keys)
   }
@@ -89,7 +76,8 @@ defineOptions({
 <template>
   <v-card class="bg-translate" variant="text" border>
     <template v-if="props.data.perks && props.data.perks.length > 0">
-      <div v-for="(p, pIndex) in props.data.perks" :key="pIndex" class="mb-5">
+      <div v-for="(p, pIndex) in props.data.perks" :key="pIndex" class="mb-3">
+        <!-- 词条标题 S -->
         <v-row no-gutters
                style="width: calc(100% + 18px * 2);margin: 0 0 0 -20px"
                class="bg-black title-long-flavor py-2 pl-10"
@@ -109,9 +97,13 @@ defineOptions({
           </v-col>
           <v-spacer></v-spacer>
         </v-row>
+        <!-- 词条标题 E -->
+
+        <!-- 词条描述 S -->
         <p class="opacity-80 text-pre-wrap mt-3 pl-5 pr-5" v-for="(pPkey, pIndex) in getDescription(p)" :key="pIndex">
           {{ pPkey }}
         </p>
+        <!-- 词条描述 E -->
       </div>
     </template>
     <template v-else>
