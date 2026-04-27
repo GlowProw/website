@@ -56,6 +56,12 @@
     "contactHonor": "你可以通过下方任意方式联系到开发者，咨询关于网站或是寻求合作",
     "contactTitle": "联系"
   },
+  "emote": {
+    "emoji": "表情",
+    "gesture": "手势",
+    "hangouts-blob": "圆脸",
+    "party": "派对"
+  },
   "pwa": {
     "title": "渐进式网页应用(PWA)",
     "offlineReady": "应用已准备好离线工作",

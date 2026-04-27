@@ -270,12 +270,18 @@ const onInsertVideo = (src: string) => {
 
 const onInsertItem = (id: string) => {
   // 根据不同的分类选择插入不同的节点
-  if (currentItemCategory.value === 'material') {
+  if (currentItemCategory.value === 'ship') {
+    editor.value?.commands.insertShip({id})
+  } else if (currentItemCategory.value === 'material') {
     editor.value?.commands.insertMaterial({id})
   } else if (currentItemCategory.value === 'cosmetic') {
     editor.value?.commands.insertCosmetic({id})
   } else if (currentItemCategory.value === 'set') {
     editor.value?.commands.insertSet({id})
+  } else if (currentItemCategory.value === 'ultimate') {
+    editor.value?.commands.insertUltimate({id})
+  } else if (currentItemCategory.value === 'modification') {
+    editor.value?.commands.insertMod({id})
   } else {
     // 默认按照物品(item)插入
     editor.value?.commands.insertItem({id})
@@ -428,23 +434,23 @@ const onInitEdit = () => {
               <v-icon icon="mdi-emoticon-happy-outline"></v-icon>
             </v-btn>
 
-            <v-btn
-                icon
-                class="btn mr-2"
-                density="compact"
-                elevation="0"
-                @click="onShip"
-                v-tooltip="'船'"
-                :disabled="isOpenShip"
-                v-if="toolbarAs.indexOf('ship') >= 0">
-              <v-icon icon="mdi-ship-wheel"></v-icon>
-            </v-btn>
+            <!--            <v-btn-->
+            <!--                icon-->
+            <!--                class="btn mr-2"-->
+            <!--                density="compact"-->
+            <!--                elevation="0"-->
+            <!--                @click="onShip"-->
+            <!--                v-tooltip="'船'"-->
+            <!--                :disabled="isOpenShip"-->
+            <!--                v-if="toolbarAs.indexOf('ship') >= 0">-->
+            <!--              <v-icon icon="mdi-ship-wheel"></v-icon>-->
+            <!--            </v-btn>-->
 
             <FullItemRightClickMenu
-                :visible-categories="['ship','item','material','cosmetic','set', 'ultimate', 'modification']"
+                :visible-categories="[toolbarAs.indexOf('ship') >= 0 ? 'ship' : null,'item','material','cosmetic','set', toolbarAs.indexOf('ultimate') >= 0 ? 'ultimate' : null, toolbarAs.indexOf('mod') >= 0 ? 'modification' : null]"
                 @clickMenuItem="(e) => onItem(e)">
               <template v-slot="menuProps">
-                <div class="v-btn v-btn--elevated v-btn--icon v-theme--dark v-btn--density-compact elevation-0 v-btn--size-default v-btn--variant-elevated btn ml-2 mr-4">
+                <div class="v-btn v-btn--elevated v-btn--icon v-theme--dark v-btn--density-compact elevation-0 v-btn--size-default v-btn--variant-elevated btn mr-2">
                   <v-btn
                       icon
                       class="btn"
@@ -455,7 +461,9 @@ const onInitEdit = () => {
                       v-if="toolbarAs.indexOf('item') >= 0">
                     <v-icon icon="mdi-cube-outline"></v-icon>
                   </v-btn>
-                  <v-icon size="15">mdi-dots-vertical</v-icon>
+                  <v-icon
+                      v-bind="menuProps"
+                      size="15" class="ml-n1">mdi-dots-vertical</v-icon>
                 </div>
               </template>
             </FullItemRightClickMenu>
