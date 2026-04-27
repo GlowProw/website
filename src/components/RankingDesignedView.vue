@@ -22,7 +22,10 @@ import {RankingAttr} from "@/assets/types/Ranking";
 
 
 const
-    props = withDefaults(defineProps<{ readonly: boolean }>(), {readonly: false}),
+    props = withDefaults(defineProps<{ readonly?: boolean, visibleCategories?: string[] }>(), {
+      readonly: false,
+      visibleCategories: () => []
+    }),
     {t} = useI18n(),
     route = useRoute(),
     router = useRouter(),
@@ -214,7 +217,9 @@ defineExpose({
             </v-col>
             <v-col v-if="!readonly">
               <div class="item-add">
-                <RankingRightClickMenu @clickMenuItem="(data) => openInsertDataPanel(data.tags, index,data.category)">
+                <RankingRightClickMenu 
+                    :visible-categories="visibleCategories" 
+                    @clickMenuItem="(data) => openInsertDataPanel(data.tags, index,data.category)">
                   <v-card width="90px" height="90px" class="ma-3 d-flex justify-center align-center">
                     <v-icon size="35">mdi-plus</v-icon>
                   </v-card>

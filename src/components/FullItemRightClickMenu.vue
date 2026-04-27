@@ -13,6 +13,11 @@ const props = defineProps({
       width: 320,
       menu: [
         {
+          "label": "船",
+          "value": [],
+          "category": "ship"
+        },
+        {
           "label": "物品",
           "menus": [
             {
@@ -83,6 +88,11 @@ const props = defineProps({
           ]
         },
         {
+          "label": "装饰品集",
+          "value": ['set'],
+          "category": "set"
+        },
+        {
           "divider": true
         },
         {
@@ -148,7 +158,7 @@ const filteredMenuConfig = computed(() => {
           filteredMenus.push(m);
         }
       }
-      
+
       const cleanMenus = filteredMenus.filter((m, i, arr) => {
         if (m.divider) {
           if (i === 0 || i === arr.length - 1) return false;
@@ -158,7 +168,7 @@ const filteredMenuConfig = computed(() => {
       });
 
       if (cleanMenus.length > 0) {
-        newMenu.push({ ...root, menus: cleanMenus });
+        newMenu.push({...root, menus: cleanMenus});
       }
     } else {
       if (root.category && visibleCats.includes(root.category)) {
@@ -187,18 +197,12 @@ const onClickMenu = (tags = [], category) => {
     category,
   })
 }
-
-const getMenuValue = (i: any) => i.value
-const getMenuCategory = (i: any) => i.category
-const isDivider = (i: any) => i.divider
 </script>
 
 <template>
   <v-menu location="bottom right" :width="filteredMenuConfig.width">
     <template v-slot:activator="{ props }">
-      <div v-bind="props">
-        <slot></slot>
-      </div>
+      <slot v-bind="props"></slot>
     </template>
 
     <v-list :width="filteredMenuConfig.width" density="compact">
