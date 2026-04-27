@@ -53,7 +53,6 @@ onMounted(() => {
   emoteTabValue.value = emojis.default;
 });
 
-// Methods
 /**
  * 获取当前光标位于编辑器位置
  * @returns {number|null}
