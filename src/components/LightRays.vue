@@ -1,6 +1,7 @@
 <template>
   <div
       ref="containerRef"
+      class="fade-in"
       :class="[
       'w-full h-full relative pointer-events-none z-[3] overflow-hidden',
       className
@@ -571,3 +572,19 @@ onUnmounted((): void => {
   window.removeEventListener('mousemove', handleMouseMove);
 });
 </script>
+
+
+<style lang="less" scoped>
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+</style>

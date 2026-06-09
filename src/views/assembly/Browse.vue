@@ -236,7 +236,7 @@ const getBrowseList = async () => {
         <v-row>
           <template v-if="browseData.data.length > 0">
             <v-col cols="12" md="6" lg="6" v-for="(i, index) in browseData.data"
-                   :key="index" class="">
+                   :key="index" class="ma-n1">
               <v-card class="card-enlargement-flavor pa-5">
                 <v-row class="pt-2 px-1">
                   <v-col>
@@ -291,7 +291,11 @@ const getBrowseList = async () => {
           <EmptyView></EmptyView>
         </div>
 
-        <v-overlay class="h-100 d-flex justify-center align-center bg-transparent" contained :transition="false" v-model="browseLoading">
+        <v-overlay class="h-100 d-flex justify-center align-center bg-transparent"
+                   contained
+                   opacity="0"
+                   :transition="false"
+                   v-model="browseLoading">
           <Loading size="100"></Loading>
         </v-overlay>
 

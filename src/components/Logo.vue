@@ -1,12 +1,8 @@
-<script lang="ts">
-export default { name: 'Logo' }
-</script>
-
 <script setup lang="ts">
+
 import {useI18n} from "vue-i18n";
 
-const {t} = useI18n(),
-    props = defineProps({
+const props = defineProps({
       size: {
         type: [Number, String],
         default: 25
@@ -15,12 +11,20 @@ const {t} = useI18n(),
         type: String,
         default: ''
       }
-    })
+    }),
+    {t} = useI18n()
+
+defineOptions({
+  name: "Logo",
+})
 </script>
 
 <template>
   <router-link to="/" class="logo" :class="props.class">
-    <img src="/favicon.png" class="mr-1 icon"
+    <img src="/favicon.png"
+         class="mr-1 icon"
+         alt="logo"
+         :title="`${t('name')} Logo`"
          :style="`height:${size}px;width:${size}px`"/>
   </router-link>
 </template>

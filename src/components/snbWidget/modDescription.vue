@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import {useI18n} from "vue-i18n";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {computed} from "vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
 const props = defineProps<{ id: string, variants, grade, type?, class?: string }>(),
-    {t, rt, tm, te} = useI18n(),
+    {t, tm, te, rt, locale: localLocale} = useI18nUtils(),
     {modification} = useI18nReadName()
 
 let
@@ -30,7 +30,7 @@ const onFormatRange = (data: []) => {
 
 const getRange = (v: any) => v.range
 const getModDescription = () => (tm(`snb.modifications.${props.id}.description`) as any)
-const getAllModDescription = computed(() => modification(props.id).description(null,props.type))
+const getAllModDescription = computed(() => modification(props.id).description(localLocale.value, props.type))
 
 defineOptions({
   name: "ModDescription"

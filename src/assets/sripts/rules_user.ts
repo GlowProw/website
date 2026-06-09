@@ -57,6 +57,8 @@ export function useRules() {
         (v: string | null | undefined) => !v || new RegExp(/^[a-zA-Z0-9_]+$/).test(v) || t('basic.rules.alternativeName.incorrectFormat'),
     ]
     const email = [
+        (v: string | null | undefined) => !!v || t('basic.rules.email.notEmpty'),
+        (v: string | null | undefined) => (v && v.length >= 1 && v.length <= 200) || t('basic.rules.email.incorrectFormat', {min: 1, max: 200}),
         (v: string | null | undefined) => !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || t('basic.rules.email.incorrectFormat')
     ]
     const password = [
@@ -67,12 +69,18 @@ export function useRules() {
         (v: string | null | undefined) => !!v || t('basic.rules.captcha.notEmpty'),
         (v: string | null | undefined) => (v && v.length == 4) || t('basic.rules.captcha.limitationLength', {max: 4}),
     ]
+    const code = [
+        (v: string | null | undefined) => !!v || t('basic.rules.captcha.notEmpty'),
+        (v: string | null | undefined) => (v && v.length == 6) || t('basic.rules.captcha.limitationLength', {max: 6}),
+    ]
+
 
     return {
         username,
         alternativeName,
         email,
         password,
-        captcha
+        captcha,
+        code
     }
 }

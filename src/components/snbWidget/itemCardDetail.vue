@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed, onMounted, type Ref, ref, watch} from "vue";
-import {useI18n} from "vue-i18n";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useRouter} from "vue-router";
 import {Item, Items} from "glow-prow-data/src/entity/Items";
 import {Cosmetics} from "glow-prow-data";
@@ -22,12 +22,16 @@ import ItemDescription from "@/components/snbWidget/itemDescription.vue";
 import ItemContentWidget from "@/components/snbWidget/itemContentWidget.vue";
 import ShipUpgradedDescription from "@/components/snbWidget/shipUpgradedDescription.vue";
 import HtmlLink from "@/components/HtmlLink.vue";
+import {useWishlistStore} from "~/stores/wishlistStore";
+import PerksName from "@/components/snbWidget/perksName.vue";
+import WishlistMatchWidget from "@/components/snbWidget/wishlistMatchWidget.vue";
 
 const props = withDefaults(defineProps<{
   id: string,
   isShowOpenDetail?: boolean,
   isShowDescription?: boolean,
   isWidget?: boolean,
+  data?: any,
 }>(), {
   id: 'culverin1',
   isShowOpenDetail: true,
@@ -35,9 +39,10 @@ const props = withDefaults(defineProps<{
   isWidget: false,
 })
 
-const {t} = useI18n()
+const {t} = useI18nUtils()
 const router = useRouter()
 const cdnStore = useCDNAssetsServiceStore()
+const wishlistStore = useWishlistStore()
 
 const rarityColorConfig = rarity.color
 const items = Items
@@ -45,14 +50,14 @@ const cosmetics = Cosmetics
 
 let itemsCardData = ref({
   icon: '',
-  panel: props.isWidget ? Array.from({length: 100}, (i, index) => index) : 0
+  panel: props.isWidget ? ['perks', 'wishlist', 'obtainable'] : 'perks'
 })
 const i: Ref<Item | null> = ref(null)
 const itemDescription: Ref<any> = ref(null)
 const itemContents: Ref<any[]> = ref([])
 
 const onReady = async () => {
-  i.value = items[props.id] || null
+  i.value = props.data ? props.data : (items[props.id] || null)
   onSetIcon()
 
   if (i.value) {
@@ -114,6 +119,11 @@ onMounted(() => {
 })
 
 const getType = (i: any) => i?.type
+
+const wishlistMatch = computed(() => {
+  if (!i.value?.id) return null;
+  return wishlistStore.getMatchForItem(i.value.id) || wishlistStore.getMatchForMod(i.value.id);
+});
 
 defineOptions({
   name: 'ItemCardDetail'
@@ -214,13 +224,13 @@ defineOptions({
           <ItemContentWidget :data="i" :size="40" :isOpenNewWindow="true" :isShowTitle="false" :isShowTooltip="false" :isCenter="false"></ItemContentWidget>
         </v-row>
       </template>
-
-      <v-expansion-panels class="mt-5" v-model="itemsCardData.panel" :multiple="isWidget" :static="true">
+      <v-expansion-panels class="mt-5" v-model="itemsCardData.panel" :multiple="isWidget">
         <v-expansion-panel
             class="bg-transparent"
             color="transparent"
             tile
             static
+            value="perks"
             v-if="i.perks && i.perks.length > 0">
           <template v-slot:title>
             <div class="title-long-flavor bg-black">
@@ -236,6 +246,23 @@ defineOptions({
             color="transparent"
             tile
             static
+            value="wishlist"
+            v-if="wishlistMatch">
+          <template v-slot:title>
+            <div class="title-long-flavor bg-black d-flex align-center ga-2 bg-black">
+              {{ t('setting.wishlist.title') }}
+            </div>
+          </template>
+          <template v-slot:text>
+            <WishlistMatchWidget :id="i.id"></WishlistMatchWidget>
+          </template>
+        </v-expansion-panel>
+        <v-expansion-panel
+            class="bg-transparent"
+            color="transparent"
+            tile
+            static
+            value="obtainable"
             v-if="i.obtainable">
           <template v-slot:title>
             <div class="title-long-flavor bg-black">
@@ -260,6 +287,7 @@ defineOptions({
 
 <style scoped lang="less">
 @import "@/assets/styles/demo-reel";
+@import "@/assets/styles/link";
 
 .material-mirror-image {
   transform: scaleX(-1);

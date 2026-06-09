@@ -14,6 +14,8 @@ import {useDisplay} from "vuetify/framework";
 import EmptyView from "@/components/EmptyView.vue";
 import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
 import MaterialName from "@/components/snbWidget/materialName.vue";
+import {useNoticeStore} from "~/stores/noticeStore";
+import ImportAssemblyDialog from "./ImportAssemblyDialog.vue";
 
 const {t} = useI18n()
 const store = useCalculatorStore()
@@ -30,6 +32,9 @@ const addQuantity = ref(1)
 const selectedTargetObj = ref(null)
 const fileInput = ref<HTMLInputElement | null>(null)
 const importType = ref<'json' | 'csv'>('json')
+
+const noticeStore = useNoticeStore()
+const importAssemblyDialog = ref(false)
 
 const isSearchDialogOpen = ref(store.targets.length === 0)
 
@@ -138,7 +143,7 @@ function onFileImport(e: Event) {
 <template>
   <AffixBoxHasTitleView>
     <v-card variant="text" class="target-panel">
-      <v-dialog v-model="isSearchDialogOpen" max-width="500">
+      <v-dialog v-model="isSearchDialogOpen" max-width="580">
         <v-card border class="pa-5" :min-width="mobile ? '100%' : 350" :width="mobile ? '100%' : 580">
           <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 mt-n5">
             <v-icon size="80">mdi-plus</v-icon>
@@ -243,6 +248,12 @@ function onFileImport(e: Event) {
                   </template>
                   <v-list-item-title>{{ t('calculator.import.csv') }}</v-list-item-title>
                 </v-list-item>
+                <v-list-item @click="importAssemblyDialog = true">
+                   <template v-slot:prepend>
+                     <v-icon icon="mdi-ship-wheel"/>
+                   </template>
+                   <v-list-item-title>{{ t('calculator.import.importBuild') }}</v-list-item-title>
+                 </v-list-item>
               </v-list>
             </div>
           </v-card-text>
@@ -255,6 +266,11 @@ function onFileImport(e: Event) {
           </v-card-actions>
         </v-card>
       </v-dialog>
+
+       <!-- 导入配装对话框 -->
+       <ImportAssemblyDialog
+           v-model="importAssemblyDialog"
+           @imported="isSearchDialogOpen = false"/>
 
       <!-- 已添加目标列表 -->
       <v-card border v-if="store.targets.length === 0" class="text-center py-6 opacity-50">

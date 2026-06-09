@@ -19,6 +19,9 @@ import AccountAdminPrivilegeManagementPage from '@/views/user/admin/PrivilegeMan
 
 import SigninPage from '@/views/user/Signin.vue'
 import SignupPage from '@/views/user/Signup.vue'
+import ActivatePage from '@/views/user/Activate.vue'
+import ForgotPasswordPage from '@/views/user/ForgotPassword.vue'
+import ResetPasswordPage from '@/views/user/ResetPassword.vue'
 import CodexPage from '@/views/codex/Index.vue'
 import CodexOverviewPage from '@/views/codex/Overview.vue'
 import RankingDesignedItemsPage from '@/views/rankingDesignedItems/Index.vue'
@@ -91,6 +94,7 @@ import SettingStoragePage from '@/views/setting/Storage.vue'
 
 import AboutPage from '@/views/setting/About.vue'
 import SettingPwaPage from '@/views/setting/Pwa.vue'
+import SettingWishlistPage from '@/views/setting/Wishlist.vue'
 import NotFoundPage from '@/views/NotFound.vue';
 
 import Test from '@/views/Test.vue'
@@ -228,6 +232,12 @@ const routes: Readonly<RouteRecordRaw[]> = [
                         name: 'AccountSmugglersReport',
                         component: AccountSmugglersReport
                     },
+                    {
+                        path: 'trash',
+                        name: 'AccountTrash',
+                        component: () => import('@/views/user/account/Trash.vue'),
+                        meta: { title: 'account.trash', auth: true }
+                    },
                 ]
             },
             {
@@ -274,6 +284,31 @@ const routes: Readonly<RouteRecordRaw[]> = [
                     keywords: 'signup.meta.keywords'
                 },
                 component: SignupPage
+            },
+            {
+                path: '/account/activate',
+                name: 'activate',
+                meta: {
+                    title: 'activate.title',
+                    keywords: 'activate.meta.keywords'
+                },
+                component: ActivatePage
+            },
+            {
+                path: '/account/forgot-password',
+                name: 'forgotPassword',
+                meta: {
+                    title: 'forgotPassword.title'
+                },
+                component: ForgotPasswordPage
+            },
+            {
+                path: '/account/reset-password',
+                name: 'resetPassword',
+                meta: {
+                    title: 'resetPassword.title'
+                },
+                component: ResetPasswordPage
             },
             {
                 path: '/team',
@@ -325,6 +360,11 @@ const routes: Readonly<RouteRecordRaw[]> = [
                         path: 'pwa',
                         name: 'PortalSettingPwa',
                         component: SettingPwaPage,
+                    },
+                    {
+                        path: 'wishlist',
+                        name: 'PortalSettingWishlist',
+                        component: SettingWishlistPage,
                     }
                 ]
             },

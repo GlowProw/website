@@ -13,7 +13,7 @@ import RhombusWidget from "@/components/snbWidget/rhombusWidget.vue";
 import WheelDataProcessing from "@/assets/sripts/wheel_data_processing";
 import {WheelAttr} from "@/assets/types";
 import {useI18n} from "vue-i18n";
-import { useIconGlobalStyle } from "@/assets/sripts/useIconGlobalStyle";
+import { use_icon_global_Style } from "@/assets/sripts/use_icon_global_Style";
 
 const props = withDefaults(defineProps<{
       readonly?: boolean,
@@ -33,7 +33,7 @@ let show = ref(false),
     selectWheelValue = ref<any>(null),
     wheelOptionalItemTags = ref(['consumable']),
     {t} = useI18n(),
-    { useIconAdaptiveSize, useIconBoxMargin, useIconBoxPadding, useIconImageMargin, useIconImagePadding } = useIconGlobalStyle(),
+    { useIconAdaptiveSize, useIconBoxMargin, useIconBoxPadding, useIconImageMargin, useIconImagePadding } = use_icon_global_Style(),
     baseSize = 90,
     sizeRef = useIconAdaptiveSize(baseSize, 90),
     computedOuterPadding = useIconBoxPadding(1),

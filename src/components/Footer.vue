@@ -23,7 +23,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="footer" v-if="!appStore.isPwa">
+  <div class="footer" v-if="!appStore?.isPwaInstalled">
     <v-skeleton-loader type="image" height="2px" :color="`var(--main-color)`" class="opacity-10 overflow-hidden"></v-skeleton-loader>
     <v-container class="pt-0">
       <footer class="mt-10 mb-10">
@@ -40,8 +40,11 @@ onMounted(() => {
             <v-row>
               <v-col cols="12" sm="6" md="6" lg="3">
                 <b class="text-amber">{{ t('footer.col1.title') }}</b>
-                <ul>
-                  <li v-for="(fun, funIndex) in appFuns.list" :key="funIndex" :class="{'opacity-40':!fun.to }">
+                <ul class="ga-2">
+                  <li v-for="(fun, funIndex) in appFuns.list"
+                      :key="funIndex"
+                      class="d-inline-flex mr-2 v-col-auto pa-0"
+                      :class="{'opacity-40':!fun.to }">
                     <HtmlLink
                         :is-icon="false"
                         :is-iframe-show="false"

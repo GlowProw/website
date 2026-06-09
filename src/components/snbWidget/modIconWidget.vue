@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useIconGlobalStyle } from "@/assets/sripts/useIconGlobalStyle";
+import { use_icon_global_Style } from "@/assets/sripts/use_icon_global_Style";
 
 import {computed, onMounted, ref, useSlots, watch} from "vue";
 import {useI18n} from "vue-i18n";
@@ -66,7 +66,7 @@ defineOptions({
   name: "ModIconWidget"
 })
 
-const { useIconImagePadding, useIconImageMargin } = useIconGlobalStyle();
+const { useIconImagePadding, useIconImageMargin } = use_icon_global_Style();
 const computedPadding = useIconImagePadding(props.padding);
 const computedMargin = useIconImageMargin(props.margin);
 </script>
@@ -78,6 +78,8 @@ const computedMargin = useIconImageMargin(props.margin);
              interactive
              :disabled="!props.isShowTooltip"
              :offset="[40, 0]"
+             scroll-strategy="close"
+             transition="opacity 300ms ease-in"
              location="right top"
              content-class="pa-0 bg-transparent"
              :target="[tooltipPos.x, tooltipPos.y]">

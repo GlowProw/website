@@ -109,15 +109,15 @@ export default {
                v-if="emojiItemData"/>
         </template>
         <template v-else-if="emojiItemData && emojiItemData.config && emojiItemData.config.type === 'spriteDiagram'">
-        <span class="emote"
-              :class="[
-                 isSpan ? 'emote-none-padding': ''
-              ]"
-              :style="`width: ${size}px;height: ${size}px;background-image: url(${emojiItemData.imageUrl}background-size: ${emojiItemData.config.size};background-position: ${emojiItemData.config.position}`"
-              v-if="emojiItemData">
-          <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-               :alt="emojiItemData.name"/>
-        </span>
+          <span class="emote"
+                :class="[
+                   isSpan ? 'emote-none-padding': ''
+                ]"
+                :style="`width: ${size}px;height: ${size}px;background-image: url(${emojiItemData.imageUrl});background-size: ${emojiItemData.config.size};background-position: ${emojiItemData.config.position}`"
+                v-if="emojiItemData">
+            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                 :alt="emojiItemData.name"/>
+          </span>
         </template>
       </div>
     </template>
@@ -140,7 +140,7 @@ export default {
                 :class="[
                    isSpan ? 'emote-none-padding': ''
                 ]"
-                :style="`width: ${size * 3}px;height: ${size * 3}px;background-image: url(${emojiItemData.imageUrl}background-size: ${emojiItemData.config.size};background-position: ${emojiItemData.config.position}`"
+                :style="`width: ${size * 3}px;height: ${size * 3}px;background-image: url(${emojiItemData.imageUrl});background-size: ${emojiItemData.config.size};background-position: ${emojiItemData.config.position}`"
                 v-if="emojiItemData">
             <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
                  :alt="emojiItemData.name"/>

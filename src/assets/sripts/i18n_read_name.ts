@@ -1,7 +1,7 @@
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useI18n} from "vue-i18n";
 
-import {Cosmetics, Items, MapLocations, Materials, Modifications, Npcs, Sets, Ships, TreasureMaps} from "glow-prow-data";
+import {Cosmetics, Item, Items, MapLocations, Materials, Modifications, Npcs, Sets, Ship, Ships, TreasureMaps} from "glow-prow-data";
 import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
 import {number} from "@/assets/sripts/index";
 import {Commodities} from "glow-prow-data/src/entity/Commodities";
@@ -19,7 +19,7 @@ const items = Items,
     sets = Sets
 
 export function useI18nReadName() {
-    const {asString, sanitizeString, te, tm, t} = useI18nUtils()
+    const {asString, asArray, sanitizeString, te, tm, t} = useI18nUtils()
     const {rt} = useI18n();
 
     const getValue = (obj: any, path: string) => {
@@ -457,6 +457,62 @@ export function useI18nReadName() {
         }
     }
 
+    const perk = (id: string | number) => {
+        const keysName = [
+            `snb.perks.${id}.name`,
+            `snb.perks.${sanitizeString(<string>id).cleaned}.name`,
+        ]
+
+        return {
+            keysName,
+            name: (lang?: string): string => {
+                let name = asString(keysName, {
+                    backRawKey: false,
+                    lang
+                })
+                if (name)
+                    name += `${number.intToRoman(<any>sanitizeString(<string>id).removedNumbers[0])}`
+                return name
+            },
+            /**
+             * data 泛用类型，不是指perk的
+             * @param data
+             * @param lang
+             */
+            description: (data: Item | Ship, lang?: string): any[] => {
+                let result = []
+
+                for (const perkKey of data.perks) {
+                    const perksName = sanitizeString(perkKey)
+                    let keys: any[] = []
+
+                    switch (data?.type) {
+                        case "shipUpgrade":
+                            keys = [
+                                `snb.perks.${perksName.cleaned}.description.${(data as any)?.tier}`,
+                                `snb.perks.${perksName.cleaned}.description.general`,
+                            ]
+
+                            result.push({id: perkKey, value: asArray(keys)})
+                            break;
+                        default:
+                            console.log(perkKey)
+                            keys = [
+                                `snb.perks.${perkKey}.description.general`,
+                                `snb.perks.${perksName.cleaned}.description.general`,
+                                `snb.perks.${perksName.cleaned}.description.${perksName.removedNumbers[0]}`
+                            ]
+
+                            result.push({id: perkKey, value: asArray(keys)})
+                            break;
+                    }
+                }
+
+                return result;
+            }
+        }
+    }
+
     return {
         ship,
         npc,
@@ -469,6 +525,7 @@ export function useI18nReadName() {
         ultimate,
         mapLocation,
         treasureMap,
+        perk,
         getValue
     }
 }

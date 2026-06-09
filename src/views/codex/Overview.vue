@@ -63,7 +63,7 @@ onMounted(() => {
           </v-row>
 
           <v-row class="mb-2 pb-3 mb-10 mx-1">
-            <v-col cols="12" sm="12" md="4" lg="4" v-for="(n, nIndex) in i.childs" :key="nIndex" v-if="i.childs">
+            <v-col cols="12" sm="12" md="4" lg="4" v-for="(n, nIndex) in i.children" :key="nIndex" v-if="i.children">
               <router-link :to="n.to" class="codex-overview-item">
                 <div class="card-flavor px-0 py-1">
                   <v-card class="card-enlargement-flavor card px-8 py-5">

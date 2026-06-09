@@ -284,7 +284,7 @@ defineOptions({
 
   <v-card border class="pa-2" v-if="authStore.isLogin">
     <Textarea v-model="content"
-              :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
+              :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate', 'lang']"
               :placeholder="props.placeholder"></Textarea>
 
     <v-row no-gutters>

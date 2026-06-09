@@ -1,15 +1,16 @@
 <template>
-  <div class="horizontal-scroll-container">
+  <div class="horizontal-scroll-container" ref="containerRef">
     <!-- 左侧滚动按钮 S -->
     <v-btn
         icon
         v-if="showControls && canScrollLeft"
-        class="scroll-button scroll-button--left bg-amber text-black"
+        :class="['scroll-button scroll-button--left bg-amber text-black', {'scroll-button--sticky': isFollowScreenCenter}]"
+        :style="isFollowScreenCenter ? { top: buttonTop + 'px' } : {}"
         @click="scrollLeft"
         :size="btnSize"
         :aria-label="leftButtonAriaLabel">
       <slot name="left-button">
-        <v-icon>mdi-arrow-left-thin</v-icon>
+        <v-icon icon="mdi-arrow-left-thin"></v-icon>
       </slot>
     </v-btn>
     <!-- 左侧滚动按钮 E -->
@@ -40,12 +41,13 @@
     <v-btn
         icon
         v-if="showControls && canScrollRight"
-        class="scroll-button scroll-button--right  bg-amber text-black"
+        :class="['scroll-button scroll-button--right bg-amber text-black', {'scroll-button--sticky': isFollowScreenCenter}]"
+        :style="isFollowScreenCenter ? { top: buttonTop + 'px' } : {}"
         @click="scrollRight"
         :size="btnSize"
         :aria-label="rightButtonAriaLabel">
       <slot name="right-button">
-        <v-icon>mdi-arrow-right-thin</v-icon>
+        <v-icon icon="mdi-arrow-right-thin"></v-icon>
       </slot>
     </v-btn>
     <!-- 右侧滚动按钮 E -->
@@ -67,7 +69,7 @@
 </template>
 
 <script setup>
-import {computed, nextTick, onMounted, onUnmounted, ref} from 'vue'
+import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue'
 
 const props = defineProps({
   btnSize: {
@@ -142,12 +144,23 @@ const props = defineProps({
   forceDraggable: {
     type: Boolean,
     default: true
+  },
+  // 是否跟随屏幕中心
+  isFollowScreenCenter: {
+    type: Boolean,
+    default: false
+  },
+  // 跟随屏幕中心时的安全距离 (上下留白)
+  followScreenSafeDistance: {
+    type: Number,
+    default: 200
   }
 })
 
 const emit = defineEmits(['scroll', 'scroll-start', 'scroll-end'])
 
 const scrollWrapper = ref(null)
+const containerRef = ref(null)
 const isDragging = ref(false)
 const startX = ref(0)
 const startScrollLeft = ref(0)
@@ -156,6 +169,7 @@ const canScrollRight = ref(false)
 const scrollPosition = ref(0)
 const maxScroll = ref(0)
 const canScrollHorizontally = ref(false) // 新增：是否可以水平滚动
+const buttonTop = ref(0)
 
 const rafId = ref(null)
 const lastScrollTime = ref(0)
@@ -181,7 +195,24 @@ onMounted(() => {
   nextTick(() => {
     checkScrollability()
     window.addEventListener('resize', checkScrollability)
+
+    if (props.isFollowScreenCenter) {
+      window.addEventListener('scroll', updateButtonPosition, {passive: true})
+      window.addEventListener('resize', updateButtonPosition)
+      updateButtonPosition()
+    }
   })
+})
+
+watch(() => props.isFollowScreenCenter, (val) => {
+  if (val) {
+    window.addEventListener('scroll', updateButtonPosition, {passive: true})
+    window.addEventListener('resize', updateButtonPosition)
+    updateButtonPosition()
+  } else {
+    window.removeEventListener('scroll', updateButtonPosition)
+    window.removeEventListener('resize', updateButtonPosition)
+  }
 })
 
 onUnmounted(() => {
@@ -189,12 +220,12 @@ onUnmounted(() => {
   document.removeEventListener('mousemove', handleMouseMove)
   document.removeEventListener('mouseup', handleMouseUp)
 
-  // 清理 RAF
-  if (rafId.value) {
-    cancelAnimationFrame(rafId.value)
-  }
-
   window.removeEventListener('resize', checkScrollability)
+
+  if (props.isFollowScreenCenter) {
+    window.removeEventListener('scroll', updateButtonPosition)
+    window.removeEventListener('resize', updateButtonPosition)
+  }
 })
 
 /**
@@ -220,6 +251,33 @@ const checkScrollability = () => {
     canScrollRight: canScrollRight.value,
     canScrollHorizontally: canScrollHorizontally.value
   })
+}
+
+/**
+ * 更新按钮在容器内的垂直位置，使其跟随屏幕中心
+ * @param event
+ */
+const updateButtonPosition = () => {
+  if (!containerRef.value || !props.isFollowScreenCenter) return
+
+  const rect = containerRef.value.getBoundingClientRect()
+  const vh = window.innerHeight
+  const viewportCenter = vh / 2
+
+  // 计算相对于容器顶部的目标位置
+  let targetTop = viewportCenter - rect.top
+
+  // 限制在容器范围内 (留出按钮半径的边距 + 安全距离)
+  const margin = props.btnSize / 2
+  const minTop = margin + props.followScreenSafeDistance
+  const maxTop = rect.height - margin - props.followScreenSafeDistance
+
+  // 如果容器高度不足以容纳两个安全距离，则居中显示
+  if (minTop > maxTop) {
+    buttonTop.value = rect.height / 2
+  } else {
+    buttonTop.value = Math.max(minTop, Math.min(maxTop, targetTop))
+  }
 }
 
 /**
@@ -518,9 +576,13 @@ defineExpose({
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   cursor: pointer;
   z-index: 10;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, background 0.3s ease, opacity 0.3s ease;
   color: #333;
   transform: translateY(-50%) translateZ(0);
+}
+
+.scroll-button--sticky {
+  transition: transform 0.3s ease, background 0.3s ease, opacity 0.3s ease, top 0s !important;
 }
 
 .scroll-button:hover {

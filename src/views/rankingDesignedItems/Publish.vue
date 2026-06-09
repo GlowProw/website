@@ -305,11 +305,8 @@ const onUpdateTags = (data: any) => {
             </v-combobox>
           </div>
 
-          <p class="font-weight-bold  mt-5 text-amber">快速选择标签</p>
-          <p class="font-weight-light mt-1 mb-1 opacity-80">通过快速选择模版来创建配装标签</p>
-
           <AssemblyTagsWidget
-              :tags="publishData.tags"
+              v-model="publishData.tags"
               @change="onUpdateTags"></AssemblyTagsWidget>
         </v-col>
       </v-row>

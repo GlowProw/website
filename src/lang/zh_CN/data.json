@@ -56,6 +56,12 @@
     "contactHonor": "你可以通过下方任意方式联系到开发者，咨询关于网站或是寻求合作",
     "contactTitle": "联系"
   },
+  "emote": {
+    "emoji": "表情",
+    "gesture": "手势",
+    "hangouts-blob": "圆脸",
+    "party": "派对"
+  },
   "pwa": {
     "title": "渐进式网页应用(PWA)",
     "offlineReady": "应用已准备好离线工作",
@@ -180,13 +186,35 @@
         "bad": "登陆错误: 请检查登陆信息格式",
         "wrong": "登陆信息错误",
         "expired": "用户身份过期,请重新登陆",
-        "accountIncorrect": "登陆信息错误"
+        "accountIncorrect": "登陆信息错误",
+        "notActivated": "账户由于未激活而被禁用，请前往激活"
       },
       "signup": {
-        "ok": "注册成功",
+        "ok": "注册成功，请激活账户",
         "userAlreadyHas": "注册帐号的名称已存在",
         "error": "注册错误: {context}",
         "bad": "注册错误: 请检查注册信息的格式要求"
+      },
+      "activate": {
+        "ok": "账户激活成功，请登录",
+        "invalidCode": "激活码无效或已过期",
+        "alreadyActive": "账户已激活，请直接登录",
+        "userNotFound": "未找到对应账户",
+        "emailQuotaExceeded": "邮件发送达到每日上限，请稍后再试",
+        "resend": {
+          "ok": "激活码已重发，请检查邮箱"
+        },
+        "error": "激活错误: {context}"
+      },
+      "forgotPassword": {
+        "ok": "重置码已发送，请检查邮箱",
+        "invalidEmail": "邮箱与账户不匹配",
+        "error": "请求错误: {context}"
+      },
+      "resetPassword": {
+        "ok": "密码重置成功，请重新登录",
+        "invalidCode": "重置码无效或已过期",
+        "error": "重置错误: {context}"
       },
       "like": {
         "ok": "赞处理成功",
@@ -196,6 +224,17 @@
       "user": {
         "invalid": "错误用户",
         "tokenExpired": "用户身份过期,请重新登陆"
+      },
+      "emailChange": {
+        "alreadyUsed": "该邮箱已被占用",
+        "quotaExceeded": "邮件发送达到每日上限，请稍后再试",
+        "invalidCode": "验证码无效或已过期",
+        "request": {
+          "ok": "验证码已发送到新邮箱"
+        },
+        "confirm": {
+          "ok": "邮箱更换成功"
+        }
       },
       "request": {
         "rateLimited": "请求太快力，慢点"
@@ -225,7 +264,8 @@
         "incorrectFormat": "别名格式不正确"
       },
       "email": {
-        "incorrectFormat": "邮箱格式不正确"
+        "notEmpty": "必须填写邮箱",
+        "incorrectFormat": "邮箱格式不正确，如: usename@exp.com"
       },
       "password": {
         "notEmpty": "必须填写密码",
@@ -259,8 +299,12 @@
     "blogLog": "博客"
   },
   "account": {
+    "trash": "回收站",
+    "logout": "退出登录",
+    "selectAll": "全选",
+    "itemsSelected": "已选择 {count} 项",
+    "deletedAt": "删除时间",
     "title": "账户",
-    "logout": "登出账号",
     "information": {
       "title": "个人信息",
       "form": {
@@ -280,7 +324,15 @@
         },
         "email": {
           "name": "邮箱",
-          "placeholder": "账户邮箱"
+          "placeholder": "账户邮箱",
+          "changeName": "修改邮箱",
+          "changeDescription": "更改您的账户邮箱，需要向新邮箱发送验证码并验证。",
+          "newEmailPlaceholder": "输入新邮箱地址",
+          "sendCode": "发送验证码",
+          "codePlaceholder": "输入 6 位验证码",
+          "error": {
+            "required": "请输入新邮箱"
+          }
         },
         "language": {
           "name": "语种",
@@ -312,7 +364,44 @@
     "myComment": "我的评论",
     "myTeamup": "我的组队",
     "myMap": "地图管理",
-    "mySmugglersReport": "走私犯奖赏家"
+    "mySmugglersReport": "走私犯奖赏家",
+    "trash": "回收站"
+  },
+  "activate": {
+    "title": "账户激活",
+    "description": "请输入发送到您邮箱的 6 位激活码以完成注册。",
+    "form": {
+      "username": {
+        "name": "账户名称",
+        "placeholder": "请输入用户名"
+      },
+      "code": {
+        "name": "激活码",
+        "placeholder": "输入 6 位激活码"
+      }
+    },
+    "resendCode": "重新发送激活码",
+    "submit": "激活账户",
+    "backToSignin": "返回登录"
+  },
+  "forgotPassword": {
+    "title": "找回密码",
+    "description": "请输入您的账户 ID 和关联邮箱，系统将发送 6 位重置码到您的邮箱。",
+    "form": {
+      "identifier": "账户 ID",
+      "email": "注册邮箱",
+      "submit": "发送重置码"
+    }
+  },
+  "resetPassword": {
+    "title": "重置密码",
+    "description": "请输入您收到的重置码和新的登录密码。",
+    "form": {
+      "username": "账户名称",
+      "code": "重置码",
+      "newPassword": "新密码",
+      "submit": "确认重置"
+    }
   },
   "codex": {
     "title": "手稿",
@@ -986,7 +1075,12 @@
     "hasPassword": "包含密码",
     "byCloningUuid": "克隆",
     "editAssemblyBtn": "编辑此配装",
+    "editInfoBtn": "编辑信息",
+    "editWorkshopBtn": "配装",
     "anonymous": "匿名",
+    "restore": "恢复",
+    "restoreConfirm": "确定要恢复这个配装吗？",
+    "restoreSuccess": "恢复成功",
     "commentPlaceholder": "你对此有何见解？",
     "additions": {
       "assembly": "配装",
@@ -1130,6 +1224,7 @@
     },
     "share": {
       "title": "分享配装",
+      "notMobile": "由于本地客户端的显示限制，小屏设备暂不支持海报生成功能。建议您切换到电脑或平板等宽屏设备上使用，以获得完整体验。",
       "createPoster": "生成配装海报",
       "configHint": "配置生成海报属性，决定海报样式以及格式等",
       "format": "格式",
@@ -1144,7 +1239,10 @@
       "showHeader": "海报头部标识",
       "showTitle": "显示标题",
       "showTabs": "显示标签",
-      "showDescription": "显示描述内容"
+      "showDescription": "显示描述内容",
+      "language": "语言",
+      "generating": "正在生成海报...",
+      "generatingHint": "正在导出图像，请稍候"
     },
     "browse": {
       "title": "配装分享集",
@@ -1206,7 +1304,7 @@
     "email": {
       "name": "邮箱",
       "placeholder": "输入邮箱地址",
-      "hint": "可选邮箱，这将使得你的账户可寻回"
+      "hint": "实现账户寻回头像定制功能，程序将验证你的邮箱"
     },
     "register": "注册"
   },
@@ -1324,6 +1422,45 @@
     },
     "notification": {
       "title": "通知"
+    },
+    "wishlist": {
+      "title": "愿望清单",
+      "description": "管理格式愿望清单，匹配的物品将在卡片中显示推荐标记",
+      "importTitle": "导入愿望清单",
+      "importFromUrl": "从URL导入",
+      "importFromFile": "上传文件",
+      "importFromText": "粘贴文本",
+      "urlPlaceholder": "输入愿望清单原始文本URL",
+      "importBtn": "导入",
+      "listTitle": "已导入的愿望清单",
+      "rules": "条规则",
+      "source": "来源",
+      "export": "导出",
+      "delete": "删除",
+      "deleteConfirm": "确定要删除此愿望清单吗？",
+      "enableAll": "全部启用",
+      "disableAll": "全部禁用",
+      "clearAll": "清空所有",
+      "clearAllConfirm": "确定要清空所有愿望清单吗？",
+      "noWishlists": "暂无导入的愿望清单",
+      "importSuccess": "成功导入愿望清单",
+      "importError": "导入失败",
+      "enabled": "已启用",
+      "disabled": "已禁用",
+      "pasteTitle": "粘贴愿望清单文本",
+      "pastePlaceholder": "在此粘贴愿望清单文本内容...",
+      "matchedItems": "统计",
+      "update": "更新",
+      "updateError": "更新失败",
+      "lastUpdated": "最近更新",
+      "duplicatesRemoved": "已去重 {count} 条",
+      "requiredFieldsMissing": "缺少必填字段: {fields}",
+      "field_title": "标题",
+      "field_description": "描述",
+      "field_max_limit": "导入数量达到上限（最多10个）",
+      "notes": "注解",
+      "mod": "模组",
+      "perk": "词条"
     }
   },
   "header": {
@@ -1390,7 +1527,7 @@
   },
   "footer": {
     "basic": {
-      "description": "碧海黑帆清单网站"
+      "description": "闪耀船首是Cabbagelol社区玩家编写《碧海黑帆》游戏工具，向玩家免费提供物品查询，配置分享，地图等服务"
     },
     "col1": {
       "title": "服务"
@@ -1481,7 +1618,15 @@
     "import": {
       "title": "导入",
       "json": "导入 JSON",
-      "csv": "导入 CSV"
+      "csv": "导入 CSV",
+      "importBuild": "导入配装",
+      "selectBuild": "选择配装",
+      "noBuildsFound": "暂无保存的配装或草稿",
+      "importByUid": "通过 ID 导入",
+      "importByUidPlaceholder": "输入配装 ID (UID)...",
+      "importing": "加载中...",
+      "importSuccess": "导入成功",
+      "importError": "导入失败，请检查 ID 是否正确"
     },
     "sankey": {
       "showName": "显示名称",
@@ -1518,4 +1663,3 @@
     }
   }
 }
-

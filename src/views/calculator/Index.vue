@@ -13,11 +13,27 @@ import SaveConfigDialog from "./SaveConfigDialog.vue";
 import Silk from "@/components/Silk.vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import {Items, Materials, Ships} from 'glow-prow-data';
+import {storageIntermediateTransfer, apis} from "@/assets/sripts";
+import {useNoticeStore} from "~/stores/noticeStore";
+import EmptyView from "@/components/EmptyView.vue";
+import ImportAssemblyDialog from "./ImportAssemblyDialog.vue";
 
 const {t} = useI18n()
 const store = useCalculatorStore()
+const noticeStore = useNoticeStore()
 const i18nReadName = useI18nReadName()
 
+const configDialog = ref<InstanceType<typeof SaveConfigDialog> | null>(null)
+
+const fileInput = ref<HTMLInputElement | null>(null)
+const importType = ref<'json' | 'csv'>('json')
+
+const importAssemblyDialog = ref(false)
+
+/**
+ * 获取物品、材料或船只的显示名称
+ * @param id 标识符
+ */
 function getDisplayName(id: string): string {
   try {
     let nameData: any = null
@@ -33,24 +49,29 @@ function getDisplayName(id: string): string {
   return id
 }
 
-function handleExportCSV() {
+/**
+ * 导出 CSV 材料清单
+ */
+function onExportCSV() {
   store.exportCSV(
       getDisplayName,
   )
 }
 
-const configDialog = ref<InstanceType<typeof SaveConfigDialog> | null>(null)
-
-const fileInput = ref<HTMLInputElement | null>(null)
-const importType = ref<'json' | 'csv'>('json')
-
-function openConfigDialog() {
+/**
+ * 打开配置存档管理对话框
+ */
+function onOpenConfigDialog() {
   if (configDialog.value) {
     configDialog.value.dialog = true
   }
 }
 
-function triggerImport(type: 'json' | 'csv') {
+/**
+ * 触发文件导入流程
+ * @param type 导入文件类型 ('json' | 'csv')
+ */
+function onImportTrigger(type: 'json' | 'csv') {
   importType.value = type
   if (fileInput.value) {
     fileInput.value.value = ''
@@ -59,6 +80,10 @@ function triggerImport(type: 'json' | 'csv') {
   }
 }
 
+/**
+ * 当选择文件后执行导入
+ * @param e 事件对象
+ */
 function onFileImport(e: Event) {
   const target = e.target as HTMLInputElement
   if (!target.files || target.files.length === 0) return
@@ -133,7 +158,7 @@ function onFileImport(e: Event) {
                 <v-col cols="auto">
                   <div class="d-flex ga-2">
                     <!-- 配置管理 S -->
-                    <v-btn variant="tonal" color="amber" @click="openConfigDialog">
+                    <v-btn variant="tonal" color="amber" @click="onOpenConfigDialog">
                       <v-icon icon="mdi-content-save-cog" class="mr-1"/>
                       {{ t('calculator.config.title') }}
                     </v-btn>
@@ -152,17 +177,23 @@ function onFileImport(e: Event) {
                         <v-list-subheader>
                           {{ t('calculator.import.title') }}
                         </v-list-subheader>
-                        <v-list-item @click="triggerImport('json')">
+                        <v-list-item @click="onImportTrigger('json')">
                           <template v-slot:prepend>
                             <v-icon icon="mdi-code-json"/>
                           </template>
                           <v-list-item-title>{{ t('calculator.import.json') }}</v-list-item-title>
                         </v-list-item>
-                        <v-list-item @click="triggerImport('csv')">
+                        <v-list-item @click="onImportTrigger('csv')">
                           <template v-slot:prepend>
                             <v-icon icon="mdi-file-delimited"/>
                           </template>
                           <v-list-item-title>{{ t('calculator.import.csv') }}</v-list-item-title>
+                        </v-list-item>
+                        <v-list-item @click="importAssemblyDialog = true">
+                          <template v-slot:prepend>
+                            <v-icon icon="mdi-ship-wheel"/>
+                          </template>
+                          <v-list-item-title>{{ t('calculator.import.importBuild') }}</v-list-item-title>
                         </v-list-item>
 
                         <!-- 导出 -->
@@ -173,7 +204,7 @@ function onFileImport(e: Event) {
                           </template>
                           <v-list-item-title>{{ t('calculator.export.json') }}</v-list-item-title>
                         </v-list-item>
-                        <v-list-item @click="handleExportCSV()">
+                        <v-list-item @click="onExportCSV()">
                           <template v-slot:prepend>
                             <v-icon icon="mdi-file-delimited"/>
                           </template>
@@ -216,6 +247,9 @@ function onFileImport(e: Event) {
 
     <!-- 配置对话框 -->
     <SaveConfigDialog ref="configDialog"/>
+
+    <!-- 导入配装对话框 -->
+    <ImportAssemblyDialog v-model="importAssemblyDialog"/>
   </v-app>
 </template>
 

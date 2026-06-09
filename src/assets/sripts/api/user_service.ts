@@ -2,7 +2,7 @@ import {useHttpToken} from "@/assets/sripts/http_util";
 import {PaginationParams} from "@/assets/types";
 import {SigninParams} from "@/assets/types/User.Login";
 import {SignupParams} from "@/assets/types/User.Signup";
-import {ChangePasswordParams} from "@/assets/types/User";
+import {ChangePasswordParams, ForgotPasswordParams, ResetPasswordParams} from "@/assets/types/User";
 import {ApiError} from "@/assets/types/Api";
 import {createApiBase} from "@/assets/sripts/api/api-util";
 
@@ -242,6 +242,107 @@ export function useUserApi() {
         }
     };
 
+    /**
+     * 激活账户
+     */
+    const activate = async (data: { username: string, code: string }) => {
+        try {
+            const result = await http.post('user/activate', {data})
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            return handleError(error)
+        }
+    }
+
+    /**
+     * 请求更换邮箱验证码
+     */
+    const requestEmailChangeCode = async (newEmail: string) => {
+        try {
+            const result = await http.post('user/request-email-change', {
+                data: { newEmail }
+            })
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            return handleError(error)
+        }
+    }
+
+    /**
+     * 确认更换邮箱
+     */
+    const confirmEmailChange = async (newEmail: string, code: string) => {
+        try {
+            const result = await http.post('user/confirm-email-change', {
+                data: { newEmail, code }
+            })
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            return handleError(error)
+        }
+    }
+
+    /**
+     * 重新发送激活邮件
+     */
+    const resendActivationCode = async (username: string) => {
+        try {
+            const result = await http.post('user/resend-activation-code', {
+                data: { username }
+            })
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            return handleError(error)
+        }
+    }
+
+    /**
+     * 忘记密码 - 发送验证码
+     */
+    const forgotPassword = async (data: ForgotPasswordParams) => {
+        try {
+            const result = await http.post('user/forgot-password', {
+                data
+            })
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            return handleError(error)
+        }
+    }
+
+    /**
+     * 重置密码 - 确认重置
+     */
+    const resetPassword = async (data: ResetPasswordParams) => {
+        try {
+            const result = await http.post('user/reset-password', {
+                data
+            })
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            return handleError(error)
+        }
+    }
+
+
     return {
         signin,
         signup,
@@ -256,5 +357,11 @@ export function useUserApi() {
         getMeAssemblys,
         getUserComments,
         getUserLikes,
+        activate,
+        requestEmailChangeCode,
+        confirmEmailChange,
+        resendActivationCode,
+        forgotPassword,
+        resetPassword,
     };
 }

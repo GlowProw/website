@@ -7,7 +7,6 @@ import {Ship} from "glow-prow-data/src/entity/Ships";
 import {Item} from "glow-prow-data/src/entity/Items";
 import {Cosmetic, Material, Modification, Ultimate} from "glow-prow-data";
 import ol from "ol/dist/ol";
-import functions = ol.functions;
 
 /**
  * 配装id
@@ -140,7 +139,7 @@ export interface GroupedData {
 export interface AssemblyClassificationShowListProps {
     tags: string[];
     sortBy?: "id" | "rarity" | "tier";
-    loadDataType?: "ship" | "item" | "material" | "cosmetic" | "ultimate" | "modification";
+    loadDataType?: "ship" | "item" | "material" | "cosmetic" | "set" | "ultimate" | "modification";
     filterType?: string;
     v?: number,
     filterFun?: (item: any) => boolean;
@@ -166,7 +165,6 @@ export interface AssemblyWorkshopData {
     displayInsertIndex: number;
     shipWorkshopSelect: any;
     shipSelect: any;
-    shipFrigateUpgradeSelect: any;
     shipDisplaySelect: any;
     shipFrigateUpgradeList: any[];
     data: {
@@ -192,4 +190,5 @@ export interface AssemblyWidgetProps {
     isShowEmpty?: boolean,
     perfectDisplay?: boolean,
     class?: string,
+    locale?: string,
 }

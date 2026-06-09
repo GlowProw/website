@@ -763,7 +763,13 @@
     }
   },
   "assembly": {
-    "title": "配装厂",
+    "title": "配裝廠",
+    "owner": "所有者",
+    "hasPassword": "包含密碼",
+    "byCloningUuid": "克隆",
+    "editAssemblyBtn": "編輯此配裝",
+    "editInfoBtn": "編輯信息",
+    "editWorkshopBtn": "配裝",
     "anonymous": "匿名",
     "additions": {
       "assembly": "配装",
@@ -936,8 +942,25 @@
       "title": "配装详情"
     },
     "share": {
-      "title": "分享配装",
-      "createPoster": "生成配装海报"
+      "title": "分享配裝",
+      "createPoster": "生成配裝海報",
+      "configHint": "配置生成海報屬性，決定海報樣式以及格式等",
+      "format": "格式",
+      "width": "寬度",
+      "quality": "圖片質量",
+      "filename": "文件名稱",
+      "imageStyleTitle": "樣式",
+      "showEmptySlot": "顯示空卡槽",
+      "backgroundColor": "背景顏色",
+      "showItemName": "顯示名稱",
+      "fullName": "完整名稱",
+      "showHeader": "海報頭部標識",
+      "showTitle": "顯示標題",
+      "showTabs": "顯示標籤",
+      "showDescription": "顯示描述內容",
+      "language": "語言",
+      "generating": "正在生成海報...",
+      "generatingHint": "正在導出極高畫質圖像，請稍候"
     },
     "browse": {
       "title": "配装分享集",
@@ -1070,7 +1093,7 @@
   },
   "footer": {
     "basic": {
-      "description": "碧海黑帆清单网站"
+      "description": "閃耀船首是Cabbagelol社區玩家編寫《碧海黑帆》遊戲工具，向玩家免費提供物品查詢，配置分享，地圖等服務"
     },
     "col1": {
       "title": "服务"
@@ -1170,6 +1193,48 @@
       "emptySankey": "添加目標以查看桑基圖",
       "excluded": "排除",
       "addToExclude": "加入排除"
+    }
+  },
+  "setting": {
+    "wishlist": {
+      "title": "願望清單",
+      "description": "管理格式願望清單，匹配的物品將在卡片中顯示推薦標記",
+      "importTitle": "匯入願望清單",
+      "importFromUrl": "從URL匯入",
+      "importFromFile": "上傳檔案",
+      "importFromText": "貼上文字",
+      "urlPlaceholder": "輸入願望清單原始文字URL",
+      "importBtn": "匯入",
+      "listTitle": "已匯入的願望清單",
+      "rules": "條規則",
+      "source": "來源",
+      "export": "匯出",
+      "delete": "刪除",
+      "deleteConfirm": "確定要刪除此願望清單嗎？",
+      "enableAll": "全部啟用",
+      "disableAll": "全部停用",
+      "clearAll": "清空所有",
+      "clearAllConfirm": "確定要清空所有願望清單嗎？",
+      "noWishlists": "暫無匯入的願望清單",
+      "importSuccess": "成功匯入願望清單",
+      "importError": "匯入失敗",
+      "enabled": "已啟用",
+      "disabled": "已停用",
+      "pasteTitle": "貼上願望清單文字",
+      "pastePlaceholder": "在此貼上願望清單文字內容...",
+      "matchedItems": "統計",
+      "update": "更新",
+      "updateError": "更新失敗",
+      "lastUpdated": "最近更新",
+      "duplicatesRemoved": "已去重 {count} 條",
+      "requiredFieldsMissing": "缺少必填欄位: {fields}",
+      "field_title": "標題",
+      "field_description": "描述",
+      "field_max_limit": "匯入數量達到上限（最多10個）",
+      "notes": "註解",
+      "mod": "模組",
+      "item": "相關物品",
+      "perk": "匹配詞條"
     }
   }
 }

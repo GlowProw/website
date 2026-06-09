@@ -1,10 +1,9 @@
 <script lang="ts" setup>
 import {useRoute, useRouter} from "vue-router";
-import {computed, Ref, ref, watch} from "vue";
+import {computed, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {apis, storageIntermediateTransfer} from "@/assets/sripts";
 import {StorageIntermediateTransferSaveType} from "@/assets/sripts/storage_assembly";
-import {useHttpToken} from "@/assets/sripts/http_util";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {ApiError} from "@/assets/types/Api";
 import {useNoticeStore} from "~/stores/noticeStore";
@@ -17,14 +16,14 @@ import AssemblySettingWidget from "@/components/AssmblySettingWidget.vue"
 import AssemblyDataProcessing from "@/assets/sripts/assembly_data_processing"
 import WheelDataProcessing from "@/assets/sripts/wheel_data_processing"
 import WarehouseDataProcessing from "@/assets/sripts/warehouse_data_processing"
-import type {PublishAssemblyData} from "@/assets/types";
+import {useGoTo} from "vuetify/framework";
 
 const route = useRoute(),
     router = useRouter(),
-    http = useHttpToken(),
     notice = useNoticeStore(),
     {asString} = useI18nUtils(),
-    {t, locale} = useI18n()
+    {t, locale} = useI18n(),
+    goto = useGoTo()
 
 let // 发布信息
     publishData = ref<any>({
@@ -80,50 +79,79 @@ watch(() => publishData.value.assembly.attr, () => {
 /**
  * 加载数据
  */
-const onLoadData = () => {
+const onLoadData = async () => {
   dataLoading.value = true
 
   const {uid} = route.params;
 
-  if (uid) {
-    const getLocalAssemblyData: any = storageIntermediateTransfer.get(uid as string, {
-      saveType: StorageIntermediateTransferSaveType.Data,
-      category: 'assembly'
-    })
-
-    if (getLocalAssemblyData.code != 0)
-      return notice.error(t('basic.tips.assembly.error', {
-        context: 'Unable to read the local data' // 无法读取到本地数据
-      }))
-
-    const {uuid, assembly, name, description, tags} = getLocalAssemblyData.data;
-
-    publishData.value.uuid = uuid
-    publishData.value.name = name || ''
-    publishData.value.description = description || ''
-
-    publishData.value.assembly.data = assembly;
-    publishData.value.assembly.tags = tags || [];
-
-    if (getLocalAssemblyData.data.wheel)
-      publishData.value.wheel = {
-        ...publishData.value.wheel,
-        data: getLocalAssemblyData.data.wheel || null
-      };
-    if (getLocalAssemblyData.data.warehouse)
-      publishData.value.warehouse = {
-        ...publishData.value.warehouse,
-        data: getLocalAssemblyData.data.warehouse || null
-      }
-
-    if (publishData && publishData.value) {
-      onSetAssemblyData()
-      onSetWheelData()
-      onSetWarehouseData()
-    }
+  if (!uid) {
+    dataLoading.value = false
+    return
   }
 
-  dataLoading.value = false
+  try {
+    let localData: any = storageIntermediateTransfer.get(uid as string, {
+      saveType: StorageIntermediateTransferSaveType.Data,
+      category: 'assembly'
+    });
+
+    let assemblyData = localData.code === 0 ? localData.data : null;
+
+    if (!assemblyData) {
+      // 从服务中查询数据
+      const {password} = route.query;
+      const result = await apis.assemblyApi().getAssemblyItem(<string>uid, {
+        password: <string>password,
+      });
+      const d = result.data;
+
+      assemblyData = {
+        uuid: d.data.uuid,
+        assembly: d.data.assembly.data,
+        name: d.data.name,
+        description: d.data.description,
+        tags: d.data.tags,
+        wheel: d.data.wheel?.data,
+        warehouse: d.data.warehouse?.data
+      };
+    }
+
+    // 应用数据
+    publishData.value.uuid = assemblyData.uuid
+    publishData.value.name = assemblyData.name || ''
+    publishData.value.description = assemblyData.description || ''
+    publishData.value.assembly.data = assemblyData.assembly;
+    publishData.value.assembly.tags = assemblyData.tags || [];
+
+    if (assemblyData.wheel) {
+      publishData.value.wheel = {
+        ...publishData.value.wheel,
+        data: assemblyData.wheel
+      };
+    }
+
+    if (assemblyData.warehouse) {
+      publishData.value.warehouse = {
+        ...publishData.value.warehouse,
+        data: assemblyData.warehouse
+      };
+    }
+
+    await onSetAssemblyData()
+    onSetWheelData()
+    onSetWarehouseData()
+
+    await goto('#info', {duration: 2000, offset: -120})
+  } catch (e) {
+    if (e instanceof ApiError) {
+      notice.error(t(`basic.tips.${e.code}`, {
+        context: e.code
+      }))
+    }
+    console.error(e)
+  } finally {
+    dataLoading.value = false
+  }
 }
 
 /**
@@ -229,11 +257,21 @@ const onPublish = async () => {
 }
 
 /**
- * 处理tab事件
+ * 转化标签i18n
  * @param data
  */
-const onUpdateTags = (data: any) => {
-  publishData.value.assembly.tags = data;
+const getTagTitle = (data: any) => {
+  return asString([
+    `${data}`,
+    `assembly.tags.teamFormationMethods.${data.toString().split('_')[1]}`,
+    `assembly.tags.modes.${data.toString().split('_')[0]}`,
+    `assembly.tags.damageTypes.${data.toString().split('_')[1]}`,
+    `assembly.tags.difficultyOfAcquisitions.${data.toString().split('_')[1]}`,
+    `codex.ships.archetypes.${data.toString().split('_')[1]}.name`,
+    `snb.seasons.${data.toString().split('_')[1]}`,
+  ], {
+    backRawKey: true
+  })
 }
 </script>
 
@@ -260,23 +298,23 @@ const onUpdateTags = (data: any) => {
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
           <v-breadcrumbs-item>{{ t('assembly.publish.title') }}</v-breadcrumbs-item>
         </v-breadcrumbs>
-      </v-container>
 
-      <v-container class="pa-7">
-        <v-row align="start" no-gutters>
-          <v-col>
-            <h1 class="text-amber">预览</h1>
-            <p class="opacity-80 mt-5">设置配装信息</p>
-          </v-col>
-          <v-col cols="auto">
-            <v-btn v-if="isEditModel" variant="elevated" @click="router.go(-1)">
-              {{ t('basic.button.prev') }}
-            </v-btn>
-            <v-btn :color="`var(--main-color)`" :disabled="isPush" :loading="publishLoading" class="ml-2" variant="elevated" @click="() => isEditModel ? onEdit() : onPublish()">
-              {{ t('basic.button.commit') }}
-            </v-btn>
-          </v-col>
-        </v-row>
+        <v-container class="pa-7">
+          <v-row align="start" no-gutters>
+            <v-col>
+              <h1 class="text-amber">预览</h1>
+              <p class="opacity-80 mt-5">设置配装信息</p>
+            </v-col>
+            <v-col cols="auto">
+              <v-btn v-if="isEditModel" variant="elevated" @click="router.go(-1)">
+                {{ t('basic.button.prev') }}
+              </v-btn>
+              <v-btn :color="`var(--main-color)`" :disabled="isPush" :loading="publishLoading" class="ml-2" variant="elevated" @click="() => isEditModel ? onEdit() : onPublish()">
+                {{ t('basic.button.commit') }}
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-container>
       </v-container>
     </template>
   </v-card>
@@ -286,21 +324,39 @@ const onUpdateTags = (data: any) => {
                            @ready="onLoadData"></AssemblyMainSubjectView>
   <!-- Workshop Share Preview E -->
 
+  <!-- 悬浮 提交 S -->
+  <v-card variant="text" tile class="position-fixed left-0 bottom-0 w-100 bg-black" style="z-index: 5">
+    <v-divider></v-divider>
+    <v-container class="py-5">
+      <v-row align="start" no-gutters>
+        <v-spacer></v-spacer>
+        <v-col cols="auto">
+          <v-btn v-if="isEditModel" variant="elevated" @click="router.go(-1)">
+            {{ t('basic.button.prev') }}
+          </v-btn>
+          <v-btn :color="`var(--main-color)`" :disabled="isPush" :loading="publishLoading" class="ml-2" variant="elevated" @click="() => isEditModel ? onEdit() : onPublish()">
+            {{ t('basic.button.commit') }}
+          </v-btn>
+        </v-col>
+      </v-row>
+    </v-container>
+  </v-card>
+  <!-- 悬浮 提交 E -->
+
   <v-container>
-    <v-form class="mb-10">
+    <v-form class="mb-10" id="info">
       <v-row>
         <v-col cols="12" lg="8" sm="12">
           <v-row>
-            <v-col cols="12" lg="6" sm="12">
+            <v-col cols="12">
               <v-text-field
                   v-model="publishData.name"
                   :rules="formRules.name"
                   label="配置名称"
-                  placeholder="配置名称"
+                  size="l-large"
+                  hide-details
+                  placeholder="配置名称,船长，设置一个酷炫名字，好名字配好船"
                   variant="underlined">
-                <template v-slot:details>
-                  船长，设置一个酷炫名字，好名字配好船
-                </template>
               </v-text-field>
             </v-col>
             <v-col cols="12">
@@ -343,29 +399,15 @@ const onUpdateTags = (data: any) => {
                 <v-icon>mdi-tag-multiple</v-icon>
               </template>
               <template v-slot:chip="{item}">
-                <v-chip color="primary">
-                  {{
-                    asString([
-                      `${item.raw}`,
-                      `assembly.tags.teamFormationMethods.${item.raw.toString().split('_')[1]}`,
-                      `assembly.tags.modes.${item.raw.toString().split('_')[0]}`,
-                      `codex.ships.archetypes.${item.raw.toString().split('_')[1]}.name`,
-                      `snb.seasons.${item.raw.toString().split('_')[1]}`,
-                    ], {
-                      backRawKey: true
-                    })
-                  }}
+                <v-chip color="var(--main-color)">
+                  {{ getTagTitle(item.raw) }}
                 </v-chip>
               </template>
             </v-combobox>
           </div>
 
-          <p class="font-weight-bold  mt-5 text-amber">快速选择标签</p>
-          <p class="font-weight-light mt-1 mb-1 opacity-80">通过快速选择模版来创建配装标签</p>
-
           <AssemblyTagsWidget
-              :tags="publishData.tags"
-              @change="onUpdateTags"></AssemblyTagsWidget>
+              v-model="publishData.assembly.tags"></AssemblyTagsWidget>
         </v-col>
       </v-row>
     </v-form>

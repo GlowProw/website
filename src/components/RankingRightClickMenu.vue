@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
+import {computed} from "vue";
 
 const
     {t} = useI18n(),
-    emit = defineEmits(['clickMenuItem']),
-    menuConfig = {
+    emit = defineEmits(['clickMenuItem'])
+
+const props = defineProps({
+  menuConfig: {
+    type: Object,
+    default: () => ({
       width: 320,
       menu: [
         {
@@ -111,7 +116,70 @@ const
           ]
         }
       ]
+    })
+  },
+  visibleCategories: {
+    type: Array as () => string[],
+    default: () => []
+  }
+})
+
+const filteredMenuConfig = computed(() => {
+  const config = props.menuConfig;
+  if (!props.visibleCategories || props.visibleCategories.length === 0) {
+    return config;
+  }
+
+  const visibleCats = props.visibleCategories;
+  const newMenu = [];
+
+  for (const root of config.menu) {
+    if (root.divider) {
+      newMenu.push(root);
+      continue;
     }
+
+    if (root.menus) {
+      const filteredMenus = [];
+      for (const m of root.menus) {
+        if (m.divider) {
+          filteredMenus.push(m);
+        } else if (m.category && visibleCats.includes(m.category)) {
+          filteredMenus.push(m);
+        }
+      }
+      
+      const cleanMenus = filteredMenus.filter((m, i, arr) => {
+        if (m.divider) {
+          if (i === 0 || i === arr.length - 1) return false;
+          if (arr[i - 1].divider) return false;
+        }
+        return true;
+      });
+
+      if (cleanMenus.length > 0) {
+        newMenu.push({ ...root, menus: cleanMenus });
+      }
+    } else {
+      if (root.category && visibleCats.includes(root.category)) {
+        newMenu.push(root);
+      }
+    }
+  }
+
+  const cleanMenu = newMenu.filter((m, i, arr) => {
+    if (m.divider) {
+      if (i === 0 || i === arr.length - 1) return false;
+      if (arr[i - 1].divider) return false;
+    }
+    return true;
+  });
+
+  return {
+    ...config,
+    menu: cleanMenu
+  };
+});
 
 const onClickMenu = (tags = [], category) => {
   emit('clickMenuItem', {
@@ -126,15 +194,15 @@ const isDivider = (i: any) => i.divider
 </script>
 
 <template>
-  <v-menu location="bottom right" :width="menuConfig.width">
+  <v-menu location="bottom right" :width="filteredMenuConfig.width">
     <template v-slot:activator="{ props }">
       <div v-bind="props">
         <slot></slot>
       </div>
     </template>
 
-    <v-list :width="menuConfig.width" density="compact">
-      <template v-for="(root, rootIndex) in menuConfig.menu" :key="rootIndex">
+    <v-list :width="filteredMenuConfig.width" density="compact">
+      <template v-for="(root, rootIndex) in filteredMenuConfig.menu" :key="rootIndex">
         <template v-if="!root.divider">
           <v-list-item
               @click="root.value ? onClickMenu(
@@ -153,7 +221,7 @@ const isDivider = (i: any) => i.divider
             </template>
 
             <template v-if="root.menus">
-              <v-menu :open-on-focus="false" :width="menuConfig.width" activator="parent" open-on-hover submenu>
+              <v-menu :open-on-focus="false" :width="filteredMenuConfig.width" activator="parent" open-on-hover submenu>
                 <v-list>
                   <template v-for="(i, iIndex) in root.menus" :key="iIndex">
                     <template v-if="!(i as any).divider">

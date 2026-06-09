@@ -14,7 +14,7 @@ import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useDisplay} from "vuetify/framework";
 import {number, rarity} from "@/assets/sripts/index";
-import {useIconGlobalStyle} from "@/assets/sripts/useIconGlobalStyle";
+import {use_icon_global_Style} from "@/assets/sripts/use_icon_global_Style";
 
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
@@ -77,7 +77,7 @@ const
     {t} = useI18n(),
     {mobile, sm, md, lg} = useDisplay(),
     {asString, sanitizeString} = useI18nUtils(),
-    {useIconAdaptiveSize} = useIconGlobalStyle()
+    {useIconAdaptiveSize} = use_icon_global_Style()
 
 let data: any = ref([]),
     exceedingItemsCount = ref(0),
@@ -196,10 +196,10 @@ let data: any = ref([]),
       return s;
     }),
     sizeRef = useIconAdaptiveSize(baseSize, 120),
-    computedOuterPadding = useIconGlobalStyle().useIconBoxPadding(1),
-    computedOuterMargin = useIconGlobalStyle().useIconBoxMargin(1),
-    computedInnerPadding = useIconGlobalStyle().useIconImagePadding(0),
-    computedInnerMargin = useIconGlobalStyle().useIconImageMargin(1),
+    computedOuterPadding = use_icon_global_Style().useIconBoxPadding(1),
+    computedOuterMargin = use_icon_global_Style().useIconBoxMargin(1),
+    computedInnerPadding = use_icon_global_Style().useIconImagePadding(0),
+    computedInnerMargin = use_icon_global_Style().useIconImageMargin(1),
 
     size = computed(() => {
       let coreSize = parseInt(String(sizeRef.value)) || baseSize.value;

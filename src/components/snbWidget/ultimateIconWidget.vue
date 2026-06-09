@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { useIconGlobalStyle } from "@/assets/sripts/useIconGlobalStyle";
+import { use_icon_global_Style } from "@/assets/sripts/use_icon_global_Style";
 import {Ultimate, Ultimates} from "glow-prow-data"
 import {computed, onMounted, type Ref, ref} from "vue";
 import {useAppStore} from "~/stores/appStore";
 import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 import {rarity} from "@/assets/sripts/index";
 import {useRouter} from "vue-router";
-import {useI18n} from "vue-i18n";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import UltimateCardDetail from "@/components/snbWidget/ultimateCardDetail.vue";
 
@@ -27,7 +27,7 @@ const props = withDefaults(defineProps<{
       margin: 1,
       padding: 1
     }),
-    {t} = useI18n(),
+    {t} = useI18nUtils(),
     router = useRouter(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
     appStore = useAppStore(),
@@ -63,7 +63,7 @@ defineOptions({
   name: "UltimateIconWidget"
 })
 
-const { useIconImagePadding, useIconImageMargin } = useIconGlobalStyle();
+const { useIconImagePadding, useIconImageMargin } = use_icon_global_Style();
 const computedPadding = useIconImagePadding(props.padding);
 const computedMargin = useIconImageMargin(props.margin);
 </script>

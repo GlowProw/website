@@ -1,21 +1,15 @@
-<script lang="ts">
-export default { name: 'PerksWidget' }
-</script>
-
 <script setup lang="ts">
 
 import EmptyView from "../EmptyView.vue";
 import {useI18n} from "vue-i18n";
-import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {onUnmounted, ref, watch} from "vue";
 import {useRoute} from "vue-router";
-import {number} from "@/assets/sripts/index"
+import PerksName from "./perksName.vue";
+import PerkDescription from "@/components/snbWidget/perksDescription.vue";
 
-const {asArray, sanitizeString} = useI18nUtils()
-
-const {t, te, locale} = useI18n(),
+const {locale} = useI18n(),
     route = useRoute(),
-    props = withDefaults(defineProps<{ data }>(), {
+    props = withDefaults(defineProps<{ data: any }>(), {
       data: null
     }),
     unwatch = watch(
@@ -25,72 +19,30 @@ const {t, te, locale} = useI18n(),
         {immediate: true}
     )
 
-let v = ref(1)
+let perksNameRef = ref(null)
 
-onUnmounted(() => unwatch()) // 手动停止监听
+onUnmounted(() => unwatch())
 
-/**
- * 获取词条名
- * @param key
- */
-const getTitle = (key: string) => {
-  let keys = [
-        `snb.perks.${sanitizeString(key).cleaned}.name`
-      ],
-      lv = sanitizeString(key).removedNumbers[0];
-
-  if (!asArray(keys)[0])
-    return ''
-
-  return `${asArray(keys)[0]}${number.intToRoman( Number.parseInt(lv) )}` || '';
-}
-
-/**
- * 获取词条描述内容
- */
-const getDescription = (key) => {
-  const perksName = sanitizeString(key)
-  let keys = []
-
-  if (props.data.type == "shipUpgrade") {
-    keys = [
-      `snb.perks.${perksName.cleaned}.description.${props.data.tier}`,
-      `snb.perks.${perksName.cleaned}.description.general`,
-    ]
-  } else {
-    let tString: any = [
-      `snb.items.${perksName.cleaned}.name`,
-      `snb.perks.${perksName.cleaned}.name`,
-      `snb.perks.${perksName.cleaned}.description.${perksName.removedNumbers[0]}`,
-    ];
-
-    for (let tKey of tString) {
-      if (te(tKey)) {
-        keys = [
-          `snb.perks.${key}.description.general`,
-          `snb.perks.${perksName.cleaned}.description.general`,
-          `snb.perks.${perksName.cleaned}.description.${perksName.removedNumbers[0]}`,
-        ]
-      }
-    }
-  }
-
-  return asArray(keys)
-}
+defineOptions({
+  name: "PerksWidget"
+})
 </script>
 
 <template>
   <v-card class="bg-translate" variant="text" border>
     <template v-if="props.data.perks && props.data.perks.length > 0">
-      <div v-for="(p, pIndex) in props.data.perks" :key="pIndex" class="mb-5">
+      <div v-for="(p, pIndex) in props.data.perks" :key="pIndex" class="mb-3">
+        <!-- 词条标题 S -->
         <v-row no-gutters
                style="width: calc(100% + 18px * 2);margin: 0 0 0 -20px"
-               class="bg-black title-long-flavor py-2 pl-10"
-               v-if="getTitle(p).length > 0">
+               class="bg-black title-long-flavor py-2 pl-10 "
+               v-show="perksNameRef && !perksNameRef[pIndex].isTitleEmpty">
           <v-col cols="11">
             <v-row no-gutters class="d-flex text-pre-wrap font-weight-bold">
               <v-col>
-                <b class="text-amber">{{ getTitle(p) }}</b>
+                <b class="text-amber">
+                  <PerksName ref="perksNameRef" :id="p"></PerksName>
+                </b>
                 <template v-if="route.query.debug">
                   - {{ p }}
                 </template>
@@ -101,13 +53,12 @@ const getDescription = (key) => {
             </v-row>
           </v-col>
           <v-spacer></v-spacer>
-          <div class="pr-8">
-
-          </div>
         </v-row>
-        <p class="opacity-80 text-pre-wrap mt-3 pl-5 pr-5" v-for="(pPkey, pIndex) in getDescription(p)" :key="pIndex">
-          {{ pPkey }}
-        </p>
+        <!-- 词条标题 E -->
+
+        <!-- 词条描述 S -->
+        <PerkDescription :data="data" :id="p"></PerkDescription>
+        <!-- 词条描述 E -->
       </div>
     </template>
     <template v-else>

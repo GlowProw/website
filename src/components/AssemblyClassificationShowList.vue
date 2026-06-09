@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import {Cosmetic, Cosmetics, Item, Items, Material, Materials, Modification, Modifications, Ship, Ships, Ultimate, Ultimates} from "glow-prow-data";
+import {Cosmetics, Items, Materials, Modifications, Sets, Ships, Ultimates} from "glow-prow-data";
 import {computed, onMounted, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {storageCollect} from "@/assets/sripts/index";
 import {StorageCollectType} from "@/assets/sripts/storage_collect";
-import {AvailableDataStructure, GroupedData, AssemblyClassificationShowListProps} from "@/assets/types";
+import {AssemblyClassificationShowListProps, AvailableDataStructure, GroupedData} from "@/assets/types";
 
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
@@ -19,6 +19,12 @@ import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
 import UltimateName from "@/components/snbWidget/ultimateName.vue";
 import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
 import ModName from "@/components/snbWidget/modName.vue";
+import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
+import MaterialName from "@/components/snbWidget/materialName.vue";
+import CosmeticIconWidget from "@/components/snbWidget/cosmeticIconWidget.vue";
+import CosmeticName from "@/components/snbWidget/cosmeticName.vue";
+import SetIconWidget from "@/components/snbWidget/setIconWidget.vue";
+import SetName from "@/components/snbWidget/setName.vue";
 
 const castToAny = (v: any) => v;
 
@@ -64,6 +70,8 @@ const rawData = computed<any>(() => {
       return Ultimates;
     case "modification":
       return Modifications;
+    case "set":
+      return Sets;
     default:
       return {};
   }
@@ -95,7 +103,9 @@ const handleIDataName = (id: string) => {
     `snb.ultimates.${rawId}.name`,
     `snb.ultimates.${sanitizeId}.name`,
     `snb.modifications.${rawId}.name`,
-    `snb.modifications.${sanitizeId}.name`
+    `snb.modifications.${sanitizeId}.name`,
+    `snb.sets.${rawId}.name`,
+    `snb.sets.${sanitizeId}.name`
   ])
 
   nameCache.set(id, name)
@@ -295,7 +305,7 @@ defineExpose({
   updateData,
 })
 
-defineOptions({ name: 'AssemblyClassificationShowList' })
+defineOptions({name: 'AssemblyClassificationShowList'})
 </script>
 
 <template>
@@ -365,31 +375,31 @@ defineOptions({ name: 'AssemblyClassificationShowList' })
         <v-row class="pl-8 pr-8">
           <v-col v-for="(j, jIndex) in processedStarData" :key="`star-${j.id}`" cols="auto">
             <div class="item" @click="onClickEvent(castToAny(j))">
-               <ItemSlotBase :size="40" :padding="0">
-                 <template v-if="castToAny(j).type == 'ship'">
-                   <ShipIconWidget :id="j.id" :padding="0" :margin="0"/>
-                 </template>
-                 <template v-else>
-                   <ItemIconWidget :id="j.id" :padding="0" :margin="0"/>
-                 </template>
-               </ItemSlotBase>
-               <div class="ml-2 singe-line">
-                 <template v-if="castToAny(j).type == 'ship'">
-                   <ShipName :data="castToAny(j)"/>
-                 </template>
-                 <template v-else>
-                   <ItemName :data="castToAny(j)"/>
-                 </template>
-               </div>
-               <div class="ml-auto">
-                 <v-btn
-                     @click.stop="onStarItem(castToAny(j))"
-                     :icon="isCollect(j.id) ? 'mdi-star' : 'mdi-star-outline'"
-                     :color="isCollect(j.id) ? 'amber' : ''"
-                     size="small"
-                     variant="text"></v-btn>
-               </div>
-             </div>
+              <ItemSlotBase :size="40" :padding="0">
+                <template v-if="castToAny(j).type == 'ship'">
+                  <ShipIconWidget :id="j.id" :padding="0" :margin="0"/>
+                </template>
+                <template v-else>
+                  <ItemIconWidget :id="j.id" :padding="0" :margin="0"/>
+                </template>
+              </ItemSlotBase>
+              <div class="ml-2 singe-line">
+                <template v-if="castToAny(j).type == 'ship'">
+                  <ShipName :data="castToAny(j)"/>
+                </template>
+                <template v-else>
+                  <ItemName :data="castToAny(j)"/>
+                </template>
+              </div>
+              <div class="ml-auto">
+                <v-btn
+                    @click.stop="onStarItem(castToAny(j))"
+                    :icon="isCollect(j.id) ? 'mdi-star' : 'mdi-star-outline'"
+                    :color="isCollect(j.id) ? 'amber' : ''"
+                    size="small"
+                    variant="text"></v-btn>
+              </div>
+            </div>
           </v-col>
         </v-row>
       </div>
@@ -407,7 +417,12 @@ defineOptions({ name: 'AssemblyClassificationShowList' })
                 :class="{ 'mb-4': category.model }"
                 class="cursor-pointer text-center title-long-flavor text-amber font-weight-bold bg-black pl-4 lr-4 pt-4 pb-4 ml-n2 mr-n2"
                 @click="toggleCategory(castToAny(category))">
-              {{ t(`codex.types.${category.type}`) }} ({{ category.child.length }})
+              <span v-if="category.type">
+                 {{ t(`codex.types.${category.type}`) }} ({{ category.child.length }})
+              </span>
+              <span v-else>
+                {{ t(`codex.types.none`) }}
+              </span>
               <v-icon class="ml-3">
                 {{ category.model ? 'mdi-triangle-small-up' : 'mdi-triangle-small-down' }}
               </v-icon>
@@ -463,6 +478,106 @@ defineOptions({ name: 'AssemblyClassificationShowList' })
                     </div>
                   </template>
 
+                  <template v-else-if="loadDataType === 'modification'">
+                    <ItemSlotBase
+                        :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
+                        size="99px">
+                      <ModIconWidget
+                          :id="item.id"
+                          :is-open-detail="false"
+                          :is-show-tooltip="false"
+                      ></ModIconWidget>
+                    </ItemSlotBase>
+                    <div
+                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
+                        class="text-center d-flex justify-center"
+                        style="width: 99px">
+                      <div class="singe-line">
+                        <ModName :id="item.id"></ModName>
+                      </div>
+                    </div>
+                  </template>
+
+                  <template v-else-if="loadDataType === 'ultimate'">
+                    <ItemSlotBase
+                        :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
+                        size="99px">
+                      <UltimateIconWidget
+                          :id="item.id"
+                          :is-open-detail="false"
+                          :is-show-tooltip="false"
+                      ></UltimateIconWidget>
+                    </ItemSlotBase>
+                    <div
+                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
+                        class="text-center d-flex justify-center"
+                        style="width: 99px">
+                      <div class="singe-line">
+                        <UltimateName :id="item.id"></UltimateName>
+                      </div>
+                    </div>
+                  </template>
+
+                  <template v-else-if="loadDataType === 'cosmetic'">
+                    <ItemSlotBase
+                        :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
+                        size="99px">
+                      <CosmeticIconWidget
+                          :id="item.id"
+                          :is-open-detail="false"
+                          :is-show-tooltip="false"
+                      ></CosmeticIconWidget>
+                    </ItemSlotBase>
+                    <div
+                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
+                        class="text-center d-flex justify-center"
+                        style="width: 99px">
+                      <div class="singe-line">
+                        <CosmeticName :id="item.id"></CosmeticName>
+                      </div>
+                    </div>
+                  </template>
+
+                  <template v-else-if="loadDataType === 'set'">
+                    <ItemSlotBase
+                        :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
+                        size="99px">
+                      <SetIconWidget
+                          :id="item.id"
+                          :is-open-detail="false"
+                          :is-show-tooltip="false"
+                      ></SetIconWidget>
+                    </ItemSlotBase>
+                    <div
+                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
+                        class="text-center d-flex justify-center"
+                        style="width: 99px">
+                      <div class="singe-line">
+                        <SetName :id="item.id"></SetName>
+                      </div>
+                    </div>
+                  </template>
+
+                  <template v-else-if="loadDataType === 'material'">
+                    <ItemSlotBase
+                        :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
+                        size="99px">
+                      <MaterialIconWidget
+                          :id="item.id"
+                          :is-open-detail="false"
+                          :is-show-tooltip="false"
+                      ></MaterialIconWidget>
+                    </ItemSlotBase>
+                    <div
+                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
+                        class="text-center d-flex justify-center"
+                        style="width: 99px">
+                      <div class="singe-line">
+                        <MaterialName :id="item.id"></MaterialName>
+                      </div>
+                    </div>
+                  </template>
+
                   <template v-else-if="loadDataType === 'ultimate'">
                     <ItemSlotBase
                         :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
@@ -499,6 +614,46 @@ defineOptions({ name: 'AssemblyClassificationShowList' })
                         style="width: 99px">
                       <div class="singe-line">
                         <ModName :id="item.id"></ModName>
+                      </div>
+                    </div>
+                  </template>
+
+                  <template v-else-if="loadDataType === 'cosmetic'">
+                    <ItemSlotBase
+                        :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
+                        size="99px">
+                      <CosmeticIconWidget
+                          :id="item.id"
+                          :is-open-detail="false"
+                          :is-show-tooltip="false"
+                      ></CosmeticIconWidget>
+                    </ItemSlotBase>
+                    <div
+                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
+                        class="text-center d-flex justify-center"
+                        style="width: 99px">
+                      <div class="singe-line">
+                        <CosmeticName :id="item.id"></CosmeticName>
+                      </div>
+                    </div>
+                  </template>
+
+                  <template v-else-if="loadDataType === 'set'">
+                    <ItemSlotBase
+                        :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
+                        size="99px">
+                      <SetIconWidget
+                          :id="item.id"
+                          :is-open-detail="false"
+                          :is-show-tooltip="false"
+                      ></SetIconWidget>
+                    </ItemSlotBase>
+                    <div
+                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
+                        class="text-center d-flex justify-center"
+                        style="width: 99px">
+                      <div class="singe-line">
+                        <SetName :id="item.id"></SetName>
                       </div>
                     </div>
                   </template>

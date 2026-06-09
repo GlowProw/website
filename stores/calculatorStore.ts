@@ -585,41 +585,6 @@ export const useCalculatorStore = defineStore('calculator', () => {
         downloadBlob(blob, `${t('name')}.targets.${timestamp}.csv`)
     }
 
-    /**
-     * 导出材料清单为 CSV
-     * @param headersStr 表头
-     * @param yesLabel 是标签
-     * @param noLabel 否标签
-     * @param getNameCallback 获取材料名称的回调
-     */
-    function exportMaterialsCSV(headersStr?: string, yesLabel?: string, noLabel?: string, getNameCallback?: (id: string) => string) {
-        const headers = headersStr || 'Material ID,Name,Quantity,Is Raw Material'
-        const rows = flatMaterials.value.map(m => {
-            const name = getNameCallback ? getNameCallback(m.id) : m.id
-            const isRawStr = m.isRaw ? (yesLabel || 'Yes') : (noLabel || 'No')
-            return [m.id, name, m.totalQuantity, isRawStr]
-        })
-
-        // 添加元数据
-        const exportTime = new Date().toLocaleString()
-        const versionInfo = '# ' + t('calculator.export.exportedTime', {time: exportTime})
-        const versionLine = '# ' + t(`calculator.export.version`, {version: STORE_VERSION})
-        const totalLine = '# ' + t(`calculator.export.totalTargets`, {number: targets.value.length})
-
-        const csvContent = [
-            versionInfo,
-            versionLine,
-            totalLine,
-            '#',
-            headers,
-            ...rows.map(r => r.join(','))
-        ].join('\n')
-
-        const blob = new Blob(['\uFEFF' + csvContent], {type: 'text/csv;charset=utf-8;'})
-        const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-')
-        downloadBlob(blob, `${t('name')}.materials.${timestamp}.csv`)
-    }
-
     function importFile(file: File, type: 'json' | 'csv') {
         const reader = new FileReader()
         reader.onload = (e) => {
@@ -700,6 +665,55 @@ export const useCalculatorStore = defineStore('calculator', () => {
         reader.readAsText(file)
     }
 
+    /**
+     * 导入配装数据
+     * @param data
+     */
+    function importAssembly(data: any) {
+        if (!data) return
+
+        // 提取所有有效的 ID
+        const itemsToProcess: { id: string, type: 'item' | 'ship' | 'material' }[] = []
+
+        // 1. 船只
+        if (data.shipSlot?.id) {
+            itemsToProcess.push({id: data.shipSlot.id, type: 'ship'})
+        }
+
+        // 2. 船端升级、终结技、装甲
+        if (data.shipUpgradeSlot?.id) itemsToProcess.push({id: data.shipUpgradeSlot.id, type: 'item'})
+        if (data.ultimateSlot?.id) itemsToProcess.push({id: data.ultimateSlot.id, type: 'item'})
+        if (data.armorSlot?.id) itemsToProcess.push({id: data.armorSlot.id, type: 'item'})
+
+        // 3. 武器
+        if (Array.isArray(data.weaponSlots)) {
+            data.weaponSlots.forEach((w: any) => {
+                if (w?.id) itemsToProcess.push({id: w.id, type: 'item'})
+            })
+        }
+
+        // 4. 副武器
+        if (Array.isArray(data.secondaryWeaponSlots)) {
+            data.secondaryWeaponSlots.forEach((sw: any) => {
+                if (sw?.id) itemsToProcess.push({id: sw.id, type: 'item'})
+            })
+        }
+
+        // 5. 陈设
+        if (Array.isArray(data.displaySlots)) {
+            data.displaySlots.forEach((d: any) => {
+                if (d?.id) itemsToProcess.push({id: d.id, type: 'item'})
+            })
+        }
+
+        // 批量添加
+        itemsToProcess.forEach(item => {
+            addTarget(item.id, item.type, 1)
+        })
+
+        persistState()
+    }
+
     // 辅助函数：解析 CSV 行（处理引号）
     function parseCSVLine(line: string): string[] {
         const result: string[] = []
@@ -769,6 +783,7 @@ export const useCalculatorStore = defineStore('calculator', () => {
         addExcludedMaterial,
         removeExcludedMaterial,
         importFile,
+        importAssembly,
         clearExcludedMaterials,
         materialTrees,
         flatMaterials,
@@ -778,6 +793,5 @@ export const useCalculatorStore = defineStore('calculator', () => {
         deleteConfig,
         exportJSON,
         exportCSV,
-        exportMaterialsCSV
     }
 })

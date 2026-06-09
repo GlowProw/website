@@ -11,7 +11,7 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemName from "@/components/snbWidget/itemName.vue";
 import AssemblyClassificationShowList from "@/components/AssemblyClassificationShowList.vue";
 import {useI18n} from "vue-i18n";
-import {useIconGlobalStyle} from "@/assets/sripts/useIconGlobalStyle";
+import {use_icon_global_Style} from "@/assets/sripts/use_icon_global_Style";
 
 import WarehouseDataProcessing from "@/assets/sripts/warehouse_data_processing";
 import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
@@ -35,7 +35,7 @@ let data = ref<{ id: number | null, count: number, timestamp?: number }[]>([]),
     selectItemValue = ref<any>(null),
     wheelOptionalItemTags = ref(['consumable']),
     {t} = useI18n(),
-    {useIconAdaptiveSize, useIconBoxMargin, useIconBoxPadding, useIconImageMargin, useIconImagePadding} = useIconGlobalStyle(),
+    {useIconAdaptiveSize, useIconBoxMargin, useIconBoxPadding, useIconImageMargin, useIconImagePadding} = use_icon_global_Style(),
     baseSize = 99,
     sizeRef = useIconAdaptiveSize(baseSize, 99),
     computedOuterPadding = useIconBoxPadding(1),

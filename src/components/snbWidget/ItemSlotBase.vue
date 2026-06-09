@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import {useIconGlobalStyle} from '@/assets/sripts/useIconGlobalStyle';
+import {computed, onMounted, ref} from 'vue';
+import {use_icon_global_Style} from '@/assets/sripts/use_icon_global_Style';
+import {useWishlistStore} from '~/stores/wishlistStore';
 
 const props = withDefaults(
     defineProps<{
@@ -9,19 +11,47 @@ const props = withDefaults(
       isAutoSize?: boolean,
       isAutoPadding?: boolean,
       isAutoMargin?: boolean,
+      id?: string,
     }>(),
     {
       isAutoSize: true,
       isAutoPadding: true,
-      isAutoMargin: true
+      isAutoMargin: true,
+      id: '',
     }
 );
 
-const {useIconAdaptiveSize, useIconBoxPadding, useIconBoxMargin} = useIconGlobalStyle();
+const {useIconAdaptiveSize, useIconBoxPadding, useIconBoxMargin} = use_icon_global_Style();
+const wishlistStore = useWishlistStore();
+const containerRef = ref<HTMLElement | null>(null);
+const actualSize = ref(0);
 
 const computedSize = props.isAutoSize ? useIconAdaptiveSize(() => props.size, 99) : props.size;
 const computedPadding = props.isAutoPadding ? useIconBoxPadding(() => props.padding, 1) : props.padding;
 const computedMargin = props.isAutoMargin ? useIconBoxMargin(() => props.margin, 0) : props.margin;
+
+onMounted(() => {
+  if (containerRef.value) {
+    actualSize.value = containerRef.value.clientWidth;
+  }
+});
+
+const wishlistMatch = computed(() => {
+  if (!props.id) return null;
+  return wishlistStore.getMatchForItem(props.id);
+});
+
+const iconSize = computed(() => {
+  if (actualSize.value > 0) {
+    // 容器宽度的 10%
+    return Math.max(15, actualSize.value * 0.10);
+  }
+  // 回退方案
+  const sizeValue: any = typeof computedSize === 'string'
+      ? parseFloat(computedSize)
+      : (computedSize || 1);
+  return 12 * sizeValue;
+});
 
 defineOptions({
   name: "ItemSlotBase"
@@ -29,14 +59,33 @@ defineOptions({
 </script>
 
 <template>
-  <div class="card-enlargement-flavor"
+  <div ref="containerRef"
+       class="card-enlargement-flavor"
        :class="`item-base-slot pa-${computedPadding} ma-${computedMargin}`"
        :style="`height: ${computedSize}; width: ${computedSize};min-height: ${computedSize}; min-width: ${computedSize}`">
     <slot></slot>
+    <div v-if="wishlistMatch">
+      <div class="wishlist-badge">
+        <v-icon icon="mdi-thumb-up" class="text-amber" :size="iconSize"></v-icon>
+      </div>
+    </div>
   </div>
 </template>
 
 <style scoped lang="less">
+.wishlist-badge {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  z-index: 10;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+
 .item-base-slot {
   display: flex;
   background-color: color-mix(in srgb, var(--main-color) 5%, #000 95%);

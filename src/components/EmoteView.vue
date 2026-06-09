@@ -1,145 +1,171 @@
-<script>
+<script setup lang="ts">
+import {useI18n} from "vue-i18n";
 import {Editor} from "@tiptap/vue-3";
+import {onMounted, PropType, ref} from "vue";
+import emojisRaw from "@/config/emoji.json";
+import EmoteItem from "@/components/EmoteItem.vue";
 
-import emojis from "@/config/emoji.json"
-import EmoteItem from "./EmoteItem.vue";
-
-export default {
-  components: {EmoteItem},
-  props: {
-    editor: {
-      type: Editor,
-    }
-  },
-  data() {
-    return {
-      show: false,
-      emoteTabValue: "",
-      isInsertPreview: false,
-      insertPreview: "",
-      pos: {left: 0, top: 0}
-    }
-  },
-  created() {
-    this.emoteTabValue = this.emojis.default;
-  },
-  methods: {
-    /**
-     * 获取当前光标位于编辑器位置
-     * @returns {*|null}
-     */
-    getCursorPosition() {
-      if (this.editor) {
-        const {from, to} = this.editor.state.selection;
-        if (from === to) {
-          return from;
-        } else {
-          return null;
-        }
-      }
-
-      return null;
-    },
-    /**
-     * 获取当前光标屏幕的位置
-     */
-    getCursorScreenCoords() {
-      const cursorPosition = this.getCursorPosition()
-
-      if (cursorPosition !== null && this.editor) {
-        const domPos = this.editor.view.coordsAtPos(cursorPosition)
-        this.pos = domPos;
-        return;
-      }
-
-      this.pos = null
-    },
-
-    /**
-     * 完成
-     * @param type
-     * @param val
-     */
-    onFinish(type, val) {
-      this.onPanelToggle(
-      this.$emit('finish', type, val))
-    },
-
-    /**
-     * 面板开关
-     */
-    onPanelToggle() {
-      this.show = !this.show;
-
-      if (this.show === false)
-        this.$emit('close')
-    },
-    /**
-     * 打开面板
-     */
-    openPanel() {
-      this.onPanelToggle()
-      this.getCursorScreenCoords()
-    },
-    /**
-     * 表情标题
-     * @param h
-     * @param i
-     * @returns {*}
-     */
-    emoTeTabTitle(h, i) {
-      return h(EmoteItem, {
-        props: {
-          isSpan: false,
-          size: 23,
-          id: i.titleEmoteName,
-          isDisabledTooltip: true
-        }
-      })
-    },
-  },
-  computed: {
-    emojis: () => emojis,
-  }
+interface EmojiItem {
+  name: string;
+  key?: string;
+  child?: EmojiItem[];
 }
+
+interface EmojiConfig {
+  default: string;
+  child: EmojiChild[];
+}
+
+interface EmojiChild {
+  name: string;
+  titleEmoteName?: string;
+  child: EmojiItem[];
+}
+
+interface Position {
+  left: number;
+  top: number;
+}
+
+const props = defineProps({
+  editor: {
+    type: Object as PropType<Editor>,
+    required: false,
+  },
+});
+
+const emit = defineEmits<{
+  (e: "finish", type: string, val: EmojiItem): void;
+  (e: "close"): void;
+}>();
+
+const {t} = useI18n();
+
+const emojis = emojisRaw as EmojiConfig;
+
+const show = ref<boolean>(false);
+const emoteTabValue = ref<string>("");
+const isInsertPreview = ref<boolean>(false);
+const insertPreview = ref<string>("");
+const pos = ref<Position>({left: 0, top: 0});
+
+onMounted(() => {
+  emoteTabValue.value = emojis.default;
+});
+
+/**
+ * 获取当前光标位于编辑器位置
+ * @returns {number|null}
+ */
+const getCursorPosition = (): number | null => {
+  if (props.editor) {
+    const {from, to} = props.editor.state.selection;
+    if (from === to) {
+      return from;
+    }
+    return null;
+  }
+  return null;
+};
+
+/**
+ * 获取当前光标屏幕的位置
+ */
+const getCursorScreenCoords = (): void => {
+  const cursorPosition = getCursorPosition();
+
+  if (cursorPosition !== null && props.editor) {
+    const domPos = props.editor.view.coordsAtPos(cursorPosition);
+    pos.value = domPos;
+    return;
+  }
+
+  pos.value = {left: 0, top: 0};
+};
+
+/**
+ * 完成
+ * @param type - 表情类型
+ * @param val - 表情值
+ */
+const onFinish = (type: string, val: EmojiItem): void => {
+  onPanelToggle();
+  emit("finish", type, val);
+};
+
+/**
+ * 面板开关
+ */
+const onPanelToggle = (): void => {
+  show.value = !show.value;
+
+  if (show.value === false) {
+    emit("close");
+  }
+};
+
+/**
+ * 打开面板
+ */
+const openPanel = (): void => {
+  onPanelToggle();
+  getCursorScreenCoords();
+};
+
+defineExpose({
+  openPanel,
+});
 </script>
 
 <template>
-  <v-dialog v-model="show"
-            class="emote"
-            class-name="emote-window-box"
-            :transitionNames="['fade']"
-            :width="600"
-            :styles="{
-           top: pos && pos.top ? `calc(${pos.top}px + 1.5rem)` : 'calc(20%)',
-           left: pos && pos.left ? pos.left  + 'px' : 'calc(50% - 300px)',
-           bottom: 0,
-           margin: 0,
-           padding: 0
-         }"
-            :mask="true"
-            :closable="true"
-            @update:modelValue="(status) => !status ? $emit('close') : null"
-            sticky
-            transfer
-            footer-hide>
-    <v-card class="emote-tab card-enlargement-flavor pa-10 ma-n10">
+  <v-dialog
+      v-model="show"
+      class="emote"
+      class-name="emote-window-box"
+      :transitionNames="['fade']"
+      :width="600"
+      :styles="{
+      top: pos && pos.top ? `calc(${pos.top}px + 1.5rem)` : 'calc(20%)',
+      left: pos && pos.left ? pos.left + 'px' : 'calc(50% - 300px)',
+      bottom: 0,
+      margin: 0,
+      padding: 0,
+    }"
+      :mask="true"
+      :closable="true"
+      @update:modelValue="(status: boolean) => !status ? emit('close') : null"
+      sticky
+      transfer
+      footer-hide>
+    <v-card border class="emote-tab">
       <v-tabs v-model="emoteTabValue" size="small">
         <v-tab
-            :value="i.name"
-            :label="(h) => emoTeTabTitle(h, i)"
-            v-for="(i, index) in emojis.child" :key="index">
-          {{ i.name }}
+            v-for="(item, index) in emojis.child"
+            :key="index"
+            :value="item.name">
+          {{ t(`emote.${item.name}`) }}
         </v-tab>
       </v-tabs>
-      <v-tabs-window v-model="emoteTabValue">
-        <v-tabs-window-item class="emote-row-box pt-7" v-for="(i, index) in emojis.child" :key="index"
-                            :value="i.name">
-          <v-card :padding="3" dis-hover class="emote-item pa-1"
-                  @click="onFinish(i.name,j)"
-                  v-for="(j, j_index) in i.child"
-                  :key="j_index">
-            <EmoteItem :isSpan="false" :size="30" :id="`${i.name}|${j.name}`"></EmoteItem>
+      <v-divider/>
+      <v-tabs-window v-model="emoteTabValue" class="bg-black">
+        <v-tabs-window-item
+            v-for="(item, index) in emojis.child"
+            :key="index"
+            class="emote-row-box pt-7"
+            :value="item.name">
+          <v-card
+              v-for="(childItem, childIndex) in item.child"
+              :key="childIndex"
+              :padding="3"
+              dis-hover
+              class="emote-item pa-1"
+              elevation="0"
+              @click="onFinish(item.name, childItem)">
+            <EmoteItem
+                :isSpan="false"
+                :size="30"
+                :id="`${item.name}|${childItem.name}`"
+            />
           </v-card>
         </v-tabs-window-item>
       </v-tabs-window>
@@ -173,7 +199,6 @@ export default {
     padding: 10px;
     margin-top: -17px;
     height: calc(100% + 17px);
-    max-height: 200px;
     overflow-y: auto;
 
     .emote-item {

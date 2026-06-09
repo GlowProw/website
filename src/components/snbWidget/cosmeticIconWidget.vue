@@ -3,7 +3,7 @@ export default {name: 'CosmeticIconWidget'}
 </script>
 
 <script setup lang="ts">
-import { useIconGlobalStyle } from "@/assets/sripts/useIconGlobalStyle";
+import { use_icon_global_Style } from "@/assets/sripts/use_icon_global_Style";
 import {useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
 import Loading from "../Loading.vue";
@@ -76,7 +76,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
   threshold: .7,
 })
 
-const { useIconImagePadding, useIconImageMargin } = useIconGlobalStyle();
+const { useIconImagePadding, useIconImageMargin } = use_icon_global_Style();
 const computedPadding = useIconImagePadding(props.padding);
 const computedMargin = useIconImageMargin(props.margin);
 </script>
@@ -86,6 +86,8 @@ const computedMargin = useIconImageMargin(props.margin);
       v-if="i && i.id"
       :disabled="!props.isShowTooltip"
       :offset="[40, 0]"
+      scroll-strategy="close"
+      transition="opacity 300ms ease-in"
       location="right top"
       min-width="450"
       max-width="450"

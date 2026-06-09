@@ -1,5 +1,5 @@
 <script lang="ts">
-export default { name: 'Textarea' }
+export default {name: 'Textarea'}
 </script>
 
 <script setup lang="ts">
@@ -15,6 +15,10 @@ import {ModNode as ModWidget} from './mod/index'
 import {LinkNode as LinkWidget} from './link/index'
 import {ImgNode as ImgWidget} from './img/index'
 import {VideoNode as VideoWidget} from './video/index'
+import {LangNode as LangWidget} from './lang/index'
+import {MaterialNode as MaterialWidget} from './material/index'
+import {CosmeticNode as CosmeticWidget} from './cosmetic/index'
+import {SetNode as SetWidget} from './set/index'
 
 import ShipView from '../ShipView.vue'
 import ItemView from '../ItemView.vue'
@@ -25,6 +29,9 @@ import {useI18n} from "vue-i18n";
 import LinkView from "@/components/LinkView.vue";
 import ImgView from "@/components/ImgView.vue";
 import VideoView from "@/components/VideoView.vue";
+import languagesConfig from '@/config/languages.json';
+import FullItemRightClickMenu from "@/components/FullItemRightClickMenu.vue";
+import RankingRightClickMenu from "@/components/RankingRightClickMenu.vue";
 
 interface ToolbarItem {
   list?: any
@@ -53,6 +60,14 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
+  forceShowAllLang: {
+    type: Boolean,
+    default: false
+  },
+  locale: {
+    type: String,
+    default: null
+  },
   placeholder: {
     type: String,
     default: ''
@@ -71,7 +86,7 @@ const props = defineProps({
   },
   toolbar: {
     type: Array as () => Array<string | ToolbarItem>,
-    default: () => ['link', 'img', 'video', 'emote', 'item', 'ship', 'mod', 'ultimate']
+    default: () => ['link', 'img', 'video', 'emote', 'item', 'ship', 'mod', 'ultimate', 'lang']
   }
 })
 
@@ -88,6 +103,8 @@ const emit = defineEmits([
     isOpenLink = ref(false),
     isOpenImg = ref(false),
     isOpenVideo = ref(false),
+    isOpenLang = ref(false),
+    isLangActive = ref(false),
     isOpenShip = ref(false),
     isOpenItem = ref(false),
 
@@ -100,7 +117,8 @@ const emit = defineEmits([
     shipWidget = ref<any>(null),
     itemWidget = ref<any>(null),
     modWidget = ref<any>(null),
-    ultimateWidget = ref<any>(null)
+    ultimateWidget = ref<any>(null),
+    currentItemCategory = ref('item')
 
 const
     tiptapTextEditor = ref<HTMLElement | null>(null),
@@ -210,9 +228,13 @@ const onShip = () => {
   }
 }
 
-const onItem = (tags = []) => {
+/**
+ * 触发物品菜单选择（支持物品、材料、装饰品、装饰品集等）
+ */
+const onItem = (e: any) => {
   if (itemWidget.value && !editor.value?.isFocused) {
-    itemWidget.value.openPanel(tags)
+    currentItemCategory.value = e.category || 'item'
+    itemWidget.value.openPanel(e.tags, e.category)
     isOpenItem.value = true
   }
 }
@@ -247,7 +269,23 @@ const onInsertVideo = (src: string) => {
 }
 
 const onInsertItem = (id: string) => {
-  editor.value?.commands.insertItem({id})
+  // 根据不同的分类选择插入不同的节点
+  if (currentItemCategory.value === 'ship') {
+    editor.value?.commands.insertShip({id})
+  } else if (currentItemCategory.value === 'material') {
+    editor.value?.commands.insertMaterial({id})
+  } else if (currentItemCategory.value === 'cosmetic') {
+    editor.value?.commands.insertCosmetic({id})
+  } else if (currentItemCategory.value === 'set') {
+    editor.value?.commands.insertSet({id})
+  } else if (currentItemCategory.value === 'ultimate') {
+    editor.value?.commands.insertUltimate({id})
+  } else if (currentItemCategory.value === 'modification') {
+    editor.value?.commands.insertMod({id})
+  } else {
+    // 默认按照物品(item)插入
+    editor.value?.commands.insertItem({id})
+  }
   isOpenItem.value = false
 }
 
@@ -269,6 +307,11 @@ const onInsertUltimate = (id: string) => {
 const onInsertMod = (id: string) => {
   editor.value?.commands.insertMod({id})
   isOpenMod.value = !isOpenMod
+}
+
+const onInsertLang = (lang: string) => {
+  editor.value?.commands.insertLang({lang})
+  isOpenLang.value = false
 }
 
 const onEditorChange = (data: string) => {
@@ -306,7 +349,11 @@ const onInitEdit = () => {
       ShipWidget,
       EmoteWidget,
       UltimatesWidget,
-      ModWidget
+      ModWidget,
+      LangWidget,
+      MaterialWidget,
+      CosmeticWidget,
+      SetWidget
     ],
     onCreate({editor}) {
       (editor.options as any).keyboardShortcuts = {}
@@ -318,7 +365,11 @@ const onInitEdit = () => {
     onFocus({editor}) {
       emit('focused', editor.isEmpty ? '' : editor.getHTML())
     },
+    onSelectionUpdate({editor}) {
+      isLangActive.value = editor.isActive('Lang')
+    },
     onUpdate({editor}) {
+      isLangActive.value = editor.isActive('Lang')
       // const html = editor.getHTML(
       // if (html.length > props.maxlength) {
       //   // 撤销最后一步操作
@@ -336,7 +387,7 @@ const onInitEdit = () => {
 </script>
 
 <template>
-  <div v-if="tiptap" class="container html-widget-box bg-transparent">
+  <div v-if="tiptap" class="textarea-wrapper container readonly html-widget-box bg-transparent" :class="{ 'force-show-all-lang': forceShowAllLang }" :data-locale="props.locale">
     <div class="mb-3 control-group editor-toolbar" v-if="!props.readonly">
       <v-row :gutter="20" type="flex" align="center">
         <v-col>
@@ -345,6 +396,7 @@ const onInitEdit = () => {
                 icon
                 class="btn mr-2"
                 density="compact"
+                elevation="0"
                 @click="onLink"
                 :disabled="isOpenLink"
                 v-if="toolbarAs.indexOf('link') >= 0">
@@ -354,6 +406,7 @@ const onInitEdit = () => {
                 icon
                 class="btn mr-2"
                 density="compact"
+                elevation="0"
                 @click="onImg"
                 :disabled="isOpenImg"
                 v-if="toolbarAs.indexOf('img') >= 0">
@@ -363,6 +416,7 @@ const onInitEdit = () => {
                 icon
                 class="btn mr-5"
                 density="compact"
+                elevation="0"
                 @click="onVideo"
                 :disabled="isOpenVideo"
                 v-if="toolbarAs.indexOf('video') >= 0">
@@ -373,107 +427,92 @@ const onInitEdit = () => {
                 icon
                 class="btn mr-5"
                 density="compact"
+                elevation="0"
                 @click="onEmote"
                 :disabled="isOpenEmoji"
                 v-if="toolbarAs.indexOf('emote') >= 0">
               <v-icon icon="mdi-emoticon-happy-outline"></v-icon>
             </v-btn>
 
-            <v-btn
-                icon
-                class="btn mr-2"
-                density="compact"
-                @click="onShip"
-                v-tooltip="'船'"
-                :disabled="isOpenShip"
-                v-if="toolbarAs.indexOf('ship') >= 0">
-              <v-icon icon="mdi-ship-wheel"></v-icon>
-            </v-btn>
+            <!--            <v-btn-->
+            <!--                icon-->
+            <!--                class="btn mr-2"-->
+            <!--                density="compact"-->
+            <!--                elevation="0"-->
+            <!--                @click="onShip"-->
+            <!--                v-tooltip="'船'"-->
+            <!--                :disabled="isOpenShip"-->
+            <!--                v-if="toolbarAs.indexOf('ship') >= 0">-->
+            <!--              <v-icon icon="mdi-ship-wheel"></v-icon>-->
+            <!--            </v-btn>-->
 
-            <v-menu location="bottom right">
+            <FullItemRightClickMenu
+                :visible-categories="[toolbarAs.indexOf('ship') >= 0 ? 'ship' : null,'item','material','cosmetic','set', toolbarAs.indexOf('ultimate') >= 0 ? 'ultimate' : null, toolbarAs.indexOf('mod') >= 0 ? 'modification' : null]"
+                @clickMenuItem="(e) => onItem(e)">
+              <template v-slot="menuProps">
+                <div class="v-btn v-btn--elevated v-btn--icon v-theme--dark v-btn--density-compact elevation-0 v-btn--size-default v-btn--variant-elevated btn mr-2">
+                  <v-btn
+                      icon
+                      class="btn"
+                      density="compact"
+                      elevation="0"
+                      v-bind="menuProps"
+                      :disabled="isOpenItem"
+                      v-if="toolbarAs.indexOf('item') >= 0">
+                    <v-icon icon="mdi-cube-outline"></v-icon>
+                  </v-btn>
+                  <v-icon
+                      v-bind="menuProps"
+                      size="15" class="ml-n1">mdi-dots-vertical</v-icon>
+                </div>
+              </template>
+            </FullItemRightClickMenu>
+
+            <!--            <v-btn-->
+            <!--                icon-->
+            <!--                class="btn mr-2"-->
+            <!--                density="compact"-->
+            <!--                elevation="0"-->
+            <!--                @click="onMod"-->
+            <!--                v-tooltip="'模组'"-->
+            <!--                :disabled="isOpenMod"-->
+            <!--                v-if="toolbarAs.indexOf('mod') >= 0">-->
+            <!--              <v-icon icon="mdi-puzzle-outline"></v-icon>-->
+            <!--            </v-btn>-->
+
+            <!--            <v-btn-->
+            <!--                icon-->
+            <!--                class="btn mr-2"-->
+            <!--                density="compact"-->
+            <!--                elevation="0"-->
+            <!--                @click="onUltimate"-->
+            <!--                v-tooltip="'终结技能'"-->
+            <!--                :disabled="isOpenUltimate"-->
+            <!--                v-if="toolbarAs.indexOf('ultimate') >= 0">-->
+            <!--              <v-icon icon="mdi-multiplication"></v-icon>-->
+            <!--            </v-btn>-->
+
+            <v-menu location="bottom right"
+                    v-if="toolbarAs.indexOf('lang') >= 0">
               <template v-slot:activator="{ props }">
                 <v-btn
                     icon
                     class="btn mr-2"
                     density="compact"
-                    v-tooltip="'物品'"
+                    elevation="0"
                     v-bind="props"
-                    :disabled="isOpenItem"
-                    v-if="toolbarAs.indexOf('item') >= 0">
-                  <v-icon icon="mdi-cube-outline"></v-icon>
+                    :disabled="isOpenLang || isLangActive"
+                    v-tooltip="'语言'">
+                  <v-icon icon="mdi-translate"></v-icon>
                 </v-btn>
               </template>
 
-              <v-list min-width="300" density="compact">
-                <v-list-item link>
-                  <v-list-item-title
-                      @click="onItem(['culverin', 'demicannon', 'bombard', 'longGun', 'torpedo'])">
-                    {{ t('assembly.workshop.weaponTitle') }}
-                  </v-list-item-title>
-                  <template v-slot:append>
-                    <v-icon>mdi-open-in-new</v-icon>
-                  </template>
-                </v-list-item>
-                <v-list-item link>
-                  <v-list-item-title @click="onItem(['shipUpgrade'])">
-                    {{ t('codex.types.shipUpgrade') }}
-                  </v-list-item-title>
-                  <template v-slot:append>
-                    <v-icon>mdi-open-in-new</v-icon>
-                  </template>
-                </v-list-item>
-                <v-list-item link>
-                  <v-list-item-title @click="onItem([ 'majorFurniture','offensiveFurniture', 'utilityFurniture'])">
-                    {{ t('codex.types.offensiveFurniture') }},
-                    {{ t('codex.types.offensiveFurniture') }},
-                    {{ t('codex.types.utilityFurniture') }}
-                  </v-list-item-title>
-                  <template v-slot:append>
-                    <v-icon>mdi-open-in-new</v-icon>
-                  </template>
-                </v-list-item>
-                <v-list-item link>
-                  <v-list-item-title @click="onItem([ 'consumable'])">
-                    {{ t('codex.types.consumable') }}
-                  </v-list-item-title>
-                  <template v-slot:append>
-                    <v-icon>mdi-open-in-new</v-icon>
-                  </template>
-                </v-list-item>
-                <v-list-item link>
-                  <v-list-item-title @click="onItem(['tool','chest'])">
-                    {{ t('codex.types.tool') }},
-                    {{ t('codex.types.chest') }}
-                  </v-list-item-title>
-                  <template v-slot:append>
-                    <v-icon>mdi-open-in-new</v-icon>
-                  </template>
+              <v-list min-width="150" density="compact">
+                <v-list-item link v-for="l in languagesConfig.child" :key="l.value" @click="onInsertLang(l.value)">
+                  <v-list-item-title>{{ l.label }}</v-list-item-title>
                 </v-list-item>
               </v-list>
             </v-menu>
-
-
-            <v-btn
-                icon
-                class="btn mr-2"
-                density="compact"
-                @click="onMod"
-                v-tooltip="'模组'"
-                :disabled="isOpenMod"
-                v-if="toolbarAs.indexOf('mod') >= 0">
-              <v-icon icon="mdi-puzzle-outline"></v-icon>
-            </v-btn>
-
-            <v-btn
-                icon
-                class="btn mr-2"
-                density="compact"
-                @click="onUltimate"
-                v-tooltip="'终结技能'"
-                :disabled="isOpenUltimate"
-                v-if="toolbarAs.indexOf('ultimate') >= 0">
-              <v-icon icon="mdi-multiplication"></v-icon>
-            </v-btn>
           </div>
         </v-col>
       </v-row>
@@ -498,6 +537,15 @@ const onInitEdit = () => {
 </template>
 
 <style lang="less">
+html[lang="zh-CN"] div.textarea-wrapper:not([data-locale]) div[data-lang]:not([data-lang="zh-CN"]):not(.ProseMirror[contenteditable="true"] *):not(.force-show-all-lang *),
+html[lang="en-US"] div.textarea-wrapper:not([data-locale]) div[data-lang]:not([data-lang="en-US"]):not(.ProseMirror[contenteditable="true"] *):not(.force-show-all-lang *),
+html[lang="zh-TW"] div.textarea-wrapper:not([data-locale]) div[data-lang]:not([data-lang="zh-TW"]):not(.ProseMirror[contenteditable="true"] *):not(.force-show-all-lang *),
+div[data-locale="zh-CN"] div[data-lang]:not([data-lang="zh-CN"]):not(.ProseMirror[contenteditable="true"] *):not(.force-show-all-lang *),
+div[data-locale="en-US"] div[data-lang]:not([data-lang="en-US"]):not(.ProseMirror[contenteditable="true"] *):not(.force-show-all-lang *),
+div[data-locale="zh-TW"] div[data-lang]:not([data-lang="zh-TW"]):not(.ProseMirror[contenteditable="true"] *):not(.force-show-all-lang *) {
+  display: none !important;
+}
+
 .tiptap {
   font-family: "Ionicons", sans-serif;
 

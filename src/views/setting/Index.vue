@@ -36,6 +36,11 @@ let tabs: Ref<any[]> = ref([
         icon: 'mdi-cellphone-arrow-down'
       },
       {
+        name: 'setting.wishlist.title',
+        value: 'PortalSettingWishlist',
+        icon: 'mdi-playlist-star'
+      },
+      {
         name: 'about.title',
         value: 'PortalSettingAbout',
         icon: 'mdi-information'

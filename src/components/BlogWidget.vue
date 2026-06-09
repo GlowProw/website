@@ -7,6 +7,7 @@ import MarkdownIt from 'markdown-it';
 import EmptyView from "@/components/EmptyView.vue";
 import Loading from "@/components/Loading.vue";
 import {BlogData} from "@/assets/types/Blog";
+import HtmlLink from "@/components/HtmlLink.vue";
 
 const md = new MarkdownIt({
       html: true,
@@ -23,15 +24,32 @@ onMounted(() => {
   md.renderer.rules.image = function (tokens, idx, options, env, self) {
     const token = tokens[idx],
         src = token.attrs.find(i => i[0] == 'src')[1];
-    console.log(src)
+    token.attrJoin('class', 'border');
     return `<div class="img"><img src="${convertPath(src, api.blogBaseUrl)}" alt="${token.content}" /></div>`;
+  };
+
+  md.renderer.rules.link_open = function (tokens, idx) {
+    const token = tokens[idx],
+        href = token.attrs.find(attr => attr[0] === 'href')[1];
+    return `<span class="html-link cursor-pointer"><i class="mdi mdi-link icon"></i><a href="${href}" target="_blank" class="u">`;
+  };
+  md.renderer.rules.link_close = function () {
+    return '</a></span>';
+  };
+
+  md.renderer.rules.heading_open = (tokens, idx, options, env, self) => {
+    const token = tokens[idx];
+    if (token.tag === 'h1' || token.tag === 'h2' || token.tag === 'h3' || token.tag === 'h4') {
+      token.attrJoin('class', 'u');
+    }
+    return self.renderToken(tokens, idx, options);
   };
 
   getBlogData()
 })
 
 let isNext = computed(() => {
-      return (showBlogIndex.value + 1) >= Number(blogData.value.totalCount)
+      return (showBlogIndex.value + 1) >= (blogData.value.latestPosts?.length || 0)
     }),
     isPrev = computed(() => {
       return (showBlogIndex.value + 1) <= 1
@@ -43,10 +61,15 @@ let isNext = computed(() => {
  * @param apiBlogBaseUrl
  */
 function convertPath(path, apiBlogBaseUrl) {
-  return path.replace(
-      /\.\.\/\.\.\/static\/images\/blog\/([^/]+)\/([^/]+\.png)/,
-      `${apiBlogBaseUrl}/images/blog/$1/$2`
-  );
+  return path
+      .replace(
+          /(?:\.\.\/)*static\/images\/blog\/([^/]+)\/([^/]+\.png)/g,
+          `${apiBlogBaseUrl}/images/blog/$1/$2`
+      )
+      .replace(
+          /pathname:\/\/\/images\/blog\/([^/]+)\/([^/]+\.png)/g,
+          `${apiBlogBaseUrl}/images/blog/$1/$2`
+      );
 }
 
 /**
@@ -60,7 +83,7 @@ const getBlogData = async () => {
 
     if (d) {
       blogData.value = d;
-      showBlogIndex.value = d?.latestPosts.length - 1;
+      showBlogIndex.value = 4;
     }
   } finally {
     loading.value = false
@@ -79,7 +102,7 @@ const onPage = (type) => {
       showBlogIndex.value -= 1
       break;
     case 'next':
-      if (showBlogIndex.value > blogData.value.totalCount)
+      if (showBlogIndex.value >= (blogData.value.latestPosts?.length || 0) - 1)
         return;
       showBlogIndex.value += 1
       break;
@@ -112,9 +135,11 @@ const onPage = (type) => {
             <v-btn-group border class="page-btn">
               <v-btn density="compact" @click="onPage('prev')" :disabled="isPrev">
                 <v-icon icon="mdi-arrow-left"></v-icon>
+                <v-card variant="text" max-width="60" class="singe-line" v-if="blogData.latestPosts[showBlogIndex - 1]?.title">{{ blogData.latestPosts[showBlogIndex - 1].title }}</v-card>
               </v-btn>
               <v-btn density="compact" @click="onPage('next')" :disabled="isNext">
                 <v-icon icon="mdi-arrow-right"></v-icon>
+                <v-card variant="text" max-width="60" class="singe-line" v-if="blogData.latestPosts[showBlogIndex + 1]?.title">{{ blogData.latestPosts[showBlogIndex + 1].title }}</v-card>
               </v-btn>
             </v-btn-group>
           </v-col>
@@ -131,6 +156,7 @@ const onPage = (type) => {
 </template>
 
 <style scoped lang="less">
+@import "@/assets/styles/read-view";
 @import "@/assets/styles/link";
 
 .page-btn {
@@ -138,6 +164,3 @@ const onPage = (type) => {
 }
 </style>
 
-<style lang="less">
-@import "../assets/styles/read-view";
-</style>

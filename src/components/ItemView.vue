@@ -10,7 +10,7 @@ import {Item} from "glow-prow-data";
 import AssemblyClassificationShowList from "@/components/AssemblyClassificationShowList.vue";
 
 // 选择器所加载的类型
-type ContentSelectorOption = "item" | "material" | "cosmetic" | "ultimate" | "modification"
+type ContentSelectorOption = "item" | "material" | "cosmetic" | "ultimate" | "modification" | "set"
 
 const {t} = useI18n(),
     emit = defineEmits(["finish", "close"])
