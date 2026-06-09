@@ -154,13 +154,30 @@
         "bad": "Login error: Please check login information format",
         "wrong": "Incorrect login information",
         "expired": "User identity expired, please log in again",
-        "accountIncorrect": "Incorrect login information"
+        "accountIncorrect": "Incorrect login information",
+        "notActivated": "Account disabled due to non-activation, please activate it."
       },
       "signup": {
-        "ok": "Registration successful",
-        "userAlreadyHas": "Account name already exists",
-        "error": "Registration error: {context}",
-        "bad": "Registration error: Please check the format requirements for registration information"
+        "ok": "Registration successful, please check your email to activate.",
+        "bad": "Invalid parameters submitted.",
+        "illegalFormat": "Username contains illegal characters.",
+        "userAlreadyHas": "Username already exists.",
+        "emailAlreadyHas": "This email is already bound, please log in directly.",
+        "emailQuotaExceeded": "Registration email limit reached, please try again later.",
+        "dailyLimitExceeded": "Daily registration limit reached, please try again tomorrow.",
+        "error": "Registration failed."
+      },
+      "activate": {
+        "ok": "Account activated successfully, please log in.",
+        "invalidCode": "Activation code is invalid or has expired.",
+        "alreadyActive": "Account already active, please log in.",
+        "userNotFound": "Account not found.",
+        "emailQuotaExceeded": "Email daily limit reached, please try again later.",
+        "resendLimitExceeded": "Daily activation resend limit reached, please try again tomorrow.",
+        "resend": {
+          "ok": "Activation code resent, please check your email."
+        },
+        "error": "Activation error: {context}"
       },
       "like": {
         "ok": "Like processed successfully",
@@ -170,6 +187,18 @@
       "user": {
         "invalid": "Invalid user",
         "tokenExpired": "User identity expired, please log in again"
+      },
+      "emailChange": {
+        "alreadyUsed": "This email is already in use",
+        "tooFrequent": "Changing email too frequently, please try again in {context} days.",
+        "quotaExceeded": "Email daily limit reached, please try again later",
+        "invalidCode": "Verification code is invalid or has expired",
+        "request": {
+          "ok": "Verification code sent to the new email"
+        },
+        "confirm": {
+          "ok": "Email updated successfully"
+        }
       },
       "request": {
         "rateLimited": "Request too fast, please slow down"
@@ -253,7 +282,15 @@
         },
         "email": {
           "name": "Email",
-          "placeholder": "Account Email"
+          "placeholder": "Account Email",
+          "changeName": "Change Email",
+          "changeDescription": "To change your account email, you need to send a verification code to the new address and verify it.",
+          "newEmailPlaceholder": "Enter new email address",
+          "sendCode": "Send Code",
+          "codePlaceholder": "Enter 6-digit code",
+          "error": {
+            "required": "Please enter a new email"
+          }
         },
         "language": {
           "name": "Language",
@@ -276,6 +313,23 @@
         }
       }
     }
+  },
+  "activate": {
+    "title": "Account Activation",
+    "description": "Please enter the 6-digit activation code sent to your email to complete registration.",
+    "form": {
+      "username": {
+        "name": "Username",
+        "placeholder": "Enter username"
+      },
+      "code": {
+        "name": "Activation Code",
+        "placeholder": "Enter 6-digit code"
+      }
+    },
+    "resendCode": "Resend Activation Code",
+    "submit": "Activate Account",
+    "backToSignin": "Back to Signin"
   },
   "codex": {
     "title": "Codex",
@@ -938,6 +992,8 @@
     "hasPassword": "Has Password",
     "byCloningUuid": "Clone",
     "editAssemblyBtn": "Edit this Assembly",
+    "editInfoBtn": "Edit Information",
+    "editWorkshopBtn": "Workshop",
     "anonymous": "Anonymous",
     "commentPlaceholder": "What are your thoughts on this?",
     "additions": {
@@ -1097,7 +1153,13 @@
       "showItemName": "Show Name",
       "fullName": "Full Name",
       "showHeader": "Poster Header Identifier",
-      "showTitle": "Show Title"
+      "showTitle": "Show Title",
+      "showTabs": "Show Tags",
+      "showDescription": "Show Description",
+      "imageStyleTitle": "Style",
+      "language": "Language",
+      "generating": "Generating poster...",
+      "generatingHint": "Exporting high-quality image, please wait"
     },
     "browse": {
       "title": "Assembly Share Collection",
@@ -1270,6 +1332,46 @@
       "dataTitle": "Data",
       "persistentStorage": "Persistent Storage",
       "sessionStorage": "Session Storage"
+    },
+    "wishlist": {
+      "title": "Wishlist",
+      "description": "Manage format wishlists. Matched items will display a recommendation badge on cards.",
+      "importTitle": "Import Wishlist",
+      "importFromUrl": "Import from URL",
+      "importFromFile": "Upload File",
+      "importFromText": "Paste Text",
+      "urlPlaceholder": "Enter wishlist raw text URL",
+      "importBtn": "Import",
+      "listTitle": "Imported Wishlists",
+      "rules": "rules",
+      "source": "Source",
+      "export": "Export",
+      "delete": "Delete",
+      "deleteConfirm": "Are you sure you want to delete this wishlist?",
+      "enableAll": "Enable All",
+      "disableAll": "Disable All",
+      "clearAll": "Clear All",
+      "clearAllConfirm": "Are you sure you want to clear all wishlists?",
+      "noWishlists": "No wishlists imported yet",
+      "importSuccess": "Wishlist imported successfully",
+      "importError": "Import failed",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "pasteTitle": "Paste Wishlist Text",
+      "pastePlaceholder": "Paste wishlist text content here...",
+      "matchedItems": "Stats",
+      "update": "Update",
+      "updateError": "Update failed",
+      "lastUpdated": "Last updated",
+      "duplicatesRemoved": "{count} duplicates removed",
+      "requiredFieldsMissing": "Missing required fields: {fields}",
+      "field_title": "Title",
+      "field_description": "Description",
+      "field_max_limit": "Max import limit reached (max 10 list)",
+      "notes": "Notes",
+      "mod": "Mods",
+      "item": "Related Item",
+      "perk": "Matched Perks"
     }
   },
   "header": {
@@ -1336,7 +1438,7 @@
   },
   "footer": {
     "basic": {
-      "description": "Skull and Bones Inventory Website"
+      "description": "The shining bow is a game tool developed by players of the Cabbagelol community. It offers players free services such as item search, configuration sharing, and maps."
     },
     "col1": {
       "title": "Service"
