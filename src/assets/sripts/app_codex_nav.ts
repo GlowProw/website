@@ -6,7 +6,7 @@ export default class AppCodexNav {
         {
             title: 'codex.navs.shipsAndCaptainTools.name',
             value: 'shipsAndCaptainTools',
-            childs: [
+            children: [
                 {
                     title: 'codex.navs.ships.name',
                     value: 'ships',
@@ -22,7 +22,7 @@ export default class AppCodexNav {
         {
             title: 'codex.navs.weapons.name',
             value: 'weapons',
-            childs: [
+            children: [
                 {
                     title: 'codex.navs.allDeckWeapons.name',
                     value: 'allDeckWeapons',
@@ -48,7 +48,7 @@ export default class AppCodexNav {
         {
             title: 'codex.navs.armor.name',
             value: 'armor',
-            childs: [
+            children: [
                 {
                     title: 'codex.navs.hullArmor.name',
                     value: 'hullArmor',
@@ -59,7 +59,7 @@ export default class AppCodexNav {
         {
             title: 'codex.navs.furnTure.name',
             value: 'furnTure',
-            childs: [
+            children: [
                 {
                     title: 'codex.navs.majorFurniture.name',
                     value: 'majorFurniture',
@@ -80,7 +80,7 @@ export default class AppCodexNav {
         {
             title: 'codex.navs.materials.name',
             value: 'materials',
-            childs: [
+            children: [
                 {
                     title: 'codex.navs.rawMaterials.name',
                     value: 'rawMaterials',
@@ -116,7 +116,7 @@ export default class AppCodexNav {
         {
             title: 'codex.navs.provisions.name',
             value: 'provisions',
-            childs: [
+            children: [
                 {
                     title: 'codex.navs.shipSupplies.name',
                     value: 'shipSupplies',
@@ -132,7 +132,7 @@ export default class AppCodexNav {
         {
             title: 'codex.navs.commodities.name',
             value: 'commodities',
-            childs: [
+            children: [
                 {
                     title: 'codex.navs.localFactionCommodities.name',
                     value: 'localFactionCommodities',
