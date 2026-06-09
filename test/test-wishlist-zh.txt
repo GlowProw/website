@@ -1,11 +1,20 @@
-title:Glow Prow 测试愿望单 — PvE & PvP 神级词条组合
+title:Glow Prow 测试愿望单
 description:一份综合性的测试愿望单，涵盖了武器、护甲和家具，并附有推荐的改装组合。为测试愿望单导入功能而生成。
 version:1.0.0
 author:UserName
-author_url:https://github.com/username/glow-prow
+author_url:https://github.com/glow-prow
 update_url:https://raw.githubusercontent.com/username/glow-prow/main/test/test-wishlist.txt
 
-//notes: 测试火炮 — 侧重撕裂效果,提供断腿 tags:pvp,pve
-wishlist:item=tearingCulverin1&perks=tearing2&mods=basic.antiBlast,advanced.antiBlast,special.santiBlast#notes:mod拼写错误
-wishlist:item=tearingCulverin1&perks=tearing2&mods=basic.antiBlast,advanced.antiBlast,special.antiBlast
-wishlist:item=tearingCulverin1&perks=tearing2&mods=basic.antiBlast,advanced.antiBlast,special.antiBlast
+//notes: 测试火炮-撕裂效果 tags:pvp,pve
+wishlist:item=culverin1&mods=basic.antiBlast,advanced.antiBlast,special.antiBlast
+wishlist:item=culverin2&mods=basic.antiBlast,advanced.antiBlast,special.antiBlast
+wishlist:item=culverin3&mods=basic.antiBlast,advanced.antiBlast,special.antiBlast
+
+//notes: 测试火炮-撕裂效果 tags:pvp,pve
+wishlist:item=tearingCulverin1&mods=basic.antiBlast,advanced.antiBlast,special.antiBlast
+wishlist:item=tearingCulverin1&mods=basic.antiBlast,advanced
+
+----
+
+//notes: 雷龙大船
+wishlist:item=thunderDragonCannon&mods=special.deathblow#notes: 雷龙对于血量低敌人，触发极高，这是由于雷龙配大船，炮口数量惊人
