@@ -496,7 +496,6 @@ export function useI18nReadName() {
                             result.push({id: perkKey, value: asArray(keys)})
                             break;
                         default:
-                            console.log(perkKey)
                             keys = [
                                 `snb.perks.${perkKey}.description.general`,
                                 `snb.perks.${perksName.cleaned}.description.general`,
