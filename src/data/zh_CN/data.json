@@ -154,13 +154,30 @@
         "bad": "登陆错误: 请检查登陆信息格式",
         "wrong": "登陆信息错误",
         "expired": "用户身份过期,请重新登陆",
-        "accountIncorrect": "登陆信息错误"
+        "accountIncorrect": "登陆信息错误",
+        "notActivated": "Account disabled due to non-activation, please activate it."
       },
       "signup": {
-        "ok": "注册成功",
-        "userAlreadyHas": "注册帐号的名称已存在",
-        "error": "注册错误: {context}",
-        "bad": "注册错误: 请检查注册信息的格式要求"
+        "ok": "Registration successful, please check your email to activate.",
+        "bad": "Invalid parameters submitted.",
+        "illegalFormat": "Username contains illegal characters.",
+        "userAlreadyHas": "Username already exists.",
+        "emailAlreadyHas": "This email is already bound, please log in directly.",
+        "emailQuotaExceeded": "Registration email limit reached, please try again later.",
+        "dailyLimitExceeded": "Daily registration limit reached, please try again tomorrow.",
+        "error": "Registration failed."
+      },
+      "activate": {
+        "ok": "Account activated successfully, please log in.",
+        "invalidCode": "Activation code is invalid or has expired.",
+        "alreadyActive": "Account already active, please log in.",
+        "userNotFound": "Account not found.",
+        "emailQuotaExceeded": "Email daily limit reached, please try again later.",
+        "resendLimitExceeded": "Daily activation resend limit reached, please try again tomorrow.",
+        "resend": {
+          "ok": "Activation code resent, please check your email."
+        },
+        "error": "Activation error: {context}"
       },
       "like": {
         "ok": "赞处理成功",
@@ -170,6 +187,18 @@
       "user": {
         "invalid": "错误用户",
         "tokenExpired": "用户身份过期,请重新登陆"
+      },
+      "emailChange": {
+        "alreadyUsed": "This email is already in use",
+        "tooFrequent": "Changing email too frequently, please try again in {context} days.",
+        "quotaExceeded": "Email daily limit reached, please try again later",
+        "invalidCode": "Verification code is invalid or has expired",
+        "request": {
+          "ok": "Verification code sent to the new email"
+        },
+        "confirm": {
+          "ok": "Email updated successfully"
+        }
       },
       "request": {
         "rateLimited": "请求太快力，慢点"
@@ -253,7 +282,15 @@
         },
         "email": {
           "name": "邮箱",
-          "placeholder": "账户邮箱"
+          "placeholder": "账户邮箱",
+          "changeName": "Change Email",
+          "changeDescription": "To change your account email, you need to send a verification code to the new address and verify it.",
+          "newEmailPlaceholder": "Enter new email address",
+          "sendCode": "Send Code",
+          "codePlaceholder": "Enter 6-digit code",
+          "error": {
+            "required": "Please enter a new email"
+          }
         },
         "language": {
           "name": "语种",
@@ -276,6 +313,23 @@
         }
       }
     }
+  },
+  "activate": {
+    "title": "Account Activation",
+    "description": "Please enter the 6-digit activation code sent to your email to complete registration.",
+    "form": {
+      "username": {
+        "name": "Username",
+        "placeholder": "Enter username"
+      },
+      "code": {
+        "name": "Activation Code",
+        "placeholder": "Enter 6-digit code"
+      }
+    },
+    "resendCode": "Resend Activation Code",
+    "submit": "Activate Account",
+    "backToSignin": "Back to Signin"
   },
   "codex": {
     "title": "手稿",
@@ -938,6 +992,8 @@
     "hasPassword": "包含密码",
     "byCloningUuid": "克隆",
     "editAssemblyBtn": "编辑此配装",
+    "editInfoBtn": "Edit Information",
+    "editWorkshopBtn": "工作台",
     "anonymous": "匿名",
     "commentPlaceholder": "你对此有何见解？",
     "additions": {
@@ -1097,7 +1153,13 @@
       "showItemName": "显示名称",
       "fullName": "完整名称",
       "showHeader": "海报头部标识",
-      "showTitle": "显示标题"
+      "showTitle": "显示标题",
+      "showTabs": "Show Tags",
+      "showDescription": "Show Description",
+      "imageStyleTitle": "Style",
+      "language": "语种",
+      "generating": "Generating poster...",
+      "generatingHint": "Exporting high-quality image, please wait"
     },
     "browse": {
       "title": "配装分享集",
@@ -1270,6 +1332,46 @@
       "dataTitle": "数据",
       "persistentStorage": "Persistent Storage",
       "sessionStorage": "Session Storage"
+    },
+    "wishlist": {
+      "title": "Wishlist",
+      "description": "Manage format wishlists. Matched items will display a recommendation badge on cards.",
+      "importTitle": "Import Wishlist",
+      "importFromUrl": "Import from URL",
+      "importFromFile": "Upload File",
+      "importFromText": "Paste Text",
+      "urlPlaceholder": "Enter wishlist raw text URL",
+      "importBtn": "Import",
+      "listTitle": "Imported Wishlists",
+      "rules": "rules",
+      "source": "Source",
+      "export": "Export",
+      "delete": "删除",
+      "deleteConfirm": "Are you sure you want to delete this wishlist?",
+      "enableAll": "Enable All",
+      "disableAll": "Disable All",
+      "clearAll": "Clear All",
+      "clearAllConfirm": "Are you sure you want to clear all wishlists?",
+      "noWishlists": "No wishlists imported yet",
+      "importSuccess": "Wishlist imported successfully",
+      "importError": "Import failed",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "pasteTitle": "Paste Wishlist Text",
+      "pastePlaceholder": "Paste wishlist text content here...",
+      "matchedItems": "Stats",
+      "update": "Update",
+      "updateError": "Update failed",
+      "lastUpdated": "Last updated",
+      "duplicatesRemoved": "{count} duplicates removed",
+      "requiredFieldsMissing": "Missing required fields: {fields}",
+      "field_title": "Title",
+      "field_description": "描述",
+      "field_max_limit": "Max import limit reached (max 10 list)",
+      "notes": "Notes",
+      "mod": "Mods",
+      "item": "Related Item",
+      "perk": "Matched Perks"
     }
   },
   "header": {
@@ -1336,7 +1438,7 @@
   },
   "footer": {
     "basic": {
-      "description": "碧海黑帆清单网站"
+      "description": "The shining bow is a game tool developed by players of the Cabbagelol community. It offers players free services such as item search, configuration sharing, and maps."
     },
     "col1": {
       "title": "服务"
