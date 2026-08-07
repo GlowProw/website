@@ -42,7 +42,7 @@ const props = withDefaults(defineProps<GoogleAdProps>(), {
 // 当前广告开关状态
 const adIdSwitchStatus = ref({type: 'google', value: true}),
     isGlobalAdEnabled = computed<boolean>(() => {
-      return storage_account.getConfigurationItem('ad', 'google.switch', {defaultValue: true}) !== false;
+      return storage_account.getConfigurationItem('ad', 'google.switch', {defaultValue: false}) !== false;
     }),
     adContainerStyle = computed(() => {
       return {

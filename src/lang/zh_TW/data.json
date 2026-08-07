@@ -1195,7 +1195,20 @@
       "addToExclude": "加入排除"
     }
   },
+  "search": {
+    "openMode": "結果連結開啟方式",
+    "openNewWindow": "新視窗開啟",
+    "openCurrentWindow": "當前視窗開啟"
+  },
   "setting": {
+    "routine": {
+      "searchOpenMode": "結果連結開啟方式",
+      "commentTitle": "評論",
+      "commentDesc": "管理全站評論模組顯示",
+      "commentGlobalSwitch": "評論總開關",
+      "commentCodexSwitch": "手稿（Codex）評論",
+      "commentAssemblySwitch": "配裝（Assembly）評論"
+    },
     "wishlist": {
       "title": "願望清單",
       "description": "管理格式願望清單，匹配的物品將在卡片中顯示推薦標記",

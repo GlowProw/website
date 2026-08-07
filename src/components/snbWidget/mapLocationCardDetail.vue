@@ -9,6 +9,7 @@ import {useAssetsStore} from "~/stores/assetsStore";
 import LightRays from "../LightRays.vue"
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import MapLocationName from "@/components/snbWidget/mapLocationName.vue";
+import ByMapWidget from "@/components/ByMapWidget.vue";
 
 const props = withDefaults(defineProps<{
   id: string,
@@ -30,6 +31,7 @@ const mapLocationsValue = MapLocations
 
 let mapLocationsCardData = ref({
   icon: '',
+  panel: true
 })
 const mapIcons = ref<any>({})
 const i: Ref<MapLocation | null> = ref(null)
@@ -94,6 +96,30 @@ defineOptions({
         />
       </template>
     </div>
+    <div :class="{'demo-reel-content': !isWidget}" class="background-flavor overflow-auto">
+      <v-expansion-panels class="mt-5" v-model="mapLocationsCardData.panel" :multiple="isWidget">
+        <v-expansion-panel
+            class="bg-transparent"
+            color="transparent"
+            tile
+            static
+            value="obtainable"
+            v-if="i.id">
+          <template v-slot:title>
+            <div class="title-long-flavor bg-black">
+              {{ t('codex.item.byMap') }}
+            </div>
+          </template>
+          <template v-slot:text>
+            <ByMapWidget
+              :draggable="false"
+              :zoomable="false"
+              :target-key="i.id"></ByMapWidget>
+          </template>
+        </v-expansion-panel>
+      </v-expansion-panels>
+    </div>
+    <v-divider v-if="isShowOpenDetail"></v-divider>
     <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto"
          v-if="isShowOpenDetail">
       <BtnWidget @action-complete="router.push(`/codex/mapLocation/${i.id}`)"

@@ -60,7 +60,10 @@ const {t, messages, locale} = useI18n(),
     searchConfig = ref({
       limit: 100,
       enabledTypes: [...allTypes]
-    })
+    }),
+
+    // Search open new window setting
+    searchOpenNewWindow = ref(true)
 
 let searchValue = ref(''), // 展示搜索值
     searchQuery = ref(''), // 实际搜索的值
@@ -191,6 +194,8 @@ const getConfig = () => {
     searchConfig.value = Object.assign(searchConfig.value, savedConfig)
   }
 
+  searchOpenNewWindow.value = storage_account.getConfigurationItem('search', 'open.newWindow', {defaultValue: true})
+
   searchSettingConfig.value = {
     headerSearchSwitch,
     searchIsLogs,
@@ -204,6 +209,7 @@ const getConfig = () => {
  */
 const saveConfig = () => {
   storage_account.updateConfiguration('search', 'filter.config', searchConfig.value)
+  storage_account.updateConfiguration('search', 'open.newWindow', searchOpenNewWindow.value)
   performSearch(searchValue.value)
 }
 
@@ -228,6 +234,43 @@ const initHotkey = () => {
 
 
 /**
+ * 各搜索类型 -> 列表路由 path 映射
+ * 注意：路由定义中 commoditie 列表是 commodities，mapLocation 列表是 mapLocations
+ */
+const typeToListPath: Record<string, string> = {
+  item: '/codex/items',
+  ship: '/codex/ships',
+  commoditie: '/codex/commodities',
+  commodity: '/codex/commodities',
+  material: '/codex/materials',
+  modification: '/codex/modifications',
+  cosmetic: '/codex/cosmetics',
+  ultimate: '/codex/ultimates',
+  mapLocation: '/codex/mapLocations',
+  treasureMap: '/codex/treasureMaps',
+  set: '/codex/sets',
+  npc: '/codex/npcs',
+}
+
+/**
+ * 各搜索类型 -> i18n title key 映射
+ */
+const typeToI18nKey: Record<string, string> = {
+  item: 'codex.items.title',
+  ship: 'codex.ships.title',
+  commoditie: 'codex.commodities.title',
+  commodity: 'codex.commodities.title',
+  material: 'codex.materials.title',
+  modification: 'codex.modifications.title',
+  cosmetic: 'codex.cosmetics.title',
+  ultimate: 'codex.ultimates.title',
+  mapLocation: 'codex.mapLocations.title',
+  treasureMap: 'codex.treasureMaps.title',
+  set: 'codex.sets.title',
+  npc: 'codex.npcs.title',
+}
+
+/**
  * 获取前往地址
  * @param data
  * @param type
@@ -236,6 +279,8 @@ const toPage = (data: Item | Commodity | Material | Modification | Cosmetic | Ul
   switch (type) {
     case "item":
       return `/codex/item/${data.id}`
+    case "ship":
+      return `/codex/ship/${data.id}`
     case "material":
       return `/codex/material/${data.id}`
     case "modification":
@@ -245,6 +290,8 @@ const toPage = (data: Item | Commodity | Material | Modification | Cosmetic | Ul
       return `/codex/commoditie/${data.id}`
     case "ultimate":
       return `/codex/ultimate/${data.id}`
+    case "cosmetic":
+      return `/codex/cosmetic/${data.id}`
     case "mapLocation":
       return `/codex/mapLocation/${data.id}`
     default:
@@ -287,8 +334,14 @@ const clearHistory = () => {
  * @param type
  */
 const onPage = (item: any, type: string) => {
-  router.push(toPage(item, type))
-  onCloseModel()
+  const path = toPage(item, type)
+  if (!path) return
+  if (searchOpenNewWindow.value) {
+    window.open(path, '_blank')
+  } else {
+    router.push(path)
+    onCloseModel()
+  }
 }
 
 defineExpose({
@@ -366,6 +419,23 @@ defineOptions({
                 density="compact"
                 hide-details
             ></v-slider>
+
+            <v-divider class="my-3"></v-divider>
+
+            <div class="text-caption text-grey mb-1">{{ t('search.openMode') }}</div>
+            <v-select
+                v-model="searchOpenNewWindow"
+                :items="[
+                  { title: t('search.openNewWindow'), value: true },
+                  { title: t('search.openCurrentWindow'), value: false }
+                ]"
+                item-title="title"
+                item-value="value"
+                density="compact"
+                variant="outlined"
+                hide-details
+                class="mb-2"
+            ></v-select>
 
             <v-card-actions>
               <v-spacer></v-spacer>
@@ -504,7 +574,7 @@ defineOptions({
           <v-tab value="all">{{ t('search.all') }} ({{ Object.values(searchResult).flat().length }})</v-tab>
           <template v-for="(items, type) in searchResult" :key="type">
             <v-tab :value="type" v-if="items.length > 0">
-              {{ t(`codex.${type}s.title`) }} ({{ items.length }})
+              {{ t(typeToI18nKey[String(type)] || `codex.${type}s.title`) }} ({{ items.length }})
             </v-tab>
           </template>
         </v-tabs>
@@ -590,11 +660,11 @@ defineOptions({
               </v-list>
 
               <template v-slot:title>
-                {{ t(`codex.${type}s.title`) }} ({{ items.length }})
+                {{ t(typeToI18nKey[String(type)] || `codex.${type}s.title`) }} ({{ items.length }})
 
                 <v-divider class="my-5"></v-divider>
 
-                <v-btn icon density="compact" :to="`/codex/${type}s?key=${searchValue}`" variant="text" @click="onCloseModel">
+                <v-btn icon density="compact" :to="`${typeToListPath[String(type)] || `/codex/${type}s`}?key=${searchValue}`" variant="text" @click="onCloseModel">
                   {{ t('codex.more') }}
                 </v-btn>
               </template>

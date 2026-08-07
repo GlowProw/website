@@ -14,7 +14,8 @@ const {
       updateServiceWorker,
       closePwaUpdate,
     } = use_pwa(),
-    route = useRoute();
+    route = useRoute(),
+    isWidgetsRoute = computed(() => route.path.startsWith('/widgets'));
 
 // 全局响应式 Meta 信息配置
 const head = computed(() => {
@@ -56,6 +57,7 @@ onMounted(() => {
   <router-view></router-view>
 
   <v-snackbar
+      v-if="!isWidgetsRoute"
       v-model="offlineReady"
       :timeout="3000"
       color="#000"
@@ -67,6 +69,7 @@ onMounted(() => {
   </v-snackbar>
 
   <v-snackbar
+      v-if="!isWidgetsRoute"
       v-model="needRefresh"
       :timeout="-1"
       color="info"

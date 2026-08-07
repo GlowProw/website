@@ -428,6 +428,14 @@ const onProcessedData = computed(() => {
         !isSet.value &&
         !isLocation.value)
 
+watch(isShouldShowInfiniteScroll, (shouldShow) => {
+  if (shouldShow && data.value.length === 0) {
+    const allData = originalData.value;
+    data.value = allData.slice(0, filterData.value.limit);
+    filterData.value.page = 2;
+  }
+})
+
 
 watch(() => route.query, (newQuery) => {
   if (newQuery.key) {
@@ -643,9 +651,10 @@ const resetAllFilters = () => {
   filterData.value.keyValue = '';
   filterData.value.inputWidgetKeyValue = '';
 
-  // 重置分页数据
-  data.value = [];
-  filterData.value.page = 1;
+  // 重置并装载第一页数据
+  const allData = originalData.value;
+  data.value = allData.slice(0, filterData.value.limit);
+  filterData.value.page = 2;
 
   // 更新URL
   updateQueryParams()

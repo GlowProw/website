@@ -210,7 +210,10 @@ const onCodexHistory = () => {
             <BySeasonWidget :data="mapLocationDetailData"></BySeasonWidget>
 
             <template v-if="mapLocationDetailData.id">
-              <ByMapWidget :target-x="mapLocationDetailData.latitude" :target-y="mapLocationDetailData.longitude">
+              <ByMapWidget
+                :draggable="false"
+                :zoomable="false"
+                :target-key="mapLocationDetailData.id">
                 {{ t('codex.item.byMap') }}
               </ByMapWidget>
             </template>

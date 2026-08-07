@@ -197,8 +197,59 @@
             <v-switch hide-details inset density="compact" v-model="searchHint" @update:modelValue="onSearchHint"></v-switch>
           </v-col>
         </v-row>
+
+        <v-divider class="mt-2 mb-3"></v-divider>
+
+        <div class="text-caption text-grey mb-1">{{ t('setting.routine.searchOpenMode') }}</div>
+        <v-select
+            v-model="searchOpenNewWindow"
+            :items="[
+              { title: t('search.openNewWindow'), value: true },
+              { title: t('search.openCurrentWindow'), value: false }
+            ]"
+            item-title="title"
+            item-value="value"
+            density="compact"
+            variant="outlined"
+            hide-details
+            class="mb-2"
+            @update:modelValue="onSearchOpenNewWindow"
+        ></v-select>
+
         <template v-slot:title>
           {{ t('setting.routine.searchTitle') }}
+        </template>
+      </AffixBoxHasTitleView>
+    </v-col>
+    <v-col cols="12" lg="4">
+      <AffixBoxHasTitleView>
+        <p class="text-caption opacity-60 mb-5">{{ t('setting.routine.commentDesc') }}</p>
+
+        <v-row align="center" no-gutters>
+          <v-col>{{ t('setting.routine.commentGlobalSwitch') }}</v-col>
+          <v-col cols="auto">
+            <v-switch hide-details inset density="compact" v-model="commentGlobalSwitch" @update:modelValue="onCommentGlobalSwitch"></v-switch>
+          </v-col>
+        </v-row>
+
+        <v-divider class="my-2"></v-divider>
+
+        <v-row align="center" no-gutters>
+          <v-col>{{ t('setting.routine.commentCodexSwitch') }}</v-col>
+          <v-col cols="auto">
+            <v-switch hide-details inset density="compact" v-model="commentCodexSwitch" :disabled="!commentGlobalSwitch" @update:modelValue="onCommentCodexSwitch"></v-switch>
+          </v-col>
+        </v-row>
+
+        <v-row align="center" no-gutters>
+          <v-col>{{ t('setting.routine.commentAssemblySwitch') }}</v-col>
+          <v-col cols="auto">
+            <v-switch hide-details inset density="compact" v-model="commentAssemblySwitch" :disabled="!commentGlobalSwitch" @update:modelValue="onCommentAssemblySwitch"></v-switch>
+          </v-col>
+        </v-row>
+
+        <template v-slot:title>
+          {{ t('setting.routine.commentTitle') }}
         </template>
       </AffixBoxHasTitleView>
     </v-col>
@@ -259,6 +310,11 @@ let estimateCapacity: Ref<any> = ref({}),
     searchIsLogs = ref(false),
     searchHotkey = ref(false),
     searchHint = ref(false),
+    searchOpenNewWindow = ref(true),
+
+    commentGlobalSwitch = ref(true),
+    commentCodexSwitch = ref(true),
+    commentAssemblySwitch = ref(true),
 
     posterSwitch = ref(false),
 
@@ -324,6 +380,11 @@ const getConfig = () => {
   searchIsLogs.value = storage_account.getConfigurationItem('search', 'log.switch')
   searchHotkey.value = storage_account.getConfigurationItem('search', 'hotkey.switch')
   searchHint.value = storage_account.getConfigurationItem('search', 'hint.switch')
+  searchOpenNewWindow.value = storage_account.getConfigurationItem('search', 'open.newWindow', {defaultValue: true})
+
+  commentGlobalSwitch.value = storage_account.getConfigurationItem('comment', 'global.switch', {defaultValue: true})
+  commentCodexSwitch.value = storage_account.getConfigurationItem('comment', 'codex.switch', {defaultValue: true})
+  commentAssemblySwitch.value = storage_account.getConfigurationItem('comment', 'assembly.switch', {defaultValue: true})
 
   posterSwitch.value = storage_account.getConfigurationItem('poster', 'poster.switch')
 
@@ -351,6 +412,22 @@ const onSearchHotkey = () => {
 
 const onSearchHint = () => {
   storage_account.updateConfiguration('search', 'hint.switch', searchHint.value)
+}
+
+const onSearchOpenNewWindow = () => {
+  storage_account.updateConfiguration('search', 'open.newWindow', searchOpenNewWindow.value)
+}
+
+const onCommentGlobalSwitch = () => {
+  storage_account.updateConfiguration('comment', 'global.switch', commentGlobalSwitch.value)
+}
+
+const onCommentCodexSwitch = () => {
+  storage_account.updateConfiguration('comment', 'codex.switch', commentCodexSwitch.value)
+}
+
+const onCommentAssemblySwitch = () => {
+  storage_account.updateConfiguration('comment', 'assembly.switch', commentAssemblySwitch.value)
 }
 
 const onPosterSwitch = () => {

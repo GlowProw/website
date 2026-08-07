@@ -6,7 +6,7 @@ import {onMounted, ref} from "vue";
 let adValue = ref(false)
 
 onMounted(() => {
-  adValue.value = storage_account.getConfigurationItem('ad', 'google.switch', {defaultValue: true}) !== false;
+  adValue.value = storage_account.getConfigurationItem('ad', 'google.switch', {defaultValue: false}) !== false;
 })
 
 /**
