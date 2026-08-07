@@ -38,7 +38,10 @@ export function handleApiError(
     if (e instanceof ApiError) {
         // API 业务错误 - 用 HTTP 4xx 类别记录
         const apiErr = e as ApiError;
-        notice.error(t(`${tPrefix}.${apiErr.code}`, { context: apiErr }), { stack: apiErr, errorCode: ERROR_CODES.GP_HTTP_4XX });
+        const contextStr = typeof apiErr.message === 'string' && apiErr.message && !apiErr.message.includes('[object Object]')
+            ? apiErr.message
+            : apiErr.code;
+        notice.error(t(`${tPrefix}.${apiErr.code}`, { context: contextStr }), { stack: apiErr, errorCode: ERROR_CODES.GP_HTTP_4XX });
         logError(
             ERROR_CODES.GP_HTTP_4XX,
             `[ApiError] ${apiErr.message} (code=${apiErr.code})`,

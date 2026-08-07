@@ -1,11 +1,45 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { use_pwa } from '@/assets/sripts/use_pwa'
-import { onMounted } from 'vue'
+import {computed, onMounted, watch} from "vue";
+import {useRoute} from "vue-router";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
+import { useNoticeStore } from '~/stores/noticeStore';
 
-const { t } = useI18n()
-const { status, reload, install, isInstalled, needRefresh, offlineReady, installPrompt } = use_pwa()
+const {t, locale} = useI18n();
+const { status, reload, install, isInstalled, needRefresh, offlineReady, installPrompt,closePwaUpdate } = use_pwa()
+const route = useRoute()
+const noticeStore = useNoticeStore();
+
+
+let isWidgetsRoute = computed(() => route.path.startsWith('/widgets') || route.path.includes('/widgets'));
+
+// 监听离线就绪 (在 /widgets/ 路径下不弹窗，使用全局弹窗系统)
+watch(
+  () => offlineReady.value,
+  (ready) => {
+    if (ready && !isWidgetsRoute.value) {
+      noticeStore.info(t('pwa.offlineReady'), {
+        title: t('pwa.status.label'),
+        timeout: 5000
+      });
+      closePwaUpdate();
+    }
+  }
+);
+
+// 监听新版本更新 (在 /widgets/ 路径下不弹窗，使用常驻弹窗系统 timeout: 0)
+watch(
+  () => needRefresh.value,
+  (refresh) => {
+    if (refresh && !isWidgetsRoute.value) {
+      noticeStore.primary(`${t('pwa.newContentAvailable')} - ${t('pwa.refreshToUpdate')}`, {
+        title: t('pwa.newContentAvailable'),
+        timeout: 0
+      });
+    }
+  }
+);
 
 /**
  * 刷新页面

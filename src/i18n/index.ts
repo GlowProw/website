@@ -25,6 +25,16 @@ export const messageCompiler = (message: any) => {
 
             let result = message.toString()
 
+            const stringifyVal = (val: any): string => {
+                if (val === undefined || val === null) return '';
+                if (typeof val === 'string') return val;
+                if (val instanceof Error) return val.message || val.name;
+                if (typeof val === 'object') {
+                    try { return val.message || val.code || JSON.stringify(val); } catch { return String(val); }
+                }
+                return String(val);
+            };
+
             // 检查是否存在 __ 属性（Vue I18n 数组参数的约定）
             if (ctx.values.__) {
                 // 处理数组参数（%s 占位符）
@@ -32,17 +42,14 @@ export const messageCompiler = (message: any) => {
                 result = result.replace(/%s/g, () => {
                     // @ts-ignore
                     const arg = ctx.values.__[argIndex++];
-                    if (arg === undefined) {
-                        return '';
-                    }
-                    return String(arg)
+                    return stringifyVal(arg);
                 })
             } else {
                 // 处理对象参数
                 // 支持 {named} 和 {{named}} 两种格式
                 result = result.replace(/\{\{?(\w+)\}?\}/g, (match: any, placeholder: any) => {
                     if (ctx.values[placeholder] !== undefined) {
-                        return String(ctx.values[placeholder])
+                        return stringifyVal(ctx.values[placeholder]);
                     }
                     return match; // 保持原样而不是返回空字符串
                 })
@@ -50,7 +57,6 @@ export const messageCompiler = (message: any) => {
 
             return result;
         } catch (err) {
-            // onError?.(err instanceof Error ? err : new Error(String(err))
             return message;
         }
     };

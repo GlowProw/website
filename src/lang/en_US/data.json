@@ -20,6 +20,9 @@
       "description": "Install the application to your desktop for a better experience",
       "button": "Install",
       "unavailable": "Current environment doesn't support direct installation or hasn't triggered installation prompt",
+      "success": "PWA application is ready to install",
+      "installed": "The application is already installed as a PWA",
+      "unavailable_hint": "PWA installation prompt is unavailable in current environment. Please use 'Add to Home Screen' in Safari/Chrome.",
       "help": {
         "title": "If you don't see the install button:",
         "step1": "1. Check if the browser supports PWA.",

@@ -1,5 +1,8 @@
 import { useAppStore } from '~/stores/appStore'
+import { useNoticeStore } from '~/stores/noticeStore'
 import { computed } from 'vue'
+
+import { useI18n } from 'vue-i18n'
 
 /**
  * PWA 相关组合式函数
@@ -7,6 +10,8 @@ import { computed } from 'vue'
  */
 export function use_pwa() {
   const appStore = useAppStore()
+  const noticeStore = useNoticeStore()
+  const { t } = useI18n()
 
   /**
    * 关闭 PWA 更新提示
@@ -22,14 +27,21 @@ export function use_pwa() {
   const install = async () => {
     console.log('Attempting to install PWA...', appStore.pwaInstallPrompt)
     if (appStore.pwaInstallPrompt) {
-      appStore.pwaInstallPrompt.prompt()
-      const { outcome } = await appStore.pwaInstallPrompt.userChoice
-      console.log(`User response to the install prompt: ${outcome}`)
-      if (outcome === 'accepted') {
-        appStore.pwaInstallPrompt = null
+      try {
+        appStore.pwaInstallPrompt.prompt()
+        const { outcome } = await appStore.pwaInstallPrompt.userChoice
+        console.log(`User response to the install prompt: ${outcome}`)
+        if (outcome === 'accepted') {
+          appStore.pwaInstallPrompt = null
+          noticeStore.success(t('pwa.install.success'))
+        }
+      } catch (err) {
+        console.error('PWA install prompt error:', err)
       }
+    } else if (appStore.isPwaInstalled) {
+      noticeStore.info(t('pwa.install.installed'))
     } else {
-      console.warn('PWA install prompt is not available.')
+      noticeStore.warning(t('pwa.install.unavailable_hint'))
     }
   }
 

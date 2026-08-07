@@ -11,6 +11,15 @@ const CONFIG_KEYS = {
     SIDEBAR_COLLAPSED: 'sidebarCollapsed'
 } as const
 
+// 全局预捕获 PWA 安装事件
+let deferredInstallPrompt: any = null
+if (typeof window !== 'undefined') {
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault()
+        deferredInstallPrompt = e
+    })
+}
+
 export const useAppStore = defineStore('app', () => {
     // 是否在新窗口打开项目
     const itemOpenNewWindow = ref(false)
@@ -254,14 +263,21 @@ export const useAppStore = defineStore('app', () => {
     }
 
     const initializePwa = () => {
+        // 如果在 Setup 之前就已经预捕获到了事件，自动同步
+        if (deferredInstallPrompt) {
+            pwaInstallPrompt.value = deferredInstallPrompt
+        }
+
         // 捕获 PWA 安装提示
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault()
+            deferredInstallPrompt = e
             pwaInstallPrompt.value = e
         })
 
         // 监听安装完成事件
         window.addEventListener('appinstalled', () => {
+            deferredInstallPrompt = null
             pwaInstallPrompt.value = null
             console.log('PWA was installed')
         })

@@ -88,6 +88,9 @@
       "description": "將應用安裝到桌面，以獲得更好的體驗",
       "button": "安裝",
       "unavailable": "目前環境不支援直接安裝或尚未觸發安裝提示",
+      "success": "PWA 應用已準備開始安裝",
+      "installed": "當前應用已成功安裝為 PWA",
+      "unavailable_hint": "當前環境暫未監聽到 PWA 安裝指令，請使用 Safari/Chrome 的 \"新增至主畫面\" 功能",
       "help": {
         "title": "如果您沒有看到安裝按鈕：",
         "step1": "1. 檢查瀏覽器是否支援 PWA。",

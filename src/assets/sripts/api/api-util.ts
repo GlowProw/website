@@ -1,5 +1,14 @@
 import { ApiError, ApiResponseSuccess } from "@/assets/types/Api";
 
+const formatMessage = (msg: any): string => {
+    if (!msg) return 'ApiError';
+    if (typeof msg === 'string') return msg;
+    if (typeof msg === 'object') {
+        try { return msg.message || JSON.stringify(msg); } catch { return String(msg); }
+    }
+    return String(msg);
+};
+
 /**
  * 统一错误处理
  */
@@ -7,7 +16,7 @@ export const handleApiError = (error: any): never => {
     console.error(error)
     const errorData = error.response?.data;
     throw new ApiError(
-        errorData?.message || error.message,
+        formatMessage(errorData?.message || error.message),
         errorData?.code || 'error',
         errorData?.error || 1,
         error.response
@@ -22,7 +31,7 @@ export const handleApiResponse = (response: any): ApiResponseSuccess => {
 
     if (responseData.error === 1) {
         throw new ApiError(
-            responseData.message,
+            formatMessage(responseData.message),
             responseData.code,
             responseData.error,
             response

@@ -134,7 +134,10 @@ const matchedErrorCodeInfo = computed<ErrorCodeInfo | null>(() => {
 const stackText = computed(() => {
   const raw = noticeStore.currentMessage?.stack;
   if (!raw) return '';
-  if (raw instanceof Error) return raw.stack || raw.message || String(raw);
+  if (raw instanceof Error) {
+    const rawStr = raw.stack || raw.message || String(raw);
+    return rawStr.replace(/\[object Object\]/g, raw.message || 'ApiError');
+  }
   if (typeof raw === 'object') {
     try {
       return JSON.stringify(raw, null, 2);

@@ -63,7 +63,7 @@ const getCurrentSeason = (): Season | null => {
           <video autoplay playsinline
                  class="card-enlargement-flavor"
                  muted loop type="video/mp4"
-                 src="@/assets/videos/oathsOfWar.mp4"></video>
+                 src="@/assets/videos/shatteredSeas.webm"></video>
         </div>
       </template>
 
@@ -197,7 +197,7 @@ const getCurrentSeason = (): Season | null => {
 
 <style scoped lang="less">
 .portal-banner {
-  min-height: 500px;
+  min-height: 600px;
   position: relative;
   overflow: hidden;
 
@@ -229,7 +229,7 @@ const getCurrentSeason = (): Season | null => {
       top: 50%;
       width: 100%;
       height: auto;
-      transform: scale(1.05) translate(-48%, calc(-50% + 0px));
+      transform: scale(1.01) translate(-48%, calc(-50% + 0px));
       min-width: 110%;
       min-height: 100%;
       pointer-events: visible;
