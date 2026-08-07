@@ -1,5 +1,9 @@
 {
   "codex": {
+    "meta": {
+      "title": "游戏资料站点",
+      "keywords": "手稿,wiki,维基,维基大全,说明书,{keywords}"
+    },
     "item": {
       "meta": {
         "keywords": "物品详情,船物品,{keywords}"
