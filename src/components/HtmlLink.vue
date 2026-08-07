@@ -31,15 +31,21 @@ onMounted(() => {
   loadData()
 })
 
+const safeDecodeURI = (str: string): string => {
+  if (!str) return '';
+  try { return decodeURIComponent(str); } catch {
+    try { return decodeURI(str); } catch { return str; }
+  }
+};
+
 /**
  * 加载数据
  */
 const loadData = () => {
-  // unescape is deprecated， by: https://developer.mozilla.org/en-US/docs/web/javascript/reference/global_objects/escape
   if (props.href)
-    afterData.value.href = decodeURI(props.href)
+    afterData.value.href = safeDecodeURI(props.href)
   if (props.text)
-    afterData.value.text = decodeURI(props.text)
+    afterData.value.text = safeDecodeURI(props.text)
 }
 
 /**

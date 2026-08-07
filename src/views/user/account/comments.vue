@@ -11,6 +11,7 @@ import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import EmptyView from "@/components/EmptyView.vue";
 import {ApiError} from "@/assets/types/Api";
 import {useNoticeStore} from "~/stores/noticeStore";
+import {handleApiError} from "@/assets/sripts/error_handler";
 
 const { t } = useI18n()
 const notice = useNoticeStore()
@@ -34,12 +35,7 @@ const getMyCommentsData = async () => {
 
     userCommentData.value = d.data;
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'MyComments' })
   } finally {
     loading.value = false;
   }

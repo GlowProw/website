@@ -30,6 +30,70 @@
     "title": "广告",
     "description": "广告内容 {id}"
   },
+  "notice": {
+    "types": {
+      "success": "成功",
+      "error": "错误",
+      "warning": "警告",
+      "info": "提示",
+      "primary": "通知"
+    },
+    "remainingMessages": "剩余 {count} 条消息",
+    "closeTitle": "关闭此通知",
+    "closeHint": "点击右上角 ✕ 按钮或等待进度条结束",
+    "manualCloseHint": "需要您主动关闭",
+    "stackTrace": "错误详情 / 堆栈"
+  },
+  "errorCodes": {
+    "gp-0000000001": {
+      "title": "网络连接异常",
+      "description": "客户端无法连接网络或请求发送失败。"
+    },
+    "gp-0000000002": {
+      "title": "HTTP 4xx 客户端请求错误",
+      "description": "服务器拒绝了请求，请求路径不存在或认证失败。"
+    },
+    "gp-0000000003": {
+      "title": "HTTP 5xx 服务端响应异常",
+      "description": "后端服务器在处理请求时遭遇内部故障。"
+    },
+    "gp-0000000004": {
+      "title": "JS 未捕获运行时异常",
+      "description": "前端 JavaScript 代码执行时触发了未捕获的 Error。"
+    },
+    "gp-0000000005": {
+      "title": "Promise 未处理拒绝",
+      "description": "异步任务 Promise 发生了 reject 但未能被 catch 捕获。"
+    },
+    "gp-0000000006": {
+      "title": "组件渲染或生命周期错误",
+      "description": "程序内部组件在 mount、update 或 render 过程中引发异常。"
+    },
+    "gp-0000000007": {
+      "title": "路由导航跳转失败",
+      "description": "Vue Router 路由导航钩子异常或动态加载组件超时。"
+    },
+    "gp-0000000008": {
+      "title": "本地存储读写异常",
+      "description": "localStorage / sessionStorage 访问受限或配额耗尽。"
+    },
+    "gp-0000000009": {
+      "title": "Web Worker 后台任务异常",
+      "description": "检索或主进程 WebWorker 通信处理数据时报错。"
+    },
+    "gp-0000000010": {
+      "title": "静态资源加载失败",
+      "description": "图片、样式表或 CDN 静态资源未能成功载入。"
+    },
+    "gp-0000000011": {
+      "title": "数据结构解析错误",
+      "description": "对 JSON 或外部格式数据进行解包反序列化时结构不匹配。"
+    },
+    "gp-0000000099": {
+      "title": "未定义通用应用异常",
+      "description": "遇到非明确分类的系统应用运行错误。"
+    }
+  },
   "about": {
     "title": "关于",
     "disclaimer": "闪耀船首程序以及附属遵循不同协议，主程序以及附属不隶属于碧海黑帆或Ubisoft集团。",
@@ -178,6 +242,7 @@
       },
       "captcha": {
         "bad": "验证码错误",
+        "error": "验证码错误: {context}",
         "expired": "验证码过期",
         "wrong": "输入的验证码错误"
       },
@@ -185,6 +250,7 @@
         "ok": "登陆成功",
         "bad": "登陆错误: 请检查登陆信息格式",
         "wrong": "登陆信息错误",
+        "error": "登陆错误: {context}",
         "expired": "用户身份过期,请重新登陆",
         "accountIncorrect": "登陆信息错误",
         "notActivated": "账户由于未激活而被禁用，请前往激活"
@@ -1164,7 +1230,8 @@
       "grade": {
         "basic": "基本",
         "advanced": "高级",
-        "special": "特殊"
+        "special": "特殊",
+        "mythic": "传奇"
       },
       "damageTypes": {
         "armor": "护甲",
@@ -1431,6 +1498,38 @@
     },
     "notification": {
       "title": "通知"
+    },
+    "log": {
+      "title": "日志",
+      "infoTitle": "会话调试环境",
+      "description": "显示当前会话捕获的所有程序异常、网络与运行时错误，支持完整系统信息与堆栈导出",
+      "clientId": "客户端唯一标识 (Client ID)",
+      "sessionId": "会话标识 (Session ID)",
+      "exportBtn": "导出完整日志报告 (.json)",
+      "clearBtn": "清空会话日志",
+      "emptyState": "当前会话暂无错误记录，系统运行良好",
+      "filterAll": "全部错误",
+      "testTitle": "模拟故障捕获",
+      "noticeTestTitle": "通知测试",
+      "testSingleNotice": "测试单条通知",
+      "testQueueNotice": "测试多条堆积队列 (3条)",
+      "testNoticeNetError": "网络连接异常弹窗",
+      "testNotice4xxError": "HTTP 4xx 客户端错误弹窗",
+      "testNotice5xxError": "HTTP 5xx 服务端错误弹窗",
+      "testNoticeJsError": "JS 运行时错误弹窗",
+      "testNoticePersistent": "常驻弹窗 (无定时器)",
+      "testNoticePersistentQueue": "无定时器 + 队列接替测试",
+      "netError": "网络错误",
+      "jsError": "JS 异常",
+      "promiseError": "Promise 异常",
+      "vueError": "Vue 错误",
+      "categoryJs": "JS 异常",
+      "categoryPromise": "Promise 异常",
+      "categoryVue": "Vue 异常",
+      "categoryNet": "网络错误",
+      "expandStack": "展开堆栈",
+      "collapseStack": "收起堆栈",
+      "stackTraceTitle": "Stack Trace (错误堆栈信息):"
     },
     "wishlist": {
       "title": "愿望清单",

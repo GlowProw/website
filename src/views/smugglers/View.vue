@@ -6,6 +6,7 @@ import {onMounted, ref, type Ref} from "vue";
 import {apis} from "@/assets/sripts/index";
 import {ApiError} from "@/assets/types/Api";
 import {useNoticeStore} from "~/stores/noticeStore";
+import {handleApiError} from "@/assets/sripts/error_handler";
 
 import SmugglersReportShowItemWidget from "@/components/SmugglersReportShowItemWidget.vue";
 import Textarea from "@/components/textarea/index.vue";
@@ -69,12 +70,7 @@ const getSmugglersData = async () => {
     smugglersData.value = d.data[0];
     await getSmugglersComment(smugglersData.value.id)
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'SmugglersView' })
   } finally {
     browseLoading.value = false
   }
@@ -94,12 +90,7 @@ const getSmugglersComment = async (reportId: string) => {
 
     commentData.value = d.data.data;
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'SmugglersView' })
   } finally {
     browseLoading.value = false
   }

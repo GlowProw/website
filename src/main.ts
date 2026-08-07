@@ -12,12 +12,16 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import i18n from './i18n'
 import vuetify from "./vuetify";
 
+import { initGlobalErrorCapture } from './assets/sripts/error_logger'
+
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
 
 const head = createHead()
 
 const app = createApp(App)
+
+initGlobalErrorCapture(app)
 
 app.use(pinia)
 

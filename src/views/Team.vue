@@ -14,6 +14,7 @@ import Textarea from "@/components/textarea/index.vue";
 import {useNoticeStore} from "~/stores/noticeStore";
 import AdsWidget from "@/components/ads/google/index.vue";
 import {ApiError} from "@/assets/types/Api";
+import {handleApiError} from "@/assets/sripts/error_handler";
 
 const authStore = useAuthStore(),
     notice = useNoticeStore(),
@@ -116,12 +117,7 @@ const getTeams = async (type: getTeamsType = getTeamsType.none) => {
       }
       resolve(_teams.value)
     } catch (e) {
-      if (e instanceof ApiError) {
-        notice.error(t(`basic.tips.${e.code}`, {
-          context: e.code
-        }))
-      }
-      console.error(e)
+      handleApiError(e, notice, t, { component: 'Team' })
     } finally {
       setTimeout(() => {
         teamsLoading.value = false
@@ -164,7 +160,7 @@ const pushTeamInfo = async () => {
     ws.client.send(JSON.stringify(message))
   } catch (e) {
     pushLoading.value = false;
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'Team' })
   } finally {
   }
 }

@@ -11,8 +11,9 @@ import AssemblyPoster from "@/components/AssemblyPoster.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import Silk from "@/components/Silk.vue";
 import {ApiError} from "@/assets/types/Api";
+import {handleApiError} from "@/assets/sripts/error_handler";
 import AdsWidget from "@/components/ads/google/index.vue";
-import languagesConfig from "@/config/languages.json";
+import languagesConfig from "@/config/languages";
 import Loading from "@/components/Loading.vue";
 import HorizontalScrollList from "@/components/HorizontalScrollList.vue";
 
@@ -126,12 +127,7 @@ const getAssemblyDetail = async () => {
 
     await loadAssemblyData()
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'AssemblyShare' })
   } finally {
     assemblyLoading.value = false
   }
@@ -278,7 +274,7 @@ const onGeneratedShare = async () => {
     node.style.cssText = originalStyles;
     sandboxElements.forEach(({ el, style }) => el.style.cssText = style);
   } catch (e) {
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'AssemblySharePoster' })
     if (captureRef.value?.posterEl) {
       captureRef.value.posterEl.classList.remove('is-capturing');
     }

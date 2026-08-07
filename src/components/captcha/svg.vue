@@ -45,12 +45,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SvgCaptcha"
-}
-</script>
-
 <script setup lang="ts">
 import {computed, onMounted, onUnmounted, Ref, ref} from 'vue'
 import {useRoute} from 'vue-router'
@@ -58,6 +52,7 @@ import {storage, apis} from '@/assets/sripts'
 import {useI18n} from "vue-i18n";
 import {ApiError} from "@/assets/types/Api";
 import {useNoticeStore} from "~/stores/noticeStore";
+import {handleApiError} from "@/assets/sripts/error_handler";
 
 const props = defineProps({
       rules: {
@@ -173,12 +168,7 @@ const refreshCaptcha = async () => {
 
     captchaTimeout(captchaTime.value.count || props.seconds || 0)
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'SvgCaptcha',tPrefix: 'basic.tips.captcha' })
   } finally {
     setTimeout(() => {
       loading.value = false
@@ -213,6 +203,10 @@ const captchaTimeout = (num: number) => {
 
   return true
 }
+
+defineOptions({
+  name:"SvgCaptcha"
+})
 
 defineExpose({
   refreshCaptcha,

@@ -5,6 +5,7 @@ import {useHttpToken} from "@/assets/sripts/http_util";
 import {apis} from "@/assets/sripts/index";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {ApiError} from "@/assets/types/Api";
+import {handleApiError} from "@/assets/sripts/error_handler";
 import {PublishAssemblyData} from "@/assets/types";
 
 import Loading from "@/components/Loading.vue";
@@ -70,12 +71,7 @@ const getAssemblySetting = async () => {
 
     settingData.value = Object.assign(settingData.value, d.data.data)
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'AssemblySettingPanel' })
   } finally {
     getSettingLoading.value = false
   }
@@ -101,12 +97,7 @@ const setAssemblySetting = async () => {
 
     notice.success(t(`basic.tips.${d.code}`))
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'AssemblySettingPanel' })
   } finally {
     emit('change')
 

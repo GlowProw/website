@@ -7,6 +7,7 @@ import {useCommentApi} from "@/assets/sripts/api/comment_service";
 import {useSmugglersApi} from "@/assets/sripts/api/smugglers_service";
 import {usePrivilegeApi} from "@/assets/sripts/api/privilege_service";
 import {useTrashApi} from "@/assets/sripts/api/trash_service";
+import {useTeamupApi} from "@/assets/sripts/api/teamup_service";
 
 export * from './user_service'
 export * from './assembly_service'
@@ -23,4 +24,5 @@ export class Apis {
     static smugglersApi = useSmugglersApi
     static privilegeApi = usePrivilegeApi
     static trashApi = useTrashApi
+    static teamupApi = useTeamupApi
 }

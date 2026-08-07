@@ -5,6 +5,70 @@
     "minor": "",
     "description": ""
   },
+  "notice": {
+    "types": {
+      "success": "成功",
+      "error": "錯誤",
+      "warning": "警告",
+      "info": "提示",
+      "primary": "通知"
+    },
+    "remainingMessages": "剩餘 {count} 條消息",
+    "closeTitle": "關閉此通知",
+    "closeHint": "點擊右上角 ✕ 按鈕或等待進度條結束",
+    "manualCloseHint": "點擊右上角 ✕ 按鈕關閉（此通知無倒計時）",
+    "stackTrace": "錯誤詳情 / 堆疊"
+  },
+  "errorCodes": {
+    "gp-0000000001": {
+      "title": "網路連接異常",
+      "description": "用戶端無法連接網路或請求傳送失敗。"
+    },
+    "gp-0000000002": {
+      "title": "HTTP 4xx 用戶端請求錯誤",
+      "description": "伺服器拒絕了請求，請求路徑不存在或驗證失敗。"
+    },
+    "gp-0000000003": {
+      "title": "HTTP 5xx 服務端回應異常",
+      "description": "後端伺服器在處理請求時遭遇內部故障。"
+    },
+    "gp-0000000004": {
+      "title": "JS 未擷取執行期例外",
+      "description": "前端 JavaScript 程式碼執行時觸發了未擷取的 Error。"
+    },
+    "gp-0000000005": {
+      "title": "Promise 未處理拒絕",
+      "description": "非同步任務 Promise 發生了 reject 但未能被 catch 擷取。"
+    },
+    "gp-0000000006": {
+      "title": "元件渲染或生命週期錯誤",
+      "description": "程式內部元件在 mount、update 或 render 過程中引發例外。"
+    },
+    "gp-0000000007": {
+      "title": "路由導航跳轉失敗",
+      "description": "Vue Router 路由導航鉤子例外或動態載入元件超時。"
+    },
+    "gp-0000000008": {
+      "title": "本機儲存讀寫異常",
+      "description": "localStorage / sessionStorage 存取受限或容量耗盡。"
+    },
+    "gp-0000000009": {
+      "title": "Web Worker 後台任務異常",
+      "description": "檢索或主進程 WebWorker 通訊處理資料時報錯。"
+    },
+    "gp-0000000010": {
+      "title": "靜態資源載入失敗",
+      "description": "圖片、樣式表或 CDN 靜態資源未能成功載入。"
+    },
+    "gp-0000000011": {
+      "title": "資料結構解析錯誤",
+      "description": "對 JSON 或外部格式資料進行解包反序列化時結構不符合。"
+    },
+    "gp-0000000099": {
+      "title": "未定義通用應用例外",
+      "description": "遇到非明確分類的系統應用運作錯誤。"
+    }
+  },
   "pwa": {
     "offlineReady": "應用程式已準備好離線工作",
     "newContentAvailable": "有新內容可用",
@@ -1208,6 +1272,38 @@
       "commentGlobalSwitch": "評論總開關",
       "commentCodexSwitch": "手稿（Codex）評論",
       "commentAssemblySwitch": "配裝（Assembly）評論"
+    },
+    "log": {
+      "title": "日誌",
+      "infoTitle": "會話偵錯環境",
+      "description": "顯示當前會話擷取的所有程式例外、網路与執行階段錯誤，支援完整系統資訊与堆疊匯出",
+      "clientId": "用戶端唯一標識 (Client ID)",
+      "sessionId": "會話標識 (Session ID)",
+      "exportBtn": "匯出完整日誌報告 (.json)",
+      "clearBtn": "清空會話日誌",
+      "emptyState": "當前會話暫無錯誤記錄，系統運作良好",
+      "filterAll": "全部錯誤",
+      "testTitle": "模擬故障擷取",
+      "noticeTestTitle": "通知測試",
+      "testSingleNotice": "測試單條通知",
+      "testQueueNotice": "測試多條堆積隊列 (3條)",
+      "testNoticeNetError": "網路連接異常彈窗",
+      "testNotice4xxError": "HTTP 4xx 用戶端錯誤彈窗",
+      "testNotice5xxError": "HTTP 5xx 服務端錯誤彈窗",
+      "testNoticeJsError": "JS 執行期錯誤彈窗",
+      "testNoticePersistent": "常駐彈窗 (無定時器)",
+      "testNoticePersistentQueue": "無定時器 + 隊列接替測試",
+      "netError": "網路錯誤",
+      "jsError": "JS 例外",
+      "promiseError": "Promise 例外",
+      "vueError": "Vue 錯誤",
+      "categoryJs": "JS 例外",
+      "categoryPromise": "Promise 例外",
+      "categoryVue": "Vue 錯誤",
+      "categoryNet": "網路錯誤",
+      "expandStack": "展開堆疊",
+      "collapseStack": "收起堆疊",
+      "stackTraceTitle": "Stack Trace (錯誤堆疊資訊):"
     },
     "wishlist": {
       "title": "願望清單",

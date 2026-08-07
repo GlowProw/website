@@ -6,6 +6,7 @@ import {apis, storageIntermediateTransfer} from "@/assets/sripts";
 import {StorageIntermediateTransferSaveType} from "@/assets/sripts/storage_assembly";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {ApiError} from "@/assets/types/Api";
+import {handleApiError} from "@/assets/sripts/error_handler";
 import {useNoticeStore} from "~/stores/noticeStore";
 
 import Textarea from "@/components/textarea/index.vue"
@@ -143,12 +144,7 @@ const onLoadData = async () => {
 
     await goto('#info', {duration: 2000, offset: -120})
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'AssemblyPublish' })
   } finally {
     dataLoading.value = false
   }
@@ -208,12 +204,7 @@ const onEdit = async () => {
 
     notice.success(t(`basic.tips.${d.code}`))
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'AssemblyPublish' })
   } finally {
     publishLoading.value = false
   }
@@ -245,12 +236,7 @@ const onPublish = async () => {
 
     notice.success(t(`basic.tips.${d.code}`))
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'AssemblyPublish' })
   } finally {
     publishLoading.value = false
   }

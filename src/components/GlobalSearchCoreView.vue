@@ -36,6 +36,7 @@ import ShipName from "@/components/snbWidget/shipName.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import ItemMaterials from "@/components/snbWidget/itemMaterials.vue";
+import {logError, ERROR_CODES} from "@/assets/sripts/error_logger";
 
 const {t, messages, locale} = useI18n(),
     os = useOS(),
@@ -174,7 +175,7 @@ const performSearch = (query: string) => {
     }
 
   } catch (e) {
-    console.error(e);
+    logError(ERROR_CODES.GP_JS_UNCAUGHT, (e as Error)?.message || String(e), (e as Error)?.stack, 'GlobalSearchCoreView', e);
   }
 };
 

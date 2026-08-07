@@ -7,6 +7,7 @@ import {useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {ApiError} from "@/assets/types/Api";
+import {handleApiError} from "@/assets/sripts/error_handler";
 
 import Textarea from "@/components/textarea/index.vue"
 import EmptyView from "@/components/EmptyView.vue";
@@ -65,12 +66,7 @@ const getComment = async () => {
 
     commentListData.value = d.data.data;
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.response.data.message
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'CommentWidget' })
   } finally {
     commentLoading.value = false
   }
@@ -107,12 +103,7 @@ const onPushComment = async () => {
     content.value = ''
     notice.success('comment.ok')
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.response.data.message
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'CommentWidget' })
   } finally {
     commentPushLoading.value = false
   }
@@ -138,12 +129,7 @@ const onDeleteComment = async (data: any) => {
 
     notice.success(t(`basic.tips.${d.code}`))
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.response.data.message
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'CommentWidget' })
   } finally {
     data.deleteLoading = false
   }
@@ -167,12 +153,7 @@ const onEditComment = async (data: any) => {
     data.content = data.editContent;
     notice.success(t(`basic.tips.${d.code}`))
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.response.data.message
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'CommentWidget' })
   } finally {
     data.isEdit = !data.isEdit;
     data.loading = false

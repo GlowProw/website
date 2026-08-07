@@ -11,6 +11,8 @@ import {SigninParams} from "@/assets/types/User.Login";
 import {apis} from "@/assets/sripts";
 import {ApiError} from "@/assets/types/Api";
 import {CaptchaParams} from "@/assets/types/Captcha";
+import {handleApiError} from "@/assets/sripts/error_handler";
+import { log } from "console";
 
 const authStore = useAuthStore(),
     router = useRouter(),
@@ -52,23 +54,18 @@ const onLogin = async () => {
 
     await router.push('/')
   } catch (e) {
-    if (e instanceof ApiError) {
-      if (e.code === 'signin.notActivated') {
-        notice.error(t(`basic.tips.signin.${e.code}`))
-        setTimeout(() => {
-          router.push({
-            path: '/account/activate',
-            query: {username: signinFrom.value.username}
-          })
-        }, 1500)
-        return
-      }
-
-      notice.error(t(`basic.tips.signin.${e.code}`, {
-        context: e.code
-      }))
+    console.log(e)
+    if (e instanceof ApiError && e.code === 'signin.notActivated') {
+      handleApiError(e, notice, t, { component: 'Signin', tPrefix: 'basic.tips.signin' })
+      setTimeout(() => {
+        router.push({
+          path: '/account/activate',
+          query: {username: signinFrom.value.username}
+        })
+      }, 1500)
+      return
     }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'Signin', tPrefix: 'basic.tips.signin' })
   } finally {
     signinFormLoading.value = false
   }

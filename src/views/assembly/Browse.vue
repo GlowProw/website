@@ -121,9 +121,10 @@ const getBrowseList = async () => {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.code
-      }))
+      }), { stack: e })
+    } else {
+      notice.error(t('basic.tips.error'), { stack: e as Error })
     }
-    console.error(e)
   } finally {
     browseLoading.value = false
   }

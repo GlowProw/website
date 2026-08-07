@@ -23,6 +23,7 @@ import {apis} from "@/assets/sripts/index";
 import {ApiError} from "@/assets/types/Api";
 import AdsWidget from "@/components/ads/google/index.vue";
 import AccountCardWidget from "@/components/AccountCardWidget.vue";
+import {handleApiError} from "@/assets/sripts/error_handler";
 
 const route = useRoute(),
     router = useRouter(),
@@ -96,6 +97,22 @@ onMounted(async () => {
 })
 
 /**
+ * 安全解码 URI 字符串
+ */
+const safeDecodeURI = (str: string): string => {
+  if (!str) return '';
+  try {
+    return decodeURIComponent(str);
+  } catch {
+    try {
+      return decodeURI(str);
+    } catch {
+      return str;
+    }
+  }
+};
+
+/**
  * 获取配装详情
  */
 const getAssemblyDetail = async (force: boolean = false) => {
@@ -112,14 +129,9 @@ const getAssemblyDetail = async (force: boolean = false) => {
         d = result.data;
 
     detailData.value = d.data;
-    detailData.value.description = decodeURI(detailData.value?.description || '这个人很懒什么,对此配装什么都没说')
+    detailData.value.description = safeDecodeURI(detailData.value?.description || '这个人很懒什么,对此配装什么都没说')
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'AssemblyDetail' })
   } finally {
     assemblyLoading.value = false
   }

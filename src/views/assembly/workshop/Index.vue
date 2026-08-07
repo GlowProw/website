@@ -17,6 +17,7 @@ import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import AssemblyDataProcessing from "@/assets/sripts/assembly_data_processing";
 import AssemblyMainSubjectView from "@/components/AssemblyMainSubjectView.vue";
 import {ApiError} from "@/assets/types/Api";
+import {handleApiError} from "@/assets/sripts/error_handler";
 
 const {t} = useI18n(),
     route = useRoute(),
@@ -118,12 +119,7 @@ const getAssemblyDetail = async () => {
     assemblyDetailData.value = d.data;
     shareData.value = d.data;
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'AssemblyWorkshop' })
   } finally {
     assemblyLoading.value = false;
   }

@@ -5,6 +5,7 @@ import {apis} from "@/assets/sripts/index";
 import {useI18n} from "vue-i18n";
 import {ApiError} from "@/assets/types/Api";
 import {useNoticeStore} from "~/stores/noticeStore";
+import {handleApiError} from "@/assets/sripts/error_handler";
 
 import Loading from "@/components/Loading.vue";
 import EmptyView from "@/components/EmptyView.vue";
@@ -37,9 +38,7 @@ const getTrashData = async () => {
 
     selectedItems.value = [];
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {context: e.code}))
-    }
+    handleApiError(e, notice, t, { component: 'Trash' })
   } finally {
     loading.value = false;
   }
@@ -89,7 +88,7 @@ const onBatchRestore = async () => {
       await getTrashData()
     }
   } catch (e) {
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'Trash' })
   } finally {
     loading.value = false
   }
@@ -110,7 +109,7 @@ const onRestore = async (item: any) => {
       await getTrashData()
     }
   } catch (e) {
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'Trash' })
   } finally {
     loading.value = false
   }

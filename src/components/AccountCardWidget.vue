@@ -4,6 +4,7 @@ import {apis, sessionUserInfo} from "@/assets/sripts/index";
 import {ApiError} from "@/assets/types/Api";
 import {useI18n} from "vue-i18n";
 import {useNoticeStore} from "~/stores/noticeStore";
+import {handleApiError} from "@/assets/sripts/error_handler";
 
 import Silk from "@/components/Silk.vue";
 import Textarea from "@/components/textarea/index.vue";
@@ -54,12 +55,7 @@ const getUserInfo = async () => {
 
     sessionUserInfo.updateConfiguration('user', props.id, d.data)
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'AccountCardWidget' })
   } finally {
     loading.value = false
   }

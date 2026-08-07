@@ -7,6 +7,7 @@ import {apis} from "@/assets/sripts";
 import {ApiError} from "@/assets/types/Api";
 import {useRules} from "@/assets/sripts/rules_user"
 import {ResetPasswordParams} from "@/assets/types/User";
+import {handleApiError} from "@/assets/sripts/error_handler";
 
 const router = useRouter(),
     route = useRoute(),
@@ -47,13 +48,7 @@ const onReset = async () => {
       router.push('/account/signin')
     }, 1500)
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.resetPassword.${e.code}`, {
-        context: e.code
-      }))
-    } else {
-      notice.error(t('basic.tips.resetPassword.error', {context: e}))
-    }
+    handleApiError(e, notice, t, { component: 'ResetPassword', tPrefix: 'basic.tips.resetPassword' })
   } finally {
     loading.value = false;
   }

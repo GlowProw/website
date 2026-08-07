@@ -10,6 +10,7 @@ import {apis} from "@/assets/sripts";
 import {ApiError} from "@/assets/types/Api";
 import {SignupParams} from "@/assets/types/User.Signup";
 import {CaptchaParams} from "@/assets/types/Captcha";
+import {handleApiError} from "@/assets/sripts/error_handler";
 
 const router = useRouter(),
     noticeStore = useNoticeStore(),
@@ -61,12 +62,7 @@ const onRegister = async () => {
       })
     }, 1000)
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'Signup' })
   } finally {
     signupLoading.value = false;
   }

@@ -32,6 +32,70 @@
     "title": "AD",
     "description": "AD Content {id}"
   },
+  "notice": {
+    "types": {
+      "success": "Success",
+      "error": "Error",
+      "warning": "Warning",
+      "info": "Info",
+      "primary": "Notice"
+    },
+    "remainingMessages": "{count} message(s) remaining",
+    "closeTitle": "Close this notice",
+    "closeHint": "Click ✕ button or wait for timer",
+    "manualCloseHint": "Click ✕ button to close (No auto-timer)",
+    "stackTrace": "Error Details / Stack Trace"
+  },
+  "errorCodes": {
+    "gp-0000000001": {
+      "title": "Network Connection Exception",
+      "description": "Client cannot connect to the network or the request failed to send."
+    },
+    "gp-0000000002": {
+      "title": "HTTP 4xx Client Request Error",
+      "description": "Server refused the request, path does not exist or authentication failed."
+    },
+    "gp-0000000003": {
+      "title": "HTTP 5xx Server Response Error",
+      "description": "Backend server encountered an internal failure while processing request."
+    },
+    "gp-0000000004": {
+      "title": "Uncaught JS Runtime Exception",
+      "description": "Frontend JavaScript execution triggered an uncaught Error."
+    },
+    "gp-0000000005": {
+      "title": "Unhandled Promise Rejection",
+      "description": "Async Promise rejected without being caught."
+    },
+    "gp-0000000006": {
+      "title": "Component Lifecycle Error",
+      "description": "Component raised an exception during mount, update, or render."
+    },
+    "gp-0000000007": {
+      "title": "Router Navigation Failed",
+      "description": "Vue Router navigation guard error or lazy component timeout."
+    },
+    "gp-0000000008": {
+      "title": "Local Storage Access Error",
+      "description": "localStorage / sessionStorage access denied or quota exceeded."
+    },
+    "gp-0000000009": {
+      "title": "Web Worker Task Exception",
+      "description": "Error during search or main thread WebWorker data communication."
+    },
+    "gp-0000000010": {
+      "title": "Static Resource Load Failure",
+      "description": "Image, stylesheet or CDN static asset failed to load."
+    },
+    "gp-0000000011": {
+      "title": "Data Parse Error",
+      "description": "Structure mismatch when deserializing JSON or external data."
+    },
+    "gp-0000000099": {
+      "title": "Undefined General Application Exception",
+      "description": "Encountered unclassified system application runtime error."
+    }
+  },
   "about": {
     "title": "About",
     "disclaimer": "The Shining Prow application and its affiliates follow different agreements; the main program and its affiliates are not affiliated with Skull and Bones or the Ubisoft Group.",
@@ -1341,6 +1405,38 @@
       "dataTitle": "Data",
       "persistentStorage": "Persistent Storage",
       "sessionStorage": "Session Storage"
+    },
+    "log": {
+      "title": "Logs",
+      "infoTitle": "Session Debug Environment",
+      "description": "Displays all program exceptions, network and runtime errors captured in the current session, supporting full system information and stack export",
+      "clientId": "Client Unique Identifier (Client ID)",
+      "sessionId": "Session Identifier (Session ID)",
+      "exportBtn": "Export Log Report (.json)",
+      "clearBtn": "Clear Session Logs",
+      "emptyState": "No error records in current session, system is running normally",
+      "filterAll": "All Errors",
+      "testTitle": "Simulate Fault Capture",
+      "noticeTestTitle": "Notice Test",
+      "testSingleNotice": "Test Single Notice",
+      "testQueueNotice": "Test Queued Notices (3)",
+      "testNoticeNetError": "Network Error Popup",
+      "testNotice4xxError": "HTTP 4xx Error Popup",
+      "testNotice5xxError": "HTTP 5xx Error Popup",
+      "testNoticeJsError": "JS Error Popup",
+      "testNoticePersistent": "Persistent Popup (No Timer)",
+      "testNoticePersistentQueue": "Persistent + Queue Handoff Test",
+      "netError": "Network Error",
+      "jsError": "JS Exception",
+      "promiseError": "Promise Rejection",
+      "vueError": "Vue Error",
+      "categoryJs": "JS Exceptions",
+      "categoryPromise": "Promise",
+      "categoryVue": "Vue Errors",
+      "categoryNet": "Network Errors",
+      "expandStack": "Expand Stack",
+      "collapseStack": "Collapse Stack",
+      "stackTraceTitle": "Stack Trace:"
     },
     "wishlist": {
       "title": "Wishlist",

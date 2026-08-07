@@ -9,7 +9,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { NodeViewWrapper, NodeViewContent, nodeViewProps } from '@tiptap/vue-3'
-import languagesConfig from '@/config/languages.json'
+import languagesConfig from '@/config/languages'
 
 const props = defineProps(nodeViewProps)
 

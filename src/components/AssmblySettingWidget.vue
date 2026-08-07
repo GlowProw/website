@@ -10,6 +10,7 @@ import WheelDataProcessing from "@/assets/sripts/wheel_data_processing";
 import WarehouseDataProcessing from "@/assets/sripts/warehouse_data_processing";
 import {ApiError} from "@/assets/types/Api";
 import {useNoticeStore} from "~/stores/noticeStore";
+import {handleApiError} from "@/assets/sripts/error_handler";
 
 const {t, messages} = useI18n(),
     route = useRoute(),
@@ -85,12 +86,7 @@ const delAssembly = async () => {
 
     notice.success(t(`basic.tips.${d.code}`))
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'AssmblySettingWidget' })
   } finally {
     delAssemblyLoading.value = false
     deleteDialog.value = false

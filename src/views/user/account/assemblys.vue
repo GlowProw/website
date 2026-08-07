@@ -6,6 +6,7 @@ import {useI18n} from "vue-i18n";
 import {ResultData} from "@/assets/types";
 import {ApiError} from "@/assets/types/Api";
 import {useNoticeStore} from "~/stores/noticeStore";
+import {handleApiError} from "@/assets/sripts/error_handler";
 
 import Loading from "@/components/Loading.vue";
 import AssemblySettingPanel from "@/components/AssemblySettingPanel.vue";
@@ -65,12 +66,7 @@ const getMyAssemblysData = async () => {
 
     userAssemblysData.value = d.data;
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'MyAssemblys' })
   } finally {
     loading.value = false;
   }

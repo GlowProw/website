@@ -5,6 +5,7 @@ import Loading from "./Loading.vue";
 import {useI18n} from "vue-i18n";
 import {AxiosError} from "axios";
 import {useNoticeStore} from "~/stores/noticeStore.js";
+import {handleApiError} from "@/assets/sripts/error_handler";
 
 const props = defineProps({
   class: String,
@@ -47,13 +48,7 @@ const onReady = async () => {
     isLiked.value = await likeStore.checkLike(props.targetType, props.targetId)
     likeCount.value = await likeStore.getLikeCount(props.targetType, props.targetId)
   } catch (e) {
-    if (e instanceof AxiosError)
-      notice.error(t(`basic.tips.${(e as any).response.data.code}`, {
-        context: e instanceof AxiosError ? (e as any).response.data.code : (e as any).code || (e as any).message || ''
-      }), {
-        color: 'error'
-      })
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'LikeWidget' })
   } finally {
     likeLoading.value = false;
   }
@@ -70,13 +65,7 @@ const handleLike = async () => {
     isLiked.value = await likeStore.toggleLike(props.userId, props.targetType, props.targetId)
     likeCount.value = await likeStore.getLikeCount(props.targetType, props.targetId)
   } catch (e) {
-    if (e instanceof AxiosError)
-      notice.error(t(`basic.tips.${(e as any).response.data.code}`, {
-        context: e instanceof AxiosError ? (e as any).response.data.code : (e as any).code || (e as any).message || ''
-      }), {
-        color: 'error'
-      })
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'LikeWidget' })
   } finally {
     likeLoading.value = false;
   }

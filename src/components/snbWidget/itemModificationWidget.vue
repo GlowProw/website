@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'ItemModificationWidget' }
-</script>
-
 <script setup lang="ts">
 import {computed, nextTick, onMounted, ref, watch} from "vue";
 import {Modifications} from "glow-prow-data";
@@ -15,6 +11,7 @@ import ModDescription from "@/components/snbWidget/modDescription.vue";
 import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
 import HtmlLink from "@/components/HtmlLink.vue";
 import {useDisplay} from "vuetify/framework";
+import HorizontalScrollList from "@/components/HorizontalScrollList.vue";
 
 const modImages = import.meta.glob('@/assets/images/snb/modTypeIcons/*.*', {eager: true})
 const props = withDefaults(defineProps<{ id: string, type: string | null }>(), {
@@ -24,8 +21,8 @@ const props = withDefaults(defineProps<{ id: string, type: string | null }>(), {
     route = useRoute(),
     {mobile} = useDisplay(),
     {t, locale} = useI18n(),
-    {asString} = useI18nUtils(),
-    modSlotBackgroundColor = {'basic': '#101e06', 'advanced': 'rgb(7 27 53)', 'special': '#231536'}
+    modSlotBackgroundColor = {'basic': '#101e06', 'advanced': 'rgb(7 27 53)', 'special': '#231536', 'mythic': 'rgb(68 44 13)'},
+    modIndex = {'basic': 1, 'advanced': 2, 'special': 3, 'mythic': 4}
 
 let modData = ref({}),
     // 模组图标
@@ -40,15 +37,24 @@ let modData = ref({}),
     isHasMod = computed(() => {
       return Object.keys(modData.value).length > 0
     }),
-    // 所有可用等级
+    // 所有可用等级 (按 modIndex 排序)
     availableGrades = computed(() => {
-      return Object.keys(modData.value)
+      return Object.keys(modData.value).sort(
+        (a, b) => (modIndex[a] || 99) - (modIndex[b] || 99)
+      )
     }),
-    // 筛选后的模组数据
+    // 筛选后的模组数据 (按 modIndex 排序)
     filteredModData = computed(() => {
       const result = {};
 
-      Object.entries(modData.value).forEach(([grade, mods]) => {
+      const sortedGrades = Object.keys(modData.value).sort(
+        (a, b) => (modIndex[a] || 99) - (modIndex[b] || 99)
+      );
+
+      sortedGrades.forEach(grade => {
+        const mods = modData.value[grade];
+        if (!mods) return;
+
         // 等级筛选
         if (filterGrades.value.length > 0 && !filterGrades.value.includes(grade)) {
           return;
@@ -122,7 +128,7 @@ const onReady = () => {
 
 /**
  * 初始化分类表
- * 以grade创建
+ * 以grade创建，并根据 modIndex 排序
  * @param data
  */
 const onCategorizeByGrade = (data): {} => {
@@ -151,18 +157,15 @@ const onCategorizeByGrade = (data): {} => {
     result[item.grade].push(item)
   })
 
-  return result;
-}
+  // 按 modIndex 建立有顺序的 result 对象
+  const sortedResult = {};
+  Object.keys(result)
+    .sort((a, b) => (modIndex[a] || 99) - (modIndex[b] || 99))
+    .forEach(grade => {
+      sortedResult[grade] = result[grade];
+    });
 
-/**
- * 模组展示方式切换
- */
-const onSwitchModShow = () => {
-  router.push({
-    name: route.name as any,
-    query: {...route.query, 'modeShowType': displayMode.value, 'scrollTop': undefined} as any,
-    params: {...route.params}
-  })
+  return sortedResult;
 }
 
 const getModGrade = (mod: any) => mod.grade
@@ -175,6 +178,10 @@ const resetFilters = () => {
   searchKeyword.value = '';
   filterGrades.value = [];
 }
+
+defineOptions({
+  name: 'itemModificationWidget',
+})
 </script>
 
 <template>
@@ -249,71 +256,73 @@ const resetFilters = () => {
     </v-row>
     <!-- 搜索和筛选栏 E -->
 
-    <v-row class="mod d-flex">
-      <template v-if="Object.keys(filteredModData).length > 0">
-        <template v-for="(key, value) in filteredModData" :key="key">
-          <v-col cols="12" md="3" lg="3">
-            <v-row no-gutters class="px-4 py-2 title-long-flavor" :style="`background: ${modSlotBackgroundColor[value]}`" align="center">
-              <v-col cols="auto">
-                <v-img :src="modIcons[value]" class="mt-1" width="25px" height="25px"/>
-              </v-col>
-              <v-col class="ml-2">
-                {{ t(`assembly.tags.grade.${value}`) }}
-              </v-col>
-            </v-row>
+    <HorizontalScrollList>
+      <v-row class="mod d-flex flex-nowrap mod-list-flex">
+        <template v-if="Object.keys(filteredModData).length > 0">
+          <template v-for="(mods, grade) in filteredModData" :key="grade">
+            <v-col style="min-width: 180px; display: flex; flex-direction: column">
+              <v-row no-gutters class="px-4 py-2 title-long-flavor" :style="`background: ${modSlotBackgroundColor[grade]}`" align="center">
+                <v-col cols="auto">
+                  <v-img :src="modIcons[grade]" class="mt-1" width="25px" height="25px"/>
+                </v-col>
+                <v-col class="ml-2">
+                  {{ t(`assembly.tags.grade.${grade}`) }}
+                </v-col>
+              </v-row>
 
-            <v-row class="pb-5 mod-list">
-              <v-col v-for="(mod, modIndex) in key"
-                     class="mod-item"
-                     :class="`grade-${getModGrade(mod)}`"
-                     :key="modIndex"
-                     :cols="{0: '12', 1: '1'}[displayMode]">
-                <template v-if="route.query.debug">{{ mod }}</template>
-                <template v-else-if="displayMode == 0">
-                  <v-row align="center" no-gutters>
-                    <v-col cols="auto">
-                      <ItemSlotBase size="40px">
-                        <ModIconWidget :id="getModId(mod)" :padding="0" :margin="0">
-                          <template v-slot:description>
-                            <ModDescription :id="getModId(mod)" :variants="getModVariants(mod)" :grade="getModGrade(mod)" :type="type"></ModDescription>
-                          </template>
-                        </ModIconWidget>
-                      </ItemSlotBase>
-                    </v-col>
-                    <v-col class="pl-2">
-                      <HtmlLink :href="`/codex/modification/${getModId(mod)}`" :is-icon="false" :is-iframe-show="false">
-                        <ModName :id="getModId(mod)" :variants="getModVariants(mod)" :grade="getModGrade(mod)" :type="type"></ModName>
-                      </HtmlLink>
-                    </v-col>
-                  </v-row>
-                </template>
-              </v-col>
-            </v-row>
-          </v-col>
-          <v-divider vertical class="mt-15 m-10"></v-divider>
+              <v-row class="pb-5 mod-list">
+                <v-col v-for="(mod, itemIdx) in mods"
+                       class="mod-item"
+                       :class="`grade-${getModGrade(mod)}`"
+                       :key="itemIdx"
+                       :cols="{0: '12', 1: '1'}[displayMode]">
+                  <template v-if="route.query.debug">{{ mod }}</template>
+                  <template v-else-if="displayMode == 0">
+                    <v-row align="center" no-gutters>
+                      <v-col cols="auto">
+                        <ItemSlotBase size="40px">
+                          <ModIconWidget :id="getModId(mod)" :padding="0" :margin="0">
+                            <template v-slot:description>
+                              <ModDescription :id="getModId(mod)" :variants="getModVariants(mod)" :grade="getModGrade(mod)" :type="type"></ModDescription>
+                            </template>
+                          </ModIconWidget>
+                        </ItemSlotBase>
+                      </v-col>
+                      <v-col class="pl-2">
+                        <HtmlLink :href="`/codex/modification/${getModId(mod)}`" :is-icon="false" :is-iframe-show="false">
+                          <ModName :id="getModId(mod)" :variants="getModVariants(mod)" :grade="getModGrade(mod)" :type="type"></ModName>
+                        </HtmlLink>
+                      </v-col>
+                    </v-row>
+                  </template>
+                </v-col>
+              </v-row>
+            </v-col>
+            <v-divider vertical class="mt-15 m-10"></v-divider>
+          </template>
         </template>
-      </template>
 
-      <!-- 无结果提示 -->
-      <template v-else>
-        <v-row class="px-5 py-10">
-          <v-col cols="12" class="text-center">
-            <v-icon size="64" class="mb-4">mdi-magnify-close</v-icon>
-            <h4 class="text-h6">{{ t('empty.title') }}</h4>
-            <p class="text-body-2 text-medium-emphasis mt-2">
-              {{ t('empty.description') }}
-            </p>
-            <v-btn
-                variant="tonal"
-                class="mt-4"
-                @click="resetFilters"
-                prepend-icon="mdi-refresh">
-              {{ t('basic.button.reset') }}
-            </v-btn>
-          </v-col>
-        </v-row>
-      </template>
-    </v-row>
+        <!-- 无结果提示 -->
+        <template v-else>
+          <v-row class="px-5 py-10">
+            <v-col cols="12" class="text-center">
+              <v-icon size="64" class="mb-4">mdi-magnify-close</v-icon>
+              <h4 class="text-h6">{{ t('empty.title') }}</h4>
+              <p class="text-body-2 text-medium-emphasis mt-2">
+                {{ t('empty.description') }}
+              </p>
+              <v-btn
+                  variant="tonal"
+                  class="mt-4"
+                  @click="resetFilters"
+                  prepend-icon="mdi-refresh">
+                {{ t('basic.button.reset') }}
+              </v-btn>
+            </v-col>
+          </v-row>
+        </template>
+      </v-row>
+    </HorizontalScrollList>
   </template>
 </template>
 
@@ -322,7 +331,7 @@ const resetFilters = () => {
   .mod-list {
     max-height: 500px;
     overflow-y: auto;
-    mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 96%, transparent 100%);
 
     .mod-item:last-child {
       margin-bottom: 50px;

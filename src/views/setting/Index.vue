@@ -41,6 +41,11 @@ let tabs: Ref<any[]> = ref([
         icon: 'mdi-playlist-star'
       },
       {
+        name: 'setting.log.title',
+        value: 'PortalSettingLog',
+        icon: 'mdi-text-box-multiple-outline'
+      },
+      {
         name: 'about.title',
         value: 'PortalSettingAbout',
         icon: 'mdi-information'

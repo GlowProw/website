@@ -175,9 +175,21 @@ const rafId = ref(null)
 const lastScrollTime = ref(0)
 const SCROLL_THROTTLE = 16 // ~60fps
 
-const wrapperStyle = computed(() => ({
-  gap: `${props.gap}px`
-}))
+const wrapperStyle = computed(() => {
+  const style = {
+    gap: `${props.gap}px`
+  }
+
+  if (canScrollHorizontally.value) {
+    const leftStop = canScrollLeft.value ? 'transparent 0%, black 5%' : 'black 0%'
+    const rightStop = canScrollRight.value ? 'black 95%, transparent 100%' : 'black 100%'
+    const maskValue = `linear-gradient(to right, ${leftStop}, ${rightStop})`
+    style.maskImage = maskValue
+    style.WebkitMaskImage = maskValue
+  }
+
+  return style
+})
 
 const contentStyle = computed(() => ({
   gap: `${props.gap}px`

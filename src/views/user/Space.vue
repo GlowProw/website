@@ -8,6 +8,7 @@ import {apis} from "@/assets/sripts";
 import {ApiError} from "@/assets/types/Api";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {useI18n} from "vue-i18n";
+import {handleApiError} from "@/assets/sripts/error_handler";
 
 import RolesTagWidget from "@/components/RolesTagWidget.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
@@ -130,12 +131,7 @@ const getUserInfo = async () => {
 
     userData.value = d.data;
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'UserSpace' })
   } finally {
     loading.value.userInfo = false;
   }
@@ -158,12 +154,7 @@ const getUserTeamUpsData = async () => {
 
     userTeamUpData.value = d.data;
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'UserSpace' })
   } finally {
     loading.value.teamUp = false;
   }
@@ -186,12 +177,7 @@ const getUserAssemblysData = async () => {
 
     userAssemblysData.value = d.data;
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'UserSpace' })
   } finally {
     loading.value.assembly = false;
   }

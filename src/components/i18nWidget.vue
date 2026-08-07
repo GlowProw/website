@@ -9,12 +9,13 @@ import {useI18n} from "vue-i18n";
 import {http, storage} from "@/assets/sripts";
 import {useRoute, useRouter} from "vue-router";
 import I18nMembersWidget from "@/components/i18nMembersWidget.vue";
+import languagesConfig from "@/config/languages";
 
 const {t, locale} = useI18n(),
     router = useRouter(),
     route = useRoute()
 
-let languages = ref([]),
+let languages = ref([] as any[]),
     langLoading = ref(false),
     selectLang = ref('')
 
@@ -26,11 +27,8 @@ onMounted(() => {
 /**
  * 获取语言配置
  */
-const getLanguagesData = async () => {
-  langLoading.value = true
-  const result = await http.request(new URL('/config/languages.json', import.meta.url).href)
-  languages.value = result?.data?.child || [];
-  langLoading.value = false
+const getLanguagesData = () => {
+  languages.value = languagesConfig.child || [];
 }
 
 /**

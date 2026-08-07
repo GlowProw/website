@@ -10,10 +10,11 @@ import RolesTagWidget from "@/components/RolesTagWidget.vue";
 import Textarea from "@/components/textarea/index.vue"
 import UserAvatar from "@/components/UserAvatar.vue";
 
-import languages from "@/config/languages.json"
+import languages from "@/config/languages"
 import {apis} from "@/assets/sripts";
 import {ApiError} from "@/assets/types/Api";
 import {useRules} from "@/assets/sripts/rules_user";
+import {handleApiError} from "@/assets/sripts/error_handler";
 
 const authStore = useAuthStore(),
     notice = useNoticeStore(),
@@ -89,12 +90,7 @@ const getUserAccount = async () => {
 
     userAccountData.value = d.data;
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'Information' })
   }
 }
 
@@ -115,12 +111,7 @@ const onChangePassword = async () => {
 
     notice.success(t(`basic.tips.${result.code}`))
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'Information' })
   } finally {
     changePasswordLoading.value = false;
     changePasswordModel.value = false;
@@ -148,12 +139,7 @@ const onSaveAccountAttr = async () => {
 
     notice.success(t(`basic.tips.${result.code}`))
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'Information' })
   } finally {
     userAccountAttrLoading.value = false
   }
@@ -176,12 +162,7 @@ const onChangeAlternativeName = async () => {
 
     notice.success(t(`basic.tips.${result.code}`))
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'Information' })
   } finally {
     alternativeNameData.value.data.username = ''
     userAlternativeNameLoading.value = false
@@ -211,12 +192,7 @@ const onChangeEmailRequest = async () => {
     const result = await apis.userApi().requestEmailChangeCode(emailChangeData.value.data.newEmail)
     notice.success(t(`basic.tips.${result.code}`))
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'Information' })
   } finally {
     changeEmailRequestLoading.value = false
   }
@@ -242,12 +218,7 @@ const onChangeEmailConfirm = async () => {
     emailChangeData.value.data.newEmail = ''
     emailChangeData.value.data.code = ''
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'Information' })
   } finally {
     changeEmailLoading.value = false
   }

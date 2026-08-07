@@ -2,6 +2,7 @@
 import {onMounted, ref} from "vue";
 import {apis} from "@/assets/sripts/index";
 import {ApiError} from "@/assets/types/Api";
+import {handleApiError} from "@/assets/sripts/error_handler";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {useI18n} from "vue-i18n";
 import {useAuthStore} from "~/stores/userAccountStore";
@@ -81,12 +82,7 @@ const getCheckUserPermission = async () => {
 
     isHasSmugglersReportPrivilege.value = d.data.hasPrivilege || false;
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'MySmugglersReport' })
   } finally {
     checkPermissionLoading.value = false
   }
@@ -108,12 +104,7 @@ const getSmugglersReportList = async () => {
 
     smugglersReportListData.value = d.data;
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'MySmugglersReport' })
   } finally {
     smugglersReportListLoading.value = false
   }
@@ -143,12 +134,7 @@ const onCreateSmugglersReport = async () => {
 
     await getSmugglersReportList()
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'MySmugglersReport' })
   } finally {
     createSmugglersReportLoading.value = false
   }
@@ -172,12 +158,7 @@ const onEditSmugglersReport = async () => {
 
     await getSmugglersReportList()
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'MySmugglersReport' })
   } finally {
     createSmugglersReportLoading.value = false
     smugglersReportModel.value = false
@@ -196,12 +177,7 @@ const onDeleteSmugglersReport = async (i: any) => {
 
     await getSmugglersReportList()
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'MySmugglersReport' })
   } finally {
     createCommentLoading.value = false
   }
@@ -262,12 +238,7 @@ const onCreateCommend = async () => {
 
     await getSmugglersReportList()
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'MySmugglersReport' })
   } finally {
     createCommentLoading.value = false
     commentModel.value = false
@@ -293,12 +264,7 @@ const onEditCommend = async () => {
 
     await getSmugglersReportList()
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'MySmugglersReport' })
   } finally {
     createCommentLoading.value = false
     commentModel.value = false
@@ -321,12 +287,7 @@ const onDeleteComment = async () => {
 
     await getSmugglersReportList()
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'MySmugglersReport' })
   } finally {
     createCommentLoading.value = false
     commentModel.value = false

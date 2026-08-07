@@ -8,6 +8,7 @@ import {useRules} from "@/assets/sripts/rules_user"
 import {apis} from "@/assets/sripts";
 import {ApiError} from "@/assets/types/Api";
 import {ForgotPasswordParams} from "@/assets/types/User";
+import {handleApiError} from "@/assets/sripts/error_handler";
 
 const router = useRouter(),
     notice = useNoticeStore(),
@@ -41,12 +42,7 @@ const onSubmit = async () => {
       })
     }, 1500)
   } catch (e) {
-    if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.forgotPassword.${e.code}`, {
-        context: e.code
-      }))
-    }
-    console.error(e)
+    handleApiError(e, notice, t, { component: 'ForgotPassword', tPrefix: 'basic.tips.forgotPassword' })
   } finally {
     loading.value = false;
   }

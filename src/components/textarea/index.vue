@@ -29,7 +29,7 @@ import {useI18n} from "vue-i18n";
 import LinkView from "@/components/LinkView.vue";
 import ImgView from "@/components/ImgView.vue";
 import VideoView from "@/components/VideoView.vue";
-import languagesConfig from '@/config/languages.json';
+import languagesConfig from '@/config/languages';
 import FullItemRightClickMenu from "@/components/FullItemRightClickMenu.vue";
 import RankingRightClickMenu from "@/components/RankingRightClickMenu.vue";
 
