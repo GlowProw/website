@@ -95,6 +95,7 @@ import SettingStoragePage from '@/views/setting/Storage.vue'
 import AboutPage from '@/views/setting/About.vue'
 import SettingPwaPage from '@/views/setting/Pwa.vue'
 import SettingWishlistPage from '@/views/setting/Wishlist.vue'
+import SettingLogPage from '@/views/setting/Log.vue'
 import NotFoundPage from '@/views/NotFound.vue';
 
 import Test from '@/views/Test.vue'
@@ -365,6 +366,11 @@ const routes: Readonly<RouteRecordRaw[]> = [
                         path: 'wishlist',
                         name: 'PortalSettingWishlist',
                         component: SettingWishlistPage,
+                    },
+                    {
+                        path: 'log',
+                        name: 'PortalSettingLog',
+                        component: SettingLogPage,
                     }
                 ]
             },
