@@ -1147,7 +1147,8 @@
       "grade": {
         "basic": "Basic",
         "advanced": "Advanced",
-        "special": "Special"
+        "special": "Special",
+        "mythic": "Mythic"
       },
       "damageTypes": {
         "electric": "Electric",

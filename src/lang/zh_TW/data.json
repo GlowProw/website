@@ -924,7 +924,8 @@
     "modification": {
       "basic": "基础",
       "advanced": "高级",
-      "special": "特殊"
+      "special": "特殊",
+      "mythic": "传奇"
     },
     "tags": {
       "modes": {

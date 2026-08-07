@@ -79,16 +79,23 @@ const deepMerge = (target: any, ...sources: any[]): any => {
 }
 
 /**
+ * 从语言配置的回退语言字段中寻找回退语言
+ */
+const getFallbackLocale = (): string => {
+    return language.fallback || language.mapping || 'en-US';
+};
+
+/**
  * 获取浏览器语言并匹配支持的语言
  */
 const getBrowserLocale = (): string => {
     // 支持的语言列表
     const supportedLocales = ['zh-CN', 'zh-TW', 'en-US'];
-    // 默认语言
-    const defaultLocale = 'zh-CN';
+    // 从回退语言字段中寻找
+    const fallbackLocale = getFallbackLocale();
 
     // 获取浏览器语言
-    const browserLang = navigator.language || (navigator as any).userLanguage || defaultLocale;
+    const browserLang = navigator.language || (navigator as any).userLanguage || fallbackLocale;
 
     // 检查是否完全匹配
     if (supportedLocales.includes(browserLang)) {
@@ -103,14 +110,15 @@ const getBrowserLocale = (): string => {
         }
     }
 
-    // 都不匹配，返回默认语言
-    return defaultLocale;
+    // 目标语言缺失，从回退语言字段中找
+    return fallbackLocale;
 };
 
 /**
  * 获取最终使用的语言
  */
 const getInitialLocale = (): string => {
+    const fallbackLocale = getFallbackLocale();
     // 优先使用存储的语言
     const storedLang = storage.local.get('lang')?.data?.value?.value;
     if (storedLang && ['zh-CN', 'zh-TW', 'en-US'].includes(storedLang)) {
@@ -120,21 +128,26 @@ const getInitialLocale = (): string => {
     // 其次使用浏览器语言
     const browserLocale = getBrowserLocale();
 
-    // 最后使用配置文件中的默认语言或 'zh-CN'
-    return browserLocale || language.default || 'zh-CN';
+    // 目标语言缺失，从回退语言字段中找
+    return browserLocale || fallbackLocale;
 };
+
+const en_US_bundle = deepMerge({}, en_US_local, en_US_meta, { 'snb': en_US_snb });
+const zh_CN_bundle = deepMerge({}, zh_CN_local, zh_CN_meta, { 'snb': zh_CN_snb });
+const zh_TW_bundle = deepMerge({}, zh_TW_local, zh_TW_meta, { 'snb': zh_TW_snb });
 
 const i18n = createI18n({
     legacy: false,
     messageCompiler,
     locale: getInitialLocale(),
-    fallbackLocale: 'en-US',
+    fallbackLocale: getFallbackLocale(),
+    fallbackRoot: true,
     missingWarn: false,
     fallbackWarn: false,
     messages: {
-        'zh-CN': deepMerge({}, zh_CN_local, zh_CN_meta, { 'snb': zh_CN_snb }),
-        'zh-TW': deepMerge({}, zh_TW_local, zh_TW_meta, { 'snb': zh_TW_snb }),
-        'en-US': deepMerge({}, en_US_local, en_US_meta, { 'snb': en_US_snb }),
+        'en-US': en_US_bundle,
+        'zh-CN': deepMerge({}, en_US_bundle, zh_CN_bundle),
+        'zh-TW': deepMerge({}, en_US_bundle, zh_TW_bundle),
     },
     globalInjection: false,
 })

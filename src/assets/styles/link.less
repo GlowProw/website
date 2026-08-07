@@ -10,22 +10,13 @@ a:hover {
 }
 
 .u {
-  position: relative;
-  text-decoration: none;
-  display: inline-block;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-decoration-color: rgba(255, 255, 255, 0.3);
+  text-decoration-skip-ink: auto;
+  text-underline-offset: 3px;
 }
 
-.u::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 2px;
-  width: 100%;
-  background-color: hsl(from rgb(255, 255, 255) h s l / .3);
-  transition: width 0.3s ease, background-color 0.3s ease;
-}
-
-.u:hover::after {
-  background-color: hsl(from rgb(255, 255, 255) h s l / .5);
+.u::hover {
+  text-decoration-color: hsl(from rgb(255, 255, 255) h s l / .3) !important
 }

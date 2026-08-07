@@ -6,12 +6,14 @@ export interface LanguageItem {
 export interface LanguagesConfig {
   default: string;
   mapping: string;
+  fallback: string;
   child: LanguageItem[];
 }
 
 export const languagesConfig: LanguagesConfig = {
   default: "zh-CN",
   mapping: "en-US",
+  fallback: "en-US",
   child: [
     {
       label: "简体中文",
