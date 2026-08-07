@@ -20,6 +20,9 @@
       "description": "Install the application to your desktop for a better experience",
       "button": "Install",
       "unavailable": "Current environment doesn't support direct installation or hasn't triggered installation prompt",
+      "success": "PWA application is ready to install",
+      "installed": "The application is already installed as a PWA",
+      "unavailable_hint": "PWA installation prompt is unavailable in current environment. Please use 'Add to Home Screen' in Safari/Chrome.",
       "help": {
         "title": "If you don't see the install button:",
         "step1": "1. Check if the browser supports PWA.",
@@ -31,6 +34,70 @@
   "ad": {
     "title": "AD",
     "description": "AD Content {id}"
+  },
+  "notice": {
+    "types": {
+      "success": "Success",
+      "error": "Error",
+      "warning": "Warning",
+      "info": "Info",
+      "primary": "Notice"
+    },
+    "remainingMessages": "{count} message(s) remaining",
+    "closeTitle": "Close this notice",
+    "closeHint": "Click ✕ button or wait for timer",
+    "manualCloseHint": "Click ✕ button to close (No auto-timer)",
+    "stackTrace": "Error Details / Stack Trace"
+  },
+  "errorCodes": {
+    "gp-0000000001": {
+      "title": "Network Connection Exception",
+      "description": "Client cannot connect to the network or the request failed to send."
+    },
+    "gp-0000000002": {
+      "title": "HTTP 4xx Client Request Error",
+      "description": "Server refused the request, path does not exist or authentication failed."
+    },
+    "gp-0000000003": {
+      "title": "HTTP 5xx Server Response Error",
+      "description": "Backend server encountered an internal failure while processing request."
+    },
+    "gp-0000000004": {
+      "title": "Uncaught JS Runtime Exception",
+      "description": "Frontend JavaScript execution triggered an uncaught Error."
+    },
+    "gp-0000000005": {
+      "title": "Unhandled Promise Rejection",
+      "description": "Async Promise rejected without being caught."
+    },
+    "gp-0000000006": {
+      "title": "Component Lifecycle Error",
+      "description": "Component raised an exception during mount, update, or render."
+    },
+    "gp-0000000007": {
+      "title": "Router Navigation Failed",
+      "description": "Vue Router navigation guard error or lazy component timeout."
+    },
+    "gp-0000000008": {
+      "title": "Local Storage Access Error",
+      "description": "localStorage / sessionStorage access denied or quota exceeded."
+    },
+    "gp-0000000009": {
+      "title": "Web Worker Task Exception",
+      "description": "Error during search or main thread WebWorker data communication."
+    },
+    "gp-0000000010": {
+      "title": "Static Resource Load Failure",
+      "description": "Image, stylesheet or CDN static asset failed to load."
+    },
+    "gp-0000000011": {
+      "title": "Data Parse Error",
+      "description": "Structure mismatch when deserializing JSON or external data."
+    },
+    "gp-0000000099": {
+      "title": "Undefined General Application Exception",
+      "description": "Encountered unclassified system application runtime error."
+    }
   },
   "about": {
     "title": "About",
@@ -1083,7 +1150,8 @@
       "grade": {
         "basic": "Basic",
         "advanced": "Advanced",
-        "special": "Special"
+        "special": "Special",
+        "mythic": "Mythic"
       },
       "damageTypes": {
         "electric": "Electric",
@@ -1257,6 +1325,9 @@
     "infinite": "Infinite",
     "all": "All",
     "noResults": "No results found",
+    "openMode": "Result Link Open Mode",
+    "openNewWindow": "Open in new window",
+    "openCurrentWindow": "Open in current window",
     "tips": {
       "advanced": "Supports advanced queries like: {example}",
       "fuzzy": "Fuzzy Search",
@@ -1301,7 +1372,13 @@
       "searchIsLogs": "Save search history",
       "searchHotkey": "Trigger by hotkey",
       "searchHint": "Disable hints",
+      "searchOpenMode": "Result link open mode",
       "searchTitle": "Search",
+      "commentTitle": "Comments",
+      "commentDesc": "Manage comment module display across the site",
+      "commentGlobalSwitch": "Global Comment Switch",
+      "commentCodexSwitch": "Codex Comments",
+      "commentAssemblySwitch": "Assembly Comments",
       "assemblyDesc": "Assembly options",
       "assemblyViewModel": "Assembly View Model",
       "assemblyTitle": "Assembly",
@@ -1332,6 +1409,38 @@
       "dataTitle": "Data",
       "persistentStorage": "Persistent Storage",
       "sessionStorage": "Session Storage"
+    },
+    "log": {
+      "title": "Logs",
+      "infoTitle": "Session Debug Environment",
+      "description": "Displays all program exceptions, network and runtime errors captured in the current session, supporting full system information and stack export",
+      "clientId": "Client Unique Identifier (Client ID)",
+      "sessionId": "Session Identifier (Session ID)",
+      "exportBtn": "Export Log Report (.json)",
+      "clearBtn": "Clear Session Logs",
+      "emptyState": "No error records in current session, system is running normally",
+      "filterAll": "All Errors",
+      "testTitle": "Simulate Fault Capture",
+      "noticeTestTitle": "Notice Test",
+      "testSingleNotice": "Test Single Notice",
+      "testQueueNotice": "Test Queued Notices (3)",
+      "testNoticeNetError": "Network Error Popup",
+      "testNotice4xxError": "HTTP 4xx Error Popup",
+      "testNotice5xxError": "HTTP 5xx Error Popup",
+      "testNoticeJsError": "JS Error Popup",
+      "testNoticePersistent": "Persistent Popup (No Timer)",
+      "testNoticePersistentQueue": "Persistent + Queue Handoff Test",
+      "netError": "Network Error",
+      "jsError": "JS Exception",
+      "promiseError": "Promise Rejection",
+      "vueError": "Vue Error",
+      "categoryJs": "JS Exceptions",
+      "categoryPromise": "Promise",
+      "categoryVue": "Vue Errors",
+      "categoryNet": "Network Errors",
+      "expandStack": "Expand Stack",
+      "collapseStack": "Collapse Stack",
+      "stackTraceTitle": "Stack Trace:"
     },
     "wishlist": {
       "title": "Wishlist",
