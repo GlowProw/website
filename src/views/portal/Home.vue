@@ -12,6 +12,7 @@ import AppVersionWidget from "@/components/AppVersionWidget.vue";
 import SeasonViewWidget from "@/components/SeasonViewWidget.vue";
 import NewSeasonShowItem from "@/components/newSeasonShowItem.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
+import AffixContainerView from "@/components/AffixContainerView.vue";
 
 const {t} = useI18n()
 
@@ -52,14 +53,13 @@ const getCurrentSeason = (): Season | null => {
     <v-card class="portal-banner">
       <template v-slot:image>
         <Silk
-            :speed="1.8"
-            :scale=".7"
+            :speed="5"
+            :scale="1.2"
             :color="'#1c1c1c'"
-            :noise-intensity="0.1"
-            :rotation="0"
+            :noise-intensity="1"
+            :rotation="-10"
             class="portal-banner-backMark w-100 h-100 bg-black"/>
-
-        <div class="portal-banner-looping-video w-100 opacity-60">
+        <div class="portal-banner-looping-video w-100 opacity-100">
           <video autoplay playsinline
                  class="card-enlargement-flavor"
                  muted loop type="video/mp4"
@@ -67,11 +67,10 @@ const getCurrentSeason = (): Season | null => {
         </div>
       </template>
 
-      <v-container class="portal-banner-top">
-      </v-container>
+      <div class="portal-banner-top"></div>
 
       <div class="portal-season-left-tip" v-if="currentlySeason && currentlySeason.id">
-        <div class="opacity-30">
+        <div class="opacity-60">
           {{ t('portal.seasonTimer', {seasonName: (currentlySeason as any).alternativeName.toUpperCase(), day: time.calcRemainingDays(currentlySeason.endDate)}) }}
           <v-divider thickness="3" vertical/>
           {{ t(`snb.seasons.${currentlySeason?.id}`) }}
@@ -104,19 +103,21 @@ const getCurrentSeason = (): Season | null => {
             </v-row>
           </v-col>
           <v-col lg="4">
-            <div class="title card-enlargement-flavor pb-6">
-              <v-card width="100%" variant="text">
-                <template v-slot:title>
-                  <v-card height="180" class="bg-black d-flex justify-center align-center">
-                    <v-icon size="120">mdi-calendar-range</v-icon>
-                  </v-card>
-                </template>
-              </v-card>
+            <AffixContainerView>
+              <div class="title card-enlargement-flavor pb-6">
+                <v-card width="100%" variant="text">
+                  <template v-slot:title>
+                    <v-card height="180" class="bg-black d-flex justify-center align-center">
+                      <v-icon size="120">mdi-calendar-range</v-icon>
+                    </v-card>
+                  </template>
+                </v-card>
 
-              <div class="mt-3 mx-5">
-                <v-btn block to="/calendar/history" size="50" prepend-icon="mdi-calendar-range">{{ t('calendar.title') }}</v-btn>
+                <div class="mt-3 mx-5">
+                  <v-btn block to="/calendar/history" size="50" prepend-icon="mdi-calendar-range">{{ t('calendar.title') }}</v-btn>
+                </div>
               </div>
-            </div>
+            </AffixContainerView>
           </v-col>
         </v-row>
       </v-container>
@@ -126,26 +127,28 @@ const getCurrentSeason = (): Season | null => {
       <v-container>
         <v-row>
           <v-col cols="12" md="5" lg="5">
-            <div class="title card-enlargement-flavor pb-6">
-              <v-card width="100%">
-                <SeasonViewWidget v-if="currentlySeason" :data="currentlySeason"></SeasonViewWidget>
-              </v-card>
+            <AffixContainerView>
+              <div class="title card-enlargement-flavor pb-6">
+                <v-card width="100%">
+                  <SeasonViewWidget v-if="currentlySeason" :data="currentlySeason"></SeasonViewWidget>
+                </v-card>
 
-              <h1 class="text-amber pl-10 pr-10 pt-5 d-flex align-center">
-                <v-row no-gutters align="center" justify="space-between">
-                  <v-col cols="2">
-                    <v-icon class="mr-3" size="32">mdi-flare</v-icon>
-                  </v-col>
-                  <v-col class="text-center" cols="8" style="line-height: 1">
-                    {{ t(`snb.seasons.${currentlySeason?.id}`) }}
-                  </v-col>
-                  <v-col cols="2">
-                    <v-icon class="ml-3" size="32">mdi-flare</v-icon>
-                  </v-col>
-                </v-row>
-              </h1>
-              <p class="px-5 py-3 font-weight-light opacity-80">{{ t(`snb.calendar.${currentlySeason?.id}.description`) }}</p>
-            </div>
+                <h1 class="text-amber pl-10 pr-10 pt-5 d-flex align-center">
+                  <v-row no-gutters align="center" justify="space-between">
+                    <v-col cols="2">
+                      <v-icon class="mr-3" size="32">mdi-flare</v-icon>
+                    </v-col>
+                    <v-col class="text-center" cols="8" style="line-height: 1">
+                      {{ t(`snb.seasons.${currentlySeason?.id}`) }}
+                    </v-col>
+                    <v-col cols="2">
+                      <v-icon class="ml-3" size="32">mdi-flare</v-icon>
+                    </v-col>
+                  </v-row>
+                </h1>
+                <p class="px-5 py-3 font-weight-light opacity-80">{{ t(`snb.calendar.${currentlySeason?.id}.description`) }}</p>
+              </div>
+            </AffixContainerView>
           </v-col>
           <v-col cols="12" md="7" lg="7">
             <NewSeasonShowItem></NewSeasonShowItem>
@@ -238,20 +241,14 @@ const getCurrentSeason = (): Season | null => {
 
   .portal-banner-top {
     position: relative;
-    padding-top: 150px;
-
-    .title {
-      bottom: -100%;
-      text-align: center;
-      max-width: 43%;
-      margin: 0 auto;
-    }
+    padding-left: 30px;
+    padding-top: 100px;
   }
 
   .portal-season-left-tip {
     position: absolute;
     top: 0;
-    left: 0;
+    right: 0;
     padding-top: calc(80px + 3vh);
     padding-left: 3vh;
     padding-right: 3vh;
