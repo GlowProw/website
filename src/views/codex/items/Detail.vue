@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import {useI18n} from "vue-i18n";
 import {useRoute, useRouter} from "vue-router";
 import {Item, Items} from "glow-prow-data/src/entity/Items";
@@ -20,6 +20,7 @@ import LikeWidget from "@/components/LikeWidget.vue";
 import {useAuthStore} from "~/stores/userAccountStore";
 import {StorageCollectType} from "@/assets/sripts/storage_collect";
 import ItemName from "@/components/snbWidget/itemName.vue";
+import AffixContainerView from "@/components/AffixContainerView.vue";
 import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import ItemContentWidget from "@/components/snbWidget/itemContentWidget.vue";
@@ -29,7 +30,6 @@ import ByObtainableWidget from "@/components/ByObtainableWidget.vue";
 import ByWorldEventWidget from "@/components/ByWorldEventWidget.vue";
 import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
 import ShipUpgradeUseWidget from "@/components/snbWidget/shipUpgradeUseWidget.vue";
-import BluePrintWidget from "@/components/BluePrintWidget.vue";
 import DamageMitigationWidget from "@/components/snbWidget/damageMitigationWidget.vue";
 import ItemDescription from "@/components/snbWidget/itemDescription.vue";
 import ShipUpgradedDescription from "@/components/snbWidget/shipUpgradedDescription.vue";
@@ -208,7 +208,7 @@ const onAddCalculator = () => {
     </v-container>
   </v-breadcrumbs>
   <v-divider></v-divider>
-  <div class="item-detail" v-if="itemDetailData && itemDetailData.id">
+  <div v-if="itemDetailData && itemDetailData.id" class="item-detail">
     <div class="item-detail-header background-dot-grid">
       <v-container class="position-relative">
         <v-row class="mt-5">
@@ -222,18 +222,18 @@ const onAddCalculator = () => {
             </p>
 
             <div class="mt-5 d-flex ga-2">
-              <v-chip class="badge-flavor text-center tag-badge text-black"
-                      :to="`/codex/items?type=${itemDetailData.type}`">
+              <v-chip :to="`/codex/items?type=${itemDetailData.type}`"
+                      class="badge-flavor text-center tag-badge text-black">
                 {{ t(`codex.types.${itemDetailData.type}`) || '' }}
               </v-chip>
-              <v-chip class="badge-flavor text-center tag-badge text-black"
+              <v-chip v-if="itemDetailData.tier"
                       :to="`/codex/items?tier=${itemDetailData.tier}`"
-                      v-if="itemDetailData.tier">{{ t(`codex.tier`, {num: number.intToRoman(itemDetailData.tier)}) }}
+                      class="badge-flavor text-center tag-badge text-black">{{ t(`codex.tier`, {num: number.intToRoman(itemDetailData.tier)}) }}
               </v-chip>
-              <v-chip class="badge-flavor text-center tag-badge text-black"
+              <v-chip v-if="itemDetailData.rarity"
                       :to="`/codex/items?rarity=${itemDetailData.rarity}`"
-                      v-if="itemDetailData.rarity">
-                <v-badge dot inline :color="rarityColorConfig[itemDetailData.rarity]" class="mr-1"></v-badge>
+                      class="badge-flavor text-center tag-badge text-black">
+                <v-badge :color="rarityColorConfig[itemDetailData.rarity]" class="mr-1" dot inline></v-badge>
                 {{ t(`codex.raritys.${itemDetailData.rarity}`) }}
               </v-chip>
             </div>
@@ -241,14 +241,14 @@ const onAddCalculator = () => {
           <v-spacer></v-spacer>
           <v-col cols="auto">
             <div class="d-flex ga-2">
-              <v-btn @click="onStarItem(itemDetailData)" variant="text" border :class="getCollectStatus ? 'text-amber' : ''">
+              <v-btn :class="getCollectStatus ? 'text-amber' : ''" border variant="text" @click="onStarItem(itemDetailData)">
                 <v-icon :icon="`mdi-${getCollectStatus ? 'star' : 'star-outline'}`"></v-icon>
               </v-btn>
 
               <v-btn v-if="authStore.isLogin" border>
-                <LikeWidget targetType="item"
-                            :isShowCount="true"
-                            :targetId="itemDetailData.id">
+                <LikeWidget :isShowCount="true"
+                            :targetId="itemDetailData.id"
+                            targetType="item">
                   <template v-slot:activate>
                     <v-icon icon="mdi-thumb-up"></v-icon>
                   </template>
@@ -258,11 +258,11 @@ const onAddCalculator = () => {
                 </LikeWidget>
               </v-btn>
 
-              <v-btn border @click="onAddCalculator" :title="t('calculator.addTo')" v-tooltip:bottom="t('calculator.addTo')">
+              <v-btn v-tooltip:bottom="t('calculator.addTo')" :title="t('calculator.addTo')" border @click="onAddCalculator">
                 <v-icon icon="mdi-chart-box-outline"></v-icon>
               </v-btn>
 
-              <ShareWidget type="item" :target-id="itemDetailData.id" />
+              <ShareWidget :target-id="itemDetailData.id" type="item"/>
             </div>
           </v-col>
         </v-row>
@@ -271,10 +271,10 @@ const onAddCalculator = () => {
     <div class="background-flavor">
       <v-container>
         <v-row>
-          <v-col cols="12" sm="12" md="8" lg="8" order="2" order-sm="1">
+          <v-col cols="12" lg="8" md="8" order="2" order-sm="1" sm="12">
             <v-row>
               <div>
-                <ItemSlotBase size="130px" :id="itemDetailData.id">
+                <ItemSlotBase :id="itemDetailData.id" size="130px">
                   <ItemIconWidget :id="itemDetailData.id" :isOpenDetail="false" :isShowOpenDetail="false"></ItemIconWidget>
                 </ItemSlotBase>
               </div>
@@ -291,41 +291,41 @@ const onAddCalculator = () => {
             <v-divider class="mt-10 mb-6"></v-divider>
 
             <v-row>
-              <v-col cols="12" sm="12" lg="6" xl="6">
+              <v-col cols="12" lg="6" sm="12" xl="6">
                 <template v-if="route.query.debug">
                   {{ itemDetailData }}
                 </template>
                 <template v-if="itemDetailData.id">
-                  <v-text-field :value="itemDetailData.id" readonly
+                  <v-text-field :value="itemDetailData.id" density="compact"
                                 hide-details
-                                variant="underlined" density="compact">
+                                readonly variant="underlined">
                     <template v-slot:append-inner>
                       <p class="text-no-wrap">ID</p>
                     </template>
                   </v-text-field>
                 </template>
                 <template v-if="itemDetailData.tier">
-                  <v-text-field :value="itemDetailData.tier" readonly
+                  <v-text-field :value="itemDetailData.tier" density="compact"
                                 hide-details
-                                variant="underlined" density="compact">
+                                readonly variant="underlined">
                     <template v-slot:append-inner>
                       <p class="text-no-wrap">{{ t('codex.item.tier') }}</p>
                     </template>
                   </v-text-field>
                 </template>
                 <template v-if="itemDetailData.weight">
-                  <v-text-field :value="itemDetailData.weight" readonly
+                  <v-text-field :value="itemDetailData.weight" density="compact"
                                 hide-details
-                                variant="underlined" density="compact">
+                                readonly variant="underlined">
                     <template v-slot:append-inner>
                       <p class="text-no-wrap">{{ t('codex.item.weight') }}</p>
                     </template>
                   </v-text-field>
                 </template>
                 <template v-if="itemDetailData.ammunitionType">
-                  <v-text-field readonly
+                  <v-text-field density="compact"
                                 hide-details
-                                variant="underlined" density="compact">
+                                readonly variant="underlined">
                     <template v-slot:default>
                       <ItemAmmunitionType :data="itemDetailData"></ItemAmmunitionType>
                     </template>
@@ -335,20 +335,20 @@ const onAddCalculator = () => {
                   </v-text-field>
                 </template>
               </v-col>
-              <v-col cols="12" sm="12" lg="6" xl="6">
+              <v-col cols="12" lg="6" sm="12" xl="6">
                 <template v-if="itemDetailData.rateOfFire">
-                  <v-text-field :value="itemDetailData.rateOfFire * .001" readonly
+                  <v-text-field :value="itemDetailData.rateOfFire * .001" density="compact"
                                 hide-details
-                                variant="underlined" density="compact">
+                                readonly variant="underlined">
                     <template v-slot:append-inner>
                       <p class="text-no-wrap">{{ t('codex.item.rateOfFire') }}</p>
                     </template>
                   </v-text-field>
                 </template>
                 <template v-if="itemDetailData.projectilesPerShot">
-                  <v-text-field :value="itemDetailData.projectilesPerShot" readonly
+                  <v-text-field :value="itemDetailData.projectilesPerShot" density="compact"
                                 hide-details
-                                variant="underlined" density="compact">
+                                readonly variant="underlined">
                     <template v-slot:append-inner>
                       <p class="text-no-wrap">{{ t('codex.item.projectilesPerShot') }}</p>
                     </template>
@@ -373,9 +373,9 @@ const onAddCalculator = () => {
                 <!--                  </v-text-field>-->
                 <!--                </template>-->
                 <template v-if="itemDetailData.damagePerShot">
-                  <v-text-field :value="itemDetailData.damagePerShot" readonly
+                  <v-text-field :value="itemDetailData.damagePerShot" density="compact"
                                 hide-details
-                                variant="underlined" density="compact">
+                                readonly variant="underlined">
                     <template v-slot:append-inner>
                       <p class="text-no-wrap">{{ t('codex.item.damagePerShot') }}</p>
                     </template>
@@ -391,9 +391,9 @@ const onAddCalculator = () => {
                 <!--                  </v-text-field>-->
                 <!--                </template>-->
                 <template v-if="typeof itemDetailData.damageMitigation == 'string'">
-                  <v-text-field :value="itemDetailData.damageMitigation" readonly
+                  <v-text-field :value="itemDetailData.damageMitigation" density="compact"
                                 hide-details
-                                variant="underlined" density="compact">
+                                readonly variant="underlined">
                     <template v-slot:append-inner>
                       <p class="text-no-wrap">{{ t('codex.item.DamagePerShotWithPerks') }}</p>
                     </template>
@@ -402,46 +402,46 @@ const onAddCalculator = () => {
                 <template v-if="typeof itemDetailData.damageMitigation == 'object'">
                   <p class="mb-2 d-flex align-center font-weight-bold">
                     {{ t('codex.item.damageMitigation') }}
-                    <v-icon icon="mdi-help-circle-outline" size="18" class="mx-2"
-                            v-tooltip="t('codex.item.damageMitigationTip')"></v-icon>
+                    <v-icon v-tooltip="t('codex.item.damageMitigationTip')" class="mx-2" icon="mdi-help-circle-outline"
+                            size="18"></v-icon>
                   </p>
                   <DamageMitigationWidget :data="itemDetailData" type="armor"></DamageMitigationWidget>
                 </template>
 
                 <template v-if="itemDetailData.reloadSpeed">
-                  <v-text-field :value="itemDetailData.reloadSpeed / 1000" readonly
+                  <v-text-field :value="itemDetailData.reloadSpeed / 1000" density="compact"
                                 hide-details
-                                variant="underlined" density="compact">
+                                readonly variant="underlined">
                     <template v-slot:append-inner>
                       <p class="text-no-wrap">{{ t('codex.item.reloadSpeed') }}</p>
                     </template>
                   </v-text-field>
                 </template>
                 <template v-if="itemDetailData.optimalRange">
-                  <v-text-field :value="itemDetailData.optimalRange" readonly
+                  <v-text-field :value="itemDetailData.optimalRange" density="compact"
                                 hide-details
-                                variant="underlined" density="compact">
+                                readonly variant="underlined">
                     <template v-slot:append-inner>
                       <p class="text-no-wrap">{{ t('codex.item.optimalRange') }}</p>
                     </template>
                   </v-text-field>
                 </template>
                 <template v-if="itemDetailData.projectileSpeed">
-                  <v-text-field :value="itemDetailData.projectileSpeed" readonly
+                  <v-text-field :value="itemDetailData.projectileSpeed" density="compact"
                                 hide-details
-                                variant="underlined" density="compact">
+                                readonly variant="underlined">
                     <template v-slot:append-inner>
                       <p class="text-no-wrap">{{ t('codex.item.projectileSpeed') }}</p>
                     </template>
                   </v-text-field>
                 </template>
               </v-col>
-              <v-col cols="12" sm="12" lg="12" xl="12">
+              <v-col cols="12" lg="12" sm="12" xl="12">
                 <ItemContentWidget :data="itemDetailData">
                   <v-divider>{{ t('codex.item.contentsTitle') }}</v-divider>
                 </ItemContentWidget>
               </v-col>
-              <v-col cols="12" v-if="itemDetailData.type == 'shipUpgrade'">
+              <v-col v-if="itemDetailData.type == 'shipUpgrade'" cols="12">
                 <ShipUpgradeUseWidget :id="itemDetailData.id">
                   <v-divider>{{ t('codex.item.shipUpgradeUseTitle') }}</v-divider>
                 </ShipUpgradeUseWidget>
@@ -464,127 +464,129 @@ const onAddCalculator = () => {
 
             <template v-if="itemDetailData.id">
               <v-divider>{{ t('comment.title') }}</v-divider>
-              <CommentWidget :id="itemDetailData.id" type="item" placeholder=""></CommentWidget>
+              <CommentWidget :id="itemDetailData.id" placeholder="" type="item"></CommentWidget>
             </template>
           </v-col>
-          <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
-            <BySeasonWidget :data="itemDetailData"></BySeasonWidget>
+          <v-col cols="12" lg="4" md="4" order="1" order-sm="2" sm="12">
+            <AffixContainerView :offsetTop="80">
+              <BySeasonWidget :data="itemDetailData"></BySeasonWidget>
 
-            <template v-if="itemDetailData.blueprint">
-              <ByBluePrint :data="itemDetailData"></ByBluePrint>
-            </template>
-            <template v-if="itemDetailData.event">
-              <ByEventWidget :data="itemDetailData"></ByEventWidget>
-            </template>
-            <template v-if="itemDetailData.worldEvent">
-              <ByWorldEventWidget :data="itemDetailData"></ByWorldEventWidget>
-            </template>
-            <template v-if="itemDetailData.obtainable">
-              <ByObtainableWidget :data="itemDetailData" byType="item">
-                {{ t('codex.item.obtainable') }}
-              </ByObtainableWidget>
-            </template>
-            <template v-if="itemDetailData.faction">
-              <v-text-field
-                  :value="t(`snb.factions.${itemDetailData.faction.id}.name`)"
-                  readonly
-                  hide-details
-                  variant="underlined" density="compact">
-                <template v-slot:prepend-inner>
-                  <ItemSlotBase size="25px" class="d-flex justify-center align-center mb-2" :padding="0">
-                    <FactionIconWidget :name="itemDetailData.faction.id"
-                                       size="25px"></FactionIconWidget>
-                  </ItemSlotBase>
-                </template>
-                <template v-slot:append-inner>
-                  <p class="text-no-wrap">{{ t('codex.item.faction') }}</p>
-                </template>
-              </v-text-field>
-            </template>
-            <template v-if="itemDetailData.requiredRank">
-              <v-text-field readonly
-                            hide-details
-                            variant="underlined" density="compact">
-                <template v-slot:prepend-inner>
-                  <router-link class="singe-line text-no-wrap" :to="`/codex/item/requiredRank/${itemDetailData.requiredRank}`">
-                    {{ requiredRank }}
-                  </router-link>
-                </template>
-                <template v-slot:append-inner>
-                  <p class="text-no-wrap">{{ t('codex.item.requiredRank') }}</p>
-                </template>
-              </v-text-field>
-            </template>
-            <template v-if="itemDetailData.gearScore">
-              <v-text-field :value="itemDetailData.gearScore || 'none'" readonly
-                            hide-details
-                            variant="underlined" density="compact">
-                <template v-slot:append-inner>
-                  <p class="text-no-wrap">{{ t('codex.item.gearScore') }}</p>
-                </template>
-                <template v-slot:prepend>
-                  <img src="@/assets/images/snb/icon-gearScore.png" alt="gear-score" width="25px" height="25px">
-                </template>
-              </v-text-field>
-            </template>
-            <template v-if="itemDetailData.rarity">
-              <v-text-field readonly
-                            hide-details
-                            variant="underlined" density="compact">
-                <template v-slot:prepend>
-                  <v-badge dot inline :color="rarityColorConfig[itemDetailData.rarity]" class="ma-1 pt-0"></v-badge>
-                </template>
-                <template v-slot:prepend-inner>
-                  <ItemNameRarity :id="itemDetailData.id">
-                    <router-link :to="`/codex/items?rarity=${itemDetailData.rarity}`" class="text-no-wrap">
-                      {{ t(`codex.raritys.${itemDetailData.rarity}`) || 'none' }}
+              <template v-if="itemDetailData.blueprint">
+                <ByBluePrint :data="itemDetailData"></ByBluePrint>
+              </template>
+              <template v-if="itemDetailData.event">
+                <ByEventWidget :data="itemDetailData"></ByEventWidget>
+              </template>
+              <template v-if="itemDetailData.worldEvent">
+                <ByWorldEventWidget :data="itemDetailData"></ByWorldEventWidget>
+              </template>
+              <template v-if="itemDetailData.obtainable">
+                <ByObtainableWidget :data="itemDetailData" byType="item">
+                  {{ t('codex.item.obtainable') }}
+                </ByObtainableWidget>
+              </template>
+              <template v-if="itemDetailData.faction">
+                <v-text-field
+                    :value="t(`snb.factions.${itemDetailData.faction.id}.name`)"
+                    density="compact"
+                    hide-details
+                    readonly variant="underlined">
+                  <template v-slot:prepend-inner>
+                    <ItemSlotBase :padding="0" class="d-flex justify-center align-center mb-2" size="25px">
+                      <FactionIconWidget :name="itemDetailData.faction.id"
+                                         size="25px"></FactionIconWidget>
+                    </ItemSlotBase>
+                  </template>
+                  <template v-slot:append-inner>
+                    <p class="text-no-wrap">{{ t('codex.item.faction') }}</p>
+                  </template>
+                </v-text-field>
+              </template>
+              <template v-if="itemDetailData.requiredRank">
+                <v-text-field density="compact"
+                              hide-details
+                              readonly variant="underlined">
+                  <template v-slot:prepend-inner>
+                    <router-link :to="`/codex/item/requiredRank/${itemDetailData.requiredRank}`" class="singe-line text-no-wrap">
+                      {{ requiredRank }}
                     </router-link>
-                  </ItemNameRarity>
+                  </template>
+                  <template v-slot:append-inner>
+                    <p class="text-no-wrap">{{ t('codex.item.requiredRank') }}</p>
+                  </template>
+                </v-text-field>
+              </template>
+              <template v-if="itemDetailData.gearScore">
+                <v-text-field :value="itemDetailData.gearScore || 'none'" density="compact"
+                              hide-details
+                              readonly variant="underlined">
+                  <template v-slot:append-inner>
+                    <p class="text-no-wrap">{{ t('codex.item.gearScore') }}</p>
+                  </template>
+                  <template v-slot:prepend>
+                    <img alt="gear-score" height="25px" src="@/assets/images/snb/icon-gearScore.png" width="25px">
+                  </template>
+                </v-text-field>
+              </template>
+              <template v-if="itemDetailData.rarity">
+                <v-text-field density="compact"
+                              hide-details
+                              readonly variant="underlined">
+                  <template v-slot:prepend>
+                    <v-badge :color="rarityColorConfig[itemDetailData.rarity]" class="ma-1 pt-0" dot inline></v-badge>
+                  </template>
+                  <template v-slot:prepend-inner>
+                    <ItemNameRarity :id="itemDetailData.id">
+                      <router-link :to="`/codex/items?rarity=${itemDetailData.rarity}`" class="text-no-wrap">
+                        {{ t(`codex.raritys.${itemDetailData.rarity}`) || 'none' }}
+                      </router-link>
+                    </ItemNameRarity>
+                  </template>
+                  <template v-slot:append-inner>
+                    <p class="text-no-wrap">{{ t('codex.item.rarity') }}</p>
+                  </template>
+                </v-text-field>
+              </template>
+
+              <v-text-field v-if="itemDetailData.dateAdded"
+                            density="compact"
+                            hide-details
+                            readonly variant="underlined">
+                <template v-slot:prepend-inner>
+                  <TimeView :time="itemDetailData.dateAdded" class="singe-line">
+                    <Time :time="itemDetailData.dateAdded"></Time>
+                  </TimeView>
                 </template>
                 <template v-slot:append-inner>
-                  <p class="text-no-wrap">{{ t('codex.item.rarity') }}</p>
+                  <p class="text-no-wrap">{{ t('codex.ship.dateAdded') }}</p>
                 </template>
               </v-text-field>
-            </template>
+              <v-text-field v-if="itemDetailData.lastUpdated"
+                            density="compact"
+                            hide-details
+                            readonly variant="underlined">
+                <template v-slot:prepend-inner>
+                  <TimeView :time="itemDetailData.lastUpdated" class="singe-line">
+                    <Time :time="itemDetailData.lastUpdated"></Time>
+                  </TimeView>
+                </template>
+                <template v-slot:append-inner>
+                  <p class="text-no-wrap">{{ t('codex.ship.lastUpdated') }}</p>
+                </template>
+              </v-text-field>
 
-            <v-text-field readonly
-                          hide-details
-                          v-if="itemDetailData.dateAdded"
-                          variant="underlined" density="compact">
-              <template v-slot:prepend-inner>
-                <TimeView :time="itemDetailData.dateAdded" class="singe-line">
-                  <Time :time="itemDetailData.dateAdded"></Time>
-                </TimeView>
+              <template v-if="itemDetailData.id">
+                <p class="mt-5 mb-4 font-weight-bold">{{ t('codex.item.damageType') }}</p>
+                <ItemDamageTypeWidget :data="itemDetailData" :iconType="'aggressivity'"></ItemDamageTypeWidget>
               </template>
-              <template v-slot:append-inner>
-                <p class="text-no-wrap">{{ t('codex.ship.dateAdded') }}</p>
-              </template>
-            </v-text-field>
-            <v-text-field readonly
-                          hide-details
-                          v-if="itemDetailData.lastUpdated"
-                          variant="underlined" density="compact">
-              <template v-slot:prepend-inner>
-                <TimeView :time="itemDetailData.lastUpdated" class="singe-line">
-                  <Time :time="itemDetailData.lastUpdated"></Time>
-                </TimeView>
-              </template>
-              <template v-slot:append-inner>
-                <p class="text-no-wrap">{{ t('codex.ship.lastUpdated') }}</p>
-              </template>
-            </v-text-field>
 
-            <template v-if="itemDetailData.id">
-              <p class="mt-5 mb-4 font-weight-bold">{{ t('codex.item.damageType') }}</p>
-              <ItemDamageTypeWidget :iconType="'aggressivity'" :data="itemDetailData"></ItemDamageTypeWidget>
-            </template>
-
-            <template v-if="itemDetailData.perks">
-              <p class="mt-5 mb-1 font-weight-bold">{{ t('codex.item.perks') }} ({{ itemDetailData.perks.length || 0 }})</p>
-              <div class="mt-4">
-                <PerksWidget :data="itemDetailData"></PerksWidget>
-              </div>
-            </template>
+              <template v-if="itemDetailData.perks">
+                <p class="mt-5 mb-1 font-weight-bold">{{ t('codex.item.perks') }} ({{ itemDetailData.perks.length || 0 }})</p>
+                <div class="mt-4">
+                  <PerksWidget :data="itemDetailData"></PerksWidget>
+                </div>
+              </template>
+            </AffixContainerView>
           </v-col>
         </v-row>
       </v-container>
@@ -592,7 +594,7 @@ const onAddCalculator = () => {
   </div>
 </template>
 
-<style scoped lang="less">
+<style lang="less" scoped>
 .item-detail {
   .item-detail-header {
     background-color: #000;

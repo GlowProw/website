@@ -261,7 +261,7 @@ defineOptions({
         <template v-if="Object.keys(filteredModData).length > 0">
           <template v-for="(mods, grade) in filteredModData" :key="grade">
             <v-col style="min-width: 180px; display: flex; flex-direction: column">
-              <v-row no-gutters class="px-4 py-2 title-long-flavor" :style="`background: ${modSlotBackgroundColor[grade]}`" align="center">
+              <v-row no-gutters class="px-4 py-2 title-long-flavor" style="min-height:50px; max-height: 50px;" :style="`background: ${modSlotBackgroundColor[grade]}`" align="center">
                 <v-col cols="auto">
                   <v-img :src="modIcons[grade]" class="mt-1" width="25px" height="25px"/>
                 </v-col>

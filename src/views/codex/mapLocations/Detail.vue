@@ -15,6 +15,7 @@ import {storage} from "@/assets/sripts/index";
 import MapLocationName from "@/components/snbWidget/mapLocationName.vue";
 import MapLocationIconWidget from "@/components/snbWidget/mapLocationIconWidget.vue";
 import MapLocationAvailableTreasureMapWidget from "@/components/snbWidget/mapLocationAvailableTreasureMapWidget.vue";
+import AffixContainerView from "@/components/AffixContainerView.vue";
 import MapLocationAvailableNpcWidget from "@/components/snbWidget/mapLocationAvailableNpcWidget.vue";
 import ByMapWidget from "@/components/ByMapWidget.vue";
 import ByWorldEventWidget from "@/components/ByWorldEventWidget.vue";
@@ -207,75 +208,77 @@ const onCodexHistory = () => {
             </template>
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
-            <BySeasonWidget :data="mapLocationDetailData"></BySeasonWidget>
+            <AffixContainerView :offsetTop="80">
+              <BySeasonWidget :data="mapLocationDetailData"></BySeasonWidget>
 
-            <template v-if="mapLocationDetailData.id">
-              <ByMapWidget
-                :draggable="false"
-                :zoomable="false"
-                :target-key="mapLocationDetailData.id">
-                {{ t('codex.item.byMap') }}
-              </ByMapWidget>
-            </template>
+              <template v-if="mapLocationDetailData.id">
+                <ByMapWidget
+                  :draggable="false"
+                  :zoomable="false"
+                  :target-key="mapLocationDetailData.id">
+                  {{ t('codex.item.byMap') }}
+                </ByMapWidget>
+              </template>
 
-            <template v-if="mapLocationDetailData.blueprint">
-              <ByBluePrintWidget :data="mapLocationDetailData"></ByBluePrintWidget>
-            </template>
-            <template v-if="mapLocationDetailData.event">
-              <ByEventWidget :data="mapLocationDetailData"></ByEventWidget>
-            </template>
-            <template v-if="mapLocationDetailData.worldEvent">
-              <ByWorldEventWidget :data="mapLocationDetailData"></ByWorldEventWidget>
-            </template>
-            <template v-if="mapLocationDetailData.obtainable">
-              <ByObtainableWidget :data="mapLocationDetailData" byType="item">
-                {{ t('codex.item.obtainable') }}
-              </ByObtainableWidget>
-            </template>
-            <template v-if="mapLocationDetailData.faction">
-              <v-text-field
-                  :value="t(`snb.factions.${mapLocationDetailData.faction.id}.name`)"
-                  readonly
-                  hide-details
-                  variant="underlined" density="compact">
+              <template v-if="mapLocationDetailData.blueprint">
+                <ByBluePrintWidget :data="mapLocationDetailData"></ByBluePrintWidget>
+              </template>
+              <template v-if="mapLocationDetailData.event">
+                <ByEventWidget :data="mapLocationDetailData"></ByEventWidget>
+              </template>
+              <template v-if="mapLocationDetailData.worldEvent">
+                <ByWorldEventWidget :data="mapLocationDetailData"></ByWorldEventWidget>
+              </template>
+              <template v-if="mapLocationDetailData.obtainable">
+                <ByObtainableWidget :data="mapLocationDetailData" byType="item">
+                  {{ t('codex.item.obtainable') }}
+                </ByObtainableWidget>
+              </template>
+              <template v-if="mapLocationDetailData.faction">
+                <v-text-field
+                    :value="t(`snb.factions.${mapLocationDetailData.faction.id}.name`)"
+                    readonly
+                    hide-details
+                    variant="underlined" density="compact">
+                  <template v-slot:prepend-inner>
+                    <ItemSlotBase size="25px" class="d-flex justify-center align-center mb-2" :is-auto-padding="false" :is-auto-margin="false" :padding="0" :margin="0">
+                      <FactionIconWidget :name="mapLocationDetailData.faction.id"
+                                         size="25px"></FactionIconWidget>
+                    </ItemSlotBase>
+                  </template>
+                  <template v-slot:append-inner>
+                    <p class="text-no-wrap">{{ t('codex.item.faction') }}</p>
+                  </template>
+                </v-text-field>
+              </template>
+
+              <v-text-field readonly
+                            hide-details
+                            v-if="mapLocationDetailData.dateAdded"
+                            variant="underlined" density="compact">
                 <template v-slot:prepend-inner>
-                  <ItemSlotBase size="25px" class="d-flex justify-center align-center mb-2" :is-auto-padding="false" :is-auto-margin="false" :padding="0" :margin="0">
-                    <FactionIconWidget :name="mapLocationDetailData.faction.id"
-                                       size="25px"></FactionIconWidget>
-                  </ItemSlotBase>
+                  <TimeView :time="mapLocationDetailData.dateAdded" class="singe-line">
+                    <Time :time="mapLocationDetailData.dateAdded"></Time>
+                  </TimeView>
                 </template>
                 <template v-slot:append-inner>
-                  <p class="text-no-wrap">{{ t('codex.item.faction') }}</p>
+                  <p class="text-no-wrap">{{ t('codex.ship.dateAdded') }}</p>
                 </template>
               </v-text-field>
-            </template>
-
-            <v-text-field readonly
-                          hide-details
-                          v-if="mapLocationDetailData.dateAdded"
-                          variant="underlined" density="compact">
-              <template v-slot:prepend-inner>
-                <TimeView :time="mapLocationDetailData.dateAdded" class="singe-line">
-                  <Time :time="mapLocationDetailData.dateAdded"></Time>
-                </TimeView>
-              </template>
-              <template v-slot:append-inner>
-                <p class="text-no-wrap">{{ t('codex.ship.dateAdded') }}</p>
-              </template>
-            </v-text-field>
-            <v-text-field readonly
-                          hide-details
-                          v-if="mapLocationDetailData.lastUpdated"
-                          variant="underlined" density="compact">
-              <template v-slot:prepend-inner>
-                <TimeView :time="mapLocationDetailData.lastUpdated" class="singe-line">
-                  <Time :time="mapLocationDetailData.lastUpdated"></Time>
-                </TimeView>
-              </template>
-              <template v-slot:append-inner>
-                <p class="text-no-wrap">{{ t('codex.ship.lastUpdated') }}</p>
-              </template>
-            </v-text-field>
+              <v-text-field readonly
+                            hide-details
+                            v-if="mapLocationDetailData.lastUpdated"
+                            variant="underlined" density="compact">
+                <template v-slot:prepend-inner>
+                  <TimeView :time="mapLocationDetailData.lastUpdated" class="singe-line">
+                    <Time :time="mapLocationDetailData.lastUpdated"></Time>
+                  </TimeView>
+                </template>
+                <template v-slot:append-inner>
+                  <p class="text-no-wrap">{{ t('codex.ship.lastUpdated') }}</p>
+                </template>
+              </v-text-field>
+            </AffixContainerView>
           </v-col>
         </v-row>
       </v-container>

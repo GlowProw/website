@@ -5,6 +5,7 @@ import {computed, onMounted, ref, type Ref, watch} from "vue";
 
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
+import AffixContainerView from "@/components/AffixContainerView.vue";
 
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import TimeView from "@/components/TimeView.vue";
@@ -267,90 +268,92 @@ const onCodexHistory = () => {
             </template>
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
-            <BySeasonWidget :data="commoditieDetailData"></BySeasonWidget>
+            <AffixContainerView :offsetTop="80">
+              <BySeasonWidget :data="commoditieDetailData"></BySeasonWidget>
 
-            <div class="mt-5 d-flex ga-2" v-if="bluePrint">
-              <p class="text-no-wrap font-weight-bold mb-2 mt-2">{{ t('codex.item.bluePrint') }}</p>
-              <v-chip class="badge-flavor text-center tag-badge text-black" v-if="typeof bluePrint == 'string'">
-                {{ t(bluePrint) }}
-              </v-chip>
-              <template v-else>
-                <v-chip class="badge-flavor text-center tag-badge text-black" v-for="(i, index) in bluePrint" :key="index">
-                  {{ i }}
+              <div class="mt-5 d-flex ga-2" v-if="bluePrint">
+                <p class="text-no-wrap font-weight-bold mb-2 mt-2">{{ t('codex.item.bluePrint') }}</p>
+                <v-chip class="badge-flavor text-center tag-badge text-black" v-if="typeof bluePrint == 'string'">
+                  {{ t(bluePrint) }}
                 </v-chip>
+                <template v-else>
+                  <v-chip class="badge-flavor text-center tag-badge text-black" v-for="(i, index) in bluePrint" :key="index">
+                    {{ i }}
+                  </v-chip>
+                </template>
+              </div>
+              <template v-if="commoditieDetailData.worldEvent">
+                <ByWorldEventWidget :data="commoditieDetailData"></ByWorldEventWidget>
               </template>
-            </div>
-            <template v-if="commoditieDetailData.worldEvent">
-              <ByWorldEventWidget :data="commoditieDetailData"></ByWorldEventWidget>
-            </template>
-            <template v-if="commoditieDetailData.obtainable">
-              <ByObtainableWidget :data="commoditieDetailData" byType="item">
-                {{ t('codex.item.obtainable') }}
-              </ByObtainableWidget>
-            </template>
-            <template v-if="commoditieDetailData.faction">
-              <v-text-field
-                  :value="t(`snb.factions.${commoditieDetailData.faction.id}.name`)"
-                  readonly
-                  hide-details
-                  variant="underlined" density="compact">
-                <template v-slot:prepend-inner>
-                  <ItemSlotBase size="25px" class="d-flex justify-center align-center mb-2" :padding="0">
-                    <FactionIconWidget :name="commoditieDetailData.faction.id"
-                                       size="25px"></FactionIconWidget>
-                  </ItemSlotBase>
-                </template>
-                <template v-slot:append-inner>
-                  <p class="text-no-wrap">{{ t('codex.item.faction') }}</p>
-                </template>
-              </v-text-field>
-            </template>
-            <template v-if="commoditieDetailData.rarity">
+              <template v-if="commoditieDetailData.obtainable">
+                <ByObtainableWidget :data="commoditieDetailData" byType="item">
+                  {{ t('codex.item.obtainable') }}
+                </ByObtainableWidget>
+              </template>
+              <template v-if="commoditieDetailData.faction">
+                <v-text-field
+                    :value="t(`snb.factions.${commoditieDetailData.faction.id}.name`)"
+                    readonly
+                    hide-details
+                    variant="underlined" density="compact">
+                  <template v-slot:prepend-inner>
+                    <ItemSlotBase size="25px" class="d-flex justify-center align-center mb-2" :padding="0">
+                      <FactionIconWidget :name="commoditieDetailData.faction.id"
+                                         size="25px"></FactionIconWidget>
+                    </ItemSlotBase>
+                  </template>
+                  <template v-slot:append-inner>
+                    <p class="text-no-wrap">{{ t('codex.item.faction') }}</p>
+                  </template>
+                </v-text-field>
+              </template>
+              <template v-if="commoditieDetailData.rarity">
+                <v-text-field readonly
+                              hide-details
+                              variant="underlined" density="compact">
+                  <template v-slot:prepend>
+                    <v-badge dot inline :color="rarityColorConfig[commoditieDetailData.rarity]" class="ma-1 pt-0"></v-badge>
+                  </template>
+                  <template v-slot:prepend-inner>
+                    <ItemNameRarity :id="commoditieDetailData.id">
+                      <router-link :to="`/codex/item/rarity/${commoditieDetailData.rarity}`" class="text-no-wrap">
+                        {{ t(`codex.raritys.${commoditieDetailData.rarity}`) || 'none' }}
+                      </router-link>
+                    </ItemNameRarity>
+                  </template>
+                  <template v-slot:append-inner>
+                    <p class="text-no-wrap">{{ t('codex.item.rarity') }}</p>
+                  </template>
+                </v-text-field>
+              </template>
+
               <v-text-field readonly
                             hide-details
+                            v-if="commoditieDetailData.dateAdded"
                             variant="underlined" density="compact">
-                <template v-slot:prepend>
-                  <v-badge dot inline :color="rarityColorConfig[commoditieDetailData.rarity]" class="ma-1 pt-0"></v-badge>
-                </template>
                 <template v-slot:prepend-inner>
-                  <ItemNameRarity :id="commoditieDetailData.id">
-                    <router-link :to="`/codex/item/rarity/${commoditieDetailData.rarity}`" class="text-no-wrap">
-                      {{ t(`codex.raritys.${commoditieDetailData.rarity}`) || 'none' }}
-                    </router-link>
-                  </ItemNameRarity>
+                  <TimeView :time="commoditieDetailData.dateAdded" class="singe-line">
+                    <Time :time="commoditieDetailData.dateAdded"></Time>
+                  </TimeView>
                 </template>
                 <template v-slot:append-inner>
-                  <p class="text-no-wrap">{{ t('codex.item.rarity') }}</p>
+                  <p class="text-no-wrap">{{ t('codex.ship.dateAdded') }}</p>
                 </template>
               </v-text-field>
-            </template>
-
-            <v-text-field readonly
-                          hide-details
-                          v-if="commoditieDetailData.dateAdded"
-                          variant="underlined" density="compact">
-              <template v-slot:prepend-inner>
-                <TimeView :time="commoditieDetailData.dateAdded" class="singe-line">
-                  <Time :time="commoditieDetailData.dateAdded"></Time>
-                </TimeView>
-              </template>
-              <template v-slot:append-inner>
-                <p class="text-no-wrap">{{ t('codex.ship.dateAdded') }}</p>
-              </template>
-            </v-text-field>
-            <v-text-field readonly
-                          hide-details
-                          v-if="commoditieDetailData.lastUpdated"
-                          variant="underlined" density="compact">
-              <template v-slot:prepend-inner>
-                <TimeView :time="commoditieDetailData.lastUpdated" class="singe-line">
-                  <Time :time="commoditieDetailData.lastUpdated"></Time>
-                </TimeView>
-              </template>
-              <template v-slot:append-inner>
-                <p class="text-no-wrap">{{ t('codex.ship.lastUpdated') }}</p>
-              </template>
-            </v-text-field>
+              <v-text-field readonly
+                            hide-details
+                            v-if="commoditieDetailData.lastUpdated"
+                            variant="underlined" density="compact">
+                <template v-slot:prepend-inner>
+                  <TimeView :time="commoditieDetailData.lastUpdated" class="singe-line">
+                    <Time :time="commoditieDetailData.lastUpdated"></Time>
+                  </TimeView>
+                </template>
+                <template v-slot:append-inner>
+                  <p class="text-no-wrap">{{ t('codex.ship.lastUpdated') }}</p>
+                </template>
+              </v-text-field>
+            </AffixContainerView>
           </v-col>
         </v-row>
       </v-container>

@@ -48,8 +48,4 @@ defineOptions({ name: 'BySeasonCardWidget' })
 .by-season-content {
   transform: scale(1.2) translateY(-10%)
 }
-
-.by-season-n-top {
-  margin-top: -200px;
-}
 </style>

@@ -34,7 +34,7 @@ export const useNoticeStore = defineStore('notice', () => {
         const message: NoticeOptions = {
             id: 'notice_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
             text: options.text,
-            timeout: options.timeout !== undefined ? options.timeout : 15000,
+            timeout: options.timeout !== undefined ? options.timeout : 5000,
             color: options.color || 'primary',
             showing: false,
             title: options.title,

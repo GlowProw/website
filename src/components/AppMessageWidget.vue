@@ -171,7 +171,7 @@ defineOptions({
         class="background-img-flavor notice-card w-100 position-relative rounded-0 border-0 overflow-hidden d-flex flex-column justify-space-between pa-6 pa-md-10"
         :style="{
           zIndex: 1,
-          minHeight: '500px',
+          minHeight: '300px',
           backgroundColor: `color-mix(in srgb, rgba(0, 0, 0, 0.9) 50%, ${colorConfig.bg} 50%)`,
           borderBottom: `4px solid ${colorConfig.border}`
         }"

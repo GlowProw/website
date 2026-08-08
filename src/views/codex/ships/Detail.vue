@@ -25,6 +25,7 @@ import ItemMaterials from "@/components/snbWidget/itemMaterials.vue";
 import shipAvailableUpgradeWidget from "@/components/snbWidget/shipAvailableUpgradeWidget.vue";
 import ShipDescription from "@/components/snbWidget/shipDescription.vue";
 import ByBluePrintWidget from "@/components/ByBluePrintWidget.vue";
+import AffixContainerView from "@/components/AffixContainerView.vue";
 import ShareWidget from "@/components/ShareWidget.vue";
 import {useCalculatorStore} from "~/stores/calculatorStore";
 import {useNoticeStore} from "~/stores/noticeStore";
@@ -326,79 +327,81 @@ const onAddCalculator = () => {
             </template>
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
-            <BySeasonWidget :data="shipDetailData"></BySeasonWidget>
+            <AffixContainerView :offsetTop="80">
+              <BySeasonWidget :data="shipDetailData"></BySeasonWidget>
 
-            <template v-if="shipDetailData.blueprint">
-              <ByBluePrintWidget :data="shipDetailData">
-                {{ t('codex.ship.bluePrint') }}
-              </ByBluePrintWidget>
-            </template>
+              <template v-if="shipDetailData.blueprint">
+                <ByBluePrintWidget :data="shipDetailData">
+                  {{ t('codex.ship.bluePrint') }}
+                </ByBluePrintWidget>
+              </template>
 
-            <template v-if="shipDetailData.baseRank">
-              <v-text-field :value="shipDetailData.baseRank"
-                            readonly
+              <template v-if="shipDetailData.baseRank">
+                <v-text-field :value="shipDetailData.baseRank"
+                              readonly
+                              hide-details
+                              variant="underlined" density="compact">
+                  <template v-slot:append-inner>
+                    <p class="text-no-wrap">{{ t('codex.ship.baseRank') }}</p>
+                  </template>
+                </v-text-field>
+              </template>
+
+              <template v-if="shipDetailData.archetype">
+                <v-text-field :value="t(`codex.ships.archetypes.${shipDetailData.archetype}.name`)"
+                              readonly
+                              hide-details
+                              variant="underlined" density="compact">
+                  <template v-slot:append-inner>
+                    <p class="text-no-wrap">{{ t('codex.ship.archetype') }}</p>
+                  </template>
+                </v-text-field>
+              </template>
+
+              <template v-if="shipDetailData.requiredRank">
+                <v-text-field :value="requiredRank"
+                              readonly
+                              hide-details
+                              variant="underlined" density="compact">
+                  <template v-slot:append-inner>
+                    <p class="text-no-wrap">{{ t('codex.ship.requiredRank') }}</p>
+                  </template>
+                </v-text-field>
+              </template>
+              <v-text-field readonly
                             hide-details
+                            v-if="shipDetailData.dateAdded"
                             variant="underlined" density="compact">
+                <template v-slot:prepend-inner>
+                  <TimeView :time="shipDetailData.dateAdded" class="singe-line">
+                    <Time :time="shipDetailData.dateAdded"></Time>
+                  </TimeView>
+                </template>
                 <template v-slot:append-inner>
-                  <p class="text-no-wrap">{{ t('codex.ship.baseRank') }}</p>
+                  <p class="text-no-wrap">{{ t('codex.ship.dateAdded') }}</p>
                 </template>
               </v-text-field>
-            </template>
-
-            <template v-if="shipDetailData.archetype">
-              <v-text-field :value="t(`codex.ships.archetypes.${shipDetailData.archetype}.name`)"
-                            readonly
+              <v-text-field readonly
                             hide-details
+                            v-if="shipDetailData.lastUpdated"
                             variant="underlined" density="compact">
+                <template v-slot:prepend-inner>
+                  <TimeView :time="shipDetailData.lastUpdated" class="singe-line">
+                    <Time :time="shipDetailData.lastUpdated"></Time>
+                  </TimeView>
+                </template>
                 <template v-slot:append-inner>
-                  <p class="text-no-wrap">{{ t('codex.ship.archetype') }}</p>
+                  <p class="text-no-wrap">{{ t('codex.ship.lastUpdated') }}</p>
                 </template>
               </v-text-field>
-            </template>
 
-            <template v-if="shipDetailData.requiredRank">
-              <v-text-field :value="requiredRank"
-                            readonly
-                            hide-details
-                            variant="underlined" density="compact">
-                <template v-slot:append-inner>
-                  <p class="text-no-wrap">{{ t('codex.ship.requiredRank') }}</p>
-                </template>
-              </v-text-field>
-            </template>
-            <v-text-field readonly
-                          hide-details
-                          v-if="shipDetailData.dateAdded"
-                          variant="underlined" density="compact">
-              <template v-slot:prepend-inner>
-                <TimeView :time="shipDetailData.dateAdded" class="singe-line">
-                  <Time :time="shipDetailData.dateAdded"></Time>
-                </TimeView>
+              <template v-if="shipDetailData.perks">
+                <p class="mt-5 mb-1 font-weight-bold">{{ t('codex.ship.perks') }} ({{ shipDetailData.perks.length || 0 }})</p>
+                <div class="mt-4">
+                  <PerksWidget :data="shipDetailData"></PerksWidget>
+                </div>
               </template>
-              <template v-slot:append-inner>
-                <p class="text-no-wrap">{{ t('codex.ship.dateAdded') }}</p>
-              </template>
-            </v-text-field>
-            <v-text-field readonly
-                          hide-details
-                          v-if="shipDetailData.lastUpdated"
-                          variant="underlined" density="compact">
-              <template v-slot:prepend-inner>
-                <TimeView :time="shipDetailData.lastUpdated" class="singe-line">
-                  <Time :time="shipDetailData.lastUpdated"></Time>
-                </TimeView>
-              </template>
-              <template v-slot:append-inner>
-                <p class="text-no-wrap">{{ t('codex.ship.lastUpdated') }}</p>
-              </template>
-            </v-text-field>
-
-            <template v-if="shipDetailData.perks">
-              <p class="mt-5 mb-1 font-weight-bold">{{ t('codex.ship.perks') }} ({{ shipDetailData.perks.length || 0 }})</p>
-              <div class="mt-4">
-                <PerksWidget :data="shipDetailData"></PerksWidget>
-              </div>
-            </template>
+            </AffixContainerView>
           </v-col>
         </v-row>
       </v-container>
