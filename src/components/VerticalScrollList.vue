@@ -1,10 +1,10 @@
 <template>
   <BaseScrollList
       ref="baseRef"
-      direction="horizontal"
+      direction="vertical"
       v-bind="props"
-      :prev-button-aria-label="leftButtonAriaLabel || prevButtonAriaLabel"
-      :next-button-aria-label="rightButtonAriaLabel || nextButtonAriaLabel"
+      :prev-button-aria-label="topButtonAriaLabel || prevButtonAriaLabel"
+      :next-button-aria-label="bottomButtonAriaLabel || nextButtonAriaLabel"
       @scroll="$emit('scroll', $event)"
       @scroll-start="$emit('scroll-start', $event)"
       @scroll-end="$emit('scroll-end', $event)"
@@ -19,9 +19,12 @@
 import { ref } from 'vue'
 import BaseScrollList, { type ScrollListProps, type ScrollState } from './BaseScrollList.vue'
 
-export interface HorizontalScrollListProps extends Omit<ScrollListProps, 'direction'> {}
+export interface VerticalScrollListProps extends Omit<ScrollListProps, 'direction'> {
+  topButtonAriaLabel?: string
+  bottomButtonAriaLabel?: string
+}
 
-const props = withDefaults(defineProps<HorizontalScrollListProps>(), {
+const props = withDefaults(defineProps<VerticalScrollListProps>(), {
   btnSize: 45,
   isIndicator: true,
   gap: 16,
@@ -29,19 +32,20 @@ const props = withDefaults(defineProps<HorizontalScrollListProps>(), {
   showScrollIndicator: true,
   hideScrollbar: true,
   scrollStep: 1000,
-  leftButtonAriaLabel: '向左滚动',
-  rightButtonAriaLabel: '向右滚动',
+  topButtonAriaLabel: '',
+  bottomButtonAriaLabel: '',
   prevButtonAriaLabel: '',
   nextButtonAriaLabel: '',
-  wheelScroll: true,
+  wheelScroll: false,
   dragSensitivity: 2,
   useRAF: true,
-  useShiftKey: true,
+  useShiftKey: false,
   wheelSensitivity: 0.5,
   forceDraggable: true,
   isFollowScreenCenter: false,
   followScreenSafeDistance: 200,
   height: '',
+  maxHeight: '',
   width: ''
 })
 
@@ -56,33 +60,24 @@ const baseRef = ref<{
   scrollToItem: (idx: number, behavior?: ScrollBehavior) => void
   scrollPrev: () => void
   scrollNext: () => void
-  scrollLeft: () => void
-  scrollRight: () => void
+  scrollUp: () => void
+  scrollDown: () => void
   checkScrollability: () => void
   getScrollState: () => ScrollState
 } | null>(null)
 
 defineOptions({
-  name: 'HorizontalScrollList'
+  name: 'VerticalScrollList'
 })
 
 defineExpose({
   scrollTo: (pos: number, behavior?: ScrollBehavior) => baseRef.value?.scrollTo(pos, behavior),
   scrollToItem: (idx: number, behavior?: ScrollBehavior) => baseRef.value?.scrollToItem(idx, behavior),
-  scrollLeft: () => baseRef.value?.scrollLeft(),
-  scrollRight: () => baseRef.value?.scrollRight(),
+  scrollUp: () => baseRef.value?.scrollPrev(),
+  scrollDown: () => baseRef.value?.scrollNext(),
   scrollPrev: () => baseRef.value?.scrollPrev(),
   scrollNext: () => baseRef.value?.scrollNext(),
   checkScrollability: () => baseRef.value?.checkScrollability(),
-  getScrollState: () => {
-    const state = baseRef.value?.getScrollState()
-    return {
-      scrollLeft: state?.scrollPosition ?? 0,
-      canScrollLeft: state?.canScrollPrev ?? false,
-      canScrollRight: state?.canScrollNext ?? false,
-      maxScroll: state?.maxScroll ?? 0,
-      canScrollHorizontally: state?.canScroll ?? false
-    }
-  }
+  getScrollState: () => baseRef.value?.getScrollState()
 })
 </script>

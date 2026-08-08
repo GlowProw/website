@@ -14,7 +14,7 @@ export default class Config {
                 "wsProtocol": "ws",
                 "host": "localhost",
                 "port": "3000",
-                "wsPort": "3000",
+                "wsPort": "3001",
                 "pathname": "/api/",
                 "wsPathname": "",
             },
@@ -38,18 +38,6 @@ export default class Config {
             }
         }
     };
-
-
-    // 初始配置
-    async initConf() {
-        let confs = await import('@/config/requestConf.json')
-        this.CONF = Object.assign(
-            this.CONF,
-            {...confs}
-        )
-
-        return this.CONF;
-    }
 
     get getConf() {
         return this.CONF;

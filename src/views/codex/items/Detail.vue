@@ -40,6 +40,7 @@ import {useCalculatorStore} from "~/stores/calculatorStore";
 import {useNoticeStore} from "~/stores/noticeStore";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
+import VerticalScrollList from "@/components/VerticalScrollList.vue";
 
 const
     {t, messages} = useI18n(),
@@ -469,123 +470,125 @@ const onAddCalculator = () => {
           </v-col>
           <v-col cols="12" lg="4" md="4" order="1" order-sm="2" sm="12">
             <AffixContainerView :offsetTop="80">
-              <BySeasonWidget :data="itemDetailData"></BySeasonWidget>
+              <VerticalScrollList :force-draggable="false" :is-indicator="false" height="calc(100vh - 120px)">
+                <BySeasonWidget :data="itemDetailData"></BySeasonWidget>
 
-              <template v-if="itemDetailData.blueprint">
-                <ByBluePrint :data="itemDetailData"></ByBluePrint>
-              </template>
-              <template v-if="itemDetailData.event">
-                <ByEventWidget :data="itemDetailData"></ByEventWidget>
-              </template>
-              <template v-if="itemDetailData.worldEvent">
-                <ByWorldEventWidget :data="itemDetailData"></ByWorldEventWidget>
-              </template>
-              <template v-if="itemDetailData.obtainable">
-                <ByObtainableWidget :data="itemDetailData" byType="item">
-                  {{ t('codex.item.obtainable') }}
-                </ByObtainableWidget>
-              </template>
-              <template v-if="itemDetailData.faction">
-                <v-text-field
-                    :value="t(`snb.factions.${itemDetailData.faction.id}.name`)"
-                    density="compact"
-                    hide-details
-                    readonly variant="underlined">
-                  <template v-slot:prepend-inner>
-                    <ItemSlotBase :padding="0" class="d-flex justify-center align-center mb-2" size="25px">
-                      <FactionIconWidget :name="itemDetailData.faction.id"
-                                         size="25px"></FactionIconWidget>
-                    </ItemSlotBase>
-                  </template>
-                  <template v-slot:append-inner>
-                    <p class="text-no-wrap">{{ t('codex.item.faction') }}</p>
-                  </template>
-                </v-text-field>
-              </template>
-              <template v-if="itemDetailData.requiredRank">
-                <v-text-field density="compact"
-                              hide-details
-                              readonly variant="underlined">
-                  <template v-slot:prepend-inner>
-                    <router-link :to="`/codex/item/requiredRank/${itemDetailData.requiredRank}`" class="singe-line text-no-wrap">
-                      {{ requiredRank }}
-                    </router-link>
-                  </template>
-                  <template v-slot:append-inner>
-                    <p class="text-no-wrap">{{ t('codex.item.requiredRank') }}</p>
-                  </template>
-                </v-text-field>
-              </template>
-              <template v-if="itemDetailData.gearScore">
-                <v-text-field :value="itemDetailData.gearScore || 'none'" density="compact"
-                              hide-details
-                              readonly variant="underlined">
-                  <template v-slot:append-inner>
-                    <p class="text-no-wrap">{{ t('codex.item.gearScore') }}</p>
-                  </template>
-                  <template v-slot:prepend>
-                    <img alt="gear-score" height="25px" src="@/assets/images/snb/icon-gearScore.png" width="25px">
-                  </template>
-                </v-text-field>
-              </template>
-              <template v-if="itemDetailData.rarity">
-                <v-text-field density="compact"
-                              hide-details
-                              readonly variant="underlined">
-                  <template v-slot:prepend>
-                    <v-badge :color="rarityColorConfig[itemDetailData.rarity]" class="ma-1 pt-0" dot inline></v-badge>
-                  </template>
-                  <template v-slot:prepend-inner>
-                    <ItemNameRarity :id="itemDetailData.id">
-                      <router-link :to="`/codex/items?rarity=${itemDetailData.rarity}`" class="text-no-wrap">
-                        {{ t(`codex.raritys.${itemDetailData.rarity}`) || 'none' }}
+                <template v-if="itemDetailData.blueprint">
+                  <ByBluePrint :data="itemDetailData"></ByBluePrint>
+                </template>
+                <template v-if="itemDetailData.event">
+                  <ByEventWidget :data="itemDetailData"></ByEventWidget>
+                </template>
+                <template v-if="itemDetailData.worldEvent">
+                  <ByWorldEventWidget :data="itemDetailData"></ByWorldEventWidget>
+                </template>
+                <template v-if="itemDetailData.obtainable">
+                  <ByObtainableWidget :data="itemDetailData" byType="item">
+                    {{ t('codex.item.obtainable') }}
+                  </ByObtainableWidget>
+                </template>
+                <template v-if="itemDetailData.faction">
+                  <v-text-field
+                      :value="t(`snb.factions.${itemDetailData.faction.id}.name`)"
+                      density="compact"
+                      hide-details
+                      readonly variant="underlined">
+                    <template v-slot:prepend-inner>
+                      <ItemSlotBase :padding="0" class="d-flex justify-center align-center mb-2" size="25px">
+                        <FactionIconWidget :name="itemDetailData.faction.id"
+                                           size="25px"></FactionIconWidget>
+                      </ItemSlotBase>
+                    </template>
+                    <template v-slot:append-inner>
+                      <p class="text-no-wrap">{{ t('codex.item.faction') }}</p>
+                    </template>
+                  </v-text-field>
+                </template>
+                <template v-if="itemDetailData.requiredRank">
+                  <v-text-field density="compact"
+                                hide-details
+                                readonly variant="underlined">
+                    <template v-slot:prepend-inner>
+                      <router-link :to="`/codex/item/requiredRank/${itemDetailData.requiredRank}`" class="singe-line text-no-wrap">
+                        {{ requiredRank }}
                       </router-link>
-                    </ItemNameRarity>
+                    </template>
+                    <template v-slot:append-inner>
+                      <p class="text-no-wrap">{{ t('codex.item.requiredRank') }}</p>
+                    </template>
+                  </v-text-field>
+                </template>
+                <template v-if="itemDetailData.gearScore">
+                  <v-text-field :value="itemDetailData.gearScore || 'none'" density="compact"
+                                hide-details
+                                readonly variant="underlined">
+                    <template v-slot:append-inner>
+                      <p class="text-no-wrap">{{ t('codex.item.gearScore') }}</p>
+                    </template>
+                    <template v-slot:prepend>
+                      <img alt="gear-score" height="25px" src="@/assets/images/snb/icon-gearScore.png" width="25px">
+                    </template>
+                  </v-text-field>
+                </template>
+                <template v-if="itemDetailData.rarity">
+                  <v-text-field density="compact"
+                                hide-details
+                                readonly variant="underlined">
+                    <template v-slot:prepend>
+                      <v-badge :color="rarityColorConfig[itemDetailData.rarity]" class="ma-1 pt-0" dot inline></v-badge>
+                    </template>
+                    <template v-slot:prepend-inner>
+                      <ItemNameRarity :id="itemDetailData.id">
+                        <router-link :to="`/codex/items?rarity=${itemDetailData.rarity}`" class="text-no-wrap">
+                          {{ t(`codex.raritys.${itemDetailData.rarity}`) || 'none' }}
+                        </router-link>
+                      </ItemNameRarity>
+                    </template>
+                    <template v-slot:append-inner>
+                      <p class="text-no-wrap">{{ t('codex.item.rarity') }}</p>
+                    </template>
+                  </v-text-field>
+                </template>
+
+                <v-text-field v-if="itemDetailData.dateAdded"
+                              density="compact"
+                              hide-details
+                              readonly variant="underlined">
+                  <template v-slot:prepend-inner>
+                    <TimeView :time="itemDetailData.dateAdded" class="singe-line">
+                      <Time :time="itemDetailData.dateAdded"></Time>
+                    </TimeView>
                   </template>
                   <template v-slot:append-inner>
-                    <p class="text-no-wrap">{{ t('codex.item.rarity') }}</p>
+                    <p class="text-no-wrap">{{ t('codex.ship.dateAdded') }}</p>
                   </template>
                 </v-text-field>
-              </template>
+                <v-text-field v-if="itemDetailData.lastUpdated"
+                              density="compact"
+                              hide-details
+                              readonly variant="underlined">
+                  <template v-slot:prepend-inner>
+                    <TimeView :time="itemDetailData.lastUpdated" class="singe-line">
+                      <Time :time="itemDetailData.lastUpdated"></Time>
+                    </TimeView>
+                  </template>
+                  <template v-slot:append-inner>
+                    <p class="text-no-wrap">{{ t('codex.ship.lastUpdated') }}</p>
+                  </template>
+                </v-text-field>
 
-              <v-text-field v-if="itemDetailData.dateAdded"
-                            density="compact"
-                            hide-details
-                            readonly variant="underlined">
-                <template v-slot:prepend-inner>
-                  <TimeView :time="itemDetailData.dateAdded" class="singe-line">
-                    <Time :time="itemDetailData.dateAdded"></Time>
-                  </TimeView>
+                <template v-if="itemDetailData.id">
+                  <p class="mt-5 mb-4 font-weight-bold">{{ t('codex.item.damageType') }}</p>
+                  <ItemDamageTypeWidget :data="itemDetailData" :iconType="'aggressivity'"></ItemDamageTypeWidget>
                 </template>
-                <template v-slot:append-inner>
-                  <p class="text-no-wrap">{{ t('codex.ship.dateAdded') }}</p>
-                </template>
-              </v-text-field>
-              <v-text-field v-if="itemDetailData.lastUpdated"
-                            density="compact"
-                            hide-details
-                            readonly variant="underlined">
-                <template v-slot:prepend-inner>
-                  <TimeView :time="itemDetailData.lastUpdated" class="singe-line">
-                    <Time :time="itemDetailData.lastUpdated"></Time>
-                  </TimeView>
-                </template>
-                <template v-slot:append-inner>
-                  <p class="text-no-wrap">{{ t('codex.ship.lastUpdated') }}</p>
-                </template>
-              </v-text-field>
 
-              <template v-if="itemDetailData.id">
-                <p class="mt-5 mb-4 font-weight-bold">{{ t('codex.item.damageType') }}</p>
-                <ItemDamageTypeWidget :data="itemDetailData" :iconType="'aggressivity'"></ItemDamageTypeWidget>
-              </template>
-
-              <template v-if="itemDetailData.perks">
-                <p class="mt-5 mb-1 font-weight-bold">{{ t('codex.item.perks') }} ({{ itemDetailData.perks.length || 0 }})</p>
-                <div class="mt-4">
-                  <PerksWidget :data="itemDetailData"></PerksWidget>
-                </div>
-              </template>
+                <template v-if="itemDetailData.perks">
+                  <p class="mt-5 mb-1 font-weight-bold">{{ t('codex.item.perks') }} ({{ itemDetailData.perks.length || 0 }})</p>
+                  <div class="mt-4">
+                    <PerksWidget :data="itemDetailData"></PerksWidget>
+                  </div>
+                </template>
+              </VerticalScrollList>
             </AffixContainerView>
           </v-col>
         </v-row>

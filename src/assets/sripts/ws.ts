@@ -1,4 +1,4 @@
-import {http} from "./index";
+import { http } from "./index";
 
 type WebSocketEventMap = {
     open: (event: Event) => void;
@@ -38,9 +38,13 @@ export default class Ws {
             const globalUrl = http.globalUrl || {};
             const protocol = globalUrl.wsProtocol || (window.location.protocol === 'https:' ? 'wss' : 'ws');
             const host = globalUrl.wsHost || globalUrl.host || window.location.hostname;
-            const wsPort = (globalUrl.wsPort !== undefined && globalUrl.wsPort !== null && globalUrl.wsPort !== '') 
-                ? globalUrl.wsPort 
-                : globalUrl.port;
+            let wsPort = globalUrl.wsPort;
+            if ((wsPort === undefined || wsPort === null || wsPort === '') && globalUrl.port) {
+                const p = Number(globalUrl.port);
+                if (!isNaN(p) && p > 0) {
+                    wsPort = String(p + 1);
+                }
+            }
             const portStr = (wsPort !== undefined && wsPort !== null && wsPort !== '') ? `:${wsPort}` : '';
             const pathname = globalUrl.wsPathname !== undefined ? globalUrl.wsPathname : '';
 
@@ -60,7 +64,7 @@ export default class Ws {
                 console.log("WebSocket connected")
 
                 if (callback)
-                    callback({code: 0})
+                    callback({ code: 0 })
             };
 
         if (this.socket)
@@ -71,7 +75,7 @@ export default class Ws {
                 this.handleReconnect()
 
                 if (callback)
-                    callback({code: -1})
+                    callback({ code: -1 })
             };
 
         if (this.socket)
@@ -80,7 +84,7 @@ export default class Ws {
                 console.error("WebSocket error:", event)
 
                 if (callback)
-                    callback({code: -1})
+                    callback({ code: -1 })
             };
 
         if (this.socket)
@@ -98,18 +102,18 @@ export default class Ws {
                 const url = this.buildWebSocketUrl()
                 this.socket = new WebSocket(url)
 
-                this.setupEventHandlers(({code}) => {
+                this.setupEventHandlers(({ code }) => {
                     if (callback)
-                        callback({code})
+                        callback({ code })
                 })
 
                 if (callback)
-                    callback({code: 0})
+                    callback({ code: 0 })
             }, this.reconnectInterval)
         } else {
             console.log("Max reconnection attempts reached")
             if (callback)
-                callback({code: -1})
+                callback({ code: -1 })
         }
     }
 
