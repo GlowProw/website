@@ -26,6 +26,7 @@ import {useHead} from "@unhead/vue";
 import ShareWidget from "@/components/ShareWidget.vue";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
+import VerticalScrollList from "@/components/VerticalScrollList.vue";
 
 const {t, messages} = useI18n(),
     route = useRoute(),
@@ -220,45 +221,47 @@ const onCodexHistory = () => {
             </template>
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
+            <BySeasonWidget :data="cosmeticDetailData.firstAppearingSeason || cosmeticDetailData.bySeason"></BySeasonWidget>
+
             <AffixContainerView :offsetTop="80">
-              <BySeasonWidget
-                  :data="cosmeticDetailData.firstAppearingSeason || cosmeticDetailData.bySeason"></BySeasonWidget>
+              <VerticalScrollList :force-draggable="false" :is-indicator="false" height="calc(100vh - 120px)">
 
-              <template v-if="cosmeticDetailData.worldEvent">
-                <ByWorldEventWidget :data="cosmeticDetailData"></ByWorldEventWidget>
-              </template>
-              <template v-if="cosmeticDetailData.obtainable">
-                <ByObtainableWidget :data="cosmeticDetailData" byType="cosmetic">
-                  {{ t('codex.item.obtainable') }}
-                </ByObtainableWidget>
-              </template>
+                <template v-if="cosmeticDetailData.worldEvent">
+                  <ByWorldEventWidget :data="cosmeticDetailData"></ByWorldEventWidget>
+                </template>
+                <template v-if="cosmeticDetailData.obtainable">
+                  <ByObtainableWidget :data="cosmeticDetailData" byType="cosmetic">
+                    {{ t('codex.item.obtainable') }}
+                  </ByObtainableWidget>
+                </template>
 
-              <v-text-field readonly
-                            hide-details
-                            v-if="cosmeticDetailData.dateAdded"
-                            variant="underlined" density="compact">
-                <template v-slot:prepend-inner>
-                  <TimeView :time="cosmeticDetailData.dateAdded" class="singe-line">
-                    <Time :time="cosmeticDetailData.dateAdded"></Time>
-                  </TimeView>
-                </template>
-                <template v-slot:append-inner>
-                  <p class="text-no-wrap">{{ t('codex.ship.dateAdded') }}</p>
-                </template>
-              </v-text-field>
-              <v-text-field readonly
-                            hide-details
-                            v-if="cosmeticDetailData.lastUpdated"
-                            variant="underlined" density="compact">
-                <template v-slot:prepend-inner>
-                  <TimeView :time="cosmeticDetailData.lastUpdated" class="singe-line">
-                    <Time :time="cosmeticDetailData.lastUpdated"></Time>
-                  </TimeView>
-                </template>
-                <template v-slot:append-inner>
-                  <p class="text-no-wrap">{{ t('codex.ship.lastUpdated') }}</p>
-                </template>
-              </v-text-field>
+                <v-text-field readonly
+                              hide-details
+                              v-if="cosmeticDetailData.dateAdded"
+                              variant="underlined" density="compact">
+                  <template v-slot:prepend-inner>
+                    <TimeView :time="cosmeticDetailData.dateAdded" class="singe-line">
+                      <Time :time="cosmeticDetailData.dateAdded"></Time>
+                    </TimeView>
+                  </template>
+                  <template v-slot:append-inner>
+                    <p class="text-no-wrap">{{ t('codex.ship.dateAdded') }}</p>
+                  </template>
+                </v-text-field>
+                <v-text-field readonly
+                              hide-details
+                              v-if="cosmeticDetailData.lastUpdated"
+                              variant="underlined" density="compact">
+                  <template v-slot:prepend-inner>
+                    <TimeView :time="cosmeticDetailData.lastUpdated" class="singe-line">
+                      <Time :time="cosmeticDetailData.lastUpdated"></Time>
+                    </TimeView>
+                  </template>
+                  <template v-slot:append-inner>
+                    <p class="text-no-wrap">{{ t('codex.ship.lastUpdated') }}</p>
+                  </template>
+                </v-text-field>
+              </VerticalScrollList>
             </AffixContainerView>
           </v-col>
         </v-row>

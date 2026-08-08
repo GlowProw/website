@@ -1,6 +1,6 @@
 <template>
   <v-row>
-    <!-- 导入区域 S -->
+    <!-- 导入与新建区域 S -->
     <v-col cols="12" lg="6">
       <AffixBoxHasTitleView>
         <p class="text-caption opacity-60 mb-5">{{ t('setting.wishlist.description') }}</p>
@@ -34,6 +34,16 @@
             <v-btn
                 variant="tonal"
                 size="small"
+                color="amber"
+                prepend-icon="mdi-plus"
+                @click="onCreateNew">
+              {{ t('setting.wishlist.createNew') }}
+            </v-btn>
+          </v-col>
+          <v-col cols="auto">
+            <v-btn
+                variant="tonal"
+                size="small"
                 prepend-icon="mdi-file-upload"
                 @click="onTriggerFileUpload">
               {{ t('setting.wishlist.importFromFile') }}
@@ -62,7 +72,7 @@
         </template>
       </AffixBoxHasTitleView>
     </v-col>
-    <!-- 导入区域 E -->
+    <!-- 导入与新建区域 E -->
 
     <!-- 统计信息 S -->
     <v-col cols="12" lg="6">
@@ -203,6 +213,9 @@
                       </v-btn>
                     </template>
                     <v-list slim density="compact">
+                      <v-list-item prepend-icon="mdi-pencil" @click="onEdit(wl.id)">
+                        {{ t('setting.wishlist.edit') }}
+                      </v-list-item>
                       <v-list-item prepend-icon="mdi-export" @click="onExport(wl.id)">
                         {{ t('setting.wishlist.export') }}
                       </v-list-item>
@@ -224,6 +237,14 @@
     </v-col>
     <!-- 已导入清单列表 E -->
   </v-row>
+
+  <!-- 愿望清单编辑/新建对话框 S -->
+  <WishlistEditDialog
+      v-model="editDialog"
+      :wishlist="editingWishlist"
+      @save="onSaveWishlist"
+  />
+  <!-- 愿望清单编辑/新建对话框 E -->
 
   <!-- 粘贴对话框 S -->
   <v-dialog v-model="pasteDialog" max-width="600">
@@ -284,56 +305,92 @@
 </template>
 
 <script setup lang="ts">
-import {computed, ref} from 'vue';
-import {useI18n} from 'vue-i18n';
-import {useWishlistStore} from '~/stores/wishlistStore';
-import {parseWishlistText, validateWishlist} from '@/assets/sripts/wishlist_data_processing';
-import AffixBoxHasTitleView from '@/components/AffixBoxHasTitleView.vue';
-import {useNoticeStore} from "~/stores/noticeStore";
+import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useWishlistStore } from '~/stores/wishlistStore'
+import { parseWishlistText, validateWishlist } from '@/assets/sripts/wishlist_data_processing'
+import AffixBoxHasTitleView from '@/components/AffixBoxHasTitleView.vue'
+import WishlistEditDialog from './WishlistEditDialog.vue'
+import { useNoticeStore } from '~/stores/noticeStore'
+import type { WishlistFile } from '@/assets/types/Wishlist'
 
-const {t} = useI18n();
-const wishlistStore = useWishlistStore();
+const { t } = useI18n()
+const wishlistStore = useWishlistStore()
 
-const importUrl = ref('');
-const importLoading = ref(false);
-const pasteDialog = ref(false);
-const pasteText = ref('');
-const deleteDialog = ref(false);
-const deleteTargetId = ref('');
-const clearAllDialog = ref(false);
-const fileInputRef = ref<HTMLInputElement | null>(null);
+const importUrl = ref('')
+const importLoading = ref(false)
+const pasteDialog = ref(false)
+const pasteText = ref('')
+const deleteDialog = ref(false)
+const deleteTargetId = ref('')
+const clearAllDialog = ref(false)
+const fileInputRef = ref<HTMLInputElement | null>(null)
 const not = useNoticeStore()
+
+const editDialog = ref(false)
+const editingWishlist = ref<WishlistFile | null>(null)
+
+/**
+ * 触发新建清单
+ */
+const onCreateNew = () => {
+  editingWishlist.value = null
+  editDialog.value = true
+}
+
+/**
+ * 触发编辑清单
+ */
+const onEdit = (id: string) => {
+  const wl = wishlistStore.wishlists.find(w => w.id === id)
+  if (wl) {
+    editingWishlist.value = wl
+    editDialog.value = true
+  }
+}
+
+/**
+ * 保存愿望清单回调
+ */
+const onSaveWishlist = (savedWl: WishlistFile) => {
+  const result = wishlistStore.addWishlist(savedWl)
+  if (result.success) {
+    not.success(t('setting.wishlist.importSuccess'))
+  } else {
+    not.error(t('setting.wishlist.importError'))
+  }
+}
 
 /**
  * 粘贴文本实时预览验证
  */
 const pastePreviewError = computed(() => {
-  if (!pasteText.value) return '';
-  const parsed = parseWishlistText(pasteText.value, 'preview');
-  const validation = validateWishlist(parsed);
+  if (!pasteText.value) return ''
+  const parsed = parseWishlistText(pasteText.value, 'preview')
+  const validation = validateWishlist(parsed)
   if (!validation.valid) {
-    const missing = validation.errors.map(e => t(`setting.wishlist.field_${e}`)).join(', ');
-    return t('setting.wishlist.requiredFieldsMissing', {fields: missing});
+    const missing = validation.errors.map(e => t(`setting.wishlist.field_${e}`)).join(', ')
+    return t('setting.wishlist.requiredFieldsMissing', { fields: missing })
   }
-  return '';
-});
+  return ''
+})
 
 /**
  * 处理导入结果
  */
 function handleImportResult(result: { success: boolean; wishlist?: any; errors?: string[] }, source: string) {
   if (result.success) {
-    const wl = result.wishlist;
+    const wl = result.wishlist
     const dupMsg = wl?.duplicatesRemoved && wl.duplicatesRemoved > 0
-        ? ` (${t('setting.wishlist.duplicatesRemoved', {count: wl.duplicatesRemoved})})`
-        : '';
-    not.success(t('setting.wishlist.importSuccess') + dupMsg);
+        ? ` (${t('setting.wishlist.duplicatesRemoved', { count: wl.duplicatesRemoved })})`
+        : ''
+    not.success(t('setting.wishlist.importSuccess') + dupMsg)
   } else {
     if (result.errors?.includes('max_limit')) {
-      not.error(t('setting.wishlist.field_max_limit'));
+      not.error(t('setting.wishlist.field_max_limit'))
     } else {
-      const missing = result.errors?.map(e => t(`setting.wishlist.field_${e}`)).join(', ') || '';
-      not.error(t('setting.wishlist.requiredFieldsMissing', {fields: missing}));
+      const missing = result.errors?.map(e => t(`setting.wishlist.field_${e}`)).join(', ') || ''
+      not.error(t('setting.wishlist.requiredFieldsMissing', { fields: missing }))
     }
   }
 }
@@ -342,128 +399,127 @@ function handleImportResult(result: { success: boolean; wishlist?: any; errors?:
  * 从 URL 导入
  */
 const onImportFromUrl = async () => {
-  if (!importUrl.value) return;
-  importLoading.value = true;
+  if (!importUrl.value) return
+  importLoading.value = true
   try {
-    const result = await wishlistStore.importFromUrl(importUrl.value);
-    handleImportResult(result, importUrl.value);
-    if (result.success) importUrl.value = '';
+    const result = await wishlistStore.importFromUrl(importUrl.value)
+    handleImportResult(result, importUrl.value)
+    if (result.success) importUrl.value = ''
   } catch (e: any) {
-    not.error(t('setting.wishlist.importError') + ': ' + (e.message || e));
+    not.error(t('setting.wishlist.importError') + ': ' + (e.message || e))
   } finally {
-    importLoading.value = false;
+    importLoading.value = false
   }
-};
+}
 
 /**
  * 触发文件选择
  */
 const onTriggerFileUpload = () => {
-  fileInputRef.value?.click();
-};
+  fileInputRef.value?.click()
+}
 
 /**
  * 文件上传处理
  */
 const onFileUpload = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  const file = target.files?.[0];
-  if (!file) return;
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (!file) return
 
-  const reader = new FileReader();
+  const reader = new FileReader()
   reader.onload = (e) => {
-    const text = e.target?.result as string;
+    const text = e.target?.result as string
     if (text) {
-      const result = wishlistStore.importFromText(text, file.name);
-      handleImportResult(result, file.name);
+      const result = wishlistStore.importFromText(text, file.name)
+      handleImportResult(result, file.name)
     }
-  };
-  reader.readAsText(file);
+  }
+  reader.readAsText(file)
 
-  // 重置 input 值，使得同一文件可重复选择
-  target.value = '';
-};
+  target.value = ''
+}
 
 /**
  * 从粘贴文本导入
  */
 const onImportFromPaste = () => {
-  if (!pasteText.value) return;
-  const result = wishlistStore.importFromText(pasteText.value, 'paste');
-  handleImportResult(result, 'paste');
+  if (!pasteText.value) return
+  const result = wishlistStore.importFromText(pasteText.value, 'paste')
+  handleImportResult(result, 'paste')
   if (result.success) {
-    pasteText.value = '';
-    pasteDialog.value = false;
+    pasteText.value = ''
+    pasteDialog.value = false
   }
-};
+}
 
 /**
  * 更新愿望清单
  */
 const onUpdate = async (id: string) => {
-  const result = await wishlistStore.updateFromUrls(id);
+  const result = await wishlistStore.updateFromUrls(id)
   if (result.success) {
-    not.success(t('setting.wishlist.importSuccess'));
+    not.success(t('setting.wishlist.importSuccess'))
   } else {
-    not.error(t('setting.wishlist.updateError') + (result.error ? ': ' + result.error : ''));
+    not.error(t('setting.wishlist.updateError') + (result.error ? ': ' + result.error : ''))
   }
-};
+}
 
 /**
  * 导出愿望清单
  */
 const onExport = (id: string) => {
-  const text = wishlistStore.exportAsText(id);
-  if (!text) return;
+  const text = wishlistStore.exportAsText(id)
+  if (!text) return
 
-  const wl = wishlistStore.wishlists.find(w => w.id === id);
-  const filename = `${wl?.title || 'wishlist'}.txt`;
+  const wl = wishlistStore.wishlists.find(w => w.id === id)
+  const filename = `${wl?.title || 'wishlist'}.txt`
 
-  const blob = new Blob([text], {type: 'text/plain;charset=utf-8'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
-};
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(url)
+}
 
 /**
  * 确认删除
  */
 const confirmDelete = (id: string) => {
-  deleteTargetId.value = id;
-  deleteDialog.value = true;
-};
+  deleteTargetId.value = id
+  deleteDialog.value = true
+}
 
 const onConfirmDelete = () => {
-  wishlistStore.removeWishlist(deleteTargetId.value);
-  deleteDialog.value = false;
-  deleteTargetId.value = '';
-};
+  wishlistStore.removeWishlist(deleteTargetId.value)
+  deleteDialog.value = false
+  deleteTargetId.value = ''
+}
 
 /**
  * 确认清空
  */
 const onConfirmClearAll = () => {
-  wishlistStore.removeAll();
-  clearAllDialog.value = false;
-};
+  wishlistStore.removeAll()
+  clearAllDialog.value = false
+}
 
 /**
  * 截断来源 URL 显示
  */
 const truncateSource = (source: string): string => {
-  if (source.length <= 50) return source;
-  return source.slice(0, 20) + '...' + source.slice(-25);
-};
+  if (source.length <= 50) return source
+  return source.slice(0, 20) + '...' + source.slice(-25)
+}
 
 /**
  * 格式化时间戳
  */
 const formatTime = (ts: number): string => {
-  return new Date(ts).toLocaleString();
-};
+  return new Date(ts).toLocaleString()
+}
 </script>
 
 <style scoped lang="less">

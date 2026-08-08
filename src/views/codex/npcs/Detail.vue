@@ -32,6 +32,7 @@ import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
 import MaterialName from "@/components/snbWidget/materialName.vue";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
+import VerticalScrollList from "@/components/VerticalScrollList.vue";
 
 const
     {t, messages} = useI18n(),
@@ -280,80 +281,83 @@ const onCodexHistory = () => {
             </template>
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
-            <AffixContainerView :offsetTop="80">
-              <BySeasonWidget :data="npcDetailData"></BySeasonWidget>
+            <BySeasonWidget :data="npcDetailData"></BySeasonWidget>
 
-              <template v-if="npcDetailData.worldEvent">
-                <ByWorldEventWidget :data="npcDetailData"></ByWorldEventWidget>
-              </template>
-              <template v-if="npcDetailData.obtainable || npcDetailData.location">
-                <ByObtainableWidget :data="npcDetailData" byType="item">
-                  {{ t('codex.item.obtainable') }}
-                </ByObtainableWidget>
-              </template>
-              <template v-if="npcDetailData.faction">
-                <v-text-field
-                    :value="t(`snb.factions.${npcDetailData.faction.id}.name`)"
-                    readonly
-                    hide-details
-                    variant="underlined" density="compact">
-                  <template v-slot:prepend-inner>
-                    <ItemSlotBase size="25px" class="d-flex justify-center align-center mb-2" :padding="0">
-                      <FactionIconWidget :name="npcDetailData.faction.id"
-                                         size="25px"></FactionIconWidget>
-                    </ItemSlotBase>
-                  </template>
-                  <template v-slot:append-inner>
-                    <p class="text-no-wrap">{{ t('codex.item.faction') }}</p>
-                  </template>
-                </v-text-field>
-              </template>
-              <template v-if="npcDetailData.rarity">
+            <AffixContainerView :offsetTop="80">
+              <VerticalScrollList :force-draggable="false" :is-indicator="false" height="calc(100vh - 120px)">
+
+                <template v-if="npcDetailData.worldEvent">
+                  <ByWorldEventWidget :data="npcDetailData"></ByWorldEventWidget>
+                </template>
+                <template v-if="npcDetailData.obtainable || npcDetailData.location">
+                  <ByObtainableWidget :data="npcDetailData" byType="item">
+                    {{ t('codex.item.obtainable') }}
+                  </ByObtainableWidget>
+                </template>
+                <template v-if="npcDetailData.faction">
+                  <v-text-field
+                      :value="t(`snb.factions.${npcDetailData.faction.id}.name`)"
+                      readonly
+                      hide-details
+                      variant="underlined" density="compact">
+                    <template v-slot:prepend-inner>
+                      <ItemSlotBase size="25px" class="d-flex justify-center align-center mb-2" :padding="0">
+                        <FactionIconWidget :name="npcDetailData.faction.id"
+                                           size="25px"></FactionIconWidget>
+                      </ItemSlotBase>
+                    </template>
+                    <template v-slot:append-inner>
+                      <p class="text-no-wrap">{{ t('codex.item.faction') }}</p>
+                    </template>
+                  </v-text-field>
+                </template>
+                <template v-if="npcDetailData.rarity">
+                  <v-text-field readonly
+                                hide-details
+                                variant="underlined" density="compact">
+                    <template v-slot:prepend>
+                      <v-badge dot inline :color="rarityColorConfig[npcDetailData.rarity]" class="ma-1 pt-0"></v-badge>
+                    </template>
+                    <template v-slot:prepend-inner>
+                      <ItemNameRarity :id="npcDetailData.id">
+                        <router-link :to="`/codex/item/rarity/${npcDetailData.rarity}`" class="text-no-wrap">
+                          {{ t(`codex.raritys.${npcDetailData.rarity}`) || 'none' }}
+                        </router-link>
+                      </ItemNameRarity>
+                    </template>
+                    <template v-slot:append-inner>
+                      <p class="text-no-wrap">{{ t('codex.item.rarity') }}</p>
+                    </template>
+                  </v-text-field>
+                </template>
+
                 <v-text-field readonly
                               hide-details
+                              v-if="npcDetailData.dateAdded"
                               variant="underlined" density="compact">
-                  <template v-slot:prepend>
-                    <v-badge dot inline :color="rarityColorConfig[npcDetailData.rarity]" class="ma-1 pt-0"></v-badge>
-                  </template>
                   <template v-slot:prepend-inner>
-                    <ItemNameRarity :id="npcDetailData.id">
-                      <router-link :to="`/codex/item/rarity/${npcDetailData.rarity}`" class="text-no-wrap">
-                        {{ t(`codex.raritys.${npcDetailData.rarity}`) || 'none' }}
-                      </router-link>
-                    </ItemNameRarity>
+                    <TimeView :time="npcDetailData.dateAdded" class="singe-line">
+                      <Time :time="npcDetailData.dateAdded"></Time>
+                    </TimeView>
                   </template>
                   <template v-slot:append-inner>
-                    <p class="text-no-wrap">{{ t('codex.item.rarity') }}</p>
+                    <p class="text-no-wrap">{{ t('codex.ship.dateAdded') }}</p>
                   </template>
                 </v-text-field>
-              </template>
-
-              <v-text-field readonly
-                            hide-details
-                            v-if="npcDetailData.dateAdded"
-                            variant="underlined" density="compact">
-                <template v-slot:prepend-inner>
-                  <TimeView :time="npcDetailData.dateAdded" class="singe-line">
-                    <Time :time="npcDetailData.dateAdded"></Time>
-                  </TimeView>
-                </template>
-                <template v-slot:append-inner>
-                  <p class="text-no-wrap">{{ t('codex.ship.dateAdded') }}</p>
-                </template>
-              </v-text-field>
-              <v-text-field readonly
-                            hide-details
-                            v-if="npcDetailData.lastUpdated"
-                            variant="underlined" density="compact">
-                <template v-slot:prepend-inner>
-                  <TimeView :time="npcDetailData.lastUpdated" class="singe-line">
-                    <Time :time="npcDetailData.lastUpdated"></Time>
-                  </TimeView>
-                </template>
-                <template v-slot:append-inner>
-                  <p class="text-no-wrap">{{ t('codex.ship.lastUpdated') }}</p>
-                </template>
-              </v-text-field>
+                <v-text-field readonly
+                              hide-details
+                              v-if="npcDetailData.lastUpdated"
+                              variant="underlined" density="compact">
+                  <template v-slot:prepend-inner>
+                    <TimeView :time="npcDetailData.lastUpdated" class="singe-line">
+                      <Time :time="npcDetailData.lastUpdated"></Time>
+                    </TimeView>
+                  </template>
+                  <template v-slot:append-inner>
+                    <p class="text-no-wrap">{{ t('codex.ship.lastUpdated') }}</p>
+                  </template>
+                </v-text-field>
+              </VerticalScrollList>
             </AffixContainerView>
           </v-col>
         </v-row>

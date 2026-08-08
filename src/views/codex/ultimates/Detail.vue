@@ -19,6 +19,7 @@ import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
 import UltimateDescription from "@/components/snbWidget/ultimateDescription.vue";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
+import VerticalScrollList from "@/components/VerticalScrollList.vue";
 
 const
     {t, messages} = useI18n(),
@@ -223,32 +224,35 @@ const onUltimateHistory = (id: string) => {
             </template>
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
+            <BySeasonWidget
+                :data="ultimateDetailData"></BySeasonWidget>
+
             <AffixContainerView :offsetTop="80">
-              <BySeasonWidget
-                  :data="ultimateDetailData"></BySeasonWidget>
+              <VerticalScrollList :force-draggable="false" :is-indicator="false" height="calc(100vh - 120px)">
 
-              <v-text-field :value="ultimateDetailData.chargeRequired" readonly
-                            hide-details
-                            variant="underlined" density="compact">
-                <template v-slot:append-inner>
-                  <p class="text-no-wrap">获取所需积分</p>
-                </template>
-              </v-text-field>
+                <v-text-field :value="ultimateDetailData.chargeRequired" readonly
+                              hide-details
+                              variant="underlined" density="compact">
+                  <template v-slot:append-inner>
+                    <p class="text-no-wrap">获取所需积分</p>
+                  </template>
+                </v-text-field>
 
-              <v-text-field :value="ultimateDetailData.dateAdded" readonly
-                            hide-details
-                            variant="underlined" density="compact">
-                <template v-slot:append-inner>
-                  <p class="text-no-wrap">添加日期</p>
-                </template>
-              </v-text-field>
-              <v-text-field :value="ultimateDetailData.lastUpdated" readonly
-                            hide-details
-                            variant="underlined" density="compact">
-                <template v-slot:append-inner>
-                  <p class="text-no-wrap">更新日期</p>
-                </template>
-              </v-text-field>
+                <v-text-field :value="ultimateDetailData.dateAdded" readonly
+                              hide-details
+                              variant="underlined" density="compact">
+                  <template v-slot:append-inner>
+                    <p class="text-no-wrap">添加日期</p>
+                  </template>
+                </v-text-field>
+                <v-text-field :value="ultimateDetailData.lastUpdated" readonly
+                              hide-details
+                              variant="underlined" density="compact">
+                  <template v-slot:append-inner>
+                    <p class="text-no-wrap">更新日期</p>
+                  </template>
+                </v-text-field>
+              </VerticalScrollList>
             </AffixContainerView>
           </v-col>
         </v-row>

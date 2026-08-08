@@ -30,6 +30,7 @@ import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import ShareWidget from "@/components/ShareWidget.vue";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
+import VerticalScrollList from "@/components/VerticalScrollList.vue";
 
 const {t, te, messages} = useI18n(),
     route = useRoute(),
@@ -251,59 +252,62 @@ const onCodexHistory = () => {
             </template>
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
+            <BySeasonWidget :data="mapDetailData"></BySeasonWidget>
+
             <AffixContainerView :offsetTop="80">
-              <BySeasonWidget :data="mapDetailData"></BySeasonWidget>
+              <VerticalScrollList :force-draggable="false" :is-indicator="false" height="calc(100vh - 120px)">
 
-              <ByObtainableWidget :data="mapDetailData" byType="treasureMap">
-                {{ t('codex.item.obtainable') }}
-              </ByObtainableWidget>
+                <ByObtainableWidget :data="mapDetailData" byType="treasureMap">
+                  {{ t('codex.item.obtainable') }}
+                </ByObtainableWidget>
 
-              <template v-if="mapDetailData.rarity">
+                <template v-if="mapDetailData.rarity">
+                  <v-text-field readonly
+                                hide-details
+                                variant="underlined" density="compact">
+                    <template v-slot:prepend>
+                      <v-badge dot inline :color="rarityColorConfig[mapDetailData.rarity]" class="ma-1 pt-0"></v-badge>
+                    </template>
+                    <template v-slot:prepend-inner>
+                      <ItemNameRarity :id="mapDetailData.id">
+                        <router-link :to="`/codex/item/rarity/${mapDetailData.rarity}`" class="text-no-wrap">
+                          {{ t(`codex.raritys.${mapDetailData.rarity}`) || 'none' }}
+                        </router-link>
+                      </ItemNameRarity>
+                    </template>
+                    <template v-slot:append-inner>
+                      <p class="text-no-wrap">{{ t('codex.item.rarity') }}</p>
+                    </template>
+                  </v-text-field>
+                </template>
+
                 <v-text-field readonly
                               hide-details
+                              v-if="mapDetailData.dateAdded"
                               variant="underlined" density="compact">
-                  <template v-slot:prepend>
-                    <v-badge dot inline :color="rarityColorConfig[mapDetailData.rarity]" class="ma-1 pt-0"></v-badge>
-                  </template>
                   <template v-slot:prepend-inner>
-                    <ItemNameRarity :id="mapDetailData.id">
-                      <router-link :to="`/codex/item/rarity/${mapDetailData.rarity}`" class="text-no-wrap">
-                        {{ t(`codex.raritys.${mapDetailData.rarity}`) || 'none' }}
-                      </router-link>
-                    </ItemNameRarity>
+                    <TimeView :time="mapDetailData.dateAdded" class="singe-line">
+                      <Time :time="mapDetailData.dateAdded"></Time>
+                    </TimeView>
                   </template>
                   <template v-slot:append-inner>
-                    <p class="text-no-wrap">{{ t('codex.item.rarity') }}</p>
+                    <p class="text-no-wrap">{{ t('codex.ship.dateAdded') }}</p>
                   </template>
                 </v-text-field>
-              </template>
-
-              <v-text-field readonly
-                            hide-details
-                            v-if="mapDetailData.dateAdded"
-                            variant="underlined" density="compact">
-                <template v-slot:prepend-inner>
-                  <TimeView :time="mapDetailData.dateAdded" class="singe-line">
-                    <Time :time="mapDetailData.dateAdded"></Time>
-                  </TimeView>
-                </template>
-                <template v-slot:append-inner>
-                  <p class="text-no-wrap">{{ t('codex.ship.dateAdded') }}</p>
-                </template>
-              </v-text-field>
-              <v-text-field readonly
-                            hide-
-                            v-if="mapDetailData.lastUpdated"
-                            variant="underlined" density="compact">
-                <template v-slot:prepend-inner>
-                  <TimeView :time="mapDetailData.lastUpdated" class="singe-line">
-                    <Time :time="mapDetailData.lastUpdated"></Time>
-                  </TimeView>
-                </template>
-                <template v-slot:append-inner>
-                  <p class="text-no-wrap">{{ t('codex.ship.lastUpdated') }}</p>
-                </template>
-              </v-text-field>
+                <v-text-field readonly
+                              hide-
+                              v-if="mapDetailData.lastUpdated"
+                              variant="underlined" density="compact">
+                  <template v-slot:prepend-inner>
+                    <TimeView :time="mapDetailData.lastUpdated" class="singe-line">
+                      <Time :time="mapDetailData.lastUpdated"></Time>
+                    </TimeView>
+                  </template>
+                  <template v-slot:append-inner>
+                    <p class="text-no-wrap">{{ t('codex.ship.lastUpdated') }}</p>
+                  </template>
+                </v-text-field>
+              </VerticalScrollList>
             </AffixContainerView>
           </v-col>
         </v-row>

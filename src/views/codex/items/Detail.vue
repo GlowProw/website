@@ -469,9 +469,10 @@ const onAddCalculator = () => {
             </template>
           </v-col>
           <v-col cols="12" lg="4" md="4" order="1" order-sm="2" sm="12">
+            <BySeasonWidget :data="itemDetailData"></BySeasonWidget>
+
             <AffixContainerView :offsetTop="80">
               <VerticalScrollList :force-draggable="false" :is-indicator="false" height="calc(100vh - 120px)">
-                <BySeasonWidget :data="itemDetailData"></BySeasonWidget>
 
                 <template v-if="itemDetailData.blueprint">
                   <ByBluePrint :data="itemDetailData"></ByBluePrint>

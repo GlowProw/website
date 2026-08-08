@@ -23,6 +23,7 @@ import ShareWidget from "@/components/ShareWidget.vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
+import VerticalScrollList from "@/components/VerticalScrollList.vue";
 
 const {t, messages} = useI18n(),
     route = useRoute(),
@@ -220,35 +221,37 @@ const onCodexHistory = () => {
             </template>
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
-            <AffixContainerView :offsetTop="80">
-              <BySeasonWidget :data="modDetailData"></BySeasonWidget>
+            <BySeasonWidget :data="modDetailData"></BySeasonWidget>
 
-              <v-text-field readonly
-                            hide-details
-                            v-if="modDetailData.dateAdded"
-                            variant="underlined" density="compact">
-                <template v-slot:prepend-inner>
-                  <TimeView :time="modDetailData.dateAdded" class="singe-line">
-                    <Time :time="modDetailData.dateAdded"></Time>
-                  </TimeView>
-                </template>
-                <template v-slot:append-inner>
-                  <p class="text-no-wrap">{{ t('codex.ship.dateAdded') }}</p>
-                </template>
-              </v-text-field>
-              <v-text-field readonly
-                            hide-
-                            v-if="modDetailData.lastUpdated"
-                            variant="underlined" density="compact">
-                <template v-slot:prepend-inner>
-                  <TimeView :time="modDetailData.lastUpdated" class="singe-line">
-                    <Time :time="modDetailData.lastUpdated"></Time>
-                  </TimeView>
-                </template>
-                <template v-slot:append-inner>
-                  <p class="text-no-wrap">{{ t('codex.ship.lastUpdated') }}</p>
-                </template>
-              </v-text-field>
+            <AffixContainerView :offsetTop="80">
+              <VerticalScrollList :force-draggable="false" :is-indicator="false" height="calc(100vh - 120px)">
+                <v-text-field readonly
+                              hide-details
+                              v-if="modDetailData.dateAdded"
+                              variant="underlined" density="compact">
+                  <template v-slot:prepend-inner>
+                    <TimeView :time="modDetailData.dateAdded" class="singe-line">
+                      <Time :time="modDetailData.dateAdded"></Time>
+                    </TimeView>
+                  </template>
+                  <template v-slot:append-inner>
+                    <p class="text-no-wrap">{{ t('codex.ship.dateAdded') }}</p>
+                  </template>
+                </v-text-field>
+                <v-text-field readonly
+                              hide-
+                              v-if="modDetailData.lastUpdated"
+                              variant="underlined" density="compact">
+                  <template v-slot:prepend-inner>
+                    <TimeView :time="modDetailData.lastUpdated" class="singe-line">
+                      <Time :time="modDetailData.lastUpdated"></Time>
+                    </TimeView>
+                  </template>
+                  <template v-slot:append-inner>
+                    <p class="text-no-wrap">{{ t('codex.ship.lastUpdated') }}</p>
+                  </template>
+                </v-text-field>
+              </VerticalScrollList>
             </AffixContainerView>
           </v-col>
         </v-row>
