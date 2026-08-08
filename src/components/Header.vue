@@ -35,34 +35,19 @@ let drawer = ref(false)
 
       <v-spacer></v-spacer>
 
-      <GlobalSearchTopWindowWidget>
-        <v-card
-            border
-            :width="mobile ? 'auto' : '100%'"
-            class="my-2 mx-auto header-filter cursor-pointer"
-            density="compact"
-            prepend-inner-icon="mdi-magnify"
-            readonly
-            hide-details
-            hide-spin-buttons
-            persistent-hint
-            variant="tonal">
-          <v-row class="px-5 py-1" align="center" justify="center">
-            <v-col cols="auto"><v-icon>mdi-magnify</v-icon></v-col>
-            <v-col cols="auto" class="opacity-50 w-75 singe-line" v-if="!xs">
-              {{ t('search.placeholder') }}
-            </v-col>
-          </v-row>
-        </v-card>
-      </GlobalSearchTopWindowWidget>
+      <div class="mr-3 d-flex align-center">
+        <HeaderAccount type="header"></HeaderAccount>
 
-      <v-spacer></v-spacer>
+        <v-divider  class="ml-3 mr-1" inset vertical></v-divider>
 
-      <HeaderAccount type="header"></HeaderAccount>
+        <GlobalSearchTopWindowWidget>
+          <v-btn icon="mdi-magnify"></v-btn>
+        </GlobalSearchTopWindowWidget>
 
-      <v-btn to="/setting" icon="mdi-cog"></v-btn>
+        <v-btn to="/setting" icon="mdi-cog"></v-btn>
 
-      <HeaderMuenFunWidget></HeaderMuenFunWidget>
+        <HeaderMuenFunWidget></HeaderMuenFunWidget>
+      </div>
     </v-app-bar>
 
     <v-navigation-drawer

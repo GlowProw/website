@@ -652,11 +652,23 @@ const routes: Readonly<RouteRecordRaw[]> = [
             keywords: 'calendar.meta.keywords'
         },
         component: CalendarPage,
-        redirect: '/calendar/history',
+        redirect: to => {
+            return '/calendar/shatteredSeas/';
+        },
         children: [
             {
                 path: 'history',
-                name: 'CalendarHistory',
+                name: 'CalendarHistoryDefault',
+                component: CalendarHistoryPage,
+            },
+            {
+                path: ':seasonId',
+                name: 'CalendarCurrentSeason',
+                component: CalendarHistoryPage,
+            },
+            {
+                path: ':seasonId/history',
+                name: 'CalendarHistorySeason',
                 component: CalendarHistoryPage,
             }
         ]

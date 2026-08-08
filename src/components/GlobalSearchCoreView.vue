@@ -2,7 +2,7 @@
 import {computed, onMounted, onUnmounted, Ref, ref, useSlots, watch} from "vue";
 import {useSearchWorkerService} from "@/assets/sripts/search_worker_service";
 
-import {Commodity, Cosmetic, Cosmetics, Item, Items, MapLocations, Material, Materials, Modification, Modifications, Ships, Ultimate} from "glow-prow-data";
+import {Commodity, Cosmetic, Item, Material, Modification, Ultimate} from "glow-prow-data";
 
 import {useI18n} from "vue-i18n";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
@@ -29,14 +29,10 @@ import {useRoute, useRouter} from "vue-router";
 import {advanced_search} from '@/assets/sripts/advanced_search';
 import {AdvancedQueryParser} from '@/assets/sripts/advanced_query_parser';
 import {storage, storage_account} from "@/assets/sripts/index";
-import {Commodities} from "glow-prow-data/src/entity/Commodities";
-import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
 import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
 import ShipName from "@/components/snbWidget/shipName.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
-import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
-import ItemMaterials from "@/components/snbWidget/itemMaterials.vue";
-import {logError, ERROR_CODES} from "@/assets/sripts/error_logger";
+import {ERROR_CODES, logError} from "@/assets/sripts/error_logger";
 
 const {t, messages, locale} = useI18n(),
     os = useOS(),
@@ -356,7 +352,7 @@ defineOptions({
 </script>
 
 <template>
-  <v-card elevation="0" class="bg-transparent pa-3">
+  <v-card elevation="0" class="bg-transparent">
     <v-row class="mb-0" no-gutters align="center">
       <v-col cols="auto" class="font-weight-bold text-h5">
         <v-icon>mdi-magnify</v-icon>
@@ -455,6 +451,7 @@ defineOptions({
     </v-row>
 
     <v-row>
+
       <!-- 搜索输入框 S -->
       <v-col cols="12">
         <v-text-field
@@ -548,7 +545,7 @@ defineOptions({
         </div>
 
         <div class="mt-3">
-          <p>{{ t('search.tips.advanced', { example: 'name:item_name id:id1 category:ship type:ships' }) }}</p>
+          <p>{{ t('search.tips.advanced', {example: 'name:item_name id:id1 category:ship type:ships'}) }}</p>
 
           <ul class="mt-5 text-caption text-grey ml-4">
             <li>{{ t('search.tips.fuzzy') }}: <u>id=id1</u> · <u>id>=id1</u> · <u>id&lt;=id1</u> · <u>id&lt; id1 </u> · <u>id>id1</u></li>
@@ -562,6 +559,8 @@ defineOptions({
           </ul>
         </div>
       </v-col>
+
+      <!-------------------------------->
 
       <!-- 搜索结果 Tabs S -->
       <v-col cols="12" class="mb-0 pb-0">
@@ -651,7 +650,7 @@ defineOptions({
                     </template>
                   </v-list-item-title>
                   <v-list-item-subtitle>
-                    {{i.id}}
+                    {{ i.id }}
                   </v-list-item-subtitle>
 
                   <template v-slot:append>
@@ -679,7 +678,6 @@ defineOptions({
         {{ t('search.noResults') }}
       </v-col>
       <!-- 搜索结果 E -->
-
     </v-row>
   </v-card>
 </template>

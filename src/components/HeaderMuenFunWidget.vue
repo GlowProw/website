@@ -17,9 +17,7 @@ let show = ref(false)
              interactive
              open-on-click>
     <template v-slot:activator="{props}">
-      <v-btn icon v-bind="props" density="comfortable" class="mr-3">
-        <v-icon icon="mdi-apps"></v-icon>
-      </v-btn>
+      <v-btn icon="mdi-apps" v-bind="props"></v-btn>
     </template>
     <v-card class="pt-10 pb-10 pl-4 pr-4" :width="mobile ? '100%' : 450" max-width="520" border>
       <v-row justify="center" no-gutters>

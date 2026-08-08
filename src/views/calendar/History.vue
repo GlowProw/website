@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
+import {useRoute, useRouter} from "vue-router";
 import {Seasons} from "glow-prow-data";
 import {apis, http, time} from "@/assets/sripts";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
@@ -15,23 +16,34 @@ import CalendarEventSLotWidget from "@/components/snbWidget/calendarEventSLotWid
 import HorizontalScrollList from "@/components/HorizontalScrollList.vue";
 import Silk from "@/components/Silk.vue";
 import AdsWidget from "@/components/ads/google/index.vue";
+import EmptyView from "@/components/EmptyView.vue";
+import AffixContainerView from "@/components/AffixContainerView.vue";
 
 const {t, te} = useI18n()
 const {asString} = useI18nUtils()
 const notice = useNoticeStore()
+const route = useRoute()
+const router = useRouter()
 
 const seasons = Seasons;
 const selectSeasonsList: any = ref<Array<{ id: string; label: string }>>([])
-const selectSeasonsValue: any = ref<Season | null>(null)
+const selectSeasonsValue: any = ref<any>(null)
 const calendarLoading: any = ref(false)
 const formattedCalendar: any = ref<FormattedCalendar>({})
 const seasonsCalendarEvents: any = ref<CalendarData | null>(null)
 const currentlySeason: any = ref<Season | null>(null)
 
-const remainingDays = computed(() => {
-  if (!selectSeasonsValue.value || !seasons[selectSeasonsValue.value.id]) return 0;
+const selectedSeasonId = computed(() => {
+  if (!selectSeasonsValue.value) return '';
+  if (typeof selectSeasonsValue.value === 'object') return selectSeasonsValue.value.id || '';
+  return String(selectSeasonsValue.value);
+});
 
-  const targetDate = seasons[selectSeasonsValue.value.id].endDate;
+const remainingDays = computed(() => {
+  const sId = selectedSeasonId.value;
+  if (!sId || !seasons[sId]) return 0;
+
+  const targetDate = seasons[sId].endDate;
   const endDate = new Date(targetDate)
 
   if (isNaN(endDate.getTime())) {
@@ -43,31 +55,71 @@ const remainingDays = computed(() => {
 })
 
 const currentSeasonName = computed(() => {
-  if (!selectSeasonsValue.value) return t('calendar.common.na')
-  return t(`snb.seasons.${selectSeasonsValue.value.id}`, t('calendar.common.na'))
+  const sId = selectedSeasonId.value;
+  if (!sId) return t('calendar.common.na')
+  return t(`snb.seasons.${sId}`, t('calendar.common.na'))
 })
 
 const seasonDescription = computed(() => {
-  if (!selectSeasonsValue.value) return '';
-  return asString([`snb.calendar.${selectSeasonsValue.value.id}.description`], {backRawKey: false}) || '';
+  const sId = selectedSeasonId.value;
+  if (!sId) return '';
+  return asString([`snb.calendar.${sId}.description`], {backRawKey: false}) || '';
 })
+
+const hasCalendarEvents = computed(() => {
+  if (!formattedCalendar.value) return false;
+  const monthKeys = Object.keys(formattedCalendar.value);
+  if (monthKeys.length === 0) return false;
+  return monthKeys.some(key => formattedCalendar.value[key]?.eventCount > 0);
+});
+
+const getSeasonIdFromRoute = (): string | null => {
+  if (route.params.seasonId) {
+    return String(route.params.seasonId);
+  }
+  const match = route.path.match(/\/calendar\/([^/]+)/);
+  if (match && match[1] && match[1] !== 'history') {
+    return match[1];
+  }
+  return null;
+};
 
 onMounted(async () => {
   await initCalendar()
 })
 
+watch(() => route.params.seasonId, (newSeasonId) => {
+  if (newSeasonId && seasons[newSeasonId as string]) {
+    const sId = String(newSeasonId);
+    if (sId !== selectedSeasonId.value) {
+      selectSeasonsValue.value = sId;
+      fetchCalendarEventData(sId).then(() => {
+        initCalendarList();
+      });
+    }
+  }
+});
+
 const initCalendar = async () => {
   getCurrentSeason()
-  await fetchCalendarEventData()
   initCalendarList()
 
-  if (selectSeasonsList.value.length > 0) {
-    selectSeasonsValue.value = selectSeasonsList.value[selectSeasonsList.value.length - 1];
+  const routeSeasonId = getSeasonIdFromRoute();
+  const currentId = currentlySeason.value?.id;
+
+  if (routeSeasonId && seasons[routeSeasonId]) {
+    selectSeasonsValue.value = routeSeasonId;
+  } else if (selectSeasonsList.value.length > 0) {
+    const matched = selectSeasonsList.value.find((item: any) => item.id === currentId);
+    selectSeasonsValue.value = matched ? matched.id : selectSeasonsList.value[selectSeasonsList.value.length - 1].id;
   }
+
+  await fetchCalendarEventData(selectedSeasonId.value);
+  initCalendarList();
 };
 
 /**
- * Initialize season selection list
+ * 初始选中日历
  */
 const initCalendarList = () => {
   selectSeasonsList.value = Object.values(seasons)
@@ -82,9 +134,11 @@ const initCalendarList = () => {
       })
       .filter(season => season.id !== 'none')
 
-  // Initialize calendar list
+  // 初始列表
   if (seasonsCalendarEvents.value) {
     formattedCalendar.value = transformCalendarData(seasonsCalendarEvents.value)
+  } else {
+    formattedCalendar.value = {}
   }
 };
 
@@ -92,6 +146,10 @@ const transformCalendarData = (calendarData: CalendarData | null): FormattedCale
   const result: FormattedCalendar | any = {};
 
   if (!calendarData?.events) return result;
+
+  const defaultYear = seasons[selectedSeasonId.value]
+    ? new Date(seasons[selectedSeasonId.value].startDate).getFullYear()
+    : new Date().getFullYear();
 
   const yearMonthMap = new Map<string, {
     year: number;
@@ -101,9 +159,9 @@ const transformCalendarData = (calendarData: CalendarData | null): FormattedCale
   }>()
 
   // Collect all involved years and months
-  Object.values(calendarData.events).forEach(event => {
-    event.occurrences.forEach((occurrence: any) => {
-      const year = occurrence.year;
+  Object.values(calendarData.events).forEach((event: any) => {
+    (event.occurrences || []).forEach((occurrence: any) => {
+      const year = occurrence.year || defaultYear;
       const month = occurrence.month;
       const key = `${year}-${month}`;
 
@@ -141,14 +199,17 @@ const transformCalendarData = (calendarData: CalendarData | null): FormattedCale
 
   // Process each event
   Object.values(calendarData.events).forEach((event: any) => {
-    const sortedOccurrences = event.occurrences.sort((a: any, b: any) => {
-      const dateA = new Date(a.year, a.month - 1, a.day)
-      const dateB = new Date(b.year, b.month - 1, b.day)
+    const sortedOccurrences = [...(event.occurrences || [])].sort((a: any, b: any) => {
+      const yearA = a.year || defaultYear;
+      const yearB = b.year || defaultYear;
+      const dateA = new Date(yearA, a.month - 1, a.day)
+      const dateB = new Date(yearB, b.month - 1, b.day)
       return dateA.getTime() - dateB.getTime()
     })
 
     sortedOccurrences.forEach((occurrence: any) => {
-      const monthKey = `${occurrence.year}-${occurrence.month}`;
+      const year = occurrence.year || defaultYear;
+      const monthKey = `${year}-${occurrence.month}`;
       const startDay = occurrence.day;
 
       if (!result[monthKey]) return;
@@ -168,7 +229,7 @@ const transformCalendarData = (calendarData: CalendarData | null): FormattedCale
             duration: event.duration,
             droppeds: event.droppeds,
             isStart: day === startDay,
-            year: occurrence.year,
+            year: year,
             month: occurrence.month,
             startDay: startDay
           })
@@ -180,18 +241,27 @@ const transformCalendarData = (calendarData: CalendarData | null): FormattedCale
   return result;
 };
 
+/**
+ * 读区日历事件
+ * @param seasonId
+ */
 const fetchCalendarEventData = async (seasonId?: string) => {
   try {
-    const targetSeasonId = seasonId || currentlySeason.value?.id;
+    const targetSeasonId = seasonId || selectedSeasonId.value || currentlySeason.value?.id;
     if (!targetSeasonId) return;
 
     calendarLoading.value = true;
     const result = await apis.calendarApi().get(targetSeasonId)
 
-    if (result.data?.data) {
+    if (result && result.data && result.data.data && Object.keys(result.data.data).length > 0) {
       seasonsCalendarEvents.value = result.data.data;
+    } else {
+      seasonsCalendarEvents.value = null;
+      formattedCalendar.value = {};
     }
   } catch (error) {
+    seasonsCalendarEvents.value = null;
+    formattedCalendar.value = {};
     if (error instanceof ApiError) {
       notice.error(t(`basic.tips.${error.code}`, {context: error.code}))
     } else {
@@ -203,6 +273,9 @@ const fetchCalendarEventData = async (seasonId?: string) => {
   }
 };
 
+/**
+ * 获取当前赛季
+ */
 const getCurrentSeason = (): Season | null => {
   const currentDate = new Date()
   const currentTime = currentDate.getTime()
@@ -221,12 +294,36 @@ const getCurrentSeason = (): Season | null => {
   return null;
 };
 
-const updateSelectedSeason = (season: { id: string; label: string }) => {
-  fetchCalendarEventData(season.id).then(() => {
-    initCalendarList()
-  })
+/**
+ * 更新选择赛季
+ * @param season
+ */
+const updateSelectedSeason = (season: any) => {
+  const seasonId = typeof season === 'object' ? season?.id : season;
+  if (!seasonId) return;
+
+  selectSeasonsValue.value = seasonId;
+
+  const currentId = currentlySeason.value?.id || 'shatteredSeas';
+  const targetPath = seasonId === currentId
+    ? `/calendar/${seasonId}/`
+    : `/calendar/${seasonId}/history`;
+
+  if (route.path !== targetPath) {
+    router.push(targetPath);
+  }
+
+  fetchCalendarEventData(seasonId).then(() => {
+    initCalendarList();
+  });
 };
 
+/**
+ * 订阅日历
+ * @param type
+ * @param seasonId
+ * @param eventId
+ */
 const subscribeToCalendar = (type: 'calendar' | 'event', seasonId: string, eventId?: string) => {
   switch (type) {
     case 'calendar':
@@ -240,6 +337,12 @@ const subscribeToCalendar = (type: 'calendar' | 'event', seasonId: string, event
   }
 };
 
+/**
+ * 下载 ICS 标准文件
+ * @param url
+ * @param season
+ * @param eventId
+ */
 const openICSFile = (url: string, season: string, eventId?: string) => {
   const params = new URLSearchParams({
     language: 'zh_CN',
@@ -250,9 +353,14 @@ const openICSFile = (url: string, season: string, eventId?: string) => {
   window.open(`${http.location}calendar/${url}?${params.toString()}`)
 };
 
+/**
+ * 获取事件名称
+ * @param eventId
+ */
 const getEventName = (eventId: string) => {
-  if (!selectSeasonsValue.value) return '';
-  return t(`snb.calendar.${selectSeasonsValue.value.id}.data.${eventId}.name`, '')
+  const sId = selectedSeasonId.value;
+  if (!sId) return '';
+  return t(`snb.calendar.${sId}.data.${eventId}.name`, '')
 };
 </script>
 
@@ -291,8 +399,8 @@ const getEventName = (eventId: string) => {
               {{ t('calendar.timeRemaining', {time: remainingDays}) }}
             </span>
           </div>
-          <p class="mt-1 text-caption" v-if="selectSeasonsValue && selectSeasonsValue.id">
-            {{ selectSeasonsValue.id.toUpperCase() }}
+          <p class="mt-1 text-caption" v-if="selectedSeasonId">
+            {{ selectedSeasonId.toUpperCase() }}
           </p>
         </div>
       </v-container>
@@ -301,76 +409,79 @@ const getEventName = (eventId: string) => {
   <v-divider></v-divider>
 
   <!-- 日历 头部 S -->
-  <div class="bg-black">
-    <v-container class="py-8">
-      <v-row align="start">
-        <v-col cols="12" sm="12" lg="6">
-          <p class="opacity-80">
-            {{ seasonDescription }}
-          </p>
-        </v-col>
+  <AffixContainerView :offsetTop="55">
+    <div class="bg-black">
+      <v-container class="py-5">
+        <v-row align="start">
+          <v-col cols="12" sm="12" lg="6">
+            <p class="opacity-80">
+              {{ seasonDescription }}
+            </p>
+          </v-col>
 
-        <v-spacer></v-spacer>
+          <v-spacer></v-spacer>
 
-        <v-col cols="auto">
-          <v-btn-group size="55">
-            <v-dialog max-width="500" v-if="selectSeasonsValue">
-              <template v-slot:activator="{ props: activatorProps }">
-                <v-btn
-                    :color="`var(--main-color)`"
-                    v-bind="activatorProps"
-                    min-width="150">
-                  {{ t('calendar.button.subscribe') }}
-                </v-btn>
-              </template>
+          <v-col cols="auto">
+            <v-btn-group size="55">
+              <v-dialog max-width="500" v-if="selectedSeasonId">
+                <template v-slot:activator="{ props: activatorProps }">
+                  <v-btn
+                      :color="`var(--main-color)`"
+                      v-bind="activatorProps"
+                      min-width="150">
+                    {{ t('calendar.button.subscribe') }}
+                  </v-btn>
+                </template>
 
-              <template v-slot:default="{ isActive }">
-                <v-card :title="t('calendar.dialog.subscribeTitle', { season: currentSeasonName })">
-                  <v-card-text class="opacity-80">
-                    {{ t('calendar.dialog.subscribeDescription') }}
-                  </v-card-text>
+                <template v-slot:default="{ isActive }">
+                  <v-card :title="t('calendar.dialog.subscribeTitle', { season: currentSeasonName })">
+                    <v-card-text class="opacity-80">
+                      {{ t('calendar.dialog.subscribeDescription') }}
+                    </v-card-text>
 
-                  <div class="w-100 background-flavor pt-4 pb-4">
-                    <p class="text-amber text-h3 text-center">{{ currentSeasonName }}</p>
-                  </div>
+                    <div class="w-100 background-flavor pt-4 pb-4">
+                      <p class="text-amber text-h3 text-center">{{ currentSeasonName }}</p>
+                    </div>
 
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn
-                        :text="t('basic.button.submit')"
-                        @click="subscribeToCalendar('calendar', selectSeasonsValue.id); isActive.value = false"
-                    ></v-btn>
-                  </v-card-actions>
-                </v-card>
-              </template>
-            </v-dialog>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn
+                          :text="t('basic.button.submit')"
+                          @click="subscribeToCalendar('calendar', selectedSeasonId); isActive.value = false"
+                      ></v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </template>
+              </v-dialog>
 
-            <v-select
-                tile
-                :label="t('calendar.label.pastSeasons')"
-                variant="solo-filled"
-                density="comfortable"
-                item-value="id"
-                item-title="label"
-                min-width="150px"
-                max-width="300px"
-                @update:modelValue="updateSelectedSeason"
-                v-model="selectSeasonsValue"
-                :items="selectSeasonsList">
-            </v-select>
+              <v-select
+                  tile
+                  :label="t('calendar.label.pastSeasons')"
+                  variant="solo-filled"
+                  density="comfortable"
+                  item-value="id"
+                  item-title="label"
+                  min-width="150px"
+                  max-width="300px"
+                  @update:modelValue="updateSelectedSeason"
+                  v-model="selectSeasonsValue"
+                  :items="selectSeasonsList">
+              </v-select>
 
-            <v-divider vertical></v-divider>
+              <v-divider vertical></v-divider>
 
-            <v-btn @click="initCalendar" variant="elevated">
-              <v-icon :class="[
+              <v-btn @click="initCalendar" variant="elevated">
+                <v-icon :class="[
                 calendarLoading ?  'spin-icon-load' : ''
             ]" icon="mdi-refresh" size="20"/>
-            </v-btn>
-          </v-btn-group>
-        </v-col>
-      </v-row>
-    </v-container>
-  </div>
+              </v-btn>
+            </v-btn-group>
+          </v-col>
+        </v-row>
+      </v-container>
+      <v-divider></v-divider>
+    </div>
+  </AffixContainerView>
   <!-- 日历 头部 E -->
 
   <v-divider class="mb-5"></v-divider>
@@ -380,82 +491,90 @@ const getEventName = (eventId: string) => {
   </v-container>
 
   <!-- 日历 内容 S -->
-  <HorizontalScrollList v-if="!calendarLoading">
-    <div class="position-relative">
-      <div class="calendar-line" style="white-space: nowrap;">
-        <div v-for="(monthData, monthKey) in formattedCalendar" :key="monthKey">
-          <template v-if="monthData.eventCount > 0">
-            <v-row no-gutters align="center">
-              <v-avatar
-                  size="55"
-                  class="font-weight-bold text-h5"
-                  :color="`var(--main-color)`"
-                  style="color: hsl(from var(--main-color) h s calc(l * 0.3))"
-              >
-                {{ monthData.month }}
-              </v-avatar>
-              <v-col>
-                <v-divider :color="`var(--main-color)`" :opacity="20"></v-divider>
-              </v-col>
-            </v-row>
+  <template v-if="!calendarLoading">
+    <HorizontalScrollList v-if="hasCalendarEvents">
+      <div class="position-relative">
+        <div class="calendar-line" style="white-space: nowrap;">
+          <div v-for="(monthData, monthKey) in formattedCalendar" :key="monthKey">
+            <template v-if="monthData.eventCount > 0">
+              <v-row no-gutters align="center">
+                <v-avatar
+                    size="55"
+                    class="font-weight-bold text-h5"
+                    :color="`var(--main-color)`"
+                    style="color: hsl(from var(--main-color) h s calc(l * 0.3))"
+                >
+                  {{ monthData.month }}
+                </v-avatar>
+                <v-col>
+                  <v-divider :color="`var(--main-color)`" :opacity="20"></v-divider>
+                </v-col>
+              </v-row>
 
-            <div class="calendar-line-day">
-              <div v-for="dayData in monthData.data" :key="dayData.day">
-                <template v-if="dayData.events.length">
-                  <v-btn block class="btn-flavor mt-4 w-100 font-weight-bold text-black">
-                    {{ t('calendar.day', {day: dayData.day}) }}
-                  </v-btn>
+              <div class="calendar-line-day">
+                <div v-for="dayData in monthData.data" :key="dayData.day">
+                  <template v-if="dayData.events.length">
+                    <v-btn block class="btn-flavor mt-4 w-100 font-weight-bold text-black">
+                      {{ t('calendar.day', {day: dayData.day}) }}
+                    </v-btn>
 
-                  <div class="mr-3 pt-4">
-                    <CalendarEventSLotWidget
-                        :data="event"
-                        :currentlySeason="seasons[selectSeasonsValue?.id]"
-                        v-for="event in dayData.events"
-                        :key="`${event.id}-${event.year}-${event.month}-${event.startDay}`">
-                      <template v-slot:header-right-btn>
-                        <v-dialog max-width="500" v-if="selectSeasonsValue">
-                          <template v-slot:activator="{ props: activatorProps }">
-                            <v-btn density="compact" v-bind="activatorProps">
-                              {{ t('calendar.button.addToCalendar') }}
-                            </v-btn>
-                          </template>
+                    <div class="mr-3 pt-4">
+                      <CalendarEventSLotWidget
+                          :data="event"
+                          :currentlySeason="seasons[selectedSeasonId]"
+                          v-for="event in dayData.events"
+                          :key="`${event.id}-${event.year}-${event.month}-${event.startDay}`">
+                        <template v-slot:header-right-btn>
+                          <v-dialog max-width="500" v-if="selectedSeasonId">
+                            <template v-slot:activator="{ props: activatorProps }">
+                              <v-btn density="compact" v-bind="activatorProps">
+                                {{ t('calendar.button.addToCalendar') }}
+                              </v-btn>
+                            </template>
 
-                          <template v-slot:default="{ isActive }">
-                            <v-card :title="getEventName(event.id)">
-                              <v-card-text>
-                                {{ t('calendar.dialog.eventSubscribeQuestion', {event: getEventName(event.id)}) }}
-                              </v-card-text>
+                            <template v-slot:default="{ isActive }">
+                              <v-card :title="getEventName(event.id)">
+                                <v-card-text>
+                                  {{ t('calendar.dialog.eventSubscribeQuestion', {event: getEventName(event.id)}) }}
+                                </v-card-text>
 
-                              <div class="w-100 background-flavor pt-4 pb-4">
-                                <CalendarEventSLotWidget
-                                    class="ma-auto"
-                                    :show-dropped="false"
-                                    :data="event"
-                                    :currentlySeason="seasons[selectSeasonsValue.id]"
-                                ></CalendarEventSLotWidget>
-                              </div>
+                                <div class="w-100 background-flavor pt-4 pb-4">
+                                  <CalendarEventSLotWidget
+                                      class="ma-auto"
+                                      :show-dropped="false"
+                                      :data="event"
+                                      :currentlySeason="seasons[selectedSeasonId]"
+                                  ></CalendarEventSLotWidget>
+                                </div>
 
-                              <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn
-                                    :text="t('basic.button.submit')"
-                                    @click="subscribeToCalendar('event', selectSeasonsValue.id, event.id); isActive.value = false"
-                                ></v-btn>
-                              </v-card-actions>
-                            </v-card>
-                          </template>
-                        </v-dialog>
-                      </template>
-                    </CalendarEventSLotWidget>
-                  </div>
-                </template>
+                                <v-card-actions>
+                                  <v-spacer></v-spacer>
+                                  <v-btn
+                                      :text="t('basic.button.submit')"
+                                      @click="subscribeToCalendar('event', selectedSeasonId, event.id); isActive.value = false"
+                                  ></v-btn>
+                                </v-card-actions>
+                              </v-card>
+                            </template>
+                          </v-dialog>
+                        </template>
+                      </CalendarEventSLotWidget>
+                    </div>
+                  </template>
+                </div>
               </div>
-            </div>
-          </template>
+            </template>
+          </div>
         </div>
       </div>
-    </div>
-  </HorizontalScrollList>
+    </HorizontalScrollList>
+
+    <v-container v-else class="my-10">
+      <v-card border class="py-10 text-center bg-black">
+        <EmptyView></EmptyView>
+      </v-card>
+    </v-container>
+  </template>
   <!-- 日历 内容 E -->
 
   <v-container>
