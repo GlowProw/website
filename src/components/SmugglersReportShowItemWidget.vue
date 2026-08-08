@@ -32,7 +32,7 @@ const onProcessingData = () => {
   // todo
 
   // 每周
-  let newData = (props.data.weekly || []).map((i) => {
+  let newData = ((props.data && props.data.weekly) || []).map((i: any) => {
     const {id: key, ...o} = i
     let d = {...o}
     if (key in Items) d.data = Items[key as keyof typeof Items];

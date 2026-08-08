@@ -16,14 +16,39 @@ export default class Ws {
     private eventListeners: Partial<Record<keyof WebSocketEventMap, Function[]>> = {};
 
     public start(): void {
-        const url = this.buildWebSocketUrl()
-        console.log("WebSocket connecting to:", url)
-        this.socket = new WebSocket(url)
-        this.setupEventHandlers()
+        if (this.socket && (this.socket.readyState === WebSocket.CONNECTING || this.socket.readyState === WebSocket.OPEN)) {
+            console.log("WebSocket already connected or connecting");
+            return;
+        }
+
+        try {
+            const url = this.buildWebSocketUrl();
+            console.log("WebSocket connecting to:", url);
+            this.socket = new WebSocket(url);
+            this.setupEventHandlers();
+        } catch (e) {
+            console.error("WebSocket connection error:", e);
+            this.isConnected = false;
+            this.emit('error', e as any);
+        }
     }
 
     private buildWebSocketUrl(): string {
-        return `${http.globalUrl.wsProtocol}://${http.host}:${http.globalUrl.wsPort || ''}${http.globalUrl.wsPathname || ''}`;
+        try {
+            const globalUrl = http.globalUrl || {};
+            const protocol = globalUrl.wsProtocol || (window.location.protocol === 'https:' ? 'wss' : 'ws');
+            const host = globalUrl.wsHost || globalUrl.host || window.location.hostname;
+            const wsPort = (globalUrl.wsPort !== undefined && globalUrl.wsPort !== null && globalUrl.wsPort !== '') 
+                ? globalUrl.wsPort 
+                : globalUrl.port;
+            const portStr = (wsPort !== undefined && wsPort !== null && wsPort !== '') ? `:${wsPort}` : '';
+            const pathname = globalUrl.wsPathname !== undefined ? globalUrl.wsPathname : '';
+
+            return `${protocol}://${host}${portStr}${pathname}`;
+        } catch (e) {
+            const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+            return `${protocol}://${window.location.host}/ws`;
+        }
     }
 
     private setupEventHandlers(callback?: (result: { code: number }) => void): void {
@@ -137,7 +162,10 @@ export default class Ws {
 
     // 关闭连接
     public close(code?: number, reason?: string): void {
-        if (this.socket)
-            this.socket.close(code, reason)
+        this.isConnected = false;
+        if (this.socket) {
+            this.socket.close(code, reason);
+            this.socket = undefined;
+        }
     }
 }

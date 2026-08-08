@@ -315,6 +315,7 @@
         "anonymous": {
           "rateLimit": "匿名发布过快，请{remainingTime}小时稍后再试"
         },
+        "duplicateContent": "内容与上一条重复，无法重复发布",
         "pushSuccess": "发布成功",
         "newTeamUp": "船长，有新组队",
         "authFailed": "Token 无效或已过期, 重新登陆",
@@ -1111,15 +1112,44 @@
   },
   "teamUp": {
     "title": "组队搜寻",
+    "pushBtn": "发布组队",
+    "deleteBtn": "删除",
+    "deleteSuccess": "取消发布成功",
+    "expiresLabel": "剩余喇叭时间",
+    "hornValidTimeTooltip": "该喇叭有效显示时间",
+    "expired": "已到期",
+    "copyPlayerBtn": "复制",
+    "copyPlayerSuccess": "复制成功",
+    "copyPlayerHint": "复制 {player}，游戏内添加好友",
     "emptyPlayer": "无",
     "emptyUsername": "匿名船长",
     "emptyDescription": "这个人很懒，什么都没写",
-    "copyPlayerBtn": "复制",
-    "copyPlayerSuccess": "复制成功",
     "pushLoginInfo": "👋 {username}, 组建舰队吧，起航！",
+    "wsTimeoutTip": "WebSocket 订阅已达到 20 分钟上限，已自动断开以节省资源。刷新列表或点击重连可重新订阅。",
+    "reconnectFailed": "重连依旧失败",
+    "rules": {
+      "playerRequired": "请输入玩家 ID",
+      "descriptionRequired": "请输入内容描述",
+      "descriptionLength": "内容长度需在 3 至 300 个字符之间"
+    },
+    "service": {
+      "normal": "服务正常",
+      "disconnected": "服务断开",
+      "unsubscribed": "服务未订阅",
+      "reconnect": "重连",
+      "connect": "连接",
+      "tooltip": "此服务向服务器订阅事件，当收到信息则自动更新列表"
+    },
+    "filter": {
+      "sortLabel": "排序",
+      "sortByRecent": "最近发布 (默认)",
+      "sortByExpires": "按即将过期"
+    },
     "form": {
       "player": "玩家id",
       "time": "愿意等待时间",
+      "tagsLabel": "标签",
+      "publishBtn": "发布",
       "descriptionPlaceholder": "组队描述，也可以放置你的语音频道"
     },
     "time": {

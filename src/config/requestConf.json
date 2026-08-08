@@ -8,7 +8,7 @@
       "host": "127.0.0.1",
       "wsHost": "127.0.0.1",
       "port": "3000",
-      "wsPort": "3001",
+      "wsPort": "3000",
       "pathname": "/api/",
       "wsPathname": "/"
     },
@@ -18,7 +18,7 @@
       "host": "snb-tool.api.cabbagelol.net",
       "wsHost": "snb-tool.api.cabbagelol.net",
       "port": "3000",
-      "wsPort": "3001",
+      "wsPort": "",
       "pathname": "/api/",
       "wsPathname": "/ws/"
     }

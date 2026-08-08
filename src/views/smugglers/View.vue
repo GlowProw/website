@@ -65,10 +65,21 @@ const getSmugglersData = async () => {
     browseLoading.value = true
 
     const result = await apis.smugglersApi().getRangeTimeReport(),
-        d = result.data;
+        d = result?.data;
 
-    smugglersData.value = d.data[0];
-    await getSmugglersComment(smugglersData.value.id)
+    if (d && d.data) {
+      if (Array.isArray(d.data)) {
+        smugglersData.value = d.data[0] || {};
+      } else {
+        smugglersData.value = d.data || {};
+      }
+    } else {
+      smugglersData.value = {};
+    }
+
+    if (smugglersData.value && smugglersData.value.id) {
+      await getSmugglersComment(smugglersData.value.id);
+    }
   } catch (e) {
     handleApiError(e, notice, t, { component: 'SmugglersView' })
   } finally {
@@ -86,9 +97,9 @@ const getSmugglersComment = async (reportId: string) => {
     browseLoading.value = true
 
     const result = await apis.smugglersApi().getReportComments(reportId),
-        d = result.data;
+        d = result?.data;
 
-    commentData.value = d.data.data;
+    commentData.value = d?.data?.data || [];
   } catch (e) {
     handleApiError(e, notice, t, { component: 'SmugglersView' })
   } finally {

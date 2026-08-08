@@ -39,9 +39,12 @@ export const appNavs = new _AppNavs()
 export const rarity = new _Rarity()
 export const assemblyViewConfig = new _AssemblyViewConfig()
 
+export { getBrowserFingerprint } from './fingerprint';
+
 export default {
     apis, conf, ws, http,
     storage, storage_capacity_monitor, storage_account, storage_ads, storageIntermediateTransfer, storageCollect,
     sessionUserInfo,
     time, number, appApps, appFuns, appNavs, rarity, assemblyViewConfig
 };
+

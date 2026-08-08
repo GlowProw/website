@@ -14,7 +14,7 @@ export default class Config {
                 "wsProtocol": "ws",
                 "host": "localhost",
                 "port": "3000",
-                "wsPort": "3001",
+                "wsPort": "3000",
                 "pathname": "/api/",
                 "wsPathname": "",
             },

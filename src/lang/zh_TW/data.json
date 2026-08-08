@@ -219,7 +219,8 @@
         "anonymous": {
           "rateLimit": "匿名发布过快，请{remainingTime}小时稍后再试"
         },
-        "pushSuccess": "发布成功",
+        "duplicateContent": "內容與上一條重複，無法重複發佈",
+        "pushSuccess": "發佈成功",
         "newTeamUp": "船长，有新组队",
         "authFailed": "Token 无效或已过期, 重新登陆",
         "error": "通信错误: {context}"
@@ -801,30 +802,59 @@
     }
   },
   "teamUp": {
-    "title": "组队搜寻",
-    "emptyPlayer": "无",
-    "emptyUsername": "匿名船长",
-    "emptyDescription": "这个人很懒，什么都没写",
-    "copyPlayerBtn": "复制",
-    "copyPlayerSuccess": "复制成功",
-    "pushLoginInfo": "👋 {username}, 组建舰队吧，起航！",
+    "title": "組隊搜尋",
+    "pushBtn": "發佈組隊",
+    "deleteBtn": "刪除",
+    "deleteSuccess": "取消發佈成功",
+    "expiresLabel": "剩餘喇叭時間",
+    "hornValidTimeTooltip": "該喇叭有效顯示時間",
+    "expired": "已到期",
+    "copyPlayerBtn": "複製",
+    "copyPlayerSuccess": "複製成功",
+    "copyPlayerHint": "複製 {player}，遊戲內新增好友",
+    "emptyPlayer": "無",
+    "emptyUsername": "匿名船長",
+    "emptyDescription": "這個人很懶，什麼都沒寫",
+    "pushLoginInfo": "👋 {username}, 組建艦隊吧，起航！",
+    "wsTimeoutTip": "WebSocket 訂閱已達到 20 分鐘上限，已自動斷開以節省資源。重新整理列表或點擊重連可重新訂閱。",
+    "reconnectFailed": "重連依舊失敗",
+    "rules": {
+      "playerRequired": "請輸入玩家 ID",
+      "descriptionRequired": "請輸入內容描述",
+      "descriptionLength": "內容長度需在 3 至 300 個字元之間"
+    },
+    "service": {
+      "normal": "服務正常",
+      "disconnected": "服務斷開",
+      "unsubscribed": "服務未訂閱",
+      "reconnect": "重連",
+      "connect": "連接",
+      "tooltip": "此服務向伺服器訂閱事件，當收到訊息則自動更新列表"
+    },
+    "filter": {
+      "sortLabel": "排序",
+      "sortByRecent": "最近發佈 (預設)",
+      "sortByExpires": "按即將過期"
+    },
     "form": {
       "player": "玩家id",
-      "time": "愿意等待时间",
-      "descriptionPlaceholder": "组队描述，也可以放置你的语音频道"
+      "time": "願意等待時間",
+      "tagsLabel": "標籤",
+      "publishBtn": "發佈",
+      "descriptionPlaceholder": "組隊描述，也可以放置你的語音頻道"
     },
     "time": {
-      "minutes": "{count}分钟",
+      "minutes": "{count}分鐘",
       "day": "{count}天"
     },
     "tags": {
       "pve": "生存",
-      "pvp": "玩家战斗",
-      "timeWander": "世界游荡",
-      "plotTask": "剧情任务",
-      "sideQuest": "支线任务",
-      "reward": "悬赏",
-      "fortressRaiding": "要塞掠夺",
+      "pvp": "玩家戰鬥",
+      "timeWander": "世界遊蕩",
+      "plotTask": "劇情任務",
+      "sideQuest": "支線任務",
+      "reward": "懸賞",
+      "fortressRaiding": "要塞掠奪",
       "transaction": "物品交易",
       "other": "其他"
     }
