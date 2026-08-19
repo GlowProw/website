@@ -1007,11 +1007,26 @@
       "invalidDate": "无效的日期",
       "fetchFailed": "获取日历数据失败"
     },
-    "day": "{day}日"
+    "day": "{day}日",
+    "viewMode": {
+      "compact": "简约模式",
+      "detailed": "详细模式"
+    }
   },
   "map": {
     "title": "地图",
     "description": "所有地图物品清单",
+    "contextMenu": {
+      "openDetail": "打开详情",
+      "addMarker": "在此添加标记",
+      "copyCoordinates": "复制坐标",
+      "copyLocationLink": "复制当前位置链接",
+      "copiedCoordinatesTip": "坐标已复制到剪贴板",
+      "copiedLinkTip": "位置链接已复制到剪贴板",
+      "editBounds": "编辑地图边界",
+      "stopEditBounds": "停止编辑边界",
+      "fitBoundsToViewport": "将边界定位至当前视口"
+    },
     "searchPlaceholder": "搜索地标",
     "treasureMapAvailable": "可用藏宝图",
     "npcAvailable": "NPC's",

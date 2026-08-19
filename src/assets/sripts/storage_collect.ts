@@ -37,6 +37,10 @@ export class StorageCollect {
         }
     }
 
+    /**
+     * 批量获取收藏项目列表
+     * @param type
+     */
     gets(type: StorageCollectType | string) {
         try {
             const d = storage.local.get(this.NAME + type)
@@ -81,10 +85,10 @@ export class StorageCollect {
             const currentItems = d.data?.value || {}
             const currentCount = Object.keys(currentItems).length
 
-            // If adding new item (no _uid provided) and at max capacity
+            // 若为新增项目（未提供 _uid）且已达到最大容量
             if (!_uid && currentCount >= this.MAX_COUNT) {
                 return {
-                    code: -2, // Special code for max capacity reached
+                    code: -2, // 达到最大容量时的特定错误码
                     count: currentCount,
                     maxCount: this.MAX_COUNT
                 }

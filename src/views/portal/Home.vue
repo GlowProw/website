@@ -63,7 +63,7 @@ const getCurrentSeason = (): Season | null => {
           <video autoplay playsinline
                  class="card-enlargement-flavor"
                  muted loop type="video/mp4"
-                 src="@/assets/videos/shatteredSeas.webm"></video>
+                 src="@/assets/videos/crimsonWaters.webm"></video>
         </div>
       </template>
 
@@ -200,7 +200,7 @@ const getCurrentSeason = (): Season | null => {
 
 <style scoped lang="less">
 .portal-banner {
-  min-height: 600px;
+  min-height: 700px;
   position: relative;
   overflow: hidden;
 
@@ -233,7 +233,7 @@ const getCurrentSeason = (): Season | null => {
       width: 100%;
       height: auto;
       transform: scale(1.01) translate(-48%, calc(-50% + 0px));
-      min-width: 110%;
+      min-width: 105%;
       min-height: 100%;
       pointer-events: visible;
     }

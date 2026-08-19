@@ -264,15 +264,7 @@ export default class AssemblyDataProcessing {
                         })
                     })
 
-                if (data.armorSlot) { // armorModification usually depends on armorSlot existing or being processed
-                     // Keeping existing logic but checking type
-                }
-                // data.armorModification might not be in AssemblyData interface?
-                // Wait, I defined AssemblyData but forgot armorModification in previous SearchReplace?
-                // Let's check AssemblyData definition I added.
-                // Yes, armorModification is missing in AssemblyData interface I added in previous step?
-                // No, I see armorSlot, but not armorModification.
-                // Wait, let me check the previous tool output for AssemblyData definition.
+                // 装甲修改模块处理
 
                 if (data.armorModification)
                     // @ts-ignore

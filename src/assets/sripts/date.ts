@@ -9,10 +9,16 @@ export default class Time {
         this.DATE = new Date()
     }
 
+    /**
+     * 获取当前时间戳
+     */
     get nowTimeStamp() {
         return this.DATE.getTime()
     }
 
+    /**
+     * 更新为最新时间对象
+     */
     update() {
         this.DATE = new Date()
         return this
@@ -25,6 +31,9 @@ export default class Time {
         return 1541260800000;
     }
 
+    /**
+     * 程序启动 Date 对象
+     */
     get appStartDate() {
         return new Date(this.appStart)
     }

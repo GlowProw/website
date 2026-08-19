@@ -434,18 +434,6 @@ const onInitEdit = () => {
               <v-icon icon="mdi-emoticon-happy-outline"></v-icon>
             </v-btn>
 
-            <!--            <v-btn-->
-            <!--                icon-->
-            <!--                class="btn mr-2"-->
-            <!--                density="compact"-->
-            <!--                elevation="0"-->
-            <!--                @click="onShip"-->
-            <!--                v-tooltip="'船'"-->
-            <!--                :disabled="isOpenShip"-->
-            <!--                v-if="toolbarAs.indexOf('ship') >= 0">-->
-            <!--              <v-icon icon="mdi-ship-wheel"></v-icon>-->
-            <!--            </v-btn>-->
-
             <FullItemRightClickMenu
                 :visible-categories="[toolbarAs.indexOf('ship') >= 0 ? 'ship' : null,'item','material','cosmetic','set', toolbarAs.indexOf('ultimate') >= 0 ? 'ultimate' : null, toolbarAs.indexOf('mod') >= 0 ? 'modification' : null]"
                 @clickMenuItem="(e) => onItem(e)">
@@ -467,30 +455,6 @@ const onInitEdit = () => {
                 </div>
               </template>
             </FullItemRightClickMenu>
-
-            <!--            <v-btn-->
-            <!--                icon-->
-            <!--                class="btn mr-2"-->
-            <!--                density="compact"-->
-            <!--                elevation="0"-->
-            <!--                @click="onMod"-->
-            <!--                v-tooltip="'模组'"-->
-            <!--                :disabled="isOpenMod"-->
-            <!--                v-if="toolbarAs.indexOf('mod') >= 0">-->
-            <!--              <v-icon icon="mdi-puzzle-outline"></v-icon>-->
-            <!--            </v-btn>-->
-
-            <!--            <v-btn-->
-            <!--                icon-->
-            <!--                class="btn mr-2"-->
-            <!--                density="compact"-->
-            <!--                elevation="0"-->
-            <!--                @click="onUltimate"-->
-            <!--                v-tooltip="'终结技能'"-->
-            <!--                :disabled="isOpenUltimate"-->
-            <!--                v-if="toolbarAs.indexOf('ultimate') >= 0">-->
-            <!--              <v-icon icon="mdi-multiplication"></v-icon>-->
-            <!--            </v-btn>-->
 
             <v-menu location="bottom right"
                     v-if="toolbarAs.indexOf('lang') >= 0">

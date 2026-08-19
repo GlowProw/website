@@ -18,6 +18,9 @@ const items = Items,
     ultimates = Ultimates,
     sets = Sets
 
+/**
+ * i18n 名称与描述数据读取 Hook
+ */
 export function useI18nReadName() {
     const {asString, asArray, sanitizeString, te, tm, t} = useI18nUtils()
     const {rt} = useI18n();

@@ -33,10 +33,12 @@ const props = withDefaults(defineProps<{
     appStore = useAppStore(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
     {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
-    {t} = useI18nUtils()
+    {t} = useI18nUtils(),
+    ships = Ships
 
 
-let shipCardData = ref<any>({
+let i = ref(null),
+    shipCardData = ref<any>({
       icon: '',
       model: false,
       panel: null
@@ -55,13 +57,25 @@ onMounted(() => {
 })
 
 const onReady = async () => {
+  i.value = ships[props.id] || null
 
   shipCardData.value.panel = null;
   shipCardData.value.model = false;
 
   shipCardData.value.icon = currentImageService.url({
-    id: props.id,
-    category: 'ships'
+    'skull-and-bones-tools': {
+      id: props.id,
+      type: i.value.size,
+      category: 'ship'
+    },
+    'glow-prow':{
+      id: props.id,
+      category: 'ships'
+    },
+    'glow-prow-zh-cn': {
+      id: props.id,
+      category: 'ships'
+    }
   });
 }
 

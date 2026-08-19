@@ -10,6 +10,10 @@ export default class AppApps {
         }
     ]
 
+    /**
+     * 根据应用 ID 获取应用数据
+     * @param id 应用 ID
+     */
     getAppData(id: string): any {
         return this.list.find((item) => item.id === id)
     }

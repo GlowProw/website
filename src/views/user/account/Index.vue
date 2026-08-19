@@ -7,6 +7,7 @@ import EmptyView from "@/components/EmptyView.vue";
 import {useRoute, useRouter} from "vue-router";
 import {onMounted, ref, watch} from "vue";
 import {useDisplay} from "vuetify/framework";
+import AffixContainerView from "@/components/AffixContainerView.vue";
 
 const authStore = useAuthStore(),
     router = useRouter(),
@@ -177,14 +178,14 @@ const onChangeMenu = (key: any) => {
             permanent
             color="var(--v-theme-background)">
           <v-list class="pa-0">
-            <v-list-item v-for="(i, index) in navs[primaryNavMenu].child" :key="index"
-                         :title="t(i.name)"
-                         :to="i.to || i.href"
-                         :target="i.target || null">
-              <template v-slot:append v-if="i.href">
-                <v-icon icon="mdi-open-in-new" size="15"></v-icon>
-              </template>
-            </v-list-item>
+              <v-list-item v-for="(i, index) in navs[primaryNavMenu].child" :key="index"
+                           :title="t(i.name)"
+                           :to="i.to || i.href"
+                           :target="i.target || null">
+                <template v-slot:append v-if="i.href">
+                  <v-icon icon="mdi-open-in-new" size="15"></v-icon>
+                </template>
+              </v-list-item>
           </v-list>
           <v-divider opacity=".05" class="mt-4 mb-4"></v-divider>
           <div class="ml-4 mr-4">

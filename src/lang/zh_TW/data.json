@@ -701,8 +701,19 @@
     "title": "日历"
   },
   "map": {
-    "title": "地图",
-    "description": "所有地图物品清单",
+    "title": "地圖",
+    "description": "所有地圖物品清單",
+    "contextMenu": {
+      "openDetail": "打開詳情",
+      "addMarker": "在此新增標記",
+      "copyCoordinates": "複製座標",
+      "copyLocationLink": "複製當前位置連結",
+      "copiedCoordinatesTip": "座標已複製到剪貼簿",
+      "copiedLinkTip": "位置連結已複製到剪貼簿",
+      "editBounds": "編輯地圖邊界",
+      "stopEditBounds": "停止編輯邊界",
+      "fitBoundsToViewport": "將邊界定位至當前視口"
+    },
     "searchPlaceholder": "搜索地标",
     "treasureMapAvailable": "可用藏宝图",
     "npcAvailable": "NPC's",

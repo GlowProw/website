@@ -94,6 +94,9 @@ export default class AppFuns {
         },
     ]
 
+    /**
+     * 获取处理后的功能列表（根据用户配置过滤）
+     */
     get list(): any[] {
         const userConfigAppfuns = this.storage.getConfigurationItem('appFun', 'config');
         const original: any[] = this.original;

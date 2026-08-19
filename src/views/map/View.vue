@@ -7,6 +7,8 @@
         :latitude="targetLatitude"
         :location-id="targetLocationId"
         :locations="locations"
+        :bounds="mapBounds"
+        :debug="isDebug"
         @map-created="onMapCreated"
     />
 
@@ -68,6 +70,14 @@
         :clicked-coordinate="clickedCoordinate"
         :is-debug="isDebug"
     />
+
+    <MapContextMenu
+        :visible="contextMenuState.visible"
+        :x="contextMenuState.x"
+        :y="contextMenuState.y"
+        :items="contextMenuItems"
+        @close="closeContextMenu"
+    />
   </div>
 </template>
 
@@ -80,6 +90,7 @@ import LocationCard from '@/components/map/LocationCard.vue';
 import CreateMarkerDialog from '@/components/map/CreateMarkerDialog.vue';
 import MapControls from '@/components/map/MapControls.vue';
 import MapFooter from '@/components/map/MapFooter.vue';
+import MapContextMenu from '@/components/map/MapContextMenu.vue';
 
 const {
   authStore,
@@ -87,6 +98,7 @@ const {
   mapInstance,
   vectorLayerRef,
   mapCenterLocation,
+  mapBounds,
   locations,
   icons,
   isFull,
@@ -149,7 +161,10 @@ const {
   onCreateFeatureFromLocation,
   _onZoomIn,
   _onZoomOut,
-  _onResetView
+  _onResetView,
+  contextMenuState,
+  contextMenuItems,
+  closeContextMenu,
 } = use_map_controller();
 </script>
 

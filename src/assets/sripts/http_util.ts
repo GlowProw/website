@@ -30,7 +30,7 @@ export function useHttpToken() {
         };
     }
 
-    // Add response interceptor to handle token expiration
+    // 添加响应拦截器处理 Token 过期
     http.HTTP.interceptors.response.use(
         (response) => response,
         (error) => {
@@ -40,19 +40,30 @@ export function useHttpToken() {
             return Promise.reject(error)
         })
 
-
+    /**
+     * 发送 POST 请求（带 Token）
+     */
     const post = (url = '', data?: { data?: {} }) => {
         return http.post(url, addHeaders(data))
     }
 
+    /**
+     * 发送 GET 请求（带 Token）
+     */
     const get = (url = '', data?: { data?: {}, params?: {} }) => {
         return http.get(url, addHeaders(data))
     }
 
+    /**
+     * 发送 PUT 请求（带 Token）
+     */
     const put = (url = '', data?: { data?: {}, params?: {} }) => {
         return http.put(url, addHeaders(data))
     }
 
+    /**
+     * 发送 DELETE 请求（带 Token）
+     */
     const del = (url = '', data?: { data?: {}, params?: {} }) => {
         return http.delete(url, addHeaders(data))
     }

@@ -70,9 +70,20 @@ const onReady = async () => {
   i.value = commodities[props.id] || null
 
   commoditiesCardData.value.icon = currentImageService.url({
-    id: props.id,
-    category: 'commodities'
-  });
+    'skull-and-bones-tools': {
+      id: `${props.id}`,
+      type: i.value.category,
+      category: 'commoditie'
+    },
+    'glow-prow': {
+      id: props.id,
+      category: 'commodities'
+    },
+    'local-test': {
+      id: props.id,
+      category: 'commodities'
+    },
+  }, 'glow-prow');
 }
 
 const {targetElement, isVisible} = useIntersectionObserver({

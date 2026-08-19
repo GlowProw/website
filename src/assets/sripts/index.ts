@@ -1,7 +1,7 @@
 /**
  * 包装器
  */
-import _Conf from './config';
+import _Conf from './api_config';
 import {Apis as _Apis} from './api';
 import _Http from './http';
 import _Ws from './ws'

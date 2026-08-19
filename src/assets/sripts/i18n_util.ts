@@ -9,6 +9,9 @@ export function useI18nUtils(manualLocale?: ComputedRef<string | undefined>) {
     const {localLocale} = use_local_locale(manualLocale)
     const {tm: rawTm, locale: globalLocale} = i18n.global;
 
+    /**
+     * 翻译指定 key 对应文本
+     */
     const t = (key: string, variable: any = null, lang?: string) => {
         const targetLocale = lang || localLocale.value;
         // 使用针对 Composer (Vue 3) 全局实例最明确的签名
@@ -18,6 +21,9 @@ export function useI18nUtils(manualLocale?: ComputedRef<string | undefined>) {
         return result;
     }
 
+    /**
+     * 检查 key 是否存在翻译
+     */
     const te = (key: string, lang?: string) => {
         const targetLocale = lang || localLocale.value;
         // @ts-ignore

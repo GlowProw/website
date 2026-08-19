@@ -2,27 +2,33 @@
 import { ref } from 'vue';
 import SearchWorker from "@/workers/search.worker.ts?worker";
 
-// Singleton state
+// 单例状态
 const searchWorker = ref<Worker | null>(null);
 const isLoading = ref(true);
 const progress = ref(0);
 const searchResult = ref<any>({});
 let initializationPromise: Promise<void> | null = null;
 
+/**
+ * 搜索 Worker 服务 Hook（单例模式）
+ */
 export const useSearchWorkerService = () => {
-    
+
+    /**
+     * 初始化搜索 Worker
+     */
     const initWorker = (messages: any, locale: string) => {
         if (searchWorker.value) {
-            // Worker already exists
+            // Worker 已存在
             return initializationPromise || Promise.resolve();
         }
 
-        // Avoid double initialization race condition
+        // 避免重复初始化的竞态条件
         if (initializationPromise) return initializationPromise;
 
         initializationPromise = new Promise((resolve, reject) => {
             const worker = new SearchWorker();
-            
+
             worker.onmessage = (e) => {
                 const { type, payload } = e.data;
                 if (type === 'progress') {
@@ -35,7 +41,7 @@ export const useSearchWorkerService = () => {
                     searchResult.value = payload;
                 } else if (type === 'error') {
                     console.error('Search worker error:', payload);
-                    isLoading.value = false; // Fallback
+                    isLoading.value = false; // 回退处理
                     reject(payload);
                 }
             };
@@ -50,10 +56,13 @@ export const useSearchWorkerService = () => {
 
             searchWorker.value = worker;
         });
-        
+
         return initializationPromise;
     };
 
+    /**
+     * 执行搜索请求
+     */
     const performSearch = (query: string, parsedQuery: any) => {
         if (!searchWorker.value || isLoading.value) return;
 
@@ -73,6 +82,9 @@ export const useSearchWorkerService = () => {
         });
     };
 
+    /**
+     * 终止 Worker 线程
+     */
     const terminateWorker = () => {
         if (searchWorker.value) {
             searchWorker.value.terminate();

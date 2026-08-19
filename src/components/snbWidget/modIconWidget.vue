@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import { use_icon_global_Style } from "@/assets/sripts/use_icon_global_Style";
+import {use_icon_global_Style} from "@/assets/sripts/use_icon_global_Style";
 
-import {computed, onMounted, ref, useSlots, watch} from "vue";
-import {useI18n} from "vue-i18n";
+import {computed, onMounted, ref, watch} from "vue";
 import Loading from "@/components/Loading.vue";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 import ModCardDetail from "@/components/snbWidget/modCardDetail.vue";
 import {useAppStore} from "~/stores/appStore";
-import {useRouter} from "vue-router";
+import {Modifications} from "glow-prow-data";
 
 const props = withDefaults(defineProps<{
       id: string,
@@ -32,11 +31,13 @@ const props = withDefaults(defineProps<{
     appStore = useAppStore(),
 
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
-    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow();
+    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
+
+    mods = Modifications
 
 
-
-let modsData = ref({
+let i = ref(null),
+    modsData = ref({
       icon: '',
       model: false,
       panel: {}
@@ -55,10 +56,21 @@ onMounted(() => {
 })
 
 const onReady = async () => {
-
+  i.value = mods[props.id]
   modsData.value.icon = currentImageService.url({
-    id: props.id,
-    category: 'modifications'
+    'skull-and-bones-tools': {
+      id: props.id,
+      type: i.value.grade,
+      category: 'modification'
+    },
+    'glow-prow': {
+      id: props.id,
+      category: 'modifications'
+    },
+    'glow-prow-zh-cn': {
+      id: props.id,
+      category: 'modifications'
+    }
   });
 }
 
@@ -66,7 +78,7 @@ defineOptions({
   name: "ModIconWidget"
 })
 
-const { useIconImagePadding, useIconImageMargin } = use_icon_global_Style();
+const {useIconImagePadding, useIconImageMargin} = use_icon_global_Style();
 const computedPadding = useIconImagePadding(props.padding);
 const computedMargin = useIconImageMargin(props.margin);
 </script>

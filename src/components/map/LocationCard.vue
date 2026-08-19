@@ -152,7 +152,7 @@
       </div>
     </template>
 
-    <template v-if="selectedLocation.possibleLoot">
+    <template v-if="hasPossibleLoot">
       <div class="map-title px-10 mx-n6 py-2 text-amber-lighten-4">
         {{ t('map.possibleLoot') }}
       </div>
@@ -253,6 +253,14 @@ const treasureMapObtainables = computed(() => {
     return [].join(',');
 
   return (mapLocationAvailableTreasureMapWidget.value as any)?.getObtainables().map(i => i.id).join(',') || [];
+});
+
+const hasPossibleLoot = computed(() => {
+  const loot = props.selectedLocation?.possibleLoot;
+  if (!loot) return false;
+  if (Array.isArray(loot)) return loot.length > 0;
+  if (typeof loot === 'object') return Object.keys(loot).length > 0;
+  return false;
 });
 
 defineOptions({ name: 'LocationCard' });

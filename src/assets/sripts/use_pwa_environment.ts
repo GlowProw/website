@@ -1,6 +1,9 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import {useAppStore} from "~/stores/appStore";
 
+/**
+ * PWA 运行环境检测 Hook
+ */
 export function usePWAEnvironment() {
     const isPWA = ref(false)
     // 显示模式: 'browser' | 'standalone' | 'fullscreen' | 'minimal-ui'

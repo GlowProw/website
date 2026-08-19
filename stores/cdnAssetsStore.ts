@@ -11,6 +11,7 @@ interface CDNAssetsService {
 
 interface CDNAssetsParams {
     id: string;
+    type?: string;
     category: string;
 
     [key: string]: string;
@@ -43,7 +44,7 @@ export const useCDNAssetsServiceStore = defineStore('cdnService', () => {
         },
         {
             name: 'skull-and-bones-tools',
-            urlTemplate: 'https://skullandbonestools.de/api/imagesservice?src=icons%2F{category}%2F{id}&width=128',
+            urlTemplate: 'https://skullandbonestools.de/api/imagesservice?src=icons%2F{category}%2F{type}%2F{id}&width=128',
             enabled: true,
             priority: 2
         },
@@ -89,8 +90,26 @@ export const useCDNAssetsServiceStore = defineStore('cdnService', () => {
         url: (params: UrlParams, forceName?: string): string => {
             // 检查是否是多服务参数
             const isMultiService = Object.keys(params).every(key =>
-                services.value.some(s => (forceName || s.name) === key)
+                services.value.some(s => s.name === key)
             );
+
+            // 当 forceName 存在时，强制使用 forceName 对应的服务及参数 key
+            if (forceName) {
+                const forcedService = services.value.find(s => s.name === forceName);
+                if (isMultiService) {
+                    const multiParams = params as MultiServiceParams;
+                    if (multiParams[forceName]) {
+                        return buildServiceUrl(forcedService || targetService.value, multiParams[forceName]);
+                    }
+                    const firstKey = Object.keys(multiParams)[0];
+                    const matchedService = services.value.find(s => s.name === firstKey) || forcedService || targetService.value;
+                    if (firstKey && multiParams[firstKey]) {
+                        return buildServiceUrl(matchedService, multiParams[firstKey]);
+                    }
+                } else {
+                    return buildServiceUrl(forcedService || targetService.value, params as CDNAssetsParams);
+                }
+            }
 
             if (isMultiService) {
                 const multiParams = params as MultiServiceParams;

@@ -1,5 +1,5 @@
 import http, {type AxiosInstance, type AxiosResponse} from 'axios';
-import Config from './config';
+import Api_config from './api_config';
 import type {GetUrlOptions, RequestOptions} from "../types/Http";
 
 export enum HttpMethod {
@@ -9,7 +9,7 @@ export enum HttpMethod {
     DELETE = 'delete'
 }
 
-export default class Http extends Config {
+export default class Http extends Api_config {
     GetUrl: GetUrlOptions = {host: "", pathname: "", port: "", protocol: "", request: "", wsHost: "", wsPathname: "", wsPort: "", wsProtocol: "", wsRequest: ""};
 
     HTTP: AxiosInstance;
@@ -17,7 +17,7 @@ export default class Http extends Config {
     constructor() {
         super()
         // @ts-ignore
-        Config.NODE = process.env.NODE_ENV || 'development';
+        Api_config.NODE = process.env.NODE_ENV || 'development';
 
         this.HTTP = http.create({
             timeout: 600000,
@@ -39,7 +39,7 @@ export default class Http extends Config {
                 throw new Error('not data')
             }
 
-            switch (Config.NODE) {
+            switch (Api_config.NODE) {
                 case 'production': // 生产
                     // @ts-ignore
                     this.GetUrl = this.CONF.child[this.CONF.requestProductionName];

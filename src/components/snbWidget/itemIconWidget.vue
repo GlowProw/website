@@ -73,9 +73,21 @@ const onReady = async () => {
 }
 
 const onSetIcon = () => {
+  if (!i.value) return
   itemsCardData.value.icon = cdnStore.currentService.url({
-    id: props.id,
-    category: 'items'
+    'skull-and-bones-tools': {
+      id: props.id,
+      type: i.value.type,
+      category: 'item'
+    },
+    'glow-prow': {
+      id: props.id,
+      category: 'items'
+    },
+    'glow-prow-zh-cn':{
+      id: props.id,
+      category: 'items'
+    }
   })
 }
 

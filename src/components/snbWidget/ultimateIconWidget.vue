@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { use_icon_global_Style } from "@/assets/sripts/use_icon_global_Style";
+import {use_icon_global_Style} from "@/assets/sripts/use_icon_global_Style";
 import {Ultimate, Ultimates} from "glow-prow-data"
 import {computed, onMounted, type Ref, ref} from "vue";
 import {useAppStore} from "~/stores/appStore";
@@ -54,8 +54,19 @@ const onReady = async () => {
   i.value = ultimatesMap[props.id] || null
 
   ultimatesData.value.icon = currentImageService.url({
-    id: props.id,
-    category: 'ultimates'
+    'skull-and-bones-tools': {
+      id: props.id,
+      type: i.value.type,
+      category: 'ultimate'
+    },
+    'glow-prow': {
+      id: props.id,
+      category: 'ultimates'
+    },
+    'glow-prow-zh-cn': {
+      id: props.id,
+      category: 'ultimates'
+    }
   })
 }
 
@@ -63,7 +74,7 @@ defineOptions({
   name: "UltimateIconWidget"
 })
 
-const { useIconImagePadding, useIconImageMargin } = use_icon_global_Style();
+const {useIconImagePadding, useIconImageMargin} = use_icon_global_Style();
 const computedPadding = useIconImagePadding(props.padding);
 const computedMargin = useIconImageMargin(props.margin);
 </script>

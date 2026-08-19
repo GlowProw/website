@@ -3,7 +3,7 @@ import {computed, onMounted, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {useRoute, useRouter} from "vue-router";
 import {Seasons} from "glow-prow-data";
-import {apis, http, time} from "@/assets/sripts";
+import {apis, http, time, storage} from "@/assets/sripts";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 
 import {Season} from "glow-prow-data/src/entity/Seasons";
@@ -32,6 +32,10 @@ const calendarLoading: any = ref(false)
 const formattedCalendar: any = ref<FormattedCalendar>({})
 const seasonsCalendarEvents: any = ref<CalendarData | null>(null)
 const currentlySeason: any = ref<Season | null>(null)
+
+const STORAGE_KEY_VIEW_MODE = 'calendar.viewMode'
+type ViewMode = 'compact' | 'detailed'
+const viewMode = ref<ViewMode>('compact')
 
 const selectedSeasonId = computed(() => {
   if (!selectSeasonsValue.value) return '';
@@ -85,6 +89,11 @@ const getSeasonIdFromRoute = (): string | null => {
 };
 
 onMounted(async () => {
+  // 从 localStorage 恢复视图模式偏好
+  const stored = storage.local.get(STORAGE_KEY_VIEW_MODE)
+  if (stored.code === 0 && (stored.data?.value === 'compact' || stored.data?.value === 'detailed')) {
+    viewMode.value = stored.data.value
+  }
   await initCalendar()
 })
 
@@ -362,6 +371,50 @@ const getEventName = (eventId: string) => {
   if (!sId) return '';
   return t(`snb.calendar.${sId}.data.${eventId}.name`, '')
 };
+
+/**
+ * 切换视图模式（简约/详细），并持久化到 localStorage
+ */
+const toggleViewMode = () => {
+  viewMode.value = viewMode.value === 'compact' ? 'detailed' : 'compact'
+  storage.local.set(STORAGE_KEY_VIEW_MODE, viewMode.value)
+};
+
+/**
+ * 简约模式日历数据：每个事件只在起始日（isStart=true）显示，跳过续集日期
+ */
+const compactCalendar = computed<FormattedCalendar>(() => {
+  const source = formattedCalendar.value
+  if (!source) return {}
+
+  const result: any = {}
+
+  for (const [monthKey, monthData] of Object.entries<any>(source)) {
+    const filteredDays = monthData.data
+      .map((dayData: any) => ({
+        ...dayData,
+        events: dayData.events.filter((e: any) => e.isStart),
+      }))
+      .filter((dayData: any) => dayData.events.length > 0)
+
+    if (filteredDays.length > 0) {
+      result[monthKey] = {
+        ...monthData,
+        data: filteredDays,
+        eventCount: filteredDays.reduce((acc: number, d: any) => acc + d.events.length, 0),
+      }
+    }
+  }
+
+  return result
+});
+
+/**
+ * 当前激活的日历数据（根据视图模式切换）
+ */
+const activeCalendar = computed<FormattedCalendar>(() =>
+  viewMode.value === 'compact' ? compactCalendar.value : formattedCalendar.value
+);
 </script>
 
 <template>
@@ -470,6 +523,21 @@ const getEventName = (eventId: string) => {
 
               <v-divider vertical></v-divider>
 
+              <v-tooltip :text="viewMode === 'compact' ? t('calendar.viewMode.compact') : t('calendar.viewMode.detailed')" location="bottom">
+                <template v-slot:activator="{ props: tooltipProps }">
+                  <v-btn
+                      v-bind="tooltipProps"
+                      @click="toggleViewMode"
+                      variant="elevated"
+                      :active="viewMode === 'detailed'"
+                  >
+                    <v-icon :icon="viewMode === 'compact' ? 'mdi-view-compact' : 'mdi-view-list'" size="20"/>
+                  </v-btn>
+                </template>
+              </v-tooltip>
+
+              <v-divider vertical></v-divider>
+
               <v-btn @click="initCalendar" variant="elevated">
                 <v-icon :class="[
                 calendarLoading ?  'spin-icon-load' : ''
@@ -495,7 +563,7 @@ const getEventName = (eventId: string) => {
     <HorizontalScrollList v-if="hasCalendarEvents">
       <div class="position-relative">
         <div class="calendar-line" style="white-space: nowrap;">
-          <div v-for="(monthData, monthKey) in formattedCalendar" :key="monthKey">
+          <div v-for="(monthData, monthKey) in activeCalendar" :key="monthKey">
             <template v-if="monthData.eventCount > 0">
               <v-row no-gutters align="center">
                 <v-avatar

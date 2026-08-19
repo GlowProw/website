@@ -68,8 +68,19 @@ const onReady = async () => {
   i.value = materials[props.id] || null
 
   materialsCardData.value.icon = currentImageService.url({
-    id: props.id,
-    category: 'materials'
+    'skull-and-bones-tools': {
+      id: props.id,
+      type: i.value.category,
+      category: 'material'
+    },
+    'glow-prow':{
+      id: props.id,
+      category: 'materials',
+    },
+    'glow-prow-zh-cn': {
+      id: props.id,
+      category: 'materials',
+    }
   })
 }
 

@@ -1,8 +1,8 @@
 /**
- * Config file
+ * 全局配置项
  */
 
-export default class Config {
+export default class Api_config {
     static NODE: {};
     CONF = {
         "requestDevelopmentName": "development",
@@ -39,6 +39,9 @@ export default class Config {
         }
     };
 
+    /**
+     * 获取配置对象
+     */
     get getConf() {
         return this.CONF;
     }

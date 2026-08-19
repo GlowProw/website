@@ -922,11 +922,26 @@
       "invalidDate": "Invalid date",
       "fetchFailed": "Failed to fetch calendar data"
     },
-    "day": "Day {day}"
+    "day": "Day {day}",
+    "viewMode": {
+      "compact": "Compact mode",
+      "detailed": "Detailed mode"
+    }
   },
   "map": {
     "title": "Map",
     "description": "Inventory of all map items",
+    "contextMenu": {
+      "openDetail": "View Details",
+      "addMarker": "Add Marker Here",
+      "copyCoordinates": "Copy Coordinates",
+      "copyLocationLink": "Copy Location Link",
+      "copiedCoordinatesTip": "Coordinates copied to clipboard",
+      "copiedLinkTip": "Location link copied to clipboard",
+      "editBounds": "Edit Map Bounds",
+      "stopEditBounds": "Stop Editing Bounds",
+      "fitBoundsToViewport": "Fit Bounds to Current Viewport"
+    },
     "searchPlaceholder": "Search Landmark",
     "treasureMapAvailable": "Available Treasure Maps",
     "npcAvailable": "NPC's",

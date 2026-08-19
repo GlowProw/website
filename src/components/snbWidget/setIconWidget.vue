@@ -64,8 +64,9 @@ const onReady = async () => {
 
   setCardData.value.icon = currentImageService.url({
     'skull-and-bones-tools': {
-      id: `${props.id}Set`,
-      category: 'vanities'
+      id: `${props.id}`,
+      type: i.value.type,
+      category: 'set'
     },
     'glow-prow': {
       id: props.id,

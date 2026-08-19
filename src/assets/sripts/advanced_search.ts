@@ -3,6 +3,9 @@ import {AdvancedQueryParser} from './advanced_query_parser';
 import {storage} from "@/assets/sripts/index";
 import {ParsedQuery, SearchCondition} from "@/assets/types/AdvancedQuery";
 
+/**
+ * 高级搜索 Hook
+ */
 export function advanced_search() {
     const searchKey = 'searchHistory'
     const searchQuery = ref('')

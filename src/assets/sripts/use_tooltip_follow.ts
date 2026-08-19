@@ -3,7 +3,7 @@ import {ref} from 'vue';
 let globalX = 0;
 let globalY = 0;
 
-// Globally track mouse position silently just to know the last valid coordinate
+// 全局静默追踪鼠标位置，获取最新的有效坐标
 if (typeof window !== 'undefined') {
     const updateGlobal = (e: MouseEvent | WheelEvent | PointerEvent) => {
         if (e.clientX !== undefined) {
@@ -15,11 +15,17 @@ if (typeof window !== 'undefined') {
     window.addEventListener('wheel', updateGlobal as EventListener, {passive: true, capture: true});
 }
 
+/**
+ * 提示框鼠标跟随 Hook
+ */
 export function useTooltipFollow() {
-    // Only local reactivity! Prevents 100+ instances from evaluating target positions simultaneously causing lag.
+    // 仅使用局部响应式！防止100+实例同时计算目标位置导致卡顿。
     const tooltipPos = ref({x: 0, y: 0});
     let ticking = false;
 
+    /**
+     * 更新提示框坐标位置
+     */
     const updatePos = (e: MouseEvent) => {
         globalX = e.clientX;
         globalY = e.clientY;
@@ -27,6 +33,9 @@ export function useTooltipFollow() {
         tooltipPos.value.y = e.clientY;
     };
 
+    /**
+     * 鼠标移动事件监听（带 rAF 防抖优化）
+     */
     const onMouseMove = (e: MouseEvent) => {
         if (!ticking) {
             requestAnimationFrame(() => {
@@ -37,6 +46,9 @@ export function useTooltipFollow() {
         }
     };
 
+    /**
+     * 鼠标移入事件监听
+     */
     const onMouseEnter = (e: MouseEvent) => {
         updatePos(e);
     };
