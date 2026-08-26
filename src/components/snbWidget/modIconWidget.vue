@@ -70,7 +70,11 @@ const onReady = async () => {
     'glow-prow-zh-cn': {
       id: props.id,
       category: 'modifications'
-    }
+    },
+    'local-test': {
+      id: props.id,
+      category: 'modifications'
+    },
   });
 }
 

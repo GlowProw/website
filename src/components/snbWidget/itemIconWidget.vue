@@ -82,13 +82,18 @@ const onSetIcon = () => {
     },
     'glow-prow': {
       id: props.id,
-      category: 'items'
+      category: i.value.type || 'AUTO_items'
     },
     'glow-prow-zh-cn':{
       id: props.id,
-      category: 'items'
-    }
+      category: i.value.type || 'AUTO_items'
+    },
+    'local-test': {
+      id: props.id,
+      category: i.value.type || 'AUTO_items'
+    },
   })
+  console.log(i.value.type)
 }
 
 watch(() => cdnStore.selectedService, (newValue, oldValue) => {

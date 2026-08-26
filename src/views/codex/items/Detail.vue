@@ -125,7 +125,9 @@ const onReady = () => {
 
   const imageUrl = cdnStore.currentService.url({
     id: id as string,
-    category: 'items'
+    // 优先传 item 的具体类型，后端可直接命中精确路径（1次请求）
+    // 兜底使用 'items'（后端会并行竞速 13 条路径）
+    category: itemDetailData.value?.type || 'AUTO_items'
   });
 
   head.value.meta = [

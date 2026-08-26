@@ -101,7 +101,7 @@ const filterByObtainable = (items: any[], targetId: string) => {
 const onSetIcon = () => {
   itemsCardData.value.icon = cdnStore.currentService.url({
     id: props.id,
-    category: 'items'
+    category: i.value?.type || 'items'
   })
 }
 
