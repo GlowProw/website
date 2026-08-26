@@ -2,6 +2,7 @@
 
 import ItemName from "@/components/snbWidget/itemName.vue";
 import {computed, useSlots} from "vue";
+import {useRoute} from "vue-router";
 import {Commodity, Cosmetic, Cosmetics, Item, Items, MapLocation, Material, Npc, TreasureMap} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 import EmptyView from "@/components/EmptyView.vue";
@@ -20,7 +21,11 @@ const props = withDefaults(
     {asString, sanitizeString} = useI18nUtils(),
     slots = useSlots(),
     items = Items,
-    cosmetics = Cosmetics
+    cosmetics = Cosmetics,
+    route = useRoute()
+
+/** 判断当前路由是否在 widgets/ 路径下 */
+const isWidgetRoute = computed(() => route.path.startsWith('/widgets/'))
 
 let obtainable = computed(() => {
       return filterByObtainable(props.data)
@@ -161,7 +166,7 @@ defineOptions({
           </v-card>
         </template>
         <template v-slot:activator="{props}">
-          <div class="d-flex align-center singe-line w-100 multiline-chip blueprint-item" v-bind="props">
+          <div class="d-flex align-center blueprint-item" :class="{ 'is-widget': isWidgetRoute }" v-bind="props">
             <ItemSlotBase size="26px" class="mr-1" v-if="o && o.type=='Item'">
               <ItemIconWidget :margin="0" :id="o.id" :is-open-new-window="false" :is-open-detail="false" :is-show-open-detail="false"></ItemIconWidget>
             </ItemSlotBase>
@@ -174,7 +179,7 @@ defineOptions({
               <v-icon icon="mdi-open-in-new" class="ml-1 opacity-60"/>
             </template>
             <template v-else>
-              <div class="singe-line w-100 multiline-chip obtainable-item">
+              <div class="obtainable-item" :class="{ 'no-limit': isWidgetRoute }">
                 {{ getChipText(o) }}
               </div>
             </template>
@@ -191,5 +196,15 @@ defineOptions({
 
 .obtainable-item {
   max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &.no-limit {
+    max-width: unset;
+    overflow: visible;
+    text-overflow: unset;
+    white-space: normal;
+  }
 }
 </style>
