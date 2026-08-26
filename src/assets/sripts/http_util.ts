@@ -2,76 +2,72 @@
  * extends http
  * 用于需要token请求
  */
-import {useAuthStore} from "~/stores/userAccountStore";
-import {http} from "./index";
+import { useAuthStore } from "~/stores/userAccountStore";
+import { http } from "./index";
+
+interface UseHttpOptions {
+    /** 是否携带 token */
+    withToken?: boolean;
+}
 
 /**
- * 带身份信息请求
+ * 基本请求
+ * @param options
  */
-export function useHttpToken() {
-    const authStore = useAuthStore()
+export function useHttp(options: UseHttpOptions = {}) {
+    const { withToken = false } = options;
+    const authStore = useAuthStore();
 
-    /**
-     * token & lang headers
-     */
     const addHeaders = (data: any) => {
-        const headers = data?.headers || {}
+        const headers = data?.headers || {};
 
-        if (authStore.user && authStore.user.token) {
-            const token = authStore.user.token;
-            if (token != null && token !== '') {
+        if (withToken) {
+            const token = authStore.user?.token;
+            if (token && token !== '') {
                 headers['x-access-token'] = token;
             }
         }
 
         return {
             ...data,
-            headers
+            headers,
         };
-    }
+    };
 
-    // 添加响应拦截器处理 Token 过期
+    // 响应拦截器只注册一次（避免重复注册）
+    // 建议移到 http 实例初始化处，而不是放在这里
     http.HTTP.interceptors.response.use(
         (response) => response,
         (error) => {
-            if (error.response && error.response.data && error.response.data.code === 'user.tokenExpired') {
-                authStore.logout()
+            if (error.response?.data?.code === 'user.tokenExpired') {
+                authStore.logout();
             }
-            return Promise.reject(error)
-        })
+            return Promise.reject(error);
+        }
+    );
 
-    /**
-     * 发送 POST 请求（带 Token）
-     */
     const post = (url = '', data?: { data?: {} }) => {
-        return http.post(url, addHeaders(data))
-    }
+        return http.post(url, addHeaders(data));
+    };
 
-    /**
-     * 发送 GET 请求（带 Token）
-     */
     const get = (url = '', data?: { data?: {}, params?: {} }) => {
-        return http.get(url, addHeaders(data))
-    }
+        return http.get(url, addHeaders(data));
+    };
 
-    /**
-     * 发送 PUT 请求（带 Token）
-     */
     const put = (url = '', data?: { data?: {}, params?: {} }) => {
-        return http.put(url, addHeaders(data))
-    }
+        return http.put(url, addHeaders(data));
+    };
 
-    /**
-     * 发送 DELETE 请求（带 Token）
-     */
     const del = (url = '', data?: { data?: {}, params?: {} }) => {
-        return http.delete(url, addHeaders(data))
-    }
+        return http.delete(url, addHeaders(data));
+    };
 
-    return {
-        post,
-        get,
-        put,
-        del
-    }
+    return { post, get, put, del };
+}
+
+/**
+ * 携带身份令牌请求
+ */
+export function useHttpToken() {
+    return useHttp({ withToken: true });
 }
