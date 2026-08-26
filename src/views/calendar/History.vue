@@ -300,6 +300,16 @@ const getCurrentSeason = (): Season | null => {
     }
   }
 
+  // 若未匹配到当前时间区间的赛季，默认取最新赛季
+  const seasonList = Object.values(seasons);
+  if (seasonList.length > 0) {
+    const sorted = [...seasonList].sort((a, b) => {
+      return new Date(b.endDate || b.startDate).getTime() - new Date(a.endDate || a.startDate).getTime();
+    });
+    currentlySeason.value = sorted[0];
+    return sorted[0];
+  }
+
   return null;
 };
 
@@ -313,7 +323,7 @@ const updateSelectedSeason = (season: any) => {
 
   selectSeasonsValue.value = seasonId;
 
-  const currentId = currentlySeason.value?.id || 'shatteredSeas';
+  const currentId = currentlySeason.value?.id || getCurrentSeason()?.id || selectSeasonsList.value?.[selectSeasonsList.value.length - 1]?.id;
   const targetPath = seasonId === currentId
     ? `/calendar/${seasonId}/`
     : `/calendar/${seasonId}/history`;

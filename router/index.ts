@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import i18n from "@/i18n";
+import { Seasons } from "glow-prow-data";
 
 import PortalMainBasePage from '@/views/portal/Index.vue'
 import PortalPage from '@/views/portal/Home.vue'
@@ -165,6 +166,31 @@ const initCDNAssets = () => {
     const { loadFromStorage } = useCDNAssetsServiceStore()
     loadFromStorage()
 }
+
+/**
+ * 获取当前进行中或最新发布的赛季 ID
+ */
+const getLatestSeasonId = (): string => {
+    const seasonsList = Object.values(Seasons || {});
+    if (!seasonsList.length) return 'crimsonWaters';
+
+    const now = Date.now();
+    const currentSeason = seasonsList.find(season => {
+        const start = new Date(season.startDate).getTime();
+        const end = new Date(season.endDate).getTime();
+        return now >= start && now <= end;
+    });
+
+    if (currentSeason) {
+        return currentSeason.id;
+    }
+
+    const sorted = [...seasonsList].sort((a, b) => {
+        return new Date(b.endDate || b.startDate).getTime() - new Date(a.endDate || a.startDate).getTime();
+    });
+
+    return sorted[0]?.id || seasonsList[seasonsList.length - 1].id;
+};
 
 const staticFilePaths = ['/robots.txt', '/sitemap.xml', '/ads.txt'];
 
@@ -653,7 +679,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
         },
         component: CalendarPage,
         redirect: to => {
-            return '/calendar/shatteredSeas/';
+            return `/calendar/${getLatestSeasonId()}/`;
         },
         children: [
             {
