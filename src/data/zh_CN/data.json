@@ -277,6 +277,7 @@
         "anonymous": {
           "rateLimit": "匿名发布过快，请{remainingTime}小时稍后再试"
         },
+        "duplicateContent": "Content is identical to your last post and cannot be duplicated",
         "pushSuccess": "发布成功",
         "newTeamUp": "船长，有新组队",
         "authFailed": "Token 无效或已过期, 重新登陆",
@@ -921,11 +922,26 @@
       "invalidDate": "无效的日期",
       "fetchFailed": "获取日历数据失败"
     },
-    "day": "{day}日"
+    "day": "{day}日",
+    "viewMode": {
+      "compact": "Compact mode",
+      "detailed": "Detailed mode"
+    }
   },
   "map": {
     "title": "地图",
     "description": "所有地图物品清单",
+    "contextMenu": {
+      "openDetail": "View Details",
+      "addMarker": "Add Marker Here",
+      "copyCoordinates": "Copy Coordinates",
+      "copyLocationLink": "Copy Location Link",
+      "copiedCoordinatesTip": "Coordinates copied to clipboard",
+      "copiedLinkTip": "Location link copied to clipboard",
+      "editBounds": "Edit Map Bounds",
+      "stopEditBounds": "Stop Editing Bounds",
+      "fitBoundsToViewport": "Fit Bounds to Current Viewport"
+    },
     "searchPlaceholder": "搜索地标",
     "treasureMapAvailable": "可用藏宝图",
     "npcAvailable": "NPC's",
@@ -1026,15 +1042,44 @@
   },
   "teamUp": {
     "title": "组队搜寻",
+    "pushBtn": "Post Team Up",
+    "deleteBtn": "删除",
+    "deleteSuccess": "Post cancelled successfully",
+    "expiresLabel": "Remaining horn time",
+    "hornValidTimeTooltip": "Horn valid display time",
+    "expired": "Expired",
+    "copyPlayerBtn": "复制",
+    "copyPlayerSuccess": "复制成功",
+    "copyPlayerHint": "Copy {player} to add friend in-game",
     "emptyPlayer": "无",
     "emptyUsername": "匿名船长",
     "emptyDescription": "这个人很懒，什么都没写",
-    "copyPlayerBtn": "复制",
-    "copyPlayerSuccess": "复制成功",
     "pushLoginInfo": "👋 {username}, 组建舰队吧，起航！",
+    "wsTimeoutTip": "WebSocket subscription reached 20 min limit and disconnected automatically. Refresh or click reconnect to subscribe again.",
+    "reconnectFailed": "Reconnection failed",
+    "rules": {
+      "playerRequired": "Player ID is required",
+      "descriptionRequired": "Description is required",
+      "descriptionLength": "Content length must be between 3 and 300 characters"
+    },
+    "service": {
+      "normal": "Service Normal",
+      "disconnected": "Service Disconnected",
+      "unsubscribed": "Service Unsubscribed",
+      "reconnect": "Reconnect",
+      "connect": "Connect",
+      "tooltip": "This service subscribes to server events and updates the list automatically upon receiving messages"
+    },
+    "filter": {
+      "sortLabel": "Sort By",
+      "sortByRecent": "Recently Posted (Default)",
+      "sortByExpires": "Expiring Soon"
+    },
     "form": {
       "player": "玩家id",
       "time": "愿意等待时间",
+      "tagsLabel": "标签",
+      "publishBtn": "Post",
       "descriptionPlaceholder": "组队描述，也可以放置你的语音频道"
     },
     "time": {
@@ -1480,7 +1525,33 @@
       "notes": "Notes",
       "mod": "Mods",
       "item": "Related Item",
-      "perk": "Matched Perks"
+      "perk": "Matched Perks",
+      "createNew": "Create Wishlist",
+      "edit": "编辑",
+      "dialogTitleCreate": "Create Wishlist",
+      "dialogTitleEdit": "Edit Wishlist",
+      "basicTab": "Wishlist Info",
+      "rulesTab": "Rules List",
+      "field_author": "Author",
+      "field_version": "版本",
+      "field_authorUrl": "Author URL",
+      "field_updateUrls": "Update URLs (one per line)",
+      "addItem": "Add Item",
+      "addMod": "+ Mod",
+      "regularItem": "Regular Item (No Mods)",
+      "tags": "标签",
+      "actions": "Actions",
+      "editNotes": "Edit Notes",
+      "notesPlaceholder": "Click to add/edit notes...",
+      "noNotes": "No notes",
+      "tagsPlaceholder": "Type tag & press Enter...",
+      "rulesCount": "Total Rules",
+      "rulesTitle": "Wishlist Rules",
+      "noRules": "No rules yet, click 'Add Item' above to add items",
+      "saveSuccess": "Wishlist saved successfully",
+      "saveError": "Failed to save wishlist",
+      "selectGradeFirst": "Please select a Mod Grade first to unlock perk selection",
+      "selectModGrade": "Mod Grade"
     }
   },
   "header": {
