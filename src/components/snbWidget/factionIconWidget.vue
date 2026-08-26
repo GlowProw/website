@@ -1,9 +1,9 @@
 <script lang="ts">
-export default { name: 'FactionIconWidget' }
+export default {name: 'FactionIconWidget'}
 </script>
 
 <script setup lang="ts">
-import { use_icon_global_Style } from "@/assets/sripts/use_icon_global_Style";
+import {use_icon_global_Style} from "@/assets/sripts/use_icon_global_Style";
 import {onMounted, type Ref, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
@@ -41,13 +41,15 @@ const onReady = () => {
   const key = factionConvertDictionary[props.name] || props.name;
 
   src.value = currentImageService.url({
-    id: key,
-    category: 'factions'
+    'glow-prow': {
+      id: key,
+      category: 'factions'
+    }
   }, 'glow-prow')
 }
 
 
-const { useIconImagePadding, useIconImageMargin } = use_icon_global_Style();
+const {useIconImagePadding, useIconImageMargin} = use_icon_global_Style();
 </script>
 
 <template>

@@ -80,7 +80,11 @@ const onReady = async () => {
     'glow-prow-zh-cn': {
       id: props.id,
       category: 'materials',
-    }
+    },
+    'local-test': {
+      id: props.id,
+      category: 'materials',
+    },
   })
 }
 

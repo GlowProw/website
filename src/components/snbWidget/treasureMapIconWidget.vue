@@ -68,10 +68,21 @@ onMounted(() => {
 const onReady = async () => {
   i.value = treasureMaps[props.id] || null
 
+  const category = `treasureMaps/${i.value?.category}`
   treasureMapsCardData.value.icon = currentImageService.url({
-    id: props.id,
-    category: 'treasureMaps'
-  }, 'glow-prow')
+    'glow-prow': {
+      id: props.id,
+      category: category || 'AUTO_treasureMaps'
+    },
+    'glow-prow-zh-cn': {
+      id: props.id,
+      category: category || 'AUTO_treasureMaps'
+    },
+    'local-test': {
+      id: props.id,
+      category: category || 'AUTO_treasureMaps'
+    }
+  })
 }
 
 const {targetElement, isVisible} = useIntersectionObserver({

@@ -79,11 +79,15 @@ const onReady = async () => {
       id: props.id,
       category: 'commodities'
     },
+    'glow-prow-zh-cn': {
+      id: props.id,
+      category: 'commodities'
+    },
     'local-test': {
       id: props.id,
       category: 'commodities'
     },
-  }, 'glow-prow');
+  });
 }
 
 const {targetElement, isVisible} = useIntersectionObserver({

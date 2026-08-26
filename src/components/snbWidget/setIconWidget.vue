@@ -72,6 +72,10 @@ const onReady = async () => {
       id: props.id,
       category: 'sets'
     },
+    'glow-prow-zh-cn': {
+      id: props.id,
+      category: 'sets'
+    },
     'local-test': {
       id: props.id,
       category: 'sets'

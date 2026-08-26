@@ -50,7 +50,7 @@ export const useCDNAssetsServiceStore = defineStore('cdnService', () => {
         },
         {
             name: 'glow-prow',
-            urlTemplate: 'https://assets.glow-prow.org.cn/api?t={category}&id={id}',
+            urlTemplate: 'https://assets.glow-prow.top/api?t={category}&id={id}',
             enabled: true,
             priority: 3
         },

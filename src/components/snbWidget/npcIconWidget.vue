@@ -74,8 +74,18 @@ const onReady = async () => {
   i.value = npcs[props?.data?.key || props?.id] || null
 
   npcsCardData.value.icon = currentImageService.url({
-    id: i.value!.id,
-    category: 'npcs'
+    'glow-prow':{
+      id: i.value.id,
+      category: 'npcs',
+    },
+    'glow-prow-zh-cn': {
+      id: i.value.id,
+      category: 'npcs',
+    },
+    'local-test': {
+      id: i.value.id,
+      category: 'npcs',
+    },
   }, 'glow-prow')
 }
 
