@@ -234,11 +234,22 @@ defineOptions({
             v-if="i.perks && i.perks.length > 0">
           <template v-slot:title>
             <div class="title-long-flavor bg-black">
-              {{ t('codex.ship.perks') }}
+              <template v-if="i.type != 'consumable'">{{ t('codex.ship.perks') }}</template>
+              <template v-if="i.type == 'consumable'">{{ t('codex.item.effect') }}</template>
             </div>
           </template>
           <template v-slot:text>
             <PerksWidget :data="i"></PerksWidget>
+
+            <template v-if="i.buffDuration">
+              <v-text-field :value="t('codex.item.buffDurationUnit', {value: i.buffDuration})" density="compact"
+                            hide-details
+                            readonly variant="underlined">
+                <template v-slot:append-inner>
+                  <p class="text-no-wrap">{{ t('codex.item.buffDuration') }}</p>
+                </template>
+              </v-text-field>
+            </template>
           </template>
         </v-expansion-panel>
         <v-expansion-panel

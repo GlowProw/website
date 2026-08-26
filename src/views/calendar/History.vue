@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, ref, watch} from "vue";
+import {computed, onMounted, nextTick, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {useRoute, useRouter} from "vue-router";
 import {Seasons} from "glow-prow-data";
@@ -36,6 +36,121 @@ const currentlySeason: any = ref<Season | null>(null)
 const STORAGE_KEY_VIEW_MODE = 'calendar.viewMode'
 type ViewMode = 'compact' | 'detailed'
 const viewMode = ref<ViewMode>('compact')
+const scrollListRef = ref<any>(null)
+
+/**
+ * 检查指定日期是否为今天
+ */
+const isToday = (year: number, month: number, day: number) => {
+  const now = new Date()
+  return (
+    now.getFullYear() === Number(year) &&
+    now.getMonth() + 1 === Number(month) &&
+    now.getDate() === Number(day)
+  )
+}
+
+/**
+ * 日历按照当前时间滚动到对应位置
+ */
+const scrollToCurrentTime = (behavior: ScrollBehavior = 'smooth') => {
+  const performScroll = (): boolean => {
+    const scrollContainer = (scrollListRef.value?.$el || document.querySelector('#calendar') || document) as HTMLElement
+    const wrapper = scrollContainer.querySelector('.scroll-wrapper') as HTMLElement | null
+    if (!wrapper) return false
+
+    const dayElements = Array.from(wrapper.querySelectorAll<HTMLElement>('.calendar-day-column'))
+    if (dayElements.length === 0) return false
+
+    const now = new Date()
+    const nowTime = now.getTime()
+    const todayStartTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0).getTime()
+    const todayEndTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999).getTime()
+
+    const dayItems = dayElements
+      .map((el) => {
+        const startTime = Number(el.getAttribute('data-calendar-day-time') || 0)
+        const duration = Number(el.getAttribute('data-duration') || 1)
+        return {
+          el,
+          startTime,
+          endTime: startTime + duration * 86400000 - 1,
+        }
+      })
+      .filter((item) => item.startTime > 0)
+
+    if (dayItems.length === 0) return false
+
+    dayItems.sort((a, b) => a.startTime - b.startTime)
+
+    let targetEl: HTMLElement | null = null
+
+    // 1. 精确匹配今天的日期列
+    const exactMatch = dayItems.find((d) => d.startTime >= todayStartTime && d.startTime <= todayEndTime)
+    if (exactMatch) {
+      targetEl = exactMatch.el
+    } else {
+      // 2. 匹配今天处于进行中的事件（跨多天事件）
+      const ongoingMatch = dayItems.find((d) => nowTime >= d.startTime && nowTime <= d.endTime)
+      if (ongoingMatch) {
+        targetEl = ongoingMatch.el
+      }
+      // 3. 当前时间早于赛季所有事件，滚动到首个日期
+      else if (nowTime < dayItems[0].startTime) {
+        targetEl = dayItems[0].el
+      }
+      // 4. 当前时间晚于赛季所有事件，滚动到末尾日期
+      else if (nowTime > dayItems[dayItems.length - 1].endTime) {
+        targetEl = dayItems[dayItems.length - 1].el
+      }
+      // 5. 处于事件空档期：优先匹配下一个即将到来的事件，否则选最接近的事件
+      else {
+        const upcoming = dayItems.find((d) => d.startTime >= nowTime)
+        if (upcoming) {
+          targetEl = upcoming.el
+        } else {
+          let closest = dayItems[0]
+          let minDiff = Infinity
+          for (const item of dayItems) {
+            const diff = Math.abs(item.startTime - nowTime)
+            if (diff < minDiff) {
+              minDiff = diff
+              closest = item
+            }
+          }
+          targetEl = closest.el
+        }
+      }
+    }
+
+    if (targetEl) {
+      const wrapperRect = wrapper.getBoundingClientRect()
+      const targetRect = targetEl.getBoundingClientRect()
+      const currentScrollLeft = wrapper.scrollLeft
+
+      const offsetMargin = window.innerWidth <= 768 ? 20 : 80
+      const targetScroll = currentScrollLeft + (targetRect.left - wrapperRect.left) - offsetMargin
+      const finalScroll = Math.max(0, targetScroll)
+
+      wrapper.scrollTo({ left: finalScroll, behavior })
+      scrollListRef.value?.scrollTo?.(finalScroll, behavior)
+      scrollListRef.value?.checkScrollability?.()
+      return true
+    }
+
+    return false
+  }
+
+  nextTick(() => {
+    performScroll()
+    const timers = [50, 150, 300, 500, 800]
+    timers.forEach((delay) => {
+      setTimeout(() => {
+        performScroll()
+      }, delay)
+    })
+  })
+}
 
 const selectedSeasonId = computed(() => {
   if (!selectSeasonsValue.value) return '';
@@ -104,6 +219,7 @@ watch(() => route.params.seasonId, (newSeasonId) => {
       selectSeasonsValue.value = sId;
       fetchCalendarEventData(sId).then(() => {
         initCalendarList();
+        scrollToCurrentTime();
       });
     }
   }
@@ -125,6 +241,7 @@ const initCalendar = async () => {
 
   await fetchCalendarEventData(selectedSeasonId.value);
   initCalendarList();
+  scrollToCurrentTime();
 };
 
 /**
@@ -156,9 +273,18 @@ const transformCalendarData = (calendarData: CalendarData | null): FormattedCale
 
   if (!calendarData?.events) return result;
 
-  const defaultYear = seasons[selectedSeasonId.value]
-    ? new Date(seasons[selectedSeasonId.value].startDate).getFullYear()
-    : new Date().getFullYear();
+  const seasonObj = seasons[selectedSeasonId.value];
+  const seasonStartDate = seasonObj?.startDate ? new Date(seasonObj.startDate) : null;
+  const defaultYear = seasonStartDate ? seasonStartDate.getFullYear() : new Date().getFullYear();
+  const startMonth = seasonStartDate ? seasonStartDate.getMonth() + 1 : 1;
+
+  const getOccurrenceYear = (occurrence: any) => {
+    if (occurrence.year) return occurrence.year;
+    if (seasonStartDate && occurrence.month < startMonth) {
+      return defaultYear + 1;
+    }
+    return defaultYear;
+  };
 
   const yearMonthMap = new Map<string, {
     year: number;
@@ -170,7 +296,7 @@ const transformCalendarData = (calendarData: CalendarData | null): FormattedCale
   // Collect all involved years and months
   Object.values(calendarData.events).forEach((event: any) => {
     (event.occurrences || []).forEach((occurrence: any) => {
-      const year = occurrence.year || defaultYear;
+      const year = getOccurrenceYear(occurrence);
       const month = occurrence.month;
       const key = `${year}-${month}`;
 
@@ -209,15 +335,15 @@ const transformCalendarData = (calendarData: CalendarData | null): FormattedCale
   // Process each event
   Object.values(calendarData.events).forEach((event: any) => {
     const sortedOccurrences = [...(event.occurrences || [])].sort((a: any, b: any) => {
-      const yearA = a.year || defaultYear;
-      const yearB = b.year || defaultYear;
+      const yearA = getOccurrenceYear(a);
+      const yearB = getOccurrenceYear(b);
       const dateA = new Date(yearA, a.month - 1, a.day)
       const dateB = new Date(yearB, b.month - 1, b.day)
       return dateA.getTime() - dateB.getTime()
     })
 
     sortedOccurrences.forEach((occurrence: any) => {
-      const year = occurrence.year || defaultYear;
+      const year = getOccurrenceYear(occurrence);
       const monthKey = `${year}-${occurrence.month}`;
       const startDay = occurrence.day;
 
@@ -334,6 +460,7 @@ const updateSelectedSeason = (season: any) => {
 
   fetchCalendarEventData(seasonId).then(() => {
     initCalendarList();
+    scrollToCurrentTime();
   });
 };
 
@@ -388,6 +515,7 @@ const getEventName = (eventId: string) => {
 const toggleViewMode = () => {
   viewMode.value = viewMode.value === 'compact' ? 'detailed' : 'compact'
   storage.local.set(STORAGE_KEY_VIEW_MODE, viewMode.value)
+  scrollToCurrentTime();
 };
 
 /**
@@ -425,6 +553,10 @@ const compactCalendar = computed<FormattedCalendar>(() => {
 const activeCalendar = computed<FormattedCalendar>(() =>
   viewMode.value === 'compact' ? compactCalendar.value : formattedCalendar.value
 );
+
+watch(activeCalendar, () => {
+  scrollToCurrentTime();
+}, { flush: 'post' });
 </script>
 
 <template>
@@ -539,9 +671,21 @@ const activeCalendar = computed<FormattedCalendar>(() =>
                       v-bind="tooltipProps"
                       @click="toggleViewMode"
                       variant="elevated"
-                      :active="viewMode === 'detailed'"
-                  >
+                      :active="viewMode === 'detailed'">
                     <v-icon :icon="viewMode === 'compact' ? 'mdi-view-compact' : 'mdi-view-list'" size="20"/>
+                  </v-btn>
+                </template>
+              </v-tooltip>
+
+              <v-divider vertical></v-divider>
+
+              <v-tooltip :text="t('calendar.button.today')" location="bottom">
+                <template v-slot:activator="{ props: tooltipProps }">
+                  <v-btn
+                      v-bind="tooltipProps"
+                      @click="scrollToCurrentTime('smooth')"
+                      variant="elevated">
+                    <v-icon icon="mdi-calendar-today" size="20"/>
                   </v-btn>
                 </template>
               </v-tooltip>
@@ -570,7 +714,7 @@ const activeCalendar = computed<FormattedCalendar>(() =>
 
   <!-- 日历 内容 S -->
   <template v-if="!calendarLoading">
-    <HorizontalScrollList v-if="hasCalendarEvents">
+    <HorizontalScrollList v-if="hasCalendarEvents" ref="scrollListRef">
       <div class="position-relative">
         <div class="calendar-line" style="white-space: nowrap;">
           <div v-for="(monthData, monthKey) in activeCalendar" :key="monthKey">
@@ -590,10 +734,21 @@ const activeCalendar = computed<FormattedCalendar>(() =>
               </v-row>
 
               <div class="calendar-line-day">
-                <div v-for="dayData in monthData.data" :key="dayData.day">
-                  <template v-if="dayData.events.length">
-                    <v-btn block class="btn-flavor mt-4 w-100 font-weight-bold text-black">
+                <template v-for="dayData in monthData.data" :key="dayData.day">
+                  <div
+                      v-if="dayData.events && dayData.events.length"
+                      class="calendar-day-column"
+                      :data-calendar-day-time="new Date(monthData.year, monthData.month - 1, dayData.day).getTime()"
+                      :data-duration="Math.max(...dayData.events.map((e: any) => e.duration || 1))"
+                      :id="`calendar-day-${monthData.year}-${monthData.month}-${dayData.day}`">
+                    <v-btn
+                        block
+                        class="btn-flavor mt-4 w-100 font-weight-bold text-black"
+                        :class="{ 'btn-today': isToday(monthData.year, monthData.month, dayData.day) }">
                       {{ t('calendar.day', {day: dayData.day}) }}
+                      <span v-if="isToday(monthData.year, monthData.month, dayData.day)" class="today-tag ml-1">
+                        {{ t('calendar.today') }}
+                      </span>
                     </v-btn>
 
                     <div class="mr-3 pt-4">
@@ -638,8 +793,8 @@ const activeCalendar = computed<FormattedCalendar>(() =>
                         </template>
                       </CalendarEventSLotWidget>
                     </div>
-                  </template>
-                </div>
+                  </div>
+                </template>
               </div>
             </template>
           </div>
@@ -683,6 +838,20 @@ const activeCalendar = computed<FormattedCalendar>(() =>
       margin-left: 80px;
     }
   }
+}
+
+.btn-today {
+  box-shadow: 0 0 10px rgba(255, 193, 7, 0.8), inset 0 0 5px rgba(255, 193, 7, 0.5) !important;
+  outline: 2px solid #ffc107 !important;
+}
+
+.today-tag {
+  background: #000;
+  color: var(--main-color, #ffc107);
+  padding: 0 5px;
+  border-radius: 3px;
+  font-size: 11px;
+  line-height: 16px;
 }
 
 @media screen and (max-width: 980px) {

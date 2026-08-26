@@ -649,6 +649,8 @@
       "reloadSpeed": "Reload Speed (sec)",
       "optimalRange": "Range (m)",
       "projectileSpeed": "Projectile Speed (m/s)",
+      "buffDuration": "Buff Duration",
+      "buffDurationUnit": "{value}s",
       "shipUpgradeUseTitle": "Available Ships",
       "shipUpgradesTitle": "Available Upgrades",
       "contentsTitle": "Loot Contents",
@@ -671,8 +673,10 @@
       "lastUpdated": "Last Updated",
       "damageType": "Weapon Property",
       "perks": "Perks",
+      "effect": "Effect",
       "tier": "Tier",
       "damageMitigation": "Damage Mitigation",
+      "damageMitigationTip": "Provides damage reduction against specific elements; the higher the elemental resistance, the less damage you take from that element.",
       "lookDetail": "View Item Details (Hold)"
     },
     "commoditie": {
@@ -901,13 +905,15 @@
   },
   "calendar": {
     "title": "Calendar",
+    "today": "Today",
     "timeRemaining": "{time} days remaining",
     "label": {
       "pastSeasons": "Past Seasons"
     },
     "button": {
       "subscribe": "Subscribe to Calendar",
-      "addToCalendar": "Add to Calendar"
+      "addToCalendar": "Add to Calendar",
+      "today": "Scroll to Current Time"
     },
     "dialog": {
       "subscribeTitle": "Subscribe to {season}",

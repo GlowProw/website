@@ -438,6 +438,15 @@ const onAddCalculator = () => {
                     </template>
                   </v-text-field>
                 </template>
+                <template v-if="itemDetailData.buffDuration">
+                  <v-text-field :value="t('codex.item.buffDurationUnit', {value: itemDetailData.buffDuration})" density="compact"
+                                hide-details
+                                readonly variant="underlined">
+                    <template v-slot:append-inner>
+                      <p class="text-no-wrap">{{ t('codex.item.buffDuration') }}</p>
+                    </template>
+                  </v-text-field>
+                </template>
               </v-col>
               <v-col cols="12" lg="12" sm="12" xl="12">
                 <ItemContentWidget :data="itemDetailData">

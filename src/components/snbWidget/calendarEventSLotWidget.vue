@@ -54,6 +54,7 @@ const isUnknown = (i: any) => i?.isUnknown
       <div class="bg-black pa-5 background-flavor" v-if="data && data.id">
         <template v-if="props.currentlySeason && props.currentlySeason.id && data && data.id">
           <p class="text-amber text-h5 pointer-events-none"><b> {{ t(`snb.calendar.${props.currentlySeason.id}.data.${data.id}.name`) }}</b></p>
+          <p class="text text-caption mb-2 opacity-30">{{ data.id }}</p>
         </template>
 
         <p class="text-pre-wrap mt-1 opacity-80 pointer-events-none">

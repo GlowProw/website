@@ -93,7 +93,6 @@ const onSetIcon = () => {
       category: i.value.type || 'AUTO_items'
     },
   })
-  console.log(i.value.type)
 }
 
 watch(() => cdnStore.selectedService, (newValue, oldValue) => {

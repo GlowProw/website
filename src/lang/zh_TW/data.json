@@ -698,7 +698,35 @@
     }
   },
   "calendar": {
-    "title": "日历"
+    "title": "日曆",
+    "today": "今日",
+    "timeRemaining": "剩餘{time}天",
+    "label": {
+      "pastSeasons": "過往賽季"
+    },
+    "button": {
+      "subscribe": "訂閱日曆",
+      "addToCalendar": "新增至日曆",
+      "today": "定位至當前時間"
+    },
+    "dialog": {
+      "subscribeTitle": "訂閱 {season}",
+      "subscribeDescription": "下載 .ics 檔案，這是標準格式，可透過支援的應用開啟並同步資料",
+      "eventSubscribeQuestion": "單獨訂閱 {event} 所有事件？"
+    },
+    "common": {
+      "na": "未知",
+      "none": "無"
+    },
+    "error": {
+      "invalidDate": "無效的日期",
+      "fetchFailed": "獲取日曆資料失敗"
+    },
+    "day": "{day}日",
+    "viewMode": {
+      "compact": "簡約模式",
+      "detailed": "詳細模式"
+    }
   },
   "map": {
     "title": "地圖",
