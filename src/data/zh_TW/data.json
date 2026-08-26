@@ -277,6 +277,7 @@
         "anonymous": {
           "rateLimit": "Anonymous posting too fast, please try again in {remainingTime} hours"
         },
+        "duplicateContent": "Content is identical to your last post and cannot be duplicated",
         "pushSuccess": "Published successfully",
         "newTeamUp": "Captain, there's a new team-up",
         "authFailed": "Token is invalid or expired, please log in again",
@@ -921,11 +922,26 @@
       "invalidDate": "Invalid date",
       "fetchFailed": "Failed to fetch calendar data"
     },
-    "day": "Day {day}"
+    "day": "Day {day}",
+    "viewMode": {
+      "compact": "Compact mode",
+      "detailed": "Detailed mode"
+    }
   },
   "map": {
     "title": "Map",
     "description": "Inventory of all map items",
+    "contextMenu": {
+      "openDetail": "View Details",
+      "addMarker": "Add Marker Here",
+      "copyCoordinates": "Copy Coordinates",
+      "copyLocationLink": "Copy Location Link",
+      "copiedCoordinatesTip": "Coordinates copied to clipboard",
+      "copiedLinkTip": "Location link copied to clipboard",
+      "editBounds": "Edit Map Bounds",
+      "stopEditBounds": "Stop Editing Bounds",
+      "fitBoundsToViewport": "Fit Bounds to Current Viewport"
+    },
     "searchPlaceholder": "Search Landmark",
     "treasureMapAvailable": "Available Treasure Maps",
     "npcAvailable": "NPC's",
@@ -1026,15 +1042,44 @@
   },
   "teamUp": {
     "title": "Team Up Search",
+    "pushBtn": "Post Team Up",
+    "deleteBtn": "Delete",
+    "deleteSuccess": "Post cancelled successfully",
+    "expiresLabel": "Remaining horn time",
+    "hornValidTimeTooltip": "Horn valid display time",
+    "expired": "Expired",
+    "copyPlayerBtn": "Copy",
+    "copyPlayerSuccess": "Copied successfully",
+    "copyPlayerHint": "Copy {player} to add friend in-game",
     "emptyPlayer": "None",
     "emptyUsername": "Anonymous Captain",
     "emptyDescription": "This person is lazy and hasn't written anything",
-    "copyPlayerBtn": "Copy",
-    "copyPlayerSuccess": "Copied successfully",
     "pushLoginInfo": "👋 {username}, form a fleet, and set sail!",
+    "wsTimeoutTip": "WebSocket subscription reached 20 min limit and disconnected automatically. Refresh or click reconnect to subscribe again.",
+    "reconnectFailed": "Reconnection failed",
+    "rules": {
+      "playerRequired": "Player ID is required",
+      "descriptionRequired": "Description is required",
+      "descriptionLength": "Content length must be between 3 and 300 characters"
+    },
+    "service": {
+      "normal": "Service Normal",
+      "disconnected": "Service Disconnected",
+      "unsubscribed": "Service Unsubscribed",
+      "reconnect": "Reconnect",
+      "connect": "Connect",
+      "tooltip": "This service subscribes to server events and updates the list automatically upon receiving messages"
+    },
+    "filter": {
+      "sortLabel": "Sort By",
+      "sortByRecent": "Recently Posted (Default)",
+      "sortByExpires": "Expiring Soon"
+    },
     "form": {
       "player": "Player ID",
       "time": "Willing Wait Time",
+      "tagsLabel": "Tags",
+      "publishBtn": "Post",
       "descriptionPlaceholder": "Team up description, you can also include your voice channel"
     },
     "time": {
@@ -1480,7 +1525,33 @@
       "notes": "Notes",
       "mod": "Mods",
       "item": "Related Item",
-      "perk": "Matched Perks"
+      "perk": "Matched Perks",
+      "createNew": "Create Wishlist",
+      "edit": "Edit",
+      "dialogTitleCreate": "Create Wishlist",
+      "dialogTitleEdit": "Edit Wishlist",
+      "basicTab": "Wishlist Info",
+      "rulesTab": "Rules List",
+      "field_author": "Author",
+      "field_version": "Version",
+      "field_authorUrl": "Author URL",
+      "field_updateUrls": "Update URLs (one per line)",
+      "addItem": "Add Item",
+      "addMod": "+ Mod",
+      "regularItem": "Regular Item (No Mods)",
+      "tags": "Tags",
+      "actions": "Actions",
+      "editNotes": "Edit Notes",
+      "notesPlaceholder": "Click to add/edit notes...",
+      "noNotes": "No notes",
+      "tagsPlaceholder": "Type tag & press Enter...",
+      "rulesCount": "Total Rules",
+      "rulesTitle": "Wishlist Rules",
+      "noRules": "No rules yet, click 'Add Item' above to add items",
+      "saveSuccess": "Wishlist saved successfully",
+      "saveError": "Failed to save wishlist",
+      "selectGradeFirst": "Please select a Mod Grade first to unlock perk selection",
+      "selectModGrade": "Mod Grade"
     }
   },
   "header": {
