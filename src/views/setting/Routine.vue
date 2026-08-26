@@ -6,7 +6,7 @@
 
         <div class="my-10 opacity-60">
           <p class="text-caption mb-1">{{ t('setting.routine.translationHelp') }}</p>
-          <p class="text-caption d-flex align-center">{{ t('setting.routine.translationService') }}<img class="mx-3" src="../../assets/images/logos/crowdin.svg" height="15"/></p>
+          <p class="text-caption d-flex align-center">{{ t('setting.routine.translationService') }}<img class="mx-3" src="@/assets/images/logos/crowdin.png" height="15"/></p>
 
           <div class="text-caption mt-3">
             <p>
