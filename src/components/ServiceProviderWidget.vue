@@ -17,7 +17,6 @@ let service_providers = ref([])
 onMounted(() => {
   const logosMap = import.meta.glob('/src/assets/images/logos/*.*', {eager: true}),
       logosSerialization = serializationMap(logosMap)
-
   service_providers.value = serviceProviders.map(i => {
     return {
       ...i,

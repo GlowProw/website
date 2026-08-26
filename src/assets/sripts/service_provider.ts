@@ -23,8 +23,8 @@ export class Service_provider {
         },
         {
             name: 'crowdin',
-            icon: 'crowdin.svg',
-            src: 'https://crowdin.com'
+            icon: 'crowdin.png',
+            src: 'https://crowdin.com/?utm_term=click-badge-add-on'
         },
         {
             name: 'datadoghq',

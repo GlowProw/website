@@ -12,6 +12,7 @@ import HtmlLink from "@/components/HtmlLink.vue";
 import {useAppStore} from "~/stores/appStore";
 import { usePWAEnvironment } from "@/assets/sripts/use_pwa_environment";
 import {onMounted} from "vue";
+import HorizontalScrollList from "@/components/HorizontalScrollList.vue";
 
 const {t} = useI18n(),
     appStore = useAppStore(),
@@ -28,13 +29,13 @@ onMounted(() => {
     <v-container class="pt-0">
       <footer class="mt-10 mb-10">
         <v-row>
-          <v-col cols="12" sm="12" md="5" lg="3" order="2" order-sm="2" order-lg="1">
+          <v-col cols="12" sm="12" md="5" lg="3" order="2" order-sm="2" order-lg="1" class="mt-sm-4 mt-md-4 mt-0">
             <Logo size="50" class="ml-n2 mb-2"></Logo>
-            <h2>
+            <h2 class="mt-1">
               {{ t('name') }}
             </h2>
-            <p class="mb-3 opacity-80">{{ t('footer.basic.description') }}</p>
-            <p class="opacity-60">@2025-{{ new Date().getFullYear() }} {{ t('name') }}</p>
+            <p class="mb-3 mt-1 opacity-80">{{ t('footer.basic.description') }}</p>
+            <p class="opacity-60 mt-2">@2025-{{ new Date().getFullYear() }} {{ t('name') }}</p>
           </v-col>
           <v-col cols="12" sm="12" md="7" lg="9" order="1" order-sm="1" order-lg="2">
             <v-row>
@@ -153,18 +154,9 @@ onMounted(() => {
     </v-container>
     <v-divider></v-divider>
     <v-container class="pt-5 pb-5">
-      <v-row no-gutters align="center">
-        <v-col>
-          <ServiceProviderWidget></ServiceProviderWidget>
-        </v-col>
-        <v-col cols="12" lg="auto" class="d-flex ga-2 align-center mt-sm-2 mt-md-2">
-          <img src="@/assets/images/logos/betterstack.svg" width="26px" height="30px"/>
-          <iframe src="https://status.glow-prow.org.cn/badge?theme=dark"
-                  width="190"
-                  allow="fullscreen"
-                  height="30" frameborder="0" scrolling="no" style="color-scheme: normal"></iframe>
-        </v-col>
-      </v-row>
+      <HorizontalScrollList :is-indicator="false">
+        <ServiceProviderWidget></ServiceProviderWidget>
+      </HorizontalScrollList>
     </v-container>
   </div>
 </template>
