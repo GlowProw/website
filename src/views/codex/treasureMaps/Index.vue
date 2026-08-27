@@ -1,23 +1,19 @@
 <script setup lang="ts">
-
 import {useI18n} from "vue-i18n";
 import CodexViewData from "@/components/CodexViewData.vue";
-import TreasureMapImageSimilarity from "@/components/TreasureMapImageSimilarity.vue";
-import {nextTick, onMounted, Ref, ref} from "vue";
-import {useRoute} from "vue-router";
+import {onMounted} from "vue";
+import {useRoute, useRouter} from "vue-router";
 
 const {t} = useI18n(),
-    route = useRoute()
-
-let treasureMapImageSimilarity: Ref<any> = ref(null)
+    route = useRoute(),
+    router = useRouter();
 
 onMounted(() => {
-  nextTick(() => {
-    const {comparison} = route.query
-    if (comparison)
-      treasureMapImageSimilarity.value.openModel()
-  })
-})
+  const {comparison} = route.query;
+  if (comparison) {
+    router.replace('/codex/treasureMaps/comparison');
+  }
+});
 </script>
 
 <template>
@@ -28,11 +24,9 @@ onMounted(() => {
           <v-btn variant="text" icon to="/map" target="_blank">
             <v-icon class="cursor-pointer">mdi-map-outline</v-icon>
           </v-btn>
-          <TreasureMapImageSimilarity ref="treasureMapImageSimilarity">
-            <v-btn variant="text" icon>
-              <v-icon class="cursor-pointer">mdi-image-search-outline</v-icon>
-            </v-btn>
-          </TreasureMapImageSimilarity>
+          <v-btn variant="text" icon to="/codex/treasureMaps/comparison">
+            <v-icon class="cursor-pointer">mdi-image-search-outline</v-icon>
+          </v-btn>
         </div>
       </template>
     </CodexViewData>

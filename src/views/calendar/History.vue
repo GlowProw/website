@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import {computed, onMounted, nextTick, ref, watch} from "vue";
+import {computed, nextTick, onMounted, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {useRoute, useRouter} from "vue-router";
 import {Seasons} from "glow-prow-data";
-import {apis, http, time, storage} from "@/assets/sripts";
+import {apis, http, storage, time} from "@/assets/sripts";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 
 import {Season} from "glow-prow-data/src/entity/Seasons";
@@ -21,6 +21,7 @@ import AffixContainerView from "@/components/AffixContainerView.vue";
 
 const {t, te} = useI18n()
 const {asString} = useI18nUtils()
+const {locale} = useI18n()
 const notice = useNoticeStore()
 const route = useRoute()
 const router = useRouter()
@@ -44,9 +45,9 @@ const scrollListRef = ref<any>(null)
 const isToday = (year: number, month: number, day: number) => {
   const now = new Date()
   return (
-    now.getFullYear() === Number(year) &&
-    now.getMonth() + 1 === Number(month) &&
-    now.getDate() === Number(day)
+      now.getFullYear() === Number(year) &&
+      now.getMonth() + 1 === Number(month) &&
+      now.getDate() === Number(day)
   )
 }
 
@@ -68,16 +69,16 @@ const scrollToCurrentTime = (behavior: ScrollBehavior = 'smooth') => {
     const todayEndTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999).getTime()
 
     const dayItems = dayElements
-      .map((el) => {
-        const startTime = Number(el.getAttribute('data-calendar-day-time') || 0)
-        const duration = Number(el.getAttribute('data-duration') || 1)
-        return {
-          el,
-          startTime,
-          endTime: startTime + duration * 86400000 - 1,
-        }
-      })
-      .filter((item) => item.startTime > 0)
+        .map((el) => {
+          const startTime = Number(el.getAttribute('data-calendar-day-time') || 0)
+          const duration = Number(el.getAttribute('data-duration') || 1)
+          return {
+            el,
+            startTime,
+            endTime: startTime + duration * 86400000 - 1,
+          }
+        })
+        .filter((item) => item.startTime > 0)
 
     if (dayItems.length === 0) return false
 
@@ -132,7 +133,7 @@ const scrollToCurrentTime = (behavior: ScrollBehavior = 'smooth') => {
       const targetScroll = currentScrollLeft + (targetRect.left - wrapperRect.left) - offsetMargin
       const finalScroll = Math.max(0, targetScroll)
 
-      wrapper.scrollTo({ left: finalScroll, behavior })
+      wrapper.scrollTo({left: finalScroll, behavior})
       scrollListRef.value?.scrollTo?.(finalScroll, behavior)
       scrollListRef.value?.checkScrollability?.()
       return true
@@ -192,26 +193,6 @@ const hasCalendarEvents = computed(() => {
   return monthKeys.some(key => formattedCalendar.value[key]?.eventCount > 0);
 });
 
-const getSeasonIdFromRoute = (): string | null => {
-  if (route.params.seasonId) {
-    return String(route.params.seasonId);
-  }
-  const match = route.path.match(/\/calendar\/([^/]+)/);
-  if (match && match[1] && match[1] !== 'history') {
-    return match[1];
-  }
-  return null;
-};
-
-onMounted(async () => {
-  // 从 localStorage 恢复视图模式偏好
-  const stored = storage.local.get(STORAGE_KEY_VIEW_MODE)
-  if (stored.code === 0 && (stored.data?.value === 'compact' || stored.data?.value === 'detailed')) {
-    viewMode.value = stored.data.value
-  }
-  await initCalendar()
-})
-
 watch(() => route.params.seasonId, (newSeasonId) => {
   if (newSeasonId && seasons[newSeasonId as string]) {
     const sId = String(newSeasonId);
@@ -225,6 +206,36 @@ watch(() => route.params.seasonId, (newSeasonId) => {
   }
 });
 
+watch(() => locale.value, (value) => {
+  initCalendarList()
+})
+
+onMounted(async () => {
+  // 从 localStorage 恢复视图模式偏好
+  const stored = storage.local.get(STORAGE_KEY_VIEW_MODE)
+  if (stored.code === 0 && (stored.data?.value === 'compact' || stored.data?.value === 'detailed')) {
+    viewMode.value = stored.data.value
+  }
+  await initCalendar()
+})
+
+/**
+ * 转化赛季id地址
+ */
+const getSeasonIdFromRoute = (): string | null => {
+  if (route.params.seasonId) {
+    return String(route.params.seasonId);
+  }
+  const match = route.path.match(/\/calendar\/([^/]+)/);
+  if (match && match[1] && match[1] !== 'history') {
+    return match[1];
+  }
+  return null;
+};
+
+/**
+ * 初始日历
+ */
 const initCalendar = async () => {
   getCurrentSeason()
   initCalendarList()
@@ -245,7 +256,7 @@ const initCalendar = async () => {
 };
 
 /**
- * 初始选中日历
+ * 初始日历列表
  */
 const initCalendarList = () => {
   selectSeasonsList.value = Object.values(seasons)
@@ -268,6 +279,10 @@ const initCalendarList = () => {
   }
 };
 
+/**
+ * 转化日历数据
+ * @param calendarData
+ */
 const transformCalendarData = (calendarData: CalendarData | null): FormattedCalendar => {
   const result: FormattedCalendar | any = {};
 
@@ -398,7 +413,7 @@ const fetchCalendarEventData = async (seasonId?: string) => {
     seasonsCalendarEvents.value = null;
     formattedCalendar.value = {};
     if (error instanceof ApiError) {
-      notice.error(t(`basic.tips.${error.code}`, {context: error.code}))
+      notice.error(t(`basic.tips.${error.code}`, {content: error.message || error.code}));
     } else {
       notice.error(t('calendar.error.fetchFailed'))
     }
@@ -451,8 +466,8 @@ const updateSelectedSeason = (season: any) => {
 
   const currentId = currentlySeason.value?.id || getCurrentSeason()?.id || selectSeasonsList.value?.[selectSeasonsList.value.length - 1]?.id;
   const targetPath = seasonId === currentId
-    ? `/calendar/${seasonId}/`
-    : `/calendar/${seasonId}/history`;
+      ? `/calendar/${seasonId}/`
+      : `/calendar/${seasonId}/history`;
 
   if (route.path !== targetPath) {
     router.push(targetPath);
@@ -529,11 +544,11 @@ const compactCalendar = computed<FormattedCalendar>(() => {
 
   for (const [monthKey, monthData] of Object.entries<any>(source)) {
     const filteredDays = monthData.data
-      .map((dayData: any) => ({
-        ...dayData,
-        events: dayData.events.filter((e: any) => e.isStart),
-      }))
-      .filter((dayData: any) => dayData.events.length > 0)
+        .map((dayData: any) => ({
+          ...dayData,
+          events: dayData.events.filter((e: any) => e.isStart),
+        }))
+        .filter((dayData: any) => dayData.events.length > 0)
 
     if (filteredDays.length > 0) {
       result[monthKey] = {
@@ -551,12 +566,12 @@ const compactCalendar = computed<FormattedCalendar>(() => {
  * 当前激活的日历数据（根据视图模式切换）
  */
 const activeCalendar = computed<FormattedCalendar>(() =>
-  viewMode.value === 'compact' ? compactCalendar.value : formattedCalendar.value
+    viewMode.value === 'compact' ? compactCalendar.value : formattedCalendar.value
 );
 
 watch(activeCalendar, () => {
   scrollToCurrentTime();
-}, { flush: 'post' });
+}, {flush: 'post'});
 </script>
 
 <template>
@@ -609,15 +624,15 @@ watch(activeCalendar, () => {
       <v-container class="py-5">
         <v-row align="start">
           <v-col cols="12" sm="12" lg="6">
-            <p class="opacity-80">
+            <p class="opacity-80 text-caption">
               {{ seasonDescription }}
             </p>
           </v-col>
 
-          <v-spacer></v-spacer>
+          <v-spacer class="hidden-sm hidden-md"></v-spacer>
 
           <v-col cols="auto">
-            <v-btn-group size="55">
+            <v-btn-group>
               <v-dialog max-width="500" v-if="selectedSeasonId">
                 <template v-slot:activator="{ props: activatorProps }">
                   <v-btn
@@ -652,6 +667,9 @@ watch(activeCalendar, () => {
               <v-select
                   tile
                   :label="t('calendar.label.pastSeasons')"
+                  :hide-details="true"
+                  :hide-no-data="true"
+                  :hide-spin-buttons="true"
                   variant="solo-filled"
                   density="comfortable"
                   item-value="id"
@@ -665,38 +683,47 @@ watch(activeCalendar, () => {
 
               <v-divider vertical></v-divider>
 
-              <v-tooltip :text="viewMode === 'compact' ? t('calendar.viewMode.compact') : t('calendar.viewMode.detailed')" location="bottom">
-                <template v-slot:activator="{ props: tooltipProps }">
+              <v-menu offset-y>
+                <template v-slot:activator="{ props: menuProps }">
                   <v-btn
-                      v-bind="tooltipProps"
-                      @click="toggleViewMode"
+                      v-bind="menuProps"
                       variant="elevated"
-                      :active="viewMode === 'detailed'">
-                    <v-icon :icon="viewMode === 'compact' ? 'mdi-view-compact' : 'mdi-view-list'" size="20"/>
+                      density="comfortable">
+                    <v-icon icon="mdi-dots-vertical" size="20"/>
                   </v-btn>
                 </template>
-              </v-tooltip>
 
-              <v-divider vertical></v-divider>
+                <v-list density="comfortable">
+                  <!-- 视图切换 -->
+                  <v-list-item @click="toggleViewMode">
+                    <template v-slot:prepend>
+                      <v-icon :icon="viewMode === 'compact' ? 'mdi-view-compact' : 'mdi-view-list'" size="20"/>
+                    </template>
+                    <v-list-item-title>
+                      {{ viewMode === 'compact' ? t('calendar.viewMode.compact') : t('calendar.viewMode.detailed') }}
+                    </v-list-item-title>
+                  </v-list-item>
 
-              <v-tooltip :text="t('calendar.button.today')" location="bottom">
-                <template v-slot:activator="{ props: tooltipProps }">
-                  <v-btn
-                      v-bind="tooltipProps"
-                      @click="scrollToCurrentTime('smooth')"
-                      variant="elevated">
-                    <v-icon icon="mdi-calendar-today" size="20"/>
-                  </v-btn>
-                </template>
-              </v-tooltip>
+                  <!-- 今日按钮 -->
+                  <v-list-item @click="scrollToCurrentTime('smooth')">
+                    <template v-slot:prepend>
+                      <v-icon icon="mdi-calendar-today" size="20"/>
+                    </template>
+                    <v-list-item-title>{{ t('calendar.button.today') }}</v-list-item-title>
+                  </v-list-item>
 
-              <v-divider vertical></v-divider>
-
-              <v-btn @click="initCalendar" variant="elevated">
-                <v-icon :class="[
-                calendarLoading ?  'spin-icon-load' : ''
-            ]" icon="mdi-refresh" size="20"/>
-              </v-btn>
+                  <!-- 刷新按钮 -->
+                  <v-list-item @click="initCalendar" :disabled="calendarLoading">
+                    <template v-slot:prepend>
+                      <v-icon
+                          :icon="calendarLoading ? 'mdi-loading' : 'mdi-refresh'"
+                          size="20"
+                          :class="calendarLoading ? 'spin-icon-load' : ''"/>
+                    </template>
+                    <v-list-item-title>刷新</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
             </v-btn-group>
           </v-col>
         </v-row>

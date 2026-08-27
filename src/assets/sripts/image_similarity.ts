@@ -231,7 +231,7 @@ export function computeStructuralFeatures(imageData: ImageData): number[] {
     // 3. 纹理复杂度（边缘密度估计）
     let edgeCount = 0;
     for (let i = 1; i < grayValues.length; i++) {
-        if (Math.abs(grayValues[i] - grayValues[i-1]) > 20) { // 简单的边缘检测阈值
+        if (Math.abs(grayValues[i] - grayValues[i - 1]) > 20) { // 简单的边缘检测阈值
             edgeCount++;
         }
     }
@@ -295,7 +295,7 @@ export function computeBlockFeatures(imageData: ImageData): number[] {
         for (let col = 0; col < gridSize; col++) {
             let blockLuminance = 0;
             let pixelCount = 0;
-            let blockSaturation = 0; 
+            let blockSaturation = 0;
             let blockColorRed = 0, blockColorGreen = 0, blockColorBlue = 0;
 
             for (let y = row * blockHeight; y < (row + 1) * blockHeight && y < height; y++) {
@@ -312,7 +312,7 @@ export function computeBlockFeatures(imageData: ImageData): number[] {
                     const min = Math.min(r, g, b)
                     const saturation = max === 0 ? 0 : (max - min) / max;
                     blockSaturation += saturation;
-                    
+
                     blockColorRed += r;
                     blockColorGreen += g;
                     blockColorBlue += b;
@@ -321,8 +321,8 @@ export function computeBlockFeatures(imageData: ImageData): number[] {
                 }
             }
 
-            features.push(blockLuminance / pixelCount / 255) 
-            features.push(blockSaturation / pixelCount)      
+            features.push(blockLuminance / pixelCount / 255)
+            features.push(blockSaturation / pixelCount)
             features.push(blockColorRed / pixelCount / 255)
             features.push(blockColorGreen / pixelCount / 255)
             features.push(blockColorBlue / pixelCount / 255)
@@ -358,7 +358,7 @@ export function compareBlockFeatures(
     // 把可容忍范围压得非常低，稍微不同（如RGB各差异过0.15）就导致分数为0
     // rmsDiff 是个均方根百分比差异，通常即使完全不同的图也在0.2~0.4之间
     const similarity = Math.max(0, 1 - rmsDiff * 3);
-    
+
     // 指数惩罚让视觉拉开差距
     return Math.pow(similarity, 3) * 100;
 }
@@ -408,3 +408,103 @@ export async function calculateImageSimilarity(
             return 0; // 默认返回0而不是抛出错误
     }
 }
+
+// ==================== TensorFlow.js 深度学习相似度 ====================
+
+let _mobilenetModel: any = null;
+let _mobilenetLoading: Promise<any> | null = null;
+
+/**
+ * 懒加载 MobileNet 模型（单例模式）
+ * 首次调用时加载模型，之后复用缓存
+ */
+export async function loadMobileNetModel(): Promise<any> {
+    if (_mobilenetModel) return _mobilenetModel;
+    if (_mobilenetLoading) return _mobilenetLoading;
+
+    _mobilenetLoading = (async () => {
+        const tf = await import('@tensorflow/tfjs');
+        const mobilenet = await import('@tensorflow-models/mobilenet');
+        await tf.ready();
+        _mobilenetModel = await mobilenet.load({ version: 2, alpha: 1.0 });
+        return _mobilenetModel;
+    })();
+
+    _mobilenetModel = await _mobilenetLoading;
+    _mobilenetLoading = null;
+    return _mobilenetModel;
+}
+
+/**
+ * 使用 MobileNet 提取图片的嵌入向量（特征向量）
+ * @param imageUrl - 图片URL（data:URL 或 http URL）
+ * @returns 归一化后的嵌入向量数组
+ */
+export async function computeTFEmbedding(imageUrl: string, grayscale = false): Promise<number[]> {
+    const tf = await import('@tensorflow/tfjs');
+    const model = await loadMobileNetModel();
+
+    // MobileNet v2 训练输入分辨率为 224x224，必须先缩放到此尺寸再推理
+    const INPUT_SIZE = 224;
+
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = async () => {
+            try {
+                // 缩放到 224x224
+                const canvas = document.createElement('canvas');
+                canvas.width = INPUT_SIZE;
+                canvas.height = INPUT_SIZE;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) { reject(new Error('Canvas context error')); return; }
+                ctx.drawImage(img, 0, 0, INPUT_SIZE, INPUT_SIZE);
+
+                // 灰度模式：将 RGB 转换为亮度灰度，消除颜色偏差
+                if (grayscale) {
+                    const imgData = ctx.getImageData(0, 0, INPUT_SIZE, INPUT_SIZE);
+                    const d = imgData.data;
+                    for (let i = 0; i < d.length; i += 4) {
+                        const luma = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+                        d[i] = d[i + 1] = d[i + 2] = luma;
+                    }
+                    ctx.putImageData(imgData, 0, 0);
+                }
+
+                const tensor = tf.browser.fromPixels(canvas); // shape [224, 224, 3]
+                // infer(true) 提取全局平均池化层特征向量（1280维）
+                const embedding = model.infer(tensor, true) as any;
+                const values: Float32Array = await embedding.data();
+                tensor.dispose();
+                embedding.dispose();
+                resolve(Array.from(values));
+            } catch (e) {
+                reject(e);
+            }
+        };
+        img.onerror = reject;
+        img.src = imageUrl;
+    });
+}
+
+
+/**
+ * 计算两个向量间的余弦相似度
+ * @param a - 第一个向量
+ * @param b - 第二个向量
+ * @returns 相似度百分比 (0-100)
+ */
+export function cosineSimilarity(a: number[], b: number[]): number {
+    const len = Math.min(a.length, b.length);
+    let dot = 0, normA = 0, normB = 0;
+    for (let i = 0; i < len; i++) {
+        dot += a[i] * b[i];
+        normA += a[i] * a[i];
+        normB += b[i] * b[i];
+    }
+    if (normA === 0 || normB === 0) return 0;
+    const cosine = dot / (Math.sqrt(normA) * Math.sqrt(normB));
+
+    return Math.max(0, cosine) * 100;
+}
+

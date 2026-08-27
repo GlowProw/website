@@ -10,6 +10,7 @@ export interface QueryImageData {
   structuralFeatures?: number[];
   blockFeatures?: number[];
   imageData?: ImageData;
+  tfEmbedding?: number[];
 }
 
 /**

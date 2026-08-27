@@ -53,6 +53,7 @@ import SetDetailPage from '@/views/codex/sets/Detail.vue'
 
 import TreasureMapsPage from '@/views/codex/treasureMaps/Index.vue'
 import TreasureMapDetailPage from '@/views/codex/treasureMaps/Detail.vue'
+import TreasureMapComparisonPage from '@/views/codex/treasureMaps/Comparison.vue'
 
 import MapLocationPage from '@/views/codex/mapLocations/Index.vue'
 import MapLocationsDetailPage from '@/views/codex/mapLocations/Detail.vue'
@@ -580,6 +581,15 @@ const routes: Readonly<RouteRecordRaw[]> = [
                     keywords: 'codex.set.meta.keywords'
                 },
                 component: SetDetailPage,
+            },
+            {
+                path: 'treasureMaps/comparison',
+                name: 'TreasureMapComparison',
+                meta: {
+                    title: 'codex.treasureMaps.comparison.title',
+                    keywords: 'codex.treasureMaps.meta.keywords'
+                },
+                component: TreasureMapComparisonPage,
             },
             {
                 path: 'treasureMaps',

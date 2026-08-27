@@ -851,7 +851,14 @@
           "perceptual-hash": "Perceptual Hash (Fast)",
           "color-histogram": "Color Histogram",
           "feature-matching": "Feature Matching",
-          "structural-similarity": "Structural Similarity"
+          "structural-similarity": "Structural Similarity",
+          "tensorflow-mobilenet": "Deep Learning"
+        },
+        "tfjs": {
+          "hint": "Uses MobileNet neural network to extract image features, higher accuracy but slower speed",
+          "loading": "Loading model...",
+          "ready": "Model ready",
+          "error": "Load failed"
         },
         "selectAlgorithm": "Select Comparison Algorithm",
         "filter": {
@@ -860,7 +867,9 @@
           "similarityPercent": "Similarity Percentage",
           "similarityHint": "The lower this value, the lower the image similarity. 0 means all are retrieved.",
           "searchRange": "Search Range",
-          "rangeHint": "Take the top {range} search results, exceeding content is truncated"
+          "rangeHint": "Take the top {range} search results, exceeding content is truncated",
+          "grayscale": "Ignore color, grayscale mode",
+          "grayscaleHint": "Ignore color information, compare only luminance, structure and texture — ideal for in-game screenshots"
         },
         "uploadPrompt": "Select an image as a baseline to find treasure maps",
         "selectImage": "Select Image",

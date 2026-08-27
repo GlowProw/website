@@ -56,7 +56,7 @@ const onLogin = async () => {
   } catch (e) {
     console.log(e)
     if (e instanceof ApiError && e.code === 'signin.notActivated') {
-      handleApiError(e, notice, t, { component: 'Signin', tPrefix: 'basic.tips.signin' })
+      handleApiError(e, notice, t, { component: 'Signin', tPrefix: 'basic.tips' })
       setTimeout(() => {
         router.push({
           path: '/account/activate',
@@ -65,7 +65,7 @@ const onLogin = async () => {
       }, 1500)
       return
     }
-    handleApiError(e, notice, t, { component: 'Signin', tPrefix: 'basic.tips.signin' })
+    handleApiError(e, notice, t, { component: 'Signin', tPrefix: 'basic.tips' })
   } finally {
     signinFormLoading.value = false
   }

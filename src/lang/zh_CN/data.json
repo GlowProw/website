@@ -318,8 +318,17 @@
         "duplicateContent": "内容与上一条重复，无法重复发布",
         "pushSuccess": "发布成功",
         "newTeamUp": "船长，有新组队",
-        "authFailed": "Token 无效或已过期, 重新登陆",
+        "authFailed": "身份令牌无效或已过期, 请重新登陆",
         "error": "通信错误: {context}"
+      },
+      "me": {
+        "success": "保存成功",
+        "bad": "信息错误: {context}"
+      },
+      "userInfo": {
+        "success": "获取成功",
+        "bad": "信息错误: {context}",
+        "notFound": "无法查询到此用户"
       }
     },
     "rules": {
@@ -935,7 +944,14 @@
           "perceptual-hash": "感知哈希 (快速)",
           "color-histogram": "颜色直方图",
           "feature-matching": "特征点匹配",
-          "structural-similarity": "结构相似性"
+          "structural-similarity": "结构相似性",
+          "tensorflow-mobilenet": "深度学习"
+        },
+        "tfjs": {
+          "hint": "使用 MobileNet 神经网络提取图像特征，精度更高但速度较慢",
+          "loading": "模型加载中...",
+          "ready": "模型已就绪",
+          "error": "加载失败"
         },
         "selectAlgorithm": "选择比较算法",
         "filter": {
@@ -944,7 +960,9 @@
           "similarityPercent": "相似百分比",
           "similarityHint": "此值越低图片相似越低，等于0时代表检索所有",
           "searchRange": "检索范围",
-          "rangeHint": "取搜索结果前{range},超出的内容截断"
+          "rangeHint": "取搜索结果前{range},超出的内容截断",
+          "grayscale": "不考虑颜色，灰度模式",
+          "grayscaleHint": "忽略颜色信息，仅比较淡度、结构和纹理，适合屏幕截图对比"
         },
         "uploadPrompt": "选择一张图片作为基准，查找藏宝图",
         "selectImage": "选择图片",

@@ -72,7 +72,7 @@ const onReady = async () => {
   treasureMapsCardData.value.icon = currentImageService.url({
     'glow-prow': {
       id: props.id,
-      category: category || 'AUTO_treasureMaps'
+      category: `${category}` || 'AUTO_treasureMaps'
     },
     'glow-prow-zh-cn': {
       id: props.id,

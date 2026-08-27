@@ -5,7 +5,7 @@
 export default class Api_config {
     static NODE: {};
     CONF = {
-        "requestDevelopmentName": "production",
+        "requestDevelopmentName": "development",
         "requestProductionName": "production",
         "requestTestName": "test",
         "child": {
