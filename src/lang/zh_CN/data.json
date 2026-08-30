@@ -75,7 +75,7 @@
     },
     "gp-0000000008": {
       "title": "本地存储读写异常",
-      "description": "localStorage / sessionStorage 访问受限或配额耗尽。"
+      "description": "游览器储存访问受限或配额耗尽。"
     },
     "gp-0000000009": {
       "title": "Web Worker 后台任务异常",
@@ -964,7 +964,6 @@
           "grayscale": "不考虑颜色，灰度模式",
           "grayscaleHint": "忽略颜色信息，仅比较淡度、结构和纹理，适合屏幕截图对比"
         },
-        "uploadPrompt": "选择一张图片作为基准，查找藏宝图",
         "selectImage": "选择图片",
         "noResult": {
           "algorithmIssue": "未找到相似藏宝图，这可能由于查询算法偏差或未收录藏宝图，请尝试更换查询算法再次尝试",

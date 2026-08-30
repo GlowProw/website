@@ -1,9 +1,34 @@
 {
   "name": "闪耀船首",
-  "about": {
-    "title": "关于",
-    "minor": "",
-    "description": ""
+  "apps": {
+    "title": "應用程序列表",
+    "description": "這裏陳列由閃耀船首開發社區套件，目的集成閃耀船首開放資源鏈接第三方社區平臺",
+    "detail": "內容",
+    "filter": {
+      "byTag": "按標籤篩選",
+      "byName": "按名稱",
+      "byId": "按ID"
+    },
+    "qqBot": {
+      "name": "QQ 機器人",
+      "description": "機器人套件，將閃耀船首機器人的分享到你的羣組。即可分享配置，物品查詢，時刻掌握碧海黑帆動態。",
+      "features": {
+        "assembly": {
+          "title": "生成配置海報"
+        },
+        "codex": {
+          "title": "物品查詢"
+        },
+        "command": {
+          "title": "斜槓命令喚起",
+          "description": "所有羣組免費使用，僅需要簡單的斜槓命令喚醒機器人。通過在企鵝聊天添加機器人中搜索此id(3889974138),來添加"
+        }
+      }
+    }
+  },
+  "ad": {
+    "title": "廣告",
+    "description": "廣告內容 {id}"
   },
   "notice": {
     "types": {
@@ -69,7 +94,42 @@
       "description": "遇到非明確分類的系統應用運作錯誤。"
     }
   },
+  "about": {
+    "title": "关于",
+    "disclaimer": "閃耀船首程序以及附屬遵循不同協議，主程序以及附屬不隸屬於碧海黑帆或Ubisoft集團。",
+    "manifesto": {
+      "title": "閃光船首誕生於此 ——————",
+      "p1": "在無盡的遊戲海洋中，每位玩家都是一位獨自航行的冒險者。前方是未知的迷霧，身後是探索的軌跡。",
+      "p2": "閃光船首不僅是船頭的裝飾，更是穿透迷霧的光芒。當您迷茫時，它是照亮前路的燈塔；當您困惑時，它是解讀謎題的智慧。",
+      "p3": "我們相信，每一款遊戲都是一個等待探索的世界，每一位玩家都值得最清晰的指引。閃光船首匯聚社區智慧，提煉實用工具，化作永恆星光，陪伴您的每一次航行。從最初的微光到如今的明燈，我們始終堅守一個信念：爲航海者服務，爲探索者引路。",
+      "p4": "加入我們，讓您的遊戲之旅不再孤單。閃光船首，永遠在前方閃光。"
+    },
+    "thanks": "同時感謝 <u>@SkullAndBonesTools/SkullAndBonesData</u> 項目提供原始數據源，這使得閃耀船首得以開發",
+    "openSourceContribution": "爲開源貢獻🎉，熱愛發電",
+    "osList": {
+      "main": "閃耀船首主程序，包含前端程序/後端程序，遵循MIT協議",
+      "data": "閃耀船首數據，碧海黑帆物品/日曆等數據，遵循AGPL-3.0協議",
+      "assets": "閃耀船首資源，碧海黑帆圖片材料資源，遵循AGPL-3.0協議",
+      "translations": "閃耀船首翻譯數據，遵循AGPL-3.0協議"
+    },
+    "openSourceTitle": "開源",
+    "developersHonor": "特此表彰那些無償參與程序開發的成員, 作爲基石開拓先鋒",
+    "developersTitle": "開發者",
+    "translatorsHonor": "表彰傑出翻譯成員，感謝爲程序進行翻譯工作成員",
+    "translatorsTitle": "翻譯成員",
+    "contactHonor": "你可以通過下方任意方式聯繫到開發者，諮詢關於網站或是尋求合作",
+    "contactTitle": "聯繫",
+    "minor": "",
+    "description": ""
+  },
+  "emote": {
+    "emoji": "表情",
+    "gesture": "手勢",
+    "hangouts-blob": "圓臉",
+    "party": "派對"
+  },
   "pwa": {
+    "title": "漸進式網頁應用(PWA)",
     "offlineReady": "應用程式已準備好離線工作",
     "newContentAvailable": "有新內容可用",
     "refreshToUpdate": "點擊重新整理按鈕以更新。",
@@ -106,13 +166,16 @@
       "insert": "插入",
       "next": "下一步",
       "prev": "上一步",
+      "change": "改變",
       "reply": "回复",
       "report": "举报",
       "reset": "重置",
       "save": "保存",
       "submit": "确认",
       "search": "搜索",
-      "go": "前往"
+      "go": "前往",
+      "edit": "編輯",
+      "delete": "刪除"
     },
     "privilege": {
       "admin": "社区管理",
@@ -184,21 +247,45 @@
       },
       "captcha": {
         "bad": "验证码错误",
+        "error": "驗證碼錯誤: {context}",
         "expired": "验证码过期",
         "wrong": "输入的验证码错误"
       },
-      "login": {
-        "ok": "登陆成功",
-        "bad": "登陆错误: 请检查登陆信息格式",
-        "wrong": "登陆信息错误",
-        "expired": "用户身份过期,请重新登陆",
-        "accountIncorrect": "登陆信息错误"
+      "signin": {
+        "ok": "登陸成功",
+        "bad": "登陸錯誤: 請檢查登陸信息格式",
+        "wrong": "登陸信息錯誤",
+        "error": "登陸錯誤: {context}",
+        "expired": "用戶身份過期,請重新登陸",
+        "accountIncorrect": "登陸信息錯誤",
+        "notActivated": "賬戶由於未激活而被禁用，請前往激活"
       },
       "signup": {
         "ok": "注册成功",
         "userAlreadyHas": "注册帐号的名称已存在",
         "error": "注册错误: {context}",
         "bad": "注册错误: 请检查注册信息的格式要求"
+      },
+      "activate": {
+        "ok": "賬戶激活成功，請登錄",
+        "invalidCode": "激活碼無效或已過期",
+        "alreadyActive": "賬戶已激活，請直接登錄",
+        "userNotFound": "未找到對應賬戶",
+        "emailQuotaExceeded": "郵件發送達到每日上限，請稍後再試",
+        "resend": {
+          "ok": "激活碼已重發，請檢查郵箱"
+        },
+        "error": "激活錯誤: {context}"
+      },
+      "forgotPassword": {
+        "ok": "重置碼已發送，請檢查郵箱",
+        "invalidEmail": "郵箱與賬戶不匹配",
+        "error": "請求錯誤: {context}"
+      },
+      "resetPassword": {
+        "ok": "密碼重置成功，請重新登錄",
+        "invalidCode": "重置碼無效或已過期",
+        "error": "重置錯誤: {context}"
       },
       "like": {
         "ok": "赞处理成功",
@@ -208,6 +295,17 @@
       "user": {
         "invalid": "错误用户",
         "tokenExpired": "用户身份过期,请重新登陆"
+      },
+      "emailChange": {
+        "alreadyUsed": "該郵箱已被佔用",
+        "quotaExceeded": "郵件發送達到每日上限，請稍後再試",
+        "invalidCode": "驗證碼無效或已過期",
+        "request": {
+          "ok": "驗證碼已發送到新郵箱"
+        },
+        "confirm": {
+          "ok": "郵箱更換成功"
+        }
       },
       "request": {
         "rateLimited": "请求太快力，慢点"
@@ -224,10 +322,62 @@
         "newTeamUp": "船长，有新组队",
         "authFailed": "Token 无效或已过期, 重新登陆",
         "error": "通信错误: {context}"
+      },
+      "me": {
+        "success": "保存成功",
+        "bad": "信息錯誤: {context}"
+      },
+      "userInfo": {
+        "success": "獲取成功",
+        "bad": "信息錯誤: {context}",
+        "notFound": "無法查詢到此用戶"
+      },
+      "login": {
+        "ok": "登陆成功",
+        "bad": "登陆错误: 请检查登陆信息格式",
+        "wrong": "登陆信息错误",
+        "expired": "用户身份过期,请重新登陆",
+        "accountIncorrect": "登陆信息错误"
+      }
+    },
+    "rules": {
+      "username": {
+        "notEmpty": "必須填寫用戶名ID",
+        "blacklistRestriction": "{content}非法名稱，請嘗試使用其他",
+        "limitationLength": "用戶名稱長度需要{min}到{max}",
+        "incorrectFormat": "用戶名ID格式不正確"
+      },
+      "alternativeName": {
+        "limitationLength": "別名長度需要{min}到{max}",
+        "incorrectFormat": "別名格式不正確"
+      },
+      "email": {
+        "notEmpty": "必須填寫郵箱",
+        "incorrectFormat": "郵箱格式不正確，如: usename@exp.com"
+      },
+      "password": {
+        "notEmpty": "必須填寫密碼",
+        "limitationLength": "密碼長度需要{min}到{max}"
+      },
+      "captcha": {
+        "notEmpty": "必須填寫驗證碼",
+        "limitationLength": "驗證碼長度爲{max}"
       }
     },
     "yes": "是",
     "no": "否"
+  },
+  "comment": {
+    "title": "評論",
+    "edit": "編輯",
+    "save": "保存",
+    "publishSuccess": "評論發佈成功",
+    "loginRequired": "請登陸發佈評論",
+    "noComments": "暫無評論",
+    "beFirst": "成爲第一個評論的人",
+    "me": "我",
+    "deleteConfirmation": "刪除評論？",
+    "deleteWarning": "此操作不可逆。"
   },
   "portal": {
     "title": "首页",
@@ -237,9 +387,107 @@
     "blogLog": "博客"
   },
   "account": {
+    "trash": "回收站",
+    "logout": "退出登錄",
+    "selectAll": "全選",
+    "itemsSelected": "已選擇 {count} 項",
+    "deletedAt": "刪除時間",
     "title": "账户",
     "information": {
-      "title": "个人信息"
+      "title": "个人信息",
+      "form": {
+        "uuid": {
+          "name": "賬戶唯一標識",
+          "description": "這是唯一標識，由系統分配"
+        },
+        "username": {
+          "name": "賬戶登陸id"
+        },
+        "alternativeName": {
+          "name": "別名",
+          "description": "顯示賬戶別名名稱",
+          "placeholder": "輸入新用戶名稱",
+          "changeName": "修改別名",
+          "changeNameDescription": "設置新的名稱，展示你獨特名字"
+        },
+        "email": {
+          "name": "郵箱",
+          "placeholder": "賬戶郵箱",
+          "changeName": "修改郵箱",
+          "changeDescription": "更改您的賬戶郵箱，需要向新郵箱發送驗證碼並驗證。",
+          "newEmailPlaceholder": "輸入新郵箱地址",
+          "sendCode": "發送驗證碼",
+          "codePlaceholder": "輸入 6 位驗證碼",
+          "error": {
+            "required": "請輸入新郵箱"
+          }
+        },
+        "language": {
+          "name": "語種",
+          "description": "設置賬戶偏向語種",
+          "placeholder": "選擇偏向語種"
+        },
+        "introduction": {
+          "name": "描述",
+          "description": "自我的描述，它會暫時在外部",
+          "placeholder": "自我介紹一下:D"
+        },
+        "password": {
+          "name": "密碼",
+          "changePasswordName": "修改賬戶密碼",
+          "changePasswordDescription": "此操作會在成功後推出登陸，需要重新登陸賬號",
+          "oldPassword": "",
+          "oldPasswordPlaceholder": "輸入舊的密碼",
+          "newPassword": "",
+          "newPasswordPlaceholder": "輸入新的密碼"
+        }
+      }
+    },
+    "profile-picture": {
+      "title": "頭像",
+      "description": "頭像使用的是gravatar提供用戶信息，需要修改頭像信息前往gravatar.com上傳",
+      "associatedEmailNotification": "頭像關聯的是{email}郵箱，請使用它來註冊gravatar"
+    },
+    "myAssembly": "我的配裝",
+    "myComment": "我的評論",
+    "myTeamup": "我的組隊",
+    "myMap": "地圖管理",
+    "mySmugglersReport": "走私犯獎賞家"
+  },
+  "activate": {
+    "title": "賬戶激活",
+    "description": "請輸入發送到您郵箱的 6 位激活碼以完成註冊。",
+    "form": {
+      "username": {
+        "name": "賬戶名稱",
+        "placeholder": "請輸入用戶名"
+      },
+      "code": {
+        "name": "激活碼",
+        "placeholder": "輸入 6 位激活碼"
+      }
+    },
+    "resendCode": "重新發送激活碼",
+    "submit": "激活賬戶",
+    "backToSignin": "返回登錄"
+  },
+  "forgotPassword": {
+    "title": "找回密碼",
+    "description": "請輸入您的賬戶 ID 和關聯郵箱，系統將發送 6 位重置碼到您的郵箱。",
+    "form": {
+      "identifier": "賬戶 ID",
+      "email": "註冊郵箱",
+      "submit": "發送重置碼"
+    }
+  },
+  "resetPassword": {
+    "title": "重置密碼",
+    "description": "請輸入您收到的重置碼和新的登錄密碼。",
+    "form": {
+      "username": "賬戶名稱",
+      "code": "重置碼",
+      "newPassword": "新密碼",
+      "submit": "確認重置"
     }
   },
   "codex": {
@@ -254,6 +502,7 @@
       "byCategory": "类别筛选",
       "byTier": "等级筛选",
       "bySeason": "赛季筛选",
+      "byWorldEvent": "世界事件篩選",
       "bySet": "集合筛选",
       "byLocation": "地点筛选",
       "sortBy": "排序",
@@ -458,10 +707,6 @@
       "iframe": "iframe代碼",
       "copySuccess": "已複製到剪貼簿"
     },
-    "items": {
-      "title": "物品列表",
-      "description": "物品列表"
-    },
     "ships": {
       "title": "船只列表",
       "searchCountOverflowTip": "超出搜索显示最大{maximumSearchCount}，剩余{exceedingItemsCount}已节流,可以再精准填写关键词",
@@ -480,9 +725,14 @@
         }
       }
     },
+    "items": {
+      "title": "物品列表",
+      "description": "物品列表"
+    },
     "item": {
       "title": "物品详情",
       "weight": "重量",
+      "ammunitionType": "彈藥",
       "projectilesPerShot": "单发伤害",
       "rateOfFire": "开火间隔 (秒)",
       "DPS": "DPS (Damage per Second)",
@@ -492,6 +742,8 @@
       "reloadSpeed": "重新加载速度（秒）",
       "optimalRange": "范围（米）",
       "projectileSpeed": "射弹速度（米/秒）",
+      "buffDuration": "增益時長",
+      "buffDurationUnit": "{value}秒",
       "shipUpgradeUseTitle": "可用船只",
       "shipUpgradesTitle": "可用升级",
       "contentsTitle": "掉落内容",
@@ -504,7 +756,9 @@
         "prepend": "出自",
         "append": "赛季"
       },
+      "byMap": "地圖位置",
       "obtainable": "线索",
+      "event": "事件",
       "worldEvent": "世界事件",
       "bluePrint": "设计图",
       "requiredRank": "最低使用等级",
@@ -515,12 +769,17 @@
       "damageType": "武器属性",
       "perks": "词条",
       "tier": "等级",
+      "effect": "效果",
       "damageMitigation": "损害减轻",
+      "damageMitigationTip": "對特定屬性傷害有減免，屬性抗性越高，收到該屬性傷害則越少",
       "lookDetail": "查看物品详情"
     },
     "commoditie": {
       "title": "杂货详情",
       "lookDetail": "查看杂货详情"
+    },
+    "commoditys": {
+      "title": "雜貨列表"
     },
     "commodities": {
       "title": "杂货列表"
@@ -538,6 +797,7 @@
       "lowerDeck": "下层甲板",
       "furniture": "陈设",
       "ultimate": "终极技能",
+      "baseRank": "基礎船隻等級",
       "hitPoints": "血量",
       "braceStrength": "增强力量",
       "sailSpeed": {
@@ -545,12 +805,34 @@
         "knot": "(节/kts)",
         "halfSail": "最低",
         "fullSail": "全速",
-        "travelSail": "极限"
+        "travelSail": "极限",
+        "unit": {
+          "knot": "節"
+        },
+        "boost": {
+          "title": "速度提升: +{percent}%",
+          "waterFlaskRemaining": "(水壺效果剩餘 {time})",
+          "waterBarrelRemaining": "(水桶效果剩餘 {time})",
+          "strongBreeze": "強風",
+          "strongBreezeEffect": "強風效果",
+          "cancelEffect": "終止效果",
+          "waterFlaskTooltip": "水壺：20秒內速度提升10%",
+          "waterBarrelTooltip": "水桶：20秒內速度提升15%",
+          "strongBreezeTooltip": "強風：速度提升50%"
+        },
+        "simulation": {
+          "windy": "有風",
+          "dust": "無風",
+          "slow": "慢速",
+          "normal": "正常",
+          "fast": "快速"
+        }
       },
       "cargo": "容器",
       "cargoSlots": "容器格子",
       "cargoMaxWeight": "容量承重",
       "materialsTitle": "材料",
+      "allShipUpgradeMaterials": "所有升級部件合計材料",
       "required": "建造所需物品",
       "rawMaterials": "原材料",
       "bySeason": {
@@ -590,7 +872,8 @@
       "title": "集合列表"
     },
     "ultimate": {
-      "title": "终结技详情"
+      "title": "终结技详情",
+      "lookDetail": "查看終結技詳情"
     },
     "ultimates": {
       "title": "终结技列表"
@@ -631,6 +914,7 @@
     },
     "treasureMap": {
       "title": "藏宝图详情",
+      "treasureMapSameArea": "同地區藏寶圖",
       "names": {
         "none": "藏宝图",
         "recent": "{location}",
@@ -648,6 +932,13 @@
         "old": "老旧",
         "veryOld": "古老",
         "legend": "匪首"
+      },
+      "descriptions": {
+        "none": "未知地圖",
+        "recent": "一張指向寶藏的地圖。紙質清脆厚實，寶藏應該是不久前才被埋起來的",
+        "old": "一張指向寶藏的地圖。紙質厚實，寶藏應該是有一段時間才被埋起來的",
+        "veryOld": "一張指向寶藏的地圖。紙質殘破，寶藏應該是很久時間才被埋起來的",
+        "legend": "一張指向寶藏的地圖。紙質模糊不清，寶藏不知何時才被埋起來的"
       }
     },
     "treasureMaps": {
@@ -661,9 +952,32 @@
           "perceptual-hash": "感知哈希 (快速)",
           "color-histogram": "顏色直方圖",
           "feature-matching": "特徵點匹配",
-          "structural-similarity": "結構相似性"
+          "structural-similarity": "結構相似性",
+          "tensorflow-mobilenet": "深度學習"
         },
-        "selectAlgorithm": "選擇比較算法"
+        "tfjs": {
+          "hint": "使用 MobileNet 神經網絡提取圖像特徵，精度更高但速度較慢",
+          "loading": "模型加載中...",
+          "ready": "模型已就緒",
+          "error": "加載失敗"
+        },
+        "selectAlgorithm": "選擇比較算法",
+        "filter": {
+          "source": "來源篩選",
+          "category": "分類篩選",
+          "similarityPercent": "相似百分比",
+          "similarityHint": "此值越低圖片相似越低，等於0時代表檢索所有",
+          "searchRange": "檢索範圍",
+          "rangeHint": "取搜索結果前{range},超出的內容截斷",
+          "grayscale": "不考慮顏色，灰度模式",
+          "grayscaleHint": "忽略顏色信息，僅比較淡度、結構和紋理，適合屏幕截圖對比"
+        },
+        "selectImage": "選擇圖片",
+        "noResult": {
+          "algorithmIssue": "未找到相似藏寶圖，這可能由於查詢算法偏差或未收錄藏寶圖，請嘗試更換查詢算法再次嘗試",
+          "useFilter": "如果知道藏寶圖屬性，適當使用篩選地圖類型和藏寶圖地區，可以減少檢索等待時間",
+          "notInCollection": "未收錄情況通過網站下方聯繫方式聯繫添加收藏"
+        }
       }
     },
     "mapLocation": {
@@ -676,6 +990,7 @@
     "npc": {
       "title": "NPC",
       "lookDetail": "查看详情",
+      "workerTitle": "可加工列表",
       "types": {
         "npc": "非玩家人物",
         "structure": "建筑体(不可移动)"
@@ -907,6 +1222,10 @@
     "editInfoBtn": "編輯信息",
     "editWorkshopBtn": "配裝",
     "anonymous": "匿名",
+    "restore": "恢復",
+    "restoreConfirm": "確定要恢復這個配裝嗎？",
+    "restoreSuccess": "恢復成功",
+    "commentPlaceholder": "你對此有何見解？",
     "additions": {
       "assembly": "配装",
       "wheel": "轮盘",
@@ -914,6 +1233,50 @@
     },
     "setting": {
       "title": "設置",
+      "publicly": "公開",
+      "private": "私有",
+      "tagCommon": "常規",
+      "tagData": "數據",
+      "includePasswordHint": "含密碼",
+      "existingPasswordButNewDelete": "當前配裝已設密碼，但新密碼已刪除",
+      "notPassword": "無密碼",
+      "visibility": "是否可見",
+      "visibilityDescription": "決定是否被搜索或是直接訪問",
+      "selectVisibility": "選擇可見性",
+      "usePassword": "使用密碼",
+      "passwordDescription": "創建密碼後，配裝頁面必須輸入密碼纔可訪問",
+      "passwordInput": "密碼",
+      "passwordHint": "至少6位到32位，僅可使用a-A 0-9 _",
+      "language": "配裝語種",
+      "languageDescription": "你可以定義配裝語言",
+      "selectLanguage": "選擇語言",
+      "backgroundImage": "背景圖片",
+      "backgroundImageDescription": "它僅在配裝詳情頁展示，固定在配裝後方，使用外部圖牀",
+      "backgroundImageAlt": "背景圖片",
+      "backgroundImageUrl": "背景圖片URL",
+      "showItemName": "是否展示名稱",
+      "showItemNameDescription": "在物品圖標下方顯示物品名稱",
+      "showFullName": "是否完整顯示",
+      "showFullNameDescription": "決定於物品是否完整顯示名稱，而並非溢出隱藏",
+      "anonymous": "是否匿名",
+      "anonymousDescription": "是否將你在此配裝中用戶名稱和ID刪除",
+      "comments": "評論",
+      "commentsDescription": "是否開啓評論",
+      "likes": "點贊",
+      "likesDescription": "是否開啓點贊",
+      "other": "其他",
+      "rendererVersion": "配裝渲染器版本",
+      "rendererVersionDescription": "決定對配裝數據以何種格式加載，如果你不清楚作用可以不需要設置，讓系統以最新版本來初始加載",
+      "wheelRendererVersion": "輪盤渲染器版本",
+      "wheelRendererVersionDescription": "決定對輪盤數據以何種格式加載，如果你不清楚作用可以不需要設置，讓系統以最新版本來初始加載",
+      "warehouseRendererVersion": "船倉渲染器版本",
+      "warehouseRendererVersionDescription": "決定對船倉數據以何種格式加載，如果你不清楚作用可以不需要設置，讓系統以最新版本來初始加載",
+      "version": "版本",
+      "selectVersion": "選擇版本",
+      "enable": "啓用",
+      "deleteDescription": "刪除配裝是不可逆行爲, 將會刪除對應評論和點贊",
+      "deleteConfirmation": "刪除配裝？",
+      "deleteWarning": "此操作不可逆，將永久刪除配裝及其評論和點贊。",
       "routine": {
         "title": "常規設置",
         "translationHelp": "如果您對翻譯感興趣，可以通過下方連結這裡幫助我們內容糾正或翻譯，對於翻譯成員我們將公示中網站中，並為帳戶賦予譯者身份",
@@ -989,9 +1352,7 @@
         "dataTitle": "數據",
         "persistentStorage": "持久儲存數據",
         "sessionStorage": "會話儲存數據"
-      },
-      "publicly": "公開",
-      "private": "私有"
+      }
     },
     "modification": {
       "basic": "基础",
@@ -1000,6 +1361,14 @@
       "mythic": "传奇"
     },
     "tags": {
+      "titles": {
+        "applicableModes": "配裝適用模式",
+        "teamFormation": "配裝組隊",
+        "seasons": "適用賽季",
+        "damageTypes": "傷害類型",
+        "archetypes": "船隻定位",
+        "difficultyOfAcquisition": "獲取難度"
+      },
       "modes": {
         "pvp": "战斗",
         "pve": "生存"
@@ -1013,17 +1382,14 @@
         "medium": "中等",
         "difficulties": "困难"
       },
-      "archetypes": {
-        "dps": "输出",
-        "tank": "坦克",
-        "support": "支援"
-      },
       "grade": {
         "basic": "基本",
         "advanced": "高级",
-        "special": "特殊"
+        "special": "特殊",
+        "mythic": "傳奇"
       },
       "damageTypes": {
+        "armor": "護甲",
         "electric": "雷电",
         "explosive": "爆炸",
         "fire": "火",
@@ -1034,6 +1400,11 @@
         "repair": "维修",
         "tearing": "撕裂",
         "toxic": "剧毒"
+      },
+      "archetypes": {
+        "dps": "输出",
+        "tank": "坦克",
+        "support": "支援"
       }
     },
     "workshop": {
@@ -1080,6 +1451,7 @@
     },
     "share": {
       "title": "分享配裝",
+      "notMobile": "由於本地客戶端的顯示限制，小屏設備暫不支持海報生成功能。建議您切換到電腦或平板等寬屏設備上使用，以獲得完整體驗。",
       "createPoster": "生成配裝海報",
       "configHint": "配置生成海報屬性，決定海報樣式以及格式等",
       "format": "格式",
@@ -1116,18 +1488,28 @@
       "title": "发布"
     }
   },
-  "login": {
-    "title": "登陆",
+  "smugglersReport": {
+    "title": "走私犯鑑賞家",
+    "description": "走私犯鑑賞家是對每週走私犯刷新物品評價，給所有玩家推薦選購理由，讓玩家們不要錯過價值非常高物品"
+  },
+  "space": {
+    "title": "用戶空間",
+    "lastOnlineTime": "最後在線",
+    "joinTime": "加入時間"
+  },
+  "signin": {
+    "title": "登陸",
     "form": {
       "placeholder": {
-        "username": "输入帐号id",
-        "password": "输入密码"
+        "username": "輸入帳號id",
+        "password": "輸入密碼"
       },
       "label": {
-        "username": "账户id",
-        "password": "密码"
+        "username": "賬戶id",
+        "password": "密碼"
       }
-    }
+    },
+    "newUserRegistrationHint": "沒有賬戶？前往註冊"
   },
   "signup": {
     "title": "注册",
@@ -1141,11 +1523,17 @@
       "placeholder": "输入展示名称",
       "hint": "用于展示网站名称，如果不填将默认使用账户id，至少3位到40位，使用a-z/A-Z/0-9/_"
     },
+    "password": {
+      "name": "密碼",
+      "placeholder": "輸入賬戶密碼",
+      "hint": "至少8位到64位"
+    },
     "email": {
       "name": "邮箱",
       "placeholder": "输入邮箱地址",
       "hint": "可选邮箱，这将使得你的账户可寻回"
-    }
+    },
+    "register": "註冊"
   },
   "home": {
     "title": "首页"
@@ -1163,188 +1551,113 @@
   },
   "search": {
     "title": "搜索",
-    "placeholder": "输入关键词或使用字段查询，如：name:设备 或 id:exact_id",
-    "conditions": "查询条件",
-    "quickFilters": "快速筛选",
+    "placeholder": "輸入關鍵詞或使用字段查詢，如：name:設備 或 id:exact_id",
+    "conditions": "查詢條件",
+    "quickFilters": "快速篩選",
     "recentSearches": "最近搜索",
-    "strictMatch": "精确匹配",
+    "strictMatch": "精確匹配",
     "fuzzyMatch": "模糊匹配",
-    "useTip": "高级使用提示",
+    "useTip": "高級使用提示",
     "filters": {
-      "name": "名称",
+      "name": "名稱",
       "id": "ID",
       "description": "描述",
-      "category": "分类",
-      "type": "类型"
-    }
-  },
-  "header": {
-    "navs": {
-      "blog": "闪耀船首博客",
-      "officialWebsite": "碧海黑帆官网",
-      "officialWebsiteDebug": "碧海黑帆官方问题集"
+      "category": "分類",
+      "type": "類型"
     },
-    "functions": {
-      "team": {
-        "title": "组队寻求",
-        "description": "发布或寻找与你计划相同船长出航，面对真正敌人"
-      },
-      "calendar": {
-        "title": "日历",
-        "description": "查看本赛季活动信息"
-      },
-      "maps": {
-        "title": "地图",
-        "description": "地图物品清单"
-      },
-      "codex": {
-        "title": "手稿",
-        "description": "陈列物品信息, 检查它们如何获得"
-      },
-      "assembly": {
-        "title": "船只配装厂",
-        "description": "设计你船，让它到达性能极限，分享给好友"
-      },
-      "captain-signature": {
-        "title": "海盗签名(开发中)",
-        "description": "生成海盗签名图片，分享到社区网站上"
-      },
-      "ranking-of-designed-items": {
-        "title": "物品排名(开发中)",
-        "description": "生成物品玩家心中排名以及评价"
-      },
-      "impression-of-monsters": {
-        "title": "精英怪印象(开发中)",
-        "description": "分享你对游戏内不同怪物第一印象"
-      },
-      "fashion-show": {
-        "title": "时装秀(开发中)",
-        "description": "分享你的穿搭，成为时尚达人"
-      },
-      "empire-skill-simulation": {
-        "title": "帝国升级模拟 (BETA 1)",
-        "description": "海陀社升级模拟",
-        "keywords": "empire skill simulation"
-      }
-    }
-  },
-  "footer": {
-    "basic": {
-      "description": "閃耀船首是Cabbagelol社區玩家編寫《碧海黑帆》遊戲工具，向玩家免費提供物品查詢，配置分享，地圖等服務"
-    },
-    "col1": {
-      "title": "服务"
-    },
-    "col2": {
-      "title": "社区",
-      "baiduTieBa": "百度贴吧闪耀船首贴子",
-      "xiaoheihe": "小黑盒闪耀船首贴子",
-      "kook": "Kook社区"
-    },
-    "col3": {
-      "title": "联系",
-      "serviceStatus": "服务状态",
-      "translated": "📖帮助我们翻译"
-    }
-  },
-  "empty": {
-    "title": "空空如也",
-    "description": "船长！请调头，这里什么都没有"
-  },
-  "captcha": {
-    "get": "获得验证码",
-    "fresh": "刷新验证码",
-    "messages": {
-      "bad": "验证码错误，请联系管理员",
-      "expired": "验证码已过期",
-      "gen": "获取成功",
-      "wrong": "验证码错误"
-    },
-    "title": "验证码"
-  },
-  "calculator": {
-    "title": "量化計算",
-    "description": "材料量化計算工具，设定目標物品計算所需全部材料",
-    "addTo": "添加至量化",
-    "addedSuccess": "已添加至量化計算",
-    "meta": {
-      "keywords": "量化計算,材料計算,材料需求,工序图"
-    },
-    "targets": {
-      "title": "目標",
-      "addTarget": "添加目標",
-      "searchPlaceholder": "搜索物品或船只...",
-      "quantity": "數量",
-      "type": "类型",
-      "item": "物品",
-      "ship": "船只",
-      "material": "材料",
-      "noTargets": "暂无目標，请添加物品或船只"
-    },
-    "results": {
-      "title": "計算结果",
-      "listView": "列表視圖",
-      "sankeyView": "工序图",
-      "columns": {
-        "name": "名称",
-        "quantity": "數量",
-        "link": "連結"
-      }
-    },
-    "exclude": {
-      "title": "排除材料",
-      "searchPlaceholder": "搜索要排除的材料...",
-      "noExcludes": "无排除材料",
-      "description": "排除的材料不会被进一步分解"
-    },
-    "config": {
-      "title": "配置管理",
-      "save": "保存配置",
-      "load": "加载配置",
-      "delete": "删除配置",
-      "name": "配置名称",
-      "savedConfigs": "已保存配置",
-      "noSavedConfigs": "暂无保存的配置"
-    },
-    "export": {
-      "title": "匯出",
-      "json": "匯出 JSON",
-      "csv": "匯出 CSV",
-      "csvHeaders": "材料標識,名称,數量,是否為原材料"
-    },
-    "import": {
-      "title": "匯入",
-      "json": "匯入 JSON",
-      "csv": "匯入 CSV"
-    },
-    "sankey": {
-      "showName": "顯示名称",
-      "showQuantity": "顯示數量"
-    },
-    "ui": {
-      "expandAll": "展開全部",
-      "collapseAll": "折疊全部",
-      "tree": "材料樹",
-      "summary": "材料匯總",
-      "emptyTree": "添加目標以查看材料樹",
-      "emptySankey": "添加目標以查看桑基圖",
-      "excluded": "排除",
-      "addToExclude": "加入排除"
-    }
-  },
-  "search": {
+    "configTitle": "搜索配置",
+    "scope": "搜索範圍",
+    "limitPerType": "每類結果上限",
+    "infinite": "無限",
+    "all": "全部",
+    "noResults": "未找到匹配的結果",
     "openMode": "結果連結開啟方式",
     "openNewWindow": "新視窗開啟",
-    "openCurrentWindow": "當前視窗開啟"
+    "openCurrentWindow": "當前視窗開啟",
+    "tips": {
+      "advanced": "支持高級查詢如：{example}",
+      "fuzzy": "模糊檢索",
+      "exactId": "精準id檢索",
+      "category": "category單一和組合",
+      "categoryOnly": "(僅限category)",
+      "fields": "字段",
+      "combinedFields": "支持同時使用以上字段查詢"
+    }
   },
   "setting": {
+    "title": "設置",
     "routine": {
+      "title": "常規設置",
+      "translationHelp": "如果你對翻譯感興趣，可以通過下方鏈接這裏幫助我們內容糾正或翻譯，對於翻譯成員我們將公示中網站中，併爲賬戶賦予譯者身份",
+      "translationService": "翻譯服務由 Crowdin 來提供",
+      "languageTitle": "語言",
+      "featureDesc": "管理功能列表，由你決定是否顯示",
+      "featureHint": "從下拉列表選擇功能來激活，點擊已激活標籤可移除",
+      "inactiveFunctions": "未激活功能 ({count})",
+      "noActiveFunctions": "暫無激活的功能，請從上方下拉列表中選擇",
+      "featuresTitle": "功能",
+      "itemConfigTitle": "物品配置",
+      "storageReportDesc": "閃耀船首使用本地緩存存儲數據，包含用戶配置/操作記錄等",
+      "clearStorage": "清空緩存",
+      "storageReportLinkHint": "前往這裏查看具體數據報告",
+      "storageReportBtn": "使用報告",
+      "storagePrivacyHint": "查看具體數據使用報告，不要分享它們，包含用戶操作隱私記錄",
+      "recordsTitle": "記錄",
+      "cdnTitle": "CDN資源分發",
+      "cdnDesc": "決定圖標等資源獲取來源,不同的資源可能存在圖標風格差異以及響應速度等,在修改後需要重新載入網頁",
+      "itemIconSizeTitle": "物品圖標尺寸",
+      "itemIconSizeDesc": "你可以調整庫存物品圖標的尺寸以適配大多數地方，但有些位置圖標無法改動或有範圍約束。",
+      "itemOpenNewWindowTitle": "新窗口",
+      "itemOpenNewWindowDesc": "默認是在同一個窗口轉移，如果打開，所有物品圖標點擊或觸摸都是新窗口訪問",
+      "posterDesc": "管理海報設置",
+      "posterAutoSave": "自動保存生成海報選項",
+      "posterHint": "當用戶修改海報生成設置將立即保存記錄，再次訪問海報加載配置內容",
+      "posterTitle": "海報",
+      "searchDesc": "管理全局搜索配置",
+      "searchHeaderSwitch": "網頁頭搜索開啓",
+      "searchIsLogs": "保存搜索記錄",
+      "searchHotkey": "是否快捷鍵觸發",
+      "searchHint": "關閉提示",
       "searchOpenMode": "結果連結開啟方式",
+      "searchTitle": "搜索",
       "commentTitle": "評論",
       "commentDesc": "管理全站評論模組顯示",
       "commentGlobalSwitch": "評論總開關",
       "commentCodexSwitch": "手稿（Codex）評論",
-      "commentAssemblySwitch": "配裝（Assembly）評論"
+      "commentAssemblySwitch": "配裝（Assembly）評論",
+      "assemblyDesc": "配裝選項",
+      "assemblyViewModel": "配裝視圖模式",
+      "assemblyTitle": "配裝",
+      "assemblyViewModelOptions": {
+        "full-extension": {
+          "name": "全寬模式",
+          "description": "配裝視圖將佔據整個屏幕寬度"
+        },
+        "lock-window": {
+          "name": "分窗模式",
+          "description": "配裝視圖將固定在一個限制寬度的窗口中"
+        }
+      }
+    },
+    "ad": {
+      "title": "廣告",
+      "description1": "網站爲熱愛發電，我們向玩家提供公益服務，並開源項目；爲了持續性提供服務，需要玩家們對投入廣告進行觸發",
+      "description2": "當然我們提供廣告管理以及一鍵關閉功能，減少網站閱讀困難",
+      "description3": "廣告使用第三方，你可以前往第三方廣告管理cookie隱私問題",
+      "mainSwitch": "總開關",
+      "excludeList": "排除列表",
+      "closedAdsHint": "下方是已關閉廣告列表"
+    },
+    "storage": {
+      "title": "數據報告",
+      "reportDesc": "數據報告，統計所有本地緩存數據統計",
+      "usageDesc": "閃耀船首使用本地緩存存儲數據，包含用戶配置/操作記錄等",
+      "dataTitle": "數據",
+      "persistentStorage": "持久儲存數據",
+      "sessionStorage": "會話儲存數據"
+    },
+    "notification": {
+      "title": "通知"
     },
     "log": {
       "title": "日誌",
@@ -1415,7 +1728,6 @@
       "field_max_limit": "匯入數量達到上限（最多10個）",
       "notes": "註解",
       "mod": "模組",
-      "item": "相關物品",
       "perk": "匹配詞條",
       "createNew": "新建清單",
       "edit": "編輯",
@@ -1442,7 +1754,220 @@
       "saveSuccess": "清單儲存成功",
       "saveError": "清單儲存失敗",
       "selectGradeFirst": "請先選擇代表模組類型以解鎖詞條選擇",
-      "selectModGrade": "代表模組類型"
+      "selectModGrade": "代表模組類型",
+      "item": "相關物品"
+    }
+  },
+  "header": {
+    "navs": {
+      "blog": "闪耀船首博客",
+      "officialWebsite": "碧海黑帆官网",
+      "officialWebsiteDebug": "碧海黑帆官方问题集"
+    },
+    "functions": {
+      "team": {
+        "title": "组队寻求",
+        "description": "发布或寻找与你计划相同船长出航，面对真正敌人"
+      },
+      "calendar": {
+        "title": "日历",
+        "description": "查看本赛季活动信息"
+      },
+      "maps": {
+        "title": "地图",
+        "description": "地图物品清单"
+      },
+      "codex": {
+        "title": "手稿",
+        "description": "陈列物品信息, 检查它们如何获得"
+      },
+      "smugglers-report": {
+        "title": "鑑賞家",
+        "description": "社區共同推薦每週購買指南"
+      },
+      "assembly": {
+        "title": "船只配装厂",
+        "description": "设计你船，让它到达性能极限，分享给好友"
+      },
+      "captain-signature": {
+        "title": "海盗签名(开发中)",
+        "description": "生成海盗签名图片，分享到社区网站上"
+      },
+      "ranking-of-designed-items": {
+        "title": "物品排名(开发中)",
+        "description": "生成物品玩家心中排名以及评价"
+      },
+      "impression-of-monsters": {
+        "title": "精英怪印象(开发中)",
+        "description": "分享你对游戏内不同怪物第一印象"
+      },
+      "fashion-show": {
+        "title": "时装秀(开发中)",
+        "description": "分享你的穿搭，成为时尚达人"
+      },
+      "empire-skill-simulation": {
+        "title": "帝国升级模拟 (BETA 1)",
+        "description": "海陀社升级模拟",
+        "keywords": "empire skill simulation"
+      },
+      "calculator": {
+        "title": "量化計算",
+        "description": "協助批量計算所需材料"
+      },
+      "apps": {
+        "title": "應用程序",
+        "description": "使用擴展套件提升體驗"
+      }
+    }
+  },
+  "footer": {
+    "basic": {
+      "description": "閃耀船首是Cabbagelol社區玩家編寫《碧海黑帆》遊戲工具，向玩家免費提供物品查詢，配置分享，地圖等服務"
+    },
+    "col1": {
+      "title": "服务"
+    },
+    "col2": {
+      "title": "社区",
+      "baiduTieBa": "百度贴吧闪耀船首贴子",
+      "xiaoheihe": "小黑盒闪耀船首贴子",
+      "kook": "Kook社区"
+    },
+    "col3": {
+      "title": "联系",
+      "serviceStatus": "服务状态",
+      "translated": "📖帮助我们翻译",
+      "github": "項目開源地址"
+    }
+  },
+  "empty": {
+    "title": "空空如也",
+    "description": "船长！请调头，这里什么都没有"
+  },
+  "captcha": {
+    "get": "获得验证码",
+    "fresh": "刷新验证码",
+    "messages": {
+      "bad": "验证码错误，请联系管理员",
+      "expired": "验证码已过期",
+      "gen": "获取成功",
+      "wrong": "验证码错误"
+    },
+    "title": "验证码"
+  },
+  "calculator": {
+    "title": "量化計算",
+    "description": "材料量化計算工具，设定目標物品計算所需全部材料",
+    "addTo": "添加至量化",
+    "addedSuccess": "已添加至量化計算",
+    "or": "或",
+    "meta": {
+      "keywords": "量化計算,材料計算,材料需求,工序图"
+    },
+    "targets": {
+      "title": "目標",
+      "addTarget": "添加目標",
+      "searchPlaceholder": "搜索物品或船只...",
+      "quantity": "數量",
+      "type": "类型",
+      "item": "物品",
+      "ship": "船只",
+      "material": "材料",
+      "noTargets": "暂无目標，请添加物品或船只"
+    },
+    "results": {
+      "title": "計算结果",
+      "listView": "列表視圖",
+      "sankeyView": "工序图",
+      "columns": {
+        "name": "名称",
+        "id": "標識",
+        "quantity": "數量",
+        "link": "連結"
+      }
+    },
+    "exclude": {
+      "title": "排除材料",
+      "searchPlaceholder": "搜索要排除的材料...",
+      "noExcludes": "无排除材料",
+      "description": "排除的材料不会被进一步分解"
+    },
+    "config": {
+      "title": "配置管理",
+      "save": "保存配置",
+      "load": "加载配置",
+      "delete": "删除配置",
+      "name": "配置名称",
+      "savedConfigs": "已保存配置",
+      "noSavedConfigs": "暂无保存的配置"
+    },
+    "export": {
+      "title": "匯出",
+      "json": "匯出 JSON",
+      "csv": "匯出 CSV",
+      "exportedTime": "導出時間: {time}",
+      "version": "版本: {version}",
+      "totalTargets": "目標數量: {number}",
+      "csvHeaders": "材料標識,名称,數量,是否為原材料"
+    },
+    "import": {
+      "title": "匯入",
+      "json": "匯入 JSON",
+      "csv": "匯入 CSV",
+      "importBuild": "導入配裝",
+      "selectBuild": "選擇配裝",
+      "noBuildsFound": "暫無保存的配裝或草稿",
+      "importByUid": "通過 ID 導入",
+      "importByUidPlaceholder": "輸入配裝 ID (UID)...",
+      "importing": "加載中...",
+      "importSuccess": "導入成功",
+      "importError": "導入失敗，請檢查 ID 是否正確"
+    },
+    "sankey": {
+      "showName": "顯示名称",
+      "showQuantity": "顯示數量",
+      "basicColor": "基礎色",
+      "richVividColor": "豐富鮮豔色",
+      "coolBlack": "酷黑",
+      "milkWhite": "奶白"
+    },
+    "ui": {
+      "hasNotRequired": "沒有材料建造",
+      "expandAll": "展開全部",
+      "collapseAll": "折疊全部",
+      "tree": "材料樹",
+      "summary": "材料匯總",
+      "emptyFlatMaterials": "添加目標以查看材料彙總",
+      "emptyTree": "添加目標以查看材料樹",
+      "emptySankey": "添加目標以查看桑基圖",
+      "excluded": "排除",
+      "addToExclude": "加入排除"
+    }
+  },
+  "detail": {
+    "dateView": {
+      "primitive": "原始值",
+      "primitives": {
+        "primitive": "原始字符",
+        "primitiveDateString": "原始日期字符"
+      },
+      "primitiveDescription": "展示時間在程序內的原始記錄值",
+      "localTimeZoneName": "當地時區",
+      "localeTime": "當地時間(已轉化)",
+      "localeTimeDescription": "根據系統當地時區，以及語種環境轉換後的時間數據"
+    }
+  },
+  "login": {
+    "title": "登陆",
+    "form": {
+      "placeholder": {
+        "username": "输入帐号id",
+        "password": "输入密码"
+      },
+      "label": {
+        "username": "账户id",
+        "password": "密码"
+      }
     }
   }
 }

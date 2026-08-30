@@ -1,4 +1,10 @@
 {
+  "apps": {
+    "meta": {
+      "keywords": "應用程序,機器人,爬蟲,{keywords}",
+      "description": "碧海黑帆清單網站"
+    }
+  },
   "codex": {
     "meta": {
       "title": "游戏资料站点",
@@ -9,14 +15,109 @@
         "keywords": "物品详情,船物品,{keywords}"
       }
     },
+    "items": {
+      "meta": {
+        "keywords": "物品列表,物品,{keywords}"
+      }
+    },
     "commoditie": {
       "meta": {
         "keywords": "杂货,商品,{keywords}"
       }
     },
+    "commodities": {
+      "meta": {
+        "keywords": "雜貨列表,商品,{keywords}"
+      }
+    },
+    "cosmetic": {
+      "meta": {
+        "keywords": "裝飾品,物品,皮膚,{keywords}"
+      }
+    },
+    "cosmetics": {
+      "meta": {
+        "keywords": "裝飾品,物品,皮膚,{keywords}"
+      }
+    },
     "ship": {
       "meta": {
         "keywords": "船详详情,船,{keywords}"
+      }
+    },
+    "ships": {
+      "meta": {
+        "keywords": "船詳列表,船,{keywords}"
+      }
+    },
+    "modification": {
+      "meta": {
+        "keywords": "模組,詞條,{keywords}"
+      }
+    },
+    "modifications": {
+      "meta": {
+        "keywords": "模組列表,詞條,{keywords}"
+      }
+    },
+    "npc": {
+      "meta": {
+        "keywords": "NPC,非玩家,任務,{keywords}"
+      }
+    },
+    "npcs": {
+      "meta": {
+        "keywords": "NPC列表,非玩家,任務,{keywords}"
+      }
+    },
+    "set": {
+      "meta": {
+        "keywords": "集合,裝扮,裝飾,船,玩家,身體,皮膚,{keywords}"
+      }
+    },
+    "sets": {
+      "meta": {
+        "keywords": "集合列表,裝扮,裝飾,船,玩家,身體,皮膚,{keywords}"
+      }
+    },
+    "ultimate": {
+      "meta": {
+        "keywords": "船,終極,技能,PVP,對戰,{keywords}"
+      }
+    },
+    "ultimates": {
+      "meta": {
+        "keywords": "船,終極列表,技能,PVP,對戰,{keywords}"
+      }
+    },
+    "material": {
+      "meta": {
+        "keywords": "材料,升級材料,船隻,{keywords}"
+      }
+    },
+    "materials": {
+      "meta": {
+        "keywords": "材料列表,升級材料,船隻,{keywords}"
+      }
+    },
+    "mapLocation": {
+      "meta": {
+        "keywords": "地點,地圖,位置,地區,視圖,可視化,{keywords}"
+      }
+    },
+    "mapLocations": {
+      "meta": {
+        "keywords": "地點列表,地圖,位置,地區,視圖,可視化,{keywords}"
+      }
+    },
+    "treasureMap": {
+      "meta": {
+        "keywords": "藏寶圖,常見,不常見,老舊,古舊,匪首,圖庫,材料,武器,雜貨,地圖,{keywords}"
+      }
+    },
+    "treasureMaps": {
+      "meta": {
+        "keywords": "藏寶圖列表,常見,不常見,老舊,古舊,匪首,圖庫,材料,武器,雜貨,地圖,{keywords}"
       }
     }
   },
@@ -35,9 +136,9 @@
       "keywords": "配装厂,碧海黑帆配装,配装,套装,游戏配装,{keywords}"
     }
   },
-  "login": {
+  "signin": {
     "meta": {
-      "keywords": "账户登陆,{keywords}"
+      "keywords": "賬戶登陸,{keywords}"
     }
   },
   "signup": {
@@ -45,9 +146,19 @@
       "keywords": "账户注册,{keywords}"
     }
   },
+  "search": {
+    "meta": {
+      "keywords": "檢索,搜索,物品搜索,查找,查詢,諮詢,信息,詳情,數據,{keywords}"
+    }
+  },
   "home": {
     "meta": {
       "keywords": "游戏,碧海黑帆,game,skull-and-bones,Skull And Bones,SNB,S And B,ubisoft,2025,{keywords}"
+    }
+  },
+  "login": {
+    "meta": {
+      "keywords": "账户登陆,{keywords}"
     }
   }
 }

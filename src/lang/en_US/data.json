@@ -1,33 +1,28 @@
 {
   "name": "Glow Prow",
-  "pwa": {
-    "title": "PWA",
-    "offlineReady": "App ready to work offline",
-    "newContentAvailable": "New content available",
-    "refreshToUpdate": "Click on refresh button to update.",
-    "status": {
-      "title": "PWA Status",
-      "description": "Manage app's offline and installation status",
-      "label": "Current Status",
-      "ready": "Ready",
-      "needRefresh": "Update Available",
-      "offlineReady": "Offline Ready",
-      "installed": "Installed",
-      "installed_message": "The application is currently running in standalone mode."
+  "apps": {
+    "title": "Application List",
+    "description": "Collection of community tools developed by Glow Prow, aimed at integrating Glow Prow open resources and linking third-party community platforms.",
+    "detail": "Details",
+    "filter": {
+      "byTag": "Filter by Tag",
+      "byName": "By Name",
+      "byId": "By ID"
     },
-    "install": {
-      "title": "Install Desktop App",
-      "description": "Install the application to your desktop for a better experience",
-      "button": "Install",
-      "unavailable": "Current environment doesn't support direct installation or hasn't triggered installation prompt",
-      "success": "PWA application is ready to install",
-      "installed": "The application is already installed as a PWA",
-      "unavailable_hint": "PWA installation prompt is unavailable in current environment. Please use 'Add to Home Screen' in Safari/Chrome.",
-      "help": {
-        "title": "If you don't see the install button:",
-        "step1": "1. Check if the browser supports PWA.",
-        "step2": "2. Ensure you haven't rejected the installation prompt (you may need to clear site data and try again).",
-        "step3": "3. Some browsers require page interaction (click, scroll) to trigger the prompt."
+    "qqBot": {
+      "name": "QQ Bot",
+      "description": "Bot suite that allows sharing the Glow Prow bot to your groups to share builds, query items, and stay updated on Skull and Bones.",
+      "features": {
+        "assembly": {
+          "title": "Generate Build Poster"
+        },
+        "codex": {
+          "title": "Item Query"
+        },
+        "command": {
+          "title": "Slash Command Activation",
+          "description": "Free for all groups, just use simple slash commands to activate the bot. Add by searching for ID (3889974138) in QQ bot search."
+        }
       }
     }
   },
@@ -125,6 +120,43 @@
     "contactHonor": "You can contact the developer through any of the methods below for inquiries about the website or cooperation.",
     "contactTitle": "Contact"
   },
+  "emote": {
+    "emoji": "Emoji",
+    "gesture": "Gesture",
+    "hangouts-blob": "Blob",
+    "party": "Party"
+  },
+  "pwa": {
+    "title": "PWA",
+    "offlineReady": "App ready to work offline",
+    "newContentAvailable": "New content available",
+    "refreshToUpdate": "Click on refresh button to update.",
+    "status": {
+      "title": "PWA Status",
+      "description": "Manage app's offline and installation status",
+      "label": "Current Status",
+      "ready": "Ready",
+      "needRefresh": "Update Available",
+      "offlineReady": "Offline Ready",
+      "installed": "Installed",
+      "installed_message": "The application is currently running in standalone mode."
+    },
+    "install": {
+      "title": "Install Desktop App",
+      "description": "Install the application to your desktop for a better experience",
+      "button": "Install",
+      "unavailable": "Current environment doesn't support direct installation or hasn't triggered installation prompt",
+      "success": "PWA application is ready to install",
+      "installed": "The application is already installed as a PWA",
+      "unavailable_hint": "PWA installation prompt is unavailable in current environment. Please use 'Add to Home Screen' in Safari/Chrome.",
+      "help": {
+        "title": "If you don't see the install button:",
+        "step1": "1. Check if the browser supports PWA.",
+        "step2": "2. Ensure you haven't rejected the installation prompt (you may need to clear site data and try again).",
+        "step3": "3. Some browsers require page interaction (click, scroll) to trigger the prompt."
+      }
+    }
+  },
   "basic": {
     "button": {
       "cancel": "Cancel",
@@ -213,6 +245,7 @@
       },
       "captcha": {
         "bad": "Captcha error",
+        "error": "Captcha error: {context}",
         "expired": "Captcha expired",
         "wrong": "Incorrect captcha entered"
       },
@@ -220,19 +253,20 @@
         "ok": "Login successful",
         "bad": "Login error: Please check login information format",
         "wrong": "Incorrect login information",
+        "error": "Sign in error: {context}",
         "expired": "User identity expired, please log in again",
         "accountIncorrect": "Incorrect login information",
         "notActivated": "Account disabled due to non-activation, please activate it."
       },
       "signup": {
         "ok": "Registration successful, please check your email to activate.",
+        "userAlreadyHas": "Username already exists.",
+        "error": "Registration failed.",
         "bad": "Invalid parameters submitted.",
         "illegalFormat": "Username contains illegal characters.",
-        "userAlreadyHas": "Username already exists.",
         "emailAlreadyHas": "This email is already bound, please log in directly.",
         "emailQuotaExceeded": "Registration email limit reached, please try again later.",
-        "dailyLimitExceeded": "Daily registration limit reached, please try again tomorrow.",
-        "error": "Registration failed."
+        "dailyLimitExceeded": "Daily registration limit reached, please try again tomorrow."
       },
       "activate": {
         "ok": "Account activated successfully, please log in.",
@@ -240,11 +274,21 @@
         "alreadyActive": "Account already active, please log in.",
         "userNotFound": "Account not found.",
         "emailQuotaExceeded": "Email daily limit reached, please try again later.",
-        "resendLimitExceeded": "Daily activation resend limit reached, please try again tomorrow.",
         "resend": {
           "ok": "Activation code resent, please check your email."
         },
-        "error": "Activation error: {context}"
+        "error": "Activation error: {context}",
+        "resendLimitExceeded": "Daily activation resend limit reached, please try again tomorrow."
+      },
+      "forgotPassword": {
+        "ok": "Reset code sent, please check your email",
+        "invalidEmail": "Email does not match account",
+        "error": "Request error: {context}"
+      },
+      "resetPassword": {
+        "ok": "Password reset successfully, please sign in again",
+        "invalidCode": "Reset code is invalid or expired",
+        "error": "Reset error: {context}"
       },
       "like": {
         "ok": "Like processed successfully",
@@ -257,7 +301,6 @@
       },
       "emailChange": {
         "alreadyUsed": "This email is already in use",
-        "tooFrequent": "Changing email too frequently, please try again in {context} days.",
         "quotaExceeded": "Email daily limit reached, please try again later",
         "invalidCode": "Verification code is invalid or has expired",
         "request": {
@@ -265,7 +308,8 @@
         },
         "confirm": {
           "ok": "Email updated successfully"
-        }
+        },
+        "tooFrequent": "Changing email too frequently, please try again in {context} days."
       },
       "request": {
         "rateLimited": "Request too fast, please slow down"
@@ -282,6 +326,15 @@
         "newTeamUp": "Captain, there's a new team-up",
         "authFailed": "Token is invalid or expired, please log in again",
         "error": "Communication error: {context}"
+      },
+      "me": {
+        "success": "Saved successfully",
+        "bad": "Information error: {context}"
+      },
+      "userInfo": {
+        "success": "Retrieved successfully",
+        "bad": "Information error: {context}",
+        "notFound": "User not found"
       }
     },
     "rules": {
@@ -296,6 +349,7 @@
         "incorrectFormat": "Alias format is incorrect"
       },
       "email": {
+        "notEmpty": "Email is required",
         "incorrectFormat": "Email format is incorrect"
       },
       "password": {
@@ -330,6 +384,11 @@
     "blogLog": "Blog"
   },
   "account": {
+    "trash": "Recycle Bin",
+    "logout": "Log Out",
+    "selectAll": "Select All",
+    "itemsSelected": "{count} items selected",
+    "deletedAt": "Deletion Time",
     "title": "Account",
     "information": {
       "title": "Personal Information",
@@ -374,13 +433,23 @@
           "name": "Password",
           "changePasswordName": "Change Account Password",
           "changePasswordDescription": "This operation will log you out upon success and require you to log in again",
-          "oldPassword": "",
+          "oldPassword": "Old Password",
           "oldPasswordPlaceholder": "Enter old password",
-          "newPassword": "",
+          "newPassword": "New Password",
           "newPasswordPlaceholder": "Enter new password"
         }
       }
-    }
+    },
+    "profile-picture": {
+      "title": "Avatar",
+      "description": "Avatar uses information provided by Gravatar. To change avatar information, please go to gravatar.com to upload.",
+      "associatedEmailNotification": "Avatar is associated with {email}. Please use it to register on Gravatar."
+    },
+    "myAssembly": "My Builds",
+    "myComment": "My Comments",
+    "myTeamup": "My Teams",
+    "myMap": "Map Management",
+    "mySmugglersReport": "My Smuggler's Reports"
   },
   "activate": {
     "title": "Account Activation",
@@ -399,6 +468,25 @@
     "submit": "Activate Account",
     "backToSignin": "Back to Signin"
   },
+  "forgotPassword": {
+    "title": "Forgot Password",
+    "description": "Please enter your Account ID and registered email. A 6-digit reset code will be sent to your email.",
+    "form": {
+      "identifier": "Account ID",
+      "email": "Registered Email",
+      "submit": "Send Reset Code"
+    }
+  },
+  "resetPassword": {
+    "title": "Reset Password",
+    "description": "Please enter the reset code you received and your new password.",
+    "form": {
+      "username": "Account ID",
+      "code": "Reset Code",
+      "newPassword": "New Password",
+      "submit": "Confirm Reset"
+    }
+  },
   "codex": {
     "title": "Codex",
     "description": "Ahoy, Captain, wanna check out my treasures?",
@@ -411,6 +499,7 @@
       "byCategory": "Filter by Category",
       "byTier": "Filter by Tier",
       "bySeason": "Filter by Season",
+      "byWorldEvent": "Filter by World Event",
       "bySet": "Filter by Set",
       "byLocation": "Filter by Location",
       "sortBy": "Sort by",
@@ -615,10 +704,6 @@
       "iframe": "Iframe code",
       "copySuccess": "Copied to clipboard"
     },
-    "items": {
-      "title": "Item List",
-      "description": "Item List"
-    },
     "ships": {
       "title": "Ship List",
       "searchCountOverflowTip": "Exceeded maximum search display of {maximumSearchCount}, {exceedingItemsCount} items were truncated. Please enter more precise keywords.",
@@ -637,9 +722,14 @@
         }
       }
     },
+    "items": {
+      "title": "Item List",
+      "description": "Item List"
+    },
     "item": {
       "title": "Item Details",
       "weight": "Weight",
+      "ammunitionType": "Ammunition",
       "projectilesPerShot": "Projectiles Per Shot",
       "rateOfFire": "Rate of Fire (sec)",
       "DPS": "DPS (Damage per Second)",
@@ -663,7 +753,9 @@
         "prepend": "From",
         "append": "Season"
       },
+      "byMap": "Map Location",
       "obtainable": "How to Obtain",
+      "event": "Event",
       "worldEvent": "World Event",
       "bluePrint": "Blueprint",
       "requiredRank": "Minimum Required Rank",
@@ -673,8 +765,8 @@
       "lastUpdated": "Last Updated",
       "damageType": "Weapon Property",
       "perks": "Perks",
-      "effect": "Effect",
       "tier": "Tier",
+      "effect": "Effect",
       "damageMitigation": "Damage Mitigation",
       "damageMitigationTip": "Provides damage reduction against specific elements; the higher the elemental resistance, the less damage you take from that element.",
       "lookDetail": "View Item Details (Hold)"
@@ -682,6 +774,9 @@
     "commoditie": {
       "title": "Commodity Details",
       "lookDetail": "View Commodity Details (Hold)"
+    },
+    "commoditys": {
+      "title": "Commodity List"
     },
     "commodities": {
       "title": "Commodity List"
@@ -699,6 +794,7 @@
       "lowerDeck": "Lower Deck",
       "furniture": "Furniture",
       "ultimate": "Ultimate Skill",
+      "baseRank": "Base Ship Rank",
       "hitPoints": "Hit Points",
       "braceStrength": "Brace Strength",
       "sailSpeed": {
@@ -773,7 +869,8 @@
       "title": "Set List"
     },
     "ultimate": {
-      "title": "Ultimate Skill Details"
+      "title": "Ultimate Skill Details",
+      "lookDetail": "View Ultimate Perk Details"
     },
     "ultimates": {
       "title": "Ultimate Skill List"
@@ -802,7 +899,8 @@
       }
     },
     "modifications": {
-      "title": "Modification List"
+      "title": "Modification List",
+      "lookDetail": "View Modification Details"
     },
     "material": {
       "title": "Material Details",
@@ -871,7 +969,6 @@
           "grayscale": "Ignore color, grayscale mode",
           "grayscaleHint": "Ignore color information, compare only luminance, structure and texture — ideal for in-game screenshots"
         },
-        "uploadPrompt": "Select an image as a baseline to find treasure maps",
         "selectImage": "Select Image",
         "noResult": {
           "algorithmIssue": "No similar treasure maps found. This might be due to a query algorithm bias or the treasure map not being in the collection. Please try changing the query algorithm and try again.",
@@ -1025,7 +1122,7 @@
       },
       "outpost": {
         "name": "Outpost",
-        "description": ""
+        "description": "Outpost"
       },
       "foundry": {
         "name": "Foundry",
@@ -1122,6 +1219,9 @@
     "editInfoBtn": "Edit Information",
     "editWorkshopBtn": "Workshop",
     "anonymous": "Anonymous",
+    "restore": "Restore",
+    "restoreConfirm": "Are you sure you want to restore this build?",
+    "restoreSuccess": "Restored successfully",
     "commentPlaceholder": "What are your thoughts on this?",
     "additions": {
       "assembly": "Assembly",
@@ -1202,11 +1302,6 @@
         "medium": "Medium",
         "difficulties": "Difficult"
       },
-      "archetypes": {
-        "dps": "Damage",
-        "tank": "Tank",
-        "support": "Support"
-      },
       "grade": {
         "basic": "Basic",
         "advanced": "Advanced",
@@ -1214,6 +1309,7 @@
         "mythic": "Mythic"
       },
       "damageTypes": {
+        "armor": "Armor",
         "electric": "Electric",
         "explosive": "Explosive",
         "fire": "Fire",
@@ -1224,6 +1320,11 @@
         "repair": "Repair",
         "tearing": "Tearing",
         "toxic": "Toxic"
+      },
+      "archetypes": {
+        "dps": "Damage",
+        "tank": "Tank",
+        "support": "Support"
       }
     },
     "workshop": {
@@ -1270,12 +1371,14 @@
     },
     "share": {
       "title": "Share Assembly",
+      "notMobile": "Due to local client display limitations, small-screen devices currently do not support poster generation. We recommend switching to a wide-screen device such as a computer or tablet for the full experience.",
       "createPoster": "Generate Assembly Poster",
       "configHint": "Configure poster generation attributes, determining poster style and format, etc.",
       "format": "Format",
       "width": "Width",
       "quality": "Image Quality",
       "filename": "File Name",
+      "imageStyleTitle": "Style",
       "showEmptySlot": "Show Empty Slots",
       "backgroundColor": "Background Color",
       "showItemName": "Show Name",
@@ -1284,7 +1387,6 @@
       "showTitle": "Show Title",
       "showTabs": "Show Tags",
       "showDescription": "Show Description",
-      "imageStyleTitle": "Style",
       "language": "Language",
       "generating": "Generating poster...",
       "generatingHint": "Exporting high-quality image, please wait"
@@ -1305,6 +1407,10 @@
     "publish": {
       "title": "Publish"
     }
+  },
+  "smugglersReport": {
+    "title": "Smuggler's Connoisseur",
+    "description": "Smuggler's Connoisseur evaluates weekly smuggler refreshed items and provides purchasing recommendations for players."
   },
   "space": {
     "title": "User Space",
@@ -1470,6 +1576,9 @@
       "persistentStorage": "Persistent Storage",
       "sessionStorage": "Session Storage"
     },
+    "notification": {
+      "title": "Notification"
+    },
     "log": {
       "title": "Logs",
       "infoTitle": "Session Debug Environment",
@@ -1539,7 +1648,6 @@
       "field_max_limit": "Max import limit reached (max 10 list)",
       "notes": "Notes",
       "mod": "Mods",
-      "item": "Related Item",
       "perk": "Matched Perks",
       "createNew": "Create Wishlist",
       "edit": "Edit",
@@ -1566,7 +1674,8 @@
       "saveSuccess": "Wishlist saved successfully",
       "saveError": "Failed to save wishlist",
       "selectGradeFirst": "Please select a Mod Grade first to unlock perk selection",
-      "selectModGrade": "Mod Grade"
+      "selectModGrade": "Mod Grade",
+      "item": "Related Item"
     }
   },
   "header": {
@@ -1671,6 +1780,7 @@
     "description": "Material quantification tool. Set target items to calculate all required materials.",
     "addTo": "Add to Calculator",
     "addedSuccess": "Added to calculator",
+    "or": "OR",
     "meta": {
       "keywords": "calculator, material calculation, requirements, sankey"
     },
@@ -1691,6 +1801,7 @@
       "sankeyView": "Sankey Flow",
       "columns": {
         "name": "Name",
+        "id": "ID",
         "quantity": "Quantity",
         "link": "Link"
       }
@@ -1714,18 +1825,34 @@
       "title": "Export",
       "json": "Export JSON",
       "csv": "Export CSV",
+      "exportedTime": "Exported: {time}",
+      "version": "Version: {version}",
+      "totalTargets": "Total Targets: {number}",
       "csvHeaders": "Material ID,Name,Quantity,Is Raw Material"
     },
     "import": {
       "title": "Import",
       "json": "Import JSON",
-      "csv": "Import CSV"
+      "csv": "Import CSV",
+      "importBuild": "Import Build",
+      "selectBuild": "Select Build",
+      "noBuildsFound": "No saved builds or drafts",
+      "importByUid": "Import via ID",
+      "importByUidPlaceholder": "Enter Build ID (UID)...",
+      "importing": "Loading...",
+      "importSuccess": "Imported successfully",
+      "importError": "Import failed, please check if the ID is correct"
     },
     "sankey": {
       "showName": "Show Name",
-      "showQuantity": "Show Quantity"
+      "showQuantity": "Show Quantity",
+      "basicColor": "Basic Color",
+      "richVividColor": "Rich Vivid Color",
+      "coolBlack": "Cool Black",
+      "milkWhite": "Milk White"
     },
     "ui": {
+      "hasNotRequired": "Insufficient materials for construction",
       "expandAll": "Expand All",
       "collapseAll": "Collapse All",
       "tree": "Material Tree",
@@ -1740,6 +1867,10 @@
   "detail": {
     "dateView": {
       "primitive": "Primitive",
+      "primitives": {
+        "primitive": "Primitive String",
+        "primitiveDateString": "Primitive Date String"
+      },
       "primitiveDescription": "Primitive value of time recorded in the program",
       "localTimeZoneName": "Local Time Zone",
       "localeTime": "Local Time",

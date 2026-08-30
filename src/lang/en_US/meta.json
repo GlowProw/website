@@ -1,9 +1,24 @@
 {
+  "apps": {
+    "meta": {
+      "keywords": "application,bot,crawler,{keywords}",
+      "description": "Skull and Bones Checklist Website"
+    }
+  },
   "codex": {
+    "meta": {
+      "title": "Game Info Hub",
+      "keywords": "codex,wiki,encyclopedia,guide,{keywords}"
+    },
     "item": {
       "meta": {
-        "title": "Game Info Hub",
-        "keywords": "Item details, ship item,{keywords}"
+        "keywords": "Item details, ship item,{keywords}",
+        "title": "Game Info Hub"
+      }
+    },
+    "items": {
+      "meta": {
+        "keywords": "item list,items,{keywords}"
       }
     },
     "commoditie": {
@@ -11,9 +26,94 @@
         "keywords": "Commodity, goods,{keywords}"
       }
     },
+    "commodities": {
+      "meta": {
+        "keywords": "commodity list,goods,{keywords}"
+      }
+    },
+    "cosmetic": {
+      "meta": {
+        "keywords": "cosmetics,items,skins,{keywords}"
+      }
+    },
+    "cosmetics": {
+      "meta": {
+        "keywords": "cosmetics list,items,skins,{keywords}"
+      }
+    },
     "ship": {
       "meta": {
         "keywords": "Ship details, ship,{keywords}"
+      }
+    },
+    "ships": {
+      "meta": {
+        "keywords": "ship details list,ship,{keywords}"
+      }
+    },
+    "modification": {
+      "meta": {
+        "keywords": "modification,stat,{keywords}"
+      }
+    },
+    "modifications": {
+      "meta": {
+        "keywords": "modification list,stat,{keywords}"
+      }
+    },
+    "npc": {
+      "meta": {
+        "keywords": "NPC,non-player,quest,{keywords}"
+      }
+    },
+    "npcs": {
+      "meta": {
+        "keywords": "NPC list,non-player,quest,{keywords}"
+      }
+    },
+    "set": {
+      "meta": {
+        "keywords": "set,outfit,cosmetic,ship,player,body,skin,{keywords}"
+      }
+    },
+    "sets": {
+      "meta": {
+        "keywords": "set list,outfit,cosmetic,ship,player,body,skin,{keywords}"
+      }
+    },
+    "ultimate": {
+      "meta": {
+        "keywords": "ship,ultimate,perk,PVP,combat,{keywords}"
+      }
+    },
+    "ultimates": {
+      "meta": {
+        "keywords": "ship,ultimate list,perk,PVP,combat,{keywords}"
+      }
+    },
+    "material": {
+      "meta": {
+        "keywords": "material,upgrade material,ship,{keywords}"
+      }
+    },
+    "materials": {
+      "meta": {
+        "keywords": "material list,upgrade material,ship,{keywords}"
+      }
+    },
+    "mapLocation": {
+      "meta": {
+        "keywords": "location,map,position,region,view,visualization,{keywords}"
+      }
+    },
+    "mapLocations": {
+      "meta": {
+        "keywords": "location list,map,position,region,view,visualization,{keywords}"
+      }
+    },
+    "treasureMap": {
+      "meta": {
+        "keywords": "treasure map,common,uncommon,old,outpost,captain,gallery,materials,weapons,commodities,map,{keywords}"
       }
     },
     "treasureMaps": {
@@ -45,6 +145,11 @@
   "signup": {
     "meta": {
       "keywords": "Account registration,{keywords}"
+    }
+  },
+  "search": {
+    "meta": {
+      "keywords": "search,item search,find,query,consult,info,details,data,{keywords}"
     }
   },
   "home": {
