@@ -1,6 +1,5 @@
+import language, { normalizeLang } from '@/config/languages'
 import {createI18n, type MessageContext} from 'vue-i18n';
-
-import language from '@/config/languages'
 
 // 网站翻译
 import zh_CN_local from '@/lang/zh_CN/data.json';
@@ -125,13 +124,25 @@ const getBrowserLocale = (): string => {
  */
 const getInitialLocale = (): string => {
     const fallbackLocale = getFallbackLocale();
-    // 优先使用存储的语言
+
+    // 1. 优先使用 URL query 参数中的 lang
+    if (typeof window !== 'undefined' && window.location && window.location.search) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlLangParam = urlParams.get('lang');
+        const normalizedUrlLang = normalizeLang(urlLangParam);
+        if (normalizedUrlLang) {
+            storage.local.set('lang', { value: normalizedUrlLang });
+            return normalizedUrlLang;
+        }
+    }
+
+    // 2. 其次使用存储的语言
     const storedLang = storage.local.get('lang')?.data?.value?.value;
     if (storedLang && ['zh-CN', 'zh-TW', 'en-US'].includes(storedLang)) {
         return storedLang;
     }
 
-    // 其次使用浏览器语言
+    // 3. 再次使用浏览器语言
     const browserLocale = getBrowserLocale();
 
     // 目标语言缺失，从回退语言字段中找

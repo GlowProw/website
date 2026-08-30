@@ -121,16 +121,20 @@ export interface LogEntry {
   context?: any;
 }
 
+import Storage from './storage';
+
+const _storage = new Storage();
+
 // 获取或创建持久客户端唯一标识 (Client ID)
 function getOrCreateClientId(): string {
   const STORAGE_KEY = 'glow_prow_client_id';
-  let clientId = localStorage.getItem(STORAGE_KEY);
+  let clientId = _storage.local.get(STORAGE_KEY)?.data?.value;
   if (!clientId) {
     clientId = 'gp_cli_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
     try {
-      localStorage.setItem(STORAGE_KEY, clientId);
+      _storage.local.set(STORAGE_KEY, clientId);
     } catch (e) {
-      console.warn('LocalStorage unavailable for Client ID creation', e);
+      console.warn('Storage unavailable for Client ID creation', e);
     }
   }
   return clientId;
@@ -139,11 +143,11 @@ function getOrCreateClientId(): string {
 // 会话 ID (Session ID)
 function getOrCreateSessionId(): string {
   const STORAGE_KEY = 'glow_prow_session_id';
-  let sessionId = sessionStorage.getItem(STORAGE_KEY);
+  let sessionId = _storage.session.get(STORAGE_KEY)?.data?.value;
   if (!sessionId) {
     sessionId = 'gp_sess_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
     try {
-      sessionStorage.setItem(STORAGE_KEY, sessionId);
+      _storage.session.set(STORAGE_KEY, sessionId);
     } catch (e) {
       console.warn('SessionStorage unavailable for Session ID creation', e);
     }

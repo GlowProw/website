@@ -299,7 +299,7 @@ export const useCDNAssetsServiceStore = defineStore('cdnService', () => {
             } else {
                 // 没有设置图片服务，初始前
                 // 如果本地语言，图片服务使用中国站镜像资源
-                if (lang.data.value.value == 'zh-CN') {
+                if (lang?.data?.value?.value == 'zh-CN') {
                     selectedService.value = 'glow-prow-zh-cn'
                 }
             }

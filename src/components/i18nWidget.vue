@@ -4,7 +4,7 @@ export default { name: 'I18nWidget' }
 
 <script setup lang="ts">
 
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {http, storage} from "@/assets/sripts";
 import {useRoute, useRouter} from "vue-router";
@@ -20,9 +20,19 @@ let languages = ref([] as any[]),
     selectLang = ref('')
 
 onMounted(() => {
-  selectLang.value = locale.value;
   getLanguagesData()
 })
+
+// 保证与 i18n locale 保持同步更新
+watch(
+  () => locale.value,
+  (newLocale) => {
+    if (newLocale && selectLang.value !== newLocale) {
+      selectLang.value = newLocale;
+    }
+  },
+  { immediate: true }
+);
 
 /**
  * 获取语言配置

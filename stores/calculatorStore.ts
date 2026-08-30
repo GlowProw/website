@@ -131,8 +131,8 @@ interface PersistedState {
  */
 function loadPersistedState(): PersistedState | null {
     const data = storage.local.get(STORAGE_KEY)
-    if (data.code == 0) {
-        return data.data.value
+    if (data?.code == 0) {
+        return data.data?.value || null
     }
 
     return null

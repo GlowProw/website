@@ -114,7 +114,7 @@ export default defineConfig({
             registerType: 'autoUpdate',
             includeAssets: ['favicon.ico', 'favicon.png'],
             devOptions: {
-                enabled: false,
+                enabled: true,
                 type: 'module',
             },
             manifest: {

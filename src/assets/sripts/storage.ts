@@ -1,8 +1,6 @@
-/**
- * 简单的储存
- */
+import Time from "./date";
 
-import {time} from "./index";
+const time = new Time();
 
 export default class Storage {
     STORAGENAME = `snb.${process.env.NODE_ENV}:`;

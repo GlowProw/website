@@ -47,7 +47,7 @@ export const useAuthStore = defineStore('account', () => {
         try {
             let accountData = storage.local.get('account')
             delete data?.token
-            if (accountData.code == 0)
+            if (accountData?.code == 0 && accountData.data?.value)
                 user.value = Object.assign(accountData.data.value, user.value, data)
             storage.local.set('account', user.value)
             return true
