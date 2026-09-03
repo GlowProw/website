@@ -1319,6 +1319,7 @@
     },
     "workshop": {
       "title": "工作站",
+      "previousFrigateUpgrades": "继承升级部件",
       "displayTitle": "陈设",
       "weaponTitle": "武器",
       "myFavorites": "我的最爱",

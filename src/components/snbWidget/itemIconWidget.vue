@@ -2,7 +2,7 @@
 import {use_icon_global_Style} from "@/assets/sripts/use_icon_global_Style";
 import {computed, onMounted, type Ref, ref, watch} from "vue";
 import {Item, Items} from "glow-prow-data/src/entity/Items";
-import {rarity} from "@/assets/sripts/index";
+import {rarity, number} from "@/assets/sripts/index";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
@@ -11,6 +11,7 @@ import {useAppStore} from "~/stores/appStore";
 import Loading from "@/components/Loading.vue";
 
 const appStore = useAppStore(),
+    slots = useAppStore(),
     cdnStore = useCDNAssetsServiceStore(),
     {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
     props = withDefaults(defineProps<{
@@ -48,9 +49,19 @@ let itemsCardData = ref({
     }),
     i: Ref<Item | null> = ref(null),
 
+    fontSize = computed(() => {
+      let value = slots.iconSize.size * 0.14
+      return Math.max(12, Math.min(18, value));
+    }),
     isOpenNewWindow = computed({
       get: () => appStore.itemOpenNewWindow || props.isOpenNewWindow,
       set: (value) => appStore.toggleItemOpenNewWindow(value)
+    }),
+    isUpgradeMod = computed(() => {
+      if (i.value.type == 'shipUpgrade') {
+        return true
+      }
+      return false
     })
 
 
@@ -84,7 +95,7 @@ const onSetIcon = () => {
       id: props.id,
       category: i.value.type || 'AUTO_items'
     },
-    'glow-prow-zh-cn':{
+    'glow-prow-zh-cn': {
       id: props.id,
       category: i.value.type || 'AUTO_items'
     },
@@ -162,6 +173,17 @@ defineOptions({
             </template>
           </v-img>
         </div>
+        <div v-if="isUpgradeMod" class="item-upgrade-mod-mask position-absolute bottom-0 w-100 pt-5 pb-1">
+          <template v-if="slots['upgrade-mod-content']">
+            <v-slot name="upgrade-mod-content"></v-slot>
+          </template>
+          <template v-else-if="!slots['upgrade-mod-content'] && i.tier">
+            <span class="d-flex align-center justify-center text-shades-white" :title="i.tier.toString()"
+             :style="`font-size:${fontSize}px`">
+              <v-icon icon="mdi-chevron-double-up" class="ml-n1"></v-icon><b>{{ number.intToRoman(i.tier) }}</b>
+            </span>
+          </template>
+        </div>
       </v-card>
     </template>
     <ItemCardDetail
@@ -194,5 +216,9 @@ defineOptions({
   .map-location-card-name {
     line-height: 1.2 !important;
   }
+}
+
+.item-upgrade-mod-mask {
+  background: linear-gradient(to bottom, transparent 20%, rgba(255, 193, 7, 0.4) 80%);
 }
 </style>

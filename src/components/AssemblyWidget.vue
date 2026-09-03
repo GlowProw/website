@@ -282,6 +282,42 @@ const getShipUpgradeFilterList = (i): boolean => {
 }
 
 /**
+ * 获取当前选中的船只升级部件的前置升级部件列表 (1 ~ N-1)
+ */
+const previousFrigateUpgrades = computed(() => {
+  const currentSlot = workshopData.value?.data?.shipUpgradeSlot
+  const shipSlot = workshopData.value?.data?.shipSlot
+  if (!currentSlot || !currentSlot.id || !shipSlot || !shipSlot.id) {
+    return []
+  }
+
+  const prefix = `${shipSlot.id}Upgrade`
+  if (!currentSlot.id.startsWith(prefix)) {
+    return []
+  }
+
+  const numStr = currentSlot.id.slice(prefix.length)
+  if (!/^\d+$/.test(numStr)) {
+    return []
+  }
+
+  const currentNum = parseInt(numStr, 10)
+  if (currentNum <= 1) {
+    return []
+  }
+
+  const list: any[] = []
+  for (let i = 1; i < currentNum; i++) {
+    const targetId = `${prefix}${i}`
+    const itemObj = (items as any)[targetId] || workshopData.value.shipFrigateUpgradeList?.find((it: any) => it.id === targetId)
+    if (itemObj) {
+      list.push(itemObj)
+    }
+  }
+  return list.reverse()
+})
+
+/**
  * 选择船
  * @param shipId
  */
@@ -463,7 +499,7 @@ defineOptions({name: 'AssemblyWidget'})
                 <v-card
                     v-bind="propsHoverClose"
                     class="mx-auto">
-                  <ItemSlotBase size="110px"
+                  <ItemSlotBase size="120px"
                                 v-if="workshopData.data.shipSlot && workshopData.data.shipSlot.id"
                                 :padding="2"
                                 :class="[workshopData.data.shipSlot && workshopData.data.shipSlot.id ? 'bg-amber' : '']">
@@ -494,40 +530,38 @@ defineOptions({name: 'AssemblyWidget'})
 
             <v-col class="ml-2" cols="auto">
               <!-- 升级部件 视图卡槽 S -->
-              <v-hover v-slot="{ isHovering, props : propsHoverClose }"
-                       v-if="workshopData.data.shipUpgradeSlot">
-                <div class="mb-1" v-if="workshopData.data.shipUpgradeSlot.tier">
-                  <v-icon icon="mdi-chevron-triple-up" class="mr-1"></v-icon>
-                  <b>{{ workshopData.data.shipUpgradeSlot.tier || 0 }}</b>
-                </div>
+              <div v-if="workshopData.data.shipUpgradeSlot">
+                <v-hover v-slot="{ isHovering, props : propsHoverClose }">
+                  <div>
+                    <v-card
+                        class="mx-auto"
+                        variant="text"
+                        v-bind="propsHoverClose">
+                      <ItemSlotBase
+                          size="99px"
+                          :class="[workshopData.data.shipUpgradeSlot ? 'bg-amber' : '']">
+                        <ItemIconWidget :id="workshopData.data.shipUpgradeSlot.id"
+                                        :is-open-detail="!readonly"
+                                        :is-show-tooltip="poops.perfectDisplay"></ItemIconWidget>
+                      </ItemSlotBase>
 
-                <v-card
-                    class="mx-auto"
-                    variant="text"
-                    v-bind="propsHoverClose">
-                  <ItemSlotBase
-                      size="80px"
-                      :class="[workshopData.data.shipUpgradeSlot ? 'bg-amber' : '']">
-                    <ItemIconWidget :id="workshopData.data.shipUpgradeSlot.id"
-                                    :is-open-detail="!readonly"
-                                    :is-show-tooltip="poops.perfectDisplay"></ItemIconWidget>
-                  </ItemSlotBase>
+                      <v-overlay
+                          v-if="!readonly"
+                          :model-value="!!isHovering"
+                          class="align-center justify-center"
+                          scrim="#000"
+                          @click="onSlotRemove('upgrade')"
+                          contained>
+                        <v-icon icon="mdi-delete" color="red" size="40"></v-icon>
+                      </v-overlay>
+                    </v-card>
 
-                  <v-overlay
-                      v-if="!readonly"
-                      :model-value="!!isHovering"
-                      class="align-center justify-center"
-                      scrim="#000"
-                      @click="onSlotRemove('upgrade')"
-                      contained>
-                    <v-icon icon="mdi-delete" color="red" size="40"></v-icon>
-                  </v-overlay>
-                </v-card>
-
-                <div class="mt-2 text-center text-caption text-grey w-100 " :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
-                  <ItemName :data="castToAny(workshopData.data.shipUpgradeSlot)" :locale="poops.locale"></ItemName>
-                </div>
-              </v-hover>
+                    <div class="mt-2 text-center text-caption text-grey w-100 " :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
+                      <ItemName :data="castToAny(workshopData.data.shipUpgradeSlot)" :locale="poops.locale"></ItemName>
+                    </div>
+                  </div>
+                </v-hover>
+              </div>
 
               <ItemSlotBase size="80px" :padding="1"
                             @click="workshopData.frigateUpgradeModel = true"
@@ -538,6 +572,28 @@ defineOptions({name: 'AssemblyWidget'})
                 </v-card>
               </ItemSlotBase>
               <!-- 升级部件 视图卡槽 E -->
+            </v-col>
+            <v-divider v-if="previousFrigateUpgrades.length > 0" vertical opacity=".3" translate="2" class="mx-6 my-5"></v-divider>
+            <v-col cols="auto" v-if="previousFrigateUpgrades.length > 0">
+              <!-- 升级部件 - 上一级预览 视图卡槽 S -->
+              <div style="display: grid; grid-template-columns: repeat(3, max-content); align-items: start; justify-items: center; justify-content: start;">
+                <div v-for="prevUpgrade in previousFrigateUpgrades" :key="prevUpgrade.id">
+                  <v-card variant="text" class="mx-auto">
+                    <ItemSlotBase
+                        size="45px"
+                        :class="[prevUpgrade ? 'bg-amber' : '']">
+                      <ItemIconWidget :id="prevUpgrade.id"
+                                      :is-open-detail="!readonly"
+                                      :is-show-tooltip="poops.perfectDisplay"></ItemIconWidget>
+                    </ItemSlotBase>
+                  </v-card>
+                </div>
+              </div>
+
+              <div class="mt-2 text-center text-caption text-grey w-100" :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
+                {{ t('assembly.workshop.previousFrigateUpgrades') }}
+              </div>
+              <!-- 升级部件 - 上一级预览 视图卡槽 E -->
             </v-col>
           </v-row>
         </div>

@@ -1329,6 +1329,7 @@
     },
     "workshop": {
       "title": "Workshop",
+      "previousFrigateUpgrades": "Previous Frigate Upgrades",
       "displayTitle": "Furniture",
       "weaponTitle": "Weapons",
       "myFavorites": "My Favorites",
