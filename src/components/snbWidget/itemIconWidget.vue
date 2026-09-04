@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {use_icon_global_Style} from "@/assets/sripts/use_icon_global_Style";
-import {computed, onMounted, type Ref, ref, watch} from "vue";
+import {computed, ComputedRef, onMounted, type Ref, ref, watch} from "vue";
 import {Item, Items} from "glow-prow-data/src/entity/Items";
 import {rarity, number} from "@/assets/sripts/index";
 
@@ -51,7 +51,12 @@ let itemsCardData = ref({
 
     fontSize = computed(() => {
       let value = slots.iconSize.size * 0.14
-      return Math.max(12, Math.min(18, value));
+      return Math.max(10, Math.min(18, value));
+    }),
+    itemRarity = computed(() => {
+      if (i.value.type == 'shipUpgrade')
+        return "legendary"
+      return i.value?.rarity || ''
     }),
     isOpenNewWindow = computed({
       get: () => appStore.itemOpenNewWindow || props.isOpenNewWindow,
@@ -147,14 +152,14 @@ defineOptions({
           v-bind="activatorProps"
           @mousemove="onMouseMove"
           @mouseenter="onMouseEnter"
-          :color="`hsl(from ${rarityColorConfig[i?.rarity]} h s calc(l * .15))`"
+          :color="`hsl(from ${rarityColorConfig[itemRarity]} h s calc(l * .15))`"
           :to="isOpenDetail ? `/codex/item/${i?.id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
           :class="[
               'prohibit-drag',
               `ma-${computedMargin}`,
               `pa-${computedPadding}`,
-              `item-card-header-rarity-${i.rarity}`
+              `item-card-header-rarity-${itemRarity}`
           ]">
         <div class="d-flex align-center justify-center w-100 h-100">
           <v-img
@@ -178,7 +183,7 @@ defineOptions({
             <v-slot name="upgrade-mod-content"></v-slot>
           </template>
           <template v-else-if="!slots['upgrade-mod-content'] && i.tier">
-            <span class="d-flex align-center justify-center text-shades-white" :title="i.tier.toString()"
+            <span class="item-text d-flex align-center justify-center text-shades-white" :title="i.tier.toString()"
              :style="`font-size:${fontSize}px`">
               <v-icon icon="mdi-chevron-double-up" class="ml-n1"></v-icon><b>{{ number.intToRoman(i.tier) }}</b>
             </span>
@@ -220,5 +225,9 @@ defineOptions({
 
 .item-upgrade-mod-mask {
   background: linear-gradient(to bottom, transparent 20%, rgba(255, 193, 7, 0.4) 80%);
+
+  .item-text {
+    text-shadow: 1px 1px 0px black;
+  }
 }
 </style>

@@ -252,7 +252,7 @@ defineExpose({
         </template>
         <template v-else-if="readonly && i && i.id">
           <div class="my-1 d-flex align-center justify-center">
-            <ItemName :id="i.id"></ItemName> x {{ i.count || 0 }}
+            <ItemName :id="i.id.toString()"></ItemName> x {{ i.count || 0 }}
           </div>
         </template>
       </v-card>

@@ -498,11 +498,12 @@ defineOptions({name: 'AssemblyWidget'})
               <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-else>
                 <v-card
                     v-bind="propsHoverClose"
+                    variant="text"
                     class="mx-auto">
-                  <ItemSlotBase size="120px"
+                  <ItemSlotBase size="150px"
                                 v-if="workshopData.data.shipSlot && workshopData.data.shipSlot.id"
                                 :padding="2"
-                                :class="[workshopData.data.shipSlot && workshopData.data.shipSlot.id ? 'bg-amber' : '']">
+                                :class="[workshopData.data.shipSlot && workshopData.data.shipSlot.id ? 'bg-amber-test' : '']">
                     <ShipIconWidget :id="workshopData.data.shipSlot.id"
                                     :is-show-tooltip="poops.perfectDisplay"
                                     :isOpenDetail="false"
@@ -539,7 +540,7 @@ defineOptions({name: 'AssemblyWidget'})
                         v-bind="propsHoverClose">
                       <ItemSlotBase
                           size="99px"
-                          :class="[workshopData.data.shipUpgradeSlot ? 'bg-amber' : '']">
+                          :class="[workshopData.data.shipUpgradeSlot ? 'bg-amber-test' : '']">
                         <ItemIconWidget :id="workshopData.data.shipUpgradeSlot.id"
                                         :is-open-detail="!readonly"
                                         :is-show-tooltip="poops.perfectDisplay"></ItemIconWidget>
@@ -573,15 +574,13 @@ defineOptions({name: 'AssemblyWidget'})
               </ItemSlotBase>
               <!-- 升级部件 视图卡槽 E -->
             </v-col>
-            <v-divider v-if="previousFrigateUpgrades.length > 0" vertical opacity=".3" translate="2" class="mx-6 my-5"></v-divider>
+            <v-divider v-if="previousFrigateUpgrades.length > 0" vertical opacity=".3" translate="2" class="mx-6 my-10"></v-divider>
             <v-col cols="auto" v-if="previousFrigateUpgrades.length > 0">
               <!-- 升级部件 - 上一级预览 视图卡槽 S -->
               <div style="display: grid; grid-template-columns: repeat(3, max-content); align-items: start; justify-items: center; justify-content: start;">
                 <div v-for="prevUpgrade in previousFrigateUpgrades" :key="prevUpgrade.id">
-                  <v-card variant="text" class="mx-auto">
-                    <ItemSlotBase
-                        size="45px"
-                        :class="[prevUpgrade ? 'bg-amber' : '']">
+                  <v-card variant="text" class="mx-auto pa-0 ma-0">
+                    <ItemSlotBase size="45px" class="bg-amber-test">
                       <ItemIconWidget :id="prevUpgrade.id"
                                       :is-open-detail="!readonly"
                                       :is-show-tooltip="poops.perfectDisplay"></ItemIconWidget>
@@ -1093,7 +1092,7 @@ defineOptions({name: 'AssemblyWidget'})
                                 size="90px"
                                 @click="workshopData.ultimateSelect = castToAny(ultimate)"
                                 :class="[
-                                          workshopData.ultimateSelect ? castToAny(workshopData.ultimateSelect)?.id == ultimate?.id ? 'bg-amber' : '' : ''
+                                          workshopData.ultimateSelect ? castToAny(workshopData.ultimateSelect)?.id == ultimate?.id ? 'bg-amber-test' : '' : ''
                                       ]">
                               <UltimateIconWidget :id="ultimate.id" :isOpenDetail="false"></UltimateIconWidget>
                             </ItemSlotBase>
@@ -1103,7 +1102,7 @@ defineOptions({name: 'AssemblyWidget'})
                           </v-card>
                         </v-col>
                       </v-row>
-                      <v-card-actions class="bg-amber">
+                      <v-card-actions class="bg-amber-test">
                         <v-spacer></v-spacer>
                         <v-btn variant="tonal" class="ml-1" @click="workshopData.ultimateModel = false">{{ t('basic.button.cancel') }}</v-btn>
                         <v-btn variant="tonal" @click="onSelectUltimate()">{{ t('basic.button.submit') }}</v-btn>
