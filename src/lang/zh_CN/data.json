@@ -1695,6 +1695,10 @@
         "title": "鉴赏家",
         "description": "社区共同推荐每周购买指南"
       },
+      "stateOfWar": {
+        "title": "战事状态",
+        "description": "查看赛季各区域阵营战事资源分布与对抗状态"
+      },
       "assembly": {
         "title": "船只配装厂",
         "description": "设计你船，让它到达性能极限，分享给好友"
@@ -1865,6 +1869,48 @@
       "localTimeZoneName": "当地时区",
       "localeTime": "当地时间(已转化)",
       "localeTimeDescription": "根据系统当地时区，以及语种环境转换后的时间数据"
+    }
+  },
+  "stateOfWar": {
+    "title": "阵营战争状态",
+    "description": "船长，碧海黑帆赛季各区域阵营战事资源分布",
+    "lastUpdated": "最后更新时间",
+    "selectSeason": "选择赛季",
+    "refreshBtn": "刷新数据",
+    "refreshSuccess": "战事状态数据更新成功",
+    "overallDominance": "阵营总体资源对抗",
+    "disputedZones": "目前存在争议",
+    "developmentHistory": "发展历程",
+    "dailyContribution": "日间贡献",
+    "totalContribution": "全部",
+    "warProgression": "战争进程",
+    "hour1": "1小时",
+    "day1": "1天",
+    "leading": "领先",
+    "subZones": "小区域",
+    "ended": "已结算",
+    "active": "进行中",
+    "contested": "争夺中",
+    "upcoming": "未开启",
+    "occupied": "占领",
+    "noHistory": "暂无更多历史记录",
+    "noContestedZones": "暂无正在争夺的区域",
+    "capturedCount": "夺下 {count} 个区域",
+    "regions": {
+      "eastIndies": "东印度群岛",
+      "openSeas": "公海",
+      "redIsle": "红岛",
+      "coastOfAfrica": "非洲海岸"
+    },
+    "zones": {
+      "westernEastIndies": "西东印度",
+      "easternEastIndies": "东东印度",
+      "southernEastIndies": "南东印度",
+      "northernEastIndies": "北东印度",
+      "northernOpenSeas": "北部公海",
+      "northEastEastIndies": "东北东印度",
+      "eastIndiesSea": "东印度海",
+      "eastIndiesIsles": "东印度群岛"
     }
   }
 }

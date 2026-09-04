@@ -1958,16 +1958,61 @@
     }
   },
   "login": {
-    "title": "登陆",
+    "title": "登入",
     "form": {
       "placeholder": {
-        "username": "输入帐号id",
-        "password": "输入密码"
+        "username": "輸入帳號id",
+        "password": "輸入密碼"
       },
       "label": {
-        "username": "账户id",
-        "password": "密码"
+        "username": "帳戶id",
+        "password": "密碼"
       }
+    }
+  },
+  "stateOfWar": {
+    "title": "戰事狀態",
+    "description": "實時追蹤碧海黑帆第10賽季各大區域陣營戰事資源分佈",
+    "lastUpdated": "最後更新時間",
+    "selectSeason": "選擇賽季",
+    "refreshBtn": "刷新數據",
+    "refreshSuccess": "戰事狀態數據更新成功",
+    "overallDominance": "陣營總體資源對抗",
+    "disputedZones": "目前存在爭議",
+    "developmentHistory": "發展歷程",
+    "dailyContribution": "日間貢獻",
+    "totalContribution": "全部",
+    "warProgression": "戰爭進程",
+    "hour1": "1小時",
+    "day1": "1天",
+    "leading": "領先",
+    "subZones": "小區域",
+    "ended": "已結算",
+    "active": "進行中",
+    "contested": "爭奪中",
+    "upcoming": "未開啟",
+    "occupied": "佔領",
+    "noHistory": "暫無更多歷史記錄",
+    "noContestedZones": "暫無正在爭奪的區域",
+    "capturedCount": "奪下 {count} 個區域",
+    "regions": {
+      "eastIndies": "東印度群島",
+      "openSeas": "公海",
+      "redIsle": "紅島",
+      "coastOfAfrica": "非洲海岸"
+    },
+    "zones": {
+      "westernEastIndies": "西東印度",
+      "easternEastIndies": "東東印度",
+      "southernEastIndies": "南東印度",
+      "northernEastIndies": "北東印度",
+      "northernOpenSeas": "北部公海",
+      "northEastEastIndies": "東北東印度",
+      "eastIndiesSea": "東印度海",
+      "eastIndiesIsles": "東印度群島"
+    },
+    "meta": {
+      "keywords": "碧海黑帆,戰事狀態,S10,賽季戰事,陣營對抗,區域資源"
     }
   }
 }

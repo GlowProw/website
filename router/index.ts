@@ -89,6 +89,9 @@ import SearchPage from '@/views/Search.vue'
 import SmugglersReportPage from '@/views/smugglers/Index.vue'
 import SmugglersReportDetailPage from '@/views/smugglers/View.vue'
 
+import StateOfWarPage from '@/views/stateOfWar/Index.vue'
+import StateOfWarViewPage from '@/views/stateOfWar/View.vue'
+
 import SettingPage from '@/views/setting/Index.vue'
 import SettingAdPage from '@/views/setting/Ad.vue'
 import SettingRoutinePage from '@/views/setting/Routine.vue'
@@ -418,6 +421,30 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: 'view',
                 name: 'SmugglersReportDetail',
                 component: SmugglersReportDetailPage,
+            }
+        ]
+    },
+    {
+        path: '/stateOfWar',
+        name: 'StateOfWar',
+        meta: {
+            title: 'stateOfWar.title',
+            keywords: 'stateOfWar.meta.keywords'
+        },
+        redirect: to => {
+            return '/stateOfWar/crimsonWaters/view';
+        },
+        component: StateOfWarPage,
+        children: [
+            {
+                path: 'view',
+                name: 'StateOfWarDefaultView',
+                redirect: '/stateOfWar/crimsonWaters/view'
+            },
+            {
+                path: ':seasonId/view',
+                name: 'StateOfWarSeasonView',
+                component: StateOfWarViewPage,
             }
         ]
     },

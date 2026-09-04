@@ -1,83 +1,29 @@
 import {useHttpToken} from "@/assets/sripts/http_util";
 import {createApiBase} from "@/assets/sripts/api/api-util";
 import {ApiError} from "@/assets/types/Api";
+import type {
+    SmugglersReport,
+    CreateReportParams,
+    UpdateReportParams,
+    ReportListParams,
+    ReportListResponse,
+    CreateReportCommentParams,
+    ReportComment,
+    ReportCommentListResponse,
+    PrivilegeCheckResponse
+} from "@/assets/types/Smugglers";
 
-export interface SmugglersReport {
-    id: number;
-    title: string;
-    content: any;
-    createdBy: number;
-    createdTime: string;
-    updatedTime: string;
-    deletedTime: string | null;
-    status: 'draft' | 'published' | 'archived';
-    commentIds: number[] | null;
-    author_name?: string;
-    author_avatar?: string;
-    comment_count?: number;
-    isUserComment?: boolean;
-}
-
-export interface CreateReportParams {
-    title: string;
-    startTime: string;
-    endTime: string;
-    content: any;
-    status?: 'draft' | 'published' | 'archived';
-}
-
-export interface UpdateReportParams {
-    title?: string;
-    content?: any;
-    status?: 'draft' | 'published' | 'archived';
-}
-
-export interface ReportListParams {
-    page?: number;
-    pageSize?: number;
-    status?: 'draft' | 'published' | 'archived';
-    search?: string;
-    sortBy?: 'createdTime' | 'updatedTime';
-    sortOrder?: 'asc' | 'desc';
-}
-
-export interface ReportListResponse {
-    data: SmugglersReport[];
-    pagination: {
-        page: number;
-        pageSize: number;
-        totalCount: number;
-        totalPages: number;
-    };
-}
-
-export interface CreateReportCommentParams {
-    content: string;
-}
-
-export interface ReportComment {
-    id: number;
-    content: string;
-    createdTime: string;
-    updatedTime: string;
-    username: string;
-    avatar?: string;
-}
-
-export interface ReportCommentListResponse {
-    items: ReportComment[];
-    pagination: {
-        page: number;
-        pageSize: number;
-        totalCount: number;
-        totalPages: number;
-    };
-}
-
-export interface PrivilegeCheckResponse {
-    hasPrivilege: boolean;
-    userId: number;
-}
+export type {
+    SmugglersReport,
+    CreateReportParams,
+    UpdateReportParams,
+    ReportListParams,
+    ReportListResponse,
+    CreateReportCommentParams,
+    ReportComment,
+    ReportCommentListResponse,
+    PrivilegeCheckResponse
+};
 
 /**
  * 走私犯周报 API 服务

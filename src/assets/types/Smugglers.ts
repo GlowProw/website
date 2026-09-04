@@ -3,9 +3,10 @@ import { ApiError } from "@/assets/types/Api";
 export interface SmugglersReport {
     id: number;
     title: string;
-    content: ReportContent;
-    createdBy: number;
-    created_time: string;
+    content: any;
+    createdBy?: number;
+    createdTime?: string;
+    created_time?: string;
     updatedTime: string;
     deletedTime: string | null;
     status: 'draft' | 'published' | 'archived';
@@ -13,6 +14,7 @@ export interface SmugglersReport {
     author_name?: string;
     author_avatar?: string;
     comment_count?: number;
+    isUserComment?: boolean;
 }
 
 export interface ReportContent {
@@ -36,14 +38,16 @@ export interface ReportItem {
 // 创建周报参数
 export interface CreateReportParams {
     title: string;
-    content: ReportContent;
+    startTime?: string;
+    endTime?: string;
+    content: any;
     status?: 'draft' | 'published' | 'archived';
 }
 
 // 更新周报参数
 export interface UpdateReportParams {
     title?: string;
-    content?: ReportContent;
+    content?: any;
     status?: 'draft' | 'published' | 'archived';
 }
 
@@ -53,7 +57,7 @@ export interface ReportListParams {
     pageSize?: number;
     status?: 'draft' | 'published' | 'archived';
     search?: string;
-    sortBy?: 'created_time' | 'updatedTime';
+    sortBy?: 'createdTime' | 'created_time' | 'updatedTime';
     sortOrder?: 'asc' | 'desc';
 }
 

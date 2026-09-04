@@ -1706,6 +1706,10 @@
         "title": "Connoisseur",
         "description": "Community jointly recommends the weekly shopping guide"
       },
+      "stateOfWar": {
+        "title": "State of War",
+        "description": "Track faction asset score and regional war dominance in Season 10"
+      },
       "assembly": {
         "title": "Ship Assembly Workshop",
         "description": "Design your ship, push it to its performance limit, and share it with friends"
@@ -1876,6 +1880,48 @@
       "localTimeZoneName": "Local Time Zone",
       "localeTime": "Local Time",
       "localeTimeDescription": "Time data converted according to the local time zone and locale environment"
+    }
+  },
+  "stateOfWar": {
+    "title": "State of War",
+    "description": "Real-time tracking of Skull and Bones Season 10 faction war assets across active zones",
+    "lastUpdated": "Last Updated",
+    "selectSeason": "Select Season",
+    "refreshBtn": "Refresh Data",
+    "refreshSuccess": "State of War statistics refreshed",
+    "overallDominance": "Overall Faction Dominance",
+    "disputedZones": "Currently Disputed Zones",
+    "developmentHistory": "Asset Progression History",
+    "dailyContribution": "Daily Contribution",
+    "totalContribution": "Total",
+    "warProgression": "War Progression",
+    "hour1": "1 Hour",
+    "day1": "1 Day",
+    "leading": "Leading",
+    "subZones": "Sub-zones",
+    "ended": "Settled",
+    "active": "In Progress",
+    "contested": "Contested",
+    "upcoming": "Upcoming",
+    "occupied": "Occupied",
+    "noHistory": "No more history records",
+    "noContestedZones": "No currently contested zones",
+    "capturedCount": "Captured {count} zones",
+    "regions": {
+      "eastIndies": "East Indies",
+      "openSeas": "Open Seas",
+      "redIsle": "Red Isle",
+      "coastOfAfrica": "Coast of Africa"
+    },
+    "zones": {
+      "westernEastIndies": "Western East Indies",
+      "easternEastIndies": "Eastern East Indies",
+      "southernEastIndies": "Southern East Indies",
+      "northernEastIndies": "Northern East Indies",
+      "northernOpenSeas": "Northern Open Seas",
+      "northEastEastIndies": "North-East East Indies",
+      "eastIndiesSea": "East Indies Sea",
+      "eastIndiesIsles": "East Indies Isles"
     }
   }
 }

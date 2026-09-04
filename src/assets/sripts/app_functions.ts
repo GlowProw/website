@@ -50,6 +50,12 @@ export default class AppFuns {
             to: '/smugglers-report'
         },
         {
+            title: 'header.functions.stateOfWar.title',
+            icon: 'mdi-shield-cross',
+            description: 'header.functions.stateOfWar.description',
+            to: '/stateOfWar'
+        },
+        {
             title: 'header.functions.empire-skill-simulation.title',
             icon: 'mdi-hexagram-outline',
             description: 'header.functions.empire-skill-simulation.description',

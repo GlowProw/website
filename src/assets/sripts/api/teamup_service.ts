@@ -2,44 +2,19 @@ import {ApiError} from "@/assets/types/Api";
 import {useHttpToken} from "@/assets/sripts/http_util";
 import {createApiBase} from "@/assets/sripts/api/api-util";
 import {PaginationParams} from "@/assets/types";
+import type {
+    TeamupItem,
+    TeamupListParams,
+    CreateTeamupParams,
+    TeamupListResponse
+} from "@/assets/types/Teamup";
 
-export interface TeamupItem {
-    id: number | string;
-    player: string;
-    description: string;
-    tags: string[];
-    expiresAt: number;
-    createdAt: number;
-    username?: string | null;
-    userId?: string | null;
-}
-
-export interface TeamupListParams extends PaginationParams {
-    keyword?: string;
-    sortBy?: 'recent' | 'expires' | string;
-    page?: number;
-    limit?: number;
-}
-
-export interface CreateTeamupParams {
-    player: string;
-    description: string;
-    expiresMinutesAt?: number;
-    tags?: string[];
-    fingerprint?: string;
-}
-
-export interface TeamupListResponse {
-    success: number;
-    code: string;
-    data: TeamupItem[];
-    pagination: {
-        total: number;
-        page: number;
-        limit: number;
-        totalPages: number;
-    };
-}
+export type {
+    TeamupItem,
+    TeamupListParams,
+    CreateTeamupParams,
+    TeamupListResponse
+};
 
 /**
  * 组队 API 模块
