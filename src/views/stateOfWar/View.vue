@@ -15,12 +15,10 @@ import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 import LightRays from "@/components/LightRays.vue";
 import FactionNameWidget from "@/components/snbWidget/factionNameWidget.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
-import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import {formatCompactNumber, formatNumber} from "@/assets/sripts/number";
 
 const {t} = useI18n(),
-    {asString} = useI18nUtils(),
     route = useRoute(),
     router = useRouter(),
     notice = useNoticeStore(),
@@ -94,109 +92,10 @@ const selectedSeasonId = computed(() => {
   return String(selectSeasonsValue.value);
 });
 
-const updateSelectedSeason = (val: any) => {
-  if (!val) return;
-  const targetId = typeof val === 'object' ? val.id : String(val);
-  selectSeasonsValue.value = targetId;
-  if (route.params.seasonId !== targetId) {
-    router.push(`/stateOfWar/${targetId}/view`);
-  }
-};
-
-// 日间贡献 vs 全部 模式
-const contributionMode = ref<'daily' | 'total'>('daily');
-
-// 发展历程 1小时 vs 1天
-const historyRange = ref<'1h' | '1d'>('1d');
-
-onMounted(() => {
-  const currentSeason = (route.params.seasonId as string);
-  warStore.fetchAvailableSeasons();
-  getStateOfWarData(currentSeason);
-  fetchHistoryData();
-});
-
-watch(
-    () => route.params.seasonId,
-    (newSeasonId) => {
-      const targetId = (newSeasonId as string);
-      selectSeasonsValue.value = targetId;
-      getStateOfWarData(targetId);
-      fetchHistoryData();
-    }
-);
-
-watch(historyRange, () => {
-  fetchHistoryData();
-});
-
-/**
- * 获取阵营战争数据
- * @param seasonId
- */
-const getStateOfWarData = async (seasonId?: string) => {
-  try {
-    const targetSeason = seasonId || selectedSeasonId.value;
-    const payload = await warStore.getStateOfWarData(targetSeason);
-    if (payload?.seasonId) {
-      selectSeasonsValue.value = payload.seasonId;
-    }
-  } catch (e) {
-    handleApiError(e, notice, t, {component: 'StateOfWarView'});
-  }
-};
-
-/**
- * 获取历史数据
- */
-const fetchHistoryData = async () => {
-  try {
-    await warStore.fetchHistoryData(historyRange.value, selectedSeasonId.value);
-  } catch (e) {
-    // handled in store
-  }
-};
-
-const selectSeason = (seasonId: string) => {
-  selectSeasonsValue.value = seasonId;
-  getStateOfWarData(seasonId);
-  fetchHistoryData();
-};
-
-const refreshData = async () => {
-  try {
-    const payload = await warStore.refreshData(selectedSeasonId.value);
-    if (payload) {
-      notice.success(t('stateOfWar.refreshSuccess'));
-    }
-  } catch (e) {
-    handleApiError(e, notice, t, {component: 'StateOfWarView'});
-  }
-};
-
-
-const calculatePercent = (val: number, total: number) => {
-  if (!total || total === 0) return 50;
-  return Math.round((val / total) * 1000) / 10;
-};
-
 // 动态阵营 Key 获取 (完全从后端返回的 factions 取)
 const factionAKey = computed(() => warData.value?.factions?.[0] || '');
 const factionBKey = computed(() => warData.value?.factions?.[1] || '');
 
-const seasonDescription = computed(() => {
-  const sId = selectedSeasonId.value;
-  if (!sId) return '';
-  return asString([`snb.calendar.${sId}.description`], {backRawKey: false}) || '';
-})
-
-const getFactionName = (id: string, short: boolean = false) => {
-  if (!id) return '';
-  const snbKey = `snb.factions.${id}.name`;
-  const trSnb = t(snbKey);
-  if (trSnb !== snbKey) return trSnb;
-  return id;
-};
 
 // 计算当前显示的阵营分数 (依据 日间贡献 / 全部 切换)
 const activeTotals = computed<Record<string, any>>(() => {
@@ -230,15 +129,6 @@ const overallFactionBPercent = computed(() => {
   if (!total) return 50;
   return calculatePercent(factionBScore.value, total);
 });
-
-const getZoneData = (zoneName: string) => {
-  if (!warData.value?.zones) {
-    return {name: zoneName, region: 'eastIndies', total: 0};
-  }
-  const match = warData.value.zones.find((z: any) => z.name === zoneName || z.id === zoneName);
-  if (match) return match;
-  return {name: zoneName, region: 'eastIndies', total: 0};
-};
 
 // 发展历程图表展示点 (包含实时/平滑趋势)
 const displayHistoryItems = computed(() => {
@@ -304,6 +194,107 @@ const chartPoints = computed(() => {
     items
   };
 });
+
+const updateSelectedSeason = (val: any) => {
+  if (!val) return;
+  const targetId = typeof val === 'object' ? val.id : String(val);
+  selectSeasonsValue.value = targetId;
+  if (route.params.seasonId !== targetId) {
+    router.push(`/stateOfWar/${targetId}/view`);
+  }
+};
+
+// 日间贡献 vs 全部 模式
+const contributionMode = ref<'daily' | 'total'>('daily');
+
+// 发展历程 1小时 vs 1天
+const historyRange = ref<'1h' | '1d'>('1d');
+
+watch(
+    () => route.params.seasonId,
+    (newSeasonId) => {
+      const targetId = (newSeasonId as string);
+      selectSeasonsValue.value = targetId;
+      getStateOfWarData(targetId);
+      fetchHistoryData();
+    }
+);
+
+watch(historyRange, () => {
+  fetchHistoryData();
+});
+
+onMounted(() => {
+  const currentSeason = (route.params.seasonId as string);
+  warStore.fetchAvailableSeasons();
+  getStateOfWarData(currentSeason);
+  fetchHistoryData();
+});
+
+/**
+ * 获取阵营战争数据
+ * @param seasonId
+ */
+const getStateOfWarData = async (seasonId?: string) => {
+  try {
+    const targetSeason = seasonId || selectedSeasonId.value;
+    const payload = await warStore.getStateOfWarData(targetSeason);
+    if (payload?.seasonId) {
+      selectSeasonsValue.value = payload.seasonId;
+    }
+  } catch (e) {
+    handleApiError(e, notice, t, {component: 'StateOfWarView'});
+  }
+};
+
+/**
+ * 获取历史数据
+ */
+const fetchHistoryData = async () => {
+  try {
+    await warStore.fetchHistoryData(historyRange.value, selectedSeasonId.value);
+  } catch (e) {
+    // handled in store
+  }
+};
+
+const refreshData = async () => {
+  try {
+    const payload = await warStore.refreshData(selectedSeasonId.value);
+    if (payload) {
+      notice.success(t('stateOfWar.refreshSuccess'));
+    }
+  } catch (e) {
+    handleApiError(e, notice, t, {component: 'StateOfWarView'});
+  }
+};
+
+const calculatePercent = (val: number, total: number) => {
+  if (!total || total === 0) return 50;
+  return Math.round((val / total) * 1000) / 10;
+};
+
+/**
+ * 获取阵营名称
+ * @param id
+ * @param short
+ */
+const getFactionName = (id: string, short: boolean = false) => {
+  if (!id) return '';
+  const snbKey = `snb.factions.${id}.name`;
+  const trSnb = t(snbKey);
+  if (trSnb !== snbKey) return trSnb;
+  return id;
+};
+
+const getZoneData = (zoneName: string) => {
+  if (!warData.value?.zones) {
+    return {name: zoneName, region: 'eastIndies', total: 0};
+  }
+  const match = warData.value.zones.find((z: any) => z.name === zoneName || z.id === zoneName);
+  if (match) return match;
+  return {name: zoneName, region: 'eastIndies', total: 0};
+};
 </script>
 
 <template>
@@ -479,7 +470,7 @@ const chartPoints = computed(() => {
 
       <v-row v-else-if="warData">
         <!-- 发展历程 -->
-        <v-col cols="6">
+        <v-col cols="12" lg="6">
           <AffixBoxHasTitleView>
             <v-row class="d-flex align-center justify-space-between flex-wrap">
               <v-col cols="auto" class="d-flex align-center ga-2">
@@ -559,7 +550,7 @@ const chartPoints = computed(() => {
         </v-col>
 
         <!-- 日间贡献与全部总体对抗板块 -->
-        <v-col cols="6">
+        <v-col cols="12" lg="6">
           <AffixBoxHasTitleView>
             <v-row align="center">
               <v-col cols="auto">
@@ -593,7 +584,7 @@ const chartPoints = computed(() => {
 
             <v-row align="center">
               <!-- Faction A -->
-              <v-col cols="12" md="4" class="text-center text-md-left">
+              <v-col cols="4" md="4" lg="4" class="text-center text-md-left">
                 <div class="d-flex align-center ga-3 justify-center justify-md-start">
                   <v-avatar size="44" tile>
                     <FactionIconWidget :name="factionAKey" size="44"></FactionIconWidget>
@@ -609,7 +600,7 @@ const chartPoints = computed(() => {
                 </div>
               </v-col>
 
-              <v-col cols="4" class="text-center py-2">
+              <v-col cols="4" md="4" lg="4" class="text-center py-2">
                 <div class="text-subtitle-2 font-weight-bold mb-1">
                   {{ overallFactionAPercent }}% VS {{ overallFactionBPercent }}%
                 </div>
@@ -622,7 +613,7 @@ const chartPoints = computed(() => {
               </v-col>
 
               <!-- Faction B -->
-              <v-col cols="12" md="4" class="text-center text-md-right">
+              <v-col cols="4" md="4" lg="4" class="text-center text-md-right">
                 <div class="d-flex align-center ga-3 justify-center justify-md-end">
                   <div>
                     <div class="text-subtitle-1 font-weight-bold u" :style="{ color: factionBColor }">
@@ -639,7 +630,6 @@ const chartPoints = computed(() => {
               </v-col>
             </v-row>
 
-            <!-- Dual Progress Bar -->
             <div class="mt-4">
               <v-progress-linear
                   height="16"
@@ -666,7 +656,7 @@ const chartPoints = computed(() => {
               {{ t('stateOfWar.noContestedZones') }}
             </div>
             <div v-for="region in contestedRegions" :key="region.id" class="mb-6">
-              <!-- 区域标题栏 / Header -->
+              <!-- 区域标题栏 -->
               <AffixContainerView>
                 <v-card class="rounded-lg mb-3 region-header-card elevation-1">
                   <div class="pa-3 px-4 d-flex align-center justify-space-between flex-wrap ga-2">
@@ -698,7 +688,7 @@ const chartPoints = computed(() => {
                 </v-card>
               </AffixContainerView>
 
-              <!-- 小区域网格 (Sub-zones Grid) -->
+              <!-- 小区域网格 -->
               <v-row>
                 <v-col
                     v-for="zone in region.zones"
@@ -726,7 +716,7 @@ const chartPoints = computed(() => {
                             class="font-weight-bold">
                           {{ t('stateOfWar.contested') }}
                         </v-chip>
-                        <v-divider vertical></v-divider>
+                        <v-divider vertical inset class="mx-1"></v-divider>
                         <v-chip
                             size="x-small"
                             :style="{ borderColor: (zone[factionAKey] || 0) >= (zone[factionBKey] || 0) ? factionAColor : factionBColor, color: (zone[factionAKey] || 0) >= (zone[factionBKey] || 0) ? factionAColor : factionBColor }"
@@ -739,13 +729,12 @@ const chartPoints = computed(() => {
                             variant="tonal"
                             class="font-weight-bold"
                             :title="formatNumber(Math.abs((zone[factionAKey] || 0) - (zone[factionBKey] || 0)))">
-                          {{ formatCompactNumber(Math.abs((zone[factionAKey] || 0) - (zone[factionBKey] || 0))) }}
+                          {{ t('stateOfWar.gap', {count: formatCompactNumber(Math.abs((zone[factionAKey] || 0) - (zone[factionBKey] || 0)))}) }}
                         </v-chip>
                       </div>
 
                       <v-divider></v-divider>
 
-                      <!-- Display parent region & zone update date/time -->
                       <div class="d-flex align-center justify-space-between text-caption text-medium-emphasis mt-1">
                       <span class="d-flex align-center ga-1">
                         <v-icon icon="mdi-earth" size="13"></v-icon>
@@ -758,10 +747,8 @@ const chartPoints = computed(() => {
                       </div>
                     </v-card-item>
 
-                    <v-divider></v-divider>
-
-                    <v-card-text class="py-3">
-                      <v-row class="d-flex justify-space-between align-center mb-2 text-body-2">
+                    <v-card-text class="pt-5">
+                      <v-row class="d-flex justify-space-between align-center text-body-2">
                         <v-col cols="auto" class="font-weight-medium d-flex align-center ga-1" :style="{ color: factionAColor }">
                           <v-avatar tile size="30">
                             <FactionIconWidget :name="factionAKey" size="14"></FactionIconWidget>
@@ -793,7 +780,7 @@ const chartPoints = computed(() => {
                         </v-col>
                       </v-row>
 
-                      <v-row class="d-flex justify-space-between align-center mb-2 text-body-2">
+                      <v-row class="d-flex justify-space-between align-center text-body-2">
                         <v-col cols="auto" class="font-weight-medium d-flex align-center ga-1" :style="{ color: factionBColor }">
                           <v-avatar tile size="30">
                             <FactionIconWidget :name="factionBKey"></FactionIconWidget>
@@ -839,66 +826,80 @@ const chartPoints = computed(() => {
           </AffixBoxHasTitleView>
         </v-col>
 
-        <!-- 4. 战争进程板块 (War Progression Cycles & Phase Results) -->
+        <!-- 战争进程板块 -->
         <v-col cols="12">
           <AffixBoxHasTitleView>
+
             <v-row class="mb-6">
               <v-col
                   v-for="cycle in warData.progression || []"
                   :key="cycle.cycleNumber"
                   :class="`${cycle.status == 'upcoming' ? 'opacity-20' : ''}`"
                   cols="12"
-                  md="6">
+                  md="6"
+                  lg="6">
                 <v-card variant="text" class="h-100 overflow-hidden">
-                  <v-card-item class="py-3">
-                    <div class="d-flex align-center justify-space-between flex-wrap ga-2">
-                      <v-row align="center">
-                        <v-col cols="auto" class="text-subtitle-1 font-weight-bold">
-                          <v-icon icon="mdi-flag-checkered" size="20" color="amber-darken-1"></v-icon>
-                          {{ cycle.name }}
-                        </v-col>
-                        <v-col>
-                          <v-divider opacity=".3" thickness="2"></v-divider>
-                        </v-col>
-                        <v-col cols="auto" class="text-caption text-medium-emphasis">
-                          {{ cycle.startDate }} ~ {{ cycle.endDate }} ({{ cycle.durationDays }})
-                        </v-col>
-                        <v-col cols="auto">
-                          <v-chip
-                              size="small"
-                              :color="cycle.status === 'ended' ? 'grey' : (cycle.status === 'active' ? 'amber-darken-2' : '')"
-                              variant="flat"
-                              class="font-weight-bold">
-                            {{ cycle.status === 'ended' ? t('stateOfWar.ended') : (cycle.status === 'active' ? t('stateOfWar.active') : t('stateOfWar.upcoming')) }}
-                          </v-chip>
-                        </v-col>
-                      </v-row>
-                    </div>
-                  </v-card-item>
+                  <AffixContainerView>
+                    <v-card-item class="py-2">
+                      <div class="d-flex align-center justify-space-between flex-wrap ga-2">
+                        <v-row align="center">
+                          <v-col cols="auto" class="text-subtitle-1 font-weight-bold">
+                            <v-icon icon="mdi-flag-checkered" size="20" color="amber-darken-1"></v-icon>
+                            {{ cycle.name }}
+                          </v-col>
+                          <v-col>
+                            <v-divider opacity=".3" thickness="2"></v-divider>
+                          </v-col>
+                          <v-col cols="auto" class="text-caption text-medium-emphasis">
+                            {{ cycle.startDate }} ~ {{ cycle.endDate }} ({{ cycle.durationDays }})
+                          </v-col>
+                          <v-col cols="auto">
+                            <v-chip
+                                size="small"
+                                :color="cycle.status === 'ended' ? 'grey' : (cycle.status === 'active' ? 'amber-darken-2' : '')"
+                                variant="flat"
+                                class="font-weight-bold">
+                              {{ cycle.status === 'ended' ? t('stateOfWar.ended') : (cycle.status === 'active' ? t('stateOfWar.active') : t('stateOfWar.upcoming')) }}
+                            </v-chip>
+                          </v-col>
+                        </v-row>
+                      </div>
+                    </v-card-item>
+                  </AffixContainerView>
 
-                  <v-card-text class="pa-4">
-                    <div class="d-flex justify-space-between align-center mb-3">
-                      <div class="text-subtitle-2 font-weight-bold d-flex ga-1 align-center" :style="{ color: factionAColor }">
+                  <v-card-text class="pa-3">
+                    <v-row>
+                      <v-col cols="12"
+                             md="6"
+                             lg="6"
+                             class="text-subtitle-2 font-weight-bold d-flex ga-1 align-center"
+                             :style="{ color: factionAColor }">
                         <v-avatar tile size="30">
                           <FactionIconWidget :name="factionAKey"></FactionIconWidget>
                         </v-avatar>
                         <u class="u">
                           <FactionNameWidget :id="factionAKey"></FactionNameWidget>
                         </u> {{ t('stateOfWar.capturedCount', {count: cycle.totals?.[factionAKey] || 0}) }}
-                      </div>
-                      <div class="text-subtitle-2 font-weight-bold d-flex ga-1 align-center" :style="{ color: factionBColor }">
+                      </v-col>
+                      <v-col cols="12"
+                             md="6"
+                             lg="6"
+                             class="text-subtitle-2 font-weight-bold d-flex ga-1 align-center"
+                             :style="{ color: factionBColor }">
                         <v-avatar tile size="30">
                           <FactionIconWidget :name="factionBKey"></FactionIconWidget>
                         </v-avatar>
                         <u class="u">
                           <FactionNameWidget :id="factionBKey"></FactionNameWidget>
                         </u> {{ t('stateOfWar.capturedCount', {count: cycle.totals?.[factionBKey] || 0}) }}
-                      </div>
-                    </div>
+                      </v-col>
+                    </v-row>
 
-                    <div class="d-flex justify-space-between ga-3">
+                    <v-row>
                       <!-- 阵营 A 区域 -->
-                      <div class="w-50 ">
+                      <v-col cols="12"
+                             md="6"
+                             lg="6">
                         <div v-if="(cycle[factionAKey + 'Zones'] || []).length > 0" class="d-flex flex-column ga-2">
                           <div
                               v-for="z in (cycle[factionAKey + 'Zones'] || [])"
@@ -916,11 +917,11 @@ const chartPoints = computed(() => {
                             </div>
                             <div class="d-flex justify-space-between align-center text-caption opacity-90">
                               <span class="font-weight-bold" :style="{ color: factionAColor }">
-                                {{ formatNumber(getZoneData(z)[factionAKey] || 0) }}
+                                {{ formatCompactNumber(getZoneData(z)[factionAKey] || 0) }}
                               </span>
                               <span class="text-medium-emphasis">vs</span>
                               <span class="font-weight-bold" :style="{ color: factionBColor }">
-                                {{ formatNumber(getZoneData(z)[factionBKey] || 0) }}
+                                {{ formatCompactNumber(getZoneData(z)[factionBKey] || 0) }}
                               </span>
                             </div>
                             <v-progress-linear
@@ -937,10 +938,12 @@ const chartPoints = computed(() => {
                         <div v-else class="text-caption text-medium-emphasis text-center py-2">
                           <EmptyView></EmptyView>
                         </div>
-                      </div>
+                      </v-col>
 
                       <!-- 阵营 B 区域 -->
-                      <div class="w-50 ">
+                      <v-col cols="12"
+                             md="6"
+                             lg="6">
                         <div v-if="(cycle[factionBKey + 'Zones'] || []).length > 0" class="d-flex flex-column ga-2">
                           <div
                               v-for="z in (cycle[factionBKey + 'Zones'] || [])"
@@ -958,11 +961,11 @@ const chartPoints = computed(() => {
                             </div>
                             <div class="d-flex justify-space-between align-center text-caption opacity-90">
                               <span class="font-weight-bold" :style="{ color: factionBColor }">
-                                {{ formatNumber(getZoneData(z)[factionBKey] || 0) }}
+                                {{ formatCompactNumber(getZoneData(z)[factionBKey] || 0) }}
                               </span>
                               <span class="text-medium-emphasis">vs</span>
                               <span class="font-weight-bold" :style="{ color: factionAColor }">
-                                {{ formatNumber(getZoneData(z)[factionAKey] || 0) }}
+                                {{ formatCompactNumber(getZoneData(z)[factionAKey] || 0) }}
                               </span>
                             </div>
                             <v-progress-linear
@@ -979,12 +982,13 @@ const chartPoints = computed(() => {
                         <div v-else class="text-caption text-medium-emphasis text-center py-2">
                           <EmptyView></EmptyView>
                         </div>
-                      </div>
-                    </div>
+                      </v-col>
+                    </v-row>
                   </v-card-text>
                 </v-card>
               </v-col>
             </v-row>
+
 
             <template v-slot:title>
               <div class="d-flex ga-3">
@@ -1006,35 +1010,9 @@ const chartPoints = computed(() => {
   min-height: 80vh;
 }
 
-.banner-card {
-  position: relative;
-  overflow: hidden;
-}
-
 .war-status-faction-number,
 .war-light-rays {
   position: relative;
   z-index: -1;
-}
-
-.cursor-pointer {
-  cursor: pointer;
-}
-
-.legend-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  display: inline-block;
-
-  &.bg-blue,
-  &.bg-faction-a {
-    background-color: var(--faction-a-color, #42A5F5);
-  }
-
-  &.bg-red,
-  &.bg-faction-b {
-    background-color: var(--faction-b-color, #EF5350);
-  }
 }
 </style>

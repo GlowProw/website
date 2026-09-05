@@ -30,13 +30,15 @@ interface Props {
   offsetTop?: number
   offsetBottom?: number
   affixBgClass?: string
+  disabled?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   direction: 'left',
   offsetTop: 80,
   offsetBottom: 0,
-  affixBgClass: ''
+  affixBgClass: '',
+  disabled: false
 })
 
 const mainContentRef = ref<HTMLElement>()
@@ -46,40 +48,35 @@ const nailContainerRef = ref<HTMLElement>()
 const isFixed = ref(false)
 const isAbsolute = ref(false)
 const originalPosition = ref({top: 0, left: 0, width: 0})
+const fixedLeft = ref(0)
 
 const directionClass = computed(() => `direction-${props.direction}`)
+
 const nailStyle = computed(() => {
   const style: any = {}
 
-  if (isFixed.value) {
-    style.position = 'fixed'
-    style.top = `${props.offsetTop}px`
-    style.width = `${originalPosition.value.width}px`
-
-    if (props.direction === 'left') {
-      style.left = `${originalPosition.value.left}px`
-    } else {
-      const left = originalPosition.value.left
-      style.right = `${window.innerWidth - left - originalPosition.value.width}px`
+  if (!props.disabled) {
+    if (isFixed.value) {
+      style.position = 'fixed'
+      style.top = `${props.offsetTop}px`
+      style.left = `${fixedLeft.value}px`
+      style.width = `${originalPosition.value.width}px`
+      return style
     }
-  } else if (isAbsolute.value) {
-    style.position = 'absolute'
-    style.bottom = `${props.offsetBottom}px`
-    style.top = 'auto'
-    style.width = `${originalPosition.value.width}px`
-
-    if (props.direction === 'left') {
+    if (isAbsolute.value) {
+      style.position = 'absolute'
+      style.bottom = `${props.offsetBottom}px`
+      style.top = 'auto'
       style.left = '0'
-    } else {
-      style.right = '0'
+      style.width = `${originalPosition.value.width}px`
+      return style
     }
-  } else {
-    style.position = 'relative'
-    style.top = '0'
-    style.left = '0'
-    style.width = '100%'
   }
 
+  style.position = 'relative'
+  style.top = '0'
+  style.left = '0'
+  style.width = '100%'
   return style
 })
 
@@ -89,27 +86,48 @@ const nailStyle = computed(() => {
 const getOriginalPosition = () => {
   if (!nailAreaRef.value || !nailContainerRef.value) return
 
-  const nailContainerRect = nailContainerRef.value.getBoundingClientRect()
-  const nailWidth = nailContainerRect.width
-
-  nailAreaRef.value.style.width = `${nailWidth}px`
+  // 仅在未处于固定/绝对定位时锁定 nailArea 的物理宽度，避免脱离文档流后宽度塌陷
+  if (!isFixed.value && !isAbsolute.value) {
+    const nailContainerRect = nailContainerRef.value.getBoundingClientRect()
+    const nailWidth = nailContainerRect.width
+    if (nailWidth > 0) {
+      nailAreaRef.value.style.width = `${nailWidth}px`
+      originalPosition.value.width = nailWidth
+    }
+  }
 
   const rect = nailAreaRef.value.getBoundingClientRect()
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop
   const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft
 
-  originalPosition.value = {
-    top: rect.top + scrollTop,
-    left: rect.left + scrollLeft,
-    width: rect.width
+  if (!isFixed.value && !isAbsolute.value) {
+    originalPosition.value.top = rect.top + scrollTop
+    originalPosition.value.left = rect.left + scrollLeft
+    if (rect.width > 0) {
+      originalPosition.value.width = rect.width
+    }
   }
+  fixedLeft.value = rect.left
 }
 
 /**
  * 检查是否需要固定
  */
 const checkPosition = () => {
+  if (props.disabled) {
+    isFixed.value = false
+    isAbsolute.value = false
+    return
+  }
+
   if (!mainContentRef.value || !nailAreaRef.value || !nailContainerRef.value) return
+
+  // 实时更新占位容器 nailAreaRef 在视口中的当前 X 坐标，完全避免 Windows 滚动条等造成的水平偏移
+  fixedLeft.value = nailAreaRef.value.getBoundingClientRect().left
+
+  if (!isFixed.value && !isAbsolute.value && originalPosition.value.top === 0) {
+    getOriginalPosition()
+  }
 
   const mainRect = mainContentRef.value.getBoundingClientRect()
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop
@@ -138,13 +156,22 @@ const checkPosition = () => {
   }
 }
 
+let animationFrameId: number | null = null
+const requestCheck = () => {
+  if (animationFrameId !== null) return
+  animationFrameId = requestAnimationFrame(() => {
+    checkPosition()
+    animationFrameId = null
+  })
+}
+
 const handleScroll = () => {
-  checkPosition()
+  requestCheck()
 }
 
 const handleResize = () => {
   getOriginalPosition()
-  checkPosition()
+  requestCheck()
 }
 
 const init = () => {
@@ -155,20 +182,34 @@ const init = () => {
   window.addEventListener('resize', handleResize)
 
   setTimeout(() => {
+    getOriginalPosition()
     checkPosition()
   }, 100)
+  setTimeout(() => {
+    getOriginalPosition()
+    checkPosition()
+  }, 300)
 }
 
 const cleanup = () => {
+  if (animationFrameId !== null) {
+    cancelAnimationFrame(animationFrameId)
+    animationFrameId = null
+  }
   window.removeEventListener('scroll', handleScroll)
   window.removeEventListener('resize', handleResize)
 }
 
-watch(() => [props.direction, props.offsetTop, props.offsetBottom], () => {
-  nextTick(() => {
-    getOriginalPosition()
-    checkPosition()
-  })
+watch(() => [props.direction, props.offsetTop, props.offsetBottom, props.disabled], () => {
+  if (props.disabled) {
+    isFixed.value = false
+    isAbsolute.value = false
+  } else {
+    nextTick(() => {
+      getOriginalPosition()
+      checkPosition()
+    })
+  }
 }, {deep: true})
 
 onMounted(() => {

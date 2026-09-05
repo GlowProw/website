@@ -1896,6 +1896,7 @@
     "noHistory": "暂无更多历史记录",
     "noContestedZones": "暂无正在争夺的区域",
     "capturedCount": "夺下 {count} 个区域",
+    "gap": "差距 {count}",
     "regions": {
       "eastIndies": "东印度群岛",
       "openSeas": "公海",
