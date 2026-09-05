@@ -3,6 +3,20 @@ import {computed, ref} from 'vue';
 import {apis} from '@/assets/sripts';
 import type {StateOfWarData, StateOfWarHistoryPoint} from '@/assets/types/StateOfWar';
 
+export const FACTION_COLORS: Record<string, string> = {
+    compagnieRoyale: "#42A5F5",
+    phoenixsTalon: "#c23d3a",
+    dutchMerchantCompany: "#FFA726",
+    britishTradingAlliance: "#5C6BC0",
+    confederationOfUngwana: "#26A69A",
+    clanOfFara: "#FFB300",
+    seaPeople: "#26C6DA",
+    dominionOfRempah: "#AB47BC",
+    pirates: "#78909C",
+    chorusFleet: "#EC407A",
+    shadowLegion: "#7E57C2",
+};
+
 export const useStateOfWarStore = defineStore('stateOfWar', () => {
     // 当前展示赛季的 State of War 数据
     const warData = ref<StateOfWarData | null>(null);
@@ -20,13 +34,65 @@ export const useStateOfWarStore = defineStore('stateOfWar', () => {
     const refreshing = ref<boolean>(false);
     const currentSeasonId = ref<string>('');
 
+    // 可用赛季列表
+    const availableSeasons = ref<any[]>([]);
+
     // 计算属性
     const factions = computed(() => warData.value?.factions);
-    const factionAKey = computed(() => warData.value?.factions?.[0]);
-    const factionBKey = computed(() => warData.value?.factions?.[1]);
+    const factionAKey = computed(() => warData.value?.factions?.[0] || '');
+    const factionBKey = computed(() => warData.value?.factions?.[1] || '');
 
-    const totals = computed(() => warData.value?.totals || {compagnieRoyale: 0, phoenixsTalon: 0, total: 0});
-    const dailyTotals = computed(() => warData.value?.dailyTotals || {compagnieRoyale: 0, phoenixsTalon: 0, total: 0});
+    /**
+     * 判断当前展示赛季是否已结束 (是否有结束变量判断)
+     */
+    const isSeasonEnded = computed<boolean>(() => {
+        if (warData.value?.isEnded !== undefined) {
+            return Boolean(warData.value.isEnded);
+        }
+        if (warData.value?.status === 'ended') {
+            return true;
+        }
+        const curSeason = availableSeasons.value.find(
+            (s: any) => s.seasonId === currentSeasonId.value || String(s.seasonNumber) === String(currentSeasonId.value)
+        );
+        if (curSeason?.isEnded !== undefined) {
+            return Boolean(curSeason.isEnded);
+        }
+        if (curSeason?.status === 'ended') {
+            return true;
+        }
+        if (curSeason?.endDate) {
+            return new Date() >= new Date(curSeason.endDate + 'T23:59:59Z');
+        }
+        return false;
+    });
+
+    /**
+     * 阵营主题颜色动态映射
+     */
+    const factionColors = computed<Record<string, string>>(() => {
+        return warData.value?.factionColors || {};
+    });
+
+    const getFactionColor = (factionKey: string, fallbackColor?: string): string => {
+        if (!factionKey) return fallbackColor || '#42A5F5';
+        if (factionColors.value[factionKey]) return factionColors.value[factionKey];
+        if (FACTION_COLORS[factionKey]) return FACTION_COLORS[factionKey];
+        return fallbackColor || '#42A5F5';
+    };
+
+    const factionAColor = computed<string>(() => {
+        const fA = factionAKey.value;
+        return getFactionColor(fA, '#42A5F5');
+    });
+
+    const factionBColor = computed<string>(() => {
+        const fB = factionBKey.value;
+        return getFactionColor(fB, '#EF5350');
+    });
+
+    const totals = computed(() => warData.value?.totals || { total: 0 });
+    const dailyTotals = computed(() => warData.value?.dailyTotals || { total: 0 });
     const regions = computed(() => warData.value?.regions || []);
     const zones = computed(() => warData.value?.zones || []);
     const progression = computed(() => warData.value?.progression || []);
@@ -36,6 +102,8 @@ export const useStateOfWarStore = defineStore('stateOfWar', () => {
      */
     const isZoneEnded = (zone: any): boolean => {
         if (!zone) return false;
+        // 如果整个赛季已结束，所有战区均属于已结束
+        if (isSeasonEnded.value) return true;
         if (zone.status === 'ended') return true;
         const now = Date.now();
         // 排除未来的战区
@@ -62,6 +130,8 @@ export const useStateOfWarStore = defineStore('stateOfWar', () => {
      */
     const isZoneContested = (zone: any): boolean => {
         if (!zone) return false;
+        // 赛季已结束，不再有正在进行争夺的战区
+        if (isSeasonEnded.value) return false;
         if (zone.status === 'ended' || isZoneEnded(zone)) return false;
         if (zone.status === 'upcoming' || isZoneUpcoming(zone)) return false;
         if (zone.status === 'active') return true;
@@ -83,6 +153,8 @@ export const useStateOfWarStore = defineStore('stateOfWar', () => {
      */
     const isZoneUpcoming = (zone: any): boolean => {
         if (!zone) return false;
+        // 赛季已结束，不再有未开启的战区
+        if (isSeasonEnded.value) return false;
         if (zone.status === 'upcoming') return true;
         const now = Date.now();
         if (zone.cycleStartDate && new Date(zone.cycleStartDate).getTime() > now) {
@@ -105,10 +177,10 @@ export const useStateOfWarStore = defineStore('stateOfWar', () => {
         return allZones
             .filter((z: any) => isZoneContested(z))
             .sort((a: any, b: any) => {
-                const scoreA_fA = a[fA] ?? a.compagnieRoyale ?? 0;
-                const scoreA_fB = a[fB] ?? a.phoenixsTalon ?? 0;
-                const scoreB_fA = b[fA] ?? b.compagnieRoyale ?? 0;
-                const scoreB_fB = b[fB] ?? b.phoenixsTalon ?? 0;
+                const scoreA_fA = fA ? (a[fA] ?? 0) : 0;
+                const scoreA_fB = fB ? (a[fB] ?? 0) : 0;
+                const scoreB_fA = fA ? (b[fA] ?? 0) : 0;
+                const scoreB_fB = fB ? (b[fB] ?? 0) : 0;
                 const diffA = Math.abs(scoreA_fA - scoreA_fB);
                 const diffB = Math.abs(scoreB_fA - scoreB_fB);
                 return diffA - diffB;
@@ -135,27 +207,25 @@ export const useStateOfWarStore = defineStore('stateOfWar', () => {
                     total: 0,
                     zones: [],
                 };
-                map[regId][fA] = 0;
-                map[regId][fB] = 0;
-                map[regId].compagnieRoyale = 0;
-                map[regId].phoenixsTalon = 0;
+                if (fA) map[regId][fA] = 0;
+                if (fB) map[regId][fB] = 0;
             }
             map[regId].zones.push(z);
             map[regId].total += (z.total || 0);
-            map[regId][fA] += (z[fA] ?? z.compagnieRoyale ?? 0);
-            map[regId][fB] += (z[fB] ?? z.phoenixsTalon ?? 0);
-            map[regId].compagnieRoyale += (z.compagnieRoyale ?? z[fA] ?? 0);
-            map[regId].phoenixsTalon += (z.phoenixsTalon ?? z[fB] ?? 0);
+            if (fA) map[regId][fA] += (z[fA] ?? 0);
+            if (fB) map[regId][fB] += (z[fB] ?? 0);
         });
 
         return Object.values(map);
     });
 
-    // 阵营上一期（已结束战期）占领的区域数量：
-    // 只统计时间范围（startDate 和 lastModified）处于过去且已结算的战区，严格不包含当前正在争夺中和未来的战区
+    // 阵营上一期（已结束战期）或已结束赛季占领的区域数量：
+    // 对应已结束的赛季，会统计所有阵营争夺下地区，根据 isSeasonEnded 变量进行判断；
+    // 进行中的赛季只统计时间范围处于过去且已结算的战区，严格不包含当前正在争夺中和未来的战区。
     const previousCycleFactionAScore = computed(() => {
         const fA = factionAKey.value;
         const fB = factionBKey.value;
+        if (!fA) return 0;
         const allZones = zones.value || [];
         if (allZones.length === 0) {
             if (warData.value?.previousPeriodTotals && warData.value.previousPeriodTotals[fA] !== undefined) {
@@ -164,14 +234,19 @@ export const useStateOfWarStore = defineStore('stateOfWar', () => {
             return 0;
         }
 
+        const seasonEnded = isSeasonEnded.value;
+
         let count = 0;
         allZones.forEach((z: any) => {
-            // 必须满足已结束条件，且严格排除争夺中和未来
-            if (!isZoneEnded(z) || isZoneContested(z) || isZoneUpcoming(z)) {
-                return;
+            // 赛季未结束时，必须满足已结束条件，且严格排除争夺中和未来；
+            // 赛季已结束时，直接统计该赛季所有争夺下的地区
+            if (!seasonEnded) {
+                if (!isZoneEnded(z) || isZoneContested(z) || isZoneUpcoming(z)) {
+                    return;
+                }
             }
-            const scoreA = z[fA] ?? z.compagnieRoyale ?? 0;
-            const scoreB = z[fB] ?? z.phoenixsTalon ?? 0;
+            const scoreA = z[fA] ?? 0;
+            const scoreB = fB ? (z[fB] ?? 0) : 0;
             if (scoreA >= scoreB && (scoreA > 0 || scoreB > 0)) {
                 count++;
             }
@@ -182,6 +257,7 @@ export const useStateOfWarStore = defineStore('stateOfWar', () => {
     const previousCycleFactionBScore = computed(() => {
         const fA = factionAKey.value;
         const fB = factionBKey.value;
+        if (!fB) return 0;
         const allZones = zones.value || [];
         if (allZones.length === 0) {
             if (warData.value?.previousPeriodTotals && warData.value.previousPeriodTotals[fB] !== undefined) {
@@ -190,14 +266,17 @@ export const useStateOfWarStore = defineStore('stateOfWar', () => {
             return 0;
         }
 
+        const seasonEnded = isSeasonEnded.value;
+
         let count = 0;
         allZones.forEach((z: any) => {
-            // 必须满足已结束条件，且严格排除争夺中和未来
-            if (!isZoneEnded(z) || isZoneContested(z) || isZoneUpcoming(z)) {
-                return;
+            if (!seasonEnded) {
+                if (!isZoneEnded(z) || isZoneContested(z) || isZoneUpcoming(z)) {
+                    return;
+                }
             }
-            const scoreA = z[fA] ?? z.compagnieRoyale ?? 0;
-            const scoreB = z[fB] ?? z.phoenixsTalon ?? 0;
+            const scoreA = fA ? (z[fA] ?? 0) : 0;
+            const scoreB = z[fB] ?? 0;
             if (scoreB > scoreA && (scoreA > 0 || scoreB > 0)) {
                 count++;
             }
@@ -294,6 +373,23 @@ export const useStateOfWarStore = defineStore('stateOfWar', () => {
         }
     };
 
+    /**
+     * 获取可用赛季列表
+     */
+    const fetchAvailableSeasons = async (): Promise<any[]> => {
+        try {
+            const res = await apis.stateOfWarApi().getAvailableSeasons();
+            const data = res?.data?.data || res?.data || res;
+            if (data?.availableSeasons && Array.isArray(data.availableSeasons)) {
+                availableSeasons.value = data.availableSeasons;
+                return data.availableSeasons;
+            }
+            return [];
+        } catch (e) {
+            return [];
+        }
+    };
+
     return {
         warData,
         seasonDataMap,
@@ -303,6 +399,7 @@ export const useStateOfWarStore = defineStore('stateOfWar', () => {
         historyLoading,
         refreshing,
         currentSeasonId,
+        availableSeasons,
         factions,
         factionAKey,
         factionBKey,
@@ -318,8 +415,14 @@ export const useStateOfWarStore = defineStore('stateOfWar', () => {
         isZoneUpcoming,
         contestedZones,
         contestedRegions,
+        isSeasonEnded,
+        factionColors,
+        factionAColor,
+        factionBColor,
+        getFactionColor,
         getStateOfWarData,
         fetchHistoryData,
+        fetchAvailableSeasons,
         refreshData,
     };
 });

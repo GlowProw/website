@@ -73,12 +73,32 @@ export interface StateOfWarHistoryPoint {
     [key: string]: any;
 }
 
+export interface AvailableWarSeason {
+    seasonNumber: number;
+    seasonId: string;
+    alternativeName?: string;
+    nameZh?: string;
+    supported?: boolean;
+    startDate?: string;
+    endDate?: string;
+    cycleDays?: number;
+    factions?: string[];
+    factionColors?: Record<string, string>;
+    isEnded?: boolean;
+    status?: "ended" | "active" | "upcoming";
+    [key: string]: any;
+}
+
 export interface StateOfWarData {
     id?: number;
     season: number;
     seasonId?: string;
     alternativeName?: string;
+    availableSeasons?: AvailableWarSeason[];
     factions?: string[];
+    factionColors?: Record<string, string>;
+    isEnded?: boolean;
+    status?: "ended" | "active" | "upcoming";
     updateTime: string;
     createdTime?: string;
     totals: {

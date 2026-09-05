@@ -34,13 +34,11 @@ const {
   historyData,
   previousCycleFactionAScore,
   previousCycleFactionBScore,
-  contestedZones,
-  contestedRegions
+  contestedRegions,
+  isSeasonEnded,
+  factionAColor,
+  factionBColor,
 } = storeToRefs(warStore);
-
-const disputedZones = contestedZones;
-
-const {isZoneEnded, isZoneContested, isZoneUpcoming} = warStore;
 
 // meta
 const head: Ref<any> = ref({
@@ -60,12 +58,33 @@ const head: Ref<any> = ref({
 useHead(head);
 
 
-const selectSeasonsList = [
-  {id: "crimsonWaters", label: "赤红之水"},
-  // {id: "shatteredSeas", label: "碎浪之海"},
-  // {id: "eyeOfTheBeast", label: "巨兽之眼"},
-  // {id: "gutsAndGlory", label: "胆识与荣耀"},
-];
+const selectSeasonsList = computed(() => {
+  const list = warStore.availableSeasons;
+  if (list && list.length > 0) {
+    return list.map((s: any) => {
+      const i18nKey = `snb.seasons.${s.seasonId}`;
+      const translated = t(i18nKey);
+      let label = (translated && translated !== i18nKey) ? translated : (s.nameZh || s.alternativeName || s.seasonId);
+      if (s.isEnded || s.status === 'ended') {
+        label += ` (${t('stateOfWar.ended')})`;
+      }
+      return {
+        id: s.seasonId,
+        label,
+        seasonNumber: s.seasonNumber,
+        alternativeName: s.alternativeName,
+        isEnded: s.isEnded,
+        status: s.status,
+      };
+    });
+  }
+  return [
+    {id: "crimsonWaters", label: "赤红之水"},
+    {id: "shatteredSeas", label: `碎浪之海 (${t('stateOfWar.ended')})`, isEnded: true},
+    {id: "eyeOfTheBeast", label: `巨兽之眼 (${t('stateOfWar.ended')})`, isEnded: true},
+    {id: "gutsAndGlory", label: `胆识与荣耀 (${t('stateOfWar.ended')})`, isEnded: true},
+  ];
+});
 
 const selectSeasonsValue = ref<string>((route.params.seasonId as string) || "crimsonWaters");
 
@@ -92,6 +111,7 @@ const historyRange = ref<'1h' | '1d'>('1d');
 
 onMounted(() => {
   const currentSeason = (route.params.seasonId as string);
+  warStore.fetchAvailableSeasons();
   getStateOfWarData(currentSeason);
   fetchHistoryData();
 });
@@ -160,9 +180,9 @@ const calculatePercent = (val: number, total: number) => {
   return Math.round((val / total) * 1000) / 10;
 };
 
-// 动态阵营 Key 获取
-const factionAKey = computed(() => warData.value?.factions?.[0]);
-const factionBKey = computed(() => warData.value?.factions?.[1]);
+// 动态阵营 Key 获取 (完全从后端返回的 factions 取)
+const factionAKey = computed(() => warData.value?.factions?.[0] || '');
+const factionBKey = computed(() => warData.value?.factions?.[1] || '');
 
 const seasonDescription = computed(() => {
   const sId = selectedSeasonId.value;
@@ -179,52 +199,56 @@ const getFactionName = (id: string, short: boolean = false) => {
 };
 
 // 计算当前显示的阵营分数 (依据 日间贡献 / 全部 切换)
-const activeTotals = computed(() => {
-  if (!warData.value) return {compagnieRoyale: 0, phoenixsTalon: 0, total: 0};
+const activeTotals = computed<Record<string, any>>(() => {
+  if (!warData.value) return {};
   if (contributionMode.value === 'daily' && warData.value.dailyTotals) {
-    return warData.value.dailyTotals;
+    return warData.value.dailyTotals as any;
   }
-  return warData.value.totals || {compagnieRoyale: 0, phoenixsTalon: 0, total: 0};
+  return (warData.value.totals as any) || {};
 });
 
 const factionAScore = computed(() => {
   const fKey = factionAKey.value;
-  return (activeTotals.value as any)?.[fKey] ?? activeTotals.value.compagnieRoyale ?? 0;
+  if (!fKey) return 0;
+  return (activeTotals.value as any)?.[fKey] ?? 0;
 });
 
 const factionBScore = computed(() => {
   const fKey = factionBKey.value;
-  return (activeTotals.value as any)?.[fKey] ?? activeTotals.value.phoenixsTalon ?? 0;
+  if (!fKey) return 0;
+  return (activeTotals.value as any)?.[fKey] ?? 0;
 });
 
 const overallFactionAPercent = computed(() => {
-  if (!activeTotals.value?.total) return 50;
-  return calculatePercent(factionAScore.value, activeTotals.value.total);
+  const total = (activeTotals.value as any)?.total;
+  if (!total) return 50;
+  return calculatePercent(factionAScore.value, total);
 });
 
 const overallFactionBPercent = computed(() => {
-  if (!activeTotals.value?.total) return 50;
-  return calculatePercent(factionBScore.value, activeTotals.value.total);
+  const total = (activeTotals.value as any)?.total;
+  if (!total) return 50;
+  return calculatePercent(factionBScore.value, total);
 });
-
-
 
 const getZoneData = (zoneName: string) => {
   if (!warData.value?.zones) {
-    return {name: zoneName, region: 'eastIndies', compagnieRoyale: 0, phoenixsTalon: 0, total: 0};
+    return {name: zoneName, region: 'eastIndies', total: 0};
   }
   const match = warData.value.zones.find((z: any) => z.name === zoneName || z.id === zoneName);
   if (match) return match;
-  return {name: zoneName, region: 'eastIndies', compagnieRoyale: 0, phoenixsTalon: 0, total: 0};
+  return {name: zoneName, region: 'eastIndies', total: 0};
 };
 
 // 发展历程图表展示点 (包含实时/平滑趋势)
 const displayHistoryItems = computed(() => {
+  const fA = factionAKey.value;
+  const fB = factionBKey.value;
   if (historyData.value && historyData.value.length >= 2) {
     return historyData.value;
   }
-  const totalCR = warData.value?.totals?.compagnieRoyale || 150000;
-  const totalPT = warData.value?.totals?.phoenixsTalon || 142000;
+  const totalA = (warData.value?.totals as any)?.[fA] || 150000;
+  const totalB = (warData.value?.totals as any)?.[fB] || 142000;
   const pointsCount = 6;
   const simulated: any[] = [];
   const now = Date.now();
@@ -232,15 +256,15 @@ const displayHistoryItems = computed(() => {
 
   for (let i = pointsCount - 1; i >= 0; i--) {
     const factor = 1 - (i * 0.03);
-    const cr = Math.round(totalCR * factor);
-    const pt = Math.round(totalPT * (factor + (i % 2 === 0 ? 0.015 : -0.015)));
+    const valA = Math.round(totalA * factor);
+    const valB = Math.round(totalB * (factor + (i % 2 === 0 ? 0.015 : -0.015)));
     simulated.push({
       id: i,
       createdTime: new Date(now - i * stepMs).toISOString(),
       updateTime: new Date(now - i * stepMs).toISOString(),
-      compagnieRoyale: cr,
-      phoenixsTalon: pt,
-      total: cr + pt,
+      [fA]: valA,
+      [fB]: valB,
+      total: valA + valB,
     });
   }
   return simulated;
@@ -249,39 +273,41 @@ const displayHistoryItems = computed(() => {
 // 发展历程 SVG 图表点坐标计算
 const chartPoints = computed(() => {
   const items = displayHistoryItems.value;
+  const fA = factionAKey.value;
+  const fB = factionBKey.value;
   if (!items || items.length === 0) {
-    return {crPoints: '', ptPoints: '', items: []};
+    return {fAPoints: '', fBPoints: '', items: []};
   }
   const maxScore = Math.max(
-      ...items.map((i: any) => Math.max(i.compagnieRoyale || 0, i.phoenixsTalon || 0, 100))
+      ...items.map((i: any) => Math.max(i[fA] || 0, i[fB] || 0, 100))
   ) * 1.15;
 
   const width = 800;
   const height = 220;
   const padding = 20;
 
-  const crCoords = items.map((item: any, index: number) => {
+  const fACoords = items.map((item: any, index: number) => {
     const x = padding + (index / Math.max(items.length - 1, 1)) * (width - 2 * padding);
-    const y = height - padding - ((item.compagnieRoyale || 0) / maxScore) * (height - 2 * padding);
+    const y = height - padding - ((item[fA] || 0) / maxScore) * (height - 2 * padding);
     return `${x.toFixed(1)},${y.toFixed(1)}`;
   });
 
-  const ptCoords = items.map((item: any, index: number) => {
+  const fBCoords = items.map((item: any, index: number) => {
     const x = padding + (index / Math.max(items.length - 1, 1)) * (width - 2 * padding);
-    const y = height - padding - ((item.phoenixsTalon || 0) / maxScore) * (height - 2 * padding);
+    const y = height - padding - ((item[fB] || 0) / maxScore) * (height - 2 * padding);
     return `${x.toFixed(1)},${y.toFixed(1)}`;
   });
 
   return {
-    crPoints: crCoords.join(' '),
-    ptPoints: ptCoords.join(' '),
+    fAPoints: fACoords.join(' '),
+    fBPoints: fBCoords.join(' '),
     items
   };
 });
 </script>
 
 <template>
-  <div class="state-of-war-page">
+  <div class="state-of-war-page" :style="{ '--faction-a-color': factionAColor, '--faction-b-color': factionBColor }">
     <!-- 战争头 S -->
     <v-card height="240px" class="banner-card rounded-0">
       <template v-slot:image>
@@ -299,6 +325,14 @@ const chartPoints = computed(() => {
           <h1 class="text-h4 font-weight-bold text-gradient">
             {{ t('stateOfWar.title') }}
           </h1>
+          <v-chip
+              size="small"
+              :color="isSeasonEnded ? 'grey' : 'success'"
+              variant="tonal"
+              class="font-weight-medium">
+            <v-icon start size="14" :icon="isSeasonEnded ? 'mdi-flag-checkered' : 'mdi-sword-cross'"></v-icon>
+            {{ isSeasonEnded ? t('stateOfWar.ended') : t('stateOfWar.active') }}
+          </v-chip>
         </div>
         <p class="text-subtitle-1 text-medium-emphasis">
           {{ t('stateOfWar.description') }}
@@ -320,11 +354,11 @@ const chartPoints = computed(() => {
           <v-row align="start">
             <v-col cols="12" lg="8">
               <!-- 阵营大概 S -->
-              <v-card variant="text" class="my-n5 overflow-visible">
+              <v-card variant="text" class="my-n5 overflow-visible" v-if="!loading">
                 <v-row>
                   <v-col class="position-relative d-flex align-center">
                     <div class="mr-10 d-flex align-center ga-1">
-                      <span class="u text-h5 singe-line"><FactionNameWidget :id="factionAKey"></FactionNameWidget></span>
+                      <span class="u text-h5 singe-line" :style="{ color: factionAColor }"><FactionNameWidget :id="factionAKey"></FactionNameWidget></span>
 
                       <v-avatar size="30" tile>
                         <FactionIconWidget :name="factionAKey" size="30"></FactionIconWidget>
@@ -332,29 +366,29 @@ const chartPoints = computed(() => {
                     </div>
 
                     <div>
-                      <span class="text-h3 war-status-faction-number">{{ previousCycleFactionAScore }}</span>
+                      <span class="text-h3 war-status-faction-number" :style="{ color: factionAColor }">{{ previousCycleFactionAScore }}</span>
                     </div>
 
                     <LightRays
                         rays-origin="top-right"
                         quality="low"
-                        rays-color="#42A5F5"
+                        :rays-color="factionAColor"
                         :rays-speed=".2"
                         :light-spread="3"
-                        :ray-length="1"
+                        :ray-length="100"
                         :follow-mouse="false"
                         :mouse-influence="0"
                         :noise-amount="0"
-                        :distortion=".4"
+                        :distortion=".1"
                         class="w-100 h-100 pointer-events-none position-absolute top-0 right-0 war-light-rays">
                     </LightRays>
                   </v-col>
-                  <v-col cols="auto" class="mx-n9 mb-n1 pa-0 position-relative" style="z-index: 100;">
+                  <v-col cols="auto" class="mx-n9 mb-n1 pa-0 position-relative text-center" style="z-index: 100;">
                     <img src="@/assets/images/icon-stateOfWar-vs.png" height="88"/>
                   </v-col>
                   <v-col class="position-relative d-flex align-center justify-end">
                     <div>
-                      <span class="text-h3 war-status-faction-number">{{ previousCycleFactionBScore }}</span>
+                      <span class="text-h3 war-status-faction-number" :style="{ color: factionBColor }">{{ previousCycleFactionBScore }}</span>
                     </div>
 
                     <div class="ml-10 d-flex align-center ga-1">
@@ -362,26 +396,30 @@ const chartPoints = computed(() => {
                         <FactionIconWidget :name="factionBKey" size="30"></FactionIconWidget>
                       </v-avatar>
 
-                      <span class="u text-h5 singe-line"><FactionNameWidget :id="factionBKey"></FactionNameWidget></span>
+                      <span class="u text-h5 singe-line" :style="{ color: factionBColor }"><FactionNameWidget :id="factionBKey"></FactionNameWidget></span>
                     </div>
 
                     <LightRays
                         rays-origin="top-left"
                         quality="low"
-                        rays-color="#EF5350"
+                        :rays-color="factionBColor"
                         :rays-speed=".2"
-                        :light-spread="2"
-                        :ray-length="3"
+                        :light-spread="3"
+                        :ray-length="100"
                         :follow-mouse="false"
                         :mouse-influence="0"
                         :noise-amount="0"
-                        :distortion=".7"
+                        :distortion=".1"
                         class="w-100 h-100 pointer-events-none position-absolute top-0 right-0 war-light-rays">
                     </LightRays>
                   </v-col>
                 </v-row>
               </v-card>
               <!-- 阵营大概 E -->
+
+              <template v-else>
+                <Loading></Loading>
+              </template>
             </v-col>
 
             <v-col cols="12" lg="1" class="hidden-sm hidden-md"></v-col>
@@ -475,33 +513,33 @@ const chartPoints = computed(() => {
                   <line x1="20" y1="110" x2="780" y2="110" stroke="#333" stroke-dasharray="4"/>
                   <line x1="20" y1="200" x2="780" y2="200" stroke="#333"/>
 
-                  <!-- Faction A Polyline (Blue) -->
+                  <!-- Faction A Polyline -->
                   <polyline
                       fill="none"
-                      stroke="#42A5F5"
+                      :stroke="factionAColor"
                       stroke-width="3"
                       stroke-linecap="round"
                       stroke-linejoin="round"
-                      :points="chartPoints.crPoints"/>
+                      :points="chartPoints.fAPoints"/>
 
-                  <!-- Faction B Polyline (Red) -->
+                  <!-- Faction B Polyline -->
                   <polyline
                       fill="none"
-                      stroke="#EF5350"
+                      :stroke="factionBColor"
                       stroke-width="3"
                       stroke-linecap="round"
                       stroke-linejoin="round"
-                      :points="chartPoints.ptPoints"/>
+                      :points="chartPoints.fBPoints"/>
                 </svg>
 
                 <v-row class="text-caption" align="center" justify="center">
-                  <v-col cols="auto" class="d-flex align-center ga-2 text-blue">
+                  <v-col cols="auto" class="d-flex align-center ga-2" :style="{ color: factionAColor }">
                     <v-avatar size="20">
                       <FactionIconWidget :name="factionAKey"></FactionIconWidget>
                     </v-avatar>
                     <span class="font-weight-medium u"><FactionNameWidget :id="factionAKey"></FactionNameWidget></span>
                   </v-col>
-                  <v-col cols="auto" class="d-flex align-center ga-2 text-red">
+                  <v-col cols="auto" class="d-flex align-center ga-2" :style="{ color: factionBColor }">
                     <v-avatar size="20">
                       <FactionIconWidget :name="factionBKey"></FactionIconWidget>
                     </v-avatar>
@@ -561,7 +599,7 @@ const chartPoints = computed(() => {
                     <FactionIconWidget :name="factionAKey" size="44"></FactionIconWidget>
                   </v-avatar>
                   <div>
-                    <div class="text-subtitle-1 font-weight-bold text-blue-lighten-1 u">
+                    <div class="text-subtitle-1 font-weight-bold u" :style="{ color: factionAColor }">
                       <FactionNameWidget :id="factionAKey"></FactionNameWidget>
                     </div>
                     <div class="text-h5 font-weight-black">
@@ -577,7 +615,8 @@ const chartPoints = computed(() => {
                 </div>
                 <v-chip
                     size="small"
-                    class="font-weight-bold">
+                    class="font-weight-bold"
+                    :style="{ borderColor: factionAScore >= factionBScore ? factionAColor : factionBColor, color: factionAScore >= factionBScore ? factionAColor : factionBColor }">
                   {{ factionAScore >= factionBScore ? getFactionName(factionAKey, true) : getFactionName(factionBKey, true) }} {{ t('stateOfWar.leading') }}
                 </v-chip>
               </v-col>
@@ -586,7 +625,7 @@ const chartPoints = computed(() => {
               <v-col cols="12" md="4" class="text-center text-md-right">
                 <div class="d-flex align-center ga-3 justify-center justify-md-end">
                   <div>
-                    <div class="text-subtitle-1 font-weight-bold text-red-lighten-1 u">
+                    <div class="text-subtitle-1 font-weight-bold u" :style="{ color: factionBColor }">
                       <FactionNameWidget :id="factionBKey"></FactionNameWidget>
                     </div>
                     <div class="text-h5 font-weight-black">
@@ -606,8 +645,8 @@ const chartPoints = computed(() => {
                   height="16"
                   rounded
                   :model-value="overallFactionAPercent"
-                  color="blue-darken-2"
-                  bg-color="red-darken-2"
+                  :color="factionAColor"
+                  :bg-color="factionBColor"
                   tile
                   bg-opacity="1">
               </v-progress-linear>
@@ -620,7 +659,7 @@ const chartPoints = computed(() => {
         </v-col>
 
         <!-- 目前存在争议 -->
-        <v-col cols="12">
+        <v-col cols="12" v-if="!isSeasonEnded">
           <AffixBoxHasTitleView>
             <!-- 区域列表：每个大区域下展示其小区域 -->
             <div v-if="contestedRegions.length === 0" class="text-center py-6 text-medium-emphasis text-body-2">
@@ -646,10 +685,10 @@ const chartPoints = computed(() => {
                     <div class="d-flex align-center ga-3 text-caption">
                       <v-chip
                           size="small"
-                          :color="(region[factionAKey] ?? region.compagnieRoyale ?? 0) >= (region[factionBKey] ?? region.phoenixsTalon ?? 0) ? 'blue' : 'red'"
+                          :color="(region[factionAKey] || 0) >= (region[factionBKey] || 0) ? 'blue' : 'red'"
                           variant="tonal"
                           class="font-weight-bold">
-                        {{ (region[factionAKey] ?? region.compagnieRoyale ?? 0) >= (region[factionBKey] ?? region.phoenixsTalon ?? 0) ? getFactionName(factionAKey, true) : getFactionName(factionBKey, true) }} {{ t('stateOfWar.leading') }}
+                        {{ (region[factionAKey] || 0) >= (region[factionBKey] || 0) ? getFactionName(factionAKey, true) : getFactionName(factionBKey, true) }} {{ t('stateOfWar.leading') }}
                       </v-chip>
                       <div class="text-medium-emphasis d-flex align-center ga-1">
                         <img src="@/assets/images/icon-stateOfWar-assets.png" width="30" height="30"/> <span class="font-weight-bold text-high-emphasis">{{ formatCompactNumber(region.total) }}</span>
@@ -675,23 +714,36 @@ const chartPoints = computed(() => {
                         <div class="text-subtitle-1 font-weight-bold text-truncate">
                           <ZoneName :id="zone.name"/>
                         </div>
-                        <div class="d-flex align-center ga-1">
-                          <v-chip
-                              size="x-small"
-                              color="amber-darken-3"
-                              variant="flat"
-                              class="font-weight-bold">
-                            {{ t('stateOfWar.contested') }}
-                          </v-chip>
-                          <v-chip
-                              size="x-small"
-                              :color="(zone[factionAKey] ?? zone.compagnieRoyale ?? 0) >= (zone[factionBKey] ?? zone.phoenixsTalon ?? 0) ? 'blue' : 'red'"
-                              variant="tonal"
-                              class="font-weight-bold">
-                            {{ (zone[factionAKey] ?? zone.compagnieRoyale ?? 0) >= (zone[factionBKey] ?? zone.phoenixsTalon ?? 0) ? getFactionName(factionAKey, true) : getFactionName(factionBKey, true) }} {{ t('stateOfWar.leading') }}
-                          </v-chip>
-                        </div>
                       </div>
+
+                      <v-divider></v-divider>
+
+                      <div class="d-flex align-center ga-1 my-2">
+                        <v-chip
+                            size="x-small"
+                            color="amber-darken-3"
+                            variant="flat"
+                            class="font-weight-bold">
+                          {{ t('stateOfWar.contested') }}
+                        </v-chip>
+                        <v-divider vertical></v-divider>
+                        <v-chip
+                            size="x-small"
+                            :style="{ borderColor: (zone[factionAKey] || 0) >= (zone[factionBKey] || 0) ? factionAColor : factionBColor, color: (zone[factionAKey] || 0) >= (zone[factionBKey] || 0) ? factionAColor : factionBColor }"
+                            variant="tonal"
+                            class="font-weight-bold">
+                          {{ (zone[factionAKey] || 0) >= (zone[factionBKey] || 0) ? getFactionName(factionAKey, true) : getFactionName(factionBKey, true) }} {{ t('stateOfWar.leading') }}
+                        </v-chip>
+                        <v-chip
+                            size="x-small"
+                            variant="tonal"
+                            class="font-weight-bold"
+                            :title="formatNumber(Math.abs((zone[factionAKey] || 0) - (zone[factionBKey] || 0)))">
+                          {{ formatCompactNumber(Math.abs((zone[factionAKey] || 0) - (zone[factionBKey] || 0))) }}
+                        </v-chip>
+                      </div>
+
+                      <v-divider></v-divider>
 
                       <!-- Display parent region & zone update date/time -->
                       <div class="d-flex align-center justify-space-between text-caption text-medium-emphasis mt-1">
@@ -710,7 +762,7 @@ const chartPoints = computed(() => {
 
                     <v-card-text class="py-3">
                       <v-row class="d-flex justify-space-between align-center mb-2 text-body-2">
-                        <v-col cols="auto" class="text-red-lighten-1 font-weight-medium d-flex align-center ga-1">
+                        <v-col cols="auto" class="font-weight-medium d-flex align-center ga-1" :style="{ color: factionAColor }">
                           <v-avatar tile size="30">
                             <FactionIconWidget :name="factionAKey" size="14"></FactionIconWidget>
                           </v-avatar>
@@ -718,13 +770,13 @@ const chartPoints = computed(() => {
                         <v-col>
                           <v-row>
                             <v-col>
-                              <FactionNameWidget :id="factionAKey"></FactionNameWidget>
+                              <span :style="{ color: factionAColor }"><FactionNameWidget :id="factionAKey"></FactionNameWidget></span>
                             </v-col>
                             <v-spacer></v-spacer>
                             <v-col>
                               <div class="d-flex align-center ga-1">
-                                <span class="font-weight-bold">{{ formatCompactNumber(zone[factionAKey] ?? zone.phoenixsTalon) }}</span>
-                                <span class="text-caption text-medium-emphasis">({{ calculatePercent(zone[factionAKey] ?? zone.phoenixsTalon ?? 0, zone.total) }}%)</span>
+                                <span class="font-weight-bold">{{ formatCompactNumber(zone[factionAKey] || 0) }}</span>
+                                <span class="text-caption text-medium-emphasis">({{ calculatePercent(zone[factionAKey] || 0, zone.total) }}%)</span>
                               </div>
                             </v-col>
                           </v-row>
@@ -733,8 +785,8 @@ const chartPoints = computed(() => {
                             <v-progress-linear
                                 height="8"
                                 rounded
-                                :model-value="calculatePercent(zone[factionAKey] ?? zone.compagnieRoyale ?? 0, zone.total)"
-                                color="blue-darken-1"
+                                :model-value="calculatePercent(zone[factionAKey] || 0, zone.total)"
+                                :color="factionAColor"
                                 bg-opacity="0.2">
                             </v-progress-linear>
                           </div>
@@ -742,7 +794,7 @@ const chartPoints = computed(() => {
                       </v-row>
 
                       <v-row class="d-flex justify-space-between align-center mb-2 text-body-2">
-                        <v-col cols="auto" class="text-red-lighten-1 font-weight-medium d-flex align-center ga-1">
+                        <v-col cols="auto" class="font-weight-medium d-flex align-center ga-1" :style="{ color: factionBColor }">
                           <v-avatar tile size="30">
                             <FactionIconWidget :name="factionBKey"></FactionIconWidget>
                           </v-avatar>
@@ -750,13 +802,13 @@ const chartPoints = computed(() => {
                         <v-col>
                           <v-row>
                             <v-col>
-                              <FactionNameWidget :id="factionBKey"></FactionNameWidget>
+                              <span :style="{ color: factionBColor }"><FactionNameWidget :id="factionBKey"></FactionNameWidget></span>
                             </v-col>
                             <v-spacer></v-spacer>
                             <v-col>
                               <div class="d-flex align-center ga-1">
-                                <span class="font-weight-bold">{{ formatCompactNumber(zone[factionBKey] ?? zone.phoenixsTalon) }}</span>
-                                <span class="text-caption text-medium-emphasis">({{ calculatePercent(zone[factionBKey] ?? zone.phoenixsTalon ?? 0, zone.total) }}%)</span>
+                                <span class="font-weight-bold">{{ formatCompactNumber(zone[factionBKey] || 0) }}</span>
+                                <span class="text-caption text-medium-emphasis">({{ calculatePercent(zone[factionBKey] || 0, zone.total) }}%)</span>
                               </div>
                             </v-col>
                           </v-row>
@@ -765,8 +817,8 @@ const chartPoints = computed(() => {
                             <v-progress-linear
                                 height="8"
                                 rounded
-                                :model-value="100 - calculatePercent(zone[factionAKey] ?? zone.compagnieRoyale ?? 0, zone.total)"
-                                color="red-darken-3"
+                                :model-value="calculatePercent(zone[factionBKey] || 0, zone.total)"
+                                :color="factionBColor"
                                 bg-opacity=".2">
                             </v-progress-linear>
                           </div>
@@ -779,9 +831,10 @@ const chartPoints = computed(() => {
             </div>
 
             <template v-slot:title>
-              <v-icon icon="mdi-sword-cross" color="amber-darken-1"></v-icon>
-
-              {{ t('stateOfWar.disputedZones') }}
+              <div class="d-flex ga-3">
+                <v-icon icon="mdi-sword-cross" color="amber-darken-1"></v-icon>
+                {{ t('stateOfWar.disputedZones') }}
+              </div>
             </template>
           </AffixBoxHasTitleView>
         </v-col>
@@ -825,32 +878,36 @@ const chartPoints = computed(() => {
 
                   <v-card-text class="pa-4">
                     <div class="d-flex justify-space-between align-center mb-3">
-                      <div class="text-subtitle-2 font-weight-bold text-blue-lighten-1 d-flex ga-1 align-center">
+                      <div class="text-subtitle-2 font-weight-bold d-flex ga-1 align-center" :style="{ color: factionAColor }">
                         <v-avatar tile size="30">
                           <FactionIconWidget :name="factionAKey"></FactionIconWidget>
                         </v-avatar>
-                        <u class="u"><FactionNameWidget :id="factionAKey"></FactionNameWidget></u> {{ t('stateOfWar.capturedCount', { count: cycle.totals?.[factionAKey] ?? cycle.totals?.compagnieRoyale ?? 0 }) }}
+                        <u class="u">
+                          <FactionNameWidget :id="factionAKey"></FactionNameWidget>
+                        </u> {{ t('stateOfWar.capturedCount', {count: cycle.totals?.[factionAKey] || 0}) }}
                       </div>
-                      <div class="text-subtitle-2 font-weight-bold text-red-lighten-1 d-flex ga-1 align-center">
+                      <div class="text-subtitle-2 font-weight-bold d-flex ga-1 align-center" :style="{ color: factionBColor }">
                         <v-avatar tile size="30">
                           <FactionIconWidget :name="factionBKey"></FactionIconWidget>
                         </v-avatar>
-                        <u class="u"><FactionNameWidget :id="factionBKey"></FactionNameWidget></u> {{ t('stateOfWar.capturedCount', { count: cycle.totals?.[factionBKey] ?? cycle.totals?.phoenixsTalon ?? 0 }) }}
+                        <u class="u">
+                          <FactionNameWidget :id="factionBKey"></FactionNameWidget>
+                        </u> {{ t('stateOfWar.capturedCount', {count: cycle.totals?.[factionBKey] || 0}) }}
                       </div>
                     </div>
 
                     <div class="d-flex justify-space-between ga-3">
                       <!-- 阵营 A 区域 -->
                       <div class="w-50 ">
-                        <div v-if="(cycle[factionAKey + 'Zones'] || cycle.compagnieRoyaleZones || []).length > 0" class="d-flex flex-column ga-2">
+                        <div v-if="(cycle[factionAKey + 'Zones'] || []).length > 0" class="d-flex flex-column ga-2">
                           <div
-                              v-for="z in (cycle[factionAKey + 'Zones'] || cycle.compagnieRoyaleZones || [])"
+                              v-for="z in (cycle[factionAKey + 'Zones'] || [])"
                               :key="z"
                               class="pa-2 bg-black">
                             <div class="d-flex justify-space-between align-center text-caption font-weight-bold mb-1">
                               <span class="text-truncate"><ZoneName :id="z"/></span>
-                              <v-chip size="x-small" color="blue" variant="tonal">
-                                {{ calculatePercent(getZoneData(z)[factionAKey] ?? getZoneData(z).compagnieRoyale ?? 0, getZoneData(z).total || 1) }}%
+                              <v-chip size="x-small" :color="factionAColor" variant="tonal">
+                                {{ calculatePercent(getZoneData(z)[factionAKey] || 0, getZoneData(z).total || 1) }}%
                               </v-chip>
                             </div>
                             <div class="text-caption text-medium-emphasis d-flex align-center ga-1 mb-1" style="font-size: 11px;">
@@ -858,21 +915,21 @@ const chartPoints = computed(() => {
                               <RegionName :id="getZoneData(z).region"/>
                             </div>
                             <div class="d-flex justify-space-between align-center text-caption opacity-90">
-                                  <span class="text-blue-lighten-1 font-weight-bold">
-                                    {{ formatNumber(getZoneData(z)[factionAKey] ?? getZoneData(z).compagnieRoyale) }}
-                                  </span>
+                              <span class="font-weight-bold" :style="{ color: factionAColor }">
+                                {{ formatNumber(getZoneData(z)[factionAKey] || 0) }}
+                              </span>
                               <span class="text-medium-emphasis">vs</span>
-                              <span class="text-red-lighten-2 font-weight-bold">
-                                    {{ formatNumber(getZoneData(z)[factionBKey] ?? getZoneData(z).phoenixsTalon) }}
-                                  </span>
+                              <span class="font-weight-bold" :style="{ color: factionBColor }">
+                                {{ formatNumber(getZoneData(z)[factionBKey] || 0) }}
+                              </span>
                             </div>
                             <v-progress-linear
                                 height="4"
                                 rounded
                                 class="mt-1"
-                                :model-value="calculatePercent(getZoneData(z)[factionAKey] ?? getZoneData(z).compagnieRoyale ?? 0, getZoneData(z).total || 1)"
-                                color="blue-darken-1"
-                                bg-color="red-darken-1"
+                                :model-value="calculatePercent(getZoneData(z)[factionAKey] || 0, getZoneData(z).total || 1)"
+                                :color="factionAColor"
+                                :bg-color="factionBColor"
                                 bg-opacity="1">
                             </v-progress-linear>
                           </div>
@@ -884,15 +941,15 @@ const chartPoints = computed(() => {
 
                       <!-- 阵营 B 区域 -->
                       <div class="w-50 ">
-                        <div v-if="(cycle[factionBKey + 'Zones'] || cycle.phoenixsTalonZones || []).length > 0" class="d-flex flex-column ga-2">
+                        <div v-if="(cycle[factionBKey + 'Zones'] || []).length > 0" class="d-flex flex-column ga-2">
                           <div
-                              v-for="z in (cycle[factionBKey + 'Zones'] || cycle.phoenixsTalonZones || [])"
+                              v-for="z in (cycle[factionBKey + 'Zones'] || [])"
                               :key="z"
                               class="pa-2 bg-black">
                             <div class="d-flex justify-space-between align-center text-caption font-weight-bold mb-1">
                               <span class="text-truncate"><ZoneName :id="z"/></span>
-                              <v-chip size="x-small" color="red" variant="tonal">
-                                {{ calculatePercent(getZoneData(z)[factionBKey] ?? getZoneData(z).phoenixsTalon ?? 0, getZoneData(z).total || 1) }}%
+                              <v-chip size="x-small" :color="factionBColor" variant="tonal">
+                                {{ calculatePercent(getZoneData(z)[factionBKey] || 0, getZoneData(z).total || 1) }}%
                               </v-chip>
                             </div>
                             <div class="text-caption text-medium-emphasis d-flex align-center ga-1 mb-1" style="font-size: 11px;">
@@ -900,21 +957,21 @@ const chartPoints = computed(() => {
                               <RegionName :id="getZoneData(z).region"/>
                             </div>
                             <div class="d-flex justify-space-between align-center text-caption opacity-90">
-                                  <span class="text-red-lighten-1 font-weight-bold">
-                                    {{ formatNumber(getZoneData(z)[factionBKey] ?? getZoneData(z).phoenixsTalon) }}
-                                  </span>
+                              <span class="font-weight-bold" :style="{ color: factionBColor }">
+                                {{ formatNumber(getZoneData(z)[factionBKey] || 0) }}
+                              </span>
                               <span class="text-medium-emphasis">vs</span>
-                              <span class="text-blue-lighten-2 font-weight-bold">
-                                    {{ formatNumber(getZoneData(z)[factionAKey] ?? getZoneData(z).compagnieRoyale) }}
-                                  </span>
+                              <span class="font-weight-bold" :style="{ color: factionAColor }">
+                                {{ formatNumber(getZoneData(z)[factionAKey] || 0) }}
+                              </span>
                             </div>
                             <v-progress-linear
                                 height="4"
                                 rounded
                                 class="mt-1"
-                                :model-value="calculatePercent(getZoneData(z)[factionAKey] ?? getZoneData(z).compagnieRoyale ?? 0, getZoneData(z).total || 1)"
-                                color="blue-darken-1"
-                                bg-color="red-darken-1"
+                                :model-value="calculatePercent(getZoneData(z)[factionBKey] || 0, getZoneData(z).total || 1)"
+                                :color="factionBColor"
+                                :bg-color="factionAColor"
                                 bg-opacity="1">
                             </v-progress-linear>
                           </div>
@@ -930,81 +987,13 @@ const chartPoints = computed(() => {
             </v-row>
 
             <template v-slot:title>
-              <v-icon icon="mdi-calendar-clock" color="amber-darken-1"></v-icon>
-              {{ t('stateOfWar.warProgression') }}
+              <div class="d-flex ga-3">
+                <v-icon icon="mdi-calendar-clock" color="amber-darken-1"></v-icon>
+                {{ t('stateOfWar.warProgression') }}
+              </div>
             </template>
           </AffixBoxHasTitleView>
         </v-col>
-
-        <!--        &lt;!&ndash; 5. 区域战事全景明细 (Zone Breakdown) &ndash;&gt;-->
-        <!--        <h2 class="text-h5 font-weight-bold mb-4 d-flex align-center ga-2">-->
-        <!--          <v-icon icon="mdi-map-marker-multiple" color="primary"></v-icon>-->
-        <!--          Season {{ warData.season || 10 }} {{ t('stateOfWar.zoneBreakdown') }}-->
-        <!--        </h2>-->
-
-        <!--        <v-row>-->
-        <!--          <v-col-->
-        <!--              v-for="zone in warData.zones"-->
-        <!--              :key="zone.id"-->
-        <!--              cols="12"-->
-        <!--              sm="6"-->
-        <!--              lg="4"-->
-        <!--              xl="3">-->
-        <!--            <v-card class="h-100 zone-card elevation-2 border rounded-lg transition-all">-->
-        <!--              <v-card-item class="pb-2">-->
-        <!--                <div class="d-flex align-center justify-space-between ga-2">-->
-        <!--                  <div class="text-subtitle-1 font-weight-bold text-truncate">-->
-        <!--                    <ZoneName :id="zone.name"/>-->
-        <!--                  </div>-->
-        <!--                  <v-chip-->
-        <!--                      size="x-small"-->
-        <!--                      :color="(zone[factionAKey] ?? zone.compagnieRoyale ?? 0) >= (zone[factionBKey] ?? zone.phoenixsTalon ?? 0) ? 'blue' : 'red'"-->
-        <!--                      variant="tonal"-->
-        <!--                      class="font-weight-bold">-->
-        <!--                    {{ (zone[factionAKey] ?? zone.compagnieRoyale ?? 0) >= (zone[factionBKey] ?? zone.phoenixsTalon ?? 0) ? getFactionName(factionAKey, true) : getFactionName(factionBKey, true) }} Lead-->
-        <!--                  </v-chip>-->
-        <!--                </div>-->
-        <!--                <div class="text-caption text-medium-emphasis">-->
-        <!--                  ID: {{ zone.id }}-->
-        <!--                </div>-->
-        <!--              </v-card-item>-->
-
-        <!--              <v-divider></v-divider>-->
-
-        <!--              <v-card-text class="py-3">-->
-        <!--                <div class="d-flex justify-space-between align-center mb-1 text-body-2">-->
-        <!--                  <span class="text-blue-lighten-1 font-weight-medium">-->
-        <!--                    {{ getFactionName(factionAKey, true) }}-->
-        <!--                  </span>-->
-        <!--                  <span class="font-weight-bold">{{ formatNumber(zone[factionAKey] ?? zone.compagnieRoyale) }}</span>-->
-        <!--                </div>-->
-
-        <!--                <div class="d-flex justify-space-between align-center mb-2 text-body-2">-->
-        <!--                  <span class="text-red-lighten-1 font-weight-medium">-->
-        <!--                    {{ getFactionName(factionBKey, true) }}-->
-        <!--                  </span>-->
-        <!--                  <span class="font-weight-bold">{{ formatNumber(zone[factionBKey] ?? zone.phoenixsTalon) }}</span>-->
-        <!--                </div>-->
-
-        <!--                &lt;!&ndash; Zone progress bar &ndash;&gt;-->
-        <!--                <div class="mt-2">-->
-        <!--                  <div class="d-flex justify-space-between text-caption mb-1 opacity-80">-->
-        <!--                    <span>{{ calculatePercent(zone[factionAKey] ?? zone.compagnieRoyale ?? 0, zone.total) }}%</span>-->
-        <!--                    <span>{{ calculatePercent(zone[factionBKey] ?? zone.phoenixsTalon ?? 0, zone.total) }}%</span>-->
-        <!--                  </div>-->
-        <!--                  <v-progress-linear-->
-        <!--                      height="10"-->
-        <!--                      rounded-->
-        <!--                      :model-value="calculatePercent(zone[factionAKey] ?? zone.compagnieRoyale ?? 0, zone.total)"-->
-        <!--                      color="blue-darken-1"-->
-        <!--                      bg-color="red-darken-1"-->
-        <!--                      bg-opacity="1">-->
-        <!--                  </v-progress-linear>-->
-        <!--                </div>-->
-        <!--              </v-card-text>-->
-        <!--            </v-card>-->
-        <!--          </v-col>-->
-        <!--        </v-row>-->
       </v-row>
 
       <EmptyView v-else></EmptyView>
@@ -1025,7 +1014,7 @@ const chartPoints = computed(() => {
 .war-status-faction-number,
 .war-light-rays {
   position: relative;
-  z-index: 130;
+  z-index: -1;
 }
 
 .cursor-pointer {
@@ -1038,12 +1027,14 @@ const chartPoints = computed(() => {
   border-radius: 50%;
   display: inline-block;
 
-  &.bg-blue {
-    background-color: #42A5F5;
+  &.bg-blue,
+  &.bg-faction-a {
+    background-color: var(--faction-a-color, #42A5F5);
   }
 
-  &.bg-red {
-    background-color: #EF5350;
+  &.bg-red,
+  &.bg-faction-b {
+    background-color: var(--faction-b-color, #EF5350);
   }
 }
 </style>

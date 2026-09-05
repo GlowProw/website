@@ -160,5 +160,10 @@
     "meta": {
       "keywords": "账户登陆,{keywords}"
     }
+  },
+  "stateOfWar": {
+    "meta": {
+      "keywords": "碧海黑帆,戰事狀態,賽季戰事,陣營對抗,區域資源"
+    }
   }
 }
