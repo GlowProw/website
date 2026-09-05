@@ -22,12 +22,14 @@ interface Props {
   offsetTop?: number
   offsetBottom?: number
   target?: string | HTMLElement | null
+  disabled?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   offsetTop: 80,
   offsetBottom: 0,
-  target: null
+  target: null,
+  disabled: false
 })
 
 const wrapperRef = ref<HTMLElement>()
@@ -47,7 +49,7 @@ const maxViewportHeight = computed(() => {
 
 // 外层占位包裹容器样式 (保持未截断前的物理完整高度，绝对防止跳动)
 const wrapperStyle = computed(() => {
-  if (isFixed.value || isAbsolute.value) {
+  if (!props.disabled && (isFixed.value || isAbsolute.value)) {
     return {
       position: 'relative' as const,
       width: '100%',
@@ -65,27 +67,29 @@ const wrapperStyle = computed(() => {
  * 当高度超出窗口剩余高度时自动开启垂直滚动
  */
 const affixStyle = computed(() => {
-  if (isFixed.value) {
-    return {
-      position: 'fixed' as const,
-      top: `${props.offsetTop}px`,
-      left: `${fixedLeft.value}px`,
-      width: `${affixWidth.value}px`,
-      maxHeight: `${maxViewportHeight.value}px`,
-      overflowY: 'auto' as const,
-      zIndex: 90
+  if (!props.disabled) {
+    if (isFixed.value) {
+      return {
+        position: 'fixed' as const,
+        top: `${props.offsetTop}px`,
+        left: `${fixedLeft.value}px`,
+        width: `${affixWidth.value}px`,
+        maxHeight: `${maxViewportHeight.value}px`,
+        overflowY: 'auto' as const,
+        zIndex: 90
+      }
     }
-  }
-  if (isAbsolute.value) {
-    return {
-      position: 'absolute' as const,
-      bottom: `${props.offsetBottom}px`,
-      top: 'auto',
-      left: '0px',
-      width: `${affixWidth.value}px`,
-      maxHeight: `calc(100% - ${props.offsetBottom}px)`,
-      overflowY: 'auto' as const,
-      zIndex: 90
+    if (isAbsolute.value) {
+      return {
+        position: 'absolute' as const,
+        bottom: `${props.offsetBottom}px`,
+        top: 'auto',
+        left: '0px',
+        width: `${affixWidth.value}px`,
+        maxHeight: `calc(100% - ${props.offsetBottom}px)`,
+        overflowY: 'auto' as const,
+        zIndex: 90
+      }
     }
   }
   return {
@@ -98,6 +102,12 @@ const affixStyle = computed(() => {
  * 核心位置与边界判定
  */
 const checkPosition = () => {
+  if (props.disabled) {
+    isFixed.value = false
+    isAbsolute.value = false
+    return
+  }
+
   if (!wrapperRef.value || !affixRef.value) return
 
   // 更新窗口真实高度
@@ -173,10 +183,15 @@ const handleScrollOrResize = () => {
   })
 }
 
-watch(() => [props.offsetTop, props.offsetBottom, props.target], () => {
-  nextTick(() => {
-    checkPosition()
-  })
+watch(() => [props.offsetTop, props.offsetBottom, props.target, props.disabled], () => {
+  if (props.disabled) {
+    isFixed.value = false
+    isAbsolute.value = false
+  } else {
+    nextTick(() => {
+      checkPosition()
+    })
+  }
 }, { deep: true })
 
 onMounted(() => {
