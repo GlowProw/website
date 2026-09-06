@@ -150,13 +150,23 @@ export default defineConfig({
                 ],
             }
         }),
-        Sitemap({
-            hostname: 'https://glow-prow.top',
-            dynamicRoutes: getRoutes(),
-            changefreq: 'weekly',
-            priority: 0.8,
-            lastmod: new Date(),
-        })
+        (() => {
+            const plugin: any = Sitemap({
+                hostname: 'https://glow-prow.top',
+                dynamicRoutes: getRoutes(),
+                changefreq: 'weekly',
+                priority: 0.8,
+                lastmod: new Date(),
+            });
+            const origCloseBundle = plugin.closeBundle;
+            plugin.closeBundle = function (this: any, error?: any) {
+                if (error) return;
+                const outDir = path.resolve(__dirname, 'dist');
+                if (!fs.existsSync(outDir)) return;
+                return origCloseBundle?.call(this, error);
+            };
+            return plugin;
+        })()
     ],
     optimizeDeps: {
         exclude: [

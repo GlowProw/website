@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://glow-prow.top/sitemap.xml
