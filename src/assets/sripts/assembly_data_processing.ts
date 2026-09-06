@@ -447,136 +447,10 @@ export default class AssemblyDataProcessing {
                 '__version'
             ],
             get: (data: AssemblyData) => {
-                // 后续处理逻辑
-                if (data.shipSlot)
-                    data.shipSlot = { id: data.shipSlot.id };
-
-                if (data.shipUpgradeSlot)
-                    data.shipUpgradeSlot = { id: data.shipUpgradeSlot.id };
-
-                if (data.ultimateSlot)
-                    data.ultimateSlot = { id: data.ultimateSlot.id };
-
-                if (data.shipFrigateUpgradeSlot)
-                    data.shipFrigateUpgradeSlot = { id: data.shipFrigateUpgradeSlot.id };
-
-                if (data.weaponModifications)
-                    data.weaponModifications = data.weaponModifications.map((i: any) => {
-                        return i.map((j: any) => {
-                            return {
-                                type: j.type,
-                                value: j?.value?.id || null,
-                            };
-                        })
-                    })
-
-                // 装甲修改模块处理
-
-                if (data.armorModification)
-                    // @ts-ignore
-                    data.armorModification = data.armorModification.map((i: any) => {
-                        return i.map((j: any) => {
-                            return {
-                                type: j.type,
-                                value: j?.value?.id || null,
-                            };
-                        })
-                    })
-
-                if (data.secondaryWeaponModifications)
-                    data.secondaryWeaponModifications = data.secondaryWeaponModifications.map((i: any) => {
-                        return i.map((j: any) => {
-                            return {
-                                type: j.type,
-                                value: j?.value?.id || null,
-                            };
-                        })
-                    })
-
-                if (data.secondaryWeaponSlots)
-                    data.secondaryWeaponSlots = data.secondaryWeaponSlots.map((i: any) => {
-                        return i?.id ? { id: i.id } : { id: null };
-                    })
-
-                if (data.weaponSlots && data.weaponSlots.length > 0)
-                    data.weaponSlots = data.weaponSlots.map((i: any) => {
-                        return i?.id ? { id: i.id } : { id: null };
-                    })
-
-                if (data.armorSlot)
-                    data.armorSlot = { id: data.armorSlot.id }
-
-                if (data.displaySlots)
-                    data.displaySlots = data.displaySlots.map(i => {
-                        return i?.id ? { id: i.id } : { id: null };
-                    })
-
-                data.__version = AssemblyDataProcessing.nowVersion;
-                return data;
+                return this['0.0.2'].get(data)
             },
             set: (data) => {
-                // 后续处理逻辑
-                if (data.shipSlot)
-                    data.shipSlot = ships[data.shipSlot.id];
-
-                if (data.shipUpgradeSlot)
-                    data.shipUpgradeSlot = items[data.shipUpgradeSlot.id];
-
-                if (data.ultimateSlot)
-                    data.ultimateSlot = ultimates[data.ultimateSlot.id];
-
-                if (data.shipFrigateUpgradeSlot)
-                    data.shipFrigateUpgradeSlot = items[data.shipFrigateUpgradeSlot.id];
-
-                if (data.weaponModifications)
-                    data.weaponModifications = data.weaponModifications.map(i => {
-                        return i.map(j => {
-                            return {
-                                type: j.type,
-                                value: modifications[j.value] || null
-                            };
-                        })
-                    })
-
-                if (data.armorModification)
-                    data.armorModification = data.armorModification.map(i => {
-                        return i.map(j => {
-                            return {
-                                type: j.type,
-                                value: modifications[j.value] || null,
-                            };
-                        })
-                    })
-
-                if (data.secondaryWeaponModifications)
-                    data.secondaryWeaponModifications = data.secondaryWeaponModifications.map(i => {
-                        return i.map(j => {
-                            return {
-                                type: j.type,
-                                value: modifications[j.value] || null,
-                            };
-                        })
-                    })
-
-                if (data.secondaryWeaponSlots)
-                    data.secondaryWeaponSlots = data.secondaryWeaponSlots.map((i: any) => {
-                        return i?.id ? items[i.id] : null;
-                    })
-
-                if (data.weaponSlots)
-                    data.weaponSlots = data.weaponSlots.map((i: any) => {
-                        return i?.id ? items[i.id] : null;
-                    })
-
-                if (data.armorSlot)
-                    data.armorSlot = data.armorSlot?.id ? items[data.armorSlot.id] : null;
-
-                if (data.displaySlots)
-                    data.displaySlots = data.displaySlots.map((i: any) => {
-                        return i?.id ? items[i.id] : null;
-                    })
-
-                return data;
+                return this['0.0.2'].set(data)
             },
             verify: (data) => {
                 const rules: ValidationRule[] = [
@@ -638,24 +512,50 @@ export default class AssemblyDataProcessing {
         },
     };
 
+    private getProcessor(version?: string): VersionedDataProcessing<AssemblyData> | undefined {
+        if (version && this.processing[version]) {
+            return this.processing[version];
+        }
+        if (version && typeof version === 'string') {
+            const cleanVersion = version.trim().replace(/^v/, '').split('+')[0];
+            if (this.processing[cleanVersion]) {
+                return this.processing[cleanVersion];
+            }
+        }
+        return this.processing[AssemblyDataProcessing.nowVersion] || this.processing['0.0.3'] || this.processing['0.0.1'];
+    }
+
     /**
      * 导出数据
      * @param dataRaw
      */
     public export(dataRaw: any) {
-        const data = toRaw(dataRaw)
-
-        let version = data?.__version || AssemblyDataProcessing.nowVersion;
-        if (version && data) {
-            const filteredData: any = {};
-            this.processing[version].allowedFields.forEach(field => {
-                if (data[field] !== undefined) {
-                    filteredData[field] = data[field];
-                }
-            })
-            return this.processing[version].get(filteredData)
+        if (!dataRaw) return dataRaw;
+        let data = toRaw(dataRaw);
+        if (typeof data === 'string') {
+            try {
+                data = JSON.parse(data);
+            } catch {
+                return data;
+            }
         }
-        return data;
+        if (!data || typeof data !== 'object' || Object.keys(data).length === 0) {
+            return data;
+        }
+
+        const version = data?.__version || AssemblyDataProcessing.nowVersion;
+        const processor = this.getProcessor(version);
+        if (!processor || !processor.allowedFields) {
+            return data;
+        }
+
+        const filteredData: any = {};
+        processor.allowedFields.forEach(field => {
+            if (data[field] !== undefined) {
+                filteredData[field] = data[field];
+            }
+        });
+        return processor.get ? processor.get(filteredData) : filteredData;
     }
 
     /**
@@ -664,19 +564,32 @@ export default class AssemblyDataProcessing {
      * @param useVersion
      */
     public import(dataRaw: any, useVersion?: string) {
-        const data = toRaw(dataRaw)
-
-        let version = useVersion || data?.__version || AssemblyDataProcessing.nowVersion;
-        if (version && data) {
-            const filteredData: any = {};
-            this.processing[version].allowedFields.forEach(field => {
-                if (data[field] !== undefined) {
-                    filteredData[field] = data[field];
-                }
-            })
-            return this.processing[version].set(filteredData)
+        if (!dataRaw) return dataRaw;
+        let data = toRaw(dataRaw);
+        if (typeof data === 'string') {
+            try {
+                data = JSON.parse(data);
+            } catch {
+                return data;
+            }
         }
-        return data
+        if (!data || typeof data !== 'object' || Object.keys(data).length === 0) {
+            return data;
+        }
+
+        const version = useVersion || data?.__version || AssemblyDataProcessing.nowVersion;
+        const processor = this.getProcessor(version);
+        if (!processor || !processor.allowedFields) {
+            return data;
+        }
+
+        const filteredData: any = {};
+        processor.allowedFields.forEach(field => {
+            if (data[field] !== undefined) {
+                filteredData[field] = data[field];
+            }
+        });
+        return processor.set ? processor.set(filteredData) : filteredData;
     }
 
     /**
@@ -685,10 +598,25 @@ export default class AssemblyDataProcessing {
      * @param useVersion
      */
     public verify(dataRaw: any, useVersion?: string) {
-        const data = toRaw(dataRaw)
+        if (!dataRaw) return { required: 0, verify: [] };
+        let data = toRaw(dataRaw);
+        if (typeof data === 'string') {
+            try {
+                data = JSON.parse(data);
+            } catch {
+                return { required: 0, verify: [] };
+            }
+        }
+        if (!data || typeof data !== 'object') {
+            return { required: 0, verify: [] };
+        }
 
-        let version = useVersion || data?.__version || AssemblyDataProcessing.nowVersion;
+        const version = useVersion || data?.__version || AssemblyDataProcessing.nowVersion;
+        const processor = this.getProcessor(version);
+        if (!processor || typeof processor.verify !== 'function') {
+            return { required: 0, verify: [] };
+        }
 
-        return this.processing[version].verify(data)
+        return processor.verify(data);
     }
 }

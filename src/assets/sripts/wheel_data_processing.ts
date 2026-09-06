@@ -49,16 +49,41 @@ export default class WheelDataProcessing {
         },
     };
 
+    private getProcessor(version?: string) {
+        if (version && this.processing[version]) {
+            return this.processing[version];
+        }
+        if (version && typeof version === 'string') {
+            const clean = version.trim().replace(/^v/, '').split('+')[0];
+            if (this.processing[clean]) {
+                return this.processing[clean];
+            }
+        }
+        return this.processing[WheelDataProcessing.nowVersion] || this.processing['0.0.1'];
+    }
+
     /**
      * 导出数据
      * @param dataRaw
      */
     public export(dataRaw: any) {
-        const data = toRaw(dataRaw)
+        if (!dataRaw) return dataRaw;
+        let data = toRaw(dataRaw);
+        if (typeof data === 'string') {
+            try {
+                data = JSON.parse(data);
+            } catch {
+                return data;
+            }
+        }
+        if (!data || typeof data !== 'object' || Object.keys(data).length === 0) {
+            return data;
+        }
 
-        let version = data?.__version || WheelDataProcessing.nowVersion;
-        if (version && data && Object.keys(data).length > 0) {
-            return this.processing[version].get(data)
+        const version = data?.__version || WheelDataProcessing.nowVersion;
+        const processor = this.getProcessor(version);
+        if (processor && processor.get) {
+            return processor.get(data);
         }
         return data;
     }
@@ -69,13 +94,25 @@ export default class WheelDataProcessing {
      * @param useVersion
      */
     public import(dataRaw: any, useVersion?: string) {
-        const data = toRaw(dataRaw)
-
-        let version = useVersion || data?.__version || WheelDataProcessing.nowVersion;
-        if (version && data && Object.keys(data).length > 0) {
-            return this.processing[version].set(data)
+        if (!dataRaw) return dataRaw;
+        let data = toRaw(dataRaw);
+        if (typeof data === 'string') {
+            try {
+                data = JSON.parse(data);
+            } catch {
+                return data;
+            }
         }
-        return data
+        if (!data || typeof data !== 'object' || Object.keys(data).length === 0) {
+            return data;
+        }
+
+        const version = useVersion || data?.__version || WheelDataProcessing.nowVersion;
+        const processor = this.getProcessor(version);
+        if (processor && processor.set) {
+            return processor.set(data);
+        }
+        return data;
     }
 
     /**
@@ -84,10 +121,24 @@ export default class WheelDataProcessing {
      * @param useVersion
      */
     public verify(dataRaw: any, useVersion?: string): boolean {
-        const data = toRaw(dataRaw)
+        if (!dataRaw) return true;
+        let data = toRaw(dataRaw);
+        if (typeof data === 'string') {
+            try {
+                data = JSON.parse(data);
+            } catch {
+                return true;
+            }
+        }
+        if (!data || typeof data !== 'object') {
+            return true;
+        }
 
-        let version = useVersion || data?.__version || WheelDataProcessing.nowVersion;
-
-        return this.processing[version].verify(data).valid
+        const version = useVersion || data?.__version || WheelDataProcessing.nowVersion;
+        const processor = this.getProcessor(version);
+        if (processor && typeof processor.verify === 'function') {
+            return processor.verify(data).valid;
+        }
+        return true;
     }
 }
