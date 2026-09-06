@@ -1786,6 +1786,12 @@
       "serviceStatus": "Service Status",
       "translated": "📖Help us translate",
       "github": "Project Open Source Address"
+    },
+    "serviceProvider": {
+      "openSource": "Open Source Support",
+      "openSourcePlan": "Open Source Plan Support",
+      "techSupport": "Technical Support",
+      "technicalSupport": "Technical Support"
     }
   },
   "empty": {

@@ -1779,6 +1779,12 @@
       "serviceStatus": "服务状态",
       "translated": "📖帮助我们翻译",
       "github": "项目开源地址"
+    },
+    "serviceProvider": {
+      "openSource": "开源支持",
+      "openSourcePlan": "开源计划支持",
+      "techSupport": "技术支持",
+      "technicalSupport": "技术支持"
     }
   },
   "empty": {
