@@ -1,6 +1,6 @@
 import { getBrowserFingerprint } from './fingerprint';
 
-const GP_AUTH_SALT = "GP_AUTH_FP_SECRET_2026_SALT_KEY";
+const GP_AUTH_SALT = "GP_AUTH_FP_SECRET_SALT_KEY";
 
 /**
  * RC4 对称流加密
@@ -47,7 +47,6 @@ function bytesToBase64Url(bytes: Uint8Array): string {
 
 /**
  * 生成混淆后的 x-auth-gp 协议头
- * 绝非明文传输，结合随机 IV 与微秒级时间戳动态加密混淆
  */
 export function generateAuthGpHeader(fingerprint?: string): string {
   try {

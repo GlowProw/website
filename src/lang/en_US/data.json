@@ -185,6 +185,8 @@
       "super": "Super Admin"
     },
     "tips": {
+      "actionLocked": "Operation is locked, please try again tomorrow.",
+      "notConfigured": "System quota exceeded, please contact the administrator.",
       "error": "Application Error: {content}",
       "comment": {
         "ok": "Published Successfully",
@@ -266,7 +268,9 @@
         "illegalFormat": "Username contains illegal characters.",
         "emailAlreadyHas": "This email is already bound, please log in directly.",
         "emailQuotaExceeded": "Registration email limit reached, please try again later.",
-        "dailyLimitExceeded": "Daily registration limit reached, please try again tomorrow."
+        "dailyLimitExceeded": "Daily registration limit reached, please try again tomorrow.",
+        "notConfigured": "System quota exceeded, please contact the administrator.",
+        "actionLocked": "Operation is locked, please try again tomorrow."
       },
       "activate": {
         "ok": "Account activated successfully, please log in.",
@@ -278,12 +282,31 @@
           "ok": "Activation code resent, please check your email."
         },
         "error": "Activation error: {context}",
-        "resendLimitExceeded": "Daily activation resend limit reached, please try again tomorrow."
+        "resendLimitExceeded": "Daily activation resend limit reached, please try again tomorrow.",
+        "notConfigured": "System quota exceeded, please contact the administrator.",
+        "actionLocked": "Operation is locked, please try again tomorrow."
       },
       "forgotPassword": {
         "ok": "Reset code sent, please check your email",
         "invalidEmail": "Email does not match account",
+        "quotaExceeded": "Daily email limit for password reset reached (max 3 per day), please try again tomorrow",
+        "dailyLimitExceeded": "Daily email limit for password reset reached (max 3 per day), please try again tomorrow",
+        "notConfigured": "System quota exceeded, please contact the administrator.",
+        "actionLocked": "Operation is locked, please try again tomorrow.",
         "error": "Request error: {context}"
+      },
+      "auth": {
+        "fingerprintRequired": "Browser security credential verification failed, please refresh the page and try again"
+      },
+      "email": {
+        "dailyLimitExceeded": "Daily email send limit for this action reached (max 3 per day), please try again tomorrow",
+        "notConfigured": "System quota exceeded, please contact the administrator.",
+        "actionLocked": "Operation is locked, please try again tomorrow."
+      },
+      "emailChange": {
+        "quotaExceeded": "Daily email change limit reached, please try again tomorrow",
+        "notConfigured": "System quota exceeded, please contact the administrator.",
+        "actionLocked": "Operation is locked, please try again tomorrow."
       },
       "resetPassword": {
         "ok": "Password reset successfully, please sign in again",
@@ -1884,7 +1907,7 @@
   },
   "stateOfWar": {
     "title": "State of War",
-    "description": "Real-time tracking of Skull and Bones Season 10 faction war assets across active zones",
+    "description": "Real-time tracking of Skull and Bones Season faction war assets across active zones",
     "lastUpdated": "Last Updated",
     "selectSeason": "Select Season",
     "refreshBtn": "Refresh Data",
@@ -1897,8 +1920,9 @@
     "warProgression": "War Progression",
     "hour1": "1 Hour",
     "day1": "1 Day",
+    "cycleNumber": "Issue {value}",
     "leading": "Leading",
-    "subZones": "Sub-zones",
+    "subZones": "Zones",
     "ended": "Settled",
     "active": "In Progress",
     "contested": "Contested",

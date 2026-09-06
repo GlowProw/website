@@ -1,6 +1,7 @@
 import http, {type AxiosInstance, type AxiosResponse} from 'axios';
 import Api_config from './api_config';
 import type {GetUrlOptions, RequestOptions} from "../types/Http";
+import { generateAuthGpHeader } from './fingerprint_auth';
 
 export enum HttpMethod {
     GET = 'get',
@@ -22,6 +23,19 @@ export default class Http extends Api_config {
         this.HTTP = http.create({
             timeout: 600000,
         })
+
+        // 自动注入混淆加密后的浏览器安全指纹协议头 x-auth-gp
+        this.HTTP.interceptors.request.use((config) => {
+            try {
+                const authHeader = generateAuthGpHeader();
+                if (config.headers) {
+                    config.headers['x-auth-gp'] = authHeader;
+                }
+            } catch (e) {
+                console.error('Failed to attach x-auth-gp header:', e);
+            }
+            return config;
+        });
     }
 
     get location() {

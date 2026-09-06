@@ -185,6 +185,8 @@
       "super": "超级管理员"
     },
     "tips": {
+      "actionLocked": "操作已锁定，请次日再试",
+      "notConfigured": "系统超额，请联系管理员",
       "error": "应用程序错误: {content}",
       "comment": {
         "ok": "发布成功",
@@ -261,6 +263,10 @@
       "signup": {
         "ok": "注册成功，请激活账户",
         "userAlreadyHas": "注册帐号的名称已存在",
+        "dailyLimitExceeded": "今日注册邮件发送已达上限（每天最多3次），请明天再试",
+        "emailQuotaExceeded": "邮件发送达到每日上限，请稍后再试",
+        "notConfigured": "系统超额，请联系管理员",
+        "actionLocked": "操作已锁定，请次日再试",
         "error": "注册错误: {context}",
         "bad": "注册错误: 请检查注册信息的格式要求"
       },
@@ -270,6 +276,10 @@
         "alreadyActive": "账户已激活，请直接登录",
         "userNotFound": "未找到对应账户",
         "emailQuotaExceeded": "邮件发送达到每日上限，请稍后再试",
+        "resendLimitExceeded": "每日激活重发次数已达上限（每天最多3次），请明天再试",
+        "dailyLimitExceeded": "每日激活重发次数已达上限（每天最多3次），请明天再试",
+        "notConfigured": "系统超额，请联系管理员",
+        "actionLocked": "操作已锁定，请次日再试",
         "resend": {
           "ok": "激活码已重发，请检查邮箱"
         },
@@ -278,7 +288,24 @@
       "forgotPassword": {
         "ok": "重置码已发送，请检查邮箱",
         "invalidEmail": "邮箱与账户不匹配",
+        "quotaExceeded": "找回密码今日邮件发送已达上限（每天最多3次），请明天再试",
+        "dailyLimitExceeded": "找回密码今日邮件发送已达上限（每天最多3次），请明天再试",
+        "notConfigured": "系统超额，请联系管理员",
+        "actionLocked": "操作已锁定，请次日再试",
         "error": "请求错误: {context}"
+      },
+      "auth": {
+        "fingerprintRequired": "浏览器安全凭证验证失败，请刷新页面后重试"
+      },
+      "email": {
+        "dailyLimitExceeded": "该操作今日邮件发送次数已达上限（每天最多3次），请明天再试",
+        "notConfigured": "系统超额，请联系管理员",
+        "actionLocked": "操作已锁定，请次日再试"
+      },
+      "emailChange": {
+        "quotaExceeded": "更换邮箱今日邮件发送已达上限，请明天再试",
+        "notConfigured": "系统超额，请联系管理员",
+        "actionLocked": "操作已锁定，请次日再试"
       },
       "resetPassword": {
         "ok": "密码重置成功，请重新登录",
@@ -1887,6 +1914,7 @@
     "hour1": "1小时",
     "day1": "1天",
     "leading": "领先",
+    "cycleNumber": "第{value}期",
     "subZones": "小区域",
     "ended": "已结算",
     "active": "进行中",

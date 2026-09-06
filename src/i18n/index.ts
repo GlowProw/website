@@ -137,7 +137,8 @@ const getInitialLocale = (): string => {
     }
 
     // 2. 其次使用存储的语言
-    const storedLang = storage.local.get('lang')?.data?.value?.value;
+    const storedVal = storage.local.get('lang')?.data?.value;
+    const storedLang = (typeof storedVal === 'object' && storedVal !== null) ? storedVal.value : storedVal;
     if (storedLang && ['zh-CN', 'zh-TW', 'en-US'].includes(storedLang)) {
         return storedLang;
     }

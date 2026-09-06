@@ -4,6 +4,7 @@
  */
 import { useAuthStore } from "~/stores/userAccountStore";
 import { http } from "./index";
+import { generateAuthGpHeader } from "./fingerprint_auth";
 
 interface UseHttpOptions {
     /** 是否携带 token */
@@ -26,6 +27,10 @@ export function useHttp(options: UseHttpOptions = {}) {
             if (token && token !== '') {
                 headers['x-access-token'] = token;
             }
+        }
+
+        if (!headers['x-auth-gp']) {
+            headers['x-auth-gp'] = generateAuthGpHeader();
         }
 
         return {

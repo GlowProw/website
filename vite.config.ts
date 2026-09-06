@@ -111,10 +111,10 @@ export default defineConfig({
         }),
         Vuetify({ autoImport: true }),
         VitePWA({
-            registerType: 'autoUpdate',
+            registerType: 'prompt',
             includeAssets: ['favicon.ico', 'favicon.png'],
             devOptions: {
-                enabled: true,
+                enabled: false,
                 type: 'module',
             },
             manifest: {

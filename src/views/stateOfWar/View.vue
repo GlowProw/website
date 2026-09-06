@@ -845,7 +845,7 @@ const getZoneData = (zoneName: string) => {
                         <v-row align="center">
                           <v-col cols="auto" class="text-subtitle-1 font-weight-bold">
                             <v-icon icon="mdi-flag-checkered" size="20" color="amber-darken-1"></v-icon>
-                            {{ cycle.name }}
+                            {{ t('stateOfWar.cycleNumber', {value: cycle.cycleNumber}) }}
                           </v-col>
                           <v-col>
                             <v-divider opacity=".3" thickness="2"></v-divider>

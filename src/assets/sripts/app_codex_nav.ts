@@ -179,6 +179,10 @@ export default class AppCodexNav {
             to: '/codex/cosmetics'
         },
         {
+            title: 'codex.sets.title',
+            to: '/codex/sets'
+        },
+        {
             title: 'codex.materials.title',
             to: '/codex/materials'
         },
