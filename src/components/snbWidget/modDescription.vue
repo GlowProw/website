@@ -3,7 +3,7 @@ import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {computed} from "vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
-const props = defineProps<{ id: string, variants, grade, type?, class?: string }>(),
+const props = defineProps<{ id: string, variants?: any, grade?: any, type?: string, range?: any[], class?: string }>(),
     {t, tm, te, rt, locale: localLocale} = useI18nUtils(),
     {modification} = useI18nReadName()
 
@@ -11,7 +11,14 @@ let
     // 查找模组对应变种
     // 按照item中的type来决定
     modVariants = computed(() => {
-      return props.variants.filter((e: any) => e.itemType.indexOf(props.type) >= 0)
+      if (props.range && (!props.variants || (Array.isArray(props.variants) && props.variants.length === 0))) {
+        return [{ range: props.range, itemType: props.type ? [props.type] : [] }]
+      }
+      if (!props.variants) return []
+      const list = Array.isArray(props.variants) ? props.variants : [props.variants]
+      if (!props.type) return list
+      const filtered = list.filter((e: any) => e && e.itemType && e.itemType.indexOf(props.type) >= 0)
+      return filtered.length > 0 ? filtered : list
     })
 
 /**
@@ -28,7 +35,7 @@ const onFormatRange = (data: []) => {
   })
 }
 
-const getRange = (v: any) => v.range
+const getRange = (v: any) => props.range || v?.range || []
 const getModDescription = () => (tm(`snb.modifications.${props.id}.description`) as any)
 const isArrayDescription = computed(() => Array.isArray(getModDescription()))
 const getAllModDescription = computed(() => modification(props.id).description(localLocale.value, props.type))

@@ -967,6 +967,7 @@
         "description": "通过截图图片检索相似藏宝图，定位位置和信息",
         "searchingProgress": "搜索进度",
         "currentComparing": "正在比较",
+        "uploadPrompt": "选择本地图片作为目标进行查询",
         "algorithms": {
           "perceptual-hash": "感知哈希 (快速)",
           "color-histogram": "颜色直方图",

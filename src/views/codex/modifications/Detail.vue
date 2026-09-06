@@ -17,13 +17,14 @@ import AffixContainerView from "@/components/AffixContainerView.vue";
 import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
 import ModDescription from "@/components/snbWidget/modDescription.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
-import {storage} from "@/assets/sripts/index";
+import {number, storage} from "@/assets/sripts/index";
 import {useHead} from "@unhead/vue";
 import ShareWidget from "@/components/ShareWidget.vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
+import HorizontalScrollList from "@/components/HorizontalScrollList.vue";
 
 const {t, messages} = useI18n(),
     route = useRoute(),
@@ -174,26 +175,31 @@ const onCodexHistory = () => {
         <v-row>
           <v-col cols="12" sm="12" md="8" lg="8" order="2" order-sm="1">
             <v-row>
-              <div>
+              <v-col cols="auto">
                 <ItemSlotBase size="130px">
                   <ModIconWidget :id="modDetailData.id" :isOpenDetail="false" :isShowOpenDetail="false"></ModIconWidget>
                 </ItemSlotBase>
                 <WeaponModificationWidget :data="modDetailData"></WeaponModificationWidget>
-              </div>
+              </v-col>
               <v-col>
-                <div v-for="(i,index) in modDetailData.variants" :key="index" class="mb-8">
-                  <div class="d-flex ga-2">
-                    <v-chip class="badge-flavor text-center tag-badge text-black"
-                            :to="`/codex/items?type=${tag}`"
-                            target="_blank"
-                            v-for="(tag, tagIndex) in i.itemType" :key="tagIndex">
-                      {{ t(`codex.types.${tag}`) }}
-                    </v-chip>
-                  </div>
-                  <div class="mt-3">
-                    <ModDescription class="opacity-50" :id="modDetailData.id" :variants="modDetailData.variants" :grade="modDetailData.grade" :type="i.itemType[0]"></ModDescription>
-                  </div>
-                </div>
+                <v-row v-for="(i,index) in modDetailData.variants" :key="index">
+                  <v-col cols="auto" class="text-amber">
+                    <b>{{ number.intToRoman(index + 1) }}</b>
+                  </v-col>
+                  <v-col>
+                    <div class="d-flex ga-2">
+                      <v-chip class="badge-flavor text-center tag-badge text-black"
+                              :to="`/codex/items?type=${tag}`"
+                              target="_blank"
+                              v-for="(tag, tagIndex) in i.itemType" :key="tagIndex">
+                        {{ t(`codex.types.${tag}`) }}
+                      </v-chip>
+                    </div>
+                    <div class="mt-3">
+                      <ModDescription class="opacity-50" :id="modDetailData.id" :variants="[i]" :grade="modDetailData.grade" :type="i.itemType[0]"></ModDescription>
+                    </div>
+                  </v-col>
+                </v-row>
               </v-col>
             </v-row>
             <v-divider class="mt-10 mb-6"></v-divider>

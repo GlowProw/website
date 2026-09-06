@@ -27,7 +27,7 @@ export interface VerticalScrollListProps extends Omit<ScrollListProps, 'directio
 const props = withDefaults(defineProps<VerticalScrollListProps>(), {
   btnSize: 45,
   isIndicator: true,
-  gap: 16,
+  gap: 0,
   showControls: true,
   showScrollIndicator: true,
   hideScrollbar: true,
