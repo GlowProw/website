@@ -190,7 +190,10 @@ export default class AppCodexNav {
             title: 'codex.commodities.title',
             to: '/codex/commodities'
         },
-
+        {
+            title: 'codex.empireSkills.title',
+            to: '/codex/empireSkills'
+        },
     ]
 
     other = []

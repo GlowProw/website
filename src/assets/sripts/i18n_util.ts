@@ -113,10 +113,25 @@ export function useI18nUtils(manualLocale?: ComputedRef<string | undefined>) {
         let result = ''
 
         for (const i18nKey of keys) {
-            if (te(i18nKey, options.lang)) {
-                const content = t(i18nKey, options.variable || null, options.lang || null)
-                if (content && result.length <= 0 && result === '') {
-                    result = content
+            const content = tm(i18nKey, options.lang);
+            if (content) {
+                if (Array.isArray(content)) {
+                    result = content.map((_, idx) => t(`${i18nKey}.${idx}`, options.variable || null, options.lang || null)).join('\n');
+                    if (result && result.length > 0) {
+                        break;
+                    }
+                } else if (typeof content === 'string') {
+                    const text = t(i18nKey, options.variable || null, options.lang || null);
+                    if (text && result.length <= 0 && result === '') {
+                        result = text;
+                        break;
+                    }
+                }
+            } else if (te(i18nKey, options.lang)) {
+                const text = t(i18nKey, options.variable || null, options.lang || null);
+                if (text && result.length <= 0 && result === '') {
+                    result = text;
+                    break;
                 }
             }
         }

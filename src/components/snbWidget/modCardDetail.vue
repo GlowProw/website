@@ -88,4 +88,9 @@ defineOptions({
 
 <style scoped lang="less">
 @import "@/assets/styles/demo-reel";
+
+.description {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
 </style>

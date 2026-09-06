@@ -61,6 +61,9 @@ import MapLocationsDetailPage from '@/views/codex/mapLocations/Detail.vue'
 import NpcsPage from '@/views/codex/npcs/Index.vue'
 import NpcDetailPage from '@/views/codex/npcs/Detail.vue'
 
+import EmpireSkillsPage from '@/views/codex/empireSkills/Index.vue'
+import EmpireSkillDetailPage from '@/views/codex/empireSkills/Detail.vue'
+
 import EmpireSkillSimulationPage from '@/views/empireSkillSimulation/Index.vue'
 
 import UltimatesPage from '@/views/codex/ultimates/Index.vue'
@@ -120,6 +123,7 @@ import WidgetTreasureMapPage from '@/widgets/treasureMap/Index.vue';
 import WidgetUltimatePage from '@/widgets/ultimate/Index.vue';
 import WidgetSetPage from '@/widgets/set/Index.vue';
 import WidgetMapLocationPage from '@/widgets/mapLocation/Index.vue';
+import WidgetEmpireSkillPage from '@/widgets/empireSkills/Index.vue';
 
 import { useAuthStore } from "@/../stores/userAccountStore";
 import { useAssetsStore } from "@/../stores/assetsStore";
@@ -672,6 +676,28 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 },
                 component: NpcDetailPage,
             },
+            {
+                path: 'empireSkills',
+                name: 'EmpireSkills',
+                meta: {
+                    title: 'codex.empireSkills.title',
+                    keywords: 'codex.empireSkills.meta.keywords'
+                },
+                component: EmpireSkillsPage,
+            },
+            {
+                path: 'empireSkill/:id',
+                name: 'EmpireSkillDetail',
+                meta: {
+                    title: 'codex.empireSkill.title',
+                    keywords: 'codex.empireSkill.meta.keywords'
+                },
+                component: EmpireSkillDetailPage,
+            },
+            {
+                path: 'empireSkills/:id',
+                redirect: to => `/codex/empireSkill/${to.params.id}`,
+            },
         ]
     },
     {
@@ -912,6 +938,15 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: 'mapLocation/:id',
                 name: 'MapLocationWidget',
                 component: WidgetMapLocationPage,
+            },
+            {
+                path: 'empireSkill/:id',
+                name: 'EmpireSkillWidget',
+                component: WidgetEmpireSkillPage,
+            },
+            {
+                path: 'empireSkills/:id',
+                redirect: to => `/widgets/empireSkill/${to.params.id}`,
             }
         ]
     },

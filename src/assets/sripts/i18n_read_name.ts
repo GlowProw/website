@@ -1,7 +1,7 @@
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useI18n} from "vue-i18n";
 
-import {Cosmetics, Item, Items, MapLocations, Materials, Modifications, Npcs, Sets, Ship, Ships, TreasureMaps} from "glow-prow-data";
+import {Cosmetics, EmpireSkills, Item, Items, MapLocations, Materials, Modifications, Npcs, Sets, Ship, Ships, TreasureMaps} from "glow-prow-data";
 import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
 import {number} from "@/assets/sripts/index";
 import {Commodities} from "glow-prow-data/src/entity/Commodities";
@@ -16,7 +16,8 @@ const items = Items,
     mapLocations = MapLocations,
     treasureMaps = TreasureMaps,
     ultimates = Ultimates,
-    sets = Sets
+    sets = Sets,
+    empireSkills = EmpireSkills
 
 /**
  * i18n 名称与描述数据读取 Hook
@@ -125,13 +126,18 @@ export function useI18nReadName() {
                         }
 
                         for (const key of keysDescription) {
-                            if (te(key)) {
-                                const content = tm(key);
+                            const content = tm(key, lang);
+                            if (content) {
                                 if (Array.isArray(content)) {
-                                    return content.map(c => rt(c, variable || {})).join(' ').trim();
-                                } else {
-                                    return '·\t' + t(key, variable || {}).trim();
+                                    return content.map((_, idx) => {
+                                        const text = t(`${key}.${idx}`, variable || {}, lang);
+                                        return '·\t' + text.trim();
+                                    }).join('\n');
+                                } else if (typeof content === 'string') {
+                                    return '·\t' + t(key, variable || {}, lang).trim();
                                 }
+                            } else if (te(key, lang)) {
+                                return '·\t' + t(key, variable || {}, lang).trim();
                             }
                         }
 
@@ -515,6 +521,49 @@ export function useI18nReadName() {
         }
     }
 
+    const empireSkill = (id: string) => {
+        let keysName = [
+                `snb.empireSkills.${id}.name`,
+                `snb.empireSkills.${sanitizeString(id).cleaned}.name`,
+            ],
+            keysDescription = [
+                `snb.empireSkills.${id}.effects.general`,
+                `snb.empireSkills.${id}.effects.1`,
+            ];
+
+        return {
+            keysName,
+            keysDescription,
+            name: (lang?: string): string => {
+                const translatedName = asString(keysName, {
+                    backRawKey: true,
+                    lang
+                })
+                return (translatedName || id || '').trim();
+            },
+            description: (lang?: string, stage?: number): string => {
+                const skill = empireSkills[id];
+                if (!skill) return '';
+                const factionName = t(`snb.factions.${skill.type}.name`);
+                const interpolateParams = { ...(skill.attr || {}), faction: factionName };
+                if (stage) {
+                    return t(`snb.empireSkills.${id}.effects.${stage}`, interpolateParams) || '';
+                }
+                if (skill.stage && skill.stage > 1) {
+                    const descList: string[] = [];
+                    for (let s = 1; s <= skill.stage; s++) {
+                        const eff = t(`snb.empireSkills.${id}.effects.${s}`, interpolateParams);
+                        if (eff && !eff.startsWith('snb.empireSkills')) {
+                            descList.push(`${number.intToRoman(s)}: ${eff}`);
+                        }
+                    }
+                    if (descList.length > 0) return descList.join('\n');
+                }
+                return t(`snb.empireSkills.${id}.effects.general`, interpolateParams) || t(`snb.empireSkills.${id}.effects.1`, interpolateParams) || '';
+            }
+        };
+    }
+
     return {
         ship,
         npc,
@@ -528,6 +577,8 @@ export function useI18nReadName() {
         mapLocation,
         treasureMap,
         perk,
+        empireSkill,
         getValue
     }
 }
+

@@ -30,6 +30,7 @@ const getDynamicDataRoutes = () => {
         'treasureMaps.json': '/codex/treasureMap/',
         'mapLocations.json': '/codex/mapLocation/',
         'npcs.json': '/codex/npc/',
+        'empireSkills.json': '/codex/empireSkill/',
     };
 
     Object.entries(mapping).forEach(([file, prefix]) => {
@@ -38,6 +39,7 @@ const getDynamicDataRoutes = () => {
             try {
                 const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
                 Object.keys(data).forEach(id => {
+                    if (file === 'empireSkills.json' && id === 'root') return;
                     result.push(`${prefix}${id}`);
                 });
             } catch (e) {

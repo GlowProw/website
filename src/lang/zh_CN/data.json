@@ -1029,6 +1029,22 @@
     },
     "npcs": {
       "title": "NPC列表"
+    },
+    "empireSkill": {
+      "title": "帝国技能详情",
+      "lookDetail": "查看帝国技能详情(按住)",
+      "faction": "所属阵营",
+      "stage": "技能阶段",
+      "requisite": "前置技能",
+      "noRequisite": "无前置要求",
+      "stageCount": "共 {count} 个阶段",
+      "costTitle": "升级成本",
+      "costStage": "第 {stage} 阶段消耗",
+      "noCost": "无消耗要求"
+    },
+    "empireSkills": {
+      "title": "帝国技能",
+      "describe": "帝国技能手稿收录帝国科技树各项升级技能、前置条件与阶段效果。"
     }
   },
   "calendar": {

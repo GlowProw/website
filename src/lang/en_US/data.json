@@ -1030,6 +1030,22 @@
     },
     "npcs": {
       "title": "NPC List"
+    },
+    "empireSkill": {
+      "title": "Empire Skill Detail",
+      "lookDetail": "View Empire Skill Details (Hold)",
+      "faction": "Faction",
+      "stage": "Stage",
+      "requisite": "Requisite Skills",
+      "noRequisite": "No Requisite",
+      "stageCount": "Total {count} Stages",
+      "costTitle": "Upgrade Cost",
+      "costStage": "Stage {stage} Cost",
+      "noCost": "No Cost"
+    },
+    "empireSkills": {
+      "title": "Empire Skills",
+      "describe": "The Empire Skills codex catalogs Empire tree upgrades, requisites, and stage effects."
     }
   },
   "calendar": {

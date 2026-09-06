@@ -5,7 +5,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import {Cosmetics, Items, MapLocations, Materials, Modifications, Npcs, Sets, Ships, TreasureMaps} from "glow-prow-data";
+import {Cosmetics, EmpireSkills, Items, MapLocations, Materials, Modifications, Npcs, Sets, Ships, TreasureMaps} from "glow-prow-data";
 import {Commodities} from "glow-prow-data/src/entity/Commodities";
 import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
 import {computed, onMounted, ref, useSlots, watch} from "vue";
@@ -43,8 +43,10 @@ import SetIconWidget from "@/components/snbWidget/setIconWidget.vue";
 import SetName from "@/components/snbWidget/setName.vue";
 import NpcIconWidget from "@/components/snbWidget/npcIconWidget.vue";
 import NpcName from "@/components/snbWidget/npcName.vue";
+import EmpireSkillIconWidget from "@/components/snbWidget/empireSkillIconWidget.vue";
+import EmpireSkillName from "@/components/snbWidget/empireSkillName.vue";
 
-type LoadDataType = 'ship' | 'item' | 'commoditie' | 'material' | 'ultimate' | 'cosmetic' | 'modification' | 'set' | 'treasureMap' | 'mapLocation' | 'npc'
+type LoadDataType = 'ship' | 'item' | 'commoditie' | 'material' | 'ultimate' | 'cosmetic' | 'modification' | 'set' | 'treasureMap' | 'mapLocation' | 'npc' | 'empireSkill'
 type SortField = 'dateAdded' | 'lastUpdated'
 type SortOrder = 'asc' | 'desc'
 
@@ -62,6 +64,7 @@ const
     cosmetics = Cosmetics,
     modifications = Modifications,
     sets = Sets,
+    empireSkills = EmpireSkills,
 
     // 数据 地图
     treasureMaps = TreasureMaps,
@@ -112,7 +115,10 @@ let data: any = ref([]),
       ...filterData.value.typeTags.map(tag => ({
         value: tag,
         text: asString([
-          `codex.types.${tag}`
+          `codex.types.${tag}`,
+
+          // empireSkills type是阵营
+          `snb.factions.${tag}.name`
         ], {backRawKey: true, variable: tag})
       }))
     ]),
@@ -256,6 +262,8 @@ const onProcessedData = computed(() => {
           `snb.mapLocations.${sanitizeString(i.id).cleaned}.name`,
           `snb.npcs.${i.id}.name`,
           `snb.npcs.${sanitizeString(i.id).cleaned}.name`,
+          `snb.empireSkills.${i.id}.name`,
+          `snb.empireSkills.${sanitizeString(i.id).cleaned}.name`,
           `snb.sets.${i.id}`,
         ], {
           backRawKey: true
@@ -398,6 +406,9 @@ const onProcessedData = computed(() => {
             break;
           case "npc":
             d = d.concat(Object.values(npcs))
+            break;
+          case "empireSkill":
+            d = d.concat(Object.values(empireSkills).filter((i: any) => i.id !== 'root'))
             break;
         }
       })
@@ -1189,6 +1200,7 @@ const onSort = (field: SortField, order: SortOrder) => {
               <TreasureMapIconWidget :id="i.id" v-if="i._typeStringName == 'TreasureMap'"></TreasureMapIconWidget>
               <MapLocationIconWidget :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationIconWidget>
               <NpcIconWidget :data="i" v-if="i._typeStringName == 'Npc'"></NpcIconWidget>
+              <EmpireSkillIconWidget :id="i.id" v-if="i._typeStringName == 'EmpireSkill'"></EmpireSkillIconWidget>
             </ItemSlotBase>
 
             <div v-if="i.set && i.set.id && isFilterSet" class="position-absolute subordinate-data">
@@ -1214,6 +1226,7 @@ const onSort = (field: SortField, order: SortOrder) => {
             <TreasureMapName :data="i" v-if="i._typeStringName == 'TreasureMap'"></TreasureMapName>
             <MapLocationName :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationName>
             <NpcName :data="i" v-if="i._typeStringName == 'Npc'"></NpcName>
+            <EmpireSkillName :id="i.id" v-if="i._typeStringName == 'EmpireSkill'"></EmpireSkillName>
           </div>
         </v-card>
       </v-row>
@@ -1236,6 +1249,7 @@ const onSort = (field: SortField, order: SortOrder) => {
               <TreasureMapIconWidget :id="i.id" v-if="i._typeStringName == 'TreasureMap'"></TreasureMapIconWidget>
               <MapLocationIconWidget :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationIconWidget>
               <NpcIconWidget :data="i" v-if="i._typeStringName == 'Npc'"></NpcIconWidget>
+              <EmpireSkillIconWidget :id="i.id" v-if="i._typeStringName == 'EmpireSkill'"></EmpireSkillIconWidget>
             </ItemSlotBase>
 
             <div v-if="i.set && i.set.id && isFilterSet" class="position-absolute subordinate-data">
@@ -1261,6 +1275,7 @@ const onSort = (field: SortField, order: SortOrder) => {
             <TreasureMapName :data="i" v-if="i._typeStringName == 'TreasureMap'"></TreasureMapName>
             <MapLocationName :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationName>
             <NpcName :data="i" v-if="i._typeStringName == 'Npc'"></NpcName>
+            <EmpireSkillName :id="i.id" v-if="i._typeStringName == 'EmpireSkill'"></EmpireSkillName>
           </div>
         </v-card>
       </v-row>

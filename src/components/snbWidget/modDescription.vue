@@ -30,6 +30,7 @@ const onFormatRange = (data: []) => {
 
 const getRange = (v: any) => v.range
 const getModDescription = () => (tm(`snb.modifications.${props.id}.description`) as any)
+const isArrayDescription = computed(() => Array.isArray(getModDescription()))
 const getAllModDescription = computed(() => modification(props.id).description(localLocale.value, props.type))
 
 defineOptions({
@@ -40,24 +41,33 @@ defineOptions({
 <template>
   <template v-if="type">
     <div v-for="(v, vIndex) in modVariants" :key="vIndex"
-       :class="`grade-${grade}-description ${props.class}`" class="description">
-      <template v-if=" !Array.isArray(t(`snb.modifications.${id}.description`)) && te(`snb.modifications.${id}.description`)">
+       :class="`grade-${grade}-description ${props.class}`" class="description text-pre-wrap">
+      <template v-if="!isArrayDescription && te(`snb.modifications.${id}.description`)">
         {{
           t(`snb.modifications.${id}.description`, {
             __: onFormatRange(getRange(v))
           })
         }}
       </template>
-      <template v-else v-for="content in getModDescription()" :key="content">
-        {{ rt(content, {__: onFormatRange(getRange(v))}) }}<br>
+      <template v-else-if="isArrayDescription">
+        <div v-for="(_, cIndex) in getModDescription()" :key="cIndex">
+          {{
+            t(`snb.modifications.${id}.description.${cIndex}`, {
+              __: onFormatRange(getRange(v))
+            })
+          }}
+        </div>
       </template>
     </div>
   </template>
   <template v-else>
-    <span class="text-pre">{{ getAllModDescription }}</span>
+    <div class="text-pre-wrap" :class="props.class">{{ getAllModDescription }}</div>
   </template>
 </template>
 
 <style scoped lang="less">
-
+.text-pre-wrap {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
 </style>

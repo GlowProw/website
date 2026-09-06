@@ -1010,6 +1010,22 @@
     },
     "npcs": {
       "title": "NPC列表"
+    },
+    "empireSkill": {
+      "title": "帝國技能详细",
+      "lookDetail": "查看帝國技能詳情(按住)",
+      "faction": "所屬陣營",
+      "stage": "技能階段",
+      "requisite": "前置技能",
+      "noRequisite": "無前置要求",
+      "stageCount": "共 {count} 個階段",
+      "costTitle": "升級成本",
+      "costStage": "第 {stage} 階段消耗",
+      "noCost": "無消耗要求"
+    },
+    "empireSkills": {
+      "title": "帝國技能",
+      "describe": "帝國技能手稿收錄帝國科技樹各項升級技能、前置條件與階段效果。"
     }
   },
   "calendar": {
