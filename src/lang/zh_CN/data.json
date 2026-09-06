@@ -1317,7 +1317,25 @@
     "modification": {
       "basic": "基础",
       "advanced": "高级",
-      "special": "特殊"
+      "special": "特殊",
+      "mythic": "传奇"
+    },
+    "weaponModification": {
+      "title": "模组改装",
+      "installed": "已安装模组",
+      "available": "可选择模组",
+      "availableCount": "{count} 个",
+      "dragTip": "拖拽{type}模组到此处",
+      "searchPlaceholder": "搜索模组名称、效果...",
+      "noMatching": "未找到匹配的模组",
+      "ignoreConditionsTip": "无视模组条件，打开此选项将关闭对配装内的条件约束，同时可能带来与游戏模组不匹配问题",
+      "categories": {
+        "all": "全部模组",
+        "basic": "基础模组",
+        "advanced": "高级模组",
+        "special": "特殊模组",
+        "mythic": "橙色模组"
+      }
     },
     "tags": {
       "titles": {

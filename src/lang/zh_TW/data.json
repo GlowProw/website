@@ -1371,10 +1371,27 @@
       }
     },
     "modification": {
-      "basic": "基础",
-      "advanced": "高级",
+      "basic": "基礎",
+      "advanced": "高級",
       "special": "特殊",
-      "mythic": "传奇"
+      "mythic": "傳奇"
+    },
+    "weaponModification": {
+      "title": "模組改裝",
+      "installed": "已安裝模組",
+      "available": "可選擇模組",
+      "availableCount": "{count} 個",
+      "dragTip": "拖曳{type}模組到此處",
+      "searchPlaceholder": "搜尋模組名稱、效果...",
+      "noMatching": "未找到相符的模組",
+      "ignoreConditionsTip": "無視模組條件，開啟此選項將關閉對配裝內的條件約束，同時可能帶來與遊戲模組不相符問題",
+      "categories": {
+        "all": "全部模組",
+        "basic": "基礎模組",
+        "advanced": "高級模組",
+        "special": "特殊模組",
+        "mythic": "橙色模組"
+      }
     },
     "tags": {
       "titles": {

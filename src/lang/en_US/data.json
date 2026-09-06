@@ -1317,7 +1317,25 @@
     "modification": {
       "basic": "Basic",
       "advanced": "Advanced",
-      "special": "Special"
+      "special": "Special",
+      "mythic": "Mythic"
+    },
+    "weaponModification": {
+      "title": "Weapon Modification",
+      "installed": "Installed Modules",
+      "available": "Available Modules",
+      "availableCount": "{count} items",
+      "dragTip": "Drag {type} module here",
+      "searchPlaceholder": "Search module name, effects...",
+      "noMatching": "No matching modules found",
+      "ignoreConditionsTip": "Ignore module conditions. Enabling this option disables restrictions within assembly and may cause mismatches with in-game modules.",
+      "categories": {
+        "all": "All Modules",
+        "basic": "Basic Modules",
+        "advanced": "Advanced Modules",
+        "special": "Special Modules",
+        "mythic": "Mythic Modules"
+      }
     },
     "tags": {
       "titles": {

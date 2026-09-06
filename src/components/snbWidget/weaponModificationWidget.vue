@@ -20,7 +20,7 @@ import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import ItemName from "@/components/snbWidget/itemName.vue";
 
 type WeaponModificationSize = '3' | '5' | '6' | '8'
-type ModType = 'basic' | 'advanced' | 'special';
+type ModType = 'basic' | 'advanced' | 'special' | 'mythic';
 type ModCategory = 'all' | ModType;
 
 interface ModSlot {
@@ -40,35 +40,34 @@ interface ModItem {
 }
 
 const WEAPON_MOD_CONFIG: Record<Rarity, { slotType: ModType[] }> = {
+  // 白
   common: {
     slotType: ['basic', 'basic', 'advanced', 'special']
   },
+  // 绿
   uncommon: {
     slotType: ['basic', 'advanced', 'special']
   },
+  // 蓝
   rare: {
     slotType: ['basic', 'advanced', 'special']
   },
+  // 紫
   epic: {
-    slotType: ['basic', 'advanced', 'advanced']
+    slotType: ['basic', 'advanced', 'advanced', 'mythic']
   },
+  // 黄 (预设)
   legendary: {
-    slotType: ['basic', 'advanced', 'advanced']
+    slotType: ['basic', 'advanced', 'mythic', 'mythic']
   }
 };
 
 const MOD_STYLE_CONFIG: Record<ModType, string> = {
   'basic': 'rgba(208,255,208,0.14)',
   'advanced': 'rgba(187,220,255,0.14)',
-  'special': 'rgba(249,235,255,0.14)'
+  'special': 'rgba(249,235,255,0.14)',
+  'mythic': 'rgba(255,183,77,0.14)'
 };
-
-const MOD_CATEGORIES: { value: ModCategory; label: string }[] = [
-  {value: 'all', label: '全部模组'},
-  {value: 'basic', label: '基础模组'},
-  {value: 'advanced', label: '高级模组'},
-  {value: 'special', label: '特殊模组'}
-];
 
 const props = withDefaults(defineProps<{
   size?: WeaponModificationSize | string | number,
@@ -86,19 +85,29 @@ const props = withDefaults(defineProps<{
 const {t} = useI18n()
 const {sanitizeString} = useI18nUtils()
 
+const MOD_CATEGORIES = computed<{ value: ModCategory; label: string }[]>(() => [
+  { value: 'all', label: t('assembly.weaponModification.categories.all') },
+  { value: 'basic', label: t('assembly.weaponModification.categories.basic') },
+  { value: 'advanced', label: t('assembly.weaponModification.categories.advanced') },
+  { value: 'special', label: t('assembly.weaponModification.categories.special') },
+  { value: 'mythic', label: t('assembly.weaponModification.categories.mythic') }
+])
+
 const show = ref(false)
 const modIconImages = ref<Record<string, string>>({})
 const availableModulesData = ref<Record<ModType, ModItem[]>>({
   basic: [],
   advanced: [],
-  special: []
+  special: [],
+  mythic: []
 })
 const searchQuery = ref('')
 const selectedCategory = ref<ModCategory>('all')
 const filteredMods = ref<Record<ModType, ModItem[]>>({
   basic: [],
   advanced: [],
-  special: []
+  special: [],
+  mythic: []
 })
 
 const isModelValueEmpty = computed(() => {
@@ -108,7 +117,8 @@ const isModelValueEmpty = computed(() => {
 const slotStats = computed(() => ({
   basic: props.modelValue?.filter((i: ModSlot) => i.type === 'basic').length || 0,
   advanced: props.modelValue?.filter((i: ModSlot) => i.type === 'advanced').length || 0,
-  special: props.modelValue?.filter((i: ModSlot) => i.type === 'special').length || 0
+  special: props.modelValue?.filter((i: ModSlot) => i.type === 'special').length || 0,
+  mythic: props.modelValue?.filter((i: ModSlot) => i.type === 'mythic').length || 0
 }))
 
 // 无视模组条件
@@ -118,14 +128,67 @@ const totalAvailableMods = computed(() => {
   return Object.values(filteredMods.value).reduce((total, mods) => total + (mods?.length || 0), 0)
 })
 
-watch(() => props.data, (data: Item) => {
-  if (data) {
-    initializeSlots()
-  }
-  updateAvailableMods()
-}, {deep: true})
+const getExpectedSlotTypes = (): ModType[] => {
+  const rarity = (props.data?.rarity || 'common') as Rarity;
+  return WEAPON_MOD_CONFIG[rarity]?.slotType || WEAPON_MOD_CONFIG.common.slotType;
+};
 
-watch(() => props.modelValue, () => updateAvailableMods(), {deep: true})
+const syncSlots = (forceReset = false) => {
+  const slotTypes = getExpectedSlotTypes();
+  const currentSlots = props.modelValue || [];
+
+  if (forceReset || !currentSlots || currentSlots.length === 0) {
+    emit('update:modelValue',
+        slotTypes.map((type: ModType) => ({
+          type,
+          value: null
+        })));
+    return;
+  }
+
+  // 检查现有卡槽数量与类型是否与当前武器稀有度完全匹配
+  const isMatch = currentSlots.length === slotTypes.length &&
+      currentSlots.every((slot, idx) => slot?.type === slotTypes[idx]);
+
+  if (!isMatch) {
+    // 尽量保留已有的已装配模组数据（如果槽位类型匹配），不足的补充新槽位，多余的截断
+    const newSlots: ModSlot[] = slotTypes.map((type, idx) => {
+      if (idx < currentSlots.length && currentSlots[idx]?.type === type) {
+        return currentSlots[idx];
+      }
+      return {
+        type,
+        value: null
+      };
+    });
+    emit('update:modelValue', newSlots);
+  }
+};
+
+const initializeSlots = () => {
+  syncSlots(true);
+};
+
+watch(() => props.data, (newData: Item, oldData: Item) => {
+  if (newData) {
+    if (oldData && (newData.id !== oldData.id || newData.rarity !== oldData.rarity)) {
+      syncSlots(newData.id !== oldData.id);
+    } else {
+      syncSlots(false);
+    }
+  }
+  updateAvailableMods();
+}, {deep: true, immediate: true})
+
+watch(() => props.modelValue, (newVal) => {
+  if (newVal && props.data) {
+    const slotTypes = getExpectedSlotTypes();
+    if (newVal.length !== slotTypes.length) {
+      syncSlots(false);
+    }
+  }
+  updateAvailableMods();
+}, {deep: true})
 
 watch([searchQuery, selectedCategory], () => updateFilteredMods())
 
@@ -135,10 +198,7 @@ watch(() => isIgnoreConditions.value, () => {
 
 onMounted(() => {
   initializeResources()
-
-  if (isModelValueEmpty.value) {
-    nextTick(initializeSlots)
-  }
+  nextTick(() => syncSlots(false))
 })
 
 const initializeResources = () => {
@@ -162,18 +222,6 @@ const loadModImages = () => {
   modIconImages.value = imageMap;
 };
 
-const initializeSlots = () => {
-  const rarity = props.data?.rarity || 'common';
-  const slotTypes = WEAPON_MOD_CONFIG[rarity as Rarity]?.slotType || WEAPON_MOD_CONFIG.common.slotType;
-
-  emit('update:modelValue',
-      slotTypes.map((type: ModType) => ({
-        type,
-        value: null
-      })))
-
-};
-
 const updateAvailableMods = () => {
   availableModulesData.value = categorizeModificationsByGrade(Modifications)
   updateFilteredMods()
@@ -183,7 +231,8 @@ const updateFilteredMods = () => {
   const result: Record<ModType, ModItem[]> = {
     basic: [],
     advanced: [],
-    special: []
+    special: [],
+    mythic: []
   };
 
   Object.entries(availableModulesData.value).forEach(([grade, mods]) => {
@@ -237,7 +286,8 @@ const categorizeModificationsByGrade = (modificationsRaw: any): Record<ModType, 
   const result: Record<ModType, ModItem[]> = {
     basic: [],
     advanced: [],
-    special: []
+    special: [],
+    mythic: []
   };
 
   if (!props.data?.type) return result;
@@ -348,8 +398,7 @@ defineExpose({
       size="small"
       class="pa-0"
       :disabled="disabled"
-      @click="show = true"
-  >
+      @click="show = true">
     <RhombusWidget
         v-for="(i, index) in props.modelValue"
         :key="index"
@@ -367,7 +416,7 @@ defineExpose({
           </ItemSlotBase>
           <div>
             <h1 class="text-amber">
-              模组改装
+              {{ t('assembly.weaponModification.title') }}
             </h1>
             <p class="text-caption mt-n2" v-if="data.id">
               <ItemName :id="data.id"></ItemName>
@@ -383,7 +432,7 @@ defineExpose({
           <!-- 已安装模组 -->
           <v-col cols="12" md="6" lg="6">
             <div class="font-weight-bold mb-3 d-flex align-center">
-              <span>已安装模组</span>
+              <span>{{ t('assembly.weaponModification.installed') }}</span>
             </div>
 
             <v-card
@@ -437,7 +486,7 @@ defineExpose({
                   </template>
                   <template v-else>
                     <div class="text-caption text-grey" v-if="!readonly">
-                      拖拽{{ getSlotDisplayName(mod.type) }}模组到此处
+                      {{ t('assembly.weaponModification.dragTip', { type: getSlotDisplayName(mod.type) }) }}
                     </div>
                     <EmptyView v-else/>
                   </template>
@@ -460,9 +509,9 @@ defineExpose({
           <!-- 可选择模组 -->
           <v-col cols="12" md="6" lg="6" v-if="!readonly">
             <div class="d-flex align-center mb-2">
-              <p class="font-weight-bold ma-0">可选择模组</p>
+              <p class="font-weight-bold ma-0">{{ t('assembly.weaponModification.available') }}</p>
               <v-chip size="small" variant="tonal" class="ml-2">
-                {{ totalAvailableMods }} 个
+                {{ t('assembly.weaponModification.availableCount', { count: totalAvailableMods }) }}
               </v-chip>
             </div>
 
@@ -474,7 +523,7 @@ defineExpose({
                       v-model="searchQuery"
                       density="compact"
                       variant="outlined"
-                      placeholder="搜索模组名称、效果..."
+                      :placeholder="t('assembly.weaponModification.searchPlaceholder')"
                       prepend-inner-icon="mdi-magnify"
                       hide-details
                       clearable
@@ -561,7 +610,7 @@ defineExpose({
                           color="grey"
                           class="text-center"
                       >
-                        未找到匹配的模组
+                        {{ t('assembly.weaponModification.noMatching') }}
                       </v-alert>
                     </div>
                   </template>
@@ -575,12 +624,12 @@ defineExpose({
           <div class="d-flex ml-2 align-center">
             <v-checkbox v-model="isIgnoreConditions" density="compact" hide-details hide-spin-buttons></v-checkbox>
             {{ t('assembly.workshop.ignoreConditions') }}
-            <v-btn icon class="ml-1" v-tooltip="`无视模组条件，打开此选项将关闭对配装内的条件约束，同时可能带来与游戏模组不匹配问题`">
+            <v-btn icon class="ml-1" v-tooltip="t('assembly.weaponModification.ignoreConditionsTip')">
               <v-icon size="15">mdi-help</v-icon>
             </v-btn>
           </div>
           <v-spacer/>
-          <v-btn @click="show = false">取消</v-btn>
+          <v-btn @click="show = false">{{ t('basic.button.cancel') }}</v-btn>
           <v-btn class="bg-amber" @click="onConfirm">
             <BtnWidget
                 :disabled="!show"
@@ -591,7 +640,7 @@ defineExpose({
                 color="#000"
                 @action-complete="onConfirm"
             >
-              确定
+              {{ t('basic.button.submit') }}
             </BtnWidget>
           </v-btn>
         </v-card-actions>

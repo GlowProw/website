@@ -73,18 +73,17 @@ let workshopData = ref<AssemblyWorkshopData>({
       shipFrigateUpgradeList: [],
 
       data: {
-        shipSlot: null, // 船
-        ultimateSlot: null, // 技能
-        shipUpgradeSlot: null, // 船 升级配方
-        weaponDirections: [], // 武器朝向 信息
-        weaponModifications: [], // 武器   安装模组
-        weaponSlots: [], // 武器
-        armorSlot: null, // 船甲
-        armorModification: [], // 船甲模组
-        secondaryWeaponSlots: [], // 副武器
+        shipSlot: null,                   // 船
+        ultimateSlot: null,               // 技能
+        shipUpgradeSlot: null,            // 船 升级配方
+        weaponDirections: [],             // 武器朝向 信息
+        weaponModifications: [],          // 武器   安装模组
+        weaponSlots: [],                  // 武器
+        armorSlot: null,                  // 船甲
+        armorModification: [],            // 船甲模组
+        secondaryWeaponSlots: [],         // 副武器
         secondaryWeaponModifications: [], // 副武器 安装模组
-        displaySlots: [], // 家具陈设
-        weaponModification: [],
+        displaySlots: [],                 // 家具陈设
 
         // 平台版本
         // ** 它可能不存在，如果有则依靠此__version识别，没有则主要使用attr.assemblyUseVersion, 否则降级 **
@@ -130,6 +129,10 @@ watch(() => workshopData.value?.frigateUpgradeModel, (value) => {
     frigateUpgradeRef.value.updateData()
 })
 
+watch(() => workshopData.value?.data?.shipUpgradeSlot, () => {
+  updateDisplaySlotsCount()
+})
+
 watch(() => workshopData.value?.data?.shipSlot, (value) => {
   let result: Record<string, any> = {},
       workshop_data = workshopData.value.data
@@ -153,9 +156,6 @@ watch(() => workshopData.value?.data?.shipSlot, (value) => {
   cache.value.weaponDirections = result;
 })
 
-/**
- * 获取船只陈设列表
- */
 let // 获取陈设
     getShipDisplayList = computed(() => {
       let tags = ['offensiveFurniture', 'utilityFurniture']
@@ -242,18 +242,31 @@ const onSlotRemove = (type: string, index?: number) => {
     case 'ship':
       workshopData.value.data.shipSlot = null
       workshopData.value.data.weaponSlots = []
+      workshopData.value.data.weaponModifications = []
       workshopData.value.data.displaySlots = []
       workshopData.value.data.shipUpgradeSlot = null
-      workshopData.value.data.secondaryWeaponSlots = [];
+      workshopData.value.data.secondaryWeaponSlots = []
+      workshopData.value.data.secondaryWeaponModifications = []
       return;
     case 'weapon':
-      workshopData.value.data.weaponSlots[index] = Item.fromRawData({})
+      if (typeof index === 'number') {
+        workshopData.value.data.weaponSlots[index] = Item.fromRawData({})
+        if (workshopData.value.data.weaponModifications) {
+          workshopData.value.data.weaponModifications[index] = null
+        }
+      }
       break;
     case 'secondaryWeapon':
-      workshopData.value.data.secondaryWeaponSlots[index] = Item.fromRawData({})
+      if (typeof index === 'number') {
+        workshopData.value.data.secondaryWeaponSlots[index] = Item.fromRawData({})
+        if (workshopData.value.data.secondaryWeaponModifications) {
+          workshopData.value.data.secondaryWeaponModifications[index] = null
+        }
+      }
       break;
     case 'upgrade':
       workshopData.value.data.shipUpgradeSlot = null
+      updateDisplaySlotsCount()
       break;
     case 'armor':
       workshopData.value.data.armorSlot = null
@@ -318,6 +331,95 @@ const previousFrigateUpgrades = computed(() => {
 })
 
 /**
+ * 获取升级部件等级 (1 ~ 7)
+ */
+const getShipUpgradeTier = (upgradeItem: any, shipId?: string): number | null => {
+  if (!upgradeItem) return null;
+  if (typeof upgradeItem.tier === 'number' && !isNaN(upgradeItem.tier) && upgradeItem.tier > 0) {
+    return upgradeItem.tier;
+  }
+  if (typeof upgradeItem.id === 'string') {
+    if (shipId) {
+      const prefix = `${shipId}Upgrade`;
+      if (upgradeItem.id.startsWith(prefix)) {
+        const num = parseInt(upgradeItem.id.slice(prefix.length), 10);
+        if (!isNaN(num) && num > 0) return num;
+      }
+    }
+    const match = upgradeItem.id.match(/Upgrade(\d+)$/i);
+    if (match) {
+      const num = parseInt(match[1], 10);
+      if (!isNaN(num) && num > 0) return num;
+    }
+  }
+  return null;
+}
+
+/**
+ * 根据船只和升级部件获取对应的陈设插槽数量
+ */
+const getExpectedFurnitureSlotCount = (): number => {
+  const shipSlot = workshopData.value?.data?.shipSlot;
+  if (!shipSlot || !shipSlot.id) {
+    return 0;
+  }
+
+  const baseCount = shipSlot.slots?.furniture?.[0] || 0;
+  const upgradeSlot = workshopData.value?.data?.shipUpgradeSlot;
+
+  if (!upgradeSlot) {
+    return baseCount;
+  }
+
+  const tier = getShipUpgradeTier(upgradeSlot, shipSlot.id);
+  if (!tier || tier < 1) {
+    return baseCount;
+  }
+
+  const shipConfig = (shipSlotMapping as any)?.f?.[shipSlot.id];
+  const furnitureSlotCount = shipConfig?.furnitureSlotCount;
+
+  if (!furnitureSlotCount) {
+    return baseCount;
+  }
+
+  let targetCount: number | undefined;
+  if (Array.isArray(furnitureSlotCount)) {
+    // furnitureSlotCount[0] 代表装升级部件 等级1，依此类推
+    targetCount = furnitureSlotCount[tier - 1];
+  } else if (typeof furnitureSlotCount === 'object') {
+    targetCount = furnitureSlotCount[tier] ?? furnitureSlotCount[String(tier)] ?? furnitureSlotCount[tier - 1] ?? furnitureSlotCount[String(tier - 1)];
+  }
+
+  return typeof targetCount === 'number' ? targetCount : baseCount;
+}
+
+/**
+ * 同步陈设插槽数量
+ */
+const updateDisplaySlotsCount = () => {
+  const targetCount = getExpectedFurnitureSlotCount();
+  const currentSlots = workshopData.value?.data?.displaySlots || [];
+
+  if (currentSlots.length === targetCount) {
+    return;
+  }
+
+  if (currentSlots.length < targetCount) {
+    const diff = targetCount - currentSlots.length;
+    const added = Array.from({length: diff}, () => Item.fromRawData({}));
+    workshopData.value.data.displaySlots = [...currentSlots, ...added];
+  } else {
+    workshopData.value.data.displaySlots = currentSlots.slice(0, targetCount);
+  }
+
+  if (workshopData.value.displayInsertIndex >= targetCount) {
+    workshopData.value.displayInsertIndex = -1;
+    workshopData.value.displayModel = false;
+  }
+}
+
+/**
  * 选择船
  * @param shipId
  */
@@ -333,8 +435,15 @@ const onSelectShip = (shipId: string) => {
   workshopData.value.data.shipSlot = ships[shipId] as Ship;
   workshopData.value.shipFrigateUpgradeList = shipUpItem;
 
+  if (workshopData.value.data.shipUpgradeSlot) {
+    const currentUpgrade = workshopData.value.data.shipUpgradeSlot;
+    if (!currentUpgrade.id?.startsWith(`${shipData.id}Upgrade`)) {
+      workshopData.value.data.shipUpgradeSlot = null;
+    }
+  }
+
   // 创建陈设插槽
-  const furnitureCount = workshopData.value.data.shipSlot.slots.furniture?.[0] || 0;
+  const furnitureCount = getExpectedFurnitureSlotCount();
   workshopData.value.data.displaySlots = Array.from({length: furnitureCount}, () => {
     return Item.fromRawData({})
   })
@@ -354,11 +463,14 @@ const onSelectShip = (shipId: string) => {
   workshopData.value.data.weaponDirections = Array.from({length: weaponSlotCount}, () => null)
 
   // 创建武器插槽模组
-  workshopData.value.data.weaponModification = Array.from({length: weaponSlotCount}, () => null)
+  workshopData.value.data.weaponModifications = Array.from({length: weaponSlotCount}, () => null)
 
   // 创建副武器插槽
   const secondaryWeaponCount = shipConfig?.weaponsSlotCount?.[0]?.secondaryWeapon || 0;
   workshopData.value.data.secondaryWeaponSlots = Array.from({length: secondaryWeaponCount}, () => Item.fromRawData({}))
+
+  // 创建副武器插槽模组
+  workshopData.value.data.secondaryWeaponModifications = Array.from({length: secondaryWeaponCount}, () => null)
 }
 
 /**
@@ -444,6 +556,8 @@ const onLoad = (data) => {
     ...toRaw(workshopData.value.data),
     ...d
   })
+
+  updateDisplaySlotsCount()
 }
 
 const verify = () => {

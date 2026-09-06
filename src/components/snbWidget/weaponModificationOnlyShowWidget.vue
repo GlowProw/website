@@ -10,10 +10,11 @@ const modImages = import.meta.glob('@/assets/images/snb/modTypeIcons/*.*', {eage
 const props = defineProps<{ itemData: Item, modData: any[] }>()
 
 let modIconImages = ref({}),
-    modStyleConfig = {
+    modStyleConfig: Record<string, string> = {
       'basic': 'rgba(208,255,208,0.14)',
       'advanced': 'rgba(187,220,255,0.14)',
-      'special': 'rgba(249,235,255,0.14)'
+      'special': 'rgba(249,235,255,0.14)',
+      'mythic': 'rgba(255,183,77,0.14)'
     }
 
 onMounted(() => {
