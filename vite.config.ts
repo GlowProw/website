@@ -218,15 +218,7 @@ export default defineConfig({
     resolve: {
         alias: {
             // import assets
-            '@glow-prow-assets': fs.existsSync(path.resolve(__dirname, '../glow-prow-assets'))
-                ? path.resolve(__dirname, '../glow-prow-assets')
-                : path.resolve(__dirname, 'node_modules/glow-prow-assets'),
-            'glow-prow-data-languages': fs.existsSync(path.resolve(__dirname, '../glow-prow-data-languages'))
-                ? path.resolve(__dirname, '../glow-prow-data-languages')
-                : path.resolve(__dirname, 'node_modules/glow-prow-data-languages'),
-            'glow-prow-data': fs.existsSync(path.resolve(__dirname, '../glow-prow-data'))
-                ? path.resolve(__dirname, '../glow-prow-data')
-                : path.resolve(__dirname, 'node_modules/glow-prow-data'),
+            '@glow-prow-assets': path.resolve(__dirname, 'node_modules/glow-prow-assets'),
             '@': path.resolve(__dirname, './src'),
             '~': path.resolve(__dirname, './'),
         },
