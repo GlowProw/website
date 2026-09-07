@@ -66,7 +66,7 @@ defineOptions({name: 'MasteryInfoPanel'});
       class="mastery-info-drawer"
       :scrim="false"
       :style="mobile ? openModel ? 'min-width: 100%' : 'width: 0' : ''"
-      :width="mobile ? '100%' : 510">
+      :width="mobile ? '100%' : 610">
 
     <AdsWidget id="none" class="my-5 w-100" tile></AdsWidget>
 
@@ -113,7 +113,9 @@ defineOptions({name: 'MasteryInfoPanel'});
         <div class="d-flex align-center py-4 px-7">
           <v-row align="center">
             <v-col cols="auto" class="d-flex align-center">
-              <MasteryIconWidget name="masteryPoint" :size="24" class="mr-2"></MasteryIconWidget>
+              <div class="mr-2">
+                <MasteryIconWidget id="masteryPoint" :size="24"></MasteryIconWidget>
+              </div>
               <span class="font-weight-bold">{{ t('mastery.pointsTitle') }}</span>
             </v-col>
             <v-col class="text-amber">
@@ -148,26 +150,6 @@ defineOptions({name: 'MasteryInfoPanel'});
           class="bg-transparent"
           width="100%"
           height="100%">
-        <div class="d-flex align-center py-4 px-7">
-          <v-row align="center">
-            <v-col cols="auto" class="d-flex align-center">
-              <v-icon icon="mdi-layers" class="mr-2 text-amber"></v-icon>
-              <span class="font-weight-bold">{{ t('mastery.panelTitle') }}</span>
-            </v-col>
-            <v-col class="text-amber">
-              <v-divider opacity=".2" thickness="2"></v-divider>
-            </v-col>
-            <v-col cols="auto" class="d-flex ga-2">
-              <v-btn
-                  variant="tonal"
-                  size="small"
-                  @click="emit('toggle-all-effects-expand')">
-                <span>{{ isAllEffectsExpanded ? t('mastery.collapseAll') : t('mastery.expandAll') }}</span>
-              </v-btn>
-            </v-col>
-          </v-row>
-        </div>
-
         <v-card-text class="pa-0 pb-6">
           <v-expansion-panels
               variant="default"
@@ -191,7 +173,6 @@ defineOptions({name: 'MasteryInfoPanel'});
                   <v-spacer></v-spacer>
                   <v-badge
                       :content="activeSeasonalPerks.length"
-                      color="amber"
                       inline
                       class="mr-2"></v-badge>
                 </div>
@@ -245,11 +226,16 @@ defineOptions({name: 'MasteryInfoPanel'});
                     {{ t('mastery.aggregatedTitle') }}
                   </div>
                   <v-spacer></v-spacer>
+                  <v-btn
+                      variant="tonal"
+                      size="small"
+                      @click="emit('toggle-all-effects-expand')">
+                    <span>{{ isAllEffectsExpanded ? t('mastery.collapseAll') : t('mastery.expandAll') }}</span>
+                  </v-btn>
                   <v-badge
                       :content="totalEffectsCount"
-                      color="amber"
                       inline
-                      class="mr-2"></v-badge>
+                      class="mx-2"></v-badge>
                 </div>
               </v-expansion-panel-title>
               <v-expansion-panel-text class="py-2">

@@ -33,7 +33,7 @@ defineOptions({name: 'MasteryToolbar'});
   <v-card
       border
       class="d-flex mastery-search-bar"
-      :width="mobile ? 'calc(100% - 60px)' : 450"
+      :width="mobile ? 'calc(100% - 60px)' : 550"
       :style="{'top': mobile ? '80px' : '80px'}">
     <!-- 搜索定位框 -->
     <v-autocomplete
