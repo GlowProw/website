@@ -205,10 +205,10 @@ function render() {
   for (let i = 0; i < nodesList.length; i++) {
     const node = nodesList[i];
     const {x, y} = node.position;
-    const isActive = props.isNodeActive(node.id);
-    const isAvailable = props.isNodeAvailable(node.id);
-    const isSelected = props.selectedNode?.id === node.id;
-    const isHovered = hoveredNode.value?.id === node.id;
+    const isActive = props.isNodeActive(node.key || node.id);
+    const isAvailable = props.isNodeAvailable(node.key || node.id);
+    const isSelected = Boolean(props.selectedNode && (props.selectedNode.key === node.key || props.selectedNode.id === node.id && !node.key));
+    const isHovered = Boolean(hoveredNode.value && (hoveredNode.value.key === node.key || hoveredNode.value.id === node.id && !node.key));
 
     ctx.save();
     ctx.translate(x, y);
@@ -250,7 +250,7 @@ function render() {
       ctx.stroke();
 
       // 中心图标
-      const iconUrl = props.getNodeIconUrl(node.skill);
+      const iconUrl = props.getNodeIconUrl(node.id || (node as any).skill);
       const img = getImage(iconUrl);
       if (img) {
         ctx.drawImage(img, -14, -14, 28, 28);
@@ -310,7 +310,7 @@ function render() {
       ctx.stroke();
 
       // 中心图标
-      const iconUrl = props.getNodeIconUrl(node.skill);
+      const iconUrl = props.getNodeIconUrl(node.id || (node as any).skill);
       const img = getImage(iconUrl);
       if (img) {
         ctx.drawImage(img, -14, -14, 28, 28);
@@ -349,7 +349,7 @@ function render() {
       ctx.stroke();
 
       // 中心图标
-      const iconUrl = props.getNodeIconUrl(node.skill);
+      const iconUrl = props.getNodeIconUrl(node.id || (node as any).skill);
       const img = getImage(iconUrl);
       if (img) {
         ctx.drawImage(img, -11, -11, 22, 22);
@@ -455,8 +455,8 @@ function onClick(event: MouseEvent) {
   if (hit) {
     emit('select-node', hit);
     // 双击或直接点击可激活节点时切换点数
-    if (hit.role !== 'seasonalPerk' && (props.isNodeActive(hit.id) || props.isNodeAvailable(hit.id))) {
-      emit('toggle-activation', hit.id);
+    if (hit.role !== 'seasonalPerk' && (props.isNodeActive(hit.key || hit.id) || props.isNodeAvailable(hit.key || hit.id))) {
+      emit('toggle-activation', hit.key || hit.id);
     }
   } else {
     emit('select-node', null);

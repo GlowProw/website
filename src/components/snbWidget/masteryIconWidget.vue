@@ -26,8 +26,8 @@ const props = withDefaults(defineProps<{
   isOpenDetail: true,
   isOpenNewWindow: false,
   isShowTooltip: true,
-  margin: 1,
-  padding: 1,
+  margin: 0,
+  padding: 0,
 });
 
 const appStore = useAppStore();
@@ -47,8 +47,26 @@ const infoMap = serializationMap(infoImages);
 const nodeData = computed(() => {
   if (props.id) {
     for (const tree of Object.values(Masterys)) {
-      if (tree && (tree as any).nodes && (tree as any).nodes[props.id]) {
-        return (tree as any).nodes[props.id];
+      if (tree && (tree as any).nodes) {
+        if ((tree as any).nodes[props.id]) {
+          return (tree as any).nodes[props.id];
+        }
+        for (const node of Object.values((tree as any).nodes)) {
+          if ((node as any).key === props.id || (node as any).id === props.id) {
+            return node;
+          }
+        }
+      }
+    }
+  }
+  if (props.name) {
+    for (const tree of Object.values(Masterys)) {
+      if (tree && (tree as any).nodes) {
+        for (const node of Object.values((tree as any).nodes)) {
+          if ((node as any).id === props.name || (node as any).key === props.name || (node as any).skill === props.name) {
+            return node;
+          }
+        }
       }
     }
   }
@@ -64,11 +82,11 @@ const effectiveRole = computed(() => {
 });
 
 const effectiveSkill = computed(() => {
-  return props.name || nodeData.value?.skill || props.id || '';
+  return props.name || nodeData.value?.id || nodeData.value?.skill || props.id || '';
 });
 
 const effectiveId = computed(() => {
-  return props.id || nodeData.value?.id || '';
+  return props.id || nodeData.value?.key || nodeData.value?.id || '';
 });
 
 const iconUrl = computed(() => {
@@ -82,6 +100,7 @@ const iconUrl = computed(() => {
 
 const bgGradientClass = computed(() => {
   if (!props.withBackground) return '';
+  if (effectiveRole.value === 'seasonalPerk') return 'bg-gradient-seasonal';
   switch (effectiveCategory.value) {
     case 'defensive': return 'bg-gradient-defensive';
     case 'offensive': return 'bg-gradient-offensive';
@@ -91,12 +110,32 @@ const bgGradientClass = computed(() => {
 });
 
 const computedSize = computed(() => {
-  if (!props.size) return undefined;
-  return typeof props.size === 'number' ? `${props.size}px` : props.size;
+  if (props.size !== undefined && props.size !== null && props.size !== '') {
+    const s = String(props.size).trim();
+    return isNaN(Number(s)) ? s : `${s}px`;
+  }
+  return '100%';
 });
 
-const computedPadding = useIconImagePadding(props.padding);
-const computedMargin = useIconImageMargin(props.margin);
+const computedPadding = useIconImagePadding(props.padding, 0);
+const computedMargin = useIconImageMargin(props.margin, 0);
+
+const computedPaddingClass = computed(() => {
+  const p = computedPadding.value;
+  return (p !== undefined && p !== null && p > 0) ? `pa-${p}` : '';
+});
+
+const computedMarginClass = computed(() => {
+  const m = computedMargin.value;
+  return (m !== undefined && m !== null && m > 0) ? `ma-${m}` : '';
+});
+
+const fallbackIconSize = computed(() => {
+  if (!computedSize.value) return 18;
+  const num = parseFloat(computedSize.value);
+  if (isNaN(num)) return 18;
+  return Math.max(10, Math.min(24, Math.round(num * 0.75)));
+});
 
 const isOpenNewWindow = computed({
   get: () => appStore.itemOpenNewWindow || props.isOpenNewWindow,
@@ -119,7 +158,7 @@ defineOptions({
       content-class="pa-0 bg-transparent"
       :target="[tooltipPos.x, tooltipPos.y]">
     <template v-slot:activator="{ props: activatorProps }">
-      <component
+      <v-card
           :is="isOpenDetail && effectiveId ? 'router-link' : 'div'"
           :to="isOpenDetail && effectiveId ? `/codex/mastery/${effectiveId}` : undefined"
           :target="isOpenNewWindow ? '_blank' : '_self'"
@@ -130,10 +169,10 @@ defineOptions({
             'mastery-icon-container',
             'd-inline-flex align-center justify-center position-relative text-decoration-none',
             bgGradientClass,
-            `ma-${computedMargin}`,
-            `pa-${computedPadding}`,
+            computedMarginClass,
+            computedPaddingClass,
             {
-              'cursor-pointer': isOpenDetail,
+              'cursor-pointer': isOpenDetail && effectiveId,
               'with-bg': withBackground,
               'shape-diamond': withBackground && effectiveRole === 'seasonalPerk',
               'shape-circle': withBackground && effectiveRole !== 'seasonalPerk',
@@ -142,16 +181,28 @@ defineOptions({
           :style="{
             width: computedSize,
             height: computedSize,
-          }"
-      >
+            minWidth: computedSize,
+            minHeight: computedSize,
+            maxWidth: computedSize,
+            maxHeight: computedSize,
+            flexShrink: 0,
+          }">
         <v-img
             v-if="iconUrl"
             :src="iconUrl"
+            :width="computedSize"
+            :height="computedSize"
+            aspect-ratio="1"
             class="pointer-events-none w-100 h-100"
-            contain
-        ></v-img>
-        <v-icon v-else size="20" color="amber">mdi-flare</v-icon>
-      </component>
+            contain>
+          <template v-slot:placeholder>
+            <div class="d-flex align-center justify-center fill-height">
+              <v-icon :size="fallbackIconSize" color="amber" class="opacity-40">mdi-flare</v-icon>
+            </div>
+          </template>
+        </v-img>
+        <v-icon v-else :size="fallbackIconSize" color="amber">mdi-flare</v-icon>
+      </v-card>
     </template>
     <MasteryCardDetail
         :id="effectiveId"
@@ -168,10 +219,10 @@ defineOptions({
         'mastery-icon-container',
         'd-inline-flex align-center justify-center position-relative text-decoration-none',
         bgGradientClass,
-        `ma-${computedMargin}`,
-        `pa-${computedPadding}`,
+        computedMarginClass,
+        computedPaddingClass,
         {
-          'cursor-pointer': isOpenDetail,
+          'cursor-pointer': isOpenDetail && effectiveId,
           'with-bg': withBackground,
           'shape-diamond': withBackground && effectiveRole === 'seasonalPerk',
           'shape-circle': withBackground && effectiveRole !== 'seasonalPerk',
@@ -180,58 +231,31 @@ defineOptions({
       :style="{
         width: computedSize,
         height: computedSize,
-      }"
-  >
+        minWidth: computedSize,
+        minHeight: computedSize,
+        maxWidth: computedSize,
+        maxHeight: computedSize,
+        flexShrink: 0,
+      }">
     <v-img
         v-if="iconUrl"
         :src="iconUrl"
+        :width="computedSize"
+        :height="computedSize"
+        aspect-ratio="1"
         class="pointer-events-none w-100 h-100"
-        contain
-    ></v-img>
-    <v-icon v-else size="20" color="amber">mdi-flare</v-icon>
+        contain>
+      <template v-slot:placeholder>
+        <div class="d-flex align-center justify-center fill-height">
+          <v-icon :size="fallbackIconSize" color="amber" class="opacity-40">mdi-flare</v-icon>
+        </div>
+      </template>
+    </v-img>
+    <v-icon v-else :size="fallbackIconSize" color="amber">mdi-flare</v-icon>
   </component>
 </template>
 
 <style scoped lang="less">
 .mastery-icon-container {
-  overflow: hidden;
-  user-select: none;
-  transition: transform 0.2s ease, filter 0.2s ease;
-
-  &.with-bg {
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-
-    &:hover {
-      transform: scale(1.08);
-      filter: brightness(1.15);
-      border-color: rgba(255, 215, 0, 0.6);
-    }
-  }
-
-  &.shape-circle {
-    border-radius: 50%;
-  }
-
-  &.shape-diamond {
-    border-radius: 12%;
-    transform: rotate(0deg);
-  }
-}
-
-.bg-gradient-defensive {
-  background: linear-gradient(180deg,rgba(0,0,0,.38),rgba(0,0,0,.16) 24%,transparent 50%),radial-gradient(circle at 50% 50%,transparent 46%,rgba(0,0,0,.2) 70%,rgba(0,0,0,.58) 100%),linear-gradient(180deg,#142c44,#254d6b 56%,#3e7295) !important;
-}
-
-.bg-gradient-offensive {
-  background: linear-gradient(180deg,rgba(0,0,0,.38),rgba(0,0,0,.16) 24%,transparent 50%),radial-gradient(circle at 50% 50%,transparent 46%,rgba(0,0,0,.2) 70%,rgba(0,0,0,.58) 100%),linear-gradient(180deg,#3f121c,#6d2030 56%,#9b3345) !important;
-}
-
-.bg-gradient-impetus {
-  background: linear-gradient(180deg,rgba(0,0,0,.38),rgba(0,0,0,.16) 24%,transparent 50%),radial-gradient(circle at 50% 50%,transparent 46%,rgba(0,0,0,.2) 70%,rgba(0,0,0,.58) 100%),linear-gradient(180deg,#4e4017,#856c28 56%,#9a7f2c) !important;
-}
-
-.bg-gradient-default {
-  background: linear-gradient(180deg,rgba(0,0,0,.38),rgba(0,0,0,.16) 24%,transparent 50%),radial-gradient(circle at 50% 50%,transparent 46%,rgba(0,0,0,.2) 70%,rgba(0,0,0,.58) 100%),linear-gradient(180deg,#0f2f16,#1f5a24 56%,#3a8240) !important;
 }
 </style>

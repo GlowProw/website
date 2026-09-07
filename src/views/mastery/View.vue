@@ -9,6 +9,7 @@ import MasteryNodeCard from '@/components/mastery/MasteryNodeCard.vue';
 import MasteryFooter from '@/components/mastery/MasteryFooter.vue';
 import MasteryDebugPanel from '@/components/mastery/MasteryDebugPanel.vue';
 import MasteryShareDialog from '@/components/mastery/MasteryShareDialog.vue';
+import MasterySaveDialog from '@/components/mastery/MasterySaveDialog.vue';
 import StylizedLineBackground from '@/components/StylizedLineBackground.vue';
 
 const {t} = useI18n();
@@ -66,7 +67,12 @@ const {
   getShareUrl,
   copyShareUrl,
   loadFromShareCode,
-  initFromUrlParams
+  initFromUrlParams,
+  savedBuilds,
+  showSaveDialog,
+  saveBuild,
+  deleteBuild,
+  loadBuild,
 } = useMasteryController({});
 
 const shareUrl = computed(() => {
@@ -150,8 +156,8 @@ onMounted(() => {
 
     <StylizedLineBackground
         class="mastery-bg-layer"
-        :offset-x="transform.x"
-        :offset-y="transform.y">
+        :offset-x="transform?.x ?? 0"
+        :offset-y="transform?.y ?? 0">
       <MasteryView
           ref="canvasCompRef"
           :nodes="localNodes"
@@ -180,6 +186,7 @@ onMounted(() => {
         :view-ref="masteryViewRef"
         @toggle-panel="isLeftPanelOpen = !isLeftPanelOpen"
         @open-share="showShareDialog = true"
+        @open-save="showSaveDialog = true"
     />
 
     <!-- 左侧信息面板 -->
@@ -227,10 +234,10 @@ onMounted(() => {
 
     <!-- 底部控制栏 -->
     <MasteryFooter
-        :zoom="transform.k"
+        :zoom="transform?.k ?? 1"
         :scale-extent="scaleExtent"
-        :transform-x="transform.x"
-        :transform-y="transform.y"
+        :transform-x="transform?.x ?? 0"
+        :transform-y="transform?.y ?? 0"
         :is-debug="isDebug"
         @zoom-in="canvasCompRef?.zoomStep(0.2)"
         @zoom-out="canvasCompRef?.zoomStep(-0.2)"
@@ -259,6 +266,17 @@ onMounted(() => {
         :selected-nodes-count="selectedNodeIds.size"
         @copy="copyShareUrl"
         @import-code="loadFromShareCode"
+    />
+
+    <!-- 保存方案对话框 -->
+    <MasterySaveDialog
+        v-model="showSaveDialog"
+        :saved-builds="savedBuilds"
+        :season-title="activeSeasonTitle"
+        :points-spent="regularPointsSpent"
+        @save="saveBuild"
+        @load="loadBuild"
+        @delete="deleteBuild"
     />
   </div>
 </template>

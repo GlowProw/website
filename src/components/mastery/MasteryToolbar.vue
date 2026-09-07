@@ -21,6 +21,7 @@ const emit = defineEmits<{
   (e: 'update:searchSelected', val: string | null): void;
   (e: 'toggle-panel'): void;
   (e: 'open-share'): void;
+  (e: 'open-save'): void;
   (e: 'update:fullscreen', val: boolean): void;
   (e: 'update:selectedSeasonId', val: string): void;
 }>();
@@ -54,7 +55,15 @@ defineOptions({name: 'MasteryToolbar'});
       <template v-slot:item="{ props: itemProps, item }">
         <v-list-item v-bind="itemProps" :title="item.raw.title" :subtitle="item.raw.category">
           <template v-slot:prepend>
-            <MasteryIconWidget :name="item.raw.skill" size="24" class="mr-2"></MasteryIconWidget>
+            <div class="mr-3">
+              <MasteryIconWidget
+                  :id="item.raw.id"
+                  :name="item.raw.id"
+                  :category="item.raw.category"
+                  :with-background="true"
+                  :size="30"
+              ></MasteryIconWidget>
+            </div>
           </template>
         </v-list-item>
       </template>
@@ -74,7 +83,19 @@ defineOptions({name: 'MasteryToolbar'});
 
     <v-divider vertical></v-divider>
 
-    <!-- 图层/信息面板开关 (参考 SearchBar toggle-layers) -->
+    <!-- 保存方案按钮 -->
+    <v-btn
+        tile
+        stacked
+        density="compact"
+        :title="t('mastery.saveDialog.title')"
+        @click="emit('open-save')">
+      <v-icon icon="mdi-bookmark-multiple-outline"></v-icon>
+    </v-btn>
+
+    <v-divider vertical></v-divider>
+
+    <!-- 图层/信息面板开关 -->
     <v-btn
         tile
         stacked

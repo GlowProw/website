@@ -1064,11 +1064,13 @@
     },
     "mastery": {
       "title": "Mastery",
-      "describe": "The Mastery codex catalogs seasonal mastery tree upgrade nodes, key buffs, and perks."
+      "describe": "The Mastery codex catalogs seasonal mastery tree upgrade nodes, key buffs, and perks.",
+      "lookDetail": "View Mastery Details (hold)"
     },
     "masterys": {
       "title": "Mastery",
-      "describe": "The Mastery codex catalogs seasonal mastery tree upgrade nodes, key buffs, and perks."
+      "describe": "The Mastery codex catalogs seasonal mastery tree upgrade nodes, key buffs, and perks.",
+      "lookDetail": "View Mastery Details (hold)"
     }
   },
   "calendar": {
@@ -1600,16 +1602,31 @@
       "pointsSpent": "Mastery Points Spent",
       "activatedNodes": "Active Nodes",
       "shareLinkTitle": "Exclusive Share Link",
-      "shareLinkDesc": "Build is compressed via parameter share=<code>, copy and send directly to teammates.",
+      "shareLinkDesc": "copy and send directly to teammates.",
       "copyLink": "Copy Share Link",
       "copySuccess": "Share link copied to clipboard",
       "copyFailed": "Copy failed, please copy manually",
       "importTitle": "Import Build",
-      "importDesc": "Paste share link with share= or encoded string here to restore build:",
+      "importDesc": "Paste share link with encoded string here to restore build",
       "importPlaceholder": "Paste link or compressed code...",
       "importAction": "Decode & Apply",
       "importSuccess": "Mastery build loaded successfully",
       "importFailed": "Failed to parse build code, please check string"
+    },
+    "saveDialog": {
+      "title": "Save Mastery Build",
+      "saveCurrentTitle": "Save Current Build",
+      "namePlaceholder": "Enter build name...",
+      "saveBtn": "Save",
+      "savedTitle": "Saved Builds",
+      "empty": "No saved builds yet",
+      "loadBtn": "Load Build",
+      "deleteBtn": "Delete",
+      "confirmDelete": "Click again to confirm delete",
+      "saveSuccess": "Build \u201c{name}\u201d saved successfully",
+      "createdAt": "Created",
+      "updatedAt": "Updated",
+      "pointsSpent": "{pts} pts invested"
     },
     "card": {
       "active": "Active",
@@ -1629,7 +1646,9 @@
       "investPoint": "Invest Point",
       "refundPoint": "Refund Point",
       "selectThisPerk": "Activate This Perk",
-      "deselectThisPerk": "Deactivate This Perk"
+      "deselectThisPerk": "Deactivate This Perk",
+      "perkCost": "Activation Threshold (cumulative pts)",
+      "pointCost": "Mastery Point Cost"
     },
     "debug": {
       "title": "Mastery Tree Debug & Coordinate Editor",

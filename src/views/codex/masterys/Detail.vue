@@ -47,8 +47,12 @@ useHead(head);
 // 查找节点并识别所属赛季
 function findMasteryNode(id: string): Mastery | null {
   for (const tree of Object.values(Masterys)) {
-    if (tree && (tree as any).nodes && (tree as any).nodes[id]) {
-      return (tree as any).nodes[id];
+    if (tree && (tree as any).nodes) {
+      if ((tree as any).nodes[id]) {
+        return (tree as any).nodes[id];
+      }
+      const found = (Object.values((tree as any).nodes) as Mastery[]).find(n => n.key === id || n.id === id);
+      if (found) return found;
     }
   }
   return null;
@@ -57,12 +61,13 @@ function findMasteryNode(id: string): Mastery | null {
 // 寻找以此节点为前置的后续依赖节点
 const dependentNodes = computed(() => {
   if (!masteryDetailData.value) return [];
+  const currentKey = masteryDetailData.value.key || masteryDetailData.value.id;
   const currentId = masteryDetailData.value.id;
   const result: Mastery[] = [];
   for (const tree of Object.values(Masterys)) {
     if (tree && (tree as any).nodes) {
       for (const node of Object.values((tree as any).nodes) as Mastery[]) {
-        if (node.requisite && node.requisite.includes(currentId)) {
+        if (node.requisite && (node.requisite.includes(currentKey) || node.requisite.includes(currentId))) {
           result.push(node);
         }
       }
@@ -214,7 +219,7 @@ onMounted(() => {
                 <ItemSlotBase size="100px" class="mr-3">
                   <MasteryIconWidget
                       :id="masteryDetailData.id"
-                      :name="masteryDetailData.skill"
+                      :name="masteryDetailData.id"
                       :category="masteryDetailData.category"
                       :role="masteryDetailData.role"
                       :with-background="true"
@@ -263,20 +268,20 @@ onMounted(() => {
             <!-- 后续依赖节点 (Dependent Nodes) -->
             <template v-if="dependentNodes.length > 0">
               <v-divider class="my-6"></v-divider>
-              <h3 class="text-amber text-subtitle-1 mb-3">后续解锁节点 (Dependent Nodes)</h3>
+              <h3 class="text-amber text-subtitle-1 mb-3">后续解锁节点</h3>
               <v-list density="compact" class="bg-transparent pa-0">
-                <v-list-item v-for="dep in dependentNodes" :key="dep.id" class="px-0 mb-2">
+                <v-list-item v-for="dep in dependentNodes" :key="dep.key || dep.id" class="px-0 mb-2">
                   <v-row no-gutters align="center">
                     <v-col cols="auto" class="mr-3">
                       <ItemSlotBase size="36px" :padding="2">
-                        <MasteryIconWidget :id="dep.id" :name="dep.skill" :category="dep.category" :role="dep.role" :with-background="true" :isShowTooltip="true" :isOpenDetail="true" size="32px" />
+                        <MasteryIconWidget :id="dep.id" :name="dep.id" :category="dep.category" :role="dep.role" :with-background="true" :isShowTooltip="true" :isOpenDetail="true" size="32px" />
                       </ItemSlotBase>
                     </v-col>
                     <v-col>
-                      <router-link :to="`/codex/mastery/${dep.id}`" class="text-amber text-decoration-none font-weight-bold">
+                      <router-link :to="`/codex/mastery/${dep.key || dep.id}`" class="text-amber text-decoration-none font-weight-bold">
                         <MasteryName :id="dep.id" />
                       </router-link>
-                      <span class="text-caption text-grey ml-2 font-monospace">{{ dep.id }}</span>
+                      <span class="text-caption text-grey ml-2 font-monospace">{{ dep.key || dep.id }}</span>
                     </v-col>
                   </v-row>
                 </v-list-item>
@@ -322,8 +327,7 @@ onMounted(() => {
                   color="amber"
                   variant="tonal"
                   prepend-icon="mdi-transit-connection-variant"
-                  :to="`/mastery?season=${masteryDetailData.season || masteryDetailData.bySeason?.id || 'shatteredSeas'}&locate=${masteryDetailData.id}`"
-              >
+                  :to="`/mastery?season=${masteryDetailData.season || masteryDetailData.bySeason?.id || 'shatteredSeas'}&locate=${masteryDetailData.id}`">
                 前往专精模拟树
               </v-btn>
             </v-card>
@@ -335,19 +339,4 @@ onMounted(() => {
 </template>
 
 <style scoped lang="less">
-.bg-gradient-defensive {
-  background: linear-gradient(180deg,rgba(0,0,0,.38),rgba(0,0,0,.16) 24%,transparent 50%),radial-gradient(circle at 50% 50%,transparent 46%,rgba(0,0,0,.2) 70%,rgba(0,0,0,.58) 100%),linear-gradient(180deg,#142c44,#254d6b 56%,#3e7295) !important;
-}
-
-.bg-gradient-offensive {
-  background: linear-gradient(180deg,rgba(0,0,0,.38),rgba(0,0,0,.16) 24%,transparent 50%),radial-gradient(circle at 50% 50%,transparent 46%,rgba(0,0,0,.2) 70%,rgba(0,0,0,.58) 100%),linear-gradient(180deg,#3f121c,#6d2030 56%,#9b3345) !important;
-}
-
-.bg-gradient-impetus {
-  background: linear-gradient(180deg,rgba(0,0,0,.38),rgba(0,0,0,.16) 24%,transparent 50%),radial-gradient(circle at 50% 50%,transparent 46%,rgba(0,0,0,.2) 70%,rgba(0,0,0,.58) 100%),linear-gradient(180deg,#4e4017,#856c28 56%,#9a7f2c) !important;
-}
-
-.bg-gradient-default {
-  background: linear-gradient(180deg,rgba(0,0,0,.38),rgba(0,0,0,.16) 24%,transparent 50%),radial-gradient(circle at 50% 50%,transparent 46%,rgba(0,0,0,.2) 70%,rgba(0,0,0,.58) 100%),linear-gradient(180deg,#0f2f16,#1f5a24 56%,#3a8240) !important;
-}
 </style>

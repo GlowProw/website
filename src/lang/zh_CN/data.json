@@ -1062,16 +1062,18 @@
       "noCost": "无消耗要求"
     },
     "empireSkills": {
-      "title": "帝国技能",
+      "title": "帝国技能列表",
       "describe": "帝国技能手稿收录帝国科技树各项升级技能、前置条件与阶段效果。"
     },
     "mastery": {
-      "title": "专精技能",
-      "describe": "专精技能手稿收录各赛季专精树升级节点、核心增益与赛季特长效果。"
+      "title": "专精技能详情",
+      "describe": "专精技能手稿收录各赛季专精树升级节点、核心增益与赛季特长效果。",
+      "lookDetail": "查看专精详情(按住)"
     },
     "masterys": {
-      "title": "专精技能",
-      "describe": "专精技能手稿收录各赛季专精树升级节点、核心增益与赛季特长效果。"
+      "title": "专精技能列表",
+      "describe": "专精技能手稿收录各赛季专精树升级节点、核心增益与赛季特长效果。",
+      "lookDetail": "查看专精详情(按住)"
     }
   },
   "calendar": {
@@ -1599,16 +1601,31 @@
       "pointsSpent": "投入专精点数",
       "activatedNodes": "已激活节点数",
       "shareLinkTitle": "专属分享链接",
-      "shareLinkDesc": "加点方案经过轻量级压缩编码（通过 share= 参数携带），复制后可直接发送给队友查看。",
+      "shareLinkDesc": "复制后可直接发送给队友查看。",
       "copyLink": "复制分享链接",
       "copySuccess": "分享链接已复制到剪贴板",
       "copyFailed": "复制失败，请手动复制",
       "importTitle": "导入加点方案",
-      "importDesc": "在此粘贴包含 share= 的链接或分享代码，快速恢复对应赛季与专精加点：",
+      "importDesc": "在此粘贴链接或分享代码，快速恢复对应赛季与专精加点",
       "importPlaceholder": "粘贴链接或压缩代码...",
       "importAction": "解析并更新",
       "importSuccess": "加点方案导入成功",
       "importFailed": "加点方案解析失败，请检查分享代码"
+    },
+    "saveDialog": {
+      "title": "保存专精加点",
+      "saveCurrentTitle": "保存当前加点方案",
+      "namePlaceholder": "输入方案名称...",
+      "saveBtn": "保存",
+      "savedTitle": "已保存的方案",
+      "empty": "暂无已保存的方案",
+      "loadBtn": "加载方案",
+      "deleteBtn": "删除",
+      "confirmDelete": "再次点击确认删除",
+      "saveSuccess": "方案「{name}」保存成功",
+      "createdAt": "创建于",
+      "updatedAt": "更新于",
+      "pointsSpent": "已投入 {pts} 点"
     },
     "card": {
       "active": "已激活",
@@ -1628,7 +1645,9 @@
       "investPoint": "投入点数",
       "refundPoint": "撤回点数",
       "selectThisPerk": "选择此特长生效",
-      "deselectThisPerk": "取消此特长生效"
+      "deselectThisPerk": "取消此特长生效",
+      "perkCost": "激活门槛 (累计点数)",
+      "pointCost": "专精点数消耗"
     },
     "debug": {
       "title": "专精树调试与坐标编辑",

@@ -93,7 +93,7 @@ const computedMargin = useIconImageMargin(props.margin);
           width="100%"
           height="100%"
           :class="[
-              'prohibit-drag',
+              'prohibit-drag pa-5',
               'd-flex align-center justify-center',
               `ma-${computedMargin}`,
               `pa-${computedPadding}`,

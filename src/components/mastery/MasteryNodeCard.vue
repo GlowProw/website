@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import {useI18n} from 'vue-i18n';
 import type {Mastery} from 'glow-prow-data';
-import ItemSlotBase from '@/components/snbWidget/ItemSlotBase.vue';
-import MasteryIconWidget from '@/components/snbWidget/masteryIconWidget.vue';
 import RhombusWidget from '@/components/snbWidget/rhombusWidget.vue';
 
 const {t} = useI18n();
@@ -39,7 +37,7 @@ const emit = defineEmits<{
       }"
       class="skill-tree-container-cardInfo overflow-y-auto">
     <template v-slot:title>
-      <span class="text-amber font-weight-bold">{{ getSkillName(node.skill, node.id) }}</span>
+      <span class="text-amber font-weight-bold">{{ getSkillName(node.id, node.key) }}</span>
       <div
           class="mb-1 d-flex align-center text-caption my-2 ga-2"
           v-if="node.category"
@@ -62,7 +60,7 @@ const emit = defineEmits<{
     <!-- 效果说明 -->
     <div class="skill-tree-title px-10 mx-n6 py-2 text-amber-lighten-4">{{ t('mastery.card.effects') }}</div>
     <div class="py-2 px-5 mb-5 text-pre-line text-body-2">
-      {{ getSkillDesc(node.skill, node.id) }}
+      {{ getSkillDesc(node.id, node.key) }}
     </div>
 
     <!-- 前置依赖需求 -->
@@ -86,12 +84,11 @@ const emit = defineEmits<{
                 :activate="isNodeActive(reqId)"
             ></RhombusWidget>
           </v-col>
-          <v-col @click="emit('locate-node', reqId)" class="cursor-pointer">
+          <v-col @click="emit('locate-node', reqId)" class="cursor-pointer d-flex align-center">
             <span
-                class="text-caption font-monospace text-decoration-underline"
-                :class="{'text-success': isNodeActive(reqId), 'opacity-70': !isNodeActive(reqId)}"
-            >
-              {{ reqId }}
+                class="text-caption u"
+                :class="{'text-success': isNodeActive(reqId), 'opacity-70': !isNodeActive(reqId)}">
+              {{ getSkillName(reqId) }}
             </span>
           </v-col>
         </v-row>
@@ -109,48 +106,59 @@ const emit = defineEmits<{
           hide-details
           readonly
           variant="underlined"
-          density="compact"
-          :label="t('mastery.card.nodeId')"
-      >
+          density="compact">
         <template v-slot:append-inner>
           <v-icon size="18">mdi-identifier</v-icon>
         </template>
       </v-text-field>
 
-      <v-row no-gutters class="mt-2 text-caption" align="center">
-        <v-col cols="auto" class="mr-2 opacity-70">
-          <v-icon icon="mdi-shape" size="16" class="mr-1"></v-icon>
-          {{ t('mastery.card.category') }}
-        </v-col>
-        <v-spacer></v-spacer>
-        <v-col class="text-right">
-          <v-chip size="x-small" :color="getCategoryColor(node.category)" variant="flat">
-            {{ node.category }}
-          </v-chip>
-        </v-col>
-      </v-row>
+      <v-text-field
+          :value="node.key"
+          hide-details
+          readonly
+          variant="underlined"
+          density="compact">
+        <template v-slot:append-inner>
+          <v-icon size="18">mdi-key</v-icon>
+        </template>
+      </v-text-field>
 
-      <v-row no-gutters class="mt-2 text-caption" align="center">
-        <v-col cols="auto" class="mr-2 opacity-70">
-          <v-icon icon="mdi-star-circle" size="16" class="mr-1"></v-icon>
-          {{ t('mastery.card.role') }}
-        </v-col>
-        <v-spacer></v-spacer>
-        <v-col class="text-right">
-          <span class="font-monospace">{{ node.role }}</span>
-        </v-col>
-      </v-row>
+      <v-text-field
+          :value="node.category"
+          hide-details
+          readonly
+          variant="underlined"
+          density="compact">
+        <template v-slot:append-inner>
+          <span class="singe-line mr-1">{{ t('mastery.card.category') }}</span>
+          <v-icon size="18">mdi-shape</v-icon>
+        </template>
+      </v-text-field>
 
-      <v-row v-if="node.cost !== undefined" no-gutters class="mt-2 text-caption" align="center">
-        <v-col cols="auto" class="mr-2 opacity-70">
-          <v-icon icon="mdi-counter" size="16" class="mr-1"></v-icon>
-          {{ t('mastery.card.cost') }}
-        </v-col>
-        <v-spacer></v-spacer>
-        <v-col class="text-right">
-          <span class="font-weight-bold text-amber">{{ node.cost }} {{ t('mastery.card.pointsUnit') }}</span>
-        </v-col>
-      </v-row>
+      <v-text-field
+          :value="node.role"
+          hide-details
+          readonly
+          variant="underlined"
+          density="compact">
+        <template v-slot:append-inner>
+          <span class="singe-line mr-1">{{ t('mastery.card.role') }}</span>
+          <v-icon size="18">mdi-star-circle</v-icon>
+        </template>
+      </v-text-field>
+
+      <v-text-field
+          v-if="node.cost !== undefined"
+          :value="node.cost"
+          hide-details
+          readonly
+          variant="underlined"
+          density="compact">
+        <template v-slot:append-inner>
+          <span class="singe-line mr-1">{{ t('mastery.card.cost') }}</span>
+          <v-icon size="18">mdi-counter</v-icon>
+        </template>
+      </v-text-field>
     </div>
 
     <!-- 底部操作按钮栏 -->
@@ -162,7 +170,7 @@ const emit = defineEmits<{
           <v-col class="text-left px-2 text-body-2">
             <template v-if="regularPointsSpent < node.cost">
               <span class="opacity-60 text-caption">
-                {{ t('mastery.card.perkPointsRequired', { spent: regularPointsSpent, cost: node.cost }) }}
+                {{ t('mastery.card.perkPointsRequired', {spent: regularPointsSpent, cost: node.cost}) }}
               </span>
             </template>
             <template v-else-if="isNodeActive(node.id)">
@@ -182,13 +190,12 @@ const emit = defineEmits<{
             <v-btn
                 v-if="regularPointsSpent >= node.cost"
                 size="small"
-                :color="isNodeActive(node.id) ? 'error' : 'amber'"
-                :variant="isNodeActive(node.id) ? 'tonal' : 'elevated'"
-                @click="emit('toggle-activation', node.id)"
-                class="font-weight-bold"
-            >
-              <v-icon start size="16">{{ isNodeActive(node.id) ? 'mdi-close-circle' : 'mdi-check' }}</v-icon>
-              {{ isNodeActive(node.id) ? t('mastery.card.deselectThisPerk') : t('mastery.card.selectThisPerk') }}
+                :color="isNodeActive(node.key) ? 'error' : 'amber'"
+                :variant="isNodeActive(node.key) ? 'tonal' : 'elevated'"
+                @click="emit('toggle-activation', node.key)"
+                class="font-weight-bold">
+              <v-icon start size="16">{{ isNodeActive(node.key) ? 'mdi-close-circle' : 'mdi-check' }}</v-icon>
+              {{ isNodeActive(node.key) ? t('mastery.card.deselectThisPerk') : t('mastery.card.selectThisPerk') }}
             </v-btn>
             <v-chip v-else size="small" variant="outlined" class="opacity-50">
               {{ t('mastery.card.statusLocked') }}
@@ -201,10 +208,10 @@ const emit = defineEmits<{
       <template v-else>
         <v-row align="center" no-gutters>
           <v-col class="text-center px-2 text-body-2">
-            <template v-if="isNodeActive(node.id)">
+            <template v-if="isNodeActive(node.key)">
               <span class="text-success font-weight-bold">{{ t('mastery.card.statusActive') }}</span>
             </template>
-            <template v-else-if="isNodeAvailable(node.id)">
+            <template v-else-if="isNodeAvailable(node.key)">
               <span class="text-amber font-weight-bold">{{ t('mastery.card.statusAvailable') }}</span>
             </template>
             <template v-else>
@@ -216,13 +223,12 @@ const emit = defineEmits<{
             <v-btn
                 size="50"
                 elevation="0"
-                :disabled="isNodeActive(node.id) || !isNodeAvailable(node.id)"
-                @click="emit('toggle-activation', node.id)"
+                :disabled="isNodeActive(node.key) || !isNodeAvailable(node.key)"
+                @click="emit('toggle-activation', node.key)"
                 tile
                 block
-                :title="t('mastery.card.investPoint')"
-            >
-              <v-icon :color="isNodeActive(node.id) || !isNodeAvailable(node.id) ? 'default' : 'amber'">mdi-plus</v-icon>
+                :title="t('mastery.card.investPoint')">
+              <v-icon :color="isNodeActive(node.key) || !isNodeAvailable(node.key) ? 'default' : 'amber'">mdi-plus</v-icon>
             </v-btn>
           </v-col>
           <v-divider vertical inset></v-divider>
@@ -230,13 +236,12 @@ const emit = defineEmits<{
             <v-btn
                 size="50"
                 elevation="0"
-                :disabled="!isNodeActive(node.id)"
-                @click="emit('toggle-activation', node.id)"
+                :disabled="!isNodeActive(node.key)"
+                @click="emit('toggle-activation', node.key)"
                 tile
                 block
-                :title="t('mastery.card.refundPoint')"
-            >
-              <v-icon :color="isNodeActive(node.id) ? 'error' : 'default'">mdi-minus</v-icon>
+                :title="t('mastery.card.refundPoint')">
+              <v-icon :color="isNodeActive(node.key) ? 'error' : 'default'">mdi-minus</v-icon>
             </v-btn>
           </v-col>
         </v-row>

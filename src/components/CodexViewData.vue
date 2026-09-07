@@ -268,8 +268,8 @@ const onProcessedData = computed(() => {
           `snb.npcs.${sanitizeString(i.id).cleaned}.name`,
           `snb.empireSkills.${i.id}.name`,
           `snb.empireSkills.${sanitizeString(i.id).cleaned}.name`,
-          `snb.masterys.${i.skill || i.id}.name`,
-          `snb.masterys.${sanitizeString(i.skill || i.id).cleaned}.name`,
+          `snb.masterys.${i.id}.name`,
+          `snb.masterys.${sanitizeString(i.id).cleaned}.name`,
           `snb.sets.${i.id}`,
         ], {
           backRawKey: true
@@ -427,6 +427,11 @@ const onProcessedData = computed(() => {
                       _typeStringName: 'Mastery',
                       seasons: [node.season],
                     });
+                  } else {
+                    const existing = masteryMap.get(node.id);
+                    if (existing && !existing.seasons.includes(node.season)) {
+                      existing.seasons.push(node.season);
+                    }
                   }
                 });
               }
@@ -1225,7 +1230,7 @@ const onSort = (field: SortField, order: SortOrder) => {
               <MapLocationIconWidget :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationIconWidget>
               <NpcIconWidget :data="i" v-if="i._typeStringName == 'Npc'"></NpcIconWidget>
               <EmpireSkillIconWidget :id="i.id" v-if="i._typeStringName == 'EmpireSkill'"></EmpireSkillIconWidget>
-              <MasteryIconWidget :id="i.id" :name="i.skill" :category="i.category" :with-background="true" v-if="i._typeStringName == 'Mastery'"></MasteryIconWidget>
+              <MasteryIconWidget :id="i.id" :name="i.id" :category="i.category" :with-background="true" v-if="i._typeStringName == 'Mastery'"></MasteryIconWidget>
             </ItemSlotBase>
 
             <div v-if="i.set && i.set.id && isFilterSet" class="position-absolute subordinate-data">
@@ -1276,7 +1281,7 @@ const onSort = (field: SortField, order: SortOrder) => {
               <MapLocationIconWidget :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationIconWidget>
               <NpcIconWidget :data="i" v-if="i._typeStringName == 'Npc'"></NpcIconWidget>
               <EmpireSkillIconWidget :id="i.id" v-if="i._typeStringName == 'EmpireSkill'"></EmpireSkillIconWidget>
-              <MasteryIconWidget :id="i.id" :name="i.skill" :category="i.category" :with-background="true" v-if="i._typeStringName == 'Mastery'"></MasteryIconWidget>
+              <MasteryIconWidget :id="i.id" :name="i.id" :category="i.category" :with-background="true" v-if="i._typeStringName == 'Mastery'"></MasteryIconWidget>
             </ItemSlotBase>
 
             <div v-if="i.set && i.set.id && isFilterSet" class="position-absolute subordinate-data">

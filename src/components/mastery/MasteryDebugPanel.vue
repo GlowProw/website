@@ -30,7 +30,7 @@ const emit = defineEmits<{
     </div>
     <div class="pa-3 text-caption">
       <div v-if="selectedNode">
-        <div class="mb-1"><strong>{{ t('mastery.debug.selectedNode') }}:</strong> {{ selectedNode.id }} ({{ selectedNode.skill }})</div>
+        <div class="mb-1"><strong>{{ t('mastery.debug.selectedNode') }}:</strong> {{ selectedNode.key }} ({{ selectedNode.id }})</div>
         <v-row no-gutters class="gap-2 mb-2">
           <v-col>
             <v-text-field

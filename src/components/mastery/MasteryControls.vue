@@ -18,9 +18,9 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <v-card border class="d-inline-flex py-1 px-2 align-center bg-surface-darken-1 mastery-controls">
+  <v-card border class="d-inline-flex px-2 align-center mastery-controls">
     <v-icon class="mr-1 opacity-60" size="14">mdi-magnify-scan</v-icon>
-    <span class="text-caption opacity-60 mr-2">{{ Math.abs(zoom).toFixed(1) }}x</span>
+    <span class="text-caption opacity-60 mr-2">{{ Math.abs(zoom).toFixed(1) }}</span>
 
     <v-btn icon="mdi-minus" size="x-small" variant="text" :title="t('mastery.zoomOut')" @click="emit('zoom-out')"></v-btn>
     <div v-for="(z, zIndex) in scaleExtent" :key="zIndex" class="d-inline-flex">
@@ -41,7 +41,6 @@ const emit = defineEmits<{
 <style scoped lang="less">
 .mastery-controls {
   border-radius: 6px;
-  background-color: rgba(20, 27, 36, 0.85) !important;
   backdrop-filter: blur(8px);
 }
 </style>

@@ -71,7 +71,7 @@ defineOptions({name: 'MasteryInfoPanel'});
     <AdsWidget id="none" class="my-5 w-100" tile></AdsWidget>
 
     <div>
-      <!-- 0. 赛季选择 Card (参考 LayerControl 集合选择) -->
+      <!-- 赛季选择卡片 -->
       <v-card
           tile
           elevation="0"
@@ -105,7 +105,7 @@ defineOptions({name: 'MasteryInfoPanel'});
         </v-select>
       </v-card>
 
-      <!-- 1. 专精点数统计与重置 Card (参考 LayerControl header) -->
+      <!-- 专精点数统计与重置卡片 -->
       <v-card
           tile
           elevation="0"
@@ -113,7 +113,7 @@ defineOptions({name: 'MasteryInfoPanel'});
         <div class="d-flex align-center py-4 px-7">
           <v-row align="center">
             <v-col cols="auto" class="d-flex align-center">
-              <MasteryIconWidget name="masteryPoint" size="24" class="mr-2"></MasteryIconWidget>
+              <MasteryIconWidget name="masteryPoint" :size="24" class="mr-2"></MasteryIconWidget>
               <span class="font-weight-bold">{{ t('mastery.pointsTitle') }}</span>
             </v-col>
             <v-col class="text-amber">
@@ -141,7 +141,7 @@ defineOptions({name: 'MasteryInfoPanel'});
         </div>
       </v-card>
 
-      <!-- 2. 专精面板与效果展示 Card (参考 LayerControl main card) -->
+      <!-- 专精面板与效果展示卡片 -->
       <v-card
           tile
           elevation="0"
@@ -177,7 +177,7 @@ defineOptions({name: 'MasteryInfoPanel'});
               :model-value="panelExpanded"
               @update:model-value="emit('update:panelExpanded', $event as string[])">
 
-            <!-- 1. 已激活赛季效果 (Active Seasonal Perks) -->
+            <!-- 已激活赛季效果 S -->
             <v-expansion-panel
                 value="seasonal"
                 class="bg-transparent"
@@ -196,26 +196,33 @@ defineOptions({name: 'MasteryInfoPanel'});
                       class="mr-2"></v-badge>
                 </div>
               </v-expansion-panel-title>
-              <v-expansion-panel-text class="px-7 py-2">
+              <v-expansion-panel-text class="">
                 <div v-if="activeSeasonalPerks.length === 0" class="text-center py-4 text-caption opacity-60">
                   {{ t('mastery.seasonalPerksEmpty') }}
                 </div>
                 <v-row v-else density="compact" class="bg-transparent py-1">
-                  <v-col cols="12" v-for="perk in activeSeasonalPerks" :key="perk.id">
-                    <v-card border class="pa-3 bg-surface-blur">
+                  <v-col cols="12" v-for="perk in activeSeasonalPerks" :key="perk.key || perk.id">
+                    <v-card border class="pa-3">
                       <div class="d-flex align-start">
-                        <ItemSlotBase size="44px" :padding="2" class="mr-3 flex-shrink-0">
-                          <MasteryIconWidget :name="perk.skill" size="36"></MasteryIconWidget>
+                        <ItemSlotBase size="44px" :padding="2" class="mr-3 flex-shrink-0 d-flex align-center justify-center">
+                          <MasteryIconWidget
+                              :id="perk.id"
+                              :name="perk.id"
+                              :category="perk.category"
+                              :role="perk.role"
+                              :with-background="true"
+                              :size="36"
+                          ></MasteryIconWidget>
                         </ItemSlotBase>
                         <div class="flex-grow-1">
                           <div class="d-flex align-center justify-space-between mb-1">
-                            <span class="font-weight-bold text-amber text-body-2">{{ getSkillName(perk.skill, perk.id) }}</span>
+                            <span class="font-weight-bold text-amber text-body-2">{{ getSkillName(perk.id, perk.key) }}</span>
                             <v-chip size="x-small" color="amber" variant="outlined">
                               {{ t('mastery.perkRequirement', { cost: perk.cost }) }}
                             </v-chip>
                           </div>
                           <div class="text-caption opacity-80 text-pre-line">
-                            {{ getSkillDesc(perk.skill, perk.id) }}
+                            {{ getSkillDesc(perk.id, perk.key) }}
                           </div>
                         </div>
                       </div>
@@ -224,8 +231,9 @@ defineOptions({name: 'MasteryInfoPanel'});
                 </v-row>
               </v-expansion-panel-text>
             </v-expansion-panel>
+            <!-- 已激活赛季效果 E -->
 
-            <!-- 2. 聚合效果统计 (Aggregated Effects) -->
+            <!-- 聚合效果统计 S -->
             <v-expansion-panel
                 value="aggregated"
                 class="bg-transparent"
@@ -266,7 +274,7 @@ defineOptions({name: 'MasteryInfoPanel'});
                     <div
                         v-for="eff in filteredAggregatedEffects"
                         :key="eff.id"
-                        class="mb-2 rounded border border-opacity-10 overflow-hidden bg-surface-blur">
+                        class="mb-2 rounded border border-opacity-10 overflow-hidden">
                       <!-- 汇总行 -->
                       <div
                           class="d-flex align-center justify-space-between px-3 py-2 cursor-pointer effect-header-row"
@@ -275,7 +283,7 @@ defineOptions({name: 'MasteryInfoPanel'});
                           <v-icon size="14" class="mr-2 opacity-60">
                             {{ expandedEffectIds.has(eff.id) ? 'mdi-chevron-down' : 'mdi-chevron-right' }}
                           </v-icon>
-                          <span class="text-caption font-weight-bold text-amber-lighten-2">{{ eff.renderedDescription }}</span>
+                          <span class="text-caption font-weight-bold">{{ eff.renderedDescription }}</span>
                         </div>
                         <v-chip size="x-small" variant="text" class="opacity-60">
                           {{ t('mastery.sourcesCount', { count: eff.contributors.length }) }}
@@ -289,15 +297,21 @@ defineOptions({name: 'MasteryInfoPanel'});
                           <div
                               v-for="c in eff.contributors"
                               :key="c.skillKey"
-                              class="d-flex align-center justify-space-between py-1 text-caption">
+                              class="py-1 text-caption">
                             <div class="d-flex align-center">
-                              <MasteryIconWidget :name="c.skillKey" size="18" class="mr-2"></MasteryIconWidget>
-                              <span>{{ c.buffCount }}x {{ c.skillName }}</span>
+                              <MasteryIconWidget
+                                  :name="c.skillKey"
+                                  :category="c.skillCategory"
+                                  :with-background="true"
+                                  :size="18"
+                                  class="mr-2"
+                              ></MasteryIconWidget>
+                              <span>{{ c.skillName }} x{{ c.buffCount }}</span>
                               <v-chip size="x-small" :color="getCategoryColor(c.skillCategory)" variant="tonal" class="ml-2">
                                 {{ c.skillCategory }}
                               </v-chip>
                             </div>
-                            <span class="text-amber font-monospace">{{ c.contributionText }}</span>
+                            <p class="font-monospace">{{ c.contributionText }}</p>
                           </div>
                         </div>
                       </v-expand-transition>
@@ -306,6 +320,8 @@ defineOptions({name: 'MasteryInfoPanel'});
                 </div>
               </v-expansion-panel-text>
             </v-expansion-panel>
+            <!-- 聚合效果统计 E -->
+
           </v-expansion-panels>
         </v-card-text>
       </v-card>

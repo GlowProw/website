@@ -106,9 +106,10 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
     if (!activeTree.value?.nodes) return [];
     return Object.values(activeTree.value.nodes).map(n => ({
       id: n.id,
-      skill: n.skill,
+      key: n.key,
+      skill: n.id,
       category: n.category,
-      title: `${getSkillName(n.skill, n.id)} (${n.id})`
+      title: `${getSkillName(n.id, n.key)} (${n.key})`
     }));
   });
 
@@ -120,54 +121,74 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
     if (!tree) return;
     const map: Record<string, Mastery> = {};
     for (const [k, v] of Object.entries(tree.nodes)) {
-      map[k] = { ...v, position: { ...v.position } };
+      map[k] = { ...v, key: k, position: { ...v.position } };
     }
     localNodes.value = map;
   }, { immediate: true });
 
+  // 根据 key 或 id 查找节点
+  function findNode(keyOrId: string): Mastery | undefined {
+    if (!keyOrId) return undefined;
+    if (localNodes.value[keyOrId]) return localNodes.value[keyOrId];
+    return Object.values(localNodes.value).find(n => n.key === keyOrId || n.id === keyOrId);
+  }
+
   // 节点名称与描述解析 (支持 snb.masterys 和节点对象 fallback)
-  function getSkillName(skillKey: string, nodeId?: string): string {
-    if (!skillKey && !nodeId) return '-';
+  function getSkillName(skillKey: string, nodeKey?: string): string {
+    if (!skillKey && !nodeKey) return '-';
+    const node = findNode(nodeKey || skillKey) || findNode(skillKey);
+    const resolvedId = node?.id || skillKey;
+    if (resolvedId) {
+      const key = `snb.masterys.${resolvedId}.name`;
+      if (te(key)) return t(key);
+    }
     if (skillKey) {
       const key = `snb.masterys.${skillKey}.name`;
       if (te(key)) return t(key);
     }
-    if (nodeId) {
-      const key = `snb.masterys.${nodeId}.name`;
+    if (nodeKey) {
+      const key = `snb.masterys.${nodeKey}.name`;
       if (te(key)) return t(key);
-      if (localNodes.value[nodeId]?.name) return localNodes.value[nodeId].name;
-      if (localNodes.value[nodeId]?.label) return localNodes.value[nodeId].label;
     }
-    return skillKey;
+    if (node?.name) return node.name;
+    if (node?.label) return node.label;
+    return resolvedId || skillKey || nodeKey || '';
   }
 
-  function getSkillDesc(skillKey: string, nodeId?: string): string {
-    if (!skillKey && !nodeId) return '';
+  function getSkillDesc(skillKey: string, nodeKey?: string): string {
+    if (!skillKey && !nodeKey) return '';
+    const node = findNode(nodeKey || skillKey) || findNode(skillKey);
+    const resolvedId = node?.id || skillKey;
+    if (resolvedId) {
+      const key = `snb.masterys.${resolvedId}.description`;
+      if (te(key)) return t(key);
+    }
     if (skillKey) {
       const key = `snb.masterys.${skillKey}.description`;
       if (te(key)) return t(key);
     }
-    if (nodeId) {
-      const key = `snb.masterys.${nodeId}.description`;
+    if (nodeKey) {
+      const key = `snb.masterys.${nodeKey}.description`;
       if (te(key)) return t(key);
-      if (localNodes.value[nodeId]?.description) return localNodes.value[nodeId].description;
     }
+    if (node?.description) return node.description;
     return '';
   }
 
   // 节点状态判断
-  function isNodeActive(id: string): boolean {
-    const node = localNodes.value[id];
+  function isNodeActive(keyOrId: string): boolean {
+    const node = findNode(keyOrId);
     if (!node) return false;
+    const key = node.key || keyOrId;
     if (node.role === 'seasonalPerk') {
       const tier = node.group || String(node.cost);
-      return regularPointsSpent.value >= node.cost && selectedSeasonalPerks.value[tier] === id;
+      return regularPointsSpent.value >= node.cost && (selectedSeasonalPerks.value[tier] === key || selectedSeasonalPerks.value[tier] === node.id);
     }
-    return selectedNodeIds.value.has(id);
+    return selectedNodeIds.value.has(key);
   }
 
-  function isNodeAvailable(id: string): boolean {
-    const node = localNodes.value[id];
+  function isNodeAvailable(keyOrId: string): boolean {
+    const node = findNode(keyOrId);
     if (!node) return false;
     if (node.role === 'seasonalPerk') {
       return regularPointsSpent.value >= node.cost;
@@ -177,12 +198,12 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
       return true;
     }
     // 至少一个前置节点已激活
-    return node.requisite.some(reqId => selectedNodeIds.value.has(reqId));
+    return node.requisite.some(reqKey => selectedNodeIds.value.has(reqKey));
   }
 
-  function getNodeState(id: string): 'active' | 'available' | 'locked' {
-    if (isNodeActive(id)) return 'active';
-    if (isNodeAvailable(id)) return 'available';
+  function getNodeState(keyOrId: string): 'active' | 'available' | 'locked' {
+    if (isNodeActive(keyOrId)) return 'active';
+    if (isNodeAvailable(keyOrId)) return 'available';
     return 'locked';
   }
 
@@ -211,8 +232,8 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
   // 点数统计
   const regularPointsSpent = computed(() => {
     let count = 0;
-    for (const id of selectedNodeIds.value) {
-      const node = localNodes.value[id];
+    for (const key of selectedNodeIds.value) {
+      const node = localNodes.value[key] || findNode(key);
       if (node && node.role !== 'seasonalPerk') {
         count += (node.cost || 1);
       }
@@ -224,8 +245,8 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
   watch(regularPointsSpent, (spent) => {
     let changed = false;
     const next = { ...selectedSeasonalPerks.value };
-    for (const [tier, perkId] of Object.entries(next)) {
-      const perkNode = localNodes.value[perkId];
+    for (const [tier, perkKey] of Object.entries(next)) {
+      const perkNode = findNode(perkKey);
       if (perkNode && spent < perkNode.cost) {
         delete next[tier];
         changed = true;
@@ -239,7 +260,7 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
   // 用户选择激活的赛季特长
   const activeSeasonalPerks = computed(() => {
     return Object.values(localNodes.value)
-      .filter(n => n.role === 'seasonalPerk' && isNodeActive(n.id))
+      .filter(n => n.role === 'seasonalPerk' && isNodeActive(n.key))
       .sort((a, b) => a.cost - b.cost);
   });
 
@@ -248,6 +269,7 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
     if (!activeTree.value || !activeTree.value.skills || !activeTree.value.effects) return [];
     const skillsDef = activeTree.value.skills;
     const effectsDef = activeTree.value.effects;
+    void locale.value; // 建立对 locale 的响应式依赖，确保切换语言时重新渲染
 
     // 统计每种 effect 的总加成与来源 (包括普通节点和已选择激活的赛季特长)
     const effectMap = new Map<string, {
@@ -256,13 +278,16 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
       contributors: Map<string, EffectContributor>;
     }>();
 
-    const activePerkIds = Object.values(selectedSeasonalPerks.value).filter(id => isNodeActive(id));
-    const allActiveIds = [...selectedNodeIds.value, ...activePerkIds];
+    const activePerkKeys = Object.values(selectedSeasonalPerks.value)
+      .map(k => findNode(k)?.key)
+      .filter(Boolean) as string[];
+    const allActiveKeys = [...selectedNodeIds.value, ...activePerkKeys];
 
-    for (const id of allActiveIds) {
-      const node = localNodes.value[id];
-      if (!node || !node.skill) continue;
-      const skillObj = skillsDef[node.skill];
+    for (const key of allActiveKeys) {
+      const node = localNodes.value[key] || findNode(key);
+      if (!node || !node.id) continue;
+      const skillId = node.id;
+      const skillObj = skillsDef[skillId];
       if (!skillObj || !skillObj.effects) continue;
 
       for (const eff of skillObj.effects) {
@@ -276,17 +301,17 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
         }
         const record = effectMap.get(eid)!;
 
-        if (!record.contributors.has(node.skill)) {
-          record.contributors.set(node.skill, {
-            skillKey: node.skill,
-            skillName: getSkillName(node.skill),
+        if (!record.contributors.has(skillId)) {
+          record.contributors.set(skillId, {
+            skillKey: skillId,
+            skillName: getSkillName(skillId, node.key),
             skillCategory: node.category,
             buffCount: 0,
             values: {},
             contributionText: ''
           });
         }
-        const c = record.contributors.get(node.skill)!;
+        const c = record.contributors.get(skillId)!;
         c.buffCount += 1;
 
         for (const [pk, pv] of Object.entries(eff)) {
@@ -299,11 +324,17 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
     }
 
     // 渲染文本
-    const result: AggregatedEffect[] = [];
+    const result: AggregatedEffect[] = []
     for (const [eid, rec] of effectMap.entries()) {
       const eDef = effectsDef[eid];
+
+      // 优先从 i18n 读取本地化描述，fallback 到数据原文
       let template = '';
-      if (eDef && eDef.description && eDef.description.length > 0) {
+      const i18nKey = `snb.masterys.${eid}.description`;
+      if (te(i18nKey)) {
+        const i18nDesc = t(i18nKey) as string;
+        template = i18nDesc;
+      } else if (eDef && eDef.description && eDef.description.length > 0) {
         template = (Array.isArray(eDef.description) ? eDef.description.flat() : [eDef.description]).join(' ');
       } else {
         template = getSkillName(eid);
@@ -338,25 +369,33 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
 
   // 过滤聚合属性
   const effectsFilter = ref('');
+  const filteredAggregatedEffects = computed(() => {
+    const q = effectsFilter.value.trim().toLowerCase();
+    if (!q) return aggregatedEffects.value;
+    return aggregatedEffects.value.filter(e =>
+      e.name.toLowerCase().includes(q) ||
+      e.renderedDescription.toLowerCase().includes(q) ||
+      e.contributors.some(c => c.skillName.toLowerCase().includes(q))
+    );
+  });
+
+  // 展开折叠控制
   const expandedEffectIds = ref<Set<string>>(new Set());
   const isAllEffectsExpanded = ref(false);
 
-  const filteredAggregatedEffects = computed(() => {
-    if (!effectsFilter.value) return aggregatedEffects.value;
-    const kw = effectsFilter.value.toLowerCase();
-    return aggregatedEffects.value.filter(e => e.name.toLowerCase().includes(kw));
-  });
-
   function toggleEffectExpand(id: string) {
     const next = new Set(expandedEffectIds.value);
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
+    if (next.has(id)) {
+      next.delete(id);
+    } else {
+      next.add(id);
+    }
     expandedEffectIds.value = next;
   }
 
   function toggleAllEffectsExpanded() {
     if (isAllEffectsExpanded.value) {
-      expandedEffectIds.value.clear();
+      expandedEffectIds.value = new Set();
       isAllEffectsExpanded.value = false;
     } else {
       expandedEffectIds.value = new Set(aggregatedEffects.value.map(e => e.id));
@@ -365,47 +404,49 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
   }
 
   // 点数操作：特长选择与常规节点加退点
-  function toggleSeasonalPerk(id: string) {
-    const node = localNodes.value[id];
+  function toggleSeasonalPerk(keyOrId: string) {
+    const node = findNode(keyOrId);
     if (!node || node.role !== 'seasonalPerk') return;
+    const key = node.key || keyOrId;
     if (regularPointsSpent.value < node.cost) {
       notify(t('mastery.card.perkPointsRequired', { spent: regularPointsSpent.value, cost: node.cost }), 'warning');
       return;
     }
     const tier = node.group || String(node.cost);
-    if (selectedSeasonalPerks.value[tier] === id) {
+    if (selectedSeasonalPerks.value[tier] === key || selectedSeasonalPerks.value[tier] === node.id) {
       const next = { ...selectedSeasonalPerks.value };
       delete next[tier];
       selectedSeasonalPerks.value = next;
-      notify(`${t('mastery.card.deselectThisPerk')}: ${getSkillName(node.skill, node.id)}`, 'info');
+      notify(`${t('mastery.card.deselectThisPerk')}: ${getSkillName(node.id, node.key)}`, 'info');
     } else {
       selectedSeasonalPerks.value = {
         ...selectedSeasonalPerks.value,
-        [tier]: id
+        [tier]: key
       };
-      notify(`${t('mastery.card.selectThisPerk')}: ${getSkillName(node.skill, node.id)}`, 'success');
+      notify(`${t('mastery.card.selectThisPerk')}: ${getSkillName(node.id, node.key)}`, 'success');
     }
   }
 
-  function toggleNodeActivation(id: string) {
-    const node = localNodes.value[id];
+  function toggleNodeActivation(keyOrId: string) {
+    const node = findNode(keyOrId);
     if (!node) return;
+    const key = node.key || keyOrId;
     if (node.role === 'seasonalPerk') {
-      toggleSeasonalPerk(id);
+      toggleSeasonalPerk(key);
       return;
     }
 
     const next = new Set(selectedNodeIds.value);
-    if (next.has(id)) {
+    if (next.has(key)) {
       // 检查撤回时是否有下游节点依赖此节点
       const activeChildren = Object.values(localNodes.value).filter(n =>
-        n.id !== id &&
-        next.has(n.id) &&
-        n.requisite && n.requisite.includes(id)
+        n.key !== key &&
+        next.has(n.key) &&
+        n.requisite && n.requisite.includes(key)
       );
 
       const orphaned = activeChildren.some(child => {
-        const otherActiveParents = child.requisite.filter(pId => pId !== id && next.has(pId));
+        const otherActiveParents = child.requisite.filter(pKey => pKey !== key && next.has(pKey));
         return otherActiveParents.length === 0 && !(child.role === 'keyBuff' && child.ring === 1);
       });
 
@@ -414,12 +455,12 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
         return;
       }
 
-      next.delete(id);
+      next.delete(key);
       selectedNodeIds.value = next;
-      notify(`${t('mastery.card.refundPoint')}: ${getSkillName(node.skill, node.id)}`, 'info');
+      notify(`${t('mastery.card.refundPoint')}: ${getSkillName(node.id, node.key)}`, 'info');
     } else {
       // 加点
-      if (!isNodeAvailable(id)) {
+      if (!isNodeAvailable(key)) {
         notify('前置条件不足：请先激活至少一个相连的前置节点。', 'warning');
         return;
       }
@@ -427,9 +468,9 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
         notify(`已达到当前赛季最大专精点数 (${maxPoints.value} 点)。`, 'warning');
         return;
       }
-      next.add(id);
+      next.add(key);
       selectedNodeIds.value = next;
-      notify(`${t('mastery.card.investPoint')}: ${getSkillName(node.skill, node.id)}`, 'success');
+      notify(`${t('mastery.card.investPoint')}: ${getSkillName(node.id, node.key)}`, 'success');
     }
   }
 
@@ -448,7 +489,7 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
   const locateTargetNode = ref<Mastery | null>(null);
 
   function locateNodeById(nodeId: string) {
-    const node = localNodes.value[nodeId];
+    const node = findNode(nodeId);
     if (!node) return;
     selectedNode.value = node;
     locateTargetNode.value = node;
@@ -513,7 +554,7 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
       if (!raw) return false;
       const parsed = JSON.parse(raw);
       if (parsed && Array.isArray(parsed.n)) {
-        if (parsed.s && (parsed.s === 'shatteredSeas' || parsed.s === 'crimsonWaters')) {
+        if (parsed.s) {
           selectedSeasonId.value = parsed.s;
         }
         nextTick(() => {
@@ -521,10 +562,10 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
           if (parsed.sp && Array.isArray(parsed.sp)) {
             const spMap: Record<string, string> = {};
             for (const spId of parsed.sp) {
-              const spNode = localNodes.value[spId];
+              const spNode = findNode(spId);
               if (spNode) {
                 const tier = spNode.group || String(spNode.cost);
-                spMap[tier] = spId;
+                spMap[tier] = spNode.key;
               }
             }
             selectedSeasonalPerks.value = spMap;
@@ -544,7 +585,7 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
   // URL 初始化检查
   function initFromUrlParams() {
     const qSeason = route.query.season as string;
-    if (qSeason && qSeason !== 'undefined' && (qSeason === 'shatteredSeas' || qSeason === 'crimsonWaters')) {
+    if (qSeason && qSeason !== 'undefined') {
       selectedSeasonId.value = qSeason;
     }
 
@@ -562,6 +603,73 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
       });
     }
   }
+
+  // ──── 保存精通配置 ────────────────────────────────────────────────
+
+  const SAVE_STORAGE_KEY = 'mastery.savedBuilds';
+
+  interface MasterySavedBuild {
+    id: string;
+    name: string;
+    season: string;
+    code: string;
+    createdAt: number;
+    updatedAt: number;
+  }
+
+  const savedBuilds = ref<MasterySavedBuild[]>([]);
+  const showSaveDialog = ref(false);
+
+  function _loadSavedBuilds() {
+    try {
+      const raw = localStorage.getItem(SAVE_STORAGE_KEY);
+      savedBuilds.value = raw ? (JSON.parse(raw) as MasterySavedBuild[]) : [];
+    } catch {
+      savedBuilds.value = [];
+    }
+  }
+
+  function _persistSavedBuilds() {
+    localStorage.setItem(SAVE_STORAGE_KEY, JSON.stringify(savedBuilds.value));
+  }
+
+  function saveBuild(name: string): boolean {
+    if (!name.trim()) return false;
+    const code = generateShareCode();
+    const now = Date.now();
+
+    // 同名方案则更新
+    const existing = savedBuilds.value.find(b => b.name === name.trim());
+    if (existing) {
+      existing.code = code;
+      existing.season = selectedSeasonId.value;
+      existing.updatedAt = now;
+    } else {
+      savedBuilds.value.unshift({
+        id: `${now}-${Math.random().toString(36).slice(2, 8)}`,
+        name: name.trim(),
+        season: selectedSeasonId.value,
+        code,
+        createdAt: now,
+        updatedAt: now
+      });
+    }
+    _persistSavedBuilds();
+    notify(t('mastery.saveDialog.saveSuccess', { name: name.trim() }), 'success');
+    return true;
+  }
+
+  function deleteBuild(id: string) {
+    savedBuilds.value = savedBuilds.value.filter(b => b.id !== id);
+    _persistSavedBuilds();
+  }
+
+  function loadBuild(build: MasterySavedBuild) {
+    loadFromShareCode(build.code);
+  }
+
+  // 初始化时加载
+  _loadSavedBuilds();
 
   return {
     // 基础状态
@@ -629,10 +737,18 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
     locateNodeById,
     toggleEffectExpand,
     toggleAllEffectsExpanded,
+    toggleAllEffectsExpand: toggleAllEffectsExpanded,
     generateShareCode,
     getShareUrl,
     copyShareUrl,
     loadFromShareCode,
-    initFromUrlParams
+    initFromUrlParams,
+
+    // 保存精通配置
+    savedBuilds,
+    showSaveDialog,
+    saveBuild,
+    deleteBuild,
+    loadBuild,
   };
 }

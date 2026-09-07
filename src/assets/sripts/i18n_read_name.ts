@@ -569,12 +569,15 @@ export function useI18nReadName() {
         const rawKey = String(id || '');
         let skillKey = rawKey;
 
-        // 若传入的是节点ID（如 KBHM），尝试在专精树中寻找对应 skill 名称
+        // 若传入的是节点 key（如 B-3-2-DE2）或 id，尝试在专精树中寻找对应技能标识
         const allTrees = Object.values(masterys);
         for (const tree of allTrees) {
-            if (tree && (tree as any).nodes && (tree as any).nodes[rawKey]) {
-                skillKey = (tree as any).nodes[rawKey].skill;
-                break;
+            if (tree && (tree as any).nodes) {
+                const node = (tree as any).nodes[rawKey] || (Object.values((tree as any).nodes) as any[]).find((n: any) => n.key === rawKey || n.id === rawKey);
+                if (node) {
+                    skillKey = (node as any).id || (node as any).skill || rawKey;
+                    break;
+                }
             }
         }
 

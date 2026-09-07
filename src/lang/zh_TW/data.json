@@ -1044,11 +1044,13 @@
     },
     "mastery": {
       "title": "專精技能",
-      "describe": "專精技能手稿收錄各賽季專精樹升級節點、核心增益與賽季特長效果。"
+      "describe": "專精技能手稿收錄各賽季專精樹升級節點、核心增益與賽季特長效果。",
+      "lookDetail": "查看專精詳情(按住)"
     },
     "masterys": {
       "title": "專精技能",
-      "describe": "專精技能手稿收錄各賽季專精樹升級節點、核心增益與賽季特長效果。"
+      "describe": "專精技能手稿收錄各賽季專精樹升級節點、核心增益與賽季特長效果。",
+      "lookDetail": "查看專精詳情(按住)"
     }
   },
   "calendar": {
@@ -1655,16 +1657,31 @@
       "pointsSpent": "投入專精點數",
       "activatedNodes": "已啟動節點數",
       "shareLinkTitle": "專屬分享連結",
-      "shareLinkDesc": "加點方案經過輕量級壓縮編碼（透過 share= 參數攜帶），複製後可直接發送給隊友查看。",
+      "shareLinkDesc": "複製後可直接發送給隊友查看。",
       "copyLink": "複製分享連結",
       "copySuccess": "分享連結已複製到剪貼簿",
       "copyFailed": "複製失敗，請手動複製",
       "importTitle": "匯入加點方案",
-      "importDesc": "在此貼上包含 share= 的連結或分享代碼，快速恢復對應賽季與專精加點：",
+      "importDesc": "在此貼上包含連結或分享代碼，快速恢復對應賽季與專精加點",
       "importPlaceholder": "貼上連結或壓縮代碼...",
       "importAction": "解析並更新",
       "importSuccess": "加點方案匯入成功",
       "importFailed": "加點方案解析失敗，請檢查分享代碼"
+    },
+    "saveDialog": {
+      "title": "保存專精加點",
+      "saveCurrentTitle": "保存當前加點方案",
+      "namePlaceholder": "輸入方案名稱...",
+      "saveBtn": "保存",
+      "savedTitle": "已保存的方案",
+      "empty": "暫無已保存的方案",
+      "loadBtn": "載入方案",
+      "deleteBtn": "刪除",
+      "confirmDelete": "再次點擊確認刪除",
+      "saveSuccess": "方案「{name}」保存成功",
+      "createdAt": "建立於",
+      "updatedAt": "更新於",
+      "pointsSpent": "已投入 {pts} 點"
     },
     "card": {
       "active": "已啟動",
@@ -1684,7 +1701,9 @@
       "investPoint": "投入點數",
       "refundPoint": "撤回點數",
       "selectThisPerk": "選擇此特長生效",
-      "deselectThisPerk": "取消此特長生效"
+      "deselectThisPerk": "取消此特長生效",
+      "perkCost": "激活門樹 (累計點數)",
+      "pointCost": "專精點數消耗"
     },
     "debug": {
       "title": "專精樹調試與座標編輯",
