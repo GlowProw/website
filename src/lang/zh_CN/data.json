@@ -175,6 +175,21 @@
       "edit": "编辑",
       "delete": "删除"
     },
+    "assembly": {
+      "publish": {
+        "title": "发布",
+        "preview": "预览",
+        "subtitle": "设置配装信息",
+        "name": "配置名称",
+        "namePlaceholder": "配置名称，船长，设置一个酷炫名字，好名字配好船",
+        "nameRequired": "配置名称是必须的",
+        "description": "描述",
+        "descriptionPlaceholder": "输入描述内容",
+        "extra": "额外",
+        "tags": "标签",
+        "tagsPlaceholder": "输入标签敲下回车键，即可创建新标签"
+      }
+    },
     "privilege": {
       "admin": "社区管理",
       "blacklisted": "黑名单",
@@ -1397,6 +1412,7 @@
       "insertDisplayTitle": "插入陈设",
       "exceedingDisplayLimitTip": "已到达主陈设上限，将主陈设隐藏",
       "ultimateTitle": "终极技能",
+      "insertUltimateTitle": "插入终极技能",
       "ignoreConditions": "无视模组条件",
       "filter": {
         "all": "所有",
@@ -1407,16 +1423,17 @@
         "byRarity": "稀有度"
       },
       "verifyTips": {
-        "shipEmpty": "船只未选择，<u>它是必须</u>",
+        "shipEmpty": "船只未选择，<u class='u'>它是必须</u>",
         "ultimateEmpty": "技能是空的",
         "shipUpgradeEmpty": "船只升级部件是空的",
         "weaponModificationsEmpty": "武器模组是空的",
         "secondaryWeaponModificationsEmpty": "副武器的模组是空的",
         "secondaryWeaponEmpty": "副武器是空的",
         "weaponAllEmpty": "武器都是空的",
-        "weaponDirectionsEmpty": "武器的方向你未设置, <u>它是必须</u>",
+        "weaponDirectionsEmpty": "武器的方向你未设置, <u class='u'>它是必须</u>",
         "armorEmpty": "船甲是空的",
-        "displayAllEmpty": "陈设都是空的"
+        "displayAllEmpty": "陈设都是空的",
+        "armorModificationEmpty": "副武器是空的"
       }
     },
     "detail": {
@@ -1458,7 +1475,17 @@
       }
     },
     "publish": {
-      "title": "发布"
+      "title": "发布",
+      "preview": "预览",
+      "subtitle": "设置配装信息",
+      "name": "配置名称",
+      "namePlaceholder": "配置名称，船长，设置一个酷炫名字，好名字配好船",
+      "nameRequired": "配置名称是必须的",
+      "description": "描述",
+      "descriptionPlaceholder": "输入描述内容",
+      "extra": "额外",
+      "tags": "标签",
+      "tagsPlaceholder": "输入标签敲下回车键，即可创建新标签"
     }
   },
   "smugglersReport": {

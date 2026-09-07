@@ -177,6 +177,21 @@
       "edit": "編輯",
       "delete": "刪除"
     },
+    "assembly": {
+      "publish": {
+        "title": "發佈",
+        "preview": "預覽",
+        "subtitle": "設定配裝資訊",
+        "name": "配置名稱",
+        "namePlaceholder": "配置名稱，船長，設定一個酷炫名字，好名字配好船",
+        "nameRequired": "配置名稱是必須的",
+        "description": "描述",
+        "descriptionPlaceholder": "輸入描述內容",
+        "extra": "額外",
+        "tags": "標籤",
+        "tagsPlaceholder": "輸入標籤按下Enter鍵，即可建立新標籤"
+      }
+    },
     "privilege": {
       "admin": "社区管理",
       "blacklisted": "黑名单",
@@ -1457,6 +1472,7 @@
       "insertDisplayTitle": "插入陈设",
       "exceedingDisplayLimitTip": "已到达主陈设上限，将主陈设隐藏",
       "ultimateTitle": "终极技能",
+      "insertUltimateTitle": "插入終極技能",
       "ignoreConditions": "无视模组条件",
       "filter": {
         "all": "所有",
@@ -1518,7 +1534,17 @@
       }
     },
     "publish": {
-      "title": "发布"
+      "title": "發佈",
+      "preview": "預覽",
+      "subtitle": "設定配裝資訊",
+      "name": "配置名稱",
+      "namePlaceholder": "配置名稱，船長，設定一個酷炫名字，好名字配好船",
+      "nameRequired": "配置名稱是必須的",
+      "description": "描述",
+      "descriptionPlaceholder": "輸入描述內容",
+      "extra": "額外",
+      "tags": "標籤",
+      "tagsPlaceholder": "輸入標籤按下Enter鍵，即可建立新標籤"
     }
   },
   "smugglersReport": {

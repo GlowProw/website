@@ -374,16 +374,22 @@ defineOptions({name: 'AssemblyClassificationShowList'})
 
         <v-row class="pl-8 pr-8">
           <v-col v-for="(j, jIndex) in processedStarData" :key="`star-${j.id}`" cols="auto">
-            <div class="item" @click="onClickEvent(castToAny(j))">
-              <ItemSlotBase :size="40" :padding="0">
+            <div class="item text-center" @click="onClickEvent(castToAny(j))">
+              <ItemSlotBase size="99px" :padding="0" :margin="0">
                 <template v-if="castToAny(j).type == 'ship'">
-                  <ShipIconWidget :id="j.id" :padding="0" :margin="0"/>
+                  <ShipIconWidget :id="j.id" :padding="0" :margin="0" 
+                  :is-open-new-window="false"
+                  :is-open-detail="false" 
+                  :is-show-tooltip="false"/>
                 </template>
                 <template v-else>
-                  <ItemIconWidget :id="j.id" :padding="0" :margin="0"/>
+                  <ItemIconWidget :id="j.id" :padding="0" :margin="0"
+                  :is-open-new-window="false"
+                  :is-open-detail="false" 
+                  :is-show-tooltip="false"/>
                 </template>
               </ItemSlotBase>
-              <div class="ml-2 singe-line">
+              <div class="ml-singe-line">
                 <template v-if="castToAny(j).type == 'ship'">
                   <ShipName :data="castToAny(j)"/>
                 </template>
@@ -696,10 +702,6 @@ defineOptions({name: 'AssemblyClassificationShowList'})
 .item {
   cursor: pointer;
   transition: all 0.2s ease;
-
-  &:hover {
-    transform: scale(1.05);
-  }
 }
 
 .singe-line {

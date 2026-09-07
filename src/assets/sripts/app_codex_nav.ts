@@ -153,6 +153,11 @@ export default class AppCodexNav {
                     value: 'theHelmItems',
                     to: '/codex/commodities?category=theHelm'
                 },
+                {
+                    title: 'codex.navs.currency.name',
+                    value: 'currency',
+                    to: '/codex/commodities?category=currency'
+                },
             ]
         }
     ]

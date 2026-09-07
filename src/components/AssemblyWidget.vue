@@ -39,7 +39,7 @@ const poops = withDefaults(defineProps<AssemblyWidgetProps>(), {
     items = Items,
     ultimates = Ultimates,
     assemblyDataProcessing = new AssemblyDataProcessing(),
-    emit = defineEmits(['update:model-value', 'update:item-change']),
+    emit = defineEmits(['update:model-value', 'update:item-change', 'update:ship-change']),
     {t} = useI18nUtils(computed(() => poops.locale)),
     {mobile} = useDisplay()
 
@@ -115,10 +115,9 @@ let workshopData = ref<AssemblyWorkshopData>({
     })
 
 watch(() => workshopData.value?.data, (value) => {
-  if (hasModelValueEvent)
-    emit('update:model-value', onExport())
-  if (hasItemChangeEvent)
-    emit('update:item-change', 'assembly')
+  emit('update:model-value', onExport())
+  emit('update:item-change', 'assembly')
+  emit('update:ship-change', workshopData.value?.data?.shipSlot)
 }, {
   deep: true
 })
@@ -200,6 +199,10 @@ let // 获取陈设
     // 获取船甲列表
     getShipArmorList = computed(() => {
       return ['armor'];
+    }),
+    // 获取终极技能列表
+    getUltimateList = computed(() => {
+      return ['powerWeapon', 'combatSkill', 'legendaryEntity'];
     }),
     // 主陈设上限
     hasMajorDisplayUpperLimit = computed(() => {
@@ -558,6 +561,9 @@ const onLoad = (data) => {
   })
 
   updateDisplaySlotsCount()
+  emit('update:model-value', onExport())
+  emit('update:item-change', 'assembly')
+  emit('update:ship-change', workshopData.value.data?.shipSlot)
 }
 
 const verify = () => {
@@ -587,6 +593,8 @@ defineExpose({
   onErasure,
   setSetting,
   verify,
+  workshopData,
+  getShip: () => workshopData.value?.data?.shipSlot,
   data: workshopData.value.data
 })
 
@@ -1150,80 +1158,47 @@ defineOptions({name: 'AssemblyWidget'})
                   {{ t('assembly.workshop.ultimateTitle') }}
                 </v-card>
 
-                <template v-if="isShowEmpty || workshopData.ultimateModel">
-                  <v-tooltip
-                      v-model="workshopData.ultimateModel"
-                      :open-on-hover="false"
-                      :offset="[-100, -120]"
-                      location="bottom left"
-                      content-class="pa-0"
-                      min-width="450"
-                      max-width="450"
-                      interactive
-                      open-on-click>
-                    <template v-slot:activator="{ props: propsSlot }">
-                      <ItemSlotBase size="80px" v-if="!readonly && !workshopData.data.ultimateSlot">
-                        <v-card variant="text" class="w-100 d-flex align-center justify-center"
-                                v-bind="propsSlot"
-                                :disabled="readonly">
-                          <v-icon icon="mdi-plus" size="30"></v-icon>
-                        </v-card>
-                      </ItemSlotBase>
-                      <ItemSlotBase size="80px" class="pa-2 d-flex justify-center align-center" v-else-if="readonly && !workshopData.data.ultimateSlot">
-                        <v-card variant="text" class="w-100 h-100 d-flex align-center justify-center">
-                          <AssemblySvgIcon name="blockHelper" class="opacity-30" size="20"></AssemblySvgIcon>
-                        </v-card>
-                      </ItemSlotBase>
+                <div class="d-flex align-center justify-center">
+                  <template v-if="isShowEmpty || workshopData.data.ultimateSlot">
+                    <v-hover v-slot="{ isHovering, props }" v-if="workshopData.data.ultimateSlot">
+                      <v-card v-bind="props" variant="text" class="position-relative">
+                        <ItemSlotBase size="80px">
+                          <UltimateIconWidget :id="workshopData.data.ultimateSlot.id"
+                                              :is-open-detail="false"
+                                              :is-show-tooltip="false"
+                                              :padding="0"
+                                              :margin="0"></UltimateIconWidget>
+                        </ItemSlotBase>
+                        <div class="text-center text-caption text-grey w-100" :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
+                          <UltimateName :id="castToAny(workshopData.data.ultimateSlot).id" :locale="poops.locale"></UltimateName>
+                        </div>
+                        <v-overlay
+                            v-if="!readonly"
+                            :model-value="!!isHovering"
+                            class="align-center justify-center"
+                            scrim="#000"
+                            @click="onSlotRemove('ultimate')"
+                            contained>
+                          <v-icon icon="mdi-delete" color="red" size="40"></v-icon>
+                        </v-overlay>
+                      </v-card>
+                    </v-hover>
 
-                      <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-else>
-                        <v-card v-bind="propsHoverClose" variant="text" class="position-relative">
-                          <ItemSlotBase size="80px"
-                                        v-if="workshopData.data.ultimateSlot && workshopData.data.ultimateSlot.id">
-                            <UltimateIconWidget :id="workshopData.data.ultimateSlot.id" :isOpenDetail="false"></UltimateIconWidget>
-                          </ItemSlotBase>
-                          <div class="text-center text-caption text-grey w-100 " :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
-                            <UltimateName :id="castToAny(workshopData.data.ultimateSlot).id" :locale="poops.locale"></UltimateName>
-                          </div>
-                          <v-overlay
-                              v-if="!readonly"
-                              :model-value="!!isHovering"
-                              class="align-center justify-center"
-                              scrim="#000"
-                              @click="onSlotRemove('ultimate')"
-                              contained>
-                            <v-icon icon="mdi-delete" color="red" size="30"></v-icon>
-                          </v-overlay>
-                        </v-card>
-                      </v-hover>
-                    </template>
-                    <v-card>
-                      <v-row class="ga-0 pa-2 pb-5">
-                        <v-col cols="3"
-                               v-for="(ultimate,ultimateIndex) in ultimates"
-                               :key="ultimateIndex">
-                          <v-card variant="text" width="92" elevation="0">
-                            <ItemSlotBase
-                                size="90px"
-                                @click="workshopData.ultimateSelect = castToAny(ultimate)"
-                                :class="[
-                                          workshopData.ultimateSelect ? castToAny(workshopData.ultimateSelect)?.id == ultimate?.id ? 'bg-amber-test' : '' : ''
-                                      ]">
-                              <UltimateIconWidget :id="ultimate.id" :isOpenDetail="false"></UltimateIconWidget>
-                            </ItemSlotBase>
-                            <div class="text-center text-caption text-grey w-100 " :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
-                              <UltimateName :id="ultimate.id" :locale="poops.locale"></UltimateName>
-                            </div>
-                          </v-card>
-                        </v-col>
-                      </v-row>
-                      <v-card-actions class="bg-amber-test">
-                        <v-spacer></v-spacer>
-                        <v-btn variant="tonal" class="ml-1" @click="workshopData.ultimateModel = false">{{ t('basic.button.cancel') }}</v-btn>
-                        <v-btn variant="tonal" @click="onSelectUltimate()">{{ t('basic.button.submit') }}</v-btn>
-                      </v-card-actions>
-                    </v-card>
-                  </v-tooltip>
-                </template>
+                    <ItemSlotBase size="80px" v-if="!readonly && !workshopData.data.ultimateSlot">
+                      <v-card class="w-100 d-flex align-center justify-center"
+                              variant="text"
+                              @click="workshopData.ultimateModel = true"
+                              :disabled="readonly">
+                        <v-icon icon="mdi-plus" size="30"></v-icon>
+                      </v-card>
+                    </ItemSlotBase>
+                    <ItemSlotBase size="80px" class="pa-2 d-flex justify-center align-center" v-else-if="readonly && !workshopData.data.ultimateSlot">
+                      <v-card variant="text" class="w-100 h-100 d-flex align-center justify-center">
+                        <AssemblySvgIcon name="blockHelper" class="opacity-30" size="20"></AssemblySvgIcon>
+                      </v-card>
+                    </ItemSlotBase>
+                  </template>
+                </div>
               </v-col>
               <!-- 终极技能 卡槽 E -->
 
@@ -1407,6 +1382,34 @@ defineOptions({name: 'AssemblyWidget'})
       </v-container>
     </v-dialog>
     <!-- 船甲 选择器 E-->
+
+    <!-- 终极技能 选择器 S-->
+    <v-dialog v-model="workshopData.ultimateModel"
+              content-class="pa-0">
+      <v-container>
+        <v-card v-slot:default class="overflow-hidden">
+          <v-card-title>
+            <v-row>
+              <b class="font-weight-bold text-h5 pa-5">{{ t('assembly.workshop.insertUltimateTitle') }}</b>
+              <v-spacer></v-spacer>
+              <v-col cols="auto">
+                <v-btn icon variant="text" class="ml-1" @click="workshopData.ultimateModel = false">
+                  <v-icon icon="mdi-close"/>
+                </v-btn>
+              </v-col>
+            </v-row>
+          </v-card-title>
+          <v-row>
+            <AssemblyClassificationShowList
+                v-model="workshopData.data.ultimateSlot"
+                @clickSelectItem="workshopData.ultimateModel = false"
+                load-data-type="ultimate"
+                :tags="getUltimateList"></AssemblyClassificationShowList>
+          </v-row>
+        </v-card>
+      </v-container>
+    </v-dialog>
+    <!-- 终极技能 选择器 E-->
 
   </template>
 </template>

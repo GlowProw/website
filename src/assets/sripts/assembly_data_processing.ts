@@ -447,10 +447,10 @@ export default class AssemblyDataProcessing {
                 '__version'
             ],
             get: (data: AssemblyData) => {
-                return this['0.0.2'].get(data)
+                return this.processing['0.0.2'] ? this.processing['0.0.2'].get(data) : data;
             },
             set: (data) => {
-                return this['0.0.2'].set(data)
+                return this.processing['0.0.2'] ? this.processing['0.0.2'].set(data) : data;
             },
             verify: (data) => {
                 const rules: ValidationRule[] = [

@@ -46,12 +46,18 @@ let isWorkshopFillScreen = ref(props.isWorkshopFillScreen),
       warehouse: null
     }),
     assemblyViewModel = ref('lock-window'),
-    hasShip = computed(() => {
-      return assemblyWorkshopRef.value?.onExport() == null;
-    }),
+    currentShipSlot = ref<any>(null),
     shipDetailInfo = computed(() => {
-      const ship = assemblyWorkshopRef.value?.onExport()?.shipSlot?.id
-      return Ships[ship]
+      const shipSlot = currentShipSlot.value
+          || (assemblyWorkshopRef.value?.getShip ? assemblyWorkshopRef.value.getShip() : null)
+          || assemblyWorkshopRef.value?.workshopData?.value?.data?.shipSlot
+          || assemblyWorkshopRef.value?.workshopData?.data?.shipSlot
+          || assemblyWorkshopRef.value?.onExport?.()?.shipSlot;
+      const shipId = shipSlot?.id;
+      return (shipId && Ships[shipId]) ? Ships[shipId] : null;
+    }),
+    hasShip = computed(() => {
+      return !shipDetailInfo.value;
     }),
     hasReadyEvent = computed(() => !!attrs.onReady),
     hasItemChangeEvent = computed(() => !!attrs.onUpdateItemChange)
@@ -71,6 +77,8 @@ onMounted(() => {
       emit('ready', refs)
     }
 
+    syncShip()
+
     // 初始验证
     if (hasItemChangeEvent) {
       emit('update:item-change', 'assembly')
@@ -80,6 +88,16 @@ onMounted(() => {
   })
 })
 
+const syncShip = () => {
+  if (assemblyWorkshopRef.value) {
+    const rawShip = assemblyWorkshopRef.value.getShip
+        ? assemblyWorkshopRef.value.getShip()
+        : (assemblyWorkshopRef.value.workshopData?.value?.data?.shipSlot || assemblyWorkshopRef.value.workshopData?.data?.shipSlot || assemblyWorkshopRef.value.onExport?.()?.shipSlot);
+    if (rawShip !== undefined) {
+      currentShipSlot.value = rawShip;
+    }
+  }
+}
 
 /**
  * 重制画布位置
@@ -115,6 +133,7 @@ const onWorkshopViewHeightUpdate = () => {
  * 变动事件
  */
 const onUpdateEvent = (workshopName: string) => {
+  syncShip()
   emit('update:item-change', workshopName)
 }
 
@@ -122,6 +141,7 @@ const onUpdateEvent = (workshopName: string) => {
  * 切换附件事件
  */
 const onTabs = () => {
+  syncShip()
   if (props.readonly)
     onWorkshopRestorePosition()
 
@@ -176,6 +196,7 @@ defineOptions({name: 'AssemblyMainSubjectView'})
         <div v-show="tab === 'assembly'">
           <AssemblyWidget ref="assemblyWorkshopRef"
                           @update:item-change="onUpdateEvent"
+                          @update:ship-change="(ship) => currentShipSlot = ship"
                           :readonly="readonly"
                           :perfect-display="perfectDisplay">
             <template v-slot:image v-if="assemblyBackground">

@@ -94,6 +94,16 @@ watch(data, (newVal) => {
   deep: true
 })
 
+watch(() => props.cargo?.cargoSlots, (newVal) => {
+  if (newVal) {
+    maxSlot.value = newVal;
+    if (data.value.length < newVal) {
+      const diff = newVal - data.value.length;
+      data.value.push(...Array.from({length: diff}, () => ({ id: null, count: 0, timestamp: 0 })));
+    }
+  }
+}, { immediate: true })
+
 onMounted(() => {
   data.value = Array.from({length: maxSlot.value}, () => {
     return {

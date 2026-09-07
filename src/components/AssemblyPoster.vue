@@ -10,6 +10,7 @@ import Textarea from "@/components/textarea/index.vue";
 import Logo from "@/components/Logo.vue";
 import AssemblySvgIcon from "@/components/AssemblySvgIcon.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
+import AssemblyTagChip from "@/components/AssemblyTagChip.vue";
 
 const {t, asString} = useI18nUtils(computed(() => props.generateImageValue.language));
 
@@ -63,6 +64,10 @@ onMounted(() => {
   }
 });
 
+/**
+ * 生成二维码
+ * @param text 
+ */
 const onGenerateQRCode = async (text: string) => {
   try {
     if (qrCanvasRef.value && text) {
@@ -80,6 +85,9 @@ const onGenerateQRCode = async (text: string) => {
   }
 };
 
+/**
+ * 加载数据
+ */
 const loadAssemblyData = async () => {
   await nextTick(() => {
     if (assemblyDetailRef.value) {
@@ -139,17 +147,12 @@ defineExpose({
 
       <div class="px-10">
         <div class="ga-2 mb-6 mt-4" v-if="assemblyDetailData.tags && generateImageValue.isShowTabs">
-          <v-chip class="mr-2 mb-2 pt-1 pb-1 pl-5 pr-5" v-for="(i, index) in assemblyDetailData.tags" :key="index">
-            {{
-              asString([
-                `${i}`,
-                `assembly.tags.teamFormationMethods.${i.split('_')[1]}`,
-                `assembly.tags.modes.${i.split('_')[0]}`,
-                `codex.ships.archetypes.${i.split('_')[1]}.name`,
-                `snb.seasons.${i.split('_')[1]}`,
-              ], {backRawKey: true})
-            }}
-          </v-chip>
+          <AssemblyTagChip
+              class="mr-2 mb-2 pt-1 pb-1 pl-5 pr-5"
+              v-for="(i, index) in assemblyDetailData.tags"
+              :key="index"
+              :tag="i"
+              :locale="generateImageValue.language"/>
         </div>
 
         <Textarea class="mt-5" v-if="assemblyDetailData.description && generateImageValue.isShowDescription"

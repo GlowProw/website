@@ -14,6 +14,7 @@ import AssemblyMainSubjectView from "@/components/AssemblyMainSubjectView.vue";
 import Silk from "@/components/Silk.vue";
 import AssemblyTagsWidget from "@/components/AssemblyTagsWidget.vue";
 import AssemblySettingWidget from "@/components/AssmblySettingWidget.vue"
+import AssemblyTagChip from "@/components/AssemblyTagChip.vue";
 import AssemblyDataProcessing from "@/assets/sripts/assembly_data_processing"
 import WheelDataProcessing from "@/assets/sripts/wheel_data_processing"
 import WarehouseDataProcessing from "@/assets/sripts/warehouse_data_processing"
@@ -55,7 +56,7 @@ let // 发布信息
     assemblyMainSubjectView = ref(null),
     formRules = {
       name: [
-        v => !!v || 'Name is required',
+        v => !!v || t('basic.assembly.publish.nameRequired'),
       ]
     },
     // 发布前检查 是否可发布
@@ -242,23 +243,6 @@ const onPublish = async () => {
   }
 }
 
-/**
- * 转化标签i18n
- * @param data
- */
-const getTagTitle = (data: any) => {
-  return asString([
-    `${data}`,
-    `assembly.tags.teamFormationMethods.${data.toString().split('_')[1]}`,
-    `assembly.tags.modes.${data.toString().split('_')[0]}`,
-    `assembly.tags.damageTypes.${data.toString().split('_')[1]}`,
-    `assembly.tags.difficultyOfAcquisitions.${data.toString().split('_')[1]}`,
-    `codex.ships.archetypes.${data.toString().split('_')[1]}.name`,
-    `snb.seasons.${data.toString().split('_')[1]}`,
-  ], {
-    backRawKey: true
-  })
-}
 </script>
 
 <template>
@@ -282,14 +266,14 @@ const getTagTitle = (data: any) => {
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
           <v-breadcrumbs-item to="/assembly/workshop">{{ t('assembly.workshop.title') }}</v-breadcrumbs-item>
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
-          <v-breadcrumbs-item>{{ t('assembly.publish.title') }}</v-breadcrumbs-item>
+          <v-breadcrumbs-item>{{ t('basic.assembly.publish.title') }}</v-breadcrumbs-item>
         </v-breadcrumbs>
 
         <v-container class="pa-7">
           <v-row align="start" no-gutters>
             <v-col>
-              <h1 class="text-amber">预览</h1>
-              <p class="opacity-80 mt-5">设置配装信息</p>
+              <h1 class="text-amber">{{ t('basic.assembly.publish.preview') }}</h1>
+              <p class="opacity-80 mt-5">{{ t('basic.assembly.publish.subtitle') }}</p>
             </v-col>
             <v-col cols="auto">
               <v-btn v-if="isEditModel" variant="elevated" @click="router.go(-1)">
@@ -338,28 +322,28 @@ const getTagTitle = (data: any) => {
               <v-text-field
                   v-model="publishData.name"
                   :rules="formRules.name"
-                  label="配置名称"
+                  :label="t('basic.assembly.publish.name')"
                   size="l-large"
                   hide-details
-                  placeholder="配置名称,船长，设置一个酷炫名字，好名字配好船"
+                  :placeholder="t('basic.assembly.publish.namePlaceholder')"
                   variant="underlined">
               </v-text-field>
             </v-col>
             <v-col cols="12">
-              <div class="mt-4 mb-3 font-weight-bold">描述</div>
+              <div class="mt-4 mb-3 font-weight-bold">{{ t('basic.assembly.publish.description') }}</div>
 
               <v-card :color="`hsl(from var(--main-color) h s calc(l * 0.05))`" border class="pl-3 pr-3">
                 <Textarea v-model="publishData.description"
                           :maxlength="10000"
                           class="mt-3 mb-2"
-                          placeholder="输入描述描述"></Textarea>
+                          :placeholder="t('basic.assembly.publish.descriptionPlaceholder')"></Textarea>
                 <template v-if="route.query.debug">
                   {{ publishData.description }}
                 </template>
               </v-card>
             </v-col>
             <v-col>
-              <v-divider>额外</v-divider>
+              <v-divider>{{ t('basic.assembly.publish.extra') }}</v-divider>
               <AssemblySettingWidget v-model="publishData" :is-show-delete="false"></AssemblySettingWidget>
             </v-col>
           </v-row>
@@ -377,17 +361,15 @@ const getTagTitle = (data: any) => {
                 clearable
                 item-title="label"
                 item-value="value"
-                label="标签"
+                :label="t('basic.assembly.publish.tags')"
                 multiple
-                placeholder="输入标签敲下回车键，即可创建新标签"
+                :placeholder="t('basic.assembly.publish.tagsPlaceholder')"
                 variant="underlined">
               <template v-slot:prepend>
                 <v-icon>mdi-tag-multiple</v-icon>
               </template>
               <template v-slot:chip="{item}">
-                <v-chip color="var(--main-color)">
-                  {{ getTagTitle(item.raw) }}
-                </v-chip>
+                <AssemblyTagChip color="var(--main-color)" :tag="item.raw"/>
               </template>
             </v-combobox>
           </div>

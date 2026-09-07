@@ -19,6 +19,7 @@ import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
 import AssemblyMainSubjectView from "@/components/AssemblyMainSubjectView.vue";
+import AssemblyTagChip from "@/components/AssemblyTagChip.vue";
 import {apis} from "@/assets/sripts/index";
 import {ApiError} from "@/assets/types/Api";
 import AdsWidget from "@/components/ads/google/index.vue";
@@ -174,23 +175,6 @@ const onPenPassword = () => {
   getAssemblyDetail()
 }
 
-/**
- * 转化标签i18n
- * @param data
- */
-const getTagTitle = (data: any) => {
-  return asString([
-    `${data}`,
-    `assembly.tags.teamFormationMethods.${data.toString().split('_')[1]}`,
-    `assembly.tags.modes.${data.toString().split('_')[0]}`,
-    `assembly.tags.damageTypes.${data.toString().split('_')[1]}`,
-    `assembly.tags.difficultyOfAcquisitions.${data.toString().split('_')[1]}`,
-    `codex.ships.archetypes.${data.toString().split('_')[1]}.name`,
-    `snb.seasons.${data.toString().split('_')[1]}`,
-  ], {
-    backRawKey: true
-  })
-}
 </script>
 
 <template>
@@ -320,9 +304,11 @@ const getTagTitle = (data: any) => {
       <v-row>
         <v-col cols="12" sm="12" lg="8" xl="8">
           <div class="ga-2 mb-6" v-if="detailData.tags">
-            <v-chip class="mr-2 mb-2 pt-1 pb-1 pl-5 pr-5" v-for="(i, index) in detailData.tags" :key="index">
-              {{ getTagTitle(i) }}
-            </v-chip>
+            <AssemblyTagChip
+                class="mr-2 mb-2 pt-1 pb-1 pl-5 pr-5"
+                v-for="(i, index) in detailData.tags"
+                :key="index"
+                :tag="i"/>
           </div>
 
           <Textarea class="mt-5 mb-2"

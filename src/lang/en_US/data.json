@@ -175,6 +175,21 @@
       "edit": "Edit",
       "delete": "Delete"
     },
+    "assembly": {
+      "publish": {
+        "title": "Publish",
+        "preview": "Preview",
+        "subtitle": "Configure assembly information",
+        "name": "Build Name",
+        "namePlaceholder": "Build name, Captain, pick a cool name for your ship",
+        "nameRequired": "Build name is required",
+        "description": "Description",
+        "descriptionPlaceholder": "Enter description",
+        "extra": "Extra",
+        "tags": "Tags",
+        "tagsPlaceholder": "Type tag and press Enter to create a new tag"
+      }
+    },
     "privilege": {
       "admin": "Community Admin",
       "blacklisted": "Blacklisted",
@@ -1402,6 +1417,7 @@
       "insertDisplayTitle": "Insert Furniture",
       "exceedingDisplayLimitTip": "Maximum Major Furniture limit reached, Major Furniture will be hidden",
       "ultimateTitle": "Ultimate Skill",
+      "insertUltimateTitle": "Insert Ultimate Skill",
       "ignoreConditions": "Ignore Mod Conditions",
       "filter": {
         "all": "All",
@@ -1463,7 +1479,17 @@
       }
     },
     "publish": {
-      "title": "Publish"
+      "title": "Publish",
+      "preview": "Preview",
+      "subtitle": "Configure assembly information",
+      "name": "Build Name",
+      "namePlaceholder": "Build name, Captain, pick a cool name for your ship",
+      "nameRequired": "Build name is required",
+      "description": "Description",
+      "descriptionPlaceholder": "Enter description",
+      "extra": "Extra",
+      "tags": "Tags",
+      "tagsPlaceholder": "Type tag and press Enter to create a new tag"
     }
   },
   "smugglersReport": {
