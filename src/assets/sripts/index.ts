@@ -40,6 +40,7 @@ export const rarity = new _Rarity()
 export const assemblyViewConfig = new _AssemblyViewConfig()
 
 export { getBrowserFingerprint } from './fingerprint';
+export { getCurrentSeason, getCurrentSeasonId } from './season';
 
 export default {
     apis, conf, ws, http,

@@ -1,6 +1,6 @@
 import { getBrowserFingerprint } from './fingerprint';
 
-const GP_AUTH_SALT = "GP_AUTH_FP_SECRET_SALT_KEY";
+const GP_AUTH_SALT = "GP_AUTH_FP_SECRET_2026_SALT_KEY";
 
 /**
  * RC4 对称流加密

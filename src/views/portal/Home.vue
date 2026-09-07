@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {onMounted, type Ref, ref} from "vue";
-import {appFuns, time} from "@/assets/sripts";
-import {Seasons} from "glow-prow-data";
+import {appFuns, time, getCurrentSeason} from "@/assets/sripts";
 import {Season} from "glow-prow-data/src/entity/Seasons";
 import {useI18n} from "vue-i18n";
 
@@ -16,36 +15,14 @@ import AffixContainerView from "@/components/AffixContainerView.vue";
 
 const {t} = useI18n()
 
-let seasons: any = Seasons,
-    // 当前赛季
-    currentlySeason: Ref<Season> = ref(null)
+// 当前赛季
+const currentlySeason: Ref<Season | null> = ref(getCurrentSeason())
 
 onMounted(() => {
-  getCurrentSeason()
-})
-
-/**
- * 获取当前赛季
- * @returns {Season | null} 当前赛季，如果不在任何赛季范围内则返回 null
- */
-const getCurrentSeason = (): Season | null => {
-  const currentDate = new Date()
-  const currentTime = currentDate.getTime()
-
-  for (const seasonId in seasons) {
-    const season = seasons[seasonId];
-
-    const startDate = new Date(season.startDate).getTime()
-    const endDate = new Date(season.endDate).getTime()
-
-    if (currentTime >= startDate && currentTime <= endDate) {
-      currentlySeason.value = season;
-      return season;
-    }
+  if (!currentlySeason.value) {
+    currentlySeason.value = getCurrentSeason()
   }
-
-  return null;
-}
+})
 </script>
 
 <template>

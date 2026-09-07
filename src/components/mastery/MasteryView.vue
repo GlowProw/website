@@ -250,7 +250,7 @@ function render() {
       ctx.stroke();
 
       // 中心图标
-      const iconUrl = props.getNodeIconUrl(node.id || (node as any).skill);
+      const iconUrl = props.getNodeIconUrl((node as any).skill || node.id);
       const img = getImage(iconUrl);
       if (img) {
         ctx.drawImage(img, -14, -14, 28, 28);
@@ -310,7 +310,7 @@ function render() {
       ctx.stroke();
 
       // 中心图标
-      const iconUrl = props.getNodeIconUrl(node.id || (node as any).skill);
+      const iconUrl = props.getNodeIconUrl((node as any).skill || node.id);
       const img = getImage(iconUrl);
       if (img) {
         ctx.drawImage(img, -14, -14, 28, 28);
@@ -349,7 +349,7 @@ function render() {
       ctx.stroke();
 
       // 中心图标
-      const iconUrl = props.getNodeIconUrl(node.id || (node as any).skill);
+      const iconUrl = props.getNodeIconUrl((node as any).skill || node.id);
       const img = getImage(iconUrl);
       if (img) {
         ctx.drawImage(img, -11, -11, 22, 22);

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {computed, ref, watch} from "vue";
 import {useAppStore} from "~/stores/appStore";
-import {useAssetsStore} from "~/stores/assetsStore";
+import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 import {use_icon_global_Style} from "@/assets/sripts/use_icon_global_Style";
 import {Masterys} from "glow-prow-data";
@@ -31,17 +31,11 @@ const props = withDefaults(defineProps<{
 });
 
 const appStore = useAppStore();
-const {serializationMap} = useAssetsStore();
+const {currentService: currentImageService} = useCDNAssetsServiceStore();
 const {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow();
 const {useIconImagePadding, useIconImageMargin} = use_icon_global_Style();
 
-// @ts-ignore
-const masteryImages = import.meta.glob('@glow-prow-assets/mastery/*.webp', {eager: true});
-// @ts-ignore
-const infoImages = import.meta.glob('@glow-prow-assets/mastery/information/*.webp', {eager: true});
-
-const masteryMap = serializationMap(masteryImages);
-const infoMap = serializationMap(infoImages);
+const isCdnApiError = ref(false);
 
 // 根据 ID 或 name 解析节点元数据
 const nodeData = computed(() => {
@@ -52,7 +46,7 @@ const nodeData = computed(() => {
           return (tree as any).nodes[props.id];
         }
         for (const node of Object.values((tree as any).nodes)) {
-          if ((node as any).key === props.id || (node as any).id === props.id) {
+          if ((node as any).key === props.id || (node as any).id === props.id || (node as any).skill === props.id) {
             return node;
           }
         }
@@ -82,20 +76,55 @@ const effectiveRole = computed(() => {
 });
 
 const effectiveSkill = computed(() => {
-  return props.name || nodeData.value?.id || nodeData.value?.skill || props.id || '';
+  return props.name || nodeData.value?.skill || nodeData.value?.id || props.id || '';
 });
 
 const effectiveId = computed(() => {
   return props.id || nodeData.value?.key || nodeData.value?.id || '';
 });
 
-const iconUrl = computed(() => {
+const cdnUrl = computed(() => {
+  const rawSkill = effectiveSkill.value;
+  if (!rawSkill) return '';
+  const skill = typeof rawSkill === 'object' ? ((rawSkill as any)?.skill || (rawSkill as any)?.id || '') : String(rawSkill);
+  if (!skill) return '';
+  return currentImageService.url({
+    'glow-prow': {
+      id: skill,
+      category: 'mastery'
+    },
+    'glow-prow-zh-cn': {
+      id: skill,
+      category: 'mastery'
+    },
+    'local-test': {
+      id: skill,
+      category: 'mastery'
+    }
+  });
+});
+
+const directStaticUrl = computed(() => {
   const skill = effectiveSkill.value;
   if (!skill) return '';
-  const raw = masteryMap[skill] || infoMap[skill];
-  if (typeof raw === 'object' && raw?.default) return raw.default;
-  if (typeof raw === 'string') return raw;
-  return '';
+  return `https://assets.glow-prow.top/mastery/${skill}.webp`;
+});
+
+const iconUrl = computed(() => {
+  if (isCdnApiError.value) {
+    return directStaticUrl.value;
+  }
+  return cdnUrl.value || directStaticUrl.value;
+});
+
+const onImageError = () => {
+  if (!isCdnApiError.value) {
+    isCdnApiError.value = true;
+  }
+};
+
+watch(() => effectiveSkill.value, () => {
+  isCdnApiError.value = false;
 });
 
 const bgGradientClass = computed(() => {
@@ -190,6 +219,7 @@ defineOptions({
         <v-img
             v-if="iconUrl"
             :src="iconUrl"
+            @error="onImageError"
             :width="computedSize"
             :height="computedSize"
             aspect-ratio="1"
@@ -240,6 +270,7 @@ defineOptions({
     <v-img
         v-if="iconUrl"
         :src="iconUrl"
+        @error="onImageError"
         :width="computedSize"
         :height="computedSize"
         aspect-ratio="1"

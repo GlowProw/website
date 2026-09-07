@@ -17,6 +17,7 @@ import FactionNameWidget from "@/components/snbWidget/factionNameWidget.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import {formatCompactNumber, formatNumber} from "@/assets/sripts/number";
+import {getCurrentSeasonId} from "@/assets/sripts";
 
 const {t} = useI18n(),
     route = useRoute(),
@@ -84,11 +85,12 @@ const selectSeasonsList = computed(() => {
   ];
 });
 
-const selectSeasonsValue = ref<string>((route.params.seasonId as string) || "crimsonWaters");
+const selectSeasonsValue = ref<string>((route.params.seasonId as string) || getCurrentSeasonId("crimsonWaters"));
 
 const selectedSeasonId = computed(() => {
-  if (!selectSeasonsValue.value) return 'crimsonWaters';
-  if (typeof selectSeasonsValue.value === 'object') return (selectSeasonsValue.value as any).id || 'crimsonWaters';
+  const fallback = getCurrentSeasonId('crimsonWaters');
+  if (!selectSeasonsValue.value) return fallback;
+  if (typeof selectSeasonsValue.value === 'object') return (selectSeasonsValue.value as any).id || fallback;
   return String(selectSeasonsValue.value);
 });
 

@@ -1715,10 +1715,6 @@
       "requisitesPlaceholder": "輸入前置節點ID",
       "clickHint": "點選畫布節點即可查看或拖曳微調座標",
       "copied": "已複製當前專精樹配置 JSON 到剪貼簿"
-    },
-    "season": {
-      "shatteredSeas": "Y3S1 - 碎海之境 (Shattered Seas)",
-      "crimsonWaters": "Y3S2 - 腥紅水域 (Crimson Waters)"
     }
   },
   "search": {

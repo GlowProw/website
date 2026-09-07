@@ -3,7 +3,7 @@ import {computed, nextTick, onMounted, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {useRoute, useRouter} from "vue-router";
 import {Seasons} from "glow-prow-data";
-import {apis, http, storage, time} from "@/assets/sripts";
+import {apis, http, storage, time, getCurrentSeason as _getCurrentSeason} from "@/assets/sripts";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 
 import {Season} from "glow-prow-data/src/entity/Seasons";
@@ -427,31 +427,11 @@ const fetchCalendarEventData = async (seasonId?: string) => {
  * 获取当前赛季
  */
 const getCurrentSeason = (): Season | null => {
-  const currentDate = new Date()
-  const currentTime = currentDate.getTime()
-
-  for (const seasonId in seasons) {
-    const season = seasons[seasonId];
-    const startDate = new Date(season.startDate).getTime()
-    const endDate = new Date(season.endDate).getTime()
-
-    if (currentTime >= startDate && currentTime <= endDate) {
-      currentlySeason.value = season;
-      return season;
-    }
+  const season = _getCurrentSeason();
+  if (season) {
+    currentlySeason.value = season;
   }
-
-  // 若未匹配到当前时间区间的赛季，默认取最新赛季
-  const seasonList = Object.values(seasons);
-  if (seasonList.length > 0) {
-    const sorted = [...seasonList].sort((a, b) => {
-      return new Date(b.endDate || b.startDate).getTime() - new Date(a.endDate || a.startDate).getTime();
-    });
-    currentlySeason.value = sorted[0];
-    return sorted[0];
-  }
-
-  return null;
+  return season;
 };
 
 /**

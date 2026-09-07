@@ -1660,10 +1660,6 @@
       "requisitesPlaceholder": "Enter requisite node ID",
       "clickHint": "Click any canvas node to inspect or drag coordinates",
       "copied": "Mastery configuration JSON copied to clipboard"
-    },
-    "season": {
-      "shatteredSeas": "Y3S1 - Shattered Seas",
-      "crimsonWaters": "Y3S2 - Crimson Waters"
     }
   },
   "search": {

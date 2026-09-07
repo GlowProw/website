@@ -11,17 +11,16 @@ import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
 import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
 import CosmeticIconWidget from "@/components/snbWidget/cosmeticIconWidget.vue";
 
-import {Items, Seasons, Ships} from "glow-prow-data";
+import {Items, Ships} from "glow-prow-data";
 import {computed} from "vue";
-import {Season} from "glow-prow-data/src/entity/Seasons";
 import ItemName from "@/components/snbWidget/itemName.vue";
 import {useI18n} from "vue-i18n";
 import {useAppStore} from "~/stores/appStore";
 import ShipName from "@/components/snbWidget/shipName.vue";
+import {getCurrentSeason} from "@/assets/sripts";
 
 const
     appStore = useAppStore(),
-    seasons = Seasons,
     items = Object.values(Items),
     ships = Object.values(Ships),
     all = []
@@ -34,37 +33,16 @@ const getIconSize = computed({
   set: (value) => appStore.setIconSize(value)
 })
 
-let newSeasonItem: any = computed(() => onFilterCurrentSeason(all)),
-    tShips = computed(() => onFilterCurrentSeason(ships)),
-    tItems = computed(() => onFilterCurrentSeason(items))
-
 const onFilterCurrentSeason = (d: any[]) => {
+  const current = getCurrentSeason()
   return d.filter((i: any) => {
-    return i.bySeason?.id == getCurrentSeason()?.id
+    return i.bySeason?.id == current?.id
   })
 }
 
-/**
- * 获取当前赛季
- * @returns {Season | null} 当前赛季，如果不在任何赛季范围内则返回 null
- */
-const getCurrentSeason = (): Season | null => {
-  const currentDate = new Date()
-  const currentTime = currentDate.getTime()
-
-  for (const seasonId in seasons) {
-    const season = seasons[seasonId];
-
-    const startDate = new Date(season.startDate).getTime()
-    const endDate = new Date(season.endDate).getTime()
-
-    if (currentTime >= startDate && currentTime <= endDate) {
-      return season;
-    }
-  }
-
-  return null;
-}
+let newSeasonItem: any = computed(() => onFilterCurrentSeason(all)),
+    tShips = computed(() => onFilterCurrentSeason(ships)),
+    tItems = computed(() => onFilterCurrentSeason(items))
 </script>
 
 <template>
