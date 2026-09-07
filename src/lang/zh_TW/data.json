@@ -1716,7 +1716,10 @@
       "selectThisPerk": "選擇此特長生效",
       "deselectThisPerk": "取消此特長生效",
       "perkCost": "激活門樹 (累計點數)",
-      "pointCost": "專精點數消耗"
+      "pointCost": "專精點数消耗",
+      "connectedActive": "相連激活",
+      "deactivateOrphanError": "無法撤回：撤回此節點會導致剩餘已激活節點失去與起點的連通。",
+      "deactivateDependentError": "無法撤回：後續已激活的節點依賴此路徑連接，請先撤回下游節點。"
     },
     "debug": {
       "title": "專精樹調試與座標編輯",

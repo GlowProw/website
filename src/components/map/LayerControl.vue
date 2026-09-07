@@ -7,11 +7,10 @@
       class="layer-control-panel"
       :scrim="false"
       :style="mobile ? modelValue ? 'min-width: 100%' : 'width: 0' : ''"
-      :width="mobile ? '100vh' : 510">
+      :width="mobile ? '100vh' : 610">
+    <VerticalScrollList :is-indicator="false">
+      <AdsWidget id="none" class="my-5 w-100" tile></AdsWidget>
 
-    <AdsWidget id="none" class="my-5 w-100" tile></AdsWidget>
-
-    <div>
       <v-card
           v-if="authStore.isLogin"
           tile
@@ -44,7 +43,7 @@
             variant="outlined"
             hide-details
             :placeholder="t('map.selectCollection')"
-            class="collection-selector mx-9">
+            class="collection-selector mx-9 mb-2">
         </v-select>
       </v-card>
 
@@ -182,7 +181,7 @@
 
         </v-card-text>
       </v-card>
-    </div>
+    </VerticalScrollList>
   </v-navigation-drawer>
 </template>
 
@@ -194,6 +193,7 @@ import AdsWidget from "@/components/ads/google/index.vue";
 import {onMounted, ref, watch} from 'vue';
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import {storage_account} from "@/assets/sripts/index";
+import VerticalScrollList from "@/components/VerticalScrollList.vue";
 
 const props = defineProps<{
   modelValue: boolean;

@@ -1,6 +1,6 @@
 <template>
   <v-card border class="d-flex map-search-bar"
-          :width="mobile ? 'calc(100% - 60px)' : 450"
+          :width="mobile ? 'calc(100% - 60px)' : 550"
           :style="{'top': mobile ? '80px' : '80px'}">
     <v-combobox
         v-model="model"

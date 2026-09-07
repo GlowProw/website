@@ -698,7 +698,7 @@ defineExpose({
     flex-direction: column;
     overflow-x: hidden;
     overflow-y: auto;
-    padding: 0 8px;
+    padding: 0 0px;
     flex: 1;
   }
 }

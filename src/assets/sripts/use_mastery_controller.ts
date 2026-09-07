@@ -24,6 +24,15 @@ export interface AggregatedEffect {
   contributors: EffectContributor[];
 }
 
+export interface NodeRequirementItem {
+  key: string;
+  id: string;
+  name: string;
+  isActive: boolean;
+  isRequisite: boolean;
+  isConnectedActive: boolean;
+}
+
 export function useMasteryController(props: { masterys?: Record<string, SeasonMasteryTree> }) {
   const route = useRoute();
   const router = useRouter();
@@ -207,21 +216,215 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
       const tier = node.group || String(node.cost);
       return regularPointsSpent.value >= node.cost && (selectedSeasonalPerks.value[tier] === key || selectedSeasonalPerks.value[tier] === node.id);
     }
-    return selectedNodeIds.value.has(key);
+    return selectedNodeIds.value.has(key) || (!!node.id && selectedNodeIds.value.has(node.id));
   }
 
+  // 判断是否为起始根节点 (第 1 环关键节点或无前置节点)
+  function isRootNode(node: Mastery): boolean {
+    if (node.role === 'seasonalPerk') return false;
+    return !node.requisite || node.requisite.length === 0 || (node.role === 'keyBuff' && node.ring === 1);
+  }
+
+  // 节点无向邻接关系拓扑表 (聚合 edges 与 requisite)
+  const adjacencyMap = computed<Map<string, Set<string>>>(() => {
+    const map = new Map<string, Set<string>>();
+    for (const key of Object.keys(localNodes.value)) {
+      map.set(key, new Set<string>());
+    }
+    if (activeTree.value?.edges) {
+      for (const edge of activeTree.value.edges) {
+        if (!edge.source || !edge.target) continue;
+        const sNode = findNode(edge.source);
+        const tNode = findNode(edge.target);
+        const sKey = sNode?.key || edge.source;
+        const tKey = tNode?.key || edge.target;
+        if (!map.has(sKey)) map.set(sKey, new Set());
+        if (!map.has(tKey)) map.set(tKey, new Set());
+        map.get(sKey)!.add(tKey);
+        map.get(tKey)!.add(sKey);
+      }
+    }
+    for (const [key, node] of Object.entries(localNodes.value)) {
+      const curKey = node.key || key;
+      if (node.requisite) {
+        for (const req of node.requisite) {
+          const rNode = findNode(req);
+          const reqKey = rNode?.key || req;
+          if (!map.has(curKey)) map.set(curKey, new Set());
+          if (!map.has(reqKey)) map.set(reqKey, new Set());
+          map.get(curKey)!.add(reqKey);
+          map.get(reqKey)!.add(curKey);
+        }
+      }
+    }
+    return map;
+  });
+
+  // 只要任意相连节点已激活，或者自身为树起点，即可点击投入点数
   function isNodeAvailable(keyOrId: string): boolean {
     const node = findNode(keyOrId);
     if (!node) return false;
     if (node.role === 'seasonalPerk') {
       return regularPointsSpent.value >= node.cost;
     }
-    // 根节点：第 1 环关键节点或无前置节点为树起点
-    if (!node.requisite || node.requisite.length === 0 || (node.role === 'keyBuff' && node.ring === 1)) {
+    // 根节点天然可激活
+    if (isRootNode(node)) {
       return true;
     }
-    // 至少一个前置节点已激活
-    return node.requisite.some(reqKey => selectedNodeIds.value.has(reqKey));
+    const nodeKey = node.key || keyOrId;
+    const neighbors = adjacencyMap.value.get(nodeKey);
+    if (neighbors) {
+      for (const nKey of neighbors) {
+        if (selectedNodeIds.value.has(nKey)) {
+          return true;
+        }
+        const nNode = findNode(nKey);
+        if (nNode && (selectedNodeIds.value.has(nNode.key) || (nNode.id && selectedNodeIds.value.has(nNode.id)))) {
+          return true;
+        }
+      }
+    }
+    // requisite 补充检查
+    if (node.requisite) {
+      for (const reqKey of node.requisite) {
+        if (selectedNodeIds.value.has(reqKey)) {
+          return true;
+        }
+        const rNode = findNode(reqKey);
+        if (rNode && (selectedNodeIds.value.has(rNode.key) || (rNode.id && selectedNodeIds.value.has(rNode.id)))) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  // 撤回节点检查：确保撤回后剩余已激活节点依然连通到根起点
+  function canDeactivateNode(keyOrId: string): { allowed: boolean; reason?: string } {
+    const node = findNode(keyOrId);
+    if (!node) return { allowed: true };
+    const key = node.key || keyOrId;
+
+    const remainingActive = new Set(selectedNodeIds.value);
+    remainingActive.delete(key);
+    if (node.id) remainingActive.delete(node.id);
+
+    // 如果撤回后没有剩余已激活常规节点，直接允许
+    if (remainingActive.size === 0) {
+      return { allowed: true };
+    }
+
+    // 找出 remainingActive 中所有的根起点 (以标准 key 存储)
+    const activeRoots: string[] = [];
+    const remainingStandardKeys = new Set<string>();
+    for (const activeItem of remainingActive) {
+      const n = findNode(activeItem);
+      if (n && n.role !== 'seasonalPerk') {
+        const stdKey = n.key || activeItem;
+        remainingStandardKeys.add(stdKey);
+        if (isRootNode(n)) {
+          activeRoots.push(stdKey);
+        }
+      }
+    }
+
+    // 如果剩余激活节点中没有任何根起点，说明撤回导致全部与起点失联
+    if (activeRoots.length === 0) {
+      return {
+        allowed: false,
+        reason: t('mastery.card.deactivateOrphanError') || '无法撤回：撤回此节点会导致剩余已激活节点失去与起点的连通。'
+      };
+    }
+
+    // 从所有激活的根起点进行 BFS 遍历，只能访问 remainingStandardKeys 中的相连节点
+    const visited = new Set<string>();
+    const queue: string[] = [];
+    for (const root of activeRoots) {
+      if (!visited.has(root)) {
+        visited.add(root);
+        queue.push(root);
+      }
+    }
+
+    while (queue.length > 0) {
+      const current = queue.shift()!;
+      const neighbors = adjacencyMap.value.get(current);
+      if (!neighbors) continue;
+      for (const neighbor of neighbors) {
+        if (remainingStandardKeys.has(neighbor) && !visited.has(neighbor)) {
+          visited.add(neighbor);
+          queue.push(neighbor);
+        }
+      }
+    }
+
+    // 检查是否所有剩余激活常规节点都被访问连通
+    if (visited.size === remainingStandardKeys.size) {
+      return { allowed: true };
+    }
+
+    return {
+      allowed: false,
+      reason: t('mastery.card.deactivateDependentError') || '无法撤回：后续已激活的节点依赖此路径连接，请先撤回下游节点。'
+    };
+  }
+
+  // 获取节点的需求项列表：包括原本的 requisite 以及已激活的相连节点
+  function getNodeRequirementItems(keyOrId: string): NodeRequirementItem[] {
+    const node = findNode(keyOrId);
+    if (!node) return [];
+    const nodeKey = node.key || keyOrId;
+
+    const items: NodeRequirementItem[] = [];
+    const addedKeys = new Set<string>();
+
+    // 1. 原有的 requisite 列表中的节点
+    if (node.requisite && node.requisite.length > 0) {
+      for (const reqKey of node.requisite) {
+        const reqNode = findNode(reqKey);
+        const resolvedKey = reqNode?.key || reqKey;
+        const resolvedId = reqNode?.id || reqKey;
+        const active = isNodeActive(resolvedKey) || isNodeActive(resolvedId);
+        addedKeys.add(resolvedKey);
+        addedKeys.add(resolvedId);
+        items.push({
+          key: resolvedKey,
+          id: resolvedId,
+          name: getSkillName(resolvedId, resolvedKey),
+          isActive: active,
+          isRequisite: true,
+          isConnectedActive: false
+        });
+      }
+    }
+
+    // 2. 相连且已激活的邻居节点 (在 requisite 之外，但已激活)
+    const neighbors = adjacencyMap.value.get(nodeKey);
+    if (neighbors) {
+      for (const nKey of neighbors) {
+        const nNode = findNode(nKey);
+        const resolvedKey = nNode?.key || nKey;
+        const resolvedId = nNode?.id || nKey;
+        if (addedKeys.has(resolvedKey) || addedKeys.has(resolvedId)) {
+          continue;
+        }
+        const active = isNodeActive(resolvedKey) || isNodeActive(resolvedId);
+        if (active) {
+          addedKeys.add(resolvedKey);
+          addedKeys.add(resolvedId);
+          items.push({
+            key: resolvedKey,
+            id: resolvedId,
+            name: getSkillName(resolvedId, resolvedKey),
+            isActive: true,
+            isRequisite: false,
+            isConnectedActive: true
+          });
+        }
+      }
+    }
+
+    return items;
   }
 
   function getNodeState(keyOrId: string): 'active' | 'available' | 'locked' {
@@ -463,30 +666,21 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
     }
 
     const next = new Set(selectedNodeIds.value);
-    if (next.has(key)) {
-      // 检查撤回时是否有下游节点依赖此节点
-      const activeChildren = Object.values(localNodes.value).filter(n =>
-        n.key !== key &&
-        next.has(n.key) &&
-        n.requisite && n.requisite.includes(key)
-      );
-
-      const orphaned = activeChildren.some(child => {
-        const otherActiveParents = child.requisite.filter(pKey => pKey !== key && next.has(pKey));
-        return otherActiveParents.length === 0 && !(child.role === 'keyBuff' && child.ring === 1);
-      });
-
-      if (orphaned) {
-        notify('无法撤回：后续已激活的节点依赖此升级，请先撤回下游节点。', 'warning');
+    const isCurrentlyActive = next.has(key) || (!!node.id && next.has(node.id));
+    if (isCurrentlyActive) {
+      const check = canDeactivateNode(key);
+      if (!check.allowed) {
+        notify(check.reason || '无法撤回：后续已激活的节点依赖此路径连接，请先撤回下游节点。', 'warning');
         return;
       }
 
       next.delete(key);
+      if (node.id) next.delete(node.id);
       selectedNodeIds.value = next;
     } else {
       // 加点
       if (!isNodeAvailable(key)) {
-        notify('前置条件不足：请先激活至少一个相连的前置节点。', 'warning');
+        notify('前置条件不足：请先激活至少一个相连节点。', 'warning');
         return;
       }
       if (regularPointsSpent.value >= maxPoints.value) {
@@ -770,6 +964,8 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
     getNodeStateText,
     getCategoryColor,
     toggleNodeActivation,
+    canDeactivateNode,
+    getNodeRequirementItems,
     toggleSeasonalPerk,
     resetPoints,
     selectNode,

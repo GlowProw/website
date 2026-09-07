@@ -1665,7 +1665,10 @@
       "perkPointsRequired": "需足够专精点数",
       "pointsRequired": "必须投入点数",
       "perkSelectOne": "选择生效赛季特长",
-      "perkActiveOne": "已激活生效的赛季特长"
+      "perkActiveOne": "已激活生效的赛季特长",
+      "connectedActive": "相连激活",
+      "deactivateOrphanError": "无法撤回：撤回此节点会导致剩余已激活节点失去与起点的连通。",
+      "deactivateDependentError": "无法撤回：后续已激活的节点依赖此路径连接，请先撤回下游节点。"
     },
     "debug": {
       "title": "专精树调试与坐标编辑",

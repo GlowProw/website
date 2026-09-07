@@ -7,8 +7,7 @@
       :next-button-aria-label="bottomButtonAriaLabel || nextButtonAriaLabel"
       @scroll="$emit('scroll', $event)"
       @scroll-start="$emit('scroll-start', $event)"
-      @scroll-end="$emit('scroll-end', $event)"
-  >
+      @scroll-end="$emit('scroll-end', $event)">
     <template v-for="(_, slotName) in $slots" :key="slotName" #[slotName]="slotProps">
       <slot :name="slotName" v-bind="slotProps || {}"></slot>
     </template>

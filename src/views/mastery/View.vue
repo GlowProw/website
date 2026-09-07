@@ -57,6 +57,7 @@ const {
   getNodeStateColor,
   getNodeStateText,
   getCategoryColor,
+  getNodeRequirementItems,
   toggleNodeActivation,
   resetPoints,
   selectNode,
@@ -227,6 +228,7 @@ onMounted(() => {
         :get-category-color="getCategoryColor"
         :get-skill-name="getSkillName"
         :get-skill-desc="getSkillDesc"
+        :get-node-requirement-items="getNodeRequirementItems"
         @close="selectNode(null)"
         @toggle-activation="toggleNodeActivation"
         @locate-node="onLocateNode"

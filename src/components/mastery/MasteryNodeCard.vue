@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import {computed} from 'vue';
 import {useI18n} from 'vue-i18n';
 import type {Mastery} from 'glow-prow-data';
+import type {NodeRequirementItem} from '@/assets/sripts/use_mastery_controller';
 import RhombusWidget from '@/components/snbWidget/rhombusWidget.vue';
+import MaterialName from "@/components/snbWidget/materialName.vue";
 
 const {t} = useI18n();
 
@@ -17,6 +20,7 @@ const props = defineProps<{
   getCategoryColor: (category?: string) => string;
   getSkillName: (key: string, id?: string) => string;
   getSkillDesc: (key: string, id?: string) => string;
+  getNodeRequirementItems?: (keyOrId: string) => NodeRequirementItem[];
 }>();
 
 const emit = defineEmits<{
@@ -24,6 +28,22 @@ const emit = defineEmits<{
   (e: 'toggle-activation', id: string): void;
   (e: 'locate-node', id: string): void;
 }>();
+
+const requirementItems = computed<NodeRequirementItem[]>(() => {
+  if (!props.node) return [];
+  if (props.getNodeRequirementItems) {
+    return props.getNodeRequirementItems(props.node.key || props.node.id);
+  }
+  if (!props.node.requisite) return [];
+  return props.node.requisite.map(reqId => ({
+    key: reqId,
+    id: reqId,
+    name: props.getSkillName(reqId),
+    isActive: props.isNodeActive(reqId),
+    isRequisite: true,
+    isConnectedActive: false,
+  }));
+});
 </script>
 
 <template>
@@ -37,7 +57,7 @@ const emit = defineEmits<{
       }"
       class="skill-tree-container-cardInfo overflow-y-auto">
     <template v-slot:title>
-      <span class="text-amber font-weight-bold">{{ getSkillName(node.id, node.key) }}</span>
+      <span class="text-amber text-h5">{{ getSkillName(node.id, node.key) }}</span>
       <div
           class="mb-1 d-flex align-center text-caption my-2 ga-2"
           v-if="node.category"
@@ -66,33 +86,43 @@ const emit = defineEmits<{
     <!-- 前置依赖需求 -->
     <div class="skill-tree-title px-10 mx-n6 py-2 text-amber-lighten-4">{{ t('mastery.card.requirements') }}</div>
     <div class="py-2 px-5 mb-5">
-      <p class="mb-2 text-caption opacity-70" v-if="node.requisite && node.requisite.length > 0">
-        {{ t('mastery.card.reqConnected') }}
-      </p>
-      <div v-if="node.requisite && node.requisite.length > 0">
-        <v-row
-            no-gutters
-            v-for="reqId in node.requisite"
-            :key="reqId"
-            align="center"
-            class="my-2"
-        >
-          <v-col cols="auto" class="d-flex justify-center align-center mr-2">
-            <RhombusWidget
-                :size="6"
-                :solid="isNodeActive(reqId)"
-                :activate="isNodeActive(reqId)"
-            ></RhombusWidget>
-          </v-col>
-          <v-col @click="emit('locate-node', reqId)" class="cursor-pointer d-flex align-center">
-            <span
-                class="text-caption u"
-                :class="{'text-success': isNodeActive(reqId), 'opacity-70': !isNodeActive(reqId)}">
-              {{ getSkillName(reqId) }}
-            </span>
-          </v-col>
-        </v-row>
-      </div>
+      <template v-if="requirementItems.length > 0">
+        <p class="mb-2 text-caption opacity-70">
+          {{ t('mastery.card.reqConnected') }}
+        </p>
+        <div>
+          <v-row
+              no-gutters
+              v-for="item in requirementItems"
+              :key="item.key"
+              align="center"
+              class="my-2">
+            <v-col cols="auto" class="d-flex justify-center align-center mr-2">
+              <RhombusWidget
+                  :size="6"
+                  :solid="item.isActive"
+                  :activate="item.isActive"
+              ></RhombusWidget>
+            </v-col>
+            <v-col @click="emit('locate-node', item.id || item.key)" class="cursor-pointer d-flex align-center flex-wrap ga-1">
+              <span
+                  class="text-caption u"
+                  :class="{'text-success': item.isActive, 'opacity-70': !item.isActive}">
+                {{ item.name }}
+              </span>
+              <v-chip
+                  v-if="item.isConnectedActive"
+                  size="x-small"
+                  color="success"
+                  variant="tonal"
+                  class="ml-1"
+                  density="compact">
+                {{ t('mastery.card.connectedActive') }}
+              </v-chip>
+            </v-col>
+          </v-row>
+        </div>
+      </template>
       <div v-else class="text-caption opacity-60">
         {{ t('mastery.card.noRequisites') }}
       </div>
@@ -102,7 +132,7 @@ const emit = defineEmits<{
     <div class="skill-tree-title px-10 mx-n6 py-2 text-amber-lighten-4">{{ t('mastery.card.other') }}</div>
     <div class="py-2 mx-5 mb-4">
       <v-text-field
-          :value="node.id"
+          :value="node.skill || node.id"
           hide-details
           readonly
           variant="underlined"
@@ -123,29 +153,29 @@ const emit = defineEmits<{
         </template>
       </v-text-field>
 
-      <v-text-field
-          :value="node.category"
-          hide-details
-          readonly
-          variant="underlined"
-          density="compact">
-        <template v-slot:append-inner>
-          <span class="singe-line mr-1">{{ t('mastery.card.category') }}</span>
-          <v-icon size="18">mdi-shape</v-icon>
-        </template>
-      </v-text-field>
+<!--      <v-text-field-->
+<!--          :value="node.category"-->
+<!--          hide-details-->
+<!--          readonly-->
+<!--          variant="underlined"-->
+<!--          density="compact">-->
+<!--        <template v-slot:append-inner>-->
+<!--          <span class="singe-line mr-1">{{ t('mastery.card.category') }}</span>-->
+<!--          <v-icon size="18">mdi-shape</v-icon>-->
+<!--        </template>-->
+<!--      </v-text-field>-->
 
-      <v-text-field
-          :value="node.role"
-          hide-details
-          readonly
-          variant="underlined"
-          density="compact">
-        <template v-slot:append-inner>
-          <span class="singe-line mr-1">{{ t('mastery.card.role') }}</span>
-          <v-icon size="18">mdi-star-circle</v-icon>
-        </template>
-      </v-text-field>
+<!--      <v-text-field-->
+<!--          :value="node.role"-->
+<!--          hide-details-->
+<!--          readonly-->
+<!--          variant="underlined"-->
+<!--          density="compact">-->
+<!--        <template v-slot:append-inner>-->
+<!--          <span class="singe-line mr-1">{{ t('mastery.card.role') }}</span>-->
+<!--          <v-icon size="18">mdi-star-circle</v-icon>-->
+<!--        </template>-->
+<!--      </v-text-field>-->
 
       <v-text-field
           v-if="node.cost !== undefined"

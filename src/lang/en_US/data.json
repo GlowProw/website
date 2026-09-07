@@ -1661,7 +1661,10 @@
       "selectThisPerk": "Activate This Perk",
       "deselectThisPerk": "Deactivate This Perk",
       "perkCost": "Activation Threshold (cumulative pts)",
-      "pointCost": "Mastery Point Cost"
+      "pointCost": "Mastery Point Cost",
+      "connectedActive": "Connected Active",
+      "deactivateOrphanError": "Cannot refund: refunding this node would disconnect remaining active nodes from the root.",
+      "deactivateDependentError": "Cannot refund: subsequent active nodes depend on this path. Refund downstream nodes first."
     },
     "debug": {
       "title": "Mastery Tree Debug & Coordinate Editor",
