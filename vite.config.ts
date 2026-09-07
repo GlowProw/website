@@ -138,7 +138,7 @@ export default defineConfig({
                 ]
             },
             workbox: {
-                maximumFileSizeToCacheInBytes: 4 * 1024 * 1024, // 4MB
+                maximumFileSizeToCacheInBytes: 8 * 1024 * 1024, // 8MB
                 navigateFallback: '/index.html',
                 navigateFallbackDenylist: [
                     /^\/sitemap\.xml$/,
@@ -218,7 +218,15 @@ export default defineConfig({
     resolve: {
         alias: {
             // import assets
-            '@glow-prow-assets': path.resolve(__dirname, 'node_modules/glow-prow-assets'),
+            '@glow-prow-assets': fs.existsSync(path.resolve(__dirname, '../glow-prow-assets'))
+                ? path.resolve(__dirname, '../glow-prow-assets')
+                : path.resolve(__dirname, 'node_modules/glow-prow-assets'),
+            'glow-prow-data-languages': fs.existsSync(path.resolve(__dirname, '../glow-prow-data-languages'))
+                ? path.resolve(__dirname, '../glow-prow-data-languages')
+                : path.resolve(__dirname, 'node_modules/glow-prow-data-languages'),
+            'glow-prow-data': fs.existsSync(path.resolve(__dirname, '../glow-prow-data'))
+                ? path.resolve(__dirname, '../glow-prow-data')
+                : path.resolve(__dirname, 'node_modules/glow-prow-data'),
             '@': path.resolve(__dirname, './src'),
             '~': path.resolve(__dirname, './'),
         },

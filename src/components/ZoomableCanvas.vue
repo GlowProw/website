@@ -1,40 +1,44 @@
 <template>
-  <div class="canvas-container overlapping-circles" ref="container">
-    <div class="canvas-container overlapping-pattern">
-      <v-container class="position-relative" v-if="isShowTool && !disabled">
-        <ZoomableTool @event-center="resetView"
-                      @event-minus="onScaleMinus"
-                      @event-plus="onScalePlus"></ZoomableTool>
-      </v-container>
+  <StylizedLineBackground
+      class="canvas-container"
+      ref="container"
+      :offset-x="position.x"
+      :offset-y="position.y"
+  >
+    <v-container class="position-relative" v-if="isShowTool && !disabled">
+      <ZoomableTool @event-center="resetView"
+                    @event-minus="onScaleMinus"
+                    @event-plus="onScalePlus"></ZoomableTool>
+    </v-container>
 
-      <div
-          class="canvas"
-          ref="canvas"
-          :style="{
-            transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
-            width: `${canvasWidth}px`,
-            height: `${contentHeight}px`,
-            'pointer-events': isDragging ? 'none' : 'auto'
-          }"
-          @wheel.passive="handleWheel"
-          @mousedown="startDrag"
-          @touchstart.passive="startTouchDrag"
-          @touchmove.prevent.passive="handleTouchDrag"
-          @touchend.passive="stopDrag">
-        <div class="content-wrapper content-layer"
-             :style="{ pointerEvents: 'auto' }"
-             ref="contentWrapper">
-          <slot></slot>
-        </div>
+    <div
+        class="canvas"
+        ref="canvas"
+        :style="{
+          transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
+          width: `${canvasWidth}px`,
+          height: `${contentHeight}px`,
+          'pointer-events': isDragging ? 'none' : 'auto'
+        }"
+        @wheel.passive="handleWheel"
+        @mousedown="startDrag"
+        @touchstart.passive="startTouchDrag"
+        @touchmove.prevent.passive="handleTouchDrag"
+        @touchend.passive="stopDrag">
+      <div class="content-wrapper content-layer"
+           :style="{ pointerEvents: 'auto' }"
+           ref="contentWrapper">
+        <slot></slot>
       </div>
     </div>
-  </div>
+  </StylizedLineBackground>
 </template>
 
 <script setup lang="ts">
 import {nextTick, onBeforeUnmount, onMounted, ref} from 'vue'
 import {useDisplay} from "vuetify/framework";
 import ZoomableTool from "@/components/ZoomableTool.vue";
+import StylizedLineBackground from "@/components/StylizedLineBackground.vue";
 
 const {mobile} = useDisplay()
 const props = defineProps({
@@ -339,43 +343,5 @@ defineExpose({
 
 .content-layer {
   pointer-events: auto;
-}
-
-.overlapping-pattern {
-  --offset-x: 0px;
-  --offset-y: 0px;
-  --size: 100px;
-  --color: rgba(255, 255, 255, 0.05);
-
-  background-image: linear-gradient(to right,
-  transparent calc(var(--size) + 0px),
-  var(--color) calc(var(--size) + 1px),
-  var(--color) calc(var(--size) + 2px),
-  transparent calc(var(--size) + 3px)),
-  linear-gradient(to bottom,
-  transparent calc(var(--size) + 0px),
-  var(--color) calc(var(--size) + 1px),
-  var(--color) calc(var(--size) + 2px),
-  transparent calc(var(--size) + 3px));
-
-  background-size: 236px 236px;
-  background-repeat: repeat;
-  background-position: var(--offset-x) var(--offset-y);
-}
-
-.overlapping-circles {
-  --offset-x: 0px;
-  --offset-y: 0px;
-  --size: 212px;
-  --color: rgba(255, 216, 2, 0.1);
-
-  background-image: radial-gradient(circle at calc(50%) calc(50%),
-  transparent calc(var(--size) + 0px),
-  var(--color) calc(var(--size) + 1px),
-  transparent calc(var(--size) + 3px));
-
-  background-size: calc(var(--size) + 210px) calc(var(--size) + 210px);
-  background-repeat: repeat;
-  background-position: var(--offset-x) var(--offset-y);
 }
 </style>

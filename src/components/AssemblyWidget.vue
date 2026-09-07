@@ -25,6 +25,7 @@ import UltimateName from "@/components/snbWidget/ultimateName.vue";
 import WeaponModificationOnlyShowWidget from "@/components/snbWidget/weaponModificationOnlyShowWidget.vue";
 import AssemblySvgIcon from "@/components/AssemblySvgIcon.vue";
 import {useDisplay} from "vuetify/framework";
+import {useAppStore} from "~/stores/appStore";
 
 const poops = withDefaults(defineProps<AssemblyWidgetProps>(), {
       readonly: false,
@@ -32,6 +33,7 @@ const poops = withDefaults(defineProps<AssemblyWidgetProps>(), {
       perfectDisplay: false,
       class: ''
     }),
+    appStore = useAppStore(),
     slots = useSlots(),
     attrs = useAttrs(),
     route = useRoute(),
@@ -728,7 +730,7 @@ defineOptions({name: 'AssemblyWidget'})
                   {{ t('assembly.workshop.displayTitle') }} ({{ workshopData.data.displaySlots.length || 0 }})
                 </v-card>
 
-                <template v-if="route.query.debug">
+                <template v-if="appStore.isDebug">
                   {{ workshopData.data.displaySlots || [] }}
                 </template>
 

@@ -8,7 +8,8 @@ const CONFIG_KEYS = {
     ICON_SIZE: 'iconSize',
     THEME: 'theme',
     LANGUAGE: 'language',
-    SIDEBAR_COLLAPSED: 'sidebarCollapsed'
+    SIDEBAR_COLLAPSED: 'sidebarCollapsed',
+    DEBUG: 'debug'
 } as const
 
 // 全局预捕获 PWA 安装事件
@@ -21,6 +22,9 @@ if (typeof window !== 'undefined') {
 }
 
 export const useAppStore = defineStore('app', () => {
+    // 开发者调试模式
+    const isDebug = ref(false)
+
     // 是否在新窗口打开项目
     const itemOpenNewWindow = ref(false)
 
@@ -108,8 +112,24 @@ export const useAppStore = defineStore('app', () => {
             {defaultValue: false}
         )
 
+        isDebug.value = storage_account.getConfigurationItem(
+            'app',
+            CONFIG_KEYS.DEBUG,
+            {defaultValue: false}
+        )
+
         // 应用主题
         applyTheme(theme.value)
+    }
+
+    /**
+     * 设置开发者调试模式
+     * @param value - true/false
+     */
+    const setDebug = (value: boolean) => {
+        isDebug.value = value
+        storage_account.updateConfiguration('app', CONFIG_KEYS.DEBUG, value)
+        return value
     }
 
     /**
@@ -295,6 +315,7 @@ export const useAppStore = defineStore('app', () => {
 
     return {
         // State
+        isDebug,
         itemOpenNewWindow,
         iconSize,
         theme,
@@ -314,6 +335,7 @@ export const useAppStore = defineStore('app', () => {
         // Actions
         initializeAppConfig,
         initializePwa,
+        setDebug,
         toggleItemOpenNewWindow,
         setIconSize,
         setTheme,

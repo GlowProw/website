@@ -5,7 +5,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import {Cosmetics, EmpireSkills, Items, MapLocations, Materials, Modifications, Npcs, Sets, Ships, TreasureMaps} from "glow-prow-data";
+import {Cosmetics, EmpireSkills, Items, MapLocations, Materials, Modifications, Npcs, Sets, Ships, TreasureMaps, Masterys} from "glow-prow-data";
 import {Commodities} from "glow-prow-data/src/entity/Commodities";
 import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
 import {computed, onMounted, ref, useSlots, watch} from "vue";
@@ -15,6 +15,7 @@ import {useI18n} from "vue-i18n";
 import {useDisplay} from "vuetify/framework";
 import {number, rarity} from "@/assets/sripts/index";
 import {use_icon_global_Style} from "@/assets/sripts/use_icon_global_Style";
+import {useAppStore} from "~/stores/appStore";
 
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
@@ -45,12 +46,15 @@ import NpcIconWidget from "@/components/snbWidget/npcIconWidget.vue";
 import NpcName from "@/components/snbWidget/npcName.vue";
 import EmpireSkillIconWidget from "@/components/snbWidget/empireSkillIconWidget.vue";
 import EmpireSkillName from "@/components/snbWidget/empireSkillName.vue";
+import MasteryIconWidget from "@/components/snbWidget/masteryIconWidget.vue";
+import MasteryName from "@/components/snbWidget/masteryName.vue";
 
-type LoadDataType = 'ship' | 'item' | 'commoditie' | 'material' | 'ultimate' | 'cosmetic' | 'modification' | 'set' | 'treasureMap' | 'mapLocation' | 'npc' | 'empireSkill'
+type LoadDataType = 'ship' | 'item' | 'commoditie' | 'material' | 'ultimate' | 'cosmetic' | 'modification' | 'set' | 'treasureMap' | 'mapLocation' | 'npc' | 'empireSkill' | 'mastery'
 type SortField = 'dateAdded' | 'lastUpdated'
 type SortOrder = 'asc' | 'desc'
 
 const
+    appStore = useAppStore(),
     props = withDefaults(defineProps<{ loadDataType: LoadDataType[] }>(), {
       loadDataType: () => ['item'] as LoadDataType[]
     }),
@@ -264,6 +268,8 @@ const onProcessedData = computed(() => {
           `snb.npcs.${sanitizeString(i.id).cleaned}.name`,
           `snb.empireSkills.${i.id}.name`,
           `snb.empireSkills.${sanitizeString(i.id).cleaned}.name`,
+          `snb.masterys.${i.skill || i.id}.name`,
+          `snb.masterys.${sanitizeString(i.skill || i.id).cleaned}.name`,
           `snb.sets.${i.id}`,
         ], {
           backRawKey: true
@@ -367,9 +373,9 @@ const onProcessedData = computed(() => {
         exceedingItemsCount.value = Math.max(sortedData.length - maximumSearchCount, 0)
       return isSearching.value ? sortedData.slice(0, maximumSearchCount) : sortedData;
     }),
-    maximumSearchCount = route.query.debug ? 10000 : 100,
+    maximumSearchCount = appStore.isDebug ? 10000 : 100,
     originalData = computed(() => {
-      let d = []
+      let d: any[] = []
       props.loadDataType.forEach(type => {
         switch (type) {
             // 手稿
@@ -410,6 +416,24 @@ const onProcessedData = computed(() => {
           case "empireSkill":
             d = d.concat(Object.values(empireSkills).filter((i: any) => i.id !== 'root'))
             break;
+          case "mastery": {
+            const masteryMap = new Map();
+            Object.values(Masterys).forEach((tree: any) => {
+              if (tree && tree.nodes) {
+                Object.values(tree.nodes).forEach((node: any) => {
+                  if (!masteryMap.has(node.id)) {
+                    masteryMap.set(node.id, {
+                      ...node,
+                      _typeStringName: 'Mastery',
+                      seasons: [node.season],
+                    });
+                  }
+                });
+              }
+            });
+            d = d.concat(Array.from(masteryMap.values()));
+            break;
+          }
         }
       })
       return Object.values(d)
@@ -1201,6 +1225,7 @@ const onSort = (field: SortField, order: SortOrder) => {
               <MapLocationIconWidget :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationIconWidget>
               <NpcIconWidget :data="i" v-if="i._typeStringName == 'Npc'"></NpcIconWidget>
               <EmpireSkillIconWidget :id="i.id" v-if="i._typeStringName == 'EmpireSkill'"></EmpireSkillIconWidget>
+              <MasteryIconWidget :id="i.id" :name="i.skill" :category="i.category" :with-background="true" v-if="i._typeStringName == 'Mastery'"></MasteryIconWidget>
             </ItemSlotBase>
 
             <div v-if="i.set && i.set.id && isFilterSet" class="position-absolute subordinate-data">
@@ -1227,6 +1252,7 @@ const onSort = (field: SortField, order: SortOrder) => {
             <MapLocationName :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationName>
             <NpcName :data="i" v-if="i._typeStringName == 'Npc'"></NpcName>
             <EmpireSkillName :id="i.id" v-if="i._typeStringName == 'EmpireSkill'"></EmpireSkillName>
+            <MasteryName :id="i.id" v-if="i._typeStringName == 'Mastery'"></MasteryName>
           </div>
         </v-card>
       </v-row>
@@ -1250,6 +1276,7 @@ const onSort = (field: SortField, order: SortOrder) => {
               <MapLocationIconWidget :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationIconWidget>
               <NpcIconWidget :data="i" v-if="i._typeStringName == 'Npc'"></NpcIconWidget>
               <EmpireSkillIconWidget :id="i.id" v-if="i._typeStringName == 'EmpireSkill'"></EmpireSkillIconWidget>
+              <MasteryIconWidget :id="i.id" :name="i.skill" :category="i.category" :with-background="true" v-if="i._typeStringName == 'Mastery'"></MasteryIconWidget>
             </ItemSlotBase>
 
             <div v-if="i.set && i.set.id && isFilterSet" class="position-absolute subordinate-data">
@@ -1276,6 +1303,7 @@ const onSort = (field: SortField, order: SortOrder) => {
             <MapLocationName :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationName>
             <NpcName :data="i" v-if="i._typeStringName == 'Npc'"></NpcName>
             <EmpireSkillName :id="i.id" v-if="i._typeStringName == 'EmpireSkill'"></EmpireSkillName>
+            <MasteryName :id="i.id" v-if="i._typeStringName == 'Mastery'"></MasteryName>
           </div>
         </v-card>
       </v-row>

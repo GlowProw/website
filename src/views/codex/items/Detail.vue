@@ -41,11 +41,13 @@ import {useNoticeStore} from "~/stores/noticeStore";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
+import {useAppStore} from "~/stores/appStore";
 
 const
     {t, messages} = useI18n(),
     router = useRouter(),
     route = useRoute(),
+    appStore = useAppStore(),
     authStore = useAuthStore(),
     {asString, sanitizeString} = useI18nUtils(),
     i18nReadName = useI18nReadName(),
@@ -295,7 +297,7 @@ const onAddCalculator = () => {
 
             <v-row>
               <v-col cols="12" lg="6" sm="12" xl="6">
-                <template v-if="route.query.debug">
+                <template v-if="appStore.isDebug">
                   {{ itemDetailData }}
                 </template>
                 <template v-if="itemDetailData.id">

@@ -27,9 +27,11 @@ import ShareWidget from "@/components/ShareWidget.vue";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
+import {useAppStore} from "~/stores/appStore";
 
 const {t, messages} = useI18n(),
     route = useRoute(),
+    appStore = useAppStore(),
     authStore = useAuthStore(),
     i18nReadName = useI18nReadName(),
     cdnStore = useCDNAssetsServiceStore(),
@@ -200,7 +202,7 @@ const onCodexHistory = () => {
 
             <v-row class="mb-5">
               <v-col cols="12" sm="12" lg="6" xl="6">
-                <template v-if="route.query.debug">
+                <template v-if="appStore.isDebug">
                   {{ cosmeticDetailData }}
                 </template>
                 <template v-if="cosmeticDetailData.id">

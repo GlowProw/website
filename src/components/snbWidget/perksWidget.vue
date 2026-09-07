@@ -6,8 +6,10 @@ import {onUnmounted, ref, watch} from "vue";
 import {useRoute} from "vue-router";
 import PerksName from "./perksName.vue";
 import PerkDescription from "@/components/snbWidget/perksDescription.vue";
+import {useAppStore} from "~/stores/appStore";
 
 const {locale} = useI18n(),
+    appStore = useAppStore(),
     route = useRoute(),
     props = withDefaults(defineProps<{ data: any }>(), {
       data: null
@@ -43,7 +45,7 @@ defineOptions({
                 <b class="text-amber">
                   <PerksName ref="perksNameRef" :id="p"></PerksName>
                 </b>
-                <template v-if="route.query.debug">
+                <template v-if="appStore.isDebug">
                   - {{ p }}
                 </template>
               </v-col>

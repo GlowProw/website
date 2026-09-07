@@ -15,6 +15,7 @@ import {nextTick, onMounted, type Ref, ref, UnwrapRef, useSlots, watch} from "vu
 import {useRoute, useRouter} from "vue-router";
 import HtmlLink from "@/components/HtmlLink.vue";
 import MaterialNameRarity from "@/components/snbWidget/materialNameRarity.vue";
+import {useAppStore} from "~/stores/appStore";
 
 const props = withDefaults(
         defineProps<{ data: Item | Ship, isTitle?: boolean, isRawMaterials?: boolean }>(),
@@ -23,6 +24,7 @@ const props = withDefaults(
           isRawMaterials: true
         }
     ),
+    appStore = useAppStore(),
     {t} = useI18n(),
     route = useRoute(),
     router = useRouter(),
@@ -97,7 +99,7 @@ const onStatisticsRawMaterial = () => {
                     <v-icon size="14">mdi-open-in-new</v-icon>
                   </HtmlLink>
                 </p>
-                <p class="text-no-wrap mt-n2 opacity-30" v-if="route.query.debug">{{ i.id }}</p>
+                <p class="text-no-wrap mt-n2 opacity-30" v-if="appStore.isDebug">{{ i.id }}</p>
               </div>
             </template>
             <template v-slot:prepend>
@@ -162,7 +164,7 @@ const onStatisticsRawMaterial = () => {
                     <v-icon size="12">mdi-open-in-new</v-icon>
                   </HtmlLink>
                 </p>
-                <p class="text-no-wrap mt-n2 opacity-30" v-if="route.query.debug">{{ key }}</p>
+                <p class="text-no-wrap mt-n2 opacity-30" v-if="appStore.isDebug">{{ key }}</p>
               </div>
             </template>
             <template v-slot:prepend>

@@ -1061,6 +1061,14 @@
     "empireSkills": {
       "title": "Empire Skills",
       "describe": "The Empire Skills codex catalogs Empire tree upgrades, requisites, and stage effects."
+    },
+    "mastery": {
+      "title": "Mastery",
+      "describe": "The Mastery codex catalogs seasonal mastery tree upgrade nodes, key buffs, and perks."
+    },
+    "masterys": {
+      "title": "Mastery",
+      "describe": "The Mastery codex catalogs seasonal mastery tree upgrade nodes, key buffs, and perks."
     }
   },
   "calendar": {
@@ -1553,6 +1561,92 @@
     "dateAdded": "Date Added",
     "lastUpdated": "Last Updated"
   },
+  "mastery": {
+    "title": "Mastery Skill Simulation",
+    "panelTitle": "Mastery Control",
+    "searchPlaceholder": "Search mastery skill or node ID...",
+    "share": "Share Build",
+    "collapsePanel": "Collapse Panel",
+    "expandPanel": "Expand Panel",
+    "pointsTitle": "Mastery Points",
+    "pointsSpent": "Points Spent: {spent} pts",
+    "pointsExceeded": "(Exceeded Limit)",
+    "reset": "Reset",
+    "seasonalPerksTitle": "Active Seasonal Perks",
+    "seasonalPerksEmpty": "No active seasonal perks (select one per tier once threshold is met)",
+    "perkRequirement": "Requires {cost} pts",
+    "selectPerk": "Select Perk",
+    "deselectPerk": "Deselect Perk",
+    "perkActive": "Perk Active",
+    "perkSelectOne": "Choose 1 per tier once met",
+    "perkActiveOne": "Active (1 selected per tier)",
+    "perkPointsRequired": "Requires {spent}/{cost} pts",
+    "aggregatedTitle": "Aggregated Effects",
+    "filterEffectsPlaceholder": "Filter effect attributes...",
+    "collapseAll": "Collapse All",
+    "expandAll": "Expand All",
+    "noAggregatedEffects": "No active aggregated effects found",
+    "sourcesCount": "{count} Sources",
+    "sourcesTitle": "Bonus Sources:",
+    "activatedTimes": "Activated {count} times",
+    "zoomIn": "Zoom In",
+    "zoomOut": "Zoom Out",
+    "zoomTo": "Zoom to {zoom}x",
+    "resetView": "Reset View",
+    "debugBadge": "DEBUG Mode (Draggable nodes & relation editor)",
+    "shareDialog": {
+      "title": "Share & Import Mastery Build",
+      "currentSeason": "Current Season",
+      "pointsSpent": "Mastery Points Spent",
+      "activatedNodes": "Active Nodes",
+      "shareLinkTitle": "Exclusive Share Link",
+      "shareLinkDesc": "Build is compressed via parameter share=<code>, copy and send directly to teammates.",
+      "copyLink": "Copy Share Link",
+      "copySuccess": "Share link copied to clipboard",
+      "copyFailed": "Copy failed, please copy manually",
+      "importTitle": "Import Build",
+      "importDesc": "Paste share link with share= or encoded string here to restore build:",
+      "importPlaceholder": "Paste link or compressed code...",
+      "importAction": "Decode & Apply",
+      "importSuccess": "Mastery build loaded successfully",
+      "importFailed": "Failed to parse build code, please check string"
+    },
+    "card": {
+      "active": "Active",
+      "effects": "Effects",
+      "requirements": "Requirements",
+      "reqConnected": "Connect and activate at least one of these nodes:",
+      "noRequisites": "No requisites required (Root or independent perk)",
+      "other": "Other",
+      "nodeId": "Node ID",
+      "category": "Category",
+      "role": "Role",
+      "cost": "Required Points",
+      "pointsUnit": "pts",
+      "statusActive": "Active (1/1)",
+      "statusAvailable": "Available to invest",
+      "statusLocked": "Locked (Prerequisites not met)",
+      "investPoint": "Invest Point",
+      "refundPoint": "Refund Point",
+      "selectThisPerk": "Activate This Perk",
+      "deselectThisPerk": "Deactivate This Perk"
+    },
+    "debug": {
+      "title": "Mastery Tree Debug & Coordinate Editor",
+      "exportJson": "Copy / Export JSON",
+      "selectedNode": "Selected Node",
+      "coordX": "X Coordinate",
+      "coordY": "Y Coordinate",
+      "requisites": "Requisites",
+      "requisitesPlaceholder": "Enter requisite node ID",
+      "clickHint": "Click any canvas node to inspect or drag coordinates",
+      "copied": "Mastery configuration JSON copied to clipboard"
+    },
+    "season": {
+      "shatteredSeas": "Y3S1 - Shattered Seas",
+      "crimsonWaters": "Y3S2 - Crimson Waters"
+    }
+  },
   "search": {
     "title": "Search",
     "placeholder": "Enter keywords or use field query, e.g.: name:device or id:exact_id",
@@ -1814,9 +1908,14 @@
         "description": "Share your outfit and become a fashionista"
       },
       "empire-skill-simulation": {
-        "title": "Empire Upgrade Simulation (BETA 1)",
+        "title": "Empire Skill Simulation (BETA 1)",
         "description": "The Helm Upgrade Simulation",
         "keywords": "empire skill simulation"
+      },
+      "mastery": {
+        "title": "Mastery Simulation",
+        "description": "Seasonal mastery skill tree simulation and effect aggregation",
+        "keywords": "mastery loadout simulation"
       },
       "calculator": {
         "title": "Quantitative Calculator",

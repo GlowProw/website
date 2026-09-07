@@ -33,11 +33,13 @@ import MaterialName from "@/components/snbWidget/materialName.vue";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
+import {useAppStore} from "~/stores/appStore";
 
 const
     {t, messages} = useI18n(),
     router = useRouter(),
     route = useRoute(),
+    appStore = useAppStore(),
     authStore = useAuthStore(),
     {asArray, asString, sanitizeString} = useI18nUtils(),
     i18nReadName = useI18nReadName(),
@@ -232,7 +234,7 @@ const onCodexHistory = () => {
 
             <v-row class="mb-3">
               <v-col cols="12" sm="12" lg="6" xl="6">
-                <template v-if="route.query.debug">
+                <template v-if="appStore.isDebug">
                   {{ npcDetailData }}
                 </template>
                 <template v-if="npcDetailData.id">

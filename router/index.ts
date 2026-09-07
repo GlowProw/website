@@ -63,8 +63,11 @@ import NpcDetailPage from '@/views/codex/npcs/Detail.vue'
 
 import EmpireSkillsPage from '@/views/codex/empireSkills/Index.vue'
 import EmpireSkillDetailPage from '@/views/codex/empireSkills/Detail.vue'
+import CodexMasterysPage from '@/views/codex/masterys/Index.vue'
+import CodexMasteryDetailPage from '@/views/codex/masterys/Detail.vue'
 
 import EmpireSkillSimulationPage from '@/views/empireSkillSimulation/Index.vue'
+import MasteryPage from '@/views/mastery/Index.vue'
 
 import UltimatesPage from '@/views/codex/ultimates/Index.vue'
 import UltimateDetailPage from '@/views/codex/ultimates/Detail.vue'
@@ -698,6 +701,28 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: 'empireSkills/:id',
                 redirect: to => `/codex/empireSkill/${to.params.id}`,
             },
+            {
+                path: 'masterys',
+                name: 'Masterys',
+                meta: {
+                    title: 'codex.masterys.title',
+                    keywords: 'codex.masterys.meta.keywords'
+                },
+                component: CodexMasterysPage,
+            },
+            {
+                path: 'mastery/:id',
+                name: 'MasteryDetail',
+                meta: {
+                    title: 'codex.mastery.title',
+                    keywords: 'codex.mastery.meta.keywords'
+                },
+                component: CodexMasteryDetailPage,
+            },
+            {
+                path: 'masterys/:id',
+                redirect: to => `/codex/mastery/${to.params.id}`,
+            },
         ]
     },
     {
@@ -821,6 +846,16 @@ const routes: Readonly<RouteRecordRaw[]> = [
         meta: {
             title: 'header.functions.empire-skill-simulation.title',
             keywords: 'header.functions.empire-skill-simulation.keywords'
+        },
+        beforeEnter: initItemAssets,
+    },
+    {
+        path: '/mastery',
+        name: 'Mastery',
+        component: MasteryPage,
+        meta: {
+            title: 'header.functions.mastery.title',
+            keywords: 'header.functions.mastery.keywords'
         },
         beforeEnter: initItemAssets,
     },

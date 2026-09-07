@@ -19,10 +19,12 @@ import AssemblyDataProcessing from "@/assets/sripts/assembly_data_processing"
 import WheelDataProcessing from "@/assets/sripts/wheel_data_processing"
 import WarehouseDataProcessing from "@/assets/sripts/warehouse_data_processing"
 import {useGoTo} from "vuetify/framework";
+import {useAppStore} from "~/stores/appStore";
 
 const route = useRoute(),
     router = useRouter(),
     notice = useNoticeStore(),
+    appStore = useAppStore(),
     {asString} = useI18nUtils(),
     {t, locale} = useI18n(),
     goto = useGoTo()
@@ -337,7 +339,7 @@ const onPublish = async () => {
                           :maxlength="10000"
                           class="mt-3 mb-2"
                           :placeholder="t('basic.assembly.publish.descriptionPlaceholder')"></Textarea>
-                <template v-if="route.query.debug">
+                <template v-if="appStore.isDebug">
                   {{ publishData.description }}
                 </template>
               </v-card>

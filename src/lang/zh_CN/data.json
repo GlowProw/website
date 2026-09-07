@@ -1064,6 +1064,14 @@
     "empireSkills": {
       "title": "帝国技能",
       "describe": "帝国技能手稿收录帝国科技树各项升级技能、前置条件与阶段效果。"
+    },
+    "mastery": {
+      "title": "专精技能",
+      "describe": "专精技能手稿收录各赛季专精树升级节点、核心增益与赛季特长效果。"
+    },
+    "masterys": {
+      "title": "专精技能",
+      "describe": "专精技能手稿收录各赛季专精树升级节点、核心增益与赛季特长效果。"
     }
   },
   "calendar": {
@@ -1552,6 +1560,92 @@
     "dateAdded": "创建时间",
     "lastUpdated": "更新时间"
   },
+  "mastery": {
+    "title": "专精技能模拟",
+    "panelTitle": "专精控制",
+    "searchPlaceholder": "搜索专精技能或节点 ID...",
+    "share": "分享加点",
+    "collapsePanel": "收起面板",
+    "expandPanel": "展开面板",
+    "pointsTitle": "专精点数",
+    "pointsSpent": "已投入点数: {spent} 点",
+    "pointsExceeded": "（已超出上限）",
+    "reset": "重置",
+    "seasonalPerksTitle": "已激活赛季效果",
+    "seasonalPerksEmpty": "暂无已激活的赛季特长（投入点数达到门槛后可选择其一生效）",
+    "perkRequirement": "需 {cost} 点",
+    "selectPerk": "选择生效",
+    "deselectPerk": "取消生效",
+    "perkActive": "特长已激活生效",
+    "perkSelectOne": "同阶可选其一生效",
+    "perkActiveOne": "已选择生效 (同阶选一)",
+    "perkPointsRequired": "需投入 {spent}/{cost} 点",
+    "aggregatedTitle": "聚合效果统计",
+    "filterEffectsPlaceholder": "筛选效果属性...",
+    "collapseAll": "全部折叠",
+    "expandAll": "全部展开",
+    "noAggregatedEffects": "未检索到激活的聚合属性",
+    "sourcesCount": "{count} 项来源",
+    "sourcesTitle": "贡献增益来源：",
+    "activatedTimes": "已点亮 {count} 次",
+    "zoomIn": "放大",
+    "zoomOut": "缩小",
+    "zoomTo": "缩放至 {zoom}x",
+    "resetView": "重置视角",
+    "debugBadge": "DEBUG 模式 (可拖拽节点/编辑关系)",
+    "shareDialog": {
+      "title": "专精加点分享与导入",
+      "currentSeason": "当前赛季",
+      "pointsSpent": "投入专精点数",
+      "activatedNodes": "已激活节点数",
+      "shareLinkTitle": "专属分享链接",
+      "shareLinkDesc": "加点方案经过轻量级压缩编码（通过 share= 参数携带），复制后可直接发送给队友查看。",
+      "copyLink": "复制分享链接",
+      "copySuccess": "分享链接已复制到剪贴板",
+      "copyFailed": "复制失败，请手动复制",
+      "importTitle": "导入加点方案",
+      "importDesc": "在此粘贴包含 share= 的链接或分享代码，快速恢复对应赛季与专精加点：",
+      "importPlaceholder": "粘贴链接或压缩代码...",
+      "importAction": "解析并更新",
+      "importSuccess": "加点方案导入成功",
+      "importFailed": "加点方案解析失败，请检查分享代码"
+    },
+    "card": {
+      "active": "已激活",
+      "effects": "效果",
+      "requirements": "需求",
+      "reqConnected": "需连通以下节点之一并点亮：",
+      "noRequisites": "无前置连接要求（起始节点或独立特长节点）",
+      "other": "其他",
+      "nodeId": "节点 ID",
+      "category": "所属分类",
+      "role": "节点角色",
+      "cost": "所需专精投入点数",
+      "pointsUnit": "点",
+      "statusActive": "已激活 (1/1)",
+      "statusAvailable": "可投入点数",
+      "statusLocked": "未激活 (前置未连通)",
+      "investPoint": "投入点数",
+      "refundPoint": "撤回点数",
+      "selectThisPerk": "选择此特长生效",
+      "deselectThisPerk": "取消此特长生效"
+    },
+    "debug": {
+      "title": "专精树调试与坐标编辑",
+      "exportJson": "复制/导出 JSON",
+      "selectedNode": "选中节点",
+      "coordX": "X 坐标",
+      "coordY": "Y 坐标",
+      "requisites": "前置关系 (Requisites)",
+      "requisitesPlaceholder": "输入前置节点ID",
+      "clickHint": "点击画布节点即可查看或拖拽微调坐标",
+      "copied": "已复制当前专精树配置 JSON 到剪贴板"
+    },
+    "season": {
+      "shatteredSeas": "Y3S1 - 碎海之境 (Shattered Seas)",
+      "crimsonWaters": "Y3S2 - 腥红水域 (Crimson Waters)"
+    }
+  },
   "search": {
     "title": "搜索",
     "placeholder": "输入关键词或使用字段查询，如：name:设备 或 id:exact_id",
@@ -1815,6 +1909,11 @@
         "title": "帝国升级模拟 (BETA 1)",
         "description": "海陀社升级模拟",
         "keywords": "empire skill simulation"
+      },
+      "mastery": {
+        "title": "专精模拟",
+        "description": "赛季专精技能树加点与效果聚合统计",
+        "keywords": "mastery loadout simulation"
       },
       "calculator": {
         "title": "量化计算",

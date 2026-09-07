@@ -17,8 +17,11 @@ import RankingDesignedItemsDataProcessing from "@/assets/sripts/ranking_designed
 import RankingDesignedMainSubjectView from "@/components/RankingDesignedMainSubjectView.vue";
 // workshop data processing E
 
+import {useAppStore} from "~/stores/appStore";
+
 const route = useRoute(),
     router = useRouter(),
+    appStore = useAppStore(),
     noticeStore = useNoticeStore(),
     {asString} = useI18nUtils(),
     {t, locale} = useI18n()
@@ -266,7 +269,7 @@ const onUpdateTags = (data: any) => {
                           :maxlength="10000"
                           class="mt-3 mb-2"
                           placeholder="输入描述描述"></Textarea>
-                <template v-if="route.query.debug">
+                <template v-if="appStore.isDebug">
                   {{ publishData.description }}
                 </template>
               </v-card>

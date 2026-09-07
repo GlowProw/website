@@ -27,10 +27,12 @@ import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import ShareWidget from "@/components/ShareWidget.vue";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
+import {useAppStore} from "~/stores/appStore";
 
 const {t, messages} = useI18n(),
     router = useRouter(),
     route = useRoute(),
+    appStore = useAppStore(),
     authStore = useAuthStore(),
     mapLocations = MapLocations,
     i18nReadName = useI18nReadName(),
@@ -180,7 +182,7 @@ const onCodexHistory = () => {
 
             <v-row class="mb-5">
               <v-col cols="12" sm="12" lg="6" xl="6">
-                <template v-if="route.query.debug">
+                <template v-if="appStore.isDebug">
                   {{ mapLocationDetailData }}
                 </template>
                 <template v-if="mapLocationDetailData.id">

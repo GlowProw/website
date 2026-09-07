@@ -12,12 +12,14 @@ import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
 import HtmlLink from "@/components/HtmlLink.vue";
 import {useDisplay} from "vuetify/framework";
 import HorizontalScrollList from "@/components/HorizontalScrollList.vue";
+import {useAppStore} from "~/stores/appStore";
 
 const modImages = import.meta.glob('@/assets/images/snb/modTypeIcons/*.*', {eager: true})
 const props = withDefaults(defineProps<{ id: string, type: string | null }>(), {
       id: null,
       type: null
     }),
+    appStore = useAppStore(),
     route = useRoute(),
     {mobile} = useDisplay(),
     {t, locale} = useI18n(),
@@ -276,7 +278,7 @@ defineOptions({
                        :class="`grade-${getModGrade(mod)}`"
                        :key="itemIdx"
                        :cols="{0: '12', 1: '1'}[displayMode]">
-                  <template v-if="route.query.debug">{{ mod }}</template>
+                  <template v-if="appStore.isDebug">{{ mod }}</template>
                   <template v-else-if="displayMode == 0">
                     <v-row align="center" no-gutters>
                       <v-col cols="auto">
