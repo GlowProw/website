@@ -5,6 +5,7 @@ import { useDisplay } from 'vuetify';
 import { useAssetsStore } from '~/stores/assetsStore';
 import { useAuthStore } from '~/stores/userAccountStore';
 import { useNoticeStore } from '~/stores/noticeStore';
+import { useAppStore } from '~/stores/appStore';
 import Storage from '@/assets/sripts/storage';
 import { useMapApi } from '@/assets/sripts/api/map_service';
 import { useI18nUtils } from "@/assets/sripts/i18n_util.js";
@@ -157,7 +158,8 @@ export function use_map_controller() {
         return [{ title: t('none'), uuid: null }].concat(userCollections.value as []);
     });
 
-    const isDebug = computed(() => !!route.query.debug);
+    const appStore = useAppStore();
+    const isDebug = computed(() => appStore.isDebug);
 
     watch(searchInput, (value) => {
         if (!value || !value.trim()) {

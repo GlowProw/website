@@ -1,7 +1,7 @@
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useI18n} from "vue-i18n";
 
-import {Cosmetics, EmpireSkills, Item, Items, MapLocations, Materials, Modifications, Npcs, Sets, Ship, Ships, TreasureMaps} from "glow-prow-data";
+import {Cosmetics, EmpireSkills, Item, Items, MapLocations, Masterys, Materials, Modifications, Npcs, Sets, Ship, Ships, TreasureMaps} from "glow-prow-data";
 import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
 import {number} from "@/assets/sripts/index";
 import {Commodities} from "glow-prow-data/src/entity/Commodities";
@@ -17,7 +17,8 @@ const items = Items,
     treasureMaps = TreasureMaps,
     ultimates = Ultimates,
     sets = Sets,
-    empireSkills = EmpireSkills
+    empireSkills = EmpireSkills,
+    masterys = Masterys
 
 /**
  * i18n 名称与描述数据读取 Hook
@@ -564,6 +565,48 @@ export function useI18nReadName() {
         };
     }
 
+    const mastery = (id: string | number) => {
+        const rawKey = String(id || '');
+        let skillKey = rawKey;
+
+        // 若传入的是节点ID（如 KBHM），尝试在专精树中寻找对应 skill 名称
+        const allTrees = Object.values(masterys);
+        for (const tree of allTrees) {
+            if (tree && (tree as any).nodes && (tree as any).nodes[rawKey]) {
+                skillKey = (tree as any).nodes[rawKey].skill;
+                break;
+            }
+        }
+
+        const keysName = [
+            `snb.masterys.${skillKey}.name`,
+            `snb.masterys.${rawKey}.name`,
+        ];
+        const keysDescription = [
+            `snb.masterys.${skillKey}.description`,
+            `snb.masterys.${rawKey}.description`,
+        ];
+
+        return {
+            keysName,
+            keysDescription,
+            name: (lang?: string): string => {
+                const translated = asString(keysName, {
+                    backRawKey: false,
+                    lang
+                });
+                return translated || skillKey || rawKey;
+            },
+            description: (lang?: string): string => {
+                const translated = asString(keysDescription, {
+                    backRawKey: false,
+                    lang
+                });
+                return translated || '';
+            }
+        };
+    };
+
     return {
         ship,
         npc,
@@ -578,6 +621,7 @@ export function useI18nReadName() {
         treasureMap,
         perk,
         empireSkill,
+        mastery,
         getValue
     }
 }

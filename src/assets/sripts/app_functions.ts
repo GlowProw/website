@@ -62,6 +62,12 @@ export default class AppFuns {
             to: '/empire-skill-simulation'
         },
         {
+            title: 'header.functions.mastery.title',
+            icon: 'mdi-compass-rose',
+            description: 'header.functions.mastery.description',
+            to: '/mastery'
+        },
+        {
             title: 'header.functions.calculator.title',
             icon: 'mdi-calculator',
             description: 'header.functions.calculator.description',

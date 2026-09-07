@@ -199,6 +199,10 @@ export default class AppCodexNav {
             title: 'codex.empireSkills.title',
             to: '/codex/empireSkills'
         },
+        {
+            title: 'codex.masterys.title',
+            to: '/codex/masterys'
+        },
     ]
 
     other = []
