@@ -6,6 +6,7 @@ import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 import {use_icon_global_Style} from "@/assets/sripts/use_icon_global_Style";
 import {Masterys} from "glow-prow-data";
 import MasteryCardDetail from "./masteryCardDetail.vue";
+import Loading from "../Loading.vue";
 
 const props = withDefaults(defineProps<{
   id?: string,
@@ -80,13 +81,15 @@ const effectiveSkill = computed(() => {
 });
 
 const effectiveId = computed(() => {
-  return props.id || nodeData.value?.key || nodeData.value?.id || '';
+  return nodeData.value?.id || props.id || '';
 });
 
 const cdnUrl = computed(() => {
   const rawSkill = effectiveSkill.value;
   if (!rawSkill) return '';
-  const skill = typeof rawSkill === 'object' ? ((rawSkill as any)?.skill || (rawSkill as any)?.id || '') : String(rawSkill);
+  const skill = typeof rawSkill === 'object' && rawSkill !== null
+    ? ((rawSkill as any)?.id || (rawSkill as any)?.key || (rawSkill as any)?.skill || '')
+    : String(rawSkill);
   if (!skill) return '';
   return currentImageService.url({
     'glow-prow': {
@@ -105,7 +108,11 @@ const cdnUrl = computed(() => {
 });
 
 const directStaticUrl = computed(() => {
-  const skill = effectiveSkill.value;
+  const rawSkill = effectiveSkill.value;
+  if (!rawSkill) return '';
+  const skill = typeof rawSkill === 'object' && rawSkill !== null
+    ? ((rawSkill as any)?.id || (rawSkill as any)?.key || (rawSkill as any)?.skill || '')
+    : String(rawSkill);
   if (!skill) return '';
   return `https://assets.glow-prow.top/mastery/${skill}.webp`;
 });
@@ -225,13 +232,7 @@ defineOptions({
             aspect-ratio="1"
             class="pointer-events-none w-100 h-100"
             contain>
-          <template v-slot:placeholder>
-            <div class="d-flex align-center justify-center fill-height">
-              <v-icon :size="fallbackIconSize" color="amber" class="opacity-40">mdi-flare</v-icon>
-            </div>
-          </template>
         </v-img>
-        <v-icon v-else :size="fallbackIconSize" color="amber">mdi-flare</v-icon>
       </v-card>
     </template>
     <MasteryCardDetail
@@ -276,13 +277,7 @@ defineOptions({
         aspect-ratio="1"
         class="pointer-events-none w-100 h-100"
         contain>
-      <template v-slot:placeholder>
-        <div class="d-flex align-center justify-center fill-height">
-          <v-icon :size="fallbackIconSize" color="amber" class="opacity-40">mdi-flare</v-icon>
-        </div>
-      </template>
     </v-img>
-    <v-icon v-else :size="fallbackIconSize" color="amber">mdi-flare</v-icon>
   </component>
 </template>
 

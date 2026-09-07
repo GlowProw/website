@@ -50,7 +50,7 @@
       "description": "客户端无法连接网络或请求发送失败。"
     },
     "gp-0000000002": {
-      "title": "HTTP 4xx 客户端请求错误",
+      "title": "HTTP 客户端请求错误",
       "description": "服务器拒绝了请求，请求路径不存在或认证失败。"
     },
     "gp-0000000003": {
@@ -1068,7 +1068,20 @@
     "mastery": {
       "title": "专精技能详情",
       "describe": "专精技能手稿收录各赛季专精树升级节点、核心增益与赛季特长效果。",
-      "lookDetail": "查看专精详情(按住)"
+      "lookDetail": "查看专精详情(按住)",
+      "openInTree": "在专精树中查看",
+      "roles": {
+        "seasonalPerk": "赛季特长",
+        "keyBuff": "核心增益",
+        "buff": "专精增益"
+      },
+      "categorys": {
+        "offensive": "进攻",
+        "defensive": "防御",
+        "support": "支援",
+        "unique": "独特",
+        "impetus": "动力"
+      }
     },
     "masterys": {
       "title": "专精技能列表",
@@ -1648,7 +1661,11 @@
       "selectThisPerk": "选择此特长生效",
       "deselectThisPerk": "取消此特长生效",
       "perkCost": "激活门槛 (累计点数)",
-      "pointCost": "专精点数消耗"
+      "pointCost": "专精点数消耗",
+      "perkPointsRequired": "需足够专精点数",
+      "pointsRequired": "必须投入点数",
+      "perkSelectOne": "选择生效赛季特长",
+      "perkActiveOne": "已激活生效的赛季特长"
     },
     "debug": {
       "title": "专精树调试与坐标编辑",

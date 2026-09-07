@@ -1043,9 +1043,22 @@
       "describe": "帝國技能手稿收錄帝國科技樹各項升級技能、前置條件與階段效果。"
     },
     "mastery": {
-      "title": "專精技能",
+      "title": "專精技能詳情",
       "describe": "專精技能手稿收錄各賽季專精樹升級節點、核心增益與賽季特長效果。",
-      "lookDetail": "查看專精詳情(按住)"
+      "lookDetail": "查看專精詳情(按住)",
+      "openInTree": "在專精樹中查看",
+      "roles": {
+        "seasonalPerk": "賽季特長",
+        "keyBuff": "核心增益",
+        "buff": "專精增益"
+      },
+      "categorys": {
+        "offensive": "進攻",
+        "defensive": "防禦",
+        "support": "支援",
+        "unique": "獨特",
+        "impetus": "動力"
+      }
     },
     "masterys": {
       "title": "專精技能",

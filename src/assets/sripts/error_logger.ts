@@ -23,7 +23,7 @@ export const ERROR_CODES: Record<string, ErrorCodeInfo> = {
     category: 'http',
     titleKey: 'errorCodes.gp-0000000002.title',
     descriptionKey: 'errorCodes.gp-0000000002.description',
-    get title() { return 'HTTP 4xx 客户端请求错误'; },
+    get title() { return 'HTTP 客户端请求错误'; },
     get description() { return '服务器拒绝了请求，请求路径不存在或认证失败。'; }
   },
   GP_HTTP_5XX: {

@@ -1063,9 +1063,22 @@
       "describe": "The Empire Skills codex catalogs Empire tree upgrades, requisites, and stage effects."
     },
     "mastery": {
-      "title": "Mastery",
+      "title": "Mastery Details",
       "describe": "The Mastery codex catalogs seasonal mastery tree upgrade nodes, key buffs, and perks.",
-      "lookDetail": "View Mastery Details (hold)"
+      "lookDetail": "View Mastery Details (hold)",
+      "openInTree": "View in Mastery Tree",
+      "roles": {
+        "seasonalPerk": "Seasonal Perk",
+        "keyBuff": "Key Buff",
+        "buff": "Mastery Buff"
+      },
+      "categorys": {
+        "offensive": "Offensive",
+        "defensive": "Defensive",
+        "support": "Support",
+        "unique": "Unique",
+        "impetus": "Impetus"
+      }
     },
     "masterys": {
       "title": "Mastery",
