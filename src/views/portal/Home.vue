@@ -16,7 +16,7 @@ import AffixContainerView from "@/components/AffixContainerView.vue";
 const {t} = useI18n()
 
 // 当前赛季
-const currentlySeason: Ref<Season | null> = ref(getCurrentSeason())
+const currentlySeason = ref<Season | null>(getCurrentSeason() as Season | null)
 
 onMounted(() => {
   if (!currentlySeason.value) {

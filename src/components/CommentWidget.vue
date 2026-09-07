@@ -15,7 +15,7 @@ import Captcha from "@/components/captcha/index.vue";
 import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue";
 
-type commentTargetType = 'assembly' | 'item' | 'commoditie' | 'ship' | 'ultimate' | 'mod' | 'material' | 'set' | 'treasureMap' | 'npc' | 'mapLocation' | 'cosmetic'
+type commentTargetType = 'assembly' | 'item' | 'commoditie' | 'ship' | 'ultimate' | 'mod' | 'material' | 'set' | 'treasureMap' | 'npc' | 'mapLocation' | 'cosmetic' | 'empireSkill' | 'mastery'
 
 const route = useRoute(),
     authStore = useAuthStore(),

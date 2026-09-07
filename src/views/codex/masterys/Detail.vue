@@ -43,7 +43,7 @@ let masteryDetailData: Ref<Mastery | null> = ref(null),
     }),
 
     seasonTitle = computed(() => {
-      const sId = masteryDetailData.value?.season || (masteryDetailData.value as any)?.bySeason?.id;
+      const sId = masteryDetailData.value?.bySeason?.id || (masteryDetailData.value?.season as any)?.id || (masteryDetailData.value?.season as any);
       if (!sId) return '';
       const key = `snb.seasons.${sId}`;
       return t(key).replace(/^Y\d+S\d+\s*-\s*/, '');
@@ -281,7 +281,7 @@ const onStarMastery = (data: Mastery) => {
               </v-btn>
 
               <v-btn border
-                     :to="`/mastery?season=${masteryDetailData.season || masteryDetailData.bySeason?.id || 'crimsonWaters'}&locate=${masteryDetailData.id}`"
+                     :to="`/mastery?season=${masteryDetailData.bySeason?.id || (masteryDetailData.season as any)?.id || 'crimsonWaters'}&locate=${masteryDetailData.id}`"
                      v-tooltip:bottom="t('codex.mastery.openInTree')"
                      :title="t('codex.mastery.openInTree')">
                 <v-icon icon="mdi-transit-connection-variant"></v-icon>
@@ -454,7 +454,7 @@ const onStarMastery = (data: Mastery) => {
 
             <AffixContainerView :offsetTop="80">
               <VerticalScrollList :force-draggable="false" :is-indicator="false" height="calc(100vh - 120px)">
-                <template v-if="masteryDetailData.season || masteryDetailData.bySeason?.id">
+                <template v-if="masteryDetailData.bySeason?.id || (masteryDetailData.season as any)?.id">
                   <v-text-field
                       :value="seasonTitle"
                       density="compact"
@@ -536,7 +536,7 @@ const onStarMastery = (data: Mastery) => {
                     variant="tonal"
                     class="mt-6"
                     prepend-icon="mdi-transit-connection-variant"
-                    :to="`/mastery?season=${masteryDetailData.season || masteryDetailData.bySeason?.id || 'crimsonWaters'}&locate=${masteryDetailData.id}`">
+                    :to="`/mastery?season=${masteryDetailData.bySeason?.id || (masteryDetailData.season as any)?.id || 'crimsonWaters'}&locate=${masteryDetailData.id}`">
                   {{ t('codex.mastery.openInTree') || '在专精树中查看' }}
                 </v-btn>
               </VerticalScrollList>

@@ -1230,7 +1230,7 @@ const onSort = (field: SortField, order: SortOrder) => {
               <MapLocationIconWidget :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationIconWidget>
               <NpcIconWidget :data="i" v-if="i._typeStringName == 'Npc'"></NpcIconWidget>
               <EmpireSkillIconWidget :id="i.id" v-if="i._typeStringName == 'EmpireSkill'"></EmpireSkillIconWidget>
-              <MasteryIconWidget :id="i.id" :name="i.id" :category="i.category" :with-background="true" v-if="i._typeStringName == 'Mastery'"></MasteryIconWidget>
+              <MasteryIconWidget :id="i.id" :name="i.skill" :category="i.category" :with-background="true" v-if="i._typeStringName == 'Mastery'"></MasteryIconWidget>
             </ItemSlotBase>
 
             <div v-if="i.set && i.set.id && isFilterSet" class="position-absolute subordinate-data">
