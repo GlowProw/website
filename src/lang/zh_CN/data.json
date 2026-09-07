@@ -732,6 +732,9 @@
       },
       "theHelmItems": {
         "name": "舵轮物品"
+      },
+      "currency": {
+        "name": "货币"
       }
     },
     "share": {

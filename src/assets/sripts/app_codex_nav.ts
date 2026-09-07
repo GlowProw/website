@@ -156,7 +156,7 @@ export default class AppCodexNav {
                 {
                     title: 'codex.navs.currency.name',
                     value: 'currency',
-                    to: '/codex/commodities?category=currency'
+                    to: '/codex/materials?category=currency'
                 },
             ]
         }
