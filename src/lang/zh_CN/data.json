@@ -1565,6 +1565,7 @@
   "mastery": {
     "title": "专精技能模拟",
     "panelTitle": "专精控制",
+    "dataSources": "数据来源",
     "searchPlaceholder": "搜索专精技能或节点 ID...",
     "share": "分享加点",
     "collapsePanel": "收起面板",

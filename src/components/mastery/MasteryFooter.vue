@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {useI18n} from 'vue-i18n';
 import MasteryControls from '@/components/mastery/MasteryControls.vue';
+import HtmlLink from "@/components/HtmlLink.vue";
 
 const {t} = useI18n();
 
@@ -30,6 +31,8 @@ const emit = defineEmits<{
         @set-scale="emit('set-scale', $event)"
         @reset-view="emit('reset-view')"
     />
+
+    <p class="text-caption opacity-60 pl-4">{{ t('mastery.dataSources') }}<HtmlLink :href="'https://skullandbonestools.de/en/loadout/mastery'">skullandbonestools</HtmlLink></p>
 
     <v-spacer></v-spacer>
 
