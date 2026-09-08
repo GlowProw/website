@@ -7,6 +7,7 @@ import {use_icon_global_Style} from "@/assets/sripts/use_icon_global_Style";
 import {Masterys} from "glow-prow-data";
 import MasteryCardDetail from "./masteryCardDetail.vue";
 import Loading from "../Loading.vue";
+import {rarity} from "@/assets/sripts/index";
 
 const props = withDefaults(defineProps<{
   id?: string,
@@ -36,9 +37,10 @@ const {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow();
 const {useIconImagePadding, useIconImageMargin} = use_icon_global_Style();
 
 const isDirectFallback = ref(false);
-const isImgError = ref(false);
+const isImgError = ref(false),
+    rarityColorConfig = rarity.color;
 
-// 建立专精技能全局索引以加速查找 (id / key / skill)
+// 建立专精技能全局索引以加速查找
 const masteryNodesMap: Record<string, any> = {};
 for (const tree of Object.values(Masterys)) {
   if (tree && (tree as any).nodes) {
@@ -78,8 +80,8 @@ const primaryUrl = computed(() => {
   const rawSkill = effectiveSkill.value;
   if (!rawSkill) return '';
   const skill = typeof rawSkill === 'object' && rawSkill !== null
-    ? ((rawSkill as any)?.id || (rawSkill as any)?.key || (rawSkill as any)?.skill || '')
-    : String(rawSkill);
+      ? ((rawSkill as any)?.id || (rawSkill as any)?.key || (rawSkill as any)?.skill || '')
+      : String(rawSkill);
   if (!skill) return '';
 
   return cdnStore.currentService.url({
@@ -102,8 +104,8 @@ const directStaticUrl = computed(() => {
   const rawSkill = effectiveSkill.value;
   if (!rawSkill) return '';
   const skill = typeof rawSkill === 'object' && rawSkill !== null
-    ? ((rawSkill as any)?.id || (rawSkill as any)?.key || (rawSkill as any)?.skill || '')
-    : String(rawSkill);
+      ? ((rawSkill as any)?.id || (rawSkill as any)?.key || (rawSkill as any)?.skill || '')
+      : String(rawSkill);
   if (!skill) return '';
   return `https://assets.glow-prow.top/mastery/${skill}.webp`;
 });
@@ -132,10 +134,14 @@ const bgGradientClass = computed(() => {
   if (!props.withBackground) return '';
   if (effectiveRole.value === 'seasonalPerk') return 'bg-gradient-seasonal';
   switch (effectiveCategory.value) {
-    case 'defensive': return 'bg-gradient-defensive';
-    case 'offensive': return 'bg-gradient-offensive';
-    case 'impetus': return 'bg-gradient-impetus';
-    default: return 'bg-gradient-default';
+    case 'defensive':
+      return 'bg-gradient-defensive';
+    case 'offensive':
+      return 'bg-gradient-offensive';
+    case 'impetus':
+      return 'bg-gradient-impetus';
+    default:
+      return 'bg-gradient-default';
   }
 });
 
@@ -201,29 +207,18 @@ defineOptions({
       :target="[tooltipPos.x, tooltipPos.y]">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
-          width="100%"
-          height="100%"
-          variant="flat"
-          color="transparent"
-          :to="isOpenDetail && effectiveId ? `/codex/mastery/${effectiveId}` : undefined"
-          :target="isOpenNewWindow ? '_blank' : '_self'"
-          v-bind="activatorProps"
           @mousemove="onMouseMove"
           @mouseenter="onMouseEnter"
+          ref="targetElement"
+          width="100%"
+          v-bind="activatorProps"
+          :to="isOpenDetail ? `/codex/mapLocation/${props?.id}` : ''"
+          :target="isOpenNewWindow ? '_blank' : '_self'"
           :class="[
-            'mastery-icon-container prohibit-drag',
-            'd-flex align-center justify-center position-relative text-decoration-none',
-            bgGradientClass,
-            computedMarginClass,
-            computedPaddingClass,
-            {
-              'cursor-pointer': isOpenDetail && effectiveId,
-              'with-bg': withBackground,
-              'shape-diamond': withBackground && effectiveRole === 'seasonalPerk',
-              'shape-circle': withBackground && effectiveRole !== 'seasonalPerk',
-            }
-          ]"
-          :style="containerStyle">
+              'prohibit-drag',
+              `ma-${computedMargin}`,
+              `pa-${computedPadding}`,
+          ]">
         <div class="d-flex align-center justify-center w-100 h-100 position-relative">
           <v-img
               v-if="iconUrl && !isImgError"

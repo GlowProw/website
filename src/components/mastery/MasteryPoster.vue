@@ -8,6 +8,9 @@ import Loading from "@/components/Loading.vue";
 import Logo from "@/components/Logo.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
 import MasteryView from "@/components/mastery/MasteryView.vue";
+import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
+import MasteryIconWidget from "@/components/snbWidget/masteryIconWidget.vue";
+import MasteryName from "@/components/snbWidget/masteryName.vue";
 
 const authStore = useAuthStore();
 
@@ -170,7 +173,7 @@ const treeBounds = computed(() => {
 });
 
 const posterTreeWidth = computed(() => {
-  return props.generateImageValue.width || 1200;
+  return props.generateImageValue.width || 1800;
 });
 
 const treeDisplayScale = computed(() => {
@@ -253,7 +256,7 @@ defineExpose({
           <Logo></Logo>
         </v-col>
         <v-col class="d-flex align-center ml-2 text-subtitle-1">
-          {{ t('name') }}  {{ t('mastery.title') }}
+          {{ t('name') }} {{ t('mastery.title') }}
           <v-divider vertical inset class="mx-3" thickness="2" opacity=".3"></v-divider>
           <span class="opacity-70 text-body-2">{{ webPath }}</span>
         </v-col>
@@ -361,8 +364,7 @@ defineExpose({
       <!-- 已激活赛季核心特长 S -->
       <div class="px-8 mb-6" v-if="generateImageValue.isShowSeasonal && activeSeasonalPerks.length > 0">
         <div class="d-flex align-center ga-2 mb-3">
-          <v-icon icon="mdi-star-four-points" size="18" color="amber"></v-icon>
-          <span class="font-weight-bold text-caption text-uppercase tracking-wider text-amber">
+          <span class="text-h5 text-uppercase tracking-wider text-amber">
             {{ t('mastery.share.seasonalTitle') }}
           </span>
           <v-chip size="x-small" color="amber" variant="tonal" class="ml-1">
@@ -370,29 +372,29 @@ defineExpose({
           </v-chip>
         </div>
 
-        <v-row dense>
+        <v-row>
           <v-col
               v-for="perk in activeSeasonalPerks"
               :key="perk.key || perk.id"
-              :cols="activeSeasonalPerks.length <= 2 ? 6 : (generateImageValue.width >= 1400 ? (activeSeasonalPerks.length <= 4 ? 3 : 4) : 4)">
-            <v-card variant="text" class="h-100 bg-surface-darken-1 d-flex flex-column" rounded="lg">
-              <div class="d-flex align-center ga-3 mb-2">
-                <div class="perk-diamond-badge">
-                  <img :src="getNodeIconUrl((perk as any).skill || perk.id)" class="perk-icon-img"/>
-                </div>
-                <div class="flex-grow-1 overflow-hidden">
-                  <div class="text-subtitle-2 font-weight-bold text-truncate text-amber">
-                    {{ getSkillName((perk as any).skill || perk.id, perk.key) }}
-                  </div>
+              :cols="activeSeasonalPerks.length <= 2 ? 4 : (generateImageValue.width >= 1400 ? (activeSeasonalPerks.length <= 4 ? 3 : 4) : 4)">
+            <v-row>
+              <v-col cols="auto">
+                <ItemSlotBase size="55px">
+                  <MasteryIconWidget :id="perk.key" ></MasteryIconWidget>
+                </ItemSlotBase>
+              </v-col>
+              <v-col>
+                <div class="mb-1 d-flex ga-2 align-center text-subtitle-2 font-weight-bold text-truncate text-amber">
+                  <u class="u"><MasteryName :id="perk.id"></MasteryName></u>
                   <div class="text-caption opacity-50">
                     {{ t('mastery.perkRequirement', {cost: perk.cost}) }}
                   </div>
                 </div>
-              </div>
-              <div class="text-caption opacity-80 flex-grow-1" style="font-size: 11px !important; line-height: 1.45;">
-                {{ getSkillDesc((perk as any).skill || perk.id, perk.key) }}
-              </div>
-            </v-card>
+                <div class="text-caption opacity-80 flex-grow-1" style="font-size: 11px !important; line-height: 1.45;">
+                  {{ getSkillDesc((perk as any).skill || perk.id, perk.key) }}
+                </div>
+              </v-col>
+            </v-row>
           </v-col>
         </v-row>
       </div>
@@ -401,8 +403,7 @@ defineExpose({
       <!-- 专精聚合效果统计 S -->
       <div class="px-8 mb-6" v-if="generateImageValue.isShowEffects && aggregatedEffects.length > 0">
         <div class="d-flex align-center ga-2 mb-3">
-          <v-icon icon="mdi-chart-timeline-variant-shimmer" size="18" color="amber"></v-icon>
-          <span class="font-weight-bold text-caption text-uppercase tracking-wider text-amber">
+          <span class="text-h5 text-uppercase tracking-wider text-amber">
             {{ t('mastery.share.effectsTitle') }}
           </span>
           <v-chip size="x-small" color="amber" variant="tonal" class="ml-1">
@@ -414,27 +415,30 @@ defineExpose({
           <v-col
               v-for="eff in aggregatedEffects"
               :key="eff.id"
-              :cols="generateImageValue.width >= 1500 ? 3 : (generateImageValue.width >= 1200 ? 4 : 6)">
-            <v-card variant="text" class="px-3 bg-surface-darken-2 d-flex align-center justify-space-between ga-2" rounded="lg">
+              :cols="generateImageValue.width >= 1500 ? 3 : (generateImageValue.width >= 1800 ? 4 : 6)">
+            <v-card variant="text" class="bg-surface-darken-2 d-flex align-center justify-space-between ga-2" rounded="lg">
               <div class="d-flex align-center ga-2 overflow-hidden">
-                <span
-                    v-if="eff.contributors && eff.contributors[0]"
-                    class="category-indicator"
-                    :style="`background: ${getCategoryColor(eff.contributors[0].skillCategory)}`"
-                ></span>
+                <!--                <span-->
+                <!--                    v-if="eff.contributors && eff.contributors[0]"-->
+                <!--                    class="category-indicator"-->
+                <!--                    :style="`background: ${getCategoryColor(eff.contributors[0].skillCategory)}`"-->
+                <!--                ></span>-->
                 <div class="overflow-hidden">
-                  <div class="text-caption font-weight-bold text-truncate text-amber" v-if="eff.name">{{ eff.name }}</div>
-                  <div class="text-caption opacity-75 text-truncate">{{ eff.renderedDescription }}</div>
+                  <div class="text-caption font-weight-bold text-truncate text-amber u" v-if="eff.name">
+                    {{ eff.name }}
+
+                    <v-chip
+                        v-if="eff.contributors && eff.contributors.length > 1"
+                        size="x-small"
+                        variant="tonal"
+                        color="amber"
+                        class="font-weight-bold flex-shrink-0 ml-2">
+                      ×{{ eff.contributors.length }}
+                    </v-chip>
+                  </div>
+                  <div class="text-caption opacity-75 text-truncate opacity-60">{{ eff.renderedDescription }}</div>
                 </div>
               </div>
-              <v-chip
-                  v-if="eff.contributors && eff.contributors.length > 1"
-                  size="x-small"
-                  variant="tonal"
-                  color="amber"
-                  class="font-weight-bold flex-shrink-0">
-                ×{{ eff.contributors.length }}
-              </v-chip>
             </v-card>
           </v-col>
         </v-row>
@@ -514,8 +518,6 @@ defineExpose({
 .perk-diamond-badge {
   width: 38px;
   height: 38px;
-  background: #251c0d;
-  border: 1.5px solid #d4af37;
   border-radius: 6px;
   display: flex;
   align-items: center;
