@@ -1611,7 +1611,7 @@
     "debugBadge": "DEBUG Mode (Draggable nodes & relation editor)",
     "shareDialog": {
       "title": "Share & Import Mastery Build",
-      "currentSeason": "Current Season",
+      "currentSeason": "Season",
       "pointsSpent": "Mastery Points Spent",
       "activatedNodes": "Active Nodes",
       "shareLinkTitle": "Exclusive Share Link",

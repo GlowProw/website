@@ -1666,7 +1666,7 @@
     "debugBadge": "DEBUG 模式 (可拖曳節點/編輯關係)",
     "shareDialog": {
       "title": "專精加點分享與匯入",
-      "currentSeason": "當前賽季",
+      "currentSeason": "賽季",
       "pointsSpent": "投入專精點數",
       "activatedNodes": "已啟動節點數",
       "shareLinkTitle": "專屬分享連結",

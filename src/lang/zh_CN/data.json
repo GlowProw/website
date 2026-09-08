@@ -1611,7 +1611,7 @@
     "debugBadge": "DEBUG 模式 (可拖拽节点/编辑关系)",
     "shareDialog": {
       "title": "专精加点分享与导入",
-      "currentSeason": "当前赛季",
+      "currentSeason": "赛季",
       "pointsSpent": "投入专精点数",
       "activatedNodes": "已激活节点数",
       "shareLinkTitle": "专属分享链接",
