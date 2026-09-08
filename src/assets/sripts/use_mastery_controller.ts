@@ -176,6 +176,13 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
     localNodes.value = map;
   }, { immediate: true });
 
+  // 切换赛季时重置已选节点及特长
+  watch(selectedSeasonId, () => {
+    selectedNodeIds.value = new Set();
+    selectedSeasonalPerks.value = {};
+    selectedNode.value = null;
+  });
+
   // 根据 key 或 id 查找节点
   function findNode(keyOrId: string): Mastery | undefined {
     if (!keyOrId) return undefined;

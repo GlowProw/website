@@ -5,7 +5,7 @@ import type {Mastery, SeasonMasteryTree, MasteryEdge} from 'glow-prow-data';
 
 const props = withDefaults(defineProps<{
   nodes: Record<string, Mastery>;
-  edges: MasteryEdge[];
+  edges?: MasteryEdge[];
   selectedNode: Mastery | null;
   selectedNodeIds: Set<string>;
   regularPointsSpent: number;
@@ -23,6 +23,30 @@ const props = withDefaults(defineProps<{
 }>(), {
   isDebug: false,
   readonly: false,
+  edges: () => [],
+});
+
+// 自动从 nodes.requisite 生成连线 (若外部未传入 edges)
+const resolvedEdges = computed<MasteryEdge[]>(() => {
+  if (props.edges && props.edges.length > 0) return props.edges;
+  const edges: MasteryEdge[] = [];
+  const edgeSet = new Set<string>();
+  const nodeMap = props.nodes;
+  for (const [nodeKey, node] of Object.entries(nodeMap)) {
+    if (node.requisite && node.requisite.length > 0) {
+      for (const reqKey of node.requisite) {
+        const resolvedSource = nodeMap[reqKey]
+          ? reqKey
+          : Object.keys(nodeMap).find(k => nodeMap[k].id === reqKey) || reqKey;
+        const edgeId = `${resolvedSource}->${nodeKey}`;
+        if (!edgeSet.has(edgeId) && nodeMap[resolvedSource]) {
+          edgeSet.add(edgeId);
+          edges.push({ id: edgeId, source: resolvedSource, target: nodeKey });
+        }
+      }
+    }
+  }
+  return edges;
 });
 
 const emit = defineEmits<{
@@ -144,8 +168,9 @@ function render() {
   const availableEdges: MasteryEdge[] = [];
   const lockedEdges: MasteryEdge[] = [];
 
-  for (let i = 0; i < props.edges.length; i++) {
-    const e = props.edges[i];
+  const edgesList = resolvedEdges.value;
+  for (let i = 0; i < edgesList.length; i++) {
+    const e = edgesList[i];
     const sourceNode = nodeMap[e.source];
     const targetNode = nodeMap[e.target];
     if (!sourceNode || !targetNode) continue;
@@ -164,6 +189,8 @@ function render() {
 
   // 绘制锁定连线
   if (lockedEdges.length > 0) {
+    ctx.save();
+    if (props.readonly) ctx.globalAlpha = 0.3;
     ctx.beginPath();
     for (const e of lockedEdges) {
       const s = nodeMap[e.source].position;
@@ -174,10 +201,13 @@ function render() {
     ctx.strokeStyle = 'rgba(70, 70, 70, 0.45)';
     ctx.lineWidth = 1.5;
     ctx.stroke();
+    ctx.restore();
   }
 
   // 绘制可用前置相连线
   if (availableEdges.length > 0) {
+    ctx.save();
+    if (props.readonly) ctx.globalAlpha = 0.1;
     ctx.beginPath();
     for (const e of availableEdges) {
       const s = nodeMap[e.source].position;
@@ -186,8 +216,10 @@ function render() {
       ctx.lineTo(tg.x, tg.y);
     }
     ctx.strokeStyle = '#999999';
+    if (props.readonly) ctx.strokeStyle = 'rgba(70, 70, 70, 0.45)';
     ctx.lineWidth = 2.0;
     ctx.stroke();
+    ctx.restore();
   }
 
   // 绘制已激活点亮连线
@@ -219,6 +251,7 @@ function render() {
     const isHovered = Boolean(hoveredNode.value && (hoveredNode.value.key === node.key || hoveredNode.value.id === node.id && !node.key));
 
     ctx.save();
+    if (props.readonly && !isActive) ctx.globalAlpha = 0.1;
     ctx.translate(x, y);
 
     const grad = getCategoryGradient(ctx, node.category, 0, 27);
@@ -296,10 +329,10 @@ function render() {
       const rInner = 23;
       const iconR = rInner - 5; // 18，内边 5px
 
-      // 外层金边
+      // 外层圆底色
       ctx.beginPath();
       ctx.arc(0, 0, rOuter, 0, Math.PI * 2);
-      ctx.fillStyle = '#3a2b05';
+      ctx.fillStyle = (isActive || isSelected || isHovered) ? '#3a2b05' : (isAvailable ? '#222222' : '#181818');
       ctx.fill();
 
       if (isSelected) {
@@ -317,9 +350,14 @@ function render() {
         ctx.lineWidth = 2.8;
         ctx.shadowColor = 'rgba(255, 215, 0, 0.8)';
         ctx.shadowBlur = 10;
+      } else if (isAvailable) {
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.8;
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
       } else {
-        ctx.strokeStyle = '#d4af37';
-        ctx.lineWidth = 2.2;
+        ctx.strokeStyle = '#555555';
+        ctx.lineWidth = 1.2;
         ctx.shadowColor = 'transparent';
         ctx.shadowBlur = 0;
       }
@@ -332,7 +370,7 @@ function render() {
       ctx.arc(0, 0, rInner, 0, Math.PI * 2);
       ctx.fillStyle = grad;
       ctx.fill();
-      ctx.strokeStyle = '#735914';
+      ctx.strokeStyle = (isActive || isSelected || isHovered) ? '#735914' : (isAvailable ? '#444444' : '#2e2e2e');
       ctx.lineWidth = 1;
       ctx.stroke();
 
@@ -402,7 +440,7 @@ function render() {
     }
 
     // --- 节点下方显示名称 (无发光，干净清爽) ---
-    const skillName = props.getSkillName ? props.getSkillName(node.id, node.key) : ((node as any).name || node.label || node.id);
+    const skillName = props.getSkillName ? props.getSkillName(node.id, node.key) : ((node as any).name || (node as any).label || node.id);
     if (skillName) {
       const bottomY = (node.role === 'keyBuff' || node.role === 'seasonalPerk') ? 28 : 20;
       const textY = bottomY + 10;
@@ -706,7 +744,7 @@ onUnmounted(() => {
 });
 
 // 响应属性变化重绘
-watch([() => props.nodes, () => props.edges, () => props.selectedNodeIds, () => props.selectedNode, () => props.regularPointsSpent], () => {
+watch([() => props.nodes, resolvedEdges, () => props.selectedNodeIds, () => props.selectedNode, () => props.regularPointsSpent], () => {
   requestRender();
 }, { deep: true });
 

@@ -81,8 +81,7 @@ function onImport() {
               class="flex-grow-1 font-weight-bold"
               color="amber"
               prepend-icon="mdi-content-copy"
-              @click="emit('copy')"
-          >
+              @click="emit('copy')">
             {{ t('mastery.shareDialog.copyLink') }}
           </v-btn>
           <v-btn
@@ -90,8 +89,7 @@ function onImport() {
               color="amber"
               prepend-icon="mdi-image-outline"
               class="font-weight-bold"
-              :to="{ name: 'MasteryShare', query: { season: seasonId, share: shareCode } }"
-          >
+              :to="{ name: 'MasteryShare', query: { season: seasonId, share: shareCode } }">
             {{ t('mastery.share.createPoster') }}
           </v-btn>
         </div>
@@ -103,23 +101,27 @@ function onImport() {
         <div class="text-caption opacity-60 mb-2">
           {{ t('mastery.shareDialog.importDesc') }}
         </div>
-        <div class="d-flex gap-2">
+        <div class="d-flex align-center gap-3">
           <v-text-field
               v-model="importInput"
               :placeholder="t('mastery.shareDialog.importPlaceholder')"
               density="compact"
               variant="outlined"
               hide-details
+              hide-spin-buttons
               clearable
-              class="flex-grow-1 font-monospace text-caption"
-          ></v-text-field>
-          <v-btn
-              color="primary"
-              variant="tonal"
-              :disabled="!importInput.trim()"
-              @click="onImport">
-            {{ t('mastery.shareDialog.importAction') }}
-          </v-btn>
+              prepend-inner-icon="mdi-link"
+              class="flex-grow-1 font-monospace text-caption">
+            <template v-slot:append-inner>
+              <v-btn
+                  variant="tonal"
+                  density="compact"
+                  :disabled="!importInput.trim()"
+                  @click="onImport">
+                {{ t('mastery.shareDialog.importAction') }}
+              </v-btn>
+            </template>
+          </v-text-field>
         </div>
       </v-card-text>
     </v-card>

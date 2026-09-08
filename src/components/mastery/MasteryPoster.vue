@@ -256,12 +256,12 @@ defineExpose({
           <Logo></Logo>
         </v-col>
         <v-col class="d-flex align-center ml-2 text-subtitle-1">
-          {{ t('name') }} {{ t('mastery.title') }}
+          {{ t('name') }}
           <v-divider vertical inset class="mx-3" thickness="2" opacity=".3"></v-divider>
           <span class="opacity-70 text-body-2">{{ webPath }}</span>
         </v-col>
         <v-col cols="auto" class="opacity-40 text-caption font-monospace">
-          {{ seasonTitle }} · S&B MASTERY BUILD
+          {{ seasonTitle }} · {{ t('mastery.title') }}
         </v-col>
       </v-row>
       <!-- 头部标识 E -->
@@ -341,7 +341,6 @@ defineExpose({
             <MasteryView
                 ref="masteryViewRef"
                 :nodes="localNodes as any"
-                :edges="activeTree?.edges || []"
                 :selected-node="null"
                 :selected-node-ids="selectedNodeIds"
                 :regular-points-spent="regularPointsSpent"

@@ -256,7 +256,7 @@ const onStarMastery = (data: Mastery) => {
                 {{ t(`codex.mastery.roles.${masteryDetailData.role}`) || masteryDetailData.role }}
               </v-chip>
               <v-chip class="badge-flavor text-center tag-badge text-black">
-                {{ t(`codex.mastery.categorys.${masteryDetailData.category}`) || masteryDetailData.category }}
+                {{ t(`mastery.categorys.${masteryDetailData.category}`) || masteryDetailData.category }}
               </v-chip>
             </div>
           </v-col>
@@ -344,7 +344,7 @@ const onStarMastery = (data: Mastery) => {
                   </v-text-field>
                 </template>
                 <template v-if="masteryDetailData.category">
-                  <v-text-field :value="t(`codex.mastery.categorys.${masteryDetailData.category}`) || masteryDetailData.category" density="compact"
+                  <v-text-field :value="t(`mastery.categorys.${masteryDetailData.category}`) || masteryDetailData.category" density="compact"
                                 hide-details
                                 readonly variant="underlined">
                     <template v-slot:append-inner>
@@ -468,7 +468,7 @@ const onStarMastery = (data: Mastery) => {
 
                 <template v-if="masteryDetailData.category">
                   <v-text-field
-                      :value="t(`codex.mastery.categorys.${masteryDetailData.category}`) || masteryDetailData.category"
+                      :value="t(`mastery.categorys.${masteryDetailData.category}`) || masteryDetailData.category"
                       density="compact"
                       hide-details
                       readonly variant="underlined">

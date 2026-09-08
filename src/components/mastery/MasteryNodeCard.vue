@@ -5,6 +5,7 @@ import type {Mastery} from 'glow-prow-data';
 import type {NodeRequirementItem} from '@/assets/sripts/use_mastery_controller';
 import RhombusWidget from '@/components/snbWidget/rhombusWidget.vue';
 import MaterialName from "@/components/snbWidget/materialName.vue";
+import MasteryDescription from "@/components/snbWidget/masteryDescription.vue";
 
 const {t} = useI18n();
 
@@ -63,10 +64,10 @@ const requirementItems = computed<NodeRequirementItem[]>(() => {
           v-if="node.category"
           :title="node.category">
         <v-chip size="x-small" variant="tonal" :style="{ color: getCategoryColor(node.category) }">
-          {{ node.category }}
+          {{ t(`mastery.categorys.${node.category}`) }}
         </v-chip>
         <v-chip v-if="node.role" size="x-small" variant="tonal">
-          {{ node.role }}
+          {{ t(`codex.mastery.roles.${node.role}`) }}
         </v-chip>
       </div>
     </template>
@@ -80,7 +81,7 @@ const requirementItems = computed<NodeRequirementItem[]>(() => {
     <!-- 效果说明 -->
     <div class="skill-tree-title px-10 mx-n6 py-2 text-amber-lighten-4">{{ t('mastery.card.effects') }}</div>
     <div class="py-2 px-5 mb-5 text-pre-line text-body-2">
-      {{ getSkillDesc(node.id, node.key) }}
+      <MasteryDescription :id="node.id"></MasteryDescription>
     </div>
 
     <!-- 前置依赖需求 -->
@@ -104,7 +105,7 @@ const requirementItems = computed<NodeRequirementItem[]>(() => {
                   :activate="item.isActive"
               ></RhombusWidget>
             </v-col>
-            <v-col @click="emit('locate-node', item.id || item.key)" class="cursor-pointer d-flex align-center flex-wrap ga-1">
+            <v-col @click="emit('locate-node', item.key)" class="cursor-pointer d-flex align-center flex-wrap ga-1">
               <span
                   class="text-caption u"
                   :class="{'text-success': item.isActive, 'opacity-70': !item.isActive}">
@@ -152,30 +153,6 @@ const requirementItems = computed<NodeRequirementItem[]>(() => {
           <v-icon size="18">mdi-key</v-icon>
         </template>
       </v-text-field>
-
-<!--      <v-text-field-->
-<!--          :value="node.category"-->
-<!--          hide-details-->
-<!--          readonly-->
-<!--          variant="underlined"-->
-<!--          density="compact">-->
-<!--        <template v-slot:append-inner>-->
-<!--          <span class="singe-line mr-1">{{ t('mastery.card.category') }}</span>-->
-<!--          <v-icon size="18">mdi-shape</v-icon>-->
-<!--        </template>-->
-<!--      </v-text-field>-->
-
-<!--      <v-text-field-->
-<!--          :value="node.role"-->
-<!--          hide-details-->
-<!--          readonly-->
-<!--          variant="underlined"-->
-<!--          density="compact">-->
-<!--        <template v-slot:append-inner>-->
-<!--          <span class="singe-line mr-1">{{ t('mastery.card.role') }}</span>-->
-<!--          <v-icon size="18">mdi-star-circle</v-icon>-->
-<!--        </template>-->
-<!--      </v-text-field>-->
 
       <v-text-field
           v-if="node.cost !== undefined"

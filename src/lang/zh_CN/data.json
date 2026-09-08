@@ -1074,13 +1074,6 @@
         "seasonalPerk": "赛季特长",
         "keyBuff": "核心增益",
         "buff": "专精增益"
-      },
-      "categorys": {
-        "offensive": "进攻",
-        "defensive": "防御",
-        "support": "支援",
-        "unique": "独特",
-        "impetus": "动力"
       }
     },
     "masterys": {
@@ -1579,6 +1572,14 @@
     "title": "专精技能模拟",
     "panelTitle": "专精控制",
     "dataSources": "数据来源",
+    "searchPlaceholder": "搜索节点",
+    "categorys": {
+      "offensive": "进攻",
+      "defensive": "防御",
+      "support": "支援",
+      "unique": "独特",
+      "impetus": "动力"
+    },
     "share": {
       "title": "海报分享",
       "dialogTitle": "分享加点",

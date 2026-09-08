@@ -585,11 +585,11 @@ export function useI18nReadName() {
 
         const keysName = [
             `snb.masterys.${skillKey}.name`,
-            `snb.masterys.${rawKey}.name`,
+            // `snb.masterys.${rawKey}.name`,
         ];
         const keysDescription = [
             `snb.masterys.${skillKey}.description`,
-            `snb.masterys.${rawKey}.description`,
+            // `snb.masterys.${rawKey}.description`,
         ];
 
         return {

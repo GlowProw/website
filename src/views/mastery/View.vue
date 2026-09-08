@@ -162,7 +162,6 @@ onMounted(() => {
       <MasteryView
           ref="canvasCompRef"
           :nodes="localNodes"
-          :edges="activeTree?.edges || []"
           :selected-node="selectedNode"
           :selected-node-ids="selectedNodeIds"
           :regular-points-spent="regularPointsSpent"
@@ -199,6 +198,7 @@ onMounted(() => {
         :selected-season-id="selectedSeasonId"
         :season-options="seasonOptions"
         @update:selected-season-id="selectedSeasonId = $event"
+        @update:selectedSeasonId="selectedSeasonId = $event"
         v-model:panel-expanded="panelExpanded"
         v-model:effects-filter="effectsFilter"
         :regular-points-spent="regularPointsSpent"

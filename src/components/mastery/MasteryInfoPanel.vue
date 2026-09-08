@@ -7,6 +7,9 @@ import ItemSlotBase from '@/components/snbWidget/ItemSlotBase.vue';
 import MasteryIconWidget from '@/components/snbWidget/masteryIconWidget.vue';
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
 import {storage} from "@/assets/sripts";
+import MasteryName from "@/components/snbWidget/masteryName.vue";
+import MasteryNameWidget from "@/components/snbWidget/masteryNameWidget.vue";
+import MasteryDescription from "@/components/snbWidget/masteryDescription.vue";
 
 const {t} = useI18n();
 
@@ -64,6 +67,7 @@ const openModel = computed({
 });
 
 function onSeasonChange(newSeason: string) {
+  if (!newSeason) return;
   emit('update:selectedSeasonId', newSeason);
   storage.session.set(SESSION_OPEN_MODEL_KEY, true);
   nextTick(() => {
@@ -116,8 +120,7 @@ defineOptions({name: 'MasteryInfoPanel'});
               density="compact"
               variant="outlined"
               hide-details
-              :menu-props="{ attach: '.season-selector', closeOnContentClick: true }"
-              class="season-selector mx-7 mb-2">
+              class="mx-7 mb-2">
           </v-select>
         </v-card>
 
@@ -130,7 +133,7 @@ defineOptions({name: 'MasteryInfoPanel'});
             <v-row align="center">
               <v-col cols="auto" class="d-flex align-center">
                 <div class="mr-2">
-                  <MasteryIconWidget id="masteryPoint" :size="24"></MasteryIconWidget>
+                  <MasteryIconWidget id="masteryPoint" :size="30"></MasteryIconWidget>
                 </div>
                 <span class="font-weight-bold">{{ t('mastery.pointsTitle') }}</span>
               </v-col>
@@ -308,13 +311,15 @@ defineOptions({name: 'MasteryInfoPanel'});
                                 </v-col>
                                 <v-col>
                                   <div class="d-flex align-center justify-space-between">
-                                    <p class="font-weight-bold u">{{ c.skillName }} x{{ c.buffCount }}</p>
+                                    <p class="font-weight-bold u">
+                                      <MasteryNameWidget :id="c.skillKey"></MasteryNameWidget> x{{ c.buffCount }}
+                                    </p>
                                     <v-chip size="x-small" :color="getCategoryColor(c.skillCategory)" variant="tonal">
-                                      {{ c.skillCategory }}
+                                      {{ t(`mastery.categorys.${c.skillCategory}`) }}
                                     </v-chip>
                                   </div>
                                   <p class="text-caption opacity-60">
-                                    {{ c.contributionText }}
+                                    <MasteryDescription :id="c.skillKey"></MasteryDescription>
                                   </p>
                                 </v-col>
                               </v-row>
