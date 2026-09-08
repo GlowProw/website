@@ -169,6 +169,7 @@ onMounted(() => {
           :scale-extent="[svgScaleExtent[0], svgScaleExtent[1]]"
           :is-debug="isDebug"
           :get-node-icon-url="getNodeIconUrl"
+          :get-skill-name="getSkillName"
           :is-node-active="isNodeActive"
           :is-node-available="isNodeAvailable"
           @select-node="selectNode"

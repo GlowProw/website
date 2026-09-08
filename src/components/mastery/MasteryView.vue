@@ -12,6 +12,7 @@ const props = withDefaults(defineProps<{
   scaleExtent: [number, number];
   isDebug?: boolean;
   getNodeIconUrl: (skill: string) => string;
+  getSkillName?: (skillKey: string, nodeKey?: string) => string;
   isNodeActive: (id: string) => boolean;
   isNodeAvailable: (id: string) => boolean;
 }>(), {
@@ -213,11 +214,11 @@ function render() {
     ctx.save();
     ctx.translate(x, y);
 
-    const grad = getCategoryGradient(ctx, node.category, 0, 24);
+    const grad = getCategoryGradient(ctx, node.category, 0, 27);
 
     if (node.role === 'seasonalPerk') {
-      // --- 赛季特长节点 (菱形) ---
-      const size = 24;
+      // --- 赛季特长节点 (菱形，size=27，内边 5px) ---
+      const size = 27;
       ctx.beginPath();
       ctx.moveTo(0, -size);
       ctx.lineTo(size, 0);
@@ -232,33 +233,44 @@ function render() {
         ctx.strokeStyle = '#ffeb3b';
         ctx.lineWidth = 3.2;
         ctx.shadowColor = '#ffeb3b';
-        ctx.shadowBlur = 16;
+        ctx.shadowBlur = 14;
       } else if (isHovered) {
         ctx.strokeStyle = '#fff275';
-        ctx.lineWidth = 3.0;
+        ctx.lineWidth = 2.8;
         ctx.shadowColor = '#ffd700';
-        ctx.shadowBlur = 14;
+        ctx.shadowBlur = 12;
       } else if (isActive) {
         ctx.strokeStyle = '#ffd700';
-        ctx.lineWidth = 2.8;
+        ctx.lineWidth = 2.6;
         ctx.shadowColor = 'rgba(255, 215, 0, 0.8)';
-        ctx.shadowBlur = 10;
+        ctx.shadowBlur = 8;
       } else {
         ctx.strokeStyle = '#806016';
         ctx.lineWidth = 2.0;
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
       }
       ctx.stroke();
+      // 描边后立刻重置阴影，避免影响后续图标和文本
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
 
-      // 中心图标
+      // 中心图标 (内边 5px)
       const iconUrl = props.getNodeIconUrl((node as any).skill || node.id);
       const img = getImage(iconUrl);
       if (img) {
-        ctx.drawImage(img, -14, -14, 28, 28);
+        const iconSize = 17;
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(0, 0, iconSize, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.drawImage(img, -iconSize, -iconSize, iconSize * 2, iconSize * 2);
+        ctx.restore();
       }
 
       // 点数门槛角标
       ctx.beginPath();
-      ctx.arc(16, 16, 8, 0, Math.PI * 2);
+      ctx.arc(18, 18, 8, 0, Math.PI * 2);
       ctx.fillStyle = '#1a1a1a';
       ctx.fill();
       ctx.strokeStyle = '#806016';
@@ -269,13 +281,17 @@ function render() {
       ctx.font = 'bold 9px sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(String(node.cost), 16, 16.5);
+      ctx.fillText(String(node.cost), 18, 18.5);
 
     } else if (node.role === 'keyBuff') {
-      // --- 关键核心节点 (双层金边大圆) ---
+      // --- 关键核心节点 (双层金边大圆，r=27，内圆 r=23，内边 5px) ---
+      const rOuter = 27;
+      const rInner = 23;
+      const iconR = rInner - 5; // 18，内边 5px
+
       // 外层金边
       ctx.beginPath();
-      ctx.arc(0, 0, 24, 0, Math.PI * 2);
+      ctx.arc(0, 0, rOuter, 0, Math.PI * 2);
       ctx.fillStyle = '#3a2b05';
       ctx.fill();
 
@@ -288,7 +304,7 @@ function render() {
         ctx.strokeStyle = '#fff275';
         ctx.lineWidth = 3.0;
         ctx.shadowColor = '#ffd700';
-        ctx.shadowBlur = 14;
+        ctx.shadowBlur = 12;
       } else if (isActive) {
         ctx.strokeStyle = '#ffd700';
         ctx.lineWidth = 2.8;
@@ -297,28 +313,39 @@ function render() {
       } else {
         ctx.strokeStyle = '#d4af37';
         ctx.lineWidth = 2.2;
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
       }
       ctx.stroke();
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
 
       // 内层分类渐变圆
       ctx.beginPath();
-      ctx.arc(0, 0, 20, 0, Math.PI * 2);
+      ctx.arc(0, 0, rInner, 0, Math.PI * 2);
       ctx.fillStyle = grad;
       ctx.fill();
       ctx.strokeStyle = '#735914';
       ctx.lineWidth = 1;
       ctx.stroke();
 
-      // 中心图标
+      // 中心图标 (内边 5px，圆形裁剪)
       const iconUrl = props.getNodeIconUrl((node as any).skill || node.id);
       const img = getImage(iconUrl);
       if (img) {
-        ctx.drawImage(img, -14, -14, 28, 28);
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(0, 0, iconR, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.drawImage(img, -iconR, -iconR, iconR * 2, iconR * 2);
+        ctx.restore();
       }
 
     } else {
-      // --- 普通属性节点 (小圆) ---
-      const r = 16;
+      // --- 普通属性节点 (r=20，内边 5px) ---
+      const r = 20;
+      const innerR = r - 5; // 15，内边 5px
+
       ctx.beginPath();
       ctx.arc(0, 0, r, 0, Math.PI * 2);
       ctx.fillStyle = grad;
@@ -328,12 +355,12 @@ function render() {
         ctx.strokeStyle = '#ffeb3b';
         ctx.lineWidth = 3.0;
         ctx.shadowColor = '#ffeb3b';
-        ctx.shadowBlur = 16;
+        ctx.shadowBlur = 14;
       } else if (isHovered) {
         ctx.strokeStyle = '#fff275';
         ctx.lineWidth = 2.6;
         ctx.shadowColor = '#ffd700';
-        ctx.shadowBlur = 14;
+        ctx.shadowBlur = 12;
       } else if (isActive) {
         ctx.strokeStyle = '#ffd700';
         ctx.lineWidth = 2.6;
@@ -342,18 +369,68 @@ function render() {
       } else if (isAvailable) {
         ctx.strokeStyle = '#ffffff';
         ctx.lineWidth = 1.8;
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
       } else {
         ctx.strokeStyle = '#555555';
         ctx.lineWidth = 1.2;
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
       }
       ctx.stroke();
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
 
-      // 中心图标
+      // 中心图标 (内边 5px，圆形裁剪)
       const iconUrl = props.getNodeIconUrl((node as any).skill || node.id);
       const img = getImage(iconUrl);
       if (img) {
-        ctx.drawImage(img, -11, -11, 22, 22);
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(0, 0, innerR, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.drawImage(img, -innerR, -innerR, innerR * 2, innerR * 2);
+        ctx.restore();
       }
+    }
+
+    // --- 节点下方显示名称 (无发光，干净清爽) ---
+    const skillName = props.getSkillName ? props.getSkillName(node.id, node.key) : (node.name || node.label || node.id);
+    if (skillName) {
+      const bottomY = (node.role === 'keyBuff' || node.role === 'seasonalPerk') ? 28 : 20;
+      const textY = bottomY + 4;
+
+      ctx.save();
+      // 确保绝对不发光
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+
+      ctx.font = '500 11px system-ui, -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+
+      let textColor = 'rgba(215, 215, 215, 0.9)';
+      if (isSelected) {
+        textColor = '#ffeb3b';
+      } else if (isHovered) {
+        textColor = '#fff275';
+      } else if (isActive) {
+        textColor = '#ffd700';
+      } else if (isAvailable) {
+        textColor = '#ffffff';
+      } else {
+        textColor = 'rgba(165, 165, 165, 0.7)';
+      }
+
+      // 轻微深色底描边提高对比度，绝无发光
+      ctx.strokeStyle = 'rgba(15, 15, 15, 0.85)';
+      ctx.lineWidth = 2.5;
+      ctx.lineJoin = 'round';
+      ctx.strokeText(skillName, 0, textY);
+
+      ctx.fillStyle = textColor;
+      ctx.fillText(skillName, 0, textY);
+      ctx.restore();
     }
 
     ctx.restore();
@@ -380,7 +457,7 @@ function findNodeAtWorld(wx: number, wy: number): Mastery | null {
   const nodes = Object.values(props.nodes);
   for (let i = nodes.length - 1; i >= 0; i--) {
     const node = nodes[i];
-    const r = node.role === 'keyBuff' ? 28 : (node.role === 'seasonalPerk' ? 28 : 20);
+    const r = node.role === 'keyBuff' ? 31 : (node.role === 'seasonalPerk' ? 31 : 23);
     const dist = Math.hypot(wx - node.position.x, wy - node.position.y);
     if (dist <= r) {
       return node;
