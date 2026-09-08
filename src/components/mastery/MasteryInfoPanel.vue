@@ -133,7 +133,7 @@ defineOptions({name: 'MasteryInfoPanel'});
             <v-row align="center">
               <v-col cols="auto" class="d-flex align-center">
                 <div class="mr-2">
-                  <MasteryIconWidget id="masteryPoint" :size="30"></MasteryIconWidget>
+                  <v-img src="@/assets/images/masteryPoint.webp" width="30px" height="30px" />
                 </div>
                 <span class="font-weight-bold">{{ t('mastery.pointsTitle') }}</span>
               </v-col>
@@ -200,18 +200,19 @@ defineOptions({name: 'MasteryInfoPanel'});
                   <v-row v-else density="compact" class="bg-transparent">
                     <v-col cols="12" v-for="perk in activeSeasonalPerks" :key="perk.key || perk.id">
                       <v-card variant="text">
-                        <div class="d-flex align-start">
-                          <ItemSlotBase size="44px" :padding="2" class="mr-3 flex-shrink-0 d-flex align-center justify-center">
-                            <MasteryIconWidget
-                                :id="perk.id"
-                                :name="perk.id"
-                                :category="perk.category"
-                                :role="perk.role"
-                                :with-background="true"
-                                :size="36"
-                            ></MasteryIconWidget>
-                          </ItemSlotBase>
-                          <div class="flex-grow-1">
+                        <v-row>
+                          <v-col cols="auto">
+                            <ItemSlotBase size="99px" class="mr-3">
+                              <MasteryIconWidget
+                                  :id="perk.id"
+                                  :name="perk.id"
+                                  :category="perk.category"
+                                  :role="perk.role"
+                                  :with-background="true"
+                              ></MasteryIconWidget>
+                            </ItemSlotBase>
+                          </v-col>
+                          <v-col>
                             <div class="d-flex align-center justify-space-between mb-1">
                               <span class="font-weight-bold text-amber text-body-2 u">{{ getSkillName(perk.id, perk.key) }}</span>
                               <v-chip size="x-small" color="amber" variant="outlined">
@@ -221,8 +222,8 @@ defineOptions({name: 'MasteryInfoPanel'});
                             <div class="text-caption opacity-80 text-pre-line">
                               {{ getSkillDesc(perk.id, perk.key) }}
                             </div>
-                          </div>
-                        </div>
+                          </v-col>
+                        </v-row>
                       </v-card>
                     </v-col>
                   </v-row>
@@ -301,13 +302,15 @@ defineOptions({name: 'MasteryInfoPanel'});
                                       :key="c.skillKey">
                               <v-row>
                                 <v-col cols="auto">
-                                  <MasteryIconWidget
-                                      :id="c.skillKey"
-                                      :category="c.skillCategory"
-                                      :with-background="true"
-                                      :size="40"
-                                      class="mr-2"
-                                  ></MasteryIconWidget>
+                                  <ItemSlotBase size="80px">
+                                    <MasteryIconWidget
+                                        :id="c.skillKey"
+                                        :category="c.skillCategory"
+                                        :with-background="true"
+                                        :size="40"
+                                        class="mr-2"
+                                    ></MasteryIconWidget>
+                                  </ItemSlotBase>
                                 </v-col>
                                 <v-col>
                                   <div class="d-flex align-center justify-space-between">

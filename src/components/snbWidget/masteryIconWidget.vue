@@ -211,6 +211,7 @@ defineOptions({
           @mouseenter="onMouseEnter"
           ref="targetElement"
           width="100%"
+          height="100%"
           v-bind="activatorProps"
           :to="isOpenDetail ? `/codex/mapLocation/${props?.id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
@@ -253,9 +254,9 @@ defineOptions({
 
   <v-card
       v-else
-      width="100%"
-      height="100%"
-      variant="flat"
+      width="stretch"
+      height="stretch"
+      variant="tonal"
       color="transparent"
       :to="isOpenDetail && effectiveId ? `/codex/mastery/${effectiveId}` : undefined"
       :target="isOpenNewWindow ? '_blank' : '_self'"
