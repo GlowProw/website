@@ -87,6 +87,10 @@ const props = defineProps({
   toolbar: {
     type: Array as () => Array<string | ToolbarItem>,
     default: () => ['link', 'img', 'video', 'emote', 'item', 'ship', 'mod', 'ultimate', 'lang']
+  },
+  textization: {
+    type: Array as () => string[],
+    default: () => []
   }
 })
 
@@ -387,7 +391,7 @@ const onInitEdit = () => {
 </script>
 
 <template>
-  <div v-if="tiptap" class="textarea-wrapper container readonly html-widget-box bg-transparent" :class="{ 'force-show-all-lang': forceShowAllLang }" :data-locale="props.locale">
+  <div v-if="tiptap" class="textarea-wrapper container readonly html-widget-box bg-transparent" :class="{ 'force-show-all-lang': forceShowAllLang, 'is-textized': textization && textization.length > 0 }" :data-locale="props.locale">
     <div class="mb-3 control-group editor-toolbar" v-if="!props.readonly">
       <v-row :gutter="20" type="flex" align="center">
         <v-col>

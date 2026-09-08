@@ -568,6 +568,7 @@ export function useI18nReadName() {
     const mastery = (id: string | number) => {
         const rawKey = String(id || '');
         let skillKey = rawKey;
+        let matchedNode: any = null;
 
         // 若传入的是节点 key（如 B-3-2-DE2）或 id，尝试在专精树中寻找对应技能标识
         const allTrees = Object.values(masterys);
@@ -575,6 +576,7 @@ export function useI18nReadName() {
             if (tree && (tree as any).nodes) {
                 const node = (tree as any).nodes[rawKey] || (Object.values((tree as any).nodes) as any[]).find((n: any) => n.key === rawKey || n.id === rawKey);
                 if (node) {
+                    matchedNode = node;
                     skillKey = (node as any).id || (node as any).skill || rawKey;
                     break;
                 }
@@ -605,7 +607,30 @@ export function useI18nReadName() {
                     backRawKey: false,
                     lang
                 });
-                return translated || '';
+                if (translated) {
+                    return translated;
+                }
+                if (matchedNode && matchedNode.effects && matchedNode.effects.length > 0) {
+                    const lines: string[] = [];
+                    for (const eff of matchedNode.effects) {
+                        let effDesc = asString([`snb.masterys.${eff.id}.description`], {
+                            backRawKey: false,
+                            lang
+                        });
+                        if (effDesc) {
+                            for (const [k, v] of Object.entries(eff)) {
+                                if (k !== 'id') {
+                                    effDesc = effDesc.replace(new RegExp(`\\{\\{\\s*${k}\\s*\\}\\}`, 'g'), String(v));
+                                }
+                            }
+                            lines.push(effDesc);
+                        }
+                    }
+                    if (lines.length > 0) {
+                        return lines.join('\n');
+                    }
+                }
+                return '';
             }
         };
     };

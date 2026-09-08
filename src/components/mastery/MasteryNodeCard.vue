@@ -196,40 +196,45 @@ const requirementItems = computed<NodeRequirementItem[]>(() => {
     <div class="node-card-actions">
       <!-- 赛季特长单选操作 -->
       <template v-if="node.role === 'seasonalPerk'">
-        <v-row align="center" no-gutters class="pa-2">
-          <v-col class="text-left px-2 text-body-2">
+        <v-row align="center" no-gutters class="">
+          <v-col class="text-left px-5 py-4 text-body-2">
             <template v-if="regularPointsSpent < node.cost">
               <span class="opacity-60 text-caption">
                 {{ t('mastery.card.perkPointsRequired', {spent: regularPointsSpent, cost: node.cost}) }}
               </span>
             </template>
             <template v-else-if="isNodeActive(node.id)">
-              <span class="text-success font-weight-bold d-flex align-center">
-                <v-icon size="16" class="mr-1 text-success">mdi-check-circle</v-icon>
+              <span class="text-amber d-flex align-center">
                 {{ t('mastery.card.perkActiveOne') }}
               </span>
             </template>
             <template v-else>
-              <span class="text-amber font-weight-medium text-caption d-flex align-center">
-                <v-icon size="16" class="mr-1 text-amber">mdi-radiobox-blank</v-icon>
+              <span class="text-amber text-caption d-flex align-center">
                 {{ t('mastery.card.perkSelectOne') }}
               </span>
             </template>
           </v-col>
+          <v-divider vertical></v-divider>
           <v-col cols="auto">
             <v-btn
                 v-if="regularPointsSpent >= node.cost"
-                size="small"
+                height="50"
+                elevation="0"
+                tile
+                block
                 :color="isNodeActive(node.key) ? 'error' : 'amber'"
                 :variant="isNodeActive(node.key) ? 'tonal' : 'elevated'"
-                @click="emit('toggle-activation', node.key)"
-                class="font-weight-bold">
-              <v-icon start size="16">{{ isNodeActive(node.key) ? 'mdi-close-circle' : 'mdi-check' }}</v-icon>
+                @click="emit('toggle-activation', node.key)">
               {{ isNodeActive(node.key) ? t('mastery.card.deselectThisPerk') : t('mastery.card.selectThisPerk') }}
             </v-btn>
-            <v-chip v-else size="small" variant="outlined" class="opacity-50">
+            <v-btn v-else
+                   height="50"
+                   elevation="0"
+                   tile
+                   block
+                   class="opacity-50">
               {{ t('mastery.card.statusLocked') }}
-            </v-chip>
+            </v-btn>
           </v-col>
         </v-row>
       </template>

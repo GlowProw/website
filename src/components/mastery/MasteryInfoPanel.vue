@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import {computed} from 'vue';
+import {computed, nextTick} from 'vue';
 import {useI18n} from 'vue-i18n';
 import type {Mastery} from 'glow-prow-data';
 import type {AggregatedEffect} from '@/assets/sripts/use_mastery_controller';
 import ItemSlotBase from '@/components/snbWidget/ItemSlotBase.vue';
 import MasteryIconWidget from '@/components/snbWidget/masteryIconWidget.vue';
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
+import {storage} from "@/assets/sripts";
 
 const {t} = useI18n();
 
@@ -46,13 +47,30 @@ const emit = defineEmits<{
   (e: 'toggle-all-effects-expand'): void;
 }>();
 
+const SESSION_OPEN_MODEL_KEY = 'mastery.openModel';
+
 const openModel = computed({
-  get: () => props.modelValue !== undefined ? props.modelValue : (props.isOpen ?? false),
+  get: () => {
+    if (props.modelValue !== undefined) return props.modelValue;
+    if (props.isOpen !== undefined) return props.isOpen;
+    const saved = storage.session.get(SESSION_OPEN_MODEL_KEY)?.data?.value;
+    return typeof saved === 'boolean' ? saved : false;
+  },
   set: (val: boolean) => {
+    storage.session.set(SESSION_OPEN_MODEL_KEY, val);
     emit('update:modelValue', val);
     emit('update:isOpen', val);
   }
 });
+
+function onSeasonChange(newSeason: string) {
+  emit('update:selectedSeasonId', newSeason);
+  storage.session.set(SESSION_OPEN_MODEL_KEY, true);
+  nextTick(() => {
+    emit('update:modelValue', true);
+    emit('update:isOpen', true);
+  });
+}
 
 defineOptions({name: 'MasteryInfoPanel'});
 </script>
@@ -62,6 +80,7 @@ defineOptions({name: 'MasteryInfoPanel'});
       :model-value="openModel"
       @update:model-value="openModel = $event"
       temporary
+      disable-route-watcher
       absolute
       class="mastery-info-drawer"
       :scrim="false"
@@ -90,13 +109,14 @@ defineOptions({name: 'MasteryInfoPanel'});
 
           <v-select
               :model-value="selectedSeasonId"
-              @update:model-value="emit('update:selectedSeasonId', $event)"
+              @update:model-value="onSeasonChange"
               :items="seasonOptions"
               item-title="title"
               item-value="id"
               density="compact"
               variant="outlined"
               hide-details
+              :menu-props="{ attach: '.season-selector', closeOnContentClick: true }"
               class="season-selector mx-7 mb-2">
           </v-select>
         </v-card>

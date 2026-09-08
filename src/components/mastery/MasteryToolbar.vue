@@ -76,7 +76,7 @@ defineOptions({name: 'MasteryToolbar'});
         tile
         stacked
         density="compact"
-        :title="t('mastery.share')"
+        :title="t('mastery.share.dialogTitle')"
         @click="emit('open-share')">
       <v-icon icon="mdi-share-variant-outline"></v-icon>
     </v-btn>

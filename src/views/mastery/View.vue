@@ -261,6 +261,7 @@ onMounted(() => {
     <!-- 分享对话框 -->
     <MasteryShareDialog
         v-model="showShareDialog"
+        :season-id="selectedSeasonId"
         :share-url="shareUrl"
         :share-code="shareCode"
         :season-title="activeSeasonTitle"

@@ -17,11 +17,27 @@ const
 
 <template>
   <node-view-wrapper>
-    <v-card border class="my-3 bg-black">
+    <v-card border class="my-3 bg-black img-card">
       <v-img :src="props.node.attrs.src" max-height="400"></v-img>
     </v-card>
+    <div class="img-textized d-none">
+      <v-icon icon="mdi-image-outline" size="16" color="amber" class="mr-1"></v-icon>
+      <a :href="props.node.attrs.src" class="text-caption text-amber opacity-80" target="_blank" rel="noopener noreferrer">{{ props.node.attrs.src }}</a>
+    </div>
   </node-view-wrapper>
 </template>
+
+<style lang="less">
+.is-textized {
+  .img-card {
+    display: none !important;
+  }
+  .img-textized {
+    display: inline-flex !important;
+    align-items: center;
+  }
+}
+</style>
 
 <style scoped lang="less">
 

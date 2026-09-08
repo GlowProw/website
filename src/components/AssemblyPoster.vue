@@ -47,6 +47,10 @@ const props = defineProps({
   assemblyLoading: {
     type: Boolean,
     default: false
+  },
+  textization: {
+    type: Array as () => string[],
+    default: () => ['video']
   }
 });
 
@@ -160,7 +164,8 @@ defineExpose({
                   :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
                   :min-height="'0'"
                   :model-value="assemblyDetailData.description"
-                  :locale="generateImageValue.language"></Textarea>
+                  :locale="generateImageValue.language"
+                  :textization="textization"></Textarea>
 
         <v-row class="opacity-80 mt-5 pb-5" v-show="!assemblyLoading">
           <v-col>

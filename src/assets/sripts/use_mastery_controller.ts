@@ -37,8 +37,24 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
   const route = useRoute();
   const router = useRouter();
   const appStore = useAppStore();
-  const { t, te, locale } = useI18n();
+  const { t, te, tm, locale } = useI18n();
   const { mobile } = useDisplay();
+
+  function getI18nDesc(key: string): string {
+    const content = tm(key);
+    if (content) {
+      if (Array.isArray(content)) {
+        return content.join('\n');
+      }
+      if (typeof content === 'string') {
+        return content;
+      }
+    }
+    if (te(key)) {
+      return t(key) as string;
+    }
+    return '';
+  }
 
   // 资源图标 CDN
   const { currentService: currentImageService } = useCDNAssetsServiceStore();
@@ -77,7 +93,7 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
   const isDebug = computed(() => appStore.isDebug);
 
   // 缩放范围限制 (避免无限放大缩小)
-  const svgScaleExtent = ref<[number, number]>([0.8, 3.5]);
+  const svgScaleExtent = ref<[number, number]>([0.4, 3.5]);
   const scaleExtent = computed(() => [
     svgScaleExtent.value[0],
     2.0,
@@ -93,32 +109,44 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
     return raw.replace(/^Y\d+S\d+\s*-\s*/, '').replace(/\s*\([^)]*\)$/, '');
   }
 
-  const seasonOptions = computed(() => [
-    { id: 'shatteredSeas', title: getSeasonTitle('shatteredSeas'), maxPoints: 80 },
-    { id: 'crimsonWaters', title: getSeasonTitle('crimsonWaters'), maxPoints: 90 }
-  ]);
-
-  // 树数据
+  // 树数据 (直接加载专精数据)
   const allMasterys = computed(() => props.masterys || Masterys);
   const activeTree = computed<SeasonMasteryTree>(() => {
     return allMasterys.value[selectedSeasonId.value] || allMasterys.value[defaultSeasonId] || allMasterys.value['crimsonWaters'] || allMasterys.value['shatteredSeas'];
   });
+  // 最大节点点数直接从赛季配置中读取
   const maxPoints = computed(() => activeTree.value?.maxPoints || 80);
 
-  // 本地可变节点字典 (支持 debug 拖拽)
+  // 动态根据数据源生成赛季选项及最大点数
+  const seasonOptions = computed(() => {
+    return Object.entries(allMasterys.value || {}).map(([sId, tree]) => ({
+      id: sId,
+      title: getSeasonTitle(sId),
+      maxPoints: tree?.maxPoints || 0
+    }));
+  });
+
+  // 本地可变节点字典 
+  // 支持 debug
   const localNodes = ref<Record<string, Mastery>>({});
 
   // 选中的激活节点集合 (投入点数)
   const selectedNodeIds = ref<Set<string>>(new Set());
 
-  // 满足点数门槛后用户手动选择激活的赛季特长 (每个点数阶梯单选: group/cost -> nodeId)
+  // 满足点数门槛后用户手动选择激活的赛季特长 
+  // 每个点数阶梯单选: group/cost -> nodeId
   const selectedSeasonalPerks = ref<Record<string, string>>({});
 
   // 当前选中供详情展示的节点
   const selectedNode = ref<Mastery | null>(null);
 
-  // 界面状态
-  const isLeftPanelOpen = ref(!mobile.value);
+  // 界面状态 (使用 session 存储抽屉展开状态)
+  const SESSION_OPEN_MODEL_KEY = 'mastery.openModel';
+  const savedOpenModel = storage.session.get(SESSION_OPEN_MODEL_KEY)?.data?.value;
+  const isLeftPanelOpen = ref(typeof savedOpenModel === 'boolean' ? savedOpenModel : !mobile.value);
+  watch(isLeftPanelOpen, (val) => {
+    storage.session.set(SESSION_OPEN_MODEL_KEY, val);
+  });
   const panelExpanded = ref<string[]>(['points', 'seasonal', 'aggregated']);
   const showShareDialog = ref(false);
 
@@ -187,23 +215,52 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
     const node = findNode(nodeKey || skillKey) || findNode(skillKey);
     const skillName = (node as any)?.skill;
     if (skillName) {
-      const key = `snb.masterys.${skillName}.description`;
-      if (te(key)) return t(key);
+      const desc = getI18nDesc(`snb.masterys.${skillName}.description`);
+      if (desc) return desc;
     }
     const resolvedId = node?.id || skillKey;
     if (resolvedId) {
-      const key = `snb.masterys.${resolvedId}.description`;
-      if (te(key)) return t(key);
+      const desc = getI18nDesc(`snb.masterys.${resolvedId}.description`);
+      if (desc) return desc;
     }
     if (skillKey) {
-      const key = `snb.masterys.${skillKey}.description`;
-      if (te(key)) return t(key);
+      const desc = getI18nDesc(`snb.masterys.${skillKey}.description`);
+      if (desc) return desc;
     }
     if (nodeKey) {
-      const key = `snb.masterys.${nodeKey}.description`;
-      if (te(key)) return t(key);
+      const desc = getI18nDesc(`snb.masterys.${nodeKey}.description`);
+      if (desc) return desc;
     }
     if (node?.description) return node.description;
+
+    // 如果没有直接匹配到文本描述，尝试根据 node.effects 或 skillsDef[resolvedId].effects 动态渲染
+    const effects = (node as any)?.effects || activeTree.value?.skills?.[resolvedId]?.effects;
+    if (effects && Array.isArray(effects) && effects.length > 0) {
+      const lines: string[] = [];
+      for (const eff of effects) {
+        const eid = eff.id;
+        let template = getI18nDesc(`snb.masterys.${eid}.description`);
+        if (!template) {
+          const eDef = activeTree.value?.effects?.[eid];
+          if (eDef?.description && eDef.description.length > 0) {
+            template = (Array.isArray(eDef.description) ? eDef.description.flat() : [eDef.description]).join(' ');
+          }
+        }
+        if (template) {
+          let line = template;
+          for (const [vk, vv] of Object.entries(eff)) {
+            if (vk !== 'id') {
+              line = line.replace(new RegExp(`{{\\s*${vk}\\s*}}`, 'g'), String(vv));
+            }
+          }
+          lines.push(line);
+        }
+      }
+      if (lines.length > 0) {
+        return lines.join(' ');
+      }
+    }
+
     return '';
   }
 
@@ -492,9 +549,9 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
 
   // 聚合属性统计
   const aggregatedEffects = computed<AggregatedEffect[]>(() => {
-    if (!activeTree.value || !activeTree.value.skills || !activeTree.value.effects) return [];
+    if (!activeTree.value || !activeTree.value.skills) return [];
     const skillsDef = activeTree.value.skills;
-    const effectsDef = activeTree.value.effects;
+    const effectsDef = activeTree.value.effects || {};
     void locale.value; // 建立对 locale 的响应式依赖，确保切换语言时重新渲染
 
     // 统计每种 effect 的总加成与来源 (包括普通节点和已选择激活的赛季特长)
@@ -556,17 +613,16 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
       const eDef = effectsDef[eid];
 
       // 优先从 snb.masterys 读取本地化描述，fallback 到数据原文
-      let template = '';
-      const i18nDescKey = `snb.masterys.${eid}.description`;
+      let template = getI18nDesc(`snb.masterys.${eid}.description`);
       const i18nNameKey = `snb.masterys.${eid}.name`;
-      if (te(i18nDescKey)) {
-        template = t(i18nDescKey) as string;
-      } else if (eDef && eDef.description && eDef.description.length > 0) {
-        template = (Array.isArray(eDef.description) ? eDef.description.flat() : [eDef.description]).join(' ');
-      } else if (te(i18nNameKey)) {
-        template = t(i18nNameKey) as string;
-      } else {
-        template = getSkillName(eid);
+      if (!template) {
+        if (eDef && eDef.description && eDef.description.length > 0) {
+          template = (Array.isArray(eDef.description) ? eDef.description.flat() : [eDef.description]).join(' ');
+        } else if (te(i18nNameKey)) {
+          template = t(i18nNameKey) as string;
+        } else {
+          template = getSkillName(eid);
+        }
       }
 
       // 格式化总体聚合描述
@@ -613,6 +669,65 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
   // 展开折叠控制
   const expandedEffectIds = ref<Set<string>>(new Set());
   const isAllEffectsExpanded = ref(false);
+
+  // 寻找从源节点集合到目标节点的最短路径 (最少跳数)
+  function findPathFromSources(targetKey: string, isSource: (k: string) => boolean): string[] | null {
+    const targetNode = findNode(targetKey);
+    const startKey = targetNode?.key || targetKey;
+    if (!adjacencyMap.value.has(startKey)) return null;
+
+    const queue: string[] = [startKey];
+    const visited = new Map<string, string | null>(); // nodeKey -> nextNodeKeyOnPathToTarget
+    visited.set(startKey, null);
+
+    while (queue.length > 0) {
+      const curr = queue.shift()!;
+      if (isSource(curr)) {
+        // 重建正向路径：从源点 curr 到 startKey
+        const path: string[] = [];
+        let p: string | null = curr;
+        while (p !== null) {
+          path.push(p);
+          p = visited.get(p) ?? null;
+        }
+        return path; // [curr, step1, step2, ..., startKey]
+      }
+
+      const neighbors = adjacencyMap.value.get(curr);
+      if (neighbors) {
+        for (const nbr of neighbors) {
+          const nbrNode = findNode(nbr);
+          if (nbrNode && nbrNode.role === 'seasonalPerk') continue;
+          if (!visited.has(nbr)) {
+            visited.set(nbr, curr);
+            queue.push(nbr);
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  // 寻找连线激活最短路径：优先从最近已激活节点连过来，若无相连节点则从最近根节点开始
+  function findShortestActivationPath(targetKey: string): string[] | null {
+    // 1. 如果已有激活节点，优先寻找从最近已激活节点连过来的路径
+    if (selectedNodeIds.value.size > 0) {
+      const pathFromActive = findPathFromSources(targetKey, (k) => {
+        if (selectedNodeIds.value.has(k)) return true;
+        const n = findNode(k);
+        return !!(n && n.id && selectedNodeIds.value.has(n.id));
+      });
+      if (pathFromActive && pathFromActive.length > 0) {
+        return pathFromActive;
+      }
+    }
+
+    // 2. 如果没有相连的已激活节点，从最近的根节点连过来
+    return findPathFromSources(targetKey, (k) => {
+      const n = findNode(k);
+      return !!(n && isRootNode(n));
+    });
+  }
 
   function toggleEffectExpand(id: string) {
     const next = new Set(expandedEffectIds.value);
@@ -678,17 +793,66 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
       if (node.id) next.delete(node.id);
       selectedNodeIds.value = next;
     } else {
-      // 加点
-      if (!isNodeAvailable(key)) {
-        notify('前置条件不足：请先激活至少一个相连节点。', 'warning');
-        return;
-      }
+      // 加点：检查是否已达到最大点数上限
       if (regularPointsSpent.value >= maxPoints.value) {
         notify(`已达到当前赛季最大专精点数 (${maxPoints.value} 点)。`, 'warning');
         return;
       }
-      next.add(key);
-      selectedNodeIds.value = next;
+
+      // 如果当前节点本就可直接激活 (相邻已激活或本身为根节点)
+      if (isNodeAvailable(key)) {
+        next.add(key);
+        selectedNodeIds.value = next;
+        return;
+      }
+
+      // 未相连激活节点：寻找从最近激活节点（或根节点）连过来的最短路径一连激活过来
+      const path = findShortestActivationPath(key);
+      if (!path || path.length === 0) {
+        notify('前置条件不足：无法找到到达该节点的有效连通路径。', 'warning');
+        return;
+      }
+
+      let pointsRemaining = maxPoints.value - regularPointsSpent.value;
+      const newlyActivated: string[] = [];
+      let reachedTarget = false;
+
+      for (const stepKey of path) {
+        const isStepActive = next.has(stepKey) || (() => {
+          const n = findNode(stepKey);
+          return !!(n && n.id && next.has(n.id));
+        })();
+
+        if (isStepActive) continue;
+
+        const stepNode = findNode(stepKey);
+        const cost = stepNode?.cost || 1;
+        if (pointsRemaining >= cost) {
+          next.add(stepKey);
+          newlyActivated.push(stepKey);
+          pointsRemaining -= cost;
+          if (stepKey === key || (stepNode && stepNode.id === key)) {
+            reachedTarget = true;
+          }
+        } else {
+          // 点数不够，在对应节点停下
+          break;
+        }
+      }
+
+      if (newlyActivated.length > 0) {
+        selectedNodeIds.value = next;
+        if (reachedTarget) {
+          notify(`已沿最短路径连续激活 ${newlyActivated.length} 个节点。`, 'success');
+        } else {
+          const lastKey = newlyActivated[newlyActivated.length - 1];
+          const lastNode = findNode(lastKey);
+          const lastName = lastNode ? getSkillName(lastNode.id, lastNode.key) : lastKey;
+          notify(`点数已用尽，已沿路径激活至最远节点：${lastName}。`, 'warning');
+        }
+      } else {
+        notify('点数不足，无法沿路径激活该节点。', 'warning');
+      }
     }
   }
 
@@ -716,6 +880,7 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
   // 压缩分享编码与解码 (包含赛季、常规节点以及选中的赛季特长)
   function generateShareCode(): string {
     const payload = {
+      v: 1,
       s: selectedSeasonId.value,
       n: Array.from(selectedNodeIds.value),
       sp: Object.values(selectedSeasonalPerks.value)

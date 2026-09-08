@@ -22,6 +22,10 @@ const props = defineProps(nodeViewProps)
         </div>
       </v-card>
     </div>
+    <div class="video-textized d-none">
+      <v-icon icon="mdi-video-outline" size="16" color="amber" class="mr-1"></v-icon>
+      <a :href="props.node.attrs.src" class="text-caption text-amber opacity-80" target="_blank" rel="noopener noreferrer">{{ props.node.attrs.src }}</a>
+    </div>
   </node-view-wrapper>
 </template>
 
@@ -32,6 +36,19 @@ const props = defineProps(nodeViewProps)
   }
   .video-placeholder {
     display: flex !important;
+  }
+}
+
+.is-textized {
+  .video-card {
+    display: none !important;
+  }
+  .video-placeholder {
+    display: none !important;
+  }
+  .video-textized {
+    display: inline-flex !important;
+    align-items: center;
   }
 }
 </style>

@@ -15,8 +15,14 @@ const props = withDefaults(defineProps<{
   getSkillName?: (skillKey: string, nodeKey?: string) => string;
   isNodeActive: (id: string) => boolean;
   isNodeAvailable: (id: string) => boolean;
+  initialScale?: number;
+  initialTx?: number;
+  initialTy?: number;
+  dpr?: number;
+  readonly?: boolean;
 }>(), {
   isDebug: false,
+  readonly: false,
 });
 
 const emit = defineEmits<{
@@ -51,6 +57,7 @@ function getImage(url: string): HTMLImageElement | null {
     return img.complete && img.naturalWidth !== 0 ? img : null;
   }
   const img = new Image();
+  img.crossOrigin = 'anonymous';
   img.onload = () => {
     requestRender();
   };
@@ -115,7 +122,7 @@ function render() {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
-  const dpr = window.devicePixelRatio || 1;
+  const dpr = props.dpr ?? (window.devicePixelRatio || 1);
   const width = canvas.width / dpr;
   const height = canvas.height / dpr;
 
@@ -395,10 +402,10 @@ function render() {
     }
 
     // --- 节点下方显示名称 (无发光，干净清爽) ---
-    const skillName = props.getSkillName ? props.getSkillName(node.id, node.key) : (node.name || node.label || node.id);
+    const skillName = props.getSkillName ? props.getSkillName(node.id, node.key) : ((node as any).name || node.label || node.id);
     if (skillName) {
       const bottomY = (node.role === 'keyBuff' || node.role === 'seasonalPerk') ? 28 : 20;
-      const textY = bottomY + 4;
+      const textY = bottomY + 10;
 
       ctx.save();
       // 确保绝对不发光
@@ -468,6 +475,7 @@ function findNodeAtWorld(wx: number, wy: number): Mastery | null {
 
 // 事件监听与交互
 function onMouseDown(event: MouseEvent) {
+  if (props.readonly) return;
   mouseDownPos = { x: event.clientX, y: event.clientY };
   hasMovedSignificantly = false;
 
@@ -481,6 +489,7 @@ function onMouseDown(event: MouseEvent) {
 }
 
 function onMouseMove(event: MouseEvent) {
+  if (props.readonly) return;
   if (Math.hypot(event.clientX - mouseDownPos.x, event.clientY - mouseDownPos.y) > 4) {
     hasMovedSignificantly = true;
   }
@@ -505,6 +514,7 @@ function onMouseMove(event: MouseEvent) {
 }
 
 function onMouseUp(event: MouseEvent) {
+  if (props.readonly) return;
   if (isDraggingNode.value) {
     isDraggingNode.value = false;
     draggedNode = null;
@@ -513,6 +523,7 @@ function onMouseUp(event: MouseEvent) {
 }
 
 function onMouseLeave() {
+  if (props.readonly) return;
   if (hoveredNode.value) {
     hoveredNode.value = null;
     if (canvasRef.value) {
@@ -523,6 +534,7 @@ function onMouseLeave() {
 }
 
 function onClick(event: MouseEvent) {
+  if (props.readonly) return;
   // 如果是大幅度拖动平移，忽略点击
   if (hasMovedSignificantly) return;
 
@@ -547,13 +559,16 @@ function resizeCanvas() {
   const canvas = canvasRef.value;
   if (!container || !canvas) return;
 
-  const rect = container.getBoundingClientRect();
-  const dpr = window.devicePixelRatio || 1;
+  const width = container.clientWidth || container.offsetWidth;
+  const height = container.clientHeight || container.offsetHeight;
+  if (!width || !height) return;
 
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
-  canvas.style.width = `${rect.width}px`;
-  canvas.style.height = `${rect.height}px`;
+  const dpr = props.dpr ?? (window.devicePixelRatio || 1);
+
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  canvas.style.width = `${width}px`;
+  canvas.style.height = `${height}px`;
 
   requestRender();
 }
@@ -561,7 +576,14 @@ function resizeCanvas() {
 // 控制方法
 function setTransform(k: number, x: number, y: number, duration = 300) {
   const canvas = canvasRef.value;
-  if (!canvas || !zoomBehavior) return;
+  if (!canvas) return;
+
+  if (!zoomBehavior || props.readonly || duration === 0) {
+    currentTransform.value = d3.zoomIdentity.translate(x, y).scale(k);
+    emit('update:transform', { k, x: Math.round(x), y: Math.round(y) });
+    requestRender();
+    return;
+  }
 
   const newTransform = d3.zoomIdentity.translate(x, y).scale(k);
   d3.select(canvas)
@@ -590,18 +612,23 @@ function zoomStep(delta: number) {
 function resetView() {
   const container = containerRef.value;
   if (!container) return;
-  const rect = container.getBoundingClientRect();
-  const cx = rect.width / 2;
-  const cy = rect.height / 2;
-  setTransform(1.5, cx, cy, 500);
+  const width = container.clientWidth || container.offsetWidth;
+  const height = container.clientHeight || container.offsetHeight;
+  const cx = width / 2;
+  const cy = height / 2;
+  const targetK = props.initialScale ?? 1.5;
+  const targetX = props.initialTx ?? cx;
+  const targetY = props.initialTy ?? cy;
+  setTransform(targetK, targetX, targetY, props.readonly ? 0 : 500);
 }
 
 function locateNode(node: Mastery) {
   const container = containerRef.value;
   if (!container || !node) return;
-  const rect = container.getBoundingClientRect();
-  const cx = rect.width / 2;
-  const cy = rect.height / 2;
+  const width = container.clientWidth || container.offsetWidth;
+  const height = container.clientHeight || container.offsetHeight;
+  const cx = width / 2;
+  const cy = height / 2;
   const targetScale = 2.0;
 
   const newX = -node.position.x * targetScale + cx;
@@ -610,26 +637,62 @@ function locateNode(node: Mastery) {
   setTransform(targetScale, newX, newY, 500);
 }
 
+async function preloadAllIcons(): Promise<void> {
+  const urls: string[] = [];
+  for (const node of Object.values(props.nodes || {})) {
+    const iconUrl = props.getNodeIconUrl((node as any).skill || node.id);
+    if (iconUrl && !urls.includes(iconUrl)) {
+      urls.push(iconUrl);
+    }
+  }
+
+  await Promise.all(urls.map(url => {
+    if (imageCache.has(url)) {
+      const existing = imageCache.get(url)!;
+      if (existing.complete && existing.naturalWidth !== 0) return Promise.resolve();
+    }
+    return new Promise<void>((resolve) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        imageCache.set(url, img);
+        resolve();
+      };
+      img.onerror = () => resolve();
+      img.src = url;
+    });
+  }));
+
+  requestRender();
+}
+
 onMounted(() => {
   const canvas = canvasRef.value;
   if (!canvas) return;
 
   resizeCanvas();
 
-  zoomBehavior = d3.zoom<HTMLCanvasElement, unknown>()
-      .scaleExtent(props.scaleExtent)
-      .filter((event: MouseEvent) => {
-        if (isDraggingNode.value) return false;
-        // 允许滚轮与左键拖动画布
-        return (!event.ctrlKey || event.type === 'wheel') && !event.button;
-      })
-      .on('zoom', ({ transform: t }) => {
-        currentTransform.value = t;
-        emit('update:transform', { k: t.k, x: Math.round(t.x), y: Math.round(t.y) });
-        requestRender();
-      });
+  if (!props.readonly) {
+    zoomBehavior = d3.zoom<HTMLCanvasElement, unknown>()
+        .scaleExtent(props.scaleExtent)
+        .filter((event: MouseEvent) => {
+          if (isDraggingNode.value) return false;
+          // 允许滚轮与左键拖动画布
+          return (!event.ctrlKey || event.type === 'wheel') && !event.button;
+        })
+        .on('zoom', ({ transform: t }) => {
+          currentTransform.value = t;
+          emit('update:transform', { k: t.k, x: Math.round(t.x), y: Math.round(t.y) });
+          requestRender();
+        });
 
-  d3.select(canvas).call(zoomBehavior as any);
+    d3.select(canvas).call(zoomBehavior as any);
+  } else {
+    const targetK = props.initialScale ?? 1.0;
+    const targetX = props.initialTx ?? 0;
+    const targetY = props.initialTy ?? 0;
+    currentTransform.value = d3.zoomIdentity.translate(targetX, targetY).scale(targetK);
+  }
 
   // 初始居中
   resetView();
@@ -647,13 +710,21 @@ watch([() => props.nodes, () => props.edges, () => props.selectedNodeIds, () => 
   requestRender();
 }, { deep: true });
 
+watch([() => props.initialScale, () => props.initialTx, () => props.initialTy], () => {
+  if (props.initialScale !== undefined) {
+    resetView();
+  }
+});
+
 defineExpose({
   setTransform,
   setScale,
   zoomStep,
   resetView,
   locateNode,
-  requestRender
+  requestRender,
+  preloadAllIcons,
+  canvasRef
 });
 </script>
 

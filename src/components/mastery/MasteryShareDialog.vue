@@ -8,6 +8,7 @@ const props = defineProps<{
   modelValue: boolean;
   shareUrl: string;
   shareCode: string;
+  seasonId?: string;
   seasonTitle: string;
   pointsSpent: number;
   maxPoints: number;
@@ -75,15 +76,25 @@ function onImport() {
             class="mb-3 font-monospace text-caption"
         ></v-text-field>
 
-        <v-btn
-            block
-            color="amber"
-            prepend-icon="mdi-content-copy"
-            class="mb-6 font-weight-bold"
-            @click="emit('copy')"
-        >
-          {{ t('mastery.shareDialog.copyLink') }}
-        </v-btn>
+        <div class="d-flex ga-3 mb-6">
+          <v-btn
+              class="flex-grow-1 font-weight-bold"
+              color="amber"
+              prepend-icon="mdi-content-copy"
+              @click="emit('copy')"
+          >
+            {{ t('mastery.shareDialog.copyLink') }}
+          </v-btn>
+          <v-btn
+              variant="outlined"
+              color="amber"
+              prepend-icon="mdi-image-outline"
+              class="font-weight-bold"
+              :to="{ name: 'MasteryShare', query: { season: seasonId, share: shareCode } }"
+          >
+            {{ t('mastery.share.createPoster') }}
+          </v-btn>
+        </div>
 
         <v-divider class="mb-4"></v-divider>
 
