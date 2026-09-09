@@ -482,7 +482,7 @@ defineOptions({
       <!-- 搜索输入框 E -->
 
       <!-- 搜索历史 S -->
-      <v-col cols="6" v-if="searchSettingConfig.searchIsLogs && searchHistory.length && !searchValue" class="search-history mb-4">
+      <v-col cols="12" md="6" lg="6" v-if="searchSettingConfig.searchIsLogs && searchHistory.length && !searchValue" class="search-history mb-4">
         <div class="history-header">
           <span class="text-caption text-medium-emphasis">
             {{ t('search.recentSearches') }}

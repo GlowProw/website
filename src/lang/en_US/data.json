@@ -1345,6 +1345,8 @@
       "wheelRendererVersionDescription": "Determines the format in which the wheel data is loaded. If you don't know what this does, you don't need to set it; the system will use the latest version to initialize the load.",
       "warehouseRendererVersion": "Warehouse Renderer Version",
       "warehouseRendererVersionDescription": "Determines the format in which the warehouse data is loaded. If you don't know what this does, you don't need to set it; the system will use the latest version to initialize the load.",
+      "masteryRendererVersion": "Mastery Renderer Version",
+      "masteryRendererVersionDescription": "Determines the format in which the mastery data is loaded. If you don't know what this does, you don't need to set it; the system will use the latest version to initialize the load.",
       "version": "Version",
       "selectVersion": "Select Version",
       "enable": "Enable",

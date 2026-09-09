@@ -10,6 +10,7 @@ import {useTrashApi} from "@/assets/sripts/api/trash_service";
 import {useTeamupApi} from "@/assets/sripts/api/teamup_service";
 import {useBlogApi} from "@/assets/sripts/api/blog_service";
 import {useStateOfWarApi} from "@/assets/sripts/api/state_of_war_service";
+import {useMasteryApi} from "@/assets/sripts/api/mastery_service";
 
 export * from './user_service'
 export * from './assembly_service'
@@ -23,6 +24,7 @@ export * from './trash_service'
 export * from './teamup_service'
 export * from './blog_service'
 export * from './state_of_war_service'
+export * from './mastery_service'
 export * from './api-util'
 
 export class Apis {

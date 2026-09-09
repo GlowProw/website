@@ -58,7 +58,7 @@ const onPenModel = () => {
             noClickAnimation
             transition
             v-model="model">
-    <v-container class="pa-14">
+    <v-container class="pa-lg-14">
       <GlobalSearchCoreView @close="model = !model">
         <template v-slot:close>
           <v-btn icon variant="tonal" class="ml-5" @click="model = false">

@@ -28,6 +28,7 @@ export interface AssemblyItem extends AssemblyBasieIds {
     assembly?: AssemblyParams
     wheel?: AssemblyWheelParams
     warehouse?: WarehouseAttrParams
+    mastery?: MasteryParams
     // 配装内容 E
     userId?: string
     userAvatar?: string
@@ -76,6 +77,14 @@ export interface WarehouseAttr {
 }
 
 /**
+ * 精通属性
+ */
+export interface MasteryAttr {
+    // 精通渲染器版本
+    masteryUseVersion?: string
+}
+
+/**
  * 请求配装体
  */
 export interface AssemblyParams {
@@ -102,6 +111,16 @@ export interface WarehouseAttrParams {
     // 配装属性
     attr?: WarehouseAttr
     // 配装数据
+    data?: any | {}
+}
+
+/**
+ * 请求精通体
+ */
+export interface MasteryParams {
+    // 精通属性
+    attr?: MasteryAttr
+    // 精通数据
     data?: any | {}
 }
 

@@ -39,7 +39,8 @@ let
     shareData: Ref<any> = ref({
       assembly: {},
       warehouse: {},
-      wheel: {}
+      wheel: {},
+      mastery: {}
     }),
 
     verificationWorkshop = ref({
@@ -149,6 +150,12 @@ const loadAssemblyData = () => {
         assemblyUseVersion: d.warehouse?.attr?.assemblyUseVersion
       })
       .onLoad(d.warehouse.data)
+
+  assemblyMainSubjectView.value.refs.mastery
+      ?.setSetting({
+        masteryUseVersion: d.mastery?.attr?.masteryUseVersion
+      })
+      ?.onLoad(d.mastery?.data)
 }
 
 /**
@@ -187,7 +194,8 @@ const onSaveAssembly = (saveType: StorageIntermediateTransferSaveType, uid?: str
     ...shareData.value,
     assembly: assemblyMainSubjectView.value.refs.assembly.onExport(),
     wheel: assemblyMainSubjectView.value.refs.wheel.onExport(),
-    warehouse: assemblyMainSubjectView.value.refs.warehouse.onExport()
+    warehouse: assemblyMainSubjectView.value.refs.warehouse.onExport(),
+    mastery: assemblyMainSubjectView.value.refs.mastery.onExport()
   }
 
   return storageIntermediateTransfer.update(shareData.value, {
@@ -207,7 +215,8 @@ const onQuickArchiving = () => {
     ...shareData.value,
     assembly: assemblyMainSubjectView.value.refs.assembly.onExport(),
     wheel: assemblyMainSubjectView.value.refs.wheel.onExport(),
-    warehouse: assemblyMainSubjectView.value.refs.warehouse.onExport()
+    warehouse: assemblyMainSubjectView.value.refs.warehouse.onExport(),
+    mastery: assemblyMainSubjectView.value.refs.mastery.onExport()
   }, {
     uid: 'quickArchiving',
     saveType: StorageIntermediateTransferSaveType.Draft,

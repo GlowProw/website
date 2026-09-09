@@ -27,6 +27,29 @@ const emit = defineEmits<{
 }>();
 
 defineOptions({name: 'MasteryToolbar'});
+
+/**
+ * 搜索过滤：默认仅按标题匹配，这里扩展为同时支持
+ * 节点 id / key / skill / 分类（category）检索
+ * Vuetify customFilter 签名: (value, query, item)，item.raw 为原始条目
+ */
+function filterSearchItem(value: any, queryText: string, item: any): boolean {
+  const query = (queryText || '').trim().toLowerCase();
+  if (!query) return true;
+  const raw = item?.raw || {};
+  const haystack = [
+    value,
+    raw.title,
+    raw.id,
+    raw.key,
+    raw.skill,
+    raw.category,
+  ]
+      .filter(v => typeof v === 'string' && v.length > 0)
+      .join(' ')
+      .toLowerCase();
+  return haystack.includes(query);
+}
 </script>
 
 <template>
@@ -50,6 +73,7 @@ defineOptions({name: 'MasteryToolbar'});
         density="comfortable"
         :menu-props="{ maxHeight: '450px' }"
         :placeholder="t('mastery.searchPlaceholder')"
+        :custom-filter="filterSearchItem"
         prepend-inner-icon="mdi-magnify"
         @update:model-value="emit('update:searchSelected', $event)">
       <template v-slot:item="{ props: itemProps, item }">

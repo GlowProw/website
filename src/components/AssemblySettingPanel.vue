@@ -14,6 +14,7 @@ import AssemblyDataProcessing from "@/assets/sripts/assembly_data_processing";
 import VueJsonPretty from 'vue-json-pretty';
 import WheelDataProcessing from "@/assets/sripts/wheel_data_processing";
 import WarehouseDataProcessing from "@/assets/sripts/warehouse_data_processing";
+import MasteryDataProcessing from "@/assets/sripts/mastery_data_processing";
 
 import 'vue-json-pretty/lib/styles.css';
 
@@ -47,6 +48,11 @@ let show = ref(false),
       warehouse: {
         attr: {
           warehouseUseVersion: WarehouseDataProcessing.nowVersion
+        }
+      },
+      mastery: {
+        attr: {
+          masteryUseVersion: MasteryDataProcessing.nowVersion
         }
       }
     })

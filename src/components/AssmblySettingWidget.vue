@@ -8,6 +8,7 @@ import {useRoute, useRouter} from "vue-router";
 import AssemblyDataProcessing from "@/assets/sripts/assembly_data_processing";
 import WheelDataProcessing from "@/assets/sripts/wheel_data_processing";
 import WarehouseDataProcessing from "@/assets/sripts/warehouse_data_processing";
+import MasteryDataProcessing from "@/assets/sripts/mastery_data_processing";
 import {ApiError} from "@/assets/types/Api";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {handleApiError} from "@/assets/sripts/error_handler";
@@ -338,6 +339,22 @@ defineOptions({ name: 'AssmblySettingWidget' })
                     :placeholder="t('assembly.setting.selectVersion')"
                     :items="WarehouseDataProcessing.versions"
                     v-model="modelValue.warehouse.attr.warehouseUseVersion"
+                    :label="t('assembly.setting.version')"
+                ></v-select>
+              </v-col>
+            </v-row>
+          </v-tabs-window-item>
+          <v-tabs-window-item value="mastery">
+            <v-row>
+              <v-col>
+                <b>{{ t('assembly.setting.masteryRendererVersion') }}</b>
+                <p class="text-caption">{{ t('assembly.setting.masteryRendererVersionDescription') }}</p>
+              </v-col>
+              <v-col>
+                <v-select
+                    :placeholder="t('assembly.setting.selectVersion')"
+                    :items="MasteryDataProcessing.versions"
+                    v-model="modelValue.mastery.attr.masteryUseVersion"
                     :label="t('assembly.setting.version')"
                 ></v-select>
               </v-col>

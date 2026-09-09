@@ -1299,7 +1299,8 @@
     "additions": {
       "assembly": "配装",
       "wheel": "轮盘",
-      "warehouse": "船仓"
+      "warehouse": "船仓",
+      "mastery":"精通"
     },
     "setting": {
       "title": "设置",
@@ -1341,6 +1342,8 @@
       "wheelRendererVersionDescription": "决定对轮盘数据以何种格式加载，如果你不清楚作用可以不需要设置，让系统以最新版本来初始加载",
       "warehouseRendererVersion": "船仓渲染器版本",
       "warehouseRendererVersionDescription": "决定对船仓数据以何种格式加载，如果你不清楚作用可以不需要设置，让系统以最新版本来初始加载",
+      "masteryRendererVersion": "精通渲染器版本",
+      "masteryRendererVersionDescription": "决定对精通数据以何种格式加载，如果你不清楚作用可以不需要设置，让系统以最新版本来初始加载",
       "version": "版本",
       "selectVersion": "选择版本",
       "enable": "启用",

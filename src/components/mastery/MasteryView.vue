@@ -20,9 +20,12 @@ const props = withDefaults(defineProps<{
   initialTy?: number;
   dpr?: number;
   readonly?: boolean;
+  // 是否允许拖拽/缩放画布（与 readonly 解耦：只读详情页仍可平移查看）
+  draggable?: boolean;
 }>(), {
   isDebug: false,
   readonly: false,
+  draggable: true,
   edges: () => [],
 });
 
@@ -565,7 +568,7 @@ function onMouseLeave() {
   if (hoveredNode.value) {
     hoveredNode.value = null;
     if (canvasRef.value) {
-      canvasRef.value.style.cursor = 'default';
+      canvasRef.value.style.cursor = props.draggable ? 'grab' : 'default';
     }
     requestRender();
   }
@@ -591,6 +594,10 @@ function onClick(event: MouseEvent) {
   requestRender();
 }
 
+// 此时尺寸为 0，切换页签变为可见时通过 ResizeObserver 补偿一次尺寸计算
+let resizeObserver: ResizeObserver | null = null;
+let hasInitiallySized = false;
+
 // 尺寸自适应
 function resizeCanvas() {
   const container = containerRef.value;
@@ -608,6 +615,13 @@ function resizeCanvas() {
   canvas.style.width = `${width}px`;
   canvas.style.height = `${height}px`;
 
+  // 首次获得有效尺寸（含从隐藏切换为可见）时重置视图居中
+  if (!hasInitiallySized) {
+    hasInitiallySized = true;
+    resetView();
+    return;
+  }
+
   requestRender();
 }
 
@@ -616,14 +630,20 @@ function setTransform(k: number, x: number, y: number, duration = 300) {
   const canvas = canvasRef.value;
   if (!canvas) return;
 
+  const newTransform = d3.zoomIdentity.translate(x, y).scale(k);
+
   if (!zoomBehavior || props.readonly || duration === 0) {
-    currentTransform.value = d3.zoomIdentity.translate(x, y).scale(k);
+    currentTransform.value = newTransform;
     emit('update:transform', { k, x: Math.round(x), y: Math.round(y) });
+    // 即便只读/无过渡，只要挂载了缩放行为（draggable），也需同步 d3 内部状态，
+    // 否则首次滚轮/拖拽会从 d3 初始的 identity 状态起跳导致画面跳变
+    if (zoomBehavior) {
+      d3.select(canvas).call(zoomBehavior.transform as any, newTransform);
+    }
     requestRender();
     return;
   }
 
-  const newTransform = d3.zoomIdentity.translate(x, y).scale(k);
   d3.select(canvas)
       .transition()
       .duration(duration)
@@ -710,7 +730,8 @@ onMounted(() => {
 
   resizeCanvas();
 
-  if (!props.readonly) {
+  // 拖拽/缩放能力由 draggable 独立控制（只读页同样允许平移画布查看）
+  if (props.draggable) {
     zoomBehavior = d3.zoom<HTMLCanvasElement, unknown>()
         .scaleExtent(props.scaleExtent)
         .filter((event: MouseEvent) => {
@@ -736,10 +757,18 @@ onMounted(() => {
   resetView();
 
   window.addEventListener('resize', resizeCanvas);
+
+  // 观察容器尺寸：处理挂载于 v-show/display:none 容器、切为可见时的尺寸补偿
+  if (typeof ResizeObserver !== 'undefined' && containerRef.value) {
+    resizeObserver = new ResizeObserver(() => resizeCanvas());
+    resizeObserver.observe(containerRef.value);
+  }
 });
 
 onUnmounted(() => {
   window.removeEventListener('resize', resizeCanvas);
+  resizeObserver?.disconnect();
+  resizeObserver = null;
   if (animFrameId) cancelAnimationFrame(animFrameId);
 });
 
@@ -771,6 +800,7 @@ defineExpose({
     <canvas
         ref="canvasRef"
         class="mastery-canvas"
+        :class="{ 'is-draggable': draggable }"
         @mousedown="onMouseDown"
         @mousemove="onMouseMove"
         @mouseup="onMouseUp"
@@ -796,5 +826,13 @@ defineExpose({
   height: 100%;
   display: block;
   user-select: none;
+}
+
+.mastery-canvas.is-draggable {
+  cursor: grab;
+}
+
+.mastery-canvas.is-draggable:active {
+  cursor: grabbing;
 }
 </style>

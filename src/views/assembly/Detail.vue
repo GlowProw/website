@@ -44,6 +44,7 @@ let detailData: Ref<any> = ref({
       assembly: {},
       wheel: {},
       warehouse: {},
+      mastery: {},
       createdTime: Date.now(),
       updatedTime: Date.now(),
       userAvatar: null,
@@ -164,6 +165,12 @@ const onAssemblyMainViewReady = () => {
         warehouseUseVersion: d.warehouse.attr.warehouseUseVersion,
       })
       .onLoad(d.warehouse.data)
+  // 载入精通
+  assemblyMainSubjectView.value.refs.mastery
+      ?.setSetting({
+        masteryUseVersion: d.mastery?.attr?.masteryUseVersion,
+      })
+      ?.onLoad(d.mastery?.data)
 }
 
 /**

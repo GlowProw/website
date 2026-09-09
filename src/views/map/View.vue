@@ -12,7 +12,7 @@
         @map-created="onMapCreated"
     />
 
-    <SearchBar
+    <MapToolbar
         v-model="searchQuery"
         v-model:search="searchInput"
         :search-suggestions="searchSuggestions"
@@ -23,7 +23,7 @@
         @update:fullscreen="isFull = $event"
     />
 
-    <LayerControl
+    <MapLayerControl
         v-model="isShowMarkModel"
         :selected-collection-uuid="selectedCollectionUuid"
         :user-collections-select="userCollectionsSelect"
@@ -43,7 +43,7 @@
         @update:group-visibility="onToggleGroupLayer"
     />
 
-    <LocationCard
+    <MapLocationCard
         v-model="model"
         :selected-location="selectedLocationData"
         :get-category-icon="getCategoryIcon"
@@ -51,7 +51,7 @@
         :nearby-points="selectedLocationNearbyPoints"
     />
 
-    <CreateMarkerDialog
+    <MapCreateMarkerDialog
         v-model="showCreateMarkerDialog"
         :new-marker-data="newMarkerData"
         :user-collections="userCollections"
@@ -84,10 +84,10 @@
 <script setup lang="ts">
 import { use_map_controller } from '@/assets/sripts/use_map_controller';
 import MapView from '@/components/map/MapView.vue';
-import SearchBar from '@/components/map/SearchBar.vue';
-import LayerControl from '@/components/map/LayerControl.vue';
-import LocationCard from '@/components/map/LocationCard.vue';
-import CreateMarkerDialog from '@/components/map/CreateMarkerDialog.vue';
+import MapToolbar from '@/components/map/MapToolbar.vue';
+import MapLayerControl from '@/components/map/MapLayerControl.vue';
+import MapLocationCard from '@/components/map/MapLocationCard.vue';
+import MapCreateMarkerDialog from '@/components/map/MapCreateMarkerDialog.vue';
 import MapControls from '@/components/map/MapControls.vue';
 import MapFooter from '@/components/map/MapFooter.vue';
 import MapContextMenu from '@/components/map/MapContextMenu.vue';

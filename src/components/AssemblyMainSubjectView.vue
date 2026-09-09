@@ -3,6 +3,7 @@ import {assemblyViewConfig, storage_account} from "@/assets/sripts/index";
 import WarehouseShowWidget from "@/components/WarehouseShowWidget.vue";
 import WheelWidget from "@/components/WheelShowWidget.vue";
 import AssemblyWidget from "@/components/AssemblyWidget.vue"; // 确保导入了正确的组件
+import MasteryWidget from "@/components/MasteryWidget.vue";
 import {computed, nextTick, onMounted, Ref, ref, toRaw, useAttrs} from "vue";
 import {useDisplay} from "vuetify/framework";
 import {useI18n} from "vue-i18n";
@@ -36,6 +37,7 @@ let isWorkshopFillScreen = ref(props.isWorkshopFillScreen),
     assemblyWorkshopRef: Ref<any> = ref(null),
     wheelWorkshopRef: Ref<any> = ref(null),
     warehouseWorkshopRef: Ref<any> = ref(null),
+    masteryWorkshopRef: Ref<any> = ref(null),
     workshopHeight = ref<string | number>(600),
     workshopZoom = ref(1),
     tab = ref(assemblyViewConfig.onlyRead[0]),
@@ -43,7 +45,8 @@ let isWorkshopFillScreen = ref(props.isWorkshopFillScreen),
       zoomableAreaRef: null,
       assembly: null,
       wheel: null,
-      warehouse: null
+      warehouse: null,
+      mastery: null
     }),
     assemblyViewModel = ref('lock-window'),
     currentShipSlot = ref<any>(null),
@@ -70,7 +73,8 @@ onMounted(() => {
       zoomableAreaRef: zoomableAreaRef.value,
       assembly: assemblyWorkshopRef.value,
       wheel: wheelWorkshopRef.value,
-      warehouse: warehouseWorkshopRef.value
+      warehouse: warehouseWorkshopRef.value,
+      mastery: masteryWorkshopRef.value
     };
 
     if (hasReadyEvent) {
@@ -103,9 +107,8 @@ const syncShip = () => {
  * 重制画布位置
  */
 const onWorkshopRestorePosition = () => {
-  if (zoomableAreaRef.value) {
-    zoomableAreaRef.value.centerCanvas()
-  }
+  // zoomableAreaRef 为普通容器，未必暴露 centerCanvas，做防御性调用
+  zoomableAreaRef.value?.centerCanvas?.()
 };
 
 const onWorkshopFullScreen = () => {
@@ -178,11 +181,10 @@ defineOptions({name: 'AssemblyMainSubjectView'})
           :class="[isWorkshopFillScreen ? 'fill-screen bg-black' : 'position-relative mb-n2', props.class]">
     <v-tabs
         v-model="tab"
-        height="70"
+        height="60"
         @update:model-value="onTabs"
         align-tabs="center">
       <v-tab :value="i"
-             class="pt-6"
              v-for="(i,index) in assemblyViewConfig.onlyRead"
              :disabled="i === 'warehouse' && hasShip || hasData(i)"
              :key="index">{{ t(`assembly.additions.${i}`) }}
@@ -191,9 +193,9 @@ defineOptions({name: 'AssemblyMainSubjectView'})
 
     <v-divider opacity=".08"></v-divider>
 
-    <v-container ref="zoomableAreaRef">
-      <div class="mb-5" ref="viewRootRef">
-        <div v-show="tab === 'assembly'">
+    <div ref="zoomableAreaRef">
+      <div ref="viewRootRef">
+        <v-container v-show="tab === 'assembly'">
           <AssemblyWidget ref="assemblyWorkshopRef"
                           @update:item-change="onUpdateEvent"
                           @update:ship-change="(ship) => currentShipSlot = ship"
@@ -203,21 +205,26 @@ defineOptions({name: 'AssemblyMainSubjectView'})
               <v-img cover class="pointer-events-none" :src="assemblyBackground"></v-img>
             </template>
           </AssemblyWidget>
-        </div>
-        <div v-show="tab === 'wheel'">
+        </v-container>
+        <v-container v-show="tab === 'wheel'">
           <WheelWidget ref="wheelWorkshopRef"
                        @update:item-change="onUpdateEvent"
                        :readonly="readonly"></WheelWidget>
-        </div>
-        <div v-show="tab === 'warehouse'">
+        </v-container>
+        <v-container v-show="tab === 'warehouse'">
           <WarehouseShowWidget ref="warehouseWorkshopRef"
                                @update:item-change="onUpdateEvent"
                                :ship="shipDetailInfo"
                                :cargo="shipDetailInfo?.cargo"
                                :readonly="readonly"></WarehouseShowWidget>
-        </div>
+        </v-container>
+        <v-container v-show="tab === 'mastery'">
+          <MasteryWidget ref="masteryWorkshopRef"
+                         @update:item-change="onUpdateEvent"
+                         :readonly="readonly"></MasteryWidget>
+        </v-container>
       </div>
-    </v-container>
+    </div>
   </v-card>
 
   <div v-if="isShowFooterTool"

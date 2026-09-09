@@ -73,13 +73,23 @@
   transition: @transition;
 }
 
-.card-enlargement-flavor {
+.card-enlargement-mask-flavor {
   background-image: url("../images/mark-big-card.png");
   mask-image: url('../images/mark-big-card.png');
   mask-size: @mask-size;
   background-color: #000;
   text-decoration: @text-decoration;
   transition: @transition;
+}
+
+.card-enlargement-flavor {
+  border-image-slice:20 16 20 16 fill;
+  border-image-width:20px 20px 20px 20px;
+  border-image-outset:3px 0;
+  border-image-repeat:repeat repeat;
+  border-style:solid;
+  border-image-source:url('../images/mark-big-card.png');
+  border-style:solid;
 }
 
 .badge-flavor {

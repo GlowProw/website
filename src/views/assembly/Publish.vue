@@ -18,6 +18,7 @@ import AssemblyTagChip from "@/components/AssemblyTagChip.vue";
 import AssemblyDataProcessing from "@/assets/sripts/assembly_data_processing"
 import WheelDataProcessing from "@/assets/sripts/wheel_data_processing"
 import WarehouseDataProcessing from "@/assets/sripts/warehouse_data_processing"
+import MasteryDataProcessing from "@/assets/sripts/mastery_data_processing"
 import {useGoTo} from "vuetify/framework";
 import {useAppStore} from "~/stores/appStore";
 
@@ -50,6 +51,11 @@ let // 发布信息
       warehouse: {
         attr: {
           warehouseUseVersion: WarehouseDataProcessing.nowVersion
+        }
+      },
+      mastery: {
+        attr: {
+          masteryUseVersion: MasteryDataProcessing.nowVersion
         }
       }
     }),
@@ -116,7 +122,8 @@ const onLoadData = async () => {
         description: d.data.description,
         tags: d.data.tags,
         wheel: d.data.wheel?.data,
-        warehouse: d.data.warehouse?.data
+        warehouse: d.data.warehouse?.data,
+        mastery: d.data.mastery?.data
       };
     }
 
@@ -141,9 +148,17 @@ const onLoadData = async () => {
       };
     }
 
+    if (assemblyData.mastery) {
+      publishData.value.mastery = {
+        ...publishData.value.mastery,
+        data: assemblyData.mastery
+      };
+    }
+
     await onSetAssemblyData()
     onSetWheelData()
     onSetWarehouseData()
+    onSetMasteryData()
 
     await goto('#info', {duration: 2000, offset: -120})
   } catch (e) {
@@ -185,6 +200,17 @@ const onSetWarehouseData = () => {
         warehouseUseVersion: publishData.value.warehouse?.attr?.warehouseUseVersion || publishData.value.warehouse.data.__version || WarehouseDataProcessing.nowVersion,
       })
       .onLoad(publishData.value.warehouse?.data)
+}
+
+/**
+ * 设置精通视图数据
+ */
+const onSetMasteryData = () => {
+  assemblyMainSubjectView.value.refs.mastery
+      ?.setSetting({
+        masteryUseVersion: publishData.value.mastery?.attr?.masteryUseVersion || publishData.value.mastery?.data?.__version || MasteryDataProcessing.nowVersion,
+      })
+      ?.onLoad(publishData.value.mastery?.data)
 }
 
 /**
