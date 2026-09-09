@@ -349,7 +349,7 @@ defineExpose({
                 :get-skill-name="getSkillName as any"
                 :is-node-active="isNodeActive as any"
                 :is-node-available="isNodeAvailable as any"
-                :initial-scale="1.0"
+                :initial-scale="1"
                 :initial-tx="treeBounds.tx"
                 :initial-ty="treeBounds.ty"
                 :readonly="true"
