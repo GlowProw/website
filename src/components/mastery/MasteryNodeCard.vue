@@ -52,9 +52,9 @@ const requirementItems = computed<NodeRequirementItem[]>(() => {
       v-if="node"
       border
       elevation="12"
-      :width="mobile ? 'calc(100% - 50px)' : 450"
+      :width="mobile ? 'calc(100% - 60px)' : 450"
       :style="{
-        'top': mobile ? '130px' : '70px'
+        'top': mobile ? '140px' : '70px'
       }"
       class="skill-tree-container-cardInfo overflow-y-auto">
     <template v-slot:title>
@@ -268,7 +268,7 @@ const requirementItems = computed<NodeRequirementItem[]>(() => {
   backdrop-filter: blur(20px);
   position: absolute;
   z-index: 100;
-  right: 20px;
+  right: 30px;
   top: 70px;
   max-height: calc(100vh - 120px);
 

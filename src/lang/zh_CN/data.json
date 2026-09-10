@@ -1634,6 +1634,7 @@
     "perkActive": "特长已激活生效",
     "perkSelectOne": "同阶可选其一生效",
     "perkActiveOne": "已选择生效 (同阶选一)",
+    "perkSwitched": "同阶仅可生效一个：「{from}」已替换为「{to}」",
     "perkPointsRequired": "需投入 {spent}/{cost} 点",
     "aggregatedTitle": "聚合效果统计",
     "filterEffectsPlaceholder": "筛选效果属性...",
@@ -1718,7 +1719,46 @@
       "requisites": "前置关系 (Requisites)",
       "requisitesPlaceholder": "输入前置节点ID",
       "clickHint": "点击画布节点即可查看或拖拽微调坐标",
-      "copied": "已复制当前专精树配置 JSON 到剪贴板"
+      "copied": "已复制当前专精树配置 JSON 到剪贴板",
+      "editNode": "编辑节点",
+      "addNodeHere": "在此处添加节点",
+      "insertBetween": "在「{from}」与「{to}」之间插入节点",
+      "deleteNode": "删除节点",
+      "setAsParent": "将「{name}」设为前置",
+      "removeParentLink": "取消「{name}」的前置连线",
+      "contextMenuHint": "右键画布节点：编辑 / 添加 / 删除 / 设置前置",
+      "dragHint": "左键按住节点拖动可修改坐标"
+    },
+    "debugCard": {
+      "title": "节点调试编辑",
+      "sectionBasic": "基础信息",
+      "sectionPosition": "坐标",
+      "sectionRequisites": "前置关系（连线）",
+      "sectionEffects": "效果效果 (JSON)",
+      "fieldKey": "节点 Key（重命名后回车或点按钮应用）",
+      "fieldId": "技能 ID (skill)",
+      "fieldCost": "消耗点数 cost",
+      "fieldRing": "环层级 ring",
+      "fieldGroup": "分组 group",
+      "fieldDirection": "方向 direction",
+      "dragHint": "也可以直接在画布上左键拖动节点调整坐标",
+      "noRequisites": "无前置（根节点）",
+      "addRequisitePlaceholder": "选择节点作为上一级（前置）",
+      "requisiteHint": "连线由前置关系自动生成；也可先选中一个节点，再右键目标节点选择「设为前置」",
+      "effectsMustBeArray": "Effects 必须是 JSON 数组",
+      "effectsInvalid": "JSON 格式错误",
+      "applyEffects": "应用效果",
+      "effectsDirty": "修改后需点击「应用效果」生效",
+      "effectsApplied": "效果已应用",
+      "deleteNodeConfirm": "确定删除节点「{name}」？其下游节点将直接连接到它的前置节点。",
+      "nodeAdded": "已添加节点 {key}",
+      "nodeInserted": "已在「{from}」与「{to}」之间插入节点 {key}",
+      "nodeDeleted": "已删除节点 {key}",
+      "keyExists": "{key}」已存在",
+      "keyRenamed": "已重命名 {from} → {to}",
+      "requisiteSelf": "不能将自身设为前置",
+      "requisiteAdded": "已添加前置：{name}",
+      "requisiteRemoved": "已移除前置：{name}"
     }
   },
   "search": {
@@ -1937,7 +1977,7 @@
     },
     "functions": {
       "team": {
-        "title": "组队寻求",
+        "title": "寻求组队",
         "description": "发布或寻找与你计划相同船长出航，面对真正敌人"
       },
       "calendar": {
@@ -1957,7 +1997,7 @@
         "description": "社区共同推荐每周购买指南"
       },
       "stateOfWar": {
-        "title": "战事状态",
+        "title": "战争状态",
         "description": "查看赛季各区域阵营战事资源分布与对抗状态"
       },
       "assembly": {
@@ -1986,7 +2026,7 @@
         "keywords": "empire skill simulation"
       },
       "mastery": {
-        "title": "专精模拟",
+        "title": "精通模拟",
         "description": "赛季专精技能树加点与效果聚合统计",
         "keywords": "mastery loadout simulation"
       },

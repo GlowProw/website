@@ -83,7 +83,7 @@ const getMyAssemblysData = async () => {
         v-if="userAssemblysData.data && userAssemblysData.data.length > 0">
       <v-col cols="12" md="6" lg="6" v-for="(i, index) in userAssemblysData.data"
              :key="index" class="">
-        <v-card class="card-enlargement-flavor pa-5">
+        <v-card class="card-enlargement-mask-flavor pa-5">
           <v-row class="pt-5 pl-5 pr-5">
             <v-col cols="9">
               <router-link :to="`/assembly/browse/${i.uuid}/detail`">

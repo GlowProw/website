@@ -38,7 +38,7 @@ onMounted(() => {
             class="portal-banner-backMark w-100 h-100 bg-black"/>
         <div class="portal-banner-looping-video w-100 opacity-100">
           <video autoplay playsinline
-                 class="card-enlargement-flavor"
+                 class="card-enlargement-mask-flavor"
                  muted loop type="video/mp4"
                  src="@/assets/videos/crimsonWaters.webm"></video>
         </div>
@@ -81,7 +81,7 @@ onMounted(() => {
           </v-col>
           <v-col lg="4">
             <AffixContainerView>
-              <div class="title card-enlargement-flavor pb-6">
+              <div class="title card-enlargement-mask-flavor pb-6">
                 <v-card width="100%" variant="text">
                   <template v-slot:title>
                     <v-card height="180" class="bg-black d-flex justify-center align-center">
@@ -105,7 +105,7 @@ onMounted(() => {
         <v-row>
           <v-col cols="12" md="5" lg="5">
             <AffixContainerView>
-              <div class="title card-enlargement-flavor pb-6">
+              <div class="title card-enlargement-mask-flavor pb-6">
                 <v-card width="100%">
                   <SeasonViewWidget v-if="currentlySeason" :data="currentlySeason"></SeasonViewWidget>
                 </v-card>

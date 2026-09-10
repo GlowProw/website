@@ -80,7 +80,7 @@ const onCaptchaData = (data: CaptchaParams) => {
 <template>
   <div class="background-img-flavor">
     <v-container class="mt-10 signup">
-      <v-card dense variant="flat" class="mt-10 signup-box card-enlargement-flavor">
+      <v-card dense variant="flat" class="mt-10 signup-box card-enlargement-mask-flavor">
         <h1 class="pl-8 pt-5 pb-5 background-flavor">{{ t('signup.title') }}</h1>
 
         <v-card border class="bg-black mx-8 my-5">

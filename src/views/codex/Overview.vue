@@ -66,7 +66,7 @@ onMounted(() => {
             <v-col cols="12" sm="12" md="4" lg="4" v-for="(n, nIndex) in i.children" :key="nIndex" v-if="i.children">
               <router-link :to="n.to" class="codex-overview-item">
                 <div class="card-flavor px-0 py-1">
-                  <v-card class="card-enlargement-flavor card px-8 py-5">
+                  <v-card class="card-enlargement-mask-flavor card px-8 py-5">
                     <v-img :src="codexIcons[n.value]" height="100"></v-img>
                   </v-card>
                 </div>

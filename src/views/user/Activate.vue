@@ -101,7 +101,7 @@ const onActivate = async () => {
 <template>
   <div class="background-img-flavor">
     <v-container class="mt-10 activate">
-      <v-card dense flat class="mt-10 activate-card card-enlargement-flavor">
+      <v-card dense flat class="mt-10 activate-card card-enlargement-mask-flavor">
         <h1 class="pl-8 pt-5 pb-5 background-flavor">{{ t('activate.title') }}</h1>
 
         <v-row class="pa-8">

@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import {computed, onMounted, ref, watch} from 'vue';
 import {useI18n} from 'vue-i18n';
+import type {Mastery} from 'glow-prow-data';
 import {useMasteryController} from '@/assets/sripts/use_mastery_controller';
 import MasteryView from '@/components/mastery/MasteryView.vue';
 import MasteryToolbar from '@/components/mastery/MasteryToolbar.vue';
 import MasteryInfoPanel from '@/components/mastery/MasteryInfoPanel.vue';
 import MasteryNodeCard from '@/components/mastery/MasteryNodeCard.vue';
+import MasteryDebugNodeCard from '@/components/mastery/MasteryDebugNodeCard.vue';
 import MasteryFooter from '@/components/mastery/MasteryFooter.vue';
 import MasteryDebugPanel from '@/components/mastery/MasteryDebugPanel.vue';
 import MasteryShareDialog from '@/components/mastery/MasteryShareDialog.vue';
@@ -74,6 +76,13 @@ const {
   saveBuild,
   deleteBuild,
   loadBuild,
+  debugCreateNode,
+  debugInsertNodeBetween,
+  debugDeleteNode,
+  debugUpdateNodeFields,
+  debugRenameNode,
+  debugToggleRequisite,
+  exportRawSeasonTree,
 } = useMasteryController({});
 
 const shareUrl = computed(() => {
@@ -124,12 +133,73 @@ watch(selectedSeasonId, (newSeason) => {
 });
 
 function exportDebugJson() {
-  const data = JSON.stringify(localNodes.value, null, 2);
+  // 导出当前赛季的原始数据
+  // 而非运行时处理过的节点实例
+  const data = exportRawSeasonTree();
   navigator.clipboard.writeText(data).then(() => {
     notify(t('mastery.debug.copied'), 'success');
   }).catch(() => {
     notify(t('mastery.shareDialog.copyFailed'), 'error');
   });
+}
+
+// localNodes 为浅拷贝的普通对象
+// 缺少 Mastery 的 _entityType 标记，这里对齐既有做法做边界转换
+const debugSelectedNode = computed<Mastery | null>(() => selectedNode.value as Mastery | null);
+
+function requestCanvasRender() {
+  canvasCompRef.value?.requestRender();
+}
+
+function onDebugAddNode(position: { x: number; y: number }) {
+  debugCreateNode(position);
+  requestCanvasRender();
+}
+
+function onDebugInsertNode(payload: { parentKey: string; childKey: string; position: { x: number; y: number } }) {
+  debugInsertNodeBetween(payload.parentKey, payload.childKey, payload.position);
+  requestCanvasRender();
+}
+
+function onDebugDeleteNode(node: { key: string; id: string }) {
+  const name = getSkillName(node.id, node.key);
+  if (!window.confirm(t('mastery.debugCard.deleteNodeConfirm', { name }))) return;
+  debugDeleteNode(node.key);
+  requestCanvasRender();
+}
+
+function onDebugDeleteKey(key: string) {
+  const node = localNodes.value[key];
+  const name = node ? getSkillName(node.id, node.key) : key;
+  if (!window.confirm(t('mastery.debugCard.deleteNodeConfirm', { name }))) return;
+  debugDeleteNode(key);
+  requestCanvasRender();
+}
+
+function onDebugToggleRequisite(payload: { node: { key: string }; requisiteKey: string }) {
+  debugToggleRequisite(payload.node.key, payload.requisiteKey);
+  requestCanvasRender();
+}
+
+function onDebugRenameKey(payload: { oldKey: string; newKey: string }) {
+  debugRenameNode(payload.oldKey, payload.newKey);
+  requestCanvasRender();
+}
+
+function onAddRequisite(payload: { nodeKey: string; requisiteKey: string }) {
+  debugToggleRequisite(payload.nodeKey, payload.requisiteKey);
+  requestCanvasRender();
+}
+
+function onRemoveRequisite(payload: { nodeKey: string; requisiteKey: string }) {
+  debugToggleRequisite(payload.nodeKey, payload.requisiteKey);
+  requestCanvasRender();
+}
+
+function onApplyEffects(payload: { nodeKey: string; effects: any[] }) {
+  debugUpdateNodeFields(payload.nodeKey, { effects: payload.effects });
+  notify(t('mastery.debugCard.effectsApplied'), 'success');
+  requestCanvasRender();
 }
 
 onMounted(() => {
@@ -139,7 +209,7 @@ onMounted(() => {
 
 <template>
   <div class="mastery-container" id="mastery-simulation" ref="masteryViewRef">
-    <!-- 消息提示 Snackbar -->
+    <!-- 消息提示 S -->
     <v-snackbar
         v-model="snackbarShow"
         :color="snackbarColor"
@@ -154,6 +224,7 @@ onMounted(() => {
         <span>{{ snackbarText }}</span>
       </div>
     </v-snackbar>
+    <!-- 消息提示 E -->
 
     <StylizedLineBackground
         class="mastery-bg-layer"
@@ -174,6 +245,10 @@ onMounted(() => {
           @select-node="selectNode"
           @toggle-activation="toggleNodeActivation"
           @update:transform="transform = $event"
+          @debug-add-node="onDebugAddNode"
+          @debug-insert-node="onDebugInsertNode"
+          @debug-delete-node="onDebugDeleteNode"
+          @debug-toggle-requisite="onDebugToggleRequisite"
       />
     </StylizedLineBackground>
 
@@ -198,7 +273,6 @@ onMounted(() => {
         :selected-season-id="selectedSeasonId"
         :season-options="seasonOptions"
         @update:selected-season-id="selectedSeasonId = $event"
-        @update:selectedSeasonId="selectedSeasonId = $event"
         v-model:panel-expanded="panelExpanded"
         v-model:effects-filter="effectsFilter"
         :regular-points-spent="regularPointsSpent"
@@ -216,8 +290,26 @@ onMounted(() => {
         @toggle-all-effects-expand="toggleAllEffectsExpanded"
     />
 
-    <!-- 节点详情浮窗 -->
+    <!-- Debug 模式卡片 S -->
+    <MasteryDebugNodeCard
+        v-if="isDebug"
+        :node="debugSelectedNode"
+        :nodes="localNodes"
+        :mobile="mobile"
+        :get-skill-name="getSkillName"
+        @close="selectNode(null)"
+        @changed="requestCanvasRender"
+        @rename-key="onDebugRenameKey"
+        @delete-node="onDebugDeleteKey"
+        @add-requisite="onAddRequisite"
+        @remove-requisite="onRemoveRequisite"
+        @apply-effects="onApplyEffects"
+    />
+    <!-- Debug 模式卡片 E -->
+
+    <!-- 节点详情浮窗 S -->
     <MasteryNodeCard
+        v-else
         :node="selectedNode"
         :mobile="mobile"
         :regular-points-spent="regularPointsSpent"
@@ -234,8 +326,9 @@ onMounted(() => {
         @toggle-activation="toggleNodeActivation"
         @locate-node="onLocateNode"
     />
+    <!-- 节点详情浮窗 E -->
 
-    <!-- 底部控制栏 -->
+    <!-- 底部控制栏 S -->
     <MasteryFooter
         :zoom="transform?.k ?? 1"
         :scale-extent="scaleExtent"
@@ -247,18 +340,18 @@ onMounted(() => {
         @set-scale="canvasCompRef?.setScale($event)"
         @reset-view="canvasCompRef?.resetView()"
     />
+    <!-- 底部控制栏 E -->
 
-    <!-- Debug 面板 -->
+    <!-- Debug 面板 S -->
     <MasteryDebugPanel
         v-if="isDebug"
         :is-debug="isDebug"
         :selected-node="selectedNode"
         @export-json="exportDebugJson"
-        @update-coordinate="canvasCompRef?.requestRender()"
-        @update-requisite="canvasCompRef?.requestRender()"
     />
+    <!-- Debug 面板 E -->
 
-    <!-- 分享对话框 -->
+    <!-- 分享对话框 S -->
     <MasteryShareDialog
         v-model="showShareDialog"
         :season-id="selectedSeasonId"
@@ -271,8 +364,9 @@ onMounted(() => {
         @copy="copyShareUrl"
         @import-code="loadFromShareCode"
     />
+    <!-- 分享对话框 E -->
 
-    <!-- 保存方案对话框 -->
+    <!-- 保存方案对话框 S -->
     <MasterySaveDialog
         v-model="showSaveDialog"
         :saved-builds="savedBuilds"
@@ -282,6 +376,7 @@ onMounted(() => {
         @load="loadBuild"
         @delete="deleteBuild"
     />
+    <!-- 保存方案对话框 E -->
   </div>
 </template>
 

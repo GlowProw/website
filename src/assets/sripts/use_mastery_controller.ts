@@ -6,7 +6,7 @@ import LZString from 'lz-string';
 import { useAppStore } from '~/stores/appStore';
 import { useCDNAssetsServiceStore } from '~/stores/cdnAssetsStore';
 import { storage, getCurrentSeasonId } from '@/assets/sripts/index';
-import { Masterys, type Mastery, type SeasonMasteryTree } from 'glow-prow-data';
+import { Masterys, Mastery, type MasteryCategory, type MasteryRole, type SeasonMasteryTree } from 'glow-prow-data';
 
 export interface EffectContributor {
   skillKey: string;
@@ -771,6 +771,18 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
       delete next[tier];
       selectedSeasonalPerks.value = next;
     } else {
+      // 同条件激活一个
+      // 改选时替换并提示原特长已被取消
+      const previousKey = selectedSeasonalPerks.value[tier];
+      if (previousKey) {
+        const previousNode = findNode(previousKey);
+        if (previousNode) {
+          notify(t('mastery.card.perkSwitched', {
+            from: getSkillName(previousNode.id, previousNode.key),
+            to: getSkillName(node.id, node.key)
+          }), 'info');
+        }
+      }
       selectedSeasonalPerks.value = {
         ...selectedSeasonalPerks.value,
         [tier]: key
@@ -1076,6 +1088,299 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
   // 初始化时加载
   _loadSavedBuilds();
 
+  function _todayStr(): string {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  function _formatDate(d: any): string {
+    if (d instanceof Date) {
+      return isNaN(d.getTime()) ? _todayStr() : d.toISOString().slice(0, 10);
+    }
+    if (typeof d === 'string' && d) return d.slice(0, 10);
+    return _todayStr();
+  }
+
+  /**
+   * 新建节点（Debug）
+   * @param position 画布世界坐标
+   * @param patch 初始字段
+   * @param silent 是否静默
+   */
+  function debugCreateNode(position: { x: number; y: number }, patch: Partial<{
+    key: string;
+    id: string;
+    requisite: string[];
+    category: MasteryCategory;
+    role: MasteryRole;
+    cost: number;
+    group: string;
+    ring: number;
+    direction: string;
+    effects: any[];
+  }> = {}, silent = false): Mastery | null {
+    const tree = activeTree.value;
+    if (!tree) return null;
+
+    const baseKey = (patch.key || `NEW_${Date.now().toString(36).toUpperCase()}`);
+    let key = baseKey;
+    let i = 1;
+    while (localNodes.value[key]) {
+      key = `${baseKey}_${i++}`;
+    }
+
+    const now = new Date();
+    const node = new Mastery(
+        key,
+        patch.id || `newSkill_${key.toLowerCase()}`,
+        Array.isArray(patch.requisite) ? [...patch.requisite] : [],
+        tree.season,
+        now,
+        now,
+        patch.category || 'support',
+        patch.role || 'buff',
+        patch.cost ?? 1,
+        patch.group ?? 'radial',
+        patch.ring ?? 0,
+        patch.direction ?? '',
+        { x: Math.round(position.x), y: Math.round(position.y) },
+        Array.isArray(patch.effects) ? patch.effects : []
+    );
+
+    localNodes.value[key] = node;
+    selectedNode.value = node;
+    if (!silent) notify(t('mastery.debugCard.nodeAdded', { key }), 'success');
+    return node;
+  }
+
+  /**
+   * 在两个节点之间插入新节点
+   * 连线分割：上一个(parent) → 新节点 → 下一个(child)
+   * - 若 child 原本直连 parent，则把该条连线替换为 parent→新、新→child
+   * - 若二者未直连，则新节点以 parent 为前置，并追加为 child 的前置（保留各自原有其它连线）
+   * @returns 新建的节点；参数非法时返回 null
+   */
+  function debugInsertNodeBetween(
+      parentKeyOrId: string,
+      childKeyOrId: string,
+      position: { x: number; y: number }
+  ): Mastery | null {
+    const parent = findNode(parentKeyOrId);
+    const child = findNode(childKeyOrId);
+    if (!parent || !child || parent.key === child.key) return null;
+
+    const node = debugCreateNode(position, {requisite: [parent.key]}, true);
+    if (!node) return null;
+
+    const arr: string[] = Array.isArray(child.requisite) ? [...child.requisite] : [];
+    const directIdx = arr.findIndex(r => r === parent.key || r === parent.id);
+    if (directIdx >= 0) {
+      // 分割原有直连边：parent → newNode → child
+      arr[directIdx] = node.key;
+    } else if (!arr.some(r => r === node.key || r === node.id)) {
+      arr.push(node.key);
+    }
+    (child as any).requisite = arr;
+    (child as any).lastUpdated = new Date();
+
+    notify(t('mastery.debugCard.nodeInserted', {
+      key: node.key,
+      from: getSkillName(parent.id, parent.key),
+      to: getSkillName(child.id, child.key)
+    }), 'success');
+    return node;
+  }
+
+  /**
+   * 删除节点（Debug）
+   * - 清理其它节点对它的 requisite 引用及已选点数
+   * - 桥接连线：若子节点（下一个）通过它连接到父节点（上一个），则子节点直接改连父节点，保持链路不中断
+   */
+  function debugDeleteNode(keyOrId: string): boolean {
+    const node = findNode(keyOrId);
+    if (!node) return false;
+    const key = node.key;
+
+    // 上一个（父节点）标准 key 集合：被删节点 requisite 指向的节点
+    const parentKeys: string[] = [];
+    for (const r of Array.isArray(node.requisite) ? node.requisite : []) {
+      const pn = localNodes.value[r] || Object.values(localNodes.value).find(x => x.key === r || x.id === r);
+      if (pn && pn.key !== key && !parentKeys.includes(pn.key)) parentKeys.push(pn.key);
+    }
+
+    const next: Record<string, Mastery> = { ...localNodes.value };
+    delete next[key];
+    for (const n of Object.values(next)) {
+      if (Array.isArray((n as any).requisite)) {
+        const refs: string[] = (n as any).requisite as string[];
+        if (refs.some(r => r === key || r === node.id)) {
+          // 先摘除被删节点引用
+          const kept = refs.filter(r => r !== key && r !== node.id);
+          // 再与上一个节点直接相连（被删节点为根时，子节点摘除引用后成为新的根节点）
+          for (const p of parentKeys) {
+            if (p !== n.key && p !== (n as any).id && !kept.some(r => r === p || r === (n as any).id)) {
+              kept.push(p);
+            }
+          }
+          (n as any).requisite = kept;
+          (n as any).lastUpdated = new Date();
+        }
+      }
+    }
+    localNodes.value = next;
+
+    const remaining = new Set<string>();
+    for (const k of selectedNodeIds.value) {
+      if (k !== key && k !== node.id) remaining.add(k);
+    }
+    selectedNodeIds.value = remaining;
+
+    for (const [tier, k] of Object.entries(selectedSeasonalPerks.value)) {
+      if (k === key || k === node.id) delete selectedSeasonalPerks.value[tier];
+    }
+
+    if (selectedNode.value?.key === key) selectedNode.value = null;
+    notify(t('mastery.debugCard.nodeDeleted', { key }), 'success');
+    return true;
+  }
+
+  /**
+   * 更新节点标量字段（Debug）
+   */
+  function debugUpdateNodeFields(key: string, patch: Record<string, any>): boolean {
+    const node = localNodes.value[key];
+    if (!node) return false;
+    for (const [field, value] of Object.entries(patch)) {
+      if (field === 'position' && value && typeof value === 'object') {
+        (node as any).position = {
+          x: Number(value.x) || 0,
+          y: Number(value.y) || 0
+        };
+      } else if (field !== 'key') {
+        (node as any)[field] = value;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * 重命名节点 key（Debug）：同步迁移所有 requisite 引用与已选点数
+   */
+  function debugRenameNode(oldKey: string, newKeyRaw: string): boolean {
+    const newKey = (newKeyRaw || '').trim();
+    if (!newKey || newKey === oldKey) return false;
+    if (localNodes.value[newKey]) {
+      notify(t('mastery.debugCard.keyExists', { key: newKey }), 'error');
+      return false;
+    }
+    const node = localNodes.value[oldKey];
+    if (!node) return false;
+
+    const updated: any = { ...(node as any), key: newKey, lastUpdated: new Date() };
+    const next: Record<string, Mastery> = { ...localNodes.value };
+    for (const n of Object.values(next)) {
+      if (Array.isArray((n as any).requisite)) {
+        (n as any).requisite = (n as any).requisite.map((r: string) => r === oldKey ? newKey : r);
+      }
+    }
+    delete next[oldKey];
+    next[newKey] = updated as Mastery;
+    localNodes.value = next;
+
+    if (selectedNodeIds.value.has(oldKey)) {
+      const nextSet = new Set(selectedNodeIds.value);
+      nextSet.delete(oldKey);
+      nextSet.add(newKey);
+      selectedNodeIds.value = nextSet;
+    }
+    for (const [tier, k] of Object.entries(selectedSeasonalPerks.value)) {
+      if (k === oldKey) selectedSeasonalPerks.value[tier] = newKey;
+    }
+    selectedNode.value = updated as Mastery;
+    notify(t('mastery.debugCard.keyRenamed', { from: oldKey, to: newKey }), 'success');
+    return true;
+  }
+
+  /**
+   * 切换前置（父节点）关系（Debug）：已存在则取消连线，不存在则建立
+   */
+  function debugToggleRequisite(nodeKeyOrId: string, reqKeyOrId: string): boolean {
+    const child = findNode(nodeKeyOrId);
+    const parent = findNode(reqKeyOrId);
+    if (!child || !parent) return false;
+    if (child.key === parent.key) {
+      notify(t('mastery.debugCard.requisiteSelf'), 'error');
+      return false;
+    }
+
+    const arr: string[] = Array.isArray(child.requisite) ? [...child.requisite] : [];
+    const idx = arr.findIndex(r => r === parent.key || r === parent.id);
+    if (idx >= 0) {
+      arr.splice(idx, 1);
+      notify(t('mastery.debugCard.requisiteRemoved', { name: getSkillName(parent.id, parent.key) }), 'info');
+    } else {
+      arr.push(parent.key);
+      notify(t('mastery.debugCard.requisiteAdded', { name: getSkillName(parent.id, parent.key) }), 'success');
+    }
+    (child as any).requisite = arr;
+    (child as any).lastUpdated = new Date();
+    return true;
+  }
+
+  /**
+   * 导出当前赛季的【原始数据】JSON
+   * 结构对齐 glow-prow-data/src/data/masterys.json，而非网页运行时处理过的 Mastery 实例
+   */
+  function getRawSeasonTree(): Record<string, any> {
+    const tree = activeTree.value;
+    const seasonKey = selectedSeasonId.value;
+    const nodes: Record<string, any> = {};
+
+    for (const [k, n] of Object.entries(localNodes.value)) {
+      const rawNode: Record<string, any> = {
+        id: n.id,
+        key: n.key || k,
+        season: seasonKey,
+        requisite: Array.isArray(n.requisite) ? [...n.requisite] : [],
+        category: n.category,
+        role: n.role,
+        cost: n.cost,
+        group: n.group,
+        ring: n.ring,
+        direction: n.direction
+      };
+      if ((n as any).isKey !== undefined) rawNode.isKey = (n as any).isKey;
+      rawNode.position = {
+        x: Math.round(n.position?.x || 0),
+        y: Math.round(n.position?.y || 0)
+      };
+      rawNode.dateAdded = _formatDate(n.dateAdded);
+      rawNode.lastUpdated = _formatDate(n.lastUpdated);
+      if (Array.isArray(n.effects) && n.effects.length > 0) {
+        rawNode.effects = n.effects;
+      }
+      nodes[k === n.key ? k : (n.key || k)] = rawNode;
+    }
+
+    const raw: Record<string, any> = {
+      id: tree?.id ?? seasonKey,
+      season: seasonKey,
+      maxPoints: tree?.maxPoints ?? 80,
+      firstRingRadius: tree?.firstRingRadius ?? 0,
+      seasonalPerkGridSpacing: tree?.seasonalPerkGridSpacing ?? 0,
+      seasonalPerkPlacement: tree?.seasonalPerkPlacement ?? '',
+      nodes,
+      skills: tree?.skills ?? {}
+    };
+    if (tree?.effects && Object.keys(tree.effects).length > 0) {
+      raw.effects = tree.effects;
+    }
+    return raw;
+  }
+
+  function exportRawSeasonTree(pretty = true): string {
+    return JSON.stringify(getRawSeasonTree(), null, pretty ? 2 : 0);
+  }
+
   return {
     // 基础状态
     route,
@@ -1157,5 +1462,15 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
     saveBuild,
     deleteBuild,
     loadBuild,
+
+    // Debug 节点树编辑
+    debugCreateNode,
+    debugInsertNodeBetween,
+    debugDeleteNode,
+    debugUpdateNodeFields,
+    debugRenameNode,
+    debugToggleRequisite,
+    getRawSeasonTree,
+    exportRawSeasonTree,
   };
 }

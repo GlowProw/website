@@ -96,7 +96,7 @@ const onCaptchaData = (data: CaptchaParams) => {
 <template>
   <div class="background-img-flavor">
     <v-container class="mt-10 signin">
-      <v-card dense flat class="mt-10 signin-card card-enlargement-flavor">
+      <v-card dense flat class="mt-10 signin-card card-enlargement-mask-flavor">
         <h1 class="pl-8 pt-5 pb-5 background-flavor">{{ t('signin.title') }}</h1>
 
         <v-card border class="bg-black mx-8 my-5">

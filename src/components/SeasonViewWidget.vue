@@ -53,7 +53,7 @@ defineOptions({ name: 'SeasonViewWidget' })
 </script>
 
 <template>
-  <div class="card-enlargement-flavor w-100">
+  <div class="card-enlargement-mask-flavor w-100">
     <template v-if="currentSeasonBannerAddress">
       <template v-if="currentSeasonFormat == 'mp4'">
         <video autoplay playsinline

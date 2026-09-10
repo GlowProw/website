@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import {onMounted, onUnmounted, ref, watch, computed} from 'vue';
+import {useI18n} from 'vue-i18n';
 import * as d3 from 'd3';
 import type {Mastery, SeasonMasteryTree, MasteryEdge} from 'glow-prow-data';
+
+const {t} = useI18n();
 
 const props = withDefaults(defineProps<{
   nodes: Record<string, Mastery>;
@@ -56,6 +59,10 @@ const emit = defineEmits<{
   (e: 'select-node', node: Mastery | null): void;
   (e: 'toggle-activation', nodeId: string): void;
   (e: 'update:transform', transform: { k: number; x: number; y: number }): void;
+  (e: 'debug-add-node', position: { x: number; y: number }): void;
+  (e: 'debug-insert-node', payload: { parentKey: string; childKey: string; position: { x: number; y: number } }): void;
+  (e: 'debug-delete-node', node: Mastery): void;
+  (e: 'debug-toggle-requisite', payload: { node: Mastery; requisiteKey: string }): void;
 }>();
 
 const containerRef = ref<HTMLDivElement | null>(null);
@@ -514,6 +521,43 @@ function findNodeAtWorld(wx: number, wy: number): Mastery | null {
   return null;
 }
 
+// 点到线段的距离（世界坐标），同时返回投影是否落在线段内部及投影坐标
+function distanceToSegment(px: number, py: number, x1: number, y1: number, x2: number, y2: number) {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const lenSq = dx * dx + dy * dy;
+  if (lenSq === 0) return {dist: Math.hypot(px - x1, py - y1), inside: false, cx: x1, cy: y1};
+  let u = ((px - x1) * dx + (py - y1) * dy) / lenSq;
+  u = Math.max(0, Math.min(1, u));
+  const cx = x1 + u * dx;
+  const cy = y1 + u * dy;
+  return {dist: Math.hypot(px - cx, py - cy), inside: u > 0 && u < 1, cx, cy};
+}
+
+// 命中某条连线（用于在两节点之间插入新节点）
+function findEdgeAtWorld(wx: number, wy: number): MasteryEdge | null {
+  const threshold = 10 / currentTransform.value.k; // 屏幕约 10px
+  const nodeClearance = 26; // 避开节点圆附近，让节点命中优先
+  let best: MasteryEdge | null = null;
+  let bestDist = threshold;
+  for (const edge of resolvedEdges.value) {
+    const s = props.nodes[edge.source];
+    const tg = props.nodes[edge.target];
+    if (!s || !tg) continue;
+    const seg = distanceToSegment(wx, wy, s.position.x, s.position.y, tg.position.x, tg.position.y);
+    if (!seg.inside) continue;
+    // 投影点不能太靠近任一端点节点
+    const nearEndpoint = Math.hypot(seg.cx - s.position.x, seg.cy - s.position.y) < nodeClearance
+        || Math.hypot(seg.cx - tg.position.x, seg.cy - tg.position.y) < nodeClearance;
+    if (nearEndpoint) continue;
+    if (seg.dist < bestDist) {
+      bestDist = seg.dist;
+      best = edge;
+    }
+  }
+  return best;
+}
+
 // 事件监听与交互
 function onMouseDown(event: MouseEvent) {
   if (props.readonly) return;
@@ -584,15 +628,196 @@ function onClick(event: MouseEvent) {
 
   if (hit) {
     emit('select-node', hit);
-    // 双击或直接点击可激活节点时切换点数
-    if (hit.role !== 'seasonalPerk' && (props.isNodeActive(hit.key || hit.id) || props.isNodeAvailable(hit.key || hit.id))) {
-      emit('toggle-activation', hit.key || hit.id);
+    // 单击即切换激活：
+    // - 常规节点：已激活或与起点相连可达时直接加/退点
+    // - 赛季特长：点数达标即激活/取消，同一条件(tier)下只能选中一个，互斥由控制器保证
+    const nodeId = hit.key || hit.id;
+    if (props.isNodeActive(nodeId) || props.isNodeAvailable(nodeId)) {
+      emit('toggle-activation', nodeId);
     }
   } else {
     emit('select-node', null);
   }
   requestRender();
 }
+
+interface DebugContextMenu {
+  // 屏幕坐标（fixed 定位）
+  sx: number;
+  sy: number;
+  // 世界坐标（新增节点用）
+  wx: number;
+  wy: number;
+  node: Mastery | null;
+  // 命中的连线（在两节点之间插入节点用）
+  edge: MasteryEdge | null;
+}
+
+const contextMenu = ref<DebugContextMenu | null>(null);
+
+// 菜单定位
+const menuStyle = computed(() => {
+  const m = contextMenu.value;
+  if (!m) return {};
+  const menuW = 240;
+  const menuH = 300;
+  const left = Math.max(8, Math.min(m.sx, window.innerWidth - menuW - 8));
+  const top = Math.max(8, Math.min(m.sy, window.innerHeight - menuH - 8));
+  return { left: `${left}px`, top: `${top}px` };
+});
+
+// 当前选中的另一个节点能否作为右键节点的前置
+const menuParentNode = computed<Mastery | null>(() => {
+  const m = contextMenu.value;
+  if (!m?.node || !props.selectedNode) return null;
+  if (props.selectedNode.key === m.node.key) return null;
+  return props.selectedNode;
+});
+
+// 前置关系是否已存在
+const menuParentLinked = computed<boolean>(() => {
+  const m = contextMenu.value;
+  const parent = menuParentNode.value;
+  if (!m?.node || !parent) return false;
+  return (m.node.requisite || []).some(r => r === parent.key || r === parent.id);
+});
+
+// localNodes 为浅拷贝普通对象（缺 Mastery 的 _entityType），这里按最小结构接收
+const menuNodeName = (node: { key: string; id: string } | null) => {
+  if (!node) return '';
+  return props.getSkillName?.(node.id, node.key) || node.key || node.id;
+};
+
+// 「设为前置 / 取消连线」菜单项文案（避免在模板属性中拼接字符串）
+const menuParentLabel = computed(() => {
+  const name = menuNodeName(menuParentNode.value);
+  return menuParentLinked.value
+      ? t('mastery.debug.removeParentLink', { name })
+      : t('mastery.debug.setAsParent', { name });
+});
+
+// 命中连线时，「在两节点之间插入节点」菜单项文案
+const menuEdgeLabel = computed(() => {
+  const edge = contextMenu.value?.edge;
+  if (!edge) return '';
+  const s = props.nodes[edge.source];
+  const tg = props.nodes[edge.target];
+  return t('mastery.debug.insertBetween', {
+    from: menuNodeName(s || null),
+    to: menuNodeName(tg || null)
+  });
+});
+
+// 选中节点 A 后右键节点 B：在 A 与 B 之间插入节点的菜单项文案
+const menuInsertBetweenLabel = computed(() => {
+  const m = contextMenu.value;
+  const parent = menuParentNode.value;
+  if (!m?.node || !parent) return '';
+  return t('mastery.debug.insertBetween', {
+    from: menuNodeName(parent),
+    to: menuNodeName(m.node)
+  });
+});
+
+function onContextMenu(event: MouseEvent) {
+  if (!props.isDebug) return;
+  event.preventDefault();
+
+  const { wx, wy } = screenToWorld(event.clientX, event.clientY);
+  const hit = findNodeAtWorld(wx, wy);
+  // 节点优先；未命中节点时检测连线
+  const hitEdge = hit ? null : findEdgeAtWorld(wx, wy);
+  // 右键不改变当前选中节点：保留「先选中 A，再右键 B」的菜单入口（在 A/B 间插入、设为前置）；
+  // 需要编辑 B 时由「编辑节点」菜单项负责选中
+  contextMenu.value = { sx: event.clientX, sy: event.clientY, wx, wy, node: hit, edge: hitEdge };
+}
+
+function closeContextMenu() {
+  contextMenu.value = null;
+}
+
+// 仅响应主键（左键）点击外部关闭：右键呼出菜单的同一手势可能因节点卡片等元素
+// 即时挂载而产生余波 click（button=2），不能让它把刚打开的菜单关掉
+function onDocumentClickForMenu(event: MouseEvent) {
+  if (event.button === 0) closeContextMenu();
+}
+
+function onMenuEditNode() {
+  const m = contextMenu.value;
+  // 右键时不抢占选中，点「编辑节点」才选中并打开调试卡片
+  if (m?.node) emit('select-node', m.node as Mastery);
+  closeContextMenu();
+}
+
+function onMenuAddNode() {
+  const m = contextMenu.value;
+  emit('debug-add-node', { x: m?.wx ?? 0, y: m?.wy ?? 0 });
+  closeContextMenu();
+}
+
+// 在命中连线上插入：分割 source → target 连线
+function onMenuInsertOnEdge() {
+  const m = contextMenu.value;
+  if (m?.edge) {
+    emit('debug-insert-node', {
+      parentKey: m.edge.source,
+      childKey: m.edge.target,
+      position: { x: m.wx, y: m.wy }
+    });
+  }
+  closeContextMenu();
+}
+
+// 在已选中节点与右键节点之间插入
+function onMenuInsertBetweenSelected() {
+  const m = contextMenu.value;
+  const parent = menuParentNode.value;
+  if (m?.node && parent) {
+    emit('debug-insert-node', {
+      parentKey: parent.key,
+      childKey: m.node.key,
+      position: { x: m.wx, y: m.wy }
+    });
+  }
+  closeContextMenu();
+}
+
+function onMenuDeleteNode() {
+  const m = contextMenu.value;
+  if (m?.node) emit('debug-delete-node', m.node as Mastery);
+  closeContextMenu();
+}
+
+function onMenuToggleRequisite() {
+  const m = contextMenu.value;
+  const parent = menuParentNode.value;
+  if (m?.node && parent) {
+    emit('debug-toggle-requisite', { node: m.node as Mastery, requisiteKey: parent.key });
+  }
+  closeContextMenu();
+}
+
+function onDocumentKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape') closeContextMenu();
+}
+
+// 菜单打开时：点击其它区域 / 缩放平移 即关闭
+watch(contextMenu, (val) => {
+  if (val) {
+    // bubble 阶段监听：菜单 v-card 上有 @click.stop，点菜单内部不会冒泡到这里；
+    // 切勿用 capture，否则会先于菜单项 handler 执行、提前清空 contextMenu 导致点击失效
+    document.addEventListener('click', onDocumentClickForMenu);
+    document.addEventListener('keydown', onDocumentKeydown);
+  } else {
+    document.removeEventListener('click', onDocumentClickForMenu);
+    document.removeEventListener('keydown', onDocumentKeydown);
+  }
+});
+
+// 画布平移/缩放时关闭菜单
+watch(currentTransform, () => {
+  if (contextMenu.value) closeContextMenu();
+});
 
 // 此时尺寸为 0，切换页签变为可见时通过 ResizeObserver 补偿一次尺寸计算
 let resizeObserver: ResizeObserver | null = null;
@@ -769,6 +994,8 @@ onUnmounted(() => {
   window.removeEventListener('resize', resizeCanvas);
   resizeObserver?.disconnect();
   resizeObserver = null;
+  document.removeEventListener('click', onDocumentClickForMenu);
+  document.removeEventListener('keydown', onDocumentKeydown);
   if (animFrameId) cancelAnimationFrame(animFrameId);
 });
 
@@ -806,7 +1033,64 @@ defineExpose({
         @mouseup="onMouseUp"
         @mouseleave="onMouseLeave"
         @click="onClick"
+        @contextmenu="onContextMenu"
     ></canvas>
+
+    <!-- Debug 右键菜单（传送到 body，fixed 定位避免被容器裁切） -->
+    <Teleport to="body">
+      <v-card
+          v-if="contextMenu && isDebug"
+          class="mastery-debug-menu"
+          :style="menuStyle"
+          @click.stop
+          @contextmenu.prevent.stop="closeContextMenu"
+      >
+        <v-list density="compact" nav>
+          <!-- 命中连线：在两节点之间插入 -->
+          <v-list-item
+              v-if="contextMenu.edge"
+              prepend-icon="mdi-call-split"
+              :title="menuEdgeLabel"
+              @click="onMenuInsertOnEdge"
+          ></v-list-item>
+
+          <v-list-item
+              v-if="contextMenu.node"
+              :prepend-icon="'mdi-pencil-outline'"
+              :title="t('mastery.debug.editNode')"
+              @click="onMenuEditNode"
+          ></v-list-item>
+
+          <!-- 选中另一节点后右键节点：在二者之间插入 -->
+          <v-list-item
+              v-if="contextMenu.node && menuParentNode"
+              prepend-icon="mdi-call-split"
+              :title="menuInsertBetweenLabel"
+              @click="onMenuInsertBetweenSelected"
+          ></v-list-item>
+
+          <v-list-item
+              prepend-icon="mdi-plus-circle-outline"
+              :title="t('mastery.debug.addNodeHere')"
+              @click="onMenuAddNode"
+          ></v-list-item>
+          <v-list-item
+              v-if="contextMenu.node && menuParentNode"
+              :prepend-icon="menuParentLinked ? 'mdi-link-variant-off' : 'mdi-arrow-up-bold-outline'"
+              :title="menuParentLabel"
+              @click="onMenuToggleRequisite"
+          ></v-list-item>
+          <v-divider v-if="contextMenu.node"></v-divider>
+          <v-list-item
+              v-if="contextMenu.node"
+              prepend-icon="mdi-delete-outline"
+              :title="t('mastery.debug.deleteNode')"
+              class="text-error"
+              @click="onMenuDeleteNode"
+          ></v-list-item>
+        </v-list>
+      </v-card>
+    </Teleport>
   </div>
 </template>
 
@@ -834,5 +1118,16 @@ defineExpose({
 
 .mastery-canvas.is-draggable:active {
   cursor: grabbing;
+}
+
+.mastery-debug-menu {
+  position: fixed;
+  z-index: 2000;
+  width: 220px;
+  border-radius: 8px;
+  background-color: rgb(var(--v-theme-surface));
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  user-select: none;
 }
 </style>

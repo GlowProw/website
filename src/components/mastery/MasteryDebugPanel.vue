@@ -4,15 +4,13 @@ import type {Mastery} from 'glow-prow-data';
 
 const {t} = useI18n();
 
-const props = defineProps<{
+defineProps<{
   isDebug: boolean;
   selectedNode: Mastery | null;
 }>();
 
 const emit = defineEmits<{
   (e: 'export-json'): void;
-  (e: 'update-coordinate'): void;
-  (e: 'update-requisite'): void;
 }>();
 </script>
 
@@ -21,56 +19,30 @@ const emit = defineEmits<{
       v-if="isDebug"
       border
       elevation="20"
-      width="340"
-      class="mastery-debug-panel bg-surface-darken-2"
-  >
+      width="300"
+      class="mastery-debug-panel bg-surface-darken-2">
     <div class="d-flex align-center justify-space-between pa-2 bg-error text-white font-weight-bold text-caption">
       <span><v-icon size="14" start>mdi-bug</v-icon>{{ t('mastery.debug.title') }}</span>
-      <v-btn icon="mdi-content-copy" size="x-small" variant="text" @click="emit('export-json')" :title="t('mastery.debug.exportJson')"></v-btn>
+      <v-btn icon="mdi-content-copy" size="x-small" variant="text"
+              :title="t('mastery.debug.exportJson')"
+              @click="emit('export-json')"></v-btn>
     </div>
     <div class="pa-3 text-caption">
-      <div v-if="selectedNode">
-        <div class="mb-1"><strong>{{ t('mastery.debug.selectedNode') }}:</strong> {{ selectedNode.key }} ({{ selectedNode.id }})</div>
-        <v-row no-gutters class="gap-2 mb-2">
-          <v-col>
-            <v-text-field
-                v-model.number="selectedNode.position.x"
-                :label="t('mastery.debug.coordX')"
-                density="compact"
-                variant="outlined"
-                hide-details
-                type="number"
-                @update:model-value="emit('update-coordinate')"
-            ></v-text-field>
-          </v-col>
-          <v-col>
-            <v-text-field
-                v-model.number="selectedNode.position.y"
-                :label="t('mastery.debug.coordY')"
-                density="compact"
-                variant="outlined"
-                hide-details
-                type="number"
-                @update:model-value="emit('update-coordinate')"
-            ></v-text-field>
-          </v-col>
-        </v-row>
-        <div class="mb-1"><strong>{{ t('mastery.debug.requisites') }}:</strong></div>
-        <v-combobox
-            v-model="selectedNode.requisite"
-            multiple
-            chips
-            closable-chips
-            density="compact"
-            variant="outlined"
-            hide-details
-            :placeholder="t('mastery.debug.requisitesPlaceholder')"
-            @update:model-value="emit('update-requisite')"
-        ></v-combobox>
+      <div v-if="selectedNode" class="mb-2">
+        <div class="text-truncate">
+          <strong>{{ t('mastery.debug.selectedNode') }}:</strong>
+          {{ selectedNode.key }} <span class="opacity-60">({{ selectedNode.id }})</span>
+        </div>
+        <div class="opacity-70">
+          x: {{ Math.round(selectedNode.position?.x ?? 0) }}，
+          y: {{ Math.round(selectedNode.position?.y ?? 0) }}
+        </div>
       </div>
-      <div v-else class="opacity-60 text-center py-2">
-        {{ t('mastery.debug.clickHint') }}
-      </div>
+      <p class="mb-1 opacity-80">
+        <v-icon size="12">mdi-mouse-right-click</v-icon>
+        {{ t('mastery.debug.contextMenuHint') }}
+      </p>
+      <p class="mb-0 opacity-60">{{ t('mastery.debug.dragHint') }}</p>
     </div>
   </v-card>
 </template>
@@ -78,9 +50,9 @@ const emit = defineEmits<{
 <style scoped lang="less">
 .mastery-debug-panel {
   position: absolute;
-  top: 76px;
   right: 16px;
-  z-index: 30;
+  bottom: 64px;
+  z-index: 90;
   border-radius: 8px;
   pointer-events: auto;
 }

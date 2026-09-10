@@ -189,7 +189,7 @@ defineExpose({
           :get-skill-name="getSkillName"
           :is-node-active="isNodeActive"
           :is-node-available="isNodeAvailable"
-          :initial-scale="1"
+          :initial-scale=".6"
           :readonly="readonly"
           @select-node="selectNode"
           @toggle-activation="toggleNodeActivation"

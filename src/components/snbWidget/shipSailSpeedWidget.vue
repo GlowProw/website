@@ -145,7 +145,7 @@ const onWaterBarrelClick = () => {
 
 <template>
   <div v-if="data" class="pt-3">
-    <v-card v-if="isSimulationShipSailSpeed" class="mx-n1 card-enlargement-flavor" variant="text">
+    <v-card v-if="isSimulationShipSailSpeed" class="mx-n1 card-enlargement-mask-flavor" variant="text">
       <!-- 速度提升状态显示 S -->
       <v-alert v-if="totalSpeedBoost > 0" density="compact" class="ma-3">
         <div class="d-flex align-center justify-space-between">

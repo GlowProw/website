@@ -60,7 +60,7 @@ defineOptions({
 
 <template>
   <div ref="containerRef"
-       class="card-enlargement-flavor"
+       class="card-enlargement-mask-flavor"
        :class="`item-base-slot pa-${computedPadding} ma-${computedMargin}`"
        :style="`height: ${computedSize}; width: ${computedSize};min-height: ${computedSize}; min-width: ${computedSize}`">
     <slot></slot>
