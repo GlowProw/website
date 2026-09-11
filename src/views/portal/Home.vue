@@ -12,6 +12,7 @@ import SeasonViewWidget from "@/components/SeasonViewWidget.vue";
 import NewSeasonShowItem from "@/components/newSeasonShowItem.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
+import DonorsWidget from "@/components/DonorsWidget.vue";
 
 const {t} = useI18n()
 
@@ -135,6 +136,10 @@ onMounted(() => {
     </div>
 
     <v-divider></v-divider>
+
+    <!-- 捐助者 S -->
+    <DonorsWidget></DonorsWidget>
+    <!-- 捐助者 E -->
 
     <div class="bg-black pt-5 background-img-flavor">
       <v-container>

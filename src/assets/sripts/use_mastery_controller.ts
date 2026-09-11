@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useDisplay } from 'vuetify/framework';
 import LZString from 'lz-string';
 import { useAppStore } from '~/stores/appStore';
+import { useNoticeStore } from '~/stores/noticeStore';
 import { useCDNAssetsServiceStore } from '~/stores/cdnAssetsStore';
 import { storage, getCurrentSeasonId } from '@/assets/sripts/index';
 import { Masterys, Mastery, type MasteryCategory, type MasteryRole, type SeasonMasteryTree } from 'glow-prow-data';
@@ -78,15 +79,10 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
     return url || `https://assets.glow-prow.top/mastery/${skill}.webp`;
   }
 
-  // 提示信息
-  const snackbarShow = ref(false);
-  const snackbarText = ref('');
-  const snackbarColor = ref('warning');
-
-  function notify(message: string, color = 'warning') {
-    snackbarText.value = message;
-    snackbarColor.value = color;
-    snackbarShow.value = true;
+  // 提示信息统一走全局
+  function notify(message: string, color: 'success' | 'error' | 'info' | 'warning' = 'warning') {
+    const notice = useNoticeStore();
+    notice[color](message, {mode: 'minimal'});
   }
 
   // Debug 模式 (基于 appStore)
@@ -126,14 +122,14 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
     }));
   });
 
-  // 本地可变节点字典 
+  // 本地可变节点字典
   // 支持 debug
   const localNodes = ref<Record<string, Mastery>>({});
 
   // 选中的激活节点集合 (投入点数)
   const selectedNodeIds = ref<Set<string>>(new Set());
 
-  // 满足点数门槛后用户手动选择激活的赛季特长 
+  // 满足点数门槛后用户手动选择激活的赛季特长
   // 每个点数阶梯单选: group/cost -> nodeId
   const selectedSeasonalPerks = ref<Record<string, string>>({});
 
@@ -1393,9 +1389,6 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
     locale,
 
     // 提示
-    snackbarShow,
-    snackbarText,
-    snackbarColor,
     notify,
 
     // 缩放限制

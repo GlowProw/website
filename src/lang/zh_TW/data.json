@@ -2018,6 +2018,13 @@
       "selectGradeFirst": "請先選擇代表模組類型以解鎖詞條選擇",
       "selectModGrade": "代表模組類型",
       "item": "相關物品"
+    },
+    "advanced": {
+      "title": "進階設定",
+      "cardTitle": "開發者除錯",
+      "hint": "面向開發者選項，用於調整網站可控製資料或查看資料，如果你不清楚，不要開啟",
+      "debugName": "開發者除錯模式",
+      "debugDesc": "開啟後將在圖鑑、配裝、技能模擬等頁面顯示節點拖曳、原始ID、座標編輯與除錯資訊。"
     }
   },
   "header": {
@@ -2284,5 +2291,76 @@
       "eastIndiesSea": "東印度海",
       "eastIndiesIsles": "東印度群島"
     }
+  },
+  "subscription": {
+    "title": "贊助訂閱",
+    "monthlyGoal": "本月航海經費",
+    "orderCount": "本月訂單",
+    "coreDonor": "核心捐助者",
+    "monthly": "按月",
+    "yearly": "按年",
+    "perMonth": "每月",
+    "perYear": "每年",
+    "yearlyHint": "年付付10月",
+    "subscribe": "登船贊助",
+    "donateOnce": "一次性打賞",
+    "once": "一次性",
+    "customAmount": "自訂金額（¥）",
+    "customMin": "一次性打賞最低 ¥5",
+    "customRule": "一次性打賞，¥5 起；滿 ¥100 同樣授予核心捐助者身份",
+    "loginFirst": "請先登入再贊助",
+    "checkoutFailed": "下單失敗，請稍後再試",
+    "choosePlatform": "選擇支付平台",
+    "noPlatform": "支付渠道尚未設定，請稍後再來",
+    "platformAfdian": "愛發電",
+    "youAreCore": "您當前的身份是「核心捐助者」，全海域為你鳴炮致敬！",
+    "youAreDonor": "您當前的身份是「捐助者」，感謝你的銀幣！",
+    "expireAt": "有效期至",
+    "cancel": "取消",
+    "hallTitle": "核心捐助者",
+    "coreBadge": "核心捐助者",
+    "tiers": {
+      "1000": {
+        "name": "頭目",
+        "desc": "頭戴三叉金冠、坐擁整支艦隊的傳奇頭目。你的名字將刻在船尾樓最高處，整片海域都要看你的旗語行事。"
+      },
+      "500": {
+        "name": "大副",
+        "desc": "頭目之下第一人，掌管戰利品分配與船員紀律。彎刀往桌上一拍，甲板上再無二話。"
+      },
+      "100": {
+        "name": "海盜",
+        "desc": "手持私掠許可證縱橫航道的正經海盜——搶得光明正大，花得理直氣壯。"
+      },
+      "50": {
+        "name": "水手長",
+        "desc": "管帆、管炮、管纜繩，還管新人暈船時的後腦勺。船離了水手長，出海都得打晃。"
+      },
+      "10": {
+        "name": "雙子",
+        "desc": "桅頂瞭望台上永遠成雙的那對活寶，一個看風，一個看你口袋裡的銀幣。"
+      },
+      "5": {
+        "name": "見習海盜",
+        "desc": "剛端上朗姆酒、還分不清左右舷的菜鳥。錢不多，但每條名船都從這一步開始。"
+      },
+      "custom": {
+        "name": "自訂賞金",
+        "desc": "往寶箱裡丟多少枚銀幣全憑心意，數額夠格，照樣授銜。"
+      }
+    },
+    "manageTitle": "管理我的訂閱",
+    "cancelTip": "在支付平台取消後，當前身份將在取消生效時自動收回",
+    "cancelStripe": "Stripe 管理訂閱",
+    "cancelAfdian": "愛發電取消贊助",
+    "cancelAfdianTip": "未找到 Stripe 訂閱。愛發電贊助請在愛發電「我的贊助」中取消，取消生效後身份會自動收回。",
+    "introLine1": "{name}是公益的，但這一切都不是免費或易得的！",
+    "introLine2": "{name}沒有主要收入來源，而是依靠你們的慷慨捐助。你們的支持能幫助我維持應用的運作，讓我能夠開發新功能。",
+    "introLine3": "請訂閱任一板塊，支持我",
+    "pendingOrders": "待支付訂單",
+    "payExpireIn": "支付剩餘時間 {time}，逾時未支付訂單將自動關閉",
+    "cancelPay": "取消支付",
+    "continuePay": "繼續支付",
+    "orderCancelled": "訂單已取消"
   }
 }

@@ -282,31 +282,6 @@
         </template>
       </AffixBoxHasTitleView>
     </v-col>
-    <v-col cols="12" lg="4">
-      <AffixBoxHasTitleView>
-        <p class="text-caption opacity-60 mb-5">
-          面向开发者选项，用于调整网站可控制数据或查看数据，如果你不清楚，不要打开
-        </p>
-
-        <v-row align="center" no-gutters>
-          <v-col class="font-weight-bold">
-            <v-icon start size="18" color="error">mdi-bug</v-icon>
-            开发者调试模式
-          </v-col>
-          <v-col cols="auto">
-            <v-switch hide-details inset density="compact" color="error" v-model="debugSwitch" @update:modelValue="onDebugSwitch"></v-switch>
-          </v-col>
-        </v-row>
-
-        <p class="mt-3 text-caption text-error opacity-75">
-          开启后将在图鉴、配装、技能模拟等页面显示节点拖拽、原始ID、坐标编辑与调试信息。
-        </p>
-
-        <template v-slot:title>
-          开发者调试 (Debug)
-        </template>
-      </AffixBoxHasTitleView>
-    </v-col>
   </v-row>
 </template>
 
@@ -320,16 +295,8 @@ import {onMounted, Ref, ref, computed} from "vue";
 import {useI18n} from "vue-i18n";
 import ItemIconCdnAssets from "@/components/itemIconCdnAssets.vue";
 import EmptyView from "@/components/EmptyView.vue";
-import {useAppStore} from "~/stores/appStore";
 
 const {t} = useI18n()
-const appStore = useAppStore()
-
-const debugSwitch = ref(appStore.isDebug)
-
-const onDebugSwitch = (val: boolean) => {
-  appStore.setDebug(val)
-}
 
 let estimateCapacity: Ref<any> = ref({}),
     appFunConfig = ref<any[]>([]),
@@ -422,7 +389,6 @@ const getConfig = () => {
   posterSwitch.value = storage_account.getConfigurationItem('poster', 'poster.switch')
 
   assemblyViewModel.value = storage_account.getConfigurationItem('assembly', 'viewModel', {defaultValue: assemblyViewModel.value})
-  debugSwitch.value = appStore.isDebug
 }
 
 const onUpdateAppFunConfig = () => {

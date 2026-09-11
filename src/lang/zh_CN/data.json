@@ -318,9 +318,15 @@
         "actionLocked": "操作已锁定，请次日再试"
       },
       "emailChange": {
-        "quotaExceeded": "更换邮箱今日邮件发送已达上限，请明天再试",
-        "notConfigured": "系统超额，请联系管理员",
-        "actionLocked": "操作已锁定，请次日再试"
+        "alreadyUsed": "该邮箱已被占用",
+        "quotaExceeded": "邮件发送达到每日上限，请稍后再试",
+        "invalidCode": "验证码无效或已过期",
+        "request": {
+          "ok": "验证码已发送到新邮箱"
+        },
+        "confirm": {
+          "ok": "邮箱更换成功"
+        }
       },
       "resetPassword": {
         "ok": "密码重置成功，请重新登录",
@@ -335,17 +341,6 @@
       "user": {
         "invalid": "错误用户",
         "tokenExpired": "用户身份过期,请重新登陆"
-      },
-      "emailChange": {
-        "alreadyUsed": "该邮箱已被占用",
-        "quotaExceeded": "邮件发送达到每日上限，请稍后再试",
-        "invalidCode": "验证码无效或已过期",
-        "request": {
-          "ok": "验证码已发送到新邮箱"
-        },
-        "confirm": {
-          "ok": "邮箱更换成功"
-        }
       },
       "request": {
         "rateLimited": "请求太快力，慢点"
@@ -485,8 +480,7 @@
     "myComment": "我的评论",
     "myTeamup": "我的组队",
     "myMap": "地图管理",
-    "mySmugglersReport": "走私犯奖赏家",
-    "trash": "回收站"
+    "mySmugglersReport": "走私犯奖赏家"
   },
   "activate": {
     "title": "账户激活",
@@ -1300,7 +1294,7 @@
       "assembly": "配装",
       "wheel": "轮盘",
       "warehouse": "船仓",
-      "mastery":"精通"
+      "mastery": "精通"
     },
     "setting": {
       "title": "设置",
@@ -1967,6 +1961,13 @@
       "saveError": "清单保存失败",
       "selectGradeFirst": "请先选择代表模组类型以解锁词条选择",
       "selectModGrade": "代表模组类型"
+    },
+    "advanced": {
+      "title": "进阶设置",
+      "cardTitle": "开发者调试",
+      "hint": "面向开发者选项，用于调整网站可控制数据或查看数据，如果你不清楚，不要打开",
+      "debugName": "开发者调试模式",
+      "debugDesc": "开启后将在图鉴、配装、技能模拟等页面显示节点拖拽、原始ID、坐标编辑与调试信息。"
     }
   },
   "header": {
@@ -2226,5 +2227,76 @@
       "eastIndiesSea": "东印度海",
       "eastIndiesIsles": "东印度群岛"
     }
+  },
+  "subscription": {
+    "title": "赞助订阅",
+    "monthlyGoal": "本月航海经费",
+    "orderCount": "本月订单",
+    "coreDonor": "核心捐助者",
+    "monthly": "按月",
+    "yearly": "按年",
+    "perMonth": "每月",
+    "perYear": "每年",
+    "yearlyHint": "年付付10月",
+    "subscribe": "登船赞助",
+    "donateOnce": "一次性打赏",
+    "once": "一次性",
+    "customAmount": "自定义金额（¥）",
+    "customMin": "一次性打赏最低 ¥5",
+    "customRule": "一次性打赏，¥5 起；满 ¥100 同样授予核心捐助者身份",
+    "loginFirst": "请先登录再赞助",
+    "checkoutFailed": "下单失败，请稍后再试",
+    "choosePlatform": "选择支付平台",
+    "noPlatform": "支付渠道尚未配置，请稍后再来",
+    "platformAfdian": "爱发电",
+    "youAreCore": "您当前的身份是「核心捐助者」，全海域为你鸣炮致敬！",
+    "youAreDonor": "您当前的身份是「捐助者」，感谢你的银币！",
+    "expireAt": "有效期至",
+    "cancel": "取消",
+    "hallTitle": "核心捐助者",
+    "coreBadge": "核心捐助者",
+    "tiers": {
+      "1000": {
+        "name": "头目",
+        "desc": "头戴三叉金冠、坐拥整支舰队的传奇头目。你的名字将刻在船尾楼最高处，整片海域都要看你的旗语行事。"
+      },
+      "500": {
+        "name": "大副",
+        "desc": "头目之下第一人，掌管战利品分配与船员纪律。弯刀往桌上一拍，甲板上再无二话。"
+      },
+      "100": {
+        "name": "海盗",
+        "desc": "手持私掠许可证纵横航道的正经海盗——抢得光明正大，花得理直气壮。"
+      },
+      "50": {
+        "name": "水手长",
+        "desc": "管帆、管炮、管缆绳，还管新人晕船时的后脑勺。船离了水手长，出海都得打晃。"
+      },
+      "10": {
+        "name": "双子",
+        "desc": "桅顶瞭望台上永远成双的那对活宝，一个看风，一个看你口袋里的银币。"
+      },
+      "5": {
+        "name": "见习海盗",
+        "desc": "刚端上朗姆酒、还分不清左右舷的菜鸟。钱不多，但每条名船都从这一步开始。"
+      },
+      "custom": {
+        "name": "自定义赏金",
+        "desc": "往宝箱里丢多少枚银币全凭心意，数额够格，照样授衔。"
+      }
+    },
+    "manageTitle": "管理我的订阅",
+    "cancelTip": "在支付平台取消后，当前身份将在取消生效时自动收回",
+    "cancelStripe": "Stripe 管理订阅",
+    "cancelAfdian": "爱发电取消赞助",
+    "cancelAfdianTip": "未找到 Stripe 订阅。爱发电赞助请在爱发电「我的赞助」中取消，取消生效后身份会自动收回。",
+    "introLine1": "{name}是公益的，但这一切都不是免费或易得的！",
+    "introLine2": "{name}没有主要收入来源，而是依靠你们的慷慨捐助。你们的支持能帮助我维持应用的运行，让我能够开发新功能。",
+    "introLine3": "请订阅任一板块，支持我",
+    "pendingOrders": "待支付订单",
+    "payExpireIn": "支付剩余时间 {time}，超时未支付订单将自动关闭",
+    "cancelPay": "取消支付",
+    "continuePay": "继续支付",
+    "orderCancelled": "订单已取消"
   }
 }

@@ -16,9 +16,6 @@ import AccountMapsPage from '@/views/user/account/maps.vue'
 import AccountSmugglersReport from '@/views/user/account/smugglersReport.vue'
 import AccountSpacePage from '@/views/user/Space.vue'
 
-import AccountAdminPage from '@/views/user/admin/Index.vue'
-import AccountAdminPrivilegeManagementPage from '@/views/user/admin/PrivilegeManagement.vue'
-
 import SigninPage from '@/views/user/Signin.vue'
 import SignupPage from '@/views/user/Signup.vue'
 import ActivatePage from '@/views/user/Activate.vue'
@@ -109,6 +106,8 @@ import AboutPage from '@/views/setting/About.vue'
 import SettingPwaPage from '@/views/setting/Pwa.vue'
 import SettingWishlistPage from '@/views/setting/Wishlist.vue'
 import SettingLogPage from '@/views/setting/Log.vue'
+import SettingSubscriptionsPage from '@/views/setting/Subscriptions.vue'
+import AdvancedPage from '@/views/setting/Advanced.vue'
 import NotFoundPage from '@/views/NotFound.vue';
 
 import Test from '@/views/Test.vue'
@@ -143,17 +142,6 @@ const isLoginBeforeEnter = function (to: any, from: any, next: any) {
         next()
     } else {
         next({ path: '/account/signin', query: { backUrl: to.fullPath } })
-    }
-}
-
-const isAdminBeforeEnter = (to: any, from: any, next: any) => {
-    const authStore = useAuthStore(),
-        role: string[] = authStore?.user?.role ?? []
-
-    if (role.includes('admin') || role.includes('super') || role.includes('dev') || role.includes('root')) {
-        next()
-    } else {
-        next({ path: '/', query: { backUrl: to.fullPath } })
     }
 }
 
@@ -259,28 +247,6 @@ const routes: Readonly<RouteRecordRaw[]> = [
                         name: 'AccountTrash',
                         component: () => import('@/views/user/account/Trash.vue'),
                         meta: { title: 'account.trash', auth: true }
-                    },
-                ]
-            },
-            {
-                path: '/admin',
-                name: 'AccountAdminHome',
-                component: AccountAdminPage,
-                redirect: '/admin/privilege-management',
-                meta: {
-                    title: 'admin.title',
-                    keywords: 'admin.meta.keywords'
-                },
-                beforeEnter: (to, from, next) => {
-                    isLoginBeforeEnter(to, from, next)
-                    initAccountInfo(to, from, next)
-                    isAdminBeforeEnter(to, from, next)
-                },
-                children: [
-                    {
-                        path: 'privilege-management',
-                        name: 'PrivilegeManagement',
-                        component: AccountAdminPrivilegeManagementPage
                     },
                 ]
             },
@@ -392,6 +358,19 @@ const routes: Readonly<RouteRecordRaw[]> = [
                         path: 'log',
                         name: 'PortalSettingLog',
                         component: SettingLogPage,
+                    },
+                    {
+                        path: 'subscriptions',
+                        name: 'PortalSettingSubscriptions',
+                        component: SettingSubscriptionsPage,
+                    },
+                    {
+                        path: 'advanced',
+                        name: 'PortalSettingAdvanced',
+                        meta: {
+                            title: 'setting.advanced.title'
+                        },
+                        component: AdvancedPage,
                     }
                 ]
             },

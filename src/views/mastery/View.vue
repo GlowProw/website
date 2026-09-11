@@ -23,9 +23,6 @@ const {
   router,
   isDebug,
   mobile,
-  snackbarShow,
-  snackbarText,
-  snackbarColor,
   notify,
   svgScaleExtent,
   scaleExtent,
@@ -209,23 +206,6 @@ onMounted(() => {
 
 <template>
   <div class="mastery-container" id="mastery-simulation" ref="masteryViewRef">
-    <!-- 消息提示 S -->
-    <v-snackbar
-        v-model="snackbarShow"
-        :color="snackbarColor"
-        timeout="2500"
-        location="top"
-        variant="flat"
-        elevation="8">
-      <div class="d-flex align-center">
-        <v-icon start size="18">
-          {{ snackbarColor === 'error' ? 'mdi-alert-circle' : snackbarColor === 'success' ? 'mdi-check-circle' : 'mdi-information' }}
-        </v-icon>
-        <span>{{ snackbarText }}</span>
-      </div>
-    </v-snackbar>
-    <!-- 消息提示 E -->
-
     <StylizedLineBackground
         class="mastery-bg-layer"
         :offset-x="transform?.x ?? 0"

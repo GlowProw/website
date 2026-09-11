@@ -5,6 +5,7 @@ import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import EmptyView from "@/components/EmptyView.vue";
 import { useErrorLogger, ERROR_CODES, logError } from "@/assets/sripts/error_logger";
 import { useNoticeStore } from "~/stores/noticeStore";
+import { mode } from "d3";
 
 const { t } = useI18n();
 const { CLIENT_ID, SESSION_ID, sessionLogs, exportLogsJSON, clearSessionLogs } = useErrorLogger();
@@ -80,7 +81,7 @@ const triggerTestError = (type: 'net' | 'js' | 'promise' | 'vue') => {
  */
 const triggerNoticeTest = (type: 'single' | 'queue' | 'net' | '4xx' | '5xx' | 'js' | 'persistent' | 'persistentQueue') => {
   if (type === 'single') {
-    noticeStore.info('这是一条常规提示通知测试消息', { title: '普通提示' });
+    noticeStore.info('这是一条常规提示通知测试消息', { title: '普通提示', mode: 'minimal' });
   } else if (type === 'queue') {
     noticeStore.success('操作已成功执行并同步到云端', { title: '成功' });
     noticeStore.warning('当前偏好配置发生了变动，请留意保存', { title: '警告' });

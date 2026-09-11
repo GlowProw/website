@@ -1,19 +1,15 @@
 <script setup lang="ts">
 
-import {onMounted, ref, toRaw} from "vue";
-import {useI18n} from "vue-i18n";
-import {http, storage} from "@/assets/sripts";
+import {onMounted, ref} from "vue";
+import {useCrowdinApi} from "@/assets/sripts/api/crowdin_service";
 
-const {locale} = useI18n(),
-    props = withDefaults(defineProps<{ size?: number }>(), {
-      size: 25
-    })
+withDefaults(defineProps<{ size?: number }>(), {
+  size: 25
+})
 
-let members = ref([]),
-    selectLang = ref('')
+let members = ref<any[]>([])
 
 onMounted(() => {
-  selectLang.value = locale.value;
   getLanguageMembers()
 })
 
@@ -21,28 +17,10 @@ onMounted(() => {
  * 获取成员
  */
 const getLanguageMembers = async () => {
-  let membersData = storage.session.get('lang.members')
-  if (membersData.code == 0 && membersData.data) {
-    members.value = membersData.data.value
-    return
-  }
-
-  // public key, only read members
-  const key = '5ce0d2b299f679b2bd8ecabe8317a1e7c3badc9d25f24d85865a9ddbe4d5d1835bebe89d951013fb'
-  const result = await http.request('https://api.crowdin.com/api/v2/projects/810804/members', {
-    method: 'get' as any,
-    headers: {
-      "Authorization": `Bearer ${key}`,
-      // "Accept": "application/json"
-    },
-    params: {
-      role: 'all'
-    }
-  })
-
-  if (result.data.data) {
-    members.value = result.data.data
-    storage.session.set('lang.members', toRaw(members.value))
+  try {
+    members.value = await useCrowdinApi().getMembers()
+  } catch (e) {
+    console.error('get crowdin members failed:', e)
   }
 }
 

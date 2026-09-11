@@ -21,6 +21,16 @@ let tabs: Ref<any[]> = ref([
         icon: 'mdi-cog'
       },
       {
+        name: 'setting.advanced.title',
+        value: 'PortalSettingAdvanced',
+        icon: 'mdi-cog'
+      },
+      {
+        name: 'subscription.title',
+        value: 'PortalSettingSubscriptions',
+        icon: 'mdi-treasure-chest'
+      },
+      {
         name: 'setting.ad.title',
         value: 'PortalSettingAds',
         icon: 'mdi-advertisements'

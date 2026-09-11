@@ -43,7 +43,7 @@ export function use_map_controller() {
     const storageObj = new Storage();
 
     /**
-     * 地图可视边界（经纬度，EPSG:4326）
+     * 地图可视边界
      * 格式：[minLon, minLat, maxLon, maxLat]
      * 用户无法将地图中心拖出此范围之外
      */
@@ -52,7 +52,7 @@ export function use_map_controller() {
     const CATEGORY_GROUPS: Record<string, string[]> = {
         'pirateBases': ['den', 'outpost'],              // 海盗据点
         'settlements': ['settlement', 'capitalSettlement'], // 定居点
-        'productionSites': ['foundry', 'lumberyard', 'weaver'], // 生产设施  
+        'productionSites': ['foundry', 'lumberyard', 'weaver'], // 生产设施
         'fortifications': ['megafort', 'militaryBase'],  // 军事要塞
     };
 
@@ -480,7 +480,7 @@ export function use_map_controller() {
         const text = `${coord[0].toFixed(6)}, ${coord[1].toFixed(6)}`;
         try {
             await navigator.clipboard.writeText(text);
-            notice.success(t('map.contextMenu.copiedCoordinatesTip') || '坐标已复制到剪贴板');
+            notice.success(t('map.contextMenu.copiedCoordinatesTip'));
         } catch (e) {
             console.error('Copy failed', e);
         }
@@ -499,7 +499,7 @@ export function use_map_controller() {
         }
         try {
             await navigator.clipboard.writeText(url);
-            notice.success(t('map.contextMenu.copiedLinkTip') || '位置链接已复制到剪贴板');
+            notice.success(t('map.contextMenu.copiedLinkTip'));
         } catch (e) {
             console.error('Copy failed', e);
         }

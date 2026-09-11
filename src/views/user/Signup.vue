@@ -7,13 +7,11 @@ import {useNoticeStore} from "~/stores/noticeStore";
 import Captcha from "@/components/captcha/index.vue";
 import {useRules} from "@/assets/sripts/rules_user"
 import {apis} from "@/assets/sripts";
-import {ApiError} from "@/assets/types/Api";
 import {SignupParams} from "@/assets/types/User.Signup";
 import {CaptchaParams} from "@/assets/types/Captcha";
 import {handleApiError} from "@/assets/sripts/error_handler";
 
 const router = useRouter(),
-    noticeStore = useNoticeStore(),
     {t} = useI18n(),
     notice = useNoticeStore(),
     rules = useRules()
@@ -53,7 +51,7 @@ const onRegister = async () => {
         }),
         d = result.data;
 
-    noticeStore.success(t(`basic.tips.${d.code}`))
+    notice.success(t(`basic.tips.${d.code}`), {mode: 'minimal'})
 
     setTimeout(async () => {
       await router.push({
@@ -62,7 +60,7 @@ const onRegister = async () => {
       })
     }, 1000)
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'Signup' })
+    handleApiError(e, notice, t, {component: 'Signup'})
   } finally {
     signupLoading.value = false;
   }

@@ -319,9 +319,16 @@
         "actionLocked": "Operation is locked, please try again tomorrow."
       },
       "emailChange": {
-        "quotaExceeded": "Daily email change limit reached, please try again tomorrow",
-        "notConfigured": "System quota exceeded, please contact the administrator.",
-        "actionLocked": "Operation is locked, please try again tomorrow."
+        "alreadyUsed": "This email is already in use",
+        "quotaExceeded": "Email daily limit reached, please try again later",
+        "invalidCode": "Verification code is invalid or has expired",
+        "request": {
+          "ok": "Verification code sent to the new email"
+        },
+        "confirm": {
+          "ok": "Email updated successfully"
+        },
+        "tooFrequent": "Changing email too frequently, please try again in {context} days."
       },
       "resetPassword": {
         "ok": "Password reset successfully, please sign in again",
@@ -336,18 +343,6 @@
       "user": {
         "invalid": "Invalid user",
         "tokenExpired": "User identity expired, please log in again"
-      },
-      "emailChange": {
-        "alreadyUsed": "This email is already in use",
-        "quotaExceeded": "Email daily limit reached, please try again later",
-        "invalidCode": "Verification code is invalid or has expired",
-        "request": {
-          "ok": "Verification code sent to the new email"
-        },
-        "confirm": {
-          "ok": "Email updated successfully"
-        },
-        "tooFrequent": "Changing email too frequently, please try again in {context} days."
       },
       "request": {
         "rateLimited": "Request too fast, please slow down"
@@ -1674,7 +1669,7 @@
       "loadBtn": "Load Build",
       "deleteBtn": "Delete",
       "confirmDelete": "Click again to confirm delete",
-      "saveSuccess": "Build \u201c{name}\u201d saved successfully",
+      "saveSuccess": "Build “{name}” saved successfully",
       "createdAt": "Created",
       "updatedAt": "Updated",
       "pointsSpent": "{pts} pts invested"
@@ -1962,6 +1957,13 @@
       "selectGradeFirst": "Please select a Mod Grade first to unlock perk selection",
       "selectModGrade": "Mod Grade",
       "item": "Related Item"
+    },
+    "advanced": {
+      "title": "Advanced",
+      "cardTitle": "Developer debug",
+      "hint": "Developer-oriented options for controlling or inspecting site data. Leave them off if you are not sure.",
+      "debugName": "Developer debug mode",
+      "debugDesc": "When enabled, node dragging, raw IDs, coordinate editing and debug info appear on the bestiary, assembly and skill simulation pages."
     }
   },
   "header": {
@@ -2220,5 +2222,76 @@
       "eastIndiesSea": "East Indies Sea",
       "eastIndiesIsles": "East Indies Isles"
     }
+  },
+  "subscription": {
+    "title": "Subscriptions",
+    "monthlyGoal": "This Month's Voyage Fund",
+    "orderCount": "Orders this month",
+    "coreDonor": "Core Donor",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "perMonth": "per month",
+    "perYear": "per year",
+    "yearlyHint": "10 months price",
+    "subscribe": "Come Aboard",
+    "donateOnce": "One-time Gift",
+    "once": "one-time",
+    "customAmount": "Custom amount (¥)",
+    "customMin": "Minimum one-time gift is ¥5",
+    "customRule": "One-time gift from ¥5; gifts of ¥100 or more also receive Core Donor status",
+    "loginFirst": "Please sign in before donating",
+    "checkoutFailed": "Checkout failed, please try again later",
+    "choosePlatform": "Choose payment platform",
+    "noPlatform": "No payment channel is configured yet, check back soon",
+    "platformAfdian": "Afdian",
+    "youAreCore": "Ye currently hold the title of \"Core Donor\" — a cannon salute from every sea!",
+    "youAreDonor": "Ye currently hold the title of \"Donor\" — thank ye for yer silver!",
+    "expireAt": "Expires",
+    "cancel": "Cancel",
+    "hallTitle": "Core Donors",
+    "coreBadge": "Core Donor",
+    "tiers": {
+      "1000": {
+        "name": "Captain",
+        "desc": "The legend in a gilded tricorne with a whole fleet at their back. Yer name goes atop the highest stern gallery, and every sea lane flies signals at yer command."
+      },
+      "500": {
+        "name": "Quartermaster",
+        "desc": "Second only to the captain — keeper of the loot shares and shipboard discipline. One slap of the cutlass on the table ends every argument on deck."
+      },
+      "100": {
+        "name": "Corsair",
+        "desc": "A proper privateer with papers in hand, roaming the trade winds. Plunder by the book, spend it with pride."
+      },
+      "50": {
+        "name": "Boatswain",
+        "desc": "Sails, guns, rigging — and the back of every seasick newcomer's head. Without the bosun, the ship wobbles before she leaves harbour."
+      },
+      "10": {
+        "name": "Twins",
+        "desc": "The inseparable pair on the masthead lookout: one watching the wind, the other eyeing yer purse."
+      },
+      "5": {
+        "name": "Apprentice Pirate",
+        "desc": "Serving up rum and still learning port from starboard. Not much silver, but every grand voyage begins here."
+      },
+      "custom": {
+        "name": "Custom Bounty",
+        "desc": "Toss however many coins ye like into the chest — meet the mark, and earn a title all the same."
+      }
+    },
+    "manageTitle": "Manage my subscription",
+    "cancelTip": "Once cancelled on the payment platform, your donor status is revoked automatically",
+    "cancelStripe": "Manage on Stripe",
+    "cancelAfdian": "Cancel on Afdian",
+    "cancelAfdianTip": "No active Stripe subscription found. Afdian pledges can be cancelled under \"My sponsorships\" on Afdian; your status is revoked once the cancellation takes effect.",
+    "introLine1": "{name} is a community project, but none of this is free or easy to maintain!",
+    "introLine2": "{name} has no major source of income and relies on your generous donations. Your support keeps the app running and lets me develop new features.",
+    "introLine3": "Please subscribe to any tier to support me.",
+    "pendingOrders": "Pending orders",
+    "payExpireIn": "Payment expires in {time}. Unpaid orders are closed automatically on timeout.",
+    "cancelPay": "Cancel payment",
+    "continuePay": "Continue to pay",
+    "orderCancelled": "Order cancelled"
   }
 }

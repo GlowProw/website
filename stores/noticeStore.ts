@@ -4,6 +4,13 @@ import { logError, ERROR_CODES, type ErrorCodeInfo } from "@/assets/sripts/error
 
 export type NoticeTypeValue = 'success' | 'error' | 'info' | 'warning' | 'primary';
 
+/**
+ * 展示模式：
+ *  standard 标准：居中弹窗，含标题 / 错误码 / 堆栈详情，会阻断操作
+ *  minimal  最小化：浏览器底部轻提示，仅保留文本，不拦截点击，约 3 秒自动消失
+ */
+export type NoticeMode = 'standard' | 'minimal';
+
 export interface NoticeOptions {
     id?: string;
     text: string;
@@ -11,10 +18,9 @@ export interface NoticeOptions {
     color?: NoticeTypeValue;
     showing?: boolean;
     title?: string;
-    /** 原始错误对象，用于在弹窗中展示堆栈详情 */
+    mode?: NoticeMode; // 展示模式，默认
     stack?: Error | unknown;
-    /** 错误代码信息（如 gp-0000000001 或 ErrorCodeInfo） */
-    errorCode?: string | ErrorCodeInfo;
+    errorCode?: string | ErrorCodeInfo; // 错误代码信息（如 gp-0000000001 或 ErrorCodeInfo）
 }
 
 export const NoticeType = {
@@ -28,18 +34,30 @@ export const NoticeType = {
 export const useNoticeStore = defineStore('notice', () => {
     const messages: Ref<NoticeOptions[]> = ref([])
     const currentMessage: Ref<NoticeOptions | null> = ref(null)
+    // 全局默认模式（standard 阻断弹窗 / minimal 底部轻提示），单条消息可用 options.mode 覆盖
+    const defaultMode = ref<NoticeMode>('standard')
+
+    const setDefaultMode = (mode: NoticeMode) => {
+        defaultMode.value = mode
+    }
 
     // 添加消息到队列
     const push = (options: NoticeOptions) => {
+        const mode: NoticeMode = options.mode || defaultMode.value
         const message: NoticeOptions = {
             id: 'notice_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
             text: options.text,
-            timeout: options.timeout !== undefined ? options.timeout : 5000,
+            // 未显式指定时：标准 5 秒，最小化 3 秒
+            timeout: options.timeout !== undefined
+                ? options.timeout
+                : (mode === 'minimal' ? 3000 : 5000),
             color: options.color || 'primary',
             showing: false,
+            mode,
             title: options.title,
-            stack: options.stack,
-            errorCode: options.errorCode
+            // 最小化模式丢弃堆栈/错误码，只保留文本
+            stack: mode === 'minimal' ? undefined : options.stack,
+            errorCode: mode === 'minimal' ? undefined : options.errorCode
         };
 
         messages.value.push(message)
@@ -116,15 +134,27 @@ export const useNoticeStore = defineStore('notice', () => {
         push({ text, ...options, color: NoticeType.PRIMARY });
     };
 
+    /** 最小化底部轻提示（仅文本，不阻断操作，不记错误堆栈） */
+    const minimal = (
+        text: string,
+        color: NoticeTypeValue = NoticeType.INFO,
+        options: Partial<NoticeOptions> = {}
+    ) => {
+        push({ text, ...options, color, mode: 'minimal' });
+    };
+
     return {
         messages,
         currentMessage,
+        defaultMode,
+        setDefaultMode,
         push,
         success,
         error,
         info,
         warning,
         primary,
+        minimal,
         clearCurrent,
         showNextMessage
     };
