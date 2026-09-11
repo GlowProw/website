@@ -2218,14 +2218,14 @@
       "coastOfAfrica": "非洲海岸"
     },
     "zones": {
-      "westernEastIndies": "西东印度",
-      "easternEastIndies": "东东印度",
-      "southernEastIndies": "南东印度",
-      "northernEastIndies": "北东印度",
+      "westernEastIndies": "东印度群岛西部",
+      "easternEastIndies": "东印度群岛东部",
+      "southernEastIndies": "东印度群岛南部",
+      "northernEastIndies": "东印度群岛北部",
       "northernOpenSeas": "北部公海",
-      "northEastEastIndies": "东北东印度",
+      "northEastEastIndies": "东印度群岛东北部",
       "eastIndiesSea": "东印度海",
-      "eastIndiesIsles": "东印度群岛"
+      "eastIndiesIsles": "东印度群岛岛屿"
     }
   },
   "subscription": {

@@ -12,7 +12,6 @@ import MasteryPoster from "@/components/mastery/MasteryPoster.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import Silk from "@/components/Silk.vue";
 import {handleApiError} from "@/assets/sripts/error_handler";
-import AdsWidget from "@/components/ads/google/index.vue";
 import languagesConfig from "@/config/languages";
 import Loading from "@/components/Loading.vue";
 import HorizontalScrollList from "@/components/HorizontalScrollList.vue";
@@ -100,7 +99,7 @@ watch(() => route.query.share, (newShare) => {
 
 watch(() => [selectedSeasonId.value, selectedNodeIds.value], () => {
   updateSharePath();
-}, { deep: true });
+}, {deep: true});
 
 function updateSharePath() {
   const code = generateShareCode();
@@ -125,7 +124,7 @@ const initMasteryData = async () => {
       await captureRef.value.loadMasteryData();
     }
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'MasteryShare' });
+    handleApiError(e, notice, t, {component: 'MasteryShare'});
   } finally {
     masteryLoading.value = false;
   }
@@ -214,7 +213,7 @@ const onGeneratedShare = async () => {
     const sandboxElements: { el: HTMLElement, style: string }[] = [];
     let current: HTMLElement | null = node.parentElement;
     while (current) {
-      sandboxElements.push({ el: current, style: current.style.cssText });
+      sandboxElements.push({el: current, style: current.style.cssText});
       current.style.setProperty('overflow', 'visible', 'important');
       current.style.setProperty('clip-path', 'none', 'important');
       current = current.parentElement;
@@ -242,7 +241,7 @@ const onGeneratedShare = async () => {
       for (const sheet of Array.from(document.styleSheets)) {
         try {
           const isMdi = sheet.href?.includes('materialdesignicons') ||
-                        Array.from(sheet.cssRules).some(r => r.cssText.includes('Material Design Icons'));
+              Array.from(sheet.cssRules).some(r => r.cssText.includes('Material Design Icons'));
           if (isMdi) {
             for (const rule of Array.from(sheet.cssRules)) {
               mdiCss += rule.cssText;
@@ -312,9 +311,9 @@ const onGeneratedShare = async () => {
     tonalFixStyle.remove();
     mdiStyle.remove();
     node.style.cssText = originalStyles;
-    sandboxElements.forEach(({ el, style }) => el.style.cssText = style);
+    sandboxElements.forEach(({el, style}) => el.style.cssText = style);
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'MasterySharePoster' });
+    handleApiError(e, notice, t, {component: 'MasterySharePoster'});
     if (captureRef.value?.posterEl) {
       captureRef.value.posterEl.classList.remove('is-capturing');
     }

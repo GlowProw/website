@@ -66,6 +66,7 @@ import CodexMasteryDetailPage from '@/views/codex/masterys/Detail.vue'
 
 import EmpireSkillSimulationPage from '@/views/empireSkillSimulation/Index.vue'
 import MasteryPage from '@/views/mastery/Index.vue'
+import MasteryViewPage from '@/views/mastery/View.vue'
 import MasterySharePage from '@/views/mastery/Share.vue'
 
 import UltimatesPage from '@/views/codex/ultimates/Index.vue'
@@ -814,23 +815,32 @@ const routes: Readonly<RouteRecordRaw[]> = [
     },
     {
         path: '/mastery',
-        name: 'Mastery',
         component: MasteryPage,
         meta: {
             title: 'header.functions.mastery.title',
             keywords: 'header.functions.mastery.keywords'
         },
         beforeEnter: initItemAssets,
-    },
-    {
-        path: '/mastery/share',
-        name: 'MasteryShare',
-        component: MasterySharePage,
-        meta: {
-            title: 'mastery.share.title',
-            keywords: 'header.functions.mastery.keywords'
-        },
-        beforeEnter: initItemAssets,
+        children: [
+            {
+                path: '',
+                name: 'Mastery',
+                component: MasteryViewPage,
+                meta: {
+                    title: 'header.functions.mastery.title',
+                    keywords: 'header.functions.mastery.keywords'
+                },
+            },
+            {
+                path: 'share',
+                name: 'MasteryShare',
+                component: MasterySharePage,
+                meta: {
+                    title: 'mastery.share.title',
+                    keywords: 'header.functions.mastery.keywords'
+                },
+            },
+        ]
     },
     {
         path: '/calculator',
