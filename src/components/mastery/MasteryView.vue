@@ -172,7 +172,7 @@ function render() {
   const activeIds = props.selectedNodeIds;
   const nodeMap = props.nodes;
 
-  // 1. 批量绘制连线
+  // 批量绘制连线
   // 分别存储三种状态的路径，减少 stroke 状态切换
   const activeEdges: MasteryEdge[] = [];
   const availableEdges: MasteryEdge[] = [];
@@ -250,7 +250,7 @@ function render() {
     ctx.restore();
   }
 
-  // 2. 绘制节点
+  // 绘制节点
   const nodesList = Object.values(nodeMap);
   for (let i = 0; i < nodesList.length; i++) {
     const node = nodesList[i];
@@ -267,7 +267,7 @@ function render() {
     const grad = getCategoryGradient(ctx, node.category, 0, 27);
 
     if (node.role === 'seasonalPerk') {
-      // --- 赛季特长节点 (菱形，size=27，内边 5px) ---
+      // 赛季特长节点 (菱形)
       const size = 27;
       ctx.beginPath();
       ctx.moveTo(0, -size);
@@ -334,7 +334,7 @@ function render() {
       ctx.fillText(String(node.cost), 18, 18.5);
 
     } else if (node.role === 'keyBuff') {
-      // --- 关键核心节点 (双层金边大圆，r=27，内圆 r=23，内边 5px) ---
+      // 关键核心节点 (双层金边大圆)
       const rOuter = 27;
       const rInner = 23;
       const iconR = rInner - 5; // 18，内边 5px
@@ -397,7 +397,7 @@ function render() {
       }
 
     } else {
-      // --- 普通属性节点 (r=20，内边 5px) ---
+      // 普通属性节点
       const r = 20;
       const innerR = r - 5; // 15，内边 5px
 
@@ -449,7 +449,7 @@ function render() {
       }
     }
 
-    // --- 节点下方显示名称 (无发光，干净清爽) ---
+    // 节点下方显示名称
     const skillName = props.getSkillName ? props.getSkillName(node.id, node.key) : ((node as any).name || (node as any).label || node.id);
     if (skillName) {
       const bottomY = (node.role === 'keyBuff' || node.role === 'seasonalPerk') ? 28 : 20;

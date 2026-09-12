@@ -194,7 +194,7 @@ export function logError(
  * 初始化全局错误捕获
  */
 export function initGlobalErrorCapture(app?: any) {
-  // 1. window.onerror (全局脚本错误及静态资源加载错误)
+  // window.onerror (全局脚本错误及静态资源加载错误)
   window.addEventListener('error', (event: ErrorEvent | Event) => {
     if (event instanceof ErrorEvent) {
       logError(
@@ -218,7 +218,7 @@ export function initGlobalErrorCapture(app?: any) {
     }
   }, true);
 
-  // 2. window.unhandledrejection (Promise 未处理拒绝)
+  // window.unhandledrejection (Promise 未处理拒绝)
   window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
     const reason = event.reason;
     const message = reason instanceof Error ? reason.message : String(reason);
@@ -232,7 +232,7 @@ export function initGlobalErrorCapture(app?: any) {
     );
   });
 
-  // 3. Vue app.config.errorHandler
+  // Vue app.config.errorHandler (Vue 全局异常处理)
   if (app && app.config) {
     app.config.errorHandler = (err: unknown, instance: any, info: string) => {
       const message = err instanceof Error ? err.message : String(err);
@@ -255,7 +255,7 @@ export function initGlobalErrorCapture(app?: any) {
 export function exportLogsJSON() {
   const exportPayload = {
     metadata: {
-      appName: 'Glow Prow 闪耀船首',
+      appName: 'Glow Prow',
       clientId: CLIENT_ID,
       sessionId: SESSION_ID,
       exportTimestamp: new Date().toISOString(),

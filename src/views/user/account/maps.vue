@@ -386,43 +386,43 @@ const onResetCollectionForm = (): void => {
 
 //
 // /**
-//  * 更新标记
-//  */
+// * 更新标记
+// */
 // const onUpdateMarker = async (): Promise<void> => {
-//   if (!markerFormRef.value || !newMarkerData.value.id) return;
+//  if (!markerFormRef.value || !newMarkerData.value.id) return;
 //
-//   const {valid} = await markerFormRef.value.validate(
-//   if (!valid) return;
+//  const {valid} = await markerFormRef.value.validate(
+//  if (!valid) return;
 //
-//   updatingMarker.value = true;
+//  updatingMarker.value = true;
 //
-//   try {
-//     const updatedPoint = await updatePoint(newMarkerData.value.uuid, {
-//       title: newMarkerData.value.title,
-//       description: newMarkerData.value.description,
-//       latitude: newMarkerData.value.latitude,
-//       longitude: newMarkerData.value.longitude,
-//       address: newMarkerData.value.address,
-//       tags: newMarkerData.value.tags,
-//       isPublic: newMarkerData.value.isPublic,
-//       sharedUsers: newMarkerData.value.sharedUsers
-//     }
+//  try {
+//    const updatedPoint = await updatePoint(newMarkerData.value.uuid, {
+//      title: newMarkerData.value.title,
+//      description: newMarkerData.value.description,
+//      latitude: newMarkerData.value.latitude,
+//      longitude: newMarkerData.value.longitude,
+//      address: newMarkerData.value.address,
+//      tags: newMarkerData.value.tags,
+//      isPublic: newMarkerData.value.isPublic,
+//      sharedUsers: newMarkerData.value.sharedUsers
+//    }
 //
-//     // 重新加载当前地图集的坐标点
-//     if (selectedCollectionUuid.value) {
-//       await loadCollectionPoints(selectedCollectionUuid.value
-//     }
+//    // 重新加载当前地图集的坐标点
+//    if (selectedCollectionUuid.value) {
+//      await loadCollectionPoints(selectedCollectionUuid.value
+//    }
 //
-//     // 关闭对话框并重置数据
-//     showCreateMarkerDialog.value = false;
-//     onResetNewMarkerData(
-//     selectedPoint.value = null;
+//    // 关闭对话框并重置数据
+//    showCreateMarkerDialog.value = false;
+//    onResetNewMarkerData(
+//    selectedPoint.value = null;
 //
-//   } catch (error) {
-//     console.error('更新标记失败:', error
-//   } finally {
-//     updatingMarker.value = false;
-//   }
+//  } catch (error) {
+//    console.error('更新标记失败:', error
+//  } finally {
+//    updatingMarker.value = false;
+//  }
 // };
 
 /**

@@ -1259,7 +1259,7 @@ defineExpose({
   margin: 4px 0;
 }
 
-/* Cropper Theme Override */
+/* 裁切组件主题样式重写 */
 :deep(.cropper-view-box) {
   outline-color: var(--main-color) !important;
 }

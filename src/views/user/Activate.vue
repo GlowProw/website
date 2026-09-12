@@ -25,8 +25,8 @@ onMounted(() => {
   }
   if (route.query.code) {
     activateForm.value.code = route.query.code as string;
-    // Auto submit if both are present? 
-    // Maybe better to let user click to see what's happening.
+    // 若两者都存在时是否自动提交？
+    // 也许让用户主动点击以查看执行状态更好。
   }
 })
 

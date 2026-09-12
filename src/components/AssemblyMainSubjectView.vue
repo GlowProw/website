@@ -4,6 +4,7 @@ import WarehouseShowWidget from "@/components/WarehouseShowWidget.vue";
 import WheelWidget from "@/components/WheelShowWidget.vue";
 import AssemblyWidget from "@/components/AssemblyWidget.vue"; // 确保导入了正确的组件
 import MasteryWidget from "@/components/MasteryWidget.vue";
+import AssemblyDataInfoResultWidget from "@/components/AssemblyDataInfoResultWidget.vue";
 import {computed, nextTick, onMounted, Ref, ref, toRaw, useAttrs} from "vue";
 import {useDisplay} from "vuetify/framework";
 import {useI18n} from "vue-i18n";
@@ -38,6 +39,7 @@ let isWorkshopFillScreen = ref(props.isWorkshopFillScreen),
     wheelWorkshopRef: Ref<any> = ref(null),
     warehouseWorkshopRef: Ref<any> = ref(null),
     masteryWorkshopRef: Ref<any> = ref(null),
+    infoWorkshopRef: Ref<any> = ref(null),
     workshopHeight = ref<string | number>(600),
     workshopZoom = ref(1),
     tab = ref(assemblyViewConfig.onlyRead[0]),
@@ -46,10 +48,19 @@ let isWorkshopFillScreen = ref(props.isWorkshopFillScreen),
       assembly: null,
       wheel: null,
       warehouse: null,
-      mastery: null
+      mastery: null,
+      info: null
     }),
     assemblyViewModel = ref('lock-window'),
     currentShipSlot = ref<any>(null),
+    liveAssemblyData = ref<any>(null),
+    currentAssemblyData = computed(() => {
+      return liveAssemblyData.value
+          || (assemblyWorkshopRef.value?.onExport ? assemblyWorkshopRef.value.onExport() : null)
+          || (assemblyWorkshopRef.value?.workshopData?.value?.data || assemblyWorkshopRef.value?.workshopData?.data)
+          || props.modelValue?.assembly?.data
+          || null;
+    }),
     shipDetailInfo = computed(() => {
       const shipSlot = currentShipSlot.value
           || (assemblyWorkshopRef.value?.getShip ? assemblyWorkshopRef.value.getShip() : null)
@@ -74,14 +85,15 @@ onMounted(() => {
       assembly: assemblyWorkshopRef.value,
       wheel: wheelWorkshopRef.value,
       warehouse: warehouseWorkshopRef.value,
-      mastery: masteryWorkshopRef.value
+      mastery: masteryWorkshopRef.value,
+      info: infoWorkshopRef.value
     };
 
     if (hasReadyEvent) {
       emit('ready', refs)
     }
 
-    syncShip()
+    syncAssemblyData()
 
     // 初始验证
     if (hasItemChangeEvent) {
@@ -99,6 +111,18 @@ const syncShip = () => {
         : (assemblyWorkshopRef.value.workshopData?.value?.data?.shipSlot || assemblyWorkshopRef.value.workshopData?.data?.shipSlot || assemblyWorkshopRef.value.onExport?.()?.shipSlot);
     if (rawShip !== undefined) {
       currentShipSlot.value = rawShip;
+    }
+  }
+}
+
+const syncAssemblyData = () => {
+  syncShip()
+  if (assemblyWorkshopRef.value) {
+    const raw = assemblyWorkshopRef.value.onExport
+        ? assemblyWorkshopRef.value.onExport()
+        : (assemblyWorkshopRef.value.workshopData?.value?.data || assemblyWorkshopRef.value.workshopData?.data);
+    if (raw) {
+      liveAssemblyData.value = raw;
     }
   }
 }
@@ -136,7 +160,7 @@ const onWorkshopViewHeightUpdate = () => {
  * 变动事件
  */
 const onUpdateEvent = (workshopName: string) => {
-  syncShip()
+  syncAssemblyData()
   emit('update:item-change', workshopName)
 }
 
@@ -144,7 +168,7 @@ const onUpdateEvent = (workshopName: string) => {
  * 切换附件事件
  */
 const onTabs = () => {
-  syncShip()
+  syncAssemblyData()
   if (props.readonly)
     onWorkshopRestorePosition()
 
@@ -157,10 +181,13 @@ const onTabs = () => {
  * 检查widget内部数据
  */
 const hasData = (name: string): boolean => {
+  if (name === 'info') {
+    return false;
+  }
   if (!props.modelValue)
     return false
 
-  const modelValue = toRaw(props.modelValue[name].data)
+  const modelValue = toRaw(props.modelValue[name]?.data)
   if (modelValue == null || modelValue.length > 0 || Object.keys(modelValue).length > 0) {
     return false;
   }
@@ -186,7 +213,7 @@ defineOptions({name: 'AssemblyMainSubjectView'})
         align-tabs="center">
       <v-tab :value="i"
              v-for="(i,index) in assemblyViewConfig.onlyRead"
-             :disabled="i === 'warehouse' && hasShip || hasData(i)"
+             :disabled="(i === 'warehouse' || i === 'info') && hasShip || (i !== 'info' && hasData(i))"
              :key="index">{{ t(`assembly.additions.${i}`) }}
       </v-tab>
     </v-tabs>
@@ -198,7 +225,8 @@ defineOptions({name: 'AssemblyMainSubjectView'})
         <v-container v-show="tab === 'assembly'">
           <AssemblyWidget ref="assemblyWorkshopRef"
                           @update:item-change="onUpdateEvent"
-                          @update:ship-change="(ship) => currentShipSlot = ship"
+                          @update:ship-change="(ship) => { currentShipSlot = ship; syncAssemblyData(); }"
+                          @update:model-value="(val) => { liveAssemblyData = val; }"
                           :readonly="readonly"
                           :perfect-display="perfectDisplay">
             <template v-slot:image v-if="assemblyBackground">
@@ -222,6 +250,12 @@ defineOptions({name: 'AssemblyMainSubjectView'})
           <MasteryWidget ref="masteryWorkshopRef"
                          @update:item-change="onUpdateEvent"
                          :readonly="readonly"></MasteryWidget>
+        </v-container>
+        <v-container v-if="tab === 'info'">
+          <AssemblyDataInfoResultWidget ref="infoWorkshopRef"
+                                        :assembly-data="currentAssemblyData"
+                                        :assembly-workshop-ref="assemblyWorkshopRef"
+                                        :readonly="readonly"></AssemblyDataInfoResultWidget>
         </v-container>
       </div>
     </div>

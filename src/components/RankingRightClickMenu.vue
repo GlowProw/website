@@ -212,7 +212,7 @@ const isDivider = (i: any) => i.divider
 
             {{ root.label }}
 
-            <!-- right icon S -->
+            <!-- 右侧箭头图标 开始 -->
             <template v-slot:append v-if="root.menus">
               <v-icon icon="mdi-menu-right"></v-icon>
             </template>

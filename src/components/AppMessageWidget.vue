@@ -55,7 +55,7 @@ watch(
 
       if (newMessage && hasTimer.value) {
         const duration = newMessage.timeout!;
-        // 100ms
+        // 延迟 100 毫秒
         const intervalMs = 100;
         const startTime = Date.now();
 

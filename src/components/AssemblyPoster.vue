@@ -134,7 +134,7 @@ defineExpose({
         <b class="text-amber text-h4 w-100">{{ assemblyDetailData.name }}</b>
       </v-row>
 
-      <!-- Assembly Preview S -->
+      <!-- 装配海报预览 开始 -->
       <v-card variant="text" v-if="assemblyDetailData.isVisibility">
         <AssemblyWidget ref="assemblyDetailRef"
                         :readonly="true"
@@ -147,7 +147,7 @@ defineExpose({
           </template>
         </AssemblyWidget>
       </v-card>
-      <!-- Assembly Preview E -->
+      <!-- 装配海报预览 结束 -->
 
       <div class="px-10">
         <div class="ga-2 mb-6 mt-4" v-if="assemblyDetailData.tags && generateImageValue.isShowTabs">

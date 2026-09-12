@@ -25,7 +25,7 @@ const {t} = useI18n(),
     route = useRoute(),
     notice = useNoticeStore(),
 
-    // meta
+    // 页面元信息 (meta)
     head: Ref<any> = ref({
       title: t(route.meta.title as string),
       titleTemplate: `%s | ${t('name')}`,

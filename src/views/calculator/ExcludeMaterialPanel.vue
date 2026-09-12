@@ -39,7 +39,7 @@ const searchResults = computed(() => {
         displayName = name
       }
     } catch (e) {
-      // fallback
+      // 异常回退
     }
 
     if (key.toLowerCase().includes(query) || localName.includes(query)) {

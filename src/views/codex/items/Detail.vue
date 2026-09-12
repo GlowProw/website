@@ -80,7 +80,7 @@ let itemDetailData: Ref<any> = ref(null),
 
     rarityColorConfig = rarity.color,
 
-    // meta
+    // 页面元信息 (meta)
     head: Ref<any> = ref({
       title: t(route.meta.title as string),
       titleTemplate: `%s | ${t('name')}`,

@@ -12,10 +12,10 @@ import Textarea from "@/components/textarea/index.vue"
 import Silk from "@/components/Silk.vue";
 import AssemblyTagsWidget from "@/components/AssemblyTagsWidget.vue";
 
-// workshop data processing S
+// 工坊数据处理 开始
 import RankingDesignedItemsDataProcessing from "@/assets/sripts/ranking_designed_items_data_processing";
 import RankingDesignedMainSubjectView from "@/components/RankingDesignedMainSubjectView.vue";
-// workshop data processing E
+// 工坊数据处理 结束
 
 import {useAppStore} from "~/stores/appStore";
 
@@ -130,12 +130,12 @@ const onEdit = async () => {
     let editPublishData: any = publishData.value;
 
     // const result = await httpToken.post(api['assembly_edit'], {
-    //       data: editPublishData
-    //     }),
-    //     d = result.data;
+    //      data: editPublishData
+    //    }),
+    //    d = result.data;
     //
     // if (d.error == 1)
-    //   throw Error(d.message || d.code
+    //  throw Error(d.message || d.code
     //
     // storageAssembly.delete(editPublishData.uuid as string, StorageAssemblyType.Data)
     // await router.push(`/assembly/browse/${editPublishData.uuid}/detail`)
@@ -161,18 +161,18 @@ const onPublish = async () => {
     const onePublishData = publishData.value;
 
     // const result = await http.post(api['assembly_publish'], {
-    //       data: onePublishData
-    //     }),
-    //     d = result.data;
+    //      data: onePublishData
+    //    }),
+    //    d = result.data;
     //
     // if (d.error == 1)
-    //   throw Error(d
+    //  throw Error(d
     //
     // storageAssembly.delete(uid as string, StorageAssemblyType.Data)
     // await router.push(
-    //     d.data['assembly.uuid'] ?
-    //         `/assembly/browse/${d.data['assembly.uuid']}/detail` :
-    //         `/assembly/browse`
+    //    d.data['assembly.uuid'] ?
+    //        `/assembly/browse/${d.data['assembly.uuid']}/detail` :
+    //        `/assembly/browse`
     // )
 
     // noticeStore.success(t(`basic.tips.${d.code}`))
@@ -240,9 +240,9 @@ const onUpdateTags = (data: any) => {
     </template>
   </v-card>
 
-  <!-- Ranking Designed Widget Preview S -->
+  <!-- 排行榜设计微件预览 开始 -->
   <RankingDesignedMainSubjectView ref="rankingDesignedMainSubjectView" @ready="onLoadData" readonly></RankingDesignedMainSubjectView>
-  <!-- Ranking Designed Widget Preview E -->
+  <!-- 排行榜设计微件预览 结束 -->
 
   <v-container>
     <v-form class="mb-10">

@@ -208,8 +208,8 @@ const iAmDonor = computed(() => {
 
 /**
  * 页面主数据加载器
- * 1. 并行请求档位方案（getPlans）、筹款目标进度（getProgress）以及核心捐助榜（getHall）；
- * 2. 若已登录，同步拉取个人会员身份状态（getMyStatus）及待支付订单列表（loadMyOrders）。
+ * 并行请求档位方案（getPlans）、筹款目标进度（getProgress）以及核心捐助榜（getHall）；
+ * 若已登录，同步拉取个人会员身份状态（getMyStatus）及待支付订单列表（loadMyOrders）。
  *
  * @returns {Promise<void>}
  */

@@ -13,19 +13,19 @@ export function use_local_locale(manualLocale?: ComputedRef<string | undefined>)
 
   const localLocale = computed(() => {
     let result = globalLocale.value;
-    
-    // 1. 优先使用手动传入的语言 (Provider 层)
+
+    // 优先使用手动传入的语言 (Provider 层)
     if (manualLocale && manualLocale.value) {
       result = manualLocale.value;
     }
-    // 2. 其次使用注入的语言上下文 (Consumer 层)
+    // 其次使用注入的语言上下文 (Consumer 层)
     else if (contextLocale) {
       const val = typeof contextLocale === 'string' ? contextLocale : contextLocale.value;
       if (val) {
         result = val;
       }
     }
-    
+
     // console.log('[use_local_locale] Computed Locale:', result);
     return result;
   });

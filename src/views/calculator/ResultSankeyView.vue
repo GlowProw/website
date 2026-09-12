@@ -61,7 +61,7 @@ function getDisplayName(id: string): string {
     const name = nameData.name()
     if (name && typeof name === 'string' && name !== id) return name
   } catch (e) {
-    // fallback
+    // 异常回退
   }
   return id
 }
@@ -85,7 +85,7 @@ function drawSankey() {
   const calculatedHeight = Math.max(700, Math.min(1000, data.nodes.length * 40))
   const height = calculatedHeight - margin.top - margin.bottom
 
-  // Root SVG
+  // 根 SVG 画布
   const svgRoot = d3.select(svgContainer.value)
       .append('svg')
       .attr('width', '100%')
@@ -138,7 +138,7 @@ function drawSankey() {
     links: validLinks.map(l => ({...l}))
   })
 
-  // Tooltip
+  // 提示工具浮窗
   // 挂在 svgContainer 上，不受 zoom 影响
   const tooltip = d3.select(svgContainer.value)
       .append('div')

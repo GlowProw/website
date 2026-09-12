@@ -148,7 +148,7 @@ export function use_map_controller() {
             }
         });
 
-        // Filter out empty groups
+        // 过滤空分组
         return Object.fromEntries(Object.entries(result).filter(([_, items]) => items.length > 0));
     });
 
@@ -548,7 +548,7 @@ export function use_map_controller() {
                         fill: new Fill({ color: 'rgba(255, 200, 0, 0.07)' }),
                     });
                 }
-                // corner handles
+                // 四角控制手柄
                 return new Style({
                     image: new CircleStyle({
                         radius: 7,

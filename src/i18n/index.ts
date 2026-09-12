@@ -125,7 +125,7 @@ const getBrowserLocale = (): string => {
 const getInitialLocale = (): string => {
     const fallbackLocale = getFallbackLocale();
 
-    // 1. 优先使用 URL query 参数中的 lang
+    // 优先使用 URL query 参数中的 lang
     if (typeof window !== 'undefined' && window.location && window.location.search) {
         const urlParams = new URLSearchParams(window.location.search);
         const urlLangParam = urlParams.get('lang');
@@ -136,14 +136,14 @@ const getInitialLocale = (): string => {
         }
     }
 
-    // 2. 其次使用存储的语言
+    // 其次使用存储的语言
     const storedVal = storage.local.get('lang')?.data?.value;
     const storedLang = (typeof storedVal === 'object' && storedVal !== null) ? storedVal.value : storedVal;
     if (storedLang && ['zh-CN', 'zh-TW', 'en-US'].includes(storedLang)) {
         return storedLang;
     }
 
-    // 3. 再次使用浏览器语言
+    // 再次使用浏览器语言
     const browserLocale = getBrowserLocale();
 
     // 目标语言缺失，从回退语言字段中找

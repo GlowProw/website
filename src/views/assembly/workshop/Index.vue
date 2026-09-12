@@ -407,7 +407,7 @@ const onDeleteDraft = (id) => {
     </template>
   </v-card>
 
-  <!-- Workshop S -->
+  <!-- 工坊 开始 -->
   <AssemblyMainSubjectView
       ref="assemblyMainSubjectView"
       class="mt-n2 ml-n5 mr-n5"
@@ -416,7 +416,7 @@ const onDeleteDraft = (id) => {
       :readonly="false"
       :isShowFooterTool="true"
   ></AssemblyMainSubjectView>
-  <!-- Workshop E -->
+  <!-- 工坊 结束 -->
 
   <v-container class="pa-0">
     <v-dialog

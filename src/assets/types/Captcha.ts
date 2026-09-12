@@ -8,9 +8,9 @@ export type CaptchaType = 'svg' | 'turnstile'
  */
 export interface CaptchaParams {
     type?: CaptchaType
-    // hash
+    // 验证码哈希
     encryptCaptcha: string,
-    // user input
+    // 用户输入
     response: string
 }
 

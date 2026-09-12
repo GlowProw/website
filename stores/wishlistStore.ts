@@ -49,7 +49,7 @@ function removeWishlistData(id: string) {
 }
 
 export const useWishlistStore = defineStore('wishlist', () => {
-    // ── State ──
+    // 状态 (State)
     /** 索引列表（不含 rules 数据） */
     const metaList = ref<WishlistMeta[]>([]);
     /** 已加载的完整清单缓存 */
@@ -57,7 +57,7 @@ export const useWishlistStore = defineStore('wishlist', () => {
     /** 更新中的清单 ID 集合 */
     const updatingIds = ref<Set<string>>(new Set());
 
-    // ── 初始化 ──
+    // 初始化
     function init() {
         metaList.value = loadIndex();
         // 预加载所有清单数据到缓存
@@ -106,7 +106,7 @@ export const useWishlistStore = defineStore('wishlist', () => {
         buildWishlistModLookup(enabledWishlists.value)
     );
 
-    // ── 持久化辅助 ──
+    // 持久化辅助
 
     function persistWishlist(wl: WishlistFile) {
         saveWishlistData(wl);
@@ -326,17 +326,19 @@ export const useWishlistStore = defineStore('wishlist', () => {
     }
 
     return {
-        // State
+        // 状态 (State)
         metaList,
         wishlists,
         updatingIds,
-        // Getters
+
+        // 计算属性 (Getters)
         enabledWishlists,
         totalRules,
         enabledRules,
         lookupMap,
         modLookupMap,
-        // Actions
+
+        // 操作方法 (Actions)
         init,
         getMatchForItem,
         getMatchForMod,

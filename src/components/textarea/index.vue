@@ -115,7 +115,7 @@ const emit = defineEmits([
     isOpenShip = ref(false),
     isOpenItem = ref(false),
 
-    // editor widgets
+    // 编辑器微件状态
     editorContent = ref(props.modelValue),
     linkWidget = ref<any>(null),
     imgWidget = ref<any>(null),
@@ -388,11 +388,11 @@ const onInitEdit = () => {
       isLangActive.value = editor.isActive('Lang')
       // const html = editor.getHTML(
       // if (html.length > props.maxlength) {
-      //   // 撤销最后一步操作
-      //   editor.commands.undo(
-      //   // 截断 HTML
-      //   const truncatedHTML = html.slice(0, props.maxlength
-      //   editor.commands.setContent(truncatedHTML
+      //  // 撤销最后一步操作
+      //  editor.commands.undo(
+      //  // 截断 HTML
+      //  const truncatedHTML = html.slice(0, props.maxlength
+      //  editor.commands.setContent(truncatedHTML
       // }
 
       onEditorChange(editor.isEmpty ? '' : editor.getHTML())

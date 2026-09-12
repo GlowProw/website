@@ -13,7 +13,7 @@ import AffixContainerView from "@/components/AffixContainerView.vue";
 const { t } = useI18n();
 const dropApi = apis.dropApi();
 
-// SEO Meta
+// SEO 元数据配置
 useHead({
   title: `${t('drop.title')} | ${t('name')}`,
   meta: [

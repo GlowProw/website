@@ -86,25 +86,25 @@ const scrollToCurrentTime = (behavior: ScrollBehavior = 'smooth') => {
 
     let targetEl: HTMLElement | null = null
 
-    // 1. 精确匹配今天的日期列
+    // 精确匹配今天的日期列
     const exactMatch = dayItems.find((d) => d.startTime >= todayStartTime && d.startTime <= todayEndTime)
     if (exactMatch) {
       targetEl = exactMatch.el
     } else {
-      // 2. 匹配今天处于进行中的事件（跨多天事件）
+      // 匹配今天处于进行中的事件（跨多天事件）
       const ongoingMatch = dayItems.find((d) => nowTime >= d.startTime && nowTime <= d.endTime)
       if (ongoingMatch) {
         targetEl = ongoingMatch.el
       }
-      // 3. 当前时间早于赛季所有事件，滚动到首个日期
+      // 当前时间早于赛季所有事件，滚动到首个日期
       else if (nowTime < dayItems[0].startTime) {
         targetEl = dayItems[0].el
       }
-      // 4. 当前时间晚于赛季所有事件，滚动到末尾日期
+      // 当前时间晚于赛季所有事件，滚动到末尾日期
       else if (nowTime > dayItems[dayItems.length - 1].endTime) {
         targetEl = dayItems[dayItems.length - 1].el
       }
-      // 5. 处于事件空档期：优先匹配下一个即将到来的事件，否则选最接近的事件
+      // 处于事件空档期：优先匹配下一个即将到来的事件，否则选最接近的事件
       else {
         const upcoming = dayItems.find((d) => d.startTime >= nowTime)
         if (upcoming) {
@@ -308,7 +308,7 @@ const transformCalendarData = (calendarData: CalendarData | null): FormattedCale
     events: any[];
   }>()
 
-  // Collect all involved years and months
+  // 收集所有涉及的年份和月份
   Object.values(calendarData.events).forEach((event: any) => {
     (event.occurrences || []).forEach((occurrence: any) => {
       const year = getOccurrenceYear(occurrence);
@@ -327,13 +327,13 @@ const transformCalendarData = (calendarData: CalendarData | null): FormattedCale
     })
   })
 
-  // Sort by year and month
+  // 按年份和月份排序
   const sortedYearMonths = Array.from(yearMonthMap.values()).sort((a, b) => {
     if (a.year !== b.year) return a.year - b.year;
     return a.month - b.month;
   })
 
-  // Initialize result structure
+  // 初始化结果数据结构
   sortedYearMonths.forEach(({year, month, daysInMonth}) => {
     const monthKey = `${year}-${month}`;
     result[monthKey] = {
@@ -347,7 +347,7 @@ const transformCalendarData = (calendarData: CalendarData | null): FormattedCale
     };
   })
 
-  // Process each event
+  // 处理各事件记录
   Object.values(calendarData.events).forEach((event: any) => {
     const sortedOccurrences = [...(event.occurrences || [])].sort((a: any, b: any) => {
       const yearA = getOccurrenceYear(a);

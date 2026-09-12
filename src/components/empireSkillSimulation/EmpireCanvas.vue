@@ -216,7 +216,7 @@ function renderCanvas() {
     return;
   }
 
-  // 1. 绘制背景分类大标题水印
+  // 绘制背景分类大标题水印
   ctx.save();
   ctx.font = 'bold 96px sans-serif';
   ctx.fillStyle = 'rgba(171, 178, 191, 0.12)';
@@ -236,7 +236,7 @@ function renderCanvas() {
   }
   ctx.restore();
 
-  // 2. 绘制树连线
+  // 绘制树连线
   const links = root.links().filter(l => l.source.id !== 'root');
 
   for (const l of links) {
@@ -267,7 +267,7 @@ function renderCanvas() {
     ctx.restore();
   }
 
-  // 3. 绘制额外连线 (extraLinks)
+  // 绘制额外连线 (extraLinks)
   for (const el of extraLinksData) {
     const s = nodesById.get(el.source);
     const tNode = nodesById.get(el.target);
@@ -296,7 +296,7 @@ function renderCanvas() {
     ctx.restore();
   }
 
-  // 4. 绘制技能节点
+  // 绘制技能节点
   const descendants = root.descendants().filter(d => d.id !== 'root') as d3.HierarchyPointNode<HierarchyNodeData>[];
 
   for (const d of descendants) {

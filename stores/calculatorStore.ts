@@ -675,31 +675,31 @@ export const useCalculatorStore = defineStore('calculator', () => {
         // 提取所有有效的 ID
         const itemsToProcess: { id: string, type: 'item' | 'ship' | 'material' }[] = []
 
-        // 1. 船只
+        // 船只
         if (data.shipSlot?.id) {
             itemsToProcess.push({id: data.shipSlot.id, type: 'ship'})
         }
 
-        // 2. 船端升级、终结技、装甲
+        // 船端升级、终结技、装甲
         if (data.shipUpgradeSlot?.id) itemsToProcess.push({id: data.shipUpgradeSlot.id, type: 'item'})
         if (data.ultimateSlot?.id) itemsToProcess.push({id: data.ultimateSlot.id, type: 'item'})
         if (data.armorSlot?.id) itemsToProcess.push({id: data.armorSlot.id, type: 'item'})
 
-        // 3. 武器
+        // 武器
         if (Array.isArray(data.weaponSlots)) {
             data.weaponSlots.forEach((w: any) => {
                 if (w?.id) itemsToProcess.push({id: w.id, type: 'item'})
             })
         }
 
-        // 4. 副武器
+        // 副武器
         if (Array.isArray(data.secondaryWeaponSlots)) {
             data.secondaryWeaponSlots.forEach((sw: any) => {
                 if (sw?.id) itemsToProcess.push({id: sw.id, type: 'item'})
             })
         }
 
-        // 5. 陈设
+        // 陈设
         if (Array.isArray(data.displaySlots)) {
             data.displaySlots.forEach((d: any) => {
                 if (d?.id) itemsToProcess.push({id: d.id, type: 'item'})

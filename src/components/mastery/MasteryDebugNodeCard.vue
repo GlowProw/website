@@ -22,7 +22,7 @@ const emit = defineEmits<{
   (e: 'apply-effects', payload: { nodeKey: string; effects: any[] }): void;
 }>();
 
-// ──── 草稿态：key 重命名与 effects JSON 需要显式提交 ────
+// 草稿态：key 重命名与 effects JSON 需要显式提交
 const keyDraft = ref('');
 const effectsText = ref('[]');
 const effectsError = ref('');
@@ -45,7 +45,7 @@ watch(() => props.node?.key, () => {
   addReqValue.value = null;
 }, {immediate: true});
 
-// ──── 前置节点选择项 ────
+// 前置节点选择项──
 const requisiteKeys = computed<string[]>(() => {
   if (!props.node) return [];
   return Array.isArray(props.node.requisite) ? props.node.requisite : [];
@@ -68,7 +68,7 @@ function resolveReqName(reqKey: string): string {
   return props.getSkillName(n.id, n.key);
 }
 
-// ──── 字段提交 ────
+// 字段提交──
 function setField(field: string, value: any) {
   if (!props.node) return;
   (props.node as any)[field] = value;

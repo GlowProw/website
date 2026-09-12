@@ -252,7 +252,7 @@ const toggleGroupPanel = (groupName: string) => {
 };
 
 onMounted(() => {
-  // Open all panels by default
+  // 默认展开所有面板
   if (props.groupedCategories) {
     panelOpen.value = Object.keys(props.groupedCategories).map((_, i) => i);
   }

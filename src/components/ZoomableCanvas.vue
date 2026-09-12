@@ -135,7 +135,7 @@ const startTouchDrag = (e) => {
 const handleTouchDrag = (e: any) => {
   if (!isDragging.value || e.touches.length !== 1) return
 
-  // Find the corresponding touch point
+  // 查找对应的触控点
   const touch = Array.from(e.touches).find((t: any) => t.identifier === touchIdentifier.value)
   if (!touch) return
 

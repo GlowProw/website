@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { useI18n } from "vue-i18n";
+import {computed, ref} from "vue";
+import {useI18n} from "vue-i18n";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import EmptyView from "@/components/EmptyView.vue";
-import { useErrorLogger, ERROR_CODES, logError } from "@/assets/sripts/error_logger";
-import { useNoticeStore } from "~/stores/noticeStore";
-import { mode } from "d3";
+import {ERROR_CODES, logError, useErrorLogger} from "@/assets/sripts/error_logger";
+import {useNoticeStore} from "~/stores/noticeStore";
+import AffixContainerView from "@/components/AffixContainerView.vue";
 
-const { t } = useI18n();
-const { CLIENT_ID, SESSION_ID, sessionLogs, exportLogsJSON, clearSessionLogs } = useErrorLogger();
+const {t} = useI18n();
+const {CLIENT_ID, SESSION_ID, sessionLogs, exportLogsJSON, clearSessionLogs} = useErrorLogger();
 const noticeStore = useNoticeStore();
 
 const filterCategory = ref('all');
@@ -81,11 +81,11 @@ const triggerTestError = (type: 'net' | 'js' | 'promise' | 'vue') => {
  */
 const triggerNoticeTest = (type: 'single' | 'queue' | 'net' | '4xx' | '5xx' | 'js' | 'persistent' | 'persistentQueue') => {
   if (type === 'single') {
-    noticeStore.info('这是一条常规提示通知测试消息', { title: '普通提示', mode: 'minimal' });
+    noticeStore.info('这是一条常规提示通知测试消息', {title: '普通提示', mode: 'minimal'});
   } else if (type === 'queue') {
-    noticeStore.success('操作已成功执行并同步到云端', { title: '成功' });
-    noticeStore.warning('当前偏好配置发生了变动，请留意保存', { title: '警告' });
-    noticeStore.error('尝试连接远程搜索 Worker 失败', { title: '故障通知' });
+    noticeStore.success('操作已成功执行并同步到云端', {title: '成功'});
+    noticeStore.warning('当前偏好配置发生了变动，请留意保存', {title: '警告'});
+    noticeStore.error('尝试连接远程搜索 Worker 失败', {title: '故障通知'});
   } else if (type === 'net') {
     noticeStore.error('客户端无法连接远程服务器或网络请求发送失败 (GP_NET_001)', {
       title: '网络连接异常',
@@ -161,57 +161,52 @@ const copyClientId = () => {
           <div class="font-weight-bold text-caption text-truncate mt-1" :title="SESSION_ID">{{ SESSION_ID }}</div>
         </v-card>
 
-        <div class="d-flex ga-2 mb-4">
-          <v-btn color="var(--main-color)" prepend-icon="mdi-download" @click="exportLogsJSON">
-            {{ t('setting.log.exportBtn') }}
-          </v-btn>
-          <v-btn variant="outlined"
-          color="error" prepend-icon="mdi-delete-outline"
-          @click="clearSessionLogs"
-          :disabled="sessionLogs.length === 0" :title="t('setting.log.clearBtn')">
-          </v-btn>
-        </div>
+        <v-row class="mb-4" align="center">
+          <v-col cols="12">
+            <v-btn block color="var(--main-color)" prepend-icon="mdi-download" @click="exportLogsJSON">
+              {{ t('setting.log.exportBtn') }}
+            </v-btn>
+          </v-col>
+        </v-row>
 
-        <v-divider class="my-4"></v-divider>
+        <v-divider class="my-6"></v-divider>
 
         <div class="text-subtitle-2 mb-2">{{ t('setting.log.testTitle') }}</div>
         <div class="d-flex flex-wrap ga-2 mb-4">
-          <v-btn size="x-small" variant="tonal" color="warning" @click="triggerTestError('net')">{{ t('setting.log.netError') }}</v-btn>
-          <v-btn size="x-small" variant="tonal" color="error" @click="triggerTestError('js')">{{ t('setting.log.jsError') }}</v-btn>
-          <v-btn size="x-small" variant="tonal" color="info" @click="triggerTestError('promise')">{{ t('setting.log.promiseError') }}</v-btn>
-          <v-btn size="x-small" variant="tonal" color="purple" @click="triggerTestError('vue')">{{ t('setting.log.vueError') }}</v-btn>
+          <v-btn size="x-small" variant="tonal" @click="triggerTestError('net')">{{ t('setting.log.netError') }}</v-btn>
+          <v-btn size="x-small" variant="tonal" @click="triggerTestError('js')">{{ t('setting.log.jsError') }}</v-btn>
+          <v-btn size="x-small" variant="tonal" @click="triggerTestError('promise')">{{ t('setting.log.promiseError') }}</v-btn>
+          <v-btn size="x-small" variant="tonal" @click="triggerTestError('vue')">{{ t('setting.log.vueError') }}</v-btn>
         </div>
-
-        <v-divider class="my-3"></v-divider>
 
         <div class="text-subtitle-2 mb-2">{{ t('setting.log.noticeTestTitle') }}</div>
         <div class="d-flex flex-wrap ga-2 mb-2">
-          <v-btn size="x-small" variant="flat" color="var(--main-color)" @click="triggerNoticeTest('single')">
+          <v-btn size="x-small" variant="tonal" @click="triggerNoticeTest('single')">
             {{ t('setting.log.testSingleNotice') }}
           </v-btn>
-          <v-btn size="x-small" variant="outlined" color="info" @click="triggerNoticeTest('queue')">
+          <v-btn size="x-small" variant="tonal" @click="triggerNoticeTest('queue')">
             {{ t('setting.log.testQueueNotice') }}
           </v-btn>
         </div>
         <div class="d-flex flex-wrap ga-2 mb-2">
-          <v-btn size="x-small" variant="tonal" color="warning" @click="triggerNoticeTest('net')">
+          <v-btn size="x-small" variant="tonal" @click="triggerNoticeTest('net')">
             {{ t('setting.log.testNoticeNetError') }}
           </v-btn>
-          <v-btn size="x-small" variant="tonal" color="orange" @click="triggerNoticeTest('4xx')">
+          <v-btn size="x-small" variant="tonal" @click="triggerNoticeTest('4xx')">
             {{ t('setting.log.testNotice4xxError') }}
           </v-btn>
-          <v-btn size="x-small" variant="tonal" color="red" @click="triggerNoticeTest('5xx')">
+          <v-btn size="x-small" variant="tonal" @click="triggerNoticeTest('5xx')">
             {{ t('setting.log.testNotice5xxError') }}
           </v-btn>
-          <v-btn size="x-small" variant="tonal" color="purple" @click="triggerNoticeTest('js')">
+          <v-btn size="x-small" variant="tonal" @click="triggerNoticeTest('js')">
             {{ t('setting.log.testNoticeJsError') }}
           </v-btn>
         </div>
         <div class="d-flex flex-wrap ga-2">
-          <v-btn size="x-small" variant="flat" color="error" @click="triggerNoticeTest('persistent')">
+          <v-btn size="x-small" variant="tonal" @click="triggerNoticeTest('persistent')">
             {{ t('setting.log.testNoticePersistent') }}
           </v-btn>
-          <v-btn size="x-small" variant="outlined" color="amber" @click="triggerNoticeTest('persistentQueue')">
+          <v-btn size="x-small" variant="tonal" @click="triggerNoticeTest('persistentQueue')">
             {{ t('setting.log.testNoticePersistentQueue') }}
           </v-btn>
         </div>
@@ -227,43 +222,59 @@ const copyClientId = () => {
     <v-col cols="12" lg="8">
       <AffixBoxHasTitleView>
         <!-- 筛选标签 S -->
-        <div class="d-flex flex-wrap ga-2 mb-4">
-          <v-chip
-              size="small"
-              :color="filterCategory === 'all' ? 'var(--main-color)' : undefined"
-              :variant="filterCategory === 'all' ? 'flat' : 'outlined'"
-              @click="filterCategory = 'all'">
-            {{ t('setting.log.filterAll') }} ({{ categoryStats.all }})
-          </v-chip>
-          <v-chip
-              size="small"
-              :color="filterCategory === 'javascript' ? 'error' : undefined"
-              :variant="filterCategory === 'javascript' ? 'flat' : 'outlined'"
-              @click="filterCategory = 'javascript'">
-            {{ t('setting.log.categoryJs') }} ({{ categoryStats.javascript }})
-          </v-chip>
-          <v-chip
-              size="small"
-              :color="filterCategory === 'promise' ? 'warning' : undefined"
-              :variant="filterCategory === 'promise' ? 'flat' : 'outlined'"
-              @click="filterCategory = 'promise'">
-            {{ t('setting.log.categoryPromise') }} ({{ categoryStats.promise }})
-          </v-chip>
-          <v-chip
-              size="small"
-              :color="filterCategory === 'vue' ? 'purple' : undefined"
-              :variant="filterCategory === 'vue' ? 'flat' : 'outlined'"
-              @click="filterCategory = 'vue'">
-            {{ t('setting.log.categoryVue') }} ({{ categoryStats.vue }})
-          </v-chip>
-          <v-chip
-              size="small"
-              :color="filterCategory === 'network' ? 'info' : undefined"
-              :variant="filterCategory === 'network' ? 'flat' : 'outlined'"
-              @click="filterCategory = 'network'">
-            {{ t('setting.log.categoryNet') }} ({{ categoryStats.network }})
-          </v-chip>
-        </div>
+        <v-row dense align="center">
+          <v-col cols="auto">
+            <v-icon>mdi-filter</v-icon>
+          </v-col>
+          <v-col>
+            <v-chip-group>
+              <v-chip
+                  size="small"
+                  :color="filterCategory === 'all' ? 'var(--main-color)' : undefined"
+                  :variant="'tonal'"
+                  @click="filterCategory = 'all'">
+                {{ t('setting.log.filterAll') }} ({{ categoryStats.all }})
+              </v-chip>
+              <v-chip
+                  size="small"
+                  :color="filterCategory === 'javascript' ? 'error' : undefined"
+                  :variant="'tonal'"
+                  @click="filterCategory = 'javascript'">
+                {{ t('setting.log.categoryJs') }} ({{ categoryStats.javascript }})
+              </v-chip>
+              <v-chip
+                  size="small"
+                  :color="filterCategory === 'promise' ? 'warning' : undefined"
+                  :variant="'tonal'"
+                  @click="filterCategory = 'promise'">
+                {{ t('setting.log.categoryPromise') }} ({{ categoryStats.promise }})
+              </v-chip>
+              <v-chip
+                  size="small"
+                  :color="filterCategory === 'vue' ? 'purple' : undefined"
+                  :variant="'tonal'"
+                  @click="filterCategory = 'vue'">
+                {{ t('setting.log.categoryVue') }} ({{ categoryStats.vue }})
+              </v-chip>
+              <v-chip
+                  size="small"
+                  :color="filterCategory === 'network' ? 'info' : undefined"
+                  :variant="'tonal'"
+                  @click="filterCategory = 'network'">
+                {{ t('setting.log.categoryNet') }} ({{ categoryStats.network }})
+              </v-chip>
+            </v-chip-group>
+          </v-col>
+          <v-col cols="auto">
+            <v-btn
+                size="smail"
+                @click="clearSessionLogs"
+                :disabled="sessionLogs.length === 0"
+                :title="t('setting.log.clearBtn')">
+              <v-icon>mdi-delete-outline</v-icon>
+            </v-btn>
+          </v-col>
+        </v-row>
         <!-- 筛选标签 E -->
 
         <!-- 日志条目 S -->
@@ -320,8 +331,11 @@ const copyClientId = () => {
           </v-card>
         </div>
         <div v-else class="py-8">
-          <EmptyView></EmptyView>
-          <p class="text-center text-caption opacity-50 mt-2">{{ t('setting.log.emptyState') }}</p>
+          <EmptyView>
+            <template v-slot:description>
+              <p class="text-center">{{ t('setting.log.emptyState') }}</p>
+            </template>
+          </EmptyView>
         </div>
         <!-- 日志条目 E -->
 

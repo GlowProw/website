@@ -4,7 +4,7 @@ import {aliases, mdi} from "vuetify/iconsets/mdi";
 
 import {en, zhHans} from "vuetify/locale";
 
-// Styles
+// 样式导入
 import '@/assets/styles/index.less'
 import 'vuetify/styles/main.css';
 import '@mdi/font/css/materialdesignicons.css'

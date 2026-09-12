@@ -215,12 +215,12 @@ export function computeStructuralFeatures(imageData: ImageData): number[] {
     const grayValues = imageDataToGrayValues(imageData)
     const features: number[] = [];
 
-    // 1. 平均亮度（归一化到[0,1]）
+    // 平均亮度（归一化到[0,1]）
     const totalLuminance = grayValues.reduce((sum, val) => sum + val, 0)
     const meanLuminance = totalLuminance / grayValues.length;
     features.push(meanLuminance / 255)
 
-    // 2. 对比度（标准差，归一化到[0,1]）
+    // 对比度（标准差，归一化到[0,1]）
     let variance = 0;
     for (const luminance of grayValues) {
         variance += Math.pow(luminance - meanLuminance, 2)
@@ -228,7 +228,7 @@ export function computeStructuralFeatures(imageData: ImageData): number[] {
     const contrast = Math.sqrt(variance / grayValues.length) / 255;
     features.push(contrast)
 
-    // 3. 纹理复杂度（边缘密度估计）
+    // 纹理复杂度（边缘密度估计）
     let edgeCount = 0;
     for (let i = 1; i < grayValues.length; i++) {
         if (Math.abs(grayValues[i] - grayValues[i - 1]) > 20) { // 简单的边缘检测阈值

@@ -317,10 +317,10 @@ const onPublish = async () => {
     </template>
   </v-card>
 
-  <!-- Workshop Share Preview S -->
+  <!-- 工坊分享预览 开始 -->
   <AssemblyMainSubjectView ref="assemblyMainSubjectView"
                            @ready="onLoadData"></AssemblyMainSubjectView>
-  <!-- Workshop Share Preview E -->
+  <!-- 工坊分享预览 结束 -->
 
   <!-- 悬浮 提交 S -->
   <v-card variant="text" tile class="position-fixed left-0 bottom-0 w-100 bg-black" style="z-index: 5">

@@ -469,7 +469,7 @@ const editingNoteText = ref('')
 // 标签临时输入 Map
 const tagInputMap = ref<Record<number, string>>({})
 
-// ── 专属物品分类筛选器 ──
+// 专属物品分类筛选器
 interface CategoryFilterItem {
   id: string
   label: string
@@ -500,7 +500,7 @@ const onSelectFilterCategory = (cat: CategoryFilterItem) => {
   }
 }
 
-// ── 虚拟列表 Rolling Calculation ──
+// 虚拟列表 Rolling Calculation
 const ROW_HEIGHT = 60
 const VIEWPORT_HEIGHT = 450
 const BUFFER_COUNT = 4
@@ -635,7 +635,7 @@ const removeModFromRule = (rule: WishlistRule, index: number) => {
   }
 }
 
-// ── 备注对话框 ──
+// 备注对话框
 const openNotesEditDialog = (index: number) => {
   editingNotesIndex.value = index
   editingNoteText.value = rules.value[index]?.notes || ''
@@ -650,7 +650,7 @@ const saveNotesDialog = () => {
   editingNotesIndex.value = null
 }
 
-// ── 标签回车 Chip 新增 ──
+// 标签回车 Chip 新增
 const addTagFromInput = (rule: WishlistRule, index: number) => {
   const text = tagInputMap.value[index]?.trim()
   if (!text) return
@@ -670,7 +670,7 @@ const removeTagFromRule = (rule: WishlistRule, tagIndex: number) => {
   }
 }
 
-// ── 初始化数据 ──
+// 初始化数据
 watch(() => props.modelValue, (val) => {
   if (val) {
     activeTab.value = 'basic'

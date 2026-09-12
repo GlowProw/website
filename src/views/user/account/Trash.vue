@@ -17,7 +17,7 @@ let loading = ref(false),
     trashData = ref<any[]>([]),
     pagination = ref<any>({}),
     selectedItems = ref<any[]>([]),
-    // For assembly previews
+    // 用于装配预览
     userAssemblyWidgetRefs = ref<any[]>([])
 
 onMounted(() => {

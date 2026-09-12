@@ -438,7 +438,7 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
     const items: NodeRequirementItem[] = [];
     const addedKeys = new Set<string>();
 
-    // 1. 原有的 requisite 列表中的节点
+    // 原有的 requisite 列表中的节点
     if (node.requisite && node.requisite.length > 0) {
       for (const reqKey of node.requisite) {
         const reqNode = findNode(reqKey);
@@ -458,7 +458,7 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
       }
     }
 
-    // 2. 相连且已激活的邻居节点 (在 requisite 之外，但已激活)
+    // 相连且已激活的邻居节点 (在 requisite 之外，但已激活)
     const neighbors = adjacencyMap.value.get(nodeKey);
     if (neighbors) {
       for (const nKey of neighbors) {
@@ -713,7 +713,7 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
 
   // 寻找连线激活最短路径：优先从最近已激活节点连过来，若无相连节点则从最近根节点开始
   function findShortestActivationPath(targetKey: string): string[] | null {
-    // 1. 如果已有激活节点，优先寻找从最近已激活节点连过来的路径
+    // 如果已有激活节点，优先寻找从最近已激活节点连过来的路径
     if (selectedNodeIds.value.size > 0) {
       const pathFromActive = findPathFromSources(targetKey, (k) => {
         if (selectedNodeIds.value.has(k)) return true;
@@ -725,7 +725,7 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
       }
     }
 
-    // 2. 如果没有相连的已激活节点，从最近的根节点连过来
+    // 如果没有相连的已激活节点，从最近的根节点连过来
     return findPathFromSources(targetKey, (k) => {
       const n = findNode(k);
       return !!(n && isRootNode(n));
@@ -1002,7 +1002,7 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
     }
   }
 
-  // ──── 保存精通配置 ────────────────────────────────────────────────
+  // 保存精通配置
 
   const SAVE_STORAGE_KEY = 'mastery.savedBuilds';
 

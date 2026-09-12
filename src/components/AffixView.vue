@@ -86,6 +86,13 @@ const nailStyle = computed(() => {
 const getOriginalPosition = () => {
   if (!nailAreaRef.value || !nailContainerRef.value) return
 
+  const rect = nailAreaRef.value.getBoundingClientRect()
+  // 关键：若元素处于隐藏状态（例如祖先元素使用 v-show / display: none），尺寸均为 0
+  // 不记录虚假零坐标，否则会导致 fixedTriggerPoint 算错，误触发固定定位导致标题错位
+  if (rect.width === 0 && rect.height === 0) {
+    return
+  }
+
   // 仅在未处于固定/绝对定位时锁定 nailArea 的物理宽度，避免脱离文档流后宽度塌陷
   if (!isFixed.value && !isAbsolute.value) {
     const nailContainerRect = nailContainerRef.value.getBoundingClientRect()
@@ -96,7 +103,6 @@ const getOriginalPosition = () => {
     }
   }
 
-  const rect = nailAreaRef.value.getBoundingClientRect()
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop
   const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft
 
@@ -122,11 +128,26 @@ const checkPosition = () => {
 
   if (!mainContentRef.value || !nailAreaRef.value || !nailContainerRef.value) return
 
-  // 实时更新占位容器 nailAreaRef 在视口中的当前 X 坐标，完全避免 Windows 滚动条等造成的水平偏移
-  fixedLeft.value = nailAreaRef.value.getBoundingClientRect().left
+  const areaRect = nailAreaRef.value.getBoundingClientRect()
+  // 隐藏状态下直接重置并返回，不参与吸顶定位计算
+  if (areaRect.width === 0 && areaRect.height === 0) {
+    isFixed.value = false
+    isAbsolute.value = false
+    return
+  }
 
-  if (!isFixed.value && !isAbsolute.value && originalPosition.value.top === 0) {
+  // 实时更新占位容器 nailAreaRef 在视口中的当前 X 坐标，完全避免 Windows 滚动条等造成的水平偏移
+  fixedLeft.value = areaRect.left
+
+  if (originalPosition.value.top === 0 || originalPosition.value.width === 0) {
     getOriginalPosition()
+  }
+
+  // 若仍无法取得有效真实物理坐标（如初始隐藏未完全展示），暂不激活吸顶
+  if (originalPosition.value.top === 0) {
+    isFixed.value = false
+    isAbsolute.value = false
+    return
   }
 
   const mainRect = mainContentRef.value.getBoundingClientRect()
@@ -174,12 +195,27 @@ const handleResize = () => {
   requestCheck()
 }
 
+let intersectionObserver: IntersectionObserver | null = null
+
 const init = () => {
   getOriginalPosition()
   checkPosition()
 
   window.addEventListener('scroll', handleScroll, {passive: true})
   window.addEventListener('resize', handleResize)
+
+  // 监听元素可见性变动（例如上层 v-show 切换、Tab 切换）
+  if (typeof IntersectionObserver !== 'undefined' && nailAreaRef.value) {
+    intersectionObserver = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting || entry.intersectionRatio > 0) {
+          getOriginalPosition()
+          checkPosition()
+        }
+      }
+    })
+    intersectionObserver.observe(nailAreaRef.value)
+  }
 
   setTimeout(() => {
     getOriginalPosition()
@@ -195,6 +231,10 @@ const cleanup = () => {
   if (animationFrameId !== null) {
     cancelAnimationFrame(animationFrameId)
     animationFrameId = null
+  }
+  if (intersectionObserver) {
+    intersectionObserver.disconnect()
+    intersectionObserver = null
   }
   window.removeEventListener('scroll', handleScroll)
   window.removeEventListener('resize', handleResize)

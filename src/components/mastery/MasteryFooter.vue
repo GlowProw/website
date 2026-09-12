@@ -36,12 +36,12 @@ const emit = defineEmits<{
 
     <v-spacer></v-spacer>
 
-    <!-- Debug S -->
+    <!-- 调试信息 开始 -->
     <v-chip v-if="isDebug" color="error" size="small" variant="flat" class="mr-3 font-weight-bold">
       <v-icon start size="14">mdi-bug</v-icon>
       {{ t('mastery.debugBadge') }}
     </v-chip>
-    <!-- Debug E -->
+    <!-- 调试信息 结束 -->
 
     <span class="text-caption opacity-60 font-monospace">
       X: {{ Math.round(transformX) }} Y: {{ Math.round(transformY) }}

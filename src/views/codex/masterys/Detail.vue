@@ -49,7 +49,7 @@ let masteryDetailData: Ref<Mastery | null> = ref(null),
       return t(key).replace(/^Y\d+S\d+\s*-\s*/, '');
     }),
 
-    // meta
+    // 页面元信息 (meta)
     head: Ref<any> = ref({
       title: t(route.meta.title as string || 'codex.mastery.title'),
       titleTemplate: `%s | ${t('name')}`,

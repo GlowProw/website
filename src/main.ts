@@ -1,5 +1,5 @@
 /**
- * main.ts
+ * 主程序入口 (main.ts)
  */
 
 import App from './App.vue'

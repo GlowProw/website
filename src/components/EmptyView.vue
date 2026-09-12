@@ -4,15 +4,26 @@ export default { name: 'EmptyView' }
 
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
+import {useSlots} from "vue";
 
-const {t} = useI18n()
+const {t} = useI18n(),
+    slots = useSlots()
 </script>
 
 <template>
   <div class="empty">
-    <p>{{t('empty.title')}}</p>
-    <p class="mt-2 empty-subtext">{{t('empty.description')}}</p>
-    <slot></slot>
+    <template v-if="slots.title">
+      <p><slot name="title"></slot></p>
+    </template>
+    <template v-else>
+      <p>{{t('empty.title')}}</p>
+    </template>
+    <template v-if="slots.description">
+      <p class="empty-subtext mt-1"><slot name="description"></slot></p>
+    </template>
+    <template v-else>
+      <p class="empty-subtext mt-1">{{t('empty.description')}}</p>
+    </template>
   </div>
 </template>
 

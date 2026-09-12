@@ -142,7 +142,7 @@ const onSaveAssembly = (saveType: StorageIntermediateTransferSaveType, uid?: str
     </template>
   </v-card>
 
-  <!-- Workshop S -->
+  <!-- 工坊 开始 -->
   <ZoomableCanvas
       ref="zoomableAreaRef"
       :style="isWorkshopFillScreen ? 'height: calc(100vh)' : `height: ${mobile ? 300 : workshopHeight}px`"
@@ -163,7 +163,7 @@ const onSaveAssembly = (saveType: StorageIntermediateTransferSaveType, uid?: str
               }">
     <RankingDesignedView ref="rankingDesignedView" :readonly="false"></RankingDesignedView>
   </ZoomableCanvas>
-  <!-- Workshop E -->
+  <!-- 工坊 结束 -->
 
 </template>
 

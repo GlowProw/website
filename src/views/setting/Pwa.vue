@@ -9,18 +9,19 @@ import { useNoticeStore } from '~/stores/noticeStore';
 const {t, locale} = useI18n();
 const { status, reload, install, isInstalled, needRefresh, offlineReady, installPrompt,closePwaUpdate } = use_pwa()
 const route = useRoute()
-const noticeStore = useNoticeStore();
+const notice = useNoticeStore();
 
 
 let isWidgetsRoute = computed(() => route.path.startsWith('/widgets') || route.path.includes('/widgets'));
 
-// 监听离线就绪 (在 /widgets/ 路径下不弹窗，使用全局弹窗系统)
+// 监听离线就绪
 watch(
   () => offlineReady.value,
   (ready) => {
     if (ready && !isWidgetsRoute.value) {
-      noticeStore.info(t('pwa.offlineReady'), {
+      notice.info(t('pwa.offlineReady'), {
         title: t('pwa.status.label'),
+        mode: 'minimal',
         timeout: 5000
       });
       closePwaUpdate();
@@ -28,13 +29,14 @@ watch(
   }
 );
 
-// 监听新版本更新 (在 /widgets/ 路径下不弹窗，使用常驻弹窗系统 timeout: 0)
+// 监听新版本更新
 watch(
   () => needRefresh.value,
   (refresh) => {
     if (refresh && !isWidgetsRoute.value) {
-      noticeStore.primary(`${t('pwa.newContentAvailable')} - ${t('pwa.refreshToUpdate')}`, {
+      notice.primary(`${t('pwa.newContentAvailable')} - ${t('pwa.refreshToUpdate')}`, {
         title: t('pwa.newContentAvailable'),
+        mode: 'minimal',
         timeout: 0
       });
     }

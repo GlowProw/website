@@ -10,7 +10,7 @@ export default class Storage {
     }
 
     /**
-     * session
+     * 会话存储 (session)
      */
     get session() {
         let storage_name = this.STORAGENAME;
@@ -54,7 +54,7 @@ export default class Storage {
                 sessionStorage.removeItem(fullName(name))
             },
             /**
-             * get sessionStorage Keys
+             * 获取 sessionStorage 键名集合
              * @returns {*}
              */
             keys: (): any => {
@@ -64,7 +64,7 @@ export default class Storage {
     }
 
     /**
-     * local
+     * 本地存储 (local)
      */
     get local() {
         let storage_name = this.STORAGENAME;
@@ -109,7 +109,7 @@ export default class Storage {
                 localStorage.removeItem(fullName(name))
             },
             /**
-             * get sessionStorage Keys
+             * 获取 localStorage 键名集合
              * @returns {*}
              */
             keys: (): any => {

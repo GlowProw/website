@@ -304,7 +304,7 @@ const initializeWebGL = async (): Promise<void> => {
     gl.canvas.style.width = props.fixedSize ? `${props.fixedSize.width}px` : '100%';
     gl.canvas.style.height = props.fixedSize ? `${props.fixedSize.height}px` : '100%';
 
-    // Clear any existing content
+    // 清空已有画布内容
     while (containerRef.value.firstChild) {
       containerRef.value.removeChild(containerRef.value.firstChild);
     }
@@ -518,7 +518,7 @@ watch(
       u.noiseAmount.value = props.noiseAmount;
       u.distortion.value = props.distortion;
 
-      // Update renderer settings based on quality
+      // 根据画质更新渲染器设置
       renderer.dpr = devicePixelRatio.value;
 
       const { width, height } = canvasSize.value;
@@ -527,7 +527,7 @@ watch(
       u.rayPos.value = anchor;
       u.rayDir.value = dir;
 
-      // Update canvas size
+      // 更新画布尺寸
       renderer.setSize(width, height);
       if (renderer.gl.canvas) {
         renderer.gl.canvas.style.width = props.fixedSize ? `${props.fixedSize.width}px` : '100%';

@@ -2,7 +2,7 @@
 import {computed, onMounted, onUnmounted, Ref, ref, useSlots, watch} from "vue";
 import {useSearchWorkerService} from "@/assets/sripts/search_worker_service";
 
-import {Commodity, Cosmetic, Item, Material, Modification, Ultimate} from "glow-prow-data";
+import {Commodity, Cosmetic, Item, Material, Modification, Ultimate, Set as SnbSet, Mastery} from "glow-prow-data";
 
 import {useI18n} from "vue-i18n";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
@@ -24,6 +24,10 @@ import MapLocationIconWidget from "@/components/snbWidget/mapLocationIconWidget.
 import MapLocationName from "@/components/snbWidget/mapLocationName.vue";
 import CommoditieIconWidget from "@/components/snbWidget/commoditieIconWidget.vue";
 import CommoditieName from "@/components/snbWidget/commoditieName.vue";
+import SetIconWidget from "@/components/snbWidget/setIconWidget.vue";
+import SetName from "@/components/snbWidget/setName.vue";
+import MasteryIconWidget from "@/components/snbWidget/masteryIconWidget.vue";
+import MasteryName from "@/components/snbWidget/masteryName.vue";
 import {useRoute, useRouter} from "vue-router";
 
 import {advanced_search} from '@/assets/sripts/advanced_search';
@@ -49,17 +53,17 @@ const {t, messages, locale} = useI18n(),
       searchResult
     } = useSearchWorkerService(),
 
-    // Result type tabs
+    // 结果类型标签页
     selectedType = ref('all'),
-    allTypes = ['item', 'ship', 'commoditie', 'material', 'modification', 'cosmetic', 'ultimate', 'mapLocation'],
+    allTypes = ['item', 'ship', 'commoditie', 'material', 'modification', 'cosmetic', 'ultimate', 'mapLocation', 'set', 'mastery'],
 
-    // Search configuration
+    // 搜索配置项
     searchConfig = ref({
       limit: 100,
       enabledTypes: [...allTypes]
     }),
 
-    // Search open new window setting
+    // 搜索新窗口打开设置
     searchOpenNewWindow = ref(true)
 
 let searchValue = ref(''), // 展示搜索值
@@ -107,7 +111,7 @@ watch(() => searchQuery.value, (value) => {
 
 // 监听 searchValue 实现防抖
 watch(() => searchValue.value, (value) => {
-  // Check if loading
+  // 检查是否处于加载中状态
   if (isLoading.value) return;
 
   // 清除之前的定时器
@@ -144,9 +148,9 @@ onMounted(() => {
   getConfig()
   initHotkey()
 
-  // Initialize worker
+  // 初始化 Worker 线程
   initWorker(messages.value[locale.value], locale.value)?.then(() => {
-    // Perform initial search if there is a query
+    // 若存在查询内容，则执行初始搜索
     if (searchQuery.value) {
       performSearch(searchQuery.value);
     }
@@ -154,7 +158,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  // No need to terminate worker here as it's a singleton
+  // Worker 为单例模式，组件卸载时无需终止
 })
 
 const performSearch = (query: string) => {
@@ -185,10 +189,18 @@ const getConfig = () => {
   const searchHotkey = storage_account.getConfigurationItem('search', 'hotkey.switch')
   const searchHint = storage_account.getConfigurationItem('search', 'hint.switch')
 
-  // Load search configuration
+  // 加载搜索配置
   const savedConfig = storage_account.getConfigurationItem('search', 'filter.config')
   if (savedConfig) {
     searchConfig.value = Object.assign(searchConfig.value, savedConfig)
+    if (searchConfig.value.enabledTypes) {
+      if (!searchConfig.value.enabledTypes.includes('set')) {
+        searchConfig.value.enabledTypes.push('set');
+      }
+      if (!searchConfig.value.enabledTypes.includes('mastery')) {
+        searchConfig.value.enabledTypes.push('mastery');
+      }
+    }
   }
 
   searchOpenNewWindow.value = storage_account.getConfigurationItem('search', 'open.newWindow', {defaultValue: true})
@@ -246,6 +258,9 @@ const typeToListPath: Record<string, string> = {
   mapLocation: '/codex/mapLocations',
   treasureMap: '/codex/treasureMaps',
   set: '/codex/sets',
+  sets: '/codex/sets',
+  mastery: '/codex/masterys',
+  masterys: '/codex/masterys',
   npc: '/codex/npcs',
 }
 
@@ -264,6 +279,9 @@ const typeToI18nKey: Record<string, string> = {
   mapLocation: 'codex.mapLocations.title',
   treasureMap: 'codex.treasureMaps.title',
   set: 'codex.sets.title',
+  sets: 'codex.sets.title',
+  mastery: 'codex.masterys.title',
+  masterys: 'codex.masterys.title',
   npc: 'codex.npcs.title',
 }
 
@@ -272,7 +290,7 @@ const typeToI18nKey: Record<string, string> = {
  * @param data
  * @param type
  */
-const toPage = (data: Item | Commodity | Material | Modification | Cosmetic | Ultimate | any, type: string) => {
+const toPage = (data: Item | Commodity | Material | Modification | Cosmetic | Ultimate | SnbSet | Mastery | any, type: string) => {
   switch (type) {
     case "item":
       return `/codex/item/${data.id}`
@@ -291,6 +309,12 @@ const toPage = (data: Item | Commodity | Material | Modification | Cosmetic | Ul
       return `/codex/cosmetic/${data.id}`
     case "mapLocation":
       return `/codex/mapLocation/${data.id}`
+    case "set":
+    case "sets":
+      return `/codex/set/${data.id}`
+    case "mastery":
+    case "masterys":
+      return `/codex/mastery/${data.id}`
     default:
       return ''
   }
@@ -393,7 +417,7 @@ defineOptions({
               <v-col cols="6" v-for="type in allTypes" :key="type">
                 <v-checkbox
                     v-model="searchConfig.enabledTypes"
-                    :label="t(`codex.${type}s.title`)"
+                    :label="t(typeToI18nKey[type] || `codex.${type}s.title`)"
                     :value="type"
                     density="compact"
                     hide-details
@@ -621,6 +645,12 @@ defineOptions({
                       <template v-else-if="String(type)=='mapLocation'">
                         <MapLocationIconWidget :id="i.id"></MapLocationIconWidget>
                       </template>
+                      <template v-else-if="String(type)=='set' || String(type)=='sets'">
+                        <SetIconWidget :id="i.id"></SetIconWidget>
+                      </template>
+                      <template v-else-if="String(type)=='mastery' || String(type)=='masterys'">
+                        <MasteryIconWidget :id="i.id"></MasteryIconWidget>
+                      </template>
                     </ItemSlotBase>
                   </template>
                   <v-list-item-title class="font-weight-medium d-flex align-center">
@@ -648,9 +678,15 @@ defineOptions({
                     <template v-else-if="String(type)=='mapLocation'">
                       <MapLocationName :id="i.id"></MapLocationName>
                     </template>
+                    <template v-else-if="String(type)=='set' || String(type)=='sets'">
+                      <SetName :id="i.id"></SetName>
+                    </template>
+                    <template v-else-if="String(type)=='mastery' || String(type)=='masterys'">
+                      <MasteryName :id="i.id"></MasteryName>
+                    </template>
                   </v-list-item-title>
                   <v-list-item-subtitle>
-                    {{ i.id }}
+                    {{ i.key ? `${i.key} · ${i.id}` : i.id }}
                   </v-list-item-subtitle>
 
                   <template v-slot:append>

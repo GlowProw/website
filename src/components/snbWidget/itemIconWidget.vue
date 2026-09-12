@@ -75,7 +75,7 @@ watch(() => props.id, () => {
 })
 
 watch(() => itemsCardData.value.model, (value) => {
-  // Logic removed as it's now in ItemCardDetail
+  // 逻辑已移除，现已统一在 ItemCardDetail 中处理
 })
 
 onMounted(() => {

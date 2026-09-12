@@ -184,7 +184,7 @@ const onCodexHistory = (id: string) => {
               </v-col>
             </v-row>
 
-            <!-- Prerequisites / Requisites -->
+            <!-- 前置条件 / 所需技能 -->
             <template v-if="realRequisites.length > 0">
               <v-divider class="my-6"></v-divider>
               <h3 class="text-amber text-subtitle-1 mb-3">{{ t('empireSkillSimulation.requirements') }}</h3>
@@ -206,7 +206,7 @@ const onCodexHistory = (id: string) => {
               </v-list>
             </template>
 
-            <!-- Required Cost -->
+            <!-- 所需消耗 -->
             <template v-if="empireSkillDetailData.requiredCost && Object.keys(empireSkillDetailData.requiredCost).length > 0">
               <v-divider class="my-6"></v-divider>
               <h3 class="text-amber text-subtitle-1 mb-3">{{ t('empireSkillSimulation.requiredCost') }}</h3>
@@ -230,12 +230,12 @@ const onCodexHistory = (id: string) => {
               </v-table>
             </template>
 
-            <!-- Comments -->
+            <!-- 评论区 -->
             <v-divider class="my-8">{{ t('comment.title') }}</v-divider>
             <CommentWidget :id="empireSkillDetailData.id" type="empireSkill" placeholder=""></CommentWidget>
           </v-col>
 
-          <!-- Sidebar Info -->
+          <!-- 侧边栏信息 -->
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
             <BySeasonWidget :data="empireSkillDetailData" v-if="empireSkillDetailData.bySeason"></BySeasonWidget>
 

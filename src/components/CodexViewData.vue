@@ -213,15 +213,15 @@ let data: any = ref([]),
 
     size = computed(() => {
       let coreSize = parseInt(String(sizeRef.value)) || baseSize.value;
-      // Vuetify scale multiplier (1 unit = 4px padding/margin)
-      // Multiplied by 2 for both sides (left + right = 8px)
+      // 间距倍率比例（1 单位 = 4px 内边距/外边距）
+      // 两侧相加乘以 2（左 + 右 = 8px）
       const outerPad = (computedOuterPadding.value as number) * 8;
       const outerMar = (computedOuterMargin.value as number) * 8;
       const innerPad = (computedInnerPadding.value as number) * 8;
       const innerMar = (computedInnerMargin.value as number) * 8;
 
-      // To guarantee no overflow or clipping, we aggregate the physical space demands
-      // based on the impact of padded and margined flex items inside the item wrapper.
+      // 为确保不溢出或被截断，根据包裹层内部带有内边距和外边距的 flex 元素影响，
+      // 聚合计算所需的物理空间宽度需求。
       return coreSize + outerPad + outerMar + innerPad + innerMar;
     })
 
@@ -373,7 +373,7 @@ const onProcessedData = computed(() => {
         exceedingItemsCount.value = Math.max(sortedData.length - maximumSearchCount, 0)
       return isSearching.value ? sortedData.slice(0, maximumSearchCount) : sortedData;
     }),
-    maximumSearchCount = appStore.isDebug ? 10000 : 100,
+    maximumSearchCount = appStore.isDebug ? 10000 : 300,
     originalData = computed(() => {
       let d: any[] = []
       props.loadDataType.forEach(type => {

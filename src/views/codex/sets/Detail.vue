@@ -29,6 +29,7 @@ import SetAvailableWidget from "@/components/snbWidget/setAvailableWidget.vue";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
 import {useAppStore} from "~/stores/appStore";
+import SetName from "@/components/snbWidget/setName.vue";
 
 const
     {t, messages} = useI18n(),
@@ -59,7 +60,7 @@ let setDetailData: Ref<any> = ref(null),
 
     rarityColorConfig = rarity.color,
 
-    // meta
+    // 页面元信息 (meta)
     head: Ref<any> = ref({
       title: t(route.meta.title as string),
       titleTemplate: `%s | ${t('name')}`,
@@ -171,7 +172,7 @@ const onCodexHistory = () => {
         <v-row class="mt-5">
           <v-col cols="8">
             <h1 class="text-amber text-h2 singe-line">
-              <CommoditieName :data="setDetailData"></CommoditieName>
+              <SetName :id="setDetailData.id"></SetName>
             </h1>
             <p class="mt-2 mb-3">
               <v-icon icon="mdi-identifier"/>

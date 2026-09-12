@@ -8,10 +8,15 @@ import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemName from "@/components/snbWidget/itemName.vue";
 
-const props = withDefaults(defineProps<{ data: Ship, isSimulationShipSailSpeed?: boolean }>(), {
-      data: null,
-      isSimulationShipSailSpeed: true,
-    }),
+const props = withDefaults(defineProps<{
+  data: Ship,
+  isSimulationShipSailSpeed?: boolean,
+  isShowSailSpeedText?: boolean
+}>(), {
+  data: null,
+  isSimulationShipSailSpeed: true,
+  isShowSailSpeedText: true
+}),
     {t} = useI18n()
 
 let simulationValue = ref(1),
@@ -82,7 +87,7 @@ const clearAllTimers = () => {
  * 航速分段
  */
 const ticks = computed(() => {
-  return Object.keys(props.data.sailSpeed) || []
+  return props.data?.sailSpeed ? Object.keys(props.data.sailSpeed) : []
 })
 
 /**
@@ -308,27 +313,29 @@ const onWaterBarrelClick = () => {
     </v-card>
 
     <!-- 速度 S -->
-    <v-text-field :value="data?.sailSpeed?.halfSail" readonly
-                  hide-details
-                  variant="underlined" density="compact">
-      <template v-slot:append-inner>
-        <p class="text-no-wrap">{{ t('codex.ship.sailSpeed.halfSail') }}</p>
-      </template>
-    </v-text-field>
-    <v-text-field :value="data?.sailSpeed?.fullSail" readonly
-                  hide-details
-                  variant="underlined" density="compact">
-      <template v-slot:append-inner>
-        <p class="text-no-wrap">{{ t('codex.ship.sailSpeed.fullSail') }}</p>
-      </template>
-    </v-text-field>
-    <v-text-field :value="data?.sailSpeed?.travelSail" readonly
-                  hide-details
-                  variant="underlined" density="compact">
-      <template v-slot:append-inner>
-        <p class="text-no-wrap">{{ t('codex.ship.sailSpeed.travelSail') }}</p>
-      </template>
-    </v-text-field>
+    <template v-if="isShowSailSpeedText">
+      <v-text-field :value="data?.sailSpeed?.halfSail" readonly
+                    hide-details
+                    variant="underlined" density="compact">
+        <template v-slot:append-inner>
+          <p class="text-no-wrap">{{ t('codex.ship.sailSpeed.halfSail') }}</p>
+        </template>
+      </v-text-field>
+      <v-text-field :value="data?.sailSpeed?.fullSail" readonly
+                    hide-details
+                    variant="underlined" density="compact">
+        <template v-slot:append-inner>
+          <p class="text-no-wrap">{{ t('codex.ship.sailSpeed.fullSail') }}</p>
+        </template>
+      </v-text-field>
+      <v-text-field :value="data?.sailSpeed?.travelSail" readonly
+                    hide-details
+                    variant="underlined" density="compact">
+        <template v-slot:append-inner>
+          <p class="text-no-wrap">{{ t('codex.ship.sailSpeed.travelSail') }}</p>
+        </template>
+      </v-text-field>
+    </template>
     <!-- 速度 E -->
   </div>
 </template>

@@ -256,7 +256,7 @@ const fetchHistoryData = async () => {
   try {
     await warStore.fetchHistoryData(historyRange.value, selectedSeasonId.value);
   } catch (e) {
-    // handled in store
+    // 已在 store 状态管理中处理
   }
 };
 
@@ -498,15 +498,15 @@ const getZoneData = (zoneName: string) => {
             </div>
 
             <div v-else-if="displayHistoryItems.length > 0">
-              <!-- SVG Trend Chart -->
+              <!-- SVG 走势图表 -->
               <div class="chart-container relative">
                 <svg viewBox="0 0 800 220" class="w-100 h-auto overflow-visible">
-                  <!-- Grid Background Lines -->
+                  <!-- 网格背景线 -->
                   <line x1="20" y1="20" x2="780" y2="20" stroke="#333" stroke-dasharray="4"/>
                   <line x1="20" y1="110" x2="780" y2="110" stroke="#333" stroke-dasharray="4"/>
                   <line x1="20" y1="200" x2="780" y2="200" stroke="#333"/>
 
-                  <!-- Faction A Polyline -->
+                  <!-- 阵营 A 折线 -->
                   <polyline
                       fill="none"
                       :stroke="factionAColor"
@@ -515,7 +515,7 @@ const getZoneData = (zoneName: string) => {
                       stroke-linejoin="round"
                       :points="chartPoints.fAPoints"/>
 
-                  <!-- Faction B Polyline -->
+                  <!-- 阵营 B 折线 -->
                   <polyline
                       fill="none"
                       :stroke="factionBColor"
@@ -585,7 +585,7 @@ const getZoneData = (zoneName: string) => {
             </v-row>
 
             <v-row align="center">
-              <!-- Faction A -->
+              <!-- 阵营 A -->
               <v-col cols="4" md="4" lg="4" class="text-center text-md-left">
                 <div class="d-flex align-center ga-3 justify-center justify-md-start">
                   <v-avatar size="44" tile>
@@ -614,7 +614,7 @@ const getZoneData = (zoneName: string) => {
                 </v-chip>
               </v-col>
 
-              <!-- Faction B -->
+              <!-- 阵营 B -->
               <v-col cols="4" md="4" lg="4" class="text-center text-md-right">
                 <div class="d-flex align-center ga-3 justify-center justify-md-end">
                   <div>
@@ -702,7 +702,7 @@ const getZoneData = (zoneName: string) => {
                   <v-card variant="text" class="h-100 zone-card ">
                     <v-card-item class="pb-2">
                       <div class="d-flex align-center justify-space-between ga-2">
-                        <!-- ZoneName component usage -->
+                        <!-- 使用 ZoneName 区域名称组件 -->
                         <div class="text-subtitle-1 font-weight-bold text-truncate">
                           <ZoneName :id="zone.name"/>
                         </div>

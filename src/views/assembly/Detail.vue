@@ -56,7 +56,7 @@ let detailData: Ref<any> = ref({
     assemblyLoading = ref(false),
     password = ref(''),
 
-    // meta
+    // 页面元信息 (meta)
     head: Ref<any> = ref({
       title: t(route.meta.title as string),
       titleTemplate: `%s | ${t('name')}`,
@@ -82,7 +82,7 @@ watch(() => route, () => {
 onMounted(async () => {
   await getAssemblyDetail()
 
-  // set new title
+  // 设置新页面标题
   const title = `${detailData.value.name} - ${t(route.meta.title as string)} | ${t('name')}`;
   head.value.titleTemplate = title
   head.value.meta = [
@@ -294,7 +294,7 @@ const onPenPassword = () => {
     </template>
   </v-card>
 
-  <!-- Assembly Preview S -->
+  <!-- 装配预览 开始 -->
   <AssemblyMainSubjectView
       ref="assemblyMainSubjectView"
       v-if="detailData.isVisibility"
@@ -302,7 +302,7 @@ const onPenPassword = () => {
       @ready="onAssemblyMainViewReady"
       :perfect-display="true"
       :assembly-background="detailData.assembly.attr && detailData.assembly.attr.backgroundPresentation"></AssemblyMainSubjectView>
-  <!-- Assembly Preview E -->
+  <!-- 装配预览 结束 -->
 
   <v-container v-if="detailData.isVisibility">
     <AdsWidget id="assembly-detail-up"></AdsWidget>

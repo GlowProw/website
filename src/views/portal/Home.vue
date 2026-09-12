@@ -138,7 +138,7 @@ onMounted(() => {
     <v-divider></v-divider>
 
     <!-- 捐助者 S -->
-    <DonorsWidget></DonorsWidget>
+    <DonorsWidget v-if="false"></DonorsWidget>
     <!-- 捐助者 E -->
 
     <div class="bg-black pt-5 background-img-flavor">

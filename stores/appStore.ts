@@ -314,7 +314,7 @@ export const useAppStore = defineStore('app', () => {
     initializePwa()
 
     return {
-        // State
+        // 状态 (State)
         isDebug,
         itemOpenNewWindow,
         iconSize,
@@ -327,12 +327,12 @@ export const useAppStore = defineStore('app', () => {
         isPwaInstalled,
         pwaUpdateServiceWorker,
 
-        // Getters
+        // 计算属性 (Getters)
         isDarkTheme,
         isOpenInNewWindow,
         isSidebarCollapsed,
 
-        // Actions
+        // 操作方法 (Actions)
         initializeAppConfig,
         initializePwa,
         setDebug,

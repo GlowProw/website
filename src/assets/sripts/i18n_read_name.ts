@@ -1,10 +1,10 @@
-import {useI18nUtils} from "@/assets/sripts/i18n_util";
-import {useI18n} from "vue-i18n";
+import { useI18nUtils } from "@/assets/sripts/i18n_util";
+import { useI18n } from "vue-i18n";
 
-import {Cosmetics, EmpireSkills, Item, Items, MapLocations, Masterys, Materials, Modifications, Npcs, Sets, Ship, Ships, TreasureMaps} from "glow-prow-data";
-import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
-import {number} from "@/assets/sripts/index";
-import {Commodities} from "glow-prow-data/src/entity/Commodities";
+import { Cosmetics, EmpireSkills, Item, Items, MapLocations, Masterys, Materials, Modifications, Npcs, Sets, Ship, Ships, TreasureMaps } from "glow-prow-data";
+import { Ultimates } from "glow-prow-data/src/entity/Ultimates";
+import { number } from "@/assets/sripts/index";
+import { Commodities } from "glow-prow-data/src/entity/Commodities";
 
 const items = Items,
     materials = Materials,
@@ -24,8 +24,8 @@ const items = Items,
  * i18n 名称与描述数据读取 Hook
  */
 export function useI18nReadName() {
-    const {asString, asArray, sanitizeString, te, tm, t} = useI18nUtils()
-    const {rt} = useI18n();
+    const { asString, asArray, sanitizeString, te, tm, t } = useI18nUtils()
+    const { rt } = useI18n();
 
     const getValue = (obj: any, path: string) => {
         return path.split('.').reduce((acc, key) => acc?.[key], obj)
@@ -33,9 +33,9 @@ export function useI18nReadName() {
 
     const item = (id: string | number) => {
         let keysName = [
-                `snb.items.${id}.name`,
-                `snb.items.${sanitizeString(id as string).cleaned}.name`,
-            ],
+            `snb.items.${id}.name`,
+            `snb.items.${sanitizeString(id as string).cleaned}.name`,
+        ],
             keysDescription = [
                 `snb.items.${id}.description`,
                 `snb.items.${id}.description.general`,
@@ -72,9 +72,9 @@ export function useI18nReadName() {
 
     const modification = (id: string) => {
         let keysName = [
-                `snb.modifications.${id}.name`,
-                `snb.modifications.${sanitizeString(id).cleaned}.name`,
-            ],
+            `snb.modifications.${id}.name`,
+            `snb.modifications.${sanitizeString(id).cleaned}.name`,
+        ],
             keysDescription = [
                 `snb.modifications.${id}.description`,
                 `snb.modifications.${sanitizeString(id).cleaned}.description`,
@@ -155,9 +155,9 @@ export function useI18nReadName() {
 
     const cosmetic = (id: string) => {
         let keysName = [
-                `snb.cosmetics.${id}.name`,
-                `snb.cosmetics.${sanitizeString(id).cleaned}.name`,
-            ],
+            `snb.cosmetics.${id}.name`,
+            `snb.cosmetics.${sanitizeString(id).cleaned}.name`,
+        ],
             keysDescription = [
                 `snb.cosmetics.${id}.description.general`
             ],
@@ -192,9 +192,9 @@ export function useI18nReadName() {
 
     const commoditie = (id: string) => {
         let keysName = [
-                `snb.commodities.${id}.name`,
-                `snb.commodities.${sanitizeString(id).cleaned}.name`,
-            ],
+            `snb.commodities.${id}.name`,
+            `snb.commodities.${sanitizeString(id).cleaned}.name`,
+        ],
             keysDescription = [
                 `snb.commodities.${id}.description`,
                 `snb.commodities.${id}.description.general`,
@@ -229,8 +229,8 @@ export function useI18nReadName() {
 
     const material = (id: string) => {
         const keysName = [
-                `snb.materials.${id}.name`,
-            ],
+            `snb.materials.${id}.name`,
+        ],
             keysDescription = [
                 `snb.materials.${id}.description`
             ];
@@ -261,8 +261,8 @@ export function useI18nReadName() {
 
     const ship = (id: string) => {
         const keysName = [
-                `snb.ships.${id}.name`,
-            ],
+            `snb.ships.${id}.name`,
+        ],
             keysDescription = [
                 `snb.ships.${id}.description.general`
             ];
@@ -293,8 +293,8 @@ export function useI18nReadName() {
 
     const npc = (id: string) => {
         const keysName = [
-                `snb.npcs.${id}.name`,
-            ],
+            `snb.npcs.${id}.name`,
+        ],
             keysDescription = [
                 `snb.npcs.${id}.description`,
             ];
@@ -328,8 +328,8 @@ export function useI18nReadName() {
 
     const mapLocation = (id: string) => {
         const keysName = [
-                `snb.mapLocations.${id}.name`,
-            ],
+            `snb.mapLocations.${id}.name`,
+        ],
             keysDescription = [
                 `snb.mapLocations.${id}.description`,
             ];
@@ -361,8 +361,8 @@ export function useI18nReadName() {
 
     const treasureMap = (id: string | number) => {
         const keysName = [
-                `snb.treasureMaps.${id}.name`,
-            ],
+            `snb.treasureMaps.${id}.name`,
+        ],
             keysDescription = [
                 `snb.treasureMaps.${id}.description`,
             ];
@@ -371,15 +371,15 @@ export function useI18nReadName() {
             keysDescription,
             name: (category: any, lang?: string): string => {
                 let befId = (id || '').toString()
-                        .replace(/-(recent|old|veryOld|legendary)(?=-|$)/g, '')
-                        .replace(/\d+/g, '')
-                        .replaceAll('-', ''),
+                    .replace(/-(recent|old|veryOld|legendary)(?=-|$)/g, '')
+                    .replace(/\d+/g, '')
+                    .replaceAll('-', ''),
                     keysLocations = [
                         `snb.mapLocations.${befId}.name`,
                         `snb.territories.${befId}.name`,
                         `snb.locations.${befId}`,
                     ],
-                    befLocationName = asString(keysLocations, {backRawKey: true})
+                    befLocationName = asString(keysLocations, { backRawKey: true })
 
                 if (treasureMaps[id]) {
                     return `${t(`codex.treasureMap.names.${category}`, {
@@ -403,8 +403,8 @@ export function useI18nReadName() {
 
     const ultimate = (id: string | number) => {
         const keysName = [
-                `snb.ultimates.${id}.name`,
-            ],
+            `snb.ultimates.${id}.name`,
+        ],
             keysDescription = [
                 `snb.ultimates.${id}.description`,
             ];
@@ -436,9 +436,8 @@ export function useI18nReadName() {
 
     const set = (id: string | number) => {
         const keysName = [
-                `snb.sets.${id}`,
-                `snb.sets.${id}.name`,
-            ],
+            `snb.sets.${id}`
+        ],
             keysDescription = [
                 `snb.sets.${id}.description.general`,
             ];
@@ -503,7 +502,7 @@ export function useI18nReadName() {
                                 `snb.perks.${perksName.cleaned}.description.general`,
                             ]
 
-                            result.push({id: perkKey, value: asArray(keys)})
+                            result.push({ id: perkKey, value: asArray(keys) })
                             break;
                         default:
                             keys = [
@@ -512,7 +511,7 @@ export function useI18nReadName() {
                                 `snb.perks.${perksName.cleaned}.description.${perksName.removedNumbers[0]}`
                             ]
 
-                            result.push({id: perkKey, value: asArray(keys)})
+                            result.push({ id: perkKey, value: asArray(keys) })
                             break;
                     }
                 }
@@ -524,9 +523,9 @@ export function useI18nReadName() {
 
     const empireSkill = (id: string) => {
         let keysName = [
-                `snb.empireSkills.${id}.name`,
-                `snb.empireSkills.${sanitizeString(id).cleaned}.name`,
-            ],
+            `snb.empireSkills.${id}.name`,
+            `snb.empireSkills.${sanitizeString(id).cleaned}.name`,
+        ],
             keysDescription = [
                 `snb.empireSkills.${id}.effects.general`,
                 `snb.empireSkills.${id}.effects.1`,

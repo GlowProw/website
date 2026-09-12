@@ -217,7 +217,7 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-            // import assets
+            // 导入资源别名
             '@glow-prow-assets': path.resolve(__dirname, 'node_modules/glow-prow-assets'),
             '@': path.resolve(__dirname, './src'),
             '~': path.resolve(__dirname, './'),

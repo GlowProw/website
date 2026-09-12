@@ -23,13 +23,13 @@ let tabs: Ref<any[]> = ref([
       {
         name: 'setting.advanced.title',
         value: 'PortalSettingAdvanced',
-        icon: 'mdi-cog'
+        icon: 'mdi-application-cog-outline'
       },
-      {
-        name: 'subscription.title',
-        value: 'PortalSettingSubscriptions',
-        icon: 'mdi-treasure-chest'
-      },
+      // {
+      //  name: 'subscription.title',
+      //  value: 'PortalSettingSubscriptions',
+      //  icon: 'mdi-treasure-chest'
+      // },
       {
         name: 'setting.ad.title',
         value: 'PortalSettingAds',
@@ -61,9 +61,9 @@ let tabs: Ref<any[]> = ref([
         icon: 'mdi-information'
       },
       // {
-      //   name: t('setting.notification.title'),
-      //   value: 'notification',
-      //   icon: 'mdi-bell-badge'
+      //  name: t('setting.notification.title'),
+      //  value: 'notification',
+      //  icon: 'mdi-bell-badge'
       // },
     ]),
     tab = ref(tabs.value[0].value)
