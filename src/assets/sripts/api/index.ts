@@ -12,6 +12,7 @@ import {useStateOfWarApi} from "@/assets/sripts/api/state_of_war_service";
 import {useMasteryApi} from "@/assets/sripts/api/mastery_service";
 import {useCrowdinApi} from "@/assets/sripts/api/crowdin_service";
 import {useSubscriptionApi} from "@/assets/sripts/api/subscription_service";
+import {useDropApi} from "@/assets/sripts/api/drop_service";
 
 export * from './user_service'
 export * from './assembly_service'
@@ -27,6 +28,7 @@ export * from './state_of_war_service'
 export * from './mastery_service'
 export * from './crowdin_service'
 export * from './subscription_service'
+export * from './drop_service'
 export * from './api-util'
 
 export class Apis {
@@ -43,4 +45,5 @@ export class Apis {
     static stateOfWarApi = useStateOfWarApi
     static crowdinApi = useCrowdinApi
     static subscriptionApi = useSubscriptionApi
+    static dropApi = useDropApi
 }

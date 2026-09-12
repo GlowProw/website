@@ -18,11 +18,10 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <v-card border class="d-inline-flex px-2 align-center mastery-controls">
+  <v-card border class="d-inline-flex py-1 px-2 align-center mastery-controls">
     <v-icon class="mr-1 opacity-60" size="14">mdi-magnify-scan</v-icon>
     <span class="text-caption opacity-60 mr-2">{{ Math.abs(zoom).toFixed(1) }}</span>
 
-    <v-btn icon="mdi-minus" size="x-small" variant="text" :title="t('mastery.zoomOut')" @click="emit('zoom-out')"></v-btn>
     <div v-for="(z, zIndex) in scaleExtent" :key="zIndex" class="d-inline-flex">
       <RhombusWidget
           :size="6"
@@ -33,8 +32,6 @@ const emit = defineEmits<{
           :title="t('mastery.zoomTo', { zoom: z })"
       />
     </div>
-    <v-btn icon="mdi-crosshairs-gps" size="x-small" variant="text" @click="emit('reset-view')" :title="t('mastery.resetView')"></v-btn>
-    <v-btn icon="mdi-plus" size="x-small" variant="text" :title="t('mastery.zoomIn')" @click="emit('zoom-in')"></v-btn>
   </v-card>
 </template>
 

@@ -25,11 +25,19 @@ const props = defineProps({
               "category": "item"
             },
             {
+              "value": ['mortar', 'rocket', 'springloader'],
+              "category": "item"
+            },
+            {
               "value": ['shipUpgrade'],
               "category": "item"
             },
             {
               "value": ['majorFurniture', 'offensiveFurniture', 'utilityFurniture'],
+              "category": "item"
+            },
+            {
+              "value": ['armor'],
               "category": "item"
             },
             {
@@ -46,6 +54,11 @@ const props = defineProps({
           "label": "材料",
           "value": [],
           "category": "material"
+        },
+        {
+          "label": "商品",
+          "value": [],
+          "category": "commoditie"
         },
         {
           "label": "装饰品",
@@ -89,8 +102,18 @@ const props = defineProps({
         },
         {
           "label": "装饰品集",
-          "value": ['set'],
+          "value": [],
           "category": "set"
+        },
+        {
+          "label": "藏宝图",
+          "value": [],
+          "category": "treasureMap"
+        },
+        {
+          "label": "地图地点",
+          "value": [],
+          "category": "mapLocation"
         },
         {
           "divider": true

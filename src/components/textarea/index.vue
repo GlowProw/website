@@ -19,6 +19,9 @@ import {LangNode as LangWidget} from './lang/index'
 import {MaterialNode as MaterialWidget} from './material/index'
 import {CosmeticNode as CosmeticWidget} from './cosmetic/index'
 import {SetNode as SetWidget} from './set/index'
+import {TreasureMapNode as TreasureMapWidget} from './treasureMap/index'
+import {CommoditieNode as CommoditieWidget} from './commoditie/index'
+import {MapLocationNode as MapLocationWidget} from './mapLocation/index'
 
 import ShipView from '../ShipView.vue'
 import ItemView from '../ItemView.vue'
@@ -286,6 +289,12 @@ const onInsertItem = (id: string) => {
     editor.value?.commands.insertUltimate({id})
   } else if (currentItemCategory.value === 'modification') {
     editor.value?.commands.insertMod({id})
+  } else if (currentItemCategory.value === 'treasureMap') {
+    editor.value?.commands.insertTreasureMap({id})
+  } else if (currentItemCategory.value === 'commoditie') {
+    editor.value?.commands.insertCommoditie({id})
+  } else if (currentItemCategory.value === 'mapLocation') {
+    editor.value?.commands.insertMapLocation({id})
   } else {
     // 默认按照物品(item)插入
     editor.value?.commands.insertItem({id})
@@ -357,7 +366,10 @@ const onInitEdit = () => {
       LangWidget,
       MaterialWidget,
       CosmeticWidget,
-      SetWidget
+      SetWidget,
+      TreasureMapWidget,
+      CommoditieWidget,
+      MapLocationWidget
     ],
     onCreate({editor}) {
       (editor.options as any).keyboardShortcuts = {}

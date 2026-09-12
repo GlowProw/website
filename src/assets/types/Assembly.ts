@@ -158,7 +158,7 @@ export interface GroupedData {
 export interface AssemblyClassificationShowListProps {
     tags: string[];
     sortBy?: "id" | "rarity" | "tier";
-    loadDataType?: "ship" | "item" | "material" | "cosmetic" | "set" | "ultimate" | "modification";
+    loadDataType?: "ship" | "item" | "material" | "cosmetic" | "set" | "ultimate" | "modification" | "treasureMap" | "commoditie" | "mapLocation";
     filterType?: string;
     v?: number,
     filterFun?: (item: any) => boolean;

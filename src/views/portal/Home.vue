@@ -61,12 +61,12 @@ onMounted(() => {
         <v-row>
           <v-col cols="12" md="8" lg="8">
             <v-row>
-              <v-col cols="12" sm="6" md="6" lg="6"
+              <v-col cols="12" sm="6" md="4" lg="4"
                      :class="{'opacity-30': !i.to}"
                      v-for="(i,index) in appFuns.list" :key="index">
-                <v-row>
+                <v-row dense>
                   <v-col cols="auto">
-                    <ItemSlotBase size="90px" class="d-flex justify-center align-center">
+                    <ItemSlotBase size="60px" class="d-flex justify-center align-center">
                       <v-icon :icon="i.icon" size="40"></v-icon>
                     </ItemSlotBase>
                   </v-col>

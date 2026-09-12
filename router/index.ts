@@ -114,6 +114,7 @@ import NotFoundPage from '@/views/NotFound.vue';
 import Test from '@/views/Test.vue'
 
 import CalculatorPage from '@/views/calculator/Index.vue'
+import DropPage from '@/views/drop/Index.vue'
 
 import WidgetIndexPage from '@/widgets/Index.vue';
 import WidgetAssemblyPage from '@/widgets/assembly/Index.vue';
@@ -889,6 +890,15 @@ const routes: Readonly<RouteRecordRaw[]> = [
         path: '/about',
         name: 'About',
         redirect: '/setting/about'
+    },
+    {
+        path: '/drop',
+        name: 'Drop',
+        component: DropPage,
+        meta: {
+            title: 'drop.title',
+            keywords: 'drop.meta.keywords'
+        }
     },
 
     {

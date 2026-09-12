@@ -1081,6 +1081,40 @@
       "lookDetail": "View Mastery Details (hold)"
     }
   },
+  "drop": {
+    "title": "Twitch Drops",
+    "active": "Active",
+    "upcoming": "Upcoming",
+    "ended": "Ended",
+    "rewards": "Drop Rewards",
+    "items": "items",
+    "officialDetails": "Official Details",
+    "liveStreamers": "Live Streamers (Drops Enabled)",
+    "heroTitle": "Twitch Drops Hub",
+    "heroSubtitle": "Track active Skull and Bones Twitch Drops campaigns and reward history. Link your account and watch streams to earn exclusive in-game cosmetics!",
+    "refresh": "Refresh Drops",
+    "myInventory": "Twitch Inventory",
+    "statActive": "Active Campaigns",
+    "statHistory": "Total Campaigns",
+    "statRewards": "Total Rewards",
+    "unitCampaign": "",
+    "unitItems": "items",
+    "currentSectionTitle": "Active Drops Campaigns",
+    "noActiveTitle": "No Active Twitch Drops Campaigns",
+    "noActiveSubtitle": "Ubisoft usually launches Twitch Drops with new seasons, major updates, or special weekend events. Check the archives below or follow bot notifications for updates.",
+    "visitTwitchDirectory": "Visit Twitch Skull and Bones",
+    "historySectionTitle": "Drops History Archive",
+    "records": "records",
+    "filterAll": "All",
+    "filterEnded": "Ended",
+    "filterActive": "Active",
+    "noHistoryFound": "No matching drop campaigns found",
+    "tryClearFilter": "Try adjusting your search query or status filter",
+    "meta": {
+      "keywords": "Skull and Bones,Twitch Drops,Drops History,Stream Rewards",
+      "description": "Skull and Bones Twitch Drops campaign tracker, active drops and historical reward archive."
+    }
+  },
   "calendar": {
     "title": "Calendar",
     "today": "Today",
@@ -1980,6 +2014,10 @@
       "calendar": {
         "title": "Calendar",
         "description": "View this season's event information (Hold)"
+      },
+      "drop": {
+        "title": "Twitch Drops",
+        "description": "View active Twitch Drops and history archive"
       },
       "maps": {
         "title": "Map",

@@ -14,6 +14,7 @@ import EmptyView from "@/components/EmptyView.vue";
 import Captcha from "@/components/captcha/index.vue";
 import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue";
+import {useIntersectionObserver} from "@/assets/sripts/intersection_observer";
 
 type commentTargetType = 'assembly' | 'item' | 'commoditie' | 'ship' | 'ultimate' | 'mod' | 'material' | 'set' | 'treasureMap' | 'npc' | 'mapLocation' | 'cosmetic' | 'empireSkill' | 'mastery'
 
@@ -35,9 +36,28 @@ let content = ref(''),
     captchaOneUpdateEvent = ref(false),
     captchaRef = ref(null)
 
-watch(() => props.id, () => {
-  if (props.id)
+const {targetElement, isVisible} = useIntersectionObserver({
+  threshold: 0.05,
+  rootMargin: '100px'
+})
+const hasLoaded = ref(false)
+
+watch(isVisible, (visible) => {
+  if (visible && !hasLoaded.value && props.id) {
+    hasLoaded.value = true
     getComment()
+  }
+})
+
+watch(() => props.id, (newId) => {
+  if (newId) {
+    if (isVisible.value) {
+      hasLoaded.value = true
+      getComment()
+    } else {
+      hasLoaded.value = false
+    }
+  }
 })
 
 watch(() => content.value, (value) => {
@@ -45,10 +65,6 @@ watch(() => content.value, (value) => {
     captchaOneUpdateEvent.value = true
     captchaRef.value.refreshCaptcha()
   }
-})
-
-onMounted(() => {
-  getComment()
 })
 
 /**
@@ -181,7 +197,7 @@ defineOptions({
 </script>
 
 <template>
-  <div class="comment-widget">
+  <div class="comment-widget" ref="targetElement">
     <v-timeline
         density="compact"
         side="end"

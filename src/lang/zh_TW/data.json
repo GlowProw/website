@@ -1066,6 +1066,40 @@
       "lookDetail": "查看專精詳情(按住)"
     }
   },
+  "drop": {
+    "title": "Twitch 掉寶",
+    "active": "進行中",
+    "upcoming": "即將開啟",
+    "ended": "已結束",
+    "rewards": "掉寶獎勵",
+    "items": "件",
+    "officialDetails": "官方活動詳情",
+    "liveStreamers": "正在開播的實況主 (支援 Drops)",
+    "heroTitle": "Twitch 掉寶中心",
+    "heroSubtitle": "即時掌握《怒海戰記》正在進行的 Twitch Drops 活動與獎勵，綁定帳號並觀看實況即可免費獲取遊戲內專屬外觀與限定獎勵！",
+    "refresh": "重新整理掉寶",
+    "myInventory": "Twitch 掉寶背包",
+    "statActive": "當前生效活動",
+    "statHistory": "歷史檔案總數",
+    "statRewards": "累計掉宝獎勵",
+    "unitCampaign": "個",
+    "unitItems": "件",
+    "currentSectionTitle": "當前進行中掉寶",
+    "noActiveTitle": "當前暫無生效中的 Twitch 掉寶活動",
+    "noActiveSubtitle": "Ubisoft 通常會在全新賽季上線、重大內容更新或週末特別活動期間開啟 Twitch Drops 掉寶。您可以瀏覽下方過往掉寶檔案，或關注機器人通知。",
+    "visitTwitchDirectory": "瀏覽 Twitch 怒海戰記專區",
+    "historySectionTitle": "掉寶歷史檔案",
+    "records": "筆記錄",
+    "filterAll": "全部",
+    "filterEnded": "已結束",
+    "filterActive": "進行中",
+    "noHistoryFound": "未找到相符的掉寶歷史記錄",
+    "tryClearFilter": "請嘗試調整搜尋關鍵字或狀態篩選",
+    "meta": {
+      "keywords": "怒海戰記,碧海黑帆,Skull and Bones,Twitch Drops,掉寶,掉寶歷史,觀看獎勵",
+      "description": "《怒海戰記》Twitch Drops 掉寶活動追蹤、當前生效掉寶與歷史獎勵檔案。"
+    }
+  },
   "calendar": {
     "title": "日曆",
     "today": "今日",
@@ -2041,6 +2075,10 @@
       "calendar": {
         "title": "日历",
         "description": "查看本赛季活动信息"
+      },
+      "drop": {
+        "title": "Twitch 掉宝",
+        "description": "查看当前生效掉宝活动与历史档案"
       },
       "maps": {
         "title": "地图",

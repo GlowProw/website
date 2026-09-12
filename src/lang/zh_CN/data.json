@@ -1076,6 +1076,40 @@
       "lookDetail": "查看专精详情(按住)"
     }
   },
+  "drop": {
+    "title": "Twitch 掉宝",
+    "active": "进行中",
+    "upcoming": "即将开启",
+    "ended": "已结束",
+    "rewards": "掉宝奖励",
+    "items": "件",
+    "officialDetails": "官方活动详情",
+    "liveStreamers": "正在开播的主播 (支持 Drops)",
+    "heroTitle": "Twitch 掉宝中心",
+    "heroSubtitle": "实时掌握《碧海黑帆》正在进行的 Twitch Drops 活动与奖励，关联账号并观看直播即可免费获取游戏内专属外观与限定奖励！",
+    "refresh": "刷新掉宝",
+    "myInventory": "Twitch 掉宝背包",
+    "statActive": "当前生效活动",
+    "statHistory": "历史档案总数",
+    "statRewards": "累计掉宝奖励",
+    "unitCampaign": "个",
+    "unitItems": "件",
+    "currentSectionTitle": "当前进行中掉宝",
+    "noActiveTitle": "当前暂无生效中的 Twitch 掉宝活动",
+    "noActiveSubtitle": "育碧通常会在新赛季上线、重大内容更新或周末特别活动期间开启 Twitch Drops 掉宝。您可以浏览下方过往掉宝档案，或关注机器人通知。",
+    "visitTwitchDirectory": "浏览 Twitch 碧海黑帆专区",
+    "historySectionTitle": "掉宝历史档案",
+    "records": "条记录",
+    "filterAll": "全部",
+    "filterEnded": "已结束",
+    "filterActive": "进行中",
+    "noHistoryFound": "未找到匹配的掉宝历史记录",
+    "tryClearFilter": "请尝试调整搜索关键词或状态筛选",
+    "meta": {
+      "keywords": "碧海黑帆,Skull and Bones,Twitch Drops,掉宝,掉宝历史,观看奖励",
+      "description": "《碧海黑帆》Twitch Drops 掉宝活动追踪、当前生效掉宝与历史奖励档案。"
+    }
+  },
   "calendar": {
     "title": "日历",
     "today": "今日",
@@ -1984,6 +2018,10 @@
       "calendar": {
         "title": "日历",
         "description": "查看赛季活动，订阅日历"
+      },
+      "drop": {
+        "title": "Twitch 掉宝",
+        "description": "查看当前生效掉宝活动与历史档案"
       },
       "maps": {
         "title": "地图",

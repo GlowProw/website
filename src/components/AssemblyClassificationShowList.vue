@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {Cosmetics, Items, Materials, Modifications, Sets, Ships, Ultimates} from "glow-prow-data";
+import {Commodities, Cosmetics, Items, MapLocations, Materials, Modifications, Sets, Ships, TreasureMaps, Ultimates} from "glow-prow-data";
 import {computed, onMounted, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
@@ -25,6 +25,12 @@ import CosmeticIconWidget from "@/components/snbWidget/cosmeticIconWidget.vue";
 import CosmeticName from "@/components/snbWidget/cosmeticName.vue";
 import SetIconWidget from "@/components/snbWidget/setIconWidget.vue";
 import SetName from "@/components/snbWidget/setName.vue";
+import CommoditieIconWidget from "@/components/snbWidget/commoditieIconWidget.vue";
+import CommoditieName from "@/components/snbWidget/commoditieName.vue";
+import TreasureMapIconWidget from "@/components/snbWidget/treasureMapIconWidget.vue";
+import TreasureMapName from "@/components/snbWidget/treasureMapName.vue";
+import MapLocationIconWidget from "@/components/snbWidget/mapLocationIconWidget.vue";
+import MapLocationName from "@/components/snbWidget/mapLocationName.vue";
 
 const castToAny = (v: any) => v;
 
@@ -72,6 +78,12 @@ const rawData = computed<any>(() => {
       return Modifications;
     case "set":
       return Sets;
+    case "commoditie":
+      return Commodities;
+    case "treasureMap":
+      return TreasureMaps;
+    case "mapLocation":
+      return MapLocations;
     default:
       return {};
   }
@@ -105,7 +117,11 @@ const handleIDataName = (id: string) => {
     `snb.modifications.${rawId}.name`,
     `snb.modifications.${sanitizeId}.name`,
     `snb.sets.${rawId}.name`,
-    `snb.sets.${sanitizeId}.name`
+    `snb.sets.${sanitizeId}.name`,
+    `snb.commodities.${rawId}.name`,
+    `snb.commodities.${sanitizeId}.name`,
+    `snb.treasureMaps.${rawId}.name`,
+    `snb.mapLocations.${rawId}.name`
   ])
 
   nameCache.set(id, name)
@@ -560,6 +576,66 @@ defineOptions({name: 'AssemblyClassificationShowList'})
                         style="width: 99px">
                       <div class="singe-line">
                         <SetName :id="item.id"></SetName>
+                      </div>
+                    </div>
+                  </template>
+
+                  <template v-else-if="loadDataType === 'commoditie'">
+                    <ItemSlotBase
+                        :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
+                        size="99px">
+                      <CommoditieIconWidget
+                          :id="item.id"
+                          :is-open-detail="false"
+                          :is-show-tooltip="false"
+                      ></CommoditieIconWidget>
+                    </ItemSlotBase>
+                    <div
+                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
+                        class="text-center d-flex justify-center"
+                        style="width: 99px">
+                      <div class="singe-line">
+                        <CommoditieName :id="item.id"></CommoditieName>
+                      </div>
+                    </div>
+                  </template>
+
+                  <template v-else-if="loadDataType === 'treasureMap'">
+                    <ItemSlotBase
+                        :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
+                        size="99px">
+                      <TreasureMapIconWidget
+                          :id="item.id"
+                          :is-open-detail="false"
+                          :is-show-tooltip="false"
+                      ></TreasureMapIconWidget>
+                    </ItemSlotBase>
+                    <div
+                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
+                        class="text-center d-flex justify-center"
+                        style="width: 99px">
+                      <div class="singe-line">
+                        <TreasureMapName :id="item.id"></TreasureMapName>
+                      </div>
+                    </div>
+                  </template>
+
+                  <template v-else-if="loadDataType === 'mapLocation'">
+                    <ItemSlotBase
+                        :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
+                        size="99px">
+                      <MapLocationIconWidget
+                          :id="item.id"
+                          :is-open-detail="false"
+                          :is-show-tooltip="false"
+                      ></MapLocationIconWidget>
+                    </ItemSlotBase>
+                    <div
+                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
+                        class="text-center d-flex justify-center"
+                        style="width: 99px">
+                      <div class="singe-line">
+                        <MapLocationName :id="item.id"></MapLocationName>
                       </div>
                     </div>
                   </template>

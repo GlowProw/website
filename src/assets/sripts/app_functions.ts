@@ -20,6 +20,12 @@ export default class AppFuns {
             to: '/calendar'
         },
         {
+            title: 'header.functions.drop.title',
+            icon: 'mdi-gift-outline',
+            description: 'header.functions.drop.description',
+            to: '/drop'
+        },
+        {
             title: 'header.functions.maps.title',
             icon: 'mdi-map',
             description: 'header.functions.maps.description',
