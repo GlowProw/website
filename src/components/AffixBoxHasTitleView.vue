@@ -3,12 +3,14 @@ import AffixView from "@/components/AffixView.vue";
 
 interface Props {
   disabled?: boolean
+  disabledTitle?: boolean
   offsetTop?: number
   offsetBottom?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
   disabled: false,
+  disabledTitle: false,
   offsetTop: 80,
   offsetBottom: 0,
 })
@@ -24,7 +26,7 @@ defineOptions({
       class="position-relative"
       :offsetTop="props.offsetTop"
       :offsetBottom="props.offsetBottom"
-      :disabled="props.disabled">
+      :disabled="props.disabled || props.disabledTitle">
     <div>
       <slot></slot>
     </div>

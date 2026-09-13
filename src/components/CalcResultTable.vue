@@ -12,18 +12,24 @@ import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import ItemName from "@/components/snbWidget/itemName.vue";
 import DamageIconWidget from "@/components/snbWidget/damageIconWidget.vue";
 import ShipSailSpeedWidget from "@/components/snbWidget/shipSailSpeedWidget.vue";
-import {Ships, type Ship} from "glow-prow-data";
+import {type Ship, Ships} from "glow-prow-data";
 
 const {t} = useI18n();
 const {perk} = useI18nReadName();
 
 interface Props {
   result: ItemCalcResult;
+  targetResult?: ItemCalcResult | null;
   isSimulationShipSailSpeed?: boolean;
+  isColOne?: boolean;
+  isDisabledMoveTitle?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  isSimulationShipSailSpeed: true
+  targetResult: null,
+  isSimulationShipSailSpeed: true,
+  isColOne: false,
+  isDisabledMoveTitle: false,
 });
 
 const data = computed<Ship | null>(() => {
@@ -110,6 +116,88 @@ const totalMitigation = computed(() => {
   return merged;
 });
 
+const targetTotalMitigation = computed(() => {
+  const r = props.targetResult;
+  if (!r) return {};
+  const merged: Record<string, { armor: number; ship: number; total: number }> = {};
+
+  const allKeys = new Set([
+    ...Object.keys(r.damageMitigation || {}),
+    ...Object.keys(r.shipDamageMitigation || {}),
+  ]);
+
+  for (const key of Array.from(allKeys)) {
+    const armorVal = r.damageMitigation?.[key] ?? 0;
+    const shipVal = r.shipDamageMitigation?.[key] ?? 0;
+    const total = armorVal + shipVal;
+    if (armorVal > 0 || shipVal > 0) {
+      merged[key] = {armor: armorVal, ship: shipVal, total};
+    }
+  }
+
+  return merged;
+});
+
+/**
+ * 计算数值差异
+ * 比目标值高：绿色向上三角 ▲ + diff
+ * 比目标值低：深红色向下三角 ▼ - diff
+ */
+function getDiff(
+    current: number | undefined | null,
+    target: number | undefined | null,
+    options?: { isPercent?: boolean; isTime?: boolean }
+) {
+  if (!props.targetResult || current == null || target == null) return null;
+  const c = Number(current);
+  const t = Number(target);
+  if (isNaN(c) || isNaN(t) || Math.abs(c - t) < 0.0001) return null;
+
+  const diff = c - t;
+  const isHigher = diff > 0;
+
+  let formattedDiff = '';
+  if (options?.isPercent) {
+    formattedDiff = `${(Math.abs(diff) * 100).toFixed(0)}%`;
+  } else if (options?.isTime) {
+    formattedDiff = `${(Math.abs(diff) / 1000).toFixed(2)}s`;
+  } else {
+    formattedDiff = Math.abs(diff) >= 1000
+        ? formatNumber(Math.round(Math.abs(diff)))
+        : (Math.abs(diff) % 1 === 0 ? String(Math.abs(diff)) : Math.abs(diff).toFixed(2));
+  }
+
+  return {
+    isHigher,
+    color: isHigher ? '#4CAF50' : '#D32F2F', // 高为绿色，低为深红
+    icon: isHigher ? 'mdi-triangle' : 'mdi-triangle-down',
+    text: `${isHigher ? '+' : '-'}${formattedDiff}`
+  };
+}
+
+/**
+ * 获取对应武器方向的 target stats
+ */
+function getTargetDirectionStats(direction: string) {
+  if (!props.targetResult?.weaponStats) return null;
+  return props.targetResult.weaponStats.find(w => w.direction === direction) || null;
+}
+
+function getTargetWeapon(direction: string, idx: number) {
+  const dir = getTargetDirectionStats(direction);
+  return dir?.weapons?.[idx] || null;
+}
+
+function getTargetAuxWeapon(idx: number) {
+  if (!props.targetResult?.auxiliaryWeaponStats) return null;
+  return props.targetResult.auxiliaryWeaponStats[idx] || null;
+}
+
+function getTargetAuxTotalDPS() {
+  if (!props.targetResult?.auxiliaryWeaponStats) return null;
+  return props.targetResult.auxiliaryWeaponStats.reduce((s, w) => s + (w.dpsWithPerks || w.totalDPS), 0);
+}
+
 /**
  * 格式化百分比
  */
@@ -141,23 +229,41 @@ defineOptions({
 <template>
   <div class="calc-result-table">
     <v-row class="calc-grid-top">
-      <v-col cols="6">
-        <AffixBoxHasTitleView>
+      <v-col :cols="isColOne ? 12 : 6">
+        <AffixBoxHasTitleView :disabledTitle="isDisabledMoveTitle">
           <div variant="text" class="calc-section mb-3">
             <v-card-text class="pa-0">
               <table class="calc-table">
                 <tbody>
                 <tr>
                   <td class="label">{{ t('assembly.calc.hitPoints') }}</td>
-                  <td class="value" colspan="2">{{ formatNumber(result.hitPoints) }}</td>
+                  <td class="value" colspan="2">
+                    {{ formatNumber(result.hitPoints) }}
+                    <span v-if="getDiff(result.hitPoints, targetResult?.hitPoints)" :style="{ color: getDiff(result.hitPoints, targetResult?.hitPoints)?.color }" class="diff-indicator font-weight-bold ml-1">
+                      <v-icon :icon="getDiff(result.hitPoints, targetResult?.hitPoints)?.icon" size="10"></v-icon>
+                      {{ getDiff(result.hitPoints, targetResult?.hitPoints)?.text }}
+                    </span>
+                  </td>
                 </tr>
                 <tr>
                   <td class="label">{{ t('assembly.calc.braceStrength') }}</td>
-                  <td class="value" colspan="2">{{ formatNumber(result.braceStrength) }}</td>
+                  <td class="value" colspan="2">
+                    {{ formatNumber(result.braceStrength) }}
+                    <span v-if="getDiff(result.braceStrength, targetResult?.braceStrength)" :style="{ color: getDiff(result.braceStrength, targetResult?.braceStrength)?.color }" class="diff-indicator font-weight-bold ml-1">
+                      <v-icon :icon="getDiff(result.braceStrength, targetResult?.braceStrength)?.icon" size="10"></v-icon>
+                      {{ getDiff(result.braceStrength, targetResult?.braceStrength)?.text }}
+                    </span>
+                  </td>
                 </tr>
                 <tr>
                   <td class="label">{{ t('assembly.calc.stamina') }}</td>
-                  <td class="value" colspan="2">{{ result.stamina }}</td>
+                  <td class="value" colspan="2">
+                    {{ result.stamina }}
+                    <span v-if="getDiff(result.stamina, targetResult?.stamina)" :style="{ color: getDiff(result.stamina, targetResult?.stamina)?.color }" class="diff-indicator font-weight-bold ml-1">
+                      <v-icon :icon="getDiff(result.stamina, targetResult?.stamina)?.icon" size="10"></v-icon>
+                      {{ getDiff(result.stamina, targetResult?.stamina)?.text }}
+                    </span>
+                  </td>
                 </tr>
                 <tr class="separator">
                   <td class="label" colspan="3">{{ t('assembly.calc.sailSpeed') }}</td>
@@ -165,23 +271,41 @@ defineOptions({
                 <tr>
                   <td colspan="4" class="pa-0">
                     <v-row dense>
-                      <v-col cols="12" lg="5">
+                      <v-col cols="12" :lg="isColOne ? 12 : 5">
                         <table class="calc-table">
                           <tr>
                             <td class="label sub">{{ t('assembly.calc.halfSail') }}</td>
-                            <td class="value">{{ result.sailSpeed.halfSail }}</td>
+                            <td class="value">
+                              {{ result.sailSpeed.halfSail }}
+                              <span v-if="getDiff(result.sailSpeed.halfSail, targetResult?.sailSpeed?.halfSail)" :style="{ color: getDiff(result.sailSpeed.halfSail, targetResult?.sailSpeed?.halfSail)?.color }" class="diff-indicator font-weight-bold ml-1">
+                                <v-icon :icon="getDiff(result.sailSpeed.halfSail, targetResult?.sailSpeed?.halfSail)?.icon" size="10"></v-icon>
+                                {{ getDiff(result.sailSpeed.halfSail, targetResult?.sailSpeed?.halfSail)?.text }}
+                              </span>
+                            </td>
                           </tr>
                           <tr>
                             <td class="label sub">{{ t('assembly.calc.fullSail') }}</td>
-                            <td class="value">{{ result.sailSpeed.fullSail }}</td>
+                            <td class="value">
+                              {{ result.sailSpeed.fullSail }}
+                              <span v-if="getDiff(result.sailSpeed.fullSail, targetResult?.sailSpeed?.fullSail)" :style="{ color: getDiff(result.sailSpeed.fullSail, targetResult?.sailSpeed?.fullSail)?.color }" class="diff-indicator font-weight-bold ml-1">
+                                <v-icon :icon="getDiff(result.sailSpeed.fullSail, targetResult?.sailSpeed?.fullSail)?.icon" size="10"></v-icon>
+                                {{ getDiff(result.sailSpeed.fullSail, targetResult?.sailSpeed?.fullSail)?.text }}
+                              </span>
+                            </td>
                           </tr>
                           <tr>
                             <td class="label sub">{{ t('assembly.calc.travelSail') }}</td>
-                            <td class="value">{{ result.sailSpeed.travelSail }}</td>
+                            <td class="value">
+                              {{ result.sailSpeed.travelSail }}
+                              <span v-if="getDiff(result.sailSpeed.travelSail, targetResult?.sailSpeed?.travelSail)" :style="{ color: getDiff(result.sailSpeed.travelSail, targetResult?.sailSpeed?.travelSail)?.color }" class="diff-indicator font-weight-bold ml-1">
+                                <v-icon :icon="getDiff(result.sailSpeed.travelSail, targetResult?.sailSpeed?.travelSail)?.icon" size="10"></v-icon>
+                                {{ getDiff(result.sailSpeed.travelSail, targetResult?.sailSpeed?.travelSail)?.text }}
+                              </span>
+                            </td>
                           </tr>
                         </table>
                       </v-col>
-                      <v-col cols="12" lg="7">
+                      <v-col cols="12" lg="7" v-if="!isColOne">
                         <ShipSailSpeedWidget
                             class="mt-n14"
                             v-if="data"
@@ -199,14 +323,24 @@ defineOptions({
                 </tr>
                 <tr>
                   <td class="label sub">{{ t('assembly.calc.cargoSlots') }}</td>
-                  <td class="value" colspan="2">{{ result.cargo.cargoSlots }}</td>
+                  <td class="value" colspan="2">
+                    {{ result.cargo.cargoSlots }}
+                    <span v-if="getDiff(result.cargo.cargoSlots, targetResult?.cargo?.cargoSlots)" :style="{ color: getDiff(result.cargo.cargoSlots, targetResult?.cargo?.cargoSlots)?.color }" class="diff-indicator font-weight-bold ml-1">
+                      <v-icon :icon="getDiff(result.cargo.cargoSlots, targetResult?.cargo?.cargoSlots)?.icon" size="10"></v-icon>
+                      {{ getDiff(result.cargo.cargoSlots, targetResult?.cargo?.cargoSlots)?.text }}
+                    </span>
+                  </td>
                 </tr>
                 <tr>
                   <td class="label sub">{{ t('assembly.calc.weight') }}</td>
                   <td class="value" colspan="2">
-                    <div>{{ t('assembly.calc.max') }} <u class="u">{{ formatNumber(result.cargo.cargoMaxWeight) }}</u></div>
-<!--                    <div>{{ t('assembly.calc.used') }} {{ formatNumber(result.totalWeight) }}</div>-->
-<!--                    <div>{{ t('assembly.calc.free') }} {{ formatNumber(result.cargo.cargoMaxWeight - result.totalWeight) }}</div>-->
+                    <div>
+                      {{ t('assembly.calc.max') }} <u class="u">{{ formatNumber(result.cargo.cargoMaxWeight) }}</u>
+                      <span v-if="getDiff(result.cargo.cargoMaxWeight, targetResult?.cargo?.cargoMaxWeight)" :style="{ color: getDiff(result.cargo.cargoMaxWeight, targetResult?.cargo?.cargoMaxWeight)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(result.cargo.cargoMaxWeight, targetResult?.cargo?.cargoMaxWeight)?.icon" size="10"></v-icon>
+                        {{ getDiff(result.cargo.cargoMaxWeight, targetResult?.cargo?.cargoMaxWeight)?.text }}
+                      </span>
+                    </div>
                   </td>
                 </tr>
                 </tbody>
@@ -218,7 +352,7 @@ defineOptions({
           </template>
         </AffixBoxHasTitleView>
 
-        <AffixBoxHasTitleView>
+        <AffixBoxHasTitleView :disabledTitle="isDisabledMoveTitle">
           <v-divider class="mb-2"></v-divider>
           <div variant="text" class="calc-section">
             <v-card-text class="pa-0">
@@ -246,6 +380,10 @@ defineOptions({
                         <DamageIconWidget id="armor" iconType="armor" :is-border="false"></DamageIconWidget>
                       </ItemSlotBase>
                       <u class="u">{{ formatNumber(result.armor) }}</u>
+                      <span v-if="getDiff(result.armor, targetResult?.armor)" :style="{ color: getDiff(result.armor, targetResult?.armor)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(result.armor, targetResult?.armor)?.icon" size="10"></v-icon>
+                        {{ getDiff(result.armor, targetResult?.armor)?.text }}
+                      </span>
                     </div>
                   </td>
                 </tr>
@@ -267,7 +405,13 @@ defineOptions({
                     </td>
                     <td class="value text-left">{{ fmtPct(totalMitigation[key].armor) }}</td>
                     <td class="value text-center">{{ fmtPct(totalMitigation[key].ship) }}</td>
-                    <td class="value text-right text-amber">{{ fmtPct(totalMitigation[key].total) }}</td>
+                    <td class="value text-right text-amber">
+                      {{ fmtPct(totalMitigation[key].total) }}
+                      <span v-if="getDiff(totalMitigation[key].total, targetTotalMitigation[key]?.total, { isPercent: true })" :style="{ color: getDiff(totalMitigation[key].total, targetTotalMitigation[key]?.total, { isPercent: true })?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(totalMitigation[key].total, targetTotalMitigation[key]?.total, { isPercent: true })?.icon" size="10"></v-icon>
+                        {{ getDiff(totalMitigation[key].total, targetTotalMitigation[key]?.total, {isPercent: true})?.text }}
+                      </span>
+                    </td>
                   </tr>
                 </template>
                 </tbody>
@@ -281,73 +425,157 @@ defineOptions({
         </AffixBoxHasTitleView>
       </v-col>
 
-      <v-col cols="6">
-        <AffixBoxHasTitleView>
+      <v-col :cols="isColOne ? 12 : 6">
+        <AffixBoxHasTitleView :disabledTitle="isDisabledMoveTitle">
           <div variant="text" class="calc-section">
             <v-card-text class="pa-0">
               <table class="calc-table">
                 <tbody>
                 <tr>
                   <td class="label">{{ t('assembly.calc.baseDps') }}</td>
-                  <td class="value">{{ fmtDps(result.baseDPS) }}</td>
+                  <td class="value">
+                    {{ fmtDps(result.baseDPS) }}
+                    <span v-if="getDiff(result.baseDPS, targetResult?.baseDPS)" :style="{ color: getDiff(result.baseDPS, targetResult?.baseDPS)?.color }" class="diff-indicator font-weight-bold ml-1">
+                      <v-icon :icon="getDiff(result.baseDPS, targetResult?.baseDPS)?.icon" size="10"></v-icon>
+                      {{ getDiff(result.baseDPS, targetResult?.baseDPS)?.text }}
+                    </span>
+                  </td>
                 </tr>
                 <tr class="highlight-row">
                   <td class="label">{{ t('assembly.calc.dpsWithPerks') }}</td>
-                  <td class="value accent">{{ fmtDps(result.dpsWithPerks || result.totalDPS) }}</td>
+                  <td class="value accent">
+                    {{ fmtDps(result.dpsWithPerks || result.totalDPS) }}
+                    <span v-if="getDiff((result.dpsWithPerks || result.totalDPS), (targetResult?.dpsWithPerks || targetResult?.totalDPS))" :style="{ color: getDiff((result.dpsWithPerks || result.totalDPS), (targetResult?.dpsWithPerks || targetResult?.totalDPS))?.color }" class="diff-indicator font-weight-bold ml-1">
+                      <v-icon :icon="getDiff((result.dpsWithPerks || result.totalDPS), (targetResult?.dpsWithPerks || targetResult?.totalDPS))?.icon" size="10"></v-icon>
+                      {{ getDiff((result.dpsWithPerks || result.totalDPS), (targetResult?.dpsWithPerks || targetResult?.totalDPS))?.text }}
+                    </span>
+                  </td>
                 </tr>
                 <tr v-if="result.shareExplosive > 0">
                   <td class="label sub">{{ t('assembly.calc.shareExplosive') }}</td>
-                  <td class="value">{{ fmtDps(result.shareExplosive) }}</td>
+                  <td class="value">
+                    {{ fmtDps(result.shareExplosive) }}
+                    <span v-if="getDiff(result.shareExplosive, targetResult?.shareExplosive)" :style="{ color: getDiff(result.shareExplosive, targetResult?.shareExplosive)?.color }" class="diff-indicator font-weight-bold ml-1">
+                      <v-icon :icon="getDiff(result.shareExplosive, targetResult?.shareExplosive)?.icon" size="10"></v-icon>
+                      {{ getDiff(result.shareExplosive, targetResult?.shareExplosive)?.text }}
+                    </span>
+                  </td>
                 </tr>
                 <tr v-if="result.shareFire > 0">
                   <td class="label sub">{{ t('assembly.calc.shareFire') }}</td>
-                  <td class="value">{{ fmtDps(result.shareFire) }}</td>
+                  <td class="value">
+                    {{ fmtDps(result.shareFire) }}
+                    <span v-if="getDiff(result.shareFire, targetResult?.shareFire)" :style="{ color: getDiff(result.shareFire, targetResult?.shareFire)?.color }" class="diff-indicator font-weight-bold ml-1">
+                      <v-icon :icon="getDiff(result.shareFire, targetResult?.shareFire)?.icon" size="10"></v-icon>
+                      {{ getDiff(result.shareFire, targetResult?.shareFire)?.text }}
+                    </span>
+                  </td>
                 </tr>
                 <tr v-if="result.shareFlooding > 0">
                   <td class="label sub">{{ t('assembly.calc.shareFlooding') }}</td>
-                  <td class="value">{{ fmtDps(result.shareFlooding) }}</td>
+                  <td class="value">
+                    {{ fmtDps(result.shareFlooding) }}
+                    <span v-if="getDiff(result.shareFlooding, targetResult?.shareFlooding)" :style="{ color: getDiff(result.shareFlooding, targetResult?.shareFlooding)?.color }" class="diff-indicator font-weight-bold ml-1">
+                      <v-icon :icon="getDiff(result.shareFlooding, targetResult?.shareFlooding)?.icon" size="10"></v-icon>
+                      {{ getDiff(result.shareFlooding, targetResult?.shareFlooding)?.text }}
+                    </span>
+                  </td>
                 </tr>
                 <tr v-if="result.sharePiercing > 0">
                   <td class="label sub">{{ t('assembly.calc.sharePiercing') }}</td>
-                  <td class="value">{{ fmtDps(result.sharePiercing) }}</td>
+                  <td class="value">
+                    {{ fmtDps(result.sharePiercing) }}
+                    <span v-if="getDiff(result.sharePiercing, targetResult?.sharePiercing)" :style="{ color: getDiff(result.sharePiercing, targetResult?.sharePiercing)?.color }" class="diff-indicator font-weight-bold ml-1">
+                      <v-icon :icon="getDiff(result.sharePiercing, targetResult?.sharePiercing)?.icon" size="10"></v-icon>
+                      {{ getDiff(result.sharePiercing, targetResult?.sharePiercing)?.text }}
+                    </span>
+                  </td>
                 </tr>
                 <tr v-if="result.shareElectric > 0">
                   <td class="label sub">{{ t('assembly.calc.shareElectric') }}</td>
-                  <td class="value">{{ fmtDps(result.shareElectric) }}</td>
+                  <td class="value">
+                    {{ fmtDps(result.shareElectric) }}
+                    <span v-if="getDiff(result.shareElectric, targetResult?.shareElectric)" :style="{ color: getDiff(result.shareElectric, targetResult?.shareElectric)?.color }" class="diff-indicator font-weight-bold ml-1">
+                      <v-icon :icon="getDiff(result.shareElectric, targetResult?.shareElectric)?.icon" size="10"></v-icon>
+                      {{ getDiff(result.shareElectric, targetResult?.shareElectric)?.text }}
+                    </span>
+                  </td>
                 </tr>
                 <tr v-if="result.shareToxic > 0">
                   <td class="label sub">{{ t('assembly.calc.shareToxic') }}</td>
-                  <td class="value">{{ fmtDps(result.shareToxic) }}</td>
+                  <td class="value">
+                    {{ fmtDps(result.shareToxic) }}
+                    <span v-if="getDiff(result.shareToxic, targetResult?.shareToxic)" :style="{ color: getDiff(result.shareToxic, targetResult?.shareToxic)?.color }" class="diff-indicator font-weight-bold ml-1">
+                      <v-icon :icon="getDiff(result.shareToxic, targetResult?.shareToxic)?.icon" size="10"></v-icon>
+                      {{ getDiff(result.shareToxic, targetResult?.shareToxic)?.text }}
+                    </span>
+                  </td>
                 </tr>
                 <tr class="separator">
                   <td class="label" colspan="2">{{ t('assembly.calc.situationalDamage') }}</td>
                 </tr>
                 <tr v-if="result.againstWeakpoints > 0">
                   <td class="label">{{ t('assembly.calc.againstWeakpoints') }}</td>
-                  <td class="value text-warning">{{ fmtDps(result.againstWeakpoints) }}</td>
+                  <td class="value text-warning">
+                    {{ fmtDps(result.againstWeakpoints) }}
+                    <span v-if="getDiff(result.againstWeakpoints, targetResult?.againstWeakpoints)" :style="{ color: getDiff(result.againstWeakpoints, targetResult?.againstWeakpoints)?.color }" class="diff-indicator font-weight-bold ml-1">
+                      <v-icon :icon="getDiff(result.againstWeakpoints, targetResult?.againstWeakpoints)?.icon" size="10"></v-icon>
+                      {{ getDiff(result.againstWeakpoints, targetResult?.againstWeakpoints)?.text }}
+                    </span>
+                  </td>
                 </tr>
                 <tr v-if="result.againstSails > 0">
                   <td class="label">{{ t('assembly.calc.againstSails') }}</td>
-                  <td class="value">{{ fmtDps(result.againstSails) }}</td>
+                  <td class="value">
+                    {{ fmtDps(result.againstSails) }}
+                    <span v-if="getDiff(result.againstSails, targetResult?.againstSails)" :style="{ color: getDiff(result.againstSails, targetResult?.againstSails)?.color }" class="diff-indicator font-weight-bold ml-1">
+                      <v-icon :icon="getDiff(result.againstSails, targetResult?.againstSails)?.icon" size="10"></v-icon>
+                      {{ getDiff(result.againstSails, targetResult?.againstSails)?.text }}
+                    </span>
+                  </td>
                 </tr>
                 <tr v-if="result.againstStructures > 0">
                   <td class="label">{{ t('assembly.calc.againstStructures') }}</td>
-                  <td class="value">{{ fmtDps(result.againstStructures) }}</td>
+                  <td class="value">
+                    {{ fmtDps(result.againstStructures) }}
+                    <span v-if="getDiff(result.againstStructures, targetResult?.againstStructures)" :style="{ color: getDiff(result.againstStructures, targetResult?.againstStructures)?.color }" class="diff-indicator font-weight-bold ml-1">
+                      <v-icon :icon="getDiff(result.againstStructures, targetResult?.againstStructures)?.icon" size="10"></v-icon>
+                      {{ getDiff(result.againstStructures, targetResult?.againstStructures)?.text }}
+                    </span>
+                  </td>
                 </tr>
                 <tr class="separator">
                   <td class="label" colspan="2">{{ t('assembly.calc.volleyEquipment') }}</td>
                 </tr>
                 <tr>
                   <td class="label">{{ t('assembly.calc.totalDamagePerVolley') }}</td>
-                  <td class="value">{{ fmtDps(result.totalDamagePerVolley) }}</td>
+                  <td class="value">
+                    {{ fmtDps(result.totalDamagePerVolley) }}
+                    <span v-if="getDiff(result.totalDamagePerVolley, targetResult?.totalDamagePerVolley)" :style="{ color: getDiff(result.totalDamagePerVolley, targetResult?.totalDamagePerVolley)?.color }" class="diff-indicator font-weight-bold ml-1">
+                      <v-icon :icon="getDiff(result.totalDamagePerVolley, targetResult?.totalDamagePerVolley)?.icon" size="10"></v-icon>
+                      {{ getDiff(result.totalDamagePerVolley, targetResult?.totalDamagePerVolley)?.text }}
+                    </span>
+                  </td>
                 </tr>
                 <tr>
                   <td class="label">{{ t('assembly.calc.gearScore') }}</td>
-                  <td class="value">{{ result.totalGearScore }}</td>
+                  <td class="value">
+                    {{ result.totalGearScore }}
+                    <span v-if="getDiff(result.totalGearScore, targetResult?.totalGearScore)" :style="{ color: getDiff(result.totalGearScore, targetResult?.totalGearScore)?.color }" class="diff-indicator font-weight-bold ml-1">
+                      <v-icon :icon="getDiff(result.totalGearScore, targetResult?.totalGearScore)?.icon" size="10"></v-icon>
+                      {{ getDiff(result.totalGearScore, targetResult?.totalGearScore)?.text }}
+                    </span>
+                  </td>
                 </tr>
                 <tr>
                   <td class="label">{{ t('assembly.calc.totalWeight') }}</td>
-                  <td class="value">{{ formatNumber(result.totalWeight) }}</td>
+                  <td class="value">
+                    {{ formatNumber(result.totalWeight) }}
+                    <span v-if="getDiff(result.totalWeight, targetResult?.totalWeight)" :style="{ color: getDiff(result.totalWeight, targetResult?.totalWeight)?.color }" class="diff-indicator font-weight-bold ml-1">
+                      <v-icon :icon="getDiff(result.totalWeight, targetResult?.totalWeight)?.icon" size="10"></v-icon>
+                      {{ getDiff(result.totalWeight, targetResult?.totalWeight)?.text }}
+                    </span>
+                  </td>
                 </tr>
                 </tbody>
               </table>
@@ -373,7 +601,7 @@ defineOptions({
                           variant="tonal"
                           color="amber"
                           class="perk-chip"
-                         @click="showPerkDescriptions = !showPerkDescriptions">
+                          @click="showPerkDescriptions = !showPerkDescriptions">
                     <v-icon :icon="showPerkDescriptions ? 'mdi-chevron-up' : 'mdi-chevron-down'" size="small"></v-icon>
                   </v-chip>
                 </div>
@@ -398,14 +626,13 @@ defineOptions({
           </template>
         </AffixBoxHasTitleView>
       </v-col>
-
     </v-row>
 
     <v-row class="calc-grid-weapons">
       <!-- 每个方向 -->
       <template v-for="dirStats in result.weaponStats" :key="dirStats.direction">
-        <v-col cols="12" lg="4">
-          <AffixBoxHasTitleView>
+        <v-col cols="12" :lg="isColOne ? 12 : 4">
+          <AffixBoxHasTitleView :disabledTitle="isDisabledMoveTitle">
             <v-row class="direction-total-dps pt-3">
               <v-divider opacity=".2"></v-divider>
             </v-row>
@@ -426,109 +653,227 @@ defineOptions({
 
                       <p class="u text-amber">
                         {{ fmtDps(dirStats.dpsWithPerks || dirStats.totalDPS) }}
+                        <span v-if="getDiff(dirStats.dpsWithPerks || dirStats.totalDPS, getTargetDirectionStats(dirStats.direction)?.dpsWithPerks || getTargetDirectionStats(dirStats.direction)?.totalDPS)" :style="{ color: getDiff(dirStats.dpsWithPerks || dirStats.totalDPS, getTargetDirectionStats(dirStats.direction)?.dpsWithPerks || getTargetDirectionStats(dirStats.direction)?.totalDPS)?.color }" class="diff-indicator font-weight-bold ml-1">
+                          <v-icon :icon="getDiff(dirStats.dpsWithPerks || dirStats.totalDPS, getTargetDirectionStats(dirStats.direction)?.dpsWithPerks || getTargetDirectionStats(dirStats.direction)?.totalDPS)?.icon" size="10"></v-icon>
+                          {{ getDiff(dirStats.dpsWithPerks || dirStats.totalDPS, getTargetDirectionStats(dirStats.direction)?.dpsWithPerks || getTargetDirectionStats(dirStats.direction)?.totalDPS)?.text }}
+                        </span>
                       </p>
                     </th>
                   </tr>
                   <tr>
                     <th></th>
                     <th class="text-center sub-th">{{ t('assembly.calc.singleGunPort') }}</th>
-                    <th class="text-center sub-th">{{ t('assembly.calc.multiGunPorts', { count: w.gunPorts }) }}</th>
+                    <th class="text-center sub-th">{{ t('assembly.calc.multiGunPorts', {count: w.gunPorts}) }}</th>
                   </tr>
                   </thead>
                   <tbody>
                   <tr>
                     <td class="label">{{ t('assembly.calc.baseDamageDps') }}</td>
-                    <td class="value text-center">{{ fmtDps(w.singlePortBaseDPS) }}</td>
-                    <td class="value text-center">{{ fmtDps(w.baseDPS) }}</td>
+                    <td class="value text-center">
+                      {{ fmtDps(w.singlePortBaseDPS) }}
+                      <span v-if="getDiff(w.singlePortBaseDPS, getTargetWeapon(dirStats.direction, idx)?.singlePortBaseDPS)" :style="{ color: getDiff(w.singlePortBaseDPS, getTargetWeapon(dirStats.direction, idx)?.singlePortBaseDPS)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.singlePortBaseDPS, getTargetWeapon(dirStats.direction, idx)?.singlePortBaseDPS)?.icon" size="10"></v-icon>
+                        {{ getDiff(w.singlePortBaseDPS, getTargetWeapon(dirStats.direction, idx)?.singlePortBaseDPS)?.text }}
+                      </span>
+                    </td>
+                    <td class="value text-center">
+                      {{ fmtDps(w.baseDPS) }}
+                      <span v-if="getDiff(w.baseDPS, getTargetWeapon(dirStats.direction, idx)?.baseDPS)" :style="{ color: getDiff(w.baseDPS, getTargetWeapon(dirStats.direction, idx)?.baseDPS)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.baseDPS, getTargetWeapon(dirStats.direction, idx)?.baseDPS)?.icon" size="10"></v-icon>
+                        {{ getDiff(w.baseDPS, getTargetWeapon(dirStats.direction, idx)?.baseDPS)?.text }}
+                      </span>
+                    </td>
                   </tr>
                   <tr class="highlight-row">
                     <td class="label">{{ t('assembly.calc.damageWithPerks') }}</td>
-                    <td class="value text-center">{{ fmtDps(w.singlePortDpsWithPerks) }}</td>
-                    <td class="value text-center accent">{{ fmtDps(w.dpsWithPerks || w.totalDPS) }}</td>
+                    <td class="value text-center">
+                      {{ fmtDps(w.singlePortDpsWithPerks) }}
+                      <span v-if="getDiff(w.singlePortDpsWithPerks, getTargetWeapon(dirStats.direction, idx)?.singlePortDpsWithPerks)" :style="{ color: getDiff(w.singlePortDpsWithPerks, getTargetWeapon(dirStats.direction, idx)?.singlePortDpsWithPerks)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.singlePortDpsWithPerks, getTargetWeapon(dirStats.direction, idx)?.singlePortDpsWithPerks)?.icon" size="10"></v-icon>
+                        {{ getDiff(w.singlePortDpsWithPerks, getTargetWeapon(dirStats.direction, idx)?.singlePortDpsWithPerks)?.text }}
+                      </span>
+                    </td>
+                    <td class="value text-center accent">
+                      {{ fmtDps(w.dpsWithPerks || w.totalDPS) }}
+                      <span v-if="getDiff(w.dpsWithPerks || w.totalDPS, getTargetWeapon(dirStats.direction, idx)?.dpsWithPerks || getTargetWeapon(dirStats.direction, idx)?.totalDPS)" :style="{ color: getDiff(w.dpsWithPerks || w.totalDPS, getTargetWeapon(dirStats.direction, idx)?.dpsWithPerks || getTargetWeapon(dirStats.direction, idx)?.totalDPS)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.dpsWithPerks || w.totalDPS, getTargetWeapon(dirStats.direction, idx)?.dpsWithPerks || getTargetWeapon(dirStats.direction, idx)?.totalDPS)?.icon" size="10"></v-icon>
+                        {{ getDiff(w.dpsWithPerks || w.totalDPS, getTargetWeapon(dirStats.direction, idx)?.dpsWithPerks || getTargetWeapon(dirStats.direction, idx)?.totalDPS)?.text }}
+                      </span>
+                    </td>
                   </tr>
                   <tr v-if="w.shareExplosive > 0">
                     <td class="label sub">{{ t('assembly.calc.shareExplosive') }}</td>
-                    <td class="value text-center" colspan="2">{{ fmtDps(w.shareExplosive) }}</td>
+                    <td class="value text-center" colspan="2">
+                      {{ fmtDps(w.shareExplosive) }}
+                      <span v-if="getDiff(w.shareExplosive, getTargetWeapon(dirStats.direction, idx)?.shareExplosive)" :style="{ color: getDiff(w.shareExplosive, getTargetWeapon(dirStats.direction, idx)?.shareExplosive)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.shareExplosive, getTargetWeapon(dirStats.direction, idx)?.shareExplosive)?.icon" size="10"></v-icon>
+                        {{ getDiff(w.shareExplosive, getTargetWeapon(dirStats.direction, idx)?.shareExplosive)?.text }}
+                      </span>
+                    </td>
                   </tr>
                   <tr v-if="w.shareFire > 0">
                     <td class="label sub">{{ t('assembly.calc.shareFire') }}</td>
-                    <td class="value text-center" colspan="2">{{ fmtDps(w.shareFire) }}</td>
+                    <td class="value text-center" colspan="2">
+                      {{ fmtDps(w.shareFire) }}
+                      <span v-if="getDiff(w.shareFire, getTargetWeapon(dirStats.direction, idx)?.shareFire)" :style="{ color: getDiff(w.shareFire, getTargetWeapon(dirStats.direction, idx)?.shareFire)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.shareFire, getTargetWeapon(dirStats.direction, idx)?.shareFire)?.icon" size="10"></v-icon>
+                        {{ getDiff(w.shareFire, getTargetWeapon(dirStats.direction, idx)?.shareFire)?.text }}
+                      </span>
+                    </td>
                   </tr>
                   <tr v-if="w.shareFlooding > 0">
                     <td class="label sub">{{ t('assembly.calc.shareFlooding') }}</td>
-                    <td class="value text-center" colspan="2">{{ fmtDps(w.shareFlooding) }}</td>
+                    <td class="value text-center" colspan="2">
+                      {{ fmtDps(w.shareFlooding) }}
+                      <span v-if="getDiff(w.shareFlooding, getTargetWeapon(dirStats.direction, idx)?.shareFlooding)" :style="{ color: getDiff(w.shareFlooding, getTargetWeapon(dirStats.direction, idx)?.shareFlooding)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.shareFlooding, getTargetWeapon(dirStats.direction, idx)?.shareFlooding)?.icon" size="10"></v-icon>
+                        {{ getDiff(w.shareFlooding, getTargetWeapon(dirStats.direction, idx)?.shareFlooding)?.text }}
+                      </span>
+                    </td>
                   </tr>
                   <tr v-if="w.sharePiercing > 0">
                     <td class="label sub">{{ t('assembly.calc.sharePiercing') }}</td>
-                    <td class="value text-center" colspan="2">{{ fmtDps(w.sharePiercing) }}</td>
+                    <td class="value text-center" colspan="2">
+                      {{ fmtDps(w.sharePiercing) }}
+                      <span v-if="getDiff(w.sharePiercing, getTargetWeapon(dirStats.direction, idx)?.sharePiercing)" :style="{ color: getDiff(w.sharePiercing, getTargetWeapon(dirStats.direction, idx)?.sharePiercing)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.sharePiercing, getTargetWeapon(dirStats.direction, idx)?.sharePiercing)?.icon" size="10"></v-icon>
+                        {{ getDiff(w.sharePiercing, getTargetWeapon(dirStats.direction, idx)?.sharePiercing)?.text }}
+                      </span>
+                    </td>
                   </tr>
                   <tr v-if="w.shareElectric > 0">
                     <td class="label sub">{{ t('assembly.calc.shareElectric') }}</td>
-                    <td class="value text-center" colspan="2">{{ fmtDps(w.shareElectric) }}</td>
+                    <td class="value text-center" colspan="2">
+                      {{ fmtDps(w.shareElectric) }}
+                      <span v-if="getDiff(w.shareElectric, getTargetWeapon(dirStats.direction, idx)?.shareElectric)" :style="{ color: getDiff(w.shareElectric, getTargetWeapon(dirStats.direction, idx)?.shareElectric)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.shareElectric, getTargetWeapon(dirStats.direction, idx)?.shareElectric)?.icon" size="10"></v-icon>
+                        {{ getDiff(w.shareElectric, getTargetWeapon(dirStats.direction, idx)?.shareElectric)?.text }}
+                      </span>
+                    </td>
                   </tr>
                   <tr v-if="w.shareToxic > 0">
                     <td class="label sub">{{ t('assembly.calc.shareToxic') }}</td>
-                    <td class="value text-center" colspan="2">{{ fmtDps(w.shareToxic) }}</td>
+                    <td class="value text-center" colspan="2">
+                      {{ fmtDps(w.shareToxic) }}
+                      <span v-if="getDiff(w.shareToxic, getTargetWeapon(dirStats.direction, idx)?.shareToxic)" :style="{ color: getDiff(w.shareToxic, getTargetWeapon(dirStats.direction, idx)?.shareToxic)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.shareToxic, getTargetWeapon(dirStats.direction, idx)?.shareToxic)?.icon" size="10"></v-icon>
+                        {{ getDiff(w.shareToxic, getTargetWeapon(dirStats.direction, idx)?.shareToxic)?.text }}
+                      </span>
+                    </td>
                   </tr>
                   <tr v-if="w.againstWeakpoints > 0">
                     <td class="label">{{ t('assembly.calc.weakpointCrit') }}</td>
-                    <td class="value text-center text-warning" colspan="2">{{ fmtDps(w.againstWeakpoints) }}</td>
+                    <td class="value text-center text-warning" colspan="2">
+                      {{ fmtDps(w.againstWeakpoints) }}
+                      <span v-if="getDiff(w.againstWeakpoints, getTargetWeapon(dirStats.direction, idx)?.againstWeakpoints)" :style="{ color: getDiff(w.againstWeakpoints, getTargetWeapon(dirStats.direction, idx)?.againstWeakpoints)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.againstWeakpoints, getTargetWeapon(dirStats.direction, idx)?.againstWeakpoints)?.icon" size="10"></v-icon>
+                        {{ getDiff(w.againstWeakpoints, getTargetWeapon(dirStats.direction, idx)?.againstWeakpoints)?.text }}
+                      </span>
+                    </td>
                   </tr>
                   <tr v-if="w.againstSails > 0">
                     <td class="label">{{ t('assembly.calc.againstSails') }}</td>
-                    <td class="value text-center" colspan="2">{{ fmtDps(w.againstSails) }}</td>
+                    <td class="value text-center" colspan="2">
+                      {{ fmtDps(w.againstSails) }}
+                      <span v-if="getDiff(w.againstSails, getTargetWeapon(dirStats.direction, idx)?.againstSails)" :style="{ color: getDiff(w.againstSails, getTargetWeapon(dirStats.direction, idx)?.againstSails)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.againstSails, getTargetWeapon(dirStats.direction, idx)?.againstSails)?.icon" size="10"></v-icon>
+                        {{ getDiff(w.againstSails, getTargetWeapon(dirStats.direction, idx)?.againstSails)?.text }}
+                      </span>
+                    </td>
                   </tr>
                   <tr v-if="w.againstStructures > 0">
                     <td class="label">{{ t('assembly.calc.againstStructuresShort') }}</td>
-                    <td class="value text-center" colspan="2">{{ fmtDps(w.againstStructures) }}</td>
+                    <td class="value text-center" colspan="2">
+                      {{ fmtDps(w.againstStructures) }}
+                      <span v-if="getDiff(w.againstStructures, getTargetWeapon(dirStats.direction, idx)?.againstStructures)" :style="{ color: getDiff(w.againstStructures, getTargetWeapon(dirStats.direction, idx)?.againstStructures)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.againstStructures, getTargetWeapon(dirStats.direction, idx)?.againstStructures)?.icon" size="10"></v-icon>
+                        {{ getDiff(w.againstStructures, getTargetWeapon(dirStats.direction, idx)?.againstStructures)?.text }}
+                      </span>
+                    </td>
                   </tr>
                   <tr class="separator">
                     <td class="label" colspan="3">{{ t('assembly.calc.firingAttributes') }}</td>
                   </tr>
                   <tr>
                     <td class="label">{{ t('assembly.calc.damagePerShotVolley') }}</td>
-                    <td class="value text-center">{{ fmtDps(w.totalDamagePerShot) }}</td>
-                    <td class="value text-center">{{ fmtDps(w.totalDamagePerVolley) }}</td>
+                    <td class="value text-center">
+                      {{ fmtDps(w.totalDamagePerShot) }}
+                      <span v-if="getDiff(w.totalDamagePerShot, getTargetWeapon(dirStats.direction, idx)?.totalDamagePerShot)" :style="{ color: getDiff(w.totalDamagePerShot, getTargetWeapon(dirStats.direction, idx)?.totalDamagePerShot)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.totalDamagePerShot, getTargetWeapon(dirStats.direction, idx)?.totalDamagePerShot)?.icon" size="10"></v-icon>
+                        {{ getDiff(w.totalDamagePerShot, getTargetWeapon(dirStats.direction, idx)?.totalDamagePerShot)?.text }}
+                      </span>
+                    </td>
+                    <td class="value text-center">
+                      {{ fmtDps(w.totalDamagePerVolley) }}
+                      <span v-if="getDiff(w.totalDamagePerVolley, getTargetWeapon(dirStats.direction, idx)?.totalDamagePerVolley)" :style="{ color: getDiff(w.totalDamagePerVolley, getTargetWeapon(dirStats.direction, idx)?.totalDamagePerVolley)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.totalDamagePerVolley, getTargetWeapon(dirStats.direction, idx)?.totalDamagePerVolley)?.icon" size="10"></v-icon>
+                        {{ getDiff(w.totalDamagePerVolley, getTargetWeapon(dirStats.direction, idx)?.totalDamagePerVolley)?.text }}
+                      </span>
+                    </td>
                   </tr>
                   <tr>
                     <td class="label">{{ t('assembly.calc.reloadSpeed') }}</td>
-                    <td class="value text-center" colspan="2">{{ fmtReload(w.finalReloadSpeed) }}</td>
+                    <td class="value text-center" colspan="2">
+                      {{ fmtReload(w.finalReloadSpeed) }}
+                      <span v-if="getDiff(w.finalReloadSpeed, getTargetWeapon(dirStats.direction, idx)?.finalReloadSpeed, { isTime: true })" :style="{ color: getDiff(w.finalReloadSpeed, getTargetWeapon(dirStats.direction, idx)?.finalReloadSpeed, { isTime: true })?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.finalReloadSpeed, getTargetWeapon(dirStats.direction, idx)?.finalReloadSpeed, { isTime: true })?.icon" size="10"></v-icon>
+                        {{ getDiff(w.finalReloadSpeed, getTargetWeapon(dirStats.direction, idx)?.finalReloadSpeed, {isTime: true})?.text }}
+                      </span>
+                    </td>
                   </tr>
                   <tr>
                     <td class="label">{{ t('assembly.calc.optimalRange') }}</td>
-                    <td class="value text-center" colspan="2">{{ w.optimalRange }}m</td>
+                    <td class="value text-center" colspan="2">
+                      {{ w.optimalRange }}m
+                      <span v-if="getDiff(w.optimalRange, getTargetWeapon(dirStats.direction, idx)?.optimalRange)" :style="{ color: getDiff(w.optimalRange, getTargetWeapon(dirStats.direction, idx)?.optimalRange)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.optimalRange, getTargetWeapon(dirStats.direction, idx)?.optimalRange)?.icon" size="10"></v-icon>
+                        {{ getDiff(w.optimalRange, getTargetWeapon(dirStats.direction, idx)?.optimalRange)?.text }}m
+                      </span>
+                    </td>
                   </tr>
                   <tr v-if="w.rateOfFire > 0">
                     <td class="label">{{ t('assembly.calc.rateOfFire') }}</td>
-                    <td class="value text-center" colspan="2">{{ w.rateOfFire }}ms</td>
+                    <td class="value text-center" colspan="2">
+                      {{ w.rateOfFire }}ms
+                      <span v-if="getDiff(w.rateOfFire, getTargetWeapon(dirStats.direction, idx)?.rateOfFire)" :style="{ color: getDiff(w.rateOfFire, getTargetWeapon(dirStats.direction, idx)?.rateOfFire)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.rateOfFire, getTargetWeapon(dirStats.direction, idx)?.rateOfFire)?.icon" size="10"></v-icon>
+                        {{ getDiff(w.rateOfFire, getTargetWeapon(dirStats.direction, idx)?.rateOfFire)?.text }}ms
+                      </span>
+                    </td>
                   </tr>
                   <tr v-if="w.projectilesPerShot > 1">
                     <td class="label">{{ t('assembly.calc.projectilesPerShot') }}</td>
-                    <td class="value text-center" colspan="2">{{ w.projectilesPerShot }}</td>
+                    <td class="value text-center" colspan="2">
+                      {{ w.projectilesPerShot }}
+                      <span v-if="getDiff(w.projectilesPerShot, getTargetWeapon(dirStats.direction, idx)?.projectilesPerShot)" :style="{ color: getDiff(w.projectilesPerShot, getTargetWeapon(dirStats.direction, idx)?.projectilesPerShot)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.projectilesPerShot, getTargetWeapon(dirStats.direction, idx)?.projectilesPerShot)?.icon" size="10"></v-icon>
+                        {{ getDiff(w.projectilesPerShot, getTargetWeapon(dirStats.direction, idx)?.projectilesPerShot)?.text }}
+                      </span>
+                    </td>
                   </tr>
                   </tbody>
                 </table>
 
-<!--                &lt;!&ndash; 模组标记 &ndash;&gt;-->
-<!--                <div v-if="w.modifications.length > 0 || w.bonusFlags.length > 0" class="mod-flags">-->
-<!--                  <v-chip v-for="m in w.modifications"-->
-<!--                          :key="m.modId"-->
-<!--                          size="x-small"-->
-<!--                          variant="text"-->
-<!--                          color="cyan"-->
-<!--                          class="mod-chip">-->
-<!--                    {{ m.modId }}-->
-<!--                    <span class="mod-range">{{ (m.midValue * 100).toFixed(1) }}%</span>-->
-<!--                  </v-chip>-->
-<!--                  <v-chip v-for="flag in w.bonusFlags"-->
-<!--                          :key="flag"-->
-<!--                          size="x-small"-->
-<!--                          variant="text"-->
-<!--                          color="orange"-->
-<!--                          class="mod-chip">-->
-<!--                    {{ flag }}-->
-<!--                  </v-chip>-->
-<!--                </div>-->
+                <!--                &lt;!&ndash; 模组标记 &ndash;&gt;-->
+                <!--                <div v-if="w.modifications.length > 0 || w.bonusFlags.length > 0" class="mod-flags">-->
+                <!--                  <v-chip v-for="m in w.modifications"-->
+                <!--                          :key="m.modId"-->
+                <!--                          size="x-small"-->
+                <!--                          variant="text"-->
+                <!--                          color="cyan"-->
+                <!--                          class="mod-chip">-->
+                <!--                    {{ m.modId }}-->
+                <!--                    <span class="mod-range">{{ (m.midValue * 100).toFixed(1) }}%</span>-->
+                <!--                  </v-chip>-->
+                <!--                  <v-chip v-for="flag in w.bonusFlags"-->
+                <!--                          :key="flag"-->
+                <!--                          size="x-small"-->
+                <!--                          variant="text"-->
+                <!--                          color="orange"-->
+                <!--                          class="mod-chip">-->
+                <!--                    {{ flag }}-->
+                <!--                  </v-chip>-->
+                <!--                </div>-->
               </template>
             </v-col>
 
@@ -541,8 +886,8 @@ defineOptions({
 
       <!-- 副武器 -->
       <template v-if="result.auxiliaryWeaponStats.length > 0">
-        <v-col cols="12" lg="4">
-          <AffixBoxHasTitleView>
+        <v-col cols="12" :lg="isColOne ? 12 : 4">
+          <AffixBoxHasTitleView :disabledTitle="isDisabledMoveTitle">
             <v-row class="direction-total-dps py-3">
               <v-divider opacity=".2"></v-divider>
             </v-row>
@@ -560,76 +905,148 @@ defineOptions({
                         <ItemName :id="w.weaponId"></ItemName>
                       </p>
 
-                      <p class="u text-amber">{{ fmtDps(result.auxiliaryWeaponStats.reduce((s, w) => s + (w.dpsWithPerks || w.totalDPS), 0)) }}</p>
+                      <p class="u text-amber">
+                        {{ fmtDps(result.auxiliaryWeaponStats.reduce((s, w) => s + (w.dpsWithPerks || w.totalDPS), 0)) }}
+                        <span v-if="getDiff(result.auxiliaryWeaponStats.reduce((s, w) => s + (w.dpsWithPerks || w.totalDPS), 0), getTargetAuxTotalDPS())" :style="{ color: getDiff(result.auxiliaryWeaponStats.reduce((s, w) => s + (w.dpsWithPerks || w.totalDPS), 0), getTargetAuxTotalDPS())?.color }" class="diff-indicator font-weight-bold ml-1">
+                          <v-icon :icon="getDiff(result.auxiliaryWeaponStats.reduce((s, w) => s + (w.dpsWithPerks || w.totalDPS), 0), getTargetAuxTotalDPS())?.icon" size="10"></v-icon>
+                          {{ getDiff(result.auxiliaryWeaponStats.reduce((s, w) => s + (w.dpsWithPerks || w.totalDPS), 0), getTargetAuxTotalDPS())?.text }}
+                        </span>
+                      </p>
                     </th>
                   </tr>
                   <tr>
                     <th></th>
                     <th class="text-center sub-th">{{ t('assembly.calc.singleGunPort') }}</th>
-                    <th class="text-center sub-th">{{ t('assembly.calc.multiGunPorts', { count: w.gunPorts }) }}</th>
+                    <th class="text-center sub-th">{{ t('assembly.calc.multiGunPorts', {count: w.gunPorts}) }}</th>
                   </tr>
                   </thead>
                   <tbody>
                   <tr>
                     <td class="label">{{ t('assembly.calc.baseDamageDps') }}</td>
-                    <td class="value text-center">{{ fmtDps(w.singlePortBaseDPS) }}</td>
-                    <td class="value text-center">{{ fmtDps(w.baseDPS) }}</td>
+                    <td class="value text-center">
+                      {{ fmtDps(w.singlePortBaseDPS) }}
+                      <span v-if="getDiff(w.singlePortBaseDPS, getTargetAuxWeapon(idx)?.singlePortBaseDPS)" :style="{ color: getDiff(w.singlePortBaseDPS, getTargetAuxWeapon(idx)?.singlePortBaseDPS)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.singlePortBaseDPS, getTargetAuxWeapon(idx)?.singlePortBaseDPS)?.icon" size="10"></v-icon>
+                        {{ getDiff(w.singlePortBaseDPS, getTargetAuxWeapon(idx)?.singlePortBaseDPS)?.text }}
+                      </span>
+                    </td>
+                    <td class="value text-center">
+                      {{ fmtDps(w.baseDPS) }}
+                      <span v-if="getDiff(w.baseDPS, getTargetAuxWeapon(idx)?.baseDPS)" :style="{ color: getDiff(w.baseDPS, getTargetAuxWeapon(idx)?.baseDPS)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.baseDPS, getTargetAuxWeapon(idx)?.baseDPS)?.icon" size="10"></v-icon>
+                        {{ getDiff(w.baseDPS, getTargetAuxWeapon(idx)?.baseDPS)?.text }}
+                      </span>
+                    </td>
                   </tr>
                   <tr class="highlight-row">
                     <td class="label">{{ t('assembly.calc.damageWithPerks') }}</td>
-                    <td class="value text-center">{{ fmtDps(w.singlePortDpsWithPerks) }}</td>
-                    <td class="value text-center accent">{{ fmtDps(w.dpsWithPerks || w.totalDPS) }}</td>
+                    <td class="value text-center">
+                      {{ fmtDps(w.singlePortDpsWithPerks) }}
+                      <span v-if="getDiff(w.singlePortDpsWithPerks, getTargetAuxWeapon(idx)?.singlePortDpsWithPerks)" :style="{ color: getDiff(w.singlePortDpsWithPerks, getTargetAuxWeapon(idx)?.singlePortDpsWithPerks)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.singlePortDpsWithPerks, getTargetAuxWeapon(idx)?.singlePortDpsWithPerks)?.icon" size="10"></v-icon>
+                        {{ getDiff(w.singlePortDpsWithPerks, getTargetAuxWeapon(idx)?.singlePortDpsWithPerks)?.text }}
+                      </span>
+                    </td>
+                    <td class="value text-center accent">
+                      {{ fmtDps(w.dpsWithPerks || w.totalDPS) }}
+                      <span v-if="getDiff(w.dpsWithPerks || w.totalDPS, getTargetAuxWeapon(idx)?.dpsWithPerks || getTargetAuxWeapon(idx)?.totalDPS)" :style="{ color: getDiff(w.dpsWithPerks || w.totalDPS, getTargetAuxWeapon(idx)?.dpsWithPerks || getTargetAuxWeapon(idx)?.totalDPS)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.dpsWithPerks || w.totalDPS, getTargetAuxWeapon(idx)?.dpsWithPerks || getTargetAuxWeapon(idx)?.totalDPS)?.icon" size="10"></v-icon>
+                        {{ getDiff(w.dpsWithPerks || w.totalDPS, getTargetAuxWeapon(idx)?.dpsWithPerks || getTargetAuxWeapon(idx)?.totalDPS)?.text }}
+                      </span>
+                    </td>
                   </tr>
                   <tr v-if="w.againstWeakpoints > 0">
                     <td class="label">{{ t('assembly.calc.weakpointCrit') }}</td>
-                    <td class="value text-center text-warning" colspan="2">{{ fmtDps(w.againstWeakpoints) }}</td>
+                    <td class="value text-center text-warning" colspan="2">
+                      {{ fmtDps(w.againstWeakpoints) }}
+                      <span v-if="getDiff(w.againstWeakpoints, getTargetAuxWeapon(idx)?.againstWeakpoints)" :style="{ color: getDiff(w.againstWeakpoints, getTargetAuxWeapon(idx)?.againstWeakpoints)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.againstWeakpoints, getTargetAuxWeapon(idx)?.againstWeakpoints)?.icon" size="10"></v-icon>
+                        {{ getDiff(w.againstWeakpoints, getTargetAuxWeapon(idx)?.againstWeakpoints)?.text }}
+                      </span>
+                    </td>
                   </tr>
                   <tr v-if="w.againstSails > 0">
                     <td class="label">{{ t('assembly.calc.againstSails') }}</td>
-                    <td class="value text-center" colspan="2">{{ fmtDps(w.againstSails) }}</td>
+                    <td class="value text-center" colspan="2">
+                      {{ fmtDps(w.againstSails) }}
+                      <span v-if="getDiff(w.againstSails, getTargetAuxWeapon(idx)?.againstSails)" :style="{ color: getDiff(w.againstSails, getTargetAuxWeapon(idx)?.againstSails)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.againstSails, getTargetAuxWeapon(idx)?.againstSails)?.icon" size="10"></v-icon>
+                        {{ getDiff(w.againstSails, getTargetAuxWeapon(idx)?.againstSails)?.text }}
+                      </span>
+                    </td>
                   </tr>
                   <tr v-if="w.againstStructures > 0">
                     <td class="label">{{ t('assembly.calc.againstStructuresShort') }}</td>
-                    <td class="value text-center" colspan="2">{{ fmtDps(w.againstStructures) }}</td>
+                    <td class="value text-center" colspan="2">
+                      {{ fmtDps(w.againstStructures) }}
+                      <span v-if="getDiff(w.againstStructures, getTargetAuxWeapon(idx)?.againstStructures)" :style="{ color: getDiff(w.againstStructures, getTargetAuxWeapon(idx)?.againstStructures)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.againstStructures, getTargetAuxWeapon(idx)?.againstStructures)?.icon" size="10"></v-icon>
+                        {{ getDiff(w.againstStructures, getTargetAuxWeapon(idx)?.againstStructures)?.text }}
+                      </span>
+                    </td>
                   </tr>
                   <tr class="separator">
                     <td class="label" colspan="3">{{ t('assembly.calc.firingAttributes') }}</td>
                   </tr>
                   <tr>
                     <td class="label">{{ t('assembly.calc.damagePerShotVolley') }}</td>
-                    <td class="value text-center">{{ fmtDps(w.totalDamagePerShot) }}</td>
-                    <td class="value text-center">{{ fmtDps(w.totalDamagePerVolley) }}</td>
+                    <td class="value text-center">
+                      {{ fmtDps(w.totalDamagePerShot) }}
+                      <span v-if="getDiff(w.totalDamagePerShot, getTargetAuxWeapon(idx)?.totalDamagePerShot)" :style="{ color: getDiff(w.totalDamagePerShot, getTargetAuxWeapon(idx)?.totalDamagePerShot)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.totalDamagePerShot, getTargetAuxWeapon(idx)?.totalDamagePerShot)?.icon" size="10"></v-icon>
+                        {{ getDiff(w.totalDamagePerShot, getTargetAuxWeapon(idx)?.totalDamagePerShot)?.text }}
+                      </span>
+                    </td>
+                    <td class="value text-center">
+                      {{ fmtDps(w.totalDamagePerVolley) }}
+                      <span v-if="getDiff(w.totalDamagePerVolley, getTargetAuxWeapon(idx)?.totalDamagePerVolley)" :style="{ color: getDiff(w.totalDamagePerVolley, getTargetAuxWeapon(idx)?.totalDamagePerVolley)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.totalDamagePerVolley, getTargetAuxWeapon(idx)?.totalDamagePerVolley)?.icon" size="10"></v-icon>
+                        {{ getDiff(w.totalDamagePerVolley, getTargetAuxWeapon(idx)?.totalDamagePerVolley)?.text }}
+                      </span>
+                    </td>
                   </tr>
                   <tr>
                     <td class="label">{{ t('assembly.calc.reloadSpeed') }}</td>
-                    <td class="value text-center" colspan="2">{{ fmtReload(w.finalReloadSpeed) }}</td>
+                    <td class="value text-center" colspan="2">
+                      {{ fmtReload(w.finalReloadSpeed) }}
+                      <span v-if="getDiff(w.finalReloadSpeed, getTargetAuxWeapon(idx)?.finalReloadSpeed, { isTime: true })" :style="{ color: getDiff(w.finalReloadSpeed, getTargetAuxWeapon(idx)?.finalReloadSpeed, { isTime: true })?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.finalReloadSpeed, getTargetAuxWeapon(idx)?.finalReloadSpeed, { isTime: true })?.icon" size="10"></v-icon>
+                        {{ getDiff(w.finalReloadSpeed, getTargetAuxWeapon(idx)?.finalReloadSpeed, {isTime: true})?.text }}
+                      </span>
+                    </td>
                   </tr>
                   <tr>
                     <td class="label">{{ t('assembly.calc.optimalRange') }}</td>
-                    <td class="value text-center" colspan="2">{{ w.optimalRange }}m</td>
+                    <td class="value text-center" colspan="2">
+                      {{ w.optimalRange }}m
+                      <span v-if="getDiff(w.optimalRange, getTargetAuxWeapon(idx)?.optimalRange)" :style="{ color: getDiff(w.optimalRange, getTargetAuxWeapon(idx)?.optimalRange)?.color }" class="diff-indicator font-weight-bold ml-1">
+                        <v-icon :icon="getDiff(w.optimalRange, getTargetAuxWeapon(idx)?.optimalRange)?.icon" size="10"></v-icon>
+                        {{ getDiff(w.optimalRange, getTargetAuxWeapon(idx)?.optimalRange)?.text }}m
+                      </span>
+                    </td>
                   </tr>
                   </tbody>
                 </table>
 
-<!--                <div v-if="w.modifications.length > 0 || w.bonusFlags.length > 0" class="mod-flags">-->
-<!--                  <v-chip v-for="m in w.modifications"-->
-<!--                          :key="m.modId"-->
-<!--                          size="x-small"-->
-<!--                          variant="text"-->
-<!--                          color="cyan"-->
-<!--                          class="mod-chip">-->
-<!--                    {{ m.modId }}-->
-<!--                    <span class="mod-range">{{ (m.midValue * 100).toFixed(1) }}%</span>-->
-<!--                  </v-chip>-->
-<!--                  <v-chip v-for="flag in w.bonusFlags"-->
-<!--                          :key="flag"-->
-<!--                          size="x-small"-->
-<!--                          variant="text"-->
-<!--                          color="orange"-->
-<!--                          class="mod-chip">-->
-<!--                    {{ flag }}-->
-<!--                  </v-chip>-->
-<!--                </div>-->
+                <!--                <div v-if="w.modifications.length > 0 || w.bonusFlags.length > 0" class="mod-flags">-->
+                <!--                  <v-chip v-for="m in w.modifications"-->
+                <!--                          :key="m.modId"-->
+                <!--                          size="x-small"-->
+                <!--                          variant="text"-->
+                <!--                          color="cyan"-->
+                <!--                          class="mod-chip">-->
+                <!--                    {{ m.modId }}-->
+                <!--                    <span class="mod-range">{{ (m.midValue * 100).toFixed(1) }}%</span>-->
+                <!--                  </v-chip>-->
+                <!--                  <v-chip v-for="flag in w.bonusFlags"-->
+                <!--                          :key="flag"-->
+                <!--                          size="x-small"-->
+                <!--                          variant="text"-->
+                <!--                          color="orange"-->
+                <!--                          class="mod-chip">-->
+                <!--                    {{ flag }}-->
+                <!--                  </v-chip>-->
+                <!--                </div>-->
               </template>
             </div>
 

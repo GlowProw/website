@@ -5,8 +5,7 @@
       isVertical ? 'scroll-container--vertical' : 'scroll-container--horizontal'
     ]"
       :style="containerStyle"
-      ref="containerRef"
-  >
+      ref="containerRef">
     <!-- 上/左侧滚动按钮 S -->
     <v-btn
         icon
@@ -20,8 +19,7 @@
         :style="buttonPrevStyle"
         @click="scrollPrev"
         :size="btnSize"
-        :aria-label="effectivePrevAriaLabel"
-    >
+        :aria-label="effectivePrevAriaLabel">
       <slot name="prev-button">
         <slot name="left-button">
           <slot name="top-button">
@@ -46,8 +44,7 @@
         :style="wrapperStyle"
         @mousedown="handleMouseDown"
         @wheel.passive="handleWheel"
-        @scroll="handleScroll"
-    >
+        @scroll="handleScroll">
       <div
           class="scroll-content"
           :class="{ 'scroll-content--vertical': isVertical, 'scroll-content--horizontal': !isVertical }"
@@ -71,8 +68,7 @@
         :style="buttonNextStyle"
         @click="scrollNext"
         :size="btnSize"
-        :aria-label="effectiveNextAriaLabel"
-    >
+        :aria-label="effectiveNextAriaLabel">
       <slot name="next-button">
         <slot name="right-button">
           <slot name="bottom-button">
@@ -89,13 +85,11 @@
         :class="[
         'scroll-indicator',
         isVertical ? 'scroll-indicator--vertical' : 'scroll-indicator--horizontal'
-      ]"
-    >
+      ]">
       <div
           class="scroll-track"
           :class="{ 'scroll-track--vertical': isVertical, 'scroll-track--horizontal': !isVertical }"
-          @click="handleTrackClick"
-      >
+          @click="handleTrackClick">
         <div
             class="scroll-thumb"
             :class="{ 'scroll-thumb--vertical': isVertical, 'scroll-thumb--horizontal': !isVertical }"
@@ -279,10 +273,25 @@ const buttonNextStyle = computed<CSSProperties>(() => {
 /**
  * 生命周期
  */
+let resizeObserver: ResizeObserver | null = null
+
 onMounted(() => {
   nextTick(() => {
     checkScrollability()
     window.addEventListener('resize', checkScrollability)
+
+    if (scrollWrapper.value && typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(() => {
+        checkScrollability()
+        if (props.isFollowScreenCenter) {
+          updateButtonPosition()
+        }
+      })
+      resizeObserver.observe(scrollWrapper.value)
+      if (scrollWrapper.value.firstElementChild) {
+        resizeObserver.observe(scrollWrapper.value.firstElementChild)
+      }
+    }
 
     if (props.isFollowScreenCenter) {
       window.addEventListener('scroll', updateButtonPosition, { passive: true })
@@ -304,6 +313,11 @@ watch(() => props.isFollowScreenCenter, (val) => {
 })
 
 onUnmounted(() => {
+  if (resizeObserver) {
+    resizeObserver.disconnect()
+    resizeObserver = null
+  }
+
   document.removeEventListener('mousemove', handleMouseMove)
   document.removeEventListener('mouseup', handleMouseUp)
 

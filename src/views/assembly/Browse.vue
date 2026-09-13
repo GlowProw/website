@@ -18,6 +18,7 @@ import UserAvatar from "@/components/UserAvatar.vue";
 import AdsWidget from "@/components/ads/google/index.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import AccountCardWidget from "@/components/AccountCardWidget.vue";
+import AssemblyCompareDialog from "@/components/AssemblyCompareDialog.vue";
 
 const {t} = useI18n(),
     route = useRoute(),

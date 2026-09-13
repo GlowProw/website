@@ -56,21 +56,11 @@ const nailStyle = computed(() => {
   const style: any = {}
 
   if (!props.disabled) {
-    if (isFixed.value) {
-      style.position = 'fixed'
-      style.top = `${props.offsetTop}px`
-      style.left = `${fixedLeft.value}px`
-      style.width = `${originalPosition.value.width}px`
-      return style
-    }
-    if (isAbsolute.value) {
-      style.position = 'absolute'
-      style.bottom = `${props.offsetBottom}px`
-      style.top = 'auto'
-      style.left = '0'
-      style.width = `${originalPosition.value.width}px`
-      return style
-    }
+    style.position = 'sticky'
+    style.top = `${props.offsetTop}px`
+    style.zIndex = '5'
+    style.width = '100%'
+    return style
   }
 
   style.position = 'relative'

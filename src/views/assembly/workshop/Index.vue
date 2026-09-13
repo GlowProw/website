@@ -16,6 +16,7 @@ import Loading from "@/components/Loading.vue";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import AssemblyDataProcessing from "@/assets/sripts/assembly_data_processing";
 import AssemblyMainSubjectView from "@/components/AssemblyMainSubjectView.vue";
+import AssemblyCompareDialog from "@/components/AssemblyCompareDialog.vue";
 import {ApiError} from "@/assets/types/Api";
 import {handleApiError} from "@/assets/sripts/error_handler";
 
@@ -57,7 +58,12 @@ let
           return false
       }
     }),
-    isAssemblyByUser = computed(() => isEditModel.value ? shareData.value.isOwner : true)
+    isAssemblyByUser = computed(() => isEditModel.value ? shareData.value.isOwner : true),
+    currentWorkshopAssembly = computed(() => {
+      const live = assemblyMainSubjectView.value?.refs?.assembly?.onExport?.();
+      if (live) return live;
+      return shareData.value?.assembly?.data || shareData.value?.assembly || null;
+    })
 
 
 watch(() => shareData.value, async () => {
@@ -369,6 +375,13 @@ const onDeleteDraft = (id) => {
                 </v-list>
               </v-menu>
             </v-btn-group>
+            <AssemblyCompareDialog :base-assembly="currentWorkshopAssembly" :base-title="assemblyDetailData.name || t('assembly.compare.currentTag')">
+              <template #activator="{ props }">
+                <v-btn v-bind="props" class="mr-2" prepend-icon="mdi-scale-balance">
+                  {{ t('assembly.compare.shortBtn') }}
+                </v-btn>
+              </template>
+            </AssemblyCompareDialog>
             <v-btn class="mr-2" @click="router.go(-1)" v-if="isEditModel">
               取消
             </v-btn>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {computed, ref} from 'vue';
 import {useI18n} from 'vue-i18n';
+import CountdownWidget from '@/components/CountdownWidget.vue';
 
 interface DropBenefit {
   id: string;
@@ -108,29 +109,15 @@ const formattedDateRange = computed(() => {
   return '';
 });
 
-// 剩余时间倒计时文本
-const remainingTimeText = computed(() => {
-  if (campaignStatus.value !== 'active') return '';
-  const now = Date.now();
-  const end = new Date(props.campaign.endAt).getTime();
-  const diffMs = end - now;
-  if (diffMs <= 0) return '即将截止';
-
-  const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-
-  if (days > 0) return `剩余 ${days} 天 ${hours} 小时`;
-  if (hours > 0) return `剩余 ${hours} 小时 ${minutes} 分钟`;
-  return `剩余 ${minutes} 分钟`;
-});
-
 // 格式化所需时长
 const formatMinutes = (minutes?: number) => {
-  if (!minutes) return '即时获得';
-  if (minutes < 60) return `观看 ${minutes} 分钟`;
+  if (!minutes) return t('drop.duration.instant', '即时获得');
+  if (minutes < 60) return t('drop.duration.watchMinutes', { minutes }, `观看 ${minutes} 分钟`);
   const hours = minutes / 60;
-  return Number.isInteger(hours) ? `观看 ${hours} 小时` : `观看 ${hours.toFixed(1)} 小时 (${minutes}分钟)`;
+  if (Number.isInteger(hours)) {
+    return t('drop.duration.watchHours', { hours }, `观看 ${hours} 小时`);
+  }
+  return t('drop.duration.watchHoursMinutes', { hours: hours.toFixed(1), minutes }, `观看 ${hours.toFixed(1)} 小时 (${minutes}分钟)`);
 };
 </script>
 
@@ -168,7 +155,7 @@ const formatMinutes = (minutes?: number) => {
                     size="small"
                     class="font-weight-bold px-3">
                   <v-icon start icon="mdi-clock-outline" size="14" class="mr-1"></v-icon>
-                  {{ t('drop.upcoming') }}
+                  {{ t('drop.upcoming', '即将开启') }}
                 </v-chip>
 
                 <v-chip
@@ -178,14 +165,16 @@ const formatMinutes = (minutes?: number) => {
                     size="small"
                     class="font-weight-bold px-3">
                   <v-icon start icon="mdi-check-circle-outline" size="14" class="mr-1"></v-icon>
-                  {{ t('drop.ended') }}
+                  {{ t('drop.ended', '已结束') }}
                 </v-chip>
               </div>
 
-              <p v-if="remainingTimeText"
-                 class="text-caption font-weight-medium text-emerald-glow ml-1">
-                {{ remainingTimeText }}
-              </p>
+              <!-- 通用倒计时组件 -->
+              <CountdownWidget
+                  :target="campaign.endAt"
+                  :start-at="campaign.startAt"
+                  :status="campaignStatus"
+                  class-name="text-caption font-weight-medium text-emerald-glow ml-1" />
             </div>
 
             <!-- 活动主标题与周期 -->
@@ -246,6 +235,11 @@ const formatMinutes = (minutes?: number) => {
                       class="reward-img"
                       cover>
                     <template v-slot:placeholder>
+                      <div class="d-flex align-center justify-center fill-height bg-grey-darken-4">
+                        <v-icon icon="mdi-gift-outline" size="28" color="grey"></v-icon>
+                      </div>
+                    </template>
+                    <template v-slot:error>
                       <div class="d-flex align-center justify-center fill-height bg-grey-darken-4">
                         <v-icon icon="mdi-gift-outline" size="28" color="grey"></v-icon>
                       </div>

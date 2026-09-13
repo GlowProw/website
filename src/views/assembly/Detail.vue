@@ -24,6 +24,7 @@ import {apis} from "@/assets/sripts/index";
 import {ApiError} from "@/assets/types/Api";
 import AdsWidget from "@/components/ads/google/index.vue";
 import AccountCardWidget from "@/components/AccountCardWidget.vue";
+import AssemblyCompareDialog from "@/components/AssemblyCompareDialog.vue";
 import {handleApiError} from "@/assets/sripts/error_handler";
 
 const route = useRoute(),
@@ -255,6 +256,11 @@ const onPenPassword = () => {
                 </v-btn>
 
                 <v-btn variant="text" v-if="detailData.uuid" :to="`/assembly/browse/${detailData.uuid}/share`" icon="mdi-share-variant-outline"></v-btn>
+                <AssemblyCompareDialog v-if="detailData.uuid" :base-assembly="detailData" :base-title="detailData.name">
+                  <template #activator="{ props }">
+                    <v-btn variant="text" v-bind="props" icon="mdi-scale-balance" :title="t('assembly.compare.title')"></v-btn>
+                  </template>
+                </AssemblyCompareDialog>
                 <v-btn variant="text" v-if="detailData.uuid" @click="getAssemblyDetail(true)" icon="mdi-refresh"></v-btn>
               </div>
 
