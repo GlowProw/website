@@ -186,7 +186,7 @@ export const useAssemblyCompareStore = defineStore('assemblyCompare', () => {
     entry.searchLoading = true;
     entry.menuOpen = true;
 
-    // 1. 会话缓存
+    // 会话缓存
     const cacheKey = `search_${trimmed}`;
     if (searchSessionCache.has(cacheKey)) {
       entry.searchResults = searchSessionCache.get(cacheKey) || [];
@@ -195,7 +195,7 @@ export const useAssemblyCompareStore = defineStore('assemblyCompare', () => {
     }
 
     try {
-      // 2. UUID 精确查
+      // UUID 精确查
       if (trimmed.length >= 32 && !trimmed.includes(' ')) {
         try {
           const directRes = await apis.assemblyApi().getAssemblyItem(trimmed);
@@ -209,7 +209,7 @@ export const useAssemblyCompareStore = defineStore('assemblyCompare', () => {
         } catch {}
       }
 
-      // 3. 列表检索
+      // 列表检索
       const res = await apis.assemblyApi().getAssemblyList({
         keyword: trimmed || undefined,
         page: 1,

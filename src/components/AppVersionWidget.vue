@@ -17,7 +17,6 @@ const md = new MarkdownIt({
 
 let loading = ref(true),
     showVersionIndex = ref(0),
-    showBlogIndex: Ref<number> = ref(0),
     versionData: Ref<VersionData> = ref({})
 
 
@@ -32,15 +31,26 @@ onMounted(() => {
 })
 
 /**
- * 转化地址
+ * 转化地址（支持 gif / png / jpg / webp 等所有格式及 pathname / 相对路径等各种写法）
  * @param path
  * @param apiBlogBaseUrl
  */
-function convertPath(path, apiBlogBaseUrl) {
-  return path.replace(
-      /\.\.\/static\/images\/version\/([^/]+)\/([^/]+\.png)/,
-      `${apiBlogBaseUrl}/images/version/$1/$2`
-  );
+function convertPath(path: string, apiBlogBaseUrl: string) {
+  if (!path) return '';
+  if (/^https?:\/\//i.test(path)) return path;
+
+  // 1. 去除 Docusaurus 的 pathname:/// 前缀
+  let cleanPath = path.replace(/^pathname:\/\/\/?/, '');
+
+  // 2. 去除相对路径中的 ../ 或 ./ 前缀以及 static/
+  cleanPath = cleanPath.replace(/^(?:\.\.\/|\.\/)*(?:static\/)?/, '');
+
+  // 3. 确保以 / 开头
+  if (!cleanPath.startsWith('/')) {
+    cleanPath = '/' + cleanPath;
+  }
+
+  return `${apiBlogBaseUrl}${cleanPath}`;
 }
 
 /**
@@ -52,10 +62,12 @@ const getVersionData = async () => {
     const result = await api.versions({isUpdateTime: false}),
         d = result.data
 
-    if (d) {
+    if (d && d.latestPosts) {
       versionData.value = d;
-      showVersionIndex.value = d?.latestPosts?.length - 1 || 0;
+      showVersionIndex.value = d.latestPosts.length ? d.latestPosts.length - 1 : 0;
     }
+  } catch (e) {
+    console.error('getVersionData error:', e);
   } finally {
     loading.value = false
   }
@@ -67,7 +79,7 @@ const getVersionData = async () => {
     <template v-if="versionData.latestPosts">
       <v-row align="center">
         <v-col cols="auto">
-          <a :href="`${api.blogBaseUrl}/versions/${versionData.latestPosts[showBlogIndex].slug}`" target="_blank">
+          <a :href="`${api.blogBaseUrl}/versions/${versionData.latestPosts[showVersionIndex].slug}`" target="_blank">
             <b class="text-amber">{{ versionData.latestPosts[showVersionIndex].title || '' }}</b>
           </a>
         </v-col>

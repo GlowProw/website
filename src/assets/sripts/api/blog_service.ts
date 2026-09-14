@@ -1,45 +1,46 @@
-import {ApiError} from "@/assets/types/Api";
-import {createApiBase} from "@/assets/sripts/api/api-util";
-import {http} from "@/assets/sripts/index";
+import { ApiError } from "@/assets/types/Api";
+import { createApiBase } from "@/assets/sripts/api/api-util";
+import { useHttp } from "../http_util";
 
 /**
- * 验证码接口
+ * 博客与版本更新接口
  */
 export function useBlogApi() {
-    const {handleError, handleResponse} = createApiBase()
-    const blogBaseUrl = 'https://help.glow-prow.top'
+    const http = useHttp({ isExternal: true });
+    const { handleError, handleResponse } = createApiBase();
+    const blogBaseUrl = 'https://glow-prow-blog.cabbagelol.net';
 
     /**
-     * 获取当前用户信息
+     * 获取博客数据
      */
-    const blogs = async (options: { isUpdateTime: boolean } = {isUpdateTime: true}) => {
+    const blogs = async (options: { isUpdateTime?: boolean } = { isUpdateTime: true }) => {
         try {
             const result = await http.request(`${blogBaseUrl}/blog-data.json`, {
-                params: {...options.isUpdateTime ? {t: Math.random()} : {}}
-            })
-            return handleResponse(result)
+                params: { ...options.isUpdateTime ? { t: Math.random() } : {} }
+            });
+            return handleResponse(result);
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
             }
-            return handleError(error)
+            return handleError(error);
         }
     };
 
     /**
-     * 获取当前用户信息
+     * 获取版本更新数据
      */
-    const versions = async (options: { isUpdateTime: boolean } = {isUpdateTime: true}) => {
+    const versions = async (options: { isUpdateTime?: boolean } = { isUpdateTime: true }) => {
         try {
             const result = await http.request(`${blogBaseUrl}/versions-data.json`, {
-                params: {...options.isUpdateTime ? {t: Math.random()} : {}}
-            })
-            return handleResponse(result)
+                params: { ...options.isUpdateTime ? { t: Math.random() } : {} }
+            });
+            return handleResponse(result);
         } catch (error) {
             if (error instanceof ApiError) {
                 throw error;
             }
-            return handleError(error)
+            return handleError(error);
         }
     };
 

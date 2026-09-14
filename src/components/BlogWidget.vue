@@ -37,6 +37,10 @@ onMounted(() => {
     return '</a></span>';
   };
 
+  md.renderer.rules.hr = (tokens, idx, options, env, self) => {
+    return '<hr class="my-5 opacity-20">';
+  };
+
   md.renderer.rules.heading_open = (tokens, idx, options, env, self) => {
     const token = tokens[idx];
     if (token.tag === 'h1' || token.tag === 'h2' || token.tag === 'h3' || token.tag === 'h4') {
@@ -56,20 +60,26 @@ let isNext = computed(() => {
     })
 
 /**
- * 转化地址
+ * 转化地址（支持 gif / png / jpg / webp 等所有格式及 pathname / 相对路径等各种写法）
  * @param path
  * @param apiBlogBaseUrl
  */
-function convertPath(path, apiBlogBaseUrl) {
-  return path
-      .replace(
-          /(?:\.\.\/)*static\/images\/blog\/([^/]+)\/([^/]+\.png)/g,
-          `${apiBlogBaseUrl}/images/blog/$1/$2`
-      )
-      .replace(
-          /pathname:\/\/\/images\/blog\/([^/]+)\/([^/]+\.png)/g,
-          `${apiBlogBaseUrl}/images/blog/$1/$2`
-      );
+function convertPath(path: string, apiBlogBaseUrl: string) {
+  if (!path) return '';
+  if (/^https?:\/\//i.test(path)) return path;
+
+  // 1. 去除 Docusaurus 的 pathname:/// 前缀
+  let cleanPath = path.replace(/^pathname:\/\/\/?/, '');
+
+  // 2. 去除相对路径中的 ../ 或 ./ 前缀以及 static/
+  cleanPath = cleanPath.replace(/^(?:\.\.\/|\.\/)*(?:static\/)?/, '');
+
+  // 3. 确保以 / 开头
+  if (!cleanPath.startsWith('/')) {
+    cleanPath = '/' + cleanPath;
+  }
+
+  return `${apiBlogBaseUrl}${cleanPath}`;
 }
 
 /**
@@ -81,10 +91,12 @@ const getBlogData = async () => {
     const result = await api.blogs({isUpdateTime: false}),
         d = result.data
 
-    if (d) {
+    if (d && d.latestPosts) {
       blogData.value = d;
-      showBlogIndex.value = 4;
+      showBlogIndex.value = d.latestPosts.length ? d.latestPosts.length - 1 : 0;
     }
+  } catch (e) {
+    console.error('getBlogData error:', e);
   } finally {
     loading.value = false
   }

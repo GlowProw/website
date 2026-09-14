@@ -27,6 +27,29 @@ export default class Http extends Api_config {
         // 自动注入混淆加密后的浏览器安全指纹协议头 x-auth-gp
         this.HTTP.interceptors.request.use((config) => {
             try {
+                // 外部请求显式标记时，不注入内部私有协议头
+                const isExternal = (config as any).isExternal || (config.headers as any)?.['x-is-external'];
+                if (isExternal) {
+                    if (config.headers) {
+                        delete (config.headers as any)['x-is-external'];
+                        delete (config.headers as any)['x-auth-gp'];
+                    }
+                    return config;
+                }
+
+                // 自动判断：如果请求 url 为跨域绝对路径（以 http:// 或 https:// 开头且不同于当前 API host），判定为外部资源请求，不注入内部协议头
+                if (config.url && /^https?:\/\//i.test(config.url)) {
+                    try {
+                        const targetHost = new URL(config.url).host;
+                        const currentApiHost = this.host || (this.globalUrl && this.globalUrl.host);
+                        if (currentApiHost && targetHost !== currentApiHost) {
+                            return config;
+                        }
+                    } catch (e) {
+                        // ignore URL parse error
+                    }
+                }
+
                 const authHeader = generateAuthGpHeader();
                 if (config.headers) {
                     config.headers['x-auth-gp'] = authHeader;
@@ -99,6 +122,7 @@ export default class Http extends Api_config {
             method: options.method,
             data: options.data,
             params: options.params,
+            ...((options as any).isExternal !== undefined ? { isExternal: (options as any).isExternal } : {})
         })
     }
 

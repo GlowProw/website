@@ -187,33 +187,31 @@ const displayItems = computed(() => {
 </script>
 
 <template>
-  <AffixContainerView>
-    <v-card class="bg-black mb-2">
-      <HorizontalScrollList :is-indicator="false" :use-shift-key="false">
-        <div class="ga-2 d-flex align-center py-1">
-          <v-chip
-              v-for="cat in codexCategories"
-              :key="cat.name"
-              class="badge-flavor text-center tag-badge cursor-pointer category-chip"
-              :class="[
-                isChipActive(cat.name)
-                  ? 'is-selected-category bg-amber text-black'
-                  : 'bg-black text-white'
-              ]"
-              @click="onSelectCategory(cat.name)">
-            <span class="category-chip-label">{{ t(cat.title) }} {{ cat.count || 0 }}</span>
-            <v-icon
-                icon="mdi-open-in-new"
-                size="14"
-                class="ml-1 opacity-60 codex-to-icon"
-                :title="t(cat.title)"
-                @click.stop="onNavigate(cat.to)"
-            ></v-icon>
-          </v-chip>
-        </div>
-      </HorizontalScrollList>
-    </v-card>
-  </AffixContainerView>
+  <v-card class="bg-black">
+    <HorizontalScrollList :is-indicator="false" :use-shift-key="false">
+      <div class="ga-2 d-flex align-center py-1">
+        <v-chip
+            v-for="cat in codexCategories"
+            :key="cat.name"
+            class="badge-flavor text-center tag-badge cursor-pointer category-chip"
+            :class="[
+              isChipActive(cat.name)
+                ? 'is-selected-category bg-amber text-black'
+                : 'bg-black text-white'
+            ]"
+            @click="onSelectCategory(cat.name)">
+          <span class="category-chip-label">{{ t(cat.title) }} {{ cat.count || 0 }}</span>
+          <v-icon
+              icon="mdi-open-in-new"
+              size="14"
+              class="ml-1 opacity-60 codex-to-icon"
+              :title="t(cat.title)"
+              @click.stop="onNavigate(cat.to)"
+          ></v-icon>
+        </v-chip>
+      </div>
+    </HorizontalScrollList>
+  </v-card>
 
   <v-row no-gutters>
     <v-col cols="auto" v-for="(i,index) in displayItems" :key="index" class="d-flex align-center">

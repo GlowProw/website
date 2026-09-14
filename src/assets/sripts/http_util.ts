@@ -7,20 +7,34 @@ import { http } from "./index";
 import { generateAuthGpHeader } from "./fingerprint_auth";
 
 interface UseHttpOptions {
-    /** 是否携带 token */
     withToken?: boolean;
+    /** 
+     * 是否为外部资源请求
+     * 不携带内部专属头 x-auth-gp 和 x-access-token） 
+     **/
+    isExternal?: boolean;
 }
 
 /**
  * 基本请求
- * @param options
+ * @param options 
  */
 export function useHttp(options: UseHttpOptions = {}) {
-    const { withToken = false } = options;
+    const { withToken = false, isExternal = false } = options;
     const authStore = useAuthStore();
 
-    const addHeaders = (data: any) => {
+    const addHeaders = (data: any, url?: string) => {
         const headers = data?.headers || {};
+
+        // 外部请求或跨域绝对地址，不附加内部专有头
+        const isUrlExternal = Boolean(url && /^https?:\/\//i.test(url) && http.host && !url.includes(http.host));
+        if (isExternal || isUrlExternal) {
+            return {
+                ...data,
+                isExternal: true,
+                headers,
+            };
+        }
 
         if (withToken) {
             const token = authStore.user?.token;
@@ -51,6 +65,10 @@ export function useHttp(options: UseHttpOptions = {}) {
         }
     );
 
+    const request = (url = '', data?: { data?: {}, params?: {}, headers?: {}, isExternal?: boolean }) => {
+        return http.request(url, addHeaders(data, url));
+    };
+
     const post = (url = '', data?: { data?: {} }) => {
         return http.post(url, addHeaders(data));
     };
@@ -67,12 +85,14 @@ export function useHttp(options: UseHttpOptions = {}) {
         return http.delete(url, addHeaders(data));
     };
 
-    return { post, get, put, del };
+    return { request, post, get, put, del };
 }
 
 /**
  * 携带身份令牌请求
+ * @param options 
+ *  - withToken: true useHttpToken 中的withToken强制true
  */
-export function useHttpToken() {
-    return useHttp({ withToken: true });
+export function useHttpToken(options: UseHttpOptions = {}) {
+    return useHttp({ ...options, withToken: true });
 }
