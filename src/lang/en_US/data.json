@@ -12,6 +12,22 @@
     "qqBot": {
       "name": "QQ Bot",
       "description": "Bot suite that allows sharing the Glow Prow bot to your groups to share builds, query items, and stay updated on Skull and Bones.",
+      "commandPlaceholder": "Command",
+      "invokeFeature": "Invoke Feature",
+      "addBot": "Add Bot",
+      "dialog": {
+        "description": "Connect with the Glow Prow bot through any of the following methods",
+        "linkButton": "Link",
+        "linkDesc": "Click the add-friend link to launch local client and add the bot",
+        "accountIdentifier": "Account ID",
+        "qqIdDesc": "Search this QQ ID in the client to add the bot as a friend",
+        "qrCode": "Invitation QR Code",
+        "tipsTitle": "Tips",
+        "tip1": "If you are an admin, enter \"/管理 帮助\" to manage bot behavior in supported groups",
+        "tip2": "Group subscriptions require an admin or group creator",
+        "tip3": "Proactive push notifications require the group creator to click the bot in the group and allow message access",
+        "tip4": "The bot supports direct messages"
+      },
       "features": {
         "assembly": {
           "title": "Generate Build Poster"

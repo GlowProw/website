@@ -104,7 +104,7 @@ onMounted(() => {
     <div class="portal-body bg-black mt-5 pl-3 pr-3 pt-2 pb-2 pt-md-3 pb-md-3 pt-lg-10 pb-lg-10">
       <v-container>
         <v-row>
-          <v-col cols="12" md="5" lg="5">
+          <v-col cols="12" md="4" lg="4">
             <AffixContainerView>
               <div class="title card-enlargement-mask-flavor pb-6">
                 <v-card width="100%">
@@ -128,7 +128,7 @@ onMounted(() => {
               </div>
             </AffixContainerView>
           </v-col>
-          <v-col cols="12" md="7" lg="7">
+          <v-col cols="12" md="8" lg="8">
             <NewSeasonShowItem></NewSeasonShowItem>
           </v-col>
         </v-row>

@@ -76,8 +76,8 @@ defineOptions({
       </h1>
       <p class="mb-1">{{ i.id }}</p>
 
-      <div class="d-flex ga-2 align-center mt-3">
-        <v-chip class="badge-flavor text-center tag-badge text-black"
+      <div class="d-flex flex-wrap ga-2 align-center mt-3">
+        <v-chip class="badge-flavor text-center tag-badge"
                 v-if="i.type">
           {{ t(`codex.types.${i.type}`) }}
         </v-chip>

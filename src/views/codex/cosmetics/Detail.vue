@@ -147,7 +147,7 @@ const onCodexHistory = () => {
               {{ cosmeticDetailData.id || 'none' }}
             </p>
 
-            <div class="mt-5 d-inline-flex ga-2">
+            <div class="mt-5 d-flex flex-wrap ga-2 align-center">
               <v-chip class="badge-flavor text-center tag-badge text-black"
                       v-if="cosmeticDetailData.type">
                 {{ t(`codex.types.${cosmeticDetailData.type}`) }}

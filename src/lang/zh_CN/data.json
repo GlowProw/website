@@ -10,8 +10,24 @@
       "byId": "按ID"
     },
     "qqBot": {
-      "name": "QQ 机器人",
+      "name": "企鹅程序机器人",
       "description": "机器人套件，将闪耀船首机器人的分享到你的群组。即可分享配置，物品查询，时刻掌握碧海黑帆动态。",
+      "commandPlaceholder": "指令",
+      "invokeFeature": "唤起功能",
+      "addBot": "添加机器人",
+      "dialog": {
+        "description": "通过以下任意方式，连接你与闪耀船首机器人",
+        "linkButton": "链接",
+        "linkDesc": "点击添加好友链接，唤起本地程序添加机器人",
+        "accountIdentifier": "账户标识",
+        "qqIdDesc": "通过软件搜索此账户 QQ ID 添加机器人好友",
+        "qrCode": "邀请二维码",
+        "tipsTitle": "提示",
+        "tip1": "如果你是管理员，可以输入“/管理 帮助”来管理所在支持群行为方式",
+        "tip2": "群订阅，需要管理员或群创建人操作",
+        "tip3": "机器人主动推送，需要群创建人在所在群里点击机器人选择全量或近多少条内获取群消息",
+        "tip4": "机器人支持私聊"
+      },
       "features": {
         "assembly": {
           "title": "生成配置海报"

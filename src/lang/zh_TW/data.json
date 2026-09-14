@@ -12,6 +12,22 @@
     "qqBot": {
       "name": "QQ 機器人",
       "description": "機器人套件，將閃耀船首機器人的分享到你的羣組。即可分享配置，物品查詢，時刻掌握碧海黑帆動態。",
+      "commandPlaceholder": "指令",
+      "invokeFeature": "喚起功能",
+      "addBot": "添加機器人",
+      "dialog": {
+        "description": "通過以下任意方式，連接你與閃耀船首機器人",
+        "linkButton": "鏈接",
+        "linkDesc": "點擊添加好友鏈接，喚起本地程序添加機器人",
+        "accountIdentifier": "賬戶標識",
+        "qqIdDesc": "通過軟件搜索此賬戶 QQ ID 添加機器人好友",
+        "qrCode": "邀請二維碼",
+        "tipsTitle": "提示",
+        "tip1": "如果你是管理員，可以輸入“/管理 幫助”來管理所在支持羣行為方式",
+        "tip2": "羣訂閱，需要管理員或羣創建人操作",
+        "tip3": "機器人主動推送，需要羣創建人在所在羣裏點擊機器人選擇全量或近多少條內獲取羣消息",
+        "tip4": "機器人支持私聊"
+      },
       "features": {
         "assembly": {
           "title": "生成配置海報"

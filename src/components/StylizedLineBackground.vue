@@ -67,13 +67,13 @@ defineOptions({
 .overlapping-pattern {
   background-image: linear-gradient(to right,
   transparent calc(var(--size, 100px) + 0px),
-  var(--color, rgba(255, 255, 255, 0.05)) calc(var(--size, 100px) + 1px),
-  var(--color, rgba(255, 255, 255, 0.05)) calc(var(--size, 100px) + 2px),
+  var(--color, rgba(255, 255, 255, 0.09)) calc(var(--size, 100px) + 1px),
+  var(--color, rgba(255, 255, 255, 0.09)) calc(var(--size, 100px) + 2px),
   transparent calc(var(--size, 100px) + 3px)),
   linear-gradient(to bottom,
   transparent calc(var(--size, 100px) + 0px),
-  var(--color, rgba(255, 255, 255, 0.05)) calc(var(--size, 100px) + 1px),
-  var(--color, rgba(255, 255, 255, 0.05)) calc(var(--size, 100px) + 2px),
+  var(--color, rgba(255, 255, 255, 0.09)) calc(var(--size, 100px) + 1px),
+  var(--color, rgba(255, 255, 255, 0.09)) calc(var(--size, 100px) + 2px),
   transparent calc(var(--size, 100px) + 3px));
 
   background-size: 236px 236px;

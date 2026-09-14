@@ -3,8 +3,7 @@
       class="canvas-container"
       ref="container"
       :offset-x="position.x"
-      :offset-y="position.y"
-  >
+      :offset-y="position.y">
     <v-container class="position-relative" v-if="isShowTool && !disabled">
       <ZoomableTool @event-center="resetView"
                     @event-minus="onScaleMinus"

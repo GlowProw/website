@@ -10,7 +10,7 @@ const props = withDefaults(defineProps<{ pieces?: [] | string | unknown }>(), {p
 </script>
 
 <template>
-  <div v-if="pieces">
+  <template v-if="pieces">
     <template v-if="Array.isArray(pieces)">
       <v-chip class="badge-flavor text-center tag-badge text-black bg-blue-accent-1 text-blue-darken-4"
               v-for="(i, index) in pieces"
@@ -22,7 +22,7 @@ const props = withDefaults(defineProps<{ pieces?: [] | string | unknown }>(), {p
             v-else-if="!Array.isArray(pieces)">
       {{ t(`codex.types.${pieces}`) }}
     </v-chip>
-  </div>
+  </template>
 </template>
 
 <style scoped lang="less">
