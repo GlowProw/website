@@ -175,8 +175,8 @@ const chartPoints = computed(() => {
   const height = 220;
   const padding = 20;
 
-  const fACoordsList: {x: number; y: number; val: number}[] = [];
-  const fBCoordsList: {x: number; y: number; val: number}[] = [];
+  const fACoordsList: { x: number; y: number; val: number }[] = [];
+  const fBCoordsList: { x: number; y: number; val: number }[] = [];
 
   const fACoords = items.map((item: any, index: number) => {
     const x = padding + (index / Math.max(items.length - 1, 1)) * (width - 2 * padding);
@@ -338,13 +338,17 @@ const getFactionName = (id: string, short: boolean = false) => {
   return id;
 };
 
+/**
+ * 获取地区数据
+ * @param zoneName
+ */
 const getZoneData = (zoneName: string) => {
   if (!warData.value?.zones) {
-    return {name: zoneName, region: 'eastIndies', total: 0};
+    return {name: zoneName, region: '', total: 0};
   }
   const match = warData.value.zones.find((z: any) => z.name === zoneName || z.id === zoneName);
   if (match) return match;
-  return {name: zoneName, region: 'eastIndies', total: 0};
+  return {name: zoneName, region: '', total: 0};
 };
 </script>
 
@@ -506,6 +510,13 @@ const getZoneData = (zoneName: string) => {
                       <v-icon icon="mdi-dots-vertical" size="20"/>
                     </v-btn>
                   </template>
+                  <v-list>
+                    <v-list-item :loading="refreshing"
+                            prepend-icon="mdi-refresh"
+                            @click="getStateOfWarData(route.params.seasonId)">
+                      {{ t('stateOfWar.refreshBtn') }}
+                    </v-list-item>
+                  </v-list>
                 </v-menu>
               </v-btn-group>
             </v-col>
@@ -672,15 +683,6 @@ const getZoneData = (zoneName: string) => {
               <v-col>
                 <v-divider thickness="2" opacity=".3"></v-divider>
               </v-col>
-              <v-col cols="auto">
-                <v-btn
-                    size="small"
-                    prepend-icon="mdi-refresh"
-                    :loading="refreshing"
-                    @click="getStateOfWarData(Array.isArray(route.params.seasonId) ? route.params.seasonId[0] : route.params.seasonId)">
-                  {{ t('stateOfWar.refreshBtn') }}
-                </v-btn>
-              </v-col>
             </v-row>
 
             <v-row align="center">
@@ -755,7 +757,9 @@ const getZoneData = (zoneName: string) => {
             <!-- 区域列表：每个大区域下展示其小区域 -->
             <v-card variant="text" min-height="250" v-if="contestedRegions.length === 0" class="h-100 d-flex align-center justify-center text-medium-emphasis text-body-2">
               <div class="text-center">
-                <p class="mb-2 opacity-20"><v-icon icon="mdi-flag-checkered" size="80"></v-icon></p>
+                <p class="mb-2 opacity-20">
+                  <v-icon icon="mdi-flag-checkered" size="80"></v-icon>
+                </p>
                 {{ t('stateOfWar.noContestedZones') }}
               </div>
             </v-card>
