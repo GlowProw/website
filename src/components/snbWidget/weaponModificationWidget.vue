@@ -82,6 +82,10 @@ const props = withDefaults(defineProps<{
   disabled: false,
 })
 
+const emit = defineEmits<{
+  'update:modelValue': [value: ModSlot[]]
+}>()
+
 const {t} = useI18n()
 const {sanitizeString} = useI18nUtils()
 
@@ -169,43 +173,6 @@ const initializeSlots = () => {
   syncSlots(true);
 };
 
-watch(() => props.data, (newData: Item, oldData: Item) => {
-  if (newData) {
-    if (oldData && (newData.id !== oldData.id || newData.rarity !== oldData.rarity)) {
-      syncSlots(newData.id !== oldData.id);
-    } else {
-      syncSlots(false);
-    }
-  }
-  updateAvailableMods();
-}, {deep: true, immediate: true})
-
-watch(() => props.modelValue, (newVal) => {
-  if (newVal && props.data) {
-    const slotTypes = getExpectedSlotTypes();
-    if (newVal.length !== slotTypes.length) {
-      syncSlots(false);
-    }
-  }
-  updateAvailableMods();
-}, {deep: true})
-
-watch([searchQuery, selectedCategory], () => updateFilteredMods())
-
-watch(() => isIgnoreConditions.value, () => {
-  updateAvailableMods()
-})
-
-onMounted(() => {
-  initializeResources()
-  nextTick(() => syncSlots(false))
-})
-
-const initializeResources = () => {
-  loadModImages()
-  updateAvailableMods()
-};
-
 const loadModImages = () => {
   const modImages = import.meta.glob('@/assets/images/snb/modTypeIcons/*.*', {eager: true})
   const imageMap: Record<string, string> = {};
@@ -220,38 +187,6 @@ const loadModImages = () => {
     }
   }
   modIconImages.value = imageMap;
-};
-
-const updateAvailableMods = () => {
-  availableModulesData.value = categorizeModificationsByGrade(Modifications)
-  updateFilteredMods()
-};
-
-const updateFilteredMods = () => {
-  const result: Record<ModType, ModItem[]> = {
-    basic: [],
-    advanced: [],
-    special: [],
-    mythic: []
-  };
-
-  Object.entries(availableModulesData.value).forEach(([grade, mods]) => {
-    const modType = grade as ModType;
-
-    // 分类筛选
-    if (selectedCategory.value !== 'all' && selectedCategory.value !== modType) {
-      return;
-    }
-
-    // 搜索筛选
-    const filtered = (mods || []).filter(mod => matchesSearchQuery(mod, searchQuery.value))
-
-    if (filtered.length > 0) {
-      result[modType] = filtered;
-    }
-  })
-
-  filteredMods.value = result;
 };
 
 const matchesSearchQuery = (mod: ModItem, query: string): boolean => {
@@ -329,6 +264,75 @@ const categorizeModificationsByGrade = (modificationsRaw: any): Record<ModType, 
   return result;
 };
 
+const updateFilteredMods = () => {
+  const result: Record<ModType, ModItem[]> = {
+    basic: [],
+    advanced: [],
+    special: [],
+    mythic: []
+  };
+
+  Object.entries(availableModulesData.value).forEach(([grade, mods]) => {
+    const modType = grade as ModType;
+
+    // 分类筛选
+    if (selectedCategory.value !== 'all' && selectedCategory.value !== modType) {
+      return;
+    }
+
+    // 搜索筛选
+    const filtered = (mods || []).filter(mod => matchesSearchQuery(mod, searchQuery.value))
+
+    if (filtered.length > 0) {
+      result[modType] = filtered;
+    }
+  })
+
+  filteredMods.value = result;
+};
+
+const updateAvailableMods = () => {
+  availableModulesData.value = categorizeModificationsByGrade(Modifications)
+  updateFilteredMods()
+};
+
+const initializeResources = () => {
+  loadModImages()
+  updateAvailableMods()
+};
+
+watch(() => props.data, (newData: Item, oldData: Item) => {
+  if (newData) {
+    if (oldData && (newData.id !== oldData.id || newData.rarity !== oldData.rarity)) {
+      syncSlots(newData.id !== oldData.id);
+    } else {
+      syncSlots(false);
+    }
+  }
+  updateAvailableMods();
+}, {deep: true, immediate: true})
+
+watch(() => props.modelValue, (newVal) => {
+  if (newVal && props.data) {
+    const slotTypes = getExpectedSlotTypes();
+    if (newVal.length !== slotTypes.length) {
+      syncSlots(false);
+    }
+  }
+  updateAvailableMods();
+}, {deep: true})
+
+watch([searchQuery, selectedCategory], () => updateFilteredMods())
+
+watch(() => isIgnoreConditions.value, () => {
+  updateAvailableMods()
+})
+
+onMounted(() => {
+  initializeResources()
+  nextTick(() => syncSlots(false))
+})
+
 const onConfirm = () => {
   if (!show.value) return;
 
@@ -379,10 +383,6 @@ const clearSearch = () => {
 const getSlotDisplayName = (type: ModType): string => {
   return t(`assembly.modification.${type}`)
 };
-
-const emit = defineEmits<{
-  'update:modelValue': [value: ModSlot[]]
-}>()
 
 defineExpose({
   weaponModConfig: WEAPON_MOD_CONFIG,

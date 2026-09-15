@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import {onMounted, ref, watch} from 'vue';
+import {onMounted, ref, useSlots, watch} from 'vue';
 import {useI18n} from 'vue-i18n';
 import Time from "@/components/Time.vue";
+import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 
 interface TimeMap {
   primitive: string;
@@ -20,6 +21,8 @@ const props = withDefaults(defineProps<{
 });
 
 const {t} = useI18n();
+const slots = useSlots(),
+    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow();
 
 const timeMap = ref<TimeMap | null>(null);
 const primitiveValue = ref('primitive');
@@ -84,15 +87,21 @@ onMounted(() => {
 
 <template>
   <v-tooltip
-      class="position-absolute"
-      target="cursor"
       scroll-strategy="close"
       transition="opacity 300ms ease-in"
-      location="bottom start"
-      content-class="pa-0 bg-transparent">
+      location="right top"
+      min-width="450"
+      max-width="450"
+      interactive
+      class="item-card"
+      content-class="pa-0 bg-transparent"
+      :target="[tooltipPos.x, tooltipPos.y]">
     <template v-slot:activator="{ props }">
-      <u v-bind="props" class="spelling time-view singe-line time-view-slot">
-        <Time :time="time" />
+      <u v-bind="props" class="spelling time-view singe-line time-view-slot"
+         @mousemove="onMouseMove"
+         @mouseenter="onMouseEnter">
+        <slot></slot>
+        <Time :time="time"/>
       </u>
     </template>
 
@@ -166,6 +175,10 @@ onMounted(() => {
 
 u.spelling {
   text-decoration: dashed underline;
+  text-decoration-thickness: 2px;
+  text-decoration-color: rgba(255, 255, 255, 0.3);
+  text-decoration-skip-ink: auto;
+  text-underline-offset: 3px;
   cursor: pointer;
 }
 

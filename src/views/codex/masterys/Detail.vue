@@ -508,7 +508,6 @@ const onStarMastery = (data: Mastery) => {
                               readonly variant="underlined">
                   <template v-slot:prepend-inner>
                     <TimeView :time="masteryDetailData.dateAdded" class="singe-line">
-                      <Time :time="masteryDetailData.dateAdded"></Time>
                     </TimeView>
                   </template>
                   <template v-slot:append-inner>
@@ -522,7 +521,6 @@ const onStarMastery = (data: Mastery) => {
                               readonly variant="underlined">
                   <template v-slot:prepend-inner>
                     <TimeView :time="masteryDetailData.lastUpdated" class="singe-line">
-                      <Time :time="masteryDetailData.lastUpdated"></Time>
                     </TimeView>
                   </template>
                   <template v-slot:append-inner>

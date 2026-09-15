@@ -1633,7 +1633,10 @@
       "showDescription": "Show Description",
       "language": "Language",
       "generating": "Generating poster...",
-      "generatingHint": "Exporting high-quality image, please wait"
+      "generatingHint": "Exporting high-quality image, please wait",
+      "generatingPage1": "Generating Page 1/2 Assembly Poster...",
+      "generatingPage2": "Generating Page 2/2 Mastery Poster...",
+      "createPosterMultiple": "Generate Posters ({total} Pages)"
     },
     "browse": {
       "title": "Assembly Share Collection",

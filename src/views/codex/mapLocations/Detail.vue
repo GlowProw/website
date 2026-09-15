@@ -263,7 +263,6 @@ const onCodexHistory = () => {
                               variant="underlined" density="compact">
                   <template v-slot:prepend-inner>
                     <TimeView :time="mapLocationDetailData.dateAdded" class="singe-line">
-                      <Time :time="mapLocationDetailData.dateAdded"></Time>
                     </TimeView>
                   </template>
                   <template v-slot:append-inner>
@@ -276,7 +275,6 @@ const onCodexHistory = () => {
                               variant="underlined" density="compact">
                   <template v-slot:prepend-inner>
                     <TimeView :time="mapLocationDetailData.lastUpdated" class="singe-line">
-                      <Time :time="mapLocationDetailData.lastUpdated"></Time>
                     </TimeView>
                   </template>
                   <template v-slot:append-inner>

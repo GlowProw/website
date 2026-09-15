@@ -223,7 +223,6 @@ defineOptions({
               <v-col cols="auto">
                 <template v-if="i.createdTime">
                   <TimeView :time="i.createdTime">
-                    <Time :time="i.createdTime"></Time>
                   </TimeView>
                 </template>
               </v-col>

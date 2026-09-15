@@ -6,8 +6,6 @@ import {v6 as uuidv6} from "uuid";
 
 import {apis, storageIntermediateTransfer} from "@/assets/sripts";
 import {StorageIntermediateTransferSaveType} from "@/assets/sripts/storage_assembly";
-import {useAuthStore} from "~/stores/userAccountStore";
-import {useHttpToken} from "@/assets/sripts/http_util";
 import {useNoticeStore} from "~/stores/noticeStore";
 
 import EmptyView from "@/components/EmptyView.vue";
@@ -16,8 +14,6 @@ import Loading from "@/components/Loading.vue";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import AssemblyDataProcessing from "@/assets/sripts/assembly_data_processing";
 import AssemblyMainSubjectView from "@/components/AssemblyMainSubjectView.vue";
-import AssemblyCompareDialog from "@/components/AssemblyCompareDialog.vue";
-import {ApiError} from "@/assets/types/Api";
 import {handleApiError} from "@/assets/sripts/error_handler";
 
 const {t} = useI18n(),
@@ -126,7 +122,7 @@ const getAssemblyDetail = async () => {
     assemblyDetailData.value = d.data;
     shareData.value = d.data;
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'AssemblyWorkshop' })
+    handleApiError(e, notice, t, {component: 'AssemblyWorkshop'})
   } finally {
     assemblyLoading.value = false;
   }
@@ -375,13 +371,6 @@ const onDeleteDraft = (id) => {
                 </v-list>
               </v-menu>
             </v-btn-group>
-            <AssemblyCompareDialog :base-assembly="currentWorkshopAssembly" :base-title="assemblyDetailData.name || t('assembly.compare.currentTag')">
-              <template #activator="{ props }">
-                <v-btn v-bind="props" class="mr-2" prepend-icon="mdi-scale-balance">
-                  {{ t('assembly.compare.shortBtn') }}
-                </v-btn>
-              </template>
-            </AssemblyCompareDialog>
             <v-btn class="mr-2" @click="router.go(-1)" v-if="isEditModel">
               取消
             </v-btn>
@@ -412,7 +401,6 @@ const onDeleteDraft = (id) => {
                   </ul>
                 </v-alert>
               </v-card>
-
             </v-tooltip>
           </v-col>
         </v-row>

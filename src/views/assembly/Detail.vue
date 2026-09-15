@@ -353,7 +353,6 @@ const onPenPassword = () => {
             </v-col>
             <v-col cols="auto">
               <TimeView :time="detailData.createdTime" v-if="detailData.createdTime">
-                <Time :time="detailData.createdTime"></Time>
               </TimeView>
             </v-col>
           </v-row>
@@ -365,7 +364,6 @@ const onPenPassword = () => {
             </v-col>
             <v-col cols="auto">
               <TimeView :time="detailData.updatedTime" v-if="detailData.updatedTime">
-                <Time :time="detailData.updatedTime"></Time>
               </TimeView>
             </v-col>
           </v-row>

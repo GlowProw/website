@@ -297,7 +297,6 @@ const getUserAssemblysData = async () => {
                     <v-row class="text-body-1 opacity-60">
                       <v-col cols="auto">
                         <TimeView :time="i.createdTime">
-                          <Time :time="i.createdTime"></Time>
                         </TimeView>
                       </v-col>
                       <v-col cols="auto">

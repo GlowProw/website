@@ -104,23 +104,32 @@ export const useStateOfWarStore = defineStore('stateOfWar', () => {
         if (!zone) return false;
         // 如果整个赛季已结束，所有战区均属于已结束
         if (isSeasonEnded.value) return true;
+        // 属于当前正在进行的战期或状态为 active，绝不是已结束
+        const activeCycle = (progression.value || []).find((c: any) => c.status === 'active');
+        if (activeCycle && zone.cycleNumber && zone.cycleNumber === activeCycle.cycleNumber) {
+            return false;
+        }
+        if (zone.status === 'active') return false;
         if (zone.status === 'ended') return true;
         const now = Date.now();
         // 排除未来的战区
         if (zone.startDate && new Date(zone.startDate).getTime() > now) {
             return false;
         }
-        if (zone.cycleStartDate && new Date(zone.cycleStartDate).getTime() > now) {
-            return false;
+        if (zone.cycleStartDate) {
+            const s = new Date(zone.cycleStartDate.includes('T') ? zone.cycleStartDate : zone.cycleStartDate + 'T06:00:00Z').getTime();
+            if (s > now) return false;
         }
-        // 战期已结束（cycleEndDate <= now）
-        if (zone.cycleEndDate && new Date(zone.cycleEndDate).getTime() <= now) {
-            return true;
-        }
-        // 或者根据战期序号：cycleNumber 小于当前活跃的 cycleNumber
-        const activeCycle = (progression.value || []).find((c: any) => c.status === 'active');
+        // 根据战期序号：cycleNumber 小于当前活跃的 cycleNumber
         if (activeCycle && zone.cycleNumber && zone.cycleNumber < activeCycle.cycleNumber) {
             return true;
+        }
+        // 若无 activeCycle 匹配，检查战期日期 (以 06:00 UTC / 14:00 北京时间为基准)
+        if (zone.cycleEndDate) {
+            const endMs = new Date(zone.cycleEndDate.includes('T') ? zone.cycleEndDate : zone.cycleEndDate + 'T06:00:00Z').getTime();
+            if (endMs <= now && !activeCycle) {
+                return true;
+            }
         }
         return false;
     };
@@ -132,18 +141,20 @@ export const useStateOfWarStore = defineStore('stateOfWar', () => {
         if (!zone) return false;
         // 赛季已结束，不再有正在进行争夺的战区
         if (isSeasonEnded.value) return false;
-        if (zone.status === 'ended' || isZoneEnded(zone)) return false;
-        if (zone.status === 'upcoming' || isZoneUpcoming(zone)) return false;
-        if (zone.status === 'active') return true;
-        const now = Date.now();
-        if (zone.cycleStartDate && zone.cycleEndDate) {
-            const s = new Date(zone.cycleStartDate).getTime();
-            const e = new Date(zone.cycleEndDate).getTime();
-            return s <= now && now < e;
-        }
+        if (zone.status === 'ended') return false;
+        if (zone.status === 'upcoming') return false;
+        // 属于当前活跃战期，即为争夺中
         const activeCycle = (progression.value || []).find((c: any) => c.status === 'active');
         if (activeCycle && zone.cycleNumber && zone.cycleNumber === activeCycle.cycleNumber) {
             return true;
+        }
+        if (zone.status === 'active') return true;
+        if (isZoneEnded(zone) || isZoneUpcoming(zone)) return false;
+        const now = Date.now();
+        if (zone.cycleStartDate && zone.cycleEndDate) {
+            const s = new Date(zone.cycleStartDate.includes('T') ? zone.cycleStartDate : zone.cycleStartDate + 'T06:00:00Z').getTime();
+            const e = new Date(zone.cycleEndDate.includes('T') ? zone.cycleEndDate : zone.cycleEndDate + 'T06:00:00Z').getTime();
+            return s <= now && now < e;
         }
         return false;
     };
@@ -155,14 +166,17 @@ export const useStateOfWarStore = defineStore('stateOfWar', () => {
         if (!zone) return false;
         // 赛季已结束，不再有未开启的战区
         if (isSeasonEnded.value) return false;
-        if (zone.status === 'upcoming') return true;
-        const now = Date.now();
-        if (zone.cycleStartDate && new Date(zone.cycleStartDate).getTime() > now) {
-            return true;
-        }
         const activeCycle = (progression.value || []).find((c: any) => c.status === 'active');
-        if (activeCycle && zone.cycleNumber && zone.cycleNumber > activeCycle.cycleNumber) {
-            return true;
+        if (activeCycle && zone.cycleNumber) {
+            if (zone.cycleNumber === activeCycle.cycleNumber) return false;
+            if (zone.cycleNumber > activeCycle.cycleNumber) return true;
+        }
+        if (zone.status === 'upcoming') return true;
+        if (zone.status === 'active' || zone.status === 'ended') return false;
+        const now = Date.now();
+        if (zone.cycleStartDate) {
+            const s = new Date(zone.cycleStartDate.includes('T') ? zone.cycleStartDate : zone.cycleStartDate + 'T06:00:00Z').getTime();
+            if (s > now) return true;
         }
         return false;
     };

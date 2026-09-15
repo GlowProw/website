@@ -704,7 +704,7 @@ defineExpose({
     display: flex;
     overflow-x: auto;
     overflow-y: hidden;
-    padding: 8px 0;
+    padding: 0px 0;
   }
 
   &--vertical {

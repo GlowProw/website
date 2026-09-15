@@ -104,6 +104,10 @@ const props = defineProps({
   isNodeAvailable: {
     type: Function,
     default: () => false
+  },
+  pageInfo: {
+    type: Object as () => { current: number; total: number },
+    default: () => ({ current: 2, total: 2 })
   }
 });
 
@@ -471,6 +475,10 @@ defineExpose({
             </div>
           </v-col>
         </v-row>
+
+        <div v-if="pageInfo && pageInfo.total > 1" class="text-center opacity-40 text-caption font-weight-bold pb-3 pt-2">
+          {{ pageInfo.current }} / {{ pageInfo.total }}
+        </div>
       </div>
       <!-- 底部授权与二维码 E -->
 

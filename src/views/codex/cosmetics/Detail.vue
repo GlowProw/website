@@ -243,7 +243,6 @@ const onCodexHistory = () => {
                               variant="underlined" density="compact">
                   <template v-slot:prepend-inner>
                     <TimeView :time="cosmeticDetailData.dateAdded" class="singe-line">
-                      <Time :time="cosmeticDetailData.dateAdded"></Time>
                     </TimeView>
                   </template>
                   <template v-slot:append-inner>
@@ -256,7 +255,6 @@ const onCodexHistory = () => {
                               variant="underlined" density="compact">
                   <template v-slot:prepend-inner>
                     <TimeView :time="cosmeticDetailData.lastUpdated" class="singe-line">
-                      <Time :time="cosmeticDetailData.lastUpdated"></Time>
                     </TimeView>
                   </template>
                   <template v-slot:append-inner>

@@ -180,7 +180,7 @@ defineOptions({
         </div>
         <div v-if="isUpgradeMod" class="item-upgrade-mod-mask position-absolute bottom-0 w-100 pt-5 pb-1">
           <template v-if="slots['upgrade-mod-content']">
-            <v-slot name="upgrade-mod-content"></v-slot>
+            <slot name="upgrade-mod-content"></slot>
           </template>
           <template v-else-if="!slots['upgrade-mod-content'] && i.tier">
             <span class="item-text d-flex align-center justify-center text-shades-white" :title="i.tier.toString()"

@@ -1693,7 +1693,10 @@
       "showDescription": "顯示描述內容",
       "language": "語言",
       "generating": "正在生成海報...",
-      "generatingHint": "正在導出極高畫質圖像，請稍候"
+      "generatingHint": "正在導出極高畫質圖像，請稍候",
+      "generatingPage1": "正在生成第 1/2 頁配裝海報...",
+      "generatingPage2": "正在生成第 2/2 頁專精方案海報...",
+      "createPosterMultiple": "生成海報 (共 {total} 頁)"
     },
     "browse": {
       "title": "配装分享集",

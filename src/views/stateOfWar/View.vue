@@ -18,6 +18,8 @@ import AffixContainerView from "@/components/AffixContainerView.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import {formatCompactNumber, formatNumber} from "@/assets/sripts/number";
 import {getCurrentSeasonId} from "@/assets/sripts";
+import Time from "@/components/Time.vue";
+import TimeView from "@/components/TimeView.vue";
 
 const {t} = useI18n(),
     route = useRoute(),
@@ -141,7 +143,7 @@ const displayHistoryItems = computed(() => {
   }
   const totalA = (warData.value?.totals as any)?.[fA] || 150000;
   const totalB = (warData.value?.totals as any)?.[fB] || 142000;
-  const pointsCount = 6;
+  const pointsCount = 7;
   const simulated: any[] = [];
   const now = Date.now();
   const stepMs = historyRange.value === '1h' ? 10 * 60 * 1000 : 4 * 3600 * 1000;
@@ -168,7 +170,7 @@ const chartPoints = computed(() => {
   const fA = factionAKey.value;
   const fB = factionBKey.value;
   if (!items || items.length === 0) {
-    return {fAPoints: '', fBPoints: '', items: []};
+    return {fAPoints: '', fBPoints: '', fACoordsList: [], fBCoordsList: [], items: []};
   }
   const maxScore = Math.max(
       ...items.map((i: any) => Math.max(i[fA] || 0, i[fB] || 0, 100))
@@ -178,23 +180,75 @@ const chartPoints = computed(() => {
   const height = 220;
   const padding = 20;
 
+  const fACoordsList: {x: number; y: number; val: number}[] = [];
+  const fBCoordsList: {x: number; y: number; val: number}[] = [];
+
   const fACoords = items.map((item: any, index: number) => {
     const x = padding + (index / Math.max(items.length - 1, 1)) * (width - 2 * padding);
     const y = height - padding - ((item[fA] || 0) / maxScore) * (height - 2 * padding);
+    fACoordsList.push({x: Number(x.toFixed(1)), y: Number(y.toFixed(1)), val: item[fA] || 0});
     return `${x.toFixed(1)},${y.toFixed(1)}`;
   });
 
   const fBCoords = items.map((item: any, index: number) => {
     const x = padding + (index / Math.max(items.length - 1, 1)) * (width - 2 * padding);
     const y = height - padding - ((item[fB] || 0) / maxScore) * (height - 2 * padding);
+    fBCoordsList.push({x: Number(x.toFixed(1)), y: Number(y.toFixed(1)), val: item[fB] || 0});
     return `${x.toFixed(1)},${y.toFixed(1)}`;
   });
 
   return {
     fAPoints: fACoords.join(' '),
     fBPoints: fBCoords.join(' '),
+    fACoordsList,
+    fBCoordsList,
     items
   };
+});
+
+// 发展历程图表 日期分隔线计算 (每日 06:00:00 UTC，对应中国北京时间 14:00 下午2点)
+const dateDividers = computed(() => {
+  const items = displayHistoryItems.value;
+  if (!items || items.length < 2) return [];
+
+  const tMin = new Date(items[0].createdTime || items[0].updateTime).getTime();
+  const tMax = new Date(items[items.length - 1].createdTime || items[items.length - 1].updateTime).getTime();
+  if (!tMin || !tMax || tMax <= tMin) return [];
+
+  const width = 800;
+  const padding = 20;
+  const dividers: { x: number; label: string; time: number }[] = [];
+
+  // 获取时间范围内的所有每日重置分割点 (每日 06:00:00 UTC，北京时间 14:00)
+  const dStart = new Date(tMin);
+  let resetUtc = Date.UTC(dStart.getUTCFullYear(), dStart.getUTCMonth(), dStart.getUTCDate(), 6, 0, 0, 0);
+  if (resetUtc <= tMin) {
+    resetUtc += 24 * 3600 * 1000;
+  }
+
+  while (resetUtc < tMax) {
+    // 线性插值计算在图表横轴中的 X 坐标
+    const ratio = (resetUtc - tMin) / (tMax - tMin);
+    const x = padding + ratio * (width - 2 * padding);
+
+    // 格式化分割线日期显示 (本地时区：中国时区为 14:00，其他地区为当地对应时间即 UTC 06:00)
+    const resetDate = new Date(resetUtc);
+    const month = resetDate.getMonth() + 1;
+    const day = resetDate.getDate();
+    const hours = String(resetDate.getHours()).padStart(2, '0');
+    const minutes = String(resetDate.getMinutes()).padStart(2, '0');
+    const label = `${month}/${day} ${hours}:${minutes}`;
+
+    dividers.push({
+      x: Number(x.toFixed(1)),
+      label,
+      time: resetUtc,
+    });
+
+    resetUtc += 24 * 3600 * 1000;
+  }
+
+  return dividers;
 });
 
 const updateSelectedSeason = (val: any) => {
@@ -300,45 +354,55 @@ const getZoneData = (zoneName: string) => {
 </script>
 
 <template>
-  <div class="state-of-war-page" :style="{ '--faction-a-color': factionAColor, '--faction-b-color': factionBColor }">
-    <!-- 战争头 S -->
-    <v-card height="240px" class="banner-card rounded-0">
-      <template v-slot:image>
-        <Silk
-            :speed="3"
-            :scale=".7"
-            :color="'#1c1c1c'"
-            :noise-intensity="0.1"
-            :rotation="-.6"
-            class="bg-black"/>
-      </template>
-
-      <v-container class="h-100 d-flex flex-column justify-center text-white relative">
-        <div class="d-flex align-center flex-wrap ga-3 mb-2">
-          <h1 class="text-h4 font-weight-bold text-gradient">
+  <v-card height="200px">
+    <template v-slot:image>
+      <Silk
+          :speed="3"
+          :scale=".7"
+          :color="'#1c1c1c'"
+          :noise-intensity="0.1"
+          :rotation="-.6"
+          class="bg-black">
+      </Silk>
+    </template>
+    <template v-slot:default>
+      <v-container class="pa-2 mt-4 position-relative">
+        <v-breadcrumbs>
+          <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
+          <v-breadcrumbs-divider></v-breadcrumbs-divider>
+          <v-breadcrumbs-item>
             {{ t('stateOfWar.title') }}
-          </h1>
-          <v-chip
-              size="small"
-              :color="isSeasonEnded ? 'grey' : 'success'"
-              variant="tonal"
-              class="font-weight-medium">
-            <v-icon start size="14" :icon="isSeasonEnded ? 'mdi-flag-checkered' : 'mdi-sword-cross'"></v-icon>
-            {{ isSeasonEnded ? t('stateOfWar.ended') : t('stateOfWar.active') }}
-          </v-chip>
-        </div>
-        <p class="text-subtitle-1 text-medium-emphasis">
-          {{ t('stateOfWar.description') }}
-        </p>
+            <v-chip
+                size="small"
+                :color="isSeasonEnded ? 'grey' : 'success'"
+                variant="tonal"
+                class="font-weight-medium ml-3">
+              {{ isSeasonEnded ? t('stateOfWar.ended') : t('stateOfWar.active') }}
+            </v-chip>
+          </v-breadcrumbs-item>
+        </v-breadcrumbs>
 
-        <div v-if="warData?.updateTime" class="d-flex align-center mt-2 ga-2 text-caption opacity-80">
-          <v-icon icon="mdi-clock-outline" size="16"></v-icon>
-          <span>{{ t('stateOfWar.lastUpdated') }}: {{ new Date(warData.updateTime).toLocaleString() }}</span>
+        <div class="ml-4">
+          <p class="text-subtitle-1 text-medium-emphasis">
+            {{ t('stateOfWar.description') }}
+          </p>
+
+          <div v-if="warData?.updateTime" class="d-flex align-center mt-2 ga-2 text-caption opacity-80">
+            <TimeView :time="warData.updateTime">
+              {{ t('stateOfWar.lastUpdated') }}:
+            </TimeView>
+          </div>
+        </div>
+
+        <div class="position-absolute top-0 right-0 opacity-10 pt-10 d-flex ga-2">
+          <v-icon :icon="isSeasonEnded ? 'mdi-flag-checkered' : 'mdi-sword-cross'" size="120"></v-icon>
         </div>
       </v-container>
-    </v-card>
-    <!-- 战争头 E -->
+    </template>
+  </v-card>
+  <v-divider></v-divider>
 
+  <div class="state-of-war-page" :style="{ '--faction-a-color': factionAColor, '--faction-b-color': factionBColor }">
     <!-- 状态条 S -->
     <div>
       <v-divider></v-divider>
@@ -506,6 +570,34 @@ const getZoneData = (zoneName: string) => {
                   <line x1="20" y1="110" x2="780" y2="110" stroke="#333" stroke-dasharray="4"/>
                   <line x1="20" y1="200" x2="780" y2="200" stroke="#333"/>
 
+                  <!-- 日期分隔线 (每日 06:00 UTC / 北京时间 14:00) -->
+                  <g v-for="d in dateDividers" :key="d.time">
+                    <line
+                        :x1="d.x"
+                        y1="18"
+                        :x2="d.x"
+                        y2="200"
+                        stroke="#ffb300"
+                        stroke-width="1.5"
+                        stroke-dasharray="4 3"
+                        opacity="0.8"/>
+                    <circle
+                        :cx="d.x"
+                        cy="20"
+                        r="3"
+                        fill="#ffb300"/>
+                    <text
+                        :x="d.x"
+                        y="14"
+                        text-anchor="middle"
+                        fill="#ffb300"
+                        font-size="11"
+                        font-weight="bold"
+                        class="date-divider-label">
+                      {{ d.label }}
+                    </text>
+                  </g>
+
                   <!-- 阵营 A 折线 -->
                   <polyline
                       fill="none"
@@ -523,6 +615,22 @@ const getZoneData = (zoneName: string) => {
                       stroke-linecap="round"
                       stroke-linejoin="round"
                       :points="chartPoints.fBPoints"/>
+
+                  <!-- 数据节点小圆点 -->
+                  <circle
+                      v-for="(p, i) in chartPoints.fACoordsList"
+                      :key="'fa-' + i"
+                      :cx="p.x"
+                      :cy="p.y"
+                      r="3.5"
+                      :fill="factionAColor"/>
+                  <circle
+                      v-for="(p, i) in chartPoints.fBCoordsList"
+                      :key="'fb-' + i"
+                      :cx="p.x"
+                      :cy="p.y"
+                      r="3.5"
+                      :fill="factionBColor"/>
                 </svg>
 
                 <v-row class="text-caption" align="center" justify="center">

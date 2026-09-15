@@ -159,7 +159,6 @@ const getSmugglersComment = async (reportId: string) => {
                 <p><b class="d-block mb-3">{{ smugglersData.title ?? 'N/A' }}</b></p>
                 <p>开始:
                   <TimeView :time="smugglersData.startTime">
-                    <Time :time="smugglersData.startTime"></Time>
                   </TimeView>
                 </p>
                 <p>结束:
@@ -215,7 +214,6 @@ const getSmugglersComment = async (reportId: string) => {
               <b>{{ i.username }}</b>
               <div class="text-caption">
                 <TimeView :time="i.createdTime">
-                  <Time :time="i.createdTime"></Time>
                 </TimeView>
               </div>
 

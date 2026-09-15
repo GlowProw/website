@@ -51,6 +51,10 @@ const props = defineProps({
   textization: {
     type: Array as () => string[],
     default: () => ['video']
+  },
+  pageInfo: {
+    type: Object as () => { current: number; total: number },
+    default: () => ({ current: 1, total: 1 })
   }
 });
 
@@ -186,6 +190,10 @@ defineExpose({
             <canvas ref="qrCanvasRef" class="rounded-sm"></canvas>
           </v-col>
         </v-row>
+
+        <div v-if="pageInfo && pageInfo.total > 1" class="text-center opacity-40 text-caption font-weight-bold pb-2 pt-1">
+          {{ pageInfo.current }} / {{ pageInfo.total }}
+        </div>
       </div>
 
       <v-overlay :model-value="assemblyLoading" contained opacity="1" class="d-flex justify-center align-center">

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, nextTick, onMounted, Ref, ref, watch} from "vue";
+import {computed, nextTick, onMounted, onUnmounted, Ref, ref, watch} from "vue";
 import {apis, storage_account} from "@/assets/sripts/index";
 import {snapdom} from '@zumer/snapdom';
 import {useRoute, useRouter} from "vue-router";
@@ -8,83 +8,243 @@ import {useDisplay} from "vuetify/framework";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {useGoTo} from "vuetify";
 import AssemblyPoster from "@/components/AssemblyPoster.vue";
-import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
-import Silk from "@/components/Silk.vue";
+import MasteryPoster from "@/components/mastery/MasteryPoster.vue";
 import {ApiError} from "@/assets/types/Api";
 import {handleApiError} from "@/assets/sripts/error_handler";
 import AdsWidget from "@/components/ads/google/index.vue";
 import languagesConfig from "@/config/languages";
 import Loading from "@/components/Loading.vue";
 import HorizontalScrollList from "@/components/HorizontalScrollList.vue";
+import SharePosterSettingPanel from "@/components/SharePosterSettingPanel.vue";
+import {useMasteryController} from "@/assets/sripts/use_mastery_controller";
+import MasteryDataProcessing from "@/assets/sripts/mastery_data_processing";
+import AffixContainerView from "@/components/AffixContainerView.vue";
+import VerticalScrollList from "@/components/VerticalScrollList.vue";
+import Silk from "@/components/Silk.vue";
 
 const route = useRoute(),
     router = useRouter(),
     goto = useGoTo(),
     notice = useNoticeStore(),
     {t, locale} = useI18n(),
-    {mobile} = useDisplay()
+    {mobile} = useDisplay();
 
-let assemblyDetailData: Ref<any> = ref({}),
-    generateImageValue: Ref<any> = ref({
-      isShowEmptySlot: true,
-      isShowItemName: true,
-      isFullName: false,
-      isShowHeader: true,
-      isShowTitle: true,
-      isShowTabs: true,
-      isShowDescription: true,
-      filename: '',
-      width: 1200,
-      format: 'jpg',
-      quality: 1,
-      background: '#000',
-      language: locale.value,
-    }),
-    generateImageConfig = ref({
-      widths: [1050, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 2048],
-      formats: ['png', 'jpg', 'webp'],
-      qualitys: [.6, .8, .9, 1],
-      backgrounds: ['#1a1a1a', '#000', 'rgb(35,26,0)'],
-      languages: languagesConfig.child
-    }),
-    captureRef = ref(null),
-    assemblyLoading = ref(false),
-    generatedLoading = ref(false),
-    posterSwitch = ref(true),
-    path = ref(""),
-    webPath = computed(() => window.location.host)
+// 配装数据
+let assemblyDetailData: Ref<any> = ref({});
+
+// 配装海报生成配置
+let generateImageValue: Ref<any> = ref({
+  isShowEmptySlot: true,
+  isShowItemName: true,
+  isFullName: false,
+  isShowHeader: true,
+  isShowTitle: true,
+  isShowTabs: true,
+  isShowDescription: true,
+  filename: '',
+  width: 1400,
+  format: 'jpg',
+  quality: 1,
+  background: '#000',
+  language: locale.value,
+});
+
+// 精通海报生成配置
+let masteryGenerateImageValue: Ref<any> = ref({
+  isShowHeader: true,
+  isShowTitle: true,
+  isShowTree: true,
+  isShowSeasonal: true,
+  isShowEffects: true,
+  isShowQrCode: true,
+  filename: '',
+  width: 1600,
+  format: 'jpg',
+  quality: 1,
+  background: '#0a0d12',
+  language: locale.value,
+  viewMode: 'full'
+});
+
+const generateImageConfig = ref({
+  widths: [1050, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 2048],
+  formats: ['png', 'jpg', 'webp'],
+  qualitys: [.6, .8, .9, 1],
+  backgrounds: ['#1a1a1a', '#000', '#0a0d12', '#121924', 'rgb(35,26,0)'],
+  languages: languagesConfig.child
+});
+
+const captureRef = ref<any>(null);
+const masteryCaptureRef = ref<any>(null);
+const assemblyLoading = ref(false);
+const generatedLoading = ref(false);
+const generatingStepText = ref('');
+const posterSwitch = ref(true);
+const path = ref("");
+const webPath = computed(() => window.location.host);
+
+const assemblyThumbUrl = ref('');
+const assemblyThumbLoading = ref(false);
+const masteryThumbUrl = ref('');
+const masteryThumbLoading = ref(false);
+
+/**
+ * 极速捕获海报最低质量缩略图
+ * @param node
+ */
+const captureThumbnail = async (node: HTMLElement): Promise<string> => {
+  const res = await snapdom(node, {
+    scale: 0.25,
+    quality: 0.1,
+    fast: true,
+    cacheBust: false,
+    filter: (n: any) => {
+      if (n instanceof HTMLElement) {
+        return !(n.tagName === 'IMG' && n.classList.contains('ProseMirror-separator'));
+      }
+      return true;
+    }
+  } as any);
+
+  const blob = await res.toBlob({
+    type: 'jpg',
+    quality: 0.1
+  } as any);
+
+  return URL.createObjectURL(blob);
+};
+
+const updateAssemblyThumbnail = async () => {
+  const node = captureRef.value?.posterEl;
+  if (!node) return;
+  try {
+    assemblyThumbLoading.value = true;
+    await nextTick();
+    await new Promise(r => setTimeout(r, 400));
+    const url = await captureThumbnail(node);
+    if (assemblyThumbUrl.value && assemblyThumbUrl.value.startsWith('blob:')) {
+      URL.revokeObjectURL(assemblyThumbUrl.value);
+    }
+    assemblyThumbUrl.value = url;
+  } catch (err) {
+    console.error('Failed to capture assembly thumbnail:', err);
+  } finally {
+    assemblyThumbLoading.value = false;
+  }
+};
+
+const updateMasteryThumbnail = async () => {
+  if (!hasMastery.value) return;
+  const node = masteryCaptureRef.value?.posterEl;
+  if (!node) return;
+  try {
+    masteryThumbLoading.value = true;
+    await nextTick();
+    await new Promise(r => setTimeout(r, 400));
+    const url = await captureThumbnail(node);
+    if (masteryThumbUrl.value && masteryThumbUrl.value.startsWith('blob:')) {
+      URL.revokeObjectURL(masteryThumbUrl.value);
+    }
+    masteryThumbUrl.value = url;
+  } catch (err) {
+    console.error('Failed to capture mastery thumbnail:', err);
+  } finally {
+    masteryThumbLoading.value = false;
+  }
+};
+
+// 精通控制器及数据
+const {
+  selectedSeasonId,
+  seasonOptions,
+  activeTree,
+  maxPoints,
+  localNodes,
+  selectedNodeIds,
+  selectedSeasonalPerks,
+  regularPointsSpent,
+  activeSeasonalPerks,
+  aggregatedEffects,
+  getSkillName,
+  getSkillDesc,
+  getNodeIconUrl,
+  isNodeActive,
+  isNodeAvailable,
+  getCategoryColor,
+  generateShareCode
+} = useMasteryController({});
+
+// 是否包含精通方案
+const hasMastery = ref(false);
+const totalPosterPages = computed(() => (hasMastery.value ? 2 : 1));
+
+// 当前选中的 PPT 幻灯片索引 (0: 配装, 1: 精通)
+const currentSlideIndex = ref(0);
+
+// 精通方案名称（对应 assembly 名称 + 精通名称）
+const masterySeasonTitle = computed(() => {
+  const sTitle = seasonOptions.value?.find(s => s.id === selectedSeasonId.value)?.title || selectedSeasonId.value;
+  const aName = assemblyDetailData.value?.name || '';
+  return aName ? `${aName} - ${sTitle || t('mastery.title')}` : (sTitle || t('mastery.title'));
+});
+
+// 精通分享链接（供二维码使用）
+const masterySharePath = computed(() => {
+  const code = generateShareCode();
+  return `${window.location.origin}/mastery?season=${selectedSeasonId.value}&share=${code}`;
+});
 
 watch(() => [
   generateImageValue.value.isFullName,
   generateImageValue.value.isShowItemName
 ], () => {
-  loadAssemblyData()
-})
+  loadAssemblyData();
+});
 
 watch(() => generateImageValue.value, (value) => {
   router.push({
     name: route.name as any,
     query: {...route.query, ...generateImageValue.value} as any,
-  })
+  });
 
-  // 保存海报配置
+  // 保存配装海报配置
   if (value && posterSwitch.value) {
-    storage_account.updateConfiguration('poster', 'poster.config', value)
+    storage_account.updateConfiguration('poster', 'poster.config', value);
   }
-}, {deep: true})
+}, {deep: true});
+
+watch(() => masteryGenerateImageValue.value, (value) => {
+  // 保存精通海报配置
+  if (value && posterSwitch.value) {
+    storage_account.updateConfiguration('poster', 'mastery.poster.config', value);
+  }
+}, {deep: true});
 
 watch(() => route, () => {
-  getAssemblyDetail()
-})
+  getAssemblyDetail();
+});
+
+watch(
+    () => [masteryGenerateImageValue.value, generateImageValue.value],
+    () => {
+      updateAssemblyThumbnail()
+      updateMasteryThumbnail()
+    },
+    {deep: true}
+)
 
 onMounted(() => {
-  path.value = webPath.value + router.resolve({name: 'AssemblyDetail'}).path
-  posterSwitch.value = storage_account.getConfigurationItem('poster', 'poster.switch')
+  path.value = webPath.value + router.resolve({name: 'AssemblyDetail'}).path;
+  posterSwitch.value = storage_account.getConfigurationItem('poster', 'poster.switch');
 
-  if (posterSwitch.value)
+  if (posterSwitch.value) {
     generateImageValue.value = storage_account.getConfigurationItem('poster', 'poster.config', {
       defaultValue: generateImageValue.value
-    })
+    });
+    masteryGenerateImageValue.value = storage_account.getConfigurationItem('poster', 'mastery.poster.config', {
+      defaultValue: masteryGenerateImageValue.value
+    });
+  }
 
   if (route.query) {
     const query = {...route.query} as any;
@@ -106,8 +266,48 @@ onMounted(() => {
     generateImageValue.value = Object.assign(generateImageValue.value, query);
   }
 
-  getAssemblyDetail()
-})
+  getAssemblyDetail();
+  window.addEventListener('scroll', handleScroll, { passive: true });
+});
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll);
+  if (assemblyThumbUrl.value && assemblyThumbUrl.value.startsWith('blob:')) {
+    URL.revokeObjectURL(assemblyThumbUrl.value);
+  }
+  if (masteryThumbUrl.value && masteryThumbUrl.value.startsWith('blob:')) {
+    URL.revokeObjectURL(masteryThumbUrl.value);
+  }
+});
+
+// 监听滚动自动高亮左侧当前幻灯片
+const handleScroll = () => {
+  if (!hasMastery.value) {
+    currentSlideIndex.value = 0;
+    return;
+  }
+  const masteryEl = document.getElementById('poster-page-mastery');
+  if (masteryEl) {
+    const rect = masteryEl.getBoundingClientRect();
+    if (rect.top <= window.innerHeight * 0.45) {
+      currentSlideIndex.value = 1;
+      return;
+    }
+  }
+  currentSlideIndex.value = 0;
+};
+
+/**
+ * 点击左侧缩略图滚动到对应位置
+ */
+const scrollToSlide = (index: number) => {
+  currentSlideIndex.value = index;
+  const targetId = index === 0 ? '#poster-page-assembly' : '#poster-page-mastery';
+  goto(targetId, {
+    duration: 500,
+    offset: -80
+  });
+};
 
 /**
  * 获取配装详情
@@ -125,16 +325,16 @@ const getAssemblyDetail = async () => {
     assemblyDetailData.value = d.data;
     generateImageValue.value.filename = assemblyDetailData.value.name as string;
 
-    await loadAssemblyData()
+    await loadAssemblyData();
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'AssemblyShare' })
+    handleApiError(e, notice, t, { component: 'AssemblyShare' });
   } finally {
-    assemblyLoading.value = false
+    assemblyLoading.value = false;
   }
-}
+};
 
 /**
- * 装载配装数据
+ * 装载配装与精通数据
  */
 const loadAssemblyData = async () => {
   await nextTick(() => {
@@ -142,8 +342,52 @@ const loadAssemblyData = async () => {
       // @ts-ignore
       captureRef.value.loadAssemblyData();
     }
-  })
-}
+  });
+
+  // 检查是否包含精通方案数据
+  const rawMastery = assemblyDetailData.value.mastery?.data;
+  if (rawMastery && (rawMastery.season || rawMastery.s || (rawMastery.nodes && rawMastery.nodes.length > 0) || (rawMastery.n && rawMastery.n.length > 0))) {
+    hasMastery.value = true;
+    try {
+      const masteryDataProcessing = new MasteryDataProcessing();
+      const normalized = masteryDataProcessing.import(rawMastery, assemblyDetailData.value.mastery?.attr?.masteryUseVersion);
+      if (normalized?.season) {
+        selectedSeasonId.value = normalized.season;
+      }
+      await nextTick();
+      selectedNodeIds.value = new Set(normalized.nodes || []);
+      const spMap: Record<string, string> = {};
+      for (const spId of (normalized.perks || [])) {
+        const spNode = Object.values(localNodes.value).find((nd: any) => nd.key === spId || nd.id === spId) as any;
+        if (spNode) {
+          const tier = spNode.group || String(spNode.cost);
+          spMap[tier] = spNode.key || spNode.id;
+        }
+      }
+      selectedSeasonalPerks.value = spMap;
+
+      // 默认精通海报名称：配装名称 + 精通名称
+      masteryGenerateImageValue.value.filename = masterySeasonTitle.value;
+
+      await nextTick();
+      if (masteryCaptureRef.value?.loadMasteryData) {
+        await masteryCaptureRef.value.loadMasteryData();
+      }
+    } catch (e) {
+      console.warn('Failed to parse mastery data:', e);
+    }
+  } else {
+    hasMastery.value = false;
+  }
+
+  // 装载数据完成后，极速捕获左侧缩略图
+  setTimeout(() => {
+    updateAssemblyThumbnail();
+    if (hasMastery.value) {
+      updateMasteryThumbnail();
+    }
+  }, 500);
+};
 
 /**
  * 确保所有图片已加载
@@ -178,141 +422,151 @@ const ensureImagesLoaded = async (element: HTMLElement) => {
 };
 
 /**
- * 生成分享图片
+ * 截取并下载单个海报节点
+ */
+const capturePosterNode = async (node: HTMLElement, config: any, filename: string) => {
+  // 构造渲染沙盒：强制所有父级容器可见，防止裁剪导致的图片不加载
+  const sandboxElements: { el: HTMLElement, style: string }[] = [];
+  let current: HTMLElement | null = node.parentElement;
+  while (current) {
+    sandboxElements.push({ el: current, style: current.style.cssText });
+    current.style.setProperty('overflow', 'visible', 'important');
+    current.style.setProperty('clip-path', 'none', 'important');
+    current = current.parentElement;
+  }
+
+  // 临时设置样式以确保截图完整性
+  const originalStyles = node.style.cssText;
+  const width = config.width || 1400;
+  node.style.cssText += `; position: fixed !important; left: -${width * 3}px !important; top: 0 !important; z-index: 99999 !important; width: ${width}px !important; min-width: ${width}px !important; opacity: 1 !important; visibility: visible !important; display: block !important; height: auto !important; max-height: none !important;`;
+
+  await new Promise(r => setTimeout(r, 500));
+  await ensureImagesLoaded(node);
+  await document.fonts.ready;
+
+  // 注入 MDI 样式
+  const mdiStyle = document.createElement('style');
+  mdiStyle.id = 'mdi-style-inject';
+  let mdiCss = '';
+  try {
+    for (const sheet of Array.from(document.styleSheets)) {
+      try {
+        const isMdi = sheet.href?.includes('materialdesignicons') ||
+                      Array.from(sheet.cssRules).some(r => r.cssText.includes('Material Design Icons'));
+        if (isMdi) {
+          for (const rule of Array.from(sheet.cssRules)) {
+            mdiCss += rule.cssText;
+          }
+        }
+      } catch (e) {}
+    }
+  } catch (e) {}
+  mdiStyle.innerHTML = mdiCss;
+  node.appendChild(mdiStyle);
+
+  // 修复 snapdom 截图中 tonal 背景变白问题
+  const tonalFixStyle = document.createElement('style');
+  tonalFixStyle.id = 'tonal-fix-inject';
+  tonalFixStyle.innerHTML = `
+    .v-card--variant-tonal > .v-card__underlay,
+    .v-chip--variant-tonal > .v-chip__underlay,
+    .v-chip > .v-chip__underlay,
+    .v-card--variant-tonal .v-card__underlay {
+      background: currentColor !important;
+      opacity: 0.08 !important;
+    }
+    .v-card--variant-elevated > .v-card__underlay,
+    .v-card--variant-outlined > .v-card__underlay {
+      opacity: 0 !important;
+    }
+  `;
+  node.appendChild(tonalFixStyle);
+
+  node.classList.add('is-capturing');
+  await new Promise(r => setTimeout(r, 350));
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+  const d = await snapdom(node, {
+    width: config.width,
+    scale: mobile ? window.devicePixelRatio * 2 : window.devicePixelRatio,
+    embedFonts: true,
+    iconFonts: ['Material Design Icons', 'MaterialDesignIcons', 'materialdesignicons', 'Material Icons'],
+    quality: config.quality,
+    filter: (n: any) => {
+      if (n instanceof HTMLElement) {
+        return !(n.tagName === 'IMG' && n.classList.contains('ProseMirror-separator'));
+      }
+      return true;
+    },
+    cacheBust: false
+  } as any);
+
+  await d.download({
+    quality: config.quality,
+    format: config.format,
+    filename: `${filename}.${config.format}`
+  } as any);
+
+  // 移除标记并恢复原始样式
+  node.classList.remove('is-capturing');
+  tonalFixStyle.remove();
+  mdiStyle.remove();
+  node.style.cssText = originalStyles;
+  sandboxElements.forEach(({ el, style }) => el.style.cssText = style);
+};
+
+/**
+ * 生成分享海报（支持配装与精通 2 页批量生成下载）
  */
 const onGeneratedShare = async () => {
   try {
-    generatedLoading.value = true
-    await nextTick()
+    generatedLoading.value = true;
+    generatingStepText.value = hasMastery.value ? t('assembly.share.generatingPage1') : t('assembly.share.generating');
+    await nextTick();
 
-    await goto('#share-footer')
+    await goto('#share-footer');
 
-    let node = captureRef.value?.posterEl;
-    if (!node) return;
-
-    await goto(0, {duration: 2000})
-
-    // 构造渲染沙盒：强制所有父级容器可见，防止裁剪导致的图片不加载
-    const sandboxElements: { el: HTMLElement, style: string }[] = [];
-    let current: HTMLElement | null = node.parentElement;
-    while (current) {
-      sandboxElements.push({ el: current, style: current.style.cssText });
-      current.style.setProperty('overflow', 'visible', 'important');
-      current.style.setProperty('clip-path', 'none', 'important');
-      current = current.parentElement;
+    // 生成配装海报 (第 1 页)
+    const assemblyNode = captureRef.value?.posterEl;
+    if (assemblyNode) {
+      await goto(0, { duration: 1200 });
+      const assemblyFilename = generateImageValue.value.filename || assemblyDetailData.value.name || 'assembly';
+      await capturePosterNode(assemblyNode, generateImageValue.value, assemblyFilename);
     }
 
-    // 临时设置样式以确保截图完整性 (主要解决视口过小导致的问题)
-    const originalStyles = node.style.cssText;
-    const width = generateImageValue.value.width;
-    // 使用 fixed 和巨大的偏移量将其移出视角，但保持渲染
-    node.style.cssText += `; position: fixed !important; left: -${width * 3}px !important; top: 0 !important; z-index: 99999 !important; width: ${width}px !important; min-width: ${width}px !important; opacity: 1 !important; visibility: visible !important; display: block !important; height: auto !important; max-height: none !important;`;
-
-    // 增加一个较长时间的渲染缓冲
-    await new Promise(r => setTimeout(r, 500));
-
-    // 确保所有图片已加载并解码
-    await ensureImagesLoaded(node);
-
-    // 确保字体已加载
-    await document.fonts.ready;
-
-    // 注入 MDI 样式，确保 snapdom 的 capture 能够识别 icon 字体
-    const mdiStyle = document.createElement('style');
-    mdiStyle.id = 'mdi-style-inject';
-    let mdiCss = '';
-    try {
-      for (const sheet of Array.from(document.styleSheets)) {
-        try {
-          // 寻找包含 MDI 定义的样式表
-          const isMdi = sheet.href?.includes('materialdesignicons') || 
-                        Array.from(sheet.cssRules).some(r => r.cssText.includes('Material Design Icons'));
-          if (isMdi) {
-            for (const rule of Array.from(sheet.cssRules)) {
-              mdiCss += rule.cssText;
-            }
-          }
-        } catch (e) {
-          // 跨域样式表可能无法访问 rules
-        }
-      }
-    } catch (e) {
-      console.warn('MDI Style injection failed:', e);
+    // 若存在精通，生成精通海报 (第 2 页)
+    if (hasMastery.value && masteryCaptureRef.value?.posterEl) {
+      generatingStepText.value = t('assembly.share.generatingPage2');
+      // 间隔缓冲，防止多任务连续下载被浏览器阻断
+      await new Promise(r => setTimeout(r, 800));
+      const masteryNode = masteryCaptureRef.value.posterEl;
+      const masteryFilename = masteryGenerateImageValue.value.filename || `${assemblyDetailData.value.name || 'assembly'} - ${seasonOptions.value?.find(s => s.id === selectedSeasonId.value)?.title || t('mastery.title')}`;
+      await capturePosterNode(masteryNode, masteryGenerateImageValue.value, masteryFilename);
     }
-    mdiStyle.innerHTML = mdiCss;
-    node.appendChild(mdiStyle);
 
-    // 修复 snapdom 截图中 v-card--variant-tonal / v-chip--variant-tonal 背景变白问题
-    // 原因：Vuetify 通过 currentColor + CSS 变量控制 underlay 透明度，snapdom 只能捕获颜色不能捕获变量，导致变为不透明白色
-    // 解决：在截图前注入明确的 rgba 颜色替换，截图后移除
-    const tonalFixStyle = document.createElement('style');
-    tonalFixStyle.id = 'tonal-fix-inject';
-    tonalFixStyle.innerHTML = `
-      .v-card--variant-tonal > .v-card__underlay,
-      .v-chip--variant-tonal > .v-chip__underlay,
-      .v-chip > .v-chip__underlay,
-      .v-card--variant-tonal .v-card__underlay {
-        background: currentColor !important;
-        opacity: 0.08 !important;
-      }
-      .v-card--variant-elevated > .v-card__underlay,
-      .v-card--variant-outlined > .v-card__underlay {
-        opacity: 0 !important;
-      }
-    `;
-    node.appendChild(tonalFixStyle);
-
-    // 添加捕获中标记
-    node.classList.add('is-capturing');
-
-    // 等待一会确保图标渲染
-    await new Promise(r => setTimeout(r, 350));
-
-    // 等待两帧确保渲染管线同步
-    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-
-    const d = await snapdom(node, {
-      width: generateImageValue.value.width,
-      scale: mobile ? window.devicePixelRatio * 2 : window.devicePixelRatio,
-      embedFonts: true,
-      iconFonts: ['Material Design Icons', 'MaterialDesignIcons', 'materialdesignicons', 'Material Icons'],
-      quality: generateImageValue.value.quality,
-      filter: (node: any) => {
-        if (node instanceof HTMLElement) {
-          return !(node.tagName === 'IMG' && node.classList.contains('ProseMirror-separator'))
-        }
-        return true;
-      },
-      // useProxy: 'https://proxy.corsfix.com/?',
-      cacheBust: false
-    } as any)
-
-    await d.download({quality: generateImageValue.value.quality, format: generateImageValue.value.format, filename: `${generateImageValue.value.filename}.${generateImageValue.value.format}`} as any)
-
-    // 移除标记并恢复原始样式
-    node.classList.remove('is-capturing');
-    tonalFixStyle.remove();
-    mdiStyle.remove();
-    node.style.cssText = originalStyles;
-    sandboxElements.forEach(({ el, style }) => el.style.cssText = style);
+    notice.success(t('basic.tips.operateSuccess'));
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'AssemblySharePoster' })
+    handleApiError(e, notice, t, { component: 'AssemblySharePoster' });
     if (captureRef.value?.posterEl) {
       captureRef.value.posterEl.classList.remove('is-capturing');
     }
+    if (masteryCaptureRef.value?.posterEl) {
+      masteryCaptureRef.value.posterEl.classList.remove('is-capturing');
+    }
   } finally {
     setTimeout(() => {
-      generatedLoading.value = false
-    }, 500)
+      generatedLoading.value = false;
+      generatingStepText.value = '';
+    }, 500);
   }
-}
+};
 
 /**
  * 返回
  */
 const onBackDetail = () => {
-  router.push({name: 'AssemblyDetail'})
-}
+  router.push({name: 'AssemblyDetail'});
+};
 </script>
 
 <template>
@@ -338,36 +592,115 @@ const onBackDetail = () => {
         </v-breadcrumbs>
 
         <div class="position-absolute top-0 right-0 opacity-10 pt-10 d-flex ga-2">
-          <v-icon icon="mdi-share-variant-outline" size="120"></v-icon>
+          <v-icon icon="mdi-presentation" size="120"></v-icon>
         </div>
       </v-container>
     </template>
   </v-card>
   <v-divider></v-divider>
 
-  <v-container class="my-5 position-relative overflow-auto">
+  <v-container class="my-5 position-relative">
     <AdsWidget class="my-5" id="none"></AdsWidget>
 
-    <div class="position-relative" :class="{'opacity-20': mobile}">
-      <HorizontalScrollList :is-indicator="false" :is-follow-screen-center="true" :follow-screen-safe-distance="300">
-        <AssemblyPoster
-            ref="captureRef"
-            :assembly-detail-data="assemblyDetailData"
-            :generate-image-value="generateImageValue"
-            :path="path"
-            :web-path="webPath"
-            :assembly-loading="assemblyLoading"
-        />
-      </HorizontalScrollList>
-    </div>
+    <v-row>
+      <!-- 左侧栏 -->
+      <v-col cols="2" class="" v-if="!mobile">
+        <AffixContainerView>
+          <VerticalScrollList>
+            <div
+                class="ppt-slide-thumb mb-4 cursor-pointer"
+                :class="{ 'is-active': currentSlideIndex === 0 }"
+                @click="scrollToSlide(0)">
+              <div class="slide-card-box"
+                   :style="`background:${generateImageValue.background}`">
+                <Loading v-if="assemblyThumbLoading || !assemblyThumbUrl" size="80"></Loading>
+                <img
+                    v-else
+                    :src="assemblyThumbUrl"
+                    class="slide-thumb-img"
+                    alt="Assembly Slide"
+                />
+              </div>
+            </div>
+
+            <div
+                v-if="hasMastery"
+                class="ppt-slide-thumb mb-4 cursor-pointer"
+                :class="{ 'is-active': currentSlideIndex === 1 }"
+                @click="scrollToSlide(1)">
+              <div class="slide-card-box"
+                   :style="`background:${masteryGenerateImageValue.background}`">
+                <Loading v-if="masteryThumbLoading || !masteryThumbUrl" size="80"></Loading>
+                <img
+                    v-else
+                    :src="masteryThumbUrl"
+                    class="slide-thumb-img"
+                    alt="Mastery Slide"
+                />
+              </div>
+            </div>
+          </VerticalScrollList>
+        </AffixContainerView>
+      </v-col>
+
+      <!-- 海报主体展示区 -->
+      <v-col cols="10" class="overflow-auto">
+        <section id="poster-page-assembly" class="poster-section mb-12">
+          <div class="position-relative" :class="{'opacity-20': mobile}">
+            <HorizontalScrollList :is-indicator="false" :is-follow-screen-center="true" :follow-screen-safe-distance="300">
+              <AssemblyPoster
+                  ref="captureRef"
+                  :assembly-detail-data="assemblyDetailData"
+                  :generate-image-value="generateImageValue"
+                  :path="path"
+                  :web-path="webPath"
+                  :assembly-loading="assemblyLoading"
+                  :page-info="{ current: 1, total: totalPosterPages }"
+              />
+            </HorizontalScrollList>
+          </div>
+        </section>
+
+        <section v-if="hasMastery" id="poster-page-mastery" class="poster-section mb-12 pt-6">
+          <div class="position-relative" :class="{'opacity-20': mobile}">
+            <HorizontalScrollList :is-indicator="false" :is-follow-screen-center="true" :follow-screen-safe-distance="300">
+              <MasteryPoster
+                  ref="masteryCaptureRef"
+                  :season-id="selectedSeasonId"
+                  :season-title="masterySeasonTitle"
+                  :selected-node-ids="selectedNodeIds"
+                  :active-tree="activeTree"
+                  :local-nodes="localNodes"
+                  :regular-points-spent="regularPointsSpent"
+                  :max-points="maxPoints"
+                  :active-seasonal-perks="activeSeasonalPerks"
+                  :aggregated-effects="aggregatedEffects"
+                  :generate-image-value="masteryGenerateImageValue"
+                  :path="masterySharePath"
+                  :web-path="webPath"
+                  :loading="assemblyLoading"
+                  :get-skill-name="getSkillName"
+                  :get-skill-desc="getSkillDesc"
+                  :getNodeIconUrl="getNodeIconUrl"
+                  :get-category-color="getCategoryColor"
+                  :is-node-active="isNodeActive"
+                  :is-node-available="isNodeAvailable"
+                  :page-info="{ current: 2, total: totalPosterPages }"
+              />
+            </HorizontalScrollList>
+          </div>
+        </section>
+      </v-col>
+    </v-row>
   </v-container>
 
+  <!-- 生成海报加载遮罩 -->
   <v-overlay :model-value="generatedLoading" persistent
              class="blur-load d-flex align-center justify-center" opacity=".92">
     <v-card variant="text" class="text-center">
       <Loading size="120" class="mb-5">></Loading>
       <div class="text-h5 text-amber font-weight-bold" style="text-shadow: 0 2px 10px rgba(0,0,0,0.5)">
-        {{ t('assembly.share.generating') }}
+        {{ generatingStepText || t('assembly.share.generating') }}
       </div>
       <div class="text-caption text-grey-lighten-1 mt-2">
         {{ t('assembly.share.generatingHint') }}
@@ -375,6 +708,7 @@ const onBackDetail = () => {
     </v-card>
   </v-overlay>
 
+  <!-- 底部操作固定栏 -->
   <div class="position-fixed bottom-0 w-100 bg-black" style="z-index: 120">
     <v-divider thickness="2" opacity=".3"></v-divider>
 
@@ -395,7 +729,7 @@ const onBackDetail = () => {
 
           <v-btn-group>
             <v-btn height="50" class="bg-amber" :loading="generatedLoading" :disabled="mobile || generatedLoading || assemblyDetailData.uuid == null" @click="onGeneratedShare">
-              {{ t('assembly.share.createPoster') }}
+              {{ hasMastery ? t('assembly.share.createPosterMultiple', { total: totalPosterPages }) : t('assembly.share.createPoster') }}
             </v-btn>
             <v-divider vertical></v-divider>
             <v-menu open-on-click :close-on-content-click="false">
@@ -405,175 +739,20 @@ const onBackDetail = () => {
                 </v-btn>
               </template>
 
-              <v-card border class="pa-5" :min-width="mobile ? '100%' : 350" :width="mobile ? '100%' : 580">
-                <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 mt-n5">
-                  <v-icon size="80">mdi-cog</v-icon>
-                </v-card-title>
-
-                <p class="text-caption mb-5">{{ t('assembly.share.configHint') }}</p>
-
-                <v-row>
-                  <v-col cols="12">
-                    <div class="mb-2">{{ t('assembly.share.filename') }}</div>
-                    <v-text-field v-model="generateImageValue.filename"></v-text-field>
-                  </v-col>
-                  <v-col cols="6">
-                    <div class="mb-2">{{ t('assembly.share.width') }}</div>
-                    <v-select
-                        variant="filled"
-                        item-value="value"
-                        item-title="text"
-                        density="comfortable"
-                        v-model="generateImageValue.width"
-                        :items="generateImageConfig.widths"
-                        hide-details>
-                    </v-select>
-                  </v-col>
-                  <v-col cols="6">
-                    <div class="mb-2">{{ t('assembly.share.format') }}</div>
-                    <v-select
-                        variant="filled"
-                        item-value="value"
-                        item-title="text"
-                        density="comfortable"
-                        v-model="generateImageValue.format"
-                        :items="generateImageConfig.formats"
-                        hide-details>
-                    </v-select>
-                  </v-col>
-                  <v-col cols="6">
-                    <div class="mb-2">{{ t('assembly.share.quality') }}</div>
-                    <v-select
-                        variant="filled"
-                        item-value="value"
-                        item-title="text"
-                        density="comfortable"
-                        v-model="generateImageValue.quality"
-                        :items="generateImageConfig.qualitys"
-                        hide-details>
-                    </v-select>
-                  </v-col>
-                  <v-col cols="6">
-                    <div class="mb-2">{{ t('assembly.share.language') }}</div>
-                    <v-select
-                        variant="filled"
-                        item-value="value"
-                        item-title="label"
-                        density="comfortable"
-                        v-model="generateImageValue.language"
-                        :items="generateImageConfig.languages"
-                        hide-details>
-                    </v-select>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-divider>{{ t('assembly.share.imageStyleTitle') }}</v-divider>
-                  </v-col>
-                  <v-col cols="12">
-                    <div class="mb-2">{{ t('assembly.share.backgroundColor') }}</div>
-                    <v-select
-                        variant="filled"
-                        item-value="value"
-                        item-title="text"
-                        density="comfortable"
-                        v-model="generateImageValue.background"
-                        :items="generateImageConfig.backgrounds"
-                        hide-details>
-                      <template v-slot:append>
-                        <v-card border variant="text">
-                          <ItemSlotBase size="50px" :padding="0" :style="`background: ${generateImageValue.background}`"></ItemSlotBase>
-                        </v-card>
-                      </template>
-                      <template v-slot:item="{props, item}">
-                        <v-list-item v-bind="props">
-                          <template v-slot:append>
-                            <ItemSlotBase size="30px" :padding="0" :style="`background: ${item.raw}`">
-                            </ItemSlotBase>
-                          </template>
-                        </v-list-item>
-                      </template>
-                    </v-select>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-row>
-                      <v-col cols="6">
-                        <v-switch
-                            v-model="generateImageValue.isShowEmptySlot"
-                            inset
-                            hide-details>
-                          <template v-slot:append>
-                            <div>{{ t('assembly.share.showEmptySlot') }}</div>
-                          </template>
-                        </v-switch>
-                      </v-col>
-                      <v-col cols="6">
-                        <v-switch
-                            v-model="generateImageValue.isShowItemName"
-                            inset
-                            hide-details>
-                          <template v-slot:append>
-                            <div>{{ t('assembly.share.showItemName') }}</div>
-                          </template>
-                        </v-switch>
-                      </v-col>
-                      <v-col cols="6">
-                        <v-switch
-                            v-model="generateImageValue.isFullName"
-                            inset
-                            hide-details>
-                          <template v-slot:append>
-                            <div>{{ t('assembly.share.fullName') }}</div>
-                          </template>
-                        </v-switch>
-                      </v-col>
-                      <v-col cols="6">
-                        <v-switch
-                            v-model="generateImageValue.isShowTitle"
-                            inset
-                            hide-details>
-                          <template v-slot:append>
-                            <div>{{ t('assembly.share.showTitle') }}</div>
-                          </template>
-                        </v-switch>
-                      </v-col>
-                      <v-col cols="6">
-                        <v-switch
-                            v-model="generateImageValue.isShowHeader"
-                            inset
-                            hide-details>
-                          <template v-slot:append>
-                            <div>{{ t('assembly.share.showHeader') }}</div>
-                          </template>
-                        </v-switch>
-                      </v-col>
-                      <v-col cols="6">
-                        <v-switch
-                            v-model="generateImageValue.isShowTabs"
-                            inset
-                            hide-details>
-                          <template v-slot:append>
-                            <div>{{ t('assembly.share.showTabs') }}</div>
-                          </template>
-                        </v-switch>
-                      </v-col>
-                      <v-col cols="6">
-                        <v-switch
-                            v-model="generateImageValue.isShowDescription"
-                            inset
-                            hide-details>
-                          <template v-slot:append>
-                            {{ t('assembly.share.showDescription') }}
-                          </template>
-                        </v-switch>
-                      </v-col>
-                    </v-row>
-                  </v-col>
-                </v-row>
-              </v-card>
+              <!-- 封装好的统一设置面板 -->
+              <SharePosterSettingPanel
+                  type="both"
+                  :has-mastery="hasMastery"
+                  :assembly-model-value="generateImageValue"
+                  :mastery-model-value="masteryGenerateImageValue"
+                  :generate-image-config="generateImageConfig"
+                  @update:assembly-model-value="generateImageValue = $event"
+                  @update:mastery-model-value="masteryGenerateImageValue = $event"
+              />
             </v-menu>
           </v-btn-group>
         </v-col>
       </v-row>
-
     </v-container>
   </div>
 
@@ -582,6 +761,76 @@ const onBackDetail = () => {
 
 <style scoped lang="less">
 @import "@/assets/styles/icon";
+
+.ppt-layout {
+  position: relative;
+  align-items: flex-start;
+}
+
+.ppt-sidebar {
+  width: 220px;
+  min-width: 220px;
+  flex-shrink: 0;
+}
+
+.ppt-slide-thumb {
+  position: relative;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.25s ease;
+  user-select: none;
+
+  &.is-active {
+    border-color: #ffb300 !important;
+    box-shadow: 0 0 16px rgba(255, 179, 0, 0.35);
+    background: rgba(255, 179, 0, 0.06);
+  }
+
+  .slide-badge {
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    width: 22px;
+    height: 22px;
+    background: #ffb300;
+    color: #000;
+    font-weight: bold;
+    font-size: 11px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+    z-index: 2;
+    transition: transform 0.2s ease;
+  }
+
+  .slide-card-box {
+    width: 100%;
+    height: 260px;
+    overflow: hidden;
+    position: relative;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .slide-thumb-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+  }
+}
+
+.poster-section {
+  scroll-margin-top: 90px;
+}
 
 .share {
   pointer-events: none;

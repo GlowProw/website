@@ -192,7 +192,6 @@
         <v-spacer></v-spacer>
         <v-col class="text-right">
           <TimeView :time="selectedLocation.dateAdded" v-if="selectedLocation.dateAdded">
-            <Time :time="selectedLocation.dateAdded"></Time>
           </TimeView>
         </v-col>
       </v-row>
@@ -204,7 +203,6 @@
         <v-spacer></v-spacer>
         <v-col class="text-right">
           <TimeView :time="selectedLocation.lastUpdated" v-if="selectedLocation.lastUpdated">
-            <Time :time="selectedLocation.lastUpdated"></Time>
           </TimeView>
         </v-col>
       </v-row>

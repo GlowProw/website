@@ -15,6 +15,7 @@ import {handleApiError} from "@/assets/sripts/error_handler";
 import languagesConfig from "@/config/languages";
 import Loading from "@/components/Loading.vue";
 import HorizontalScrollList from "@/components/HorizontalScrollList.vue";
+import SharePosterSettingPanel from "@/components/SharePosterSettingPanel.vue";
 
 const route = useRoute(),
     router = useRouter(),
@@ -440,176 +441,12 @@ const onBackDetail = () => {
                 </v-btn>
               </template>
 
-              <v-card border class="pa-5" :min-width="mobile ? '100%' : 350" :width="mobile ? '100%' : 580">
-                <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 mt-n5">
-                  <v-icon size="80">mdi-cog</v-icon>
-                </v-card-title>
-
-                <p class="text-caption mb-5">{{ t('mastery.share.configHint') }}</p>
-
-                <v-row>
-                  <v-col cols="12">
-                    <div class="mb-2">{{ t('mastery.share.filename') }}</div>
-                    <v-text-field v-model="generateImageValue.filename"></v-text-field>
-                  </v-col>
-                  <v-col cols="6">
-                    <div class="mb-2">{{ t('mastery.share.width') }}</div>
-                    <v-select
-                        variant="filled"
-                        item-value="value"
-                        item-title="text"
-                        density="comfortable"
-                        v-model="generateImageValue.width"
-                        :items="generateImageConfig.widths"
-                        hide-details>
-                    </v-select>
-                  </v-col>
-                  <v-col cols="6">
-                    <div class="mb-2">{{ t('mastery.share.format') }}</div>
-                    <v-select
-                        variant="filled"
-                        item-value="value"
-                        item-title="text"
-                        density="comfortable"
-                        v-model="generateImageValue.format"
-                        :items="generateImageConfig.formats"
-                        hide-details>
-                    </v-select>
-                  </v-col>
-                  <v-col cols="6">
-                    <div class="mb-2">{{ t('mastery.share.quality') }}</div>
-                    <v-select
-                        variant="filled"
-                        item-value="value"
-                        item-title="text"
-                        density="comfortable"
-                        v-model="generateImageValue.quality"
-                        :items="generateImageConfig.qualitys"
-                        hide-details>
-                    </v-select>
-                  </v-col>
-                  <v-col cols="6">
-                    <div class="mb-2">{{ t('mastery.share.language') }}</div>
-                    <v-select
-                        variant="filled"
-                        item-value="value"
-                        item-title="label"
-                        density="comfortable"
-                        v-model="generateImageValue.language"
-                        :items="generateImageConfig.languages"
-                        hide-details>
-                    </v-select>
-                  </v-col>
-                  <v-col cols="12">
-                    <div class="mb-2">{{ t('mastery.share.treeTitle') }} ({{ t('mastery.share.imageStyleTitle') }})</div>
-                    <v-btn-toggle
-                        v-model="generateImageValue.viewMode"
-                        mandatory
-                        density="compact"
-                        color="amber"
-                        class="w-100">
-                      <v-btn value="full" class="flex-grow-1">
-                        {{ t('mastery.share.viewFullTree') }}
-                      </v-btn>
-                      <v-btn value="active" class="flex-grow-1">
-                        {{ t('mastery.share.viewActivePath') }}
-                      </v-btn>
-                    </v-btn-toggle>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-divider>{{ t('mastery.share.imageStyleTitle') }}</v-divider>
-                  </v-col>
-                  <v-col cols="12">
-                    <div class="mb-2">{{ t('mastery.share.backgroundColor') }}</div>
-                    <v-select
-                        variant="filled"
-                        item-value="value"
-                        item-title="text"
-                        density="comfortable"
-                        v-model="generateImageValue.background"
-                        :items="generateImageConfig.backgrounds"
-                        hide-details>
-                      <template v-slot:append>
-                        <v-card border variant="text">
-                          <ItemSlotBase size="50px" :padding="0" :style="`background: ${generateImageValue.background}`"></ItemSlotBase>
-                        </v-card>
-                      </template>
-                      <template v-slot:item="{props, item}">
-                        <v-list-item v-bind="props">
-                          <template v-slot:append>
-                            <ItemSlotBase size="30px" :padding="0" :style="`background: ${item.raw}`">
-                            </ItemSlotBase>
-                          </template>
-                        </v-list-item>
-                      </template>
-                    </v-select>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-row>
-                      <v-col cols="6">
-                        <v-switch
-                            v-model="generateImageValue.isShowHeader"
-                            inset
-                            hide-details>
-                          <template v-slot:append>
-                            <div>{{ t('mastery.share.showHeader') }}</div>
-                          </template>
-                        </v-switch>
-                      </v-col>
-                      <v-col cols="6">
-                        <v-switch
-                            v-model="generateImageValue.isShowTitle"
-                            inset
-                            hide-details>
-                          <template v-slot:append>
-                            <div>{{ t('mastery.share.showTitle') }}</div>
-                          </template>
-                        </v-switch>
-                      </v-col>
-                      <v-col cols="6">
-                        <v-switch
-                            v-model="generateImageValue.isShowTree"
-                            inset
-                            hide-details>
-                          <template v-slot:append>
-                            <div>{{ t('mastery.share.showTree') }}</div>
-                          </template>
-                        </v-switch>
-                      </v-col>
-                      <v-col cols="6">
-                        <v-switch
-                            v-model="generateImageValue.isShowSeasonal"
-                            inset
-                            hide-details>
-                          <template v-slot:append>
-                            <div>{{ t('mastery.share.showSeasonal') }}</div>
-                          </template>
-                        </v-switch>
-                      </v-col>
-                      <v-col cols="6">
-                        <v-switch
-                            v-model="generateImageValue.isShowEffects"
-                            inset
-                            hide-details>
-                          <template v-slot:append>
-                            <div>{{ t('mastery.share.showEffects') }}</div>
-                          </template>
-                        </v-switch>
-                      </v-col>
-                      <v-col cols="6">
-                        <v-switch
-                            v-model="generateImageValue.isShowQrCode"
-                            inset
-                            hide-details>
-                          <template v-slot:append>
-                            <div>{{ t('mastery.share.showQrCode') }}</div>
-                          </template>
-                        </v-switch>
-                      </v-col>
-                    </v-row>
-                  </v-col>
-                </v-row>
-              </v-card>
+              <SharePosterSettingPanel
+                  type="mastery"
+                  :mastery-model-value="generateImageValue"
+                  :generate-image-config="generateImageConfig"
+                  @update:mastery-model-value="generateImageValue = $event"
+              />
             </v-menu>
           </v-btn-group>
         </v-col>

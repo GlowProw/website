@@ -570,7 +570,6 @@ const onAddCalculator = () => {
                               readonly variant="underlined">
                   <template v-slot:prepend-inner>
                     <TimeView :time="itemDetailData.dateAdded" class="singe-line">
-                      <Time :time="itemDetailData.dateAdded"></Time>
                     </TimeView>
                   </template>
                   <template v-slot:append-inner>
@@ -583,7 +582,6 @@ const onAddCalculator = () => {
                               readonly variant="underlined">
                   <template v-slot:prepend-inner>
                     <TimeView :time="itemDetailData.lastUpdated" class="singe-line">
-                      <Time :time="itemDetailData.lastUpdated"></Time>
                     </TimeView>
                   </template>
                   <template v-slot:append-inner>

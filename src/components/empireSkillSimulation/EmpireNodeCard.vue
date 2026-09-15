@@ -167,7 +167,6 @@ const {t} = useI18n();
         <v-spacer></v-spacer>
         <v-col class="text-right">
           <TimeView :time="skills[selectedKey]?.lastUpdated" v-if="skills[selectedKey]?.lastUpdated">
-            <Time :time="skills[selectedKey]?.lastUpdated"></Time>
           </TimeView>
         </v-col>
       </v-row>
@@ -180,7 +179,6 @@ const {t} = useI18n();
         <v-spacer></v-spacer>
         <v-col class="text-right">
           <TimeView :time="skills[selectedKey]?.dateAdded" v-if="skills[selectedKey]?.dateAdded">
-            <Time :time="skills[selectedKey]?.dateAdded"></Time>
           </TimeView>
         </v-col>
       </v-row>
