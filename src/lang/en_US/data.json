@@ -140,7 +140,8 @@
     "emoji": "Emoji",
     "gesture": "Gesture",
     "hangouts-blob": "Blob",
-    "party": "Party"
+    "party": "Party",
+    "snb-infamy": "Infamy"
   },
   "pwa": {
     "title": "PWA",

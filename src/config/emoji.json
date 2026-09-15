@@ -1600,6 +1600,188 @@
           "imageUrl": "/images/emote/party-parrot/zouk_parrot.gif"
         }
       ]
+    },
+    {
+      "name": "snb-infamy",
+      "byImageUrl": "",
+      "titleEmoteName": "snb-infamy|kingpin",
+      "child": [
+        {
+          "name": "outcast",
+          "config": {
+            "type": "png"
+          },
+          "imageUrl": "/images/emote/snb-Infamy/outcast.webp"
+        },
+        {
+          "name": "scoundrel",
+          "config": {
+            "type": "png"
+          },
+          "imageUrl": "/images/emote/snb-Infamy/scoundrel.webp"
+        },
+        {
+          "name": "rover",
+          "config": {
+            "type": "png"
+          },
+          "imageUrl": "/images/emote/snb-Infamy/rover.webp"
+        },
+        {
+          "name": "freebooter",
+          "config": {
+            "type": "png"
+          },
+          "imageUrl": "/images/emote/snb-Infamy/freebooter.webp"
+        },
+        {
+          "name": "buccaneer",
+          "config": {
+            "type": "png"
+          },
+          "imageUrl": "/images/emote/snb-Infamy/buccaneer.webp"
+        },
+        {
+          "name": "brigand",
+          "config": {
+            "type": "png"
+          },
+          "imageUrl": "/images/emote/snb-Infamy/brigand.webp"
+        },
+        {
+          "name": "marauder",
+          "config": {
+            "type": "png"
+          },
+          "imageUrl": "/images/emote/snb-Infamy/marauder.webp"
+        },
+        {
+          "name": "corsair",
+          "config": {
+            "type": "png"
+          },
+          "imageUrl": "/images/emote/snb-Infamy/corsair.webp"
+        },
+        {
+          "name": "cutthroat",
+          "config": {
+            "type": "png"
+          },
+          "imageUrl": "/images/emote/snb-Infamy/cutthroat.webp"
+        },
+        {
+          "name": "kingpin",
+          "config": {
+            "type": "png"
+          },
+          "imageUrl": "/images/emote/snb-Infamy/kingpin.webp"
+        },
+        {
+          "name": "kingpin-copper-100",
+          "config": {
+            "type": "png"
+          },
+          "imageUrl": "/images/emote/snb-Infamy/kingpin copper-100.webp"
+        },
+        {
+          "name": "kingpin-copper-200",
+          "config": {
+            "type": "png"
+          },
+          "imageUrl": "/images/emote/snb-Infamy/kingpin copper-200.webp"
+        },
+        {
+          "name": "kingpin-copper-300",
+          "config": {
+            "type": "png"
+          },
+          "imageUrl": "/images/emote/snb-Infamy/kingpin copper-300.webp"
+        },
+        {
+          "name": "kingpin-copper-400",
+          "config": {
+            "type": "png"
+          },
+          "imageUrl": "/images/emote/snb-Infamy/kingpin copper-400.webp"
+        },
+        {
+          "name": "kingpin-copper-500",
+          "config": {
+            "type": "png"
+          },
+          "imageUrl": "/images/emote/snb-Infamy/kingpin copper-500.webp"
+        },
+        {
+          "name": "kingpin-silver-600",
+          "config": {
+            "type": "png"
+          },
+          "imageUrl": "/images/emote/snb-Infamy/kingpin silver-600.webp"
+        },
+        {
+          "name": "kingpin-silver-700",
+          "config": {
+            "type": "png"
+          },
+          "imageUrl": "/images/emote/snb-Infamy/kingpin silver-700.webp"
+        },
+        {
+          "name": "kingpin-silver-800",
+          "config": {
+            "type": "png"
+          },
+          "imageUrl": "/images/emote/snb-Infamy/kingpin silver-800.webp"
+        },
+        {
+          "name": "kingpin-silver-900",
+          "config": {
+            "type": "png"
+          },
+          "imageUrl": "/images/emote/snb-Infamy/kingpin silver-900.webp"
+        },
+        {
+          "name": "kingpin-silver-1000",
+          "config": {
+            "type": "png"
+          },
+          "imageUrl": "/images/emote/snb-Infamy/kingpin silver-1000.webp"
+        },
+        {
+          "name": "kingpin-gold-1100",
+          "config": {
+            "type": "png"
+          },
+          "imageUrl": "/images/emote/snb-Infamy/kingpin gold-1100.webp"
+        },
+        {
+          "name": "kingpin-gold-1200",
+          "config": {
+            "type": "png"
+          },
+          "imageUrl": "/images/emote/snb-Infamy/kingpin gold-1200.webp"
+        },
+        {
+          "name": "kingpin-gold-1300",
+          "config": {
+            "type": "png"
+          },
+          "imageUrl": "/images/emote/snb-Infamy/kingpin gold-1300.webp"
+        },
+        {
+          "name": "kingpin-gold-1400",
+          "config": {
+            "type": "png"
+          },
+          "imageUrl": "/images/emote/snb-Infamy/kingpin gold-1400.webp"
+        },
+        {
+          "name": "kingpin-gold-1500",
+          "config": {
+            "type": "png"
+          },
+          "imageUrl": "/images/emote/snb-Infamy/kingpin gold-1500.webp"
+        }
+      ]
     }
   ]
 }

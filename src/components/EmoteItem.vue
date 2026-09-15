@@ -98,7 +98,7 @@ export default {
     <template v-slot:activator="{ props }">
       <div v-bind="props">
         <template
-            v-if="emojiItemData && emojiItemData.config && (emojiItemData.config.type === 'gif' || emojiItemData.config.type === 'png')">
+            v-if="emojiItemData && emojiItemData.config && (emojiItemData.config.type === 'gif' || emojiItemData.config.type === 'png' || emojiItemData.config.type === 'webp')">
           <img class="emote"
                :alt="emojiItemData.name"
                :src="emojiItemData.imageUrl"
@@ -124,7 +124,7 @@ export default {
 
     <div align="center">
       <template
-          v-if="emojiItemData && emojiItemData.config && (emojiItemData.config.type === 'gif' || emojiItemData.config.type === 'png')">
+          v-if="emojiItemData && emojiItemData.config && (emojiItemData.config.type === 'gif' || emojiItemData.config.type === 'png' || emojiItemData.config.type === 'webp')">
         <v-img class="emote"
                cover
                :alt="emojiItemData.name"

@@ -142,7 +142,8 @@
     "emoji": "表情",
     "gesture": "手勢",
     "hangouts-blob": "圓臉",
-    "party": "派對"
+    "party": "派對",
+    "snb-infamy": "惡名等級"
   },
   "pwa": {
     "title": "漸進式網頁應用(PWA)",

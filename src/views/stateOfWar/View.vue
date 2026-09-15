@@ -531,7 +531,7 @@ const getZoneData = (zoneName: string) => {
     <v-container class="py-6">
       <v-row v-if="loading && !warData">
         <v-col cols="12" class="text-center py-12">
-          <Loading></Loading>
+          <Loading size="120"></Loading>
         </v-col>
       </v-row>
 
