@@ -338,7 +338,7 @@ export const useStateOfWarStore = defineStore('stateOfWar', () => {
     /**
      * 获取历史战事数据 (支持缓存)
      */
-    const fetchHistoryData = async (range: '1h' | '1d' = '1d', seasonId?: string, force: boolean = false): Promise<StateOfWarHistoryPoint[]> => {
+    const fetchHistoryData = async (range: '1h' | '1d' | '7d' = '1d', seasonId?: string, force: boolean = false): Promise<StateOfWarHistoryPoint[]> => {
         const targetSeason = seasonId || currentSeasonId.value || 'crimsonWaters';
         const cacheKey = `${targetSeason}_${range}`;
 

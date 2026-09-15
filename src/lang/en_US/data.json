@@ -2152,7 +2152,7 @@
       },
       "stateOfWar": {
         "title": "State of War",
-        "description": "Track faction asset score and regional war dominance in Season 10"
+        "description": "Track faction asset score and regional war dominance in Season"
       },
       "assembly": {
         "title": "Ship Assembly Workshop",
@@ -2352,6 +2352,7 @@
     "warProgression": "War Progression",
     "hour1": "1 Hour",
     "day1": "1 Day",
+    "week1": "7 Days",
     "cycleNumber": "Issue {value}",
     "leading": "Leading",
     "subZones": "Zones",
@@ -2368,16 +2369,6 @@
       "openSeas": "Open Seas",
       "redIsle": "Red Isle",
       "coastOfAfrica": "Coast of Africa"
-    },
-    "zones": {
-      "westernEastIndies": "Western East Indies",
-      "easternEastIndies": "Eastern East Indies",
-      "southernEastIndies": "Southern East Indies",
-      "northernEastIndies": "Northern East Indies",
-      "northernOpenSeas": "Northern Open Seas",
-      "northEastEastIndies": "North-East East Indies",
-      "eastIndiesSea": "East Indies Sea",
-      "eastIndiesIsles": "East Indies Isles"
     }
   },
   "subscription": {

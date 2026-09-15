@@ -74,9 +74,9 @@ export function useStateOfWarApi() {
     };
 
     /**
-     * 获取历史战事发展历程数据 (支持 1h / 1d)
+     * 获取历史战事发展历程数据 (支持 1h / 1d / 7d)
      */
-    const getStateOfWarHistory = async (range: '1h' | '1d' = '1d', season?: string | number) => {
+    const getStateOfWarHistory = async (range: '1h' | '1d' | '7d' = '1d', season?: string | number) => {
         try {
             const result = await http.get('stateOfWar/history', {
                 params: { range, ...(season ? { season } : {}) }

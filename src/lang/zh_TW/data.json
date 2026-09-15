@@ -2421,6 +2421,7 @@
     "warProgression": "戰爭進程",
     "hour1": "1小時",
     "day1": "1天",
+    "week1": "1週",
     "leading": "領先",
     "subZones": "小區域",
     "ended": "已結算",
@@ -2436,16 +2437,6 @@
       "openSeas": "公海",
       "redIsle": "紅島",
       "coastOfAfrica": "非洲海岸"
-    },
-    "zones": {
-      "westernEastIndies": "西東印度",
-      "easternEastIndies": "東東印度",
-      "southernEastIndies": "南東印度",
-      "northernEastIndies": "北東印度",
-      "northernOpenSeas": "北部公海",
-      "northEastEastIndies": "東北東印度",
-      "eastIndiesSea": "東印度海",
-      "eastIndiesIsles": "東印度群島"
     }
   },
   "subscription": {

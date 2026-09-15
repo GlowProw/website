@@ -18,7 +18,7 @@ import AffixContainerView from "@/components/AffixContainerView.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import {formatCompactNumber, formatNumber} from "@/assets/sripts/number";
 import {getCurrentSeasonId} from "@/assets/sripts";
-import Time from "@/components/Time.vue";
+import Loading from "@/components/Loading.vue";
 import TimeView from "@/components/TimeView.vue";
 
 const {t} = useI18n(),
@@ -79,12 +79,7 @@ const selectSeasonsList = computed(() => {
       };
     });
   }
-  return [
-    {id: "crimsonWaters", label: "赤红之水"},
-    {id: "shatteredSeas", label: `碎浪之海 (${t('stateOfWar.ended')})`, isEnded: true},
-    {id: "eyeOfTheBeast", label: `巨兽之眼 (${t('stateOfWar.ended')})`, isEnded: true},
-    {id: "gutsAndGlory", label: `胆识与荣耀 (${t('stateOfWar.ended')})`, isEnded: true},
-  ];
+  return [];
 });
 
 const selectSeasonsValue = ref<string>((route.params.seasonId as string) || getCurrentSeasonId("crimsonWaters"));
@@ -146,7 +141,7 @@ const displayHistoryItems = computed(() => {
   const pointsCount = 7;
   const simulated: any[] = [];
   const now = Date.now();
-  const stepMs = historyRange.value === '1h' ? 10 * 60 * 1000 : 4 * 3600 * 1000;
+  const stepMs = historyRange.value === '1h' ? 10 * 60 * 1000 : (historyRange.value === '7d' ? 24 * 3600 * 1000 : 4 * 3600 * 1000);
 
   for (let i = pointsCount - 1; i >= 0; i--) {
     const factor = 1 - (i * 0.03);
@@ -263,8 +258,8 @@ const updateSelectedSeason = (val: any) => {
 // 日间贡献 vs 全部 模式
 const contributionMode = ref<'daily' | 'total'>('daily');
 
-// 发展历程 1小时 vs 1天
-const historyRange = ref<'1h' | '1d'>('1d');
+// 发展历程 1小时 vs 1天 vs 1周
+const historyRange = ref<'1h' | '1d' | '7d'>('1d');
 
 watch(
     () => route.params.seasonId,
@@ -511,10 +506,6 @@ const getZoneData = (zoneName: string) => {
                       <v-icon icon="mdi-dots-vertical" size="20"/>
                     </v-btn>
                   </template>
-
-                  <v-list density="comfortable">
-
-                  </v-list>
                 </v-menu>
               </v-btn-group>
             </v-col>
@@ -527,7 +518,6 @@ const getZoneData = (zoneName: string) => {
     <!-- 状态条 E -->
 
     <v-container class="py-6">
-
       <v-row v-if="loading && !warData">
         <v-col cols="12" class="text-center py-12">
           <Loading></Loading>
@@ -553,16 +543,17 @@ const getZoneData = (zoneName: string) => {
                     color="amber-darken-2">
                   <v-btn value="1h" size="small" variant="tonal">{{ t('stateOfWar.hour1') }}</v-btn>
                   <v-btn value="1d" size="small" variant="tonal">{{ t('stateOfWar.day1') }}</v-btn>
+                  <v-btn value="7d" size="small" variant="tonal">{{ t('stateOfWar.week1') }}</v-btn>
                 </v-btn-toggle>
               </v-col>
             </v-row>
 
             <div v-if="historyLoading" class="text-center py-8">
-              <v-progress-circular indeterminate color="cyan" size="40"></v-progress-circular>
+              <Loading size="40px"/>
             </div>
 
             <div v-else-if="displayHistoryItems.length > 0">
-              <!-- SVG 走势图表 -->
+              <!-- 走势图表 -->
               <div class="chart-container relative">
                 <svg viewBox="0 0 800 220" class="w-100 h-auto overflow-visible">
                   <!-- 网格背景线 -->
@@ -570,7 +561,7 @@ const getZoneData = (zoneName: string) => {
                   <line x1="20" y1="110" x2="780" y2="110" stroke="#333" stroke-dasharray="4"/>
                   <line x1="20" y1="200" x2="780" y2="200" stroke="#333"/>
 
-                  <!-- 日期分隔线 (每日 06:00 UTC / 北京时间 14:00) -->
+                  <!-- 日期分隔线 -->
                   <g v-for="d in dateDividers" :key="d.time">
                     <line
                         :x1="d.x"
@@ -762,9 +753,12 @@ const getZoneData = (zoneName: string) => {
         <v-col cols="12" v-if="!isSeasonEnded">
           <AffixBoxHasTitleView>
             <!-- 区域列表：每个大区域下展示其小区域 -->
-            <div v-if="contestedRegions.length === 0" class="text-center py-6 text-medium-emphasis text-body-2">
-              {{ t('stateOfWar.noContestedZones') }}
-            </div>
+            <v-card variant="text" min-height="250" v-if="contestedRegions.length === 0" class="h-100 d-flex align-center justify-center text-medium-emphasis text-body-2">
+              <div class="text-center">
+                <p class="mb-2 opacity-20"><v-icon icon="mdi-flag-checkered" size="80"></v-icon></p>
+                {{ t('stateOfWar.noContestedZones') }}
+              </div>
+            </v-card>
             <div v-for="region in contestedRegions" :key="region.id" class="mb-6">
               <!-- 区域标题栏 -->
               <AffixContainerView>
@@ -1060,7 +1054,9 @@ const getZoneData = (zoneName: string) => {
                               :key="z"
                               class="pa-2 bg-black">
                             <div class="d-flex justify-space-between align-center text-caption font-weight-bold mb-1">
-                              <span class="text-truncate"><ZoneName :id="z"/></span>
+                              <span class="text-truncate">
+                                <ZoneName :id="z"/>
+                              </span>
                               <v-chip size="x-small" :color="factionBColor" variant="tonal">
                                 {{ calculatePercent(getZoneData(z)[factionBKey] || 0, getZoneData(z).total || 1) }}%
                               </v-chip>

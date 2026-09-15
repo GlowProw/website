@@ -236,7 +236,7 @@ defineOptions({
             </template>
             <template v-slot:placeholder>
               <div class="d-flex align-center justify-center w-100 h-100">
-                <Loading :size="fallbackIconSize"/>
+                <Loading size="40"/>
               </div>
             </template>
           </v-img>
