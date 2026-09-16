@@ -2356,6 +2356,7 @@
     "week1": "7 Days",
     "cycleNumber": "Issue {value}",
     "leading": "Leading",
+    "tied": "Tied",
     "subZones": "Zones",
     "ended": "Settled",
     "active": "In Progress",
