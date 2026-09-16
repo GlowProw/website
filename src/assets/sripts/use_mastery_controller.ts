@@ -82,7 +82,7 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
   // 提示信息统一走全局
   function notify(message: string, color: 'success' | 'error' | 'info' | 'warning' = 'warning') {
     const notice = useNoticeStore();
-    notice[color](message, {mode: 'minimal'});
+    notice[color](message, { mode: 'minimal' });
   }
 
   // Debug 模式 (基于 appStore)
@@ -167,7 +167,7 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
     if (!tree) return;
     const map: Record<string, Mastery> = {};
     for (const [k, v] of Object.entries(tree.nodes)) {
-      map[k] = { ...v, key: k, position: { ...v.position } };
+      map[k] = Object.assign(Object.create(Object.getPrototypeOf(v)), v, { key: k, position: { ...v.position } });
     }
     localNodes.value = map;
   }, { immediate: true });
@@ -392,7 +392,7 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
     if (activeRoots.length === 0) {
       return {
         allowed: false,
-        reason: t('mastery.card.deactivateOrphanError') || '无法撤回：撤回此节点会导致剩余已激活节点失去与起点的连通。'
+        reason: t('mastery.card.deactivateOrphanError')
       };
     }
 
@@ -425,7 +425,7 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
 
     return {
       allowed: false,
-      reason: t('mastery.card.deactivateDependentError') || '无法撤回：后续已激活的节点依赖此路径连接，请先撤回下游节点。'
+      reason: t('mastery.card.deactivateDependentError')
     };
   }
 
@@ -718,7 +718,7 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
       const pathFromActive = findPathFromSources(targetKey, (k) => {
         if (selectedNodeIds.value.has(k)) return true;
         const n = findNode(k);
-        return !!(n && n.id && selectedNodeIds.value.has(n.id));
+        return !!(n && ((n.key && selectedNodeIds.value.has(n.key)) || (n.id && selectedNodeIds.value.has(n.id))));
       });
       if (pathFromActive && pathFromActive.length > 0) {
         return pathFromActive;
@@ -800,7 +800,7 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
     if (isCurrentlyActive) {
       const check = canDeactivateNode(key);
       if (!check.allowed) {
-        notify(check.reason || '无法撤回：后续已激活的节点依赖此路径连接，请先撤回下游节点。', 'warning');
+        notify(check.reason || t('mastery.card.deactivateDependentError'), 'warning');
         return;
       }
 
@@ -810,7 +810,7 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
     } else {
       // 加点：检查是否已达到最大点数上限
       if (regularPointsSpent.value >= maxPoints.value) {
-        notify(`已达到当前赛季最大专精点数 (${maxPoints.value} 点)。`, 'warning');
+        notify(t('mastery.card.maxPointsReached', { max: maxPoints.value }), 'warning');
         return;
       }
 
@@ -824,7 +824,7 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
       // 未相连激活节点：寻找从最近激活节点（或根节点）连过来的最短路径一连激活过来
       const path = findShortestActivationPath(key);
       if (!path || path.length === 0) {
-        notify('前置条件不足：无法找到到达该节点的有效连通路径。', 'warning');
+        notify(t('mastery.card.noPathToNode'), 'warning');
         return;
       }
 
@@ -833,24 +833,22 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
       let reachedTarget = false;
 
       for (const stepKey of path) {
-        const isStepActive = next.has(stepKey) || (() => {
-          const n = findNode(stepKey);
-          return !!(n && n.id && next.has(n.id));
-        })();
+        const stepNode = findNode(stepKey);
+        const actualKey = stepNode?.key || stepKey;
+        const isStepActive = next.has(actualKey) || (!!stepNode?.id && next.has(stepNode.id));
 
         if (isStepActive) continue;
 
-        const stepNode = findNode(stepKey);
         const cost = stepNode?.cost || 1;
         if (pointsRemaining >= cost) {
-          next.add(stepKey);
-          newlyActivated.push(stepKey);
+          next.add(actualKey);
+          newlyActivated.push(actualKey);
           pointsRemaining -= cost;
-          if (stepKey === key || (stepNode && stepNode.id === key)) {
+          if (actualKey === key || (stepNode && stepNode.id === key)) {
             reachedTarget = true;
           }
         } else {
-          // 点数不够，在对应节点停下
+          // 点数不够，在对应朝向目标节点的最后一个可行节点停下
           break;
         }
       }
@@ -858,15 +856,15 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
       if (newlyActivated.length > 0) {
         selectedNodeIds.value = next;
         if (reachedTarget) {
-          notify(`已沿最短路径连续激活 ${newlyActivated.length} 个节点。`, 'success');
+          // 完成
         } else {
           const lastKey = newlyActivated[newlyActivated.length - 1];
           const lastNode = findNode(lastKey);
           const lastName = lastNode ? getSkillName(lastNode.id, lastNode.key) : lastKey;
-          notify(`点数已用尽，已沿路径激活至最远节点：${lastName}。`, 'warning');
+          notify(t('mastery.card.pointsExhaustedToNode', { name: lastName }), 'warning');
         }
       } else {
-        notify('点数不足，无法沿路径激活该节点。', 'warning');
+        notify(t('mastery.card.insufficientPointsForPath'), 'warning');
       }
     }
   }
@@ -874,7 +872,7 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
   function resetPoints() {
     selectedNodeIds.value = new Set();
     selectedSeasonalPerks.value = {};
-    notify(t('mastery.reset') + ' (OK)', 'info');
+    notify(t('mastery.reset'), 'info');
   }
 
   // 选中节点
@@ -1126,20 +1124,20 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
 
     const now = new Date();
     const node = new Mastery(
-        key,
-        patch.id || `newSkill_${key.toLowerCase()}`,
-        Array.isArray(patch.requisite) ? [...patch.requisite] : [],
-        tree.season,
-        now,
-        now,
-        patch.category || 'support',
-        patch.role || 'buff',
-        patch.cost ?? 1,
-        patch.group ?? 'radial',
-        patch.ring ?? 0,
-        patch.direction ?? '',
-        { x: Math.round(position.x), y: Math.round(position.y) },
-        Array.isArray(patch.effects) ? patch.effects : []
+      key,
+      patch.id || `newSkill_${key.toLowerCase()}`,
+      Array.isArray(patch.requisite) ? [...patch.requisite] : [],
+      tree.season,
+      now,
+      now,
+      patch.category || 'support',
+      patch.role || 'buff',
+      patch.cost ?? 1,
+      patch.group ?? 'radial',
+      patch.ring ?? 0,
+      patch.direction ?? '',
+      { x: Math.round(position.x), y: Math.round(position.y) },
+      Array.isArray(patch.effects) ? patch.effects : []
     );
 
     localNodes.value[key] = node;
@@ -1156,15 +1154,15 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
    * @returns 新建的节点；参数非法时返回 null
    */
   function debugInsertNodeBetween(
-      parentKeyOrId: string,
-      childKeyOrId: string,
-      position: { x: number; y: number }
+    parentKeyOrId: string,
+    childKeyOrId: string,
+    position: { x: number; y: number }
   ): Mastery | null {
     const parent = findNode(parentKeyOrId);
     const child = findNode(childKeyOrId);
     if (!parent || !child || parent.key === child.key) return null;
 
-    const node = debugCreateNode(position, {requisite: [parent.key]}, true);
+    const node = debugCreateNode(position, { requisite: [parent.key] }, true);
     if (!node) return null;
 
     const arr: string[] = Array.isArray(child.requisite) ? [...child.requisite] : [];

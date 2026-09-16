@@ -113,6 +113,7 @@ let workshopData = ref<AssemblyWorkshopData>({
     attr: Ref<AssemblyAttr> = ref({
       isShowItemName: true,
       isFullName: false,
+      isShowWeaponIconArray: false,
       assemblyUseVersion: AssemblyDataProcessing.nowVersion
     })
 
@@ -575,7 +576,10 @@ const verify = () => {
 const setSetting = (attrData: AssemblyAttr) => {
   if (!attrData) return {onLoad};
 
-  attr.value = attrData
+  attr.value = {
+    ...attr.value,
+    ...attrData
+  }
 
   return {onLoad}
 }
@@ -915,7 +919,7 @@ defineOptions({name: 'AssemblyWidget'})
                               <WeaponModificationWidget :readonly="readonly"
                                                         :disabled="workshopData.data.weaponSlots[index]?.id == null"
                                                         :data="i"
-                                                        size="4"
+                                                        size="14"
                                                         v-model="workshopData.data.weaponModifications[index]"></WeaponModificationWidget>
                             </div>
                           </v-col>
@@ -942,7 +946,7 @@ defineOptions({name: 'AssemblyWidget'})
                               :mod-data="workshopData.data.weaponModifications[index]"></WeaponModificationOnlyShowWidget>
                         </div>
                       </v-col>
-                      <v-col cols="auto">
+                      <v-col cols="auto" v-if="attr.isShowWeaponIconArray">
                         <v-row no-gutters v-if="i && i.id" :class="[!i.id ? 'opacity-30' : '']">
                           <v-col align="center" class="mt-n1" v-if="getDeckInformation(index).top">
                             <v-icon icon="mdi-chevron-up" size="16"></v-icon>
@@ -1047,7 +1051,8 @@ defineOptions({name: 'AssemblyWidget'})
                             <div class="mb-2 mt-1" v-if="!perfectDisplay">
                               <WeaponModificationWidget :readonly="readonly"
                                                         :disabled="workshopData.data.secondaryWeaponSlots[index]?.id == null"
-                                                        :data="i" size="4"
+                                                        :data="i"
+                                                        size="14"
                                                         v-model="workshopData.data.secondaryWeaponModifications[index]"></WeaponModificationWidget>
                             </div>
                           </v-col>
@@ -1059,7 +1064,7 @@ defineOptions({name: 'AssemblyWidget'})
                               </p>
                             </div>
                           </v-col>
-                          <v-col cols="auto">
+                          <v-col cols="auto" v-if="attr.isShowWeaponIconArray">
                             <v-row no-gutters v-if="i && i.id" :class="[!i.id ? 'opacity-30' : '']">
                               <v-col align="center" class="mt-n1">
                                 <v-icon icon="mdi-chevron-up" size="16"></v-icon>
@@ -1101,7 +1106,7 @@ defineOptions({name: 'AssemblyWidget'})
                   <template v-if="isShowEmpty || workshopData.data.armorSlot">
                     <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="workshopData.data.armorSlot">
                       <v-card variant="text" v-bind="propsHoverClose" class="position-relative">
-                        <ItemSlotBase size="80px" class="pa-1" :id="workshopData.data.armorSlot.id">
+                        <ItemSlotBase size="80px" class="pa-1 mx-auto" :id="workshopData.data.armorSlot.id">
                           <ItemIconWidget :id="workshopData.data.armorSlot.id" :is-open-detail="false" :is-show-tooltip="readonly"></ItemIconWidget>
                         </ItemSlotBase>
                         <div class="text-center text-caption text-grey w-100 " :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
@@ -1140,7 +1145,7 @@ defineOptions({name: 'AssemblyWidget'})
                   <div class="mb-2 mt-1" v-if="!perfectDisplay">
                     <WeaponModificationWidget :readonly="readonly"
                                               :data="workshopData.data.armorSlot"
-                                              size="4"
+                                              size="14"
                                               v-model="workshopData.data.armorModification[0]"></WeaponModificationWidget>
                   </div>
 

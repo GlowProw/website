@@ -25,8 +25,9 @@ const emit = defineEmits<{
     <div v-for="(z, zIndex) in scaleExtent" :key="zIndex" class="d-inline-flex">
       <RhombusWidget
           :size="6"
-          :activate="z.toFixed(1) === Math.abs(zoom).toFixed(1)"
-          :solid="z.toFixed(1) === Math.abs(zoom).toFixed(1)"
+          :border-activate="z.toFixed(1) === Math.abs(zoom).toFixed(1)"
+          :slot="z.toFixed(1) === Math.abs(zoom).toFixed(1)"
+          :slot-activate="z.toFixed(1) === Math.abs(zoom).toFixed(1)"
           @click="emit('set-scale', z)"
           class="pa-1 cursor-pointer"
           :title="t('mastery.zoomTo', { zoom: z })"

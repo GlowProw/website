@@ -175,7 +175,8 @@ const onSetAssemblyData = async () => {
   assemblyMainSubjectView.value.refs.assembly
       .setSetting({
         assemblyUseVersion: publishData.value.assembly.attr?.assemblyUseVersion || publishData.value.assembly.data.__version || AssemblyDataProcessing.nowVersion,
-        isShowItemName: publishData.value.assembly.attr?.isShowItemName || false
+        isShowItemName: publishData.value.assembly.attr?.isShowItemName || false,
+        isShowWeaponIconArray: publishData.value.assembly.attr?.isShowWeaponIconArray ?? false
       })
       .onLoad(publishData.value.assembly?.data)
 }

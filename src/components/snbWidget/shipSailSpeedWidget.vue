@@ -190,8 +190,9 @@ const onWaterBarrelClick = () => {
                 :key="index">
               <RhombusWidget
                   :activateColor="ticks.length - 1 == index ? '#4CAF50' : 'rgba(242,242,242,0.76)'"
-                  :solid="index <= simulationValue"
-                  :activate="index <= simulationValue">
+                  :slot="index <= simulationValue"
+                  :slot-activate="index <= simulationValue"
+                  :border-activate="index <= simulationValue">
               </RhombusWidget>
             </div>
           </div>

@@ -13,6 +13,7 @@ const generateImageValue = ref({
   isShowEmptySlot: true,
   isShowItemName: true,
   isFullName: false,
+  isShowWeaponIconArray: false,
   isShowHeader: false,
   isShowTitle: true,
   isShowTabs: true,
@@ -32,7 +33,7 @@ const webPath = ref(window.location.host);
 onMounted(() => {
   if (route.query) {
     const query = {...route.query} as any;
-    const booleanKeys = ['isShowEmptySlot', 'isShowItemName', 'isFullName', 'isShowHeader', 'isShowTitle', 'isShowTabs', 'isShowDescription'];
+    const booleanKeys = ['isShowEmptySlot', 'isShowItemName', 'isFullName', 'isShowWeaponIconArray', 'isShowHeader', 'isShowTitle', 'isShowTabs', 'isShowDescription'];
     const numberKeys = ['width', 'quality'];
 
     booleanKeys.forEach(key => {

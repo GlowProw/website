@@ -9,7 +9,7 @@ import Silk from "@/components/Silk.vue";
 import BlogWidget from "@/components/BlogWidget.vue";
 import AppVersionWidget from "@/components/AppVersionWidget.vue";
 import SeasonViewWidget from "@/components/SeasonViewWidget.vue";
-import NewSeasonShowItem from "@/components/newSeasonShowItem.vue";
+import NewSeasonShowItem from "@/components/NewSeasonShowItem.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 import DonorsWidget from "@/components/DonorsWidget.vue";

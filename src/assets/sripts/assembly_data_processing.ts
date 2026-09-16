@@ -78,20 +78,24 @@ export default class AssemblyDataProcessing {
 
                 if (data.weaponModifications)
                     data.weaponModifications = data.weaponModifications.map((i: any) => {
+                        if (!Array.isArray(i)) return i;
                         return i.map((j: any) => {
                             return {
-                                type: j.type,
-                                value: j?.value?.id || null,
+                                type: j?.type,
+                                rarity: j?.rarity ?? (j?.value ? 'normal' : 'none'),
+                                value: j?.value?.id || (typeof j?.value === 'string' ? j?.value : null),
                             };
                         })
                     })
 
                 if (data.secondaryWeaponModifications)
                     data.secondaryWeaponModifications = data.secondaryWeaponModifications.map((i: any) => {
+                        if (!Array.isArray(i)) return i;
                         return i.map((j: any) => {
                             return {
-                                type: j.type,
-                                value: j?.value?.id || null,
+                                type: j?.type,
+                                rarity: j?.rarity ?? (j?.value ? 'normal' : 'none'),
+                                value: j?.value?.id || (typeof j?.value === 'string' ? j?.value : null),
                             };
                         })
                     })
@@ -130,20 +134,26 @@ export default class AssemblyDataProcessing {
 
                 if (data.weaponModifications)
                     data.weaponModifications = data.weaponModifications.map((i: any) => {
+                        if (!Array.isArray(i)) return i;
                         return i.map((j: any) => {
+                            const rawVal = j?.value;
                             return {
-                                type: j.type,
-                                value: modifications[j.value] || null,
+                                type: j?.type,
+                                rarity: j?.rarity ?? (rawVal ? 'normal' : 'none'),
+                                value: (typeof rawVal === 'object' && rawVal?.id) ? rawVal : (modifications[rawVal] || null),
                             };
                         })
                     })
 
                 if (data.secondaryWeaponModifications)
                     data.secondaryWeaponModifications = data.secondaryWeaponModifications.map((i: any) => {
+                        if (!Array.isArray(i)) return i;
                         return i.map((j: any) => {
+                            const rawVal = j?.value;
                             return {
-                                type: j.type,
-                                value: modifications[j.value] || null,
+                                type: j?.type,
+                                rarity: j?.rarity ?? (rawVal ? 'normal' : 'none'),
+                                value: (typeof rawVal === 'object' && rawVal?.id) ? rawVal : (modifications[rawVal] || null),
                             };
                         })
                     })
@@ -256,10 +266,12 @@ export default class AssemblyDataProcessing {
 
                 if (data.weaponModifications)
                     data.weaponModifications = data.weaponModifications.map((i: any) => {
+                        if (!Array.isArray(i)) return i;
                         return i.map((j: any) => {
                             return {
-                                type: j.type,
-                                value: j?.value?.id || null,
+                                type: j?.type,
+                                rarity: j?.rarity ?? (j?.value ? 'normal' : 'none'),
+                                value: j?.value?.id || (typeof j?.value === 'string' ? j?.value : null),
                             };
                         })
                     })
@@ -269,20 +281,24 @@ export default class AssemblyDataProcessing {
                 if (data.armorModification)
                     // @ts-ignore
                     data.armorModification = data.armorModification.map((i: any) => {
+                        if (!Array.isArray(i)) return i;
                         return i.map((j: any) => {
                             return {
-                                type: j.type,
-                                value: j?.value?.id || null,
+                                type: j?.type,
+                                rarity: j?.rarity ?? (j?.value ? 'normal' : 'none'),
+                                value: j?.value?.id || (typeof j?.value === 'string' ? j?.value : null),
                             };
                         })
                     })
 
                 if (data.secondaryWeaponModifications)
                     data.secondaryWeaponModifications = data.secondaryWeaponModifications.map((i: any) => {
+                        if (!Array.isArray(i)) return i;
                         return i.map((j: any) => {
                             return {
-                                type: j.type,
-                                value: j?.value?.id || null,
+                                type: j?.type,
+                                rarity: j?.rarity ?? (j?.value ? 'normal' : 'none'),
+                                value: j?.value?.id || (typeof j?.value === 'string' ? j?.value : null),
                             };
                         })
                     })
@@ -324,30 +340,39 @@ export default class AssemblyDataProcessing {
 
                 if (data.weaponModifications)
                     data.weaponModifications = data.weaponModifications.map(i => {
+                        if (!Array.isArray(i)) return i;
                         return i.map(j => {
+                            const rawVal = j?.value;
                             return {
-                                type: j.type,
-                                value: modifications[j.value] || null
+                                type: j?.type,
+                                rarity: j?.rarity ?? (rawVal ? 'normal' : 'none'),
+                                value: (typeof rawVal === 'object' && rawVal?.id) ? rawVal : (modifications[rawVal] || null)
                             };
                         })
                     })
 
                 if (data.armorModification)
                     data.armorModification = data.armorModification.map(i => {
+                        if (!Array.isArray(i)) return i;
                         return i.map(j => {
+                            const rawVal = j?.value;
                             return {
-                                type: j.type,
-                                value: modifications[j.value] || null,
+                                type: j?.type,
+                                rarity: j?.rarity ?? (rawVal ? 'normal' : 'none'),
+                                value: (typeof rawVal === 'object' && rawVal?.id) ? rawVal : (modifications[rawVal] || null),
                             };
                         })
                     })
 
                 if (data.secondaryWeaponModifications)
                     data.secondaryWeaponModifications = data.secondaryWeaponModifications.map(i => {
+                        if (!Array.isArray(i)) return i;
                         return i.map(j => {
+                            const rawVal = j?.value;
                             return {
-                                type: j.type,
-                                value: modifications[j.value] || null,
+                                type: j?.type,
+                                rarity: j?.rarity ?? (rawVal ? 'normal' : 'none'),
+                                value: (typeof rawVal === 'object' && rawVal?.id) ? rawVal : (modifications[rawVal] || null),
                             };
                         })
                     })

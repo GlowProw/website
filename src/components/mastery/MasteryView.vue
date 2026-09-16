@@ -629,12 +629,10 @@ function onClick(event: MouseEvent) {
   if (hit) {
     emit('select-node', hit);
     // 单击即切换激活：
-    // - 常规节点：已激活或与起点相连可达时直接加/退点
+    // - 常规节点：已激活或与起点相连可达时直接加/退点；未相连激活节点时，沿最短路径连接激活
     // - 赛季特长：点数达标即激活/取消，同一条件(tier)下只能选中一个，互斥由控制器保证
     const nodeId = hit.key || hit.id;
-    if (props.isNodeActive(nodeId) || props.isNodeAvailable(nodeId)) {
-      emit('toggle-activation', nodeId);
-    }
+    emit('toggle-activation', nodeId);
   } else {
     emit('select-node', null);
   }

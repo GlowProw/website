@@ -117,7 +117,7 @@ const initMasteryData = async () => {
     updateSharePath();
 
     if (!generateImageValue.value.filename) {
-      generateImageValue.value.filename = `${activeSeasonTitle.value} 专精方案`;
+      generateImageValue.value.filename = `${activeSeasonTitle.value} ${t('mastery.share.defaultTitle')}`;
     }
 
     await nextTick();

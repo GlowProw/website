@@ -237,6 +237,21 @@ defineOptions({ name: 'AssmblySettingWidget' })
 
             <v-row>
               <v-col>
+                <b>{{ t('assembly.setting.showWeaponIconArray') }}</b>
+                <p class="text-caption">{{ t('assembly.setting.showWeaponIconArrayDescription') }}</p>
+              </v-col>
+              <v-col>
+                <v-checkbox
+                    v-model="modelValue.assembly.attr.isShowWeaponIconArray"
+                    density="compact"
+                    hide-details
+                    :label="t('assembly.setting.enable')"
+                ></v-checkbox>
+              </v-col>
+            </v-row>
+
+            <v-row>
+              <v-col>
                 <b>{{ t('assembly.setting.anonymous') }}</b>
                 <p class="text-caption">{{ t('assembly.setting.anonymousDescription') }}</p>
               </v-col>

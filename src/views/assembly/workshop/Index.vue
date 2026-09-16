@@ -135,7 +135,8 @@ const loadAssemblyData = () => {
       .setSetting({
         isShowItemName: d.assembly?.attr?.isShowItemName || true,
         assemblyUseVersion: d.assembly?.attr?.assemblyUseVersion,
-        isFullName: d.assembly?.attr?.isFullName
+        isFullName: d.assembly?.attr?.isFullName,
+        isShowWeaponIconArray: d.assembly?.attr?.isShowWeaponIconArray ?? false
       })
       .onLoad(d.assembly.data)
 

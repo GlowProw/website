@@ -185,8 +185,9 @@ defineExpose({
         </v-col>
         <v-col class="d-flex justify-center">
           <div class="d-flex ga-1 align-center">
-            <RhombusWidget :activate="tabIndex == wheelTabValue"
-                           :solid="tabIndex == wheelTabValue"
+            <RhombusWidget :border-activate="tabIndex == wheelTabValue"
+                           :slot="tabIndex == wheelTabValue"
+                           :slot-activate="tabIndex == wheelTabValue"
                            v-for="(tab, tabIndex) in wheelTabs"
                            :key="tabIndex"
                            @click="wheelTabValue = tabIndex"></RhombusWidget>

@@ -106,7 +106,10 @@ const {t} = useI18n();
             class="my-1"
         >
           <v-col cols="auto" class="d-flex justify-center align-center mr-2">
-            <RhombusWidget size="6" :solid="!!skillPointsInput[skills[i]?.id || i]" :activate="!!skillPointsInput[skills[i]?.id || i]"></RhombusWidget>
+            <RhombusWidget size="6"
+                           :slot="!!skillPointsInput[skills[i]?.id || i]"
+                           :slot-activate="!!skillPointsInput[skills[i]?.id || i]"
+                           :border-activate="!!skillPointsInput[skills[i]?.id || i]"></RhombusWidget>
           </v-col>
           <v-col @click="emit('move-node', skills[i]?.key || i)">
             <HtmlLink class="cursor-pointer" :is-icon="false" :is-iframe-show="false">

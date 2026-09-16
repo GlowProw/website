@@ -1,5 +1,5 @@
 <script lang="ts">
-export default { name: 'WeaponModificationWidget' }
+export default {name: 'WeaponModificationWidget'}
 </script>
 
 <script setup lang="ts">
@@ -19,18 +19,19 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import ItemName from "@/components/snbWidget/itemName.vue";
 
-type WeaponModificationSize = '3' | '5' | '6' | '8'
-type ModType = 'basic' | 'advanced' | 'special' | 'mythic';
-type ModCategory = 'all' | ModType;
+type ModSlotType = string;
+type ModRarity = 'basic' | 'advanced' | 'special' | 'mythic';
+type ModCategory = 'all' | ModRarity;
 
 interface ModSlot {
-  type: ModType;
+  rarity?: ModSlotType;
+  type?: ModRarity;
   value: any | null;
 }
 
 interface ModItem {
   id: string;
-  grade: ModType;
+  grade: ModRarity;
   name?: string;
   description?: string;
   damageType?: string;
@@ -39,7 +40,7 @@ interface ModItem {
   effects?: string[];
 }
 
-const WEAPON_MOD_CONFIG: Record<Rarity, { slotType: ModType[] }> = {
+const WEAPON_MOD_CONFIG: Record<Rarity, { slotType: ModRarity[] }> = {
   // 白
   common: {
     slotType: ['basic', 'basic', 'advanced', 'special']
@@ -62,7 +63,7 @@ const WEAPON_MOD_CONFIG: Record<Rarity, { slotType: ModType[] }> = {
   }
 };
 
-const MOD_STYLE_CONFIG: Record<ModType, string> = {
+const MOD_STYLE_CONFIG: Record<ModRarity, string> = {
   'basic': 'rgba(208,255,208,0.14)',
   'advanced': 'rgba(187,220,255,0.14)',
   'special': 'rgba(249,235,255,0.14)',
@@ -70,7 +71,7 @@ const MOD_STYLE_CONFIG: Record<ModType, string> = {
 };
 
 const props = withDefaults(defineProps<{
-  size?: WeaponModificationSize | string | number,
+  size?: string | number,
   readonly?: boolean,
   data: Item | any,
   disabled?: boolean,
@@ -78,7 +79,7 @@ const props = withDefaults(defineProps<{
   modelValue?: ModSlot[]
 }>(), {
   readonly: false,
-  size: 6,
+  size: 14,
   disabled: false,
 })
 
@@ -90,16 +91,16 @@ const {t} = useI18n()
 const {sanitizeString} = useI18nUtils()
 
 const MOD_CATEGORIES = computed<{ value: ModCategory; label: string }[]>(() => [
-  { value: 'all', label: t('assembly.weaponModification.categories.all') },
-  { value: 'basic', label: t('assembly.weaponModification.categories.basic') },
-  { value: 'advanced', label: t('assembly.weaponModification.categories.advanced') },
-  { value: 'special', label: t('assembly.weaponModification.categories.special') },
-  { value: 'mythic', label: t('assembly.weaponModification.categories.mythic') }
+  {value: 'all', label: t('assembly.weaponModification.categories.all')},
+  {value: 'basic', label: t('assembly.weaponModification.categories.basic')},
+  {value: 'advanced', label: t('assembly.weaponModification.categories.advanced')},
+  {value: 'special', label: t('assembly.weaponModification.categories.special')},
+  {value: 'mythic', label: t('assembly.weaponModification.categories.mythic')}
 ])
 
 const show = ref(false)
 const modIconImages = ref<Record<string, string>>({})
-const availableModulesData = ref<Record<ModType, ModItem[]>>({
+const availableModulesData = ref<Record<ModRarity, ModItem[]>>({
   basic: [],
   advanced: [],
   special: [],
@@ -107,7 +108,7 @@ const availableModulesData = ref<Record<ModType, ModItem[]>>({
 })
 const searchQuery = ref('')
 const selectedCategory = ref<ModCategory>('all')
-const filteredMods = ref<Record<ModType, ModItem[]>>({
+const filteredMods = ref<Record<ModRarity, ModItem[]>>({
   basic: [],
   advanced: [],
   special: [],
@@ -132,7 +133,7 @@ const totalAvailableMods = computed(() => {
   return Object.values(filteredMods.value).reduce((total, mods) => total + (mods?.length || 0), 0)
 })
 
-const getExpectedSlotTypes = (): ModType[] => {
+const getExpectedSlotTypes = (): ModRarity[] => {
   const rarity = (props.data?.rarity || 'common') as Rarity;
   return WEAPON_MOD_CONFIG[rarity]?.slotType || WEAPON_MOD_CONFIG.common.slotType;
 };
@@ -143,7 +144,7 @@ const syncSlots = (forceReset = false) => {
 
   if (forceReset || !currentSlots || currentSlots.length === 0) {
     emit('update:modelValue',
-        slotTypes.map((type: ModType) => ({
+        slotTypes.map((type: ModRarity) => ({
           type,
           value: null
         })));
@@ -155,13 +156,14 @@ const syncSlots = (forceReset = false) => {
       currentSlots.every((slot, idx) => slot?.type === slotTypes[idx]);
 
   if (!isMatch) {
-    // 尽量保留已有的已装配模组数据（如果槽位类型匹配），不足的补充新槽位，多余的截断
+    // 保留已有的已装配模组数据如果槽位类型匹配，不足的补充新槽位，多余的截断
     const newSlots: ModSlot[] = slotTypes.map((type, idx) => {
       if (idx < currentSlots.length && currentSlots[idx]?.type === type) {
         return currentSlots[idx];
       }
       return {
         type,
+        rarity: 'none',
         value: null
       };
     });
@@ -217,8 +219,8 @@ const matchesSearchQuery = (mod: ModItem, query: string): boolean => {
   return false;
 };
 
-const categorizeModificationsByGrade = (modificationsRaw: any): Record<ModType, ModItem[]> => {
-  const result: Record<ModType, ModItem[]> = {
+const categorizeModificationsByGrade = (modificationsRaw: any): Record<ModRarity, ModItem[]> => {
+  const result: Record<ModRarity, ModItem[]> = {
     basic: [],
     advanced: [],
     special: [],
@@ -255,7 +257,7 @@ const categorizeModificationsByGrade = (modificationsRaw: any): Record<ModType, 
     }
 
     // 按grade分类
-    const grade = mod.grade as ModType;
+    const grade = mod.grade as ModRarity;
     if (grade && result[grade]) {
       result[grade].push(mod)
     }
@@ -265,7 +267,7 @@ const categorizeModificationsByGrade = (modificationsRaw: any): Record<ModType, 
 };
 
 const updateFilteredMods = () => {
-  const result: Record<ModType, ModItem[]> = {
+  const result: Record<ModRarity, ModItem[]> = {
     basic: [],
     advanced: [],
     special: [],
@@ -273,10 +275,10 @@ const updateFilteredMods = () => {
   };
 
   Object.entries(availableModulesData.value).forEach(([grade, mods]) => {
-    const modType = grade as ModType;
+    const ModRarity = grade as ModRarity;
 
     // 分类筛选
-    if (selectedCategory.value !== 'all' && selectedCategory.value !== modType) {
+    if (selectedCategory.value !== 'all' && selectedCategory.value !== ModRarity) {
       return;
     }
 
@@ -284,7 +286,7 @@ const updateFilteredMods = () => {
     const filtered = (mods || []).filter(mod => matchesSearchQuery(mod, searchQuery.value))
 
     if (filtered.length > 0) {
-      result[modType] = filtered;
+      result[ModRarity] = filtered;
     }
   })
 
@@ -313,6 +315,15 @@ watch(() => props.data, (newData: Item, oldData: Item) => {
 }, {deep: true, immediate: true})
 
 watch(() => props.modelValue, (newVal) => {
+  if (newVal) {
+    newVal.forEach(slot => {
+      if (!slot.rarity) {
+        slot.rarity = slot.value ? 'normal' : 'none';
+      } else if (!slot.value) {
+        slot.rarity = 'none';
+      }
+    });
+  }
   if (newVal && props.data) {
     const slotTypes = getExpectedSlotTypes();
     if (newVal.length !== slotTypes.length) {
@@ -320,7 +331,7 @@ watch(() => props.modelValue, (newVal) => {
     }
   }
   updateAvailableMods();
-}, {deep: true})
+}, {deep: true, immediate: true})
 
 watch([searchQuery, selectedCategory], () => updateFilteredMods())
 
@@ -346,17 +357,87 @@ const onDragStart = (event: DragEvent, modItem: ModItem) => {
   }
 };
 
+/**
+ * 划分卡槽类型阶段分组
+ * 连续相同类型的卡槽属于同一阶段
+ */
+const getSlotGroups = (slots: ModSlot[]) => {
+  const groups: number[][] = [];
+  if (!slots || slots.length === 0) return groups;
+
+  let currentGroup: number[] = [0];
+  for (let i = 1; i < slots.length; i++) {
+    if (slots[i]?.type === slots[i - 1]?.type) {
+      currentGroup.push(i);
+    } else {
+      groups.push(currentGroup);
+      currentGroup = [i];
+    }
+  }
+  groups.push(currentGroup);
+  return groups;
+};
+
+/**
+ * 判断卡槽是否锁定
+ * 阶段0（第一组类型，如 basic）默认解锁；
+ * 后续阶段卡槽必须在前面所有阶段的卡槽都已配置模组后才解锁；
+ * 同一阶段内的多个卡槽同时解锁，无先后顺序要求。
+ */
+const isSlotLocked = (slotIndex: number): boolean => {
+  const slots = props.modelValue;
+  if (!slots || slotIndex < 0 || slotIndex >= slots.length) return false;
+
+  const groups = getSlotGroups(slots);
+  const groupIndex = groups.findIndex(group => group.includes(slotIndex));
+
+  if (groupIndex <= 0) {
+    return false;
+  }
+
+  // 检查前面所有阶段的分组中，是否所有卡槽都有值
+  for (let g = 0; g < groupIndex; g++) {
+    const prevGroup = groups[g];
+    for (const idx of prevGroup) {
+      if (!slots[idx] || !slots[idx].value) {
+        return true; // 前置阶段存在未装配模组的空槽，当前卡槽锁定
+      }
+    }
+  }
+
+  return false;
+};
+
+/**
+ * 清理因前置模组移除而处于锁定状态的后续卡槽
+ */
+const cleanLockedSlots = () => {
+  if (!props.modelValue) return;
+  for (let i = 0; i < props.modelValue.length; i++) {
+    if (isSlotLocked(i)) {
+      props.modelValue[i].value = null;
+      props.modelValue[i].rarity = 'none';
+    }
+  }
+};
+
 const onDrop = (event: DragEvent, slotIndex: number) => {
   event.preventDefault()
+  if (isSlotLocked(slotIndex)) {
+    return;
+  }
   const data = event.dataTransfer?.getData('application/json')
 
-  if (data && props.modelValue) {
+  if (data && props.modelValue && props.modelValue[slotIndex]) {
     try {
       const modItem = JSON.parse(data) as ModItem;
 
       // 检查模组类型是否匹配卡槽类型
       if (modItem.grade === props.modelValue[slotIndex].type) {
         props.modelValue[slotIndex].value = modItem;
+        if (!props.modelValue[slotIndex].rarity || props.modelValue[slotIndex].rarity === 'none') {
+          props.modelValue[slotIndex].rarity = 'normal';
+        }
       } else {
         console.warn('模组类型与卡槽不匹配')
       }
@@ -366,13 +447,32 @@ const onDrop = (event: DragEvent, slotIndex: number) => {
   }
 };
 
-const onDragOver = (event: DragEvent) => {
+const onDragOver = (event: DragEvent, slotIndex?: number) => {
+  if (slotIndex !== undefined && isSlotLocked(slotIndex)) {
+    return;
+  }
   event.preventDefault()
 };
 
 const removeModification = (slotIndex: number) => {
-  if (props.modelValue) {
+  if (props.modelValue && props.modelValue[slotIndex]) {
     props.modelValue[slotIndex].value = null;
+    props.modelValue[slotIndex].rarity = 'none';
+    cleanLockedSlots();
+  }
+};
+
+const onModItemClick = (modItem: ModItem) => {
+  if (!props.modelValue || props.readonly) return;
+  // 查找第一个未锁定且类型匹配的空卡槽
+  const targetIndex = props.modelValue.findIndex((slot, idx) =>
+    slot.type === modItem.grade && !slot.value && !isSlotLocked(idx)
+  );
+  if (targetIndex !== -1) {
+    props.modelValue[targetIndex].value = modItem;
+    if (!props.modelValue[targetIndex].rarity || props.modelValue[targetIndex].rarity === 'none') {
+      props.modelValue[targetIndex].rarity = 'normal';
+    }
   }
 };
 
@@ -380,13 +480,14 @@ const clearSearch = () => {
   searchQuery.value = '';
 };
 
-const getSlotDisplayName = (type: ModType): string => {
+const getSlotDisplayName = (type: ModRarity): string => {
   return t(`assembly.modification.${type}`)
 };
 
 defineExpose({
   weaponModConfig: WEAPON_MOD_CONFIG,
-  modStyleConfig: MOD_STYLE_CONFIG
+  modStyleConfig: MOD_STYLE_CONFIG,
+  isSlotLocked,
 })
 </script>
 
@@ -395,16 +496,15 @@ defineExpose({
   <v-btn
       block
       variant="text"
-      size="small"
-      class="pa-0"
+      size="x-small"
       :disabled="disabled"
       @click="show = true">
-    <RhombusWidget
-        v-for="(i, index) in props.modelValue"
-        :key="index"
-        :size="size"
-        :activate="!!i?.value"
-    />
+    <div v-for="(i, index) in props.modelValue"
+              :key="index">
+      <RhombusWidget
+          :size="size"
+          :type="i?.rarity || (i?.value ? 'normal' : 'none')"></RhombusWidget>
+    </div>
   </v-btn>
 
   <v-dialog v-model="show" scrollable>
@@ -441,33 +541,80 @@ defineExpose({
                 variant="flat"
                 class="mb-3 mod-slot"
                 border
-                :color="MOD_STYLE_CONFIG[mod.type]"
+                :color="isSlotLocked(modIndex) ? 'rgba(60,60,60,0.18)' : MOD_STYLE_CONFIG[mod.type]"
                 @drop="onDrop($event, modIndex)"
-                @dragover="onDragOver"
-                :class="{ 'slot-highlight': !mod.value }"
-            >
+                @dragover="onDragOver($event, modIndex)"
+                :class="{
+                  'slot-highlight': !mod.value && !isSlotLocked(modIndex),
+                  'slot-locked': isSlotLocked(modIndex)
+                }">
               <v-row align="center" no-gutters>
-                <v-col cols="auto" class="pa-3">
-                  <v-img
-                      :src="modIconImages[mod.type]"
-                      width="40"
-                      height="40"
-                  />
+                <v-col cols="auto" class="px-3 py-2">
+                  <v-card variant="text" :style="isSlotLocked(modIndex) ? { filter: 'grayscale(1)', opacity: 0.35 } : {}">
+                    <template v-slot:image>
+                      <v-avatar size="55" tile>
+                        <v-img
+                            :src="modIconImages[mod.type]"
+                        />
+                      </v-avatar>
+                    </template>
+                    <v-avatar size="40" tile class="ma-2">
+                      <ModIconWidget
+                          v-if="mod.value"
+                          class="bg-transparent"
+                          :is-open-detail="readonly"
+                          :id="mod.value.id"
+                          :padding="0"
+                          :margin="0"
+                      />
+                      <v-icon v-else-if="isSlotLocked(modIndex)" icon="mdi-lock" color="grey-lighten-1" size="24"/>
+                    </v-avatar>
+                  </v-card>
+
+                  <div>
+                    <v-select v-model="mod.rarity"
+                              variant="plain"
+                              tile
+                              density="compact"
+                              :disabled="!mod.value || readonly || isSlotLocked(modIndex)"
+                              :menu-icon="null"
+                              hide-spin-buttons
+                              hide-details
+                              persistent-clear
+                              eager
+                              width="20"
+                              class="mx-auto"
+                              :items="['normal', 'adept', 'adept-congenital']">
+                      <template v-slot:loader></template>
+                      <template v-slot:append-inner></template>
+                      <template v-slot:selection>
+                        <RhombusWidget
+                            :size="20"
+                            :type="isSlotLocked(modIndex) ? 'none' : (mod.value ? (mod.rarity ?? 'normal') : 'none')"></RhombusWidget>
+                      </template>
+                      <template v-slot:item="{props, item}">
+                        <v-list-item v-bind="props" class="text-center">
+                          <template v-slot:title>
+                            <RhombusWidget
+                                :size="30"
+                                :type="item.raw"></RhombusWidget>
+                          </template>
+                        </v-list-item>
+                      </template>
+                    </v-select>
+                  </div>
                 </v-col>
                 <v-divider vertical opacity=".06"/>
                 <v-col class="pa-3">
-                  <template v-if="mod.value">
+                  <template v-if="isSlotLocked(modIndex)">
+                    <div class="d-flex align-center text-caption text-grey opacity-60">
+                      <v-icon icon="mdi-lock-outline" size="18" class="mr-2"/>
+                      <span>{{ t('assembly.weaponModification.lockedTip') }} ({{ getSlotDisplayName(mod.type) }})</span>
+                    </div>
+                  </template>
+                  <template v-else-if="mod.value">
                     <v-card variant="tonal" class="pa-2">
                       <v-row align="center" no-gutters>
-                        <v-col cols="auto">
-                          <ItemSlotBase size="40px" class="mr-2" :padding="0">
-                            <ModIconWidget
-                                :id="mod.value.id"
-                                :padding="0"
-                                :margin="0"
-                            />
-                          </ItemSlotBase>
-                        </v-col>
                         <v-col>
                           <ModName
                               :id="mod.value.id"
@@ -486,19 +633,18 @@ defineExpose({
                   </template>
                   <template v-else>
                     <div class="text-caption text-grey" v-if="!readonly">
-                      {{ t('assembly.weaponModification.dragTip', { type: getSlotDisplayName(mod.type) }) }}
+                      {{ t('assembly.weaponModification.dragTip', {type: getSlotDisplayName(mod.type)}) }}
                     </div>
                     <EmptyView v-else/>
                   </template>
                 </v-col>
-                <v-col cols="auto" v-if="!readonly && mod.value">
+                <v-col cols="auto" v-if="!readonly && mod.value && !isSlotLocked(modIndex)">
                   <v-btn
                       icon
                       variant="text"
                       size="small"
                       @click.stop="removeModification(modIndex)"
-                      class="mr-2"
-                  >
+                      class="mr-2">
                     <v-icon>mdi-delete</v-icon>
                   </v-btn>
                 </v-col>
@@ -511,7 +657,7 @@ defineExpose({
             <div class="d-flex align-center mb-2">
               <p class="font-weight-bold ma-0">{{ t('assembly.weaponModification.available') }}</p>
               <v-chip size="small" variant="tonal" class="ml-2">
-                {{ t('assembly.weaponModification.availableCount', { count: totalAvailableMods }) }}
+                {{ t('assembly.weaponModification.availableCount', {count: totalAvailableMods}) }}
               </v-chip>
             </div>
 
@@ -549,7 +695,7 @@ defineExpose({
                 <v-expansion-panel
                     v-for="(mods, type) in filteredMods"
                     :key="type"
-                    :bg-color="MOD_STYLE_CONFIG[type as ModType]"
+                    :bg-color="MOD_STYLE_CONFIG[type as ModRarity]"
                 >
                   <template v-slot:title>
                     <v-row class="d-flex align-center justify-start w-100">
@@ -577,6 +723,7 @@ defineExpose({
                           variant="tonal"
                           class="pa-2 mb-2 mod-item"
                           draggable="true"
+                          @click="onModItemClick(modItem)"
                           @dragstart="onDragStart($event, modItem)">
                         <v-row no-gutters>
                           <v-col cols="auto">
@@ -656,6 +803,11 @@ defineExpose({
 
 .slot-highlight {
   transition: all 0.3s;
+}
+
+.slot-locked {
+  opacity: 0.6;
+  border-style: dashed !important;
 }
 
 .mod-item {

@@ -177,6 +177,13 @@ const showAssemblyOnly = computed(() => props.type === 'assembly' || (props.type
                 </v-switch>
               </v-col>
               <v-col cols="6">
+                <v-switch v-model="assemblyModelValue.isShowWeaponIconArray" inset hide-details density="compact">
+                  <template v-slot:append>
+                    <span class="text-caption">{{ t('assembly.share.showWeaponIconArray') }}</span>
+                  </template>
+                </v-switch>
+              </v-col>
+              <v-col cols="6">
                 <v-switch v-model="assemblyModelValue.isShowTitle" inset hide-details density="compact">
                   <template v-slot:append>
                     <span class="text-caption">{{ t('assembly.share.showTitle') }}</span>

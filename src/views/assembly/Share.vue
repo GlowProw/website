@@ -37,6 +37,7 @@ let generateImageValue: Ref<any> = ref({
   isShowEmptySlot: true,
   isShowItemName: true,
   isFullName: false,
+  isShowWeaponIconArray: false,
   isShowHeader: true,
   isShowTitle: true,
   isShowTabs: true,
@@ -248,7 +249,7 @@ onMounted(() => {
 
   if (route.query) {
     const query = {...route.query} as any;
-    const booleanKeys = ['isShowEmptySlot', 'isShowItemName', 'isFullName', 'isShowHeader', 'isShowTitle', 'isShowTabs', 'isShowDescription'];
+    const booleanKeys = ['isShowEmptySlot', 'isShowItemName', 'isFullName', 'isShowWeaponIconArray', 'isShowHeader', 'isShowTitle', 'isShowTabs', 'isShowDescription'];
     const numberKeys = ['width', 'quality'];
 
     booleanKeys.forEach(key => {

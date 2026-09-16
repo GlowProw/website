@@ -151,7 +151,8 @@ const onAssemblyMainViewReady = () => {
       .setSetting({
         assemblyUseVersion: d.assembly.attr.assemblyUseVersion,
         isShowItemName: d.assembly.attr.isShowItemName,
-        isFullName: d.assembly.attr.isFullName
+        isFullName: d.assembly.attr.isFullName,
+        isShowWeaponIconArray: d.assembly.attr?.isShowWeaponIconArray ?? false
       })
       .onLoad(d.assembly.data)
   // 载入轮盘

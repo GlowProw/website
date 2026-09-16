@@ -101,8 +101,9 @@ const requirementItems = computed<NodeRequirementItem[]>(() => {
             <v-col cols="auto" class="d-flex justify-center align-center mr-2">
               <RhombusWidget
                   :size="6"
-                  :solid="item.isActive"
-                  :activate="item.isActive"
+                  :slot="item.isActive"
+                  :slot-activate="item.isActive"
+                  :border-activate="item.isActive"
               ></RhombusWidget>
             </v-col>
             <v-col @click="emit('locate-node', item.key)" class="cursor-pointer d-flex align-center flex-wrap ga-1">
@@ -235,12 +236,12 @@ const requirementItems = computed<NodeRequirementItem[]>(() => {
             <v-btn
                 size="50"
                 elevation="0"
-                :disabled="isNodeActive(node.key) || !isNodeAvailable(node.key)"
+                :disabled="isNodeActive(node.key)"
                 @click="emit('toggle-activation', node.key)"
                 tile
                 block
                 :title="t('mastery.card.investPoint')">
-              <v-icon :color="isNodeActive(node.key) || !isNodeAvailable(node.key) ? 'default' : 'amber'">mdi-plus</v-icon>
+              <v-icon :color="isNodeActive(node.key) ? 'default' : 'amber'">mdi-plus</v-icon>
             </v-btn>
           </v-col>
           <v-divider vertical inset></v-divider>

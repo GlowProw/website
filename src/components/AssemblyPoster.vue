@@ -104,6 +104,7 @@ const loadAssemblyData = async () => {
           .setSetting({
             isShowItemName: props.generateImageValue.isShowItemName,
             isFullName: props.generateImageValue.isFullName,
+            isShowWeaponIconArray: props.generateImageValue.isShowWeaponIconArray,
             assemblyUseVersion: props.assemblyDetailData.assembly?.attr?.assemblyUseVersion
           })
           .onLoad(props.assemblyDetailData.data || props.assemblyDetailData.assembly?.data);

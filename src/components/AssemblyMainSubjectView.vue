@@ -5,7 +5,8 @@ import WheelWidget from "@/components/WheelShowWidget.vue";
 import AssemblyWidget from "@/components/AssemblyWidget.vue"; // 确保导入了正确的组件
 import MasteryWidget from "@/components/MasteryWidget.vue";
 import AssemblyDataInfoResultWidget from "@/components/AssemblyDataInfoResultWidget.vue";
-import {computed, nextTick, onMounted, Ref, ref, toRaw, useAttrs} from "vue";
+import {useRoute, useRouter} from "vue-router";
+import {computed, nextTick, onMounted, Ref, ref, toRaw, useAttrs, watch} from "vue";
 import {useDisplay} from "vuetify/framework";
 import {useI18n} from "vue-i18n";
 import {Ships} from "glow-prow-data";
@@ -29,8 +30,29 @@ const props = withDefaults(defineProps<{
     }),
     {mobile} = useDisplay(),
     {t} = useI18n(),
+    route = useRoute(),
+    router = useRouter(),
     attrs = useAttrs(),
     emit = defineEmits(['update:tab', 'update:item-change', 'ready'])
+
+const getValidTag = (rawTag: any): string | null => {
+  const tagStr = Array.isArray(rawTag) ? rawTag[0] : rawTag;
+  if (typeof tagStr === 'string' && assemblyViewConfig.onlyRead.includes(tagStr)) {
+    return tagStr;
+  }
+  return null;
+};
+
+const updateUrlTag = (targetTag: string) => {
+  if (router && route && route.query?.tag !== targetTag) {
+    router.replace({
+      query: {
+        ...route.query,
+        tag: targetTag
+      }
+    }).catch(() => {});
+  }
+};
 
 let isWorkshopFillScreen = ref(props.isWorkshopFillScreen),
     viewRootRef = ref(null),
@@ -42,7 +64,7 @@ let isWorkshopFillScreen = ref(props.isWorkshopFillScreen),
     infoWorkshopRef: Ref<any> = ref(null),
     workshopHeight = ref<string | number>(600),
     workshopZoom = ref(1),
-    tab = ref(assemblyViewConfig.onlyRead[0]),
+    tab = ref(getValidTag(route?.query?.tag) || assemblyViewConfig.onlyRead[0]),
     refs: Ref<any> = ref({
       zoomableAreaRef: null,
       assembly: null,
@@ -75,6 +97,19 @@ let isWorkshopFillScreen = ref(props.isWorkshopFillScreen),
     }),
     hasReadyEvent = computed(() => !!attrs.onReady),
     hasItemChangeEvent = computed(() => !!attrs.onUpdateItemChange)
+
+watch(() => route?.query?.tag, (newTag) => {
+  const validTag = getValidTag(newTag) || assemblyViewConfig.onlyRead[0];
+  if (validTag !== tab.value) {
+    tab.value = validTag;
+    syncAssemblyData();
+    if (props.readonly) {
+      onWorkshopRestorePosition();
+    }
+    emit('update:tab', tab.value);
+    onWorkshopViewHeightUpdate();
+  }
+});
 
 onMounted(() => {
   nextTick(() => {
@@ -167,12 +202,16 @@ const onUpdateEvent = (workshopName: string) => {
 /**
  * 切换附件事件
  */
-const onTabs = () => {
+const onTabs = (newTab?: any) => {
+  if (typeof newTab === 'string') {
+    tab.value = newTab;
+  }
   syncAssemblyData()
   if (props.readonly)
     onWorkshopRestorePosition()
 
   emit('update:tab', tab.value)
+  updateUrlTag(tab.value)
 
   onWorkshopViewHeightUpdate()
 }
@@ -214,6 +253,7 @@ defineOptions({name: 'AssemblyMainSubjectView'})
       <v-tab :value="i"
              v-for="(i,index) in assemblyViewConfig.onlyRead"
              :disabled="(i === 'warehouse' || i === 'info') && hasShip || (i !== 'info' && hasData(i))"
+             @click="updateUrlTag(i)"
              :key="index">{{ t(`assembly.additions.${i}`) }}
       </v-tab>
     </v-tabs>
@@ -248,6 +288,7 @@ defineOptions({name: 'AssemblyMainSubjectView'})
         </v-container>
         <v-container v-show="tab === 'mastery'">
           <MasteryWidget ref="masteryWorkshopRef"
+                         class="card-enlargement-flavor"
                          @update:item-change="onUpdateEvent"
                          :readonly="readonly"></MasteryWidget>
         </v-container>
@@ -255,6 +296,7 @@ defineOptions({name: 'AssemblyMainSubjectView'})
           <AssemblyDataInfoResultWidget ref="infoWorkshopRef"
                                         :assembly-data="currentAssemblyData"
                                         :assembly-workshop-ref="assemblyWorkshopRef"
+                                        :is-disabled-move-title="false"
                                         :readonly="readonly"></AssemblyDataInfoResultWidget>
         </v-container>
       </div>

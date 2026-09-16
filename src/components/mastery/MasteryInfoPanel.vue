@@ -99,18 +99,6 @@ defineOptions({name: 'MasteryInfoPanel'});
             elevation="0"
             class="bg-transparent"
             v-if="seasonOptions && seasonOptions.length > 0">
-          <div class="d-flex align-center py-4 px-7">
-            <v-row align="center">
-              <v-col cols="auto" class="d-flex align-center">
-                <v-icon icon="mdi-calendar-range" class="mr-2 text-amber"></v-icon>
-                <span class="font-weight-bold">{{ t('mastery.shareDialog.currentSeason') }}</span>
-              </v-col>
-              <v-col class="text-amber">
-                <v-divider opacity=".2" thickness="2"></v-divider>
-              </v-col>
-            </v-row>
-          </div>
-
           <v-select
               :model-value="selectedSeasonId"
               @update:model-value="onSeasonChange"
@@ -120,7 +108,13 @@ defineOptions({name: 'MasteryInfoPanel'});
               density="compact"
               variant="outlined"
               hide-details
-              class="mx-7 mb-2">
+              class="mx-7 mt-3 mb-2">
+            <template v-slot:prepend-inner>
+              <p class="singe-line d-flex align-center text-amber mr-2">
+                <v-icon icon="mdi-calendar-range" class="mr-1"></v-icon>
+                <span class="font-weight-bold">{{ t('mastery.shareDialog.currentSeason') }}</span>
+              </p>
+            </template>
           </v-select>
         </v-card>
 

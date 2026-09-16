@@ -46,6 +46,8 @@ export interface AssemblyAttr {
     isShowItemName?: boolean
     // 显示完整物品名称
     isFullName?: boolean
+    // 武器图示阵列
+    isShowWeaponIconArray?: boolean
     // 是否允许评论
     isComment?: boolean
     // 是否允许收藏

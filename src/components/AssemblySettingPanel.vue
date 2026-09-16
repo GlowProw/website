@@ -37,6 +37,7 @@ let show = ref(false),
         attr: {
           password: '',
           language: [locale.value],
+          isShowWeaponIconArray: false,
           assemblyUseVersion: AssemblyDataProcessing.nowVersion
         }
       },
