@@ -145,7 +145,7 @@ const formatMinutes = (minutes?: number) => {
                     size="small"
                     class="font-weight-bold px-3 pulse-chip">
                   <v-icon start icon="mdi-broadcast" size="14" class="mr-1"></v-icon>
-                  {{ t('drop.active', '进行中') }}
+                  {{ t('drop.active') }}
                 </v-chip>
 
                 <v-chip
@@ -155,7 +155,7 @@ const formatMinutes = (minutes?: number) => {
                     size="small"
                     class="font-weight-bold px-3">
                   <v-icon start icon="mdi-clock-outline" size="14" class="mr-1"></v-icon>
-                  {{ t('drop.upcoming', '即将开启') }}
+                  {{ t('drop.upcoming') }}
                 </v-chip>
 
                 <v-chip
@@ -165,7 +165,7 @@ const formatMinutes = (minutes?: number) => {
                     size="small"
                     class="font-weight-bold px-3">
                   <v-icon start icon="mdi-check-circle-outline" size="14" class="mr-1"></v-icon>
-                  {{ t('drop.ended', '已结束') }}
+                  {{ t('drop.ended') }}
                 </v-chip>
               </div>
 
@@ -179,7 +179,8 @@ const formatMinutes = (minutes?: number) => {
 
             <!-- 活动主标题与周期 -->
             <h2 class="text-h6 text-sm-h5 font-weight-bold text-white mb-2 line-clamp-2">
-              {{ campaign.name }}
+              <p class="u">{{ campaign.name }}</p>
+
               <!-- 官方详情链接 -->
               <v-btn
                   v-if="detailsLink"
@@ -249,9 +250,9 @@ const formatMinutes = (minutes?: number) => {
 
                 <!-- 奖励信息 -->
                 <div class="d-flex flex-column flex-grow-1 justify-space-between">
-                  <div class="font-weight-bold text-body-2 text-white line-clamp-2 mb-2">
+                  <p class="u font-weight-bold text-body-2 text-white line-clamp-2 mb-2">
                     {{ drop.benefits?.[0]?.name || drop.name }}
-                  </div>
+                  </p>
 
                   <div class="d-flex align-center justify-space-between mt-auto">
                     <v-chip size="x-small" variant="flat" class="font-weight-medium">
@@ -285,7 +286,7 @@ const formatMinutes = (minutes?: number) => {
         </div>
         <v-card-actions class="justify-center pt-0">
           <v-btn variant="tonal" @click="previewDialog = false">
-            {{ t('common.close', '关闭') }}
+            {{ t('common.close') }}
           </v-btn>
         </v-card-actions>
       </v-card>

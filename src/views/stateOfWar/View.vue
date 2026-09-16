@@ -82,10 +82,10 @@ const selectSeasonsList = computed(() => {
   return [];
 });
 
-const selectSeasonsValue = ref<string>((route.params.seasonId as string) || getCurrentSeasonId("crimsonWaters"));
+const selectSeasonsValue = ref<string>((route.params.seasonId as string) || getCurrentSeasonId());
 
 const selectedSeasonId = computed(() => {
-  const fallback = getCurrentSeasonId('crimsonWaters');
+  const fallback = getCurrentSeasonId();
   if (!selectSeasonsValue.value) return fallback;
   if (typeof selectSeasonsValue.value === 'object') return (selectSeasonsValue.value as any).id || fallback;
   return String(selectSeasonsValue.value);
@@ -472,10 +472,6 @@ const getZoneData = (zoneName: string) => {
                 </v-row>
               </v-card>
               <!-- 阵营大概 E -->
-
-              <template v-else>
-                <Loading></Loading>
-              </template>
             </v-col>
 
             <v-col cols="12" lg="1" class="hidden-sm hidden-md"></v-col>
@@ -512,8 +508,8 @@ const getZoneData = (zoneName: string) => {
                   </template>
                   <v-list>
                     <v-list-item :loading="refreshing"
-                            prepend-icon="mdi-refresh"
-                            @click="getStateOfWarData(route.params.seasonId)">
+                                 prepend-icon="mdi-refresh"
+                                 @click="refreshData()">
                       {{ t('stateOfWar.refreshBtn') }}
                     </v-list-item>
                   </v-list>
@@ -808,7 +804,6 @@ const getZoneData = (zoneName: string) => {
                   <v-card variant="text" class="h-100 zone-card ">
                     <v-card-item class="pb-2">
                       <div class="d-flex align-center justify-space-between ga-2">
-                        <!-- 使用 ZoneName 区域名称组件 -->
                         <div class="text-subtitle-1 font-weight-bold text-truncate">
                           <ZoneName :id="zone.name"/>
                         </div>
@@ -868,7 +863,7 @@ const getZoneData = (zoneName: string) => {
                               <span :style="{ color: factionAColor }"><FactionNameWidget :id="factionAKey"></FactionNameWidget></span>
                             </v-col>
                             <v-spacer></v-spacer>
-                            <v-col>
+                            <v-col cols="auto">
                               <div class="d-flex align-center ga-1">
                                 <span class="font-weight-bold">{{ formatCompactNumber(zone[factionAKey] || 0) }}</span>
                                 <span class="text-caption text-medium-emphasis">({{ calculatePercent(zone[factionAKey] || 0, zone.total) }}%)</span>
@@ -900,7 +895,7 @@ const getZoneData = (zoneName: string) => {
                               <span :style="{ color: factionBColor }"><FactionNameWidget :id="factionBKey"></FactionNameWidget></span>
                             </v-col>
                             <v-spacer></v-spacer>
-                            <v-col>
+                            <v-col cols="auto">
                               <div class="d-flex align-center ga-1">
                                 <span class="font-weight-bold">{{ formatCompactNumber(zone[factionBKey] || 0) }}</span>
                                 <span class="text-caption text-medium-emphasis">({{ calculatePercent(zone[factionBKey] || 0, zone.total) }}%)</span>
@@ -947,33 +942,32 @@ const getZoneData = (zoneName: string) => {
                   md="6"
                   lg="6">
                 <v-card variant="text" class="h-100 overflow-hidden">
-                  <AffixContainerView>
-                    <v-card-item class="py-2">
-                      <div class="d-flex align-center justify-space-between flex-wrap ga-2">
-                        <v-row align="center">
-                          <v-col cols="auto" class="text-subtitle-1 font-weight-bold">
-                            <v-icon icon="mdi-flag-checkered" size="20" color="amber-darken-1"></v-icon>
-                            {{ t('stateOfWar.cycleNumber', {value: cycle.cycleNumber}) }}
-                          </v-col>
-                          <v-col>
-                            <v-divider opacity=".3" thickness="2"></v-divider>
-                          </v-col>
-                          <v-col cols="auto" class="text-caption text-medium-emphasis">
-                            {{ cycle.startDate }} ~ {{ cycle.endDate }} ({{ cycle.durationDays }})
-                          </v-col>
-                          <v-col cols="auto">
-                            <v-chip
-                                size="small"
-                                :color="cycle.status === 'ended' ? 'grey' : (cycle.status === 'active' ? 'amber-darken-2' : '')"
-                                variant="flat"
-                                class="font-weight-bold">
-                              {{ cycle.status === 'ended' ? t('stateOfWar.ended') : (cycle.status === 'active' ? t('stateOfWar.active') : t('stateOfWar.upcoming')) }}
-                            </v-chip>
-                          </v-col>
-                        </v-row>
-                      </div>
-                    </v-card-item>
-                  </AffixContainerView>
+                  <v-card-item class="py-2">
+                    <div class="d-flex align-center justify-space-between flex-wrap ga-2">
+                      <v-row align="center" dense>
+                        <v-col cols="auto" class="text-subtitle-1 font-weight-bold "
+                               :class="{'text-amber-darken-1': cycle.status !== 'ended'}">
+                          <v-icon icon="mdi-flag-checkered"></v-icon>
+                          {{ t('stateOfWar.cycleNumber', {value: cycle.cycleNumber}) }}
+                        </v-col>
+                        <v-col>
+                          <v-divider opacity=".3" thickness="2"></v-divider>
+                        </v-col>
+                        <v-col cols="auto" class="text-caption text-medium-emphasis">
+                          {{ cycle.startDate }} ~ {{ cycle.endDate }} ({{ cycle.durationDays }})
+                        </v-col>
+                        <v-col cols="auto">
+                          <v-chip
+                              size="small"
+                              :color="cycle.status === 'ended' ? 'grey' : (cycle.status === 'active' ? 'amber-darken-2' : '')"
+                              variant="flat"
+                              class="font-weight-bold text-black">
+                            {{ cycle.status === 'ended' ? t('stateOfWar.ended') : (cycle.status === 'active' ? t('stateOfWar.active') : t('stateOfWar.upcoming')) }}
+                          </v-chip>
+                        </v-col>
+                      </v-row>
+                    </div>
+                  </v-card-item>
 
                   <v-card-text class="pa-3">
                     <v-row>
@@ -1003,16 +997,11 @@ const getZoneData = (zoneName: string) => {
                       </v-col>
                     </v-row>
 
-                    <v-row>
+                    <v-row dense>
                       <!-- 阵营 A 区域 -->
-                      <v-col cols="12"
-                             md="6"
-                             lg="6">
+                      <v-col cols="12" md="6" lg="6">
                         <div v-if="(cycle[factionAKey + 'Zones'] || []).length > 0" class="d-flex flex-column ga-2">
-                          <div
-                              v-for="z in (cycle[factionAKey + 'Zones'] || [])"
-                              :key="z"
-                              class="pa-2 bg-black">
+                          <div v-for="z in (cycle[factionAKey + 'Zones'] || [])" :key="z" class="bg-black py-3 px-4 position-relative">
                             <div class="d-flex justify-space-between align-center text-caption font-weight-bold mb-1">
                               <span class="text-truncate"><ZoneName :id="z"/></span>
                               <v-chip size="x-small" :color="factionAColor" variant="tonal">
@@ -1027,7 +1016,6 @@ const getZoneData = (zoneName: string) => {
                               <span class="font-weight-bold" :style="{ color: factionAColor }">
                                 {{ formatCompactNumber(getZoneData(z)[factionAKey] || 0) }}
                               </span>
-                              <span class="text-medium-emphasis">vs</span>
                               <span class="font-weight-bold" :style="{ color: factionBColor }">
                                 {{ formatCompactNumber(getZoneData(z)[factionBKey] || 0) }}
                               </span>
@@ -1049,14 +1037,9 @@ const getZoneData = (zoneName: string) => {
                       </v-col>
 
                       <!-- 阵营 B 区域 -->
-                      <v-col cols="12"
-                             md="6"
-                             lg="6">
-                        <div v-if="(cycle[factionBKey + 'Zones'] || []).length > 0" class="d-flex flex-column ga-2">
-                          <div
-                              v-for="z in (cycle[factionBKey + 'Zones'] || [])"
-                              :key="z"
-                              class="pa-2 bg-black">
+                      <v-col cols="12" md="6" lg="6">
+                        <div v-if="(cycle[factionBKey + 'Zones'] || []).length > 0" class="d-flex flex-column mb-5">
+                          <div v-for="z in (cycle[factionBKey + 'Zones'] || [])" :key="z" class="bg-black py-3 px-4 position-relative">
                             <div class="d-flex justify-space-between align-center text-caption font-weight-bold mb-1">
                               <span class="text-truncate">
                                 <ZoneName :id="z"/>
@@ -1073,7 +1056,6 @@ const getZoneData = (zoneName: string) => {
                               <span class="font-weight-bold" :style="{ color: factionBColor }">
                                 {{ formatCompactNumber(getZoneData(z)[factionBKey] || 0) }}
                               </span>
-                              <span class="text-medium-emphasis">vs</span>
                               <span class="font-weight-bold" :style="{ color: factionAColor }">
                                 {{ formatCompactNumber(getZoneData(z)[factionAKey] || 0) }}
                               </span>

@@ -50,7 +50,7 @@ export interface WarCycle {
     endDate: string;
     durationDays: number;
     status: "ended" | "active" | "upcoming";
-    winner: "compagnieRoyale" | "phoenixsTalon" | "draw" | null;
+    winner: string | null;
     compagnieRoyaleZones: string[];
     phoenixsTalonZones: string[];
     compagnieRoyaleZoneDetails?: WarCycleZoneDetail[];

@@ -314,7 +314,7 @@ export const useStateOfWarStore = defineStore('stateOfWar', () => {
         try {
             loading.value = true;
             let res: any;
-            if (!targetSeason || targetSeason === 'crimsonWaters' || targetSeason === '10') {
+            if (!targetSeason || targetSeason === 'latest') {
                 res = await apis.stateOfWarApi().getLatestStateOfWar();
             } else {
                 res = await apis.stateOfWarApi().getSeasonStateOfWar(targetSeason);
@@ -339,7 +339,7 @@ export const useStateOfWarStore = defineStore('stateOfWar', () => {
      * 获取历史战事数据 (支持缓存)
      */
     const fetchHistoryData = async (range: '1h' | '1d' | '7d' = '1d', seasonId?: string, force: boolean = false): Promise<StateOfWarHistoryPoint[]> => {
-        const targetSeason = seasonId || currentSeasonId.value || 'crimsonWaters';
+        const targetSeason = seasonId || currentSeasonId.value;
         const cacheKey = `${targetSeason}_${range}`;
 
         if (!force && historyDataMap.value[cacheKey]) {

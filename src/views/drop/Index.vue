@@ -224,9 +224,8 @@ onMounted(() => {
                       variant="tonal"
                       prepend-icon="mdi-briefcase-outline"
                       append-icon="mdi-open-in-new"
-                      class="font-weight-bold"
-                  >
-                    {{ t('drop.myInventory', 'Twitch 掉宝背包') }}
+                      class="font-weight-bold">
+                    {{ t('drop.myInventory') }}
                   </v-btn>
                 </div>
               </div>
@@ -256,7 +255,7 @@ onMounted(() => {
               />
             </div>
 
-            <!-- 当前暂无活动空状态 -->
+            <!-- 当前暂无活动空状态 S -->
             <v-card
                 v-else
                 class="empty-card rounded-xl pa-8 pa-sm-12 text-center border"
@@ -268,12 +267,7 @@ onMounted(() => {
                 {{ t('drop.noActiveTitle', '当前暂无生效中的 Twitch 掉宝活动') }}
               </h3>
               <p class="text-body-2 text-medium-emphasis max-w-560 mx-auto mb-6">
-                {{
-                  t(
-                      'drop.noActiveSubtitle',
-                      '育碧通常会在新赛季上线、重大内容更新或周末特别活动期间开启 Twitch Drops 掉宝。您可以浏览下方过往掉宝档案，或关注机器人通知。'
-                  )
-                }}
+                {{t('drop.noActiveSubtitle') }}
               </p>
               <div class="d-flex justify-center ga-3">
                 <v-btn
@@ -282,12 +276,12 @@ onMounted(() => {
                     variant="tonal"
                     color="#9146FF"
                     prepend-icon="mdi-twitch"
-                    append-icon="mdi-open-in-new"
-                >
-                  {{ t('drop.visitTwitchDirectory', '浏览 Twitch 碧海黑帆专区') }}
+                    append-icon="mdi-open-in-new">
+                  {{ t('drop.visitTwitchDirectory') }}
                 </v-btn>
               </div>
             </v-card>
+            <!-- 当前暂无活动空状态 E -->
           </div>
           <template v-slot:title>
             {{ t('drop.currentSectionTitle') }}
@@ -296,7 +290,7 @@ onMounted(() => {
 
         <AffixBoxHasTitleView class="drop-section">
           <AffixContainerView>
-            <v-card border class="px-5 py-2 section-title-wrap d-flex flex-column flex-sm-row align-sm-center justify-space-between ga-4">
+            <v-card class="px-5 py-2 section-title-wrap d-flex flex-column flex-sm-row align-sm-center justify-space-between ga-4">
               <div class="d-flex align-center ga-3">
                 <v-chip size="small" variant="outlined" color="amber" class="font-weight-bold">
                   {{ historyTotal }} {{ t('drop.records') }}
@@ -312,14 +306,13 @@ onMounted(() => {
                     density="comfortable"
                     color="amber"
                     variant="outlined"
-                    rounded="lg"
-                >
-                  <v-btn value="all" size="small">{{ t('drop.filterAll', '全部') }}</v-btn>
-                  <v-btn value="ended" size="small">{{ t('drop.filterEnded', '已结束') }}</v-btn>
-                  <v-btn value="active" size="small">{{ t('drop.filterActive', '进行中') }}</v-btn>
+                    rounded="lg">
+                  <v-btn value="all" size="small">{{ t('drop.filterAll') }}</v-btn>
+                  <v-btn value="ended" size="small">{{ t('drop.filterEnded') }}</v-btn>
+                  <v-btn value="active" size="small">{{ t('drop.filterActive') }}</v-btn>
                 </v-btn-toggle>
 
-                <!-- 搜索框 -->
+                <!-- 搜索 -->
                 <v-text-field
                     v-model="historyKeyword"
                     density="compact"
@@ -327,6 +320,7 @@ onMounted(() => {
                     placeholder="搜索活动名称..."
                     prepend-inner-icon="mdi-magnify"
                     hide-details
+                    min-width="240"
                     clearable
                     rounded="lg"
                     class="search-input"
@@ -334,7 +328,6 @@ onMounted(() => {
               </div>
             </v-card>
           </AffixContainerView>
-
 
           <!-- 加载中状态 -->
           <div v-if="historyLoading" class="d-flex flex-column ga-4">
@@ -373,10 +366,10 @@ onMounted(() => {
           <v-card v-else class="empty-card rounded-xl pa-8 text-center border">
             <v-icon icon="mdi-file-search-outline" size="48" color="grey" class="mb-3"></v-icon>
             <div class="text-h6 font-weight-bold text-white mb-1">
-              {{ t('drop.noHistoryFound', '未找到匹配的掉宝历史记录') }}
+              {{ t('drop.noHistoryFound') }}
             </div>
             <div class="text-caption text-medium-emphasis">
-              {{ t('drop.tryClearFilter', '请尝试调整搜索关键词或状态筛选') }}
+              {{ t('drop.tryClearFilter') }}
             </div>
           </v-card>
 

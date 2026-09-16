@@ -404,14 +404,14 @@ const routes: Readonly<RouteRecordRaw[]> = [
             keywords: 'stateOfWar.meta.keywords'
         },
         redirect: to => {
-            return '/stateOfWar/crimsonWaters/view';
+            return `/stateOfWar/${getCurrentSeasonId()}/view`;
         },
         component: StateOfWarPage,
         children: [
             {
                 path: 'view',
                 name: 'StateOfWarDefaultView',
-                redirect: '/stateOfWar/crimsonWaters/view'
+                redirect: to => `/stateOfWar/${getCurrentSeasonId()}/view`
             },
             {
                 path: ':seasonId/view',
