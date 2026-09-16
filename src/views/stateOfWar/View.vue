@@ -1060,7 +1060,7 @@ const getZoneData = (zoneName: string) => {
                               <v-col cols="9" class="py-5 px-4">
                                 <div class="d-flex justify-space-between align-center font-weight-bold mb-1">
                                   <span class="text-truncate"><ZoneName :id="z"/></span>
-                                  <v-chip size="x-small" :color="factionAColor" variant="tonal">
+                                  <v-chip size="x-small" :color="factionBColor" variant="tonal">
                                     {{ calculatePercent(getZoneData(z)[factionAKey] || 0, getZoneData(z).total || 1) }}%
                                   </v-chip>
                                 </div>

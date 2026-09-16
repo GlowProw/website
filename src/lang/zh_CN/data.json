@@ -2343,7 +2343,7 @@
   },
   "stateOfWar": {
     "title": "阵营战争状态",
-    "description": "船长，碧海黑帆赛季各区域阵营战事资源分布",
+    "description": "船长，战争已经来临时刻关注争夺区域资源分布，拿下地区！",
     "lastUpdated": "最后更新时间",
     "selectSeason": "选择赛季",
     "refreshBtn": "刷新数据",
