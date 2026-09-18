@@ -217,16 +217,6 @@ onMounted(() => {
                       class="font-weight-bold">
                     {{ t('drop.refresh') }}
                   </v-btn>
-
-                  <v-btn
-                      href="https://www.twitch.tv/drops/inventory"
-                      target="_blank"
-                      variant="tonal"
-                      prepend-icon="mdi-briefcase-outline"
-                      append-icon="mdi-open-in-new"
-                      class="font-weight-bold">
-                    {{ t('drop.myInventory') }}
-                  </v-btn>
                 </div>
               </div>
             </v-col>
@@ -264,7 +254,7 @@ onMounted(() => {
                 <v-icon icon="mdi-broadcast-off" size="40" color="grey"></v-icon>
               </div>
               <h3 class="text-h6 font-weight-bold text-white mb-2">
-                {{ t('drop.noActiveTitle', '当前暂无生效中的 Twitch 掉宝活动') }}
+                {{ t('drop.noActiveTitle') }}
               </h3>
               <p class="text-body-2 text-medium-emphasis max-w-560 mx-auto mb-6">
                 {{t('drop.noActiveSubtitle') }}
@@ -292,9 +282,7 @@ onMounted(() => {
           <AffixContainerView>
             <v-card class="px-5 py-2 section-title-wrap d-flex flex-column flex-sm-row align-sm-center justify-space-between ga-4">
               <div class="d-flex align-center ga-3">
-                <v-chip size="small" variant="outlined" color="amber" class="font-weight-bold">
-                  {{ historyTotal }} {{ t('drop.records') }}
-                </v-chip>
+                {{ historyTotal }} {{ t('drop.records') }}
               </div>
 
               <!-- 筛选与搜索工具栏 -->

@@ -1,7 +1,3 @@
-<script lang="ts">
-export default {name: 'SetIconWidget'}
-</script>
-
 <script setup lang="ts">
 import {use_icon_global_Style} from "@/assets/sripts/use_icon_global_Style";
 import {computed, onMounted, type Ref, ref, watch} from "vue";
@@ -41,6 +37,14 @@ const
     }),
     appStore = useAppStore(),
     sets = Sets;
+
+const {targetElement, isVisible} = useIntersectionObserver({
+  threshold: .7,
+})
+
+const {useIconImagePadding, useIconImageMargin} = use_icon_global_Style();
+const computedPadding = useIconImagePadding(props.padding);
+const computedMargin = useIconImageMargin(props.margin);
 
 let setCardData = ref({
       icon: '',
@@ -83,13 +87,9 @@ const onReady = async () => {
   });
 }
 
-const {targetElement, isVisible} = useIntersectionObserver({
-  threshold: .7,
+defineOptions({
+  name: 'SetIconWidget'
 })
-
-const {useIconImagePadding, useIconImageMargin} = use_icon_global_Style();
-const computedPadding = useIconImagePadding(props.padding);
-const computedMargin = useIconImageMargin(props.margin);
 </script>
 
 <template>

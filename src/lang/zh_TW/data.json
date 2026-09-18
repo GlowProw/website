@@ -1113,7 +1113,6 @@
     "heroTitle": "Twitch 掉寶中心",
     "heroSubtitle": "即時掌握《怒海戰記》正在進行的 Twitch Drops 活動與獎勵，綁定帳號並觀看實況即可免費獲取遊戲內專屬外觀與限定獎勵！",
     "refresh": "重新整理掉寶",
-    "myInventory": "Twitch 掉寶背包",
     "statActive": "當前生效活動",
     "statHistory": "歷史檔案總數",
     "statRewards": "累計掉宝獎勵",
@@ -2203,7 +2202,7 @@
         "description": "查看本赛季活动信息"
       },
       "drop": {
-        "title": "Twitch 掉宝",
+        "title": "Twitch掉宝",
         "description": "查看当前生效掉宝活动与历史档案"
       },
       "maps": {
