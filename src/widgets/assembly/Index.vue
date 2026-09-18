@@ -89,7 +89,7 @@ const loadAssemblyData = async () => {
 </script>
 
 <template>
-  <div class="assembly-widget">
+  <div class="assembly-widget" :data-loaded="!assemblyLoading">
     <AssemblyPoster
       ref="captureRef"
       :assembly-detail-data="assemblyDetailData"
@@ -106,5 +106,6 @@ const loadAssemblyData = async () => {
   display: flex;
   align-items: flex-start;
   justify-content: center;
+  width: 100%;
 }
 </style>

@@ -29,6 +29,14 @@ const {t} = useI18n(),
     warStore = useStateOfWarStore(),
     {isLogin} = useAuthStore();
 
+const props = withDefaults(defineProps<{
+  isWidget?: boolean;
+}>(), {
+  isWidget: false,
+});
+
+const isWidgetMode = computed(() => Boolean(props.isWidget || (route.path && route.path.startsWith('/widgets/stateOfWar')) || (route.query && route.query.isWidget === 'true')));
+
 const {
   warData,
   loading,
@@ -343,7 +351,7 @@ const getZoneData = (zoneName: string) => {
 </script>
 
 <template>
-  <v-card height="200px">
+  <v-card height="200px" v-if="!isWidgetMode">
     <template v-slot:image>
       <Silk
           :speed="3"
@@ -389,7 +397,7 @@ const getZoneData = (zoneName: string) => {
       </v-container>
     </template>
   </v-card>
-  <v-divider></v-divider>
+  <v-divider v-if="!isWidgetMode"></v-divider>
 
   <div class="state-of-war-page" :style="{ '--faction-a-color': factionAColor, '--faction-b-color': factionBColor }">
     <!-- 状态条 S -->
@@ -398,7 +406,7 @@ const getZoneData = (zoneName: string) => {
       <div class="bg-black">
         <v-container class="py-5">
           <v-row align="start">
-            <v-col cols="12" lg="8">
+            <v-col cols="12" :lg="isWidgetMode ? 12 : 8">
               <!-- 阵营大概 S -->
               <v-card variant="text" class="my-n5 overflow-visible" v-if="!loading">
                 <v-row>
@@ -464,9 +472,9 @@ const getZoneData = (zoneName: string) => {
               <!-- 阵营大概 E -->
             </v-col>
 
-            <v-col cols="12" lg="1" class="hidden-sm hidden-md"></v-col>
+            <v-col cols="12" lg="1" class="hidden-sm hidden-md" v-if="!isWidgetMode"></v-col>
 
-            <v-col cols="12" lg="3" class="d-flex justify-lg-end">
+            <v-col cols="12" lg="3" class="d-flex justify-lg-end" v-if="!isWidgetMode">
               <v-btn-group>
                 <v-select
                     tile
@@ -525,7 +533,7 @@ const getZoneData = (zoneName: string) => {
         <!-- 发展历程 -->
         <v-col cols="12" lg="6">
           <AffixBoxHasTitleView>
-            <v-row class="d-flex align-center justify-space-between flex-wrap mb-3">
+            <v-row class="d-flex align-center justify-space-between flex-wrap mb-3" v-if="!isWidgetMode">
               <v-col>
                 <v-divider thickness="2" opacity=".3"></v-divider>
               </v-col>
@@ -648,7 +656,7 @@ const getZoneData = (zoneName: string) => {
         <!-- 日间贡献与全部总体对抗板块 -->
         <v-col cols="12" lg="6">
           <AffixBoxHasTitleView>
-            <v-row align="center">
+            <v-row align="center" v-if="!isWidgetMode">
               <v-col>
                 <v-divider thickness="2" opacity=".3"></v-divider>
               </v-col>

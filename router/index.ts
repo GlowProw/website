@@ -118,6 +118,7 @@ import DropPage from '@/views/drop/Index.vue'
 
 import WidgetIndexPage from '@/widgets/Index.vue';
 import WidgetAssemblyPage from '@/widgets/assembly/Index.vue';
+import WidgetMasteryPage from '@/widgets/mastery/Index.vue';
 import WidgetShipPage from '@/widgets/ship/Index.vue';
 import WidgetItemPage from '@/widgets/item/Index.vue';
 import WidgetMaterialPage from '@/widgets/material/Index.vue';
@@ -130,6 +131,7 @@ import WidgetUltimatePage from '@/widgets/ultimate/Index.vue';
 import WidgetSetPage from '@/widgets/set/Index.vue';
 import WidgetMapLocationPage from '@/widgets/mapLocation/Index.vue';
 import WidgetEmpireSkillPage from '@/widgets/empireSkills/Index.vue';
+import WidgetStateOfWarPage from '@/widgets/stateOfWar/Index.vue';
 
 import { useAuthStore } from "@/../stores/userAccountStore";
 import { useAssetsStore } from "@/../stores/assetsStore";
@@ -913,6 +915,11 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 component: WidgetAssemblyPage,
             },
             {
+                path: 'mastery/:uid',
+                name: 'MasteryWidget',
+                component: WidgetMasteryPage,
+            },
+            {
                 path: 'ship/:id',
                 name: 'ShipWidget',
                 component: WidgetShipPage,
@@ -975,6 +982,16 @@ const routes: Readonly<RouteRecordRaw[]> = [
             {
                 path: 'empireSkills/:id',
                 redirect: to => `/widgets/empireSkill/${to.params.id}`,
+            },
+            {
+                path: 'stateOfWar',
+                name: 'StateOfWarWidget',
+                component: WidgetStateOfWarPage,
+            },
+            {
+                path: 'stateOfWar/:seasonId',
+                name: 'StateOfWarSeasonWidget',
+                component: WidgetStateOfWarPage,
             }
         ]
     },

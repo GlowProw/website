@@ -29,7 +29,7 @@ let result = ref(
 
 <template>
   <v-container class="mt-10">
-    <v-card width="800px" variant="text" border class="py-5 px-5">
+    <v-card width="800px" variant="text" border class="py-16 px-5 background-flavor">
       <v-row class="d-flex align-start my-10">
         <v-col cols="4" class="text-center">
           <RhombusWidget inactiveColor="rgb(255 255 255 / 40%)" border :size="50"/>
