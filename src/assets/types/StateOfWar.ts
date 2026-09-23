@@ -2,17 +2,17 @@ export interface ZoneWarStat {
     id: string;
     name: string;
     region?: string;
-    startDate?: string;
-    lastModified?: string;
-    endDate?: string | null;
+    startDate?: number | string;
+    lastModified?: number | string;
+    endDate?: number | string | null;
     cycleNumber?: number;
-    cycleStartDate?: string;
-    cycleEndDate?: string;
+    cycleStartDate?: number | string;
+    cycleEndDate?: number | string;
     status?: "ended" | "active" | "upcoming";
     compagnieRoyale?: number;
     phoenixsTalon?: number;
     total: number;
-    updateTime?: string;
+    updateTime?: number | string;
     [key: string]: any;
 }
 
@@ -30,12 +30,12 @@ export interface WarCycleZoneDetail {
     id?: string;
     name: string;
     region?: string;
-    startDate?: string;
-    lastModified?: string;
-    endDate?: string | null;
+    startDate?: number | string;
+    lastModified?: number | string;
+    endDate?: number | string | null;
     cycleNumber?: number;
-    cycleStartDate?: string;
-    cycleEndDate?: string;
+    cycleStartDate?: number | string;
+    cycleEndDate?: number | string;
     status?: "ended" | "active" | "upcoming";
     total: number;
     compagnieRoyale?: number;
@@ -45,9 +45,9 @@ export interface WarCycleZoneDetail {
 
 export interface WarCycle {
     cycleNumber: number;
-    name: string;
-    startDate: string;
-    endDate: string;
+    name?: string;
+    startDate: number | string;
+    endDate: number | string;
     durationDays: number;
     status: "ended" | "active" | "upcoming";
     winner: string | null;
@@ -65,8 +65,8 @@ export interface WarCycle {
 
 export interface StateOfWarHistoryPoint {
     id: number;
-    createdTime: string;
-    updateTime: string;
+    createdTime: number | string;
+    updateTime: number | string;
     compagnieRoyale: number;
     phoenixsTalon: number;
     total: number;
@@ -79,8 +79,8 @@ export interface AvailableWarSeason {
     alternativeName?: string;
     nameZh?: string;
     supported?: boolean;
-    startDate?: string;
-    endDate?: string;
+    startDate?: number | string;
+    endDate?: number | string;
     cycleDays?: number;
     factions?: string[];
     factionColors?: Record<string, string>;
@@ -99,8 +99,8 @@ export interface StateOfWarData {
     factionColors?: Record<string, string>;
     isEnded?: boolean;
     status?: "ended" | "active" | "upcoming";
-    updateTime: string;
-    createdTime?: string;
+    updateTime: number | string;
+    createdTime?: number | string;
     totals: {
         compagnieRoyale: number;
         phoenixsTalon: number;

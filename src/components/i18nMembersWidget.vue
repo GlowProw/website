@@ -32,8 +32,8 @@ defineOptions({
 <template>
   <div class="d-flex ga-2">
     <span v-for="(i, index) in members" :key="index">
-      <v-avatar :size="size" v-tooltip="i?.data?.username || ''">
-        <v-img :src="i?.data?.avatarUrl"></v-img>
+      <v-avatar :size="size" v-tooltip="i?.username || i?.data?.username || ''">
+        <v-img :src="i?.avatarUrl || i?.data?.avatarUrl"></v-img>
       </v-avatar>
     </span>
   </div>

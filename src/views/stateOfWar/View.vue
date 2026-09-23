@@ -335,6 +335,15 @@ const calculatePercent = (val: number, total: number) => {
   return Math.round((val / total) * 1000) / 10;
 };
 
+const formatCycleDate = (d: any) => {
+  if (!d) return '';
+  if (typeof d === 'number' || (typeof d === 'string' && /^\d+$/.test(d))) {
+    const date = new Date(Number(d));
+    return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
+  }
+  return String(d).split('T')[0];
+};
+
 
 /**
  * 获取地区数据
@@ -408,7 +417,7 @@ const getZoneData = (zoneName: string) => {
           <v-row align="start">
             <v-col cols="12" :lg="isWidgetMode ? 12 : 8">
               <!-- 阵营大概 S -->
-              <v-card variant="text" class="my-n5 overflow-visible" v-if="!loading">
+              <v-card :width="isWidgetMode ? '50%' : ''" variant="text" class="mx-auto my-n5 overflow-visible" v-if="!loading">
                 <v-row>
                   <v-col class="position-relative d-flex align-center">
                     <div class="mr-10 d-flex align-center ga-1">
@@ -939,12 +948,14 @@ const getZoneData = (zoneName: string) => {
         <!-- 战争进程板块 -->
         <v-col cols="12">
           <AffixBoxHasTitleView>
-
             <v-row class="mb-6">
               <v-col
                   v-for="cycle in warData.progression || []"
                   :key="cycle.cycleNumber"
-                  :class="`${cycle.status == 'upcoming' ? 'opacity-20' : ''}`"
+                  :class="{
+                    'opacity-20': cycle.status == 'upcoming',
+                    'd-none': isWidgetMode && cycle.status == 'upcoming'
+                  }"
                   cols="12"
                   md="6"
                   lg="6">
@@ -961,7 +972,7 @@ const getZoneData = (zoneName: string) => {
                           <v-divider opacity=".3" thickness="2"></v-divider>
                         </v-col>
                         <v-col cols="auto" class="text-caption text-medium-emphasis">
-                          {{ cycle.startDate }} ~ {{ cycle.endDate }} ({{ cycle.durationDays }})
+                          {{ formatCycleDate(cycle.startDate) }} ~ {{ formatCycleDate(cycle.endDate) }} ({{ cycle.durationDays }})
                         </v-col>
                         <v-col cols="auto">
                           <v-chip
@@ -990,7 +1001,7 @@ const getZoneData = (zoneName: string) => {
                           <FactionIconWidget :name="factionAKey"></FactionIconWidget>
                         </v-avatar>
                       </v-col>
-                      <v-col class="text-center">
+                      <v-col class="text-center opacity-30">
                         vs
                       </v-col>
                       <v-col cols="auto"
@@ -1013,14 +1024,16 @@ const getZoneData = (zoneName: string) => {
                           <v-card
                               v-for="z in (cycle[factionAKey + 'Zones'] || [])"
                               :key="z"
+                              :border="isWidgetMode"
                               class="mb-1 position-relative rounded-lg">
                             <v-row dense>
-                              <v-col cols="3" class="d-flex align-center justify-center bg-black">
-                                <v-icon size="40" icon="mdi-earth" class="opacity-60"></v-icon>
+                              <v-col cols="2" class="d-flex align-center justify-center">
+                                <v-icon size="30" icon="mdi-earth" class="opacity-30 ml-1"></v-icon>
                               </v-col>
-                              <v-col cols="9" class="py-5 px-4">
+                              <v-divider vertical></v-divider>
+                              <v-col cols="10" class="py-5 px-4">
                                 <div class="d-flex justify-space-between align-center font-weight-bold mb-1">
-                                  <span class="text-truncate"><ZoneName :id="z"/></span>
+                                  <span class="text-truncate u"><ZoneName :id="z"/></span>
                                   <v-chip size="x-small" :color="factionAColor" variant="tonal">
                                     {{ calculatePercent(getZoneData(z)[factionAKey] || 0, getZoneData(z).total || 1) }}%
                                   </v-chip>
@@ -1060,16 +1073,18 @@ const getZoneData = (zoneName: string) => {
                           <v-card
                               v-for="z in (cycle[factionBKey + 'Zones'] || [])"
                               :key="z"
+                              :border="isWidgetMode"
                               class="mb-1 position-relative rounded-lg">
                             <v-row dense>
-                              <v-col cols="3" class="d-flex align-center justify-center bg-black">
-                                <v-icon size="40" icon="mdi-earth" class="opacity-60"></v-icon>
+                              <v-col cols="2" class="d-flex align-center justify-center">
+                                <v-icon size="30" icon="mdi-earth" class="opacity-30 ml-1"></v-icon>
                               </v-col>
-                              <v-col cols="9" class="py-5 px-4">
+                              <v-divider vertical></v-divider>
+                              <v-col cols="10" class="py-5 px-4">
                                 <div class="d-flex justify-space-between align-center font-weight-bold mb-1">
-                                  <span class="text-truncate"><ZoneName :id="z"/></span>
+                                  <span class="text-truncate u"><ZoneName :id="z"/></span>
                                   <v-chip size="x-small" :color="factionBColor" variant="tonal">
-                                    {{ calculatePercent(getZoneData(z)[factionAKey] || 0, getZoneData(z).total || 1) }}%
+                                    {{ calculatePercent(getZoneData(z)[factionBKey] || 0, getZoneData(z).total || 1) }}%
                                   </v-chip>
                                 </div>
                                 <div class="text-caption text-medium-emphasis d-flex align-center ga-1 mb-1" style="font-size: 11px;">
@@ -1077,9 +1092,9 @@ const getZoneData = (zoneName: string) => {
                                 </div>
                                 <div class="d-flex justify-space-between align-center text-caption opacity-90">
                                   <span class="font-weight-bold" :style="{ color: factionAColor }">
-                                    {{ formatCompactNumber(getZoneData(z)[factionBKey] || 0) }}
+                                    {{ formatCompactNumber(getZoneData(z)[factionAKey] || 0) }}
                                   </span>
-                                      <span class="font-weight-bold" :style="{ color: factionBColor }">
+                                  <span class="font-weight-bold" :style="{ color: factionBColor }">
                                     {{ formatCompactNumber(getZoneData(z)[factionBKey] || 0) }}
                                   </span>
                                 </div>
@@ -1087,7 +1102,7 @@ const getZoneData = (zoneName: string) => {
                                     height="4"
                                     rounded
                                     class="mt-1"
-                                    :model-value="calculatePercent(getZoneData(z)[factionBKey] || 0, getZoneData(z).total || 1)"
+                                    :model-value="calculatePercent(getZoneData(z)[factionAKey] || 0, getZoneData(z).total || 1)"
                                     :color="factionAColor"
                                     :bg-color="factionBColor"
                                     bg-opacity="1">

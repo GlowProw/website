@@ -37,6 +37,25 @@ export const useStateOfWarStore = defineStore('stateOfWar', () => {
     // 可用赛季列表
     const availableSeasons = ref<any[]>([]);
 
+    /**
+     * 安全时间解析函数（支持毫秒时间戳 number、ISO 字符串、纯日期字符串）
+     */
+    const parseDateToMs = (dateVal: any): number => {
+        if (dateVal === null || dateVal === undefined || dateVal === '') return 0;
+        if (typeof dateVal === 'number') return isNaN(dateVal) ? 0 : dateVal;
+        if (typeof dateVal === 'string') {
+            if (/^\d+$/.test(dateVal)) {
+                const num = Number(dateVal);
+                return isNaN(num) ? 0 : num;
+            }
+            const str = dateVal.includes('T') ? dateVal : dateVal + 'T06:00:00Z';
+            const t = new Date(str).getTime();
+            return isNaN(t) ? 0 : t;
+        }
+        const t = new Date(dateVal).getTime();
+        return isNaN(t) ? 0 : t;
+    };
+
     // 计算属性
     const factions = computed(() => warData.value?.factions);
     const factionAKey = computed(() => warData.value?.factions?.[0] || '');
@@ -62,7 +81,8 @@ export const useStateOfWarStore = defineStore('stateOfWar', () => {
             return true;
         }
         if (curSeason?.endDate) {
-            return new Date() >= new Date(curSeason.endDate + 'T23:59:59Z');
+            const endMs = parseDateToMs(curSeason.endDate);
+            return endMs > 0 && Date.now() >= endMs;
         }
         return false;
     });
@@ -113,11 +133,11 @@ export const useStateOfWarStore = defineStore('stateOfWar', () => {
         if (zone.status === 'ended') return true;
         const now = Date.now();
         // 排除未来的战区
-        if (zone.startDate && new Date(zone.startDate).getTime() > now) {
+        if (zone.startDate && parseDateToMs(zone.startDate) > now) {
             return false;
         }
         if (zone.cycleStartDate) {
-            const s = new Date(zone.cycleStartDate.includes('T') ? zone.cycleStartDate : zone.cycleStartDate + 'T06:00:00Z').getTime();
+            const s = parseDateToMs(zone.cycleStartDate);
             if (s > now) return false;
         }
         // 根据战期序号：cycleNumber 小于当前活跃的 cycleNumber
@@ -126,7 +146,7 @@ export const useStateOfWarStore = defineStore('stateOfWar', () => {
         }
         // 若无 activeCycle 匹配，检查战期日期 (以 06:00 UTC / 14:00 北京时间为基准)
         if (zone.cycleEndDate) {
-            const endMs = new Date(zone.cycleEndDate.includes('T') ? zone.cycleEndDate : zone.cycleEndDate + 'T06:00:00Z').getTime();
+            const endMs = parseDateToMs(zone.cycleEndDate);
             if (endMs <= now && !activeCycle) {
                 return true;
             }
@@ -152,8 +172,8 @@ export const useStateOfWarStore = defineStore('stateOfWar', () => {
         if (isZoneEnded(zone) || isZoneUpcoming(zone)) return false;
         const now = Date.now();
         if (zone.cycleStartDate && zone.cycleEndDate) {
-            const s = new Date(zone.cycleStartDate.includes('T') ? zone.cycleStartDate : zone.cycleStartDate + 'T06:00:00Z').getTime();
-            const e = new Date(zone.cycleEndDate.includes('T') ? zone.cycleEndDate : zone.cycleEndDate + 'T06:00:00Z').getTime();
+            const s = parseDateToMs(zone.cycleStartDate);
+            const e = parseDateToMs(zone.cycleEndDate);
             return s <= now && now < e;
         }
         return false;
@@ -175,7 +195,7 @@ export const useStateOfWarStore = defineStore('stateOfWar', () => {
         if (zone.status === 'active' || zone.status === 'ended') return false;
         const now = Date.now();
         if (zone.cycleStartDate) {
-            const s = new Date(zone.cycleStartDate.includes('T') ? zone.cycleStartDate : zone.cycleStartDate + 'T06:00:00Z').getTime();
+            const s = parseDateToMs(zone.cycleStartDate);
             if (s > now) return true;
         }
         return false;
