@@ -59,6 +59,25 @@ export default class Http extends Api_config {
             }
             return config;
         });
+
+        // 统一响应拦截器，抓取 HTTP 429 速率限制
+        this.HTTP.interceptors.response.use(
+            (response) => response,
+            (error) => {
+                if (error?.response?.status === 429) {
+                    if (!error.response.data || typeof error.response.data !== 'object') {
+                        error.response.data = {
+                            error: 1,
+                            code: 'request.rateLimited',
+                            message: 'Too many requests, please slow down.'
+                        };
+                    } else if (!error.response.data.code) {
+                        error.response.data.code = 'request.rateLimited';
+                    }
+                }
+                return Promise.reject(error);
+            }
+        );
     }
 
     get location() {

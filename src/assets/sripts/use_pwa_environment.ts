@@ -113,7 +113,7 @@ export function usePWAEnvironment() {
         updateStatus()
         const cleanup = setupListeners()
 
-        appStore.isPwa = isPWA.value
+        appStore.isPwaInstalled = isPWA.value
 
         onUnmounted(() => {
             cleanup()

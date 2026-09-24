@@ -15,9 +15,11 @@ const formatMessage = (msg: any): string => {
 export const handleApiError = (error: any): never => {
     console.error(error)
     const errorData = error.response?.data;
+    const isRateLimited = error.response?.status === 429 || errorData?.code === 'request.rateLimited' || errorData?.code === 'rate.limit';
+    const code = isRateLimited ? 'request.rateLimited' : (errorData?.code || 'error');
     throw new ApiError(
-        formatMessage(errorData?.message || error.message),
-        errorData?.code || 'error',
+        formatMessage(errorData?.message || (isRateLimited ? 'Too many requests, please slow down.' : error.message)),
+        code,
         errorData?.error || 1,
         error.response
     )

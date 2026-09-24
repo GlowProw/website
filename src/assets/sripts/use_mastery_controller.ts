@@ -208,8 +208,8 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
       const key = `snb.masterys.${nodeKey}.name`;
       if (te(key)) return t(key);
     }
-    if (node?.name) return node.name;
-    if (node?.label) return node.label;
+    if ((node as any)?.name) return (node as any).name;
+    if ((node as any)?.label) return (node as any).label;
     return skillName || resolvedId || skillKey || nodeKey || '';
   }
 
@@ -234,7 +234,7 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
       const desc = getI18nDesc(`snb.masterys.${nodeKey}.description`);
       if (desc) return desc;
     }
-    if (node?.description) return node.description;
+    if ((node as any)?.description) return (node as any).description;
 
     // 如果没有直接匹配到文本描述，尝试根据 node.effects 或 skillsDef[resolvedId].effects 动态渲染
     const effects = (node as any)?.effects || activeTree.value?.skills?.[resolvedId]?.effects;

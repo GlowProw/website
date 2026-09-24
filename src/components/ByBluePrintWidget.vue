@@ -110,7 +110,7 @@ defineOptions({
     <slot></slot>
   </p>
   <v-row no-gutters class="ga-2" v-if="blueprint.length > 0">
-    <BlueprintTypeIcon :data="data?.type" :size="36"></BlueprintTypeIcon>
+    <BlueprintTypeIcon :data="(data as any)?.type" :size="36"></BlueprintTypeIcon>
     <v-col>
       <v-chip-group :column="true">
         <v-chip v-for="(o,oIndex) in blueprint"

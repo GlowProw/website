@@ -54,7 +54,7 @@ let itemsCardData = ref({
       return Math.max(10, Math.min(18, value));
     }),
     itemRarity = computed(() => {
-      if (i.value.type == 'shipUpgrade')
+      if ((i.value as any)?.type == 'shipUpgrade')
         return "legendary"
       return i.value?.rarity || ''
     }),
@@ -63,7 +63,7 @@ let itemsCardData = ref({
       set: (value) => appStore.toggleItemOpenNewWindow(value)
     }),
     isUpgradeMod = computed(() => {
-      if (i.value.type == 'shipUpgrade') {
+      if ((i.value as any)?.type == 'shipUpgrade') {
         return true
       }
       return false

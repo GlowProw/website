@@ -60,56 +60,6 @@
     "manualCloseHint": "點擊右上角 ✕ 按鈕關閉（此通知無倒計時）",
     "stackTrace": "錯誤詳情 / 堆疊"
   },
-  "errorCodes": {
-    "gp-0000000001": {
-      "title": "網路連接異常",
-      "description": "用戶端無法連接網路或請求傳送失敗。"
-    },
-    "gp-0000000002": {
-      "title": "HTTP 4xx 用戶端請求錯誤",
-      "description": "伺服器拒絕了請求，請求路徑不存在或驗證失敗。"
-    },
-    "gp-0000000003": {
-      "title": "HTTP 5xx 服務端回應異常",
-      "description": "後端伺服器在處理請求時遭遇內部故障。"
-    },
-    "gp-0000000004": {
-      "title": "JS 未擷取執行期例外",
-      "description": "前端 JavaScript 程式碼執行時觸發了未擷取的 Error。"
-    },
-    "gp-0000000005": {
-      "title": "Promise 未處理拒絕",
-      "description": "非同步任務 Promise 發生了 reject 但未能被 catch 擷取。"
-    },
-    "gp-0000000006": {
-      "title": "元件渲染或生命週期錯誤",
-      "description": "程式內部元件在 mount、update 或 render 過程中引發例外。"
-    },
-    "gp-0000000007": {
-      "title": "路由導航跳轉失敗",
-      "description": "Vue Router 路由導航鉤子例外或動態載入元件超時。"
-    },
-    "gp-0000000008": {
-      "title": "本機儲存讀寫異常",
-      "description": "localStorage / sessionStorage 存取受限或容量耗盡。"
-    },
-    "gp-0000000009": {
-      "title": "Web Worker 後台任務異常",
-      "description": "檢索或主進程 WebWorker 通訊處理資料時報錯。"
-    },
-    "gp-0000000010": {
-      "title": "靜態資源載入失敗",
-      "description": "圖片、樣式表或 CDN 靜態資源未能成功載入。"
-    },
-    "gp-0000000011": {
-      "title": "資料結構解析錯誤",
-      "description": "對 JSON 或外部格式資料進行解包反序列化時結構不符合。"
-    },
-    "gp-0000000099": {
-      "title": "未定義通用應用例外",
-      "description": "遇到非明確分類的系統應用運作錯誤。"
-    }
-  },
   "about": {
     "title": "关于",
     "disclaimer": "閃耀船首程序以及附屬遵循不同協議，主程序以及附屬不隸屬於碧海黑帆或Ubisoft集團。",
@@ -177,6 +127,56 @@
     }
   },
   "basic": {
+    "errorCodes": {
+      "gp-0000000001": {
+        "title": "網路連接異常",
+        "description": "用戶端無法連接網路或請求傳送失敗。"
+      },
+      "gp-0000000002": {
+        "title": "HTTP 4xx 用戶端請求錯誤",
+        "description": "伺服器拒絕了請求，請求路徑不存在或驗證失敗。"
+      },
+      "gp-0000000003": {
+        "title": "HTTP 5xx 服務端回應異常",
+        "description": "後端伺服器在處理請求時遭遇內部故障。"
+      },
+      "gp-0000000004": {
+        "title": "JS 未擷取執行期例外",
+        "description": "前端 JavaScript 程式碼執行時觸發了未擷取的 Error。"
+      },
+      "gp-0000000005": {
+        "title": "Promise 未處理拒絕",
+        "description": "非同步任務 Promise 發生了 reject 但未能被 catch 擷取。"
+      },
+      "gp-0000000006": {
+        "title": "元件渲染或生命週期錯誤",
+        "description": "程式內部元件在 mount、update 或 render 過程中引發例外。"
+      },
+      "gp-0000000007": {
+        "title": "路由導航跳轉失敗",
+        "description": "路由導航鉤子例外或動態載入元件超時。"
+      },
+      "gp-0000000008": {
+        "title": "本機儲存讀寫異常",
+        "description": "localStorage / sessionStorage 存取受限或容量耗盡。"
+      },
+      "gp-0000000009": {
+        "title": "Web Worker 後台任務異常",
+        "description": "檢索或主進程 WebWorker 通訊處理資料時報錯。"
+      },
+      "gp-0000000010": {
+        "title": "靜態資源載入失敗",
+        "description": "圖片、樣式表或 CDN 靜態資源未能成功載入。"
+      },
+      "gp-0000000011": {
+        "title": "資料結構解析錯誤",
+        "description": "對 JSON 或外部格式資料進行解包反序列化時結構不符合。"
+      },
+      "gp-0000000099": {
+        "title": "未定義通用應用例外",
+        "description": "遇到非明確分類的系統應用運作錯誤。"
+      }
+    },
     "button": {
       "cancel": "取消",
       "commit": "提交",
@@ -219,6 +219,169 @@
       "super": "超级管理员"
     },
     "tips": {
+      "admin": {
+        "rootRequired": "需要超級管理員權限",
+        "bad": "請求參數錯誤",
+        "wheel": {
+          "bad": "輪盤請求參數錯誤",
+          "notFound": "未找到指定輪盤",
+          "deleted": "輪盤已刪除",
+          "restored": "輪盤已恢復",
+          "hardDeleted": "輪盤已物理刪除",
+          "ok": "操作成功"
+        },
+        "wheels": {
+          "ok": "獲取輪盤列表成功"
+        },
+        "warehouse": {
+          "bad": "倉庫請求參數錯誤",
+          "notFound": "未找到指定倉庫",
+          "deleted": "倉庫已刪除",
+          "restored": "倉庫已恢復",
+          "hardDeleted": "倉庫已物理刪除",
+          "ok": "操作成功"
+        },
+        "warehouses": {
+          "ok": "獲取倉庫列表成功"
+        },
+        "assembly": {
+          "bad": "配裝請求參數錯誤",
+          "notFound": "未找到指定配裝",
+          "deleted": "配裝已刪除",
+          "restored": "配裝已恢復",
+          "hardDeleted": "配裝已物理刪除",
+          "ok": "操作成功"
+        },
+        "assemblies": {
+          "ok": "獲取配裝列表成功"
+        },
+        "mastery": {
+          "bad": "專精請求參數錯誤",
+          "notFound": "未找到指定專精",
+          "deleted": "專精已刪除",
+          "restored": "專精已恢復",
+          "hardDeleted": "專精已物理刪除",
+          "ok": "操作成功"
+        },
+        "masterys": {
+          "bad": "專精請求參數錯誤",
+          "ok": "獲取專精列表成功"
+        },
+        "order": {
+          "bad": "訂單請求參數錯誤",
+          "notFound": "未找到指定訂單",
+          "deleted": "訂單已刪除",
+          "restored": "訂單已恢復",
+          "hardDeleted": "訂單已物理刪除",
+          "linked": "訂單已補綁到用戶",
+          "ok": "操作成功"
+        },
+        "orders": {
+          "bad": "訂單請求參數錯誤",
+          "ok": "獲取訂單列表成功"
+        },
+        "user": {
+          "bad": "用戶管理請求參數錯誤",
+          "notFound": "未找到指定用戶",
+          "cannotCreateRoot": "無權創建根管理員賬戶",
+          "cannotDeleteSelf": "不能刪除當前登錄的管理員賬戶",
+          "tokenRoleRestricted": "僅開發組、機器人或根管理員身份可生成令牌",
+          "invalidDuration": "無效的令牌有效期參數",
+          "tokenGenerated": "專用令牌生成成功",
+          "created": "用戶創建成功",
+          "updated": "用戶資訊已更新",
+          "deleted": "用戶已刪除",
+          "restored": "用戶已恢復",
+          "hardDeleted": "用戶已物理刪除",
+          "ok": "操作成功"
+        },
+        "users": {
+          "bad": "用戶請求參數錯誤",
+          "ok": "獲取用戶列表成功"
+        },
+        "comment": {
+          "bad": "評論管理請求參數錯誤",
+          "notFound": "未找到指定評論",
+          "updated": "評論內容已更新",
+          "deleted": "評論已刪除",
+          "restored": "評論已恢復",
+          "hardDeleted": "評論已物理刪除",
+          "ok": "操作成功"
+        },
+        "comments": {
+          "bad": "評論請求參數錯誤",
+          "ok": "獲取評論列表成功"
+        },
+        "reply": {
+          "bad": "回覆管理請求參數錯誤",
+          "notFound": "未找到指定回覆",
+          "updated": "回覆內容已更新",
+          "deleted": "回覆已刪除",
+          "restored": "回覆已恢復",
+          "commentDeleted": "所屬評論已被刪除，無法恢復回覆",
+          "hardDeleted": "回覆已物理刪除",
+          "ok": "操作成功"
+        },
+        "replies": {
+          "bad": "回覆請求參數錯誤",
+          "ok": "獲取回覆列表成功"
+        },
+        "teamup": {
+          "bad": "組隊管理請求參數錯誤",
+          "notFound": "未找到指定組隊條目",
+          "deleted": "組隊條目已強制下線",
+          "ok": "操作成功"
+        },
+        "teamups": {
+          "bad": "組隊請求參數錯誤",
+          "ok": "獲取組隊列表成功"
+        },
+        "privilege": {
+          "bad": "權限管理請求參數錯誤",
+          "notFound": "未找到指定權限記錄",
+          "hardDeleted": "權限記錄已物理刪除",
+          "ok": "操作成功"
+        },
+        "privileges": {
+          "bad": "權限請求參數錯誤",
+          "ok": "獲取權限列表成功"
+        },
+        "drops": {
+          "bad": "掉寶管理請求參數錯誤"
+        },
+        "drop": {
+          "bad": "掉寶管理請求参数錯誤"
+        },
+        "stateOfWar": {
+          "bad": "戰爭陣營請求參數錯誤",
+          "notFound": "未找到指定戰事歷史記錄",
+          "error": "獲取戰事數據失敗",
+          "seasons": {
+            "ok": "獲取賽季列表成功"
+          },
+          "latest": {
+            "ok": "獲取最新戰事數據成功"
+          },
+          "history": {
+            "ok": "獲取戰事歷史記錄成功"
+          },
+          "detail": {
+            "ok": "獲取戰事快照詳情成功"
+          }
+        },
+        "like": {
+          "bad": "點讚管理請求參數錯誤",
+          "notFound": "未找到指定點讚記錄",
+          "deleted": "點讚記錄已刪除",
+          "restored": "點讚記錄已恢復",
+          "hardDeleted": "點讚記錄已物理刪除",
+          "ok": "操作成功"
+        },
+        "likes": {
+          "bad": "點讚請求參數錯誤",
+          "ok": "獲取點讚列表成功"
+        }
+      },
       "error": "应用程序错误: {content}",
       "comment": {
         "ok": "发布成功",
@@ -370,6 +533,19 @@
         "wrong": "登陆信息错误",
         "expired": "用户身份过期,请重新登陆",
         "accountIncorrect": "登陆信息错误"
+      },
+      "changePassword": {
+        "success": "密碼修改成功",
+        "invalid": "原密碼不正確",
+        "notMatch": "原密碼不正確",
+        "bad": "密碼格式不符合要求",
+        "error": "修改密碼失敗: {context}"
+      },
+      "stateOfWar": {
+        "synced": "戰事數據同步成功",
+        "syncFailed": "戰事數據同步失敗",
+        "refreshed": "戰況數據已刷新",
+        "refreshFailed": "刷新戰況數據失敗"
       }
     },
     "rules": {

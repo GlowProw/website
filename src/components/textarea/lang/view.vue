@@ -1,8 +1,8 @@
 <template>
   <node-view-wrapper class="lang-view-wrapper " :data-lang="node.attrs.lang">
-    <span class="lang-badge text-caption opacity-20" contenteditable="false" v-if="editor.isEditable || props.forceShowAllLang">&lt;{{ langName }}&gt;</span>
+    <span class="lang-badge text-caption opacity-20" contenteditable="false" v-if="editor.isEditable || (props as any).forceShowAllLang">&lt;{{ langName }}&gt;</span>
     <node-view-content class="lang-content" />
-    <span class="lang-badge text-caption opacity-20" contenteditable="false" v-if="editor.isEditable || props.forceShowAllLang">&lt;/{{ langName }}&gt;</span>
+    <span class="lang-badge text-caption opacity-20" contenteditable="false" v-if="editor.isEditable || (props as any).forceShowAllLang">&lt;/{{ langName }}&gt;</span>
   </node-view-wrapper>
 </template>
 

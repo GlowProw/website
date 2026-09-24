@@ -8,7 +8,7 @@ import {computed, nextTick, onMounted, ref} from "vue";
 import {useAssetsStore} from "~/stores/assetsStore";
 
 const props = withDefaults(
-        defineProps<{ id: string, iconType?: "aggressivity"| "armor", size?: string | number, isBorder?: boolean }>(),
+        defineProps<{ id: string, iconType?: "aggressivity"| "armor", size?: string | number, isBorder?: boolean, padding?: any, margin?: any }>(),
         {iconType: "armor", isBorder: true}
     ),
     damagesAggressivityImages = import.meta.glob(`@glow-prow-assets/damages/aggressivity/*.*`, {eager: true}),

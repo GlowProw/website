@@ -60,56 +60,6 @@
     "manualCloseHint": "Click ✕ button to close (No auto-timer)",
     "stackTrace": "Error Details / Stack Trace"
   },
-  "errorCodes": {
-    "gp-0000000001": {
-      "title": "Network Connection Exception",
-      "description": "Client cannot connect to the network or the request failed to send."
-    },
-    "gp-0000000002": {
-      "title": "HTTP 4xx Client Request Error",
-      "description": "Server refused the request, path does not exist or authentication failed."
-    },
-    "gp-0000000003": {
-      "title": "HTTP 5xx Server Response Error",
-      "description": "Backend server encountered an internal failure while processing request."
-    },
-    "gp-0000000004": {
-      "title": "Uncaught JS Runtime Exception",
-      "description": "Frontend JavaScript execution triggered an uncaught Error."
-    },
-    "gp-0000000005": {
-      "title": "Unhandled Promise Rejection",
-      "description": "Async Promise rejected without being caught."
-    },
-    "gp-0000000006": {
-      "title": "Component Lifecycle Error",
-      "description": "Component raised an exception during mount, update, or render."
-    },
-    "gp-0000000007": {
-      "title": "Router Navigation Failed",
-      "description": "Vue Router navigation guard error or lazy component timeout."
-    },
-    "gp-0000000008": {
-      "title": "Local Storage Access Error",
-      "description": "localStorage / sessionStorage access denied or quota exceeded."
-    },
-    "gp-0000000009": {
-      "title": "Web Worker Task Exception",
-      "description": "Error during search or main thread WebWorker data communication."
-    },
-    "gp-0000000010": {
-      "title": "Static Resource Load Failure",
-      "description": "Image, stylesheet or CDN static asset failed to load."
-    },
-    "gp-0000000011": {
-      "title": "Data Parse Error",
-      "description": "Structure mismatch when deserializing JSON or external data."
-    },
-    "gp-0000000099": {
-      "title": "Undefined General Application Exception",
-      "description": "Encountered unclassified system application runtime error."
-    }
-  },
   "about": {
     "title": "About",
     "disclaimer": "The Shining Prow application and its affiliates follow different agreements; the main program and its affiliates are not affiliated with Skull and Bones or the Ubisoft Group.",
@@ -175,6 +125,56 @@
     }
   },
   "basic": {
+    "errorCodes": {
+      "gp-0000000001": {
+        "title": "Network Connection Exception",
+        "description": "Client cannot connect to the network or the request failed to send."
+      },
+      "gp-0000000002": {
+        "title": "HTTP 4xx Client Request Error",
+        "description": "Server refused the request, path does not exist or authentication failed."
+      },
+      "gp-0000000003": {
+        "title": "HTTP 5xx Server Response Error",
+        "description": "Backend server encountered an internal failure while processing request."
+      },
+      "gp-0000000004": {
+        "title": "Uncaught JS Runtime Exception",
+        "description": "Frontend JavaScript execution triggered an uncaught Error."
+      },
+      "gp-0000000005": {
+        "title": "Unhandled Promise Rejection",
+        "description": "Async Promise rejected without being caught."
+      },
+      "gp-0000000006": {
+        "title": "Component Lifecycle Error",
+        "description": "Component raised an exception during mount, update, or render."
+      },
+      "gp-0000000007": {
+        "title": "Router Navigation Failed",
+        "description": "Navigation guard error or lazy component timeout."
+      },
+      "gp-0000000008": {
+        "title": "Local Storage Access Error",
+        "description": "localStorage / sessionStorage access denied or quota exceeded."
+      },
+      "gp-0000000009": {
+        "title": "Web Worker Task Exception",
+        "description": "Error during search or main thread WebWorker data communication."
+      },
+      "gp-0000000010": {
+        "title": "Static Resource Load Failure",
+        "description": "Image, stylesheet or CDN static asset failed to load."
+      },
+      "gp-0000000011": {
+        "title": "Data Parse Error",
+        "description": "Structure mismatch when deserializing JSON or external data."
+      },
+      "gp-0000000099": {
+        "title": "Undefined General Application Exception",
+        "description": "Encountered unclassified system application runtime error."
+      }
+    },
     "button": {
       "cancel": "Cancel",
       "commit": "Commit",
@@ -220,6 +220,169 @@
       "actionLocked": "Operation is locked, please try again tomorrow.",
       "notConfigured": "System quota exceeded, please contact the administrator.",
       "error": "Application Error: {content}",
+      "admin": {
+        "rootRequired": "Root administrator privilege required",
+        "bad": "Invalid request parameters",
+        "wheel": {
+          "bad": "Invalid wheel request parameters",
+          "notFound": "Wheel not found",
+          "deleted": "Wheel deleted",
+          "restored": "Wheel restored",
+          "hardDeleted": "Wheel permanently deleted",
+          "ok": "Operation successful"
+        },
+        "wheels": {
+          "ok": "Wheels list retrieved successfully"
+        },
+        "warehouse": {
+          "bad": "Invalid warehouse request parameters",
+          "notFound": "Warehouse not found",
+          "deleted": "Warehouse deleted",
+          "restored": "Warehouse restored",
+          "hardDeleted": "Warehouse permanently deleted",
+          "ok": "Operation successful"
+        },
+        "warehouses": {
+          "ok": "Warehouses list retrieved successfully"
+        },
+        "assembly": {
+          "bad": "Invalid assembly request parameters",
+          "notFound": "Assembly not found",
+          "deleted": "Assembly deleted",
+          "restored": "Assembly restored",
+          "hardDeleted": "Assembly permanently deleted",
+          "ok": "Operation successful"
+        },
+        "assemblies": {
+          "ok": "Assemblies list retrieved successfully"
+        },
+        "mastery": {
+          "bad": "Invalid mastery request parameters",
+          "notFound": "Mastery not found",
+          "deleted": "Mastery deleted",
+          "restored": "Mastery restored",
+          "hardDeleted": "Mastery permanently deleted",
+          "ok": "Operation successful"
+        },
+        "masterys": {
+          "bad": "Invalid mastery request parameters",
+          "ok": "Masteries list retrieved successfully"
+        },
+        "order": {
+          "bad": "Invalid order request parameters",
+          "notFound": "Order not found",
+          "deleted": "Order deleted",
+          "restored": "Order restored",
+          "hardDeleted": "Order permanently deleted",
+          "linked": "Order linked to user",
+          "ok": "Operation successful"
+        },
+        "orders": {
+          "bad": "Invalid order request parameters",
+          "ok": "Orders list retrieved successfully"
+        },
+        "user": {
+          "bad": "Invalid user request parameters",
+          "notFound": "User not found",
+          "cannotCreateRoot": "Cannot create root administrator account",
+          "cannotDeleteSelf": "Cannot delete current logged in administrator account",
+          "tokenRoleRestricted": "Only dev, bot, or root roles can generate tokens",
+          "invalidDuration": "Invalid token duration parameter",
+          "tokenGenerated": "Token generated successfully",
+          "created": "User created successfully",
+          "updated": "User updated successfully",
+          "deleted": "User deleted",
+          "restored": "User restored",
+          "hardDeleted": "User permanently deleted",
+          "ok": "Operation successful"
+        },
+        "users": {
+          "bad": "Invalid user request parameters",
+          "ok": "Users list retrieved successfully"
+        },
+        "comment": {
+          "bad": "Invalid comment request parameters",
+          "notFound": "Comment not found",
+          "updated": "Comment content updated",
+          "deleted": "Comment deleted",
+          "restored": "Comment restored",
+          "hardDeleted": "Comment permanently deleted",
+          "ok": "Operation successful"
+        },
+        "comments": {
+          "bad": "Invalid comment request parameters",
+          "ok": "Comments list retrieved successfully"
+        },
+        "reply": {
+          "bad": "Invalid reply request parameters",
+          "notFound": "Reply not found",
+          "updated": "Reply content updated",
+          "deleted": "Reply deleted",
+          "restored": "Reply restored",
+          "commentDeleted": "Parent comment deleted, cannot restore reply",
+          "hardDeleted": "Reply permanently deleted",
+          "ok": "Operation successful"
+        },
+        "replies": {
+          "bad": "Invalid reply request parameters",
+          "ok": "Replies list retrieved successfully"
+        },
+        "teamup": {
+          "bad": "Invalid teamup request parameters",
+          "notFound": "Teamup entry not found",
+          "deleted": "Teamup entry force closed",
+          "ok": "Operation successful"
+        },
+        "teamups": {
+          "bad": "Invalid teamup request parameters",
+          "ok": "Teamups list retrieved successfully"
+        },
+        "privilege": {
+          "bad": "Invalid privilege request parameters",
+          "notFound": "Privilege record not found",
+          "hardDeleted": "Privilege record permanently deleted",
+          "ok": "Operation successful"
+        },
+        "privileges": {
+          "bad": "Invalid privilege request parameters",
+          "ok": "Privileges list retrieved successfully"
+        },
+        "drops": {
+          "bad": "Invalid drop request parameters"
+        },
+        "drop": {
+          "bad": "Invalid drop request parameters"
+        },
+        "stateOfWar": {
+          "bad": "Invalid State of War request parameters",
+          "notFound": "State of War record not found",
+          "error": "Failed to fetch State of War data",
+          "seasons": {
+            "ok": "Seasons list retrieved successfully"
+          },
+          "latest": {
+            "ok": "Latest State of War data retrieved successfully"
+          },
+          "history": {
+            "ok": "State of War history retrieved successfully"
+          },
+          "detail": {
+            "ok": "State of War snapshot detail retrieved successfully"
+          }
+        },
+        "like": {
+          "bad": "Invalid like request parameters",
+          "notFound": "Like record not found",
+          "deleted": "Like record deleted",
+          "restored": "Like record restored",
+          "hardDeleted": "Like record permanently deleted",
+          "ok": "Operation successful"
+        },
+        "likes": {
+          "bad": "Invalid like request parameters",
+          "ok": "Likes list retrieved successfully"
+        }
+      },
       "comment": {
         "ok": "Published Successfully",
         "bad": "Publish format error, please check if the content meets the requirements",
@@ -385,6 +548,19 @@
         "success": "Retrieved successfully",
         "bad": "Information error: {context}",
         "notFound": "User not found"
+      },
+      "changePassword": {
+        "success": "Password changed successfully",
+        "invalid": "Current password is incorrect",
+        "notMatch": "Current password is incorrect",
+        "bad": "Password format does not meet requirements",
+        "error": "Failed to change password: {context}"
+      },
+      "stateOfWar": {
+        "synced": "State of War synchronized successfully",
+        "syncFailed": "State of War synchronization failed",
+        "refreshed": "State of War data refreshed",
+        "refreshFailed": "Failed to refresh State of War data"
       }
     },
     "rules": {

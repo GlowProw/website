@@ -181,7 +181,7 @@ defineExpose({
     <div class="mastery-canvas-box">
       <MasteryView
           :nodes="localNodes"
-          :selected-node="selectedNode"
+          :selected-node="selectedNode as any"
           :selected-node-ids="selectedNodeIds"
           :regular-points-spent="regularPointsSpent"
           :scale-extent="[svgScaleExtent[0], svgScaleExtent[1]]"

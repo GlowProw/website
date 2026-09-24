@@ -3,17 +3,19 @@ import {onMounted, ref, Ref} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useNoticeStore} from "~/stores/noticeStore";
+import {useDisplay} from "vuetify/framework";
 import {apis} from "@/assets/sripts";
-import {ApiError} from "@/assets/types/Api";
 import {useRules} from "@/assets/sripts/rules_user"
 import {ResetPasswordParams} from "@/assets/types/User";
 import {handleApiError} from "@/assets/sripts/error_handler";
+import Silk from "@/components/Silk.vue";
 
 const router = useRouter(),
     route = useRoute(),
     notice = useNoticeStore(),
     {t} = useI18n(),
-    rules = useRules()
+    rules = useRules(),
+    {mobile, sm} = useDisplay()
 
 let loading: Ref<boolean> = ref(false),
     form = ref<ResetPasswordParams>({
@@ -56,72 +58,89 @@ const onReset = async () => {
 </script>
 
 <template>
-  <div class="background-img-flavor">
-    <v-container class="mt-10 reset-password">
-      <v-card dense flat class="mt-10 reset-card card-enlargement-mask-flavor">
-        <h1 class="pl-8 pt-5 pb-5 background-flavor">{{ t('resetPassword.title') }}</h1>
+  <div>
+    <div class="reset-window">
+      <v-row dense class="h-screen">
+        <v-col cols="12" lg="7" :class="{'d-none': mobile || sm}" class="position-relative overflow-hidden">
+          <Silk
+              :speed="3"
+              :scale=".7"
+              :color="'#1c1c1c'"
+              :noise-intensity="0.1"
+              :rotation="-.2"
+              class="bg-black">
+          </Silk>
+        </v-col>
+        <v-col cols="12" lg="5" class="bg-black">
+          <v-card dense variant="text" class="reset-card mt-16 px-8">
+            <v-breadcrumbs class="ml-n3">
+              <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
+              <v-breadcrumbs-divider></v-breadcrumbs-divider>
+              <v-breadcrumbs-item>{{ t('resetPassword.title') }}</v-breadcrumbs-item>
+            </v-breadcrumbs>
 
-        <p class="px-8 mt-5 text-body-2 text-grey">
-          {{ t('resetPassword.description') }}
-        </p>
+            <p class="py-2 text-body-2 text-grey">
+              {{ t('resetPassword.description') }}
+            </p>
 
-        <v-card border class="bg-black mx-8 my-3">
-          <v-row class="pa-8">
-            <v-col>
-              <v-text-field v-model="form.username"
-                            variant="solo-filled"
-                            :rules="rules.username"
-                            prepend-inner-icon="mdi-account"
-                            :label="t('resetPassword.form.username')"
-                            class="mb-2"></v-text-field>
+            <v-row class="py-2">
+              <v-col>
+                <v-text-field v-model="form.username"
+                              variant="solo-filled"
+                              :rules="rules.username"
+                              name="username"
+                              prepend-inner-icon="mdi-account-key"
+                              :label="t('resetPassword.form.username')"
+                              class="mb-2"></v-text-field>
 
-              <v-text-field v-model="form.code"
-                            variant="solo-filled"
-                            :rules="rules.code"
-                            prepend-inner-icon="mdi-numeric-6-box"
-                            :label="t('resetPassword.form.code')"
-                            max-length="6"
-                            class="mb-2"></v-text-field>
+                <v-text-field v-model="form.code"
+                              variant="solo-filled"
+                              :rules="rules.code"
+                              name="code"
+                              prepend-inner-icon="mdi-numeric-6-box"
+                              :label="t('resetPassword.form.code')"
+                              maxlength="6"
+                              class="mb-2"></v-text-field>
 
-              <v-text-field v-model="form.newPassword"
-                            :rules="rules.password"
-                            :type="passwordVisible ? 'text' : 'password'"
-                            variant="solo-filled"
-                            prepend-inner-icon="mdi-lock-reset"
-                            :label="t('resetPassword.form.newPassword')"
-                            clearable>
-                <template v-slot:append v-if="form.newPassword">
-                  <v-checkbox hide-details density="compact" v-model="passwordVisible"></v-checkbox>
-                </template>
-              </v-text-field>
-            </v-col>
-          </v-row>
-        </v-card>
+                <v-text-field v-model="form.newPassword"
+                              :rules="rules.password"
+                              name="newPassword"
+                              :type="passwordVisible ? 'text' : 'password'"
+                              variant="solo-filled"
+                              prepend-inner-icon="mdi-lock-reset"
+                              :label="t('resetPassword.form.newPassword')">
+                  <template v-slot:append-inner>
+                    <v-icon
+                      :icon="passwordVisible ? 'mdi-eye-off' : 'mdi-eye'"
+                      class="cursor-pointer"
+                      @click="passwordVisible = !passwordVisible"
+                    />
+                  </template>
+                </v-text-field>
+              </v-col>
+            </v-row>
 
-        <v-card-actions class="mt-5 mx-6 mb-8">
-          <v-btn class="bg-amber" @click="onReset" size="50" block :loading="loading"
-                 :disabled="!form.username || form.code.length !== 6 || !form.newPassword" variant="flat">
-            {{ t('resetPassword.form.submit') }}
-          </v-btn>
+            <div class="py-2">
+              <v-btn class="bg-amber" @click="onReset" size="50" block :loading="loading"
+                     :disabled="!form.username || form.code.length !== 6 || !form.newPassword" variant="flat">
+                {{ t('resetPassword.form.submit') }}
+              </v-btn>
 
-          <v-btn class="mt-2" to="/account/signin" size="50" block variant="text">
-            {{ t('basic.button.cancel') }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-container>
+              <v-btn class="mt-2" to="/account/signin" size="50" block variant="text">
+                {{ t('basic.button.cancel') }}
+              </v-btn>
+            </div>
+          </v-card>
+        </v-col>
+      </v-row>
+    </div>
   </div>
 </template>
 
 <style scoped lang="less">
-.reset-password {
-  h1 {
-    color: var(--main-color);
-  }
+@import "@/assets/styles/link";
 
-  .reset-card {
-    max-width: 500px;
-    margin: 30px auto;
-  }
+.reset-window {
+  min-height: 100vh;
 }
 </style>

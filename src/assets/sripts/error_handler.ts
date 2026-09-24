@@ -38,6 +38,17 @@ export function handleApiError(
     if (e instanceof ApiError) {
         // API 业务错误 - 用 HTTP 4xx 类别记录
         const apiErr = e as ApiError;
+        if (apiErr.code === 'request.rateLimited' || apiErr.code === 'rate.limit') {
+            notice.error(t('basic.tips.request.rateLimited'), { stack: apiErr, errorCode: ERROR_CODES.GP_HTTP_4XX });
+            logError(
+                ERROR_CODES.GP_HTTP_4XX,
+                `[RateLimit] ${apiErr.message} (code=${apiErr.code})`,
+                apiErr.stack,
+                component,
+                { code: apiErr.code, error: apiErr.error, response: apiErr.response }
+            );
+            return;
+        }
         const contextStr = typeof apiErr.message === 'string' && apiErr.message && !apiErr.message.includes('[object Object]')
             ? apiErr.message
             : apiErr.code;

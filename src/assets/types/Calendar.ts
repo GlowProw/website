@@ -23,6 +23,10 @@ export interface DayEvent {
     description: string;
     duration: number;
     isStart: boolean;
+    droppeds?: any;
+    year?: number;
+    month?: number;
+    startDay?: number;
 }
 
 export interface CalendarDay {
@@ -30,8 +34,13 @@ export interface CalendarDay {
     events: DayEvent[];
 }
 
+export interface FormattedMonth {
+    year: number;
+    month: number;
+    eventCount: number;
+    data: CalendarDay[];
+}
+
 export interface FormattedCalendar {
-    [month: string]: {
-        data: CalendarDay[];
-    };
+    [month: string]: FormattedMonth;
 }

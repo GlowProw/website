@@ -116,7 +116,7 @@ watch(searchSelected, (val) => {
 
 watch(locateTargetNode, (node) => {
   if (node) {
-    canvasCompRef.value?.locateNode(node);
+    canvasCompRef.value?.locateNode(node as any);
   }
 });
 
@@ -213,7 +213,7 @@ onMounted(() => {
       <MasteryView
           ref="canvasCompRef"
           :nodes="localNodes"
-          :selected-node="selectedNode"
+          :selected-node="selectedNode as any"
           :selected-node-ids="selectedNodeIds"
           :regular-points-spent="regularPointsSpent"
           :scale-extent="[svgScaleExtent[0], svgScaleExtent[1]]"
@@ -290,7 +290,7 @@ onMounted(() => {
     <!-- 节点详情浮窗 S -->
     <MasteryNodeCard
         v-else
-        :node="selectedNode"
+        :node="selectedNode as any"
         :mobile="mobile"
         :regular-points-spent="regularPointsSpent"
         :is-node-active="isNodeActive"
@@ -326,7 +326,7 @@ onMounted(() => {
     <MasteryDebugPanel
         v-if="isDebug"
         :is-debug="isDebug"
-        :selected-node="selectedNode"
+        :selected-node="selectedNode as any"
         @export-json="exportDebugJson"
     />
     <!-- Debug 面板 E -->

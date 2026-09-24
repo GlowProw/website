@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import {Ref, ref} from "vue";
-import {useRouter} from "vue-router";
+import {useRouter, useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useNoticeStore} from "~/stores/noticeStore";
+import {useDisplay} from "vuetify/framework";
 
 import Captcha from "@/components/captcha/index.vue";
 import {useRules} from "@/assets/sripts/rules_user"
@@ -10,17 +11,16 @@ import {apis} from "@/assets/sripts";
 import {SignupParams} from "@/assets/types/User.Signup";
 import {CaptchaParams} from "@/assets/types/Captcha";
 import {handleApiError} from "@/assets/sripts/error_handler";
+import Silk from "@/components/Silk.vue";
 
 const router = useRouter(),
+    route = useRoute(),
     {t} = useI18n(),
     notice = useNoticeStore(),
-    rules = useRules()
+    rules = useRules(),
+    {mobile, sm} = useDisplay()
 
 let signupLoading: Ref<boolean> = ref(false),
-    signupStyle = ref({
-      hintCol: 6,
-      inputCol: 6,
-    }),
     signupPasswordMode = ref(false),
 
     // 注册表单
@@ -60,10 +60,19 @@ const onRegister = async () => {
       })
     }, 1000)
   } catch (e) {
-    handleApiError(e, notice, t, {component: 'Signup'})
+    handleApiError(e, notice, t, {component: 'Signup', tPrefix: 'basic.tips'})
   } finally {
     signupLoading.value = false;
   }
+}
+
+/**
+ * 返回上一层或登录
+ */
+const onBackRoute = () => {
+  const backUrl = (route.query.backUrl || route.query.backurl) as string || '';
+  if (backUrl) return router.push({path: backUrl});
+  return router.push('/account/signin');
 }
 
 /**
@@ -76,124 +85,121 @@ const onCaptchaData = (data: CaptchaParams) => {
 </script>
 
 <template>
-  <div class="background-img-flavor">
-    <v-container class="mt-10 signup">
-      <v-card dense variant="flat" class="mt-10 signup-box card-enlargement-mask-flavor">
-        <h1 class="pl-8 pt-5 pb-5 background-flavor">{{ t('signup.title') }}</h1>
+  <div>
+    <div class="signup-window">
+      <v-row dense class="min-h-screen">
+        <v-col cols="12" lg="6" :class="{'d-none': mobile || sm}" class="position-relative overflow-hidden">
+          <Silk
+              :speed="3"
+              :scale=".7"
+              :color="'#1c1c1c'"
+              :noise-intensity="0.1"
+              :rotation="-.2"
+              class="bg-black">
+          </Silk>
+        </v-col>
+        <v-col cols="12" lg="6" class="bg-black overflow-y-auto">
+          <v-card dense variant="text" class="signup mt-16 mb-6 px-8">
+            <v-breadcrumbs class="ml-n3">
+              <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
+              <v-breadcrumbs-divider></v-breadcrumbs-divider>
+              <v-breadcrumbs-item>{{ t('signup.title') }}</v-breadcrumbs-item>
+            </v-breadcrumbs>
 
-        <v-card border class="bg-black mx-8 my-5">
-          <v-row class="pa-8">
-            <v-col>
-              <v-row>
-                <v-col order="1" order-sm="1" order-lg="1" cols="12" sm="12" :lg="signupStyle.hintCol">
+            <v-row class="py-2">
+              <v-col cols="12">
+                <!-- 用户名/账户 ID -->
+                <div class="field-group mb-3">
                   <b>{{ t('signup.username.name') }}</b>
-                  <p class="text-caption text-grey opacity-80">{{ t('signup.username.hint') }}</p>
-                </v-col>
-                <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="signupStyle.inputCol">
+                  <p class="text-caption text-grey opacity-80 mb-2">{{ t('signup.username.hint') }}</p>
                   <v-text-field v-model="signupFrom.username"
                                 :rules="rules.username"
-                                clearable
+                                name="username"
                                 variant="solo-filled"
                                 prepend-inner-icon="mdi-account-key"
                                 min-length="3"
                                 max-length="40"
-                                :placeholder="t('signup.username.placeholder')">
-                  </v-text-field>
-                </v-col>
-              </v-row>
+                                clearable
+                                :placeholder="t('signup.username.placeholder')"></v-text-field>
+                </div>
 
-              <v-row>
-                <v-col order="1" order-sm="1" order-lg="1" cols="12" sm="12" :lg="signupStyle.hintCol">
+                <!-- 别名 -->
+                <div class="field-group mb-3">
                   <b>{{ t('signup.alternativeName.name') }}</b>
-                  <p class="text-caption text-grey opacity-80">{{ t('signup.alternativeName.hint') }}</p>
-                </v-col>
-                <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="signupStyle.inputCol">
+                  <p class="text-caption text-grey opacity-80 mb-2">{{ t('signup.alternativeName.hint') }}</p>
                   <v-text-field v-model="signupFrom.alternativeName"
                                 :rules="rules.alternativeName"
                                 name="alternativeName"
                                 variant="solo-filled"
                                 prepend-inner-icon="mdi-rename"
-                                class="mb-2"
                                 clearable
-                                :placeholder="t('signup.alternativeName.placeholder')">
-                  </v-text-field>
-                </v-col>
-              </v-row>
+                                :placeholder="t('signup.alternativeName.placeholder')"></v-text-field>
+                </div>
 
-              <v-row>
-                <v-col order="1" order-sm="1" order-lg="1" cols="12" sm="12" :lg="signupStyle.hintCol">
-                </v-col>
-                <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="signupStyle.inputCol">
+                <!-- 密码 -->
+                <div class="field-group mb-3">
+                  <b>{{ t('signup.password.name') }}</b>
+                  <p class="text-caption text-grey opacity-80 mb-2">{{ t('signup.password.hint') }}</p>
                   <v-text-field v-model="signupFrom.password"
                                 :rules="rules.password"
-                                :type="signupPasswordMode ? 'text' : 'password'"
+                                name="password"
                                 variant="solo-filled"
                                 prepend-inner-icon="mdi-form-textbox-password"
+                                :type="signupPasswordMode ? 'text' : 'password'"
                                 clearable
                                 min-length="8"
                                 max-length="64"
                                 :placeholder="t('signin.form.placeholder.password')">
-                    <template v-slot:details>
-                      {{ t('signup.password.hint') }}
-                    </template>
-                    <template v-slot:append v-if="signupFrom.password">
-                      <v-checkbox hide-details density="compact" v-model="signupPasswordMode"></v-checkbox>
+                    <template v-slot:append-inner>
+                      <v-icon
+                        :icon="signupPasswordMode ? 'mdi-eye-off' : 'mdi-eye'"
+                        class="cursor-pointer"
+                        @click="signupPasswordMode = !signupPasswordMode"
+                      />
                     </template>
                   </v-text-field>
-                </v-col>
-              </v-row>
+                </div>
 
-              <v-row>
-                <v-col order="1" order-sm="1" order-lg="1" cols="12" sm="12" :lg="signupStyle.hintCol">
+                <!-- 邮箱 -->
+                <div class="field-group mb-3">
                   <b>{{ t('signup.email.name') }}</b>
-                  <p class="text-caption text-grey opacity-80">{{ t('signup.email.hint') }}</p>
-                </v-col>
-                <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="signupStyle.inputCol">
+                  <p class="text-caption text-grey opacity-80 mb-2">{{ t('signup.email.hint') }}</p>
                   <v-text-field v-model="signupFrom.email"
                                 :rules="rules.email"
-                                :label="t('signup.email.name')"
+                                name="email"
                                 variant="solo-filled"
                                 prepend-inner-icon="mdi-email"
-                                :placeholder="t('signup.email.hint')">
-                  </v-text-field>
-                </v-col>
-              </v-row>
+                                clearable
+                                :placeholder="t('signup.email.hint')"></v-text-field>
+                </div>
 
-              <v-row class="mt-5">
-                <v-col order="1" order-sm="1" order-lg="1" cols="12" sm="12" :lg="signupStyle.hintCol">
-                </v-col>
-                <v-col order="2" order-sm="2" order-lg="2" cols="12" sm="12" :lg="signupStyle.inputCol">
-                  <Captcha @getCaptchaData="onCaptchaData"
-                           :rules="rules.captcha"
-                           type="svg" class="captcha"></Captcha>
-                </v-col>
-              </v-row>
-            </v-col>
-          </v-row>
-        </v-card>
+                <!-- 验证码 -->
+                <Captcha @getCaptchaData="onCaptchaData" class="captcha"></Captcha>
+              </v-col>
+            </v-row>
 
-        <v-card-actions class="px-8 mb-5">
-          <v-spacer></v-spacer>
-          <v-btn class="px-16 bg-amber" size="50" :loading="signupLoading" @click="onRegister" :disabled="!signupFrom.username && !signupFrom.password">
-            {{ t('signup.register') }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-container>
+            <div class="py-2">
+              <v-btn class="bg-amber" @click="onRegister" size="50" block :loading="signupLoading" :disabled="!signupFrom.username || !signupFrom.password || !signupFrom.email" variant="flat">
+                {{ t('signup.register') }}
+              </v-btn>
+
+              <v-btn class="mt-2" @click="onBackRoute" size="50" block variant="text">{{ t('basic.button.cancel') }}</v-btn>
+            </div>
+          </v-card>
+        </v-col>
+      </v-row>
+    </div>
   </div>
 </template>
 
 <style scoped lang="less">
+@import "@/assets/styles/link";
+
+.signup-window {
+  min-height: 100vh;
+}
+
 .signup {
-  h1 {
-    color: var(--main-color);
-  }
-
-  .signup-box {
-    max-width: 1020px;
-    margin: 30px auto;
-  }
-
   .captcha {
     width: 300px;
   }

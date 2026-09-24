@@ -260,7 +260,7 @@
 
                               <v-btn
                                   size="x-small"
-                                  variant="dashed"
+                                  variant="outlined"
                                   color="amber"
                                   density="compact"
                                   icon

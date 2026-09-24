@@ -248,8 +248,8 @@ onMounted(() => {
             <!-- 当前暂无活动空状态 S -->
             <v-card
                 v-else
-                class="empty-card rounded-xl pa-8 pa-sm-12 text-center border"
-                elevation="2">
+                variant="text"
+                class="empty-card rounded-xl px-16 px-6 pa-sm-12 text-center">
               <div class="empty-icon-wrap mx-auto mb-4 rounded-circle d-flex align-center justify-center">
                 <v-icon icon="mdi-broadcast-off" size="40" color="grey"></v-icon>
               </div>
@@ -351,7 +351,7 @@ onMounted(() => {
           </div>
 
           <!-- 历史列表空状态 -->
-          <v-card v-else class="empty-card rounded-xl pa-8 text-center border">
+          <v-card v-else class="empty-card py-16 text-center" variant="text">
             <v-icon icon="mdi-file-search-outline" size="48" color="grey" class="mb-3"></v-icon>
             <div class="text-h6 font-weight-bold text-white mb-1">
               {{ t('drop.noHistoryFound') }}

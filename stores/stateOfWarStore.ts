@@ -387,21 +387,14 @@ export const useStateOfWarStore = defineStore('stateOfWar', () => {
     };
 
     /**
-     * 刷新战事数据
+     * 刷新战事数据（从服务器重新获取最新数据）
      */
     const refreshData = async (seasonId?: string): Promise<StateOfWarData | null> => {
         try {
             refreshing.value = true;
-            const res = await apis.stateOfWarApi().refreshStateOfWar();
-            const payload = res?.data?.data || res?.data || res;
-            if (payload) {
-                warData.value = payload;
-                const sKey = payload.seasonId || seasonId || currentSeasonId.value;
-                seasonDataMap.value[sKey] = payload;
-                await fetchHistoryData('1d', sKey, true);
-                return payload;
-            }
-            return null;
+            const res = await getStateOfWarData(seasonId, true);
+            await fetchHistoryData('1d', seasonId || currentSeasonId.value, true);
+            return res;
         } finally {
             refreshing.value = false;
         }

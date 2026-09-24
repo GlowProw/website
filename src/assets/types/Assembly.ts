@@ -186,6 +186,7 @@ export interface AssemblyWorkshopData {
     displayInsertIndex: number;
     shipWorkshopSelect: any;
     shipSelect: any;
+    shipFrigateUpgradeSelect?: any;
     shipDisplaySelect: any;
     shipFrigateUpgradeList: any[];
     data: {
@@ -200,8 +201,8 @@ export interface AssemblyWorkshopData {
         secondaryWeaponSlots: Item[];
         secondaryWeaponModifications: any[];
         displaySlots: Item[];
-        __version: string;
-        weaponModification: any[];
+        __version?: string;
+        weaponModification?: any[];
     };
 }
 

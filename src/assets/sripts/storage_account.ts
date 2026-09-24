@@ -2,8 +2,9 @@
  * 账户数据
  */
 import Storage from './storage';
+import { AccountStorageType } from '@/assets/types/Storage';
 
-type AccountStorageType = 'app' | 'ad' | 'search' | 'poster' | 'appFun' | 'assembly' | 'map'
+export type { AccountStorageType };
 
 export default class AccountStorage extends Storage {
     NAME = 'user.configuration';

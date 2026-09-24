@@ -230,7 +230,7 @@ onMounted(() => {
     <template v-slot:item="{item,props}">
       <v-list-item v-bind="props">
         <template v-slot:title>
-          {{ item.raw.size }}
+          {{ (item as any).raw.size }}
         </template>
       </v-list-item>
     </template>

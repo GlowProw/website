@@ -60,56 +60,6 @@
     "manualCloseHint": "需要您主动关闭",
     "stackTrace": "错误详情 / 堆栈"
   },
-  "errorCodes": {
-    "gp-0000000001": {
-      "title": "网络连接异常",
-      "description": "客户端无法连接网络或请求发送失败。"
-    },
-    "gp-0000000002": {
-      "title": "HTTP 客户端请求错误",
-      "description": "服务器拒绝了请求，请求路径不存在或认证失败。"
-    },
-    "gp-0000000003": {
-      "title": "HTTP 5xx 服务端响应异常",
-      "description": "后端服务器在处理请求时遭遇内部故障。"
-    },
-    "gp-0000000004": {
-      "title": "JS 未捕获运行时异常",
-      "description": "前端 JavaScript 代码执行时触发了未捕获的 Error。"
-    },
-    "gp-0000000005": {
-      "title": "Promise 未处理拒绝",
-      "description": "异步任务 Promise 发生了 reject 但未能被 catch 捕获。"
-    },
-    "gp-0000000006": {
-      "title": "组件渲染或生命周期错误",
-      "description": "程序内部组件在 mount、update 或 render 过程中引发异常。"
-    },
-    "gp-0000000007": {
-      "title": "路由导航跳转失败",
-      "description": "Vue Router 路由导航钩子异常或动态加载组件超时。"
-    },
-    "gp-0000000008": {
-      "title": "本地存储读写异常",
-      "description": "游览器储存访问受限或配额耗尽。"
-    },
-    "gp-0000000009": {
-      "title": "Web Worker 后台任务异常",
-      "description": "检索或主进程 WebWorker 通信处理数据时报错。"
-    },
-    "gp-0000000010": {
-      "title": "静态资源加载失败",
-      "description": "图片、样式表或 CDN 静态资源未能成功载入。"
-    },
-    "gp-0000000011": {
-      "title": "数据结构解析错误",
-      "description": "对 JSON 或外部格式数据进行解包反序列化时结构不匹配。"
-    },
-    "gp-0000000099": {
-      "title": "未定义通用应用异常",
-      "description": "遇到非明确分类的系统应用运行错误。"
-    }
-  },
   "about": {
     "title": "关于",
     "disclaimer": "闪耀船首程序以及附属遵循不同协议，主程序以及附属不隶属于碧海黑帆或Ubisoft集团。",
@@ -175,6 +125,56 @@
     }
   },
   "basic": {
+    "errorCodes": {
+      "gp-0000000001": {
+        "title": "网络连接异常",
+        "description": "客户端无法连接网络或请求发送失败。"
+      },
+      "gp-0000000002": {
+        "title": "HTTP 客户端请求错误",
+        "description": "服务器拒绝了请求，请求路径不存在或认证失败。"
+      },
+      "gp-0000000003": {
+        "title": "HTTP 5xx 服务端响应异常",
+        "description": "后端服务器在处理请求时遭遇内部故障。"
+      },
+      "gp-0000000004": {
+        "title": "JS 未捕获运行时异常",
+        "description": "前端 JavaScript 代码执行时触发了未捕获的 Error。"
+      },
+      "gp-0000000005": {
+        "title": "Promise 未处理拒绝",
+        "description": "异步任务 Promise 发生了 reject 但未能被 catch 捕获。"
+      },
+      "gp-0000000006": {
+        "title": "组件渲染或生命周期错误",
+        "description": "程序内部组件在 mount、update 或 render 过程中引发异常。"
+      },
+      "gp-0000000007": {
+        "title": "路由导航跳转失败",
+        "description": "Vue Router 路由导航钩子异常或动态加载组件超时。"
+      },
+      "gp-0000000008": {
+        "title": "本地存储读写异常",
+        "description": "游览器储存访问受限或配额耗尽。"
+      },
+      "gp-0000000009": {
+        "title": "Web Worker 后台任务异常",
+        "description": "检索或主进程 WebWorker 通信处理数据时报错。"
+      },
+      "gp-0000000010": {
+        "title": "静态资源加载失败",
+        "description": "图片、样式表或 CDN 静态资源未能成功载入。"
+      },
+      "gp-0000000011": {
+        "title": "数据结构解析错误",
+        "description": "对 JSON 或外部格式数据进行解包反序列化时结构不匹配。"
+      },
+      "gp-0000000099": {
+        "title": "未定义通用应用异常",
+        "description": "遇到非明确分类的系统应用运行错误。"
+      }
+    },
     "button": {
       "cancel": "取消",
       "commit": "提交",
@@ -220,6 +220,169 @@
       "actionLocked": "操作已锁定，请次日再试",
       "notConfigured": "系统超额，请联系管理员",
       "error": "应用程序错误: {content}",
+      "admin": {
+        "rootRequired": "需要超级管理员权限",
+        "bad": "请求参数错误",
+        "wheel": {
+          "bad": "轮盘请求参数错误",
+          "notFound": "未找到指定轮盘",
+          "deleted": "轮盘已删除",
+          "restored": "轮盘已恢复",
+          "hardDeleted": "轮盘已物理删除",
+          "ok": "操作成功"
+        },
+        "wheels": {
+          "ok": "获取轮盘列表成功"
+        },
+        "warehouse": {
+          "bad": "仓库请求参数错误",
+          "notFound": "未找到指定仓库",
+          "deleted": "仓库已删除",
+          "restored": "仓库已恢复",
+          "hardDeleted": "仓库已物理删除",
+          "ok": "操作成功"
+        },
+        "warehouses": {
+          "ok": "获取仓库列表成功"
+        },
+        "assembly": {
+          "bad": "配装请求参数错误",
+          "notFound": "未找到指定配装",
+          "deleted": "配装已删除",
+          "restored": "配装已恢复",
+          "hardDeleted": "配装已物理删除",
+          "ok": "操作成功"
+        },
+        "assemblies": {
+          "ok": "获取配装列表成功"
+        },
+        "mastery": {
+          "bad": "专精请求参数错误",
+          "notFound": "未找到指定专精",
+          "deleted": "专精已删除",
+          "restored": "专精已恢复",
+          "hardDeleted": "专精已物理删除",
+          "ok": "操作成功"
+        },
+        "masterys": {
+          "bad": "专精请求参数错误",
+          "ok": "获取专精列表成功"
+        },
+        "order": {
+          "bad": "订单请求参数错误",
+          "notFound": "未找到指定订单",
+          "deleted": "订单已删除",
+          "restored": "订单已恢复",
+          "hardDeleted": "订单已物理删除",
+          "linked": "订单已补绑到用户",
+          "ok": "操作成功"
+        },
+        "orders": {
+          "bad": "订单请求参数错误",
+          "ok": "获取订单列表成功"
+        },
+        "user": {
+          "bad": "用户管理请求参数错误",
+          "notFound": "未找到指定用户",
+          "cannotCreateRoot": "无权创建根管理员账户",
+          "cannotDeleteSelf": "不能删除当前登录的管理员账户",
+          "tokenRoleRestricted": "仅开发组、机器人或根管理员身份可生成令牌",
+          "invalidDuration": "无效的令牌有效期参数",
+          "tokenGenerated": "专用令牌生成成功",
+          "created": "用户创建成功",
+          "updated": "用户信息已更新",
+          "deleted": "用户已删除",
+          "restored": "用户已恢复",
+          "hardDeleted": "用户已物理删除",
+          "ok": "操作成功"
+        },
+        "users": {
+          "bad": "用户请求参数错误",
+          "ok": "获取用户列表成功"
+        },
+        "comment": {
+          "bad": "评论管理请求参数错误",
+          "notFound": "未找到指定评论",
+          "updated": "评论内容已更新",
+          "deleted": "评论已删除",
+          "restored": "评论已恢复",
+          "hardDeleted": "评论已物理删除",
+          "ok": "操作成功"
+        },
+        "comments": {
+          "bad": "评论请求参数错误",
+          "ok": "获取评论列表成功"
+        },
+        "reply": {
+          "bad": "回复管理请求参数错误",
+          "notFound": "未找到指定回复",
+          "updated": "回复内容已更新",
+          "deleted": "回复已删除",
+          "restored": "回复已恢复",
+          "commentDeleted": "所属评论已被删除，无法恢复回复",
+          "hardDeleted": "回复已物理删除",
+          "ok": "操作成功"
+        },
+        "replies": {
+          "bad": "回复请求参数错误",
+          "ok": "获取回复列表成功"
+        },
+        "teamup": {
+          "bad": "组队管理请求参数错误",
+          "notFound": "未找到指定组队条目",
+          "deleted": "组队条目已强制下线",
+          "ok": "操作成功"
+        },
+        "teamups": {
+          "bad": "组队请求参数错误",
+          "ok": "获取组队列表成功"
+        },
+        "privilege": {
+          "bad": "权限管理请求参数错误",
+          "notFound": "未找到指定权限记录",
+          "hardDeleted": "权限记录已物理删除",
+          "ok": "操作成功"
+        },
+        "privileges": {
+          "bad": "权限请求参数错误",
+          "ok": "获取权限列表成功"
+        },
+        "drops": {
+          "bad": "掉宝管理请求参数错误"
+        },
+        "drop": {
+          "bad": "掉宝管理请求参数错误"
+        },
+        "stateOfWar": {
+          "bad": "战争阵营请求参数错误",
+          "notFound": "未找到指定战事历史记录",
+          "error": "获取战事数据失败",
+          "seasons": {
+            "ok": "获取赛季列表成功"
+          },
+          "latest": {
+            "ok": "获取最新战事数据成功"
+          },
+          "history": {
+            "ok": "获取战事历史记录成功"
+          },
+          "detail": {
+            "ok": "获取战事快照详情成功"
+          }
+        },
+        "like": {
+          "bad": "点赞管理请求参数错误",
+          "notFound": "未找到指定点赞记录",
+          "deleted": "点赞记录已删除",
+          "restored": "点赞记录已恢复",
+          "hardDeleted": "点赞记录已物理删除",
+          "ok": "操作成功"
+        },
+        "likes": {
+          "bad": "点赞请求参数错误",
+          "ok": "获取点赞列表成功"
+        }
+      },
       "comment": {
         "ok": "发布成功",
         "bad": "发布格式错误，请检查内容是否符合要求",
@@ -383,6 +546,19 @@
         "success": "获取成功",
         "bad": "信息错误: {context}",
         "notFound": "无法查询到此用户"
+      },
+      "changePassword": {
+        "success": "密码修改成功",
+        "invalid": "原密码不正确",
+        "notMatch": "原密码不正确",
+        "bad": "密码格式不符合要求",
+        "error": "修改密码失败: {context}"
+      },
+      "stateOfWar": {
+        "synced": "战事数据同步成功",
+        "syncFailed": "战事数据同步失败",
+        "refreshed": "战况数据已刷新",
+        "refreshFailed": "刷新战况数据失败"
       }
     },
     "rules": {
@@ -518,7 +694,7 @@
   },
   "forgotPassword": {
     "title": "找回密码",
-    "description": "请输入您的账户 ID 和关联邮箱，系统将发送 6 位重置码到您的邮箱。",
+    "description": "请输入您的账户 ID 和关联邮箱，系统将发送 6 位重置码到您的邮箱。\n\t你验证账户验证将有限额，使用完毕需要等到次日操作",
     "form": {
       "identifier": "账户 ID",
       "email": "注册邮箱",

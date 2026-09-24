@@ -37,7 +37,7 @@ const {t} = useI18n();
         density="comfortable"
         :menu-props="{ maxHeight: '450px' }"
         prepend-inner-icon="mdi-magnify"
-        @update:model-value="emit('search-input', $event); emit('update:modelValue', typeof $event === 'string' ? $event : ($event?.title || ''))"
+        @update:model-value="emit('search-input', $event); emit('update:modelValue', typeof $event === 'string' ? $event : (($event as any)?.title || ''))"
         @keydown.enter="emit('search-enter')"
     ></v-combobox>
     <FullscreenBtn :viewRef="viewRef"></FullscreenBtn>

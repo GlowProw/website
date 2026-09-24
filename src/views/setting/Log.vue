@@ -291,7 +291,7 @@ const copyClientId = () => {
                 <v-chip size="x-small" color="error" label class="font-weight-bold">
                   {{ log.code }}
                 </v-chip>
-                <span class="font-weight-bold text-subtitle-2">{{ log.title }}</span>
+                <span class="font-weight-bold text-subtitle-2">{{ log.titleKey ? t(log.titleKey) : (log.title || log.code) }}</span>
                 <v-chip v-if="log.component" size="x-small" variant="outlined">
                   {{ log.component }}
                 </v-chip>

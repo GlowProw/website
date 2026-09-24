@@ -340,7 +340,7 @@ defineOptions({
               <div class="d-flex align-center justify-space-between mb-2">
                 <div class="d-flex align-center ga-2">
               <span class="text-subtitle-1 font-weight-bold text-red-lighten-2">
-                {{ matchedErrorCodeInfo.titleKey ? t(matchedErrorCodeInfo.titleKey) : matchedErrorCodeInfo.title }}
+                {{ t(matchedErrorCodeInfo.titleKey) }}
               </span>
                 </div>
                 <v-chip size="x-small" variant="outlined" color="red-lighten-3" class="text-caption text-uppercase px-2">
@@ -348,7 +348,7 @@ defineOptions({
                 </v-chip>
               </div>
               <div class="text-body-2 text-grey-lighten-2 opacity-90" style="line-height: 1.5;">
-                {{ matchedErrorCodeInfo.descriptionKey ? t(matchedErrorCodeInfo.descriptionKey) : matchedErrorCodeInfo.description }}
+                {{ t(matchedErrorCodeInfo.descriptionKey) }}
               </div>
             </div>
             <!-- ERROR_CODES 错误代码与标题/描述展示卡片 E -->

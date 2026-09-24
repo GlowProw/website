@@ -5,106 +5,80 @@ export interface ErrorCodeInfo {
   category: 'network' | 'http' | 'javascript' | 'promise' | 'vue' | 'router' | 'storage' | 'worker' | 'resource' | 'data' | 'unknown';
   titleKey: string;
   descriptionKey: string;
-  readonly title: string;
-  readonly description: string;
 }
 
 export const ERROR_CODES: Record<string, ErrorCodeInfo> = {
   GP_NET_001: {
     code: 'gp-0000000001',
     category: 'network',
-    titleKey: 'errorCodes.gp-0000000001.title',
-    descriptionKey: 'errorCodes.gp-0000000001.description',
-    get title() { return '网络连接异常'; },
-    get description() { return '客户端无法连接网络或请求发送失败。'; }
+    titleKey: 'basic.errorCodes.gp-0000000001.title',
+    descriptionKey: 'basic.errorCodes.gp-0000000001.description',
   },
   GP_HTTP_4XX: {
     code: 'gp-0000000002',
     category: 'http',
-    titleKey: 'errorCodes.gp-0000000002.title',
-    descriptionKey: 'errorCodes.gp-0000000002.description',
-    get title() { return 'HTTP 客户端请求错误'; },
-    get description() { return '服务器拒绝了请求，请求路径不存在或认证失败。'; }
+    titleKey: 'basic.errorCodes.gp-0000000002.title',
+    descriptionKey: 'basic.errorCodes.gp-0000000002.description',
   },
   GP_HTTP_5XX: {
     code: 'gp-0000000003',
     category: 'http',
-    titleKey: 'errorCodes.gp-0000000003.title',
-    descriptionKey: 'errorCodes.gp-0000000003.description',
-    get title() { return 'HTTP 5xx 服务端响应异常'; },
-    get description() { return '后端服务器在处理请求时遭遇内部故障。'; }
+    titleKey: 'basic.errorCodes.gp-0000000003.title',
+    descriptionKey: 'basic.errorCodes.gp-0000000003.description',
   },
   GP_JS_UNCAUGHT: {
     code: 'gp-0000000004',
     category: 'javascript',
-    titleKey: 'errorCodes.gp-0000000004.title',
-    descriptionKey: 'errorCodes.gp-0000000004.description',
-    get title() { return 'JS 未捕获运行时异常'; },
-    get description() { return '前端 JavaScript 代码执行时触发了未捕获的 Error。'; }
+    titleKey: 'basic.errorCodes.gp-0000000004.title',
+    descriptionKey: 'basic.errorCodes.gp-0000000004.description',
   },
   GP_PROMISE_UNHANDLED: {
     code: 'gp-0000000005',
     category: 'promise',
-    titleKey: 'errorCodes.gp-0000000005.title',
-    descriptionKey: 'errorCodes.gp-0000000005.description',
-    get title() { return 'Promise 未处理拒绝'; },
-    get description() { return '异步任务 Promise 发生了 reject 但未能被 catch 捕获。'; }
+    titleKey: 'basic.errorCodes.gp-0000000005.title',
+    descriptionKey: 'basic.errorCodes.gp-0000000005.description',
   },
   GP_VUE_LIFECYCLE: {
     code: 'gp-0000000006',
     category: 'vue',
-    titleKey: 'errorCodes.gp-0000000006.title',
-    descriptionKey: 'errorCodes.gp-0000000006.description',
-    get title() { return '组件渲染或生命周期错误'; },
-    get description() { return '程序内部组件在 mount、update 或 render 过程中引发异常。'; }
+    titleKey: 'basic.errorCodes.gp-0000000006.title',
+    descriptionKey: 'basic.errorCodes.gp-0000000006.description',
   },
   GP_ROUTER_NAV: {
     code: 'gp-0000000007',
     category: 'router',
-    titleKey: 'errorCodes.gp-0000000007.title',
-    descriptionKey: 'errorCodes.gp-0000000007.description',
-    get title() { return '路由导航跳转失败'; },
-    get description() { return 'Vue Router 路由导航钩子异常或动态加载组件超时。'; }
+    titleKey: 'basic.errorCodes.gp-0000000007.title',
+    descriptionKey: 'basic.errorCodes.gp-0000000007.description',
   },
   GP_STORAGE_ACCESS: {
     code: 'gp-0000000008',
     category: 'storage',
-    titleKey: 'errorCodes.gp-0000000008.title',
-    descriptionKey: 'errorCodes.gp-0000000008.description',
-    get title() { return '本地存储读写异常'; },
-    get description() { return 'localStorage / sessionStorage 访问受限或配额耗尽。'; }
+    titleKey: 'basic.errorCodes.gp-0000000008.title',
+    descriptionKey: 'basic.errorCodes.gp-0000000008.description',
   },
   GP_WORKER_EXEC: {
     code: 'gp-0000000009',
     category: 'worker',
-    titleKey: 'errorCodes.gp-0000000009.title',
-    descriptionKey: 'errorCodes.gp-0000000009.description',
-    get title() { return 'Web Worker 后台任务异常'; },
-    get description() { return '检索或主进程 WebWorker 通信处理数据时报错。'; }
+    titleKey: 'basic.errorCodes.gp-0000000009.title',
+    descriptionKey: 'basic.errorCodes.gp-0000000009.description',
   },
   GP_RESOURCE_LOAD: {
     code: 'gp-0000000010',
     category: 'resource',
-    titleKey: 'errorCodes.gp-0000000010.title',
-    descriptionKey: 'errorCodes.gp-0000000010.description',
-    get title() { return '静态资源加载失败'; },
-    get description() { return '图片、样式表或 CDN 静态资源未能成功载入。'; }
+    titleKey: 'basic.errorCodes.gp-0000000010.title',
+    descriptionKey: 'basic.errorCodes.gp-0000000010.description',
   },
   GP_DATA_PARSE: {
     code: 'gp-0000000011',
     category: 'data',
-    titleKey: 'errorCodes.gp-0000000011.title',
-    descriptionKey: 'errorCodes.gp-0000000011.description',
-    get title() { return '数据结构解析错误'; },
-    get description() { return '对 JSON 或外部格式数据进行解包反序列化时结构不匹配。'; }
+    titleKey: 'basic.errorCodes.gp-0000000011.title',
+    descriptionKey: 'basic.errorCodes.gp-0000000011.description',
   },
   GP_UNKNOWN: {
     code: 'gp-0000000099',
     category: 'unknown',
-    titleKey: 'errorCodes.gp-0000000099.title',
-    descriptionKey: 'errorCodes.gp-0000000099.description',
-    get title() { return '未定义通用应用异常'; },
-    get description() { return '遇到非明确分类的系统应用运行错误。'; }
+    titleKey: 'basic.errorCodes.gp-0000000099.title',
+    descriptionKey: 'basic.errorCodes.gp-0000000099.description',
   }
 };
 
@@ -112,7 +86,9 @@ export interface LogEntry {
   id: string;
   code: string;
   category: string;
-  title: string;
+  titleKey?: string;
+  descriptionKey?: string;
+  title?: string;
   message: string;
   stack?: string;
   timestamp: string;
@@ -175,8 +151,9 @@ export function logError(
     id: 'log_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
     code: errorCode.code,
     category: errorCode.category,
-    title: errorCode.title,
-    message: message || errorCode.description,
+    titleKey: errorCode.titleKey,
+    descriptionKey: errorCode.descriptionKey,
+    message: message || '',
     stack: stack || (new Error().stack || ''),
     timestamp: new Date().toISOString(),
     url: window.location.href,
@@ -187,7 +164,7 @@ export function logError(
   sessionLogs.value.unshift(newEntry);
 
   // 控制台调试输出
-  console.error(`[${errorCode.code}] ${errorCode.title}:`, message, stack);
+  console.error(`[${errorCode.code}]`, message, stack);
 }
 
 /**

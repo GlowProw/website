@@ -3,11 +3,12 @@ import {TreasureMap} from "glow-prow-data";
 import {computed} from "vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
-const props = defineProps<{ data: TreasureMap }>(),
+const props = defineProps<{ data?: TreasureMap; id?: string }>(),
     {treasureMap} = useI18nReadName()
 
 let getTitle = computed(() => {
-  return `${treasureMap(props?.data?.id).name(props.data?.category) || '-'}`
+  const mapId = props.id || props.data?.id
+  return `${treasureMap(mapId).name(props.data?.category) || '-'}`
 })
 
 defineOptions({
