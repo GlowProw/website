@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { use_icon_global_Style } from "@/assets/sripts/use_icon_global_Style";
+import { useIconGlobalStyle } from "@/assets/sripts/use_icon_global_style";
 
 import {computed, onMounted, type Ref, ref, watch} from "vue";
 import {Ship, Ships} from "glow-prow-data";
@@ -87,7 +87,7 @@ defineOptions({
   name: 'ShipIconWidget'
 })
 
-const { useIconImagePadding, useIconImageMargin } = use_icon_global_Style();
+const { useIconImagePadding, useIconImageMargin } = useIconGlobalStyle();
 const computedPadding = useIconImagePadding(props.padding);
 const computedMargin = useIconImageMargin(props.margin);
 </script>

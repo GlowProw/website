@@ -600,8 +600,7 @@ defineExpose({
     <StylizedLineBackground
         class="skill-tree-line-bg"
         :offset-x="svgTransform.x"
-        :offset-y="svgTransform.y"
-    >
+        :offset-y="svgTransform.y">
       <canvas
           ref="canvasRef"
           class="skill-tree-canvas"

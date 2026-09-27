@@ -147,7 +147,7 @@ function onClose() {
               @click="onImportAssembly(item)"
               class="pa-4">
             <v-list-item-title class="font-weight-bold">
-              {{ item.id === 'quickArchiving' ? '快速储存草稿' : (item.name || '未命名配装') }}
+              {{ item.id === 'quickArchiving' ? t('assembly.workshop.quickArchiving') : (item.name || t('assembly.unnamed')) }}
             </v-list-item-title>
             <v-list-item-subtitle v-if="item.id !== 'quickArchiving'" class="mt-1 opacity-60">
               ID: {{ item.id }}

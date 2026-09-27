@@ -193,7 +193,7 @@ const initMasteryData = async () => {
       :is-node-available="isNodeAvailable"
     />
     <div v-else class="text-center pa-10 text-grey">
-      暂无精通数据
+      {{ t('mastery.noData') }}
     </div>
   </div>
 </template>

@@ -274,7 +274,7 @@ const onAddCalculator = () => {
                                 hide-details
                                 variant="underlined" density="compact">
                     <template v-slot:append-inner>
-                      <p class="text-no-wrap">附件</p>
+                      <p class="text-no-wrap">{{ t('codex.ship.attachment') }}</p>
                     </template>
                   </v-text-field>
                 </template>

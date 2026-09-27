@@ -41,11 +41,6 @@ let tabs: Ref<any[]> = ref([
         icon: 'mdi-database'
       },
       {
-        name: 'pwa.title',
-        value: 'PortalSettingPwa',
-        icon: 'mdi-cellphone-arrow-down'
-      },
-      {
         name: 'setting.wishlist.title',
         value: 'PortalSettingWishlist',
         icon: 'mdi-playlist-star'
@@ -60,11 +55,11 @@ let tabs: Ref<any[]> = ref([
         value: 'PortalSettingAbout',
         icon: 'mdi-information'
       },
-      // {
-      //  name: t('setting.notification.title'),
-      //  value: 'notification',
-      //  icon: 'mdi-bell-badge'
-      // },
+      {
+       name: t('setting.notification.title'),
+       value: 'notification',
+       icon: 'mdi-bell-badge'
+      },
     ]),
     tab = ref(tabs.value[0].value)
 

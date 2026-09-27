@@ -448,7 +448,6 @@ defineOptions({
   right: 0;
   bottom: 0;
   z-index: 99999;
-  pointer-events: none;
 
   .notice-minimal-toast {
     position: relative;

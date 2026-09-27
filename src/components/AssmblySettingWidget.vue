@@ -149,8 +149,7 @@ defineOptions({ name: 'AssmblySettingWidget' })
                     :placeholder="passwordPlaceholder"
                     clearable
                     v-model="modelValue.assembly.attr.password"
-                    :label="t('assembly.setting.passwordInput')"
-                >
+                    :label="t('assembly.setting.passwordInput')">
                   <template v-slot:details>
                     {{ t('assembly.setting.passwordHint') }}
                   </template>

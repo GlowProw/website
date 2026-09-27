@@ -4,9 +4,12 @@ export default { name: 'SmugglersReportShowItemWidget' }
 
 <script setup lang="ts">
 import {onMounted, ref, watch} from "vue";
+import {useI18n} from "vue-i18n";
 import {Commodities, Items, Materials} from "glow-prow-data";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
+
+const {t} = useI18n();
 
 const props = withDefaults(defineProps<{ data: any }>(), {
   data: {}
@@ -51,7 +54,7 @@ defineExpose({
 
 <template>
   <v-tabs height="40" class="text-amber font-weight-bold" :show-arrows="true">
-    <v-tab class="text-h6">每周</v-tab>
+    <v-tab class="text-h6">{{ t('smugglersReport.weekly') }}</v-tab>
   </v-tabs>
   <v-divider thickness="2" class="mb-5"></v-divider>
 

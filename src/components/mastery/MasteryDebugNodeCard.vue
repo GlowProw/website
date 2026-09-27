@@ -329,8 +329,7 @@ function onRoleUpdate(value: any) {
             color="amber"
             variant="tonal"
             closable
-            @click:close="onRemoveRequisite(reqKey)"
-        >
+            @click:close="onRemoveRequisite(reqKey)">
           <v-icon start size="14">mdi-arrow-up-bold-outline</v-icon>
           {{ resolveReqName(reqKey) }}
           <span class="opacity-60 ml-1">({{ reqKey }})</span>

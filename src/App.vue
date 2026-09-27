@@ -6,8 +6,10 @@ import {useRoute} from "vue-router";
 import {useHead} from "@unhead/vue";
 import {storage} from "@/assets/sripts";
 import {normalizeLang} from "@/config/languages";
+import {useReminderStore} from "~/stores/reminderStore";
 
 const {t, locale} = useI18n();
+const reminderStore = useReminderStore();
 
 const route = useRoute();
 
@@ -58,6 +60,7 @@ useHead(head)
 
 onMounted(() => {
   document.dispatchEvent(new Event('render-event'));
+  reminderStore.init();
 });
 </script>
 

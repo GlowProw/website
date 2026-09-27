@@ -459,7 +459,7 @@ const executeDelete = async (): Promise<void> => {
       <v-spacer></v-spacer>
       <v-col cols="auto" class="d-flex ga-2">
         <v-btn class="bg-amber" @click="onCreatedCollection">
-          创建地图集
+          {{ t('map.createCollection') }}
         </v-btn>
         <v-btn @click="getMyCollectionsData">
           <v-icon icon="mdi-refresh" :class="[collectionLoading ? 'spin-icon-load' : '']"></v-icon>
@@ -525,14 +525,14 @@ const executeDelete = async (): Promise<void> => {
             <v-col>
               <div class="d-flex align-center mb-3">
                 <v-icon icon="mdi-map-marker" class="mr-2"></v-icon>
-                地图集内坐标
+                {{ t('map.pointsInCollection') }}
                 <v-spacer></v-spacer>
                 <v-btn
                     v-if="collectionPoints.length > 0"
                     @click="toggleSelectAll(collectionPoints)"
                     variant="text"
                     size="small">
-                  {{ collectionPoints.every(p => selectedPoints.includes(p.uuid)) ? '取消全选' : '全选' }}
+                  {{ collectionPoints.every(p => selectedPoints.includes(p.uuid)) ? t('map.deselectAll') : t('map.selectAll') }}
                 </v-btn>
               </div>
 
@@ -551,7 +551,7 @@ const executeDelete = async (): Promise<void> => {
                     </template>
                     <v-list-item-title>{{ point.title }}</v-list-item-title>
                     <v-list-item-subtitle>
-                      {{ point.description || '无描述' }}
+                      {{ point.description || t('map.noDescription') }}
                     </v-list-item-subtitle>
                     <template v-slot:append>
                       <v-card variant="text" min-width="250">
@@ -596,7 +596,7 @@ const executeDelete = async (): Promise<void> => {
                       :disabled="selectedPoints.length === 0"
                       color="error"
                       variant="tonal">
-                    删除坐标
+                    {{ t('map.deletePoints') }}
                   </v-btn>
                 </v-col>
               </v-row>
@@ -622,13 +622,13 @@ const executeDelete = async (): Promise<void> => {
             <v-col>
               <div class="d-flex align-center mb-3">
                 <v-icon icon="mdi-map-marker-plus" class="mr-2"></v-icon>
-                可添加的坐标
+                {{ t('map.availablePoints') }}
                 <v-spacer></v-spacer>
                 <v-btn
                     @click="toggleSelectAll(orphanPoints)"
                     variant="text"
                     size="small">
-                  {{ orphanPoints.every(p => selectedPoints.includes(p.uuid)) ? '取消全选' : '全选' }}
+                  {{ orphanPoints.every(p => selectedPoints.includes(p.uuid)) ? t('map.deselectAll') : t('map.selectAll') }}
                 </v-btn>
               </div>
 
@@ -637,7 +637,7 @@ const executeDelete = async (): Promise<void> => {
                   <v-text-field
                       v-model="searchQuery"
                       @input="onSearchPoints"
-                      placeholder="搜索坐标..."
+                      :placeholder="t('map.searchPointsPlaceholder')"
                       density="compact"
                       hide-details
                       class="search-field"
@@ -658,7 +658,7 @@ const executeDelete = async (): Promise<void> => {
                     </template>
                     <v-list-item-title>{{ point.title }}</v-list-item-title>
                     <v-list-item-subtitle>
-                      {{ point.description || '无描述' }}
+                      {{ point.description || t('map.noDescription') }}
                     </v-list-item-subtitle>
                     <template v-slot:append>
                       <v-card variant="text" min-width="250">

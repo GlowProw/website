@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed, onMounted, ref} from 'vue';
-import {use_icon_global_Style} from '@/assets/sripts/use_icon_global_Style';
+import {useIconGlobalStyle} from '@/assets/sripts/use_icon_global_style';
 import {useWishlistStore} from '~/stores/wishlistStore';
 
 const props = withDefaults(
@@ -21,7 +21,7 @@ const props = withDefaults(
     }
 );
 
-const {useIconAdaptiveSize, useIconBoxPadding, useIconBoxMargin} = use_icon_global_Style();
+const {useIconAdaptiveSize, useIconBoxPadding, useIconBoxMargin} = useIconGlobalStyle();
 const wishlistStore = useWishlistStore();
 const containerRef = ref<HTMLElement | null>(null);
 const actualSize = ref(0);

@@ -6,8 +6,7 @@
         max-width="1200"
         width="90vw"
         scrollable
-        persistent
-    >
+        persistent>
       <v-card class="pa-2 pa-md-4">
         <v-card-title class="d-flex align-center justify-space-between pb-2">
           <span class="text-h6 font-weight-bold">
@@ -138,8 +137,7 @@
                             variant="tonal"
                             size="small"
                             prepend-icon="mdi-plus"
-                            v-bind="menuProps"
-                        >
+                            v-bind="menuProps">
                           {{ t('setting.wishlist.addItem') }}
                           <v-icon icon="mdi-menu-down" class="ml-1" size="16"></v-icon>
                         </v-btn>
@@ -148,14 +146,13 @@
                       <v-card border width="220">
                         <v-list density="compact" class="py-1">
                           <v-list-subheader class="text-caption font-weight-bold opacity-70">
-                            物品分类筛选
+                            {{ t('setting.wishlist.categoryFilter') }}
                           </v-list-subheader>
 
                           <v-list-item
                               v-for="cat in itemFilterCategories"
                               :key="cat.id"
-                              @click="onSelectFilterCategory(cat)"
-                          >
+                              @click="onSelectFilterCategory(cat)">
                             <v-list-item-title class="text-body-2">
                               {{ cat.label }}
                             </v-list-item-title>
@@ -170,8 +167,7 @@
                   <div
                       ref="scrollContainerRef"
                       class="virtual-table-container"
-                      @scroll="handleScroll"
-                  >
+                      @scroll="handleScroll">
                     <table class="virtual-table">
                       <thead>
                       <tr>
@@ -200,8 +196,7 @@
                       <tr
                           v-for="item in visibleRules"
                           :key="item.realIndex"
-                          class="rule-row"
-                      >
+                          class="rule-row">
                         <!-- # 序号 -->
                         <td class="text-caption text-center font-weight-bold opacity-60">
                           {{ item.realIndex + 1 }}
@@ -230,19 +225,17 @@
                               <div
                                   v-for="(modId, mIdx) in getRuleMods(item.rule)"
                                   :key="mIdx"
-                                  class="d-flex align-center ga-1 px-2 py-1 rounded mod-chip"
-                              >
-                                <!-- Grade 下拉选择框 S -->
+                                  class="d-flex align-center ga-1 px-2 py-1 rounded mod-chip">
+                                <!-- 下拉选择框 S -->
                                 <select
                                     class="mod-grade-select text-caption font-weight-bold"
                                     :value="getModGrade(modId)"
-                                    @change="onChangeModGrade(item.rule, mIdx, $event)"
-                                >
+                                    @change="onChangeModGrade(item.rule, mIdx, $event)">
                                   <option v-for="g in modGrades" :key="g" :value="g">
                                     {{ t(`assembly.tags.grade.${g}`) }}
                                   </option>
                                 </select>
-                                <!-- Grade 下拉选择框 E -->
+                                <!-- 下拉选择框 E -->
 
                                 <!-- 词条名称 -->
                                 <span class="text-caption font-weight-medium">
@@ -265,8 +258,7 @@
                                   density="compact"
                                   icon
                                   @click="openAddModDialog(item.rule)"
-                                  :title="t('setting.wishlist.addMod')"
-                              >
+                                  :title="t('setting.wishlist.addMod')">
                                 <v-icon icon="mdi-plus" size="14"></v-icon>
                               </v-btn>
                             </div>
@@ -282,8 +274,7 @@
                         <td>
                           <div
                               class="notes-cell cursor-pointer pa-1 rounded"
-                              @click="openNotesEditDialog(item.realIndex)"
-                          >
+                              @click="openNotesEditDialog(item.realIndex)">
                             <span v-if="item.rule.notes" class="text-caption text-truncate d-block" style="max-width: 150px;" :title="item.rule.notes">
                               {{ item.rule.notes }}
                             </span>
@@ -303,8 +294,7 @@
                                 variant="tonal"
                                 color="amber"
                                 closable
-                                @click:close="removeTagFromRule(item.rule, tIdx)"
-                            >
+                                @click:close="removeTagFromRule(item.rule, tIdx)">
                               {{ tag }}
                             </v-chip>
 
@@ -328,8 +318,7 @@
                                 density="compact"
                                 size="small"
                                 :disabled="item.realIndex === 0"
-                                @click="moveRule(item.realIndex, -1)"
-                            >
+                                @click="moveRule(item.realIndex, -1)">
                               <v-icon icon="mdi-arrow-up" size="16"></v-icon>
                             </v-btn>
                             <v-btn
@@ -338,8 +327,7 @@
                                 density="compact"
                                 size="small"
                                 :disabled="item.realIndex === rules.length - 1"
-                                @click="moveRule(item.realIndex, 1)"
-                            >
+                                @click="moveRule(item.realIndex, 1)">
                               <v-icon icon="mdi-arrow-down" size="16"></v-icon>
                             </v-btn>
                             <v-btn
@@ -348,8 +336,7 @@
                                 density="compact"
                                 size="small"
                                 color="red"
-                                @click="removeRule(item.realIndex)"
-                            >
+                                @click="removeRule(item.realIndex)">
                               <v-icon icon="mdi-delete-outline" size="16"></v-icon>
                             </v-btn>
                           </div>
@@ -478,19 +465,19 @@ interface CategoryFilterItem {
   icon: string
 }
 
-const itemFilterCategories: CategoryFilterItem[] = [
-  { id: 'all_items', label: '全品类物品 (All Items)', category: 'item', tags: [], icon: 'mdi-cube-outline' },
-  { id: 'weapons', label: '武器与护甲', category: 'item', tags: ['culverin', 'demicannon', 'bombard', 'longGun', 'torpedo', 'ballista', 'seaFire', 'mortar', 'rocket', 'springloader', 'armor'], icon: 'mdi-sword-cross' },
-  { id: 'upgrades', label: '升级部件', category: 'item', tags: ['shipUpgrade'], icon: 'mdi-arrow-up-bold-box-outline' },
-  { id: 'furniture', label: '船只陈设', category: 'item', tags: ['majorFurniture', 'offensiveFurniture', 'utilityFurniture'], icon: 'mdi-sofa-outline' },
-  { id: 'consumables', label: '消耗品', category: 'item', tags: ['consumable'], icon: 'mdi-bottle-tonic-outline' },
-  { id: 'tools_chests', label: '工具与宝箱', category: 'item', tags: ['tool', 'chest'], icon: 'mdi-treasure-chest' },
-  { id: 'materials', label: '材料', category: 'material', tags: [], icon: 'mdi-hexagon-multiple-outline' },
-  { id: 'cosmetics', label: '装饰品', category: 'cosmetic', tags: [], icon: 'mdi-palette-outline' },
-  { id: 'ultimates', label: '终极技能', category: 'ultimate', tags: [], icon: 'mdi-lightning-bolt-outline' },
-  { id: 'modifications', label: '模组', category: 'modification', tags: [], icon: 'mdi-puzzle-outline' },
-  { id: 'ships', label: '船只', category: 'ship', tags: [], icon: 'mdi-ship-wheel' },
-]
+const itemFilterCategories = computed<CategoryFilterItem[]>(() => [
+  { id: 'all_items', label: t('setting.wishlist.filterCategories.all_items'), category: 'item', tags: [], icon: 'mdi-cube-outline' },
+  { id: 'weapons', label: t('setting.wishlist.filterCategories.weapons'), category: 'item', tags: ['culverin', 'demicannon', 'bombard', 'longGun', 'torpedo', 'ballista', 'seaFire', 'mortar', 'rocket', 'springloader', 'armor'], icon: 'mdi-sword-cross' },
+  { id: 'upgrades', label: t('setting.wishlist.filterCategories.upgrades'), category: 'item', tags: ['shipUpgrade'], icon: 'mdi-arrow-up-bold-box-outline' },
+  { id: 'furniture', label: t('setting.wishlist.filterCategories.furniture'), category: 'item', tags: ['majorFurniture', 'offensiveFurniture', 'utilityFurniture'], icon: 'mdi-sofa-outline' },
+  { id: 'consumables', label: t('setting.wishlist.filterCategories.consumables'), category: 'item', tags: ['consumable'], icon: 'mdi-bottle-tonic-outline' },
+  { id: 'tools_chests', label: t('setting.wishlist.filterCategories.tools_chests'), category: 'item', tags: ['tool', 'chest'], icon: 'mdi-treasure-chest' },
+  { id: 'materials', label: t('setting.wishlist.filterCategories.materials'), category: 'material', tags: [], icon: 'mdi-hexagon-multiple-outline' },
+  { id: 'cosmetics', label: t('setting.wishlist.filterCategories.cosmetics'), category: 'cosmetic', tags: [], icon: 'mdi-palette-outline' },
+  { id: 'ultimates', label: t('setting.wishlist.filterCategories.ultimates'), category: 'ultimate', tags: [], icon: 'mdi-lightning-bolt-outline' },
+  { id: 'modifications', label: t('setting.wishlist.filterCategories.modifications'), category: 'modification', tags: [], icon: 'mdi-puzzle-outline' },
+  { id: 'ships', label: t('setting.wishlist.filterCategories.ships'), category: 'ship', tags: [], icon: 'mdi-ship-wheel' },
+])
 
 const onSelectFilterCategory = (cat: CategoryFilterItem) => {
   if (cat.category === 'modification') {

@@ -3,7 +3,7 @@ export default {name: 'FactionIconWidget'}
 </script>
 
 <script setup lang="ts">
-import {use_icon_global_Style} from "@/assets/sripts/use_icon_global_Style";
+import {useIconGlobalStyle} from "@/assets/sripts/use_icon_global_style";
 import {onMounted, type Ref, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
@@ -49,7 +49,7 @@ const onReady = () => {
 }
 
 
-const {useIconImagePadding, useIconImageMargin} = use_icon_global_Style();
+const {useIconImagePadding, useIconImageMargin} = useIconGlobalStyle();
 </script>
 
 <template>

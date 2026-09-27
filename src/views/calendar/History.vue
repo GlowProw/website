@@ -700,7 +700,7 @@ watch(activeCalendar, () => {
                           size="20"
                           :class="calendarLoading ? 'spin-icon-load' : ''"/>
                     </template>
-                    <v-list-item-title>刷新</v-list-item-title>
+                    <v-list-item-title>{{ t('basic.button.refresh') }}</v-list-item-title>
                   </v-list-item>
                 </v-list>
               </v-menu>
@@ -731,8 +731,7 @@ watch(activeCalendar, () => {
                     size="55"
                     class="font-weight-bold text-h5"
                     :color="`var(--main-color)`"
-                    style="color: hsl(from var(--main-color) h s calc(l * 0.3))"
-                >
+                    style="color: hsl(from var(--main-color) h s calc(l * 0.3))">
                   {{ monthData.month }}
                 </v-avatar>
                 <v-col>

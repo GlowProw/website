@@ -110,8 +110,7 @@ const useBaseAssembly = (idx: number) => {
             <!-- 单选框：设置为对比目标 -->
             <div
                 class="benchmark-radio-wrapper d-flex align-center cursor-pointer"
-                @click="setTargetIndex(idx)"
-            >
+                @click="setTargetIndex(idx)">
               <v-icon
                   :icon="targetIndex === idx ? 'mdi-radiobox-marked' : 'mdi-radiobox-blank'"
                   :color="targetIndex === idx ? 'amber' : 'grey'"
@@ -120,8 +119,7 @@ const useBaseAssembly = (idx: number) => {
               ></v-icon>
               <span
                   class="text-caption font-weight-bold"
-                  :class="targetIndex === idx ? 'text-amber' : 'text-medium-emphasis'"
-              >
+                  :class="targetIndex === idx ? 'text-amber' : 'text-medium-emphasis'">
                   {{ t('assembly.compare.targetBenchmark') }}
                 </span>
             </div>
@@ -194,8 +192,7 @@ const useBaseAssembly = (idx: number) => {
                           v-for="resItem in entry.searchResults"
                           :key="resItem.uuid"
                           link
-                          @click="selectAssembly(idx, resItem)"
-                      >
+                          @click="selectAssembly(idx, resItem)">
                         <template v-slot:prepend>
                           <ItemSlotBase size="36px" class="mr-2">
                             <ShipIconWidget

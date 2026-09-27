@@ -157,11 +157,11 @@ const getSmugglersComment = async (reportId: string) => {
             <v-col cols="auto" sm="6" lg="12">
               <div class="mt-10 opacity-60">
                 <p><b class="d-block mb-3">{{ smugglersData.title ?? 'N/A' }}</b></p>
-                <p>开始:
+                <p>{{ t('smugglersReport.view.startTime') }}:
                   <TimeView :time="smugglersData.startTime">
                   </TimeView>
                 </p>
-                <p>结束:
+                <p>{{ t('smugglersReport.view.endTime') }}:
                   <TimeView :time="smugglersData.endTime">
                     <Time :time="smugglersData.endTime"></Time>
                   </TimeView>
@@ -176,7 +176,7 @@ const getSmugglersComment = async (reportId: string) => {
           <v-card variant="text" min-height="450">
             <SmugglersReportShowItemWidget :data="smugglersData.content"></SmugglersReportShowItemWidget>
           </v-card>
-          <template v-slot:title>走私物品</template>
+          <template v-slot:title>{{ t('smugglersReport.view.smuggledItems') }}</template>
         </AffixBoxHasTitleView>
       </v-col>
     </v-row>
@@ -185,12 +185,12 @@ const getSmugglersComment = async (reportId: string) => {
   <v-container>
     <v-row>
       <v-col>
-        <p class="text-h5 text-amber">奖赏家们</p>
-        <p class="opacity-60 text-caption mt-1 mb-3">来看下奖赏家们如何评价</p>
+        <p class="text-h5 text-amber">{{ t('smugglersReport.view.connoisseurs') }}</p>
+        <p class="opacity-60 text-caption mt-1 mb-3">{{ t('smugglersReport.view.connoisseursDesc') }}</p>
       </v-col>
       <v-col cols="auto">
         <v-btn to="/account/smugglersReport" target="_blank">
-          成为鉴赏家
+          {{ t('smugglersReport.view.becomeConnoisseur') }}
         </v-btn>
       </v-col>
     </v-row>

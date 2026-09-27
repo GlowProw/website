@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {use_icon_global_Style} from "@/assets/sripts/use_icon_global_Style";
+import {useIconGlobalStyle} from "@/assets/sripts/use_icon_global_style";
 import {computed, ComputedRef, onMounted, type Ref, ref, watch} from "vue";
 import {Item, Items} from "glow-prow-data/src/entity/Items";
 import {rarity, number} from "@/assets/sripts/index";
@@ -38,7 +38,7 @@ const appStore = useAppStore(),
     // 稀有度
     rarityColorConfig = rarity.color
 
-const {useIconImagePadding, useIconImageMargin} = use_icon_global_Style();
+const {useIconImagePadding, useIconImageMargin} = useIconGlobalStyle();
 const computedPadding = useIconImagePadding(props.padding);
 const computedMargin = useIconImageMargin(props.margin);
 

@@ -190,7 +190,11 @@
       "search": "搜索",
       "go": "前往",
       "edit": "编辑",
-      "delete": "删除"
+      "delete": "删除",
+      "use": "使用",
+      "close": "关闭",
+      "create": "创建",
+      "refresh": "刷新"
     },
     "assembly": {
       "publish": {
@@ -586,7 +590,41 @@
       }
     },
     "yes": "是",
-    "no": "否"
+    "no": "否",
+    "language": "语言",
+    "charactersUnit": "字",
+    "time": {
+      "selectDate": "请选择日期",
+      "selectDateRange": "选择日期范围",
+      "startDate": "开始日期",
+      "endDate": "结束日期",
+      "startYear": "开始年份",
+      "endYear": "结束年份",
+      "startMonth": "开始月份",
+      "endMonth": "结束月份",
+      "endDateBeforeStartDateError": "结束日期不能早于开始日期",
+      "futureDateError": "选择的日期不能超过当前时间",
+      "pastDateError": "选择的日期不能早于当前时间",
+      "dateRangePicker": "日期范围选择器",
+      "modes": {
+        "year": "年到年",
+        "month": "年月到年月",
+        "date": "年月日到年月日"
+      },
+      "presets": {
+        "today": "今天",
+        "yesterday": "昨天",
+        "thisWeek": "本周",
+        "last7Days": "近7天",
+        "thisMonth": "本月",
+        "lastMonth": "上月",
+        "last30Days": "近30天",
+        "thisYear": "今年",
+        "lastYear": "去年",
+        "last3Years": "近3年",
+        "last5Years": "近5年"
+      }
+    }
   },
   "comment": {
     "title": "评论",
@@ -673,7 +711,36 @@
     "myComment": "我的评论",
     "myTeamup": "我的组队",
     "myMap": "地图管理",
-    "mySmugglersReport": "走私犯奖赏家"
+    "mySmugglersReport": "走私犯奖赏家",
+    "maps": {
+      "createCollection": "创建地图集",
+      "collectionPoints": "地图集内坐标",
+      "availablePoints": "可添加的坐标",
+      "selectAll": "全选",
+      "deselectAll": "取消全选",
+      "deletePoints": "删除坐标",
+      "searchPoints": "搜索坐标...",
+      "noDescription": "无描述"
+    },
+    "smugglersReport": {
+      "headerTitle": "走私犯线人每周鉴赏家",
+      "headerDesc": "走私贩鉴赏家，专精每周市场动态，为每件稀有物品撰写深度评测与选购指南，让每位船长都能精准锁定价值巅峰的珍宝，不再错失任何一次财富机遇。在这里，您不仅是信息的传递者，更是社群中备受信赖的潮流引领者——成为众人瞩目的焦点，赢得万千玩家的追随与赞誉。",
+      "headerBenefit": "成为走私犯鉴赏家，你的账号获得'走私犯鉴赏家'身份，并且允许在走私犯线人下评论推荐物品",
+      "applyRequirement": "申请条件：在不同媒体平台拥有不少订阅者 或 大众玩家推举成员",
+      "applyMethod": "申请方式：点击下方申请按钮",
+      "viewCurrentReport": "查看当前周报",
+      "applyBtn": "申请",
+      "createWeeklyData": "创建每周物品数据",
+      "editReport": "编辑周报",
+      "createComment": "创建评论",
+      "viewComment": "查看评论",
+      "dialogTitle": "创建走私犯每周数据",
+      "deleteReport": "删除周报",
+      "createReviewTitle": "创建鉴赏",
+      "reviewNotice": "请不要发布与走私犯无关内容",
+      "reviewPlaceholder": "输入你鉴赏推荐内容",
+      "deleteComment": "删除评论"
+    }
   },
   "activate": {
     "title": "账户激活",
@@ -947,7 +1014,8 @@
           "name": "支援舰",
           "description": "支援舰擅长支援友方船只，往往能够帮助扭转战局。"
         }
-      }
+      },
+      "attachment": "附件"
     },
     "items": {
       "title": "物品列表",
@@ -1100,7 +1168,10 @@
       "lookDetail": "查看终结技详情"
     },
     "ultimates": {
-      "title": "终结技列表"
+      "title": "终结技列表",
+      "chargeRequired": "获取所需积分",
+      "dateAdded": "添加日期",
+      "lastUpdated": "更新日期"
     },
     "modification": {
       "title": "模组详情",
@@ -1250,7 +1321,11 @@
     },
     "empireSkills": {
       "title": "帝国技能列表",
-      "describe": "帝国技能手稿收录帝国科技树各项升级技能、前置条件与阶段效果。"
+      "describe": "帝国技能手稿收录帝国科技树各项升级技能、前置条件与阶段效果。",
+      "faction": "阵营",
+      "stageCount": "阶级数",
+      "dateAdded": "添加日期",
+      "lastUpdated": "更新日期"
     },
     "mastery": {
       "title": "专精技能详情",
@@ -1318,7 +1393,8 @@
     "meta": {
       "keywords": "碧海黑帆,Skull and Bones,Twitch Drops,掉宝,掉宝历史,观看奖励",
       "description": "《碧海黑帆》Twitch Drops 掉宝活动追踪、当前生效掉宝与历史奖励档案。"
-    }
+    },
+    "searchPlaceholder": "搜索活动名称..."
   },
   "calendar": {
     "title": "日历",
@@ -1349,7 +1425,8 @@
     "viewMode": {
       "compact": "简约模式",
       "detailed": "详细模式"
-    }
+    },
+    "refresh": "刷新"
   },
   "map": {
     "title": "地图",
@@ -1388,6 +1465,12 @@
     "sharedUsersHint": "输入用户ID，用逗号分隔",
     "personalMarkers": "个人标记",
     "noDescription": "暂无描述",
+    "pointsInCollection": "地图集内坐标",
+    "availablePoints": "可添加的坐标",
+    "deletePoints": "删除坐标",
+    "searchPointsPlaceholder": "搜索坐标...",
+    "selectAll": "全选",
+    "deselectAll": "取消全选",
     "noCollections": "暂无地图集",
     "titleRequired": "标题是必填项",
     "collectionRequired": "请选择地图集",
@@ -1456,7 +1539,9 @@
   "rankingDesignedItems": {
     "title": "排序设计",
     "workshop": {
-      "title": "工作台"
+      "title": "工作台",
+      "createTitle": "创建自定义排名",
+      "editTitle": "编辑自定义排名"
     },
     "browse": {
       "title": "分享",
@@ -1728,7 +1813,17 @@
         "armorModificationEmpty": "副武器是空的"
       },
       "emptyShip": "尚未选择船只",
-      "emptyShipDesc": "请在配装工作站中选择船只并配置武器和装备，以查看详细计算属性与统计数据"
+      "emptyShipDesc": "请在配装工作站中选择船只并配置武器和装备，以查看详细计算属性与统计数据",
+      "createTitle": "创建配置",
+      "editTitle": "编辑配装",
+      "quickSaveDraft": "快速保存草稿",
+      "saveAsDraft": "另存草稿",
+      "loadDraft": "加载草稿",
+      "missingRequiredFields": "配装似乎缺少必要选项，请船长添加必要内容",
+      "draft": "草稿",
+      "inputDraftName": "输入另存为草稿名称",
+      "quickArchiving": "快速储存草稿",
+      "useDraft": "使用"
     },
     "calc": {
       "overall": "总体属性",
@@ -1781,7 +1876,12 @@
       "projectilesPerShot": "单发弹丸数"
     },
     "detail": {
-      "title": "配装详情"
+      "title": "配装详情",
+      "notFoundTitle": "抱歉，此配装不存在或不公开",
+      "notFoundDescPrefix": "未能找到",
+      "notFoundDescSuffix": "，它可能为私有或不存在",
+      "passwordRequiredTitle": "抱歉此配装需要密码",
+      "passwordRequiredDesc": "你可以输入密码来解密"
     },
     "share": {
       "title": "分享配装",
@@ -1820,7 +1920,11 @@
         "likes": "赞",
         "desc": "正序",
         "asc": "反序"
-      }
+      },
+      "sort": "排序",
+      "createdTimeRange": "创建时间范围",
+      "updatedTimeRange": "更新时间范围",
+      "includePasswordProtected": "是否列出包含密码配装"
     },
     "publish": {
       "title": "发布",
@@ -1834,11 +1938,45 @@
       "extra": "额外",
       "tags": "标签",
       "tagsPlaceholder": "输入标签敲下回车键，即可创建新标签"
-    }
+    },
+    "selectWeaponDirection": "选择武器方向",
+    "unnamed": "未命名配装"
   },
   "smugglersReport": {
     "title": "走私犯鉴赏家",
-    "description": "走私犯鉴赏家是对每周走私犯刷新物品评价，给所有玩家推荐选购理由，让玩家们不要错过价值非常高物品"
+    "description": "走私犯鉴赏家是对每周走私犯刷新物品评价，给所有玩家推荐选购理由，让玩家们不要错过价值非常高物品",
+    "weekly": "每周",
+    "weeklyItems": "本周物品 (Weekly)",
+    "itemId": "物品ID",
+    "currency": "货币",
+    "worth": "价值/数量",
+    "view": {
+      "startTime": "开始",
+      "endTime": "结束",
+      "smuggledItems": "走私物品",
+      "connoisseurs": "鉴赏家们",
+      "connoisseursDesc": "来看下鉴赏家们如何评价",
+      "becomeConnoisseur": "成为鉴赏家"
+    },
+    "account": {
+      "connoisseurTitle": "走私犯线人每周鉴赏家",
+      "connoisseurDesc": "走私贩鉴赏家，专精每周市场动态，为每件稀有物品撰写深度评测与选购指南，让每位船长都能精准锁定价值巅峰的珍宝，不再错失任何一次财富机遇。在这里，您不仅是信息的传递者，更是社群中备受信赖的潮流引领者——成为众人瞩目的焦点，赢得万千玩家的追随与赞誉。",
+      "connoisseurBenefit": "成为走私犯鉴赏家，你的账号获得'走私犯鉴赏家'身份，并且允许在走私犯线人下评论推荐物品",
+      "applyCondition": "申请条件：在不同媒体平台拥有不少订阅者 或 大众玩家推举成员",
+      "applyMethod": "申请方式：点击下方申请按钮",
+      "viewCurrentReport": "查看当前周报",
+      "apply": "申请",
+      "createWeeklyData": "创建每周物品数据",
+      "editReport": "编辑周报",
+      "viewComment": "查看评论",
+      "createComment": "创建评论",
+      "createWeeklyTitle": "创建走私犯每周数据",
+      "deleteReport": "删除周报",
+      "createReviewTitle": "创建鉴赏",
+      "warningContent": "请不要发布与走私犯无关内容",
+      "recommendationPlaceholder": "输入你鉴赏推荐内容",
+      "deleteComment": "删除评论"
+    }
   },
   "space": {
     "title": "用户空间",
@@ -1895,7 +2033,18 @@
     "other": "其他",
     "effectsNotContent": "缺少描述",
     "dateAdded": "创建时间",
-    "lastUpdated": "更新时间"
+    "lastUpdated": "更新时间",
+    "debugMode": "DEBUG 模式 (可拖拽节点/编辑关系)",
+    "notActive": "未激活",
+    "levelUp": "提升等级",
+    "levelDown": "降低等级",
+    "debugEdit": "DEBUG 调试编辑",
+    "exportAllNodes": "导出所有节点",
+    "nodePosition": "节点位置 (X, Y):",
+    "requisiteList": "前置条件列表 (Requisite):",
+    "addRequisiteKey": "添加前置节点KEY",
+    "mustHaveUpgrades": "需拥有以下所有升级",
+    "noRequisites": "无前置升级需求（起始节点）"
   },
   "mastery": {
     "title": "专精技能模拟",
@@ -2037,7 +2186,13 @@
       "maxPointsReached": "已达到当前赛季最大专精点数 ({max} 点)。",
       "noPathToNode": "前置条件不足：无法找到到达该节点的有效连通路径。",
       "pointsExhaustedToNode": "点数不足，已沿朝向目标节点路径激活至：{name}。",
-      "insufficientPointsForPath": "点数不足，无法沿路径激活该节点。"
+      "insufficientPointsForPath": "点数不足，无法沿路径激活该节点。",
+      "group": "分组",
+      "ring": "环层级",
+      "direction": "方向",
+      "coordinates": "坐标",
+      "dependentNodes": "后续解锁节点",
+      "season": "所属赛季"
     },
     "debug": {
       "title": "专精树调试与坐标编辑",
@@ -2045,7 +2200,7 @@
       "selectedNode": "选中节点",
       "coordX": "X 坐标",
       "coordY": "Y 坐标",
-      "requisites": "前置关系 (Requisites)",
+      "requisites": "前置技能要求",
       "requisitesPlaceholder": "输入前置节点ID",
       "clickHint": "点击画布节点即可查看或拖拽微调坐标",
       "copied": "已复制当前专精树配置 JSON 到剪贴板",
@@ -2088,7 +2243,8 @@
       "requisiteSelf": "不能将自身设为前置",
       "requisiteAdded": "已添加前置：{name}",
       "requisiteRemoved": "已移除前置：{name}"
-    }
+    },
+    "noData": "暂无精通数据"
   },
   "search": {
     "title": "搜索",
@@ -2295,14 +2451,45 @@
       "saveSuccess": "清单保存成功",
       "saveError": "清单保存失败",
       "selectGradeFirst": "请先选择代表模组类型以解锁词条选择",
-      "selectModGrade": "代表模组类型"
+      "selectModGrade": "代表模组类型",
+      "categoryFilter": "物品分类筛选",
+      "filterCategories": {
+        "all_items": "全品类物品 (All Items)",
+        "weapons": "武器与护甲",
+        "upgrades": "升级部件",
+        "furniture": "船只陈设",
+        "consumables": "消耗品",
+        "tools_chests": "工具与宝箱",
+        "materials": "材料",
+        "cosmetics": "装饰品",
+        "ultimates": "终极技能",
+        "modifications": "模组",
+        "ships": "船只"
+      }
     },
     "advanced": {
       "title": "进阶设置",
       "cardTitle": "开发者调试",
       "hint": "面向开发者选项，用于调整网站可控制数据或查看数据，如果你不清楚，不要打开",
       "debugName": "开发者调试模式",
-      "debugDesc": "开启后将在图鉴、配装、技能模拟等页面显示节点拖拽、原始ID、坐标编辑与调试信息。"
+      "debugDesc": "开启后将在图鉴、配装、技能模拟等页面显示节点拖拽、原始ID、坐标编辑与调试信息。",
+      "notification": {
+        "title": "桌面通知与活动提醒",
+        "description": "管理浏览器桌面通知权限与总开关，开启后活动时间到达将通过系统桌面弹窗进行提醒。",
+        "status": "通知权限状态",
+        "granted": "已允许桌面通知",
+        "denied": "已拒绝 (请在浏览器地址栏网站设置中开启通知权限)",
+        "default": "未授权 (点击右侧按钮申请权限)",
+        "unsupported": "当前浏览器或环境不支持桌面通知",
+        "masterSwitch": "启用桌面通知推送",
+        "masterSwitchDesc": "关闭后所有活动提醒将不会弹出系统桌面通知",
+        "requestPermission": "申请桌面通知权限",
+        "testNotice": "发送测试通知",
+        "testTitle": "⏰ 闪耀船首 - 测试提醒",
+        "testBody": "桌面通知功能正常！活动时间到达时你将会收到提醒推送。",
+        "permissionGrantedMsg": "已成功获取桌面通知权限！",
+        "permissionDeniedMsg": "通知权限被拒绝，请在浏览器设置中开启通知权限。"
+      }
     }
   },
   "header": {
@@ -2377,6 +2564,10 @@
       "apps": {
         "title": "应用程序",
         "description": "使用扩展套件提升体验"
+      },
+      "reminder": {
+        "title": "活动提醒",
+        "description": "定时提醒游戏内活动与刷新事件，桌面推送通知"
       }
     }
   },
@@ -2587,29 +2778,29 @@
     "hallTitle": "核心捐助者",
     "coreBadge": "核心捐助者",
     "tiers": {
-      "1000": {
-        "name": "头目",
-        "desc": "头戴三叉金冠、坐拥整支舰队的传奇头目。你的名字将刻在船尾楼最高处，整片海域都要看你的旗语行事。"
-      },
-      "500": {
-        "name": "大副",
-        "desc": "头目之下第一人，掌管战利品分配与船员纪律。弯刀往桌上一拍，甲板上再无二话。"
-      },
-      "100": {
-        "name": "海盗",
-        "desc": "手持私掠许可证纵横航道的正经海盗——抢得光明正大，花得理直气壮。"
-      },
-      "50": {
-        "name": "水手长",
-        "desc": "管帆、管炮、管缆绳，还管新人晕船时的后脑勺。船离了水手长，出海都得打晃。"
+      "5": {
+        "name": "见习海盗",
+        "desc": "刚端上朗姆酒、还分不清左右舷的菜鸟。钱不多，但每条名船都从这一步开始。"
       },
       "10": {
         "name": "双子",
         "desc": "桅顶瞭望台上永远成双的那对活宝，一个看风，一个看你口袋里的银币。"
       },
-      "5": {
-        "name": "见习海盗",
-        "desc": "刚端上朗姆酒、还分不清左右舷的菜鸟。钱不多，但每条名船都从这一步开始。"
+      "50": {
+        "name": "水手长",
+        "desc": "管帆、管炮、管缆绳，还管新人晕船时的后脑勺。船离了水手长，出海都得打晃。"
+      },
+      "100": {
+        "name": "海盗",
+        "desc": "手持私掠许可证纵横航道的正经海盗——抢得光明正大，花得理直气壮。"
+      },
+      "500": {
+        "name": "大副",
+        "desc": "头目之下第一人，掌管战利品分配与船员纪律。弯刀往桌上一拍，甲板上再无二话。"
+      },
+      "1000": {
+        "name": "头目",
+        "desc": "头戴三叉金冠、坐拥整支舰队的传奇头目。你的名字将刻在船尾楼最高处，整片海域都要看你的旗语行事。"
       },
       "custom": {
         "name": "自定义赏金",
@@ -2629,5 +2820,161 @@
     "cancelPay": "取消支付",
     "continuePay": "继续支付",
     "orderCancelled": "订单已取消"
+  },
+  "reminder": {
+    "title": "活动提醒",
+    "description": "定时提醒游戏内活动与刷新事件，不错过您关注的事件",
+    "createNew": "创建新提醒",
+    "edit": "编辑提醒",
+    "delete": "删除提醒",
+    "deleteConfirm": "确认要删除提醒 “{title}” 吗？此操作不可撤销。",
+    "goToSettings": "前往设置",
+    "permissionWarning": "桌面通知权限未开启，点击右侧申请或前往设置以接收桌面系统通知",
+    "search": "搜索活动名称或备注...",
+    "empty": "暂无活动提醒任务，点击上方按钮创建或导入预设",
+    "testTrigger": "测试通知",
+    "save": "保存提醒",
+    "cancel": "取消",
+    "fields": {
+      "title": "活动标题",
+      "titlePlaceholder": "请输入活动标题，如：奶酪刷新",
+      "type": "定时类型",
+      "typeRepeat": "周期重复",
+      "typeOnce": "一次性",
+      "repeatType": "重复方式",
+      "repeatWeekly": "按星期重复",
+      "repeatInterval": "固定时间间隔",
+      "repeatDays": "重复星期",
+      "repeatTime": "触发时间",
+      "repeatIntervalHours": "间隔时间",
+      "everyNHours": "每 {n} 小时触发一次",
+      "everyNUnits": "每 {n} {unit} 触发一次",
+      "targetTime": "截止/触发时间",
+      "note": "备注说明",
+      "notePlaceholder": "可填写活动攻略、参与地点或注意事项（限5000字）",
+      "enabled": "启用提醒",
+      "taskEnabled": "启用任务",
+      "taskEnabledDesc": "开启后将在列表中进行实时倒计时与状态追踪",
+      "notifyEnabled": "是否通知",
+      "notifyEnabledDesc": "到期时是否发送系统桌面通知与提示音（默认开启）",
+      "advanceNotice": "提前提醒",
+      "advanceNoticeDesc": "在活动到达前提前发送桌面提醒通知",
+      "advanceOptions": {
+        "1m": "提前 1 分钟",
+        "5m": "提前 5 分钟",
+        "10m": "提前 10 分钟",
+        "30m": "提前半小时 (30 分钟)",
+        "60m": "提前 1 小时 (60 分钟)",
+        "custom": "自定义"
+      },
+      "advanceMinutes": "提前分钟数",
+      "validity": "任务有效期",
+      "validityPermanent": "永久有效",
+      "validityRange": "指定时间区间",
+      "validityFrom": "开始时间",
+      "validityTo": "截止时间"
+    },
+    "units": {
+      "day": "天",
+      "hour": "小时",
+      "minute": "分钟",
+      "second": "秒"
+    },
+    "weekdays": {
+      "mon": "周一",
+      "tue": "周二",
+      "wed": "周三",
+      "thu": "周四",
+      "fri": "周五",
+      "sat": "周六",
+      "sun": "周日",
+      "all": "全部日期"
+    },
+    "status": {
+      "active": "生效中",
+      "paused": "已停用",
+      "expired": "已过期",
+      "imminent": "即将触发",
+      "notStarted": "未开始"
+    },
+    "countdown": {
+      "remaining": "剩余时间",
+      "expired": "已到达截止时间",
+      "paused": "提醒已停用",
+      "advanceBadge": "提前提醒中"
+    },
+    "presets": {
+      "title": "常用预设",
+      "loadBtn": "导入预设",
+      "loaded": "预设活动已成功加载",
+      "cheese": {
+        "title": "奶酪！",
+        "desc": "奶酪刷新啦！",
+        "note": "奶酪刷新啦！可在地图各商贩处购买或刷新收集。"
+      },
+      "helmTakeover": {
+        "title": "海舵社:接管机遇",
+        "desc": "下一个接管机遇刷新时间",
+        "note": "海舵社接管机遇已刷新，请及时前往参与接管。"
+      },
+      "helmWarEvent": {
+        "title": "战争事件",
+        "desc": "下一个战争事件刷新时间",
+        "note": "战争事件已开启，准备参与争夺与交锋。"
+      },
+      "maintenance": {
+        "title": "游戏维护",
+        "desc": "日常游戏维护时间，具体查看游戏公告",
+        "note": "日常游戏维护时间，具体查看游戏官方公告与维护通知。"
+      }
+    },
+    "filter": {
+      "all": "全部",
+      "repeat": "周期重复",
+      "once": "一次性",
+      "active": "生效中",
+      "paused": "已停用",
+      "activeConditions": "已选条件",
+      "keyword": "关键词",
+      "clearAll": "清空筛选",
+      "sortTitle": "排序方式",
+      "sortTriggerTime": "按触发时间",
+      "sortCreatedTime": "按创建时间",
+      "sortTitleField": "按活动标题",
+      "sortAsc": "升序 (最近优先)",
+      "sortDesc": "降序"
+    },
+    "stats": {
+      "total": "任务总数",
+      "active": "生效中",
+      "nextTrigger": "最近触发"
+    },
+    "bot": {
+      "addToBot": "添加到机器人通知",
+      "dialogTitle": "添加到机器人通知",
+      "description": "通过私聊向机器人订阅一个私人通知",
+      "hint": "复制下方指令并发送给机器人私聊，即可在指定时间接收推送通知：",
+      "copyCommand": "复制订阅命令",
+      "copied": "订阅命令已复制到剪贴板",
+      "targetTask": "目标活动",
+      "clickToCopy": "点击复制",
+      "commandPrefix": "/订阅"
+    },
+    "notificationEnabled": "通知已开启",
+    "notificationDisabled": "通知已关闭",
+    "noNote": "暂无备注",
+    "muted": "已静音",
+    "presetBadge": "预设",
+    "dialog": {
+      "selectAll": "全选",
+      "workdays": "工作日",
+      "weekends": "周末",
+      "everyday": "每天",
+      "systemTime": "系统/北京时间",
+      "advanceNoticeDesc": "提前 {min} 分钟触发桌面通知",
+      "effectiveImmediately": "即刻生效",
+      "offsetDays": "{days}天",
+      "immediately": "即刻"
+    }
   }
 }

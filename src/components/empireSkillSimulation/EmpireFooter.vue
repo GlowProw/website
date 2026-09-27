@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import {useI18n} from 'vue-i18n';
 import RhombusWidget from '@/components/snbWidget/rhombusWidget.vue';
+
+const {t} = useI18n();
 
 const props = withDefaults(defineProps<{
   zoom: number;
@@ -38,7 +41,7 @@ const emit = defineEmits<{
 
     <v-chip v-if="isDebug" color="error" size="small" variant="flat" class="mr-3 font-weight-bold">
       <v-icon start size="14">mdi-bug</v-icon>
-      DEBUG 模式 (可拖拽节点/编辑关系)
+      {{ t('empireSkillSimulation.debugMode') }}
     </v-chip>
 
     <span class="ml-3 text-caption opacity-60">

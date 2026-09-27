@@ -305,7 +305,7 @@ onMounted(() => {
                     v-model="historyKeyword"
                     density="compact"
                     variant="outlined"
-                    placeholder="搜索活动名称..."
+                    :placeholder="t('drop.searchPlaceholder')"
                     prepend-inner-icon="mdi-magnify"
                     hide-details
                     min-width="240"

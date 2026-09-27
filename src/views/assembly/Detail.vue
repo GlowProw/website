@@ -329,7 +329,7 @@ const onPenPassword = () => {
                     :readonly="true"
                     :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
                     v-model="detailData.description"
-                    placeholder="输入描述描述"></Textarea>
+                    :placeholder="t('assembly.publish.descriptionPlaceholder')"></Textarea>
 
           <AdsWidget class="my-5" id="assembly-detail-content"></AdsWidget>
 
@@ -383,23 +383,23 @@ const onPenPassword = () => {
 
     <v-card variant="text" class="pa-10 text-center">
       <v-icon icon="mdi-alert-circle-outline" class="text-amber" size="120"></v-icon>
-      <h1 class="mt-10">抱歉,此配装不存在或不公开</h1>
-      <p>未能找到
+      <h1 class="mt-10">{{ t('assembly.detail.notFoundTitle') }}</h1>
+      <p>{{ t('assembly.detail.notFoundDescPrefix') }}
         <v-chip density="compact">{{ route.params.uuid }}</v-chip>
-        ，它可能为私有或不存在
+        {{ t('assembly.detail.notFoundDescSuffix') }}
       </p>
     </v-card>
   </v-container>
   <v-container v-else-if="detailData.isPassword">
     <v-card variant="text" class="pa-10 text-center">
       <v-icon icon="mdi-alert-circle-outline" class="text-amber" size="120"></v-icon>
-      <h1 class="mt-10">抱歉此配装，需要密码</h1>
-      <p>你可以输入密码来解密</p>
+      <h1 class="mt-10">{{ t('assembly.detail.passwordRequiredTitle') }}</h1>
+      <p>{{ t('assembly.detail.passwordRequiredDesc') }}</p>
 
       <div class="mt-8">
         <v-text-field placeholder="******" class="ma-auto" v-model="password" max-width="400">
           <template v-slot:append-inner>
-            <v-btn @click="onPenPassword">确定</v-btn>
+            <v-btn @click="onPenPassword">{{ t('basic.button.submit') }}</v-btn>
           </template>
         </v-text-field>
       </div>

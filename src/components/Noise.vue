@@ -2,8 +2,7 @@
   <canvas
       ref="grainRef"
       class="pointer-events-none absolute top-0 left-0 h-screen w-screen"
-      :style="`image-rendering: pixelated; mix-blend-mode: ${props.mixBlendMode}`"
-  >
+      :style="`image-rendering: pixelated; mix-blend-mode: ${props.mixBlendMode}`">
   </canvas>
 </template>
 

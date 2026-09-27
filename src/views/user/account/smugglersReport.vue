@@ -302,23 +302,23 @@ const onDeleteComment = async () => {
         <v-icon size="250">mdi-trophy-award</v-icon>
       </div>
 
-      <h1 class="mb-3 text-amber" style="z-index: 10; position: relative">走私犯线人每周鉴赏家</h1>
-      <p class="text-caption opacity-60">走私贩鉴赏家，专精每周市场动态，为每件稀有物品撰写深度评测与选购指南，让每位船长都能精准锁定价值巅峰的珍宝，不再错失任何一次财富机遇。在这里，您不仅是信息的传递者，更是社群中备受信赖的潮流引领者——成为众人瞩目的焦点，赢得万千玩家的追随与赞誉。</p>
-      <p class="text-caption opacity-60">成为走私犯鉴赏家，你的账号获得'走私犯鉴赏家'身份，并且允许在走私犯线人下评论推荐物品</p>
+      <h1 class="mb-3 text-amber" style="z-index: 10; position: relative">{{ t('smugglersReport.account.connoisseurTitle') }}</h1>
+      <p class="text-caption opacity-60">{{ t('smugglersReport.account.connoisseurDesc') }}</p>
+      <p class="text-caption opacity-60">{{ t('smugglersReport.account.connoisseurBenefit') }}</p>
     </div>
 
     <v-divider class="my-10"></v-divider>
 
     <div>
-      <p class="text-caption opacity-60">申请条件：在不同媒体平台拥有不少订阅者 或 大众玩家推举成员</p>
-      <p class="text-caption opacity-60">申请方式：点击下方申请按钮</p>
+      <p class="text-caption opacity-60">{{ t('smugglersReport.account.applyCondition') }}</p>
+      <p class="text-caption opacity-60">{{ t('smugglersReport.account.applyMethod') }}</p>
     </div>
 
     <v-card-actions class="mt-3">
       <v-spacer></v-spacer>
       <div class="d-flex ga-2">
-        <v-btn to="/smugglers-report/view">查看当前周报</v-btn>
-        <v-btn variant="tonal">申请</v-btn>
+        <v-btn to="/smugglers-report/view">{{ t('smugglersReport.account.viewCurrentReport') }}</v-btn>
+        <v-btn variant="tonal">{{ t('smugglersReport.account.apply') }}</v-btn>
       </div>
     </v-card-actions>
   </v-card>
@@ -327,11 +327,11 @@ const onDeleteComment = async () => {
     <v-row class="mb-1">
       <v-spacer></v-spacer>
       <v-col cols="auto">
-        <v-btn to="/smugglers-report/view">查看当前周报</v-btn>
+        <v-btn to="/smugglers-report/view">{{ t('smugglersReport.account.viewCurrentReport') }}</v-btn>
       </v-col>
       <v-divider vertical inset></v-divider>
       <v-col cols="auto" v-if="authStore.isLogin && authStore.checkPrivilegeGroup(authStore.user?.privilege,['smugglersReportConnoisseur', 'admin','super' ,'dev'])">
-        <v-btn class="bg-amber" @click="openSmugglersReportModel">创建每周物品数据</v-btn>
+        <v-btn class="bg-amber" @click="openSmugglersReportModel">{{ t('smugglersReport.account.createWeeklyData') }}</v-btn>
       </v-col>
       <v-col cols="auto">
         <v-btn @click="getSmugglersReportList">
@@ -370,8 +370,8 @@ const onDeleteComment = async () => {
 
         <template v-slot:append>
           <div class="d-flex ga-2">
-            <v-btn @click="openSmugglersReportModel(i)">编辑周报</v-btn>
-            <v-btn @click="openCommendModel(i)">{{ i.isUserComment ? '查看' : '创建' }}评论</v-btn>
+            <v-btn @click="openSmugglersReportModel(i)">{{ t('smugglersReport.account.editReport') }}</v-btn>
+            <v-btn @click="openCommendModel(i)">{{ i.isUserComment ? t('smugglersReport.account.viewComment') : t('smugglersReport.account.createComment') }}</v-btn>
           </div>
         </template>
       </v-list-item>
@@ -382,7 +382,7 @@ const onDeleteComment = async () => {
   <v-dialog v-model="smugglersReportModel">
     <v-container>
       <v-card max-height="80vh" class="overflow-y-auto">
-        <v-card-title>创建走私犯每周数据</v-card-title>
+        <v-card-title>{{ t('smugglersReport.account.createWeeklyTitle') }}</v-card-title>
         <v-divider></v-divider>
 
         <v-card-text>
@@ -410,10 +410,10 @@ const onDeleteComment = async () => {
 
         <v-divider></v-divider>
         <v-card-actions>
-          <v-btn @click="onDeleteSmugglersReport(createSmugglersReportData)" v-if="smugglersReportModelIsEdit">删除周报</v-btn>
+          <v-btn @click="onDeleteSmugglersReport(createSmugglersReportData)" v-if="smugglersReportModelIsEdit">{{ t('smugglersReport.account.deleteReport') }}</v-btn>
           <v-spacer></v-spacer>
-          <v-btn @click="smugglersReportModel = !smugglersReportModel">取消</v-btn>
-          <v-btn @click="smugglersReportModelIsEdit ? onEditSmugglersReport() : onCreateSmugglersReport()" :loading="createSmugglersReportLoading">创建</v-btn>
+          <v-btn @click="smugglersReportModel = !smugglersReportModel">{{ t('basic.button.cancel') }}</v-btn>
+          <v-btn @click="smugglersReportModelIsEdit ? onEditSmugglersReport() : onCreateSmugglersReport()" :loading="createSmugglersReportLoading">{{ t('basic.button.create') }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-container>
@@ -424,7 +424,7 @@ const onDeleteComment = async () => {
   <v-dialog v-model="commentModel">
     <v-container>
       <v-card max-height="80vh" class="overflow-y-auto">
-        <v-card-title>创建鉴赏</v-card-title>
+        <v-card-title>{{ t('smugglersReport.account.createReviewTitle') }}</v-card-title>
         <v-divider></v-divider>
 
         <v-card-text>
@@ -437,11 +437,11 @@ const onDeleteComment = async () => {
             <v-divider vertical></v-divider>
             <v-col cols="6">
               <v-alert class="mb-2">
-                请不要发布与走私犯无关内容
+                {{ t('smugglersReport.account.warningContent') }}
               </v-alert>
               <Textarea
                   min-height="300px"
-                  placeholder="输入你鉴赏推荐内容"
+                  :placeholder="t('smugglersReport.account.recommendationPlaceholder')"
                   v-model="smugglersReportComment.content"></Textarea>
             </v-col>
           </v-row>
@@ -451,12 +451,12 @@ const onDeleteComment = async () => {
         <v-divider></v-divider>
         <v-card-actions>
           <v-btn @click="onDeleteComment" v-if="commentModelIsEdit">
-            删除评论
+            {{ t('smugglersReport.account.deleteComment') }}
           </v-btn>
           <v-spacer></v-spacer>
-          <v-btn @click="commentModel = !commentModel">取消</v-btn>
+          <v-btn @click="commentModel = !commentModel">{{ t('basic.button.cancel') }}</v-btn>
           <v-btn @click="commentModelIsEdit ? onEditCommend : onCreateCommend">
-            {{ commentModelIsEdit ? '编辑' : '创建' }}
+            {{ commentModelIsEdit ? t('basic.button.edit') : t('basic.button.create') }}
           </v-btn>
         </v-card-actions>
       </v-card>

@@ -339,17 +339,17 @@ const onDeleteDraft = (id) => {
       <v-container class="pa-7">
         <v-row no-gutters align="start">
           <v-col>
-            <h1 class="text-amber">{{ !isEditModel ? '创建' : '编辑' }}</h1>
+            <h1 class="text-amber">{{ !isEditModel ? t('basic.button.create') : t('basic.button.edit') }}</h1>
             <p class="opacity-80 mt-5">
-              <template v-if="!isEditModel">创建配置</template>
-              <template v-else>编辑配装 <u><b>{{ assemblyDetailData.name || 'none' }}</b></u></template>
+              <template v-if="!isEditModel">{{ t('assembly.workshop.createTitle') }}</template>
+              <template v-else>{{ t('assembly.workshop.editTitle') }} <u><b>{{ assemblyDetailData.name || 'none' }}</b></u></template>
             </p>
           </v-col>
           <v-col cols="auto">
             <v-btn-group density="compact" class="mr-2">
               <v-btn @click="onQuickArchiving" :loading="draftSaveQuickArchivingLoading" v-if="!isEditModel">
                 <BtnWidget class="pl-2" :size="25" keyboard-shortcut="s" @action-complete="onQuickArchiving">
-                  快速保存草稿
+                  {{ t('assembly.workshop.quickSaveDraft') }}
                 </BtnWidget>
               </v-btn>
               <v-menu location="bottom right">
@@ -361,28 +361,28 @@ const onDeleteDraft = (id) => {
                 <v-list min-width="300">
                   <v-list-item>
                     <v-list-item-title @click="draftNewSaveModel = true">
-                      另存草稿
+                      {{ t('assembly.workshop.saveAsDraft') }}
                     </v-list-item-title>
                   </v-list-item>
                   <v-list-item>
                     <v-list-item-title @click="onPenDraftPanel">
-                      加载草稿
+                      {{ t('assembly.workshop.loadDraft') }}
                     </v-list-item-title>
                   </v-list-item>
                 </v-list>
               </v-menu>
             </v-btn-group>
             <v-btn class="mr-2" @click="router.go(-1)" v-if="isEditModel">
-              取消
+              {{ t('basic.button.cancel') }}
             </v-btn>
             <v-tooltip location="left top" content-class="pa-0" :offset="[20, 0]" :disabled="verificationWorkshop && verificationWorkshop.verify.length <= 0">
               <template v-slot:activator="{props}">
                 <span v-bind="props">
                   <v-btn :color="`var(--main-color)`" :disabled="!isAssemblyByUser || verificationWorkshop && verificationWorkshop.required >  0" @click="onSaveAssemblyPublish" v-if="!isEditModel">
-                    下一步
+                    {{ t('basic.button.next') }}
                   </v-btn>
                   <v-btn :color="`var(--main-color)`" :disabled="!isAssemblyByUser || verificationWorkshop && verificationWorkshop.required > 0" @click="onSaveAssemblyEdit" v-if="isEditModel">
-                    下一步
+                    {{ t('basic.button.next') }}
                   </v-btn>
 
                   <v-icon class="ml-2" icon="mdi-alert-circle-outline" color="red" v-if="verificationWorkshop && verificationWorkshop.required > 0"></v-icon>
@@ -393,7 +393,7 @@ const onDeleteDraft = (id) => {
               <v-card width="100%">
                 <v-alert type="warning">
                   <template v-if="verificationWorkshop && verificationWorkshop.required > 0">
-                    <p class="mb-3 font-weight-bold">配装似乎缺少必要选项，请船长添加必要内容</p>
+                    <p class="mb-3 font-weight-bold">{{ t('assembly.workshop.missingRequiredFields') }}</p>
                   </template>
                   <ul v-if="verificationWorkshop">
                     <li v-for="(v, vIndex) in verificationWorkshop.verify" :key="vIndex">
@@ -426,13 +426,13 @@ const onDeleteDraft = (id) => {
       <v-card>
         <v-card-title>
           <v-row align="center" class="pa-2">
-            草稿
+            {{ t('assembly.workshop.draft') }}
             <v-spacer></v-spacer>
             <v-btn @click="draftNewSaveModel = false" :elevation="0" icon="mdi-close"></v-btn>
           </v-row>
         </v-card-title>
         <v-card-item>
-          <v-text-field label="输入另存为草稿名称"
+          <v-text-field :label="t('assembly.workshop.inputDraftName')"
                         v-model="newDraftName"></v-text-field>
         </v-card-item>
         <v-card-actions>
@@ -448,7 +448,7 @@ const onDeleteDraft = (id) => {
       <v-card>
         <v-card-title>
           <v-row align="center" class="pa-2">
-            草稿
+            {{ t('assembly.workshop.draft') }}
             <v-spacer></v-spacer>
             <v-btn @click="draftModel = false" :elevation="0" icon="mdi-close"></v-btn>
           </v-row>
@@ -460,7 +460,7 @@ const onDeleteDraft = (id) => {
                 <v-row no-gutters>
                   <v-col>
                     <template v-if="i.id == 'quickArchiving'">
-                      快速储存草稿
+                      {{ t('assembly.workshop.quickArchiving') }}
                     </template>
                     <template v-else>
                       {{ i.name || 'none' }}
@@ -468,7 +468,7 @@ const onDeleteDraft = (id) => {
                   </v-col>
                   <v-col cols="auto">
                     <v-btn @click="onUseDraft(i)" variant="tonal" class="mr-2">
-                      使用
+                      {{ t('basic.button.use') }}
                     </v-btn>
                     <v-btn icon density="compact" @click="onDeleteDraft(i.id)">
                       <v-icon icon="mdi-delete"></v-icon>

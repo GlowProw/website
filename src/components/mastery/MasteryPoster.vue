@@ -252,8 +252,7 @@ defineExpose({
         variant="text"
         ref="captureRef"
         class="share mx-auto pt-6 pb-6"
-        :style="`background: ${generateImageValue.background}; width: ${generateImageValue.width}px`"
-    >
+        :style="`background: ${generateImageValue.background}; width: ${generateImageValue.width}px`">
       <!-- 头部标识 S -->
       <v-row no-gutters class="px-8 mb-4" align="center" v-if="generateImageValue.isShowHeader">
         <v-col cols="auto" class="d-flex align-center">

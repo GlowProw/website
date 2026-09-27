@@ -192,7 +192,11 @@
       "search": "搜索",
       "go": "前往",
       "edit": "編輯",
-      "delete": "刪除"
+      "delete": "刪除",
+      "use": "使用",
+      "close": "關閉",
+      "create": "創建",
+      "refresh": "重新整理"
     },
     "assembly": {
       "publish": {
@@ -573,7 +577,41 @@
       }
     },
     "yes": "是",
-    "no": "否"
+    "no": "否",
+    "language": "語言",
+    "charactersUnit": "字",
+    "time": {
+      "selectDate": "請選擇日期",
+      "selectDateRange": "選擇日期範圍",
+      "startDate": "開始日期",
+      "endDate": "結束日期",
+      "startYear": "開始年份",
+      "endYear": "結束年份",
+      "startMonth": "開始月份",
+      "endMonth": "結束月份",
+      "endDateBeforeStartDateError": "結束日期不能早於開始日期",
+      "futureDateError": "選擇的日期不能超過當前時間",
+      "pastDateError": "選擇的日期不能早於當前時間",
+      "dateRangePicker": "日期範圍選擇器",
+      "modes": {
+        "year": "年到年",
+        "month": "年月到年月",
+        "date": "年月日到年月日"
+      },
+      "presets": {
+        "today": "今天",
+        "yesterday": "昨天",
+        "thisWeek": "本週",
+        "last7Days": "近7天",
+        "thisMonth": "本月",
+        "lastMonth": "上月",
+        "last30Days": "近30天",
+        "thisYear": "今年",
+        "lastYear": "去年",
+        "last3Years": "近3年",
+        "last5Years": "近5年"
+      }
+    }
   },
   "comment": {
     "title": "評論",
@@ -660,7 +698,36 @@
     "myComment": "我的評論",
     "myTeamup": "我的組隊",
     "myMap": "地圖管理",
-    "mySmugglersReport": "走私犯獎賞家"
+    "mySmugglersReport": "走私犯獎賞家",
+    "maps": {
+      "createCollection": "創建地圖集",
+      "collectionPoints": "地圖集內坐標",
+      "availablePoints": "可添加的坐標",
+      "selectAll": "全選",
+      "deselectAll": "取消全選",
+      "deletePoints": "刪除坐標",
+      "searchPoints": "搜索坐標...",
+      "noDescription": "無描述"
+    },
+    "smugglersReport": {
+      "headerTitle": "走私犯線人每週鑑賞家",
+      "headerDesc": "走私販鑑賞家，專精每週市場動態，為每件稀有物品撰寫深度評測與選購指南，讓每位船長都能精準鎖定價值巔峰的珍寶，不再錯失任何一次財富機遇。在這裡，您不僅是資訊的傳遞者，更是社群中備受信任的潮流引領者——成為眾人矚目的焦點，贏得萬千玩家的追隨與讚譽。",
+      "headerBenefit": "成為走私犯鑑賞家，你的賬號獲得'走私犯鑑賞家'身份，並且允許在走私犯線人下評論推薦物品",
+      "applyRequirement": "申請條件：在不同媒體平台擁有不少訂閱者 或 大眾玩家推舉成員",
+      "applyMethod": "申請方式：點擊下方申請按鈕",
+      "viewCurrentReport": "查看當前週報",
+      "applyBtn": "申請",
+      "createWeeklyData": "創建每週物品數據",
+      "editReport": "編輯週報",
+      "createComment": "創建評論",
+      "viewComment": "查看評論",
+      "dialogTitle": "創建走私犯每週數據",
+      "deleteReport": "刪除週報",
+      "createReviewTitle": "創建鑑賞",
+      "reviewNotice": "請不要發布與走私犯無關內容",
+      "reviewPlaceholder": "輸入你鑑賞推薦內容",
+      "deleteComment": "刪除評論"
+    }
   },
   "activate": {
     "title": "賬戶激活",
@@ -931,7 +998,8 @@
           "name": "支援舰",
           "description": "支援舰擅长支援友方船只，往往能够帮助扭转战局。"
         }
-      }
+      },
+      "attachment": "附件"
     },
     "items": {
       "title": "物品列表",
@@ -1084,7 +1152,10 @@
       "lookDetail": "查看終結技詳情"
     },
     "ultimates": {
-      "title": "终结技列表"
+      "title": "终结技列表",
+      "chargeRequired": "獲取所需積分",
+      "dateAdded": "添加日期",
+      "lastUpdated": "更新日期"
     },
     "modification": {
       "title": "模组详情",
@@ -1233,7 +1304,11 @@
     },
     "empireSkills": {
       "title": "帝國技能",
-      "describe": "帝國技能手稿收錄帝國科技樹各項升級技能、前置條件與階段效果。"
+      "describe": "帝國技能手稿收錄帝國科技樹各項升級技能、前置條件與階段效果。",
+      "faction": "陣營",
+      "stageCount": "階級數",
+      "dateAdded": "添加日期",
+      "lastUpdated": "更新日期"
     },
     "mastery": {
       "title": "專精技能詳情",
@@ -1308,7 +1383,8 @@
     "meta": {
       "keywords": "怒海戰記,碧海黑帆,Skull and Bones,Twitch Drops,掉寶,掉寶歷史,觀看獎勵",
       "description": "《怒海戰記》Twitch Drops 掉寶活動追蹤、當前生效掉寶與歷史獎勵檔案。"
-    }
+    },
+    "searchPlaceholder": "搜尋活動名稱..."
   },
   "calendar": {
     "title": "日曆",
@@ -1339,7 +1415,8 @@
     "viewMode": {
       "compact": "簡約模式",
       "detailed": "詳細模式"
-    }
+    },
+    "refresh": "重新整理"
   },
   "map": {
     "title": "地圖",
@@ -1376,9 +1453,15 @@
     "publicCollection": "公开地图集",
     "sharedUsers": "共享用户",
     "sharedUsersHint": "输入用户ID，用逗号分隔",
-    "personalMarkers": "个人标记",
-    "noDescription": "暂无描述",
-    "noCollections": "暂无地图集",
+    "personalMarkers": "個人標記",
+    "noDescription": "暫無描述",
+    "pointsInCollection": "地圖集內座標",
+    "availablePoints": "可新增的座標",
+    "deletePoints": "刪除座標",
+    "searchPointsPlaceholder": "搜尋座標...",
+    "selectAll": "全選",
+    "deselectAll": "取消全選",
+    "noCollections": "暫無地圖集",
     "titleRequired": "标题是必填项",
     "collectionRequired": "请选择地图集",
     "confirmDeleteCollection": "确定要删除地图集 \"{title}\" 吗？此操作将同时删除其中的所有标记。",
@@ -1446,7 +1529,9 @@
   "rankingDesignedItems": {
     "title": "排序设计",
     "workshop": {
-      "title": "工作台"
+      "title": "工作台",
+      "createTitle": "創建自定義排名",
+      "editTitle": "編輯自定義排名"
     },
     "browse": {
       "title": "分享",
@@ -1797,7 +1882,17 @@
         "displayAllEmpty": "陈设都是空的"
       },
       "emptyShip": "尚未選擇船隻",
-      "emptyShipDesc": "請在配裝工作站中選擇船隻並配置武器與裝備，以查看詳細計算屬性與統計數據"
+      "emptyShipDesc": "請在配裝工作站中選擇船隻並配置武器與裝備，以查看詳細計算屬性與統計數據",
+      "createTitle": "創建配置",
+      "editTitle": "編輯配裝",
+      "quickSaveDraft": "快速保存草稿",
+      "saveAsDraft": "另存草稿",
+      "loadDraft": "載入草稿",
+      "missingRequiredFields": "配裝似乎缺少必要選項，請船長添加必要內容",
+      "draft": "草稿",
+      "inputDraftName": "輸入另存為草稿名稱",
+      "quickArchiving": "快速儲存草稿",
+      "useDraft": "使用"
     },
     "calc": {
       "overall": "總體屬性",
@@ -1850,7 +1945,12 @@
       "projectilesPerShot": "單發彈丸數"
     },
     "detail": {
-      "title": "配装详情"
+      "title": "配装详情",
+      "notFoundTitle": "抱歉，此配裝不存在或不公開",
+      "notFoundDescPrefix": "未能找到",
+      "notFoundDescSuffix": "，它可能為私有或不存在",
+      "passwordRequiredTitle": "抱歉此配裝需要密碼",
+      "passwordRequiredDesc": "你可以輸入密碼來解密"
     },
     "share": {
       "title": "分享配裝",
@@ -1889,7 +1989,11 @@
         "likes": "赞",
         "desc": "正序",
         "asc": "反序"
-      }
+      },
+      "sort": "排序",
+      "createdTimeRange": "創建時間範圍",
+      "updatedTimeRange": "更新時間範圍",
+      "includePasswordProtected": "是否列出包含密碼配裝"
     },
     "publish": {
       "title": "發佈",
@@ -1903,11 +2007,45 @@
       "extra": "額外",
       "tags": "標籤",
       "tagsPlaceholder": "輸入標籤按下Enter鍵，即可建立新標籤"
-    }
+    },
+    "selectWeaponDirection": "選擇武器方向",
+    "unnamed": "未命名配裝"
   },
   "smugglersReport": {
     "title": "走私犯鑑賞家",
-    "description": "走私犯鑑賞家是對每週走私犯刷新物品評價，給所有玩家推薦選購理由，讓玩家們不要錯過價值非常高物品"
+    "description": "走私犯鑑賞家是對每週走私犯刷新物品評價，給所有玩家推薦選購理由，讓玩家們不要錯過價值非常高物品",
+    "weekly": "每週",
+    "weeklyItems": "本週物品 (Weekly)",
+    "itemId": "物品ID",
+    "currency": "貨幣",
+    "worth": "價值/數量",
+    "view": {
+      "startTime": "開始",
+      "endTime": "結束",
+      "smuggledItems": "走私物品",
+      "connoisseurs": "鑑賞家們",
+      "connoisseursDesc": "來看下鑑賞家們如何評價",
+      "becomeConnoisseur": "成為鑑賞家"
+    },
+    "account": {
+      "connoisseurTitle": "走私犯線人每週鑑賞家",
+      "connoisseurDesc": "走私販鑑賞家，專精每週市場動態，為每件稀有物品撰寫深度評測與選購指南，讓每位船長都能精準鎖定價值巔峰的珍寶，不再錯失任何一次財富機遇。在這裡，您不僅是資訊的傳遞者，更是社群中備受信賴的潮流引領者——成為眾人矚目的焦點，贏得萬千玩家的追隨與讚譽。",
+      "connoisseurBenefit": "成為走私犯鑑賞家，你的帳號獲得'走私犯鑑賞家'身份，並且允許在走私犯線人下評論推薦物品",
+      "applyCondition": "申請條件：在不同媒體平台擁有不少訂閱者 或 大眾玩家推舉成員",
+      "applyMethod": "申請方式：點擊下方申請按鈕",
+      "viewCurrentReport": "查看當前週報",
+      "apply": "申請",
+      "createWeeklyData": "建立每週物品資料",
+      "editReport": "編輯週報",
+      "viewComment": "查看評論",
+      "createComment": "建立評論",
+      "createWeeklyTitle": "建立走私犯每週資料",
+      "deleteReport": "刪除週報",
+      "createReviewTitle": "建立鑑賞",
+      "warningContent": "請不要發布與走私犯無關內容",
+      "recommendationPlaceholder": "輸入你鑑賞推薦內容",
+      "deleteComment": "刪除評論"
+    }
   },
   "space": {
     "title": "用戶空間",
@@ -1964,7 +2102,18 @@
     "other": "其他",
     "effectsNotContent": "缺少描述",
     "dateAdded": "创建时间",
-    "lastUpdated": "更新时间"
+    "lastUpdated": "更新时间",
+    "debugMode": "DEBUG 模式 (可拖拽節點/編輯關係)",
+    "notActive": "未啟動",
+    "levelUp": "提升等級",
+    "levelDown": "降低等級",
+    "debugEdit": "DEBUG 調試編輯",
+    "exportAllNodes": "導出所有節點",
+    "nodePosition": "節點位置 (X, Y):",
+    "requisiteList": "前置條件列表 (Requisite):",
+    "addRequisiteKey": "添加前置節點KEY",
+    "mustHaveUpgrades": "需擁有以下所有升級",
+    "noRequisites": "無前置升級需求（起始節點）"
   },
   "mastery": {
     "title": "專精技能模擬",
@@ -2093,7 +2242,13 @@
       "maxPointsReached": "已達到當前賽季最大專精點數 ({max} 點)。",
       "noPathToNode": "前置條件不足：無法找到到達該節點的有效連通路徑。",
       "pointsExhaustedToNode": "點數不足，已沿朝向目標節點路徑激活至：{name}。",
-      "insufficientPointsForPath": "點數不足，無法沿路徑激活該節點。"
+      "insufficientPointsForPath": "點數不足，無法沿路徑激活該節點。",
+      "group": "分組",
+      "ring": "環層級",
+      "direction": "方向",
+      "coordinates": "坐標",
+      "dependentNodes": "後續解鎖節點",
+      "season": "所屬賽季"
     },
     "debug": {
       "title": "專精樹調試與座標編輯",
@@ -2101,7 +2256,7 @@
       "selectedNode": "選中節點",
       "coordX": "X 座標",
       "coordY": "Y 座標",
-      "requisites": "前置關係 (Requisites)",
+      "requisites": "前置技能要求",
       "requisitesPlaceholder": "輸入前置節點ID",
       "clickHint": "點選畫布節點即可查看或拖曳微調座標",
       "copied": "已複製當前專精樹配置 JSON 到剪貼簿",
@@ -2144,7 +2299,8 @@
       "requisiteSelf": "不能將自身設為前置",
       "requisiteAdded": "已新增前置：{name}",
       "requisiteRemoved": "已移除前置：{name}"
-    }
+    },
+    "noData": "暫無精通數據"
   },
   "search": {
     "title": "搜索",
@@ -2352,14 +2508,45 @@
       "saveError": "清單儲存失敗",
       "selectGradeFirst": "請先選擇代表模組類型以解鎖詞條選擇",
       "selectModGrade": "代表模組類型",
-      "item": "相關物品"
+      "item": "相關物品",
+      "categoryFilter": "物品分類篩選",
+      "filterCategories": {
+        "all_items": "全品類物品 (All Items)",
+        "weapons": "武器與護甲",
+        "upgrades": "升級部件",
+        "furniture": "船隻陳設",
+        "consumables": "消耗品",
+        "tools_chests": "工具與寶箱",
+        "materials": "材料",
+        "cosmetics": "裝飾品",
+        "ultimates": "終極技能",
+        "modifications": "模組",
+        "ships": "船隻"
+      }
     },
     "advanced": {
       "title": "進階設定",
       "cardTitle": "開發者除錯",
       "hint": "面向開發者選項，用於調整網站可控製資料或查看資料，如果你不清楚，不要開啟",
       "debugName": "開發者除錯模式",
-      "debugDesc": "開啟後將在圖鑑、配裝、技能模擬等頁面顯示節點拖曳、原始ID、座標編輯與除錯資訊。"
+      "debugDesc": "開啟後將在圖鑑、配裝、技能模擬等頁面顯示節點拖曳、原始ID、座標編輯與除錯資訊。",
+      "notification": {
+        "title": "桌面通知與活動提醒",
+        "description": "管理瀏覽器桌面通知權限與總開關，開啟後活動時間到達將透過系統桌面彈窗進行提醒。",
+        "status": "通知權限狀態",
+        "granted": "已允許桌面通知",
+        "denied": "已拒絕 (請在瀏覽器網址列網站設定中開啟通知權限)",
+        "default": "未授權 (點擊右側按鈕申請權限)",
+        "unsupported": "當前瀏覽器或環境不支援桌面通知",
+        "masterSwitch": "啟用桌面通知推送",
+        "masterSwitchDesc": "總開關，關閉後所有活動提醒將不會彈出系統桌面通知",
+        "requestPermission": "申請桌面通知權限",
+        "testNotice": "發送測試通知",
+        "testTitle": "⏰ 閃耀船首 - 測試提醒",
+        "testBody": "桌面通知功能正常！活動時間到達時你將會收到提醒推送。",
+        "permissionGrantedMsg": "已成功取得桌面通知權限！",
+        "permissionDeniedMsg": "通知權限被拒絕，請在瀏覽器設定中開啟通知權限。"
+      }
     }
   },
   "header": {
@@ -2430,6 +2617,10 @@
       "apps": {
         "title": "應用程序",
         "description": "使用擴展套件提升體驗"
+      },
+      "reminder": {
+        "title": "活動提醒",
+        "description": "定時提醒遊戲內活動與刷新事件，桌面推送通知"
       }
     }
   },
@@ -2651,29 +2842,29 @@
     "hallTitle": "核心捐助者",
     "coreBadge": "核心捐助者",
     "tiers": {
-      "1000": {
-        "name": "頭目",
-        "desc": "頭戴三叉金冠、坐擁整支艦隊的傳奇頭目。你的名字將刻在船尾樓最高處，整片海域都要看你的旗語行事。"
-      },
-      "500": {
-        "name": "大副",
-        "desc": "頭目之下第一人，掌管戰利品分配與船員紀律。彎刀往桌上一拍，甲板上再無二話。"
-      },
-      "100": {
-        "name": "海盜",
-        "desc": "手持私掠許可證縱橫航道的正經海盜——搶得光明正大，花得理直氣壯。"
-      },
-      "50": {
-        "name": "水手長",
-        "desc": "管帆、管炮、管纜繩，還管新人暈船時的後腦勺。船離了水手長，出海都得打晃。"
+      "5": {
+        "name": "見習海盜",
+        "desc": "剛端上朗姆酒、還分不清左右舷的菜鳥。錢不多，但每條名船都從這一步開始。"
       },
       "10": {
         "name": "雙子",
         "desc": "桅頂瞭望台上永遠成雙的那對活寶，一個看風，一個看你口袋裡的銀幣。"
       },
-      "5": {
-        "name": "見習海盜",
-        "desc": "剛端上朗姆酒、還分不清左右舷的菜鳥。錢不多，但每條名船都從這一步開始。"
+      "50": {
+        "name": "水手長",
+        "desc": "管帆、管炮、管纜繩，還管新人暈船時的後腦勺。船離了水手長，出海都得打晃。"
+      },
+      "100": {
+        "name": "海盜",
+        "desc": "手持私掠許可證縱橫航道的正經海盜——搶得光明正大，花得理直氣壯。"
+      },
+      "500": {
+        "name": "大副",
+        "desc": "頭目之下第一人，掌管戰利品分配與船員紀律。彎刀往桌上一拍，甲板上再無二話。"
+      },
+      "1000": {
+        "name": "頭目",
+        "desc": "頭戴三叉金冠、坐擁整支艦隊的傳奇頭目。你的名字將刻在船尾樓最高處，整片海域都要看你的旗語行事。"
       },
       "custom": {
         "name": "自訂賞金",
@@ -2693,5 +2884,161 @@
     "cancelPay": "取消支付",
     "continuePay": "繼續支付",
     "orderCancelled": "訂單已取消"
+  },
+  "reminder": {
+    "title": "活動提醒",
+    "description": "定時提醒遊戲內活動與刷新事件，支援週期重複與單次提醒",
+    "createNew": "建立新提醒",
+    "edit": "編輯提醒",
+    "delete": "刪除提醒",
+    "deleteConfirm": "確認要刪除提醒 “{title}” 嗎？此操作不可撤銷。",
+    "goToSettings": "前往設定",
+    "permissionWarning": "桌面通知權限未開啟，點擊右側申請或前往設定以接收桌面系統通知",
+    "search": "搜尋活動名稱或備註...",
+    "empty": "暫無活動提醒任務，點擊上方按鈕建立或匯入預設",
+    "testTrigger": "測試通知",
+    "save": "儲存提醒",
+    "cancel": "取消",
+    "fields": {
+      "title": "活動標題",
+      "titlePlaceholder": "請輸入活動標題，如：奶酪刷新",
+      "type": "定時類型",
+      "typeRepeat": "週期重複",
+      "typeOnce": "一次性",
+      "repeatType": "重複方式",
+      "repeatWeekly": "按星期重複",
+      "repeatInterval": "固定時間間隔",
+      "repeatDays": "重複星期",
+      "repeatTime": "觸發時間",
+      "repeatIntervalHours": "間隔時間",
+      "everyNHours": "每 {n} 小時觸發一次",
+      "everyNUnits": "每 {n} {unit} 觸發一次",
+      "targetTime": "截止/觸發時間",
+      "note": "備註說明",
+      "notePlaceholder": "可填寫活動攻略、參與地點或注意事項（限5000字）",
+      "enabled": "啟用提醒",
+      "taskEnabled": "啟用任務",
+      "taskEnabledDesc": "開啟後將在清單中進行即時倒數與狀態追蹤",
+      "notifyEnabled": "是否通知",
+      "notifyEnabledDesc": "到期時是否發送系統桌面通知與提示音（預設開啟）",
+      "advanceNotice": "提前提醒",
+      "advanceNoticeDesc": "在活動到達前提前發送桌面提醒通知",
+      "advanceOptions": {
+        "1m": "提前 1 分鐘",
+        "5m": "提前 5 分鐘",
+        "10m": "提前 10 分鐘",
+        "30m": "提前半小時 (30 分鐘)",
+        "60m": "提前 1 小時 (60 分鐘)",
+        "custom": "自訂"
+      },
+      "advanceMinutes": "提前分鐘數",
+      "validity": "任務有效期",
+      "validityPermanent": "永久有效",
+      "validityRange": "指定時間區間",
+      "validityFrom": "開始時間",
+      "validityTo": "截止時間"
+    },
+    "units": {
+      "day": "天",
+      "hour": "小時",
+      "minute": "分鐘",
+      "second": "秒"
+    },
+    "weekdays": {
+      "mon": "週一",
+      "tue": "週二",
+      "wed": "週三",
+      "thu": "週四",
+      "fri": "週五",
+      "sat": "週六",
+      "sun": "週日",
+      "all": "全部日期"
+    },
+    "status": {
+      "active": "生效中",
+      "paused": "已停用",
+      "expired": "已過期",
+      "imminent": "即將觸發",
+      "notStarted": "未開始"
+    },
+    "countdown": {
+      "remaining": "剩餘時間",
+      "expired": "已到達截止時間",
+      "paused": "提醒已停用",
+      "advanceBadge": "提前提醒中"
+    },
+    "presets": {
+      "title": "常用預設",
+      "loadBtn": "匯入預設",
+      "loaded": "預設活動已成功載入",
+      "cheese": {
+        "title": "奶酪！",
+        "desc": "奶酪刷新啦！",
+        "note": "奶酪刷新啦！可在地圖各商販處購買或刷新收集。"
+      },
+      "helmTakeover": {
+        "title": "海舵社:接管機遇",
+        "desc": "下一個接管機遇刷新時間",
+        "note": "海舵社接管機遇已刷新，請及時前往參與接管。"
+      },
+      "helmWarEvent": {
+        "title": "戰爭事件",
+        "desc": "下一個戰爭事件刷新時間",
+        "note": "戰爭事件已開啟，準備參與爭奪與交鋒。"
+      },
+      "maintenance": {
+        "title": "遊戲維護",
+        "desc": "日常遊戲維護時間，具體查看遊戲公告",
+        "note": "日常遊戲維護時間，具體查看遊戲官方公告與維護通知。"
+      }
+    },
+    "filter": {
+      "all": "全部",
+      "repeat": "週期重複",
+      "once": "一次性",
+      "active": "生效中",
+      "paused": "已停用",
+      "activeConditions": "已選條件",
+      "keyword": "關鍵詞",
+      "clearAll": "清空篩選",
+      "sortTitle": "排序方式",
+      "sortTriggerTime": "依觸發時間",
+      "sortCreatedTime": "依建立時間",
+      "sortTitleField": "依活動標題",
+      "sortAsc": "升序 (最近優先)",
+      "sortDesc": "降序"
+    },
+    "stats": {
+      "total": "任務總數",
+      "active": "生效中",
+      "nextTrigger": "最近觸發"
+    },
+    "bot": {
+      "addToBot": "新增到機器人通知",
+      "dialogTitle": "新增到機器人通知",
+      "description": "透過私聊向機器人訂閱一個私人通知",
+      "hint": "複製下方指令並發送給機器人私聊，即可在指定時間接收推播通知：",
+      "copyCommand": "複製訂閱命令",
+      "copied": "訂閱命令已複製到剪貼簿",
+      "targetTask": "目標活動",
+      "clickToCopy": "點擊複製",
+      "commandPrefix": "/訂閱"
+    },
+    "notificationEnabled": "通知已開啟",
+    "notificationDisabled": "通知已關閉",
+    "noNote": "暫無備註",
+    "muted": "已靜音",
+    "presetBadge": "預設",
+    "dialog": {
+      "selectAll": "全選",
+      "workdays": "工作日",
+      "weekends": "週末",
+      "everyday": "每天",
+      "systemTime": "系統/北京時間",
+      "advanceNoticeDesc": "提前 {min} 分鐘觸發桌面通知",
+      "effectiveImmediately": "即刻生效",
+      "offsetDays": "{days}天",
+      "immediately": "即刻"
+    }
   }
 }

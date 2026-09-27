@@ -23,8 +23,7 @@ const {t} = useI18n();
       border
       class="d-flex skill-tree-search-bar"
       :width="mobile ? 'calc(100% - 50px)' : 450"
-      :style="{'top': mobile ? '70px' : '70px'}"
-  >
+      :style="{'top': mobile ? '70px' : '70px'}">
     <v-combobox
         :model-value="modelValue"
         :items="items"

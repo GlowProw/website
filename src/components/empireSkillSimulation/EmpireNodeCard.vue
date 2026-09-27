@@ -97,14 +97,13 @@ const {t} = useI18n();
     <div class="skill-tree-title px-10 mx-n6 py-2 text-amber-lighten-4">{{ t('empireSkillSimulation.requirements') }}</div>
     <div class="py-2 px-5 mb-5">
       <template v-if="selectedKey && skills[selectedKey] && (skills[selectedKey].requisite || []).filter((r: string) => r !== 'root').length > 0">
-        <p class="mb-1 text-caption opacity-70">需拥有以下所有升级</p>
+        <p class="mb-1 text-caption opacity-70">{{ t('empireSkillSimulation.mustHaveUpgrades') }}</p>
         <v-row
             no-gutters
             v-for="(i, index) in skills[selectedKey].requisite.filter((r: string) => r !== 'root')"
             :key="index"
             align="center"
-            class="my-1"
-        >
+            class="my-1">
           <v-col cols="auto" class="d-flex justify-center align-center mr-2">
             <RhombusWidget size="6"
                            :slot="!!skillPointsInput[skills[i]?.id || i]"
@@ -119,7 +118,7 @@ const {t} = useI18n();
         </v-row>
       </template>
       <div v-else class="text-caption opacity-60">
-        无前置升级需求（起始节点）
+        {{ t('empireSkillSimulation.noRequisites') }}
       </div>
     </div>
 
@@ -196,7 +195,7 @@ const {t} = useI18n();
             {{ t('empireSkillSimulation.stage', {num: skillPointsInput[selectedKey] || '0'}) }}
           </template>
           <template v-else>
-            未激活
+            {{ t('empireSkillSimulation.notActive') }}
           </template>
         </v-col>
         <v-divider vertical></v-divider>
@@ -208,8 +207,7 @@ const {t} = useI18n();
               @click="emit('set-skill-point', selectedKey, 'add')"
               tile
               block
-              title="提升等级"
-          >
+              :title="t('empireSkillSimulation.levelUp')">
             <v-icon color="amber">mdi-plus</v-icon>
           </v-btn>
         </v-col>
@@ -222,8 +220,7 @@ const {t} = useI18n();
               @click="emit('set-skill-point', selectedKey, 'rem')"
               tile
               block
-              title="降低等级"
-          >
+              :title="t('empireSkillSimulation.levelDown')">
             <v-icon color="error">mdi-minus</v-icon>
           </v-btn>
         </v-col>
@@ -234,17 +231,17 @@ const {t} = useI18n();
     <template v-if="isDebug && selectedKey">
       <v-divider></v-divider>
       <div class="skill-tree-title px-10 mx-n6 py-2 text-error d-flex align-center justify-space-between">
-        <span>DEBUG 调试编辑</span>
-        <v-btn size="x-small" variant="tonal" color="error" @click="emit('export-debug-config')">导出所有节点</v-btn>
+        <span>{{ t('empireSkillSimulation.debugEdit') }}</span>
+        <v-btn size="x-small" variant="tonal" color="error" @click="emit('export-debug-config')">{{ t('empireSkillSimulation.exportAllNodes') }}</v-btn>
       </div>
       <div class="py-2 px-5 text-caption">
         <div class="mb-2">
-          <strong>节点位置 (X, Y):</strong>
+          <strong>{{ t('empireSkillSimulation.nodePosition') }}:</strong>
           <span class="font-monospace ml-2">
             {{ Math.round(getNodeCoords?.(selectedKey)?.y || 0) }}, {{ Math.round(getNodeCoords?.(selectedKey)?.x || 0) }}
           </span>
         </div>
-        <div class="mb-1"><strong>前置条件列表 (Requisite):</strong></div>
+        <div class="mb-1"><strong>{{ t('empireSkillSimulation.requisiteList') }}:</strong></div>
         <v-combobox
             v-if="skills[selectedKey]"
             v-model="skills[selectedKey].requisite"
@@ -254,7 +251,7 @@ const {t} = useI18n();
             density="compact"
             variant="outlined"
             hide-details
-            placeholder="添加前置节点KEY"
+            :placeholder="t('empireSkillSimulation.addRequisiteKey')"
             @update:modelValue="emit('debug-requisite-changed')"
         ></v-combobox>
       </div>

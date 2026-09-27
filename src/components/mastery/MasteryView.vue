@@ -1041,8 +1041,7 @@ defineExpose({
           class="mastery-debug-menu"
           :style="menuStyle"
           @click.stop
-          @contextmenu.prevent.stop="closeContextMenu"
-      >
+          @contextmenu.prevent.stop="closeContextMenu">
         <v-list density="compact" nav>
           <!-- 命中连线：在两节点之间插入 -->
           <v-list-item

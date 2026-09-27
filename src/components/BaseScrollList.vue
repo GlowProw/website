@@ -48,8 +48,7 @@
       <div
           class="scroll-content"
           :class="{ 'scroll-content--vertical': isVertical, 'scroll-content--horizontal': !isVertical }"
-          :style="contentStyle"
-      >
+          :style="contentStyle">
         <slot></slot>
       </div>
     </div>

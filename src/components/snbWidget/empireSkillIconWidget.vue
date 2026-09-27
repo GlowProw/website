@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {use_icon_global_Style} from "@/assets/sripts/use_icon_global_Style";
+import {useIconGlobalStyle} from "@/assets/sripts/use_icon_global_style";
 import {EmpireSkills} from "glow-prow-data";
 import {computed, onMounted, ref, watch} from "vue";
 import {useAppStore} from "~/stores/appStore";
@@ -67,7 +67,7 @@ defineOptions({
   name: "EmpireSkillIconWidget"
 });
 
-const {useIconImagePadding, useIconImageMargin} = use_icon_global_Style();
+const {useIconImagePadding, useIconImageMargin} = useIconGlobalStyle();
 const computedPadding = useIconImagePadding(props.padding);
 const computedMargin = useIconImageMargin(props.margin);
 </script>

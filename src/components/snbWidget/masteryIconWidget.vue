@@ -3,7 +3,7 @@ import {computed, ref, watch} from "vue";
 import {useAppStore} from "~/stores/appStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
-import {use_icon_global_Style} from "@/assets/sripts/use_icon_global_Style";
+import {useIconGlobalStyle} from "@/assets/sripts/use_icon_global_style";
 import {Masterys} from "glow-prow-data";
 import MasteryCardDetail from "./masteryCardDetail.vue";
 import Loading from "../Loading.vue";
@@ -34,7 +34,7 @@ const props = withDefaults(defineProps<{
 const appStore = useAppStore();
 const cdnStore = useCDNAssetsServiceStore();
 const {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow();
-const {useIconImagePadding, useIconImageMargin} = use_icon_global_Style();
+const {useIconImagePadding, useIconImageMargin} = useIconGlobalStyle();
 
 const isDirectFallback = ref(false);
 const isImgError = ref(false),

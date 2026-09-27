@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {use_icon_global_Style} from "@/assets/sripts/use_icon_global_Style";
+import {useIconGlobalStyle} from "@/assets/sripts/use_icon_global_style";
 import {computed, onMounted, type Ref, ref, watch} from "vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useIntersectionObserver} from "@/assets/sripts/intersection_observer";
@@ -42,7 +42,7 @@ const {targetElement, isVisible} = useIntersectionObserver({
   threshold: .7,
 })
 
-const {useIconImagePadding, useIconImageMargin} = use_icon_global_Style();
+const {useIconImagePadding, useIconImageMargin} = useIconGlobalStyle();
 const computedPadding = useIconImagePadding(props.padding);
 const computedMargin = useIconImageMargin(props.margin);
 

@@ -224,8 +224,8 @@ const onUpdateTags = (data: any) => {
       <v-container class="pa-7">
         <v-row align="start" no-gutters>
           <v-col>
-            <h1 class="text-amber">预览</h1>
-            <p class="opacity-80 mt-5">设置配装信息</p>
+            <h1 class="text-amber">{{ t('assembly.publish.preview') }}</h1>
+            <p class="opacity-80 mt-5">{{ t('assembly.publish.subtitle') }}</p>
           </v-col>
           <v-col cols="auto">
             <v-btn v-if="isEditModel" variant="elevated" @click="router.go(-1)">
@@ -253,22 +253,22 @@ const onUpdateTags = (data: any) => {
               <v-text-field
                   v-model="publishData.name"
                   :rules="formRules.name"
-                  label="配置名称"
-                  placeholder="配置名称"
+                  :label="t('assembly.publish.name')"
+                  :placeholder="t('assembly.publish.name')"
                   variant="underlined">
                 <template v-slot:details>
-                  船长，设置一个酷炫名字，好名字配好船
+                  {{ t('assembly.publish.namePlaceholder') }}
                 </template>
               </v-text-field>
             </v-col>
             <v-col cols="12">
-              <div class="mt-4 mb-3 font-weight-bold">描述</div>
+              <div class="mt-4 mb-3 font-weight-bold">{{ t('assembly.publish.description') }}</div>
 
               <v-card :color="`hsl(from var(--main-color) h s calc(l * 0.05))`" border class="pl-3 pr-3">
                 <Textarea v-model="publishData.description"
                           :maxlength="10000"
                           class="mt-3 mb-2"
-                          placeholder="输入描述描述"></Textarea>
+                          :placeholder="t('assembly.publish.descriptionPlaceholder')"></Textarea>
                 <template v-if="appStore.isDebug">
                   {{ publishData.description }}
                 </template>
@@ -286,9 +286,9 @@ const onUpdateTags = (data: any) => {
                 clearable
                 item-title="label"
                 item-value="value"
-                label="标签"
+                :label="t('assembly.publish.tags')"
                 multiple
-                placeholder="输入标签敲下回车键，即可创建新标签"
+                :placeholder="t('assembly.publish.tagsPlaceholder')"
                 variant="underlined">
               <template v-slot:chip="{item}">
                 <v-chip color="primary" size="x-large">

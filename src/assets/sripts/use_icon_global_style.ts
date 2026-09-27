@@ -14,7 +14,7 @@ function resolveValue<T>(val: MaybeRefOrGetter<T>): T {
 /**
  * 全局图标样式控制 Hook
  */
-export function use_icon_global_Style() {
+export function useIconGlobalStyle() {
     const appStore = useAppStore();
 
     /**

@@ -842,7 +842,7 @@ defineOptions({name: 'AssemblyWidget'})
                                     hide-details
                                     clearable
                                     :context-locale="poops.locale"
-                                    placeholder="选择武器方向"
+                                    :placeholder="t('assembly.selectWeaponDirection')"
                                     variant="solo-filled"
                                     density="compact"
                                     item-value="0"

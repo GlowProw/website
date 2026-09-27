@@ -97,44 +97,18 @@ const onSaveAssembly = (saveType: StorageIntermediateTransferSaveType, uid?: str
       <v-container class="pa-7">
         <v-row no-gutters align="start">
           <v-col>
-            <h1 class="text-amber">{{ !isEditModel ? '创建' : '编辑' }}</h1>
+            <h1 class="text-amber">{{ !isEditModel ? t('basic.button.create') : t('basic.button.edit') }}</h1>
             <p class="opacity-80 mt-5">
-              <template v-if="!isEditModel">创建自定义排名</template>
-              <template v-else>编辑自定义排名 <u><b>{{ assemblyDetailData.name || 'none' }}</b></u></template>
+              <template v-if="!isEditModel">{{ t('rankingDesignedItems.workshop.createTitle') }}</template>
+              <template v-else>{{ t('rankingDesignedItems.workshop.editTitle') }} <u><b>{{ assemblyDetailData.name || 'none' }}</b></u></template>
             </p>
           </v-col>
           <v-col cols="auto">
-            <!--            <v-btn-group density="compact" class="mr-2">-->
-            <!--              <v-btn @click="onQuickArchiving" :loading="draftSaveQuickArchivingLoading" v-if="!isEditModel">-->
-            <!--                <BtnWidget class="pl-2" :size="25" keyboard-shortcut="s" @action-complete="onQuickArchiving">-->
-            <!--                  快速保存草稿-->
-            <!--                </BtnWidget>-->
-            <!--              </v-btn>-->
-            <!--              <v-menu location="bottom right">-->
-            <!--                <template v-slot:activator="{ props }">-->
-            <!--                  <v-btn v-bind="props" v-if="!isEditModel">-->
-            <!--                    <v-icon icon="mdi-dots-vertical"/>-->
-            <!--                  </v-btn>-->
-            <!--                </template>-->
-            <!--                <v-list min-width="300">-->
-            <!--                  <v-list-item>-->
-            <!--                    <v-list-item-title @click="draftNewSaveModel = true">-->
-            <!--                      另存草稿-->
-            <!--                    </v-list-item-title>-->
-            <!--                  </v-list-item>-->
-            <!--                  <v-list-item>-->
-            <!--                    <v-list-item-title @click="onPenDraftPanel">-->
-            <!--                      加载草稿-->
-            <!--                    </v-list-item-title>-->
-            <!--                  </v-list-item>-->
-            <!--                </v-list>-->
-            <!--              </v-menu>-->
-            <!--            </v-btn-group>-->
             <v-btn class="mr-2" @click="router.go(-1)" v-if="isEditModel">
-              取消
+              {{ t('basic.button.cancel') }}
             </v-btn>
             <v-btn :color="`var(--main-color)`" @click="onSaveRankingDesignedPublish" v-if="!isEditModel">
-              下一步
+              {{ t('basic.button.next') }}
             </v-btn>
           </v-col>
         </v-row>

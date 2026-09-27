@@ -75,13 +75,13 @@ const removeWeeklyItem = (index: number) => {
   <div class="smugglers-report-editor">
     <!-- 周物品编辑 -->
     <v-card border>
-      <v-card-title class="text-h6 mb-5">本周物品 (Weekly)</v-card-title>
+      <v-card-title class="text-h6 mb-5">{{ t('smugglersReport.weeklyItems') }}</v-card-title>
       <v-card-text>
         <v-row class="d-flex align-center mb-4" align="center">
           <v-col>
             <v-text-field
                 density="compact"
-                label="物品ID"
+                :label="t('smugglersReport.itemId')"
                 v-model="selectedWeeklyItem"
                 hide-details
                 variant="outlined"></v-text-field>
@@ -89,7 +89,7 @@ const removeWeeklyItem = (index: number) => {
           <v-col>
             <v-text-field
                 density="compact"
-                label="货币"
+                :label="t('smugglersReport.currency')"
                 v-model="selectedCurrency"
                 hide-details
                 variant="outlined"></v-text-field>
@@ -97,7 +97,7 @@ const removeWeeklyItem = (index: number) => {
           <v-col>
             <v-text-field
                 density="compact"
-                label="货币"
+                :label="t('smugglersReport.worth')"
                 v-model="selectedWorth"
                 hide-details
                 variant="outlined"></v-text-field>
@@ -106,7 +106,7 @@ const removeWeeklyItem = (index: number) => {
           <v-col cols="auto">
             <v-btn @click="addWeeklyItem" color="primary" variant="tonal">
               <v-icon>mdi-plus</v-icon>
-              添加
+              {{ t('basic.button.insert') }}
             </v-btn>
           </v-col>
         </v-row>

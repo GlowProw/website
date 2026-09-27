@@ -234,7 +234,7 @@ const onUltimateHistory = (id: string) => {
                               hide-details
                               variant="underlined" density="compact">
                   <template v-slot:append-inner>
-                    <p class="text-no-wrap">获取所需积分</p>
+                    <p class="text-no-wrap">{{ t('codex.ultimates.chargeRequired') }}</p>
                   </template>
                 </v-text-field>
 
@@ -242,14 +242,14 @@ const onUltimateHistory = (id: string) => {
                               hide-details
                               variant="underlined" density="compact">
                   <template v-slot:append-inner>
-                    <p class="text-no-wrap">添加日期</p>
+                    <p class="text-no-wrap">{{ t('codex.ultimates.dateAdded') }}</p>
                   </template>
                 </v-text-field>
                 <v-text-field :value="ultimateDetailData.lastUpdated" readonly
                               hide-details
                               variant="underlined" density="compact">
                   <template v-slot:append-inner>
-                    <p class="text-no-wrap">更新日期</p>
+                    <p class="text-no-wrap">{{ t('codex.ultimates.lastUpdated') }}</p>
                   </template>
                 </v-text-field>
               </VerticalScrollList>

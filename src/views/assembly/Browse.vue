@@ -193,7 +193,7 @@ const getBrowseList = async () => {
             <v-col cols="12">
               <v-select
                   tile
-                  label="排序"
+                  :label="t('assembly.browse.sort')"
                   v-model="browseFilter.data.sortField"
                   item-title="label"
                   item-value="value"
@@ -208,15 +208,15 @@ const getBrowseList = async () => {
                   :items="browseFilter.assumption.slotOrders"></v-select>
             </v-col>
             <v-col cols="12" sm="6" md="6" lg="12">
-              <p class="mb-2 font-weight-bold">创建时间范围</p>
+              <p class="mb-2 font-weight-bold">{{ t('assembly.browse.createdTimeRange') }}</p>
               <TimeFrame v-model="browseFilter.data.createdStartAndEnd"></TimeFrame>
             </v-col>
             <v-col cols="12" sm="6" md="6" lg="12">
-              <p class="mb-2 font-weight-bold">更新时间范围</p>
+              <p class="mb-2 font-weight-bold">{{ t('assembly.browse.updatedTimeRange') }}</p>
               <TimeFrame v-model="browseFilter.data.updatedStartAndEnd"></TimeFrame>
             </v-col>
             <v-col cols="12" sm="6" md="6" lg="12">
-              <v-checkbox density="compact" hide-details v-model="browseFilter.data.isHasPassword" label="是否列出包含密码配装"></v-checkbox>
+              <v-checkbox density="compact" hide-details v-model="browseFilter.data.isHasPassword" :label="t('assembly.browse.includePasswordProtected')"></v-checkbox>
             </v-col>
           </v-row>
 

@@ -8,10 +8,22 @@ export default class AppFuns {
 
     public original: any[] = [
         {
-            title: 'header.functions.team.title',
-            icon: 'mdi-bullhorn-outline',
-            description: "header.functions.team.description",
-            to: '/team'
+            title: 'header.functions.codex.title',
+            icon: 'mdi-package-variant-closed',
+            description: 'header.functions.codex.description',
+            to: '/codex'
+        },
+        {
+            title: 'header.functions.assembly.title',
+            icon: 'mdi-palette-outline',
+            description: 'header.functions.assembly.description',
+            to: `/assembly/browse?t=${new Date().getTime()}`
+        },
+        {
+            title: 'header.functions.maps.title',
+            icon: 'mdi-map',
+            description: 'header.functions.maps.description',
+            to: '/map'
         },
         {
             title: 'header.functions.calendar.title',
@@ -26,28 +38,10 @@ export default class AppFuns {
             to: '/drop'
         },
         {
-            title: 'header.functions.maps.title',
-            icon: 'mdi-map',
-            description: 'header.functions.maps.description',
-            to: '/map'
-        },
-        {
-            title: 'header.functions.codex.title',
-            icon: 'mdi-package-variant-closed',
-            description: 'header.functions.codex.description',
-            to: '/codex'
-        },
-        {
             title: 'codex.treasureMaps.comparison.title',
             icon: 'mdi-image-search-outline',
             description: 'codex.treasureMaps.comparison.description',
             to: '/codex/treasureMaps?comparison=true'
-        },
-        {
-            title: 'header.functions.assembly.title',
-            icon: 'mdi-palette-outline',
-            description: 'header.functions.assembly.description',
-            to: `/assembly/browse?t=${new Date().getTime()}`
         },
         {
             title: 'header.functions.smugglers-report.title',
@@ -85,13 +79,13 @@ export default class AppFuns {
         //    description: 'header.functions.captain-signature.description',
         //    to: ''
         // },
-        {
-            title: 'header.functions.ranking-of-designed-items.title',
-            icon: 'mdi-format-list-numbered',
-            description: 'header.functions.ranking-of-designed-items.description',
-            to: '',
-            testTo: '/ranking-designed-items'
-        },
+        // {
+        //     title: 'header.functions.ranking-of-designed-items.title',
+        //     icon: 'mdi-format-list-numbered',
+        //     description: 'header.functions.ranking-of-designed-items.description',
+        //     to: '',
+        //     testTo: '/ranking-designed-items'
+        // },
         // {
         //    title: 'header.functions.impression-of-monsters.title',
         //    icon: 'mdi-help',
@@ -109,6 +103,18 @@ export default class AppFuns {
             icon: 'mdi-application-outline',
             description: 'header.functions.apps.description',
             to: '/apps',
+        },
+        {
+            title: 'header.functions.reminder.title',
+            icon: 'mdi-alarm-check',
+            description: 'header.functions.reminder.description',
+            to: '/reminder',
+        },
+        {
+            title: 'header.functions.team.title',
+            icon: 'mdi-bullhorn-outline',
+            description: "header.functions.team.description",
+            to: '/team'
         },
     ]
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {use_icon_global_Style} from "@/assets/sripts/use_icon_global_Style";
+import {useIconGlobalStyle} from "@/assets/sripts/use_icon_global_style";
 import {Ultimate, Ultimates} from "glow-prow-data"
 import {computed, onMounted, type Ref, ref} from "vue";
 import {useAppStore} from "~/stores/appStore";
@@ -78,7 +78,7 @@ defineOptions({
   name: "UltimateIconWidget"
 })
 
-const {useIconImagePadding, useIconImageMargin} = use_icon_global_Style();
+const {useIconImagePadding, useIconImageMargin} = useIconGlobalStyle();
 const computedPadding = useIconImagePadding(props.padding);
 const computedMargin = useIconImageMargin(props.margin);
 </script>

@@ -182,8 +182,7 @@ const formattedText = computed(() => {
       :is-ended="isEnded"
       :is-upcoming="isUpcoming"
       :is-active="isActive"
-      :formatted-text="formattedText"
-    >
+      :formatted-text="formattedText">
       {{ formattedText }}
     </slot>
   </component>

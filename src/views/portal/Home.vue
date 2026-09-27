@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {onMounted, type Ref, ref} from "vue";
+import {onMounted, onUnmounted, type Ref, ref} from "vue";
 import {appFuns, time, getCurrentSeason} from "@/assets/sripts";
 import {Season} from "glow-prow-data/src/entity/Seasons";
 import {useI18n} from "vue-i18n";
@@ -13,15 +13,47 @@ import NewSeasonShowItem from "@/components/NewSeasonShowItem.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 import DonorsWidget from "@/components/DonorsWidget.vue";
+import Loading from "@/components/Loading.vue";
 
 const {t} = useI18n()
 
 // 当前赛季
 const currentlySeason = ref<Season | null>(getCurrentSeason() as Season | null)
 
+const seasonContainerRef = ref<HTMLElement | null>(null)
+const isSeasonItemLoaded = ref(false)
+let seasonObserver: IntersectionObserver | null = null
+
 onMounted(() => {
   if (!currentlySeason.value) {
     currentlySeason.value = getCurrentSeason()
+  }
+
+  // 懒加载 NewSeasonShowItem 进入视口 30px 内仅加载一次
+  if (seasonContainerRef.value && !isSeasonItemLoaded.value) {
+    seasonObserver = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          isSeasonItemLoaded.value = true
+          seasonObserver?.disconnect()
+          seasonObserver = null
+          break
+        }
+      }
+    }, {
+      rootMargin: '30px',
+      threshold: 0
+    })
+    seasonObserver.observe(seasonContainerRef.value)
+  } else {
+    isSeasonItemLoaded.value = true
+  }
+})
+
+onUnmounted(() => {
+  if (seasonObserver) {
+    seasonObserver.disconnect()
+    seasonObserver = null
   }
 })
 </script>
@@ -129,7 +161,18 @@ onMounted(() => {
             </AffixContainerView>
           </v-col>
           <v-col cols="12" md="8" lg="8">
-            <NewSeasonShowItem></NewSeasonShowItem>
+            <div ref="seasonContainerRef" class="new-season-lazy-container position-relative">
+              <template v-if="isSeasonItemLoaded">
+                <NewSeasonShowItem></NewSeasonShowItem>
+              </template>
+              <template v-else>
+                <v-card class="bg-black pa-6 text-center d-flex flex-column align-center justify-center rounded-lg" min-height="240">
+                  <div class="d-flex align-center ga-2 mb-2">
+                    <Loading size="99"></Loading>
+                  </div>
+                </v-card>
+              </template>
+            </div>
           </v-col>
         </v-row>
       </v-container>

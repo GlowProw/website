@@ -109,6 +109,8 @@ import SettingWishlistPage from '@/views/setting/Wishlist.vue'
 import SettingLogPage from '@/views/setting/Log.vue'
 import SettingSubscriptionsPage from '@/views/setting/Subscriptions.vue'
 import AdvancedPage from '@/views/setting/Advanced.vue'
+import ReminderIndexPage from '@/views/reminder/Index.vue'
+import ReminderViewPage from '@/views/reminder/View.vue'
 import NotFoundPage from '@/views/NotFound.vue';
 
 import Test from '@/views/Test.vue'
@@ -351,7 +353,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
                     {
                         path: 'pwa',
                         name: 'PortalSettingPwa',
-                        component: SettingPwaPage,
+                        redirect: '/setting/advanced',
                     },
                     {
                         path: 'wishlist',
@@ -901,6 +903,23 @@ const routes: Readonly<RouteRecordRaw[]> = [
             title: 'drop.title',
             keywords: 'drop.meta.keywords'
         }
+    },
+    {
+        path: '/reminder',
+        name: 'Reminder',
+        redirect: '/reminder/view',
+        component: ReminderIndexPage,
+        children: [
+            {
+                path: 'view',
+                name: 'ReminderView',
+                component: ReminderViewPage,
+                meta: {
+                    title: 'reminder.title',
+                    keywords: 'reminder.meta.keywords'
+                }
+            }
+        ]
     },
 
     {

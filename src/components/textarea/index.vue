@@ -482,7 +482,7 @@ const onInitEdit = () => {
                     elevation="0"
                     v-bind="props"
                     :disabled="isOpenLang || isLangActive"
-                    v-tooltip="'语言'">
+                    :v-tooltip="t('basic.language')">
                   <v-icon icon="mdi-translate"></v-icon>
                 </v-btn>
               </template>

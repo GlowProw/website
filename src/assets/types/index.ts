@@ -21,4 +21,5 @@ export * from "./User"
 export * from "./User.Login"
 export * from "./User.Signup"
 export * from "./Wishlist"
+export * from "./Reminder"
 

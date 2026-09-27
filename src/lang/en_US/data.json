@@ -190,7 +190,11 @@
       "search": "Search",
       "go": "Go",
       "edit": "Edit",
-      "delete": "Delete"
+      "delete": "Delete",
+      "use": "Use",
+      "close": "Close",
+      "create": "Create",
+      "refresh": "Refresh"
     },
     "assembly": {
       "publish": {
@@ -588,7 +592,41 @@
       }
     },
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "language": "Language",
+    "charactersUnit": "chars",
+    "time": {
+      "selectDate": "Select date",
+      "selectDateRange": "Select date range",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "startYear": "Start Year",
+      "endYear": "End Year",
+      "startMonth": "Start Month",
+      "endMonth": "End Month",
+      "endDateBeforeStartDateError": "End date cannot be earlier than start date",
+      "futureDateError": "Selected date cannot exceed current time",
+      "pastDateError": "Selected date cannot be in the past",
+      "dateRangePicker": "Date Range Picker",
+      "modes": {
+        "year": "Year to Year",
+        "month": "Month to Month",
+        "date": "Date to Date"
+      },
+      "presets": {
+        "today": "Today",
+        "yesterday": "Yesterday",
+        "thisWeek": "This Week",
+        "last7Days": "Last 7 Days",
+        "thisMonth": "This Month",
+        "lastMonth": "Last Month",
+        "last30Days": "Last 30 Days",
+        "thisYear": "This Year",
+        "lastYear": "Last Year",
+        "last3Years": "Last 3 Years",
+        "last5Years": "Last 5 Years"
+      }
+    }
   },
   "comment": {
     "title": "Comment",
@@ -675,7 +713,36 @@
     "myComment": "My Comments",
     "myTeamup": "My Teams",
     "myMap": "Map Management",
-    "mySmugglersReport": "My Smuggler's Reports"
+    "mySmugglersReport": "My Smuggler's Reports",
+    "maps": {
+      "createCollection": "Create Atlas",
+      "collectionPoints": "Atlas Coordinates",
+      "availablePoints": "Available Coordinates",
+      "selectAll": "Select All",
+      "deselectAll": "Deselect All",
+      "deletePoints": "Delete Coordinates",
+      "searchPoints": "Search coordinates...",
+      "noDescription": "No description"
+    },
+    "smugglersReport": {
+      "headerTitle": "Smuggler Network Weekly Connoisseur",
+      "headerDesc": "Smuggler connoisseurs specialize in weekly market dynamics, authoring in-depth evaluations and purchase guides for rare treasures so captains never miss an opportunity.",
+      "headerBenefit": "Become a Smuggler Connoisseur to gain the 'Connoisseur' badge and comment recommendations under weekly smuggler reports.",
+      "applyRequirement": "Requirements: Have followers on media platforms or be nominated by community players.",
+      "applyMethod": "How to apply: Click the apply button below.",
+      "viewCurrentReport": "View Current Report",
+      "applyBtn": "Apply",
+      "createWeeklyData": "Create Weekly Data",
+      "editReport": "Edit Report",
+      "createComment": "Create Comment",
+      "viewComment": "View Comment",
+      "dialogTitle": "Create Weekly Smuggler Data",
+      "deleteReport": "Delete Report",
+      "createReviewTitle": "Create Review",
+      "reviewNotice": "Please do not post content unrelated to smuggler goods.",
+      "reviewPlaceholder": "Enter your recommendations and review content",
+      "deleteComment": "Delete Comment"
+    }
   },
   "activate": {
     "title": "Account Activation",
@@ -946,7 +1013,8 @@
           "name": "Support Ship",
           "description": "Support Ships excel at assisting friendly vessels, often helping to turn the tide of battle."
         }
-      }
+      },
+      "attachment": "Attachments"
     },
     "items": {
       "title": "Item List",
@@ -1099,7 +1167,10 @@
       "lookDetail": "View Ultimate Perk Details"
     },
     "ultimates": {
-      "title": "Ultimate Skill List"
+      "title": "Ultimate Skill List",
+      "chargeRequired": "Charge Required",
+      "dateAdded": "Date Added",
+      "lastUpdated": "Last Updated"
     },
     "modification": {
       "title": "Modification Details",
@@ -1248,7 +1319,11 @@
     },
     "empireSkills": {
       "title": "Empire Skills",
-      "describe": "The Empire Skills codex catalogs Empire tree upgrades, requisites, and stage effects."
+      "describe": "The Empire Skills codex catalogs Empire tree upgrades, requisites, and stage effects.",
+      "faction": "Faction",
+      "stageCount": "Stages",
+      "dateAdded": "Date Added",
+      "lastUpdated": "Last Updated"
     },
     "mastery": {
       "title": "Mastery Details",
@@ -1323,7 +1398,8 @@
     "meta": {
       "keywords": "Skull and Bones,Twitch Drops,Drops History,Stream Rewards",
       "description": "Skull and Bones Twitch Drops campaign tracker, active drops and historical reward archive."
-    }
+    },
+    "searchPlaceholder": "Search event name..."
   },
   "calendar": {
     "title": "Calendar",
@@ -1354,7 +1430,8 @@
     "viewMode": {
       "compact": "Compact mode",
       "detailed": "Detailed mode"
-    }
+    },
+    "refresh": "Refresh"
   },
   "map": {
     "title": "Map",
@@ -1393,6 +1470,12 @@
     "sharedUsersHint": "Enter user IDs, separated by commas",
     "personalMarkers": "Personal Markers",
     "noDescription": "No description yet",
+    "pointsInCollection": "Points in Collection",
+    "availablePoints": "Available Points",
+    "deletePoints": "Delete Points",
+    "searchPointsPlaceholder": "Search points...",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
     "noCollections": "No collections yet",
     "titleRequired": "Title is required",
     "collectionRequired": "Please select a collection",
@@ -1461,7 +1544,9 @@
   "rankingDesignedItems": {
     "title": "Ranking Design",
     "workshop": {
-      "title": "Workshop"
+      "title": "Workshop",
+      "createTitle": "Create Custom Ranking",
+      "editTitle": "Edit Custom Ranking"
     },
     "browse": {
       "title": "Share",
@@ -1737,7 +1822,17 @@
         "displayAllEmpty": "All furniture is empty"
       },
       "emptyShip": "No Ship Selected",
-      "emptyShipDesc": "Please select a ship and equip weapons in the workshop to view calculation statistics."
+      "emptyShipDesc": "Please select a ship and equip weapons in the workshop to view calculation statistics.",
+      "createTitle": "Create Build",
+      "editTitle": "Edit Build",
+      "quickSaveDraft": "Quick Save Draft",
+      "saveAsDraft": "Save as Draft",
+      "loadDraft": "Load Draft",
+      "missingRequiredFields": "Build seems to be missing required selections, please add required items",
+      "draft": "Draft",
+      "inputDraftName": "Enter draft name",
+      "quickArchiving": "Quick Save Draft",
+      "useDraft": "Use"
     },
     "calc": {
       "overall": "Overall",
@@ -1790,7 +1885,12 @@
       "projectilesPerShot": "Projectiles per Shot"
     },
     "detail": {
-      "title": "Assembly Details"
+      "title": "Assembly Details",
+      "notFoundTitle": "Sorry, this build does not exist or is not public",
+      "notFoundDescPrefix": "Could not find",
+      "notFoundDescSuffix": ", it may be private or deleted",
+      "passwordRequiredTitle": "Password required for this build",
+      "passwordRequiredDesc": "Enter password to unlock and view build"
     },
     "share": {
       "title": "Share Assembly",
@@ -1829,7 +1929,11 @@
         "likes": "Likes",
         "desc": "Descending",
         "asc": "Ascending"
-      }
+      },
+      "sort": "Sort",
+      "createdTimeRange": "Created Date Range",
+      "updatedTimeRange": "Updated Date Range",
+      "includePasswordProtected": "Include password protected loadouts"
     },
     "publish": {
       "title": "Publish",
@@ -1843,11 +1947,45 @@
       "extra": "Extra",
       "tags": "Tags",
       "tagsPlaceholder": "Type tag and press Enter to create a new tag"
-    }
+    },
+    "selectWeaponDirection": "Select Weapon Direction",
+    "unnamed": "Unnamed Loadout"
   },
   "smugglersReport": {
     "title": "Smuggler's Connoisseur",
-    "description": "Smuggler's Connoisseur evaluates weekly smuggler refreshed items and provides purchasing recommendations for players."
+    "description": "Smuggler's Connoisseur evaluates weekly smuggler refreshed items and provides purchasing recommendations for players.",
+    "weekly": "Weekly",
+    "weeklyItems": "Weekly Items",
+    "itemId": "Item ID",
+    "currency": "Currency",
+    "worth": "Value/Quantity",
+    "view": {
+      "startTime": "Start",
+      "endTime": "End",
+      "smuggledItems": "Smuggled Items",
+      "connoisseurs": "Connoisseurs",
+      "connoisseursDesc": "See recommendations from connoisseurs",
+      "becomeConnoisseur": "Become a Connoisseur"
+    },
+    "account": {
+      "connoisseurTitle": "Smuggler Connoisseur Weekly",
+      "connoisseurDesc": "Smuggler Connoisseurs specialize in weekly market dynamics, writing in-depth reviews and buying guides for rare items so every captain can target peak-value treasures. Here you are a trusted trendsetter in the community.",
+      "connoisseurBenefit": "Becoming a Smuggler Connoisseur grants your account the 'Smuggler Connoisseur' status and allows commenting recommendations under the smuggler reports.",
+      "applyCondition": "Requirements: Significant subscriber base on media platforms or elected by community players",
+      "applyMethod": "Application Method: Click the apply button below",
+      "viewCurrentReport": "View Current Report",
+      "apply": "Apply",
+      "createWeeklyData": "Create Weekly Item Data",
+      "editReport": "Edit Report",
+      "viewComment": "View Comment",
+      "createComment": "Create Comment",
+      "createWeeklyTitle": "Create Smuggler Weekly Data",
+      "deleteReport": "Delete Report",
+      "createReviewTitle": "Create Connoisseur Review",
+      "warningContent": "Please do not post content unrelated to smugglers",
+      "recommendationPlaceholder": "Enter your recommendation and review content",
+      "deleteComment": "Delete Comment"
+    }
   },
   "space": {
     "title": "User Space",
@@ -1904,7 +2042,18 @@
     "other": "Other",
     "effectsNotContent": "Missing Description",
     "dateAdded": "Date Added",
-    "lastUpdated": "Last Updated"
+    "lastUpdated": "Last Updated",
+    "debugMode": "DEBUG Mode (draggable nodes/editable links)",
+    "notActive": "Inactive",
+    "levelUp": "Level Up",
+    "levelDown": "Level Down",
+    "debugEdit": "DEBUG Edit",
+    "exportAllNodes": "Export All Nodes",
+    "nodePosition": "Node Position (X, Y):",
+    "requisiteList": "Requisites List:",
+    "addRequisiteKey": "Add requisite node KEY",
+    "mustHaveUpgrades": "Requires all of the following upgrades",
+    "noRequisites": "No prerequisite upgrades required (Root Node)"
   },
   "mastery": {
     "title": "Mastery Skill Simulation",
@@ -2033,7 +2182,13 @@
       "maxPointsReached": "Maximum mastery points reached ({max} pts).",
       "noPathToNode": "Prerequisites not met: no valid path found to this node.",
       "pointsExhaustedToNode": "Points exhausted. Activated along path up to: {name}.",
-      "insufficientPointsForPath": "Insufficient points to activate path to this node."
+      "insufficientPointsForPath": "Insufficient points to activate path to this node.",
+      "group": "Group",
+      "ring": "Ring Tier",
+      "direction": "Direction",
+      "coordinates": "Coordinates",
+      "dependentNodes": "Dependent Downstream Nodes",
+      "season": "Season"
     },
     "debug": {
       "title": "Mastery Tree Debug & Coordinate Editor",
@@ -2041,7 +2196,7 @@
       "selectedNode": "Selected Node",
       "coordX": "X Coordinate",
       "coordY": "Y Coordinate",
-      "requisites": "Requisites",
+      "requisites": "Prerequisite Requirements",
       "requisitesPlaceholder": "Enter requisite node ID",
       "clickHint": "Click any canvas node to inspect or drag coordinates",
       "copied": "Mastery configuration JSON copied to clipboard",
@@ -2084,7 +2239,8 @@
       "requisiteSelf": "A node cannot be its own requisite",
       "requisiteAdded": "Requisite added: {name}",
       "requisiteRemoved": "Requisite removed: {name}"
-    }
+    },
+    "noData": "No mastery data available"
   },
   "search": {
     "title": "Search",
@@ -2292,14 +2448,45 @@
       "saveError": "Failed to save wishlist",
       "selectGradeFirst": "Please select a Mod Grade first to unlock perk selection",
       "selectModGrade": "Mod Grade",
-      "item": "Related Item"
+      "item": "Related Item",
+      "categoryFilter": "Category Filter",
+      "filterCategories": {
+        "all_items": "All Items",
+        "weapons": "Weapons & Armor",
+        "upgrades": "Upgrade Parts",
+        "furniture": "Furniture",
+        "consumables": "Consumables",
+        "tools_chests": "Tools & Chests",
+        "materials": "Materials",
+        "cosmetics": "Cosmetics",
+        "ultimates": "Ultimates",
+        "modifications": "Modifications",
+        "ships": "Ships"
+      }
     },
     "advanced": {
       "title": "Advanced",
       "cardTitle": "Developer debug",
       "hint": "Developer-oriented options for controlling or inspecting site data. Leave them off if you are not sure.",
       "debugName": "Developer debug mode",
-      "debugDesc": "When enabled, node dragging, raw IDs, coordinate editing and debug info appear on the bestiary, assembly and skill simulation pages."
+      "debugDesc": "When enabled, node dragging, raw IDs, coordinate editing and debug info appear on the bestiary, assembly and skill simulation pages.",
+      "notification": {
+        "title": "Desktop Notifications & Reminders",
+        "description": "Manage browser desktop notification permissions and master switch. Reminders will pop up on your desktop when the scheduled time arrives.",
+        "status": "Notification Permission Status",
+        "granted": "Desktop notifications allowed",
+        "denied": "Denied (Please allow notifications in browser site settings)",
+        "default": "Unauthorized (Click button to request permission)",
+        "unsupported": "Desktop notifications are not supported in this browser/environment",
+        "masterSwitch": "Enable Desktop Notifications",
+        "masterSwitchDesc": "Master switch. When turned off, desktop notifications will not be triggered.",
+        "requestPermission": "Request Permission",
+        "testNotice": "Send Test Notification",
+        "testTitle": "⏰ Glowing Prow - Test Reminder",
+        "testBody": "Desktop notifications are working! You will receive alerts when reminder events trigger.",
+        "permissionGrantedMsg": "Desktop notification permission granted successfully!",
+        "permissionDeniedMsg": "Notification permission denied. Please allow it in browser settings."
+      }
     }
   },
   "header": {
@@ -2374,6 +2561,10 @@
       "apps": {
         "title": "Apps",
         "description": "Enhance the experience with extension packages"
+      },
+      "reminder": {
+        "title": "Activity Reminder",
+        "description": "Schedule in-game events and activity reminders with desktop alerts"
       }
     }
   },
@@ -2583,29 +2774,29 @@
     "hallTitle": "Core Donors",
     "coreBadge": "Core Donor",
     "tiers": {
-      "1000": {
-        "name": "Captain",
-        "desc": "The legend in a gilded tricorne with a whole fleet at their back. Yer name goes atop the highest stern gallery, and every sea lane flies signals at yer command."
-      },
-      "500": {
-        "name": "Quartermaster",
-        "desc": "Second only to the captain — keeper of the loot shares and shipboard discipline. One slap of the cutlass on the table ends every argument on deck."
-      },
-      "100": {
-        "name": "Corsair",
-        "desc": "A proper privateer with papers in hand, roaming the trade winds. Plunder by the book, spend it with pride."
-      },
-      "50": {
-        "name": "Boatswain",
-        "desc": "Sails, guns, rigging — and the back of every seasick newcomer's head. Without the bosun, the ship wobbles before she leaves harbour."
+      "5": {
+        "name": "Apprentice Pirate",
+        "desc": "Serving up rum and still learning port from starboard. Not much silver, but every grand voyage begins here."
       },
       "10": {
         "name": "Twins",
         "desc": "The inseparable pair on the masthead lookout: one watching the wind, the other eyeing yer purse."
       },
-      "5": {
-        "name": "Apprentice Pirate",
-        "desc": "Serving up rum and still learning port from starboard. Not much silver, but every grand voyage begins here."
+      "50": {
+        "name": "Boatswain",
+        "desc": "Sails, guns, rigging — and the back of every seasick newcomer's head. Without the bosun, the ship wobbles before she leaves harbour."
+      },
+      "100": {
+        "name": "Corsair",
+        "desc": "A proper privateer with papers in hand, roaming the trade winds. Plunder by the book, spend it with pride."
+      },
+      "500": {
+        "name": "Quartermaster",
+        "desc": "Second only to the captain — keeper of the loot shares and shipboard discipline. One slap of the cutlass on the table ends every argument on deck."
+      },
+      "1000": {
+        "name": "Captain",
+        "desc": "The legend in a gilded tricorne with a whole fleet at their back. Yer name goes atop the highest stern gallery, and every sea lane flies signals at yer command."
       },
       "custom": {
         "name": "Custom Bounty",
@@ -2625,5 +2816,161 @@
     "cancelPay": "Cancel payment",
     "continuePay": "Continue to pay",
     "orderCancelled": "Order cancelled"
+  },
+  "reminder": {
+    "title": "Activity Reminder",
+    "description": "Schedule in-game events and activity reminders, supporting recurring and one-time reminders",
+    "createNew": "Create Reminder",
+    "edit": "Edit Reminder",
+    "delete": "Delete Reminder",
+    "deleteConfirm": "Are you sure you want to delete the reminder “{title}”? This action cannot be undone.",
+    "goToSettings": "Go to Settings",
+    "permissionWarning": "Desktop notification permission is not enabled. Click request or go to settings to receive alerts.",
+    "search": "Search reminder title or notes...",
+    "empty": "No reminder tasks found. Click above to create one or load presets.",
+    "testTrigger": "Test Notification",
+    "save": "Save Reminder",
+    "cancel": "Cancel",
+    "fields": {
+      "title": "Activity Title",
+      "titlePlaceholder": "e.g. Cheese Refresh",
+      "type": "Schedule Type",
+      "typeRepeat": "Recurring",
+      "typeOnce": "One-time",
+      "repeatType": "Repeat Method",
+      "repeatWeekly": "Weekly Days",
+      "repeatInterval": "Fixed Interval",
+      "repeatDays": "Repeat Days",
+      "repeatTime": "Trigger Time",
+      "repeatIntervalHours": "Interval Time",
+      "everyNHours": "Triggers every {n} hour(s)",
+      "everyNUnits": "Triggers every {n} {unit}",
+      "targetTime": "Deadline / Trigger Time",
+      "note": "Notes & Description",
+      "notePlaceholder": "Enter guide, location, notes, or tips (up to 5,000 characters)",
+      "enabled": "Enable Reminder",
+      "taskEnabled": "Enable Task",
+      "taskEnabledDesc": "Track countdown and display in reminder list",
+      "notifyEnabled": "Send Notification",
+      "notifyEnabledDesc": "Send desktop alerts & sound when event is triggered (enabled by default)",
+      "advanceNotice": "Advance Reminder",
+      "advanceNoticeDesc": "Send desktop notification in advance before event time",
+      "advanceOptions": {
+        "1m": "1 minute before",
+        "5m": "5 minutes before",
+        "10m": "10 minutes before",
+        "30m": "30 minutes before",
+        "60m": "1 hour before",
+        "custom": "Custom"
+      },
+      "advanceMinutes": "Advance Minutes",
+      "validity": "Validity Period",
+      "validityPermanent": "Permanent",
+      "validityRange": "Specified Range",
+      "validityFrom": "Start Time",
+      "validityTo": "End Time"
+    },
+    "units": {
+      "day": "Day(s)",
+      "hour": "Hour(s)",
+      "minute": "Minute(s)",
+      "second": "Second(s)"
+    },
+    "weekdays": {
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat",
+      "sun": "Sun",
+      "all": "Every Day"
+    },
+    "status": {
+      "active": "Active",
+      "paused": "Paused",
+      "expired": "Expired",
+      "imminent": "Imminent",
+      "notStarted": "Not Started"
+    },
+    "countdown": {
+      "remaining": "Remaining Time",
+      "expired": "Deadline passed",
+      "paused": "Reminder is paused",
+      "advanceBadge": "Advance Alerting"
+    },
+    "presets": {
+      "title": "Popular Presets",
+      "loadBtn": "Load Presets",
+      "loaded": "Preset reminders loaded successfully",
+      "cheese": {
+        "title": "Cheese!",
+        "desc": "Cheese has refreshed!",
+        "note": "Cheese has refreshed! Check local vendors across the map."
+      },
+      "helmTakeover": {
+        "title": "The Helm: Hostile Takeover",
+        "desc": "Next Hostile Takeover opportunity refresh time",
+        "note": "The Helm Hostile Takeover opportunity has refreshed. Join and secure the manufactory."
+      },
+      "helmWarEvent": {
+        "title": "War Event",
+        "desc": "Next War Event refresh time",
+        "note": "War Event has started. Prepare for battle and competition."
+      },
+      "maintenance": {
+        "title": "Game Maintenance",
+        "desc": "Routine game maintenance. Check official announcements for details.",
+        "note": "Routine game maintenance time. Please check official game announcements."
+      }
+    },
+    "filter": {
+      "all": "All",
+      "repeat": "Recurring",
+      "once": "One-time",
+      "active": "Active",
+      "paused": "Paused",
+      "activeConditions": "Filters",
+      "keyword": "Keyword",
+      "clearAll": "Clear Filters",
+      "sortTitle": "Sort By",
+      "sortTriggerTime": "By Trigger Time",
+      "sortCreatedTime": "By Created Time",
+      "sortTitleField": "By Event Title",
+      "sortAsc": "Ascending (Soonest First)",
+      "sortDesc": "Descending"
+    },
+    "stats": {
+      "total": "Total Tasks",
+      "active": "Active",
+      "nextTrigger": "Next Trigger"
+    },
+    "bot": {
+      "addToBot": "Add to Bot Notification",
+      "dialogTitle": "Add to Bot Notification",
+      "description": "Subscribe to a private notification by messaging the bot",
+      "hint": "Copy the command below and send it in a private chat to the bot:",
+      "copyCommand": "Copy Subscribe Command",
+      "copied": "Subscription command copied to clipboard",
+      "targetTask": "Target Event",
+      "clickToCopy": "Click to copy",
+      "commandPrefix": "/subscribe"
+    },
+    "notificationEnabled": "Notifications enabled",
+    "notificationDisabled": "Notifications disabled",
+    "noNote": "No note",
+    "muted": "Muted",
+    "presetBadge": "Preset",
+    "dialog": {
+      "selectAll": "All",
+      "workdays": "Workdays",
+      "weekends": "Weekends",
+      "everyday": "Everyday",
+      "systemTime": "System/Beijing Time",
+      "advanceNoticeDesc": "Alerts {min} minutes in advance",
+      "effectiveImmediately": "Immediately",
+      "offsetDays": "{days} Days",
+      "immediately": "Immediately"
+    }
   }
 }

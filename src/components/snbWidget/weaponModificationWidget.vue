@@ -695,8 +695,7 @@ defineExpose({
                 <v-expansion-panel
                     v-for="(mods, type) in filteredMods"
                     :key="type"
-                    :bg-color="MOD_STYLE_CONFIG[type as ModRarity]"
-                >
+                    :bg-color="MOD_STYLE_CONFIG[type as ModRarity]">
                   <template v-slot:title>
                     <v-row class="d-flex align-center justify-start w-100">
                       <v-col cols="auto">
@@ -755,8 +754,7 @@ defineExpose({
                           v-if="!mods || mods.length === 0"
                           variant="tonal"
                           color="grey"
-                          class="text-center"
-                      >
+                          class="text-center">
                         {{ t('assembly.weaponModification.noMatching') }}
                       </v-alert>
                     </div>
@@ -785,8 +783,7 @@ defineExpose({
                 class="ml-1"
                 line-color="rgba(83,83,83,0.68)"
                 color="#000"
-                @action-complete="onConfirm"
-            >
+                @action-complete="onConfirm">
               {{ t('basic.button.submit') }}
             </BtnWidget>
           </v-btn>

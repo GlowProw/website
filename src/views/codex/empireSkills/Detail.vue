@@ -254,7 +254,7 @@ const onCodexHistory = (id: string) => {
                               v-if="empireSkillDetailData.type"
                               variant="underlined" density="compact">
                   <template v-slot:append-inner>
-                    <p class="text-no-wrap">阵营</p>
+                    <p class="text-no-wrap">{{ t('codex.empireSkills.faction') }}</p>
                   </template>
                 </v-text-field>
 
@@ -262,7 +262,7 @@ const onCodexHistory = (id: string) => {
                               hide-details
                               variant="underlined" density="compact">
                   <template v-slot:append-inner>
-                    <p class="text-no-wrap">阶级数</p>
+                    <p class="text-no-wrap">{{ t('codex.empireSkills.stageCount') }}</p>
                   </template>
                 </v-text-field>
 
@@ -270,7 +270,7 @@ const onCodexHistory = (id: string) => {
                               hide-details
                               variant="underlined" density="compact">
                   <template v-slot:append-inner>
-                    <p class="text-no-wrap">添加日期</p>
+                    <p class="text-no-wrap">{{ t('codex.empireSkills.dateAdded') }}</p>
                   </template>
                 </v-text-field>
 
@@ -278,7 +278,7 @@ const onCodexHistory = (id: string) => {
                               hide-details
                               variant="underlined" density="compact">
                   <template v-slot:append-inner>
-                    <p class="text-no-wrap">更新日期</p>
+                    <p class="text-no-wrap">{{ t('codex.empireSkills.lastUpdated') }}</p>
                   </template>
                 </v-text-field>
               </VerticalScrollList>

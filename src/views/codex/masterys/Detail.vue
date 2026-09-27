@@ -339,7 +339,7 @@ const onStarMastery = (data: Mastery) => {
                                 hide-details
                                 readonly variant="underlined">
                     <template v-slot:append-inner>
-                      <p class="text-no-wrap">{{ t('mastery.card.role') || '节点类型' }}</p>
+                      <p class="text-no-wrap">{{ t('mastery.card.role') }}</p>
                     </template>
                   </v-text-field>
                 </template>
@@ -348,7 +348,7 @@ const onStarMastery = (data: Mastery) => {
                                 hide-details
                                 readonly variant="underlined">
                     <template v-slot:append-inner>
-                      <p class="text-no-wrap">{{ t('mastery.card.category') || '分类' }}</p>
+                      <p class="text-no-wrap">{{ t('mastery.card.category') }}</p>
                     </template>
                   </v-text-field>
                 </template>
@@ -359,7 +359,7 @@ const onStarMastery = (data: Mastery) => {
                                 hide-details
                                 readonly variant="underlined">
                     <template v-slot:append-inner>
-                      <p class="text-no-wrap">{{ masteryDetailData.role === 'seasonalPerk' ? (t('mastery.card.perkCost') || '激活门槛') : (t('mastery.card.pointCost') || '点数消耗') }}</p>
+                      <p class="text-no-wrap">{{ masteryDetailData.role === 'seasonalPerk' ? t('mastery.card.perkCost') : t('mastery.card.pointCost') }}</p>
                     </template>
                   </v-text-field>
                 </template>
@@ -368,7 +368,7 @@ const onStarMastery = (data: Mastery) => {
                                 hide-details
                                 readonly variant="underlined">
                     <template v-slot:append-inner>
-                      <p class="text-no-wrap">{{ t('mastery.card.group') || '分组' }}</p>
+                      <p class="text-no-wrap">{{ t('mastery.card.group') }}</p>
                     </template>
                   </v-text-field>
                 </template>
@@ -377,7 +377,7 @@ const onStarMastery = (data: Mastery) => {
                                 hide-details
                                 readonly variant="underlined">
                     <template v-slot:append-inner>
-                      <p class="text-no-wrap">{{ t('mastery.card.ring') || '环层级' }}</p>
+                      <p class="text-no-wrap">{{ t('mastery.card.ring') }}</p>
                     </template>
                   </v-text-field>
                 </template>
@@ -386,7 +386,7 @@ const onStarMastery = (data: Mastery) => {
                                 hide-details
                                 readonly variant="underlined">
                     <template v-slot:append-inner>
-                      <p class="text-no-wrap">{{ t('mastery.card.direction') || '方向' }}</p>
+                      <p class="text-no-wrap">{{ t('mastery.card.direction') }}</p>
                     </template>
                   </v-text-field>
                 </template>
@@ -395,7 +395,7 @@ const onStarMastery = (data: Mastery) => {
                                 hide-details
                                 readonly variant="underlined">
                     <template v-slot:append-inner>
-                      <p class="text-no-wrap">{{ t('mastery.card.coordinates') || '坐标' }}</p>
+                      <p class="text-no-wrap">{{ t('mastery.card.coordinates') }}</p>
                     </template>
                   </v-text-field>
                 </template>
@@ -404,7 +404,7 @@ const onStarMastery = (data: Mastery) => {
 
             <!-- 前置需求节点 -->
             <template v-if="requisiteNodes.length > 0">
-              <v-divider class="mt-8 mb-4">{{ t('mastery.debug.requisites') || '前置技能要求' }}</v-divider>
+              <v-divider class="mt-8 mb-4">{{ t('mastery.debug.requisites') }}</v-divider>
               <v-row>
                 <v-col v-for="req in requisiteNodes" :key="req.id" cols="12" sm="6">
                   <v-card border class="pa-2 d-flex align-center" :to="`/codex/mastery/${req.id}`">
@@ -424,7 +424,7 @@ const onStarMastery = (data: Mastery) => {
 
             <!-- 后续依赖节点 -->
             <template v-if="dependentNodes.length > 0">
-              <v-divider class="mt-8 mb-4">{{ t('mastery.card.dependentNodes') || '后续解锁节点' }}</v-divider>
+              <v-divider class="mt-8 mb-4">{{ t('mastery.card.dependentNodes') }}</v-divider>
               <v-row>
                 <v-col v-for="dep in dependentNodes" :key="dep.id" cols="12" sm="6">
                   <v-card border class="pa-2 d-flex align-center" :to="`/codex/mastery/${dep.id}`">
@@ -461,7 +461,7 @@ const onStarMastery = (data: Mastery) => {
                       hide-details
                       readonly variant="underlined">
                     <template v-slot:append-inner>
-                      <p class="text-no-wrap">{{ t('mastery.card.season') || '所属赛季' }}</p>
+                      <p class="text-no-wrap">{{ t('mastery.card.season') }}</p>
                     </template>
                   </v-text-field>
                 </template>
@@ -473,7 +473,7 @@ const onStarMastery = (data: Mastery) => {
                       hide-details
                       readonly variant="underlined">
                     <template v-slot:append-inner>
-                      <p class="text-no-wrap">{{ t('mastery.card.category') || '分类' }}</p>
+                      <p class="text-no-wrap">{{ t('mastery.card.category') }}</p>
                     </template>
                   </v-text-field>
                 </template>
@@ -485,7 +485,7 @@ const onStarMastery = (data: Mastery) => {
                       hide-details
                       readonly variant="underlined">
                     <template v-slot:append-inner>
-                      <p class="text-no-wrap">{{ t('mastery.card.role') || '节点类型' }}</p>
+                      <p class="text-no-wrap">{{ t('mastery.card.role') }}</p>
                     </template>
                   </v-text-field>
                 </template>
@@ -497,7 +497,7 @@ const onStarMastery = (data: Mastery) => {
                       hide-details
                       readonly variant="underlined">
                     <template v-slot:append-inner>
-                      <p class="text-no-wrap">{{ masteryDetailData.role === 'seasonalPerk' ? (t('mastery.card.perkCost') || '门槛') : (t('mastery.card.pointCost') || '消耗') }}</p>
+                      <p class="text-no-wrap">{{ masteryDetailData.role === 'seasonalPerk' ? t('mastery.card.perkCost') : t('mastery.card.pointCost') }}</p>
                     </template>
                   </v-text-field>
                 </template>
@@ -535,7 +535,7 @@ const onStarMastery = (data: Mastery) => {
                     class="mt-6"
                     prepend-icon="mdi-transit-connection-variant"
                     :to="`/mastery?season=${masteryDetailData.bySeason?.id || (masteryDetailData.season as any)?.id || 'crimsonWaters'}&locate=${masteryDetailData.id}`">
-                  {{ t('codex.mastery.openInTree') || '在专精树中查看' }}
+                  {{ t('codex.mastery.openInTree') }}
                 </v-btn>
               </VerticalScrollList>
             </AffixContainerView>

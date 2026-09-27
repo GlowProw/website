@@ -31,8 +31,7 @@ const animationDuration = computed(() => `${props.speed}s`)
       backgroundSize: '200% 100%',
       WebkitBackgroundClip: 'text',
       animationDuration: animationDuration
-    }"
-  >
+    }">
     {{ props.text }}
   </div>
 </template>
