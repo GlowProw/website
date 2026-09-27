@@ -81,9 +81,9 @@ onUnmounted(() => {
 
       <div class="portal-season-left-tip" v-if="currentlySeason && currentlySeason.id">
         <div class="opacity-60">
-          {{ t('portal.seasonTimer', {seasonName: (currentlySeason as any).alternativeName.toUpperCase(), day: time.calcRemainingDays(currentlySeason.endDate)}) }}
+          <p>{{ t('portal.seasonTimer', {seasonName: (currentlySeason as any).alternativeName.toUpperCase(), day: time.calcRemainingDays(currentlySeason.endDate)}) }}</p>
           <v-divider thickness="3" vertical/>
-          {{ t(`snb.seasons.${currentlySeason?.id}`) }}
+          <p>{{ t(`snb.seasons.${currentlySeason?.id}`) }}</p>
         </div>
       </div>
     </v-card>
@@ -277,11 +277,12 @@ onUnmounted(() => {
     padding-top: calc(80px + 3vh);
     padding-left: 3vh;
     padding-right: 3vh;
-    height: 100%;
+    height: auto;
+    font-size: 23px;
 
     > div {
       writing-mode: vertical-rl;
-      display: flex;
+      display: inline-flex;
       flex-flow: row wrap;
       column-gap: 4px;
       font-weight: 400;

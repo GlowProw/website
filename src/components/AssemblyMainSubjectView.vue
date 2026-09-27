@@ -10,6 +10,7 @@ import {computed, nextTick, onMounted, Ref, ref, toRaw, useAttrs, watch} from "v
 import {useDisplay} from "vuetify/framework";
 import {useI18n} from "vue-i18n";
 import {Ships} from "glow-prow-data";
+import AffixContainerView from "@/components/AffixContainerView.vue";
 
 const props = withDefaults(defineProps<{
       assemblyBackground?: string,
@@ -245,18 +246,23 @@ defineOptions({name: 'AssemblyMainSubjectView'})
   <v-card class="card-enlargement-flavor mt-n3 mb-5 ml-n10 mr-n10"
           min-height="500"
           :class="[isWorkshopFillScreen ? 'fill-screen bg-black' : 'position-relative mb-n2', props.class]">
-    <v-tabs
-        v-model="tab"
-        height="60"
-        @update:model-value="onTabs"
-        align-tabs="center">
-      <v-tab :value="i"
-             v-for="(i,index) in assemblyViewConfig.onlyRead"
-             :disabled="(i === 'warehouse' || i === 'info') && hasShip || (i !== 'info' && hasData(i))"
-             @click="updateUrlTag(i)"
-             :key="index">{{ t(`assembly.additions.${i}`) }}
-      </v-tab>
-    </v-tabs>
+    <AffixContainerView :offsetTop="55">
+      <div class="bg-black">
+        <v-tabs
+            v-model="tab"
+            height="60"
+            @update:model-value="onTabs"
+            align-tabs="center">
+          <v-tab :value="i"
+                 v-for="(i,index) in assemblyViewConfig.onlyRead"
+                 :disabled="(i === 'warehouse' || i === 'info') && hasShip || (i !== 'info' && hasData(i))"
+                 @click="updateUrlTag(i)"
+                 :key="index">{{ t(`assembly.additions.${i}`) }}
+          </v-tab>
+        </v-tabs>
+        <v-divider></v-divider>
+      </div>
+    </AffixContainerView>
 
     <v-divider opacity=".08"></v-divider>
 

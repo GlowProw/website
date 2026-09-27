@@ -31,7 +31,15 @@ let drawer = ref(false)
         flat>
       <v-app-bar-nav-icon @click="drawer = !drawer" class="hidden-md hidden-lg hidden-xl hidden-xxl"></v-app-bar-nav-icon>
 
-      <Logo size="32" class="ml-sm-1 ml-md-1 ml-lg-2 mr-5"></Logo>
+      <div class="d-flex ml-sm-1 ml-md-1 ml-lg-2 mr-5 text-no-wrap">
+        <Logo size="32" class=""></Logo>
+
+        <v-divider vertical inset class="mx-3"></v-divider>
+
+        <img
+            height="34"
+            src="@/assets/images/logo-snb.png" />
+      </div>
 
       <v-spacer></v-spacer>
 

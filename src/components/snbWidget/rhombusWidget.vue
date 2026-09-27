@@ -23,6 +23,11 @@ export interface CommonRhombusProps {
   size?: string | number;
   activateColor?: string;
   inactiveColor?: string;
+  highlightColor?: string;
+  glowOpacity?: number | string;
+  glowBlur?: number | string;
+  flameOpacity?: number | string;
+  flameBlur?: number | string;
 }
 
 // 预设模式: 传 type，排斥 border/slot/adept/glow 等细分参数
@@ -30,10 +35,13 @@ export interface TypeRhombusProps extends CommonRhombusProps {
   type: RhombusType;
   border?: never;
   borderActivate?: never;
+  borderHighlightActivate?: never;
   slot?: never;
   slotActivate?: never;
+  slotHighlightActivate?: never;
   adept?: never;
   adeptActivate?: never;
+  adeptHighlightActivate?: never;
   glow?: never;
 }
 
@@ -42,10 +50,13 @@ export interface CustomRhombusProps extends CommonRhombusProps {
   type?: never;
   border?: boolean;
   borderActivate?: boolean;
+  borderHighlightActivate?: boolean;
   slot?: boolean;
   slotActivate?: boolean;
+  slotHighlightActivate?: boolean;
   adept?: boolean;
   adeptActivate?: boolean;
+  adeptHighlightActivate?: boolean;
   glow?: boolean;
 }
 
@@ -58,27 +69,43 @@ const props = withDefaults(defineProps<{
   // 模式 2: 细分参数 (有细分参数时不可与 type 混用)
   border?: boolean;
   borderActivate?: boolean;
+  borderHighlightActivate?: boolean;
   slot?: boolean;
   slotActivate?: boolean;
+  slotHighlightActivate?: boolean;
   adept?: boolean;
   adeptActivate?: boolean;
+  adeptHighlightActivate?: boolean;
   glow?: boolean;
 
   // 通用配置
   activateColor?: string;
   inactiveColor?: string;
+  highlightColor?: string;
+  glowOpacity?: number | string;
+  glowBlur?: number | string;
+  flameOpacity?: number | string;
+  flameBlur?: number | string;
   size?: string | number;
 }>(), {
   type: undefined,
   border: undefined,
   borderActivate: undefined,
+  borderHighlightActivate: undefined,
   slot: undefined,
   slotActivate: undefined,
+  slotHighlightActivate: undefined,
   adept: undefined,
   adeptActivate: undefined,
+  adeptHighlightActivate: undefined,
   glow: undefined,
-  activateColor: '',
-  inactiveColor: '',
+  activateColor: '#fed727',
+  inactiveColor: 'rgb(255 255 255 / 40%)',
+  highlightColor: 'rgb(246 246 162)',
+  glowOpacity: .5,
+  glowBlur: 5,
+  flameOpacity: undefined,
+  flameBlur: undefined,
   size: 25,
 });
 
@@ -86,10 +113,13 @@ if (import.meta.env?.DEV) {
   if (props.type !== undefined && (
     props.border !== undefined ||
     props.borderActivate !== undefined ||
+    props.borderHighlightActivate !== undefined ||
     props.slot !== undefined ||
     props.slotActivate !== undefined ||
+    props.slotHighlightActivate !== undefined ||
     props.adept !== undefined ||
     props.adeptActivate !== undefined ||
+    props.adeptHighlightActivate !== undefined ||
     props.glow !== undefined
   )) {
     console.warn('[RhombusWidget] Cannot use `type` together with custom props (border, slot, adept, glow). `type` takes precedence.');
@@ -106,7 +136,12 @@ const hasBorder = computed(() => {
   return props.border ?? true;
 });
 
-// 边框是否为激活高亮状态（黄色与白色区分）
+// 边框是否为高亮状态
+const isBorderHighlight = computed(() => {
+  return props.borderHighlightActivate ?? false;
+});
+
+// 边框是否为激活状态
 const isBorderActivate = computed(() => {
   if (hasType.value) {
     const t = String(props.type);
@@ -122,10 +157,15 @@ const hasAdept = computed(() => {
     const t = String(props.type);
     return t === 'adept' || t === 'adept-congenital';
   }
-  return props.adept ?? (props.adeptActivate !== undefined ? true : false);
+  return props.adept ?? (props.adeptActivate !== undefined || props.adeptHighlightActivate !== undefined ? true : false);
 });
 
-// 角标是否为激活高亮状态
+// 角标是否为高亮状态
+const isAdeptHighlight = computed(() => {
+  return props.adeptHighlightActivate ?? false;
+});
+
+// 角标是否为激活状态
 const isAdeptActivate = computed(() => {
   if (hasType.value) {
     const t = String(props.type);
@@ -141,7 +181,12 @@ const hasSlot = computed(() => {
     if (t === 'none') return false;
     return t === 'normal' || t === 'normal-congenital' || t === 'adept' || t === 'adept-congenital';
   }
-  return props.slot ?? (props.slotActivate !== undefined ? true : false);
+  return props.slot ?? (props.slotActivate !== undefined || props.slotHighlightActivate !== undefined ? true : false);
+});
+
+// 实心内芯是否为高亮状态
+const isSlotHighlight = computed(() => {
+  return props.slotHighlightActivate ?? false;
 });
 
 // 实心内芯是否为激活状态
@@ -168,7 +213,9 @@ const uid = rawId.replace(/[^a-zA-Z0-9_-]/g, '_');
 const flameMainId = `flame-main-${uid}`;
 const flameSideId = `flame-side-${uid}`;
 const flameAuraId = `flame-aura-${uid}`;
+const flameSmokeId = `flame-smoke-${uid}`;
 const flameBlurId = `flame-blur-${uid}`;
+const flameSoftBlurId = `flame-soft-blur-${uid}`;
 
 const displaySize = computed(() => {
   if (typeof props.size === 'number') {
@@ -188,26 +235,60 @@ const displaySize = computed(() => {
   return '14px';
 });
 
+const highlightColorVal = computed(() => {
+  if (props.highlightColor) return props.highlightColor;
+  return '#ffff7a';
+});
+
 const activeColorVal = computed(() => {
   if (props.activateColor) return props.activateColor;
-  return 'var(--main-color, #f5c518)';
+  return '#fed727';
 });
 
 const inactiveColorVal = computed(() => {
   if (props.inactiveColor) return props.inactiveColor;
-  return '#ffffff';
+  return 'rgb(255 255 255 / 40%)';
 });
 
 const borderStrokeColor = computed(() => {
+  if (isBorderHighlight.value) return highlightColorVal.value;
   return isBorderActivate.value ? activeColorVal.value : inactiveColorVal.value;
 });
 
 const adeptStrokeColor = computed(() => {
+  if (isAdeptHighlight.value) return highlightColorVal.value;
   return isAdeptActivate.value ? activeColorVal.value : inactiveColorVal.value;
 });
 
 const slotFillColor = computed(() => {
-  return isSlotActivate.value ? (props.activateColor || '#fed727') : inactiveColorVal.value;
+  if (isSlotHighlight.value) return highlightColorVal.value;
+  return isSlotActivate.value ? activeColorVal.value : inactiveColorVal.value;
+});
+
+// 火焰透明度控制 (支持 props.glowOpacity / props.flameOpacity，默认 0.75 呈现通透半透明)
+const flameOpacityVal = computed(() => {
+  const raw = props.glowOpacity ?? props.flameOpacity;
+  if (raw !== undefined && raw !== null && raw !== '') {
+    const num = Number(raw);
+    if (!isNaN(num)) return Math.max(0, Math.min(1, num));
+    return raw;
+  }
+  return 0.75;
+});
+
+// 火焰模糊度控制 (支持 props.glowBlur / props.flameBlur，默认 3.2 呈现更柔和模糊烟雾感)
+const flameBlurVal = computed(() => {
+  const raw = props.glowBlur ?? props.flameBlur;
+  if (raw !== undefined && raw !== null && raw !== '') {
+    const num = Number(raw);
+    if (!isNaN(num)) return Math.max(0, num);
+  }
+  return 3.2;
+});
+
+// 烟雾层模糊度
+const flameSmokeBlurVal = computed(() => {
+  return Number((flameBlurVal.value * 1.35).toFixed(2));
 });
 </script>
 
@@ -220,61 +301,94 @@ const slotFillColor = computed(() => {
       :class="{ 'has-congenital': isGlow, 'is-activated': isBorderActivate || isSlotActivate || isAdeptActivate }">
 
       <defs>
-        <!-- 透明火焰主色渐变 -->
-        <linearGradient :id="flameMainId" x1="0%" y1="160%" x2="0%" y2="0%">
-          <stop offset="0%" stop-color="rgba(255, 80, 0, 0)" />
-          <stop offset="25%" stop-color="rgba(255, 120, 0, 0.45)" />
-          <stop offset="65%" stop-color="rgba(255, 185, 20, 0.65)" />
-          <stop offset="90%" stop-color="rgba(255, 235, 120, 0.4)" />
+        <!-- 火焰核心金黄渐变 -->
+        <linearGradient :id="flameMainId" x1="0%" y1="100%" x2="0%" y2="0%">
+          <stop offset="0%" stop-color="rgba(240, 70, 0, 0)" />
+          <stop offset="20%" stop-color="rgba(255, 100, 10, 0.4)" />
+          <stop offset="50%" stop-color="rgba(255, 170, 20, 0.75)" />
+          <stop offset="75%" stop-color="rgba(255, 220, 80, 0.65)" />
+          <stop offset="92%" stop-color="rgba(255, 255, 160, 0.3)" />
           <stop offset="100%" stop-color="rgba(255, 255, 200, 0)" />
         </linearGradient>
 
-        <!-- 透明火焰侧翼渐变 -->
-        <linearGradient :id="flameSideId" x1="0%" y1="160%" x2="0%" y2="0%">
-          <stop offset="0%" stop-color="rgba(240, 60, 1, 0)" />
-          <stop offset="30%" stop-color="rgba(255, 140, 0, 0.1)" />
-          <stop offset="75%" stop-color="rgba(255, 200, 40, 0.55)" />
-          <stop offset="100%" stop-color="rgba(255, 240, 100, 0)" />
+        <!-- 火焰侧翼与烟气渐变 -->
+        <linearGradient :id="flameSideId" x1="0%" y1="100%" x2="0%" y2="0%">
+          <stop offset="0%" stop-color="rgba(200, 40, 0, 0)" />
+          <stop offset="25%" stop-color="rgba(230, 80, 10, 0.35)" />
+          <stop offset="60%" stop-color="rgba(255, 140, 30, 0.6)" />
+          <stop offset="85%" stop-color="rgba(255, 195, 60, 0.4)" />
+          <stop offset="100%" stop-color="rgba(255, 210, 80, 0)" />
         </linearGradient>
 
-        <!-- 火焰外晕 -->
-        <radialGradient :id="flameAuraId" cx="0%" cy="160%" r="0%">
-          <stop offset="0%" stop-color="rgba(255, 180, 30, 0.1)" />
-          <stop offset="40%" stop-color="rgba(255, 110, 0, 0.8)" />
-          <stop offset="75%" stop-color="rgba(230, 60, 0, 0.52)" />
-          <stop offset="100%" stop-color="rgba(200, 40, 0, 0)" />
+        <!-- 烟气烟雾深色渐变 -->
+        <linearGradient :id="flameSmokeId" x1="0%" y1="100%" x2="0%" y2="0%">
+          <stop offset="0%" stop-color="rgba(140, 45, 15, 0)" />
+          <stop offset="35%" stop-color="rgba(180, 60, 15, 0.3)" />
+          <stop offset="70%" stop-color="rgba(215, 95, 20, 0.45)" />
+          <stop offset="90%" stop-color="rgba(235, 140, 30, 0.2)" />
+          <stop offset="100%" stop-color="rgba(200, 80, 15, 0)" />
+        </linearGradient>
+
+        <!-- 火焰外晕光环 -->
+        <radialGradient :id="flameAuraId" cx="50%" cy="58%" r="50%">
+          <stop offset="0%" stop-color="rgba(255, 210, 60, 0.6)" />
+          <stop offset="30%" stop-color="rgba(255, 130, 15, 0.55)" />
+          <stop offset="60%" stop-color="rgba(220, 65, 5, 0.35)" />
+          <stop offset="85%" stop-color="rgba(160, 35, 0, 0.15)" />
+          <stop offset="100%" stop-color="rgba(120, 20, 0, 0)" />
         </radialGradient>
 
-        <!-- 火焰柔化滤镜 -->
-        <filter :id="flameBlurId" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="8" />
+        <!-- 火焰轮廓模糊滤镜 (由 props.glowBlur / props.flameBlur 控制) -->
+        <filter :id="flameBlurId" x="-60%" y="-80%" width="220%" height="260%">
+          <feGaussianBlur :stdDeviation="flameBlurVal" />
+        </filter>
+
+        <!-- 烟雾轻柔滤镜 -->
+        <filter :id="flameSoftBlurId" x="-60%" y="-80%" width="220%" height="260%">
+          <feGaussianBlur :stdDeviation="flameSmokeBlurVal" />
         </filter>
       </defs>
 
-      <!-- 1背景透明火焰层 (仅在发光时渲染) -->
-      <g v-if="isGlow" class="flame-layer-back">
-        <!-- 火焰背光晕 -->
-        <ellipse cx="24" cy="20" rx="28" ry="32" :fill="`url(#${flameAuraId})`" class="flame-aura" />
+      <!-- 背景火焰烟气层 (仅在发光时渲染，由 props.glowOpacity / props.flameOpacity 控制透明度) -->
+      <g v-if="isGlow" class="flame-layer-back" :style="{ opacity: flameOpacityVal }">
+        <!-- 火焰背底主光晕 -->
+        <ellipse cx="24" cy="22" rx="22" ry="24" :fill="`url(#${flameAuraId})`" class="flame-aura" />
 
-        <!-- 柔化火焰火舌 -->
-        <g :filter="`url(#${flameBlurId})`">
-          <!-- 左侧火舌 -->
+        <!-- 烟气烟雾扩散层 -->
+        <g :filter="`url(#${flameSoftBlurId})`" class="flame-smoke-group">
+          <!-- 底部及周围扩散暖烟 -->
           <path
-            d="M 10,28 C 4,14 12,2 17,-8 C 22,0 18,12 16,28 Z"
+            d="M 6,26 C 3,14 10,2 17,-5 C 24,-12 28,-12 33,-4 C 40,4 47,15 42,28 C 38,38 31,44 24,44 C 17,44 10,38 6,26 Z"
+            :fill="`url(#${flameSmokeId})`"
+            class="flame-smoke-outer"
+          />
+        </g>
+
+        <!-- 柔化多层上升火舌与焰团 -->
+        <g :filter="`url(#${flameBlurId})`" class="flame-tongues-group">
+          <!-- 左侧摇曳火舌 -->
+          <path
+            d="M 12,30 C 5,20 8,6 13,-6 C 17,-12 21,-5 19,4 C 17,13 18,22 15,32 Z"
             :fill="`url(#${flameSideId})`"
             class="flame-tongue-left"
           />
-          <!-- 中间主火舌 -->
+          <!-- 右侧摇曳火舌 -->
           <path
-            d="M 16,30 C 18,10 21,-12 25,-14 C 29,-2 28,14 26,30 Z"
+            d="M 36,30 C 43,20 40,6 35,-6 C 31,-12 27,-5 29,4 C 31,13 30,22 33,32 Z"
+            :fill="`url(#${flameSideId})`"
+            class="flame-tongue-right"
+          />
+          <!-- 中间主火舌 (腾起翻滚) -->
+          <path
+            d="M 15,34 C 14,18 18,2 22,-10 C 24,-15 27,-15 28,-9 C 31,0 35,16 33,34 C 29,40 19,40 15,34 Z"
             :fill="`url(#${flameMainId})`"
             class="flame-tongue-center"
           />
-          <!-- 右侧火舌 -->
+          <!-- 顶部轻盈焰芯 -->
           <path
-            d="M 28,28 C 34,16 36,4 32,-6 C 36,4 38,16 34,28 Z"
-            :fill="`url(#${flameSideId})`"
-            class="flame-tongue-right"
+            d="M 18,20 C 18,6 21,-8 24,-14 C 27,-8 30,6 30,20 C 27,24 21,24 18,20 Z"
+            :fill="`url(#${flameMainId})`"
+            class="flame-tongue-core"
           />
         </g>
       </g>
@@ -301,10 +415,10 @@ const slotFillColor = computed(() => {
 
       <!-- 带角棱形 (四角出尖星型) -->
       <g v-else>
-        <!-- 空心带角棱形 (无实心内芯) -->
+        <!-- 空心带角棱形 (原正方形角不变，刺比之前长 2px) -->
         <path
           v-if="!hasSlot && hasBorder"
-          d="M 24,4 L 29,12 L 37.5,10.5 L 36,19 L 44,24 L 36,29 L 37.5,37.5 L 29,36 L 24,44 L 19,36 L 10.5,37.5 L 12,29 L 4,24 L 12,19 L 10.5,10.5 L 19,12 Z"
+          d="M 24,4 L 29,12 L 39.5,8.5 L 36,19 L 44,24 L 36,29 L 39.5,39.5 L 29,36 L 24,44 L 19,36 L 8.5,39.5 L 12,29 L 4,24 L 12,19 L 8.5,8.5 L 19,12 Z"
           fill="none"
           :stroke="adeptStrokeColor"
           stroke-width="2.6"
@@ -314,7 +428,7 @@ const slotFillColor = computed(() => {
         <g v-else-if="hasSlot">
           <path
             v-if="hasBorder"
-            d="M 24,4 L 29,12 L 37.5,10.5 L 36,19 L 44,24 L 36,29 L 37.5,37.5 L 29,36 L 24,44 L 19,36 L 10.5,37.5 L 12,29 L 4,24 L 12,19 L 10.5,10.5 L 19,12 Z"
+            d="M 24,4 L 29,12 L 39.5,8.5 L 36,19 L 44,24 L 36,29 L 39.5,39.5 L 29,36 L 24,44 L 19,36 L 8.5,39.5 L 12,29 L 4,24 L 12,19 L 8.5,8.5 L 19,12 Z"
             :fill="adeptStrokeColor"
           />
           <polygon points="24,9 39,24 24,39 9,24" fill="#181e20" />
@@ -322,10 +436,10 @@ const slotFillColor = computed(() => {
         </g>
       </g>
 
-      <!-- 前景透明火焰轻覆层 (仅在发光时渲染，产生立体火焰包裹感) -->
-      <g v-if="isGlow" :filter="`url(#${flameBlurId})`" class="flame-layer-front">
+      <!-- 前景透明火焰轻覆层 (立体火焰微覆，透明度受 props 控制) -->
+      <g v-if="isGlow" :filter="`url(#${flameBlurId})`" class="flame-layer-front" :style="{ opacity: flameOpacityVal }">
         <path
-          d="M 15,22 C 16,10 21,-2 23,-4 C 26,6 24,16 22,24 Z"
+          d="M 18,24 C 18,14 21,3 24,0 C 27,3 29,14 28,24 C 26,28 21,28 18,24 Z"
           :fill="`url(#${flameMainId})`"
           class="flame-front"
         />
@@ -353,83 +467,127 @@ const slotFillColor = computed(() => {
 
 /* 火焰动画关键帧 */
 .flame-aura {
-  animation: flame-pulse 2s ease-in-out infinite alternate;
-  transform-origin: 24px 20px;
+  animation: flame-aura-breathe 2.4s ease-in-out infinite alternate;
+  transform-origin: 24px 22px;
+}
+
+.flame-smoke-outer {
+  animation: flame-smoke-drift 3.2s ease-in-out infinite alternate;
+  transform-origin: 24px 24px;
 }
 
 .flame-tongue-left {
-  animation: flame-sway-left 2.4s ease-in-out infinite alternate;
-  transform-origin: 16px 28px;
+  animation: flame-sway-left 2.2s ease-in-out infinite alternate;
+  transform-origin: 15px 30px;
 }
 
 .flame-tongue-center {
-  animation: flame-rise-center 1.8s ease-in-out infinite alternate;
-  transform-origin: 24px 30px;
+  animation: flame-rise-center 1.7s ease-in-out infinite alternate;
+  transform-origin: 24px 34px;
+}
+
+.flame-tongue-core {
+  animation: flame-pulse-core 1.3s ease-in-out infinite alternate;
+  transform-origin: 24px 10px;
 }
 
 .flame-tongue-right {
-  animation: flame-sway-right 2.1s ease-in-out infinite alternate;
-  transform-origin: 32px 28px;
+  animation: flame-sway-right 2s ease-in-out infinite alternate;
+  transform-origin: 33px 30px;
 }
 
 .flame-front {
   animation: flame-flicker-front 1.5s ease-in-out infinite alternate;
-  transform-origin: 20px 24px;
+  transform-origin: 24px 20px;
 }
 
-@keyframes flame-pulse {
+@keyframes flame-aura-breathe {
   0% {
-    transform: scale(0.92);
-    opacity: 0.65;
+    transform: scale(0.94);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.04) translateY(-1px);
+    opacity: 0.95;
   }
   100% {
-    transform: scale(1.08);
-    opacity: 1;
+    transform: scale(1.08) translateY(-2px);
+    opacity: 0.85;
+  }
+}
+
+@keyframes flame-smoke-drift {
+  0% {
+    transform: scale(0.96) rotate(-1deg);
+    opacity: 0.65;
+  }
+  50% {
+    transform: scale(1.05) translateY(-2px) rotate(1deg);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.02) translateY(-1px) rotate(-1.5deg);
+    opacity: 0.75;
   }
 }
 
 @keyframes flame-sway-left {
   0% {
-    transform: rotate(-3deg) scaleY(0.95);
-    opacity: 0.75;
+    transform: rotate(-3deg) scaleY(0.96);
+    opacity: 0.8;
   }
   50% {
-    transform: rotate(2deg) scaleY(1.08);
+    transform: rotate(2deg) scaleY(1.06) translateY(-2px);
     opacity: 0.95;
   }
   100% {
-    transform: rotate(-4deg) scaleY(1.02);
-    opacity: 0.8;
+    transform: rotate(-4deg) scaleY(1.01) translateY(-1px);
+    opacity: 0.85;
   }
 }
 
 @keyframes flame-rise-center {
   0% {
-    transform: scaleY(0.92) translateY(1px);
-    opacity: 0.8;
+    transform: scaleY(0.94) translateY(1px);
+    opacity: 0.85;
   }
   50% {
-    transform: scaleY(1.14) translateY(-2px);
+    transform: scaleY(1.1) translateY(-2px);
     opacity: 1;
   }
   100% {
-    transform: scaleY(0.98) translateY(0px);
-    opacity: 0.85;
+    transform: scaleY(1.02) translateY(-1px);
+    opacity: 0.9;
+  }
+}
+
+@keyframes flame-pulse-core {
+  0% {
+    transform: scale(0.9) translateY(0px);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.12) translateY(-3px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.98) translateY(-1px);
+    opacity: 0.8;
   }
 }
 
 @keyframes flame-sway-right {
   0% {
-    transform: rotate(3deg) scaleY(1.05);
+    transform: rotate(3deg) scaleY(1.02);
     opacity: 0.85;
   }
   50% {
-    transform: rotate(-2deg) scaleY(0.92);
-    opacity: 0.7;
+    transform: rotate(-2deg) scaleY(0.95) translateY(-2px);
+    opacity: 0.75;
   }
   100% {
-    transform: rotate(4deg) scaleY(1.1);
-    opacity: 0.9;
+    transform: rotate(4deg) scaleY(1.08) translateY(-1px);
+    opacity: 0.95;
   }
 }
 
@@ -439,12 +597,12 @@ const slotFillColor = computed(() => {
     transform: scale(0.95);
   }
   50% {
-    opacity: 0.65;
-    transform: scale(1.05) translateY(-1px);
+    opacity: 0.7;
+    transform: scale(1.08) translateY(-1.5px);
   }
   100% {
-    opacity: 0.4;
-    transform: scale(0.98);
+    opacity: 0.45;
+    transform: scale(1);
   }
 }
 </style>
