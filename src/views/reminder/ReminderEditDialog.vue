@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { ReminderIntervalUnit, ReminderRepeatType, ReminderScheduleType, ReminderTask, ReminderValidityType } from '@/assets/types/Reminder';
+import { getLocalizedText } from '@/assets/sripts/reminder_calc';
 import { REMINDER_PRESETS } from '@/config/reminderPresets';
 
 const props = defineProps<{
@@ -25,6 +26,7 @@ const isEditing = computed(() => !!props.editTask?.id);
 
 // 表单输入项状态
 const formTitle = ref('');
+const formCategories = ref<string[]>([]);
 const formScheduleType = ref<ReminderScheduleType>('repeat');
 const formRepeatType = ref<ReminderRepeatType>('weekly');
 const formRepeatDays = ref<number[]>([1, 2, 3, 4, 5, 6, 7]);
@@ -37,6 +39,20 @@ const formTargetTime = ref('12:00');
 const formNote = ref('');
 const formEnabled = ref(true);
 const formNotifyEnabled = ref(true); // 是否通知（默认是）
+
+const availableCategories = computed(() => [
+  { value: 'favorite', label: t('reminder.categories.favorite'), icon: 'mdi-heart', color: 'pink-lighten-1' },
+  { value: 'activity', label: t('reminder.categories.activity'), icon: 'mdi-sword-cross', color: 'amber' },
+  { value: 'system', label: t('reminder.categories.system'), icon: 'mdi-cog-outline', color: 'blue-lighten-2' }
+]);
+
+const toggleCategory = (cat: string) => {
+  if (formCategories.value.includes(cat)) {
+    formCategories.value = formCategories.value.filter(c => c !== cat);
+  } else {
+    formCategories.value.push(cat);
+  }
+};
 
 // 提前提醒状态
 const formAdvanceNoticeEnabled = ref(false);
@@ -125,10 +141,9 @@ const setValidToOffset = (days: number) => {
 const resetForm = () => {
   if (props.editTask) {
     // 编辑现有任务
-    formTitle.value = props.editTask.titleKey && te(props.editTask.titleKey)
-      ? t(props.editTask.titleKey)
-      : props.editTask.title || '';
+    formTitle.value = getLocalizedText(props.editTask.title) || (props.editTask.titleKey && te(props.editTask.titleKey) ? t(props.editTask.titleKey) : '');
 
+    formCategories.value = Array.isArray(props.editTask.categories) ? [...props.editTask.categories] : [];
     formScheduleType.value = props.editTask.scheduleType || 'repeat';
     formRepeatType.value = props.editTask.repeatType || 'weekly';
     formRepeatDays.value = Array.isArray(props.editTask.repeatDays) ? [...props.editTask.repeatDays] : [1, 2, 3, 4, 5, 6, 7];
@@ -173,9 +188,7 @@ const resetForm = () => {
       }
     }
 
-    formNote.value = props.editTask.noteKey && te(props.editTask.noteKey)
-      ? t(props.editTask.noteKey)
-      : (props.editTask.note || '');
+    formNote.value = getLocalizedText(props.editTask.note || props.editTask.description) || (props.editTask.noteKey && te(props.editTask.noteKey) ? t(props.editTask.noteKey) : '');
 
     formEnabled.value = props.editTask.enabled ?? true;
     formNotifyEnabled.value = props.editTask.notifyEnabled ?? true;
@@ -192,6 +205,7 @@ const resetForm = () => {
   } else {
     // 新建任务
     formTitle.value = '';
+    formCategories.value = [];
     formScheduleType.value = 'repeat';
     formRepeatType.value = 'weekly';
     formRepeatDays.value = [1, 2, 3, 4, 5, 6, 7];
@@ -249,15 +263,13 @@ const selectWeekends = () => {
 
 // 获取预设名称国际化展示
 const getPresetTitle = (preset: typeof REMINDER_PRESETS[0]) => {
-  if (preset.titleKey && te(preset.titleKey)) {
-    return t(preset.titleKey);
-  }
-  return preset.title;
+  return getLocalizedText(preset.title) || (preset.titleKey && te(preset.titleKey) ? t(preset.titleKey) : '');
 };
 
 // 点击预设快速填充到表单
 const applyPreset = (preset: typeof REMINDER_PRESETS[0]) => {
-  formTitle.value = preset.titleKey && te(preset.titleKey) ? t(preset.titleKey) : preset.title;
+  formTitle.value = getLocalizedText(preset.title) || (preset.titleKey && te(preset.titleKey) ? t(preset.titleKey) : '');
+  formCategories.value = Array.isArray(preset.categories) ? [...preset.categories] : ['activity'];
   formScheduleType.value = preset.scheduleType;
   formRepeatType.value = preset.repeatType;
   if (preset.repeatDays) formRepeatDays.value = [...preset.repeatDays];
@@ -282,7 +294,7 @@ const applyPreset = (preset: typeof REMINDER_PRESETS[0]) => {
 
   formValidityType.value = preset.validityType || 'permanent';
   formNotifyEnabled.value = preset.notifyEnabled ?? true;
-  formNote.value = preset.noteKey && te(preset.noteKey) ? t(preset.noteKey) : (preset.note || '');
+  formNote.value = getLocalizedText(preset.note || preset.description) || (preset.noteKey && te(preset.noteKey) ? t(preset.noteKey) : '');
 };
 
 // 校验表单是否填写完整
@@ -331,6 +343,7 @@ const onSave = () => {
 
   const payload: Partial<ReminderTask> = {
     title: formTitle.value.trim(),
+    categories: formCategories.value.length > 0 ? [...formCategories.value] : [],
     scheduleType: formScheduleType.value,
     repeatType: formScheduleType.value === 'repeat' ? formRepeatType.value : undefined,
     repeatDays: (formScheduleType.value === 'repeat' && formRepeatType.value === 'weekly') ? formRepeatDays.value : undefined,
@@ -407,6 +420,29 @@ const onSave = () => {
               maxlength="100"
               prepend-inner-icon="mdi-format-title">
           </v-text-field>
+        </div>
+
+        <!-- 任务分类选择 -->
+        <div class="mb-4">
+          <div class="d-flex align-center justify-space-between mb-2">
+            <label class="text-caption font-weight-bold single-line">
+              {{ t('reminder.categories.title') }}
+            </label>
+            <span class="text-caption opacity-60">({{ t('basic.optional') }})</span>
+          </div>
+          <div class="d-flex flex-wrap ga-2">
+            <v-chip
+                v-for="cat in availableCategories"
+                :key="cat.value"
+                filter
+                :variant="formCategories.includes(cat.value) ? 'flat' : 'outlined'"
+                :color="cat.color"
+                class="cursor-pointer font-weight-medium"
+                @click="toggleCategory(cat.value)">
+              <v-icon :icon="cat.icon" size="14" class="mr-1"></v-icon>
+              {{ cat.label }}
+            </v-chip>
+          </div>
         </div>
 
         <!-- 计划类型选择 -->

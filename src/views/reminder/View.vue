@@ -7,6 +7,7 @@ import LZString from 'lz-string';
 import {useReminderStore} from '~/stores/reminderStore';
 import {useNoticeStore} from '~/stores/noticeStore';
 import type {ReminderTask} from '@/assets/types/Reminder';
+import {getLocalizedText} from '@/assets/sripts/reminder_calc';
 
 import Silk from '@/components/Silk.vue';
 import EmptyView from '@/components/EmptyView.vue';
@@ -34,8 +35,30 @@ const menuModel = ref(false);
 const filterSearchInput = ref('');
 const selectedScheduleTypes = ref<string[]>([]);
 const selectedStatuses = ref<string[]>([]);
+const selectedCategories = ref<string[]>([]);
 const sortField = ref<'triggerTime' | 'createdTime' | 'title'>('triggerTime');
 const sortOrder = ref<'asc' | 'desc'>('asc');
+
+const categoryMetaMap: Record<string, { labelKey: string; icon: string; color: string }> = {
+  favorite: {labelKey: 'reminder.categories.favorite', icon: 'mdi-heart', color: 'pink-lighten-1'},
+  activity: {labelKey: 'reminder.categories.activity', icon: 'mdi-sword-cross', color: 'amber'},
+  system: {labelKey: 'reminder.categories.system', icon: 'mdi-cog-outline', color: 'blue-lighten-2'}
+};
+
+const getCategoryLabel = (cat: string) => {
+  if (categoryMetaMap[cat]) {
+    return t(categoryMetaMap[cat].labelKey);
+  }
+  return cat;
+};
+
+const getCategoryIcon = (cat: string) => {
+  return categoryMetaMap[cat]?.icon || 'mdi-tag-outline';
+};
+
+const getCategoryColor = (cat: string) => {
+  return categoryMetaMap[cat]?.color || 'grey';
+};
 
 onMounted(() => {
   reminderStore.init();
@@ -47,6 +70,7 @@ const hasActiveFilters = computed(() => {
       !!filterSearchInput.value.trim() ||
       selectedScheduleTypes.value.length > 0 ||
       selectedStatuses.value.length > 0 ||
+      selectedCategories.value.length > 0 ||
       sortField.value !== 'triggerTime' ||
       sortOrder.value !== 'asc'
   );
@@ -57,6 +81,7 @@ const resetAllFilters = () => {
   filterSearchInput.value = '';
   selectedScheduleTypes.value = [];
   selectedStatuses.value = [];
+  selectedCategories.value = [];
   sortField.value = 'triggerTime';
   sortOrder.value = 'asc';
 };
@@ -125,23 +150,14 @@ const onGoToAdvanced = () => {
   router.push('/setting/advanced');
 };
 
-// 获取任务标题：预设任务优先读取国际化语言包，用户自定义任务直接显示原文本
+// 获取任务标题：支持多语言对象或普通文本（优先按当前语言读取，缺失时按回退语言读取）
 const getTaskTitle = (task: ReminderTask) => {
-  if (task.isPreset && task.titleKey && te(task.titleKey)) {
-    return t(task.titleKey);
-  }
-  return task.title;
+  return getLocalizedText(task.title) || (task.titleKey && te(task.titleKey) ? t(task.titleKey) : '');
 };
 
-// 获取任务备注：预设任务优先读取国际化语言包，用户自定义任务直接显示原文本
+// 获取任务备注：支持多语言对象或普通文本
 const getTaskNote = (task: ReminderTask) => {
-  if (task.isPreset && task.noteKey && te(task.noteKey)) {
-    return t(task.noteKey);
-  }
-  if (task.isPreset && task.descKey && te(task.descKey)) {
-    return t(task.descKey);
-  }
-  return task.note || '';
+  return getLocalizedText(task.note || task.description) || (task.noteKey && te(task.noteKey) ? t(task.noteKey) : (task.descKey && te(task.descKey) ? t(task.descKey) : ''));
 };
 
 // 压缩任务数据为 LZString 编码
@@ -149,6 +165,7 @@ const generateReminderShareCode = (task: ReminderTask): string => {
   const payload = {
     v: 1,
     title: getTaskTitle(task),
+    categories: task.categories || [],
     scheduleType: task.scheduleType,
     repeatType: task.repeatType,
     repeatDays: task.repeatDays,
@@ -196,7 +213,7 @@ const copyBotCommand = async () => {
       document.execCommand('copy');
       document.body.removeChild(el);
     }
-    noticeStore.success(t('reminder.bot.copied'), { mode: 'minimal' });
+    noticeStore.success(t('reminder.bot.copied'), {mode: 'minimal'});
   } catch (e) {
     console.error('Failed to copy bot subscribe command:', e);
   }
@@ -221,7 +238,7 @@ const formatIntervalRule = (task: ReminderTask) => {
   const val = task.repeatIntervalValue ?? task.repeatIntervalHours ?? 1;
   const unitKey = `reminder.units.${unit}`;
   const unitText = te(unitKey) ? t(unitKey) : unit;
-  return t('reminder.fields.everyNUnits', { n: val, unit: unitText });
+  return t('reminder.fields.everyNUnits', {n: val, unit: unitText});
 };
 
 // 格式化提前提醒文本
@@ -229,7 +246,7 @@ const formatAdvanceText = (minutes?: number) => {
   if (!minutes) return '';
   if (minutes === 60) return t('reminder.fields.advanceOptions.60m');
   if (minutes === 30) return t('reminder.fields.advanceOptions.30m');
-  return t('reminder.dialog.advanceNoticeDesc', { min: minutes });
+  return t('reminder.dialog.advanceNoticeDesc', {min: minutes});
 };
 
 // 格式化日期与时间显示
@@ -256,6 +273,14 @@ const processedTasks = computed(() => {
       if (selectedStatuses.value.includes('active') && t.enabled) return true;
       if (selectedStatuses.value.includes('paused') && !t.enabled) return true;
       return false;
+    });
+  }
+
+  // 分类过滤
+  if (selectedCategories.value.length > 0) {
+    result = result.filter(t => {
+      const cats = Array.isArray(t.categories) && t.categories.length > 0 ? t.categories : ['uncategorized'];
+      return selectedCategories.value.some(c => cats.includes(c));
     });
   }
 
@@ -290,6 +315,89 @@ const processedTasks = computed(() => {
     }
     return 0;
   });
+});
+
+export interface TaskCategoryGroup {
+  key: string;
+  title?: string;
+  icon?: string;
+  color?: string;
+  showTitle: boolean;
+  tasks: (ReminderTask & { nextTriggerTime: number | null; countdown: any })[];
+}
+
+// 分类分组列表（包含栏目分割，无分类置于末尾且不显示标题）
+const categorizedGroups = computed<TaskCategoryGroup[]>(() => {
+  const all = processedTasks.value;
+  if (all.length === 0) return [];
+
+  const definedCategories = [
+    {key: 'favorite', title: t('reminder.categories.favorite'), icon: 'mdi-heart', color: 'pink-lighten-1'},
+    {key: 'activity', title: t('reminder.categories.activity'), icon: 'mdi-sword-cross', color: 'amber'},
+    {key: 'system', title: t('reminder.categories.system'), icon: 'mdi-cog-outline', color: 'blue-lighten-2'}
+  ];
+
+  const groups: TaskCategoryGroup[] = [];
+
+  // 已定义分类分组
+  for (const cat of definedCategories) {
+    if (selectedCategories.value.length > 0 && !selectedCategories.value.includes(cat.key)) {
+      continue;
+    }
+    const catTasks = all.filter(t => Array.isArray(t.categories) && t.categories.includes(cat.key));
+    if (catTasks.length > 0) {
+      groups.push({
+        key: cat.key,
+        title: cat.title,
+        icon: cat.icon,
+        color: cat.color,
+        showTitle: true,
+        tasks: catTasks
+      });
+    }
+  }
+
+  // 自定义其它分类分组 (若存在)
+  const standardKeys = new Set(definedCategories.map(c => c.key));
+  const otherKeys = new Set<string>();
+  all.forEach(t => {
+    if (Array.isArray(t.categories)) {
+      t.categories.forEach(c => {
+        if (!standardKeys.has(c)) otherKeys.add(c);
+      });
+    }
+  });
+
+  for (const otherKey of otherKeys) {
+    if (selectedCategories.value.length > 0 && !selectedCategories.value.includes(otherKey)) {
+      continue;
+    }
+    const catTasks = all.filter(t => Array.isArray(t.categories) && t.categories.includes(otherKey));
+    if (catTasks.length > 0) {
+      groups.push({
+        key: otherKey,
+        title: otherKey,
+        icon: 'mdi-tag-outline',
+        color: 'grey',
+        showTitle: true,
+        tasks: catTasks
+      });
+    }
+  }
+
+  //无分类任务统一放最后，且不显示分类标题
+  if (selectedCategories.value.length === 0 || selectedCategories.value.includes('uncategorized')) {
+    const uncategorizedTasks = all.filter(t => !Array.isArray(t.categories) || t.categories.length === 0);
+    if (uncategorizedTasks.length > 0) {
+      groups.push({
+        key: 'uncategorized',
+        showTitle: false,
+        tasks: uncategorizedTasks
+      });
+    }
+  }
+
+  return groups;
 });
 
 // 分页列表（单页最多 30 个任务）
@@ -428,6 +536,29 @@ const totalPages = computed(() => {
                           </v-btn>
                         </template>
                       </v-text-field>
+                    </v-col>
+
+                    <!-- 分类筛选 -->
+                    <v-col cols="12">
+                      <div class="mb-2 text-caption font-weight-bold">{{ t('reminder.categories.filter') }}</div>
+                      <v-select
+                          variant="filled"
+                          density="comfortable"
+                          v-model="selectedCategories"
+                          :items="[
+                          { value: 'favorite', text: t('reminder.categories.favorite') },
+                          { value: 'activity', text: t('reminder.categories.activity') },
+                          { value: 'system', text: t('reminder.categories.system') },
+                          { value: 'uncategorized', text: t('reminder.categories.uncategorized') }
+                        ]"
+                          item-value="value"
+                          item-title="text"
+                          multiple
+                          chips
+                          clearable
+                          hide-details
+                          :placeholder="t('reminder.categories.all')"
+                      ></v-select>
                     </v-col>
 
                     <!-- 定时类型筛选 (周期重复 / 一次性) -->
@@ -573,6 +704,17 @@ const totalPages = computed(() => {
           {{ t('reminder.filter.keyword') }}: {{ filterSearchInput }}
         </v-chip>
         <v-chip
+            v-for="cat in selectedCategories"
+            :key="cat"
+            size="small"
+            :color="getCategoryColor(cat)"
+            variant="tonal"
+            closable
+            @click:close="selectedCategories = selectedCategories.filter(c => c !== cat)">
+          <v-icon :icon="getCategoryIcon(cat)" size="14" class="mr-1"></v-icon>
+          {{ getCategoryLabel(cat) }}
+        </v-chip>
+        <v-chip
             v-for="st in selectedScheduleTypes"
             :key="st"
             size="small"
@@ -597,208 +739,245 @@ const totalPages = computed(() => {
         </v-btn>
       </div>
 
-      <!-- 提醒任务卡片列表 (单页上限 30 项) -->
-      <div v-if="processedTasks.length > 0">
-        <v-row>
-          <v-col
-              v-for="task in paginatedTasks"
-              :key="task.id"
-              cols="12"
-              md="6"
-              lg="4">
-            <v-card
-                class="reminder-card h-100 d-flex flex-column transition-swing bg-black"
-                :class="{
-                  'reminder-card--paused': !task.enabled,
-                  'reminder-card--imminent': task.countdown.status === 'imminent' && task.enabled,
-                  'border-amber': task.enabled
-                }">
-              <!-- 卡片头部标题与单独开关 -->
-              <div class="pa-4 pb-2 d-flex align-center justify-space-between">
-                <div class="d-flex align-center singe-line mr-2">
-                  <div class="singe-line">
-                    <h3 class="text-h5 text-amber font-weight-bold singe-line" :title="getTaskTitle(task)">
-                      {{ getTaskTitle(task) }}
-                    </h3>
+      <!-- 提醒任务卡片列表 (按分类分栏展示，无分类置于最后且不显示分类标题) -->
+      <div v-if="categorizedGroups.length > 0">
+        <div
+            v-for="(group, gIdx) in categorizedGroups"
+            :key="group.key"
+            class="category-group-section mb-6">
+          <!-- 分类标题栏目 (没有分类的不显示标题) -->
+          <v-row v-if="group.showTitle"
+                 align="center"
+                 class="category-section-header ga-2"
+                 :class="{'mt-8': gIdx > 0}">
+            <v-col cols="auto" class="d-flex align-center">
+              <p class="text-subtitle-1  singe-line">
+                {{ group.title }}
+              </p>
+            </v-col>
+            <v-col>
+              <v-divider></v-divider>
+            </v-col>
+            <v-col cols="auto">
+              <v-chip size="x-small" :color="group.color" variant="tonal" class="font-weight-bold">
+                {{ group.tasks.length }}
+              </v-chip>
+            </v-col>
+          </v-row>
+          <div v-else-if="gIdx > 0" class="my-6">
+            <v-divider></v-divider>
+          </div>
+
+          <v-row>
+            <v-col
+                v-for="task in group.tasks"
+                :key="`${group.key}-${task.id}`"
+                cols="12"
+                md="6"
+                lg="4">
+              <v-card
+                  class="reminder-card h-100 d-flex flex-column transition-swing bg-black"
+                  :class="{
+                    'reminder-card--paused': !task.enabled,
+                    'reminder-card--imminent': task.countdown.status === 'imminent' && task.enabled,
+                    'border-amber': task.enabled
+                  }">
+                <!-- 卡片头部标题与单独开关 -->
+                <div class="pa-4 pb-2 d-flex align-center justify-space-between">
+                  <div class="d-flex align-center singe-line mr-2">
+                    <div class="singe-line">
+                      <h3 class="text-h5 text-amber font-weight-bold singe-line" :title="getTaskTitle(task)">
+                        {{ getTaskTitle(task) }}
+                      </h3>
+                    </div>
+                  </div>
+
+                  <!-- 任务单独通知与计时总开关 -->
+                  <div class="d-flex align-center">
+                    <!-- 单独是否通知按钮 -->
+                    <v-btn
+                        icon
+                        size="x-small"
+                        variant="text"
+                        :color="task.notifyEnabled !== false ? 'amber' : 'grey'"
+                        :title="task.notifyEnabled !== false ? t('reminder.notificationEnabled') : t('reminder.notificationDisabled')"
+                        @click.stop="reminderStore.toggleTaskNotify(task.id, task.notifyEnabled === false)">
+                      <v-icon size="18">
+                        {{ task.notifyEnabled !== false ? 'mdi-bell-ring-outline' : 'mdi-bell-off-outline' }}
+                      </v-icon>
+                    </v-btn>
+
+                    <v-divider vertical inset class="mx-3"></v-divider>
+
+                    <!-- 任务计时总开关 -->
+                    <v-switch
+                        :model-value="task.enabled"
+                        @update:model-value="(val) => reminderStore.toggleTask(task.id, !!val)"
+                        hide-details
+                        density="compact"
+                        inset
+                        color="amber">
+                    </v-switch>
                   </div>
                 </div>
 
-                <!-- 任务单独通知与计时总开关 -->
-                <div class="d-flex align-center">
-                  <!-- 单独是否通知按钮 -->
-                  <v-btn
-                      icon
+                <!-- 实时倒计时状态条 -->
+                <div class="px-4">
+                  <v-row class="countdown-badges"
+                         align="center"
+                         :class="{
+                          '': task.countdown.status === 'active' && task.countdown.isAdvanceNotice && task.enabled,
+                          '': task.countdown.status === 'active' && !task.countdown.isAdvanceNotice && task.enabled,
+                          'pulse-animation': task.countdown.status === 'imminent' && task.enabled,
+                          '': !task.enabled || task.countdown.status === 'expired' || task.countdown.status === 'not_started'
+                        }">
+                    <v-col cols="auto" class="d-flex align-center">
+                      <v-icon class="mr-1">
+                        {{
+                          !task.enabled ? 'mdi-pause-circle-outline' :
+                              task.countdown.status === 'expired' ? 'mdi-clock-alert-outline' :
+                                  task.countdown.status === 'not_started' ? 'mdi-clock-start' :
+                                      task.countdown.status === 'imminent' ? 'mdi-alarm-light' :
+                                          task.countdown.isAdvanceNotice ? 'mdi-bell-ring-outline' : 'mdi-timer-outline'
+                        }}
+                      </v-icon>
+                      <span>
+                        {{
+                          !task.enabled ? t('reminder.status.paused') :
+                              task.countdown.status === 'expired' ? t('reminder.status.expired') :
+                                  task.countdown.status === 'not_started' ? t('reminder.status.notStarted') :
+                                      task.countdown.status === 'imminent' ? t('reminder.status.imminent') :
+                                          task.countdown.isAdvanceNotice ? `${t('reminder.countdown.advanceBadge')} (${task.countdown.advanceMinutes}m)` :
+                                              t('reminder.countdown.remaining')
+                        }}
+                      </span>
+                    </v-col>
+
+                    <v-col>
+                      <v-divider></v-divider>
+                    </v-col>
+
+                    <v-col cols="auto" class="font-weight-black font-mono text-h6 u">
+                      {{ task.countdown.formattedCountdown }}
+                    </v-col>
+                  </v-row>
+                </div>
+
+                <!-- 计划规则与备注预览 -->
+                <v-card-text class="flex-grow-1 mb-3">
+                  <!-- 规则概要 -->
+                  <v-row class="mb-1" align="center">
+                    <v-col cols="auto">
+                      <v-icon>mdi-calendar-clock</v-icon>
+                    </v-col>
+                    <v-col>
+                      <v-divider></v-divider>
+                    </v-col>
+                    <v-col cols="auto" class="text-h6">
+                      <template v-if="task.scheduleType === 'repeat'">
+                      <span v-if="task.repeatType === 'interval'" class="u">
+                        {{ formatIntervalRule(task) }}
+                      </span>
+                        <span v-else class="u">
+                        {{ formatRepeatDays(task.repeatDays) }} {{ task.repeatTime }}
+                      </span>
+                      </template>
+                      <template v-else>
+                        <span class="u">{{ formatTargetTime(task.targetTime) }}</span>
+                      </template>
+                    </v-col>
+                  </v-row>
+
+                  <!-- 有效期概要 (区间) -->
+                  <div v-if="task.validityType === 'range'" class="text-caption d-flex align-center opacity-70 mb-2">
+                    <v-icon size="14" class="mr-1">mdi-calendar-range</v-icon>
+                    <span>{{ task.validFrom || t('reminder.dialog.immediately') }} ~ {{ task.validTo }}</span>
+                  </div>
+
+                  <!-- 备注内容预览 -->
+                  <div v-if="getTaskNote(task)"
+                       class="note-preview-box mt-5 cursor-pointer"
+                       @click="onViewNote(task)"
+                       :title="getTaskNote(task)">
+                    <p class="mb-0 text-truncate-2">
+                      {{ getTaskNote(task) }}
+                    </p>
+                  </div>
+                  <div v-else class="text-caption opacity-40 italic">
+                    {{ t('reminder.noNote') }}
+                  </div>
+                </v-card-text>
+
+                <v-divider></v-divider>
+
+                <!-- 卡片底部快捷操作 -->
+                <v-card-actions class="pa-3 bg-surface d-flex align-center flex-wrap ga-1">
+                  <v-chip size="x-small" variant="tonal" :color="task.scheduleType === 'repeat' ? 'amber' : 'info'">
+                    {{ task.scheduleType === 'repeat' ? t('reminder.fields.typeRepeat') : t('reminder.fields.typeOnce') }}
+                  </v-chip>
+
+                  <!-- 任务分类标识 -->
+                  <v-chip
+                      v-for="cat in (task.categories || [])"
+                      :key="cat"
                       size="x-small"
-                      variant="text"
-                      :color="task.notifyEnabled !== false ? 'amber' : 'grey'"
-                      :title="task.notifyEnabled !== false ? t('reminder.notificationEnabled') : t('reminder.notificationDisabled')"
-                      @click.stop="reminderStore.toggleTaskNotify(task.id, task.notifyEnabled === false)">
-                    <v-icon size="18">
-                      {{ task.notifyEnabled !== false ? 'mdi-bell-ring-outline' : 'mdi-bell-off-outline' }}
-                    </v-icon>
-                  </v-btn>
+                      variant="tonal"
+                      :color="getCategoryColor(cat)">
+                    <v-icon :icon="getCategoryIcon(cat)" size="12" class="mr-1"></v-icon>
+                    {{ getCategoryLabel(cat) }}
+                  </v-chip>
 
-                  <v-divider vertical inset class="mx-3"></v-divider>
+                  <!-- 提前提醒标识 -->
+                  <v-chip
+                      v-if="task.advanceNoticeEnabled && task.advanceMinutes"
+                      size="x-small"
+                      variant="tonal"
+                      color="amber"
+                      prepend-icon="mdi-bell-badge">
+                    {{ formatAdvanceText(task.advanceMinutes) }}
+                  </v-chip>
 
-                  <!-- 任务计时总开关 -->
-                  <v-switch
-                      :model-value="task.enabled"
-                      @update:model-value="(val) => reminderStore.toggleTask(task.id, !!val)"
-                      hide-details
-                      density="compact"
-                      inset
-                      color="amber">
-                  </v-switch>
-                </div>
-              </div>
+                  <!-- 静音通知标识 -->
+                  <v-chip
+                      v-if="task.notifyEnabled === false"
+                      size="x-small"
+                      variant="tonal"
+                      color="grey"
+                      prepend-icon="mdi-bell-off">
+                    {{ t('reminder.muted') }}
+                  </v-chip>
 
-              <!-- 实时倒计时状态条 -->
-              <div class="px-4">
-                <v-row class="countdown-badges"
-                       align="center"
-                       :class="{
-                       '': task.countdown.status === 'active' && task.countdown.isAdvanceNotice && task.enabled,
-                       '': task.countdown.status === 'active' && !task.countdown.isAdvanceNotice && task.enabled,
-                       'pulse-animation': task.countdown.status === 'imminent' && task.enabled,
-                       '': !task.enabled || task.countdown.status === 'expired' || task.countdown.status === 'not_started'
-                     }">
-                  <v-col cols="auto" class="d-flex align-center">
-                    <v-icon class="mr-1">
-                      {{
-                        !task.enabled ? 'mdi-pause-circle-outline' :
-                            task.countdown.status === 'expired' ? 'mdi-clock-alert-outline' :
-                                task.countdown.status === 'not_started' ? 'mdi-clock-start' :
-                                    task.countdown.status === 'imminent' ? 'mdi-alarm-light' :
-                                        task.countdown.isAdvanceNotice ? 'mdi-bell-ring-outline' : 'mdi-timer-outline'
-                      }}
-                    </v-icon>
-                    <span>
-                      {{
-                        !task.enabled ? t('reminder.status.paused') :
-                            task.countdown.status === 'expired' ? t('reminder.status.expired') :
-                                task.countdown.status === 'not_started' ? t('reminder.status.notStarted') :
-                                    task.countdown.status === 'imminent' ? t('reminder.status.imminent') :
-                                        task.countdown.isAdvanceNotice ? `${t('reminder.countdown.advanceBadge')} (${task.countdown.advanceMinutes}m)` :
-                                            t('reminder.countdown.remaining')
-                      }}
-                    </span>
-                  </v-col>
+                  <v-chip v-if="task.isPreset" size="x-small" variant="tonal" color="amber">
+                    {{ t('reminder.presetBadge') }}
+                  </v-chip>
 
-                  <v-col>
-                    <v-divider></v-divider>
-                  </v-col>
+                  <v-spacer></v-spacer>
 
-                  <v-col cols="auto" class="font-weight-black font-mono text-h6 u">
-                    {{ task.countdown.formattedCountdown }}
-                  </v-col>
-                </v-row>
-              </div>
-
-              <!-- 计划规则与备注预览 -->
-              <v-card-text class="flex-grow-1 mb-3">
-                <!-- 规则概要 -->
-                <v-row class="mb-1" align="center">
-                  <v-col cols="auto">
-                    <v-icon>mdi-calendar-clock</v-icon>
-                  </v-col>
-                  <v-col>
-                    <v-divider></v-divider>
-                  </v-col>
-                  <v-col cols="auto" class="text-h6">
-                    <template v-if="task.scheduleType === 'repeat'">
-                    <span v-if="task.repeatType === 'interval'" class="u">
-                      {{ formatIntervalRule(task) }}
-                    </span>
-                      <span v-else class="u">
-                      {{ formatRepeatDays(task.repeatDays) }} {{ task.repeatTime }}
-                    </span>
+                  <v-btn icon="mdi-pencil-outline" size="small" variant="text" color="amber" :title="t('reminder.edit')" @click="onEdit(task)"></v-btn>
+                  <v-menu location="bottom end">
+                    <template v-slot:activator="{ props: menuProps }">
+                      <v-btn icon="mdi-dots-vertical" size="small" variant="text" v-bind="menuProps"></v-btn>
                     </template>
-                    <template v-else>
-                      <span class="u">{{ formatTargetTime(task.targetTime) }}</span>
-                    </template>
-                  </v-col>
-                </v-row>
-
-                <!-- 有效期概要 (区间) -->
-                <div v-if="task.validityType === 'range'" class="text-caption d-flex align-center opacity-70 mb-2">
-                  <v-icon size="14" class="mr-1">mdi-calendar-range</v-icon>
-                  <span>{{ task.validFrom || t('reminder.dialog.immediately') }} ~ {{ task.validTo }}</span>
-                </div>
-
-                <!-- 备注内容预览 -->
-                <div v-if="getTaskNote(task)"
-                     class="note-preview-box mt-5 cursor-pointer"
-                     @click="onViewNote(task)"
-                     :title="getTaskNote(task)">
-                  <p class="mb-0 text-truncate-2">
-                    {{ getTaskNote(task) }}
-                  </p>
-                </div>
-                <div v-else class="text-caption opacity-40 italic">
-                  {{ t('reminder.noNote') }}
-                </div>
-              </v-card-text>
-
-              <v-divider></v-divider>
-
-              <!-- 卡片底部快捷操作 -->
-              <v-card-actions class="pa-3 bg-surface">
-                <v-chip size="x-small" variant="tonal" :color="task.scheduleType === 'repeat' ? 'amber' : 'info'">
-                  {{ task.scheduleType === 'repeat' ? t('reminder.fields.typeRepeat') : t('reminder.fields.typeOnce') }}
-                </v-chip>
-
-                <!-- 提前提醒标识 -->
-                <v-chip
-                    v-if="task.advanceNoticeEnabled && task.advanceMinutes"
-                    size="x-small"
-                    variant="tonal"
-                    color="amber"
-                    class="ml-1"
-                    prepend-icon="mdi-bell-badge">
-                  {{ formatAdvanceText(task.advanceMinutes) }}
-                </v-chip>
-
-                <!-- 静音通知标识 -->
-                <v-chip
-                    v-if="task.notifyEnabled === false"
-                    size="x-small"
-                    variant="tonal"
-                    color="grey"
-                    class="ml-1"
-                    prepend-icon="mdi-bell-off">
-                  {{ t('reminder.muted') }}
-                </v-chip>
-
-                <v-chip v-if="task.isPreset" size="x-small" variant="tonal" color="amber" class="ml-1">
-                  {{ t('reminder.presetBadge') }}
-                </v-chip>
-
-                <v-spacer></v-spacer>
-
-                <v-btn icon="mdi-pencil-outline" size="small" variant="text" color="amber" :title="t('reminder.edit')" @click="onEdit(task)"></v-btn>
-                <v-menu location="bottom end">
-                  <template v-slot:activator="{ props: menuProps }">
-                    <v-btn icon="mdi-dots-vertical" size="small" variant="text" v-bind="menuProps"></v-btn>
-                  </template>
-                  <v-list density="compact" class="pa-1" border rounded="lg" bg-color="surface">
-                    <v-list-item
-                        prepend-icon="mdi-robot"
-                        :title="t('reminder.bot.addToBot')"
-                        @click="onOpenBotSubscribe(task)">
-                    </v-list-item>
-                    <v-divider class="my-1"></v-divider>
-                    <v-list-item
-                        prepend-icon="mdi-delete-outline"
-                        :title="t('reminder.delete')"
-                        class="text-error"
-                        @click="onDelete(task)">
-                    </v-list-item>
-                  </v-list>
-                </v-menu>
-              </v-card-actions>
-            </v-card>
-          </v-col>
-        </v-row>
+                    <v-list density="compact" class="pa-1" border rounded="lg" bg-color="surface">
+                      <v-list-item
+                          prepend-icon="mdi-robot"
+                          :title="t('reminder.bot.addToBot')"
+                          @click="onOpenBotSubscribe(task)">
+                      </v-list-item>
+                      <v-divider class="my-1"></v-divider>
+                      <v-list-item
+                          prepend-icon="mdi-delete-outline"
+                          :title="t('reminder.delete')"
+                          class="text-error"
+                          @click="onDelete(task)">
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </v-card-actions>
+              </v-card>
+            </v-col>
+          </v-row>
+        </div>
 
         <!-- 分页组件 (当任务数量超过 30 条时展示) -->
         <div v-if="totalPages > 1" class="d-flex justify-center mt-8">

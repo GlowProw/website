@@ -18,7 +18,6 @@ import UserAvatar from "@/components/UserAvatar.vue";
 import AdsWidget from "@/components/ads/google/index.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import AccountCardWidget from "@/components/AccountCardWidget.vue";
-import AssemblyCompareDialog from "@/components/AssemblyCompareDialog.vue";
 
 const {t} = useI18n(),
     route = useRoute(),
@@ -122,9 +121,9 @@ const getBrowseList = async () => {
     if (e instanceof ApiError) {
       notice.error(t(`basic.tips.${e.code}`, {
         context: e.code
-      }), { stack: e })
+      }), {stack: e})
     } else {
-      notice.error(t('basic.tips.error'), { stack: e as Error })
+      notice.error(t('basic.tips.error'), {stack: e as Error})
     }
   } finally {
     browseLoading.value = false
@@ -163,6 +162,7 @@ const getBrowseList = async () => {
     </template>
   </v-card>
   <v-divider></v-divider>
+
   <v-container>
     <v-row align="center">
       <v-col>
@@ -208,16 +208,20 @@ const getBrowseList = async () => {
                   :items="browseFilter.assumption.slotOrders"></v-select>
             </v-col>
             <v-col cols="12" sm="6" md="6" lg="12">
-              <p class="mb-2 font-weight-bold">{{ t('assembly.browse.createdTimeRange') }}</p>
-              <TimeFrame v-model="browseFilter.data.createdStartAndEnd"></TimeFrame>
+              <div class="mb-4">
+                <p class="mb-2 ">{{ t('assembly.browse.createdTimeRange') }}</p>
+                <TimeFrame v-model="browseFilter.data.createdStartAndEnd"></TimeFrame>
+              </div>
             </v-col>
             <v-col cols="12" sm="6" md="6" lg="12">
-              <p class="mb-2 font-weight-bold">{{ t('assembly.browse.updatedTimeRange') }}</p>
-              <TimeFrame v-model="browseFilter.data.updatedStartAndEnd"></TimeFrame>
+              <div class="mb-4">
+                <p class="mb-2 ">{{ t('assembly.browse.updatedTimeRange') }}</p>
+                <TimeFrame v-model="browseFilter.data.updatedStartAndEnd"></TimeFrame>
+              </div>
             </v-col>
-            <v-col cols="12" sm="6" md="6" lg="12">
-              <v-checkbox density="compact" hide-details v-model="browseFilter.data.isHasPassword" :label="t('assembly.browse.includePasswordProtected')"></v-checkbox>
-            </v-col>
+            <!--            <v-col cols="12" sm="6" md="6" lg="12">-->
+            <!--              <v-checkbox density="compact" hide-details v-model="browseFilter.data.isHasPassword" :label="t('assembly.browse.includePasswordProtected')"></v-checkbox>-->
+            <!--            </v-col>-->
           </v-row>
 
           <v-btn block class="mt-2" @click="getBrowseList">
@@ -238,7 +242,7 @@ const getBrowseList = async () => {
         <v-row>
           <template v-if="browseData.data.length > 0">
             <v-col cols="12" md="6" lg="6" v-for="(i, index) in browseData.data"
-                   :key="index" class="ma-n1">
+                   :key="index">
               <v-card class="card-enlargement-mask-flavor pa-5">
                 <v-row class="pt-2 px-1">
                   <v-col>
@@ -259,7 +263,7 @@ const getBrowseList = async () => {
 
                       <v-col cols="auto">
                         <v-chip density="compact" class="badge-flavor px-3" :disabled="!!i.isLiked">
-                          <v-icon color="red">{{ i.likes <= 0 ? 'mdi-heart-outline'  : 'mdi-heart'}}</v-icon>
+                          <v-icon color="red">{{ i.likes <= 0 ? 'mdi-heart-outline' : 'mdi-heart' }}</v-icon>
                           <span class="ml-1 text-red-accent-4" v-if="i.likes">{{ i.likes || 0 }}</span>
                         </v-chip>
                       </v-col>

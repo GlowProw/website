@@ -2,7 +2,89 @@
  * 活动提醒计算工具
  * 负责计算下一次提醒的触发时机、提前提醒、有效期检测以及格式化倒计时
  */
-import type { ReminderNextTriggerInfo, ReminderTask } from '@/assets/types/Reminder';
+import type { MultilingualText, ReminderNextTriggerInfo, ReminderTask } from '@/assets/types/Reminder';
+import i18n, { getFallbackLocale } from '@/i18n';
+
+/**
+ * 解析并获取多语言文本
+ * 优先根据当前 locale 获取，如果不存在则按 fallbackLocale 获取
+ * 兼容 { zh_CN: '...', en_US: '...' } 以及 { 'zh-CN': '...', 'en-US': '...' }
+ */
+export function getLocalizedText(
+    text: MultilingualText | undefined | null,
+    targetLocale?: string
+): string {
+    if (!text) return '';
+    if (typeof text === 'string') return text;
+    if (typeof text !== 'object') return String(text);
+
+    const currentLocale: string = targetLocale || (
+        typeof i18n?.global?.locale === 'object' && 'value' in i18n.global.locale
+            ? (i18n.global.locale as any).value
+            : (i18n?.global?.locale as any) || 'zh-CN'
+    );
+
+    const fallback: string = (
+        typeof i18n?.global?.fallbackLocale === 'object' && 'value' in i18n.global.fallbackLocale
+            ? (i18n.global.fallbackLocale as any).value
+            : (i18n?.global?.fallbackLocale as any) || getFallbackLocale()
+    );
+
+    const findInDict = (localeKey: string | undefined): string | null => {
+        if (!localeKey || typeof localeKey !== 'string') return null;
+
+        // 优先精确匹配键名
+        if (text[localeKey] !== undefined && text[localeKey] !== '') {
+            return text[localeKey];
+        }
+
+        // 尝试下划线格式变体匹配
+        const underscoreKey = localeKey.replace(/-/g, '_');
+        if (text[underscoreKey] !== undefined && text[underscoreKey] !== '') {
+            return text[underscoreKey];
+        }
+
+        // 尝试中划线格式变体匹配
+        const hyphenKey = localeKey.replace(/_/g, '-');
+        if (text[hyphenKey] !== undefined && text[hyphenKey] !== '') {
+            return text[hyphenKey];
+        }
+
+        // 忽略大小写与分隔符后的模糊匹配
+        const normalizedTarget = localeKey.toLowerCase().replace(/[-_]/g, '');
+        for (const [k, v] of Object.entries(text)) {
+            if (k.toLowerCase().replace(/[-_]/g, '') === normalizedTarget && v !== undefined && v !== '') {
+                return v;
+            }
+        }
+
+        // 语言前缀主语言代码匹配
+        const shortKey = localeKey.split(/[-_]/)[0].toLowerCase();
+        for (const [k, v] of Object.entries(text)) {
+            if (k.toLowerCase().split(/[-_]/)[0] === shortKey && v !== undefined && v !== '') {
+                return v;
+            }
+        }
+
+        return null;
+    };
+
+    // 优先按当前语言环境读取
+    const valByLocale = findInDict(currentLocale);
+    if (valByLocale !== null) {
+        return valByLocale;
+    }
+
+    // 当前语言无内容时按回退语言读取
+    const valByFallback = findInDict(fallback);
+    if (valByFallback !== null) {
+        return valByFallback;
+    }
+
+    // 均无匹配时兜底读取首个有效文本
+    const firstVal = Object.values(text).find(v => typeof v === 'string' && v.trim() !== '');
+    return firstVal || '';
+}
 
 /**
  * 解析日期时间字符串或时间戳为毫秒时间戳
@@ -164,7 +246,7 @@ export function calculateTaskNextTriggerInfo(
         };
     }
 
-    // 1. 任务有效期检测
+    // 校验任务有效期区间
     if (task.validityType === 'range') {
         const validFrom = parseDateTime(task.validFrom);
         const validTo = parseDateTime(task.validTo);
@@ -194,7 +276,7 @@ export function calculateTaskNextTriggerInfo(
         }
     }
 
-    // 2. 提前提醒计算
+    // 计算提前提醒时间
     const advanceMinutes = (task.advanceNoticeEnabled && task.advanceMinutes && task.advanceMinutes > 0)
         ? task.advanceMinutes
         : 0;
@@ -409,7 +491,7 @@ export function checkTaskPendingTriggers(
 ): TaskPendingTrigger[] {
     if (!task || !task.enabled) return [];
 
-    // 1. 有效期校验
+    // 先进行有效期校验
     if (task.validityType === 'range') {
         const validFrom = parseDateTime(task.validFrom);
         const validTo = parseDateTime(task.validTo);
@@ -424,7 +506,7 @@ export function checkTaskPendingTriggers(
 
     const occurrences: number[] = [];
 
-    // 2. 搜集当前时间附近的可能触发点（历史发生与近期即将发生）
+    // 收集当前时间附近的可能触发时间点（涵盖已发生与近期即将发生）
     if (task.scheduleType === 'once') {
         const target = parseDateTime(task.targetTime);
         if (target !== null) {
@@ -527,7 +609,7 @@ export function checkTaskPendingTriggers(
             if (validTo !== null && occurrence > validTo) continue;
         }
 
-        // 1. 检查提前提醒
+        // 检查是否命中提前提醒时间
         if (advanceMs > 0) {
             const advTargetTime = occurrence - advanceMs;
             const diffAdv = now - advTargetTime;
@@ -545,7 +627,7 @@ export function checkTaskPendingTriggers(
             }
         }
 
-        // 2. 检查正点/截止触发
+        // 检查是否命中正点或截止触发
         const diffMain = now - occurrence;
         if (diffMain >= 0 && diffMain <= TRIGGER_TOLERANCE_MS) {
             const triggerKey = `${task.id}-main-${occurrence}`;

@@ -18,7 +18,7 @@ export class StorageReminder extends Storage {
         const tasks: ReminderTask[] = [];
         const seenIds = new Set<string>();
 
-        // 1. 尝试从索引读取
+        // 先尝试从本地索引读取
         const indexRes = this.local.get(this.INDEX_KEY);
         const indexedIds: string[] = (indexRes.code === 0 && Array.isArray(indexRes.data?.value)) ? indexRes.data.value : [];
 
@@ -30,7 +30,7 @@ export class StorageReminder extends Storage {
             }
         }
 
-        // 2. 扫描 localStorage 容灾兜底（避免索引与实际键名不同步）
+        // 接着扫描 localStorage 进行容灾兜底（避免索引与实际键名不同步）
         try {
             const prefixFullName = this.local.name(this.TASK_PREFIX);
             for (let i = 0; i < localStorage.length; i++) {
@@ -164,9 +164,8 @@ export class StorageReminder extends Storage {
                 const newTask: ReminderTask = {
                     id: preset.id,
                     title: preset.title,
-                    titleKey: preset.titleKey,
-                    descKey: preset.descKey,
-                    noteKey: preset.noteKey,
+                    description: preset.description,
+                    categories: preset.categories ? [...preset.categories] : ['activity'],
                     scheduleType: preset.scheduleType,
                     repeatType: preset.repeatType,
                     repeatDays: preset.repeatDays,

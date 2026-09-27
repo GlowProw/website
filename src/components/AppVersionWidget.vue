@@ -39,13 +39,13 @@ function convertPath(path: string, apiBlogBaseUrl: string) {
   if (!path) return '';
   if (/^https?:\/\//i.test(path)) return path;
 
-  // 1. 去除 Docusaurus 的 pathname:/// 前缀
+  // 去除 Docusaurus 内部特定的 pathname:/// 前缀
   let cleanPath = path.replace(/^pathname:\/\/\/?/, '');
 
-  // 2. 去除相对路径中的 ../ 或 ./ 前缀以及 static/
+  // 去除相对路径开头的 ../ 或 ./ 以及 static/ 目录层级
   cleanPath = cleanPath.replace(/^(?:\.\.\/|\.\/)*(?:static\/)?/, '');
 
-  // 3. 确保以 / 开头
+  // 补齐斜杠前缀保证拼接路径正确
   if (!cleanPath.startsWith('/')) {
     cleanPath = '/' + cleanPath;
   }

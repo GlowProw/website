@@ -593,6 +593,7 @@
     },
     "yes": "Yes",
     "no": "No",
+    "optional": "Optional",
     "language": "Language",
     "charactersUnit": "chars",
     "time": {
@@ -2831,6 +2832,16 @@
     "testTrigger": "Test Notification",
     "save": "Save Reminder",
     "cancel": "Cancel",
+    "categories": {
+      "title": "Categories",
+      "activity": "Activity",
+      "system": "System",
+      "favorite": "Favorite",
+      "uncategorized": "Uncategorized",
+      "selectPlaceholder": "Select categories (optional)",
+      "filter": "Filter by category",
+      "all": "All Categories"
+    },
     "fields": {
       "title": "Activity Title",
       "titlePlaceholder": "e.g. Cheese Refresh",
@@ -2902,27 +2913,7 @@
     "presets": {
       "title": "Popular Presets",
       "loadBtn": "Load Presets",
-      "loaded": "Preset reminders loaded successfully",
-      "cheese": {
-        "title": "Cheese!",
-        "desc": "Cheese has refreshed!",
-        "note": "Cheese has refreshed! Check local vendors across the map."
-      },
-      "helmTakeover": {
-        "title": "The Helm: Hostile Takeover",
-        "desc": "Next Hostile Takeover opportunity refresh time",
-        "note": "The Helm Hostile Takeover opportunity has refreshed. Join and secure the manufactory."
-      },
-      "helmWarEvent": {
-        "title": "War Event",
-        "desc": "Next War Event refresh time",
-        "note": "War Event has started. Prepare for battle and competition."
-      },
-      "maintenance": {
-        "title": "Game Maintenance",
-        "desc": "Routine game maintenance. Check official announcements for details.",
-        "note": "Routine game maintenance time. Please check official game announcements."
-      }
+      "loaded": "Preset reminders loaded successfully"
     },
     "filter": {
       "all": "All",

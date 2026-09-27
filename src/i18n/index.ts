@@ -86,7 +86,7 @@ const deepMerge = (target: any, ...sources: any[]): any => {
 /**
  * 从语言配置的回退语言字段中寻找回退语言
  */
-const getFallbackLocale = (): string => {
+export const getFallbackLocale = (): string => {
     return language.fallback || language.mapping || 'en-US';
 };
 

@@ -7,71 +7,111 @@ import type { ReminderPresetConfig } from '@/assets/types/Reminder';
 export const REMINDER_PRESETS: ReminderPresetConfig[] = [
     {
         id: 'preset-cheese-refresh',
-        title: '奶酪！',
-        titleKey: 'reminder.presets.cheese.title',
-        description: '奶酪刷新啦！',
-        descKey: 'reminder.presets.cheese.desc',
+        title: {
+            zh_CN: '奶酪!',
+            zh_TW: '奶酪!',
+            en_US: 'Cheese!'
+        },
+        categories: ['activity'],
+        description: {
+            zh_CN: '奶酪刷新啦！',
+            zh_TW: '奶酪刷新啦！',
+            en_US: 'Cheese has refreshed!'
+        },
         scheduleType: 'repeat',
         repeatType: 'interval',
         repeatIntervalUnit: 'hour',
         repeatIntervalValue: 1,
-        repeatIntervalHours: 1, // 每 1 小时触发
-        advanceNoticeEnabled: true, // 提前提醒
-        advanceMinutes: 1, // 提前 1 分钟
-        validityType: 'permanent', // 有效期永久
-        notifyEnabled: true, // 默认开启通知
-        note: '奶酪刷新啦！可在地图各商贩处购买或刷新收集。',
-        noteKey: 'reminder.presets.cheese.note'
+        repeatIntervalHours: 1,
+        advanceNoticeEnabled: true,
+        advanceMinutes: 1,
+        validityType: 'permanent',
+        notifyEnabled: true,
+        note: {
+            zh_CN: '奶酪刷新啦！可在地图各商贩处购买或刷新收集。',
+            zh_TW: '奶酪刷新啦！可在地圖各商販處購買或刷新收集。',
+            en_US: 'Cheese has refreshed! Check local vendors across the map.'
+        }
     },
     {
         id: 'preset-helm-takeover',
-        title: '海舵社:接管机遇',
-        titleKey: 'reminder.presets.helmTakeover.title',
-        description: '下一个接管机遇刷新时间',
-        descKey: 'reminder.presets.helmTakeover.desc',
+        title: {
+            zh_CN: '海舵社:接管机遇',
+            zh_TW: '海舵社:接管機遇',
+            en_US: 'The Helm: Hostile Takeover'
+        },
+        categories: ['activity'],
+        description: {
+            zh_CN: '下一个接管机遇刷新时间',
+            zh_TW: '下一個接管機遇刷新時間',
+            en_US: 'Next Hostile Takeover opportunity refresh time'
+        },
         scheduleType: 'repeat',
         repeatType: 'interval',
         repeatIntervalUnit: 'hour',
         repeatIntervalValue: 1,
-        repeatIntervalHours: 1, // 每 1 小时触发
-        advanceNoticeEnabled: true, // 提前提醒
-        advanceMinutes: 5, // 提前 5 分钟
-        validityType: 'permanent', // 有效期永久
-        notifyEnabled: true, // 默认开启通知
-        note: '海舵社接管机遇已刷新，请及时前往参与接管。',
-        noteKey: 'reminder.presets.helmTakeover.note'
+        repeatIntervalHours: 1,
+        advanceNoticeEnabled: true,
+        advanceMinutes: 5,
+        validityType: 'permanent',
+        notifyEnabled: true,
+        note: {
+            zh_CN: '海舵社接管机遇已刷新，请及时前往参与接管。',
+            zh_TW: '海舵社接管機遇已刷新，請及時前往參與接管。',
+            en_US: 'The Helm Hostile Takeover opportunity has refreshed. Join and secure the manufactory.'
+        }
     },
     {
         id: 'preset-helm-war-event',
-        title: '战争事件',
-        titleKey: 'reminder.presets.helmWarEvent.title',
-        description: '下一个战争事件刷新时间',
-        descKey: 'reminder.presets.helmWarEvent.desc',
+        title: {
+            zh_CN: '战争事件',
+            zh_TW: '戰爭事件',
+            en_US: 'War Event'
+        },
+        categories: ['activity'],
+        description: {
+            zh_CN: '下一个战争事件刷新时间',
+            zh_TW: '下一個戰爭事件刷新時間',
+            en_US: 'Next War Event refresh time'
+        },
         scheduleType: 'repeat',
         repeatType: 'interval',
         repeatIntervalUnit: 'minute',
-        repeatIntervalValue: 30, // 每 30 分钟触发
-        advanceNoticeEnabled: true, // 提前提醒
-        advanceMinutes: 5, // 提前 5 分钟
-        validityType: 'permanent', // 有效期永久
-        notifyEnabled: true, // 默认开启通知
-        note: '战争事件已开启，准备参与争夺与交锋。',
-        noteKey: 'reminder.presets.helmWarEvent.note'
+        repeatIntervalValue: 30,
+        advanceNoticeEnabled: true,
+        advanceMinutes: 5,
+        validityType: 'permanent',
+        notifyEnabled: true,
+        note: {
+            zh_CN: '战争事件已开启，准备参与争夺与交锋。',
+            zh_TW: '戰爭事件已開啟，準備參與爭奪与交鋒。',
+            en_US: 'War Event has started. Prepare for battle and competition.'
+        }
     },
     {
         id: 'preset-game-maintenance',
-        title: '游戏维护',
-        titleKey: 'reminder.presets.maintenance.title',
-        description: '日常游戏维护时间，具体查看游戏公告',
-        descKey: 'reminder.presets.maintenance.desc',
+        title: {
+            zh_CN: '游戏维护',
+            zh_TW: '遊戲維護',
+            en_US: 'Game Maintenance'
+        },
+        categories: ['system'],
+        description: {
+            zh_CN: '日常游戏维护时间，具体查看游戏公告',
+            zh_TW: '日常遊戲維護時間，具體查看遊戲公告',
+            en_US: 'Routine game maintenance. Check official announcements for details.'
+        },
         scheduleType: 'repeat',
         repeatType: 'weekly',
-        repeatDays: [2], // 每周二 (Tuesday)
-        repeatTime: '14:00', // 下午 2 点 (按系统时间 / 北京时间 14:00，对应服务器/新加坡早上 6:00 UTC)
-        validityType: 'permanent', // 有效期永久
-        notifyEnabled: true, // 默认开启通知
-        note: '日常游戏维护时间，具体查看游戏官方公告与维护通知。',
-        noteKey: 'reminder.presets.maintenance.note'
+        repeatDays: [2],
+        repeatTime: '14:00',
+        validityType: 'permanent',
+        notifyEnabled: true,
+        note: {
+            zh_CN: '日常游戏维护时间，具体查看游戏官方公告与维护通知。',
+            zh_TW: '日常遊戲維護時間，具體查看遊戲官方公告與維護通知。',
+            en_US: 'Routine game maintenance time. Please check official game announcements.'
+        }
     }
 ];
 

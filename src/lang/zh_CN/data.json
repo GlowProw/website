@@ -591,6 +591,7 @@
     },
     "yes": "是",
     "no": "否",
+    "optional": "可选",
     "language": "语言",
     "charactersUnit": "字",
     "time": {
@@ -2835,6 +2836,16 @@
     "testTrigger": "测试通知",
     "save": "保存提醒",
     "cancel": "取消",
+    "categories": {
+      "title": "任务分类",
+      "activity": "活动",
+      "system": "系统",
+      "favorite": "最爱",
+      "uncategorized": "未分类",
+      "selectPlaceholder": "选择分类（可选，可多选）",
+      "filter": "按分类筛选",
+      "all": "全部分类"
+    },
     "fields": {
       "title": "活动标题",
       "titlePlaceholder": "请输入活动标题，如：奶酪刷新",
@@ -2906,27 +2917,7 @@
     "presets": {
       "title": "常用预设",
       "loadBtn": "导入预设",
-      "loaded": "预设活动已成功加载",
-      "cheese": {
-        "title": "奶酪！",
-        "desc": "奶酪刷新啦！",
-        "note": "奶酪刷新啦！可在地图各商贩处购买或刷新收集。"
-      },
-      "helmTakeover": {
-        "title": "海舵社:接管机遇",
-        "desc": "下一个接管机遇刷新时间",
-        "note": "海舵社接管机遇已刷新，请及时前往参与接管。"
-      },
-      "helmWarEvent": {
-        "title": "战争事件",
-        "desc": "下一个战争事件刷新时间",
-        "note": "战争事件已开启，准备参与争夺与交锋。"
-      },
-      "maintenance": {
-        "title": "游戏维护",
-        "desc": "日常游戏维护时间，具体查看游戏公告",
-        "note": "日常游戏维护时间，具体查看游戏官方公告与维护通知。"
-      }
+      "loaded": "预设活动已成功加载"
     },
     "filter": {
       "all": "全部",

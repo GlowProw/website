@@ -3,7 +3,7 @@ export default { name: 'DateRangePicker' }
 </script>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useDisplay } from 'vuetify/framework';
 
@@ -55,13 +55,13 @@ const emit = defineEmits<{
   (e: 'clear'): void;
 }>();
 
-const { t, te } = useI18n();
+const { t, te, locale } = useI18n();
 const { mobile } = useDisplay();
 
 const dialog = ref(false);
 const activeMode = ref<DateRangePickerMode>(props.mode);
 
-// Helpers
+// 辅助工具方法：数字补零与日期解析
 const pad = (n: number) => n.toString().padStart(2, '0');
 
 const parseToDate = (val?: string | Date | number | null): Date | null => {
@@ -73,7 +73,7 @@ const parseToDate = (val?: string | Date | number | null): Date | null => {
   }
   const str = String(val).trim();
   if (!str) return null;
-  // Check if pure timestamp number in string
+  // 如果传入的是时间戳数字字符串
   if (/^\d{11,}$/.test(str)) {
     const d = new Date(Number(str));
     return isNaN(d.getTime()) ? null : d;
@@ -86,19 +86,7 @@ const formatDateToYMD = (d: Date): string => {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 };
 
-// Date mode values (YYYY-MM-DD)
-const startDateStr = ref<string | null>(null);
-const endDateStr = ref<string | null>(null);
-
-// Month mode values
-const startYearMonth = ref<{ year: number; month: number } | null>(null);
-const endYearMonth = ref<{ year: number; month: number } | null>(null);
-
-// Year mode values
-const startYearOnly = ref<number | null>(null);
-const endYearOnly = ref<number | null>(null);
-
-// Effective boundaries
+// 范围边界限制计算
 const now = new Date();
 const currentYear = now.getFullYear();
 const currentMonth = now.getMonth() + 1;
@@ -138,7 +126,6 @@ const effectiveMaxYMD = computed<string | null>(() => {
   return effectiveMaxDate.value ? formatDateToYMD(effectiveMaxDate.value) : null;
 });
 
-// Year range boundaries
 const minSelectableYear = computed<number>(() => {
   if (effectiveMinDate.value) return effectiveMinDate.value.getFullYear();
   return 1970;
@@ -146,18 +133,426 @@ const minSelectableYear = computed<number>(() => {
 
 const maxSelectableYear = computed<number>(() => {
   if (effectiveMaxDate.value) return effectiveMaxDate.value.getFullYear();
-  return currentYear + 20;
+  return currentYear + 25;
 });
 
-// Parse initial modelValue
+// 年月日日期范围模式的状态与交互逻辑
+const startDateStr = ref<string | null>(null);
+const endDateStr = ref<string | null>(null);
+const hoverDateStr = ref<string | null>(null);
+
+// 左右双月份面板年份与月份状态
+const leftYear = ref<number>(currentYear);
+const leftMonth = ref<number>(currentMonth);
+
+const rightYear = computed<number>(() => {
+  return leftMonth.value === 12 ? leftYear.value + 1 : leftYear.value;
+});
+
+const rightMonth = computed<number>(() => {
+  return leftMonth.value === 12 ? 1 : leftMonth.value + 1;
+});
+
+const prevMonthNav = () => {
+  if (leftMonth.value === 1) {
+    leftMonth.value = 12;
+    leftYear.value--;
+  } else {
+    leftMonth.value--;
+  }
+};
+
+const nextMonthNav = () => {
+  if (leftMonth.value === 12) {
+    leftMonth.value = 1;
+    leftYear.value++;
+  } else {
+    leftMonth.value++;
+  }
+};
+
+const prevYearNav = () => {
+  leftYear.value--;
+};
+
+const nextYearNav = () => {
+  leftYear.value++;
+};
+
+// 星期表头列表
+const weekdayHeaders = computed(() => {
+  const isEn = String(locale.value).toLowerCase().startsWith('en');
+  if (isEn) {
+    return ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+  }
+  return ['一', '二', '三', '四', '五', '六', '日'];
+});
+
+interface CalendarCell {
+  dateStr: string;
+  dayNumber: number;
+  year: number;
+  month: number;
+  isCurrentMonth: boolean;
+  isToday: boolean;
+  isDisabled: boolean;
+  isStart: boolean;
+  isEnd: boolean;
+  isInRange: boolean;
+  isHoverEnd: boolean;
+}
+
+const buildMonthCells = (year: number, month: number): CalendarCell[] => {
+  const cells: CalendarCell[] = [];
+
+  const daysInCurrentMonth = new Date(year, month, 0).getDate();
+
+  const prevYearNum = month === 1 ? year - 1 : year;
+  const prevMonthNum = month === 1 ? 12 : month - 1;
+  const daysInPrevMonth = new Date(prevYearNum, prevMonthNum, 0).getDate();
+
+  const nextYearNum = month === 12 ? year + 1 : year;
+  const nextMonthNum = month === 12 ? 1 : month + 1;
+
+  // 当月第一天的星期几，按周一作为每周第一天进行换算
+  const firstJsDay = new Date(year, month - 1, 1).getDay();
+  const leadingCount = firstJsDay === 0 ? 6 : firstJsDay - 1;
+
+  // 根据选中的起止日期以及当前鼠标悬停日期计算区间
+  const s = startDateStr.value;
+  const e = endDateStr.value;
+  const h = hoverDateStr.value;
+
+  let normStart: string | null = null;
+  let normEnd: string | null = null;
+
+  if (s && e) {
+    normStart = s <= e ? s : e;
+    normEnd = s <= e ? e : s;
+  } else if (s && !e && h) {
+    normStart = s <= h ? s : h;
+    normEnd = s <= h ? h : s;
+  } else if (s && !e) {
+    normStart = s;
+    normEnd = null;
+  }
+
+  const createCell = (y: number, m: number, d: number, isCur: boolean): CalendarCell => {
+    const dStr = `${y}-${pad(m)}-${pad(d)}`;
+    const isToday = dStr === todayStr;
+
+    let isDisabled = false;
+    if (effectiveMinYMD.value && dStr < effectiveMinYMD.value) {
+      isDisabled = true;
+    }
+    if (effectiveMaxYMD.value && dStr > effectiveMaxYMD.value) {
+      isDisabled = true;
+    }
+
+    let isStart = false;
+    let isEnd = false;
+    let isInRange = false;
+    let isHoverEnd = false;
+
+    if (normStart && normEnd) {
+      isStart = (dStr === normStart);
+      isEnd = (dStr === normEnd);
+      isInRange = (dStr > normStart && dStr < normEnd);
+    } else if (normStart) {
+      isStart = (dStr === normStart);
+    }
+
+    if (s && !e && h && dStr === h && h !== s) {
+      isHoverEnd = true;
+    }
+
+    return {
+      dateStr: dStr,
+      dayNumber: d,
+      year: y,
+      month: m,
+      isCurrentMonth: isCur,
+      isToday,
+      isDisabled,
+      isStart,
+      isEnd,
+      isInRange,
+      isHoverEnd
+    };
+  };
+
+  // 上月补充的日期
+  for (let i = leadingCount - 1; i >= 0; i--) {
+    const day = daysInPrevMonth - i;
+    cells.push(createCell(prevYearNum, prevMonthNum, day, false));
+  }
+
+  // 当前月份的日期
+  for (let d = 1; d <= daysInCurrentMonth; d++) {
+    cells.push(createCell(year, month, d, true));
+  }
+
+  // 下月补充的日期，凑满42格日历布局
+  const remaining = 42 - cells.length;
+  for (let d = 1; d <= remaining; d++) {
+    cells.push(createCell(nextYearNum, nextMonthNum, d, false));
+  }
+
+  return cells;
+};
+
+const leftMonthCells = computed(() => buildMonthCells(leftYear.value, leftMonth.value));
+const rightMonthCells = computed(() => buildMonthCells(rightYear.value, rightMonth.value));
+
+const onDateCellClick = (cell: CalendarCell) => {
+  if (cell.isDisabled) return;
+
+  if (!startDateStr.value || (startDateStr.value && endDateStr.value)) {
+    // 重新开始选择起始日期
+    startDateStr.value = cell.dateStr;
+    endDateStr.value = null;
+    hoverDateStr.value = null;
+  } else if (startDateStr.value && !endDateStr.value) {
+    // 选择结束日期完成范围确认
+    if (cell.dateStr >= startDateStr.value) {
+      endDateStr.value = cell.dateStr;
+    } else {
+      // 点击了比开始时间更早的日期，则作为新的开始日期
+      startDateStr.value = cell.dateStr;
+    }
+    hoverDateStr.value = null;
+  }
+};
+
+const onDateCellHover = (cell: CalendarCell) => {
+  if (startDateStr.value && !endDateStr.value && !cell.isDisabled) {
+    hoverDateStr.value = cell.dateStr;
+  }
+};
+
+const onCalendarMouseLeave = () => {
+  hoverDateStr.value = null;
+};
+
+// 年月月份范围模式的状态与交互逻辑
+const startMonthStr = ref<string | null>(null);
+const endMonthStr = ref<string | null>(null);
+const hoverMonthStr = ref<string | null>(null);
+const monthPickerYear = ref<number>(currentYear);
+
+const prevMonthYearNav = () => {
+  monthPickerYear.value--;
+};
+
+const nextMonthYearNav = () => {
+  monthPickerYear.value++;
+};
+
+const monthsList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+
+const getMonthName = (m: number) => {
+  const isEn = String(locale.value).toLowerCase().startsWith('en');
+  const enMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  return isEn ? enMonths[m - 1] : `${m}月`;
+};
+
+interface MonthCell {
+  monthStr: string;
+  monthNumber: number;
+  name: string;
+  isDisabled: boolean;
+  isStart: boolean;
+  isEnd: boolean;
+  isInRange: boolean;
+}
+
+const monthCells = computed<MonthCell[]>(() => {
+  const y = monthPickerYear.value;
+  const s = startMonthStr.value;
+  const e = endMonthStr.value;
+  const h = hoverMonthStr.value;
+
+  let normStart: string | null = null;
+  let normEnd: string | null = null;
+
+  if (s && e) {
+    normStart = s <= e ? s : e;
+    normEnd = s <= e ? e : s;
+  } else if (s && !e && h) {
+    normStart = s <= h ? s : h;
+    normEnd = s <= h ? h : s;
+  } else if (s && !e) {
+    normStart = s;
+    normEnd = null;
+  }
+
+  return monthsList.map(m => {
+    const mStr = `${y}-${pad(m)}`;
+    let isDisabled = false;
+
+    if (effectiveMinDate.value) {
+      const minM = `${effectiveMinDate.value.getFullYear()}-${pad(effectiveMinDate.value.getMonth() + 1)}`;
+      if (mStr < minM) isDisabled = true;
+    }
+    if (effectiveMaxDate.value) {
+      const maxM = `${effectiveMaxDate.value.getFullYear()}-${pad(effectiveMaxDate.value.getMonth() + 1)}`;
+      if (mStr > maxM) isDisabled = true;
+    }
+
+    let isStart = false;
+    let isEnd = false;
+    let isInRange = false;
+
+    if (normStart && normEnd) {
+      isStart = (mStr === normStart);
+      isEnd = (mStr === normEnd);
+      isInRange = (mStr > normStart && mStr < normEnd);
+    } else if (normStart) {
+      isStart = (mStr === normStart);
+    }
+
+    return {
+      monthStr: mStr,
+      monthNumber: m,
+      name: getMonthName(m),
+      isDisabled,
+      isStart,
+      isEnd,
+      isInRange
+    };
+  });
+});
+
+const onMonthCellClick = (cell: MonthCell) => {
+  if (cell.isDisabled) return;
+
+  if (!startMonthStr.value || (startMonthStr.value && endMonthStr.value)) {
+    startMonthStr.value = cell.monthStr;
+    endMonthStr.value = null;
+    hoverMonthStr.value = null;
+  } else if (startMonthStr.value && !endMonthStr.value) {
+    if (cell.monthStr >= startMonthStr.value) {
+      endMonthStr.value = cell.monthStr;
+    } else {
+      startMonthStr.value = cell.monthStr;
+    }
+    hoverMonthStr.value = null;
+  }
+};
+
+const onMonthCellHover = (cell: MonthCell) => {
+  if (startMonthStr.value && !endMonthStr.value && !cell.isDisabled) {
+    hoverMonthStr.value = cell.monthStr;
+  }
+};
+
+// 年份范围模式的状态与交互逻辑
+const startYearNum = ref<number | null>(null);
+const endYearNum = ref<number | null>(null);
+const hoverYearNum = ref<number | null>(null);
+const yearDecadeStart = ref<number>(Math.floor(currentYear / 10) * 10);
+
+const prevDecadeNav = () => {
+  yearDecadeStart.value -= 10;
+};
+
+const nextDecadeNav = () => {
+  yearDecadeStart.value += 10;
+};
+
+interface YearCell {
+  year: number;
+  isDisabled: boolean;
+  isStart: boolean;
+  isEnd: boolean;
+  isInRange: boolean;
+}
+
+const yearCells = computed<YearCell[]>(() => {
+  const list: YearCell[] = [];
+  const start = yearDecadeStart.value - 1;
+  const end = yearDecadeStart.value + 10;
+
+  const s = startYearNum.value;
+  const e = endYearNum.value;
+  const h = hoverYearNum.value;
+
+  let normStart: number | null = null;
+  let normEnd: number | null = null;
+
+  if (s !== null && e !== null) {
+    normStart = s <= e ? s : e;
+    normEnd = s <= e ? e : s;
+  } else if (s !== null && e === null && h !== null) {
+    normStart = s <= h ? s : h;
+    normEnd = s <= h ? h : s;
+  } else if (s !== null) {
+    normStart = s;
+    normEnd = null;
+  }
+
+  for (let y = start; y <= end; y++) {
+    let isDisabled = false;
+    if (y < minSelectableYear.value || y > maxSelectableYear.value) {
+      isDisabled = true;
+    }
+
+    let isStart = false;
+    let isEnd = false;
+    let isInRange = false;
+
+    if (normStart !== null && normEnd !== null) {
+      isStart = (y === normStart);
+      isEnd = (y === normEnd);
+      isInRange = (y > normStart && y < normEnd);
+    } else if (normStart !== null) {
+      isStart = (y === normStart);
+    }
+
+    list.push({
+      year: y,
+      isDisabled,
+      isStart,
+      isEnd,
+      isInRange
+    });
+  }
+
+  return list;
+});
+
+const onYearCellClick = (cell: YearCell) => {
+  if (cell.isDisabled) return;
+
+  if (startYearNum.value === null || (startYearNum.value !== null && endYearNum.value !== null)) {
+    startYearNum.value = cell.year;
+    endYearNum.value = null;
+    hoverYearNum.value = null;
+  } else if (startYearNum.value !== null && endYearNum.value === null) {
+    if (cell.year >= startYearNum.value) {
+      endYearNum.value = cell.year;
+    } else {
+      startYearNum.value = cell.year;
+    }
+    hoverYearNum.value = null;
+  }
+};
+
+const onYearCellHover = (cell: YearCell) => {
+  if (startYearNum.value !== null && endYearNum.value === null && !cell.isDisabled) {
+    hoverYearNum.value = cell.year;
+  }
+};
+
+// 外部传入数据的解析与双向同步
 const parseIncomingValue = () => {
   if (!props.modelValue) {
     startDateStr.value = null;
     endDateStr.value = null;
-    startYearMonth.value = null;
-    endYearMonth.value = null;
-    startYearOnly.value = null;
-    endYearOnly.value = null;
+    startMonthStr.value = null;
+    endMonthStr.value = null;
+    startYearNum.value = null;
+    endYearNum.value = null;
     return;
   }
 
@@ -180,13 +575,19 @@ const parseIncomingValue = () => {
 
   if (sDate) {
     startDateStr.value = formatDateToYMD(sDate);
-    startYearMonth.value = { year: sDate.getFullYear(), month: sDate.getMonth() + 1 };
-    startYearOnly.value = sDate.getFullYear();
+    startMonthStr.value = `${sDate.getFullYear()}-${pad(sDate.getMonth() + 1)}`;
+    startYearNum.value = sDate.getFullYear();
+
+    // 自动切到开始日期所在的年月面板
+    leftYear.value = sDate.getFullYear();
+    leftMonth.value = sDate.getMonth() + 1;
+    monthPickerYear.value = sDate.getFullYear();
+    yearDecadeStart.value = Math.floor(sDate.getFullYear() / 10) * 10;
   }
   if (eDate) {
     endDateStr.value = formatDateToYMD(eDate);
-    endYearMonth.value = { year: eDate.getFullYear(), month: eDate.getMonth() + 1 };
-    endYearOnly.value = eDate.getFullYear();
+    endMonthStr.value = `${eDate.getFullYear()}-${pad(eDate.getMonth() + 1)}`;
+    endYearNum.value = eDate.getFullYear();
   }
 };
 
@@ -200,40 +601,17 @@ watch(() => props.mode, (newMode) => {
   }
 });
 
-// Range validation
+// 校验选择的范围是否有效
 const isDateModeValid = computed(() => {
-  if (!startDateStr.value || !endDateStr.value) return false;
-  const s = new Date(startDateStr.value).getTime();
-  const e = new Date(endDateStr.value).getTime();
-  if (isNaN(s) || isNaN(e) || s > e) return false;
-  if (effectiveMinYMD.value && startDateStr.value < effectiveMinYMD.value) return false;
-  if (effectiveMaxYMD.value && endDateStr.value > effectiveMaxYMD.value) return false;
-  return true;
+  return !!startDateStr.value && !!endDateStr.value && startDateStr.value <= endDateStr.value;
 });
 
 const isMonthModeValid = computed(() => {
-  if (!startYearMonth.value || !endYearMonth.value) return false;
-  const sVal = startYearMonth.value.year * 12 + startYearMonth.value.month;
-  const eVal = endYearMonth.value.year * 12 + endYearMonth.value.month;
-  if (sVal > eVal) return false;
-
-  if (effectiveMinDate.value) {
-    const minVal = effectiveMinDate.value.getFullYear() * 12 + (effectiveMinDate.value.getMonth() + 1);
-    if (sVal < minVal) return false;
-  }
-  if (effectiveMaxDate.value) {
-    const maxVal = effectiveMaxDate.value.getFullYear() * 12 + (effectiveMaxDate.value.getMonth() + 1);
-    if (eVal > maxVal) return false;
-  }
-  return true;
+  return !!startMonthStr.value && !!endMonthStr.value && startMonthStr.value <= endMonthStr.value;
 });
 
 const isYearModeValid = computed(() => {
-  if (startYearOnly.value === null || endYearOnly.value === null) return false;
-  if (startYearOnly.value > endYearOnly.value) return false;
-  if (startYearOnly.value < minSelectableYear.value) return false;
-  if (endYearOnly.value > maxSelectableYear.value) return false;
-  return true;
+  return startYearNum.value !== null && endYearNum.value !== null && startYearNum.value <= endYearNum.value;
 });
 
 const isRangeValid = computed(() => {
@@ -243,38 +621,25 @@ const isRangeValid = computed(() => {
   return false;
 });
 
-// Display text in the activator text field
+// 触发输入框内展示的文本
 const displayText = computed(() => {
   if (activeMode.value === 'date') {
     if (startDateStr.value && endDateStr.value) {
       return `${startDateStr.value} ~ ${endDateStr.value}`;
     }
   } else if (activeMode.value === 'month') {
-    if (startYearMonth.value && endYearMonth.value) {
-      return `${startYearMonth.value.year}-${pad(startYearMonth.value.month)} ~ ${endYearMonth.value.year}-${pad(endYearMonth.value.month)}`;
+    if (startMonthStr.value && endMonthStr.value) {
+      return `${startMonthStr.value} ~ ${endMonthStr.value}`;
     }
   } else if (activeMode.value === 'year') {
-    if (startYearOnly.value !== null && endYearOnly.value !== null) {
-      return `${startYearOnly.value} ~ ${endYearOnly.value}`;
+    if (startYearNum.value !== null && endYearNum.value !== null) {
+      return `${startYearNum.value} ~ ${endYearNum.value}`;
     }
   }
   return '';
 });
 
-// Year lists for Year & Month Pickers
-const yearsList = computed(() => {
-  const list: number[] = [];
-  const minY = Math.max(1970, minSelectableYear.value);
-  const maxY = Math.min(2100, maxSelectableYear.value);
-  for (let y = maxY; y >= minY; y--) {
-    list.push(y);
-  }
-  return list;
-});
-
-const monthsList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-
-// Presets
+// 常用快捷区间选项
 interface PresetOption {
   key: string;
   label: string;
@@ -295,6 +660,8 @@ const presets = computed<PresetOption[]>(() => {
         handler: () => {
           startDateStr.value = todayStr;
           endDateStr.value = todayStr;
+          leftYear.value = currentYear;
+          leftMonth.value = currentMonth;
         }
       },
       {
@@ -307,6 +674,8 @@ const presets = computed<PresetOption[]>(() => {
           const yStr = formatDateToYMD(y);
           startDateStr.value = yStr;
           endDateStr.value = yStr;
+          leftYear.value = y.getFullYear();
+          leftMonth.value = y.getMonth() + 1;
         }
       },
       {
@@ -318,6 +687,8 @@ const presets = computed<PresetOption[]>(() => {
           s.setDate(s.getDate() - 6);
           startDateStr.value = formatDateToYMD(s);
           endDateStr.value = todayStr;
+          leftYear.value = s.getFullYear();
+          leftMonth.value = s.getMonth() + 1;
         }
       },
       {
@@ -333,6 +704,8 @@ const presets = computed<PresetOption[]>(() => {
           sunday.setDate(monday.getDate() + 6);
           startDateStr.value = formatDateToYMD(monday);
           endDateStr.value = isFutureRestricted && sunday > now ? todayStr : formatDateToYMD(sunday);
+          leftYear.value = monday.getFullYear();
+          leftMonth.value = monday.getMonth() + 1;
         }
       },
       {
@@ -344,6 +717,21 @@ const presets = computed<PresetOption[]>(() => {
           const e = new Date(currentYear, currentMonth, 0);
           startDateStr.value = formatDateToYMD(s);
           endDateStr.value = isFutureRestricted && e > now ? todayStr : formatDateToYMD(e);
+          leftYear.value = currentYear;
+          leftMonth.value = currentMonth;
+        }
+      },
+      {
+        key: 'lastMonth',
+        label: t('basic.time.presets.lastMonth'),
+        visible: !isPastRestricted,
+        handler: () => {
+          const s = new Date(currentYear, currentMonth - 2, 1);
+          const e = new Date(currentYear, currentMonth - 1, 0);
+          startDateStr.value = formatDateToYMD(s);
+          endDateStr.value = formatDateToYMD(e);
+          leftYear.value = s.getFullYear();
+          leftMonth.value = s.getMonth() + 1;
         }
       },
       {
@@ -355,6 +743,8 @@ const presets = computed<PresetOption[]>(() => {
           s.setDate(s.getDate() - 29);
           startDateStr.value = formatDateToYMD(s);
           endDateStr.value = todayStr;
+          leftYear.value = s.getFullYear();
+          leftMonth.value = s.getMonth() + 1;
         }
       },
       {
@@ -366,6 +756,8 @@ const presets = computed<PresetOption[]>(() => {
           const e = new Date(currentYear, 11, 31);
           startDateStr.value = formatDateToYMD(s);
           endDateStr.value = isFutureRestricted && e > now ? todayStr : formatDateToYMD(e);
+          leftYear.value = currentYear;
+          leftMonth.value = 1;
         }
       }
     ].filter(p => p.visible);
@@ -378,8 +770,9 @@ const presets = computed<PresetOption[]>(() => {
         label: t('basic.time.presets.thisMonth'),
         visible: true,
         handler: () => {
-          startYearMonth.value = { year: currentYear, month: currentMonth };
-          endYearMonth.value = { year: currentYear, month: currentMonth };
+          startMonthStr.value = `${currentYear}-${pad(currentMonth)}`;
+          endMonthStr.value = `${currentYear}-${pad(currentMonth)}`;
+          monthPickerYear.value = currentYear;
         }
       },
       {
@@ -389,18 +782,9 @@ const presets = computed<PresetOption[]>(() => {
         handler: () => {
           const lm = currentMonth === 1 ? 12 : currentMonth - 1;
           const ly = currentMonth === 1 ? currentYear - 1 : currentYear;
-          startYearMonth.value = { year: ly, month: lm };
-          endYearMonth.value = { year: ly, month: lm };
-        }
-      },
-      {
-        key: 'last3Months',
-        label: t('basic.time.presets.last3Years') ? t('basic.time.presets.last30Days') : '近3个月',
-        visible: !isPastRestricted,
-        handler: () => {
-          const d = new Date(currentYear, currentMonth - 1 - 2, 1);
-          startYearMonth.value = { year: d.getFullYear(), month: d.getMonth() + 1 };
-          endYearMonth.value = { year: currentYear, month: currentMonth };
+          startMonthStr.value = `${ly}-${pad(lm)}`;
+          endMonthStr.value = `${ly}-${pad(lm)}`;
+          monthPickerYear.value = ly;
         }
       },
       {
@@ -408,8 +792,9 @@ const presets = computed<PresetOption[]>(() => {
         label: t('basic.time.presets.thisYear'),
         visible: true,
         handler: () => {
-          startYearMonth.value = { year: currentYear, month: 1 };
-          endYearMonth.value = { year: currentYear, month: isFutureRestricted ? currentMonth : 12 };
+          startMonthStr.value = `${currentYear}-01`;
+          endMonthStr.value = `${currentYear}-${pad(isFutureRestricted ? currentMonth : 12)}`;
+          monthPickerYear.value = currentYear;
         }
       },
       {
@@ -417,8 +802,9 @@ const presets = computed<PresetOption[]>(() => {
         label: t('basic.time.presets.lastYear'),
         visible: !isPastRestricted,
         handler: () => {
-          startYearMonth.value = { year: currentYear - 1, month: 1 };
-          endYearMonth.value = { year: currentYear - 1, month: 12 };
+          startMonthStr.value = `${currentYear - 1}-01`;
+          endMonthStr.value = `${currentYear - 1}-12`;
+          monthPickerYear.value = currentYear - 1;
         }
       }
     ].filter(p => p.visible);
@@ -431,8 +817,9 @@ const presets = computed<PresetOption[]>(() => {
         label: t('basic.time.presets.thisYear'),
         visible: true,
         handler: () => {
-          startYearOnly.value = currentYear;
-          endYearOnly.value = currentYear;
+          startYearNum.value = currentYear;
+          endYearNum.value = currentYear;
+          yearDecadeStart.value = Math.floor(currentYear / 10) * 10;
         }
       },
       {
@@ -440,8 +827,9 @@ const presets = computed<PresetOption[]>(() => {
         label: t('basic.time.presets.lastYear'),
         visible: !isPastRestricted,
         handler: () => {
-          startYearOnly.value = currentYear - 1;
-          endYearOnly.value = currentYear - 1;
+          startYearNum.value = currentYear - 1;
+          endYearNum.value = currentYear - 1;
+          yearDecadeStart.value = Math.floor((currentYear - 1) / 10) * 10;
         }
       },
       {
@@ -449,8 +837,9 @@ const presets = computed<PresetOption[]>(() => {
         label: t('basic.time.presets.last3Years'),
         visible: !isPastRestricted,
         handler: () => {
-          startYearOnly.value = currentYear - 2;
-          endYearOnly.value = currentYear;
+          startYearNum.value = currentYear - 2;
+          endYearNum.value = currentYear;
+          yearDecadeStart.value = Math.floor((currentYear - 2) / 10) * 10;
         }
       },
       {
@@ -458,8 +847,9 @@ const presets = computed<PresetOption[]>(() => {
         label: t('basic.time.presets.last5Years'),
         visible: !isPastRestricted,
         handler: () => {
-          startYearOnly.value = currentYear - 4;
-          endYearOnly.value = currentYear;
+          startYearNum.value = currentYear - 4;
+          endYearNum.value = currentYear;
+          yearDecadeStart.value = Math.floor((currentYear - 4) / 10) * 10;
         }
       }
     ].filter(p => p.visible);
@@ -468,44 +858,23 @@ const presets = computed<PresetOption[]>(() => {
   return [];
 });
 
-// Month / Year selection helpers
-const isMonthDisabled = (year: number, month: number, isStart: boolean): boolean => {
-  const val = year * 12 + month;
-  if (effectiveMinDate.value) {
-    const minVal = effectiveMinDate.value.getFullYear() * 12 + (effectiveMinDate.value.getMonth() + 1);
-    if (val < minVal) return true;
-  }
-  if (effectiveMaxDate.value) {
-    const maxVal = effectiveMaxDate.value.getFullYear() * 12 + (effectiveMaxDate.value.getMonth() + 1);
-    if (val > maxVal) return true;
-  }
-  if (!isStart && startYearMonth.value) {
-    const sVal = startYearMonth.value.year * 12 + startYearMonth.value.month;
-    if (val < sVal) return true;
-  }
-  return false;
-};
-
-const isYearDisabled = (year: number, isStart: boolean): boolean => {
-  if (year < minSelectableYear.value || year > maxSelectableYear.value) return true;
-  if (!isStart && startYearOnly.value !== null && year < startYearOnly.value) return true;
-  return false;
-};
-
-// Reset
+// 重置已选内容
 const resetSelection = () => {
   startDateStr.value = null;
   endDateStr.value = null;
-  startYearMonth.value = null;
-  endYearMonth.value = null;
-  startYearOnly.value = null;
-  endYearOnly.value = null;
+  startMonthStr.value = null;
+  endMonthStr.value = null;
+  startYearNum.value = null;
+  endYearNum.value = null;
+  hoverDateStr.value = null;
+  hoverMonthStr.value = null;
+  hoverYearNum.value = null;
   emit('update:modelValue', null);
   emit('clear');
   emit('change', { start: null, end: null, mode: activeMode.value });
 };
 
-// Confirm
+// 确认并保存选择
 const confirmSelection = () => {
   if (!isRangeValid.value) return;
 
@@ -524,11 +893,9 @@ const confirmSelection = () => {
       startRes = startDateStr.value;
       endRes = endDateStr.value;
     }
-  } else if (activeMode.value === 'month' && startYearMonth.value && endYearMonth.value) {
-    const sy = startYearMonth.value.year;
-    const sm = startYearMonth.value.month;
-    const ey = endYearMonth.value.year;
-    const em = endYearMonth.value.month;
+  } else if (activeMode.value === 'month' && startMonthStr.value && endMonthStr.value) {
+    const [sy, sm] = startMonthStr.value.split('-').map(Number);
+    const [ey, em] = endMonthStr.value.split('-').map(Number);
 
     if (props.valueFormat === 'iso') {
       const s = new Date(sy, sm - 1, 1, 0, 0, 0, 0);
@@ -536,12 +903,12 @@ const confirmSelection = () => {
       startRes = s.toISOString();
       endRes = e.toISOString();
     } else {
-      startRes = `${sy}-${pad(sm)}`;
-      endRes = `${ey}-${pad(em)}`;
+      startRes = startMonthStr.value;
+      endRes = endMonthStr.value;
     }
-  } else if (activeMode.value === 'year' && startYearOnly.value !== null && endYearOnly.value !== null) {
-    const sy = startYearOnly.value;
-    const ey = endYearOnly.value;
+  } else if (activeMode.value === 'year' && startYearNum.value !== null && endYearNum.value !== null) {
+    const sy = startYearNum.value;
+    const ey = endYearNum.value;
 
     if (props.valueFormat === 'iso') {
       const s = new Date(sy, 0, 1, 0, 0, 0, 0);
@@ -566,16 +933,9 @@ const confirmSelection = () => {
   dialog.value = false;
 };
 
-// Switch mode
+// 切换选择模式
 const setMode = (mode: DateRangePickerMode) => {
   activeMode.value = mode;
-  if (mode === 'month' && !startYearMonth.value) {
-    startYearMonth.value = { year: currentYear, month: 1 };
-    endYearMonth.value = { year: currentYear, month: currentMonth };
-  } else if (mode === 'year' && startYearOnly.value === null) {
-    startYearOnly.value = currentYear;
-    endYearOnly.value = currentYear;
-  }
 };
 </script>
 
@@ -597,9 +957,9 @@ const setMode = (mode: DateRangePickerMode) => {
         class="date-range-trigger-input"
     />
 
-    <v-dialog v-model="dialog" max-width="740px" persistent>
+    <v-dialog v-model="dialog" max-width="780px" persistent>
       <v-card class="date-range-dialog-card bg-surface">
-        <!-- Header -->
+        <!-- 弹窗标题与模式切换 -->
         <v-card-title class="d-flex justify-space-between align-center px-4 py-3 border-b">
           <div class="d-flex align-center ga-2">
             <v-icon icon="mdi-calendar-clock" color="amber"></v-icon>
@@ -608,7 +968,7 @@ const setMode = (mode: DateRangePickerMode) => {
             </span>
           </div>
 
-          <!-- Mode Switcher -->
+          <!-- 模式切换开关 -->
           <div v-if="allowModeSwitch" class="d-flex align-center ga-1">
             <v-btn-toggle
                 v-model="activeMode"
@@ -648,9 +1008,8 @@ const setMode = (mode: DateRangePickerMode) => {
         </v-card-title>
 
         <v-card-text class="pa-4">
-          <!-- Presets Quick Bar -->
+          <!-- 快捷时间预设 -->
           <div v-if="presets.length > 0" class="mb-4 d-flex align-center flex-wrap ga-2">
-            <span class="text-caption opacity-60 mr-1">{{ t('basic.filter') }}:</span>
             <v-chip
                 v-for="p in presets"
                 :key="p.key"
@@ -663,206 +1022,229 @@ const setMode = (mode: DateRangePickerMode) => {
             </v-chip>
           </div>
 
-          <!-- Mode 1: Date Range (YYYY-MM-DD ~ YYYY-MM-DD) -->
-          <div v-if="activeMode === 'date'">
-            <v-row>
-              <v-col cols="12" sm="6">
-                <div class="picker-section-box pa-2 rounded border">
-                  <div class="d-flex align-center justify-space-between mb-2">
-                    <span class="text-caption font-weight-bold text-amber">
-                      {{ t('basic.time.startDate') }}
-                    </span>
-                    <span class="text-caption font-mono">{{ startDateStr || '--' }}</span>
+          <!-- 年月日双月范围网格 -->
+          <div v-if="activeMode === 'date'" class="date-range-calendar-wrapper">
+            <div class="dual-month-container" :class="{ 'is-mobile': mobile }">
+              <!-- 左侧月份面板 -->
+              <div class="month-panel" @mouseleave="onCalendarMouseLeave">
+                <!-- 左侧面板头部导航 -->
+                <div class="panel-header d-flex align-center justify-space-between px-2 py-1 mb-2">
+                  <div class="d-flex align-center ga-1">
+                    <v-btn icon="mdi-chevron-double-left" variant="text" size="x-small" @click="prevYearNav"></v-btn>
+                    <v-btn icon="mdi-chevron-left" variant="text" size="x-small" @click="prevMonthNav"></v-btn>
                   </div>
-                  <v-date-picker
-                      v-model="startDateStr"
-                      :min="effectiveMinYMD"
-                      :max="endDateStr || effectiveMaxYMD"
-                      hide-header
-                      hide-weekdays
-                      density="compact"
-                      class="custom-date-picker w-100"
-                  />
+                  <div class="font-weight-bold font-mono text-subtitle-2">
+                    {{ leftYear }}年 {{ leftMonth }}月
+                  </div>
+                  <div class="d-flex align-center ga-1" v-if="mobile">
+                    <v-btn icon="mdi-chevron-right" variant="text" size="x-small" @click="nextMonthNav"></v-btn>
+                    <v-btn icon="mdi-chevron-double-right" variant="text" size="x-small" @click="nextYearNav"></v-btn>
+                  </div>
+                  <div v-else style="width: 52px;"></div>
                 </div>
-              </v-col>
 
-              <v-col cols="12" sm="6">
-                <div class="picker-section-box pa-2 rounded border">
-                  <div class="d-flex align-center justify-space-between mb-2">
-                    <span class="text-caption font-weight-bold text-amber">
-                      {{ t('basic.time.endDate') }}
-                    </span>
-                    <span class="text-caption font-mono">{{ endDateStr || '--' }}</span>
+                <!-- 星期表头 -->
+                <div class="calendar-weekdays-row">
+                  <div v-for="(w, idx) in weekdayHeaders" :key="idx" class="weekday-cell" :class="{ 'is-weekend': idx >= 5 }">
+                    {{ w }}
                   </div>
-                  <v-date-picker
-                      v-model="endDateStr"
-                      :min="startDateStr || effectiveMinYMD"
-                      :max="effectiveMaxYMD"
-                      hide-header
-                      hide-weekdays
-                      density="compact"
-                      class="custom-date-picker w-100"
-                  />
                 </div>
-              </v-col>
-            </v-row>
+
+                <!-- 日期单元格网格 -->
+                <div class="calendar-days-grid">
+                  <div
+                      v-for="(cell, idx) in leftMonthCells"
+                      :key="cell.dateStr + '-' + idx"
+                      class="calendar-day-cell"
+                      :class="{
+                        'is-start': cell.isStart,
+                        'is-end': cell.isEnd,
+                        'is-in-range': cell.isInRange,
+                        'is-today': cell.isToday,
+                        'is-disabled': cell.isDisabled,
+                        'other-month': !cell.isCurrentMonth
+                      }"
+                      @click="onDateCellClick(cell)"
+                      @mouseenter="onDateCellHover(cell)">
+
+                    <!-- 中间日期的连续高亮色带 -->
+                    <div
+                        v-if="cell.isInRange || (cell.isStart && (endDateStr || hoverDateStr) && (startDateStr !== (endDateStr || hoverDateStr))) || (cell.isEnd && startDateStr && (startDateStr !== endDateStr))"
+                        class="range-bg-strip"
+                        :class="{
+                          'strip-start': cell.isStart && !cell.isEnd,
+                          'strip-end': cell.isEnd && !cell.isStart,
+                          'strip-middle': cell.isInRange,
+                          'row-start': idx % 7 === 0,
+                          'row-end': idx % 7 === 6
+                        }">
+                    </div>
+
+                    <!-- 日期数字圆标 -->
+                    <div
+                        class="day-badge"
+                        :class="{
+                          'badge-selected': cell.isStart || cell.isEnd,
+                          'badge-hover': cell.isHoverEnd
+                        }">
+                      {{ cell.dayNumber }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 右侧月份面板（仅桌面端显示） -->
+              <div v-if="!mobile" class="month-panel" @mouseleave="onCalendarMouseLeave">
+                <!-- 右侧面板头部导航 -->
+                <div class="panel-header d-flex align-center justify-space-between px-2 py-1 mb-2">
+                  <div style="width: 52px;"></div>
+                  <div class="font-weight-bold font-mono text-subtitle-2">
+                    {{ rightYear }}年 {{ rightMonth }}月
+                  </div>
+                  <div class="d-flex align-center ga-1">
+                    <v-btn icon="mdi-chevron-right" variant="text" size="x-small" @click="nextMonthNav"></v-btn>
+                    <v-btn icon="mdi-chevron-double-right" variant="text" size="x-small" @click="nextYearNav"></v-btn>
+                  </div>
+                </div>
+
+                <!-- 星期表头 -->
+                <div class="calendar-weekdays-row">
+                  <div v-for="(w, idx) in weekdayHeaders" :key="idx" class="weekday-cell" :class="{ 'is-weekend': idx >= 5 }">
+                    {{ w }}
+                  </div>
+                </div>
+
+                <!-- 日期单元格网格 -->
+                <div class="calendar-days-grid">
+                  <div
+                      v-for="(cell, idx) in rightMonthCells"
+                      :key="cell.dateStr + '-' + idx"
+                      class="calendar-day-cell"
+                      :class="{
+                        'is-start': cell.isStart,
+                        'is-end': cell.isEnd,
+                        'is-in-range': cell.isInRange,
+                        'is-today': cell.isToday,
+                        'is-disabled': cell.isDisabled,
+                        'other-month': !cell.isCurrentMonth
+                      }"
+                      @click="onDateCellClick(cell)"
+                      @mouseenter="onDateCellHover(cell)">
+
+                    <!-- 中间日期的连续高亮色带 -->
+                    <div
+                        v-if="cell.isInRange || (cell.isStart && (endDateStr || hoverDateStr) && (startDateStr !== (endDateStr || hoverDateStr))) || (cell.isEnd && startDateStr && (startDateStr !== endDateStr))"
+                        class="range-bg-strip"
+                        :class="{
+                          'strip-start': cell.isStart && !cell.isEnd,
+                          'strip-end': cell.isEnd && !cell.isStart,
+                          'strip-middle': cell.isInRange,
+                          'row-start': idx % 7 === 0,
+                          'row-end': idx % 7 === 6
+                        }">
+                    </div>
+
+                    <!-- 日期数字圆标 -->
+                    <div
+                        class="day-badge"
+                        :class="{
+                          'badge-selected': cell.isStart || cell.isEnd,
+                          'badge-hover': cell.isHoverEnd
+                        }">
+                      {{ cell.dayNumber }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- Mode 2: Month Range (YYYY-MM ~ YYYY-MM) -->
-          <div v-else-if="activeMode === 'month'">
-            <v-row>
-              <!-- Start Year-Month -->
-              <v-col cols="12" sm="6">
-                <div class="picker-section-box pa-3 rounded border">
-                  <div class="d-flex align-center justify-space-between mb-3">
-                    <span class="text-caption font-weight-bold text-amber">
-                      {{ t('basic.time.startMonth') }}
-                    </span>
-                    <span class="text-caption font-mono font-weight-bold" v-if="startYearMonth">
-                      {{ startYearMonth.year }}-{{ pad(startYearMonth.month) }}
-                    </span>
-                  </div>
+          <!-- 年月月份范围网格 -->
+          <div v-else-if="activeMode === 'month'" class="month-range-wrapper" @mouseleave="hoverMonthStr = null">
+            <div class="panel-header d-flex align-center justify-space-between px-4 py-2 mb-3">
+              <v-btn icon="mdi-chevron-double-left" variant="text" size="small" @click="prevMonthYearNav"></v-btn>
+              <span class="font-weight-bold font-mono text-h6">{{ monthPickerYear }}年</span>
+              <v-btn icon="mdi-chevron-double-right" variant="text" size="small" @click="nextMonthYearNav"></v-btn>
+            </div>
 
-                  <div class="mb-3">
-                    <v-select
-                        :model-value="startYearMonth?.year || currentYear"
-                        :items="yearsList"
-                        label="Year"
-                        density="compact"
-                        variant="outlined"
-                        hide-details
-                        @update:model-value="(y) => { if (!startYearMonth) startYearMonth = { year: Number(y), month: 1 }; else startYearMonth.year = Number(y); }"
-                    />
-                  </div>
+            <div class="month-selection-grid">
+              <div
+                  v-for="(cell, idx) in monthCells"
+                  :key="cell.monthStr"
+                  class="month-cell-item"
+                  :class="{
+                    'is-start': cell.isStart,
+                    'is-end': cell.isEnd,
+                    'is-in-range': cell.isInRange,
+                    'is-disabled': cell.isDisabled
+                  }"
+                  @click="onMonthCellClick(cell)"
+                  @mouseenter="onMonthCellHover(cell)">
 
-                  <div class="month-grid">
-                    <v-btn
-                        v-for="m in monthsList"
-                        :key="m"
-                        size="small"
-                        :variant="startYearMonth && startYearMonth.month === m ? 'flat' : 'tonal'"
-                        :color="startYearMonth && startYearMonth.month === m ? 'amber' : undefined"
-                        :disabled="isMonthDisabled(startYearMonth?.year || currentYear, m, true)"
-                        @click="() => {
-                          const y = startYearMonth?.year || currentYear;
-                          startYearMonth = { year: y, month: m };
-                        }"
-                        class="month-cell-btn">
-                      {{ pad(m) }}
-                    </v-btn>
-                  </div>
+                <div
+                    v-if="cell.isInRange || (cell.isStart && (endMonthStr || hoverMonthStr) && (startMonthStr !== (endMonthStr || hoverMonthStr))) || (cell.isEnd && startMonthStr && (startMonthStr !== endMonthStr))"
+                    class="range-bg-strip"
+                    :class="{
+                      'strip-start': cell.isStart && !cell.isEnd,
+                      'strip-end': cell.isEnd && !cell.isStart,
+                      'strip-middle': cell.isInRange,
+                      'row-start': idx % 4 === 0,
+                      'row-end': idx % 4 === 3
+                    }">
                 </div>
-              </v-col>
 
-              <!-- End Year-Month -->
-              <v-col cols="12" sm="6">
-                <div class="picker-section-box pa-3 rounded border">
-                  <div class="d-flex align-center justify-space-between mb-3">
-                    <span class="text-caption font-weight-bold text-amber">
-                      {{ t('basic.time.endMonth') }}
-                    </span>
-                    <span class="text-caption font-mono font-weight-bold" v-if="endYearMonth">
-                      {{ endYearMonth.year }}-{{ pad(endYearMonth.month) }}
-                    </span>
-                  </div>
-
-                  <div class="mb-3">
-                    <v-select
-                        :model-value="endYearMonth?.year || currentYear"
-                        :items="yearsList"
-                        label="Year"
-                        density="compact"
-                        variant="outlined"
-                        hide-details
-                        @update:model-value="(y) => { if (!endYearMonth) endYearMonth = { year: Number(y), month: 12 }; else endYearMonth.year = Number(y); }"
-                    />
-                  </div>
-
-                  <div class="month-grid">
-                    <v-btn
-                        v-for="m in monthsList"
-                        :key="m"
-                        size="small"
-                        :variant="endYearMonth && endYearMonth.month === m ? 'flat' : 'tonal'"
-                        :color="endYearMonth && endYearMonth.month === m ? 'amber' : undefined"
-                        :disabled="isMonthDisabled(endYearMonth?.year || currentYear, m, false)"
-                        @click="() => {
-                          const y = endYearMonth?.year || currentYear;
-                          endYearMonth = { year: y, month: m };
-                        }"
-                        class="month-cell-btn">
-                      {{ pad(m) }}
-                    </v-btn>
-                  </div>
+                <div class="month-badge" :class="{ 'badge-selected': cell.isStart || cell.isEnd }">
+                  {{ cell.name }}
                 </div>
-              </v-col>
-            </v-row>
+              </div>
+            </div>
           </div>
 
-          <!-- Mode 3: Year Range (YYYY ~ YYYY) -->
-          <div v-else-if="activeMode === 'year'">
-            <v-row>
-              <!-- Start Year -->
-              <v-col cols="12" sm="6">
-                <div class="picker-section-box pa-3 rounded border">
-                  <div class="d-flex align-center justify-space-between mb-3">
-                    <span class="text-caption font-weight-bold text-amber">
-                      {{ t('basic.time.startYear') }}
-                    </span>
-                    <span class="text-caption font-mono font-weight-bold text-h6">
-                      {{ startYearOnly || '--' }}
-                    </span>
-                  </div>
+          <!-- 年份范围网格 -->
+          <div v-else-if="activeMode === 'year'" class="year-range-wrapper" @mouseleave="hoverYearNum = null">
+            <div class="panel-header d-flex align-center justify-space-between px-4 py-2 mb-3">
+              <v-btn icon="mdi-chevron-double-left" variant="text" size="small" @click="prevDecadeNav"></v-btn>
+              <span class="font-weight-bold font-mono text-h6">{{ yearDecadeStart }} - {{ yearDecadeStart + 9 }}</span>
+              <v-btn icon="mdi-chevron-double-right" variant="text" size="small" @click="nextDecadeNav"></v-btn>
+            </div>
 
-                  <div class="year-scroll-grid">
-                    <v-btn
-                        v-for="y in yearsList"
-                        :key="y"
-                        size="small"
-                        :variant="startYearOnly === y ? 'flat' : 'tonal'"
-                        :color="startYearOnly === y ? 'amber' : undefined"
-                        :disabled="isYearDisabled(y, true)"
-                        @click="startYearOnly = y"
-                        class="year-cell-btn">
-                      {{ y }}
-                    </v-btn>
-                  </div>
+            <div class="year-selection-grid">
+              <div
+                  v-for="(cell, idx) in yearCells"
+                  :key="cell.year"
+                  class="year-cell-item"
+                  :class="{
+                    'is-start': cell.isStart,
+                    'is-end': cell.isEnd,
+                    'is-in-range': cell.isInRange,
+                    'is-disabled': cell.isDisabled,
+                    'out-decade': cell.year < yearDecadeStart || cell.year > yearDecadeStart + 9
+                  }"
+                  @click="onYearCellClick(cell)"
+                  @mouseenter="onYearCellHover(cell)">
+
+                <div
+                    v-if="cell.isInRange || (cell.isStart && (endYearNum || hoverYearNum) && (startYearNum !== (endYearNum || hoverYearNum))) || (cell.isEnd && startYearNum && (startYearNum !== endYearNum))"
+                    class="range-bg-strip"
+                    :class="{
+                      'strip-start': cell.isStart && !cell.isEnd,
+                      'strip-end': cell.isEnd && !cell.isStart,
+                      'strip-middle': cell.isInRange,
+                      'row-start': idx % 4 === 0,
+                      'row-end': idx % 4 === 3
+                    }">
                 </div>
-              </v-col>
 
-              <!-- End Year -->
-              <v-col cols="12" sm="6">
-                <div class="picker-section-box pa-3 rounded border">
-                  <div class="d-flex align-center justify-space-between mb-3">
-                    <span class="text-caption font-weight-bold text-amber">
-                      {{ t('basic.time.endYear') }}
-                    </span>
-                    <span class="text-caption font-mono font-weight-bold text-h6">
-                      {{ endYearOnly || '--' }}
-                    </span>
-                  </div>
-
-                  <div class="year-scroll-grid">
-                    <v-btn
-                        v-for="y in yearsList"
-                        :key="y"
-                        size="small"
-                        :variant="endYearOnly === y ? 'flat' : 'tonal'"
-                        :color="endYearOnly === y ? 'amber' : undefined"
-                        :disabled="isYearDisabled(y, false)"
-                        @click="endYearOnly = y"
-                        class="year-cell-btn">
-                      {{ y }}
-                    </v-btn>
-                  </div>
+                <div class="year-badge" :class="{ 'badge-selected': cell.isStart || cell.isEnd }">
+                  {{ cell.year }}
                 </div>
-              </v-col>
-            </v-row>
+              </div>
+            </div>
           </div>
 
-          <!-- Validation feedback -->
+          <!-- 范围校验错误提示 -->
           <v-alert
-              v-if="!isRangeValid && (displayText || startDateStr || startYearMonth || startYearOnly)"
+              v-if="!isRangeValid && (displayText || startDateStr || startMonthStr || startYearNum)"
               type="warning"
               density="compact"
               variant="tonal"
@@ -881,7 +1263,7 @@ const setMode = (mode: DateRangePickerMode) => {
 
         <v-divider></v-divider>
 
-        <!-- Actions -->
+        <!-- 底部操作按钮 -->
         <v-card-actions class="pa-4">
           <v-btn variant="text" color="grey" @click="resetSelection">
             {{ t('basic.button.reset') }}
@@ -909,35 +1291,242 @@ const setMode = (mode: DateRangePickerMode) => {
   width: 100%;
 }
 
-.picker-section-box {
-  background: rgba(255, 255, 255, 0.02);
-  min-height: 280px;
+.range-summary-bar {
+  background: rgba(255, 255, 255, 0.03);
 }
 
-.month-grid {
+.date-tag-box {
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* 双月日历排版样式 */
+.dual-month-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+
+  &.is-mobile {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+.month-panel {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.calendar-weekdays-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.6;
+  margin-bottom: 6px;
+  padding: 4px 0;
+}
+
+.calendar-days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 4px;
+}
+
+.calendar-day-cell {
+  position: relative;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+
+  &.is-disabled {
+    cursor: not-allowed;
+    opacity: 0.25;
+    pointer-events: none;
+  }
+
+  &.other-month {
+    opacity: 0.35;
+  }
+
+  .range-bg-strip {
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    background: rgba(255, 179, 0, 0.18);
+    pointer-events: none;
+    z-index: 1;
+
+    &.strip-middle {
+      left: 0;
+      right: 0;
+    }
+
+    &.strip-start {
+      left: 50%;
+      right: 0;
+    }
+
+    &.strip-end {
+      left: 0;
+      right: 50%;
+    }
+
+    &.row-start {
+      border-top-left-radius: 18px;
+      border-bottom-left-radius: 18px;
+    }
+
+    &.row-end {
+      border-top-right-radius: 18px;
+      border-bottom-right-radius: 18px;
+    }
+  }
+
+  .day-badge {
+    position: relative;
+    z-index: 2;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.15s ease;
+
+    &.badge-selected {
+      background: #FFB300 !important;
+      color: #121212 !important;
+      font-weight: 700 !important;
+      box-shadow: 0 2px 8px rgba(255, 179, 0, 0.45);
+    }
+
+    &.badge-hover {
+      border: 1.5px dashed #FFB300;
+      background: rgba(255, 179, 0, 0.25);
+    }
+  }
+
+  &:hover:not(.is-disabled) {
+    .day-badge:not(.badge-selected) {
+      background: rgba(255, 179, 0, 0.18);
+      color: #FFB300;
+    }
+  }
+
+  &.is-today:not(.is-start):not(.is-end) {
+    .day-badge {
+      border: 1px solid rgba(255, 179, 0, 0.6);
+      color: #FFB300;
+      font-weight: 600;
+    }
+  }
+}
+
+/* 月份与年份区间网格样式 */
+.month-range-wrapper,
+.year-range-wrapper {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.month-selection-grid,
+.year-selection-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  row-gap: 12px;
 }
 
-.year-scroll-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  max-height: 220px;
-  overflow-y: auto;
-  padding-right: 4px;
-}
+.month-cell-item,
+.year-cell-item {
+  position: relative;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
 
-.month-cell-btn,
-.year-cell-btn {
-  font-family: monospace;
-  font-size: 13px;
-}
+  &.is-disabled {
+    cursor: not-allowed;
+    opacity: 0.25;
+    pointer-events: none;
+  }
 
-@media (max-width: 600px) {
-  .picker-section-box {
-    min-height: auto;
+  &.out-decade {
+    opacity: 0.35;
+  }
+
+  .range-bg-strip {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    background: rgba(255, 179, 0, 0.18);
+    pointer-events: none;
+    z-index: 1;
+
+    &.strip-middle {
+      left: 0;
+      right: 0;
+    }
+
+    &.strip-start {
+      left: 50%;
+      right: 0;
+    }
+
+    &.strip-end {
+      left: 0;
+      right: 50%;
+    }
+
+    &.row-start {
+      border-top-left-radius: 20px;
+      border-bottom-left-radius: 20px;
+    }
+
+    &.row-end {
+      border-top-right-radius: 20px;
+      border-bottom-right-radius: 20px;
+    }
+  }
+
+  .month-badge,
+  .year-badge {
+    position: relative;
+    z-index: 2;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: monospace;
+    transition: all 0.15s ease;
+
+    &.badge-selected {
+      background: #FFB300 !important;
+      color: #121212 !important;
+      font-weight: 700 !important;
+      box-shadow: 0 2px 8px rgba(255, 179, 0, 0.45);
+    }
+  }
+
+  &:hover:not(.is-disabled) {
+    .month-badge:not(.badge-selected),
+    .year-badge:not(.badge-selected) {
+      background: rgba(255, 179, 0, 0.18);
+      color: #FFB300;
+    }
   }
 }
 </style>

@@ -7,9 +7,14 @@ export type ReminderRepeatType = 'weekly' | 'interval';
 export type ReminderIntervalUnit = 'day' | 'hour' | 'minute' | 'second';
 export type ReminderValidityType = 'permanent' | 'range';
 
+export type ReminderCategory = 'activity' | 'system' | 'favorite' | string;
+export type MultilingualText = string | Record<string, string>;
+
 export interface ReminderTask {
     id: string; // uuid: 任务唯一标识 (存储 key: task.{id})
-    title: string; // 活动标题
+    title: MultilingualText; // 活动标题 (支持多语言对象或直接字符串)
+    categories?: ReminderCategory[]; // 任务分类 (可选，支持多选: 活动 / 系统 / 最爱)
+    description?: MultilingualText; // 描述 (支持多语言对象或直接字符串)
     scheduleType: ReminderScheduleType; // 定时类型: 重复 / 一次性
     repeatType?: ReminderRepeatType; // 重复方式: 每周固定日期 / 固定时间间隔
     repeatDays?: number[]; // 重复包含周一至周日 [1, 2, 3, 4, 5, 6, 7] (1=周一, 7=周日)
@@ -23,7 +28,7 @@ export interface ReminderTask {
     validityType?: ReminderValidityType; // 任务有效期类型: permanent (永久) | range (指定起止时间)
     validFrom?: number | string; // 有效期起始时间 (YYYY-MM-DD HH:mm 或时间戳)
     validTo?: number | string; // 有效期截止时间 (YYYY-MM-DD HH:mm 或时间戳)
-    note?: string; // 备注说明 (限制 5000 字)
+    note?: MultilingualText; // 备注说明 (限制 5000 字)
     enabled: boolean; // 是否启用任务 (总开关/计时开关)
     notifyEnabled?: boolean; // 是否发送通知 (单独的通知开关，默认是 true)
     createdTime: number; // 创建时间戳
@@ -32,16 +37,17 @@ export interface ReminderTask {
     lastAdvanceTriggeredTime?: number; // 最近一次提前提醒触发时间戳
     isPreset?: boolean; // 是否为预设任务
     presetKey?: string; // 预设标识
-    titleKey?: string; // 预设国际化标题键
-    descKey?: string; // 预设国际化描述键
-    noteKey?: string; // 预设国际化备注键
+    titleKey?: string; // 兼容旧字段
+    descKey?: string; // 兼容旧字段
+    noteKey?: string; // 兼容旧字段
 }
 
 export interface ReminderPresetConfig {
     id: string;
-    title: string;
+    title: MultilingualText;
     titleKey?: string;
-    description: string;
+    categories?: ReminderCategory[];
+    description?: MultilingualText;
     descKey?: string;
     scheduleType: ReminderScheduleType;
     repeatType: ReminderRepeatType;
@@ -57,7 +63,7 @@ export interface ReminderPresetConfig {
     validFrom?: number | string;
     validTo?: number | string;
     notifyEnabled?: boolean;
-    note: string;
+    note?: MultilingualText;
     noteKey?: string;
 }
 

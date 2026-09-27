@@ -98,7 +98,7 @@ if (import.meta.env?.DEV) {
 
 const hasType = computed(() => props.type !== undefined && props.type !== null && props.type !== '');
 
-// 1. 是否有边框
+// 是否展示外层边框
 const hasBorder = computed(() => {
   if (hasType.value) {
     return true;
@@ -106,7 +106,7 @@ const hasBorder = computed(() => {
   return props.border ?? true;
 });
 
-// 2. 边框是否激活 (黄色 vs 白色)
+// 边框是否为激活高亮状态（黄色与白色区分）
 const isBorderActivate = computed(() => {
   if (hasType.value) {
     const t = String(props.type);
@@ -116,7 +116,7 @@ const isBorderActivate = computed(() => {
   return props.borderActivate ?? false;
 });
 
-// 3. 是否有角 (adept)
+// 是否展示特殊角标（adept）
 const hasAdept = computed(() => {
   if (hasType.value) {
     const t = String(props.type);
@@ -125,7 +125,7 @@ const hasAdept = computed(() => {
   return props.adept ?? (props.adeptActivate !== undefined ? true : false);
 });
 
-// 4. 角是否激活 (黄色 vs 白色)
+// 角标是否为激活高亮状态
 const isAdeptActivate = computed(() => {
   if (hasType.value) {
     const t = String(props.type);
@@ -134,7 +134,7 @@ const isAdeptActivate = computed(() => {
   return props.adeptActivate ?? (hasAdept.value ? (props.borderActivate ?? false) : false);
 });
 
-// 5. 是否有实心内芯 (slot)
+// 是否带有实心内芯（slot）
 const hasSlot = computed(() => {
   if (hasType.value) {
     const t = String(props.type);
@@ -144,7 +144,7 @@ const hasSlot = computed(() => {
   return props.slot ?? (props.slotActivate !== undefined ? true : false);
 });
 
-// 6. 实心内芯是否激活 (黄色 vs 白色)
+// 实心内芯是否为激活状态
 const isSlotActivate = computed(() => {
   if (hasType.value) {
     const t = String(props.type);
@@ -154,7 +154,7 @@ const isSlotActivate = computed(() => {
   return props.slotActivate ?? false;
 });
 
-// 7. 是否发光火焰 (glow)
+// 是否展示外发光火焰光效（glow）
 const isGlow = computed(() => {
   if (hasType.value) {
     const t = String(props.type);

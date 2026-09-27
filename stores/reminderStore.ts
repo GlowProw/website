@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 import { v4 as uuidv4 } from 'uuid';
 import type { ReminderTask } from '@/assets/types/Reminder';
 import { storageReminder } from '@/assets/sripts/storage_reminder';
-import { calculateTaskNextTriggerInfo, calculateNextTriggerTime, formatCountdown, checkTaskPendingTriggers } from '@/assets/sripts/reminder_calc';
+import { calculateTaskNextTriggerInfo, calculateNextTriggerTime, formatCountdown, checkTaskPendingTriggers, getLocalizedText } from '@/assets/sripts/reminder_calc';
 import { useNoticeStore } from '~/stores/noticeStore';
 import ReminderWorker from '@/workers/reminder.worker.ts?worker';
 
@@ -101,14 +101,17 @@ export const useReminderStore = defineStore('reminder', () => {
     const sendDesktopNotification = async (task: ReminderTask, isAdvance: boolean = false, advanceMinutes: number = 0) => {
         playNotificationSound();
 
-        const titleText = isAdvance
-            ? `⏰ 提前提醒: ${task.title} (将在 ${advanceMinutes} 分钟后开始)`
-            : `⏰ 活动提醒: ${task.title}`;
+        const rawTitle = getLocalizedText(task.title);
+        const rawNote = getLocalizedText(task.note || task.description);
 
-        const notePreview = task.note ? (task.note.length > 100 ? task.note.slice(0, 100) + '...' : task.note) : '';
+        const titleText = isAdvance
+            ? `⏰ 提前提醒: ${rawTitle} (将在 ${advanceMinutes} 分钟后开始)`
+            : `⏰ 活动提醒: ${rawTitle}`;
+
+        const notePreview = rawNote ? (rawNote.length > 100 ? rawNote.slice(0, 100) + '...' : rawNote) : '';
         const bodyText = isAdvance
-            ? `【提前 ${advanceMinutes} 分钟】${task.title}: ${notePreview || '活动即将开始！'}`
-            : `${task.title}: ${notePreview || '活动时间已到达！'}`;
+            ? `【提前 ${advanceMinutes} 分钟】${rawTitle}: ${notePreview || '活动即将开始！'}`
+            : `${rawTitle}: ${notePreview || '活动时间已到达！'}`;
 
         // 页面内消息提示
         noticeStore.primary(bodyText, {
@@ -124,8 +127,8 @@ export const useReminderStore = defineStore('reminder', () => {
             'Notification' in window &&
             Notification.permission === 'granted'
         ) {
-            const bodyContent = task.note
-                ? (task.note.length > 150 ? task.note.slice(0, 150) + '...' : task.note)
+            const bodyContent = rawNote
+                ? (rawNote.length > 150 ? rawNote.slice(0, 150) + '...' : rawNote)
                 : (isAdvance ? `活动将在 ${advanceMinutes} 分钟后开始` : '活动时间已到达！');
 
             let swSuccess = false;
@@ -405,8 +408,8 @@ export const useReminderStore = defineStore('reminder', () => {
         if (searchQuery.value.trim()) {
             const q = searchQuery.value.trim().toLowerCase();
             result = result.filter(t =>
-                t.title.toLowerCase().includes(q) ||
-                (t.note && t.note.toLowerCase().includes(q))
+                getLocalizedText(t.title).toLowerCase().includes(q) ||
+                getLocalizedText(t.note || t.description).toLowerCase().includes(q)
             );
         }
 
