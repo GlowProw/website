@@ -864,7 +864,7 @@ const totalPages = computed(() => {
                 </div>
 
                 <!-- 计划规则与备注预览 -->
-                <v-card-text class="flex-grow-1 mb-3">
+                <v-card-text class="flex-grow-1">
                   <!-- 规则概要 -->
                   <v-row class="mb-1" align="center">
                     <v-col cols="auto">
@@ -896,7 +896,7 @@ const totalPages = computed(() => {
 
                   <!-- 备注内容预览 -->
                   <div v-if="getTaskNote(task)"
-                       class="note-preview-box mt-5 cursor-pointer"
+                       class="note-preview-box mt-1 cursor-pointer"
                        @click="onViewNote(task)"
                        :title="getTaskNote(task)">
                     <p class="mb-0 text-truncate-2">
@@ -906,53 +906,56 @@ const totalPages = computed(() => {
                   <div v-else class="text-caption opacity-40 italic">
                     {{ t('reminder.noNote') }}
                   </div>
+
+                  <v-chip-group class="mt-4" :column="true" variant="tonal"
+                                base-color="amber"
+                                color="amber">
+                    <v-chip size="small" variant="tonal" :color="task.scheduleType === 'repeat' ? 'amber' : 'info'">
+                      {{ task.scheduleType === 'repeat' ? t('reminder.fields.typeRepeat') : t('reminder.fields.typeOnce') }}
+                    </v-chip>
+
+                    <!-- 任务分类标识 -->
+                    <v-chip
+                        v-for="cat in (task.categories || [])"
+                        :key="cat"
+                        size="small"
+                        variant="tonal"
+                        :color="getCategoryColor(cat)">
+                      <v-icon :icon="getCategoryIcon(cat)" size="12" class="mr-1"></v-icon>
+                      {{ getCategoryLabel(cat) }}
+                    </v-chip>
+
+                    <!-- 提前提醒标识 -->
+                    <v-chip
+                        v-if="task.advanceNoticeEnabled && task.advanceMinutes"
+                        size="small"
+                        variant="tonal"
+                        color="amber"
+                        prepend-icon="mdi-bell-badge">
+                      {{ formatAdvanceText(task.advanceMinutes) }}
+                    </v-chip>
+                  </v-chip-group>
                 </v-card-text>
 
                 <v-divider></v-divider>
 
                 <!-- 卡片底部快捷操作 -->
                 <v-card-actions class="pa-3 bg-surface d-flex align-center flex-wrap ga-1">
-                  <v-chip size="x-small" variant="tonal" :color="task.scheduleType === 'repeat' ? 'amber' : 'info'">
-                    {{ task.scheduleType === 'repeat' ? t('reminder.fields.typeRepeat') : t('reminder.fields.typeOnce') }}
-                  </v-chip>
-
-                  <!-- 任务分类标识 -->
-                  <v-chip
-                      v-for="cat in (task.categories || [])"
-                      :key="cat"
-                      size="x-small"
-                      variant="tonal"
-                      :color="getCategoryColor(cat)">
-                    <v-icon :icon="getCategoryIcon(cat)" size="12" class="mr-1"></v-icon>
-                    {{ getCategoryLabel(cat) }}
-                  </v-chip>
-
-                  <!-- 提前提醒标识 -->
-                  <v-chip
-                      v-if="task.advanceNoticeEnabled && task.advanceMinutes"
-                      size="x-small"
-                      variant="tonal"
-                      color="amber"
-                      prepend-icon="mdi-bell-badge">
-                    {{ formatAdvanceText(task.advanceMinutes) }}
-                  </v-chip>
 
                   <!-- 静音通知标识 -->
                   <v-chip
                       v-if="task.notifyEnabled === false"
-                      size="x-small"
+                      size="small"
                       variant="tonal"
                       color="grey"
                       prepend-icon="mdi-bell-off">
                     {{ t('reminder.muted') }}
                   </v-chip>
 
-                  <v-chip v-if="task.isPreset" size="x-small" variant="tonal" color="amber">
+                  <v-chip v-if="task.isPreset" size="small" variant="tonal" color="amber">
                     {{ t('reminder.presetBadge') }}
                   </v-chip>
-
                   <v-spacer></v-spacer>
-
                   <v-btn icon="mdi-pencil-outline" size="small" variant="text" color="amber" :title="t('reminder.edit')" @click="onEdit(task)"></v-btn>
                   <v-menu location="bottom end">
                     <template v-slot:activator="{ props: menuProps }">
@@ -1125,7 +1128,7 @@ const totalPages = computed(() => {
   overflow: hidden;
 
   &--paused {
-    opacity: 0.60;
+    opacity: 0.30;
     filter: grayscale(0.2);
   }
 }
