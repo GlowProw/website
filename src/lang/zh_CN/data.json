@@ -2313,6 +2313,8 @@
       "recordsTitle": "记录",
       "cdnTitle": "CDN资源分发",
       "cdnDesc": "决定图标等资源获取来源,不同的资源可能存在图标风格差异以及响应速度等,在修改后需要重新载入网页",
+      "modelCdnTitle": "模型资源分发",
+      "modelCdnDesc": "决定AI模型与特征数据等资源获取来源，修改后下次加载模型生效",
       "itemIconSizeTitle": "物品图标尺寸",
       "itemIconSizeDesc": "你可以调整库存物品图标的尺寸以适配大多数地方，但有些位置图标无法改动或有范围约束。",
       "itemOpenNewWindowTitle": "新窗口",

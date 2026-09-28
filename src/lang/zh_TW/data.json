@@ -2369,6 +2369,8 @@
       "recordsTitle": "記錄",
       "cdnTitle": "CDN資源分發",
       "cdnDesc": "決定圖標等資源獲取來源,不同的資源可能存在圖標風格差異以及響應速度等,在修改後需要重新載入網頁",
+      "modelCdnTitle": "模型資源分發",
+      "modelCdnDesc": "決定AI模型與特徵數據等資源獲取來源，修改後下次加載模型生效",
       "itemIconSizeTitle": "物品圖標尺寸",
       "itemIconSizeDesc": "你可以調整庫存物品圖標的尺寸以適配大多數地方，但有些位置圖標無法改動或有範圍約束。",
       "itemOpenNewWindowTitle": "新窗口",

@@ -785,7 +785,8 @@ const props = withDefaults(defineProps<{
 const treasureMaps = TreasureMaps;
 const {t} = useI18n();
 const {mobile} = useDisplay();
-const {currentService: currentImageService} = useCDNAssetsServiceStore();
+const cdnStore = useCDNAssetsServiceStore();
+const {currentService: currentImageService} = cdnStore;
 const route = useRoute();
 const router = useRouter();
 
@@ -838,7 +839,7 @@ const ensureClipReady = async () => {
     clipGalleryLoading.value = true;
     clipGalleryError.value = null;
     try {
-      await loadClipGalleryFeatures();
+      await loadClipGalleryFeatures(cdnStore.currentService.mode.url({ category: 'all' }));
       clipGalleryLoaded.value = true;
     } catch (e: any) {
       clipGalleryError.value = e.message;
@@ -1095,7 +1096,7 @@ onMounted(() => {
   initFiltersFromRoute();
 
   imageList.value = Object.values(treasureMaps).map((d: any) => {
-    return currentImageService.url({
+    return cdnStore.currentService.image.url({
       id: d.id,
       category: `treasureMaps/${d.category}`
     }, 'glow-prow');
@@ -1359,7 +1360,7 @@ const onSearchSimilarImages = async () => {
       similarityStore.total = filteredList.length;
       similarityStore.progress = 0;
 
-      const galleryFeatures = await loadClipGalleryFeatures();
+      const galleryFeatures = await loadClipGalleryFeatures(cdnStore.currentService.mode.url({ category: 'all' }));
       const results: SearchResult[] = [];
 
       for (let index = 0; index < filteredList.length; index++) {

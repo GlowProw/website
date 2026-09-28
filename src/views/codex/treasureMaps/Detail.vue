@@ -80,7 +80,7 @@ onMounted(() => {
   head.value.titleTemplate = `${headName} - ${head.value.titleTemplate}`
 
   const mapCat = mapDetailData.value?.category ? (mapDetailData.value.category === 'legend' ? 'treasureMaps/legendary' : `treasureMaps/${mapDetailData.value.category}`) : 'AUTO_treasureMaps';
-  const imageUrl = cdnStore.currentService.url({
+  const imageUrl = cdnStore.currentService.image.url({
     id: id as string,
     category: mapCat
   });

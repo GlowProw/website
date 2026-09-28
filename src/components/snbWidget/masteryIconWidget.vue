@@ -84,7 +84,7 @@ const primaryUrl = computed(() => {
       : String(rawSkill);
   if (!skill) return '';
 
-  return cdnStore.currentService.url({
+  return cdnStore.currentService.image.url({
     'glow-prow': {
       id: skill,
       category: 'mastery'

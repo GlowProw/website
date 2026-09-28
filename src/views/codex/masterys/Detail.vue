@@ -162,7 +162,7 @@ const onReady = () => {
 
   head.value.titleTemplate = `${headName} - ${head.value.titleTemplate}`;
 
-  const imageUrl = cdnStore.currentService.url({
+  const imageUrl = cdnStore.currentService.image.url({
     id: node.id,
     category: 'mastery'
   });

@@ -3,7 +3,7 @@
  * 处理图像特征提取的后台线程
  */
 
-import { computeBlockFeatures, computeColorHistogram, computeStructuralFeatures, computeHash } from '../assets/sripts/image_similarity';
+import { computeBlockFeatures, computeColorHistogram, computeStructuralFeatures, computeHash } from '../assets/sripts/similarity_features';
 
 self.onmessage = async (e) => {
     const { imageUrl } = e.data;

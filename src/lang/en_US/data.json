@@ -2309,6 +2309,8 @@
       "recordsTitle": "Records",
       "cdnTitle": "CDN Resource Distribution",
       "cdnDesc": "Determines the source for acquiring resources such as icons; different resources may have difference in styles and speeds. After modification, the webpage needs to be reloaded.",
+      "modelCdnTitle": "Model Resource Distribution",
+      "modelCdnDesc": "Determines the source for acquiring AI models and feature data. Takes effect upon next model load.",
       "itemIconSizeTitle": "Item Icon Size",
       "itemIconSizeDesc": "You can adjust the size of inventory item icons to fit most places, but some location icons cannot be changed or have range constraints.",
       "itemOpenNewWindowTitle": "New Window",

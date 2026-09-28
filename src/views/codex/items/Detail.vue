@@ -125,7 +125,7 @@ const onReady = () => {
 
   head.value.titleTemplate = `${headName} - ${head.value.titleTemplate}`
 
-  const imageUrl = cdnStore.currentService.url({
+  const imageUrl = cdnStore.currentService.image.url({
     id: id as string,
     // 优先传 item 的具体类型，后端可直接命中精确路径（1次请求）
     // 兜底使用 'items'（后端会并行竞速 13 条路径）

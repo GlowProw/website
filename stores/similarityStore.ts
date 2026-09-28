@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import SimilarityWorker from '@/workers/similarity.worker.ts?worker';
 
 export const useSimilarityStore = defineStore('similarity', () => {
     // 缓存已经计算过的特征： Map<imageUrl, features>
@@ -49,9 +50,7 @@ export const useSimilarityStore = defineStore('similarity', () => {
             // 创建固定数量的 Worker 线程池
             const poolSize = Math.min(concurrency, queue.length);
             for (let i = 0; i < poolSize; i++) {
-                const worker = new Worker(new URL('../src/workers/similarity.worker.ts', import.meta.url), {
-                    type: 'module'
-                });
+                const worker = new SimilarityWorker();
                 workers.push(worker);
 
                 const handleWorkerMessage = (e: MessageEvent) => {

@@ -151,6 +151,14 @@
     </v-col>
     <v-col cols="12" lg="4">
       <AffixBoxHasTitleView>
+        <ItemModelCdnAssets></ItemModelCdnAssets>
+        <template v-slot:title>
+          {{ t('setting.routine.modelCdnTitle') }}
+        </template>
+      </AffixBoxHasTitleView>
+    </v-col>
+    <v-col cols="12" lg="4">
+      <AffixBoxHasTitleView>
         <p class="text-caption opacity-60 mb-5">{{ t('setting.routine.posterDesc') }}</p>
 
         <v-row align="center" no-gutters>
@@ -294,6 +302,7 @@ import {appFuns, storage_account, storage_capacity_monitor} from "@/assets/sript
 import {onMounted, Ref, ref, computed} from "vue";
 import {useI18n} from "vue-i18n";
 import ItemIconCdnAssets from "@/components/itemIconCdnAssets.vue";
+import ItemModelCdnAssets from "@/components/itemModelCdnAssets.vue";
 import EmptyView from "@/components/EmptyView.vue";
 
 const {t} = useI18n()

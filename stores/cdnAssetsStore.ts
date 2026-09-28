@@ -1,6 +1,6 @@
-import {computed, ref} from 'vue';
-import {defineStore} from 'pinia';
-import {storage} from "@/assets/sripts/index";
+import { computed, ref } from 'vue';
+import { defineStore } from 'pinia';
+import { storage } from "@/assets/sripts/index";
 
 interface CDNAssetsService {
     name: string;
@@ -25,13 +25,32 @@ interface MultiServiceParams {
 // URL 方法参数类型
 type UrlParams = CDNAssetsParams | MultiServiceParams;
 
-interface CurrentService extends CDNAssetsService {
+export interface ModeAssetsParams {
+    category?: string;
+    t?: string;
+    id?: string;
+    format?: 'bin' | 'json';
+    [key: string]: string | undefined;
+}
+
+export interface ImageServiceItem extends CDNAssetsService {
+    url: (params: UrlParams, forceName?: string) => string;
+}
+
+export interface ModeServiceItem extends CDNAssetsService {
+    url: (params?: ModeAssetsParams | string) => string;
+}
+
+export interface CurrentService extends CDNAssetsService {
+    image: ImageServiceItem;
+    mode: ModeServiceItem;
     url: (params: UrlParams, forceName?: string) => string;
 }
 
 // 存储键名常量
 const STORAGE_KEYS = {
-    SELECTED_SERVICE: 'cdn.assets.value'
+    SELECTED_SERVICE: 'cdn.assets.value',
+    SELECTED_MODE_SERVICE: 'cdn.assets.mode.value'
 } as const;
 
 export const useCDNAssetsServiceStore = defineStore('cdnService', () => {
@@ -62,7 +81,23 @@ export const useCDNAssetsServiceStore = defineStore('cdnService', () => {
         },
     ]);
 
+    const modeServices = ref<CDNAssetsService[]>([
+        {
+            name: 'local-test',
+            urlTemplate: '/mode',
+            enabled: true,
+            priority: 1
+        },
+        {
+            name: 'glow-prow',
+            urlTemplate: 'https://assets.glow-prow.top/model',
+            enabled: true,
+            priority: 2
+        },
+    ]);
+
     const selectedService = ref('glow-prow');
+    const selectedModeService = ref(import.meta.env.DEV ? 'local-test' : 'glow-prow');
 
     const enabledServices = computed(() =>
         services.value.filter(s => s.enabled).sort((a, b) => a.priority - b.priority)
@@ -70,6 +105,14 @@ export const useCDNAssetsServiceStore = defineStore('cdnService', () => {
 
     const targetService = computed(() =>
         services.value.find(s => s.name === selectedService.value) || services.value[0]
+    );
+
+    const enabledModeServices = computed(() =>
+        modeServices.value.filter(s => s.enabled).sort((a, b) => a.priority - b.priority)
+    );
+
+    const targetModeService = computed(() =>
+        modeServices.value.find(s => s.name === selectedModeService.value) || modeServices.value[0]
     );
 
     /**
@@ -85,9 +128,42 @@ export const useCDNAssetsServiceStore = defineStore('cdnService', () => {
         return url;
     };
 
-    const currentService = computed<CurrentService>(() => ({
-        ...targetService.value,
-        url: (params: UrlParams, forceName?: string): string => {
+    /**
+     * 构建模型 URL
+     */
+    const buildModeUrl = (service: CDNAssetsService, params?: ModeAssetsParams | string): string => {
+        let url = service.urlTemplate;
+        if (!params) return url;
+        const p: Record<string, string> = typeof params === 'string' ? { category: params } : (params as Record<string, string>);
+
+        let hasTemplateVar = false;
+        Object.keys(p).forEach(key => {
+            if (p[key] && url.includes(`{${key}}`)) {
+                url = url.replace(new RegExp(`{${key}}`, 'g'), encodeURIComponent(p[key]));
+                hasTemplateVar = true;
+            }
+        });
+
+        // 清理未替换的占位符
+        url = url.replace(/[?&][^=]+=\{[^}]+\}/g, '').replace(/\/[^/]*\{[^}]+\}/g, '');
+
+        if (!hasTemplateVar && Object.keys(p).length > 0) {
+            const searchParams = new URLSearchParams();
+            Object.entries(p).forEach(([k, v]) => {
+                if (v !== undefined && v !== null && v !== '') {
+                    searchParams.append(k, v);
+                }
+            });
+            const queryStr = searchParams.toString();
+            if (queryStr) {
+                url += (url.includes('?') ? '&' : '?') + queryStr;
+            }
+        }
+        return url;
+    };
+
+    const currentService = computed<CurrentService>(() => {
+        const imageUrlFn = (params: UrlParams, forceName?: string): string => {
             // 检查是否是多服务参数
             const isMultiService = Object.keys(params).every(key =>
                 services.value.some(s => s.name === key)
@@ -148,8 +224,29 @@ export const useCDNAssetsServiceStore = defineStore('cdnService', () => {
                 // 单服务模式：使用当前服务
                 return buildServiceUrl(targetService.value, params as CDNAssetsParams);
             }
-        }
-    }));
+        };
+
+        const modeUrlFn = (params?: ModeAssetsParams | string): string => {
+            return buildModeUrl(targetModeService.value, params);
+        };
+
+        const imageItem: ImageServiceItem = {
+            ...targetService.value,
+            url: imageUrlFn
+        };
+
+        const modeItem: ModeServiceItem = {
+            ...targetModeService.value,
+            url: modeUrlFn
+        };
+
+        return {
+            ...targetService.value,
+            image: imageItem,
+            mode: modeItem,
+            url: imageUrlFn
+        };
+    });
 
     /**
      * 切换服务启用状态
@@ -275,11 +372,22 @@ export const useCDNAssetsServiceStore = defineStore('cdnService', () => {
     // ========== 存储相关 ==========
 
     /**
+     * 设置选中的模型服务
+     */
+    const setSelectedModeService = (serviceName: string) => {
+        selectedModeService.value = serviceName;
+        saveToStorage();
+    };
+
+    /**
      * 保存到 localStorage
      */
     const saveToStorage = () => {
         storage.local.set(STORAGE_KEYS.SELECTED_SERVICE, {
             name: selectedService.value,
+        });
+        storage.local.set(STORAGE_KEYS.SELECTED_MODE_SERVICE, {
+            name: selectedModeService.value,
         });
     };
 
@@ -303,8 +411,20 @@ export const useCDNAssetsServiceStore = defineStore('cdnService', () => {
                     selectedService.value = 'glow-prow-zh-cn'
                 }
             }
+
+            const savedMode = storage.local.get(STORAGE_KEYS.SELECTED_MODE_SERVICE);
+            if (savedMode?.code === 0) {
+                const modeName = savedMode?.data?.value?.name;
+                if (modeName && modeServices.value.some(s => s.name === modeName)) {
+                    selectedModeService.value = modeName;
+                }
+            } else {
+                if (import.meta.env.DEV) {
+                    selectedModeService.value = 'local-test';
+                }
+            }
         } catch (e) {
-            console.error('Failed to load image services config', e);
+            console.error('Failed to load image/mode services config', e);
         }
     };
 
@@ -340,7 +460,17 @@ export const useCDNAssetsServiceStore = defineStore('cdnService', () => {
             }
         ];
 
+        modeServices.value = [
+            {
+                name: 'glow-prow',
+                urlTemplate: 'https://assets.glow-prow.top/model',
+                enabled: true,
+                priority: 1
+            }
+        ];
+
         selectedService.value = 'glow-prow';
+        selectedModeService.value = 'glow-prow';
 
         saveToStorage();
         console.log('CDN config reset to defaults');
@@ -352,12 +482,16 @@ export const useCDNAssetsServiceStore = defineStore('cdnService', () => {
     return {
         services,
         selectedService,
+        modeServices,
+        selectedModeService,
 
         enabledServices,
+        enabledModeServices,
         currentService,
 
         toggleService,
         setSelectedService,
+        setSelectedModeService,
         updateServicePriority,
         getServiceUrl,
         getCurrentServiceUrl,

@@ -90,7 +90,7 @@ const onReady = async () => {
 
 const onSetIcon = () => {
   if (!i.value) return
-  itemsCardData.value.icon = cdnStore.currentService.url({
+  itemsCardData.value.icon = cdnStore.currentService.image.url({
     'skull-and-bones-tools': {
       id: props.id,
       type: i.value.type,

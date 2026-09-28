@@ -205,6 +205,12 @@ export default defineConfig({
                     if (id.includes('glow-prow-data')) {
                         return 'glow-prow-data'
                     }
+                    if (id.includes('@xenova/transformers') || id.includes('onnxruntime')) {
+                        return 'transformers'
+                    }
+                    if (id.includes('@tensorflow')) {
+                        return 'tensorflow'
+                    }
                 },
                 assetFileNames: (assetInfo: any) => {
                     if (/\.(png|jpe?g|gif|svg|webp|avif)$/.test(assetInfo.name)) {

@@ -81,7 +81,7 @@ onMounted(() => {
 
   head.value.titleTemplate = `${headName} - ${head.value.titleTemplate}`
 
-  const imageUrl = cdnStore.currentService.url({
+  const imageUrl = cdnStore.currentService.image.url({
     id: id as string,
     category: 'materials'
   });
