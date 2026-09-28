@@ -176,28 +176,14 @@ export default defineConfig({
         ],
     },
     define: { 'process.env': {} },
+    esbuild: {
+        keepNames: true,
+        drop: ['console', 'debugger'],
+    },
     build: {
         assetsDir: 'static/images',
         chunkSizeWarningLimit: 1000,
-        minify: 'terser',
-        terserOptions: {
-            keep_classnames: true,
-            keep_fnames: true,
-            compress: {
-                keep_classnames: true,
-                keep_fnames: true,
-                drop_console: true,
-                drop_debugger: true,
-                pure_funcs: [
-                    'console.log',
-                    'console.debug',
-                    'console.info',
-                    'console.warn',
-                    'console.table',
-                    'console.dir'
-                ],
-            },
-        },
+        minify: 'esbuild',
         rollupOptions: {
             output: {
                 preserveModulesRoot: 'node_modules/glow-prow-data',
