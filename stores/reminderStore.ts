@@ -6,9 +6,45 @@ import { storageReminder } from '@/assets/sripts/storage_reminder';
 import { calculateTaskNextTriggerInfo, calculateNextTriggerTime, formatCountdown, checkTaskPendingTriggers, getLocalizedText } from '@/assets/sripts/reminder_calc';
 import { useNoticeStore } from '~/stores/noticeStore';
 import ReminderWorker from '@/workers/reminder.worker.ts?worker';
+import router from '../router';
+import i18n from '@/i18n';
 
 export const useReminderStore = defineStore('reminder', () => {
     const noticeStore = useNoticeStore();
+
+    /**
+     * 多语言翻译辅助函数
+     */
+    const t = (key: string, values?: Record<string, any>): string => {
+        try {
+            if (i18n?.global?.t) {
+                // @ts-ignore
+                return i18n.global.t(key, values || {});
+            }
+        } catch {
+            // fallback
+        }
+        return key;
+    };
+
+    /**
+     * 校验当前页面路由是否处于活动提醒页面 (/reminder 或 /reminder/...)
+     */
+    const isReminderRoute = (): boolean => {
+        try {
+            const path = router.currentRoute.value?.path;
+            if (path) {
+                return path === '/reminder' || path.startsWith('/reminder/') || path.startsWith('/reminder');
+            }
+        } catch {
+            // fallback
+        }
+        if (typeof window !== 'undefined' && window.location) {
+            const locPath = window.location.pathname || '';
+            return locPath === '/reminder' || locPath.startsWith('/reminder/') || locPath.startsWith('/reminder');
+        }
+        return false;
+    };
 
     // 核心状态数据
     const tasks = ref<ReminderTask[]>([]);
@@ -96,22 +132,97 @@ export const useReminderStore = defineStore('reminder', () => {
     };
 
     /**
+     * 驱动主线程时钟与倒计时
+     */
+    const startClock = () => {
+        if (!clockInterval) {
+            clockInterval = setInterval(() => {
+                const now = Date.now();
+                nowTime.value = now;
+                checkMainThreadTriggers(now);
+            }, 1000);
+        }
+    };
+
+    /**
+     * 停止主线程时钟
+     */
+    const stopClock = () => {
+        if (clockInterval) {
+            clearInterval(clockInterval);
+            clockInterval = null;
+        }
+    };
+
+    /**
+     * 唤醒 Worker 线程定时器与主线程时钟（进入 /reminder 时调用）
+     */
+    const resumeWorker = () => {
+        if (!worker) {
+            initWorker();
+        }
+        if (worker) {
+            worker.postMessage({
+                type: 'start'
+            });
+        }
+        startClock();
+    };
+
+    /**
+     * 暂停 Worker 线程定时器与主线程时钟（离开 /reminder 时调用）
+     */
+    const pauseWorker = () => {
+        if (worker) {
+            worker.postMessage({
+                type: 'stop'
+            });
+        }
+        stopClock();
+    };
+
+    /**
      * 触发桌面通知和站内 Toast 提示
      */
     const sendDesktopNotification = async (task: ReminderTask, isAdvance: boolean = false, advanceMinutes: number = 0) => {
+        // 限制：仅在 /reminder 路由及其子页面下才触发播报声音和提示
+        if (!isReminderRoute()) {
+            return;
+        }
+
+        // 全局通知总开关关闭时，坚决不播报任何提示和声音
+        if (!masterNotificationEnabled.value) {
+            return;
+        }
+
+        // 任务自身已关闭或通知已停用时，坚决不播报
+        if (!task || !task.enabled || task.notifyEnabled === false) {
+            return;
+        }
+
+        // 核验 store 中最新的任务状态，防止异步通信期间用户已在界面关闭该任务或删除该任务
+        const latestTask = tasks.value.find(t => t.id === task.id);
+        if (!latestTask || !latestTask.enabled || latestTask.notifyEnabled === false) {
+            return;
+        }
+
         playNotificationSound();
 
         const rawTitle = getLocalizedText(task.title);
         const rawNote = getLocalizedText(task.note || task.description);
 
         const titleText = isAdvance
-            ? `⏰ 提前提醒: ${rawTitle} (将在 ${advanceMinutes} 分钟后开始)`
-            : `⏰ 活动提醒: ${rawTitle}`;
+            ? t('reminder.notification.advanceTitle', { title: rawTitle, minutes: advanceMinutes })
+            : t('reminder.notification.mainTitle', { title: rawTitle });
+
+        const defaultAdvanceMsg = t('reminder.notification.advanceDefaultMsg');
+        const defaultAdvanceShort = t('reminder.notification.advanceDefaultShort', { minutes: advanceMinutes });
+        const defaultMainMsg = t('reminder.notification.mainDefaultMsg');
 
         const notePreview = rawNote ? (rawNote.length > 100 ? rawNote.slice(0, 100) + '...' : rawNote) : '';
         const bodyText = isAdvance
-            ? `【提前 ${advanceMinutes} 分钟】${rawTitle}: ${notePreview || '活动即将开始！'}`
-            : `${rawTitle}: ${notePreview || '活动时间已到达！'}`;
+            ? t('reminder.notification.advanceBody', { minutes: advanceMinutes, title: rawTitle, note: notePreview || defaultAdvanceMsg })
+            : t('reminder.notification.mainBody', { title: rawTitle, note: notePreview || defaultMainMsg });
 
         // 页面内消息提示
         noticeStore.primary(bodyText, {
@@ -129,7 +240,7 @@ export const useReminderStore = defineStore('reminder', () => {
         ) {
             const bodyContent = rawNote
                 ? (rawNote.length > 150 ? rawNote.slice(0, 150) + '...' : rawNote)
-                : (isAdvance ? `活动将在 ${advanceMinutes} 分钟后开始` : '活动时间已到达！');
+                : (isAdvance ? defaultAdvanceShort : defaultMainMsg);
 
             let swSuccess = false;
             if ('serviceWorker' in navigator) {
@@ -173,17 +284,19 @@ export const useReminderStore = defineStore('reminder', () => {
      * 主线程备用定时检测（保障即使 Worker 延迟或休眠也能准时触发）
      */
     const checkMainThreadTriggers = (now: number) => {
+        // 限制：仅在 /reminder 路由及其子页面下才进行主线程触发检测
+        if (!isReminderRoute()) return;
+        if (!masterNotificationEnabled.value) return;
+
         for (const task of tasks.value) {
-            if (!task || !task.enabled) continue;
+            if (!task || !task.enabled || task.notifyEnabled === false) continue;
 
             const pendingTriggers = checkTaskPendingTriggers(task, now, key => triggeredRecord.has(key));
 
             for (const trigger of pendingTriggers) {
                 triggeredRecord.add(trigger.triggerKey);
 
-                if (task.notifyEnabled !== false) {
-                    sendDesktopNotification(task, trigger.isAdvance, trigger.advanceMinutes);
-                }
+                sendDesktopNotification(task, trigger.isAdvance, trigger.advanceMinutes);
 
                 storageReminder.updateLastTriggered(task.id, now);
                 if (trigger.isAdvance) {
@@ -193,6 +306,7 @@ export const useReminderStore = defineStore('reminder', () => {
                     if (task.scheduleType === 'once') {
                         task.enabled = false;
                         storageReminder.toggleTask(task.id, false);
+                        syncTasksToWorker();
                     }
                 }
             }
@@ -211,6 +325,20 @@ export const useReminderStore = defineStore('reminder', () => {
                 const { type, task, taskId, isAdvanceNotice, advanceMinutes, triggerKey } = e.data || {};
 
                 if (type === 'trigger' && task) {
+                    // 限制：仅在 /reminder 路由及其子页面下才触发提示和声音
+                    if (!isReminderRoute()) {
+                        return;
+                    }
+                    if (!masterNotificationEnabled.value) {
+                        return;
+                    }
+
+                    // 严密核验当前任务在 store 中的实时状态：若任务已关闭或关闭了通知，立即丢弃
+                    const localTask = tasks.value.find(t => t.id === task.id);
+                    if (!localTask || !localTask.enabled || localTask.notifyEnabled === false) {
+                        return;
+                    }
+
                     if (triggerKey && triggeredRecord.has(triggerKey)) {
                         return;
                     }
@@ -218,19 +346,17 @@ export const useReminderStore = defineStore('reminder', () => {
                         triggeredRecord.add(triggerKey);
                     }
 
-                    if (task.notifyEnabled !== false) {
-                        sendDesktopNotification(task, !!isAdvanceNotice, advanceMinutes || 0);
-                    }
+                    sendDesktopNotification(localTask, !!isAdvanceNotice, advanceMinutes || 0);
                     storageReminder.updateLastTriggered(task.id, Date.now());
-                    const localTask = tasks.value.find(t => t.id === task.id);
-                    if (localTask) {
-                        if (isAdvanceNotice) {
-                            localTask.lastAdvanceTriggeredTime = Date.now();
-                        } else {
-                            localTask.lastTriggeredTime = Date.now();
-                            if (localTask.scheduleType === 'once') {
-                                localTask.enabled = false;
-                            }
+
+                    if (isAdvanceNotice) {
+                        localTask.lastAdvanceTriggeredTime = Date.now();
+                    } else {
+                        localTask.lastTriggeredTime = Date.now();
+                        if (localTask.scheduleType === 'once') {
+                            localTask.enabled = false;
+                            storageReminder.toggleTask(localTask.id, false);
+                            syncTasksToWorker();
                         }
                     }
                 } else if (type === 'task_completed' && taskId) {
@@ -238,14 +364,16 @@ export const useReminderStore = defineStore('reminder', () => {
                     if (localTask) {
                         localTask.enabled = false;
                         storageReminder.toggleTask(taskId, false);
+                        syncTasksToWorker();
                     }
                 }
             };
 
-            // 将现有任务列表推送到 Worker 线程
+            // 将现有任务列表推送到 Worker 线程，若当前处于 /reminder 路由则自动启动计时
             worker.postMessage({
                 type: 'init',
-                payload: JSON.parse(JSON.stringify(tasks.value))
+                payload: JSON.parse(JSON.stringify(tasks.value)),
+                autoStart: isReminderRoute()
             });
         } catch (e) {
             console.error('Failed to initialize Reminder Web Worker:', e);
@@ -268,7 +396,14 @@ export const useReminderStore = defineStore('reminder', () => {
      * 初始化提醒系统，读取存储并启动后台引擎
      */
     const init = () => {
-        if (isInitialized.value) return;
+        if (isInitialized.value) {
+            if (isReminderRoute()) {
+                resumeWorker();
+            } else {
+                pauseWorker();
+            }
+            return;
+        }
 
         checkPermission();
         tasks.value = storageReminder.getAllTasks();
@@ -280,14 +415,20 @@ export const useReminderStore = defineStore('reminder', () => {
 
         initWorker();
 
-        // 每秒驱动主线程倒计时实时更新与双引擎检测
-        if (!clockInterval) {
-            clockInterval = setInterval(() => {
-                const now = Date.now();
-                nowTime.value = now;
-                checkMainThreadTriggers(now);
-            }, 1000);
+        if (isReminderRoute()) {
+            resumeWorker();
+        } else {
+            pauseWorker();
         }
+
+        // 监听全局路由变化：只有处于 /reminder 路由才激活定时与播报，离开时立即暂停
+        router.afterEach((to) => {
+            if (to.path === '/reminder' || to.path.startsWith('/reminder/')) {
+                resumeWorker();
+            } else {
+                pauseWorker();
+            }
+        });
 
         isInitialized.value = true;
     };
@@ -347,6 +488,7 @@ export const useReminderStore = defineStore('reminder', () => {
         if (target) {
             target.enabled = enabled;
         }
+        tasks.value = [...tasks.value];
         syncTasksToWorker();
     };
 
@@ -359,6 +501,7 @@ export const useReminderStore = defineStore('reminder', () => {
         if (target) {
             target.notifyEnabled = notifyEnabled;
         }
+        tasks.value = [...tasks.value];
         syncTasksToWorker();
     };
 
@@ -368,9 +511,9 @@ export const useReminderStore = defineStore('reminder', () => {
     const triggerTestNotification = (customTask?: Partial<ReminderTask>) => {
         const testTask: ReminderTask = {
             id: 'test-notification',
-            title: customTask?.title || '测试活动提醒',
+            title: customTask?.title || t('reminder.notification.testTitle'),
             scheduleType: 'once',
-            note: customTask?.note || '这是一个测试通知。桌面通知功能正常运行中！',
+            note: customTask?.note || t('reminder.notification.testNote'),
             enabled: true,
             notifyEnabled: true,
             createdTime: Date.now()
@@ -482,6 +625,9 @@ export const useReminderStore = defineStore('reminder', () => {
         toggleTaskNotify,
         loadPresets,
         triggerTestNotification,
-        sendDesktopNotification
+        sendDesktopNotification,
+        isReminderRoute,
+        resumeWorker,
+        pauseWorker
     };
 });

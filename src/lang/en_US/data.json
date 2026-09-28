@@ -1244,11 +1244,21 @@
         "searchingProgress": "Search Progress",
         "currentComparing": "Currently Comparing",
         "algorithms": {
+          "clip": "CLIP (ViT-B/32 Precomputed)",
           "perceptual-hash": "Perceptual Hash (Fast)",
           "color-histogram": "Color Histogram",
           "feature-matching": "Feature Matching",
           "structural-similarity": "Structural Similarity",
           "tensorflow-mobilenet": "Deep Learning"
+        },
+        "clip": {
+          "hint": "Powered by OpenAI CLIP (ViT-B/32), matches against precomputed features in milliseconds with high accuracy",
+          "loading": "Loading CLIP model...",
+          "ready": "CLIP Model Ready",
+          "error": "Failed to load",
+          "featuresLoading": "Loading gallery features...",
+          "featuresReady": "Gallery features ready",
+          "featuresError": "Failed to load gallery features"
         },
         "tfjs": {
           "hint": "Uses MobileNet neural network to extract image features, higher accuracy but slower speed",
@@ -2946,6 +2956,17 @@
       "targetTask": "Target Event",
       "clickToCopy": "Click to copy",
       "commandPrefix": "/subscribe"
+    },
+    "notification": {
+      "advanceTitle": "⏰ Advance Reminder: {title} (Starts in {minutes} min)",
+      "mainTitle": "⏰ Event Reminder: {title}",
+      "advanceBody": "[{minutes} min advance] {title}: {note}",
+      "mainBody": "{title}: {note}",
+      "advanceDefaultMsg": "Event is about to start!",
+      "advanceDefaultShort": "Event starts in {minutes} minutes",
+      "mainDefaultMsg": "Event time has arrived!",
+      "testTitle": "Test Event Reminder",
+      "testNote": "This is a test notification. Desktop notifications are working properly!"
     },
     "notificationEnabled": "Notifications enabled",
     "notificationDisabled": "Notifications disabled",

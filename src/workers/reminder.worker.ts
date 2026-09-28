@@ -31,7 +31,7 @@ function tick() {
 
     for (let i = 0; i < tasks.length; i++) {
         const task = tasks[i];
-        if (!task || !task.enabled) continue;
+        if (!task || !task.enabled || task.notifyEnabled === false) continue;
 
         const pendingTriggers = checkTaskPendingTriggers(task, now, key => triggeredRecord.has(key));
 
@@ -93,7 +93,9 @@ self.onmessage = (e: MessageEvent) => {
         case 'init':
         case 'set_tasks':
             tasks = Array.isArray(payload) ? payload : [];
-            startTimer();
+            if (e.data?.autoStart) {
+                startTimer();
+            }
             break;
 
         case 'update_task':
@@ -127,6 +129,10 @@ self.onmessage = (e: MessageEvent) => {
             tick();
             break;
 
+        case 'start':
+            startTimer();
+            break;
+
         case 'stop':
             stopTimer();
             break;
@@ -135,5 +141,3 @@ self.onmessage = (e: MessageEvent) => {
             break;
     }
 };
-
-startTimer();

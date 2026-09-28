@@ -1246,11 +1246,21 @@
         "currentComparing": "正在比较",
         "uploadPrompt": "选择本地图片作为目标进行查询",
         "algorithms": {
+          "clip": "CLIP (ViT-B/32 预计算)",
           "perceptual-hash": "感知哈希 (快速)",
           "color-histogram": "颜色直方图",
           "feature-matching": "特征点匹配",
           "structural-similarity": "结构相似性",
           "tensorflow-mobilenet": "深度学习"
+        },
+        "clip": {
+          "hint": "基于 OpenAI CLIP (ViT-B/32) 预训练多模态特征，直接加载预计算图库特征，秒级高精度对比",
+          "loading": "CLIP 模型加载中...",
+          "ready": "CLIP 已就绪",
+          "error": "加载失败",
+          "featuresLoading": "图库特征加载中...",
+          "featuresReady": "图库特征已就绪",
+          "featuresError": "图库特征加载失败"
         },
         "tfjs": {
           "hint": "使用 MobileNet 神经网络提取图像特征，精度更高但速度较慢",
@@ -2950,6 +2960,17 @@
       "targetTask": "目标活动",
       "clickToCopy": "点击复制",
       "commandPrefix": "/订阅"
+    },
+    "notification": {
+      "advanceTitle": "⏰ 提前提醒: {title} (将在 {minutes} 分钟后开始)",
+      "mainTitle": "⏰ 活动提醒: {title}",
+      "advanceBody": "【提前 {minutes} 分钟】{title}: {note}",
+      "mainBody": "{title}: {note}",
+      "advanceDefaultMsg": "活动即将开始！",
+      "advanceDefaultShort": "活动将在 {minutes} 分钟后开始",
+      "mainDefaultMsg": "活动时间已到达！",
+      "testTitle": "测试活动提醒",
+      "testNote": "这是一个测试通知。桌面通知功能正常运行中！"
     },
     "notificationEnabled": "通知已开启",
     "notificationDisabled": "通知已关闭",

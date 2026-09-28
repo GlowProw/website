@@ -11,6 +11,7 @@ export interface QueryImageData {
   blockFeatures?: number[];
   imageData?: ImageData;
   tfEmbedding?: number[];
+  clipEmbedding?: number[];
 }
 
 /**

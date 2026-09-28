@@ -244,6 +244,10 @@ export default defineConfig({
                 target: 'http://localhost:8088',
                 changeOrigin: true,
                 rewrite: (path: any) => path.replace(/^\/assets-proxy/, '/api'),
+            },
+            "/mode": {
+                target: 'http://localhost:8088',
+                changeOrigin: true,
             }
         }
     },

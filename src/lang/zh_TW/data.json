@@ -1229,11 +1229,21 @@
         "searchingProgress": "搜尋進度",
         "currentComparing": "正在比較",
         "algorithms": {
+          "clip": "CLIP (ViT-B/32 預計算)",
           "perceptual-hash": "感知哈希 (快速)",
           "color-histogram": "顏色直方圖",
           "feature-matching": "特徵點匹配",
           "structural-similarity": "結構相似性",
           "tensorflow-mobilenet": "深度學習"
+        },
+        "clip": {
+          "hint": "基於 OpenAI CLIP (ViT-B/32) 預訓練多模態特徵，直接加載預計算圖庫特徵，秒級高精度對比",
+          "loading": "CLIP 模型加載中...",
+          "ready": "CLIP 已就緒",
+          "error": "加載失敗",
+          "featuresLoading": "圖庫特徵加載中...",
+          "featuresReady": "圖庫特徵已就緒",
+          "featuresError": "圖庫特徵加載失敗"
         },
         "tfjs": {
           "hint": "使用 MobileNet 神經網絡提取圖像特徵，精度更高但速度較慢",
@@ -3014,6 +3024,17 @@
       "targetTask": "目標活動",
       "clickToCopy": "點擊複製",
       "commandPrefix": "/訂閱"
+    },
+    "notification": {
+      "advanceTitle": "⏰ 提前提醒: {title} (將在 {minutes} 分鐘後開始)",
+      "mainTitle": "⏰ 活動提醒: {title}",
+      "advanceBody": "【提前 {minutes} 分鐘】{title}: {note}",
+      "mainBody": "{title}: {note}",
+      "advanceDefaultMsg": "活動即將開始！",
+      "advanceDefaultShort": "活動將在 {minutes} 分鐘後開始",
+      "mainDefaultMsg": "活動時間已到達！",
+      "testTitle": "測試活動提醒",
+      "testNote": "這是一個測試通知。桌面通知功能正常運行中！"
     },
     "notificationEnabled": "通知已開啟",
     "notificationDisabled": "通知已關閉",

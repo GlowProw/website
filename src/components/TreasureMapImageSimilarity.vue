@@ -12,15 +12,32 @@
       :fullscreen="mobile">
     <v-card border>
       <template v-if="showCropper">
-        <v-card-title class="d-flex align-center py-4 px-6 border-bottom">
-          <div class="text-h6 text-amber">
-            <v-icon>mdi-image-search-outline</v-icon>
+        <v-card-title class="d-flex align-center py-4 px-6 border-bottom flex-wrap ga-2">
+          <div class="text-h6 text-amber d-flex align-center">
+            <v-icon class="mr-2">mdi-image-search-outline</v-icon>
+            <span class="text-subtitle-1">裁切藏宝图</span>
           </div>
           <v-spacer/>
+          <v-btn size="small" variant="tonal" color="amber" @click="autoDetectCrop">
+            <v-icon start size="14">mdi-auto-fix</v-icon>
+            智能吸附羊皮纸
+          </v-btn>
+          <v-btn size="small" variant="tonal" color="grey" @click="centerCrop75">
+            <v-icon start size="14">mdi-crop-free</v-icon>
+            居中75%
+          </v-btn>
+          <v-btn size="small" variant="tonal" color="grey" @click="resetFullCrop">
+            <v-icon start size="14">mdi-refresh</v-icon>
+            全图
+          </v-btn>
           <v-btn variant="tonal" icon @click="cancelCrop">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </v-card-title>
+        <div class="text-caption text-grey-lighten-1 px-6 py-2 bg-grey-darken-4 d-flex align-center">
+          <v-icon size="16" color="amber" class="mr-2">mdi-lightbulb-on-outline</v-icon>
+          <span>提示：游戏截图中若包含大海、甲板或UI罗盘/按键，会严重稀释特征。请尽量紧贴【中间羊皮纸】进行裁切，识别最准！</span>
+        </div>
         <div style="height: 65vh" class="bg-black d-flex align-center justify-center overflow-hidden">
           <img ref="cropperImageRef"
                :src="croppingImageUrl"
@@ -182,6 +199,44 @@
                 </v-col>
               </v-row>
 
+              <!-- CLIP 模型与特征状态提示 -->
+              <v-expand-transition>
+                <div v-if="selectedAlgorithm === 'clip'" class="mb-4">
+                  <v-card border class="pa-3">
+                    <div class="d-flex align-center ga-3 flex-wrap">
+                      <div class="flex-grow-1">
+                        <div class="text-caption text-grey">{{ t('codex.treasureMaps.comparison.clip.hint') }}</div>
+                      </div>
+                      <v-chip v-if="clipGalleryLoading" color="amber" size="small" variant="tonal">
+                        <v-progress-circular size="12" width="2" indeterminate class="mr-1"/>
+                        {{ t('codex.treasureMaps.comparison.clip.featuresLoading') }}
+                      </v-chip>
+                      <v-chip v-else-if="clipGalleryLoaded" color="green" size="small" variant="tonal">
+                        <v-icon start size="12">mdi-database-check</v-icon>
+                        {{ t('codex.treasureMaps.comparison.clip.featuresReady') }}
+                      </v-chip>
+                      <v-chip v-else-if="clipGalleryError" color="error" size="small" variant="tonal">
+                        <v-icon start size="12">mdi-alert-circle</v-icon>
+                        {{ t('codex.treasureMaps.comparison.clip.featuresError') }}
+                      </v-chip>
+
+                      <v-chip v-if="clipModelLoading" color="amber" size="small" variant="tonal">
+                        <v-progress-circular size="12" width="2" indeterminate class="mr-1"/>
+                        {{ t('codex.treasureMaps.comparison.clip.loading') }}
+                      </v-chip>
+                      <v-chip v-else-if="clipModelLoaded" color="green" size="small" variant="tonal">
+                        <v-icon start size="12">mdi-check-circle</v-icon>
+                        {{ t('codex.treasureMaps.comparison.clip.ready') }}
+                      </v-chip>
+                      <v-chip v-else-if="clipModelError" color="error" size="small" variant="tonal">
+                        <v-icon start size="12">mdi-alert-circle</v-icon>
+                        {{ t('codex.treasureMaps.comparison.clip.error') }}
+                      </v-chip>
+                    </div>
+                  </v-card>
+                </div>
+              </v-expand-transition>
+
               <!-- TF.js 模型状态提示 -->
               <v-expand-transition>
                 <div v-if="selectedAlgorithm === 'tensorflow-mobilenet'" class="mb-4">
@@ -328,15 +383,32 @@
   <!-- 页面模式：直接平铺渲染卡片 -->
   <div v-else class="w-100">
     <template v-if="showCropper">
-      <v-card-title class="d-flex align-center py-4 px-6 border-bottom">
-        <div class="text-h6 text-amber">
-          <v-icon>mdi-crop</v-icon>
+      <v-card-title class="d-flex align-center py-4 px-6 border-bottom flex-wrap ga-2">
+        <div class="text-h6 text-amber d-flex align-center">
+          <v-icon class="mr-2">mdi-crop</v-icon>
+          <span class="text-subtitle-1">裁切藏宝图</span>
         </div>
         <v-spacer/>
+        <v-btn size="small" variant="tonal" color="amber" @click="autoDetectCrop">
+          <v-icon start size="14">mdi-auto-fix</v-icon>
+          智能吸附羊皮纸
+        </v-btn>
+        <v-btn size="small" variant="tonal" color="grey" @click="centerCrop75">
+          <v-icon start size="14">mdi-crop-free</v-icon>
+          居中75%
+        </v-btn>
+        <v-btn size="small" variant="tonal" color="grey" @click="resetFullCrop">
+          <v-icon start size="14">mdi-refresh</v-icon>
+          全图
+        </v-btn>
         <v-btn variant="tonal" icon @click="cancelCrop">
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-card-title>
+      <div class="text-caption text-grey-lighten-1 px-6 py-2 bg-grey-darken-4 d-flex align-center">
+        <v-icon size="16" color="amber" class="mr-2">mdi-lightbulb-on-outline</v-icon>
+        <span>提示：游戏截图中若包含大海、甲板或UI罗盘/按键，会严重稀释特征。请尽量紧贴【中间羊皮纸】进行裁切，识别最准！</span>
+      </div>
       <div style="height: 65vh" class="bg-black d-flex align-center justify-center overflow-hidden">
         <img ref="cropperImageRef"
              :src="croppingImageUrl"
@@ -485,6 +557,44 @@
             </v-menu>
           </v-col>
         </v-row>
+
+        <!-- CLIP 模型与特征状态提示 -->
+        <v-expand-transition>
+          <div v-if="selectedAlgorithm === 'clip'" class="mb-4">
+            <v-card border class="pa-3">
+              <div class="d-flex align-center ga-3 flex-wrap">
+                <div class="flex-grow-1">
+                  <div class="text-caption text-grey">{{ t('codex.treasureMaps.comparison.clip.hint') }}</div>
+                </div>
+                <v-chip v-if="clipGalleryLoading" color="amber" size="small" variant="tonal">
+                  <v-progress-circular size="12" width="2" indeterminate class="mr-1"/>
+                  {{ t('codex.treasureMaps.comparison.clip.featuresLoading') }}
+                </v-chip>
+                <v-chip v-else-if="clipGalleryLoaded" color="green" size="small" variant="tonal">
+                  <v-icon start size="12">mdi-database-check</v-icon>
+                  {{ t('codex.treasureMaps.comparison.clip.featuresReady') }}
+                </v-chip>
+                <v-chip v-else-if="clipGalleryError" color="error" size="small" variant="tonal">
+                  <v-icon start size="12">mdi-alert-circle</v-icon>
+                  {{ t('codex.treasureMaps.comparison.clip.featuresError') }}
+                </v-chip>
+
+                <v-chip v-if="clipModelLoading" color="amber" size="small" variant="tonal">
+                  <v-progress-circular size="12" width="2" indeterminate class="mr-1"/>
+                  {{ t('codex.treasureMaps.comparison.clip.loading') }}
+                </v-chip>
+                <v-chip v-else-if="clipModelLoaded" color="green" size="small" variant="tonal">
+                  <v-icon start size="12">mdi-check-circle</v-icon>
+                  {{ t('codex.treasureMaps.comparison.clip.ready') }}
+                </v-chip>
+                <v-chip v-else-if="clipModelError" color="error" size="small" variant="tonal">
+                  <v-icon start size="12">mdi-alert-circle</v-icon>
+                  {{ t('codex.treasureMaps.comparison.clip.error') }}
+                </v-chip>
+              </div>
+            </v-card>
+          </div>
+        </v-expand-transition>
 
         <!-- TF.js 模型状态提示 -->
         <v-expand-transition>
@@ -645,7 +755,13 @@ import {
   getImageHash,
   computeTFEmbedding,
   cosineSimilarity,
-  loadMobileNetModel
+  loadMobileNetModel,
+  loadClipGalleryFeatures,
+  loadClipModel,
+  computeClipEmbedding,
+  detectParchmentBoundingBox,
+  calculateClipSimilarity,
+  calculateTFSimilarity
 } from '@/assets/sripts/image_similarity';
 import {TreasureMaps} from "glow-prow-data";
 import {useDisplay} from "vuetify/framework";
@@ -689,7 +805,7 @@ const queryImageData = ref<QueryImageData | null>(null);
 const searchResults = ref<SearchResult[]>([]);
 const searchMinimumCondition = ref(50);
 const searchRangeMax = ref(100);
-const selectedAlgorithm = ref<string>('feature-matching');
+const selectedAlgorithm = ref<string>('clip');
 const imageList = ref<string[]>([]);
 const similarityStore = useSimilarityStore();
 
@@ -701,12 +817,57 @@ const searching = computed(() => similarityStore.isProcessing);
 const currentComparingImage = ref<ComparingImage | null>(null);
 
 const algorithms: Algorithm[] = [
-  {value: 'perceptual-hash'},
-  {value: 'color-histogram'},
+  {value: 'clip'},
+  {value: 'tensorflow-mobilenet'},
+  // {value: 'perceptual-hash'},
+  // {value: 'color-histogram'},
   {value: 'feature-matching'},
-  {value: 'structural-similarity'},
-  {value: 'tensorflow-mobilenet'}
+  // {value: 'structural-similarity'}
 ];
+
+// CLIP 状态
+const clipModelLoading = ref(false);
+const clipModelLoaded = ref(false);
+const clipModelError = ref<string | null>(null);
+const clipGalleryLoading = ref(false);
+const clipGalleryLoaded = ref(false);
+const clipGalleryError = ref<string | null>(null);
+
+const ensureClipReady = async () => {
+  if (!clipGalleryLoaded.value && !clipGalleryLoading.value) {
+    clipGalleryLoading.value = true;
+    clipGalleryError.value = null;
+    try {
+      await loadClipGalleryFeatures();
+      clipGalleryLoaded.value = true;
+    } catch (e: any) {
+      clipGalleryError.value = e.message;
+      console.error('CLIP 图库特征加载失败:', e);
+    } finally {
+      clipGalleryLoading.value = false;
+    }
+  }
+
+  if (!clipModelLoaded.value && !clipModelLoading.value) {
+    clipModelLoading.value = true;
+    clipModelError.value = null;
+    try {
+      await loadClipModel();
+      clipModelLoaded.value = true;
+    } catch (e: any) {
+      clipModelError.value = e.message;
+      console.error('CLIP 模型加载失败:', e);
+    } finally {
+      clipModelLoading.value = false;
+    }
+  }
+};
+
+watch(selectedAlgorithm, (val) => {
+  if (val === 'clip') {
+    ensureClipReady();
+  }
+});
 
 // TF.js 模型加载状态
 const tfModelLoading = ref(false);
@@ -1030,19 +1191,60 @@ const onQueryImageUpload = (event: Event) => {
       cropperInstance = new Cropper(cropperImageRef.value, {
         viewMode: 1,
         dragMode: 'crop',
-        autoCropArea: 0.9,
+        autoCropArea: 0.8,
         restore: false,
         zoomable: true,
-        guides: false,
+        guides: true,
         background: false,
         center: true,
         highlight: false,
         cropBoxMovable: true,
         cropBoxResizable: true,
         toggleDragModeOnDblclick: false,
+        ready() {
+          if (cropperImageRef.value && cropperInstance) {
+            const bbox = detectParchmentBoundingBox(cropperImageRef.value);
+            if (bbox) {
+              cropperInstance.setData(bbox);
+            }
+          }
+        }
       });
     }
   });
+};
+
+const autoDetectCrop = () => {
+  if (cropperImageRef.value && cropperInstance) {
+    const bbox = detectParchmentBoundingBox(cropperImageRef.value);
+    if (bbox) {
+      cropperInstance.setData(bbox);
+    }
+  }
+};
+
+const centerCrop75 = () => {
+  if (cropperInstance) {
+    const imgData = cropperInstance.getImageData();
+    cropperInstance.setData({
+      x: Math.round(imgData.naturalWidth * 0.125),
+      y: Math.round(imgData.naturalHeight * 0.125),
+      width: Math.round(imgData.naturalWidth * 0.75),
+      height: Math.round(imgData.naturalHeight * 0.75)
+    });
+  }
+};
+
+const resetFullCrop = () => {
+  if (cropperInstance) {
+    const imgData = cropperInstance.getImageData();
+    cropperInstance.setData({
+      x: 0,
+      y: 0,
+      width: imgData.naturalWidth,
+      height: imgData.naturalHeight
+    });
+  }
 };
 
 const cancelCrop = () => {
@@ -1093,6 +1295,10 @@ const confirmCrop = async () => {
         await ensureTFModelLoaded();
         features.tfEmbedding = await computeTFEmbedding(croppedUrl, useGrayscale.value);
         break;
+      case 'clip':
+        await ensureClipReady();
+        features.clipEmbedding = await computeClipEmbedding(croppedUrl);
+        break;
     }
 
     queryImageData.value = {
@@ -1126,7 +1332,11 @@ const calculateSimilarity = (queryData: QueryImageData, features: any): number =
       return queryData.blockFeatures ? compareBlockFeatures(queryData.blockFeatures, features.blockFeatures || features.structuralFeatures) : 0;
     case 'tensorflow-mobilenet':
       return queryData.tfEmbedding && features.tfEmbedding
-          ? cosineSimilarity(queryData.tfEmbedding, features.tfEmbedding)
+          ? calculateTFSimilarity(queryData.tfEmbedding, features.tfEmbedding)
+          : 0;
+    case 'clip':
+      return queryData.clipEmbedding && features.clipEmbedding
+          ? calculateClipSimilarity(queryData.clipEmbedding, features.clipEmbedding)
           : 0;
     default:
       return 0;
@@ -1143,7 +1353,46 @@ const onSearchSimilarImages = async () => {
   try {
     const filteredList = filteredImageList.value;
 
-    if (selectedAlgorithm.value === 'tensorflow-mobilenet') {
+    if (selectedAlgorithm.value === 'clip') {
+      await ensureClipReady();
+      similarityStore.isProcessing = true;
+      similarityStore.total = filteredList.length;
+      similarityStore.progress = 0;
+
+      const galleryFeatures = await loadClipGalleryFeatures();
+      const results: SearchResult[] = [];
+
+      for (let index = 0; index < filteredList.length; index++) {
+        const imgUrl = filteredList[index];
+        const imageId = getImageIdFromUrl(imgUrl);
+        const mapData = treasureMaps[imageId];
+
+        currentComparingImage.value = { id: imageId, url: imgUrl, category: mapData?.category ?? '', index };
+
+        const clipEmbedding = galleryFeatures.get(imageId);
+        if (mapData && clipEmbedding) {
+          const similarity = calculateSimilarity(queryImageData.value, { clipEmbedding });
+          results.push({
+            id: imageId,
+            index,
+            similarity,
+            imageUrl: imgUrl,
+            original: mapData,
+            category: mapData.category,
+            obtainable: mapData.obtainable
+          });
+        }
+        similarityStore.progress++;
+      }
+
+      similarityStore.isProcessing = false;
+
+      searchResults.value = results
+          .filter(item => item.similarity >= searchMinimumCondition.value)
+          .sort((a, b) => b.similarity - a.similarity)
+          .slice(0, searchRangeMax.value);
+
+    } else if (selectedAlgorithm.value === 'tensorflow-mobilenet') {
       await ensureTFModelLoaded();
       similarityStore.isProcessing = true;
       similarityStore.total = filteredList.length;

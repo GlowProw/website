@@ -437,6 +437,11 @@ export async function loadMobileNetModel(): Promise<any> {
 
 /**
  * 使用 MobileNet 提取图片的嵌入向量（特征向量）
+ * 精度增强优化：
+ * 1. 保持原有长宽比等比例居中缩放 (Letterbox)，避免藏宝图轮廓被暴力拉伸变形
+ * 2. 预填充羊皮纸底色 #a58c69，消除透明通道产生的纯黑边缘高频失真
+ * 3. 灰度模式下自适应对比度拉伸，突出墨水地标线条与 X 标记
+ * 4. 向量进行严格 L2 归一化
  * @param imageUrl - 图片URL（data:URL 或 http URL）
  * @returns 归一化后的嵌入向量数组
  */
@@ -444,7 +449,7 @@ export async function computeTFEmbedding(imageUrl: string, grayscale = false): P
     const tf = await import('@tensorflow/tfjs');
     const model = await loadMobileNetModel();
 
-    // MobileNet v2 训练输入分辨率为 224x224，必须先缩放到此尺寸再推理
+    // MobileNet v2 训练输入分辨率为 224x224
     const INPUT_SIZE = 224;
 
     return new Promise((resolve, reject) => {
@@ -452,32 +457,63 @@ export async function computeTFEmbedding(imageUrl: string, grayscale = false): P
         img.crossOrigin = 'anonymous';
         img.onload = async () => {
             try {
-                // 缩放到 224x224
                 const canvas = document.createElement('canvas');
                 canvas.width = INPUT_SIZE;
                 canvas.height = INPUT_SIZE;
                 const ctx = canvas.getContext('2d');
                 if (!ctx) { reject(new Error('Canvas context error')); return; }
-                ctx.drawImage(img, 0, 0, INPUT_SIZE, INPUT_SIZE);
 
-                // 灰度模式：将 RGB 转换为亮度灰度，消除颜色偏差
+                // 填充羊皮纸暖底色，避免透明通道或边框区域变为纯黑导致特征失真
+                ctx.fillStyle = '#a58c69';
+                ctx.fillRect(0, 0, INPUT_SIZE, INPUT_SIZE);
+
+                // 等比例居中缩放 (Letterbox)，保留真实几何形状
+                const imgW = img.naturalWidth || img.width;
+                const imgH = img.naturalHeight || img.height;
+                const scale = Math.min(INPUT_SIZE / imgW, INPUT_SIZE / imgH);
+                const drawW = Math.round(imgW * scale);
+                const drawH = Math.round(imgH * scale);
+                const drawX = Math.round((INPUT_SIZE - drawW) / 2);
+                const drawY = Math.round((INPUT_SIZE - drawH) / 2);
+
+                ctx.drawImage(img, drawX, drawY, drawW, drawH);
+
+                const imgData = ctx.getImageData(0, 0, INPUT_SIZE, INPUT_SIZE);
+                const d = imgData.data;
+
                 if (grayscale) {
-                    const imgData = ctx.getImageData(0, 0, INPUT_SIZE, INPUT_SIZE);
-                    const d = imgData.data;
+                    // 灰度化与动态对比度增强
+                    let minLuma = 255, maxLuma = 0;
                     for (let i = 0; i < d.length; i += 4) {
                         const luma = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
-                        d[i] = d[i + 1] = d[i + 2] = luma;
+                        if (luma < minLuma) minLuma = luma;
+                        if (luma > maxLuma) maxLuma = luma;
+                    }
+                    const range = Math.max(1, maxLuma - minLuma);
+                    for (let i = 0; i < d.length; i += 4) {
+                        const luma = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+                        const normLuma = Math.min(255, Math.max(0, ((luma - minLuma) / range) * 255));
+                        d[i] = d[i + 1] = d[i + 2] = normLuma;
                     }
                     ctx.putImageData(imgData, 0, 0);
                 }
 
-                const tensor = tf.browser.fromPixels(canvas); // shape [224, 224, 3]
-                // infer(true) 提取全局平均池化层特征向量（1280维）
+                const tensor = tf.browser.fromPixels(canvas);
                 const embedding = model.infer(tensor, true) as any;
                 const values: Float32Array = await embedding.data();
                 tensor.dispose();
                 embedding.dispose();
-                resolve(Array.from(values));
+
+                // L2 归一化
+                let norm = 0;
+                for (let i = 0; i < values.length; i++) norm += values[i] * values[i];
+                norm = Math.sqrt(norm);
+                const normalized = new Array(values.length);
+                for (let i = 0; i < values.length; i++) {
+                    normalized[i] = norm > 0 ? values[i] / norm : 0;
+                }
+
+                resolve(normalized);
             } catch (e) {
                 reject(e);
             }
@@ -485,6 +521,18 @@ export async function computeTFEmbedding(imageUrl: string, grayscale = false): P
         img.onerror = reject;
         img.src = imageUrl;
     });
+}
+
+/**
+ * 计算针对藏宝图特征优化的 MobileNet 相似度（对比度拉伸增强）
+ * 过滤 0.70 以下底纸背景噪声，将 0.70 ~ 1.00 映射为 0% ~ 100%
+ */
+export function calculateTFSimilarity(queryEmbedding: number[], galleryEmbedding: number[]): number {
+    const raw = cosineSimilarity(queryEmbedding, galleryEmbedding) / 100;
+    const threshold = 0.70;
+    if (raw <= threshold) return 0;
+    const stretched = (raw - threshold) / (1.0 - threshold);
+    return Math.round(Math.min(100, Math.max(0, stretched * 100)) * 10) / 10;
 }
 
 
@@ -507,4 +555,212 @@ export function cosineSimilarity(a: number[], b: number[]): number {
 
     return Math.max(0, cosine) * 100;
 }
+
+// ==================== CLIP (ViT-B/32) 预计算特征与推理 ====================
+
+let _clipModel: any = null;
+let _clipProcessor: any = null;
+let _clipLoading: Promise<any> | null = null;
+let _clipGalleryFeaturesCache: Map<string, number[]> | null = null;
+let _clipGalleryLoading: Promise<Map<string, number[]>> | null = null;
+
+/**
+ * 解析 CLIP 二进制特征文件
+ */
+export function parseClipFeaturesBinary(buffer: ArrayBuffer): Map<string, number[]> {
+    const magic = new TextDecoder().decode(new Uint8Array(buffer, 0, 4));
+    if (magic !== 'CLIP') {
+        throw new Error('Invalid CLIP binary format magic');
+    }
+    const view = new DataView(buffer);
+    const version = view.getUint16(4, true);
+    const dim = view.getUint16(6, true);
+    const count = view.getUint32(8, true);
+    const metaLen = view.getUint32(12, true);
+
+    const metaBytes = new Uint8Array(buffer, 16, metaLen);
+    const metaJsonStr = new TextDecoder('utf-8').decode(metaBytes);
+    const metadata = JSON.parse(metaJsonStr);
+
+    const floatOffset = 16 + metaLen;
+    const floatArray = new Float32Array(buffer.slice(floatOffset));
+
+    const map = new Map<string, number[]>();
+    for (let i = 0; i < metadata.length; i++) {
+        const item = metadata[i];
+        const start = i * dim;
+        const vec = Array.from(floatArray.subarray(start, start + dim));
+        map.set(item.id, vec);
+    }
+    return map;
+}
+
+/**
+ * 加载预计算的图库 CLIP 特征
+ */
+export async function loadClipGalleryFeatures(customUrl?: string): Promise<Map<string, number[]>> {
+    if (_clipGalleryFeaturesCache) return _clipGalleryFeaturesCache;
+    if (_clipGalleryLoading) return _clipGalleryLoading;
+
+    _clipGalleryLoading = (async () => {
+        const urlsToTry = [
+            customUrl,
+            '/mode',
+            '/treasureMaps/clip-vit-b-32.bin',
+            'https://assets.glow-prow.top/mode',
+            'https://assets.glow-prow.top/treasureMaps/clip-vit-b-32.bin'
+        ].filter(Boolean) as string[];
+
+        let lastError: any = null;
+        for (const url of urlsToTry) {
+            try {
+                const res = await fetch(url);
+                if (res.ok) {
+                    const buf = await res.arrayBuffer();
+                    const map = parseClipFeaturesBinary(buf);
+                    _clipGalleryFeaturesCache = map;
+                    return map;
+                }
+            } catch (err) {
+                lastError = err;
+            }
+        }
+        throw new Error(`加载 CLIP 图库特征失败: ${lastError?.message || '全部候选路径均不可达'}`);
+    })();
+
+    const result = await _clipGalleryLoading;
+    _clipGalleryLoading = null;
+    return result;
+}
+
+/**
+ * 懒加载 CLIP ViT-B/32 推理模型
+ */
+export async function loadClipModel(): Promise<{ processor: any, model: any }> {
+    if (_clipModel && _clipProcessor) return { processor: _clipProcessor, model: _clipModel };
+    if (_clipLoading) return _clipLoading;
+
+    _clipLoading = (async () => {
+        const { AutoProcessor, CLIPVisionModelWithProjection, env } = await import('@xenova/transformers');
+        env.allowLocalModels = false;
+        const modelId = 'Xenova/clip-vit-base-patch32';
+        const processor = await AutoProcessor.from_pretrained(modelId);
+        const model = await CLIPVisionModelWithProjection.from_pretrained(modelId, {
+            quantized: true
+        });
+        _clipProcessor = processor;
+        _clipModel = model;
+        return { processor: _clipProcessor, model: _clipModel };
+    })();
+
+    const res = await _clipLoading;
+    _clipLoading = null;
+    return res;
+}
+
+/**
+ * 使用 CLIP ViT-B/32 计算图像嵌入向量
+ */
+export async function computeClipEmbedding(imageUrl: string): Promise<number[]> {
+    const { RawImage } = await import('@xenova/transformers');
+    const { processor, model } = await loadClipModel();
+    const image = await RawImage.read(imageUrl);
+    const imageInputs = await processor(image);
+    const { image_embeds } = await model(imageInputs);
+    const data = image_embeds.data as Float32Array;
+
+    let norm = 0;
+    for (let i = 0; i < data.length; i++) norm += data[i] * data[i];
+    norm = Math.sqrt(norm);
+    const normalized = new Array(data.length);
+    for (let i = 0; i < data.length; i++) {
+        normalized[i] = norm > 0 ? data[i] / norm : 0;
+    }
+    return normalized;
+}
+
+/**
+ * 智能检测游戏截图中羊皮纸藏宝图的主体外接矩形
+ * 通过颜色空间与暖色聚集度分析，自动排除外围的深海、暗色甲板与游戏 UI
+ */
+export function detectParchmentBoundingBox(img: HTMLImageElement): { x: number, y: number, width: number, height: number } | null {
+    try {
+        const origW = img.naturalWidth || img.width;
+        const origH = img.naturalHeight || img.height;
+        if (!origW || !origH) return null;
+
+        const sampleW = 320;
+        const sampleH = Math.max(1, Math.round((origH / origW) * sampleW));
+        const canvas = document.createElement('canvas');
+        canvas.width = sampleW;
+        canvas.height = sampleH;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return null;
+
+        ctx.drawImage(img, 0, 0, sampleW, sampleH);
+        const imgData = ctx.getImageData(0, 0, sampleW, sampleH);
+        const data = imgData.data;
+
+        let minX = sampleW, maxX = 0, minY = sampleH, maxY = 0;
+        let matchCount = 0;
+
+        for (let y = 0; y < sampleH; y++) {
+            for (let x = 0; x < sampleW; x++) {
+                const idx = (y * sampleW + x) * 4;
+                const r = data[idx];
+                const g = data[idx + 1];
+                const b = data[idx + 2];
+
+                // 碧海黑帆藏宝图羊皮纸特征：R 高于 G，G 高于 B，且具有明显黄色/棕色倾向
+                const isWarmPaper = (r > 75 && g > 55 && r >= g && g > b && (r - b) > 16 && (r + g + b) < 680);
+
+                if (isWarmPaper) {
+                    matchCount++;
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                }
+            }
+        }
+
+        const totalPixels = sampleW * sampleH;
+        // 如果羊皮纸占比在 5% ~ 96% 之间，说明是带外部背景的游戏截图
+        if (matchCount >= totalPixels * 0.05 && matchCount <= totalPixels * 0.96) {
+            const scaleX = origW / sampleW;
+            const scaleY = origH / sampleH;
+            const padX = Math.round(origW * 0.015);
+            const padY = Math.round(origH * 0.015);
+
+            const x = Math.max(0, Math.round(minX * scaleX) - padX);
+            const y = Math.max(0, Math.round(minY * scaleY) - padY);
+            const w = Math.min(origW - x, Math.round((maxX - minX) * scaleX) + padX * 2);
+            const h = Math.min(origH - y, Math.round((maxY - minY) * scaleY) + padY * 2);
+
+            return { x, y, width: w, height: h };
+        }
+
+        return null;
+    } catch (e) {
+        console.warn('智能主体检测失败:', e);
+        return null;
+    }
+}
+
+/**
+ * 计算针对藏宝图特征优化的 CLIP 相似度（对比度拉伸增强）
+ * 由于全部藏宝图均为黄棕色手绘纸张，底色余弦基线天然位于 0.70~0.85 之间。
+ * 本函数通过非线性动态对比度拉伸，过滤掉纸张公共先验底色，将关键手绘地标差异放大。
+ */
+export function calculateClipSimilarity(queryEmbedding: number[], galleryEmbedding: number[]): number {
+    const raw = cosineSimilarity(queryEmbedding, galleryEmbedding) / 100;
+    // 0.72 以下直接判定为无关图片 (0%)
+    // 0.72 ~ 1.00 映射展开为 0% ~ 100%
+    const threshold = 0.72;
+    if (raw <= threshold) return 0;
+    const stretched = (raw - threshold) / (1.0 - threshold);
+    return Math.round(Math.min(100, Math.max(0, stretched * 100)) * 10) / 10;
+}
+
+
 

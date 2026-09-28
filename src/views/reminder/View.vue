@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, ref} from 'vue';
+import {computed, onMounted, onUnmounted, ref} from 'vue';
 import {useI18n} from 'vue-i18n';
 import {useRouter} from 'vue-router';
 import {useDisplay} from 'vuetify/framework';
@@ -62,6 +62,11 @@ const getCategoryColor = (cat: string) => {
 
 onMounted(() => {
   reminderStore.init();
+  reminderStore.resumeWorker();
+});
+
+onUnmounted(() => {
+  reminderStore.pauseWorker();
 });
 
 // 是否存在生效中的过滤条件
@@ -498,6 +503,18 @@ const totalPages = computed(() => {
             </v-btn>
           </v-col>
           <v-col cols="auto">
+            <v-btn
+                icon
+                variant="text"
+                :color="reminderStore.masterNotificationEnabled ? 'amber' : 'grey'"
+                :title="reminderStore.masterNotificationEnabled ? t('reminder.notificationEnabled') : t('reminder.notificationDisabled')"
+                @click="reminderStore.setMasterNotification(!reminderStore.masterNotificationEnabled)">
+              <v-icon size="22">
+                {{ reminderStore.masterNotificationEnabled ? 'mdi-bell-ring-outline' : 'mdi-bell-off-outline' }}
+              </v-icon>
+            </v-btn>
+          </v-col>
+          <v-col cols="auto">
             <v-menu
                 v-model="menuModel"
                 open-on-click
@@ -799,11 +816,11 @@ const totalPages = computed(() => {
                         icon
                         size="x-small"
                         variant="text"
-                        :color="task.notifyEnabled !== false ? 'amber' : 'grey'"
+                        :color="task.notifyEnabled !== false && reminderStore.masterNotificationEnabled ? 'amber' : 'grey'"
                         :title="task.notifyEnabled !== false ? t('reminder.notificationEnabled') : t('reminder.notificationDisabled')"
                         @click.stop="reminderStore.toggleTaskNotify(task.id, task.notifyEnabled === false)">
                       <v-icon size="18">
-                        {{ task.notifyEnabled !== false ? 'mdi-bell-ring-outline' : 'mdi-bell-off-outline' }}
+                        {{ task.notifyEnabled !== false && reminderStore.masterNotificationEnabled ? 'mdi-bell-ring-outline' : 'mdi-bell-off-outline' }}
                       </v-icon>
                     </v-btn>
 
@@ -826,10 +843,7 @@ const totalPages = computed(() => {
                   <v-row class="countdown-badges"
                          align="center"
                          :class="{
-                          '': task.countdown.status === 'active' && task.countdown.isAdvanceNotice && task.enabled,
-                          '': task.countdown.status === 'active' && !task.countdown.isAdvanceNotice && task.enabled,
                           'pulse-animation': task.countdown.status === 'imminent' && task.enabled,
-                          '': !task.enabled || task.countdown.status === 'expired' || task.countdown.status === 'not_started'
                         }">
                     <v-col cols="auto" class="d-flex align-center">
                       <v-icon class="mr-1">
@@ -944,7 +958,7 @@ const totalPages = computed(() => {
 
                   <!-- 静音通知标识 -->
                   <v-chip
-                      v-if="task.notifyEnabled === false"
+                      v-if="task.notifyEnabled === false || !reminderStore.masterNotificationEnabled"
                       size="small"
                       variant="tonal"
                       color="grey"

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import {useAuthStore} from "~/stores/userAccountStore";
 import {useI18n} from "vue-i18n";
+import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
+import {useRoute} from "vue-router";
 
 type HeaderAccountType = 'header-drawer' | 'header'
 
@@ -44,21 +46,16 @@ const authStore = useAuthStore(),
           </v-col>
         </v-row>
       </router-link>
-      <v-row align="center" v-else>
-        <v-col cols="auto">
-          <v-avatar
-              color="var(--main-color)"
-              class="d-flex justify-center align-center"
-              size="32">
-            {{ 'U' }}
-          </v-avatar>
-        </v-col>
-        <v-col>
-          <v-btn block variant="tonal" to="/account/signin">
-            {{ t('signin.title') }}
-          </v-btn>
-        </v-col>
-      </v-row>
+      <template v-else>
+        <v-list-item link href="/account/signin" target="_blank">
+          {{ t('signin.title') }}
+          <template v-slot:prepend>
+            <ItemSlotBase size="40px" class="mr-2 d-flex align-center justify-center">
+              <v-icon icon="mdi-open-in-new" size="25"></v-icon>
+            </ItemSlotBase>
+          </template>
+        </v-list-item>
+      </template>
     </template>
   </div>
 </template>

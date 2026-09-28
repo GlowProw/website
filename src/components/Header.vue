@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'Header' }
-</script>
-
 <script setup lang="ts">
 import {useAuthStore} from "~/stores/userAccountStore";
 import Logo from "./Logo.vue";
@@ -13,12 +9,18 @@ import {useI18n} from "vue-i18n";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import GlobalSearchTopWindowWidget from "@/components/GlobalSearchTopWindowWidget.vue";
 import {useDisplay} from "vuetify/framework";
+import {useRoute} from "vue-router";
 
 const authStore = useAuthStore(),
     {t} = useI18n(),
-    {mobile, xs} = useDisplay()
+    route = useRoute(),
+    {mobile, xs, width} = useDisplay()
 
 let drawer = ref(false)
+
+defineOptions({
+  name: "Header",
+})
 </script>
 
 <template>
@@ -34,11 +36,13 @@ let drawer = ref(false)
       <div class="d-flex ml-sm-1 ml-md-1 ml-lg-2 mr-5 text-no-wrap">
         <Logo size="32" class=""></Logo>
 
-        <v-divider vertical inset class="mx-3"></v-divider>
+        <template v-if="route.query.isShowSnBIcon">
+          <v-divider vertical inset class="mx-3"></v-divider>
 
-        <img
-            height="34"
-            src="@/assets/images/logo-snb.png" />
+          <img
+              height="34"
+              src="@/assets/images/logo-snb.png"/>
+        </template>
       </div>
 
       <v-spacer></v-spacer>
@@ -46,7 +50,7 @@ let drawer = ref(false)
       <div class="mr-3 d-flex align-center">
         <HeaderAccount type="header"></HeaderAccount>
 
-        <v-divider  class="ml-3 mr-1" inset vertical></v-divider>
+        <v-divider class="ml-3 mr-1" inset vertical></v-divider>
 
         <GlobalSearchTopWindowWidget>
           <v-btn icon="mdi-magnify"></v-btn>
@@ -59,39 +63,48 @@ let drawer = ref(false)
     </v-app-bar>
 
     <v-navigation-drawer
-        class="header-drawer"
-        v-model="drawer"
-        temporary>
-      <v-sheet class="pt-3">
-        <div class="mb-3 pl-3 pr-3">
+        class="header-drawer header-filter"
+        :width="width"
+        v-model="drawer">
+      <v-row class="pt-3">
+        <v-col cols="12" sm="6" lg="4">
+          <v-list-item link :to="nav.to" :href="nav.href" target="_blank"
+                       @click="drawer = !drawer"
+                       v-for="(nav, navIndex) in appFuns.list" :key="navIndex">
+            {{ t(nav.title) }}
+            <template v-slot:prepend>
+              <ItemSlotBase size="40px" class="mr-2 d-flex align-center justify-center">
+                <v-icon :icon="nav.icon"></v-icon>
+              </ItemSlotBase>
+            </template>
+          </v-list-item>
+        </v-col>
+        <v-divider vertical></v-divider>
+        <v-col cols="12" sm="6" lg="4">
           <HeaderAccount type="header-drawer"></HeaderAccount>
-        </div>
-        <v-divider></v-divider>
 
-        <v-list-item link :to="nav.to" :href="nav.href" target="_blank"
-                     @click="drawer = !drawer"
-                     v-for="(nav, navIndex) in appFuns.list" :key="navIndex">
-          {{ t(nav.title) }}
-          <template v-slot:prepend>
-            <ItemSlotBase size="20" class="mr-2">
-              <v-icon :icon="nav.icon"></v-icon>
-            </ItemSlotBase>
-          </template>
-        </v-list-item>
-        <v-divider></v-divider>
+          <v-divider></v-divider>
 
-        <v-list-item link :href="nav.href" target="_blank"
-                     v-for="(nav, navIndex) in appNavs.list" :key="navIndex">
-          {{ t(nav.title) }}
-          <template v-slot:append>
-            <v-icon icon="mdi-open-in-new" size="15"></v-icon>
-          </template>
-        </v-list-item>
-      </v-sheet>
+          <v-list-item link :href="nav.href" target="_blank"
+                       v-for="(nav, navIndex) in appNavs.list" :key="navIndex">
+            {{ t(nav.title) }}
+            <template v-slot:prepend>
+              <ItemSlotBase size="40px" class="mr-2 d-flex align-center justify-center">
+                <v-icon icon="mdi-open-in-new" size="25"></v-icon>
+              </ItemSlotBase>
+            </template>
+          </v-list-item>
+        </v-col>
+      </v-row>
     </v-navigation-drawer>
   </header>
 </template>
 
 <style scoped>
 @import "@/assets/styles/header.less";
+
+.header-drawer {
+  background: rgb(0 0 0 / 60%);
+  border-bottom: none !important;
+}
 </style>
