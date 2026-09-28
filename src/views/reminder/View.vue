@@ -7,7 +7,7 @@ import LZString from 'lz-string';
 import {useReminderStore} from '~/stores/reminderStore';
 import {useNoticeStore} from '~/stores/noticeStore';
 import type {ReminderTask} from '@/assets/types/Reminder';
-import {getLocalizedText} from '@/assets/sripts/reminder_i18n';
+import {getLocalizedText} from '@/assets/sripts/reminder_calc';
 
 import Silk from '@/components/Silk.vue';
 import EmptyView from '@/components/EmptyView.vue';

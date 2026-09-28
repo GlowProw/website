@@ -2,7 +2,75 @@
  * 活动提醒计算工具
  * 负责计算下一次提醒的触发时机、提前提醒、有效期检测以及格式化倒计时
  */
-import type { ReminderNextTriggerInfo, ReminderTask } from '@/assets/types/Reminder';
+import type { MultilingualText, ReminderNextTriggerInfo, ReminderTask } from '@/assets/types/Reminder';
+
+/**
+ * 解析并获取多语言文本（轻量级无依赖实现，避免 Worker 打包进完整 i18n 字典）
+ */
+export function getLocalizedText(
+    text: MultilingualText | undefined | null,
+    targetLocale?: string
+): string {
+    if (!text) return '';
+    if (typeof text === 'string') return text;
+    if (typeof text !== 'object') return String(text);
+
+    let currentLocale: string = targetLocale || '';
+    if (!currentLocale && typeof window !== 'undefined') {
+        try {
+            const raw = localStorage.getItem('lang');
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                currentLocale = parsed?.data?.value?.value || parsed?.value?.value || parsed?.value || parsed || '';
+            }
+        } catch {}
+    }
+    if (!currentLocale) currentLocale = 'zh-CN';
+    const fallback = 'zh-CN';
+
+    const findInDict = (localeKey: string | undefined): string | null => {
+        if (!localeKey || typeof localeKey !== 'string') return null;
+
+        if (text[localeKey] !== undefined && text[localeKey] !== '') {
+            return text[localeKey];
+        }
+
+        const underscoreKey = localeKey.replace(/-/g, '_');
+        if (text[underscoreKey] !== undefined && text[underscoreKey] !== '') {
+            return text[underscoreKey];
+        }
+
+        const hyphenKey = localeKey.replace(/_/g, '-');
+        if (text[hyphenKey] !== undefined && text[hyphenKey] !== '') {
+            return text[hyphenKey];
+        }
+
+        const normalizedTarget = localeKey.toLowerCase().replace(/[-_]/g, '');
+        for (const [k, v] of Object.entries(text)) {
+            if (k.toLowerCase().replace(/[-_]/g, '') === normalizedTarget && v !== undefined && v !== '') {
+                return v;
+            }
+        }
+
+        const shortKey = localeKey.split(/[-_]/)[0].toLowerCase();
+        for (const [k, v] of Object.entries(text)) {
+            if (k.toLowerCase().split(/[-_]/)[0] === shortKey && v !== undefined && v !== '') {
+                return v;
+            }
+        }
+
+        return null;
+    };
+
+    const valByLocale = findInDict(currentLocale);
+    if (valByLocale !== null) return valByLocale;
+
+    const valByFallback = findInDict(fallback);
+    if (valByFallback !== null) return valByFallback;
+
+    const firstVal = Object.values(text).find(v => typeof v === 'string' && v.trim() !== '');
+    return firstVal || '';
+}
 
 /**
  * 解析日期时间字符串或时间戳为毫秒时间戳

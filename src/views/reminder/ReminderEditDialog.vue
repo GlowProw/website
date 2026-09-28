@@ -2,7 +2,7 @@
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { ReminderIntervalUnit, ReminderRepeatType, ReminderScheduleType, ReminderTask, ReminderValidityType } from '@/assets/types/Reminder';
-import { getLocalizedText } from '@/assets/sripts/reminder_i18n';
+import { getLocalizedText } from '@/assets/sripts/reminder_calc';
 import { REMINDER_PRESETS } from '@/config/reminderPresets';
 
 const props = defineProps<{
