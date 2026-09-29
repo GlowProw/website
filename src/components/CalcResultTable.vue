@@ -273,6 +273,7 @@ defineOptions({
                     <v-row dense>
                       <v-col cols="12" :lg="isColOne ? 12 : 5">
                         <table class="calc-table">
+                          <tbody>
                           <tr>
                             <td class="label sub">{{ t('assembly.calc.halfSail') }}</td>
                             <td class="value">
@@ -303,6 +304,7 @@ defineOptions({
                               </span>
                             </td>
                           </tr>
+                          </tbody>
                         </table>
                       </v-col>
                       <v-col cols="12" lg="7" v-if="!isColOne">

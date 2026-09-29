@@ -1439,6 +1439,33 @@
     },
     "refresh": "刷新"
   },
+  "dailyReport": {
+    "title": "航海日报",
+    "subtitle": "今日战况、战期进程与近期活动速报",
+    "season": {
+      "title": "当前赛季",
+      "remainingDays": "剩余 {days} 天",
+      "ended": "已结束"
+    },
+    "stateOfWar": {
+      "title": "战事动态",
+      "subtitle": "各方势力争夺情况",
+      "cycleTitle": "战争进程",
+      "currentCycle": "第 {cycle} 战期",
+      "cycleEnded": "本战期已结算",
+      "cycleUpcoming": "战期即将开启",
+      "contestedZones": "争夺中战区"
+    },
+    "calendar": {
+      "title": "近期活动",
+      "subtitle": "限时事件与掉落奖励",
+      "ongoing": "进行中",
+      "upcoming": "即将开始",
+      "startsInDays": "{days} 天后开启",
+      "noEvents": "近期暂无活动日程",
+      "rewards": "掉落奖励"
+    }
+  },
   "map": {
     "title": "地图",
     "description": "所有地图物品清单",

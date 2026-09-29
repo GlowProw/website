@@ -1,6 +1,6 @@
-import {AdConfig} from "src/assets/types";
+import type { AdConfig } from "@/assets/types";
 
-export const adClient = "ca-pub-6625226616103631"
+export const adClient = "ca-pub-6625226616103631";
 
 export const ads: Record<string, AdConfig> = {
   'snb-calendar-up': {
@@ -67,3 +67,5 @@ export const ads: Record<string, AdConfig> = {
     fullWidthResponsive: 'true'
   }
 };
+
+export default ads;

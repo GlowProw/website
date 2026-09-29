@@ -1429,6 +1429,33 @@
     },
     "refresh": "重新整理"
   },
+  "dailyReport": {
+    "title": "航海日報",
+    "subtitle": "今日戰況、戰期進程與近期活動速報",
+    "season": {
+      "title": "當前賽季",
+      "remainingDays": "剩餘 {days} 天",
+      "ended": "已結束"
+    },
+    "stateOfWar": {
+      "title": "戰事動態",
+      "subtitle": "各方勢力爭奪情況",
+      "cycleTitle": "戰爭進程",
+      "currentCycle": "第 {cycle} 戰期",
+      "cycleEnded": "本戰期已結算",
+      "cycleUpcoming": "戰期即將開啟",
+      "contestedZones": "爭奪中戰區"
+    },
+    "calendar": {
+      "title": "近期活動",
+      "subtitle": "限時事件與掉落獎勵",
+      "ongoing": "進行中",
+      "upcoming": "即將開始",
+      "startsInDays": "{days} 天後開啟",
+      "noEvents": "近期暫無活動日程",
+      "rewards": "掉落獎勵"
+    }
+  },
   "map": {
     "title": "地圖",
     "description": "所有地圖物品清單",

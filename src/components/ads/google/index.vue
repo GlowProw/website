@@ -29,7 +29,7 @@ import {storage_account} from "@/assets/sripts/index";
 import {GoogleAdProps} from "@/assets/types";
 import {useI18n} from "vue-i18n";
 import Adsense from 'vue3-google-adsense/src/Adsense.vue'
-import {ads, adClient} from "~/public/config/ad";
+import {ads, adClient} from "@/config/ad";
 
 const props = withDefaults(defineProps<GoogleAdProps>(), {
       class: '',

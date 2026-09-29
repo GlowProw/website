@@ -4,7 +4,7 @@ import {computed, onMounted, onUnmounted, ref, watch} from 'vue'
 import {useI18n} from 'vue-i18n'
 import {CreateOrderParams, MyOrder, SubscriptionPlans, SubscriptionProgress, useSubscriptionApi} from '@/assets/sripts/api/subscription_service'
 import type {SubscriptionTierItem} from '@/assets/types/Subscription'
-import {subscriptionsConfig} from '~/public/config/subscriptions'
+import {subscriptionsConfig} from '@/config/subscriptions'
 import {useAuthStore} from '~/stores/userAccountStore'
 import {useNoticeStore} from '~/stores/noticeStore'
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";

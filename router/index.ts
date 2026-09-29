@@ -134,6 +134,7 @@ import WidgetSetPage from '@/widgets/set/Index.vue';
 import WidgetMapLocationPage from '@/widgets/mapLocation/Index.vue';
 import WidgetEmpireSkillPage from '@/widgets/empireSkills/Index.vue';
 import WidgetStateOfWarPage from '@/widgets/stateOfWar/Index.vue';
+import WidgetDailyReportPage from '@/widgets/dailyReport/Index.vue';
 
 import { useAuthStore } from "@/../stores/userAccountStore";
 import { useAssetsStore } from "@/../stores/assetsStore";
@@ -1011,6 +1012,16 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: 'stateOfWar/:seasonId',
                 name: 'StateOfWarSeasonWidget',
                 component: WidgetStateOfWarPage,
+            },
+            {
+                path: 'dailyReport',
+                name: 'DailyReportWidget',
+                component: WidgetDailyReportPage,
+            },
+            {
+                path: 'dailyReport/:seasonId',
+                name: 'DailyReportSeasonWidget',
+                component: WidgetDailyReportPage,
             }
         ]
     },

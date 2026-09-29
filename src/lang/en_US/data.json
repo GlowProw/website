@@ -1444,6 +1444,33 @@
     },
     "refresh": "Refresh"
   },
+  "dailyReport": {
+    "title": "Daily Briefing",
+    "subtitle": "Today's war situation, cycle progression & recent events",
+    "season": {
+      "title": "Current Season",
+      "remainingDays": "{days} Days Left",
+      "ended": "Ended"
+    },
+    "stateOfWar": {
+      "title": "State of War",
+      "subtitle": "Faction territorial dispute",
+      "cycleTitle": "War Progression",
+      "currentCycle": "Cycle {cycle}",
+      "cycleEnded": "Cycle Settled",
+      "cycleUpcoming": "Cycle Upcoming",
+      "contestedZones": "Contested Zones"
+    },
+    "calendar": {
+      "title": "Recent Events",
+      "subtitle": "Limited-time events & reward drops",
+      "ongoing": "Ongoing",
+      "upcoming": "Upcoming",
+      "startsInDays": "Starts in {days} days",
+      "noEvents": "No recent events scheduled",
+      "rewards": "Reward Drops"
+    }
+  },
   "map": {
     "title": "Map",
     "description": "Inventory of all map items",
