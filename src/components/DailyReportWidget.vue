@@ -9,6 +9,8 @@ import {getCurrentSeason, getCurrentSeasonId} from "@/assets/sripts/season";
 import {useStateOfWarStore} from "~/stores/stateOfWarStore";
 import type {CalendarData, CalendarEvent} from "@/assets/types/Calendar";
 
+import {formatCompactNumber} from "@/assets/sripts/number";
+
 // 复用已有小部件与组件
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 import FactionNameWidget from "@/components/snbWidget/factionNameWidget.vue";
@@ -148,6 +150,22 @@ const percentFactionA = computed<number>(() => {
 });
 const percentFactionB = computed<number>(() => 100 - percentFactionA.value);
 
+// 计算战资比例
+const calculatePercent = (val: number, total: number) => {
+  if (!total || total === 0) return 50;
+  return Math.round((val / total) * 1000) / 10;
+};
+
+// 获取具体区域数据 (对应 stateOfWar/View.vue 中的 getZoneData)
+const getZoneData = (zoneName: string) => {
+  if (!warData.value?.zones) {
+    return { name: zoneName, region: '', total: 0 };
+  }
+  const match = warData.value.zones.find((z: any) => z.name === zoneName || z.id === zoneName);
+  if (match) return match;
+  return { name: zoneName, region: '', total: 0 };
+};
+
 // 战争进程当前战期信息
 const activeCycle = computed<any>(() => {
   const list = warData.value?.progression || [];
@@ -164,12 +182,11 @@ const activeCycle = computed<any>(() => {
 // 格式化战期时间
 const formatCycleDate = (d: any): string => {
   if (!d) return "--";
-  const num = typeof d === "number" ? d : Number(d);
-  const date = !isNaN(num) && num > 0 ? new Date(num) : new Date(d);
-  if (isNaN(date.getTime())) return String(d);
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${m}-${day}`;
+  if (typeof d === "number" || (typeof d === "string" && /^\d+$/.test(d))) {
+    const date = new Date(Number(d));
+    return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
+  }
+  return String(d).split("T")[0];
 };
 
 const activeCycleTimeRange = computed<string>(() => {
@@ -213,9 +230,67 @@ const activeCycleProgress = computed<number>(() => {
   return Math.min(100, Math.max(0, Math.round((elapsed / total) * 100)));
 });
 
-// 当前主要争夺中战区前 3 个
-const topContestedZones = computed<any[]>(() => {
-  return (contestedZones.value || []).slice(0, 3);
+// 当前战期/争夺中战区列表 (完全对应 /stateOfWar/:seasonId/view 的战争进程与争夺中战区)
+const activeCycleZones = computed<any[]>(() => {
+  const fA = factionAKey.value;
+  const fB = factionBKey.value;
+
+  // 1. 若当前战期存在，优先提取当前战期中的战区名单
+  if (activeCycle.value) {
+    const aZoneNames = activeCycle.value[fA + "Zones"] || [];
+    const bZoneNames = activeCycle.value[fB + "Zones"] || [];
+    const allNames = Array.from(new Set([...aZoneNames, ...bZoneNames]));
+
+    if (allNames.length > 0) {
+      return allNames.map((zName: string) => {
+        const zoneObj = getZoneData(zName);
+        const valA = zoneObj[fA] || 0;
+        const valB = zoneObj[fB] || 0;
+        const total = zoneObj.total || (valA + valB) || 1;
+        const percentA = calculatePercent(valA, total);
+        const percentB = calculatePercent(valB, total);
+        const isTied = valA === valB;
+        const leadingFaction = isTied ? 'tied' : (valA > valB ? fA : fB);
+
+        return {
+          id: zoneObj.id || zName,
+          name: zoneObj.name || zName,
+          region: zoneObj.region || '',
+          total,
+          [fA]: valA,
+          [fB]: valB,
+          percentA,
+          percentB,
+          isTied,
+          leadingFaction,
+        };
+      });
+    }
+  }
+
+  // 2. 否则从 contestedZones (争夺中战区) 中提取
+  return (contestedZones.value || []).map((z: any) => {
+    const valA = z[fA] || 0;
+    const valB = z[fB] || 0;
+    const total = z.total || (valA + valB) || 1;
+    const percentA = calculatePercent(valA, total);
+    const percentB = calculatePercent(valB, total);
+    const isTied = valA === valB;
+    const leadingFaction = isTied ? 'tied' : (valA > valB ? fA : fB);
+
+    return {
+      id: z.id || z.name,
+      name: z.name,
+      region: z.region || '',
+      total,
+      [fA]: valA,
+      [fB]: valB,
+      percentA,
+      percentB,
+      isTied,
+      leadingFaction,
+    };
+  });
 });
 
 // ======================== 日历活动解析 ========================
@@ -522,7 +597,7 @@ onMounted(() => {
               <!-- 阵营几比几 对决战报看板 E -->
 
               <!-- 战争进程当前时间信息 S -->
-              <div v-if="activeCycle" class="war-cycle-info pa-3 rounded-lg border bg-black-opacity-40 mb-3">
+              <div v-if="activeCycle" class="war-cycle-info bg-black-opacity-40 mb-3">
                 <div class="d-flex align-center justify-space-between flex-wrap ga-2 mb-2">
                   <div class="d-flex align-center ga-2">
                     <v-icon icon="mdi-flag-checkered" color="amber" size="18"></v-icon>
@@ -558,8 +633,8 @@ onMounted(() => {
                 ></v-progress-linear>
 
                 <!-- 当前战期战况细览 (区域分布简报) -->
-                <div v-if="activeCycle.totals" class="mt-3 pt-2 border-t d-flex justify-space-between align-center text-caption">
-                  <span class="text-medium-emphasis">{{ t("stateOfWar.currentPeriod") }}:</span>
+                <div v-if="activeCycle.totals" class="mt-3 d-flex justify-space-between align-center text-caption">
+                  <v-spacer></v-spacer>
                   <div class="d-flex align-center ga-3">
                     <span :style="{ color: factionAColor }" class="font-weight-bold">
                       <FactionNameWidget :id="factionAKey"></FactionNameWidget>
@@ -572,29 +647,55 @@ onMounted(() => {
                     </span>
                   </div>
                 </div>
-              </div>
 
-              <!-- 争夺中战区列表小结 -->
-              <div v-if="topContestedZones.length > 0" class="contested-mini-list">
-                <div class="text-caption text-medium-emphasis mb-2 d-flex align-center ga-1">
-                  <v-icon icon="mdi-map-marker-radius-outline" size="14"></v-icon>
-                  <span>{{ t("dailyReport.stateOfWar.contestedZones") }}</span>
-                </div>
-                <div class="d-flex flex-column ga-2">
-                  <div
-                      v-for="z in topContestedZones"
-                      :key="z.id || z.name"
-                      class="contested-item d-flex align-center justify-space-between pa-2 rounded border bg-black-opacity-30"
-                  >
-                    <div class="d-flex align-center ga-2 text-truncate mr-2">
-                      <v-icon icon="mdi-earth" size="16" class="opacity-50"></v-icon>
-                      <span class="text-caption font-weight-medium text-truncate"><ZoneName :id="z.name || z.id"/></span>
-                      <span class="text-caption opacity-40 text-truncate"><RegionName :id="z.region"/></span>
-                    </div>
-                    <div class="d-flex align-center ga-2 text-caption font-weight-bold shrink-0">
-                      <span :style="{ color: factionAColor }">{{ z[factionAKey] || 0 }}</span>
-                      <span class="opacity-30">:</span>
-                      <span :style="{ color: factionBColor }">{{ z[factionBKey] || 0 }}</span>
+                <!-- 争夺中战区列表  -->
+                <div v-if="activeCycleZones.length > 0" class="contested-mini-list mt-3">
+                  <div class="d-flex flex-column ga-2">
+                    <div
+                        v-for="z in activeCycleZones"
+                        :key="z.id || z.name"
+                        class="contested-item pa-2 rounded border bg-black-opacity-30">
+                      <div class="d-flex align-center justify-space-between ga-2 mb-1">
+                        <div class="d-flex align-center ga-1 text-truncate mr-2">
+                          <v-icon icon="mdi-earth" size="14" class="opacity-50"></v-icon>
+                          <span class="text-caption font-weight-medium text-truncate"><ZoneName :id="z.name"/></span>
+                          <span class="text-caption opacity-40 text-truncate"><RegionName :id="z.region"/></span>
+                        </div>
+
+                        <v-chip
+                            size="x-small"
+                            :style="{ borderColor: z.isTied ? '#888' : (z.leadingFaction === factionAKey ? factionAColor : factionBColor), color: z.isTied ? '#aaa' : (z.leadingFaction === factionAKey ? factionAColor : factionBColor) }"
+                            variant="tonal"
+                            class="font-weight-bold shrink-0">
+                          <template v-if="z.isTied">
+                            {{ t('stateOfWar.tied') }}
+                          </template>
+                          <template v-else>
+                            <FactionNameWidget :id="z.leadingFaction"/>
+                            {{ t('stateOfWar.leading') }}
+                          </template>
+                        </v-chip>
+                      </div>
+
+                      <!-- 战资数据对比与百分比 -->
+                      <div class="d-flex align-center justify-space-between text-caption font-weight-bold mb-1" style="font-size: 11px;">
+                      <span :style="{ color: factionAColor }">
+                        {{ formatCompactNumber(z[factionAKey]) }} ({{ z.percentA }}%)
+                      </span>
+                        <span :style="{ color: factionBColor }">
+                        {{ formatCompactNumber(z[factionBKey]) }} ({{ z.percentB }}%)
+                      </span>
+                      </div>
+
+                      <!-- 对抗进度条 -->
+                      <v-progress-linear
+                          height="4"
+                          rounded
+                          :model-value="z.percentA"
+                          :color="factionAColor"
+                          :bg-color="factionBColor"
+                          bg-opacity="1">
+                      </v-progress-linear>
                     </div>
                   </div>
                 </div>
