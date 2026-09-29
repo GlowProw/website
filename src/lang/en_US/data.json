@@ -1469,6 +1469,11 @@
       "startsInDays": "Starts in {days} days",
       "noEvents": "No recent events scheduled",
       "rewards": "Reward Drops"
+    },
+    "drop": {
+      "title": "Active Twitch Drops",
+      "subtitle": "Limited-time Twitch Drops campaigns & rewards",
+      "noDrops": "No active Twitch Drops campaigns at the moment"
     }
   },
   "map": {

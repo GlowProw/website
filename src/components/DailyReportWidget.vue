@@ -21,6 +21,7 @@ import CosmeticIconWidget from "@/components/snbWidget/cosmeticIconWidget.vue";
 import Loading from "@/components/Loading.vue";
 import SeasonViewWidget from "@/components/SeasonViewWidget.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
+import DropWidget from "@/components/DropWidget.vue";
 
 export interface DailyCalendarEventItem {
   id: string;
@@ -43,11 +44,13 @@ const props = withDefaults(
       isWidget?: boolean;
       showCalendarLink?: boolean;
       showWarLink?: boolean;
+      showDrop?: boolean;
     }>(),
     {
       isWidget: false,
       showCalendarLink: true,
       showWarLink: true,
+      showDrop: true,
     }
 );
 
@@ -319,11 +322,40 @@ const fetchCalendarData = async () => {
   }
 };
 
+// ======================== 掉宝活动数据 ========================
+const dropLoading = ref<boolean>(false);
+const activeCampaigns = ref<any[]>([]);
+
+const fetchDropData = async () => {
+  if (!props.showDrop) return;
+  try {
+    dropLoading.value = true;
+    const res = await apis.dropApi().getCurrent();
+    const payload = res?.data?.data || res?.data || res;
+    if (payload) {
+      const activeStreams = payload.activeStreams || [];
+      const rawCampaigns = payload.campaigns || [];
+      activeCampaigns.value = rawCampaigns.map((c: any) => ({
+        ...c,
+        channels: (c.channels && c.channels.length > 0) ? c.channels : activeStreams,
+      }));
+    } else {
+      activeCampaigns.value = [];
+    }
+  } catch (err) {
+    console.error("Failed to load active drops for daily report:", err);
+    activeCampaigns.value = [];
+  } finally {
+    dropLoading.value = false;
+  }
+};
+
 // 刷新全部数据
 const refreshAll = async () => {
   await Promise.allSettled([
     warStore.getStateOfWarData(targetSeasonId.value),
     fetchCalendarData(),
+    fetchDropData(),
   ]);
 };
 
@@ -679,6 +711,49 @@ onMounted(() => {
               <!-- 活动列表 E -->
             </AffixBoxHasTitleView>
           </v-col>
+
+          <!-- 当前可用掉宝 S -->
+          <v-col cols="12" v-if="showDrop">
+            <AffixBoxHasTitleView class="section-card h-100">
+              <template v-slot:title>
+                {{ t("dailyReport.drop.title") }}
+              </template>
+              <div class="d-flex align-center justify-space-between mb-4">
+                <div class="d-flex align-center ga-2">
+                  <div>
+                    <span class="text-caption text-medium-emphasis">
+                      {{ t("dailyReport.drop.subtitle") }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 加载中状态 -->
+              <div v-if="dropLoading" class="py-8 text-center">
+                <Loading size="36"></Loading>
+              </div>
+
+              <!-- 空状态 -->
+              <div
+                v-else-if="activeCampaigns.length === 0"
+                class="py-8 text-center text-medium-emphasis"
+              >
+                <v-icon icon="mdi-gift-off-outline" size="40" class="mb-2 opacity-30"></v-icon>
+                <p class="text-caption mb-0">{{ t("dailyReport.drop.noDrops") }}</p>
+              </div>
+
+              <!-- 掉宝卡片列表 -->
+              <div v-else class="d-flex flex-column ga-4">
+                <DropWidget
+                  v-for="campaign in activeCampaigns"
+                  :key="campaign.id || campaign.campaignId"
+                  :campaign="campaign"
+                  :is-active-card="true"
+                />
+              </div>
+            </AffixBoxHasTitleView>
+          </v-col>
+          <!-- 当前可用掉宝 E -->
         </v-row>
       </div>
     </v-card>

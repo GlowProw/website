@@ -1454,6 +1454,11 @@
       "startsInDays": "{days} 天後開啟",
       "noEvents": "近期暫無活動日程",
       "rewards": "掉落獎勵"
+    },
+    "drop": {
+      "title": "當前可用掉寶",
+      "subtitle": "Twitch Drops 限時掉寶活動與獎勵",
+      "noDrops": "當前暫無正在生效的掉寶活動"
     }
   },
   "map": {
