@@ -65,7 +65,8 @@ defineOptions({
     <v-navigation-drawer
         class="header-drawer header-filter"
         :width="width"
-        v-model="drawer">
+        v-model="drawer"
+        temporary>
       <v-row class="pt-3">
         <v-col cols="12" sm="6" lg="4">
           <v-list-item link :to="nav.to" :href="nav.href" target="_blank"

@@ -581,12 +581,10 @@ onMounted(() => {
                   <div class="d-flex align-center w-100 rounded-pill overflow-hidden ratio-track">
                     <div
                         class="ratio-fill-a transition-all"
-                        :style="{ width: `${percentFactionA}%`, backgroundColor: factionAColor }"
-                    ></div>
+                        :style="{ width: `${percentFactionA}%`, backgroundColor: factionAColor }"></div>
                     <div
                         class="ratio-fill-b transition-all"
-                        :style="{ width: `${percentFactionB}%`, backgroundColor: factionBColor }"
-                    ></div>
+                        :style="{ width: `${percentFactionB}%`, backgroundColor: factionBColor }"></div>
                   </div>
                   <div class="d-flex justify-space-between text-caption mt-1 font-weight-medium">
                     <span :style="{ color: factionAColor }">{{ percentFactionA }}%</span>
@@ -613,8 +611,7 @@ onMounted(() => {
                       size="x-small"
                       :color="activeCycle.status === 'ended' ? 'grey' : (activeCycle.status === 'active' ? 'amber-darken-2' : '')"
                       variant="flat"
-                      class="font-weight-bold text-black"
-                  >
+                      class="font-weight-bold text-black">
                     {{ activeCycle.status === "ended" ? t("stateOfWar.ended") : (activeCycle.status === "active" ? t("stateOfWar.active") : t("stateOfWar.upcoming")) }}
                   </v-chip>
                 </div>
@@ -629,8 +626,7 @@ onMounted(() => {
                     color="amber"
                     bg-color="grey-darken-3"
                     height="4"
-                    rounded
-                ></v-progress-linear>
+                    rounded></v-progress-linear>
 
                 <!-- 当前战期战况细览 (区域分布简报) -->
                 <div v-if="activeCycle.totals" class="mt-3 d-flex justify-space-between align-center text-caption">
@@ -727,8 +723,7 @@ onMounted(() => {
               <!-- 空状态 -->
               <div
                   v-else-if="parsedCalendarEvents.length === 0"
-                  class="py-8 text-center text-medium-emphasis"
-              >
+                  class="py-8 text-center text-medium-emphasis">
                 <v-icon icon="mdi-calendar-blank-outline" size="40" class="mb-2 opacity-30"></v-icon>
                 <p class="text-caption mb-0">{{ t("dailyReport.calendar.noEvents") }}</p>
               </div>
@@ -736,54 +731,50 @@ onMounted(() => {
               <!-- 活动列表 S -->
               <div v-else class="d-flex flex-column ga-3">
                 <!-- 活动卡片 -->
-                <div
+                <v-card
+                    variant="text"
+                    border
                     v-for="ev in parsedCalendarEvents.slice(0, 4)"
                     :key="ev.id + ev.startMs"
-                    class="event-item-card pa-3 rounded-lg border transition-all"
-                    :class="{ 'is-active-event': ev.isOngoing }"
-                >
+                    class="event-item-card pa-3 transition-all"
+                    :class="{ 'is-active-event': ev.isOngoing }">
                   <div class="d-flex align-start justify-space-between ga-2 mb-2">
                     <div>
                       <div class="d-flex align-center ga-2 flex-wrap">
-                        <span class="text-subtitle-2 font-weight-bold text-amber-lighten-3">
+                        <span class="text-h6 font-weight-bold text-amber-lighten-3">
                           {{ ev.name }}
                         </span>
                         <v-chip
                             size="x-small"
                             :color="ev.isOngoing ? 'amber-darken-2' : 'grey-darken-2'"
                             variant="flat"
-                            class="font-weight-bold text-black"
-                        >
+                            class="font-weight-bold text-black">
                           {{ ev.isOngoing ? t("dailyReport.calendar.ongoing") : t("dailyReport.calendar.upcoming") }}
                         </v-chip>
                       </div>
-                      <p v-if="ev.description" class="text-caption text-medium-emphasis line-clamp-2 mt-1 mb-0">
+                      <p v-if="ev.description" class="text-medium-emphasis line-clamp-2 mt-1 mb-0">
                         {{ ev.description }}
                       </p>
                     </div>
 
                     <div class="text-right shrink-0">
-                      <div class="text-caption font-weight-medium text-amber">
+                      <div class="font-weight-medium text-amber">
                         {{ ev.isOngoing ? t("dailyReport.season.remainingDays", {days: ev.daysRemainingOrUntil}) : t("dailyReport.calendar.startsInDays", {days: ev.daysRemainingOrUntil}) }}
                       </div>
-                      <div class="text-caption text-disabled" style="font-size: 11px;">
-                        {{ ev.startDateStr }} ~ {{ ev.endDateStr }}
+                      <div class="text-disabled">
+                        <u class="u">{{ ev.startDateStr }}</u> ~ <u class="u">{{ ev.endDateStr }}</u>
                       </div>
                     </div>
                   </div>
 
                   <!-- 掉落物预览 -->
-                  <div v-if="ev.droppeds && Object.keys(ev.droppeds).length > 0" class="mt-2 pt-2 border-t d-flex align-center ga-2">
-                    <span class="text-caption text-medium-emphasis mr-1" style="font-size: 11px;">
-                      {{ t("dailyReport.calendar.rewards") }}:
-                    </span>
-                    <div class="d-flex align-center ga-1 flex-wrap">
+                  <div v-if="ev.droppeds && Object.keys(ev.droppeds).length > 0" class="d-flex align-center">
+                    <div class="d-flex align-center ga-1 flex-wrap ml-n2">
                       <ItemSlotBase
                           v-for="(dropInfo, dropId) in Object.entries(ev.droppeds).slice(0, 4)"
                           :key="dropId"
-                          size="32px"
-                          class="d-flex justify-center align-center mini-drop-slot"
-                      >
+                          size="40px"
+                          class="d-flex justify-center align-center mini-drop-slot">
                         <template v-if="(dropInfo[1] as any).category === 'item' && !(dropInfo[1] as any).isUnknown">
                           <ItemIconWidget :id="dropInfo[0]" :padding="0" :margin="0" :size="28"></ItemIconWidget>
                         </template>
@@ -801,13 +792,12 @@ onMounted(() => {
                       <ItemSlotBase
                           v-if="Object.keys(ev.droppeds).length > 4"
                           size="32px"
-                          class="d-flex justify-center align-center text-caption font-weight-bold"
-                      >
+                          class="d-flex justify-center align-center text-caption font-weight-bold">
                         +{{ Object.keys(ev.droppeds).length - 4 }}
                       </ItemSlotBase>
                     </div>
                   </div>
-                </div>
+                </v-card>
               </div>
               <!-- 活动列表 E -->
             </AffixBoxHasTitleView>
@@ -837,8 +827,7 @@ onMounted(() => {
               <!-- 空状态 -->
               <div
                 v-else-if="activeCampaigns.length === 0"
-                class="py-8 text-center text-medium-emphasis"
-              >
+                class="py-8 text-center text-medium-emphasis">
                 <v-icon icon="mdi-gift-off-outline" size="40" class="mb-2 opacity-30"></v-icon>
                 <p class="text-caption mb-0">{{ t("dailyReport.drop.noDrops") }}</p>
               </div>
@@ -929,15 +918,12 @@ onMounted(() => {
 
 .event-item-card {
   background: rgba(0, 0, 0, 0.35);
-  border-color: rgba(255, 255, 255, 0.06) !important;
 
   &:hover {
-    border-color: rgba(255, 179, 0, 0.3) !important;
     background: rgba(0, 0, 0, 0.5);
   }
 
   &.is-active-event {
-    border-color: rgba(255, 179, 0, 0.25) !important;
     background: linear-gradient(90deg, rgba(255, 179, 0, 0.06) 0%, rgba(0, 0, 0, 0.4) 100%);
   }
 }
