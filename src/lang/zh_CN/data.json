@@ -15,6 +15,7 @@
       "commandPlaceholder": "指令",
       "invokeFeature": "唤起功能",
       "addBot": "添加机器人",
+      "docs": "文档",
       "dialog": {
         "description": "通过以下任意方式，连接你与闪耀船首机器人",
         "linkButton": "链接",

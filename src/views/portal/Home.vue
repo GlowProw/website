@@ -14,6 +14,8 @@ import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 import DonorsWidget from "@/components/DonorsWidget.vue";
 import Loading from "@/components/Loading.vue";
+import QQBotBannerWidget from "@/components/QQBotBannerWidget.vue";
+import QQBotShowcaseWidget from "@/components/QQBotShowcaseWidget.vue";
 
 const {t} = useI18n()
 
@@ -60,7 +62,7 @@ onUnmounted(() => {
 
 <template>
   <div>
-    <v-card class="portal-banner">
+    <v-card class="portal-banner overflow-hidden position-relative">
       <template v-slot:image>
         <Silk
             :speed="5"
@@ -88,7 +90,7 @@ onUnmounted(() => {
       </div>
     </v-card>
 
-    <div class="portal-body pl-3 pr-3 pt-2 pb-2 pt-md-3 pb-md-3 pt-lg-10 pb-lg-10">
+    <div class="portal-body overflow-hidden position-relative pl-3 pr-3 pt-10 pb-2">
       <v-container>
         <v-row>
           <v-col cols="12" md="8" lg="8">
@@ -113,21 +115,19 @@ onUnmounted(() => {
             </v-row>
           </v-col>
           <v-col lg="4">
-            <AffixContainerView>
-              <div class="title card-enlargement-mask-flavor pb-6">
-                <v-card width="100%" variant="text">
-                  <template v-slot:title>
-                    <v-card height="180" class="bg-black d-flex justify-center align-center">
-                      <v-icon size="120">mdi-calendar-range</v-icon>
-                    </v-card>
-                  </template>
-                </v-card>
+           <div class="title card-enlargement-mask-flavor pb-6">
+              <v-card width="100%" variant="text">
+                <template v-slot:title>
+                  <v-card height="180" class="bg-black d-flex justify-center align-center">
+                    <v-icon size="120">mdi-calendar-range</v-icon>
+                  </v-card>
+                </template>
+              </v-card>
 
-                <div class="mt-3 mx-5">
-                  <v-btn block to="/calendar/history" size="50" prepend-icon="mdi-calendar-range">{{ t('calendar.title') }}</v-btn>
-                </div>
+              <div class="mt-3 mx-5">
+                <v-btn block to="/calendar/history" size="50" prepend-icon="mdi-calendar-range">{{ t('calendar.title') }}</v-btn>
               </div>
-            </AffixContainerView>
+            </div>
           </v-col>
         </v-row>
       </v-container>
@@ -178,13 +178,27 @@ onUnmounted(() => {
       </v-container>
     </div>
 
-    <v-divider></v-divider>
+    <div class="portal-body mt-10 pl-3 pr-3 pt-2 pb-10">
+      <v-container>
+        <v-row align="center">
+          <v-col cols="12" md="4" lg="4">
+            <QQBotBannerWidget :is-show-detail="true" layout="vertical"/>
+          </v-col>
+          <v-col cols="0" md="1" lg="1">
+
+          </v-col>
+          <v-col cols="12" md="7" lg="7">
+            <QQBotShowcaseWidget/>
+          </v-col>
+        </v-row>
+      </v-container>
+    </div>
 
     <!-- 捐助者 S -->
     <DonorsWidget v-if="false"></DonorsWidget>
     <!-- 捐助者 E -->
 
-    <div class="bg-black pt-5 background-img-flavor">
+    <div class="portal-body bg-black pt-16 pb-16">
       <v-container>
         <v-row>
           <v-col cols="12" sm="12" md="4" lg="4">
@@ -193,11 +207,7 @@ onUnmounted(() => {
 
               <AppVersionWidget></AppVersionWidget>
 
-              <template v-slot:title>
-                <div>
-                  {{ t('portal.appVersionLog') }}
-                </div>
-              </template>
+              <template v-slot:title>{{ t('portal.appVersionLog') }}</template>
             </AffixBoxHasTitleView>
           </v-col>
           <v-col cols="12" sm="12" md="8" lg="8">
@@ -205,9 +215,7 @@ onUnmounted(() => {
               <BlogWidget></BlogWidget>
 
               <template v-slot:title>
-                <div>
                   {{ t('portal.blogLog') }}
-                </div>
 
                 <div class="mt-3">
                   <a href="https://help.glow-prow.top/blog" target="_blank">
@@ -227,6 +235,7 @@ onUnmounted(() => {
 .portal-banner {
   min-height: 700px;
   position: relative;
+  z-index: 5;
   overflow: hidden;
 
   .portal-banner-backMark {
@@ -299,9 +308,8 @@ onUnmounted(() => {
 
 .portal-body {
   background: #131313;
-  position: relative;
-  overflow: hidden;
   margin-top: -50px;
+  z-index: 10;
   border-radius: 20px 20px 10px 10px;
 }
 

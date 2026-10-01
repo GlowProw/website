@@ -63,130 +63,27 @@
     </v-row>
   </v-container>
 
-  <v-card class="px-10 bg-black" title>
-    <v-container>
-      <StylizedLineBackground
-          :offset-x="0"
-          :offset-y="0">
-        <v-row align="center">
-          <v-col>
-            <h1 class="text-h2 text-amber-accent-4 font-weight-bold mb-4">{{ t('apps.qqBot.name') }}</h1>
-
-            <div class="my-5">
-              <div class="d-flex align-center text-h4">
-                <u class="u">@{{ t('name') }}</u>
-                <v-icon icon="mdi-slash-forward" color="var(--main-color)" class="mr-n2"></v-icon>
-                <span class="font-weight-medium">{ {{ t('apps.qqBot.commandPlaceholder') }} }</span>
-              </div>
-              <p class="mt-1 opacity-60">{{ t('apps.qqBot.invokeFeature') }}</p>
-            </div>
-          </v-col>
-          <v-col cols="12" lg="5">
-            <v-btn variant="tonal"
-                   block
-                   size="large"
-                   @click="model = true"
-                   color="var(--main-color)">
-              {{ t('apps.qqBot.addBot') }}
-            </v-btn>
-
-            <v-dialog v-model="model">
-              <v-card border class="mx-auto">
-                <v-card-title class="py-10 text-center bg-black mb-4">
-                  <v-icon size="80">mdi-bookmark-multiple</v-icon>
-                </v-card-title>
-                <v-card-text class="py-3 px-10">
-                  <p class="mb-4">{{ t('apps.qqBot.dialog.description') }}</p>
-                  <v-row align="end">
-                    <v-col cols="6" lg="4" class="text-center">
-                      <v-btn border block href="https://bot.q.qq.com/s/v4A7C5CJ9Y" class="bg-amber">
-                        {{ t('apps.qqBot.dialog.linkButton') }}
-                      </v-btn>
-                      <p class="mt-2 mx-4 text-caption opacity-60">{{ t('apps.qqBot.dialog.linkDesc') }}</p>
-                      <p class="mt-2">{{ t('apps.qqBot.dialog.accountIdentifier') }}</p>
-                    </v-col>
-                    <v-col cols="6" lg="4" class="text-center">
-                      <p class="u text-amber text-h5">3889974138</p>
-                      <p class="mt-2 mx-4 text-caption opacity-60">{{ t('apps.qqBot.dialog.qqIdDesc') }}</p>
-                      <p class="mt-2">{{ t('apps.qqBot.dialog.accountIdentifier') }}</p>
-                    </v-col>
-                    <v-col cols="12" lg="4" class="text-center">
-                      <v-card border class="mx-auto pa-1 bg-white d-inline-flex">
-                        <v-img src="@/assets/images/app-qq-bot-qr.png" width="100"/>
-                      </v-card>
-
-                      <p class="mt-2">{{ t('apps.qqBot.dialog.qrCode') }}</p>
-                    </v-col>
-                  </v-row>
-
-                  <v-row style="margin-top: -60px" class="opacity-10" dense>
-                    <v-col cols="4" class="text-center">
-                      <h5 class="text-h1 opacity-60">{{ number.intToRoman(1) }}</h5>
-                    </v-col>
-                    <v-col cols="4" class="text-center">
-                      <h5 class="text-h1 opacity-60">{{ number.intToRoman(2) }}</h5>
-                    </v-col>
-                    <v-col cols="4" class="text-center">
-                      <h5 class="text-h1 opacity-60">{{ number.intToRoman(3) }}</h5>
-                    </v-col>
-                  </v-row>
-
-                  <v-divider></v-divider>
-                  <div class="my-3">
-                    <p class="mb-1">{{ t('apps.qqBot.dialog.tipsTitle') }}</p>
-                    <ul class="text-caption opacity-60">
-                      <li>{{ t('apps.qqBot.dialog.tip1') }}</li>
-                      <li>{{ t('apps.qqBot.dialog.tip2') }}</li>
-                      <li>{{ t('apps.qqBot.dialog.tip3') }}</li>
-                      <li>{{ t('apps.qqBot.dialog.tip4') }}</li>
-                    </ul>
-                  </div>
-                </v-card-text>
-              </v-card>
-            </v-dialog>
-          </v-col>
-        </v-row>
-      </StylizedLineBackground>
+  <div class="bg-black">
+    <v-container class="py-10">
+      <QQBotBannerWidget :is-show-detail="false"/>
     </v-container>
-  </v-card>
+  </div>
 
   <v-container class="mt-10">
-    <HorizontalScrollList :forceDraggable="true" :showControls="true">
-      <v-card border width="300" height="575" class="bg-black" v-for="i in 5" :key="i">
-        <v-img height="100%" :src="getUseImage(String(i))"></v-img>
-      </v-card>
-    </HorizontalScrollList>
+    <QQBotShowcaseWidget/>
   </v-container>
 </template>
 
 <script setup lang="ts">
 import Silk from "@/components/Silk.vue";
 import {useI18n} from "vue-i18n";
-import HorizontalScrollList from "@/components/HorizontalScrollList.vue";
-import {appApps, number} from "@/assets/sripts/index";
-import {onMounted, ref} from "vue";
-import {useAssetsStore} from "~/stores/assetsStore";
-import StylizedLineBackground from "@/components/StylizedLineBackground.vue";
+import QQBotBannerWidget from "@/components/QQBotBannerWidget.vue";
+import QQBotShowcaseWidget from "@/components/QQBotShowcaseWidget.vue";
+import {appApps} from "@/assets/sripts/index";
+import {ref} from "vue";
 
-const images = import.meta.glob('@/assets/images/apps/qqBot/*', {eager: true});
-const {t} = useI18n(),
-    {serializationMap} = useAssetsStore()
-
-let id = ref('qqBot'),
-    contentImages = ref({}),
-    model = ref(false)
-
-onMounted(() => {
-  contentImages.value = serializationMap(images)
-})
-
-/**
- * 获取图片
- * @param id
- */
-const getUseImage = (id: string) => {
-  return contentImages.value[`use_${id}`]
-}
+const {t} = useI18n();
+let id = ref('qqBot');
 </script>
 
 <style scoped lang="less">

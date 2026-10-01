@@ -15,6 +15,7 @@
       "commandPlaceholder": "Command",
       "invokeFeature": "Invoke Feature",
       "addBot": "Add Bot",
+      "docs": "Robot Docs",
       "dialog": {
         "description": "Connect with the Glow Prow bot through any of the following methods",
         "linkButton": "Link",
