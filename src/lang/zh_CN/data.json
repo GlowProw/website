@@ -1353,7 +1353,58 @@
       "title": "专精技能列表",
       "describe": "专精技能手稿收录各赛季专精树升级节点、核心增益与赛季特长效果。",
       "lookDetail": "查看专精详情(按住)"
+    },
+    "quest": {
+      "title": "剧情任务详情",
+      "describe": "剧情手稿收录碧海黑帆主线与支线剧情任务、阶段线索与前置解锁条件。",
+      "lookDetail": "查看剧情详情",
+      "category": "剧情线",
+      "prerequisites": "前置剧情",
+      "noPrerequisites": "初始任务 / 无前置要求",
+      "subsequentQuests": "后续接续任务",
+      "dateAdded": "添加日期",
+      "lastUpdated": "更新日期",
+      "progress": "第 {current} / {total} 幕"
+    },
+    "quests": {
+      "title": "剧情任务列表",
+      "describe": "剧情手稿收录碧海黑帆主线与支线剧情任务、阶段线索与前置解锁条件。",
+      "lookDetail": "查看剧情详情",
+      "category": "剧情线",
+      "allCategories": "全部剧情",
+      "searchPlaceholder": "搜索任务名称、ID、分类或线索...",
+      "count": "共 {count} 个任务 (总计 {total})",
+      "viewCategoryQuests": "查看该分类全部任务"
     }
+  },
+  "quest": {
+    "title": "剧情任务",
+    "detailTitle": "剧情任务详情",
+    "describe": "剧情收录碧海黑帆主线与支线剧情任务、阶段线索与前置解锁条件。",
+    "lookDetail": "查看剧情详情",
+    "category": "剧情线",
+    "allCategories": "全部剧情",
+    "searchPlaceholder": "搜索任务名称、ID、分类或线索...",
+    "prerequisites": "前置剧情",
+    "noPrerequisites": "初始任务 / 无前置要求",
+    "subsequentQuests": "后续接续任务",
+    "dateAdded": "添加日期",
+    "lastUpdated": "更新日期",
+    "progress": "第 {current} / {total} 幕",
+    "count": "共 {count} 个任务 (总计 {total})",
+    "viewCategoryQuests": "查看该分类全部任务",
+    "flowchart": "剧情流程图",
+    "storylineTree": "剧情路线图",
+    "parallelBranches": "平行分支",
+    "branchLane": "分支",
+    "mergePoint": "路线汇聚",
+    "expandAll": "展开全部",
+    "collapseAll": "折叠全部",
+    "currentQuest": "当前进行",
+    "arc": "故事线",
+    "step": "阶段",
+    "fold": "折叠",
+    "unfold": "展开"
   },
   "drop": {
     "title": "Twitch掉宝",
@@ -2563,6 +2614,10 @@
       "codex": {
         "title": "手稿",
         "description": "陈列物品信息, 检查它们如何获得"
+      },
+      "quest": {
+        "title": "剧情",
+        "description": "浏览游戏剧情故事线与任务档案"
       },
       "smugglers-report": {
         "title": "鉴赏家",

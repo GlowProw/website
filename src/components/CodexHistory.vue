@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
 import MapLocationIconWidget from "@/components/snbWidget/mapLocationIconWidget.vue";
 import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
@@ -11,41 +10,43 @@ import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
 import NpcIconWidget from "@/components/snbWidget/npcIconWidget.vue";
+import EmpireSkillIconWidget from "@/components/snbWidget/empireSkillIconWidget.vue";
+import MasteryIconWidget from "@/components/snbWidget/masteryIconWidget.vue";
+import QuestIconWidget from "@/components/snbWidget/questIconWidget.vue";
+import SetIconWidget from "@/components/snbWidget/setIconWidget.vue";
 import {onMounted, ref} from "vue";
 import {storage} from "@/assets/sripts/index";
 import {useI18n} from "vue-i18n";
-import SetIconWidget from "@/components/snbWidget/setIconWidget.vue";
 
-const {t} = useI18n()
+const {t} = useI18n();
 
-let codexHistorys = ref([])
+let codexHistorys = ref<any[]>([]);
 
 onMounted(() => {
-  getCodexHistory()
-})
+  getCodexHistory();
+});
 
 /**
  * 获取历史记录
  */
 const getCodexHistory = () => {
-  let name = 'codex.history'
+  let name = 'codex.history';
 
-  const d = storage.session.get(name)
+  const d = storage.session.get(name);
 
   if (d.code == 0)
-    codexHistorys.value = Object.values(d.data.value)
-}
-
+    codexHistorys.value = Object.values(d.data.value);
+};
 
 /**
  * 清理历史
  */
 const onCleaningHistory = () => {
-  let name = 'codex.history'
+  let name = 'codex.history';
 
-  codexHistorys.value = []
-  return storage.session.rem(name)
-}
+  codexHistorys.value = [];
+  return storage.session.rem(name);
+};
 </script>
 
 <template>
@@ -66,7 +67,7 @@ const onCleaningHistory = () => {
     </v-toolbar>
 
     <v-row class="px-5">
-      <v-col cols="auto" v-for="(i,index) in codexHistorys" :key="index">
+      <v-col cols="auto" v-for="(i, index) in codexHistorys" :key="index">
         <ItemSlotBase size="120px">
           <ShipIconWidget :id="i.id" v-if="i.category == 'ship'"></ShipIconWidget>
           <ItemIconWidget :id="i.id" v-if="i.category == 'item'"></ItemIconWidget>
@@ -79,6 +80,9 @@ const onCleaningHistory = () => {
           <CosmeticIconWidget :id="i.id" v-if="i.category == 'cosmetic'"></CosmeticIconWidget>
           <ModIconWidget :id="i.id" v-if="i.category == 'modification'"></ModIconWidget>
           <NpcIconWidget :id="i.id" v-if="i.category == 'npc'"></NpcIconWidget>
+          <EmpireSkillIconWidget :id="i.id" v-if="i.category == 'empireSkill'"></EmpireSkillIconWidget>
+          <MasteryIconWidget :id="i.id" v-if="i.category == 'mastery'"></MasteryIconWidget>
+          <QuestIconWidget :id="i.id" v-if="i.category == 'quest'"></QuestIconWidget>
         </ItemSlotBase>
       </v-col>
     </v-row>
@@ -86,5 +90,4 @@ const onCleaningHistory = () => {
 </template>
 
 <style scoped lang="less">
-
 </style>

@@ -11,7 +11,6 @@ import type {CalendarData, CalendarEvent} from "@/assets/types/Calendar";
 
 import {formatCompactNumber} from "@/assets/sripts/number";
 
-// 复用已有小部件与组件
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 import FactionNameWidget from "@/components/snbWidget/factionNameWidget.vue";
 import ZoneName from "@/components/snbWidget/zoneName.vue";
@@ -253,7 +252,7 @@ const activeCycleZones = computed<any[]>(() => {
         const leadingFaction = isTied ? 'tied' : (valA > valB ? fA : fB);
 
         return {
-          id: zoneObj.id || zName,
+          id: (zoneObj as any).id || zName,
           name: zoneObj.name || zName,
           region: zoneObj.region || '',
           total,
@@ -461,13 +460,13 @@ onMounted(() => {
     <v-card class="daily-report-card overflow-hidden" variant="text" tile>
 
       <!-- 顶部 赛季与日报总览 -->
-      <div class="daily-header position-relative px-5 pa-sm-6">
+      <div class="daily-header position-relative mb-10 px-5 pa-sm-6">
         <div class="position-relative z-1">
           <v-row class="">
-            <v-col class="d-flex ga-3">
+            <v-col cols="12" lg="6" class="d-flex ga-3">
               <div>
                 <div class="d-flex align-center ga-2 flex-wrap">
-                  <h2 class="text-h3 font-weight-bold text-amber-lighten-2 tracking-wide mb-0">
+                  <h2 class="text-h3 font-weight-bold text-amber tracking-wide mb-0">
                     {{ t("dailyReport.title") }}
                   </h2>
                 </div>
@@ -478,7 +477,7 @@ onMounted(() => {
             </v-col>
 
             <!-- 赛季倒计时 -->
-            <v-col cols="6" class="season-banner-box">
+            <v-col cols="12" lg="6" class="season-banner-box">
               <AffixBoxHasTitleView :offsetTop="0" :disabled-title="true">
                 <template v-slot:title>
                   <v-icon icon="mdi-timer-sand" size="20" color="amber-lighten-1"></v-icon>
@@ -487,8 +486,8 @@ onMounted(() => {
                   <v-col>
                     <v-row align="center" justify="space-between" dense>
                       <v-col cols="12" sm="12" class="mt-2 mt-sm-0">
-                        <div class="d-inline-flex align-center ga-2 bg-black-opacity-50 text-h4 text-amber">
-                          {{ isSeasonEnded ? t("dailyReport.season.ended") : t("dailyReport.season.remainingDays", {days: seasonDaysRemaining}) }}
+                        <div class="d-inline-flex align-center ga-2 font-weight-bold bg-black-opacity-50 text-h3 text-amber">
+                          <span v-html="isSeasonEnded ? t('dailyReport.season.ended') : t('dailyReport.season.remainingDays', {days: `<span class='u'>${seasonDaysRemaining}</span>`})"></span>
                         </div>
                       </v-col>
 
@@ -496,7 +495,7 @@ onMounted(() => {
                         <div class="d-flex align-center ga-2">
                           <div>
                             <p class="text-subtitle-1 font-weight-bold text-white u">{{ seasonName }}</p>
-                            <p v-if="seasonDateRange" class="text-caption text-medium-emphasis">
+                            <p v-if="seasonDateRange" class="text-medium-emphasis">
                               {{ seasonDateRange }}
                             </p>
                           </div>
@@ -506,7 +505,7 @@ onMounted(() => {
 
                     </v-row>
                   </v-col>
-                  <v-col>
+                  <v-col cols="5">
                     <SeasonViewWidget :data="currentSeason"></SeasonViewWidget>
                   </v-col>
                 </v-row>
@@ -521,14 +520,14 @@ onMounted(() => {
         <v-row>
           <!-- 势力战争态势 -->
           <v-col cols="12" lg="6">
-            <AffixBoxHasTitleView class="section-card h-100">
+            <AffixBoxHasTitleView class="section-card h-100" disabled-title>
               <template v-slot:title>
                 {{ t("dailyReport.stateOfWar.title") }}
               </template>
               <div class="d-flex align-center justify-space-between mb-4">
                 <div class="d-flex align-center ga-2">
                   <div>
-                    <span class="text-caption text-medium-emphasis">
+                    <span class="text-medium-emphasis">
                       {{ t("dailyReport.stateOfWar.subtitle") }}
                     </span>
                   </div>
@@ -602,7 +601,7 @@ onMounted(() => {
                     <span class="font-weight-bold text-body-2 text-white">
                       {{ t("dailyReport.stateOfWar.currentCycle", {cycle: activeCycle.cycleNumber}) }}
                     </span>
-                    <span v-if="activeCycleTimeRange" class="text-caption text-medium-emphasis">
+                    <span v-if="activeCycleTimeRange" class="text-medium-emphasis">
                       ({{ activeCycleTimeRange }})
                     </span>
                   </div>
@@ -701,14 +700,14 @@ onMounted(() => {
 
           <!-- 近期活动 -->
           <v-col cols="12" lg="6">
-            <AffixBoxHasTitleView class="section-card h-100">
+            <AffixBoxHasTitleView class="section-card h-100" disabled-title>
               <template v-slot:title>
                 {{ t("dailyReport.calendar.title") }}
               </template>
               <div class="d-flex align-center justify-space-between mb-4">
                 <div class="d-flex align-center ga-2">
                   <div>
-                    <span class="text-caption text-medium-emphasis">
+                    <span class="text-medium-emphasis">
                       {{ t("dailyReport.calendar.subtitle") }}
                     </span>
                   </div>
@@ -804,15 +803,15 @@ onMounted(() => {
           </v-col>
 
           <!-- 当前可用掉宝 S -->
-          <v-col cols="12" v-if="showDrop">
-            <AffixBoxHasTitleView class="section-card h-100">
+          <v-col cols="12" v-if="showDrop" class="mt-10">
+            <AffixBoxHasTitleView class="section-card h-100" disabled-title>
               <template v-slot:title>
                 {{ t("dailyReport.drop.title") }}
               </template>
               <div class="d-flex align-center justify-space-between mb-4">
                 <div class="d-flex align-center ga-2">
                   <div>
-                    <span class="text-caption text-medium-emphasis">
+                    <span class="text-medium-emphasis">
                       {{ t("dailyReport.drop.subtitle") }}
                     </span>
                   </div>

@@ -1,325 +1,416 @@
-<template>
-  <StylizedLineBackground
-      class="canvas-container"
-      ref="container"
-      :offset-x="position.x"
-      :offset-y="position.y">
-    <v-container class="position-relative" v-if="isShowTool && !disabled">
-      <ZoomableTool @event-center="resetView"
-                    @event-minus="onScaleMinus"
-                    @event-plus="onScalePlus"></ZoomableTool>
-    </v-container>
-
-    <div
-        class="canvas"
-        ref="canvas"
-        :style="{
-          transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
-          width: `${canvasWidth}px`,
-          height: `${contentHeight}px`,
-          'pointer-events': isDragging ? 'none' : 'auto'
-        }"
-        @wheel.passive="handleWheel"
-        @mousedown="startDrag"
-        @touchstart.passive="startTouchDrag"
-        @touchmove.prevent.passive="handleTouchDrag"
-        @touchend.passive="stopDrag">
-      <div class="content-wrapper content-layer"
-           :style="{ pointerEvents: 'auto' }"
-           ref="contentWrapper">
-        <slot></slot>
-      </div>
-    </div>
-  </StylizedLineBackground>
-</template>
-
 <script setup lang="ts">
-import {nextTick, onBeforeUnmount, onMounted, ref} from 'vue'
+import {nextTick, onBeforeUnmount, onMounted, ref} from "vue";
 import {useDisplay} from "vuetify/framework";
 import ZoomableTool from "@/components/ZoomableTool.vue";
 import StylizedLineBackground from "@/components/StylizedLineBackground.vue";
 
-const {mobile} = useDisplay()
-const props = defineProps({
-  disabled: {
-    type: Boolean,
-    default: false
-  },
-  canvasWidth: {
-    type: Number,
-    default: 1200
-  },
-  canvasHeight: {
-    type: Number,
-    default: 600
-  },
-  isShowTool: {
-    type: Boolean,
-    default: false
-  },
-  defaultScale: {
-    type: Number,
-    default: 1
-  },
-  minScale: {
-    type: Number,
-    default: 0.1
-  },
-  maxScale: {
-    type: Number,
-    default: 3
-  }
-})
-const scale = ref(1)
-const position = ref({x: 0, y: 0})
-const contentHeight = ref(props.canvasHeight || 600) // Initial height, will be updated
-const isDragging = ref(false)
-const startPos = ref({x: 0, y: 0})
-const resizeObserver = ref(null)
-const touchIdentifier = ref(null)
-const container = ref(null)
-const canvas = ref(null)
-const contentWrapper = ref(null)
+const {mobile} = useDisplay();
 
-const initCanvas = () => {
-  centerCanvas()
+const props = withDefaults(defineProps<{
+  disabled?: boolean;
+  canvasWidth?: number;
+  canvasHeight?: number;
+  isShowTool?: boolean;
+  defaultScale?: number;
+  minScale?: number;
+  maxScale?: number;
+  boundary?: { left?: number; right?: number; top?: number; bottom?: number } | null;
+}>(), {
+  disabled: false,
+  canvasWidth: 1200,
+  canvasHeight: 600,
+  isShowTool: false,
+  defaultScale: 1,
+  minScale: 0.1,
+  maxScale: 3,
+  boundary: null
+});
 
-  nextTick(() => {
-    updateContentHeight()
-    setupResizeObserver()
-  })
-}
+const scale = ref(props.defaultScale || 1);
+const position = ref({x: 0, y: 0});
+const contentHeight = ref(props.canvasHeight || 600);
+const isDragging = ref(false);
+
+const container = ref<HTMLElement | null>(null);
+const canvas = ref<HTMLElement | null>(null);
+const contentWrapper = ref<HTMLElement | null>(null);
+const resizeObserver = ref<ResizeObserver | null>(null);
+
+let isMouseDown = false;
+let hasDragged = false;
+let dragStartMousePos = {x: 0, y: 0};
+let dragStartCanvasPos = {x: 0, y: 0};
+
+let isTouching = false;
+let touchStartPos = {x: 0, y: 0};
+let touchStartCanvasPos = {x: 0, y: 0};
+let touchStartDistance = 0;
+let touchStartScale = 1;
+let touchCenter = {x: 0, y: 0};
 
 /**
  * 放大
  */
 const onScalePlus = () => {
-  if (scale.value >= props.maxScale)
-    return
-
-  scale.value += .1
-}
+  const oldScale = scale.value;
+  const newScale = Math.min(props.maxScale, oldScale + 0.1);
+  if (newScale === oldScale) return;
+  zoomAroundCenter(newScale);
+};
 
 /**
  * 缩小
  */
 const onScaleMinus = () => {
-  if (scale.value <= props.minScale)
-    return
+  const oldScale = scale.value;
+  const newScale = Math.max(props.minScale, oldScale - 0.1);
+  if (newScale === oldScale) return;
+  zoomAroundCenter(newScale);
+};
 
-  scale.value -= .1
-}
+/**
+ * 以视口中心为基准进行缩放
+ */
+const zoomAroundCenter = (newScale: number) => {
+  if (!container.value) {
+    scale.value = newScale;
+    return;
+  }
+  const oldScale = scale.value;
+  const containerWidth = container.value.clientWidth || 0;
+  const containerHeight = container.value.clientHeight || 0;
+  const centerX = containerWidth / 2;
+  const centerY = containerHeight / 2;
+
+  position.value = {
+    x: centerX - (centerX - position.value.x) * (newScale / oldScale),
+    y: centerY - (centerY - position.value.y) * (newScale / oldScale)
+  };
+  scale.value = newScale;
+};
 
 /**
  * 触摸开始
- * @param e
  */
-const startTouchDrag = (e) => {
-  if (e.touches.length !== 1) return // Only handle single touch
+const startTouchDrag = (e: TouchEvent) => {
+  if (props.disabled) return;
+  if ((e.target as Element)?.closest?.('.prohibit-drag')) return;
 
-  const touch = e.touches[0]
-  touchIdentifier.value = touch.identifier
-  isDragging.value = true
-  startPos.value = {
-    x: touch.clientX - position.value.x,
-    y: touch.clientY - position.value.y
+  if (e.touches.length === 1) {
+    isTouching = true;
+    hasDragged = false;
+    const touch = e.touches[0];
+    touchStartPos = {x: touch.clientX, y: touch.clientY};
+    touchStartCanvasPos = {...position.value};
+  } else if (e.touches.length === 2) {
+    isTouching = true;
+    const t1 = e.touches[0];
+    const t2 = e.touches[1];
+    touchStartDistance = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+    touchStartScale = scale.value;
+    touchCenter = {
+      x: (t1.clientX + t2.clientX) / 2,
+      y: (t1.clientY + t2.clientY) / 2
+    };
   }
-  canvas.value.style.cursor = 'grabbing'
-}
+};
 
 /**
- * 处理拖拽
- * @param e
+ * 处理触摸拖拽与捏合缩放
  */
-const handleTouchDrag = (e: any) => {
-  if (!isDragging.value || e.touches.length !== 1) return
+const handleTouchDrag = (e: TouchEvent) => {
+  if (!isTouching) return;
 
-  // 查找对应的触控点
-  const touch = Array.from(e.touches).find((t: any) => t.identifier === touchIdentifier.value)
-  if (!touch) return
+  if (e.touches.length === 1) {
+    const touch = e.touches[0];
+    const dx = touch.clientX - touchStartPos.x;
+    const dy = touch.clientY - touchStartPos.y;
 
-  position.value.x = (touch as any).clientX - startPos.value.x
-  position.value.y = (touch as any).clientY - startPos.value.y
+    if (!hasDragged && (Math.abs(dx) > 3 || Math.abs(dy) > 3)) {
+      hasDragged = true;
+      isDragging.value = true;
+    }
 
-  updateBackgroundPosition((-position.value.x + 100) * .5, (-position.value.y + 100) * .5)
-}
+    if (hasDragged) {
+      let newX = touchStartCanvasPos.x + dx;
+      let newY = touchStartCanvasPos.y + dy;
+
+      if (props.boundary) {
+        if (typeof props.boundary.left === 'number') newX = Math.max(props.boundary.left, newX);
+        if (typeof props.boundary.right === 'number') newX = Math.min(props.boundary.right, newX);
+        if (typeof props.boundary.top === 'number') newY = Math.max(props.boundary.top, newY);
+        if (typeof props.boundary.bottom === 'number') newY = Math.min(props.boundary.bottom, newY);
+      }
+
+      position.value = {x: newX, y: newY};
+    }
+  } else if (e.touches.length === 2 && touchStartDistance > 0 && container.value) {
+    const t1 = e.touches[0];
+    const t2 = e.touches[1];
+    const currentDistance = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+    const factor = currentDistance / touchStartDistance;
+    const newScale = Math.max(props.minScale, Math.min(props.maxScale, touchStartScale * factor));
+    const oldScale = scale.value;
+
+    if (newScale !== oldScale) {
+      const rect = container.value.getBoundingClientRect();
+      const cx = touchCenter.x - rect.left;
+      const cy = touchCenter.y - rect.top;
+
+      position.value = {
+        x: cx - (cx - position.value.x) * (newScale / oldScale),
+        y: cy - (cy - position.value.y) * (newScale / oldScale)
+      };
+      scale.value = newScale;
+    }
+  }
+};
+
+/**
+ * 触摸结束
+ */
+const stopTouchDrag = () => {
+  isTouching = false;
+  isDragging.value = false;
+  touchStartDistance = 0;
+};
 
 /**
  * 监听内容高度的变化
  */
 const setupResizeObserver = () => {
-  if (typeof ResizeObserver === 'undefined') return
+  if (typeof ResizeObserver === 'undefined' || !contentWrapper.value) return;
 
-  resizeObserver.value = new ResizeObserver((entries: any) => {
-    for (let entry of entries) {
-      contentHeight.value = entry.contentRect.height
+  resizeObserver.value = new ResizeObserver((entries: ResizeObserverEntry[]) => {
+    for (const entry of entries) {
+      contentHeight.value = entry.contentRect.height;
     }
-  })
+  });
 
-  resizeObserver.value.observe(contentWrapper.value)
-}
+  resizeObserver.value.observe(contentWrapper.value);
+};
 
 /**
  * 更新高度
  */
 const updateContentHeight = () => {
   if (contentWrapper.value) {
-    contentHeight.value = contentWrapper.value.offsetHeight
+    contentHeight.value = contentWrapper.value.offsetHeight;
   }
-}
+};
 
 /**
- * 初始画布
+ * 居中画布
  */
 const centerCanvas = () => {
-  if (!container.value) return
+  if (!container.value) return;
 
-  const containerWidth = container.value.clientWidth
-  const containerHeight = container.value.clientHeight
+  const containerWidth = container.value.clientWidth || 0;
+  const containerHeight = container.value.clientHeight || 0;
+
+  if (!containerWidth || !containerHeight) return;
+
+  const renderedWidth = props.canvasWidth * scale.value;
+  const currentContentH = contentHeight.value || props.canvasHeight || 600;
+  const renderedHeight = currentContentH * scale.value;
 
   position.value = {
-    x: (containerWidth - props.canvasWidth * scale.value) / 2 / scale.value,
-    y: (containerHeight - (props.canvasHeight || contentHeight.value) * scale.value) / 2 / scale.value
-  }
-}
+    x: (containerWidth - renderedWidth) / 2,
+    y: containerHeight > renderedHeight ? (containerHeight - renderedHeight) / 2 : 20
+  };
+};
 
 /**
- * 开始拖拽
- * @param e
+ * 鼠标开始拖拽
  */
-const startDrag = (e: any) => {
-  if (e.button !== 0 && !!Array.from((e.target as Element).classList).reverse().find((i: any) => i == 'prohibit-drag')) return
-  isDragging.value = true
-  startPos.value = {
-    x: e.clientX - position.value.x,
-    y: e.clientY - position.value.y
-  }
-  canvas.value.style.cursor = 'grabbing'
-}
+const startDrag = (e: MouseEvent) => {
+  if (props.disabled || e.button !== 0) return;
+  if ((e.target as Element)?.closest?.('.prohibit-drag')) return;
+
+  isMouseDown = true;
+  hasDragged = false;
+  dragStartMousePos = {x: e.clientX, y: e.clientY};
+  dragStartCanvasPos = {...position.value};
+};
 
 /**
- * 拖拽事件
- * @param e
+ * 鼠标移动处理拖拽
  */
-const handleDrag = (e) => {
-  if (!isDragging.value) return
+const handleDrag = (e: MouseEvent) => {
+  if (!isMouseDown) return;
 
-  position.value.x = e.clientX - startPos.value.x
-  position.value.y = e.clientY - startPos.value.y
+  const dx = e.clientX - dragStartMousePos.x;
+  const dy = e.clientY - dragStartMousePos.y;
 
-  updateBackgroundPosition((-position.value.x + 100) * .5, (-position.value.y + 100) * .5)
-}
+  if (!hasDragged && (Math.abs(dx) > 3 || Math.abs(dy) > 3)) {
+    hasDragged = true;
+    isDragging.value = true;
+  }
+
+  if (hasDragged) {
+    let newX = dragStartCanvasPos.x + dx;
+    let newY = dragStartCanvasPos.y + dy;
+
+    if (props.boundary) {
+      if (typeof props.boundary.left === 'number') newX = Math.max(props.boundary.left, newX);
+      if (typeof props.boundary.right === 'number') newX = Math.min(props.boundary.right, newX);
+      if (typeof props.boundary.top === 'number') newY = Math.max(props.boundary.top, newY);
+      if (typeof props.boundary.bottom === 'number') newY = Math.min(props.boundary.bottom, newY);
+    }
+
+    position.value = {x: newX, y: newY};
+  }
+};
 
 /**
- * 停止
+ * 鼠标停止拖拽
  */
 const stopDrag = () => {
-  isDragging.value = false
-  if (canvas.value && canvas.value.style.cursor)
-    canvas.value.style.cursor = 'grab'
-}
+  isMouseDown = false;
+  isDragging.value = false;
+};
 
 /**
- * 处理缩放
- * @param e
+ * 拖拽发生时拦截内部子元素的点击事件，避免拖拽触发跳转
  */
-const handleWheel = (e) => {
-  if (!mobile.value)
-    return;
+const handleWindowClickCapture = (e: MouseEvent) => {
+  if (hasDragged) {
+    e.preventDefault();
+    e.stopPropagation();
+    hasDragged = false;
+  }
+};
 
-  const delta = -e.deltaY
-  const scaleFactor = 0.001
-  const newScale = scale.value * (1 + delta * scaleFactor)
+/**
+ * 鼠标滚轮缩放
+ */
+const handleWheel = (e: WheelEvent) => {
+  if (props.disabled || !container.value) return;
 
-  scale.value = Math.max(
+  const delta = -e.deltaY;
+  const scaleFactor = 0.001;
+  const oldScale = scale.value;
+  const newScale = Math.max(
       props.minScale,
-      Math.min(props.maxScale, newScale)
-  )
+      Math.min(props.maxScale, oldScale * (1 + delta * scaleFactor))
+  );
 
-  const rect = container.value.getBoundingClientRect()
-  const mouseX = e.clientX - rect.left
-  const mouseY = e.clientY - rect.top
+  if (newScale === oldScale) return;
 
-  position.value.x = mouseX / scale.value - (mouseX - position.value.x * scale.value) / scale.value
-  position.value.y = mouseY / scale.value - (mouseY - position.value.y * scale.value) / scale.value
-}
+  const rect = container.value.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+
+  position.value = {
+    x: mouseX - (mouseX - position.value.x) * (newScale / oldScale),
+    y: mouseY - (mouseY - position.value.y) * (newScale / oldScale)
+  };
+  scale.value = newScale;
+};
 
 /**
  * 重置视图
  */
 const resetView = () => {
-  scale.value = props.defaultScale || 1
-  centerCanvas()
-}
+  scale.value = props.defaultScale || 1;
+  centerCanvas();
+};
 
-/**
- * 更新背景位置
- * @param x
- * @param y
- */
-const updateBackgroundPosition = (x: string | number, y: string | number) => {
-  const elementCircles = document.querySelector('.overlapping-circles') as HTMLElement
+const initCanvas = () => {
+  scale.value = props.defaultScale || 1;
+  centerCanvas();
 
-  if (!elementCircles) return
-
-  elementCircles.style.transition = '--offset-x 0.3s ease, --offset-y 0.3s ease'
-  elementCircles.style.setProperty('--offset-x', `${x}px`)
-  elementCircles.style.setProperty('--offset-y', `${y}px`)
-}
+  nextTick(() => {
+    updateContentHeight();
+    centerCanvas();
+    setupResizeObserver();
+  });
+};
 
 onMounted(() => {
-  scale.value = props.defaultScale;
+  initCanvas();
 
-  initCanvas()
-
-  window.addEventListener('mousemove', handleDrag)
-  window.addEventListener('mouseup', stopDrag)
-
-  if (mobile) {
-    window.addEventListener('touchmove', handleTouchDrag, {passive: false})
-    window.addEventListener('touchend', stopDrag, {passive: false})
-  }
-
-  // 禁止缩放
-  const originalViewport = document.querySelector('meta[name="viewport"]') as HTMLMetaElement
-  const originalContent = originalViewport?.content || '';
-
-  // 设置不允许缩放
-  originalViewport?.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0')
-
-  // 页面卸载时恢复原始 viewport（可选）
-  onBeforeUnmount(() => {
-    if (originalViewport) {
-      originalViewport.setAttribute('content', originalContent)
-    }
-  })
-})
+  window.addEventListener('mousemove', handleDrag);
+  window.addEventListener('mouseup', stopDrag);
+  window.addEventListener('click', handleWindowClickCapture, true);
+});
 
 onBeforeUnmount(() => {
-  window.removeEventListener('mousemove', handleDrag)
-  window.removeEventListener('mouseup', stopDrag)
+  window.removeEventListener('mousemove', handleDrag);
+  window.removeEventListener('mouseup', stopDrag);
+  window.removeEventListener('click', handleWindowClickCapture, true);
 
-  if (window.innerWidth <= 768) {
-    window.removeEventListener('touchmove', handleTouchDrag)
-    window.removeEventListener('touchend', stopDrag)
+  if (resizeObserver.value) {
+    resizeObserver.value.disconnect();
   }
+});
 
-  if (resizeObserver.value) resizeObserver.value.disconnect()
-})
-
-defineOptions({ name: 'ZoomableCanvas' })
+defineOptions({name: 'ZoomableCanvas'});
 
 defineExpose({
-  centerCanvas
-})
+  centerCanvas,
+  resetView,
+  position,
+  scale
+});
 </script>
 
+<template>
+  <div
+      class="canvas-viewport"
+      ref="container"
+      @wheel.passive="handleWheel"
+      @mousedown="startDrag"
+      @touchstart.passive="startTouchDrag"
+      @touchmove.passive="handleTouchDrag"
+      @touchend.passive="stopTouchDrag"
+      @touchcancel.passive="stopTouchDrag">
+    <StylizedLineBackground
+        class="canvas-bg"
+        :offset-x="position.x"
+        :offset-y="position.y">
+      <v-container class="position-relative tool-container" v-if="isShowTool && !disabled">
+        <ZoomableTool
+            @event-center="resetView"
+            @event-minus="onScaleMinus"
+            @event-plus="onScalePlus"/>
+      </v-container>
+
+      <div
+          class="canvas"
+          ref="canvas"
+          :class="{'is-dragging': isDragging}"
+          :style="{
+            transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+            width: `${canvasWidth}px`,
+            minHeight: `${contentHeight}px`
+          }">
+        <div class="content-wrapper content-layer" ref="contentWrapper">
+          <slot></slot>
+        </div>
+      </div>
+    </StylizedLineBackground>
+  </div>
+</template>
+
 <style scoped lang="less">
-.canvas-container {
+.canvas-viewport {
   width: 100%;
   height: 100%;
   overflow: hidden;
   position: relative;
+  user-select: none;
+}
+
+.canvas-bg {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.tool-container {
+  z-index: 2;
+  pointer-events: auto;
 }
 
 .canvas {
@@ -328,16 +419,17 @@ defineExpose({
   left: 0;
   transform-origin: 0 0;
   cursor: grab;
-  pointer-events: none;
-}
+  user-select: none;
 
-.canvas:active {
-  cursor: grabbing;
+  &.is-dragging,
+  &:active {
+    cursor: grabbing;
+  }
 }
 
 .content-wrapper {
   width: 100%;
-  display: inline-block;
+  display: block;
 }
 
 .content-layer {

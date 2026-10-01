@@ -119,9 +119,9 @@ defineOptions({
         />
       </template>
     </div>
-    <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto">
-      <BtnWidget v-if="isShowOpenDetail"
-                 class="mt-1"
+    <v-divider v-if="isShowOpenDetail" class="my-4"></v-divider>
+    <div class="demo-reel-content px-10 background-flavor overflow-auto" v-if="isShowOpenDetail">
+      <BtnWidget class="mt-1"
                  @action-complete="router.push(`/codex/npc/${i.key}`)">
         {{ t('codex.npc.lookDetail') }}
       </BtnWidget>

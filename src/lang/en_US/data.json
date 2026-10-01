@@ -1358,7 +1358,58 @@
       "title": "Mastery",
       "describe": "The Mastery codex catalogs seasonal mastery tree upgrade nodes, key buffs, and perks.",
       "lookDetail": "View Mastery Details (hold)"
+    },
+    "quest": {
+      "title": "Quest Details",
+      "describe": "The Quest codex catalogs Skull and Bones main and side story missions, clues, and prerequisites.",
+      "lookDetail": "View Quest Details",
+      "category": "Storyline",
+      "prerequisites": "Prerequisites",
+      "noPrerequisites": "Initial Quest / No Prerequisites",
+      "subsequentQuests": "Subsequent Quests",
+      "dateAdded": "Date Added",
+      "lastUpdated": "Last Updated",
+      "progress": "Quest {current} of {total}"
+    },
+    "quests": {
+      "title": "Quests List",
+      "describe": "The Quest codex catalogs Skull and Bones main and side story missions, clues, and prerequisites.",
+      "lookDetail": "View Quest Details",
+      "category": "Storyline",
+      "allCategories": "All Storylines",
+      "searchPlaceholder": "Search quest name, ID, category or lore...",
+      "count": "{count} Quests ({total} Total)",
+      "viewCategoryQuests": "View All in this Storyline"
     }
+  },
+  "quest": {
+    "title": "Quests",
+    "detailTitle": "Quest Details",
+    "describe": "The Quest catalog lists Skull and Bones main and side story missions, clues, and prerequisites.",
+    "lookDetail": "View Quest Details",
+    "category": "Storyline",
+    "allCategories": "All Storylines",
+    "searchPlaceholder": "Search quest name, ID, category or lore...",
+    "prerequisites": "Prerequisites",
+    "noPrerequisites": "Initial Quest / No Prerequisites",
+    "subsequentQuests": "Subsequent Quests",
+    "dateAdded": "Date Added",
+    "lastUpdated": "Last Updated",
+    "progress": "Quest {current} of {total}",
+    "count": "{count} Quests ({total} Total)",
+    "viewCategoryQuests": "View All in this Storyline",
+    "flowchart": "Story Flowchart",
+    "storylineTree": "Storyline Map",
+    "parallelBranches": "Parallel Branches",
+    "branchLane": "Branch",
+    "mergePoint": "Convergence",
+    "expandAll": "Expand All",
+    "collapseAll": "Collapse All",
+    "currentQuest": "Active Quest",
+    "arc": "Story Arc",
+    "step": "Step",
+    "fold": "Collapse",
+    "unfold": "Expand"
   },
   "drop": {
     "title": "Twitch Drops",
@@ -2560,6 +2611,10 @@
       "codex": {
         "title": "Codex",
         "description": "Display item information, check how to obtain them"
+      },
+      "quest": {
+        "title": "Story & Quests",
+        "description": "Explore storylines, character lore, and quest logs"
       },
       "smugglers-report": {
         "title": "Connoisseur",

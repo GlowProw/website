@@ -118,8 +118,24 @@
     },
     "treasureMaps": {
       "meta": {
-        "keywords": "地点,地图,位置,地区,视图,可视化,{keywords}"
+        "keywords": "treasure maps list,common,uncommon,old,outpost,captain,gallery,materials,weapons,commodities,map,{keywords}"
       }
+    },
+    "quest": {
+      "meta": {
+        "keywords": "quest details,story,missions,campaign,storyline,stages,{keywords}"
+      }
+    },
+    "quests": {
+      "meta": {
+        "keywords": "quest list,story missions,campaign,storylines,stages,{keywords}"
+      }
+    }
+  },
+  "quest": {
+    "meta": {
+      "title": "Quests",
+      "keywords": "quests,missions,campaign,storylines,stages,{keywords}"
     }
   },
   "calendar": {

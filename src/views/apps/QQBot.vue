@@ -150,9 +150,9 @@
     </v-container>
   </v-card>
 
-  <v-container>
+  <v-container class="mt-10">
     <HorizontalScrollList :forceDraggable="true" :showControls="true">
-      <v-card border width="300" height="500" class="bg-black" v-for="i in 3" :key="i">
+      <v-card border width="300" height="575" class="bg-black" v-for="i in 5" :key="i">
         <v-img height="100%" :src="getUseImage(String(i))"></v-img>
       </v-card>
     </HorizontalScrollList>
@@ -185,7 +185,7 @@ onMounted(() => {
  * @param id
  */
 const getUseImage = (id: string) => {
-  return contentImages.value[`use-${id}`]
+  return contentImages.value[`use_${id}`]
 }
 </script>
 

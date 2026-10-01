@@ -1,3 +1,16 @@
+export interface CodexNavItem {
+    type?: 'item' | 'divider';
+    title?: string;
+    value?: string;
+    to?: string;
+    prependIcon?: string;
+    appendIcon?: string;
+    badge?: string;
+    variant?: any;
+    class?: string;
+    slim?: boolean;
+}
+
 /**
  * 手稿导航
  */
@@ -160,50 +173,97 @@ export default class AppCodexNav {
                 },
             ]
         }
-    ]
+    ];
 
-    nav = [
+    nav: CodexNavItem[] = [
         {
             title: 'codex.ships.title',
-            to: '/codex/ships'
+            to: '/codex/ships',
+            prependIcon: 'mdi-format-list-bulleted-type'
         },
         {
             title: 'codex.ultimates.title',
-            to: '/codex/ultimates'
+            to: '/codex/ultimates',
+            prependIcon: 'mdi-format-list-bulleted-type'
         },
         {
             title: 'codex.modifications.title',
-            to: '/codex/modifications'
+            to: '/codex/modifications',
+            prependIcon: 'mdi-format-list-bulleted-type'
         },
         {
             title: 'codex.items.title',
-            to: '/codex/items'
+            to: '/codex/items',
+            prependIcon: 'mdi-format-list-bulleted-type'
         },
         {
             title: 'codex.cosmetics.title',
-            to: '/codex/cosmetics'
+            to: '/codex/cosmetics',
+            prependIcon: 'mdi-format-list-bulleted-type'
         },
         {
             title: 'codex.sets.title',
-            to: '/codex/sets'
+            to: '/codex/sets',
+            prependIcon: 'mdi-format-list-bulleted-type'
         },
         {
             title: 'codex.materials.title',
-            to: '/codex/materials'
+            to: '/codex/materials',
+            prependIcon: 'mdi-format-list-bulleted-type'
         },
         {
             title: 'codex.commodities.title',
-            to: '/codex/commodities'
+            to: '/codex/commodities',
+            prependIcon: 'mdi-format-list-bulleted-type'
+        },
+
+        {
+            title: 'codex.masterys.title',
+            to: '/codex/masterys',
+            prependIcon: 'mdi-format-list-bulleted-type'
+        },
+        {
+            type: 'divider',
+            class: 'my-2'
         },
         {
             title: 'codex.empireSkills.title',
-            to: '/codex/empireSkills'
+            to: '/codex/empireSkills',
+            prependIcon: 'mdi-format-list-bulleted-type'
         },
         {
-            title: 'codex.masterys.title',
-            to: '/codex/masterys'
+            title: 'codex.quests.title',
+            to: '/quest',
+            prependIcon: 'mdi-format-list-bulleted-type'
         },
-    ]
+        {
+            type: 'divider',
+            class: 'my-2'
+        },
+        {
+            title: 'codex.treasureMaps.title',
+            to: '/codex/treasureMaps'
+        },
+        {
+            title: 'codex.mapLocations.title',
+            to: '/codex/mapLocations',
+            badge: 'BETA'
+        },
+        {
+            title: 'codex.npcs.title',
+            to: '/codex/npcs',
+            badge: 'BETA'
+        },
+        {
+            title: 'search.title',
+            to: '/search',
+            prependIcon: 'mdi-magnify',
+            appendIcon: 'mdi-open-in-new',
+            variant: 'tonal',
+            slim: true,
+            class: 'mt-5'
+        }
+    ];
 
-    other = []
+    other = [];
 }

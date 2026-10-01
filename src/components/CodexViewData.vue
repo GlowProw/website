@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {Cosmetics, EmpireSkills, Items, MapLocations, Materials, Modifications, Npcs, Sets, Ships, TreasureMaps, Masterys} from "glow-prow-data";
+import {Cosmetics, EmpireSkills, Items, MapLocations, Materials, Modifications, Npcs, Sets, Ships, TreasureMaps, Masterys, Quests} from "glow-prow-data";
 import {Commodities} from "glow-prow-data/src/entity/Commodities";
 import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
 import {computed, onMounted, ref, useSlots, watch} from "vue";
@@ -42,8 +42,10 @@ import EmpireSkillIconWidget from "@/components/snbWidget/empireSkillIconWidget.
 import EmpireSkillName from "@/components/snbWidget/empireSkillName.vue";
 import MasteryIconWidget from "@/components/snbWidget/masteryIconWidget.vue";
 import MasteryName from "@/components/snbWidget/masteryName.vue";
+import QuestIconWidget from "@/components/snbWidget/questIconWidget.vue";
+import QuestName from "@/components/snbWidget/questName.vue";
 
-type LoadDataType = 'ship' | 'item' | 'commoditie' | 'material' | 'ultimate' | 'cosmetic' | 'modification' | 'set' | 'treasureMap' | 'mapLocation' | 'npc' | 'empireSkill' | 'mastery'
+type LoadDataType = 'ship' | 'item' | 'commoditie' | 'material' | 'ultimate' | 'cosmetic' | 'modification' | 'set' | 'treasureMap' | 'mapLocation' | 'npc' | 'empireSkill' | 'mastery' | 'quest'
 type SortField = 'dateAdded' | 'lastUpdated'
 type SortOrder = 'asc' | 'desc'
 
@@ -125,6 +127,7 @@ let data: any = ref([]),
       ...filterData.value.categoryTags.map(tag => ({
         value: tag,
         text: asString([
+          `snb.quests.${tag}.name`,
           `codex.categorys.${tag}`,
           `map.types.${tag}.name`,
           `codex.treasureMap.categorys.${tag}`
@@ -264,6 +267,9 @@ const onProcessedData = computed(() => {
           `snb.empireSkills.${sanitizeString(i.id).cleaned}.name`,
           `snb.masterys.${i.id}.name`,
           `snb.masterys.${sanitizeString(i.id).cleaned}.name`,
+          `snb.quests.${i.id}.name`,
+          `snb.quests.${sanitizeString(i.id).cleaned}.name`,
+          `snb.quests.${i.category}.name`,
           `snb.sets.${i.id}`,
         ], {
           backRawKey: true
@@ -409,6 +415,9 @@ const onProcessedData = computed(() => {
             break;
           case "empireSkill":
             d = d.concat(Object.values(empireSkills).filter((i: any) => i.id !== 'root'))
+            break;
+          case "quest":
+            d = d.concat(Object.values(Quests))
             break;
           case "mastery": {
             const masteryMap = new Map();
@@ -1227,6 +1236,7 @@ defineOptions({
               <NpcIconWidget :data="i" v-if="i._typeStringName == 'Npc'"></NpcIconWidget>
               <EmpireSkillIconWidget :id="i.id" v-if="i._typeStringName == 'EmpireSkill'"></EmpireSkillIconWidget>
               <MasteryIconWidget :id="i.id" :name="i.skill" :category="i.category" :with-background="true" v-if="i._typeStringName == 'Mastery'"></MasteryIconWidget>
+              <QuestIconWidget :id="i.id" v-if="i._typeStringName == 'Questlog'"></QuestIconWidget>
             </ItemSlotBase>
 
             <div v-if="i.set && i.set.id && isFilterSet" class="position-absolute subordinate-data">
@@ -1254,6 +1264,7 @@ defineOptions({
             <NpcName :data="i" v-if="i._typeStringName == 'Npc'"></NpcName>
             <EmpireSkillName :id="i.id" v-if="i._typeStringName == 'EmpireSkill'"></EmpireSkillName>
             <MasteryName :id="i.id" v-if="i._typeStringName == 'Mastery'"></MasteryName>
+            <QuestName :id="i.id" v-if="i._typeStringName == 'Questlog'"></QuestName>
           </div>
         </v-card>
       </v-row>
@@ -1278,6 +1289,7 @@ defineOptions({
               <NpcIconWidget :data="i" v-if="i._typeStringName == 'Npc'"></NpcIconWidget>
               <EmpireSkillIconWidget :id="i.id" v-if="i._typeStringName == 'EmpireSkill'"></EmpireSkillIconWidget>
               <MasteryIconWidget :id="i.id" :name="i.id" :category="i.category" :with-background="true" v-if="i._typeStringName == 'Mastery'"></MasteryIconWidget>
+              <QuestIconWidget :id="i.id" v-if="i._typeStringName == 'Questlog'"></QuestIconWidget>
             </ItemSlotBase>
 
             <div v-if="i.set && i.set.id && isFilterSet" class="position-absolute subordinate-data">
@@ -1305,6 +1317,7 @@ defineOptions({
             <NpcName :data="i" v-if="i._typeStringName == 'Npc'"></NpcName>
             <EmpireSkillName :id="i.id" v-if="i._typeStringName == 'EmpireSkill'"></EmpireSkillName>
             <MasteryName :id="i.id" v-if="i._typeStringName == 'Mastery'"></MasteryName>
+            <QuestName :id="i.id" v-if="i._typeStringName == 'Questlog'"></QuestName>
           </div>
         </v-card>
       </v-row>

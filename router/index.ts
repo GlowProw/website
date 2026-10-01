@@ -63,6 +63,9 @@ import EmpireSkillsPage from '@/views/codex/empireSkills/Index.vue'
 import EmpireSkillDetailPage from '@/views/codex/empireSkills/Detail.vue'
 import CodexMasterysPage from '@/views/codex/masterys/Index.vue'
 import CodexMasteryDetailPage from '@/views/codex/masterys/Detail.vue'
+import QuestPage from '@/views/quest/Index.vue'
+import QuestListPage from '@/views/quest/List.vue'
+import QuestDetailPage from '@/views/quest/Detail.vue'
 
 import EmpireSkillSimulationPage from '@/views/empireSkillSimulation/Index.vue'
 import MasteryPage from '@/views/mastery/Index.vue'
@@ -693,7 +696,58 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: 'masterys/:id',
                 redirect: to => `/codex/mastery/${to.params.id}`,
             },
+            {
+                path: 'quest',
+                redirect: '/quest'
+            },
+            {
+                path: 'quests',
+                redirect: '/quest'
+            },
+            {
+                path: 'quest/:id',
+                redirect: to => `/quest/${to.params.id}`
+            },
+            {
+                path: 'quests/:id',
+                redirect: to => `/quest/${to.params.id}`,
+            },
         ]
+    },
+    {
+        path: '/quest',
+        name: 'Quest',
+        component: QuestPage,
+        beforeEnter: initItemAssets,
+        redirect: '/quest',
+        children: [
+            {
+                path: '',
+                name: 'Quests',
+                component: QuestListPage,
+                meta: {
+                    title: 'quest.title',
+                    keywords: 'quest.meta.keywords'
+                },
+            },
+            {
+                path: ':id',
+                name: 'QuestDetail',
+                component: QuestDetailPage,
+                meta: {
+                    title: 'quest.detail.title',
+                    keywords: 'quest.meta.keywords'
+                },
+            },
+        ]
+    },
+    {
+        path: '/quests',
+        redirect: '/quest'
+    },
+    {
+        path: '/quests/:id',
+        redirect: to => `/quest/${to.params.id}`
     },
     {
         path: '/ranking-designed-items',

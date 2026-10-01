@@ -16,7 +16,7 @@ import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue";
 import {useIntersectionObserver} from "@/assets/sripts/intersection_observer";
 
-type commentTargetType = 'assembly' | 'item' | 'commoditie' | 'ship' | 'ultimate' | 'mod' | 'material' | 'set' | 'treasureMap' | 'npc' | 'mapLocation' | 'cosmetic' | 'empireSkill' | 'mastery'
+type commentTargetType = 'assembly' | 'item' | 'commoditie' | 'ship' | 'ultimate' | 'mod' | 'material' | 'set' | 'treasureMap' | 'npc' | 'mapLocation' | 'cosmetic' | 'empireSkill' | 'mastery' | 'quest'
 
 const route = useRoute(),
     authStore = useAuthStore(),

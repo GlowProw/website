@@ -12,28 +12,19 @@ import AffixContainerView from "@/components/AffixContainerView.vue";
 
 const {t} = useI18n(),
     {mobile} = useDisplay(),
-    route = useRoute()
+    route = useRoute();
 
 let isDetailPage = computed(() => [
-  'ShipDetail',
-  'ItemDetail',
-  'CommoditieDetail',
-  'CosmeticDetail',
-  'SetDetail',
-  'UltimateDetail',
-  'ModDetail',
-  'MaterialDetail',
-  'TreasureMapDetail',
-  'MapLocationDetail',
-  'NpcDetail',
-  'EmpireSkillDetail',
-  'MasteryDetail',
   'QuestDetail'
-].includes(route.name as string))
+].includes(route.name as string));
+
+defineOptions({
+  name: "QuestMainBasePage"
+});
 </script>
 
 <template>
-  <v-app id="codex" class="">
+  <v-app id="quest" class="">
     <Header></Header>
     <v-main class="">
       <template v-if="!isDetailPage">
@@ -53,13 +44,13 @@ let isDetailPage = computed(() => [
               <v-breadcrumbs>
                 <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
                 <v-breadcrumbs-divider></v-breadcrumbs-divider>
-                <v-breadcrumbs-item to="/codex">
-                  <b class="text-amber">{{ t('codex.title') }}</b>
+                <v-breadcrumbs-item to="/quest">
+                  <b class="text-amber">{{ t('quest.title') }}</b>
                 </v-breadcrumbs-item>
               </v-breadcrumbs>
 
               <div class="position-absolute top-0 right-0 opacity-10 pt-10 d-flex ga-2">
-                <v-icon icon="mdi-book-open-blank-variant-outline" size="120"></v-icon>
+                <v-icon icon="mdi-script-text-outline" size="120"></v-icon>
               </div>
             </v-container>
           </template>
@@ -75,11 +66,11 @@ let isDetailPage = computed(() => [
             </AffixContainerView>
           </v-col>
           <v-col cols="12" order-sm="2" order-lg="2" :lg="isDetailPage ? 12 : 9" class="pa-0">
-            <AdsWidget id="codex-up" class="pa-0 mx-auto v-container"></AdsWidget>
+            <AdsWidget id="quest-up" class="pa-0 mx-auto v-container"></AdsWidget>
 
             <router-view></router-view>
 
-            <AdsWidget id="codex-down" class="pa-0 mx-auto v-container"></AdsWidget>
+            <AdsWidget id="quest-down" class="pa-0 mx-auto v-container"></AdsWidget>
           </v-col>
         </v-row>
       </v-container>
@@ -89,5 +80,4 @@ let isDetailPage = computed(() => [
 </template>
 
 <style scoped lang="less">
-
 </style>

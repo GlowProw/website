@@ -1,4 +1,4 @@
-import {storage_account} from "@/assets/sripts/index";
+import { storage_account } from "@/assets/sripts/index";
 
 /**
  * 应用功能
@@ -12,6 +12,12 @@ export default class AppFuns {
             icon: 'mdi-package-variant-closed',
             description: 'header.functions.codex.description',
             to: '/codex'
+        },
+        {
+            title: 'header.functions.quest.title',
+            icon: 'mdi-script-text-outline',
+            description: 'header.functions.quest.description',
+            to: '/quest'
         },
         {
             title: 'header.functions.assembly.title',

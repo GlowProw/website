@@ -119,6 +119,22 @@
       "meta": {
         "keywords": "藏寶圖列表,常見,不常見,老舊,古舊,匪首,圖庫,材料,武器,雜貨,地圖,{keywords}"
       }
+    },
+    "quest": {
+      "meta": {
+        "keywords": "劇情任務詳情,劇情,任務,戰役,故事線,階段,{keywords}"
+      }
+    },
+    "quests": {
+      "meta": {
+        "keywords": "劇情任務列表,劇情,任務,戰役,故事線,階段,{keywords}"
+      }
+    }
+  },
+  "quest": {
+    "meta": {
+      "title": "劇情任務",
+      "keywords": "劇情任務,主線任務,支線任務,戰役,故事情節,{keywords}"
     }
   },
   "calendar": {

@@ -46,33 +46,21 @@ defineOptions({
       <v-divider></v-divider>
 
       <template v-if="!isCollapsed">
-        <v-list-item :to="`${i.to}`"
-                     prepend-icon="mdi-format-list-bulleted-type"
-                     v-for="(i, index) in appCodexNav.nav" :key="index">
-          {{ t(i.title) }}
-        </v-list-item>
-
-        <v-divider class="my-2"></v-divider>
-
-        <v-list-item to="/codex/treasureMaps">
-          {{ t('codex.treasureMaps.title') }}
-        </v-list-item>
-        <v-list-item to="/codex/mapLocations">
-          {{ t('codex.mapLocations.title') }}
-          <template v-slot:append>
-            <v-btn size="x-small" variant="tonal">BETA</v-btn>
-          </template>
-        </v-list-item>
-        <v-list-item to="/codex/npcs">
-          {{ t('codex.npcs.title') }}
-          <template v-slot:append>
-            <v-btn size="x-small" variant="tonal">BETA</v-btn>
-          </template>
-        </v-list-item>
-
-        <v-list-item to="/search" class="mt-5" prepend-icon="mdi-magnify" append-icon="mdi-open-in-new" variant="tonal" slim>
-          {{ t('search.title') }}
-        </v-list-item>
+        <template v-for="(i, index) in appCodexNav.nav" :key="index">
+          <v-divider v-if="i.type === 'divider'" :class="i.class || 'my-2'"></v-divider>
+          <v-list-item v-else
+                       :to="i.to"
+                       :prepend-icon="i.prependIcon"
+                       :append-icon="i.appendIcon"
+                       :variant="i.variant"
+                       :slim="i.slim"
+                       :class="i.class">
+            {{ i.title ? t(i.title) : '' }}
+            <template v-slot:append v-if="i.badge">
+              <v-btn size="x-small" variant="tonal">{{ i.badge }}</v-btn>
+            </template>
+          </v-list-item>
+        </template>
       </template>
     </v-list>
   </div>

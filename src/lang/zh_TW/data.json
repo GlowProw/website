@@ -1343,7 +1343,58 @@
       "title": "專精技能",
       "describe": "專精技能手稿收錄各賽季專精樹升級節點、核心增益與賽季特長效果。",
       "lookDetail": "查看專精詳情(按住)"
+    },
+    "quest": {
+      "title": "劇情任務詳情",
+      "describe": "劇情手稿收錄碧海黑帆主線與支線劇情任務、階段線索與前置解鎖條件。",
+      "lookDetail": "查看劇情詳情",
+      "category": "劇情線",
+      "prerequisites": "前置劇情",
+      "noPrerequisites": "初始任務 / 無前置要求",
+      "subsequentQuests": "後續接續任務",
+      "dateAdded": "新增日期",
+      "lastUpdated": "更新日期",
+      "progress": "第 {current} / {total} 幕"
+    },
+    "quests": {
+      "title": "劇情任務列表",
+      "describe": "劇情手稿收錄碧海黑帆主線與支線劇情任務、階段線索与前置解鎖條件。",
+      "lookDetail": "查看劇情詳情",
+      "category": "劇情線",
+      "allCategories": "全部劇情",
+      "searchPlaceholder": "搜尋任務名稱、ID、分類或線索...",
+      "count": "共 {count} 個任務 (總計 {total})",
+      "viewCategoryQuests": "查看該分類全部任務"
     }
+  },
+  "quest": {
+    "title": "劇情任務",
+    "detailTitle": "劇情任務詳情",
+    "describe": "劇情收錄碧海黑帆主線與支線劇情任務、階段線索與前置解鎖條件。",
+    "lookDetail": "查看劇情詳情",
+    "category": "劇情線",
+    "allCategories": "全部劇情",
+    "searchPlaceholder": "搜尋任務名稱、ID、分類或線索...",
+    "prerequisites": "前置劇情",
+    "noPrerequisites": "初始任務 / 無前置要求",
+    "subsequentQuests": "後續接續任務",
+    "dateAdded": "新增日期",
+    "lastUpdated": "更新日期",
+    "progress": "第 {current} / {total} 幕",
+    "count": "共 {count} 個任務 (總計 {total})",
+    "viewCategoryQuests": "查看該分類全部任務",
+    "flowchart": "劇情流程圖",
+    "storylineTree": "劇情路線圖",
+    "parallelBranches": "平行分支",
+    "branchLane": "分支",
+    "mergePoint": "路線匯聚",
+    "expandAll": "展開全部",
+    "collapseAll": "折疊全部",
+    "currentQuest": "當前進行",
+    "arc": "故事線",
+    "step": "階段",
+    "fold": "折疊",
+    "unfold": "展開"
   },
   "drop": {
     "title": "Twitch 掉寶",
@@ -2620,6 +2671,10 @@
       "codex": {
         "title": "手稿",
         "description": "陈列物品信息, 检查它们如何获得"
+      },
+      "quest": {
+        "title": "劇情",
+        "description": "瀏覽遊戲劇情故事線與任務檔案"
       },
       "smugglers-report": {
         "title": "鑑賞家",

@@ -119,6 +119,22 @@
       "meta": {
         "keywords": "藏宝图列表,常见,不常见,老旧,古旧,匪首,图库,材料,武器,杂货,地图,{keywords}"
       }
+    },
+    "quest": {
+      "meta": {
+        "keywords": "剧情任务详情,剧情,任务,战役,故事线,阶段,{keywords}"
+      }
+    },
+    "quests": {
+      "meta": {
+        "keywords": "剧情任务列表,剧情,任务,战役,故事线,阶段,{keywords}"
+      }
+    }
+  },
+  "quest": {
+    "meta": {
+      "title": "剧情任务",
+      "keywords": "剧情任务,主线任务,支线任务,战役,故事情节,{keywords}"
     }
   },
   "calendar": {

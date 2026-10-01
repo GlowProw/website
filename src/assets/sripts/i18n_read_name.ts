@@ -1,7 +1,7 @@
 import { useI18nUtils } from "@/assets/sripts/i18n_util";
 import { useI18n } from "vue-i18n";
 
-import { Cosmetics, EmpireSkills, Item, Items, MapLocations, Masterys, Materials, Modifications, Npcs, Sets, Ship, Ships, TreasureMaps } from "glow-prow-data";
+import { Cosmetics, EmpireSkills, Item, Items, MapLocations, Masterys, Materials, Modifications, Npcs, Sets, Ship, Ships, TreasureMaps, Quests } from "glow-prow-data";
 import { Ultimates } from "glow-prow-data/src/entity/Ultimates";
 import { number } from "@/assets/sripts/index";
 import { Commodities } from "glow-prow-data/src/entity/Commodities";
@@ -18,7 +18,8 @@ const items = Items,
     ultimates = Ultimates,
     sets = Sets,
     empireSkills = EmpireSkills,
-    masterys = Masterys
+    masterys = Masterys,
+    quests = Quests
 
 /**
  * i18n 名称与描述数据读取 Hook
@@ -634,6 +635,37 @@ export function useI18nReadName() {
         };
     };
 
+    const quest = (id: string) => {
+        let keysName = [
+            `snb.quests.${id}.name`,
+            `snb.quests.${sanitizeString(id).cleaned}.name`,
+            `snb.quests.${id}`,
+        ],
+            keysDescription = [
+                `snb.quests.${id}.description`,
+                `snb.quests.${sanitizeString(id).cleaned}.description`,
+            ];
+
+        return {
+            keysName,
+            keysDescription,
+            name: (lang?: string): string => {
+                const translated = asString(keysName, {
+                    backRawKey: true,
+                    lang
+                });
+                return translated || String(id);
+            },
+            description: (lang?: string): string => {
+                const translated = asString(keysDescription, {
+                    backRawKey: false,
+                    lang
+                });
+                return translated || '';
+            }
+        };
+    };
+
     return {
         ship,
         npc,
@@ -649,6 +681,7 @@ export function useI18nReadName() {
         perk,
         empireSkill,
         mastery,
+        quest,
         getValue
     }
 }
