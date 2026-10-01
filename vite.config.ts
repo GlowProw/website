@@ -31,6 +31,7 @@ const getDynamicDataRoutes = () => {
         'mapLocations.json': '/codex/mapLocation/',
         'npcs.json': '/codex/npc/',
         'empireSkills.json': '/codex/empireSkill/',
+        'questlog.json': '/codex/quest/',
     };
 
     Object.entries(mapping).forEach(([file, prefix]) => {
