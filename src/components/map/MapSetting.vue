@@ -2,29 +2,20 @@
   <v-dialog
       :model-value="modelValue"
       @update:model-value="emit('update:modelValue', $event)"
-      max-width="850px"
+      max-width="850"
       scrollable
       :fullscreen="mobile">
-    <v-card class="map-setting-card">
-      <v-card-title class="d-flex align-center py-3 px-6 bg-surface-variant-light">
-        <v-icon icon="mdi-cog" color="amber" class="mr-2"></v-icon>
-        <span class="font-weight-bold">{{ t('map.settings') }}</span>
-        <v-spacer></v-spacer>
-        <v-btn
-            icon="mdi-close"
-            variant="text"
-            density="compact"
-            @click="emit('update:modelValue', false)">
-        </v-btn>
+    <v-card border class="map-setting-card">
+      <v-card-title class="py-10 text-center bg-black mx-n5 create-marker-card">
+        <v-icon size="80">mdi-map-marker</v-icon>
+        <v-icon size="80" icon="mdi-cog" class="ml-2"></v-icon>
       </v-card-title>
 
       <v-tabs v-model="activeTab" color="amber" density="comfortable" class="border-b px-4">
         <v-tab value="general">
-          <v-icon icon="mdi-tune" start></v-icon>
           {{ t('map.generalSettings') }}
         </v-tab>
         <v-tab value="zoom">
-          <v-icon icon="mdi-map-marker-distance" start></v-icon>
           {{ t('map.markerZoomSettings') }}
         </v-tab>
       </v-tabs>
@@ -35,11 +26,6 @@
           <v-card border elevation="0" class="mb-4">
             <v-list class="bg-transparent" lines="two">
               <v-list-item>
-                <template v-slot:prepend>
-                  <v-avatar color="amber-lighten-4" class="text-amber-darken-3 mr-2">
-                    <v-icon icon="mdi-bookmark-check-outline"></v-icon>
-                  </v-avatar>
-                </template>
                 <v-list-item-title class="font-weight-medium">
                   {{ t('map.rememberMarkerSelection') }}
                 </v-list-item-title>
@@ -103,26 +89,28 @@
               <v-expansion-panel-title class="py-2 px-4">
                 <div class="d-flex align-center justify-space-between w-100 pr-2">
                   <div class="d-flex align-center font-weight-medium">
-                    <v-icon icon="mdi-folder-marker-outline" color="amber" class="mr-2" size="small"></v-icon>
                     <span>{{ groupName === 'other' ? t('map.groups.other') : t(`map.groups.${groupName}`) }}</span>
                     <v-chip size="x-small" class="ml-2" variant="tonal">{{ categories.length }}</v-chip>
                   </div>
                 </div>
               </v-expansion-panel-title>
 
-              <v-expansion-panel-text class="pt-2 px-1">
+              <v-expansion-panel-text>
                 <v-row density="comfortable">
                   <v-col
                       cols="12"
                       v-for="cat in categories"
                       :key="cat.value">
-                    <v-card border elevation="0" class="pa-3 mb-2 bg-surface-light">
-                      <div class="d-flex align-center mb-3">
-                        <v-avatar size="32" class="mr-3 bg-black">
+                 <v-row>
+                        <v-col cols="auto">
+                        <v-avatar class="mr-3">
                           <v-img :src="getCategoryIcon(cat.value)" cover width="24" height="24"></v-img>
                         </v-avatar>
+                        </v-col>
+                        <v-col>
+                          <div class="d-flex align-center mb-3">
                         <div>
-                          <div class="font-weight-medium text-body-2">{{ cat.text }}</div>
+                          <div class="font-weight-medium ">{{ cat.text }}</div>
                           <div class="text-caption opacity-60">
                             {{ t('map.visibleZoomRange') }}:
                             Zoom {{ getCategoryRule(cat.value).minZoom }} - {{ getCategoryRule(cat.value).maxZoom }}
@@ -157,17 +145,18 @@
                       </div>
 
                       <!-- 各 Zoom 尺寸调整 -->
-                      <div class="px-2 pt-2 border-t mt-2">
+                      <div class="px-2 pt-2 border-t mt-10">
                         <div class="text-caption opacity-70 mb-2">图标尺寸比例 (Scale):</div>
                         <v-row density="compact">
                           <v-col
                               cols="6"
-                              sm="3"
+                              sm="6"
+                              class="d-flex align-center"
                               v-for="zoomLevel in [12, 13, 14, 15]"
                               :key="zoomLevel">
-                            <div class="text-caption d-flex justify-space-between" style="font-size: 11px">
+                            <div class="text-caption d-flex justify-space-between mr-5" style="font-size: 11px">
                               <span>Zoom {{ zoomLevel }}:</span>
-                              <span class="font-weight-bold">{{ (getCategoryScaleAtZoom(cat.value, zoomLevel)).toFixed(2) }}</span>
+                              <span class="font-weight-bold u ml-2">{{ (getCategoryScaleAtZoom(cat.value, zoomLevel)).toFixed(2) }}</span>
                             </div>
                             <v-slider
                                 :model-value="getCategoryScaleAtZoom(cat.value, zoomLevel)"
@@ -183,7 +172,8 @@
                           </v-col>
                         </v-row>
                       </div>
-                    </v-card>
+                        </v-col>
+                      </v-row>
                   </v-col>
                 </v-row>
               </v-expansion-panel-text>
@@ -208,17 +198,14 @@
         <v-spacer></v-spacer>
         <v-btn
             variant="text"
-            density="comfortable"
             @click="emit('update:modelValue', false)">
-          {{ t('basic.cancel') }}
+          {{ t('basic.button.cancel') }}
         </v-btn>
         <v-btn
             variant="flat"
             color="amber"
-            density="comfortable"
-            prepend-icon="mdi-content-save"
             @click="onSaveSettings">
-          {{ t('map.saveSettings') }}
+          {{ t('basic.button.save') }}
         </v-btn>
       </v-card-actions>
     </v-card>

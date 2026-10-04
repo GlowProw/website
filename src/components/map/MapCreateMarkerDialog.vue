@@ -1,5 +1,5 @@
 <template>
-  <v-dialog :model-value="modelValue" @update:model-value="emit('update:modelValue', $event)" max-width="500">
+  <v-dialog :model-value="modelValue" @update:model-value="emit('update:modelValue', $event)" max-width="850">
     <v-card border elevation="12">
       <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 create-marker-card">
         <v-icon size="80">mdi-map-marker-plus</v-icon>
