@@ -81,6 +81,10 @@
     "vite-plugin-pwa": "^1.2.0",
     "vite-plugin-vuetify": "^2.1.1",
     "vite-ssg": "^28.3.0",
-    "vue-tsc": "^2.2.12"
+    "vue-tsc": "^2.2.12",
+    "jsdom": "25.0.1"
+  },
+  "overrides": {
+    "jsdom": "25.0.1"
   }
 }
