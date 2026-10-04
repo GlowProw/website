@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useNoticeStore } from '~/stores/noticeStore';
+import { getAppOrigin, getAppUrl } from '@/assets/sripts/app_host';
 
 const props = withDefaults(defineProps<{
   type: string;
@@ -15,11 +16,11 @@ const { t } = useI18n();
 const notice = useNoticeStore();
 
 const getShareUrl = () => {
-  return props.url || window.location.href;
+  return props.url || (typeof window !== 'undefined' ? window.location.href : getAppUrl());
 };
 
 const getIframeCode = () => {
-  const baseUrl = window.location.origin;
+  const baseUrl = getAppOrigin();
   const widgetUrl = `${baseUrl}/widgets/${props.type}/${props.targetId}`;
   return `<iframe src="${widgetUrl}" width="100%" height="400" frameborder="0"></iframe>`;
 };

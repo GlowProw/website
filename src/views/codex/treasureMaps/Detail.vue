@@ -5,7 +5,7 @@ import {computed, onMounted, Ref, ref, watch} from "vue";
 import {TreasureMap, TreasureMaps} from "glow-prow-data";
 import {useRoute, useRouter} from "vue-router";
 import {useAuthStore} from "~/stores/userAccountStore";
-import {rarity, storage} from "@/assets/sripts/index";
+import {rarity, storage, getAppUrl} from "@/assets/sripts/index";
 
 import Time from "@/components/Time.vue";
 import TimeView from "@/components/TimeView.vue";
@@ -77,7 +77,8 @@ onMounted(() => {
       headName = headData.name(mapDetailData.value.category),
       headDescription = headData.description()
 
-  head.value.titleTemplate = `${headName} - ${head.value.titleTemplate}`
+  head.value.title = headName ? `${headName} - ${t(route.meta.title as string)}` : t(route.meta.title as string);
+  head.value.titleTemplate = `%s | ${t('name')}`;
 
   const mapCat = mapDetailData.value?.category ? (mapDetailData.value.category === 'legend' ? 'treasureMaps/legendary' : `treasureMaps/${mapDetailData.value.category}`) : 'AUTO_treasureMaps';
   const imageUrl = cdnStore.currentService.image.url({
@@ -98,7 +99,7 @@ onMounted(() => {
     {property: 'og:title', content: `${headName} | ${t('name')}`},
     {property: 'og:description', content: headDescription},
     {property: 'og:image', content: imageUrl},
-    {property: 'og:url', content: window.location.href},
+    {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
     {property: 'og:site_name', content: t('name')},
     {name: 'twitter:card', content: 'summary_large_image'},
     {name: 'twitter:title', content: `${headName} | ${t('name')}`},

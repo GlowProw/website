@@ -3,7 +3,7 @@
 import Silk from "@/components/Silk.vue";
 import {useI18n} from "vue-i18n";
 import {onMounted, ref, type Ref} from "vue";
-import {apis} from "@/assets/sripts/index";
+import {apis, getAppUrl} from "@/assets/sripts/index";
 import {ApiError} from "@/assets/types/Api";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {handleApiError} from "@/assets/sripts/error_handler";
@@ -36,7 +36,7 @@ const {t} = useI18n(),
         {property: 'og:title', content: `${t(route.meta.title as string)} | ${t('name')}`},
         {property: 'og:description', content: t('smugglersReport.description')},
         {property: 'og:site_name', content: t('name')},
-        {property: 'og:url', content: window.location.href},
+        {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
         {name: 'twitter:card', content: 'summary'},
         {name: 'twitter:title', content: `${t(route.meta.title as string)} | ${t('name')}`},
         {name: 'twitter:description', content: t('smugglersReport.description')},

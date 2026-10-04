@@ -189,8 +189,9 @@ export const useAppStore = defineStore('app', () => {
         // 保存到本地存储
         storage_account.updateConfiguration('app', CONFIG_KEYS.LANGUAGE, lang)
 
-        // 可以在这里触发语言切换事件
-        document.documentElement.lang = lang
+        if (typeof document !== 'undefined' && document.documentElement) {
+            document.documentElement.lang = lang
+        }
 
         return lang
     }
@@ -265,14 +266,16 @@ export const useAppStore = defineStore('app', () => {
      * @private
      */
     const applyTheme = (themeName: string) => {
+        if (typeof document === 'undefined') return
         const html = document.documentElement
+        if (!html) return
 
         // 移除现有主题类
         html.classList.remove('theme-light', 'theme-dark')
 
         if (themeName === 'auto') {
             // 自动模式：根据系统偏好设置
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+            const prefersDark = typeof window !== 'undefined' && window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)').matches : false
             html.classList.add(prefersDark ? 'theme-dark' : 'theme-light')
         } else {
             html.classList.add(`theme-${themeName}`)
@@ -283,6 +286,10 @@ export const useAppStore = defineStore('app', () => {
     }
 
     const initializePwa = () => {
+        if (typeof window === 'undefined' || typeof window.addEventListener !== 'function') {
+            return
+        }
+
         // 如果在 Setup 之前就已经预捕获到了事件，自动同步
         if (deferredInstallPrompt) {
             pwaInstallPrompt.value = deferredInstallPrompt
@@ -304,7 +311,9 @@ export const useAppStore = defineStore('app', () => {
 
         // 定时更新 PWA 安装状态
         const updateInstallStatus = () => {
-            isPwaInstalled.value = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true
+            if (typeof window !== 'undefined' && window.matchMedia) {
+                isPwaInstalled.value = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any)?.standalone === true
+            }
         }
         updateInstallStatus()
         window.addEventListener('resize', updateInstallStatus)

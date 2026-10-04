@@ -21,9 +21,10 @@ import Point from 'ol/geom/Point';
 import Polygon from 'ol/geom/Polygon';
 import { fromLonLat, toLonLat } from 'ol/proj';
 import { Circle as CircleStyle, Fill, Icon, Stroke, Style } from 'ol/style';
-import { pointerMove } from 'ol/events/condition';
+import { pointerMove, primaryAction } from 'ol/events/condition';
 import Select from 'ol/interaction/Select';
 import Modify from 'ol/interaction/Modify';
+import Translate from 'ol/interaction/Translate';
 import type { Feature as OLFeature } from 'ol';
 import type { Geometry } from 'ol/geom';
 
@@ -110,6 +111,16 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
 
     /** debug 模式下边界编辑是否激活 */
     const isEditingBounds = ref(false);
+
+    /** debug 模式下是否允许拖拽标记 */
+    const isMarkerDraggingEnabled = ref(true);
+    /** 是否正在拖拽标记中（用于避免拖拽松开时误触发 click） */
+    const isDraggingFeature = ref(false);
+
+    /** debug 模式下标记编辑弹窗状态 */
+    const showEditMarkerDialog = ref(false);
+    const editingMarkerData = ref<any>(null);
+    const editingOriginalId = ref<string>('');
 
     const isShowMarkModel = ref(false);
     const isShowSettings = ref(false);
@@ -573,6 +584,80 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
 
         map.addInteraction(hoverInteraction);
 
+        // Debug 模式：标记拖拽交互（仅允许鼠标左键/触屏拖拽，禁止右键触发）
+        const translateInteraction = new Translate({
+            layers: [vectorLayer],
+            hitTolerance: 15,
+            condition: primaryAction,
+        });
+        map.addInteraction(translateInteraction);
+
+        const updateTranslateActive = () => {
+            const active = isDebug.value && isMarkerDraggingEnabled.value;
+            translateInteraction.setActive(active);
+        };
+
+        updateTranslateActive();
+        watch([isDebug, isMarkerDraggingEnabled], () => {
+            updateTranslateActive();
+        });
+
+        translateInteraction.on('translatestart', () => {
+            isDraggingFeature.value = true;
+        });
+
+        translateInteraction.on('translateend', (event: any) => {
+            setTimeout(() => {
+                isDraggingFeature.value = false;
+            }, 100);
+
+            const features = event.features.getArray();
+            features.forEach((feature: OLFeature<Geometry>) => {
+                const originalData = feature.get('originalData');
+                if (!originalData) return;
+                const geom = feature.getGeometry() as Point;
+                if (!geom) return;
+                const coords = toLonLat(geom.getCoordinates());
+                const newLon = Number(coords[0].toFixed(6));
+                const newLat = Number(coords[1].toFixed(6));
+
+                const oldLon = originalData.longitude;
+                const oldLat = originalData.latitude;
+
+                // 坐标未发生实质变动时不触发更新
+                if (oldLon !== undefined && oldLat !== undefined) {
+                    if (Math.abs(oldLon - newLon) < 1e-6 && Math.abs(oldLat - newLat) < 1e-6) {
+                        return;
+                    }
+                }
+
+                originalData.longitude = newLon;
+                originalData.latitude = newLat;
+                originalData.lastUpdated = new Date().toISOString();
+
+                // 同步更新 locations 列表
+                const itemInList = locations.value.find(loc => loc.id === originalData.id);
+                if (itemInList) {
+                    itemInList.longitude = newLon;
+                    itemInList.latitude = newLat;
+                    itemInList.lastUpdated = originalData.lastUpdated;
+                }
+
+                // 若当前正在查看该地标卡片，同步更新卡片数据
+                if (selectedLocationData.value?.id === originalData.id) {
+                    selectedLocationData.value = {
+                        ...selectedLocationData.value,
+                        longitude: newLon,
+                        latitude: newLat,
+                        lastUpdated: originalData.lastUpdated,
+                    };
+                }
+
+                console.log(`[Debug] 标记拖拽更新: ${originalData.id} -> [${newLon}, ${newLat}]`);
+                notice.success(`${t('map.contextMenu.markerUpdatedTip', { id: originalData.id || '' })} [${newLon}, ${newLat}]`, { mode: 'minimal' });
+            });
+        });
+
         hoverInteraction.on('select', (event) => {
             const selected = event.selected.filter(f => {
                 const cat = f.get('originalData')?.category || 'default';
@@ -586,6 +671,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         });
 
         map.on('click', async (event) => {
+            if (isDraggingFeature.value) {
+                return;
+            }
             closeContextMenu();
             const feature = map.forEachFeatureAtPixel(event.pixel,
                 (feature) => feature as OLFeature<Geometry>,
@@ -740,6 +828,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
     /**
      * 右键菜单项列表（根据点击的 feature 和 debug 状态动态生成）
      */
+    /**
+     * 右键菜单项列表（根据点击的 feature 和 debug 状态动态生成）
+     */
     const contextMenuItems = computed(() => {
         const feature = contextMenuState.value.feature;
         const coord = contextMenuState.value.coordinate;
@@ -751,13 +842,43 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             const locId = originalData?.id || feature.get('id');
             const locName = getLocationDisplayName(originalData || { id: locId });
             items.push({
+                icon: 'mdi-information-outline',
                 label: `${t('map.contextMenu.openDetail') || '打开详情'}${locName ? ` (${locName})` : ''}`,
                 action: () => openLocationDetail(locId),
             });
+
+            // DEBUG 模式下地标专属操作
+            if (isDebug.value) {
+                items.push({
+                    icon: 'mdi-pencil',
+                    label: t('map.contextMenu.editMarker') || '编辑标记',
+                    badge: 'DEBUG',
+                    action: () => openEditMarker(feature),
+                });
+                items.push({
+                    icon: 'mdi-content-copy',
+                    label: t('map.contextMenu.cloneMarker') || '在此克隆此标记',
+                    badge: 'DEBUG',
+                    action: () => cloneMarker(originalData || feature, coord),
+                });
+                items.push({
+                    icon: 'mdi-code-json',
+                    label: t('map.contextMenu.copyMarkerJson') || '复制标记 JSON',
+                    badge: 'DEBUG',
+                    action: () => copyMarkerJson(originalData || feature),
+                });
+                items.push({
+                    icon: 'mdi-crosshairs-gps',
+                    label: t('map.contextMenu.copyMarkerCoordinates') || '复制标记坐标',
+                    badge: 'DEBUG',
+                    action: () => copyMarkerCoordinates(originalData || feature),
+                });
+            }
         }
 
         // 在此添加标记
         items.push({
+            icon: 'mdi-map-marker-plus',
             label: t('map.contextMenu.addMarker') || '在此添加标记',
             action: () => {
                 clickedCoordinate.value = { longitude: coord[0], latitude: coord[1] };
@@ -782,12 +903,14 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
 
         // 复制坐标
         items.push({
+            icon: 'mdi-crosshairs-gps',
             label: t('map.contextMenu.copyCoordinates') || '复制坐标',
             action: () => copyCoordinates(coord),
         });
 
         // 复制当前位置链接
         items.push({
+            icon: 'mdi-link-variant',
             label: t('map.contextMenu.copyLocationLink') || '复制当前位置链接',
             action: () => copyLocationLink(coord, feature),
         });
@@ -795,7 +918,26 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         // debug 模式额外菜单项
         if (isDebug.value) {
             items.push({ type: 'divider' });
+
+            // 切换标记拖拽
             items.push({
+                icon: 'mdi-cursor-move',
+                label: isMarkerDraggingEnabled.value
+                    ? (t('map.contextMenu.disableDragMarker') || '关闭标记拖拽')
+                    : (t('map.contextMenu.toggleDragMarker') || '开启标记拖拽'),
+                badge: 'DEBUG',
+                action: () => {
+                    isMarkerDraggingEnabled.value = !isMarkerDraggingEnabled.value;
+                    notice.info(isMarkerDraggingEnabled.value
+                        ? (t('map.contextMenu.dragMarkerNotice') || '已开启标记拖拽模式，可直接按住标记拖动位置')
+                        : (t('map.contextMenu.dragMarkerDisabledNotice') || '已关闭标记拖拽模式')
+                    );
+                },
+            });
+
+            // 编辑地图边界
+            items.push({
+                icon: 'mdi-vector-polygon',
                 label: isEditingBounds.value
                     ? (t('map.contextMenu.stopEditBounds') || '停止编辑边界')
                     : (t('map.contextMenu.editBounds') || '编辑地图边界'),
@@ -806,6 +948,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             });
             if (isEditingBounds.value) {
                 items.push({
+                    icon: 'mdi-fit-to-screen-outline',
                     label: t('map.contextMenu.fitBoundsToViewport') || '将边界定位至当前视口',
                     badge: 'DEBUG',
                     action: () => {
@@ -823,10 +966,136 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         const text = `${coord[0].toFixed(6)}, ${coord[1].toFixed(6)}`;
         try {
             await navigator.clipboard.writeText(text);
-            notice.success(t('map.contextMenu.copiedCoordinatesTip'));
+            notice.success(t('map.contextMenu.copiedCoordinatesTip'), { mode: 'minimal' });
         } catch (e) {
             console.error('Copy failed', e);
         }
+    };
+
+    /** 复制标记 JSON */
+    const copyMarkerJson = async (target: any) => {
+        const raw = target?.get ? target.get('originalData') : target;
+        if (!raw) return;
+        const text = JSON.stringify(raw, null, 2);
+        try {
+            await navigator.clipboard.writeText(text);
+            notice.success(t('map.contextMenu.copiedMarkerJsonTip'), { mode: 'minimal' });
+        } catch (e) {
+            console.error('Copy JSON failed', e);
+        }
+    };
+
+    /** 复制标记坐标 */
+    const copyMarkerCoordinates = async (target: any) => {
+        const raw = target?.get ? target.get('originalData') : target;
+        if (!raw) return;
+        const text = `${raw.longitude?.toFixed(6)}, ${raw.latitude?.toFixed(6)}`;
+        try {
+            await navigator.clipboard.writeText(text);
+            notice.success(t('map.contextMenu.copiedCoordinatesTip'), { mode: 'minimal' });
+        } catch (e) {
+            console.error('Copy coordinates failed', e);
+        }
+    };
+
+    /** 克隆标记 */
+    const cloneMarker = (target: any, targetCoord?: [number, number]) => {
+        const raw = target?.get ? target.get('originalData') : target;
+        if (!raw) return;
+
+        const originalId = raw.id || 'marker';
+        const randomSuffix = Math.random().toString(36).substring(2, 6);
+        const newId = `${originalId}_clone_${randomSuffix}`;
+
+        const lon = targetCoord ? Number(targetCoord[0].toFixed(6)) : Number((raw.longitude + 0.005).toFixed(6));
+        const lat = targetCoord ? Number(targetCoord[1].toFixed(6)) : Number((raw.latitude + 0.005).toFixed(6));
+
+        const clonedData = {
+            ...JSON.parse(JSON.stringify(raw)),
+            id: newId,
+            name: raw.name ? `${raw.name} (Clone)` : undefined,
+            longitude: lon,
+            latitude: lat,
+            dateAdded: new Date().toISOString(),
+            lastUpdated: new Date().toISOString(),
+        };
+
+        const newFeature = onCreateFeatureFromLocation(clonedData);
+        if (vectorLayerRef.value) {
+            const vectorSource = vectorLayerRef.value.getSource();
+            vectorSource?.addFeature(newFeature);
+        }
+        locations.value.push(clonedData);
+
+        selectedLocationData.value = clonedData;
+        model.value = true;
+        showCoordinateInfo.value = false;
+
+        triggerTransitionAnimation(true);
+        notice.success(t('map.contextMenu.markerClonedTip', { id: newId }), { mode: 'minimal' });
+        return clonedData;
+    };
+
+    /** 打开标记编辑弹窗 */
+    const openEditMarker = (target: any) => {
+        const raw = target?.get ? target.get('originalData') : target;
+        if (!raw) return;
+        editingOriginalId.value = raw.id;
+        editingMarkerData.value = JSON.parse(JSON.stringify(raw));
+        showEditMarkerDialog.value = true;
+    };
+
+    /** 保存标记编辑 */
+    const saveEditMarker = (updatedData: any) => {
+        if (!updatedData || !updatedData.id) return;
+        const oldId = editingOriginalId.value || updatedData.id;
+
+        // 1. 更新 locations.value 列表
+        const idx = locations.value.findIndex(loc => loc.id === oldId);
+        if (idx !== -1) {
+            locations.value[idx] = { ...updatedData, lastUpdated: new Date().toISOString() };
+        } else {
+            locations.value.push({ ...updatedData, lastUpdated: new Date().toISOString() });
+        }
+
+        // 2. 更新 vectorLayer 中的 feature
+        if (vectorLayerRef.value) {
+            const vectorSource = vectorLayerRef.value.getSource();
+            if (vectorSource) {
+                const features = vectorSource.getFeatures();
+                const feature = features.find(f => {
+                    const orig = f.get('originalData');
+                    return (orig && orig.id === oldId) || f.get('id') === oldId;
+                });
+
+                if (feature) {
+                    feature.set('id', updatedData.id);
+                    feature.set('name', updatedData.name || updatedData.id);
+                    feature.set('originalData', { ...updatedData, lastUpdated: new Date().toISOString() });
+                    const geom = feature.getGeometry() as Point;
+                    if (geom && updatedData.longitude !== undefined && updatedData.latitude !== undefined) {
+                        geom.setCoordinates(fromLonLat([updatedData.longitude, updatedData.latitude]));
+                    }
+                    feature.changed();
+                }
+            }
+        }
+
+        // 3. 若当前卡片正在查看该标记，同步更新卡片
+        if (selectedLocationData.value?.id === oldId || selectedLocationData.value?.id === updatedData.id) {
+            selectedLocationData.value = { ...updatedData, lastUpdated: new Date().toISOString() };
+        }
+
+        showEditMarkerDialog.value = false;
+        triggerTransitionAnimation(true);
+        notice.success(t('map.contextMenu.markerSavedTip', { id: updatedData.id }), { mode: 'minimal' });
+    };
+
+    /** 取消标记编辑 */
+    const onCancelEditMarker = () => {
+        showEditMarkerDialog.value = false;
+        editingMarkerData.value = null;
+        editingOriginalId.value = '';
     };
 
     /** 复制当前位置 URL 链接 */
@@ -842,7 +1111,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }
         try {
             await navigator.clipboard.writeText(url);
-            notice.success(t('map.contextMenu.copiedLinkTip'));
+            notice.success(t('map.contextMenu.copiedLinkTip'), { mode: 'minimal' });
         } catch (e) {
             console.error('Copy failed', e);
         }
@@ -1535,6 +1804,15 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         contextMenuState,
         contextMenuItems,
         isEditingBounds,
+        isMarkerDraggingEnabled,
+        showEditMarkerDialog,
+        editingMarkerData,
+        openEditMarker,
+        saveEditMarker,
+        onCancelEditMarker,
+        cloneMarker,
+        copyMarkerJson,
+        copyMarkerCoordinates,
         closeContextMenu,
         openLocationDetail,
         onConfigChanged,

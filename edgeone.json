@@ -1,5 +1,12 @@
 {
+  "buildCommand": "npm run build:ssg",
+  "installCommand": "npm install",
+  "outputDirectory": "./dist",
+  "nodeVersion": "22.11.0",
   "routes": [
+    {
+      "handle": "filesystem"
+    },
     {
       "src": "/sitemap.xml",
       "dest": "/sitemap.xml",
@@ -41,9 +48,55 @@
       "status": 200
     }
   ],
+  "headers": [
+    {
+      "source": "/sitemap.xml",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/xml; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    },
+    {
+      "source": "/robots.txt",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/plain; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/static/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
   "caches": [
     {
-      "source": "/robots.xml",
+      "source": "/robots.txt",
       "cacheTtl": 0
     },
     {
@@ -53,17 +106,6 @@
     {
       "source": "/ads.txt",
       "cacheTtl": 0
-    }
-  ],
-  "headers": [
-    {
-      "source": "/sitemap.xml",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/xml"
-        }
-      ]
     }
   ]
 }

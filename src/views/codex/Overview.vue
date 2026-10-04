@@ -19,12 +19,12 @@ const
 let codexIcons = ref({}),
 
     // 页面元信息 (meta)
-    head = ref({
+    head = ref<any>({
       title: t(route.meta.title as string),
       titleTemplate: `%s | ${t('name')}`,
       meta: [
         {name: 'keywords', content: t(route.meta.keywords as string)},
-        {name: 'og:title', content: `%s | ${t('name')}`},
+        {property: 'og:title', content: `%s | ${t('name')}`},
       ]
     })
 
@@ -33,12 +33,17 @@ useHead(head)
 onMounted(() => {
   codexIcons.value = serializationMap(codexImages)
 
-  head.value.titleTemplate = `${t('codex.title')} - ${head.value.titleTemplate}`
+  head.value.title = t(route.meta.title as string) || t('codex.title');
+  head.value.titleTemplate = `%s | ${t('name')}`;
   head.value.meta = [
     {
-      name: 'keywords', content: t(route.meta.keywords as string + ',' + t('home.meta.keywords'))
+      name: 'description', content: t('codex.meta.description') || t('apps.meta.description')
     },
-    {name: 'og:title', content: `${t(route.meta.title as string)} | ${t('name')}`},
+    {
+      name: 'keywords', content: t(route.meta.keywords as string || 'codex.meta.keywords') + ',' + t('home.meta.keywords')
+    },
+    {property: 'og:title', content: `${t(route.meta.title as string)} | ${t('name')}`},
+    {property: 'og:description', content: t('codex.meta.description') || t('apps.meta.description')},
   ]
 })
 

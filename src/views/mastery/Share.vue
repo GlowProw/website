@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed, nextTick, onMounted, Ref, ref, watch} from "vue";
-import {storage_account} from "@/assets/sripts/index";
+import {storage_account, getAppHost, getAppOrigin} from "@/assets/sripts/index";
 import {snapdom} from '@zumer/snapdom';
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
@@ -74,7 +74,7 @@ const masteryLoading = ref(false);
 const generatedLoading = ref(false);
 const posterSwitch = ref(true);
 const path = ref("");
-const webPath = computed(() => window.location.host);
+const webPath = computed(() => getAppHost());
 
 const activeSeasonTitle = computed(() => {
   return seasonOptions.value?.find(s => s.id === selectedSeasonId.value)?.title || selectedSeasonId.value;
@@ -104,7 +104,8 @@ watch(() => [selectedSeasonId.value, selectedNodeIds.value], () => {
 
 function updateSharePath() {
   const code = generateShareCode();
-  path.value = `${window.location.origin}/mastery?season=${selectedSeasonId.value}&share=${code}`;
+  const origin = getAppOrigin();
+  path.value = `${origin}/mastery?season=${selectedSeasonId.value}&share=${code}`;
 }
 
 /**

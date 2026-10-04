@@ -164,7 +164,7 @@
     <div class="map-title px-10 mx-n6 py-2 text-amber-lighten-4">
       {{ t('empireSkillSimulation.other') }}
     </div>
-    <div class="mx-5 mb-10 opacity-60"
+    <div class="mx-5 mb-5 opacity-80"
          v-if="selectedLocation && selectedLocation.id">
       <v-text-field :value="selectedLocation.id" hide-details readonly variant="underlined" density="compact">
         <template v-slot:append-inner>
@@ -207,6 +207,63 @@
         </v-col>
       </v-row>
     </div>
+
+    <!-- DEBUG 模式标记操作区 -->
+    <template v-if="isDebug">
+      <div class="map-title px-10 mx-n6 py-2 text-amber d-flex align-center justify-space-between">
+        <span class="d-flex align-center">
+          <v-icon size="16" class="mr-1">mdi-bug</v-icon>
+          DEBUG 标记操作
+        </span>
+        <v-chip size="x-small" color="amber" variant="flat" class="font-weight-bold">DEBUG</v-chip>
+      </div>
+      <div class="mx-5 mb-8 mt-3">
+        <v-row dense>
+          <v-col cols="6">
+            <v-btn
+                block
+                size="small"
+                variant="tonal"
+                color="amber"
+                prepend-icon="mdi-pencil"
+                @click="emit('edit-marker', selectedLocation)">
+              {{ t('map.contextMenu.editMarker') || '编辑标记' }}
+            </v-btn>
+          </v-col>
+          <v-col cols="6">
+            <v-btn
+                block
+                size="small"
+                variant="tonal"
+                color="info"
+                prepend-icon="mdi-content-copy"
+                @click="emit('clone-marker', selectedLocation)">
+              {{ t('map.contextMenu.cloneMarker') || '克隆标记' }}
+            </v-btn>
+          </v-col>
+          <v-col cols="6">
+            <v-btn
+                block
+                size="small"
+                variant="tonal"
+                prepend-icon="mdi-code-json"
+                @click="emit('copy-marker-json', selectedLocation)">
+              {{ t('map.contextMenu.copyMarkerJson') || '复制 JSON' }}
+            </v-btn>
+          </v-col>
+          <v-col cols="6">
+            <v-btn
+                block
+                size="small"
+                variant="tonal"
+                prepend-icon="mdi-crosshairs-gps"
+                @click="emit('copy-marker-coords', selectedLocation)">
+              {{ t('map.contextMenu.copyMarkerCoordinates') || '复制坐标' }}
+            </v-btn>
+          </v-col>
+        </v-row>
+      </div>
+    </template>
   </v-card>
 </template>
 
@@ -227,15 +284,24 @@ import MapPossibleLoot from "@/components/snbWidget/mapPossibleLoot.vue";
 import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue";
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   modelValue: boolean;
   selectedLocation: any;
   getCategoryIcon: (category: string) => string;
   getPersonalMarkerIcon: () => string;
   nearbyPoints: any[];
-}>();
+  isDebug?: boolean;
+}>(), {
+  isDebug: false,
+});
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: boolean): void;
+  (e: 'edit-marker', location: any): void;
+  (e: 'clone-marker', location: any): void;
+  (e: 'copy-marker-json', location: any): void;
+  (e: 'copy-marker-coords', location: any): void;
+}>();
 
 const { t, te } = useI18n();
 const { mobile } = useDisplay();

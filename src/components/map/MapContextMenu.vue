@@ -18,7 +18,10 @@
               :class="{ 'ctx-item--disabled': item.disabled, 'ctx-item--danger': item.danger }"
               :disabled="item.disabled"
               @click="onItemClick(item)">
-            <span v-if="item.icon" class="ctx-icon">{{ item.icon }}</span>
+            <span v-if="item.icon" class="ctx-icon">
+              <v-icon size="16" v-if="typeof item.icon === 'string' && item.icon.startsWith('mdi-')">{{ item.icon }}</v-icon>
+              <template v-else>{{ item.icon }}</template>
+            </span>
             <span class="ctx-label">{{ item.label }}</span>
             <span v-if="item.badge" class="ctx-badge">{{ item.badge }}</span>
           </button>

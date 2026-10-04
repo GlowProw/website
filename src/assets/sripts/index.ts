@@ -41,6 +41,7 @@ export const assemblyViewConfig = new _AssemblyViewConfig()
 
 export { getBrowserFingerprint } from './fingerprint';
 export { getCurrentSeason, getCurrentSeasonId } from './season';
+export { getAppHost, getAppOrigin, getAppUrl } from './app_host';
 
 export default {
     apis, conf, ws, http,

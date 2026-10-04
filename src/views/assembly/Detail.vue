@@ -20,7 +20,7 @@ import Time from "@/components/Time.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
 import AssemblyMainSubjectView from "@/components/AssemblyMainSubjectView.vue";
 import AssemblyTagChip from "@/components/AssemblyTagChip.vue";
-import {apis} from "@/assets/sripts/index";
+import {apis, getAppUrl} from "@/assets/sripts/index";
 import {ApiError} from "@/assets/types/Api";
 import AdsWidget from "@/components/ads/google/index.vue";
 import AccountCardWidget from "@/components/AccountCardWidget.vue";
@@ -67,7 +67,7 @@ let detailData: Ref<any> = ref({
         {property: 'og:title', content: `%s | ${t('name')}`},
         {property: 'og:description', content: ''},
         {property: 'og:site_name', content: t('name')},
-        {property: 'og:url', content: window.location.href},
+        {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
         {name: 'twitter:card', content: 'summary'},
         {name: 'twitter:title', content: `%s | ${t('name')}`},
         {name: 'twitter:description', content: ''},
@@ -84,18 +84,20 @@ onMounted(async () => {
   await getAssemblyDetail()
 
   // 设置新页面标题
-  const title = `${detailData.value.name} - ${t(route.meta.title as string)} | ${t('name')}`;
-  head.value.titleTemplate = title
+  const pageTitle = detailData.value.name ? `${detailData.value.name} - ${t(route.meta.title as string)}` : t(route.meta.title as string);
+  head.value.title = pageTitle;
+  head.value.titleTemplate = `%s | ${t('name')}`;
   head.value.meta = [
-    {name: 'keywords', content: t(route.meta.keywords as string)},
-    {property: 'og:type', content: 'website'},
-    {property: 'og:title', content: title},
-    {property: 'og:description', content: detailData.value.description},
+    {name: 'description', content: detailData.value.description || t('apps.meta.description')},
+    {name: 'keywords', content: t(route.meta.keywords as string || 'assembly.meta.keywords')},
+    {property: 'og:type', content: 'article'},
+    {property: 'og:title', content: `${pageTitle} | ${t('name')}`},
+    {property: 'og:description', content: detailData.value.description || t('apps.meta.description')},
     {property: 'og:site_name', content: t('name')},
-    {property: 'og:url', content: window.location.href},
-    {name: 'twitter:card', content: 'summary'},
-    {name: 'twitter:title', content: title},
-    {name: 'twitter:description', content: detailData.value.description}
+    {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
+    {name: 'twitter:card', content: 'summary_large_image'},
+    {name: 'twitter:title', content: `${pageTitle} | ${t('name')}`},
+    {name: 'twitter:description', content: detailData.value.description || t('apps.meta.description')}
   ]
 })
 

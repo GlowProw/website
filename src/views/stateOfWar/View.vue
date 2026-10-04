@@ -17,7 +17,7 @@ import FactionNameWidget from "@/components/snbWidget/factionNameWidget.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import {formatCompactNumber, formatNumber} from "@/assets/sripts/number";
-import {getCurrentSeasonId} from "@/assets/sripts";
+import {getCurrentSeasonId, getAppUrl} from "@/assets/sripts";
 import Loading from "@/components/Loading.vue";
 import TimeView from "@/components/TimeView.vue";
 import {useAuthStore} from "~/stores/userAccountStore";
@@ -62,7 +62,7 @@ const head: Ref<any> = ref({
     {property: 'og:title', content: `${t(route.meta?.title as string || 'stateOfWar.title')} | ${t('name')}`},
     {property: 'og:description', content: t('stateOfWar.description')},
     {property: 'og:site_name', content: t('name')},
-    {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : ''},
+    {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
   ]
 });
 

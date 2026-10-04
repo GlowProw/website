@@ -5,7 +5,7 @@ import {useI18n} from "vue-i18n";
 import {Ultimates} from "glow-prow-data";
 import {useRoute, useRouter} from "vue-router";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
-import {storage} from "@/assets/sripts";
+import {storage, getAppUrl} from "@/assets/sripts";
 import UltimateIconWidget from "@/components/snbWidget/ultimateIconWidget.vue";
 import CommentWidget from "@/components/CommentWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
@@ -66,7 +66,8 @@ onMounted(() => {
       headName = headData.name(),
       headDescription = headData.description()
 
-  head.value.titleTemplate = `${headName} - ${head.value.titleTemplate}`
+  head.value.title = headName ? `${headName} - ${t(route.meta.title as string)}` : t(route.meta.title as string);
+  head.value.titleTemplate = `%s | ${t('name')}`;
 
   const imageUrl = cdnStore.currentService.image.url({
     id: id as string,
@@ -86,7 +87,7 @@ onMounted(() => {
     {property: 'og:title', content: `${headName} | ${t('name')}`},
     {property: 'og:description', content: headDescription},
     {property: 'og:image', content: imageUrl},
-    {property: 'og:url', content: window.location.href},
+    {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
     {property: 'og:site_name', content: t('name')},
     {name: 'twitter:card', content: 'summary_large_image'},
     {name: 'twitter:title', content: `${headName} | ${t('name')}`},

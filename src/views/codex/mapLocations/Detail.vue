@@ -11,7 +11,7 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import CommentWidget from "@/components/CommentWidget.vue";
 import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
-import {storage} from "@/assets/sripts/index";
+import {storage, getAppUrl} from "@/assets/sripts/index";
 import MapLocationName from "@/components/snbWidget/mapLocationName.vue";
 import MapLocationIconWidget from "@/components/snbWidget/mapLocationIconWidget.vue";
 import MapLocationAvailableTreasureMapWidget from "@/components/snbWidget/mapLocationAvailableTreasureMapWidget.vue";
@@ -87,7 +87,8 @@ const loadDetail = () => {
       headName = headData.name(),
       headDescription = headData.description()
 
-  head.value.titleTemplate = `${headName} - ${t(route.meta.title as string)} | ${t('name')}`
+  head.value.title = headName ? `${headName} - ${t(route.meta.title as string)}` : t(route.meta.title as string);
+  head.value.titleTemplate = `%s | ${t('name')}`;
   head.value.meta = [
     {name: 'description', content: headDescription},
     {
@@ -100,7 +101,7 @@ const loadDetail = () => {
     {property: 'og:type', content: 'website'},
     {property: 'og:title', content: `${headName} | ${t('name')}`},
     {property: 'og:description', content: headDescription},
-    {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : ''},
+    {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
     {property: 'og:site_name', content: t('name')},
     {name: 'twitter:card', content: 'summary'},
     {name: 'twitter:title', content: `${headName} | ${t('name')}`},

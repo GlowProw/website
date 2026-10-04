@@ -59,6 +59,20 @@
         :get-category-icon="getCategoryIcon"
         :get-personal-marker-icon="getPersonalMarkerIcon"
         :nearby-points="selectedLocationNearbyPoints"
+        :is-debug="isDebug"
+        @edit-marker="openEditMarker"
+        @clone-marker="cloneMarker"
+        @copy-marker-json="copyMarkerJson"
+        @copy-marker-coords="copyMarkerCoordinates"
+    />
+
+    <MapEditMarkerDialog
+        v-model="showEditMarkerDialog"
+        :marker-data="editingMarkerData"
+        :available-categories="availableCategories"
+        :get-category-icon="getCategoryIcon"
+        @save="saveEditMarker"
+        @cancel="onCancelEditMarker"
     />
 
     <MapCreateMarkerDialog
@@ -98,6 +112,7 @@ import MapToolbar from '@/components/map/MapToolbar.vue';
 import MapLayerControl from '@/components/map/MapLayerControl.vue';
 import MapSetting from '@/components/map/MapSetting.vue';
 import MapLocationCard from '@/components/map/MapLocationCard.vue';
+import MapEditMarkerDialog from '@/components/map/MapEditMarkerDialog.vue';
 import MapCreateMarkerDialog from '@/components/map/MapCreateMarkerDialog.vue';
 import MapControls from '@/components/map/MapControls.vue';
 import MapFooter from '@/components/map/MapFooter.vue';
@@ -176,7 +191,18 @@ const {
   _onResetView,
   contextMenuState,
   contextMenuItems,
+  isEditingBounds,
+  isMarkerDraggingEnabled,
+  showEditMarkerDialog,
+  editingMarkerData,
+  openEditMarker,
+  saveEditMarker,
+  onCancelEditMarker,
+  cloneMarker,
+  copyMarkerJson,
+  copyMarkerCoordinates,
   closeContextMenu,
+  openLocationDetail,
   onConfigChanged,
 } = use_map_controller();
 </script>

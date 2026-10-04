@@ -8,7 +8,7 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
 import PerksWidget from "@/components/snbWidget/perksWidget.vue";
 import {Ship} from "glow-prow-data/src/entity/Ships";
-import {number, storage} from "@/assets/sripts";
+import {number, storage, getAppOrigin, getAppUrl} from "@/assets/sripts";
 import CommentWidget from "@/components/CommentWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
 import {useAuthStore} from "~/stores/userAccountStore";
@@ -98,7 +98,8 @@ onMounted(() => {
       headName = headData.name(),
       headDescription = headData.description()
 
-  head.value.titleTemplate = `${headName} - ${head.value.titleTemplate}`
+  head.value.title = headName ? `${headName} - ${t(route.meta.title as string)}` : t(route.meta.title as string);
+  head.value.titleTemplate = `%s | ${t('name')}`;
 
   if (shipImages[imageKey]) {
     shipDetailPageData.value.img = (shipImages[imageKey] as any).default;
@@ -106,7 +107,9 @@ onMounted(() => {
     shipDetailPageData.value.img = "";
   }
 
-  const imageUrl = `${window.location.origin}${shipDetailPageData.value.img}`;
+  const siteOrigin = getAppOrigin();
+  const imageUrl = shipDetailPageData.value.img ? `${siteOrigin}${shipDetailPageData.value.img}` : '';
+  const currentUrl = typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path);
 
   head.value.meta = [
     {name: 'description', content: headDescription},
@@ -121,7 +124,7 @@ onMounted(() => {
     {property: 'og:title', content: `${headName} | ${t('name')}`},
     {property: 'og:description', content: headDescription},
     {property: 'og:image', content: imageUrl},
-    {property: 'og:url', content: window.location.href},
+    {property: 'og:url', content: currentUrl},
     {property: 'og:site_name', content: t('name')},
     {name: 'twitter:card', content: 'summary_large_image'},
     {name: 'twitter:title', content: `${headName} | ${t('name')}`},

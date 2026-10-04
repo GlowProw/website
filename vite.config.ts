@@ -1,9 +1,11 @@
 import Vue from '@vitejs/plugin-vue'
 import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 import { VitePWA } from 'vite-plugin-pwa'
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
+import type { UserConfig } from 'vite'
 import Sitemap from 'vite-plugin-sitemap'
 import path from "path";
+import type { ViteSSGOptions } from 'vite-ssg'
 
 import config from "./package.json"
 import fs from 'node:fs';
@@ -25,13 +27,13 @@ const getDynamicDataRoutes = () => {
         'commodities.json': '/codex/commoditie/',
         'ultimates.json': '/codex/ultimate/',
         'modifications.json': '/codex/modification/',
-        'cosmetics.json': '/codex/commodity/',
         'sets.json': '/codex/set/',
         'treasureMaps.json': '/codex/treasureMap/',
         'mapLocations.json': '/codex/mapLocation/',
         'npcs.json': '/codex/npc/',
         'empireSkills.json': '/codex/empireSkill/',
-        'questlog.json': '/codex/quest/',
+        'masterys.json': '/codex/mastery/',
+        'questlog.json': '/quest/',
     };
 
     Object.entries(mapping).forEach(([file, prefix]) => {
@@ -48,6 +50,23 @@ const getDynamicDataRoutes = () => {
             }
         }
     });
+
+    // 从 mapLocations.resources.json 提取资源分类页面路由
+    const resourcesPath = path.join(dataPath, 'mapLocations.resources.json');
+    if (fs.existsSync(resourcesPath)) {
+        try {
+            const resData = JSON.parse(fs.readFileSync(resourcesPath, 'utf8'));
+            const categories = new Set<string>();
+            Object.values(resData).forEach((loc: any) => {
+                if (loc.category) categories.add(loc.category);
+            });
+            categories.forEach(cat => {
+                result.push(`/codex/mapLocation/${cat}`);
+            });
+        } catch (e) {
+            console.error(`Error parsing ${resourcesPath}:`, e);
+        }
+    }
 
     return result;
 }
@@ -106,69 +125,75 @@ const getRoutes = () => {
     return Array.from(new Set([...staticRoutes, ...dynamicRoutes])).sort();
 }
 
-export default defineConfig({
-    base: '/',
-    plugins: [
-        Vue({
-            template: { transformAssetUrls },
-        }),
-        Vuetify({ autoImport: true }),
-        VitePWA({
-            registerType: 'prompt',
-            includeAssets: ['favicon.ico', 'favicon.png'],
-            devOptions: {
-                enabled: false,
-                type: 'module',
-            },
-            manifest: {
-                name: 'Glow Prow',
-                short_name: 'GlowProw',
-                description: 'Glow Prow Client',
-                theme_color: '#222222ff',
-                icons: [
-                    {
-                        src: 'favicon.png',
-                        sizes: '192x192',
-                        type: 'image/png'
-                    },
-                    {
-                        src: 'favicon.png',
-                        sizes: '512x512',
-                        type: 'image/png'
-                    }
-                ]
-            },
-            workbox: {
-                maximumFileSizeToCacheInBytes: 8 * 1024 * 1024, // 8MB
-                navigateFallback: '/index.html',
-                navigateFallbackDenylist: [
-                    /^\/sitemap\.xml$/,
-                    /^\/robots\.txt$/,
-                    /^\/ads\.txt$/,
-                    /^\/5c65fd69dada4307bab754a14cf3d16c\.txt$/,
-                    /^\/favicon\.ico$/,
-                    /^\/favicon\.png$/,
-                ],
-            }
-        }),
-        (() => {
-            const plugin: any = Sitemap({
-                hostname: 'https://glow-prow.top',
-                dynamicRoutes: getRoutes(),
-                changefreq: 'weekly',
-                priority: 0.8,
-                lastmod: new Date(),
-            });
-            const origCloseBundle = plugin.closeBundle;
-            plugin.closeBundle = function (this: any, error?: any) {
-                if (error) return;
-                const outDir = path.resolve(__dirname, 'dist');
-                if (!fs.existsSync(outDir)) return;
-                return origCloseBundle?.call(this, error);
-            };
-            return plugin;
-        })()
-    ],
+export default defineConfig(({ mode }) => {
+    const env = loadEnv(mode, process.cwd(), '');
+    const appHost = env.APP_HOST || env.VITE_APP_HOST || 'glow-prow.top';
+    const appHostname = appHost.startsWith('http') ? appHost : `https://${appHost}`;
+
+    return {
+        envPrefix: ['VITE_', 'APP_'],
+        base: '/',
+        plugins: [
+            Vue({
+                template: { transformAssetUrls },
+            }),
+            Vuetify({ autoImport: true }),
+            VitePWA({
+                registerType: 'prompt',
+                includeAssets: ['favicon.ico', 'favicon.png'],
+                devOptions: {
+                    enabled: false,
+                    type: 'module',
+                },
+                manifest: {
+                    name: 'Glow Prow',
+                    short_name: 'GlowProw',
+                    description: 'Glow Prow Client',
+                    theme_color: '#222222ff',
+                    icons: [
+                        {
+                            src: 'favicon.png',
+                            sizes: '192x192',
+                            type: 'image/png'
+                        },
+                        {
+                            src: 'favicon.png',
+                            sizes: '512x512',
+                            type: 'image/png'
+                        }
+                    ]
+                },
+                workbox: {
+                    maximumFileSizeToCacheInBytes: 8 * 1024 * 1024, // 8MB
+                    navigateFallback: '/index.html',
+                    navigateFallbackDenylist: [
+                        /^\/sitemap\.xml$/,
+                        /^\/robots\.txt$/,
+                        /^\/ads\.txt$/,
+                        /^\/5c65fd69dada4307bab754a14cf3d16c\.txt$/,
+                        /^\/favicon\.ico$/,
+                        /^\/favicon\.png$/,
+                    ],
+                }
+            }),
+            (() => {
+                const plugin: any = Sitemap({
+                    hostname: appHostname,
+                    dynamicRoutes: getRoutes(),
+                    changefreq: 'weekly',
+                    priority: 0.8,
+                    lastmod: new Date()
+                });
+                const origCloseBundle = plugin.closeBundle;
+                plugin.closeBundle = function (this: any, error?: any) {
+                    if (error) return;
+                    const outDir = path.resolve(__dirname, 'dist');
+                    if (!fs.existsSync(outDir)) return;
+                    return origCloseBundle?.call(this, error);
+                };
+                return plugin;
+            })()
+        ],
     optimizeDeps: {
         exclude: [
             "glow-prow-assets",
@@ -177,6 +202,9 @@ export default defineConfig({
         ],
     },
     define: { 'process.env': {} },
+    ssr: {
+        noExternal: ['vuetify'],
+    },
     esbuild: {
         keepNames: true,
         drop: ['console', 'debugger'],
@@ -245,4 +273,37 @@ export default defineConfig({
         }
     },
     publicDir: 'public',
-})
+
+    // vite-ssg 配置
+    ssgOptions: {
+        script: 'async',
+        formatting: 'none',
+        mock: false,
+        concurrency: 20,
+        // 预渲染所有静态路由与公开百科数据路由，跳过未填充参数的路由及私有路由
+        includedRoutes(paths: string[], routes: any[]) {
+            const allRoutes = getRoutes();
+            const skip = [
+                '/account',
+                '/widgets',
+                '/test',
+                '/space',
+                '/:pathMatch',
+            ];
+            return allRoutes.filter(p => {
+                if (p.includes(':')) return false;
+                return !skip.some(s => p.startsWith(s));
+            });
+        },
+        onBeforePageRender(route: string, indexHTML: string, ctx: any) {
+            return undefined;
+        },
+        onPageRendered(route: string, renderedHTML: string, ctx: any) {
+            return renderedHTML;
+        },
+        onFinished() {
+            // SSG 完成后的钩子（可扩展）
+        },
+        } as ViteSSGOptions,
+    };
+});

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed, nextTick, onMounted, onUnmounted, Ref, ref, watch} from "vue";
-import {apis, storage_account} from "@/assets/sripts/index";
+import {apis, storage_account, getAppHost, getAppOrigin} from "@/assets/sripts/index";
 import {snapdom} from '@zumer/snapdom';
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
@@ -82,7 +82,7 @@ const generatedLoading = ref(false);
 const generatingStepText = ref('');
 const posterSwitch = ref(true);
 const path = ref("");
-const webPath = computed(() => window.location.host);
+const webPath = computed(() => getAppHost());
 
 const assemblyThumbUrl = ref('');
 const assemblyThumbLoading = ref(false);
@@ -192,7 +192,8 @@ const masterySeasonTitle = computed(() => {
 // 精通分享链接（供二维码使用）
 const masterySharePath = computed(() => {
   const code = generateShareCode();
-  return `${window.location.origin}/mastery?season=${selectedSeasonId.value}&share=${code}`;
+  const origin = getAppOrigin();
+  return `${origin}/mastery?season=${selectedSeasonId.value}&share=${code}`;
 });
 
 watch(() => [

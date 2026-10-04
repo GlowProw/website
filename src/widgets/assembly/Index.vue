@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {ref, onMounted, nextTick} from "vue";
 import {useRoute} from "vue-router";
-import {apis} from "@/assets/sripts/index";
+import {apis, getAppHost} from "@/assets/sripts/index";
 import AssemblyPoster from "@/components/AssemblyPoster.vue";
 
 const route = useRoute();
@@ -28,7 +28,7 @@ const generateImageValue = ref({
 const captureRef = ref(null);
 
 const path = ref("");
-const webPath = ref(window.location.host);
+const webPath = ref(getAppHost());
 
 onMounted(() => {
   if (route.query) {

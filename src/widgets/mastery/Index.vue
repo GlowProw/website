@@ -2,7 +2,7 @@
 import {ref, computed, onMounted, nextTick} from "vue";
 import {useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
-import {apis} from "@/assets/sripts/index";
+import {apis, getAppHost} from "@/assets/sripts/index";
 import MasteryPoster from "@/components/mastery/MasteryPoster.vue";
 import {useMasteryController} from "@/assets/sripts/use_mastery_controller";
 import MasteryDataProcessing from "@/assets/sripts/mastery_data_processing";
@@ -54,7 +54,7 @@ const generateImageValue = ref({
 
 const captureRef = ref<any>(null);
 const path = ref("");
-const webPath = ref(window.location.host);
+const webPath = ref(getAppHost());
 
 const masterySeasonTitle = computed(() => {
   const sTitle = seasonOptions.value?.find(s => s.id === selectedSeasonId.value)?.title || selectedSeasonId.value;

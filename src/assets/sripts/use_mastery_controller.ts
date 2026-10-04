@@ -6,7 +6,7 @@ import LZString from 'lz-string';
 import { useAppStore } from '~/stores/appStore';
 import { useNoticeStore } from '~/stores/noticeStore';
 import { useCDNAssetsServiceStore } from '~/stores/cdnAssetsStore';
-import { storage, getCurrentSeasonId } from '@/assets/sripts/index';
+import { storage, getCurrentSeasonId, getAppOrigin } from '@/assets/sripts/index';
 import { Masterys, Mastery, type MasteryCategory, type MasteryRole, type SeasonMasteryTree } from 'glow-prow-data';
 
 export interface EffectContributor {
@@ -903,7 +903,9 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
 
   function getShareUrl(): string {
     const code = generateShareCode();
-    const url = new URL(window.location.href);
+    const origin = getAppOrigin();
+    const pathname = typeof window !== 'undefined' ? window.location.pathname : '/mastery';
+    const url = new URL(pathname, origin);
     url.searchParams.delete('locate');
     url.searchParams.set('season', selectedSeasonId.value);
     url.searchParams.set('share', code);

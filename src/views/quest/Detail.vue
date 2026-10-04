@@ -16,7 +16,7 @@ import TimeView from "@/components/TimeView.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
 
-import {storage, storageCollect} from "@/assets/sripts";
+import {storage, storageCollect, getAppUrl} from "@/assets/sripts";
 import {useAuthStore} from "~/stores/userAccountStore";
 import {useAppStore} from "~/stores/appStore";
 import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
@@ -88,7 +88,8 @@ const onReady = () => {
       headName = headData.name() as string,
       headDescription = headData.description() as string;
 
-  head.value.titleTemplate = `${headName} - ${head.value.titleTemplate}`;
+  head.value.title = headName ? `${headName} - ${t(route.meta.title as string)}` : t(route.meta.title as string);
+  head.value.titleTemplate = `%s | ${t('name')}`;
 
   head.value.meta = [
     {name: 'description', content: headDescription},
@@ -102,7 +103,7 @@ const onReady = () => {
     {property: 'og:type', content: 'website'},
     {property: 'og:title', content: `${headName} | ${t('name')}`},
     {property: 'og:description', content: headDescription},
-    {property: 'og:url', content: window.location.href},
+    {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
     {property: 'og:site_name', content: t('name')},
     {name: 'twitter:card', content: 'summary'},
     {name: 'twitter:title', content: `${headName} | ${t('name')}`},

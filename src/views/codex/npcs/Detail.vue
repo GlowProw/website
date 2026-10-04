@@ -11,7 +11,7 @@ import {Materials, Npc, Npcs} from "glow-prow-data";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue"
-import {rarity, storage} from "@/assets/sripts";
+import {rarity, storage, getAppUrl} from "@/assets/sripts";
 import WeaponModificationWidget from "@/components/snbWidget/weaponModificationWidget.vue";
 import CommentWidget from "@/components/CommentWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
@@ -95,7 +95,8 @@ const onReady = () => {
       headName = headData.name(npcDetailData.value?.location),
       headDescription = headData.description()
 
-  head.value.titleTemplate = `${headName} - ${head.value.titleTemplate}`
+  head.value.title = headName ? `${headName} - ${t(route.meta.title as string)}` : t(route.meta.title as string);
+  head.value.titleTemplate = `%s | ${t('name')}`;
 
   const imageUrl = cdnStore.currentService.image.url({
     id: npcDetailData.value.id,
@@ -115,7 +116,7 @@ const onReady = () => {
     {property: 'og:title', content: `${headName} | ${t('name')}`},
     {property: 'og:description', content: headDescription},
     {property: 'og:image', content: imageUrl},
-    {property: 'og:url', content: window.location.href},
+    {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
     {property: 'og:site_name', content: t('name')},
     {name: 'twitter:card', content: 'summary_large_image'},
     {name: 'twitter:title', content: `${headName} | ${t('name')}`},

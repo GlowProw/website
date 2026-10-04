@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
+import { createRouter, createWebHistory, createMemoryHistory, RouteRecordRaw } from 'vue-router';
 import i18n from "@/i18n";
 import { Seasons } from "glow-prow-data";
 import { getCurrentSeasonId } from "@/assets/sripts";
@@ -1113,64 +1113,53 @@ const routes: Readonly<RouteRecordRaw[]> = [
     },
 ];
 
-const router = createRouter({
-    history: createWebHistory(),
-    routes,
-    scrollBehavior(to, from, savedPosition) {
-        if (staticFilePaths.includes(to.path)) {
-            return false;
-        }
-
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                // 检查是否有 scrollTop=false 查询参数
-                const scrollTopParam = <boolean | string>to.query.scrollTop;
-                if (scrollTopParam === 'false' || scrollTopParam == false) {
-                    // 不进行滚动
-                    resolve(false)
-                    return
-                }
-
-                if (to.hash) {
-                    resolve({
-                        el: to.hash,
-                        behavior: 'smooth',
-                        top: document.querySelector('header') ? 70 : 0
-                    })
-                } else if (savedPosition) {
-                    resolve(savedPosition)
-                } else {
-                    resolve({ top: 0, behavior: 'smooth' })
-                }
-            }, 300)
-        })
+export const scrollBehavior = (to: any, from: any, savedPosition: any) => {
+    if (staticFilePaths.includes(to.path)) {
+        return false;
     }
+
+    if (typeof window === 'undefined') {
+        return { top: 0 };
+    }
+
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            // 检查是否有 scrollTop=false 查询参数
+            const scrollTopParam = <boolean | string>to.query.scrollTop;
+            if (scrollTopParam === 'false' || scrollTopParam == false) {
+                // 不进行滚动
+                resolve(false)
+                return
+            }
+
+            if (to.hash) {
+                resolve({
+                    el: to.hash,
+                    behavior: 'smooth',
+                    top: (typeof document !== 'undefined' && document.querySelector('header')) ? 70 : 0
+                })
+            } else if (savedPosition) {
+                resolve(savedPosition)
+            } else {
+                resolve({ top: 0, behavior: 'smooth' })
+            }
+        }, 300)
+    })
+};
+
+const router = createRouter({
+    history: typeof window !== 'undefined' ? createWebHistory() : createMemoryHistory(),
+    routes,
+    scrollBehavior,
 });
 
 router.beforeEach((to, from, next) => {
     if (staticFilePaths.includes(to.path)) {
         return false;
     }
+    next();
+});
 
-    try {
-        // @ts-ignore
-        let t: any = i18n.global.t
-        if (to.meta && to.meta.title) {
-            let meta = []
-
-            if (to.meta.keywords && to.meta.keywords != t(to.meta.keywords))
-                meta.push({ name: 'keywords', content: t(to.meta.keywords) })
-
-            useHead({
-                title: t(to.meta.title) + ' | ' + t('name'),
-                meta,
-            })
-        }
-    } catch (e) {
-        console.error('router error:' + e)
-    }
-
-    next()
-})
-
+export { routes };
 export default router;
+
