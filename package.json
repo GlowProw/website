@@ -14,7 +14,9 @@
     "build:no-check:production": "npm run build-only",
     "build:production": "run-s type-check \"build-only {@}\" --",
     "preview:production": "vite preview",
-    "build-only": "vite build --mode production"
+    "build-only": "vite build --mode production",
+    "build:ssg": "run-s type-check build-only:ssg",
+    "build-only:ssg": "rm -rf dist .vite-ssg-temp && NODE_OPTIONS='--max-old-space-size=8192' vite-ssg build --mode production"
   },
   "dependencies": {
     "@fontsource/roboto": "5.2.5",
@@ -78,6 +80,7 @@
     "vite": "^7.0.4",
     "vite-plugin-pwa": "^1.2.0",
     "vite-plugin-vuetify": "^2.1.1",
+    "vite-ssg": "^28.3.0",
     "vue-tsc": "^2.2.12"
   }
 }
