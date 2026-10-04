@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {onMounted, type Ref, ref, watch} from "vue";
+import {onMounted, type Ref, ref, watch, computed} from "vue";
 import {useI18n} from "vue-i18n";
 import {useRouter} from "vue-router";
 import {MapLocation, MapLocations} from "glow-prow-data";
@@ -36,13 +36,35 @@ let mapLocationsCardData = ref({
 const mapIcons = ref<any>({})
 const i: Ref<MapLocation | null> = ref(null)
 
-const onReady = async () => {
-  i.value = (mapLocationsValue as any)[props.id] || null
+const codexCategories = ['den', 'outpost', 'capitalSettlement', 'settlement', 'foundry', 'lumberyard', 'weaver', 'militaryBase', 'megafort'];
 
-  if (props.id) {
-    mapIcons.value = serializationMap(mapImages)
-    if (i.value?.category && mapIcons.value[i.value.category])
-      mapLocationsCardData.value.icon = mapIcons.value[i.value.category]
+const isCodexLocation = computed(() => {
+  if (!i.value) return false;
+  return codexCategories.includes(i.value.category);
+});
+
+const onReady = async () => {
+  mapIcons.value = serializationMap(mapImages);
+
+  let loc = (mapLocationsValue as any)[props.id] || null;
+  if (!loc && props.id) {
+    loc = Object.values(mapLocationsValue).find((l: any) => l?.id === props.id || l?.category === props.id) || null;
+  }
+  if (!loc && props.id) {
+    loc = {
+      id: props.id,
+      category: props.id,
+    } as any;
+  }
+
+  i.value = loc;
+
+  if (i.value?.category && mapIcons.value[i.value.category]) {
+    mapLocationsCardData.value.icon = mapIcons.value[i.value.category];
+  } else if (props.id && mapIcons.value[props.id]) {
+    mapLocationsCardData.value.icon = mapIcons.value[props.id];
+  } else if (mapIcons.value['default']) {
+    mapLocationsCardData.value.icon = mapIcons.value['default'];
   }
 }
 
@@ -60,20 +82,21 @@ defineOptions({
 </script>
 
 <template>
-  <v-card class="demo-reel bg-black" flat border v-if="i && i.id">
+  <v-card class="demo-reel bg-black" flat border v-if="i && (i.id || props.id)">
     <div class="demo-reel-header pa-10 position-relative"
          :style="`background-color: color-mix(in srgb, hsl(from ${rarityColorConfig[ (mapLocationsValue as any)[i.id]?.rarity || '' ]} h s l) 10%, #000)`">
       <div class="v-skeleton-loader__bone v-skeleton-loader__image opacity-30 position-absolute left-0 top-0 w-100 h-100"></div>
 
       <h1 class="map-location-card-name font-weight-bold w-66">
-        <MapLocationName :id="i.id"></MapLocationName>
+        <MapLocationName :id="i.id || i.category"></MapLocationName>
       </h1>
       <p class="mb-1 mt-2">{{ i.id }}</p>
 
-      <div class="d-flex ga-2 mt-3">
+      <div class="d-flex ga-2 mt-3" v-if="i.category">
         <v-chip inline
-                :to="`/codex/mapLocations?category=${i.category}`"
-                class="badge-flavor text-center text-black" v-if="(i as any).type">{{ t(`codex.types.${i.category}`) }}
+                :to="isCodexLocation ? `/codex/mapLocations?category=${i.category}` : undefined"
+                class="badge-flavor text-center text-black">
+          {{ t(`map.types.${i.category}.name`) || t(`codex.types.${i.category}`) || i.category }}
         </v-chip>
       </div>
       <div class="right-show-image pointer-events-none position-absolute w-33">

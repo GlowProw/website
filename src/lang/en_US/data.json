@@ -1531,6 +1531,24 @@
   "map": {
     "title": "Map",
     "description": "Inventory of all map items",
+    "settings": "Map Settings",
+    "generalSettings": "General Settings",
+    "rememberMarkerSelection": "Remember Selection",
+    "rememberMarkerSelectionDesc": "Remember marker and layer visibility selections across browser sessions",
+    "markerZoomSettings": "Marker Zoom & Scale Settings",
+    "markerZoomSettingsDesc": "Customize visibility zoom range (Zoom 12-15) and icon scale size for marker categories",
+    "visibleZoomRange": "Visible Zoom Range",
+    "iconScaleAtZoom": "Zoom {zoom} Scale",
+    "saveSettings": "Save Settings",
+    "settingsSaved": "Map settings saved and applied",
+    "resetDefaults": "Reset to Defaults",
+    "resetDefaultsConfirm": "Are you sure you want to reset all zoom and size settings to default?",
+    "resetSuccess": "Settings reset to default",
+    "allCategories": "All Categories",
+    "batchConfig": "Batch Configure by Group",
+    "presetDefault": "Recommended Default",
+    "presetAlwaysVisible": "Always Visible (12-15)",
+    "zoomLevelHint": "12(Distant) - 13(Medium) - 14(Close) - 15(Detail)",
     "contextMenu": {
       "openDetail": "View Details",
       "addMarker": "Add Marker Here",
@@ -1587,6 +1605,14 @@
       "settlements": "Settlements",
       "productionSites": "Production Sites",
       "fortifications": "Fortifications",
+      "shipwrecks": "Shipwrecks",
+      "collectibles": "Collectibles",
+      "enemies": "Enemies",
+      "contracts": "Contracts",
+      "resources": "Resources",
+      "wood": "Wood",
+      "ore": "Ore",
+      "wildlife": "Wildlife",
       "other": "Other"
     },
     "types": {
@@ -1616,7 +1642,7 @@
       },
       "outpost": {
         "name": "Outpost",
-        "description": "Outpost"
+        "description": "A pirate outpost where you can dock, trade, access your warehouse, or fast travel."
       },
       "foundry": {
         "name": "Foundry",
@@ -1633,6 +1659,150 @@
       "militaryBase": {
         "name": "Military Base",
         "description": "This is a heavily guarded military base. Although the rewards are rich, only the strongest pirate teams can take it down."
+      },
+      "shipwreck": {
+        "name": "Shipwreck",
+        "description": "Stranded shipwrecks in coastal or shallow waters. Salvage for wood, metal, and materials."
+      },
+      "archive": {
+        "name": "Investigation Archive",
+        "description": "Archive locations revealing hidden lore, clues, and history across the Indian Ocean."
+      },
+      "guardTower": {
+        "name": "Guard Tower",
+        "description": "Defensive watchtowers guarding strategic waterways and fortified zones."
+      },
+      "bounty": {
+        "name": "Bounty",
+        "description": "Waters inhabited by infamous pirate targets and high-value bounties."
+      },
+      "mainContract": {
+        "name": "Main Contract",
+        "description": "Key locations and contacts advancing the main storyline contracts."
+      },
+      "sideContract": {
+        "name": "Side Contract",
+        "description": "Available side contracts and lucrative contract assignments."
+      },
+      "miscellaneous": {
+        "name": "Miscellaneous",
+        "description": "Special points of interest and miscellaneous map markings."
+      },
+      "abaka": {
+        "name": "Abaka",
+        "description": "Harvestable Manila hemp plants used to refine Fine Abaka cloth."
+      },
+      "coconut": {
+        "name": "Coconut",
+        "description": "Coastal coconut trees harvested for food supplies and cooking ingredients."
+      },
+      "durian": {
+        "name": "Durian",
+        "description": "Tropical durian gathering spots providing food and culinary materials."
+      },
+      "hemp": {
+        "name": "Hemp",
+        "description": "Wild hemp gathering nodes used for producing Fine Hemp cloth."
+      },
+      "jute": {
+        "name": "Jute",
+        "description": "Jute plant gathering nodes used to produce Fine Jute cloth."
+      },
+      "linen": {
+        "name": "Linen",
+        "description": "Flax linen harvesting nodes used for weaving Fine Linen."
+      },
+      "ndizi": {
+        "name": "Ndizi",
+        "description": "Tropical banana groves providing food rations."
+      },
+      "ramie": {
+        "name": "Ramie",
+        "description": "High-grade ramie fiber plants used to weave Fine Ramie cloth."
+      },
+      "roselle": {
+        "name": "Roselle",
+        "description": "Roselle flowering plants used for producing Roselle Cloth."
+      },
+      "screwpine": {
+        "name": "Screwpine",
+        "description": "Tropical screwpine nodes providing pandanus fruits."
+      },
+      "sisal": {
+        "name": "Sisal",
+        "description": "Hardy sisal agave plants used to produce Fine Sisal cloth."
+      },
+      "acacia": {
+        "name": "Acacia",
+        "description": "Acacia trees harvested to produce Acacia Planks."
+      },
+      "greenheart": {
+        "name": "Greenheart",
+        "description": "Rare greenheart trees harvested to produce sturdy Greenheart Planks."
+      },
+      "iroko": {
+        "name": "Iroko",
+        "description": "Iroko hardwood trees harvested to craft Iroko Planks."
+      },
+      "ironwood": {
+        "name": "Ironwood",
+        "description": "Extremely durable ironwood trees essential for advanced ship and gear construction."
+      },
+      "juniper": {
+        "name": "Juniper",
+        "description": "Juniper trees harvested to produce Juniper Planks."
+      },
+      "mopane": {
+        "name": "Mopane",
+        "description": "Mopane trees harvested to produce Mopane Planks."
+      },
+      "teak": {
+        "name": "Teak",
+        "description": "Premium rot-resistant teak trees widely used in shipbuilding."
+      },
+      "bogIron": {
+        "name": "Bog Iron",
+        "description": "Swamp bog iron deposits smelted into iron ingots."
+      },
+      "cobalt": {
+        "name": "Cobalt",
+        "description": "Rare cobalt ore deposits smelted into Cobalt Ingots."
+      },
+      "copper": {
+        "name": "Copper",
+        "description": "Natural copper ore deposits smelted into Bronze Ingots."
+      },
+      "magnetite": {
+        "name": "Magnetite",
+        "description": "High-grade magnetite ore deposits refined into Magnetite Ingots."
+      },
+      "nickel": {
+        "name": "Nickel",
+        "description": "Nickel deposits refined into Nickel Ingots."
+      },
+      "pureIron": {
+        "name": "Pure Iron",
+        "description": "High-purity iron ore deposits vital for smelting Cast Iron and Steel Ingots."
+      },
+      "zinc": {
+        "name": "Zinc",
+        "description": "Zinc ore deposits refined into Zinc Ingots."
+      },
+      "crocodile": {
+        "name": "Crocodile",
+        "description": "Waters populated by dangerous crocodiles, hunted for hides and meat."
+      },
+      "hippopotamus": {
+        "name": "Hippopotamus",
+        "description": "Habitat of massive hippos, hunted for hides and meat."
+      },
+      "shark": {
+        "name": "Shark",
+        "description": "Waters patrolled by predatory sharks, hunted for skins and meat."
+      },
+      "treasureMap": {
+        "name": "Treasure Map",
+        "description": "Treasure map clue locations pointing to buried pirate riches."
       }
     }
   },

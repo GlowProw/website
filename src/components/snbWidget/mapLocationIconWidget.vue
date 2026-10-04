@@ -69,14 +69,35 @@ onMounted(() => {
   onReady()
 })
 
+const codexCategories = ['den', 'outpost', 'capitalSettlement', 'settlement', 'foundry', 'lumberyard', 'weaver', 'militaryBase', 'megafort'];
+
+const isCodexLocation = computed(() => {
+  if (!i.value) return false;
+  return codexCategories.includes(i.value.category);
+});
+
 const onReady = async () => {
-  i.value = mapLocations[props.id] || null
+  mapIcons.value = serializationMap(mapImages);
 
-  if (props.id) {
-    mapIcons.value = serializationMap(mapImages)
+  let loc = mapLocations[props.id] || null;
+  if (!loc && props.id) {
+    loc = Object.values(mapLocations).find((l: any) => l?.id === props.id || l?.category === props.id) || null;
+  }
+  if (!loc && props.id) {
+    loc = {
+      id: props.id,
+      category: props.id,
+    } as any;
+  }
 
-    if (i.value?.category && mapIcons.value[i.value.category])
-      mapLocationsCardData.value.icon = mapIcons.value[i.value.category]
+  i.value = loc;
+
+  if (i.value?.category && mapIcons.value[i.value.category]) {
+    mapLocationsCardData.value.icon = mapIcons.value[i.value.category];
+  } else if (props.id && mapIcons.value[props.id]) {
+    mapLocationsCardData.value.icon = mapIcons.value[props.id];
+  } else if (mapIcons.value['default']) {
+    mapLocationsCardData.value.icon = mapIcons.value['default'];
   }
 }
 
@@ -94,7 +115,7 @@ const computedMargin = useIconImageMargin(props.margin);
 
 <template>
   <v-tooltip
-      v-if="i && i.id"
+      v-if="i || props.id"
       :disabled="!props.isShowTooltip"
       :offset="[40, 0]"
       scroll-strategy="close"
@@ -114,15 +135,15 @@ const computedMargin = useIconImageMargin(props.margin);
           width="100%"
           v-bind="activatorProps"
           :color="`hsl(from ${rarityColorConfig[(i as any)?.rarity]} h s calc(l * .15))`"
-          :to="isOpenDetail ? `/codex/mapLocation/${i?.id}` : ''"
+          :to="isOpenDetail && (i?.id || props.id) ? `/codex/mapLocation/${i?.id || props.id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
           :class="[
               'prohibit-drag',
               `ma-${computedMargin}`,
               `pa-${computedPadding}`,
-              `mapLocation-card-header-rarity-${(i as any).rarity}`
+              `mapLocation-card-header-rarity-${(i as any)?.rarity}`
           ]">
-        <template v-slot:image v-if="(i as any).rarity">
+        <template v-slot:image v-if="(i as any)?.rarity">
           <v-img :src="raritysAssets[`mapLocation-rarity-${(i as any).rarity}`]" width="100%" height="100%" class="opacity-30 prohibit-drag"/>
         </template>
 

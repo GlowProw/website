@@ -109,7 +109,7 @@ onMounted(() => {
     if (props.longitude !== undefined && props.latitude !== undefined) {
       panTo(props.longitude, props.latitude);
     } else if (props.locationId && props.locations?.length) {
-      const location = props.locations.find(loc => loc.id === props.locationId);
+      const location = props.locations.find(loc => loc.id === props.locationId || (loc as any).key === props.locationId || loc.category === props.locationId);
       if (location) {
         panTo(location.longitude, location.latitude);
       }
@@ -143,7 +143,7 @@ watch(() => [props.longitude, props.latitude], ([lon, lat]) => {
 
 watch(() => [props.locationId, props.locations], () => {
   if (props.locationId && props.locations?.length) {
-    const location = props.locations.find(loc => loc.id === props.locationId);
+    const location = props.locations.find(loc => loc.id === props.locationId || (loc as any).key === props.locationId || loc.category === props.locationId);
     if (location) {
       panTo(location.longitude, location.latitude);
     }

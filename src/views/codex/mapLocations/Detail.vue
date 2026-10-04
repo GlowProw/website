@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import {useI18n} from "vue-i18n";
-import {onMounted, Ref, ref} from "vue";
+import {onMounted, Ref, ref, computed, watch} from "vue";
 import {MapLocations} from "glow-prow-data";
 import {useRoute, useRouter} from "vue-router";
 import {useAuthStore} from "~/stores/userAccountStore";
@@ -29,7 +29,7 @@ import ShareWidget from "@/components/ShareWidget.vue";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
 import {useAppStore} from "~/stores/appStore";
 
-const {t, messages} = useI18n(),
+const {t, te, messages} = useI18n(),
     router = useRouter(),
     route = useRoute(),
     appStore = useAppStore(),
@@ -55,17 +55,39 @@ useHead(head)
 
 let mapLocationDetailData: Ref<any> = ref({})
 
-onMounted(() => {
+const locationDescription = computed(() => {
+  if (!mapLocationDetailData.value) return '';
+  const desc = i18nReadName.mapLocation(mapLocationDetailData.value.id, mapLocationDetailData.value.category).description();
+  if (desc && desc !== mapLocationDetailData.value.id) return desc;
+  return '';
+});
+
+const isOutpostOrDen = computed(() => {
+  return ['outpost', 'den'].includes(mapLocationDetailData.value?.category);
+});
+
+const loadDetail = () => {
   const {id} = route.params
 
-  if (id)
-    mapLocationDetailData.value = mapLocations[id as string]
+  if (id) {
+    let loc = mapLocations[id as string];
+    if (!loc) {
+      loc = Object.values(mapLocations).find((l: any) => l?.id === id || l?.category === id);
+    }
+    if (!loc) {
+      loc = {
+        id: id as string,
+        category: id as string,
+      };
+    }
+    mapLocationDetailData.value = loc;
+  }
 
   const headData = i18nReadName.mapLocation(id as string),
       headName = headData.name(),
       headDescription = headData.description()
 
-  head.value.titleTemplate = `${headName} - ${head.value.titleTemplate}`
+  head.value.titleTemplate = `${headName} - ${t(route.meta.title as string)} | ${t('name')}`
   head.value.meta = [
     {name: 'description', content: headDescription},
     {
@@ -78,7 +100,7 @@ onMounted(() => {
     {property: 'og:type', content: 'website'},
     {property: 'og:title', content: `${headName} | ${t('name')}`},
     {property: 'og:description', content: headDescription},
-    {property: 'og:url', content: window.location.href},
+    {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : ''},
     {property: 'og:site_name', content: t('name')},
     {name: 'twitter:card', content: 'summary'},
     {name: 'twitter:title', content: `${headName} | ${t('name')}`},
@@ -86,6 +108,14 @@ onMounted(() => {
   ]
 
   onCodexHistory()
+}
+
+onMounted(() => {
+  loadDetail()
+})
+
+watch(() => route.params.id, () => {
+  loadDetail()
 })
 
 const onCodexHistory = () => {
@@ -125,16 +155,16 @@ const onCodexHistory = () => {
         <v-row class="mt-5">
           <v-col cols="8">
             <h1 class="text-amber text-h2 singe-line">
-              <MapLocationName :id="mapLocationDetailData.id"></MapLocationName>
+              <MapLocationName :id="mapLocationDetailData.id || mapLocationDetailData.category || (route.params.id as string)"></MapLocationName>
             </h1>
             <p class="mt-2 mb-3">
               <v-icon icon="mdi-identifier"/>
-              {{ mapLocationDetailData.id || 'none' }}
+              {{ mapLocationDetailData.id || (route.params.id as string) || 'none' }}
             </p>
 
-            <div class="mt-5 d-flex ga-2">
-              <v-chip class="badge-flavor text-center tag-badge text-black" v-if="mapLocationDetailData.category">
-                {{ mapLocationDetailData.category }}
+            <div class="mt-5 d-flex ga-2" v-if="mapLocationDetailData.category">
+              <v-chip class="badge-flavor text-center tag-badge text-black">
+                {{ t(`map.types.${mapLocationDetailData.category}.name`) || t(`codex.types.${mapLocationDetailData.category}`) || mapLocationDetailData.category }}
               </v-chip>
             </div>
           </v-col>
@@ -144,7 +174,7 @@ const onCodexHistory = () => {
               <v-btn v-if="authStore.isLogin">
                 <LikeWidget targetType="mapLocation"
                             :isShowCount="true"
-                            :targetId="mapLocationDetailData.id">
+                            :targetId="mapLocationDetailData.id || (route.params.id as string)">
                   <template v-slot:activate>
                     <v-icon icon="mdi-thumb-up"></v-icon>
                   </template>
@@ -154,7 +184,7 @@ const onCodexHistory = () => {
                 </LikeWidget>
               </v-btn>
 
-              <ShareWidget type="mapLocation" :target-id="mapLocationDetailData.id" />
+              <ShareWidget type="mapLocation" :target-id="mapLocationDetailData.id || (route.params.id as string)" />
             </div>
           </v-col>
         </v-row>
@@ -167,13 +197,13 @@ const onCodexHistory = () => {
             <v-row>
               <div>
                 <ItemSlotBase size="130px">
-                  <MapLocationIconWidget :id="mapLocationDetailData.id" :isOpenDetail="false" :isShowOpenDetail="false"></MapLocationIconWidget>
+                  <MapLocationIconWidget :id="mapLocationDetailData.id || (route.params.id as string)" :isOpenDetail="false" :isShowOpenDetail="false"></MapLocationIconWidget>
                 </ItemSlotBase>
               </div>
               <v-col>
-                <template v-if="t(`map.types.${mapLocationDetailData.category}.description`)">
+                <template v-if="locationDescription">
                   <div class="mx-5 mb-3 pb-2">
-                    {{ t(`map.types.${mapLocationDetailData.category}.description`) }}
+                    {{ locationDescription }}
                   </div>
                 </template>
               </v-col>
@@ -195,11 +225,11 @@ const onCodexHistory = () => {
                   </v-text-field>
                 </template>
               </v-col>
-              <v-col cols="12" sm="12" lg="12" xl="12">
+              <v-col cols="12" sm="12" lg="12" xl="12" v-if="isOutpostOrDen">
                 <v-divider>{{ t('map.treasureMapAvailable') }}</v-divider>
                 <MapLocationAvailableTreasureMapWidget :id="mapLocationDetailData.id"></MapLocationAvailableTreasureMapWidget>
               </v-col>
-              <v-col cols="12" sm="12" lg="12" xl="12">
+              <v-col cols="12" sm="12" lg="12" xl="12" v-if="isOutpostOrDen">
                 <v-divider>{{ t('map.npcAvailable') }}</v-divider>
                 <MapLocationAvailableNpcWidget :id="mapLocationDetailData.id" :category="mapLocationDetailData.category"></MapLocationAvailableNpcWidget>
               </v-col>
@@ -211,16 +241,18 @@ const onCodexHistory = () => {
             </template>
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
-            <BySeasonWidget :data="mapLocationDetailData"></BySeasonWidget>
+            <BySeasonWidget :data="mapLocationDetailData" v-if="mapLocationDetailData.bySeason"></BySeasonWidget>
 
             <AffixContainerView :offsetTop="80">
               <VerticalScrollList :force-draggable="false" :is-indicator="false" height="calc(100vh - 120px)">
 
-                <template v-if="mapLocationDetailData.id">
+                <template v-if="mapLocationDetailData.id || mapLocationDetailData.latitude">
                   <ByMapWidget
                       :draggable="false"
                       :zoomable="false"
-                      :target-key="mapLocationDetailData.id">
+                      :target-key="mapLocationDetailData.id"
+                      :target-x="mapLocationDetailData.longitude"
+                      :target-y="mapLocationDetailData.latitude">
                     {{ t('codex.item.byMap') }}
                   </ByMapWidget>
                 </template>

@@ -35,7 +35,12 @@
     </v-combobox>
 
     <v-divider vertical></v-divider>
-    <v-btn tile stacked density="compact" @click="emit('toggle-layers')">
+    <v-btn tile stacked density="compact" @click="emit('toggle-settings')" :title="t('map.settings')">
+      <v-icon :class="isSettingsOpen ? 'text-amber' : ''" :icon="`mdi-cog${!isSettingsOpen ? '-outline' : ''}`"></v-icon>
+    </v-btn>
+
+    <v-divider vertical></v-divider>
+    <v-btn tile stacked density="compact" @click="emit('toggle-layers')" :title="t('map.layerControl')">
       <v-icon :class="isLayerPanelVisible ? 'text-amber' : ''" :icon="`mdi-layers${!isLayerPanelVisible ? '-outline' : ''}`"></v-icon>
     </v-btn>
 
@@ -52,13 +57,16 @@ import FullscreenBtn from "@/components/FullscreenBtn.vue";
 const model = defineModel<any | null>({ required: true });
 const search = defineModel<string>('search', { required: true });
 
-defineProps<{
+withDefaults(defineProps<{
   searchSuggestions: any[];
   isLayerPanelVisible: boolean;
+  isSettingsOpen?: boolean;
   getCategoryIcon: (category: string) => string;
-}>();
+}>(), {
+  isSettingsOpen: false,
+});
 
-const emit = defineEmits(['search', 'toggle-layers', 'update:fullscreen']);
+const emit = defineEmits(['search', 'toggle-layers', 'toggle-settings', 'update:fullscreen']);
 
 const { t } = useI18n();
 const { mobile } = useDisplay();

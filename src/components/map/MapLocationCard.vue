@@ -10,29 +10,29 @@
       class="map-card-info overflow-y-auto">
     <template v-slot:title>
       <div class="my-2 mr-2">
-        <div class="d-flex">
-          <div class="mr-2">
+        <div class="d-flex align-center">
+          <div class="mr-2" v-if="selectedLocation.baseRank">
             <ShieldWidget :size="30"
                           :class="{'opacity-30': selectedLocation.category == 'den' || selectedLocation.category == 'outpost'}">
-              {{ selectedLocation.baseRank || 0 }}
+              {{ selectedLocation.baseRank }}
             </ShieldWidget>
           </div>
           <div>
-            <template v-if="selectedLocation.category != 'shareLocation'">
-              <router-link :to="`/codex/mapLocation/${selectedLocation.id}`">
-                <div
-                    class="d-flex align-center text-amber singe-line"
-                    :title="t(`snb.locations.${selectedLocation.id}`)">
-                  <MapLocationName :id="selectedLocation.id" v-if="selectedLocation.id"></MapLocationName>
-                </div>
-              </router-link>
-            </template>
-            <template v-else-if="selectedLocation.category == 'shareLocation'">
+            <template v-if="selectedLocation.category == 'shareLocation'">
               <div
                   class="d-flex align-center text-amber singe-line"
                   :title="selectedLocation.name || selectedLocation.id">
                 {{ selectedLocation.name || selectedLocation.id }}
               </div>
+            </template>
+            <template v-else-if="selectedLocation.id || selectedLocation.category">
+              <router-link :to="`/codex/mapLocation/${selectedLocation.id || selectedLocation.category}`">
+                <div
+                    class="d-flex align-center text-amber singe-line"
+                    :title="getLocationTitle">
+                  <MapLocationName :id="selectedLocation.id || selectedLocation.category"></MapLocationName>
+                </div>
+              </router-link>
             </template>
           </div>
         </div>
@@ -91,11 +91,11 @@
       </v-col>
     </v-row>
 
-    <template v-if="t(`map.types.${selectedLocation.category}.description`)">
+    <template v-if="getLocationDescription">
       <v-divider class="my-2 mx-4"></v-divider>
 
       <div class="mx-5 mb-3 pb-2">
-        {{ t(`map.types.${selectedLocation.category}.description`) }}
+        {{ getLocationDescription }}
       </div>
     </template>
 
@@ -237,8 +237,48 @@ const props = defineProps<{
 
 const emit = defineEmits(['update:modelValue']);
 
-const { t } = useI18n();
+const { t, te } = useI18n();
 const { mobile } = useDisplay();
+
+const codexCategories = ['den', 'outpost', 'capitalSettlement', 'settlement', 'foundry', 'lumberyard', 'weaver', 'militaryBase', 'megafort'];
+
+const isCodexLocation = computed(() => {
+  if (!props.selectedLocation) return false;
+  return codexCategories.includes(props.selectedLocation.category);
+});
+
+const getLocationTitle = computed(() => {
+  const loc = props.selectedLocation;
+  if (!loc) return '';
+  if (loc.id && te(`snb.locations.${loc.id}`)) {
+    return t(`snb.locations.${loc.id}`);
+  }
+  if (loc.id && te(`snb.mapLocations.${loc.id}.name`)) {
+    return t(`snb.mapLocations.${loc.id}.name`);
+  }
+  if (loc.category && te(`map.types.${loc.category}.name`)) {
+    return t(`map.types.${loc.category}.name`);
+  }
+  if (loc.id && te(`map.types.${loc.id}.name`)) {
+    return t(`map.types.${loc.id}.name`);
+  }
+  return loc.name || loc.id || '';
+});
+
+const getLocationDescription = computed(() => {
+  const loc = props.selectedLocation;
+  if (!loc) return '';
+  if (loc.category && te(`map.types.${loc.category}.description`)) {
+    return t(`map.types.${loc.category}.description`);
+  }
+  if (loc.id && te(`map.types.${loc.id}.description`)) {
+    return t(`map.types.${loc.id}.description`);
+  }
+  if (loc.id && te(`snb.mapLocations.${loc.id}.description`)) {
+    return t(`snb.mapLocations.${loc.id}.description`);
+  }
+  return '';
+});
 
 const closeCard = () => {
   emit('update:modelValue', false);

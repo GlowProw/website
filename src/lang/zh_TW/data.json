@@ -1515,6 +1515,24 @@
   "map": {
     "title": "地圖",
     "description": "所有地圖物品清單",
+    "settings": "地圖設定",
+    "generalSettings": "一般設定",
+    "rememberMarkerSelection": "記錄選擇",
+    "rememberMarkerSelectionDesc": "關閉或重新整理網頁後，保留地圖標記與圖層的勾選狀態",
+    "markerZoomSettings": "標記縮放與尺寸設定",
+    "markerZoomSettingsDesc": "自訂各分類標記在不同地圖縮放層級（Zoom 12-15）下的可見範圍與圖示大小比例",
+    "visibleZoomRange": "顯示層級範圍",
+    "iconScaleAtZoom": "Zoom {zoom} 尺寸",
+    "saveSettings": "儲存設定",
+    "settingsSaved": "地圖設定已儲存並生效",
+    "resetDefaults": "恢復預設設定",
+    "resetDefaultsConfirm": "確定要恢復所有地圖縮放與尺寸設定為預設值嗎？",
+    "resetSuccess": "已恢復預設設定",
+    "allCategories": "所有標記分類",
+    "batchConfig": "依分組批次設定",
+    "presetDefault": "推薦預設",
+    "presetAlwaysVisible": "全層級可見 (12-15)",
+    "zoomLevelHint": "12(遠景) - 13(中景) - 14(近景) - 15(特寫)",
     "contextMenu": {
       "openDetail": "打開詳情",
       "addMarker": "在此新增標記",
@@ -1571,52 +1589,204 @@
       "settlements": "定居點",
       "productionSites": "生產設施",
       "fortifications": "軍事要塞",
+      "shipwrecks": "失事船隻",
+      "collectibles": "調查與收集",
+      "enemies": "敵對目標",
+      "contracts": "契約任務",
+      "resources": "原料資源",
+      "wood": "木材資源",
+      "ore": "礦石資源",
+      "wildlife": "野生動物",
       "other": "其他"
     },
     "types": {
       "none": {
         "name": "未知",
-        "description": "未知地点"
+        "description": "未知地點"
       },
       "den": {
-        "name": "窝点",
-        "description": "这里是海盗窝。为你下一次抢劫做计划、装配你的船只，或与其他志同道合的海贼相聚，一起痛饮。"
+        "name": "窩點",
+        "description": "這裡是海盜窩。為你下一次搶劫做計劃、裝配你的船隻，或與其他志同道合的海賊相聚，一起痛飲。"
       },
       "weaver": {
-        "name": "织纺",
-        "description": "一处专注于收集并精制黄麻的小型定居点。你可以在这里购买布料或交易货物。"
+        "name": "織紡",
+        "description": "一處專注於收集並精製黃麻的小型定居點。你可以在這裡購買布料或交易貨物。"
       },
       "settlement": {
-        "name": "定居点",
-        "description": "一处小型阵营定居点，同时也是交易场所。你可以在此买卖货物.....或是尝试暴力夺取?"
+        "name": "定居點",
+        "description": "一處小型陣營定居點，同時也是交易場所。你可以在此買賣貨物.....或是嘗試暴力奪取?"
       },
       "megafort": {
         "name": "大型要塞",
-        "description": "与其他5名船长合作，偷取大型要塞内的一批晋阶型材料"
+        "description": "與其他5名船長合作，偷取大型要塞內的一批晉階型材料"
       },
       "shareLocation": {
         "name": "分享位置",
-        "description": "此地点由用户分享"
+        "description": "此地點由用戶分享"
       },
       "outpost": {
         "name": "前哨站",
-        "description": ""
+        "description": "可停泊、交易、開啟倉庫或快速傳送的海盜前哨站。"
       },
       "foundry": {
-        "name": "铸造厂",
-        "description": "一处专注于收集并精炼原材料的小型定居点。你可以在这里购买铸锭或交易货物。"
+        "name": "鑄造廠",
+        "description": "一處專注於收集並精煉原材料的小型定居點。你可以在這裡購買鑄錠或交易貨物。"
       },
       "capitalSettlement": {
-        "name": "首府定居点",
-        "description": "这里是阵营的首府，一个富有且守卫森严、适合进行贸易的地方。"
+        "name": "首府定居點",
+        "description": "這裡是陣營的首府，一個富有且守衛森嚴、適合進行貿易的地方。"
       },
       "lumberyard": {
-        "name": "木材厂",
-        "description": "一处专注于收集并精制原木的小型定居点。你可以在这里购买木板或交易货物。"
+        "name": "木材廠",
+        "description": "一處專注於收集並精製原木的小型定居點。你可以在這裡購買木板或交易貨物。"
       },
       "militaryBase": {
-        "name": "军营",
-        "description": "这是一座戒备森严的军营。虽然回报丰厚，但只有最强的海盗团队才有能力把它拿下"
+        "name": "軍營",
+        "description": "這是一座戒備森嚴的軍營。雖然回報豐厚，但只有最強的海盜團隊才有能力把它拿下"
+      },
+      "shipwreck": {
+        "name": "失事船隻",
+        "description": "在沿海或淺灘擱淺的失事船隻，打撈搜刮可獲得木材、金屬及各種物資。"
+      },
+      "archive": {
+        "name": "調查檔案",
+        "description": "記錄著印度洋歷史隱秘與傳聞線索的調查檔案點。"
+      },
+      "guardTower": {
+        "name": "哨塔",
+        "description": "守衛海域與航道要塞的防禦警戒塔。"
+      },
+      "bounty": {
+        "name": "懸賞目標",
+        "description": "臭名昭著的海盜頭目或通緝目標出沒海域。"
+      },
+      "mainContract": {
+        "name": "主線契約",
+        "description": "推進主線劇情發展的重要契約任務接取點或目標地。"
+      },
+      "sideContract": {
+        "name": "支線契約",
+        "description": "可接取的支線委託與豐厚報酬的任務地點。"
+      },
+      "miscellaneous": {
+        "name": "其他標記",
+        "description": "未歸類的特殊探索與興趣點標記。"
+      },
+      "abaka": {
+        "name": "馬尼拉麻",
+        "description": "馬尼拉麻植物採集點，用於加工精細馬尼拉麻布。"
+      },
+      "coconut": {
+        "name": "椰子",
+        "description": "沿海椰子樹，採摘可獲得椰子用於食材補充。"
+      },
+      "durian": {
+        "name": "榴槤",
+        "description": "熱帶密林中的榴槤採集點，提供食物與烹飪原料。"
+      },
+      "hemp": {
+        "name": "麻類植物",
+        "description": "野生麻類植物採集點，用於生產精製麻布。"
+      },
+      "jute": {
+        "name": "黃麻",
+        "description": "黃麻植物採集點，用於精製黃麻布。"
+      },
+      "linen": {
+        "name": "亞麻",
+        "description": "亞麻植物採集點，用於製作亞麻布料。"
+      },
+      "ndizi": {
+        "name": "香蕉",
+        "description": "熱帶香蕉林，可採摘香蕉作為食物補給。"
+      },
+      "ramie": {
+        "name": "苧麻",
+        "description": "優質纖維植物苧麻採集點，用於紡織精製苧麻布。"
+      },
+      "roselle": {
+        "name": "洛神花",
+        "description": "洛神花植物採集點，用於製作洛神花布。"
+      },
+      "screwpine": {
+        "name": "露兜樹果",
+        "description": "熱帶露兜樹，可採摘露兜樹果。"
+      },
+      "sisal": {
+        "name": "劍麻",
+        "description": "劍麻採集點，用於製作精製劍麻布。"
+      },
+      "acacia": {
+        "name": "金合歡",
+        "description": "金合歡樹伐木點，可採集原木加工成金合歡木板。"
+      },
+      "greenheart": {
+        "name": "綠心樟",
+        "description": "稀有的綠心樟樹伐木點，可加工成堅固的綠心樟木板。"
+      },
+      "iroko": {
+        "name": "綠柄桑",
+        "description": "綠柄桑樹伐木點，可加工成綠柄桑木板。"
+      },
+      "ironwood": {
+        "name": "鐵木",
+        "description": "質地堅硬的鐵木伐木點，高級艦船與裝備製造材料。"
+      },
+      "juniper": {
+        "name": "杜松",
+        "description": "杜松樹伐木點，可加工成杜松木板。"
+      },
+      "mopane": {
+        "name": "可可豆木",
+        "description": "可可豆木伐木點，可加工成可可豆木木板。"
+      },
+      "teak": {
+        "name": "柚木",
+        "description": "優質耐腐蝕的柚木伐木點，常用於高等級船體建造。"
+      },
+      "bogIron": {
+        "name": "沼鐵礦",
+        "description": "沼澤與濕地區域的沼鐵礦開採點，可精煉成鐵錠。"
+      },
+      "cobalt": {
+        "name": "鈷",
+        "description": "稀有的天然鈷礦開採點，用於冶煉鈷錠。"
+      },
+      "copper": {
+        "name": "銅",
+        "description": "天然銅礦開採點，用於冶煉銅錠。"
+      },
+      "magnetite": {
+        "name": "磁鐵礦",
+        "description": "高品質磁鐵礦開採點，用於精煉優質磁鐵礦錠。"
+      },
+      "nickel": {
+        "name": "鎳",
+        "description": "鎳礦開採點，用於冶煉鎳錠。"
+      },
+      "pureIron": {
+        "name": "純鐵礦",
+        "description": "高純度鐵礦開採點，是冶煉鑄鐵與鋼錠的關鍵原料。"
+      },
+      "zinc": {
+        "name": "鋅",
+        "description": "鋅礦開採點，用於冶煉鋅錠。"
+      },
+      "crocodile": {
+        "name": "鱷魚",
+        "description": "兇猛的鱷魚棲息水域，獵殺可獲得鱷魚原皮與肉類材料。"
+      },
+      "hippopotamus": {
+        "name": "河馬",
+        "description": "體型龐大的河馬棲息地，獵殺可獲得河馬原皮與肉類材料。"
+      },
+      "shark": {
+        "name": "鯊魚",
+        "description": "兇猛的掠食鯊魚出沒海域，獵殺可獲得鯊魚原皮與肉類材料。"
+      },
+      "treasureMap": {
+        "name": "藏寶圖",
+        "description": "記錄著隱藏寶藏位置的藏寶圖線索點。"
       }
     }
   },

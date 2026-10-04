@@ -1,4 +1,4 @@
-import { computed, ref, type Ref, watch } from 'vue';
+import { computed, ref, type Ref, type ComputedRef, watch, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useDisplay } from 'vuetify';
@@ -10,6 +10,7 @@ import Storage from '@/assets/sripts/storage';
 import { useMapApi } from '@/assets/sripts/api/map_service';
 import { useI18nUtils } from "@/assets/sripts/i18n_util.js";
 import { MapLocations } from "glow-prow-data";
+import { isCategoryVisibleAtZoom, getCategoryScale } from "@/assets/sripts/map_zoom_config";
 import type { MapCollection, MapPoint } from '@/assets/types/Map';
 import { ApiError } from "@/assets/types/Api";
 import Map from 'ol/Map';
@@ -26,10 +27,24 @@ import Modify from 'ol/interaction/Modify';
 import type { Feature as OLFeature } from 'ol';
 import type { Geometry } from 'ol/geom';
 
+export interface UseMapControllerOptions {
+    highlightTargetKey?: Ref<string | undefined> | ComputedRef<string | undefined> | string;
+    highlightCoords?: Ref<{ lon: number; lat: number } | undefined> | ComputedRef<{ lon: number; lat: number } | undefined>;
+}
+
 /**
  * 地图控制器
  */
-export function use_map_controller() {
+export function use_map_controller(options: UseMapControllerOptions = {}) {
+    const highlightTargetKey = computed(() => {
+        if (!options.highlightTargetKey) return undefined;
+        return typeof options.highlightTargetKey === 'string' ? options.highlightTargetKey : options.highlightTargetKey.value;
+    });
+
+    const highlightCoords = computed(() => {
+        if (!options.highlightCoords) return undefined;
+        return typeof options.highlightCoords === 'object' && 'value' in options.highlightCoords ? (options.highlightCoords as any).value : options.highlightCoords;
+    });
     const mapImages = import.meta.glob('/src/assets/images/map/*.*', { eager: true });
     const { t } = useI18n();
     const route = useRoute();
@@ -53,7 +68,13 @@ export function use_map_controller() {
         'pirateBases': ['den', 'outpost'],              // 海盗据点
         'settlements': ['settlement', 'capitalSettlement'], // 定居点
         'productionSites': ['foundry', 'lumberyard', 'weaver'], // 生产设施
-        'fortifications': ['megafort', 'militaryBase'],  // 军事要塞
+        'fortifications': ['megafort', 'militaryBase', 'guardTower'],  // 军事要塞
+        'shipwrecks': ['shipwreck'],                   // 失事船只
+        'collectibles': ['archive', 'treasureMap'],    // 调查档案
+        'resources': ['abaka', 'coconut', 'durian', 'hemp', 'jute', 'linen', 'ndizi', 'ramie', 'roselle', 'screwpine', 'sisal'], // 原料资源
+        'wood': ['acacia', 'greenheart', 'iroko', 'ironwood', 'juniper', 'mopane', 'teak'], // 木材资源
+        'ore': ['bogIron', 'cobalt', 'copper', 'magnetite', 'nickel', 'pureIron', 'zinc'], // 矿石资源
+        'wildlife': ['crocodile', 'hippopotamus', 'shark'], // 野生动物
     };
 
     const mapInstance: Ref<Map | null> = ref(null);
@@ -61,7 +82,7 @@ export function use_map_controller() {
     const mapCenterLocation: Ref<number[]> = ref([-0.667206, 0.626653]);
     const mapBounds = ref<[number, number, number, number]>(MAP_BOUNDS);
     const locations: Ref<any[]> = ref(Object.values(MapLocations));
-    const icons: Ref<Record<string, string>> = ref({});
+    const icons: Ref<Record<string, string>> = ref(serializationMap(mapImages));
     const isFull = ref(false);
     const model = ref<boolean>(false);
     const selectedLocationData: Ref<Record<any, any>> = ref({});
@@ -91,6 +112,7 @@ export function use_map_controller() {
     const isEditingBounds = ref(false);
 
     const isShowMarkModel = ref(false);
+    const isShowSettings = ref(false);
     const layerVisibility: Ref<Record<string, boolean>> = ref({});
     const groupVisibility: Ref<Record<string, boolean>> = ref({});
     const allLayersVisible = ref(true);
@@ -161,6 +183,305 @@ export function use_map_controller() {
     const appStore = useAppStore();
     const isDebug = computed(() => appStore.isDebug);
 
+    /**
+     * 各标记分类动画过渡状态 (透明度 0.0 ~ 1.0)
+     */
+    interface CategoryAnimState {
+        currentOpacity: number;
+        targetOpacity: number;
+    }
+
+    const categoryAnimState: Record<string, CategoryAnimState> = {};
+    const categoryStyleCache: Record<string, Style[] | null> = {};
+    const categoryTargetStyleCache: Record<string, Style[] | null> = {};
+    const categoryDimmedStyleCache: Record<string, Style[] | null> = {};
+    let animFrameId: number | null = null;
+
+    /**
+     * 获取当前地图视图的实际 Zoom
+     */
+    const getCurrentZoom = (): number => {
+        const view = mapInstance.value?.getView();
+        return view?.getZoom() ?? 13;
+    };
+
+    /**
+     * 判断特定分类点位在当前地图 zoom 下是否处于可显示范围
+     */
+    const isFeatureVisibleAtCurrentZoom = (featureCategory: string): boolean => {
+        if (isDebug.value) return true;
+        const currentZoom = getCurrentZoom();
+        return isCategoryVisibleAtZoom(featureCategory, currentZoom, isDebug.value);
+    };
+
+    /**
+     * 构建/更新指定分类在当前透明度与 Zoom 下的 OpenLayers Style 样式
+     * - 标准样式
+     * - 目标放大高亮样式 (targetKey 对应标记，放大 1.6 倍)
+     * - 其他非目标半透明样式 (半透明 0.28)
+     */
+    const updateCategoryStyle = (category: string, opacity: number, zoom: number) => {
+        if (opacity <= 0.01) {
+            categoryStyleCache[category] = null;
+            categoryTargetStyleCache[category] = null;
+            categoryDimmedStyleCache[category] = null;
+            return;
+        }
+
+        const baseScale = getCategoryScale(category, zoom);
+        // 缩放弹性过渡动画：淡入时尺寸从 70% 放大到 100%，淡出时缩小到 70%
+        const scale = baseScale * (0.7 + 0.3 * opacity);
+        const borderScale = scale * 1.2;
+
+        // 目标高亮标记尺寸：放大 1.65 倍
+        const targetScale = scale * 1.65;
+        const targetBorderScale = targetScale * 1.22;
+
+        // 非目标标记半透明度 (0.28)
+        const dimmedOpacity = opacity * 0.28;
+        const dimmedScale = scale * 0.95;
+        const dimmedBorderScale = dimmedScale * 1.15;
+
+        const isShare = category === 'shareLocation';
+        const anchor: [number, number] = isShare ? [0.5, 1] : [0.5, 0.6];
+        const iconSrc = isShare ? getPersonalMarkerIcon() : getCategoryIcon(category);
+
+        if (!iconSrc) {
+            categoryStyleCache[category] = null;
+            categoryTargetStyleCache[category] = null;
+            categoryDimmedStyleCache[category] = null;
+            return;
+        }
+
+        // 1. 标准样式
+        categoryStyleCache[category] = [
+            new Style({
+                image: new Icon({
+                    src: iconSrc,
+                    color: '#000000',
+                    scale: borderScale,
+                    opacity: opacity * 0.2,
+                    anchor,
+                    anchorXUnits: 'fraction',
+                    anchorYUnits: 'fraction',
+                }),
+                zIndex: 1,
+            }),
+            new Style({
+                image: new Icon({
+                    src: iconSrc,
+                    scale,
+                    opacity,
+                    anchor,
+                    anchorXUnits: 'fraction',
+                    anchorYUnits: 'fraction',
+                }),
+                zIndex: 2,
+            })
+        ];
+
+        // 2. 目标放大高亮样式 (放大 1.65x, zIndex 500)
+        categoryTargetStyleCache[category] = [
+            new Style({
+                image: new Icon({
+                    src: iconSrc,
+                    color: '#000000',
+                    scale: targetBorderScale,
+                    opacity: opacity * 0.35,
+                    anchor,
+                    anchorXUnits: 'fraction',
+                    anchorYUnits: 'fraction',
+                }),
+                zIndex: 499,
+            }),
+            new Style({
+                image: new Icon({
+                    src: iconSrc,
+                    scale: targetScale,
+                    opacity: Math.min(1.0, opacity * 1.0),
+                    anchor,
+                    anchorXUnits: 'fraction',
+                    anchorYUnits: 'fraction',
+                }),
+                zIndex: 500,
+            })
+        ];
+
+        // 3. 其他非目标半透明样式 (半透明 0.28, zIndex 1)
+        categoryDimmedStyleCache[category] = [
+            new Style({
+                image: new Icon({
+                    src: iconSrc,
+                    color: '#000000',
+                    scale: dimmedBorderScale,
+                    opacity: dimmedOpacity * 0.2,
+                    anchor,
+                    anchorXUnits: 'fraction',
+                    anchorYUnits: 'fraction',
+                }),
+                zIndex: 1,
+            }),
+            new Style({
+                image: new Icon({
+                    src: iconSrc,
+                    scale: dimmedScale,
+                    opacity: dimmedOpacity,
+                    anchor,
+                    anchorXUnits: 'fraction',
+                    anchorYUnits: 'fraction',
+                }),
+                zIndex: 2,
+            })
+        ];
+    };
+
+    /**
+     * 更新所有分类的目标透明度 targetOpacity (0.0 或 1.0)
+     */
+    const updateAllTargetOpacities = () => {
+        const currentZoom = getCurrentZoom();
+        const allCategories = new Set<string>();
+        locations.value.forEach(loc => {
+            if (loc.category) allCategories.add(loc.category);
+        });
+        allCategories.add('shareLocation');
+        allCategories.add('default');
+
+        allCategories.forEach(category => {
+            const isVisibleByLayer = category === 'shareLocation'
+                ? (layerVisibility.value.shareLocation ?? true)
+                : (layerVisibility.value[category] ?? true);
+
+            const isVisibleByZoom = isDebug.value || isCategoryVisibleAtZoom(category, currentZoom, isDebug.value);
+            const target = (isVisibleByLayer && isVisibleByZoom) ? 1.0 : 0.0;
+
+            let state = categoryAnimState[category];
+            if (!state) {
+                state = { currentOpacity: target, targetOpacity: target };
+                categoryAnimState[category] = state;
+            } else {
+                state.targetOpacity = target;
+            }
+        });
+    };
+
+    /**
+     * 触发平滑过渡动画循环
+     * @param immediate 是否无动画立即应用（例如初始化）
+     */
+    const triggerTransitionAnimation = (immediate: boolean = false) => {
+        updateAllTargetOpacities();
+        const currentZoom = getCurrentZoom();
+
+        if (immediate) {
+            if (animFrameId !== null) {
+                cancelAnimationFrame(animFrameId);
+                animFrameId = null;
+            }
+            Object.entries(categoryAnimState).forEach(([category, state]) => {
+                state.currentOpacity = state.targetOpacity;
+                updateCategoryStyle(category, state.currentOpacity, currentZoom);
+            });
+            if (vectorLayerRef.value) {
+                vectorLayerRef.value.changed();
+            }
+            return;
+        }
+
+        if (animFrameId !== null) return;
+
+        const animate = () => {
+            let isStillAnimating = false;
+            const zoom = getCurrentZoom();
+
+            Object.entries(categoryAnimState).forEach(([category, state]) => {
+                const diff = state.targetOpacity - state.currentOpacity;
+                if (Math.abs(diff) > 0.015) {
+                    state.currentOpacity += diff * 0.22;
+                    isStillAnimating = true;
+                } else {
+                    state.currentOpacity = state.targetOpacity;
+                }
+                updateCategoryStyle(category, state.currentOpacity, zoom);
+            });
+
+            if (vectorLayerRef.value) {
+                vectorLayerRef.value.changed();
+            }
+
+            if (isStillAnimating) {
+                animFrameId = requestAnimationFrame(animate);
+            } else {
+                animFrameId = null;
+            }
+        };
+
+        animFrameId = requestAnimationFrame(animate);
+    };
+
+    /**
+     * 判断某个 feature 数据是否属于高亮目标
+     */
+    const isTargetFeatureData = (originalData: any): boolean => {
+        const targetKey = highlightTargetKey.value;
+        if (targetKey) {
+            if (originalData?.id === targetKey) return true;
+            if (originalData?.key === targetKey) return true;
+            if (originalData?.category === targetKey) return true;
+        }
+
+        const coords = highlightCoords.value;
+        if (coords && typeof originalData?.longitude === 'number' && typeof originalData?.latitude === 'number') {
+            const dLon = Math.abs(originalData.longitude - coords.lon);
+            const dLat = Math.abs(originalData.latitude - coords.lat);
+            if (dLon < 0.0001 && dLat < 0.0001) {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+    /**
+     * 生成统一的 Marker 样式计算函数（从动画样式缓存中极速获取）
+     */
+    const createMarkerStyleFn = () => (feature: any) => {
+        const originalData = feature.get('originalData');
+        const featureCategory = originalData?.category || 'default';
+
+        const hasTargetHighlight = Boolean(highlightTargetKey.value || highlightCoords.value);
+        if (hasTargetHighlight) {
+            if (isTargetFeatureData(originalData)) {
+                return categoryTargetStyleCache[featureCategory] ?? categoryStyleCache[featureCategory] ?? null;
+            } else {
+                return categoryDimmedStyleCache[featureCategory] ?? categoryStyleCache[featureCategory] ?? null;
+            }
+        }
+
+        return categoryStyleCache[featureCategory] ?? null;
+    };
+
+    watch([highlightTargetKey, highlightCoords], () => {
+        if (vectorLayerRef.value) {
+            vectorLayerRef.value.changed();
+        }
+    });
+
+    watch(isDebug, () => {
+        triggerTransitionAnimation();
+    });
+
+    const onConfigChanged = () => {
+        triggerTransitionAnimation(true);
+    };
+
+    onUnmounted(() => {
+        if (animFrameId !== null) {
+            cancelAnimationFrame(animFrameId);
+            animFrameId = null;
+        }
+    });
+
     watch(searchInput, (value) => {
         if (!value || !value.trim()) {
             searchSuggestions.value = [];
@@ -225,26 +546,23 @@ export function use_map_controller() {
             features: onCreateFeaturesFromLocations(locations.value),
         });
 
+        // 首次初始化动画状态与样式缓存（立即应用无延迟）
+        triggerTransitionAnimation(true);
+
         const vectorLayer = new VectorLayer({
             source: vectorSource,
             zIndex: 100,
-            style: (feature) => {
-                const originalData = feature.get('originalData');
-                const featureCategory = originalData?.category;
-
-                if (featureCategory === 'shareLocation') {
-                    const isPersonalVisible = layerVisibility.value.shareLocation;
-                    return isPersonalVisible ? onCreatePersonalMarkerStyle() : null;
-                }
-
-                const isSystemVisible = layerVisibility.value[featureCategory];
-                return isSystemVisible ? onCreateMarkerStyle(feature) : null;
-            },
+            style: createMarkerStyleFn(),
         } as any);
 
         vectorLayer.set('isMainVectorLayer', true);
         vectorLayerRef.value = vectorLayer;
         map.addLayer(vectorLayer);
+
+        // 监听缩放变化，动态切换不同分类标记的平滑过渡动画
+        map.getView().on('change:resolution', () => {
+            triggerTransitionAnimation();
+        });
 
         const hoverInteraction = new Select({
             condition: pointerMove,
@@ -256,9 +574,14 @@ export function use_map_controller() {
         map.addInteraction(hoverInteraction);
 
         hoverInteraction.on('select', (event) => {
+            const selected = event.selected.filter(f => {
+                const cat = f.get('originalData')?.category || 'default';
+                const anim = categoryAnimState[cat];
+                return anim ? anim.currentOpacity > 0.05 : true;
+            });
             const mapElement = map.getTargetElement();
             if (mapElement) {
-                mapElement.style.cursor = event.selected.length > 0 ? 'pointer' : '';
+                mapElement.style.cursor = selected.length > 0 ? 'pointer' : '';
             }
         });
 
@@ -272,6 +595,12 @@ export function use_map_controller() {
             if (feature) {
                 const originalData = feature.get('originalData');
                 if (!originalData) return;
+
+                const cat = originalData.category || 'default';
+                const anim = categoryAnimState[cat];
+                if (anim && anim.currentOpacity <= 0.05) {
+                    return;
+                }
 
                 if (originalData?.category === 'shareLocation') {
                     selectedPoint.value = originalData;
@@ -300,10 +629,17 @@ export function use_map_controller() {
         // 右键菜单（桌面）
         map.getTargetElement().addEventListener('contextmenu', (e: MouseEvent) => {
             const pixel = map.getEventPixel(e);
-            const feature = map.forEachFeatureAtPixel(pixel,
+            let feature = map.forEachFeatureAtPixel(pixel,
                 (f) => f as OLFeature<Geometry>,
                 { layerFilter: (l) => l.get('isMainVectorLayer') === true, hitTolerance: 15 }
             ) ?? null;
+            if (feature) {
+                const cat = feature.get('originalData')?.category || 'default';
+                const anim = categoryAnimState[cat];
+                if (anim && anim.currentOpacity <= 0.05) {
+                    feature = null;
+                }
+            }
             const coord = toLonLat(map.getCoordinateFromPixel(pixel));
             openContextMenu(e.clientX, e.clientY, pixel as [number, number], coord as [number, number], feature);
         });
@@ -366,10 +702,17 @@ export function use_map_controller() {
             touchStartY = t.clientY;
             touchTimer = setTimeout(() => {
                 const pixel = map.getEventPixel(e);
-                const feature = map.forEachFeatureAtPixel(pixel,
+                let feature = map.forEachFeatureAtPixel(pixel,
                     (f) => f as OLFeature<Geometry>,
                     { layerFilter: (l) => l.get('isMainVectorLayer') === true, hitTolerance: 15 }
                 ) ?? null;
+                if (feature) {
+                    const cat = feature.get('originalData')?.category || 'default';
+                    const anim = categoryAnimState[cat];
+                    if (anim && anim.currentOpacity <= 0.05) {
+                        feature = null;
+                    }
+                }
                 const coord = toLonLat(map.getCoordinateFromPixel(pixel));
                 openContextMenu(t.clientX, t.clientY, pixel as [number, number], coord as [number, number], feature);
             }, LONG_PRESS_MS);
@@ -771,7 +1114,7 @@ export function use_map_controller() {
             const feature = createPersonalFeature(point);
             vectorSource.addFeature(feature);
         });
-        vectorLayerRef.value.changed();
+        triggerTransitionAnimation(true);
     };
 
     const createPersonalFeature = (point: MapPoint): OLFeature<Geometry> => {
@@ -847,20 +1190,38 @@ export function use_map_controller() {
     };
 
     const onTogglePersonalLayer = (): void => {
-        if (!vectorLayerRef.value) return;
-        vectorLayerRef.value.changed();
+        triggerTransitionAnimation();
     };
 
-    const onCreatePersonalMarkerStyle = (): Style => {
-        return new Style({
+    const onCreatePersonalMarkerStyle = (): Style[] | Style => {
+        const currentZoom = getCurrentZoom();
+        const scale = getCategoryScale('shareLocation', currentZoom);
+        const borderScale = scale * 1.16;
+        const iconSrc = getPersonalMarkerIcon();
+
+        const bgStyle = new Style({
             image: new Icon({
-                src: getPersonalMarkerIcon(),
-                scale: 0.1,
+                src: iconSrc,
+                color: '#000000',
+                scale: borderScale,
+                opacity: 0.9,
                 anchor: [0.5, 1],
                 anchorXUnits: 'fraction',
                 anchorYUnits: 'fraction',
             }),
+            zIndex: 1,
         });
+        const fgStyle = new Style({
+            image: new Icon({
+                src: iconSrc,
+                scale,
+                anchor: [0.5, 1],
+                anchorXUnits: 'fraction',
+                anchorYUnits: 'fraction',
+            }),
+            zIndex: 2,
+        });
+        return [bgStyle, fgStyle];
     };
 
     const getPersonalMarkerIcon = (): string => icons.value['shareLocation'];
@@ -880,7 +1241,12 @@ export function use_map_controller() {
 
     const getCategoryCount = (category: string) => locations.value.filter(loc => loc.category === category).length;
 
-    const getCategoryIcon = (category: string) => icons.value[category] || icons.value['default'];
+    const getCategoryIcon = (category: string) => {
+        if (!icons.value || Object.keys(icons.value).length === 0) {
+            icons.value = serializationMap(mapImages);
+        }
+        return icons.value[category] || icons.value['default'] || icons.value['miscellaneous'] || '';
+    };
 
     const onSelectLocation = (location: any) => {
         if (!location) return;
@@ -921,21 +1287,9 @@ export function use_map_controller() {
             }
         }
 
-        if (!vectorLayerRef.value) return;
-
-        vectorLayerRef.value.setStyle((feature: any) => {
-            const originalData = feature.get('originalData');
-            const featureCategory = originalData?.category;
-            if (originalData?.category === 'shareLocation') {
-                const isPersonalVisible = layerVisibility.value.shareLocation;
-                return isPersonalVisible ? onCreatePersonalMarkerStyle() : null;
-            }
-            const isSystemVisible = layerVisibility.value[featureCategory];
-            return isSystemVisible ? onCreateMarkerStyle(feature) : null;
-        });
-        vectorLayerRef.value.changed();
         updateGroupVisibilityState();
         onUpdateAllLayersVisibleState();
+        triggerTransitionAnimation();
     };
 
     const updateGroupVisibilityState = () => {
@@ -958,30 +1312,16 @@ export function use_map_controller() {
     };
 
     const onToggleLayer = (payload?: { category: string; visible: boolean }) => {
-        if (!vectorLayerRef.value) return;
-
         if (payload) {
             layerVisibility.value[payload.category] = payload.visible;
         }
 
-        vectorLayerRef.value.setStyle((feature: any) => {
-            const originalData = feature.get('originalData');
-            const featureCategory = originalData?.category;
-            if (originalData?.category === 'shareLocation') {
-                const isPersonalVisible = layerVisibility.value.shareLocation;
-                return isPersonalVisible ? onCreatePersonalMarkerStyle() : null;
-            }
-            const isSystemVisible = layerVisibility.value[featureCategory];
-            return isSystemVisible ? onCreateMarkerStyle(feature) : null;
-        });
-        vectorLayerRef.value.changed();
         onUpdateAllLayersVisibleState();
         updateGroupVisibilityState();
+        triggerTransitionAnimation();
     };
 
     const onToggleGroupLayer = (payload: { group: string; visible: boolean }) => {
-        if (!vectorLayerRef.value) return;
-
         groupVisibility.value[payload.group] = payload.visible;
 
         if (CATEGORY_GROUPS[payload.group]) {
@@ -992,22 +1332,12 @@ export function use_map_controller() {
             });
         }
 
-        vectorLayerRef.value.setStyle((feature: any) => {
-            const originalData = feature.get('originalData');
-            const featureCategory = originalData?.category;
-            if (originalData?.category === 'shareLocation') {
-                const isPersonalVisible = layerVisibility.value.shareLocation;
-                return isPersonalVisible ? onCreatePersonalMarkerStyle() : null;
-            }
-            const isSystemVisible = layerVisibility.value[featureCategory];
-            return isSystemVisible ? onCreateMarkerStyle(feature) : null;
-        });
-        vectorLayerRef.value.changed();
         onUpdateAllLayersVisibleState();
+        triggerTransitionAnimation();
     };
 
     const onToggleAllLayers = () => {
-        if (!vectorLayerRef.value || !availableCategories.value.length) return;
+        if (!availableCategories.value.length) return;
         const newVisibility = !allLayersVisible.value;
 
         availableCategories.value.forEach(category => {
@@ -1015,16 +1345,8 @@ export function use_map_controller() {
         });
         layerVisibility.value.shareLocation = newVisibility;
         allLayersVisible.value = newVisibility;
-        vectorLayerRef.value.setStyle((feature: any) => {
-            const originalData = feature.get('originalData');
-            const featureCategory = originalData?.category;
-            if (featureCategory === 'shareLocation') {
-                return newVisibility ? onCreatePersonalMarkerStyle() : null;
-            }
-            return newVisibility ? onCreateMarkerStyle(feature) : null;
-        });
-        vectorLayerRef.value.changed();
         updateGroupVisibilityState();
+        triggerTransitionAnimation();
     };
 
     const onUpdateAllLayersVisibleState = () => {
@@ -1058,18 +1380,41 @@ export function use_map_controller() {
         return asString([location.id, `snb.mapLocations.${location.id}.name`], { backRawKey: false }) || location.id;
     };
 
-    const onCreateMarkerStyle = (feature: OLFeature<Geometry>): Style => {
+    const onCreateMarkerStyle = (feature: OLFeature<Geometry>): Style[] | Style | null => {
         const originalData = feature.get('originalData');
+        const category = originalData?.category || 'default';
+        const iconSrc = getCategoryIcon(category);
+        if (!iconSrc) {
+            return null;
+        }
 
-        return new Style({
+        const currentZoom = getCurrentZoom();
+        const scale = getCategoryScale(category, currentZoom);
+        const borderScale = scale * 1.16;
+
+        const bgStyle = new Style({
             image: new Icon({
-                src: getCategoryIcon(originalData.category),
-                scale: 0.12,
+                src: iconSrc,
+                color: '#000000',
+                scale: borderScale,
+                opacity: 0.9,
                 anchor: [0.5, 0.6],
                 anchorXUnits: 'fraction',
                 anchorYUnits: 'fraction',
             }),
+            zIndex: 1,
         });
+        const fgStyle = new Style({
+            image: new Icon({
+                src: iconSrc,
+                scale,
+                anchor: [0.5, 0.6],
+                anchorXUnits: 'fraction',
+                anchorYUnits: 'fraction',
+            }),
+            zIndex: 2,
+        });
+        return [bgStyle, fgStyle];
     };
 
     const onCreateFeaturesFromLocations = (locations: any[]): OLFeature<Geometry>[] => {
@@ -1137,6 +1482,7 @@ export function use_map_controller() {
         searchInput,
         searchSuggestions,
         isShowMarkModel,
+        isShowSettings,
         layerVisibility,
         groupVisibility,
         allLayersVisible,
@@ -1191,5 +1537,6 @@ export function use_map_controller() {
         isEditingBounds,
         closeContextMenu,
         openLocationDetail,
+        onConfigChanged,
     };
 }

@@ -219,19 +219,24 @@ const authStore = useAuthStore();
 const panelOpen = ref<number[]>([]);
 
 watch([props.groupVisibility, props.layerVisibility], (value: any) => {
-  console.log(value)
-  storage_account.updateConfiguration('map', 'marker.select', {
-    groupVisibility: value[0],
-    layerVisibility: value[1]
-  })
-}, {deep: true})
+  const isRemember = storage_account.getConfigurationItem('map', 'rememberMarkerSelection', { defaultValue: true });
+  if (isRemember) {
+    storage_account.updateConfiguration('map', 'marker.select', {
+      groupVisibility: value[0],
+      layerVisibility: value[1]
+    });
+  }
+}, {deep: true});
 
 onMounted(() => {
-  let d = storage_account.getConfigurationItem('map', 'marker.select')
-  if (d) {
-    emit('init-visibility', d);
+  const isRemember = storage_account.getConfigurationItem('map', 'rememberMarkerSelection', { defaultValue: true });
+  if (isRemember) {
+    let d = storage_account.getConfigurationItem('map', 'marker.select');
+    if (d) {
+      emit('init-visibility', d);
+    }
   }
-})
+});
 
 /**
  * 集合开关

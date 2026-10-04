@@ -17,9 +17,11 @@
         v-model:search="searchInput"
         :search-suggestions="searchSuggestions"
         :is-layer-panel-visible="isShowMarkModel"
+        :is-settings-open="isShowSettings"
         :get-category-icon="getCategoryIcon"
         @search="handleSearch"
         @toggle-layers="isShowMarkModel = !isShowMarkModel"
+        @toggle-settings="isShowSettings = !isShowSettings"
         @update:fullscreen="isFull = $event"
     />
 
@@ -41,6 +43,14 @@
         @init-visibility="onInitVisibility"
         @update:layer-visibility="onToggleLayer"
         @update:group-visibility="onToggleGroupLayer"
+    />
+
+    <MapSetting
+        v-model="isShowSettings"
+        :get-category-icon="getCategoryIcon"
+        :available-categories="availableCategories"
+        :grouped-categories="groupedCategories"
+        @config-changed="onConfigChanged"
     />
 
     <MapLocationCard
@@ -86,6 +96,7 @@ import { use_map_controller } from '@/assets/sripts/use_map_controller';
 import MapView from '@/components/map/MapView.vue';
 import MapToolbar from '@/components/map/MapToolbar.vue';
 import MapLayerControl from '@/components/map/MapLayerControl.vue';
+import MapSetting from '@/components/map/MapSetting.vue';
 import MapLocationCard from '@/components/map/MapLocationCard.vue';
 import MapCreateMarkerDialog from '@/components/map/MapCreateMarkerDialog.vue';
 import MapControls from '@/components/map/MapControls.vue';
@@ -114,6 +125,7 @@ const {
   searchInput,
   searchSuggestions,
   isShowMarkModel,
+  isShowSettings,
   layerVisibility,
   groupVisibility,
   allLayersVisible,
@@ -165,6 +177,7 @@ const {
   contextMenuState,
   contextMenuItems,
   closeContextMenu,
+  onConfigChanged,
 } = use_map_controller();
 </script>
 

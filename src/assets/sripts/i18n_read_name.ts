@@ -327,12 +327,16 @@ export function useI18nReadName() {
         }
     }
 
-    const mapLocation = (id: string) => {
+    const mapLocation = (id: string, category?: string) => {
         const keysName = [
             `snb.mapLocations.${id}.name`,
+            `map.types.${id}.name`,
+            `snb.locations.${id}`,
         ],
             keysDescription = [
                 `snb.mapLocations.${id}.description`,
+                `map.types.${category}.description`,
+                `map.types.${id}.description`,
             ];
 
         return {
@@ -340,20 +344,34 @@ export function useI18nReadName() {
             keysName,
             keysDescription,
             name: (lang?: string): string => {
-                if (mapLocations[id])
+                const translatedName = asString(keysName, {
+                    backRawKey: false,
+                    lang
+                });
+                if (translatedName) {
+                    return translatedName;
+                }
+                if (mapLocations[id]) {
                     return asString(keysName, {
                         backRawKey: true,
                         lang
-                    })
-                return String(id)
+                    });
+                }
+                return String(id);
             },
             description: (lang?: string): string => {
+                const translatedDesc = asString(keysDescription, {
+                    backRawKey: false,
+                    lang
+                });
+                if (translatedDesc) {
+                    return translatedDesc.trim();
+                }
                 if (mapLocations[id]) {
-                    const translatedDesc = asString(keysDescription, {
+                    return asString(keysDescription, {
                         backRawKey: true,
                         lang
-                    })
-                    return `${translatedDesc}`.trim()
+                    }).trim();
                 }
                 return String(id);
             }

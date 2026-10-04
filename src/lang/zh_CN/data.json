@@ -1526,6 +1526,24 @@
   "map": {
     "title": "地图",
     "description": "所有地图物品清单",
+    "settings": "地图设置",
+    "generalSettings": "常规设置",
+    "rememberMarkerSelection": "记录选择",
+    "rememberMarkerSelectionDesc": "关闭或刷新网页后，保留地图标记与图层的勾选状态",
+    "markerZoomSettings": "标记缩放与尺寸配置",
+    "markerZoomSettingsDesc": "自定义各分类标记在不同地图缩放层级（Zoom 12-15）下的可见范围与图标大小比例",
+    "visibleZoomRange": "显示层级范围",
+    "iconScaleAtZoom": "Zoom {zoom} 尺寸",
+    "saveSettings": "保存设置",
+    "settingsSaved": "地图设置已保存并生效",
+    "resetDefaults": "恢复默认配置",
+    "resetDefaultsConfirm": "确定要恢复所有地图缩放与尺寸设置为默认值吗？",
+    "resetSuccess": "已恢复默认配置",
+    "allCategories": "所有标记分类",
+    "batchConfig": "按分组批量配置",
+    "presetDefault": "推荐默认",
+    "presetAlwaysVisible": "全层级可见 (12-15)",
+    "zoomLevelHint": "12(远景) - 13(中景) - 14(近景) - 15(特写)",
     "contextMenu": {
       "openDetail": "打开详情",
       "addMarker": "在此添加标记",
@@ -1582,6 +1600,14 @@
       "settlements": "定居点",
       "productionSites": "生产设施",
       "fortifications": "军事要塞",
+      "shipwrecks": "失事船只",
+      "collectibles": "调查与收集",
+      "enemies": "敌对目标",
+      "contracts": "契约任务",
+      "resources": "原料资源",
+      "wood": "木材资源",
+      "ore": "矿石资源",
+      "wildlife": "野生动物",
       "other": "其他"
     },
     "types": {
@@ -1611,7 +1637,7 @@
       },
       "outpost": {
         "name": "前哨站",
-        "description": ""
+        "description": "可停泊、交易、开启仓库或快速传送的海盗前哨站。"
       },
       "foundry": {
         "name": "铸造厂",
@@ -1628,6 +1654,150 @@
       "militaryBase": {
         "name": "军营",
         "description": "这是一座戒备森严的军营。虽然回报丰厚，但只有最强的海盗团队才有能力把它拿下"
+      },
+      "shipwreck": {
+        "name": "失事船只",
+        "description": "在沿海或浅滩搁浅的失事船只，打捞搜刮可获得木材、金属及各种物资。"
+      },
+      "archive": {
+        "name": "调查档案",
+        "description": "记录着印度洋历史隐秘与传闻线索的调查档案点。"
+      },
+      "guardTower": {
+        "name": "哨塔",
+        "description": "守卫海域与航道要塞的防御警戒塔。"
+      },
+      "bounty": {
+        "name": "悬赏目标",
+        "description": "臭名昭著的海盗头目或通缉目标出没海域。"
+      },
+      "mainContract": {
+        "name": "主线契约",
+        "description": "推进主线剧情发展的重要契约任务接取点或目标地。"
+      },
+      "sideContract": {
+        "name": "支线契约",
+        "description": "可接取的支线委托与丰厚报酬的任务地点。"
+      },
+      "miscellaneous": {
+        "name": "其他标记",
+        "description": "未归类的特殊探索与兴趣点标记。"
+      },
+      "abaka": {
+        "name": "马尼拉麻",
+        "description": "马尼拉麻植物采集点，用于加工精细马尼拉麻布。"
+      },
+      "coconut": {
+        "name": "椰子",
+        "description": "沿海椰子树，采摘可获得椰子用于食材补充。"
+      },
+      "durian": {
+        "name": "榴莲",
+        "description": "热带密林中的榴莲采集点，提供食物与烹饪原料。"
+      },
+      "hemp": {
+        "name": "麻类植物",
+        "description": "野生麻类植物采集点，用于生产精制麻布。"
+      },
+      "jute": {
+        "name": "黄麻",
+        "description": "黄麻植物采集点，用于精制黄麻布。"
+      },
+      "linen": {
+        "name": "亚麻",
+        "description": "亚麻植物采集点，用于制作亚麻布料。"
+      },
+      "ndizi": {
+        "name": "香蕉",
+        "description": "热带香蕉林，可采摘香蕉作为食物补给。"
+      },
+      "ramie": {
+        "name": "苎麻",
+        "description": "优质纤维植物苎麻采集点，用于纺织精制苎麻布。"
+      },
+      "roselle": {
+        "name": "洛神花",
+        "description": "洛神花植物采集点，用于制作洛神花布。"
+      },
+      "screwpine": {
+        "name": "露兜树果",
+        "description": "热带露兜树，可采摘露兜树果。"
+      },
+      "sisal": {
+        "name": "剑麻",
+        "description": "剑麻采集点，用于制作精制剑麻布。"
+      },
+      "acacia": {
+        "name": "金合欢",
+        "description": "金合欢树伐木点，可采集原木加工成金合欢木板。"
+      },
+      "greenheart": {
+        "name": "绿心樟",
+        "description": "稀有的绿心樟树伐木点，可加工成坚固的绿心樟木板。"
+      },
+      "iroko": {
+        "name": "绿柄桑",
+        "description": "绿柄桑树伐木点，可加工成绿柄桑木板。"
+      },
+      "ironwood": {
+        "name": "铁木",
+        "description": "质地坚硬的铁木伐木点，高级舰船与装备制造材料。"
+      },
+      "juniper": {
+        "name": "杜松",
+        "description": "杜松树伐木点，可加工成杜松木板。"
+      },
+      "mopane": {
+        "name": "可可豆木",
+        "description": "可可豆木伐木点，可加工成可可豆木木板。"
+      },
+      "teak": {
+        "name": "柚木",
+        "description": "优质耐腐蚀的柚木伐木点，常用于高等级船体建造。"
+      },
+      "bogIron": {
+        "name": "沼铁矿",
+        "description": "沼泽与湿地区域的沼铁矿开采点，可精炼成铁锭。"
+      },
+      "cobalt": {
+        "name": "钴",
+        "description": "稀有的天然钴矿开采点，用于冶炼钴锭。"
+      },
+      "copper": {
+        "name": "铜",
+        "description": "天然铜矿开采点，用于冶炼铜锭。"
+      },
+      "magnetite": {
+        "name": "磁铁矿",
+        "description": "高品质磁铁矿开采点，用于精炼优质磁铁矿锭。"
+      },
+      "nickel": {
+        "name": "镍",
+        "description": "镍矿开采点，用于冶炼镍锭。"
+      },
+      "pureIron": {
+        "name": "纯铁矿",
+        "description": "高纯度铁矿开采点，是冶炼铸铁与钢锭的关键原料。"
+      },
+      "zinc": {
+        "name": "锌",
+        "description": "锌矿开采点，用于冶炼锌锭。"
+      },
+      "crocodile": {
+        "name": "鳄鱼",
+        "description": "凶猛的鳄鱼栖息水域，猎杀可获得鳄鱼原皮与肉类材料。"
+      },
+      "hippopotamus": {
+        "name": "河马",
+        "description": "体型庞大的河马栖息地，猎杀可获得河马原皮与肉类材料。"
+      },
+      "shark": {
+        "name": "鲨鱼",
+        "description": "凶猛的掠食鲨鱼出没海域，猎杀可获得鲨鱼原皮与肉类材料。"
+      },
+      "treasureMap": {
+        "name": "藏宝图",
+        "description": "记录着隐藏宝藏位置的藏宝图线索点。"
       }
     }
   },

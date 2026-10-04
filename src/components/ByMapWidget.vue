@@ -16,17 +16,12 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   draggable: true,
   zoomable: true,
-  initialZoom: 13,
+  initialZoom: 14,
   animated: true,
 });
 
-const {
-  onMapCreated,
-  locations
-} = use_map_controller();
-
 const hasXY = computed(() => {
-  return (props.targetX !== undefined && props.targetX !== '') || 
+  return (props.targetX !== undefined && props.targetX !== '') ||
          (props.targetY !== undefined && props.targetY !== '');
 });
 
@@ -62,13 +57,28 @@ const locationId = computed<string | undefined>(() => {
   }
   return undefined;
 });
+
+const targetCoords = computed(() => {
+  if (longitude.value !== undefined && latitude.value !== undefined) {
+    return { lon: longitude.value, lat: latitude.value };
+  }
+  return undefined;
+});
+
+const {
+  onMapCreated,
+  locations
+} = use_map_controller({
+  highlightTargetKey: locationId,
+  highlightCoords: targetCoords,
+});
 </script>
 
 <template>
   <p class="text-no-wrap font-weight-bold mb-2 mt-2">
     <slot></slot>
   </p>
-  <v-card height="180" border>
+  <v-card height="260" border>
     <MapView
         class="map-view"
         :longitude="longitude"
