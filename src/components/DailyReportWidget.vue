@@ -7,7 +7,7 @@ import {type Season, Seasons} from "glow-prow-data";
 import {apis} from "@/assets/sripts";
 import {getCurrentSeason, getCurrentSeasonId} from "@/assets/sripts/season";
 import {useStateOfWarStore} from "~/stores/stateOfWarStore";
-import type {CalendarData, CalendarEvent} from "@/assets/types/Calendar";
+import type {CalendarData, CalendarEvent, DailyCalendarEventItem} from "@/assets/types/Calendar";
 
 import {formatCompactNumber} from "@/assets/sripts/number";
 
@@ -24,20 +24,6 @@ import SeasonViewWidget from "@/components/SeasonViewWidget.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import DropWidget from "@/components/DropWidget.vue";
 
-export interface DailyCalendarEventItem {
-  id: string;
-  name: string;
-  description: string;
-  duration: number;
-  droppeds?: Record<string, { category?: string; isUnknown?: boolean }>;
-  startMs: number;
-  endMs: number;
-  startDateStr: string;
-  endDateStr: string;
-  isOngoing: boolean;
-  isUpcoming: boolean;
-  daysRemainingOrUntil: number;
-}
 
 const props = withDefaults(
     defineProps<{
@@ -524,15 +510,6 @@ onMounted(() => {
               <template v-slot:title>
                 {{ t("dailyReport.stateOfWar.title") }}
               </template>
-              <div class="d-flex align-center justify-space-between mb-4">
-                <div class="d-flex align-center ga-2">
-                  <div>
-                    <span class="text-medium-emphasis">
-                      {{ t("dailyReport.stateOfWar.subtitle") }}
-                    </span>
-                  </div>
-                </div>
-              </div>
 
               <!-- 阵营几比几 对决战报看板 S -->
               <div class="faction-battle-banner pa-4 rounded-lg mb-4 border position-relative overflow-hidden">
@@ -597,7 +574,6 @@ onMounted(() => {
               <div v-if="activeCycle" class="war-cycle-info bg-black-opacity-40 mb-3">
                 <div class="d-flex align-center justify-space-between flex-wrap ga-2 mb-2">
                   <div class="d-flex align-center ga-2">
-                    <v-icon icon="mdi-flag-checkered" color="amber" size="18"></v-icon>
                     <span class="font-weight-bold text-body-2 text-white">
                       {{ t("dailyReport.stateOfWar.currentCycle", {cycle: activeCycle.cycleNumber}) }}
                     </span>
@@ -606,40 +582,20 @@ onMounted(() => {
                     </span>
                   </div>
 
-                  <v-chip
-                      size="x-small"
-                      :color="activeCycle.status === 'ended' ? 'grey' : (activeCycle.status === 'active' ? 'amber-darken-2' : '')"
-                      variant="flat"
-                      class="font-weight-bold text-black">
-                    {{ activeCycle.status === "ended" ? t("stateOfWar.ended") : (activeCycle.status === "active" ? t("stateOfWar.active") : t("stateOfWar.upcoming")) }}
-                  </v-chip>
-                </div>
-
-                <!-- 战期倒计时与进度条 -->
-                <div class="d-flex align-center justify-space-between text-caption mb-1">
-                  <span class="text-medium-emphasis">{{ t("dailyReport.stateOfWar.cycleTitle") }}</span>
-                  <span class="text-amber font-weight-bold">{{ activeCycleRemainingText }}</span>
-                </div>
-                <v-progress-linear
-                    :model-value="activeCycleProgress"
-                    color="amber"
-                    bg-color="grey-darken-3"
-                    height="4"
-                    rounded></v-progress-linear>
-
-                <!-- 当前战期战况细览 (区域分布简报) -->
-                <div v-if="activeCycle.totals" class="mt-3 d-flex justify-space-between align-center text-caption">
-                  <v-spacer></v-spacer>
-                  <div class="d-flex align-center ga-3">
+                  <!-- 当前战期战况细览 (区域分布简报) -->
+                  <div v-if="activeCycle.totals" class="d-flex justify-space-between align-center text-caption">
+                    <v-spacer></v-spacer>
+                    <div class="d-flex align-center ga-3">
                     <span :style="{ color: factionAColor }" class="font-weight-bold">
                       <FactionNameWidget :id="factionAKey"></FactionNameWidget>
                       {{ activeCycle.totals[factionAKey] || 0 }} 战区
                     </span>
-                    <span class="opacity-30">|</span>
-                    <span :style="{ color: factionBColor }" class="font-weight-bold">
+                      <span class="opacity-30">|</span>
+                      <span :style="{ color: factionBColor }" class="font-weight-bold">
                       <FactionNameWidget :id="factionBKey"></FactionNameWidget>
                       {{ activeCycle.totals[factionBKey] || 0 }} 战区
                     </span>
+                    </div>
                   </div>
                 </div>
 
@@ -649,12 +605,11 @@ onMounted(() => {
                     <div
                         v-for="z in activeCycleZones"
                         :key="z.id || z.name"
-                        class="contested-item pa-2 rounded border bg-black-opacity-30">
+                        class="contested-item py-2 rounded border bg-black-opacity-30">
                       <div class="d-flex align-center justify-space-between ga-2 mb-1">
                         <div class="d-flex align-center ga-1 text-truncate mr-2">
-                          <v-icon icon="mdi-earth" size="14" class="opacity-50"></v-icon>
-                          <span class="text-caption font-weight-medium text-truncate"><ZoneName :id="z.name"/></span>
-                          <span class="text-caption opacity-40 text-truncate"><RegionName :id="z.region"/></span>
+                          <span class="font-weight-medium text-truncate"><ZoneName :id="z.name"/></span>
+                          <span class="opacity-40 text-truncate"><RegionName :id="z.region"/></span>
                         </div>
 
                         <v-chip
@@ -673,13 +628,13 @@ onMounted(() => {
                       </div>
 
                       <!-- 战资数据对比与百分比 -->
-                      <div class="d-flex align-center justify-space-between text-caption font-weight-bold mb-1" style="font-size: 11px;">
-                      <span :style="{ color: factionAColor }">
-                        {{ formatCompactNumber(z[factionAKey]) }} ({{ z.percentA }}%)
-                      </span>
-                        <span :style="{ color: factionBColor }">
-                        {{ formatCompactNumber(z[factionBKey]) }} ({{ z.percentB }}%)
-                      </span>
+                      <div class="d-flex align-center justify-space-between mb-1">
+                        <span :style="{ color: factionAColor }">
+                          {{ formatCompactNumber(z[factionAKey]) }} ({{ z.percentA }}%)
+                        </span>
+                          <span :style="{ color: factionBColor }">
+                          {{ formatCompactNumber(z[factionBKey]) }} ({{ z.percentB }}%)
+                        </span>
                       </div>
 
                       <!-- 对抗进度条 -->
@@ -704,15 +659,6 @@ onMounted(() => {
               <template v-slot:title>
                 {{ t("dailyReport.calendar.title") }}
               </template>
-              <div class="d-flex align-center justify-space-between mb-4">
-                <div class="d-flex align-center ga-2">
-                  <div>
-                    <span class="text-medium-emphasis">
-                      {{ t("dailyReport.calendar.subtitle") }}
-                    </span>
-                  </div>
-                </div>
-              </div>
 
               <!-- 加载中状态 -->
               <div v-if="calendarLoading" class="py-8 text-center">
@@ -808,15 +754,6 @@ onMounted(() => {
               <template v-slot:title>
                 {{ t("dailyReport.drop.title") }}
               </template>
-              <div class="d-flex align-center justify-space-between mb-4">
-                <div class="d-flex align-center ga-2">
-                  <div>
-                    <span class="text-medium-emphasis">
-                      {{ t("dailyReport.drop.subtitle") }}
-                    </span>
-                  </div>
-                </div>
-              </div>
 
               <!-- 加载中状态 -->
               <div v-if="dropLoading" class="py-8 text-center">
@@ -832,7 +769,7 @@ onMounted(() => {
               </div>
 
               <!-- 掉宝卡片列表 -->
-              <div v-else class="d-flex flex-column ga-4">
+              <div v-else class="d-flex flex-column ga-4 mx-n5">
                 <DropWidget
                   v-for="campaign in activeCampaigns"
                   :key="campaign.id || campaign.campaignId"
@@ -916,8 +853,6 @@ onMounted(() => {
 }
 
 .event-item-card {
-  background: rgba(0, 0, 0, 0.35);
-
   &:hover {
     background: rgba(0, 0, 0, 0.5);
   }

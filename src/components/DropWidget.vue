@@ -2,50 +2,8 @@
 import {computed, ref} from 'vue';
 import {useI18n} from 'vue-i18n';
 import CountdownWidget from '@/components/CountdownWidget.vue';
-
-interface DropBenefit {
-  id: string;
-  name: string;
-  imageAssetURL?: string;
-}
-
-interface TimeBasedDrop {
-  id: string;
-  name: string;
-  requiredMinutesWatched?: number;
-  startAt?: string;
-  endAt?: string;
-  benefits?: DropBenefit[];
-}
-
-interface StreamerChannel {
-  id: string;
-  login: string;
-  displayName: string;
-  title?: string;
-  viewersCount?: number;
-  profileImageURL?: string;
-}
-
-interface DropCampaignData {
-  id?: string | number;
-  campaignId?: string;
-  name: string;
-  gameId?: string;
-  gameName?: string;
-  detailsUrl?: string;
-  detailsURL?: string;
-  imageUrl?: string;
-  imageURL?: string;
-  startAt?: string;
-  endAt: string;
-  status?: string;
-  drops?: TimeBasedDrop[];
-  timeBasedDrops?: TimeBasedDrop[];
-  channels?: StreamerChannel[];
-  totalDrops?: number;
-  maxWatchMinutes?: number;
-}
+import {useDisplay} from 'vuetify';
+import type {DropCampaignData, TimeBasedDrop, StreamerChannel} from '@/assets/types';
 
 const props = withDefaults(
     defineProps<{
@@ -58,6 +16,7 @@ const props = withDefaults(
 );
 
 const {t} = useI18n();
+const {mobile} = useDisplay()
 
 // 预览大图弹窗
 const previewDialog = ref(false);
@@ -119,6 +78,13 @@ const formatMinutes = (minutes?: number) => {
   }
   return t('drop.duration.watchHoursMinutes', { hours: hours.toFixed(1), minutes }, `观看 ${hours.toFixed(1)} 小时 (${minutes}分钟)`);
 };
+
+// 当奖励道具少于 6 个时，计算占位卡片所需跨越的栅格列数（一行 6 个，每格占 2 列）
+const remainingCols = computed(() => {
+  const count = dropList.value.length;
+  if (count >= 6) return 0;
+  return (6 - count) * 2;
+});
 </script>
 
 <template>
@@ -178,12 +144,12 @@ const formatMinutes = (minutes?: number) => {
             </div>
 
             <!-- 活动主标题与周期 -->
-            <h2 class="text-h6 text-sm-h5 font-weight-bold text-white mb-2 line-clamp-2">
-              <p class="u">{{ campaign.name }}</p>
+            <h2 class="text-h6 text-sm-h6 font-weight-bold text-white mb-2 line-clamp-2">
+              <span class="u">{{ campaign.name }}</span>
 
               <!-- 官方详情链接 -->
               <v-btn
-                  v-if="detailsLink"
+                  v-if="detailsLink && !isActiveCard"
                   :href="detailsLink"
                   target="_blank"
                   variant="tonal"
@@ -216,9 +182,9 @@ const formatMinutes = (minutes?: number) => {
                 v-for="(drop, dIdx) in dropList"
                 :key="drop.id || dIdx"
                 cols="12"
-                sm="3"
-                md="3"
-                lg="3">
+                sm="6"
+                md="2"
+                lg="2">
               <v-card
                   class="reward-card d-flex flex-column rounded-lg pa-3 h-100 position-relative"
                   @click="
@@ -265,6 +231,20 @@ const formatMinutes = (minutes?: number) => {
                 </div>
               </v-card>
             </v-col>
+
+            <!-- 占位虚线边框卡片（当少于 6 个时填满本行剩余列；大于等于 6 个时不显示） -->
+            <v-col
+                v-if="remainingCols > 0 && !mobile"
+                cols="12"
+                :sm="dropList.length % 2 === 1 ? 6 : 12"
+                :md="remainingCols"
+                :lg="remainingCols">
+              <v-card
+                  variant="text"
+                  class="reward-placeholder-card d-flex flex-column align-center justify-center rounded-lg pa-4 h-100 text-center">
+                <v-icon icon="mdi-dots-horizontal" size="26" class="text-disabled mb-1 opacity-50"></v-icon>
+              </v-card>
+            </v-col>
           </v-row>
         </v-col>
       </v-row>
@@ -295,4 +275,8 @@ const formatMinutes = (minutes?: number) => {
 </template>
 
 <style scoped lang="less">
+.reward-placeholder-card {
+  border: 1px dashed rgba(255, 255, 255, 0.1) !important;
+  min-height: 140px;
+}
 </style>

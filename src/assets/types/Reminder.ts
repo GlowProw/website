@@ -5,6 +5,7 @@
 export type ReminderScheduleType = 'repeat' | 'once';
 export type ReminderRepeatType = 'weekly' | 'interval';
 export type ReminderIntervalUnit = 'day' | 'hour' | 'minute' | 'second';
+export type ReminderAdvanceUnit = 'hour' | 'minute' | 'second';
 export type ReminderValidityType = 'permanent' | 'range';
 
 export type ReminderCategory = 'activity' | 'system' | 'favorite' | string;
@@ -24,7 +25,9 @@ export interface ReminderTask {
     repeatIntervalHours?: number; // 兼容旧字段: 间隔小时数，例如 1 (每 1 小时)
     targetTime?: number | string; // 一次性截止/触发时间 (时间戳或 ISO 日期字符串)
     advanceNoticeEnabled?: boolean; // 是否开启提前提醒
-    advanceMinutes?: number; // 提前提醒分钟数 (例如 1, 10, 30, 60 或自定义分钟)
+    advanceUnit?: ReminderAdvanceUnit; // 提前提醒单位: 秒 / 分钟 / 小时 (默认: minute)
+    advanceValue?: number; // 提前提醒数值 (例如 30秒, 5分钟, 1小时)
+    advanceMinutes?: number; // 兼容旧字段: 提前提醒分钟数 (例如 1, 10, 30, 60 或自定义分钟)
     validityType?: ReminderValidityType; // 任务有效期类型: permanent (永久) | range (指定起止时间)
     validFrom?: number | string; // 有效期起始时间 (YYYY-MM-DD HH:mm 或时间戳)
     validTo?: number | string; // 有效期截止时间 (YYYY-MM-DD HH:mm 或时间戳)
@@ -58,6 +61,8 @@ export interface ReminderPresetConfig {
     repeatIntervalHours?: number;
     targetTime?: number | string;
     advanceNoticeEnabled?: boolean;
+    advanceUnit?: ReminderAdvanceUnit;
+    advanceValue?: number;
     advanceMinutes?: number;
     validityType?: ReminderValidityType;
     validFrom?: number | string;
@@ -69,10 +74,15 @@ export interface ReminderPresetConfig {
 
 export interface ReminderNextTriggerInfo {
     nextTriggerTime: number | null;
+    targetEventTime?: number | null;
     remainingSeconds: number;
     formattedCountdown: string;
     status: 'active' | 'imminent' | 'expired' | 'paused' | 'not_started';
     isAdvanceNotice?: boolean;
+    advanceUnit?: ReminderAdvanceUnit;
+    advanceValue?: number;
+    advanceText?: string;
     advanceMinutes?: number;
 }
+
 

@@ -51,6 +51,9 @@ function tick() {
                 task: JSON.parse(JSON.stringify(task)),
                 isAdvanceNotice: trigger.isAdvance,
                 advanceMinutes: trigger.advanceMinutes,
+                advanceText: trigger.advanceText,
+                advanceUnit: trigger.advanceUnit,
+                advanceValue: trigger.advanceValue,
                 triggerKey: trigger.triggerKey,
                 timestamp: now
             });

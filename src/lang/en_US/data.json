@@ -2967,10 +2967,12 @@
       "advanceNotice": "Advance Reminder",
       "advanceNoticeDesc": "Send desktop notification in advance before event time",
       "advanceOptions": {
+        "30s": "30 seconds before",
         "1m": "1 minute before",
         "5m": "5 minutes before",
         "10m": "10 minutes before",
         "30m": "30 minutes before",
+        "1h": "1 hour before",
         "60m": "1 hour before",
         "custom": "Custom"
       },

@@ -138,6 +138,9 @@ import WidgetMapLocationPage from '@/widgets/mapLocation/Index.vue';
 import WidgetEmpireSkillPage from '@/widgets/empireSkills/Index.vue';
 import WidgetStateOfWarPage from '@/widgets/stateOfWar/Index.vue';
 import WidgetDailyReportPage from '@/widgets/dailyReport/Index.vue';
+import WidgetModSlotPage from '@/widgets/modSlot/Index.vue';
+import WidgetCombatEffectPage from '@/widgets/combatEffect/Index.vue';
+import WidgetInfamyPage from '@/widgets/infamy/Index.vue';
 
 import { useAuthStore } from "@/../stores/userAccountStore";
 import { useAssetsStore } from "@/../stores/assetsStore";
@@ -1076,6 +1079,21 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 path: 'dailyReport/:seasonId',
                 name: 'DailyReportSeasonWidget',
                 component: WidgetDailyReportPage,
+            },
+            {
+                path: 'modSlot',
+                name: 'ModSlotWidget',
+                component: WidgetModSlotPage,
+            },
+            {
+                path: 'combatEffect',
+                name: 'CombatEffectWidget',
+                component: WidgetCombatEffectPage,
+            },
+            {
+                path: 'infamy',
+                name: 'InfamyWidget',
+                component: WidgetInfamyPage,
             }
         ]
     },

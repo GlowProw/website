@@ -217,7 +217,34 @@ export function calculateBaseEventTime(task: ReminderTask, fromTime: number = Da
 }
 
 /**
+ * 获取任务设置的提前提醒毫秒数
+ */
+export function getAdvanceMs(task: ReminderTask): number {
+    if (!task || !task.advanceNoticeEnabled) return 0;
+    const unit = task.advanceUnit || 'minute';
+    const val = task.advanceValue ?? task.advanceMinutes ?? 0;
+    if (val <= 0) return 0;
+    if (unit === 'second') return Math.max(1000, Math.round(val * 1000));
+    if (unit === 'hour') return Math.max(1000, Math.round(val * 3600 * 1000));
+    return Math.max(1000, Math.round(val * 60 * 1000));
+}
+
+/**
+ * 格式化提前时间文案 (例如: "30 秒", "5 分钟", "1 小时")
+ */
+export function formatAdvanceText(
+    unit: 'hour' | 'minute' | 'second' = 'minute',
+    val: number = 1,
+    t?: (key: string, values?: any) => string
+): string {
+    const unitKey = `reminder.units.${unit}`;
+    const unitText = t ? t(unitKey) : (unit === 'second' ? '秒' : unit === 'hour' ? '小时' : '分钟');
+    return `${val} ${unitText}`;
+}
+
+/**
  * 完整计算任务的下一次触发信息（包含提前提醒与有效期判定）
+ * 注意：倒计时严格以真实目标到点时间进行计算，开启提前提醒不缩短原始倒计时！
  */
 export function calculateTaskNextTriggerInfo(
     task: ReminderTask,
@@ -226,6 +253,7 @@ export function calculateTaskNextTriggerInfo(
     if (!task || !task.enabled) {
         return {
             nextTriggerTime: null,
+            targetEventTime: null,
             remainingSeconds: 0,
             formattedCountdown: '--:--',
             status: 'paused'
@@ -241,6 +269,7 @@ export function calculateTaskNextTriggerInfo(
         if (validTo !== null && now > validTo) {
             return {
                 nextTriggerTime: null,
+                targetEventTime: null,
                 remainingSeconds: 0,
                 formattedCountdown: '--:--',
                 status: 'expired'
@@ -249,12 +278,10 @@ export function calculateTaskNextTriggerInfo(
 
         // 如果尚未到达有效期开始时间
         if (validFrom !== null && now < validFrom) {
-            const fromStartEvent = calculateBaseEventTime(task, validFrom - 1);
-            const advanceMs = (task.advanceNoticeEnabled && task.advanceMinutes) ? task.advanceMinutes * 60000 : 0;
-            const nextTrigger = fromStartEvent ? (advanceMs > 0 ? fromStartEvent - advanceMs : fromStartEvent) : validFrom;
-
+            const fromStartEvent = calculateBaseEventTime(task, validFrom - 1) || validFrom;
             return {
-                nextTriggerTime: nextTrigger,
+                nextTriggerTime: fromStartEvent,
+                targetEventTime: fromStartEvent,
                 remainingSeconds: Math.max(0, Math.floor((validFrom - now) / 1000)),
                 formattedCountdown: '--:--',
                 status: 'not_started'
@@ -262,89 +289,32 @@ export function calculateTaskNextTriggerInfo(
         }
     }
 
-    // 计算提前提醒时间
-    const advanceMinutes = (task.advanceNoticeEnabled && task.advanceMinutes && task.advanceMinutes > 0)
-        ? task.advanceMinutes
-        : 0;
-    const advanceMs = advanceMinutes * 60 * 1000;
-
-    let nextTriggerTime: number | null = null;
-    let isAdvance = false;
+    // 计算基准事件到点时间戳（任务真实的倒计时目标时间）
+    let targetEventTime: number | null = null;
 
     if (task.scheduleType === 'once') {
-        const target = parseDateTime(task.targetTime);
-        if (target === null) {
-            return {
-                nextTriggerTime: null,
-                remainingSeconds: 0,
-                formattedCountdown: '--:--',
-                status: 'paused'
-            };
-        }
-
-        if (advanceMs > 0) {
-            const advTarget = target - advanceMs;
-            if (now < advTarget) {
-                nextTriggerTime = advTarget;
-                isAdvance = true;
-            } else if (now < target) {
-                nextTriggerTime = target;
-                isAdvance = false;
-            } else {
-                return {
-                    nextTriggerTime: target,
-                    remainingSeconds: 0,
-                    formattedCountdown: '00:00:00',
-                    status: 'expired'
-                };
-            }
-        } else {
-            if (now < target) {
-                nextTriggerTime = target;
-                isAdvance = false;
-            } else {
-                return {
-                    nextTriggerTime: target,
-                    remainingSeconds: 0,
-                    formattedCountdown: '00:00:00',
-                    status: 'expired'
-                };
-            }
-        }
+        targetEventTime = parseDateTime(task.targetTime);
     } else {
-        // 周期性任务
-        const baseEvent = calculateBaseEventTime(task, now);
-        if (baseEvent === null) {
-            return {
-                nextTriggerTime: null,
-                remainingSeconds: 0,
-                formattedCountdown: '--:--',
-                status: 'paused'
-            };
-        }
-
-        if (advanceMs > 0) {
-            const advTime = baseEvent - advanceMs;
-            if (now < advTime) {
-                nextTriggerTime = advTime;
-                isAdvance = true;
-            } else {
-                // 当前时间处于提前提醒与正点之间，下一次提醒为正点
-                nextTriggerTime = baseEvent;
-                isAdvance = false;
-            }
-        } else {
-            nextTriggerTime = baseEvent;
-            isAdvance = false;
-        }
+        targetEventTime = calculateBaseEventTime(task, now);
     }
 
-    // 再次核实是否超出有效期区间
+    if (targetEventTime === null) {
+        return {
+            nextTriggerTime: null,
+            targetEventTime: null,
+            remainingSeconds: 0,
+            formattedCountdown: '--:--',
+            status: 'paused'
+        };
+    }
+
+    // 校验是否超出有效期截止时间
     if (task.validityType === 'range') {
         const validTo = parseDateTime(task.validTo);
-        if (validTo !== null && nextTriggerTime !== null && nextTriggerTime > validTo) {
+        if (validTo !== null && targetEventTime > validTo) {
             return {
                 nextTriggerTime: null,
+                targetEventTime: null,
                 remainingSeconds: 0,
                 formattedCountdown: '--:--',
                 status: 'expired'
@@ -352,16 +322,19 @@ export function calculateTaskNextTriggerInfo(
         }
     }
 
-    if (nextTriggerTime === null) {
+    // 倒计时核心计算：严密以真实目标时间 targetEventTime 倒数！
+    const diffMs = targetEventTime - now;
+
+    if (task.scheduleType === 'once' && diffMs <= 0) {
         return {
-            nextTriggerTime: null,
+            nextTriggerTime: targetEventTime,
+            targetEventTime: targetEventTime,
             remainingSeconds: 0,
-            formattedCountdown: '--:--',
-            status: 'paused'
+            formattedCountdown: '00:00:00',
+            status: 'expired'
         };
     }
 
-    const diffMs = nextTriggerTime - now;
     const remainingSeconds = Math.max(0, Math.floor(diffMs / 1000));
 
     const days = Math.floor(remainingSeconds / 86400);
@@ -383,13 +356,29 @@ export function calculateTaskNextTriggerInfo(
         status = 'imminent';
     }
 
+    // 提前提醒状态判定：当开启提前提醒且当前剩余时间已进入提前提醒区间内时标记 isAdvanceNotice
+    const advanceMs = getAdvanceMs(task);
+    const isAdvance = advanceMs > 0 && diffMs > 0 && diffMs <= advanceMs;
+
+    const advanceUnit = task.advanceUnit || 'minute';
+    const advanceValue = task.advanceValue ?? task.advanceMinutes ?? 0;
+    const advanceMinutes = advanceUnit === 'second'
+        ? advanceValue / 60
+        : advanceUnit === 'hour'
+            ? advanceValue * 60
+            : advanceValue;
+
     return {
-        nextTriggerTime,
+        nextTriggerTime: targetEventTime,
+        targetEventTime: targetEventTime,
         remainingSeconds,
         formattedCountdown,
         status,
         isAdvanceNotice: isAdvance,
-        advanceMinutes: advanceMinutes
+        advanceUnit,
+        advanceValue,
+        advanceText: formatAdvanceText(advanceUnit, advanceValue),
+        advanceMinutes
     };
 }
 
@@ -460,7 +449,10 @@ export function formatCountdown(
 export interface TaskPendingTrigger {
     triggerKey: string;
     isAdvance: boolean;
+    advanceUnit?: 'hour' | 'minute' | 'second';
+    advanceValue?: number;
     advanceMinutes: number;
+    advanceText?: string;
     eventTime: number;
 }
 
@@ -483,7 +475,7 @@ export function checkTaskPendingTriggers(
         const validTo = parseDateTime(task.validTo);
         if (validTo !== null && now > validTo) return [];
         if (validFrom !== null && now < validFrom) {
-            const advanceMs = (task.advanceNoticeEnabled && task.advanceMinutes) ? task.advanceMinutes * 60000 : 0;
+            const advanceMs = getAdvanceMs(task);
             if (advanceMs <= 0 || (now < validFrom - advanceMs)) {
                 return [];
             }
@@ -578,10 +570,15 @@ export function checkTaskPendingTriggers(
     }
 
     const pendingTriggers: TaskPendingTrigger[] = [];
-    const advanceMinutes = (task.advanceNoticeEnabled && task.advanceMinutes && task.advanceMinutes > 0)
-        ? task.advanceMinutes
-        : 0;
-    const advanceMs = advanceMinutes * 60 * 1000;
+    const advanceMs = getAdvanceMs(task);
+    const advanceUnit = task.advanceUnit || 'minute';
+    const advanceValue = task.advanceValue ?? task.advanceMinutes ?? 0;
+    const advanceMinutes = advanceUnit === 'second'
+        ? advanceValue / 60
+        : advanceUnit === 'hour'
+            ? advanceValue * 60
+            : advanceValue;
+    const advanceText = formatAdvanceText(advanceUnit, advanceValue);
 
     // 触发有效时间窗口：在目标时间到达后的 90 秒内均视为有效触发期
     const TRIGGER_TOLERANCE_MS = 90000;
@@ -606,7 +603,10 @@ export function checkTaskPendingTriggers(
                     pendingTriggers.push({
                         triggerKey,
                         isAdvance: true,
+                        advanceUnit,
+                        advanceValue,
                         advanceMinutes,
+                        advanceText,
                         eventTime: occurrence
                     });
                 }

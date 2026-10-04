@@ -106,28 +106,80 @@ export const useReminderStore = defineStore('reminder', () => {
     };
 
     /**
-     * 播放提示音效
+     * 播放提前提醒音效（轻快双音提示 Ding-Ding）
      */
-    const playNotificationSound = () => {
+    const playAdvanceNoticeSound = () => {
         try {
             const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
+            const now = ctx.currentTime;
 
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
-            osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15); // A5
+            // 音符 1: G5 (784Hz)
+            const osc1 = ctx.createOscillator();
+            const gain1 = ctx.createGain();
+            osc1.type = 'sine';
+            osc1.frequency.setValueAtTime(783.99, now);
+            gain1.gain.setValueAtTime(0.18, now);
+            gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+            osc1.connect(gain1);
+            gain1.connect(ctx.destination);
+            osc1.start(now);
+            osc1.stop(now + 0.18);
 
-            gain.gain.setValueAtTime(0.2, ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-
-            osc.start();
-            osc.stop(ctx.currentTime + 0.4);
+            // 音符 2: C6 (1046.5Hz)
+            const osc2 = ctx.createOscillator();
+            const gain2 = ctx.createGain();
+            osc2.type = 'sine';
+            osc2.frequency.setValueAtTime(1046.50, now + 0.12);
+            gain2.gain.setValueAtTime(0.22, now + 0.12);
+            gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+            osc2.connect(gain2);
+            gain2.connect(ctx.destination);
+            osc2.start(now + 0.12);
+            osc2.stop(now + 0.45);
         } catch (e) {
             // 用户尚未与页面产生手势交互前可能静音
+        }
+    };
+
+    /**
+     * 播放到期触发音效（饱满四音和弦提示 Ding-Dong-Ding-Dong）
+     */
+    const playTargetDueSound = () => {
+        try {
+            const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+            const now = ctx.currentTime;
+            const notes = [
+                { freq: 523.25, time: 0, dur: 0.2, gain: 0.18 },    // C5
+                { freq: 659.25, time: 0.1, dur: 0.22, gain: 0.2 },  // E5
+                { freq: 783.99, time: 0.2, dur: 0.25, gain: 0.22 }, // G5
+                { freq: 1046.50, time: 0.3, dur: 0.55, gain: 0.25 } // C6
+            ];
+
+            for (const n of notes) {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'triangle'; // 温润明亮的和弦音
+                osc.frequency.setValueAtTime(n.freq, now + n.time);
+                gain.gain.setValueAtTime(n.gain, now + n.time);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + n.time + n.dur);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(now + n.time);
+                osc.stop(now + n.time + n.dur);
+            }
+        } catch (e) {
+            // 用户尚未与页面产生手势交互前可能静音
+        }
+    };
+
+    /**
+     * 播放提示音效（根据是否提前提醒分派对应音效）
+     */
+    const playNotificationSound = (isAdvance: boolean = false) => {
+        if (isAdvance) {
+            playAdvanceNoticeSound();
+        } else {
+            playTargetDueSound();
         }
     };
 
@@ -184,7 +236,12 @@ export const useReminderStore = defineStore('reminder', () => {
     /**
      * 触发桌面通知和站内 Toast 提示
      */
-    const sendDesktopNotification = async (task: ReminderTask, isAdvance: boolean = false, advanceMinutes: number = 0) => {
+    const sendDesktopNotification = async (
+        task: ReminderTask,
+        isAdvance: boolean = false,
+        advanceMinutes: number = 0,
+        advanceText?: string
+    ) => {
         // 限制：仅在 /reminder 路由及其子页面下才触发播报声音和提示
         if (!isReminderRoute()) {
             return;
@@ -206,22 +263,23 @@ export const useReminderStore = defineStore('reminder', () => {
             return;
         }
 
-        playNotificationSound();
+        playNotificationSound(isAdvance);
 
         const rawTitle = getLocalizedText(task.title);
         const rawNote = getLocalizedText(task.note || task.description);
+        const timeDesc = advanceText || (advanceMinutes ? `${advanceMinutes} 分钟` : '1 分钟');
 
         const titleText = isAdvance
-            ? t('reminder.notification.advanceTitle', { title: rawTitle, minutes: advanceMinutes })
+            ? t('reminder.notification.advanceTitle', { title: rawTitle, time: timeDesc, minutes: advanceMinutes })
             : t('reminder.notification.mainTitle', { title: rawTitle });
 
         const defaultAdvanceMsg = t('reminder.notification.advanceDefaultMsg');
-        const defaultAdvanceShort = t('reminder.notification.advanceDefaultShort', { minutes: advanceMinutes });
+        const defaultAdvanceShort = t('reminder.notification.advanceDefaultShort', { time: timeDesc, minutes: advanceMinutes });
         const defaultMainMsg = t('reminder.notification.mainDefaultMsg');
 
         const notePreview = rawNote ? (rawNote.length > 100 ? rawNote.slice(0, 100) + '...' : rawNote) : '';
         const bodyText = isAdvance
-            ? t('reminder.notification.advanceBody', { minutes: advanceMinutes, title: rawTitle, note: notePreview || defaultAdvanceMsg })
+            ? t('reminder.notification.advanceBody', { time: timeDesc, minutes: advanceMinutes, title: rawTitle, note: notePreview || defaultAdvanceMsg })
             : t('reminder.notification.mainBody', { title: rawTitle, note: notePreview || defaultMainMsg });
 
         // 页面内消息提示
@@ -296,7 +354,7 @@ export const useReminderStore = defineStore('reminder', () => {
             for (const trigger of pendingTriggers) {
                 triggeredRecord.add(trigger.triggerKey);
 
-                sendDesktopNotification(task, trigger.isAdvance, trigger.advanceMinutes);
+                sendDesktopNotification(task, trigger.isAdvance, trigger.advanceMinutes, trigger.advanceText);
 
                 storageReminder.updateLastTriggered(task.id, now);
                 if (trigger.isAdvance) {
@@ -322,7 +380,7 @@ export const useReminderStore = defineStore('reminder', () => {
         try {
             worker = new ReminderWorker();
             worker.onmessage = (e: MessageEvent) => {
-                const { type, task, taskId, isAdvanceNotice, advanceMinutes, triggerKey } = e.data || {};
+                const { type, task, taskId, isAdvanceNotice, advanceMinutes, advanceText, triggerKey } = e.data || {};
 
                 if (type === 'trigger' && task) {
                     // 限制：仅在 /reminder 路由及其子页面下才触发提示和声音
@@ -346,7 +404,7 @@ export const useReminderStore = defineStore('reminder', () => {
                         triggeredRecord.add(triggerKey);
                     }
 
-                    sendDesktopNotification(localTask, !!isAdvanceNotice, advanceMinutes || 0);
+                    sendDesktopNotification(localTask, !!isAdvanceNotice, advanceMinutes || 0, advanceText);
                     storageReminder.updateLastTriggered(task.id, Date.now());
 
                     if (isAdvanceNotice) {

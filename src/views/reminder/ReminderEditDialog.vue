@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import type { ReminderIntervalUnit, ReminderRepeatType, ReminderScheduleType, ReminderTask, ReminderValidityType } from '@/assets/types/Reminder';
+import type { ReminderAdvanceUnit, ReminderIntervalUnit, ReminderRepeatType, ReminderScheduleType, ReminderTask, ReminderValidityType } from '@/assets/types/Reminder';
 import { getLocalizedText } from '@/assets/sripts/reminder_calc';
 import { REMINDER_PRESETS } from '@/config/reminderPresets';
 
@@ -56,8 +56,27 @@ const toggleCategory = (cat: string) => {
 
 // 提前提醒状态
 const formAdvanceNoticeEnabled = ref(false);
-const formAdvanceOption = ref<'1' | '5' | '10' | '30' | '60' | 'custom'>('1');
-const formAdvanceMinutes = ref(1);
+const formAdvanceOption = ref<'30s' | '1m' | '5m' | '10m' | '30m' | '1h' | 'custom'>('1m');
+const formAdvanceUnit = ref<ReminderAdvanceUnit>('minute');
+const formAdvanceValue = ref<number>(1);
+const formAdvanceMinutes = ref<number>(1);
+
+const getAdvanceUnitLabel = (unit: ReminderAdvanceUnit) => {
+  const key = `reminder.units.${unit}`;
+  if (te(key)) return t(key);
+  return unit === 'second' ? '秒' : unit === 'hour' ? '小时' : '分钟';
+};
+
+const updateCalculatedAdvanceMinutes = () => {
+  const val = formAdvanceValue.value || 0;
+  if (formAdvanceUnit.value === 'second') {
+    formAdvanceMinutes.value = val / 60;
+  } else if (formAdvanceUnit.value === 'hour') {
+    formAdvanceMinutes.value = val * 60;
+  } else {
+    formAdvanceMinutes.value = val;
+  }
+};
 
 // 任务有效期状态
 const formValidityType = ref<ReminderValidityType>('permanent');
@@ -105,18 +124,33 @@ const initDefaultValidityDates = () => {
 };
 
 // 切换提前提醒预设选项
-const onSelectAdvanceOption = (opt: '1' | '5' | '10' | '30' | '60' | 'custom') => {
+const onSelectAdvanceOption = (opt: '30s' | '1m' | '5m' | '10m' | '30m' | '1h' | 'custom') => {
   formAdvanceOption.value = opt;
-  if (opt === '1') formAdvanceMinutes.value = 1;
-  else if (opt === '5') formAdvanceMinutes.value = 5;
-  else if (opt === '10') formAdvanceMinutes.value = 10;
-  else if (opt === '30') formAdvanceMinutes.value = 30;
-  else if (opt === '60') formAdvanceMinutes.value = 60;
-  else if (opt === 'custom') {
-    if (!formAdvanceMinutes.value || [1, 5, 10, 30, 60].includes(formAdvanceMinutes.value)) {
-      formAdvanceMinutes.value = 15;
+  if (opt === '30s') {
+    formAdvanceUnit.value = 'second';
+    formAdvanceValue.value = 30;
+  } else if (opt === '1m') {
+    formAdvanceUnit.value = 'minute';
+    formAdvanceValue.value = 1;
+  } else if (opt === '5m') {
+    formAdvanceUnit.value = 'minute';
+    formAdvanceValue.value = 5;
+  } else if (opt === '10m') {
+    formAdvanceUnit.value = 'minute';
+    formAdvanceValue.value = 10;
+  } else if (opt === '30m') {
+    formAdvanceUnit.value = 'minute';
+    formAdvanceValue.value = 30;
+  } else if (opt === '1h') {
+    formAdvanceUnit.value = 'hour';
+    formAdvanceValue.value = 1;
+  } else if (opt === 'custom') {
+    if (!formAdvanceValue.value || formAdvanceValue.value <= 0) {
+      formAdvanceValue.value = 15;
+      formAdvanceUnit.value = 'minute';
     }
   }
+  updateCalculatedAdvanceMinutes();
 };
 
 // 快捷设置有效期开始为当前时间
@@ -154,13 +188,20 @@ const resetForm = () => {
 
     // 提前提醒字段回填
     formAdvanceNoticeEnabled.value = !!props.editTask.advanceNoticeEnabled;
-    const advMin = props.editTask.advanceMinutes ?? 1;
-    formAdvanceMinutes.value = advMin;
-    if ([1, 5, 10, 30, 60].includes(advMin)) {
-      formAdvanceOption.value = String(advMin) as any;
-    } else {
-      formAdvanceOption.value = 'custom';
-    }
+    const advUnit = props.editTask.advanceUnit || 'minute';
+    const advVal = props.editTask.advanceValue ?? (props.editTask.advanceMinutes !== undefined ? props.editTask.advanceMinutes : 1);
+    formAdvanceUnit.value = advUnit;
+    formAdvanceValue.value = advVal;
+
+    if (advUnit === 'second' && advVal === 30) formAdvanceOption.value = '30s';
+    else if (advUnit === 'minute' && advVal === 1) formAdvanceOption.value = '1m';
+    else if (advUnit === 'minute' && advVal === 5) formAdvanceOption.value = '5m';
+    else if (advUnit === 'minute' && advVal === 10) formAdvanceOption.value = '10m';
+    else if (advUnit === 'minute' && advVal === 30) formAdvanceOption.value = '30m';
+    else if (advUnit === 'hour' && advVal === 1) formAdvanceOption.value = '1h';
+    else formAdvanceOption.value = 'custom';
+
+    updateCalculatedAdvanceMinutes();
 
     // 有效期字段回填
     formValidityType.value = props.editTask.validityType || 'permanent';
@@ -214,7 +255,9 @@ const resetForm = () => {
     formIntervalValue.value = 1;
     formIntervalHours.value = 1;
     formAdvanceNoticeEnabled.value = false;
-    formAdvanceOption.value = '1';
+    formAdvanceOption.value = '1m';
+    formAdvanceUnit.value = 'minute';
+    formAdvanceValue.value = 1;
     formAdvanceMinutes.value = 1;
     formValidityType.value = 'permanent';
     formNote.value = '';
@@ -284,13 +327,20 @@ const applyPreset = (preset: typeof REMINDER_PRESETS[0]) => {
   if (preset.repeatIntervalHours) formIntervalHours.value = preset.repeatIntervalHours;
 
   formAdvanceNoticeEnabled.value = !!preset.advanceNoticeEnabled;
-  const advMin = preset.advanceMinutes ?? 1;
-  formAdvanceMinutes.value = advMin;
-  if ([1, 5, 10, 30, 60].includes(advMin)) {
-    formAdvanceOption.value = String(advMin) as any;
-  } else {
-    formAdvanceOption.value = 'custom';
-  }
+  const advUnit = preset.advanceUnit || 'minute';
+  const advVal = preset.advanceValue ?? (preset.advanceMinutes !== undefined ? preset.advanceMinutes : 1);
+  formAdvanceUnit.value = advUnit;
+  formAdvanceValue.value = advVal;
+
+  if (advUnit === 'second' && advVal === 30) formAdvanceOption.value = '30s';
+  else if (advUnit === 'minute' && advVal === 1) formAdvanceOption.value = '1m';
+  else if (advUnit === 'minute' && advVal === 5) formAdvanceOption.value = '5m';
+  else if (advUnit === 'minute' && advVal === 10) formAdvanceOption.value = '10m';
+  else if (advUnit === 'minute' && advVal === 30) formAdvanceOption.value = '30m';
+  else if (advUnit === 'hour' && advVal === 1) formAdvanceOption.value = '1h';
+  else formAdvanceOption.value = 'custom';
+
+  updateCalculatedAdvanceMinutes();
 
   formValidityType.value = preset.validityType || 'permanent';
   formNotifyEnabled.value = preset.notifyEnabled ?? true;
@@ -314,7 +364,7 @@ const isValid = computed(() => {
   }
 
   if (formAdvanceNoticeEnabled.value) {
-    if (!formAdvanceMinutes.value || formAdvanceMinutes.value <= 0) return false;
+    if (!formAdvanceValue.value || formAdvanceValue.value <= 0) return false;
   }
 
   if (formValidityType.value === 'range') {
@@ -353,7 +403,9 @@ const onSave = () => {
     repeatIntervalHours: (formScheduleType.value === 'repeat' && formRepeatType.value === 'interval' && formIntervalUnit.value === 'hour') ? Number(formIntervalValue.value) : undefined,
     targetTime: targetTimestamp,
     advanceNoticeEnabled: formAdvanceNoticeEnabled.value,
-    advanceMinutes: formAdvanceNoticeEnabled.value ? Number(formAdvanceMinutes.value) : undefined,
+    advanceUnit: formAdvanceNoticeEnabled.value ? formAdvanceUnit.value : undefined,
+    advanceValue: formAdvanceNoticeEnabled.value ? Number(formAdvanceValue.value) : undefined,
+    advanceMinutes: formAdvanceNoticeEnabled.value ? (formAdvanceUnit.value === 'second' ? Number(formAdvanceValue.value) / 60 : formAdvanceUnit.value === 'hour' ? Number(formAdvanceValue.value) * 60 : Number(formAdvanceValue.value)) : undefined,
     validityType: formValidityType.value,
     validFrom: (formValidityType.value === 'range' && formValidFromDate.value && formValidFromTime.value)
       ? `${formValidFromDate.value} ${formValidFromTime.value}`
@@ -610,38 +662,45 @@ const onSave = () => {
             <div class="d-flex flex-wrap ga-2 mb-3">
               <v-chip
                   size="small"
-                  :variant="formAdvanceOption === '1' ? 'elevated' : 'outlined'"
-                  :color="formAdvanceOption === '1' ? 'amber' : ''"
-                  @click="onSelectAdvanceOption('1')">
+                  :variant="formAdvanceOption === '30s' ? 'elevated' : 'outlined'"
+                  :color="formAdvanceOption === '30s' ? 'amber' : ''"
+                  @click="onSelectAdvanceOption('30s')">
+                {{ t('reminder.fields.advanceOptions.30s', '提前 30 秒') }}
+              </v-chip>
+              <v-chip
+                  size="small"
+                  :variant="formAdvanceOption === '1m' ? 'elevated' : 'outlined'"
+                  :color="formAdvanceOption === '1m' ? 'amber' : ''"
+                  @click="onSelectAdvanceOption('1m')">
                 {{ t('reminder.fields.advanceOptions.1m') }}
               </v-chip>
               <v-chip
                   size="small"
-                  :variant="formAdvanceOption === '5' ? 'elevated' : 'outlined'"
-                  :color="formAdvanceOption === '5' ? 'amber' : ''"
-                  @click="onSelectAdvanceOption('5')">
+                  :variant="formAdvanceOption === '5m' ? 'elevated' : 'outlined'"
+                  :color="formAdvanceOption === '5m' ? 'amber' : ''"
+                  @click="onSelectAdvanceOption('5m')">
                 {{ t('reminder.fields.advanceOptions.5m') }}
               </v-chip>
               <v-chip
                   size="small"
-                  :variant="formAdvanceOption === '10' ? 'elevated' : 'outlined'"
-                  :color="formAdvanceOption === '10' ? 'amber' : ''"
-                  @click="onSelectAdvanceOption('10')">
+                  :variant="formAdvanceOption === '10m' ? 'elevated' : 'outlined'"
+                  :color="formAdvanceOption === '10m' ? 'amber' : ''"
+                  @click="onSelectAdvanceOption('10m')">
                 {{ t('reminder.fields.advanceOptions.10m') }}
               </v-chip>
               <v-chip
                   size="small"
-                  :variant="formAdvanceOption === '30' ? 'elevated' : 'outlined'"
-                  :color="formAdvanceOption === '30' ? 'amber' : ''"
-                  @click="onSelectAdvanceOption('30')">
+                  :variant="formAdvanceOption === '30m' ? 'elevated' : 'outlined'"
+                  :color="formAdvanceOption === '30m' ? 'amber' : ''"
+                  @click="onSelectAdvanceOption('30m')">
                 {{ t('reminder.fields.advanceOptions.30m') }}
               </v-chip>
               <v-chip
                   size="small"
-                  :variant="formAdvanceOption === '60' ? 'elevated' : 'outlined'"
-                  :color="formAdvanceOption === '60' ? 'amber' : ''"
-                  @click="onSelectAdvanceOption('60')">
-                {{ t('reminder.fields.advanceOptions.60m') }}
+                  :variant="formAdvanceOption === '1h' ? 'elevated' : 'outlined'"
+                  :color="formAdvanceOption === '1h' ? 'amber' : ''"
+                  @click="onSelectAdvanceOption('1h')">
+                {{ t('reminder.fields.advanceOptions.1h', '提前 1 小时') }}
               </v-chip>
               <v-chip
                   size="small"
@@ -652,24 +711,46 @@ const onSave = () => {
               </v-chip>
             </div>
 
-            <!-- 自定义提前分钟数输入 -->
-            <div v-if="formAdvanceOption === 'custom'">
-              <v-row align="center" no-gutters>
+            <!-- 自定义提前数值与单位输入 -->
+            <div v-if="formAdvanceOption === 'custom'" class="mt-2">
+              <v-row align="center" no-gutters class="ga-2">
                 <v-col cols="6">
                   <v-text-field
-                      v-model.number="formAdvanceMinutes"
+                      v-model.number="formAdvanceValue"
                       type="number"
                       min="1"
-                      max="10080"
                       variant="outlined"
                       density="compact"
                       hide-details
                       prepend-inner-icon="mdi-bell-ring-outline"
-                      :suffix="t('reminder.units.minute')">
+                      :suffix="getAdvanceUnitLabel(formAdvanceUnit)"
+                      @update:model-value="updateCalculatedAdvanceMinutes">
                   </v-text-field>
                 </v-col>
-                <v-col cols="6" class="pl-3 text-caption opacity-70">
-                  {{ t('reminder.dialog.advanceNoticeDesc', {min: formAdvanceMinutes || 0}) }}
+                <v-col>
+                  <div class="d-flex ga-1">
+                    <v-chip
+                        size="small"
+                        :variant="formAdvanceUnit === 'second' ? 'elevated' : 'outlined'"
+                        :color="formAdvanceUnit === 'second' ? 'amber' : ''"
+                        @click="formAdvanceUnit = 'second'; updateCalculatedAdvanceMinutes()">
+                      {{ t('reminder.units.second') }}
+                    </v-chip>
+                    <v-chip
+                        size="small"
+                        :variant="formAdvanceUnit === 'minute' ? 'elevated' : 'outlined'"
+                        :color="formAdvanceUnit === 'minute' ? 'amber' : ''"
+                        @click="formAdvanceUnit = 'minute'; updateCalculatedAdvanceMinutes()">
+                      {{ t('reminder.units.minute') }}
+                    </v-chip>
+                    <v-chip
+                        size="small"
+                        :variant="formAdvanceUnit === 'hour' ? 'elevated' : 'outlined'"
+                        :color="formAdvanceUnit === 'hour' ? 'amber' : ''"
+                        @click="formAdvanceUnit = 'hour'; updateCalculatedAdvanceMinutes()">
+                      {{ t('reminder.units.hour') }}
+                    </v-chip>
+                  </div>
                 </v-col>
               </v-row>
             </div>

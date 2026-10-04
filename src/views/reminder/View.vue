@@ -247,11 +247,16 @@ const formatIntervalRule = (task: ReminderTask) => {
 };
 
 // 格式化提前提醒文本
-const formatAdvanceText = (minutes?: number) => {
-  if (!minutes) return '';
-  if (minutes === 60) return t('reminder.fields.advanceOptions.60m');
-  if (minutes === 30) return t('reminder.fields.advanceOptions.30m');
-  return t('reminder.dialog.advanceNoticeDesc', {min: minutes});
+const formatAdvanceText = (taskOrMinutes?: ReminderTask | number) => {
+  if (!taskOrMinutes) return '';
+  if (typeof taskOrMinutes === 'object') {
+    const unit = taskOrMinutes.advanceUnit || 'minute';
+    const val = taskOrMinutes.advanceValue ?? taskOrMinutes.advanceMinutes ?? 1;
+    const unitKey = `reminder.units.${unit}`;
+    const unitText = te(unitKey) ? t(unitKey) : (unit === 'second' ? '秒' : unit === 'hour' ? '小时' : '分钟');
+    return t('reminder.fields.advanceNotice') + ` ${val} ${unitText}`;
+  }
+  return t('reminder.dialog.advanceNoticeDesc', {min: taskOrMinutes});
 };
 
 // 格式化日期与时间显示
@@ -861,7 +866,7 @@ const totalPages = computed(() => {
                               task.countdown.status === 'expired' ? t('reminder.status.expired') :
                                   task.countdown.status === 'not_started' ? t('reminder.status.notStarted') :
                                       task.countdown.status === 'imminent' ? t('reminder.status.imminent') :
-                                          task.countdown.isAdvanceNotice ? `${t('reminder.countdown.advanceBadge')} (${task.countdown.advanceMinutes}m)` :
+                                          task.countdown.isAdvanceNotice ? `${t('reminder.countdown.advanceBadge')} (${task.countdown.advanceText || (task.countdown.advanceMinutes + 'm')})` :
                                               t('reminder.countdown.remaining')
                         }}
                       </span>
@@ -941,12 +946,12 @@ const totalPages = computed(() => {
 
                     <!-- 提前提醒标识 -->
                     <v-chip
-                        v-if="task.advanceNoticeEnabled && task.advanceMinutes"
+                        v-if="task.advanceNoticeEnabled && (task.advanceValue || task.advanceMinutes)"
                         size="small"
                         variant="tonal"
                         color="amber"
                         prepend-icon="mdi-bell-badge">
-                      {{ formatAdvanceText(task.advanceMinutes) }}
+                      {{ formatAdvanceText(task) }}
                     </v-chip>
                   </v-chip-group>
                 </v-card-text>

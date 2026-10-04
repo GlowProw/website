@@ -9,6 +9,7 @@ import DropWidget from '@/components/DropWidget.vue';
 import { apis } from '@/assets/sripts';
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
+import type { DropCampaignData, StreamerChannel } from "@/assets/types";
 
 const { t } = useI18n();
 const dropApi = apis.dropApi();
@@ -33,9 +34,10 @@ const currentLoading = ref(true);
 const historyLoading = ref(true);
 const refreshing = ref(false);
 
-const activeCampaigns = ref<any[]>([]);
-const activeStreams = ref<any[]>([]);
-const historyList = ref<any[]>([]);
+const activeCampaigns = ref<DropCampaignData[]>([]);
+const activeStreams = ref<StreamerChannel[]>([]);
+const historyList = ref<DropCampaignData[]>([]);
+
 const historyTotal = ref(0);
 const historyPage = ref(1);
 const historyPageSize = ref(10);

@@ -44,3 +44,18 @@ export interface FormattedMonth {
 export interface FormattedCalendar {
     [month: string]: FormattedMonth;
 }
+
+export interface DailyCalendarEventItem {
+    id: string;
+    name: string;
+    description: string;
+    duration: number;
+    droppeds?: Record<string, { category?: string; isUnknown?: boolean }>;
+    startMs: number;
+    endMs: number;
+    startDateStr: string;
+    endDateStr: string;
+    isOngoing: boolean;
+    isUpcoming: boolean;
+    daysRemainingOrUntil: number;
+}

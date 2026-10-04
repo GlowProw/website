@@ -9,6 +9,7 @@ import {Quests, Questlog} from "glow-prow-data";
 import QuestName from "@/components/snbWidget/questName.vue";
 import ZoomableCanvas from "@/components/ZoomableCanvas.vue";
 import {useDisplay} from "vuetify/framework";
+import type {FlowBranch, FlowStep, StoryArc} from "@/assets/types";
 
 const props = defineProps<{
   data: Questlog
@@ -30,35 +31,6 @@ const categoryQuests = computed(() => {
 // 分支折叠状态字典
 const collapsedBranches = ref<Record<string, boolean>>({});
 const collapsedArcs = ref<Record<string, boolean>>({});
-
-// 流程图节点与分支数据结构
-export interface FlowBranch {
-  branchKey: string;
-  branchIndex: number;
-  branchTotal: number;
-  quests: string[];
-  targetMerge: string | null;
-  containsActive: boolean;
-}
-
-export interface FlowStep {
-  type: 'single' | 'fork' | 'merge';
-  questId?: string;
-  parents?: string[];
-  children?: string[];
-  forkFrom?: string;
-  branches?: FlowBranch[];
-  containsActive?: boolean;
-}
-
-export interface StoryArc {
-  arcId: string;
-  arcIndex: number;
-  arcTotal: number;
-  totalQuests: number;
-  containsActive: boolean;
-  steps: FlowStep[];
-}
 
 // 解析当前分类的流程图结构 (DAG -> Arcs -> FlowSteps)
 const storyArcs = computed<StoryArc[]>(() => {
