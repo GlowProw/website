@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {Ref, ref} from "vue";
+import {Ref, ref, computed} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useNoticeStore} from "~/stores/noticeStore";
@@ -38,9 +38,30 @@ let signupLoading: Ref<boolean> = ref(false),
     })
 
 /**
+ * 校验人机验证是否已完成
+ */
+const isCaptchaValid = computed(() => {
+  const c = signupFrom.value.captcha;
+  if (!c) return false;
+  const type = (c as any).captchaType || c.type || 'turnstile';
+  if (type === 'svg') {
+    return Boolean(c.encryptCaptcha && c.response && String(c.response).trim().length === 4);
+  }
+  return Boolean(c.response && String(c.response).trim().length > 5);
+})
+
+/**
  * 注册
  */
 const onRegister = async () => {
+  if (!signupFrom.value.username || !signupFrom.value.password || !signupFrom.value.email) {
+    return;
+  }
+  if (!isCaptchaValid.value) {
+    notice.warning(t('captcha.messages.bad') || '请先完成人机验证');
+    return;
+  }
+
   try {
     signupLoading.value = true;
 
@@ -182,7 +203,7 @@ const onCaptchaData = (data: CaptchaParams) => {
             </v-row>
 
             <div class="py-2">
-              <v-btn class="bg-amber" @click="onRegister" size="50" block :loading="signupLoading" :disabled="!signupFrom.username || !signupFrom.password || !signupFrom.email" variant="flat">
+              <v-btn class="bg-amber" @click="onRegister" size="50" block :loading="signupLoading" :disabled="!signupFrom.username || !signupFrom.password || !signupFrom.email || !isCaptchaValid" variant="flat">
                 {{ t('signup.register') }}
               </v-btn>
 

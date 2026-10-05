@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {onMounted, ref, watch} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import {apis} from "@/assets/sripts/index";
 
 import {useAuthStore} from "~/stores/userAccountStore";
@@ -35,6 +35,19 @@ let content = ref(''),
     captcha = ref({}),
     captchaOneUpdateEvent = ref(false),
     captchaRef = ref(null)
+
+/**
+ * 校验评论验证码有效性
+ */
+const isCaptchaValid = computed(() => {
+  const c = captcha.value as any;
+  if (!c) return false;
+  const type = c.captchaType || c.type || 'turnstile';
+  if (type === 'svg') {
+    return Boolean(c.encryptCaptcha && c.response && String(c.response).trim().length === 4);
+  }
+  return Boolean(c.response && String(c.response).trim().length > 5);
+})
 
 const isMounted = ref(false)
 onMounted(() => {
@@ -98,8 +111,13 @@ const getComment = async () => {
  */
 const onPushComment = async () => {
   try {
-    if (!content.value && commentPushLoading.value)
+    if (!content.value || commentPushLoading.value)
       return;
+
+    if (!isCaptchaValid.value) {
+      notice.warning(t('captcha.messages.bad') || '请先完成人机验证');
+      return;
+    }
 
     if (!props.id || !props.type)
       return console.log('not id', props)
@@ -300,7 +318,7 @@ defineOptions({
         <v-col>
           <v-btn size="55" class="bg-amber" :max-width="150" block
                  :loading="commentPushLoading"
-                 :disabled="!content"
+                 :disabled="!content || !isCaptchaValid"
                  @click="onPushComment">
             {{ t('basic.button.submit') }}
           </v-btn>

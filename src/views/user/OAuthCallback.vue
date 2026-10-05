@@ -9,6 +9,7 @@ import {useRules} from '@/assets/sripts/rules_user';
 import Silk from '@/components/Silk.vue';
 import HalfScreenBannerText from '@/components/HalfScreenBannerText.vue';
 import AffixContainerView from '@/components/AffixContainerView.vue';
+import Loading from '@/components/Loading.vue';
 import {useDisplay} from 'vuetify/framework';
 
 const route = useRoute();
@@ -22,6 +23,7 @@ const {mobile, sm} = useDisplay();
 const loading = ref(true);
 const errorMsg = ref('');
 const activeTab = ref<'signup' | 'bind'>('signup');
+const showPassword = ref(false);
 
 // 补充注册/绑定状态
 const needComplete = ref(false);
@@ -43,7 +45,6 @@ const signupForm = ref({
   username: '',
   alternativeName: '',
   password: '',
-  confirmPassword: '',
   email: '',
 });
 
@@ -53,6 +54,19 @@ const bindForm = ref({
 });
 
 const submitLoading = ref(false);
+
+const getPlatformIcon = (platform: string) => {
+  switch ((platform || '').toLowerCase()) {
+    case 'qq':
+      return 'mdi-qqchat';
+    case 'wechat':
+      return 'mdi-wechat';
+    case 'google':
+      return 'mdi-google';
+    default:
+      return 'mdi-account-circle';
+  }
+};
 
 onMounted(async () => {
   const code = (route.query.code as string) || '';
@@ -112,16 +126,12 @@ onMounted(async () => {
  * 提交补充注册
  */
 const onCompleteSignup = async () => {
-  if (signupForm.value.password !== signupForm.value.confirmPassword) {
-    return notice.error(t('signup.passwordNotMatch') || '两次输入的密码不一致');
-  }
-
   try {
     submitLoading.value = true;
     const res = await apis.userApi().oauthCompleteSignup({
       oauthTicket: oauthTicket.value,
       username: signupForm.value.username,
-      alternativeName: signupForm.value.alternativeName,
+      alternativeName: signupForm.value.alternativeName || signupForm.value.username,
       password: signupForm.value.password,
       email: signupForm.value.email || undefined,
     });
@@ -129,7 +139,8 @@ const onCompleteSignup = async () => {
     if (res?.data?.code === 'signin.ok') {
       authStore.setAccountToken(res.data.data);
       notice.success(t('signup.success') || '注册成功并已自动关联登录！');
-      router.push('/');
+      const backUrl = (route.query.backUrl as string) || '/';
+      router.push(backUrl);
     } else {
       notice.error(res?.data?.message || t('signup.failed') || '注册失败');
     }
@@ -155,7 +166,8 @@ const onCompleteBind = async () => {
     if (res?.data?.code === 'signin.ok') {
       authStore.setAccountToken(res.data.data);
       notice.success(t('oauth.bindAndLoginSuccess') || '绑定成功并已登录！');
-      router.push('/');
+      const backUrl = (route.query.backUrl as string) || '/';
+      router.push(backUrl);
     } else {
       notice.error(res?.data?.message || t('signin.invalid') || '账号或密码错误');
     }
@@ -165,10 +177,19 @@ const onCompleteBind = async () => {
     submitLoading.value = false;
   }
 };
+
+/**
+ * 取消并返回登录页
+ */
+const onBackRoute = () => {
+  const backUrl = (route.query.backUrl || route.query.backurl) as string || '';
+  if (backUrl) return router.push({path: backUrl});
+  return router.push('/account/signin');
+};
 </script>
 
 <template>
-  <div class="oauth-callback-window">
+  <div class="signin-window">
     <v-row dense class="h-100">
       <v-col cols="12" lg="6" :class="{'d-none': mobile || sm}" class="position-relative overflow-hidden">
         <HalfScreenBannerText></HalfScreenBannerText>
@@ -178,172 +199,216 @@ const onCompleteBind = async () => {
             :color="'#1c1c1c'"
             :noise-intensity="0.1"
             :rotation="-.2"
-            class="bg-black"
-        ></Silk>
+            class="bg-black">
+        </Silk>
       </v-col>
 
-      <v-col cols="12" lg="6" class="bg-black d-flex align-center justify-center">
-        <div class="oauth-card w-100 px-6 py-8" max-width="520">
-          <!-- 加载 -->
-          <div v-if="loading" class="text-center py-12">
-            <Loading></Loading>
-            <h3 class="mt-6 font-weight-medium">{{ t('oauth.processing') }}</h3>
-          </div>
+      <v-col cols="12" lg="6" class="bg-black overflow-y-auto">
+        <v-card dense variant="text" class="signin mt-16 px-8">
+          <v-breadcrumbs class="ml-n3">
+            <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
+            <v-breadcrumbs-divider></v-breadcrumbs-divider>
+            <v-breadcrumbs-item>{{ t('oauth.callbackTitle') }}</v-breadcrumbs-item>
+          </v-breadcrumbs>
 
-          <!-- 错误信息 -->
-          <div v-else-if="errorMsg && !needComplete" class="text-center">
-            <v-icon icon="mdi-alert-circle" color="red" size="64"></v-icon>
-            <h3 class="mt-4 text-red font-weight-bold">{{ t('oauth.failedTitle') || '授权失败' }}</h3>
-            <p class="mt-2 opacity-70">{{ errorMsg }}</p>
-            <v-btn class="mt-6 bg-amber text-black" to="/account/signin" variant="flat">
-              {{ t('oauth.backToSignin') || '返回登录页' }}
-            </v-btn>
-          </div>
-
-          <!-- 3. 补充注册 / 绑定已有账户 -->
-          <div v-else-if="needComplete">
-            <div class="d-flex align-center mb-6">
-              <v-avatar size="48" class="mr-3" color="grey-darken-3">
-                <v-img v-if="oauthProfile.platformAvatar" :src="oauthProfile.platformAvatar"></v-img>
-                <v-icon v-else icon="mdi-account-circle" size="36"></v-icon>
-              </v-avatar>
-              <div>
-                <h2 class="text-h6 font-weight-bold">
-                  {{ oauthProfile.platformUsername || '第三方用户' }}
-                </h2>
-                <span class="text-caption text-amber">
-                  {{ t('oauth.authorizedPlatform') || '已连接' }} {{ oauthProfile.platform.toUpperCase() }}
-                </span>
+          <AffixContainerView>
+            <!-- 加载中状态 -->
+            <div v-if="loading" class="text-center py-16">
+              <Loading class="mb-4"></Loading>
+              <div class="text-subtitle-1 font-weight-bold opacity-90">
+                {{ t('oauth.processing') }}
+              </div>
+              <div class="text-caption opacity-50 mt-1">
+                {{ t('oauth.waitHint') }}
               </div>
             </div>
 
-            <p class="text-caption opacity-70 mb-4">
-              {{ t('oauth.firstTimeHint') || '这是您首次使用该第三方账号登录，请选择补充注册新账号或关联已有 Glow Prow 账号：' }}
-            </p>
+            <!-- 授权失败状态 -->
+            <div v-else-if="errorMsg && !needComplete" class="text-center py-12">
+              <v-icon icon="mdi-alert-circle" color="red" size="64" class="mb-4"></v-icon>
+              <h3 class="text-h5 font-weight-bold text-red">{{ t('oauth.failedTitle') }}</h3>
+              <p class="text-caption opacity-70 mt-2 mb-6">{{ errorMsg }}</p>
+              <v-btn class="bg-amber" to="/account/signin" size="50" block variant="flat">
+                {{ t('oauth.backToSignin') }}
+              </v-btn>
+            </div>
 
-            <v-tabs v-model="activeTab" color="amber" grow class="mb-4">
-              <v-tab value="signup">{{ t('oauth.tabNewAccount') || '补充注册新账号' }}</v-tab>
-              <v-tab value="bind">{{ t('oauth.tabBindExisting') || '关联已有账号' }}</v-tab>
-            </v-tabs>
+            <!-- 新用户首次登录：补充注册新账号 或 关联已有账号 -->
+            <div v-else-if="needComplete">
+              <!-- 第三方用户信息展示卡片 -->
+              <div class="d-flex align-center pa-4 mb-4 rounded-lg bg-grey-darken-4 border-opacity-10">
+                <v-avatar size="48" class="mr-3" color="grey-darken-3">
+                  <v-img v-if="oauthProfile.platformAvatar" :src="oauthProfile.platformAvatar"></v-img>
+                  <v-icon v-else icon="mdi-account-circle" size="36"></v-icon>
+                </v-avatar>
+                <div class="flex-grow-1">
+                  <div class="text-subtitle-1 font-weight-bold">
+                    {{ oauthProfile.platformUsername }}
+                  </div>
+                  <div class="text-caption text-amber d-flex align-center ga-1">
+                    <span>{{ oauthProfile.platform.toUpperCase() }}</span>
+                  </div>
+                </div>
+              </div>
 
-            <AffixContainerView>
-              <!-- 补充注册新账号 -->
+              <p class="text-caption opacity-70 mb-4">
+                {{ t('oauth.firstTimeHint') }}
+              </p>
+
+              <!-- 选项卡切换 -->
+              <v-tabs v-model="activeTab" color="amber" class="mb-4" grow>
+                <v-tab value="signup">{{ t('oauth.tabNewAccount') }}</v-tab>
+                <v-tab value="bind">{{ t('oauth.tabBindExisting') }}</v-tab>
+              </v-tabs>
+
               <v-window v-model="activeTab">
+                <!-- 补充注册新账号 -->
                 <v-window-item value="signup">
-                  <v-form @submit.prevent="onCompleteSignup">
-                    <v-text-field
-                        v-model="signupForm.username"
-                        :rules="rules.username"
-                        label="用户名 (Username)"
-                        placeholder="设置您的唯一登录用户名"
-                        variant="solo-filled"
-                        density="comfortable"
-                        prepend-inner-icon="mdi-account"
-                        required
-                    ></v-text-field>
+                  <v-row class="py-2">
+                    <v-col cols="12">
+                      <v-text-field
+                          v-model="signupForm.username"
+                          :rules="rules.username"
+                          name="username"
+                          variant="solo-filled"
+                          prepend-inner-icon="mdi-account-key"
+                          :label="t('signup.username.name') "
+                          :placeholder="t('signup.username.placeholder')"
+                      ></v-text-field>
 
-                    <v-text-field
-                        v-model="signupForm.alternativeName"
-                        label="个性别名 (Nickname)"
-                        placeholder="在社区与排位中展示的昵称"
-                        variant="solo-filled"
-                        density="comfortable"
-                        prepend-inner-icon="mdi-badge-account"
-                    ></v-text-field>
+                      <v-text-field
+                          v-model="signupForm.alternativeName"
+                          :rules="rules.alternativeName"
+                          name="alternativeName"
+                          variant="solo-filled"
+                          prepend-inner-icon="mdi-rename"
+                          :label="t('signup.alternativeName.name')"
+                          :placeholder="t('signup.alternativeName.placeholder')"
+                      ></v-text-field>
 
-                    <v-text-field
-                        v-model="signupForm.password"
-                        :rules="rules.password"
-                        label="登录密码 (Password)"
-                        placeholder="至少 8 位包含字母与数字"
-                        type="password"
-                        variant="solo-filled"
-                        density="comfortable"
-                        prepend-inner-icon="mdi-lock"
-                        required
-                    ></v-text-field>
+                      <v-text-field
+                          v-model="signupForm.password"
+                          :rules="rules.password"
+                          name="password"
+                          variant="solo-filled"
+                          prepend-inner-icon="mdi-form-textbox-password"
+                          :type="showPassword ? 'text' : 'password'"
+                          :label="t('signin.form.label.password')"
+                          :placeholder="t('signin.form.placeholder.password')">
+                        <template v-slot:append-inner>
+                          <v-icon
+                            :icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
+                            class="cursor-pointer"
+                            @click="showPassword = !showPassword"
+                          />
+                        </template>
+                      </v-text-field>
 
-                    <v-text-field
-                        v-model="signupForm.confirmPassword"
-                        label="确认密码 (Confirm Password)"
-                        placeholder="再次输入密码"
-                        type="password"
-                        variant="solo-filled"
-                        density="comfortable"
-                        prepend-inner-icon="mdi-lock-check"
-                        required
-                    ></v-text-field>
+                      <v-text-field
+                          v-model="signupForm.email"
+                          :rules="rules.email"
+                          name="email"
+                          variant="solo-filled"
+                          prepend-inner-icon="mdi-email"
+                          :label="t('signup.email.name')"
+                          :placeholder="t('signup.email.hint')"
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
 
-                    <v-text-field
-                        v-model="signupForm.email"
-                        label="电子邮箱 (Email - 可选)"
-                        placeholder="用于接收重要安全通知"
-                        variant="solo-filled"
-                        density="comfortable"
-                        prepend-inner-icon="mdi-email"
-                    ></v-text-field>
-
+                  <div class="py-2">
                     <v-btn
-                        type="submit"
-                        class="bg-amber text-black mt-4 font-weight-bold"
-                        size="large"
+                        class="bg-amber"
+                        @click="onCompleteSignup"
+                        size="50"
                         block
                         :loading="submitLoading"
-                        variant="flat"
-                    >
-                      {{ t('oauth.completeSignupBtn') || '完成注册并登录' }}
+                        :disabled="!signupForm.username || !signupForm.password"
+                        variant="flat">
+                      {{ t('oauth.completeSignupBtn') }}
                     </v-btn>
-                  </v-form>
+
+                    <v-btn class="mt-2" @click="onBackRoute" size="50" block variant="text">
+                      {{ t('basic.button.cancel') }}
+                    </v-btn>
+                  </div>
                 </v-window-item>
 
                 <!-- 关联已有账号 -->
                 <v-window-item value="bind">
-                  <v-form @submit.prevent="onCompleteBind">
-                    <v-text-field
-                        v-model="bindForm.username"
-                        label="已有 GlowProw 用户名"
-                        placeholder="输入您之前注册的用户名"
-                        variant="solo-filled"
-                        density="comfortable"
-                        prepend-inner-icon="mdi-account-key"
-                        required
-                    ></v-text-field>
+                  <v-row class="py-2">
+                    <v-col cols="12">
+                      <v-text-field
+                          v-model="bindForm.username"
+                          :rules="rules.username"
+                          name="bindUsername"
+                          variant="solo-filled"
+                          prepend-inner-icon="mdi-account-key"
+                          :label="t('signin.form.label.username')"
+                          :placeholder="t('signin.form.placeholder.username')"
+                      ></v-text-field>
 
-                    <v-text-field
-                        v-model="bindForm.password"
-                        label="账号密码"
-                        placeholder="输入您的账号密码"
-                        type="password"
-                        variant="solo-filled"
-                        density="comfortable"
-                        prepend-inner-icon="mdi-lock"
-                        required
-                    ></v-text-field>
+                      <v-text-field
+                          v-model="bindForm.password"
+                          :rules="rules.password"
+                          name="bindPassword"
+                          variant="solo-filled"
+                          prepend-inner-icon="mdi-form-textbox-password"
+                          type="password"
+                          :label="t('signin.form.label.password')"
+                          :placeholder="t('signin.form.placeholder.password')"
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
 
+                  <div class="py-2">
                     <v-btn
-                        type="submit"
-                        class="bg-amber text-black mt-4 font-weight-bold"
-                        size="large"
+                        class="bg-amber"
+                        @click="onCompleteBind"
+                        size="50"
                         block
                         :loading="submitLoading"
-                        variant="flat"
-                    >
-                      {{ t('oauth.completeBindBtn') || '确认绑定并登录' }}
+                        :disabled="!bindForm.username || !bindForm.password"
+                        variant="flat">
+                      {{ t('oauth.completeBindBtn') }}
                     </v-btn>
-                  </v-form>
+
+                    <v-btn class="mt-2" @click="onBackRoute" size="50" block variant="text">
+                      {{ t('basic.button.cancel') }}
+                    </v-btn>
+                  </div>
                 </v-window-item>
               </v-window>
-            </AffixContainerView>
-          </div>
-        </div>
+
+              <!-- 底部操作导航 -->
+              <v-card-actions class="py-2 d-flex justify-space-between align-center mb-5">
+                <router-link to="/account/signin" class="u">
+                  {{ t('oauth.backToSignin') }}
+                </router-link>
+                <router-link to="/account/forgot-password" class="u">
+                  {{ t('forgotPassword.title') }}?
+                </router-link>
+              </v-card-actions>
+            </div>
+          </AffixContainerView>
+        </v-card>
       </v-col>
     </v-row>
   </div>
 </template>
 
 <style scoped lang="less">
-.oauth-callback-window {
+@import "@/assets/styles/link";
+
+.signin-window {
+  overflow: hidden;
   min-height: calc(100vh + 2px);
-  background-color: #000;
+  margin-bottom: -4px;
+}
+
+.signin {
+  .captcha {
+    width: 300px;
+  }
 }
 </style>

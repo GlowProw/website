@@ -8,6 +8,10 @@ import {useSlots} from "vue";
 
 const {t} = useI18n(),
     slots = useSlots()
+
+defineOptions({
+  name:"EmptyView"
+})
 </script>
 
 <template>

@@ -57,7 +57,13 @@ const resolvedSiteKey = computed(() => {
   if (props.isTest === false || props.env === 'prod' || route.query.turnstileEnv === 'prod') {
     return TURNSTILE_KEYS.PROD;
   }
-  return import.meta.env.DEV ? TURNSTILE_KEYS.TEST : TURNSTILE_KEYS.PROD;
+  const isLocalhost = typeof window !== 'undefined' && Boolean(
+    ['localhost', '127.0.0.1', '0.0.0.0', '::1'].includes(window.location.hostname) ||
+    window.location.hostname.endsWith('.local') ||
+    window.location.hostname.endsWith('.test') ||
+    window.location.hostname.endsWith('.internal')
+  );
+  return (import.meta.env.DEV || isLocalhost) ? TURNSTILE_KEYS.TEST : TURNSTILE_KEYS.PROD;
 })
 
 /**

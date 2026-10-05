@@ -2965,15 +2965,20 @@
     "description": "船长！请调头，这里什么都没有"
   },
   "captcha": {
-    "get": "获得验证码",
-    "fresh": "刷新验证码",
+    "get": "獲得驗證碼",
+    "fresh": "刷新驗證碼",
+    "turnstileLoading": "Turnstile 安全驗證載入中...",
+    "turnstileFailed": "Turnstile 安全驗證載入失敗",
+    "turnstileFailedHint": "網路受限或服務暫時不可用",
+    "retry": "重試",
+    "switchToSvg": "切換為圖形驗證碼",
     "messages": {
-      "bad": "验证码错误，请联系管理员",
-      "expired": "验证码已过期",
-      "gen": "获取成功",
-      "wrong": "验证码错误"
+      "bad": "驗證碼錯誤，請聯絡管理員",
+      "expired": "驗證碼已過期",
+      "gen": "獲取成功",
+      "wrong": "驗證碼錯誤"
     },
-    "title": "验证码"
+    "title": "驗證碼"
   },
   "calculator": {
     "title": "量化計算",

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {Ref, ref} from "vue";
+import {Ref, ref, computed} from "vue";
 import {useAuthStore} from '~/stores/userAccountStore'
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
@@ -39,9 +39,30 @@ let signinFormLoading: Ref<boolean> = ref(false),
     })
 
 /**
+ * 校验人机验证是否已完成
+ */
+const isCaptchaValid = computed(() => {
+  const c = signinFrom.value.captcha;
+  if (!c) return false;
+  const type = (c as any).captchaType || c.type || 'turnstile';
+  if (type === 'svg') {
+    return Boolean(c.encryptCaptcha && c.response && String(c.response).trim().length === 4);
+  }
+  return Boolean(c.response && String(c.response).trim().length > 5);
+})
+
+/**
  * 登陆
  */
 const onLogin = async () => {
+  if (!signinFrom.value.username || !signinFrom.value.password) {
+    return;
+  }
+  if (!isCaptchaValid.value) {
+    notice.warning(t('captcha.messages.bad') || '请先完成人机验证');
+    return;
+  }
+
   try {
     signinFormLoading.value = true
 
@@ -145,7 +166,7 @@ const onCaptchaData = (data: CaptchaParams) => {
             </v-row>
 
             <div class="py-2">
-              <v-btn class="bg-amber" @click="onLogin" size="50" block :loading="signinFormLoading" :disabled="!signinFrom.username && !signinFrom.password" variant="flat">
+              <v-btn class="bg-amber" @click="onLogin" size="50" block :loading="signinFormLoading" :disabled="!signinFrom.username || !signinFrom.password || !isCaptchaValid" variant="flat">
                 {{ t('signin.title') }}
               </v-btn>
 

@@ -7,7 +7,6 @@ import Header from "@/components/Header.vue";
   <v-app id="calendar">
     <Header></Header>
     <v-main>
-
       <router-view></router-view>
     </v-main>
     <Footer></Footer>

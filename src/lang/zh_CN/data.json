@@ -2899,7 +2899,9 @@
       "title": "联系",
       "serviceStatus": "服务状态",
       "translated": "📖帮助我们翻译",
-      "github": "项目开源地址"
+      "github": "项目开源地址",
+      "privacy": "隐私条款",
+      "terms": "服务协议"
     },
     "serviceProvider": {
       "openSource": "开源支持",
@@ -2915,6 +2917,11 @@
   "captcha": {
     "get": "获得验证码",
     "fresh": "刷新验证码",
+    "turnstileLoading": "Turnstile 安全验证加载中...",
+    "turnstileFailed": "Turnstile 安全验证加载失败",
+    "turnstileFailedHint": "网络受限或服务暂时不可用",
+    "retry": "重试",
+    "switchToSvg": "切换为图形验证码",
     "messages": {
       "bad": "验证码错误，请联系管理员",
       "expired": "验证码已过期",

@@ -101,6 +101,7 @@ import StateOfWarPage from '@/views/stateOfWar/Index.vue'
 import StateOfWarViewPage from '@/views/stateOfWar/View.vue'
 
 import SettingPage from '@/views/setting/Index.vue'
+import SettingViewPage from '@/views/setting/View.vue'
 import SettingAdPage from '@/views/setting/Ad.vue'
 import SettingRoutinePage from '@/views/setting/Routine.vue'
 import SettingStoragePage from '@/views/setting/Storage.vue'
@@ -349,56 +350,64 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
                 name: 'PortalSetting',
                 component: SettingPage,
                 beforeEnter: initCDNAssets,
-                redirect: to => ({ name: 'PortalSettingRoutine', params: to.params }),
+                redirect: to => ({ name: 'PortalSettingView', params: to.params }),
                 children: [
                     {
-                        path: 'routine',
-                        name: 'PortalSettingRoutine',
-                        component: SettingRoutinePage,
+                        path: '',
+                        name: 'PortalSettingView',
+                        component: SettingViewPage,
+                        children: [
+                            {
+                                path: 'routine',
+                                name: 'PortalSettingRoutine',
+                                component: SettingRoutinePage,
+                            },
+                            {
+                                path: 'ads',
+                                name: 'PortalSettingAds',
+                                component: SettingAdPage,
+                            },
+                            {
+                                path: 'storage',
+                                name: 'PortalSettingStorage',
+                                component: SettingStoragePage,
+                            },
+                            {
+                                path: 'about',
+                                name: 'PortalSettingAbout',
+                                component: AboutPage,
+                            },
+                            {
+                                path: 'pwa',
+                                name: 'PortalSettingPwa',
+                                redirect: to => ({ name: 'PortalSettingAdvanced', params: to.params }),
+                            },
+                            {
+                                path: 'wishlist',
+                                name: 'PortalSettingWishlist',
+                                component: SettingWishlistPage,
+                            },
+                            {
+                                path: 'log',
+                                name: 'PortalSettingLog',
+                                component: SettingLogPage,
+                            },
+                            {
+                                path: 'subscriptions',
+                                name: 'PortalSettingSubscriptions',
+                                component: SettingSubscriptionsPage,
+                            },
+                            {
+                                path: 'advanced',
+                                name: 'PortalSettingAdvanced',
+                                meta: {
+                                    title: 'setting.advanced.title'
+                                },
+                                component: AdvancedPage,
+                            }
+                        ]
                     },
-                    {
-                        path: 'ads',
-                        name: 'PortalSettingAds',
-                        component: SettingAdPage,
-                    },
-                    {
-                        path: 'storage',
-                        name: 'PortalSettingStorage',
-                        component: SettingStoragePage,
-                    },
-                    {
-                        path: 'about',
-                        name: 'PortalSettingAbout',
-                        component: AboutPage,
-                    },
-                    {
-                        path: 'pwa',
-                        name: 'PortalSettingPwa',
-                        redirect: to => ({ name: 'PortalSettingAdvanced', params: to.params }),
-                    },
-                    {
-                        path: 'wishlist',
-                        name: 'PortalSettingWishlist',
-                        component: SettingWishlistPage,
-                    },
-                    {
-                        path: 'log',
-                        name: 'PortalSettingLog',
-                        component: SettingLogPage,
-                    },
-                    {
-                        path: 'subscriptions',
-                        name: 'PortalSettingSubscriptions',
-                        component: SettingSubscriptionsPage,
-                    },
-                    {
-                        path: 'advanced',
-                        name: 'PortalSettingAdvanced',
-                        meta: {
-                            title: 'setting.advanced.title'
-                        },
-                        component: AdvancedPage,
-                    }
+
                 ]
             },
         ]

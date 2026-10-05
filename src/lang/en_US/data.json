@@ -2912,6 +2912,11 @@
   "captcha": {
     "get": "Get Captcha",
     "fresh": "Refresh Captcha",
+    "turnstileLoading": "Loading Turnstile security verification...",
+    "turnstileFailed": "Failed to load Turnstile",
+    "turnstileFailedHint": "Network restricted or service temporarily unavailable",
+    "retry": "Retry",
+    "switchToSvg": "Switch to Image Captcha",
     "messages": {
       "bad": "Captcha error, please contact administrator",
       "expired": "Captcha expired",

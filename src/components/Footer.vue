@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'Footer' }
-</script>
-
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import I18nWidget from "./i18nWidget.vue";
@@ -20,6 +16,10 @@ const {t} = useI18n(),
 
 onMounted(() => {
   pwa.isPWA
+})
+
+defineOptions({
+  name: 'Footer'
 })
 </script>
 
@@ -145,7 +145,7 @@ onMounted(() => {
                     <HtmlLink
                         :is-icon="false"
                         :is-iframe-show="false"
-                        href="https://status.glow-prow.top/privacy" target="_blank">
+                        href="https://blog.glow-prow.top/privacy" target="_blank">
                       {{ t('footer.col3.privacy') }}
                     </HtmlLink>
                   </li>
@@ -153,12 +153,10 @@ onMounted(() => {
                     <HtmlLink
                         :is-icon="false"
                         :is-iframe-show="false"
-                        href="https://status.glow-prow.top/terms" target="_blank">
+                        href="https://blog.glow-prow.top/terms" target="_blank">
                       {{ t('footer.col3.terms') }}
                     </HtmlLink>
                   </li>
-
-
                 </ul>
               </v-col>
               <v-col cols="12" sm="6" md="6" lg="3">
