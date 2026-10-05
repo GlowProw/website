@@ -33,7 +33,6 @@ const getDynamicDataRoutes = () => {
         'npcs.json': '/codex/npc/',
         'empireSkills.json': '/codex/empireSkill/',
         'masterys.json': '/codex/mastery/',
-        'questlog.json': '/quest/',
     };
 
     Object.entries(mapping).forEach(([file, prefix]) => {
@@ -91,41 +90,6 @@ const getRoutes = () => {
         'codex/empireSkills',
         'codex/masterys',
         'codex/ultimates',
-        'quest',
-        'quest/list',
-        'calendar',
-        'calendar/history',
-        'assembly',
-        'assembly/workshop',
-        'assembly/publish',
-        'assembly/browse',
-        'map',
-        'apps',
-        'apps/qqbot',
-        'team',
-        'search',
-        'setting',
-        'setting/routine',
-        'setting/ads',
-        'setting/storage',
-        'setting/about',
-        'setting/pwa',
-        'setting/wishlist',
-        'setting/log',
-        'setting/subscriptions',
-        'setting/advanced',
-        'smugglers-report',
-        'smugglers-report/view',
-        'stateOfWar',
-        'stateOfWar/view',
-        'empire-skill-simulation',
-        'mastery',
-        'mastery/view',
-        'mastery/share',
-        'calculator',
-        'drop',
-        'reminder',
-        'reminder/view',
     ];
 
     const dynamicRoutes = getDynamicDataRoutes();
@@ -217,134 +181,134 @@ export default defineConfig(({ mode }) => {
                 return plugin;
             })()
         ],
-    optimizeDeps: {
-        exclude: [
-            "glow-prow-assets",
-            "glow-prow-data",
-            "vuetify", "fsevents", "file-type", "'@zumer/snapdom'"
-        ],
-    },
-    define: { 'process.env': {} },
-    ssr: {
-        noExternal: ['vuetify'],
-    },
-    esbuild: {
-        keepNames: true,
-        drop: ['console', 'debugger'],
-    },
-    build: {
-        ssrManifest: true,
-        assetsDir: 'static/images',
-        chunkSizeWarningLimit: 1000,
-        minify: 'esbuild',
-        rollupOptions: {
-            output: {
-                preserveModulesRoot: 'node_modules/glow-prow-data',
-                manualChunks(id) {
-                    if (id.includes('glow-prow-data')) {
-                        return 'glow-prow-data'
-                    }
-                    if (id.includes('@xenova/transformers') || id.includes('onnxruntime')) {
-                        return 'transformers'
-                    }
-                    if (id.includes('@tensorflow')) {
-                        return 'tensorflow'
-                    }
-                },
-                assetFileNames: (assetInfo: any) => {
-                    if (/\.(png|jpe?g|gif|svg|webp|avif)$/.test(assetInfo.name)) {
+        optimizeDeps: {
+            exclude: [
+                "glow-prow-assets",
+                "glow-prow-data",
+                "vuetify", "fsevents", "file-type", "'@zumer/snapdom'"
+            ],
+        },
+        define: { 'process.env': {} },
+        ssr: {
+            noExternal: ['vuetify'],
+        },
+        esbuild: {
+            keepNames: true,
+            drop: ['console', 'debugger'],
+        },
+        build: {
+            ssrManifest: true,
+            assetsDir: 'static/images',
+            chunkSizeWarningLimit: 1000,
+            minify: 'esbuild',
+            rollupOptions: {
+                output: {
+                    preserveModulesRoot: 'node_modules/glow-prow-data',
+                    manualChunks(id) {
+                        if (id.includes('glow-prow-data')) {
+                            return 'glow-prow-data'
+                        }
+                        if (id.includes('@xenova/transformers') || id.includes('onnxruntime')) {
+                            return 'transformers'
+                        }
+                        if (id.includes('@tensorflow')) {
+                            return 'tensorflow'
+                        }
+                    },
+                    assetFileNames: (assetInfo: any) => {
+                        if (/\.(png|jpe?g|gif|svg|webp|avif)$/.test(assetInfo.name)) {
+                            return `assets/[name].${config.name}.[hash][extname]`
+                        }
                         return `assets/[name].${config.name}.[hash][extname]`
                     }
-                    return `assets/[name].${config.name}.[hash][extname]`
                 }
             }
-        }
-    },
-    resolve: {
-        alias: {
-            // 导入资源别名
-            '@glow-prow-assets': path.resolve(__dirname, 'node_modules/glow-prow-assets'),
-            '@': path.resolve(__dirname, './src'),
-            '~': path.resolve(__dirname, './'),
         },
-        extensions: [
-            '.js',
-            '.json',
-            '.jsx',
-            '.mjs',
-            '.ts',
-            '.tsx',
-            '.vue',
-        ],
-    },
-    server: {
-        port: 8080,
-        proxy: {
-            "/api": {
-                target: 'http://localhost:3000',
-                changeOrigin: true,
-                rewrite: (path: any) => path.replace(/^\/api/, ''),
+        resolve: {
+            alias: {
+                // 导入资源别名
+                '@glow-prow-assets': path.resolve(__dirname, 'node_modules/glow-prow-assets'),
+                '@': path.resolve(__dirname, './src'),
+                '~': path.resolve(__dirname, './'),
             },
-            "/assets-proxy": {
-                target: 'http://localhost:8088',
-                changeOrigin: true,
-                rewrite: (path: any) => path.replace(/^\/assets-proxy/, '/api'),
-            },
-            "/mode": {
-                target: 'http://localhost:8088',
-                changeOrigin: true,
+            extensions: [
+                '.js',
+                '.json',
+                '.jsx',
+                '.mjs',
+                '.ts',
+                '.tsx',
+                '.vue',
+            ],
+        },
+        server: {
+            port: 8080,
+            proxy: {
+                "/api": {
+                    target: 'http://localhost:3000',
+                    changeOrigin: true,
+                    rewrite: (path: any) => path.replace(/^\/api/, ''),
+                },
+                "/assets-proxy": {
+                    target: 'http://localhost:8088',
+                    changeOrigin: true,
+                    rewrite: (path: any) => path.replace(/^\/assets-proxy/, '/api'),
+                },
+                "/mode": {
+                    target: 'http://localhost:8088',
+                    changeOrigin: true,
+                }
             }
-        }
-    },
-    publicDir: 'public',
+        },
+        publicDir: 'public',
 
-    // vite-ssg 配置
-    ssgOptions: {
-        script: 'async',
-        formatting: 'none',
-        mock: false,
-        concurrency: 5,
-        // 预渲染所有静态路由与公开百科数据路由，跳过未填充参数的路由及私有路由
-        includedRoutes(paths: string[], routes: any[]) {
-            const allRoutes = getRoutes();
-            const skip = [
-                '/account',
-                '/widgets',
-                '/test',
-                '/space',
-                '/:pathMatch',
-            ];
-            return allRoutes.filter(p => {
-                if (p.includes(':')) return false;
-                const clean = p.replace(/^\/(zh-CN|zh-TW|en-US)/, '') || '/';
-                return !skip.some(s => clean.startsWith(s));
-            });
-        },
-        onBeforePageRender(route: string, indexHTML: string, ctx: any) {
-            // 确保页面输出目录安全存在，防止并发写入时的目录竞态异常
-            const relativeRouteFile = `${(route.endsWith('/') ? `${route}index` : route).replace(/^\//g, '')}.html`;
-            const targetDir = path.resolve(__dirname, 'dist', path.dirname(relativeRouteFile));
-            if (!fs.existsSync(targetDir)) {
-                fs.mkdirSync(targetDir, { recursive: true });
-            }
-            return undefined;
-        },
-        onPageRendered(route: string, renderedHTML: string, ctx: any) {
-            renderedPageCount++;
-            if (renderedPageCount % 200 === 0 && typeof (globalThis as any).gc === 'function') {
-                try {
-                    (globalThis as any).gc();
-                } catch (e) {}
-            }
-            // 将重复的 350+ 行内联 vuetify-theme-stylesheet 替换为外部静态 CSS 文件引用
-            return renderedHTML.replace(
-                /<style id="vuetify-theme-stylesheet">[\s\S]*?<\/style>/,
-                '<link rel="stylesheet" href="/assets/vuetify-theme.css" id="vuetify-theme-stylesheet">'
-            );
-        },
-        onFinished() {
-            // SSG 完成后的钩子
-        },
+        // vite-ssg 配置
+        ssgOptions: {
+            script: 'async',
+            formatting: 'none',
+            mock: false,
+            concurrency: 5,
+            // 预渲染所有静态路由与公开百科数据路由，跳过未填充参数的路由及私有路由
+            includedRoutes(paths: string[], routes: any[]) {
+                const allRoutes = getRoutes();
+                const skip = [
+                    '/account',
+                    '/widgets',
+                    '/test',
+                    '/space',
+                    '/:pathMatch',
+                ];
+                return allRoutes.filter(p => {
+                    if (p.includes(':')) return false;
+                    const clean = p.replace(/^\/(zh-CN|zh-TW|en-US)/, '') || '/';
+                    return !skip.some(s => clean.startsWith(s));
+                });
+            },
+            onBeforePageRender(route: string, indexHTML: string, ctx: any) {
+                // 确保页面输出目录安全存在，防止并发写入时的目录竞态异常
+                const relativeRouteFile = `${(route.endsWith('/') ? `${route}index` : route).replace(/^\//g, '')}.html`;
+                const targetDir = path.resolve(__dirname, 'dist', path.dirname(relativeRouteFile));
+                if (!fs.existsSync(targetDir)) {
+                    fs.mkdirSync(targetDir, { recursive: true });
+                }
+                return undefined;
+            },
+            onPageRendered(route: string, renderedHTML: string, ctx: any) {
+                renderedPageCount++;
+                if (renderedPageCount % 100 === 0 && typeof (globalThis as any).gc === 'function') {
+                    try {
+                        (globalThis as any).gc();
+                    } catch (e) { }
+                }
+                // 将重复的 350+ 行内联 vuetify-theme-stylesheet 替换为外部静态 CSS 文件引用
+                return renderedHTML.replace(
+                    /<style id="vuetify-theme-stylesheet">[\s\S]*?<\/style>/,
+                    '<link rel="stylesheet" href="/assets/vuetify-theme.css" id="vuetify-theme-stylesheet">'
+                );
+            },
+            onFinished() {
+                // SSG 完成后的钩子
+            },
         } as ViteSSGOptions,
     };
 });
