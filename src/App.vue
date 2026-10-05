@@ -5,7 +5,7 @@ import {useI18n} from 'vue-i18n';
 import {useRoute} from "vue-router";
 import {useHead} from "@unhead/vue";
 import {storage, getAppOrigin, getAppUrl} from "@/assets/sripts";
-import {normalizeLang} from "@/config/languages";
+import {normalizeLang, SUPPORTED_LANGS, DEFAULT_LANG, isSupportedLang} from "@/config/languages";
 import {useReminderStore} from "~/stores/reminderStore";
 
 const {t, locale} = useI18n();
@@ -19,7 +19,7 @@ watch(
   (newPath) => {
     if (!newPath) return;
     const seg = newPath.split('/').filter(Boolean)[0];
-    if (seg && ['zh-CN', 'zh-TW', 'en-US'].includes(seg)) {
+    if (seg && isSupportedLang(seg)) {
       if (seg !== locale.value) {
         locale.value = seg;
         if (typeof window !== 'undefined') {
@@ -41,9 +41,10 @@ const head = computed(() => {
   const origin = getAppOrigin();
 
   const currentPath = route.path || '/';
-  const rawPath = currentPath.replace(/^\/(zh-CN|zh-TW|en-US)/, '') || '/';
+  const langRegex = new RegExp('^/(' + SUPPORTED_LANGS.join('|') + ')');
+  const rawPath = currentPath.replace(langRegex, '') || '/';
   const cleanRawPath = rawPath === '/' ? '' : rawPath;
-  const currentLang = ['zh-CN', 'zh-TW', 'en-US'].includes(locale.value) ? locale.value : 'zh-CN';
+  const currentLang = isSupportedLang(locale.value) ? locale.value : DEFAULT_LANG;
   const canonicalUrl = getAppUrl(`/${currentLang}${cleanRawPath}`);
 
   return {
@@ -64,10 +65,12 @@ const head = computed(() => {
     ],
     link: [
       { rel: 'canonical', href: canonicalUrl },
-      { rel: 'alternate', hreflang: 'zh-CN', href: getAppUrl(`/zh-CN${cleanRawPath}`) },
-      { rel: 'alternate', hreflang: 'zh-TW', href: getAppUrl(`/zh-TW${cleanRawPath}`) },
-      { rel: 'alternate', hreflang: 'en-US', href: getAppUrl(`/en-US${cleanRawPath}`) },
-      { rel: 'alternate', hreflang: 'x-default', href: getAppUrl(`/zh-CN${cleanRawPath}`) },
+      ...SUPPORTED_LANGS.map(l => ({
+        rel: 'alternate',
+        hreflang: l,
+        href: getAppUrl(`/${l}${cleanRawPath}`)
+      })),
+      { rel: 'alternate', hreflang: 'x-default', href: getAppUrl(`/${DEFAULT_LANG}${cleanRawPath}`) },
     ],
     htmlAttrs: {
       lang: currentLang

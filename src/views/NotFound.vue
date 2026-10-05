@@ -15,11 +15,11 @@ let {t} = useI18n()
     <v-card>
       <template v-slot:image>
         <Noise
-            class="opacity-60"
-            :pattern-size="50"
-            :pattern-scale-x="1"
-            :pattern-scale-y="1"
-            :pattern-alpha="20">
+            class="bg-black"
+            :pattern-size="100"
+            :pattern-scale-x="10"
+            :pattern-scale-y="10"
+            :pattern-alpha="18">
         </Noise>
       </template>
       <template v-slot:default>

@@ -7,27 +7,14 @@ import { calculateTaskNextTriggerInfo, calculateNextTriggerTime, formatCountdown
 import { useNoticeStore } from '~/stores/noticeStore';
 import ReminderWorker from '@/workers/reminder.worker.ts?worker';
 import router from '../router';
-import i18n from '@/i18n';
+import { useI18nUtils } from '@/assets/sripts/i18n_util';
 
 export const useReminderStore = defineStore('reminder', () => {
     const noticeStore = useNoticeStore();
+    const { t } = useI18nUtils();
 
     /**
-     * 多语言翻译辅助函数
-     */
-    const t = (key: string, values?: Record<string, any>): string => {
-        try {
-            if (i18n?.global?.t) {
-                // @ts-ignore
-                return i18n.global.t(key, values || {});
-            }
-        } catch {
-            // fallback
-        }
-        return key;
-    };
 
-    /**
      * 校验当前页面路由是否处于活动提醒页面 (/reminder 或 /reminder/...)
      */
     const isReminderRoute = (): boolean => {

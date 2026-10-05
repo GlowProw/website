@@ -109,7 +109,7 @@ const {t} = useI18n()
         <v-col cols="12" lg="12">
           <AffixBoxHasTitleView>
             <p class="opacity-80 mb-3">{{ t('about.developersHonor') }}</p>
-            <DevMembersWidget :size="40"></DevMembersWidget>
+            <DevMembersWidget :size="40" reop="website"></DevMembersWidget>
 
             <template v-slot:title>
               <span class="d-block mb-5">🎉</span>{{ t('about.developersTitle') }}

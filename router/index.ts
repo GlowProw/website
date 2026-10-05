@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory, createMemoryHistory, RouteRecordRaw, RouterView } from 'vue-router';
-import i18n from "@/i18n";
 import { Seasons } from "glow-prow-data";
 import { getCurrentSeasonId } from "@/assets/sripts";
 
@@ -147,7 +146,7 @@ import { useAssetsStore } from "@/../stores/assetsStore";
 import { useHead } from "@unhead/vue";
 import { apis, storage } from "@/assets/sripts";
 import { useCDNAssetsServiceStore } from "~/stores/cdnAssetsStore";
-import { normalizeLang } from "@/config/languages";
+import { normalizeLang, SUPPORTED_LANGS, DEFAULT_LANG, isSupportedLang } from "@/config/languages";
 
 const isLoginBeforeEnter = function (to: any, from: any, next: any) {
     const authStore = useAuthStore()
@@ -1102,14 +1101,14 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
     },
 ];
 
-export const SUPPORTED_LANGS = ['zh-CN', 'zh-TW', 'en-US'] as const;
-export type SupportedLang = typeof SUPPORTED_LANGS[number];
+export { SUPPORTED_LANGS };
 
 function createLocalizedRoutes(rawRoutes: readonly RouteRecordRaw[]): RouteRecordRaw[] {
+    const langPattern = SUPPORTED_LANGS.join('|');
     return rawRoutes.map(r => {
         const langPath = r.path === '/'
-            ? '/:lang(zh-CN|zh-TW|en-US)'
-            : `/:lang(zh-CN|zh-TW|en-US)${r.path}`;
+            ? `/:lang(${langPattern})`
+            : `/:lang(${langPattern})${r.path}`;
         return {
             ...r,
             path: langPath,
@@ -1177,7 +1176,7 @@ export function setupRouterGuards(r: any) {
                 if ('name' in to && to.name && (!to.params || !to.params.lang)) {
                     const currentLang = (currentLocation?.params?.lang as string)
                         || (r.currentRoute?.value?.params?.lang as string)
-                        || (typeof i18n?.global?.locale?.value === 'string' ? i18n.global.locale.value : 'zh-CN');
+                        || DEFAULT_LANG;
                     normalizedTo = {
                         ...to,
                         params: {
@@ -1201,10 +1200,7 @@ export function setupRouterGuards(r: any) {
         const firstSegment = segments[0];
 
         // 如果包含合法的语言前缀
-        if (firstSegment && (SUPPORTED_LANGS as readonly string[]).includes(firstSegment)) {
-            if (i18n.global.locale.value !== firstSegment) {
-                i18n.global.locale.value = firstSegment as any;
-            }
+        if (firstSegment && isSupportedLang(firstSegment)) {
             if (typeof window !== 'undefined') {
                 storage.local.set('lang', { value: firstSegment });
             }
@@ -1215,9 +1211,9 @@ export function setupRouterGuards(r: any) {
         if (typeof window !== 'undefined') {
             const rawStored = storage.local.get('lang')?.data?.value;
             const stored = (typeof rawStored === 'object' && rawStored !== null && rawStored.value) ? rawStored.value : rawStored;
-            const targetLang = (typeof stored === 'string' && (SUPPORTED_LANGS as readonly string[]).includes(stored))
+            const targetLang = (typeof stored === 'string' && isSupportedLang(stored))
                 ? stored
-                : (normalizeLang(navigator.language));
+                : (normalizeLang(navigator.language) || DEFAULT_LANG);
 
             const cleanPath = to.path === '/' ? '' : to.path;
             return next({ path: `/${targetLang}${cleanPath}`, query: to.query, hash: to.hash, replace: true });

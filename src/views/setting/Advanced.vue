@@ -1,6 +1,5 @@
 <template>
-  <v-container>
-    <v-row>
+  <v-row>
       <!-- 桌面通知与活动提醒权限控制 -->
       <v-col cols="12" md="8" lg="6">
         <AffixBoxHasTitleView>
@@ -173,7 +172,6 @@
         </AffixBoxHasTitleView>
       </v-col>
     </v-row>
-  </v-container>
 </template>
 
 <script setup lang="ts">

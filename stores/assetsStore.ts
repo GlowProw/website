@@ -1,12 +1,44 @@
 import {defineStore} from "pinia";
 
+let cachedNpcsMap: any = null;
+let cachedRaritysMap: any = null;
+
+function serializationMap(assetsRaw: any) {
+    const imageMap: any = {};
+    for (const path in assetsRaw) {
+        const key: any = path.split('/').pop()
+            ?.toString()
+            .replace(/\.(svg|webp|jpg|png|mp4)$/, '');
+        imageMap[key] = assetsRaw[path]?.default || assetsRaw[path];
+    }
+    return imageMap;
+}
+
+function getNpcsMap() {
+    if (!cachedNpcsMap) {
+        // @ts-ignore
+        const npcImages = import.meta.glob('@glow-prow-assets/npcs/*', { eager: true });
+        cachedNpcsMap = serializationMap(npcImages);
+    }
+    return cachedNpcsMap;
+}
+
+function getRaritysMap() {
+    if (!cachedRaritysMap) {
+        // @ts-ignore
+        const rarityImages = import.meta.glob('@/assets/images/item-rarity-*.png', { eager: true });
+        cachedRaritysMap = serializationMap(rarityImages);
+    }
+    return cachedRaritysMap;
+}
+
 /**
  * 资源状态
  */
 export const useAssetsStore = defineStore('assets', {
     state: () => ({
-        raritys: new Map(),
-        npcs: new Map(),
+        raritys: {} as any,
+        npcs: {} as any,
     }),
     actions: {
         /**
@@ -19,44 +51,22 @@ export const useAssetsStore = defineStore('assets', {
             rarity: true,
         }) {
             if (options.npc || options.all)
-                this.initNpcs()
+                this.initNpcs();
             if (options.rarity || options.all)
-                this.initRarity()
+                this.initRarity();
         },
 
         initNpcs() {
-            if (this.npcs.size != 0)
-                return;
-
-            // @ts-ignore
-            const npcImages = import.meta.glob('@glow-prow-assets/npcs/*', {eager: true});
-
-            this.npcs = this.serializationMap(npcImages)
+            this.npcs = getNpcsMap();
         },
 
         initRarity() {
-            if (this.raritys.size != 0)
-                return;
-
-            // @ts-ignore
-            const rarityImages = import.meta.glob('@/assets/images/item-rarity-*.png', {eager: true})
-
-            this.raritys = this.serializationMap(rarityImages)
+            this.raritys = getRaritysMap();
         },
 
-        /**
-         * 序列化
-         * @param assetsRaw
-         */
         serializationMap(assetsRaw: any) {
-            const imageMap: any = {};
-            for (const path in assetsRaw) {
-                const key: any = path.split('/').pop()
-                    ?.toString()
-                    .replace(/\.(svg|webp|jpg|png|mp4)$/, '')
-                imageMap[key] = assetsRaw[path].default;
-            }
-            return imageMap
+            return serializationMap(assetsRaw);
         }
     }
-})
+});
+

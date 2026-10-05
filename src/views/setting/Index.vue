@@ -81,7 +81,7 @@ const onTabChange = (targetRouteName: any) => {
 </script>
 
 <template>
-  <v-app>
+  <div class="setting-page-root">
     <v-card height="200px">
       <template v-slot:image>
         <Silk
@@ -107,7 +107,7 @@ const onTabChange = (targetRouteName: any) => {
     <v-divider></v-divider>
 
     <v-container>
-      <div :class="{'d-flex flex-row ': !mobile}">
+      <div :class="{'d-flex flex-row': !mobile}">
         <v-tabs
             stacked
             border
@@ -152,12 +152,12 @@ const onTabChange = (targetRouteName: any) => {
           </template>
         </v-tabs>
 
-        <v-main min-height="80vh" class="pl-lg-5">
+        <div class="setting-content flex-grow-1 flex-shrink-1 w-100 pl-lg-5">
           <router-view></router-view>
-        </v-main>
+        </div>
       </div>
     </v-container>
-  </v-app>
+  </div>
 </template>
 
 <style scoped lang="less">
@@ -171,5 +171,13 @@ const onTabChange = (targetRouteName: any) => {
 
 .tabs-box-desktop {
   width: 80px;
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.setting-content {
+  min-width: 0;
+  width: 100%;
+  min-height: 80vh;
 }
 </style>

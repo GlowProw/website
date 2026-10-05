@@ -1,4 +1,4 @@
-import language, { normalizeLang } from '@/config/languages'
+import language, { normalizeLang, SUPPORTED_LANGS, DEFAULT_LANG, FALLBACK_LANG, isSupportedLang } from '@/config/languages'
 import { createI18n, type MessageContext } from 'vue-i18n';
 
 // 网站翻译
@@ -87,36 +87,17 @@ const deepMerge = (target: any, ...sources: any[]): any => {
  * 从语言配置的回退语言字段中寻找回退语言
  */
 export const getFallbackLocale = (): string => {
-    return language.fallback || language.mapping || 'en-US';
+    return FALLBACK_LANG;
 };
 
 /**
  * 获取浏览器语言并匹配支持的语言
  */
 const getBrowserLocale = (): string => {
-    // 支持的语言列表
-    const supportedLocales = ['zh-CN', 'zh-TW', 'en-US'];
-    // 从回退语言字段中寻找
     const fallbackLocale = getFallbackLocale();
-
-    // 获取浏览器语言
-    const browserLang = navigator.language || (navigator as any).userLanguage || fallbackLocale;
-
-    // 检查是否完全匹配
-    if (supportedLocales.includes(browserLang)) {
-        return browserLang;
-    }
-
-    // 处理简写形式，如 'zh' -> 'zh-CN', 'en' -> 'en-US'
-    const shortLang = browserLang.split('-')[0];
-    for (const locale of supportedLocales) {
-        if (locale.split('-')[0] === shortLang) {
-            return locale;
-        }
-    }
-
-    // 目标语言缺失，从回退语言字段中找
-    return fallbackLocale;
+    const browserLang = typeof navigator !== 'undefined' ? (navigator.language || (navigator as any).userLanguage) : null;
+    const matched = normalizeLang(browserLang);
+    return matched || fallbackLocale;
 };
 
 /**
@@ -128,7 +109,7 @@ const getInitialLocale = (): string => {
     if (typeof window !== 'undefined' && window.location) {
         // 优先读取 URL 路径前缀中的语言（如 /zh-CN/..., /en-US/...）
         const pathSeg = window.location.pathname.split('/').filter(Boolean)[0];
-        if (pathSeg && ['zh-CN', 'zh-TW', 'en-US'].includes(pathSeg)) {
+        if (pathSeg && isSupportedLang(pathSeg)) {
             storage.local.set('lang', { value: pathSeg });
             return pathSeg;
         }
@@ -148,7 +129,7 @@ const getInitialLocale = (): string => {
     // 其次使用本地存储的语言
     const rawStored = storage.local.get('lang')?.data?.value;
     const storedLang = (typeof rawStored === 'object' && rawStored !== null && rawStored.value) ? rawStored.value : rawStored;
-    if (typeof storedLang === 'string' && ['zh-CN', 'zh-TW', 'en-US'].includes(storedLang)) {
+    if (typeof storedLang === 'string' && isSupportedLang(storedLang)) {
         return storedLang;
     }
 
@@ -160,23 +141,26 @@ const getInitialLocale = (): string => {
 };
 
 const en_US_bundle = deepMerge({}, en_US_local, en_US_meta, { 'snb': en_US_snb });
-const zh_CN_bundle = deepMerge({}, zh_CN_local, zh_CN_meta, { 'snb': zh_CN_snb });
-const zh_TW_bundle = deepMerge({}, zh_TW_local, zh_TW_meta, { 'snb': zh_TW_snb });
+const zh_CN_bundle = deepMerge({}, en_US_bundle, zh_CN_local, zh_CN_meta, { 'snb': zh_CN_snb });
+const zh_TW_bundle = deepMerge({}, en_US_bundle, zh_TW_local, zh_TW_meta, { 'snb': zh_TW_snb });
 
-const i18n = createI18n({
-    legacy: false,
-    messageCompiler,
-    locale: getInitialLocale(),
-    fallbackLocale: getFallbackLocale(),
-    fallbackRoot: true,
-    missingWarn: false,
-    fallbackWarn: false,
-    messages: {
-        'en-US': en_US_bundle,
-        'zh-CN': deepMerge({}, en_US_bundle, zh_CN_bundle),
-        'zh-TW': deepMerge({}, en_US_bundle, zh_TW_bundle),
-    },
-    globalInjection: false,
-})
+const mergedI18nMessages = {
+    'en-US': en_US_bundle,
+    'zh-CN': zh_CN_bundle,
+    'zh-TW': zh_TW_bundle,
+};
 
-export default i18n;
+export const createAppI18n = (locale?: string) => {
+    return createI18n({
+        legacy: false,
+        messageCompiler,
+        locale: locale || getInitialLocale(),
+        fallbackLocale: getFallbackLocale(),
+        fallbackRoot: true,
+        missingWarn: false,
+        fallbackWarn: false,
+        messages: mergedI18nMessages,
+        globalInjection: false,
+    });
+};
+

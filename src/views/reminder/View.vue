@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {computed, onMounted, onUnmounted, ref} from 'vue';
 import {useI18n} from 'vue-i18n';
-import {useRouter} from 'vue-router';
+import {useRoute, useRouter} from 'vue-router';
 import {useDisplay} from 'vuetify/framework';
 import LZString from 'lz-string';
 import {useReminderStore} from '~/stores/reminderStore';
@@ -16,6 +16,7 @@ import AffixContainerView from "@/components/AffixContainerView.vue";
 
 const {t, te} = useI18n();
 const {mobile} = useDisplay();
+const route = useRoute();
 const router = useRouter();
 const reminderStore = useReminderStore();
 const noticeStore = useNoticeStore();

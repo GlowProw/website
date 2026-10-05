@@ -1,0 +1,23 @@
+{
+  "name": "Glow Prow | 閃耀船首",
+  "short_name": "閃耀船首",
+  "description": "《怒海戰記 (Skull and Bones)》全能遊戲百科與交互地圖助手：全收集地圖、船隻配置模擬、全物品圖鑑、走私差事與帝國技能樹。",
+  "lang": "zh-TW",
+  "start_url": "/zh-TW/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#222222",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

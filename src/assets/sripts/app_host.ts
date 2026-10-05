@@ -1,6 +1,6 @@
 /**
  * 获取当前应用的主机名
- * 优先读取浏览器 window.location.host，SSR / 构建期读取 .env 中的 APP_HOST / VITE_APP_HOST
+ * 优先读取浏览器 window.location.host，SSR / 构建期读取 .env 中的 APP_HOST
  */
 export const getAppHost = (): string => {
   if (typeof window !== 'undefined' && window.location?.host) {

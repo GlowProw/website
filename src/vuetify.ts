@@ -1,38 +1,38 @@
-import {createVuetify} from "vuetify/framework";
+import { createVuetify } from "vuetify/framework";
 
-import {aliases, mdi} from "vuetify/iconsets/mdi";
+import { aliases, mdi } from "vuetify/iconsets/mdi";
 
-import {en, zhHans} from "vuetify/locale";
+import { en, zhHans, zhHant } from "vuetify/locale";
 
 // 样式导入
 import '@/assets/styles/index.less'
 import 'vuetify/styles/main.css';
 import '@mdi/font/css/materialdesignicons.css'
-import i18n from "./i18n";
+import { DEFAULT_LANG } from "./config/languages";
 
-let i: any = i18n;
+export const createAppVuetify = (initialLocale = DEFAULT_LANG) => {
+    return createVuetify({
+        icons: {
+            defaultSet: 'mdi',
+            aliases: {
+                ...aliases,
+            },
+            sets: {
+                mdi,
+            },
+        },
+        locale: {
+            locale: initialLocale,
+            fallback: DEFAULT_LANG,
+            messages: {
+                'en-US': en,
+                'zh-CN': zhHans,
+                'zh-TW': zhHant,
+            },
+        },
+        theme: {
+            defaultTheme: 'dark',
+        },
+    });
+};
 
-const vuetify = createVuetify({
-    icons: {
-        defaultSet: 'mdi',
-        aliases: {
-            ...aliases,
-        },
-        sets: {
-            mdi,
-        },
-    },
-    locale: {
-        locale: i.locale,
-        fallback: i.locale,
-        messages: {
-            'en-US': en,
-            'zh-CN': zhHans,
-        },
-    },
-    theme: {
-        defaultTheme: 'dark',
-    },
-})
-
-export default vuetify

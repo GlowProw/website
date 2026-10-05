@@ -16,8 +16,9 @@
     "preview:production": "vite preview",
     "build-only": "vite build --mode production",
     "build:ssg": "npm run build-only:ssg",
-    "build-only:ssg": "rm -rf dist .vite-ssg-temp && vite-ssg build --mode production",
-    "deploy:edgeone": "npm run build:ssg && edgeone makers deploy ./dist -n glow-prow-website"
+    "build-only:ssg": "rm -rf dist .vite-ssg-temp && NODE_OPTIONS='--expose-gc --max-old-space-size=7168' vite-ssg build --mode production",
+    "deploy:edgeone:production": "npm run build:ssg && edgeone makers deploy ./dist -n glow-prow-website",
+    "deploy:edgeone:preview": "npm run build:ssg && edgeone makers deploy ./dist -n glow-prow-website -e preview"
   },
   "dependencies": {
     "@fontsource/roboto": "5.2.5",

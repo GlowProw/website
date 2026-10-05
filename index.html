@@ -13,32 +13,7 @@
   <meta name="baidu-site-verification" content="codeva-UiqBX6cwQz" />
   <meta name="google-adsense-account" content="ca-pub-6625226616103631" />
   <link rel="stylesheet" href="/assets/vuetify-theme.css" id="vuetify-theme-stylesheet" />
-  <script>
-    (function() {
-      var supported = ['zh-CN', 'zh-TW', 'en-US'];
-      var path = window.location.pathname;
-      var hasLang = supported.some(function(l) { return path === '/' + l || path.indexOf('/' + l + '/') === 0; });
-      if (!hasLang && (path === '/' || path === '')) {
-        var rawStored = localStorage.getItem('snb.production:lang') || localStorage.getItem('snb.development:lang') || localStorage.getItem('lang');
-        var lang = 'zh-CN';
-        if (rawStored) {
-          try {
-            var p = JSON.parse(rawStored);
-            var val = (p && p.data && p.data.value) ? p.data.value : (p && p.value ? p.value : p);
-            if (typeof val === 'object' && val !== null && val.value) val = val.value;
-            if (typeof val === 'string' && supported.includes(val)) lang = val;
-          } catch(e) {}
-        } else {
-          var nav = navigator.language || navigator.userLanguage || 'zh-CN';
-          if (nav.indexOf('TW') !== -1 || nav.indexOf('HK') !== -1 || nav.indexOf('Hant') !== -1) lang = 'zh-TW';
-          else if (nav.indexOf('zh') !== -1) lang = 'zh-CN';
-          else lang = 'en-US';
-        }
-        if (!supported.includes(lang)) lang = 'zh-CN';
-        window.location.replace('/' + lang + (path === '/' ? '' : path));
-      }
-    })();
-  </script>
+  <script src="/assets/lang-redirect.js"></script>
 
   <title>Glow Prow | 闪耀船首 - 碧海黑帆综合数据与地图工具</title>
   <link rel="canonical" href="https://glow-prow.top/" />
@@ -63,49 +38,8 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:url" content="https://glow-prow.top/" />
   <meta name="twitter:title" content="闪耀船首 - 碧海黑帆综合数据与地图工具" />
-  <meta name="twitter:description"
-    content="《碧海黑帆 (Skull and Bones)》全能游戏百科与交互地图助手：全收集地图、船只配置模拟、全物品图鉴、走私差事、帝国技能树与任务攻略。" />
+  <meta name="twitter:description" content="《碧海黑帆 (Skull and Bones)》全能游戏百科与交互地图助手：全收集地图、船只配置模拟、全物品图鉴、走私差事、帝国技能树与任务攻略。" />
   <meta name="twitter:image" content="https://glow-prow.top/favicon.png" />
-
-  <!-- JSON-LD Structured Data -->
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@graph": [
-        {
-          "@type": "WebSite",
-          "@id": "https://glow-prow.top/#website",
-          "url": "https://glow-prow.top/",
-          "name": "Glow Prow | 闪耀船首",
-          "description": "《碧海黑帆 (Skull and Bones)》全能游戏百科与交互地图助手：全收集地图、船只配置模拟、全物品图鉴、走私差事与帝国技能树。",
-          "publisher": {
-            "@type": "Organization",
-            "name": "Glow Prow",
-            "logo": {
-              "@type": "ImageObject",
-              "url": "https://glow-prow.top/favicon.png"
-            }
-          },
-          "potentialAction": {
-            "@type": "SearchAction",
-            "target": "https://glow-prow.top/codex?search={search_term_string}",
-            "query-input": "required name=search_term_string"
-          },
-          "inLanguage": ["zh-CN", "zh-TW", "en-US"]
-        },
-        {
-          "@type": "WebApplication",
-          "@id": "https://glow-prow.top/#webapp",
-          "name": "Glow Prow 碧海黑帆助手",
-          "url": "https://glow-prow.top/",
-          "applicationCategory": "GameApplication, UtilitiesApplication",
-          "operatingSystem": "All",
-          "browserRequirements": "Requires JavaScript. Requires HTML5.",
-          "description": "专为《碧海黑帆》玩家打造的实用工具库，提供交互式地图标注、船只与配装模拟、走私收益计算、帝国技能路线模拟及全数据图鉴。"
-        }
-      ]
-    }
-    </script>
 </head>
 
 <body>
@@ -116,17 +50,8 @@
 
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-M7GHT4Z92C"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() {
-      dataLayer.push(arguments);
-    }
-    gtag('js', new Date());
-    gtag('config', 'G-M7GHT4Z92C');
-  </script>
-
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6625226616103631"
-    crossorigin="anonymous"></script>
+  <script defer src="/assets/analytics.js"></script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6625226616103631" crossorigin="anonymous"></script>
 </body>
 <style type="text/css">
   html,

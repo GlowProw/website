@@ -9,7 +9,7 @@ import {useI18n} from "vue-i18n";
 import {storage} from "@/assets/sripts";
 import {useRoute, useRouter} from "vue-router";
 import I18nMembersWidget from "@/components/i18nMembersWidget.vue";
-import languagesConfig from "@/config/languages";
+import languagesConfig, { DEFAULT_LANG, SUPPORTED_LANGS } from "@/config/languages";
 
 const {t, locale} = useI18n(),
     router = useRouter(),
@@ -18,7 +18,7 @@ const {t, locale} = useI18n(),
 // 立即初始化语言列表，避免挂载时空数组引起的组件状态重置
 const languages = ref(languagesConfig.child || []);
 const langLoading = ref(false);
-const selectLang = ref(locale.value || 'zh-CN');
+const selectLang = ref(locale.value || DEFAULT_LANG);
 
 // 保证与 i18n locale 保持同步更新
 watch(
@@ -49,7 +49,8 @@ const onChangeLang = (newVal?: string) => {
 
   // 剥离原有的语言前缀，拼接新的目标语言前缀
   const currentPath = route.path || '/';
-  const cleanPath = currentPath.replace(/^\/(zh-CN|zh-TW|en-US)/, '') || '';
+  const langRegex = new RegExp('^/(' + SUPPORTED_LANGS.join('|') + ')');
+  const cleanPath = currentPath.replace(langRegex, '') || '';
   const newPath = `/${targetLang}${cleanPath.startsWith('/') ? cleanPath : (cleanPath ? '/' + cleanPath : '')}`;
 
   // 清除 query 中过时的 lang 参数

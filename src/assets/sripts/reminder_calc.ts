@@ -3,6 +3,7 @@
  * 负责计算下一次提醒的触发时机、提前提醒、有效期检测以及格式化倒计时
  */
 import type { MultilingualText, ReminderNextTriggerInfo, ReminderTask } from '@/assets/types/Reminder';
+import { DEFAULT_LANG, FALLBACK_LANG } from '@/config/languages';
 
 /**
  * 解析并获取多语言文本（轻量级无依赖实现，避免 Worker 打包进完整 i18n 字典）
@@ -25,8 +26,8 @@ export function getLocalizedText(
             }
         } catch {}
     }
-    if (!currentLocale) currentLocale = 'zh-CN';
-    const fallback = 'zh-CN';
+    if (!currentLocale) currentLocale = DEFAULT_LANG;
+    const fallback = FALLBACK_LANG;
 
     const findInDict = (localeKey: string | undefined): string | null => {
         if (!localeKey || typeof localeKey !== 'string') return null;

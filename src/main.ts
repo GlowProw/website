@@ -49,8 +49,8 @@ import App from './App.vue'
 import { ViteSSG } from 'vite-ssg'
 import { createPinia } from 'pinia'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
-import i18n from './i18n'
-import vuetify from './vuetify'
+import { createAppI18n } from './i18n'
+import { createAppVuetify } from './vuetify'
 import { routes, scrollBehavior, setupRouterGuards } from '../router'
 import { initGlobalErrorCapture } from './assets/sripts/error_logger'
 
@@ -70,6 +70,9 @@ export const createApp = ViteSSG(
         if (isClient) {
             pinia.use(piniaPluginPersistedstate)
         }
+
+        const i18n = createAppI18n()
+        const vuetify = createAppVuetify()
 
         app.use(pinia)
         app.use(i18n)
