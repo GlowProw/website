@@ -38,6 +38,8 @@ jobs:
       - name: Configure Swap Space (Prevent SSG OOM)
         run: |
           echo "=== 正在配置 10GB Swap 交换内存以防止多路由 SSG 内存溢出 ==="
+          sudo swapoff -a || true
+          sudo rm -f /swapfile
           sudo fallocate -l 10G /swapfile || sudo dd if=/dev/zero of=/swapfile bs=1M count=10240
           sudo chmod 600 /swapfile
           sudo mkswap /swapfile
