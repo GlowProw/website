@@ -1,4 +1,4 @@
-name: Deploy to EdgeOne
+name: Build and Deploy (EdgeOne & Cloudflare Pages)
 
 on:
   push:
@@ -9,10 +9,13 @@ on:
       - '**.md'
       - '.gitignore'
       - 'docs/**'
+  release:
+    types:
+      - published
   workflow_dispatch:
     inputs:
       environment:
-        description: 'EdgeOne 部署环境'
+        description: '部署目标环境 (production / preview)'
         required: true
         default: 'production'
         type: choice
@@ -26,10 +29,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
-    name: Build & Deploy to EdgeOne
+  # ========================================================
+  # 阶段 1：统一打包构建 (SSG)
+  # ========================================================
+  build:
+    name: Build Project (SSG)
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    outputs:
+      target_env: ${{ steps.env-selector.outputs.target_env }}
+      cf_branch: ${{ steps.env-selector.outputs.cf_branch }}
 
     steps:
       - name: Checkout Code
@@ -54,30 +63,104 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
+      - name: Determine Target Environment
+        id: env-selector
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            TARGET_ENV="production"
+            CF_BRANCH="main"
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TARGET_ENV="${{ github.event.inputs.environment }}"
+            if [ "$TARGET_ENV" = "production" ]; then
+              CF_BRANCH="main"
+            else
+              CF_BRANCH="dev"
+            fi
+          elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            TARGET_ENV="production"
+            CF_BRANCH="main"
+          elif [ "${{ github.ref }}" = "refs/heads/dev" ]; then
+            TARGET_ENV="preview"
+            CF_BRANCH="dev"
+          else
+            TARGET_ENV="preview"
+            CF_BRANCH="preview"
+          fi
+          echo "target_env=$TARGET_ENV" >> "$GITHUB_OUTPUT"
+          echo "cf_branch=$CF_BRANCH" >> "$GITHUB_OUTPUT"
+          echo "=== Selected target environment: $TARGET_ENV, Cloudflare branch: $CF_BRANCH ==="
+
       - name: Build SSG
         run: npm run build:ssg
         env:
           NODE_OPTIONS: '--expose-gc --max-old-space-size=7168'
           APP_HOST: 'glow-prow.top'
 
-      - name: Determine Target Environment
-        id: env-selector
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            TARGET_ENV="${{ github.event.inputs.environment }}"
-          elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            TARGET_ENV="production"
-          else
-            TARGET_ENV="preview"
-          fi
-          echo "target_env=$TARGET_ENV" >> "$GITHUB_OUTPUT"
-          echo "Selected deployment environment: $TARGET_ENV"
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-artifacts
+          path: dist
+          retention-days: 1
+
+  # ========================================================
+  # 阶段 2：部署到 腾讯云 EdgeOne Pages (Makers)
+  # ========================================================
+  deploy-edgeone:
+    name: Deploy to Tencent EdgeOne
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.17.0'
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-artifacts
+          path: dist
 
       - name: Deploy to EdgeOne Makers
         run: |
+          echo "=== 正在部署至 EdgeOne 环境: ${{ needs.build.outputs.target_env }} ==="
           npx --yes edgeone makers deploy ./dist \
-            -n glow-prow-website \
-            -e ${{ steps.env-selector.outputs.target_env }} \
+            -n glow-prow-website-cil-build \
+            -e ${{ needs.build.outputs.target_env }} \
             -t "${{ secrets.EDGEONE_PAGES_API_TOKEN || secrets.EDGEONE_API_TOKEN }}"
         env:
           EDGEONE_PAGES_API_TOKEN: ${{ secrets.EDGEONE_PAGES_API_TOKEN || secrets.EDGEONE_API_TOKEN }}
+
+  # ========================================================
+  # 阶段 3：部署到 Cloudflare Pages
+  # ========================================================
+  deploy-cloudflare:
+    name: Deploy to Cloudflare Pages
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.17.0'
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-artifacts
+          path: dist
+
+      - name: Deploy to Cloudflare Pages
+        run: |
+          echo "=== 正在部署至 Cloudflare Pages (Branch: ${{ needs.build.outputs.cf_branch }}) ==="
+          npx --yes wrangler pages deploy ./dist \
+            --project-name=glow-prow-website \
+            --branch=${{ needs.build.outputs.cf_branch }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
