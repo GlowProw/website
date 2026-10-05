@@ -1,12 +1,12 @@
-<script lang="ts">
-export default { name: 'CosmeticPiecesTagWidget' }
-</script>
-
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 
 const props = withDefaults(defineProps<{ pieces?: [] | string | unknown }>(), {pieces: null}),
     {t} = useI18n()
+
+defineOptions({
+  name: 'CosmeticPiecesTagWidget'
+})
 </script>
 
 <template>

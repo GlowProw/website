@@ -1,9 +1,3 @@
-<script lang="ts">
-export default {
-  name: 'CountdownWidget',
-};
-</script>
-
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -169,6 +163,10 @@ const formattedText = computed(() => {
   }
   return t('drop.countdown.minutesOnly', { minutes: Math.max(m, 1) }, `剩余 ${Math.max(m, 1)} 分钟`);
 });
+
+defineOptions({
+  name: 'CountdownWidget'
+})
 </script>
 
 <template>

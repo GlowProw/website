@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'Silk' }
-</script>
-
 <script setup lang="ts">
 import { onMounted, onUnmounted, watch, type CSSProperties, useTemplateRef } from 'vue';
 import { Renderer, Program, Mesh, Plane, Camera } from 'ogl';
@@ -253,6 +249,10 @@ watch(
     () => [props.speed, props.scale, props.color, props.noiseIntensity, props.rotation],
     () => {}
 )
+
+defineOptions({
+  name: 'Silk'
+})
 </script>
 
 <template>

@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'ImgView' }
-</script>
-
 <script setup lang="ts">
 import {ref} from "vue";
 import {Editor} from "@tiptap/vue-3";
@@ -61,6 +57,10 @@ defineExpose({
   openPanel,
   onPanelToggle,
   onClose,
+})
+
+defineOptions({
+  name: 'ImgView'
 })
 </script>
 

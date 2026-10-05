@@ -1,7 +1,3 @@
-<script lang="ts">
-export default {name: 'WeaponModificationWidget'}
-</script>
-
 <script setup lang="ts">
 import RhombusWidget from "@/components/snbWidget/rhombusWidget.vue";
 import {Item} from "glow-prow-data/src/entity/Items";
@@ -488,6 +484,10 @@ defineExpose({
   weaponModConfig: WEAPON_MOD_CONFIG,
   modStyleConfig: MOD_STYLE_CONFIG,
   isSlotLocked,
+})
+
+defineOptions({
+  name: 'WeaponModificationWidget'
 })
 </script>
 

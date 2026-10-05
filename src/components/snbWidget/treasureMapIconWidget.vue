@@ -1,7 +1,3 @@
-<script lang="ts">
-export default {name: 'TreasureMapIconWidget'}
-</script>
-
 <script setup lang="ts">
 import { useIconGlobalStyle } from "@/assets/sripts/use_icon_global_style";
 import {useRoute, useRouter} from "vue-router";
@@ -92,6 +88,10 @@ const {targetElement, isVisible} = useIntersectionObserver({
 const { useIconImagePadding, useIconImageMargin } = useIconGlobalStyle();
 const computedPadding = useIconImagePadding(props.padding);
 const computedMargin = useIconImageMargin(props.margin);
+
+defineOptions({
+  name: 'TreasureMapIconWidget'
+})
 </script>
 
 <template>

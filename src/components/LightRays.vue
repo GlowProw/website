@@ -9,9 +9,6 @@
   />
 </template>
 
-<script lang="ts">
-export default { name: 'LightRays' }
-</script>
 
 <script setup lang="ts">
 import {computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch} from 'vue';
@@ -574,6 +571,10 @@ onUnmounted((): void => {
     window.removeEventListener('mousemove', handleMouseMove);
   }
 });
+
+defineOptions({
+  name: 'LightRays'
+})
 </script>
 
 

@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'HalfScreenBannerText' }
-</script>
-
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -42,6 +38,10 @@ const displaySubtitle = computed(() => {
   }
   return '为碧海黑帆开发工具集，你只差一步，注册即可使用';
 });
+
+defineOptions({
+  name: 'HalfScreenBannerText'
+})
 </script>
 
 <template>

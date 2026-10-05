@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'RhombusWidget' }
-</script>
-
 <script setup lang="ts">
 import { computed, useId } from 'vue';
 
@@ -290,6 +286,10 @@ const flameBlurVal = computed(() => {
 const flameSmokeBlurVal = computed(() => {
   return Number((flameBlurVal.value * 1.35).toFixed(2));
 });
+
+defineOptions({
+  name: 'RhombusWidget'
+})
 </script>
 
 <template>

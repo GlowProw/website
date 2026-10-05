@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'WheelShowWidget' }
-</script>
-
 <script setup lang="ts">
 
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
@@ -173,6 +169,10 @@ defineExpose({
   setSetting,
   verify,
   data: isEmpty ? null : wheelTabs.value
+})
+
+defineOptions({
+  name: 'WheelShowWidget'
 })
 </script>
 

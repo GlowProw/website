@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'ShipWeaponInfoSlotWidget' }
-</script>
-
 <script setup lang="ts">
 
 import ShipTopDownPerspectiveWidget from "@/components/snbWidget/shipTopDownPerspectiveWidget.vue";
@@ -12,6 +8,10 @@ const props = withDefaults(defineProps<{ data: Ship }>(), {
       data: null
     }),
     {t} = useI18n()
+
+defineOptions({
+  name: 'ShipWeaponInfoSlotWidget'
+})
 </script>
 
 <template>

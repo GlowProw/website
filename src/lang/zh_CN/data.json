@@ -195,7 +195,8 @@
       "use": "使用",
       "close": "关闭",
       "create": "创建",
-      "refresh": "刷新"
+      "refresh": "刷新",
+      "view": "前往查看"
     },
     "assembly": {
       "publish": {
@@ -564,6 +565,13 @@
         "syncFailed": "战事数据同步失败",
         "refreshed": "战况数据已刷新",
         "refreshFailed": "刷新战况数据失败"
+      },
+      "success": "操作成功",
+      "map": {
+        "success": "操作成功",
+        "addSuccess": "添加成功",
+        "removeSuccess": "移除成功",
+        "deleteSuccess": "删除成功"
       }
     },
     "rules": {
@@ -626,7 +634,8 @@
         "last3Years": "近3年",
         "last5Years": "近5年"
       }
-    }
+    },
+    "all": "全部"
   },
   "comment": {
     "title": "评论",
@@ -650,6 +659,7 @@
   "account": {
     "trash": "回收站",
     "logout": "退出登录",
+    "dataList": "数据",
     "selectAll": "全选",
     "itemsSelected": "已选择 {count} 项",
     "deletedAt": "删除时间",
@@ -681,7 +691,9 @@
           "codePlaceholder": "输入 6 位验证码",
           "error": {
             "required": "请输入新邮箱"
-          }
+          },
+          "newEmail": "新邮箱地址",
+          "code": "验证码"
         },
         "language": {
           "name": "语种",
@@ -697,17 +709,24 @@
           "name": "密码",
           "changePasswordName": "修改账户密码",
           "changePasswordDescription": "此操作会在成功后推出登陆，需要重新登陆账号",
-          "oldPassword": "",
+          "oldPassword": "旧密码",
           "oldPasswordPlaceholder": "输入旧的密码",
-          "newPassword": "",
+          "newPassword": "新密码",
           "newPasswordPlaceholder": "输入新的密码"
         }
-      }
+      },
+      "subtitle": "管理您的个人基础资料、账户安全凭据及系统偏好"
     },
     "profile-picture": {
       "title": "头像",
       "description": "头像使用的是gravatar提供用户信息，需要修改头像信息前往gravatar.com上传",
-      "associatedEmailNotification": "头像关联的是{email}邮箱，请使用它来注册gravatar"
+      "associatedEmailNotification": "头像关联的是{email}邮箱，请使用它来注册gravatar",
+      "serviceTitle": "Gravatar 全球头像服务",
+      "serviceSubtitle": "基于注册邮箱全球同步",
+      "serviceDesc": "Glow Prow 采用全球通用的 Gravatar 头像协议。在 Gravatar 平台上传或修改您的头像后，本平台及所有相关服务将自动完成同步显示。",
+      "goToGravatar": "前往 Gravatar 设置头像",
+      "previewDesc": "以下为您在网页端、排行榜、讨论区及组队大厅中的各种规格展示效果：",
+      "previewTitle": "多规格头像预览"
     },
     "bindings": {
       "title": "平台绑定",
@@ -715,7 +734,27 @@
       "bound": "已绑定",
       "unbound": "未绑定",
       "bindBtn": "立即绑定",
-      "unbindBtn": "解除绑定"
+      "unbindBtn": "解除绑定",
+      "boundAccount": "已绑定账号: {username}",
+      "unbindConfirm": "确定要解除与 {platform} 账号的绑定吗？",
+      "unbindSuccess": "解绑成功",
+      "unbindFailed": "解绑失败",
+      "getAuthUrlFailed": "获取授权链接失败",
+      "platforms": {
+        "qq": {
+          "name": "QQ 平台",
+          "desc": "支持 QQ 快捷一键登录与个人中心快速同步"
+        },
+        "wechat": {
+          "name": "微信平台",
+          "desc": "支持微信扫码登录与公众号/小程序联动"
+        },
+        "google": {
+          "name": "Google",
+          "desc": "支持 Google 国际通用快捷登录"
+        }
+      },
+      "authorized": "已授权"
     },
     "myAssembly": "我的配装",
     "myComment": "我的评论",
@@ -750,7 +789,16 @@
       "reviewNotice": "请不要发布与走私犯无关内容",
       "reviewPlaceholder": "输入你鉴赏推荐内容",
       "deleteComment": "删除评论"
-    }
+    },
+    "needLogin": "请先登录",
+    "needLoginDesc": "登录后即可管理个人资料、配装与收藏数据",
+    "roles": "用户权限角色",
+    "profile": "账户档案",
+    "security": "安全设置",
+    "preference": "偏好设置",
+    "trashRestoreConfirm": "确定要恢复该项目吗？",
+    "trashRestoreBatchConfirm": "确定要恢复选中的项目吗？",
+    "trashRestoreSuccess": "恢复成功"
   },
   "activate": {
     "title": "账户激活",
@@ -1025,11 +1073,13 @@
           "description": "支援舰擅长支援友方船只，往往能够帮助扭转战局。"
         }
       },
-      "attachment": "附件"
+      "attachment": "附件",
+      "name": "船只"
     },
     "items": {
       "title": "物品列表",
-      "description": "物品列表"
+      "description": "物品列表",
+      "name": "物品"
     },
     "item": {
       "title": "物品详情",
@@ -1826,7 +1876,15 @@
         "name": "藏宝图",
         "description": "记录着隐藏宝藏位置的藏宝图线索点。"
       }
-    }
+    },
+    "managePoints": "管理坐标",
+    "remove": "移出",
+    "add": "加入图集",
+    "searchPoints": "搜索未分组坐标...",
+    "editCollection": "编辑地图集",
+    "confirmDeletePoints": "确定要删除选中的坐标吗？",
+    "public": "公开",
+    "private": "私有"
   },
   "rankingDesignedItems": {
     "title": "排序设计",
@@ -1896,7 +1954,9 @@
       "fortressRaiding": "要塞掠夺",
       "transaction": "物品交易",
       "other": "其他"
-    }
+    },
+    "searchPlaceholder": "搜索招募描述或玩家名...",
+    "create": "发布招募"
   },
   "assembly": {
     "title": "配装厂",
@@ -2232,7 +2292,9 @@
       "tagsPlaceholder": "输入标签敲下回车键，即可创建新标签"
     },
     "selectWeaponDirection": "选择武器方向",
-    "unnamed": "未命名配装"
+    "unnamed": "未命名配装",
+    "create": "创建配装",
+    "searchPlaceholder": "搜索配装名称..."
   },
   "smugglersReport": {
     "title": "走私犯鉴赏家",
@@ -2267,7 +2329,14 @@
       "createReviewTitle": "创建鉴赏",
       "warningContent": "请不要发布与走私犯无关内容",
       "recommendationPlaceholder": "输入你鉴赏推荐内容",
-      "deleteComment": "删除评论"
+      "deleteComment": "删除评论",
+      "confirmDeleteReport": "确定要删除该周报吗？",
+      "confirmDeleteComment": "确定删除此条评论吗？",
+      "commentSuccess": "评论成功",
+      "commentEditSuccess": "修改成功",
+      "commentDeleteSuccess": "删除成功",
+      "commentCount": "{count} 条评论",
+      "reportTitle": "周报标题"
     }
   },
   "space": {

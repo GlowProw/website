@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'ItemNameRarity' }
-</script>
-
 <script setup lang="ts">
 import {Items} from "glow-prow-data/src/entity/Items";
 import {rarity} from "@/assets/sripts/index";
@@ -10,6 +6,10 @@ const props = defineProps<{ id: string }>(),
     items = Items,
     rarityColorConfig = rarity.color
 
+
+defineOptions({
+  name: 'ItemNameRarity'
+})
 </script>
 
 <template>

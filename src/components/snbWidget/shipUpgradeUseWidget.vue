@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'ShipUpgradeUseWidget' }
-</script>
-
 <script setup lang="ts">
 import {computed} from "vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
@@ -16,6 +12,10 @@ const props = defineProps<{ id: string }>(),
     ships = computed(() => Object.values(Ships)
         .filter((i: Ship) => i.id.indexOf(sanitizeString(props.id).cleaned.replaceAll('Upgrade', '')) >= 0)
     )
+
+defineOptions({
+  name: 'ShipUpgradeUseWidget'
+})
 </script>
 
 <template>

@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'WorldEventWidget' }
-</script>
-
 <script setup lang="ts">
 import {computed, onMounted, ref, type Ref, watch} from "vue";
 import {Item, Material, Ship, Ultimate} from "glow-prow-data";
@@ -57,6 +53,10 @@ onMounted(() => {
 const getChipText = (o: any) => {
   return t(`snb.worldEvents.${o.worldEventId}`, {...i18nAdditionalAttr.value})
 }
+
+defineOptions({
+  name: 'WorldEventWidget'
+})
 </script>
 
 <template>

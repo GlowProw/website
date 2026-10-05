@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'MapLocationAvailableNpcWidget' }
-</script>
-
 <script setup lang="ts">
 import {Npc, Npcs} from "glow-prow-data";
 import {computed} from "vue";
@@ -23,6 +19,10 @@ const props = defineProps<{ id: string, category: string }>(),
 
 defineExpose({
   npcs
+})
+
+defineOptions({
+  name: 'MapLocationAvailableNpcWidget'
 })
 </script>
 

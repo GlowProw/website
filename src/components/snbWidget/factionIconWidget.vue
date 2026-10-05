@@ -1,7 +1,3 @@
-<script lang="ts">
-export default {name: 'FactionIconWidget'}
-</script>
-
 <script setup lang="ts">
 import {useIconGlobalStyle} from "@/assets/sripts/use_icon_global_style";
 import {onMounted, type Ref, ref, watch} from "vue";
@@ -50,6 +46,10 @@ const onReady = () => {
 
 
 const {useIconImagePadding, useIconImageMargin} = useIconGlobalStyle();
+
+defineOptions({
+  name: 'FactionIconWidget'
+})
 </script>
 
 <template>

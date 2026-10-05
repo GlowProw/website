@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'BluePrintWidget' }
-</script>
-
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import {computed} from "vue";
@@ -76,6 +72,10 @@ const bluePrintsList = computed(() => {
         return name && name !== key ? name : null;
       })
       .filter((name): name is string => name !== null)
+})
+
+defineOptions({
+  name: 'BluePrintWidget'
 })
 </script>
 

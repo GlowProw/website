@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'SmugglersReportShowItemWidget' }
-</script>
-
 <script setup lang="ts">
 import {onMounted, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
@@ -49,6 +45,10 @@ const onProcessingData = () => {
 
 defineExpose({
   data: processingData.value
+})
+
+defineOptions({
+  name: 'SmugglersReportShowItemWidget'
 })
 </script>
 

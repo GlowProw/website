@@ -195,7 +195,8 @@
       "use": "Use",
       "close": "Close",
       "create": "Create",
-      "refresh": "Refresh"
+      "refresh": "Refresh",
+      "view": "View"
     },
     "assembly": {
       "publish": {
@@ -566,6 +567,13 @@
         "syncFailed": "State of War synchronization failed",
         "refreshed": "State of War data refreshed",
         "refreshFailed": "Failed to refresh State of War data"
+      },
+      "success": "Operation successful",
+      "map": {
+        "success": "Operation successful",
+        "addSuccess": "Added successfully",
+        "removeSuccess": "Removed successfully",
+        "deleteSuccess": "Deleted successfully"
       }
     },
     "rules": {
@@ -628,7 +636,8 @@
         "last3Years": "Last 3 Years",
         "last5Years": "Last 5 Years"
       }
-    }
+    },
+    "all": "All"
   },
   "comment": {
     "title": "Comment",
@@ -652,6 +661,7 @@
   "account": {
     "trash": "Recycle Bin",
     "logout": "Log Out",
+    "dataList": "Data",
     "selectAll": "Select All",
     "itemsSelected": "{count} items selected",
     "deletedAt": "Deletion Time",
@@ -683,7 +693,9 @@
           "codePlaceholder": "Enter 6-digit code",
           "error": {
             "required": "Please enter a new email"
-          }
+          },
+          "newEmail": "New Email Address",
+          "code": "Verification Code"
         },
         "language": {
           "name": "Language",
@@ -704,12 +716,47 @@
           "newPassword": "New Password",
           "newPasswordPlaceholder": "Enter new password"
         }
-      }
+      },
+      "subtitle": "Manage your personal profile, credentials, and system preferences"
     },
     "profile-picture": {
       "title": "Avatar",
       "description": "Avatar uses information provided by Gravatar. To change avatar information, please go to gravatar.com to upload.",
-      "associatedEmailNotification": "Avatar is associated with {email}. Please use it to register on Gravatar."
+      "associatedEmailNotification": "Avatar is associated with {email}. Please use it to register on Gravatar.",
+      "serviceTitle": "Gravatar Global Avatar Service",
+      "serviceSubtitle": "Globally synchronized based on registered email",
+      "serviceDesc": "Glow Prow adopts the globally recognized Gravatar avatar protocol. Once you upload or modify your avatar on Gravatar, it will automatically sync across this platform and related services.",
+      "goToGravatar": "Go to Gravatar to Set Avatar",
+      "previewDesc": "Here are preview sizes across web pages, leaderboards, discussions, and recruitment:",
+      "previewTitle": "Multi-size Avatar Preview"
+    },
+    "bindings": {
+      "title": "Platform Bindings",
+      "subtitle": "Manage your connected third-party accounts",
+      "bound": "Connected",
+      "unbound": "Not Connected",
+      "bindBtn": "Connect",
+      "unbindBtn": "Disconnect",
+      "authorized": "Authorized",
+      "boundAccount": "Connected account: {username}",
+      "unbindConfirm": "Are you sure you want to unbind from {platform}?",
+      "unbindSuccess": "Disconnected successfully",
+      "unbindFailed": "Failed to disconnect",
+      "getAuthUrlFailed": "Failed to obtain authorization URL",
+      "platforms": {
+        "qq": {
+          "name": "QQ Platform",
+          "desc": "Supports QQ quick sign-in and account sync"
+        },
+        "wechat": {
+          "name": "WeChat Platform",
+          "desc": "Supports WeChat QR login and account linkage"
+        },
+        "google": {
+          "name": "Google",
+          "desc": "Supports Google universal quick sign-in"
+        }
+      }
     },
     "myAssembly": "My Builds",
     "myComment": "My Comments",
@@ -745,14 +792,15 @@
       "reviewPlaceholder": "Enter your recommendations and review content",
       "deleteComment": "Delete Comment"
     },
-    "bindings": {
-      "title": "Platform Bindings",
-      "subtitle": "Manage your connected third-party accounts",
-      "bound": "Connected",
-      "unbound": "Not Connected",
-      "bindBtn": "Connect",
-      "unbindBtn": "Disconnect"
-    }
+    "needLogin": "Please Sign In First",
+    "needLoginDesc": "Sign in to manage your profile, assemblies, and collection data",
+    "roles": "Roles & Permissions",
+    "profile": "Account Profile",
+    "security": "Security Settings",
+    "preference": "Preferences",
+    "trashRestoreConfirm": "Are you sure you want to restore this item?",
+    "trashRestoreBatchConfirm": "Are you sure you want to restore the selected item(s)?",
+    "trashRestoreSuccess": "Restored successfully"
   },
   "activate": {
     "title": "Account Activation",
@@ -1024,11 +1072,13 @@
           "description": "Support Ships excel at assisting friendly vessels, often helping to turn the tide of battle."
         }
       },
-      "attachment": "Attachments"
+      "attachment": "Attachments",
+      "name": "Ships"
     },
     "items": {
       "title": "Item List",
-      "description": "Item List"
+      "description": "Item List",
+      "name": "Items"
     },
     "item": {
       "title": "Item Details",
@@ -1831,7 +1881,15 @@
         "name": "Treasure Map",
         "description": "Treasure map clue locations pointing to buried pirate riches."
       }
-    }
+    },
+    "managePoints": "Manage Points",
+    "remove": "Remove",
+    "add": "Add to Atlas",
+    "searchPoints": "Search unassigned points...",
+    "editCollection": "Edit Atlas",
+    "confirmDeletePoints": "Are you sure you want to delete the selected point(s)?",
+    "public": "Public",
+    "private": "Private"
   },
   "rankingDesignedItems": {
     "title": "Ranking Design",
@@ -1901,7 +1959,9 @@
       "fortressRaiding": "Fortress Raiding",
       "transaction": "Item Transaction",
       "other": "Other"
-    }
+    },
+    "searchPlaceholder": "Search recruitment description or player name...",
+    "create": "Post Recruitment"
   },
   "assembly": {
     "title": "Assembly Workshop",
@@ -2241,7 +2301,9 @@
       "tagsPlaceholder": "Type tag and press Enter to create a new tag"
     },
     "selectWeaponDirection": "Select Weapon Direction",
-    "unnamed": "Unnamed Loadout"
+    "unnamed": "Unnamed Loadout",
+    "create": "Create Build",
+    "searchPlaceholder": "Search build name..."
   },
   "smugglersReport": {
     "title": "Smuggler's Connoisseur",
@@ -2276,7 +2338,14 @@
       "createReviewTitle": "Create Connoisseur Review",
       "warningContent": "Please do not post content unrelated to smugglers",
       "recommendationPlaceholder": "Enter your recommendation and review content",
-      "deleteComment": "Delete Comment"
+      "deleteComment": "Delete Comment",
+      "confirmDeleteReport": "Are you sure you want to delete this weekly report?",
+      "confirmDeleteComment": "Are you sure you want to delete this review?",
+      "commentSuccess": "Review submitted successfully",
+      "commentEditSuccess": "Review updated successfully",
+      "commentDeleteSuccess": "Review deleted successfully",
+      "commentCount": "{count} comments",
+      "reportTitle": "Report Title"
     }
   },
   "space": {

@@ -1,7 +1,3 @@
-<script lang="ts">
-export default {name: 'CosmeticIconWidget'}
-</script>
-
 <script setup lang="ts">
 import { useIconGlobalStyle } from "@/assets/sripts/use_icon_global_style";
 import {useRouter} from "vue-router";
@@ -94,6 +90,10 @@ const {targetElement, isVisible} = useIntersectionObserver({
 const { useIconImagePadding, useIconImageMargin } = useIconGlobalStyle();
 const computedPadding = useIconImagePadding(props.padding);
 const computedMargin = useIconImageMargin(props.margin);
+
+defineOptions({
+  name: 'CosmeticIconWidget'
+})
 </script>
 
 <template>

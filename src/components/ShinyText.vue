@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'ShinyText' }
-</script>
-
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 
@@ -20,6 +16,10 @@ const props = withDefaults(defineProps<ShinyTextProps>(), {
 })
 
 const animationDuration = computed(() => `${props.speed}s`)
+
+defineOptions({
+  name: 'ShinyText'
+})
 </script>
 
 <template>

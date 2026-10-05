@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'ServiceProviderWidget' }
-</script>
-
 <script setup lang="ts">
 import {Service_provider, type ServiceProviderItem} from "@/assets/sripts/service_provider";
 import {useAssetsStore} from "~/stores/assetsStore";
@@ -46,6 +42,10 @@ const groups = computed(() => {
     type,
     list: map[type]
   }))
+})
+
+defineOptions({
+  name: 'ServiceProviderWidget'
 })
 </script>
 

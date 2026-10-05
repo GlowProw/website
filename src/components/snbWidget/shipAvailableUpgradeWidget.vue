@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'ShipAvailableUpgradeWidget' }
-</script>
-
 <script setup lang="ts">
 import {Item, Items, Material} from "glow-prow-data";
 import {computed} from "vue";
@@ -54,6 +50,10 @@ const copyToAllShipUpgradeMaterials = async () => {
     console.error('复制失败:', err)
   }
 }
+
+defineOptions({
+  name: 'ShipAvailableUpgradeWidget'
+})
 </script>
 
 <template>

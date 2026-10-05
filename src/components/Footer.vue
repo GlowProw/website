@@ -109,52 +109,12 @@ defineOptions({
               <v-col cols="12" sm="6" md="6" lg="3">
                 <b class="text-amber">{{ t('footer.col3.title') }}</b>
                 <ul>
-                  <li>
+                  <li v-for="(service, serviceIndex) in appNavs.services" :key="serviceIndex">
                     <HtmlLink
                         :is-icon="false"
                         :is-iframe-show="false"
-                        href="/about" target="_blank">
-                      {{ t('about.title') }}
-                    </HtmlLink>
-                  </li>
-                  <li>
-                    <HtmlLink
-                        :is-icon="false"
-                        :is-iframe-show="false"
-                        href="https://status.glow-prow.top" target="_blank">
-                      {{ t('footer.col3.serviceStatus') }}
-                    </HtmlLink>
-                  </li>
-                  <li>
-                    <HtmlLink
-                        :is-icon="false"
-                        :is-iframe-show="false"
-                        href="https://zh.crowdin.com/project/glow-prow" target="_blank">
-                      {{ t('footer.col3.translated') }}
-                    </HtmlLink>
-                  </li>
-                  <li>
-                    <HtmlLink
-                        :is-icon="false"
-                        :is-iframe-show="false"
-                        href="https://github.com/GlowProw" target="_blank">
-                      {{ t('footer.col3.github') }}
-                    </HtmlLink>
-                  </li>
-                  <li>
-                    <HtmlLink
-                        :is-icon="false"
-                        :is-iframe-show="false"
-                        href="https://blog.glow-prow.top/privacy" target="_blank">
-                      {{ t('footer.col3.privacy') }}
-                    </HtmlLink>
-                  </li>
-                  <li>
-                    <HtmlLink
-                        :is-icon="false"
-                        :is-iframe-show="false"
-                        href="https://blog.glow-prow.top/terms" target="_blank">
-                      {{ t('footer.col3.terms') }}
+                        :href="service.href" target="_blank">
+                      {{ t(service.title) }}
                     </HtmlLink>
                   </li>
                 </ul>

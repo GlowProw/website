@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'MasteryWidget' }
-</script>
-
 <script setup lang="ts">
 import {computed, nextTick, ref, toRaw, watch} from "vue";
 import {useI18n} from "vue-i18n";
@@ -135,6 +131,10 @@ defineExpose({
   setSetting,
   verify,
   data: isEmpty ? null : selectedNodeIds.value
+})
+
+defineOptions({
+  name: 'MasteryWidget'
 })
 </script>
 

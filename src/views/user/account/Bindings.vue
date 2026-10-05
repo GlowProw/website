@@ -3,7 +3,8 @@ import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { apis } from '@/assets/sripts';
 import { useNoticeStore } from '~/stores/noticeStore';
-import AffixContainerView from '@/components/AffixContainerView.vue';
+import Loading from '@/components/Loading.vue';
+import AffixBoxHasTitleView from '@/components/AffixBoxHasTitleView.vue';
 
 const { t } = useI18n();
 const notice = useNoticeStore();
@@ -14,9 +15,9 @@ const bindings = ref<any[]>([]);
 
 // 支持的第三方平台定义
 const platformDefs = [
-  { platform: 'qq', name: 'QQ 平台', icon: 'mdi-qqchat', color: '#12b7f5', desc: '支持 QQ 快捷一键登录与个人中心快速同步' },
-  { platform: 'wechat', name: '微信平台', icon: 'mdi-wechat', color: '#07c160', desc: '支持微信扫码登录与公众号/小程序联动' },
-  { platform: 'google', name: 'Google', icon: 'mdi-google', color: '#ea4335', desc: '支持 Google 国际通用快捷登录' },
+  { platform: 'qq', icon: 'mdi-qqchat', color: '#12b7f5' },
+  { platform: 'wechat', icon: 'mdi-wechat', color: '#07c160' },
+  { platform: 'google', icon: 'mdi-google', color: '#ea4335' },
 ];
 
 onMounted(() => {
@@ -31,7 +32,7 @@ const loadBindings = async () => {
       bindings.value = res.data.data;
     }
   } catch (err: any) {
-    notice.error(err?.message || '获取平台绑定列表失败');
+    notice.error(err?.message);
   } finally {
     loading.value = false;
   }
@@ -54,10 +55,10 @@ const onBindPlatform = async (platform: string) => {
     if (res?.data?.data?.url) {
       window.location.href = res.data.data.url;
     } else {
-      notice.error('获取授权链接失败');
+      notice.error(t('account.bindings.getAuthUrlFailed'));
     }
   } catch (err: any) {
-    notice.error(err?.message || '发起授权失败');
+    notice.error(err?.message || t('account.bindings.getAuthUrlFailed'));
   } finally {
     actionLoading.value = null;
   }
@@ -67,110 +68,118 @@ const onBindPlatform = async (platform: string) => {
  * 解绑平台
  */
 const onUnbindPlatform = async (platform: string) => {
-  if (!confirm(`确定要解除与 ${platform.toUpperCase()} 账号的绑定吗？`)) return;
+  const confirmMsg = t('account.bindings.unbindConfirm', { platform: platform.toUpperCase() });
+  if (!confirm(confirmMsg)) return;
 
   try {
     actionLoading.value = platform;
     const res = await apis.userApi().unbindOAuth(platform);
     if (res?.data?.code === 'account.bindings.unbind.ok') {
-      notice.success('解绑成功');
+      notice.success(t('account.bindings.unbindSuccess'));
       await loadBindings();
     } else {
-      notice.error(res?.data?.message || '解绑失败');
+      notice.error(res?.data?.message || t('account.bindings.unbindFailed'));
     }
   } catch (err: any) {
-    notice.error(err?.message || '解绑失败');
+    notice.error(err?.message || t('account.bindings.unbindFailed'));
   } finally {
     actionLoading.value = null;
   }
 };
+
+defineOptions({
+  name: 'AccountBindings'
+});
 </script>
 
 <template>
-  <div class="account-bindings">
-    <AffixContainerView>
-      <div class="mb-6">
-        <h2 class="text-h5 font-weight-bold mb-1">
-          {{ t('account.bindings.title') || '第三方平台绑定' }}
-        </h2>
-        <p class="text-caption opacity-70">
-          {{ t('account.bindings.subtitle') || '绑定第三方平台可享受一键快捷登录与账号同步。' }}
+  <div>
+    <!-- 顶部标题区域 S -->
+    <div class="d-flex align-center justify-between mb-6">
+      <div>
+        <p class="text-caption opacity-60">
+          {{ t('account.bindings.subtitle') }}
         </p>
       </div>
 
-      <v-progress-linear v-if="loading" indeterminate color="amber" class="mb-4"></v-progress-linear>
+      <v-spacer></v-spacer>
 
-      <!-- 第三方主流登录平台 -->
-      <v-row dense>
-        <v-col cols="12" md="6" v-for="item in platformDefs" :key="item.platform">
-          <v-card variant="outlined" class="binding-card pa-4 mb-3">
-            <div class="d-flex align-center justify-space-between">
-              <div class="d-flex align-center">
-                <v-avatar size="44" :color="item.color" class="mr-3 text-white">
-                  <v-icon :icon="item.icon" size="24"></v-icon>
-                </v-avatar>
-                <div>
-                  <div class="d-flex align-center ga-2">
-                    <span class="font-weight-bold">{{ item.name }}</span>
-                    <v-chip
+      <v-btn
+          size="x-small"
+          variant="tonal"
+          icon="mdi-refresh"
+          @click="loadBindings"
+          :loading="loading">
+      </v-btn>
+    </div>
+    <!-- 顶部标题区域 E -->
+
+    <!-- 第三方主流登录平台卡片 S -->
+     <AffixBoxHasTitleView>
+        <v-row>
+      <v-col cols="12" md="6" v-for="item in platformDefs" :key="item.platform">
+        <v-card border variant="text" class="h-100 hover-card transition-all d-flex flex-column justify-space-between">
+          <v-card-title class="py-16 text-center bg-black mb-4 text-amber text-h4 u"
+          :color="item.color">
+            <v-icon :icon="item.icon" size="60"></v-icon>
+          </v-card-title>
+          
+          <v-card-text class="d-flex align-start justify-space-between mb-3">
+            <div class="d-flex align-center">
+              <div>
+                <div class="d-flex align-center ga-2">
+                  <span class="font-weight-bold text-body-1">{{ t(`account.bindings.platforms.${item.platform}.name`) }}</span>
+                  <v-chip
                       size="x-small"
-                      :color="getBindingFor(item.platform) ? 'green' : 'grey'"
-                      variant="flat"
-                    >
-                      {{ getBindingFor(item.platform) ? (t('account.bindings.bound') || '已绑定') : (t('account.bindings.unbound') || '未绑定') }}
-                    </v-chip>
-                  </div>
-                  <div v-if="getBindingFor(item.platform)" class="text-caption opacity-80 mt-1 d-flex align-center">
-                    <span class="text-amber">{{ getBindingFor(item.platform)?.platformUsername || '已授权用户' }}</span>
-                  </div>
-                  <div v-else class="text-caption opacity-50 mt-1">
-                    {{ item.desc }}
-                  </div>
+                      :color="getBindingFor(item.platform) ? 'amber' : 'default'"
+                      variant="tonal">
+                    {{ getBindingFor(item.platform) ? t('account.bindings.bound') : t('account.bindings.unbound') }}
+                  </v-chip>
+                </div>
+                <div v-if="getBindingFor(item.platform)" class="text-amber mt-1">
+                  {{ t('account.bindings.boundAccount', { username: getBindingFor(item.platform)?.platformUsername || t('account.bindings.authorized') }) }}
+                </div>
+                <div v-else class="text-caption opacity-60 mt-1">
+                  {{ t(`account.bindings.platforms.${item.platform}.desc`) }}
                 </div>
               </div>
-
-              <div>
-                <v-btn
-                  v-if="getBindingFor(item.platform)"
-                  variant="text"
-                  color="red"
-                  size="small"
-                  :loading="actionLoading === item.platform"
-                  @click="onUnbindPlatform(item.platform)"
-                >
-                  {{ t('account.bindings.unbindBtn') || '解除绑定' }}
-                </v-btn>
-                <v-btn
-                  v-else
-                  variant="flat"
-                  class="bg-amber text-black font-weight-bold"
-                  size="small"
-                  :loading="actionLoading === item.platform"
-                  @click="onBindPlatform(item.platform)"
-                >
-                  {{ t('account.bindings.bindBtn') || '立即绑定' }}
-                </v-btn>
-              </div>
             </div>
-          </v-card>
-        </v-col>
-      </v-row>
-    </AffixContainerView>
+          </v-card-text>
+
+          <v-card-actions class="d-flex justify-end pt-2">
+            <v-btn
+                v-if="getBindingFor(item.platform)"
+                variant="tonal"
+                color="error"
+                :loading="actionLoading === item.platform"
+                @click="onUnbindPlatform(item.platform)">
+              {{ t('account.bindings.unbindBtn') }}
+            </v-btn>
+            <v-btn
+                v-else
+                variant="tonal"
+                color="amber"
+                prepend-icon="mdi-link-plus"
+                :loading="actionLoading === item.platform"
+                @click="onBindPlatform(item.platform)">
+              {{ t('account.bindings.bindBtn') }}
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-col>
+    </v-row>
+
+      <template v-slot:title>
+        {{ t('account.bindings.title') }}
+      </template>
+     </AffixBoxHasTitleView>
+    <!-- 第三方主流登录平台卡片 E -->
+
+    <v-overlay :model-value="loading" contained class="d-flex align-center justify-center">
+      <Loading></Loading>
+    </v-overlay>
   </div>
 </template>
 
 <style scoped lang="less">
-.account-bindings {
-  .binding-card {
-    border-color: rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.02);
-    border-radius: 8px;
-    transition: all 0.25s ease;
-
-    &:hover {
-      border-color: rgba(255, 193, 7, 0.3);
-      background: rgba(255, 255, 255, 0.04);
-    }
-  }
-}
 </style>

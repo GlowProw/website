@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'TimeFrame' }
-</script>
-
 <script setup lang="ts">
 import DateRangePicker, { type DateRangePickerProps } from './DateRangePicker.vue';
 
@@ -11,6 +7,10 @@ const emit = defineEmits<{
   (e: 'change', val: any): void;
   (e: 'clear'): void;
 }>();
+
+defineOptions({
+  name: 'TimeFrame'
+})
 </script>
 
 <template>

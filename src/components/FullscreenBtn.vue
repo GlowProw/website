@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'FullscreenBtn' }
-</script>
-
 <template>
   <v-btn tile stacked density="compact"
          v-if="isSupported"
@@ -46,6 +42,10 @@ watch(() => isFullscreen.value, (value) => {
 const handleToggle = async () => {
   await toggleFullscreen()
 }
+
+defineOptions({
+  name: 'FullscreenBtn'
+})
 </script>
 
 <style scoped>

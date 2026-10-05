@@ -1,7 +1,3 @@
-<script lang="ts">
-export default {name: 'NpcIconWidget'}
-</script>
-
 <script lang="ts" setup>
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
@@ -96,6 +92,10 @@ const {targetElement, isVisible} = useIntersectionObserver({
 const {useIconImagePadding, useIconImageMargin} = useIconGlobalStyle();
 const computedPadding = useIconImagePadding(props.padding);
 const computedMargin = useIconImageMargin(props.margin);
+
+defineOptions({
+  name: 'NpcIconWidget'
+})
 </script>
 
 <template>

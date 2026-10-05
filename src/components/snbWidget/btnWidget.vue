@@ -29,9 +29,6 @@
   </v-row>
 </template>
 
-<script lang="ts">
-export default { name: 'BtnWidget' }
-</script>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
@@ -173,6 +170,10 @@ const handleKeyUp = (e) => {
     }
   }
 }
+
+defineOptions({
+  name: 'BtnWidget'
+})
 </script>
 
 <style scoped>

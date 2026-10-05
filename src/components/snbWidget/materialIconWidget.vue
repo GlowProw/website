@@ -1,7 +1,3 @@
-<script lang="ts">
-export default {name: 'MaterialIconWidget'}
-</script>
-
 <script setup lang="ts">
 import { useIconGlobalStyle } from "@/assets/sripts/use_icon_global_style";
 import {computed, onMounted, type Ref, ref, watch} from "vue";
@@ -91,6 +87,10 @@ const onReady = async () => {
 const { useIconImagePadding, useIconImageMargin } = useIconGlobalStyle();
 const computedPadding = useIconImagePadding(props.padding);
 const computedMargin = useIconImageMargin(props.margin);
+
+defineOptions({
+  name: 'MaterialIconWidget'
+})
 </script>
 
 <template>

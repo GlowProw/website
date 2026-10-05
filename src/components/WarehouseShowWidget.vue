@@ -1,7 +1,3 @@
-<script lang="ts">
-export default {name: 'WarehouseShowWidget'}
-</script>
-
 <script setup lang="ts">
 import {computed, onMounted, ref, toRaw, watch} from "vue";
 import {WarehouseAttr} from "@/assets/types";
@@ -201,6 +197,10 @@ defineExpose({
   setSetting,
   verify,
   data: isEmpty ? null : data.value
+})
+
+defineOptions({
+  name: 'WarehouseShowWidget'
 })
 </script>
 

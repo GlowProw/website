@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'SetAvailableWidget' }
-</script>
-
 <script setup lang="ts">
 import {Cosmetic, Cosmetics} from "glow-prow-data";
 import {computed} from "vue";
@@ -15,6 +11,10 @@ const props = defineProps<{ id: string }>(),
     cosmetics = computed(() => Object.values(Cosmetics)
         .filter((i: Cosmetic) => i.set && i.set.id == props.id)
     )
+
+defineOptions({
+  name: 'SetAvailableWidget'
+})
 </script>
 
 <template>

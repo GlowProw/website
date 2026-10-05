@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'I18nWidget' }
-</script>
-
 <script setup lang="ts">
 
 import {onMounted, ref, watch} from "vue";
@@ -64,6 +60,10 @@ const onChangeLang = (newVal?: string) => {
     hash: route.hash
   }).catch(() => {});
 }
+
+defineOptions({
+  name: 'I18nWidget'
+})
 </script>
 
 <template>

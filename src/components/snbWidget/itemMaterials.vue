@@ -1,7 +1,3 @@
-<script lang="ts">
-export default {name: 'ItemMaterials'}
-</script>
-
 <script setup lang="ts">
 
 import MaterialName from "@/components/snbWidget/materialName.vue";
@@ -69,6 +65,10 @@ const onStatisticsRawMaterial = () => {
         {} as Record<string, number>
     );
 }
+
+defineOptions({
+  name: 'ItemMaterials'
+})
 </script>
 
 <template>

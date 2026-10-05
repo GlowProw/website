@@ -1,7 +1,3 @@
-<script lang="ts">
-export default {name: 'Textarea'}
-</script>
-
 <script setup lang="ts">
 import {computed, onBeforeUnmount, onMounted, Ref, ref, watch} from 'vue'
 import {Editor, EditorContent, EditorOptions, Extension} from '@tiptap/vue-3'
@@ -400,6 +396,10 @@ const onInitEdit = () => {
   } as Partial<EditorOptions>)
   tiptap.value.options.keyboardShortcuts = {}
 }
+
+defineOptions({
+  name: 'Textarea'
+})
 </script>
 
 <template>

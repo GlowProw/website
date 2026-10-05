@@ -1,6 +1,5 @@
 <script setup lang="ts">
-
-import {nextTick, onMounted, ref, watch} from "vue";
+import {computed, nextTick, onMounted, ref, watch} from "vue";
 import {apis} from "@/assets/sripts/index";
 import {useI18n} from "vue-i18n";
 import {ResultData} from "@/assets/types";
@@ -15,11 +14,13 @@ import AssemblyWidget from "@/components/AssemblyWidget.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
 import AssemblyTouring from "@/components/AssemblyTouring.vue";
 import AccountCardWidget from "@/components/AccountCardWidget.vue";
+import AffixContainerView from "@/components/AffixContainerView.vue";
 
 const notice = useNoticeStore(),
     {t} = useI18n()
 
 let loading = ref(false),
+    searchQuery = ref(''),
     userAssemblysData = ref<any>({}),
     userAssemblyWidgetRefs = ref<any[]>([])
 
@@ -27,23 +28,29 @@ onMounted(() => {
   getMyAssemblysData()
 })
 
-watch(() => userAssemblysData.value, (newList: any) => {
-  if (newList && newList.data.length > 0) {
+const filteredList = computed(() => {
+  const list = userAssemblysData.value?.data || []
+  if (!searchQuery.value) return list
+  const q = searchQuery.value.toLowerCase().trim()
+  return list.filter((i: any) => (i.name || '').toLowerCase().includes(q))
+})
+
+watch(() => filteredList.value, (newList: any) => {
+  if (newList && newList.length > 0) {
     nextTick(() => {
       const processBatch = (index = 0) => {
-        if (index >= newList.data.length) return;
+        if (index >= newList.length) return;
 
         const widget = userAssemblyWidgetRefs.value[index];
         if (widget?.onLoad) {
           widget
               .setSetting({
-                assemblyUseVersion: newList.data[index]?.attr?.assemblyUseVersion,
-                isShowItemName: newList.data[index]?.attr?.isShowItemName,
+                assemblyUseVersion: newList[index]?.attr?.assemblyUseVersion,
+                isShowItemName: newList[index]?.attr?.isShowItemName,
               })
-              .onLoad(newList.data[index]?.assembly || {})
+              .onLoad(newList[index]?.assembly || {})
         }
 
-        // 继续处理下一个
         requestAnimationFrame(() => {
           processBatch(index + 1)
         })
@@ -71,6 +78,10 @@ const getMyAssemblysData = async () => {
     loading.value = false;
   }
 }
+
+defineOptions({
+  name: 'AccountAssemblys'
+})
 </script>
 
 <template>
@@ -79,10 +90,50 @@ const getMyAssemblysData = async () => {
       <Loading></Loading>
     </v-overlay>
 
-    <v-row
-        v-if="userAssemblysData.data && userAssemblysData.data.length > 0">
-      <v-col cols="12" md="6" lg="6" v-for="(i, index) in userAssemblysData.data"
-             :key="index" class="">
+    <!-- Toolbar S -->
+    <AffixContainerView>
+      <v-card class="pa-3 mb-4">
+        <div class="d-flex align-center flex-wrap ga-2">
+          <v-text-field
+              v-model="searchQuery"
+              prepend-inner-icon="mdi-magnify"
+              :placeholder="t('basic.search') || '搜索配装名称...'"
+              density="compact"
+              variant="outlined"
+              hide-details
+              clearable
+              style="max-width: 260px;"
+              class="flex-grow-1">
+          </v-text-field>
+
+          <v-spacer></v-spacer>
+
+          <div class="d-flex align-center ga-2">
+            <v-btn
+                color="amber"
+                variant="tonal"
+                prepend-icon="mdi-plus"
+                to="/assembly/workshop"
+                target="_blank">
+              {{ t('assembly.create') || '创建配装' }}
+            </v-btn>
+
+            <v-btn
+                size="small"
+                variant="tonal"
+                icon="mdi-refresh"
+                @click="getMyAssemblysData"
+                :loading="loading">
+            </v-btn>
+          </div>
+        </div>
+      </v-card>
+    </AffixContainerView>
+    <!-- Toolbar E -->
+
+    <v-row v-if="filteredList && filteredList.length > 0">
+      <v-col cols="12" md="6" lg="6" v-for="(i, index) in filteredList"
+             :key="i.uuid || index" class="">
         <v-card class="card-enlargement-mask-flavor pa-5">
           <v-row class="pt-5 pl-5 pr-5">
             <v-col cols="9">

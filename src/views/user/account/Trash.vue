@@ -1,46 +1,52 @@
 <script setup lang="ts">
-
 import {computed, onMounted, ref} from "vue";
 import {apis} from "@/assets/sripts/index";
 import {useI18n} from "vue-i18n";
-import {ApiError} from "@/assets/types/Api";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {handleApiError} from "@/assets/sripts/error_handler";
 
 import Loading from "@/components/Loading.vue";
 import EmptyView from "@/components/EmptyView.vue";
+import AffixContainerView from "@/components/AffixContainerView.vue";
 
 const notice = useNoticeStore(),
     {t} = useI18n()
 
 let loading = ref(false),
     trashData = ref<any[]>([]),
-    pagination = ref<any>({}),
-    selectedItems = ref<any[]>([]),
-    // 用于装配预览
-    userAssemblyWidgetRefs = ref<any[]>([])
+    pagination = ref<any>({
+      page: 1,
+      pageSize: 20,
+      total: 0
+    }),
+    selectedItems = ref<any[]>([])
 
 onMounted(() => {
   getTrashData()
 })
 
 /**
- * 获取回收站配装信息
+ * 获取回收站信息
  */
 const getTrashData = async () => {
   try {
-    loading.value = true;
-    const result = await apis.trashApi().getTrashList(),
-        d = result.data;
+    loading.value = true
+    const result = await apis.trashApi().getTrashList({
+      page: pagination.value.page,
+      pageSize: pagination.value.pageSize
+    })
+    const d = result.data
 
-    trashData.value = d.data.list;
-    pagination.value = d.data.pagination;
+    trashData.value = d?.data?.list || []
+    if (d?.data?.pagination) {
+      pagination.value = d.data.pagination
+    }
 
-    selectedItems.value = [];
+    selectedItems.value = []
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'Trash' })
+    handleApiError(e, notice, t, {component: 'Trash'})
   } finally {
-    loading.value = false;
+    loading.value = false
   }
 }
 
@@ -48,6 +54,7 @@ const getTrashData = async () => {
  * 格式化时间
  */
 const formatDate = (date: string) => {
+  if (!date) return '—'
   return new Date(date).toLocaleString()
 }
 
@@ -70,25 +77,41 @@ const toggleSelectAll = () => {
 }
 
 /**
+ * 切换单项选择
+ */
+const toggleItem = (item: any) => {
+  const index = selectedItems.value.findIndex(i => i.id === item.id && i.type === item.type)
+  if (index >= 0) {
+    selectedItems.value.splice(index, 1)
+  } else {
+    selectedItems.value.push(item)
+  }
+}
+
+const isItemSelected = (item: any) => {
+  return selectedItems.value.some(i => i.id === item.id && i.type === item.type)
+}
+
+/**
  * 批量恢复
  */
 const onBatchRestore = async () => {
   if (selectedItems.value.length === 0) return
 
   try {
-    if (!confirm(t('assembly.restoreConfirm'))) return
+    if (!confirm(t('assembly.restoreConfirm') || '确定要恢复选中的项目吗？')) return
 
     loading.value = true
     const itemsToRestore = selectedItems.value.map(i => ({id: i.id, type: i.type}))
     const result = await apis.trashApi().restoreItems(itemsToRestore)
 
     if (result.success) {
-      notice.success(t('assembly.restoreSuccess'))
+      notice.success(t('assembly.restoreSuccess') || '恢复成功')
       selectedItems.value = []
       await getTrashData()
     }
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'Trash' })
+    handleApiError(e, notice, t, {component: 'Trash'})
   } finally {
     loading.value = false
   }
@@ -99,17 +122,17 @@ const onBatchRestore = async () => {
  */
 const onRestore = async (item: any) => {
   try {
-    if (!confirm(t('assembly.restoreConfirm'))) return
+    if (!confirm(t('assembly.restoreConfirm') || '确定要恢复该项目吗？')) return
 
     loading.value = true
     const result = await apis.trashApi().restoreItems([{id: item.id, type: item.type}])
 
     if (result.success) {
-      notice.success(t('assembly.restoreSuccess'))
+      notice.success(t('assembly.restoreSuccess') || '恢复成功')
       await getTrashData()
     }
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'Trash' })
+    handleApiError(e, notice, t, {component: 'Trash'})
   } finally {
     loading.value = false
   }
@@ -136,81 +159,160 @@ const getTypeIcon = (type: string) => {
       return 'mdi-help-circle'
   }
 }
+
+const totalPages = computed(() => {
+  if (!pagination.value?.total || !pagination.value?.pageSize) return 1
+  return Math.ceil(pagination.value.total / pagination.value.pageSize)
+})
+
+defineOptions({
+  name: 'AccountTrash'
+})
 </script>
 
 <template>
   <div class="position-relative">
-    <v-overlay :model-value="loading" contained>
+    <v-overlay :model-value="loading" contained class="d-flex align-center justify-center">
       <Loading></Loading>
     </v-overlay>
 
-    <!-- 工具栏 S -->
-    <v-card class="mb-5 bg-black" elevation="0" border>
-      <v-toolbar color="transparent" density="compact">
-        <v-checkbox
-            :model-value="isAllSelected"
-            :indeterminate="selectedItems.length > 0 && !isAllSelected"
-            hide-details
-            class="ml-4"
-            @click.stop="toggleSelectAll"
-        ></v-checkbox>
-        <span class="ml-2">{{ t('account.selectAll') }}</span>
+    <!-- Toolbar S -->
+    <AffixContainerView>
+      <v-card class="mb-4 pa-2">
+        <div class="d-flex align-center">
+          <!-- 全选复选框 -->
+          <v-checkbox-btn
+              :model-value="isAllSelected"
+              :indeterminate="selectedItems.length > 0 && !isAllSelected"
+              @click.stop="toggleSelectAll"
+              class="mr-2">
+            <template v-slot:label>
+              <p
+                  class="text-body-2 font-weight-medium cursor-pointer user-select-none"
+                  @click="toggleSelectAll">
+                {{ t('account.selectAll') }}
+              </p>
+            </template>
+          </v-checkbox-btn>
 
-        <v-divider vertical class="mx-4" opacity=".1"></v-divider>
+          <v-chip
+              v-if="selectedItems.length > 0"
+              size="small"
+              color="amber"
+              variant="tonal"
+              class="ml-3 font-weight-bold">
+            {{ t('account.itemsSelected', {count: selectedItems.length}) }}
+          </v-chip>
 
-        <span class="text-caption opacity-70">
-          {{ t('account.itemsSelected', {count: selectedItems.length}) }}
-        </span>
+          <v-spacer></v-spacer>
 
-        <v-spacer></v-spacer>
+          <!-- 行为按钮组 -->
+          <div class="d-flex align-center ga-2">
+            <v-btn
+                variant="tonal"
+                color="amber"
+                prepend-icon="mdi-restore"
+                :disabled="selectedItems.length === 0"
+                @click="onBatchRestore">
+              {{ t('assembly.restore') }}
+            </v-btn>
 
-        <v-btn
-            variant="flat"
-            prepend-icon="mdi-restore"
-            :disabled="selectedItems.length === 0"
-            @click="onBatchRestore">
-          {{ t('assembly.restore') }}
-        </v-btn>
-      </v-toolbar>
-    </v-card>
-    <!-- 工具栏 E -->
+            <v-btn
+                size="small"
+                variant="tonal"
+                icon="mdi-refresh"
+                @click="getTrashData"
+                :loading="loading">
+            </v-btn>
+          </div>
+        </div>
+      </v-card>
+    </AffixContainerView>
+    <!-- Toolbar E -->
 
-    <div v-if="trashData.length > 0">
-      <v-list class="bg-transparent pa-0" slim>
-        <v-row no-gutters>
-          <v-col cols="12" class="mb-2" v-for="(item, index) in trashData" :key="`${item.type}-${item.id}`">
-            <v-card border class="py-1 px-4 d-flex align-center" @click="selectedItems.includes(item) ? selectedItems.splice(selectedItems.indexOf(item), 1) : selectedItems.push(item)">
-              <v-checkbox
-                  v-model="selectedItems"
-                  :value="item"
-                  hide-details
-                  @click.stop
-                  class="flex-shrink-0"
-              ></v-checkbox>
+    <!-- 列表展示 S -->
+    <div v-if="trashData.length > 0" class="d-flex flex-column ga-2">
+      <v-card
+          v-for="item in trashData"
+          :key="`${item.type}-${item.id}`"
+          border
+          rounded="lg"
+          class="pa-3 hover-card cursor-pointer transition-all"
+          :class="{'selected-border': isItemSelected(item)}"
+          @click="toggleItem(item)">
+        <div class="d-flex align-center">
+          <v-checkbox-btn
+              :model-value="isItemSelected(item)"
+              @click.stop="toggleItem(item)"
+              class="mr-3 flex-shrink-0">
+            <template v-slot:label>
+              <v-avatar size="40" rounded="lg" class="mr-3 flex-shrink-0">
+                <v-icon :icon="getTypeIcon(item.type)" size="22" color="amber"></v-icon>
+              </v-avatar>
+            </template>
+          </v-checkbox-btn>
 
-              <div class="ml-4 flex-grow-1 d-flex align-center">
-                <v-icon :icon="getTypeIcon(item.type)" size="24" class="mr-4 opacity-50"></v-icon>
-                <div class="flex-grow-1 min-width-0">
-                  <div class="text-h6 singe-line">{{ item.title }}</div>
-                  <div class="text-caption opacity-50">{{ t('account.deletedAt') }}: {{ formatDate(item.deletedTime) }}</div>
-                </div>
-              </div>
+          <div class="w-100">
+            <div class="d-flex align-center ga-2">
+              <span class="text-body-1 font-weight-bold singe-line">{{ item.title || 'Untitled' }}</span>
+              <v-chip size="x-small" variant="tonal" class="text-uppercase">
+                {{ item.type }}
+              </v-chip>
+            </div>
+            <div class="text-caption opacity-50 mt-1 d-flex align-center">
+              <v-icon size="14" class="mr-1">mdi-clock-outline</v-icon>
+              {{ t('account.deletedAt') }}: {{ formatDate(item.deletedTime) }}
+            </div>
+          </div>
 
-              <v-btn icon="mdi-restore" variant="text" class="ml-4" @click.stop="onRestore(item)"></v-btn>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-list>
+          <v-tooltip :text="t('assembly.restore')" location="top">
+            <template v-slot:activator="{props}">
+              <v-btn
+                  v-bind="props"
+                  icon="mdi-restore"
+                  size="small"
+                  variant="tonal"
+                  color="amber"
+                  class="ml-3 flex-shrink-0"
+                  @click.stop="onRestore(item)">
+              </v-btn>
+            </template>
+          </v-tooltip>
+        </div>
+      </v-card>
     </div>
+    <!-- 列表展示 E -->
 
-    <div class="text-center py-10" v-else>
+    <div class="text-center py-12" v-else>
       <EmptyView></EmptyView>
     </div>
+
+    <!-- 统一分页器 S -->
+    <div v-if="totalPages > 1" class="d-flex justify-center mt-6">
+      <v-pagination
+          v-model="pagination.page"
+          :length="totalPages"
+          density="comfortable"
+          active-color="amber"
+          rounded="circle"
+          variant="tonal"
+          @update:model-value="getTrashData">
+      </v-pagination>
+    </div>
+    <!-- 统一分页器 E -->
   </div>
 </template>
 
 <style scoped lang="less">
 .min-width-0 {
   min-width: 0;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.user-select-none {
+  user-select: none;
 }
 </style>

@@ -111,8 +111,9 @@ export default class Http extends Api_config {
                     break;
             }
 
+            const portStr = this.GetUrl.port ? `:${this.GetUrl.port}` : '';
             return {
-                location: `${this.GetUrl.protocol || 'http'}://${this.GetUrl.host}:${this.GetUrl.port}${this.GetUrl.pathname}`,
+                location: `${this.GetUrl.protocol || 'http'}://${this.GetUrl.host}${portStr}${this.GetUrl.pathname}`,
                 host: this.GetUrl.host,
                 protocol: this.GetUrl.protocol,
                 wsProtocol: this.GetUrl.wsProtocol,

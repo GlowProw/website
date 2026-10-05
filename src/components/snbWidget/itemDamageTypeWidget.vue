@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'ItemDamageTypeWidget' }
-</script>
-
 <script setup lang="ts">
 import {computed, nextTick, onMounted, Ref, ref} from "vue";
 
@@ -50,6 +46,10 @@ const onReady = () => {
 const setDamageRef = (d: boolean, index: number) => {
   damageRefStatus.value[index] = d;
 }
+
+defineOptions({
+  name: 'ItemDamageTypeWidget'
+})
 </script>
 
 <template>

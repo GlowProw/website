@@ -1,16 +1,14 @@
 <script setup lang="ts">
-import {onMounted, Ref, ref} from "vue";
+import {onMounted, type Ref, ref} from "vue";
 import {useI18n} from "vue-i18n";
-import {MapCollection, MapCollectionResult, MapPoint} from "@/assets/types/Map";
+import {type MapCollection, type MapCollectionResult, type MapPoint} from "@/assets/types/Map";
 import {useMapApi} from "@/assets/sripts/api/map_service";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {AxiosError} from "axios";
-import {PaginationParams} from "@/assets/types";
 import {ApiError} from "@/assets/types/Api";
 import EmptyView from "@/components/EmptyView.vue";
-import Time from "@/components/Time.vue";
-import TimeView from "@/components/TimeView.vue";
 import Loading from "@/components/Loading.vue";
+import AffixContainerView from "@/components/AffixContainerView.vue";
 
 const {t} = useI18n(),
     api = useMapApi(),
@@ -35,7 +33,7 @@ let collectionLoading = ref(false),
     editingCollection = ref(false),
     showDeleteConfirm = ref(false),
     deleteConfirmMessage = ref(''),
-    pendingDeleteAction = ref(),
+    pendingDeleteAction = ref<any>(),
 
     // 坐标管理相关
     selectedCollection = ref<MapCollection | null>(null),
@@ -63,11 +61,8 @@ onMounted(() => {
 const getMyCollectionsData = async () => {
   try {
     collectionLoading.value = true;
-
-    const result = await api.getCollections(collectionPagination.value),
-        d = result.data;
-
-    userCollections.value = d;
+    const result = await api.getCollections(collectionPagination.value)
+    userCollections.value = result.data || {data: []};
   } catch (e) {
     console.error(e)
   } finally {
@@ -81,8 +76,8 @@ const getMyCollectionsData = async () => {
 const openPointManager = async (collection: MapCollection) => {
   selectedCollection.value = collection;
   showPointManager.value = true;
+  selectedPoints.value = [];
 
-  // 加载该地图集的坐标 和 孤儿坐标
   await Promise.all([
     loadCollectionPoints(collection.uuid),
     loadOrphanPoints()
@@ -91,45 +86,36 @@ const openPointManager = async (collection: MapCollection) => {
 
 /**
  * 加载地图集内的坐标
- * @param collectionUuid
  */
 const loadCollectionPoints = async (collectionUuid: string) => {
   try {
     const result = await api.getUserPoints({
-          collectionUuid,
-          page: pointPagination.value.page,
-          pageSize: pointPagination.value.pageSize
-        }),
-        d = result.data;
-
-    collectionPoints.value = d.points || [];
+      collectionUuid,
+      page: pointPagination.value.page,
+      pageSize: pointPagination.value.pageSize
+    });
+    collectionPoints.value = result.data.points || [];
   } catch (e) {
     if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
+      notice.error(t(`basic.tips.${e.code}`, {context: e.code}))
     }
     console.error(e)
   }
 }
 
 /**
- * 加载孤儿坐标（没有地图集的坐标）
+ * 加载孤儿坐标
  */
 const loadOrphanPoints = async () => {
   try {
     const result = await api.getOrphanPoints({
-          page: orphanPointPagination.value.page,
-          pageSize: orphanPointPagination.value.pageSize
-        }),
-        d = result.data;
-
-    orphanPoints.value = d.points || [];
+      page: orphanPointPagination.value.page,
+      pageSize: orphanPointPagination.value.pageSize
+    });
+    orphanPoints.value = result.data.points || [];
   } catch (e) {
     if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
+      notice.error(t(`basic.tips.${e.code}`, {context: e.code}))
     }
     console.error(e)
   }
@@ -146,30 +132,21 @@ const onSearchPoints = async () => {
 
   try {
     const result = await api.getUserPoints({
-          page: orphanPointPagination.value.page,
-          pageSize: orphanPointPagination.value.pageSize
-        }),
-        d = result.data;
-
-    // 前端过滤搜索结果
-    orphanPoints.value = (d.points || []).filter((point: MapPoint) =>
+      page: orphanPointPagination.value.page,
+      pageSize: orphanPointPagination.value.pageSize
+    });
+    const pts = result.data.points || [];
+    orphanPoints.value = pts.filter((point: MapPoint) =>
         point.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
         point.description?.toLowerCase().includes(searchQuery.value.toLowerCase()))
-
   } catch (e) {
     if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
+      notice.error(t(`basic.tips.${e.code}`, {context: e.code}))
     }
     console.error(e)
   }
 }
 
-/**
- * 选择/取消选择坐标
- * @param pointId
- */
 const togglePointSelection = (pointId: string) => {
   const index = selectedPoints.value.indexOf(pointId)
   if (index > -1) {
@@ -179,19 +156,11 @@ const togglePointSelection = (pointId: string) => {
   }
 }
 
-/**
- * 全选/取消全选当前页坐标
- */
 const toggleSelectAll = (points: MapPoint[]) => {
-  const allSelected = points.every(point => selectedPoints.value.includes(point.uuid))
-
+  const allSelected = points.length > 0 && points.every(point => selectedPoints.value.includes(point.uuid))
   if (allSelected) {
-    // 取消全选
-    selectedPoints.value = selectedPoints.value.filter(uuid =>
-        !points.some(point => point.uuid === uuid))
-
+    selectedPoints.value = selectedPoints.value.filter(uuid => !points.some(p => p.uuid === uuid))
   } else {
-    // 全选
     points.forEach(point => {
       if (!selectedPoints.value.includes(point.uuid)) {
         selectedPoints.value.push(point.uuid)
@@ -208,22 +177,15 @@ const addSelectedPointsToCollection = async () => {
 
   try {
     await api.addPointsToCollection(selectedCollection.value.uuid, selectedPoints.value)
-
-    // 重新加载数据
     await Promise.all([
       loadCollectionPoints(selectedCollection.value.uuid),
       loadOrphanPoints()
     ])
-
-    // 清空选择
     selectedPoints.value = [];
-
-    notice.success(t(`basic.tips.map.success`))
+    notice.success(t(`basic.tips.map.success`) || '添加成功')
   } catch (e) {
     if (e instanceof ApiError) {
-      notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
-      }))
+      notice.error(t(`basic.tips.${e.code}`, {context: e.code}))
     }
     console.error(e)
   }
@@ -237,27 +199,18 @@ const onRemoveSelectedPointsFromCollection = async () => {
 
   try {
     await api.removePointsFromCollection(selectedCollection.value.uuid, selectedPoints.value)
-
-    // 重新加载数据
     await Promise.all([
       loadCollectionPoints(selectedCollection.value.uuid),
       loadOrphanPoints()
     ])
-
-    // 清空选择
     selectedPoints.value = [];
-
-    notice.success(t(`basic.tips.map.success`))
+    notice.success(t(`basic.tips.map.success`) || '移除成功')
   } catch (e) {
-    if (e instanceof AxiosError && e.response)
-      notice.error(t(`basic.tips.${e.response?.data?.code}`, {
-        content: e.response?.data?.message
-      }))
-    else if (e instanceof AxiosError)
-      notice.error(t(`basic.tips.error`, {
-        content: e.toString()
-      }))
-    console.error(e)
+    if (e instanceof AxiosError && e.response) {
+      notice.error(t(`basic.tips.${e.response?.data?.code}`, {content: e.response?.data?.message}))
+    } else {
+      console.error(e)
+    }
   }
 }
 
@@ -268,26 +221,22 @@ const deleteSelectedPoints = async () => {
   if (selectedPoints.value.length === 0) return;
 
   try {
-    // 批量删除坐标
+    if (!confirm(t('common.confirmDelete') || '确定要删除选中的坐标吗？')) return
+
     for (const pointId of selectedPoints.value) {
       await api.deletePoint(pointId)
     }
 
-    // 重新加载数据
     if (selectedCollection.value) {
       await loadCollectionPoints(selectedCollection.value.uuid)
     }
     await loadOrphanPoints()
-
-    // 清空选择
     selectedPoints.value = [];
-
-    notice.success(t(`basic.tips.map.success`))
+    notice.success(t(`basic.tips.map.success`) || '删除成功')
   } catch (e) {
-    if (e instanceof AxiosError)
-      notice.error(t(`basic.tips.${e.response?.data?.code}`, {
-        content: e.response?.data?.message
-      }))
+    if (e instanceof AxiosError) {
+      notice.error(t(`basic.tips.${e.response?.data?.code}`, {content: e.response?.data?.message}))
+    }
     console.error(e)
   }
 }
@@ -305,7 +254,6 @@ const onSaveCollection = async (): Promise<void> => {
 
   try {
     if (editingCollection.value) {
-      // 更新地图集
       await api.updateCollection(collectionForm.value.uuid, {
         title: collectionForm.value.title,
         description: collectionForm.value.description,
@@ -313,7 +261,6 @@ const onSaveCollection = async (): Promise<void> => {
         sharedUsers: collectionForm.value.sharedUsers
       })
     } else {
-      // 创建新地图集
       await api.createCollection({
         title: collectionForm.value.title,
         description: collectionForm.value.description,
@@ -322,58 +269,45 @@ const onSaveCollection = async (): Promise<void> => {
       })
     }
 
-    // 重新加载地图集列表
     await getMyCollectionsData()
-
-    // 重置表单
     onResetCollectionForm()
-
-    notice.success(t(`basic.tips.map.success`))
+    notice.success(t(`basic.tips.map.success`) || '操作成功')
   } catch (e) {
-    if (e instanceof AxiosError && e.response)
-      notice.error(t(`basic.tips.${e.response?.data?.code}`, {
-        content: e.response?.data?.message
-      }))
-    else if (e instanceof AxiosError)
-      notice.error(t(`basic.tips.error`, {
-        content: e.toString()
-      }))
+    if (e instanceof AxiosError && e.response) {
+      notice.error(t(`basic.tips.${e.response?.data?.code}`, {content: e.response?.data?.message}))
+    }
     console.error(e)
   } finally {
     savingCollectionLoading.value = false;
   }
 };
 
-/**
- * 创建地图集
- */
 const onCreatedCollection = (): void => {
-  onResetCollectionForm()
+  editingCollection.value = false;
+  collectionForm.value = {
+    uuid: '',
+    title: '',
+    description: '',
+    public: 1,
+    sharedUsers: []
+  };
   collectionFormModal.value = true;
 };
 
-/**
- * 编辑地图集
- */
 const editCollection = (collection: MapCollection): void => {
+  editingCollection.value = true;
   collectionForm.value = {
-    id: collection.id,
     uuid: collection.uuid,
     title: collection.title,
-    description: collection.description || '',
-    public: collection.public,
-    sharedUsers: collection.sharedUsers || [],
+    description: collection.description,
+    public: collection.public ? 1 : 0,
+    sharedUsers: collection.sharedUsers || []
   };
-  editingCollection.value = true;
   collectionFormModal.value = true;
 };
 
-/**
- * 重置地图集表单
- */
 const onResetCollectionForm = (): void => {
   collectionForm.value = {
-    id: '',
     uuid: '',
     title: '',
     description: '',
@@ -384,62 +318,16 @@ const onResetCollectionForm = (): void => {
   collectionFormModal.value = false;
 };
 
-//
-// /**
-// * 更新标记
-// */
-// const onUpdateMarker = async (): Promise<void> => {
-//  if (!markerFormRef.value || !newMarkerData.value.id) return;
-//
-//  const {valid} = await markerFormRef.value.validate(
-//  if (!valid) return;
-//
-//  updatingMarker.value = true;
-//
-//  try {
-//    const updatedPoint = await updatePoint(newMarkerData.value.uuid, {
-//      title: newMarkerData.value.title,
-//      description: newMarkerData.value.description,
-//      latitude: newMarkerData.value.latitude,
-//      longitude: newMarkerData.value.longitude,
-//      address: newMarkerData.value.address,
-//      tags: newMarkerData.value.tags,
-//      isPublic: newMarkerData.value.isPublic,
-//      sharedUsers: newMarkerData.value.sharedUsers
-//    }
-//
-//    // 重新加载当前地图集的坐标点
-//    if (selectedCollectionUuid.value) {
-//      await loadCollectionPoints(selectedCollectionUuid.value
-//    }
-//
-//    // 关闭对话框并重置数据
-//    showCreateMarkerDialog.value = false;
-//    onResetNewMarkerData(
-//    selectedPoint.value = null;
-//
-//  } catch (error) {
-//    console.error('更新标记失败:', error
-//  } finally {
-//    updatingMarker.value = false;
-//  }
-// };
-
-/**
- * 确认删除地图集
- */
 const confirmDeleteCollection = (collection: MapCollection): void => {
-  deleteConfirmMessage.value = t('map.confirmDeleteCollection', {title: collection.title})
+  deleteConfirmMessage.value = t('map.confirmDeleteCollection', {title: collection.title}) || `确定删除地图集 [${collection.title}] 吗？`
   pendingDeleteAction.value = async () => {
     await api.deleteCollection(collection.uuid)
     await getMyCollectionsData()
+    notice.success(t(`basic.tips.map.success`) || '删除成功')
   };
   showDeleteConfirm.value = true;
 };
 
-/**
- * 执行删除操作
- */
 const executeDelete = async (): Promise<void> => {
   if (pendingDeleteAction.value) {
     await pendingDeleteAction.value()
@@ -447,253 +335,272 @@ const executeDelete = async (): Promise<void> => {
   }
   showDeleteConfirm.value = false
 };
+
+defineOptions({
+  name: 'AccountMaps'
+})
 </script>
 
 <template>
   <div class="position-relative">
-    <v-overlay v-model="collectionLoading" contained>
+    <v-overlay :model-value="collectionLoading" contained class="d-flex align-center justify-center">
       <Loading></Loading>
     </v-overlay>
 
-    <v-row class="mb-2">
-      <v-spacer></v-spacer>
-      <v-col cols="auto" class="d-flex ga-2">
-        <v-btn class="bg-amber" @click="onCreatedCollection">
-          {{ t('map.createCollection') }}
-        </v-btn>
-        <v-btn @click="getMyCollectionsData">
-          <v-icon icon="mdi-refresh" :class="[collectionLoading ? 'spin-icon-load' : '']"></v-icon>
-        </v-btn>
-      </v-col>
-    </v-row>
-
-    <v-list border rounded lines="one" v-if="userCollections && userCollections.data.length > 0">
-      <v-list-item v-for="(collection,index) in userCollections.data" :key="index">
-        <template v-slot:prepend>
-          <v-icon size="38">mdi-folder</v-icon>
-        </template>
-        <v-list-item-title>{{ collection.title }}</v-list-item-title>
-        <v-list-item-subtitle>
-          <div class="d-flex text-caption opacity-60">
-            <v-icon>mdi-identifier</v-icon>
-            <p class="ml-2">{{ collection.description || collection.uuid }}</p>
+    <!-- Toolbar S -->
+    <AffixContainerView>
+      <v-card class="mb-4 pa-2">
+        <div class="d-flex align-center justify-space-between flex-wrap ga-2">
+          <div class="text-body-2 font-weight-medium d-flex align-center">
+            {{ t('map.collectionList') }}
           </div>
-        </v-list-item-subtitle>
 
-        <template v-slot:append>
-          <div class="d-flex ga-2">
-            <v-btn class="h-100 px-8" elevation="0" tile @click="openPointManager(collection)"
-                   icon="mdi-map-marker-multiple"></v-btn>
-            <v-btn class="h-100 px-8" elevation="0" tile @click="editCollection(collection)"
-                   icon="mdi-pencil"></v-btn>
-            <v-btn class="h-100 px-8" elevation="0" tile @click="confirmDeleteCollection(collection)"
-                   icon="mdi-delete"></v-btn>
+          <!-- 行为按钮组 -->
+          <div class="d-flex align-center ga-2">
+            <v-btn
+                color="amber"
+                variant="tonal"
+                @click="onCreatedCollection">
+              {{ t('map.createCollection') }}
+            </v-btn>
+
+            <v-btn
+                size="small"
+                variant="tonal"
+                icon="mdi-refresh"
+                @click="getMyCollectionsData"
+                :loading="collectionLoading">
+            </v-btn>
           </div>
-        </template>
-      </v-list-item>
-    </v-list>
-    <div class="text-center" v-else>
+        </div>
+      </v-card>
+    </AffixContainerView>
+    <!-- Toolbar E -->
+
+    <!-- 地图集列表展示 S -->
+    <div v-if="userCollections && userCollections.data.length > 0" class="d-flex flex-column ga-3">
+      <v-card
+          v-for="(collection, index) in userCollections.data"
+          :key="collection.uuid || index"
+          border
+          rounded="lg"
+          class="pa-4 hover-card transition-all">
+        <div class="d-flex align-center justify-space-between flex-wrap ga-3">
+          <div class="d-flex align-center flex-grow-1 min-width-0">
+            <v-avatar size="44" rounded="lg" class="mr-3 flex-shrink-0">
+              <v-icon size="24" color="amber">mdi-folder</v-icon>
+            </v-avatar>
+
+            <div class="min-width-0 flex-grow-1">
+              <div class="d-flex align-center ga-2 mb-1">
+                <h3 class="text-body-1 font-weight-bold singe-line">{{ collection.title }}</h3>
+                <v-chip size="x-small" :color="collection.public ? 'amber' : 'default'" variant="tonal">
+                  {{ collection.public ? (t('map.public')) : (t('map.private')) }}
+                </v-chip>
+              </div>
+              <p class="text-caption opacity-60 singe-line mb-0">
+                {{ collection.description || collection.uuid }}
+              </p>
+            </div>
+          </div>
+
+          <!-- 右侧行为操作按钮组 -->
+          <div class="d-flex align-center ga-2 flex-shrink-0">
+            <v-btn
+                size="small"
+                variant="tonal"
+                color="amber"
+                prepend-icon="mdi-map-marker-multiple"
+                @click="openPointManager(collection)">
+              {{ t('map.managePoints') || '管理坐标' }}
+            </v-btn>
+
+            <v-tooltip :text="t('basic.button.edit')" location="top">
+              <template v-slot:activator="{props}">
+                <v-btn
+                    v-bind="props"
+                    size="small"
+                    variant="tonal"
+                    icon="mdi-pencil"
+                    @click="editCollection(collection)">
+                </v-btn>
+              </template>
+            </v-tooltip>
+
+            <v-tooltip :text="t('basic.button.delete')" location="top">
+              <template v-slot:activator="{props}">
+                <v-btn
+                    v-bind="props"
+                    size="small"
+                    variant="tonal"
+                    color="error"
+                    icon="mdi-delete"
+                    @click="confirmDeleteCollection(collection)">
+                </v-btn>
+              </template>
+            </v-tooltip>
+          </div>
+        </div>
+      </v-card>
+    </div>
+    <!-- 地图集列表展示 E -->
+
+    <div class="text-center py-12" v-else>
       <EmptyView></EmptyView>
     </div>
 
-    <!-- 分页 S-->
-    <v-pagination
-        v-if="userCollections.pagination"
-        v-model="collectionPagination.page"
-        :length="userCollections.pagination?.totalPages || 0"
-        @update:model-value="getMyCollectionsData"
-        class="mt-8"
-    ></v-pagination>
-    <!-- 分页 E-->
+    <!-- 统一分页器 S -->
+    <div v-if="userCollections.pagination && userCollections.pagination.totalPages > 1" class="d-flex justify-center mt-6">
+      <v-pagination
+          v-model="collectionPagination.page"
+          :length="userCollections.pagination.totalPages"
+          density="comfortable"
+          active-color="amber"
+          rounded="circle"
+          variant="tonal"
+          @update:model-value="getMyCollectionsData">
+      </v-pagination>
+    </div>
+    <!-- 统一分页器 E -->
 
     <!-- 坐标管理对话框 S -->
-    <v-dialog v-model="showPointManager" max-width="1200">
-      <v-card border v-if="selectedCollection" class="point-manager-dialog">
-        <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 create-collectio-card">
-          <v-icon size="80">mdi-map-marker-multiple</v-icon>
-          <p>{{ selectedCollection.title }}</p>
+    <v-dialog v-model="showPointManager" max-width="1100">
+      <v-card border rounded="lg" v-if="selectedCollection">
+        <v-card-title class="pa-4 d-flex align-center justify-space-between border-b">
+          <div class="d-flex align-center">
+            <v-icon color="amber" class="mr-2">mdi-map-marker-multiple</v-icon>
+            <span class="font-weight-bold">{{ selectedCollection.title }} - {{ t('map.managePoints') || '坐标管理' }}</span>
+          </div>
+          <v-btn variant="tonal" density="compact" icon="mdi-close" @click="showPointManager = false"></v-btn>
         </v-card-title>
-        <template v-slot:append>
-          <v-btn variant="tonal" icon @click="showPointManager = false">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
-        </template>
 
-        <v-card-text>
+        <v-card-text class="pa-4">
           <v-row>
-            <!-- 地图集内坐标 -->
-            <v-col>
-              <div class="d-flex align-center mb-3">
-                <v-icon icon="mdi-map-marker" class="mr-2"></v-icon>
-                {{ t('map.pointsInCollection') }}
-                <v-spacer></v-spacer>
-                <v-btn
-                    v-if="collectionPoints.length > 0"
-                    @click="toggleSelectAll(collectionPoints)"
-                    variant="text"
-                    size="small">
-                  {{ collectionPoints.every(p => selectedPoints.includes(p.uuid)) ? t('map.deselectAll') : t('map.selectAll') }}
-                </v-btn>
-              </div>
+            <!-- 左侧：地图集内坐标 -->
+            <v-col cols="12" md="6">
+              <v-card border rounded="lg" class="pa-3 h-100">
+                <div class="d-flex align-center justify-space-between mb-3 pb-2 border-b">
+                  <span class="font-weight-bold d-flex align-center text-body-2">
+                    <v-icon size="18" color="amber" class="mr-1">mdi-map-marker</v-icon>
+                    {{ t('map.pointsInCollection') }} ({{ collectionPoints.length }})
+                  </span>
 
-              <v-card border class="h-100">
-                <v-list>
-                  <v-list-item
-                      v-for="(point, index) in collectionPoints"
-                      :key="index"
+                  <div class="d-flex align-center ga-1">
+                    <v-btn
+                        v-if="collectionPoints.length > 0"
+                        size="x-small"
+                        variant="tonal"
+                        @click="toggleSelectAll(collectionPoints)">
+                      {{ collectionPoints.every(p => selectedPoints.includes(p.uuid)) ? t('map.deselectAll') : t('map.selectAll') }}
+                    </v-btn>
+
+                    <v-btn
+                        size="x-small"
+                        color="error"
+                        variant="tonal"
+                        :disabled="!collectionPoints.some(p => selectedPoints.includes(p.uuid))"
+                        @click="onRemoveSelectedPointsFromCollection">
+                      {{ t('map.remove') || '移出' }}
+                    </v-btn>
+                  </div>
+                </div>
+
+                <div v-if="collectionPoints.length > 0" class="d-flex flex-column ga-2 max-h-400 overflow-y-auto pr-1">
+                  <v-card
+                      v-for="point in collectionPoints"
+                      :key="point.uuid"
+                      border
+                      class="pa-2 cursor-pointer transition-all hover-card"
+                      :class="{'selected-border': selectedPoints.includes(point.uuid)}"
                       @click="togglePointSelection(point.uuid)">
-                    <template v-slot:prepend>
-                      <v-checkbox
+                    <div class="d-flex align-center">
+                      <v-checkbox-btn
                           :model-value="selectedPoints.includes(point.uuid)"
-                          hide-details
-                          class="mr-2"
-                      ></v-checkbox>
-                    </template>
-                    <v-list-item-title>{{ point.title }}</v-list-item-title>
-                    <v-list-item-subtitle>
-                      {{ point.description || t('map.noDescription') }}
-                    </v-list-item-subtitle>
-                    <template v-slot:append>
-                      <v-card variant="text" min-width="250">
-                        <v-row align="center">
-                          <v-col cols="6">
-                            <v-text-field
-                                :value="point.latitude"
-                                :disabled="userCollections.data.length <= 0"
-                                :label="t('map.longitude')"
-                                active
-                                hide-details
-                                density="compact"
-                                variant="outlined"
-                                readonly></v-text-field>
-                          </v-col>
-
-                          <v-col cols="6">
-                            <v-text-field
-                                :value="point.longitude"
-                                :disabled="userCollections.data.length <= 0"
-                                :label="t('map.latitude')"
-                                active
-                                hide-details
-                                density="compact"
-                                variant="outlined"
-                                readonly></v-text-field>
-                          </v-col>
-                        </v-row>
-                      </v-card>
-                    </template>
-                  </v-list-item>
-                  <v-list-item v-if="collectionPoints.length === 0">
-                    <EmptyView></EmptyView>
-                  </v-list-item>
-                </v-list>
+                          @click.stop="togglePointSelection(point.uuid)"
+                          class="mr-2 flex-shrink-0">
+                      </v-checkbox-btn>
+                      <div class="flex-grow-1 min-width-0">
+                        <div class="font-weight-bold text-body-2 singe-line">{{ point.title }}</div>
+                        <div class="text-caption opacity-60 singe-line">
+                          Lat: {{ point.latitude }} | Lng: {{ point.longitude }}
+                        </div>
+                      </div>
+                    </div>
+                  </v-card>
+                </div>
+                <div class="py-8 text-center" v-else>
+                  <EmptyView></EmptyView>
+                </div>
               </v-card>
-
-              <v-row class="my-3">
-                <v-col>
-                  <v-btn
-                      @click="deleteSelectedPoints"
-                      :disabled="selectedPoints.length === 0"
-                      color="error"
-                      variant="tonal">
-                    {{ t('map.deletePoints') }}
-                  </v-btn>
-                </v-col>
-              </v-row>
-            </v-col>
-            <v-col cols="auto" class="d-flex flex-column justify-center ga-2">
-              <v-btn
-                  border
-                  @click="addSelectedPointsToCollection"
-                  :disabled="selectedPoints.length === 0"
-                  variant="flat">
-                <v-icon>mdi-chevron-double-left</v-icon>
-              </v-btn>
-              <v-btn
-                  border
-                  @click="onRemoveSelectedPointsFromCollection"
-                  :disabled="selectedPoints.length === 0"
-                  variant="flat">
-                <v-icon>mdi-chevron-double-right</v-icon>
-              </v-btn>
             </v-col>
 
-            <!-- 可添加的坐标 -->
-            <v-col>
-              <div class="d-flex align-center mb-3">
-                <v-icon icon="mdi-map-marker-plus" class="mr-2"></v-icon>
-                {{ t('map.availablePoints') }}
-                <v-spacer></v-spacer>
-                <v-btn
-                    @click="toggleSelectAll(orphanPoints)"
-                    variant="text"
-                    size="small">
-                  {{ orphanPoints.every(p => selectedPoints.includes(p.uuid)) ? t('map.deselectAll') : t('map.selectAll') }}
-                </v-btn>
-              </div>
+            <!-- 右侧：未分组/孤儿坐标池 -->
+            <v-col cols="12" md="6">
+              <v-card border rounded="lg" class="pa-3 h-100">
+                <div class="d-flex align-center justify-space-between mb-3 pb-2 border-b">
+                  <span class="font-weight-bold d-flex align-center text-body-2">
+                    <v-icon size="18" class="mr-1">mdi-map-marker-outline</v-icon>
+                    {{ t('map.availablePoints') }} ({{ orphanPoints.length }})
+                  </span>
 
-              <v-card border class="h-100">
-                <v-card-title class="w-100">
-                  <v-text-field
-                      v-model="searchQuery"
-                      @input="onSearchPoints"
-                      :placeholder="t('map.searchPointsPlaceholder')"
-                      density="compact"
-                      hide-details
-                      class="search-field"
-                  ></v-text-field>
-                </v-card-title>
+                  <div class="d-flex align-center ga-1">
+                    <v-btn
+                        v-if="orphanPoints.length > 0"
+                        size="x-small"
+                        variant="tonal"
+                        @click="toggleSelectAll(orphanPoints)">
+                      {{ orphanPoints.every(p => selectedPoints.includes(p.uuid)) ? t('map.deselectAll') : t('map.selectAll') }}
+                    </v-btn>
 
-                <v-list>
-                  <v-list-item
-                      v-for="(point, index) in orphanPoints"
-                      :key="index"
+                    <v-btn
+                        size="x-small"
+                        color="amber"
+                        variant="tonal"
+                        :disabled="!orphanPoints.some(p => selectedPoints.includes(p.uuid))"
+                        @click="addSelectedPointsToCollection">
+                      {{ t('map.add') || '加入图集' }}
+                    </v-btn>
+                  </div>
+                </div>
+
+                <!-- 搜索框 -->
+                <v-text-field
+                    v-model="searchQuery"
+                    :placeholder="t('map.searchPoints') || '搜索未分组坐标...'"
+                    density="compact"
+                    variant="outlined"
+                    hide-details
+                    prepend-inner-icon="mdi-magnify"
+                    class="mb-3"
+                    @update:model-value="onSearchPoints">
+                </v-text-field>
+
+                <div v-if="orphanPoints.length > 0" class="d-flex flex-column ga-2 max-h-400 overflow-y-auto pr-1">
+                  <v-card
+                      v-for="point in orphanPoints"
+                      :key="point.uuid"
+                      border
+                      class="pa-2 cursor-pointer transition-all hover-card"
+                      :class="{'selected-border': selectedPoints.includes(point.uuid)}"
                       @click="togglePointSelection(point.uuid)">
-                    <template v-slot:prepend>
-                      <v-checkbox
+                    <div class="d-flex align-center">
+                      <v-checkbox-btn
                           :model-value="selectedPoints.includes(point.uuid)"
-                          hide-details
-                          class="mr-2"
-                      ></v-checkbox>
-                    </template>
-                    <v-list-item-title>{{ point.title }}</v-list-item-title>
-                    <v-list-item-subtitle>
-                      {{ point.description || t('map.noDescription') }}
-                    </v-list-item-subtitle>
-                    <template v-slot:append>
-                      <v-card variant="text" min-width="250">
-                        <v-row align="center">
-                          <v-col cols="6">
-                            <v-text-field
-                                :value="point.latitude"
-                                :disabled="userCollections.data.length <= 0"
-                                :label="t('map.longitude')"
-                                active
-                                hide-details
-                                density="compact"
-                                variant="outlined"
-                                readonly></v-text-field>
-                          </v-col>
-
-                          <v-col cols="6">
-                            <v-text-field
-                                :value="point.longitude"
-                                :disabled="userCollections.data.length <= 0"
-                                :label="t('map.latitude')"
-                                active
-                                hide-details
-                                density="compact"
-                                variant="outlined"
-                                readonly></v-text-field>
-                          </v-col>
-                        </v-row>
-                      </v-card>
-                    </template>
-                  </v-list-item>
-                  <v-list-item v-if="orphanPoints.length === 0">
-                    <EmptyView></EmptyView>
-                  </v-list-item>
-                </v-list>
+                          @click.stop="togglePointSelection(point.uuid)"
+                          class="mr-2 flex-shrink-0">
+                      </v-checkbox-btn>
+                      <div class="flex-grow-1 min-width-0">
+                        <div class="font-weight-bold text-body-2 singe-line">{{ point.title }}</div>
+                        <div class="text-caption opacity-60 singe-line">
+                          Lat: {{ point.latitude }} | Lng: {{ point.longitude }}
+                        </div>
+                      </div>
+                    </div>
+                  </v-card>
+                </div>
+                <div class="py-8 text-center" v-else>
+                  <EmptyView></EmptyView>
+                </div>
               </v-card>
             </v-col>
           </v-row>
@@ -702,113 +609,99 @@ const executeDelete = async (): Promise<void> => {
     </v-dialog>
     <!-- 坐标管理对话框 E -->
 
-    <!-- 地图集管理对话框 S -->
+    <!-- 地图集编辑/新建对话框 S -->
     <v-dialog v-model="collectionFormModal" max-width="500">
-      <v-card border elevation="12">
-        <v-card-title class="d-flex py-10 ga-2 justify-center align-center bg-black mb-4 mx-n5 create-collectio-card">
-          <v-icon size="80">mdi-map-marker-multiple</v-icon>
-          <v-icon size="30">mdi-plus</v-icon>
-          <v-icon size="80">mdi-rename</v-icon>
+      <v-card border rounded="lg">
+        <v-card-title class="pa-4 font-weight-bold d-flex align-center border-b">
+          <v-icon color="amber" class="mr-2">{{ editingCollection ? 'mdi-pencil' : 'mdi-plus-box' }}</v-icon>
+          {{ editingCollection ? (t('map.editCollection') || '编辑地图集') : t('map.createCollection') }}
         </v-card-title>
-        <template v-slot:append>
-          <v-btn variant="tonal" icon @click="onResetCollectionForm">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
-        </template>
 
-        <v-card-text>
-          <v-form ref="collectionFormRef" class="mt-4">
+        <v-card-text class="pa-4">
+          <v-form ref="collectionFormRef">
             <v-text-field
                 v-model="collectionForm.title"
                 :label="t('map.collectionTitle')"
                 variant="outlined"
-                required></v-text-field>
+                density="compact"
+                class="mb-3"
+                :rules="[v => !!v || '请输入标题']"
+                required>
+            </v-text-field>
 
             <v-textarea
                 v-model="collectionForm.description"
                 :label="t('map.collectionDescription')"
                 variant="outlined"
-                rows="3"></v-textarea>
-
-            <v-combobox
-                v-model="collectionForm.sharedUsers"
-                :label="t('map.sharedUsers')"
-                :items="[]"
-                multiple
-                chips
-                variant="outlined"
-                :hint="t('map.sharedUsersHint')"></v-combobox>
+                density="compact"
+                rows="3"
+                class="mb-3">
+            </v-textarea>
 
             <v-select
+                v-model="collectionForm.public"
                 item-title="label"
                 item-value="value"
-                v-model="collectionForm.public"
-                :items="[{value: 0, label: 'off'},{value: 1, label: 'on'}]"
-                :label="t('map.publicCollection')">
+                :items="[{value: 1, label: t('map.public') || '公开'}, {value: 0, label: t('map.private') || '私有'}]"
+                :label="t('map.publicCollection')"
+                variant="outlined"
+                density="compact">
             </v-select>
           </v-form>
         </v-card-text>
 
-        <v-card-actions>
+        <v-card-actions class="pa-4 border-t">
           <v-spacer></v-spacer>
-          <v-btn @click="onResetCollectionForm" variant="text">
+          <v-btn variant="text" @click="onResetCollectionForm">
             {{ t('basic.button.cancel') }}
           </v-btn>
           <v-btn
-              @click="onSaveCollection"
+              color="amber"
+              variant="tonal"
               :loading="savingCollectionLoading"
-              class="bg-amber"
-              variant="flat">
-            {{ editingCollection ? t('basic.button.submit') : t('basic.button.submit') }}
+              @click="onSaveCollection">
+            {{ t('basic.button.submit') }}
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <!-- 地图集管理对话框 E -->
+    <!-- 地图集编辑/新建对话框 E -->
 
     <!-- 删除确认对话框 S -->
     <v-dialog v-model="showDeleteConfirm" max-width="400">
-      <v-container>
-        <v-card>
-          <v-card-title class="text-h6">
-            {{ t('common.confirmDelete') }}
-          </v-card-title>
-          <v-card-text>
-            {{ deleteConfirmMessage }}
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn @click="showDeleteConfirm = false" variant="text">
-              {{ t('basic.button.cancel') }}
-            </v-btn>
-            <v-btn @click="executeDelete" color="error" variant="flat">
-              {{ t('basic.button.submit') }}
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-container>
+      <v-card border rounded="lg">
+        <v-card-title class="pa-4 text-h6 font-weight-bold text-error d-flex align-center">
+          <v-icon color="error" class="mr-2">mdi-alert</v-icon>
+          {{ t('common.confirmDelete') }}
+        </v-card-title>
+        <v-card-text class="px-4 py-2">
+          {{ deleteConfirmMessage }}
+        </v-card-text>
+        <v-card-actions class="pa-4 border-t">
+          <v-spacer></v-spacer>
+          <v-btn variant="text" @click="showDeleteConfirm = false">
+            {{ t('basic.button.cancel') }}
+          </v-btn>
+          <v-btn color="error" variant="tonal" @click="executeDelete">
+            {{ t('basic.button.submit') }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
     </v-dialog>
     <!-- 删除确认对话框 E -->
   </div>
 </template>
 
 <style scoped lang="less">
-@import "@/assets/styles/icon";
-
-.create-collectio-card {
-  margin-top: -80px !important;
+.min-width-0 {
+  min-width: 0;
 }
 
-.point-manager-dialog {
+.max-h-400 {
+  max-height: 400px;
 }
 
-.v-list-item {
+.cursor-pointer {
   cursor: pointer;
-  border-radius: 8px;
-  margin-bottom: 4px;
-
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.04);
-  }
 }
 </style>

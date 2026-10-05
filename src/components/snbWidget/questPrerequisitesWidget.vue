@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'QuestPrerequisitesWidget' }
-</script>
-
 <script setup lang="ts">
 import {computed} from "vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
@@ -20,6 +16,10 @@ const prerequisiteQuests = computed(() => {
       .map(item => typeof item === 'string' ? allQuestsMap[item] : item)
       .filter((q): q is Questlog => !!q);
 });
+
+defineOptions({
+  name: 'QuestPrerequisitesWidget'
+})
 </script>
 
 <template>

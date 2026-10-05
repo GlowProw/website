@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'HtmlLink' }
-</script>
-
 <script setup lang="ts">
 
 import {onMounted, ref} from "vue";
@@ -128,6 +124,10 @@ const getDomain = () => {
     return afterData.value.href
   }
 }
+
+defineOptions({
+  name: 'HtmlLink'
+})
 </script>
 
 <template>

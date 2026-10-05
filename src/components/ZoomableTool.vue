@@ -14,15 +14,16 @@
   </v-card>
 </template>
 
-<script lang="ts">
-export default { name: 'ZoomableTool' }
-</script>
 
 <script setup lang="ts">
 import {useDisplay} from "vuetify/framework";
 
 const emit = defineEmits(['event-center', 'event-plus', 'event-minus']),
     {mobile, lg} = useDisplay()
+
+defineOptions({
+  name: 'ZoomableTool'
+})
 </script>
 
 <style scoped lang="less">

@@ -1,7 +1,3 @@
-<script lang="ts">
-export default { name: 'QuestSubsequentWidget' }
-</script>
-
 <script setup lang="ts">
 import {computed} from "vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
@@ -22,6 +18,10 @@ const subsequentQuests = computed(() => {
     return q.introduction.some(item => (typeof item === 'string' ? item : item.id) === currentId);
   });
 });
+
+defineOptions({
+  name: 'QuestSubsequentWidget'
+})
 </script>
 
 <template>
