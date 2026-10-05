@@ -1,22 +1,32 @@
 import { useI18n } from "vue-i18n";
 import { use_local_locale } from "@/assets/sripts/use_local_locale";
 import { type ComputedRef } from "vue";
+import { getAppI18n } from "@/i18n";
 
 /**
  * 翻译工具函数（Composition API）
  */
 export function useI18nUtils(manualLocale?: ComputedRef<string | undefined>) {
     const { localLocale } = use_local_locale(manualLocale);
-    let composer: any;
-    try {
-        composer = useI18n();
-    } catch (e) {}
+    
+    const getComposer = () => {
+        try {
+            return useI18n();
+        } catch {
+            try {
+                return getAppI18n()?.global;
+            } catch {
+                return null;
+            }
+        }
+    };
 
     /**
      * 翻译指定 key 对应文本
      */
     const t = (key: string, variable: any = null, lang?: string) => {
         const targetLocale = lang || localLocale.value;
+        const composer = getComposer();
         if (composer) {
             return composer.t(key, variable || {}, { locale: targetLocale });
         }
@@ -28,6 +38,7 @@ export function useI18nUtils(manualLocale?: ComputedRef<string | undefined>) {
      */
     const te = (key: string, lang?: string) => {
         const targetLocale = lang || localLocale.value;
+        const composer = getComposer();
         if (composer) {
             return composer.te(key, targetLocale);
         }
@@ -41,6 +52,7 @@ export function useI18nUtils(manualLocale?: ComputedRef<string | undefined>) {
      */
     const tm = (key: string, lang?: string) => {
         const targetLocale = lang || localLocale.value;
+        const composer = getComposer();
         if (composer) {
             const messages = composer.getLocaleMessage(targetLocale);
             return key.split('.').reduce((acc: any, part: string) => acc?.[part], messages as any);
@@ -151,11 +163,15 @@ export function useI18nUtils(manualLocale?: ComputedRef<string | undefined>) {
         sanitizeString,
         asArray,
         asString,
-        globalLocale: composer?.locale,
+        globalLocale: getComposer()?.locale,
         locale: localLocale,
         t,
         te,
         tm,
-        rt: composer?.rt || ((v: any) => String(v)),
+        rt: (v: any) => {
+            const comp = getComposer();
+            if (comp && comp.rt) return comp.rt(v);
+            return String(v);
+        },
     }
 }

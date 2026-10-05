@@ -1,12 +1,18 @@
 User-agent: *
 Allow: /
-Disallow: /account/information
-Disallow: /account/profile-picture
-Disallow: /account/trash
-Disallow: /account/signin
-Disallow: /account/signup
-Disallow: /account/forgot-password
-Disallow: /account/activate
+Disallow: /account
+Disallow: /account/
+Disallow: /*/account
+Disallow: /*/account/
+Disallow: /widgets
+Disallow: /widgets/
+Disallow: /*/widgets/
+Disallow: /space
+Disallow: /space/
+Disallow: /*/space/
+Disallow: /test
+Disallow: /test/
+Disallow: /*/test/
 Disallow: /api/
 Disallow: /assets-proxy/
 

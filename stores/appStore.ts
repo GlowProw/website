@@ -9,7 +9,8 @@ const CONFIG_KEYS = {
     THEME: 'theme',
     LANGUAGE: 'language',
     SIDEBAR_COLLAPSED: 'sidebarCollapsed',
-    DEBUG: 'debug'
+    DEBUG: 'debug',
+    CAPTCHA_TYPE: 'captchaType'
 } as const
 
 // 全局预捕获 PWA 安装事件
@@ -24,6 +25,9 @@ if (typeof window !== 'undefined') {
 export const useAppStore = defineStore('app', () => {
     // 开发者调试模式
     const isDebug = ref(false)
+
+    // 人机验证服务类型 ('turnstile' | 'svg')
+    const captchaType = ref<'turnstile' | 'svg'>('turnstile')
 
     // 是否在新窗口打开项目
     const itemOpenNewWindow = ref(false)
@@ -118,6 +122,12 @@ export const useAppStore = defineStore('app', () => {
             {defaultValue: false}
         )
 
+        captchaType.value = storage_account.getConfigurationItem(
+            'app',
+            CONFIG_KEYS.CAPTCHA_TYPE,
+            {defaultValue: 'turnstile'}
+        )
+
         // 应用主题
         applyTheme(theme.value)
     }
@@ -130,6 +140,16 @@ export const useAppStore = defineStore('app', () => {
         isDebug.value = value
         storage_account.updateConfiguration('app', CONFIG_KEYS.DEBUG, value)
         return value
+    }
+
+    /**
+     * 设置人机验证服务提供商
+     * @param type - 'turnstile' | 'svg'
+     */
+    const setCaptchaType = (type: 'turnstile' | 'svg') => {
+        captchaType.value = type
+        storage_account.updateConfiguration('app', CONFIG_KEYS.CAPTCHA_TYPE, type)
+        return type
     }
 
     /**
@@ -229,6 +249,7 @@ export const useAppStore = defineStore('app', () => {
         theme.value = 'light'
         language.value = 'zh-CN'
         sidebarCollapsed.value = false
+        captchaType.value = 'turnstile'
 
         // 保存到本地存储
         storage_account.updateConfiguration('app', CONFIG_KEYS.OPEN_NEW_WINDOW, false)
@@ -240,6 +261,7 @@ export const useAppStore = defineStore('app', () => {
         storage_account.updateConfiguration('app', CONFIG_KEYS.THEME, 'light')
         storage_account.updateConfiguration('app', CONFIG_KEYS.LANGUAGE, 'zh-CN')
         storage_account.updateConfiguration('app', CONFIG_KEYS.SIDEBAR_COLLAPSED, false)
+        storage_account.updateConfiguration('app', CONFIG_KEYS.CAPTCHA_TYPE, 'turnstile')
 
         // 应用默认主题
         applyTheme('light')
@@ -325,6 +347,7 @@ export const useAppStore = defineStore('app', () => {
     return {
         // 状态 (State)
         isDebug,
+        captchaType,
         itemOpenNewWindow,
         iconSize,
         theme,
@@ -345,6 +368,7 @@ export const useAppStore = defineStore('app', () => {
         initializeAppConfig,
         initializePwa,
         setDebug,
+        setCaptchaType,
         toggleItemOpenNewWindow,
         setIconSize,
         setTheme,

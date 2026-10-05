@@ -728,6 +728,14 @@
       "reviewNotice": "請不要發布與走私犯無關內容",
       "reviewPlaceholder": "輸入你鑑賞推薦內容",
       "deleteComment": "刪除評論"
+    },
+    "bindings": {
+      "title": "平臺綁定",
+      "subtitle": "管理您的第三方帳號關聯",
+      "bound": "已綁定",
+      "unbound": "未綁定",
+      "bindBtn": "立即綁定",
+      "unbindBtn": "解除綁定"
     }
   },
   "activate": {
@@ -2347,7 +2355,11 @@
         "password": "密碼"
       }
     },
-    "newUserRegistrationHint": "沒有賬戶？前往註冊"
+    "newUserRegistrationHint": "沒有賬戶？前往註冊",
+    "banner": {
+      "title": "加入{name}，免費向你提供擴充服務",
+      "subtitle": "為碧海黑帆開發工具集，你只差一步，註冊即可使用"
+    }
   },
   "signup": {
     "title": "注册",
@@ -2831,6 +2843,15 @@
         "testBody": "桌面通知功能正常！活動時間到達時你將會收到提醒推送。",
         "permissionGrantedMsg": "已成功取得桌面通知權限！",
         "permissionDeniedMsg": "通知權限被拒絕，請在瀏覽器設定中開啟通知權限。"
+      },
+      "captcha": {
+        "title": "人機驗證服務",
+        "description": "管理評論、登入與註冊時的人機驗證服務，可根據網路環境自由切換智慧驗證與傳統圖形驗證碼。",
+        "recommend": "推薦",
+        "turnstile": "Cloudflare Turnstile",
+        "turnstileDesc": "智慧人機驗證，無需繁瑣字元輸入，快速流暢（推薦）。",
+        "svg": "圖形驗證碼",
+        "svgDesc": "傳統字元圖形驗證碼，需要手動識別並輸入圖片中的字母與數字。"
       }
     }
   },
@@ -3306,12 +3327,12 @@
       "commandPrefix": "/訂閱"
     },
     "notification": {
-      "advanceTitle": "⏰ 提前提醒: {title} (將在 {minutes} 分鐘後開始)",
+      "advanceTitle": "⏰ 提前提醒: {title} (將在 {time}後開始)",
       "mainTitle": "⏰ 活動提醒: {title}",
-      "advanceBody": "【提前 {minutes} 分鐘】{title}: {note}",
+      "advanceBody": "【提前 {time}】{title}: {note}",
       "mainBody": "{title}: {note}",
       "advanceDefaultMsg": "活動即將開始！",
-      "advanceDefaultShort": "活動將在 {minutes} 分鐘後開始",
+      "advanceDefaultShort": "活動將在 {time}後開始",
       "mainDefaultMsg": "活動時間已到達！",
       "testTitle": "測試活動提醒",
       "testNote": "這是一個測試通知。桌面通知功能正常運行中！"
@@ -3332,5 +3353,26 @@
       "offsetDays": "{days}天",
       "immediately": "即刻"
     }
+  },
+  "oauth": {
+    "quickLogin": "第三方快捷登入",
+    "bindTitle": "快捷關聯第三方平臺",
+    "callbackTitle": "第三方授權驗證",
+    "processing": "正在驗證第三方授權，請稍候...",
+    "failedTitle": "授權失敗",
+    "backToSignin": "返回登入頁",
+    "authorizedPlatform": "已連接",
+    "firstTimeHint": "這是您首次使用該第三方帳號登入，請選擇補充註冊新帳號或關聯已有 Glow Prow 帳號：",
+    "tabNewAccount": "補充註冊新帳號",
+    "tabBindExisting": "關聯已有帳號",
+    "completeSignupBtn": "完成註冊並登入",
+    "completeBindBtn": "確認綁定並登入",
+    "bindSuccess": "第三方帳號關聯成功！",
+    "bindAndLoginSuccess": "綁定成功並已登入！",
+    "bindFailed": "綁定失敗",
+    "missingCode": "缺少授權回調 Code，請重新發起授權。",
+    "authFailed": "第三方授權啟動失敗",
+    "urlError": "獲取授權鏈接失敗",
+    "unknownError": "授權處理失敗"
   }
 }

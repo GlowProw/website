@@ -12,11 +12,11 @@ import {apis} from "@/assets/sripts";
 import {ApiError} from "@/assets/types/Api";
 import {CaptchaParams} from "@/assets/types/Captcha";
 import {handleApiError} from "@/assets/sripts/error_handler";
-import { log } from "console";
-import Logo from "@/components/Logo.vue";
 import {useDisplay} from "vuetify/framework";
 import Silk from "@/components/Silk.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
+import HalfScreenBannerText from "@/components/HalfScreenBannerText.vue";
+import ThirdPartyLoginWidget from "@/components/ThirdPartyLoginWidget.vue";
 
 const authStore = useAuthStore(),
     router = useRouter(),
@@ -103,6 +103,7 @@ const onCaptchaData = (data: CaptchaParams) => {
   <div class="signin-window">
     <v-row dense class="h-100">
       <v-col cols="12" lg="6" :class="{'d-none': mobile || sm}" class="position-relative overflow-hidden">
+        <HalfScreenBannerText></HalfScreenBannerText>
         <Silk
             :speed="3"
             :scale=".7"
@@ -150,6 +151,8 @@ const onCaptchaData = (data: CaptchaParams) => {
 
               <v-btn class="mt-2" @click="onBackRoute" size="50" block variant="text" v-if="route.query.backUrl || route.query.backurl">{{ t('basic.button.cancel') }}</v-btn>
             </div>
+
+            <ThirdPartyLoginWidget mode="signin" />
 
             <v-card-actions class="py-2 d-flex justify-space-between align-center mb-5">
               <router-link to="/account/signup" class="u">

@@ -121,7 +121,7 @@ onMounted(() => {
                     <HtmlLink
                         :is-icon="false"
                         :is-iframe-show="false"
-                        href="https://status.glow-prow.org.cn" target="_blank">
+                        href="https://status.glow-prow.top" target="_blank">
                       {{ t('footer.col3.serviceStatus') }}
                     </HtmlLink>
                   </li>
@@ -141,6 +141,23 @@ onMounted(() => {
                       {{ t('footer.col3.github') }}
                     </HtmlLink>
                   </li>
+                  <li>
+                    <HtmlLink
+                        :is-icon="false"
+                        :is-iframe-show="false"
+                        href="https://status.glow-prow.top/privacy" target="_blank">
+                      {{ t('footer.col3.privacy') }}
+                    </HtmlLink>
+                  </li>
+                  <li>
+                    <HtmlLink
+                        :is-icon="false"
+                        :is-iframe-show="false"
+                        href="https://status.glow-prow.top/terms" target="_blank">
+                      {{ t('footer.col3.terms') }}
+                    </HtmlLink>
+                  </li>
+
 
                 </ul>
               </v-col>

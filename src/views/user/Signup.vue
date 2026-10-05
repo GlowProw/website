@@ -12,6 +12,8 @@ import {SignupParams} from "@/assets/types/User.Signup";
 import {CaptchaParams} from "@/assets/types/Captcha";
 import {handleApiError} from "@/assets/sripts/error_handler";
 import Silk from "@/components/Silk.vue";
+import HalfScreenBannerText from "@/components/HalfScreenBannerText.vue";
+import ThirdPartyLoginWidget from "@/components/ThirdPartyLoginWidget.vue";
 
 const router = useRouter(),
     route = useRoute(),
@@ -89,6 +91,7 @@ const onCaptchaData = (data: CaptchaParams) => {
     <div class="signup-window">
       <v-row dense class="min-h-screen">
         <v-col cols="12" lg="6" :class="{'d-none': mobile || sm}" class="position-relative overflow-hidden">
+          <HalfScreenBannerText></HalfScreenBannerText>
           <Silk
               :speed="3"
               :scale=".7"
@@ -185,6 +188,8 @@ const onCaptchaData = (data: CaptchaParams) => {
 
               <v-btn class="mt-2" @click="onBackRoute" size="50" block variant="text">{{ t('basic.button.cancel') }}</v-btn>
             </div>
+
+            <ThirdPartyLoginWidget mode="signup" />
           </v-card>
         </v-col>
       </v-row>

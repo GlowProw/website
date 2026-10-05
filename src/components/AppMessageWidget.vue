@@ -219,7 +219,8 @@ defineOptions({
                 </div>
                 <!-- 头部操作与排队信息 E -->
 
-                <div class="notice-minimal-text">{{ noticeStore.currentMessage.text }}</div>
+                <div v-if="noticeStore.currentMessage.isHtml" class="notice-minimal-text" v-html="noticeStore.currentMessage.text"></div>
+                <div v-else class="notice-minimal-text">{{ noticeStore.currentMessage.text }}</div>
               </div>
             </v-container>
           </div>
@@ -357,7 +358,8 @@ defineOptions({
                 class="error-code-card w-100 rounded-lg text-left shadow-lg"
                 style="max-width: 850px;">
               <div class="text-body-2 text-grey-lighten-2 font-weight-medium text-white max-w-100 text-pre-wrap mb-4" style="max-width: 900px; line-height: 1.6;">
-                <u class="u">{{ noticeStore.currentMessage.text }}</u>
+                <u v-if="noticeStore.currentMessage.isHtml" class="u" v-html="noticeStore.currentMessage.text"></u>
+                <u v-else class="u">{{ noticeStore.currentMessage.text }}</u>
               </div>
             </div>
           </div>

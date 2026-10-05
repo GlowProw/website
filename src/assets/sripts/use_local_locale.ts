@@ -1,5 +1,7 @@
-import { inject, computed, type ComputedRef } from 'vue';
+import { inject, computed, type ComputedRef, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { getAppI18n } from '@/i18n';
+import { DEFAULT_LANG } from '@/config/languages';
 
 /**
  * 获取当前上下文的语言设置
@@ -8,11 +10,23 @@ import { useI18n } from 'vue-i18n';
  * 否则回退到全局应用语言
  */
 export function use_local_locale(manualLocale?: ComputedRef<string | undefined>) {
-  const { locale: globalLocale } = useI18n();
-  const contextLocale = inject<ComputedRef<string> | string | undefined>('context-locale', undefined);
+  let globalLocaleRef: any;
+  try {
+    const composer = useI18n();
+    globalLocaleRef = composer.locale;
+  } catch {
+    try {
+      globalLocaleRef = getAppI18n()?.global?.locale;
+    } catch {}
+  }
+
+  let contextLocale: ComputedRef<string> | string | undefined;
+  try {
+    contextLocale = inject<ComputedRef<string> | string | undefined>('context-locale', undefined);
+  } catch {}
 
   const localLocale = computed(() => {
-    let result = globalLocale.value;
+    let result = (globalLocaleRef && (globalLocaleRef.value || globalLocaleRef)) || DEFAULT_LANG;
 
     // 优先使用手动传入的语言 (Provider 层)
     if (manualLocale && manualLocale.value) {
@@ -26,7 +40,6 @@ export function use_local_locale(manualLocale?: ComputedRef<string | undefined>)
       }
     }
 
-    // console.log('[use_local_locale] Computed Locale:', result);
     return result;
   });
 
@@ -34,3 +47,4 @@ export function use_local_locale(manualLocale?: ComputedRef<string | undefined>)
     localLocale
   };
 }
+

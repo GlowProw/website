@@ -10,6 +10,7 @@ import {apis} from "@/assets/sripts";
 import {ForgotPasswordParams} from "@/assets/types/User";
 import {handleApiError} from "@/assets/sripts/error_handler";
 import Silk from "@/components/Silk.vue";
+import HalfScreenBannerText from "@/components/HalfScreenBannerText.vue";
 
 const router = useRouter(),
     route = useRoute(),
@@ -61,6 +62,7 @@ const onBack = () => {
     <div class="forgot-window">
       <v-row dense class="h-screen">
         <v-col cols="12" lg="6" :class="{'d-none': mobile || sm}" class="position-relative overflow-hidden">
+         <HalfScreenBannerText></HalfScreenBannerText>
           <Silk
               :speed="3"
               :scale=".7"

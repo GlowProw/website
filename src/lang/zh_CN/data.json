@@ -709,6 +709,14 @@
       "description": "头像使用的是gravatar提供用户信息，需要修改头像信息前往gravatar.com上传",
       "associatedEmailNotification": "头像关联的是{email}邮箱，请使用它来注册gravatar"
     },
+    "bindings": {
+      "title": "平台绑定",
+      "subtitle": "管理您的第三方账号关联",
+      "bound": "已绑定",
+      "unbound": "未绑定",
+      "bindBtn": "立即绑定",
+      "unbindBtn": "解除绑定"
+    },
     "myAssembly": "我的配装",
     "myComment": "我的评论",
     "myTeamup": "我的组队",
@@ -2279,7 +2287,11 @@
         "password": "密码"
       }
     },
-    "newUserRegistrationHint": "没有账户？前往注册"
+    "newUserRegistrationHint": "没有账户？前往注册",
+    "banner": {
+      "title": "加入{name}，免费向你提供扩展服务",
+      "subtitle": "为碧海黑帆开发工具集，你只差一步，注册即可使用"
+    }
   },
   "signup": {
     "title": "注册",
@@ -2775,6 +2787,15 @@
         "testBody": "桌面通知功能正常！活动时间到达时你将会收到提醒推送。",
         "permissionGrantedMsg": "已成功获取桌面通知权限！",
         "permissionDeniedMsg": "通知权限被拒绝，请在浏览器设置中开启通知权限。"
+      },
+      "captcha": {
+        "title": "人机验证服务",
+        "description": "管理评论、登录与注册时的人机验证服务，可根据网络环境自由切换智能验证与传统图形验证码。",
+        "recommend": "推荐",
+        "turnstile": "Cloudflare Turnstile",
+        "turnstileDesc": "智能人机验证，无需繁琐字符输入，快速流畅（推荐）。",
+        "svg": "图形验证码",
+        "svgDesc": "传统字符图形验证码，需要手动识别并输入图片中的字母与数字。"
       }
     }
   },
@@ -3243,12 +3264,12 @@
       "commandPrefix": "/订阅"
     },
     "notification": {
-      "advanceTitle": "⏰ 提前提醒: {title} (将在 {minutes} 分钟后开始)",
+      "advanceTitle": "⏰ 提前提醒: {title} (将在 {time}后开始)",
       "mainTitle": "⏰ 活动提醒: {title}",
-      "advanceBody": "【提前 {minutes} 分钟】{title}: {note}",
+      "advanceBody": "【提前 {time}】{title}: {note}",
       "mainBody": "{title}: {note}",
       "advanceDefaultMsg": "活动即将开始！",
-      "advanceDefaultShort": "活动将在 {minutes} 分钟后开始",
+      "advanceDefaultShort": "活动将在 {time}后开始",
       "mainDefaultMsg": "活动时间已到达！",
       "testTitle": "测试活动提醒",
       "testNote": "这是一个测试通知。桌面通知功能正常运行中！"
@@ -3269,5 +3290,26 @@
       "offsetDays": "{days}天",
       "immediately": "即刻"
     }
+  },
+  "oauth": {
+    "quickLogin": "第三方快捷登录",
+    "bindTitle": "快捷关联第三方平台",
+    "callbackTitle": "第三方授权验证",
+    "processing": "正在验证第三方授权，请稍候...",
+    "failedTitle": "授权失败",
+    "backToSignin": "返回登录页",
+    "authorizedPlatform": "已连接",
+    "firstTimeHint": "这是您首次使用该第三方账号登录，请选择补充注册新账号或关联已有 Glow Prow 账号：",
+    "tabNewAccount": "补充注册新账号",
+    "tabBindExisting": "关联已有账号",
+    "completeSignupBtn": "完成注册并登录",
+    "completeBindBtn": "确认绑定并登录",
+    "bindSuccess": "第三方账号关联成功！",
+    "bindAndLoginSuccess": "绑定成功并已登录！",
+    "bindFailed": "绑定失败",
+    "missingCode": "缺少授权回调 Code，请重新发起授权。",
+    "authFailed": "第三方授权启动失败",
+    "urlError": "获取授权链接失败",
+    "unknownError": "授权处理失败"
   }
 }

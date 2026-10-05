@@ -13,6 +13,7 @@ import Silk from '@/components/Silk.vue';
 import EmptyView from '@/components/EmptyView.vue';
 import ReminderEditDialog from './ReminderEditDialog.vue';
 import AffixContainerView from "@/components/AffixContainerView.vue";
+import Textarea from "@/components/textarea/index.vue";
 
 const {t, te} = useI18n();
 const {mobile} = useDisplay();
@@ -922,7 +923,7 @@ const totalPages = computed(() => {
                        @click="onViewNote(task)"
                        :title="getTaskNote(task)">
                     <p class="mb-0 text-truncate-2">
-                      {{ getTaskNote(task) }}
+                      <Textarea readonly :value="getTaskNote(task)"></Textarea>
                     </p>
                   </div>
                   <div v-else class="text-caption opacity-40 italic">
@@ -1064,17 +1065,17 @@ const totalPages = computed(() => {
     </v-dialog>
 
     <!-- 备注完整内容查看对话框 -->
-    <v-dialog v-model="noteDetailDialogVisible" max-width="560" scrollable>
+    <v-dialog v-model="noteDetailDialogVisible" max-width="1024" scrollable>
       <v-card class="border">
-        <v-toolbar color="surface" density="compact" class="border-b px-4">
+        <v-toolbar color="surface" density="compact">
           <v-toolbar-title class="text-subtitle-1 font-weight-bold">
             {{ detailTask ? getTaskTitle(detailTask) : '' }} - {{ t('reminder.fields.note') }}
           </v-toolbar-title>
           <v-spacer></v-spacer>
           <v-btn icon="mdi-close" variant="text" size="small" @click="noteDetailDialogVisible = false"></v-btn>
         </v-toolbar>
-        <v-card-text class="pa-5" style="white-space: pre-wrap; word-break: break-word; max-height: 60vh;">
-          {{ detailTask ? getTaskNote(detailTask) : '' }}
+        <v-card-text class="pa-5" v-if="detailTask">
+          <Textarea readonly :value="getTaskNote(detailTask)"></Textarea>
         </v-card-text>
         <v-card-actions class="pa-3 border-t bg-surface">
           <v-spacer></v-spacer>

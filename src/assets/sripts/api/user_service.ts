@@ -342,6 +342,98 @@ export function useUserApi() {
         }
     }
 
+    /**
+     * 获取支持的第三方登录提供商
+     */
+    const getOAuthProviders = async () => {
+        try {
+            const result = await http.get('user/oauth/providers')
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) throw error;
+            return handleError(error)
+        }
+    }
+
+    /**
+     * 获取第三方授权跳转 URL
+     */
+    const getOAuthUrl = async (platform: string, redirectUrl?: string) => {
+        try {
+            const result = await http.get(`user/oauth/${platform}/url`, {
+                params: { redirectUrl }
+            })
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) throw error;
+            return handleError(error)
+        }
+    }
+
+    /**
+     * 处理第三方授权回调
+     */
+    const oauthCallback = async (platform: string, data: { code: string; state?: string }) => {
+        try {
+            const result = await http.post(`user/oauth/${platform}/callback`, { data })
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) throw error;
+            return handleError(error)
+        }
+    }
+
+    /**
+     * 第三方登录新用户补充注册
+     */
+    const oauthCompleteSignup = async (data: { oauthTicket: string; username: string; alternativeName?: string; password: string; email?: string }) => {
+        try {
+            const result = await http.post('user/oauth/complete-signup', { data })
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) throw error;
+            return handleError(error)
+        }
+    }
+
+    /**
+     * 第三方登录绑定已有账号
+     */
+    const oauthCompleteBind = async (data: { oauthTicket: string; username: string; password: string }) => {
+        try {
+            const result = await http.post('user/oauth/complete-bind', { data })
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) throw error;
+            return handleError(error)
+        }
+    }
+
+    /**
+     * 获取当前用户的所有第三方绑定
+     */
+    const getUserBindings = async () => {
+        try {
+            const result = await http.get('user/account/bindings')
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) throw error;
+            return handleError(error)
+        }
+    }
+
+    /**
+     * 解绑第三方平台
+     */
+    const unbindOAuth = async (platform: string) => {
+        try {
+            const result = await http.post(`user/account/bindings/${platform}/unbind`)
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) throw error;
+            return handleError(error)
+        }
+    }
 
     return {
         signin,
@@ -363,5 +455,12 @@ export function useUserApi() {
         resendActivationCode,
         forgotPassword,
         resetPassword,
+        getOAuthProviders,
+        getOAuthUrl,
+        oauthCallback,
+        oauthCompleteSignup,
+        oauthCompleteBind,
+        getUserBindings,
+        unbindOAuth,
     };
 }

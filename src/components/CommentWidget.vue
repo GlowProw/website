@@ -122,6 +122,9 @@ const onPushComment = async () => {
     })
 
     content.value = ''
+    captcha.value = {}
+    captchaOneUpdateEvent.value = false
+    captchaRef.value?.refreshCaptcha?.()
     notice.success('comment.ok')
   } catch (e) {
     handleApiError(e, notice, t, { component: 'CommentWidget' })
@@ -291,7 +294,7 @@ defineOptions({
 
       <v-row no-gutters>
         <v-col>
-          <Captcha @getCaptchaData="onCaptchaData" type="svg" class="captcha" ref="captchaRef"></Captcha>
+          <Captcha @getCaptchaData="onCaptchaData" class="captcha" ref="captchaRef"></Captcha>
         </v-col>
         <v-spacer></v-spacer>
         <v-col>

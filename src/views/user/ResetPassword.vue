@@ -9,6 +9,7 @@ import {useRules} from "@/assets/sripts/rules_user"
 import {ResetPasswordParams} from "@/assets/types/User";
 import {handleApiError} from "@/assets/sripts/error_handler";
 import Silk from "@/components/Silk.vue";
+import HalfScreenBannerText from "@/components/HalfScreenBannerText.vue";
 
 const router = useRouter(),
     route = useRoute(),
@@ -62,6 +63,7 @@ const onReset = async () => {
     <div class="reset-window">
       <v-row dense class="h-screen">
         <v-col cols="12" lg="7" :class="{'d-none': mobile || sm}" class="position-relative overflow-hidden">
+          <HalfScreenBannerText></HalfScreenBannerText>
           <Silk
               :speed="3"
               :scale=".7"

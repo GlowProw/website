@@ -744,6 +744,14 @@
       "reviewNotice": "Please do not post content unrelated to smuggler goods.",
       "reviewPlaceholder": "Enter your recommendations and review content",
       "deleteComment": "Delete Comment"
+    },
+    "bindings": {
+      "title": "Platform Bindings",
+      "subtitle": "Manage your connected third-party accounts",
+      "bound": "Connected",
+      "unbound": "Not Connected",
+      "bindBtn": "Connect",
+      "unbindBtn": "Disconnect"
     }
   },
   "activate": {
@@ -2288,7 +2296,11 @@
         "password": "Password"
       }
     },
-    "newUserRegistrationHint": "No account? Go to register"
+    "newUserRegistrationHint": "No account? Go to register",
+    "banner": {
+      "title": "Join {name} to access extended services for free",
+      "subtitle": "Developer toolkit for Skull and Bones. You're just one step away—register to start."
+    }
   },
   "signup": {
     "title": "Sign Up",
@@ -2772,6 +2784,15 @@
         "testBody": "Desktop notifications are working! You will receive alerts when reminder events trigger.",
         "permissionGrantedMsg": "Desktop notification permission granted successfully!",
         "permissionDeniedMsg": "Notification permission denied. Please allow it in browser settings."
+      },
+      "captcha": {
+        "title": "Captcha Provider",
+        "description": "Choose the captcha provider for comments, login, and registration. Switch seamlessly between smart verification and traditional image captchas.",
+        "recommend": "Recommended",
+        "turnstile": "Cloudflare Turnstile",
+        "turnstileDesc": "Smart privacy verification without tedious character inputs (Recommended).",
+        "svg": "SVG Captcha",
+        "svgDesc": "Traditional character image captcha requiring manual input."
       }
     }
   },
@@ -3239,12 +3260,12 @@
       "commandPrefix": "/subscribe"
     },
     "notification": {
-      "advanceTitle": "⏰ Advance Reminder: {title} (Starts in {minutes} min)",
+      "advanceTitle": "⏰ Advance Reminder: {title} (Starts in {time})",
       "mainTitle": "⏰ Event Reminder: {title}",
-      "advanceBody": "[{minutes} min advance] {title}: {note}",
+      "advanceBody": "[{time} advance] {title}: {note}",
       "mainBody": "{title}: {note}",
       "advanceDefaultMsg": "Event is about to start!",
-      "advanceDefaultShort": "Event starts in {minutes} minutes",
+      "advanceDefaultShort": "Event starts in {time}",
       "mainDefaultMsg": "Event time has arrived!",
       "testTitle": "Test Event Reminder",
       "testNote": "This is a test notification. Desktop notifications are working properly!"
@@ -3265,5 +3286,26 @@
       "offsetDays": "{days} Days",
       "immediately": "Immediately"
     }
+  },
+  "oauth": {
+    "quickLogin": "Sign in with Third-Party",
+    "bindTitle": "Connect Third-Party Platform",
+    "callbackTitle": "OAuth Verification",
+    "processing": "Verifying authorization, please wait...",
+    "failedTitle": "Authorization Failed",
+    "backToSignin": "Back to Sign In",
+    "authorizedPlatform": "Connected to",
+    "firstTimeHint": "This is your first time signing in with this account. Please complete registration or connect an existing Glow Prow account:",
+    "tabNewAccount": "Create New Account",
+    "tabBindExisting": "Link Existing Account",
+    "completeSignupBtn": "Complete Registration & Sign In",
+    "completeBindBtn": "Link Account & Sign In",
+    "bindSuccess": "Third-party account connected successfully!",
+    "bindAndLoginSuccess": "Account linked and signed in successfully!",
+    "bindFailed": "Failed to link account",
+    "missingCode": "Missing authorization code. Please try again.",
+    "authFailed": "Failed to initiate third-party authorization",
+    "urlError": "Failed to retrieve authorization URL",
+    "unknownError": "Authorization failed"
   }
 }

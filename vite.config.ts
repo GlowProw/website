@@ -85,6 +85,23 @@ const getDynamicDataRoutes = () => {
     return result;
 }
 
+// 执行 SSG 静态预渲染的语言列表，与 supported languages 保持一致
+const SSG_PRERENDER_LANGS = SUPPORTED_LANGS;
+
+const SKIP_SSG_ROUTES = [
+    '/account',
+    '/widgets',
+    '/assembly',
+    '/ranking-designed-items',
+    '/smugglers-report',
+    '/calendar',
+    '/map',
+    '/team',
+    '/test',
+    '/space',
+    '/:pathMatch',
+];
+
 const getRoutes = () => {
     const rawStatic = [
         '',
@@ -140,7 +157,7 @@ const getRoutes = () => {
     dynamicRoutes.forEach(p => basePaths.add(p.startsWith('/') ? p : `/${p}`));
 
     const allLocalizedRoutes: string[] = ['/'];
-    SUPPORTED_LANGS.forEach(lang => {
+    SSG_PRERENDER_LANGS.forEach(lang => {
         basePaths.forEach(p => {
             const clean = p === '/' ? '' : p;
             allLocalizedRoutes.push(`/${lang}${clean}`);
@@ -148,7 +165,28 @@ const getRoutes = () => {
     });
 
     return Array.from(new Set(allLocalizedRoutes)).sort();
-}
+};
+
+/**
+ * 获得实际可进行 SSG 静态预渲染的有效路由集合（剔除私有、依赖登录及重客户端 SPA 页面）
+ */
+const getPrerenderRoutes = () => {
+    const allRoutes = getRoutes();
+    const langPattern = new RegExp(`^/(${SUPPORTED_LANGS.join('|')})`);
+    return allRoutes.filter(p => {
+        if (p.includes(':')) return false;
+        const clean = p.replace(langPattern, '') || '/';
+        return !SKIP_SSG_ROUTES.some(s => clean === s || clean.startsWith(s + '/'));
+    });
+};
+
+/**
+ * 获得提交给搜索引擎的规范 Sitemap 路由
+ * 仅包含已静态预渲染、内容完整且规范的 URL（排除根路径 '/'，避免与规范多语言首页重复）
+ */
+const getSitemapRoutes = () => {
+    return getPrerenderRoutes().filter(p => p !== '/');
+};
 
 let renderedPageCount = 0;
 
@@ -215,7 +253,8 @@ export default defineConfig(({ mode }) => {
                         /^\/sitemap\.xml$/,
                         /^\/robots\.txt$/,
                         /^\/ads\.txt$/,
-                        /^\/5c65fd69dada4307bab754a14cf3d16c\.txt$/,
+                        /^\/2b62795cf566484f8bc243e7055ae616\.txt$/,
+                        /^\/WW_verify_.*\.txt$/,
                         /^\/favicon\.ico$/,
                         /^\/favicon\.png$/,
                     ],
@@ -224,7 +263,7 @@ export default defineConfig(({ mode }) => {
             (() => {
                 const plugin: any = Sitemap({
                     hostname: appHostname,
-                    dynamicRoutes: getRoutes(),
+                    dynamicRoutes: getSitemapRoutes(),
                     changefreq: 'weekly',
                     priority: 0.8,
                     lastmod: new Date()
@@ -323,25 +362,12 @@ export default defineConfig(({ mode }) => {
         // vite-ssg 配置
         ssgOptions: {
             script: 'async',
-            formatting: 'none',
+            formatting: 'minify',
             mock: false,
             concurrency: 5,
             // 预渲染所有静态路由与公开百科数据路由，跳过未填充参数的路由及私有路由
             includedRoutes(paths: string[], routes: any[]) {
-                const allRoutes = getRoutes();
-                const skip = [
-                    '/account',
-                    '/widgets',
-                    '/test',
-                    '/space',
-                    '/:pathMatch',
-                ];
-                const langPattern = new RegExp(`^/(${SUPPORTED_LANGS.join('|')})`);
-                return allRoutes.filter(p => {
-                    if (p.includes(':')) return false;
-                    const clean = p.replace(langPattern, '') || '/';
-                    return !skip.some(s => clean.startsWith(s));
-                });
+                return getPrerenderRoutes();
             },
             onBeforePageRender(route: string, indexHTML: string, ctx: any) {
                 // 确保页面输出目录安全存在，防止并发写入时的目录竞态异常
@@ -434,15 +460,36 @@ export default defineConfig(({ mode }) => {
                 const ldJsonScript = `<script type="application/ld+json">${JSON.stringify(ldJsonData)}</script>`;
                 html = html.replace('</head>', `${ldJsonScript}</head>`);
 
-                // 6. HTML 代码压缩 (Minify)：
+                // 6. 还原 <meta> 和 <link> 标签中被 HTML DOM 序列化转义的 URL 参数 (&amp; -> &)
+                html = html.replace(/(<(?:meta|link)\s+[^>]*?(?:content|href)="[^"]*?")/gi, (match) => {
+                    return match.replace(/&amp;/g, '&');
+                });
+
+                // 7. 高效 HTML 静态代码压缩 (Minify)：
+                const preservedBlocks: string[] = [];
+                // 保护 pre / code / textarea 标签内容中的原始换行与格式
+                html = html.replace(/<(pre|code|textarea)[\s\S]*?<\/\1>/gi, (match) => {
+                    preservedBlocks.push(match);
+                    return `___PRESERVED_BLOCK_${preservedBlocks.length - 1}___`;
+                });
+
                 // - 移除 HTML 开发者注释（严格保留 Vue 3 SSR 水合标记 <!--[-->, <!--]-->, <!----> 等）
                 html = html.replace(/<!--(?!\[if|\/?\[|!)[\s\S]*?-->/g, '');
                 // - 移除大量无用的 style="" 冗余属性
                 html = html.replace(/\s+style=""(?=[\s>])/g, '');
+                // - 压缩标签之间的换行与连续空白（闭合标签与下一标签之间的多余空白折叠）
+                html = html.replace(/>\s*[\r\n]+\s*</g, '><');
                 // - 移除行首空格缩进以精简传输体积
                 html = html.replace(/^[ \t]+/gm, '');
+                // - 将标签内部多个连续水平空格压缩为单个空格
+                html = html.replace(/[ \t]{2,}/g, ' ');
 
-                return html;
+                // 还原受保护的代码块
+                preservedBlocks.forEach((block, idx) => {
+                    html = html.replace(`___PRESERVED_BLOCK_${idx}___`, block);
+                });
+
+                return html.trim();
             },
             onFinished() {
                 // SSG 完成后的钩子

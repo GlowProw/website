@@ -59,40 +59,48 @@
         </AffixBoxHasTitleView>
       </v-col>
 
-      <!-- 开发者调试 -->
+      <!-- 人机验证系统设置 -->
       <v-col cols="12" md="8" lg="6">
         <AffixBoxHasTitleView>
           <p class="text-caption opacity-60 mb-5">
-            {{ t('setting.advanced.hint') }}
+            {{ t('setting.advanced.captcha.description') }}
           </p>
 
-          <v-row align="center" no-gutters>
-            <v-col class="font-weight-bold">
-              {{ t('setting.advanced.debugName') }}
-            </v-col>
-            <v-col cols="auto">
-              <v-switch
-                  hide-details
-                  inset
-                  density="compact"
-                  color="error"
-                  v-model="debugSwitch"
-                  @update:modelValue="onDebugSwitch"></v-switch>
-            </v-col>
-          </v-row>
-
-          <p class="mt-3 text-caption opacity-60">
-            {{ t('setting.advanced.debugDesc') }}
-          </p>
+          <v-select
+              v-model="captchaProvider"
+              :items="captchaOptions"
+              item-title="title"
+              item-value="value"
+              variant="outlined"
+              density="compact"
+              color="amber"
+              hide-details
+              @update:model-value="onCaptchaProviderChange">
+            <template v-slot:item="{ props, item }">
+              <v-list-item v-bind="props">
+                <template v-slot:title>
+                  <div class="d-flex align-center ga-2">
+                    <span>{{ item.raw.title }}</span>
+                    <v-chip v-if="item.raw.recommend" size="x-small" color="success" variant="tonal">
+                      {{ t('setting.advanced.captcha.recommend') }}
+                    </v-chip>
+                  </div>
+                </template>
+                <template v-slot:subtitle>
+                  <span class="text-caption opacity-60">{{ item.raw.subtitle }}</span>
+                </template>
+              </v-list-item>
+            </template>
+          </v-select>
 
           <template v-slot:title>
-            {{ t('setting.advanced.cardTitle') }}
+            {{ t('setting.advanced.captcha.title') }}
           </template>
         </AffixBoxHasTitleView>
       </v-col>
-
+      
       <!-- PWA 应用设置 -->
-      <v-col cols="12" md="8" lg="12">
+      <v-col cols="12" md="8" lg="6">
         <AffixBoxHasTitleView>
           <p class="text-caption">{{ t('pwa.status.description') }}</p>
 
@@ -171,6 +179,37 @@
           </template>
         </AffixBoxHasTitleView>
       </v-col>
+
+      <!-- 开发者调试 -->
+      <v-col cols="12" md="8" lg="6">
+        <AffixBoxHasTitleView>
+          <p class="text-caption opacity-60">
+            {{ t('setting.advanced.hint') }}
+          </p>
+          <p class="mt-1 mb-5 text-caption opacity-60">
+            {{ t('setting.advanced.debugDesc') }}
+          </p>
+
+          <v-row align="center" no-gutters>
+            <v-col class="font-weight-bold">
+              {{ t('setting.advanced.debugName') }}
+            </v-col>
+            <v-col cols="auto">
+              <v-switch
+                  hide-details
+                  inset
+                  density="compact"
+                  color="error"
+                  v-model="debugSwitch"
+                  @update:modelValue="onDebugSwitch"></v-switch>
+            </v-col>
+          </v-row>
+
+          <template v-slot:title>
+            {{ t('setting.advanced.cardTitle') }}
+          </template>
+        </AffixBoxHasTitleView>
+      </v-col>
     </v-row>
 </template>
 
@@ -196,6 +235,29 @@ const debugSwitch = ref(appStore.isDebug)
 
 const onDebugSwitch = (val: boolean) => {
   appStore.setDebug(val)
+}
+
+// 验证器类型切换
+const captchaProvider = ref(appStore.captchaType)
+
+const captchaOptions = computed(() => [
+  {
+    title: t('setting.advanced.captcha.turnstile'),
+    subtitle: t('setting.advanced.captcha.turnstileDesc'),
+    value: 'turnstile',
+    recommend: true
+  },
+  {
+    title: t('setting.advanced.captcha.svg'),
+    subtitle: t('setting.advanced.captcha.svgDesc'),
+    value: 'svg',
+    recommend: false
+  }
+])
+
+const onCaptchaProviderChange = (val: any) => {
+  appStore.setCaptchaType(val)
+  notice.success(t('basic.tips.200') || '设置已更新')
 }
 
 // 通知设置相关

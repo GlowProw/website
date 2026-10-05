@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 import { v4 as uuidv4 } from 'uuid';
 import type { ReminderTask } from '@/assets/types/Reminder';
 import { storageReminder } from '@/assets/sripts/storage_reminder';
-import { calculateTaskNextTriggerInfo, calculateNextTriggerTime, formatCountdown, checkTaskPendingTriggers, getLocalizedText } from '@/assets/sripts/reminder_calc';
+import { calculateTaskNextTriggerInfo, calculateNextTriggerTime, formatCountdown, checkTaskPendingTriggers, getLocalizedText, getTaskLocalizedTitle, getTaskLocalizedNote, formatAdvanceText } from '@/assets/sripts/reminder_calc';
 import { useNoticeStore } from '~/stores/noticeStore';
 import ReminderWorker from '@/workers/reminder.worker.ts?worker';
 import router from '../router';
@@ -14,21 +14,22 @@ export const useReminderStore = defineStore('reminder', () => {
     const { t } = useI18nUtils();
 
     /**
-
-     * 校验当前页面路由是否处于活动提醒页面 (/reminder 或 /reminder/...)
+     * 校验当前页面路由是否处于活动提醒页面 (/reminder 或 /:lang/reminder 等)
      */
-    const isReminderRoute = (): boolean => {
+    const isReminderRoute = (targetPath?: string): boolean => {
         try {
-            const path = router.currentRoute.value?.path;
-            if (path) {
-                return path === '/reminder' || path.startsWith('/reminder/') || path.startsWith('/reminder');
+            const currentRoute = router.currentRoute.value;
+            const name = String(currentRoute?.name || '');
+            const path = targetPath || currentRoute?.path || '';
+            if (name.toLowerCase().includes('reminder') || path.includes('/reminder')) {
+                return true;
             }
         } catch {
             // fallback
         }
         if (typeof window !== 'undefined' && window.location) {
             const locPath = window.location.pathname || '';
-            return locPath === '/reminder' || locPath.startsWith('/reminder/') || locPath.startsWith('/reminder');
+            return locPath.includes('/reminder');
         }
         return false;
     };
@@ -174,6 +175,7 @@ export const useReminderStore = defineStore('reminder', () => {
      * 驱动主线程时钟与倒计时
      */
     const startClock = () => {
+        nowTime.value = Date.now();
         if (!clockInterval) {
             clockInterval = setInterval(() => {
                 const now = Date.now();
@@ -252,9 +254,12 @@ export const useReminderStore = defineStore('reminder', () => {
 
         playNotificationSound(isAdvance);
 
-        const rawTitle = getLocalizedText(task.title);
-        const rawNote = getLocalizedText(task.note || task.description);
-        const timeDesc = advanceText || (advanceMinutes ? `${advanceMinutes} 分钟` : '1 分钟');
+        const rawTitle = getTaskLocalizedTitle(task, undefined, (k, v) => t(k, v)) || getLocalizedText(task.title);
+        const rawNote = getTaskLocalizedNote(task, undefined, (k, v) => t(k, v)) || getLocalizedText(task.note || task.description);
+        
+        const unit = task.advanceUnit || 'minute';
+        const val = task.advanceValue ?? task.advanceMinutes ?? (advanceMinutes || 1);
+        const timeDesc = advanceText || formatAdvanceText(unit, val, (k, v) => t(k, v));
 
         const titleText = isAdvance
             ? t('reminder.notification.advanceTitle', { title: rawTitle, time: timeDesc, minutes: advanceMinutes })
@@ -269,11 +274,14 @@ export const useReminderStore = defineStore('reminder', () => {
             ? t('reminder.notification.advanceBody', { time: timeDesc, minutes: advanceMinutes, title: rawTitle, note: notePreview || defaultAdvanceMsg })
             : t('reminder.notification.mainBody', { title: rawTitle, note: notePreview || defaultMainMsg });
 
+        const hasDescription = !!rawNote;
+
         // 页面内消息提示
         noticeStore.primary(bodyText, {
             title: titleText,
             mode: 'minimal',
-            timeout: 10000
+            timeout: 10000,
+            isHtml: hasDescription
         });
 
         // 操作系统原生桌面推送
@@ -284,7 +292,7 @@ export const useReminderStore = defineStore('reminder', () => {
             Notification.permission === 'granted'
         ) {
             const bodyContent = rawNote
-                ? (rawNote.length > 150 ? rawNote.slice(0, 150) + '...' : rawNote)
+                ? (rawNote.length > 350 ? rawNote.slice(0, 350) + '...' : rawNote)
                 : (isAdvance ? defaultAdvanceShort : defaultMainMsg);
 
             let swSuccess = false;
@@ -468,7 +476,7 @@ export const useReminderStore = defineStore('reminder', () => {
 
         // 监听全局路由变化：只有处于 /reminder 路由才激活定时与播报，离开时立即暂停
         router.afterEach((to) => {
-            if (to.path === '/reminder' || to.path.startsWith('/reminder/')) {
+            if (isReminderRoute(to.path) || (to.name && String(to.name).toLowerCase().includes('reminder'))) {
                 resumeWorker();
             } else {
                 pauseWorker();
@@ -584,21 +592,25 @@ export const useReminderStore = defineStore('reminder', () => {
         let result = tasksWithCountdown.value;
 
         if (filterType.value === 'repeat') {
-            result = result.filter(t => t.scheduleType === 'repeat');
+            result = result.filter(item => item.scheduleType === 'repeat');
         } else if (filterType.value === 'once') {
-            result = result.filter(t => t.scheduleType === 'once');
+            result = result.filter(item => item.scheduleType === 'once');
         } else if (filterType.value === 'active') {
-            result = result.filter(t => t.enabled);
+            result = result.filter(item => item.enabled);
         } else if (filterType.value === 'paused') {
-            result = result.filter(t => !t.enabled);
+            result = result.filter(item => !item.enabled);
         }
 
         if (searchQuery.value.trim()) {
             const q = searchQuery.value.trim().toLowerCase();
-            result = result.filter(t =>
-                getLocalizedText(t.title).toLowerCase().includes(q) ||
-                getLocalizedText(t.note || t.description).toLowerCase().includes(q)
-            );
+            result = result.filter(taskItem => {
+                const titleStr = (getTaskLocalizedTitle(taskItem, undefined, (k, v) => t(k, v)) || getLocalizedText(taskItem.title) || '').toLowerCase();
+                const noteStr = (getTaskLocalizedNote(taskItem, undefined, (k, v) => t(k, v)) || getLocalizedText(taskItem.note || taskItem.description) || '').toLowerCase();
+                const titleAllLangs = typeof taskItem.title === 'object' && taskItem.title ? Object.values(taskItem.title).join(' ').toLowerCase() : '';
+                const noteAllLangs = typeof taskItem.note === 'object' && taskItem.note ? Object.values(taskItem.note).join(' ').toLowerCase() : '';
+                const descAllLangs = typeof taskItem.description === 'object' && taskItem.description ? Object.values(taskItem.description).join(' ').toLowerCase() : '';
+                return titleStr.includes(q) || noteStr.includes(q) || titleAllLangs.includes(q) || noteAllLangs.includes(q) || descAllLangs.includes(q);
+            });
         }
 
         // 排序规则：生效中的任务置顶，并按最近触发倒计时升序排序

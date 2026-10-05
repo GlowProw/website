@@ -6,7 +6,8 @@ import type { MultilingualText, ReminderNextTriggerInfo, ReminderTask } from '@/
 import { DEFAULT_LANG, FALLBACK_LANG } from '@/config/languages';
 
 /**
- * 解析并获取多语言文本（轻量级无依赖实现，避免 Worker 打包进完整 i18n 字典）
+ * 解析并获取多语言文本
+ * 兼顾主线程与 Web Worker 运行环境
  */
 export function getLocalizedText(
     text: MultilingualText | undefined | null,
@@ -19,12 +20,20 @@ export function getLocalizedText(
     let currentLocale: string = targetLocale || '';
     if (!currentLocale && typeof window !== 'undefined') {
         try {
-            const raw = localStorage.getItem('lang');
-            if (raw) {
-                const parsed = JSON.parse(raw);
-                currentLocale = parsed?.data?.value?.value || parsed?.value?.value || parsed?.value || parsed || '';
+            if (window.location && window.location.pathname) {
+                const pathSeg = window.location.pathname.split('/').filter(Boolean)[0];
+                if (pathSeg && (pathSeg === 'zh-CN' || pathSeg === 'zh-TW' || pathSeg === 'en-US')) {
+                    currentLocale = pathSeg;
+                }
             }
-        } catch {}
+            if (!currentLocale) {
+                const raw = localStorage.getItem('lang');
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    currentLocale = parsed?.data?.value?.value || parsed?.value?.value || parsed?.value || parsed || '';
+                }
+            }
+        } catch { }
     }
     if (!currentLocale) currentLocale = DEFAULT_LANG;
     const fallback = FALLBACK_LANG;
@@ -71,6 +80,42 @@ export function getLocalizedText(
 
     const firstVal = Object.values(text).find(v => typeof v === 'string' && v.trim() !== '');
     return firstVal || '';
+}
+
+/**
+ * 获取任务本地化标题（优先通过 i18n key 翻译，再读取多语言对象）
+ */
+export function getTaskLocalizedTitle(
+    task: ReminderTask | undefined | null,
+    targetLocale?: string,
+    t?: (key: string, values?: any, lang?: string) => string
+): string {
+    if (!task) return '';
+    if (task.titleKey && t) {
+        const trans = t(task.titleKey, null, targetLocale);
+        if (trans && trans !== task.titleKey) return trans;
+    }
+    return getLocalizedText(task.title, targetLocale);
+}
+
+/**
+ * 获取任务本地化说明/备注（优先通过 i18n key 翻译，再读取多语言对象）
+ */
+export function getTaskLocalizedNote(
+    task: ReminderTask | undefined | null,
+    targetLocale?: string,
+    t?: (key: string, values?: any, lang?: string) => string
+): string {
+    if (!task) return '';
+    if (task.noteKey && t) {
+        const trans = t(task.noteKey, null, targetLocale);
+        if (trans && trans !== task.noteKey) return trans;
+    }
+    if (task.descKey && t) {
+        const trans = t(task.descKey, null, targetLocale);
+        if (trans && trans !== task.descKey) return trans;
+    }
+    return getLocalizedText(task.note || task.description, targetLocale);
 }
 
 /**
@@ -124,15 +169,15 @@ export function calculateBaseEventTime(task: ReminderTask, fromTime: number = Da
                 const intervalMs = Math.round(val * 60 * 1000);
                 // 针对整除 60 的标准分钟（如 1、5、10、15、30 分钟），对齐系统整分钟整秒
                 if (val >= 1 && 60 % val === 0) {
-                  const currentSec = now.getSeconds();
-                  const currentMin = now.getMinutes();
-                  if (val === 1) {
-                    const nextMin = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), currentMin + 1, 0, 0);
-                    return nextMin.getTime();
-                  }
-                  const nextTargetMin = (Math.floor(currentMin / val) + 1) * val;
-                  const targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), nextTargetMin, 0, 0);
-                  return targetDate.getTime();
+                    const currentSec = now.getSeconds();
+                    const currentMin = now.getMinutes();
+                    if (val === 1) {
+                        const nextMin = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), currentMin + 1, 0, 0);
+                        return nextMin.getTime();
+                    }
+                    const nextTargetMin = (Math.floor(currentMin / val) + 1) * val;
+                    const targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), nextTargetMin, 0, 0);
+                    return targetDate.getTime();
                 }
                 return Math.floor(fromTime / intervalMs + 1) * intervalMs;
             }

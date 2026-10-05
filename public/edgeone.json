@@ -6,8 +6,44 @@
       "handle": "filesystem"
     },
     {
-      "src": "/((?!assets/|static/|manifest.*webmanifest|.*\\.[a-zA-Z0-9]+$).*)",
-      "dest": "/index.html"
+      "src": "/sitemap.xml",
+      "dest": "/sitemap.xml",
+      "status": 200
+    },
+    {
+      "src": "/robots.txt",
+      "dest": "/robots.txt",
+      "status": 200
+    },
+    {
+      "src": "/ads.txt",
+      "dest": "/ads.txt",
+      "status": 200
+    },
+    {
+      "src": "/2b62795cf566484f8bc243e7055ae616.txt",
+      "dest": "/2b62795cf566484f8bc243e7055ae616.txt",
+      "status": 200
+    },
+    {
+      "src": "/WW_verify_HnH1pdutwpAkO0XY.txt",
+      "dest": "/WW_verify_HnH1pdutwpAkO0XY.txt",
+      "status": 200
+    },
+    {
+      "src": "/favicon.ico",
+      "dest": "/favicon.ico",
+      "status": 200
+    },
+    {
+      "src": "/favicon.png",
+      "dest": "/favicon.png",
+      "status": 200
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html",
+      "status": 200
     }
   ],
   "headers": [

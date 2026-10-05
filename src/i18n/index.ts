@@ -150,8 +150,10 @@ const mergedI18nMessages = {
     'zh-TW': zh_TW_bundle,
 };
 
+let globalI18nInstance: any = null;
+
 export const createAppI18n = (locale?: string) => {
-    return createI18n({
+    const instance = createI18n({
         legacy: false,
         messageCompiler,
         locale: locale || getInitialLocale(),
@@ -162,5 +164,15 @@ export const createAppI18n = (locale?: string) => {
         messages: mergedI18nMessages,
         globalInjection: false,
     });
+    globalI18nInstance = instance;
+    return instance;
 };
+
+export const getAppI18n = () => {
+    if (!globalI18nInstance) {
+        globalI18nInstance = createAppI18n();
+    }
+    return globalI18nInstance;
+};
+
 

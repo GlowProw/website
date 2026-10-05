@@ -229,6 +229,12 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
                         name: 'AccountProfilePicture',
                         component: AccountProfilePicturePage
                     },
+                    {
+                        path: 'bindings',
+                        name: 'AccountBindings',
+                        component: () => import('@/views/user/account/Bindings.vue'),
+                        meta: { title: 'account.bindings.title', auth: true }
+                    },
 
                     {
                         path: 'assemblys',
@@ -267,6 +273,14 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
                 path: 'space/:id',
                 name: 'AccountSpace',
                 component: AccountSpacePage,
+            },
+            {
+                path: 'oauth/callback',
+                name: 'OAuthCallback',
+                meta: {
+                    title: 'oauth.callbackTitle',
+                },
+                component: () => import('@/views/user/OAuthCallback.vue'),
             },
             {
                 path: 'account/signin',

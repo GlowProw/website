@@ -32,6 +32,11 @@ let drawer = ref(true),
             primaryValue: 'MeAccount'
           },
           {
+            name: 'account.bindings.title',
+            to: '/account/bindings',
+            primaryValue: 'MeAccount'
+          },
+          {
             name: 'space.title',
             href: `/space/${authStore.user?.userId}`,
             target: '_blank',

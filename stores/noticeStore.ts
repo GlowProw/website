@@ -18,7 +18,8 @@ export interface NoticeOptions {
     color?: NoticeTypeValue;
     showing?: boolean;
     title?: string;
-    mode?: NoticeMode; // 展示模式，默认
+    mode?: NoticeMode;
+    isHtml?: boolean;
     stack?: Error | unknown;
     errorCode?: string | ErrorCodeInfo; // 错误代码信息（如 gp-0000000001 或 ErrorCodeInfo）
 }
@@ -55,6 +56,7 @@ export const useNoticeStore = defineStore('notice', () => {
             showing: false,
             mode,
             title: options.title,
+            isHtml: !!options.isHtml,
             // 最小化模式丢弃堆栈/错误码，只保留文本
             stack: mode === 'minimal' ? undefined : options.stack,
             errorCode: mode === 'minimal' ? undefined : options.errorCode

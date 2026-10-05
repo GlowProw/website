@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import type { ReminderAdvanceUnit, ReminderIntervalUnit, ReminderRepeatType, ReminderScheduleType, ReminderTask, ReminderValidityType } from '@/assets/types/Reminder';
 import { getLocalizedText } from '@/assets/sripts/reminder_calc';
 import { REMINDER_PRESETS } from '@/config/reminderPresets';
+import Textarea from "@/components/textarea/index.vue";
 
 const props = defineProps<{
   modelValue: boolean;
@@ -85,6 +86,17 @@ const formValidFromTime = ref('00:00');
 const formValidToDate = ref('');
 const formValidToTime = ref('23:59');
 
+// 任务有效期开关（true: 有限期 range, false: 永久 permanent）
+const formValidityEnabled = computed({
+  get: () => formValidityType.value === 'range',
+  set: (val: boolean) => {
+    formValidityType.value = val ? 'range' : 'permanent';
+    if (val && !formValidFromDate.value) {
+      initDefaultValidityDates();
+    }
+  }
+});
+
 const MAX_NOTE_LENGTH = 5000;
 
 const weekdays = [
@@ -97,12 +109,27 @@ const weekdays = [
   { day: 7, label: 'reminder.weekdays.sun' }
 ];
 
+const repeatTypeOptions = computed(() => [
+  { value: 'weekly', label: t('reminder.fields.repeatWeekly') },
+  { value: 'interval', label: t('reminder.fields.repeatInterval') }
+]);
+
+const weekdayOptions = computed(() => weekdays.map(w => ({
+  day: w.day,
+  label: t(w.label)
+})));
+
 const intervalUnits: { unit: ReminderIntervalUnit; label: string }[] = [
   { unit: 'day', label: 'reminder.units.day' },
   { unit: 'hour', label: 'reminder.units.hour' },
   { unit: 'minute', label: 'reminder.units.minute' },
   { unit: 'second', label: 'reminder.units.second' }
 ];
+
+const intervalUnitOptions = computed(() => intervalUnits.map(u => ({
+  unit: u.unit,
+  label: t(u.label)
+})));
 
 const getUnitLabel = (unit: ReminderIntervalUnit) => {
   const key = `reminder.units.${unit}`;
@@ -429,479 +456,496 @@ const onSave = () => {
 </script>
 
 <template>
-  <v-dialog v-model="visible" max-width="660" scrollable>
+  <v-dialog v-model="visible" max-width="1024" scrollable content-class="">
     <v-card class="reminder-edit-card border">
-      <v-toolbar color="surface" density="comfortable" class="border-b">
-        <v-toolbar-title class="text-subtitle-1 font-weight-bold">
+      <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 mt-n5">
+        <v-icon size="80">mdi-plus</v-icon>
+        <p>
           {{ isEditing ? t('reminder.edit') : t('reminder.createNew') }}
-        </v-toolbar-title>
-        <v-spacer></v-spacer>
-        <v-btn icon="mdi-close" variant="text" size="small" @click="visible = false"></v-btn>
-      </v-toolbar>
+        </p>
+      </v-card-title>
 
-      <v-card-text class="pa-5">
-        <!-- 预设快捷填入，仅在新建时展示 -->
-        <div v-if="!isEditing" class="mb-5">
-          <div class="text-caption opacity-60 mb-2">{{ t('reminder.presets.title') }}</div>
-          <div class="d-flex flex-wrap ga-2">
-            <v-chip
-                v-for="preset in REMINDER_PRESETS"
-                :key="preset.id"
-                size="small"
-                variant="tonal"
-                color="amber"
-                prepend-icon="mdi-lightning-bolt"
-                @click="applyPreset(preset)">
-              {{ getPresetTitle(preset) }}
-            </v-chip>
-          </div>
-        </div>
-
-        <!-- 活动标题输入 -->
-        <div class="mb-4">
-          <label class="text-caption font-weight-bold d-block mb-1">
-            {{ t('reminder.fields.title') }} <span class="text-error">*</span>
-          </label>
-          <v-text-field
-              v-model="formTitle"
-              :placeholder="t('reminder.fields.titlePlaceholder')"
-              variant="outlined"
-              density="compact"
-              hide-details
-              counter="100"
-              maxlength="100"
-              prepend-inner-icon="mdi-format-title">
-          </v-text-field>
-        </div>
-
-        <!-- 任务分类选择 -->
-        <div class="mb-4">
-          <div class="d-flex align-center justify-space-between mb-2">
-            <label class="text-caption font-weight-bold single-line">
-              {{ t('reminder.categories.title') }}
-            </label>
-            <span class="text-caption opacity-60">({{ t('basic.optional') }})</span>
-          </div>
-          <div class="d-flex flex-wrap ga-2">
-            <v-chip
-                v-for="cat in availableCategories"
-                :key="cat.value"
-                filter
-                :variant="formCategories.includes(cat.value) ? 'flat' : 'outlined'"
-                :color="cat.color"
-                class="cursor-pointer font-weight-medium"
-                @click="toggleCategory(cat.value)">
-              <v-icon :icon="cat.icon" size="14" class="mr-1"></v-icon>
-              {{ cat.label }}
-            </v-chip>
-          </div>
-        </div>
-
-        <!-- 计划类型选择 -->
-        <div class="mb-4">
-          <label class="text-caption font-weight-bold d-block mb-1">
-            {{ t('reminder.fields.type') }} <span class="text-error">*</span>
-          </label>
-          <v-btn-toggle
-              v-model="formScheduleType"
-              mandatory
-              color="amber"
-              variant="outlined"
-              density="compact"
-              divided
-              class="w-100 mb-2">
-            <v-btn value="repeat" class="flex-grow-1" prepend-icon="mdi-repeat">
-              {{ t('reminder.fields.typeRepeat') }}
-            </v-btn>
-            <v-btn value="once" class="flex-grow-1" prepend-icon="mdi-numeric-1-circle-outline">
-              {{ t('reminder.fields.typeOnce') }}
-            </v-btn>
-          </v-btn-toggle>
-        </div>
-
-        <!-- 周期循环配置 -->
-        <v-card variant="tonal" v-if="formScheduleType === 'repeat'"
-             class="mb-4 pa-3">
-          <!-- 循环方式切换 -->
-          <div class="mb-3">
-            <label class="text-caption font-weight-bold d-block mb-1">
-              {{ t('reminder.fields.repeatType') }}
-            </label>
-            <v-radio-group v-model="formRepeatType" inline density="compact" hide-details>
-              <v-radio :label="t('reminder.fields.repeatWeekly')" value="weekly" color="amber"></v-radio>
-              <v-radio :label="t('reminder.fields.repeatInterval')" value="interval" color="amber"></v-radio>
-            </v-radio-group>
-          </div>
-
-          <!-- 按星期几循环 -->
-          <div v-if="formRepeatType === 'weekly'" class="mb-3">
-            <div class="d-flex align-center justify-space-between mb-2">
-              <label class="text-caption font-weight-bold">
-                {{ t('reminder.fields.repeatDays') }}
-              </label>
-              <div class="ga-1 d-flex">
-                <v-btn size="x-small" variant="text" @click="selectAllDays">{{ t('reminder.dialog.selectAll') }}</v-btn>
-                <v-btn size="x-small" variant="text" @click="selectWorkdays">{{ t('reminder.dialog.workdays') }}</v-btn>
-                <v-btn size="x-small" variant="text" @click="selectWeekends">{{ t('reminder.dialog.weekends') }}</v-btn>
-              </div>
-            </div>
+      <v-card-text class="px-0">
+        <div class="px-5">
+          <!-- 预设快捷填入，仅在新建时展示 -->
+          <div v-if="!isEditing" class="mb-5">
+            <div class="text-caption opacity-60 mb-2">{{ t('reminder.presets.title') }}</div>
             <div class="d-flex flex-wrap ga-2">
               <v-chip
-                  v-for="w in weekdays"
-                  :key="w.day"
+                  v-for="preset in REMINDER_PRESETS"
+                  :key="preset.id"
                   size="small"
-                  :variant="formRepeatDays.includes(w.day) ? 'elevated' : 'outlined'"
-                  :color="formRepeatDays.includes(w.day) ? 'amber' : ''"
-                  filter
-                  @click="toggleDay(w.day)">
-                {{ t(w.label) }}
+                  variant="tonal"
+                  color="amber"
+                  prepend-icon="mdi-lightning-bolt"
+                  @click="applyPreset(preset)">
+                {{ getPresetTitle(preset) }}
               </v-chip>
             </div>
+          </div>
 
-            <!-- 时间选择 (HH:mm) -->
-            <div class="mt-4">
-              <label class="text-caption font-weight-bold d-block mb-1">
-                {{ t('reminder.fields.repeatTime') }} ({{ t('reminder.dialog.systemTime') }})
+          <!-- 活动标题输入 -->
+          <div class="form-row mb-4">
+            <div class="form-label-col">
+              <label class="text-caption font-weight-bold">
+                {{ t('reminder.fields.title') }} <span class="text-error">*</span>
               </label>
+            </div>
+            <div class="form-control-col">
               <v-text-field
-                  v-model="formRepeatTime"
-                  type="time"
+                  v-model="formTitle"
+                  :placeholder="t('reminder.fields.titlePlaceholder')"
                   variant="outlined"
                   density="compact"
                   hide-details
-                  prepend-inner-icon="mdi-clock-outline">
+                  counter="100"
+                  maxlength="100"
+                  prepend-inner-icon="mdi-format-title">
               </v-text-field>
             </div>
           </div>
 
-          <!-- 按固定间隔循环 (支持：天 / 小时 / 分钟 / 秒) -->
-          <div v-else-if="formRepeatType === 'interval'" class="mb-2">
-            <label class="text-caption font-weight-bold d-block mb-1">
-              {{ t('reminder.fields.repeatIntervalHours') }}
-            </label>
-            <div class="d-flex flex-wrap ga-2 mb-3">
+          <!-- 任务分类选择 -->
+          <div class="form-row mb-4">
+            <div class="form-label-col">
+              <label class="text-caption font-weight-bold">
+                {{ t('reminder.categories.title') }}
+              </label>
+              <div class="text-caption opacity-60">({{ t('basic.optional') }})</div>
+            </div>
+            <div class="form-control-col d-flex flex-wrap align-center ga-2" style="min-height: 40px;">
               <v-chip
-                  v-for="u in intervalUnits"
-                  :key="u.unit"
-                  size="small"
-                  :variant="formIntervalUnit === u.unit ? 'elevated' : 'outlined'"
-                  :color="formIntervalUnit === u.unit ? 'amber' : ''"
-                  @click="formIntervalUnit = u.unit">
-                {{ t(u.label) }}
+                  v-for="cat in availableCategories"
+                  :key="cat.value"
+                  filter
+                  :variant="formCategories.includes(cat.value) ? 'flat' : 'tonal'"
+                  :color="cat.color"
+                  class="cursor-pointer font-weight-medium"
+                  @click="toggleCategory(cat.value)">
+                <v-icon :icon="cat.icon" size="14" class="mr-1"></v-icon>
+                {{ cat.label }}
               </v-chip>
             </div>
-            <v-row align="center" no-gutters>
-              <v-col cols="6">
-                <v-text-field
-                    v-model.number="formIntervalValue"
-                    type="number"
-                    min="1"
-                    :step="formIntervalUnit === 'hour' ? 0.5 : 1"
+          </div>
+
+          <!-- 计划类型选择 -->
+          <div class="form-row mb-4">
+            <div class="form-label-col">
+              <label class="text-caption font-weight-bold">
+                {{ t('reminder.fields.type') }} <span class="text-error">*</span>
+              </label>
+            </div>
+
+            <div class="form-control-col">
+              <div>
+                <v-btn-toggle
+                    v-model="formScheduleType"
+                    mandatory
+                    color="amber"
                     variant="outlined"
                     density="compact"
-                    hide-details
-                    prepend-inner-icon="mdi-timer-sand"
-                    :suffix="getUnitLabel(formIntervalUnit)">
-                </v-text-field>
-              </v-col>
-              <v-col cols="6" class="pl-3 text-caption opacity-70">
-                {{ t('reminder.fields.everyNUnits', { n: formIntervalValue || 1, unit: getUnitLabel(formIntervalUnit) }) }}
-              </v-col>
-            </v-row>
-          </div>
-        </v-card>
+                    divided
+                    class="w-100 mb-4">
+                  <v-btn value="repeat" class="flex-grow-1" prepend-icon="mdi-repeat">
+                    {{ t('reminder.fields.typeRepeat') }}
+                  </v-btn>
+                  <v-btn value="once" class="flex-grow-1" prepend-icon="mdi-numeric-1-circle-outline">
+                    {{ t('reminder.fields.typeOnce') }}
+                  </v-btn>
+                </v-btn-toggle>
 
-        <!-- 一次性截止时间配置 -->
-        <v-card variant="tonal" v-else-if="formScheduleType === 'once'"
-                class="mb-4 pa-3">
-          <label class="text-caption font-weight-bold d-block mb-2">
-            {{ t('reminder.fields.targetTime') }}
-          </label>
-          <v-row no-gutters class="ga-2">
-            <v-col>
-              <v-text-field
-                  v-model="formTargetDate"
-                  type="date"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  prepend-inner-icon="mdi-calendar">
-              </v-text-field>
-            </v-col>
-            <v-col>
-              <v-text-field
-                  v-model="formTargetTime"
-                  type="time"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  prepend-inner-icon="mdi-clock-outline">
-              </v-text-field>
-            </v-col>
-          </v-row>
-        </v-card>
-
-        <!-- 提前提醒配置 -->
-        <v-card variant="tonal" class="mb-4 pa-3">
-          <div class="d-flex align-center justify-space-between">
-            <div>
-              <div class="text-caption font-weight-bold">{{ t('reminder.fields.advanceNotice') }}</div>
-              <div class="text-caption opacity-60">{{ t('reminder.fields.advanceNoticeDesc') }}</div>
-            </div>
-            <v-switch
-                v-model="formAdvanceNoticeEnabled"
-                hide-details
-                density="compact"
-                inset
-                color="amber">
-            </v-switch>
-          </div>
-
-          <!-- 提前选项列表 -->
-          <div v-if="formAdvanceNoticeEnabled" class="mt-3 pt-3 border-t">
-            <div class="d-flex flex-wrap ga-2 mb-3">
-              <v-chip
-                  size="small"
-                  :variant="formAdvanceOption === '30s' ? 'elevated' : 'outlined'"
-                  :color="formAdvanceOption === '30s' ? 'amber' : ''"
-                  @click="onSelectAdvanceOption('30s')">
-                {{ t('reminder.fields.advanceOptions.30s', '提前 30 秒') }}
-              </v-chip>
-              <v-chip
-                  size="small"
-                  :variant="formAdvanceOption === '1m' ? 'elevated' : 'outlined'"
-                  :color="formAdvanceOption === '1m' ? 'amber' : ''"
-                  @click="onSelectAdvanceOption('1m')">
-                {{ t('reminder.fields.advanceOptions.1m') }}
-              </v-chip>
-              <v-chip
-                  size="small"
-                  :variant="formAdvanceOption === '5m' ? 'elevated' : 'outlined'"
-                  :color="formAdvanceOption === '5m' ? 'amber' : ''"
-                  @click="onSelectAdvanceOption('5m')">
-                {{ t('reminder.fields.advanceOptions.5m') }}
-              </v-chip>
-              <v-chip
-                  size="small"
-                  :variant="formAdvanceOption === '10m' ? 'elevated' : 'outlined'"
-                  :color="formAdvanceOption === '10m' ? 'amber' : ''"
-                  @click="onSelectAdvanceOption('10m')">
-                {{ t('reminder.fields.advanceOptions.10m') }}
-              </v-chip>
-              <v-chip
-                  size="small"
-                  :variant="formAdvanceOption === '30m' ? 'elevated' : 'outlined'"
-                  :color="formAdvanceOption === '30m' ? 'amber' : ''"
-                  @click="onSelectAdvanceOption('30m')">
-                {{ t('reminder.fields.advanceOptions.30m') }}
-              </v-chip>
-              <v-chip
-                  size="small"
-                  :variant="formAdvanceOption === '1h' ? 'elevated' : 'outlined'"
-                  :color="formAdvanceOption === '1h' ? 'amber' : ''"
-                  @click="onSelectAdvanceOption('1h')">
-                {{ t('reminder.fields.advanceOptions.1h', '提前 1 小时') }}
-              </v-chip>
-              <v-chip
-                  size="small"
-                  :variant="formAdvanceOption === 'custom' ? 'elevated' : 'outlined'"
-                  :color="formAdvanceOption === 'custom' ? 'amber' : ''"
-                  @click="onSelectAdvanceOption('custom')">
-                {{ t('reminder.fields.advanceOptions.custom') }}
-              </v-chip>
-            </div>
-
-            <!-- 自定义提前数值与单位输入 -->
-            <div v-if="formAdvanceOption === 'custom'" class="mt-2">
-              <v-row align="center" no-gutters class="ga-2">
-                <v-col cols="6">
-                  <v-text-field
-                      v-model.number="formAdvanceValue"
-                      type="number"
-                      min="1"
-                      variant="outlined"
-                      density="compact"
-                      hide-details
-                      prepend-inner-icon="mdi-bell-ring-outline"
-                      :suffix="getAdvanceUnitLabel(formAdvanceUnit)"
-                      @update:model-value="updateCalculatedAdvanceMinutes">
-                  </v-text-field>
-                </v-col>
-                <v-col>
-                  <div class="d-flex ga-1">
-                    <v-chip
-                        size="small"
-                        :variant="formAdvanceUnit === 'second' ? 'elevated' : 'outlined'"
-                        :color="formAdvanceUnit === 'second' ? 'amber' : ''"
-                        @click="formAdvanceUnit = 'second'; updateCalculatedAdvanceMinutes()">
-                      {{ t('reminder.units.second') }}
-                    </v-chip>
-                    <v-chip
-                        size="small"
-                        :variant="formAdvanceUnit === 'minute' ? 'elevated' : 'outlined'"
-                        :color="formAdvanceUnit === 'minute' ? 'amber' : ''"
-                        @click="formAdvanceUnit = 'minute'; updateCalculatedAdvanceMinutes()">
-                      {{ t('reminder.units.minute') }}
-                    </v-chip>
-                    <v-chip
-                        size="small"
-                        :variant="formAdvanceUnit === 'hour' ? 'elevated' : 'outlined'"
-                        :color="formAdvanceUnit === 'hour' ? 'amber' : ''"
-                        @click="formAdvanceUnit = 'hour'; updateCalculatedAdvanceMinutes()">
-                      {{ t('reminder.units.hour') }}
-                    </v-chip>
+                <!-- 周期循环配置 -->
+                <div v-if="formScheduleType === 'repeat'">
+                  <!-- 循环方式切换 (下拉框) -->
+                  <div class="mb-3">
+                    <label class="text-caption font-weight-bold d-block mb-1">
+                      {{ t('reminder.fields.repeatType') }}
+                    </label>
+                    <v-select
+                        v-model="formRepeatType"
+                        :items="repeatTypeOptions"
+                        item-title="label"
+                        item-value="value"
+                        variant="outlined"
+                        density="compact"
+                        hide-details>
+                    </v-select>
                   </div>
-                </v-col>
-              </v-row>
-            </div>
-          </div>
-        </v-card>
 
-        <!-- 任务有效期配置 -->
-        <v-card variant="tonal" class="mb-4 pa-3">
-          <div class="d-flex align-center justify-space-between mb-2">
-            <label class="text-caption font-weight-bold">
-              {{ t('reminder.fields.validity') }}
-            </label>
-          </div>
+                  <!-- 按星期几循环 (下拉框多选) -->
+                  <div v-if="formRepeatType === 'weekly'" class="mb-3">
+                    <div class="d-flex align-center justify-space-between mb-1">
+                      <label class="text-caption font-weight-bold">
+                        {{ t('reminder.fields.repeatDays') }}
+                      </label>
+                      <div class="ga-1 d-flex">
+                        <v-btn size="x-small" variant="text" @click="selectAllDays">{{ t('reminder.dialog.selectAll') }}</v-btn>
+                        <v-btn size="x-small" variant="text" @click="selectWorkdays">{{ t('reminder.dialog.workdays') }}</v-btn>
+                        <v-btn size="x-small" variant="text" @click="selectWeekends">{{ t('reminder.dialog.weekends') }}</v-btn>
+                      </div>
+                    </div>
+                    <v-select
+                        v-model="formRepeatDays"
+                        :items="weekdayOptions"
+                        item-title="label"
+                        item-value="day"
+                        multiple
+                        chips
+                        closable-chips
+                        variant="outlined"
+                        density="compact"
+                        hide-details>
+                    </v-select>
 
-          <v-btn-toggle
-              v-model="formValidityType"
-              mandatory
-              color="amber"
-              variant="outlined"
-              density="compact"
-              divided
-              class="w-100 mb-3">
-            <v-btn value="permanent" class="flex-grow-1" prepend-icon="mdi-infinity">
-              {{ t('reminder.fields.validityPermanent') }}
-            </v-btn>
-            <v-btn value="range" class="flex-grow-1" prepend-icon="mdi-calendar-range">
-              {{ t('reminder.fields.validityRange') }}
-            </v-btn>
-          </v-btn-toggle>
+                    <!-- 时间选择 (HH:mm) -->
+                    <div class="mt-3">
+                      <label class="text-caption font-weight-bold d-block mb-1">
+                        {{ t('reminder.fields.repeatTime') }} ({{ t('reminder.dialog.systemTime') }})
+                      </label>
+                      <v-text-field
+                          v-model="formRepeatTime"
+                          type="time"
+                          variant="outlined"
+                          density="compact"
+                          hide-details
+                          prepend-inner-icon="mdi-clock-outline">
+                      </v-text-field>
+                    </div>
+                  </div>
 
-          <!-- 自定义时间区间（具体到分钟） -->
-          <div v-if="formValidityType === 'range'" class="pt-2">
-            <!-- 开始时间 -->
-            <div class="mb-3">
-              <div class="d-flex align-center justify-space-between mb-1">
-                <span class="text-caption font-weight-bold">{{ t('reminder.fields.validityFrom') }}</span>
-                <v-btn size="x-small" variant="text" @click="setValidFromNow">{{ t('reminder.dialog.effectiveImmediately') }}</v-btn>
-              </div>
-              <v-row no-gutters class="ga-2">
-                <v-col>
-                  <v-text-field
-                      v-model="formValidFromDate"
-                      type="date"
-                      variant="outlined"
-                      density="compact"
-                      hide-details
-                      prepend-inner-icon="mdi-calendar-start">
-                  </v-text-field>
-                </v-col>
-                <v-col>
-                  <v-text-field
-                      v-model="formValidFromTime"
-                      type="time"
-                      variant="outlined"
-                      density="compact"
-                      hide-details
-                      prepend-inner-icon="mdi-clock-outline">
-                  </v-text-field>
-                </v-col>
-              </v-row>
-            </div>
+                  <!-- 按固定间隔循环 (支持：天 / 小时 / 分钟 / 秒) -->
+                  <div v-else-if="formRepeatType === 'interval'">
+                    <label class="text-caption font-weight-bold d-block mb-1">
+                      {{ t('reminder.fields.repeatIntervalHours') }}
+                    </label>
+                    <div class="d-flex ga-2 align-center">
+                      <v-text-field
+                          v-model.number="formIntervalValue"
+                          type="number"
+                          min="1"
+                          :step="formIntervalUnit === 'hour' ? 0.5 : 1"
+                          variant="outlined"
+                          density="compact"
+                          hide-details
+                          class="flex-1-0"
+                          prepend-inner-icon="mdi-timer-sand">
+                      </v-text-field>
+                      <v-select
+                          v-model="formIntervalUnit"
+                          :items="intervalUnitOptions"
+                          item-title="label"
+                          item-value="unit"
+                          variant="outlined"
+                          density="compact"
+                          hide-details
+                          style="max-width: 140px; min-width: 100px;">
+                      </v-select>
+                    </div>
+                    <div class="mt-1 text-caption opacity-70">
+                      {{ t('reminder.fields.everyNUnits', { n: formIntervalValue || 1, unit: getUnitLabel(formIntervalUnit) }) }}
+                    </div>
+                  </div>
+                </div>
 
-            <!-- 截止时间 -->
-            <div>
-              <div class="d-flex align-center justify-space-between mb-1">
-                <span class="text-caption font-weight-bold">{{ t('reminder.fields.validityTo') }}</span>
-                <div class="d-flex ga-1">
-                  <v-btn size="x-small" variant="text" @click="setValidToOffset(7)">{{ t('reminder.dialog.offsetDays', {days: 7}) }}</v-btn>
-                  <v-btn size="x-small" variant="text" @click="setValidToOffset(30)">{{ t('reminder.dialog.offsetDays', {days: 30}) }}</v-btn>
-                  <v-btn size="x-small" variant="text" @click="setValidToOffset(90)">{{ t('reminder.dialog.offsetDays', {days: 90}) }}</v-btn>
+                <!-- 一次性截止时间配置 -->
+                <div v-else-if="formScheduleType === 'once'">
+                  <label class="text-caption font-weight-bold d-block mb-2">
+                    {{ t('reminder.fields.targetTime') }}
+                  </label>
+                  <v-row no-gutters class="ga-2">
+                    <v-col>
+                      <v-text-field
+                          v-model="formTargetDate"
+                          type="date"
+                          variant="outlined"
+                          density="compact"
+                          hide-details
+                          prepend-inner-icon="mdi-calendar">
+                      </v-text-field>
+                    </v-col>
+                    <v-col>
+                      <v-text-field
+                          v-model="formTargetTime"
+                          type="time"
+                          variant="outlined"
+                          density="compact"
+                          hide-details
+                          prepend-inner-icon="mdi-clock-outline">
+                      </v-text-field>
+                    </v-col>
+                  </v-row>
                 </div>
               </div>
-              <v-row no-gutters class="ga-2">
-                <v-col>
-                  <v-text-field
-                      v-model="formValidToDate"
-                      type="date"
-                      variant="outlined"
-                      density="compact"
-                      hide-details
-                      prepend-inner-icon="mdi-calendar-end">
-                  </v-text-field>
-                </v-col>
-                <v-col>
-                  <v-text-field
-                      v-model="formValidToTime"
-                      type="time"
-                      variant="outlined"
-                      density="compact"
-                      hide-details
-                      prepend-inner-icon="mdi-clock-outline">
-                  </v-text-field>
-                </v-col>
-              </v-row>
             </div>
           </div>
-        </v-card>
 
-        <!-- 备注与攻略内容，上限 5000 字 -->
-        <div class="mb-4">
-          <div class="d-flex justify-space-between align-center mb-1">
-            <label class="text-caption font-weight-bold">
-              {{ t('reminder.fields.note') }}
-            </label>
-            <span class="text-caption" :class="formNote.length > MAX_NOTE_LENGTH ? 'text-error' : 'opacity-60'">
-              {{ formNote.length }} / {{ MAX_NOTE_LENGTH }}
-            </span>
-          </div>
-          <v-textarea
-              v-model="formNote"
-              :placeholder="t('reminder.fields.notePlaceholder')"
-              variant="outlined"
-              density="compact"
-              rows="4"
-              maxlength="5000"
-              hide-details
-              auto-grow>
-          </v-textarea>
-        </div>
-
-        <!-- 单独的是否通知开关 (默认是) -->
-        <div class="pa-3 mb-3 rounded border d-flex align-center justify-space-between">
-          <div>
-            <div class="font-weight-medium text-body-2 d-flex align-center">
-              {{ t('reminder.fields.notifyEnabled') }}
+          <!-- 备注与攻略内容，上限 5000 字 (使用 Textarea 富文本组件) -->
+          <div class="form-row mb-4">
+            <div class="form-label-col">
+              <label class="text-caption font-weight-bold">
+                {{ t('reminder.fields.note') }}
+              </label>
+              <div class="text-caption opacity-60">({{ t('basic.optional') }})</div>
+              <div class="text-caption mt-1" :class="formNote.length > MAX_NOTE_LENGTH ? 'text-error' : 'opacity-60'">
+                {{ formNote.length }} / {{ MAX_NOTE_LENGTH }}
+              </div>
             </div>
-            <div class="text-caption opacity-60">{{ t('reminder.fields.notifyEnabledDesc') }}</div>
+            <div class="form-control-col">
+              <v-card border class="pa-2 bg-surface">
+                <Textarea
+                    v-model="formNote"
+                    :placeholder="t('reminder.fields.notePlaceholder')"
+                    :maxlength="MAX_NOTE_LENGTH"
+                    height="140px"
+                    min-height="120px"
+                    :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate', 'lang']">
+                </Textarea>
+              </v-card>
+            </div>
           </div>
-          <v-switch
-              v-model="formNotifyEnabled"
-              hide-details
-              density="compact"
-              inset
-              color="amber">
-          </v-switch>
         </div>
 
-        <!-- 任务总开关/计时追踪 -->
-        <div class="pa-3 rounded border d-flex align-center justify-space-between">
-          <div>
-            <div class="font-weight-medium text-body-2">{{ t('reminder.fields.taskEnabled') }}</div>
-            <div class="text-caption opacity-60">{{ t('reminder.fields.taskEnabledDesc') }}</div>
-          </div>
-          <v-switch
-              v-model="formEnabled"
-              hide-details
-              density="compact"
-              inset
-              color="amber">
-          </v-switch>
-        </div>
+        <v-list>
+          <!-- 任务有效期配置 (默认永久，开启为有限期) -->
+          <v-list-item link class="px-5 py-3">
+            <div>
+              <div class="d-flex align-center justify-space-between">
+                <div>
+                  <div class="font-weight-medium text-body-2">{{ t('reminder.fields.validity') }}</div>
+                  <div class="text-caption opacity-60">
+                    {{ formValidityEnabled ? t('reminder.fields.validityRange') : t('reminder.fields.validityPermanent') }}
+                  </div>
+                </div>
+                <v-switch
+                    v-model="formValidityEnabled"
+                    hide-details
+                    density="compact"
+                    inset
+                    color="amber">
+                </v-switch>
+              </div>
+
+              <!-- 自定义时间区间（具体到分钟） -->
+              <div v-if="formValidityEnabled" class="mt-3 pt-3 border-t">
+                <!-- 开始时间 -->
+                <div class="mb-3">
+                  <div class="d-flex align-center justify-space-between mb-1">
+                    <span class="text-caption font-weight-bold">{{ t('reminder.fields.validityFrom') }}</span>
+                    <v-btn size="x-small" variant="text" @click="setValidFromNow">{{ t('reminder.dialog.effectiveImmediately') }}</v-btn>
+                  </div>
+                  <v-row no-gutters class="ga-2">
+                    <v-col>
+                      <v-text-field
+                          v-model="formValidFromDate"
+                          type="date"
+                          variant="outlined"
+                          density="compact"
+                          hide-details
+                          prepend-inner-icon="mdi-calendar-start">
+                      </v-text-field>
+                    </v-col>
+                    <v-col>
+                      <v-text-field
+                          v-model="formValidFromTime"
+                          type="time"
+                          variant="outlined"
+                          density="compact"
+                          hide-details
+                          prepend-inner-icon="mdi-clock-outline">
+                      </v-text-field>
+                    </v-col>
+                  </v-row>
+                </div>
+
+                <!-- 截止时间 -->
+                <div>
+                  <div class="d-flex align-center justify-space-between mb-1">
+                    <span class="text-caption font-weight-bold">{{ t('reminder.fields.validityTo') }}</span>
+                    <div class="d-flex ga-1">
+                      <v-btn size="x-small" variant="text" @click="setValidToOffset(7)">{{ t('reminder.dialog.offsetDays', {days: 7}) }}</v-btn>
+                      <v-btn size="x-small" variant="text" @click="setValidToOffset(30)">{{ t('reminder.dialog.offsetDays', {days: 30}) }}</v-btn>
+                      <v-btn size="x-small" variant="text" @click="setValidToOffset(90)">{{ t('reminder.dialog.offsetDays', {days: 90}) }}</v-btn>
+                    </div>
+                  </div>
+                  <v-row no-gutters class="ga-2">
+                    <v-col>
+                      <v-text-field
+                          v-model="formValidToDate"
+                          type="date"
+                          variant="outlined"
+                          density="compact"
+                          hide-details
+                          prepend-inner-icon="mdi-calendar-end">
+                      </v-text-field>
+                    </v-col>
+                    <v-col>
+                      <v-text-field
+                          v-model="formValidToTime"
+                          type="time"
+                          variant="outlined"
+                          density="compact"
+                          hide-details
+                          prepend-inner-icon="mdi-clock-outline">
+                      </v-text-field>
+                    </v-col>
+                  </v-row>
+                </div>
+              </div>
+            </div>
+          </v-list-item>
+
+          <v-list-item link class="px-5 py-3">
+            <!-- 提前提醒配置 -->
+            <div class="">
+              <div class="d-flex align-center justify-space-between">
+                <div>
+                  <div class="font-weight-medium text-body-2">{{ t('reminder.fields.advanceNotice') }}</div>
+                  <div class="text-caption opacity-60">{{ t('reminder.fields.advanceNoticeDesc') }}</div>
+                </div>
+                <v-switch
+                    v-model="formAdvanceNoticeEnabled"
+                    hide-details
+                    density="compact"
+                    inset
+                    color="amber">
+                </v-switch>
+              </div>
+
+              <!-- 提前选项列表 -->
+              <div v-if="formAdvanceNoticeEnabled" class="mt-3 pt-3 border-t">
+                <div class="d-flex flex-wrap ga-2 mb-3">
+                  <v-chip
+                      size="small"
+                      :variant="formAdvanceOption === '30s' ? 'elevated' : 'outlined'"
+                      :color="formAdvanceOption === '30s' ? 'amber' : ''"
+                      @click="onSelectAdvanceOption('30s')">
+                    {{ t('reminder.fields.advanceOptions.30s', '提前 30 秒') }}
+                  </v-chip>
+                  <v-chip
+                      size="small"
+                      :variant="formAdvanceOption === '1m' ? 'elevated' : 'outlined'"
+                      :color="formAdvanceOption === '1m' ? 'amber' : ''"
+                      @click="onSelectAdvanceOption('1m')">
+                    {{ t('reminder.fields.advanceOptions.1m') }}
+                  </v-chip>
+                  <v-chip
+                      size="small"
+                      :variant="formAdvanceOption === '5m' ? 'elevated' : 'outlined'"
+                      :color="formAdvanceOption === '5m' ? 'amber' : ''"
+                      @click="onSelectAdvanceOption('5m')">
+                    {{ t('reminder.fields.advanceOptions.5m') }}
+                  </v-chip>
+                  <v-chip
+                      size="small"
+                      :variant="formAdvanceOption === '10m' ? 'elevated' : 'outlined'"
+                      :color="formAdvanceOption === '10m' ? 'amber' : ''"
+                      @click="onSelectAdvanceOption('10m')">
+                    {{ t('reminder.fields.advanceOptions.10m') }}
+                  </v-chip>
+                  <v-chip
+                      size="small"
+                      :variant="formAdvanceOption === '30m' ? 'elevated' : 'outlined'"
+                      :color="formAdvanceOption === '30m' ? 'amber' : ''"
+                      @click="onSelectAdvanceOption('30m')">
+                    {{ t('reminder.fields.advanceOptions.30m') }}
+                  </v-chip>
+                  <v-chip
+                      size="small"
+                      :variant="formAdvanceOption === '1h' ? 'elevated' : 'outlined'"
+                      :color="formAdvanceOption === '1h' ? 'amber' : ''"
+                      @click="onSelectAdvanceOption('1h')">
+                    {{ t('reminder.fields.advanceOptions.1h', '提前 1 小时') }}
+                  </v-chip>
+                  <v-chip
+                      size="small"
+                      :variant="formAdvanceOption === 'custom' ? 'elevated' : 'outlined'"
+                      :color="formAdvanceOption === 'custom' ? 'amber' : ''"
+                      @click="onSelectAdvanceOption('custom')">
+                    {{ t('reminder.fields.advanceOptions.custom') }}
+                  </v-chip>
+                </div>
+
+                <!-- 自定义提前数值与单位输入 -->
+                <div v-if="formAdvanceOption === 'custom'" class="mt-2">
+                  <v-row align="center" no-gutters class="ga-2">
+                    <v-col cols="6">
+                      <v-text-field
+                          v-model.number="formAdvanceValue"
+                          type="number"
+                          min="1"
+                          variant="outlined"
+                          density="compact"
+                          hide-details
+                          prepend-inner-icon="mdi-bell-ring-outline"
+                          :suffix="getAdvanceUnitLabel(formAdvanceUnit)"
+                          @update:model-value="updateCalculatedAdvanceMinutes">
+                      </v-text-field>
+                    </v-col>
+                    <v-col>
+                      <div class="d-flex ga-1">
+                        <v-chip
+                            size="small"
+                            :variant="formAdvanceUnit === 'second' ? 'elevated' : 'outlined'"
+                            :color="formAdvanceUnit === 'second' ? 'amber' : ''"
+                            @click="formAdvanceUnit = 'second'; updateCalculatedAdvanceMinutes()">
+                          {{ t('reminder.units.second') }}
+                        </v-chip>
+                        <v-chip
+                            size="small"
+                            :variant="formAdvanceUnit === 'minute' ? 'elevated' : 'outlined'"
+                            :color="formAdvanceUnit === 'minute' ? 'amber' : ''"
+                            @click="formAdvanceUnit = 'minute'; updateCalculatedAdvanceMinutes()">
+                          {{ t('reminder.units.minute') }}
+                        </v-chip>
+                        <v-chip
+                            size="small"
+                            :variant="formAdvanceUnit === 'hour' ? 'elevated' : 'outlined'"
+                            :color="formAdvanceUnit === 'hour' ? 'amber' : ''"
+                            @click="formAdvanceUnit = 'hour'; updateCalculatedAdvanceMinutes()">
+                          {{ t('reminder.units.hour') }}
+                        </v-chip>
+                      </div>
+                    </v-col>
+                  </v-row>
+                </div>
+              </div>
+            </div>
+          </v-list-item>
+          <v-list-item link class="px-5 py-3">
+            <!-- 单独的是否通知开关 (默认是) -->
+            <div class="d-flex align-center justify-space-between">
+              <div>
+                <div class="font-weight-medium text-body-2 d-flex align-center">
+                  {{ t('reminder.fields.notifyEnabled') }}
+                </div>
+                <div class="text-caption opacity-60">{{ t('reminder.fields.notifyEnabledDesc') }}</div>
+              </div>
+              <v-switch
+                  v-model="formNotifyEnabled"
+                  hide-details
+                  density="compact"
+                  inset
+                  color="amber">
+              </v-switch>
+            </div>
+          </v-list-item>
+          <v-list-item link class="px-5 py-3">
+            <!-- 任务总开关/计时追踪 -->
+            <div class="d-flex align-center justify-space-between">
+              <div>
+                <div class="font-weight-medium text-body-2">{{ t('reminder.fields.taskEnabled') }}</div>
+                <div class="text-caption opacity-60">{{ t('reminder.fields.taskEnabledDesc') }}</div>
+              </div>
+              <v-switch
+                  v-model="formEnabled"
+                  hide-details
+                  density="compact"
+                  inset
+                  color="amber">
+              </v-switch>
+            </div>
+          </v-list-item>
+        </v-list>
       </v-card-text>
 
       <v-divider></v-divider>
@@ -926,5 +970,30 @@ const onSave = () => {
 <style scoped lang="less">
 .reminder-edit-card {
   border-radius: 12px;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    gap: 6px;
+  }
+}
+
+.form-label-col {
+  width: 190px;
+  min-width: 90px;
+  flex-shrink: 0;
+  padding-top: 8px;
+  line-height: 1.2;
+}
+
+.form-control-col {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
 }
 </style>
