@@ -16,7 +16,7 @@
     "preview:production": "vite preview",
     "build-only": "vite build --mode production",
     "build:ssg": "npm run build-only:ssg",
-    "build-only:ssg": "rm -rf dist .vite-ssg-temp && NODE_OPTIONS='--max-old-space-size=8192' vite-ssg build --mode production",
+    "build-only:ssg": "rm -rf dist .vite-ssg-temp && vite-ssg build --mode production",
     "deploy:edgeone": "npm run build:ssg && edgeone makers deploy ./dist -n glow-prow-website"
   },
   "dependencies": {
