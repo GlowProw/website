@@ -35,88 +35,83 @@ const {t, te, messages} = useI18n(),
     appStore = useAppStore(),
     authStore = useAuthStore(),
     mapLocations = MapLocations,
-    i18nReadName = useI18nReadName(),
+    i18nReadName = useI18nReadName();
 
-    // 页面元信息 (meta)
-    head: Ref<any> = ref({
-      title: t(route.meta.title as string),
-      titleTemplate: `%s | ${t('name')}`,
-      meta: [
-        {name: 'description', content: ''},
-        {name: 'keywords', content: t(route.meta.keywords as string)},
-        {property: 'og:type', content: 'website'},
-        {property: 'og:title', content: `%s | ${t('name')}`},
-        {property: 'og:description', content: ''},
-        {property: 'og:site_name', content: t('name')},
-      ]
-    })
+const
+    id = computed(() => (route.params.id as string) || ''),
+    mapLocationDetailData = computed(() => {
+      if (!id.value) return {};
+      let loc = mapLocations[id.value];
+      if (!loc) {
+        loc = Object.values(mapLocations).find((l: any) => l?.id === id.value || l?.category === id.value);
+      }
+      if (!loc) {
+        loc = {
+          id: id.value,
+          category: id.value,
+        };
+      }
+      return loc;
+    }),
 
-useHead(head)
+    locationDescription = computed(() => {
+      if (!mapLocationDetailData.value) return '';
+      const desc = i18nReadName.mapLocation(mapLocationDetailData.value.id, mapLocationDetailData.value.category).description();
+      if (desc && desc !== mapLocationDetailData.value.id) return desc;
+      return '';
+    }),
 
-let mapLocationDetailData: Ref<any> = ref({})
+    isOutpostOrDen = computed(() => {
+      return ['outpost', 'den'].includes(mapLocationDetailData.value?.category);
+    }),
 
-const locationDescription = computed(() => {
-  if (!mapLocationDetailData.value) return '';
-  const desc = i18nReadName.mapLocation(mapLocationDetailData.value.id, mapLocationDetailData.value.category).description();
-  if (desc && desc !== mapLocationDetailData.value.id) return desc;
-  return '';
-});
+    headTitle = computed(() => {
+      if (!id.value) return t(route.meta?.title as string || 'codex.mapLocation.title');
+      const headData = i18nReadName.mapLocation(id.value);
+      const headName = headData.name();
+      return headName ? `${headName} - ${t(route.meta?.title as string || 'codex.mapLocation.title')}` : t(route.meta?.title as string || 'codex.mapLocation.title');
+    }),
 
-const isOutpostOrDen = computed(() => {
-  return ['outpost', 'den'].includes(mapLocationDetailData.value?.category);
-});
+    headDescription = computed(() => {
+      if (!id.value) return '';
+      const headData = i18nReadName.mapLocation(id.value);
+      return (headData.description() as string) || '';
+    });
 
-const loadDetail = () => {
-  const {id} = route.params
+useHead({
+  title: headTitle,
+  titleTemplate: `%s | ${t('name')}`,
+  meta: computed(() => {
+    if (!id.value) return [];
+    const headData = i18nReadName.mapLocation(id.value);
+    const headName = headData.name();
+    const desc = headData.description() || '';
 
-  if (id) {
-    let loc = mapLocations[id as string];
-    if (!loc) {
-      loc = Object.values(mapLocations).find((l: any) => l?.id === id || l?.category === id);
-    }
-    if (!loc) {
-      loc = {
-        id: id as string,
-        category: id as string,
-      };
-    }
-    mapLocationDetailData.value = loc;
-  }
-
-  const headData = i18nReadName.mapLocation(id as string),
-      headName = headData.name(),
-      headDescription = headData.description()
-
-  head.value.title = headName ? `${headName} - ${t(route.meta.title as string)}` : t(route.meta.title as string);
-  head.value.titleTemplate = `%s | ${t('name')}`;
-  head.value.meta = [
-    {name: 'description', content: headDescription},
-    {
-      name: 'keywords', content: t(route.meta.keywords as string, {
-        keywords: Object.keys(messages.value).map(lang => {
-          return headData.keysName.map((key: any) => i18nReadName.getValue(messages.value[lang], key)).filter((i: any) => i != null)
-        }).concat([id as string]) + `,${t('home.meta.keywords')}`
-      })
-    },
-    {property: 'og:type', content: 'website'},
-    {property: 'og:title', content: `${headName} | ${t('name')}`},
-    {property: 'og:description', content: headDescription},
-    {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
-    {property: 'og:site_name', content: t('name')},
-    {name: 'twitter:card', content: 'summary'},
-    {name: 'twitter:title', content: `${headName} | ${t('name')}`},
-    {name: 'twitter:description', content: headDescription},
-  ]
-
-  onCodexHistory()
-}
-
-onMounted(() => {
-  loadDetail()
+    return [
+      {name: 'description', content: desc},
+      {
+        name: 'keywords', content: t(route.meta?.keywords as string || '', {
+          keywords: Object.keys(messages.value).map(lang => {
+            return headData.keysName.map((key: any) => i18nReadName.getValue(messages.value[lang], key)).filter((i: any) => i != null)
+          }).concat([id.value]) + `,${t('home.meta.keywords')}`
+        })
+      },
+      {property: 'og:type', content: 'website'},
+      {property: 'og:title', content: `${headName} | ${t('name')}`},
+      {property: 'og:description', content: desc},
+      {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
+      {property: 'og:site_name', content: t('name')},
+      {name: 'twitter:card', content: 'summary'},
+      {name: 'twitter:title', content: `${headName} | ${t('name')}`},
+      {name: 'twitter:description', content: desc},
+    ];
+  })
 })
 
-watch(() => route.params.id, () => {
-  loadDetail()
+onMounted(() => {
+  if (typeof window !== 'undefined' && id.value) {
+    onCodexHistory()
+  }
 })
 
 const onCodexHistory = () => {

@@ -1,5 +1,5 @@
 import language, { normalizeLang } from '@/config/languages'
-import {createI18n, type MessageContext} from 'vue-i18n';
+import { createI18n, type MessageContext } from 'vue-i18n';
 
 // 网站翻译
 import zh_CN_local from '@/lang/zh_CN/data.json';
@@ -12,8 +12,8 @@ import en_US_local from '@/lang/en_US/data.json';
 import en_US_meta from '@/lang/en_US/meta.json';
 
 // 数据翻译
-import {en_US as en_US_snb, zh_CN as zh_CN_snb, zh_TW as zh_TW_snb} from 'glow-prow-data-languages/src'
-import {storage} from "@/assets/sripts";
+import { en_US as en_US_snb, zh_CN as zh_CN_snb, zh_TW as zh_TW_snb } from 'glow-prow-data-languages/src'
+import { storage } from "@/assets/sripts";
 
 export const messageCompiler = (message: any) => {
     return (ctx: MessageContext) => {
@@ -125,25 +125,34 @@ const getBrowserLocale = (): string => {
 const getInitialLocale = (): string => {
     const fallbackLocale = getFallbackLocale();
 
-    // 优先使用 URL query 参数中的 lang
-    if (typeof window !== 'undefined' && window.location && window.location.search) {
-        const urlParams = new URLSearchParams(window.location.search);
-        const urlLangParam = urlParams.get('lang');
-        const normalizedUrlLang = normalizeLang(urlLangParam);
-        if (normalizedUrlLang) {
-            storage.local.set('lang', { value: normalizedUrlLang });
-            return normalizedUrlLang;
+    if (typeof window !== 'undefined' && window.location) {
+        // 优先读取 URL 路径前缀中的语言（如 /zh-CN/..., /en-US/...）
+        const pathSeg = window.location.pathname.split('/').filter(Boolean)[0];
+        if (pathSeg && ['zh-CN', 'zh-TW', 'en-US'].includes(pathSeg)) {
+            storage.local.set('lang', { value: pathSeg });
+            return pathSeg;
+        }
+
+        // 兼容 URL query 参数中的 lang
+        if (window.location.search) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlLangParam = urlParams.get('lang');
+            const normalizedUrlLang = normalizeLang(urlLangParam);
+            if (normalizedUrlLang) {
+                storage.local.set('lang', { value: normalizedUrlLang });
+                return normalizedUrlLang;
+            }
         }
     }
 
-    // 其次使用存储的语言
-    const storedVal = storage.local.get('lang')?.data?.value;
-    const storedLang = (typeof storedVal === 'object' && storedVal !== null) ? storedVal.value : storedVal;
-    if (storedLang && ['zh-CN', 'zh-TW', 'en-US'].includes(storedLang)) {
+    // 其次使用本地存储的语言
+    const rawStored = storage.local.get('lang')?.data?.value;
+    const storedLang = (typeof rawStored === 'object' && rawStored !== null && rawStored.value) ? rawStored.value : rawStored;
+    if (typeof storedLang === 'string' && ['zh-CN', 'zh-TW', 'en-US'].includes(storedLang)) {
         return storedLang;
     }
 
-    // 再次使用浏览器语言
+    // 使用浏览器语言
     const browserLocale = getBrowserLocale();
 
     // 目标语言缺失，从回退语言字段中找

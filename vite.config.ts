@@ -71,58 +71,78 @@ const getDynamicDataRoutes = () => {
     return result;
 }
 
+const SUPPORTED_LANGS = ['zh-CN', 'zh-TW', 'en-US'];
+
 const getRoutes = () => {
-    const routerPath = path.resolve(__dirname, 'router/index.ts');
-    const staticRoutes: string[] = [];
-
-    if (fs.existsSync(routerPath)) {
-        const content = fs.readFileSync(routerPath, 'utf8');
-        const stack: { path: string, indent: number }[] = [];
-        const lines = content.split('\n');
-
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i];
-            const pathMatch = line.match(/path\s*:\s*['"]([^'":*]+)['"]/);
-
-            if (pathMatch) {
-                const indent = line.search(/\S/);
-                let p = pathMatch[1];
-
-                while (stack.length > 0 && stack[stack.length - 1].indent >= indent) {
-                    stack.pop();
-                }
-
-                let fullPath = p;
-                if (!p.startsWith('/') && stack.length > 0) {
-                    const parent = stack[stack.length - 1].path;
-                    fullPath = (parent.endsWith('/') ? parent : parent + '/') + p;
-                } else if (!p.startsWith('/')) {
-                    fullPath = '/' + p;
-                }
-
-                if (fullPath.length > 1 && fullPath.endsWith('/')) fullPath = fullPath.slice(0, -1);
-                if (!fullPath.startsWith('/')) fullPath = '/' + fullPath;
-
-                staticRoutes.push(fullPath);
-
-                let hasChildren = false;
-                for (let j = i + 1; j < Math.min(i + 30, lines.length); j++) {
-                    if (lines[j].includes('children:')) {
-                        hasChildren = true;
-                        break;
-                    }
-                    if (lines[j].includes('path:') && lines[j].search(/\S/) <= indent) break;
-                }
-
-                if (hasChildren) {
-                    stack.push({ path: fullPath, indent: indent });
-                }
-            }
-        }
-    }
+    const rawStatic = [
+        '',
+        'codex',
+        'codex/ships',
+        'codex/items',
+        'codex/commodities',
+        'codex/modifications',
+        'codex/materials',
+        'codex/cosmetics',
+        'codex/sets',
+        'codex/treasureMaps',
+        'codex/treasureMaps/comparison',
+        'codex/mapLocations',
+        'codex/npcs',
+        'codex/empireSkills',
+        'codex/masterys',
+        'codex/ultimates',
+        'quest',
+        'quest/list',
+        'calendar',
+        'calendar/history',
+        'assembly',
+        'assembly/workshop',
+        'assembly/publish',
+        'assembly/browse',
+        'map',
+        'apps',
+        'apps/qqbot',
+        'team',
+        'search',
+        'setting',
+        'setting/routine',
+        'setting/ads',
+        'setting/storage',
+        'setting/about',
+        'setting/pwa',
+        'setting/wishlist',
+        'setting/log',
+        'setting/subscriptions',
+        'setting/advanced',
+        'smugglers-report',
+        'smugglers-report/view',
+        'stateOfWar',
+        'stateOfWar/view',
+        'empire-skill-simulation',
+        'mastery',
+        'mastery/view',
+        'mastery/share',
+        'calculator',
+        'drop',
+        'reminder',
+        'reminder/view',
+    ];
 
     const dynamicRoutes = getDynamicDataRoutes();
-    return Array.from(new Set([...staticRoutes, ...dynamicRoutes])).sort();
+
+    const basePaths = new Set<string>();
+    rawStatic.forEach(p => basePaths.add(p ? `/${p}` : '/'));
+    dynamicRoutes.forEach(p => basePaths.add(p.startsWith('/') ? p : `/${p}`));
+
+    const allLocalizedRoutes: string[] = ['/'];
+    SUPPORTED_LANGS.forEach(lang => {
+        basePaths.forEach(p => {
+            const clean = p === '/' ? '' : p;
+            allLocalizedRoutes.push(`/${lang}${clean}`);
+        });
+    });
+
+    return Array.from(new Set(allLocalizedRoutes)).sort();
 }
 
 export default defineConfig(({ mode }) => {
@@ -164,6 +184,7 @@ export default defineConfig(({ mode }) => {
                     ]
                 },
                 workbox: {
+                    globPatterns: ['**/*.{js,css,ico,png,svg,webp,avif,woff2}'],
                     maximumFileSizeToCacheInBytes: 8 * 1024 * 1024, // 8MB
                     navigateFallback: '/index.html',
                     navigateFallbackDenylist: [
@@ -210,6 +231,7 @@ export default defineConfig(({ mode }) => {
         drop: ['console', 'debugger'],
     },
     build: {
+        ssrManifest: true,
         assetsDir: 'static/images',
         chunkSizeWarningLimit: 1000,
         minify: 'esbuild',
@@ -279,7 +301,7 @@ export default defineConfig(({ mode }) => {
         script: 'async',
         formatting: 'none',
         mock: false,
-        concurrency: 20,
+        concurrency: 5,
         // 预渲染所有静态路由与公开百科数据路由，跳过未填充参数的路由及私有路由
         includedRoutes(paths: string[], routes: any[]) {
             const allRoutes = getRoutes();
@@ -292,17 +314,28 @@ export default defineConfig(({ mode }) => {
             ];
             return allRoutes.filter(p => {
                 if (p.includes(':')) return false;
-                return !skip.some(s => p.startsWith(s));
+                const clean = p.replace(/^\/(zh-CN|zh-TW|en-US)/, '') || '/';
+                return !skip.some(s => clean.startsWith(s));
             });
         },
         onBeforePageRender(route: string, indexHTML: string, ctx: any) {
+            // 确保页面输出目录安全存在，防止并发写入时的目录竞态异常
+            const relativeRouteFile = `${(route.endsWith('/') ? `${route}index` : route).replace(/^\//g, '')}.html`;
+            const targetDir = path.resolve(__dirname, 'dist', path.dirname(relativeRouteFile));
+            if (!fs.existsSync(targetDir)) {
+                fs.mkdirSync(targetDir, { recursive: true });
+            }
             return undefined;
         },
         onPageRendered(route: string, renderedHTML: string, ctx: any) {
-            return renderedHTML;
+            // 将重复的 350+ 行内联 vuetify-theme-stylesheet 替换为外部静态 CSS 文件引用
+            return renderedHTML.replace(
+                /<style id="vuetify-theme-stylesheet">[\s\S]*?<\/style>/,
+                '<link rel="stylesheet" href="/assets/vuetify-theme.css" id="vuetify-theme-stylesheet">'
+            );
         },
         onFinished() {
-            // SSG 完成后的钩子（可扩展）
+            // SSG 完成后的钩子
         },
         } as ViteSSGOptions,
     };

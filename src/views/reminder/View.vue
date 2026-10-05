@@ -152,16 +152,18 @@ const onRequestPermission = async () => {
 
 // 跳转至高级设置页面
 const onGoToAdvanced = () => {
-  router.push('/setting/advanced');
+  router.push({ name: 'PortalSettingAdvanced', params: route.params });
 };
 
 // 获取任务标题：支持多语言对象或普通文本（优先按当前语言读取，缺失时按回退语言读取）
-const getTaskTitle = (task: ReminderTask) => {
+const getTaskTitle = (task?: ReminderTask | null) => {
+  if (!task) return '';
   return getLocalizedText(task.title) || (task.titleKey && te(task.titleKey) ? t(task.titleKey) : '');
 };
 
 // 获取任务备注：支持多语言对象或普通文本
-const getTaskNote = (task: ReminderTask) => {
+const getTaskNote = (task?: ReminderTask | null) => {
+  if (!task) return '';
   return getLocalizedText(task.note || task.description) || (task.noteKey && te(task.noteKey) ? t(task.noteKey) : (task.descKey && te(task.descKey) ? t(task.descKey) : ''));
 };
 

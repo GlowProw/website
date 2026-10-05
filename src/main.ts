@@ -51,7 +51,7 @@ import { createPinia } from 'pinia'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import i18n from './i18n'
 import vuetify from './vuetify'
-import { routes, scrollBehavior } from '../router'
+import { routes, scrollBehavior, setupRouterGuards } from '../router'
 import { initGlobalErrorCapture } from './assets/sripts/error_logger'
 
 // 导出 createApp，vite-ssg 在构建时调用以渲染每个路由
@@ -63,6 +63,7 @@ export const createApp = ViteSSG(
         scrollBehavior,
     },
     ({ app, router, isClient }) => {
+        setupRouterGuards(router)
         const pinia = createPinia()
 
         // pinia-plugin-persistedstate 依赖 localStorage，仅在客户端使用
@@ -78,14 +79,5 @@ export const createApp = ViteSSG(
         if (isClient) {
             initGlobalErrorCapture(app)
         }
-
-        // 恢复路由守卫：拦截 /robots.txt 等静态文件路径
-        const staticFilePaths = ['/robots.txt', '/sitemap.xml', '/ads.txt'];
-        router.beforeEach((to, from, next) => {
-            if (staticFilePaths.includes(to.path)) {
-                return false;
-            }
-            next();
-        });
     }
 )

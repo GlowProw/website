@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import {useRoute, useRouter} from "vue-router";
-import {onMounted, ref, type Ref, watch} from "vue";
+import {computed, onMounted, ref, type Ref, watch} from "vue";
 
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
@@ -44,105 +44,104 @@ const
     {asArray, asString, sanitizeString} = useI18nUtils(),
     i18nReadName = useI18nReadName(),
     cdnStore = useCDNAssetsServiceStore(),
+    npcs: any = Npcs,
+    rarityColorConfig = rarity.color;
 
-    // 数据
-    npcs: any = Npcs
+const id = computed(() => {
+  const paramId = route.params.id;
+  return Array.isArray(paramId) ? paramId[0] : paramId;
+});
 
-let npcDetailData: Ref<any> = ref(null),
+const npcDetailData = computed(() => {
+  if (!id.value) return null;
+  return npcs[id.value] || null;
+});
 
-    rarityColorConfig = rarity.color,
+const headData = computed(() => {
+  if (!id.value) return null;
+  return i18nReadName.npc(id.value);
+});
 
-    // 页面元信息 (meta)
-    head: Ref<any> = ref({
-      title: t(route.meta.title as string),
-      titleTemplate: `%s | ${t('name')}`,
-      meta: [
-        {name: 'description', content: ''},
-        {name: 'keywords', content: t(route.meta.keywords as string)},
-        {property: 'og:type', content: 'website'},
-        {property: 'og:title', content: `%s | ${t('name')}`},
-        {property: 'og:description', content: ''},
-        {property: 'og:site_name', content: t('name')},
-      ]
-    })
+const headName = computed(() => {
+  if (!headData.value) return '';
+  return headData.value.name(npcDetailData.value?.location) || '';
+});
 
-useHead(head)
+const headDescription = computed(() => {
+  if (!headData.value) return '';
+  return headData.value.description() || '';
+});
 
-watch(() => route.path, (value) => {
-  onReady()
-})
-
-onMounted(() => {
-  onReady()
-})
-
-const onReady = () => {
-  const {id} = route.params;
-
-  if (!id) {
-    router.push('/')
-    return;
-  }
-
-  if (!npcs[id as string]) {
-    setInterval(() => router.push({name: 'NotFound'}), 1000)
-    return;
-  }
-
-  npcDetailData.value = npcs[id as string];
-
-  const headData = i18nReadName.npc(id as string),
-      headName = headData.name(npcDetailData.value?.location),
-      headDescription = headData.description()
-
-  head.value.title = headName ? `${headName} - ${t(route.meta.title as string)}` : t(route.meta.title as string);
-  head.value.titleTemplate = `%s | ${t('name')}`;
-
-  const imageUrl = cdnStore.currentService.image.url({
+const imageUrl = computed(() => {
+  if (!npcDetailData.value?.id) return '';
+  return cdnStore.currentService.image.url({
     id: npcDetailData.value.id,
     category: 'npcs'
   }, 'glow-prow');
+});
 
-  head.value.meta = [
-    {name: 'description', content: headDescription},
-    {
-      name: 'keywords', content: t(route.meta.keywords as string, {
-        keywords: Object.keys(messages.value).map(lang => {
-          return headData.keysName.map((key: any) => i18nReadName.getValue(messages.value[lang], key)).filter((i: any) => i != null)
-        }).concat([id as string]) + `,${t('home.meta.keywords')}`
-      })
-    },
-    {property: 'og:type', content: 'website'},
-    {property: 'og:title', content: `${headName} | ${t('name')}`},
-    {property: 'og:description', content: headDescription},
-    {property: 'og:image', content: imageUrl},
-    {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
-    {property: 'og:site_name', content: t('name')},
-    {name: 'twitter:card', content: 'summary_large_image'},
-    {name: 'twitter:title', content: `${headName} | ${t('name')}`},
-    {name: 'twitter:description', content: headDescription},
-    {name: 'twitter:image', content: imageUrl}
-  ]
+useHead(() => {
+  const currentName = headName.value;
+  const currentDesc = headDescription.value;
+  const currentId = id.value || '';
+  const currentImg = imageUrl.value;
 
-  onCodexHistory()
-}
+  const titleText = currentName
+      ? `${currentName} - ${t(route.meta.title as string || 'codex.npc.title')}`
+      : t(route.meta.title as string || 'codex.npc.title');
+
+  return {
+    title: titleText,
+    titleTemplate: `%s | ${t('name')}`,
+    meta: [
+      {name: 'description', content: currentDesc},
+      {
+        name: 'keywords',
+        content: t(route.meta.keywords as string || 'codex.npc.meta.keywords', {
+          keywords: Object.keys(messages.value).map(lang => {
+            return headData.value?.keysName?.map((key: any) => i18nReadName.getValue(messages.value[lang], key)).filter((i: any) => i != null) || [];
+          }).concat([currentId]) + `,${t('home.meta.keywords')}`
+        })
+      },
+      {property: 'og:type', content: 'website'},
+      {property: 'og:title', content: `${currentName || titleText} | ${t('name')}`},
+      {property: 'og:description', content: currentDesc},
+      {property: 'og:image', content: currentImg},
+      {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
+      {property: 'og:site_name', content: t('name')},
+      {name: 'twitter:card', content: 'summary_large_image'},
+      {name: 'twitter:title', content: `${currentName || titleText} | ${t('name')}`},
+      {name: 'twitter:description', content: currentDesc},
+      {name: 'twitter:image', content: currentImg}
+    ]
+  };
+});
+
+onMounted(() => {
+  if (!id.value) {
+    router.push('/');
+    return;
+  }
+  if (!npcDetailData.value) {
+    router.push({name: 'NotFound'});
+    return;
+  }
+  onCodexHistory();
+});
 
 const onCodexHistory = () => {
-  const {id} = route.params;
-
-  let name = 'codex.history'
-
-  const d = storage.session.get(name)
-
+  if (typeof window === 'undefined' || !id.value) return;
+  let name = 'codex.history';
+  const d = storage.session.get(name);
   storage.session.set(name, {
     ...d?.data?.value || {},
-    [id as string]: {
-      id,
+    [id.value]: {
+      id: id.value,
       category: 'npc',
       time: new Date().getTime()
     }
-  })
-}
+  });
+};
 </script>
 
 <template>

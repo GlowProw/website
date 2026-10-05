@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {onMounted, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import {useI18n} from "vue-i18n";
 import {useAssetsStore} from "~/stores/assetsStore";
 
@@ -7,6 +7,7 @@ import AppCodexNav from "@/assets/sripts/app_codex_nav";
 import CodexHistory from "@/components/CodexHistory.vue";
 import {useRoute} from "vue-router";
 import {useHead} from "@unhead/vue";
+import {getAppUrl} from "@/assets/sripts";
 
 const codexImages = import.meta.glob('@/assets/images/snb/codexIcons/*', {eager: true})
 
@@ -14,39 +15,32 @@ const
     {t} = useI18n(),
     route = useRoute(),
     {serializationMap} = useAssetsStore(),
-    appCodexNav = new AppCodexNav()
+    appCodexNav = new AppCodexNav(),
+    codexIcons = serializationMap(codexImages);
 
-let codexIcons = ref({}),
-
-    // 页面元信息 (meta)
-    head = ref<any>({
-      title: t(route.meta.title as string),
-      titleTemplate: `%s | ${t('name')}`,
-      meta: [
-        {name: 'keywords', content: t(route.meta.keywords as string)},
-        {property: 'og:title', content: `%s | ${t('name')}`},
-      ]
-    })
-
-useHead(head)
-
-onMounted(() => {
-  codexIcons.value = serializationMap(codexImages)
-
-  head.value.title = t(route.meta.title as string) || t('codex.title');
-  head.value.titleTemplate = `%s | ${t('name')}`;
-  head.value.meta = [
-    {
-      name: 'description', content: t('codex.meta.description') || t('apps.meta.description')
-    },
-    {
-      name: 'keywords', content: t(route.meta.keywords as string || 'codex.meta.keywords') + ',' + t('home.meta.keywords')
-    },
-    {property: 'og:title', content: `${t(route.meta.title as string)} | ${t('name')}`},
-    {property: 'og:description', content: t('codex.meta.description') || t('apps.meta.description')},
-  ]
-})
-
+useHead(() => {
+  const titleText = t(route.meta.title as string || 'codex.title');
+  const descText = t('codex.meta.description') || t('apps.meta.description');
+  return {
+    title: titleText,
+    titleTemplate: `%s | ${t('name')}`,
+    meta: [
+      {name: 'description', content: descText},
+      {
+        name: 'keywords',
+        content: (t(route.meta.keywords as string || 'codex.meta.keywords') + ',' + t('home.meta.keywords'))
+      },
+      {property: 'og:title', content: `${titleText} | ${t('name')}`},
+      {property: 'og:description', content: descText},
+      {property: 'og:type', content: 'website'},
+      {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
+      {property: 'og:site_name', content: t('name')},
+      {name: 'twitter:card', content: 'summary'},
+      {name: 'twitter:title', content: `${titleText} | ${t('name')}`},
+      {name: 'twitter:description', content: descText}
+    ]
+  };
+});
 </script>
 
 <template>

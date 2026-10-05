@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import {onMounted, type Ref, ref} from "vue";
+import {computed, onMounted, type Ref, ref} from "vue";
 import {useI18n} from "vue-i18n";
 import {Ultimates} from "glow-prow-data";
 import {useRoute, useRouter} from "vue-router";
@@ -27,78 +27,70 @@ const
     router = useRouter(),
     route = useRoute(),
     authStore = useAuthStore(),
-    cdnStore = useCDNAssetsServiceStore()
+    cdnStore = useCDNAssetsServiceStore();
 
-let
-    ultimateDetailPageData: Ref<{ img: string, loading: boolean }> = ref({
-      loading: false,
-      img: ''
+const
+    id = computed(() => (Array.isArray(route.params.id) ? route.params.id[0] : route.params.id) || 'hunter'),
+    ultimateDetailData = computed(() => Ultimates[id.value] || Ultimates['hunter']),
+    ultimateDetailPageData = computed(() => ({
+      img: '',
+      loading: false
+    })),
+
+    headTitle = computed(() => {
+      if (!id.value || !Ultimates[id.value]) return t(route.meta?.title as string || 'codex.ultimate.title');
+      const headData = i18nReadName.ultimate(id.value);
+      const headName = headData.name();
+      return headName ? `${headName} - ${t(route.meta?.title as string || 'codex.ultimate.title')}` : t(route.meta?.title as string || 'codex.ultimate.title');
     }),
-    ultimateDetailData: Ref<any> = ref(Ultimates['hunter']),
 
-    // 页面元信息 (meta)
-    head: Ref<any> = ref({
-      title: t(route.meta.title as string),
-      titleTemplate: `%s | ${t('name')}`,
-      meta: [
-        {name: 'description', content: ''},
-        {name: 'keywords', content: t(route.meta.keywords as string)},
-        {property: 'og:type', content: 'website'},
-        {property: 'og:title', content: `%s | ${t('name')}`},
-        {property: 'og:description', content: ''},
-        {property: 'og:site_name', content: t('name')},
-      ]
-    })
+    headDescription = computed(() => {
+      if (!id.value || !Ultimates[id.value]) return '';
+      const headData = i18nReadName.ultimate(id.value);
+      return (headData.description() as string) || '';
+    });
 
-useHead(head)
+useHead({
+  title: headTitle,
+  titleTemplate: `%s | ${t('name')}`,
+  meta: computed(() => {
+    if (!id.value || !Ultimates[id.value]) return [];
+    const headData = i18nReadName.ultimate(id.value);
+    const headName = headData.name();
+    const desc = headData.description() || '';
+    const imageUrl = cdnStore.currentService.image.url({
+      id: id.value,
+      category: 'ultimates'
+    });
+
+    return [
+      {name: 'description', content: desc},
+      {
+        name: 'keywords', content: t(route.meta?.keywords as string || '', {
+          keywords: Object.keys(messages.value).map(lang => {
+            return headData.keysName.map((key: any) => i18nReadName.getValue(messages.value[lang], key)).filter((i: any) => i != null)
+          }).concat([id.value]) + `,${t('home.meta.keywords')}`
+        })
+      },
+      {property: 'og:type', content: 'website'},
+      {property: 'og:title', content: `${headName} | ${t('name')}`},
+      {property: 'og:description', content: desc},
+      {property: 'og:image', content: imageUrl},
+      {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
+      {property: 'og:site_name', content: t('name')},
+      {name: 'twitter:card', content: 'summary_large_image'},
+      {name: 'twitter:title', content: `${headName} | ${t('name')}`},
+      {name: 'twitter:description', content: desc},
+      {name: 'twitter:image', content: imageUrl}
+    ];
+  })
+})
 
 onMounted(() => {
-  const id = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
-
-  if (!id) {
-    router.push('/')
-    return;
+  if (typeof window !== 'undefined' && id.value) {
+    onUltimateHistory(id.value)
+    onCodexHistory(id.value)
   }
-
-  ultimateDetailPageData.value.loading = true;
-
-  const headData = i18nReadName.ultimate(id as string),
-      headName = headData.name(),
-      headDescription = headData.description()
-
-  head.value.title = headName ? `${headName} - ${t(route.meta.title as string)}` : t(route.meta.title as string);
-  head.value.titleTemplate = `%s | ${t('name')}`;
-
-  const imageUrl = cdnStore.currentService.image.url({
-    id: id as string,
-    category: 'ultimates'
-  });
-
-  head.value.meta = [
-    {name: 'description', content: headDescription},
-    {
-      name: 'keywords', content: t(route.meta.keywords as string, {
-        keywords: Object.keys(messages.value).map(lang => {
-          return headData.keysName.map((key: any) => i18nReadName.getValue(messages.value[lang], key)).filter((i: any) => i != null)
-        }).concat([id as string]) + `,${t('home.meta.keywords')}`
-      })
-    },
-    {property: 'og:type', content: 'website'},
-    {property: 'og:title', content: `${headName} | ${t('name')}`},
-    {property: 'og:description', content: headDescription},
-    {property: 'og:image', content: imageUrl},
-    {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
-    {property: 'og:site_name', content: t('name')},
-    {name: 'twitter:card', content: 'summary_large_image'},
-    {name: 'twitter:title', content: `${headName} | ${t('name')}`},
-    {name: 'twitter:description', content: headDescription},
-    {name: 'twitter:image', content: imageUrl}
-  ]
-
-  onUltimateHistory(id)
-  onCodexHistory(id)
-
-  ultimateDetailPageData.value.loading = false;
 })
 
 const onCodexHistory = (id: string) => {

@@ -540,6 +540,7 @@ watch(
 watch(
     () => props.followMouse,
     (newFollowMouse: boolean): void => {
+      if (typeof window === 'undefined') return;
       if (newFollowMouse) {
         window.addEventListener('mousemove', handleMouseMove, {passive: true});
       } else {
@@ -564,12 +565,14 @@ onUnmounted((): void => {
     cleanupFunctionRef.value = null;
   }
 
-  if (mouseThrottleId) {
+  if (mouseThrottleId && typeof window !== 'undefined') {
     cancelAnimationFrame(mouseThrottleId);
     mouseThrottleId = null;
   }
 
-  window.removeEventListener('mousemove', handleMouseMove);
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('mousemove', handleMouseMove);
+  }
 });
 </script>
 

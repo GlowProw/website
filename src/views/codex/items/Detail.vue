@@ -58,12 +58,13 @@ const
     // 物品数据
     items: any = Items
 
-let itemDetailData: Ref<any> = ref(null),
+const
+    id = computed(() => (route.params.id as string) || ''),
+    itemDetailData = computed(() => (id.value ? items[id.value] : null)),
     isCollect = ref(false),
 
     getCollectStatus = computed(() => {
-      if (!itemDetailData.value && !itemDetailData.value.id) return false;
-      isCollect.value = !isCollect.value;
+      if (!itemDetailData.value || !itemDetailData.value.id) return false;
       return !!storageCollect.get(itemDetailData.value.id, StorageCollectType.Item).data
     }),
     requiredRank = computed(() => {
@@ -80,82 +81,73 @@ let itemDetailData: Ref<any> = ref(null),
 
     rarityColorConfig = rarity.color,
 
-    // 页面元信息 (meta)
-    head: Ref<any> = ref({
-      title: t(route.meta.title as string),
-      titleTemplate: `%s | ${t('name')}`,
-      meta: [
+    headTitle = computed(() => {
+      if (!id.value || !items[id.value]) return t(route.meta?.title as string || 'codex.item.title');
+      const headData = i18nReadName.item(id.value);
+      const headName = headData.name() as string;
+      return headName ? `${headName} - ${t(route.meta?.title as string || 'codex.item.title')}` : t(route.meta?.title as string || 'codex.item.title');
+    }),
+
+    headDescription = computed(() => {
+      if (!id.value || !items[id.value]) return '';
+      const headData = i18nReadName.item(id.value);
+      return (headData.description() as string) || '';
+    });
+
+useHead({
+  title: headTitle,
+  titleTemplate: `%s | ${t('name')}`,
+  meta: computed(() => {
+    if (!id.value || !items[id.value]) {
+      return [
         {name: 'description', content: ''},
-        {name: 'keywords', content: t(route.meta.keywords as string)},
+        {name: 'keywords', content: t(route.meta?.keywords as string || '')},
         {property: 'og:type', content: 'website'},
         {property: 'og:title', content: `%s | ${t('name')}`},
         {property: 'og:description', content: ''},
         {property: 'og:site_name', content: t('name')},
-      ]
-    })
+      ];
+    }
+    const headData = i18nReadName.item(id.value);
+    const headName = headData.name() as string;
+    const desc = (headData.description() as string) || '';
+    const imageUrl = cdnStore.currentService.image.url({
+      id: id.value,
+      category: itemDetailData.value?.type || 'AUTO_items'
+    });
 
-useHead(head)
-
-watch(() => route.path, (value) => {
-  onReady()
+    return [
+      {name: 'description', content: desc},
+      {
+        name: 'keywords', content: t(route.meta?.keywords as string || '', {
+          keywords: Object.keys(messages.value).map(lang => {
+            return headData.keysName.map((key: any) => i18nReadName.getValue(messages.value[lang], key)).filter((i: any) => i != null)
+          }).concat([id.value]) + `,${t('home.meta.keywords')}`
+        })
+      },
+      {property: 'og:type', content: 'website'},
+      {property: 'og:title', content: `${headName} | ${t('name')}`},
+      {property: 'og:description', content: desc},
+      {property: 'og:image', content: imageUrl},
+      {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
+      {property: 'og:site_name', content: t('name')},
+      {name: 'twitter:card', content: 'summary_large_image'},
+      {name: 'twitter:title', content: `${headName} | ${t('name')}`},
+      {name: 'twitter:description', content: desc},
+      {name: 'twitter:image', content: imageUrl}
+    ];
+  })
 })
 
 onMounted(() => {
-  onReady()
+  if (typeof window !== 'undefined' && id.value) {
+    if (!items[id.value]) {
+      router.push({name: 'NotFound'});
+      return;
+    }
+    onCodexHistory();
+  }
 })
-
-const onReady = () => {
-  const {id} = route.params;
-
-  if (!id) {
-    router.push('/')
-    return;
-  }
-
-  if (!items[id as string]) {
-    setInterval(() => router.push({name: 'NotFound'}), 1000)
-    return;
-  }
-
-  itemDetailData.value = items[id as string];
-
-  const headData = i18nReadName.item(id as string),
-      headName = headData.name() as string,
-      headDescription = headData.description() as string
-
-  head.value.title = headName ? `${headName} - ${t(route.meta.title as string)}` : t(route.meta.title as string);
-  head.value.titleTemplate = `%s | ${t('name')}`;
-
-  const imageUrl = cdnStore.currentService.image.url({
-    id: id as string,
-    // 优先传 item 的具体类型，后端可直接命中精确路径（1次请求）
-    // 兜底使用 'items'（后端会并行竞速 13 条路径）
-    category: itemDetailData.value?.type || 'AUTO_items'
-  });
-
-  head.value.meta = [
-    {name: 'description', content: headDescription},
-    {
-      name: 'keywords', content: t(route.meta.keywords as string, {
-        keywords: Object.keys(messages.value).map(lang => {
-          return headData.keysName.map((key: any) => i18nReadName.getValue(messages.value[lang], key)).filter((i: any) => i != null)
-        }).concat([id as string]) + `,${t('home.meta.keywords')}`
-      })
-    },
-    {property: 'og:type', content: 'website'},
-    {property: 'og:title', content: `${headName} | ${t('name')}`},
-    {property: 'og:description', content: headDescription},
-    {property: 'og:image', content: imageUrl},
-    {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
-    {property: 'og:site_name', content: t('name')},
-    {name: 'twitter:card', content: 'summary_large_image'},
-    {name: 'twitter:title', content: `${headName} | ${t('name')}`},
-    {name: 'twitter:description', content: headDescription},
-    {name: 'twitter:image', content: imageUrl}
-  ]
-
-  onCodexHistory()
-}
 
 const onCodexHistory = () => {
   const {id} = route.params;

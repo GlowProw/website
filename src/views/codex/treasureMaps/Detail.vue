@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import {useI18n} from "vue-i18n";
 import {computed, onMounted, Ref, ref, watch} from "vue";
 import {TreasureMap, TreasureMaps} from "glow-prow-data";
@@ -34,105 +33,123 @@ import VerticalScrollList from "@/components/VerticalScrollList.vue";
 import {useAppStore} from "~/stores/appStore";
 
 const {t, te, messages} = useI18n(),
+    router = useRouter(),
     route = useRoute(),
     appStore = useAppStore(),
     i18nReadName = useI18nReadName(),
     authStore = useAuthStore(),
     cdnStore = useCDNAssetsServiceStore(),
-    maps = TreasureMaps,
+    maps = TreasureMaps as Record<string, any>,
+    rarityColorConfig = rarity.color;
 
-    // 页面元信息 (meta)
-    head: Ref<any> = ref({
-      title: t(route.meta.title as string),
-      titleTemplate: `%s | ${t('name')}`,
-      meta: [
-        {name: 'description', content: ''},
-        {name: 'keywords', content: t(route.meta.keywords as string)},
-        {property: 'og:type', content: 'website'},
-        {property: 'og:title', content: `%s | ${t('name')}`},
-        {property: 'og:description', content: ''},
-        {property: 'og:site_name', content: t('name')},
-      ]
-    })
+const id = computed(() => {
+  const paramId = route.params.id;
+  return Array.isArray(paramId) ? paramId[0] : paramId;
+});
 
-let mapDetailData: Ref<any> = ref({}),
-    rarityColorConfig = rarity.color,
-    isTreasureMapDescription = computed(() => te(`snb.treasureMaps.${mapDetailData.value.id}.description`)),
-    isTreasureMapTypeDescription = computed(() => te(`codex.treasureMap.descriptions.${mapDetailData.value.category}`))
+const mapDetailData = computed(() => {
+  if (!id.value) return {};
+  return maps[id.value] || {};
+});
 
-useHead(head)
+const isTreasureMapDescription = computed(() => {
+  if (!mapDetailData.value?.id) return false;
+  return te(`snb.treasureMaps.${mapDetailData.value.id}.description`);
+});
 
-watch(() => route.params, (value) => {
-  if (value)
-    getData()
-})
+const isTreasureMapTypeDescription = computed(() => {
+  if (!mapDetailData.value?.category) return false;
+  return te(`codex.treasureMap.descriptions.${mapDetailData.value.category}`);
+});
 
+const headData = computed(() => {
+  if (!id.value) return null;
+  return i18nReadName.treasureMap(id.value);
+});
 
-onMounted(() => {
-  const {id} = route.params;
+const headName = computed(() => {
+  if (!headData.value) return '';
+  return headData.value.name(mapDetailData.value?.category) || '';
+});
 
-  getData()
+const headDescription = computed(() => {
+  if (!headData.value) return '';
+  return headData.value.description() || '';
+});
 
-  const headData = i18nReadName.treasureMap(id as string),
-      headName = headData.name(mapDetailData.value.category),
-      headDescription = headData.description()
-
-  head.value.title = headName ? `${headName} - ${t(route.meta.title as string)}` : t(route.meta.title as string);
-  head.value.titleTemplate = `%s | ${t('name')}`;
-
-  const mapCat = mapDetailData.value?.category ? (mapDetailData.value.category === 'legend' ? 'treasureMaps/legendary' : `treasureMaps/${mapDetailData.value.category}`) : 'AUTO_treasureMaps';
-  const imageUrl = cdnStore.currentService.image.url({
-    id: id as string,
+const imageUrl = computed(() => {
+  if (!id.value) return '';
+  const mapCat = mapDetailData.value?.category
+      ? (mapDetailData.value.category === 'legend' ? 'treasureMaps/legendary' : `treasureMaps/${mapDetailData.value.category}`)
+      : 'AUTO_treasureMaps';
+  return cdnStore.currentService.image.url({
+    id: id.value,
     category: mapCat
   });
+});
 
-  head.value.meta = [
-    {name: 'description', content: headDescription},
-    {
-      name: 'keywords', content: t(route.meta.keywords as string, {
-        keywords: Object.keys(messages.value).map(lang => {
-          return headData.keysName.map((key: any) => i18nReadName.getValue(messages.value[lang], key)).filter((i: any) => i != null)
-        }).concat([id as string]) + `,${t('home.meta.keywords')}`
-      })
-    },
-    {property: 'og:type', content: 'website'},
-    {property: 'og:title', content: `${headName} | ${t('name')}`},
-    {property: 'og:description', content: headDescription},
-    {property: 'og:image', content: imageUrl},
-    {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
-    {property: 'og:site_name', content: t('name')},
-    {name: 'twitter:card', content: 'summary_large_image'},
-    {name: 'twitter:title', content: `${headName} | ${t('name')}`},
-    {name: 'twitter:description', content: headDescription},
-    {name: 'twitter:image', content: imageUrl}
-  ]
+useHead(() => {
+  const currentName = headName.value;
+  const currentDesc = headDescription.value;
+  const currentId = id.value || '';
+  const currentImg = imageUrl.value;
 
-  onCodexHistory()
-})
+  const titleText = currentName
+      ? `${currentName} - ${t(route.meta.title as string || 'codex.treasureMap.title')}`
+      : t(route.meta.title as string || 'codex.treasureMap.title');
 
-const getData = () => {
-  const {id} = route.params
+  return {
+    title: titleText,
+    titleTemplate: `%s | ${t('name')}`,
+    meta: [
+      {name: 'description', content: currentDesc},
+      {
+        name: 'keywords',
+        content: t(route.meta.keywords as string || 'codex.treasureMap.meta.keywords', {
+          keywords: Object.keys(messages.value).map(lang => {
+            return headData.value?.keysName?.map((key: any) => i18nReadName.getValue(messages.value[lang], key)).filter((i: any) => i != null) || [];
+          }).concat([currentId]) + `,${t('home.meta.keywords')}`
+        })
+      },
+      {property: 'og:type', content: 'website'},
+      {property: 'og:title', content: `${currentName || titleText} | ${t('name')}`},
+      {property: 'og:description', content: currentDesc},
+      {property: 'og:image', content: currentImg},
+      {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
+      {property: 'og:site_name', content: t('name')},
+      {name: 'twitter:card', content: 'summary_large_image'},
+      {name: 'twitter:title', content: `${currentName || titleText} | ${t('name')}`},
+      {name: 'twitter:description', content: currentDesc},
+      {name: 'twitter:image', content: currentImg}
+    ]
+  };
+});
 
-  if (id)
-    mapDetailData.value = maps[id as string]
-}
+onMounted(() => {
+  if (!id.value) {
+    router.push('/codex/treasureMaps');
+    return;
+  }
+  if (!maps[id.value]) {
+    router.push({name: 'NotFound'});
+    return;
+  }
+  onCodexHistory();
+});
 
 const onCodexHistory = () => {
-  const {id} = route.params;
-
-  let name = 'codex.history'
-
-  const d = storage.session.get(name)
-
+  if (typeof window === 'undefined' || !id.value) return;
+  let name = 'codex.history';
+  const d = storage.session.get(name);
   storage.session.set(name, {
     ...d?.data?.value || {},
-    [id as string]: {
-      id,
+    [id.value]: {
+      id: id.value,
       category: 'treasureMap',
       time: new Date().getTime()
     }
-  })
-}
+  });
+};
 </script>
 
 <template>

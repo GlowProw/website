@@ -12,6 +12,33 @@
   <meta name="author" content="Glow Prow" />
   <meta name="baidu-site-verification" content="codeva-UiqBX6cwQz" />
   <meta name="google-adsense-account" content="ca-pub-6625226616103631" />
+  <link rel="stylesheet" href="/assets/vuetify-theme.css" id="vuetify-theme-stylesheet" />
+  <script>
+    (function() {
+      var supported = ['zh-CN', 'zh-TW', 'en-US'];
+      var path = window.location.pathname;
+      var hasLang = supported.some(function(l) { return path === '/' + l || path.indexOf('/' + l + '/') === 0; });
+      if (!hasLang && (path === '/' || path === '')) {
+        var rawStored = localStorage.getItem('snb.production:lang') || localStorage.getItem('snb.development:lang') || localStorage.getItem('lang');
+        var lang = 'zh-CN';
+        if (rawStored) {
+          try {
+            var p = JSON.parse(rawStored);
+            var val = (p && p.data && p.data.value) ? p.data.value : (p && p.value ? p.value : p);
+            if (typeof val === 'object' && val !== null && val.value) val = val.value;
+            if (typeof val === 'string' && supported.includes(val)) lang = val;
+          } catch(e) {}
+        } else {
+          var nav = navigator.language || navigator.userLanguage || 'zh-CN';
+          if (nav.indexOf('TW') !== -1 || nav.indexOf('HK') !== -1 || nav.indexOf('Hant') !== -1) lang = 'zh-TW';
+          else if (nav.indexOf('zh') !== -1) lang = 'zh-CN';
+          else lang = 'en-US';
+        }
+        if (!supported.includes(lang)) lang = 'zh-CN';
+        window.location.replace('/' + lang + (path === '/' ? '' : path));
+      }
+    })();
+  </script>
 
   <title>Glow Prow | 闪耀船首 - 碧海黑帆综合数据与地图工具</title>
   <link rel="canonical" href="https://glow-prow.top/" />

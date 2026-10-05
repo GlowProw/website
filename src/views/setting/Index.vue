@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import {onMounted, Ref, ref, watch} from "vue";
+import {Ref, ref, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {useDisplay} from "vuetify/framework";
 import {useI18n} from "vue-i18n";
@@ -55,23 +55,29 @@ let tabs: Ref<any[]> = ref([
         value: 'PortalSettingAbout',
         icon: 'mdi-information'
       },
-      {
-       name: t('setting.notification.title'),
-       value: 'notification',
-       icon: 'mdi-bell-badge'
-      },
-    ]),
-    tab = ref(tabs.value[0].value)
+    ])
 
-watch(() => tab.value, (value) => {
-  router.push({name: value})
+const getActiveTab = () => {
+  const currentName = route.name as string
+  const match = tabs.value.find(i => i.value === currentName)
+  return match ? match.value : tabs.value[0].value
+}
+
+const tab = ref(getActiveTab())
+
+// 监听路由变化，同步高亮选中的 Tab
+watch(() => route.name, (newName) => {
+  if (newName && tabs.value.some(i => i.value === newName)) {
+    tab.value = newName as string
+  }
 })
 
-onMounted(() => {
-  const currentRouterName = tabs.value.find(i => i.value == router.resolve(route).name)
-  if (currentRouterName)
-    tab.value = currentRouterName.value
-})
+// 用户点击 Tab 时触发路由切换，显式传递 route.params（保留 lang 参数）
+const onTabChange = (targetRouteName: any) => {
+  if (targetRouteName && targetRouteName !== route.name) {
+    router.push({ name: targetRouteName, params: route.params })
+  }
+}
 </script>
 
 <template>
@@ -107,6 +113,7 @@ onMounted(() => {
             border
             hide-slider
             v-model="tab"
+            @update:model-value="onTabChange"
             :class="{'mb-10 tabs-box-mobile': mobile, 'tabs-box-desktop': !mobile}"
             :fixed="mobile"
             :direction="!mobile ? 'vertical' : 'horizontal'">

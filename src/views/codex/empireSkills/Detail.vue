@@ -28,72 +28,74 @@ const {t, messages} = useI18n(),
     authStore = useAuthStore(),
     cdnStore = useCDNAssetsServiceStore();
 
-let empireSkillDetailPageData = ref({
-      loading: false,
+const
+    id = computed(() => {
+      const raw = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
+      return (raw as string) || '';
     }),
-    empireSkillDetailData: Ref<any> = ref(null),
-    head: Ref<any> = ref({
-      title: t(route.meta.title as string || 'codex.empireSkill.title'),
-      titleTemplate: `%s | ${t('name')}`,
-      meta: [
-        {name: 'description', content: ''},
-        {name: 'keywords', content: t(route.meta.keywords as string || 'codex.empireSkill.meta.keywords')},
-        {property: 'og:type', content: 'website'},
-        {property: 'og:title', content: `%s | ${t('name')}`},
-        {property: 'og:description', content: ''},
-        {property: 'og:site_name', content: t('name')},
-      ]
+    empireSkillDetailData = computed(() => (id.value && EmpireSkills[id.value] ? EmpireSkills[id.value] : null)),
+    empireSkillDetailPageData = computed(() => ({
+      loading: false
+    })),
+
+    headTitle = computed(() => {
+      if (!id.value || !EmpireSkills[id.value]) return t(route.meta?.title as string || 'codex.empireSkill.title');
+      const headData = i18nReadName.empireSkill(id.value);
+      const headName = headData.name();
+      return headName ? `${headName} - ${t(route.meta?.title as string || 'codex.empireSkill.title')}` : t(route.meta?.title as string || 'codex.empireSkill.title');
+    }),
+
+    headDescription = computed(() => {
+      if (!id.value || !EmpireSkills[id.value]) return '';
+      const headData = i18nReadName.empireSkill(id.value);
+      return (headData.description() as string) || '';
     });
 
-useHead(head);
+useHead({
+  title: headTitle,
+  titleTemplate: `%s | ${t('name')}`,
+  meta: computed(() => {
+    if (!id.value || !EmpireSkills[id.value]) return [];
+    const headData = i18nReadName.empireSkill(id.value);
+    const headName = headData.name();
+    const desc = headData.description() || '';
+    const imageUrl = cdnStore.currentService.image.url({
+      id: id.value,
+      category: 'empireSkills'
+    });
+
+    return [
+      {name: 'description', content: desc},
+      {
+        name: 'keywords', content: t(route.meta?.keywords as string || '', {
+          keywords: Object.keys(messages.value).map(lang => {
+            return headData.keysName.map((key: any) => i18nReadName.getValue(messages.value[lang], key)).filter((i: any) => i != null)
+          }).concat([id.value]) + `,${t('home.meta.keywords')}`
+        })
+      },
+      {property: 'og:type', content: 'website'},
+      {property: 'og:title', content: `${headName} | ${t('name')}`},
+      {property: 'og:description', content: desc},
+      {property: 'og:image', content: imageUrl},
+      {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
+      {property: 'og:site_name', content: t('name')},
+      {name: 'twitter:card', content: 'summary_large_image'},
+      {name: 'twitter:title', content: `${headName} | ${t('name')}`},
+      {name: 'twitter:description', content: desc},
+      {name: 'twitter:image', content: imageUrl}
+    ];
+  })
+})
 
 onMounted(() => {
-  const id = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
-
-  if (!id || id === 'root' || !EmpireSkills[id as string]) {
-    router.push('/codex/empireSkills');
-    return;
+  if (typeof window !== 'undefined' && id.value) {
+    if (id.value === 'root' || !EmpireSkills[id.value]) {
+      router.push('/codex/empireSkills');
+      return;
+    }
+    onCodexHistory(id.value);
   }
-
-  empireSkillDetailPageData.value.loading = true;
-  empireSkillDetailData.value = EmpireSkills[id as string];
-
-  const headData = i18nReadName.empireSkill(id as string),
-      headName = headData.name(),
-      headDescription = headData.description();
-
-  head.value.title = headName ? `${headName} - ${t(route.meta.title as string)}` : t(route.meta.title as string);
-  head.value.titleTemplate = `%s | ${t('name')}`;
-
-  const imageUrl = cdnStore.currentService.image.url({
-    id: id as string,
-    category: 'empireSkills'
-  });
-
-  head.value.meta = [
-    {name: 'description', content: headDescription},
-    {
-      name: 'keywords', content: t(route.meta.keywords as string, {
-        keywords: Object.keys(messages.value).map(lang => {
-          return headData.keysName.map((key: any) => i18nReadName.getValue(messages.value[lang], key)).filter((i: any) => i != null)
-        }).concat([id as string]) + `,${t('home.meta.keywords')}`
-      })
-    },
-    {property: 'og:type', content: 'website'},
-    {property: 'og:title', content: `${headName} | ${t('name')}`},
-    {property: 'og:description', content: headDescription},
-    {property: 'og:image', content: imageUrl},
-    {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
-    {property: 'og:site_name', content: t('name')},
-    {name: 'twitter:card', content: 'summary_large_image'},
-    {name: 'twitter:title', content: `${headName} | ${t('name')}`},
-    {name: 'twitter:description', content: headDescription},
-    {name: 'twitter:image', content: imageUrl}
-  ];
-
-  onCodexHistory(id as string);
-  empireSkillDetailPageData.value.loading = false;
-});
+})
 
 const realRequisites = computed(() => {
   return (empireSkillDetailData.value?.requisite || []).filter((req: string) => req && req !== 'root');

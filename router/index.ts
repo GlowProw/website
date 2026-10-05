@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, createMemoryHistory, RouteRecordRaw } from 'vue-router';
+import { createRouter, createWebHistory, createMemoryHistory, RouteRecordRaw, RouterView } from 'vue-router';
 import i18n from "@/i18n";
 import { Seasons } from "glow-prow-data";
 import { getCurrentSeasonId } from "@/assets/sripts";
@@ -145,8 +145,9 @@ import WidgetInfamyPage from '@/widgets/infamy/Index.vue';
 import { useAuthStore } from "@/../stores/userAccountStore";
 import { useAssetsStore } from "@/../stores/assetsStore";
 import { useHead } from "@unhead/vue";
-import { apis } from "@/assets/sripts";
+import { apis, storage } from "@/assets/sripts";
 import { useCDNAssetsServiceStore } from "~/stores/cdnAssetsStore";
+import { normalizeLang } from "@/config/languages";
 
 const isLoginBeforeEnter = function (to: any, from: any, next: any) {
     const authStore = useAuthStore()
@@ -190,7 +191,7 @@ const getLatestSeasonId = (): string => {
 
 const staticFilePaths = ['/robots.txt', '/sitemap.xml', '/ads.txt'];
 
-const routes: Readonly<RouteRecordRaw[]> = [
+const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
     {
         path: '/',
         name: 'BasePortal',
@@ -201,15 +202,15 @@ const routes: Readonly<RouteRecordRaw[]> = [
         },
         children: [
             {
-                path: '/',
+                path: '',
                 name: 'PortalHome',
                 component: PortalPage
             },
             {
-                path: '/account',
+                path: 'account',
                 name: 'AccountHome',
                 component: AccountPage,
-                redirect: '/account/information',
+                redirect: to => ({ name: 'AccountInformation', params: to.params }),
                 meta: {
                     title: 'account.title',
                     keywords: 'account.meta.keywords'
@@ -264,12 +265,12 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 ]
             },
             {
-                path: '/space/:id',
+                path: 'space/:id',
                 name: 'AccountSpace',
                 component: AccountSpacePage,
             },
             {
-                path: '/account/signin',
+                path: 'account/signin',
                 name: 'signin',
                 meta: {
                     title: 'signin.title',
@@ -278,7 +279,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 component: SigninPage
             },
             {
-                path: '/account/signup',
+                path: 'account/signup',
                 name: 'signup',
                 meta: {
                     title: 'signup.title',
@@ -287,7 +288,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 component: SignupPage
             },
             {
-                path: '/account/activate',
+                path: 'account/activate',
                 name: 'activate',
                 meta: {
                     title: 'activate.title',
@@ -296,7 +297,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 component: ActivatePage
             },
             {
-                path: '/account/forgot-password',
+                path: 'account/forgot-password',
                 name: 'forgotPassword',
                 meta: {
                     title: 'forgotPassword.title'
@@ -304,7 +305,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 component: ForgotPasswordPage
             },
             {
-                path: '/account/reset-password',
+                path: 'account/reset-password',
                 name: 'resetPassword',
                 meta: {
                     title: 'resetPassword.title'
@@ -312,7 +313,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 component: ResetPasswordPage
             },
             {
-                path: '/team',
+                path: 'team',
                 name: 'Team',
                 meta: {
                     title: 'teamUp.title',
@@ -322,7 +323,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 beforeEnter: initItemAssets,
             },
             {
-                path: '/search',
+                path: 'search',
                 name: 'Search',
                 meta: {
                     title: 'search.title',
@@ -331,11 +332,11 @@ const routes: Readonly<RouteRecordRaw[]> = [
                 component: SearchPage,
             },
             {
-                path: '/setting',
+                path: 'setting',
                 name: 'PortalSetting',
                 component: SettingPage,
                 beforeEnter: initCDNAssets,
-                redirect: '/setting/routine',
+                redirect: to => ({ name: 'PortalSettingRoutine', params: to.params }),
                 children: [
                     {
                         path: 'routine',
@@ -360,7 +361,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
                     {
                         path: 'pwa',
                         name: 'PortalSettingPwa',
-                        redirect: '/setting/advanced',
+                        redirect: to => ({ name: 'PortalSettingAdvanced', params: to.params }),
                     },
                     {
                         path: 'wishlist',
@@ -396,7 +397,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
             title: 'smugglersReport.title',
             keywords: 'smugglersReport.meta.keywords'
         },
-        redirect: '/smugglers-report/view',
+        redirect: to => ({ name: 'SmugglersReportDetail', params: to.params }),
         component: SmugglersReportPage,
         beforeEnter: initItemAssets,
         children: [
@@ -414,15 +415,13 @@ const routes: Readonly<RouteRecordRaw[]> = [
             title: 'stateOfWar.title',
             keywords: 'stateOfWar.meta.keywords'
         },
-        redirect: to => {
-            return `/stateOfWar/${getCurrentSeasonId()}/view`;
-        },
+        redirect: to => ({ name: 'StateOfWarSeasonView', params: { ...to.params, seasonId: getCurrentSeasonId() } }),
         component: StateOfWarPage,
         children: [
             {
                 path: 'view',
                 name: 'StateOfWarDefaultView',
-                redirect: to => `/stateOfWar/${getCurrentSeasonId()}/view`
+                redirect: to => ({ name: 'StateOfWarSeasonView', params: { ...to.params, seasonId: getCurrentSeasonId() } }),
             },
             {
                 path: ':seasonId/view',
@@ -436,7 +435,6 @@ const routes: Readonly<RouteRecordRaw[]> = [
         name: 'Codex',
         component: CodexPage,
         beforeEnter: initItemAssets,
-        redirect: '/codex',
         children: [
             {
                 path: '',
@@ -675,7 +673,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
             },
             {
                 path: 'empireSkills/:id',
-                redirect: to => `/codex/empireSkill/${to.params.id}`,
+                redirect: to => ({ name: 'EmpireSkillDetail', params: to.params }),
             },
             {
                 path: 'masterys',
@@ -697,23 +695,23 @@ const routes: Readonly<RouteRecordRaw[]> = [
             },
             {
                 path: 'masterys/:id',
-                redirect: to => `/codex/mastery/${to.params.id}`,
+                redirect: to => ({ name: 'MasteryDetail', params: to.params }),
             },
             {
                 path: 'quest',
-                redirect: '/quest'
+                redirect: to => ({ name: 'Quests', params: to.params })
             },
             {
                 path: 'quests',
-                redirect: '/quest'
+                redirect: to => ({ name: 'Quests', params: to.params })
             },
             {
                 path: 'quest/:id',
-                redirect: to => `/quest/${to.params.id}`
+                redirect: to => ({ name: 'QuestDetail', params: to.params })
             },
             {
                 path: 'quests/:id',
-                redirect: to => `/quest/${to.params.id}`,
+                redirect: to => ({ name: 'QuestDetail', params: to.params }),
             },
         ]
     },
@@ -722,7 +720,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
         name: 'Quest',
         component: QuestPage,
         beforeEnter: initItemAssets,
-        redirect: '/quest',
+        redirect: to => ({ name: 'Quests', params: to.params }),
         children: [
             {
                 path: '',
@@ -746,11 +744,11 @@ const routes: Readonly<RouteRecordRaw[]> = [
     },
     {
         path: '/quests',
-        redirect: '/quest'
+        redirect: to => ({ name: 'Quests', params: to.params })
     },
     {
         path: '/quests/:id',
-        redirect: to => `/quest/${to.params.id}`
+        redirect: to => ({ name: 'QuestDetail', params: to.params })
     },
     {
         path: '/ranking-designed-items',
@@ -761,7 +759,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
             keywords: 'rankingDesignedItems.keywords'
         },
         beforeEnter: initItemAssets,
-        redirect: '/ranking-designed-items/browse',
+        redirect: to => ({ name: 'RankingDesignedItemsBrowse', params: to.params }),
         children: [
             {
                 path: 'browse',
@@ -793,9 +791,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
             keywords: 'calendar.meta.keywords'
         },
         component: CalendarPage,
-        redirect: to => {
-            return `/calendar/${getLatestSeasonId()}/`;
-        },
+        redirect: to => ({ name: 'CalendarCurrentSeason', params: { ...to.params, seasonId: getLatestSeasonId() } }),
         children: [
             {
                 path: 'history',
@@ -823,7 +819,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
         name: 'Assembly',
         component: AssemblePage,
         beforeEnter: initItemAssets,
-        redirect: '/assembly/browse',
+        redirect: to => ({ name: 'AssemblyBrowse', params: to.params }),
         children: [
             {
                 path: 'workshop',
@@ -919,7 +915,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
     {
         path: '/map',
         name: 'Map',
-        redirect: '/map/view',
+        redirect: to => ({ name: 'mapView', params: to.params }),
         component: MapsPage,
         beforeEnter: initItemAssets,
         children: [
@@ -933,7 +929,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
     {
         path: '/apps',
         name: 'Apps',
-        redirect: '/apps/view',
+        redirect: to => ({ name: 'AppsView', params: to.params }),
         component: AppsPage,
         children: [
             {
@@ -951,7 +947,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
     {
         path: '/about',
         name: 'About',
-        redirect: '/setting/about'
+        redirect: to => ({ name: 'PortalSettingAbout', params: to.params })
     },
     {
         path: '/drop',
@@ -965,7 +961,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
     {
         path: '/reminder',
         name: 'Reminder',
-        redirect: '/reminder/view',
+        redirect: to => ({ name: 'ReminderView', params: to.params }),
         component: ReminderIndexPage,
         children: [
             {
@@ -1058,7 +1054,7 @@ const routes: Readonly<RouteRecordRaw[]> = [
             },
             {
                 path: 'empireSkills/:id',
-                redirect: to => `/widgets/empireSkill/${to.params.id}`,
+                redirect: to => ({ name: 'EmpireSkillWidget', params: to.params }),
             },
             {
                 path: 'stateOfWar',
@@ -1104,8 +1100,33 @@ const routes: Readonly<RouteRecordRaw[]> = [
         component: Test,
         beforeEnter: initItemAssets
     },
+];
 
-    // 404 路由
+export const SUPPORTED_LANGS = ['zh-CN', 'zh-TW', 'en-US'] as const;
+export type SupportedLang = typeof SUPPORTED_LANGS[number];
+
+function createLocalizedRoutes(rawRoutes: readonly RouteRecordRaw[]): RouteRecordRaw[] {
+    return rawRoutes.map(r => {
+        const langPath = r.path === '/'
+            ? '/:lang(zh-CN|zh-TW|en-US)'
+            : `/:lang(zh-CN|zh-TW|en-US)${r.path}`;
+        return {
+            ...r,
+            path: langPath,
+        };
+    });
+}
+
+const routes: Readonly<RouteRecordRaw[]> = [
+    // 1. 全局多语言专属路由 (/:lang/...)
+    ...createLocalizedRoutes(baseAppRoutes),
+    // 2. 根入口
+    {
+        path: '/',
+        name: 'RootEntry',
+        component: PortalPage,
+    },
+    // 3. 未带语言前缀或未匹配路由的兜底捕获（由 beforeEach 守卫自动补全语言前缀并重定向）
     {
         path: '/:pathMatch(.*)*',
         name: 'NotFound',
@@ -1147,19 +1168,74 @@ export const scrollBehavior = (to: any, from: any, savedPosition: any) => {
     })
 };
 
+export function setupRouterGuards(r: any) {
+    if (r && typeof r.resolve === 'function' && !r.__hasCustomResolve) {
+        const origResolve = r.resolve.bind(r);
+        r.resolve = (to: any, currentLocation: any) => {
+            let normalizedTo = to;
+            if (typeof to === 'object' && to !== null) {
+                if ('name' in to && to.name && (!to.params || !to.params.lang)) {
+                    const currentLang = (currentLocation?.params?.lang as string)
+                        || (r.currentRoute?.value?.params?.lang as string)
+                        || (typeof i18n?.global?.locale?.value === 'string' ? i18n.global.locale.value : 'zh-CN');
+                    normalizedTo = {
+                        ...to,
+                        params: {
+                            lang: currentLang,
+                            ...to.params,
+                        }
+                    };
+                }
+            }
+            return origResolve(normalizedTo, currentLocation);
+        };
+        r.__hasCustomResolve = true;
+    }
+
+    r.beforeEach((to: any, from: any, next: any) => {
+        if (staticFilePaths.includes(to.path)) {
+            return false;
+        }
+
+        const segments = to.path.split('/').filter(Boolean);
+        const firstSegment = segments[0];
+
+        // 如果包含合法的语言前缀
+        if (firstSegment && (SUPPORTED_LANGS as readonly string[]).includes(firstSegment)) {
+            if (i18n.global.locale.value !== firstSegment) {
+                i18n.global.locale.value = firstSegment as any;
+            }
+            if (typeof window !== 'undefined') {
+                storage.local.set('lang', { value: firstSegment });
+            }
+            return next();
+        }
+
+        // 在客户端：如果访问不带语言前缀的路径（如 / 或 /codex/item/culverin1）
+        if (typeof window !== 'undefined') {
+            const rawStored = storage.local.get('lang')?.data?.value;
+            const stored = (typeof rawStored === 'object' && rawStored !== null && rawStored.value) ? rawStored.value : rawStored;
+            const targetLang = (typeof stored === 'string' && (SUPPORTED_LANGS as readonly string[]).includes(stored))
+                ? stored
+                : (normalizeLang(navigator.language));
+
+            const cleanPath = to.path === '/' ? '' : to.path;
+            return next({ path: `/${targetLang}${cleanPath}`, query: to.query, hash: to.hash, replace: true });
+        }
+
+        next();
+    });
+}
+
 const router = createRouter({
     history: typeof window !== 'undefined' ? createWebHistory() : createMemoryHistory(),
     routes,
     scrollBehavior,
 });
 
-router.beforeEach((to, from, next) => {
-    if (staticFilePaths.includes(to.path)) {
-        return false;
-    }
-    next();
-});
+setupRouterGuards(router);
 
 export { routes };
 export default router;
+
 

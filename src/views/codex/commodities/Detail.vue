@@ -44,7 +44,9 @@ const
     // 物品数据
     commodities: any = Commodities
 
-let commoditieDetailData: Ref<any> = ref(null),
+const
+    id = computed(() => (route.params.id as string) || ''),
+    commoditieDetailData = computed(() => (id.value ? commodities[id.value] : null)),
     bluePrint = computed(() => {
       let bluePrints = commoditieDetailData.value?.blueprint;
 
@@ -57,80 +59,64 @@ let commoditieDetailData: Ref<any> = ref(null),
       return Object.values(bluePrints[0]).map(i => t(`snb.locations.${i}`))
     }),
 
-    // 页面元信息 (meta)
-    head: Ref<any> = ref({
-      title: t(route.meta.title as string),
-      titleTemplate: `%s | ${t('name')}`,
-      meta: [
-        {name: 'description', content: ''},
-        {name: 'keywords', content: t(route.meta.keywords as string)},
-        {property: 'og:type', content: 'website'},
-        {property: 'og:title', content: `%s | ${t('name')}`},
-        {property: 'og:description', content: ''},
-        {property: 'og:site_name', content: t('name')},
-      ]
-    })
+    headTitle = computed(() => {
+      if (!id.value || !commodities[id.value]) return t(route.meta?.title as string || 'codex.commoditie.title');
+      const headData = i18nReadName.commoditie(id.value);
+      const headName = headData.name();
+      return headName ? `${headName} - ${t(route.meta?.title as string || 'codex.commoditie.title')}` : t(route.meta?.title as string || 'codex.commoditie.title');
+    }),
 
-useHead(head)
+    headDescription = computed(() => {
+      if (!id.value || !commodities[id.value]) return '';
+      const headData = i18nReadName.commoditie(id.value);
+      return (headData.description() as string) || '';
+    });
 
-watch(() => route.path, (value) => {
-  onReady()
+useHead({
+  title: headTitle,
+  titleTemplate: `%s | ${t('name')}`,
+  meta: computed(() => {
+    if (!id.value || !commodities[id.value]) return [];
+    const headData = i18nReadName.commoditie(id.value);
+    const headName = headData.name();
+    const desc = headData.description() || '';
+    const imageUrl = cdnStore.currentService.image.url({
+      id: id.value,
+      category: 'commodities'
+    });
+
+    return [
+      {name: 'description', content: desc},
+      {
+        name: 'keywords', content: t(route.meta?.keywords as string || '', {
+          keywords: Object.keys(messages.value).map(lang => {
+            return headData.keysName.map((key: any) => i18nReadName.getValue(messages.value[lang], key)).filter((i: any) => i != null)
+          }).concat([id.value]) + `,${t('home.meta.keywords')}`
+        })
+      },
+      {property: 'og:type', content: 'website'},
+      {property: 'og:title', content: `${headName} | ${t('name')}`},
+      {property: 'og:description', content: desc},
+      {property: 'og:image', content: imageUrl},
+      {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
+      {property: 'og:site_name', content: t('name')},
+      {name: 'twitter:card', content: 'summary_large_image'},
+      {name: 'twitter:title', content: `${headName} | ${t('name')}`},
+      {name: 'twitter:description', content: desc},
+      {name: 'twitter:image', content: imageUrl}
+    ];
+  })
 })
 
 onMounted(() => {
-  onReady()
+  if (typeof window !== 'undefined' && id.value) {
+    if (!commodities[id.value]) {
+      router.push({name: 'NotFound'});
+      return;
+    }
+    onCodexHistory();
+  }
 })
-
-const onReady = () => {
-  const {id} = route.params;
-
-  if (!id) {
-    router.push('/')
-    return;
-  }
-
-  if (!commodities[id as string]) {
-    setInterval(() => router.push({name: 'NotFound'}), 1000)
-    return;
-  }
-
-  commoditieDetailData.value = commodities[id as string];
-
-  const headData = i18nReadName.commoditie(id as string),
-      headName = headData.name(),
-      headDescription = headData.description()
-
-  head.value.title = headName ? `${headName} - ${t(route.meta.title as string)}` : t(route.meta.title as string);
-  head.value.titleTemplate = `%s | ${t('name')}`;
-
-  const imageUrl = cdnStore.currentService.image.url({
-    id: id as string,
-    category: 'commodities'
-  });
-
-  head.value.meta = [
-    {name: 'description', content: headDescription},
-    {
-      name: 'keywords', content: t(route.meta.keywords as string, {
-        keywords: Object.keys(messages.value).map(lang => {
-          return headData.keysName.map((key: any) => i18nReadName.getValue(messages.value[lang], key)).filter((i: any) => i != null)
-        }).concat([id as string]) + `,${t('home.meta.keywords')}`
-      })
-    },
-    {property: 'og:type', content: 'website'},
-    {property: 'og:title', content: `${headName} | ${t('name')}`},
-    {property: 'og:description', content: headDescription},
-    {property: 'og:image', content: imageUrl},
-    {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
-    {property: 'og:site_name', content: t('name')},
-    {name: 'twitter:card', content: 'summary_large_image'},
-    {name: 'twitter:title', content: `${headName} | ${t('name')}`},
-    {name: 'twitter:description', content: headDescription},
-    {name: 'twitter:image', content: imageUrl}
-  ]
-
-  onCodexHistory()
-}
 
 const onCodexHistory = () => {
   const {id} = route.params;

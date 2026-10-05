@@ -51,7 +51,7 @@ onMounted(() => {
           </div>
         </v-col>
         <v-col cols="12" md="auto">
-          <v-btn to="/setting/subscriptions">
+          <v-btn :to="{ name: 'PortalSettingSubscriptions', params: $route.params }">
             {{ t('subscription.subscribe') }}
           </v-btn>
         </v-col>

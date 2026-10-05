@@ -129,7 +129,7 @@
           <div class="mb-6">
             <v-row class="mb-0">
               <v-col>
-                <v-btn to="/setting/storage">{{ t('setting.routine.storageReportBtn') }}</v-btn>
+                <v-btn :to="{ name: 'PortalSettingStorage', params: $route.params }">{{ t('setting.routine.storageReportBtn') }}</v-btn>
               </v-col>
             </v-row>
 

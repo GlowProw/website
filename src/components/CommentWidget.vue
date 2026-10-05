@@ -36,6 +36,11 @@ let content = ref(''),
     captchaOneUpdateEvent = ref(false),
     captchaRef = ref(null)
 
+const isMounted = ref(false)
+onMounted(() => {
+  isMounted.value = true
+})
+
 const {targetElement, isVisible} = useIntersectionObserver({
   threshold: 0.05,
   rootMargin: '100px'
@@ -197,115 +202,117 @@ defineOptions({
 </script>
 
 <template>
-  <div class="comment-widget" ref="targetElement">
-    <v-timeline
-        density="compact"
-        side="end"
-        v-if="commentListData && commentListData.length > 0">
-      <v-timeline-item
-          dot-color="orange"
-          class="w-100"
-          min-width="100%"
-          size="large"
-          fill-dot
-          v-for="(i,index) in commentListData" :key="index">
-        <template v-slot:icon>
-          <v-icon icon="mdi-message"></v-icon>
-        </template>
+  <div v-if="isMounted" class="comment-widget-wrapper">
+    <div class="comment-widget" ref="targetElement">
+      <v-timeline
+          density="compact"
+          side="end"
+          v-if="commentListData && commentListData.length > 0">
+        <v-timeline-item
+            dot-color="orange"
+            class="w-100"
+            min-width="100%"
+            size="large"
+            fill-dot
+            v-for="(i,index) in commentListData" :key="index">
+          <template v-slot:icon>
+            <v-icon icon="mdi-message"></v-icon>
+          </template>
 
-        <template v-slot:default>
-          <div>
-            <v-row class="mb-1">
-              <v-col>
-                <b>{{ i.username }}</b>
-              </v-col>
-              <v-spacer></v-spacer>
-              <v-col cols="auto">
-                <template v-if="i.createdTime">
-                  <TimeView :time="i.createdTime">
-                  </TimeView>
-                </template>
-              </v-col>
-            </v-row>
-            <v-card border class="pl-3 pr-3 pb-2" :class="[i.isEdit ? 'pt-2' : '']">
-              <Textarea :model-value="i.content" :height="'80px'"
-                        :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
-                        :readonly="true" v-if="!i.isEdit"></Textarea>
-              <Textarea v-model="i.editContent" :height="'80px'"
-                        :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
-                        :readonly="false" v-else></Textarea>
-            </v-card>
+          <template v-slot:default>
+            <div>
+              <v-row class="mb-1">
+                <v-col>
+                  <b>{{ i.username }}</b>
+                </v-col>
+                <v-spacer></v-spacer>
+                <v-col cols="auto">
+                  <template v-if="i.createdTime">
+                    <TimeView :time="i.createdTime">
+                    </TimeView>
+                  </template>
+                </v-col>
+              </v-row>
+              <v-card border class="pl-3 pr-3 pb-2" :class="[i.isEdit ? 'pt-2' : '']">
+                <Textarea :model-value="i.content" :height="'80px'"
+                          :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
+                          :readonly="true" v-if="!i.isEdit"></Textarea>
+                <Textarea v-model="i.editContent" :height="'80px'"
+                          :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
+                          :readonly="false" v-else></Textarea>
+              </v-card>
 
-            <v-row class="mt-2">
-              <v-col class="d-flex ga-2">
-                <template v-if="authStore.isLogin && authStore.user.userId == i.userId">
-                  <template v-if="!i.isEdit">
-                    <v-btn @click="i.isEdit = true; i.editContent = i.content">
-                      {{ t('basic.button.edit') }}
+              <v-row class="mt-2">
+                <v-col class="d-flex ga-2">
+                  <template v-if="authStore.isLogin && authStore.user.userId == i.userId">
+                    <template v-if="!i.isEdit">
+                      <v-btn @click="i.isEdit = true; i.editContent = i.content">
+                        {{ t('basic.button.edit') }}
+                      </v-btn>
+                    </template>
+                    <template v-else>
+                      <v-btn :loading="i.loading" @click="onEditComment(i)">
+                        {{ t('basic.button.save') }}
+                      </v-btn>
+                      <v-btn @click="i.isEdit = false">
+                        {{ t('basic.button.cancel') }}
+                      </v-btn>
+                    </template>
+                  </template>
+                </v-col>
+                <v-spacer></v-spacer>
+                <v-col cols="auto">
+                  <template v-if="authStore.isLogin && authStore.user.userId == i.userId">
+                    <v-btn variant="text" prepend-icon="mdi-delete-outline" class="text-red"
+                           :loading="i.deleteLoading"
+                           :title="t('basic.delete')"
+                           @click="onDeleteComment(i)">
+                      {{ t('basic.button.delete') }}
                     </v-btn>
                   </template>
-                  <template v-else>
-                    <v-btn :loading="i.loading" @click="onEditComment(i)">
-                      {{ t('basic.button.save') }}
-                    </v-btn>
-                    <v-btn @click="i.isEdit = false">
-                      {{ t('basic.button.cancel') }}
-                    </v-btn>
-                  </template>
-                </template>
-              </v-col>
-              <v-spacer></v-spacer>
-              <v-col cols="auto">
-                <template v-if="authStore.isLogin && authStore.user.userId == i.userId">
-                  <v-btn variant="text" prepend-icon="mdi-delete-outline" class="text-red"
-                         :loading="i.deleteLoading"
-                         :title="t('basic.delete')"
-                         @click="onDeleteComment(i)">
-                    {{ t('basic.button.delete') }}
-                  </v-btn>
-                </template>
-              </v-col>
-            </v-row>
-          </div>
+                </v-col>
+              </v-row>
+            </div>
 
-        </template>
-      </v-timeline-item>
-    </v-timeline>
-    <template v-else>
-      <div class="pt-10 pb-10">
-        <EmptyView :title="t('comment.noComments')" :description="t('comment.beFirst')"></EmptyView>
-      </div>
-    </template>
+          </template>
+        </v-timeline-item>
+      </v-timeline>
+      <template v-else>
+        <div class="pt-10 pb-10">
+          <EmptyView :title="t('comment.noComments')" :description="t('comment.beFirst')"></EmptyView>
+        </div>
+      </template>
+    </div>
+
+    <v-card border class="pa-2" v-if="authStore.isLogin">
+      <Textarea v-model="content"
+                :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate', 'lang']"
+                :placeholder="props.placeholder"></Textarea>
+
+      <v-row no-gutters>
+        <v-col>
+          <Captcha @getCaptchaData="onCaptchaData" type="svg" class="captcha" ref="captchaRef"></Captcha>
+        </v-col>
+        <v-spacer></v-spacer>
+        <v-col>
+          <v-btn size="55" class="bg-amber" :max-width="150" block
+                 :loading="commentPushLoading"
+                 :disabled="!content"
+                 @click="onPushComment">
+            {{ t('basic.button.submit') }}
+          </v-btn>
+        </v-col>
+      </v-row>
+    </v-card>
+    <v-alert v-else>
+      {{ t('comment.loginRequired') }}
+      <template v-slot:append>
+        <router-link :to="`/account/signin?backUrl=${route.path}`">
+          <v-btn>{{ t('signin.title') }}</v-btn>
+        </router-link>
+      </template>
+    </v-alert>
   </div>
-
-  <v-card border class="pa-2" v-if="authStore.isLogin">
-    <Textarea v-model="content"
-              :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate', 'lang']"
-              :placeholder="props.placeholder"></Textarea>
-
-    <v-row no-gutters>
-      <v-col>
-        <Captcha @getCaptchaData="onCaptchaData" type="svg" class="captcha" ref="captchaRef"></Captcha>
-      </v-col>
-      <v-spacer></v-spacer>
-      <v-col>
-        <v-btn size="55" class="bg-amber" :max-width="150" block
-               :loading="commentPushLoading"
-               :disabled="!content"
-               @click="onPushComment">
-          {{ t('basic.button.submit') }}
-        </v-btn>
-      </v-col>
-    </v-row>
-  </v-card>
-  <v-alert v-else>
-    {{ t('comment.loginRequired') }}
-    <template v-slot:append>
-      <router-link :to="`/account/signin?backUrl=${route.path}`">
-        <v-btn>{{ t('signin.title') }}</v-btn>
-      </router-link>
-    </template>
-  </v-alert>
 </template>
 
 <style scoped lang="less">

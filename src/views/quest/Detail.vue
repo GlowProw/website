@@ -33,97 +33,96 @@ const {t, messages} = useI18n(),
     i18nReadName = useI18nReadName(),
     allQuestsMap = Quests as Record<string, Questlog>;
 
-let questDetailData: Ref<Questlog | null> = ref(null),
-    isCollect = ref(false),
+const id = computed(() => {
+  const paramId = route.params.id;
+  return Array.isArray(paramId) ? paramId[0] : paramId;
+});
 
-    getCollectStatus = computed(() => {
-      if (!questDetailData.value || !questDetailData.value.id) return false;
-      isCollect.value = !isCollect.value;
-      return !!storageCollect.get(questDetailData.value.id, 'quest').data;
-    }),
+const questDetailData = computed<Questlog | null>(() => {
+  if (!id.value) return null;
+  return allQuestsMap[id.value] || null;
+});
 
-    // 页面元信息 (meta)
-    head: Ref<any> = ref({
-      title: t(route.meta.title as string || 'quest.title'),
-      titleTemplate: `%s | ${t('name')}`,
-      meta: [
-        {name: 'description', content: ''},
-        {name: 'keywords', content: t(route.meta.keywords as string || 'quest.meta.keywords')},
-        {property: 'og:type', content: 'website'},
-        {property: 'og:title', content: `%s | ${t('name')}`},
-        {property: 'og:description', content: ''},
-        {property: 'og:site_name', content: t('name')},
-      ]
-    });
+let isCollect = ref(false);
 
-useHead(head);
+const getCollectStatus = computed(() => {
+  if (typeof window === 'undefined' || !questDetailData.value?.id) return false;
+  return !!storageCollect.get(questDetailData.value.id, 'quest')?.data;
+});
 
-watch(() => route.path, () => {
-  onReady();
+const headData = computed(() => {
+  if (!questDetailData.value?.id) return null;
+  return i18nReadName.quest(questDetailData.value.id);
+});
+
+const headName = computed(() => {
+  if (!headData.value) return '';
+  return (headData.value.name() as string) || '';
+});
+
+const headDescription = computed(() => {
+  if (!headData.value) return '';
+  return (headData.value.description() as string) || '';
+});
+
+useHead(() => {
+  const currentName = headName.value;
+  const currentDesc = headDescription.value;
+  const quest = questDetailData.value;
+  const currentId = quest?.id || id.value || '';
+
+  const titleText = currentName
+      ? `${currentName} - ${t(route.meta.title as string || 'quest.title')}`
+      : t(route.meta.title as string || 'quest.title');
+
+  return {
+    title: titleText,
+    titleTemplate: `%s | ${t('name')}`,
+    meta: [
+      {name: 'description', content: currentDesc},
+      {
+        name: 'keywords',
+        content: t(route.meta.keywords as string || 'quest.meta.keywords', {
+          keywords: Object.keys(messages.value).map(lang => {
+            return headData.value?.keysName?.map((key: any) => i18nReadName.getValue(messages.value[lang], key)).filter((i: any) => i != null) || [];
+          }).concat(quest ? [quest.id, quest.category] : [currentId]) + `,${t('home.meta.keywords')}`
+        })
+      },
+      {property: 'og:type', content: 'website'},
+      {property: 'og:title', content: `${currentName || titleText} | ${t('name')}`},
+      {property: 'og:description', content: currentDesc},
+      {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
+      {property: 'og:site_name', content: t('name')},
+      {name: 'twitter:card', content: 'summary'},
+      {name: 'twitter:title', content: `${currentName || titleText} | ${t('name')}`},
+      {name: 'twitter:description', content: currentDesc},
+    ]
+  };
 });
 
 onMounted(() => {
-  onReady();
-});
-
-const onReady = () => {
-  const {id} = route.params;
-
-  if (!id) {
+  if (!id.value) {
     router.push('/quest');
     return;
   }
-
-  const rawId = Array.isArray(id) ? id[0] : id;
-  const quest = allQuestsMap[rawId];
-
-  if (!quest) {
+  if (!questDetailData.value) {
     router.push({name: 'NotFound'});
     return;
   }
-
-  questDetailData.value = quest;
-
-  const headData = i18nReadName.quest(quest.id),
-      headName = headData.name() as string,
-      headDescription = headData.description() as string;
-
-  head.value.title = headName ? `${headName} - ${t(route.meta.title as string)}` : t(route.meta.title as string);
-  head.value.titleTemplate = `%s | ${t('name')}`;
-
-  head.value.meta = [
-    {name: 'description', content: headDescription},
-    {
-      name: 'keywords', content: t(route.meta.keywords as string || 'quest.meta.keywords', {
-        keywords: Object.keys(messages.value).map(lang => {
-          return headData.keysName.map((key: any) => i18nReadName.getValue(messages.value[lang], key)).filter((i: any) => i != null);
-        }).concat([quest.id, quest.category]) + `,${t('home.meta.keywords')}`
-      })
-    },
-    {property: 'og:type', content: 'website'},
-    {property: 'og:title', content: `${headName} | ${t('name')}`},
-    {property: 'og:description', content: headDescription},
-    {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
-    {property: 'og:site_name', content: t('name')},
-    {name: 'twitter:card', content: 'summary'},
-    {name: 'twitter:title', content: `${headName} | ${t('name')}`},
-    {name: 'twitter:description', content: headDescription},
-  ];
-
   onCodexHistory();
-};
+});
 
 const onCodexHistory = () => {
-  if (!questDetailData.value?.id) return;
-  const id = questDetailData.value.id;
+  if (typeof window === 'undefined' || !questDetailData.value?.id) return;
+  const currentId = questDetailData.value.id;
 
   let name = 'codex.history';
   const d = storage.session.get(name);
 
   storage.session.set(name, {
     ...d?.data?.value || {},
-    [id]: {
-      id,
+    [currentId]: {
+      id: currentId,
       category: 'quest',
       time: new Date().getTime()
     }

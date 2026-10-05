@@ -56,7 +56,7 @@ defineOptions({
           <v-btn icon="mdi-magnify"></v-btn>
         </GlobalSearchTopWindowWidget>
 
-        <v-btn to="/setting" icon="mdi-cog"></v-btn>
+        <v-btn :to="{ name: 'PortalSettingRoutine', params: $route.params }" icon="mdi-cog"></v-btn>
 
         <HeaderMuenFunWidget></HeaderMuenFunWidget>
       </div>

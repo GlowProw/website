@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import {useI18n} from "vue-i18n";
-import {onMounted, Ref, ref, watch} from "vue";
+import {computed, onMounted, Ref, ref, watch} from "vue";
 import {Cosmetics} from "glow-prow-data";
 import {useRoute} from "vue-router";
 import {useAuthStore} from "~/stores/userAccountStore";
@@ -37,71 +37,63 @@ const {t, messages} = useI18n(),
     cdnStore = useCDNAssetsServiceStore(),
     cosmetics: any = Cosmetics
 
-let cosmeticDetailData: Ref<any> = ref({}),
+const
+    id = computed(() => (route.params.id as string) || ''),
+    cosmeticDetailData = computed(() => (id.value ? cosmetics[id.value] : {})),
 
-    // 页面元信息 (meta)
-    head: Ref<any> = ref({
-      title: t(route.meta.title as string),
-      titleTemplate: `%s | ${t('name')}`,
-      meta: [
-        {name: 'description', content: ''},
-        {name: 'keywords', content: t(route.meta.keywords as string)},
-        {property: 'og:type', content: 'website'},
-        {property: 'og:title', content: `%s | ${t('name')}`},
-        {property: 'og:description', content: ''},
-        {property: 'og:site_name', content: t('name')},
-      ]
-    })
+    headTitle = computed(() => {
+      if (!id.value || !cosmetics[id.value]) return t(route.meta?.title as string || 'codex.cosmetic.title');
+      const headData = i18nReadName.cosmetic(id.value);
+      const headName = headData.name();
+      return headName ? `${headName} - ${t(route.meta?.title as string || 'codex.cosmetic.title')}` : t(route.meta?.title as string || 'codex.cosmetic.title');
+    }),
 
-useHead(head)
+    headDescription = computed(() => {
+      if (!id.value || !cosmetics[id.value]) return '';
+      const headData = i18nReadName.cosmetic(id.value);
+      return (headData.description() as string) || '';
+    });
 
-watch(() => route, (value) => {
-  if (value) {
-    const {id} = route.params
-    cosmeticDetailData.value = cosmetics[id as string]
-  }
-}, {deep: true})
+useHead({
+  title: headTitle,
+  titleTemplate: `%s | ${t('name')}`,
+  meta: computed(() => {
+    if (!id.value || !cosmetics[id.value]) return [];
+    const headData = i18nReadName.cosmetic(id.value);
+    const headName = headData.name();
+    const desc = headData.description() || '';
+    const imageUrl = cdnStore.currentService.image.url({
+      id: id.value,
+      category: 'vanities'
+    });
+
+    return [
+      {name: 'description', content: desc},
+      {
+        name: 'keywords', content: t(route.meta?.keywords as string || '', {
+          keywords: Object.keys(messages.value).map(lang => {
+            return headData.keysName.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
+          }).concat([id.value]) + `,${t('home.meta.keywords')}`
+        })
+      },
+      {property: 'og:type', content: 'website'},
+      {property: 'og:title', content: `${headName} | ${t('name')}`},
+      {property: 'og:description', content: desc},
+      {property: 'og:image', content: imageUrl},
+      {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
+      {property: 'og:site_name', content: t('name')},
+      {name: 'twitter:card', content: 'summary_large_image'},
+      {name: 'twitter:title', content: `${headName} | ${t('name')}`},
+      {name: 'twitter:description', content: desc},
+      {name: 'twitter:image', content: imageUrl}
+    ];
+  })
+})
 
 onMounted(() => {
-  const {id} = route.params
-
-  if (id)
-    cosmeticDetailData.value = cosmetics[id as string]
-
-  const headData = i18nReadName.cosmetic(id as string),
-      headName = headData.name(),
-      headDescription = headData.description()
-
-  head.value.title = headName ? `${headName} - ${t(route.meta.title as string)}` : t(route.meta.title as string);
-  head.value.titleTemplate = `%s | ${t('name')}`;
-
-  const imageUrl = cdnStore.currentService.image.url({
-    id: id as string,
-    category: 'vanities'
-  });
-
-  head.value.meta = [
-    {name: 'description', content: headDescription},
-    {
-      name: 'keywords', content: t(route.meta.keywords as string, {
-        keywords: Object.keys(messages.value).map(lang => {
-          return headData.keysName.map(key => i18nReadName.getValue(messages.value[lang], key)).filter(i => i != null)
-        }).concat([id as string]) + `,${t('home.meta.keywords')}`
-      })
-    },
-    {property: 'og:type', content: 'website'},
-    {property: 'og:title', content: `${headName} | ${t('name')}`},
-    {property: 'og:description', content: headDescription},
-    {property: 'og:image', content: imageUrl},
-    {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
-    {property: 'og:site_name', content: t('name')},
-    {name: 'twitter:card', content: 'summary_large_image'},
-    {name: 'twitter:title', content: `${headName} | ${t('name')}`},
-    {name: 'twitter:description', content: headDescription},
-    {name: 'twitter:image', content: imageUrl}
-  ]
-
-  onCodexHistory()
+  if (typeof window !== 'undefined' && id.value) {
+    onCodexHistory()
+  }
 })
 
 const onCodexHistory = () => {

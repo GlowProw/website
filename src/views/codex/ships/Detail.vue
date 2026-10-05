@@ -46,17 +46,22 @@ const
     // 船只数据
     shipsData: any = Ships
 
-let
-    shipDetailPageData: Ref<{ img: string, loading: boolean }> = ref({
-      img: '',
-      loading: false
+const
+    id = computed(() => (route.params.id as string) || 'dhow'),
+    shipDetailData = computed(() => shipsData[id.value] || shipsData['dhow']),
+    shipImg = computed(() => {
+      const imageKey = `/node_modules/glow-prow-assets/ships/${id.value}.png`;
+      return shipImages[imageKey] ? (shipImages[imageKey] as any).default : '';
     }),
-    shipDetailData: Ref<any> = ref(shipsData['dhow']),
+    shipDetailPageData = computed(() => ({
+      img: shipImg.value,
+      loading: false
+    })),
 
     requiredRank = computed(() => {
-      const r = sanitizeString(shipDetailData.value.requiredRank)
+      const r = sanitizeString(shipDetailData.value?.requiredRank)
       return asString([
-        `snb.ranks.${shipDetailData.value.requiredRank}`,
+        `snb.ranks.${shipDetailData.value?.requiredRank}`,
         `snb.ranks.${r.cleaned}`
       ], {
         variable: {
@@ -65,76 +70,62 @@ let
       })
     }),
 
-    // 页面元信息 (meta)
-    head: Ref<any> = ref({
-      title: t(route.meta.title as string),
-      titleTemplate: `%s | ${t('name')}`,
-      meta: [
-        {name: 'description', content: ''},
-        {name: 'keywords', content: t(route.meta.keywords as string)},
-        {property: 'og:title', content: `%s | ${t('name')}`},
-        {property: 'og:description', content: ''},
-        {property: 'og:site_name', content: t('name')},
-      ]
-    })
+    headTitle = computed(() => {
+      if (!id.value || !shipsData[id.value]) return t(route.meta?.title as string || 'codex.ship.title');
+      const headData = i18nReadName.ship(id.value);
+      const headName = headData.name();
+      return headName ? `${headName} - ${t(route.meta?.title as string || 'codex.ship.title')}` : t(route.meta?.title as string || 'codex.ship.title');
+    }),
 
-useHead(head)
+    headDescription = computed(() => {
+      if (!id.value || !shipsData[id.value]) return '';
+      const headData = i18nReadName.ship(id.value);
+      return (headData.description() as string) || '';
+    });
+
+useHead({
+  title: headTitle,
+  titleTemplate: `%s | ${t('name')}`,
+  meta: computed(() => {
+    if (!id.value || !shipsData[id.value]) return [];
+    const headData = i18nReadName.ship(id.value);
+    const headName = headData.name();
+    const desc = headData.description() || '';
+    const siteOrigin = getAppOrigin();
+    const imageUrl = shipImg.value ? `${siteOrigin}${shipImg.value}` : '';
+    const currentUrl = typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path);
+
+    return [
+      {name: 'description', content: desc},
+      {
+        name: 'keywords', content: t(route.meta?.keywords as string || '', {
+          keywords: Object.keys(messages.value).map(lang => {
+            return headData.keysName.map((key: any) => i18nReadName.getValue(messages.value[lang], key)).filter((i: any) => i != null)
+          }).concat([id.value]) + `,${t('home.meta.keywords')}`
+        })
+      },
+      {property: 'og:type', content: 'website'},
+      {property: 'og:title', content: `${headName} | ${t('name')}`},
+      {property: 'og:description', content: desc},
+      {property: 'og:image', content: imageUrl},
+      {property: 'og:url', content: currentUrl},
+      {property: 'og:site_name', content: t('name')},
+      {name: 'twitter:card', content: 'summary_large_image'},
+      {name: 'twitter:title', content: `${headName} | ${t('name')}`},
+      {name: 'twitter:description', content: desc},
+      {name: 'twitter:image', content: imageUrl}
+    ];
+  })
+})
 
 onMounted(() => {
-  const {id} = route.params;
-
-  if (!id) {
-    router.push('/')
-    return;
+  if (typeof window !== 'undefined' && id.value) {
+    if (!shipsData[id.value]) {
+      router.push('/');
+      return;
+    }
+    onCodexHistory();
   }
-
-  shipDetailPageData.value.loading = true;
-
-  const imageKey = `/node_modules/glow-prow-assets/ships/${id}.png`;
-
-  shipDetailData.value = shipsData[id as string];
-
-  const headData = i18nReadName.ship(id as string),
-      headName = headData.name(),
-      headDescription = headData.description()
-
-  head.value.title = headName ? `${headName} - ${t(route.meta.title as string)}` : t(route.meta.title as string);
-  head.value.titleTemplate = `%s | ${t('name')}`;
-
-  if (shipImages[imageKey]) {
-    shipDetailPageData.value.img = (shipImages[imageKey] as any).default;
-  } else {
-    shipDetailPageData.value.img = "";
-  }
-
-  const siteOrigin = getAppOrigin();
-  const imageUrl = shipDetailPageData.value.img ? `${siteOrigin}${shipDetailPageData.value.img}` : '';
-  const currentUrl = typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path);
-
-  head.value.meta = [
-    {name: 'description', content: headDescription},
-    {
-      name: 'keywords', content: t(route.meta.keywords as string, {
-        keywords: Object.keys(messages.value).map(lang => {
-          return headData.keysName.map((key: any) => i18nReadName.getValue(messages.value[lang], key)).filter((i: any) => i != null)
-        }).concat([id as string]) + `,${t('home.meta.keywords')}`
-      })
-    },
-    {property: 'og:type', content: 'website'},
-    {property: 'og:title', content: `${headName} | ${t('name')}`},
-    {property: 'og:description', content: headDescription},
-    {property: 'og:image', content: imageUrl},
-    {property: 'og:url', content: currentUrl},
-    {property: 'og:site_name', content: t('name')},
-    {name: 'twitter:card', content: 'summary_large_image'},
-    {name: 'twitter:title', content: `${headName} | ${t('name')}`},
-    {name: 'twitter:description', content: headDescription},
-    {name: 'twitter:image', content: imageUrl}
-  ]
-
-  onCodexHistory()
-
-  shipDetailPageData.value.loading = false;
 })
 
 const onCodexHistory = () => {

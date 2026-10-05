@@ -47,10 +47,20 @@ const onChangeLang = (newVal?: string) => {
   storage.local.set('lang', {value: targetLang});
   locale.value = targetLang;
 
-  // 使用 router.replace 避免产生无用历史栈，且使用 path 保持路径稳定
+  // 剥离原有的语言前缀，拼接新的目标语言前缀
+  const currentPath = route.path || '/';
+  const cleanPath = currentPath.replace(/^\/(zh-CN|zh-TW|en-US)/, '') || '';
+  const newPath = `/${targetLang}${cleanPath.startsWith('/') ? cleanPath : (cleanPath ? '/' + cleanPath : '')}`;
+
+  // 清除 query 中过时的 lang 参数
+  const newQuery = { ...route.query };
+  delete newQuery.lang;
+
+  // 使用 router.replace 切换至新的 /{lang}/... 路径
   router.replace({
-    path: route.path,
-    query: {...route.query, 'lang': targetLang}
+    path: newPath,
+    query: newQuery,
+    hash: route.hash
   }).catch(() => {});
 }
 </script>

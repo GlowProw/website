@@ -33,37 +33,10 @@ const
     i18nReadName = useI18nReadName(),
     cdnStore = useCDNAssetsServiceStore();
 
-let masteryDetailData: Ref<Mastery | null> = ref(null),
-    isCollect = ref(false),
-
-    getCollectStatus = computed(() => {
-      if (!masteryDetailData.value && !masteryDetailData.value.id) return false;
-      isCollect.value = !isCollect.value;
-      return !!storageCollect.get(masteryDetailData.value.id, 'mastery').data;
-    }),
-
-    seasonTitle = computed(() => {
-      const sId = masteryDetailData.value?.bySeason?.id || (masteryDetailData.value?.season as any)?.id || (masteryDetailData.value?.season as any);
-      if (!sId) return '';
-      const key = `snb.seasons.${sId}`;
-      return t(key).replace(/^Y\d+S\d+\s*-\s*/, '');
-    }),
-
-    // 页面元信息 (meta)
-    head: Ref<any> = ref({
-      title: t(route.meta.title as string || 'codex.mastery.title'),
-      titleTemplate: `%s | ${t('name')}`,
-      meta: [
-        {name: 'description', content: ''},
-        {name: 'keywords', content: t(route.meta.keywords as string || 'codex.mastery.meta.keywords')},
-        {property: 'og:type', content: 'website'},
-        {property: 'og:title', content: `%s | ${t('name')}`},
-        {property: 'og:description', content: ''},
-        {property: 'og:site_name', content: t('name')},
-      ]
-    });
-
-useHead(head);
+const id = computed(() => {
+  const paramId = route.params.id;
+  return Array.isArray(paramId) ? paramId[0] : paramId;
+});
 
 // 查找专精节点：优先匹配 id，其次兜底匹配 key
 function findMasteryNode(idOrKey: string): Mastery | null {
@@ -93,6 +66,25 @@ function findMasteryNode(idOrKey: string): Mastery | null {
   }
   return null;
 }
+
+const masteryDetailData = computed<Mastery | null>(() => {
+  if (!id.value) return null;
+  return findMasteryNode(id.value);
+});
+
+let isCollect = ref(false);
+
+const getCollectStatus = computed(() => {
+  if (typeof window === 'undefined' || !masteryDetailData.value?.id) return false;
+  return !!storageCollect.get(masteryDetailData.value.id, 'mastery')?.data;
+});
+
+const seasonTitle = computed(() => {
+  const sId = masteryDetailData.value?.bySeason?.id || (masteryDetailData.value?.season as any)?.id || (masteryDetailData.value?.season as any);
+  if (!sId) return '';
+  const key = `snb.seasons.${sId}`;
+  return t(key).replace(/^Y\d+S\d+\s*-\s*/, '');
+});
 
 // 前置节点解析（转换为对应节点实体）
 const requisiteNodes = computed(() => {
@@ -125,84 +117,94 @@ const dependentNodes = computed(() => {
   return result;
 });
 
-watch(() => route.path, () => {
-  onReady();
+const headData = computed(() => {
+  if (!masteryDetailData.value?.id) return null;
+  return i18nReadName.mastery(masteryDetailData.value.id);
+});
+
+const headName = computed(() => {
+  if (!headData.value) return '';
+  return (headData.value.name() as string) || '';
+});
+
+const headDescription = computed(() => {
+  if (!headData.value) return '';
+  return (headData.value.description() as string) || '';
+});
+
+const imageUrl = computed(() => {
+  if (!masteryDetailData.value?.id) return '';
+  return cdnStore.currentService.image.url({
+    id: masteryDetailData.value.id,
+    category: 'mastery'
+  });
+});
+
+useHead(() => {
+  const currentName = headName.value;
+  const currentDesc = headDescription.value;
+  const node = masteryDetailData.value;
+  const currentId = node?.id || id.value || '';
+  const currentImg = imageUrl.value;
+
+  const titleText = currentName
+      ? `${currentName} - ${t(route.meta.title as string || 'codex.mastery.title')}`
+      : t(route.meta.title as string || 'codex.mastery.title');
+
+  return {
+    title: titleText,
+    titleTemplate: `%s | ${t('name')}`,
+    meta: [
+      {name: 'description', content: currentDesc},
+      {
+        name: 'keywords',
+        content: t(route.meta.keywords as string || 'codex.mastery.meta.keywords', {
+          keywords: Object.keys(messages.value).map(lang => {
+            return headData.value?.keysName?.map((key: any) => i18nReadName.getValue(messages.value[lang], key)).filter((i: any) => i != null) || [];
+          }).concat(node ? [node.id, node.category, node.role] : [currentId]) + `,${t('home.meta.keywords')}`
+        })
+      },
+      {property: 'og:type', content: 'website'},
+      {property: 'og:title', content: `${currentName || titleText} | ${t('name')}`},
+      {property: 'og:description', content: currentDesc},
+      {property: 'og:image', content: currentImg},
+      {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
+      {property: 'og:site_name', content: t('name')},
+      {name: 'twitter:card', content: 'summary_large_image'},
+      {name: 'twitter:title', content: `${currentName || titleText} | ${t('name')}`},
+      {name: 'twitter:description', content: currentDesc},
+      {name: 'twitter:image', content: currentImg}
+    ]
+  };
 });
 
 onMounted(() => {
-  onReady();
-});
-
-const onReady = () => {
-  const {id} = route.params;
-
-  if (!id) {
+  if (!id.value) {
     router.push('/codex/masterys');
     return;
   }
-
-  const rawId = Array.isArray(id) ? id[0] : id;
-  const node = findMasteryNode(rawId);
-
+  const node = masteryDetailData.value;
   if (!node) {
-    setInterval(() => router.push({name: 'NotFound'}), 1000);
+    router.push({name: 'NotFound'});
     return;
   }
-
-  // 严格使用 masterys.json 里的 id 非 key，若用户通过 key 访问则自动规范化为 id
-  if (rawId !== node.id) {
+  if (id.value !== node.id) {
     router.replace(`/codex/mastery/${node.id}`);
   }
-
-  masteryDetailData.value = node;
-
-  const headData = i18nReadName.mastery(node.id),
-      headName = headData.name() as string,
-      headDescription = headData.description() as string;
-
-  head.value.title = headName ? `${headName} - ${t(route.meta.title as string)}` : t(route.meta.title as string);
-  head.value.titleTemplate = `%s | ${t('name')}`;
-
-  const imageUrl = cdnStore.currentService.image.url({
-    id: node.id,
-    category: 'mastery'
-  });
-
-  head.value.meta = [
-    {name: 'description', content: headDescription},
-    {
-      name: 'keywords', content: t(route.meta.keywords as string || 'codex.mastery.meta.keywords', {
-        keywords: Object.keys(messages.value).map(lang => {
-          return headData.keysName.map((key: any) => i18nReadName.getValue(messages.value[lang], key)).filter((i: any) => i != null);
-        }).concat([node.id, node.category, node.role]) + `,${t('home.meta.keywords')}`
-      })
-    },
-    {property: 'og:type', content: 'website'},
-    {property: 'og:title', content: `${headName} | ${t('name')}`},
-    {property: 'og:description', content: headDescription},
-    {property: 'og:image', content: imageUrl},
-    {property: 'og:url', content: typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path)},
-    {property: 'og:site_name', content: t('name')},
-    {name: 'twitter:card', content: 'summary_large_image'},
-    {name: 'twitter:title', content: `${headName} | ${t('name')}`},
-    {name: 'twitter:description', content: headDescription},
-    {name: 'twitter:image', content: imageUrl}
-  ];
-
   onCodexHistory();
-};
+});
 
 const onCodexHistory = () => {
-  if (!masteryDetailData.value?.id) return;
-  const id = masteryDetailData.value.id;
+  if (typeof window === 'undefined' || !masteryDetailData.value?.id) return;
+  const currentId = masteryDetailData.value.id;
 
   let name = 'codex.history';
   const d = storage.session.get(name);
 
   storage.session.set(name, {
     ...d?.data?.value || {},
-    [id]: {
-      id,
+    [currentId]: {
+      id: currentId,
       category: 'mastery',
       time: new Date().getTime()
     }
