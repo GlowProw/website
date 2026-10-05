@@ -1,0 +1,81 @@
+name: Deploy to EdgeOne
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+      - 'docs/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'EdgeOne 部署环境'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - preview
+
+# 避免并发推送导致重复构建，自动取消同分支在途任务
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    name: Build & Deploy to EdgeOne
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure Swap Space (Prevent SSG OOM)
+        run: |
+          echo "=== 正在配置 10GB Swap 交换内存以防止多路由 SSG 内存溢出 ==="
+          sudo fallocate -l 10G /swapfile || sudo dd if=/dev/zero of=/swapfile bs=1M count=10240
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          free -h
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build SSG
+        run: npm run build:ssg
+        env:
+          NODE_OPTIONS: '--expose-gc --max-old-space-size=7168'
+
+      - name: Determine Target Environment
+        id: env-selector
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TARGET_ENV="${{ github.event.inputs.environment }}"
+          elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            TARGET_ENV="production"
+          else
+            TARGET_ENV="preview"
+          fi
+          echo "target_env=$TARGET_ENV" >> "$GITHUB_OUTPUT"
+          echo "Selected deployment environment: $TARGET_ENV"
+
+      - name: Deploy to EdgeOne Makers
+        run: |
+          npx --yes edgeone makers deploy ./dist \
+            -n glow-prow-website \
+            -e ${{ steps.env-selector.outputs.target_env }} \
+            -t "${{ secrets.EDGEONE_PAGES_API_TOKEN || secrets.EDGEONE_API_TOKEN }}"
+        env:
+          EDGEONE_PAGES_API_TOKEN: ${{ secrets.EDGEONE_PAGES_API_TOKEN || secrets.EDGEONE_API_TOKEN }}
