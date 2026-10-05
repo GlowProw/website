@@ -145,6 +145,8 @@ const getRoutes = () => {
     return Array.from(new Set(allLocalizedRoutes)).sort();
 }
 
+let renderedPageCount = 0;
+
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), '');
     const appHost = env.APP_HOST || env.VITE_APP_HOST || 'glow-prow.top';
@@ -328,6 +330,12 @@ export default defineConfig(({ mode }) => {
             return undefined;
         },
         onPageRendered(route: string, renderedHTML: string, ctx: any) {
+            renderedPageCount++;
+            if (renderedPageCount % 200 === 0 && typeof (globalThis as any).gc === 'function') {
+                try {
+                    (globalThis as any).gc();
+                } catch (e) {}
+            }
             // 将重复的 350+ 行内联 vuetify-theme-stylesheet 替换为外部静态 CSS 文件引用
             return renderedHTML.replace(
                 /<style id="vuetify-theme-stylesheet">[\s\S]*?<\/style>/,

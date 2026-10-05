@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm run build:ssg",
+  "buildCommand": "NODE_OPTIONS='--max-old-space-size=5120 --expose-gc' npm run build:ssg",
   "installCommand": "npm install",
   "outputDirectory": "./dist",
   "nodeVersion": "22.11.0",
