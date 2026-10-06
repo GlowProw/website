@@ -89,12 +89,19 @@ const getDynamicDataRoutes = () => {
 }
 
 // 执行 SSG 静态预渲染的语言列表，仅预热'zh-CN', 'en-US'
-const SSG_PRERENDER_LANGS = ['zh-CN', 'en-US'];
+const SSG_PRERENDER_LANGS = ['zh-CN'];
 
 const SKIP_SSG_ROUTES = [
     '/account',
     '/widgets',
     '/assembly',
+    '/drop',
+    '/apps',
+    '/calculator',
+    '/search',
+    '/reminder',
+    '/setting',
+    '/stateOfWar',
     '/ranking-designed-items',
     '/smugglers-report',
     '/calendar',
