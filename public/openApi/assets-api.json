@@ -183,27 +183,6 @@
             }
           }
         }
-      },
-      "options": {
-        "summary": "CORS 预检请求",
-        "operationId": "optionsAssetImage",
-        "responses": {
-          "204": {
-            "description": "预检通过",
-            "headers": {
-              "Access-Control-Allow-Origin": {
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "Access-Control-Allow-Methods": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
       }
     },
     "/mode": {
@@ -400,15 +379,6 @@
                 }
               }
             }
-          }
-        }
-      },
-      "options": {
-        "summary": "CORS 预检请求",
-        "operationId": "optionsClipFeatures",
-        "responses": {
-          "204": {
-            "description": "预检通过"
           }
         }
       }

@@ -111,6 +111,8 @@
 import {computed, onMounted, onUnmounted, ref, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
+import {createApiReference} from '@scalar/api-reference';
+import '@scalar/api-reference/style.css';
 import {conf, http} from "@/assets/sripts";
 import {generateAuthGpHeader} from "@/assets/sripts/fingerprint_auth";
 import {useAuthStore} from "~/stores/userAccountStore";
@@ -129,7 +131,6 @@ const error = ref<string | null>(null);
 const scalarContainerRef = ref<HTMLElement | null>(null);
 let scalarInstance: any = null;
 let abortController: AbortController | null = null;
-let originalReplaceState: typeof window.history.replaceState | null = null;
 
 const apiTabs = computed(() => [
   {value: 'backend' as const, label: t('apps.apiDocs.tabs.backend')},
@@ -154,14 +155,8 @@ const specUrl = computed(() => {
   return `${base.replace(/\/+$/, '')}/openapi.json`;
 });
 
-const assetsSpecUrl = '/assets-api.json';
-const langSpecUrl = '/lang-api.json';
-
-const currentSpecUrl = computed(() => {
-  if (activeTab.value === 'assets') return assetsSpecUrl;
-  if (activeTab.value === 'lang') return langSpecUrl;
-  return specUrl.value;
-});
+const assetsSpecUrl = '/openApi/assets-api.json';
+const langSpecUrl = '/openApi/lang-api.json';
 
 /**
  * 基于全局配置计算API发起请求的目标服务器地址
@@ -182,82 +177,28 @@ const localeMap: Record<string, string> = {
   en_US: 'en'
 };
 
-/**
- * 拦截并过滤 Scalar 自动追加的 #description/introduction 路由 Hash
- */
-const setupHistoryInterceptor = () => {
-  if (typeof window === 'undefined') return;
-  if (!originalReplaceState) {
-    originalReplaceState = window.history.replaceState;
-    window.history.replaceState = function (data: any, unused: string, url?: string | URL | null) {
-      if (url) {
-        const urlStr = url.toString();
-        if (urlStr.includes('#description/introduction')) {
-          const cleanUrl = urlStr.replace(/#description\/introduction/g, '');
-          return originalReplaceState!.call(this, data, unused, cleanUrl);
-        }
-      }
-      return originalReplaceState!.apply(this, arguments as any);
-    };
-  }
+onMounted(() => {
+  initScalar();
+});
 
-  if (window.location.hash.includes('description/introduction')) {
-    window.history.replaceState(null, '', window.location.pathname + window.location.search);
-  }
-};
-
-const cleanupHistoryInterceptor = () => {
-  if (typeof window === 'undefined') return;
-  if (originalReplaceState) {
-    window.history.replaceState = originalReplaceState;
-    originalReplaceState = null;
-  }
-  if (window.location.hash.includes('description/introduction')) {
-    window.history.replaceState(null, '', window.location.pathname + window.location.search);
-  }
-};
-
-// 监听 activeTab 变化，同步更新 URL query 参数 ?tab=
+// 监听 activeTab 变化，同步更新 URL query 参数 ?tab= 并重新渲染
 watch(activeTab, (newTab) => {
   if (route.query.tab !== newTab) {
-    router.replace({
-      query: {
-        ...route.query,
-        tab: newTab
-      }
-    });
+    router.replace({query: {...route.query, tab: newTab}});
   }
   initScalar();
 });
 
-// 监听 URL 路由 query 变化，同步切换 activeTab
+// 监听 URL query 变化，同步 activeTab
 watch(() => route.query.tab, (newTabQuery) => {
   if (typeof newTabQuery === 'string' && validTabs.includes(newTabQuery as ApiTab)) {
-    if (activeTab.value !== newTabQuery) {
-      activeTab.value = newTabQuery as ApiTab;
-    }
+    activeTab.value = newTabQuery as ApiTab;
   }
 });
 
 watch(locale, () => {
   initScalar();
 });
-
-onMounted(() => {
-  setupHistoryInterceptor();
-  initScalar();
-});
-
-/**
- * 动态加载脚本
- */
-const loadScalarScript = async (): Promise<any> => {
-  if ((window as any).Scalar?.createApiReference) {
-    return (window as any).Scalar;
-  }
-  await import('@/assets/sripts/scalar.standalone.js');
-  return (window as any).Scalar;
-};
 
 /**
  * 初始化实例
@@ -271,10 +212,6 @@ const initScalar = async () => {
 
     abortController?.abort();
     abortController = new AbortController();
-
-    const [Scalar] = await Promise.all([
-      loadScalarScript()
-    ]);
 
     const authGpHeader = generateAuthGpHeader();
     const userToken = authStore.user?.token || '';
@@ -293,27 +230,21 @@ const initScalar = async () => {
           }
         });
         if (!response.ok) {
-          throw new Error(`OpenAPI 规范请求返回 HTTP ${response.status}`);
+          throw new Error(`OpenAPI 规范请求返回 HTTP ${response.status} ${response.statusText}`);
+        }
+        const ct = response.headers.get('content-type') || '';
+        if (!ct.includes('application/json')) {
+          throw new Error(`OpenAPI 规范响应 Content-Type 异常（${ct}），接口可能被 CDN/路由规则拦截`);
         }
         specification = await response.json();
       } catch (fetchErr: any) {
         if (fetchErr instanceof DOMException && fetchErr.name === 'AbortError') return;
-        // 跨域或绝对路径失败时，尝试同源代理路径
-        try {
-          const fallbackRes = await fetch('/api/openapi.json', {
-            signal: abortController.signal,
-            credentials: 'include',
-            headers: {
-              Accept: 'application/json',
-              'x-auth-gp': authGpHeader,
-              'x-lang': locale.value
-            }
-          });
-          if (!fallbackRes.ok) throw fetchErr;
-          specification = await fallbackRes.json();
-        } catch (_) {
-          throw fetchErr;
+        // 给用户更可读的错误提示
+        const msg = fetchErr?.message || String(fetchErr);
+        if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+          throw new Error(`无法连接到 API 服务器 (${apiBaseOrigin.value})，请检查网络或 CORS 配置`);
         }
+        throw fetchErr;
       }
     } else {
       // 静态文件，直接从同源 public 目录加载
@@ -418,7 +349,7 @@ const initScalar = async () => {
       };
     }
 
-    scalarInstance = Scalar.createApiReference(container, scalarConfig);
+    scalarInstance = createApiReference(container, scalarConfig);
     loading.value = false;
   } catch (err: any) {
     if (err instanceof DOMException && err.name === 'AbortError') return;
@@ -429,7 +360,6 @@ const initScalar = async () => {
 };
 
 onUnmounted(() => {
-  cleanupHistoryInterceptor();
   abortController?.abort();
   if (scalarInstance?.destroy) {
     try {
