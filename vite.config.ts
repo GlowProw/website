@@ -1,28 +1,31 @@
 import Vue from '@vitejs/plugin-vue'
-import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
-import { VitePWA } from 'vite-plugin-pwa'
-import { defineConfig, loadEnv } from 'vite'
-import type { UserConfig } from 'vite'
+import Vuetify, {transformAssetUrls} from 'vite-plugin-vuetify'
+import {VitePWA} from 'vite-plugin-pwa'
+import {defineConfig, loadEnv} from 'vite'
 import Sitemap from 'vite-plugin-sitemap'
 import path from "path";
-import type { ViteSSGOptions } from 'vite-ssg'
+import type {ViteSSGOptions} from 'vite-ssg'
 
 import config from "./package.json"
 import fs from 'node:fs';
-import { languagesConfig, SUPPORTED_LANGS, DEFAULT_LANG } from './src/config/languages';
-import { STRUCTURED_DATA_MAP } from './src/config/structuredData';
+import {DEFAULT_LANG, SUPPORTED_LANGS} from './src/config/languages';
+import {STRUCTURED_DATA_MAP} from './src/config/structuredData';
 
-// 同步生成公共语言重定向脚本，确保与 languages.ts 配置保持严格一致
+/**
+ * 同步生成公共语言重定向脚本，确保与 languages.ts 配置保持严格一致
+ */
 function ensureLangRedirectScript() {
     const supportedStr = JSON.stringify(SUPPORTED_LANGS);
     const defaultLangStr = JSON.stringify(DEFAULT_LANG);
     const scriptContent = `(function(){var supported=${supportedStr};var defaultLang=${defaultLangStr};var path=window.location.pathname;var hasLang=supported.some(function(l){return path==='/'+l||path.indexOf('/'+l+'/')===0;});if(!hasLang&&(path==='/'||path==='')){var rawStored=localStorage.getItem('snb.production:lang')||localStorage.getItem('snb.development:lang')||localStorage.getItem('lang');var lang=defaultLang;if(rawStored){try{var p=JSON.parse(rawStored);var val=(p&&p.data&&p.data.value)?p.data.value:(p&&p.value?p.value:p);if(typeof val==='object'&&val!==null&&val.value)val=val.value;if(typeof val==='string'&&supported.includes(val))lang=val;}catch(e){}}else{var nav=navigator.language||navigator.userLanguage||defaultLang;if(nav.indexOf('TW')!==-1||nav.indexOf('HK')!==-1||nav.indexOf('Hant')!==-1)lang='zh-TW';else if(nav.indexOf('zh')!==-1)lang='zh-CN';else lang='en-US';}if(!supported.includes(lang))lang=defaultLang;window.location.replace('/'+lang+(path==='/'?'':path));}})();`;
     const targetPath = path.resolve(__dirname, 'public/assets/lang-redirect.js');
     try {
-        fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+        fs.mkdirSync(path.dirname(targetPath), {recursive: true});
         fs.writeFileSync(targetPath, scriptContent, 'utf8');
-    } catch (e) { }
+    } catch (e) {
+    }
 }
+
 ensureLangRedirectScript();
 
 /**
@@ -85,8 +88,8 @@ const getDynamicDataRoutes = () => {
     return result;
 }
 
-// 执行 SSG 静态预渲染的语言列表，与 supported languages 保持一致
-const SSG_PRERENDER_LANGS = SUPPORTED_LANGS;
+// 执行 SSG 静态预渲染的语言列表，仅预热'zh-CN', 'en-US'
+const SSG_PRERENDER_LANGS = ['zh-CN', 'en-US'];
 
 const SKIP_SSG_ROUTES = [
     '/account',
@@ -190,7 +193,7 @@ const getSitemapRoutes = () => {
 
 let renderedPageCount = 0;
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(({mode}) => {
     const env = loadEnv(mode, process.cwd(), '');
     const appHost = env.APP_HOST || '';
     const appHostname = appHost.startsWith('http') ? appHost : `https://${appHost}`;
@@ -200,9 +203,9 @@ export default defineConfig(({ mode }) => {
         base: '/',
         plugins: [
             Vue({
-                template: { transformAssetUrls },
+                template: {transformAssetUrls},
             }),
-            Vuetify({ autoImport: true }),
+            Vuetify({autoImport: true}),
             VitePWA({
                 registerType: 'prompt',
                 includeAssets: ['favicon.ico', 'favicon.png'],
@@ -285,7 +288,7 @@ export default defineConfig(({ mode }) => {
                 "vuetify", "fsevents", "file-type", "'@zumer/snapdom'"
             ],
         },
-        define: { 'process.env': {} },
+        define: {'process.env': {}},
         ssr: {
             noExternal: ['vuetify'],
         },
@@ -374,7 +377,7 @@ export default defineConfig(({ mode }) => {
                 const relativeRouteFile = `${(route.endsWith('/') ? `${route}index` : route).replace(/^\//g, '')}.html`;
                 const targetDir = path.resolve(__dirname, 'dist', path.dirname(relativeRouteFile));
                 if (!fs.existsSync(targetDir)) {
-                    fs.mkdirSync(targetDir, { recursive: true });
+                    fs.mkdirSync(targetDir, {recursive: true});
                 }
                 return undefined;
             },
@@ -383,7 +386,8 @@ export default defineConfig(({ mode }) => {
                 if (renderedPageCount % 10 === 0 && typeof (globalThis as any).gc === 'function') {
                     try {
                         (globalThis as any).gc();
-                    } catch (e) { }
+                    } catch (e) {
+                    }
                 }
 
                 // 显式清理已渲染页面上下文中的组件和路由实例引用，辅助 V8 垃圾回收释放内存
@@ -401,14 +405,16 @@ export default defineConfig(({ mode }) => {
                             ctx.app._instance = null;
                             ctx.app._container = null;
                             ctx.app._context = null;
-                        } catch (e) { }
+                        } catch (e) {
+                        }
                     }
                     if (ctx.router) {
                         try {
                             if (ctx.router.currentRoute) {
                                 ctx.router.currentRoute.value = null;
                             }
-                        } catch (e) { }
+                        } catch (e) {
+                        }
                     }
                     if (ctx.head) {
                         try {
@@ -421,7 +427,8 @@ export default defineConfig(({ mode }) => {
                             if (ctx.head.plugins) {
                                 ctx.head.plugins.clear();
                             }
-                        } catch (e) { }
+                        } catch (e) {
+                        }
                     }
                 }
 

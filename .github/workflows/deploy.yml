@@ -91,7 +91,7 @@ jobs:
           echo "=== Selected target environment: $TARGET_ENV, Cloudflare branch: $CF_BRANCH ==="
 
       - name: Build SSG
-        run: npm run build:ssg
+        run: npm run build-only:ssg
         env:
           NODE_OPTIONS: '--expose-gc --max-old-space-size=7168'
           APP_HOST: 'glow-prow.top'
