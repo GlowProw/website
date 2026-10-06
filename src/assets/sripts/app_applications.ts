@@ -7,6 +7,11 @@ export default class AppApps {
             id: 'qqBot',
             tags: ['bot', 'qq'],
             to: '/apps/qq-bot'
+        },
+        {
+            id: 'apiDocs',
+            tags: ['api', 'openapi', 'scalar', 'rest-api'],
+            to: '/apps/api-docs'
         }
     ]
 

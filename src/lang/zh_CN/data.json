@@ -41,6 +41,27 @@
           "description": "所有群组免费使用，仅需要简单的斜杠命令唤醒机器人。通过在企鹅聊天添加机器人中搜索此id(3889974138),来添加"
         }
       }
+    },
+    "apiDocs": {
+      "name": "开发者 REST API 文档",
+      "description": "基于 OpenAPI 3.0 与 Scalar 构建的现代化交互式开发者 API 文档，提供完整的碧海黑帆工具集、配装计算、战事追踪与社区数据接口规范。",
+      "openSpec": "OpenAPI JSON",
+      "copyUrl": "复制规范地址",
+      "copied": "规范地址已复制到剪贴板",
+      "features": {
+        "openapi": {
+          "title": "OpenAPI 3.0"
+        },
+        "redoc": {
+          "title": "Redoc CE"
+        },
+        "rest": {
+          "title": "RESTful API"
+        },
+        "scalar": {
+          "title": "Scalar API"
+        }
+      }
     }
   },
   "ad": {

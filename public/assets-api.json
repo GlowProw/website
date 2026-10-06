@@ -1,0 +1,417 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Assets API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://assets.glow-prow.top",
+      "description": "production"
+    },
+    {
+      "url": "http://localhost:8088",
+      "description": "development"
+    }
+  ],
+  "paths": {
+    "/api": {
+      "get": {
+        "summary": "获取游戏物品图片资源",
+        "description": "根据物品分类（`t`）和 ID（`id`）并行竞速匹配所有可能路径，返回第一个命中的 `.webp` 图片。若所有路径均无资源则返回透明占位图。\n\n**防盗链**：非允许域名的 Referer 请求将被拒绝或返回占位图。",
+        "operationId": "getAssetImage",
+        "parameters": [
+          {
+            "name": "t",
+            "in": "query",
+            "required": true,
+            "description": "物品分类标识（区分大小写），支持 AUTO 兜底类型",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "AUTO_items",
+                "ammunition",
+                "armor",
+                "chest",
+                "consumable",
+                "contract",
+                "quest",
+                "tool",
+                "majorFurniture",
+                "offensiveFurniture",
+                "utilityFurniture",
+                "culverin",
+                "demicannon",
+                "ballista",
+                "bombard",
+                "mortar",
+                "rocket",
+                "seaFire",
+                "springloader",
+                "longGun",
+                "torpedo",
+                "shipUpgrade",
+                "commodities",
+                "damages",
+                "factions",
+                "materials",
+                "modifications",
+                "npcs",
+                "ships",
+                "AUTO_treasureMaps",
+                "treasureMaps/legend",
+                "treasureMaps/old",
+                "treasureMaps/recent",
+                "treasureMaps/veryOld",
+                "ultimates",
+                "vanities",
+                "sets",
+                "mastery"
+              ],
+              "example": "armor"
+            }
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "description": "物品唯一 ID（URL 编码，不含扩展名）",
+            "schema": {
+              "type": "string",
+              "example": "item_armor_01"
+            }
+          },
+          {
+            "name": "strict",
+            "in": "query",
+            "required": false,
+            "description": "传 `true` 时防盗链拦截返回 403，否则返回占位图",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "default": "false"
+            }
+          },
+          {
+            "name": "debug",
+            "in": "query",
+            "required": false,
+            "description": "传任意非空值时开启调试日志输出",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "图片资源（WebP）或透明占位图（PNG）",
+            "content": {
+              "image/webp": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "description": "图片缓存 6 小时；占位图缓存 1 小时",
+                "schema": {
+                  "type": "string",
+                  "example": "public, max-age=21600"
+                }
+              },
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "type": "string",
+                  "example": "*"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "缺少必要参数或无效的分类",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "availableCategories": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "error": "无效的分类",
+                  "message": "分类 \"unknown\" 未配置",
+                  "availableCategories": [
+                    "armor",
+                    "chest",
+                    "ships"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "防盗链拦截（仅当 strict=true 时返回）",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "禁止访问"
+                }
+              }
+            }
+          }
+        }
+      },
+      "options": {
+        "summary": "CORS 预检请求",
+        "operationId": "optionsAssetImage",
+        "responses": {
+          "204": {
+            "description": "预检通过",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Access-Control-Allow-Methods": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mode": {
+      "get": {
+        "summary": "获取藏宝图 CLIP 预计算特征向量",
+        "description": "从 CDN 拉取预计算的 CLIP VIT-B/32 特征文件（`.bin` 格式），支持按 ID 查询单条记录或批量返回 JSON，默认直接透传二进制流。\n\n二进制格式头部：`CLIP`（4 字节魔数）+ uint16 version + uint16 dim + uint32 count + uint32 metaLen + JSON metadata + Float32Array embeddings。",
+        "operationId": "getClipFeatures",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "description": "藏宝图分类（别名 `t`）",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "legendary",
+                "legend",
+                "old",
+                "recent",
+                "veryOld",
+                "all"
+              ],
+              "default": "all"
+            }
+          },
+          {
+            "name": "t",
+            "in": "query",
+            "required": false,
+            "description": "`category` 的别名参数",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "legendary",
+                "legend",
+                "old",
+                "recent",
+                "veryOld",
+                "all"
+              ]
+            }
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "description": "查询指定藏宝图 ID 的单条特征向量，不传则返回全部",
+            "schema": {
+              "type": "string",
+              "example": "map_001"
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "description": "响应格式，`bin` 返回原始二进制流，`json` 返回解析后的 JSON",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bin",
+                "json"
+              ],
+              "default": "bin"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CLIP 特征数据",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary",
+                  "description": "原始 .bin 特征文件（format=bin 时）"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "title": "单条特征（id 指定时）",
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "category": {
+                          "type": "string"
+                        },
+                        "dim": {
+                          "type": "integer",
+                          "example": 512
+                        },
+                        "embedding": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          },
+                          "description": "CLIP 特征向量（Float32，长度为 dim）"
+                        }
+                      }
+                    },
+                    {
+                      "title": "全量特征列表（format=json 时）",
+                      "type": "object",
+                      "properties": {
+                        "model": {
+                          "type": "string",
+                          "example": "openai/clip-vit-base-patch32"
+                        },
+                        "dim": {
+                          "type": "integer",
+                          "example": 512
+                        },
+                        "count": {
+                          "type": "integer"
+                        },
+                        "category": {
+                          "type": "string"
+                        },
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "category": {
+                                "type": "string"
+                              },
+                              "embedding": {
+                                "type": "array",
+                                "items": {
+                                  "type": "number"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "example": "public, max-age=86400"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "特征文件或指定 ID 未找到",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "path": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "解析特征文件时内部错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "options": {
+        "summary": "CORS 预检请求",
+        "operationId": "optionsClipFeatures",
+        "responses": {
+          "204": {
+            "description": "预检通过"
+          }
+        }
+      }
+    }
+  }
+}

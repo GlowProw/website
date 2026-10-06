@@ -450,7 +450,7 @@ defineOptions({
     </div>
 
     <!-- 统一分页器 S -->
-    <div v-if="userCollections.pagination && userCollections.pagination.totalPages > 1" class="d-flex justify-center mt-6">
+    <div v-if="userCollections.pagination && Number(userCollections.pagination.totalPages) > 1" class="d-flex justify-center mt-6">
       <v-pagination
           v-model="collectionPagination.page"
           :length="userCollections.pagination.totalPages"

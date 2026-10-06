@@ -47,6 +47,8 @@ export interface CreateReportParams {
 // 更新周报参数
 export interface UpdateReportParams {
     title?: string;
+    startTime?: string;
+    endTime?: string;
     content?: any;
     status?: 'draft' | 'published' | 'archived';
 }

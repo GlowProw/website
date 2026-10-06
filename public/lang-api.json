@@ -1,0 +1,297 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Lang API",
+    "version": "1.0.0",
+    "description": "翻译文本 CDN 接口，提供 《碧海黑帆》 游戏数据的多语言翻译 JSON 资源。数据来源于 glow-prow-data-languages 项目，支持 zh_CN / zh_TW / en_US 三种语言。无需鉴权，直接访问。"
+  },
+  "servers": [
+    {
+      "url": "https://lang.glow-prow.top",
+      "description": "production"
+    },
+    {
+      "url": "http://localhost:8089",
+      "description": "development"
+    }
+  ],
+  "paths": {
+    "/lang": {
+      "get": {
+        "summary": "查询翻译文本",
+        "description": "根据语言（`locale`）和分类（`category`）返回对应的翻译 JSON 数据。\n\n- 不传 `category` 时返回当前语言支持的所有分类列表\n- 传 `key` 时只返回该键的翻译值（精确查询）\n- 所有数据均来自 GitHub 上的 `glow-prow-data-languages` 仓库，CDN 缓存 1 小时",
+        "operationId": "getLangData",
+        "parameters": [
+          {
+            "name": "locale",
+            "in": "query",
+            "required": false,
+            "description": "目标语言，默认 `zh_CN`",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "zh_CN",
+                "zh_TW",
+                "en_US"
+              ],
+              "default": "zh_CN"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "description": "翻译分类，对应 data-languages 项目中的 JSON 文件名（不含扩展名）。不传则返回分类列表。",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ships",
+                "items",
+                "items_ammunition",
+                "commodities",
+                "calendar",
+                "materials",
+                "factions",
+                "modifications",
+                "perks",
+                "seasons",
+                "locations",
+                "ultimates",
+                "ranks",
+                "cosmetics",
+                "events",
+                "worldEvents",
+                "empireSkills",
+                "mapLocations",
+                "sets",
+                "regions",
+                "territories",
+                "npcs",
+                "treasureMaps",
+                "zones",
+                "masterys",
+                "quest",
+                "map"
+              ],
+              "example": "ships"
+            }
+          },
+          {
+            "name": "key",
+            "in": "query",
+            "required": false,
+            "description": "翻译键名，精确查询该键对应的值。需同时传 `category`。",
+            "schema": {
+              "type": "string",
+              "example": "ship_001"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "翻译数据",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "title": "分类列表（未传 category）",
+                      "type": "object",
+                      "properties": {
+                        "locale": {
+                          "type": "string",
+                          "example": "zh_CN"
+                        },
+                        "categories": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "example": [
+                            "ships",
+                            "items",
+                            "factions"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "title": "单键翻译（传 key）",
+                      "type": "object",
+                      "properties": {
+                        "locale": {
+                          "type": "string"
+                        },
+                        "category": {
+                          "type": "string"
+                        },
+                        "key": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string",
+                          "description": "翻译值"
+                        }
+                      }
+                    },
+                    {
+                      "title": "分类全量翻译（传 category）",
+                      "type": "object",
+                      "properties": {
+                        "locale": {
+                          "type": "string"
+                        },
+                        "category": {
+                          "type": "string"
+                        },
+                        "data": {
+                          "type": "object",
+                          "description": "键值对翻译映射（key → 翻译文本）",
+                          "additionalProperties": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "examples": {
+                  "分类列表": {
+                    "summary": "不传 category 时返回可用分类",
+                    "value": {
+                      "locale": "zh_CN",
+                      "categories": [
+                        "ships",
+                        "items",
+                        "factions",
+                        "regions"
+                      ]
+                    }
+                  },
+                  "全量翻译": {
+                    "summary": "category=factions 时返回全部翻译",
+                    "value": {
+                      "locale": "zh_CN",
+                      "category": "factions",
+                      "data": {
+                        "faction_pirate": "海盗",
+                        "faction_navy": "海军"
+                      }
+                    }
+                  },
+                  "单键翻译": {
+                    "summary": "category=factions&key=faction_pirate",
+                    "value": {
+                      "locale": "zh_CN",
+                      "category": "factions",
+                      "key": "faction_pirate",
+                      "value": "海盗"
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "example": "public, max-age=3600"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数无效（locale 或 category 不在支持列表中）",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "supportedLocales": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "availableCategories": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "error": "不支持的语言",
+                  "message": "locale \"ja_JP\" 不在支持列表中",
+                  "supportedLocales": [
+                    "zh_CN",
+                    "zh_TW",
+                    "en_US"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "翻译文件或键名未找到",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "locale": {
+                      "type": "string"
+                    },
+                    "category": {
+                      "type": "string"
+                    },
+                    "key": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "options": {
+        "summary": "CORS 预检请求",
+        "operationId": "optionsLangData",
+        "responses": {
+          "204": {
+            "description": "预检通过"
+          }
+        }
+      }
+    }
+  }
+}

@@ -40,6 +40,27 @@
           "description": "所有羣組免費使用，僅需要簡單的斜槓命令喚醒機器人。通過在企鵝聊天添加機器人中搜索此id(3889974138),來添加"
         }
       }
+    },
+    "apiDocs": {
+      "name": "開發者 REST API 文件",
+      "description": "基於 OpenAPI 3.0 與 Scalar 構建的現代化交互式開發者 API 文件，提供完整的碧海黑帆工具集、配裝計算、戰事追蹤與社區數據接口規範。",
+      "openSpec": "OpenAPI JSON",
+      "copyUrl": "複製規範地址",
+      "copied": "規範地址已複製到剪貼簿",
+      "features": {
+        "openapi": {
+          "title": "OpenAPI 3.0"
+        },
+        "redoc": {
+          "title": "Redoc CE"
+        },
+        "rest": {
+          "title": "RESTful API"
+        },
+        "scalar": {
+          "title": "Scalar API"
+        }
+      }
     }
   },
   "ad": {

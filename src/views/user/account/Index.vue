@@ -114,7 +114,7 @@ const onPrimaryTabChange = (val: any) => {
       router.push({ name: dataTabs[0].value, params: route.params })
     }
   } else if (val === 'MeSpace') {
-    const uid = authStore.user?.userId || authStore.user?.id
+    const uid = authStore.user?.userId
     if (uid) {
       router.push(`/space/${uid}`)
     }

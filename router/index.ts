@@ -89,7 +89,8 @@ import MapViewPage from '@/views/map/View.vue';
 
 import AppsPage from '@/views/apps/Index.vue';
 import AppsViewPage from '@/views/apps/View.vue';
-import QQBotPage from '@/views/apps/QQBot.vue'
+import QQBotPage from '@/views/apps/QQBot.vue';
+import ApiDocsPage from '@/views/apps/ApiDocs.vue';
 
 import TeamPage from '@/views/Team.vue'
 import SearchPage from '@/views/Search.vue'
@@ -963,8 +964,22 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
                 path: 'qq-bot',
                 name: 'QQBot',
                 component: QQBotPage
+            },
+            {
+                path: 'api-docs',
+                alias: ['apiDocs'],
+                name: 'ApiDocs',
+                component: ApiDocsPage
             }
         ]
+    },
+    {
+        path: '/docs',
+        redirect: to => ({ name: 'ApiDocs', params: to.params })
+    },
+    {
+        path: '/api-docs',
+        redirect: to => ({ name: 'ApiDocs', params: to.params })
     },
     {
         path: '/about',

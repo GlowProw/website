@@ -41,6 +41,27 @@
           "description": "Free for all groups, just use simple slash commands to activate the bot. Add by searching for ID (3889974138) in QQ bot search."
         }
       }
+    },
+    "apiDocs": {
+      "name": "Developer REST API Docs",
+      "description": "Modern interactive developer API documentation built with OpenAPI 3.0 and Scalar, providing comprehensive specifications for Skull and Bones toolkit, loadouts, state of war, and community data services.",
+      "openSpec": "OpenAPI JSON",
+      "copyUrl": "Copy Spec URL",
+      "copied": "Spec URL copied to clipboard",
+      "features": {
+        "openapi": {
+          "title": "OpenAPI 3.0"
+        },
+        "redoc": {
+          "title": "Redoc CE"
+        },
+        "rest": {
+          "title": "RESTful API"
+        },
+        "scalar": {
+          "title": "Scalar API"
+        }
+      }
     }
   },
   "ad": {

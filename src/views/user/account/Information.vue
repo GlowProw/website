@@ -267,7 +267,7 @@ defineOptions({
               <label class="text-caption font-weight-bold opacity-80 mb-2 d-block">
                 {{ t('account.roles') }}
               </label>
-              <RolesTagWidget :roles="userAccountData.privilege"></RolesTagWidget>
+              <RolesTagWidget :data="userAccountData.privilege"></RolesTagWidget>
             </div>
 
             <template v-slot:title>

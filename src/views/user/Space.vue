@@ -69,8 +69,8 @@ let loading = ref({
 // 判断当前访问是否是登录用户自己的空间
 const isSelf = computed(() => {
   if (!authStore.isLogin) return false;
-  const currentUid = authStore.user?.userId || authStore.user?.id;
-  const targetUid = route.params.id || userData.value?.userId || userData.value?.id;
+  const currentUid = authStore.user?.userId;
+  const targetUid = (route.params.id as string) || (userData.value as any)?.id;
   return String(currentUid) === String(targetUid);
 });
 
@@ -81,7 +81,7 @@ const onPrimaryTabChange = (val: any) => {
   } else if (val === 'MeDataList') {
     router.push('/account/assemblys');
   } else if (val === 'MeSpace') {
-    const uid = authStore.user?.userId || authStore.user?.id;
+    const uid = authStore.user?.userId;
     if (uid && String(route.params.id) !== String(uid)) {
       router.push(`/space/${uid}`);
     }
@@ -310,7 +310,7 @@ defineOptions({
               </v-menu>
 
               <template v-else>
-                <h2 class="text-h4 font-weight-bold d-flex align-center" v-bind="props">
+                <h2 class="text-h4 font-weight-bold d-flex align-center">
                   <v-card border class="mr-4">
                     <UserAvatar :src="userData.userAvatar" v-if="userData.userAvatar" size="44"></UserAvatar>
                     <v-avatar size="44" v-else>

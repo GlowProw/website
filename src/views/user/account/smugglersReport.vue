@@ -99,13 +99,13 @@ const onCreateSmugglersReport = async () => {
   try {
     createSmugglersReportLoading.value = true
     const times = createSmugglersReportData.value.startAndEnd.split(',')
-    const result = await apis.smugglersApi().addReport({
+    const result = await apis.smugglersApi().createReport({
       title: createSmugglersReportData.value.title,
       startTime: times[0],
       endTime: times[1],
       content: createSmugglersReportData.value.content
     })
-    notice.success(t(`basic.tips.${result.code}`) || '创建成功')
+    notice.success(t('smugglersReport.account.commentSuccess'))
     await getSmugglersReportList()
     smugglersReportModel.value = false
   } catch (e) {
@@ -119,13 +119,13 @@ const onEditSmugglersReport = async () => {
   try {
     createSmugglersReportLoading.value = true
     const times = createSmugglersReportData.value.startAndEnd.split(',')
-    const result = await apis.smugglersApi().editReport(createSmugglersReportData.value.id, {
+    const result = await apis.smugglersApi().updateReport(createSmugglersReportData.value.id, {
       title: createSmugglersReportData.value.title,
       startTime: times[0],
       endTime: times[1],
       content: createSmugglersReportData.value.content
     })
-    notice.success(t(`basic.tips.${result.code}`) || '修改成功')
+    notice.success(t('smugglersReport.account.commentEditSuccess'))
     await getSmugglersReportList()
     smugglersReportModel.value = false
   } catch (e) {
@@ -137,10 +137,10 @@ const onEditSmugglersReport = async () => {
 
 const onDeleteSmugglersReport = async (reportData: any) => {
   try {
-    if (!confirm(t('common.confirmDelete') || '确定要删除该周报吗？')) return
+    if (!confirm(t('smugglersReport.account.confirmDeleteReport'))) return
     createSmugglersReportLoading.value = true
-    const result = await apis.smugglersApi().delReport(reportData.id)
-    notice.success(t(`basic.tips.${result.code}`) || '删除成功')
+    const result = await apis.smugglersApi().deleteReport(reportData.id)
+    notice.success(t('smugglersReport.account.commentDeleteSuccess'))
     await getSmugglersReportList()
     smugglersReportModel.value = false
   } catch (e) {
