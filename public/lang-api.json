@@ -83,7 +83,7 @@
             "description": "翻译键名，精确查询该键对应的值。需同时传 `category`。",
             "schema": {
               "type": "string",
-              "example": "ship_001"
+              "example": "frigate"
             }
           }
         ],

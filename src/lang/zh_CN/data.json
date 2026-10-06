@@ -45,6 +45,17 @@
     "apiDocs": {
       "name": "开发者 REST API 文档",
       "description": "基于 OpenAPI 3.0 与 Scalar 构建的现代化交互式开发者 API 文档，提供完整的碧海黑帆工具集、配装计算、战事追踪与社区数据接口规范。",
+      "intro1": "面向普通开发者开放的 《碧海黑帆》 游戏数据与资源图片服务。选择接口、填写参数，即可在下方发起真实请求。",
+      "intro2": "闪耀船首提供 本体后端服务接口 / CDN资源服务，以方便社区进行二次开发，帮助社区完善《碧海黑帆》数据。遵循对应项目协议条款(/zh-CN/setting/about)，具体阅读《服务条款》和《隐私协议》内容",
+      "descriptionTitle": "描述",
+      "apisTitle": "Apis",
+      "loadError": "未能成功拉取 OpenAPI 规范数据",
+      "retry": "重试加载",
+      "tabs": {
+        "backend": "后端接口",
+        "assets": "CDN资源",
+        "lang": "多语言翻译"
+      },
       "openSpec": "OpenAPI JSON",
       "copyUrl": "复制规范地址",
       "copied": "规范地址已复制到剪贴板",

@@ -1,0 +1,132 @@
+.scalar-app {
+  --scalar-font: var(--font-body, 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  --scalar-font-code: var(--font-mono, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+  --scalar-background-1: rgba(var(--v-theme-background));
+  --scalar-background-2: rgba(var(--v-theme-background));
+  --scalar-background-3: rgba(var(--v-theme-background));
+  --scalar-background-accent: rgba(var(--v-theme-background));
+  --scalar-color-1: #ece8e1;
+  --scalar-color-2: #9aa7b2;
+  --scalar-color-3: #6b7b88;
+  --scalar-color-accent: #ffb300;
+  --scalar-border-color: rgba(236, 232, 225, 0.05);
+  --v-border-opacity: .05;
+  --scalar-sidebar-background-1: rgba(var(--v-theme-background));
+  --scalar-sidebar-color-active: #ffb300;
+  --scalar-sidebar-item-active-background: rgba(255, 193, 7, 0.12);
+  --scalar-button-1: #ffb300;
+  --scalar-button-1-hover: #ffc107;
+  --scalar-button-1-color: #000000;
+  --scalar-radius: 4px;
+  --scalar-heading-1: 18px;
+  --scalar-page-description: 17px;
+  --scalar-heading-2: 22px;
+  --scalar-heading-3: 18px;
+  --scalar-heading-4: 17px;
+  --scalar-heading-5: 16px;
+  --scalar-heading-6: 15px;
+  --scalar-paragraph: 15px;
+  --scalar-small: 14px;
+  --scalar-mini: 13px;
+  --scalar-micro: 13px;
+  --scalar-bold: 600;
+  --scalar-semibold: 500;
+  --scalar-regular: 400;
+  --scalar-font-size-1: 22px;
+  --scalar-font-size-2: 18px;
+  --scalar-font-size-3: 18px;
+  --scalar-font-size-4: 16px;
+  --scalar-font-size-5: 14px;
+  --scalar-font-size-6: 13px;
+  --scalar-font-size-7: 13px;
+  --scalar-line-height-1: 34px;
+  --scalar-line-height-2: 26px;
+  --scalar-line-height-3: 22px;
+  --scalar-line-height-4: 20px;
+  --scalar-line-height-5: 18px;
+  --scalar-font-normal: 400;
+  --scalar-font-medium: 500;
+  --scalar-font-bold: 700;
+}
+
+.custom-scroll,
+.scalar-app-layout {
+  background-color: transparent !important;
+}
+
+.scalar-container.scalar-client--open {
+  backdrop-filter: blur(30px);
+}
+
+.section-container,
+.references-classic-header,
+.section-accordion-content,
+.references-classic .section,
+.section-accordion-title,
+.references-classic-header-container {
+  padding: 0 !important;
+}
+
+.section-accordion-chevron {
+  top: 9px !important;
+}
+
+.section-accordion-wrapper {
+  padding: 0 0 0 20px !important;
+  margin-bottom: 5px !important;
+}
+
+.section-header.mb-3 {
+  margin-bottom: 6px !important;
+}
+
+.scalar-app .section-header-wrapper h2,
+.scalar-app .section-header-wrapper h3 {
+  letter-spacing: .01em;
+}
+
+.scalar-app .section-container {
+  border-top: none !important;
+  margin-bottom: 10px !important;
+}
+
+.rounded-xl,
+
+.rounded-b-xl,
+.rounded-r-xl,
+.rounded-l-xl,
+.rounded-t-xl {
+  border-radius: 4px !important;
+}
+
+/* 隐藏下载 OpenAPI 文档按钮 */
+[data-testid="download-openapi-document"],
+.download-openapi-document,
+button[aria-label*="download" i],
+button[aria-label*="OpenAPI" i],
+a[download],
+.scalar-app button:has(svg[data-icon="download"]) {
+  display: none !important;
+}
+
+/* 隐藏顶部标题和描述区块 */
+.scalar-app [data-section-id="description/introduction"],
+.scalar-app .introduction,
+.scalar-app .references-classic-header-container:first-of-type,
+.scalar-app .section-container:has(#description\/introduction) {
+  display: none !important;
+}
+
+/* 隐藏 API 搜索栏、搜索快捷按钮及搜索弹窗 */
+.scalar-sidebar-search,
+.scalar-sidebar-search-button,
+[data-testid="sidebar-search-button"],
+.scalar-search,
+.scalar-command-palette,
+.scalar-command-palette-backdrop,
+.scalar-app [data-testid="sidebar-search-button"],
+.scalar-app .sidebar-search,
+button[aria-label*="search" i],
+button:has([data-icon="magnifying-glass"]) {
+  display: none !important;
+}

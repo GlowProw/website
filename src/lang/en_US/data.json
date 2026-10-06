@@ -45,6 +45,17 @@
     "apiDocs": {
       "name": "Developer REST API Docs",
       "description": "Modern interactive developer API documentation built with OpenAPI 3.0 and Scalar, providing comprehensive specifications for Skull and Bones toolkit, loadouts, state of war, and community data services.",
+      "intro1": "Game data and static asset services for Skull and Bones open to developers. Select an endpoint, enter parameters, and send live requests below.",
+      "intro2": "Glow Prow provides Backend Service APIs and CDN Asset Services for community development and data enrichment. Please review the Terms of Service and Privacy Policy under (/en-US/setting/about).",
+      "descriptionTitle": "Description",
+      "apisTitle": "Apis",
+      "loadError": "Failed to fetch OpenAPI specification data",
+      "retry": "Retry",
+      "tabs": {
+        "backend": "Backend APIs",
+        "assets": "CDN Assets",
+        "lang": "Localization"
+      },
       "openSpec": "OpenAPI JSON",
       "copyUrl": "Copy Spec URL",
       "copied": "Spec URL copied to clipboard",

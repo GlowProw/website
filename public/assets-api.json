@@ -78,7 +78,7 @@
             "description": "物品唯一 ID（URL 编码，不含扩展名）",
             "schema": {
               "type": "string",
-              "example": "item_armor_01"
+              "example": "culverin1"
             }
           },
           {
