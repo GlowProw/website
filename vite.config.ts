@@ -32,6 +32,10 @@ ensureLangRedirectScript();
  * 直接从 glow-prow-data-languages 里 fs 读取 JSON 数据并聚合
  * 完全绕过 .ts 入口文件（避免 Node.js ESM 不编译 .ts 的问题）
  * 自动扫描 src/data/<lang>/ 下所有 .json 文件，新增语言/数据文件无需改这里
+ *
+ * 把聚合结果写一份到 .cache/snb-i18n-agg.json（不是 node_modules 里，怕被删）
+ * 虚拟模块 SSR 时用 Vite JSON import 引用——JSON 是独立资源文件，
+ * 不会被内联到每个 SSG 页面的 bundle（之前内联导致 3MB × 20 路由 ≈ 60MB 堆爆）
  */
 function loadSnbI18nData(): Record<string, any> {
     const base = path.resolve(__dirname, 'node_modules/glow-prow-data-languages/src/data');
@@ -58,6 +62,12 @@ function loadSnbI18nData(): Record<string, any> {
     return result;
 }
 
+// 写聚合缓存文件（构建前只做一次）
+const snbAggCacheDir = path.resolve(__dirname, '.cache');
+const snbAggCacheFile = path.join(snbAggCacheDir, 'snb-i18n-agg.json');
+fs.mkdirSync(snbAggCacheDir, {recursive: true});
+fs.writeFileSync(snbAggCacheFile, JSON.stringify(loadSnbI18nData()));
+
 const snbI18nPlugin = {
     name: 'snb-i18n-data',
     resolveId(id: string) {
@@ -65,13 +75,13 @@ const snbI18nPlugin = {
     },
     load(id: string) {
         if (id !== '\0virtual:snb-i18n-data') return;
-        // this.meta.ssr 在 vite build --ssr 时为 true，client build 时为 false
-        // SSR: 聚合真实 3MB JSON 数据内联进 SSR bundle（prerender 需要）
-        // Client: 返回空对象 stub（运行时由 remote_i18n 从 CDN 远程加载覆盖）
         if ((this as any).meta?.ssr) {
-            const data = loadSnbI18nData();
-            return `export default ${JSON.stringify(data)}`;
+            // SSR：引用磁盘上的聚合 JSON（Vite resolveJsonModule 会处理）
+            // JSON 是独立资源文件，SSG 时只加载一次，不会内联到每个页面 bundle
+            const escaped = JSON.stringify(snbAggCacheFile);
+            return `import snbData from ${escaped}; export default snbData;`;
         }
+        // Client：空对象（运行时由 remote_i18n 从 CDN 远程加载覆盖）
         return `export default { zh_CN: {}, en_US: {}, zh_TW: {} }`;
     },
 };
