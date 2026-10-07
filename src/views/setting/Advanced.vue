@@ -98,7 +98,7 @@
           </template>
         </AffixBoxHasTitleView>
       </v-col>
-      
+
       <!-- PWA 应用设置 -->
       <v-col cols="12" md="8" lg="6">
         <AffixBoxHasTitleView>

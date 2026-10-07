@@ -31,12 +31,12 @@ defineOptions({name: "QQBotShowcaseWidget"});
 
 <template>
   <div class="qq-bot-showcase-widget">
-    <HorizontalScrollList :forceDraggable="true" :showControls="true">
+    <HorizontalScrollList :forceDraggable="true" :showControls="true" :isIndicator="false">
       <v-card
           border
           :width="props.cardWidth"
           :height="props.cardHeight"
-          class="bg-black qq-bot-show-card mx-2"
+          class="bg-black qq-bot-show-card"
           v-for="i in props.count"
           :key="i">
         <v-img height="100%" :src="getUseImage(String(i))"/>

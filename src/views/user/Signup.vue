@@ -22,6 +22,9 @@ const router = useRouter(),
     rules = useRules(),
     {mobile, sm} = useDisplay()
 
+/** 模板 ref 引用，用于失败时自动刷新验证码 */
+const captchaRef = ref<InstanceType<typeof Captcha> | null>(null)
+
 let signupLoading: Ref<boolean> = ref(false),
     signupPasswordMode = ref(false),
 
@@ -83,6 +86,8 @@ const onRegister = async () => {
       })
     }, 1000)
   } catch (e) {
+    // 任何注册失败都自动刷新验证码（token 已被后端消费/过期）
+    captchaRef.value?.refreshCaptcha?.()
     handleApiError(e, notice, t, {component: 'Signup', tPrefix: 'basic.tips'})
   } finally {
     signupLoading.value = false;
@@ -198,7 +203,7 @@ const onCaptchaData = (data: CaptchaParams) => {
                 </div>
 
                 <!-- 验证码 -->
-                <Captcha @getCaptchaData="onCaptchaData" class="captcha"></Captcha>
+                <Captcha ref="captchaRef" @getCaptchaData="onCaptchaData" class="captcha"></Captcha>
               </v-col>
             </v-row>
 

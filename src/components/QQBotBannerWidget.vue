@@ -28,15 +28,15 @@ defineOptions({name: "QQBotBannerWidget"});
           <v-col :cols="12" :md="props.layout === 'vertical' ? 12 : 7" :lg="props.layout === 'vertical' ? 12 : 7">
             <div class="d-flex align-center ga-3 mb-2">
               <router-link to="/apps/qq-bot">
-                <h1 class="text-h2 font-weight-bold text-amber mb-0">
+                <h1 class="text-h2 text-amber mb-0">
                   {{ t('apps.qqBot.name') }}
                 </h1>
               </router-link>
             </div>
 
-            <div class="my-3">
-              <div class="d-flex flex-wrap align-center text-h5 text-md-h4">
-                <u class="u">@{{ t('name') }}</u>
+            <div class="my-2">
+              <div class="d-flex flex-wrap align-center text-h5 font-normal text-md-h4">
+                <span class="u font-weight-medium">@{{ t('name') }}</span>
                 <v-icon icon="mdi-slash-forward" color="var(--main-color)" class="mx-1"/>
                 <span class="font-weight-medium">{ {{ t('apps.qqBot.commandPlaceholder') }} }</span>
               </div>

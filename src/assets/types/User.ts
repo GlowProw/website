@@ -3,6 +3,13 @@
  */
 export interface UserAttr {
     introduction: string
+    dmEnabled?: boolean
+    spaceEnabled?: boolean
+    notifyMessage?: boolean
+    notifyReply?: boolean
+    notifyLike?: boolean
+    assemblyUseVersion?: number
+    isShowItemName?: boolean
 }
 
 /**

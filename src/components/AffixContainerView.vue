@@ -7,7 +7,7 @@
     <div
         ref="affixRef"
         class="affix-container-content"
-        :class="{ 'is-fixed': isFixed, 'is-absolute': isAbsolute }"
+        :class="{ 'is-fixed': isFixed, 'is-absolute': isAbsolute, 'is-bottom-stuck': props.affixBottom }"
         :style="affixStyle">
       <slot></slot>
     </div>
@@ -23,13 +23,15 @@ interface Props {
   offsetBottom?: number
   target?: string | HTMLElement | null
   disabled?: boolean
+  affixBottom?: boolean  // 简单的 sticky bottom 吸底模式
 }
 
 const props = withDefaults(defineProps<Props>(), {
   offsetTop: 80,
   offsetBottom: 0,
   target: null,
-  disabled: false
+  disabled: false,
+  affixBottom: false
 })
 
 const wrapperRef = ref<HTMLElement>()
@@ -47,9 +49,9 @@ const maxViewportHeight = computed(() => {
   return Math.max(150, windowHeight.value - props.offsetTop - 16)
 })
 
-// 外层占位包裹容器样式 (保持未截断前的物理完整高度，绝对防止跳动)
+// 外层占位包裹容器样式
 const wrapperStyle = computed(() => {
-  if (!props.disabled && (isFixed.value || isAbsolute.value)) {
+  if (!props.disabled && !props.affixBottom && (isFixed.value || isAbsolute.value)) {
     return {
       position: 'relative' as const,
       width: '100%',
@@ -64,9 +66,25 @@ const wrapperStyle = computed(() => {
 
 /**
  * 脱离文档流的 fixed / absolute 样式
- * 当高度超出窗口剩余高度时自动开启垂直滚动
+ * affixBottom 模式用 CSS sticky bottom，不进 fixed/absolute 状态机
  */
 const affixStyle = computed(() => {
+  if (props.disabled) {
+    return {
+      position: 'relative' as const,
+      width: '100%'
+    }
+  }
+
+  // 吸底模式：CSS sticky bottom（最简单最可靠）
+  if (props.affixBottom) {
+    return {
+      position: 'sticky' as const,
+      bottom: `${props.offsetBottom}px`,
+      zIndex: 10
+    }
+  }
+
   if (!props.disabled) {
     if (isFixed.value) {
       return {
@@ -99,9 +117,12 @@ const affixStyle = computed(() => {
 })
 
 /**
- * 核心位置与边界判定
+ * 核心位置与边界判定（只处理吸顶，吸底由 CSS sticky 接管）
  */
 const checkPosition = () => {
+  // 吸底模式跳过 JS 判定，纯 CSS
+  if (props.affixBottom) return
+
   if (props.disabled) {
     isFixed.value = false
     isAbsolute.value = false
@@ -183,8 +204,8 @@ const handleScrollOrResize = () => {
   })
 }
 
-watch(() => [props.offsetTop, props.offsetBottom, props.target, props.disabled], () => {
-  if (props.disabled) {
+watch(() => [props.offsetTop, props.offsetBottom, props.target, props.disabled, props.affixBottom], () => {
+  if (props.affixBottom || props.disabled) {
     isFixed.value = false
     isAbsolute.value = false
   } else {

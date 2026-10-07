@@ -55,6 +55,7 @@ let browsePagination = ref({
     browseAssemblyWidgetRefs = ref([]),
     browseLoading = ref(true)
 
+/** 监听配装数据加载完成，批量触发每个 AssemblyWidget 的载入 */
 watch(browseData, (newList: ResultData) => {
   if (newList && newList.data.length > 0) {
     nextTick(() => {

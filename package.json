@@ -56,6 +56,7 @@
     "pixelmatch": "^7.1.0",
     "qrcode": "^1.5.4",
     "smooth-scrollbar": "^8.8.4",
+    "socket.io-client": "^4.8.4",
     "uuid": "^11.1.0",
     "vite-plugin-node": "^7.0.0",
     "vite-plugin-sitemap": "^0.8.2",

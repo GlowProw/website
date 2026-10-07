@@ -10,13 +10,11 @@ import HtmlLink from "@/components/HtmlLink.vue";
 import TreeNodeItem from "./TreeNodeItem.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import {useDisplay} from "vuetify/framework";
+import type {SortField, SortOrder} from "@/assets/types/views";
 
 const {t} = useI18n()
 const {mobile} = useDisplay()
 const store = useCalculatorStore()
-
-type SortField = 'name' | 'id' | 'quantity'
-type SortOrder = 'asc' | 'desc'
 
 const sortField = ref<SortField>('quantity')
 const sortOrder = ref<SortOrder>('desc')

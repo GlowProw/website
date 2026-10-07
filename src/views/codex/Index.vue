@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Footer from "@/components/Footer.vue";
 import Header from "@/components/Header.vue";
-import Sidebar from "@/views/codex/Sidebar.vue";
+import CodexSidebar from "@/views/codex/CodexSidebar.vue";
 import {useI18n} from "vue-i18n";
 import {useDisplay} from "vuetify/framework";
 import {computed} from "vue";
@@ -71,7 +71,7 @@ let isDetailPage = computed(() => [
         <v-row>
           <v-col cols="12" order-sm="1" order-lg="1" lg="3" class="pa-0" v-if="!isDetailPage">
             <AffixContainerView :offsetTop="55">
-              <Sidebar></Sidebar>
+              <CodexSidebar></CodexSidebar>
             </AffixContainerView>
           </v-col>
           <v-col cols="12" order-sm="2" order-lg="2" :lg="isDetailPage ? 12 : 9" class="pa-0">

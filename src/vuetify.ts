@@ -1,14 +1,14 @@
 import { createVuetify } from "vuetify/framework";
 
-import { aliases, mdi } from "vuetify/iconsets/mdi";
-
+import { DEFAULT_LANG } from "./config/languages";
 import { en, zhHans, zhHant } from "vuetify/locale";
 
-// 样式导入
+// 样式导入 S
+import { aliases, mdi } from "vuetify/iconsets/mdi";
 import '@/assets/styles/index.less'
 import 'vuetify/styles/main.css';
 import '@mdi/font/css/materialdesignicons.css'
-import { DEFAULT_LANG } from "./config/languages";
+// 样式导入 E
 
 export const createAppVuetify = (initialLocale = DEFAULT_LANG) => {
     return createVuetify({

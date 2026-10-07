@@ -16,26 +16,12 @@ import {ApiError} from "@/assets/types/Api";
 import {handleApiError} from "@/assets/sripts/error_handler";
 import Silk from "@/components/Silk.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
+import type {Teams} from "@/assets/types/views";
+import {getTeamsType} from "@/assets/types/views";
 
 const authStore = useAuthStore(),
     notice = useNoticeStore(),
     {t} = useI18n()
-
-interface Teams {
-  id: string | number
-  username: string
-  expiresAt: number
-  createdAt: number
-  description: string
-  player: string
-  tags: string[]
-  userId?: string
-}
-
-enum getTeamsType {
-  none,
-  load
-}
 
 const MAX_WS_DURATION = 20 * 60 * 1000; // 最长 20 分钟 WebSocket 连接
 let wsAutoDisconnectTimer: ReturnType<typeof setTimeout> | null = null;
@@ -128,7 +114,7 @@ const getRemainingHornTime = (expiresAt: number) => {
   return `${hours}小时${mins}分钟`;
 }
 
-// 清理定时器
+/** 清理 WebSocket 自动断开定时器 */
 const clearWsTimer = () => {
   if (wsAutoDisconnectTimer) {
     clearTimeout(wsAutoDisconnectTimer);
@@ -136,7 +122,7 @@ const clearWsTimer = () => {
   }
 }
 
-// 开启 20 分钟倒计时断开
+/** 开启 20 分钟倒计时自动断开 WebSocket */
 const startWsTimer = () => {
   clearWsTimer();
   wsAutoDisconnectTimer = setTimeout(() => {
@@ -148,8 +134,8 @@ const startWsTimer = () => {
   }, MAX_WS_DURATION);
 }
 
-// 监听浏览器 Tab 标签离开 / 隐藏
-const handleVisibilityChange = () => {
+/** 监听浏览器 Tab 标签离开 / 隐藏时关闭 WebSocket 释放资源 */
+const onVisibilityChange = () => {
   if (document.hidden) {
     clearWsTimer();
     if (ws.connected) {
@@ -159,15 +145,17 @@ const handleVisibilityChange = () => {
   }
 }
 
+/** 页面挂载：注册可见性监听、初始化 WebSocket、拉取列表、读取储存的玩家信息 */
 onMounted(async () => {
-  document.addEventListener('visibilitychange', handleVisibilityChange);
-  initWss();
+  document.addEventListener('visibilitychange', onVisibilityChange);
+  onInitWss();
   await getTeams(getTeamsType.none);
   readStoragePlayer();
 })
 
+/** 页面卸载：清理事件监听、定时器并关闭 WebSocket */
 onUnmounted(() => {
-  document.removeEventListener('visibilitychange', handleVisibilityChange);
+  document.removeEventListener('visibilitychange', onVisibilityChange);
   clearWsTimer();
   ws.close();
 })
@@ -183,7 +171,7 @@ const getTeams = async (type: getTeamsType = getTeamsType.none) => {
       page.value = 1;
       // 刷新列表时，若 WebSocket 未连接且页面可见，主动重连 WebSocket
       if (!ws.connected && !document.hidden) {
-        initWss();
+        onInitWss();
       }
     }
 
@@ -313,6 +301,7 @@ const onSearch = async () => {
   await getTeams(getTeamsType.none);
 }
 
+/** 切换排序方式 */
 const onTeamSortBy = async () => {
   await getTeams(getTeamsType.none);
 }
@@ -360,7 +349,7 @@ const copyToClipboard = async (content: string) => {
 /**
  * WebSocket 初始化与事件监听
  */
-const initWss = () => {
+const onInitWss = () => {
   if (document.hidden) return;
 
   ws.start();
@@ -449,11 +438,12 @@ const initWss = () => {
   });
 }
 
+/** 手动重连 WebSocket */
 const onWsReconnect = () => {
   service.value.loading = true;
   ws.close();
   clearWsTimer();
-  initWss();
+  onInitWss();
   setTimeout(() => {
     service.value.loading = false;
   }, 1000);

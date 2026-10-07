@@ -82,6 +82,7 @@ let // 发布信息
       }
     })
 
+/** 监听配装属性变化，同步更新配装视图 */
 watch(() => publishData.value.assembly.attr, () => {
   onSetAssemblyData()
 }, {deep: true})

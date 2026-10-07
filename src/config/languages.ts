@@ -62,4 +62,14 @@ export const normalizeLang = (langStr: string | null | undefined): string | null
   return null;
 };
 
+/**
+ * BCP-47 连字符格式
+ * CDN下划线格式
+ * 用于拼 CDN URL：https://lang.glow-prow.top/src/data/{toCDNLang(locale)}/ships.json
+ */
+export const toCDNLang = (lang: string | null | undefined): string => {
+  if (!lang) return DEFAULT_LANG.replace('-', '_');
+  return String(lang).trim().replace(/-/g, '_');
+};
+
 export default languagesConfig;

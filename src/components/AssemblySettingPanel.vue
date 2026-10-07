@@ -122,7 +122,7 @@ defineOptions({ name: 'AssemblySettingPanel' })
   </span>
   <v-dialog v-model="show">
     <v-container>
-      <v-card class="position-relative">
+      <v-card border class="position-relative">
         <v-card-title class="pa-5">
           <div class="text-h5 font-weight-bold text-amber">{{ t('assembly.setting.title') }}</div>
         </v-card-title>

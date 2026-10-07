@@ -62,10 +62,12 @@ let
     })
 
 
+/** 监听共享数据变化，重新装载工坊视图 */
 watch(() => shareData.value, async () => {
   await loadAssemblyData()
 })
 
+/** 编辑模式下挂载时拉取配装详情 */
 onMounted(() => {
   if (isEditModel.value)
     getAssemblyDetail()
@@ -128,6 +130,7 @@ const getAssemblyDetail = async () => {
   }
 }
 
+/** 装载配装、轮盘、船仓、精通数据到工坊各子视图 */
 const loadAssemblyData = () => {
   const d = shareData.value
 
@@ -253,6 +256,7 @@ const getDraftListData = () => {
     draftList.value = d.data;
 }
 
+/** 保存新命名草稿 */
 const onSaveDraft = () => {
   let uid: string = uuidv6(),
       newDraftData = shareData.value
@@ -409,7 +413,7 @@ const onDeleteDraft = (id) => {
     </template>
   </v-card>
 
-  <!-- 工坊 开始 -->
+  <!-- 工坊 S -->
   <AssemblyMainSubjectView
       ref="assemblyMainSubjectView"
       class="mt-n2 ml-n5 mr-n5"
@@ -418,7 +422,7 @@ const onDeleteDraft = (id) => {
       :readonly="false"
       :isShowFooterTool="true"
   ></AssemblyMainSubjectView>
-  <!-- 工坊 结束 -->
+  <!-- 工坊 E -->
 
   <v-container class="pa-0">
     <v-dialog
@@ -443,8 +447,7 @@ const onDeleteDraft = (id) => {
       </v-card>
     </v-dialog>
 
-    <v-dialog
-        v-model="draftModel">
+    <v-dialog v-model="draftModel">
       <v-card>
         <v-card-title>
           <v-row align="center" class="pa-2">

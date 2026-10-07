@@ -81,7 +81,7 @@ defineOptions({
           <v-text-field
               v-model="searchQuery"
               prepend-inner-icon="mdi-magnify"
-              :placeholder="t('basic.search') || '搜索招募描述或玩家名...'"
+              :placeholder="t('basic.button.search')"
               density="compact"
               variant="outlined"
               hide-details
@@ -126,13 +126,13 @@ defineOptions({
         <div class="d-flex align-start justify-between flex-wrap ga-3">
           <div class="flex-grow-1 min-width-0">
             <h3 class="font-weight-bold text-h6 text-amber singe-line mb-2">
-              {{ i.description || '无招募说明' }}
+              {{ i.description }}
             </h3>
 
             <div class="d-flex align-center flex-wrap ga-2 text-caption opacity-80 mb-2">
               <span class="d-flex align-center font-weight-medium">
                 <v-icon size="16" class="mr-1">mdi-account</v-icon>
-                {{ i.player || 'Captain' }}
+                {{ i.player }}
               </span>
 
               <v-divider vertical class="mx-1"></v-divider>
@@ -163,7 +163,7 @@ defineOptions({
                 color="amber"
                 prepend-icon="mdi-arrow-right"
                 to="/team">
-              {{ t('team.title') || '组队大厅' }}
+              {{ t('team.title') }}
             </v-btn>
           </div>
         </div>
@@ -175,7 +175,7 @@ defineOptions({
       <EmptyView></EmptyView>
     </div>
 
-    <!-- 统一分页器 S -->
+    <!-- 分页 S -->
     <div v-if="totalPages > 1" class="d-flex justify-center mt-6">
       <v-pagination
           v-model="currentPage"
@@ -186,7 +186,7 @@ defineOptions({
           variant="tonal">
       </v-pagination>
     </div>
-    <!-- 统一分页器 E -->
+    <!-- 分页 E -->
   </div>
 </template>
 

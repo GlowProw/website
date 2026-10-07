@@ -9,8 +9,6 @@ const props = defineProps({
         type: Editor,
       }
     }),
-    route = useRoute(),
-    router = useRouter(),
     {t} = useI18n(),
     emit = defineEmits(['finish', 'close'])
 

@@ -13,6 +13,9 @@ import AccountCommentsPage from '@/views/user/account/comments.vue'
 import AccountTeamUpsPage from '@/views/user/account/teamup.vue'
 import AccountMapsPage from '@/views/user/account/maps.vue'
 import AccountSmugglersReport from '@/views/user/account/smugglersReport.vue'
+import AccountDataCenterPage from '@/views/user/account/DataCenter.vue'
+import AccountMessagesCenterPage from '@/views/user/account/MessagesCenter.vue'
+import AccountMessagesSettingsPage from '@/views/user/account/AccountMessagesSettings.vue'
 import AccountSpacePage from '@/views/user/Space.vue'
 
 import SigninPage from '@/views/user/Signin.vue'
@@ -21,7 +24,7 @@ import ActivatePage from '@/views/user/Activate.vue'
 import ForgotPasswordPage from '@/views/user/ForgotPassword.vue'
 import ResetPasswordPage from '@/views/user/ResetPassword.vue'
 import CodexPage from '@/views/codex/Index.vue'
-import CodexOverviewPage from '@/views/codex/Overview.vue'
+import CodexCodexOverviewPage from '@/views/codex/CodexOverview.vue'
 import RankingDesignedItemsPage from '@/views/rankingDesignedItems/Index.vue'
 import RankingDesignedItemsBrowsePage from '@/views/rankingDesignedItems/Browse.vue'
 import RankingDesignedItemsWorkshopPage from '@/views/rankingDesignedItems/workshop/Index.vue'
@@ -237,7 +240,22 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
                         component: () => import('@/views/user/account/Bindings.vue'),
                         meta: { title: 'account.bindings.title', auth: true }
                     },
-
+                    {
+                        path: 'data-center',
+                        name: 'AccountDataCenter',
+                        component: AccountDataCenterPage
+                    },
+                    {
+                        path: 'messages',
+                        name: 'AccountMessages',
+                        component: AccountMessagesCenterPage
+                    },
+                    {
+                        path: 'messages-settings',
+                        name: 'AccountMessagesSettings',
+                        component: AccountMessagesSettingsPage,
+                        meta: { title: 'account.messages.settings.title', auth: true }
+                    },
                     {
                         path: 'assemblys',
                         name: 'AccountAssemblys',
@@ -462,7 +480,7 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
             {
                 path: '',
                 name: 'codexOverview',
-                component: CodexOverviewPage,
+                component: CodexCodexOverviewPage,
                 meta: {
                     title: 'codex.meta.title',
                     keywords: 'codex.meta.keywords'

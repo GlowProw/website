@@ -78,8 +78,10 @@ const isSelf = computed(() => {
 const onPrimaryTabChange = (val: any) => {
   if (val === 'MeAccount') {
     router.push('/account/information');
-  } else if (val === 'MeDataList') {
-    router.push('/account/assemblys');
+  } else if (val === 'MeDataCenter') {
+    router.push('/account/data-center');
+  } else if (val === 'MeMessageCenter') {
+    router.push('/account/messages');
   } else if (val === 'MeSpace') {
     const uid = authStore.user?.userId;
     if (uid && String(route.params.id) !== String(uid)) {
@@ -258,8 +260,11 @@ defineOptions({
             <v-tab value="MeAccount" class="font-weight-bold text-subtitle-1 px-8">
               {{ t('account.title') }}
             </v-tab>
-            <v-tab value="MeDataList" class="font-weight-bold text-subtitle-1 px-8">
-              {{ t('account.dataList') }}
+            <v-tab value="MeDataCenter" class="font-weight-bold text-subtitle-1 px-8">
+              {{ t('account.dataCenter.title') }}
+            </v-tab>
+            <v-tab value="MeMessageCenter" class="font-weight-bold text-subtitle-1 px-8">
+              {{ t('account.messages.messageCenterTitle') }}
             </v-tab>
             <v-tab value="MeSpace" class="font-weight-bold text-subtitle-1 px-8">
               {{ t('space.title') }}
@@ -267,19 +272,27 @@ defineOptions({
           </v-tabs>
 
           <template v-if="!isSelf">
-            <div class="mb-5 d-flex ga-2">
+            <div class="mb-5 d-flex ga-2 align-center flex-wrap">
               <RolesTagWidget :data="userData.role || []"></RolesTagWidget>
-            <v-chip v-if="userData.lastOnlineTime">
-              {{ t('space.lastOnlineTime') }}：
-              <Time :time="userData.lastOnlineTime"/>
-            </v-chip>
-            <v-chip v-if="userData.joinTime">
-              {{ t('space.joinTime') }}：
-              <Time :time="userData.joinTime"/>
-            </v-chip>
+              <v-chip v-if="userData.lastOnlineTime">
+                {{ t('space.lastOnlineTime') }}：
+                <Time :time="userData.lastOnlineTime"/>
+              </v-chip>
+              <v-chip v-if="userData.joinTime">
+                {{ t('space.joinTime') }}：
+                <Time :time="userData.joinTime"/>
+              </v-chip>
+              <!-- 发私信入口（登录用户且对方未禁用 DM） -->
+              <v-btn
+                  v-if="authStore.isLogin && (userData.attr?.dmEnabled !== false)"
+                  color="amber" variant="tonal" size="small"
+                  :to="`/account/messages?peerId=${route.params.id}`">
+                <v-icon size="16" class="mr-1">mdi-message-outline</v-icon>
+                {{ t('space.sendMessage') }}
+              </v-btn>
             </div>
           </template>
-          
+
           <v-spacer></v-spacer>
           <v-col cols="auto" class="d-flex align-center">
             <div class="d-flex align-center">
@@ -316,7 +329,7 @@ defineOptions({
                     <v-avatar size="44" v-else>
                       <v-icon icon="mdi-account" size="24"></v-icon>
                     </v-avatar>
-                  </v-card> 
+                  </v-card>
                   <u class="u">{{ userData.username || 'Captain' }}</u>
                 </h2>
               </template>
@@ -515,7 +528,6 @@ defineOptions({
 
   .tab-item {
     max-width: 80px;
-    font-size: 12px;
   }
 }
 
@@ -523,10 +535,6 @@ defineOptions({
   width: 80px;
   min-width: 80px;
   flex-shrink: 0;
-
-  .tab-item {
-    font-size: 12px;
-  }
 }
 
 .setting-content {

@@ -43,7 +43,7 @@
     },
     "apiDocs": {
       "name": "開發者 REST API 文件",
-      "description": "基於 OpenAPI 3.0 與 Scalar 構建的現代化交互式開發者 API 文件，提供完整的碧海黑帆工具集、配裝計算、戰事追蹤與社區數據接口規範。",
+      "description": "基於 OpenAPI 3.0 構建的現代化交互式開發者 API 文件，提供完整的碧海黑帆工具集、配裝計算、戰事追蹤與社區數據接口規範。",
       "intro1": "面向普通開發者開放的 《碧海黑帆》 遊戲數據與資源圖片服務。選擇接口、填寫參數，即可在下方發起真實請求。",
       "intro2": "閃耀船首提供 本體後端服務接口 / CDN資源服務，以方便社區進行二次開發，幫助社區完善《碧海黑帆》數據。遵循對應項目協議條款(/zh-TW/setting/about)，具體閱讀《服務條款》和《隱私協議》內容",
       "descriptionTitle": "描述",
@@ -159,101 +159,14 @@
     }
   },
   "basic": {
-    "errorCodes": {
-      "gp-0000000001": {
-        "title": "網路連接異常",
-        "description": "用戶端無法連接網路或請求傳送失敗。"
-      },
-      "gp-0000000002": {
-        "title": "HTTP 4xx 用戶端請求錯誤",
-        "description": "伺服器拒絕了請求，請求路徑不存在或驗證失敗。"
-      },
-      "gp-0000000003": {
-        "title": "HTTP 5xx 服務端回應異常",
-        "description": "後端伺服器在處理請求時遭遇內部故障。"
-      },
-      "gp-0000000004": {
-        "title": "JS 未擷取執行期例外",
-        "description": "前端 JavaScript 程式碼執行時觸發了未擷取的 Error。"
-      },
-      "gp-0000000005": {
-        "title": "Promise 未處理拒絕",
-        "description": "非同步任務 Promise 發生了 reject 但未能被 catch 擷取。"
-      },
-      "gp-0000000006": {
-        "title": "元件渲染或生命週期錯誤",
-        "description": "程式內部元件在 mount、update 或 render 過程中引發例外。"
-      },
-      "gp-0000000007": {
-        "title": "路由導航跳轉失敗",
-        "description": "路由導航鉤子例外或動態載入元件超時。"
-      },
-      "gp-0000000008": {
-        "title": "本機儲存讀寫異常",
-        "description": "localStorage / sessionStorage 存取受限或容量耗盡。"
-      },
-      "gp-0000000009": {
-        "title": "Web Worker 後台任務異常",
-        "description": "檢索或主進程 WebWorker 通訊處理資料時報錯。"
-      },
-      "gp-0000000010": {
-        "title": "靜態資源載入失敗",
-        "description": "圖片、樣式表或 CDN 靜態資源未能成功載入。"
-      },
-      "gp-0000000011": {
-        "title": "資料結構解析錯誤",
-        "description": "對 JSON 或外部格式資料進行解包反序列化時結構不符合。"
-      },
-      "gp-0000000099": {
-        "title": "未定義通用應用例外",
-        "description": "遇到非明確分類的系統應用運作錯誤。"
-      }
+    "visitor": {
+      "recentVisitors": "近期訪客",
+      "noVisitors": "暫無瀏覽記錄",
+      "anonMasked": "匿名用戶",
+      "today": "今日"
     },
-    "button": {
-      "cancel": "取消",
-      "commit": "提交",
-      "insert": "插入",
-      "next": "下一步",
-      "prev": "上一步",
-      "change": "改變",
-      "reply": "回复",
-      "report": "举报",
-      "reset": "重置",
-      "save": "保存",
-      "submit": "确认",
-      "search": "搜索",
-      "go": "前往",
-      "edit": "編輯",
-      "delete": "刪除",
-      "use": "使用",
-      "close": "關閉",
-      "create": "創建",
-      "refresh": "重新整理",
-      "view": "前往查看"
-    },
-    "assembly": {
-      "publish": {
-        "title": "發佈",
-        "preview": "預覽",
-        "subtitle": "設定配裝資訊",
-        "name": "配置名稱",
-        "namePlaceholder": "配置名稱，船長，設定一個酷炫名字，好名字配好船",
-        "nameRequired": "配置名稱是必須的",
-        "description": "描述",
-        "descriptionPlaceholder": "輸入描述內容",
-        "extra": "額外",
-        "tags": "標籤",
-        "tagsPlaceholder": "輸入標籤按下Enter鍵，即可建立新標籤"
-      }
-    },
-    "privilege": {
-      "admin": "社区管理",
-      "blacklisted": "黑名单",
-      "bot": "机器人",
-      "dev": "开发组",
-      "normal": "用户",
-      "root": "系统",
-      "super": "超级管理员"
+    "preload": {
+      "remoteI18n": "從遠端載入文本資料..."
     },
     "tips": {
       "admin": {
@@ -481,7 +394,9 @@
         "bad": "验证码错误",
         "error": "驗證碼錯誤: {context}",
         "expired": "验证码过期",
-        "wrong": "输入的验证码错误"
+        "wrong": "输入的验证码错误",
+        "required": "請先完成人機驗證",
+        "svgDisabled": "圖形驗證碼僅除錯模式可用"
       },
       "signin": {
         "ok": "登陸成功",
@@ -526,7 +441,14 @@
       },
       "user": {
         "invalid": "错误用户",
-        "tokenExpired": "用户身份过期,请重新登陆"
+        "tokenExpired": "用户身份过期,请重新登陆",
+        "tokenRequired": "請先登入",
+        "permissionDenied": "權限不足",
+        "assembls": {
+          "ok": "儲存成功",
+          "bad": "參數無效",
+          "error": "儲存失敗"
+        }
       },
       "emailChange": {
         "alreadyUsed": "該郵箱已被佔用",
@@ -590,7 +512,116 @@
         "addSuccess": "添加成功",
         "removeSuccess": "移除成功",
         "deleteSuccess": "刪除成功"
+      },
+      "messages": {
+        "bad": "請求參數無效",
+        "convNotFound": "會話不存在",
+        "peerNotFound": "對方使用者不存在",
+        "peerDisabledDM": "對方已關閉私信功能",
+        "selfDisabledDM": "你已關閉私信功能",
+        "selfNotAllowed": "不能給自己發訊息",
+        "forbidden": "無權存取此會話",
+        "bannedWords": "訊息包含違規內容"
+      },
+      "auth": {
+        "required": "請先登入"
       }
+    },
+    "errorCodes": {
+      "gp-0000000001": {
+        "title": "網路連接異常",
+        "description": "用戶端無法連接網路或請求傳送失敗。"
+      },
+      "gp-0000000002": {
+        "title": "HTTP 4xx 用戶端請求錯誤",
+        "description": "伺服器拒絕了請求，請求路徑不存在或驗證失敗。"
+      },
+      "gp-0000000003": {
+        "title": "HTTP 5xx 服務端回應異常",
+        "description": "後端伺服器在處理請求時遭遇內部故障。"
+      },
+      "gp-0000000004": {
+        "title": "JS 未擷取執行期例外",
+        "description": "前端 JavaScript 程式碼執行時觸發了未擷取的 Error。"
+      },
+      "gp-0000000005": {
+        "title": "Promise 未處理拒絕",
+        "description": "非同步任務 Promise 發生了 reject 但未能被 catch 擷取。"
+      },
+      "gp-0000000006": {
+        "title": "元件渲染或生命週期錯誤",
+        "description": "程式內部元件在 mount、update 或 render 過程中引發例外。"
+      },
+      "gp-0000000007": {
+        "title": "路由導航跳轉失敗",
+        "description": "路由導航鉤子例外或動態載入元件超時。"
+      },
+      "gp-0000000008": {
+        "title": "本機儲存讀寫異常",
+        "description": "localStorage / sessionStorage 存取受限或容量耗盡。"
+      },
+      "gp-0000000009": {
+        "title": "Web Worker 後台任務異常",
+        "description": "檢索或主進程 WebWorker 通訊處理資料時報錯。"
+      },
+      "gp-0000000010": {
+        "title": "靜態資源載入失敗",
+        "description": "圖片、樣式表或 CDN 靜態資源未能成功載入。"
+      },
+      "gp-0000000011": {
+        "title": "資料結構解析錯誤",
+        "description": "對 JSON 或外部格式資料進行解包反序列化時結構不符合。"
+      },
+      "gp-0000000099": {
+        "title": "未定義通用應用例外",
+        "description": "遇到非明確分類的系統應用運作錯誤。"
+      }
+    },
+    "button": {
+      "cancel": "取消",
+      "commit": "提交",
+      "insert": "插入",
+      "next": "下一步",
+      "prev": "上一步",
+      "change": "改變",
+      "reply": "回复",
+      "report": "举报",
+      "reset": "重置",
+      "save": "保存",
+      "submit": "确认",
+      "search": "搜索",
+      "go": "前往",
+      "edit": "編輯",
+      "delete": "刪除",
+      "use": "使用",
+      "close": "關閉",
+      "create": "創建",
+      "refresh": "重新整理",
+      "view": "前往查看"
+    },
+    "assembly": {
+      "publish": {
+        "title": "發佈",
+        "preview": "預覽",
+        "subtitle": "設定配裝資訊",
+        "name": "配置名稱",
+        "namePlaceholder": "配置名稱，船長，設定一個酷炫名字，好名字配好船",
+        "nameRequired": "配置名稱是必須的",
+        "description": "描述",
+        "descriptionPlaceholder": "輸入描述內容",
+        "extra": "額外",
+        "tags": "標籤",
+        "tagsPlaceholder": "輸入標籤按下Enter鍵，即可建立新標籤"
+      }
+    },
+    "privilege": {
+      "admin": "社区管理",
+      "blacklisted": "黑名单",
+      "bot": "机器人",
+      "dev": "开发组",
+      "normal": "用户",
+      "root": "系统",
+      "super": "超级管理员"
     },
     "rules": {
       "username": {
@@ -672,7 +703,9 @@
     "seasonTimer": "本赛季 {seasonName} 剩余{day}天",
     "appVersionLog": "更新",
     "appVersionContext": "可以直接通过网站页脚预留<u><a href=\"https://kook.vip/2s0eQP\" target=\"_blank\">Kook 社区</a></u>中提出问题，以帮助修复问题",
-    "blogLog": "博客"
+    "blogLog": "博客",
+    "slogan": "無人獨稱霸海",
+    "portraitDescription": "在 Michelle Rodriguez 主持的播客《In Gangsters of The Seas》中，了解印度洋上最傳奇的海盜們的歷史。殘忍嗜血的私掠者、海盜船長與淪為罪犯的水手，他們曾橫行海上、燒殺搶掠。你會發現——海盜不是天生的，是後天煉成的！"
   },
   "account": {
     "trash": "回收站",
@@ -680,7 +713,34 @@
     "selectAll": "全選",
     "itemsSelected": "已選擇 {count} 項",
     "deletedAt": "刪除時間",
-    "dataList": "資料",
+    "dataList": "內容管理",
+    "dataCenter": {
+      "title": "創作中心",
+      "updatedAt": "數據更新於",
+      "overview": {
+        "title": "概覽",
+        "browse": "配裝瀏覽量",
+        "space": "空間訪問",
+        "like": "點贊總量",
+        "comment": "評論/回復",
+        "unread": "私訊未讀",
+        "assembly": "配裝總數",
+        "conversations": "活躍會話",
+        "last30": "近 30 天累計"
+      },
+      "trend": {
+        "range": "時間範圍",
+        "range7": "7 天",
+        "range30": "1 個月",
+        "updated": "圖表更新"
+      },
+      "analysis": {
+        "title": "配裝分析",
+        "topLiked": "點贊 Top20",
+        "topViewed": "瀏覽 Top20",
+        "noData": "暫無數據"
+      }
+    },
     "title": "账户",
     "information": {
       "title": "个人信息",
@@ -731,9 +791,58 @@
           "oldPasswordPlaceholder": "輸入舊的密碼",
           "newPassword": "新密碼",
           "newPasswordPlaceholder": "輸入新的密碼"
+        },
+        "spaceEnabled": {
+          "name": "公開用戶空間",
+          "description": "關閉後其他用戶將無法訪問您的用戶空間"
+        },
+        "dmEnabled": {
+          "name": "允許私訊",
+          "description": "關閉後其他用戶將無法向您發送私訊"
+        },
+        "notifyMessage": {
+          "name": "私訊提醒"
+        },
+        "notifyReply": {
+          "name": "回覆提醒"
+        },
+        "notifyLike": {
+          "name": "點贊提醒"
         }
       },
       "subtitle": "管理您的個人基礎資料、賬戶安全憑據及系統偏好"
+    },
+    "messages": {
+      "messageCenterTitle": "訊息中心",
+      "title": "訊息",
+      "tabAll": "全部",
+      "tabUser": "我的訊息",
+      "tabSystem": "系統通知",
+      "empty": "暫無會話，試試去用戶空間打個招呼吧",
+      "emptyUser": "暫無私訊會話",
+      "emptySystem": "暫無系統通知",
+      "selectConv": "選擇左側會話開始聊天",
+      "inputPlaceholder": "輸入訊息...",
+      "send": "發送",
+      "systemHint": "評論、回覆、點贊的通知都會顯示在這裡",
+      "privateHint": "私訊",
+      "systemInputHint": "系統通知無需回覆",
+      "markAllRead": "全部已讀",
+      "deleteTitle": "刪除會話",
+      "deleteDesc": "確定刪除與 {name} 的會話嗎？刪除後無法恢復。",
+      "cancel": "取消",
+      "confirm": "確定",
+      "firstMessageHint": "發送第一條訊息開始對話",
+      "firstMessageEmpty": "還沒有訊息，發一條打個招呼吧 👋",
+      "settings": {
+        "title": "設定",
+        "subtitle": "管理私信與通知提醒",
+        "notifyMessageDesc": "收到新私信時提醒",
+        "notifyReplyDesc": "有人回覆你的評論時提醒",
+        "notifyLikeDesc": "有人按讚你的配裝時提醒",
+        "dmDisabledHint": "已關閉私信功能，無法接收訊息",
+        "save": "儲存設定"
+      }
     },
     "profile-picture": {
       "title": "頭像",
@@ -2442,7 +2551,8 @@
   "space": {
     "title": "用戶空間",
     "lastOnlineTime": "最後在線",
-    "joinTime": "加入時間"
+    "joinTime": "加入時間",
+    "sendMessage": "發送私訊"
   },
   "signin": {
     "title": "登陸",
@@ -2756,6 +2866,8 @@
       "cdnDesc": "決定圖標等資源獲取來源,不同的資源可能存在圖標風格差異以及響應速度等,在修改後需要重新載入網頁",
       "modelCdnTitle": "模型資源分發",
       "modelCdnDesc": "決定AI模型與特徵數據等資源獲取來源，修改後下次加載模型生效",
+      "langCdnTitle": "遠端翻譯文本源",
+      "langCdnDesc": "決定遊戲數據翻譯文本從哪個來源加載，修改後立即生效",
       "itemIconSizeTitle": "物品圖標尺寸",
       "itemIconSizeDesc": "你可以調整庫存物品圖標的尺寸以適配大多數地方，但有些位置圖標無法改動或有範圍約束。",
       "itemOpenNewWindowTitle": "新窗口",

@@ -178,6 +178,15 @@ const renderWidget = async () => {
       },
       'expired-callback': () => {
         token.value = ''
+        // 内部自动刷新 widget（让用户可以重新点击验证），同时 emit 通知外部
+        // 用 setTimeout 避免 CF 回调期间 remove 不稳定
+        setTimeout(() => {
+          try {
+            if (widgetId !== null && (window as any).turnstile) {
+              (window as any).turnstile.reset(widgetId)
+            }
+          } catch {}
+        }, 300)
         emit('callbackDoneVerifies', {
           captchaType: 'turnstile',
           response: ''
@@ -293,13 +302,12 @@ defineOptions({
 
 <template>
   <v-card class="turnstile-box d-flex align-center justify-center position-relative" variant="text" elevation="0">
-    <!-- 验证码挂载容器（容器必须始终保留在 DOM 中，不可使用 display:none，否则 Turnstile iframe 无法获取尺寸） -->
+    <!-- 验证码挂载容器 -->
     <div v-show="!loadError" ref="containerRef" class="turnstile-render"></div>
 
     <!-- 初次加载时的转圈提示 -->
     <div v-if="loading && !loadError" class="turnstile-loading d-flex align-center justify-center ga-2 text-caption opacity-70">
-      <v-progress-circular indeterminate size="18" width="2" color="amber"></v-progress-circular>
-      <span>{{ t('captcha.turnstileLoading') || 'Turnstile 安全验证加载中...' }}</span>
+      <Loading size="18"></Loading>
     </div>
 
     <!-- 加载失败降级提示卡片 -->
@@ -307,18 +315,18 @@ defineOptions({
       <div class="d-flex align-center ga-2 text-caption">
         <v-icon size="18" color="amber">mdi-shield-alert-outline</v-icon>
         <div class="d-flex flex-column">
-          <span class="font-weight-medium text-amber">{{ t('captcha.turnstileFailed') || 'Turnstile 安全验证加载失败' }}</span>
+          <span class="font-weight-medium text-amber">{{ t('captcha.turnstileFailed') }}</span>
           <span class="text-caption opacity-50" style="font-size: 11px !important;">
-            {{ errorMessage ? `[${errorMessage}] ` : '' }}{{ t('captcha.turnstileFailedHint') || '网络受限或服务暂时不可用' }}
+            {{ errorMessage ? `[${errorMessage}] ` : '' }}{{ t('captcha.turnstileFailedHint') }}
           </span>
         </div>
       </div>
       <div class="d-flex align-center ga-2">
         <v-btn size="x-small" variant="text" :loading="isRetrying" @click="init">
-          {{ t('captcha.retry') || '重试' }}
+          {{ t('captcha.retry') }}
         </v-btn>
         <v-btn size="x-small" variant="flat" color="amber" @click="switchToSvg">
-          {{ t('captcha.switchToSvg') || '切换为图形验证码' }}
+          {{ t('captcha.switchToSvg') }}
         </v-btn>
       </div>
     </div>

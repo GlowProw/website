@@ -1,22 +1,22 @@
 <script setup lang="ts">
-import {useAuthStore} from "~/stores/userAccountStore";
 import Logo from "./Logo.vue";
 import {ref} from "vue";
-import HeaderAccount from "@/components/HeaderAccount.vue";
-import HeaderMuenFunWidget from "@/components/HeaderMuenFunWidget.vue";
 import {appFuns, appNavs} from "@/assets/sripts/index";
 import {useI18n} from "vue-i18n";
-import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
-import GlobalSearchTopWindowWidget from "@/components/GlobalSearchTopWindowWidget.vue";
 import {useDisplay} from "vuetify/framework";
 import {useRoute} from "vue-router";
+import {useAppStore} from "~/stores/appStore";
 
-const authStore = useAuthStore(),
-    {t} = useI18n(),
+import HeaderAccount from "@/components/HeaderAccount.vue";
+import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
+import GlobalSearchTopWindowWidget from "@/components/GlobalSearchTopWindowWidget.vue";
+
+const {t} = useI18n(),
     route = useRoute(),
-    {mobile, xs, width} = useDisplay()
+    {width} = useDisplay(),
+    appStore = useAppStore()
 
-let drawer = ref(false)
+let drawer = ref(appStore.headerDrawer);
 
 defineOptions({
   name: "Header",
@@ -31,9 +31,9 @@ defineOptions({
         translate="yes"
         :absolute="false"
         flat>
-      <v-app-bar-nav-icon @click="drawer = !drawer" class="hidden-md hidden-lg hidden-xl hidden-xxl"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon tile @click="drawer = !drawer"></v-app-bar-nav-icon>
 
-      <div class="d-flex ml-sm-1 ml-md-1 ml-lg-2 mr-5 text-no-wrap">
+      <div class="d-flex mr-5 text-no-wrap">
         <Logo size="32" class=""></Logo>
 
         <template v-if="route.query.isShowSnBIcon">
@@ -47,7 +47,7 @@ defineOptions({
 
       <v-spacer></v-spacer>
 
-      <div class="mr-3 d-flex align-center">
+      <div class="mr-3 d-flex align-center" v-if="!drawer">
         <HeaderAccount type="header"></HeaderAccount>
 
         <v-divider class="ml-3 mr-1" inset vertical></v-divider>
@@ -57,44 +57,56 @@ defineOptions({
         </GlobalSearchTopWindowWidget>
 
         <v-btn :to="{ name: 'PortalSettingRoutine', params: $route.params }" icon="mdi-cog"></v-btn>
-
-        <HeaderMuenFunWidget></HeaderMuenFunWidget>
       </div>
     </v-app-bar>
 
     <v-navigation-drawer
+        permanent
         class="header-drawer header-filter"
+        density="comfortable"
         :width="width"
         v-model="drawer"
+        tile
         temporary>
       <v-row class="pt-3">
-        <v-col cols="12" sm="6" lg="4">
-          <v-list-item link :to="nav.to" :href="nav.href" target="_blank"
-                       @click="drawer = !drawer"
-                       v-for="(nav, navIndex) in appFuns.list" :key="navIndex">
-            {{ t(nav.title) }}
-            <template v-slot:prepend>
-              <ItemSlotBase size="40px" class="mr-2 d-flex align-center justify-center">
-                <v-icon :icon="nav.icon"></v-icon>
-              </ItemSlotBase>
-            </template>
-          </v-list-item>
+        <v-col cols="12" sm="12" md="2" lg="2" class="d-flex justify-center">
+          <div class="mt-16">
+            <v-icon icon="mdi-apps" size="70" class="mx-auto"></v-icon>
+            <p class="text-center text-h6">{{ t('header.menu') }}</p>
+          </div>
         </v-col>
         <v-divider vertical></v-divider>
-        <v-col cols="12" sm="6" lg="4">
-          <HeaderAccount type="header-drawer"></HeaderAccount>
+        <v-col cols="12" sm="12" md="5" lg="3">
+          <v-list rounded nav>
+            <v-list-item link :to="nav.to" :href="nav.href" target="_blank"
+                         @click="drawer = !drawer"
+                         v-for="(nav, navIndex) in appFuns.list" :key="navIndex">
+              {{ t(nav.title) }}
+              <template v-slot:prepend>
+                <ItemSlotBase size="40px" class="mr-2 d-flex align-center justify-center">
+                  <v-icon :icon="nav.icon"></v-icon>
+                </ItemSlotBase>
+              </template>
+            </v-list-item>
+          </v-list>
+        </v-col>
+        <v-divider vertical></v-divider>
+        <v-col cols="12" sm="12" md="5" lg="3">
+          <v-list rounded nav>
+            <HeaderAccount type="header-drawer"></HeaderAccount>
 
-          <v-divider></v-divider>
+            <v-divider></v-divider>
 
-          <v-list-item link :href="nav.href" target="_blank"
-                       v-for="(nav, navIndex) in appNavs.list" :key="navIndex">
-            {{ t(nav.title) }}
-            <template v-slot:prepend>
-              <ItemSlotBase size="40px" class="mr-2 d-flex align-center justify-center">
-                <v-icon icon="mdi-open-in-new" size="25"></v-icon>
-              </ItemSlotBase>
-            </template>
-          </v-list-item>
+            <v-list-item link :href="nav.href" target="_blank"
+                         v-for="(nav, navIndex) in appNavs.list" :key="navIndex">
+              {{ t(nav.title) }}
+              <template v-slot:prepend>
+                <ItemSlotBase size="40px" class="mr-2 d-flex align-center justify-center">
+                  <v-icon icon="mdi-open-in-new" size="25"></v-icon>
+                </ItemSlotBase>
+              </template>
+            </v-list-item>
+          </v-list>
         </v-col>
       </v-row>
     </v-navigation-drawer>
@@ -107,5 +119,6 @@ defineOptions({
 .header-drawer {
   background: rgb(0 0 0 / 60%);
   border-bottom: none !important;
+  animation: none !important;
 }
 </style>

@@ -112,14 +112,17 @@ import {computed, onMounted, onUnmounted, ref, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {createApiReference} from '@scalar/api-reference';
-import '@scalar/api-reference/style.css';
 import {conf, http} from "@/assets/sripts";
 import {generateAuthGpHeader} from "@/assets/sripts/fingerprint_auth";
 import {useAuthStore} from "~/stores/userAccountStore";
+
 import Silk from "@/components/Silk.vue";
 import Loading from "@/components/Loading.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import scalarCustomCss from "@/assets/styles/scalar.less?raw";
+import type {ApiTab} from "@/assets/types/views";
+
+import '@scalar/api-reference/style.css';
 
 const {t, locale} = useI18n();
 const route = useRoute();
@@ -137,7 +140,6 @@ const apiTabs = computed(() => [
   {value: 'assets' as const, label: t('apps.apiDocs.tabs.assets')},
   {value: 'lang' as const, label: t('apps.apiDocs.tabs.lang')},
 ]);
-type ApiTab = 'backend' | 'assets' | 'lang';
 const validTabs: ApiTab[] = ['backend', 'assets', 'lang'];
 
 const getTabFromRoute = (): ApiTab => {
@@ -181,16 +183,16 @@ onMounted(() => {
   initScalar();
 });
 
-// 监听 activeTab 变化，同步更新 URL query 参数 ?tab= 并重新渲染
 watch(activeTab, (newTab) => {
+  // 监听 activeTab 变化，同步更新 URL query 参数 ?tab= 并重新渲染
   if (route.query.tab !== newTab) {
     router.replace({query: {...route.query, tab: newTab}});
   }
   initScalar();
 });
 
-// 监听 URL query 变化，同步 activeTab
 watch(() => route.query.tab, (newTabQuery) => {
+  // 监听 URL query 变化，同步 activeTab
   if (typeof newTabQuery === 'string' && validTabs.includes(newTabQuery as ApiTab)) {
     activeTab.value = newTabQuery as ApiTab;
   }
@@ -218,6 +220,7 @@ const initScalar = async () => {
     const isBackend = activeTab.value === 'backend';
 
     let specification: any;
+
     if (isBackend) {
       try {
         const response = await fetch(specUrl.value, {
@@ -229,14 +232,18 @@ const initScalar = async () => {
             'x-lang': locale.value
           }
         });
+
         if (!response.ok) {
           throw new Error(`OpenAPI 规范请求返回 HTTP ${response.status} ${response.statusText}`);
         }
+
         const ct = response.headers.get('content-type') || '';
+
         if (!ct.includes('application/json')) {
           throw new Error(`OpenAPI 规范响应 Content-Type 异常（${ct}），接口可能被 CDN/路由规则拦截`);
         }
         specification = await response.json();
+
       } catch (fetchErr: any) {
         if (fetchErr instanceof DOMException && fetchErr.name === 'AbortError') return;
         // 给用户更可读的错误提示
@@ -353,6 +360,7 @@ const initScalar = async () => {
     loading.value = false;
   } catch (err: any) {
     if (err instanceof DOMException && err.name === 'AbortError') return;
+
     console.error('[Scalar] 初始化文档失败:', err);
     error.value = err?.message || '加载 OpenAPI 规范失败';
     loading.value = false;
@@ -361,6 +369,7 @@ const initScalar = async () => {
 
 onUnmounted(() => {
   abortController?.abort();
+
   if (scalarInstance?.destroy) {
     try {
       scalarInstance.destroy();

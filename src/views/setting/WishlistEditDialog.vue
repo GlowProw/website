@@ -407,6 +407,7 @@ import { useI18n } from 'vue-i18n'
 import { v6 as uuidV6 } from 'uuid'
 import { Items } from 'glow-prow-data'
 import type { WishlistFile, WishlistRule } from '@/assets/types/Wishlist'
+import type { CategoryFilterItem } from '@/assets/types/views'
 import ItemView from '@/components/ItemView.vue'
 import ModView from '@/components/ModView.vue'
 import ItemSlotBase from '@/components/snbWidget/ItemSlotBase.vue'
@@ -457,14 +458,6 @@ const editingNoteText = ref('')
 const tagInputMap = ref<Record<number, string>>({})
 
 // 专属物品分类筛选器
-interface CategoryFilterItem {
-  id: string
-  label: string
-  category: 'item' | 'material' | 'cosmetic' | 'ultimate' | 'modification' | 'ship'
-  tags: string[]
-  icon: string
-}
-
 const itemFilterCategories = computed<CategoryFilterItem[]>(() => [
   { id: 'all_items', label: t('setting.wishlist.filterCategories.all_items'), category: 'item', tags: [], icon: 'mdi-cube-outline' },
   { id: 'weapons', label: t('setting.wishlist.filterCategories.weapons'), category: 'item', tags: ['culverin', 'demicannon', 'bombard', 'longGun', 'torpedo', 'ballista', 'seaFire', 'mortar', 'rocket', 'springloader', 'armor'], icon: 'mdi-sword-cross' },

@@ -1,17 +1,18 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { useHead } from '@unhead/vue';
+import {computed, onMounted, ref, watch} from 'vue';
+import {useI18n} from 'vue-i18n';
+import {useHead} from '@unhead/vue';
+import {apis} from '@/assets/sripts';
+import type {DropCampaignData, StreamerChannel} from "@/assets/types";
+
 import Header from '@/components/Header.vue';
 import Footer from '@/components/Footer.vue';
 import Silk from '@/components/Silk.vue';
 import DropWidget from '@/components/DropWidget.vue';
-import { apis } from '@/assets/sripts';
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
-import type { DropCampaignData, StreamerChannel } from "@/assets/types";
 
-const { t } = useI18n();
+const {t} = useI18n();
 const dropApi = apis.dropApi();
 
 // SEO 元数据配置
@@ -53,8 +54,13 @@ const totalRewardsCount = computed(() => {
   return historyList.value.reduce((acc, cur) => acc + (cur.totalDrops || cur.drops?.length || 0), 0);
 });
 
-// 获取当前正在生效的掉宝
-const fetchCurrentDrops = async (isRefresh = false) => {
+let searchDebounceTimer: any = null;
+
+/**
+ * 获取当前正在生效的掉宝
+ * @param isRefresh
+ */
+const onFetchCurrentDrops = async (isRefresh = false) => {
   if (isRefresh) refreshing.value = true;
   else currentLoading.value = true;
 
@@ -78,8 +84,10 @@ const fetchCurrentDrops = async (isRefresh = false) => {
   }
 };
 
-// 获取掉宝历史记录
-const fetchHistoryDrops = async () => {
+/**
+ * 获取掉宝历史记录
+ */
+const onFetchHistoryDrops = async () => {
   historyLoading.value = true;
   try {
     const res = await dropApi.getHistory({
@@ -101,27 +109,31 @@ const fetchHistoryDrops = async () => {
   }
 };
 
-const handleRefresh = async () => {
-  await Promise.all([fetchCurrentDrops(true), fetchHistoryDrops()]);
+/**
+ * 处理刷新
+ */
+const onRefresh = async () => {
+  await Promise.all([onFetchCurrentDrops(true), onFetchHistoryDrops()]);
 };
 
-// 监听筛选变化
+/** 监听分页与筛选变化，刷新历史掉宝列表 */
 watch([historyPage, historyStatus], () => {
-  fetchHistoryDrops();
+  onFetchHistoryDrops();
 });
 
-let searchDebounceTimer: any = null;
+/** 监听搜索关键词变化，防抖后刷新历史列表 */
 watch(historyKeyword, () => {
   clearTimeout(searchDebounceTimer);
   searchDebounceTimer = setTimeout(() => {
     historyPage.value = 1;
-    fetchHistoryDrops();
+    onFetchHistoryDrops();
   }, 400);
 });
 
+/** 页面挂载时拉取当前掉宝和历史记录 */
 onMounted(() => {
-  fetchCurrentDrops();
-  fetchHistoryDrops();
+  onFetchCurrentDrops();
+  onFetchHistoryDrops();
 });
 </script>
 
@@ -146,11 +158,14 @@ onMounted(() => {
             <v-breadcrumbs>
               <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
               <v-breadcrumbs-divider></v-breadcrumbs-divider>
-              <v-breadcrumbs-item><v-icon icon="mdi-twitch" color="#9146FF" size="18"></v-icon> {{ t('drop.heroTitle') }}</v-breadcrumbs-item>
+              <v-breadcrumbs-item>
+                <v-icon icon="mdi-twitch" color="#9146FF" size="18"></v-icon>
+                {{ t('drop.heroTitle') }}
+              </v-breadcrumbs-item>
             </v-breadcrumbs>
 
             <p class="ml-4 text-body-1 text-medium-emphasis w-50 mb-0">
-              {{t('drop.heroSubtitle') }}
+              {{ t('drop.heroSubtitle') }}
             </p>
 
             <div class="position-absolute top-0 right-0 opacity-10 pt-10 d-flex ga-2">
@@ -215,7 +230,7 @@ onMounted(() => {
                       variant="flat"
                       prepend-icon="mdi-refresh"
                       :loading="refreshing"
-                      @click="handleRefresh"
+                      @click="onRefresh"
                       class="font-weight-bold">
                     {{ t('drop.refresh') }}
                   </v-btn>
@@ -259,7 +274,7 @@ onMounted(() => {
                 {{ t('drop.noActiveTitle') }}
               </h3>
               <p class="text-body-2 text-medium-emphasis max-w-560 mx-auto mb-6">
-                {{t('drop.noActiveSubtitle') }}
+                {{ t('drop.noActiveSubtitle') }}
               </p>
               <div class="d-flex justify-center ga-3">
                 <v-btn
@@ -287,9 +302,8 @@ onMounted(() => {
                 {{ historyTotal }} {{ t('drop.records') }}
               </div>
 
-              <!-- 筛选与搜索工具栏 -->
+              <!-- 筛选与搜索工具栏 S -->
               <div class="d-flex flex-wrap align-center ga-3">
-                <!-- 状态切换 -->
                 <v-btn-toggle
                     v-model="historyStatus"
                     mandatory
@@ -316,43 +330,46 @@ onMounted(() => {
                     class="search-input"
                 ></v-text-field>
               </div>
+              <!-- 筛选与搜索工具栏 E -->
             </v-card>
           </AffixContainerView>
 
-          <!-- 加载中状态 -->
+          <!-- 加载中 S -->
           <div v-if="historyLoading" class="d-flex flex-column ga-4">
             <v-skeleton-loader
-              v-for="i in 3"
-              :key="i"
-              type="article, actions"
-              class="rounded-xl border bg-transparent"
+                v-for="i in 3"
+                :key="i"
+                type="article, actions"
+                class="rounded-xl border bg-transparent"
             ></v-skeleton-loader>
           </div>
+          <!-- 加载中 E -->
 
-          <!-- 历史列表数据 -->
+          <!-- 历史列表 S -->
           <div v-else-if="historyList.length > 0" class="d-flex flex-column ga-6 mt-4">
             <DropWidget
-              v-for="camp in historyList"
-              :key="camp.id || camp.campaignId"
-              :campaign="camp"
-              :is-active-card="camp.status === 'active'"
+                v-for="camp in historyList"
+                :key="camp.id || camp.campaignId"
+                :campaign="camp"
+                :is-active-card="camp.status === 'active'"
             />
 
             <!-- 分页器 -->
             <div
-              v-if="Math.ceil(historyTotal / historyPageSize) > 1"
-              class="d-flex justify-center mt-8">
+                v-if="Math.ceil(historyTotal / historyPageSize) > 1"
+                class="d-flex justify-center mt-8">
               <v-pagination
-                v-model="historyPage"
-                :length="Math.ceil(historyTotal / historyPageSize)"
-                :total-visible="5"
-                rounded="circle"
-                color="amber"
+                  v-model="historyPage"
+                  :length="Math.ceil(historyTotal / historyPageSize)"
+                  :total-visible="5"
+                  rounded="circle"
+                  color="amber"
               ></v-pagination>
             </div>
           </div>
+          <!-- 历史列表 E -->
 
-          <!-- 历史列表空状态 -->
+          <!-- 历史列表空 S -->
           <v-card v-else class="empty-card py-16 text-center" variant="text">
             <v-icon icon="mdi-file-search-outline" size="48" color="grey" class="mb-3"></v-icon>
             <div class="text-h6 font-weight-bold text-white mb-1">
@@ -362,6 +379,7 @@ onMounted(() => {
               {{ t('drop.tryClearFilter') }}
             </div>
           </v-card>
+          <!-- 历史列表空 E -->
 
           <template v-slot:title>
             {{ t('drop.historySectionTitle') }}

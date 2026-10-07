@@ -77,10 +77,11 @@
 <script setup lang="ts">
 import Silk from "@/components/Silk.vue";
 import {useI18n} from "vue-i18n";
-import QQBotBannerWidget from "@/components/QQBotBannerWidget.vue";
-import QQBotShowcaseWidget from "@/components/QQBotShowcaseWidget.vue";
 import {appApps} from "@/assets/sripts/index";
 import {ref} from "vue";
+
+import QQBotBannerWidget from "@/components/QQBotBannerWidget.vue";
+import QQBotShowcaseWidget from "@/components/QQBotShowcaseWidget.vue";
 
 const {t} = useI18n();
 let id = ref('qqBot');

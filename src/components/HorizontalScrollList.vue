@@ -61,10 +61,6 @@ const baseRef = ref<{
   getScrollState: () => ScrollState
 } | null>(null)
 
-defineOptions({
-  name: 'HorizontalScrollList'
-})
-
 defineExpose({
   scrollTo: (pos: number, behavior?: ScrollBehavior) => baseRef.value?.scrollTo(pos, behavior),
   scrollToItem: (idx: number, behavior?: ScrollBehavior) => baseRef.value?.scrollToItem(idx, behavior),
@@ -83,5 +79,9 @@ defineExpose({
       canScrollHorizontally: state?.canScroll ?? false
     }
   }
+})
+
+defineOptions({
+  name: 'HorizontalScrollList'
 })
 </script>

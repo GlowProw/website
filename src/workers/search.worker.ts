@@ -10,6 +10,7 @@ import {
     Ships,
     Ultimates,
     Masterys,
+    Quests,
 } from "glow-prow-data";
 import NumberUtil from "@/assets/sripts/number";
 
@@ -169,6 +170,7 @@ self.onmessage = async (e: MessageEvent) => {
                 Object.keys(Ultimates).length +
                 Object.keys(MapLocations).length +
                 Object.keys(Sets).length +
+                Object.keys(Quests).length +
                 masteryList.length;
 
             let processedCount = 0;
@@ -348,6 +350,32 @@ self.onmessage = async (e: MessageEvent) => {
                     name,
                     sourceType: toCamelCase(i._typeStringName) || "set",
                     searchableFields: { name, id, description, category, type },
+                };
+
+                itemMap.set(`${itemData.sourceType}:${itemData.id}`, itemData);
+                allItems.push(itemData);
+                addToIndex(itemData);
+                reportProgress();
+            });
+
+            // 处理剧情/任务 (Quests)
+            Object.values(Quests).forEach((i: any) => {
+                const { id, category = "", introduction = [] } = i;
+                const name = asString([
+                    `snb.quest.${id}`,
+                    `snb.quests.${id}`,
+                ]) || id;
+                const description = asString([
+                    `snb.quest.${id}.description`,
+                    `snb.quests.${id}.description`,
+                ]) || "";
+
+                const itemData = {
+                    ...i,
+                    name,
+                    description,
+                    sourceType: "quest",
+                    searchableFields: { name, id, description, category },
                 };
 
                 itemMap.set(`${itemData.sourceType}:${itemData.id}`, itemData);

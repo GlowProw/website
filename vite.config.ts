@@ -92,22 +92,7 @@ const getDynamicDataRoutes = () => {
 const SSG_PRERENDER_LANGS = ['zh-CN', 'en-US'];
 
 const SKIP_SSG_ROUTES = [
-    '/account',
-    '/assembly',
-    '/drop',
-    '/apps',
-    '/calculator',
-    '/search',
-    '/reminder',
-    '/setting',
-    '/stateOfWar',
-    '/ranking-designed-items',
-    '/smugglers-report',
-    '/calendar',
-    '/map',
-    '/team',
     '/test',
-    '/space',
     '/:pathMatch',
 ];
 
@@ -294,7 +279,13 @@ export default defineConfig(({mode}) => {
                 "vuetify", "fsevents", "file-type", "'@zumer/snapdom'"
             ],
         },
-        define: {'process.env': {}},
+        // import.meta.env.SSR 由 vite-ssg 自动注入：
+        //   SSR 构建（预渲染）= true，客户端 hydration = false
+        // 这里显式声明避免某些 vite 版本缺失默认值
+        define: {
+            'process.env': {},
+            '__APP_VERSION__': JSON.stringify(config.version),
+        },
         ssr: {
             noExternal: ['vuetify'],
         },
@@ -363,6 +354,13 @@ export default defineConfig(({mode}) => {
                 "/mode": {
                     target: 'http://localhost:8088',
                     changeOrigin: true,
+                },
+                // 远程游戏数据翻译 CDN 代理
+                "/lang-api": {
+                    target: 'https://lang.glow-prow.top',
+                    changeOrigin: true,
+                    secure: true,
+                    rewrite: (path: any) => path.replace(/^\/lang-api/, '/src/data'),
                 }
             }
         },

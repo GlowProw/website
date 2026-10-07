@@ -97,7 +97,7 @@ defineOptions({
           <v-text-field
               v-model="searchQuery"
               prepend-inner-icon="mdi-magnify"
-              :placeholder="t('basic.search') || '搜索配装名称...'"
+              :placeholder="t('basic.button.search')"
               density="compact"
               variant="outlined"
               hide-details
@@ -115,7 +115,7 @@ defineOptions({
                 prepend-icon="mdi-plus"
                 to="/assembly/workshop"
                 target="_blank">
-              {{ t('assembly.create') || '创建配装' }}
+              {{ t('assembly.create') }}
             </v-btn>
 
             <v-btn

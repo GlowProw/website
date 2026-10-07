@@ -317,6 +317,7 @@ const formatExpiry = (iso: string): string => {
       : d.toISOString().slice(0, 10)
 }
 
+/** 取消 Stripe 周期订阅中 */
 const cancelling = ref(false)
 
 /**
@@ -345,6 +346,7 @@ const onCancelStripe = async (): Promise<void> => {
   }
 }
 
+/** 页面挂载：加载订阅主页数据并启动倒计时定时器 */
 onMounted(() => {
   load()
 
@@ -354,6 +356,7 @@ onMounted(() => {
   }, 1000)
 })
 
+/** 页面卸载：清理倒计时定时器 */
 onUnmounted(() => {
   if (tickTimer) {
     clearInterval(tickTimer)

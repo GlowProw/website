@@ -47,6 +47,7 @@ const availableCategories = computed(() => [
   { value: 'system', label: t('reminder.categories.system'), icon: 'mdi-cog-outline', color: 'blue-lighten-2' }
 ]);
 
+/** 切换某个分类的选中状态 */
 const toggleCategory = (cat: string) => {
   if (formCategories.value.includes(cat)) {
     formCategories.value = formCategories.value.filter(c => c !== cat);
@@ -62,12 +63,14 @@ const formAdvanceUnit = ref<ReminderAdvanceUnit>('minute');
 const formAdvanceValue = ref<number>(1);
 const formAdvanceMinutes = ref<number>(1);
 
+/** 获取提前提醒单位的国际化展示 */
 const getAdvanceUnitLabel = (unit: ReminderAdvanceUnit) => {
   const key = `reminder.units.${unit}`;
   if (te(key)) return t(key);
   return unit === 'second' ? '秒' : unit === 'hour' ? '小时' : '分钟';
 };
 
+/** 根据当前单位和数值重新计算提前提醒分钟数 */
 const updateCalculatedAdvanceMinutes = () => {
   const val = formAdvanceValue.value || 0;
   if (formAdvanceUnit.value === 'second') {
@@ -137,7 +140,7 @@ const getUnitLabel = (unit: ReminderIntervalUnit) => {
   return unit;
 };
 
-// 初始化默认有效期时间（开始为今天当前时分，截止为 30 天后 23:59）
+/** 初始化默认有效期时间 */
 const initDefaultValidityDates = () => {
   const now = new Date();
   const pad = (n: number) => n.toString().padStart(2, '0');
@@ -150,7 +153,7 @@ const initDefaultValidityDates = () => {
   formValidToTime.value = '23:59';
 };
 
-// 切换提前提醒预设选项
+/** 切换提前提醒预设选项并应用对应数值 */
 const onSelectAdvanceOption = (opt: '30s' | '1m' | '5m' | '10m' | '30m' | '1h' | 'custom') => {
   formAdvanceOption.value = opt;
   if (opt === '30s') {
@@ -180,7 +183,7 @@ const onSelectAdvanceOption = (opt: '30s' | '1m' | '5m' | '10m' | '30m' | '1h' |
   updateCalculatedAdvanceMinutes();
 };
 
-// 快捷设置有效期开始为当前时间
+/** 快捷设置有效期开始为当前时间 */
 const setValidFromNow = () => {
   const now = new Date();
   const pad = (n: number) => n.toString().padStart(2, '0');
@@ -188,7 +191,7 @@ const setValidFromNow = () => {
   formValidFromTime.value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
 };
 
-// 快捷设置有效期截止时间偏移天数
+/** 快捷设置有效期截止时间偏移天数 */
 const setValidToOffset = (days: number) => {
   const base = formValidFromDate.value ? new Date(`${formValidFromDate.value}T${formValidFromTime.value || '00:00'}:00`) : new Date();
   const future = isNaN(base.getTime()) ? new Date() : new Date(base.getTime());
@@ -198,7 +201,7 @@ const setValidToOffset = (days: number) => {
   formValidToTime.value = '23:59';
 };
 
-// 初始化或重置表单内容
+/** 初始化或重置表单内容（编辑态回填 / 新建态置空） */
 const resetForm = () => {
   if (props.editTask) {
     // 编辑现有任务
@@ -295,6 +298,7 @@ const resetForm = () => {
   }
 };
 
+/** 初始化默认一次性目标日期（明天 12:00） */
 const initDefaultTargetDate = () => {
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
@@ -302,13 +306,14 @@ const initDefaultTargetDate = () => {
   formTargetTime.value = '12:00';
 };
 
+/** 监听弹窗打开，重置表单内容 */
 watch(() => props.modelValue, (val) => {
   if (val) {
     resetForm();
   }
 });
 
-// 选择或取消某个星期
+/** 选择或取消某个星期 */
 const toggleDay = (day: number) => {
   if (formRepeatDays.value.includes(day)) {
     if (formRepeatDays.value.length > 1) {
@@ -319,24 +324,27 @@ const toggleDay = (day: number) => {
   }
 };
 
+/** 全选所有星期 */
 const selectAllDays = () => {
   formRepeatDays.value = [1, 2, 3, 4, 5, 6, 7];
 };
 
+/** 只选工作日 */
 const selectWorkdays = () => {
   formRepeatDays.value = [1, 2, 3, 4, 5];
 };
 
+/** 只选周末 */
 const selectWeekends = () => {
   formRepeatDays.value = [6, 7];
 };
 
-// 获取预设名称国际化展示
+/** 获取预设名称国际化展示 */
 const getPresetTitle = (preset: typeof REMINDER_PRESETS[0]) => {
   return getLocalizedText(preset.title) || (preset.titleKey && te(preset.titleKey) ? t(preset.titleKey) : '');
 };
 
-// 点击预设快速填充到表单
+/** 点击预设快速填充到表单 */
 const applyPreset = (preset: typeof REMINDER_PRESETS[0]) => {
   formTitle.value = getLocalizedText(preset.title) || (preset.titleKey && te(preset.titleKey) ? t(preset.titleKey) : '');
   formCategories.value = Array.isArray(preset.categories) ? [...preset.categories] : ['activity'];
@@ -374,7 +382,7 @@ const applyPreset = (preset: typeof REMINDER_PRESETS[0]) => {
   formNote.value = getLocalizedText(preset.note || preset.description) || (preset.noteKey && te(preset.noteKey) ? t(preset.noteKey) : '');
 };
 
-// 校验表单是否填写完整
+/** 校验表单是否填写完整 */
 const isValid = computed(() => {
   if (!formTitle.value.trim()) return false;
   if (formNote.value.length > MAX_NOTE_LENGTH) return false;
@@ -408,7 +416,7 @@ const isValid = computed(() => {
   return true;
 });
 
-// 提交保存
+/** 提交保存 */
 const onSave = () => {
   if (!isValid.value) return;
 

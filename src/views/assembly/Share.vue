@@ -115,6 +115,7 @@ const captureThumbnail = async (node: HTMLElement): Promise<string> => {
   return URL.createObjectURL(blob);
 };
 
+/** 更新配装海报缩略图 */
 const updateAssemblyThumbnail = async () => {
   const node = captureRef.value?.posterEl;
   if (!node) return;
@@ -134,6 +135,7 @@ const updateAssemblyThumbnail = async () => {
   }
 };
 
+/** 更新精通海报缩略图 */
 const updateMasteryThumbnail = async () => {
   if (!hasMastery.value) return;
   const node = masteryCaptureRef.value?.posterEl;
@@ -196,6 +198,7 @@ const masterySharePath = computed(() => {
   return `${origin}/mastery?season=${selectedSeasonId.value}&share=${code}`;
 });
 
+/** 监听海报显示相关属性变化，触发重新装载配装数据 */
 watch(() => [
   generateImageValue.value.isFullName,
   generateImageValue.value.isShowItemName
@@ -203,6 +206,7 @@ watch(() => [
   loadAssemblyData();
 });
 
+/** 监听配装海报配置变化，同步写入 URL 查询参数和本地存储 */
 watch(() => generateImageValue.value, (value) => {
   router.push({
     name: route.name as any,
@@ -215,6 +219,7 @@ watch(() => generateImageValue.value, (value) => {
   }
 }, {deep: true});
 
+/** 监听精通海报配置变化，写入本地存储 */
 watch(() => masteryGenerateImageValue.value, (value) => {
   // 保存精通海报配置
   if (value && posterSwitch.value) {
@@ -222,10 +227,12 @@ watch(() => masteryGenerateImageValue.value, (value) => {
   }
 }, {deep: true});
 
+/** 监听路由参数变化，重新获取配装详情 */
 watch(() => route, () => {
   getAssemblyDetail();
 });
 
+/** 监听海报配置变化，刷新两侧缩略图 */
 watch(
     () => [masteryGenerateImageValue.value, generateImageValue.value],
     () => {
@@ -235,6 +242,7 @@ watch(
     {deep: true}
 )
 
+/** 页面挂载：读取海报开关与配置、合并 URL 参数、拉取配装详情、注册滚动监听 */
 onMounted(() => {
   path.value = webPath.value + router.resolve({name: 'AssemblyDetail'}).path;
   posterSwitch.value = storage_account.getConfigurationItem('poster', 'poster.switch');
@@ -269,11 +277,12 @@ onMounted(() => {
   }
 
   getAssemblyDetail();
-  window.addEventListener('scroll', handleScroll, { passive: true });
+  window.addEventListener('scroll', onScroll, { passive: true });
 });
 
+/** 页面卸载：清理滚动监听和 blob URL */
 onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll);
+  window.removeEventListener('scroll', onScroll);
   if (assemblyThumbUrl.value && assemblyThumbUrl.value.startsWith('blob:')) {
     URL.revokeObjectURL(assemblyThumbUrl.value);
   }
@@ -282,8 +291,8 @@ onUnmounted(() => {
   }
 });
 
-// 监听滚动自动高亮左侧当前幻灯片
-const handleScroll = () => {
+/** 监听滚动高亮当前幻灯片 */
+const onScroll = () => {
   if (!hasMastery.value) {
     currentSlideIndex.value = 0;
     return;

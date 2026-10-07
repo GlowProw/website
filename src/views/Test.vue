@@ -6,7 +6,6 @@ import ModSlotWidget from "@/widgets/modSlot/Index.vue";
 import CombatEffectWidget from "@/widgets/combatEffect/Index.vue";
 import InfamyWidget from "@/widgets/infamy/Index.vue";
 
-let value = ref('');
 let result = ref(
     CoreCalc.create()
         .addShip(Ships.galleon)
@@ -32,12 +31,12 @@ let result = ref(
 <template>
   <v-container class="mt-10">
     <!-- 恶名系统与魁首巅峰里程碑 -->
-    <InfamyWidget class="mb-10" />
+    <InfamyWidget class="mb-10"/>
 
     <!-- 战斗机制：伤害类型、状态效果与赛季附加效果 -->
-    <CombatEffectWidget class="mb-10" />
+    <CombatEffectWidget class="mb-10"/>
 
     <!-- 装备词条插槽/精通说明部件 -->
-    <ModSlotWidget />
+    <ModSlotWidget/>
   </v-container>
 </template>

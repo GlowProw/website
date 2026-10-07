@@ -1,21 +1,31 @@
 /**
- * 主程序入口 (main.ts) — vite-ssg SSG 模式
+ * 主程序入口
  */
 
 // Node SSR 环境下为 Vuetify / JSDOM 补全缺失的全局浏览器对象
 if (typeof globalThis !== 'undefined') {
     if (typeof (globalThis as any).ResizeObserver === 'undefined') {
         (globalThis as any).ResizeObserver = class {
-            observe() {}
-            unobserve() {}
-            disconnect() {}
+            observe() {
+            }
+
+            unobserve() {
+            }
+
+            disconnect() {
+            }
         };
     }
     if (typeof (globalThis as any).IntersectionObserver === 'undefined') {
         (globalThis as any).IntersectionObserver = class {
-            observe() {}
-            unobserve() {}
-            disconnect() {}
+            observe() {
+            }
+
+            unobserve() {
+            }
+
+            disconnect() {
+            }
         };
     }
     if (typeof (globalThis as any).matchMedia === 'undefined') {
@@ -23,10 +33,14 @@ if (typeof globalThis !== 'undefined') {
             matches: false,
             media: query,
             onchange: null,
-            addListener: () => {},
-            removeListener: () => {},
-            addEventListener: () => {},
-            removeEventListener: () => {},
+            addListener: () => {
+            },
+            removeListener: () => {
+            },
+            addEventListener: () => {
+            },
+            removeEventListener: () => {
+            },
             dispatchEvent: () => false,
         });
     }
@@ -39,22 +53,23 @@ if (typeof globalThis !== 'undefined') {
             pageLeft: 0,
             pageTop: 0,
             scale: 1,
-            addEventListener: () => {},
-            removeEventListener: () => {},
+            addEventListener: () => {
+            },
+            removeEventListener: () => {
+            },
         };
     }
 }
 
 import App from './App.vue'
-import { ViteSSG } from 'vite-ssg'
-import { createPinia } from 'pinia'
+import {ViteSSG} from 'vite-ssg'
+import {createPinia} from 'pinia'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
-import { createAppI18n } from './i18n'
-import { createAppVuetify } from './vuetify'
-import { routes, scrollBehavior, setupRouterGuards } from '../router'
-import { initGlobalErrorCapture } from './assets/sripts/error_logger'
+import {createAppI18n} from './i18n'
+import {createAppVuetify} from './vuetify'
+import {routes, scrollBehavior, setupRouterGuards} from '~/router'
+import {initGlobalErrorCapture} from './assets/sripts/error_logger'
 
-// 导出 createApp，vite-ssg 在构建时调用以渲染每个路由
 export const createApp = ViteSSG(
     App,
     {
@@ -62,12 +77,12 @@ export const createApp = ViteSSG(
         base: '/',
         scrollBehavior,
     },
-    ({ app, router, isClient }) => {
+    ({app, router}) => {
         setupRouterGuards(router)
         const pinia = createPinia()
 
         // pinia-plugin-persistedstate 依赖 localStorage，仅在客户端使用
-        if (isClient) {
+        if (!import.meta.env.SSR) {
             pinia.use(piniaPluginPersistedstate)
         }
 
@@ -79,7 +94,7 @@ export const createApp = ViteSSG(
         app.use(vuetify)
 
         // 错误捕获仅客户端
-        if (isClient) {
+        if (!import.meta.env.SSR) {
             initGlobalErrorCapture(app)
         }
     }

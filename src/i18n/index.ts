@@ -1,7 +1,7 @@
 import language, { normalizeLang, SUPPORTED_LANGS, DEFAULT_LANG, FALLBACK_LANG, isSupportedLang } from '@/config/languages'
 import { createI18n, type MessageContext } from 'vue-i18n';
 
-// 网站翻译
+// 网站翻译（本地兜底 — 运行时将从 CDN 远程加载完整翻译覆盖）
 import zh_CN_local from '@/lang/zh_CN/data.json';
 import zh_CN_meta from '@/lang/zh_CN/meta.json';
 
@@ -11,9 +11,20 @@ import zh_TW_meta from '@/lang/zh_TW/meta.json';
 import en_US_local from '@/lang/en_US/data.json';
 import en_US_meta from '@/lang/en_US/meta.json';
 
-// 数据翻译
-import { en_US as en_US_snb, zh_CN as zh_CN_snb, zh_TW as zh_TW_snb } from 'glow-prow-data-languages/src'
 import { storage } from "@/assets/sripts";
+
+// 游戏数据翻译（snb.*）
+// SSR (vite-ssg prerender) → require npm 包嵌入 HTML
+// 客户端 hydration          → 空对象，由 remote_i18n 从 CDN 远程加载覆盖
+// 包名字符串拼接隐藏，防止 Vite 静态分析把 npm 包打包进客户端 bundle
+type SNBModule = { zh_CN: any; en_US: any; zh_TW: any };
+let _snb: SNBModule = { zh_CN: {}, en_US: {}, zh_TW: {} };
+
+if (typeof window === 'undefined') {
+    const pkgName = ['glow-prow-data', 'languages'].join('-');
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    _snb = require(`${pkgName}/src`) as SNBModule;
+}
 
 export const messageCompiler = (message: any) => {
     return (ctx: MessageContext) => {
@@ -140,9 +151,9 @@ const getInitialLocale = (): string => {
     return browserLocale || fallbackLocale;
 };
 
-const en_US_bundle = deepMerge({}, en_US_local, en_US_meta, { 'snb': en_US_snb });
-const zh_CN_bundle = deepMerge({}, en_US_bundle, zh_CN_local, zh_CN_meta, { 'snb': zh_CN_snb });
-const zh_TW_bundle = deepMerge({}, en_US_bundle, zh_TW_local, zh_TW_meta, { 'snb': zh_TW_snb });
+const en_US_bundle = deepMerge({}, en_US_local, en_US_meta, { 'snb': _snb.en_US });
+const zh_CN_bundle = deepMerge({}, en_US_bundle, zh_CN_local, zh_CN_meta, { 'snb': _snb.zh_CN });
+const zh_TW_bundle = deepMerge({}, en_US_bundle, zh_TW_local, zh_TW_meta, { 'snb': _snb.zh_TW });
 
 const mergedI18nMessages = {
     'en-US': en_US_bundle,

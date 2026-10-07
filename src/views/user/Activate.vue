@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import {Ref, ref, onMounted} from "vue";
+import {onMounted, ref, Ref} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {useDisplay} from "vuetify/framework";
 import {apis} from "@/assets/sripts";
 import {ApiError} from "@/assets/types/Api";
-import {handleApiError} from "@/assets/sripts/error_handler";
 import Silk from "@/components/Silk.vue";
 
 const router = useRouter(),
@@ -37,7 +36,7 @@ onMounted(() => {
  */
 const onResendCode = async () => {
   if (resendCooldown.value > 0) return;
-  
+
   try {
     if (!activateForm.value.username) {
       noticeStore.error(t('activate.form.username.notEmpty'))
@@ -47,7 +46,7 @@ const onResendCode = async () => {
     resendLoading.value = true;
     const result = await apis.userApi().resendActivationCode(activateForm.value.username);
     noticeStore.success(t(`basic.tips.${result.code}`))
-    
+
     // 开始冷却
     resendCooldown.value = 60;
     const timer = setInterval(() => {
@@ -62,7 +61,7 @@ const onResendCode = async () => {
         context: e.code
       }))
     } else {
-      noticeStore.error(t('basic.tips.activate.resend.error', { context: e }))
+      noticeStore.error(t('basic.tips.activate.resend.error', {context: e}))
     }
   } finally {
     resendLoading.value = false;
@@ -82,7 +81,7 @@ const onActivate = async () => {
     });
 
     noticeStore.success(t('basic.tips.activate.ok'))
-    
+
     setTimeout(() => {
       router.push('/account/signin')
     }, 1500)
@@ -92,7 +91,7 @@ const onActivate = async () => {
         context: e.code
       }))
     } else {
-      noticeStore.error(t('basic.tips.activate.error', { context: e }))
+      noticeStore.error(t('basic.tips.activate.error', {context: e}))
     }
   } finally {
     activateLoading.value = false;

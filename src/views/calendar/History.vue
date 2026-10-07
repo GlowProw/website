@@ -3,12 +3,13 @@ import {computed, nextTick, onMounted, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {useRoute, useRouter} from "vue-router";
 import {Seasons} from "glow-prow-data";
-import {apis, http, storage, time, getCurrentSeason as _getCurrentSeason} from "@/assets/sripts";
+import {apis, getCurrentSeason as _getCurrentSeason, http, storage, time} from "@/assets/sripts";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 
 import {Season} from "glow-prow-data/src/entity/Seasons";
 import {CalendarData, FormattedCalendar} from "@/assets/types";
 import {ApiError} from "@/assets/types/Api";
+import type {ViewMode} from "@/assets/types/views";
 import {useNoticeStore} from "~/stores/noticeStore";
 
 import Loading from "@/components/Loading.vue";
@@ -35,7 +36,6 @@ const seasonsCalendarEvents: any = ref<CalendarData | null>(null)
 const currentlySeason: any = ref<Season | null>(null)
 
 const STORAGE_KEY_VIEW_MODE = 'calendar.viewMode'
-type ViewMode = 'compact' | 'detailed'
 const viewMode = ref<ViewMode>('compact')
 const scrollListRef = ref<any>(null)
 
@@ -193,30 +193,33 @@ const hasCalendarEvents = computed(() => {
   return monthKeys.some(key => formattedCalendar.value[key]?.eventCount > 0);
 });
 
+/** 监听路由赛季参数变化，切换日历数据 */
 watch(() => route.params.seasonId, (newSeasonId) => {
   if (newSeasonId && seasons[newSeasonId as string]) {
     const sId = String(newSeasonId);
     if (sId !== selectedSeasonId.value) {
       selectSeasonsValue.value = sId;
       fetchCalendarEventData(sId).then(() => {
-        initCalendarList();
+        onInitCalendarList();
         scrollToCurrentTime();
       });
     }
   }
 });
 
+/** 监听语言变化，重新生成本地化日历列表 */
 watch(() => locale.value, (value) => {
-  initCalendarList()
+  onInitCalendarList()
 })
 
+/** 页面挂载：恢复视图模式偏好，初始化日历 */
 onMounted(async () => {
   // 从 localStorage 恢复视图模式偏好
   const stored = storage.local.get(STORAGE_KEY_VIEW_MODE)
   if (stored.code === 0 && (stored.data?.value === 'compact' || stored.data?.value === 'detailed')) {
     viewMode.value = stored.data.value
   }
-  await initCalendar()
+  await onInitCalendar()
 })
 
 /**
@@ -236,9 +239,9 @@ const getSeasonIdFromRoute = (): string | null => {
 /**
  * 初始日历
  */
-const initCalendar = async () => {
+const onInitCalendar = async () => {
   getCurrentSeason()
-  initCalendarList()
+  onInitCalendarList()
 
   const routeSeasonId = getSeasonIdFromRoute();
   const currentId = currentlySeason.value?.id;
@@ -251,14 +254,14 @@ const initCalendar = async () => {
   }
 
   await fetchCalendarEventData(selectedSeasonId.value);
-  initCalendarList();
+  onInitCalendarList();
   scrollToCurrentTime();
 };
 
 /**
  * 初始日历列表
  */
-const initCalendarList = () => {
+const onInitCalendarList = () => {
   selectSeasonsList.value = Object.values(seasons)
       .map(season => {
         const i18nKey = `snb.seasons.${season.id}`;
@@ -454,7 +457,7 @@ const updateSelectedSeason = (season: any) => {
   }
 
   fetchCalendarEventData(seasonId).then(() => {
-    initCalendarList();
+    onInitCalendarList();
     scrollToCurrentTime();
   });
 };
@@ -693,7 +696,7 @@ watch(activeCalendar, () => {
                   </v-list-item>
 
                   <!-- 刷新按钮 -->
-                  <v-list-item @click="initCalendar" :disabled="calendarLoading">
+                  <v-list-item @click="onInitCalendar" :disabled="calendarLoading">
                     <template v-slot:prepend>
                       <v-icon
                           :icon="calendarLoading ? 'mdi-loading' : 'mdi-refresh'"

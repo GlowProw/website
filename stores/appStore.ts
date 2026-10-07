@@ -10,7 +10,8 @@ const CONFIG_KEYS = {
     LANGUAGE: 'language',
     SIDEBAR_COLLAPSED: 'sidebarCollapsed',
     DEBUG: 'debug',
-    CAPTCHA_TYPE: 'captchaType'
+    CAPTCHA_TYPE: 'captchaType',
+    CDN_LANG_SOURCE: 'cdnLangSource'
 } as const
 
 // 全局预捕获 PWA 安装事件
@@ -26,8 +27,13 @@ export const useAppStore = defineStore('app', () => {
     // 开发者调试模式
     const isDebug = ref(false)
 
+    const headerDrawer = ref(false)
+
     // 人机验证服务类型 ('turnstile' | 'svg')
     const captchaType = ref<'turnstile' | 'svg'>('turnstile')
+
+    // CDN 远程翻译文本源（'glow-prow' | 'local-test'）
+    const cdnLangSource = ref<string>('glow-prow')
 
     // 是否在新窗口打开项目
     const itemOpenNewWindow = ref(false)
@@ -128,6 +134,12 @@ export const useAppStore = defineStore('app', () => {
             {defaultValue: 'turnstile'}
         )
 
+        cdnLangSource.value = storage_account.getConfigurationItem(
+            'app',
+            CONFIG_KEYS.CDN_LANG_SOURCE,
+            {defaultValue: 'glow-prow'}
+        )
+
         // 应用主题
         applyTheme(theme.value)
     }
@@ -150,6 +162,16 @@ export const useAppStore = defineStore('app', () => {
         captchaType.value = type
         storage_account.updateConfiguration('app', CONFIG_KEYS.CAPTCHA_TYPE, type)
         return type
+    }
+
+    /**
+     * 设置 CDN 远程翻译源
+     * @param source - 'glow-prow' | 'local-test'
+     */
+    const setCdnLangSource = (source: string) => {
+        cdnLangSource.value = source
+        storage_account.updateConfiguration('app', CONFIG_KEYS.CDN_LANG_SOURCE, source)
+        return source
     }
 
     /**
@@ -250,6 +272,7 @@ export const useAppStore = defineStore('app', () => {
         language.value = 'zh-CN'
         sidebarCollapsed.value = false
         captchaType.value = 'turnstile'
+        cdnLangSource.value = 'glow-prow'
 
         // 保存到本地存储
         storage_account.updateConfiguration('app', CONFIG_KEYS.OPEN_NEW_WINDOW, false)
@@ -262,6 +285,7 @@ export const useAppStore = defineStore('app', () => {
         storage_account.updateConfiguration('app', CONFIG_KEYS.LANGUAGE, 'zh-CN')
         storage_account.updateConfiguration('app', CONFIG_KEYS.SIDEBAR_COLLAPSED, false)
         storage_account.updateConfiguration('app', CONFIG_KEYS.CAPTCHA_TYPE, 'turnstile')
+        storage_account.updateConfiguration('app', CONFIG_KEYS.CDN_LANG_SOURCE, 'glow-prow')
 
         // 应用默认主题
         applyTheme('light')
@@ -347,7 +371,9 @@ export const useAppStore = defineStore('app', () => {
     return {
         // 状态 (State)
         isDebug,
+        headerDrawer,
         captchaType,
+        cdnLangSource,
         itemOpenNewWindow,
         iconSize,
         theme,
@@ -369,6 +395,7 @@ export const useAppStore = defineStore('app', () => {
         initializePwa,
         setDebug,
         setCaptchaType,
+        setCdnLangSource,
         toggleItemOpenNewWindow,
         setIconSize,
         setTheme,

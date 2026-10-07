@@ -1,6 +1,6 @@
 <template>
   <div class="skill-tree-container" id="empire-skill-simulation" ref="empireSkillSimulationViewRef">
-    <!-- 核心画布组件 (包含透明背景、风格化线条与 Canvas 逐帧渲染) -->
+    <!-- 画布 S -->
     <EmpireCanvas
         ref="canvasCompRef"
         :skills="skills"
@@ -9,20 +9,21 @@
         :scale-extent="[svgScaleExtent[0], svgScaleExtent[1]]"
         :is-debug="isDebug"
         @select-node="onCanvasSelectNode"
-        @update:transform="svgTransform = $event"
-    />
+        @update:transform="svgTransform = $event">
+    </EmpireCanvas>
+    <!-- 画布 E -->
 
-    <!-- 顶部搜索栏组件 (包含搜索输入与全屏切换) -->
+    <!-- 顶部搜索栏组件 S -->
     <EmpireSearchBar
         v-model="searchQuery"
         :items="searchItems"
         :mobile="mobile"
         :view-ref="empireSkillSimulationViewRef"
         @search-input="handleSearchInput"
-        @search-enter="searchAndLocate"
-    />
+        @search-enter="searchAndLocate"/>
+    <!-- 顶部搜索栏组件 E -->
 
-    <!-- 技能详情信息卡片组件 -->
+    <!-- 卡片 S -->
     <EmpireNodeCard
         v-model="model"
         :selected-key="selectShowKey"
@@ -35,24 +36,25 @@
         @move-node="onMoveNode"
         @set-skill-point="onSetSkillPoint"
         @debug-requisite-changed="canvasCompRef?.drawTree()"
-        @export-debug-config="onExportDebugConfig"
-    />
+        @export-debug-config="onExportDebugConfig"/>
+    <!-- 卡片 E -->
 
-    <!-- 底部状态工具栏组件 -->
+    <!-- 底部状态工具栏组件 S -->
     <EmpireFooter
         :zoom="svgTransform.k"
         :scale-extent="scaleExtent"
         :transform-x="svgTransform.x"
         :transform-y="svgTransform.y"
         :is-debug="isDebug"
-        @set-scale="canvasCompRef?.setSvgScale($event)"
-    />
+        @set-scale="canvasCompRef?.setSvgScale($event)"/>
+    <!-- 底部状态工具栏组件 E -->
   </div>
 </template>
 
 <script setup lang="ts">
 import {onMounted, ref} from 'vue';
 import {useEmpireController} from '@/assets/sripts/use_empire_controller';
+
 import EmpireCanvas from '@/components/empireSkillSimulation/EmpireCanvas.vue';
 import EmpireSearchBar from '@/components/empireSkillSimulation/EmpireSearchBar.vue';
 import EmpireNodeCard from '@/components/empireSkillSimulation/EmpireNodeCard.vue';
@@ -64,8 +66,6 @@ const props = defineProps<{
 
 const empireSkillSimulationViewRef = ref<HTMLDivElement | null>(null);
 const canvasCompRef = ref<InstanceType<typeof EmpireCanvas> | null>(null);
-const showFactionControl = ref(false);
-
 const {
   route,
   router,

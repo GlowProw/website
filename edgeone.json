@@ -1,48 +1,28 @@
 {
   "routes": [
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/sitemap.xml",
-      "dest": "/sitemap.xml",
-      "status": 200
-    },
-    {
-      "src": "/robots.txt",
-      "dest": "/robots.txt",
-      "status": 200
-    },
-    {
-      "src": "/ads.txt",
-      "dest": "/ads.txt",
-      "status": 200
-    },
-    {
-      "src": "/2b62795cf566484f8bc243e7055ae616.txt",
-      "dest": "/2b62795cf566484f8bc243e7055ae616.txt",
-      "status": 200
-    },
-    {
-      "src": "/WW_verify_HnH1pdutwpAkO0XY.txt",
-      "dest": "/WW_verify_HnH1pdutwpAkO0XY.txt",
-      "status": 200
-    },
-    {
-      "src": "/favicon.ico",
-      "dest": "/favicon.ico",
-      "status": 200
-    },
-    {
-      "src": "/favicon.png",
-      "dest": "/favicon.png",
-      "status": 200
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html",
-      "status": 200
-    }
+    { "src": "/sitemap.xml", "dest": "/sitemap.xml", "status": 200 },
+    { "src": "/robots.txt", "dest": "/robots.txt", "status": 200 },
+    { "src": "/ads.txt", "dest": "/ads.txt", "status": 200 },
+    { "src": "/2b62795cf566484f8bc243e7055ae616.txt", "dest": "/2b62795cf566484f8bc243e7055ae616.txt", "status": 200 },
+    { "src": "/WW_verify_HnH1pdutwpAkO0XY.txt", "dest": "/WW_verify_HnH1pdutwpAkO0XY.txt", "status": 200 },
+    { "src": "/favicon.ico", "dest": "/favicon.ico", "status": 200 },
+    { "src": "/favicon.png", "dest": "/favicon.png", "status": 200 },
+    { "src": "/assets/lang-redirect.js", "dest": "/assets/lang-redirect.js", "status": 200 },
+
+    { "src": "/lang-api/(.*)", "dest": "https://lang.glow-prow.top/src/data/:splat" },
+
+    { "src": "/assets/*", "dest": "/assets/*" },
+    { "src": "/static/*", "dest": "/static/*" },
+    { "src": "/manifest*", "dest": "/manifest*" },
+    { "src": "/*.webmanifest", "dest": "/:splat.webmanifest" },
+    { "src": "/*.svg", "dest": "/:splat.svg" },
+    { "src": "/*.png", "dest": "/:splat.png" },
+    { "src": "/*.ico", "dest": "/:splat.ico" },
+    { "src": "/*.txt", "dest": "/:splat.txt" },
+    { "src": "/*.xml", "dest": "/:splat.xml" },
+    { "src": "/*.json", "dest": "/:splat.json" },
+
+    { "src": "/(.*)", "dest": "/index.html", "status": 200 }
   ],
   "headers": [
     {
@@ -70,23 +50,18 @@
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]
+    },
+    {
+      "source": "/lang-api/*",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=600" },
+        { "key": "Content-Type", "value": "application/json; charset=utf-8" }
+      ]
     }
   ],
   "caches": [
-    {
-      "source": "/robots.txt",
-      "cacheTtl": 0
-    },
-    {
-      "source": "/sitemap.xml",
-      "cacheTtl": 0
-    },
-    {
-      "source": "/ads.txt",
-      "cacheTtl": 0
-    }
-  ],
-  "rewrites": [
-    { "source": "/*", "destination": "/index.html" }
+    { "source": "/robots.txt", "cacheTtl": 0 },
+    { "source": "/sitemap.xml", "cacheTtl": 0 },
+    { "source": "/ads.txt", "cacheTtl": 0 }
   ]
 }

@@ -1,43 +1,54 @@
 <script setup lang="ts">
 import {ref} from "vue";
-import {appFuns} from "@/assets/sripts/index";
+import {appFuns, appNavs} from "@/assets/sripts/index";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import {useI18n} from "vue-i18n";
 import {useDisplay} from "vuetify/framework";
+import HeaderAccount from "@/components/HeaderAccount.vue";
+import VerticalScrollList from "@/components/VerticalScrollList.vue";
 
-const {t} = useI18n(),
-    {mobile} = useDisplay()
+const {t} = useI18n()
 
-let show = ref(false)
+let model = ref(true)
 </script>
 
 <template>
-  <v-tooltip v-model="show" location="bottom center"
-             content-class="pa-0"
-             interactive
-             open-on-click>
-    <template v-slot:activator="{props}">
-      <v-btn icon="mdi-apps" v-bind="props"></v-btn>
-    </template>
-    <v-card class="pt-10 pb-10 pl-4 pr-4" :width="mobile ? '100%' : 450" max-width="520" border>
-      <v-row justify="center" no-gutters>
-        <v-col cols="4"
-               v-for="(i, index) in appFuns.list" :key="index"
-               :class="{'opacity-40':!i.to }"
-               class="text-center mb-5 pl-2 pr-2">
-          <router-link :to="i.to" @click="show = false">
-            <ItemSlotBase size="70px" class="d-flex justify-center align-center ma-auto mb-2">
-              <v-icon :icon="i.icon" size="30"></v-icon>
-            </ItemSlotBase>
+  <v-btn icon="mdi-apps" @click="model = !model"></v-btn>
 
-            <div class="font-weight-bold mb-2 text-amber singe-line w-100">{{ t(i.title) }}</div>
-          </router-link>
+  <v-dialog z-index="800"
+            class="app-fun-menu position-fixed"
+            noClickAnimation
+            transition
+            v-model="model">
+    <v-main>
+      <v-row class="pt-3">
+        <v-col cols="12" sm="6" lg="4">
+          <VerticalScrollList>
+            <v-list-item link :to="nav.to" :href="nav.href" target="_blank"
+                         @click="model = !model"
+                         v-for="(nav, navIndex) in appFuns.list" :key="navIndex">
+              {{ t(nav.title) }}
+              <template v-slot:prepend>
+                <ItemSlotBase size="60px" class="mr-2 d-flex align-center justify-center">
+                  <v-icon :icon="nav.icon" size="40"></v-icon>
+                </ItemSlotBase>
+              </template>
+            </v-list-item>
+          </VerticalScrollList>
+        </v-col>
+        <v-col cols="12" sm="6" lg="4">
+          1
         </v-col>
       </v-row>
-    </v-card>
-  </v-tooltip>
+    </v-main>
+  </v-dialog>
 </template>
 
 <style scoped lang="less">
-
+.app-fun-menu {
+  background: linear-gradient(rgba(0, 0, 0, 0.47), rgba(0, 0, 0, 0.47)),
+  hsl(from var(--main-color) h s l / .1);
+  background-blend-mode: multiply;
+  backdrop-filter: blur(100px)
+}
 </style>

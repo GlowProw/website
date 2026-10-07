@@ -15,6 +15,7 @@ import Captcha from "@/components/captcha/index.vue";
 import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue";
 import {useIntersectionObserver} from "@/assets/sripts/intersection_observer";
+import AffixContainerView from "@/components/AffixContainerView.vue";
 
 type commentTargetType = 'assembly' | 'item' | 'commoditie' | 'ship' | 'ultimate' | 'mod' | 'material' | 'set' | 'treasureMap' | 'npc' | 'mapLocation' | 'cosmetic' | 'empireSkill' | 'mastery' | 'quest'
 
@@ -224,6 +225,8 @@ defineOptions({
 
 <template>
   <div v-if="isMounted" class="comment-widget-wrapper">
+
+    <!-- 评论时间轴 S -->
     <div class="comment-widget" ref="targetElement">
       <v-timeline
           density="compact"
@@ -304,35 +307,37 @@ defineOptions({
         </div>
       </template>
     </div>
+    <!-- 评论时间轴 E -->
 
-    <v-card border class="pa-2" v-if="authStore.isLogin">
+    <AffixContainerView :offset-bottom="5">
+      <v-card border variant="text" class="pa-2" v-if="authStore.isLogin">
       <Textarea v-model="content"
                 :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate', 'lang']"
                 :placeholder="props.placeholder"></Textarea>
-
-      <v-row no-gutters>
-        <v-col>
-          <Captcha @getCaptchaData="onCaptchaData" class="captcha" ref="captchaRef"></Captcha>
-        </v-col>
-        <v-spacer></v-spacer>
-        <v-col>
-          <v-btn size="55" class="bg-amber" :max-width="150" block
-                 :loading="commentPushLoading"
-                 :disabled="!content || !isCaptchaValid"
-                 @click="onPushComment">
-            {{ t('basic.button.submit') }}
-          </v-btn>
-        </v-col>
-      </v-row>
-    </v-card>
-    <v-alert v-else>
-      {{ t('comment.loginRequired') }}
-      <template v-slot:append>
-        <router-link :to="`/account/signin?backUrl=${route.path}`">
-          <v-btn>{{ t('signin.title') }}</v-btn>
-        </router-link>
-      </template>
-    </v-alert>
+        <v-row no-gutters>
+          <v-col>
+            <Captcha @getCaptchaData="onCaptchaData" class="captcha" ref="captchaRef"></Captcha>
+          </v-col>
+          <v-spacer></v-spacer>
+          <v-col>
+            <v-btn size="55" class="bg-amber" :max-width="150" block
+                   :loading="commentPushLoading"
+                   :disabled="!content || !isCaptchaValid"
+                   @click="onPushComment">
+              {{ t('basic.button.submit') }}
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-card>
+      <v-alert v-else>
+        {{ t('comment.loginRequired') }}
+        <template v-slot:append>
+          <router-link :to="`/account/signin?backUrl=${route.path}`">
+            <v-btn>{{ t('signin.title') }}</v-btn>
+          </router-link>
+        </template>
+      </v-alert>
+    </AffixContainerView>
   </div>
 </template>
 

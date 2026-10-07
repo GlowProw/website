@@ -10,6 +10,7 @@ import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import {useDisplay} from "vuetify/framework";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import EmptyView from "@/components/EmptyView.vue";
+import type {SNode, SLink} from "@/assets/types/views";
 
 const {t, locale} = useI18n()
 const {mobile} = useDisplay()
@@ -24,22 +25,6 @@ const currentZoomScale = ref(1)
 let zoomBehavior: d3.ZoomBehavior<SVGSVGElement, unknown> | null = null
 let svgSelection: d3.Selection<SVGSVGElement, unknown, null, undefined> | null = null
 let resizeObserver: ResizeObserver | null = null
-
-interface SNode {
-  id: string
-  name: string
-  text: string
-  color: string
-}
-
-interface SLink {
-  source: string
-  target: string
-  value: number
-  name: string
-  text: string
-  color: string
-}
 
 /**
  * 获取名称
@@ -325,7 +310,7 @@ watch(
     {deep: true}
 )
 
-// 容器宽度监听
+/** 容器宽度监听：挂载时启动 ResizeObserver 并首次绘制桑基图 */
 onMounted(() => {
   if (svgContainer.value) {
     resizeObserver = new ResizeObserver(entries => {
@@ -342,6 +327,7 @@ onMounted(() => {
   nextTick(drawSankey)
 })
 
+/** 卸载时断开 ResizeObserver */
 onBeforeUnmount(() => {
   resizeObserver?.disconnect()
 })

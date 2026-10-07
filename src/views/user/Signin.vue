@@ -26,6 +26,9 @@ const authStore = useAuthStore(),
     rules = useRules(),
     {mobile, sm} = useDisplay()
 
+/** 模板 ref 引用，用于失败时自动刷新验证码 */
+const captchaRef = ref<InstanceType<typeof Captcha> | null>(null)
+
 let signinFormLoading: Ref<boolean> = ref(false),
 
     // 登陆表单
@@ -83,6 +86,8 @@ const onLogin = async () => {
     await router.push('/')
   } catch (e) {
     console.log(e)
+    // 任何登录失败都自动刷新验证码（token 已被后端消费/过期）
+    captchaRef.value?.refreshCaptcha?.()
     if (e instanceof ApiError && e.code === 'signin.notActivated') {
       handleApiError(e, notice, t, { component: 'Signin', tPrefix: 'basic.tips' })
       setTimeout(() => {
@@ -161,7 +166,7 @@ const onCaptchaData = (data: CaptchaParams) => {
                               :placeholder="t('signin.form.placeholder.password')"
                               type="password"></v-text-field>
 
-                <Captcha @getCaptchaData="onCaptchaData" class="captcha"></Captcha>
+                <Captcha ref="captchaRef" @getCaptchaData="onCaptchaData" class="captcha"></Captcha>
               </v-col>
             </v-row>
 

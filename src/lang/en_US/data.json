@@ -44,7 +44,7 @@
     },
     "apiDocs": {
       "name": "Developer REST API Docs",
-      "description": "Modern interactive developer API documentation built with OpenAPI 3.0 and Scalar, providing comprehensive specifications for Skull and Bones toolkit, loadouts, state of war, and community data services.",
+      "description": "Modern interactive developer API documentation built with OpenAPI 3.0, providing comprehensive specifications for Skull and Bones toolkit, loadouts, state of war, and community data services.",
       "intro1": "Game data and static asset services for Skull and Bones open to developers. Select an endpoint, enter parameters, and send live requests below.",
       "intro2": "Glow Prow provides Backend Service APIs and CDN Asset Services for community development and data enrichment. Please review the Terms of Service and Privacy Policy under (/en-US/setting/about).",
       "descriptionTitle": "Description",
@@ -158,101 +158,14 @@
     }
   },
   "basic": {
-    "errorCodes": {
-      "gp-0000000001": {
-        "title": "Network Connection Exception",
-        "description": "Client cannot connect to the network or the request failed to send."
-      },
-      "gp-0000000002": {
-        "title": "HTTP 4xx Client Request Error",
-        "description": "Server refused the request, path does not exist or authentication failed."
-      },
-      "gp-0000000003": {
-        "title": "HTTP 5xx Server Response Error",
-        "description": "Backend server encountered an internal failure while processing request."
-      },
-      "gp-0000000004": {
-        "title": "Uncaught JS Runtime Exception",
-        "description": "Frontend JavaScript execution triggered an uncaught Error."
-      },
-      "gp-0000000005": {
-        "title": "Unhandled Promise Rejection",
-        "description": "Async Promise rejected without being caught."
-      },
-      "gp-0000000006": {
-        "title": "Component Lifecycle Error",
-        "description": "Component raised an exception during mount, update, or render."
-      },
-      "gp-0000000007": {
-        "title": "Router Navigation Failed",
-        "description": "Navigation guard error or lazy component timeout."
-      },
-      "gp-0000000008": {
-        "title": "Local Storage Access Error",
-        "description": "localStorage / sessionStorage access denied or quota exceeded."
-      },
-      "gp-0000000009": {
-        "title": "Web Worker Task Exception",
-        "description": "Error during search or main thread WebWorker data communication."
-      },
-      "gp-0000000010": {
-        "title": "Static Resource Load Failure",
-        "description": "Image, stylesheet or CDN static asset failed to load."
-      },
-      "gp-0000000011": {
-        "title": "Data Parse Error",
-        "description": "Structure mismatch when deserializing JSON or external data."
-      },
-      "gp-0000000099": {
-        "title": "Undefined General Application Exception",
-        "description": "Encountered unclassified system application runtime error."
-      }
+    "visitor": {
+      "recentVisitors": "Recent Visitors",
+      "noVisitors": "No browse records yet",
+      "anonMasked": "Anonymous",
+      "today": "today"
     },
-    "button": {
-      "cancel": "Cancel",
-      "commit": "Commit",
-      "insert": "Insert",
-      "next": "Next",
-      "prev": "Previous",
-      "change": "Change",
-      "reply": "Reply",
-      "report": "Report",
-      "reset": "Reset",
-      "save": "Save",
-      "submit": "Submit",
-      "search": "Search",
-      "go": "Go",
-      "edit": "Edit",
-      "delete": "Delete",
-      "use": "Use",
-      "close": "Close",
-      "create": "Create",
-      "refresh": "Refresh",
-      "view": "View"
-    },
-    "assembly": {
-      "publish": {
-        "title": "Publish",
-        "preview": "Preview",
-        "subtitle": "Configure assembly information",
-        "name": "Build Name",
-        "namePlaceholder": "Build name, Captain, pick a cool name for your ship",
-        "nameRequired": "Build name is required",
-        "description": "Description",
-        "descriptionPlaceholder": "Enter description",
-        "extra": "Extra",
-        "tags": "Tags",
-        "tagsPlaceholder": "Type tag and press Enter to create a new tag"
-      }
-    },
-    "privilege": {
-      "admin": "Community Admin",
-      "blacklisted": "Blacklisted",
-      "bot": "Bot",
-      "dev": "Development Team",
-      "normal": "User",
-      "root": "System",
-      "super": "Super Admin"
+    "preload": {
+      "remoteI18n": "Loading remote translations..."
     },
     "tips": {
       "actionLocked": "Operation is locked, please try again tomorrow.",
@@ -482,7 +395,9 @@
         "bad": "Captcha error",
         "error": "Captcha error: {context}",
         "expired": "Captcha expired",
-        "wrong": "Incorrect captcha entered"
+        "wrong": "Incorrect captcha entered",
+        "required": "Please complete the captcha",
+        "svgDisabled": "SVG captcha only in debug mode"
       },
       "signin": {
         "ok": "Login successful",
@@ -529,7 +444,8 @@
         "error": "Request error: {context}"
       },
       "auth": {
-        "fingerprintRequired": "Browser security credential verification failed, please refresh the page and try again"
+        "fingerprintRequired": "Browser security credential verification failed, please refresh the page and try again",
+        "required": "Please sign in first"
       },
       "email": {
         "dailyLimitExceeded": "Daily email send limit for this action reached (max 3 per day), please try again tomorrow",
@@ -560,7 +476,14 @@
       },
       "user": {
         "invalid": "Invalid user",
-        "tokenExpired": "User identity expired, please log in again"
+        "tokenExpired": "User identity expired, please log in again",
+        "tokenRequired": "Please sign in first",
+        "permissionDenied": "Permission denied",
+        "assembls": {
+          "ok": "Saved",
+          "bad": "Invalid parameters",
+          "error": "Failed to save"
+        }
       },
       "request": {
         "rateLimited": "Request too fast, please slow down"
@@ -606,7 +529,113 @@
         "addSuccess": "Added successfully",
         "removeSuccess": "Removed successfully",
         "deleteSuccess": "Deleted successfully"
+      },
+      "messages": {
+        "bad": "Invalid request parameters",
+        "convNotFound": "Conversation not found",
+        "peerNotFound": "User not found",
+        "peerDisabledDM": "The other user has disabled DMs",
+        "selfDisabledDM": "You have disabled DMs",
+        "selfNotAllowed": "Cannot DM yourself",
+        "forbidden": "No access to this conversation",
+        "bannedWords": "Message contains prohibited content"
       }
+    },
+    "errorCodes": {
+      "gp-0000000001": {
+        "title": "Network Connection Exception",
+        "description": "Client cannot connect to the network or the request failed to send."
+      },
+      "gp-0000000002": {
+        "title": "HTTP 4xx Client Request Error",
+        "description": "Server refused the request, path does not exist or authentication failed."
+      },
+      "gp-0000000003": {
+        "title": "HTTP 5xx Server Response Error",
+        "description": "Backend server encountered an internal failure while processing request."
+      },
+      "gp-0000000004": {
+        "title": "Uncaught JS Runtime Exception",
+        "description": "Frontend JavaScript execution triggered an uncaught Error."
+      },
+      "gp-0000000005": {
+        "title": "Unhandled Promise Rejection",
+        "description": "Async Promise rejected without being caught."
+      },
+      "gp-0000000006": {
+        "title": "Component Lifecycle Error",
+        "description": "Component raised an exception during mount, update, or render."
+      },
+      "gp-0000000007": {
+        "title": "Router Navigation Failed",
+        "description": "Navigation guard error or lazy component timeout."
+      },
+      "gp-0000000008": {
+        "title": "Local Storage Access Error",
+        "description": "localStorage / sessionStorage access denied or quota exceeded."
+      },
+      "gp-0000000009": {
+        "title": "Web Worker Task Exception",
+        "description": "Error during search or main thread WebWorker data communication."
+      },
+      "gp-0000000010": {
+        "title": "Static Resource Load Failure",
+        "description": "Image, stylesheet or CDN static asset failed to load."
+      },
+      "gp-0000000011": {
+        "title": "Data Parse Error",
+        "description": "Structure mismatch when deserializing JSON or external data."
+      },
+      "gp-0000000099": {
+        "title": "Undefined General Application Exception",
+        "description": "Encountered unclassified system application runtime error."
+      }
+    },
+    "button": {
+      "cancel": "Cancel",
+      "commit": "Commit",
+      "insert": "Insert",
+      "next": "Next",
+      "prev": "Previous",
+      "change": "Change",
+      "reply": "Reply",
+      "report": "Report",
+      "reset": "Reset",
+      "save": "Save",
+      "submit": "Submit",
+      "search": "Search",
+      "go": "Go",
+      "edit": "Edit",
+      "delete": "Delete",
+      "use": "Use",
+      "close": "Close",
+      "create": "Create",
+      "refresh": "Refresh",
+      "view": "View"
+    },
+    "assembly": {
+      "publish": {
+        "title": "Publish",
+        "preview": "Preview",
+        "subtitle": "Configure assembly information",
+        "name": "Build Name",
+        "namePlaceholder": "Build name, Captain, pick a cool name for your ship",
+        "nameRequired": "Build name is required",
+        "description": "Description",
+        "descriptionPlaceholder": "Enter description",
+        "extra": "Extra",
+        "tags": "Tags",
+        "tagsPlaceholder": "Type tag and press Enter to create a new tag"
+      }
+    },
+    "privilege": {
+      "admin": "Community Admin",
+      "blacklisted": "Blacklisted",
+      "bot": "Bot",
+      "dev": "Development Team",
+      "normal": "User",
+      "root": "System",
+      "super": "Super Admin"
     },
     "rules": {
       "username": {
@@ -688,12 +717,41 @@
     "seasonTimer": "Season {seasonName} remaining {day} days",
     "appVersionLog": "Updates",
     "appVersionContext": "You can report issues directly through the <u><a href=\"https://kook.vip/2s0eQP\" target=\"_blank\">Kook Community</a></u> link reserved in the website footer to help fix problems",
-    "blogLog": "Blog"
+    "blogLog": "Blog",
+    "slogan": "NO ONE RULES THE SEA",
+    "portraitDescription": "In Gangsters of The Seas, a podcast presented by Michelle Rodriguez, discover the history of some of the greatest pirates of the Indian Ocean. Cruel and bloodthirsty privateers, buccaneers and sailors turned criminals, they terrorized and pillaged the seas. You’ll soon hear that you’re not born a pirate. You become one!"
   },
   "account": {
     "trash": "Recycle Bin",
     "logout": "Log Out",
-    "dataList": "Data",
+    "dataList": "Content",
+    "dataCenter": {
+      "title": "Creator Center",
+      "updatedAt": "Data updated",
+      "overview": {
+        "title": "Overview",
+        "browse": "Assembly Views",
+        "space": "Space Visits",
+        "like": "Total Likes",
+        "comment": "Comments/Replies",
+        "unread": "DM Unread",
+        "assembly": "Total Assemblies",
+        "conversations": "Active Conversations",
+        "last30": "Last 30 days"
+      },
+      "trend": {
+        "range": "Range",
+        "range7": "7 days",
+        "range30": "1 month",
+        "updated": "Chart updated"
+      },
+      "analysis": {
+        "title": "Assembly Analysis",
+        "topLiked": "Top 20 Liked",
+        "topViewed": "Top 20 Viewed",
+        "noData": "No data yet"
+      }
+    },
     "selectAll": "Select All",
     "itemsSelected": "{count} items selected",
     "deletedAt": "Deletion Time",
@@ -747,9 +805,58 @@
           "oldPasswordPlaceholder": "Enter old password",
           "newPassword": "New Password",
           "newPasswordPlaceholder": "Enter new password"
+        },
+        "spaceEnabled": {
+          "name": "Public Profile Space",
+          "description": "When disabled, other users cannot access your profile space"
+        },
+        "dmEnabled": {
+          "name": "Allow Direct Messages",
+          "description": "When disabled, other users cannot send you direct messages"
+        },
+        "notifyMessage": {
+          "name": "DM Notifications"
+        },
+        "notifyReply": {
+          "name": "Reply Notifications"
+        },
+        "notifyLike": {
+          "name": "Like Notifications"
         }
       },
       "subtitle": "Manage your personal profile, credentials, and system preferences"
+    },
+    "messages": {
+      "messageCenterTitle": "Message Center",
+      "title": "Message",
+      "tabAll": "All",
+      "tabUser": "Direct Messages",
+      "tabSystem": "Notifications",
+      "empty": "No conversations yet. Say hi in a profile!",
+      "emptyUser": "No direct messages yet",
+      "emptySystem": "No notifications yet",
+      "selectConv": "Select a conversation on the left to start chatting",
+      "inputPlaceholder": "Type a message...",
+      "send": "Send",
+      "systemHint": "Replies, likes and other activity will appear here",
+      "privateHint": "Private conversation",
+      "systemInputHint": "Notifications don't need a reply",
+      "markAllRead": "Mark all read",
+      "deleteTitle": "Delete conversation",
+      "deleteDesc": "Delete conversation with {name}? This cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "firstMessageHint": "Send first message to start chatting",
+      "firstMessageEmpty": "No messages yet. Say hi 👋",
+      "settings": {
+        "title": "Settings",
+        "subtitle": "Manage direct messages and notifications",
+        "notifyMessageDesc": "Notify when receiving new direct messages",
+        "notifyReplyDesc": "Notify when someone replies to your comments",
+        "notifyLikeDesc": "Notify when someone likes your assemblies",
+        "dmDisabledHint": "Direct messages disabled, unable to receive messages",
+        "save": "Save Settings"
+      }
     },
     "profile-picture": {
       "title": "Avatar",
@@ -2383,7 +2490,8 @@
   "space": {
     "title": "User Space",
     "lastOnlineTime": "Last Online",
-    "joinTime": "Join Time"
+    "joinTime": "Join Time",
+    "sendMessage": "Send Message"
   },
   "signin": {
     "title": "Sign In",
@@ -2697,6 +2805,8 @@
       "cdnDesc": "Determines the source for acquiring resources such as icons; different resources may have difference in styles and speeds. After modification, the webpage needs to be reloaded.",
       "modelCdnTitle": "Model Resource Distribution",
       "modelCdnDesc": "Determines the source for acquiring AI models and feature data. Takes effect upon next model load.",
+      "langCdnTitle": "Remote Translation Source",
+      "langCdnDesc": "Determines where game data translations are loaded from. Takes effect immediately.",
       "itemIconSizeTitle": "Item Icon Size",
       "itemIconSizeDesc": "You can adjust the size of inventory item icons to fit most places, but some location icons cannot be changed or have range constraints.",
       "itemOpenNewWindowTitle": "New Window",
@@ -2894,6 +3004,11 @@
         "turnstileDesc": "Smart privacy verification without tedious character inputs (Recommended).",
         "svg": "SVG Captcha",
         "svgDesc": "Traditional character image captcha requiring manual input."
+      },
+      "cdnLang": {
+        "title": "Remote Translation Source",
+        "description": "The site loads translations remotely from CDN on startup. You can switch source or manually refresh here. Changes take effect on next launch.",
+        "refreshFailed": "Failed to load remote translations"
       }
     }
   },

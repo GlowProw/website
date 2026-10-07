@@ -1,37 +1,41 @@
 <script setup lang="ts">
 import AppMessageWidget from '@/components/AppMessageWidget.vue'
+import GlobalPreloadOverlay from '@/components/GlobalPreloadOverlay.vue'
 import {computed, onMounted, watch} from "vue";
 import {useI18n} from 'vue-i18n';
 import {useRoute} from "vue-router";
 import {useHead} from "@unhead/vue";
-import {storage, getAppOrigin, getAppUrl} from "@/assets/sripts";
-import {normalizeLang, SUPPORTED_LANGS, DEFAULT_LANG, isSupportedLang} from "@/config/languages";
+import {getAppOrigin, getAppUrl, storage} from "@/assets/sripts";
+import {DEFAULT_LANG, isSupportedLang, SUPPORTED_LANGS} from "@/config/languages";
 import {useReminderStore} from "~/stores/reminderStore";
+import {useAppStore} from "~/stores/appStore";
+import {usePreloadStore} from "~/stores/preloadStore";
+import {loadRemoteLangMessages} from "@/assets/sripts/remote_i18n";
 
 const {t, locale} = useI18n();
 const reminderStore = useReminderStore();
+const appStore = useAppStore();
+const preloadStore = usePreloadStore();
 
 const route = useRoute();
 
-// 监听路由路径中的语言前缀
 watch(
-  () => route.path,
-  (newPath) => {
-    if (!newPath) return;
-    const seg = newPath.split('/').filter(Boolean)[0];
-    if (seg && isSupportedLang(seg)) {
-      if (seg !== locale.value) {
-        locale.value = seg;
-        if (typeof window !== 'undefined') {
-          storage.local.set('lang', { value: seg });
+    () => route.path,
+    (newPath) => {
+      if (!newPath) return;
+      const seg = newPath.split('/').filter(Boolean)[0];
+      if (seg && isSupportedLang(seg)) {
+        if (seg !== locale.value) {
+          locale.value = seg;
+          if (typeof window !== 'undefined') {
+            storage.local.set('lang', {value: seg});
+          }
         }
       }
-    }
-  },
-  { immediate: true }
+    },
+    {immediate: true}
 );
 
-// 全局响应式 Meta 信息配置
 const head = computed(() => {
   const siteName = t('name');
   const titleStr = route.meta.title ? t(route.meta.title as string) : '';
@@ -50,27 +54,27 @@ const head = computed(() => {
   return {
     title: fullTitle,
     meta: [
-      { name: 'description', content: descStr },
-      { name: 'keywords', content: keywordsStr },
-      { property: 'og:type', content: 'website' },
-      { property: 'og:url', content: canonicalUrl },
-      { property: 'og:title', content: fullTitle },
-      { property: 'og:description', content: descStr },
-      { property: 'og:image', content: `${origin}/favicon.png` },
-      { property: 'og:site_name', content: siteName },
-      { name: 'twitter:card', content: 'summary_large_image' },
-      { name: 'twitter:title', content: fullTitle },
-      { name: 'twitter:description', content: descStr },
-      { name: 'twitter:image', content: `${origin}/favicon.png` }
+      {name: 'description', content: descStr},
+      {name: 'keywords', content: keywordsStr},
+      {property: 'og:type', content: 'website'},
+      {property: 'og:url', content: canonicalUrl},
+      {property: 'og:title', content: fullTitle},
+      {property: 'og:description', content: descStr},
+      {property: 'og:image', content: `${origin}/favicon.png`},
+      {property: 'og:site_name', content: siteName},
+      {name: 'twitter:card', content: 'summary_large_image'},
+      {name: 'twitter:title', content: fullTitle},
+      {name: 'twitter:description', content: descStr},
+      {name: 'twitter:image', content: `${origin}/favicon.png`}
     ],
     link: [
-      { rel: 'canonical', href: canonicalUrl },
+      {rel: 'canonical', href: canonicalUrl},
       ...SUPPORTED_LANGS.map(l => ({
         rel: 'alternate',
         hreflang: l,
         href: getAppUrl(`/${l}${cleanRawPath}`)
       })),
-      { rel: 'alternate', hreflang: 'x-default', href: getAppUrl(`/${DEFAULT_LANG}${cleanRawPath}`) },
+      {rel: 'alternate', hreflang: 'x-default', href: getAppUrl(`/${DEFAULT_LANG}${cleanRawPath}`)},
     ],
     htmlAttrs: {
       lang: currentLang
@@ -80,16 +84,42 @@ const head = computed(() => {
 
 useHead(head)
 
-onMounted(() => {
+onMounted(async () => {
+  preloadStore.registerTask({
+    id: 'remote-i18n',
+    phase: t('basic.preload.remoteI18n') || '从远程加载文本数据...',
+    run: async () => {
+      if (typeof window === 'undefined') return;
+      await loadRemoteLangMessages(appStore.cdnLangSource, locale.value);
+    }
+  });
+
+  try {
+    await preloadStore.runAll();
+  } catch (err) {
+    console.warn('[Preload] runAll 异常（不阻塞应用）:', err);
+  }
+
+  watch(
+      () => locale.value,
+      async (newLang, oldLang) => {
+        if (newLang === oldLang) return;
+        try {
+          await loadRemoteLangMessages(appStore.cdnLangSource, newLang);
+        } catch (err) {
+          console.warn('[remote_i18n] 语言切换加载失败:', newLang, err);
+        }
+      }
+  );
+
   document.dispatchEvent(new Event('render-event'));
   reminderStore.init();
 });
 </script>
 
 <template>
+  <GlobalPreloadOverlay />
+
   <AppMessageWidget></AppMessageWidget>
   <router-view></router-view>
 </template>
-
-<style scoped>
-</style>

@@ -1,14 +1,11 @@
 <script setup lang="ts">
-import {onMounted, onUnmounted, type Ref, ref} from "vue";
-import {appFuns, time, getCurrentSeason} from "@/assets/sripts";
+import {onMounted, onUnmounted, ref} from "vue";
+import {appFuns, getCurrentSeason, time} from "@/assets/sripts";
 import {Season} from "glow-prow-data/src/entity/Seasons";
 import {useI18n} from "vue-i18n";
-
-import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import Silk from "@/components/Silk.vue";
 import BlogWidget from "@/components/BlogWidget.vue";
 import AppVersionWidget from "@/components/AppVersionWidget.vue";
-import SeasonViewWidget from "@/components/SeasonViewWidget.vue";
 import NewSeasonShowItem from "@/components/NewSeasonShowItem.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
@@ -16,6 +13,7 @@ import DonorsWidget from "@/components/DonorsWidget.vue";
 import Loading from "@/components/Loading.vue";
 import QQBotBannerWidget from "@/components/QQBotBannerWidget.vue";
 import QQBotShowcaseWidget from "@/components/QQBotShowcaseWidget.vue";
+import Banner from "@/components/Banner.vue";
 
 const {t} = useI18n()
 
@@ -61,16 +59,10 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div>
+  <Banner>
     <v-card class="portal-banner overflow-hidden position-relative">
       <template v-slot:image>
-        <Silk
-            :speed="5"
-            :scale="1.2"
-            :color="'#1c1c1c'"
-            :noise-intensity="1"
-            :rotation="-10"
-            class="portal-banner-backMark w-100 h-100 bg-black"/>
+
         <div class="portal-banner-looping-video w-100 opacity-100">
           <video autoplay playsinline
                  class="card-enlargement-mask-flavor"
@@ -89,74 +81,65 @@ onUnmounted(() => {
         </div>
       </div>
     </v-card>
+  </Banner>
 
-    <div class="portal-body overflow-hidden position-relative pl-3 pr-3 pt-10 pb-2">
+  <div>
+    <div class="portal-body overflow-hidden position-relative pl-3 pr-3 pt-10">
       <v-container>
         <v-row>
           <v-col cols="12" md="8" lg="8">
-            <v-row>
+            <v-row justify="end">
               <v-col cols="12" sm="6" md="4" lg="4"
                      :class="{'opacity-30': !i.to}"
                      v-for="(i,index) in appFuns.list" :key="index">
-                <v-row dense>
-                  <v-col cols="auto">
-                    <ItemSlotBase size="60px" class="d-flex justify-center align-center">
-                      <v-icon :icon="i.icon" size="40"></v-icon>
-                    </ItemSlotBase>
-                  </v-col>
-                  <v-col>
-                    <router-link :to="i.to">
-                      <p class="text-h6 font-weight-bold mb-2 text-amber">{{ t(i.title) }}</p>
-                    </router-link>
-                    <p class="opacity-50">{{ t(i.description) }}</p>
-                  </v-col>
-                </v-row>
+                <v-card :to="i.to" hover variant="text" class="py-2 pl-1 h-100" elevation="0">
+                  <v-row dense>
+                    <v-col cols="auto">
+                      <v-avatar tile size="70" class="d-flex justify-center">
+                        <v-icon :icon="i.icon" size="40"></v-icon>
+                      </v-avatar>
+                    </v-col>
+                    <v-col>
+                      <p class="mb-2 text-h5 text-amber">{{ t(i.title) }}</p>
+                      <p class="font-weight-light opacity-50">{{ t(i.description) }}</p>
+                    </v-col>
+                  </v-row>
+                </v-card>
               </v-col>
             </v-row>
           </v-col>
           <v-col lg="4">
-           <div class="title card-enlargement-mask-flavor pb-6">
-              <v-card width="100%" variant="text">
-                <template v-slot:title>
-                  <v-card height="180" class="bg-black d-flex justify-center align-center">
-                    <v-icon size="120">mdi-calendar-range</v-icon>
-                  </v-card>
-                </template>
-              </v-card>
-
-              <div class="mt-3 mx-5">
-                <v-btn block to="/calendar/history" size="50" prepend-icon="mdi-calendar-range">{{ t('calendar.title') }}</v-btn>
-              </div>
-            </div>
+            <v-card variant="text"
+                    class="title h-100 d-flex flex-column">
+              <h1 class="text-amber text-h2 pb-7">{{ t('portal.slogan') }}</h1>
+              <p class="text-h5 font-weight-light opacity-50">{{ t('portal.portraitDescription') }}</p>
+            </v-card>
           </v-col>
         </v-row>
       </v-container>
     </div>
 
-    <div class="portal-body bg-black mt-5 pl-3 pr-3 pt-2 pb-2 pt-md-3 pb-md-3 pt-lg-10 pb-lg-10">
+    <div class="portal-body bg-black mt-10 pl-3 pr-3 pt-10 pb-10">
+      <v-container>
+        <v-row align="center">
+          <v-col cols="12" md="4" lg="4">
+            <QQBotBannerWidget :is-show-detail="true" layout="vertical"/>
+          </v-col>
+          <v-col cols="12" md="8" lg="8">
+            <QQBotShowcaseWidget/>
+          </v-col>
+        </v-row>
+      </v-container>
+    </div>
+
+    <div class="portal-body pt-5 pb-5">
       <v-container>
         <v-row>
           <v-col cols="12" md="4" lg="4">
             <AffixContainerView>
-              <div class="title card-enlargement-mask-flavor pb-6">
-                <v-card width="100%">
-                  <SeasonViewWidget v-if="currentlySeason" :data="currentlySeason"></SeasonViewWidget>
-                </v-card>
-
-                <h1 class="text-amber pl-10 pr-10 pt-5 d-flex align-center">
-                  <v-row no-gutters align="center" justify="space-between">
-                    <v-col cols="2">
-                      <v-icon class="mr-3" size="32">mdi-flare</v-icon>
-                    </v-col>
-                    <v-col class="text-center" cols="8" style="line-height: 1">
-                      {{ t(`snb.seasons.${currentlySeason?.id}`) }}
-                    </v-col>
-                    <v-col cols="2">
-                      <v-icon class="ml-3" size="32">mdi-flare</v-icon>
-                    </v-col>
-                  </v-row>
-                </h1>
-                <p class="px-5 py-3 font-weight-light opacity-80">{{ t(`snb.calendar.${currentlySeason?.id}.description`) }}</p>
+              <div class="d-flex flex-column justify-space-between">
+                <h1 class="text-h2 text-amber pb-10">{{ t(`snb.seasons.${currentlySeason?.id}`) }}</h1>
+                <p class="text-h5 font-weight-light opacity-50">{{ t(`snb.calendar.${currentlySeason?.id}.description`) }}</p>
               </div>
             </AffixContainerView>
           </v-col>
@@ -178,27 +161,11 @@ onUnmounted(() => {
       </v-container>
     </div>
 
-    <div class="portal-body mt-10 pl-3 pr-3 pt-2 pb-10">
-      <v-container>
-        <v-row align="center">
-          <v-col cols="12" md="4" lg="4">
-            <QQBotBannerWidget :is-show-detail="true" layout="vertical"/>
-          </v-col>
-          <v-col cols="0" md="1" lg="1">
-
-          </v-col>
-          <v-col cols="12" md="7" lg="7">
-            <QQBotShowcaseWidget/>
-          </v-col>
-        </v-row>
-      </v-container>
-    </div>
-
     <!-- 捐助者 S -->
     <DonorsWidget v-if="false"></DonorsWidget>
     <!-- 捐助者 E -->
 
-    <div class="portal-body bg-black pt-16 pb-16">
+    <div class="portal-body bg-black pt-5 pb-5">
       <v-container>
         <v-row>
           <v-col cols="12" sm="12" md="4" lg="4">
@@ -215,7 +182,7 @@ onUnmounted(() => {
               <BlogWidget></BlogWidget>
 
               <template v-slot:title>
-                  {{ t('portal.blogLog') }}
+                {{ t('portal.blogLog') }}
 
                 <div class="mt-3">
                   <a href="https://help.glow-prow.top/blog" target="_blank">
@@ -233,7 +200,8 @@ onUnmounted(() => {
 
 <style scoped lang="less">
 .portal-banner {
-  min-height: 700px;
+  height: calc(100vh - 400px);
+  min-height: 400px;
   position: relative;
   z-index: 5;
   overflow: hidden;
@@ -307,8 +275,7 @@ onUnmounted(() => {
 }
 
 .portal-body {
-  background: #131313;
-  margin-top: -50px;
+  background: rbga(var(--v-theme-background));
   z-index: 10;
   border-radius: 20px 20px 10px 10px;
 }
@@ -317,9 +284,8 @@ onUnmounted(() => {
   .portal-banner {
     .portal-banner-looping-video {
       video {
-        opacity: .7;
         width: auto;
-        height: 100% !important;
+        width: 100% !important;
       }
     }
 

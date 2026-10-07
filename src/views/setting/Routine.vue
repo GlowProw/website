@@ -159,6 +159,14 @@
     </v-col>
     <v-col cols="12" lg="4">
       <AffixBoxHasTitleView>
+        <ItemLangCdnAssets></ItemLangCdnAssets>
+        <template v-slot:title>
+          {{ t('setting.routine.langCdnTitle') }}
+        </template>
+      </AffixBoxHasTitleView>
+    </v-col>
+    <v-col cols="12" lg="4">
+      <AffixBoxHasTitleView>
         <p class="text-caption opacity-60 mb-5">{{ t('setting.routine.posterDesc') }}</p>
 
         <v-row align="center" no-gutters>
@@ -295,14 +303,15 @@
 
 <script setup lang="ts">
 import I18nWidget from "@/components/i18nWidget.vue";
-import ItemIconManager from "@/components/itemIconManager.vue";
+import ItemIconManager from "@/components/ItemIconManager.vue";
 import HtmlLink from "@/components/HtmlLink.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import {appFuns, storage_account, storage_capacity_monitor} from "@/assets/sripts/index";
 import {onMounted, Ref, ref, computed} from "vue";
 import {useI18n} from "vue-i18n";
-import ItemIconCdnAssets from "@/components/itemIconCdnAssets.vue";
-import ItemModelCdnAssets from "@/components/itemModelCdnAssets.vue";
+import ItemIconCdnAssets from "@/components/ItemIconCdnAssets.vue";
+import ItemModelCdnAssets from "@/components/ItemModelCdnAssets.vue";
+import ItemLangCdnAssets from "@/components/ItemLangCdnAssets.vue";
 import EmptyView from "@/components/EmptyView.vue";
 
 const {t} = useI18n()

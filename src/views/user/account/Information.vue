@@ -83,7 +83,7 @@ const getUserAccount = async () => {
         d = result.data
     userAccountData.value = d.data;
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'Information' })
+    handleApiError(e, notice, t, {component: 'Information'})
   }
 }
 
@@ -99,7 +99,7 @@ const onChangePassword = async () => {
     await router.push({name: 'AccountInformation'})
     notice.success(t(`basic.tips.${result.code}`))
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'Information' })
+    handleApiError(e, notice, t, {component: 'Information'})
   } finally {
     changePasswordLoading.value = false;
     changePasswordModel.value = false;
@@ -121,7 +121,7 @@ const onSaveAccountAttr = async () => {
     const result = await apis.userApi().updateMeAttr(attr)
     notice.success(t(`basic.tips.${result.code}`))
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'Information' })
+    handleApiError(e, notice, t, {component: 'Information'})
   } finally {
     userAccountAttrLoading.value = false
   }
@@ -140,7 +140,7 @@ const onChangeAlternativeName = async () => {
     userAccountData.value.alternativeName = newName
     notice.success(t(`basic.tips.${result.code}`))
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'Information' })
+    handleApiError(e, notice, t, {component: 'Information'})
   } finally {
     alternativeNameData.value.data.username = ''
     userAlternativeNameLoading.value = false
@@ -164,7 +164,7 @@ const onChangeEmailRequest = async () => {
     const result = await apis.userApi().requestEmailChangeCode(emailChangeData.value.data.newEmail)
     notice.success(t(`basic.tips.${result.code}`))
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'Information' })
+    handleApiError(e, notice, t, {component: 'Information'})
   } finally {
     changeEmailRequestLoading.value = false
   }
@@ -185,7 +185,7 @@ const onChangeEmailConfirm = async () => {
     emailChangeData.value.data.newEmail = ''
     emailChangeData.value.data.code = ''
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'Information' })
+    handleApiError(e, notice, t, {component: 'Information'})
   } finally {
     changeEmailLoading.value = false
   }
@@ -208,7 +208,7 @@ defineOptions({
 
     <v-form ref="form">
       <v-row>
-        <!-- 卡片一：基础档案 S -->
+        <!-- 基础档案 S -->
         <v-col cols="12" lg="6">
           <AffixBoxHasTitleView>
             <div class="mb-4">
@@ -275,9 +275,9 @@ defineOptions({
             </template>
           </AffixBoxHasTitleView>
         </v-col>
-        <!-- 卡片一：基础档案 E -->
+        <!-- 基础档案 E -->
 
-        <!-- 卡片二：账户安全 S -->
+        <!-- 账户安全 S -->
         <v-col cols="12" lg="6">
           <AffixBoxHasTitleView>
             <div class="mb-4">
@@ -325,9 +325,9 @@ defineOptions({
             </template>
           </AffixBoxHasTitleView>
         </v-col>
-        <!-- 卡片二：账户安全 E -->
+        <!-- 账户安全 E -->
 
-        <!-- 卡片三：偏好与个人介绍 S -->
+        <!-- 偏好与个人介绍 S -->
         <v-col cols="12">
           <AffixBoxHasTitleView>
             <v-row>
@@ -358,6 +358,27 @@ defineOptions({
                   </Textarea>
                 </v-card>
               </v-col>
+
+              <!-- 隐私与通知开关 -->
+              <v-col cols="12" md="6">
+                <div density="compact" class="pa-0 bg-transparent">
+                  <v-list-item>
+                    <v-list-item-title class="text-caption font-weight-bold">
+                      {{ t('account.information.form.spaceEnabled.name') }}
+                    </v-list-item-title>
+                    <v-list-item-subheader>
+                      <p class="text-caption opacity-50">{{ t('account.information.form.spaceEnabled.description') }}</p>
+                    </v-list-item-subheader>
+                    <template v-slot:append>
+                      <v-switch
+                          v-model="userAccountData.attr.spaceEnabled"
+                          inset color="amber"
+                          :prepend-icon="userAccountData.attr.spaceEnabled ? 'mdi-eye-outline' : 'mdi-eye-off-outline'">
+                      </v-switch>
+                    </template>
+                  </v-list-item>
+                </div>
+              </v-col>
             </v-row>
 
             <div class="d-flex justify-end mt-4">
@@ -377,7 +398,7 @@ defineOptions({
             </template>
           </AffixBoxHasTitleView>
         </v-col>
-        <!-- 卡片三：偏好与个人介绍 E -->
+        <!-- 偏好与个人介绍 E -->
       </v-row>
     </v-form>
 

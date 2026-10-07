@@ -1,17 +1,16 @@
 <script setup lang="ts">
 
 import {useI18n} from "vue-i18n";
-import {onMounted, Ref, ref, computed, watch} from "vue";
+import {computed, onMounted} from "vue";
 import {MapLocations} from "glow-prow-data";
 import {useRoute, useRouter} from "vue-router";
 import {useAuthStore} from "~/stores/userAccountStore";
-import Time from "@/components/Time.vue";
 import TimeView from "@/components/TimeView.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import CommentWidget from "@/components/CommentWidget.vue";
 import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
-import {storage, getAppUrl} from "@/assets/sripts/index";
+import {getAppUrl, storage} from "@/assets/sripts/index";
 import MapLocationName from "@/components/snbWidget/mapLocationName.vue";
 import MapLocationIconWidget from "@/components/snbWidget/mapLocationIconWidget.vue";
 import MapLocationAvailableTreasureMapWidget from "@/components/snbWidget/mapLocationAvailableTreasureMapWidget.vue";
@@ -180,7 +179,7 @@ const onCodexHistory = () => {
                 </LikeWidget>
               </v-btn>
 
-              <ShareWidget type="mapLocation" :target-id="mapLocationDetailData.id || (route.params.id as string)" />
+              <ShareWidget type="mapLocation" :target-id="mapLocationDetailData.id || (route.params.id as string)"/>
             </div>
           </v-col>
         </v-row>

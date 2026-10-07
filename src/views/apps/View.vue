@@ -4,19 +4,15 @@ import {useI18n} from "vue-i18n";
 import {useRoute, useRouter} from "vue-router";
 import {useDisplay} from "vuetify/framework";
 import {appApps} from "@/assets/sripts/index";
-import {useI18nUtils} from "@/assets/sripts/i18n_util";
 
 import Silk from "@/components/Silk.vue";
 import EmptyView from "@/components/EmptyView.vue";
-
-type SortField = 'name' | 'id'
-type SortOrder = 'asc' | 'desc'
+import type {SortField, SortOrder} from "@/assets/types/views";
 
 const {t} = useI18n()
 const route = useRoute()
 const router = useRouter()
 const {mobile} = useDisplay()
-const {asString, sanitizeString} = useI18nUtils()
 
 // 筛选数据
 const filterData = ref({
@@ -89,7 +85,7 @@ const processedData = computed(() => {
   return d
 })
 
-// 初始加载标签选项
+/** 页面挂载时初始化标签选项 */
 onMounted(() => {
   initTagLoad()
 })
@@ -191,7 +187,6 @@ defineOptions({
 </script>
 
 <template>
-  <!-- 头部区域 -->
   <v-card height="200px">
     <template v-slot:image>
       <Silk
@@ -227,13 +222,14 @@ defineOptions({
   </v-card>
   <v-divider></v-divider>
 
-  <!-- 筛选工具栏 -->
+  <!-- 筛选工具栏 S -->
   <v-container class="mt-4">
     <v-row align="center">
-      <v-col>
+      <v-col cols="auto">
         <v-text-field
             :placeholder="t('basic.button.search')"
             hide-details
+            min-width="300"
             variant="filled"
             density="comfortable"
             clearable
@@ -248,7 +244,11 @@ defineOptions({
         </v-text-field>
       </v-col>
 
-      <!-- 筛选菜单 -->
+      <v-col>
+        <v-divider></v-divider>
+      </v-col>
+
+      <!-- 筛选菜单 S -->
       <v-col cols="auto">
         <v-menu open-on-click :close-on-content-click="false">
           <template v-slot:activator="{ props }">
@@ -258,7 +258,7 @@ defineOptions({
             </div>
           </template>
 
-          <v-card border class="pa-5" :min-width="mobile ? '100%' : 350" :width="mobile ? '100%' : 400">
+          <v-card border class="pa-5" :min-width="mobile ? '100%' : 550" :width="mobile ? '100%' : 400">
             <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 mt-n5">
               <v-icon size="80">{{ hasActiveFilters ? 'mdi-filter' : 'mdi-filter-outline' }}</v-icon>
             </v-card-title>
@@ -354,10 +354,12 @@ defineOptions({
           </v-card>
         </v-menu>
       </v-col>
+      <!-- 筛选菜单 E -->
     </v-row>
   </v-container>
+  <!-- 筛选工具栏 E -->
 
-  <!-- 应用列表 -->
+  <!-- 应用列表 S -->
   <v-container class="mt-4 mb-4 position-relative">
     <v-row v-if="processedData.length > 0">
       <v-col cols="12" lg="6" v-for="(app, index) in processedData" :key="index">
@@ -370,8 +372,8 @@ defineOptions({
               <v-card variant="text" :to="app.to" height="200">
                 <v-card-text>
                   <div class="w-100">
-                    <p class="text-h5">{{ t(`apps.${app.id}.name`) }}</p>
-                    <p class="mt-2">
+                    <h2 class="text-h5">{{ t(`apps.${app.id}.name`) }}</h2>
+                    <p class="mt-3 opacity-60 text-caption">
                       {{ t(`apps.${app.id}.description`) }}
                     </p>
                   </div>
@@ -381,7 +383,7 @@ defineOptions({
                         v-for="(tag, tagIndex) in app.tags"
                         :key="tagIndex"
                         size="small"
-                        class="badge-flavor text-center text-black">
+                        class="badge-flavor text-center bg-amber">
                       {{ tag }}
                     </v-chip>
                   </div>
@@ -400,6 +402,7 @@ defineOptions({
       </v-col>
     </v-row>
   </v-container>
+  <!-- 应用列表 E -->
 </template>
 
 <style scoped lang="less">

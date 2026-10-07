@@ -21,11 +21,13 @@ import UserAvatar from "@/components/UserAvatar.vue";
 import AssemblyMainSubjectView from "@/components/AssemblyMainSubjectView.vue";
 import AssemblyTagChip from "@/components/AssemblyTagChip.vue";
 import {apis, getAppUrl} from "@/assets/sripts/index";
+import type {AssemblyListParams, EditAssemblyData, PublishAssemblyData} from '@/assets/types/Assembly';
 import {ApiError} from "@/assets/types/Api";
 import AdsWidget from "@/components/ads/google/index.vue";
 import AccountCardWidget from "@/components/AccountCardWidget.vue";
 import AssemblyCompareDialog from "@/components/AssemblyCompareDialog.vue";
 import {handleApiError} from "@/assets/sripts/error_handler";
+import {useBrowseApi} from "@/assets/sripts/api/browse_service";
 
 const route = useRoute(),
     router = useRouter(),
@@ -33,6 +35,17 @@ const route = useRoute(),
     notice = useNoticeStore(),
     {t} = useI18n(),
     {asString} = useI18nUtils()
+
+const browseApi = useBrowseApi()
+
+// 浏览相关状态
+const browseCount = ref<{ total: number; today: number }>({ total: 0, today: 0 })
+const visitors = ref<Array<{
+    identity: string; isUser: boolean; userId?: string;
+    username?: string | null; anonMasked?: string; browseTime: number;
+}>>([])
+const visitorsPanelOpen = ref(false)
+const loadingVisitors = ref(false)
 
 let detailData: Ref<any> = ref({
       cloningUuid: '',
@@ -76,10 +89,12 @@ let detailData: Ref<any> = ref({
 
 useHead(head)
 
+/** 监听路由变化，重新获取配装详情 */
 watch(() => route, () => {
   getAssemblyDetail()
 })
 
+/** 页面挂载：拉取配装详情并设置 SEO 页面元信息 */
 onMounted(async () => {
   await getAssemblyDetail()
 
@@ -135,6 +150,11 @@ const getAssemblyDetail = async (force: boolean = false) => {
 
     detailData.value = d.data;
     detailData.value.description = safeDecodeURI(detailData.value?.description || '这个人很懒什么,对此配装什么都没说')
+
+    // 拉取浏览统计（后端已在 /item 路由自动记录浏览，前端异步拉取数量展示）
+    try {
+        browseCount.value = await browseApi.getBrowseCount('assembly', <string>uuid);
+    } catch { /* 静默 */ }
   } catch (e) {
     handleApiError(e, notice, t, { component: 'AssemblyDetail' })
   } finally {
@@ -175,6 +195,29 @@ const onAssemblyMainViewReady = () => {
         masteryUseVersion: d.mastery?.attr?.masteryUseVersion,
       })
       ?.onLoad(d.mastery?.data)
+}
+
+/**
+ * 拉取近期访客列表（展开访客面板时调用）
+ */
+const loadVisitors = async () => {
+  if (loadingVisitors.value) return;
+  loadingVisitors.value = true;
+  try {
+    visitors.value = await browseApi.getVisitors('assembly', <string>detailData.value.uuid, 20);
+  } catch { /* silent */ }
+  loadingVisitors.value = false;
+};
+
+/**
+ * 切换访客面板（打开时懒加载一次）
+ */
+const toggleVisitorsPanel = () => {
+  const next = !visitorsPanelOpen.value;
+  visitorsPanelOpen.value = next;
+  if (next && visitors.value.length === 0) {
+    loadVisitors();
+  }
 }
 
 /**
@@ -226,20 +269,6 @@ const onPenPassword = () => {
             <v-row no-gutters>
               <v-col>
                 <h1 :title="detailData.name || ''" class="text-amber text-h4 singe-line">{{ detailData.name || '' }}</h1>
-
-                <div class="d-flex ga-2">
-                  <v-chip-group>
-                    <v-chip density="compact" v-if="detailData.isOwner">
-                      {{ t('assembly.owner') }}
-                    </v-chip>
-                    <v-chip density="compact" v-if="detailData.isPassword">
-                      {{ t('assembly.hasPassword') }}
-                    </v-chip>
-                    <v-chip :to="`/assembly/browse/${detailData.cloningUuid}/detail`" target="_blank" density="compact" v-if="detailData.cloningUuid">
-                      {{ t('assembly.byCloningUuid') }}: {{ detailData.cloningUuid }}
-                    </v-chip>
-                  </v-chip-group>
-                </div>
               </v-col>
 
               <v-spacer></v-spacer>
@@ -297,13 +326,38 @@ const onPenPassword = () => {
                 </v-btn-group>
               </template>
             </v-row>
+
+            <div class="d-flex ga-2">
+              <v-chip-group column>
+                <v-chip v-if="detailData.isOwner">
+                  {{ t('assembly.owner') }}
+                </v-chip>
+                <v-chip v-if="detailData.isPassword">
+                  {{ t('assembly.hasPassword') }}
+                </v-chip>
+                <v-chip>
+                  <v-icon start icon="mdi-eye-outline"></v-icon>
+                  {{ browseCount.total || 0 }}
+                  <span v-if="browseCount.today" class="opacity-60 ml-1">+{{ browseCount.today }}</span>
+                </v-chip>
+                <v-chip :to="`/assembly/browse/${detailData.cloningUuid}/detail`" target="_blank" v-if="detailData.cloningUuid">
+                  {{ t('assembly.byCloningUuid') }}: {{ detailData.cloningUuid }}
+                </v-chip>
+
+                <AssemblyTagChip
+                    class="mr-2 mb-2 pt-1 pb-1 pl-5 pr-5"
+                    v-for="(i, index) in detailData.tags"
+                    :key="index"
+                    :tag="i"/>
+              </v-chip-group>
+            </div>
           </div>
         </div>
       </v-container>
     </template>
   </v-card>
 
-  <!-- 装配预览 开始 -->
+  <!-- 装配预览 S -->
   <AssemblyMainSubjectView
       ref="assemblyMainSubjectView"
       v-if="detailData.isVisibility"
@@ -311,7 +365,7 @@ const onPenPassword = () => {
       @ready="onAssemblyMainViewReady"
       :perfect-display="true"
       :assembly-background="detailData.assembly.attr && detailData.assembly.attr.backgroundPresentation"></AssemblyMainSubjectView>
-  <!-- 装配预览 结束 -->
+  <!-- 装配预览 E -->
 
   <v-container v-if="detailData.isVisibility">
     <AdsWidget id="assembly-detail-up"></AdsWidget>
@@ -375,6 +429,50 @@ const onPenPassword = () => {
               v-model="detailData.tags"
               class="mt-4"
               :readonly="true"></AssemblyTagsWidget>
+
+          <!-- 近期访客面板 -->
+          <v-expansion-panels class="mt-4" variant="accordion">
+            <v-expansion-panel>
+              <v-expansion-panel-title>
+                <v-icon start icon="mdi-account-multiple-outline"></v-icon>
+                {{ t('basic.visitor.recentVisitors') }}
+                <v-chip class="ml-2" size="x-small" variant="tonal" color="primary">
+                  {{ visitors.length || 0 }}
+                </v-chip>
+              </v-expansion-panel-title>
+              <v-expansion-panel-text>
+                <template v-if="loadingVisitors">
+                  <div class="text-center opacity-60 py-2">loading...</div>
+                </template>
+                <template v-else-if="visitors.length === 0">
+                  <div class="text-center opacity-60 py-2">{{ t('basic.visitor.noVisitors') }}</div>
+                </template>
+                <template v-else>
+                  <v-list density="compact">
+                    <v-list-item
+                        v-for="(v, idx) in visitors"
+                        :key="v.identity + idx"
+                        class="px-0"
+                    >
+                      <template v-slot:prepend>
+                        <v-avatar size="32" class="mr-2">
+                          <v-icon v-if="!v.isUser" icon="mdi-incognito"></v-icon>
+                          <v-icon v-else icon="mdi-account-circle"></v-icon>
+                        </v-avatar>
+                      </template>
+                      <v-list-item-title>
+                        <span v-if="v.isUser">{{ v.username || 'User #' + v.userId }}</span>
+                        <span v-else class="opacity-60">{{ t('basic.visitor.anonMasked') }} ({{ v.anonMasked }}…)</span>
+                      </v-list-item-title>
+                      <v-list-item-subtitle>
+                        <TimeView :time="v.browseTime"></TimeView>
+                      </v-list-item-subtitle>
+                    </v-list-item>
+                  </v-list>
+                </template>
+              </v-expansion-panel-text>
+            </v-expansion-panel>
+          </v-expansion-panels>
         </v-col>
       </v-row>
     </div>
