@@ -29,6 +29,54 @@ function ensureLangRedirectScript() {
 ensureLangRedirectScript();
 
 /**
+ * 直接从 glow-prow-data-languages 里 fs 读取 JSON 数据并聚合
+ * 完全绕过 .ts 入口文件（避免 Node.js ESM 不编译 .ts 的问题）
+ * 自动扫描 src/data/<lang>/ 下所有 .json 文件，新增语言/数据文件无需改这里
+ */
+function loadSnbI18nData(): Record<string, any> {
+    const base = path.resolve(__dirname, 'node_modules/glow-prow-data-languages/src/data');
+    const result: Record<string, any> = {};
+
+    for (const lang of fs.readdirSync(base)) {
+        const langDir = path.join(base, lang);
+        if (!fs.statSync(langDir).isDirectory()) continue;
+
+        const out: Record<string, any> = {};
+        for (const file of fs.readdirSync(langDir)) {
+            if (!file.endsWith('.json')) continue;
+            const key = file.replace(/\.json$/, '');
+            out[key] = JSON.parse(fs.readFileSync(path.join(langDir, file), 'utf8'));
+        }
+
+        // items = items + items_ammunition（和 glow-prow-data-languages/src/index.ts 保持一致）
+        if (out.items && out.items_ammunition) {
+            out.items = {...out.items, ...out.items_ammunition};
+            delete out.items_ammunition;
+        }
+        result[lang] = out;
+    }
+    return result;
+}
+
+const snbI18nPlugin = {
+    name: 'snb-i18n-data',
+    resolveId(id: string) {
+        if (id === 'virtual:snb-i18n-data') return '\0' + id;
+    },
+    load(id: string) {
+        if (id !== '\0virtual:snb-i18n-data') return;
+        // this.meta.ssr 在 vite build --ssr 时为 true，client build 时为 false
+        // SSR: 聚合真实 3MB JSON 数据内联进 SSR bundle（prerender 需要）
+        // Client: 返回空对象 stub（运行时由 remote_i18n 从 CDN 远程加载覆盖）
+        if ((this as any).meta?.ssr) {
+            const data = loadSnbI18nData();
+            return `export default ${JSON.stringify(data)}`;
+        }
+        return `export default { zh_CN: {}, en_US: {}, zh_TW: {} }`;
+    },
+};
+
+/**
  * 从 router/index.ts 中动态提取所有路由路径
  * 通过正则提取 path 定义，而不是直接 import 执行。
  */
@@ -193,6 +241,7 @@ export default defineConfig(({mode}) => {
         envPrefix: ['VITE_', 'APP_'],
         base: '/',
         plugins: [
+            snbI18nPlugin,
             Vue({
                 template: {transformAssetUrls},
             }),

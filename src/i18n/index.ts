@@ -13,15 +13,17 @@ import en_US_meta from '@/lang/en_US/meta.json';
 
 import { storage } from "@/assets/sripts";
 
-// 游戏数据翻译
-type SNBModule = { zh_CN: any; en_US: any; zh_TW: any };
-let _snb: SNBModule = { zh_CN: {}, en_US: {}, zh_TW: {} };
+// 游戏数据翻译（snb.*）
+// 通过 vite.config.ts 里的 snbI18nPlugin 虚拟模块加载
+//   - SSR（vite-ssg prerender）：plugin 在 vite.config.ts 进程里 fs 读取 JSON 聚合，
+//     返回内联 JSON（约 3MB），Vite 把整个模块内联进 SSR bundle
+//   - 客户端 hydration       ：同样走虚拟模块，但 import.meta.env.SSR=false 会让
+//     消费端不使用 _snb，由 remote_i18n 从 CDN 远程加载覆盖
+// 完全绕过 glow-prow-data-languages/src/index.ts 的 .ts 入口
+// （Node.js 22 ESM 不编译 .ts，require 也会因 vite-ssg 临时目录锚点失败）
+import _snb from 'virtual:snb-i18n-data';
 
-if (import.meta.env.SSR) {
-    const { createRequire } = await import('module');
-    const require = createRequire(import.meta.url);
-    _snb = require('glow-prow-data-languages/src') as SNBModule;
-}
+type SNBModule = { zh_CN: any; en_US: any; zh_TW: any };
 
 export const messageCompiler = (message: any) => {
     return (ctx: MessageContext) => {
