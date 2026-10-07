@@ -13,17 +13,14 @@ import en_US_meta from '@/lang/en_US/meta.json';
 
 import { storage } from "@/assets/sripts";
 
-// 游戏数据翻译（snb.*）
-// SSR (vite-ssg prerender) → require npm 包嵌入 HTML
-// 客户端 hydration          → 空对象，由 remote_i18n 从 CDN 远程加载覆盖
-// 包名字符串拼接隐藏，防止 Vite 静态分析把 npm 包打包进客户端 bundle
+// 游戏数据翻译
 type SNBModule = { zh_CN: any; en_US: any; zh_TW: any };
 let _snb: SNBModule = { zh_CN: {}, en_US: {}, zh_TW: {} };
 
-if (typeof window === 'undefined') {
-    const pkgName = ['glow-prow-data', 'languages'].join('-');
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    _snb = require(`${pkgName}/src`) as SNBModule;
+if (import.meta.env.SSR) {
+    const { createRequire } = await import('module');
+    const require = createRequire(import.meta.url);
+    _snb = require('glow-prow-data-languages/src') as SNBModule;
 }
 
 export const messageCompiler = (message: any) => {
