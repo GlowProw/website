@@ -41,33 +41,31 @@ const showAssemblyOnly = computed(() => props.type === 'assembly' || (props.type
 </script>
 
 <template>
-  <v-card border class="pa-5" :min-width="mobile ? '100%' : 350" :width="mobile ? '100%' : 580">
-    <v-card-title class="py-8 text-center bg-black mb-4 mx-n5 mt-n5 position-relative">
+  <v-card border class="py-5" :min-width="mobile ? '100%' : 350" :width="mobile ? '100%' : 580">
+    <v-card-title class="py-8 px-5 text-center bg-black mx-n5 mt-n5 position-relative">
       <v-icon size="60">mdi-cog</v-icon>
       <div class="text-subtitle-1 font-weight-bold mt-2">
         {{ t('assembly.share.configHint') }}
       </div>
     </v-card-title>
 
-    <!-- 标签切换（在同时包含配装和精通海报时显示） -->
+    <!-- 标签切换 -->
     <v-tabs
         v-if="isBothMode"
         v-model="activeTab"
         color="amber"
         grow
-        density="comfortable"
         class="mb-4">
       <v-tab value="assembly">
-        <v-icon start icon="mdi-ship-wheel"></v-icon>
-        {{ t('assembly.share.title') }} (1/2)
+        {{ t('assembly.share.title') }}
       </v-tab>
       <v-tab value="mastery">
-        <v-icon start icon="mdi-creation"></v-icon>
-        {{ t('mastery.share.title') }} (2/2)
+        {{ t('mastery.share.title') }}
       </v-tab>
     </v-tabs>
+    <v-divider></v-divider>
 
-    <v-window :model-value="showMasteryOnly ? 'mastery' : (showAssemblyOnly ? 'assembly' : activeTab)">
+    <v-window class="mt-2 px-5" :model-value="showMasteryOnly ? 'mastery' : (showAssemblyOnly ? 'assembly' : activeTab)">
       <!-- 配装海报设置页 S -->
       <v-window-item value="assembly" v-if="!showMasteryOnly">
         <v-row>
@@ -297,16 +295,22 @@ const showAssemblyOnly = computed(() => props.type === 'assembly' || (props.type
           </v-col>
 
           <v-col cols="12">
-            <div class="mb-2 text-caption opacity-80">{{ t('mastery.share.backgroundColor') }}</div>
+            <div class="mb-2 text-caption opacity-80 d-flex align-center ga-2">
+              {{ t('mastery.share.backgroundColor') }}
+              <span class="text-amber text-caption opacity-70">
+                ({{ t('assembly.share.backgroundSyncHint') }})
+              </span>
+            </div>
             <v-select
                 variant="filled"
                 density="comfortable"
-                v-model="masteryModelValue.background"
+                :model-value="assemblyModelValue.background"
                 :items="generateImageConfig.backgrounds"
+                disabled
                 hide-details>
               <template v-slot:append>
                 <v-card border variant="text">
-                  <ItemSlotBase size="40px" :padding="0" :style="`background: ${masteryModelValue.background}`"></ItemSlotBase>
+                  <ItemSlotBase size="40px" :padding="0" :style="`background: ${assemblyModelValue.background}`"></ItemSlotBase>
                 </v-card>
               </template>
               <template v-slot:item="{props: itemProps, item}">

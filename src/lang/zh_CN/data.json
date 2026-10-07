@@ -392,6 +392,7 @@
         "bad": "发布格式错误，请检查是否按照要求填写"
       },
       "captcha": {
+        "ok": "成功",
         "bad": "验证码错误",
         "error": "验证码错误: {context}",
         "expired": "验证码过期",
@@ -2387,6 +2388,7 @@
       "imageStyleTitle": "样式",
       "showEmptySlot": "显示空卡槽",
       "backgroundColor": "背景颜色",
+      "backgroundSyncHint": "跟随配装海报",
       "showItemName": "显示名称",
       "fullName": "完整名称",
       "showWeaponIconArray": "武器图示阵列",

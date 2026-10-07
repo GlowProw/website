@@ -278,7 +278,7 @@ const activeCycleZones = computed<any[]>(() => {
   });
 });
 
-// ======================== 日历活动解析 ========================
+// 日历活动解析
 const getEventName = (eventId: string): string => {
   const sId = targetSeasonId.value;
   const i18nKey = `snb.calendar.${sId}.data.${eventId}.name`;
@@ -382,7 +382,7 @@ const fetchCalendarData = async () => {
   }
 };
 
-// ======================== 掉宝活动数据 ========================
+// 掉宝活动数据
 const dropLoading = ref<boolean>(false);
 const activeCampaigns = ref<any[]>([]);
 

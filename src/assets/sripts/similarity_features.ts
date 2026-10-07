@@ -50,7 +50,7 @@ export function imageDataToGrayValues(imageData: ImageData): number[] {
     return grayValues;
 }
 
-// ==================== 感知哈希算法 ====================
+// 感知哈希算法
 
 /**
  * 从 ImageData 计算哈希值
@@ -86,7 +86,7 @@ export function calculateHashSimilarity(hash1: string, hash2: string): number {
     return Math.max(0, (1 - diffRatio * 2.5) * 100);
 }
 
-// ==================== 颜色直方图算法 ====================
+// 颜色直方图算法
 
 /**
  * 计算颜色直方图
@@ -124,7 +124,7 @@ export function compareHistograms(hist1: number[], hist2: number[]): number {
     return Math.pow(bhattacharyyaDist, 3) * 100;
 }
 
-// ==================== 结构相似性算法 ====================
+// 结构相似性算法
 
 /**
  * 计算结构相似性特征
@@ -167,7 +167,7 @@ export function compareStructuralFeatures(
     return Math.pow(similarity, 3) * 100;
 }
 
-// ==================== 分块特征匹配算法 ====================
+// 分块特征匹配算法
 
 /**
  * 计算图像分块特征（自适应网格）

@@ -6,7 +6,6 @@ import {CDN_LANG_SOURCES, clearRemoteLangCache} from "@/assets/sripts/remote_i18
 
 const {t} = useI18n();
 const appStore = useAppStore();
-const notice = useNoticeStore();
 
 const cdnLangOptions = CDN_LANG_SOURCES.map((s, idx) => ({
   name: s.label,
@@ -18,10 +17,11 @@ const cdnLangOptions = CDN_LANG_SOURCES.map((s, idx) => ({
 const onUpdateLangCdn = (value: any) => {
   const key = typeof value === 'string' ? value : value?.value;
   if (!key) return;
+
   const oldSource = appStore.cdnLangSource;
   appStore.setCdnLangSource(key);
+
   clearRemoteLangCache(oldSource);
-  notice.success(t('basic.tips.ok'));
 };
 </script>
 

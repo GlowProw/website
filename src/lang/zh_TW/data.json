@@ -2456,6 +2456,7 @@
       "imageStyleTitle": "樣式",
       "showEmptySlot": "顯示空卡槽",
       "backgroundColor": "背景顏色",
+      "backgroundSyncHint": "跟隨配裝海報",
       "showItemName": "顯示名稱",
       "fullName": "完整名稱",
       "showWeaponIconArray": "武器圖示陣列",

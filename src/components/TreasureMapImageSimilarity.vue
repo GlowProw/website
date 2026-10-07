@@ -742,27 +742,9 @@
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted, onUnmounted, ref, watch, nextTick} from 'vue';
+import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
-import {
-  calculateHashSimilarity,
-  compareHistograms,
-  compareStructuralFeatures,
-  compareBlockFeatures,
-  computeBlockFeatures,
-  computeColorHistogram,
-  computeStructuralFeatures,
-  getImageHash,
-  computeTFEmbedding,
-  cosineSimilarity,
-  loadMobileNetModel,
-  loadClipGalleryFeatures,
-  loadClipModel,
-  computeClipEmbedding,
-  detectParchmentBoundingBox,
-  calculateClipSimilarity,
-  calculateTFSimilarity
-} from '@/assets/sripts/image_similarity';
+import {calculateClipSimilarity, calculateHashSimilarity, calculateTFSimilarity, compareBlockFeatures, compareHistograms, compareStructuralFeatures, computeBlockFeatures, computeClipEmbedding, computeColorHistogram, computeStructuralFeatures, computeTFEmbedding, detectParchmentBoundingBox, getImageHash, loadClipGalleryFeatures, loadClipModel, loadMobileNetModel} from '@/assets/sripts/image_similarity';
 import {TreasureMaps} from "glow-prow-data";
 import {useDisplay} from "vuetify/framework";
 import {useI18n} from "vue-i18n";
@@ -771,7 +753,7 @@ import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import TreasureMapIconWidget from "@/components/snbWidget/treasureMapIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import {useSimilarityStore} from "~/stores/similarityStore";
-import {QueryImageData, SearchResult, Algorithm, ComparingImage} from '@/assets/types/Similarity';
+import {Algorithm, ComparingImage, QueryImageData, SearchResult} from '@/assets/types/Similarity';
 import Cropper from 'cropperjs';
 import 'cropperjs/dist/cropper.css';
 import ByObtainableWidget from "@/components/ByObtainableWidget.vue";
@@ -839,7 +821,7 @@ const ensureClipReady = async () => {
     clipGalleryLoading.value = true;
     clipGalleryError.value = null;
     try {
-      await loadClipGalleryFeatures(cdnStore.currentService.mode.url({ category: 'all' }));
+      await loadClipGalleryFeatures(cdnStore.currentService.mode.url({category: 'all'}));
       clipGalleryLoaded.value = true;
     } catch (e: any) {
       clipGalleryError.value = e.message;
@@ -882,7 +864,7 @@ const useGrayscale = ref(true);
 watch(useGrayscale, () => {
   for (const [url, feat] of similarityStore.featuresCache.entries()) {
     if (feat?.tfEmbedding) {
-      const { tfEmbedding: _, ...rest } = feat;
+      const {tfEmbedding: _, ...rest} = feat;
       similarityStore.setFeatures(url, rest);
     }
   }
@@ -924,6 +906,8 @@ const categoryOptions = computed(() => [
   i['title'] = t(`codex.treasureMap.categorys.${i.value}`);
   return i;
 }));
+
+let isSyncingFromRoute = false;
 
 /**
  * 从 obtainable 元素（string | MapLocation | 嵌套数组）中提取字符串 ID
@@ -970,9 +954,6 @@ const filteredImageList = computed(() => {
     return true;
   });
 });
-
-// ======================= URL Query 同步机制 =======================
-let isSyncingFromRoute = false;
 
 const initFiltersFromRoute = () => {
   if (!route) return;
@@ -1024,7 +1005,7 @@ const initFiltersFromRoute = () => {
 const syncFiltersToRoute = () => {
   if (isSyncingFromRoute || !route || !router) return;
 
-  const query: Record<string, any> = { ...route.query };
+  const query: Record<string, any> = {...route.query};
 
   if (selectedAlgorithm.value && selectedAlgorithm.value !== 'feature-matching') {
     query.algorithm = selectedAlgorithm.value;
@@ -1068,7 +1049,8 @@ const syncFiltersToRoute = () => {
 
   delete query.comparison;
 
-  router.replace({ query }).catch(() => {});
+  router.replace({query}).catch(() => {
+  });
 };
 
 // 监听筛选参数变动并同步到 URL
@@ -1081,7 +1063,7 @@ watch([
   useGrayscale
 ], () => {
   syncFiltersToRoute();
-}, { deep: true });
+}, {deep: true});
 
 // 监听 URL 变动（如前进/后退/粘贴新URL）
 watch(() => route.query, () => {
@@ -1360,7 +1342,7 @@ const onSearchSimilarImages = async () => {
       similarityStore.total = filteredList.length;
       similarityStore.progress = 0;
 
-      const galleryFeatures = await loadClipGalleryFeatures(cdnStore.currentService.mode.url({ category: 'all' }));
+      const galleryFeatures = await loadClipGalleryFeatures(cdnStore.currentService.mode.url({category: 'all'}));
       const results: SearchResult[] = [];
 
       for (let index = 0; index < filteredList.length; index++) {
@@ -1368,11 +1350,11 @@ const onSearchSimilarImages = async () => {
         const imageId = getImageIdFromUrl(imgUrl);
         const mapData = treasureMaps[imageId];
 
-        currentComparingImage.value = { id: imageId, url: imgUrl, category: mapData?.category ?? '', index };
+        currentComparingImage.value = {id: imageId, url: imgUrl, category: mapData?.category ?? '', index};
 
         const clipEmbedding = galleryFeatures.get(imageId);
         if (mapData && clipEmbedding) {
-          const similarity = calculateSimilarity(queryImageData.value, { clipEmbedding });
+          const similarity = calculateSimilarity(queryImageData.value, {clipEmbedding});
           results.push({
             id: imageId,
             index,
@@ -1405,13 +1387,13 @@ const onSearchSimilarImages = async () => {
         const imageId = getImageIdFromUrl(imgUrl);
         const mapData = treasureMaps[imageId];
 
-        currentComparingImage.value = { id: imageId, url: imgUrl, category: mapData?.category ?? '', index };
+        currentComparingImage.value = {id: imageId, url: imgUrl, category: mapData?.category ?? '', index};
 
         let features = similarityStore.featuresCache.get(imgUrl);
         if (!features || !features.tfEmbedding) {
           try {
             const tfEmb = await computeTFEmbedding(imgUrl, useGrayscale.value);
-            features = { ...(features || {}), tfEmbedding: tfEmb };
+            features = {...(features || {}), tfEmbedding: tfEmb};
             similarityStore.setFeatures(imgUrl, features);
           } catch (e) {
             console.warn('TF embedding 提取失败:', imgUrl, e);
@@ -1509,7 +1491,6 @@ defineExpose({
   margin: 4px 0;
 }
 
-/* 裁切组件主题样式重写 */
 :deep(.cropper-view-box) {
   outline-color: var(--main-color) !important;
 }

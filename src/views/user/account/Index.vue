@@ -107,12 +107,6 @@ const currentSubTabs = computed(() => {
 // 当前激活的二级 Tab 项
 const tab = ref<string>(accountTabs[0].value)
 
-watch(() => route.name, (newName) => {
-  if (newName) {
-    syncFromRoute(newName as string)
-  }
-}, {immediate: true})
-
 /**
  * 依据路由同步一级 Tab 与二级 Tab
  * @param routeName
@@ -129,6 +123,12 @@ const syncFromRoute = (routeName: string) => {
     tab.value = routeName
   }
 }
+
+watch(() => route.name, (newName) => {
+  if (newName) {
+    syncFromRoute(newName as string)
+  }
+}, {immediate: true})
 
 /**
  * 一级 Tab 切换事件

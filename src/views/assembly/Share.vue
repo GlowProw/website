@@ -62,7 +62,6 @@ let masteryGenerateImageValue: Ref<any> = ref({
   width: 1600,
   format: 'jpg',
   quality: 1,
-  background: '#0a0d12',
   language: locale.value,
   viewMode: 'full'
 });
@@ -640,7 +639,7 @@ const onBackDetail = () => {
                 :class="{ 'is-active': currentSlideIndex === 1 }"
                 @click="scrollToSlide(1)">
               <div class="slide-card-box"
-                   :style="`background:${masteryGenerateImageValue.background}`">
+                   :style="`background:${generateImageValue.background}`">
                 <Loading v-if="masteryThumbLoading || !masteryThumbUrl" size="80"></Loading>
                 <img
                     v-else
@@ -686,7 +685,7 @@ const onBackDetail = () => {
                   :max-points="maxPoints"
                   :active-seasonal-perks="activeSeasonalPerks"
                   :aggregated-effects="aggregatedEffects"
-                  :generate-image-value="masteryGenerateImageValue"
+                  :generate-image-value="{ ...masteryGenerateImageValue, background: generateImageValue.background }"
                   :path="masterySharePath"
                   :web-path="webPath"
                   :loading="assemblyLoading"
@@ -750,7 +749,7 @@ const onBackDetail = () => {
                 </v-btn>
               </template>
 
-              <!-- 封装好的统一设置面板 -->
+              <!-- 设置面板 S -->
               <SharePosterSettingPanel
                   type="both"
                   :has-mastery="hasMastery"
@@ -760,6 +759,7 @@ const onBackDetail = () => {
                   @update:assembly-model-value="generateImageValue = $event"
                   @update:mastery-model-value="masteryGenerateImageValue = $event"
               />
+              <!-- 设置面板 E -->
             </v-menu>
           </v-btn-group>
         </v-col>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, Ref, ref} from "vue";
+import {computed, onMounted, Ref, ref, watch} from "vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useRoute} from "vue-router";
 import {storage_account} from "@/assets/sripts/index";
@@ -10,7 +10,7 @@ const route = useRoute(),
     {sanitizeString, asString} = useI18nUtils()
 
 let model = ref(false),
-    searchSettingConfig: Ref<{headerSearchSwitch?: boolean}> = ref({
+    searchSettingConfig: Ref<{ headerSearchSwitch?: boolean }> = ref({
       headerSearchSwitch: true
     }),
     isSearchPage = computed(() => route.name == 'Search')
@@ -23,6 +23,10 @@ let isSeeIcon = computed(() => {
     return false
   return true
 })
+
+watch(route, (val, oldVal) => {
+  model.value = false
+}, {deep: true})
 
 onMounted(() => {
   getConfig()

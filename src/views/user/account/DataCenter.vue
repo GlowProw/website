@@ -79,7 +79,6 @@ const metricCards = computed(() => [
   }
 ]);
 
-// ===== d3 折线图渲染 =====
 const chartRef = ref<SVGSVGElement | null>(null);
 const chartWidth = 720;
 const chartHeight = 220;

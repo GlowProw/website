@@ -257,7 +257,7 @@ const captchaOptions = computed(() => [
 
 const onCaptchaProviderChange = (val: any) => {
   appStore.setCaptchaType(val)
-  notice.success(t('basic.tips.200') || '设置已更新')
+  notice.success(t('basic.tips.captcha.ok'), {mode: 'minimal'})
 }
 
 // 通知设置相关

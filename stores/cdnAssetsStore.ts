@@ -369,8 +369,6 @@ export const useCDNAssetsServiceStore = defineStore('cdnService', () => {
         };
     };
 
-    // ========== 存储相关 ==========
-
     /**
      * 设置选中的模型服务
      */

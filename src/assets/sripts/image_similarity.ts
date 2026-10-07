@@ -3,7 +3,7 @@
  * 提供多种模糊图像相似度比较算法，支持不同尺寸图片
  */
 
-// ==================== 基础工具函数 ====================
+// 基础工具函数
 
 /**
  * 从图片URL加载为ImageData对象（不调整尺寸，保持原样）
@@ -57,7 +57,7 @@ export async function getImageHash(imageUrl: string): Promise<string> {
     return computeHash(imageData);
 }
 
-// ==================== 综合相似度计算 ====================
+// 综合相似度计算
 
 /**
  * 统一图像相似度计算接口
@@ -103,7 +103,7 @@ export async function calculateImageSimilarity(
     }
 }
 
-// ==================== TensorFlow.js 深度学习相似度 ====================
+// TensorFlow.js 深度学习相似度
 
 let _mobilenetModel: any = null;
 let _mobilenetLoading: Promise<any> | null = null;
@@ -250,7 +250,7 @@ export function cosineSimilarity(a: number[], b: number[]): number {
     return Math.max(0, cosine) * 100;
 }
 
-// ==================== CLIP (ViT-B/32) 预计算特征与推理 ====================
+// CLIP (ViT-B/32) 预计算特征与推理
 
 let _clipModel: any = null;
 let _clipProcessor: any = null;

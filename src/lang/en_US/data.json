@@ -2395,6 +2395,7 @@
       "imageStyleTitle": "Style",
       "showEmptySlot": "Show Empty Slots",
       "backgroundColor": "Background Color",
+      "backgroundSyncHint": "Syncs with Assembly poster",
       "showItemName": "Show Name",
       "fullName": "Full Name",
       "showWeaponIconArray": "Weapon Icon Array",

@@ -116,25 +116,27 @@
             <p class="text-caption opacity-60">{{ t('setting.routine.storageReportDesc') }}</p>
           </div>
 
-          <div class="mb-6">
-            <v-row class="mb-0">
-              <v-col>
-                <v-btn @click="clearStorage" :disabled="estimateCapacity.used == 0">{{ t('setting.routine.clearStorage') }}</v-btn>
-              </v-col>
-            </v-row>
+          <v-row>
+            <v-col cols="auto">
+              <v-row class="mb-0">
+                <v-col>
+                  <v-btn @click="clearStorage" :disabled="estimateCapacity.used == 0">{{ t('setting.routine.clearStorage') }}</v-btn>
+                </v-col>
+              </v-row>
 
-            <p class="text-caption opacity-60">{{ t('setting.routine.storageReportLinkHint') }}</p>
-          </div>
+              <p class="text-caption opacity-60">{{ t('setting.routine.storageReportLinkHint') }}</p>
+            </v-col>
 
-          <div class="mb-6">
-            <v-row class="mb-0">
-              <v-col>
-                <v-btn :to="{ name: 'PortalSettingStorage', params: $route.params }">{{ t('setting.routine.storageReportBtn') }}</v-btn>
-              </v-col>
-            </v-row>
+            <v-col>
+              <v-row class="mb-0">
+                <v-col>
+                  <v-btn :to="{ name: 'PortalSettingStorage', params: $route.params }">{{ t('setting.routine.storageReportBtn') }}</v-btn>
+                </v-col>
+              </v-row>
 
-            <p class="text-caption opacity-60">{{ t('setting.routine.storagePrivacyHint') }}</p>
-          </div>
+              <p class="text-caption opacity-60">{{ t('setting.routine.storagePrivacyHint') }}</p>
+            </v-col>
+          </v-row>
         </div>
         <template v-slot:title>
           {{ t('setting.routine.recordsTitle') }}
