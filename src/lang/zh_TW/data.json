@@ -39,7 +39,8 @@
           "title": "斜槓命令喚起",
           "description": "所有羣組免費使用，僅需要簡單的斜槓命令喚醒機器人。通過在企鵝聊天添加機器人中搜索此id(3889974138),來添加"
         }
-      }
+      },
+      "docs": "說明文件"
     },
     "apiDocs": {
       "name": "開發者 REST API 文件",
@@ -72,6 +73,9 @@
           "title": "Scalar API"
         }
       }
+    },
+    "meta": {
+      "description": "《碧海黑帆 (Skull and Bones)》全能遊戲助手與全收集互動地圖：資料百科、配裝模擬、材料計算、任務攻略與賽季資訊。"
     }
   },
   "ad": {
@@ -166,7 +170,8 @@
       "today": "今日"
     },
     "preload": {
-      "remoteI18n": "從遠端載入文本資料..."
+      "remoteI18n": "從遠端載入文本資料...",
+      "default": "正在載入資源..."
     },
     "tips": {
       "admin": {
@@ -396,7 +401,8 @@
         "expired": "验证码过期",
         "wrong": "输入的验证码错误",
         "required": "請先完成人機驗證",
-        "svgDisabled": "圖形驗證碼僅除錯模式可用"
+        "svgDisabled": "圖形驗證碼僅除錯模式可用",
+        "ok": "成功"
       },
       "signin": {
         "ok": "登陸成功",
@@ -405,7 +411,17 @@
         "error": "登陸錯誤: {context}",
         "expired": "用戶身份過期,請重新登陸",
         "accountIncorrect": "登陸信息錯誤",
-        "notActivated": "賬戶由於未激活而被禁用，請前往激活"
+        "notActivated": "賬戶由於未激活而被禁用，請前往激活",
+        "success": "登入成功",
+        "oauth": {
+          "bindSuccess": "綁定成功",
+          "bindFailed": "綁定失敗",
+          "unknownError": "授權處理失敗",
+          "failed": "註冊失敗",
+          "missingCode": "缺少授權回調 Code，請重新發起授權。",
+          "authFailed": "授權回調處理失敗，請稍後重試。",
+          "bindAndLoginSuccess": "綁定成功並已登入！"
+        }
       },
       "signup": {
         "ok": "注册成功",
@@ -420,7 +436,8 @@
         "userNotFound": "未找到對應賬戶",
         "emailQuotaExceeded": "郵件發送達到每日上限，請稍後再試",
         "resend": {
-          "ok": "激活碼已重發，請檢查郵箱"
+          "ok": "激活碼已重發，請檢查郵箱",
+          "error": "激活郵件重發失敗：{context}"
         },
         "error": "激活錯誤: {context}"
       },
@@ -525,6 +542,10 @@
       },
       "auth": {
         "required": "請先登入"
+      },
+      "operateSuccess": "操作成功",
+      "ranking": {
+        "error": "操作失敗：{context}"
       }
     },
     "errorCodes": {
@@ -597,7 +618,8 @@
       "close": "關閉",
       "create": "創建",
       "refresh": "重新整理",
-      "view": "前往查看"
+      "view": "前往查看",
+      "retry": "重試"
     },
     "assembly": {
       "publish": {
@@ -684,7 +706,9 @@
         "last5Years": "近5年"
       }
     },
-    "all": "全部"
+    "all": "全部",
+    "delete": "刪除",
+    "empty": "暫無資料"
   },
   "comment": {
     "title": "評論",
@@ -887,6 +911,10 @@
         "google": {
           "name": "Google",
           "desc": "支持 Google 國際通用快捷登入"
+        },
+        "discord": {
+          "name": "Discord",
+          "desc": "支持 Discord 快捷一鍵登入與個人中心快速同步"
         }
       }
     },
@@ -940,7 +968,8 @@
     "form": {
       "username": {
         "name": "賬戶名稱",
-        "placeholder": "請輸入用戶名"
+        "placeholder": "請輸入用戶名",
+        "notEmpty": "請輸入使用者名稱"
       },
       "code": {
         "name": "激活碼",
@@ -1329,7 +1358,8 @@
       "perks": "能力",
       "baseInfo": "基础信息",
       "deckInfo": "甲板信息",
-      "lookDetail": "查看船只详情"
+      "lookDetail": "查看船只详情",
+      "attachment": "附件"
     },
     "cosmetic": {
       "title": "装饰品列表",
@@ -1473,7 +1503,8 @@
           "algorithmIssue": "未找到相似藏寶圖，這可能由於查詢算法偏差或未收錄藏寶圖，請嘗試更換查詢算法再次嘗試",
           "useFilter": "如果知道藏寶圖屬性，適當使用篩選地圖類型和藏寶圖地區，可以減少檢索等待時間",
           "notInCollection": "未收錄情況通過網站下方聯繫方式聯繫添加收藏"
-        }
+        },
+        "uploadPrompt": "選擇本地圖片作為目標進行查詢"
       }
     },
     "mapLocation": {
@@ -1525,7 +1556,8 @@
       "faction": "陣營",
       "stageCount": "階級數",
       "dateAdded": "添加日期",
-      "lastUpdated": "更新日期"
+      "lastUpdated": "更新日期",
+      "lookDetail": "查看帝國技能詳情(按住)"
     },
     "mastery": {
       "title": "專精技能詳情",
@@ -1571,6 +1603,9 @@
       "searchPlaceholder": "搜尋任務名稱、ID、分類或線索...",
       "count": "共 {count} 個任務 (總計 {total})",
       "viewCategoryQuests": "查看該分類全部任務"
+    },
+    "meta": {
+      "description": "《碧海黑帆 (Skull and Bones)》百科：船隻、武器、護甲、家具、材料、外觀與藏寶圖等全資料圖鑑。"
     }
   },
   "quest": {
@@ -1600,7 +1635,8 @@
     "arc": "故事線",
     "step": "階段",
     "fold": "折疊",
-    "unfold": "展開"
+    "unfold": "展開",
+    "missions": "幕"
   },
   "drop": {
     "title": "Twitch 掉寶",
@@ -2021,7 +2057,10 @@
     "editCollection": "編輯地圖集",
     "confirmDeletePoints": "確定要刪除選中的座標嗎？",
     "public": "公開",
-    "private": "私有"
+    "private": "私有",
+    "collectionList": "收藏點清單",
+    "latitude": "緯度",
+    "longitude": "經度"
   },
   "rankingDesignedItems": {
     "title": "排序设计",
@@ -2391,7 +2430,8 @@
       "draft": "草稿",
       "inputDraftName": "輸入另存為草稿名稱",
       "quickArchiving": "快速儲存草稿",
-      "useDraft": "使用"
+      "useDraft": "使用",
+      "previousFrigateUpgrades": "繼承升級部件"
     },
     "calc": {
       "overall": "總體屬性",
@@ -2605,7 +2645,10 @@
     "register": "註冊"
   },
   "home": {
-    "title": "首页"
+    "title": "首页",
+    "meta": {
+      "keywords": "碧海黑帆,Skull and Bones,百科,攻略,互動地圖,船隻配裝,材料,藏寶圖,帝國技能,賽季"
+    }
   },
   "empireSkillSimulation": {
     "searchPlaceholder": "搜索技能",
@@ -2762,7 +2805,12 @@
       "direction": "方向",
       "coordinates": "坐標",
       "dependentNodes": "後續解鎖節點",
-      "season": "所屬賽季"
+      "season": "所屬賽季",
+      "perkActiveOne": "已激活生效的賽季特長",
+      "perkPointsRequired": "需足夠專精點數",
+      "perkSelectOne": "選擇生效賽季特長",
+      "perkSwitched": "同階僅可生效一個：「{from}」已替換為「{to}」",
+      "pointCost": "專精點數消耗"
     },
     "debug": {
       "title": "專精樹調試與座標編輯",
@@ -2814,7 +2862,9 @@
       "requisiteAdded": "已新增前置：{name}",
       "requisiteRemoved": "已移除前置：{name}"
     },
-    "noData": "暫無精通數據"
+    "noData": "暫無精通數據",
+    "dataSources": "資料來源",
+    "searchPlaceholder": "搜尋節點"
   },
   "search": {
     "title": "搜索",
@@ -3153,7 +3203,8 @@
         "title": "活動提醒",
         "description": "定時提醒遊戲內活動與刷新事件，桌面推送通知"
       }
-    }
+    },
+    "menu": "選單"
   },
   "footer": {
     "basic": {
@@ -3348,7 +3399,9 @@
       "openSeas": "公海",
       "redIsle": "紅島",
       "coastOfAfrica": "非洲海岸"
-    }
+    },
+    "cycleNumber": "第{value}期",
+    "gap": "差距 {count}"
   },
   "subscription": {
     "title": "贊助訂閱",
@@ -3599,6 +3652,23 @@
     "missingCode": "缺少授權回調 Code，請重新發起授權。",
     "authFailed": "第三方授權啟動失敗",
     "urlError": "獲取授權鏈接失敗",
-    "unknownError": "授權處理失敗"
+    "unknownError": "授權處理失敗",
+    "waitHint": "正在與第三方平台確認授權資訊，請勿關閉視窗..."
+  },
+  "common": {
+    "cancel": "取消",
+    "close": "關閉",
+    "confirm": "確認",
+    "confirmDelete": "確認刪除"
+  },
+  "team": {
+    "title": "組隊招募"
+  },
+  "warehouse": {
+    "capacityImpact": "該物品會佔用倉庫容量，超重將影響航行",
+    "insertItem": "填入物品"
+  },
+  "wheel": {
+    "insertItem": "填入物品"
   }
 }

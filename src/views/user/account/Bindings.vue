@@ -5,6 +5,7 @@ import { apis } from '@/assets/sripts';
 import { useNoticeStore } from '~/stores/noticeStore';
 import Loading from '@/components/Loading.vue';
 import AffixBoxHasTitleView from '@/components/AffixBoxHasTitleView.vue';
+import discordLogo from '@/assets/images/logos/discord.svg';
 
 const { t } = useI18n();
 const notice = useNoticeStore();
@@ -18,6 +19,7 @@ const platformDefs = [
   { platform: 'qq', icon: 'mdi-qqchat', color: '#12b7f5' },
   { platform: 'wechat', icon: 'mdi-wechat', color: '#07c160' },
   { platform: 'google', icon: 'mdi-google', color: '#ea4335' },
+  { platform: 'discord', icon: 'mdi-discord', color: '#5865f2' },
 ];
 
 onMounted(() => {
@@ -117,11 +119,12 @@ defineOptions({
     <!-- 第三方主流登录平台卡片 S -->
      <AffixBoxHasTitleView>
         <v-row>
-      <v-col cols="12" md="6" v-for="item in platformDefs" :key="item.platform">
+      <v-col cols="12" md="4" v-for="item in platformDefs" :key="item.platform">
         <v-card border variant="text" class="h-100 hover-card transition-all d-flex flex-column justify-space-between">
-          <v-card-title class="py-16 text-center bg-black mb-4 text-amber text-h4 u"
+          <v-card-title class="py-16 text-center bg-black mb-4 text-h4 u"
           :color="item.color">
-            <v-icon :icon="item.icon" size="60"></v-icon>
+            <img v-if="item.platform === 'discord'" :src="discordLogo" alt="Discord" width="60" height="60">
+            <v-icon v-else :icon="item.icon" size="60"></v-icon>
           </v-card-title>
           
           <v-card-text class="d-flex align-start justify-space-between mb-3">

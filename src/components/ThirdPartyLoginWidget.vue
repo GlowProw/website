@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { apis } from '@/assets/sripts';
 import { useNoticeStore } from '~/stores/noticeStore';
+import discordLogo from '@/assets/images/logos/discord.svg';
 
 const props = withDefaults(defineProps<{
   mode?: 'signin' | 'signup' | 'bind';
@@ -20,6 +21,7 @@ const providers = ref<Array<{ platform: string; name: string; icon: string }>>([
   { platform: 'qq', name: 'QQ', icon: 'mdi-qqchat' },
   { platform: 'wechat', name: '微信', icon: 'mdi-wechat' },
   { platform: 'google', name: 'Google', icon: 'mdi-google' },
+  { platform: 'discord', name: 'Discord', icon: 'mdi-discord' },
 ]);
 
 onMounted(async () => {
@@ -74,7 +76,8 @@ const onOAuthLogin = async (platform: string) => {
           @click="onOAuthLogin(item.platform)"
           :title="item.name"
         >
-          <v-icon size="22" :icon="item.icon"></v-icon>
+          <img v-if="item.platform === 'discord'" :src="discordLogo" alt="Discord" width="22" height="22">
+          <v-icon v-else size="22" :icon="item.icon"></v-icon>
         </v-btn>
       </v-col>
     </v-row>
@@ -102,6 +105,11 @@ const onOAuthLogin = async (platform: string) => {
     border-color: rgba(255, 255, 255, 0.2) !important;
     background-color: rgba(255, 255, 255, 0.08) !important;
     color: #ea4335 !important;
+  }
+
+  .oauth-btn-discord {
+    background-color: #5865f2 !important;
+    color: #fff !important;
   }
 }
 </style>

@@ -95,6 +95,33 @@ const ssrBuildFlagPlugin = {
 };
 
 /**
+ * 产物版本信号文件 dist/version.json
+ * 仅客户端构建时写出（SSR/分片构建跳过）；前端轮询该文件与 __APP_VERSION__ 比对，
+ * 发现新版本即静默清理缓存并刷新。
+ * 必须用 closeBundle：configResolved 阶段写入会被 Vite 的 emptyOutDir 清掉。
+ */
+const appVersionPlugin = (() => {
+    let enabled = false;
+    let outDir = 'dist';
+    return {
+        name: 'app-version-json',
+        apply: 'build' as const,
+        configResolved(resolved: any) {
+            enabled = !isSsrBuild && !resolved.build?.ssr && resolved.environment?.name !== 'ssr';
+            outDir = path.resolve(resolved.root || __dirname, resolved.build?.outDir || 'dist');
+        },
+        closeBundle() {
+            if (!enabled) return;
+            fs.mkdirSync(outDir, {recursive: true});
+            fs.writeFileSync(
+                path.join(outDir, 'version.json'),
+                JSON.stringify({version: config.version, buildTime: new Date().toISOString()}, null, 2) + '\n'
+            );
+        },
+    };
+})();
+
+/**
  * 从 router/index.ts 中动态提取所有路由路径
  * 通过正则提取 path 定义，而不是直接 import 执行。
  */
@@ -202,6 +229,7 @@ const getRoutes = () => {
         'setting/subscriptions',
         'setting/advanced',
         'space',
+        'oauth',
         'apps',
         'apps/view',
         'apps/qq-bot',
@@ -277,6 +305,7 @@ export default defineConfig(({mode}) => {
         plugins: [
             snbI18nPlugin,
             ssrBuildFlagPlugin,
+            appVersionPlugin,
             Vue({
                 template: {transformAssetUrls},
             }),
@@ -324,18 +353,13 @@ export default defineConfig(({mode}) => {
                     }
                 } as any,
                 workbox: {
-                    globPatterns: ['index.html', 'manifest*.webmanifest', '**/*.{js,css,ico,png,svg,webp,avif,woff2}'],
+                    // 不预缓存任何 HTML 页面（含首页 index.html）：
+                    // 页面始终走网络获取，发版后用户看到的永远是最新 HTML；
+                    // 只缓存带哈希的静态资源，旧资源由版本更新流程统一清理
+                    globPatterns: ['manifest*.webmanifest', '**/*.{js,css,ico,png,svg,webp,avif,woff2}'],
                     maximumFileSizeToCacheInBytes: 8 * 1024 * 1024, // 8MB
-                    navigateFallback: '/index.html',
-                    navigateFallbackDenylist: [
-                        /^\/sitemap\.xml$/,
-                        /^\/robots\.txt$/,
-                        /^\/ads\.txt$/,
-                        /^\/2b62795cf566484f8bc243e7055ae616\.txt$/,
-                        /^\/WW_verify_.*\.txt$/,
-                        /^\/favicon\.ico$/,
-                        /^\/favicon\.png$/,
-                    ],
+                    // 关闭导航回落：离线/刷新时不用缓存 HTML 兜底，避免停留在旧页面
+                    navigateFallback: null as any,
                 }
             }),
             (() => {

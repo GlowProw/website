@@ -96,6 +96,7 @@ export const createApp = ViteSSG(
         // 错误捕获仅客户端
         if (!import.meta.env.SSR) {
             initGlobalErrorCapture(app)
+            import('./assets/sripts/version_updater').then(m => m.startVersionWatcher())
         }
     }
 )

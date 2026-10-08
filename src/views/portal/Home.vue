@@ -205,6 +205,7 @@ onUnmounted(() => {
 .portal-banner {
   height: calc(100vh - 400px);
   min-height: 400px;
+  max-height: 600px;
   position: relative;
   z-index: 5;
   overflow: hidden;

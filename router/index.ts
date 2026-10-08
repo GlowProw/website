@@ -267,11 +267,11 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
             },
             {
                 path: 'oauth/callback',
-                name: 'OAuthCallback',
+                name: 'OAuthCallbackPage',
                 meta: {
                     title: 'oauth.callbackTitle',
                 },
-                component: () => import('@/views/user/OAuthCallback.vue'),
+                component: () => import('@/views/user/OAuthCallbackPage.vue'),
             },
             {
                 path: 'account/signin',

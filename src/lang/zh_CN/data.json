@@ -73,6 +73,9 @@
           "title": "Scalar API"
         }
       }
+    },
+    "meta": {
+      "description": "《碧海黑帆 (Skull and Bones)》全能游戏助手与全收集交互地图：数据百科、配装模拟、材料计算、任务攻略与赛季资讯。"
     }
   },
   "ad": {
@@ -165,7 +168,8 @@
       "today": "今日"
     },
     "preload": {
-      "remoteI18n": "从远程加载文本数据..."
+      "remoteI18n": "从远程加载文本数据...",
+      "default": "正在加载资源..."
     },
     "tips": {
       "actionLocked": "操作已锁定，请次日再试",
@@ -417,7 +421,8 @@
           "missingCode": "缺少授权回调 Code，请重新发起授权。",
           "authFailed": "授权回调处理失败，请稍后重试。",
           "bindAndLoginSuccess": "绑定成功并已登录！"
-        }
+        },
+        "success": "登录成功"
       },
       "signup": {
         "ok": "注册成功，请激活账户",
@@ -440,7 +445,8 @@
         "notConfigured": "系统超额，请联系管理员",
         "actionLocked": "操作已锁定，请次日再试",
         "resend": {
-          "ok": "激活码已重发，请检查邮箱"
+          "ok": "激活码已重发，请检查邮箱",
+          "error": "激活邮件重发失败：{context}"
         },
         "error": "激活错误: {context}"
       },
@@ -548,6 +554,10 @@
         "selfNotAllowed": "不能给自己发消息",
         "forbidden": "无权访问此会话",
         "bannedWords": "消息包含违规内容"
+      },
+      "operateSuccess": "操作成功",
+      "ranking": {
+        "error": "操作失败：{context}"
       }
     },
     "errorCodes": {
@@ -620,7 +630,8 @@
       "close": "关闭",
       "create": "创建",
       "refresh": "刷新",
-      "view": "前往查看"
+      "view": "前往查看",
+      "retry": "重试"
     },
     "assembly": {
       "publish": {
@@ -707,7 +718,9 @@
         "last5Years": "近5年"
       }
     },
-    "all": "全部"
+    "all": "全部",
+    "delete": "删除",
+    "empty": "暂无数据"
   },
   "comment": {
     "title": "评论",
@@ -910,6 +923,10 @@
         "google": {
           "name": "Google",
           "desc": "支持 Google 国际通用快捷登录"
+        },
+        "discord": {
+          "name": "Discord",
+          "desc": "支持 Discord 快捷一键登录与个人中心快速同步"
         }
       },
       "authorized": "已授权"
@@ -964,7 +981,8 @@
     "form": {
       "username": {
         "name": "账户名称",
-        "placeholder": "请输入用户名"
+        "placeholder": "请输入用户名",
+        "notEmpty": "请输入用户名"
       },
       "code": {
         "name": "激活码",
@@ -1356,7 +1374,8 @@
       "perks": "能力",
       "baseInfo": "基础信息",
       "deckInfo": "甲板信息",
-      "lookDetail": "查看船只详情(按住)"
+      "lookDetail": "查看船只详情(按住)",
+      "attachment": "附件"
     },
     "cosmetic": {
       "title": "装饰品详情",
@@ -1553,7 +1572,8 @@
       "faction": "阵营",
       "stageCount": "阶级数",
       "dateAdded": "添加日期",
-      "lastUpdated": "更新日期"
+      "lastUpdated": "更新日期",
+      "lookDetail": "查看帝国技能详情(按住)"
     },
     "mastery": {
       "title": "专精技能详情",
@@ -1592,6 +1612,9 @@
       "searchPlaceholder": "搜索任务名称、ID、分类或线索...",
       "count": "共 {count} 个任务 (总计 {total})",
       "viewCategoryQuests": "查看该分类全部任务"
+    },
+    "meta": {
+      "description": "《碧海黑帆 (Skull and Bones)》百科：船只、武器、护甲、家具、材料、外观与藏宝图等全数据图鉴。"
     }
   },
   "quest": {
@@ -1621,7 +1644,8 @@
     "arc": "故事线",
     "step": "阶段",
     "fold": "折叠",
-    "unfold": "展开"
+    "unfold": "展开",
+    "missions": "幕"
   },
   "drop": {
     "title": "Twitch掉宝",
@@ -2042,7 +2066,10 @@
     "editCollection": "编辑地图集",
     "confirmDeletePoints": "确定要删除选中的坐标吗？",
     "public": "公开",
-    "private": "私有"
+    "private": "私有",
+    "collectionList": "收藏点列表",
+    "latitude": "纬度",
+    "longitude": "经度"
   },
   "rankingDesignedItems": {
     "title": "排序设计",
@@ -2547,7 +2574,10 @@
     "register": "注册"
   },
   "home": {
-    "title": "首页"
+    "title": "首页",
+    "meta": {
+      "keywords": "碧海黑帆,Skull and Bones,百科,攻略,交互地图,船只配装,材料,藏宝图,帝国技能,赛季"
+    }
   },
   "empireSkillSimulation": {
     "searchPlaceholder": "搜索技能",
@@ -2717,7 +2747,9 @@
       "direction": "方向",
       "coordinates": "坐标",
       "dependentNodes": "后续解锁节点",
-      "season": "所属赛季"
+      "season": "所属赛季",
+      "connectedActive": "连线已激活",
+      "perkSwitched": "同阶仅可生效一个：「{from}」已替换为「{to}」"
     },
     "debug": {
       "title": "专精树调试与坐标编辑",
@@ -2994,7 +3026,8 @@
         "ultimates": "终极技能",
         "modifications": "模组",
         "ships": "船只"
-      }
+      },
+      "item": "物品"
     },
     "advanced": {
       "title": "进阶设置",
@@ -3554,6 +3587,23 @@
     "missingCode": "缺少授权回调 Code，请重新发起授权。",
     "authFailed": "第三方授权启动失败",
     "urlError": "获取授权链接失败",
-    "unknownError": "授权处理失败"
+    "unknownError": "授权处理失败",
+    "waitHint": "正在与第三方平台确认授权信息，请勿关闭窗口..."
+  },
+  "common": {
+    "cancel": "取消",
+    "close": "关闭",
+    "confirm": "确认",
+    "confirmDelete": "确认删除"
+  },
+  "team": {
+    "title": "组队招募"
+  },
+  "warehouse": {
+    "capacityImpact": "该物品会占用仓库容量，超重将影响航行",
+    "insertItem": "填入物品"
+  },
+  "wheel": {
+    "insertItem": "填入物品"
   }
 }

@@ -100,7 +100,7 @@ export function normalizeVideoUrl(input: string): NormalizeVideoResult {
     const host = url.hostname.toLowerCase()
     const path = url.pathname
 
-    /* YouTube（youtube.com 任意子域：www / m / music 等）：watch / shorts / embed */
+    /* YouTube
     if (isWhitelistedHost(host, 'youtube.com') || isWhitelistedHost(host, 'youtube-nocookie.com')) {
         let id = ''
         if (path === '/watch') {
@@ -144,7 +144,7 @@ export function normalizeVideoUrl(input: string): NormalizeVideoResult {
         // 番剧/课程等其它页面或未知子域：交给文末白名单兜底
     }
 
-    /* 腾讯视频（v.qq.com 及其子域）：/x/cover/<cid>/<vid>.html */
+    /* 腾讯视频
     if (isWhitelistedHost(host, 'v.qq.com')) {
         if (path.startsWith('/txp/iframe/player.html') && url.searchParams.get('vid')) {
             return {ok: true, url: url.toString()}
@@ -154,7 +154,7 @@ export function normalizeVideoUrl(input: string): NormalizeVideoResult {
         // 其它路径：交给文末白名单兜底
     }
 
-    /* 优酷（youku.com 及任意子域，如 v. / player.）：/v_show/id_XXX==.html */
+    /* 优酷
     if (isWhitelistedHost(host, 'youku.com')) {
         if (host === 'player.youku.com') {
             const mEmbed = path.match(/\/embed\/([^/?#]+)/i)
@@ -170,7 +170,7 @@ export function normalizeVideoUrl(input: string): NormalizeVideoResult {
         return {ok: true, url: url.toString()}
     }
 
-    /* 视频文件直链（不限域名） */
+    /* 视频文件直链 */
     if (VIDEO_FILE_RE.test(path) || VIDEO_FILE_RE.test(url.toString())) {
         return {ok: true, url: url.toString()}
     }

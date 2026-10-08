@@ -73,6 +73,9 @@
           "title": "Scalar API"
         }
       }
+    },
+    "meta": {
+      "description": "The all-in-one Skull and Bones companion: fully collected interactive map, data codex, loadout simulator, material calculator, quest guides and season updates."
     }
   },
   "ad": {
@@ -165,7 +168,8 @@
       "today": "today"
     },
     "preload": {
-      "remoteI18n": "Loading remote translations..."
+      "remoteI18n": "Loading remote translations...",
+      "default": "Loading assets..."
     },
     "tips": {
       "actionLocked": "Operation is locked, please try again tomorrow.",
@@ -397,7 +401,8 @@
         "expired": "Captcha expired",
         "wrong": "Incorrect captcha entered",
         "required": "Please complete the captcha",
-        "svgDisabled": "SVG captcha only in debug mode"
+        "svgDisabled": "SVG captcha only in debug mode",
+        "ok": "Success"
       },
       "signin": {
         "ok": "Login successful",
@@ -406,7 +411,17 @@
         "error": "Sign in error: {context}",
         "expired": "User identity expired, please log in again",
         "accountIncorrect": "Incorrect login information",
-        "notActivated": "Account disabled due to non-activation, please activate it."
+        "notActivated": "Account disabled due to non-activation, please activate it.",
+        "success": "Signed in successfully",
+        "oauth": {
+          "bindSuccess": "Bound successfully",
+          "bindFailed": "Binding failed",
+          "unknownError": "Authorization processing failed",
+          "failed": "Sign-up failed",
+          "missingCode": "Missing authorization callback code. Please start the authorization again.",
+          "authFailed": "Authorization callback failed, please try again later.",
+          "bindAndLoginSuccess": "Bound successfully and signed in!"
+        }
       },
       "signup": {
         "ok": "Registration successful, please check your email to activate.",
@@ -427,7 +442,8 @@
         "userNotFound": "Account not found.",
         "emailQuotaExceeded": "Email daily limit reached, please try again later.",
         "resend": {
-          "ok": "Activation code resent, please check your email."
+          "ok": "Activation code resent, please check your email.",
+          "error": "Failed to resend activation email: {context}"
         },
         "error": "Activation error: {context}",
         "resendLimitExceeded": "Daily activation resend limit reached, please try again tomorrow.",
@@ -539,6 +555,10 @@
         "selfNotAllowed": "Cannot DM yourself",
         "forbidden": "No access to this conversation",
         "bannedWords": "Message contains prohibited content"
+      },
+      "operateSuccess": "Operation succeeded",
+      "ranking": {
+        "error": "Operation failed: {context}"
       }
     },
     "errorCodes": {
@@ -611,7 +631,8 @@
       "close": "Close",
       "create": "Create",
       "refresh": "Refresh",
-      "view": "View"
+      "view": "View",
+      "retry": "Retry"
     },
     "assembly": {
       "publish": {
@@ -698,7 +719,9 @@
         "last5Years": "Last 5 Years"
       }
     },
-    "all": "All"
+    "all": "All",
+    "delete": "Delete",
+    "empty": "No data yet"
   },
   "comment": {
     "title": "Comment",
@@ -901,6 +924,10 @@
         "google": {
           "name": "Google",
           "desc": "Supports Google universal quick sign-in"
+        },
+        "discord": {
+          "name": "Discord",
+          "desc": "Supports Discord quick sign-in and account sync"
         }
       }
     },
@@ -954,7 +981,8 @@
     "form": {
       "username": {
         "name": "Username",
-        "placeholder": "Enter username"
+        "placeholder": "Enter username",
+        "notEmpty": "Please enter your username"
       },
       "code": {
         "name": "Activation Code",
@@ -1343,7 +1371,8 @@
       "perks": "Abilities",
       "baseInfo": "Base Info",
       "deckInfo": "Deck Info",
-      "lookDetail": "View Ship Details (Hold)"
+      "lookDetail": "View Ship Details (Hold)",
+      "attachment": "Attachment"
     },
     "cosmetic": {
       "title": "Cosmetic List",
@@ -1487,7 +1516,8 @@
           "algorithmIssue": "No similar treasure maps found. This might be due to a query algorithm bias or the treasure map not being in the collection. Please try changing the query algorithm and try again.",
           "useFilter": "If you know the treasure map attributes, appropriately filtering by map type and treasure map area can reduce the search wait time.",
           "notInCollection": "If not in the collection, please contact us using the contact information at the bottom of the website to add it to the collection."
-        }
+        },
+        "uploadPrompt": "Select a local image as the target for search"
       }
     },
     "mapLocation": {
@@ -1539,7 +1569,8 @@
       "faction": "Faction",
       "stageCount": "Stages",
       "dateAdded": "Date Added",
-      "lastUpdated": "Last Updated"
+      "lastUpdated": "Last Updated",
+      "lookDetail": "View empire skill details (hold)"
     },
     "mastery": {
       "title": "Mastery Details",
@@ -1585,6 +1616,9 @@
       "searchPlaceholder": "Search quest name, ID, category or lore...",
       "count": "{count} Quests ({total} Total)",
       "viewCategoryQuests": "View All in this Storyline"
+    },
+    "meta": {
+      "description": "Skull and Bones codex: ships, weapons, armor, furniture, materials, cosmetics, treasure maps and more."
     }
   },
   "quest": {
@@ -1614,7 +1648,8 @@
     "arc": "Story Arc",
     "step": "Step",
     "fold": "Collapse",
-    "unfold": "Expand"
+    "unfold": "Expand",
+    "missions": "Acts"
   },
   "drop": {
     "title": "Twitch Drops",
@@ -2035,7 +2070,10 @@
     "editCollection": "Edit Atlas",
     "confirmDeletePoints": "Are you sure you want to delete the selected point(s)?",
     "public": "Public",
-    "private": "Private"
+    "private": "Private",
+    "collectionList": "Saved points",
+    "latitude": "Latitude",
+    "longitude": "Longitude"
   },
   "rankingDesignedItems": {
     "title": "Ranking Design",
@@ -2544,7 +2582,10 @@
     "register": "Register"
   },
   "home": {
-    "title": "Home"
+    "title": "Home",
+    "meta": {
+      "keywords": "Skull and Bones,wiki,guide,interactive map,ship loadout,materials,treasure maps,empire skills,seasons"
+    }
   },
   "empireSkillSimulation": {
     "searchPlaceholder": "Search Skill",
@@ -2701,7 +2742,12 @@
       "direction": "Direction",
       "coordinates": "Coordinates",
       "dependentNodes": "Dependent Downstream Nodes",
-      "season": "Season"
+      "season": "Season",
+      "perkActiveOne": "Active seasonal perk",
+      "perkPointsRequired": "Enough mastery points required",
+      "perkSelectOne": "Select active seasonal perk",
+      "perkSwitched": "Only one perk per tier can be active: \"{from}\" has been replaced by \"{to}\"",
+      "pointCost": "Mastery point cost"
     },
     "debug": {
       "title": "Mastery Tree Debug & Coordinate Editor",
@@ -2753,7 +2799,9 @@
       "requisiteAdded": "Requisite added: {name}",
       "requisiteRemoved": "Requisite removed: {name}"
     },
-    "noData": "No mastery data available"
+    "noData": "No mastery data available",
+    "dataSources": "Data sources",
+    "searchPlaceholder": "Search nodes"
   },
   "search": {
     "title": "Search",
@@ -3101,7 +3149,8 @@
         "title": "Activity Reminder",
         "description": "Schedule in-game events and activity reminders with desktop alerts"
       }
-    }
+    },
+    "menu": "Menu"
   },
   "footer": {
     "basic": {
@@ -3284,7 +3333,8 @@
       "openSeas": "Open Seas",
       "redIsle": "Red Isle",
       "coastOfAfrica": "Coast of Africa"
-    }
+    },
+    "gap": "Gap {count}"
   },
   "subscription": {
     "title": "Subscriptions",
@@ -3535,6 +3585,23 @@
     "missingCode": "Missing authorization code. Please try again.",
     "authFailed": "Failed to initiate third-party authorization",
     "urlError": "Failed to retrieve authorization URL",
-    "unknownError": "Authorization failed"
+    "unknownError": "Authorization failed",
+    "waitHint": "Verifying your authorization with the third-party platform, please keep this window open..."
+  },
+  "common": {
+    "cancel": "Cancel",
+    "close": "Close",
+    "confirm": "Confirm",
+    "confirmDelete": "Confirm deletion"
+  },
+  "team": {
+    "title": "Team Up"
+  },
+  "warehouse": {
+    "capacityImpact": "This item takes warehouse capacity; being over capacity affects sailing",
+    "insertItem": "Insert item"
+  },
+  "wheel": {
+    "insertItem": "Insert item"
   }
 }

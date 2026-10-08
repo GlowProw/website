@@ -70,6 +70,28 @@ const CATEGORIES: CategoryFetch[] = [
 
 const cacheKey = (sourceKey: string, lang: string) => `i18n_cache_${sourceKey}_${lang}`;
 
+/**
+ * 读取会话缓存（sessionStorage：同一标签页会话内刷新页面依然保留）
+ */
+function readSessionCache(sourceKey: string, lang: string): Record<string, any> | null {
+    const cached = storage.session.get(cacheKey(sourceKey, lang));
+    if (cached?.code === 0 && cached.data?.value && typeof cached.data.value === 'object') {
+        return cached.data.value;
+    }
+    return null;
+}
+
+/**
+ * 写入会话缓存；容量超限时静默失败（不影响本次内存合并结果）
+ */
+function writeSessionCache(sourceKey: string, lang: string, value: Record<string, any>): void {
+    try {
+        storage.session.set(cacheKey(sourceKey, lang), value);
+    } catch {
+        // sessionStorage 配额不足等情况忽略
+    }
+}
+
 async function fetchCategory(url: string, timeoutMs: number): Promise<Record<string, any> | null> {
     try {
         const controller = new AbortController();
@@ -110,39 +132,47 @@ export async function loadRemoteLangMessages(
         return { ok: false, fromCache: false, fetchedCategories: 0 };
     }
 
-    // 并行 fetch 所有 category
+    // 会话缓存优先：同一标签页会话内刷新页面直接复用上次下载内容，不再重复请求
+    // forceRefresh（如手动切换 CDN 源后强制刷新）时跳过缓存走网络
     if (!opts.forceRefresh) {
-        const urls = CATEGORIES.map(c => `${base}/${cdnLang}/${c.file}.json`);
-        const results = await Promise.allSettled(urls.map(u => fetchCategory(u, perCatTimeout)));
-
-        const bundle: Record<string, any> = {};
-        let fetchedCount = 0;
-
-        CATEGORIES.forEach((cat, idx) => {
-            const res = results[idx];
-            if (res.status === 'fulfilled' && res.value) {
-                fetchedCount++;
-                const data = res.value;
-                if (cat.mergeWith && bundle[cat.bundleKey]) {
-                    bundle[cat.bundleKey] = { ...bundle[cat.bundleKey], ...data };
-                } else {
-                    bundle[cat.bundleKey] = data;
-                }
-            }
-        });
-
-        if (fetchedCount > 0) {
-            const wrapped = { snb: bundle };
-            storage.session.set(cacheKey(source.key, lang), wrapped);
-            mergeIntoI18n(i18n.global, lang, wrapped);
-            return { ok: true, fromCache: false, fetchedCategories: fetchedCount };
+        const cachedBundle = readSessionCache(source.key, lang);
+        if (cachedBundle) {
+            mergeIntoI18n(i18n.global, lang, cachedBundle);
+            return { ok: true, fromCache: true, fetchedCategories: 0 };
         }
     }
 
-    // session 缓存 fallback
-    const cached = storage.session.get(cacheKey(source.key, lang));
-    if (cached?.code === 0 && cached.data?.value && typeof cached.data.value === 'object') {
-        mergeIntoI18n(i18n.global, lang, cached.data.value);
+    // 缓存缺失（首次访问/新开会话）或强制刷新：并行 fetch 所有 category
+    const urls = CATEGORIES.map(c => `${base}/${cdnLang}/${c.file}.json`);
+    const results = await Promise.allSettled(urls.map(u => fetchCategory(u, perCatTimeout)));
+
+    const bundle: Record<string, any> = {};
+    let fetchedCount = 0;
+
+    CATEGORIES.forEach((cat, idx) => {
+        const res = results[idx];
+        if (res.status === 'fulfilled' && res.value) {
+            fetchedCount++;
+            const data = res.value;
+            if (cat.mergeWith && bundle[cat.bundleKey]) {
+                bundle[cat.bundleKey] = { ...bundle[cat.bundleKey], ...data };
+            } else {
+                bundle[cat.bundleKey] = data;
+            }
+        }
+    });
+
+    if (fetchedCount > 0) {
+        const wrapped = { snb: bundle };
+        writeSessionCache(source.key, lang, wrapped);
+        mergeIntoI18n(i18n.global, lang, wrapped);
+        return { ok: true, fromCache: false, fetchedCategories: fetchedCount };
+    }
+
+    // 网络全部失败：强制刷新或在线请求失败时，仍尝试用会话内旧缓存兜底
+    const fallbackBundle = readSessionCache(source.key, lang);
+    if (fallbackBundle) {
+        mergeIntoI18n(i18n.global, lang, fallbackBundle);
         return { ok: true, fromCache: true, fetchedCategories: 0 };
     }
 

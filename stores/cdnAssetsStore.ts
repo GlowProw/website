@@ -97,7 +97,7 @@ export const useCDNAssetsServiceStore = defineStore('cdnService', () => {
     ]);
 
     const selectedService = ref('glow-prow');
-    const selectedModeService = ref(import.meta.env.DEV ? 'local-test' : 'glow-prow');
+    const selectedModeService = ref('glow-prow');
 
     const enabledServices = computed(() =>
         services.value.filter(s => s.enabled).sort((a, b) => a.priority - b.priority)

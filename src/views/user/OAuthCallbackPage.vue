@@ -86,7 +86,7 @@ onMounted(async () => {
     }
 
     // 未找到绑定 -> 引导进入补充注册或绑定已有账号
-    if (result.code === 'basic.tips.signin.oauth.needComplete') {
+    if (result.code === 'oauth.needComplete') {
       needComplete.value = true;
       oauthTicket.value = result.data.oauthTicket;
       oauthProfile.value = {
