@@ -16,7 +16,7 @@
     "preview:production": "vite preview",
     "build-only": "vite build --mode production",
     "build:ssg": "npm run build-only:ssg",
-    "build-only:ssg": "rm -rf dist .vite-ssg-temp && NODE_OPTIONS='--expose-gc --max-old-space-size=7168' vite-ssg build --mode production",
+    "build-only:ssg": "rm -rf dist .vite-ssg-temp && vite-ssg build --mode production",
     "deploy:edgeone:production": "edgeone makers deploy ./dist -n glow-prow-website-cil-build",
     "deploy:edgeone:preview": "edgeone makers deploy ./dist -n glow-prow-website-cil-build -e preview",
     "push:indexnow": "node scripts/push-indexnow.js",
