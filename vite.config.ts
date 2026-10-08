@@ -79,6 +79,21 @@ const snbI18nPlugin = {
     },
 };
 
+// 标记当前是否为 SSR 构建（vite-ssg 的服务端构建）
+// SSR 下不做 vendor 强制合包：否则核心入口只因用到 Seasons 就会静态加载整个 glow-prow-data chunk
+let isSsrBuild = false;
+const ssrBuildFlagPlugin = {
+    name: 'ssr-build-flag',
+    apply: 'build' as const,
+    config(_config: any, env: any) {
+        if (env?.isSsrBuild) isSsrBuild = true;
+    },
+    configResolved(resolved: any) {
+        if (resolved?.build?.ssr) isSsrBuild = true;
+        if (resolved?.environment?.name === 'ssr') isSsrBuild = true;
+    },
+};
+
 /**
  * 从 router/index.ts 中动态提取所有路由路径
  * 通过正则提取 path 定义，而不是直接 import 执行。
@@ -235,6 +250,21 @@ const getSitemapRoutes = () => {
 
 let renderedPageCount = 0;
 
+// SSG 分片构建：路由列表按字母序连续切片（同语言、同实体类型天然聚类，chunk 命中率高）。
+// 由 scripts/ssg-shard-build.mjs 通过环境变量驱动，每个分片是独立进程，进程退出即归还全部内存。
+const SHARD_TOTAL = Number.parseInt(process.env.SSG_SHARD_TOTAL || '1', 10);
+const SHARD_INDEX = Number.parseInt(process.env.SSG_SHARD_INDEX || '0', 10);
+
+const selectShardRoutes = (list: string[]): string[] => {
+    if (!Number.isFinite(SHARD_TOTAL) || SHARD_TOTAL <= 1) return list;
+    const total = list.length;
+    const size = Math.ceil(total / SHARD_TOTAL);
+    const start = SHARD_INDEX * size;
+    const shard = list.slice(start, Math.min(start + size, total));
+    console.log(`[ssg-shard] shard ${SHARD_INDEX + 1}/${SHARD_TOTAL}: routes ${start}..${start + shard.length - 1} of ${total}`);
+    return shard;
+};
+
 export default defineConfig(({mode}) => {
     const env = loadEnv(mode, process.cwd(), '');
     const appHost = env.APP_HOST || '';
@@ -245,6 +275,7 @@ export default defineConfig(({mode}) => {
         base: '/',
         plugins: [
             snbI18nPlugin,
+            ssrBuildFlagPlugin,
             Vue({
                 template: {transformAssetUrls},
             }),
@@ -354,6 +385,8 @@ export default defineConfig(({mode}) => {
                 output: {
                     preserveModulesRoot: 'node_modules/glow-prow-data',
                     manualChunks(id) {
+                        // SSR：自然分包，保证小入口（Seasons 等轻量模块不会牵动 1.5MB 数据包）
+                        if (isSsrBuild) return;
                         if (id.includes('glow-prow-data')) {
                             return 'glow-prow-data'
                         }
@@ -426,7 +459,7 @@ export default defineConfig(({mode}) => {
             concurrency: 2,
             // 预渲染所有静态路由与公开百科数据路由，跳过未填充参数的路由及私有路由
             includedRoutes(paths: string[], routes: any[]) {
-                return getPrerenderRoutes();
+                return selectShardRoutes(getPrerenderRoutes());
             },
             onBeforePageRender(route: string, indexHTML: string, ctx: any) {
                 // 确保页面输出目录安全存在，防止并发写入时的目录竞态异常
@@ -523,12 +556,12 @@ export default defineConfig(({mode}) => {
                 const ldJsonScript = `<script type="application/ld+json">${JSON.stringify(ldJsonData)}</script>`;
                 html = html.replace('</head>', `${ldJsonScript}</head>`);
 
-                // 6. 还原 <meta> 和 <link> 标签中被 HTML DOM 序列化转义的 URL 参数 (&amp; -> &)
+                // 还原 <meta> 和 <link> 标签中被 HTML DOM 序列化转义的 URL 参数 (&amp; -> &)
                 html = html.replace(/(<(?:meta|link)\s+[^>]*?(?:content|href)="[^"]*?")/gi, (match) => {
                     return match.replace(/&amp;/g, '&');
                 });
 
-                // 7. 高效 HTML 静态代码压缩 (Minify)：
+                // 高效 HTML 静态代码压缩 (Minify)：
                 const preservedBlocks: string[] = [];
                 // 保护 pre / code / textarea 标签内容中的原始换行与格式
                 html = html.replace(/<(pre|code|textarea)[\s\S]*?<\/\1>/gi, (match) => {

@@ -53,5 +53,13 @@
 
 ## 部署
 
-如果要部署，则只需要执行`npm run build-only`只管打包，或是`npm run build:production`/`npm run build:no-check:production`，打包不检查/打包检查
+如果要部署，则只需要执行`npm run build-only:ssg:sharded`，它会分片构建SSG，每个分片是一个独立的进程，进程退出即归还全部内存。
 
+构建完成后，会在`dist`目录下生成静态文件，你可以直接部署到服务器上。
+
+### edgeone 部署
+
+提供edgeone脚本上传，你需要先运行`npm run build-only:ssg:sharded`构建
+
+- `npm run deploy:edgeone:preview` 部署到预览环境
+- `npm run deploy:edgeone:production` 部署到生产环境

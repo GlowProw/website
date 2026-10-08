@@ -82,7 +82,7 @@ const metricCards = computed(() => [
 const chartRef = ref<SVGSVGElement | null>(null);
 const chartWidth = 720;
 const chartHeight = 220;
-const margin = {top: 16, right: 16, bottom: 32, left: 44};
+const margin = {top: 16, right: 16, bottom: 16, left: 16};
 const tooltipRef = ref<HTMLDivElement | null>(null);
 
 const renderedTrend = computed(() => trend.value?.points || []);
@@ -108,11 +108,6 @@ onMounted(async () => {
     loading.value = false;
   }
 });
-
-const onMetricClick = async (m: StatsTrend['metric']) => {
-  currentMetric.value = m;
-  await loadTrend();
-};
 
 const loadOverview = async () => {
   overview.value = await statsApi.getOverview();
@@ -265,16 +260,19 @@ defineOptions({
 
 <template>
   <v-card variant="text">
-    <v-row no-gutters>
-      <v-col>
-        <v-tabs v-model="currentMetric"
-                color="amber">
-          <v-tab v-for="m in trendMetrics" :key="m" :value="m" @click="onMetricClick(m)" class="text-subtitle-2 font-weight-medium">
+    <v-row class="">
+      <v-col cols="12" lg="auto">
+        <v-btn-toggle v-model="currentMetric" @update:model-value="loadTrend" density="compact" variant="tonal" color="amber">
+          <v-btn v-for="m in trendMetrics"
+                 :key="m"
+                 :value="m"
+                 class="text-subtitle-2 font-weight-medium">
             {{ t(`account.dataCenter.overview.${m}`) }}
-          </v-tab>
-        </v-tabs>
+          </v-btn>
+        </v-btn-toggle>
       </v-col>
-      <v-col cols="auto">
+      <v-spacer class="hidden-sm hidden-md"></v-spacer>
+      <v-col cols="12" lg="auto">
         <!-- 时间范围选择 -->
         <div class="d-flex align-center ga-4">
           <p v-if="trend" class="text-caption opacity-40 ml-auto">
@@ -291,11 +289,10 @@ defineOptions({
         </div>
       </v-col>
     </v-row>
-    <v-divider class="mb-3"></v-divider>
 
     <!-- 概览卡片区 -->
-    <v-row dense class="mb-6">
-      <v-col cols="6">
+    <v-row dense class="mt-2 mb-6">
+      <v-col cols="12" lg="6">
         <!-- 折线图 -->
         <div v-if="!loadingTrend" class="position-relative">
           <svg ref="chartRef" class="w-100"></svg>
@@ -308,7 +305,7 @@ defineOptions({
           <Loading size="32"></Loading>
         </div>
       </v-col>
-      <v-col cols="6">
+      <v-col cols="12" lg="6">
         <v-row dense>
           <v-col cols="12" lg="6" v-for="card in metricCards" :key="card.metric">
             <v-card

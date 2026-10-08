@@ -1,4 +1,4 @@
-import { Seasons, Season } from 'glow-prow-data';
+import { Seasons, Season } from 'glow-prow-data/src/entity/Seasons';
 
 /**
  * 获取当前赛季

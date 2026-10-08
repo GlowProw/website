@@ -90,10 +90,12 @@ jobs:
           echo "cf_branch=$CF_BRANCH" >> "$GITHUB_OUTPUT"
           echo "=== Selected target environment: $TARGET_ENV, Cloudflare branch: $CF_BRANCH ==="
 
-      - name: Build SSG
-        run: npm run build-only:ssg
+      - name: Build SSG (sharded)
+        run: npm run build-only:ssg:sharded
         env:
-          NODE_OPTIONS: '--expose-gc --max-old-space-size=10240'
+          # 每个分片是独立进程（默认 4 片，SSG_SHARD_TOTAL 可调），进程退出即归还全部内存
+          NODE_OPTIONS: '--expose-gc --max-old-space-size=8192'
+          SSG_SHARD_TOTAL: '4'
           APP_HOST: 'glow-prow.top'
 
       - name: Upload Build Artifacts

@@ -1,151 +1,122 @@
 import { createRouter, createWebHistory, createMemoryHistory, RouteRecordRaw, RouterView } from 'vue-router';
-import { Seasons } from "glow-prow-data";
 import { getCurrentSeasonId } from "@/assets/sripts";
 
-import PortalMainBasePage from '@/views/portal/Index.vue'
-import PortalPage from '@/views/portal/Home.vue'
-
-import AccountPage from '@/views/user/account/Index.vue'
-import AccountInformationPage from '@/views/user/account/Information.vue'
-import AccountProfilePicturePage from '@/views/user/account/ProfilePicture.vue'
-import AccountAssemblysPage from '@/views/user/account/Assemblys.vue'
-import AccountCommentsPage from '@/views/user/account/Comments.vue'
-import Teamup from '@/views/user/account/Teamup.vue'
-import AccountMapsPage from '@/views/user/account/Maps.vue'
-import AccountSmugglersReport from '@/views/user/account/SmugglersReport.vue'
-import AccountDataCenterPage from '@/views/user/account/DataCenter.vue'
-import AccountMessagesCenterPage from '@/views/user/account/MessagesCenter.vue'
-import AccountMessagesSettingsPage from '@/views/user/account/AccountMessagesSettings.vue'
-import AccountSpacePage from '@/views/user/Space.vue'
-
-import SigninPage from '@/views/user/Signin.vue'
-import SignupPage from '@/views/user/Signup.vue'
-import ActivatePage from '@/views/user/Activate.vue'
-import ForgotPasswordPage from '@/views/user/ForgotPassword.vue'
-import ResetPasswordPage from '@/views/user/ResetPassword.vue'
-import CodexPage from '@/views/codex/Index.vue'
-import CodexCodexOverviewPage from '@/views/codex/CodexOverview.vue'
-import RankingDesignedItemsPage from '@/views/rankingDesignedItems/Index.vue'
-import RankingDesignedItemsBrowsePage from '@/views/rankingDesignedItems/Browse.vue'
-import RankingDesignedItemsWorkshopPage from '@/views/rankingDesignedItems/workshop/Index.vue'
-import RankingDesignedItemsPublishPage from '@/views/rankingDesignedItems/Publish.vue'
-
-import ShipsPage from '@/views/codex/ships/Index.vue'
-import ShipDetailPage from '@/views/codex/ships/Detail.vue'
-
-import ItemsPage from '@/views/codex/items/Index.vue'
-import ItemDetailPage from '@/views/codex/items/Detail.vue'
-
-import CommoditiesPage from '@/views/codex/commodities/Index.vue'
-import CommoditieDetailPage from '@/views/codex/commodities/Detail.vue'
-
-import ModsPage from '@/views/codex/modifications/Index.vue'
-import ModDetailPage from '@/views/codex/modifications/Detail.vue'
-
-import MaterialsPage from '@/views/codex/materials/Index.vue'
-import MaterialDetailPage from '@/views/codex/materials/Detail.vue'
-
-import CosmeticsPage from '@/views/codex/cosmetics/Index.vue'
-import CosmeticDetailPage from '@/views/codex/cosmetics/Detail.vue'
-
-import SetsPage from '@/views/codex/sets/Index.vue'
-import SetDetailPage from '@/views/codex/sets/Detail.vue'
-
-import TreasureMapsPage from '@/views/codex/treasureMaps/Index.vue'
-import TreasureMapDetailPage from '@/views/codex/treasureMaps/Detail.vue'
-import TreasureMapComparisonPage from '@/views/codex/treasureMaps/Comparison.vue'
-
-import MapLocationPage from '@/views/codex/mapLocations/Index.vue'
-import MapLocationsDetailPage from '@/views/codex/mapLocations/Detail.vue'
-
-import NpcsPage from '@/views/codex/npcs/Index.vue'
-import NpcDetailPage from '@/views/codex/npcs/Detail.vue'
-
-import EmpireSkillsPage from '@/views/codex/empireSkills/Index.vue'
-import EmpireSkillDetailPage from '@/views/codex/empireSkills/Detail.vue'
-import CodexMasterysPage from '@/views/codex/masterys/Index.vue'
-import CodexMasteryDetailPage from '@/views/codex/masterys/Detail.vue'
-import QuestPage from '@/views/quest/Index.vue'
-import QuestListPage from '@/views/quest/List.vue'
-import QuestDetailPage from '@/views/quest/Detail.vue'
-
-import EmpireSkillSimulationPage from '@/views/empireSkillSimulation/Index.vue'
-import MasteryPage from '@/views/mastery/Index.vue'
-import MasteryViewPage from '@/views/mastery/View.vue'
-import MasterySharePage from '@/views/mastery/Share.vue'
-
-import UltimatesPage from '@/views/codex/ultimates/Index.vue'
-import UltimateDetailPage from '@/views/codex/ultimates/Detail.vue'
-
-import CalendarPage from '@/views/calendar/Index.vue'
-import CalendarHistoryPage from '@/views/calendar/History.vue'
-
-import AssemblePage from '@/views/assembly/Index.vue'
-import AssembleWorkshopPage from '@/views/assembly/workshop/Index.vue'
-import AssemblePublishPage from '@/views/assembly/Publish.vue'
-import AssemblyBrowsePage from '@/views/assembly/Browse.vue'
-import AssemblyDetailPage from '@/views/assembly/Detail.vue'
-import AssemblySharePage from '@/views/assembly/Share.vue'
-
-import MapsPage from '@/views/map/Index.vue';
-import MapViewPage from '@/views/map/View.vue';
-
-import AppsPage from '@/views/apps/Index.vue';
-import AppsViewPage from '@/views/apps/View.vue';
-import QQBotPage from '@/views/apps/QQBot.vue';
-import ApiDocsPage from '@/views/apps/ApiDocs.vue';
-
-import TeamPage from '@/views/Team.vue'
-import SearchPage from '@/views/Search.vue'
-
-import SmugglersReportPage from '@/views/smugglers/Index.vue'
-import SmugglersReportDetailPage from '@/views/smugglers/View.vue'
-
-import StateOfWarPage from '@/views/stateOfWar/Index.vue'
-import StateOfWarViewPage from '@/views/stateOfWar/View.vue'
-
-import SettingPage from '@/views/setting/Index.vue'
-import SettingViewPage from '@/views/setting/View.vue'
-import SettingAdPage from '@/views/setting/Ad.vue'
-import SettingRoutinePage from '@/views/setting/Routine.vue'
-import SettingStoragePage from '@/views/setting/Storage.vue'
-
-import AboutPage from '@/views/setting/About.vue'
-import SettingPwaPage from '@/views/setting/Pwa.vue'
-import SettingWishlistPage from '@/views/setting/Wishlist.vue'
-import SettingLogPage from '@/views/setting/Log.vue'
-import SettingSubscriptionsPage from '@/views/setting/Subscriptions.vue'
-import AdvancedPage from '@/views/setting/Advanced.vue'
-import ReminderIndexPage from '@/views/reminder/Index.vue'
-import ReminderViewPage from '@/views/reminder/View.vue'
-import NotFoundPage from '@/views/NotFound.vue';
-
-import Test from '@/views/Test.vue'
-
-import CalculatorPage from '@/views/calculator/Index.vue'
-import DropPage from '@/views/drop/Index.vue'
-
-import WidgetIndexPage from '@/widgets/Index.vue';
-import WidgetAssemblyPage from '@/widgets/assembly/Index.vue';
-import WidgetMasteryPage from '@/widgets/mastery/Index.vue';
-import WidgetShipPage from '@/widgets/ship/Index.vue';
-import WidgetItemPage from '@/widgets/item/Index.vue';
-import WidgetMaterialPage from '@/widgets/material/Index.vue';
-import WidgetNpcPage from '@/widgets/npc/Index.vue';
-import WidgetModPage from '@/widgets/modifications/Index.vue';
-import WidgetCosmeticPage from '@/widgets/cosmetic/Index.vue';
-import WidgetCommoditiePage from '@/widgets/commoditie/Index.vue';
-import WidgetTreasureMapPage from '@/widgets/treasureMap/Index.vue';
-import WidgetUltimatePage from '@/widgets/ultimate/Index.vue';
-import WidgetSetPage from '@/widgets/set/Index.vue';
-import WidgetMapLocationPage from '@/widgets/mapLocation/Index.vue';
-import WidgetEmpireSkillPage from '@/widgets/empireSkills/Index.vue';
-import WidgetStateOfWarPage from '@/widgets/stateOfWar/Index.vue';
-import WidgetDailyReportPage from '@/widgets/dailyReport/Index.vue';
-import WidgetModSlotPage from '@/widgets/modSlot/Index.vue';
-import WidgetCombatEffectPage from '@/widgets/combatEffect/Index.vue';
-import WidgetInfamyPage from '@/widgets/infamy/Index.vue';
-
+const PortalMainBasePage = () => import('@/views/portal/Index.vue');
+const PortalPage = () => import('@/views/portal/Home.vue');
+const AccountPage = () => import('@/views/user/account/Index.vue');
+const AccountInformationPage = () => import('@/views/user/account/Information.vue');
+const AccountProfilePicturePage = () => import('@/views/user/account/ProfilePicture.vue');
+const AccountAssemblysPage = () => import('@/views/user/account/Assemblys.vue');
+const AccountCommentsPage = () => import('@/views/user/account/Comments.vue');
+const Teamup = () => import('@/views/user/account/Teamup.vue');
+const AccountMapsPage = () => import('@/views/user/account/Maps.vue');
+const AccountSmugglersReport = () => import('@/views/user/account/SmugglersReport.vue');
+const AccountDataCenterPage = () => import('@/views/user/account/DataCenter.vue');
+const AccountMessagesCenterPage = () => import('@/views/user/account/MessagesCenter.vue');
+const AccountMessagesSettingsPage = () => import('@/views/user/account/AccountMessagesSettings.vue');
+const AccountSpacePage = () => import('@/views/user/Space.vue');
+const SigninPage = () => import('@/views/user/Signin.vue');
+const SignupPage = () => import('@/views/user/Signup.vue');
+const ActivatePage = () => import('@/views/user/Activate.vue');
+const ForgotPasswordPage = () => import('@/views/user/ForgotPassword.vue');
+const ResetPasswordPage = () => import('@/views/user/ResetPassword.vue');
+const CodexPage = () => import('@/views/codex/Index.vue');
+const CodexCodexOverviewPage = () => import('@/views/codex/CodexOverview.vue');
+const RankingDesignedItemsPage = () => import('@/views/rankingDesignedItems/Index.vue');
+const RankingDesignedItemsBrowsePage = () => import('@/views/rankingDesignedItems/Browse.vue');
+const RankingDesignedItemsWorkshopPage = () => import('@/views/rankingDesignedItems/workshop/Index.vue');
+const RankingDesignedItemsPublishPage = () => import('@/views/rankingDesignedItems/Publish.vue');
+const ShipsPage = () => import('@/views/codex/ships/Index.vue');
+const ShipDetailPage = () => import('@/views/codex/ships/Detail.vue');
+const ItemsPage = () => import('@/views/codex/items/Index.vue');
+const ItemDetailPage = () => import('@/views/codex/items/Detail.vue');
+const CommoditiesPage = () => import('@/views/codex/commodities/Index.vue');
+const CommoditieDetailPage = () => import('@/views/codex/commodities/Detail.vue');
+const ModsPage = () => import('@/views/codex/modifications/Index.vue');
+const ModDetailPage = () => import('@/views/codex/modifications/Detail.vue');
+const MaterialsPage = () => import('@/views/codex/materials/Index.vue');
+const MaterialDetailPage = () => import('@/views/codex/materials/Detail.vue');
+const CosmeticsPage = () => import('@/views/codex/cosmetics/Index.vue');
+const CosmeticDetailPage = () => import('@/views/codex/cosmetics/Detail.vue');
+const SetsPage = () => import('@/views/codex/sets/Index.vue');
+const SetDetailPage = () => import('@/views/codex/sets/Detail.vue');
+const TreasureMapsPage = () => import('@/views/codex/treasureMaps/Index.vue');
+const TreasureMapDetailPage = () => import('@/views/codex/treasureMaps/Detail.vue');
+const TreasureMapComparisonPage = () => import('@/views/codex/treasureMaps/Comparison.vue');
+const MapLocationPage = () => import('@/views/codex/mapLocations/Index.vue');
+const MapLocationsDetailPage = () => import('@/views/codex/mapLocations/Detail.vue');
+const NpcsPage = () => import('@/views/codex/npcs/Index.vue');
+const NpcDetailPage = () => import('@/views/codex/npcs/Detail.vue');
+const EmpireSkillsPage = () => import('@/views/codex/empireSkills/Index.vue');
+const EmpireSkillDetailPage = () => import('@/views/codex/empireSkills/Detail.vue');
+const CodexMasterysPage = () => import('@/views/codex/masterys/Index.vue');
+const CodexMasteryDetailPage = () => import('@/views/codex/masterys/Detail.vue');
+const QuestPage = () => import('@/views/quest/Index.vue');
+const QuestListPage = () => import('@/views/quest/List.vue');
+const QuestDetailPage = () => import('@/views/quest/Detail.vue');
+const EmpireSkillSimulationPage = () => import('@/views/empireSkillSimulation/Index.vue');
+const MasteryPage = () => import('@/views/mastery/Index.vue');
+const MasteryViewPage = () => import('@/views/mastery/View.vue');
+const MasterySharePage = () => import('@/views/mastery/Share.vue');
+const UltimatesPage = () => import('@/views/codex/ultimates/Index.vue');
+const UltimateDetailPage = () => import('@/views/codex/ultimates/Detail.vue');
+const CalendarPage = () => import('@/views/calendar/Index.vue');
+const CalendarHistoryPage = () => import('@/views/calendar/History.vue');
+const AssemblePage = () => import('@/views/assembly/Index.vue');
+const AssembleWorkshopPage = () => import('@/views/assembly/workshop/Index.vue');
+const AssemblePublishPage = () => import('@/views/assembly/Publish.vue');
+const AssemblyBrowsePage = () => import('@/views/assembly/Browse.vue');
+const AssemblyDetailPage = () => import('@/views/assembly/Detail.vue');
+const AssemblySharePage = () => import('@/views/assembly/Share.vue');
+const MapsPage = () => import('@/views/map/Index.vue');
+const MapViewPage = () => import('@/views/map/View.vue');
+const AppsPage = () => import('@/views/apps/Index.vue');
+const AppsViewPage = () => import('@/views/apps/View.vue');
+const QQBotPage = () => import('@/views/apps/QQBot.vue');
+const ApiDocsPage = () => import('@/views/apps/ApiDocs.vue');
+const TeamPage = () => import('@/views/Team.vue');
+const SearchPage = () => import('@/views/Search.vue');
+const SmugglersReportPage = () => import('@/views/smugglers/Index.vue');
+const SmugglersReportDetailPage = () => import('@/views/smugglers/View.vue');
+const StateOfWarPage = () => import('@/views/stateOfWar/Index.vue');
+const StateOfWarViewPage = () => import('@/views/stateOfWar/View.vue');
+const SettingPage = () => import('@/views/setting/Index.vue');
+const SettingViewPage = () => import('@/views/setting/View.vue');
+const SettingAdPage = () => import('@/views/setting/Ad.vue');
+const SettingRoutinePage = () => import('@/views/setting/Routine.vue');
+const SettingStoragePage = () => import('@/views/setting/Storage.vue');
+const AboutPage = () => import('@/views/setting/About.vue');
+const SettingPwaPage = () => import('@/views/setting/Pwa.vue');
+const SettingWishlistPage = () => import('@/views/setting/Wishlist.vue');
+const SettingLogPage = () => import('@/views/setting/Log.vue');
+const SettingSubscriptionsPage = () => import('@/views/setting/Subscriptions.vue');
+const AdvancedPage = () => import('@/views/setting/Advanced.vue');
+const ReminderIndexPage = () => import('@/views/reminder/Index.vue');
+const ReminderViewPage = () => import('@/views/reminder/View.vue');
+const NotFoundPage = () => import('@/views/NotFound.vue');
+const Test = () => import('@/views/Test.vue');
+const CalculatorPage = () => import('@/views/calculator/Index.vue');
+const DropPage = () => import('@/views/drop/Index.vue');
+const WidgetIndexPage = () => import('@/widgets/Index.vue');
+const WidgetAssemblyPage = () => import('@/widgets/assembly/Index.vue');
+const WidgetMasteryPage = () => import('@/widgets/mastery/Index.vue');
+const WidgetShipPage = () => import('@/widgets/ship/Index.vue');
+const WidgetItemPage = () => import('@/widgets/item/Index.vue');
+const WidgetMaterialPage = () => import('@/widgets/material/Index.vue');
+const WidgetNpcPage = () => import('@/widgets/npc/Index.vue');
+const WidgetModPage = () => import('@/widgets/modifications/Index.vue');
+const WidgetCosmeticPage = () => import('@/widgets/cosmetic/Index.vue');
+const WidgetCommoditiePage = () => import('@/widgets/commoditie/Index.vue');
+const WidgetTreasureMapPage = () => import('@/widgets/treasureMap/Index.vue');
+const WidgetUltimatePage = () => import('@/widgets/ultimate/Index.vue');
+const WidgetSetPage = () => import('@/widgets/set/Index.vue');
+const WidgetMapLocationPage = () => import('@/widgets/mapLocation/Index.vue');
+const WidgetEmpireSkillPage = () => import('@/widgets/empireSkills/Index.vue');
+const WidgetStateOfWarPage = () => import('@/widgets/stateOfWar/Index.vue');
+const WidgetDailyReportPage = () => import('@/widgets/dailyReport/Index.vue');
+const WidgetModSlotPage = () => import('@/widgets/modSlot/Index.vue');
+const WidgetCombatEffectPage = () => import('@/widgets/combatEffect/Index.vue');
+const WidgetInfamyPage = () => import('@/widgets/infamy/Index.vue');
 import { useAuthStore } from "@/../stores/userAccountStore";
 import { useAssetsStore } from "@/../stores/assetsStore";
 import { useHead } from "@unhead/vue";

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import AppMessageWidget from '@/components/AppMessageWidget.vue'
-import GlobalPreloadOverlay from '@/components/GlobalPreloadOverlay.vue'
-import {computed, onMounted, watch} from "vue";
+import {defineAsyncComponent, computed, onMounted, ref, watch} from "vue";
 import {useI18n} from 'vue-i18n';
 import {useRoute} from "vue-router";
 import {useHead} from "@unhead/vue";
@@ -11,6 +10,10 @@ import {useReminderStore} from "~/stores/reminderStore";
 import {useAppStore} from "~/stores/appStore";
 import {usePreloadStore} from "~/stores/preloadStore";
 import {loadRemoteLangMessages} from "@/assets/sripts/remote_i18n";
+
+// 纯客户端预加载遮罩（依赖 ogl 渲染），异步 + 仅客户端渲染，避免被打进 SSR/首屏核心 chunk
+const GlobalPreloadOverlay = defineAsyncComponent(() => import('@/components/GlobalPreloadOverlay.vue'));
+const isClient = ref(false);
 
 const {t, locale} = useI18n();
 const reminderStore = useReminderStore();
@@ -85,6 +88,7 @@ const head = computed(() => {
 useHead(head)
 
 onMounted(async () => {
+  isClient.value = true;
   preloadStore.registerTask({
     id: 'remote-i18n',
     phase: t('basic.preload.remoteI18n') || '从远程加载文本数据...',
@@ -118,7 +122,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <GlobalPreloadOverlay />
+  <GlobalPreloadOverlay v-if="isClient" />
 
   <AppMessageWidget></AppMessageWidget>
   <router-view></router-view>
