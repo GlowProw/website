@@ -97,9 +97,8 @@ defineOptions({
             <v-btn
                 color="amber"
                 variant="tonal"
-                prepend-icon="mdi-plus"
                 to="/team">
-              {{ t('team.create') || '发布招募' }}
+              {{ t('teamUp.pushBtn') }}
             </v-btn>
 
             <v-btn

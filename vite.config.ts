@@ -423,7 +423,7 @@ export default defineConfig(({mode}) => {
             script: 'async',
             formatting: 'minify',
             mock: false,
-            concurrency: 3,
+            concurrency: 2,
             // 预渲染所有静态路由与公开百科数据路由，跳过未填充参数的路由及私有路由
             includedRoutes(paths: string[], routes: any[]) {
                 return getPrerenderRoutes();

@@ -87,10 +87,10 @@ defineOptions({
           <v-row align="end" class="ga-3">
             <v-col cols="auto" v-for="size in [120, 80, 56, 40, 28]" :key="size">
               <div class="text-center">
-                <v-card border rounded="lg" class="pa-1 d-inline-block bg-surface mb-2">
+                <v-card border class="pa-1 d-inline-block mb-2">
                   <UserAvatar :src="userAccountData.userAvatar" v-if="userAccountData.userAvatar" :size="size"></UserAvatar>
                   <v-avatar v-else :size="size">
-                    <v-icon icon="mdi-account" :size="size * 0.6"></v-icon>
+                    <v-icon icon="mdi-account" :size="size * 0.7" class="opacity-60"></v-icon>
                   </v-avatar>
                 </v-card>
                 <div class="text-caption opacity-50 font-weight-bold">{{ size }}px</div>

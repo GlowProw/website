@@ -4,7 +4,6 @@ import {appFuns, appNavs} from "@/assets/sripts/index";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import {useI18n} from "vue-i18n";
 import {useDisplay} from "vuetify/framework";
-import HeaderAccount from "@/components/HeaderAccount.vue";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
 
 const {t} = useI18n()

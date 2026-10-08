@@ -4,6 +4,9 @@
  */
 import type { MultilingualText, ReminderNextTriggerInfo, ReminderTask } from '@/assets/types/Reminder';
 import { DEFAULT_LANG, FALLBACK_LANG } from '@/config/languages';
+import Storage from './storage';
+
+const storage = new Storage();
 
 /**
  * 解析并获取多语言文本
@@ -27,10 +30,10 @@ export function getLocalizedText(
                 }
             }
             if (!currentLocale) {
-                const raw = localStorage.getItem('lang');
-                if (raw) {
-                    const parsed = JSON.parse(raw);
-                    currentLocale = parsed?.data?.value?.value || parsed?.value?.value || parsed?.value || parsed || '';
+                const res = storage.local.get('lang');
+                if (res.code === 0 && res.data) {
+                    const v = res.data.value;
+                    currentLocale = (v && typeof v === 'object' ? v.value : v) || '';
                 }
             }
         } catch { }
@@ -676,4 +679,3 @@ export function checkTaskPendingTriggers(
 
     return pendingTriggers;
 }
-

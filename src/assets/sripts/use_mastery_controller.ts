@@ -1025,17 +1025,6 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
         savedBuilds.value = res.data.value;
         return;
       }
-      // 兼容直接从 localStorage 迁移老数据
-      const raw = localStorage.getItem(SAVE_STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) {
-          savedBuilds.value = parsed;
-          storage.local.set(SAVE_STORAGE_KEY, parsed);
-          localStorage.removeItem(SAVE_STORAGE_KEY);
-          return;
-        }
-      }
       savedBuilds.value = [];
     } catch {
       savedBuilds.value = [];

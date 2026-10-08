@@ -7,12 +7,12 @@ import PortalPage from '@/views/portal/Home.vue'
 
 import AccountPage from '@/views/user/account/Index.vue'
 import AccountInformationPage from '@/views/user/account/Information.vue'
-import AccountProfilePicturePage from '@/views/user/account/profilePicture.vue'
-import AccountAssemblysPage from '@/views/user/account/assemblys.vue'
-import AccountCommentsPage from '@/views/user/account/comments.vue'
-import AccountTeamUpsPage from '@/views/user/account/teamup.vue'
-import AccountMapsPage from '@/views/user/account/maps.vue'
-import AccountSmugglersReport from '@/views/user/account/smugglersReport.vue'
+import AccountProfilePicturePage from '@/views/user/account/ProfilePicture.vue'
+import AccountAssemblysPage from '@/views/user/account/Assemblys.vue'
+import AccountCommentsPage from '@/views/user/account/Comments.vue'
+import Teamup from '@/views/user/account/Teamup.vue'
+import AccountMapsPage from '@/views/user/account/Maps.vue'
+import AccountSmugglersReport from '@/views/user/account/SmugglersReport.vue'
 import AccountDataCenterPage from '@/views/user/account/DataCenter.vue'
 import AccountMessagesCenterPage from '@/views/user/account/MessagesCenter.vue'
 import AccountMessagesSettingsPage from '@/views/user/account/AccountMessagesSettings.vue'
@@ -269,7 +269,7 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
                     {
                         path: 'teamups',
                         name: 'AccountTeamUps',
-                        component: AccountTeamUpsPage
+                        component: Teamup
                     },
                     {
                         path: 'maps',

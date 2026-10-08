@@ -4,13 +4,16 @@ import {useI18n} from "vue-i18n";
 import {io, Socket} from "socket.io-client";
 import {useRoute} from "vue-router";
 import {useAuthStore} from "~/stores/userAccountStore";
+import {useMessagesUnreadStore} from "~/stores/messagesUnreadStore";
 import {type Conversation, type MessageItem, useMessagesApi} from "@/assets/sripts/api/messages_service";
+import {storage} from "@/assets/sripts";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import {useDisplay} from "vuetify/framework";
 
 const {t} = useI18n();
 const auth = useAuthStore();
+const unreadStore = useMessagesUnreadStore();
 const route = useRoute();
 const api = useMessagesApi();
 const {height} = useDisplay()
@@ -56,8 +59,7 @@ const notifyIconMap: Record<string, string> = {
 };
 
 let socket: Socket | null = null;
-let localScrollTop = 0; // 加载历史后恢复滚动位置
-// localStorage 缓存 messages — key 是当前用户 + convId
+// 本地缓存 messages — key 按会话 ID 区分
 const LS_MSGS_PREFIX = 'gp:msgs:';
 const LS_MAX_MSGS_PER_CONV = 200; // 本地最多存 200 条
 
@@ -93,21 +95,16 @@ const cacheMessagesLocal = (convId: number, msgs: MessageItem[]) => {
     }
     merged.sort((a, b) => Number(a.id) - Number(b.id));
     // 只保留最新的 LS_MAX 条
-    if (merged.length > LS_MAX_MSGS_PER_CONV) {
-      const trimmed = merged.slice(-LS_MAX_MSGS_PER_CONV);
-      localStorage.setItem(key, JSON.stringify(trimmed));
-    } else {
-      localStorage.setItem(key, JSON.stringify(merged));
-    }
+    storage.local.set(key, merged.slice(-LS_MAX_MSGS_PER_CONV));
   } catch {
   }
 };
 
 const loadMessagesLocal = (convId: number): MessageItem[] => {
   try {
-    const raw = localStorage.getItem(LS_MSGS_PREFIX + convId);
-    if (!raw) return [];
-    return JSON.parse(raw) as MessageItem[];
+    const res = storage.local.get(LS_MSGS_PREFIX + convId);
+    if (res.code !== 0 || !Array.isArray(res.data?.value)) return [];
+    return res.data.value as MessageItem[];
   } catch {
     return [];
   }
@@ -116,7 +113,10 @@ const loadMessagesLocal = (convId: number): MessageItem[] => {
 const loadConversations = async () => {
   loading.value = true;
   try {
-    conversations.value = await api.getConversations();
+    const rows = await api.getConversations();
+    conversations.value = rows;
+    // 与未读状态机对账（全部会话维度，不受 filterTab 影响）
+    unreadStore.setUnread(rows.reduce((s, c) => s + (c.unreadCount || 0), 0));
   } finally {
     loading.value = false;
   }
@@ -126,12 +126,14 @@ const markAllRead = async () => {
   if (totalUnread.value === 0) return;
   await api.markAllRead();
   conversations.value.forEach(c => c.unreadCount = 0);
+  unreadStore.reset();
 };
 
 const doDeleteConv = async () => {
   const c = confirmDelete.value;
   if (!c) return;
   await api.deleteConversation(c.id);
+  unreadStore.subtract(c.unreadCount || 0);
   conversations.value = conversations.value.filter(x => x.id !== c.id);
   if (activeConv.value?.id === c.id) {
     activeConv.value = null;
@@ -164,6 +166,7 @@ const openConversation = async (conv: Conversation) => {
   loadingHistory.value = false;
   activeConv.value = conv;
   await api.markRead(conv.id);
+  unreadStore.subtract(conv.unreadCount || 0);
   conv.unreadCount = 0;
 
   // 先展示本地缓存（秒开体验），同时从服务器拉最新
@@ -325,6 +328,7 @@ const initSocket = () => {
       conv.lastTime = msg.createdTime;
       if (!activeConv.value || Number(activeConv.value.id) !== Number(conv.id)) {
         conv.unreadCount++;
+        unreadStore.bump(1);
       }
     } else {
       loadConversations();
@@ -348,20 +352,20 @@ defineOptions({
   <AffixBoxHasTitleView>
     <v-row class="h-100">
       <!-- 分类 S  -->
-      <v-col cols="auto" class="d-flex flex-column h-100">
-        <v-list width="200" nav class="bg-transparent position-relative overflow-auto h-100">
+      <v-col cols="12" sm="12" lg="3" class="d-flex flex-column h-lg-100 h-xl-100 h-xxl-100">
+        <v-list nav class="bg-transparent position-relative overflow-auto h-100">
           <div class="ga-2">
-            <div class="d-flex gap-1 mb-1">
-              <v-btn
-                  v-if="totalUnread > 0"
-                  size="small" variant="text" density="compact"
-                  color="amber" @click="markAllRead">
-                <v-icon icon="mdi-check-all" size="14" class="mr-1"></v-icon>
-                {{ t('account.messages.markAllRead') }}
-              </v-btn>
-            </div>
-
             <div class="d-flex gap-1 ga-2 flex-wrap">
+              <template v-if="totalUnread > 0">
+                <v-btn
+                    size="small" variant="tonal" density="compact"
+                    color="amber" @click="markAllRead">
+                  <v-icon icon="mdi-check-all" size="14" class="mr-1"></v-icon>
+                  {{ t('account.messages.markAllRead') }}
+                </v-btn>
+
+                <v-divider vertical></v-divider>
+              </template>
               <v-btn
                   size="small" variant="tonal" density="compact"
                   :color="filterTab === 'all' ? 'amber' : undefined"
@@ -383,7 +387,7 @@ defineOptions({
             </div>
           </div>
 
-          <v-divider class="my-6"></v-divider>
+          <v-divider class="my-3"></v-divider>
 
           <AffixContainerView>
             <v-list-item
@@ -433,7 +437,7 @@ defineOptions({
       <!-- 分类 E  -->
 
       <!-- 窗口 S -->
-      <v-col>
+      <v-col cols="12" sm="12" lg="9">
         <v-card variant="text" min-height="300" class="d-flex flex-column">
           <v-card-title>
             <div v-if="activeConv || pendingPeerId" class="d-flex align-center gap-3 mb-5">
@@ -496,9 +500,6 @@ defineOptions({
                     v-for="m in messages"
                     :key="m.id"
                     class="d-flex mb-3 pa-3 border rounded-lg gap-3">
-                  <v-avatar size="32" :color="m.type === 'like' ? 'red' : (m.type === 'reply' ? 'blue' : (m.type === 'warn' ? 'orange' : 'grey'))">
-                    <v-icon color="white" size="18">{{ notifyIconMap[m.type] || 'mdi-information' }}</v-icon>
-                  </v-avatar>
                   <div class="flex-grow-1 ml-3">
                     <div class="text-body-2">{{ m.content }}</div>
                     <div class="text-caption text-grey mt-1">{{ m.createdTime }}</div>
@@ -568,9 +569,6 @@ defineOptions({
 </template>
 
 <style scoped>
-.cursor-pointer:hover .conv-action-btn {
-  opacity: 1 !important;
-}
 
 .message-footer {
   background: rbga(var(--v-theme-background));

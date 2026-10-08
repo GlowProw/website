@@ -33,8 +33,7 @@ export class StorageReminder extends Storage {
         // 接着扫描 localStorage 进行容灾兜底（避免索引与实际键名不同步）
         try {
             const prefixFullName = this.local.name(this.TASK_PREFIX);
-            for (let i = 0; i < localStorage.length; i++) {
-                const rawKey = localStorage.key(i);
+            for (const rawKey of this.local.keys()) {
                 if (rawKey && rawKey.startsWith(prefixFullName)) {
                     const taskId = rawKey.slice(prefixFullName.length);
                     if (taskId && !seenIds.has(taskId)) {

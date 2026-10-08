@@ -15,12 +15,10 @@ export default class AccountAds {
     /**
      * 取出广告列表
      */
-    getAdsList(): [] {
-        const d = storage_account.local.keys()
-
-        if (d.code != 0)
-            return []
-
-        return d.data.value || []
+    getAdsList(): string[] {
+        const allKeys = storage_account.local.keys() as unknown as string[];
+        return allKeys
+            .filter(k => k && !this.NOT_AD.some(n => k.includes(n)))
+            .map(k => k.replace(storage_account.local.name(''), ''));
     }
 }

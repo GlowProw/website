@@ -82,9 +82,9 @@ defineOptions({
               variant="outlined"
               color="amber"
               mandatory>
-            <v-btn value="all" size="small">{{ t('basic.all') || '全部' }} ({{ allComments.length }})</v-btn>
-            <v-btn value="item" size="small">{{ t('codex.items') || '物品' }}</v-btn>
-            <v-btn value="ship" size="small">{{ t('codex.ships') || '船只' }}</v-btn>
+            <v-btn value="all" size="small">{{ t('basic.all') }} ({{ allComments.length }})</v-btn>
+            <v-btn value="item" size="small">{{ t('codex.items.title') }}</v-btn>
+            <v-btn value="ship" size="small">{{ t('codex.ships.title')}}</v-btn>
           </v-btn-toggle>
 
           <v-spacer></v-spacer>

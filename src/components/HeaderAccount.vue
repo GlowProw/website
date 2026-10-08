@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import {onBeforeUnmount, onMounted, ref} from "vue";
+import {storeToRefs} from "pinia";
 import {useAuthStore} from "~/stores/userAccountStore";
 import {useI18n} from "vue-i18n";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
-import {useRoute} from "vue-router";
-import {useMessagesApi} from "@/assets/sripts/api/messages_service";
+import {useMessagesUnreadStore} from "~/stores/messagesUnreadStore";
 
 type HeaderAccountType = 'header-drawer' | 'header'
 
@@ -12,26 +11,10 @@ const authStore = useAuthStore(),
     {t} = useI18n(),
     props = defineProps<{ type: HeaderAccountType }>()
 
-const messagesApi = useMessagesApi();
-const unreadCount = ref(0);
-
-let pollTimer: ReturnType<typeof setInterval> | null = null;
-
-const refreshUnread = async () => {
-    if (!authStore.isLogin) { unreadCount.value = 0; return; }
-    try {
-        unreadCount.value = await messagesApi.getUnreadCount();
-    } catch { /* ignore */ }
-};
-
-onMounted(() => {
-    refreshUnread();
-    pollTimer = setInterval(refreshUnread, 30000);
-});
-
-onBeforeUnmount(() => {
-    if (pollTimer) clearInterval(pollTimer);
-});
+// 未读数统一由全局状态机轮询，多个 HeaderAccount 实例共享同一份数据、同一个定时器
+const unreadStore = useMessagesUnreadStore();
+const {unreadCount} = storeToRefs(unreadStore);
+unreadStore.start();
 </script>
 
 <template>

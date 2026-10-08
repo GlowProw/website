@@ -361,8 +361,8 @@ defineOptions({
 
               <!-- 隐私与通知开关 -->
               <v-col cols="12" md="6">
-                <div density="compact" class="pa-0 bg-transparent">
-                  <v-list-item>
+                <v-list border density="compact" class="pa-0 bg-transparent">
+                  <v-list-item link>
                     <v-list-item-title class="text-caption font-weight-bold">
                       {{ t('account.information.form.spaceEnabled.name') }}
                     </v-list-item-title>
@@ -377,7 +377,7 @@ defineOptions({
                       </v-switch>
                     </template>
                   </v-list-item>
-                </div>
+                </v-list>
               </v-col>
             </v-row>
 
@@ -385,8 +385,6 @@ defineOptions({
               <v-btn
                   color="amber"
                   variant="tonal"
-                  size="small"
-                  prepend-icon="mdi-content-save"
                   :loading="userAccountAttrLoading"
                   @click="onSaveAccountAttr">
                 {{ t('basic.button.save') }}

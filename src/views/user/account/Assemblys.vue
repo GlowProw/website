@@ -112,7 +112,6 @@ defineOptions({
             <v-btn
                 color="amber"
                 variant="tonal"
-                prepend-icon="mdi-plus"
                 to="/assembly/workshop"
                 target="_blank">
               {{ t('assembly.create') }}
