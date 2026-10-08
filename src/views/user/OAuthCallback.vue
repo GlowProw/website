@@ -6,11 +6,12 @@ import {useAuthStore} from '~/stores/userAccountStore';
 import {useNoticeStore} from '~/stores/noticeStore';
 import {apis} from '@/assets/sripts';
 import {useRules} from '@/assets/sripts/rules_user';
+import {useDisplay} from 'vuetify/framework';
+
 import Silk from '@/components/Silk.vue';
 import HalfScreenBannerText from '@/components/HalfScreenBannerText.vue';
 import AffixContainerView from '@/components/AffixContainerView.vue';
 import Loading from '@/components/Loading.vue';
-import {useDisplay} from 'vuetify/framework';
 
 const route = useRoute();
 const router = useRouter();
@@ -55,19 +56,6 @@ const bindForm = ref({
 
 const submitLoading = ref(false);
 
-const getPlatformIcon = (platform: string) => {
-  switch ((platform || '').toLowerCase()) {
-    case 'qq':
-      return 'mdi-qqchat';
-    case 'wechat':
-      return 'mdi-wechat';
-    case 'google':
-      return 'mdi-google';
-    default:
-      return 'mdi-account-circle';
-  }
-};
-
 onMounted(async () => {
   const code = (route.query.code as string) || '';
   const state = (route.query.state as string) || '';
@@ -83,7 +71,7 @@ onMounted(async () => {
     const res = await apis.userApi().oauthCallback(platform, {code, state});
     const result = res.data;
 
-    // 1. 已有绑定直接登录成功
+    // 已有绑定直接登录成功
     if (result.code === 'signin.ok') {
       authStore.setAccountToken(result.data);
       notice.success(t('signin.success') || '登录成功！');
@@ -91,13 +79,13 @@ onMounted(async () => {
       return router.push(backUrl);
     }
 
-    // 2. 已登录用户绑定成功
+    // 已登录用户绑定成功
     if (result.code === 'oauth.bind.ok') {
       notice.success(t('oauth.bindSuccess') || '第三方账号关联成功！');
       return router.push('/account/bindings');
     }
 
-    // 3. 未找到绑定 -> 引导进入补充注册或绑定已有账号
+    // 未找到绑定 -> 引导进入补充注册或绑定已有账号
     if (result.code === 'oauth.needComplete') {
       needComplete.value = true;
       oauthTicket.value = result.data.oauthTicket;
@@ -128,6 +116,7 @@ onMounted(async () => {
 const onCompleteSignup = async () => {
   try {
     submitLoading.value = true;
+
     const res = await apis.userApi().oauthCompleteSignup({
       oauthTicket: oauthTicket.value,
       username: signupForm.value.username,
@@ -144,6 +133,7 @@ const onCompleteSignup = async () => {
     } else {
       notice.error(res?.data?.message || t('signup.failed') || '注册失败');
     }
+
   } catch (err: any) {
     notice.error(err?.message || t('signup.failed') || '注册失败');
   } finally {
@@ -167,10 +157,12 @@ const onCompleteBind = async () => {
       authStore.setAccountToken(res.data.data);
       notice.success(t('oauth.bindAndLoginSuccess') || '绑定成功并已登录！');
       const backUrl = (route.query.backUrl as string) || '/';
+
       router.push(backUrl);
     } else {
       notice.error(res?.data?.message || t('signin.invalid') || '账号或密码错误');
     }
+
   } catch (err: any) {
     notice.error(err?.message || t('oauth.bindFailed') || '绑定失败');
   } finally {
@@ -183,7 +175,9 @@ const onCompleteBind = async () => {
  */
 const onBackRoute = () => {
   const backUrl = (route.query.backUrl || route.query.backurl) as string || '';
+
   if (backUrl) return router.push({path: backUrl});
+
   return router.push('/account/signin');
 };
 </script>
@@ -212,7 +206,7 @@ const onBackRoute = () => {
           </v-breadcrumbs>
 
           <AffixContainerView>
-            <!-- 加载中状态 -->
+            <!-- 加载 S -->
             <div v-if="loading" class="text-center py-16">
               <Loading class="mb-4"></Loading>
               <div class="text-subtitle-1 font-weight-bold opacity-90">
@@ -222,8 +216,9 @@ const onBackRoute = () => {
                 {{ t('oauth.waitHint') }}
               </div>
             </div>
+            <!-- 加载 E -->
 
-            <!-- 授权失败状态 -->
+            <!-- 授权失败 S -->
             <div v-else-if="errorMsg && !needComplete" class="text-center py-12">
               <v-icon icon="mdi-alert-circle" color="red" size="64" class="mb-4"></v-icon>
               <h3 class="text-h5 font-weight-bold text-red">{{ t('oauth.failedTitle') }}</h3>
@@ -232,10 +227,12 @@ const onBackRoute = () => {
                 {{ t('oauth.backToSignin') }}
               </v-btn>
             </div>
+            <!-- 授权失败 E -->
 
-            <!-- 新用户首次登录：补充注册新账号 或 关联已有账号 -->
+            <!-- 新用户首次登录：补充注册新账号 或 关联已有账号 S -->
             <div v-else-if="needComplete">
-              <!-- 第三方用户信息展示卡片 -->
+
+              <!-- 第三方用户信息展示卡片 S -->
               <div class="d-flex align-center pa-4 mb-4 rounded-lg bg-grey-darken-4 border-opacity-10">
                 <v-avatar size="48" class="mr-3" color="grey-darken-3">
                   <v-img v-if="oauthProfile.platformAvatar" :src="oauthProfile.platformAvatar"></v-img>
@@ -250,12 +247,12 @@ const onBackRoute = () => {
                   </div>
                 </div>
               </div>
+              <!-- 第三方用户信息展示卡片 E -->
 
               <p class="text-caption opacity-70 mb-4">
                 {{ t('oauth.firstTimeHint') }}
               </p>
 
-              <!-- 选项卡切换 -->
               <v-tabs v-model="activeTab" color="amber" class="mb-4" grow>
                 <v-tab value="signup">{{ t('oauth.tabNewAccount') }}</v-tab>
                 <v-tab value="bind">{{ t('oauth.tabBindExisting') }}</v-tab>
@@ -380,7 +377,6 @@ const onBackRoute = () => {
                 </v-window-item>
               </v-window>
 
-              <!-- 底部操作导航 -->
               <v-card-actions class="py-2 d-flex justify-space-between align-center mb-5">
                 <router-link to="/account/signin" class="u">
                   {{ t('oauth.backToSignin') }}
@@ -390,6 +386,7 @@ const onBackRoute = () => {
                 </router-link>
               </v-card-actions>
             </div>
+            <!-- 新用户首次登录：补充注册新账号 或 关联已有账号 E -->
           </AffixContainerView>
         </v-card>
       </v-col>

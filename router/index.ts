@@ -1173,15 +1173,15 @@ function createLocalizedRoutes(rawRoutes: readonly RouteRecordRaw[]): RouteRecor
 }
 
 const routes: Readonly<RouteRecordRaw[]> = [
-    // 1. 全局多语言专属路由 (/:lang/...)
+    // 全局多语言专属路由 (/:lang/...)
     ...createLocalizedRoutes(baseAppRoutes),
-    // 2. 根入口
+    // 根入口
     {
         path: '/',
         name: 'RootEntry',
         component: PortalPage,
     },
-    // 3. 未带语言前缀或未匹配路由的兜底捕获（由 beforeEach 守卫自动补全语言前缀并重定向）
+    // 未带语言前缀或未匹配路由的兜底捕获（由 beforeEach 守卫自动补全语言前缀并重定向）
     {
         path: '/:pathMatch(.*)*',
         name: 'NotFound',

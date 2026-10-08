@@ -332,7 +332,7 @@ export default defineConfig(({mode}) => {
             ],
         },
         // import.meta.env.SSR 由 vite-ssg 自动注入：
-        //   SSR 构建（预渲染）= true，客户端 hydration = false
+        // SSR 构建（预渲染）= true，客户端 hydration = false
         // 这里显式声明避免某些 vite 版本缺失默认值
         define: {
             'process.env': {},
@@ -423,7 +423,7 @@ export default defineConfig(({mode}) => {
             script: 'async',
             formatting: 'minify',
             mock: false,
-            concurrency: 5,
+            concurrency: 3,
             // 预渲染所有静态路由与公开百科数据路由，跳过未填充参数的路由及私有路由
             includedRoutes(paths: string[], routes: any[]) {
                 return getPrerenderRoutes();
@@ -488,7 +488,7 @@ export default defineConfig(({mode}) => {
                     }
                 }
 
-                // 1. 确定当前页面的语言
+                // 确定当前页面的语言
                 let lang = DEFAULT_LANG;
                 for (const l of SUPPORTED_LANGS) {
                     if (route.startsWith(`/${l}`) || route === `/${l}`) {
@@ -499,25 +499,25 @@ export default defineConfig(({mode}) => {
 
                 let html = renderedHTML;
 
-                // 2. 将重复的 350+ 行内联 vuetify-theme-stylesheet 替换为外部静态 CSS 文件引用
+                // 将重复的 350+ 行内联 vuetify-theme-stylesheet 替换为外部静态 CSS 文件引用
                 html = html.replace(
                     /<style id="vuetify-theme-stylesheet">[\s\S]*?<\/style>/,
                     '<link rel="stylesheet" href="/assets/vuetify-theme.css" id="vuetify-theme-stylesheet">'
                 );
 
-                // 3. 根据页面语言动态匹配对应的 WebManifest
+                // 根据页面语言动态匹配对应的 WebManifest
                 html = html.replace(
                     /<link rel="manifest" href="[^"]*">/,
                     `<link rel="manifest" href="/manifest.${lang}.webmanifest">`
                 );
 
-                // 4. 多语言路由页面无需语言重定向脚本，直接剔除以精简体积
+                // 多语言路由页面无需语言重定向脚本，直接剔除以精简体积
                 const isLangRoute = SUPPORTED_LANGS.some(l => route.startsWith(`/${l}`) || route === `/${l}`);
                 if (isLangRoute) {
                     html = html.replace(/<script src="\/assets\/lang-redirect\.js"><\/script>\s*/, '');
                 }
 
-                // 5. 清理原本可能遗留的旧 JSON-LD，并注入当前语言的紧凑 JSON-LD
+                // 清理原本可能遗留的旧 JSON-LD，并注入当前语言的紧凑 JSON-LD
                 html = html.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/g, '');
                 const ldJsonData = STRUCTURED_DATA_MAP[lang] || STRUCTURED_DATA_MAP[DEFAULT_LANG];
                 const ldJsonScript = `<script type="application/ld+json">${JSON.stringify(ldJsonData)}</script>`;

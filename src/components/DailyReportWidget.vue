@@ -24,7 +24,6 @@ import SeasonViewWidget from "@/components/SeasonViewWidget.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import DropWidget from "@/components/DropWidget.vue";
 
-
 const props = withDefaults(
     defineProps<{
       seasonId?: string;
@@ -135,51 +134,98 @@ const percentFactionA = computed<number>(() => {
 });
 const percentFactionB = computed<number>(() => 100 - percentFactionA.value);
 
-// 计算战资比例
+// 进行中活动与即将开启活动列表
+const ongoingEvents = computed<DailyCalendarEventItem[]>(() => {
+  return parsedCalendarEvents.value.filter((e) => e.isOngoing);
+});
+
+const upcomingEvents = computed<DailyCalendarEventItem[]>(() => {
+  return parsedCalendarEvents.value.filter((e) => e.isUpcoming).slice(0, 3);
+});
+
+// 掉宝活动数据
+const dropLoading = ref<boolean>(false);
+const activeCampaigns = ref<any[]>([]);
+
+watch(
+    () => props.seasonId,
+    () => {
+      refreshAll();
+    }
+);
+
+onMounted(() => {
+  refreshAll();
+});
+
+/**
+ * 计算战资比例
+ * @param val
+ * @param total
+ */
 const calculatePercent = (val: number, total: number) => {
   if (!total || total === 0) return 50;
+
   return Math.round((val / total) * 1000) / 10;
 };
 
-// 获取具体区域数据 (对应 stateOfWar/View.vue 中的 getZoneData)
+/**
+ * 获取具体区域数据 (对应 stateOfWar/View.vue 中的 getZoneData)
+ * @param zoneName
+ */
 const getZoneData = (zoneName: string) => {
   if (!warData.value?.zones) {
-    return { name: zoneName, region: '', total: 0 };
+    return {name: zoneName, region: '', total: 0};
   }
+
   const match = warData.value.zones.find((z: any) => z.name === zoneName || z.id === zoneName);
   if (match) return match;
-  return { name: zoneName, region: '', total: 0 };
+
+  return {name: zoneName, region: '', total: 0};
 };
 
-// 战争进程当前战期信息
+/**
+ * 战争进程当前战期信息
+ */
 const activeCycle = computed<any>(() => {
   const list = warData.value?.progression || [];
   if (list.length === 0) return null;
+
   // 优先寻找 active
   const active = list.find((c: any) => c.status === "active");
   if (active) return active;
+
   // 若无 active 则找最后一个 ended 或第一个 upcoming
   const ended = [...list].reverse().find((c: any) => c.status === "ended");
   if (ended) return ended;
+
   return list[0];
 });
 
-// 格式化战期时间
+/**
+ * 格式化战期时间
+ * @param d
+ */
 const formatCycleDate = (d: any): string => {
   if (!d) return "--";
+
   if (typeof d === "number" || (typeof d === "string" && /^\d+$/.test(d))) {
     const date = new Date(Number(d));
     return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
   }
+
   return String(d).split("T")[0];
 };
 
 const activeCycleTimeRange = computed<string>(() => {
   if (!activeCycle.value?.startDate || !activeCycle.value?.endDate) return "";
+
   return `${formatCycleDate(activeCycle.value.startDate)} ~ ${formatCycleDate(activeCycle.value.endDate)}`;
 });
 
-// 战期倒计时
+/**
+ * 战期倒计时
+ */
 const activeCycleRemainingText = computed<string>(() => {
   if (!activeCycle.value) return "";
   if (activeCycle.value.status === "ended") {
@@ -188,6 +234,7 @@ const activeCycleRemainingText = computed<string>(() => {
   if (activeCycle.value.status === "upcoming") {
     return t("dailyReport.stateOfWar.cycleUpcoming");
   }
+
   const now = Date.now();
   const end = Number(activeCycle.value.endDate) || new Date(activeCycle.value.endDate).getTime();
   const diff = end - now;
@@ -195,32 +242,42 @@ const activeCycleRemainingText = computed<string>(() => {
 
   const days = Math.floor(diff / 86400000);
   const hours = Math.floor((diff % 86400000) / 3600000);
+
   if (days > 0) {
     return `${days}d ${hours}h`;
   }
   const minutes = Math.floor((diff % 3600000) / 60000);
+
   return `${hours}h ${minutes}m`;
 });
 
-// 战期内当前时间进度
+/**
+ * 战期内当前时间进度
+ */
 const activeCycleProgress = computed<number>(() => {
   if (!activeCycle.value?.startDate || !activeCycle.value?.endDate) return 100;
   if (activeCycle.value.status === "ended") return 100;
   if (activeCycle.value.status === "upcoming") return 0;
+
   const s = Number(activeCycle.value.startDate) || new Date(activeCycle.value.startDate).getTime();
   const e = Number(activeCycle.value.endDate) || new Date(activeCycle.value.endDate).getTime();
   const total = e - s;
+
   if (total <= 0) return 100;
   const elapsed = Date.now() - s;
+
   return Math.min(100, Math.max(0, Math.round((elapsed / total) * 100)));
 });
 
-// 当前战期/争夺中战区列表 (完全对应 /stateOfWar/:seasonId/view 的战争进程与争夺中战区)
+/**
+ * 当前战期/争夺中战区列表
+ * 完全对应 /stateOfWar/:seasonId/view 的战争进程与争夺中战区
+ */
 const activeCycleZones = computed<any[]>(() => {
   const fA = factionAKey.value;
   const fB = factionBKey.value;
 
-  // 1. 若当前战期存在，优先提取当前战期中的战区名单
+  // 若当前战期存在，优先提取当前战期中的战区名单
   if (activeCycle.value) {
     const aZoneNames = activeCycle.value[fA + "Zones"] || [];
     const bZoneNames = activeCycle.value[fB + "Zones"] || [];
@@ -253,7 +310,7 @@ const activeCycleZones = computed<any[]>(() => {
     }
   }
 
-  // 2. 否则从 contestedZones (争夺中战区) 中提取
+  // 否则从 contestedZones (争夺中战区) 中提取
   return (contestedZones.value || []).map((z: any) => {
     const valA = z[fA] || 0;
     const valB = z[fB] || 0;
@@ -278,26 +335,39 @@ const activeCycleZones = computed<any[]>(() => {
   });
 });
 
-// 日历活动解析
+/**
+ * 日历活动解析
+ * @param eventId
+ */
 const getEventName = (eventId: string): string => {
   const sId = targetSeasonId.value;
   const i18nKey = `snb.calendar.${sId}.data.${eventId}.name`;
+
   if (te(i18nKey)) {
     return t(i18nKey);
   }
+
   return eventId;
 };
 
+/**
+ * 获取事件描述
+ * @param eventId
+ */
 const getEventDescription = (eventId: string): string => {
   const sId = targetSeasonId.value;
   const i18nKey = `snb.calendar.${sId}.data.${eventId}.description`;
+
   if (te(i18nKey)) {
     return t(i18nKey);
   }
+
   return "";
 };
 
-// 提取当前进行中和近期即将开始的活动
+/**
+ * 提取当前进行中和近期即将开始的活动
+ */
 const parsedCalendarEvents = computed<DailyCalendarEventItem[]>(() => {
   if (!rawCalendarData.value?.events) return [];
   const eventsDict = rawCalendarData.value.events;
@@ -351,24 +421,19 @@ const parsedCalendarEvents = computed<DailyCalendarEventItem[]>(() => {
     if (a.isOngoing && b.isOngoing) {
       return a.endMs - b.endMs;
     }
+
     return a.startMs - b.startMs;
   });
 });
 
-// 进行中活动与即将开启活动列表
-const ongoingEvents = computed<DailyCalendarEventItem[]>(() => {
-  return parsedCalendarEvents.value.filter((e) => e.isOngoing);
-});
-
-const upcomingEvents = computed<DailyCalendarEventItem[]>(() => {
-  return parsedCalendarEvents.value.filter((e) => e.isUpcoming).slice(0, 3);
-});
-
-// 获取日历数据
+/**
+ * 获取日历数据
+ */
 const fetchCalendarData = async () => {
   try {
     calendarLoading.value = true;
     const res = await apis.calendarApi().get(targetSeasonId.value);
+
     if (res?.data?.data) {
       rawCalendarData.value = res.data.data;
     } else {
@@ -382,10 +447,9 @@ const fetchCalendarData = async () => {
   }
 };
 
-// 掉宝活动数据
-const dropLoading = ref<boolean>(false);
-const activeCampaigns = ref<any[]>([]);
-
+/**
+ * 获取掉宝数据
+ */
 const fetchDropData = async () => {
   if (!props.showDrop) return;
   try {
@@ -410,7 +474,9 @@ const fetchDropData = async () => {
   }
 };
 
-// 刷新全部数据
+/**
+ * 刷新全部数据
+ */
 const refreshAll = async () => {
   await Promise.allSettled([
     warStore.getStateOfWarData(targetSeasonId.value),
@@ -418,34 +484,13 @@ const refreshAll = async () => {
     fetchDropData(),
   ]);
 };
-
-// 路由跳转辅助
-const navigateToCalendar = () => {
-  router.push(`/calendar/${targetSeasonId.value}`);
-};
-
-const navigateToStateOfWar = () => {
-  router.push(`/stateOfWar/${targetSeasonId.value}`);
-};
-
-watch(
-    () => props.seasonId,
-    () => {
-      refreshAll();
-    }
-);
-
-onMounted(() => {
-  refreshAll();
-});
 </script>
 
 <template>
   <div class="daily-report-wrapper" :class="{ 'is-widget': isWidget }">
-    <!-- 主卡片容器 -->
     <v-card class="daily-report-card overflow-hidden" variant="text" tile>
 
-      <!-- 顶部 赛季与日报总览 -->
+      <!-- 赛季与日报总览 S -->
       <div class="daily-header position-relative mb-10 px-5 pa-sm-6">
         <div class="position-relative z-1">
           <v-row class="">
@@ -500,8 +545,9 @@ onMounted(() => {
           </v-row>
         </div>
       </div>
+      <!-- 赛季与日报总览 E -->
 
-      <!-- 核心内容区域 -->
+      <!-- 内容 S -->
       <div class="px-4">
         <v-row>
           <!-- 势力战争态势 -->
@@ -632,7 +678,7 @@ onMounted(() => {
                         <span :style="{ color: factionAColor }">
                           {{ formatCompactNumber(z[factionAKey]) }} ({{ z.percentA }}%)
                         </span>
-                          <span :style="{ color: factionBColor }">
+                        <span :style="{ color: factionBColor }">
                           {{ formatCompactNumber(z[factionBKey]) }} ({{ z.percentB }}%)
                         </span>
                       </div>
@@ -762,8 +808,8 @@ onMounted(() => {
 
               <!-- 空状态 -->
               <div
-                v-else-if="activeCampaigns.length === 0"
-                class="py-8 text-center text-medium-emphasis">
+                  v-else-if="activeCampaigns.length === 0"
+                  class="py-8 text-center text-medium-emphasis">
                 <v-icon icon="mdi-gift-off-outline" size="40" class="mb-2 opacity-30"></v-icon>
                 <p class="text-caption mb-0">{{ t("dailyReport.drop.noDrops") }}</p>
               </div>
@@ -771,10 +817,10 @@ onMounted(() => {
               <!-- 掉宝卡片列表 -->
               <div v-else class="d-flex flex-column ga-4 mx-n5">
                 <DropWidget
-                  v-for="campaign in activeCampaigns"
-                  :key="campaign.id || campaign.campaignId"
-                  :campaign="campaign"
-                  :is-active-card="true"
+                    v-for="campaign in activeCampaigns"
+                    :key="campaign.id || campaign.campaignId"
+                    :campaign="campaign"
+                    :is-active-card="true"
                 />
               </div>
             </AffixBoxHasTitleView>
@@ -782,6 +828,7 @@ onMounted(() => {
           <!-- 当前可用掉宝 E -->
         </v-row>
       </div>
+      <!-- 内容 E -->
     </v-card>
   </div>
 </template>
@@ -817,9 +864,6 @@ onMounted(() => {
 
 .bg-surface-variant-dark {
   background-color: #191919;
-}
-
-.section-card {
 }
 
 .faction-battle-banner {
@@ -867,10 +911,6 @@ onMounted(() => {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-}
-
-.border-t {
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .mini-drop-slot {

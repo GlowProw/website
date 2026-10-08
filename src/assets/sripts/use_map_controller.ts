@@ -208,6 +208,67 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
     const categoryDimmedStyleCache: Record<string, Style[] | null> = {};
     let animFrameId: number | null = null;
 
+    watch([highlightTargetKey, highlightCoords], () => {
+        if (vectorLayerRef.value) {
+            vectorLayerRef.value.changed();
+        }
+    });
+
+    watch(isDebug, () => {
+        triggerTransitionAnimation();
+    });
+
+    watch(searchInput, (value) => {
+        if (!value || !value.trim()) {
+            searchSuggestions.value = [];
+            return;
+        }
+        const filtered = locations.value.filter(location => {
+            const displayName = getLocationDisplayName(location).toLowerCase();
+            const locationId = location.id.toLowerCase();
+            const searchTerm = value.toLowerCase().trim();
+            return displayName.includes(searchTerm) || locationId.includes(searchTerm);
+        }).slice(0, 10);
+        searchSuggestions.value = filtered.map(location => ({ title: getLocationDisplayName(location), value: location.id, ...location }));
+    });
+
+    watch(searchQuery, (value) => {
+        if (typeof value === 'object' && value !== null) {
+            onSelectLocation(value);
+        }
+    });
+
+    watch(selectedLocationData, async () => {
+        if (!authStore.isLogin) return;
+
+        if (model.value === true && selectedLocationData.value) {
+            const { latitude, longitude } = selectedLocationData.value;
+            if (latitude !== undefined && longitude !== undefined) {
+                await onSearchNearbyPoints(latitude, longitude);
+            }
+        }
+    });
+
+    watch(selectedCollectionUuid, async (newCollectionUuid) => {
+        if (!authStore.isLogin) return;
+
+        if (newCollectionUuid) {
+            storageObj.local.set('map.selectedCollection', newCollectionUuid);
+            await loadCollectionPoints(newCollectionUuid);
+        } else {
+            storageObj.local.rem('map.selectedCollection');
+            personalMarkers.value = [];
+            onRemovePersonalMarkersFromMap();
+        }
+    });
+
+    onUnmounted(() => {
+        if (animFrameId !== null) {
+            cancelAnimationFrame(animFrameId);
+            animFrameId = null;
+        }
+    });
+
     /**
      * 获取当前地图视图的实际 Zoom
      */
@@ -264,7 +325,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             return;
         }
 
-        // 1. 标准样式
+        // 标准样式
         categoryStyleCache[category] = [
             new Style({
                 image: new Icon({
@@ -291,7 +352,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             })
         ];
 
-        // 2. 目标放大高亮样式 (放大 1.65x, zIndex 500)
+        // 高亮样式
         categoryTargetStyleCache[category] = [
             new Style({
                 image: new Icon({
@@ -318,7 +379,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             })
         ];
 
-        // 3. 其他非目标半透明样式 (半透明 0.28, zIndex 1)
+        // 其他透明样式
         categoryDimmedStyleCache[category] = [
             new Style({
                 image: new Icon({
@@ -347,7 +408,8 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
     };
 
     /**
-     * 更新所有分类的目标透明度 targetOpacity (0.0 或 1.0)
+     * 更新所有分类的目标透明度
+     * targetOpacity (0.0 或 1.0)
      */
     const updateAllTargetOpacities = () => {
         const currentZoom = getCurrentZoom();
@@ -355,9 +417,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         locations.value.forEach(loc => {
             if (loc.category) allCategories.add(loc.category);
         });
+
         allCategories.add('shareLocation');
         allCategories.add('default');
-
         allCategories.forEach(category => {
             const isVisibleByLayer = category === 'shareLocation'
                 ? (layerVisibility.value.shareLocation ?? true)
@@ -472,74 +534,13 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         return categoryStyleCache[featureCategory] ?? null;
     };
 
-    watch([highlightTargetKey, highlightCoords], () => {
-        if (vectorLayerRef.value) {
-            vectorLayerRef.value.changed();
-        }
-    });
-
-    watch(isDebug, () => {
-        triggerTransitionAnimation();
-    });
-
     const onConfigChanged = () => {
         triggerTransitionAnimation(true);
     };
 
-    onUnmounted(() => {
-        if (animFrameId !== null) {
-            cancelAnimationFrame(animFrameId);
-            animFrameId = null;
-        }
-    });
-
-    watch(searchInput, (value) => {
-        if (!value || !value.trim()) {
-            searchSuggestions.value = [];
-            return;
-        }
-        const filtered = locations.value.filter(location => {
-            const displayName = getLocationDisplayName(location).toLowerCase();
-            const locationId = location.id.toLowerCase();
-            const searchTerm = value.toLowerCase().trim();
-            return displayName.includes(searchTerm) || locationId.includes(searchTerm);
-        }).slice(0, 10);
-        searchSuggestions.value = filtered.map(location => ({ title: getLocationDisplayName(location), value: location.id, ...location }));
-    });
-
-    watch(searchQuery, (value) => {
-        if (typeof value === 'object' && value !== null) {
-            onSelectLocation(value);
-        }
-    });
-
-    watch(selectedLocationData, async () => {
-        if (!authStore.isLogin) return;
-
-        if (model.value === true && selectedLocationData.value) {
-            const { latitude, longitude } = selectedLocationData.value;
-            if (latitude !== undefined && longitude !== undefined) {
-                await onSearchNearbyPoints(latitude, longitude);
-            }
-        }
-    });
-
-    watch(selectedCollectionUuid, async (newCollectionUuid) => {
-        if (!authStore.isLogin) return;
-
-        if (newCollectionUuid) {
-            storageObj.local.set('map.selectedCollection', newCollectionUuid);
-            await loadCollectionPoints(newCollectionUuid);
-        } else {
-            storageObj.local.rem('map.selectedCollection');
-            personalMarkers.value = [];
-            onRemovePersonalMarkersFromMap();
-        }
-    });
-
     const onMapCreated = (map: Map) => {
         mapInstance.value = map;
-        initializeMap(map);
+        initializeMap(map).then(r => r);
     };
 
     const initializeMap = async (map: Map) => {
@@ -826,10 +827,8 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
     };
 
     /**
-     * 右键菜单项列表（根据点击的 feature 和 debug 状态动态生成）
-     */
-    /**
-     * 右键菜单项列表（根据点击的 feature 和 debug 状态动态生成）
+     * 右键菜单项列表
+     * 根据点击的 feature 和 debug 状态动态生成
      */
     const contextMenuItems = computed(() => {
         const feature = contextMenuState.value.feature;
@@ -961,7 +960,10 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         return items;
     });
 
-    /** 复制经纬度坐标 */
+    /**
+     * 复制经纬度坐标
+     * @param coord
+     */
     const copyCoordinates = async (coord: [number, number]) => {
         const text = `${coord[0].toFixed(6)}, ${coord[1].toFixed(6)}`;
         try {
@@ -972,7 +974,10 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }
     };
 
-    /** 复制标记 JSON */
+    /**
+     * 复制标记 JSON
+     * @param target
+     */
     const copyMarkerJson = async (target: any) => {
         const raw = target?.get ? target.get('originalData') : target;
         if (!raw) return;
@@ -998,7 +1003,11 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }
     };
 
-    /** 克隆标记 */
+    /**
+     * 克隆标记
+     * @param target
+     * @param targetCoord
+     */
     const cloneMarker = (target: any, targetCoord?: [number, number]) => {
         const raw = target?.get ? target.get('originalData') : target;
         if (!raw) return;
@@ -1036,7 +1045,10 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         return clonedData;
     };
 
-    /** 打开标记编辑弹窗 */
+    /**
+     * 打开标记编辑弹窗
+     * @param target
+     */
     const openEditMarker = (target: any) => {
         const raw = target?.get ? target.get('originalData') : target;
         if (!raw) return;
@@ -1045,12 +1057,15 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         showEditMarkerDialog.value = true;
     };
 
-    /** 保存标记编辑 */
+    /**
+     * 保存标记编辑
+     * @param updatedData
+     */
     const saveEditMarker = (updatedData: any) => {
         if (!updatedData || !updatedData.id) return;
         const oldId = editingOriginalId.value || updatedData.id;
 
-        // 1. 更新 locations.value 列表
+        // 更新 locations.value 列表
         const idx = locations.value.findIndex(loc => loc.id === oldId);
         if (idx !== -1) {
             locations.value[idx] = { ...updatedData, lastUpdated: new Date().toISOString() };
@@ -1058,7 +1073,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             locations.value.push({ ...updatedData, lastUpdated: new Date().toISOString() });
         }
 
-        // 2. 更新 vectorLayer 中的 feature
+        // 更新 vectorLayer 中的 feature
         if (vectorLayerRef.value) {
             const vectorSource = vectorLayerRef.value.getSource();
             if (vectorSource) {
@@ -1081,7 +1096,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             }
         }
 
-        // 3. 若当前卡片正在查看该标记，同步更新卡片
+        // 若当前卡片正在查看该标记，同步更新卡片
         if (selectedLocationData.value?.id === oldId || selectedLocationData.value?.id === updatedData.id) {
             selectedLocationData.value = { ...updatedData, lastUpdated: new Date().toISOString() };
         }
@@ -1091,14 +1106,20 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         notice.success(t('map.contextMenu.markerSavedTip', { id: updatedData.id }), { mode: 'minimal' });
     };
 
-    /** 取消标记编辑 */
+    /**
+     * 取消标记编辑
+     */
     const onCancelEditMarker = () => {
         showEditMarkerDialog.value = false;
         editingMarkerData.value = null;
         editingOriginalId.value = '';
     };
 
-    /** 复制当前位置 URL 链接 */
+    /**
+     * 复制当前位置 URL 链接
+     * @param coord
+     * @param feature
+     */
     const copyLocationLink = async (coord: [number, number], feature?: any) => {
         let url = `${window.location.origin}${route.path}`;
         if (feature) {
@@ -1117,7 +1138,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }
     };
 
-    /** 将边界调整为当前视口显示区域 */
+    /**
+     * 将边界调整为当前视口显示区域
+     */
     const resetBoundsToCurrentViewport = () => {
         if (!mapInstance.value) return;
         const view = mapInstance.value.getView();
@@ -1136,15 +1159,20 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         console.log('[MapBounds] 边界已重置为当前视口:', newBounds);
     };
 
-    /** 跳转到地图位置详情页 */
+    /**
+     * 跳转到地图位置详情页
+     * @param id
+     */
     const openLocationDetail = (id: string) => {
         if (!id) return;
-        router.push({ name: 'MapLocationDetail', params: { id } });
-    };
+
+        router.push({name: 'MapLocationDetail', params: {id}}).then(r => r);
+     };
 
     /**
      * Debug 模式：在地图上显示边界矩形 + 4个可拖拽角点
      * 拖拽后实时更新 mapBounds 并打印新值
+     * @param map
      */
     const setupDebugBoundsLayer = (map: Map) => {
         const boundsSource = new VectorSource();
@@ -1285,6 +1313,14 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }, { immediate: true });
     };
 
+    /**
+     * 处理连接参数
+     * @param queryKey
+     * @param queryX
+     * @param queryY
+     * @param queryCategory
+     * @param vectorSource
+     */
     const onHandleUrlParams = async (queryKey: string, queryX: string, queryY: string, queryCategory: string, vectorSource: VectorSource): Promise<void> => {
         const existingLocation = locations.value.find(loc => loc.id === queryKey);
 
@@ -1334,6 +1370,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }
     };
 
+    /**
+     * 加载用户集合
+     */
     const onLoadUserCollections = async (): Promise<void> => {
         try {
             if (!authStore.isLogin) return;
@@ -1360,6 +1399,10 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }
     };
 
+    /**
+     * 加载用户点
+     * @param collectionUuid
+     */
     const loadCollectionPoints = async (collectionUuid: string): Promise<void> => {
         try {
             if (!authStore.isLogin && !collectionUuid) return;
@@ -1374,6 +1417,10 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }
     };
 
+    /**
+     * 添加标记
+     * @param points
+     */
     const onAddPersonalMarkersToMap = (points: MapPoint[]): void => {
         if (!mapInstance.value || !vectorLayerRef.value) return;
         const vectorSource = vectorLayerRef.value.getSource();
@@ -1395,6 +1442,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }) as OLFeature<Geometry>;
     };
 
+    /**
+     * 移除标记
+     */
     const onRemovePersonalMarkersFromMap = (): void => {
         if (!vectorLayerRef.value) return;
         const vectorSource = vectorLayerRef.value.getSource();
@@ -1770,6 +1820,14 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         personalMarkersCount,
         userCollectionsSelect,
         isDebug,
+
+        contextMenuState,
+        contextMenuItems,
+        isEditingBounds,
+        isMarkerDraggingEnabled,
+        showEditMarkerDialog,
+        editingMarkerData,
+
         onMapCreated,
         onHandleUrlParams,
         onLoadUserCollections,
@@ -1801,12 +1859,6 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         _onZoomIn,
         _onZoomOut,
         _onResetView,
-        contextMenuState,
-        contextMenuItems,
-        isEditingBounds,
-        isMarkerDraggingEnabled,
-        showEditMarkerDialog,
-        editingMarkerData,
         openEditMarker,
         saveEditMarker,
         onCancelEditMarker,

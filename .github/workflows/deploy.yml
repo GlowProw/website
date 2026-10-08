@@ -93,7 +93,7 @@ jobs:
       - name: Build SSG
         run: npm run build-only:ssg
         env:
-          NODE_OPTIONS: '--expose-gc --max-old-space-size=7168'
+          NODE_OPTIONS: '--expose-gc --max-old-space-size=10240'
           APP_HOST: 'glow-prow.top'
 
       - name: Upload Build Artifacts

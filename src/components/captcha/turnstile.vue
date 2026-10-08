@@ -72,7 +72,7 @@ const loadTurnstileScript = (): Promise<void> => {
       return
     }
 
-    // 1. 如果已加载且 render 函数可用，直接 resolve
+    // 如果已加载且 render 函数可用，直接 resolve
     if (typeof (window as any).turnstile?.render === 'function') {
       resolve()
       return

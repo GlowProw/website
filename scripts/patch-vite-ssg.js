@@ -16,13 +16,13 @@ if (fs.existsSync(sharedDir)) {
     let content = fs.readFileSync(filePath, 'utf8');
 
     if (content.includes('new JSDOM(renderedHTML)') && !content.includes('jsdom.window.close()')) {
-      // 1. Patch JSDOM close to release memory after serialization
+      // Patch JSDOM close to release memory after serialization
       content = content.replace(
         'const html = jsdom.serialize();',
         'const html = jsdom.serialize();\n        try { jsdom.window.close(); } catch (e) {}'
       );
 
-      // 2. Early cleanup for ctx.modules reference
+      // Early cleanup for ctx.modules reference
       if (!content.includes('const ctxModules = ctx.modules;')) {
         content = content.replace(
           'const jsdom = new JSDOM(renderedHTML);\n        renderPreloadLinks(jsdom.window.document, ctx.modules || /* @__PURE__ */ new Set(), ssrManifest);',
