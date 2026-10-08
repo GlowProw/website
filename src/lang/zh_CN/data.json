@@ -407,7 +407,17 @@
         "error": "登陆错误: {context}",
         "expired": "用户身份过期,请重新登陆",
         "accountIncorrect": "登陆信息错误",
-        "notActivated": "账户由于未激活而被禁用，请前往激活"
+        "notActivated": "账户由于未激活而被禁用，请前往激活",
+        "oauth": {
+          "bindSuccess": "绑定成功",
+          "bindFailed": "绑定失败",
+          "needComplete": "需要绑定账户",
+          "unknownError": "授权处理失败",
+          "failed": "注册失败",
+          "missingCode": "缺少授权回调 Code，请重新发起授权。",
+          "authFailed": "授权回调处理失败，请稍后重试。",
+          "bindAndLoginSuccess": "绑定成功并已登录！"
+        }
       },
       "signup": {
         "ok": "注册成功，请激活账户",
@@ -718,7 +728,14 @@
     "appVersionContext": "可以直接通过网站页脚预留<u><a href=\"https://kook.vip/2s0eQP\" target=\"_blank\">Kook 社区</a></u>中提出问题，以帮助修复问题",
     "blogLog": "博客",
     "slogan": "无人独称霸海",
-    "portraitDescription": "在 Michelle Rodriguez 主持的播客《In Gangsters of The Seas》中，了解印度洋上最传奇的海盗们的历史。残忍嗜血的私掠者、海盗船长与沦为罪犯的水手，他们曾横行海上、烧杀劫掠。你会发现——海盗不是天生的，是后天炼成的！"
+    "portraitDescription": "{name} 是一个由玩家粉丝自发建设的《碧海黑帆（Skull and Bones）》攻略 Wiki 与资料收集网站，所有内容免费开放、无需登录即可浏览。\n船只、武器、护甲、家具、材料、商品、外观、套装与藏品均可在这里查阅，掉落来源、制造配方与属性数据一应俱全。\n全收集交互地图收录了所有资源点、据点、宝箱与沉船位置，支持分类筛选与自定义标记，让探索不再迷路。\n你可以分享自己的船只配装，并通过材料计算器自动拆解制造需求、规划采集路线。\n任务线、帝国技能、大师专精、赛季活动与走私者报告等玩法内容，也会随版本持续跟进。\n愿这份航海图，助你称霸海域。"
+  },
+  "videoEmbed": {
+    "label": "视频链接",
+    "hint": "支持 YouTube、哔哩哔哩、腾讯视频、优酷或 .mp4/.webm 视频直链，粘贴网页链接后将自动转换为嵌入地址",
+    "invalid": "无法识别该视频地址，请粘贴视频的网页链接",
+    "unsupported": "暂不支持该视频网站，目前支持 YouTube、哔哩哔哩、腾讯视频、优酷及视频直链",
+    "b23tv": "暂不支持 b23.tv 短链，请粘贴 bilibili.com/video/ 开头的原始链接"
   },
   "account": {
     "trash": "回收站",

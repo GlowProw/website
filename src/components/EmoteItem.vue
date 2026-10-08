@@ -94,7 +94,8 @@ export default {
 <template>
   <v-tooltip v-if="emojiItemData && emojiItemData.config"
              :disabled="isDisabledTooltip"
-             placement="top" transfer>
+             placement="top"
+             transfer>
     <template v-slot:activator="{ props }">
       <div v-bind="props">
         <template
@@ -122,7 +123,7 @@ export default {
       </div>
     </template>
 
-    <div align="center">
+    <v-card border align="center" class="bg-black mx-n5 my-n2 py-5 px-10">
       <template
           v-if="emojiItemData && emojiItemData.config && (emojiItemData.config.type === 'gif' || emojiItemData.config.type === 'png' || emojiItemData.config.type === 'webp')">
         <v-img class="emote"
@@ -147,8 +148,8 @@ export default {
           </span>
       </template>
 
-      <p class="emote-name">{{ emojiItemData.name }}</p>
-    </div>
+      <p class="emote-name text-caption mt-2 u">{{ emojiItemData.name }}</p>
+    </v-card>
   </v-tooltip>
   <span v-else>
     <template v-if="emojiItemData && emojiItemData.isCustom">

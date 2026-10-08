@@ -22,7 +22,7 @@ export const CDN_LANG_SOURCES: CDNLangSource[] = [
     {
         key: 'glow-prow',
         label: 'glow-prow',
-        baseUrl: '/lang-api'
+        baseUrl: 'https://lang.glow-prow.top/src/data'
     }
 ];
 

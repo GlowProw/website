@@ -201,6 +201,7 @@ const getRoutes = () => {
         'setting/log',
         'setting/subscriptions',
         'setting/advanced',
+        'space',
         'apps',
         'apps/view',
         'apps/qq-bot',

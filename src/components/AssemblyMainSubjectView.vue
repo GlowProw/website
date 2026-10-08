@@ -2,7 +2,7 @@
 import {assemblyViewConfig, storage_account} from "@/assets/sripts/index";
 import WarehouseShowWidget from "@/components/WarehouseShowWidget.vue";
 import WheelWidget from "@/components/WheelShowWidget.vue";
-import AssemblyWidget from "@/components/AssemblyWidget.vue"; // 确保导入了正确的组件
+import AssemblyWidget from "@/components/AssemblyWidget.vue";
 import MasteryWidget from "@/components/MasteryWidget.vue";
 import AssemblyDataInfoResultWidget from "@/components/AssemblyDataInfoResultWidget.vue";
 import {useRoute, useRouter} from "vue-router";

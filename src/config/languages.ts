@@ -72,4 +72,20 @@ export const toCDNLang = (lang: string | null | undefined): string => {
   return String(lang).trim().replace(/-/g, '_');
 };
 
+/**
+ * 当前语言
+ * 脱离组件上下文的全局同步值
+ *
+ * useI18n() 只能在 setup 内调用。
+ */
+let currentLang: string = DEFAULT_LANG;
+
+export const setCurrentLang = (lang?: string | null): void => {
+    if (isSupportedLang(lang)) {
+        currentLang = lang;
+    }
+};
+
+export const getCurrentLang = (): string => currentLang;
+
 export default languagesConfig;

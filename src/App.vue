@@ -5,7 +5,7 @@ import {useI18n} from 'vue-i18n';
 import {useRoute} from "vue-router";
 import {useHead} from "@unhead/vue";
 import {getAppOrigin, getAppUrl, storage} from "@/assets/sripts";
-import {DEFAULT_LANG, isSupportedLang, SUPPORTED_LANGS} from "@/config/languages";
+import {DEFAULT_LANG, isSupportedLang, setCurrentLang, SUPPORTED_LANGS} from "@/config/languages";
 import {useReminderStore} from "~/stores/reminderStore";
 import {useAppStore} from "~/stores/appStore";
 import {usePreloadStore} from "~/stores/preloadStore";
@@ -28,12 +28,16 @@ watch(
       if (!newPath) return;
       const seg = newPath.split('/').filter(Boolean)[0];
       if (seg && isSupportedLang(seg)) {
+        // 同步给模块级单例（appFuns/appApps 等）用于拼接 /:lang 链接
+        setCurrentLang(seg);
         if (seg !== locale.value) {
           locale.value = seg;
           if (typeof window !== 'undefined') {
             storage.local.set('lang', {value: seg});
           }
         }
+      } else {
+        setCurrentLang(locale.value);
       }
     },
     {immediate: true}

@@ -63,7 +63,7 @@ onMounted(async () => {
 
   if (!code) {
     loading.value = false;
-    errorMsg.value = t('oauth.missingCode') || '缺少授权回调 Code，请重新发起授权。';
+    errorMsg.value = t('basic.tips.signin.oauth.missingCode');
     return;
   }
 
@@ -74,19 +74,19 @@ onMounted(async () => {
     // 已有绑定直接登录成功
     if (result.code === 'signin.ok') {
       authStore.setAccountToken(result.data);
-      notice.success(t('signin.success') || '登录成功！');
+      notice.success(t('basic.tips.signin.success'));
       const backUrl = (route.query.backUrl as string) || '/';
       return router.push(backUrl);
     }
 
     // 已登录用户绑定成功
     if (result.code === 'oauth.bind.ok') {
-      notice.success(t('oauth.bindSuccess') || '第三方账号关联成功！');
+      notice.success(t('basic.tips.signin.oauth.bindSuccess'));
       return router.push('/account/bindings');
     }
 
     // 未找到绑定 -> 引导进入补充注册或绑定已有账号
-    if (result.code === 'oauth.needComplete') {
+    if (result.code === 'basic.tips.signin.oauth.needComplete') {
       needComplete.value = true;
       oauthTicket.value = result.data.oauthTicket;
       oauthProfile.value = {
@@ -102,9 +102,9 @@ onMounted(async () => {
       return;
     }
 
-    errorMsg.value = result.message || t('oauth.unknownError') || '授权处理失败';
+    errorMsg.value = result.message || t('basic.tips.signin.oauth.unknownError');
   } catch (err: any) {
-    errorMsg.value = err?.message || t('oauth.authFailed') || '授权回调处理失败，请稍后重试。';
+    errorMsg.value = err?.message || t('basic.tips.signin.oauth.authFailed');
   } finally {
     loading.value = false;
   }
@@ -127,15 +127,15 @@ const onCompleteSignup = async () => {
 
     if (res?.data?.code === 'signin.ok') {
       authStore.setAccountToken(res.data.data);
-      notice.success(t('signup.success') || '注册成功并已自动关联登录！');
+      notice.success(t('basic.tips.signin.oauth.bindSuccess'));
       const backUrl = (route.query.backUrl as string) || '/';
-      router.push(backUrl);
+      await router.push(backUrl);
     } else {
-      notice.error(res?.data?.message || t('signup.failed') || '注册失败');
+      notice.error(res?.data?.message || t('basic.tips.signin.oauth.failed'));
     }
 
   } catch (err: any) {
-    notice.error(err?.message || t('signup.failed') || '注册失败');
+    notice.error(err?.message || t('basic.tips.signin.oauth.failed'));
   } finally {
     submitLoading.value = false;
   }
@@ -155,16 +155,16 @@ const onCompleteBind = async () => {
 
     if (res?.data?.code === 'signin.ok') {
       authStore.setAccountToken(res.data.data);
-      notice.success(t('oauth.bindAndLoginSuccess') || '绑定成功并已登录！');
+      notice.success(t('basic.tips.signin.oauth.bindAndLoginSuccess'));
       const backUrl = (route.query.backUrl as string) || '/';
 
       router.push(backUrl);
     } else {
-      notice.error(res?.data?.message || t('signin.invalid') || '账号或密码错误');
+      notice.error(res?.data?.message || t('basic.tips.signin.accountIncorrect'));
     }
 
   } catch (err: any) {
-    notice.error(err?.message || t('oauth.bindFailed') || '绑定失败');
+    notice.error(err?.message || t('basic.tips.signin.oauth.bindFailed'));
   } finally {
     submitLoading.value = false;
   }
@@ -294,9 +294,9 @@ const onBackRoute = () => {
                           :placeholder="t('signin.form.placeholder.password')">
                         <template v-slot:append-inner>
                           <v-icon
-                            :icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
-                            class="cursor-pointer"
-                            @click="showPassword = !showPassword"
+                              :icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
+                              class="cursor-pointer"
+                              @click="showPassword = !showPassword"
                           />
                         </template>
                       </v-text-field>
@@ -386,7 +386,7 @@ const onBackRoute = () => {
                 </router-link>
               </v-card-actions>
             </div>
-            <!-- 新用户首次登录：补充注册新账号 或 关联已有账号 E -->
+            <!-- 新用户首次登录 E -->
           </AffixContainerView>
         </v-card>
       </v-col>

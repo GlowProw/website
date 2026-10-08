@@ -3,7 +3,6 @@ import {onMounted, onUnmounted, ref} from "vue";
 import {appFuns, getCurrentSeason, time} from "@/assets/sripts";
 import {Season} from "glow-prow-data/src/entity/Seasons";
 import {useI18n} from "vue-i18n";
-import Silk from "@/components/Silk.vue";
 import BlogWidget from "@/components/BlogWidget.vue";
 import AppVersionWidget from "@/components/AppVersionWidget.vue";
 import NewSeasonShowItem from "@/components/NewSeasonShowItem.vue";
@@ -29,7 +28,7 @@ onMounted(() => {
     currentlySeason.value = getCurrentSeason()
   }
 
-  // 懒加载 NewSeasonShowItem 进入视口 30px 内仅加载一次
+  // 懒加载 NewSeasonShowItem 进入视口 10px 内仅加载一次
   if (seasonContainerRef.value && !isSeasonItemLoaded.value) {
     seasonObserver = new IntersectionObserver((entries) => {
       for (const entry of entries) {
@@ -41,7 +40,7 @@ onMounted(() => {
         }
       }
     }, {
-      rootMargin: '30px',
+      rootMargin: '10px',
       threshold: 0
     })
     seasonObserver.observe(seasonContainerRef.value)
@@ -65,7 +64,6 @@ onUnmounted(() => {
 
         <div class="portal-banner-looping-video w-100 opacity-100">
           <video autoplay playsinline
-                 class="card-enlargement-mask-flavor"
                  muted loop type="video/mp4"
                  src="@/assets/videos/crimsonWaters.webm"></video>
         </div>
@@ -88,31 +86,31 @@ onUnmounted(() => {
       <v-container>
         <v-row>
           <v-col cols="12" md="8" lg="8">
-            <v-row justify="end">
+            <v-row justify="start" dense>
               <v-col cols="12" sm="6" md="4" lg="4"
                      :class="{'opacity-30': !i.to}"
                      v-for="(i,index) in appFuns.list" :key="index">
-                <v-card :to="i.to" hover variant="text" class="py-2 pl-1 h-100" elevation="0">
-                  <v-row dense>
+                <router-link :to="i.to">
+                  <v-row dense class="py-2 h-100">
                     <v-col cols="auto">
-                      <v-avatar tile size="70" class="d-flex justify-center">
+                      <v-avatar tile size="45" class="d-flex align-start justify-start">
                         <v-icon :icon="i.icon" size="40"></v-icon>
                       </v-avatar>
                     </v-col>
                     <v-col>
-                      <p class="mb-2 text-h5 text-amber">{{ t(i.title) }}</p>
-                      <p class="font-weight-light opacity-50">{{ t(i.description) }}</p>
+                      <p class="u mb-1 text-amber">{{ t(i.title) }}</p>
+                      <p class="font-weight-light opacity-60">{{ t(i.description) }}</p>
                     </v-col>
                   </v-row>
-                </v-card>
+                </router-link>
               </v-col>
             </v-row>
           </v-col>
-          <v-col lg="4">
+          <v-col cols="12" sm="4" md="4">
             <v-card variant="text"
                     class="title h-100 d-flex flex-column">
-              <h1 class="text-amber text-h2 pb-7">{{ t('portal.slogan') }}</h1>
-              <p class="text-h5 font-weight-light opacity-50">{{ t('portal.portraitDescription') }}</p>
+              <h1 class="text-h6 text-amber pb-2">{{ t('name') }}</h1>
+              <p class="font-weight-light opacity-50 portrait-description">{{ t('portal.portraitDescription', {name: t('name')}) }}</p>
             </v-card>
           </v-col>
         </v-row>
@@ -138,8 +136,8 @@ onUnmounted(() => {
           <v-col cols="12" md="4" lg="4">
             <AffixContainerView>
               <div class="d-flex flex-column justify-space-between">
-                <h1 class="text-h2 text-amber pb-10">{{ t(`snb.seasons.${currentlySeason?.id}`) }}</h1>
-                <p class="text-h5 font-weight-light opacity-50">{{ t(`snb.calendar.${currentlySeason?.id}.description`) }}</p>
+                <h1 class="text-h6 text-amber pb-2">{{ t(`snb.seasons.${currentlySeason?.id}`) }}</h1>
+                <p class="font-weight-light opacity-60">{{ t(`snb.calendar.${currentlySeason?.id}.description`) }}</p>
               </div>
             </AffixContainerView>
           </v-col>
@@ -199,6 +197,11 @@ onUnmounted(() => {
 </template>
 
 <style scoped lang="less">
+.portrait-description {
+  white-space: pre-line;
+  line-height: 1.9;
+}
+
 .portal-banner {
   height: calc(100vh - 400px);
   min-height: 400px;
@@ -216,28 +219,29 @@ onUnmounted(() => {
   }
 
   .portal-banner-looping-video {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+
     &:after {
       content: "";
       position: absolute;
-      width: 120%;
-      height: 100%;
+      inset: 0;
+      z-index: 1;
       background: #000;
       opacity: .2;
     }
 
     video {
       position: absolute;
-      animation: all .25s;
+      inset: 0;
       z-index: 0;
-      opacity: 1;
-      left: 50%;
-      top: 50%;
       width: 100%;
-      height: auto;
-      transform: scale(1.01) translate(-48%, calc(-50% + 0px));
-      min-width: 105%;
-      min-height: 100%;
-      pointer-events: visible;
+      height: 100%;
+      // 任意屏幕比例下都铺满容器，超出部分按中心裁切
+      object-fit: cover;
+      object-position: center;
     }
   }
 
@@ -255,7 +259,7 @@ onUnmounted(() => {
     padding-left: 3vh;
     padding-right: 3vh;
     height: auto;
-    font-size: 23px;
+    font-size: 18px;
 
     > div {
       writing-mode: vertical-rl;
@@ -282,13 +286,6 @@ onUnmounted(() => {
 
 @media screen and (max-width: 980px) {
   .portal-banner {
-    .portal-banner-looping-video {
-      video {
-        width: auto;
-        width: 100% !important;
-      }
-    }
-
     .title {
       margin-bottom: 50px;
       max-width: 80% !important;

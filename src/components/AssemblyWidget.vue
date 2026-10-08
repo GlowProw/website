@@ -702,7 +702,6 @@ defineOptions({name: 'AssemblyWidget'})
               </ItemSlotBase>
               <!-- 升级部件 视图卡槽 E -->
             </v-col>
-            <v-divider v-if="previousFrigateUpgrades.length > 0" vertical opacity=".3" translate="2" class="mx-6 my-10"></v-divider>
             <v-col cols="auto" v-if="previousFrigateUpgrades.length > 0">
               <!-- 升级部件 - 上一级预览 视图卡槽 S -->
               <div style="display: grid; grid-template-columns: repeat(3, max-content); align-items: start; justify-items: center; justify-content: start;">

@@ -71,7 +71,11 @@ defineExpose({
             sticky
             transfer
             footer-hide>
-    <v-card>
+    <v-card border>
+      <v-card-title class="py-10 text-center bg-black mb-4 mx-n5">
+        <v-icon size="80">mdi-link</v-icon>
+      </v-card-title>
+
       <v-card-text>
         <v-text-field v-model="data.href" label="Href"></v-text-field>
         <v-text-field v-model="data.text" label="Href Text"></v-text-field>

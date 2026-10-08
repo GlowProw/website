@@ -1,18 +1,39 @@
 <script setup lang="ts">
+import {computed} from "vue";
 import {nodeViewProps, NodeViewWrapper} from "@tiptap/vue-3";
-import {useI18n} from "vue-i18n";
-import {useI18nUtils} from "@/assets/sripts/i18n_util";
+import {normalizeVideoUrl} from "./index";
 
 const props = defineProps(nodeViewProps)
+
+const embedSrc = computed(() => {
+    const result = normalizeVideoUrl(props.node.attrs.src || '')
+    return result.ok ? result.url : ''
+})
 </script>
 
 <template>
   <node-view-wrapper class="video-view-wrapper">
-    <v-card border class="my-1 bg-black video-card">
-      <iframe :src="props.node.attrs.src" class="border-0 w-100 h-100"
-              allow="fullscreen"
+    <v-card v-if="embedSrc" border class="my-1 bg-black video-card">
+      <!-- sandbox 不授予 allow-top-navigation，防止嵌入页劫持顶层跳转 -->
+      <iframe :src="embedSrc" class="border-0 w-100 h-100"
+              allow="fullscreen; picture-in-picture"
+              allowfullscreen
+              sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-forms allow-fullscreen"
+              referrerpolicy="no-referrer-when-downgrade"
               style="min-height: 400px"></iframe>
     </v-card>
+
+    <div v-else class="video-invalid my-1">
+      <v-card variant="tonal" class="w-100 pa-4 d-flex align-center ga-3 border-dashed" color="error">
+        <v-icon icon="mdi-video-off-outline" size="24" color="error"></v-icon>
+        <div class="text-truncate">
+          <div class="text-caption text-grey">Unsupported video link</div>
+          <a :href="props.node.attrs.src" class="text-body-2 font-weight-bold text-error"
+             target="_blank" rel="noopener noreferrer">{{ props.node.attrs.src }}</a>
+        </div>
+      </v-card>
+    </div>
+
     <div class="video-placeholder d-none">
       <v-card variant="tonal" class="w-100 pa-4 d-flex align-center ga-3 border-dashed">
         <v-icon icon="mdi-video-outline" size="24" color="amber"></v-icon>

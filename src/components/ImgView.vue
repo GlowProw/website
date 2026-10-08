@@ -2,7 +2,6 @@
 import {ref} from "vue";
 import {Editor} from "@tiptap/vue-3";
 import {useI18n} from "vue-i18n";
-import {useRoute, useRouter} from "vue-router";
 
 const props = defineProps({
       editor: {
@@ -73,7 +72,11 @@ defineOptions({
             sticky
             transfer
             footer-hide>
-    <v-card>
+    <v-card border>
+      <v-card-title class="py-10 text-center bg-black mb-4 mx-n5">
+        <v-icon size="80">mdi-image</v-icon>
+      </v-card-title>
+
       <v-card-text>
         <v-img :src="data.src" cover max-height="100"></v-img>
         <v-text-field v-model="data.src" label="Href"></v-text-field>

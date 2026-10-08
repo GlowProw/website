@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import {ref} from "vue";
+import {computed, ref} from "vue";
 import {Editor} from "@tiptap/vue-3";
 import {useI18n} from "vue-i18n";
+import {normalizeVideoUrl} from "./textarea/video/index";
 
 const props = defineProps({
       editor: {
@@ -16,11 +17,13 @@ let show = ref(false),
       src: ''
     })
 
+const resolved = computed(() => normalizeVideoUrl(data.value.src))
+
 const onFinish = () => {
-  const src = data.value.src
+  if (!resolved.value.ok) return
 
   onPanelToggle()
-  emit('finish', src)
+  emit('finish', resolved.value.url)
 }
 
 /**
@@ -42,6 +45,9 @@ const onPanelToggle = () => {
     emit('close')
 }
 
+/**
+ * 关闭面板
+ */
 const onClose = () => {
   onPanelToggle()
   emit('close')
@@ -60,7 +66,7 @@ defineOptions({
 
 <template>
   <v-dialog v-model="show"
-            class="link"
+            class="video"
             :transitionNames="['fade']"
             :width="600"
             :mask="true"
@@ -69,21 +75,45 @@ defineOptions({
             sticky
             transfer
             footer-hide>
-    <v-card>
+    <v-card border>
+      <v-card-title class="py-10 text-center bg-black mb-4 mx-n5">
+        <v-icon size="80">mdi-video</v-icon>
+      </v-card-title>
       <v-card-text>
-        <video :src="data.src"></video>
-        <v-text-field v-model="data.src" label="Src"></v-text-field>
+        <div v-if="resolved.ok" class="video-embed-preview mb-2">
+          <iframe :src="resolved.url"
+                  class="border-0 w-100"
+                  allow="fullscreen; picture-in-picture"
+                  allowfullscreen
+                  sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-forms allow-fullscreen"
+                  referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+
+        <v-text-field v-model="data.src"
+                      :label="t('videoEmbed.label')"
+                      @keyup.enter="onFinish"/>
       </v-card-text>
 
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn @click="onPanelToggle">{{ t('basic.button.cancel') }}</v-btn>
-        <v-btn @click="onFinish">{{ t('basic.button.submit') }}</v-btn>
+        <v-btn color="amber" :disabled="!resolved.ok" @click="onFinish">{{ t('basic.button.submit') }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <style scoped lang="less">
+.video-embed-preview {
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
 
+  iframe {
+    display: block;
+    aspect-ratio: 16 / 9;
+    height: auto;
+    min-height: 0;
+  }
+}
 </style>

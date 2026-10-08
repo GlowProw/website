@@ -1,3 +1,5 @@
+import {getCurrentLang} from "@/config/languages";
+
 export interface CodexNavItem {
     type?: 'item' | 'divider';
     title?: string;
@@ -15,6 +17,8 @@ export interface CodexNavItem {
  * 手稿导航
  */
 export default class AppCodexNav {
+    lang = getCurrentLang();
+
     codex = [
         {
             title: 'codex.navs.shipsAndCaptainTools.name',
@@ -23,12 +27,12 @@ export default class AppCodexNav {
                 {
                     title: 'codex.navs.ships.name',
                     value: 'ships',
-                    to: '/codex/ships'
+                    to: `/${this.lang}/codex/ships`
                 },
                 {
                     title: 'codex.navs.captainTools.name',
                     value: 'captainTools',
-                    to: '/codex/items?type=tool'
+                    to: `/${this.lang}/codex/items?type=tool`
                 }
             ]
         },
@@ -39,22 +43,22 @@ export default class AppCodexNav {
                 {
                     title: 'codex.navs.allDeckWeapons.name',
                     value: 'allDeckWeapons',
-                    to: "/codex/items?type=culverin,demicannon"
+                    to: `/${this.lang}/codex/items?type=culverin,demicannon`
                 },
                 {
                     title: 'codex.navs.topDeckWeapons.name',
                     value: 'topDeckWeapons',
-                    to: "/codex/items?type=longGun,bombard,torpedo"
+                    to: `/${this.lang}/codex/items?type=longGun,bombard,torpedo`
                 },
                 {
                     title: 'codex.navs.bowWeapons.name',
                     value: 'bowWeapons',
-                    to: "/codex/items?type=ballista,seaFire"
+                    to: `/${this.lang}/codex/items?type=ballista,seaFire`
                 },
                 {
                     title: 'codex.navs.auxiliaryWeapons.name',
                     value: 'auxiliaryWeapons',
-                    to: "/codex/items?type=mortar,rocket,springloader"
+                    to: `/${this.lang}/codex/items?type=mortar,rocket,springloader`
                 }
             ]
         },
@@ -65,7 +69,7 @@ export default class AppCodexNav {
                 {
                     title: 'codex.navs.hullArmor.name',
                     value: 'hullArmor',
-                    to: "/codex/items?type=armor"
+                    to: `/${this.lang}/codex/items?type=armor`
                 },
             ]
         },
@@ -76,17 +80,17 @@ export default class AppCodexNav {
                 {
                     title: 'codex.navs.majorFurniture.name',
                     value: 'majorFurniture',
-                    to: "/codex/items?type=majorFurniture"
+                    to: `/${this.lang}/codex/items?type=majorFurniture`
                 },
                 {
                     title: 'codex.navs.offensiveFurnTure.name',
                     value: 'offensiveFurnTure',
-                    to: "/codex/items?type=offensiveFurniture"
+                    to: `/${this.lang}/codex/items?type=offensiveFurniture`
                 },
                 {
                     title: 'codex.navs.utilityFurnTure.name',
                     value: 'utilityFurnTure',
-                    to: "/codex/items?type=utilityFurniture"
+                    to: `/${this.lang}/codex/items?type=utilityFurniture`
                 },
             ]
         },
@@ -97,32 +101,32 @@ export default class AppCodexNav {
                 {
                     title: 'codex.navs.rawMaterials.name',
                     value: 'rawMaterials',
-                    to: "/codex/materials?category=raw"
+                    to: `/${this.lang}/codex/materials?category=raw`
                 },
                 {
                     title: 'codex.navs.refinedMaterials.name',
                     value: 'refinedMaterials',
-                    to: "/codex/materials?category=refined"
+                    to: `/${this.lang}/codex/materials?category=refined`
                 },
                 {
                     title: 'codex.navs.specializedMaterials.name',
                     value: 'specializedMaterials',
-                    to: "/codex/materials?category=specialized"
+                    to: `/${this.lang}/codex/materials?category=specialized`
                 },
                 {
                     title: 'codex.navs.exoticMaterials.name',
                     value: 'exoticMaterials',
-                    to: "/codex/materials?category=exotic"
+                    to: `/${this.lang}/codex/materials?category=exotic`
                 },
                 {
                     title: 'codex.navs.helmMaterials.name',
                     value: 'helmMaterials',
-                    to: "/codex/materials?category=helm"
+                    to: `/${this.lang}/codex/materials?category=helm`
                 },
                 {
                     title: 'codex.navs.scrapMaterials.name',
                     value: 'scrapMaterials',
-                    to: "/codex/materials?category=scrap"
+                    to: `/${this.lang}/codex/materials?category=scrap`
                 },
             ]
         },
@@ -133,12 +137,12 @@ export default class AppCodexNav {
                 {
                     title: 'codex.navs.shipSupplies.name',
                     value: 'shipSupplies',
-                    to: '/codex/items?type=ammunition,consumable'
+                    to: `/${this.lang}/codex/items?type=ammunition,consumable`
                 },
                 {
                     title: 'codex.navs.crewProvision.name',
                     value: 'crewProvision',
-                    to: '/codex/items?type=consumable'
+                    to: `/${this.lang}/codex/items?type=consumable`
                 },
             ]
         },
@@ -149,27 +153,27 @@ export default class AppCodexNav {
                 {
                     title: 'codex.navs.localFactionCommodities.name',
                     value: 'localFactionCommodities',
-                    to: '/codex/commodities?category=localFaction'
+                    to: `/${this.lang}/codex/commodities?category=localFaction`
                 },
                 {
                     title: 'codex.navs.megaCorpCommodities.name',
                     value: 'megaCorpCommodities',
-                    to: '/codex/commodities?category=megacorp'
+                    to: `/${this.lang}/codex/commodities?category=megacorp`
                 },
                 {
                     title: 'codex.navs.kingpinCommodities.name',
                     value: 'kingpinCommodities',
-                    to: '/codex/commodities?category=kingpin'
+                    to: `/${this.lang}/codex/commodities?category=kingpin`
                 },
                 {
                     title: 'codex.navs.theHelmItems.name',
                     value: 'theHelmItems',
-                    to: '/codex/commodities?category=theHelm'
+                    to: `/${this.lang}/codex/commodities?category=theHelm`
                 },
                 {
                     title: 'codex.navs.currency.name',
                     value: 'currency',
-                    to: '/codex/materials?category=currency'
+                    to: `/${this.lang}/codex/materials?category=currency`
                 },
             ]
         }
@@ -178,48 +182,48 @@ export default class AppCodexNav {
     nav: CodexNavItem[] = [
         {
             title: 'codex.ships.title',
-            to: '/codex/ships',
+            to: `/${this.lang}/codex/ships`,
             prependIcon: 'mdi-format-list-bulleted-type'
         },
         {
             title: 'codex.ultimates.title',
-            to: '/codex/ultimates',
+            to: `/${this.lang}/codex/ultimates`,
             prependIcon: 'mdi-format-list-bulleted-type'
         },
         {
             title: 'codex.modifications.title',
-            to: '/codex/modifications',
+            to: `/${this.lang}/codex/modifications`,
             prependIcon: 'mdi-format-list-bulleted-type'
         },
         {
             title: 'codex.items.title',
-            to: '/codex/items',
+            to: `/${this.lang}/codex/items`,
             prependIcon: 'mdi-format-list-bulleted-type'
         },
         {
             title: 'codex.cosmetics.title',
-            to: '/codex/cosmetics',
+            to: `/${this.lang}/codex/cosmetics`,
             prependIcon: 'mdi-format-list-bulleted-type'
         },
         {
             title: 'codex.sets.title',
-            to: '/codex/sets',
+            to: `/${this.lang}/codex/sets`,
             prependIcon: 'mdi-format-list-bulleted-type'
         },
         {
             title: 'codex.materials.title',
-            to: '/codex/materials',
+            to: `/${this.lang}/codex/materials`,
             prependIcon: 'mdi-format-list-bulleted-type'
         },
         {
             title: 'codex.commodities.title',
-            to: '/codex/commodities',
+            to: `/${this.lang}/codex/commodities`,
             prependIcon: 'mdi-format-list-bulleted-type'
         },
 
         {
             title: 'codex.masterys.title',
-            to: '/codex/masterys',
+            to: `/${this.lang}/codex/masterys`,
             prependIcon: 'mdi-format-list-bulleted-type'
         },
         {
@@ -228,12 +232,12 @@ export default class AppCodexNav {
         },
         {
             title: 'codex.empireSkills.title',
-            to: '/codex/empireSkills',
+            to: `/${this.lang}/codex/empireSkills`,
             prependIcon: 'mdi-format-list-bulleted-type'
         },
         {
             title: 'codex.quests.title',
-            to: '/quest',
+            to: `/${this.lang}/quest`,
             prependIcon: 'mdi-format-list-bulleted-type'
         },
         {
@@ -242,21 +246,21 @@ export default class AppCodexNav {
         },
         {
             title: 'codex.treasureMaps.title',
-            to: '/codex/treasureMaps'
+            to: `/${this.lang}/codex/treasureMaps`
         },
         {
             title: 'codex.mapLocations.title',
-            to: '/codex/mapLocations',
+            to: `/${this.lang}/codex/mapLocations`,
             badge: 'BETA'
         },
         {
             title: 'codex.npcs.title',
-            to: '/codex/npcs',
+            to: `/${this.lang}/codex/npcs`,
             badge: 'BETA'
         },
         {
             title: 'search.title',
-            to: '/search',
+            to: `/${this.lang}/search`,
             prependIcon: 'mdi-magnify',
             appendIcon: 'mdi-open-in-new',
             variant: 'tonal',

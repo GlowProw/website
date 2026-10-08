@@ -138,7 +138,11 @@ defineExpose({
       transfer
       footer-hide>
     <v-card border class="emote-tab">
-      <v-tabs v-model="emoteTabValue" size="small">
+      <v-card-title class="py-10 text-center bg-black mx-n5">
+        <v-icon size="80">mdi-emoticon</v-icon>
+      </v-card-title>
+
+      <v-tabs v-model="emoteTabValue" size="small" class="bg-black">
         <v-tab
             v-for="(item, index) in emojis.child"
             :key="index"
@@ -147,7 +151,7 @@ defineExpose({
         </v-tab>
       </v-tabs>
       <v-divider/>
-      <v-tabs-window v-model="emoteTabValue" class="bg-black">
+      <v-tabs-window v-model="emoteTabValue" class="bg-transparent">
         <v-tabs-window-item
             v-for="(item, index) in emojis.child"
             :key="index"

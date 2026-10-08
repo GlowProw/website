@@ -719,7 +719,14 @@
     "appVersionContext": "You can report issues directly through the <u><a href=\"https://kook.vip/2s0eQP\" target=\"_blank\">Kook Community</a></u> link reserved in the website footer to help fix problems",
     "blogLog": "Blog",
     "slogan": "NO ONE RULES THE SEA",
-    "portraitDescription": "In Gangsters of The Seas, a podcast presented by Michelle Rodriguez, discover the history of some of the greatest pirates of the Indian Ocean. Cruel and bloodthirsty privateers, buccaneers and sailors turned criminals, they terrorized and pillaged the seas. You’ll soon hear that you’re not born a pirate. You become one!"
+    "portraitDescription": "{name} is a fan-made wiki, guide and data collection site for Skull and Bones, built by players for players — free to browse, no login required.\nHere you can look up ships, weapons, armor, furniture, materials, commodities, cosmetics, sets and collectibles, complete with loot sources, crafting recipes and stats.\nThe fully collected interactive map marks every resource node, settlement, chest and shipwreck, with category filters and custom markers to keep your exploration on course.\nYou can share your ship builds and use the material calculator to break down crafting costs and plan farming routes.\nQuestlines, empire skills, masteries, seasonal events and the Smuggler's Report are all kept up to date with every patch.\nMay these charts help you rule the seas."
+  },
+  "videoEmbed": {
+    "label": "Video link",
+    "hint": "Supports YouTube, Bilibili, Tencent Video, Youku or direct .mp4/.webm links. Paste the video page URL and it will be converted to an embed URL automatically",
+    "invalid": "Unrecognized video URL, please paste the video's webpage link",
+    "unsupported": "This video site is not supported yet. Currently supported: YouTube, Bilibili, Tencent Video, Youku and direct video links",
+    "b23tv": "b23.tv short links are not supported. Please paste the original bilibili.com/video/ link"
   },
   "account": {
     "trash": "Recycle Bin",
