@@ -11,7 +11,7 @@
           :style="{ top: safeY + 'px', left: safeX + 'px' }"
           @click.stop
           @contextmenu.prevent>
-        <v-list density="compact" min-width="220" class="pa-0">
+        <v-list density="compact" min-width="260" class="pa-0">
           <template v-for="(item, i) in items" :key="i">
             <v-divider v-if="item.type === 'divider'" class="my-1" />
 
@@ -99,7 +99,6 @@ export interface ContextMenuItem {
   danger?: boolean;
   color?: 'default' | 'amber';
   action?: () => void;
-  /** 二级子菜单：存在时该项仅用于悬浮展开，点击不关闭主菜单 */
   children?: ContextMenuItem[];
 }
 

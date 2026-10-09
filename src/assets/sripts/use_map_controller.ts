@@ -21,6 +21,7 @@ import {
     resolveShapeStyle,
     isDraftUuid,
     MapDrawController,
+    createVertexHandleStyles,
     type DrawShapeMode,
 } from '@/assets/sripts/map_draw_controller';
 import { ApiError } from "@/assets/types/Api";
@@ -311,7 +312,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
     );
 
     const userCollectionsSelect = computed(() => {
-        return [{ title: t('none'), uuid: null }].concat(userCollections.value as []);
+        return [{ title: t('map.noCollection'), uuid: null }].concat(userCollections.value as []);
     });
 
     const appStore = useAppStore();
@@ -1188,15 +1189,15 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             } else if (shape) {
                 const shapeName = shape.title || typeName;
                 // 图形信息面板已在展示该图形时，菜单里不提供「图形信息」
-                if (selectedShapeUuid.value !== shapeUuid) {
-                    items.push({
-                        icon: 'mdi-information-outline',
-                        label: `${t('map.contextMenu.shapeInfo') || '查看图形'} (${shapeName})`,
-                        action: () => {
-                            selectedShapeUuid.value = shapeUuid;
-                        },
-                    });
-                }
+                // if (selectedShapeUuid.value !== shapeUuid) {
+                //     items.push({
+                //         icon: 'mdi-information-outline',
+                //         label: `${t('map.contextMenu.shapeInfo') || '查看图形'} (${shapeName})`,
+                //         action: () => {
+                //             selectedShapeUuid.value = shapeUuid;
+                //         },
+                //     });
+                // }
 
                 // 属主右键置顶「编辑此路径/编辑此区域」，直接弹出对应编辑窗口
                 if (isOwner) {
@@ -1726,8 +1727,11 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
 
         rebuildBoundsFeatures();
 
-        // Modify 交互：拖拽角点
-        const modifyInteraction = new Modify({ source: boundsSource });
+        // Modify 交互：拖拽角点（手柄统一使用主题色 var(--main-color)）
+        const modifyInteraction = new Modify({
+            source: boundsSource,
+            style: () => createVertexHandleStyles(),
+        });
         map.addInteraction(modifyInteraction);
 
         modifyInteraction.on('modifyend', (event: any) => {

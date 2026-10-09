@@ -55,7 +55,7 @@
         </v-row>
         <div class="mb-2">
           <Textarea v-if="shape.description" readonly class="my-2 mx-4 shape-desc" min-height="auto" :value="shape.description"></Textarea>
-          <p class="my-2 mx-4" v-else>很懒什么都没有说</p>
+          <p class="my-2 mx-4" v-else>{{ t('map.emptyDescription') }}</p>
         </div>
       </template>
 

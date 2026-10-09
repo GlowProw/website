@@ -229,6 +229,54 @@ function createHitAreaStyle(fillColor?: string | null, shapeType: MapShapeType =
 /** 不可见但仍可被 Modify 命中 */
 const INVISIBLE_STYLE = new Style({});
 
+let cachedMainColor: string | null = null;
+let cachedVertexHandleStyles: Style[] | null = null;
+
+/** 主题色（兼容 hex / rgb()）转 rgba 字符串 */
+function mainColorToRgba(alpha: number): string {
+    const raw = (cachedMainColor || '').trim();
+    if (raw.startsWith('#')) return hexToRgba(raw, alpha);
+    const m = raw.match(/rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)/i);
+    if (m) return `rgba(${m[1]},${m[2]},${m[3]},${Math.min(1, Math.max(0, alpha))})`;
+    return hexToRgba(DEFAULT_PATH_COLOR, alpha);
+}
+
+/** 失效主题色缓存（预留主题热切换） */
+export function invalidateVertexHandleStyle(): void {
+    cachedMainColor = null;
+    cachedVertexHandleStyles = null;
+}
+
+/**
+ * 顶点编辑手柄样式：外圈 var(--main-color) 半透明圆环 + 内圈白点，
+ * 替换 OL Modify 默认的蓝色手柄（顶点编辑、地图边界角点共用）。
+ */
+export function createVertexHandleStyles(): Style[] {
+    if (cachedVertexHandleStyles) return cachedVertexHandleStyles;
+    if (cachedMainColor === null && typeof document !== 'undefined') {
+        cachedMainColor = getComputedStyle(document.documentElement)
+            .getPropertyValue('--main-color').trim() || DEFAULT_PATH_COLOR;
+    }
+    cachedVertexHandleStyles = [
+        new Style({
+            image: new CircleStyle({
+                radius: 7,
+                fill: new Fill({color: mainColorToRgba(0.25)}),
+                stroke: new Stroke({color: mainColorToRgba(1), width: 1.5}),
+            }),
+            zIndex: 12,
+        }),
+        new Style({
+            image: new CircleStyle({
+                radius: 2.5,
+                fill: new Fill({color: '#ffffff'}),
+            }),
+            zIndex: 13,
+        }),
+    ];
+    return cachedVertexHandleStyles;
+}
+
 /** 绘制过程中的草图样式 */
 function createDrawStyle(mode: DrawShapeMode): Style[] {
     const color = mode === 'region' ? DEFAULT_REGION_COLOR : DEFAULT_PATH_COLOR;
@@ -325,6 +373,8 @@ export class MapDrawController {
             source: this.editSource,
             hitDetection: this.editLayer,
             pixelTolerance: 22,
+            // 手柄使用主题色 var(--main-color)，替换 OL 默认蓝色（样式函数内懒加载，等 CSS 就绪后首次渲染再取色）
+            style: () => createVertexHandleStyles(),
         });
         this.modify.setActive(false);
         /** 
