@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import AppMessageWidget from '@/components/AppMessageWidget.vue'
-import {defineAsyncComponent, computed, onMounted, ref, watch} from "vue";
+import {defineAsyncComponent, computed, onMounted, onUnmounted, ref, watch} from "vue";
 import {useI18n} from 'vue-i18n';
 import {useRoute} from "vue-router";
 import {useHead} from "@unhead/vue";
 import {getAppOrigin, getAppUrl, storage} from "@/assets/sripts";
 import {DEFAULT_LANG, isSupportedLang, setCurrentLang, SUPPORTED_LANGS} from "@/config/languages";
 import {useReminderStore} from "~/stores/reminderStore";
+import {useMessagesUnreadStore} from "~/stores/messagesUnreadStore";
 import {useAppStore} from "~/stores/appStore";
 import {usePreloadStore} from "~/stores/preloadStore";
 import {loadRemoteLangMessages} from "@/assets/sripts/remote_i18n";
@@ -17,10 +18,25 @@ const isClient = ref(false);
 
 const {t, locale} = useI18n();
 const reminderStore = useReminderStore();
+const messagesUnreadStore = useMessagesUnreadStore();
 const appStore = useAppStore();
 const preloadStore = usePreloadStore();
 
 const route = useRoute();
+
+// 页面被切到后台时暂停活动提醒计时与未读私信轮询，回到前台立即恢复并拉一次未读
+const handleVisibilityChange = () => {
+  if (typeof document === 'undefined') return;
+  if (document.hidden) {
+    reminderStore.pauseWorker();
+    messagesUnreadStore.stop();
+  } else {
+    if (reminderStore.isReminderRoute()) {
+      reminderStore.resumeWorker();
+    }
+    messagesUnreadStore.start();
+  }
+};
 
 watch(
     () => route.path,
@@ -93,6 +109,7 @@ useHead(head)
 
 onMounted(async () => {
   isClient.value = true;
+  document.addEventListener('visibilitychange', handleVisibilityChange);
   preloadStore.registerTask({
     id: 'remote-i18n',
     phase: t('basic.preload.remoteI18n') || '从远程加载文本数据...',
@@ -122,6 +139,10 @@ onMounted(async () => {
 
   document.dispatchEvent(new Event('render-event'));
   reminderStore.init();
+});
+
+onUnmounted(() => {
+  document.removeEventListener('visibilitychange', handleVisibilityChange);
 });
 </script>
 

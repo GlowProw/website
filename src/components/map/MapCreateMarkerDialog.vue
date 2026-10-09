@@ -1,5 +1,5 @@
 <template>
-  <v-dialog :model-value="modelValue" @update:model-value="emit('update:modelValue', $event)" max-width="850">
+  <v-dialog :model-value="modelValue" persistent max-width="850">
     <v-card border elevation="12">
       <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 create-marker-card">
         <v-icon size="80">mdi-map-marker-plus</v-icon>
@@ -11,13 +11,8 @@
       </template>
 
       <v-card-text>
-        <v-alert type="warning" class="mb-5" v-if="userCollections.length <= 0">
-          {{ t('map.collectionIsEmptyTip') }}
-          <template v-slot:append>
-            <v-btn to="/account/maps" target="_blank">
-              {{ t('basic.button.go') }}
-            </v-btn>
-          </template>
+        <v-alert type="info" variant="tonal" density="compact" class="mb-5">
+          {{ t('map.collectionOptionalTip') }}
         </v-alert>
 
         <v-form ref="markerFormRef">
@@ -27,7 +22,6 @@
                   :model-value="newMarkerData.title"
                   @update:model-value="emit('update:marker-data', { ...newMarkerData, title: $event })"
                   :label="t('map.markerName')"
-                  :disabled="userCollections.length <= 0"
                   :rules="[v => !!v || t('map.titleRequired')]"
                   variant="outlined"
                   required></v-text-field>
@@ -36,17 +30,16 @@
             <v-col cols="12">
               <v-select
                   :model-value="newMarkerData.collectionUuid"
-                  @update:model-value="emit('update:marker-data', { ...newMarkerData, collectionUuid: $event })"
+                  @update:model-value="onCollectionChange"
                   item-title="title"
                   item-value="uuid"
-                  :items="userCollections"
+                  :items="collectionItems"
                   :label="t('map.selectCollection')"
-                  :disabled="userCollections.length <= 0"
-                  :placeholder="t('map.selectCollection')"
+                  :placeholder="t('map.noCollection')"
                   variant="outlined"
-                  required>
-                <template v-slot:details v-if="userCollections.length <= 0">
-                  {{ t('map.collectionIsEmptyTip') }}
+                  clearable>
+                <template v-slot:details>
+                  {{ t('map.collectionOptionalTip') }}
                 </template>
               </v-select>
             </v-col>
@@ -54,7 +47,6 @@
             <v-col cols="6">
               <v-text-field
                   :model-value="newMarkerData.longitude.toFixed(6)"
-                  :disabled="userCollections.length <= 0"
                   :label="t('map.longitude')"
                   variant="outlined"
                   readonly></v-text-field>
@@ -63,7 +55,6 @@
             <v-col cols="6">
               <v-text-field
                   :model-value="newMarkerData.latitude.toFixed(6)"
-                  :disabled="userCollections.length <= 0"
                   :label="t('map.latitude')"
                   variant="outlined"
                   readonly></v-text-field>
@@ -74,13 +65,12 @@
                   :model-value="newMarkerData.tags"
                   @update:model-value="emit('update:marker-data', { ...newMarkerData, tags: $event })"
                   :label="t('map.tags')"
-                  :disabled="userCollections.length <= 0"
                   multiple
                   chips
                   variant="outlined"></v-combobox>
             </v-col>
 
-            <v-col cols="12" v-if="userCollections.length > 0">
+            <v-col cols="12">
               <Textarea
                   :model-value="newMarkerData.description"
                   @update:model-value="emit('update:marker-data', { ...newMarkerData, description: $event })"
@@ -92,13 +82,17 @@
             </v-col>
 
             <v-col cols="12">
-              <v-checkbox
-                  :model-value="newMarkerData.public"
+              <v-select
+                  :model-value="publicSelectValue"
                   @update:model-value="emit('update:marker-data', { ...newMarkerData, public: $event })"
-                  density="compact"
-                  :label="t('map.publicMarker')"
-                  :disabled="userCollections.length <= 0"
-                  color="primary"></v-checkbox>
+                  item-title="label"
+                  item-value="value"
+                  :items="visibilityItems"
+                  :label="t('map.visibility')"
+                  variant="outlined"
+                  :disabled="!!selectedCollection"
+                  :hint="selectedCollection ? t('map.publicFollowCollection') : t('map.collectionOptionalTip')"
+                  persistent-hint></v-select>
             </v-col>
           </v-row>
         </v-form>
@@ -112,7 +106,7 @@
         <v-btn
             @click="emit('create')"
             :loading="creatingMarker"
-            :disabled="!isLogin || newMarkerData.collectionUuid == null"
+            :disabled="!isLogin"
             variant="flat">
           {{ t('map.createMarker') }}
         </v-btn>
@@ -122,11 +116,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import Textarea from "@/components/textarea/index.vue";
 
-defineProps<{
+const props = defineProps<{
   modelValue: boolean;
   newMarkerData: any;
   userCollections: any[];
@@ -138,6 +132,38 @@ const emit = defineEmits(['update:modelValue', 'update:marker-data', 'cancel', '
 
 const { t } = useI18n();
 const markerFormRef = ref(null);
+
+/** 集合下拉首项为"未分组"（null） */
+const collectionItems = computed(() => [
+  { title: t('map.noCollection'), uuid: null },
+  ...(props.userCollections || []),
+]);
+
+/** 可见性下拉项：公开 / 私有 */
+const visibilityItems = computed(() => [
+  { value: true, label: t('map.public') },
+  { value: false, label: t('map.private') },
+]);
+
+/** 当前归属的地图集（"未分组"时为 undefined） */
+const selectedCollection = computed(() =>
+    (props.userCollections || []).find((c: any) => c.uuid === props.newMarkerData.collectionUuid));
+
+/** 归属地图集时显示并跟随地图集公开状态，下拉禁用 */
+const publicSelectValue = computed(() =>
+    selectedCollection.value
+        ? Number((selectedCollection.value as any).public) === 1
+        : props.newMarkerData.public);
+
+/** 切换地图集归属时公开状态同步跟随；移出地图集时保留当前值 */
+const onCollectionChange = (uuid: string | null) => {
+  const collection = (props.userCollections || []).find((c: any) => c.uuid === uuid);
+  emit('update:marker-data', {
+    ...props.newMarkerData,
+    collectionUuid: uuid || '',
+    public: collection ? Number(collection.public) === 1 : props.newMarkerData.public,
+  });
+};
 
 defineExpose({ markerFormRef });
 

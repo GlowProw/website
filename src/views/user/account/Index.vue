@@ -8,6 +8,7 @@ import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 
 import Silk from "@/components/Silk.vue";
 import EmptyView from "@/components/EmptyView.vue";
+import AffixContainerView from "@/components/AffixContainerView.vue";
 
 const route = useRoute(),
     router = useRouter(),
@@ -169,14 +170,6 @@ const onSubTabChange = (targetRouteName: any) => {
   }
 }
 
-/**
- * 注销
- */
-const logout = () => {
-  authStore.logout()
-  router.push('/')
-}
-
 defineOptions({
   name: 'AccountIndex'
 })
@@ -234,31 +227,9 @@ defineOptions({
           </v-col>
           <v-col cols="3" class="d-flex align-center justify-end" v-if="authStore.isLogin">
             <div class="d-flex align-center">
-              <v-menu location="bottom end">
-                <template v-slot:activator="{ props }">
-                  <h2 class="singe-line text-h4 font-weight-bold d-flex align-center" v-bind="props">
-                    Hi, <u class="u">{{ authStore.currentUser || 'Captain' }}</u>
-                  </h2>
-                  <v-btn
-                      v-bind="props"
-                      icon="mdi-menu-down"
-                      variant="text"
-                      density="comfortable"
-                      size="small"
-                      class="ml-1">
-                  </v-btn>
-                </template>
-                <v-list density="compact" min-width="140" border rounded="lg" class="pa-1">
-                  <v-list-item
-                      prepend-icon="mdi-logout"
-                      color="error"
-                      base-color="error"
-                      rounded="lg"
-                      @click="logout">
-                    <v-list-item-title>{{ t('account.logout') }}</v-list-item-title>
-                  </v-list-item>
-                </v-list>
-              </v-menu>
+              <h2 class="singe-line text-h4 font-weight-bold d-flex align-center">
+                Hi, <u class="u">{{ authStore.currentUser || 'Captain' }}</u>
+              </h2>
             </div>
           </v-col>
         </v-row>
@@ -272,51 +243,53 @@ defineOptions({
       <v-container>
         <div :class="{'d-flex flex-row': !mobile}">
           <div :class="{'mb-10 tabs-box-mobile': mobile, 'tabs-box-desktop': !mobile}">
-            <v-tabs
-                stacked
-                border
-                hide-slider
-                v-model="tab"
-                @update:model-value="onSubTabChange"
-                class="w-100 h-100"
-                density="default"
-                :fixed="mobile"
-                :direction="!mobile ? 'vertical' : 'horizontal'">
-              <template v-for="(i, index) in currentSubTabs" :key="index">
-                <v-tooltip content-class="pa-0" :target="[tooltipPos.x, tooltipPos.y]">
-                  <template v-slot:default>
-                    <v-card border class="py-3 px-10">
-                      {{ t(i.name) }}
-                    </v-card>
-                  </template>
-                  <template v-slot:activator="{props}">
-                    <div :class="{'mb-2': !mobile, 'mr-5': mobile}">
-                      <v-tab
-                          :value="i.value"
-                          selected-class="bg-amber"
-                          class="d-flex align-center justify-center"
-                          min-width="80"
-                          width="80"
-                          height="80"
-                          border
-                          @mousemove="onMouseMove"
-                          @mouseenter="onMouseEnter"
-                          v-bind="props"
-                          replaceb
-                          ripple
-                          slim>
-                        <div>
-                          <v-icon size="40">{{ i.icon }}</v-icon>
-                        </div>
-                      </v-tab>
-                      <p class="mt-1 mb-3 text-center singe-line w-100 tab-item" :title="t(i.name)">
+            <AffixContainerView>
+              <v-tabs
+                  stacked
+                  border
+                  hide-slider
+                  v-model="tab"
+                  @update:model-value="onSubTabChange"
+                  class="w-100 h-100"
+                  density="default"
+                  :fixed="mobile"
+                  :direction="!mobile ? 'vertical' : 'horizontal'">
+                <template v-for="(i, index) in currentSubTabs" :key="index">
+                  <v-tooltip content-class="pa-0" :target="[tooltipPos.x, tooltipPos.y]">
+                    <template v-slot:default>
+                      <v-card border class="py-3 px-10">
                         {{ t(i.name) }}
-                      </p>
-                    </div>
-                  </template>
-                </v-tooltip>
-              </template>
-            </v-tabs>
+                      </v-card>
+                    </template>
+                    <template v-slot:activator="{props}">
+                      <div :class="{'mb-2': !mobile, 'mr-5': mobile}">
+                        <v-tab
+                            :value="i.value"
+                            selected-class="bg-amber"
+                            class="d-flex align-center justify-center"
+                            min-width="80"
+                            width="80"
+                            height="80"
+                            border
+                            @mousemove="onMouseMove"
+                            @mouseenter="onMouseEnter"
+                            v-bind="props"
+                            replaceb
+                            ripple
+                            slim>
+                          <div>
+                            <v-icon size="40">{{ i.icon }}</v-icon>
+                          </div>
+                        </v-tab>
+                        <p class="mt-1 mb-3 text-center singe-line w-100 tab-item" :title="t(i.name)">
+                          {{ t(i.name) }}
+                        </p>
+                      </div>
+                    </template>
+                  </v-tooltip>
+                </template>
+              </v-tabs>
+            </AffixContainerView>
           </div>
 
           <div class="setting-content flex-grow-1 flex-shrink-1 w-100 pl-lg-5">

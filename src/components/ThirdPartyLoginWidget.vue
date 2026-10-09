@@ -19,7 +19,6 @@ const notice = useNoticeStore();
 const loadingPlatform = ref<string | null>(null);
 const providers = ref<Array<{ platform: string; name: string; icon: string }>>([
   { platform: 'qq', name: 'QQ', icon: 'mdi-qqchat' },
-  { platform: 'wechat', name: '微信', icon: 'mdi-wechat' },
   { platform: 'google', name: 'Google', icon: 'mdi-google' },
   { platform: 'discord', name: 'Discord', icon: 'mdi-discord' },
 ]);
@@ -28,7 +27,7 @@ onMounted(async () => {
   try {
     const res = await apis.userApi().getOAuthProviders();
     if (res?.data?.data && Array.isArray(res.data.data) && res.data.data.length > 0) {
-      providers.value = res.data.data.filter((p: any) => p.platform !== 'bot');
+      providers.value = res.data.data.filter((p: any) => p.platform !== 'bot' && p.platform !== 'wechat');
     }
   } catch (err) {
     // 降级使用默认列表
@@ -93,11 +92,6 @@ const onOAuthLogin = async (platform: string) => {
 
   .oauth-btn-qq {
     background-color: #12b7f5 !important;
-    color: #fff !important;
-  }
-
-  .oauth-btn-wechat {
-    background-color: #07c160 !important;
     color: #fff !important;
   }
 

@@ -174,6 +174,12 @@
     "tips": {
       "actionLocked": "Operation is locked, please try again tomorrow.",
       "notConfigured": "System quota exceeded, please contact the administrator.",
+      "quota": {
+        "exceeded": {
+          "monthly": "Your monthly publishing quota has been used up. It resets on the 1st of next month. If you need more, contact us via the website for a free increase.",
+          "yearly": "Your yearly publishing quota has been used up. It resets on January 1st. If you need more, contact us via the website for a free increase."
+        }
+      },
       "error": "Application Error: {content}",
       "admin": {
         "rootRequired": "Root administrator privilege required",
@@ -544,7 +550,40 @@
         "success": "Operation successful",
         "addSuccess": "Added successfully",
         "removeSuccess": "Removed successfully",
-        "deleteSuccess": "Deleted successfully"
+        "deleteSuccess": "Deleted successfully",
+        "createSuccess": "Created successfully",
+        "updateSuccess": "Saved successfully",
+        "importSuccess": "Map collection imported successfully",
+        "accessDenied": "You do not have permission to access this resource",
+        "bad": "Invalid request parameters",
+        "collectionNotFound": "Map collection not found",
+        "share": {
+          "alreadyOwned": "This is your own collection and cannot be imported"
+        },
+        "collections": {
+          "error": "Failed to load collections"
+        },
+        "create": {
+          "error": "Failed to create"
+        },
+        "error": "Operation failed, please try again later",
+        "tooManyRequests": "Too many requests, please slow down",
+        "batch": {
+          "bad": "Invalid batch operation parameters"
+        },
+        "point": {
+          "bad": "Invalid marker parameters",
+          "error": "Marker operation failed",
+          "notFound": "Marker not found"
+        },
+        "shape": {
+          "bad": "Invalid shape parameters",
+          "error": "Shape operation failed",
+          "geometryBad": "Invalid shape geometry data",
+          "notFound": "Shape not found"
+        },
+        "pointNotFound": "Marker not found",
+        "shapeNotFound": "Shape not found"
       },
       "messages": {
         "bad": "Invalid request parameters",
@@ -632,7 +671,8 @@
       "create": "Create",
       "refresh": "Refresh",
       "view": "View",
-      "retry": "Retry"
+      "retry": "Retry",
+      "actions": "Actions"
     },
     "assembly": {
       "publish": {
@@ -749,7 +789,8 @@
     "hint": "Supports YouTube, Bilibili, Tencent Video, Youku or direct .mp4/.webm links. Paste the video page URL and it will be converted to an embed URL automatically",
     "invalid": "Unrecognized video URL, please paste the video's webpage link",
     "unsupported": "This video site is not supported yet. Currently supported: YouTube, Bilibili, Tencent Video, Youku and direct video links",
-    "b23tv": "b23.tv short links are not supported. Please paste the original bilibili.com/video/ link"
+    "b23tv": "b23.tv short links are not supported. Please paste the original bilibili.com/video/ link",
+    "externalHint": "This video site does not allow embedding. It will be inserted as an external link card"
   },
   "account": {
     "trash": "Recycle Bin",
@@ -773,12 +814,16 @@
         "range": "Range",
         "range7": "7 days",
         "range30": "1 month",
+        "range90": "3 months",
         "updated": "Chart updated"
       },
       "analysis": {
         "title": "Assembly Analysis",
         "topLiked": "Top 20 Liked",
         "topViewed": "Top 20 Viewed",
+        "topVisitors": "My Popular Builds · Top 6 Visitors",
+        "visitorCount": "Visitors",
+        "noVisitors": "No visitors yet",
         "noData": "No data yet"
       }
     },
@@ -916,10 +961,6 @@
         "qq": {
           "name": "QQ Platform",
           "desc": "Supports QQ quick sign-in and account sync"
-        },
-        "wechat": {
-          "name": "WeChat Platform",
-          "desc": "Supports WeChat QR login and account linkage"
         },
         "google": {
           "name": "Google",
@@ -1816,7 +1857,65 @@
       "markerId": "Marker ID",
       "markerCategory": "Category",
       "markerName": "Marker Name",
-      "invalidJson": "Invalid JSON format"
+      "invalidJson": "Invalid JSON format",
+      "shapeInfo": "Shape info",
+      "editThisPath": "Edit this path",
+      "editThisRegion": "Edit this region",
+      "editThisMarker": "Edit this marker",
+      "editShape": "Edit shape properties",
+      "editShapeVertices": "Edit path vertices",
+      "deleteShape": "Delete shape",
+      "viewPoint": "View marker",
+      "editPoint": "Edit marker",
+      "deletePoint": "Delete marker",
+      "createPath": "Draw a path from here",
+      "createRegion": "Draw a region from here",
+      "clearAllPaths": "Clear all paths on the map",
+      "clearAllRegions": "Clear all regions on the map",
+      "exitDrawMode": "Exit drawing mode",
+      "saveVertices": "Save vertex changes",
+      "revertVertices": "Revert vertex changes",
+      "exitVertexMode": "Exit edit mode",
+      "exitEditMode": "Exit edit mode",
+      "confirmExitEditMode": "You still have unsubmitted paths/regions or unsaved vertex changes. They will be discarded after exiting edit mode. Are you sure to exit?",
+      "submitDraft": "Submit unsubmitted shape",
+      "deleteDraft": "Delete unsubmitted shape",
+      "deletePaths": "Delete paths",
+      "deleteRegions": "Delete regions",
+      "deleteAllPaths": "Delete all paths on the map",
+      "deleteAllRegions": "Delete all regions on the map",
+      "deleteSubmittedPaths": "Delete submitted paths",
+      "deleteSubmittedRegions": "Delete submitted regions",
+      "deleteDraftPaths": "Delete unsubmitted paths",
+      "deleteDraftRegions": "Delete unsubmitted regions",
+      "enterMarqueeMode": "Box select mode",
+      "exitMarqueeMode": "Exit box select mode"
+    },
+    "marquee": {
+      "toggle": "Box select: drag to select markers, paths and regions",
+      "hint": "Box select mode: hold and drag a rectangle to select your markers, paths or regions; click empty space to clear",
+      "exit": "Exit box select",
+      "selectedCount": "{count} item(s) selected",
+      "moveHint": "Drag any selected item to move them all",
+      "deleteSelected": "Delete selected",
+      "cancel": "Clear selection",
+      "saveFailed": "Failed to save some item positions, please try again"
+    },
+    "share": {
+      "copyLink": "Copy share link",
+      "linkCopied": "Share link copied",
+      "dialogTitle": "Shared map collection",
+      "creator": "Creator: {name}",
+      "pointCount": "{count} markers",
+      "shapeCount": "{count} shapes",
+      "ownHint": "This is your own collection, no need to import it",
+      "readonly": "Read only",
+      "import": "Import to my account",
+      "previewBanner": "Browsing {creator}'s public collection \"{title}\"",
+      "readonlyBadge": "Read-only",
+      "exitPreview": "Exit preview",
+      "clone": "Clone to my account",
+      "cloneSuccess": "Map collection cloned"
     },
     "searchPlaceholder": "Search Landmark",
     "treasureMapAvailable": "Available Treasure Maps",
@@ -1834,12 +1933,15 @@
     "createCollection": "Create Collection",
     "collectionTitle": "Collection Title",
     "collectionIsEmptyTip": "Please create a collection first before creating markers",
+    "noCollection": "Ungrouped",
+    "collectionOptionalTip": "Collection is optional — markers can be saved ungrouped and assigned later",
     "collectionDescription": "Collection Description",
     "layerCollection": "Collection",
     "publicCollection": "Public Collection",
     "sharedUsers": "Shared Users",
     "sharedUsersHint": "Enter user IDs, separated by commas",
     "personalMarkers": "Personal Markers",
+    "captainNotes": "Captain's Notes",
     "noDescription": "No description yet",
     "pointsInCollection": "Points in Collection",
     "availablePoints": "Available Points",
@@ -1858,6 +1960,9 @@
     "type": "Type",
     "tags": "Tags",
     "publicMarker": "Public Marker",
+    "visibility": "Visibility",
+    "publicFollowCollection": "Items in a collection follow the collection's visibility",
+    "basicInfo": "Basic Info",
     "groups": {
       "pirateBases": "Pirate Bases",
       "settlements": "Settlements",
@@ -2073,7 +2178,59 @@
     "private": "Private",
     "collectionList": "Saved points",
     "latitude": "Latitude",
-    "longitude": "Longitude"
+    "longitude": "Longitude",
+    "address": "Address",
+    "allCollections": "All collections",
+    "batchDelete": "Batch delete",
+    "batchMove": "Move to collection",
+    "batchMoveTitle": "Batch move to collection",
+    "batchRemove": "Remove from collection",
+    "borderColor": "Border color",
+    "confirmBatchDelete": "Delete the {count} selected items? This cannot be undone.",
+    "confirmClearShapes": "Clear all {count} {type} item(s) on the current map? This cannot be undone.",
+    "confirmDeleteMarquee": "Delete the {count} selected items? This cannot be undone.",
+    "confirmDeletePoint": "Delete marker \"{title}\"?",
+    "confirmDeleteShape": "Delete this shape?",
+    "coordinates": "Coordinates",
+    "createPath": "New path",
+    "createRegion": "New region",
+    "createShape": "New shape",
+    "dashedLine": "Dashed line",
+    "drawOnMap": "Draw on map",
+    "drawPath": "Draw path",
+    "drawRegion": "Draw region",
+    "editMarkerTitle": "Edit marker",
+    "editShapeTitle": "Edit shape",
+    "editVertices": "Edit vertices",
+    "fillColor": "Fill color",
+    "fillOpacity": "Fill opacity",
+    "invalidCoordinate": "Invalid coordinate found. Use one point per line: longitude,latitude",
+    "keyword": "Keyword",
+    "lineWidth": "Line width",
+    "lineOpacity": "Line opacity",
+    "path": "Path",
+    "pathColor": "Path color",
+    "pathCoordinatesHint": "One point per line, format: longitude,latitude (at least 2 points)",
+    "pathCoordinatesHelp": "Enter one point per line; separate longitude and latitude with comma or spaces",
+    "pathCoordinatesError": "A path requires at least 2 valid points",
+    "publicShape": "Public shape",
+    "region": "Region",
+    "regionCoordinatesHint": "One point per line, format: longitude,latitude (at least 3 points, auto-closed)",
+    "regionCoordinatesHelp": "Enter one point per line; separate longitude and latitude with comma or spaces",
+    "regionCoordinatesError": "A region requires at least 3 valid points",
+    "selectedCollection": "Collection",
+    "selectedCount": "{count} selected",
+    "shapeDescription": "Shape description",
+    "shapeName": "Shape name",
+    "smoothCurve": "Smooth curve",
+    "smoothRegion": "Smooth edges",
+    "style": "Style",
+    "tabCollections": "Collections",
+    "tabPaths": "Paths",
+    "tabPoints": "Markers",
+    "tabRegions": "Regions",
+    "vertexEditingTip": "Vertex editing: drag the handles to reshape, click a segment to insert a vertex, Alt+Click a vertex to delete it, then save",
+    "viewOnMap": "View on map"
   },
   "rankingDesignedItems": {
     "title": "Ranking Design",
@@ -3069,6 +3226,13 @@
     }
   },
   "header": {
+    "accountMenu": {
+      "personalCenter": "Personal Center",
+      "creatorCenter": "Creator Center",
+      "messageCenter": "Message Center",
+      "switchLanguage": "Language",
+      "logout": "Log Out"
+    },
     "navs": {
       "blog": "Shining Prow Blog",
       "officialWebsite": "Skull and Bones Official Website",
@@ -3603,5 +3767,23 @@
   },
   "wheel": {
     "insertItem": "Insert item"
+  },
+  "quota": {
+    "trigger": "Quota",
+    "title": "Quota Limits",
+    "description": "Due to limited server resources, publishing quotas are enforced to reduce costs. If you find the quota insufficient, you can contact us via the website to request a free upgrade.",
+    "loading": "Loading quota…",
+    "unlimited": "Unlimited",
+    "monthly": "This month",
+    "yearly": "This year",
+    "used": "{used}/{limit} used",
+    "identityUnlimited": "Your role is not subject to quotas",
+    "boost": "Sponsor bonus ×{multiplier}",
+    "resource": {
+      "assembly": "Loadouts",
+      "comment": "Comments",
+      "teamup": "Team-ups",
+      "map": "Maps"
+    }
   }
 }

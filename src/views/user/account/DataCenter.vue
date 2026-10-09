@@ -4,8 +4,11 @@ import {useI18n} from "vue-i18n";
 import * as d3 from "d3";
 
 import {Apis} from "@/assets/sripts/api";
-import type {StatsAssemblyTop, StatsOverview, StatsTrend} from "@/assets/sripts/api/stats_service";
+import type {StatsAssemblyTop, StatsOverview, StatsRange, StatsTrend, StatsVisitor} from "@/assets/sripts/api/stats_service";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
+import Loading from "@/components/Loading.vue";
+import HorizontalScrollList from "@/components/HorizontalScrollList.vue";
+import UserAvatar from "@/components/UserAvatar.vue";
 
 const {t} = useI18n();
 const statsApi = Apis.statsApi();
@@ -15,13 +18,23 @@ const overview = ref<StatsOverview | null>(null);
 const trend = ref<StatsTrend | null>(null);
 const topData = ref<StatsAssemblyTop | null>(null);
 
-// 当前选中指标（概览里的 5 个统计项）
+// 当前选中指标（折线图切换）
 const currentMetric = ref<StatsTrend['metric']>('browse');
-// 时间范围
-const trendRange = ref<'7' | '30'>('7');
+// 时间范围：同时驱动折线图与下方六项统计卡片
+const trendRange = ref<StatsRange>('30');
 
 const loadingTrend = computed(() => !trend.value);
 const loadingTop = computed(() => !topData.value);
+
+// 概览页最下方：自己访客最多的 6 个配装（含最近访客信息）
+const topVisitorAssemblies = computed(() => (topData.value?.topViewed || []).slice(0, 6));
+
+/** 配装详情页链接 */
+const assemblyDetailLink = (uuid: string) => `/assembly/browse/${uuid}/detail`;
+
+/** 访客显示名：登录用户显示用户名，匿名访客显示脱敏标识 */
+const visitorName = (v: StatsVisitor): string =>
+    v.isUser ? (v.username || `User #${v.userId}`) : `${t('basic.visitor.anonMasked')} (${v.anonMasked || ''}…)`;
 
 const trendMetrics: Array<StatsTrend['metric']> = ['browse', 'space', 'like', 'comment', 'reply'];
 
@@ -110,7 +123,7 @@ onMounted(async () => {
 });
 
 const loadOverview = async () => {
-  overview.value = await statsApi.getOverview();
+  overview.value = await statsApi.getOverview(trendRange.value);
 };
 
 const loadTrend = async () => {
@@ -121,9 +134,21 @@ const loadTop = async () => {
   topData.value = await statsApi.getAssemblyTop(20);
 };
 
-const onRangeChange = async (range: '7' | '30') => {
+/** 
+ * 当前时间范围对应的文案 key（卡片副标题用）
+ */
+const rangeLabelKey = computed(() => {
+  if (trendRange.value === '7') return 'account.dataCenter.trend.range7';
+  if (trendRange.value === '90') return 'account.dataCenter.trend.range90';
+  return 'account.dataCenter.trend.range30';
+});
+
+/** 
+ * 切换时间范围：折线图与六项统计同时刷新
+ */
+const onRangeChange = async (range: StatsRange) => {
   trendRange.value = range;
-  await loadTrend();
+  await Promise.all([loadTrend(), loadOverview()]);
 };
 
 // watch 后渲染 —— 用 effect 风格
@@ -262,7 +287,7 @@ defineOptions({
   <v-card variant="text">
     <v-row class="">
       <v-col cols="12" lg="auto">
-        <v-btn-toggle v-model="currentMetric" @update:model-value="loadTrend" density="compact" variant="tonal" color="amber">
+        <v-btn-toggle mandatory v-model="currentMetric" @update:model-value="loadTrend" density="compact" variant="tonal" color="amber">
           <v-btn v-for="m in trendMetrics"
                  :key="m"
                  :value="m"
@@ -282,9 +307,11 @@ defineOptions({
           <v-divider vertical inset></v-divider>
 
           <span class="text-caption opacity-60">{{ t('account.dataCenter.trend.range') }}:</span>
-          <v-btn-toggle v-model="trendRange" density="compact" variant="tonal" color="amber">
+          <v-btn-toggle v-model="trendRange" density="compact" variant="tonal" color="amber"
+                        @update:model-value="onRangeChange">
             <v-btn value="7">{{ t('account.dataCenter.trend.range7') }}</v-btn>
             <v-btn value="30">{{ t('account.dataCenter.trend.range30') }}</v-btn>
+            <v-btn value="90">{{ t('account.dataCenter.trend.range90') }}</v-btn>
           </v-btn-toggle>
         </div>
       </v-col>
@@ -302,7 +329,7 @@ defineOptions({
               style="position:absolute;pointer-events:none;opacity:0;transition:opacity .15s;background:rgba(0,0,0,.8);color:#fff;padding:6px 10px;border-radius:6px;font-size:12px;z-index:10;white-space:nowrap;"></div>
         </div>
         <div v-else class="text-center opacity-60 py-12">
-          <Loading size="32"></Loading>
+          <Loading size="50"></Loading>
         </div>
       </v-col>
       <v-col cols="12" lg="6">
@@ -319,10 +346,10 @@ defineOptions({
                   <div class="text-caption opacity-60 mb-1">{{ card.title }}</div>
                   <div class="text-caption opacity-40 mt-1">
                     <template v-if="card.sub !== undefined">
-                      {{ t('account.dataCenter.overview.conversations') }}: {{ card.sub }}
+                      {{ t('account.dataCenter.overview.conversations') }}: {{ card.sub }} · {{ t(rangeLabelKey) }}
                     </template>
                     <template v-else>
-                      {{ t('account.dataCenter.overview.last30') }}
+                      {{ t(rangeLabelKey) }}
                     </template>
                   </div>
                 </v-col>
@@ -343,7 +370,7 @@ defineOptions({
             <v-list density="compact" class="bg-transparent">
               <v-list-item v-for="(a, i) in topData?.topLiked || []" :key="'l'+a.uuid">
                 <template v-slot:prepend>
-                  <span class="text-amber w-6 mr-3 ml-n2">#{{ i + 1 }}</span>
+                  <span class="text-amber-accent-1 w-6 mr-3 ml-n2">#{{ i + 1 }}</span>
                 </template>
                 <v-list-item-title class="u">{{ a.name }}</v-list-item-title>
                 <template v-slot:append>
@@ -367,7 +394,7 @@ defineOptions({
             <v-list density="compact" class="bg-transparent">
               <v-list-item v-for="(a, i) in topData?.topViewed || []" :key="'v'+a.uuid">
                 <template v-slot:prepend>
-                  <span class="text-amber w-6 mr-3 ml-n2">#{{ i + 1 }}</span>
+                  <span class="text-amber-accent-1 w-6 mr-3 ml-n2">#{{ i + 1 }}</span>
                 </template>
                 <v-list-item-title class="u">{{ a.name }}</v-list-item-title>
                 <template v-slot:append>
@@ -388,7 +415,104 @@ defineOptions({
       </v-row>
     </div>
     <div v-else class="text-center opacity-60 py-12">
-      <Loading size="32"></Loading>
+      <Loading size="50"></Loading>
+    </div>
+
+    <!-- 配装 + 访客数 + 最近访客 -->
+    <div v-if="!loadingTop" class="mt-6">
+      <AffixBoxHasTitleView>
+        <v-row dense>
+          <HorizontalScrollList :is-indicator="false">
+            <template v-for="(a, i) in topVisitorAssemblies" :key="'tv'+a.uuid">
+              <v-card width="400" class="pa-4 ma-1 d-flex flex-column ga-3">
+                <v-row>
+                  <v-col>
+                    <div class="d-flex align-center ga-2">
+                      <span class="text-amber font-weight-bold">#{{ i + 1 }}</span>
+                      <router-link
+                          :to="assemblyDetailLink(a.uuid)"
+                          target="_blank"
+                          class="u text-truncate flex-1">
+                        {{ a.name }}
+                      </router-link>
+                    </div>
+
+                    <div class="d-flex align-center ga-2 flex-wrap mt-3">
+                      <template v-if="a.recentVisitors && a.recentVisitors.length">
+                        <v-tooltip v-for="(v, vi) in a.recentVisitors" :key="v.identity + vi" location="top">
+                          <template v-slot:activator="{ props: tipProps }">
+                            <v-avatar v-if="v.isUser && v.avatar"
+                                      v-bind="tipProps" size="28" color="rgba(255,255,255,0.08)" class="cursor-pointer">
+                              <v-img :src="v.avatar || ''"></v-img>
+                            </v-avatar>
+                            <v-avatar v-else-if="v.isUser"
+                                      v-bind="tipProps" size="28" color="amber-darken-2" class="cursor-pointer">
+                              <v-icon size="20">mdi-account-circle</v-icon>
+                            </v-avatar>
+                            <v-avatar v-else
+                                      v-bind="tipProps" size="28" color="grey-darken-1" class="cursor-pointer">
+                              <v-icon size="20">mdi-incognito</v-icon>
+                            </v-avatar>
+                          </template>
+                          <div>
+                            <div>{{ visitorName(v) }}</div>
+                            <div class="text-caption opacity-70">{{ new Date(v.browseTime).toLocaleString() }}</div>
+                          </div>
+                        </v-tooltip>
+                      </template>
+                      <span v-else class="text-caption opacity-40">{{ t('account.dataCenter.analysis.noVisitors') }}</span>
+                    </div>
+                  </v-col>
+                </v-row>
+
+                <v-row dense align="center">
+                  <v-col cols="auto">
+                    <v-icon start size="14">mdi-eye</v-icon>
+                  </v-col>
+                  <v-col>
+                    <v-divider></v-divider>
+                  </v-col>
+                  <v-col cols="auto">
+                    <p class="u">{{ a.viewCount || 0 }}</p>
+                  </v-col>
+                </v-row>
+
+                <v-row dense align="center" class="mt-0">
+                  <v-col cols="auto">
+                    <v-icon start size="14" color="red">mdi-heart</v-icon>
+                  </v-col>
+                  <v-col>
+                    <v-divider></v-divider>
+                  </v-col>
+                  <v-col cols="auto">
+                    <p class="u">{{ a.likeCount || 0 }}</p>
+                  </v-col>
+                </v-row>
+
+                <v-row dense align="center" class="mt-0">
+                  <v-col cols="auto">
+                    <v-icon start size="14" color="green">mdi-comment-text-outline</v-icon>
+                  </v-col>
+                  <v-col>
+                    <v-divider></v-divider>
+                  </v-col>
+                  <v-col cols="auto">
+                    <p class="u">{{ a.commentCount || 0 }}</p>
+                  </v-col>
+                </v-row>
+              </v-card>
+            </template>
+          </HorizontalScrollList>
+        </v-row>
+
+        <div v-if="!topVisitorAssemblies.length" class="text-center opacity-40 py-4 text-caption">
+          {{ t('account.dataCenter.analysis.noData') }}
+        </div>
+
+        <template v-slot:title>
+          {{ t('account.dataCenter.analysis.topVisitors') }}
+        </template>
+      </AffixBoxHasTitleView>
     </div>
 
     <!-- 更新时间戳 -->

@@ -18,11 +18,14 @@
         :search-suggestions="searchSuggestions"
         :is-layer-panel-visible="isShowMarkModel"
         :is-settings-open="isShowSettings"
+        :is-login="authStore.isLogin"
+        :marquee-mode="marqueeMode"
         :get-category-icon="getCategoryIcon"
         @search="handleSearch"
         @toggle-layers="isShowMarkModel = !isShowMarkModel"
         @toggle-settings="isShowSettings = !isShowSettings"
         @update:fullscreen="isFull = $event"
+        @toggle-marquee="onToggleMarqueeMode"
     />
 
     <MapLayerControl
@@ -38,6 +41,8 @@
         :get-category-count="getCategoryCount"
         :get-personal-marker-icon="getPersonalMarkerIcon"
         :personal-markers-count="personalMarkersCount"
+        :path-shapes-count="pathShapesCount"
+        :region-shapes-count="regionShapesCount"
         @update:selected-collection-uuid="selectedCollectionUuid = $event"
         @toggle-all-layers="onToggleAllLayers"
         @init-visibility="onInitVisibility"
@@ -75,6 +80,17 @@
         @cancel="onCancelEditMarker"
     />
 
+    <MapPointEditDialog
+        v-model="showPointEditDialog"
+        :form="pointEditForm"
+        :user-collections="userCollections"
+        :saving="savingPointEdit"
+        ref="pointEditFormRef"
+        @update:form="onPointEditFormChange"
+        @cancel="onCancelPointEdit"
+        @save="onSavePointEdit"
+    />
+
     <MapCreateMarkerDialog
         v-model="showCreateMarkerDialog"
         :new-marker-data="newMarkerData"
@@ -86,6 +102,97 @@
         @create="onCreateNewMarker"
         ref="markerFormRef"
     />
+
+    <MapShapeInfoCard
+        :shape="selectedShape"
+        :vertex-editing="!!selectedShape && shapeVertexEditingUuid === selectedShape.uuid"
+        @close="closeShapeCard"
+        @edit-attrs="openShapeEdit"
+        @edit-vertices="beginShapeVertexEdit"
+        @cancel-vertices="cancelShapeVertexEdit"
+        @save-vertices="saveShapeVertexEdit"
+        @delete="deleteShape"
+    />
+
+    <MapShapeEditDialog
+        v-model="showShapeDialog"
+        :mode="shapeDialogMode"
+        :shape-type="shapeDialogType"
+        :form="shapeFormData"
+        :user-collections="userCollections"
+        :saving="savingShape"
+        @update:form="onShapeFormChange"
+        @cancel="onCancelShapeDialog"
+        @save="onSaveShape"
+        ref="shapeFormRef"
+    />
+
+    <!-- 只读浏览他人公开地图集时的顶部提示条 -->
+    <div v-if="sharedCollectionPreview" class="shared-preview-wrap">
+      <v-card color="amber" variant="tonal" rounded="pill" class="shared-preview-card px-4 py-2">
+        <div class="d-flex align-center flex-wrap ga-3">
+          <v-icon size="20" color="amber-darken-2">mdi-share-variant-outline</v-icon>
+          <span class="text-body-2">
+            {{ t('map.share.previewBanner', {creator: sharedCollectionPreview.creator.name, title: sharedCollectionPreview.title}) }}
+          </span>
+          <v-chip size="x-small" variant="outlined" color="amber-darken-2">
+            {{ t('map.share.readonlyBadge') }}
+          </v-chip>
+          <v-btn size="x-small" variant="text" color="amber-darken-3"
+                 @click="exitSharedPreview">
+            {{ t('map.share.exitPreview') }}
+          </v-btn>
+        </div>
+      </v-card>
+    </div>
+
+    <MapCollectionShareDialog
+        :model-value="showShareCollectionDialog"
+        :info="sharedCollectionInfo"
+        :importing="importingSharedCollection"
+        @cancel="onCancelShareDialog"
+        @preview="onPreviewSharedCollection"
+        @import="onImportSharedCollection"
+    />
+
+    <!-- 框选结果操作条：拖动任意选中项统一移动，或一键删除/取消 -->
+    <div v-if="marqueeCount > 0" class="marquee-action-wrap">
+      <v-card border elevation="24" rounded="lg" class="marquee-action-card px-3 py-2">
+        <div class="d-flex align-center ga-3 flex-wrap">
+          <v-icon color="amber" icon="mdi-selection-multiple"></v-icon>
+          <span class="text-body-2">{{ t('map.marquee.selectedCount', { count: marqueeCount }) }}</span>
+          <span class="text-caption text-medium-emphasis">{{ t('map.marquee.moveHint') }}</span>
+          <v-spacer></v-spacer>
+          <v-btn size="small" variant="tonal" color="red" prepend-icon="mdi-delete-outline"
+                 @click="onDeleteMarqueeSelection">
+            {{ t('map.marquee.deleteSelected') }}
+          </v-btn>
+          <v-btn size="small" variant="text" prepend-icon="mdi-close"
+                 @click="clearMarqueeSelection">
+            {{ t('map.marquee.cancel') }}
+          </v-btn>
+        </div>
+      </v-card>
+    </div>
+
+    <!-- 通用删除确认 -->
+    <v-dialog :model-value="confirmState.visible" max-width="420" persistent>
+      <v-card border>
+        <v-card-title class="d-flex align-center ga-2 py-4">
+          <v-icon :color="confirmState.danger ? 'red' : 'amber'" icon="mdi-alert-outline"></v-icon>
+          {{ t('basic.button.confirm') || '确认' }}
+        </v-card-title>
+        <v-card-text class="text-body-2">{{ confirmState.message }}</v-card-text>
+        <v-card-actions class="border-t px-4 py-3">
+          <v-spacer></v-spacer>
+          <v-btn variant="text" @click="onCancelConfirmDialog">{{ t('basic.button.cancel') }}</v-btn>
+          <v-btn :color="confirmState.danger ? 'red' : 'amber'" variant="tonal"
+                 @click="onConfirmDialog">
+            {{ t('basic.button.confirm') || '确认' }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <MapControls @zoom-in="_onZoomIn" @zoom-out="_onZoomOut" @reset-view="_onResetView" />
 
@@ -106,6 +213,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
 import { use_map_controller } from '@/assets/sripts/use_map_controller';
 import MapView from '@/components/map/MapView.vue';
 import MapToolbar from '@/components/map/MapToolbar.vue';
@@ -113,7 +221,11 @@ import MapLayerControl from '@/components/map/MapLayerControl.vue';
 import MapSetting from '@/components/map/MapSetting.vue';
 import MapLocationCard from '@/components/map/MapLocationCard.vue';
 import MapEditMarkerDialog from '@/components/map/MapEditMarkerDialog.vue';
+import MapPointEditDialog from '@/components/map/MapPointEditDialog.vue';
 import MapCreateMarkerDialog from '@/components/map/MapCreateMarkerDialog.vue';
+import MapShapeEditDialog from '@/components/map/MapShapeEditDialog.vue';
+import MapShapeInfoCard from '@/components/map/MapShapeInfoCard.vue';
+import MapCollectionShareDialog from '@/components/map/MapCollectionShareDialog.vue';
 import MapControls from '@/components/map/MapControls.vue';
 import MapFooter from '@/components/map/MapFooter.vue';
 import MapContextMenu from '@/components/map/MapContextMenu.vue';
@@ -148,6 +260,7 @@ const {
   selectedCollectionUuid,
   selectedLocationNearbyPoints,
   personalMarkers,
+  selectedShape,
   showCreateMarkerDialog,
   creatingMarker,
   selectedPoint,
@@ -157,12 +270,40 @@ const {
   availableCategories,
   groupedCategories,
   personalMarkersCount,
+  pathShapesCount,
+  regionShapesCount,
   userCollectionsSelect,
   isDebug,
+  shapeVertexEditingUuid,
+  showShapeDialog,
+  shapeDialogMode,
+  shapeDialogType,
+  savingShape,
+  shapeFormRef,
+  shapeFormData,
+  showShareCollectionDialog,
+  sharedCollectionInfo,
+  importingSharedCollection,
+  sharedCollectionPreview,
+  onPreviewSharedCollection,
+  onImportSharedCollection,
+  onCancelShareDialog,
+  exitSharedPreview,
   onMapCreated,
   onHandleUrlParams,
   onLoadUserCollections,
   loadCollectionPoints,
+  loadCollectionShapes,
+  onStartDraw,
+  onShapeFormChange,
+  onSaveShape,
+  onCancelShapeDialog,
+  openShapeEdit,
+  beginShapeVertexEdit,
+  cancelShapeVertexEdit,
+  saveShapeVertexEdit,
+  deleteShape,
+  closeShapeCard,
   onAddPersonalMarkersToMap,
   createPersonalFeature,
   onRemovePersonalMarkersFromMap,
@@ -204,7 +345,25 @@ const {
   closeContextMenu,
   openLocationDetail,
   onConfigChanged,
+  showPointEditDialog,
+  savingPointEdit,
+  pointEditFormRef,
+  pointEditForm,
+  confirmState,
+  marqueeMode,
+  marqueeSelection,
+  marqueeCount,
+  onPointEditFormChange,
+  onSavePointEdit,
+  onCancelPointEdit,
+  onConfirmDialog,
+  onCancelConfirmDialog,
+  onToggleMarqueeMode,
+  clearMarqueeSelection,
+  onDeleteMarqueeSelection,
 } = use_map_controller();
+
+const { t } = useI18n();
 </script>
 
 <style scoped lang="less">
@@ -228,5 +387,41 @@ const {
     top: 0;
     bottom: 0;
   }
+}
+
+.shared-preview-wrap {
+  position: fixed;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 40;
+  max-width: calc(100vw - 32px);
+}
+
+.shared-preview-card {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
+}
+
+.marquee-action-wrap {
+  position: fixed;
+  bottom: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 40;
+  width: min(560px, calc(100vw - 32px));
+}
+
+.marquee-action-card {
+  background: hsl(from rgb(var(--v-theme-background)) h s l / .92);
+}
+</style>
+
+<style lang="less">
+/* DragBox 在地图视口内直接生成的拖框元素，不走组件作用域，需要全局样式 */
+.map-marquee-box {
+  background: rgba(255, 213, 79, 0.15);
+  border: 2px dashed #ffb300;
+  border-radius: 2px;
+  cursor: crosshair;
 }
 </style>

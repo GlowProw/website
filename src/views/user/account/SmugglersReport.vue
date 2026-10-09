@@ -240,7 +240,7 @@ defineOptions({
 <template>
   <div class="position-relative">
     <v-overlay :model-value="checkPermissionLoading || smugglersReportListLoading" contained class="d-flex align-center justify-center">
-      <Loading></Loading>
+      <Loading size="50"></Loading>
     </v-overlay>
 
     <!-- 顶部标题区域 S -->
@@ -307,7 +307,7 @@ defineOptions({
               </v-btn>
 
               <v-btn
-                  v-if="authStore.isLogin && authStore.checkPrivilegeGroup(authStore.user?.privilege, ['smugglersReportConnoisseur', 'admin', 'super', 'dev'])"
+                  v-if="authStore.isLogin && authStore.checkPrivilegeGroup(authStore.user?.role, ['smugglersReportConnoisseur', 'admin', 'super', 'dev'])"
                   color="amber"
                   variant="tonal"
                   size="small"

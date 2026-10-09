@@ -174,6 +174,12 @@
       "default": "正在載入資源..."
     },
     "tips": {
+      "quota": {
+        "exceeded": {
+          "monthly": "本月發佈額度已用完，額度將於下月 1 日重置；如需更多額度，可透過網站聯絡方式免費申請提升",
+          "yearly": "本年發佈額度已用完，額度將於明年 1 月 1 日重置；如需更多額度，可透過網站聯絡方式免費申請提升"
+        }
+      },
       "admin": {
         "rootRequired": "需要超級管理員權限",
         "bad": "請求參數錯誤",
@@ -528,7 +534,40 @@
         "success": "操作成功",
         "addSuccess": "添加成功",
         "removeSuccess": "移除成功",
-        "deleteSuccess": "刪除成功"
+        "deleteSuccess": "刪除成功",
+        "createSuccess": "創建成功",
+        "updateSuccess": "儲存成功",
+        "importSuccess": "地圖集匯入成功",
+        "accessDenied": "無權存取該資源",
+        "bad": "請求參數無效",
+        "collectionNotFound": "地圖集不存在",
+        "share": {
+          "alreadyOwned": "這是你自己的地圖集，無需匯入"
+        },
+        "collections": {
+          "error": "取得地圖集失敗"
+        },
+        "create": {
+          "error": "建立失敗"
+        },
+        "error": "操作失敗，請稍後重試",
+        "tooManyRequests": "操作過於頻繁，請稍後再試",
+        "batch": {
+          "bad": "批次操作參數無效"
+        },
+        "point": {
+          "bad": "標記參數無效",
+          "error": "標記操作失敗",
+          "notFound": "標記不存在"
+        },
+        "shape": {
+          "bad": "圖形參數無效",
+          "error": "圖形操作失敗",
+          "geometryBad": "圖形座標資料無效",
+          "notFound": "圖形不存在"
+        },
+        "pointNotFound": "標記不存在",
+        "shapeNotFound": "圖形不存在"
       },
       "messages": {
         "bad": "請求參數無效",
@@ -619,7 +658,8 @@
       "create": "創建",
       "refresh": "重新整理",
       "view": "前往查看",
-      "retry": "重試"
+      "retry": "重試",
+      "actions": "操作"
     },
     "assembly": {
       "publish": {
@@ -736,7 +776,8 @@
     "hint": "支援 YouTube、嗶哩嗶哩、騰訊視頻、優酷或 .mp4/.webm 影片直連，貼上網頁連結後將自動轉換為嵌入位址",
     "invalid": "無法識別該影片位址，請貼上影片的網頁連結",
     "unsupported": "暫不支援該影片網站，目前支援 YouTube、嗶哩嗶哩、騰訊視頻、優酷及影片直連",
-    "b23tv": "暫不支援 b23.tv 短連結，請貼上 bilibili.com/video/ 開頭的原始連結"
+    "b23tv": "暫不支援 b23.tv 短連結，請貼上 bilibili.com/video/ 開頭的原始連結",
+    "externalHint": "該影片網站不允許網頁內嵌，將以外部連結卡片形式插入"
   },
   "account": {
     "trash": "回收站",
@@ -763,12 +804,16 @@
         "range": "時間範圍",
         "range7": "7 天",
         "range30": "1 個月",
+        "range90": "3 個月",
         "updated": "圖表更新"
       },
       "analysis": {
         "title": "配裝分析",
         "topLiked": "點贊 Top20",
         "topViewed": "瀏覽 Top20",
+        "topVisitors": "我的熱門配裝 · 訪客 Top6",
+        "visitorCount": "訪客數",
+        "noVisitors": "暫無訪客",
         "noData": "暫無數據"
       }
     },
@@ -903,10 +948,6 @@
         "qq": {
           "name": "QQ 平台",
           "desc": "支持 QQ 快捷一鍵登入與個人中心快速同步"
-        },
-        "wechat": {
-          "name": "微信平台",
-          "desc": "支持微信掃碼登入與公眾號/小程序聯動"
         },
         "google": {
           "name": "Google",
@@ -1803,7 +1844,65 @@
       "markerId": "標記 ID",
       "markerCategory": "標記類型",
       "markerName": "標記名稱",
-      "invalidJson": "JSON 格式不合法"
+      "invalidJson": "JSON 格式不合法",
+      "shapeInfo": "圖形資訊",
+      "editThisPath": "編輯此路徑",
+      "editThisRegion": "編輯此區域",
+      "editThisMarker": "編輯此標記",
+      "editShape": "編輯圖形屬性",
+      "editShapeVertices": "編輯路徑頂點",
+      "deleteShape": "刪除圖形",
+      "viewPoint": "查看標記",
+      "editPoint": "編輯標記",
+      "deletePoint": "刪除標記",
+      "createPath": "從這裡建立路徑",
+      "createRegion": "從這裡建立區域",
+      "clearAllPaths": "清除地圖上所有路徑",
+      "clearAllRegions": "清除地圖上所有區域",
+      "exitDrawMode": "退出繪製模式",
+      "saveVertices": "儲存頂點修改",
+      "revertVertices": "還原頂點修改",
+      "exitVertexMode": "退出編輯模式",
+      "exitEditMode": "退出編輯模式",
+      "confirmExitEditMode": "目前仍有未提交的路徑/區域或未儲存的頂點修改，退出編輯模式後這些內容將被丟棄，確定退出嗎？",
+      "submitDraft": "提交未提交圖形",
+      "deleteDraft": "刪除未提交圖形",
+      "deletePaths": "刪除路徑",
+      "deleteRegions": "刪除區域",
+      "deleteAllPaths": "刪除所有地圖上路徑",
+      "deleteAllRegions": "刪除所有地圖上區域",
+      "deleteSubmittedPaths": "刪除已提交路徑",
+      "deleteSubmittedRegions": "刪除已提交區域",
+      "deleteDraftPaths": "刪除未提交路徑",
+      "deleteDraftRegions": "刪除未提交區域",
+      "enterMarqueeMode": "框選模式",
+      "exitMarqueeMode": "退出框選模式"
+    },
+    "marquee": {
+      "toggle": "框選模式：按住拖動可框選標記、路徑和區域",
+      "hint": "框選模式：按住並拖出選框，可選中你的標記、路徑、區域；按一下空白處退出選擇",
+      "exit": "退出框選",
+      "selectedCount": "已選中 {count} 個物件",
+      "moveHint": "拖動任意選中項可統一移動",
+      "deleteSelected": "刪除選中",
+      "cancel": "取消選擇",
+      "saveFailed": "部分物件的位置儲存失敗，請重試"
+    },
+    "share": {
+      "copyLink": "複製分享連結",
+      "linkCopied": "分享連結已複製",
+      "dialogTitle": "分享的地圖集",
+      "creator": "建立者：{name}",
+      "pointCount": "{count} 個標記",
+      "shapeCount": "{count} 個圖形",
+      "ownHint": "這是你自己的地圖集，無需重複匯入",
+      "readonly": "只閱讀",
+      "import": "匯入到我的帳戶",
+      "previewBanner": "正在瀏覽 {creator} 的公開地圖集「{title}」",
+      "readonlyBadge": "唯讀",
+      "exitPreview": "退出瀏覽",
+      "clone": "克隆到我的帳戶",
+      "cloneSuccess": "地圖集已克隆"
     },
     "searchPlaceholder": "搜索地标",
     "treasureMapAvailable": "可用藏宝图",
@@ -1820,13 +1919,16 @@
     "myCollections": "我的地图集",
     "createCollection": "创建地图集",
     "collectionTitle": "地图集标题",
-    "collectionIsEmptyTip": "请先创建地图集后，再创建标记",
+    "collectionIsEmptyTip": "請先創建地圖集後，再創建標記",
+    "noCollection": "未分組",
+    "collectionOptionalTip": "地圖集為可選項，標記可先儲存為未分組，之後再選擇歸屬地圖集",
     "collectionDescription": "地图集描述",
     "layerCollection": "地图集",
     "publicCollection": "公开地图集",
     "sharedUsers": "共享用户",
     "sharedUsersHint": "输入用户ID，用逗号分隔",
     "personalMarkers": "個人標記",
+    "captainNotes": "船長筆記",
     "noDescription": "暫無描述",
     "pointsInCollection": "地圖集內座標",
     "availablePoints": "可新增的座標",
@@ -1845,6 +1947,9 @@
     "type": "类型",
     "tags": "标签",
     "publicMarker": "公开标记",
+    "visibility": "可見性",
+    "publicFollowCollection": "歸屬地圖集的內容，公開狀態由地圖集決定",
+    "basicInfo": "基本資訊",
     "groups": {
       "pirateBases": "海盜據點",
       "settlements": "定居點",
@@ -2060,7 +2165,59 @@
     "private": "私有",
     "collectionList": "收藏點清單",
     "latitude": "緯度",
-    "longitude": "經度"
+    "longitude": "經度",
+    "address": "地址",
+    "allCollections": "全部集合",
+    "batchDelete": "批次刪除",
+    "batchMove": "移動到集合",
+    "batchMoveTitle": "批次移動到地圖集",
+    "batchRemove": "移出集合",
+    "borderColor": "邊框顏色",
+    "confirmBatchDelete": "確定要刪除選中的 {count} 項嗎？此操作無法復原。",
+    "confirmClearShapes": "確定要清除目前地圖上的全部 {count} 條{type}嗎？此操作無法復原。",
+    "confirmDeleteMarquee": "確定要刪除選中的 {count} 個物件嗎？此操作無法復原。",
+    "confirmDeletePoint": "確定要刪除標記「{title}」嗎？",
+    "confirmDeleteShape": "確定要刪除該圖形嗎？",
+    "coordinates": "座標",
+    "createPath": "新建路徑",
+    "createRegion": "新建區域",
+    "createShape": "新建圖形",
+    "dashedLine": "虛線",
+    "drawOnMap": "在地圖上繪製",
+    "drawPath": "繪製路徑",
+    "drawRegion": "繪製區域",
+    "editMarkerTitle": "編輯標記",
+    "editShapeTitle": "編輯圖形",
+    "editVertices": "編輯頂點",
+    "fillColor": "填滿顏色",
+    "fillOpacity": "填滿透明度",
+    "invalidCoordinate": "存在無效座標，請檢查經緯度格式（每行一點：經度,緯度）",
+    "keyword": "關鍵字",
+    "lineWidth": "線寬",
+    "lineOpacity": "線條透明度",
+    "path": "路徑",
+    "pathColor": "路徑顏色",
+    "pathCoordinatesHint": "每行一個座標點，格式：經度,緯度（至少 2 個點）",
+    "pathCoordinatesHelp": "逐行輸入座標點，以逗號或空白分隔經度與緯度",
+    "pathCoordinatesError": "路徑至少需要 2 個有效座標點",
+    "publicShape": "公開圖形",
+    "region": "區域",
+    "regionCoordinatesHint": "每行一個座標點，格式：經度,緯度（至少 3 個點，自動閉合）",
+    "regionCoordinatesHelp": "逐行輸入座標點，以逗號或空白分隔經度與緯度",
+    "regionCoordinatesError": "區域至少需要 3 個有效座標點",
+    "selectedCollection": "所屬集合",
+    "selectedCount": "已選擇 {count} 項",
+    "shapeDescription": "圖形描述",
+    "shapeName": "圖形名稱",
+    "smoothCurve": "平滑曲線",
+    "smoothRegion": "平滑邊緣",
+    "style": "樣式",
+    "tabCollections": "地圖集",
+    "tabPaths": "路徑",
+    "tabPoints": "標記",
+    "tabRegions": "區域",
+    "vertexEditingTip": "頂點編輯：拖曳圓點調整形狀，點擊線段可插入新頂點，Alt + 點擊頂點可刪除，完成後儲存",
+    "viewOnMap": "在地圖上檢視"
   },
   "rankingDesignedItems": {
     "title": "排序设计",
@@ -3127,6 +3284,13 @@
     }
   },
   "header": {
+    "accountMenu": {
+      "personalCenter": "個人中心",
+      "creatorCenter": "創作中心",
+      "messageCenter": "訊息中心",
+      "switchLanguage": "切換語言",
+      "logout": "註銷帳戶"
+    },
     "navs": {
       "blog": "闪耀船首博客",
       "officialWebsite": "碧海黑帆官网",
@@ -3670,5 +3834,23 @@
   },
   "wheel": {
     "insertItem": "填入物品"
+  },
+  "quota": {
+    "trigger": "額度",
+    "title": "額度限制",
+    "description": "因服務資源所限，對發佈資源明確額度限制，以減少開支，如果你認為額度不夠，可以透過網站聯絡方式，來免費提高升級",
+    "loading": "額度載入中…",
+    "unlimited": "不限",
+    "monthly": "本月",
+    "yearly": "本年",
+    "used": "已用 {used}/{limit}",
+    "identityUnlimited": "你的身份不受額度限制",
+    "boost": "贊助加成 ×{multiplier}",
+    "resource": {
+      "assembly": "配裝",
+      "comment": "評論",
+      "teamup": "組隊",
+      "map": "地圖"
+    }
   }
 }

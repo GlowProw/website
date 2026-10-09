@@ -14,6 +14,7 @@ import Silk from '@/components/Silk.vue';
 import EmptyView from '@/components/EmptyView.vue';
 import ReminderEditDialog from './ReminderEditDialog.vue';
 import AffixContainerView from "@/components/AffixContainerView.vue";
+import PaginationBar from "@/components/PaginationBar.vue";
 import Textarea from "@/components/textarea/index.vue";
 
 const {t, te} = useI18n();
@@ -1001,14 +1002,9 @@ const totalPages = computed(() => {
         </div>
 
         <!-- 分页组件 (当任务数量超过 30 条时展示) -->
-        <div v-if="totalPages > 1" class="d-flex justify-center mt-8">
-          <v-pagination
-              v-model="reminderStore.currentPage"
-              :length="totalPages"
-              rounded="circle"
-              color="amber">
-          </v-pagination>
-        </div>
+        <PaginationBar v-model:page="reminderStore.currentPage"
+                       :total-pages="totalPages"
+                       class="mt-8" />
       </div>
 
       <!-- 空列表占位 -->

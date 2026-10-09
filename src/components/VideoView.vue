@@ -23,7 +23,7 @@ const onFinish = () => {
   if (!resolved.value.ok) return
 
   onPanelToggle()
-  emit('finish', resolved.value.url)
+  emit('finish', resolved.value.embed ? resolved.value.url : data.value.src)
 }
 
 /**
@@ -80,13 +80,21 @@ defineOptions({
         <v-icon size="80">mdi-video</v-icon>
       </v-card-title>
       <v-card-text>
-        <div v-if="resolved.ok" class="video-embed-preview mb-2">
+        <div v-if="resolved.ok && resolved.embed" class="video-embed-preview mb-2">
           <iframe :src="resolved.url"
                   class="border-0 w-100"
                   allow="fullscreen; picture-in-picture"
                   allowfullscreen
                   sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-forms allow-fullscreen"
                   referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+
+        <!-- 该网页禁止被 iframe 内嵌（frame-ancestors 'self'），将以链接卡片插入 -->
+        <div v-else-if="resolved.ok && !resolved.embed" class="video-external-preview mb-2">
+          <v-card variant="tonal" color="amber" class="pa-3 d-flex align-center ga-2">
+            <v-icon icon="mdi-open-in-new" size="22" color="amber-darken-1"></v-icon>
+            <span class="text-body-2">{{ t('videoEmbed.externalHint') }}</span>
+          </v-card>
         </div>
 
         <v-text-field v-model="data.src"

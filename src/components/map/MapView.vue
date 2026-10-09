@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
+import { ref, shallowRef, onMounted, onUnmounted, watch, computed } from 'vue';
 import Map from 'ol/Map';
 import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
@@ -17,7 +17,8 @@ import PinchZoom from 'ol/interaction/PinchZoom';
 import DoubleClickZoom from 'ol/interaction/DoubleClickZoom';
 
 const mapContainerRef = ref<HTMLElement | null>(null);
-const mapInstance = ref<Map | null>(null);
+// OL Map 是类实例，不能被深层响应式代理，否则内部图层身份比较会失效
+const mapInstance = shallowRef<Map | null>(null);
 
 const emit = defineEmits(['map-created']);
 

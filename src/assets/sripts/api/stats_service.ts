@@ -4,7 +4,10 @@
  */
 import {useHttpToken} from "@/assets/sripts/http_util";
 
+export type StatsRange = '7' | '30' | '90';
+
 export interface StatsOverview {
+    range?: StatsRange;
     browseCount: number;
     spaceCount: number;
     likeCount: number;
@@ -23,23 +26,41 @@ export interface StatsTrendPoint {
 
 export interface StatsTrend {
     metric: 'browse' | 'like' | 'comment' | 'reply' | 'space';
-    range: '7' | '30';
+    range: StatsRange;
     points: StatsTrendPoint[];
     updatedAt: number;
 }
 
+/** 访客信息（登录用户或匿名访客），结构与后端 Visitor 对齐 */
+export interface StatsVisitor {
+    identity: string;
+    isUser: boolean;
+    userId?: string;
+    username?: string | null;
+    avatar?: string | null;
+    anonMasked?: string;
+    browseTime: number;
+}
+
 export interface StatsAssemblyTop {
     topLiked: Array<{ uuid: string; name: string; likeCount: number; likedUsers: any[] }>;
-    topViewed: Array<{ uuid: string; name: string; viewCount: number; recentVisitors: any[] }>;
+    topViewed: Array<{
+        uuid: string;
+        name: string;
+        viewCount: number;
+        likeCount: number;
+        commentCount: number;
+        recentVisitors: StatsVisitor[];
+    }>;
     updatedAt: number;
 }
 
 export function useStatsApi() {
     const http = useHttpToken();
 
-    const getOverview = async (): Promise<StatsOverview | null> => {
+    const getOverview = async (range: StatsRange = '30'): Promise<StatsOverview | null> => {
         try {
-            const res = await http.get('stats/overview');
+            const res = await http.get(`stats/overview?range=${range}`);
             const body = (res as any).data;
             if (body?.code === 0) return (body.data as StatsOverview) || null;
             return null;

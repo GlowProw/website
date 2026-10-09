@@ -8,6 +8,7 @@ import {handleApiError} from "@/assets/sripts/error_handler";
 import Loading from "@/components/Loading.vue";
 import EmptyView from "@/components/EmptyView.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
+import PaginationBar from "@/components/PaginationBar.vue";
 
 const notice = useNoticeStore(),
     {t} = useI18n()
@@ -173,7 +174,7 @@ defineOptions({
 <template>
   <div class="position-relative">
     <v-overlay :model-value="loading" contained class="d-flex align-center justify-center">
-      <Loading></Loading>
+      <Loading size="50"></Loading>
     </v-overlay>
 
     <!-- Toolbar S -->
@@ -288,17 +289,10 @@ defineOptions({
     </div>
 
     <!-- 统一分页器 S -->
-    <div v-if="totalPages > 1" class="d-flex justify-center mt-6">
-      <v-pagination
-          v-model="pagination.page"
-          :length="totalPages"
-          density="comfortable"
-          active-color="amber"
-          rounded="circle"
-          variant="tonal"
-          @update:model-value="getTrashData">
-      </v-pagination>
-    </div>
+    <PaginationBar v-model:page="pagination.page"
+                   :total-pages="totalPages"
+                   class="mt-6"
+                   @change="getTrashData" />
     <!-- 统一分页器 E -->
   </div>
 </template>

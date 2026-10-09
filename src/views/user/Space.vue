@@ -23,6 +23,8 @@ import AssemblyWidget from "@/components/AssemblyWidget.vue";
 import AssemblyTouring from "@/components/AssemblyTouring.vue";
 import AccountCardWidget from "@/components/AccountCardWidget.vue";
 import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
+import AffixContainerView from "@/components/AffixContainerView.vue";
+import PaginationBar from "@/components/PaginationBar.vue";
 
 const route = useRoute(),
     router = useRouter(),
@@ -296,36 +298,15 @@ defineOptions({
           <v-spacer></v-spacer>
           <v-col cols="auto" class="d-flex align-center">
             <div class="d-flex align-center">
-              <v-menu location="bottom end" v-if="isSelf">
-                <template v-slot:activator="{ props }">
-                  <h2 class="text-h4 font-weight-bold d-flex align-center" v-bind="props">
-                    Hi, <u class="u">{{ authStore.currentUser || 'Captain' }}</u>
-                  </h2>
-                  <v-btn
-                      v-bind="props"
-                      icon="mdi-menu-down"
-                      variant="text"
-                      density="comfortable"
-                      size="small"
-                      class="ml-1">
-                  </v-btn>
-                </template>
-                <v-list density="compact" min-width="140" border rounded="lg" class="pa-1">
-                  <v-list-item
-                      prepend-icon="mdi-logout"
-                      color="error"
-                      base-color="error"
-                      rounded="lg"
-                      @click="logout">
-                    <v-list-item-title>{{ t('account.logout') }}</v-list-item-title>
-                  </v-list-item>
-                </v-list>
-              </v-menu>
-
+              <template v-if="isSelf">
+                <h2 class="text-h4 font-weight-bold d-flex align-center">
+                  Hi, <u class="u">{{ authStore.currentUser || 'Captain' }}</u>
+                </h2>
+              </template>
               <template v-else>
                 <h2 class="text-h4 font-weight-bold d-flex align-center">
                   <v-card border class="mr-4">
-                    <UserAvatar :src="userData.userAvatar" v-if="userData.userAvatar" size="44"></UserAvatar>
+                    <UserAvatar :src="userData.userAvatar" v-if="userData.userAvatar" size="36"></UserAvatar>
                     <v-avatar size="44" v-else>
                       <v-icon icon="mdi-account" size="24"></v-icon>
                     </v-avatar>
@@ -349,49 +330,51 @@ defineOptions({
         <v-container>
           <div :class="{'d-flex flex-row': !mobile}">
             <div :class="{'mb-10 tabs-box-mobile': mobile, 'tabs-box-desktop': !mobile}">
-              <v-tabs
-                  stacked
-                  border
-                  hide-slider
-                  v-model="tab"
-                  class="w-100 h-100"
-                  :fixed="mobile"
-                  :direction="!mobile ? 'vertical' : 'horizontal'">
-                <template v-for="(i, index) in tabs" :key="index">
-                  <v-tooltip content-class="pa-0" :target="[tooltipPos.x, tooltipPos.y]">
-                    <template v-slot:default>
-                      <v-card border class="py-3 px-10">
-                        {{ t(i.name) }}
-                      </v-card>
-                    </template>
-                    <template v-slot:activator="{props}">
-                      <div :class="{'mb-2': !mobile, 'mr-5': mobile}">
-                        <v-tab
-                            :value="i.value"
-                            selected-class="bg-amber"
-                            class="d-flex align-center justify-center"
-                            min-width="80"
-                            width="80"
-                            height="80"
-                            border
-                            @mousemove="onMouseMove"
-                            @mouseenter="onMouseEnter"
-                            v-bind="props"
-                            replaceb
-                            ripple
-                            slim>
-                          <div>
-                            <v-icon size="40">{{ i.icon }}</v-icon>
-                          </div>
-                        </v-tab>
-                        <p class="mt-1 mb-3 text-center singe-line w-100 tab-item" :title="t(i.name)">
+              <AffixContainerView>
+                <v-tabs
+                    stacked
+                    border
+                    hide-slider
+                    v-model="tab"
+                    class="w-100 h-100"
+                    :fixed="mobile"
+                    :direction="!mobile ? 'vertical' : 'horizontal'">
+                  <template v-for="(i, index) in tabs" :key="index">
+                    <v-tooltip content-class="pa-0" :target="[tooltipPos.x, tooltipPos.y]">
+                      <template v-slot:default>
+                        <v-card border class="py-3 px-10">
                           {{ t(i.name) }}
-                        </p>
-                      </div>
-                    </template>
-                  </v-tooltip>
-                </template>
-              </v-tabs>
+                        </v-card>
+                      </template>
+                      <template v-slot:activator="{props}">
+                        <div :class="{'mb-2': !mobile, 'mr-5': mobile}">
+                          <v-tab
+                              :value="i.value"
+                              selected-class="bg-amber"
+                              class="d-flex align-center justify-center"
+                              min-width="80"
+                              width="80"
+                              height="80"
+                              border
+                              @mousemove="onMouseMove"
+                              @mouseenter="onMouseEnter"
+                              v-bind="props"
+                              replaceb
+                              ripple
+                              slim>
+                            <div>
+                              <v-icon size="40">{{ i.icon }}</v-icon>
+                            </div>
+                          </v-tab>
+                          <p class="mt-1 mb-3 text-center singe-line w-100 tab-item" :title="t(i.name)">
+                            {{ t(i.name) }}
+                          </p>
+                        </div>
+                      </template>
+                    </v-tooltip>
+                  </template>
+                </v-tabs>
+              </AffixContainerView>
             </div>
 
             <!-- 右侧视窗内容 S -->
@@ -485,13 +468,10 @@ defineOptions({
                   </div>
 
                   <!-- 分页 S -->
-                  <v-pagination
-                      v-if="userAssemblysData.pagination"
-                      v-model.number="spacePagination.page"
-                      :length="userAssemblysData.pagination?.totalPages || 0"
-                      @update:model-value="getUserAssemblysData"
-                      class="mt-8"
-                  ></v-pagination>
+                  <PaginationBar v-model:page="spacePagination.page"
+                                 :pagination="userAssemblysData.pagination"
+                                 class="mt-8"
+                                 @change="getUserAssemblysData" />
                   <!-- 分页 E -->
 
                   <v-overlay v-model="loading.assembly" contained class="d-flex justify-center align-center">

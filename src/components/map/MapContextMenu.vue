@@ -2,30 +2,86 @@
   <Teleport to="body">
     <Transition name="ctx-menu">
       <v-card
-          border
           v-if="visible"
           ref="menuRef"
-          elevation="35"
-          class="map-ctx-menu py-2"
+          border
+          rounded="lg"
+          elevation="24"
+          class="map-ctx-menu pa-1"
           :style="{ top: safeY + 'px', left: safeX + 'px' }"
           @click.stop
           @contextmenu.prevent>
-        <template v-for="(item, i) in items" :key="i">
-          <div v-if="item.type === 'divider'" class="ctx-divider" />
-          <button
-              v-else
-              class="ctx-item"
-              :class="{ 'ctx-item--disabled': item.disabled, 'ctx-item--danger': item.danger }"
-              :disabled="item.disabled"
-              @click="onItemClick(item)">
-            <span v-if="item.icon" class="ctx-icon">
-              <v-icon size="16" v-if="typeof item.icon === 'string' && item.icon.startsWith('mdi-')">{{ item.icon }}</v-icon>
-              <template v-else>{{ item.icon }}</template>
-            </span>
-            <span class="ctx-label">{{ item.label }}</span>
-            <span v-if="item.badge" class="ctx-badge">{{ item.badge }}</span>
-          </button>
-        </template>
+        <v-list density="compact" min-width="220" class="pa-0">
+          <template v-for="(item, i) in items" :key="i">
+            <v-divider v-if="item.type === 'divider'" class="my-1" />
+
+            <!-- 二级菜单父项：与 HeaderAccount 语言切换菜单同款悬停 v-menu -->
+            <v-menu
+                v-else-if="item.children && item.children.length"
+                :model-value="subIndex === i"
+                open-on-hover
+                :open-on-click="false"
+                :location="subLocation"
+                :close-on-content-click="true"
+                @update:model-value="(v) => onSubOpenChange(i, v)">
+              <template v-slot:activator="{ props: subProps }">
+                <v-list-item
+                    v-bind="subProps"
+                    :disabled="item.disabled"
+                    :color="itemColor(item)"
+                    rounded="lg"
+                    density="compact">
+                  <template v-slot:prepend>
+                    <v-icon size="18">{{ item.icon }}</v-icon>
+                  </template>
+                  <v-list-item-title class="ctx-title">{{ item.label }}</v-list-item-title>
+                  <template v-slot:append>
+                    <span v-if="item.badge" class="ctx-badge">{{ item.badge }}</span>
+                    <v-icon icon="mdi-chevron-right" size="small" class="opacity-60"></v-icon>
+                  </template>
+                </v-list-item>
+              </template>
+
+              <v-list density="compact" min-width="210" class="pa-1" border rounded="lg">
+                <template v-for="(child, ci) in item.children" :key="ci">
+                  <v-divider v-if="child.type === 'divider'" class="my-1" />
+                  <v-list-item
+                      v-else
+                      :disabled="child.disabled"
+                      :color="itemColor(child)"
+                      rounded="lg"
+                      density="compact"
+                      @click="onItemClick(child)">
+                    <template v-slot:prepend>
+                      <v-icon size="18">{{ child.icon }}</v-icon>
+                    </template>
+                    <v-list-item-title class="ctx-title">{{ child.label }}</v-list-item-title>
+                    <template v-slot:append v-if="child.badge">
+                      <span class="ctx-badge">{{ child.badge }}</span>
+                    </template>
+                  </v-list-item>
+                </template>
+              </v-list>
+            </v-menu>
+
+            <!-- 普通菜单项 -->
+            <v-list-item
+                v-else
+                :disabled="item.disabled"
+                :color="itemColor(item)"
+                rounded="lg"
+                density="compact"
+                @click="onItemClick(item)">
+              <template v-slot:prepend>
+                <v-icon size="18">{{ item.icon }}</v-icon>
+              </template>
+              <v-list-item-title class="ctx-title">{{ item.label }}</v-list-item-title>
+              <template v-slot:append v-if="item.badge">
+                <span class="ctx-badge">{{ item.badge }}</span>
+              </template>
+            </v-list-item>
+          </template>
+        </v-list>
       </v-card>
     </Transition>
   </Teleport>
@@ -41,7 +97,10 @@ export interface ContextMenuItem {
   badge?: string;
   disabled?: boolean;
   danger?: boolean;
+  color?: 'default' | 'amber';
   action?: () => void;
+  /** 二级子菜单：存在时该项仅用于悬浮展开，点击不关闭主菜单 */
+  children?: ContextMenuItem[];
 }
 
 const props = defineProps<{
@@ -55,18 +114,45 @@ const emit = defineEmits<{
   (e: 'close'): void;
 }>();
 
-const menuRef = ref<HTMLElement | null>(null);
+const menuRef = ref<any>(null);
 const safeX = ref(props.x);
 const safeY = ref(props.y);
 
-/** 获取真正的 DOM 元素（兼容 HTML 元素与 Component $el） */
-const getMenuEl = (): HTMLElement | null => {
-  if (!menuRef.value) return null;
-  return (menuRef.value as any).$el || menuRef.value;
+// ───────────────────────────── 子菜单状态 ─────────────────────────────
+
+const subIndex = ref(-1);
+/** 子菜单展开方向（靠右展开 right top，空间不足翻左侧 left top） */
+const subLocation = ref<'right top' | 'left top'>('right top');
+
+const itemColor = (item: ContextMenuItem): string | undefined => {
+  if (item.disabled) return undefined;
+  if (item.danger) return 'error';
+  if (item.color === 'amber') return 'amber';
+  return undefined;
 };
 
+/** v-menu 受控开关：禁用项不允许展开；展开时按视口剩余空间决定左右方向 */
+const onSubOpenChange = (i: number, open: boolean): void => {
+  if (!open) {
+    subIndex.value = -1;
+    return;
+  }
+  const item = props.items[i];
+  if (item?.disabled || !item.children || item.children.length === 0) return;
+  subLocation.value = props.x + 220 + 210 > window.innerWidth ? 'left top' : 'right top';
+  subIndex.value = i;
+};
+
+/** 获取真正的 DOM 元素（兼容 HTML 元素与 Component $el） */
+const getEl = (refInst: any): HTMLElement | null => {
+  if (!refInst) return null;
+  return refInst.$el || refInst;
+};
+
+const getMenuEl = (): HTMLElement | null => getEl(menuRef.value);
+
 /** 保证菜单不超出视口 */
-const adjustPosition = async () => {
+const adjustPosition = async (): Promise<void> => {
   await nextTick();
   const el = getMenuEl();
   if (!el || typeof el.getBoundingClientRect !== 'function') return;
@@ -80,46 +166,55 @@ const adjustPosition = async () => {
 watch(() => [props.visible, props.x, props.y], async ([vis]) => {
   safeX.value = props.x;
   safeY.value = props.y;
+  subIndex.value = -1;
   if (vis) {
     await adjustPosition();
   }
 });
 
-const onItemClick = (item: ContextMenuItem) => {
+const onItemClick = (item: ContextMenuItem): void => {
   if (item.disabled) return;
   item.action?.();
   emit('close');
 };
 
-const onOutsideClick = (e: MouseEvent | TouchEvent) => {
-  const el = getMenuEl();
-  if (!el) return;
+const onOutsideClick = (e: MouseEvent | TouchEvent): void => {
   const target = e.target as Node;
-  if (!el.contains(target)) {
+  const menuEl = getMenuEl();
+  // 子菜单通过 v-menu 传送至 body，.v-overlay__content 内的点击不算外部点击
+  const inSubOverlay = (target as HTMLElement).closest?.('.v-overlay__content');
+  if (!menuEl?.contains(target) && !inSubOverlay) {
     emit('close');
   }
 };
 
-const onKeydown = (e: KeyboardEvent) => {
-  if (e.key === 'Escape') emit('close');
+const onKeydown = (e: KeyboardEvent): void => {
+  if (e.key !== 'Escape') return;
+  // 子菜单展开时先收子菜单（v-menu 自身也会关闭），再次按 Esc 才关整个菜单
+  if (subIndex.value >= 0) {
+    subIndex.value = -1;
+    return;
+  }
+  emit('close');
 };
 
 watch(() => props.visible, (vis) => {
   if (vis) {
     setTimeout(() => {
-      document.addEventListener('click', onOutsideClick);
+      document.addEventListener('mousedown', onOutsideClick);
       document.addEventListener('touchstart', onOutsideClick);
       document.addEventListener('keydown', onKeydown);
     }, 0);
   } else {
-    document.removeEventListener('click', onOutsideClick);
+    document.removeEventListener('mousedown', onOutsideClick);
     document.removeEventListener('touchstart', onOutsideClick);
     document.removeEventListener('keydown', onKeydown);
+    subIndex.value = -1;
   }
 });
 
 onUnmounted(() => {
-  document.removeEventListener('click', onOutsideClick);
+  document.removeEventListener('mousedown', onOutsideClick);
   document.removeEventListener('touchstart', onOutsideClick);
   document.removeEventListener('keydown', onKeydown);
 });
@@ -131,78 +226,28 @@ defineOptions({ name: 'MapContextMenu' });
 .map-ctx-menu {
   position: fixed;
   z-index: 9999;
-  min-width: 210px;
   user-select: none;
   pointer-events: all;
 }
 
-.ctx-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  padding: 9px 16px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: rgba(230, 235, 245, 0.92);
+.ctx-title {
   font-size: 13.5px;
-  font-family: inherit;
-  text-align: left;
-  transition: background 0.13s ease, color 0.13s ease;
   white-space: nowrap;
 }
 
-.ctx-item:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-}
-
-.ctx-item:active:not(:disabled) {
-  background: rgba(255, 255, 255, 0.14);
-}
-
-.ctx-item--disabled {
-  opacity: 0.38;
-  cursor: not-allowed;
-}
-
-.ctx-item--danger {
-  color: rgba(255, 100, 90, 0.88);
-}
-
-.ctx-item--danger:hover:not(:disabled) {
-  background: rgba(255, 60, 50, 0.12);
-  color: #ff6b6b;
-}
-
-.ctx-icon {
-  font-size: 16px;
-  width: 18px;
-  text-align: center;
-  flex-shrink: 0;
-  opacity: 0.85;
-}
-
-.ctx-label {
-  flex: 1;
-}
-
 .ctx-badge {
-  font-size: 11px;
-  padding: 1px 6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  margin-left: 6px;
   border-radius: 9px;
-  background: rgba(255, 255, 255, 0.12);
-  color: rgba(200, 210, 230, 0.7);
+  background: rgba(255, 255, 255, 0.14);
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
 }
 
-.ctx-divider {
-  margin: 5px 10px;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.08);
-}
-
-/* 动画 */
+/* 菜单整体出现动画 */
 .ctx-menu-enter-active {
   transition: opacity 0.12s ease, transform 0.12s ease;
 }

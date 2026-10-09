@@ -8,6 +8,8 @@ import {handleApiError} from "@/assets/sripts/error_handler";
 import Loading from "@/components/Loading.vue";
 import EmptyView from "@/components/EmptyView.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
+import QuotaLimitWidget from "@/components/QuotaLimitWidget.vue";
+import PaginationBar from "@/components/PaginationBar.vue";
 
 const notice = useNoticeStore(),
     {t} = useI18n()
@@ -71,7 +73,7 @@ defineOptions({
 <template>
   <div class="position-relative">
     <v-overlay :model-value="loading" contained class="d-flex align-center justify-center">
-      <Loading></Loading>
+      <Loading size="50"></Loading>
     </v-overlay>
 
     <!-- Toolbar S -->
@@ -94,6 +96,8 @@ defineOptions({
 
           <!-- 行为按钮组 -->
           <div class="d-flex align-center ga-2">
+            <QuotaLimitWidget resource="teamup" text></QuotaLimitWidget>
+
             <v-btn
                 color="amber"
                 variant="tonal"
@@ -175,16 +179,7 @@ defineOptions({
     </div>
 
     <!-- 分页 S -->
-    <div v-if="totalPages > 1" class="d-flex justify-center mt-6">
-      <v-pagination
-          v-model="currentPage"
-          :length="totalPages"
-          density="comfortable"
-          active-color="amber"
-          rounded="circle"
-          variant="tonal">
-      </v-pagination>
-    </div>
+    <PaginationBar v-model:page="currentPage" :total-pages="totalPages" class="mt-6" />
     <!-- 分页 E -->
   </div>
 </template>

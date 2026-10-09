@@ -15,6 +15,7 @@ import UserAvatar from "@/components/UserAvatar.vue";
 import AssemblyTouring from "@/components/AssemblyTouring.vue";
 import AccountCardWidget from "@/components/AccountCardWidget.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
+import QuotaLimitWidget from "@/components/QuotaLimitWidget.vue";
 
 const notice = useNoticeStore(),
     {t} = useI18n()
@@ -86,8 +87,8 @@ defineOptions({
 
 <template>
   <div class="position-relative">
-    <v-overlay :model-value="loading" contained>
-      <Loading></Loading>
+    <v-overlay :model-value="loading" contained class="d-flex align-center justify-center">
+      <Loading size="50"></Loading>
     </v-overlay>
 
     <!-- Toolbar S -->
@@ -109,6 +110,8 @@ defineOptions({
           <v-spacer></v-spacer>
 
           <div class="d-flex align-center ga-2">
+            <QuotaLimitWidget resource="assembly" text></QuotaLimitWidget>
+
             <v-btn
                 color="amber"
                 variant="tonal"

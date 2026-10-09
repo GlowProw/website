@@ -40,12 +40,6 @@ const browseApi = useBrowseApi()
 
 // 浏览相关状态
 const browseCount = ref<{ total: number; today: number }>({ total: 0, today: 0 })
-const visitors = ref<Array<{
-    identity: string; isUser: boolean; userId?: string;
-    username?: string | null; anonMasked?: string; browseTime: number;
-}>>([])
-const visitorsPanelOpen = ref(false)
-const loadingVisitors = ref(false)
 
 let detailData: Ref<any> = ref({
       cloningUuid: '',
@@ -195,29 +189,6 @@ const onAssemblyMainViewReady = () => {
         masteryUseVersion: d.mastery?.attr?.masteryUseVersion,
       })
       ?.onLoad(d.mastery?.data)
-}
-
-/**
- * 拉取近期访客列表（展开访客面板时调用）
- */
-const loadVisitors = async () => {
-  if (loadingVisitors.value) return;
-  loadingVisitors.value = true;
-  try {
-    visitors.value = await browseApi.getVisitors('assembly', <string>detailData.value.uuid, 20);
-  } catch { /* silent */ }
-  loadingVisitors.value = false;
-};
-
-/**
- * 切换访客面板（打开时懒加载一次）
- */
-const toggleVisitorsPanel = () => {
-  const next = !visitorsPanelOpen.value;
-  visitorsPanelOpen.value = next;
-  if (next && visitors.value.length === 0) {
-    loadVisitors();
-  }
 }
 
 /**
@@ -429,50 +400,6 @@ const onPenPassword = () => {
               v-model="detailData.tags"
               class="mt-4"
               :readonly="true"></AssemblyTagsWidget>
-
-          <!-- 近期访客面板 -->
-          <v-expansion-panels class="mt-4" variant="accordion">
-            <v-expansion-panel>
-              <v-expansion-panel-title>
-                <v-icon start icon="mdi-account-multiple-outline"></v-icon>
-                {{ t('basic.visitor.recentVisitors') }}
-                <v-chip class="ml-2" size="x-small" variant="tonal" color="primary">
-                  {{ visitors.length || 0 }}
-                </v-chip>
-              </v-expansion-panel-title>
-              <v-expansion-panel-text>
-                <template v-if="loadingVisitors">
-                  <div class="text-center opacity-60 py-2">loading...</div>
-                </template>
-                <template v-else-if="visitors.length === 0">
-                  <div class="text-center opacity-60 py-2">{{ t('basic.visitor.noVisitors') }}</div>
-                </template>
-                <template v-else>
-                  <v-list density="compact">
-                    <v-list-item
-                        v-for="(v, idx) in visitors"
-                        :key="v.identity + idx"
-                        class="px-0"
-                    >
-                      <template v-slot:prepend>
-                        <v-avatar size="32" class="mr-2">
-                          <v-icon v-if="!v.isUser" icon="mdi-incognito"></v-icon>
-                          <v-icon v-else icon="mdi-account-circle"></v-icon>
-                        </v-avatar>
-                      </template>
-                      <v-list-item-title>
-                        <span v-if="v.isUser">{{ v.username || 'User #' + v.userId }}</span>
-                        <span v-else class="opacity-60">{{ t('basic.visitor.anonMasked') }} ({{ v.anonMasked }}…)</span>
-                      </v-list-item-title>
-                      <v-list-item-subtitle>
-                        <TimeView :time="v.browseTime"></TimeView>
-                      </v-list-item-subtitle>
-                    </v-list-item>
-                  </v-list>
-                </template>
-              </v-expansion-panel-text>
-            </v-expansion-panel>
-          </v-expansion-panels>
         </v-col>
       </v-row>
     </div>

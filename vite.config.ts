@@ -69,9 +69,17 @@ const snbI18nPlugin = {
     resolveId(id: string) {
         if (id === 'virtual:snb-i18n-data') return '\0' + id;
     },
-    load(id: string) {
+    load(id: string, options?: { ssr?: boolean }) {
         if (id !== '\0virtual:snb-i18n-data') return;
-        if ((this as any).meta?.ssr) {
+        // 注意：Vite 7 插件上下文 this.meta 上只有 viteVersion/rollupVersion/watchMode，
+        // 并没有 ssr 字段，旧写法在这里永远走不到，导致 SSG 预渲染内联了空 snb 数据。
+        // vite-ssg 用的是传统 build.ssr 构建，load 钩子第二参会被注入 ssr；
+        // 同时兼容 Environment API（this.environment.config.consumer === 'server'）。
+        const isSsr = options?.ssr
+            || (this as any).environment?.config?.consumer === 'server'
+            || (this as any).environment?.name === 'ssr'
+            || (this as any).meta?.ssr;
+        if (isSsr) {
             const escaped = JSON.stringify(snbAggCacheFile);
             return `import { readFileSync } from 'fs'; export default JSON.parse(readFileSync(${escaped}, 'utf8'));`;
         }

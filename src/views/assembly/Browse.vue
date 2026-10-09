@@ -18,6 +18,7 @@ import UserAvatar from "@/components/UserAvatar.vue";
 import AdsWidget from "@/components/ads/google/index.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import AccountCardWidget from "@/components/AccountCardWidget.vue";
+import PaginationBar from "@/components/PaginationBar.vue";
 
 const {t} = useI18n(),
     route = useRoute(),
@@ -307,13 +308,10 @@ const getBrowseList = async () => {
         </v-overlay>
 
         <!-- 分页 S -->
-        <v-pagination
-            v-if="browseData.pagination"
-            v-model="browsePagination.page"
-            :length="browseData.pagination?.totalPages || 0"
-            @update:model-value="getBrowseList"
-            class="mt-8"
-        ></v-pagination>
+        <PaginationBar v-model:page="browsePagination.page"
+                       :pagination="browseData.pagination"
+                       class="mt-8"
+                       @change="getBrowseList" />
         <!-- 分页 E -->
 
         <AdsWidget id="assembly-browse-down"></AdsWidget>

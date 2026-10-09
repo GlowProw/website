@@ -6,6 +6,8 @@ import EmptyView from "@/components/EmptyView.vue";
 import {ERROR_CODES, logError, useErrorLogger} from "@/assets/sripts/error_logger";
 import {useNoticeStore} from "~/stores/noticeStore";
 import AffixContainerView from "@/components/AffixContainerView.vue";
+import HtmlLink from "@/components/HtmlLink.vue";
+import TimeView from "@/components/TimeView.vue";
 
 const {t} = useI18n();
 const {CLIENT_ID, SESSION_ID, sessionLogs, exportLogsJSON, clearSessionLogs} = useErrorLogger();
@@ -282,10 +284,9 @@ const copyClientId = () => {
           <v-card
               v-for="log in filteredLogs"
               :key="log.id"
-              border
-              class="mb-3 pa-3"
+              class="mb-3 pa-3 bg-black"
               density="compact"
-              variant="tonal">
+              variant="text">
             <div class="d-flex align-center justify-space-between">
               <div class="d-flex align-center ga-2">
                 <v-chip size="x-small" color="error" label class="font-weight-bold">
@@ -296,23 +297,24 @@ const copyClientId = () => {
                   {{ log.component }}
                 </v-chip>
               </div>
-              <span class="text-caption opacity-50">{{ new Date(log.timestamp).toLocaleTimeString() }}</span>
+              <span class="text-caption opacity-50">
+                <TimeView :time="log.timestamp"></TimeView>
+              </span>
             </div>
 
-            <div class="mt-2 text-body-2 font-weight-regular text-pre-wrap font-monospace bg-black pa-2 rounded">
+            <v-card border variant="text" class="mt-2 text-body-2 font-weight-regular text-pre-wrap font-monospace bg-black pa-2 rounded">
               {{ log.message }}
-            </div>
+            </v-card>
 
             <div class="d-flex align-center justify-space-between mt-2">
               <span class="text-caption opacity-50 text-truncate" style="max-width: 400px;" :title="log.url">
-                <v-icon size="14">mdi-link-variant</v-icon> {{ log.url }}
+                <HtmlLink :href="log.url"></HtmlLink>
               </span>
 
               <v-btn
                   v-if="log.stack"
                   size="x-small"
                   variant="text"
-                  color="info"
                   :append-icon="isExpanded(log.id) ? 'mdi-chevron-up' : 'mdi-chevron-down'"
                   @click="toggleExpand(log.id)">
                 {{ isExpanded(log.id) ? t('setting.log.collapseStack') : t('setting.log.expandStack') }}
@@ -321,7 +323,7 @@ const copyClientId = () => {
 
             <!-- 堆栈明细 S -->
             <v-expand-transition>
-              <div v-if="isExpanded(log.id) && log.stack" class="mt-2">
+              <div v-if="isExpanded(log.id) && log.stack" class="">
                 <v-divider class="my-2"></v-divider>
                 <div class="text-caption opacity-70 mb-1 font-weight-bold">{{ t('setting.log.stackTraceTitle') }}</div>
                 <pre class="pa-2 bg-grey-darken-4 rounded text-caption font-monospace overflow-x-auto" style="max-height: 250px;">{{ log.stack }}</pre>

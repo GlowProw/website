@@ -57,6 +57,7 @@ export type VideoUrlError = 'invalid' | 'unsupported' | 'b23tv'
 
 export interface NormalizeVideoResult {
     ok: boolean
+    embed?: boolean
     url?: string
     reason?: VideoUrlError
 }
@@ -100,7 +101,7 @@ export function normalizeVideoUrl(input: string): NormalizeVideoResult {
     const host = url.hostname.toLowerCase()
     const path = url.pathname
 
-    /* YouTube
+    /* YouTube */
     if (isWhitelistedHost(host, 'youtube.com') || isWhitelistedHost(host, 'youtube-nocookie.com')) {
         let id = ''
         if (path === '/watch') {
@@ -108,12 +109,12 @@ export function normalizeVideoUrl(input: string): NormalizeVideoResult {
         } else if (path.startsWith('/shorts/') || path.startsWith('/embed/') || path.startsWith('/v/')) {
             id = decodeURIComponent(path.split('/')[2] || '')
         }
-        if (id) return {ok: true, url: `https://www.youtube.com/embed/${id}`}
-        // 白名单内但提取不到视频 id：交给文末白名单兜底
+        if (id) return {ok: true, embed: true, url: `https://www.youtube.com/embed/${id}`}
+        // 白名单内但提取不到视频 id：交给文末白名单兜底（外链卡片）
     }
     if (isWhitelistedHost(host, 'youtu.be')) {
         const id = decodeURIComponent(path.slice(1).split('/')[0] || '')
-        if (id) return {ok: true, url: `https://www.youtube.com/embed/${id}`}
+        if (id) return {ok: true, embed: true, url: `https://www.youtube.com/embed/${id}`}
         return {ok: false, reason: 'invalid'}
     }
 
@@ -126,8 +127,8 @@ export function normalizeVideoUrl(input: string): NormalizeVideoResult {
             const bvid = url.searchParams.get('bvid')
             const aid = url.searchParams.get('aid')
             const page = url.searchParams.get('p') || url.searchParams.get('page') || '1'
-            if (bvid) return {ok: true, url: `https://player.bilibili.com/player.html?bvid=${bvid}&page=${page}&high_quality=1`}
-            if (aid) return {ok: true, url: `https://player.bilibili.com/player.html?aid=${aid}&page=${page}&high_quality=1`}
+            if (bvid) return {ok: true, embed: true, url: `https://player.bilibili.com/player.html?bvid=${bvid}&page=${page}&high_quality=1`}
+            if (aid) return {ok: true, embed: true, url: `https://player.bilibili.com/player.html?aid=${aid}&page=${page}&high_quality=1`}
             return {ok: false, reason: 'invalid'}
         }
 
@@ -137,42 +138,43 @@ export function normalizeVideoUrl(input: string): NormalizeVideoResult {
             const id = m[1]
             const page = url.searchParams.get('p') || '1'
             if (/^bv/i.test(id)) {
-                return {ok: true, url: `https://player.bilibili.com/player.html?bvid=${id}&page=${page}&high_quality=1`}
+                return {ok: true, embed: true, url: `https://player.bilibili.com/player.html?bvid=${id}&page=${page}&high_quality=1`}
             }
-            return {ok: true, url: `https://player.bilibili.com/player.html?aid=${id.replace(/^av/i, '')}&page=${page}&high_quality=1`}
+            return {ok: true, embed: true, url: `https://player.bilibili.com/player.html?aid=${id.replace(/^av/i, '')}&page=${page}&high_quality=1`}
         }
-        // 番剧/课程等其它页面或未知子域：交给文末白名单兜底
+        // 番剧/课程等其它页面或未知子域：交给文末白名单兜底（外链卡片）
     }
 
     /* 腾讯视频
     if (isWhitelistedHost(host, 'v.qq.com')) {
         if (path.startsWith('/txp/iframe/player.html') && url.searchParams.get('vid')) {
-            return {ok: true, url: url.toString()}
+            return {ok: true, embed: true, url: url.toString()}
         }
         const m = path.match(/\/([a-z0-9]+)\.html$/i)
-        if (m) return {ok: true, url: `https://v.qq.com/txp/iframe/player.html?vid=${m[1]}`}
-        // 其它路径：交给文末白名单兜底
+        if (m) return {ok: true, embed: true, url: `https://v.qq.com/txp/iframe/player.html?vid=${m[1]}`}
+        // 其它路径：交给文末白名单兜底（外链卡片）
     }
 
     /* 优酷
     if (isWhitelistedHost(host, 'youku.com')) {
         if (host === 'player.youku.com') {
             const mEmbed = path.match(/\/embed\/([^/?#]+)/i)
-            if (mEmbed) return {ok: true, url: `https://player.youku.com/embed/${mEmbed[1]}`}
+            if (mEmbed) return {ok: true, embed: true, url: `https://player.youku.com/embed/${mEmbed[1]}`}
         }
         const m = path.match(/id_([^./]+)/i)
-        if (m) return {ok: true, url: `https://player.youku.com/embed/${m[1]}`}
-        // 其它路径：交给文末白名单兜底
+        if (m) return {ok: true, embed: true, url: `https://player.youku.com/embed/${m[1]}`}
+        // 其它路径：交给文末白名单兜底（外链卡片）
     }
 
-    /* 白名单域名（含任意子域）下的地址原样放行 */
+    /* 白名单域名（含任意子域）下的其余页面：不做 iframe（目标站点 frame-ancestors 'self' 会拦截），
+       保留原始链接，由渲染层显示为外链卡片 */
     if (VIDEO_HOST_WHITELIST.some(domain => isWhitelistedHost(host, domain))) {
-        return {ok: true, url: url.toString()}
+        return {ok: true, embed: false, url: url.toString()}
     }
 
-    /* 视频文件直链 */
+    /* 视频文件直链（浏览器原生播放器可内嵌） */
     if (VIDEO_FILE_RE.test(path) || VIDEO_FILE_RE.test(url.toString())) {
-        return {ok: true, url: url.toString()}
+        return {ok: true, embed: true, url: url.toString()}
     }
 
     return {ok: false, reason: 'unsupported'}

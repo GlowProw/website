@@ -12,42 +12,6 @@
       <AdsWidget id="none" class="my-5 w-100" tile></AdsWidget>
 
       <v-card
-          v-if="authStore.isLogin"
-          tile
-          elevation="0"
-          class="bg-transparent">
-        <div class="d-flex align-center py-4 px-7">
-          <v-row align="center">
-            <v-col cols="auto">
-              <v-icon icon="mdi-map-marker-multiple" class="mr-2 text-amber"></v-icon>
-              {{ t('map.layerCollection') }}
-            </v-col>
-            <v-col class="text-amber">
-              <v-divider opacity=".2" thickness="2"></v-divider>
-            </v-col>
-            <v-col cols="auto">
-              <v-btn icon variant="text" density="compact" to="/account/maps" target="_blank">
-                <v-icon icon="mdi-cog"></v-icon>
-              </v-btn>
-            </v-col>
-          </v-row>
-        </div>
-
-        <v-select
-            :model-value="selectedCollectionUuid"
-            @update:model-value="emit('update:selectedCollectionUuid', $event)"
-            :items="userCollectionsSelect"
-            item-title="title"
-            item-value="uuid"
-            density="compact"
-            variant="outlined"
-            hide-details
-            :placeholder="t('map.selectCollection')"
-            class="collection-selector mx-9 mb-2">
-        </v-select>
-      </v-card>
-
-      <v-card
           tile
           elevation="0"
           class="bg-transparent"
@@ -69,9 +33,6 @@
                   @click="emit('toggle-all-layers')">
                 <span>{{ allLayersVisible ? t('map.hideAll') : t('map.showAll') }}</span>
               </v-btn>
-              <v-btn icon density="compact" variant="text" to="/account/maps" target="_blank">
-                <v-icon icon="mdi-cog"></v-icon>
-              </v-btn>
             </v-col>
           </v-row>
         </div>
@@ -84,6 +45,141 @@
               multiple
               :tile="true"
               v-model="panelOpen">
+            <!-- 船长笔记 S -->
+            <v-expansion-panel
+                class="bg-transparent"
+                elevation="0">
+              <v-expansion-panel-title class="pa-0 px-8">
+                <div class="d-flex align-center w-100" @click.stop>
+                  <div class="font-weight-bold" style="cursor: pointer">
+                    <v-icon class="mr-2">mdi-selection-marker</v-icon>
+                    {{ t('map.captainNotes') }}
+                  </div>
+                  <v-spacer></v-spacer>
+                  <v-checkbox
+                      :model-value="captainNotesVisible"
+                      @update:model-value="onToggleCaptainNotes"
+                      hide-details
+                      class="mr-2"
+                      density="compact"></v-checkbox>
+                </div>
+              </v-expansion-panel-title>
+              <v-expansion-panel-text>
+                <!-- 地图集 S -->
+                <v-select
+                    :model-value="selectedCollectionUuid"
+                    @update:model-value="emit('update:selectedCollectionUuid', $event)"
+                    :items="userCollectionsSelect"
+                    item-title="title"
+                    item-value="uuid"
+                    density="compact"
+                    variant="outlined"
+                    hide-details
+                    :placeholder="t('map.selectCollection')"
+                    class="collection-selector mx-3 mb-2">
+                  <template v-slot:prepend-inner>
+                    <p class="singe-line d-flex align-center">
+                      <v-icon icon="mdi-map-marker-multiple" class="mr-2 text-amber"></v-icon>
+                      {{ t('map.layerCollection') }}
+                    </p>
+                  </template>
+                  <template v-slot:append-inner>
+                    <v-btn icon density="compact" variant="text" to="/account/maps" target="_blank">
+                      <v-icon icon="mdi-cog"></v-icon>
+                    </v-btn>
+                  </template>
+                </v-select>
+                <!-- 地图集 E -->
+
+                <v-row density="compact" class="bg-transparent py-1 px-2">
+                  <!-- 个人标记 -->
+                  <v-col cols="6">
+                    <v-card border>
+                      <div class="bg-black w-100 py-4">
+                        <ItemSlotBase size="50px" class="mx-auto">
+                          <v-img
+                              :src="getPersonalMarkerIcon()"
+                              width="50"
+                              height="50"/>
+                        </ItemSlotBase>
+                      </div>
+                      <v-row class="px-5 py-5" align="center">
+                        <v-checkbox
+                            density="compact"
+                            :model-value="layerVisibility.shareLocation"
+                            @update:model-value="emit('update:layer-visibility', { category: 'shareLocation', visible: $event })"
+                            hide-details
+                            hide-spin-buttons></v-checkbox>
+                        <div class="ml-2">
+                          <p class="d-flex ga-2 singe-line">
+                            <span>{{ t('map.personalMarkers') }}</span>
+                          </p>
+                          <p class="d-flex ga-2 singe-line text-caption">
+                            <span class="opacity-60">{{ personalMarkersCount }} {{ t('map.locations') }}</span>
+                          </p>
+                        </div>
+                      </v-row>
+                    </v-card>
+                  </v-col>
+
+                  <!-- 路径 -->
+                  <v-col cols="6">
+                    <v-card border>
+                      <div class="bg-black w-100 py-4">
+                        <ItemSlotBase size="50px" class="mx-auto">
+                          <v-icon icon="mdi-vector-polyline" size="50"></v-icon>
+                        </ItemSlotBase>
+                      </div>
+                      <v-row class="px-5 py-5" align="center">
+                        <v-checkbox
+                            density="compact"
+                            :model-value="layerVisibility.shapePath"
+                            @update:model-value="emit('update:layer-visibility', { category: 'shapePath', visible: $event })"
+                            hide-details
+                            hide-spin-buttons></v-checkbox>
+                        <div class="ml-2">
+                          <p class="d-flex ga-2 singe-line">
+                            <span>{{ t('map.path') }}</span>
+                          </p>
+                          <p class="d-flex ga-2 singe-line text-caption">
+                            <span class="opacity-60">{{ pathShapesCount }} {{ t('map.locations') }}</span>
+                          </p>
+                        </div>
+                      </v-row>
+                    </v-card>
+                  </v-col>
+
+                  <!-- 区域 -->
+                  <v-col cols="6">
+                    <v-card border>
+                      <div class="bg-black w-100 py-4">
+                        <ItemSlotBase size="50px" class="mx-auto">
+                          <v-icon icon="mdi-vector-polygon" size="50"></v-icon>
+                        </ItemSlotBase>
+                      </div>
+                      <v-row class="px-5 py-5" align="center">
+                        <v-checkbox
+                            density="compact"
+                            :model-value="layerVisibility.shapeRegion"
+                            @update:model-value="emit('update:layer-visibility', { category: 'shapeRegion', visible: $event })"
+                            hide-details
+                            hide-spin-buttons></v-checkbox>
+                        <div class="ml-2">
+                          <p class="d-flex ga-2 singe-line">
+                            <span>{{ t('map.region') }}</span>
+                          </p>
+                          <p class="d-flex ga-2 singe-line text-caption">
+                            <span class="opacity-60">{{ regionShapesCount }} {{ t('map.locations') }}</span>
+                          </p>
+                        </div>
+                      </v-row>
+                    </v-card>
+                  </v-col>
+                </v-row>
+              </v-expansion-panel-text>
+            </v-expansion-panel>
+            <!-- 船长笔记 E -->
+
             <template v-for="(categories, groupName) in groupedCategories" :key="groupName">
               <v-expansion-panel
                   v-if="categories.length > 0"
@@ -146,39 +242,6 @@
               </v-expansion-panel>
             </template>
           </v-expansion-panels>
-
-          <v-divider class="my-3" v-if="authStore.isLogin"></v-divider>
-
-          <!-- 面板 Markers S -->
-          <v-list density="compact" class="bg-transparent px-3" v-if="authStore.isLogin">
-            <v-list-item>
-              <template v-slot:prepend>
-                <v-checkbox
-                    :model-value="layerVisibility.shareLocation"
-                    @update:model-value="emit('update:layer-visibility', { category: 'shareLocation', visible: $event })"
-                    hide-details
-                    class="mr-2"
-                    density="compact"></v-checkbox>
-                <v-card width="50" height="50" border class="bg-black mr-2 pa-1">
-                  <ItemSlotBase size="40px" class="mx-auto">
-                    <v-img
-                        :src="getPersonalMarkerIcon()"
-                        width="30"
-                        height="30"
-                        cover/>
-                  </ItemSlotBase>
-                </v-card>
-              </template>
-              <v-list-item-title>
-                {{ t('map.personalMarkers') }}
-              </v-list-item-title>
-              <v-list-item-subtitle>
-                {{ personalMarkersCount }} {{ t('map.locations') }}
-              </v-list-item-subtitle>
-            </v-list-item>
-          </v-list>
-          <!-- 面板 Markers E -->
-
         </v-card-text>
       </v-card>
     </VerticalScrollList>
@@ -190,7 +253,7 @@ import {useI18n} from 'vue-i18n';
 import {useDisplay} from 'vuetify/framework';
 import {useAuthStore} from '~/stores/userAccountStore';
 import AdsWidget from "@/components/ads/google/index.vue";
-import {onMounted, ref, watch} from 'vue';
+import {computed, onMounted, ref, watch} from 'vue';
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import {storage_account} from "@/assets/sripts/index";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
@@ -208,6 +271,8 @@ const props = defineProps<{
   getCategoryCount: (category: string) => number;
   getPersonalMarkerIcon: () => string;
   personalMarkersCount: number;
+  pathShapesCount: number;
+  regionShapesCount: number;
 }>();
 
 const emit = defineEmits(['update:modelValue', 'update:selectedCollectionUuid', 'toggle-all-layers', 'update:layer-visibility', 'update:group-visibility', 'init-visibility']);
@@ -218,8 +283,24 @@ const authStore = useAuthStore();
 
 const panelOpen = ref<number[]>([]);
 
+// 船长笔记
+const captainNotesVisible = computed(() =>
+    props.layerVisibility.shareLocation !== false
+    && props.layerVisibility.shapePath !== false
+    && props.layerVisibility.shapeRegion !== false,
+);
+
+/**
+ * 大类总开关一键切换三项（逐项走标准图层事件，持久化与全选状态由父级统一处理）
+ **/
+const onToggleCaptainNotes = (visible: boolean) => {
+  emit('update:layer-visibility', {category: 'shareLocation', visible});
+  emit('update:layer-visibility', {category: 'shapePath', visible});
+  emit('update:layer-visibility', {category: 'shapeRegion', visible});
+};
+
 watch([props.groupVisibility, props.layerVisibility], (value: any) => {
-  const isRemember = storage_account.getConfigurationItem('map', 'rememberMarkerSelection', { defaultValue: true });
+  const isRemember = storage_account.getConfigurationItem('map', 'rememberMarkerSelection', {defaultValue: true});
   if (isRemember) {
     storage_account.updateConfiguration('map', 'marker.select', {
       groupVisibility: value[0],
@@ -229,7 +310,7 @@ watch([props.groupVisibility, props.layerVisibility], (value: any) => {
 }, {deep: true});
 
 onMounted(() => {
-  const isRemember = storage_account.getConfigurationItem('map', 'rememberMarkerSelection', { defaultValue: true });
+  const isRemember = storage_account.getConfigurationItem('map', 'rememberMarkerSelection', {defaultValue: true});
   if (isRemember) {
     let d = storage_account.getConfigurationItem('map', 'marker.select');
     if (d) {

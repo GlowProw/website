@@ -120,7 +120,17 @@
             </ItemSlotBase>
           </v-col>
           <v-col>
-            {{ i.title }}
+            <div>{{ i.title }}</div>
+            <!-- 归属地图集时展示地图集名称与创建者 -->
+            <div v-if="i.collectionTitle || i.creatorName"
+                 class="text-caption text-medium-emphasis d-flex align-center flex-wrap ga-2 mt-1">
+              <span v-if="i.collectionTitle" class="d-flex align-center">
+                <v-icon size="13" class="mr-1">mdi-folder-outline</v-icon>{{ i.collectionTitle }}
+              </span>
+              <span v-if="i.creatorName" class="d-flex align-center">
+                <v-icon size="13" class="mr-1">mdi-account-outline</v-icon>{{ i.creatorName }}
+              </span>
+            </div>
           </v-col>
         </v-row>
       </div>

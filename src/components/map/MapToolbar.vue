@@ -61,12 +61,16 @@ withDefaults(defineProps<{
   searchSuggestions: any[];
   isLayerPanelVisible: boolean;
   isSettingsOpen?: boolean;
+  isLogin?: boolean;
+  marqueeMode?: boolean;
   getCategoryIcon: (category: string) => string;
 }>(), {
   isSettingsOpen: false,
+  isLogin: false,
+  marqueeMode: false,
 });
 
-const emit = defineEmits(['search', 'toggle-layers', 'toggle-settings', 'update:fullscreen']);
+const emit = defineEmits(['search', 'toggle-layers', 'toggle-settings', 'update:fullscreen', 'toggle-marquee']);
 
 const { t } = useI18n();
 const { mobile } = useDisplay();

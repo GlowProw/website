@@ -74,14 +74,14 @@ onMounted(async () => {
     // 已有绑定直接登录成功
     if (result.code === 'signin.ok') {
       authStore.setAccountToken(result.data);
-      notice.success(t('basic.tips.signin.success'));
+      notice.success(t('basic.tips.signin.success'), {mode: 'minimal'});
       const backUrl = (route.query.backUrl as string) || '/';
       return router.push(backUrl);
     }
 
     // 已登录用户绑定成功
     if (result.code === 'oauth.bind.ok') {
-      notice.success(t('basic.tips.signin.oauth.bindSuccess'));
+      notice.success(t('basic.tips.signin.oauth.bindSuccess'), {mode: 'minimal'});
       return router.push('/account/bindings');
     }
 
@@ -127,7 +127,8 @@ const onCompleteSignup = async () => {
 
     if (res?.data?.code === 'signin.ok') {
       authStore.setAccountToken(res.data.data);
-      notice.success(t('basic.tips.signin.oauth.bindSuccess'));
+      notice.success(t('basic.tips.signin.oauth.bindSuccess'), {mode: 'minimal'});
+
       const backUrl = (route.query.backUrl as string) || '/';
       await router.push(backUrl);
     } else {
@@ -155,7 +156,7 @@ const onCompleteBind = async () => {
 
     if (res?.data?.code === 'signin.ok') {
       authStore.setAccountToken(res.data.data);
-      notice.success(t('basic.tips.signin.oauth.bindAndLoginSuccess'));
+      notice.success(t('basic.tips.signin.oauth.bindAndLoginSuccess'), {mode: 'minimal'});
       const backUrl = (route.query.backUrl as string) || '/';
 
       router.push(backUrl);
@@ -208,7 +209,7 @@ const onBackRoute = () => {
           <AffixContainerView>
             <!-- 加载 S -->
             <div v-if="loading" class="text-center py-16">
-              <Loading class="mb-4"></Loading>
+              <Loading class="mb-4" size="32"></Loading>
               <div class="text-subtitle-1 font-weight-bold opacity-90">
                 {{ t('oauth.processing') }}
               </div>

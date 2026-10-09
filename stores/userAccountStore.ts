@@ -63,6 +63,8 @@ export const useAuthStore = defineStore('account', () => {
     const logout = () => {
         try {
             storage.local.rem('account')
+            // 同步清掉按账号隔离的额度会话缓存，避免换号后读到上一个账号的额度
+            storage.session.rem('quota.status')
         } catch (error) {
             console.error('登出时清除存储失败:', error)
         } finally {

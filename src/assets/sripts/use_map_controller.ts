@@ -1,4 +1,4 @@
-import { computed, ref, type Ref, type ComputedRef, watch, onUnmounted } from 'vue';
+import { computed, nextTick, ref, shallowRef, type Ref, type ComputedRef, watch, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useDisplay } from 'vuetify';
@@ -11,22 +11,37 @@ import { useMapApi } from '@/assets/sripts/api/map_service';
 import { useI18nUtils } from "@/assets/sripts/i18n_util.js";
 import { MapLocations } from "glow-prow-data";
 import { isCategoryVisibleAtZoom, getCategoryScale } from "@/assets/sripts/map_zoom_config";
-import type { MapCollection, MapPoint } from '@/assets/types/Map';
+import type { MapCollection, MapPoint, MapShape, MapShapeType, PointFormData, SharedCollectionInfo, ShapeFormData, ShapeGeometry, ShapeStyle } from '@/assets/types/Map';
+import { parseShapeGeometry, parseShapeStyle, parseShapeTags } from '@/assets/types/Map';
+import {
+    DEFAULT_PATH_COLOR,
+    DEFAULT_REGION_COLOR,
+    DEFAULT_LINE_OPACITY,
+    DEFAULT_FILL_OPACITY,
+    resolveShapeStyle,
+    isDraftUuid,
+    MapDrawController,
+    type DrawShapeMode,
+} from '@/assets/sripts/map_draw_controller';
 import { ApiError } from "@/assets/types/Api";
 import Map from 'ol/Map';
+import Collection from 'ol/Collection';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
 import Polygon from 'ol/geom/Polygon';
 import { fromLonLat, toLonLat } from 'ol/proj';
+import { containsXY, createOrUpdateEmpty, extend as extendExtent, isEmpty as isExtentEmpty } from 'ol/extent';
 import { Circle as CircleStyle, Fill, Icon, Stroke, Style } from 'ol/style';
-import { pointerMove, primaryAction } from 'ol/events/condition';
+import { always as alwaysCondition, pointerMove, primaryAction } from 'ol/events/condition';
 import Select from 'ol/interaction/Select';
 import Modify from 'ol/interaction/Modify';
 import Translate from 'ol/interaction/Translate';
+import DragBox from 'ol/interaction/DragBox';
+import DragPan from 'ol/interaction/DragPan';
 import type { Feature as OLFeature } from 'ol';
-import type { Geometry } from 'ol/geom';
+import type { Geometry, SimpleGeometry } from 'ol/geom';
 
 export interface UseMapControllerOptions {
     highlightTargetKey?: Ref<string | undefined> | ComputedRef<string | undefined> | string;
@@ -78,8 +93,11 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         'wildlife': ['crocodile', 'hippopotamus', 'shark'], // 野生动物
     };
 
-    const mapInstance: Ref<Map | null> = ref(null);
-    const vectorLayerRef: Ref<VectorLayer<VectorSource> | null> = ref(null);
+    // 必须使用 shallowRef：OpenLayers 的 Map/Layer 是带内部状态的类实例，
+    // 若被深层响应式代理包裹，layer === renderLayer 等身份比较会在代理对象上失效
+    const mapInstance: Ref<Map | null> = shallowRef(null);
+    // 同为 OL 类实例，禁止深层响应式代理
+    const vectorLayerRef: Ref<VectorLayer<VectorSource> | null> = shallowRef(null);
     const mapCenterLocation: Ref<number[]> = ref([-0.667206, 0.626653]);
     const mapBounds = ref<[number, number, number, number]>(MAP_BOUNDS);
     const locations: Ref<any[]> = ref(Object.values(MapLocations));
@@ -107,6 +125,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         pixel: [0, 0] as [number, number],
         coordinate: [0, 0] as [number, number],
         feature: null as OLFeature<Geometry> | null,
+        shapeUuid: null as string | null,
     });
 
     /** debug 模式下边界编辑是否激活 */
@@ -121,6 +140,25 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
     const showEditMarkerDialog = ref(false);
     const editingMarkerData = ref<any>(null);
     const editingOriginalId = ref<string>('');
+
+    /** 正式的个人标记编辑弹窗（右键编辑） */
+    const showPointEditDialog = ref(false);
+    const savingPointEdit = ref(false);
+    const pointEditFormRef = ref(null);
+    const pointEditForm = ref<PointFormData>({
+        title: '',
+        description: '',
+        longitude: '',
+        latitude: '',
+        address: '',
+        collectionUuid: null,
+        tags: [],
+        public: false,
+    });
+
+    /** 通用删除确认弹窗 */
+    const confirmState = ref({ visible: false, message: '', danger: true });
+    let pendingConfirmAction: (() => Promise<void> | void) | null = null;
 
     const isShowMarkModel = ref(false);
     const isShowSettings = ref(false);
@@ -149,6 +187,78 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         sharedUsers: [] as string[],
     });
     const editingMarker = ref(false);
+
+    /* =========================== 路径/区域图形 =========================== */
+    const userShapes = ref<MapShape[]>([]);
+    const showShapeDialog = ref(false);
+    const shapeDialogMode = ref<'create' | 'edit'>('create');
+    const shapeDialogType = ref<DrawShapeMode>('path');
+    const savingShape = ref(false);
+    const shapeFormRef = ref(null);
+    const selectedShapeUuid = ref<string | null>(null);
+    /** 选中的图形对象（信息卡用） */
+    const selectedShape = computed<MapShape | null>(() =>
+        userShapes.value.find(s => s.uuid === selectedShapeUuid.value) || null
+    );
+    /** 弹窗实时表单 */
+    const shapeFormData = ref<ShapeFormData>({
+        title: '',
+        description: '',
+        collectionUuid: null,
+        tags: [],
+        public: false,
+        style: {},
+    });
+    /** 提交弹窗当前对应的草稿几何 */
+    let draftShapeGeometry: ShapeGeometry | null = null;
+    /** 提交弹窗当前对应的草稿 uuid（保存成功后据此移除该草稿） */
+    let submittingDraftUuid: string | null = null;
+    /** 正在编辑属性的已保存图形 uuid */
+    let editingShapeUuid: string | null = null;
+    /** 顶点编辑后待保存的几何 */
+    let pendingShapeGeometry: ShapeGeometry | null = null;
+
+    /** 编辑模式：创建路径/区域后进入，可连续绘制未提交图形并悬停再编辑 */
+    const shapeEditMode = ref(false);
+    /** 编辑模式下被拖动过、尚未保存的已提交图形（dirtyShapeVersion 驱动菜单响应式刷新） */
+    const dirtyShapeUuids = new Set<string>();
+    const dirtyShapeVersion = ref(0);
+    const markShapeDirty = (uuid: string): void => {
+        dirtyShapeUuids.add(uuid);
+        dirtyShapeVersion.value++;
+    };
+    const unmarkShapeDirty = (uuid: string): void => {
+        if (dirtyShapeUuids.delete(uuid)) dirtyShapeVersion.value++;
+    };
+
+    /* ======================== 分享地图集（链接导入/只读） ======================== */
+    const showShareCollectionDialog = ref(false);
+    const sharedCollectionInfo = ref<SharedCollectionInfo | null>(null);
+    const importingSharedCollection = ref(false);
+    /** 非空表示当前地图正在只读浏览他人公开集合（顶部横幅用） */
+    const sharedCollectionPreview = ref<SharedCollectionInfo | null>(null);
+
+    const drawController = new MapDrawController(() => mapInstance.value, {
+        onModifyEnd: (uuid, geometry) => onShapeVerticesModified(uuid, geometry),
+        onEscapeKey: () => exitShapeEditMode(),
+    });
+    /** 工具栏绘制按钮高亮状态 */
+    const drawMode = drawController.activeMode;
+
+    /* =========================== 框选（拖框多选） =========================== */
+    /** 框选模式开关（开启后屏蔽地图平移，按住拖框选中自己的标记/路径/区域） */
+    const marqueeMode = ref(false);
+    const marqueeSelection = ref<{ points: MapPoint[]; shapes: MapShape[] }>({ points: [], shapes: [] });
+    const marqueeCount = computed(() => marqueeSelection.value.points.length + marqueeSelection.value.shapes.length);
+    /** 交给 Translate 的要素集合：真实要素 + 高亮虚影，拖动任意一个整组一起动 */
+    const marqueeFeatures = new Collection<OLFeature<Geometry>>();
+    const marqueeGhostSource = new VectorSource({ wrapX: false });
+    let marqueeGhostLayer: VectorLayer<VectorSource> | null = null;
+    let marqueeGhostFeatures: OLFeature<Geometry>[] = [];
+    let dragBox: DragBox | null = null;
+    let marqueeTranslate: Translate | null = null;
+    /** 一次整组平移开始时各要素的首个投影坐标，松手时据此算位移并持久化 */
+    let marqueeDragSnapshot: Record<string, number[]> | null = null;
 
     const availableCategories = computed(() => {
         const uniqueCategories = [...new Set(locations.value.map(loc => loc.category))];
@@ -186,6 +296,19 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
     });
 
     const personalMarkersCount = computed(() => personalMarkers.value.length);
+
+    // “船长笔记”大类：当前地图集/未分组下已保存的路径、区域数量
+    const pathShapesCount = computed(() => userShapes.value.filter(s => s.shapeType === 'path').length);
+    const regionShapesCount = computed(() => userShapes.value.filter(s => s.shapeType === 'region').length);
+
+    // 图层面板的路径/区域开关 → 同步到图形绘制控制器（即时显隐 + 命中/框选跳过）
+    watch(
+        () => [layerVisibility.value.shapePath !== false, layerVisibility.value.shapeRegion !== false] as const,
+        ([pathVisible, regionVisible]) => {
+            drawController.setTypeVisibility('path', pathVisible);
+            drawController.setTypeVisibility('region', regionVisible);
+        },
+    );
 
     const userCollectionsSelect = computed(() => {
         return [{ title: t('none'), uuid: null }].concat(userCollections.value as []);
@@ -252,14 +375,15 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
     watch(selectedCollectionUuid, async (newCollectionUuid) => {
         if (!authStore.isLogin) return;
 
-        if (newCollectionUuid) {
-            storageObj.local.set('map.selectedCollection', newCollectionUuid);
-            await loadCollectionPoints(newCollectionUuid);
+        const uuid = newCollectionUuid || null;
+        if (uuid) {
+            storageObj.local.set('map.selectedCollection', uuid);
         } else {
             storageObj.local.rem('map.selectedCollection');
-            personalMarkers.value = [];
-            onRemovePersonalMarkersFromMap();
         }
+        // 用户切回自己的集合，退出他人集合的只读预览
+        sharedCollectionPreview.value = null;
+        await runCollectionLoad(uuid);
     });
 
     onUnmounted(() => {
@@ -267,6 +391,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             cancelAnimationFrame(animFrameId);
             animFrameId = null;
         }
+        drawController.dispose();
     });
 
     /**
@@ -571,6 +696,12 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         vectorLayerRef.value = vectorLayer;
         map.addLayer(vectorLayer);
 
+        // 路径/区域绘制图层与交互
+        drawController.attach();
+
+        // 框选拖框 / 整组平移交互（默认未激活，由工具栏开关打开）
+        setupMarqueeInteractions(map);
+
         // 监听缩放变化，动态切换不同分类标记的平滑过渡动画
         map.getView().on('change:resolution', () => {
             triggerTransitionAnimation();
@@ -594,12 +725,13 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         map.addInteraction(translateInteraction);
 
         const updateTranslateActive = () => {
-            const active = isDebug.value && isMarkerDraggingEnabled.value;
+            // 框选整组平移进行中时关掉 debug 单点拖拽，避免两个 Translate 各挪一倍
+            const active = isDebug.value && isMarkerDraggingEnabled.value && marqueeCount.value === 0;
             translateInteraction.setActive(active);
         };
 
         updateTranslateActive();
-        watch([isDebug, isMarkerDraggingEnabled], () => {
+        watch([isDebug, isMarkerDraggingEnabled, marqueeCount], () => {
             updateTranslateActive();
         });
 
@@ -676,6 +808,31 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
                 return;
             }
             closeContextMenu();
+
+            // 框选模式下单击不做点位/图形选中（清空框选结果由 DragBox 的零面积 boxend 负责）
+            if (marqueeMode.value) {
+                selectedShapeUuid.value = null;
+                model.value = false;
+                showCoordinateInfo.value = false;
+                return;
+            }
+
+            // 绘制模式下的点击全部交给 Draw 交互
+            if (drawController.isActive()) return;
+
+            // 优先命中路径/区域图形（未提交草稿不支持单击选中卡片，仅右键可提交/删除）
+            let hitShapeUuid: string | null = null;
+            drawController.forEachShapeAtPixel(event.pixel, (uuid) => {
+                hitShapeUuid = uuid;
+            });
+            if (hitShapeUuid && !isDraftUuid(hitShapeUuid)) {
+                selectedShapeUuid.value = hitShapeUuid;
+                showCoordinateInfo.value = false;
+                model.value = false;
+                return;
+            }
+            selectedShapeUuid.value = null;
+
             const feature = map.forEachFeatureAtPixel(event.pixel,
                 (feature) => feature as OLFeature<Geometry>,
                 { layerFilter: (l) => l.get('isMainVectorLayer') === true, hitTolerance: 10 }
@@ -715,7 +872,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         // 阻止浏览器默认右键菜单
         map.getTargetElement().addEventListener('contextmenu', (e) => e.preventDefault());
 
-        // 右键菜单（桌面）
+        // 右键菜单（桌面）；绘制图形过程中菜单里只保留“退出绘制模式”，不做命中检测
         map.getTargetElement().addEventListener('contextmenu', (e: MouseEvent) => {
             const pixel = map.getEventPixel(e);
             let feature = map.forEachFeatureAtPixel(pixel,
@@ -729,8 +886,13 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
                     feature = null;
                 }
             }
+            let hitShapeUuid: string | null = null;
+            drawController.forEachShapeAtPixel(pixel as [number, number], (uuid) => {
+                // 编辑模式下未提交草稿也需要右键提交/删除
+                hitShapeUuid = uuid;
+            });
             const coord = toLonLat(map.getCoordinateFromPixel(pixel));
-            openContextMenu(e.clientX, e.clientY, pixel as [number, number], coord as [number, number], feature);
+            openContextMenu(e.clientX, e.clientY, pixel as [number, number], coord as [number, number], feature, hitShapeUuid);
         });
 
         // 触摸长按（移动设备）
@@ -744,6 +906,12 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
 
         await onLoadUserCollections();
 
+        // watcher 非 immediate，无本地缓存集合（未分组）时不会触发加载，这里无条件首载一次
+        await runCollectionLoad(selectedCollectionUuid.value || null);
+
+        // /account/maps 管理页跳转联动（draw/focus/edit）
+        await handleMapActionQuery();
+
         if (queryKey) {
             await onHandleUrlParams(queryKey as string, queryX as string, queryY as string, queryCategory as string, vectorSource);
         }
@@ -755,8 +923,23 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         clientY: number,
         pixel: [number, number],
         coordinate: [number, number],
-        feature: OLFeature<Geometry> | null
+        feature: OLFeature<Geometry> | null,
+        shapeUuid: string | null = null
     ) => {
+        // 右键个人标记时直接把卡片对准这个点，让"右键的目标就是这个点"
+        const pointData = feature?.get('originalData');
+        if (pointData?.category === 'shareLocation') {
+            selectedPoint.value = pointData as MapPoint;
+            selectedLocationData.value = {
+                ...pointData,
+                id: pointData.id,
+                name: pointData.title,
+                category: 'shareLocation',
+            };
+            model.value = true;
+            showCoordinateInfo.value = false;
+            selectedShapeUuid.value = null;
+        }
         contextMenuState.value = {
             visible: true,
             x: clientX,
@@ -764,6 +947,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             pixel,
             coordinate,
             feature,
+            shapeUuid,
         };
     };
 
@@ -790,7 +974,11 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             touchStartX = t.clientX;
             touchStartY = t.clientY;
             touchTimer = setTimeout(() => {
-                const pixel = map.getEventPixel(e);
+                // 绘制图形过程中长按不弹菜单，避免打断绘图
+                if (drawController.isActive()) return;
+                // 框选模式下静止长按（移动超过 8px 会取消计时器，不影响拖框）照常弹菜单，
+                // 触屏端需要靠它退出框选模式
+                const pixel = map.getEventPixel({ clientX: t.clientX, clientY: t.clientY });
                 let feature = map.forEachFeatureAtPixel(pixel,
                     (f) => f as OLFeature<Geometry>,
                     { layerFilter: (l) => l.get('isMainVectorLayer') === true, hitTolerance: 15 }
@@ -802,8 +990,13 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
                         feature = null;
                     }
                 }
+                let hitShapeUuid: string | null = null;
+                drawController.forEachShapeAtPixel(pixel as [number, number], (uuid) => {
+                    // 编辑模式下未提交草稿也需要右键提交/删除
+                    hitShapeUuid = uuid;
+                });
                 const coord = toLonLat(map.getCoordinateFromPixel(pixel));
-                openContextMenu(t.clientX, t.clientY, pixel as [number, number], coord as [number, number], feature);
+                openContextMenu(t.clientX, t.clientY, pixel as [number, number], coord as [number, number], feature, hitShapeUuid);
             }, LONG_PRESS_MS);
         }, { passive: true });
 
@@ -831,74 +1024,227 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
      * 根据点击的 feature 和 debug 状态动态生成
      */
     const contextMenuItems = computed(() => {
-        const feature = contextMenuState.value.feature;
+        // ref 解包会把 Feature 类结构化成丢失私有字段的类型，这里还原回类类型
+        const feature = contextMenuState.value.feature as OLFeature<Geometry> | null;
         const coord = contextMenuState.value.coordinate;
         const items: any[] = [];
 
-        if (feature) {
-            // 点击了地标
-            const originalData = feature.get('originalData');
-            const locId = originalData?.id || feature.get('id');
-            const locName = getLocationDisplayName(originalData || { id: locId });
+        // 正在绘制一笔时右键只给一个安全出口，避免其它操作打断绘图
+        if (drawController.isActive()) {
             items.push({
-                icon: 'mdi-information-outline',
-                label: `${t('map.contextMenu.openDetail') || '打开详情'}${locName ? ` (${locName})` : ''}`,
-                action: () => openLocationDetail(locId),
+                icon: 'mdi-close',
+                label: t('map.contextMenu.exitDrawMode') || '退出绘制模式',
+                action: () => drawController.cancelDraw(),
             });
+            items.push({
+                icon: 'mdi-exit-to-app',
+                color: 'amber',
+                label: t('map.contextMenu.exitEditMode') || '退出编辑模式',
+                action: () => exitShapeEditMode(),
+            });
+            return items;
+        }
 
-            // DEBUG 模式下地标专属操作
-            if (isDebug.value) {
+        // 编辑模式：置顶退出入口（未提交内容会在退出前弹确认）
+        if (shapeEditMode.value) {
+            items.push({
+                icon: 'mdi-exit-to-app',
+                color: 'amber',
+                label: t('map.contextMenu.exitEditMode') || '退出编辑模式',
+                action: () => exitShapeEditMode(),
+            });
+            items.push({ type: 'divider' });
+        }
+
+        // 单图形顶点编辑中：置顶保存与退出（图形信息卡上也有同样按钮）
+        if (drawController.editingShapeUuid.value) {
+            const editingUuid = drawController.editingShapeUuid.value;
+            items.push({
+                icon: 'mdi-content-save-check-outline',
+                label: t('map.contextMenu.saveVertices') || '保存顶点修改',
+                action: () => void saveShapeVertexEdit(editingUuid),
+            });
+            items.push({
+                icon: 'mdi-close',
+                label: t('map.contextMenu.exitVertexMode') || '退出编辑模式',
+                action: () => cancelShapeVertexEdit(),
+            });
+            items.push({ type: 'divider' });
+        }
+
+        // 框选模式：置顶退出与清空选择
+        if (marqueeMode.value) {
+            if (marqueeCount.value > 0) {
                 items.push({
-                    icon: 'mdi-pencil',
-                    label: t('map.contextMenu.editMarker') || '编辑标记',
-                    badge: 'DEBUG',
-                    action: () => openEditMarker(feature),
+                    icon: 'mdi-close-box-outline',
+                    label: t('map.marquee.cancel') || '取消选择',
+                    action: () => clearMarqueeSelection(),
                 });
+            }
+            items.push({ type: 'divider' });
+        }
+
+        if (feature) {
+            const originalData = feature.get('originalData');
+
+            if (originalData?.category === 'shareLocation') {
+                // 个人标记：属主右键置顶「编辑」直接弹出编辑窗口，另有查看卡片/删除
+                const point = originalData as MapPoint;
+                const pointName = point.title || point.id;
+                const pointOwned = point.userId === authStore.user?.userId;
+                if (pointOwned) {
+                    items.push({
+                        icon: 'mdi-pencil',
+                        color: 'amber',
+                        label: t('map.contextMenu.editThisMarker') || '编辑此标记',
+                        action: () => onOpenPointEdit(feature),
+                    });
+                }
                 items.push({
-                    icon: 'mdi-content-copy',
-                    label: t('map.contextMenu.cloneMarker') || '在此克隆此标记',
-                    badge: 'DEBUG',
-                    action: () => cloneMarker(originalData || feature, coord),
+                    icon: 'mdi-information-outline',
+                    label: `${t('map.contextMenu.viewPoint') || '查看标记'}${pointName ? ` (${pointName})` : ''}`,
+                    action: () => focusPointFeature(feature),
                 });
+                if (pointOwned) {
+                    items.push({
+                        icon: 'mdi-delete-outline',
+                        label: t('map.contextMenu.deletePoint') || '删除标记',
+                        danger: true,
+                        action: () => onDeletePointFromMenu(feature),
+                    });
+                }
+                items.push({ type: 'divider' });
+            } else {
+                // 游戏内置地标
+                const locId = originalData?.id || feature.get('id');
+                const locName = getLocationDisplayName(originalData || { id: locId });
                 items.push({
-                    icon: 'mdi-code-json',
-                    label: t('map.contextMenu.copyMarkerJson') || '复制标记 JSON',
-                    badge: 'DEBUG',
-                    action: () => copyMarkerJson(originalData || feature),
+                    icon: 'mdi-information-outline',
+                    label: `${t('map.contextMenu.openDetail') || '打开详情'}${locName ? ` (${locName})` : ''}`,
+                    action: () => openLocationDetail(locId),
                 });
-                items.push({
-                    icon: 'mdi-crosshairs-gps',
-                    label: t('map.contextMenu.copyMarkerCoordinates') || '复制标记坐标',
-                    badge: 'DEBUG',
-                    action: () => copyMarkerCoordinates(originalData || feature),
-                });
+                // DEBUG 模式下地标专属操作
+                if (isDebug.value) {
+                    items.push({
+                        icon: 'mdi-pencil',
+                        label: t('map.contextMenu.editMarker') || '编辑标记',
+                        badge: 'DEBUG',
+                        action: () => openEditMarker(feature),
+                    });
+                    items.push({
+                        icon: 'mdi-content-copy',
+                        label: t('map.contextMenu.cloneMarker') || '在此克隆此标记',
+                        badge: 'DEBUG',
+                        action: () => cloneMarker(originalData || feature, coord),
+                    });
+                    items.push({
+                        icon: 'mdi-code-json',
+                        label: t('map.contextMenu.copyMarkerJson') || '复制标记 JSON',
+                        badge: 'DEBUG',
+                        action: () => copyMarkerJson(originalData || feature),
+                    });
+                    items.push({
+                        icon: 'mdi-crosshairs-gps',
+                        label: t('map.contextMenu.copyMarkerCoordinates') || '复制标记坐标',
+                        badge: 'DEBUG',
+                        action: () => copyMarkerCoordinates(originalData || feature),
+                    });
+                }
             }
         }
 
-        // 在此添加标记
-        items.push({
-            icon: 'mdi-map-marker-plus',
-            label: t('map.contextMenu.addMarker') || '在此添加标记',
-            action: () => {
-                clickedCoordinate.value = { longitude: coord[0], latitude: coord[1] };
-                newMarkerData.value = {
-                    collectionUuid: selectedCollectionUuid.value || (userCollections.value[0]?.uuid || ''),
-                    title: '',
-                    description: '',
-                    longitude: coord[0],
-                    latitude: coord[1],
-                    address: '',
-                    tags: [],
-                    public: false,
-                    sharedUsers: [],
-                };
-                editingMarker.value = false;
-                showCoordinateInfo.value = true;
-                model.value = false;
-                showCreateMarkerDialog.value = true;
-                router.push({ name: route.name, query: {} });
-            },
-        });
+        // 点击了路径/区域图形（可能是未提交草稿）
+        if (contextMenuState.value.shapeUuid) {
+            const shapeUuid = contextMenuState.value.shapeUuid;
+            const draft = isDraftUuid(shapeUuid);
+            const draftRender = draft ? drawController.getRenderFeature(shapeUuid) : null;
+            const draftType = draftRender?.get('shapeType') as MapShapeType | undefined;
+            const shape = draft ? null : userShapes.value.find(s => s.uuid === shapeUuid);
+            const draftOwner = draftRender?.get('userId') as string | null | undefined;
+            const isOwner = draft
+                ? draftOwner === authStore.user?.userId
+                : shape?.userId === authStore.user?.userId;
+            const typeName = (draft ? draftType : shape?.shapeType) === 'region'
+                ? (t('map.region') || '区域')
+                : (t('map.path') || '路径');
+
+            if (draft) {
+                // 未提交草稿：提交或删除（编辑模式本人图形才会出现在这里）
+                if (isOwner) {
+                    items.push({
+                        icon: 'mdi-upload-outline',
+                        color: 'amber',
+                        label: t('map.contextMenu.submitDraft') || '提交未提交图形',
+                        action: () => submitDraftShape(shapeUuid),
+                    });
+                    items.push({
+                        icon: 'mdi-delete-outline',
+                        label: t('map.contextMenu.deleteDraft') || '删除未提交图形',
+                        danger: true,
+                        action: () => deleteDraftShape(shapeUuid),
+                    });
+                    items.push({ type: 'divider' });
+                }
+            } else if (shape) {
+                const shapeName = shape.title || typeName;
+                // 图形信息面板已在展示该图形时，菜单里不提供「图形信息」
+                if (selectedShapeUuid.value !== shapeUuid) {
+                    items.push({
+                        icon: 'mdi-information-outline',
+                        label: `${t('map.contextMenu.shapeInfo') || '查看图形'} (${shapeName})`,
+                        action: () => {
+                            selectedShapeUuid.value = shapeUuid;
+                        },
+                    });
+                }
+
+                // 属主右键置顶「编辑此路径/编辑此区域」，直接弹出对应编辑窗口
+                if (isOwner) {
+                    items.push({
+                        icon: 'mdi-pencil',
+                        color: 'amber',
+                        label: shape.shapeType === 'region'
+                            ? (t('map.contextMenu.editThisRegion') || '编辑此区域')
+                            : (t('map.contextMenu.editThisPath') || '编辑此路径'),
+                        action: () => openShapeEdit(shapeUuid),
+                    });
+                }
+                // 编辑类操作仅属主可见，分享/公开场景只保留查看
+                if (isOwner) {
+                    // 读取 dirty 版本号，使顶点被拖动后菜单能即时刷新出保存/还原项
+                    void dirtyShapeVersion.value;
+                    const dirty = dirtyShapeUuids.has(shapeUuid);
+                    if (dirty && shapeEditMode.value) {
+                        items.push({
+                            icon: 'mdi-content-save-check-outline',
+                            color: 'amber',
+                            label: t('map.contextMenu.saveVertices') || '保存顶点修改',
+                            action: () => void saveShapeVertexEdit(shapeUuid),
+                        });
+                        items.push({
+                            icon: 'mdi-undo',
+                            label: t('map.contextMenu.revertVertices') || '还原顶点修改',
+                            action: () => revertDirtyShape(shapeUuid),
+                        });
+                    }
+                    items.push({
+                        icon: 'mdi-vector-square-edit',
+                        label: t('map.contextMenu.editShapeVertices') || '编辑路径顶点',
+                        action: () => beginShapeVertexEdit(shapeUuid),
+                    });
+                    items.push({
+                        icon: 'mdi-delete-outline',
+                        label: t('map.contextMenu.deleteShape') || '删除图形',
+                        danger: true,
+                        action: () => {
+                            selectedShapeUuid.value = shapeUuid;
+                            void deleteShape(shapeUuid);
+                        },
+                    });
+                }
+                items.push({ type: 'divider' });
+            }
+        }
 
         // 复制坐标
         items.push({
@@ -913,6 +1259,128 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             label: t('map.contextMenu.copyLocationLink') || '复制当前位置链接',
             action: () => copyLocationLink(coord, feature),
         });
+
+        // 登录用户：在右键菜单里创建路径/区域、批量清除当前地图上的路径/区域
+        if (authStore.isLogin) {
+            items.push({ type: 'divider' });
+            // 在此添加标记
+            items.push({
+                icon: 'mdi-map-marker-plus',
+                label: t('map.contextMenu.addMarker') || '在此添加标记',
+                action: () => {
+                    clickedCoordinate.value = { longitude: coord[0], latitude: coord[1] };
+                    newMarkerData.value = {
+                        collectionUuid: selectedCollectionUuid.value || null,
+                        title: '',
+                        description: '',
+                        longitude: coord[0],
+                        latitude: coord[1],
+                        address: '',
+                        tags: [],
+                        public: false,
+                        sharedUsers: [],
+                    };
+                    editingMarker.value = false;
+                    showCoordinateInfo.value = true;
+                    model.value = false;
+                    showCreateMarkerDialog.value = true;
+                    router.push({ name: route.name, query: {} });
+                },
+            });
+            items.push({
+                icon: 'mdi-vector-polyline',
+                label: t('map.contextMenu.createPath') || '创建路径',
+                action: () => onStartDraw('path'),
+            });
+            items.push({
+                icon: 'mdi-vector-polygon',
+                label: t('map.contextMenu.createRegion') || '创建区域',
+                action: () => onStartDraw('region'),
+            });
+
+            items.push({ type: 'divider' });
+            if (marqueeMode.value) {
+                items.push({
+                    icon: 'mdi-selection-drag',
+                    color: 'amber',
+                    label: t('map.contextMenu.exitMarqueeMode') || '退出框选模式',
+                    action: () => setMarqueeMode(false),
+                });
+            } else {
+                items.push({
+                    icon: 'mdi-selection-drag',
+                    color: 'amber',
+                    label: t('map.contextMenu.enterMarqueeMode') || '框选模式',
+                    action: () => setMarqueeMode(true),
+                });
+            }
+
+            // 当前地图上本人的已提交路径/区域
+            const ownedShapesOnMap = drawController.getShapeUuids()
+                .filter(uuid => uuid && !isDraftUuid(uuid))
+                .map(uuid => userShapes.value.find(s => s.uuid === uuid))
+                .filter((s): s is MapShape => !!s && s.userId === authStore.user?.userId);
+            const ownedPaths = ownedShapesOnMap.filter(s => s.shapeType === 'path');
+            const ownedRegions = ownedShapesOnMap.filter(s => s.shapeType === 'region');
+
+            // 当前地图上本人的未提交草稿（仅编辑模式存在）
+            const draftPaths = drawController.getDraftUuids()
+                .filter(uuid => drawController.getRenderFeature(uuid)?.get('shapeType') === 'path');
+            const draftRegions = drawController.getDraftUuids()
+                .filter(uuid => drawController.getRenderFeature(uuid)?.get('shapeType') === 'region');
+
+            /** 构建某类图形的「删除」二级菜单：所有 / 已提交 / 未提交 */
+            const buildDeleteShapeSubmenu = (
+                shapeType: MapShapeType,
+                parentIcon: string,
+                submitted: MapShape[],
+                drafts: string[],
+            ): any => {
+                const isRegion = shapeType === 'region';
+                const total = submitted.length + drafts.length;
+                return {
+                    icon: parentIcon,
+                    danger: true,
+                    disabled: total === 0,
+                    label: `${isRegion
+                        ? (t('map.contextMenu.deleteRegions') || '删除区域')
+                        : (t('map.contextMenu.deletePaths') || '删除路径')} (${total})`,
+                    children: [
+                        {
+                            icon: 'mdi-delete-sweep-outline',
+                            danger: true,
+                            disabled: total === 0,
+                            label: `${isRegion
+                                ? (t('map.contextMenu.deleteAllRegions') || '删除所有地图上区域')
+                                : (t('map.contextMenu.deleteAllPaths') || '删除所有地图上路径')} (${total})`,
+                            action: () => onClearShapesByType(shapeType, 'all'),
+                        },
+                        {
+                            icon: 'mdi-cloud-check-outline',
+                            danger: true,
+                            disabled: submitted.length === 0,
+                            label: `${isRegion
+                                ? (t('map.contextMenu.deleteSubmittedRegions') || '删除已提交区域')
+                                : (t('map.contextMenu.deleteSubmittedPaths') || '删除已提交路径')} (${submitted.length})`,
+                            action: () => onClearShapesByType(shapeType, 'submitted'),
+                        },
+                        {
+                            icon: 'mdi-pencil-ruler',
+                            danger: true,
+                            disabled: drafts.length === 0,
+                            label: `${isRegion
+                                ? (t('map.contextMenu.deleteDraftRegions') || '删除未提交区域')
+                                : (t('map.contextMenu.deleteDraftPaths') || '删除未提交路径')} (${drafts.length})`,
+                            action: () => onClearShapesByType(shapeType, 'draft'),
+                        },
+                    ],
+                };
+            };
+
+            items.push({ type: 'divider' });
+            items.push(buildDeleteShapeSubmenu('path', 'mdi-vector-line-remove', ownedPaths, draftPaths));
+            items.push(buildDeleteShapeSubmenu('region', 'mdi-vector-polygon-remove', ownedRegions, draftRegions));
+        }
 
         // debug 模式额外菜单项
         if (isDebug.value) {
@@ -1322,51 +1790,83 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
      * @param vectorSource
      */
     const onHandleUrlParams = async (queryKey: string, queryX: string, queryY: string, queryCategory: string, vectorSource: VectorSource): Promise<void> => {
-        const existingLocation = locations.value.find(loc => loc.id === queryKey);
+        const lon = Number.parseFloat(queryX as string);
+        const lat = Number.parseFloat(queryY as string);
+        const hasCoord = Number.isFinite(lon) && Number.isFinite(lat)
+            && lon >= -180 && lon <= 180 && lat >= -90 && lat <= 90;
+        const key = typeof queryKey === 'string' ? queryKey : '';
+        const category = typeof queryCategory === 'string' ? queryCategory : '';
+
+        // 无论哪种链接，只要带了合法坐标，打开就先定位过去
+        if (hasCoord) {
+            targetLongitude.value = lon;
+            targetLatitude.value = lat;
+        }
+
+        const existingLocation = key ? locations.value.find(loc => loc.id === key) : undefined;
 
         if (existingLocation) {
-
             targetLocationId.value = existingLocation.id;
             selectedLocationData.value = existingLocation;
             model.value = true;
+            return;
+        }
 
-        } else if (queryX && queryY && queryCategory) {
-            if (queryCategory === 'shareLocation') {
-                const personalMarker = personalMarkers.value.find(marker => marker.id === queryKey);
-
-                if (personalMarker) {
-                    targetLongitude.value = personalMarker.longitude;
-                    targetLatitude.value = personalMarker.latitude;
-                    selectedLocationData.value = { ...personalMarker, category: 'shareLocation', id: personalMarker.id, name: personalMarker.title };
-                    model.value = true;
-                }
-            } else {
-                const loadLocation = {
-                    name: queryKey as string,
-                    id: queryKey as string,
-                    latitude: parseFloat(queryY as string),
-                    longitude: parseFloat(queryX as string),
-                    category: queryCategory as string,
-                    dateAdded: new Date().toISOString(),
-                    lastUpdated: new Date().toISOString(),
-                };
-                const newFeature = onCreateFeatureFromLocation(loadLocation);
-                vectorSource.addFeature(newFeature);
-
-                if (!layerVisibility.value[queryCategory]) {
-                    layerVisibility.value[queryCategory] = true;
-                    onUpdateAllLayersVisibleState();
-                }
-
-                targetLongitude.value = parseFloat(queryX as string);
-                targetLatitude.value = parseFloat(queryY as string);
-                selectedLocationData.value = loadLocation;
+        if (key && category === 'shareLocation') {
+            const personalMarker = personalMarkers.value.find(marker => marker.id === key);
+            if (personalMarker) {
+                selectedPoint.value = personalMarker;
+                selectedLocationData.value = { ...personalMarker, category: 'shareLocation', id: personalMarker.id, name: personalMarker.title };
                 model.value = true;
-
-                if (queryCategory === 'shareLocation') {
-                    locations.value.push(loadLocation);
+                return;
+            }
+            // 标记可能在别的集合里、本地尚未加载，直接按 uuid 拉详情（无权限则只保留定位）
+            if (authStore.isLogin) {
+                try {
+                    const resp = await api.getPointDetail(key);
+                    const point = resp.data.point as MapPoint;
+                    ensurePointFeatureVisible(point);
+                    selectedPoint.value = point;
+                    selectedLocationData.value = { ...point, id: point.id, name: point.title, category: 'shareLocation' };
+                    model.value = true;
+                } catch {
+                    // 拉取失败不打断，地图仍已定位到链接坐标
                 }
             }
+            return;
+        }
+
+        if (key && category && hasCoord) {
+            const loadLocation = {
+                name: key,
+                id: key,
+                latitude: lat,
+                longitude: lon,
+                category,
+                dateAdded: new Date().toISOString(),
+                lastUpdated: new Date().toISOString(),
+            };
+            const newFeature = onCreateFeatureFromLocation(loadLocation);
+            vectorSource.addFeature(newFeature);
+
+            if (!layerVisibility.value[category]) {
+                layerVisibility.value[category] = true;
+                onUpdateAllLayersVisibleState();
+            }
+
+            selectedLocationData.value = loadLocation;
+            model.value = true;
+
+            if (category === 'shareLocation') {
+                locations.value.push(loadLocation);
+            }
+            return;
+        }
+
+        // 裸坐标链接（?x=&y=）：没有标记信息，定位并展示坐标卡片即可
+        if (hasCoord && !key) {
+            clickedCoordinate.value = { longitude: lon, latitude: lat };
+            showCoordinateInfo.value = true;
         }
     };
 
@@ -1400,20 +1900,1209 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
     };
 
     /**
-     * 加载用户点
-     * @param collectionUuid
+     * 加载当前集合（或未分组）的用户标记点
+     * @param collectionUuid null=未分组
      */
-    const loadCollectionPoints = async (collectionUuid: string): Promise<void> => {
+    let pointsLoadSeq = 0;
+    const loadCurrentPoints = async (collectionUuid: string | null): Promise<void> => {
+        if (!authStore.isLogin) return;
+        const seq = ++pointsLoadSeq;
         try {
-            if (!authStore.isLogin && !collectionUuid) return;
-            const result = await api.getCollectionPoints(collectionUuid);
+            const result = collectionUuid
+                ? await api.getCollectionPoints(collectionUuid, {page: 1, pageSize: 100})
+                : await api.getOrphanPoints({page: 1, pageSize: 100});
+            // 快速切换集合时只认最后一次请求，防止旧响应覆盖新数据
+            if (seq !== pointsLoadSeq) return;
             personalMarkers.value = result.data.points;
             onAddPersonalMarkersToMap(result.data.points);
+        } catch (e) {
+            if (seq !== pointsLoadSeq) return;
+            if (e instanceof ApiError) {
+                notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
+            }
+            console.error(e);
+        }
+    };
+
+    /** 兼容旧调用名 */
+    const loadCollectionPoints = async (collectionUuid: string): Promise<void> => {
+        await loadCurrentPoints(collectionUuid);
+    };
+
+    /* ============================== 路径/区域 ============================== */
+
+    /**
+     * 加载某集合（或未分组）的全部图形并渲染。
+     * preserveEditMode：编辑模式内保存/删除后的局部刷新置 true，只差量同步已提交图形，
+     * 保留未提交草稿、触控带与编辑模式本身；切换集合/退出编辑则全量重建。
+     */
+    let shapesLoadSeq = 0;
+    const loadCollectionShapes = async (
+        collectionUuid: string | null,
+        preserveEditMode = false,
+    ): Promise<void> => {
+        // 切换地图集时编辑模式一并结束，未提交草稿不属于新集合
+        if (shapeEditMode.value && !preserveEditMode) {
+            drawController.setEditMode(false);
+            shapeEditMode.value = false;
+            drawController.removeDraft();
+            dirtyShapeUuids.clear();
+            dirtyShapeVersion.value++;
+        }
+        if (!authStore.isLogin) {
+            drawController.clearShapes();
+            userShapes.value = [];
+            return;
+        }
+        const seq = ++shapesLoadSeq;
+        try {
+            const result = collectionUuid
+                ? await api.getCollectionShapes(collectionUuid)
+                : await api.getOrphanShapes();
+            if (seq !== shapesLoadSeq) return;
+            const serverShapes = result.data.shapes || [];
+            userShapes.value = serverShapes;
+
+            if (shapeEditMode.value && preserveEditMode) {
+                // 编辑模式内的静默刷新：差量更新已提交图形，未提交草稿一律保留
+                const serverUuids = new Set(serverShapes.map(s => s.uuid));
+                drawController.getShapeUuids().forEach(uuid => {
+                    if (!isDraftUuid(uuid) && !serverUuids.has(uuid)) {
+                        drawController.removeShape(uuid);
+                    }
+                });
+                serverShapes.forEach(shape => {
+                    // 正在单图形顶点编辑、或已有未保存顶点修改的要素不重建，避免打断/覆盖本地状态
+                    if (drawController.editingShapeUuid.value === shape.uuid) return;
+                    if (dirtyShapeUuids.has(shape.uuid)) return;
+                    drawController.upsertShape(shape);
+                });
+                return;
+            }
+
+            drawController.clearShapes();
+            serverShapes.forEach(shape => drawController.upsertShape(shape));
+            selectedShapeUuid.value = null;
+        } catch (e) {
+            if (seq !== shapesLoadSeq) return;
+            if (e instanceof ApiError) {
+                notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
+            }
+            console.error(e);
+        }
+    };
+
+    /** 最近一次"点位 + 图形"成对加载，供初始化与 query 联动等待收口 */
+    let currentCollectionLoad: Promise<void> = Promise.resolve();
+    /** 在途的同集合加载（初始化与 watcher 可能同时触发同一集合，避免重复请求） */
+    let inflightCollectionLoad: { uuid: string | null; promise: Promise<void> } | null = null;
+    const runCollectionLoad = (uuid: string | null): Promise<void> => {
+        if (inflightCollectionLoad && inflightCollectionLoad.uuid === uuid) {
+            currentCollectionLoad = inflightCollectionLoad.promise;
+            return inflightCollectionLoad.promise;
+        }
+        const promise = Promise.all([
+            loadCurrentPoints(uuid),
+            loadCollectionShapes(uuid),
+        ]).then(() => undefined);
+        inflightCollectionLoad = { uuid, promise };
+        promise.finally(() => {
+            if (inflightCollectionLoad?.promise === promise) inflightCollectionLoad = null;
+        });
+        currentCollectionLoad = promise;
+        return promise;
+    };
+
+    /** 统一兜底为完整样式，避免取色器拿到空值时显示/写入黑色 */
+    const buildDefaultShapeStyle = (mode: DrawShapeMode): ShapeStyle => ({
+        color: mode === 'region' ? DEFAULT_REGION_COLOR : DEFAULT_PATH_COLOR,
+        opacity: DEFAULT_LINE_OPACITY,
+        width: 4,
+        dashed: false,
+        smoothed: false,
+        fillColor: mode === 'region' ? DEFAULT_REGION_COLOR : DEFAULT_PATH_COLOR,
+        fillOpacity: DEFAULT_FILL_OPACITY,
+    });
+
+    /** 工具栏/右键点击：进入编辑模式并开始一笔绘制（编辑模式下可连续画多个未提交图形） */
+    const onStartDraw = (mode: DrawShapeMode): void => {
+        if (!authStore.isLogin) return;
+        setMarqueeMode(false);
+        drawController.attach();
+        if (!shapeEditMode.value) {
+            enterShapeEditMode();
+        }
+        drawController.startDraw(mode);
+    };
+
+    /** 进入编辑模式：本人全部图形（已提交+未提交）悬停即可拖顶点再编辑 */
+    const enterShapeEditMode = (): void => {
+        drawController.setEditMode(true, authStore.user?.userId);
+        shapeEditMode.value = true;
+    };
+
+    /** 右键未提交草稿 → 提交：打开属性弹窗，保存后转为正式图形 */
+    const submitDraftShape = (draftUuid: string): void => {
+        const render = drawController.getRenderFeature(draftUuid);
+        if (!render) return;
+        const rawGeometry = render.get('rawGeometry') as ShapeGeometry | undefined;
+        if (!rawGeometry) return;
+        const shapeType = render.get('shapeType') as DrawShapeMode;
+        const style = resolveShapeStyle(
+            (render.get('shapeStyle') as ShapeStyle | null) || buildDefaultShapeStyle(shapeType),
+            shapeType,
+        );
+
+        submittingDraftUuid = draftUuid;
+        draftShapeGeometry = rawGeometry;
+        editingShapeUuid = null;
+        pendingShapeGeometry = null;
+        shapeDialogMode.value = 'create';
+        shapeDialogType.value = shapeType;
+        shapeFormData.value = {
+            title: '',
+            description: '',
+            collectionUuid: selectedCollectionUuid.value || null,
+            tags: [],
+            public: false,
+            style,
+        };
+        showShapeDialog.value = true;
+    };
+
+    /** 右键未提交草稿 → 删除（仅本地，不调接口） */
+    const deleteDraftShape = (draftUuid: string): void => {
+        drawController.removeDraft(draftUuid);
+        if (selectedShapeUuid.value === draftUuid) selectedShapeUuid.value = null;
+    };
+
+    /** 是否存在未提交草稿或已提交图形的未保存顶点修改 */
+    const hasPendingShapeEdits = (): boolean =>
+        drawController.getDraftUuids().length > 0 || dirtyShapeUuids.size > 0;
+
+    /** 退出编辑模式：存在未提交内容时先请用户确认 */
+    const exitShapeEditMode = (): void => {
+        // 属性弹窗或确认框打开时，ESC 交给弹窗自身处理，不叠加触发退出
+        if (showShapeDialog.value || confirmState.value.visible) return;
+        if (drawController.isActive()) {
+            drawController.cancelDraw();
+        }
+        if (hasPendingShapeEdits()) {
+            askConfirm(t('map.contextMenu.confirmExitEditMode'), () => doExitShapeEditMode());
+            return;
+        }
+        void doExitShapeEditMode();
+    };
+
+    /** 实际退出：丢弃全部草稿、回滚已提交图形的未保存顶点修改 */
+    const doExitShapeEditMode = async (): Promise<void> => {
+        drawController.setEditMode(false);
+        shapeEditMode.value = false;
+        drawController.removeDraft();
+        dirtyShapeUuids.clear();
+        dirtyShapeVersion.value++;
+        selectedShapeUuid.value = null;
+        await loadCollectionShapes(selectedCollectionUuid.value || null);
+    };
+
+    /** 弹窗表单实时变化（草稿样式预览） */
+    const onShapeFormChange = (data: ShapeFormData): void => {
+        shapeFormData.value = data;
+        if (shapeDialogMode.value === 'create' && draftShapeGeometry && submittingDraftUuid) {
+            drawController.previewDraftStyle(
+                submittingDraftUuid, shapeDialogType.value, draftShapeGeometry, data.style,
+            );
+        }
+    };
+
+    /** 保存（新建或编辑属性） */
+    const onSaveShape = async (): Promise<void> => {
+        const formRef = (shapeFormRef.value as any)?.formRef;
+        if (!formRef) return;
+        const { valid } = await formRef.validate();
+        if (!valid) return;
+
+        savingShape.value = true;
+        try {
+            const f = shapeFormData.value;
+            if (shapeDialogMode.value === 'create') {
+                if (!draftShapeGeometry || !submittingDraftUuid) return;
+                await api.createShape({
+                    shapeType: shapeDialogType.value,
+                    title: f.title,
+                    description: f.description,
+                    collectionUuid: f.collectionUuid || null,
+                    geometry: draftShapeGeometry,
+                    style: f.style,
+                    tags: f.tags,
+                    public: f.public,
+                });
+                // 提交成功：只移除对应草稿，其他未提交草稿保留
+                drawController.removeDraft(submittingDraftUuid);
+                notice.success(t('basic.tips.map.createSuccess'));
+            } else if (editingShapeUuid) {
+                await api.updateShape(editingShapeUuid, {
+                    title: f.title,
+                    description: f.description,
+                    collectionUuid: f.collectionUuid || null,
+                    ...(pendingShapeGeometry ? { geometry: pendingShapeGeometry } : {}),
+                    style: f.style,
+                    tags: f.tags,
+                    public: f.public,
+                });
+                drawController.endEditVertices();
+                unmarkShapeDirty(editingShapeUuid);
+                notice.success(t('basic.tips.map.updateSuccess'));
+            }
+            draftShapeGeometry = null;
+            submittingDraftUuid = null;
+            editingShapeUuid = null;
+            pendingShapeGeometry = null;
+            showShapeDialog.value = false;
+            // 与服务器保持一致（保存到其他集合 / 顶点修改等场景）；编辑模式内保留其他草稿
+            await loadCollectionShapes(selectedCollectionUuid.value || null, shapeEditMode.value);
+        } catch (e) {
+            if (e instanceof ApiError) {
+                notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
+            }
+            console.error('保存图形失败:', e);
+        } finally {
+            savingShape.value = false;
+        }
+    };
+
+    /** 取消弹窗：新建仅关闭窗口，未提交草稿保留在编辑模式；编辑回滚未保存的顶点修改 */
+    const onCancelShapeDialog = (): void => {
+        if (shapeDialogMode.value === 'create') {
+            // 草稿保留，用户仍可在右键菜单中提交或删除
+        } else {
+            drawController.endEditVertices();
+        }
+        draftShapeGeometry = null;
+        submittingDraftUuid = null;
+        editingShapeUuid = null;
+        pendingShapeGeometry = null;
+        showShapeDialog.value = false;
+        if (shapeDialogMode.value === 'edit') {
+            void loadCollectionShapes(selectedCollectionUuid.value || null, shapeEditMode.value);
+        }
+    };
+
+    /** 打开已保存图形的属性/样式编辑弹窗 */
+    const openShapeEdit = (uuid: string): void => {
+        const shape = userShapes.value.find(s => s.uuid === uuid);
+        if (!shape) return;
+        drawController.endEditVertices();
+        editingShapeUuid = uuid;
+        pendingShapeGeometry = null;
+        shapeDialogMode.value = 'edit';
+        shapeDialogType.value = shape.shapeType;
+        shapeFormData.value = {
+            title: shape.title,
+            description: shape.description || '',
+            collectionUuid: shape.collectionId || null,
+            tags: parseShapeTags(shape),
+            public: shape.public === 1,
+            // 补全为完整样式：旧数据缺字段时取色器与滑块也能显示真实有效值
+            style: resolveShapeStyle(parseShapeStyle(shape), shape.shapeType),
+        };
+        showShapeDialog.value = true;
+    };
+
+    /**
+     * 顶点拖拽修改回调：
+     * 未提交草稿的修改只存在本地，无需暂存；单图形属性编辑中挂到 pending；
+     * 编辑模式下悬停拖动的已提交图形标记为 dirty，退出前需保存或回滚
+     */
+    const onShapeVerticesModified = (uuid: string, geometry: ShapeGeometry): void => {
+        if (isDraftUuid(uuid)) return;
+        if (editingShapeUuid === uuid) {
+            pendingShapeGeometry = geometry;
+            return;
+        }
+        if (shapeEditMode.value) {
+            markShapeDirty(uuid);
+        }
+    };
+
+    /** 进入单图形顶点编辑模式（信息卡按钮 / 右键菜单） */
+    const beginShapeVertexEdit = (uuid: string): void => {
+        setMarqueeMode(false);
+        selectedShapeUuid.value = uuid;
+        drawController.beginEditVertices(uuid);
+    };
+
+    /** 放弃顶点编辑并恢复（编辑模式下悬停修改的回滚走 revertDirtyShape） */
+    const cancelShapeVertexEdit = (): void => {
+        drawController.endEditVertices();
+        void loadCollectionShapes(selectedCollectionUuid.value || null, shapeEditMode.value);
+    };
+
+    /** 直接保存顶点编辑结果（信息卡快捷保存；编辑模式下悬停拖动后也走这里） */
+    const saveShapeVertexEdit = async (uuid: string): Promise<void> => {
+        const geometry = drawController.getEditingGeometry(uuid);
+        drawController.endEditVertices();
+        if (!geometry) return;
+        try {
+            await api.updateShape(uuid, { geometry });
+            unmarkShapeDirty(uuid);
+            notice.success(t('basic.tips.map.updateSuccess'));
+            await loadCollectionShapes(selectedCollectionUuid.value || null, shapeEditMode.value);
+            selectedShapeUuid.value = uuid;
         } catch (e) {
             if (e instanceof ApiError) {
                 notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
             }
             console.error(e);
+        }
+    };
+
+    /** 编辑模式下放弃某个已提交图形的悬停顶点修改，恢复到服务器版本 */
+    const revertDirtyShape = (uuid: string): void => {
+        unmarkShapeDirty(uuid);
+        void loadCollectionShapes(selectedCollectionUuid.value || null, true);
+    };
+
+    /** 删除图形 */
+    const deleteShape = async (uuid: string): Promise<void> => {
+        try {
+            await api.deleteShape(uuid);
+            unmarkShapeDirty(uuid);
+            drawController.removeShape(uuid);
+            userShapes.value = userShapes.value.filter(s => s.uuid !== uuid);
+            if (selectedShapeUuid.value === uuid) selectedShapeUuid.value = null;
+            if (marqueeSelection.value.shapes.some(s => s.uuid === uuid)) {
+                removeFromMarqueeSelection('shape', uuid);
+            }
+            notice.success(t('basic.tips.map.deleteSuccess'));
+        } catch (e) {
+            if (e instanceof ApiError) {
+                notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
+            }
+            console.error(e);
+        }
+    };
+
+    const closeShapeCard = (): void => {
+        selectedShapeUuid.value = null;
+    };
+
+    /* ========================= 个人标记：右键编辑/删除 ========================= */
+
+    /** 解析后端返回的 tags JSON 字符串 */
+    const parsePointTags = (raw: string | undefined | null): string[] => {
+        if (!raw) return [];
+        try {
+            const v = JSON.parse(raw);
+            return Array.isArray(v) ? v : [];
+        } catch {
+            return [];
+        }
+    };
+
+    /** 在主图层里按 uuid 找个人标记要素 */
+    const findPointFeatureByUuid = (uuid: string): OLFeature<Geometry> | null => {
+        const source = vectorLayerRef.value?.getSource();
+        if (!source) return null;
+        return source.getFeatures().find(f => f.get('originalData')?.uuid === uuid) || null;
+    };
+
+    /** 右键菜单"查看标记"：卡片对准该点 */
+    const focusPointFeature = (feature: OLFeature<Geometry>): void => {
+        const raw = feature.get('originalData') as MapPoint | undefined;
+        if (!raw) return;
+        selectedPoint.value = raw;
+        selectedLocationData.value = { ...raw, id: raw.id, name: raw.title, category: 'shareLocation' };
+        model.value = true;
+        showCoordinateInfo.value = false;
+    };
+
+    /** 打开个人标记编辑弹窗 */
+    const onOpenPointEdit = (feature: OLFeature<Geometry>): void => {
+        const raw = feature.get('originalData') as MapPoint | undefined;
+        if (!raw?.uuid) return;
+        pointEditForm.value = {
+            uuid: raw.uuid,
+            title: raw.title,
+            description: raw.description || '',
+            longitude: raw.longitude,
+            latitude: raw.latitude,
+            address: raw.address || '',
+            collectionUuid: raw.collectionId || null,
+            tags: parsePointTags(raw.tags),
+            public: raw.public === 1,
+        };
+        showPointEditDialog.value = true;
+    };
+
+    const onPointEditFormChange = (data: PointFormData): void => {
+        pointEditForm.value = data;
+    };
+
+    /** 保存个人标记编辑 */
+    const onSavePointEdit = async (): Promise<void> => {
+        const formRef = (pointEditFormRef.value as any)?.formRef;
+        if (!formRef) return;
+        const { valid } = await formRef.validate();
+        if (!valid) return;
+
+        const f = pointEditForm.value;
+        if (!f.uuid) return;
+        savingPointEdit.value = true;
+        try {
+            const longitude = Number(f.longitude);
+            const latitude = Number(f.latitude);
+            const collectionUuid = f.collectionUuid || null;
+            await api.updatePoint(f.uuid, {
+                title: f.title,
+                description: f.description || undefined,
+                longitude,
+                latitude,
+                address: f.address || undefined,
+                collectionUuid,
+                tags: f.tags,
+                public: f.public,
+            });
+
+            // 同步地图要素
+            const feature = findPointFeatureByUuid(f.uuid);
+            if (feature) {
+                const old = feature.get('originalData') as MapPoint;
+                const updated: MapPoint = {
+                    ...old,
+                    title: f.title,
+                    description: f.description || '',
+                    longitude,
+                    latitude,
+                    address: f.address || '',
+                    collectionId: collectionUuid || '',
+                    tags: JSON.stringify(f.tags),
+                    public: f.public ? 1 : 0,
+                };
+                feature.set('name', f.title);
+                feature.set('originalData', { ...updated, category: 'shareLocation' });
+                (feature.getGeometry() as Point).setCoordinates(fromLonLat([longitude, latitude]));
+                feature.changed();
+            }
+
+            // 同步列表 / 卡片 / 框选结果
+            const idx = personalMarkers.value.findIndex(p => p.uuid === f.uuid);
+            if (idx !== -1) {
+                personalMarkers.value[idx] = {
+                    ...personalMarkers.value[idx],
+                    title: f.title,
+                    description: f.description || '',
+                    longitude,
+                    latitude,
+                    address: f.address || '',
+                    collectionId: collectionUuid || '',
+                    tags: JSON.stringify(f.tags),
+                    public: f.public ? 1 : 0,
+                };
+            }
+            if (selectedPoint.value?.uuid === f.uuid) {
+                selectedPoint.value = { ...selectedPoint.value, title: f.title };
+            }
+            if (selectedLocationData.value?.uuid === f.uuid) {
+                selectedLocationData.value = {
+                    ...selectedLocationData.value,
+                    name: f.title,
+                    title: f.title,
+                    longitude,
+                    latitude,
+                };
+            }
+            const selectedPointIdx = marqueeSelection.value.points.findIndex(p => p.uuid === f.uuid);
+            if (selectedPointIdx !== -1 && feature) {
+                marqueeSelection.value.points[selectedPointIdx] = feature.get('originalData') as MapPoint;
+            }
+
+            showPointEditDialog.value = false;
+            notice.success(t('basic.tips.map.updateSuccess'));
+        } catch (e) {
+            if (e instanceof ApiError) {
+                notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
+            }
+            console.error('更新标记失败:', e);
+        } finally {
+            savingPointEdit.value = false;
+        }
+    };
+
+    const onCancelPointEdit = (): void => {
+        showPointEditDialog.value = false;
+    };
+
+    /** 右键删除个人标记（带确认） */
+    const onDeletePointFromMenu = (feature: OLFeature<Geometry>): void => {
+        const raw = feature.get('originalData') as MapPoint | undefined;
+        if (!raw?.uuid) return;
+        askConfirm(t('map.confirmDeletePoint', { title: raw.title || raw.id }), async () => {
+            await api.deletePoint(raw.uuid);
+            const source = vectorLayerRef.value?.getSource();
+            if (source && feature) source.removeFeature(feature);
+            personalMarkers.value = personalMarkers.value.filter(p => p.uuid !== raw.uuid);
+            if (selectedPoint.value?.uuid === raw.uuid) selectedPoint.value = null;
+            if (selectedLocationData.value?.uuid === raw.uuid) {
+                selectedLocationData.value = {};
+                model.value = false;
+            }
+            removeFromMarqueeSelection('point', raw.uuid);
+            notice.success(t('basic.tips.map.deleteSuccess'));
+        });
+    };
+
+    /* ============================= 通用确认弹窗 ============================= */
+
+    const askConfirm = (message: string, action: () => Promise<void> | void, danger = true): void => {
+        pendingConfirmAction = action;
+        confirmState.value = { visible: true, message, danger };
+    };
+
+    const onConfirmDialog = async (): Promise<void> => {
+        const action = pendingConfirmAction;
+        pendingConfirmAction = null;
+        confirmState.value.visible = false;
+        if (!action) return;
+        try {
+            await action();
+        } catch (e) {
+            if (e instanceof ApiError) {
+                notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
+            } else {
+                console.error(e);
+            }
+        }
+    };
+
+    const onCancelConfirmDialog = (): void => {
+        pendingConfirmAction = null;
+        confirmState.value.visible = false;
+    };
+
+    /* ===================== 右键菜单：删除当前地图线/区域（所有/已提交/未提交） ===================== */
+
+    const onClearShapesByType = (
+        type: MapShapeType,
+        scope: 'all' | 'submitted' | 'draft' = 'all',
+    ): void => {
+        if (!authStore.isLogin) return;
+
+        // 已提交图形（走接口批量删除）
+        const submittedTargets = scope === 'draft' ? [] : drawController.getShapeUuids()
+            .filter(uuid => uuid && !isDraftUuid(uuid))
+            .map(uuid => userShapes.value.find(s => s.uuid === uuid))
+            .filter((s): s is MapShape =>
+                !!s && s.userId === authStore.user?.userId && s.shapeType === type);
+
+        // 未提交草稿（仅本地移除）
+        const draftTargets = scope === 'submitted' ? [] : drawController.getDraftUuids()
+            .filter(uuid => drawController.getRenderFeature(uuid)?.get('shapeType') === type);
+
+        if (submittedTargets.length === 0 && draftTargets.length === 0) return;
+
+        const typeName = type === 'path' ? (t('map.path') || '路径') : (t('map.region') || '区域');
+        askConfirm(
+            t('map.confirmClearShapes', {
+                type: typeName,
+                count: submittedTargets.length + draftTargets.length,
+            }),
+            async () => {
+                // 未提交草稿：直接清本地
+                draftTargets.forEach(uuid => drawController.removeDraft(uuid));
+                if (selectedShapeUuid.value && draftTargets.includes(selectedShapeUuid.value)) {
+                    selectedShapeUuid.value = null;
+                }
+
+                // 已提交图形：批量调接口
+                if (submittedTargets.length > 0) {
+                    const uuids = submittedTargets.map(s => s.uuid);
+                    await api.batchDeleteShapes(uuids);
+                    submittedTargets.forEach(s => {
+                        unmarkShapeDirty(s.uuid);
+                        drawController.removeShape(s.uuid);
+                    });
+                    userShapes.value = userShapes.value.filter(s => !uuids.includes(s.uuid));
+                    if (selectedShapeUuid.value && uuids.includes(selectedShapeUuid.value)) {
+                        selectedShapeUuid.value = null;
+                    }
+                    clearMarqueeSelection();
+                }
+                notice.success(t('basic.tips.map.deleteSuccess'));
+            },
+        );
+    };
+
+    /* ================================ 框选逻辑 ================================ */
+
+    /** 选中标记/图形的高亮虚影样式 */
+    const createMarqueePointGhostStyle = (): Style => new Style({
+        image: new CircleStyle({
+            radius: 15,
+            stroke: new Stroke({ color: '#ffd54f', width: 3 }),
+            fill: new Fill({ color: 'rgba(255,213,79,0.12)' }),
+        }),
+    });
+
+    const createMarqueeShapeGhostStyle = (): Style => new Style({
+        stroke: new Stroke({ color: '#ffd54f', width: 4, lineDash: [10, 7] }),
+        fill: new Fill({ color: 'rgba(255,213,79,0.08)' }),
+    });
+
+    /** 清理高亮虚影（同步移出 Translate 集合） */
+    const clearMarqueeGhosts = (): void => {
+        marqueeGhostFeatures.forEach(g => marqueeFeatures.remove(g));
+        marqueeGhostFeatures = [];
+        marqueeGhostSource.clear();
+    };
+
+    /** 清空框选结果 */
+    const clearMarqueeSelection = (): void => {
+        clearMarqueeGhosts();
+        marqueeFeatures.clear();
+        marqueeSelection.value = { points: [], shapes: [] };
+    };
+
+    /** 删除某一项后从框选集合摘除（保留其余选中状态） */
+    const removeFromMarqueeSelection = (kind: 'point' | 'shape', uuid: string): void => {
+        if (kind === 'point') {
+            const feature = findPointFeatureByUuid(uuid);
+            if (feature) marqueeFeatures.remove(feature);
+            marqueeSelection.value.points = marqueeSelection.value.points.filter(p => p.uuid !== uuid);
+        } else {
+            const render = drawController.getRenderFeature(uuid);
+            if (render) marqueeFeatures.remove(render);
+            marqueeSelection.value.shapes = marqueeSelection.value.shapes.filter(s => s.uuid !== uuid);
+        }
+        rebuildMarqueeGhosts();
+    };
+
+    /** 按当前选中结果重建虚影（平移结束后几何已变，需要重画） */
+    const rebuildMarqueeGhosts = (): void => {
+        clearMarqueeGhosts();
+        marqueeSelection.value.points.forEach(point => {
+            const ghost = new Feature({
+                geometry: new Point(fromLonLat([point.longitude, point.latitude])),
+            }) as OLFeature<Geometry>;
+            ghost.setStyle(createMarqueePointGhostStyle());
+            marqueeGhostSource.addFeature(ghost);
+            marqueeFeatures.push(ghost);
+            marqueeGhostFeatures.push(ghost);
+        });
+        marqueeSelection.value.shapes.forEach(shape => {
+            const render = drawController.getRenderFeature(shape.uuid);
+            const geometry = render?.getGeometry();
+            if (!geometry) return;
+            const ghost = new Feature({ geometry: geometry.clone() }) as OLFeature<Geometry>;
+            ghost.setStyle(createMarqueeShapeGhostStyle());
+            marqueeGhostSource.addFeature(ghost);
+            marqueeFeatures.push(ghost);
+            marqueeGhostFeatures.push(ghost);
+        });
+    };
+
+    /** 应用一次框选结果：填状态、把真实要素+虚影塞进 Translate 集合 */
+    const applyMarqueeSelection = (points: MapPoint[], shapes: MapShape[]): void => {
+        clearMarqueeGhosts();
+        marqueeFeatures.clear();
+        marqueeSelection.value = { points, shapes };
+
+        points.forEach(point => {
+            const feature = findPointFeatureByUuid(point.uuid);
+            if (feature) marqueeFeatures.push(feature);
+        });
+        shapes.forEach(shape => {
+            const render = drawController.getRenderFeature(shape.uuid);
+            if (render) marqueeFeatures.push(render);
+        });
+        rebuildMarqueeGhosts();
+    };
+
+    /** 拖框结束：用投影范围圈中自己的标记与图形 */
+    const onMarqueeBoxEnd = (): void => {
+        if (!marqueeMode.value || !dragBox || !vectorLayerRef.value) return;
+        const extent = dragBox.getGeometry().getExtent();
+        // 视为单击（没拖出面积）时清空已有选择
+        if (extent[2] - extent[0] < 3 || extent[3] - extent[1] < 3) {
+            clearMarqueeSelection();
+            return;
+        }
+
+        const userId = authStore.user?.userId;
+        const points: MapPoint[] = [];
+        if (userId) {
+            vectorLayerRef.value.getSource()?.forEachFeature(feature => {
+                const raw = feature.get('originalData');
+                if (!raw || raw.category !== 'shareLocation' || raw.userId !== userId) return;
+                const geom = feature.getGeometry() as Point | null;
+                if (!geom) return;
+                const [x, y] = geom.getCoordinates();
+                if (containsXY(extent, x, y)) points.push(raw as MapPoint);
+            });
+        }
+
+        const shapes: MapShape[] = [];
+        drawController.forEachShapeInExtent(extent, (uuid) => {
+            if (isDraftUuid(uuid) || shapes.some(s => s.uuid === uuid)) return;
+            const shape = userShapes.value.find(s => s.uuid === uuid);
+            if (shape) {
+                if (shape.userId === userId) shapes.push(shape);
+                return;
+            }
+            // 列表里没有（如图形接口曾失败、本会话刚保存尚未回灌）时，直接以渲染要素上的
+            // 归属和原始几何兜底，保证框选不会因为状态没同步而漏选
+            const render = drawController.getRenderFeature(uuid);
+            if (render?.get('userId') === userId) {
+                const rawGeometry = render.get('rawGeometry') as ShapeGeometry | undefined;
+                if (rawGeometry) {
+                    shapes.push({
+                        uuid,
+                        userId,
+                        shapeType: render.get('shapeType') as MapShapeType,
+                        geometry: JSON.stringify(rawGeometry),
+                        style: render.get('shapeStyle') ? JSON.stringify(render.get('shapeStyle')) : null,
+                    } as MapShape);
+                }
+            }
+        });
+
+        applyMarqueeSelection(points, shapes);
+    };
+
+    /** 整组平移开始：记下各要素起始坐标 */
+    const onMarqueeTranslateStart = (): void => {
+        marqueeDragSnapshot = {};
+        marqueeSelection.value.points.forEach(point => {
+            const feature = findPointFeatureByUuid(point.uuid);
+            const geom = feature?.getGeometry() as Point | undefined;
+            if (geom && marqueeDragSnapshot) marqueeDragSnapshot[`point:${point.uuid}`] = geom.getCoordinates();
+        });
+        marqueeSelection.value.shapes.forEach(shape => {
+            const render = drawController.getRenderFeature(shape.uuid);
+            const geom = render?.getGeometry() as SimpleGeometry | undefined;
+            if (geom && marqueeDragSnapshot) marqueeDragSnapshot[`shape:${shape.uuid}`] = geom.getFirstCoordinate();
+        });
+    };
+
+    /** 整组平移结束：算位移、逐对象持久化，再重建虚影 */
+    const onMarqueeTranslateEnd = async (): Promise<void> => {
+        const snapshot = marqueeDragSnapshot;
+        marqueeDragSnapshot = null;
+        if (!snapshot) return;
+
+        const tasks: Promise<unknown>[] = [];
+
+        marqueeSelection.value.points.forEach(point => {
+            const feature = findPointFeatureByUuid(point.uuid);
+            const geom = feature?.getGeometry() as Point | undefined;
+            const start = snapshot[`point:${point.uuid}`];
+            if (!geom || !start) return;
+            const end = geom.getCoordinates();
+            if (Math.abs(end[0] - start[0]) < 1e-7 && Math.abs(end[1] - start[1]) < 1e-7) return;
+
+            const [longitude, latitude] = toLonLat(end);
+            const lon = Number(longitude.toFixed(6));
+            const lat = Number(latitude.toFixed(6));
+
+            const raw = feature!.get('originalData') as MapPoint;
+            feature!.set('originalData', { ...raw, longitude: lon, latitude: lat, category: 'shareLocation' });
+            const idx = personalMarkers.value.findIndex(p => p.uuid === point.uuid);
+            if (idx !== -1) {
+                personalMarkers.value[idx] = { ...personalMarkers.value[idx], longitude: lon, latitude: lat };
+            }
+            if (selectedLocationData.value?.uuid === point.uuid) {
+                selectedLocationData.value = { ...selectedLocationData.value, longitude: lon, latitude: lat };
+            }
+            tasks.push(api.updatePoint(point.uuid, { longitude: lon, latitude: lat }));
+        });
+
+        marqueeSelection.value.shapes.forEach(shape => {
+            const render = drawController.getRenderFeature(shape.uuid);
+            const geom = render?.getGeometry() as SimpleGeometry | undefined;
+            const start = snapshot[`shape:${shape.uuid}`];
+            if (!render || !geom || !start) return;
+            const end = geom.getFirstCoordinate();
+            const dx = end[0] - start[0];
+            const dy = end[1] - start[1];
+            if (Math.abs(dx) < 1e-7 && Math.abs(dy) < 1e-7) return;
+
+            const shifted = drawController.applyShapeTranslation(shape.uuid, dx, dy);
+            if (!shifted) return;
+            const target = userShapes.value.find(s => s.uuid === shape.uuid);
+            if (target) target.geometry = JSON.stringify(shifted);
+            render.set('rawGeometry', shifted);
+            tasks.push(api.updateShape(shape.uuid, { geometry: shifted }));
+        });
+
+        const results = await Promise.allSettled(tasks);
+        rebuildMarqueeGhosts();
+
+        if (results.some(r => r.status === 'rejected')) {
+            const rejected = results.find(r => r.status === 'rejected') as PromiseRejectedResult | undefined;
+            const e = rejected?.reason;
+            if (e instanceof ApiError) {
+                notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
+            } else {
+                notice.error(t('map.marquee.saveFailed') || '部分对象位置保存失败');
+            }
+            console.error('框选平移持久化失败:', e);
+        } else if (tasks.length > 0) {
+            notice.success(t('basic.tips.map.updateSuccess'));
+        }
+    };
+
+    /** 框选结果批量删除（带确认） */
+    const onDeleteMarqueeSelection = (): void => {
+        const { points, shapes } = marqueeSelection.value;
+        if (points.length === 0 && shapes.length === 0) return;
+        askConfirm(
+            t('map.confirmDeleteMarquee', { count: points.length + shapes.length }),
+            async () => {
+                const pointUuids = points.map(p => p.uuid);
+                const shapeUuids = shapes.map(s => s.uuid);
+                await Promise.all([
+                    pointUuids.length ? api.batchDeletePoints(pointUuids) : Promise.resolve(),
+                    shapeUuids.length ? api.batchDeleteShapes(shapeUuids) : Promise.resolve(),
+                ]);
+                pointUuids.forEach(uuid => {
+                    const feature = findPointFeatureByUuid(uuid);
+                    if (feature) vectorLayerRef.value?.getSource()?.removeFeature(feature);
+                });
+                personalMarkers.value = personalMarkers.value.filter(p => !pointUuids.includes(p.uuid));
+                shapeUuids.forEach(uuid => drawController.removeShape(uuid));
+                userShapes.value = userShapes.value.filter(s => !shapeUuids.includes(s.uuid));
+                if (selectedShapeUuid.value && shapeUuids.includes(selectedShapeUuid.value)) {
+                    selectedShapeUuid.value = null;
+                }
+                clearMarqueeSelection();
+                notice.success(t('basic.tips.map.deleteSuccess'));
+            },
+        );
+    };
+
+    /** 地图初始化时装载框选交互 */
+    const setupMarqueeInteractions = (map: Map): void => {
+        marqueeGhostLayer = new VectorLayer({
+            source: marqueeGhostSource,
+            zIndex: 52,
+        });
+        map.addLayer(marqueeGhostLayer);
+
+        dragBox = new DragBox({
+            className: 'map-marquee-box',
+            condition: alwaysCondition,
+        });
+        dragBox.setActive(false);
+        map.addInteraction(dragBox);
+        dragBox.on('boxend', onMarqueeBoxEnd);
+
+        marqueeTranslate = new Translate({
+            features: marqueeFeatures,
+            hitTolerance: 12,
+            condition: primaryAction,
+        });
+        marqueeTranslate.setActive(false);
+        map.addInteraction(marqueeTranslate);
+        marqueeTranslate.on('translatestart', onMarqueeTranslateStart);
+        marqueeTranslate.on('translateend', () => {
+            void onMarqueeTranslateEnd();
+        });
+    };
+
+    /** 真正切换框选开关（屏蔽/恢复地图平移，关掉互斥的绘制与顶点编辑） */
+    const applyMarqueeMode = (on: boolean): void => {
+        marqueeMode.value = on;
+        if (on) {
+            drawController.cancelDraw();
+            drawController.endEditVertices();
+        }
+        const map = mapInstance.value;
+        if (map) {
+            dragBox?.setActive(on);
+            map.getInteractions().forEach(interaction => {
+                if (interaction instanceof DragPan) interaction.setActive(!on);
+            });
+            map.getTargetElement().style.cursor = on ? 'crosshair' : '';
+        }
+        if (!on) clearMarqueeSelection();
+    };
+
+    const setMarqueeMode = (on: boolean): void => {
+        if (on && !authStore.isLogin) return;
+        // 框选与编辑模式互斥：进入框选前先退出编辑模式，未提交内容需用户确认
+        if (on && shapeEditMode.value) {
+            if (hasPendingShapeEdits()) {
+                askConfirm(t('map.contextMenu.confirmExitEditMode'), () => {
+                    void doExitShapeEditMode().then(() => applyMarqueeMode(true));
+                });
+                return;
+            }
+            void doExitShapeEditMode().then(() => applyMarqueeMode(true));
+            return;
+        }
+        applyMarqueeMode(on);
+    };
+
+    const onToggleMarqueeMode = (): void => {
+        setMarqueeMode(!marqueeMode.value);
+    };
+
+    // 选中结果非空才允许整组拖动
+    watch(marqueeCount, (count) => {
+        marqueeTranslate?.setActive(marqueeMode.value && count > 0);
+    });
+
+    /* ===================== /map query 联动（管理页跳转） ===================== */
+
+    /** 清除 /map 上的联动 query 参数 */
+    const clearMapActionQuery = (): void => {
+        router.replace({ name: route.name ?? undefined, query: {} }).catch(() => { /* ignore */ });
+    };
+
+    /** 地图视野聚焦到某经纬度 */
+    const focusMapAtLonLat = (lonLat: number[], zoom?: number): void => {
+        const map = mapInstance.value;
+        if (!map) return;
+        const view = map.getView();
+        view.animate({
+            center: fromLonLat(lonLat),
+            zoom: zoom ?? Math.max(view.getZoom() ?? 10, 13),
+            duration: 400,
+        });
+    };
+
+    /** 确保定位到的标记 feature 存在于主图层（可能属于其他集合） */
+    const ensurePointFeatureVisible = (point: MapPoint): void => {
+        const source = vectorLayerRef.value?.getSource();
+        if (!source) return;
+        const exists = source.getFeatures().some(f => f.get('id') === point.id);
+        if (!exists) source.addFeature(createPersonalFeature(point));
+    };
+
+    /** 确保定位/编辑的图形已加载渲染（可能属于其他集合） */
+    const ensureShapeLoaded = (shape: MapShape): boolean => {
+        if (parseShapeGeometry(shape) === null) return false;
+        if (!userShapes.value.some(s => s.uuid === shape.uuid)) {
+            userShapes.value.push(shape);
+            drawController.upsertShape(shape);
+        }
+        return true;
+    };
+
+    /** 定位标记 */
+    const focusPointByUuid = async (uuid: string): Promise<void> => {
+        try {
+            const resp = await api.getPointDetail(uuid);
+            const point = resp.data.point as MapPoint;
+            ensurePointFeatureVisible(point);
+            focusMapAtLonLat([point.longitude, point.latitude]);
+            selectedPoint.value = point;
+            selectedLocationData.value = {
+                ...point,
+                id: point.id,
+                name: point.title,
+                category: 'shareLocation',
+            };
+            model.value = true;
+            showCoordinateInfo.value = false;
+        } catch (e) {
+            if (e instanceof ApiError) {
+                notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
+            }
+            console.error(e);
+        }
+    };
+
+    /** 拉取图形并确保已渲染 */
+    const fetchShapeForAction = async (uuid: string): Promise<MapShape | null> => {
+        const existing = userShapes.value.find(s => s.uuid === uuid);
+        if (existing) return existing;
+        try {
+            const resp = await api.getShapeDetail(uuid);
+            const shape = resp.data.shape as MapShape;
+            return ensureShapeLoaded(shape) ? shape : null;
+        } catch (e) {
+            if (e instanceof ApiError) {
+                notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
+            }
+            console.error(e);
+            return null;
+        }
+    };
+
+    /** 定位图形（缩放到其范围并选中） */
+    const focusShapeByUuid = async (uuid: string): Promise<void> => {
+        const shape = await fetchShapeForAction(uuid);
+        if (!shape) return;
+        selectedShapeUuid.value = uuid;
+        model.value = false;
+        showCoordinateInfo.value = false;
+        const extent = drawController.getShapeExtent(uuid);
+        const view = mapInstance.value?.getView();
+        if (extent && view) {
+            view.fit(extent, { duration: 400, padding: [100, 100, 100, 100], maxZoom: 15 });
+        }
+    };
+
+    /** 打开分享链接：拉取公开地图集信息，弹窗让用户选择导入或只读浏览 */
+    const openSharedCollectionDialog = async (uuid: string): Promise<void> => {
+        try {
+            const resp = await api.getSharedCollection(uuid);
+            sharedCollectionInfo.value = resp.data.collection as SharedCollectionInfo;
+            showShareCollectionDialog.value = true;
+        } catch (e) {
+            if (e instanceof ApiError) {
+                notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
+            }
+            console.error(e);
+        }
+    };
+
+    /** 只读浏览：直接渲染他人公开集合的点位与图形，不改动当前选择的集合 */
+    const loadSharedCollectionPreview = async (info: SharedCollectionInfo): Promise<void> => {
+        try {
+            const [pointsResp, shapesResp] = await Promise.all([
+                api.getCollectionPoints(info.uuid, { page: 1, pageSize: 100 }),
+                api.getCollectionShapes(info.uuid),
+            ]);
+            const points = (pointsResp.data.points || []) as MapPoint[];
+            const shapes = (shapesResp.data.shapes || []) as MapShape[];
+
+            drawController.endEditVertices();
+            personalMarkers.value = points;
+            onAddPersonalMarkersToMap(points);
+            userShapes.value = shapes;
+            drawController.clearShapes();
+            shapes.forEach(shape => drawController.upsertShape(shape));
+            selectedShapeUuid.value = null;
+            sharedCollectionPreview.value = info;
+
+            // 视野缩放到整个集合的范围
+            const view = mapInstance.value?.getView();
+            if (view) {
+                const extent = createOrUpdateEmpty();
+                points.forEach(p => extendExtent(
+                    extent,
+                    new Point(fromLonLat([p.longitude, p.latitude])).getExtent(),
+                ));
+                shapes.forEach(s => {
+                    const shapeExtent = drawController.getShapeExtent(s.uuid);
+                    if (shapeExtent) extendExtent(extent, shapeExtent);
+                });
+                if (!isExtentEmpty(extent)) {
+                    view.fit(extent, { duration: 400, padding: [100, 100, 100, 100], maxZoom: 15 });
+                }
+            }
+        } catch (e) {
+            if (e instanceof ApiError) {
+                notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
+            }
+            console.error(e);
+        }
+    };
+
+    /** 弹窗：仅阅读浏览 */
+    const onPreviewSharedCollection = (): void => {
+        const info = sharedCollectionInfo.value;
+        showShareCollectionDialog.value = false;
+        if (info) void loadSharedCollectionPreview(info);
+    };
+
+    /** 弹窗：导入到我的账户（克隆一份私有副本并切换过去） */
+    const onImportSharedCollection = async (): Promise<void> => {
+        const info = sharedCollectionInfo.value;
+        if (!info) return;
+        importingSharedCollection.value = true;
+        try {
+            const resp = await api.importSharedCollection(info.uuid);
+            showShareCollectionDialog.value = false;
+            sharedCollectionPreview.value = null;
+            await onLoadUserCollections();
+            // 切到新集合，watcher 会完成点位/图形加载
+            selectedCollectionUuid.value = resp.data.collectionUuid as string;
+            await nextTick();
+            await currentCollectionLoad;
+            notice.success(t('basic.tips.map.importSuccess'));
+        } catch (e) {
+            if (e instanceof ApiError) {
+                notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
+            }
+            console.error(e);
+        } finally {
+            importingSharedCollection.value = false;
+        }
+    };
+
+    const onCancelShareDialog = (): void => {
+        showShareCollectionDialog.value = false;
+    };
+
+    /** 退出只读预览，回到自己当前集合的数据 */
+    const exitSharedPreview = (): void => {
+        sharedCollectionPreview.value = null;
+        void runCollectionLoad(selectedCollectionUuid.value || null);
+    };
+
+    /**
+     * 处理 /map 的联动参数（来自 /account/maps 或分享链接）
+     * draw=marker|path|region[&collectionUuid=]
+     * focus=point:uuid | shape:uuid
+     * edit=shape:uuid
+     * shareCollection=uuid（公开地图集分享）
+     */
+    const handleMapActionQuery = async (): Promise<void> => {
+        if (!authStore.isLogin) return;
+        const { draw, focus, edit, collectionUuid, shareCollection } = route.query;
+
+        // 分享链接优先：先让用户选择导入或只读，不干扰当前集合状态
+        if (typeof shareCollection === 'string' && shareCollection) {
+            clearMapActionQuery();
+            await openSharedCollectionDialog(shareCollection);
+            return;
+        }
+
+        // 可选：先切换到目标集合
+        if (typeof collectionUuid === 'string' && collectionUuid) {
+            const exists = userCollections.value.some(c => c.uuid === collectionUuid);
+            if (exists && (selectedCollectionUuid.value || null) !== collectionUuid) {
+                selectedCollectionUuid.value = collectionUuid;
+                // 加载由 watcher 统一发起，等它排程并完成，避免后续绘图/聚焦抢在数据之前
+                await nextTick();
+                await currentCollectionLoad;
+            }
+        }
+
+        if (draw === 'path' || draw === 'region') {
+            clearMapActionQuery();
+            onStartDraw(draw);
+            return;
+        }
+        if (draw === 'marker') {
+            const view = mapInstance.value?.getView();
+            const center = view?.getCenter() ? toLonLat(view.getCenter()!) : mapCenterLocation.value;
+            onResetNewMarkerData();
+            newMarkerData.value.longitude = center[0];
+            newMarkerData.value.latitude = center[1];
+            showCreateMarkerDialog.value = true;
+            clearMapActionQuery();
+            return;
+        }
+
+        if (typeof edit === 'string' && edit.startsWith('shape:')) {
+            const uuid = edit.slice('shape:'.length);
+            const shape = await fetchShapeForAction(uuid);
+            clearMapActionQuery();
+            if (shape) beginShapeVertexEdit(uuid);
+            return;
+        }
+
+        if (typeof focus === 'string') {
+            clearMapActionQuery();
+            if (focus.startsWith('point:')) {
+                await focusPointByUuid(focus.slice('point:'.length));
+            } else if (focus.startsWith('shape:')) {
+                await focusShapeByUuid(focus.slice('shape:'.length));
+            }
         }
     };
 
@@ -1459,13 +3148,16 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
     };
 
     const onCreateNewMarker = async (): Promise<void> => {
-        if (!markerFormRef.value) return;
-        const { valid } = await (markerFormRef.value as any).validate();
+        // 模板 ref 指向弹窗组件实例，真正的 v-form 在其 expose 的 markerFormRef 上
+        const formRef = (markerFormRef.value as any)?.markerFormRef;
+        if (!formRef) return;
+        const { valid } = await formRef.validate();
         if (!valid) return;
         creatingMarker.value = true;
         try {
+            const collectionUuid = newMarkerData.value.collectionUuid || null;
             await api.createPoint({
-                collectionUuid: newMarkerData.value.collectionUuid,
+                collectionUuid,
                 title: newMarkerData.value.title,
                 description: newMarkerData.value.description,
                 latitude: newMarkerData.value.latitude,
@@ -1475,12 +3167,16 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
                 public: newMarkerData.value.public,
                 sharedUsers: newMarkerData.value.sharedUsers,
             });
-            if (selectedCollectionUuid.value === newMarkerData.value.collectionUuid) {
-                await loadCollectionPoints(selectedCollectionUuid.value);
+            if ((selectedCollectionUuid.value || null) === collectionUuid) {
+                await loadCurrentPoints(collectionUuid);
             }
             showCreateMarkerDialog.value = false;
             onResetNewMarkerData();
+            notice.success(t('basic.tips.map.createSuccess'));
         } catch (error) {
+            if (error instanceof ApiError) {
+                notice.error(t(`basic.tips.${error.code}`, { context: error.code }));
+            }
             console.error('创建标记失败:', error);
         } finally {
             creatingMarker.value = false;
@@ -1489,7 +3185,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
 
     const onResetNewMarkerData = (): void => {
         newMarkerData.value = {
-            collectionUuid: selectedCollectionUuid.value || '',
+            collectionUuid: selectedCollectionUuid.value || null,
             title: '',
             description: '',
             longitude: 0,
@@ -1662,7 +3358,10 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         availableCategories.value.forEach(category => {
             layerVisibility.value[category.value] = newVisibility;
         });
+        // “船长笔记”：个人标记 + 路径 + 区域 随全部显示/隐藏一起切换
         layerVisibility.value.shareLocation = newVisibility;
+        layerVisibility.value.shapePath = newVisibility;
+        layerVisibility.value.shapeRegion = newVisibility;
         allLayersVisible.value = newVisibility;
         updateGroupVisibilityState();
         triggerTransitionAnimation();
@@ -1671,7 +3370,10 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
     const onUpdateAllLayersVisibleState = () => {
         const allCategories = availableCategories.value.map(cat => cat.value);
 
+        // “船长笔记”三项也计入全选状态
         allCategories.push('shareLocation');
+        allCategories.push('shapePath');
+        allCategories.push('shapeRegion');
         allLayersVisible.value = allCategories.every(category => layerVisibility.value[category]);
     };
 
@@ -1686,6 +3388,14 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
 
         if (layerVisibility.value.shareLocation === undefined) {
             layerVisibility.value.shareLocation = true;
+        }
+
+        // “船长笔记”大类：路径 / 区域图形图层（个人标记 shareLocation 已在上方）
+        if (layerVisibility.value.shapePath === undefined) {
+            layerVisibility.value.shapePath = true;
+        }
+        if (layerVisibility.value.shapeRegion === undefined) {
+            layerVisibility.value.shapeRegion = true;
         }
 
         updateGroupVisibilityState();
@@ -1809,6 +3519,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         selectedCollectionUuid,
         selectedLocationNearbyPoints,
         personalMarkers,
+        userShapes,
+        selectedShape,
+        selectedShapeUuid,
         showCreateMarkerDialog,
         creatingMarker,
         selectedPoint,
@@ -1818,8 +3531,28 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         availableCategories,
         groupedCategories,
         personalMarkersCount,
+        pathShapesCount,
+        regionShapesCount,
         userCollectionsSelect,
         isDebug,
+
+        drawMode,
+        shapeVertexEditingUuid: drawController.editingShapeUuid,
+        showShapeDialog,
+        shapeDialogMode,
+        shapeDialogType,
+        savingShape,
+        shapeFormRef,
+        shapeFormData,
+
+        showShareCollectionDialog,
+        sharedCollectionInfo,
+        importingSharedCollection,
+        sharedCollectionPreview,
+        onPreviewSharedCollection,
+        onImportSharedCollection,
+        onCancelShareDialog,
+        exitSharedPreview,
 
         contextMenuState,
         contextMenuItems,
@@ -1828,10 +3561,30 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         showEditMarkerDialog,
         editingMarkerData,
 
+        showPointEditDialog,
+        savingPointEdit,
+        pointEditFormRef,
+        pointEditForm,
+        confirmState,
+        marqueeMode,
+        marqueeSelection,
+        marqueeCount,
+
         onMapCreated,
         onHandleUrlParams,
         onLoadUserCollections,
         loadCollectionPoints,
+        loadCollectionShapes,
+        onStartDraw,
+        onShapeFormChange,
+        onSaveShape,
+        onCancelShapeDialog,
+        openShapeEdit,
+        beginShapeVertexEdit,
+        cancelShapeVertexEdit,
+        saveShapeVertexEdit,
+        deleteShape,
+        closeShapeCard,
         onAddPersonalMarkersToMap,
         createPersonalFeature,
         onRemovePersonalMarkersFromMap,
@@ -1868,5 +3621,17 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         closeContextMenu,
         openLocationDetail,
         onConfigChanged,
+
+        onOpenPointEdit,
+        onPointEditFormChange,
+        onSavePointEdit,
+        onCancelPointEdit,
+        onDeletePointFromMenu,
+        onConfirmDialog,
+        onCancelConfirmDialog,
+        onClearShapesByType,
+        onToggleMarqueeMode,
+        clearMarqueeSelection,
+        onDeleteMarqueeSelection,
     };
 }

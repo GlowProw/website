@@ -7,7 +7,7 @@ import {useMessagesApi} from '@/assets/sripts/api/messages_service'
  * 未读消息状态机
  */
 
-const POLL_INTERVAL = 30_000
+const POLL_INTERVAL = 5 * 60_000
 
 export const useMessagesUnreadStore = defineStore('messagesUnread', () => {
     const authStore = useAuthStore()

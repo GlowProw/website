@@ -11,6 +11,7 @@ import Silk from '@/components/Silk.vue';
 import DropWidget from '@/components/DropWidget.vue';
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
+import PaginationBar from "@/components/PaginationBar.vue";
 
 const {t} = useI18n();
 const dropApi = apis.dropApi();
@@ -355,17 +356,12 @@ onMounted(() => {
             />
 
             <!-- 分页器 -->
-            <div
-                v-if="Math.ceil(historyTotal / historyPageSize) > 1"
-                class="d-flex justify-center mt-8">
-              <v-pagination
-                  v-model="historyPage"
-                  :length="Math.ceil(historyTotal / historyPageSize)"
-                  :total-visible="5"
-                  rounded="circle"
-                  color="amber"
-              ></v-pagination>
-            </div>
+            <PaginationBar v-model:page="historyPage"
+                           :total="historyTotal"
+                           :page-size="historyPageSize"
+                           :total-visible="5"
+                           density="default"
+                           class="mt-8" />
           </div>
           <!-- 历史列表 E -->
 

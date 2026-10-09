@@ -12,6 +12,8 @@ import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import EmptyView from "@/components/EmptyView.vue";
 import Textarea from "@/components/textarea/index.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
+import QuotaLimitWidget from "@/components/QuotaLimitWidget.vue";
+import PaginationBar from "@/components/PaginationBar.vue";
 
 const {t} = useI18n(),
     notice = useNoticeStore()
@@ -69,7 +71,7 @@ defineOptions({
 <template>
   <div class="position-relative">
     <v-overlay :model-value="loading" contained class="d-flex align-center justify-center">
-      <Loading></Loading>
+      <Loading size="50"></Loading>
     </v-overlay>
 
     <!-- Toolbar S -->
@@ -91,6 +93,8 @@ defineOptions({
 
           <!-- 行为按钮组 -->
           <div class="d-flex align-center ga-2">
+            <QuotaLimitWidget resource="comment" text></QuotaLimitWidget>
+
             <v-btn
                 size="small"
                 variant="tonal"
@@ -143,7 +147,7 @@ defineOptions({
             </div>
 
             <div class="text-body-1 comment-content mb-2">
-              <Textarea readonly :value="i.content"></Textarea>
+              <Textarea readonly :value="i.content" min-height="auto"></Textarea>
             </div>
           </div>
 
@@ -172,18 +176,9 @@ defineOptions({
       <EmptyView></EmptyView>
     </div>
 
-    <!-- 统一分页器 S -->
-    <div v-if="totalPages > 1" class="d-flex justify-center mt-6">
-      <v-pagination
-          v-model="currentPage"
-          :length="totalPages"
-          density="comfortable"
-          active-color="amber"
-          rounded="circle"
-          variant="tonal">
-      </v-pagination>
-    </div>
-    <!-- 统一分页器 E -->
+    <!-- 分页 S -->
+    <PaginationBar v-model:page="currentPage" :total-pages="totalPages" class="mt-6" />
+    <!-- 分页 E -->
   </div>
 </template>
 
