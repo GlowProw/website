@@ -1,44 +1,113 @@
 <template>
-  <v-card v-if="shape"
-          border
-          class="shape-info-card"
-          :width="mobile ? 'calc(100% - 60px)' : 340">
-    <v-card-title class="d-flex align-center ga-2 py-3">
-      <v-icon :icon="shape.shapeType === 'region' ? 'mdi-vector-polygon' : 'mdi-vector-polyline'"
-              color="amber"></v-icon>
-      <span class="text-truncate flex-grow-1">{{ shape.title }}</span>
-      <v-btn icon="mdi-close" size="small" variant="text" @click="emit('close')"></v-btn>
-    </v-card-title>
+  <v-card
+      v-show="shape"
+      border
+      elevation="12"
+      :width="mobile ? 'calc(100% - 60px)' : 450"
+      :style="{
+        'top': mobile ? '140px' : '80px'
+      }"
+      class="shape-info-card overflow-y-auto">
+    <template v-slot:title>
+      <div class="my-2 mr-2">
+        <div class="d-flex align-center">
+          <div>
+            <div
+                class="d-flex align-center text-amber singe-line"
+                :title="shape.title">
+              {{ shape.title }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+    <template v-slot:append>
+      <v-btn variant="tonal" icon @click="emit('close')">
+        <v-icon>mdi-close</v-icon>
+      </v-btn>
+    </template>
 
-    <v-card-text class="pt-0">
-      <v-chip size="small" variant="tonal" color="amber" class="mr-2">
-        {{ shape.shapeType === 'region' ? t('map.region') : t('map.path') }}
-      </v-chip>
-      <v-chip v-if="!shape.collectionId" size="small" variant="tonal">
-        {{ t('map.noCollection') }}
-      </v-chip>
+    <div class="mx-4 pb-3">
+      <div class="d-flex ga-2">
+        <v-chip size="small" variant="tonal" color="amber">
+          {{ shape.shapeType === 'region' ? t('map.region') : t('map.path') }}
+        </v-chip>
+        <v-chip v-if="!shape.collectionId" size="small" variant="tonal">
+          {{ t('map.noCollection') }}
+        </v-chip>
+      </div>
+    </div>
 
-      <v-alert v-if="vertexEditing" type="info" variant="tonal" density="compact" class="mt-3 mb-2 py-1">
-        {{ t('map.vertexEditingTip') }}
-      </v-alert>
+    <div>
+      <template v-if="vertexEditing">
+        <v-row class="shape-title px-10 mx-n6 py-2 text-amber-lighten-4" no-gutters>
+          {{ t('map.vertexEditingTitle') }}
+        </v-row>
+        <p class="my-2 mx-4">
+          {{ t('map.vertexEditingTip') }}
+        </p>
+      </template>
 
-      <!-- HTML 描述来自富文本，均为本站内用户内容 -->
-      <div v-if="shape.description" class="text-body-2 mt-2 shape-desc" v-html="shape.description"></div>
-    </v-card-text>
+      <template v-if="true">
+        <!-- 描述内容 -->
+        <v-row class="shape-title px-10 mx-n6 py-2 text-amber-lighten-4" no-gutters>
+          {{ t('map.shapeDescription') }}
+        </v-row>
+        <div class="mb-2">
+          <Textarea v-if="shape.description" readonly class="my-2 mx-4 shape-desc" min-height="auto" :value="shape.description"></Textarea>
+          <p class="my-2 mx-4" v-else>很懒什么都没有说</p>
+        </div>
+      </template>
 
-    <v-card-actions class="px-3 pb-3 flex-wrap">
+      <div class="shape-title px-10 mx-n6 py-2 text-amber-lighten-4">
+        {{ t('empireSkillSimulation.other') }}
+      </div>
+      <div class="mx-5 mb-5 opacity-80"
+           v-if="shape && shape.id">
+        <v-text-field :value="shape.id" hide-details readonly variant="underlined" density="compact">
+          <template v-slot:append-inner>
+            <v-icon>mdi-identifier</v-icon>
+          </template>
+        </v-text-field>
+
+        <v-row no-gutters class="mt-2" align="center" v-if="shape.createdTime">
+          <v-col cols="auto" class="mr-2">
+            <v-icon icon="mdi-calendar-range" size="19"></v-icon>
+            {{ t('empireSkillSimulation.dateAdded') }}
+          </v-col>
+          <v-spacer></v-spacer>
+          <v-col class="text-right">
+            <TimeView :time="shape.createdTime" v-if="shape.createdTime">
+            </TimeView>
+          </v-col>
+        </v-row>
+        <v-row no-gutters class="mt-2" align="center" v-if="shape.updatedTime">
+          <v-col cols="auto" class="mr-2">
+            <v-icon icon="mdi-calendar-range" size="19"></v-icon>
+            {{ t('empireSkillSimulation.lastUpdated') }}
+          </v-col>
+          <v-spacer></v-spacer>
+          <v-col class="text-right">
+            <TimeView :time="shape.updatedTime" v-if="shape.updatedTime">
+            </TimeView>
+          </v-col>
+        </v-row>
+      </div>
+    </div>
+
+    <v-card-actions class="px-3 pb-3 flex-wrap" v-if="false">
       <template v-if="!vertexEditing">
         <template v-if="canManage">
-          <v-btn size="small" variant="tonal" prepend-icon="mdi-pencil"
+          <v-btn variant="tonal" prepend-icon="mdi-pencil"
                  @click="shape && emit('edit-attrs', shape.uuid)">
             {{ t('basic.button.edit') }}
           </v-btn>
-          <v-btn size="small" variant="tonal" prepend-icon="mdi-vector-square-edit"
+          <v-btn variant="tonal" prepend-icon="mdi-vector-square-edit"
                  @click="shape && emit('edit-vertices', shape.uuid)">
             {{ t('map.editVertices') }}
           </v-btn>
           <v-spacer></v-spacer>
-          <v-btn size="small" variant="tonal" color="error" prepend-icon="mdi-delete"
+          <v-btn variant="tonal" color="error" prepend-icon="mdi-delete"
                  @click="confirming = true">
             {{ t('basic.button.delete') }}
           </v-btn>
@@ -47,10 +116,10 @@
       </template>
       <template v-else>
         <v-spacer></v-spacer>
-        <v-btn size="small" variant="text" @click="emit('cancel-vertices')">
+        <v-btn variant="text" @click="emit('cancel-vertices')">
           {{ t('basic.button.cancel') }}
         </v-btn>
-        <v-btn size="small" color="primary" variant="flat" prepend-icon="mdi-content-save"
+        <v-btn variant="tonal"
                @click="emit('save-vertices', shape.uuid)">
           {{ t('basic.button.save') }}
         </v-btn>
@@ -81,6 +150,10 @@ import { useI18n } from 'vue-i18n';
 import { useDisplay } from 'vuetify/framework';
 import { useAuthStore } from '~/stores/userAccountStore';
 import type { MapShape } from '@/assets/types/Map';
+import ShieldWidget from "@/components/snbWidget/shieldWidget.vue";
+import MapLocationName from "@/components/snbWidget/mapLocationName.vue";
+import Textarea from "@/components/textarea/index.vue";
+import TimeView from "@/components/TimeView.vue";
 
 const props = defineProps<{
   shape: MapShape | null;
@@ -112,10 +185,17 @@ defineOptions({ name: 'MapShapeInfoCard' });
 
 <style scoped>
 .shape-info-card {
+  background-color: hsl(from rgb(var(--v-theme-background)) h s l / .8);
+  backdrop-filter: blur(20px);
   position: absolute;
-  z-index: 40;
+  z-index: 10;
   right: 30px;
-  top: 170px;
+  max-height: 80vh;
+
+  .shape-title {
+    marker: none;
+    background-color: hsl(from #000 h s l / .3);
+  }
 }
 
 .shape-desc {

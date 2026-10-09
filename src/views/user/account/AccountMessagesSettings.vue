@@ -58,13 +58,6 @@ defineOptions({
       <!-- 私信开关 -->
       <v-list density="compact" class="bg-transparent">
         <v-list-item class="px-6 py-4">
-          <template v-slot:prepend>
-            <v-avatar size="36" :color="attr.dmEnabled ? 'amber' : 'grey'">
-              <v-icon color="white" size="18">
-                {{ attr.dmEnabled ? 'mdi-message-outline' : 'mdi-message-off-outline' }}
-              </v-icon>
-            </v-avatar>
-          </template>
           <v-list-item-title class="text-body-2 font-weight-medium">
             {{ t('account.information.form.dmEnabled.name') }}
           </v-list-item-title>
@@ -74,8 +67,7 @@ defineOptions({
           <template v-slot:append>
             <v-switch
                 v-model="userAccountData.attr.dmEnabled"
-                inset color="amber"
-                :prepend-icon="userAccountData.attr.dmEnabled ? 'mdi-check' : 'mdi-close'">
+                inset color="amber">
             </v-switch>
           </template>
         </v-list-item>
@@ -127,10 +119,8 @@ defineOptions({
       </v-list>
     </div>
 
-    <v-divider></v-divider>
-
     <v-card-actions class="pa-4 d-flex justify-end gap-2">
-      <span v-if="saveStatus === 'saved'" class="text-green text-caption mr-2">✓ 已保存</span>
+      <span v-if="saveStatus === 'saved'" class="text-green text-caption mr-2">已保存</span>
       <v-btn
           v-if="saveStatus !== 'idle'"
           disabled

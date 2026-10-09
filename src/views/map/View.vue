@@ -71,7 +71,7 @@
         @copy-marker-coords="copyMarkerCoordinates"
     />
 
-    <MapEditMarkerDialog
+    <MapDebugEditMarkerDialog
         v-model="showEditMarkerDialog"
         :marker-data="editingMarkerData"
         :available-categories="availableCategories"
@@ -80,7 +80,7 @@
         @cancel="onCancelEditMarker"
     />
 
-    <MapPointEditDialog
+    <MapEditMarkerDialog
         v-model="showPointEditDialog"
         :form="pointEditForm"
         :user-collections="userCollections"
@@ -194,7 +194,7 @@
       </v-card>
     </v-dialog>
 
-    <MapControls @zoom-in="_onZoomIn" @zoom-out="_onZoomOut" @reset-view="_onResetView" />
+    <MapZoomControls @zoom-in="_onZoomIn" @zoom-out="_onZoomOut" @reset-view="_onResetView" />
 
     <MapFooter
         :hoveed-coordinate="hoveedCoordinate"
@@ -220,13 +220,13 @@ import MapToolbar from '@/components/map/MapToolbar.vue';
 import MapLayerControl from '@/components/map/MapLayerControl.vue';
 import MapSetting from '@/components/map/MapSetting.vue';
 import MapLocationCard from '@/components/map/MapLocationCard.vue';
+import MapDebugEditMarkerDialog from '@/components/map/MapDebugEditMarkerDialog.vue';
 import MapEditMarkerDialog from '@/components/map/MapEditMarkerDialog.vue';
-import MapPointEditDialog from '@/components/map/MapPointEditDialog.vue';
 import MapCreateMarkerDialog from '@/components/map/MapCreateMarkerDialog.vue';
 import MapShapeEditDialog from '@/components/map/MapShapeEditDialog.vue';
 import MapShapeInfoCard from '@/components/map/MapShapeInfoCard.vue';
 import MapCollectionShareDialog from '@/components/map/MapCollectionShareDialog.vue';
-import MapControls from '@/components/map/MapControls.vue';
+import MapZoomControls from '@/components/map/MapZoomControls.vue';
 import MapFooter from '@/components/map/MapFooter.vue';
 import MapContextMenu from '@/components/map/MapContextMenu.vue';
 

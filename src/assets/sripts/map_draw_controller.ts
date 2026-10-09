@@ -327,13 +327,33 @@ export class MapDrawController {
             pixelTolerance: 22,
         });
         this.modify.setActive(false);
-        this.modify.on('modifystart', () => {
+        /** 
+         * 顶点拖拽过程中的几何变化监听（拖拽结束后解绑）；不能用 new Map（与 ol/Map 同名冲突）
+         **/
+        const modifyChangeKeys: Record<string, EventsKey> = {};
+        this.modify.on('modifystart', (evt) => {
             this.modifying = true;
+            evt.features.forEach((feature) => {
+                if (!feature.get('editable')) return;
+                const uuid = feature.get('shapeUuid') as string | undefined;
+                const geometry = feature.getGeometry();
+                if (!uuid || !geometry || modifyChangeKeys[uuid]) return;
+                // 拖动顶点的全过程实时同步真实样式渲染（颜色/粗细/虚线/平滑曲线随顶点即时变化）
+                modifyChangeKeys[uuid] = geometry.on('change', () => {
+                    this.syncRenderGeometryFromEdit(feature as OLFeature<Geometry>);
+                });
+            });
         });
         this.modify.on('modifyend', (evt) => {
             evt.features.forEach((feature) => {
                 if (!feature.get('editable')) return;
                 const uuid = feature.get('shapeUuid') as string;
+                // 解绑拖拽过程监听
+                const key = modifyChangeKeys[uuid];
+                if (key) {
+                    unByKey(key);
+                    delete modifyChangeKeys[uuid];
+                }
                 const geometry = extractRawGeometry(feature.getGeometry() as SimpleGeometry);
                 if (!uuid || !geometry) return;
                 const shapeType = feature.get('shapeType') as MapShapeType;
@@ -349,7 +369,9 @@ export class MapDrawController {
         this.snap.setActive(false);
     }
 
-    /** 地图初始化后挂载 */
+    /** 
+     * 地图初始化后挂载
+     */
     attach(): void {
         const map = this.getMap();
         if (!map || this.map) return;
@@ -393,7 +415,9 @@ export class MapDrawController {
         return this.renderLayer;
     }
 
-    /** 查询某类图形当前是否可见 */
+    /** 
+     * 查询某类图形当前是否可见
+     */
     isTypeVisible(type: MapShapeType): boolean {
         return !this.typeHidden[type];
     }
@@ -426,7 +450,9 @@ export class MapDrawController {
         return this.activeMode.value !== null;
     }
 
-    /** 进入绘制模式 */
+    /** 
+     * 进入绘制模式
+     */
     startDraw(mode: DrawShapeMode): void {
         const map = this.getMap();
         if (!map) return;
@@ -466,7 +492,9 @@ export class MapDrawController {
         this.activeMode.value = mode;
     }
 
-    /** 取消当前绘制（Esc / 再次点击按钮） */
+    /** 
+     * 取消当前绘制（Esc / 再次点击按钮）
+     */
     cancelDraw(): void {
         if (this.draw) {
             this.draw.abortDrawing();
@@ -543,7 +571,9 @@ export class MapDrawController {
         }
     }
 
-    /** 编辑模式下为单个图形挂透明触控带 edit 要素（已存在则先重建） */
+    /** 
+     * 编辑模式下为单个图形挂透明触控带 edit 要素（已存在则先重建）
+     */
     private addBulkEditFeature(uuid: string, raw: ShapeGeometry, shapeType: MapShapeType, style: ShapeStyle): void {
         const existing = this.findEditFeature(uuid);
         if (existing) this.editSource.removeFeature(existing);
@@ -560,7 +590,9 @@ export class MapDrawController {
         this.editSource.addFeature(editFeature);
     }
 
-    /** 新增或更新一个已保存图形（uuid 变化用于保存草稿时把 draft 替换掉） */
+    /** 
+     * 新增或更新一个已保存图形（uuid 变化用于保存草稿时把 draft 替换掉）
+     */
     upsertShape(shape: MapShape): void {
         this.removePair(shape.uuid);
         this.addPair(shape);
@@ -587,7 +619,9 @@ export class MapDrawController {
         return draftUuid;
     }
 
-    /** 删除草稿：传 uuid 只删指定草稿，不传则清空全部未提交草稿 */
+    /** 
+     * 删除草稿：传 uuid 只删指定草稿，不传则清空全部未提交草稿
+     */
     removeDraft(uuid?: string): void {
         if (uuid) {
             this.removePair(uuid);
@@ -646,8 +680,26 @@ export class MapDrawController {
             render.set('rawGeometry', raw);
             render.set('shapeStyle', style);
             render.set('shapeType', shapeType);
-            // 编辑中渲染要素保持不可见，避免控制线与密线重叠
-            render.setStyle(this.editingUuid === uuid ? INVISIBLE_STYLE : createShapeOlStyle(shapeType, style));
+            // 顶点编辑期间渲染层也保持真实样式，白色虚线控制线由上层 editLayer 叠加
+            render.setStyle(createShapeOlStyle(shapeType, style));
+        }
+    }
+
+    /**
+     * 顶点拖拽过程中的实时同步：只更新渲染几何（含平滑密线），
+     * 使图形自身的颜色/粗细/虚线/填充随顶点即时变化；不触发保存回调。
+     */
+    private syncRenderGeometryFromEdit(feature: OLFeature<Geometry>): void {
+        const uuid = feature.get('shapeUuid') as string | undefined;
+        if (!uuid) return;
+        const geometry = extractRawGeometry(feature.getGeometry() as SimpleGeometry);
+        if (!geometry) return;
+        const shapeType = feature.get('shapeType') as MapShapeType;
+        const style = (feature.get('shapeStyle') || null) as ShapeStyle | null;
+        const render = this.findRenderFeature(uuid);
+        if (render) {
+            render.setGeometry(buildRenderGeometry(geometry, style || undefined));
+            render.set('rawGeometry', geometry);
         }
     }
 
@@ -679,7 +731,9 @@ export class MapDrawController {
         editFeature.setStyle(createEditOlStyle(style, shapeType));
         this.editSource.addFeature(editFeature);
 
-        render.setStyle(INVISIBLE_STYLE);
+        // 渲染层保持真实样式（颜色/粗细/虚线/填充/平滑），与白色虚线控制线叠加显示
+        render.setGeometry(buildRenderGeometry(raw, style || undefined));
+        render.setStyle(createShapeOlStyle(shapeType, style));
 
         this.editingUuid = uuid;
         this.editingShapeUuid.value = uuid;
@@ -723,7 +777,9 @@ export class MapDrawController {
         }
     }
 
-    /** 读取编辑特征当前的原始经纬度几何（编辑模式下触控带要素同样可读） */
+    /** 
+     * 读取编辑特征当前的原始经纬度几何（编辑模式下触控带要素同样可读）
+     */
     getEditingGeometry(uuid: string): ShapeGeometry | null {
         const edit = this.findEditFeature(uuid);
         if (!edit) return null;
@@ -815,7 +871,9 @@ export class MapDrawController {
         }
     }
 
-    /** 悬停目标切换：命中的图形显示白色控制顶点线，移出后还原为透明触控带 */
+    /** 
+     * 悬停目标切换：命中的图形显示白色控制顶点线，移出后还原为透明触控带
+     */
     private setHover(uuid: string | null): void {
         if (uuid === this.hoverUuid) return;
 
@@ -847,14 +905,18 @@ export class MapDrawController {
         return (render?.get('shapeStyle') || {}) as ShapeStyle;
     }
 
-    /** 获取图形渲染要素的空间范围（EPSG:3857），用于定位/聚焦 */
+    /** 
+     * 获取图形渲染要素的空间范围，用于定位/聚焦
+     */
     getShapeExtent(uuid: string): number[] | null {
         const render = this.findRenderFeature(uuid);
         const geometry = render?.getGeometry();
         return geometry ? geometry.getExtent() : null;
     }
 
-    /** 判断像素命中的图形（render feature），返回 shapeUuid */
+    /** 
+     * 判断像素命中的图形（render feature），返回 shapeUuid
+     */
     forEachShapeAtPixel(pixel: number[], callback: (uuid: string, shapeType: MapShapeType) => void): void {
         const map = this.getMap();
         if (!map) return;
@@ -871,12 +933,16 @@ export class MapDrawController {
         }, { layerFilter: layer => layer === this.renderLayer, hitTolerance: 6 });
     }
 
-    /** 取出图形的渲染要素（框选后统一平移要直接操作它） */
+    /** 
+     * 取出图形的渲染要素（框选后统一平移要直接操作它）
+     */
     getRenderFeature(uuid: string): OLFeature<Geometry> | null {
         return (this.findRenderFeature(uuid) as OLFeature<Geometry>) || null;
     }
 
-    /** 遍历与给定投影范围相交的图形（框选用） */
+    /** 
+     * 遍历与给定投影范围相交的图形（框选用）
+     */
     forEachShapeInExtent(extent: number[], callback: (uuid: string, shapeType: MapShapeType) => void): void {
         this.renderSource.forEachFeatureIntersectingExtent(extent, (feature) => {
             const uuid = feature.get('shapeUuid') as string | undefined;

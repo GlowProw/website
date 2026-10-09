@@ -15,7 +15,9 @@
 <script setup lang="ts">
 const emit = defineEmits(['zoom-in', 'zoom-out', 'reset-view']);
 
-defineOptions({ name: 'MapControls' });
+defineOptions({
+  name: 'MapZoomControls'
+});
 </script>
 
 <style scoped>

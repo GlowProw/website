@@ -83,7 +83,7 @@
                       {{ t('map.layerCollection') }}
                     </p>
                   </template>
-                  <template v-slot:append-inner>
+                  <template v-slot:append>
                     <v-btn icon density="compact" variant="text" to="/account/maps" target="_blank">
                       <v-icon icon="mdi-cog"></v-icon>
                     </v-btn>

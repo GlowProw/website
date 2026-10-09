@@ -61,7 +61,7 @@ defineOptions({
     </v-app-bar>
 
     <v-navigation-drawer
-        permanent
+        :absolute="true"
         class="header-drawer header-filter"
         density="comfortable"
         :width="width"

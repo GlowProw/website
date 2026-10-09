@@ -1,4 +1,5 @@
 <template>
+  <!-- 创建标记 -->
   <v-dialog :model-value="modelValue" persistent max-width="850">
     <v-card border elevation="12">
       <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 create-marker-card">
@@ -11,10 +12,6 @@
       </template>
 
       <v-card-text>
-        <v-alert type="info" variant="tonal" density="compact" class="mb-5">
-          {{ t('map.collectionOptionalTip') }}
-        </v-alert>
-
         <v-form ref="markerFormRef">
           <v-row>
             <v-col cols="12">
@@ -71,17 +68,19 @@
             </v-col>
 
             <v-col cols="12">
-              <Textarea
-                  :model-value="newMarkerData.description"
-                  @update:model-value="emit('update:marker-data', { ...newMarkerData, description: $event })"
-                  :min-height="'200px'"
-                  :value="newMarkerData.description || t('map.markerDescription')"
-                  :placeholder="t('map.markerDescription')"
-                  :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']">
-              </Textarea>
+              <v-card border class="pa-2 mb-4">
+                <Textarea
+                    :model-value="newMarkerData.description"
+                    @update:model-value="emit('update:marker-data', { ...newMarkerData, description: $event })"
+                    :min-height="'200px'"
+                    :value="newMarkerData.description || t('map.markerDescription')"
+                    :placeholder="t('map.markerDescription')"
+                    :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']">
+                </Textarea>
+              </v-card>
             </v-col>
 
-            <v-col cols="12">
+            <v-col cols="6">
               <v-select
                   :model-value="publicSelectValue"
                   @update:model-value="emit('update:marker-data', { ...newMarkerData, public: $event })"
@@ -116,8 +115,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
+import {computed, ref} from 'vue';
+import {useI18n} from 'vue-i18n';
 import Textarea from "@/components/textarea/index.vue";
 
 const props = defineProps<{
@@ -130,19 +129,19 @@ const props = defineProps<{
 
 const emit = defineEmits(['update:modelValue', 'update:marker-data', 'cancel', 'create']);
 
-const { t } = useI18n();
+const {t} = useI18n();
 const markerFormRef = ref(null);
 
 /** 集合下拉首项为"未分组"（null） */
 const collectionItems = computed(() => [
-  { title: t('map.noCollection'), uuid: null },
+  {title: t('map.noCollection'), uuid: null},
   ...(props.userCollections || []),
 ]);
 
 /** 可见性下拉项：公开 / 私有 */
 const visibilityItems = computed(() => [
-  { value: true, label: t('map.public') },
-  { value: false, label: t('map.private') },
+  {value: true, label: t('map.public')},
+  {value: false, label: t('map.private')},
 ]);
 
 /** 当前归属的地图集（"未分组"时为 undefined） */
@@ -165,9 +164,9 @@ const onCollectionChange = (uuid: string | null) => {
   });
 };
 
-defineExpose({ markerFormRef });
+defineExpose({markerFormRef});
 
-defineOptions({ name: 'CreateMarkerDialog' });
+defineOptions({name: 'CreateMarkerDialog'});
 </script>
 
 <style scoped>

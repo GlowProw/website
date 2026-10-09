@@ -24,8 +24,9 @@ import {ApiError} from "@/assets/types/Api";
 import EmptyView from "@/components/EmptyView.vue";
 import Loading from "@/components/Loading.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
-import MapPointEditDialog from "@/components/map/MapPointEditDialog.vue";
+import MapEditMarkerDialog from "@/components/map/MapEditMarkerDialog.vue";
 import MapShapeManualDialog from "@/components/map/MapShapeManualDialog.vue";
+import MapShapeStylePreview from "@/components/map/MapShapeStylePreview.vue";
 import QuotaLimitWidget from "@/components/QuotaLimitWidget.vue";
 import PaginationBar from "@/components/PaginationBar.vue";
 
@@ -57,8 +58,6 @@ const activeTab = ref<TabKey>('collections'),
     savingPoint = ref(false),
     savingShape = ref(false)
 
-/* ---------------- 列表状态（标记 / 图形通用） ---------------- */
-
 interface EntityListState {
   rows: any[];
   total: number;
@@ -88,8 +87,6 @@ const pointsState = reactive<EntityListState>(createListState()),
     regionState = reactive<EntityListState>(createListState())
 
 const shapeStateByType = (type: MapShapeType): EntityListState => type === 'path' ? pathState : regionState
-
-/* ---------------- 弹窗状态 ---------------- */
 
 const pointDialogVisible = ref(false),
     pointForm = ref<PointFormData>({
@@ -130,8 +127,6 @@ const onApiError = (e: unknown) => {
   }
   console.error(e)
 }
-
-/* ============================== 地图集 ============================== */
 
 const getMyCollectionsData = async () => {
   try {
@@ -224,7 +219,9 @@ const executeDelete = async (): Promise<void> => {
   showDeleteConfirm.value = false
 };
 
-/** 从地图集卡片跳到标记 Tab 并按集合过滤 */
+/** 
+ * 从地图集卡片跳到标记 Tab 并按集合过滤
+ */
 const openCollectionPoints = (collection: MapCollection): void => {
   pointsState.filterCollection = collection.uuid
   pointsState.page = 1
@@ -232,7 +229,9 @@ const openCollectionPoints = (collection: MapCollection): void => {
   activeTab.value = 'points'
 }
 
-// 生成分享链接，打开方可选择导入或只读浏览
+/**
+ * 生成分享链接，打开方可选择导入或只读浏览
+ */
 const copyShareLink = async (collection: MapCollection): Promise<void> => {
   const url = `${window.location.origin}/map?shareCollection=${encodeURIComponent(collection.uuid)}`
   try {
@@ -246,7 +245,9 @@ const copyShareLink = async (collection: MapCollection): Promise<void> => {
 // 克隆中的集合（同时只允许一个），用于按钮 loading
 const cloningUuid = ref('')
 
-/** 克隆自己的地图集：完整复制集合及其全部标记/图形 */
+/** 
+ * 克隆自己的地图集：完整复制集合及其全部标记/图形
+ */
 const onCloneCollection = async (collection: MapCollection): Promise<void> => {
   if (cloningUuid.value) return
   cloningUuid.value = collection.uuid
@@ -262,7 +263,6 @@ const onCloneCollection = async (collection: MapCollection): Promise<void> => {
   }
 }
 
-/* ============================== 标记列表 ============================== */
 
 const loadPoints = async () => {
   pointsState.loading = true
@@ -416,7 +416,6 @@ const goDrawMarker = () => {
   router.push({path: '/map', query})
 }
 
-/* ============================== 图形列表 ============================== */
 
 const loadShapes = async (type: MapShapeType) => {
   const state = shapeStateByType(type)
@@ -951,25 +950,7 @@ defineOptions({
             </td>
             <td>
               <!-- 样式迷你预览 -->
-              <svg width="46" height="20" :viewBox="'0 0 46 20'">
-                <template v-if="shape.shapeType === 'path'">
-                  <path d="M2 14 C 12 2, 22 18, 44 6" fill="none"
-                        :stroke="previewStyle(shape).color"
-                        :stroke-opacity="previewStyle(shape).opacity"
-                        :stroke-width="Math.min(5, previewStyle(shape).width)"
-                        :stroke-dasharray="previewStyle(shape).dashed ? '5 3' : undefined"
-                        stroke-linecap="round"/>
-                </template>
-                <template v-else>
-                  <polygon points="6,3 40,3 44,16 3,17"
-                           :fill="previewStyle(shape).fillColor"
-                           :fill-opacity="previewStyle(shape).fillOpacity"
-                           :stroke="previewStyle(shape).color"
-                           :stroke-opacity="previewStyle(shape).opacity"
-                           :stroke-width="Math.min(4, previewStyle(shape).width)"
-                           :stroke-dasharray="previewStyle(shape).dashed ? '4 3' : undefined"/>
-                </template>
-              </svg>
+              <MapShapeStylePreview :shape-type="shape.shapeType" :shape-style="previewStyle(shape)"/>
             </td>
             <td class="text-body-2 font-weight-medium">
               <div class="d-flex align-center ga-1">
@@ -1044,14 +1025,14 @@ defineOptions({
     <!-- 地图集编辑/新建对话框 E -->
 
     <!-- 标记新建/编辑对话框 -->
-    <MapPointEditDialog
+    <MapEditMarkerDialog
         v-model="pointDialogVisible"
         :form="pointForm"
         :user-collections="userCollections.data"
         :saving="savingPoint"
         @update:form="onPointFormChange"
         @cancel="pointDialogVisible = false"
-        @save="onSavePoint"></MapPointEditDialog>
+        @save="onSavePoint"></MapEditMarkerDialog>
 
     <!-- 路径/区域手填弹窗 -->
     <MapShapeManualDialog
