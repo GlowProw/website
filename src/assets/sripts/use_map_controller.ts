@@ -119,7 +119,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
     const searchInput = ref('');
     const searchSuggestions = ref<any[]>([]);
 
-    /** 右键/长按上下文菜单状态 */
+    /**
+     * 右键/长按上下文菜单状态
+     */
     const contextMenuState = ref({
         visible: false,
         x: 0,
@@ -130,20 +132,30 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         shapeUuid: null as string | null,
     });
 
-    /** debug 模式下边界编辑是否激活 */
+    /**
+     * debug 模式下边界编辑是否激活
+     */
     const isEditingBounds = ref(false);
 
-    /** debug 模式下是否允许拖拽标记 */
+    /**
+     * debug 模式下是否允许拖拽标记
+     */
     const isMarkerDraggingEnabled = ref(true);
-    /** 是否正在拖拽标记中（用于避免拖拽松开时误触发 click） */
+    /**
+     * 是否正在拖拽标记中（用于避免拖拽松开时误触发 click）
+     */
     const isDraggingFeature = ref(false);
 
-    /** debug 模式下标记编辑弹窗状态 */
+    /**
+     * debug 模式下标记编辑弹窗状态
+     */
     const showEditMarkerDialog = ref(false);
     const editingMarkerData = ref<any>(null);
     const editingOriginalId = ref<string>('');
 
-    /** 正式的个人标记编辑弹窗（右键编辑） */
+    /**
+     * 正式的个人标记编辑弹窗（右键编辑）
+     */
     const showPointEditDialog = ref(false);
     const savingPointEdit = ref(false);
     const pointEditFormRef = ref(null);
@@ -158,7 +170,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         public: false,
     });
 
-    /** 通用删除确认弹窗 */
+    /**
+     * 通用删除确认弹窗
+     */
     const confirmState = ref({ visible: false, message: '', danger: true });
     let pendingConfirmAction: (() => Promise<void> | void) | null = null;
 
@@ -198,11 +212,15 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
     const savingShape = ref(false);
     const shapeFormRef = ref(null);
     const selectedShapeUuid = ref<string | null>(null);
-    /** 选中的图形对象（信息卡用） */
+    /**
+     * 选中的图形对象（信息卡用）
+     */
     const selectedShape = computed<MapShape | null>(() =>
         userShapes.value.find(s => s.uuid === selectedShapeUuid.value) || null
     );
-    /** 弹窗实时表单 */
+    /**
+     * 弹窗实时表单
+     */
     const shapeFormData = ref<ShapeFormData>({
         title: '',
         description: '',
@@ -211,18 +229,30 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         public: false,
         style: {},
     });
-    /** 提交弹窗当前对应的草稿几何 */
+    /**
+     * 提交弹窗当前对应的草稿几何
+     */
     let draftShapeGeometry: ShapeGeometry | null = null;
-    /** 提交弹窗当前对应的草稿 uuid（保存成功后据此移除该草稿） */
+    /**
+     * 提交弹窗当前对应的草稿 uuid（保存成功后据此移除该草稿）
+     */
     let submittingDraftUuid: string | null = null;
-    /** 正在编辑属性的已保存图形 uuid */
+    /**
+     * 正在编辑属性的已保存图形 uuid
+     */
     let editingShapeUuid: string | null = null;
-    /** 顶点编辑后待保存的几何 */
+    /**
+     * 顶点编辑后待保存的几何
+     */
     let pendingShapeGeometry: ShapeGeometry | null = null;
 
-    /** 编辑模式：创建路径/区域后进入，可连续绘制未提交图形并悬停再编辑 */
+    /**
+     * 编辑模式：创建路径/区域后进入，可连续绘制未提交图形并悬停再编辑
+     */
     const shapeEditMode = ref(false);
-    /** 编辑模式下被拖动过、尚未保存的已提交图形（dirtyShapeVersion 驱动菜单响应式刷新） */
+    /**
+     * 编辑模式下被拖动过、尚未保存的已提交图形（dirtyShapeVersion 驱动菜单响应式刷新）
+     */
     const dirtyShapeUuids = new Set<string>();
     const dirtyShapeVersion = ref(0);
     const markShapeDirty = (uuid: string): void => {
@@ -237,29 +267,39 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
     const showShareCollectionDialog = ref(false);
     const sharedCollectionInfo = ref<SharedCollectionInfo | null>(null);
     const importingSharedCollection = ref(false);
-    /** 非空表示当前地图正在只读浏览他人公开集合（顶部横幅用） */
+    /**
+     * 非空表示当前地图正在只读浏览他人公开集合（顶部横幅用）
+     */
     const sharedCollectionPreview = ref<SharedCollectionInfo | null>(null);
 
     const drawController = new MapDrawController(() => mapInstance.value, {
         onModifyEnd: (uuid, geometry) => onShapeVerticesModified(uuid, geometry),
         onEscapeKey: () => exitShapeEditMode(),
     });
-    /** 工具栏绘制按钮高亮状态 */
+    /**
+     * 工具栏绘制按钮高亮状态
+     */
     const drawMode = drawController.activeMode;
 
     // 框选，拖框多选
-    /** 框选模式开关（开启后屏蔽地图平移，按住拖框选中自己的标记/路径/区域） */
+    /**
+     * 框选模式开关（开启后屏蔽地图平移，按住拖框选中自己的标记/路径/区域）
+     */
     const marqueeMode = ref(false);
     const marqueeSelection = ref<{ points: MapPoint[]; shapes: MapShape[] }>({ points: [], shapes: [] });
     const marqueeCount = computed(() => marqueeSelection.value.points.length + marqueeSelection.value.shapes.length);
-    /** 交给 Translate 的要素集合：真实要素 + 高亮虚影，拖动任意一个整组一起动 */
+    /**
+     * 交给 Translate 的要素集合：真实要素 + 高亮虚影，拖动任意一个整组一起动
+     */
     const marqueeFeatures = new Collection<OLFeature<Geometry>>();
     const marqueeGhostSource = new VectorSource({ wrapX: false });
     let marqueeGhostLayer: VectorLayer<VectorSource> | null = null;
     let marqueeGhostFeatures: OLFeature<Geometry>[] = [];
     let dragBox: DragBox | null = null;
     let marqueeTranslate: Translate | null = null;
-    /** 一次整组平移开始时各要素的首个投影坐标，松手时据此算位移并持久化 */
+    /**
+     * 一次整组平移开始时各要素的首个投影坐标，松手时据此算位移并持久化
+     */
     let marqueeDragSnapshot: Record<string, number[]> | null = null;
 
     const availableCategories = computed(() => {
@@ -921,7 +961,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }
     };
 
-    /** 打开右键上下文菜单 */
+    /**
+     * 打开右键上下文菜单
+     */
     const openContextMenu = (
         clientX: number,
         clientY: number,
@@ -955,7 +997,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         };
     };
 
-    /** 关闭右键菜单 */
+    /**
+     * 关闭右键菜单
+     */
     const closeContextMenu = () => {
         contextMenuState.value.visible = false;
     };
@@ -1333,7 +1377,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             const draftRegions = drawController.getDraftUuids()
                 .filter(uuid => drawController.getRenderFeature(uuid)?.get('shapeType') === 'region');
 
-            /** 构建某类图形的「删除」二级菜单：所有 / 已提交 / 未提交 */
+            /**
+             * 构建某类图形的「删除」二级菜单：所有 / 已提交 / 未提交
+             */
             const buildDeleteShapeSubmenu = (
                 shapeType: MapShapeType,
                 parentIcon: string,
@@ -1462,7 +1508,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }
     };
 
-    /** 复制标记坐标 */
+    /**
+     * 复制标记坐标
+     */
     const copyMarkerCoordinates = async (target: any) => {
         const raw = target?.get ? target.get('originalData') : target;
         if (!raw) return;
@@ -1940,7 +1988,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }
     };
 
-    /** 兼容旧调用名 */
+    /**
+     * 兼容旧调用名
+     */
     const loadCollectionPoints = async (collectionUuid: string): Promise<void> => {
         await loadCurrentPoints(collectionUuid);
     };
@@ -2008,9 +2058,13 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }
     };
 
-    /** 最近一次"点位 + 图形"成对加载，供初始化与 query 联动等待收口 */
+    /**
+     * 最近一次"点位 + 图形"成对加载，供初始化与 query 联动等待收口
+     */
     let currentCollectionLoad: Promise<void> = Promise.resolve();
-    /** 在途的同集合加载（初始化与 watcher 可能同时触发同一集合，避免重复请求） */
+    /**
+     * 在途的同集合加载（初始化与 watcher 可能同时触发同一集合，避免重复请求）
+     */
     let inflightCollectionLoad: { uuid: string | null; promise: Promise<void> } | null = null;
     const runCollectionLoad = (uuid: string | null): Promise<void> => {
         if (inflightCollectionLoad && inflightCollectionLoad.uuid === uuid) {
@@ -2029,7 +2083,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         return promise;
     };
 
-    /** 统一兜底为完整样式，避免取色器拿到空值时显示/写入黑色 */
+    /**
+     * 统一兜底为完整样式，避免取色器拿到空值时显示/写入黑色
+     */
     const buildDefaultShapeStyle = (mode: DrawShapeMode): ShapeStyle => ({
         color: mode === 'region' ? DEFAULT_REGION_COLOR : DEFAULT_PATH_COLOR,
         opacity: DEFAULT_LINE_OPACITY,
@@ -2040,7 +2096,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         fillOpacity: DEFAULT_FILL_OPACITY,
     });
 
-    /** 工具栏/右键点击：进入编辑模式并开始一笔绘制（编辑模式下可连续画多个未提交图形） */
+    /**
+     * 工具栏/右键点击：进入编辑模式并开始一笔绘制（编辑模式下可连续画多个未提交图形）
+     */
     const onStartDraw = (mode: DrawShapeMode): void => {
         if (!authStore.isLogin) return;
         setMarqueeMode(false);
@@ -2051,13 +2109,17 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         drawController.startDraw(mode);
     };
 
-    /** 进入编辑模式：本人全部图形（已提交+未提交）悬停即可拖顶点再编辑 */
+    /**
+     * 进入编辑模式：本人全部图形（已提交+未提交）悬停即可拖顶点再编辑
+     */
     const enterShapeEditMode = (): void => {
         drawController.setEditMode(true, authStore.user?.userId);
         shapeEditMode.value = true;
     };
 
-    /** 右键未提交草稿 → 提交：打开属性弹窗，保存后转为正式图形 */
+    /**
+     * 右键未提交草稿 → 提交：打开属性弹窗，保存后转为正式图形
+     */
     const submitDraftShape = (draftUuid: string): void => {
         const render = drawController.getRenderFeature(draftUuid);
         if (!render) return;
@@ -2086,17 +2148,23 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         showShapeDialog.value = true;
     };
 
-    /** 右键未提交草稿 → 删除（仅本地，不调接口） */
+    /**
+     * 右键未提交草稿 → 删除（仅本地，不调接口）
+     */
     const deleteDraftShape = (draftUuid: string): void => {
         drawController.removeDraft(draftUuid);
         if (selectedShapeUuid.value === draftUuid) selectedShapeUuid.value = null;
     };
 
-    /** 是否存在未提交草稿或已提交图形的未保存顶点修改 */
+    /**
+     * 是否存在未提交草稿或已提交图形的未保存顶点修改
+     */
     const hasPendingShapeEdits = (): boolean =>
         drawController.getDraftUuids().length > 0 || dirtyShapeUuids.size > 0;
 
-    /** 退出编辑模式：存在未提交内容时先请用户确认 */
+    /**
+     * 退出编辑模式：存在未提交内容时先请用户确认
+     */
     const exitShapeEditMode = (): void => {
         // 属性弹窗或确认框打开时，ESC 交给弹窗自身处理，不叠加触发退出
         if (showShapeDialog.value || confirmState.value.visible) return;
@@ -2110,7 +2178,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         void doExitShapeEditMode();
     };
 
-    /** 实际退出：丢弃全部草稿、回滚已提交图形的未保存顶点修改 */
+    /**
+     * 实际退出：丢弃全部草稿、回滚已提交图形的未保存顶点修改
+     */
     const doExitShapeEditMode = async (): Promise<void> => {
         drawController.setEditMode(false);
         shapeEditMode.value = false;
@@ -2121,7 +2191,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         await loadCollectionShapes(selectedCollectionUuid.value || null);
     };
 
-    /** 弹窗表单实时变化（草稿样式预览） */
+    /**
+     * 弹窗表单实时变化（草稿样式预览）
+     */
     const onShapeFormChange = (data: ShapeFormData): void => {
         shapeFormData.value = data;
         if (shapeDialogMode.value === 'create' && draftShapeGeometry && submittingDraftUuid) {
@@ -2131,7 +2203,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }
     };
 
-    /** 保存（新建或编辑属性） */
+    /**
+     * 保存（新建或编辑属性）
+     */
     const onSaveShape = async (): Promise<void> => {
         const formRef = (shapeFormRef.value as any)?.formRef;
         if (!formRef) return;
@@ -2187,7 +2261,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }
     };
 
-    /** 取消弹窗：新建仅关闭窗口，未提交草稿保留在编辑模式；编辑回滚未保存的顶点修改 */
+    /**
+     * 取消弹窗：新建仅关闭窗口，未提交草稿保留在编辑模式；编辑回滚未保存的顶点修改
+     */
     const onCancelShapeDialog = (): void => {
         if (shapeDialogMode.value === 'create') {
             // 草稿保留，用户仍可在右键菜单中提交或删除
@@ -2204,7 +2280,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }
     };
 
-    /** 打开已保存图形的属性/样式编辑弹窗 */
+    /**
+     * 打开已保存图形的属性/样式编辑弹窗
+     */
     const openShapeEdit = (uuid: string): void => {
         const shape = userShapes.value.find(s => s.uuid === uuid);
         if (!shape) return;
@@ -2241,20 +2319,26 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }
     };
 
-    /** 进入单图形顶点编辑模式（信息卡按钮 / 右键菜单） */
+    /**
+     * 进入单图形顶点编辑模式（信息卡按钮 / 右键菜单）
+     */
     const beginShapeVertexEdit = (uuid: string): void => {
         setMarqueeMode(false);
         selectedShapeUuid.value = uuid;
         drawController.beginEditVertices(uuid);
     };
 
-    /** 放弃顶点编辑并恢复（编辑模式下悬停修改的回滚走 revertDirtyShape） */
+    /**
+     * 放弃顶点编辑并恢复（编辑模式下悬停修改的回滚走 revertDirtyShape）
+     */
     const cancelShapeVertexEdit = (): void => {
         drawController.endEditVertices();
         void loadCollectionShapes(selectedCollectionUuid.value || null, shapeEditMode.value);
     };
 
-    /** 直接保存顶点编辑结果（信息卡快捷保存；编辑模式下悬停拖动后也走这里） */
+    /**
+     * 直接保存顶点编辑结果（信息卡快捷保存；编辑模式下悬停拖动后也走这里）
+     */
     const saveShapeVertexEdit = async (uuid: string): Promise<void> => {
         const geometry = drawController.getEditingGeometry(uuid);
         drawController.endEditVertices();
@@ -2273,13 +2357,17 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }
     };
 
-    /** 编辑模式下放弃某个已提交图形的悬停顶点修改，恢复到服务器版本 */
+    /**
+     * 编辑模式下放弃某个已提交图形的悬停顶点修改，恢复到服务器版本
+     */
     const revertDirtyShape = (uuid: string): void => {
         unmarkShapeDirty(uuid);
         void loadCollectionShapes(selectedCollectionUuid.value || null, true);
     };
 
-    /** 删除图形 */
+    /**
+     * 删除图形
+     */
     const deleteShape = async (uuid: string): Promise<void> => {
         try {
             await api.deleteShape(uuid);
@@ -2305,7 +2393,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
 
     // 个人标记的右键编辑和删除
 
-    /** 解析后端返回的 tags JSON 字符串 */
+    /**
+     * 解析后端返回的 tags JSON 字符串
+     */
     const parsePointTags = (raw: string | undefined | null): string[] => {
         if (!raw) return [];
         try {
@@ -2316,14 +2406,18 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }
     };
 
-    /** 在主图层里按 uuid 找个人标记要素 */
+    /**
+     * 在主图层里按 uuid 找个人标记要素
+     */
     const findPointFeatureByUuid = (uuid: string): OLFeature<Geometry> | null => {
         const source = vectorLayerRef.value?.getSource();
         if (!source) return null;
         return source.getFeatures().find(f => f.get('originalData')?.uuid === uuid) || null;
     };
 
-    /** 右键菜单"查看标记"：卡片对准该点 */
+    /**
+     * 右键菜单"查看标记"：卡片对准该点
+     */
     const focusPointFeature = (feature: OLFeature<Geometry>): void => {
         const raw = feature.get('originalData') as MapPoint | undefined;
         if (!raw) return;
@@ -2333,7 +2427,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         showCoordinateInfo.value = false;
     };
 
-    /** 打开个人标记编辑弹窗 */
+    /**
+     * 打开个人标记编辑弹窗
+     */
     const onOpenPointEdit = (feature: OLFeature<Geometry>): void => {
         const raw = feature.get('originalData') as MapPoint | undefined;
         if (!raw?.uuid) return;
@@ -2355,7 +2451,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         pointEditForm.value = data;
     };
 
-    /** 保存个人标记编辑 */
+    /**
+     * 保存个人标记编辑
+     */
     const onSavePointEdit = async (): Promise<void> => {
         const formRef = (pointEditFormRef.value as any)?.formRef;
         if (!formRef) return;
@@ -2449,7 +2547,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         showPointEditDialog.value = false;
     };
 
-    /** 右键删除个人标记（带确认） */
+    /**
+     * 右键删除个人标记（带确认）
+     */
     const onDeletePointFromMenu = (feature: OLFeature<Geometry>): void => {
         const raw = feature.get('originalData') as MapPoint | undefined;
         if (!raw?.uuid) return;
@@ -2551,7 +2651,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
 
     // 框选逻辑
 
-    /** 选中标记/图形的高亮虚影样式 */
+    /**
+     * 选中标记/图形的高亮虚影样式
+     */
     const createMarqueePointGhostStyle = (): Style => new Style({
         image: new CircleStyle({
             radius: 15,
@@ -2565,21 +2667,27 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         fill: new Fill({ color: 'rgba(255,213,79,0.08)' }),
     });
 
-    /** 清理高亮虚影（同步移出 Translate 集合） */
+    /**
+     * 清理高亮虚影（同步移出 Translate 集合）
+     */
     const clearMarqueeGhosts = (): void => {
         marqueeGhostFeatures.forEach(g => marqueeFeatures.remove(g));
         marqueeGhostFeatures = [];
         marqueeGhostSource.clear();
     };
 
-    /** 清空框选结果 */
+    /**
+     * 清空框选结果
+     */
     const clearMarqueeSelection = (): void => {
         clearMarqueeGhosts();
         marqueeFeatures.clear();
         marqueeSelection.value = { points: [], shapes: [] };
     };
 
-    /** 删除某一项后从框选集合摘除（保留其余选中状态） */
+    /**
+     * 删除某一项后从框选集合摘除（保留其余选中状态）
+     */
     const removeFromMarqueeSelection = (kind: 'point' | 'shape', uuid: string): void => {
         if (kind === 'point') {
             const feature = findPointFeatureByUuid(uuid);
@@ -2593,7 +2701,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         rebuildMarqueeGhosts();
     };
 
-    /** 按当前选中结果重建虚影（平移结束后几何已变，需要重画） */
+    /**
+     * 按当前选中结果重建虚影（平移结束后几何已变，需要重画）
+     */
     const rebuildMarqueeGhosts = (): void => {
         clearMarqueeGhosts();
         marqueeSelection.value.points.forEach(point => {
@@ -2617,7 +2727,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         });
     };
 
-    /** 应用一次框选结果：填状态、把真实要素+虚影塞进 Translate 集合 */
+    /**
+     * 应用一次框选结果：填状态、把真实要素+虚影塞进 Translate 集合
+     */
     const applyMarqueeSelection = (points: MapPoint[], shapes: MapShape[]): void => {
         clearMarqueeGhosts();
         marqueeFeatures.clear();
@@ -2634,7 +2746,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         rebuildMarqueeGhosts();
     };
 
-    /** 拖框结束：用投影范围圈中自己的标记与图形 */
+    /**
+     * 拖框结束：用投影范围圈中自己的标记与图形
+     */
     const onMarqueeBoxEnd = (): void => {
         if (!marqueeMode.value || !dragBox || !vectorLayerRef.value) return;
         const extent = dragBox.getGeometry().getExtent();
@@ -2685,7 +2799,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         applyMarqueeSelection(points, shapes);
     };
 
-    /** 整组平移开始：记下各要素起始坐标 */
+    /**
+     * 整组平移开始：记下各要素起始坐标
+     */
     const onMarqueeTranslateStart = (): void => {
         marqueeDragSnapshot = {};
         marqueeSelection.value.points.forEach(point => {
@@ -2700,7 +2816,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         });
     };
 
-    /** 整组平移结束：算位移、逐对象持久化，再重建虚影 */
+    /**
+     * 整组平移结束：算位移、逐对象持久化，再重建虚影
+     */
     const onMarqueeTranslateEnd = async (): Promise<void> => {
         const snapshot = marqueeDragSnapshot;
         marqueeDragSnapshot = null;
@@ -2767,7 +2885,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }
     };
 
-    /** 框选结果批量删除（带确认） */
+    /**
+     * 框选结果批量删除（带确认）
+     */
     const onDeleteMarqueeSelection = (): void => {
         const { points, shapes } = marqueeSelection.value;
         if (points.length === 0 && shapes.length === 0) return;
@@ -2796,7 +2916,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         );
     };
 
-    /** 地图初始化时装载框选交互 */
+    /**
+     * 地图初始化时装载框选交互
+     */
     const setupMarqueeInteractions = (map: Map): void => {
         marqueeGhostLayer = new VectorLayer({
             source: marqueeGhostSource,
@@ -2825,7 +2947,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         });
     };
 
-    /** 真正切换框选开关（屏蔽/恢复地图平移，关掉互斥的绘制与顶点编辑） */
+    /**
+     * 真正切换框选开关（屏蔽/恢复地图平移，关掉互斥的绘制与顶点编辑）
+     */
     const applyMarqueeMode = (on: boolean): void => {
         marqueeMode.value = on;
         if (on) {
@@ -2870,12 +2994,16 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
 
     // /map query 联动，供管理页跳转
 
-    /** 清除 /map 上的联动 query 参数 */
+    /**
+     * 清除 /map 上的联动 query 参数
+     */
     const clearMapActionQuery = (): void => {
         router.replace({ name: route.name ?? undefined, query: {} }).catch(() => { /* ignore */ });
     };
 
-    /** 地图视野聚焦到某经纬度 */
+    /**
+     * 地图视野聚焦到某经纬度
+     */
     const focusMapAtLonLat = (lonLat: number[], zoom?: number): void => {
         const map = mapInstance.value;
         if (!map) return;
@@ -2887,7 +3015,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         });
     };
 
-    /** 确保定位到的标记 feature 存在于主图层（可能属于其他集合） */
+    /**
+     * 确保定位到的标记 feature 存在于主图层（可能属于其他集合）
+     */
     const ensurePointFeatureVisible = (point: MapPoint): void => {
         const source = vectorLayerRef.value?.getSource();
         if (!source) return;
@@ -2895,7 +3025,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         if (!exists) source.addFeature(createPersonalFeature(point));
     };
 
-    /** 确保定位/编辑的图形已加载渲染（可能属于其他集合） */
+    /**
+     * 确保定位/编辑的图形已加载渲染（可能属于其他集合）
+     */
     const ensureShapeLoaded = (shape: MapShape): boolean => {
         if (parseShapeGeometry(shape) === null) return false;
         if (!userShapes.value.some(s => s.uuid === shape.uuid)) {
@@ -2905,7 +3037,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         return true;
     };
 
-    /** 定位标记 */
+    /**
+     * 定位标记
+     */
     const focusPointByUuid = async (uuid: string): Promise<void> => {
         try {
             const resp = await api.getPointDetail(uuid);
@@ -2929,7 +3063,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }
     };
 
-    /** 拉取图形并确保已渲染 */
+    /**
+     * 拉取图形并确保已渲染
+     */
     const fetchShapeForAction = async (uuid: string): Promise<MapShape | null> => {
         const existing = userShapes.value.find(s => s.uuid === uuid);
         if (existing) return existing;
@@ -2946,7 +3082,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }
     };
 
-    /** 定位图形（缩放到其范围并选中） */
+    /**
+     * 定位图形（缩放到其范围并选中）
+     */
     const focusShapeByUuid = async (uuid: string): Promise<void> => {
         const shape = await fetchShapeForAction(uuid);
         if (!shape) return;
@@ -2960,7 +3098,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }
     };
 
-    /** 打开分享链接：拉取公开地图集信息，弹窗让用户选择导入或只读浏览 */
+    /**
+     * 打开分享链接：拉取公开地图集信息，弹窗让用户选择导入或只读浏览
+     */
     const openSharedCollectionDialog = async (uuid: string): Promise<void> => {
         try {
             const resp = await api.getSharedCollection(uuid);
@@ -2974,7 +3114,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }
     };
 
-    /** 只读浏览：直接渲染他人公开集合的点位与图形，不改动当前选择的集合 */
+    /**
+     * 只读浏览：直接渲染他人公开集合的点位与图形，不改动当前选择的集合
+     */
     const loadSharedCollectionPreview = async (info: SharedCollectionInfo): Promise<void> => {
         try {
             const [pointsResp, shapesResp] = await Promise.all([
@@ -3017,14 +3159,18 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }
     };
 
-    /** 弹窗：仅阅读浏览 */
+    /**
+     * 弹窗：仅阅读浏览
+     */
     const onPreviewSharedCollection = (): void => {
         const info = sharedCollectionInfo.value;
         showShareCollectionDialog.value = false;
         if (info) void loadSharedCollectionPreview(info);
     };
 
-    /** 弹窗：导入到我的账户（克隆一份私有副本并切换过去） */
+    /**
+     * 弹窗：导入到我的账户（克隆一份私有副本并切换过去）
+     */
     const onImportSharedCollection = async (): Promise<void> => {
         const info = sharedCollectionInfo.value;
         if (!info) return;
@@ -3053,7 +3199,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         showShareCollectionDialog.value = false;
     };
 
-    /** 退出只读预览，回到自己当前集合的数据 */
+    /**
+     * 退出只读预览，回到自己当前集合的数据
+     */
     const exitSharedPreview = (): void => {
         sharedCollectionPreview.value = null;
         void runCollectionLoad(selectedCollectionUuid.value || null);

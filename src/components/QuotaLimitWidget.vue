@@ -15,7 +15,9 @@ import {
 import {useAuthStore} from '~/stores/userAccountStore'
 
 const props = withDefaults(defineProps<{
-  /** 只展示某一类资源；不传则展示全部 */
+  /**
+   * 只展示某一类资源；不传则展示全部
+   */
   resource?: QuotaResourceKey
   text?: boolean
 }>(), {

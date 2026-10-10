@@ -262,7 +262,9 @@ const getDraftListData = () => {
     draftList.value = d.data;
 }
 
-/** 保存新命名草稿 */
+/**
+ * 保存新命名草稿
+ */
 const onSaveDraft = () => {
   let uid: string = uuidv6(),
       newDraftData = shareData.value

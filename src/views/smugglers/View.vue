@@ -53,7 +53,9 @@ let smugglersData = ref<any>({}),
       pageSize: 6
     })
 
-/** 页面挂载时拉取当前走私者周报 */
+/**
+ * 页面挂载时拉取当前走私者周报
+ */
 onMounted(() => {
   getSmugglersData()
 })

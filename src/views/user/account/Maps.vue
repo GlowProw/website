@@ -466,7 +466,9 @@ const defaultShapeStyle = (type: MapShapeType) => ({
   fillOpacity: 0.4,
 })
 
-/** 列表迷你预览用：补全默认颜色/透明度，保证旧数据也能正确呈现 */
+/**
+ * 列表迷你预览用：补全默认颜色/透明度，保证旧数据也能正确呈现
+ */
 const previewStyle = (shape: MapShape) =>
     resolveShapeStyle(parseShapeStyle(shape), shape.shapeType)
 
@@ -670,7 +672,9 @@ const batchMoveCollectionItems = computed(() => [
   ...userCollections.value.data.map(c => ({title: c.title, value: c.uuid})),
 ])
 
-/** 当前图形 Tab 的类型与状态 */
+/**
+ * 当前图形 Tab 的类型与状态
+ */
 const currentShapeType = computed<MapShapeType>(() => activeTab.value === 'paths' ? 'path' : 'region')
 const currentShapeState = computed(() => shapeStateByType(currentShapeType.value))
 const currentRowsAllSelected = computed(() => rowsAllSelected(currentShapeState.value))

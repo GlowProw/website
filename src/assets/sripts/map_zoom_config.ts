@@ -1,13 +1,21 @@
 import { storage_account } from '@/assets/sripts/index';
 
 export interface CategoryZoomRule {
-  /** 最小可见 Zoom (缩小低于此层级不可见) */
+  /**
+   * 最小可见 Zoom (缩小低于此层级不可见)
+   */
   minZoom: number;
-  /** 最大可见 Zoom (放大高于此层级不可见) */
+  /**
+   * 最大可见 Zoom (放大高于此层级不可见)
+   */
   maxZoom: number;
-  /** 不同 Zoom 级别的图标 scale 尺寸 */
+  /**
+   * 不同 Zoom 级别的图标 scale 尺寸
+   */
   scales?: Record<number, number>;
-  /** 默认基准 scale */
+  /**
+   * 默认基准 scale
+   */
   baseScale: number;
 }
 

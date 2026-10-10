@@ -24,7 +24,9 @@ const props = withDefaults(
     cosmetics = Cosmetics,
     route = useRoute()
 
-/** 判断当前路由是否在 widgets/ 路径下 */
+/**
+ * 判断当前路由是否在 widgets/ 路径下
+ */
 const isWidgetRoute = computed(() => route.path.startsWith('/widgets/'))
 
 let obtainable = computed(() => {

@@ -64,18 +64,24 @@ const getCategoryColor = (cat: string) => {
   return categoryMetaMap[cat]?.color || 'grey';
 };
 
-/** 页面挂载时初始化 reminderStore 并启动后台 worker */
+/**
+ * 页面挂载时初始化 reminderStore 并启动后台 worker
+ */
 onMounted(() => {
   reminderStore.init();
   reminderStore.resumeWorker();
 });
 
-/** 页面卸载时暂停后台 worker */
+/**
+ * 页面卸载时暂停后台 worker
+ */
 onUnmounted(() => {
   reminderStore.pauseWorker();
 });
 
-/** 是否存在生效中的过滤条件 */
+/**
+ * 是否存在生效中的过滤条件
+ */
 const hasActiveFilters = computed(() => {
   return (
       !!filterSearchInput.value.trim() ||
@@ -87,7 +93,9 @@ const hasActiveFilters = computed(() => {
   );
 });
 
-/** 重置全部筛选条件 */
+/**
+ * 重置全部筛选条件
+ */
 const resetAllFilters = () => {
   filterSearchInput.value = '';
   selectedScheduleTypes.value = [];
@@ -97,29 +105,39 @@ const resetAllFilters = () => {
   sortOrder.value = 'asc';
 };
 
-/** 响应回车搜索 */
+/**
+ * 响应回车搜索
+ */
 const onSearch = () => {
   // 响应回车搜索
 };
 
-/** 清空搜索关键字 */
+/**
+ * 清空搜索关键字
+ */
 const onClearSearch = () => {
   filterSearchInput.value = '';
 };
 
-/** 打开新建活动提醒窗口 */
+/**
+ * 打开新建活动提醒窗口
+ */
 const onCreateNew = () => {
   editingTask.value = null;
   editDialogVisible.value = true;
 };
 
-/** 打开编辑窗口 */
+/**
+ * 打开编辑窗口
+ */
 const onEdit = (task: ReminderTask) => {
   editingTask.value = {...task};
   editDialogVisible.value = true;
 };
 
-/** 保存新建或修改后的任务 */
+/**
+ * 保存新建或修改后的任务
+ */
 const onSaveTask = (taskData: any) => {
   if (editingTask.value && editingTask.value.id) {
     reminderStore.updateTask({
@@ -131,13 +149,17 @@ const onSaveTask = (taskData: any) => {
   }
 };
 
-/** 打开删除确认弹窗 */
+/**
+ * 打开删除确认弹窗
+ */
 const onDelete = (task: ReminderTask) => {
   deletingTask.value = task;
   deleteDialogVisible.value = true;
 };
 
-/** 确认删除任务 */
+/**
+ * 确认删除任务
+ */
 const confirmDelete = () => {
   if (deletingTask.value) {
     reminderStore.deleteTask(deletingTask.value.id);
@@ -146,35 +168,47 @@ const confirmDelete = () => {
   }
 };
 
-/** 查看备注详情完整内容 */
+/**
+ * 查看备注详情完整内容
+ */
 const onViewNote = (task: ReminderTask) => {
   detailTask.value = task;
   noteDetailDialogVisible.value = true;
 };
 
-/** 快速申请浏览器桌面通知权限 */
+/**
+ * 快速申请浏览器桌面通知权限
+ */
 const onRequestPermission = async () => {
   await reminderStore.requestPermission();
 };
 
-/** 跳转至高级设置页面 */
+/**
+ * 跳转至高级设置页面
+ */
 const onGoToAdvanced = () => {
   router.push({ name: 'PortalSettingAdvanced', params: route.params });
 };
 
-/** 获取任务标题：支持多语言对象或普通文本 */
+/**
+ * 获取任务标题：支持多语言对象或普通文本
+ */
 const getTaskTitle = (task?: ReminderTask | null) => {
   if (!task) return '';
   return getLocalizedText(task.title) || (task.titleKey && te(task.titleKey) ? t(task.titleKey) : '');
 };
 
-/** 获取任务备注：支持多语言对象或普通文本 */
+/**
+ * 获取任务备注：支持多语言对象或普通文本
+ */
 const getTaskNote = (task?: ReminderTask | null) => {
   if (!task) return '';
   return getLocalizedText(task.note || task.description) || (task.noteKey && te(task.noteKey) ? t(task.noteKey) : (task.descKey && te(task.descKey) ? t(task.descKey) : ''));
 };
 
-/** 压缩任务数据为 LZString 编码 */
+/**
+ * 压缩任务数据为 LZString 编码
+ */
 const generateReminderShareCode = (task: ReminderTask): string => {
   const payload = {
     v: 1,
@@ -197,7 +231,9 @@ const generateReminderShareCode = (task: ReminderTask): string => {
   return LZString.compressToEncodedURIComponent(JSON.stringify(payload));
 };
 
-/** 机器人订阅指令代码 */
+/**
+ * 机器人订阅指令代码
+ */
 const botSubscribeCode = computed(() => {
   if (!botSubscribeTask.value) return '';
   return generateReminderShareCode(botSubscribeTask.value);
@@ -207,13 +243,17 @@ const botSubscribeCommand = computed(() => {
   return `${t('reminder.bot.commandPrefix')} ${botSubscribeCode.value}`;
 });
 
-/** 打开机器人订阅窗口 */
+/**
+ * 打开机器人订阅窗口
+ */
 const onOpenBotSubscribe = (task: ReminderTask) => {
   botSubscribeTask.value = task;
   botSubscribeDialogVisible.value = true;
 };
 
-/** 复制机器人订阅指令到剪贴板 */
+/**
+ * 复制机器人订阅指令到剪贴板
+ */
 const copyBotCommand = async () => {
   if (!botSubscribeCommand.value) return;
   try {
@@ -233,7 +273,9 @@ const copyBotCommand = async () => {
   }
 };
 
-/** 格式化重复星期文本 */
+/**
+ * 格式化重复星期文本
+ */
 const formatRepeatDays = (days?: number[]) => {
   if (!days || days.length === 0) return t('reminder.weekdays.all');
   if (days.length === 7) return t('reminder.dialog.everyday');
@@ -246,7 +288,9 @@ const formatRepeatDays = (days?: number[]) => {
   return days.map(d => map[d] || `${d}`).join('、');
 };
 
-/** 格式化固定时间间隔规则文本 */
+/**
+ * 格式化固定时间间隔规则文本
+ */
 const formatIntervalRule = (task: ReminderTask) => {
   const unit = task.repeatIntervalUnit || 'hour';
   const val = task.repeatIntervalValue ?? task.repeatIntervalHours ?? 1;
@@ -255,7 +299,9 @@ const formatIntervalRule = (task: ReminderTask) => {
   return t('reminder.fields.everyNUnits', {n: val, unit: unitText});
 };
 
-/** 格式化提前提醒文本 */
+/**
+ * 格式化提前提醒文本
+ */
 const formatAdvanceText = (taskOrMinutes?: ReminderTask | number) => {
   if (!taskOrMinutes) return '';
   if (typeof taskOrMinutes === 'object') {
@@ -268,7 +314,9 @@ const formatAdvanceText = (taskOrMinutes?: ReminderTask | number) => {
   return t('reminder.dialog.advanceNoticeDesc', {min: taskOrMinutes});
 };
 
-/** 格式化日期与时间显示 */
+/**
+ * 格式化日期与时间显示
+ */
 const formatTargetTime = (target?: number | string) => {
   if (!target) return '';
   const d = new Date(target);
@@ -277,7 +325,9 @@ const formatTargetTime = (target?: number | string) => {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
 
-/** 经过筛选与排序后的任务列表 */
+/**
+ * 经过筛选与排序后的任务列表
+ */
 const processedTasks = computed(() => {
   let result = reminderStore.tasksWithCountdown;
 
@@ -336,7 +386,9 @@ const processedTasks = computed(() => {
   });
 });
 
-/** 分类分组列表 */
+/**
+ * 分类分组列表
+ */
 const categorizedGroups = computed<TaskCategoryGroup[]>(() => {
   const all = processedTasks.value;
   if (all.length === 0) return [];
@@ -410,7 +462,9 @@ const categorizedGroups = computed<TaskCategoryGroup[]>(() => {
   return groups;
 });
 
-/** 分页列表（单页最多 30 个任务） */
+/**
+ * 分页列表（单页最多 30 个任务）
+ */
 const paginatedTasks = computed(() => {
   const start = (reminderStore.currentPage - 1) * reminderStore.pageSize;
   return processedTasks.value.slice(start, start + reminderStore.pageSize);

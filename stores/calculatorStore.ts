@@ -535,8 +535,10 @@ export const useCalculatorStore = defineStore('calculator', () => {
                 totalExcludedMaterials: excludedMaterials.value.length
             }
         }
+
         const blob = new Blob([JSON.stringify(exportData, null, 2)], {type: 'application/json'})
         const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-')
+
         downloadBlob(blob, `${t('name')}.targets.${timestamp}.json`)
     }
 
@@ -748,10 +750,13 @@ export const useCalculatorStore = defineStore('calculator', () => {
     function downloadBlob(blob: Blob, filename: string) {
         const url = URL.createObjectURL(blob)
         const a = document.createElement('a')
+
         a.href = url
         a.download = filename
+
         document.body.appendChild(a)
         a.click()
+
         document.body.removeChild(a)
         URL.revokeObjectURL(url)
     }
@@ -781,6 +786,11 @@ export const useCalculatorStore = defineStore('calculator', () => {
         excludedMaterials,
         savedConfigs,
         displaySettings,
+
+        materialTrees,
+        flatMaterials,
+        sankeyData,
+
         addTarget,
         removeTarget,
         updateTargetQuantity,
@@ -790,9 +800,6 @@ export const useCalculatorStore = defineStore('calculator', () => {
         importFile,
         importAssembly,
         clearExcludedMaterials,
-        materialTrees,
-        flatMaterials,
-        sankeyData,
         saveConfig,
         loadConfig,
         deleteConfig,

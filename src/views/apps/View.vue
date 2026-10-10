@@ -85,7 +85,9 @@ const processedData = computed(() => {
   return d
 })
 
-/** 页面挂载时初始化标签选项 */
+/**
+ * 页面挂载时初始化标签选项
+ */
 onMounted(() => {
   initTagLoad()
 })

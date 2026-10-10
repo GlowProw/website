@@ -18,7 +18,9 @@ export interface MapCollectionResult {
     pagination?: PaginationResult
 }
 
-/** 分享链接看到的公开地图集信息 */
+/**
+ * 分享链接看到的公开地图集信息
+ */
 export interface SharedCollectionInfo {
     uuid: string;
     title: string;
@@ -49,11 +51,17 @@ export interface MapPoint {
     valid: number;
     createdAt: string;
     updatedAt: string;
-    /** nearby 接口附带：所属地图集名称（无地图集为 null） */
+    /**
+     * nearby 接口附带：所属地图集名称（无地图集为 null）
+     */
     collectionTitle?: string | null;
-    /** nearby 接口附带：所属地图集公开状态 */
+    /**
+     * nearby 接口附带：所属地图集公开状态
+     */
     collectionPublic?: number | null;
-    /** nearby 接口附带：创建者名称（昵称优先） */
+    /**
+     * nearby 接口附带：创建者名称（昵称优先）
+     */
     creatorName?: string | null;
 }
 
@@ -99,43 +107,73 @@ export interface UpdatePointData {
 
 export type MapShapeType = 'path' | 'region';
 
-/** GeoJSON 坐标统一为 [经度, 纬度] */
+/**
+ * GeoJSON 坐标统一为 [经度, 纬度]
+ */
 export interface ShapeGeometry {
   type: 'LineString' | 'Polygon';
   coordinates: number[][] | number[][][];
 }
 
 export interface ShapeStyle {
-  /** 线条/边框颜色 */
+  /**
+   * 线条/边框颜色
+   */
   color?: string;
-  /** 线条/边框不透明度 0~1 */
+  /**
+   * 线条/边框不透明度 0~1
+   */
   opacity?: number;
-  /** 线宽 */
+  /**
+   * 线宽
+   */
   width?: number;
-  /** 虚线 */
+  /**
+   * 虚线
+   */
   dashed?: boolean;
-  /** 平滑（曲线/弯曲边缘） */
+  /**
+   * 平滑（曲线/弯曲边缘）
+   */
   smoothed?: boolean;
-  /** 区域填充色 */
+  /**
+   * 区域填充色
+   */
   fillColor?: string;
-  /** 区域填充透明度 0~1 */
+  /**
+   * 区域填充透明度 0~1
+   */
   fillOpacity?: number;
 }
 
-/** 路径默认描边色 */
+/**
+ * 路径默认描边色
+ */
 export const DEFAULT_PATH_COLOR = '#38545B';
-/** 区域默认描边色 */
+/**
+ * 区域默认描边色
+ */
 export const DEFAULT_REGION_COLOR = '#38545B';
-/** 区域默认填充色 */
+/**
+ * 区域默认填充色
+ */
 export const DEFAULT_REGION_FILL_COLOR = '#39545B';
-/** 默认线条不透明度 */
+/**
+ * 默认线条不透明度
+ */
 export const DEFAULT_LINE_OPACITY = 0.6;
-/** 默认区域填充不透明度 */
+/**
+ * 默认区域填充不透明度
+ */
 export const DEFAULT_FILL_OPACITY = 0.4;
-/** 默认线宽 */
+/**
+ * 默认线宽
+ */
 export const DEFAULT_SHAPE_LINE_WIDTH = 4;
 
-/** hex 颜色转 rgba 字符串；非法 hex 回退为默认路径色 */
+/**
+ * hex 颜色转 rgba 字符串；非法 hex 回退为默认路径色
+ */
 export function hexToRgba(hex: string, alpha: number): string {
   let h = String(hex || '').replace('#', '').trim();
   if (h.length === 3) {
@@ -171,10 +209,14 @@ export function resolveShapeStyle(input?: ShapeStyle | null, shapeType: MapShape
   };
 }
 
-/** 后端 JSON 列：MySQL 驱动会自动解析为对象，SQLite/缓存场景可能仍是字符串，两种都兼容 */
+/**
+ * 后端 JSON 列：MySQL 驱动会自动解析为对象，SQLite/缓存场景可能仍是字符串，两种都兼容
+ */
 export type ShapeJsonField<T> = T | string | null;
 
-/** 后端返回的图形（geometry/style/tags 为 JSON 对象或 JSON 字符串） */
+/**
+ * 后端返回的图形（geometry/style/tags 为 JSON 对象或 JSON 字符串）
+ */
 export interface MapShape {
   id: string;
   uuid: string;
@@ -218,14 +260,18 @@ export interface UpdateShapeData {
 
 export interface UserShapesParams {
   shapeType?: MapShapeType;
-  /** 不传=全部；'' 或 '__none__'=未分组；具体 uuid=该集合 */
+  /**
+   * 不传=全部；'' 或 '__none__'=未分组；具体 uuid=该集合
+   */
   collectionUuid?: string;
   keyword?: string;
   page?: number;
   pageSize?: number;
 }
 
-/** 路径/区域编辑弹窗表单 */
+/**
+ * 路径/区域编辑弹窗表单
+ */
 export interface ShapeFormData {
   title: string;
   description: string;
@@ -235,7 +281,9 @@ export interface ShapeFormData {
   style: ShapeStyle;
 }
 
-/** 管理页标记新建/编辑弹窗表单 */
+/**
+ * 管理页标记新建/编辑弹窗表单
+ */
 export interface PointFormData {
   uuid?: string;
   title: string;
@@ -248,7 +296,9 @@ export interface PointFormData {
   public: boolean;
 }
 
-/** 管理页图形手填坐标弹窗表单 */
+/**
+ * 管理页图形手填坐标弹窗表单
+ */
 export interface ShapeManualFormData {
   uuid?: string;
   title: string;
@@ -260,7 +310,9 @@ export interface ShapeManualFormData {
   coordinatesText: string;
 }
 
-/** JSON 列兼容读取：对象直接用，字符串尝试 JSON.parse */
+/**
+ * JSON 列兼容读取：对象直接用，字符串尝试 JSON.parse
+ */
 function readJsonField<T>(raw: unknown): T | null {
   if (raw === null || raw === undefined || raw === '') return null;
   if (typeof raw === 'object') return raw as T;
@@ -272,7 +324,9 @@ function readJsonField<T>(raw: unknown): T | null {
   }
 }
 
-/** 解析后端图形上的几何字段（对象/JSON 字符串均可，容错） */
+/**
+ * 解析后端图形上的几何字段（对象/JSON 字符串均可，容错）
+ */
 export function parseShapeGeometry(shape: MapShape): ShapeGeometry | null {
   const geo = readJsonField<ShapeGeometry>(shape.geometry);
   if (geo && (geo.type === 'LineString' || geo.type === 'Polygon') && Array.isArray(geo.coordinates)) {

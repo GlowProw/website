@@ -310,7 +310,9 @@ watch(
     {deep: true}
 )
 
-/** 容器宽度监听：挂载时启动 ResizeObserver 并首次绘制桑基图 */
+/**
+ * 容器宽度监听：挂载时启动 ResizeObserver 并首次绘制桑基图
+ */
 onMounted(() => {
   if (svgContainer.value) {
     resizeObserver = new ResizeObserver(entries => {
@@ -327,7 +329,9 @@ onMounted(() => {
   nextTick(drawSankey)
 })
 
-/** 卸载时断开 ResizeObserver */
+/**
+ * 卸载时断开 ResizeObserver
+ */
 onBeforeUnmount(() => {
   resizeObserver?.disconnect()
 })

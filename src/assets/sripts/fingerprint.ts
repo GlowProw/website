@@ -2,9 +2,13 @@ import Storage from './storage';
 
 const _storage = new Storage();
 
-/** 持久客户端唯一标识（跨会话、跨重启） */
+/**
+ * 持久客户端唯一标识（跨会话、跨重启）
+ */
 const CLIENT_ID_KEY = 'glow_prow_client_id';
-/** 会话唯一标识（关闭标签页后失效） */
+/**
+ * 会话唯一标识（关闭标签页后失效）
+ */
 const SESSION_ID_KEY = 'glow_prow_session_id';
 
 /**

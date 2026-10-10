@@ -26,7 +26,9 @@ const authStore = useAuthStore(),
     rules = useRules(),
     {mobile, sm} = useDisplay()
 
-/** 模板 ref 引用，用于失败时自动刷新验证码 */
+/**
+ * 模板 ref 引用，用于失败时自动刷新验证码
+ */
 const captchaRef = ref<InstanceType<typeof Captcha> | null>(null)
 
 let signinFormLoading: Ref<boolean> = ref(false),

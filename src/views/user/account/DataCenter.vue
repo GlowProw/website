@@ -29,10 +29,14 @@ const loadingTop = computed(() => !topData.value);
 // 概览页最下方：自己访客最多的 6 个配装（含最近访客信息）
 const topVisitorAssemblies = computed(() => (topData.value?.topViewed || []).slice(0, 6));
 
-/** 配装详情页链接 */
+/**
+ * 配装详情页链接
+ */
 const assemblyDetailLink = (uuid: string) => `/assembly/browse/${uuid}/detail`;
 
-/** 访客显示名：登录用户显示用户名，匿名访客显示脱敏标识 */
+/**
+ * 访客显示名：登录用户显示用户名，匿名访客显示脱敏标识
+ */
 const visitorName = (v: StatsVisitor): string =>
     v.isUser ? (v.username || `User #${v.userId}`) : `${t('basic.visitor.anonMasked')} (${v.anonMasked || ''}…)`;
 

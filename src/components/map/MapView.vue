@@ -32,7 +32,9 @@ const props = withDefaults(defineProps<{
   zoomable?: boolean;
   initialZoom?: number;
   animated?: boolean;
-  /** 地图边界 [minLon, minLat, maxLon, maxLat]，超出此范围将被约束回来 */
+  /**
+   * 地图边界 [minLon, minLat, maxLon, maxLat]，超出此范围将被约束回来
+   */
   bounds?: [number, number, number, number];
   debug?: boolean;
 }>(), {
@@ -50,7 +52,9 @@ const mouseWheelZoomInteraction = new MouseWheelZoom();
 const pinchZoomInteraction = new PinchZoom();
 const doubleClickZoomInteraction = new DoubleClickZoom();
 
-/** 将经纬度边界转换为 EPSG:3857 投影下的 extent */
+/**
+ * 将经纬度边界转换为 EPSG:3857 投影下的 extent
+ */
 const computedExtent = computed(() => {
   if (!props.bounds) return undefined;
   const [minLon, minLat, maxLon, maxLat] = props.bounds;
@@ -163,7 +167,9 @@ watch(() => [props.draggable, props.zoomable], () => {
   updateInteractions();
 });
 
-/** 当 bounds 或 debug prop 变化时，动态更新地图 View 的约束 */
+/**
+ * 当 bounds 或 debug prop 变化时，动态更新地图 View 的约束
+ */
 watch(() => [props.bounds, props.debug], () => {
   if (!mapInstance.value) return;
   const oldView = mapInstance.value.getView();

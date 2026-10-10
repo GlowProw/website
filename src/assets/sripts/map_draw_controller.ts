@@ -39,10 +39,14 @@ export {
 
 export type DrawShapeMode = MapShapeType;
 
-/** 判断渲染图形是否为未提交草稿 */
+/**
+ * 判断渲染图形是否为未提交草稿
+ */
 export const DRAFT_SHAPE_UUID = '__draft_shape__';
 
-/** 判断渲染图形是否为未提交草稿 */
+/**
+ * 判断渲染图形是否为未提交草稿
+ */
 export const isDraftUuid = (uuid: string | null | undefined): boolean =>
     !!uuid && uuid.startsWith(DRAFT_SHAPE_UUID);
 
@@ -111,7 +115,9 @@ export function smoothCoordsXY(points: number[][], closed = false, segments = 24
     return out;
 }
 
-/** 保证多边形外环闭合 */
+/**
+ * 保证多边形外环闭合
+ */
 function ensureClosed(ring: number[][]): number[][] {
     if (ring.length === 0) return ring;
     const first = ring[0];
@@ -122,7 +128,9 @@ function ensureClosed(ring: number[][]): number[][] {
     return ring;
 }
 
-/** 由原始经纬度几何 + 样式生成用于渲染的投影几何（平滑在渲染层，不改原始顶点） */
+/**
+ * 由原始经纬度几何 + 样式生成用于渲染的投影几何（平滑在渲染层，不改原始顶点）
+ */
 export function buildRenderGeometry(raw: ShapeGeometry, style: ShapeStyle = {}): LineString | Polygon {
     const smoothed = !!style.smoothed;
     if (raw.type === 'LineString') {
@@ -135,7 +143,9 @@ export function buildRenderGeometry(raw: ShapeGeometry, style: ShapeStyle = {}):
     return new Polygon([rendered]);
 }
 
-/** 编辑用的"原始顶点"投影几何（直线，拖动顶点即调整弯曲控制顶点） */
+/**
+ * 编辑用的"原始顶点"投影几何（直线，拖动顶点即调整弯曲控制顶点）
+ */
 export function buildEditGeometry(raw: ShapeGeometry): LineString | Polygon {
     if (raw.type === 'LineString') {
         return new LineString((raw.coordinates as number[][]).map(xyFromLonLat));
@@ -144,7 +154,9 @@ export function buildEditGeometry(raw: ShapeGeometry): LineString | Polygon {
     return new Polygon([outer]);
 }
 
-/** 从 OL 投影几何读出经纬度 GeoJSON */
+/**
+ * 从 OL 投影几何读出经纬度 GeoJSON
+ */
 export function extractRawGeometry(geom: SimpleGeometry): ShapeGeometry | null {
     const type = geom.getType();
     if (type === 'LineString') {
@@ -182,7 +194,9 @@ export function createShapeOlStyle(shapeType: MapShapeType, input?: ShapeStyle |
     return new Style({ stroke, zIndex: 10 });
 }
 
-/** 顶点编辑时显示的原始控制线样式 */
+/**
+ * 顶点编辑时显示的原始控制线样式
+ */
 function createEditOlStyle(input?: ShapeStyle | null, shapeType: MapShapeType = 'path'): Style[] {
     const s = resolveShapeStyle(input, shapeType);
     // 第一条：加宽的近乎透明触控带，肉眼几乎不可见，但能让手指轻松抓住线条和区域边缘
@@ -226,13 +240,17 @@ function createHitAreaStyle(fillColor?: string | null, shapeType: MapShapeType =
     });
 }
 
-/** 不可见但仍可被 Modify 命中 */
+/**
+ * 不可见但仍可被 Modify 命中
+ */
 const INVISIBLE_STYLE = new Style({});
 
 let cachedMainColor: string | null = null;
 let cachedVertexHandleStyles: Style[] | null = null;
 
-/** 主题色（兼容 hex / rgb()）转 rgba 字符串 */
+/**
+ * 主题色（兼容 hex / rgb()）转 rgba 字符串
+ */
 function mainColorToRgba(alpha: number): string {
     const raw = (cachedMainColor || '').trim();
     if (raw.startsWith('#')) return hexToRgba(raw, alpha);
@@ -241,7 +259,9 @@ function mainColorToRgba(alpha: number): string {
     return hexToRgba(DEFAULT_PATH_COLOR, alpha);
 }
 
-/** 失效主题色缓存（预留主题热切换） */
+/**
+ * 失效主题色缓存（预留主题热切换）
+ */
 export function invalidateVertexHandleStyle(): void {
     cachedMainColor = null;
     cachedVertexHandleStyles = null;
@@ -276,7 +296,9 @@ export function createVertexHandleStyles(): Style[] {
     return cachedVertexHandleStyles;
 }
 
-/** 绘制过程中的草图样式 */
+/**
+ * 绘制过程中的草图样式
+ */
 function createDrawStyle(mode: DrawShapeMode): Style[] {
     const color = mode === 'region' ? DEFAULT_REGION_COLOR : DEFAULT_PATH_COLOR;
     const stroke = new Stroke({
@@ -301,11 +323,17 @@ function createDrawStyle(mode: DrawShapeMode): Style[] {
 // 控制器
 
 export interface MapDrawControllerCallbacks {
-    /** 一次绘制完成（草稿已加入图层） */
+    /**
+     * 一次绘制完成（草稿已加入图层）
+     */
     onDrawEnd?: (mode: DrawShapeMode, geometry: ShapeGeometry) => void;
-    /** 顶点拖拽结束（可能是已保存图形，也可能是未提交草稿） */
+    /**
+     * 顶点拖拽结束（可能是已保存图形，也可能是未提交草稿）
+     */
     onModifyEnd?: (uuid: string, geometry: ShapeGeometry) => void;
-    /** 编辑模式下按下 Esc：交由上层决定是否弹确认退出 */
+    /**
+     * 编辑模式下按下 Esc：交由上层决定是否弹确认退出
+     */
     onEscapeKey?: () => void;
 }
 
@@ -315,7 +343,9 @@ export class MapDrawController {
 
     private renderLayer: VectorLayer<VectorSource>;
     private renderSource: VectorSource;
-    /** 仅承载"原始顶点"要素，供 Modify/Snap 使用；与渲染层分离，避免平滑密线参与命中 */
+    /**
+     * 仅承载"原始顶点"要素，供 Modify/Snap 使用；与渲染层分离，避免平滑密线参与命中
+     */
     private editLayer: VectorLayer<VectorSource>;
     private editSource: VectorSource;
     private draw: Draw | null = null;
@@ -325,16 +355,26 @@ export class MapDrawController {
     private editingUuid: string | null = null;
     private escHandler: ((e: KeyboardEvent) => void) | null = null;
 
-    /** 编辑模式（创建路径/区域后进入）：本人全部图形可悬停拖顶点再编辑 */
+    /**
+     * 编辑模式（创建路径/区域后进入）：本人全部图形可悬停拖顶点再编辑
+     */
     private bulkMode = false;
-    /** 编辑模式归属用户，只接管该用户的图形 */
+    /**
+     * 编辑模式归属用户，只接管该用户的图形
+     */
     private bulkUserId: string | null = null;
-    /** 编辑模式下当前悬停显示控制线的图形 */
+    /**
+     * 编辑模式下当前悬停显示控制线的图形
+     */
     private hoverUuid: string | null = null;
     private hoverListenerKey: EventsKey | null = null;
-    /** 正在拖拽顶点时不切换悬停目标 */
+    /**
+     * 正在拖拽顶点时不切换悬停目标
+     */
     private modifying = false;
-    /** 草稿自增序号，保证连续绘制的多个草稿 uuid 唯一 */
+    /**
+     * 草稿自增序号，保证连续绘制的多个草稿 uuid 唯一
+     */
     private draftSeq = 0;
 
     /**
@@ -345,9 +385,13 @@ export class MapDrawController {
     private typeHidden: Record<MapShapeType, boolean> = { path: false, region: false };
 
     readonly activeMode: Ref<DrawShapeMode | null> = ref(null);
-    /** 是否正在编辑某个图形的顶点 */
+    /**
+     * 是否正在编辑某个图形的顶点
+     */
     readonly editingShapeUuid: Ref<string | null> = ref(null);
-    /** 是否处于编辑模式（供菜单/外部判断） */
+    /**
+     * 是否处于编辑模式（供菜单/外部判断）
+     */
     readonly shapeEditMode = ref(false);
 
     constructor(getMap: () => Map | null, callbacks: MapDrawControllerCallbacks = {}) {
@@ -678,7 +722,9 @@ export class MapDrawController {
         this.getDraftUuids().forEach(draftUuid => this.removePair(draftUuid));
     }
 
-    /** 当前地图上全部未提交草稿 uuid */
+    /**
+     * 当前地图上全部未提交草稿 uuid
+     */
     getDraftUuids(): string[] {
         return this.renderSource.getFeatures()
             .map(f => f.get('shapeUuid') as string)
@@ -704,7 +750,9 @@ export class MapDrawController {
             .filter((v, i, arr) => !!v && arr.indexOf(v) === i);
     }
 
-    /** 仅更新指定草稿的样式（提交弹窗实时预览） */
+    /**
+     * 仅更新指定草稿的样式（提交弹窗实时预览）
+     */
     previewDraftStyle(draftUuid: string, mode: DrawShapeMode, raw: ShapeGeometry, style: ShapeStyle): void {
         const render = this.findRenderFeature(draftUuid);
         if (render) {

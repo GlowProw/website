@@ -4,10 +4,14 @@ import {createApiBase} from "@/assets/sripts/api/api-util";
 import {storage} from "@/assets/sripts";
 import {useAuthStore} from "~/stores/userAccountStore";
 
-/** 额度资源类型：配装 / 评论（含回复）/ 组队 / 地图（集合、区域、路径） */
+/**
+ * 额度资源类型：配装 / 评论（含回复）/ 组队 / 地图（集合、区域、路径）
+ */
 export type QuotaResourceKey = 'assembly' | 'comment' | 'teamup' | 'map';
 
-/** 单个周期桶：已用数量与上限（null 表示不限） */
+/**
+ * 单个周期桶：已用数量与上限（null 表示不限）
+ */
 export interface QuotaBucket {
     used: number
     limit: number | null
@@ -21,7 +25,9 @@ export interface QuotaStatusItem {
 export interface QuotaStatus {
     identity: {
         roles: string[]
-        /** 生效中的赞助档位：5/10/50/100 或 null */
+        /**
+         * 生效中的赞助档位：5/10/50/100 或 null
+         */
         tier: string | null
         multiplier: number
         unlimited: boolean
@@ -29,9 +35,13 @@ export interface QuotaStatus {
     resources: Partial<Record<QuotaResourceKey, QuotaStatusItem>>
 }
 
-/** sessionStorage 缓存键名（按账号隔离） */
+/**
+ * sessionStorage 缓存键名（按账号隔离）
+ */
 const QUOTA_CACHE_KEY = 'quota.status';
-/** 缓存有效期 60 秒：展开面板等重复读取直接走缓存，减少接口请求 */
+/**
+ * 缓存有效期 60 秒：展开面板等重复读取直接走缓存，减少接口请求
+ */
 const QUOTA_CACHE_TTL_MS = 60_000;
 
 interface QuotaCachePayload {
@@ -40,7 +50,9 @@ interface QuotaCachePayload {
     status: QuotaStatus
 }
 
-/** 读取当前账号的会话缓存（校验账号一致与有效期） */
+/**
+ * 读取当前账号的会话缓存（校验账号一致与有效期）
+ */
 const readQuotaCache = (userId: string | null): QuotaStatus | null => {
     try {
         const result = storage.session.get(QUOTA_CACHE_KEY);
@@ -54,7 +66,9 @@ const readQuotaCache = (userId: string | null): QuotaStatus | null => {
     }
 };
 
-/** 写入当前账号的会话缓存 */
+/**
+ * 写入当前账号的会话缓存
+ */
 const writeQuotaCache = (userId: string | null, status: QuotaStatus): void => {
     try {
         const payload: QuotaCachePayload = { userId, fetchedAt: Date.now(), status };

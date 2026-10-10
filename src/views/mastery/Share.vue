@@ -80,7 +80,9 @@ const activeSeasonTitle = computed(() => {
   return seasonOptions.value?.find(s => s.id === selectedSeasonId.value)?.title || selectedSeasonId.value;
 });
 
-/** 监听精通海报配置变化，同步写入 URL 和本地存储 */
+/**
+ * 监听精通海报配置变化，同步写入 URL 和本地存储
+ */
 watch(() => generateImageValue.value, (value) => {
   router.push({
     name: route.name as any,
@@ -93,19 +95,25 @@ watch(() => generateImageValue.value, (value) => {
   }
 }, {deep: true});
 
-/** 监听分享链接参数，载入对应精通方案 */
+/**
+ * 监听分享链接参数，载入对应精通方案
+ */
 watch(() => route.query.share, (newShare) => {
   if (newShare && typeof newShare === 'string') {
     loadFromShareCode(newShare);
   }
 });
 
-/** 监听精通赛季与节点变化，刷新分享路径 */
+/**
+ * 监听精通赛季与节点变化，刷新分享路径
+ */
 watch(() => [selectedSeasonId.value, selectedNodeIds.value], () => {
   updateSharePath();
 }, {deep: true});
 
-/** 根据当前精通状态生成分享 URL */
+/**
+ * 根据当前精通状态生成分享 URL
+ */
 function updateSharePath() {
   const code = generateShareCode();
   const origin = getAppOrigin();
@@ -136,7 +144,9 @@ const initMasteryData = async () => {
   }
 };
 
-/** 页面挂载：读取海报配置、合并 URL 参数、装载精通数据 */
+/**
+ * 页面挂载：读取海报配置、合并 URL 参数、装载精通数据
+ */
 onMounted(() => {
   posterSwitch.value = storage_account.getConfigurationItem('poster', 'poster.switch');
 

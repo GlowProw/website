@@ -21,11 +21,17 @@ export function handleApiError(
     notice: { error: (text: string, opts?: any) => void },
     t: (key: string, params?: any) => string,
     options: {
-        /** i18n key 前缀，默认 'basic.tips' */
+        /**
+         * i18n key 前缀，默认 'basic.tips'
+         */
         tPrefix?: string;
-        /** 自定义兜底 i18n key，默认 'basic.tips.error' */
+        /**
+         * 自定义兜底 i18n key，默认 'basic.tips.error'
+         */
         fallbackKey?: string;
-        /** 额外 context 信息（会合并进日志 context） */
+        /**
+         * 额外 context 信息（会合并进日志 context）
+         */
         component?: string;
     } = {}
 ) {

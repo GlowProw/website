@@ -117,12 +117,16 @@ const onRefresh = async () => {
   await Promise.all([onFetchCurrentDrops(true), onFetchHistoryDrops()]);
 };
 
-/** 监听分页与筛选变化，刷新历史掉宝列表 */
+/**
+ * 监听分页与筛选变化，刷新历史掉宝列表
+ */
 watch([historyPage, historyStatus], () => {
   onFetchHistoryDrops();
 });
 
-/** 监听搜索关键词变化，防抖后刷新历史列表 */
+/**
+ * 监听搜索关键词变化，防抖后刷新历史列表
+ */
 watch(historyKeyword, () => {
   clearTimeout(searchDebounceTimer);
   searchDebounceTimer = setTimeout(() => {
@@ -131,7 +135,9 @@ watch(historyKeyword, () => {
   }, 400);
 });
 
-/** 页面挂载时拉取当前掉宝和历史记录 */
+/**
+ * 页面挂载时拉取当前掉宝和历史记录
+ */
 onMounted(() => {
   onFetchCurrentDrops();
   onFetchHistoryDrops();

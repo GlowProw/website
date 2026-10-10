@@ -168,17 +168,23 @@ const collectionItems = computed(() => [
   ...(props.userCollections || []),
 ]);
 
-/** 可见性下拉项：公开 / 私有 */
+/**
+ * 可见性下拉项：公开 / 私有
+ */
 const visibilityItems = computed(() => [
   { value: true, label: t('map.public') },
   { value: false, label: t('map.private') },
 ]);
 
-/** 当前归属的地图集（选中"未分组"时为 undefined） */
+/**
+ * 当前归属的地图集（选中"未分组"时为 undefined）
+ */
 const selectedCollection = computed(() =>
     (props.userCollections || []).find((c: any) => c.uuid === props.form.collectionUuid));
 
-/** 归属地图集时显示地图集的公开状态，禁用选择（公开状态由地图集决定） */
+/**
+ * 归属地图集时显示地图集的公开状态，禁用选择（公开状态由地图集决定）
+ */
 const publicSelectValue = computed(() =>
     selectedCollection.value ? Number((selectedCollection.value as any).public) === 1 : props.form.public);
 
@@ -187,7 +193,9 @@ const patch = (data: Partial<ShapeManualFormData>) => {
   emit('update:form', { ...props.form, ...data });
 };
 
-/** 切换地图集归属时，公开状态同步跟随地图集；移出时保留当前值 */
+/**
+ * 切换地图集归属时，公开状态同步跟随地图集；移出时保留当前值
+ */
 const onCollectionChange = (uuid: string | null) => {
   const collection = (props.userCollections || []).find((c: any) => c.uuid === uuid);
   patch({

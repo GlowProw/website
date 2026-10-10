@@ -114,7 +114,9 @@ const captureThumbnail = async (node: HTMLElement): Promise<string> => {
   return URL.createObjectURL(blob);
 };
 
-/** 更新配装海报缩略图 */
+/**
+ * 更新配装海报缩略图
+ */
 const updateAssemblyThumbnail = async () => {
   const node = captureRef.value?.posterEl;
   if (!node) return;
@@ -134,7 +136,9 @@ const updateAssemblyThumbnail = async () => {
   }
 };
 
-/** 更新精通海报缩略图 */
+/**
+ * 更新精通海报缩略图
+ */
 const updateMasteryThumbnail = async () => {
   if (!hasMastery.value) return;
   const node = masteryCaptureRef.value?.posterEl;
@@ -197,7 +201,9 @@ const masterySharePath = computed(() => {
   return `${origin}/mastery?season=${selectedSeasonId.value}&share=${code}`;
 });
 
-/** 监听海报显示相关属性变化，触发重新装载配装数据 */
+/**
+ * 监听海报显示相关属性变化，触发重新装载配装数据
+ */
 watch(() => [
   generateImageValue.value.isFullName,
   generateImageValue.value.isShowItemName

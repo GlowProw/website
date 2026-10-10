@@ -31,7 +31,9 @@ export interface StatsTrend {
     updatedAt: number;
 }
 
-/** 访客信息（登录用户或匿名访客），结构与后端 Visitor 对齐 */
+/**
+ * 访客信息（登录用户或匿名访客），结构与后端 Visitor 对齐
+ */
 export interface StatsVisitor {
     identity: string;
     isUser: boolean;

@@ -132,29 +132,39 @@ const {t} = useI18n();
 const markerFormRef = ref(null);
 const emit = defineEmits(['update:modelValue', 'update:marker-data', 'cancel', 'create']);
 
-/** 集合下拉首项为"未分组"（null） */
+/**
+ * 集合下拉首项为"未分组"（null）
+ */
 const collectionItems = computed(() => [
   {title: t('map.noCollection'), uuid: null},
   ...(props.userCollections || []),
 ]);
 
-/** 可见性下拉项：公开 / 私有 */
+/**
+ * 可见性下拉项：公开 / 私有
+ */
 const visibilityItems = computed(() => [
   {value: true, label: t('map.public')},
   {value: false, label: t('map.private')},
 ]);
 
-/** 当前归属的地图集（"未分组"时为 undefined） */
+/**
+ * 当前归属的地图集（"未分组"时为 undefined）
+ */
 const selectedCollection = computed(() =>
     (props.userCollections || []).find((c: any) => c.uuid === props.newMarkerData.collectionUuid));
 
-/** 归属地图集时显示并跟随地图集公开状态，下拉禁用 */
+/**
+ * 归属地图集时显示并跟随地图集公开状态，下拉禁用
+ */
 const publicSelectValue = computed(() =>
     selectedCollection.value
         ? Number((selectedCollection.value as any).public) === 1
         : props.newMarkerData.public);
 
-/** 切换地图集归属时公开状态同步跟随；移出地图集时保留当前值 */
+/**
+ * 切换地图集归属时公开状态同步跟随；移出地图集时保留当前值
+ */
 const onCollectionChange = (uuid: string | null) => {
   const collection = (props.userCollections || []).find((c: any) => c.uuid === uuid);
 

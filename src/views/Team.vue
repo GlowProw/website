@@ -114,7 +114,9 @@ const getRemainingHornTime = (expiresAt: number) => {
   return `${hours}小时${mins}分钟`;
 }
 
-/** 清理 WebSocket 自动断开定时器 */
+/**
+ * 清理 WebSocket 自动断开定时器
+ */
 const clearWsTimer = () => {
   if (wsAutoDisconnectTimer) {
     clearTimeout(wsAutoDisconnectTimer);
@@ -122,7 +124,9 @@ const clearWsTimer = () => {
   }
 }
 
-/** 开启 20 分钟倒计时自动断开 WebSocket */
+/**
+ * 开启 20 分钟倒计时自动断开 WebSocket
+ */
 const startWsTimer = () => {
   clearWsTimer();
   wsAutoDisconnectTimer = setTimeout(() => {
@@ -134,7 +138,9 @@ const startWsTimer = () => {
   }, MAX_WS_DURATION);
 }
 
-/** 监听浏览器 Tab 标签离开 / 隐藏时关闭 WebSocket 释放资源 */
+/**
+ * 监听浏览器 Tab 标签离开 / 隐藏时关闭 WebSocket 释放资源
+ */
 const onVisibilityChange = () => {
   if (document.hidden) {
     clearWsTimer();
@@ -145,7 +151,9 @@ const onVisibilityChange = () => {
   }
 }
 
-/** 页面挂载：注册可见性监听、初始化 WebSocket、拉取列表、读取储存的玩家信息 */
+/**
+ * 页面挂载：注册可见性监听、初始化 WebSocket、拉取列表、读取储存的玩家信息
+ */
 onMounted(async () => {
   document.addEventListener('visibilitychange', onVisibilityChange);
   onInitWss();
@@ -153,7 +161,9 @@ onMounted(async () => {
   readStoragePlayer();
 })
 
-/** 页面卸载：清理事件监听、定时器并关闭 WebSocket */
+/**
+ * 页面卸载：清理事件监听、定时器并关闭 WebSocket
+ */
 onUnmounted(() => {
   document.removeEventListener('visibilitychange', onVisibilityChange);
   clearWsTimer();
@@ -301,7 +311,9 @@ const onSearch = async () => {
   await getTeams(getTeamsType.none);
 }
 
-/** 切换排序方式 */
+/**
+ * 切换排序方式
+ */
 const onTeamSortBy = async () => {
   await getTeams(getTeamsType.none);
 }
@@ -438,7 +450,9 @@ const onInitWss = () => {
   });
 }
 
-/** 手动重连 WebSocket */
+/**
+ * 手动重连 WebSocket
+ */
 const onWsReconnect = () => {
   service.value.loading = true;
   ws.close();

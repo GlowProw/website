@@ -193,7 +193,9 @@ const hasCalendarEvents = computed(() => {
   return monthKeys.some(key => formattedCalendar.value[key]?.eventCount > 0);
 });
 
-/** 监听路由赛季参数变化，切换日历数据 */
+/**
+ * 监听路由赛季参数变化，切换日历数据
+ */
 watch(() => route.params.seasonId, (newSeasonId) => {
   if (newSeasonId && seasons[newSeasonId as string]) {
     const sId = String(newSeasonId);
@@ -207,12 +209,16 @@ watch(() => route.params.seasonId, (newSeasonId) => {
   }
 });
 
-/** 监听语言变化，重新生成本地化日历列表 */
+/**
+ * 监听语言变化，重新生成本地化日历列表
+ */
 watch(() => locale.value, (value) => {
   onInitCalendarList()
 })
 
-/** 页面挂载：恢复视图模式偏好，初始化日历 */
+/**
+ * 页面挂载：恢复视图模式偏好，初始化日历
+ */
 onMounted(async () => {
   // 从 localStorage 恢复视图模式偏好
   const stored = storage.local.get(STORAGE_KEY_VIEW_MODE)
