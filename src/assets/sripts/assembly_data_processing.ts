@@ -3,44 +3,12 @@ import { toRaw } from "vue";
 import { Modifications, Ships, Ultimates } from "glow-prow-data";
 import { Item, Items } from "glow-prow-data/src/entity/Items";
 import { Ship } from "glow-prow-data/src/entity/Ships";
+import type { AssemblyData, AssemblyDataProcessingMap, ValidationRule, VersionedDataProcessing } from "@/assets/types/Assembly";
 
 const ships = Ships,
     items = Items,
     modifications = Modifications,
     ultimates = Ultimates
-
-interface VersionedDataProcessing<T> {
-    allowedFields: string[];
-    get: (data: any) => any;
-    set: (data: any) => T;
-    verify: (data: any) => { required?: number, verify?: { required: boolean, message: string }[] };
-}
-
-export interface AssemblyData {
-    shipSlot: any;
-    ultimateSlot: any;
-    shipUpgradeSlot: any;
-    armorSlot: any;
-    weaponDirections: any[];
-    weaponModifications: any[];
-    weaponSlots: any[];
-    armorModification: any[];
-    secondaryWeaponSlots: any[];
-    shipFrigateUpgradeSlot?: any;
-    secondaryWeaponModifications: any[];
-    displaySlots: any[];
-    __version: string;
-}
-
-interface ValidationRule {
-    condition: () => boolean;
-    required: boolean;
-    message: string;
-}
-
-type AssemblyDataProcessingMap<T = any> = {
-    [version: string]: VersionedDataProcessing<T>;
-};
 
 export default class AssemblyDataProcessing {
     static versions: string[] = ['0.0.1', '0.0.2', '0.0.3'];

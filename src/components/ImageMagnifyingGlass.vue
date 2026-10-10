@@ -1,14 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue'
+import type {ImageMagnifyingGlassProps} from '@/assets/types/Ui'
 
-interface Props {
-  scale?: number
-  lensSize?: number
-  position?: 'top-right' | 'bottom-right' | 'top-left' | 'bottom-left'
-  zoomViewBorder?: boolean
-}
-
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<ImageMagnifyingGlassProps>(), {
   scale: 2,
   lensSize: 200,
   position: 'bottom-right',

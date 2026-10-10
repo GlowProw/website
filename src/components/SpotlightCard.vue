@@ -1,15 +1,6 @@
 <script setup lang="ts">
 import {ref, useTemplateRef} from 'vue';
-
-interface Position {
-  x: number;
-  y: number;
-}
-
-interface SpotlightCardProps {
-  className?: string;
-  spotlightColor?: string;
-}
+import type {Position, SpotlightCardProps} from '@/assets/types/Ui';
 
 const {className = '', spotlightColor = 'rgba(255, 255, 255, 1)'} = defineProps<SpotlightCardProps>()
 

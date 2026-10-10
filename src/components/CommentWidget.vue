@@ -16,8 +16,7 @@ import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue";
 import {useIntersectionObserver} from "@/assets/sripts/intersection_observer";
 import AffixContainerView from "@/components/AffixContainerView.vue";
-
-type commentTargetType = 'assembly' | 'item' | 'commoditie' | 'ship' | 'ultimate' | 'mod' | 'material' | 'set' | 'treasureMap' | 'npc' | 'mapLocation' | 'cosmetic' | 'empireSkill' | 'mastery' | 'quest'
+import type {commentTargetType} from "@/assets/types/Comment";
 
 const route = useRoute(),
     authStore = useAuthStore(),

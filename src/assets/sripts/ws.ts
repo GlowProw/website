@@ -1,11 +1,5 @@
 import { http } from "./index";
-
-type WebSocketEventMap = {
-    open: (event: Event) => void;
-    close: (event: CloseEvent) => void;
-    error: (event: Event) => void;
-    message: (event: MessageEvent) => void;
-};
+import type { WebSocketEventMap } from "@/assets/types/Http";
 
 export default class Ws {
     socket: WebSocket | undefined;

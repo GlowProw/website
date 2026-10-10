@@ -4,12 +4,7 @@ import {useRoute, useRouter} from 'vue-router';
 import {useDisplay} from 'vuetify/framework';
 import {useAppStore} from '~/stores/appStore';
 import {EmpireSkills} from 'glow-prow-data/src/entity/EmpireSkills';
-
-export interface SearchItem {
-  title: string;
-  value: string;
-  node?: any;
-}
+import type {SearchItem} from '@/assets/types/App';
 
 export function useEmpireController(props: { skills?: Record<string, any> }) {
   const route = useRoute();

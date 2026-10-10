@@ -102,48 +102,7 @@
 
 <script setup lang="ts">
 import { computed, CSSProperties, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
-
-export interface ScrollListProps {
-  direction?: 'horizontal' | 'vertical'
-  btnSize?: number
-  isIndicator?: boolean
-  gap?: number
-  showControls?: boolean
-  showScrollIndicator?: boolean
-  hideScrollbar?: boolean
-  scrollStep?: number
-  prevButtonAriaLabel?: string
-  nextButtonAriaLabel?: string
-  leftButtonAriaLabel?: string
-  rightButtonAriaLabel?: string
-  wheelScroll?: boolean
-  dragSensitivity?: number
-  useRAF?: boolean
-  useShiftKey?: boolean
-  wheelSensitivity?: number
-  forceDraggable?: boolean
-  isFollowScreenCenter?: boolean
-  followScreenSafeDistance?: number
-  height?: string | number
-  maxHeight?: string | number
-  width?: string | number
-}
-
-export interface ScrollState {
-  scrollPosition: number
-  scrollLeft: number
-  scrollTop: number
-  canScrollPrev: boolean
-  canScrollNext: boolean
-  canScrollLeft: boolean
-  canScrollRight: boolean
-  canScrollUp: boolean
-  canScrollDown: boolean
-  maxScroll: number
-  canScroll: boolean
-  canScrollHorizontally: boolean
-  canScrollVertically: boolean
-}
+import type { ScrollListProps, ScrollState } from '@/assets/types/Ui'
 
 const props = withDefaults(defineProps<ScrollListProps>(), {
   direction: 'horizontal',

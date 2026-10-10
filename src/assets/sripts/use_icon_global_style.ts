@@ -1,8 +1,6 @@
-import type {Ref} from 'vue';
 import {computed, unref} from 'vue';
 import {useAppStore} from '~/stores/appStore';
-
-type MaybeRefOrGetter<T> = Ref<T> | (() => T) | T;
+import type {MaybeRefOrGetter} from '@/assets/types/App';
 
 /**
  * 解析 Ref、Getter 函数或原始值

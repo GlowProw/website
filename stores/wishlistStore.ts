@@ -50,11 +50,17 @@ function removeWishlistData(id: string) {
 
 export const useWishlistStore = defineStore('wishlist', () => {
     // 状态 (State)
-    /** 索引列表（不含 rules 数据） */
+    /**
+     * 索引列表（不含 rules 数据）
+     */
     const metaList = ref<WishlistMeta[]>([]);
-    /** 已加载的完整清单缓存 */
+    /**
+     * 已加载的完整清单缓存
+     */
     const loadedWishlists = ref<Map<string, WishlistFile>>(new Map());
-    /** 更新中的清单 ID 集合 */
+    /**
+     * 更新中的清单 ID 集合
+     */
     const updatingIds = ref<Set<string>>(new Set());
 
     // 初始化

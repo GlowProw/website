@@ -1,3 +1,4 @@
+import type {ComputedRef, Ref} from "vue";
 import {PaginationResult} from "@/assets/types/Pagination";
 
 export interface MapCollection {
@@ -349,4 +350,82 @@ export interface NearbySearchParams {
     longitude: number;
     radius?: number;
     limit?: number;
+}
+
+export interface CategoryZoomRule {
+  /**
+   * 最小可见 Zoom (缩小低于此层级不可见)
+   */
+  minZoom: number;
+  /**
+   * 最大可见 Zoom (放大高于此层级不可见)
+   */
+  maxZoom: number;
+  /**
+   * 不同 Zoom 级别的图标 scale 尺寸
+   */
+  scales?: Record<number, number>;
+  /**
+   * 默认基准 scale
+   */
+  baseScale: number;
+}
+
+export interface UseMapControllerOptions {
+    highlightTargetKey?: Ref<string | undefined> | ComputedRef<string | undefined> | string;
+    highlightCoords?: Ref<{ lon: number; lat: number } | undefined> | ComputedRef<{ lon: number; lat: number } | undefined>;
+}
+
+export type DrawShapeMode = MapShapeType;
+
+export interface MapDrawControllerCallbacks {
+    /**
+     * 一次绘制完成（草稿已加入图层）
+     */
+    onDrawEnd?: (mode: DrawShapeMode, geometry: ShapeGeometry) => void;
+    /**
+     * 顶点拖拽结束（可能是已保存图形，也可能是未提交草稿）
+     */
+    onModifyEnd?: (uuid: string, geometry: ShapeGeometry) => void;
+    /**
+     * 编辑模式下按下 Esc：交由上层决定是否弹确认退出
+     */
+    onEscapeKey?: () => void;
+}
+
+export interface ContextMenuItem {
+  type?: 'item' | 'divider';
+  label?: string;
+  icon?: string;
+  badge?: string;
+  disabled?: boolean;
+  danger?: boolean;
+  color?: 'default' | 'amber';
+  action?: () => void;
+  children?: ContextMenuItem[];
+}
+
+export type TabKey = 'collections' | 'points' | 'paths' | 'regions'
+
+export interface EntityListState {
+  rows: any[];
+  total: number;
+  page: number;
+  pageSize: number;
+  loaded: boolean;
+  loading: boolean;
+  filterCollection: string; // ''=全部 '__none__'=未分组 uuid
+  keyword: string;
+  selected: string[];
+}
+
+// ByMapWidget.vue 的入参
+export interface ByMapWidgetProps {
+  targetKey?: string;
+  targetX?: number | string;
+  targetY?: number | string;
+  draggable?: boolean;
+  zoomable?: boolean;
+  initialZoom?: number;
+  animated?: boolean;
 }

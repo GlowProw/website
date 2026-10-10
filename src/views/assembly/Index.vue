@@ -4,7 +4,7 @@ import Header from "@/components/Header.vue";
 </script>
 
 <template>
-  <v-app id="assembly" class="position-relative overflow-hidden">
+  <v-app id="assembly" class="position-relative">
     <Header></Header>
     <v-main>
       <router-view></router-view>

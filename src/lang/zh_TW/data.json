@@ -917,7 +917,9 @@
         "notifyReplyDesc": "有人回覆你的評論時提醒",
         "notifyLikeDesc": "有人按讚你的配裝時提醒",
         "dmDisabledHint": "已關閉私信功能，無法接收訊息",
-        "save": "儲存設定"
+        "save": "儲存設定",
+        "saving": "儲存中...",
+        "saved": "已儲存"
       }
     },
     "profile-picture": {
@@ -2770,7 +2772,9 @@
     "title": "用戶空間",
     "lastOnlineTime": "最後在線",
     "joinTime": "加入時間",
-    "sendMessage": "發送私訊"
+    "sendMessage": "發送私訊",
+    "disabled": "該用戶空間未公開",
+    "disabledHint": "對方已關閉公開用戶空間，暫時無法查看其資料與內容"
   },
   "signin": {
     "title": "登陸",

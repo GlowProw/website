@@ -15,10 +15,8 @@ import QQBotShowcaseWidget from "@/components/QQBotShowcaseWidget.vue";
 import Banner from "@/components/Banner.vue";
 
 const {t} = useI18n()
-
 // 当前赛季
 const currentlySeason = ref<Season | null>(getCurrentSeason() as Season | null)
-
 const seasonContainerRef = ref<HTMLElement | null>(null)
 const isSeasonItemLoaded = ref(false)
 let seasonObserver: IntersectionObserver | null = null
@@ -93,9 +91,9 @@ onUnmounted(() => {
                 <router-link :to="i.to">
                   <v-row dense class="py-2 h-100">
                     <v-col cols="auto">
-                      <v-avatar tile size="45" class="d-flex align-start justify-start">
+                      <div class="d-flex align-start justify-start mr-2">
                         <v-icon :icon="i.icon" size="40"></v-icon>
-                      </v-avatar>
+                      </div>
                     </v-col>
                     <v-col>
                       <p class="u mb-1 text-amber">{{ t(i.title) }}</p>
@@ -167,13 +165,15 @@ onUnmounted(() => {
       <v-container>
         <v-row>
           <v-col cols="12" sm="12" md="4" lg="4">
-            <AffixBoxHasTitleView>
-              <p class="mb-2 opacity-60 text-caption" v-html="t('portal.appVersionContext')"></p>
+            <AffixContainerView>
+              <AffixBoxHasTitleView :disabled-title="true" class="h-100">
+                <p class="mb-2 opacity-60 text-caption" v-html="t('portal.appVersionContext')"></p>
 
-              <AppVersionWidget></AppVersionWidget>
+                <AppVersionWidget></AppVersionWidget>
 
-              <template v-slot:title>{{ t('portal.appVersionLog') }}</template>
-            </AffixBoxHasTitleView>
+                <template v-slot:title>{{ t('portal.appVersionLog') }}</template>
+              </AffixBoxHasTitleView>
+            </AffixContainerView>
           </v-col>
           <v-col cols="12" sm="12" md="8" lg="8">
             <AffixBoxHasTitleView>

@@ -413,6 +413,7 @@
       "signin": {
         "ok": "登陆成功",
         "bad": "登陆错误: 请检查登陆信息格式",
+        "invalid": "登陆信息错误",
         "wrong": "登陆信息错误",
         "error": "登陆错误: {context}",
         "expired": "用户身份过期,请重新登陆",
@@ -930,7 +931,9 @@
         "notifyReplyDesc": "有人回复你的评论时提醒",
         "notifyLikeDesc": "有人点赞你的配装时提醒",
         "dmDisabledHint": "已关闭私信功能，无法接收消息",
-        "save": "保存设置"
+        "save": "保存设置",
+        "saving": "保存中...",
+        "saved": "已保存"
       }
     },
     "profile-picture": {
@@ -2699,7 +2702,9 @@
     "title": "用户空间",
     "lastOnlineTime": "最后在线",
     "joinTime": "加入时间",
-    "sendMessage": "发私信"
+    "sendMessage": "发私信",
+    "disabled": "该用户空间未公开",
+    "disabledHint": "对方已关闭公开用户空间，暂时无法查看其资料与内容"
   },
   "signin": {
     "title": "登陆",

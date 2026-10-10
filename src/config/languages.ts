@@ -1,14 +1,4 @@
-export interface LanguageItem {
-  label: string;
-  value: string;
-}
-
-export interface LanguagesConfig {
-  default: string;
-  mapping: string;
-  fallback: string;
-  child: LanguageItem[];
-}
+import type { LanguagesConfig } from "@/assets/types/I18n";
 
 export const languagesConfig: LanguagesConfig = {
   default: "zh-CN",

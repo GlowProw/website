@@ -85,4 +85,14 @@ export interface ReminderNextTriggerInfo {
     advanceMinutes?: number;
 }
 
+export interface TaskPendingTrigger {
+    triggerKey: string;
+    isAdvance: boolean;
+    advanceUnit?: 'hour' | 'minute' | 'second';
+    advanceValue?: number;
+    advanceMinutes: number;
+    advanceText?: string;
+    eventTime: number;
+}
+
 

@@ -14,27 +14,7 @@ import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import ItemName from "@/components/snbWidget/itemName.vue";
-
-type ModSlotType = string;
-type ModRarity = 'basic' | 'advanced' | 'special' | 'mythic';
-type ModCategory = 'all' | ModRarity;
-
-interface ModSlot {
-  rarity?: ModSlotType;
-  type?: ModRarity;
-  value: any | null;
-}
-
-interface ModItem {
-  id: string;
-  grade: ModRarity;
-  name?: string;
-  description?: string;
-  damageType?: string;
-  requiredDamageType?: string;
-  variants?: any[];
-  effects?: string[];
-}
+import type {ModCategory, ModItem, ModRarity, ModSlot} from "@/assets/types/Codex";
 
 const WEAPON_MOD_CONFIG: Record<Rarity, { slotType: ModRarity[] }> = {
   // 白

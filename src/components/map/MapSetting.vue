@@ -220,7 +220,8 @@ import {useI18n} from 'vue-i18n';
 import {useDisplay} from 'vuetify/framework';
 import {storage_account} from '@/assets/sripts/index';
 import {useNoticeStore} from '~/stores/noticeStore';
-import {type CategoryZoomRule, DEFAULT_CATEGORY_ZOOM_CONFIG, getActiveCategoryZoomConfig} from '@/assets/sripts/map_zoom_config';
+import {DEFAULT_CATEGORY_ZOOM_CONFIG, getActiveCategoryZoomConfig} from '@/assets/sripts/map_zoom_config';
+import type {CategoryZoomRule} from '@/assets/types/Map';
 
 const props = defineProps<{
   modelValue: boolean;

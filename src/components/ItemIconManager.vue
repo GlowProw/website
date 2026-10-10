@@ -7,21 +7,11 @@ import {useAppStore} from "~/stores/appStore";
 import {Item, Items} from "glow-prow-data";
 import ItemName from "@/components/snbWidget/itemName.vue";
 
+import type {sizeConfig} from "@/assets/types/Codex";
+
 const {t} = useI18n()
 const appStore = useAppStore(),
     items = Items
-
-interface sizeConfig {
-  size: number | string
-  box: {
-    margin: number,
-    padding: number,
-  },
-  icon: {
-    margin: number,
-    padding: number,
-  },
-}
 
 let iconId = ref('culverin1'),
     sizes: Ref<any, sizeConfig[]> = ref([

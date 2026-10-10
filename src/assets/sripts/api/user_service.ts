@@ -93,6 +93,23 @@ export function useUserApi() {
     };
 
     /**
+     * 获取用户空间资料（受“公开用户空间”开关保护，关闭时非本人返回 403）
+     */
+    const getSpaceUserInfo = async (userId: string) => {
+        try {
+            const result = await http.get('user/space/info', {
+                params: {id: userId}
+            })
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            return handleError(error)
+        }
+    };
+
+    /**
      * 修改密码
      * @param data
      */
@@ -441,6 +458,7 @@ export function useUserApi() {
         getMe,
         updateMeAttr,
         getUserInfo,
+        getSpaceUserInfo,
         changePassword,
         changeAlternativeName,
         getUserTeamups,

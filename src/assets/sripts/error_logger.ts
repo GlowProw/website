@@ -1,11 +1,5 @@
 import { ref, computed } from 'vue';
-
-export interface ErrorCodeInfo {
-  code: string;
-  category: 'network' | 'http' | 'javascript' | 'promise' | 'vue' | 'router' | 'storage' | 'worker' | 'resource' | 'data' | 'unknown';
-  titleKey: string;
-  descriptionKey: string;
-}
+import type { ErrorCodeInfo, LogEntry } from '@/assets/types/Error';
 
 export const ERROR_CODES: Record<string, ErrorCodeInfo> = {
   GP_NET_001: {
@@ -81,21 +75,6 @@ export const ERROR_CODES: Record<string, ErrorCodeInfo> = {
     descriptionKey: 'basic.errorCodes.gp-0000000099.description',
   }
 };
-
-export interface LogEntry {
-  id: string;
-  code: string;
-  category: string;
-  titleKey?: string;
-  descriptionKey?: string;
-  title?: string;
-  message: string;
-  stack?: string;
-  timestamp: string;
-  url: string;
-  component?: string;
-  context?: any;
-}
 
 import Storage from './storage';
 

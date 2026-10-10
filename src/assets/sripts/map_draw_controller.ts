@@ -14,7 +14,7 @@ import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style';
 import { fromLonLat, toLonLat } from 'ol/proj';
 import type { Feature as OLFeature } from 'ol';
 import type { Geometry, SimpleGeometry } from 'ol/geom';
-import type {MapShape, MapShapeType, ShapeGeometry, ShapeStyle} from '@/assets/types/Map';
+import type {DrawShapeMode, MapDrawControllerCallbacks, MapShape, MapShapeType, ShapeGeometry, ShapeStyle} from '@/assets/types/Map';
 import {
     parseShapeGeometry,
     parseShapeStyle,
@@ -36,8 +36,6 @@ export {
     DEFAULT_LINE_OPACITY,
     DEFAULT_FILL_OPACITY,
 };
-
-export type DrawShapeMode = MapShapeType;
 
 /**
  * 判断渲染图形是否为未提交草稿
@@ -321,21 +319,6 @@ function createDrawStyle(mode: DrawShapeMode): Style[] {
 }
 
 // 控制器
-
-export interface MapDrawControllerCallbacks {
-    /**
-     * 一次绘制完成（草稿已加入图层）
-     */
-    onDrawEnd?: (mode: DrawShapeMode, geometry: ShapeGeometry) => void;
-    /**
-     * 顶点拖拽结束（可能是已保存图形，也可能是未提交草稿）
-     */
-    onModifyEnd?: (uuid: string, geometry: ShapeGeometry) => void;
-    /**
-     * 编辑模式下按下 Esc：交由上层决定是否弹确认退出
-     */
-    onEscapeKey?: () => void;
-}
 
 export class MapDrawController {
     private getMap: () => Map | null;

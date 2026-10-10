@@ -2,28 +2,14 @@
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useDisplay } from 'vuetify/framework';
-
-export type DateRangePickerMode = 'date' | 'month' | 'year';
-
-export interface DateRangePickerProps {
-  modelValue?: string | string[] | null;
-  mode?: DateRangePickerMode;
-  allowModeSwitch?: boolean;
-  availableModes?: DateRangePickerMode[];
-  disableFuture?: boolean;
-  disablePast?: boolean;
-  min?: string | Date | number | null;
-  max?: string | Date | number | null;
-  placeholder?: string;
-  label?: string;
-  clearable?: boolean;
-  disabled?: boolean;
-  readonly?: boolean;
-  density?: 'default' | 'comfortable' | 'compact';
-  variant?: any;
-  valueFormat?: 'iso' | 'formatted' | 'array';
-  dialogTitle?: string;
-}
+import type {
+  CalendarCell,
+  DateRangePickerMode,
+  DateRangePickerProps,
+  MonthCell,
+  PresetOption,
+  YearCell,
+} from '@/assets/types/Ui';
 
 const props = withDefaults(defineProps<DateRangePickerProps>(), {
   modelValue: null,
@@ -184,20 +170,6 @@ const weekdayHeaders = computed(() => {
   return ['一', '二', '三', '四', '五', '六', '日'];
 });
 
-interface CalendarCell {
-  dateStr: string;
-  dayNumber: number;
-  year: number;
-  month: number;
-  isCurrentMonth: boolean;
-  isToday: boolean;
-  isDisabled: boolean;
-  isStart: boolean;
-  isEnd: boolean;
-  isInRange: boolean;
-  isHoverEnd: boolean;
-}
-
 const buildMonthCells = (year: number, month: number): CalendarCell[] => {
   const cells: CalendarCell[] = [];
 
@@ -352,16 +324,6 @@ const getMonthName = (m: number) => {
   return isEn ? enMonths[m - 1] : `${m}月`;
 };
 
-interface MonthCell {
-  monthStr: string;
-  monthNumber: number;
-  name: string;
-  isDisabled: boolean;
-  isStart: boolean;
-  isEnd: boolean;
-  isInRange: boolean;
-}
-
 const monthCells = computed<MonthCell[]>(() => {
   const y = monthPickerYear.value;
   const s = startMonthStr.value;
@@ -455,14 +417,6 @@ const prevDecadeNav = () => {
 const nextDecadeNav = () => {
   yearDecadeStart.value += 10;
 };
-
-interface YearCell {
-  year: number;
-  isDisabled: boolean;
-  isStart: boolean;
-  isEnd: boolean;
-  isInRange: boolean;
-}
 
 const yearCells = computed<YearCell[]>(() => {
   const list: YearCell[] = [];
@@ -636,13 +590,6 @@ const displayText = computed(() => {
 });
 
 // 常用快捷区间选项
-interface PresetOption {
-  key: string;
-  label: string;
-  handler: () => void;
-  visible: boolean;
-}
-
 const presets = computed<PresetOption[]>(() => {
   const isFutureRestricted = props.disableFuture;
   const isPastRestricted = props.disablePast;

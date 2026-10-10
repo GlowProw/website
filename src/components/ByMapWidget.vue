@@ -2,18 +2,9 @@
 import { computed, watchEffect } from "vue";
 import { use_map_controller } from "@/assets/sripts/use_map_controller";
 import MapView from "@/components/map/MapView.vue";
+import type {ByMapWidgetProps} from "@/assets/types/Map";
 
-interface Props {
-  targetKey?: string;
-  targetX?: number | string;
-  targetY?: number | string;
-  draggable?: boolean;
-  zoomable?: boolean;
-  initialZoom?: number;
-  animated?: boolean;
-}
-
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<ByMapWidgetProps>(), {
   draggable: true,
   zoomable: true,
   initialZoom: 14,

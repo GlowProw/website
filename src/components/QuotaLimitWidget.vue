@@ -7,11 +7,13 @@ import {computed, onMounted, ref} from 'vue'
 import {useI18n} from 'vue-i18n'
 import {
   useQuotaApi,
-  type QuotaBucket,
-  type QuotaResourceKey,
-  type QuotaStatus,
-  type QuotaStatusItem,
 } from '@/assets/sripts/api/quota_service'
+import type {
+  QuotaBucket,
+  QuotaResourceKey,
+  QuotaStatus,
+  QuotaStatusItem,
+} from '@/assets/types/Quota'
 import {useAuthStore} from '~/stores/userAccountStore'
 
 const props = withDefaults(defineProps<{

@@ -35,6 +35,7 @@
           <v-tabs
               stacked
               align-tabs="center"
+              color="var(--main-color)"
               item-value="value.value"
               v-model="activeTab">
             <v-tab
@@ -52,7 +53,7 @@
 
     <v-container>
       <v-row>
-        <v-col cols="8">
+        <v-col cols="12" lg="3">
           <AffixBoxHasTitleView>
             <p class="text-subtitle-1 text-medium-emphasis mb-5">
               {{ t('apps.apiDocs.intro1') }}
@@ -65,7 +66,7 @@
           </AffixBoxHasTitleView>
         </v-col>
 
-        <v-col cols="12">
+        <v-col cols="12" lg="9">
           <AffixBoxHasTitleView>
             <div class="scalar-wrapper position-relative">
               <div v-if="loading" class="py-16 text-center">
@@ -132,30 +133,17 @@ const authStore = useAuthStore();
 const loading = ref(true);
 const error = ref<string | null>(null);
 const scalarContainerRef = ref<HTMLElement | null>(null);
-
-
+const validTabs: ApiTab[] = ['backend', 'assets', 'lang'];
+const activeTab = ref<ApiTab>();
+const specUrl = computed(() => {
+  const base = http.globalUrl?.location || '/api/';
+  return `${base.replace(/\/+$/, '')}/openapi.json`;
+});
 const apiTabs = computed(() => [
   {value: 'backend' as const, label: t('apps.apiDocs.tabs.backend')},
   {value: 'assets' as const, label: t('apps.apiDocs.tabs.assets')},
   {value: 'lang' as const, label: t('apps.apiDocs.tabs.lang')},
 ]);
-const validTabs: ApiTab[] = ['backend', 'assets', 'lang'];
-
-const getTabFromRoute = (): ApiTab => {
-  const queryTab = route.query.tab;
-  if (typeof queryTab === 'string' && validTabs.includes(queryTab as ApiTab)) {
-    return queryTab as ApiTab;
-  }
-  return 'backend';
-};
-
-const activeTab = ref<ApiTab>(getTabFromRoute());
-
-const specUrl = computed(() => {
-  const base = http.globalUrl?.location || '/api/';
-  return `${base.replace(/\/+$/, '')}/openapi.json`;
-});
-
 const assetsSpecUrl = '/openApi/assets-api.json';
 const langSpecUrl = '/openApi/lang-api.json';
 
@@ -167,22 +155,12 @@ let abortController: AbortController | null = null;
  */
 const apiBaseOrigin = computed(() => {
   const prod = (conf.CONF.child as any)[conf.CONF.requestProductionName];
+
   if (!prod) return 'https://api.glow-prow.top';
+
   const portStr = prod.port ? `:${prod.port}` : '';
+
   return `${prod.protocol || 'https'}://${prod.host}${portStr}`;
-});
-
-/**
- * 语言映射字典
- */
-const localeMap: Record<string, string> = {
-  zh_CN: 'zh-CN',
-  zh_TW: 'zh-TW',
-  en_US: 'en'
-};
-
-onMounted(() => {
-  initScalar();
 });
 
 watch(activeTab, (newTab) => {
@@ -190,6 +168,7 @@ watch(activeTab, (newTab) => {
   if (route.query.tab !== newTab) {
     router.replace({query: {...route.query, tab: newTab}});
   }
+
   initScalar();
 });
 
@@ -203,6 +182,32 @@ watch(() => route.query.tab, (newTabQuery) => {
 watch(locale, () => {
   initScalar();
 });
+
+onMounted(() => {
+  initScalar();
+});
+
+onUnmounted(() => {
+  abortController?.abort();
+
+  if (scalarInstance?.destroy) {
+    try {
+      scalarInstance.destroy();
+    } catch (_) {
+    }
+    scalarInstance = null;
+  }
+});
+
+const getTabFromRoute = (): ApiTab => {
+  const queryTab = route.query.tab;
+
+  if (typeof queryTab === 'string' && validTabs.includes(queryTab as ApiTab)) {
+    return queryTab as ApiTab;
+  }
+
+  return 'backend';
+};
 
 /**
  * 初始化实例
@@ -248,11 +253,14 @@ const initScalar = async () => {
 
       } catch (fetchErr: any) {
         if (fetchErr instanceof DOMException && fetchErr.name === 'AbortError') return;
+
         // 给用户更可读的错误提示
         const msg = fetchErr?.message || String(fetchErr);
+
         if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
           throw new Error(`无法连接到 API 服务器 (${apiBaseOrigin.value})，请检查网络或 CORS 配置`);
         }
+
         throw fetchErr;
       }
     } else {
@@ -260,6 +268,7 @@ const initScalar = async () => {
       const targetUrl = activeTab.value === 'assets' ? assetsSpecUrl : langSpecUrl;
       const response = await fetch(targetUrl, {signal: abortController.signal});
       if (!response.ok) throw new Error(`OpenAPI 规范加载失败 HTTP ${response.status}`);
+
       specification = await response.json();
     }
 
@@ -317,7 +326,7 @@ const initScalar = async () => {
     const scalarConfig: any = {
       content: specification,
       localization: {
-        locale: localeMap[locale.value]
+        locale: locale.value
       },
       layout: 'classic',
       darkMode: true,
@@ -359,6 +368,7 @@ const initScalar = async () => {
     }
 
     scalarInstance = createApiReference(container, scalarConfig);
+
     loading.value = false;
   } catch (err: any) {
     if (err instanceof DOMException && err.name === 'AbortError') return;
@@ -368,18 +378,6 @@ const initScalar = async () => {
     loading.value = false;
   }
 };
-
-onUnmounted(() => {
-  abortController?.abort();
-
-  if (scalarInstance?.destroy) {
-    try {
-      scalarInstance.destroy();
-    } catch (_) {
-    }
-    scalarInstance = null;
-  }
-});
 
 defineOptions({
   name: 'ApiDocsView'

@@ -19,6 +19,7 @@ import AdsWidget from "@/components/ads/google/index.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import AccountCardWidget from "@/components/AccountCardWidget.vue";
 import PaginationBar from "@/components/PaginationBar.vue";
+import AffixContainerView from "@/components/AffixContainerView.vue";
 
 const {t} = useI18n(),
     route = useRoute(),
@@ -192,50 +193,53 @@ const getBrowseList = async () => {
     <v-row>
       <v-col cols="12" md="3" lg="3">
         <!-- 配装筛选 S -->
-        <AffixBoxHasTitleView>
-          <v-row no-gutters>
-            <v-col cols="12">
-              <v-select
-                  tile
-                  :label="t('assembly.browse.sort')"
-                  v-model="browseFilter.data.sortField"
-                  item-title="label"
-                  item-value="value"
-                  :items="browseFilter.assumption.timeRanges"></v-select>
-            </v-col>
-            <v-col cols="12">
-              <v-select
-                  tile
-                  v-model="browseFilter.data.sortOrder"
-                  item-title="label"
-                  item-value="value"
-                  :items="browseFilter.assumption.slotOrders"></v-select>
-            </v-col>
-            <v-col cols="12" sm="6" md="6" lg="12">
-              <div class="mb-4">
-                <p class="mb-2 ">{{ t('assembly.browse.createdTimeRange') }}</p>
-                <TimeFrame v-model="browseFilter.data.createdStartAndEnd"></TimeFrame>
-              </div>
-            </v-col>
-            <v-col cols="12" sm="6" md="6" lg="12">
-              <div class="mb-4">
-                <p class="mb-2 ">{{ t('assembly.browse.updatedTimeRange') }}</p>
-                <TimeFrame v-model="browseFilter.data.updatedStartAndEnd"></TimeFrame>
-              </div>
-            </v-col>
-            <!--            <v-col cols="12" sm="6" md="6" lg="12">-->
-            <!--              <v-checkbox density="compact" hide-details v-model="browseFilter.data.isHasPassword" :label="t('assembly.browse.includePasswordProtected')"></v-checkbox>-->
-            <!--            </v-col>-->
-          </v-row>
+        <AffixContainerView>
+          <AffixBoxHasTitleView :disabled-title="true">
+            <v-row no-gutters>
+              <v-col cols="12">
+                <v-select
+                    tile
+                    :label="t('assembly.browse.sort')"
+                    v-model="browseFilter.data.sortField"
+                    item-title="label"
+                    item-value="value"
+                    :items="browseFilter.assumption.timeRanges"></v-select>
+              </v-col>
+              <v-col cols="12">
+                <v-select
+                    tile
+                    v-model="browseFilter.data.sortOrder"
+                    item-title="label"
+                    item-value="value"
+                    :items="browseFilter.assumption.slotOrders"></v-select>
+              </v-col>
+              <v-col cols="12" sm="6" md="6" lg="12">
+                <div class="mb-4">
+                  <p class="mb-2 ">{{ t('assembly.browse.createdTimeRange') }}</p>
+                  <TimeFrame v-model="browseFilter.data.createdStartAndEnd"></TimeFrame>
+                </div>
+              </v-col>
+              <v-col cols="12" sm="6" md="6" lg="12">
+                <div class="mb-4">
+                  <p class="mb-2 ">{{ t('assembly.browse.updatedTimeRange') }}</p>
+                  <TimeFrame v-model="browseFilter.data.updatedStartAndEnd"></TimeFrame>
+                </div>
+              </v-col>
+              <!--            <v-col cols="12" sm="6" md="6" lg="12">-->
+              <!--              <v-checkbox density="compact" hide-details v-model="browseFilter.data.isHasPassword" :label="t('assembly.browse.includePasswordProtected')"></v-checkbox>-->
+              <!--            </v-col>-->
+            </v-row>
 
-          <v-btn block class="mt-2" @click="getBrowseList">
-            {{ t('basic.button.submit') }}
-          </v-btn>
-          <template v-slot:title>
-            <v-icon icon="mdi-filter"></v-icon>
-            {{ t('assembly.browse.filterTitle') }}
-          </template>
-        </AffixBoxHasTitleView>
+            <v-btn block class="mt-2" @click="getBrowseList">
+              {{ t('basic.button.submit') }}
+            </v-btn>
+
+            <template v-slot:title>
+              <v-icon icon="mdi-filter"></v-icon>
+              {{ t('assembly.browse.filterTitle') }}
+            </template>
+          </AffixBoxHasTitleView>
+        </AffixContainerView>
         <!-- 配装筛选 E -->
 
         <AdsWidget class="my-10" id="assembly-sidebar-browse"></AdsWidget>

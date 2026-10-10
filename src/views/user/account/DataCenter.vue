@@ -4,11 +4,11 @@ import {useI18n} from "vue-i18n";
 import * as d3 from "d3";
 
 import {Apis} from "@/assets/sripts/api";
-import type {StatsAssemblyTop, StatsOverview, StatsRange, StatsTrend, StatsVisitor} from "@/assets/sripts/api/stats_service";
+import type {StatsAssemblyTop, StatsOverview, StatsRange, StatsTrend, StatsVisitor} from "@/assets/types/Stats";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import Loading from "@/components/Loading.vue";
 import HorizontalScrollList from "@/components/HorizontalScrollList.vue";
-import UserAvatar from "@/components/UserAvatar.vue";
+import TimeView from "@/components/TimeView.vue";
 
 const {t} = useI18n();
 const statsApi = Apis.statsApi();
@@ -138,7 +138,7 @@ const loadTop = async () => {
   topData.value = await statsApi.getAssemblyTop(20);
 };
 
-/** 
+/**
  * 当前时间范围对应的文案 key（卡片副标题用）
  */
 const rangeLabelKey = computed(() => {
@@ -147,7 +147,7 @@ const rangeLabelKey = computed(() => {
   return 'account.dataCenter.trend.range30';
 });
 
-/** 
+/**
  * 切换时间范围：折线图与六项统计同时刷新
  */
 const onRangeChange = async (range: StatsRange) => {
@@ -155,8 +155,10 @@ const onRangeChange = async (range: StatsRange) => {
   await Promise.all([loadTrend(), loadOverview()]);
 };
 
-// watch 后渲染 —— 用 effect 风格
-function renderChart() {
+/**
+ * 渲染图表
+ */
+const renderChart = () => {
   const svg = chartRef.value;
   const tip = tooltipRef.value;
   if (!svg || !tip || renderedTrend.value.length === 0) return;
@@ -521,7 +523,7 @@ defineOptions({
 
     <!-- 更新时间戳 -->
     <div v-if="overview" class="text-right opacity-40 text-caption mt-4">
-      {{ t('account.dataCenter.updatedAt') }}: {{ new Date(overview.updatedAt).toLocaleString() }}
+      {{ t('account.dataCenter.updatedAt') }}: <TimeView :time="overview.updatedAt"></TimeView>
     </div>
   </v-card>
 </template>

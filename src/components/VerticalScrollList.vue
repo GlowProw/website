@@ -16,12 +16,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import BaseScrollList, { type ScrollListProps, type ScrollState } from './BaseScrollList.vue'
-
-export interface VerticalScrollListProps extends Omit<ScrollListProps, 'direction'> {
-  topButtonAriaLabel?: string
-  bottomButtonAriaLabel?: string
-}
+import BaseScrollList from './BaseScrollList.vue'
+import type {ScrollState, VerticalScrollListProps} from '@/assets/types/Ui'
 
 const props = withDefaults(defineProps<VerticalScrollListProps>(), {
   btnSize: 45,

@@ -89,18 +89,7 @@
 
 <script setup lang="ts">
 import {nextTick, onUnmounted, ref, watch} from 'vue';
-
-export interface ContextMenuItem {
-  type?: 'item' | 'divider';
-  label?: string;
-  icon?: string;
-  badge?: string;
-  disabled?: boolean;
-  danger?: boolean;
-  color?: 'default' | 'amber';
-  action?: () => void;
-  children?: ContextMenuItem[];
-}
+import type {ContextMenuItem} from '@/assets/types/Map';
 
 const props = defineProps<{
   visible: boolean;

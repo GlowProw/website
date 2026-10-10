@@ -26,3 +26,19 @@ export interface GetUrlOptions {
     port: string
     wsPort: string
 }
+
+export interface UseHttpOptions {
+    withToken?: boolean;
+    /**
+     * 是否为外部资源请求
+     * 不携带内部专属头 x-auth-gp 和 x-access-token）
+     **/
+    isExternal?: boolean;
+}
+
+export type WebSocketEventMap = {
+    open: (event: Event) => void;
+    close: (event: CloseEvent) => void;
+    error: (event: Event) => void;
+    message: (event: MessageEvent) => void;
+};

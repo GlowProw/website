@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import {computed, ref} from "vue";
-import {MaterialTreeNode, useCalculatorStore} from "~/stores/calculatorStore";
+import {useCalculatorStore} from "~/stores/calculatorStore";
+import type {MaterialTreeNode} from "@/assets/types/Calculator";
 import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
 import MaterialName from "@/components/snbWidget/materialName.vue";
 import MaterialNameRarity from "@/components/snbWidget/materialNameRarity.vue";

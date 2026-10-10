@@ -2,7 +2,8 @@
 import {computed, onUnmounted, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {useNoticeStore} from "~/stores/noticeStore";
-import {ERROR_CODES, type ErrorCodeInfo} from "@/assets/sripts/error_logger";
+import {ERROR_CODES} from "@/assets/sripts/error_logger";
+import type {ErrorCodeInfo} from "@/assets/types/Error";
 import Logo from "./Logo.vue";
 
 const noticeStore = useNoticeStore();

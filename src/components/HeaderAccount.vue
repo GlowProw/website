@@ -6,10 +6,11 @@ import {useI18n} from "vue-i18n";
 import {useRoute, useRouter} from "vue-router";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import {useMessagesUnreadStore} from "~/stores/messagesUnreadStore";
+import {useMessagesDrawerStore} from "~/stores/messagesDrawerStore";
+import {useAppStore} from "~/stores/appStore";
 import {storage} from "@/assets/sripts";
 import languagesConfig, {DEFAULT_LANG, SUPPORTED_LANGS} from "@/config/languages";
-
-type HeaderAccountType = 'header-drawer' | 'header'
+import type {HeaderAccountType} from "@/assets/types/User";
 
 const authStore = useAuthStore(),
     {t, locale} = useI18n(),
@@ -21,6 +22,18 @@ const authStore = useAuthStore(),
 const unreadStore = useMessagesUnreadStore();
 const {unreadCount} = storeToRefs(unreadStore);
 unreadStore.start();
+
+// 全局私信侧边抽屉
+const messagesDrawerStore = useMessagesDrawerStore();
+const appStore = useAppStore();
+
+/**
+ * 打开私信侧边抽屉
+ */
+const openMessagesDrawer = (): void => {
+  appStore.headerDrawer = false;
+  messagesDrawerStore.setOpen(true);
+};
 
 const languages = languagesConfig.child;
 const currentLang = computed(() => locale.value || DEFAULT_LANG);
@@ -64,7 +77,7 @@ const onLogout = (): void => {
                 location="bottom end"
                 :close-on-content-click="true">
           <template v-slot:activator="{ props: menuProps }">
-            <v-btn density="comfortable" icon class="mr-3"
+            <v-btn icon
                    :to="{ name: 'AccountInformation' }"
                    v-bind="menuProps">
               <v-avatar color="grey-darken-2" size="32">
@@ -135,7 +148,9 @@ const onLogout = (): void => {
         </v-btn>
 
         <!-- 私信入口 -->
-        <v-btn to="/account/messages" density="comfortable" icon class="mr-2" v-if="authStore.isLogin">
+        <v-btn icon class="mr-2" v-if="authStore.isLogin"
+               :aria-label="t('header.accountMenu.messageCenter')"
+               @click="openMessagesDrawer">
           <v-badge v-if="unreadCount > 0" :content="unreadCount > 99 ? '99+' : unreadCount" color="red" floating dot>
             <v-icon icon="mdi-message-outline"></v-icon>
           </v-badge>
@@ -145,17 +160,31 @@ const onLogout = (): void => {
     </template>
 
     <template v-if="type == 'header-drawer'">
-      <router-link to="/account/information" v-if="authStore.isLogin">
-        <v-list-item link href="/account">
-          <span class="u">{{ authStore.currentUser }}</span>
+      <template v-if="authStore.isLogin">
+        <router-link to="/account/information">
+          <v-list-item link href="/account">
+            <span class="u">{{ authStore.currentUser }}</span>
+            <template v-slot:prepend>
+              <ItemSlotBase size="40px" class="mr-2 d-flex align-center justify-center">
+                <v-img :src="authStore.user.userAvatar" v-if="authStore.user.userAvatar"></v-img>
+                <span v-else>{{ authStore.currentUser[0].toUpperCase() || 'U' }}</span>
+              </ItemSlotBase>
+            </template>
+          </v-list-item>
+        </router-link>
+
+        <!-- 移动端私信入口 -->
+        <v-list-item @click="openMessagesDrawer">
+          <v-list-item-title>{{ t('header.accountMenu.messageCenter') }}</v-list-item-title>
           <template v-slot:prepend>
-            <ItemSlotBase size="40px" class="mr-2 d-flex align-center justify-center">
-              <v-img :src="authStore.user.userAvatar" v-if="authStore.user.userAvatar"></v-img>
-              <span v-else>{{ authStore.currentUser[0].toUpperCase() || 'U' }}</span>
-            </ItemSlotBase>
+            <v-icon icon="mdi-message-outline"></v-icon>
+          </template>
+          <template v-slot:append v-if="unreadCount > 0">
+            <span class="unread-badge">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
           </template>
         </v-list-item>
-      </router-link>
+      </template>
+
       <template v-else>
         <v-list-item link href="/account/signin" target="_blank">
           {{ t('signin.title') }}

@@ -4,13 +4,7 @@
 import { storage } from "./index";
 import { getAppI18n } from "@/i18n/index";
 import { SUPPORTED_LANGS, isSupportedLang, toCDNLang } from "@/config/languages";
-
-export interface CDNLangSource {
-    key: string;
-    label: string;
-    baseUrl: string;
-    isDev?: boolean;
-}
+import type { CategoryFetch, CDNLangSource } from "@/assets/types/I18n";
 
 export const CDN_LANG_SOURCES: CDNLangSource[] = [
     {
@@ -32,12 +26,6 @@ export function getCDNSource(key?: string | null): CDNLangSource {
     const found = CDN_LANG_SOURCES.find(s => s.key === key);
     return found || CDN_LANG_SOURCES.find(s => s.key === DEFAULT_CDN_SOURCE)!;
 }
-
-type CategoryFetch = {
-    file: string;
-    bundleKey: string;
-    mergeWith?: string;
-};
 
 const CATEGORIES: CategoryFetch[] = [
     { file: 'ships',            bundleKey: 'ships' },

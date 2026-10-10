@@ -1,14 +1,6 @@
 import {storage} from "./index";
 import {v6 as uuidv6} from 'uuid';
-
-interface StorageIntermediateTransferOptions {
-    // 转存id
-    uid?: string
-    // 转存类型，如数据/存稿
-    saveType?: StorageIntermediateTransferSaveType
-    // 转存大类
-    category: 'assembly' | 'ranking'
-}
+import type {StorageIntermediateTransferOptions} from "@/assets/types/Storage";
 
 export enum StorageIntermediateTransferSaveType {
     Data = 'data',    // 数据

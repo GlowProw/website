@@ -5,13 +5,7 @@ import {useI18n} from 'vue-i18n';
 import {useAssetsStore} from '~/stores/assetsStore';
 import {useCDNAssetsServiceStore} from '~/stores/cdnAssetsStore';
 import StylizedLineBackground from '@/components/StylizedLineBackground.vue';
-
-interface HierarchyNodeData {
-  id: string;
-  parentId: string | null;
-  data: any;
-  skillPointValue?: number;
-}
+import type {HierarchyNodeData} from '@/assets/types/Codex';
 
 const props = withDefaults(defineProps<{
   skills: Record<string, any>;

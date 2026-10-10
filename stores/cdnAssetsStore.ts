@@ -5,51 +5,16 @@
 import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
 import { storage } from "@/assets/sripts/index";
-
-interface CDNAssetsService {
-    name: string;
-    urlTemplate: string;
-    enabled: boolean;
-    priority: number;
-}
-
-interface CDNAssetsParams {
-    id: string;
-    type?: string;
-    category: string;
-
-    [key: string]: string;
-}
-
-// 多服务参数类型
-interface MultiServiceParams {
-    [serviceName: string]: CDNAssetsParams;
-}
-
-// URL 方法参数类型
-type UrlParams = CDNAssetsParams | MultiServiceParams;
-
-export interface ModeAssetsParams {
-    category?: string;
-    t?: string;
-    id?: string;
-    format?: 'bin' | 'json';
-    [key: string]: string | undefined;
-}
-
-export interface ImageServiceItem extends CDNAssetsService {
-    url: (params: UrlParams, forceName?: string) => string;
-}
-
-export interface ModeServiceItem extends CDNAssetsService {
-    url: (params?: ModeAssetsParams | string) => string;
-}
-
-export interface CurrentService extends CDNAssetsService {
-    image: ImageServiceItem;
-    mode: ModeServiceItem;
-    url: (params: UrlParams, forceName?: string) => string;
-}
+import type {
+    CDNAssetsParams,
+    CDNAssetsService,
+    CurrentService,
+    ImageServiceItem,
+    ModeAssetsParams,
+    ModeServiceItem,
+    MultiServiceParams,
+    UrlParams,
+} from "@/assets/types/CdnAssets";
 
 // 存储键名常量
 const STORAGE_KEYS = {

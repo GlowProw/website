@@ -23,16 +23,9 @@
 
 <script setup lang="ts">
 import {computed, ref} from 'vue'
+import type {AffixViewProps} from '@/assets/types/Ui'
 
-interface Props {
-  direction?: 'left' | 'right'
-  offsetTop?: number
-  offsetBottom?: number
-  affixBgClass?: string
-  disabled?: boolean
-}
-
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<AffixViewProps>(), {
   direction: 'left',
   offsetTop: 80,
   offsetBottom: 0,

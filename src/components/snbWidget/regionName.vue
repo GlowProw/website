@@ -2,10 +2,7 @@
 import { computed } from "vue";
 import { use_local_locale } from "@/assets/sripts/use_local_locale";
 import { useI18n } from "vue-i18n";
-
-type EitherDataOrId =
-  | { data: any; id?: never }
-  | { data?: never; id: string | number };
+import type {EitherDataOrId} from "@/assets/types/Codex";
 
 const { localLocale } = use_local_locale();
 const { t } = useI18n();

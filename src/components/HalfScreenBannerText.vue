@@ -2,14 +2,9 @@
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ShinyText from '@/components/ShinyText.vue';
+import type {HalfScreenBannerTextProps} from '@/assets/types/Ui';
 
-interface Props {
-  title?: string;
-  subtitle?: string;
-  name?: string;
-}
-
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<HalfScreenBannerTextProps>(), {
   title: '',
   subtitle: '',
   name: ''

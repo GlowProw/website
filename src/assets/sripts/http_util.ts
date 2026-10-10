@@ -5,19 +5,11 @@
 import { useAuthStore } from "~/stores/userAccountStore";
 import { http } from "./index";
 import { generateAuthGpHeader } from "./fingerprint_auth";
-
-interface UseHttpOptions {
-    withToken?: boolean;
-    /** 
-     * 是否为外部资源请求
-     * 不携带内部专属头 x-auth-gp 和 x-access-token） 
-     **/
-    isExternal?: boolean;
-}
+import type { UseHttpOptions } from "@/assets/types/Http";
 
 /**
  * 基本请求
- * @param options 
+ * @param options
  */
 export function useHttp(options: UseHttpOptions = {}) {
     const { withToken = false, isExternal = false } = options;

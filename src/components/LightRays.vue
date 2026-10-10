@@ -13,62 +13,13 @@
 <script setup lang="ts">
 import {computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch} from 'vue';
 import {Mesh, Program, Renderer, Triangle} from 'ogl';
-
-export type RaysOrigin =
-    | 'top-center'
-    | 'top-left'
-    | 'top-right'
-    | 'right'
-    | 'left'
-    | 'bottom-center'
-    | 'bottom-right'
-    | 'bottom-left';
-
-interface LightRaysProps {
-  raysOrigin?: RaysOrigin;
-  raysColor?: string;
-  raysSpeed?: number;
-  lightSpread?: number;
-  rayLength?: number;
-  pulsating?: boolean;
-  fadeDistance?: number;
-  saturation?: number;
-  followMouse?: boolean;
-  mouseInfluence?: number;
-  noiseAmount?: number;
-  distortion?: number;
-  className?: string;
-  quality?: 'low' | 'medium' | 'high';
-  fixedSize?: { width: number; height: number } | null;
-}
-
-interface MousePosition {
-  x: number;
-  y: number;
-}
-
-interface AnchorAndDirection {
-  anchor: [number, number];
-  dir: [number, number];
-}
-
-interface WebGLUniforms {
-  iTime: { value: number };
-  iResolution: { value: [number, number] };
-  rayPos: { value: [number, number] };
-  rayDir: { value: [number, number] };
-  raysColor: { value: [number, number, number] };
-  raysSpeed: { value: number };
-  lightSpread: { value: number };
-  rayLength: { value: number };
-  pulsating: { value: number };
-  fadeDistance: { value: number };
-  saturation: { value: number };
-  mousePos: { value: [number, number] };
-  mouseInfluence: { value: number };
-  noiseAmount: { value: number };
-  distortion: { value: number };
-}
+import type {
+  AnchorAndDirection,
+  LightRaysProps,
+  MousePosition,
+  RaysOrigin,
+  WebGLUniforms,
+} from '@/assets/types/Ui';
 
 const props = withDefaults(defineProps<LightRaysProps>(), {
   raysOrigin: 'top-center',

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import {computed, ref} from 'vue';
 import {useI18n} from 'vue-i18n';
-import CountdownWidget from '@/components/CountdownWidget.vue';
 import {useDisplay} from 'vuetify';
 import type {DropCampaignData, TimeBasedDrop, StreamerChannel} from '@/assets/types';
+
+import CountdownWidget from '@/components/CountdownWidget.vue';
 
 const props = withDefaults(
     defineProps<{
@@ -23,35 +24,36 @@ const previewDialog = ref(false);
 const previewImage = ref('');
 const previewTitle = ref('');
 
-const openPreview = (imgUrl?: string, title?: string) => {
-  if (!imgUrl) return;
-  previewImage.value = imgUrl;
-  previewTitle.value = title || '';
-  previewDialog.value = true;
-};
-
 // 规范化字段访问
 const detailsLink = computed(() => props.campaign.detailsUrl || props.campaign.detailsURL || '');
 const bannerImage = computed(() => props.campaign.imageUrl || props.campaign.imageURL || '');
 const dropList = computed<TimeBasedDrop[]>(() => props.campaign.drops || props.campaign.timeBasedDrops || []);
 const streamerList = computed<StreamerChannel[]>(() => props.campaign.channels || []);
 
-// 状态计算
+/**
+ * 状态计算
+ */
 const campaignStatus = computed(() => {
   if (props.campaign.status) return props.campaign.status;
+
   const now = new Date();
   const start = props.campaign.startAt ? new Date(props.campaign.startAt) : null;
   const end = new Date(props.campaign.endAt);
+
   if (start && now < start) return 'upcoming';
   if (now <= end) return 'active';
+
   return 'ended';
 });
 
-// 格式化时间范围
+/**
+ * 格式化时间范围
+ */
 const formattedDateRange = computed(() => {
   const formatTime = (dStr?: string) => {
     if (!dStr) return '';
     const d = new Date(dStr);
+
     return `${d.getFullYear()}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d
         .getDate()
         .toString()
@@ -63,28 +65,54 @@ const formattedDateRange = computed(() => {
 
   const s = formatTime(props.campaign.startAt);
   const e = formatTime(props.campaign.endAt);
+
   if (s && e) return `${s} ~ ${e}`;
   if (e) return `截至 ${e}`;
+
   return '';
 });
 
-// 格式化所需时长
-const formatMinutes = (minutes?: number) => {
-  if (!minutes) return t('drop.duration.instant', '即时获得');
-  if (minutes < 60) return t('drop.duration.watchMinutes', { minutes }, `观看 ${minutes} 分钟`);
-  const hours = minutes / 60;
-  if (Number.isInteger(hours)) {
-    return t('drop.duration.watchHours', { hours }, `观看 ${hours} 小时`);
-  }
-  return t('drop.duration.watchHoursMinutes', { hours: hours.toFixed(1), minutes }, `观看 ${hours.toFixed(1)} 小时 (${minutes}分钟)`);
-};
-
-// 当奖励道具少于 6 个时，计算占位卡片所需跨越的栅格列数（一行 6 个，每格占 2 列）
+/**
+ * 当奖励道具少于 6 个时，计算占位卡片所需跨越的栅格列数（一行 6 个，每格占 2 列）
+ */
 const remainingCols = computed(() => {
   const count = dropList.value.length;
   if (count >= 6) return 0;
   return (6 - count) * 2;
 });
+
+/**
+ * 阅览奖品
+ * @param imgUrl 
+ * @param title 
+ */
+const openPreview = (imgUrl?: string, title?: string) => {
+  if (!imgUrl) return;
+  previewImage.value = imgUrl;
+  previewTitle.value = title || '';
+  previewDialog.value = true;
+};
+
+/**
+ * 格式化所需时长
+ * @param minutes 
+ */
+const formatMinutes = (minutes?: number) => {
+  if (!minutes) return t('drop.duration.instant', '即时获得');
+  if (minutes < 60) return t('drop.duration.watchMinutes', { minutes });
+  
+  const hours = minutes / 60;
+
+  if (Number.isInteger(hours)) {
+    return t('drop.duration.watchHours', { hours });
+  }
+  
+  return t('drop.duration.watchHoursMinutes', { hours: hours.toFixed(1), minutes });
+};
+
+defineOptions({
+  name: 'DropWidget'
+})
 </script>
 
 <template>
@@ -96,7 +124,7 @@ const remainingCols = computed(() => {
         'drop-widget--ended': campaignStatus === 'ended',
       }"
       elevation="0">
-    <!-- 奖励道具列表 -->
+    <!-- 奖励道具列表 S -->
     <v-card-text class="pa-4 pa-sm-6">
       <v-row>
         <v-col cols="12" lg="3">
@@ -188,11 +216,11 @@ const remainingCols = computed(() => {
               <v-card
                   class="reward-card d-flex flex-column rounded-lg pa-3 h-100 position-relative"
                   @click="
-              openPreview(
-                drop.benefits?.[0]?.imageAssetURL || bannerImage,
-                drop.benefits?.[0]?.name || drop.name
-              )
-            ">
+                    openPreview(
+                      drop.benefits?.[0]?.imageAssetURL || bannerImage,
+                      drop.benefits?.[0]?.name || drop.name
+                    )
+                  ">
                 <!-- 奖励图片容器 -->
                 <div class="reward-img-wrap rounded-lg mb-3 d-flex align-center justify-center overflow-hidden">
                   <v-img
@@ -203,7 +231,7 @@ const remainingCols = computed(() => {
                       cover>
                     <template v-slot:placeholder>
                       <div class="d-flex align-center justify-center fill-height bg-grey-darken-4">
-                        <v-icon icon="mdi-gift-outline" size="28" color="grey"></v-icon>
+                        <Loading size="28"></Loading>
                       </div>
                     </template>
                     <template v-slot:error>
@@ -221,7 +249,7 @@ const remainingCols = computed(() => {
                   </p>
 
                   <div class="d-flex align-center justify-space-between mt-auto">
-                    <v-chip size="x-small" variant="flat" class="font-weight-medium">
+                    <v-chip size="x-small" variant="tonal" class="font-weight-medium">
                       <v-icon icon="mdi-clock-outline" start size="12"></v-icon>
                       {{ formatMinutes(drop.requiredMinutesWatched) }}
                     </v-chip>
@@ -249,8 +277,9 @@ const remainingCols = computed(() => {
         </v-col>
       </v-row>
     </v-card-text>
+    <!-- 奖励道具列表 E -->
 
-    <!-- 弹窗放大预览大图 -->
+    <!-- 弹窗放大预览大图 S -->
     <v-dialog v-model="previewDialog" max-width="500">
       <v-card class="rounded-xl border pa-4 bg-grey-darken-4 text-center">
         <v-card-title class="text-h6 font-weight-bold text-white pb-3">
@@ -271,6 +300,7 @@ const remainingCols = computed(() => {
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <!-- 弹窗放大预览大图 E -->
   </v-card>
 </template>
 

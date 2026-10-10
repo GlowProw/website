@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import DateRangePicker, { type DateRangePickerProps } from './DateRangePicker.vue';
+import DateRangePicker from './DateRangePicker.vue';
+import type {DateRangePickerProps} from '@/assets/types/Ui';
 
 const props = defineProps<DateRangePickerProps>();
 const emit = defineEmits<{

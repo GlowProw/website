@@ -2,7 +2,7 @@
  * 活动提醒计算工具
  * 负责计算下一次提醒的触发时机、提前提醒、有效期检测以及格式化倒计时
  */
-import type { MultilingualText, ReminderNextTriggerInfo, ReminderTask } from '@/assets/types/Reminder';
+import type { MultilingualText, ReminderNextTriggerInfo, ReminderTask, TaskPendingTrigger } from '@/assets/types/Reminder';
 import { DEFAULT_LANG, FALLBACK_LANG } from '@/config/languages';
 import Storage from './storage';
 
@@ -493,16 +493,6 @@ export function formatCountdown(
         formattedCountdown,
         status
     };
-}
-
-export interface TaskPendingTrigger {
-    triggerKey: string;
-    isAdvance: boolean;
-    advanceUnit?: 'hour' | 'minute' | 'second';
-    advanceValue?: number;
-    advanceMinutes: number;
-    advanceText?: string;
-    eventTime: number;
 }
 
 /**

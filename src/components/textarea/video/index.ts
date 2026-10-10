@@ -1,5 +1,6 @@
 import {mergeAttributes, Node, type RawCommands, VueNodeViewRenderer} from "@tiptap/vue-3"
 import Component from "./view.vue";
+import type {NormalizeVideoResult} from "@/assets/types/Video";
 
 const VideoNode = Node.create({
     name: 'Video',
@@ -52,15 +53,6 @@ const VideoNode = Node.create({
         } as Partial<RawCommands>
     },
 })
-
-export type VideoUrlError = 'invalid' | 'unsupported' | 'b23tv'
-
-export interface NormalizeVideoResult {
-    ok: boolean
-    embed?: boolean
-    url?: string
-    reason?: VideoUrlError
-}
 
 const VIDEO_FILE_RE = /\.(mp4|webm|ogv|ogg|mov|m4v|m3u8)(\?|#|$)/i
 

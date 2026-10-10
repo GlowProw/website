@@ -2,7 +2,7 @@
 import {computed} from 'vue';
 import {useI18n} from 'vue-i18n';
 import type {Mastery} from 'glow-prow-data';
-import type {NodeRequirementItem} from '@/assets/sripts/use_mastery_controller';
+import type {NodeRequirementItem} from '@/assets/types/Mastery';
 import RhombusWidget from '@/components/snbWidget/rhombusWidget.vue';
 import MaterialName from "@/components/snbWidget/materialName.vue";
 import MasteryDescription from "@/components/snbWidget/masteryDescription.vue";

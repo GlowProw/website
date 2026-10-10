@@ -1,12 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-
-interface ShinyTextProps {
-  text: string;
-  disabled?: boolean;
-  speed?: number;
-  className?: string;
-}
+import type {ShinyTextProps} from '@/assets/types/Ui';
 
 const props = withDefaults(defineProps<ShinyTextProps>(), {
   text: '',

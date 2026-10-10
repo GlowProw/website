@@ -11,43 +11,32 @@
 import { defineStore } from "pinia";
 import { ref, type Ref } from "vue";
 import { logError, ERROR_CODES } from "@/assets/sripts/error_logger";
-
-export type PreloadTaskStatus = 'pending' | 'running' | 'done' | 'failed';
-
-export interface PreloadTask {
-    /** 任务唯一标识，用于日志 */
-    id: string;
-    /** 人类可读名称（i18n key 或直接字符串），用于 UI 显示 */
-    phase: string;
-    /** 实际执行函数，返回 Promise<void> */
-    run: () => Promise<void>;
-    /** 当前状态 */
-    status: PreloadTaskStatus;
-    /** 最近一次错误（失败时填充） */
-    lastError?: Error;
-}
-
-export interface PreloadErrorRecord {
-    taskId: string;
-    phase: string;
-    message: string;
-    timestamp: number;
-}
+import type { PreloadErrorRecord, PreloadTask, PreloadTaskStatus } from "@/assets/types/Preload";
 
 export const usePreloadStore = defineStore('preload', () => {
-    /** 全局 loading：true 时 App.vue 显示全屏遮罩 */
+    /**
+     * 全局 loading：true 时 App.vue 显示全屏遮罩
+     */
     const appLoading: Ref<boolean> = ref(false);
 
-    /** 当前执行阶段文案 —— i18n key 或直接字符串 */
+    /**
+     * 当前执行阶段文案 —— i18n key 或直接字符串
+     */
     const currentPhase: Ref<string> = ref('');
 
-    /** 已注册的任务列表 */
+    /**
+     * 已注册的任务列表
+     */
     const tasks: Ref<PreloadTask[]> = ref([]);
 
-    /** 最近失败记录（按时间倒序，最多保留 20 条） */
+    /**
+     * 最近失败记录（按时间倒序，最多保留 20 条）
+     */
     const errors: Ref<PreloadErrorRecord[]> = ref([]);
 
-    /** 注册一个预加载任务（应用初始化时调用一次即可） */
+    /**
+     * 注册一个预加载任务（应用初始化时调用一次即可）
+     */
     const registerTask = (task: Omit<PreloadTask, 'status'>) => {
         const existing = tasks.value.find(t => t.id === task.id);
         if (existing) {

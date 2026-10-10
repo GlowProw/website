@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed} from "vue";
-import type {MaterialTreeNode} from "~/stores/calculatorStore";
+import type {MaterialTreeNode} from "@/assets/types/Calculator";
 import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
 import MaterialName from "@/components/snbWidget/materialName.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";

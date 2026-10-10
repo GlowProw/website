@@ -930,7 +930,9 @@
         "notifyReplyDesc": "Notify when someone replies to your comments",
         "notifyLikeDesc": "Notify when someone likes your assemblies",
         "dmDisabledHint": "Direct messages disabled, unable to receive messages",
-        "save": "Save Settings"
+        "save": "Save Settings",
+        "saving": "Saving...",
+        "saved": "Saved"
       }
     },
     "profile-picture": {
@@ -2707,7 +2709,9 @@
     "title": "User Space",
     "lastOnlineTime": "Last Online",
     "joinTime": "Join Time",
-    "sendMessage": "Send Message"
+    "sendMessage": "Send Message",
+    "disabled": "This user space is private",
+    "disabledHint": "The user has disabled their public space. Their profile and content are temporarily unavailable."
   },
   "signin": {
     "title": "Sign In",

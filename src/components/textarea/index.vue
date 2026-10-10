@@ -31,12 +31,7 @@ import VideoView from "@/components/VideoView.vue";
 import languagesConfig from '@/config/languages';
 import FullItemRightClickMenu from "@/components/FullItemRightClickMenu.vue";
 import RankingRightClickMenu from "@/components/RankingRightClickMenu.vue";
-
-interface ToolbarItem {
-  list?: any
-
-  [key: string]: any
-}
+import type {ToolbarItem} from '@/assets/types/Ui';
 
 const props = defineProps({
   index: {

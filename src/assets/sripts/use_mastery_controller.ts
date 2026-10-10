@@ -7,32 +7,8 @@ import { useAppStore } from '~/stores/appStore';
 import { useNoticeStore } from '~/stores/noticeStore';
 import { useCDNAssetsServiceStore } from '~/stores/cdnAssetsStore';
 import { storage, getCurrentSeasonId, getAppOrigin } from '@/assets/sripts/index';
+import type { AggregatedEffect, EffectContributor, NodeRequirementItem } from '@/assets/types/Mastery';
 import { Masterys, Mastery, type MasteryCategory, type MasteryRole, type SeasonMasteryTree } from 'glow-prow-data';
-
-export interface EffectContributor {
-  skillKey: string;
-  skillName: string;
-  skillCategory: string;
-  buffCount: number;
-  values: Record<string, number>;
-  contributionText: string;
-}
-
-export interface AggregatedEffect {
-  id: string;
-  name: string;
-  renderedDescription: string;
-  contributors: EffectContributor[];
-}
-
-export interface NodeRequirementItem {
-  key: string;
-  id: string;
-  name: string;
-  isActive: boolean;
-  isRequisite: boolean;
-  isConnectedActive: boolean;
-}
 
 export function useMasteryController(props: { masterys?: Record<string, SeasonMasteryTree> }) {
   const route = useRoute();

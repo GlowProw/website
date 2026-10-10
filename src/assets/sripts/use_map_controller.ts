@@ -1,4 +1,4 @@
-import { computed, nextTick, ref, shallowRef, type Ref, type ComputedRef, watch, onUnmounted } from 'vue';
+import { computed, nextTick, ref, shallowRef, type Ref, watch, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useDisplay } from 'vuetify';
@@ -11,7 +11,7 @@ import { useMapApi } from '@/assets/sripts/api/map_service';
 import { useI18nUtils } from "@/assets/sripts/i18n_util.js";
 import { MapLocations } from "glow-prow-data";
 import { isCategoryVisibleAtZoom, getCategoryScale } from "@/assets/sripts/map_zoom_config";
-import type { MapCollection, MapPoint, MapShape, MapShapeType, PointFormData, SharedCollectionInfo, ShapeFormData, ShapeGeometry, ShapeStyle } from '@/assets/types/Map';
+import type { DrawShapeMode, MapCollection, MapPoint, MapShape, MapShapeType, PointFormData, SharedCollectionInfo, ShapeFormData, ShapeGeometry, ShapeStyle, UseMapControllerOptions } from '@/assets/types/Map';
 import { parseShapeGeometry, parseShapeStyle, parseShapeTags } from '@/assets/types/Map';
 import {
     DEFAULT_PATH_COLOR,
@@ -22,7 +22,6 @@ import {
     isDraftUuid,
     MapDrawController,
     createVertexHandleStyles,
-    type DrawShapeMode,
 } from '@/assets/sripts/map_draw_controller';
 import { ApiError } from "@/assets/types/Api";
 import Map from 'ol/Map';
@@ -43,11 +42,6 @@ import DragBox from 'ol/interaction/DragBox';
 import DragPan from 'ol/interaction/DragPan';
 import type { Feature as OLFeature } from 'ol';
 import type { Geometry, SimpleGeometry } from 'ol/geom';
-
-export interface UseMapControllerOptions {
-    highlightTargetKey?: Ref<string | undefined> | ComputedRef<string | undefined> | string;
-    highlightCoords?: Ref<{ lon: number; lat: number } | undefined> | ComputedRef<{ lon: number; lat: number } | undefined>;
-}
 
 /**
  * 地图控制器

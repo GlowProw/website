@@ -8,12 +8,7 @@
 
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, useTemplateRef } from 'vue';
-
-interface NoiseProps {
-  patternRefreshInterval?: number;
-  patternAlpha?: number;
-  mixBlendMode?: string;
-}
+import type {NoiseProps} from '@/assets/types/Ui';
 
 const props = withDefaults(defineProps<NoiseProps>(), {
   patternRefreshInterval: 2,

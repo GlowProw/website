@@ -1,14 +1,8 @@
 <script setup lang="ts">
 import AffixView from "@/components/AffixView.vue";
+import type {AffixBoxHasTitleViewProps} from "@/assets/types/Ui";
 
-interface Props {
-  disabled?: boolean
-  disabledTitle?: boolean
-  offsetTop?: number
-  offsetBottom?: number
-}
-
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<AffixBoxHasTitleViewProps>(), {
   disabled: false,
   disabledTitle: false,
   offsetTop: 80,

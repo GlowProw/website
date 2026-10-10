@@ -9,69 +9,19 @@ import {Items, Material, Materials, Ships} from 'glow-prow-data'
 import {v4 as uuidv4} from 'uuid'
 import {useI18n} from "vue-i18n";
 import {storage} from "@/assets/sripts/index"
+import type {
+    CalculatorTarget,
+    DisplaySettings,
+    FlatMaterialEntry,
+    MaterialTreeNode,
+    PersistedState,
+    SankeyLink,
+    SankeyNode,
+    SavedConfig,
+} from "@/assets/types/Calculator";
 
 // 版本号
 const STORE_VERSION = '1.0.0'
-
-export interface CalculatorTarget {
-    uid: string
-    id: string
-    type: 'item' | 'ship' | 'material'
-    quantity: number
-}
-
-export interface MaterialTreeNode {
-    id: string
-    name: string
-    quantity: number
-    isExcluded: boolean
-    children: MaterialTreeNode[]
-}
-
-export interface FlatMaterialEntry {
-    id: string
-    totalQuantity: number
-    isRaw: boolean
-}
-
-export interface SankeyNode {
-    id: string
-    name: string
-    text: string
-    color: string
-}
-
-export interface SankeyLink {
-    source: string
-    target: string
-    name: string
-    text: string
-    color: string
-    value: number
-}
-
-export interface SavedConfig {
-    uid: string
-    name: string
-    createdAt: number
-    targets: CalculatorTarget[]
-    excludedMaterials: string[]
-    displaySettings: DisplaySettings
-}
-
-export interface DisplaySettings {
-    viewMode: 'list' | 'sankey'
-    listColumns: {
-        name: boolean
-        quantity: boolean
-        id: boolean
-        link: boolean
-    }
-    sankey: {
-        showName: boolean
-        showQuantity: boolean
-    }
-}
 
 const materials: Record<string, any> = Materials
 const items: Record<string, any> = Items
@@ -122,14 +72,6 @@ const color = [
 ]
 
 const STORAGE_KEY = 'calculator'
-
-interface PersistedState {
-    useColorPanel: { name: string, value: string[] }
-    targets: CalculatorTarget[]
-    excludedMaterials: string[]
-    savedConfigs: SavedConfig[]
-    displaySettings: DisplaySettings
-}
 
 /**
  * 从 localStorage 加载状态

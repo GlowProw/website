@@ -3,15 +3,7 @@ import {onMounted, ref, useSlots, watch} from 'vue';
 import {useI18n} from 'vue-i18n';
 import Time from "@/components/Time.vue";
 import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
-
-interface TimeMap {
-  primitive: string;
-  primitiveDateString: string;
-  conversionDate: string;
-  conversionLocalDate: string;
-  timeFormatName: string;
-  localeDateString: string;
-}
+import type {TimeMap} from "@/assets/types/Codex";
 
 const props = withDefaults(defineProps<{
   time?: string | number | Date;

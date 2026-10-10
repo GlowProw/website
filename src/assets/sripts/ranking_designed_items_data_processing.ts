@@ -1,7 +1,8 @@
 import {Cosmetics, Items, Materials, Modifications, Ships} from "glow-prow-data"
 import {toRaw} from "vue";
 import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
-import {AssemblyData} from "@/assets/sripts/assembly_data_processing";
+import type {AssemblyData} from "@/assets/types/Assembly";
+import type {RankingDesignedItemsDataProcessingMap} from "@/assets/types/Ranking";
 
 const ships = Ships,
     items = Items,
@@ -9,16 +10,6 @@ const ships = Ships,
     modifications = Modifications,
     ultimates = Ultimates,
     cosmetics = Cosmetics
-
-interface VersionedDataProcessing<T> {
-    get: (data: T) => any;
-    set: (data: T, value: any) => T;
-    verify: (data: T) => { valid: boolean; errors?: string[] };
-}
-
-type RankingDesignedItemsDataProcessingMap<T = any> = {
-    [version: string]: VersionedDataProcessing<T>;
-};
 
 export default class RankingDesignedItemsDataProcessing {
     static versions = ['0.0.1'];

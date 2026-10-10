@@ -1,11 +1,4 @@
-export type ServiceProviderType = 'openSource' | 'techSupport'
-
-export interface ServiceProviderItem {
-    type: ServiceProviderType | string
-    name: string,
-    icon: string,
-    src: string
-}
+import type { ServiceProviderItem } from "@/assets/types/App";
 
 export class Service_provider {
     private static list: ServiceProviderItem[] = [

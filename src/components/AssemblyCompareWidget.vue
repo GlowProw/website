@@ -2,7 +2,8 @@
 import {onMounted, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {storeToRefs} from "pinia";
-import {useAssemblyCompareStore, MAX_COMPARE_COUNT, type CompareEntry} from "~/stores/assemblyCompareStore";
+import {useAssemblyCompareStore, MAX_COMPARE_COUNT} from "~/stores/assemblyCompareStore";
+import type {CompareEntry} from "@/assets/types/Assembly";
 import AssemblyDataInfoResultWidget from "@/components/AssemblyDataInfoResultWidget.vue";
 import EmptyView from "@/components/EmptyView.vue";
 import UserAvatar from "@/components/UserAvatar.vue";

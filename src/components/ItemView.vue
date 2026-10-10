@@ -4,9 +4,7 @@ import {useI18n} from "vue-i18n";
 import {Item} from "glow-prow-data";
 
 import AssemblyClassificationShowList from "@/components/AssemblyClassificationShowList.vue";
-
-// 选择器所加载的类型
-export type ContentSelectorOption = "ship" | "item" | "material" | "cosmetic" | "ultimate" | "modification" | "set" | "treasureMap" | "commoditie" | "mapLocation"
+import type {ContentSelectorOption} from "@/assets/types/Codex";
 
 const {t} = useI18n(),
     emit = defineEmits(["finish", "close"])

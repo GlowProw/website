@@ -29,9 +29,9 @@ defineOptions({
     <v-container class="pt-0">
       <footer class="mt-10 mb-10">
         <v-row>
-          <v-col cols="12" sm="12" md="5" lg="3" order="2" order-sm="2" order-lg="1" class="mt-sm-4 mt-md-4 mt-0">
-            <Logo size="50" class="ml-n2 mb-2"></Logo>
-            <h2 class="mt-1">
+          <v-col cols="12" sm="12" md="5" lg="3" order="2" order-sm="2" order-lg="1">
+            <Logo size="50" class="ml-n2"></Logo>
+            <h2 class="mt-2 u">
               {{ t('name') }}
             </h2>
             <p class="mb-3 mt-1 opacity-80">{{ t('footer.basic.description') }}</p>

@@ -4,7 +4,8 @@ import {useI18n} from "vue-i18n";
 
 import MasteryView from "@/components/mastery/MasteryView.vue";
 import {useMasteryController} from "@/assets/sripts/use_mastery_controller";
-import MasteryDataProcessing, {type MasterySaveData} from "@/assets/sripts/mastery_data_processing";
+import MasteryDataProcessing from "@/assets/sripts/mastery_data_processing";
+import type {MasterySaveData} from "@/assets/types/Mastery";
 import type {MasteryAttr} from "@/assets/types/Assembly";
 
 const props = withDefaults(defineProps<{

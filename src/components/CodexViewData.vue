@@ -44,10 +44,7 @@ import MasteryIconWidget from "@/components/snbWidget/masteryIconWidget.vue";
 import MasteryName from "@/components/snbWidget/masteryName.vue";
 import QuestIconWidget from "@/components/snbWidget/questIconWidget.vue";
 import QuestName from "@/components/snbWidget/questName.vue";
-
-type LoadDataType = 'ship' | 'item' | 'commoditie' | 'material' | 'ultimate' | 'cosmetic' | 'modification' | 'set' | 'treasureMap' | 'mapLocation' | 'npc' | 'empireSkill' | 'mastery' | 'quest'
-type SortField = 'dateAdded' | 'lastUpdated'
-type SortOrder = 'asc' | 'desc'
+import type {LoadDataType, SortField, SortOrder} from "@/assets/types/Codex";
 
 const
     appStore = useAppStore(),

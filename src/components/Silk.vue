@@ -1,16 +1,7 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, watch, type CSSProperties, useTemplateRef } from 'vue';
+import { onMounted, onUnmounted, watch, useTemplateRef } from 'vue';
 import { Renderer, Program, Mesh, Plane, Camera } from 'ogl';
-
-interface SilkProps {
-  speed?: number;
-  scale?: number;
-  color?: string;
-  noiseIntensity?: number;
-  rotation?: number;
-  className?: string;
-  style?: CSSProperties;
-}
+import type {SilkProps} from '@/assets/types/Ui';
 
 const props = withDefaults(defineProps<SilkProps>(), {
   speed: 5,

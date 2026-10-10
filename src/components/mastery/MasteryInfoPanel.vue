@@ -2,7 +2,7 @@
 import {computed, nextTick} from 'vue';
 import {useI18n} from 'vue-i18n';
 import type {Mastery} from 'glow-prow-data';
-import type {AggregatedEffect} from '@/assets/sripts/use_mastery_controller';
+import type {AggregatedEffect} from '@/assets/types/Mastery';
 import ItemSlotBase from '@/components/snbWidget/ItemSlotBase.vue';
 import MasteryIconWidget from '@/components/snbWidget/masteryIconWidget.vue';
 import VerticalScrollList from "@/components/VerticalScrollList.vue";

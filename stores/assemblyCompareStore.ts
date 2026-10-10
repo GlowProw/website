@@ -3,24 +3,12 @@ import { defineStore } from 'pinia';
 import { apis } from '@/assets/sripts';
 import type { ItemCalcResult } from '@/assets/sripts/item_carc';
 import { computeAssemblyCalcResult } from '@/assets/sripts/assembly_calc';
+import type { CompareEntry } from '@/assets/types/Assembly';
 
 /**
  * 最大对比方案数量（最多支持 10 个）
  */
 export const MAX_COMPARE_COUNT = 10;
-
-/**
- * 单个对比方案条目状态结构
- */
-export interface CompareEntry {
-  id: string;
-  item: any;
-  keyword: string;
-  menuOpen: boolean;
-  searchResults: any[];
-  searchLoading: boolean;
-  loading: boolean;
-}
 
 /**
  * 配装对比独立状态机

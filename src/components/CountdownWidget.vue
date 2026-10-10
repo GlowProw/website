@@ -1,19 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import type {CountdownWidgetProps} from '@/assets/types/Ui';
 
-interface Props {
-  target?: string | number | Date | null;
-  startAt?: string | number | Date | null;
-  status?: string;
-  interval?: number;
-  showPrefix?: boolean;
-  showSeconds?: boolean;
-  tag?: string;
-  className?: string;
-}
-
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<CountdownWidgetProps>(), {
   target: null,
   startAt: null,
   status: '',

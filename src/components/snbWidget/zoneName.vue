@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import {computed} from "vue";
 import {useI18n} from "vue-i18n";
-
-type EitherDataOrId =
-    | { data: any; id?: never }
-    | { data?: never; id: string | number };
+import type {EitherDataOrId} from "@/assets/types/Codex";
 
 const {t} = useI18n();
 const props = defineProps<EitherDataOrId & { name?: string; locale?: string }>();

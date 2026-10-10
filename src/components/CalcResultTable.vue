@@ -13,19 +13,12 @@ import ItemName from "@/components/snbWidget/itemName.vue";
 import DamageIconWidget from "@/components/snbWidget/damageIconWidget.vue";
 import ShipSailSpeedWidget from "@/components/snbWidget/shipSailSpeedWidget.vue";
 import {type Ship, Ships} from "glow-prow-data";
+import type {CalcResultTableProps} from "@/assets/types/Calculator";
 
 const {t} = useI18n();
 const {perk} = useI18nReadName();
 
-interface Props {
-  result: ItemCalcResult;
-  targetResult?: ItemCalcResult | null;
-  isSimulationShipSailSpeed?: boolean;
-  isColOne?: boolean;
-  isDisabledMoveTitle?: boolean;
-}
-
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<CalcResultTableProps>(), {
   targetResult: null,
   isSimulationShipSailSpeed: true,
   isColOne: false,

@@ -3,6 +3,7 @@ import {computed, onMounted, reactive, ref} from "vue";
 import {useI18n} from "vue-i18n";
 import {useRouter} from "vue-router";
 import {
+  type EntityListState,
   type MapCollection,
   type MapCollectionResult,
   type MapPoint,
@@ -10,6 +11,7 @@ import {
   type MapShapeType,
   type PointFormData,
   type ShapeManualFormData,
+  type TabKey,
   parseShapeGeometry,
   parseShapeStyle,
   parseShapeTags,
@@ -35,8 +37,6 @@ const {t} = useI18n(),
     notice = useNoticeStore(),
     router = useRouter()
 
-type TabKey = 'collections' | 'points' | 'paths' | 'regions'
-
 const activeTab = ref<TabKey>('collections'),
     collectionLoading = ref(false),
     collectionFormRef = ref<any>(null),
@@ -57,18 +57,6 @@ const activeTab = ref<TabKey>('collections'),
     pendingDeleteAction = ref<(() => Promise<void>) | null>(null),
     savingPoint = ref(false),
     savingShape = ref(false)
-
-interface EntityListState {
-  rows: any[];
-  total: number;
-  page: number;
-  pageSize: number;
-  loaded: boolean;
-  loading: boolean;
-  filterCollection: string; // ''=全部 '__none__'=未分组 uuid
-  keyword: string;
-  selected: string[];
-}
 
 const createListState = (): EntityListState => ({
   rows: [],

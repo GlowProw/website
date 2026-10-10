@@ -3,9 +3,7 @@ import {ref} from "vue"
 import {useI18n} from "vue-i18n";
 
 import AssemblyClassificationShowList from "@/components/AssemblyClassificationShowList.vue";
-
-// 选择器所加载的类型
-type ContentSelectorOption = "item" | "material" | "cosmetic" | "ultimate" | "modification"
+import type {ContentSelectorOption} from "@/assets/types/ContentSelector";
 
 const {t} = useI18n(),
     emit = defineEmits(["finish", "close"])

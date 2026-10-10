@@ -113,3 +113,10 @@ export class SmugglersApiError extends ApiError {
         this.name = 'SmugglersApiError';
     }
 }
+
+/**
+ * 走私者报告编辑器入参
+ */
+export interface SmugglersReportEditorProps {
+  modelValue: any;
+}

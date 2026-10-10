@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import {Service_provider, type ServiceProviderItem} from "@/assets/sripts/service_provider";
+import {Service_provider} from "@/assets/sripts/service_provider";
+import type {ServiceProviderItem} from "@/assets/types/App";
 import {useAssetsStore} from "~/stores/assetsStore";
 import {onMounted, ref, computed} from "vue";
 import {useI18n} from "vue-i18n";

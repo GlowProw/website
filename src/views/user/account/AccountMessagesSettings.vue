@@ -120,12 +120,12 @@ defineOptions({
     </div>
 
     <v-card-actions class="pa-4 d-flex justify-end gap-2">
-      <span v-if="saveStatus === 'saved'" class="text-green text-caption mr-2">已保存</span>
+      <span v-if="saveStatus === 'saved'" class="text-green text-caption mr-2">{{ t('account.messages.settings.saved') }}</span>
       <v-btn
           v-if="saveStatus !== 'idle'"
           disabled
           variant="tonal" color="amber">
-        {{ saveStatus === 'saving' ? '保存中...' : '已保存' }}
+        {{ saveStatus === 'saving' ? t('account.messages.settings.saving') : t('account.messages.settings.saved') }}
       </v-btn>
       <v-btn
           v-else

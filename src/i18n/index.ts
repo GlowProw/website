@@ -23,8 +23,6 @@ import { storage } from "@/assets/sripts";
 // （Node.js 22 ESM 不编译 .ts，require 也会因 vite-ssg 临时目录锚点失败）
 import _snb from 'virtual:snb-i18n-data';
 
-type SNBModule = { zh_CN: any; en_US: any; zh_TW: any };
-
 export const messageCompiler = (message: any) => {
     return (ctx: MessageContext) => {
         try {

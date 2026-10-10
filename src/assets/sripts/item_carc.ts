@@ -2,135 +2,23 @@ import { Ship, Items } from "glow-prow-data";
 import { Item } from "glow-prow-data/src/entity/Items";
 import { Modification } from "glow-prow-data/src/entity/Modifications";
 import { Modifications } from "glow-prow-data";
-
-// 类型定义
-
-/**
- * 武器方向
- */
-export type WeaponDirection = 'front' | 'left' | 'right' | 'aft' | 'port' | 'starboard' | 'frontWeapon' | 'leftSideWeapon' | 'rightSideWeapon' | 'aftWeapon';
-
-/**
- * 武器条目（含方向、模组）
- */
-export interface WeaponEntry {
-    weapon: Item;
-    direction: WeaponDirection;
-    modifications: Modification[];
-}
-
-/**
- * 副武器条目
- */
-export interface AuxiliaryWeaponEntry {
-    weapon: Item;
-    modifications: Modification[];
-}
-
-/**
- * 模组计算结果
- */
-export interface ModCalcStats {
-    modId: string;
-    effectType: string | undefined;
-    damageType: string | undefined;
-    minValue: number;
-    maxValue: number;
-    midValue: number;
-}
-
-/**
- * 单把武器计算结果
- */
-export interface WeaponCalcStats {
-    weaponId: string;
-    weaponType: string;
-
-    // 基础属性
-    baseDamagePerShot: number;
-    projectilesPerShot: number;
-    baseReloadSpeed: number;         // ms
-    rateOfFire: number;
-    optimalRange: number;
-    projectileSpeed: number;
-    chargeTime: number;
-
-    // 经家具/模组修正后
-    finalDamagePerShot: number;
-    finalReloadSpeed: number;        // ms
-    totalDamagePerShot: number;      // finalDamagePerShot × projectilesPerShot
-
-    // 单炮口 DPS (RateOfFire=0，用于 "1-port" 比较)
-    singlePortBaseDPS: number;
-    singlePortDpsWithPerks: number;
-    dps: number;                     // 兼容字段 = singlePortDpsWithPerks
-
-    // 多炮口汇总 (根据方向 gunPorts 计算)
-    gunPorts: number;
-    baseDPS: number;                 // Base Damage per Second (方向总计)
-    dpsWithPerks: number;            // DPS with Perks (方向总计)
-    totalDPS: number;                // 兼容字段 = dpsWithPerks
-    totalDamagePerVolley: number;    // totalDamagePerShot × gunPorts
-
-    // 伤害类型分布 (方向总计)
-    shareExplosive: number;
-    shareFlooding: number;
-    shareFire: number;
-    shareTearing: number;
-    sharePiercing: number;
-    shareElectric: number;
-    shareToxic: number;
-
-    // 特殊增伤 (方向总计)
-    againstWeakpoints: number;       // 弱点暴击 (Crit)
-    againstSails: number;            // 船帆
-    againstStructures: number;       // 攻城结构 (Siege)
-
-    // 模组与标记
-    modifications: ModCalcStats[];
-    bonusFlags: string[];
-}
-
-/**
- * 武器方向汇总
- */
-export interface WeaponDirectionStats {
-    direction: WeaponDirection;
-    slotType?: string;
-    weapons: WeaponCalcStats[];
-    gunPorts: number;
-    baseDPS: number;
-    dpsWithPerks: number;
-    totalDPS: number;
-    totalDamagePerVolley: number;
-    shareExplosive: number;
-    shareFlooding: number;
-    shareFire: number;
-    shareTearing: number;
-    sharePiercing: number;
-    shareElectric: number;
-    shareToxic: number;
-    againstWeakpoints: number;
-    againstSails: number;
-    againstStructures: number;
-}
-
-/**
- * 伤害减免
- */
-export interface DamageMitigationResult {
-    explosive: number;
-    flooding: number;
-    burning: number;
-    tearing: number;
-    piercing: number;
-    electric: number;
-    toxic: number;
-    ramming: number;
-    weakpoint?: number;
-    mines?: number;
-    [key: string]: number | undefined;
-}
+import type {
+    ArmorAddedBuilder,
+    AuxiliaryWeaponEntry,
+    CoreCalcBuilder,
+    DamageMitigationResult,
+    EnemyBuilder,
+    FurnitureAddedBuilder,
+    ModCalcStats,
+    RunBuilder,
+    ShipAddedBuilder,
+    UpgradeAddedBuilder,
+    WeaponAddedBuilder,
+    WeaponCalcStats,
+    WeaponDirection,
+    WeaponDirectionStats,
+    WeaponEntry,
+} from "@/assets/types/Calculator";
 
 // 运算结果
 
@@ -326,65 +214,6 @@ class ItemData {
 }
 
 // Builder
-
-export interface ShipAddedBuilder {
-    addShipUpgrade: (data: Item) => UpgradeAddedBuilder;
-    addFurniture: (data: Item | Item[]) => FurnitureAddedBuilder;
-    addArmor: (data: Item, modifications?: Modification[]) => ArmorAddedBuilder;
-    addWeapon: (data: Item, direction: WeaponDirection, modifications?: Modification[]) => WeaponAddedBuilder;
-    addAuxiliaryWeapon: (data: Item, modifications?: Modification[]) => WeaponAddedBuilder;
-    run: () => ItemCalcResult;
-}
-
-export interface UpgradeAddedBuilder {
-    addShipUpgrade: (data: Item) => UpgradeAddedBuilder;
-    addFurniture: (data: Item | Item[]) => FurnitureAddedBuilder;
-    addArmor: (data: Item, modifications?: Modification[]) => ArmorAddedBuilder;
-    addWeapon: (data: Item, direction: WeaponDirection, modifications?: Modification[]) => WeaponAddedBuilder;
-    addAuxiliaryWeapon: (data: Item, modifications?: Modification[]) => WeaponAddedBuilder;
-    run: () => ItemCalcResult;
-}
-
-export interface FurnitureAddedBuilder {
-    addShipUpgrade: (data: Item) => UpgradeAddedBuilder;
-    addFurniture: (data: Item | Item[]) => FurnitureAddedBuilder;
-    addArmor: (data: Item, modifications?: Modification[]) => ArmorAddedBuilder;
-    addWeapon: (data: Item, direction: WeaponDirection, modifications?: Modification[]) => WeaponAddedBuilder;
-    addAuxiliaryWeapon: (data: Item, modifications?: Modification[]) => WeaponAddedBuilder;
-    run: () => ItemCalcResult;
-}
-
-export interface ArmorAddedBuilder {
-    addShipUpgrade: (data: Item) => UpgradeAddedBuilder;
-    addWeapon: (data: Item, direction: WeaponDirection, modifications?: Modification[]) => WeaponAddedBuilder;
-    addAuxiliaryWeapon: (data: Item, modifications?: Modification[]) => WeaponAddedBuilder;
-    addFurniture: (data: Item | Item[]) => FurnitureAddedBuilder;
-    addArmor: (data: Item, modifications?: Modification[]) => ArmorAddedBuilder;
-    run: () => ItemCalcResult;
-}
-
-export interface WeaponAddedBuilder {
-    addShipUpgrade: (data: Item) => UpgradeAddedBuilder;
-    addWeapon: (data: Item, direction: WeaponDirection, modifications?: Modification[]) => WeaponAddedBuilder;
-    addAuxiliaryWeapon: (data: Item, modifications?: Modification[]) => WeaponAddedBuilder;
-    addArmor: (data: Item, modifications?: Modification[]) => ArmorAddedBuilder;
-    addFurniture: (data: Item | Item[]) => FurnitureAddedBuilder;
-    addEnemy: EnemyBuilder;
-    addCustomEnemy: (opt?: Record<string, any>) => RunBuilder;
-    run: () => ItemCalcResult;
-}
-
-export interface EnemyBuilder {
-    tower: () => RunBuilder;
-}
-
-export interface RunBuilder {
-    run: () => ItemCalcResult;
-}
-
-export interface CoreCalcBuilder {
-    addShip: (data: Ship) => ShipAddedBuilder;
-}
 
 export class CoreCalc {
     private data: ItemData;

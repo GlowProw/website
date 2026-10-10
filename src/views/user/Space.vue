@@ -39,6 +39,8 @@ let loading = ref({
       assembly: true,
       teamUp: true
     }),
+    // 目标用户关闭了公开用户空间（或用户不存在），整页只展示未公开提示
+    spaceBlocked = ref(false),
     userData: Ref<Partial<SpaceUserResult>> = ref({}),
     userAssemblyWidgetRefs = ref<any[]>([]),
     userTeamUpData = ref<ResultData<any[]>>({
@@ -140,6 +142,8 @@ onMounted(() => {
 })
 
 const onUpdateData = (value: string) => {
+  // 空间未公开时不再请求列表（接口同样会 403，避免无意义请求和错误提示）
+  if (spaceBlocked.value) return
   switch (value) {
     case 'teamUp':
       getUserTeamUpsData()
@@ -159,13 +163,22 @@ const getUserInfo = async () => {
 
     if (!id) return;
     loading.value.userInfo = true;
+    spaceBlocked.value = false;
 
-    const result = await apis.userApi().getUserInfo(id as string),
+    const result = await apis.userApi().getSpaceUserInfo(id as string),
         d = result.data;
 
     userData.value = d.data || {};
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'UserSpace' })
+    // 对方关闭公开空间或用户不存在：展示未公开态，不弹错误提示
+    if (e instanceof ApiError && (e.code === 'user.spaceDisabled' || e.code === 'user.notFound')) {
+      spaceBlocked.value = true;
+      userData.value = {};
+      userTeamUpData.value.data = [];
+      userAssemblysData.value.data = [];
+    } else {
+      handleApiError(e, notice, t, { component: 'UserSpace' })
+    }
   } finally {
     loading.value.userInfo = false;
   }
@@ -224,8 +237,19 @@ defineOptions({
 
 <template>
   <div class="space-page-root">
+    <!-- 空间未公开 S -->
+    <v-card v-if="spaceBlocked" min-height="300" class="d-flex flex-column justify-center align-center mt-13 rounded-0 pa-10">
+      <v-icon icon="mdi-lock-outline" size="64" color="amber" class="mb-4"></v-icon>
+      <EmptyView>
+        <template v-slot:title>{{ t('space.disabled') }}</template>
+        <template v-slot:description>{{ t('space.disabledHint') }}</template>
+      </EmptyView>
+    </v-card>
+    <!-- 空间未公开 E -->
+
+    <template v-else>
     <!-- Banner S -->
-    <v-card min-height="200px" class="d-flex flex-column justify-space-between mt-13 rounded-0">
+    <v-card min-height="200" class="d-flex flex-column justify-space-between mt-13 rounded-0">
       <template v-slot:image>
         <Silk
             :speed="3"
@@ -487,6 +511,7 @@ defineOptions({
       </div>
     </div>
     <!-- 下方内容区域 E -->
+    </template>
   </div>
 </template>
 

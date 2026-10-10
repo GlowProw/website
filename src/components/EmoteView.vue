@@ -4,28 +4,7 @@ import {Editor} from "@tiptap/vue-3";
 import {onMounted, PropType, ref} from "vue";
 import emojisRaw from "@/config/emoji.json";
 import EmoteItem from "@/components/EmoteItem.vue";
-
-interface EmojiItem {
-  name: string;
-  key?: string;
-  child?: EmojiItem[];
-}
-
-interface EmojiConfig {
-  default: string;
-  child: EmojiChild[];
-}
-
-interface EmojiChild {
-  name: string;
-  titleEmoteName?: string;
-  child: EmojiItem[];
-}
-
-interface Position {
-  left: number;
-  top: number;
-}
+import type {EmojiConfig, EmojiItem, Position} from "@/assets/types/Codex";
 
 const props = defineProps({
   editor: {

@@ -7,8 +7,7 @@ import EmptyView from "../EmptyView.vue";
 import ItemSlotBase from "./ItemSlotBase.vue";
 import {Item} from "glow-prow-data";
 import DamageIconWidget from "@/components/snbWidget/damageIconWidget.vue";
-
-type ItemDamageTypeSize = 'mini' | 'default'
+import type {ItemDamageTypeSize} from "@/assets/types/Codex";
 
 const props = withDefaults(defineProps<{ data: Item | any, iconType?: "aggressivity" | "armor" , sizeType?: ItemDamageTypeSize, size?: number }>(), {
       data: null,

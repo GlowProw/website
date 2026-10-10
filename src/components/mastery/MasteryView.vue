@@ -3,6 +3,7 @@ import {onMounted, onUnmounted, ref, watch, computed} from 'vue';
 import {useI18n} from 'vue-i18n';
 import * as d3 from 'd3';
 import type {Mastery, SeasonMasteryTree, MasteryEdge} from 'glow-prow-data';
+import type {DebugContextMenu} from '@/assets/types/Mastery';
 
 const {t} = useI18n();
 
@@ -637,18 +638,6 @@ function onClick(event: MouseEvent) {
     emit('select-node', null);
   }
   requestRender();
-}
-
-interface DebugContextMenu {
-  // 屏幕坐标（fixed 定位）
-  sx: number;
-  sy: number;
-  // 世界坐标（新增节点用）
-  wx: number;
-  wy: number;
-  node: Mastery | null;
-  // 命中的连线（在两节点之间插入节点用）
-  edge: MasteryEdge | null;
 }
 
 const contextMenu = ref<DebugContextMenu | null>(null);

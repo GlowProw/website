@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Logo from "./Logo.vue";
-import {ref} from "vue";
+import {storeToRefs} from "pinia";
 import {appFuns, appNavs} from "@/assets/sripts/index";
 import {useI18n} from "vue-i18n";
 import {useDisplay} from "vuetify/framework";
@@ -10,13 +10,15 @@ import {useAppStore} from "~/stores/appStore";
 import HeaderAccount from "@/components/HeaderAccount.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import GlobalSearchTopWindowWidget from "@/components/GlobalSearchTopWindowWidget.vue";
+import MessagesDrawer from "@/components/messages/MessagesDrawer.vue";
 
 const {t} = useI18n(),
     route = useRoute(),
     {width} = useDisplay(),
     appStore = useAppStore()
 
-let drawer = ref(appStore.headerDrawer);
+// 导航抽屉状态放在 store 中，便于其他组件（如私信入口）联动收起
+const {headerDrawer: drawer} = storeToRefs(appStore);
 
 defineOptions({
   name: "Header",
@@ -110,6 +112,9 @@ defineOptions({
         </v-col>
       </v-row>
     </v-navigation-drawer>
+
+    <!-- 全局私信侧边抽屉 -->
+    <MessagesDrawer></MessagesDrawer>
   </header>
 </template>
 

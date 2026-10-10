@@ -16,9 +16,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import BaseScrollList, { type ScrollListProps, type ScrollState } from './BaseScrollList.vue'
-
-export interface HorizontalScrollListProps extends Omit<ScrollListProps, 'direction'> {}
+import BaseScrollList from './BaseScrollList.vue'
+import type {HorizontalScrollListProps, ScrollState} from '@/assets/types/Ui'
 
 const props = withDefaults(defineProps<HorizontalScrollListProps>(), {
   btnSize: 45,

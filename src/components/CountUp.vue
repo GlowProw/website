@@ -4,21 +4,9 @@
 
 <script setup lang="ts">
 import {computed, onMounted, onUnmounted, ref, useTemplateRef, watch} from 'vue';
+import type {CountUpProps} from '@/assets/types/Ui';
 
-interface Props {
-  to: number;
-  from?: number;
-  direction?: 'up' | 'down';
-  delay?: number;
-  duration?: number;
-  className?: string;
-  startWhen?: boolean;
-  separator?: string;
-  onStart?: () => void;
-  onEnd?: () => void;
-}
-
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<CountUpProps>(), {
   from: 0,
   direction: 'up',
   delay: 0,

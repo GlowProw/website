@@ -1,12 +1,5 @@
 import {ref, onMounted, onUnmounted, Ref} from 'vue'
-
-export interface UseFullscreenReturn {
-    isFullscreen: Ref<boolean>
-    enterFullscreen: (element?: Element) => Promise<void>
-    exitFullscreen: () => Promise<void>
-    toggleFullscreen: (element?: Element) => Promise<void>
-    isSupported: Ref<boolean>
-}
+import type {UseFullscreenReturn} from '@/assets/types/App'
 
 /**
  * 全屏功能

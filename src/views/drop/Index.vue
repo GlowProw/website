@@ -252,11 +252,8 @@ onMounted(() => {
         <AffixBoxHasTitleView class="drop-section mb-12">
           <div>
             <!-- 加载中骨架屏 -->
-            <div v-if="currentLoading" class="d-flex flex-column ga-4">
-              <v-skeleton-loader
-                  type="article, actions"
-                  class="rounded-xl border bg-transparent"
-              ></v-skeleton-loader>
+            <div v-if="currentLoading" class="d-flex flex-column justify-center py-4 mb-2 ga-4">
+              <Loading size="45"></Loading>
             </div>
 
             <!-- 当前有生效活动 -->
@@ -342,13 +339,8 @@ onMounted(() => {
           </AffixContainerView>
 
           <!-- 加载中 S -->
-          <div v-if="historyLoading" class="d-flex flex-column ga-4">
-            <v-skeleton-loader
-                v-for="i in 3"
-                :key="i"
-                type="article, actions"
-                class="rounded-xl border bg-transparent"
-            ></v-skeleton-loader>
+          <div v-if="historyLoading" class="d-flex flex-column justify-center py-4 mb-2 ga-4">
+              <Loading size="45"></Loading>
           </div>
           <!-- 加载中 E -->
 

@@ -5,29 +5,8 @@
 
 import { defineStore } from "pinia";
 import { Ref, ref } from "vue";
-import { logError, ERROR_CODES, type ErrorCodeInfo } from "@/assets/sripts/error_logger";
-
-export type NoticeTypeValue = 'success' | 'error' | 'info' | 'warning' | 'primary';
-
-/**
- * 展示模式：
- *  standard 标准：居中弹窗，含标题 / 错误码 / 堆栈详情，会阻断操作
- *  minimal  最小化：浏览器底部轻提示，仅保留文本，不拦截点击，约 3 秒自动消失
- */
-export type NoticeMode = 'standard' | 'minimal';
-
-export interface NoticeOptions {
-    id?: string;
-    text: string;
-    timeout?: number;
-    color?: NoticeTypeValue;
-    showing?: boolean;
-    title?: string;
-    mode?: NoticeMode;
-    isHtml?: boolean;
-    stack?: Error | unknown;
-    errorCode?: string | ErrorCodeInfo; // 错误代码信息（如 gp-0000000001 或 ErrorCodeInfo）
-}
+import { logError, ERROR_CODES } from "@/assets/sripts/error_logger";
+import type { NoticeMode, NoticeOptions, NoticeTypeValue } from "@/assets/types/Notice";
 
 export const NoticeType = {
     SUCCESS: 'success',
@@ -141,7 +120,9 @@ export const useNoticeStore = defineStore('notice', () => {
         push({ text, ...options, color: NoticeType.PRIMARY });
     };
 
-    /** 最小化底部轻提示（仅文本，不阻断操作，不记错误堆栈） */
+    /**
+     * 最小化底部轻提示（仅文本，不阻断操作，不记错误堆栈）
+     */
     const minimal = (
         text: string,
         color: NoticeTypeValue = NoticeType.INFO,

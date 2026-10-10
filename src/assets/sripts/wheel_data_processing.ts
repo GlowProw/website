@@ -1,17 +1,8 @@
 import {Items} from "glow-prow-data"
 import {toRaw} from "vue";
+import type {WheelDataProcessingMap} from "@/assets/types/DataProcessing";
 
 const items = Items
-
-interface VersionedDataProcessing<T> {
-    get: (data: T) => any;
-    set: (data: T) => T;
-    verify: (data: T) => { valid: boolean; errors?: string[] };
-}
-
-type WheelDataProcessingMap<T = any> = {
-    [version: string]: VersionedDataProcessing<T>;
-};
 
 export default class WheelDataProcessing {
     static versions = ['0.0.1'];

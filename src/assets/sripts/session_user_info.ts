@@ -4,8 +4,7 @@
  * 防止多次从服务器获取
  */
 import Storage from './storage';
-
-type UserInfoSessionType = 'user'
+import type { UserInfoSessionType } from '@/assets/types/User';
 
 export default class UserInfoSession extends Storage {
     NAME = 'users';

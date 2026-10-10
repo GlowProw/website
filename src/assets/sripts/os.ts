@@ -1,12 +1,5 @@
 import { ref, onMounted } from 'vue'
-
-export type OperatingSystem =
-    | 'Android'
-    | 'iOS'
-    | 'Windows'
-    | 'MacOS'
-    | 'Linux'
-    | 'unknown'
+import type { OperatingSystem } from '@/assets/types/App'
 
 /**
  * 操作系统检测的Composable

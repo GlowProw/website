@@ -214,3 +214,49 @@ export interface AssemblyWidgetProps {
     class?: string,
     locale?: string,
 }
+
+/**
+ * 配装对比列表中的单条记录
+ */
+export interface CompareEntry {
+  id: string;
+  item: any;
+  keyword: string;
+  menuOpen: boolean;
+  searchResults: any[];
+  searchLoading: boolean;
+  loading: boolean;
+}
+
+export interface VersionedDataProcessing<T> {
+    allowedFields: string[];
+    get: (data: any) => any;
+    set: (data: any) => T;
+    verify: (data: any) => { required?: number, verify?: { required: boolean, message: string }[] };
+}
+
+export interface AssemblyData {
+    shipSlot: any;
+    ultimateSlot: any;
+    shipUpgradeSlot: any;
+    armorSlot: any;
+    weaponDirections: any[];
+    weaponModifications: any[];
+    weaponSlots: any[];
+    armorModification: any[];
+    secondaryWeaponSlots: any[];
+    shipFrigateUpgradeSlot?: any;
+    secondaryWeaponModifications: any[];
+    displaySlots: any[];
+    __version: string;
+}
+
+export interface ValidationRule {
+    condition: () => boolean;
+    required: boolean;
+    message: string;
+}
+
+export type AssemblyDataProcessingMap<T = any> = {
+    [version: string]: VersionedDataProcessing<T>;
+};

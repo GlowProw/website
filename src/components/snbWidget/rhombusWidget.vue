@@ -1,62 +1,6 @@
 <script setup lang="ts">
 import { computed, useId } from 'vue';
-
-// 快捷预设类型:
-// 'none' (无 / 未插词条: 仅白色空心边框)
-// 'normal' (普通: 黄色边框 + 黄色实心)
-// 'normal-congenital' (普通 先天: 黄色边框 + 黄色实心 + 透明火焰)
-// 'adept' (大师: 黄色角 + 黄色边框 + 黄色实心)
-// 'adept-congenital' (大师 先天: 黄色角 + 黄色边框 + 黄色实心 + 透明火焰)
-export type RhombusType =
-  | 'none'
-  | 'normal'
-  | 'normal-congenital'
-  | 'adept'
-  | 'adept-congenital'
-  | string;
-
-export interface CommonRhombusProps {
-  size?: string | number;
-  activateColor?: string;
-  inactiveColor?: string;
-  highlightColor?: string;
-  glowOpacity?: number | string;
-  glowBlur?: number | string;
-  flameOpacity?: number | string;
-  flameBlur?: number | string;
-}
-
-// 预设模式: 传 type，排斥 border/slot/adept/glow 等细分参数
-export interface TypeRhombusProps extends CommonRhombusProps {
-  type: RhombusType;
-  border?: never;
-  borderActivate?: never;
-  borderHighlightActivate?: never;
-  slot?: never;
-  slotActivate?: never;
-  slotHighlightActivate?: never;
-  adept?: never;
-  adeptActivate?: never;
-  adeptHighlightActivate?: never;
-  glow?: never;
-}
-
-// 细分模式: 传细分参数，排斥 type
-export interface CustomRhombusProps extends CommonRhombusProps {
-  type?: never;
-  border?: boolean;
-  borderActivate?: boolean;
-  borderHighlightActivate?: boolean;
-  slot?: boolean;
-  slotActivate?: boolean;
-  slotHighlightActivate?: boolean;
-  adept?: boolean;
-  adeptActivate?: boolean;
-  adeptHighlightActivate?: boolean;
-  glow?: boolean;
-}
-
-export type RhombusWidgetProps = TypeRhombusProps | CustomRhombusProps;
+import type {RhombusType} from '@/assets/types/Codex';
 
 const props = withDefaults(defineProps<{
   // 模式 1: 预设类型 (有 type 时不可与细分参数混用)

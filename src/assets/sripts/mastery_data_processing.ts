@@ -1,33 +1,5 @@
 import {toRaw} from "vue";
-
-/**
- * 精通方案存储数据
- * 与分享码 payload {v,s,n,sp} 语义一致，但使用可读字段名持久化
- */
-export interface MasterySaveData {
-    __version?: string;
-    // 赛季 id
-    season?: string;
-    // 已激活常规节点 key 列表
-    nodes?: string[];
-    // 已选择赛季特长节点 key 列表
-    perks?: string[];
-
-    // 兼容分享码形态
-    s?: string;
-    n?: string[];
-    sp?: string[];
-}
-
-interface VersionedDataProcessing<T> {
-    get: (data: T) => any;
-    set: (data: T) => T;
-    verify: (data: T) => { valid: boolean; errors?: string[] };
-}
-
-type MasteryDataProcessingMap<T = any> = {
-    [version: string]: VersionedDataProcessing<T>;
-};
+import type {MasteryDataProcessingMap, MasterySaveData} from "@/assets/types/Mastery";
 
 /**
  * 归一化存储数据，同时兼容分享码 {v,s,n,sp} 形态

@@ -1,17 +1,9 @@
 <script setup lang="ts">
 import {computed, ref, watch} from 'vue';
 import {useI18n} from 'vue-i18n';
+import type {MasterySavedBuild} from '@/assets/types/Mastery';
 
 const {t} = useI18n();
-
-interface MasterySavedBuild {
-  id: string;
-  name: string;
-  season: string;
-  code: string;
-  createdAt: number;
-  updatedAt: number;
-}
 
 const props = defineProps<{
   modelValue: boolean;

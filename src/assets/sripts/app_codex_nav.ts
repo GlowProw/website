@@ -1,17 +1,5 @@
 import {getCurrentLang} from "@/config/languages";
-
-export interface CodexNavItem {
-    type?: 'item' | 'divider';
-    title?: string;
-    value?: string;
-    to?: string;
-    prependIcon?: string;
-    appendIcon?: string;
-    badge?: string;
-    variant?: any;
-    class?: string;
-    slim?: boolean;
-}
+import type {CodexNavItem} from "@/assets/types/App";
 
 /**
  * 手稿导航

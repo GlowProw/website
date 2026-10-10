@@ -3,37 +3,7 @@
  * 对应后端 /api/messages/* 路由
  */
 import {useHttpToken} from "@/assets/sripts/http_util";
-
-export interface Conversation {
-    id: number;
-    userId: string;
-    peerId: string;
-    type: 'user' | 'system';
-    peerName: string | null;
-    lastMessage: string | null;
-    lastTime: string;
-    unreadCount: number;
-    pinned: number;
-    muted: number;
-    valid: number;
-}
-
-export interface MessageItem {
-    id: number;
-    conversationId: number;
-    type: 'user' | 'reply' | 'like' | 'warn' | 'info';
-    senderId: string | null;
-    receiverId: string;
-    content: string;
-    valid: number;
-    createdTime: string;
-}
-
-export interface ConversationDetail {
-    conversation: Conversation;
-    messages: MessageItem[];
-    total: number;
-}
+import type {Conversation, ConversationDetail, MessageItem, MessagesPollResult} from "@/assets/types/Message";
 
 export function useMessagesApi() {
     const http = useHttpToken();
@@ -109,6 +79,21 @@ export function useMessagesApi() {
         } catch { return 0; }
     };
 
+    /**
+     * 消息中心短轮询：会话列表 + 未读总数，可顺带拿回打开会话的增量消息
+     */
+    const pollMessages = async (params?: { conversationId?: number; afterMessageId?: number }): Promise<MessagesPollResult | null> => {
+        try {
+            const query: Record<string, number> = {};
+            if (params?.conversationId) query.conversationId = params.conversationId;
+            if (params?.afterMessageId) query.afterMessageId = params.afterMessageId;
+            const res = await http.get('messages/poll', {data: {}, params: query});
+            const body = (res as any).data;
+            if (body?.code === 0) return body.data as MessagesPollResult;
+            return null;
+        } catch { return null; }
+    };
+
     const updateSettings = async (settings: Partial<{ dmEnabled: boolean; notifyMessage: boolean; notifyReply: boolean; notifyLike: boolean }>) => {
         try {
             const res = await http.post('messages/settings', { data: settings });
@@ -133,5 +118,5 @@ export function useMessagesApi() {
         }
     };
 
-    return {getConversations, getConversation, sendMessage, markRead, markAllRead, deleteConversation, togglePin, getUnreadCount, updateSettings, getUserInfo};
+    return {getConversations, getConversation, sendMessage, markRead, markAllRead, deleteConversation, togglePin, getUnreadCount, pollMessages, updateSettings, getUserInfo};
 }

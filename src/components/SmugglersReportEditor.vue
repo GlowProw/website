@@ -3,13 +3,11 @@ import {ref, watch} from 'vue';
 import {useI18n} from 'vue-i18n';
 import EmptyView from "@/components/EmptyView.vue";
 
+import type {SmugglersReportEditorProps} from "@/assets/types/Smugglers";
+
 const {t} = useI18n();
 
-interface Props {
-  modelValue: any;
-}
-
-const props = defineProps<Props>();
+const props = defineProps<SmugglersReportEditorProps>();
 const emit = defineEmits<{
   'update:modelValue': [value: any];
 }>();
