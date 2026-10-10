@@ -83,12 +83,12 @@ const head = computed(() => {
       {property: 'og:url', content: canonicalUrl},
       {property: 'og:title', content: fullTitle},
       {property: 'og:description', content: descStr},
-      {property: 'og:image', content: `${origin}/favicon.png`},
+      {property: 'og:image', content: `${origin}/favicon.svg`},
       {property: 'og:site_name', content: siteName},
       {name: 'twitter:card', content: 'summary_large_image'},
       {name: 'twitter:title', content: fullTitle},
       {name: 'twitter:description', content: descStr},
-      {name: 'twitter:image', content: `${origin}/favicon.png`}
+      {name: 'twitter:image', content: `${origin}/favicon.svg`}
     ],
     link: [
       {rel: 'canonical', href: canonicalUrl},

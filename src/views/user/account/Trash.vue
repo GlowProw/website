@@ -89,6 +89,10 @@ const toggleItem = (item: any) => {
   }
 }
 
+/**
+ * 判断指定项是否已被选中
+ * @param item 回收站数据项
+ */
 const isItemSelected = (item: any) => {
   return selectedItems.value.some(i => i.id === item.id && i.type === item.type)
 }

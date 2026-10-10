@@ -13,7 +13,7 @@ export const STRUCTURED_DATA_MAP: Record<string, object> = {
                     "name": "Glow Prow",
                     "logo": {
                         "@type": "ImageObject",
-                        "url": "https://glow-prow.top/favicon.png"
+                        "url": "https://glow-prow.top/favicon.svg"
                     }
                 },
                 "potentialAction": {
@@ -49,7 +49,7 @@ export const STRUCTURED_DATA_MAP: Record<string, object> = {
                     "name": "Glow Prow",
                     "logo": {
                         "@type": "ImageObject",
-                        "url": "https://glow-prow.top/favicon.png"
+                        "url": "https://glow-prow.top/favicon.svg"
                     }
                 },
                 "potentialAction": {
@@ -85,7 +85,7 @@ export const STRUCTURED_DATA_MAP: Record<string, object> = {
                     "name": "Glow Prow",
                     "logo": {
                         "@type": "ImageObject",
-                        "url": "https://glow-prow.top/favicon.png"
+                        "url": "https://glow-prow.top/favicon.svg"
                     }
                 },
                 "potentialAction": {

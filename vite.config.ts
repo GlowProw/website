@@ -323,7 +323,7 @@ export default defineConfig(({mode}) => {
             Vuetify({autoImport: true}),
             VitePWA({
                 registerType: 'prompt',
-                includeAssets: ['favicon.ico', 'favicon.png'],
+                includeAssets: ['favicon.ico', 'favicon.svg'],
                 devOptions: {
                     enabled: false,
                     type: 'module',
@@ -340,12 +340,12 @@ export default defineConfig(({mode}) => {
                     theme_color: '#222222',
                     icons: [
                         {
-                            src: 'favicon.png',
+                            src: 'favicon.svg',
                             sizes: '192x192',
                             type: 'image/png'
                         },
                         {
-                            src: 'favicon.png',
+                            src: 'favicon.svg',
                             sizes: '512x512',
                             type: 'image/png'
                         }

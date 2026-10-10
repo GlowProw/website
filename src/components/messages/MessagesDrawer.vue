@@ -14,7 +14,7 @@ defineOptions({name: 'MessagesDrawer'});
 
 <template>
   <SwipeDrawer v-model="open" side="right" class="">
-    <v-card border tile variant="text" class="messages-drawer d-flex flex-column h-100">
+    <v-card tile variant="text" class="messages-drawer d-flex flex-column h-100 border-l">
       <!-- 抽屉标题栏 -->
       <div class="d-flex align-center px-4 py-2 border-bottom flex-shrink-0">
         <span class="text-h6">{{ t('account.messages.title') }}</span>

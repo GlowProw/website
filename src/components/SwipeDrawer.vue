@@ -33,8 +33,10 @@ const shown = ref(props.modelValue);
 const dragging = ref(false);
 
 const edgeEl = ref<HTMLElement | null>(null);
-const panelEl = ref<HTMLElement | null>(null);
-const overlayEl = ref<HTMLElement | null>(null);
+
+// 面板可能是原生元素也可能是 v-card（组件 ref 拿不到 DOM），统一在按下时从真实 DOM 树解析
+let panelDom: HTMLElement | null = null;
+let overlayDom: HTMLElement | null = null;
 
 let leaveTimer: ReturnType<typeof setTimeout> | null = null;
 let locked = false;
@@ -131,11 +133,11 @@ onBeforeUnmount(() => {
 const applyVisual = (): void => {
     rafId = null;
     const sign = props.side === 'right' ? 1 : -1;
-    if (panelEl.value) {
-        panelEl.value.style.transform = `translateX(${sign * currentDelta}px)`;
+    if (panelDom) {
+        panelDom.style.transform = `translateX(${sign * currentDelta}px)`;
     }
-    if (overlayEl.value) {
-        overlayEl.value.style.opacity = String(Math.max(0, 1 - currentDelta / Math.max(1, panelWidth)));
+    if (overlayDom) {
+        overlayDom.style.opacity = String(Math.max(0, 1 - currentDelta / Math.max(1, panelWidth)));
     }
 };
 
@@ -154,8 +156,10 @@ const settle = (willClose: boolean): void => {
     dragging.value = false;
     requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-            if (panelEl.value) panelEl.value.style.transform = '';
-            if (overlayEl.value) overlayEl.value.style.opacity = '';
+            if (panelDom) panelDom.style.transform = '';
+            if (overlayDom) overlayDom.style.opacity = '';
+            panelDom = null;
+            overlayDom = null;
         });
     });
 };
@@ -202,11 +206,16 @@ const finishGesture = (): void => {
     teardownWindowListeners();
     pointerId = null;
 
-    if (!wasConfirmed) return;
+    if (!wasConfirmed) {
+        panelDom = null;
+        overlayDom = null;
+        return;
+    }
     const shouldClose = delta / Math.max(1, panelWidth) > CLOSE_RATIO || velocity > FLING_VELOCITY;
     if (shouldClose) {
         requestClose();
     }
+    // DOM 引用在 settle 的过渡帧结束后释放
     settle(shouldClose);
 };
 
@@ -219,7 +228,13 @@ const onWindowPointerCancel = (e: PointerEvent): void => {
     if (e.pointerId !== pointerId) return;
     teardownWindowListeners();
     pointerId = null;
-    if (gestureConfirmed) settle(false);
+    if (gestureConfirmed) {
+        // DOM 引用在 settle 的过渡帧结束后释放
+        settle(false);
+    } else {
+        panelDom = null;
+        overlayDom = null;
+    }
     gestureConfirmed = false;
     currentDelta = 0;
 };
@@ -248,6 +263,12 @@ const onPointerDown = (e: PointerEvent): void => {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     e.preventDefault();
 
+    // 面板可能渲染成 v-card，组件 ref 拿不到 DOM，沿热区向上找根节点再查询
+    const root = edgeEl.value?.closest('.sd-root');
+    panelDom = root?.querySelector<HTMLElement>('.sd-panel') ?? null;
+    overlayDom = root?.querySelector<HTMLElement>('.sd-overlay') ?? null;
+    if (!panelDom) return;
+
     pointerId = e.pointerId;
     startX = e.clientX;
     startY = e.clientY;
@@ -256,7 +277,7 @@ const onPointerDown = (e: PointerEvent): void => {
     lastVelocity = 0;
     currentDelta = 0;
     gestureConfirmed = false;
-    panelWidth = panelEl.value?.getBoundingClientRect().width || 0;
+    panelWidth = panelDom.getBoundingClientRect().width || 0;
 
     setupWindowListeners();
 };
@@ -274,11 +295,10 @@ defineOptions({name: 'SwipeDrawer'});
          class="sd-root"
          :class="[`sd-${side}`, {'sd-show': shown, 'sd-dragging': dragging}]">
       <!-- 遮罩 -->
-      <div ref="overlayEl" class="sd-overlay" @click="onOverlayClick"></div>
+      <div class="sd-overlay" @click="onOverlayClick"></div>
 
       <!-- 面板 -->
       <v-card
-          ref="panelEl"
           class="sd-panel"
           :style="panelStyle"
           role="dialog"

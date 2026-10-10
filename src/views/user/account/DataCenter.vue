@@ -126,14 +126,23 @@ onMounted(async () => {
   }
 });
 
+/**
+ * 加载统计概览数据
+ */
 const loadOverview = async () => {
   overview.value = await statsApi.getOverview(trendRange.value);
 };
 
+/**
+ * 加载趋势图表数据
+ */
 const loadTrend = async () => {
   trend.value = await statsApi.getTrend(currentMetric.value, trendRange.value);
 };
 
+/**
+ * 加载热门配装排行榜数据
+ */
 const loadTop = async () => {
   topData.value = await statsApi.getAssemblyTop(20);
 };

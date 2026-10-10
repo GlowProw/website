@@ -43,9 +43,9 @@ export interface MapPoint {
     collectionId: string;
     title: string;
     description?: string;
+    category?: string;
     latitude: number;
     longitude: number;
-    address?: string;
     tags: string;
     public: number;
     sharedUsers: string;
@@ -84,9 +84,9 @@ export interface CreatePointData {
   collectionUuid?: string | null;
   title: string;
   description?: string;
+  category?: string;
   latitude: number;
   longitude: number;
-  address?: string;
   tags?: string[];
   public?: boolean;
   sharedUsers?: string[];
@@ -95,10 +95,10 @@ export interface CreatePointData {
 export interface UpdatePointData {
   title?: string;
   description?: string;
+  category?: string;
   collectionUuid?: string | null;
   latitude?: number;
   longitude?: number;
-  address?: string;
   tags?: string[];
   public?: boolean;
   sharedUsers?: string[];
@@ -280,6 +280,7 @@ export interface ShapeFormData {
   tags: string[];
   public: boolean;
   style: ShapeStyle;
+  geometry?: ShapeGeometry;
 }
 
 /**
@@ -289,9 +290,9 @@ export interface PointFormData {
   uuid?: string;
   title: string;
   description: string;
+  category?: string;
   longitude: number | string;
   latitude: number | string;
-  address: string;
   collectionUuid: string | null;
   tags: string[];
   public: boolean;

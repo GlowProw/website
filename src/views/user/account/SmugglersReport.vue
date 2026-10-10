@@ -56,6 +56,9 @@ onMounted(async () => {
   await getSmugglersReportList()
 })
 
+/**
+ * 校验当前用户是否具有走私犯周报相关权限
+ */
 const getCheckUserPermission = async () => {
   try {
     checkPermissionLoading.value = true
@@ -77,6 +80,9 @@ const getCheckUserPermission = async () => {
   }
 }
 
+/**
+ * 获取走私犯周报列表数据
+ */
 const getSmugglersReportList = async () => {
   try {
     if (!isHasSmugglersReportPrivilege.value) return
@@ -95,6 +101,9 @@ const getSmugglersReportList = async () => {
   }
 }
 
+/**
+ * 创建走私犯周报
+ */
 const onCreateSmugglersReport = async () => {
   try {
     createSmugglersReportLoading.value = true
@@ -115,6 +124,9 @@ const onCreateSmugglersReport = async () => {
   }
 }
 
+/**
+ * 编辑更新走私犯周报
+ */
 const onEditSmugglersReport = async () => {
   try {
     createSmugglersReportLoading.value = true
@@ -135,6 +147,10 @@ const onEditSmugglersReport = async () => {
   }
 }
 
+/**
+ * 删除走私犯周报
+ * @param reportData 周报数据项
+ */
 const onDeleteSmugglersReport = async (reportData: any) => {
   try {
     if (!confirm(t('smugglersReport.account.confirmDeleteReport'))) return
@@ -150,6 +166,10 @@ const onDeleteSmugglersReport = async (reportData: any) => {
   }
 }
 
+/**
+ * 打开周报编辑/新建弹窗
+ * @param reportData 可选，待编辑的周报对象
+ */
 const openSmugglersReportModel = (reportData: any = null) => {
   smugglersReportModel.value = true
   if (reportData && reportData.id) {
@@ -166,6 +186,10 @@ const openSmugglersReportModel = (reportData: any = null) => {
   }
 }
 
+/**
+ * 打开鉴赏家评论弹窗
+ * @param reportData 周报数据项
+ */
 const openCommendModel = (reportData: any) => {
   commentModel.value = true
   selectedSmugglersReport.value = reportData
@@ -178,6 +202,9 @@ const openCommendModel = (reportData: any) => {
   }
 }
 
+/**
+ * 创建鉴赏家评论
+ */
 const onCreateCommend = async () => {
   try {
     createCommentLoading.value = true
@@ -196,6 +223,9 @@ const onCreateCommend = async () => {
   }
 }
 
+/**
+ * 修改鉴赏家评论
+ */
 const onEditCommend = async () => {
   try {
     createCommentLoading.value = true
@@ -215,6 +245,9 @@ const onEditCommend = async () => {
   }
 }
 
+/**
+ * 删除鉴赏家评论
+ */
 const onDeleteComment = async () => {
   try {
     if (!confirm(t('common.confirmDelete') || '确定删除此条评论吗？')) return

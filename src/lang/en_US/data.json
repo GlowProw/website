@@ -2182,7 +2182,9 @@
         "description": "Treasure map clue locations pointing to buried pirate riches."
       }
     },
-    "managePoints": "Manage Points",
+    "managePoints": "Manage Markers",
+    "managePaths": "Manage Paths",
+    "manageRegions": "Manage Regions",
     "remove": "Remove",
     "add": "Add to Atlas",
     "searchPoints": "Search unassigned points...",

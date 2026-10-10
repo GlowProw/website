@@ -15,6 +15,9 @@ onMounted(() => {
   getUserAccount()
 })
 
+/**
+ * 获取当前登录用户的账户数据（含头像）
+ */
 const getUserAccount = async () => {
   userAccountData.value = authStore.user || {};
 }

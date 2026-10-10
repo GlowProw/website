@@ -22,7 +22,7 @@ defineOptions({
 <template>
   <router-link to="/" class="logo" :class="props.class">
     <v-img src="/favicon.svg"
-         class="mr-1 icon"
+         class="icon mx-1"
          :alt="`${t('name')} Logo`"
          :title="`${t('name')} Logo`"
          :style="`height:${size}px;width:${size}px`"/>

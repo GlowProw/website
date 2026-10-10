@@ -27,6 +27,9 @@ onMounted(() => {
   loadBindings();
 });
 
+/**
+ * 加载第三方平台账号绑定列表
+ */
 const loadBindings = async () => {
   try {
     loading.value = true;

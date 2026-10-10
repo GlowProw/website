@@ -3,7 +3,7 @@
   <v-dialog :model-value="modelValue" persistent max-width="850" @update:model-value="emit('update:modelValue', $event)">
     <v-card border elevation="12">
       <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 create-marker-card">
-        <v-icon size="80">mdi-map-marker</v-icon>
+        <v-img :src="getCategoryIcon(form.category || 'shareLocation')" width="64" height="64" class="mx-auto mb-2"></v-img>
         <p>
           {{ isEdit ? t('map.editMarkerTitle') : t('map.createMarker') }}
         </p>
@@ -16,30 +16,69 @@
 
       <v-card-text>
         <v-form ref="formRef">
-          <v-text-field
-              :model-value="form.title"
-              @update:model-value="patch({ title: $event })"
-              :label="t('map.markerName')"
-              :rules="[v => !!v || t('map.titleRequired')]"
-              variant="outlined"
-              density="compact"
-              class="mb-3"
-              required></v-text-field>
-
-          <v-select
-              :model-value="form.collectionUuid"
-              @update:model-value="onCollectionChange"
-              item-title="title"
-              item-value="uuid"
-              :items="collectionItems"
-              :label="t('map.selectCollection')"
-              :placeholder="t('map.noCollection')"
-              variant="outlined"
-              density="compact"
-              clearable
-              class="mb-3"></v-select>
-
           <v-row dense>
+            <v-col cols="12" md="8">
+              <v-text-field
+                  :model-value="form.title"
+                  @update:model-value="patch({ title: $event })"
+                  :label="t('map.markerName')"
+                  :rules="[v => !!v || t('map.titleRequired')]"
+                  variant="outlined"
+                  density="compact"
+                  required></v-text-field>
+            </v-col>
+
+            <v-col cols="12" md="4">
+              <v-autocomplete
+                  :model-value="form.category || 'shareLocation'"
+                  @update:model-value="patch({ category: $event })"
+                  :items="categoryOptions"
+                  item-value="value"
+                  item-title="text"
+                  :label="t('map.style')"
+                  variant="outlined"
+                  density="compact">
+                <template v-slot:item="{ props, item }">
+                  <v-list-item v-bind="props">
+                    <template v-slot:prepend>
+                      <v-img
+                          v-if="getCategoryIcon(item.raw.value)"
+                          :src="getCategoryIcon(item.raw.value)"
+                          width="24"
+                          height="24"
+                          class="mr-2"
+                          contain
+                      />
+                    </template>
+                  </v-list-item>
+                </template>
+                <template v-slot:prepend-inner>
+                  <v-img
+                      v-if="getCategoryIcon(form.category || 'shareLocation')"
+                      :src="getCategoryIcon(form.category || 'shareLocation')"
+                      width="20"
+                      height="20"
+                      class="mr-1"
+                      contain
+                  />
+                </template>
+              </v-autocomplete>
+            </v-col>
+
+            <v-col cols="12">
+              <v-select
+                  :model-value="form.collectionUuid"
+                  @update:model-value="onCollectionChange"
+                  item-title="title"
+                  item-value="uuid"
+                  :items="collectionItems"
+                  :label="t('map.selectCollection')"
+                  :placeholder="t('map.noCollection')"
+                  variant="outlined"
+                  density="compact"
+                  clearable></v-select>
+            </v-col>
+
             <v-col cols="6">
               <v-text-field
                   :model-value="form.longitude"
@@ -61,15 +100,6 @@
                   density="compact"
                   :rules="[v => v !== '' && v !== null && v !== undefined && !Number.isNaN(Number(v)) || t('map.invalidCoordinate')]"
                   required></v-text-field>
-            </v-col>
-            <v-col cols="12">
-              <v-text-field
-                  :model-value="form.address"
-                  @update:model-value="patch({ address: $event })"
-                  :label="t('map.address')"
-                  variant="outlined"
-                  density="compact"
-                  class="mb-3"></v-text-field>
             </v-col>
             <v-col cols="12">
               <v-combobox
@@ -128,6 +158,7 @@ import {computed, ref} from 'vue';
 import {useI18n} from 'vue-i18n';
 import type {PointFormData} from '@/assets/types/Map';
 import Textarea from "@/components/textarea/index.vue";
+import {useAssetsStore} from "~/stores/assetsStore";
 
 const props = defineProps<{
   modelValue: boolean;
@@ -138,8 +169,73 @@ const props = defineProps<{
 
 const emit = defineEmits(['update:modelValue', 'update:form', 'cancel', 'save']);
 
-const {t} = useI18n();
+const {t, te} = useI18n();
 const formRef = ref(null);
+
+const mapImages = import.meta.glob('/src/assets/images/map/*.*', {eager: true});
+const {serializationMap} = useAssetsStore();
+const icons = ref<Record<string, string>>(serializationMap(mapImages));
+
+const getCategoryIcon = (category: string) => {
+  return icons.value[category] || icons.value['shareLocation'] || icons.value['default'] || '';
+};
+
+const categoryKeys = [
+  'shareLocation',
+  'den',
+  'outpost',
+  'settlement',
+  'capitalSettlement',
+  'foundry',
+  'lumberyard',
+  'weaver',
+  'militaryBase',
+  'megafort',
+  'guardTower',
+  'treasureMap',
+  'shipwreck',
+  'bounty',
+  'mainContract',
+  'sideContract',
+  'archive',
+  'abaka',
+  'acacia',
+  'bogIron',
+  'cobalt',
+  'coconut',
+  'copper',
+  'crocodile',
+  'durian',
+  'greenheart',
+  'hemp',
+  'hippopotamus',
+  'iroko',
+  'ironwood',
+  'juniper',
+  'jute',
+  'linen',
+  'magnetite',
+  'mopane',
+  'ndizi',
+  'nickel',
+  'pureIron',
+  'ramie',
+  'roselle',
+  'screwpine',
+  'shark',
+  'sisal',
+  'teak',
+  'zinc'
+];
+
+const categoryOptions = computed(() => {
+  return categoryKeys.map(cat => ({
+    value: cat,
+    text: te(`map.types.${cat}.name`)
+        ? t(`map.types.${cat}.name`)
+        : (cat === 'shareLocation' ? t('map.tabPoints') || '个人标记' : cat)
+  }));
+});
 
 const isEdit = computed(() => !!(props.form as any).uuid);
 

@@ -92,9 +92,22 @@ const messageCenterTabs = [
   },
 ]
 
-// 判断路由属于哪个大类
+/**
+ * 判断路由是否属于创作中心大类
+ * @param routeName 路由名称
+ */
 const isDataCenterRoute = (routeName: string) => dataCenterTabs.some(i => i.value === routeName)
+
+/**
+ * 判断路由是否属于消息中心大类
+ * @param routeName 路由名称
+ */
 const isMessageCenterRoute = (routeName: string) => messageCenterTabs.some(i => i.value === routeName)
+
+/**
+ * 判断路由是否属于账户设置大类
+ * @param routeName 路由名称
+ */
 const isAccountRoute = (routeName: string) => accountTabs.some(i => i.value === routeName)
 
 // 当前大类下显示的二级 Tab 列表

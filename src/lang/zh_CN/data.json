@@ -1937,7 +1937,7 @@
     "showAll": "显示所有",
     "typeTitle": "类型",
     "difficulty": "难度",
-    "selectCollection": "选择地图集",
+    "selectCollection": "所属地图集",
     "collectionManager": "地图集管理",
     "myCollections": "我的地图集",
     "createCollection": "创建地图集",
@@ -2179,7 +2179,9 @@
         "description": "记录着隐藏宝藏位置的藏宝图线索点。"
       }
     },
-    "managePoints": "管理坐标",
+    "managePoints": "管理标记",
+    "managePaths": "管理路径",
+    "manageRegions": "管理区域",
     "remove": "移出",
     "add": "加入图集",
     "searchPoints": "搜索未分组坐标...",

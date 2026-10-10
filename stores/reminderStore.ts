@@ -303,8 +303,8 @@ export const useReminderStore = defineStore('reminder', () => {
                     if (registration && typeof registration.showNotification === 'function') {
                         await registration.showNotification(titleText, {
                             body: bodyContent,
-                            icon: '/favicon.png',
-                            badge: '/favicon.png',
+                            icon: '/favicon.svg',
+                            badge: '/favicon.svg',
                             tag: `reminder-${task.id}-${isAdvance ? 'adv' : 'main'}-${Date.now()}`
                         });
                         swSuccess = true;
@@ -318,7 +318,7 @@ export const useReminderStore = defineStore('reminder', () => {
                 try {
                     const notification = new Notification(titleText, {
                         body: bodyContent,
-                        icon: '/favicon.png',
+                        icon: '/favicon.svg',
                         tag: `reminder-${task.id}-${isAdvance ? 'adv' : 'main'}-${Date.now()}`,
                         requireInteraction: false
                     });

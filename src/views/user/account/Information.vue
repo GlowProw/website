@@ -77,6 +77,9 @@ onMounted(() => {
   getUserAccount()
 })
 
+/**
+ * 获取当前用户的账户详细信息
+ */
 const getUserAccount = async () => {
   try {
     const result = await apis.userApi().getMe(),
@@ -87,6 +90,9 @@ const getUserAccount = async () => {
   }
 }
 
+/**
+ * 提交修改密码表单
+ */
 const onChangePassword = async () => {
   try {
     const {valid} = await passwordFrom.value.validate()
@@ -107,6 +113,9 @@ const onChangePassword = async () => {
   }
 }
 
+/**
+ * 保存用户偏好设置及扩展属性
+ */
 const onSaveAccountAttr = async () => {
   try {
     const {valid} = await form.value.validate()
@@ -127,6 +136,9 @@ const onSaveAccountAttr = async () => {
   }
 }
 
+/**
+ * 提交修改用户别名
+ */
 const onChangeAlternativeName = async () => {
   try {
     const {valid} = await alternativeNameFrom.value.validate()
@@ -148,11 +160,17 @@ const onChangeAlternativeName = async () => {
   }
 }
 
+/**
+ * 重置密码表单字段
+ */
 const onClearPasswordFrom = () => {
   passwordFromData.value.data.newPassword = ''
   passwordFromData.value.data.oldPassword = ''
 }
 
+/**
+ * 请求发送换绑邮箱验证码
+ */
 const onChangeEmailRequest = async () => {
   try {
     if (!emailChangeData.value.data.newEmail) {
@@ -170,6 +188,9 @@ const onChangeEmailRequest = async () => {
   }
 }
 
+/**
+ * 确认换绑邮箱
+ */
 const onChangeEmailConfirm = async () => {
   try {
     const {valid} = await emailChangeFrom.value.validate()

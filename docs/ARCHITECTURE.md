@@ -92,7 +92,7 @@ glow-prow-main/
 │   ├── assets/                   # 公共脚本 (analytics.js, lang-redirect.js 等)
 │   ├── edgeone.json              # 腾讯云 EdgeOne Pages 路由配置 (CleanUrls、重写规则等)
 │   ├── manifest.*.webmanifest    # 多语言 PWA 独立配置文件
-│   ├── favicon.ico / favicon.png # 网站图标
+│   ├── favicon.ico / favicon.svg # 网站图标
 │   └── robots.txt / ads.txt      # 搜索引擎与广告校验文件
 ├── router/                       # 路由核心配置
 │   └── index.ts                  # 多语言路由生成、守卫 (前缀补全/存储同步)、平滑滚动控制

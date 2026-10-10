@@ -1927,7 +1927,7 @@
     "showAll": "显示所有",
     "typeTitle": "类型",
     "difficulty": "难度",
-    "selectCollection": "选择地图集",
+    "selectCollection": "所屬地圖集",
     "collectionManager": "地图集管理",
     "myCollections": "我的地图集",
     "createCollection": "创建地图集",
@@ -2169,7 +2169,9 @@
         "description": "記錄著隱藏寶藏位置的藏寶圖線索點。"
       }
     },
-    "managePoints": "管理座標",
+    "managePoints": "管理標記",
+    "managePaths": "管理路徑",
+    "manageRegions": "管理區域",
     "remove": "移出",
     "add": "加入圖集",
     "searchPoints": "搜尋未分組座標...",

@@ -26,6 +26,9 @@ onMounted(async () => {
   }
 });
 
+/**
+ * 保存用户消息与通知偏好设置
+ */
 const saveSettings = async () => {
   saveStatus.value = 'saving';
   try {

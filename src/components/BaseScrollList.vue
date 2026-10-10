@@ -43,7 +43,7 @@
       }"
         :style="wrapperStyle"
         @mousedown="handleMouseDown"
-        @wheel.passive="handleWheel"
+        @wheel="handleWheel"
         @scroll="handleScroll">
       <div
           class="scroll-content"
