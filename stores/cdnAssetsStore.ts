@@ -1,3 +1,7 @@
+/**
+ * CDN资源分发状态机
+ */
+
 import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
 import { storage } from "@/assets/sripts/index";

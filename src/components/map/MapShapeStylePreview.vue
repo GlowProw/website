@@ -37,12 +37,14 @@ const props = withDefaults(defineProps<{
 });
 
 /** 
- * 补全默认颜色/透明度，旧数据也能正确呈现
+ * 补全默认颜色/透明度
+ * 确保旧数据也能正确呈现
  */
 const resolved = computed(() => resolveShapeStyle(props.shapeStyle, props.shapeType));
 
 /** 
- * SVG 等比缩放系数（preserveAspectRatio=meet），用于抵消描边/虚线的放大
+ * SVG 等比缩放系数（preserveAspectRatio=meet）
+ * 用于抵消描边/虚线的放大
  */
 const scale = computed(() => Math.max(0.01, Math.min(props.width / 46, props.height / 20)));
 

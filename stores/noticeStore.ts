@@ -1,3 +1,8 @@
+/**
+ * 通知状态机
+ * 全站通知控制
+ */
+
 import { defineStore } from "pinia";
 import { Ref, ref } from "vue";
 import { logError, ERROR_CODES, type ErrorCodeInfo } from "@/assets/sripts/error_logger";

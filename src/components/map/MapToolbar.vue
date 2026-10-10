@@ -75,7 +75,9 @@ const emit = defineEmits(['search', 'toggle-layers', 'toggle-settings', 'update:
 const { t } = useI18n();
 const { mobile } = useDisplay();
 
-defineOptions({ name: 'SearchBar' });
+defineOptions({ 
+  name: 'MapToolbar' 
+});
 </script>
 
 <style scoped>

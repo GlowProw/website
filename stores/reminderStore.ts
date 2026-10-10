@@ -1,17 +1,18 @@
-import { computed, ref } from 'vue';
-import { defineStore } from 'pinia';
-import { v4 as uuidv4 } from 'uuid';
-import type { ReminderTask } from '@/assets/types/Reminder';
-import { storageReminder } from '@/assets/sripts/storage_reminder';
-import { calculateTaskNextTriggerInfo, calculateNextTriggerTime, formatCountdown, checkTaskPendingTriggers, getLocalizedText, getTaskLocalizedTitle, getTaskLocalizedNote, formatAdvanceText } from '@/assets/sripts/reminder_calc';
-import { useNoticeStore } from '~/stores/noticeStore';
-import ReminderWorker from '@/workers/reminder.worker.ts?worker';
+import {computed, ref} from 'vue';
+import {defineStore} from 'pinia';
+import {v4 as uuidv4} from 'uuid';
 import router from '../router';
-import { useI18nUtils } from '@/assets/sripts/i18n_util';
+
+import type {ReminderTask} from '@/assets/types/Reminder';
+import {storageReminder} from '@/assets/sripts/storage_reminder';
+import {calculateTaskNextTriggerInfo, checkTaskPendingTriggers, formatAdvanceText, getLocalizedText, getTaskLocalizedNote, getTaskLocalizedTitle} from '@/assets/sripts/reminder_calc';
+import {useNoticeStore} from '~/stores/noticeStore';
+import ReminderWorker from '@/workers/reminder.worker.ts?worker';
+import {useI18nUtils} from '@/assets/sripts/i18n_util';
 
 export const useReminderStore = defineStore('reminder', () => {
     const noticeStore = useNoticeStore();
-    const { t } = useI18nUtils();
+    const {t} = useI18nUtils();
 
     /**
      * 校验当前页面路由是否处于活动提醒页面 (/reminder 或 /:lang/reminder 等)
@@ -137,10 +138,10 @@ export const useReminderStore = defineStore('reminder', () => {
             const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
             const now = ctx.currentTime;
             const notes = [
-                { freq: 523.25, time: 0, dur: 0.2, gain: 0.18 },    // C5
-                { freq: 659.25, time: 0.1, dur: 0.22, gain: 0.2 },  // E5
-                { freq: 783.99, time: 0.2, dur: 0.25, gain: 0.22 }, // G5
-                { freq: 1046.50, time: 0.3, dur: 0.55, gain: 0.25 } // C6
+                {freq: 523.25, time: 0, dur: 0.2, gain: 0.18},    // C5
+                {freq: 659.25, time: 0.1, dur: 0.22, gain: 0.2},  // E5
+                {freq: 783.99, time: 0.2, dur: 0.25, gain: 0.22}, // G5
+                {freq: 1046.50, time: 0.3, dur: 0.55, gain: 0.25} // C6
             ];
 
             for (const n of notes) {
@@ -256,23 +257,23 @@ export const useReminderStore = defineStore('reminder', () => {
 
         const rawTitle = getTaskLocalizedTitle(task, undefined, (k, v) => t(k, v)) || getLocalizedText(task.title);
         const rawNote = getTaskLocalizedNote(task, undefined, (k, v) => t(k, v)) || getLocalizedText(task.note || task.description);
-        
+
         const unit = task.advanceUnit || 'minute';
         const val = task.advanceValue ?? task.advanceMinutes ?? (advanceMinutes || 1);
         const timeDesc = advanceText || formatAdvanceText(unit, val, (k, v) => t(k, v));
 
         const titleText = isAdvance
-            ? t('reminder.notification.advanceTitle', { title: rawTitle, time: timeDesc, minutes: advanceMinutes })
-            : t('reminder.notification.mainTitle', { title: rawTitle });
+            ? t('reminder.notification.advanceTitle', {title: rawTitle, time: timeDesc, minutes: advanceMinutes})
+            : t('reminder.notification.mainTitle', {title: rawTitle});
 
         const defaultAdvanceMsg = t('reminder.notification.advanceDefaultMsg');
-        const defaultAdvanceShort = t('reminder.notification.advanceDefaultShort', { time: timeDesc, minutes: advanceMinutes });
+        const defaultAdvanceShort = t('reminder.notification.advanceDefaultShort', {time: timeDesc, minutes: advanceMinutes});
         const defaultMainMsg = t('reminder.notification.mainDefaultMsg');
 
         const notePreview = rawNote ? (rawNote.length > 100 ? rawNote.slice(0, 100) + '...' : rawNote) : '';
         const bodyText = isAdvance
-            ? t('reminder.notification.advanceBody', { time: timeDesc, minutes: advanceMinutes, title: rawTitle, note: notePreview || defaultAdvanceMsg })
-            : t('reminder.notification.mainBody', { title: rawTitle, note: notePreview || defaultMainMsg });
+            ? t('reminder.notification.advanceBody', {time: timeDesc, minutes: advanceMinutes, title: rawTitle, note: notePreview || defaultAdvanceMsg})
+            : t('reminder.notification.mainBody', {title: rawTitle, note: notePreview || defaultMainMsg});
 
         const hasDescription = !!rawNote;
 
@@ -375,7 +376,7 @@ export const useReminderStore = defineStore('reminder', () => {
         try {
             worker = new ReminderWorker();
             worker.onmessage = (e: MessageEvent) => {
-                const { type, task, taskId, isAdvanceNotice, advanceMinutes, advanceText, triggerKey } = e.data || {};
+                const {type, task, taskId, isAdvanceNotice, advanceMinutes, advanceText, triggerKey} = e.data || {};
 
                 if (type === 'trigger' && task) {
                     // 限制：仅在 /reminder 路由及其子页面下才触发提示和声音

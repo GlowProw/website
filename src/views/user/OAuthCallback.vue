@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {onMounted, ref} from 'vue';
+import {computed, onMounted, ref} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
 import {useI18n} from 'vue-i18n';
 import {useAuthStore} from '~/stores/userAccountStore';
@@ -15,11 +15,18 @@ import Loading from '@/components/Loading.vue';
 
 const route = useRoute();
 const router = useRouter();
-const {t} = useI18n();
+const {t, te} = useI18n();
 const authStore = useAuthStore();
 const notice = useNoticeStore();
 const rules = useRules();
 const {mobile, sm} = useDisplay();
+
+// 第三方平台展示名：绑定页语言包里有配置就用本地化名称（如 QQ 机器人），否则回退平台标识
+const oauthPlatformLabel = computed(() => {
+  const p = oauthProfile.value.platform;
+  const key = `account.bindings.platforms.${p}.name`;
+  return te(key) ? t(key) : p.toUpperCase();
+});
 
 const loading = ref(true);
 const errorMsg = ref('');
@@ -244,7 +251,7 @@ const onBackRoute = () => {
                     {{ oauthProfile.platformUsername }}
                   </div>
                   <div class="text-caption text-amber d-flex align-center ga-1">
-                    <span>{{ oauthProfile.platform.toUpperCase() }}</span>
+                    <span>{{ oauthPlatformLabel }}</span>
                   </div>
                 </div>
               </div>

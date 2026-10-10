@@ -5,6 +5,7 @@
         :class="{'imap-view-full': isFull}"
         :longitude="targetLongitude"
         :latitude="targetLatitude"
+        :zoom="targetZoom"
         :location-id="targetLocationId"
         :locations="locations"
         :bounds="mapBounds"
@@ -127,7 +128,7 @@
         ref="shapeFormRef"
     />
 
-    <!-- 只读浏览他人公开地图集时的顶部提示条 -->
+    <!-- 只读浏览他人公开地图集时的顶部提示条 S -->
     <div v-if="sharedCollectionPreview" class="shared-preview-wrap">
       <v-card color="amber" variant="tonal" rounded="pill" class="shared-preview-card px-4 py-2">
         <div class="d-flex align-center flex-wrap ga-3">
@@ -145,6 +146,7 @@
         </div>
       </v-card>
     </div>
+    <!-- 只读浏览他人公开地图集时的顶部提示条 E -->
 
     <MapCollectionShareDialog
         :model-value="showShareCollectionDialog"
@@ -155,12 +157,12 @@
         @import="onImportSharedCollection"
     />
 
-    <!-- 框选结果操作条：拖动任意选中项统一移动，或一键删除/取消 -->
+    <!-- 框选结果操作条 S -->
     <div v-if="marqueeCount > 0" class="marquee-action-wrap">
       <v-card border elevation="24" rounded="lg" class="marquee-action-card px-3 py-2">
         <div class="d-flex align-center ga-3 flex-wrap">
           <v-icon color="amber" icon="mdi-selection-multiple"></v-icon>
-          <span class="text-body-2">{{ t('map.marquee.selectedCount', { count: marqueeCount }) }}</span>
+          <span class="text-body-2">{{ t('map.marquee.selectedCount', {count: marqueeCount}) }}</span>
           <span class="text-caption text-medium-emphasis">{{ t('map.marquee.moveHint') }}</span>
           <v-spacer></v-spacer>
           <v-btn size="small" variant="tonal" color="red" prepend-icon="mdi-delete-outline"
@@ -174,8 +176,9 @@
         </div>
       </v-card>
     </div>
+    <!-- 框选结果操作条 E -->
 
-    <!-- 通用删除确认 -->
+    <!-- 删除确认 S -->
     <v-dialog :model-value="confirmState.visible" max-width="420" persistent>
       <v-card border>
         <v-card-title class="d-flex align-center ga-2 py-4">
@@ -193,8 +196,9 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <!-- 删除确认 E -->
 
-    <MapZoomControls @zoom-in="_onZoomIn" @zoom-out="_onZoomOut" @reset-view="_onResetView" />
+    <MapZoomControls @zoom-in="_onZoomIn" @zoom-out="_onZoomOut" @reset-view="_onResetView"/>
 
     <MapFooter
         :hoveed-coordinate="hoveedCoordinate"
@@ -213,8 +217,9 @@
 </template>
 
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n';
-import { use_map_controller } from '@/assets/sripts/use_map_controller';
+import {useI18n} from 'vue-i18n';
+import {use_map_controller} from '@/assets/sripts/use_map_controller';
+
 import MapView from '@/components/map/MapView.vue';
 import MapToolbar from '@/components/map/MapToolbar.vue';
 import MapLayerControl from '@/components/map/MapLayerControl.vue';
@@ -247,6 +252,7 @@ const {
   hoveedCoordinate,
   targetLongitude,
   targetLatitude,
+  targetZoom,
   targetLocationId,
   searchQuery,
   searchInput,
@@ -363,7 +369,7 @@ const {
   onDeleteMarqueeSelection,
 } = use_map_controller();
 
-const { t } = useI18n();
+const {t} = useI18n();
 </script>
 
 <style scoped lang="less">

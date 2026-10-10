@@ -62,12 +62,16 @@ let
     })
 
 
-/** 监听共享数据变化，重新装载工坊视图 */
+/**
+ * 监听共享数据变化，重新装载工坊视图
+ **/
 watch(() => shareData.value, async () => {
-  await loadAssemblyData()
+  loadAssemblyData()
 })
 
-/** 编辑模式下挂载时拉取配装详情 */
+/**
+ * 编辑模式下挂载时拉取配装详情
+ **/
 onMounted(() => {
   if (isEditModel.value)
     getAssemblyDetail()
@@ -130,7 +134,9 @@ const getAssemblyDetail = async () => {
   }
 }
 
-/** 装载配装、轮盘、船仓、精通数据到工坊各子视图 */
+/**
+ * 装载配装、轮盘、船仓、精通数据到工坊各子视图
+ **/
 const loadAssemblyData = () => {
   const d = shareData.value
 
@@ -279,9 +285,9 @@ const onSaveDraft = () => {
 
 /**
  * 使用快速草稿
- * @param data
+ * @param item
  */
-const onUseDraft = (item) => {
+const onUseDraft = (item: any) => {
   const assemblyData = item.assembly
   if (!assemblyData && Object.keys(assemblyData).length == 0) {
     return noticeStore.error('draft data null')
@@ -300,7 +306,7 @@ const onUseDraft = (item) => {
  * 删除草稿
  * @param id
  */
-const onDeleteDraft = (id) => {
+const onDeleteDraft = (id: string) => {
   storageIntermediateTransfer.delete(id, {
     saveType: StorageIntermediateTransferSaveType.Draft,
     category: 'assembly'

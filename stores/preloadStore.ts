@@ -3,7 +3,7 @@
  *
  * 用途：
  *   - 全局 loading overlay 控制（appLoading=true 时 App.vue 显示 v-progress-circular + phase 文案）
- *   - 扩展点：未来远程配置 / manifest / feature flags 等任务都可以注册到 task queue
+ *   - 扩展：远程配置 / manifest / feature flags 等任务都可以注册到 task queue
  *   - 支持单任务失败后重试，错误自动写入 errors[] 供 UI 展示
  *
  * 设计模式参考 noticeStore.ts：defineStore + ref + 明确的 action API
@@ -61,7 +61,9 @@ export const usePreloadStore = defineStore('preload', () => {
         return t;
     };
 
-    /** 运行所有 pending 任务（串行，不中断；失败会记录但继续下一个） */
+    /**
+     * 运行所有 pending 任务（串行，不中断；失败会记录但继续下一个）
+     **/
     const runAll = async (): Promise<void> => {
         if (appLoading.value) return; // 防重入
         appLoading.value = true;
@@ -101,7 +103,9 @@ export const usePreloadStore = defineStore('preload', () => {
         appLoading.value = false;
     };
 
-    /** 仅重试指定 task（id），可传空/未传则重试所有 failed 的 */
+    /**
+     * 仅重试指定 task（id），可传空/未传则重试所有 failed 的
+     **/
     const retry = async (taskId?: string): Promise<void> => {
         appLoading.value = true;
         if (taskId) {
@@ -146,15 +150,21 @@ export const usePreloadStore = defineStore('preload', () => {
         appLoading.value = false;
     };
 
-    /** 重置所有任务为 pending（切换 CDN source 等场景） */
+    /**
+     * 重置所有任务为 pending（切换 CDN source 等场景）
+     **/
     const resetAll = () => {
         tasks.value.forEach(t => { t.status = 'pending'; t.lastError = undefined; });
     };
 
-    /** 失败任务列表（computed-like 过滤） */
+    /**
+     * 失败任务列表（computed-like 过滤）
+     **/
     const failedTasks = () => tasks.value.filter(t => t.status === 'failed');
 
-    /** 失败任务数 */
+    /**
+     * 失败任务数
+     **/
     const failedCount = () => tasks.value.filter(t => t.status === 'failed').length;
 
     return {

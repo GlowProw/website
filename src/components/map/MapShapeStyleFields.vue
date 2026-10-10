@@ -138,6 +138,7 @@
 <script setup lang="ts">
 import {computed} from 'vue';
 import {useI18n} from 'vue-i18n';
+
 import type {MapShapeType, ShapeStyle} from '@/assets/types/Map';
 
 const props = defineProps<{
@@ -166,7 +167,9 @@ const patch = (data: Partial<ShapeStyle>) => {
   emit('update:style', {...props.style, ...data});
 };
 
-defineOptions({name: 'MapShapeStyleFields'});
+defineOptions({
+  name: 'MapShapeStyleFields'
+});
 </script>
 
 <style scoped>

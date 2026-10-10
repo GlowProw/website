@@ -219,7 +219,7 @@ const executeDelete = async (): Promise<void> => {
   showDeleteConfirm.value = false
 };
 
-/** 
+/**
  * 从地图集卡片跳到标记 Tab 并按集合过滤
  */
 const openCollectionPoints = (collection: MapCollection): void => {
@@ -245,7 +245,7 @@ const copyShareLink = async (collection: MapCollection): Promise<void> => {
 // 克隆中的集合（同时只允许一个），用于按钮 loading
 const cloningUuid = ref('')
 
-/** 
+/**
  * 克隆自己的地图集：完整复制集合及其全部标记/图形
  */
 const onCloneCollection = async (collection: MapCollection): Promise<void> => {
@@ -576,7 +576,7 @@ const goDrawShape = (type: MapShapeType) => {
   router.push({path: '/map', query})
 }
 
-/* ============================== 批量操作 ============================== */
+/* ==批量操作 ==*/
 
 const openBatchMove = (kind: 'points' | 'shapes', shapeType: MapShapeType = 'path') => {
   batchMoveKind.value = kind
@@ -649,7 +649,7 @@ const batchDelete = async (kind: 'points' | 'shapes', shapeType: MapShapeType = 
   showDeleteConfirm.value = true
 }
 
-/* ============================== Tab 切换 ============================== */
+/* ==Tab 切换 ==*/
 
 const onTabChange = (tab: string | number) => {
   const key = tab as TabKey
@@ -712,7 +712,7 @@ defineOptions({
     </AffixContainerView>
     <!-- Toolbar E -->
 
-    <!-- ============================ 地图集 Tab ============================ -->
+    <!-- 地图集 Tab S -->
     <div v-if="activeTab === 'collections'">
       <div v-if="userCollections && userCollections.data.length > 0" class="d-flex flex-column ga-3">
         <v-card v-for="(collection, index) in userCollections.data"
@@ -780,8 +780,9 @@ defineOptions({
                      class="mt-6"
                      @change="getMyCollectionsData" />
     </div>
+    <!-- 地图集 Tab E -->
 
-    <!-- ============================ 标记 Tab ============================ -->
+    <!-- 标记 Tab S -->
     <div v-if="activeTab === 'points'">
       <v-card variant="text" class="pa-3 mb-3">
         <div class="d-flex align-center flex-wrap ga-2">
@@ -879,8 +880,9 @@ defineOptions({
                        @change="onPointPage" />
       </v-card>
     </div>
+    <!-- 标记 Tab E -->
 
-    <!-- ============================ 路径 / 区域 Tab ============================ -->
+    <!-- 路径 / 区域 Tab S -->
     <div v-if="activeTab === 'paths' || activeTab === 'regions'">
       <v-card variant="text" class="pa-3 mb-3">
         <div class="d-flex align-center flex-wrap ga-2">
@@ -991,6 +993,7 @@ defineOptions({
                        @change="(p) => onShapePage(currentShapeType, p)" />
       </v-card>
     </div>
+    <!-- 路径 / 区域 Tab E -->
 
     <!-- 地图集编辑/新建对话框 S -->
     <v-dialog v-model="collectionFormModal" max-width="500">

@@ -95,7 +95,7 @@ export interface UpdatePointData {
   sharedUsers?: string[];
 }
 
-/* ===================== 地图图形（路径/区域） ===================== */
+// 地图图形（路径/区域）
 
 export type MapShapeType = 'path' | 'region';
 

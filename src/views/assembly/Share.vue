@@ -205,7 +205,9 @@ watch(() => [
   loadAssemblyData();
 });
 
-/** 监听配装海报配置变化，同步写入 URL 查询参数和本地存储 */
+/**
+ * 监听配装海报配置变化，同步写入 URL 查询参数和本地存储
+ **/
 watch(() => generateImageValue.value, (value) => {
   router.push({
     name: route.name as any,
@@ -218,7 +220,9 @@ watch(() => generateImageValue.value, (value) => {
   }
 }, {deep: true});
 
-/** 监听精通海报配置变化，写入本地存储 */
+/**
+ * 监听精通海报配置变化，写入本地存储
+ **/
 watch(() => masteryGenerateImageValue.value, (value) => {
   // 保存精通海报配置
   if (value && posterSwitch.value) {
@@ -226,12 +230,16 @@ watch(() => masteryGenerateImageValue.value, (value) => {
   }
 }, {deep: true});
 
-/** 监听路由参数变化，重新获取配装详情 */
+/**
+ * 监听路由参数变化，重新获取配装详情
+ **/
 watch(() => route, () => {
   getAssemblyDetail();
 });
 
-/** 监听海报配置变化，刷新两侧缩略图 */
+/**
+ * 监听海报配置变化，刷新两侧缩略图
+ **/
 watch(
     () => [masteryGenerateImageValue.value, generateImageValue.value],
     () => {
@@ -241,7 +249,9 @@ watch(
     {deep: true}
 )
 
-/** 页面挂载：读取海报开关与配置、合并 URL 参数、拉取配装详情、注册滚动监听 */
+/**
+ * 页面挂载：读取海报开关与配置、合并 URL 参数、拉取配装详情、注册滚动监听
+ **/
 onMounted(() => {
   path.value = webPath.value + router.resolve({name: 'AssemblyDetail'}).path;
   posterSwitch.value = storage_account.getConfigurationItem('poster', 'poster.switch');
@@ -276,27 +286,36 @@ onMounted(() => {
   }
 
   getAssemblyDetail();
+
   window.addEventListener('scroll', onScroll, { passive: true });
 });
 
-/** 页面卸载：清理滚动监听和 blob URL */
+/**
+ * 页面卸载：清理滚动监听和 blob URL
+ **/
 onUnmounted(() => {
   window.removeEventListener('scroll', onScroll);
+
   if (assemblyThumbUrl.value && assemblyThumbUrl.value.startsWith('blob:')) {
     URL.revokeObjectURL(assemblyThumbUrl.value);
   }
+
   if (masteryThumbUrl.value && masteryThumbUrl.value.startsWith('blob:')) {
     URL.revokeObjectURL(masteryThumbUrl.value);
   }
 });
 
-/** 监听滚动高亮当前幻灯片 */
+/**
+ * 监听滚动高亮当前幻灯片
+ **/
 const onScroll = () => {
   if (!hasMastery.value) {
     currentSlideIndex.value = 0;
     return;
   }
+
   const masteryEl = document.getElementById('poster-page-mastery');
+
   if (masteryEl) {
     const rect = masteryEl.getBoundingClientRect();
     if (rect.top <= window.innerHeight * 0.45) {
@@ -304,6 +323,7 @@ const onScroll = () => {
       return;
     }
   }
+
   currentSlideIndex.value = 0;
 };
 
@@ -313,6 +333,7 @@ const onScroll = () => {
 const scrollToSlide = (index: number) => {
   currentSlideIndex.value = index;
   const targetId = index === 0 ? '#poster-page-assembly' : '#poster-page-mastery';
+
   goto(targetId, {
     duration: 500,
     offset: -80

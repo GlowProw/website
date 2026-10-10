@@ -3,6 +3,9 @@ import {http} from "@/assets/sripts/index";
 import {useHttpToken} from "@/assets/sripts/http_util";
 import {useAuthStore} from "./userAccountStore";
 
+/**
+ * 点赞状态机
+ */
 export const useLikeStore = defineStore('like', {
     state: () => ({
         likedTargets: new Map(),

@@ -51,23 +51,25 @@
       </v-card>
     </template>
 
-    <div class="mx-5 pb-3">
+    <div class="mx-4 pb-3">
       <v-row no-gutters align="center">
         <v-col cols="auto" class="d-flex align-center mr-2">
-          <v-img
-              :src="getCategoryIcon(selectedLocation.category)"
-              v-if="getCategoryIcon(selectedLocation.category)"
-              width="25"
-              height="25"
-              cover/>
+          <ItemSlotBase :size="'25px'" :padding="0" class="pa-1 rounded-lg">
+            <v-img
+                :src="getCategoryIcon(selectedLocation.category)"
+                v-if="getCategoryIcon(selectedLocation.category)"
+                width="25"
+                height="25"
+                cover/>
+          </ItemSlotBase>
         </v-col>
         <v-col class="text-caption">
           {{ t(`map.types.${selectedLocation.category || 'none'}.name`) }}
         </v-col>
       </v-row>
-      <v-row no-gutters class="mt-1" v-if="selectedLocation && selectedLocation.faction" align="center">
+      <v-row no-gutters v-if="selectedLocation && selectedLocation.faction" align="center">
         <v-col cols="auto" class="d-flex align-center mr-2">
-          <ItemSlotBase :size="'25px'" :padding="0">
+          <ItemSlotBase :size="'25px'" :padding="0" class="rounded-lg">
             <FactionIconWidget :name="selectedLocation.faction.id"></FactionIconWidget>
           </ItemSlotBase>
         </v-col>

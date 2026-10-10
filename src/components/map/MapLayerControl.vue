@@ -18,7 +18,7 @@
           width="100%"
           height="100%">
         <div class="d-flex align-center py-4 px-7">
-          <v-row align="center">
+          <v-row align="center" dense>
             <v-col cols="auto">
               <v-icon icon="mdi-layers" class="mr-2 text-amber"></v-icon>
               {{ t('map.layerControl') }}
@@ -27,12 +27,12 @@
               <v-divider opacity=".2" thickness="2"></v-divider>
             </v-col>
             <v-col cols="auto" class="d-flex ga-2">
-              <v-btn
-                  variant="tonal"
-                  size="small"
-                  @click="emit('toggle-all-layers')">
-                <span>{{ allLayersVisible ? t('map.hideAll') : t('map.showAll') }}</span>
-              </v-btn>
+              <v-checkbox
+                  :model-value="allLayersVisible"
+                  @click="emit('toggle-all-layers')"
+                  hide-details
+                  :title="allLayersVisible ? t('map.hideAll') : t('map.showAll')"
+                  density="compact"></v-checkbox>
             </v-col>
           </v-row>
         </div>
@@ -47,6 +47,7 @@
               v-model="panelOpen">
             <!-- 船长笔记 S -->
             <v-expansion-panel
+                v-if="authStore.isLogin"
                 class="bg-transparent"
                 elevation="0">
               <v-expansion-panel-title class="pa-0 px-8">

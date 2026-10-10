@@ -1,7 +1,6 @@
 <template>
   <v-dialog :model-value="modelValue" @update:model-value="emit('update:modelValue', $event)" max-width="720">
     <v-card border elevation="12" class="shape-manual-card overflow-y-auto">
-      <!-- 标题区：与 MapLocationCard 完全一致的结构与琥珀色文字 -->
       <template v-slot:title>
         <div class="my-2 mr-2">
           <div class="d-flex align-center">
@@ -239,9 +238,13 @@ const onSubmit = async () => {
   emit('save', { geometry });
 };
 
-defineExpose({ formRef });
+defineExpose({ 
+  formRef
+});
 
-defineOptions({ name: 'MapShapeManualDialog' });
+defineOptions({ 
+  name: 'MapShapeManualDialog' 
+});
 </script>
 
 <style scoped lang="less">

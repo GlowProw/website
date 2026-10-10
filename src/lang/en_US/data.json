@@ -969,7 +969,18 @@
         "discord": {
           "name": "Discord",
           "desc": "Supports Discord quick sign-in and account sync"
+        },
+        "glow-prow-qq-bot": {
+          "name": "QQ Bot",
+          "desc": "DM the Glow Prow bot on QQ to link your website account"
         }
+      },
+      "qqBot": {
+        "dialogTitle": "Link QQ Bot",
+        "step1": "Open the private chat with the \"Glow Prow\" bot on QQ",
+        "step2": "Send the command /绑定账户",
+        "step3": "Open the link returned by the bot in a browser and sign in to finish linking",
+        "hint": "The link is valid for 15 minutes and can only be used once. Opening it while signed in links the current account directly."
       }
     },
     "myAssembly": "My Builds",

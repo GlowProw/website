@@ -56,7 +56,7 @@ export const DEFAULT_SHAPE_STYLE = {
     fillOpacity: DEFAULT_FILL_OPACITY,
 } as const;
 
-/* ============================== 坐标与几何工具 ============================== */
+// 坐标与几何工具
 
 export const xyFromLonLat = (coords: number[]): number[] => fromLonLat([coords[0], coords[1]]);
 export const lonLatFromXy = (coords: number[]): number[] => toLonLat([coords[0], coords[1]]);
@@ -161,7 +161,7 @@ export function extractRawGeometry(geom: SimpleGeometry): ShapeGeometry | null {
     return null;
 }
 
-/* ============================== 样式工厂 ============================== */
+// 样式工厂
 
 export function createShapeOlStyle(shapeType: MapShapeType, input?: ShapeStyle | null): Style {
     const s = resolveShapeStyle(input, shapeType);
@@ -298,7 +298,7 @@ function createDrawStyle(mode: DrawShapeMode): Style[] {
     ];
 }
 
-/* ============================== 控制器 ============================== */
+// 控制器
 
 export interface MapDrawControllerCallbacks {
     /** 一次绘制完成（草稿已加入图层） */

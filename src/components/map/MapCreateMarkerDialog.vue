@@ -117,6 +117,7 @@
 <script setup lang="ts">
 import {computed, ref} from 'vue';
 import {useI18n} from 'vue-i18n';
+
 import Textarea from "@/components/textarea/index.vue";
 
 const props = defineProps<{
@@ -127,10 +128,9 @@ const props = defineProps<{
   isLogin: boolean;
 }>();
 
-const emit = defineEmits(['update:modelValue', 'update:marker-data', 'cancel', 'create']);
-
 const {t} = useI18n();
 const markerFormRef = ref(null);
+const emit = defineEmits(['update:modelValue', 'update:marker-data', 'cancel', 'create']);
 
 /** 集合下拉首项为"未分组"（null） */
 const collectionItems = computed(() => [
@@ -157,6 +157,7 @@ const publicSelectValue = computed(() =>
 /** 切换地图集归属时公开状态同步跟随；移出地图集时保留当前值 */
 const onCollectionChange = (uuid: string | null) => {
   const collection = (props.userCollections || []).find((c: any) => c.uuid === uuid);
+
   emit('update:marker-data', {
     ...props.newMarkerData,
     collectionUuid: uuid || '',
@@ -164,9 +165,13 @@ const onCollectionChange = (uuid: string | null) => {
   });
 };
 
-defineExpose({markerFormRef});
+defineExpose({
+  markerFormRef
+});
 
-defineOptions({name: 'CreateMarkerDialog'});
+defineOptions({
+  name: 'CreateMarkerDialog'
+});
 </script>
 
 <style scoped>

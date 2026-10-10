@@ -101,79 +101,81 @@
                       cols="12"
                       v-for="cat in categories"
                       :key="cat.value">
-                 <v-row>
-                        <v-col cols="auto">
+                    <v-row>
+                      <v-col cols="auto">
                         <v-avatar class="mr-3">
                           <v-img :src="getCategoryIcon(cat.value)" cover width="24" height="24"></v-img>
                         </v-avatar>
-                        </v-col>
-                        <v-col>
-                          <div class="d-flex align-center mb-3">
-                        <div>
-                          <div class="font-weight-medium ">{{ cat.text }}</div>
-                          <div class="text-caption opacity-60">
-                            {{ t('map.visibleZoomRange') }}:
-                            Zoom {{ getCategoryRule(cat.value).minZoom }} - {{ getCategoryRule(cat.value).maxZoom }}
+                      </v-col>
+                      <v-col>
+                        <div class="d-flex align-center mb-3">
+                          <div>
+                            <div class="font-weight-medium ">{{ cat.text }}</div>
+                            <div class="text-caption opacity-60">
+                              {{ t('map.visibleZoomRange') }}:
+                              Zoom {{ getCategoryRule(cat.value).minZoom }} - {{ getCategoryRule(cat.value).maxZoom }}
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      <!-- 可见层级范围 Slider -->
-                      <div class="px-2 mb-2">
-                        <div class="d-flex justify-space-between text-caption opacity-70 mb-1">
-                          <span>{{ t('map.visibleZoomRange') }}</span>
-                          <span class="font-weight-bold text-amber">
+                        <!-- 可见层级范围 S -->
+                        <div class="px-2 mb-2">
+                          <div class="d-flex justify-space-between text-caption opacity-70 mb-1">
+                            <span>{{ t('map.visibleZoomRange') }}</span>
+                            <span class="font-weight-bold text-amber">
                             Zoom {{ getCategoryRule(cat.value).minZoom }} ~ {{ getCategoryRule(cat.value).maxZoom }}
                           </span>
+                          </div>
+                          <v-range-slider
+                              :model-value="[getCategoryRule(cat.value).minZoom, getCategoryRule(cat.value).maxZoom]"
+                              @update:model-value="onUpdateCategoryZoomRange(cat.value, $event)"
+                              :min="12"
+                              :max="15"
+                              :step="1"
+                              color="amber"
+                              thumb-size="14"
+                              show-ticks="always"
+                              step-ticks
+                              hide-details
+                              density="compact">
+                            <template v-slot:tick-label="{ tick }">
+                              <span class="text-caption" style="font-size: 10px">{{ tick.value }}</span>
+                            </template>
+                          </v-range-slider>
                         </div>
-                        <v-range-slider
-                            :model-value="[getCategoryRule(cat.value).minZoom, getCategoryRule(cat.value).maxZoom]"
-                            @update:model-value="onUpdateCategoryZoomRange(cat.value, $event)"
-                            :min="12"
-                            :max="15"
-                            :step="1"
-                            color="amber"
-                            thumb-size="14"
-                            show-ticks="always"
-                            step-ticks
-                            hide-details
-                            density="compact">
-                          <template v-slot:tick-label="{ tick }">
-                            <span class="text-caption" style="font-size: 10px">{{ tick.value }}</span>
-                          </template>
-                        </v-range-slider>
-                      </div>
+                        <!-- 可见层级范围 E -->
 
-                      <!-- 各 Zoom 尺寸调整 -->
-                      <div class="px-2 pt-2 border-t mt-10">
-                        <div class="text-caption opacity-70 mb-2">图标尺寸比例 (Scale):</div>
-                        <v-row density="compact">
-                          <v-col
-                              cols="6"
-                              sm="6"
-                              class="d-flex align-center"
-                              v-for="zoomLevel in [12, 13, 14, 15]"
-                              :key="zoomLevel">
-                            <div class="text-caption d-flex justify-space-between mr-5" style="font-size: 11px">
-                              <span>Zoom {{ zoomLevel }}:</span>
-                              <span class="font-weight-bold u ml-2">{{ (getCategoryScaleAtZoom(cat.value, zoomLevel)).toFixed(2) }}</span>
-                            </div>
-                            <v-slider
-                                :model-value="getCategoryScaleAtZoom(cat.value, zoomLevel)"
-                                @update:model-value="onUpdateCategoryScaleAtZoom(cat.value, zoomLevel, $event)"
-                                :min="0.05"
-                                :max="0.25"
-                                :step="0.01"
-                                color="amber"
-                                thumb-size="12"
-                                hide-details
-                                density="compact">
-                            </v-slider>
-                          </v-col>
-                        </v-row>
-                      </div>
-                        </v-col>
-                      </v-row>
+                        <!-- 标记尺寸调整 S -->
+                        <div class="px-2 pt-2 border-t mt-10">
+                          <div class="text-caption opacity-70 mb-2">图标尺寸比例 (Scale):</div>
+                          <v-row density="compact">
+                            <v-col
+                                cols="6"
+                                sm="6"
+                                class="d-flex align-center"
+                                v-for="zoomLevel in [12, 13, 14, 15]"
+                                :key="zoomLevel">
+                              <div class="text-caption d-flex justify-space-between mr-5" style="font-size: 11px">
+                                <span>Zoom {{ zoomLevel }}:</span>
+                                <span class="font-weight-bold u ml-2">{{ (getCategoryScaleAtZoom(cat.value, zoomLevel)).toFixed(2) }}</span>
+                              </div>
+                              <v-slider
+                                  :model-value="getCategoryScaleAtZoom(cat.value, zoomLevel)"
+                                  @update:model-value="onUpdateCategoryScaleAtZoom(cat.value, zoomLevel, $event)"
+                                  :min="0.05"
+                                  :max="0.25"
+                                  :step="0.01"
+                                  color="amber"
+                                  thumb-size="12"
+                                  hide-details
+                                  density="compact">
+                              </v-slider>
+                            </v-col>
+                          </v-row>
+                        </div>
+                      </v-col>
+                    </v-row>
+                    <!-- 标记尺寸调整 E -->
                   </v-col>
                 </v-row>
               </v-expansion-panel-text>
@@ -213,16 +215,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { useDisplay } from 'vuetify/framework';
-import { storage_account } from '@/assets/sripts/index';
-import { useNoticeStore } from '~/stores/noticeStore';
-import {
-  DEFAULT_CATEGORY_ZOOM_CONFIG,
-  getActiveCategoryZoomConfig,
-  type CategoryZoomRule
-} from '@/assets/sripts/map_zoom_config';
+import {onMounted, ref, watch} from 'vue';
+import {useI18n} from 'vue-i18n';
+import {useDisplay} from 'vuetify/framework';
+import {storage_account} from '@/assets/sripts/index';
+import {useNoticeStore} from '~/stores/noticeStore';
+import {type CategoryZoomRule, DEFAULT_CATEGORY_ZOOM_CONFIG, getActiveCategoryZoomConfig} from '@/assets/sripts/map_zoom_config';
 
 const props = defineProps<{
   modelValue: boolean;
@@ -232,11 +230,9 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits(['update:modelValue', 'config-changed']);
-
-const { t } = useI18n();
-const { mobile } = useDisplay();
+const {t} = useI18n();
+const {mobile} = useDisplay();
 const notice = useNoticeStore();
-
 const activeTab = ref('general');
 const openedPanels = ref<number[]>([0]);
 
@@ -247,8 +243,9 @@ const rememberMarkerSelection = ref(true);
 const customConfig = ref<Record<string, CategoryZoomRule>>({});
 
 const loadCurrentSettings = () => {
-  rememberMarkerSelection.value = storage_account.getConfigurationItem('map', 'rememberMarkerSelection', { defaultValue: true });
+  rememberMarkerSelection.value = storage_account.getConfigurationItem('map', 'rememberMarkerSelection', {defaultValue: true});
   const active = getActiveCategoryZoomConfig();
+
   // 深拷贝
   customConfig.value = JSON.parse(JSON.stringify(active));
 };
@@ -265,6 +262,7 @@ onMounted(() => {
 
 const onToggleRememberSelection = (val: boolean) => {
   storage_account.updateConfiguration('map', 'rememberMarkerSelection', val);
+
   if (!val) {
     storage_account.updateConfiguration('map', 'marker.select', null);
   }
@@ -275,40 +273,48 @@ const getCategoryRule = (category: string): CategoryZoomRule => {
     const fallback = DEFAULT_CATEGORY_ZOOM_CONFIG[category] || DEFAULT_CATEGORY_ZOOM_CONFIG.default;
     customConfig.value[category] = JSON.parse(JSON.stringify(fallback));
   }
+
   return customConfig.value[category];
 };
 
 const getCategoryScaleAtZoom = (category: string, zoom: number): number => {
   const rule = getCategoryRule(category);
+
   if (rule.scales && rule.scales[zoom] !== undefined) {
     return rule.scales[zoom];
   }
+
   return rule.baseScale || 0.12;
 };
 
 const onUpdateCategoryZoomRange = (category: string, range: [number, number]) => {
   const rule = getCategoryRule(category);
+
   rule.minZoom = Math.min(range[0], range[1]);
   rule.maxZoom = Math.max(range[0], range[1]);
 };
 
 const onUpdateCategoryScaleAtZoom = (category: string, zoom: number, scale: number) => {
   const rule = getCategoryRule(category);
+
   if (!rule.scales) {
     rule.scales = {};
   }
+
   rule.scales[zoom] = Number(scale.toFixed(2));
 };
 
 const onApplyPreset = (type: 'default' | 'allVisible') => {
   if (type === 'default') {
     customConfig.value = JSON.parse(JSON.stringify(DEFAULT_CATEGORY_ZOOM_CONFIG));
+
     notice.success(t('map.resetSuccess'));
   } else if (type === 'allVisible') {
     Object.keys(customConfig.value).forEach(cat => {
       customConfig.value[cat].minZoom = 12;
       customConfig.value[cat].maxZoom = 15;
     });
+
     notice.success(t('map.presetAlwaysVisible'));
   }
 };
@@ -316,14 +322,18 @@ const onApplyPreset = (type: 'default' | 'allVisible') => {
 const onResetAllToDefault = () => {
   customConfig.value = JSON.parse(JSON.stringify(DEFAULT_CATEGORY_ZOOM_CONFIG));
   storage_account.updateConfiguration('map', 'categoryZoomConfig', null);
+
   notice.success(t('map.resetSuccess'));
+
   emit('config-changed');
 };
 
 const onSaveSettings = () => {
   storage_account.updateConfiguration('map', 'rememberMarkerSelection', rememberMarkerSelection.value);
   storage_account.updateConfiguration('map', 'categoryZoomConfig', customConfig.value);
+
   notice.success(t('map.settingsSaved'));
+
   emit('config-changed');
   emit('update:modelValue', false);
 };
@@ -333,6 +343,7 @@ const onSaveSettings = () => {
 .map-setting-card {
   border-radius: 12px;
 }
+
 .zoom-config-panels :deep(.v-expansion-panel-title__overlay) {
   opacity: 0.04;
 }

@@ -83,12 +83,16 @@ let detailData: Ref<any> = ref({
 
 useHead(head)
 
-/** 监听路由变化，重新获取配装详情 */
+/**
+ * 监听路由变化，重新获取配装详情
+ **/
 watch(() => route, () => {
   getAssemblyDetail()
 })
 
-/** 页面挂载：拉取配装详情并设置 SEO 页面元信息 */
+/**
+ * 页面挂载：拉取配装详情并设置 SEO 页面元信息
+ **/
 onMounted(async () => {
   await getAssemblyDetail()
 
@@ -199,7 +203,6 @@ const onPenPassword = () => {
 
   getAssemblyDetail()
 }
-
 </script>
 
 <template>

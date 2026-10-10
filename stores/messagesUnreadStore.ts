@@ -4,17 +4,22 @@ import {useAuthStore} from '~/stores/userAccountStore'
 import {useMessagesApi} from '@/assets/sripts/api/messages_service'
 
 /**
- * 未读消息状态机
+ * 消息状态机
+ * 管理站内私信
  */
 
+// 更新时间
 const POLL_INTERVAL = 5 * 60_000
 
 export const useMessagesUnreadStore = defineStore('messagesUnread', () => {
     const authStore = useAuthStore()
+
     const messagesApi = useMessagesApi()
 
     const unreadCount = ref(0)
+
     let timer: ReturnType<typeof setInterval> | null = null
+
     let inflight: Promise<void> | null = null
 
     /**
@@ -39,6 +44,9 @@ export const useMessagesUnreadStore = defineStore('messagesUnread', () => {
         return inflight
     }
 
+    /**
+     * 停止获取私信状态
+     */
     const stop = () => {
         if (timer !== null) {
             clearInterval(timer)
@@ -52,6 +60,7 @@ export const useMessagesUnreadStore = defineStore('messagesUnread', () => {
     const start = () => {
         if (typeof window === 'undefined') return
         if (timer !== null) return
+
         void refresh()
         timer = setInterval(refresh, POLL_INTERVAL)
     }
@@ -87,5 +96,8 @@ export const useMessagesUnreadStore = defineStore('messagesUnread', () => {
         }
     }, {immediate: true})
 
-    return {unreadCount, refresh, start, stop, setUnread, bump, subtract, reset}
+    return {
+        unreadCount,
+        refresh, start, stop, setUnread, bump, subtract, reset
+    }
 })

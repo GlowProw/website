@@ -13,13 +13,15 @@ const notice = useNoticeStore();
 const loading = ref(false);
 const actionLoading = ref<string | null>(null);
 const bindings = ref<any[]>([]);
+const qqBotDialog = ref(false);
 
-// 支持的第三方平台定义（微信登录已下线）
+// 第三方平台定义
 const platformDefs = [
-  {platform: 'qq', icon: 'mdi-qqchat', color: '#12b7f5'},
-  {platform: 'google', icon: 'mdi-google', color: '#ea4335'},
-  {platform: 'discord', icon: 'mdi-discord', color: '#5865f2'},
-];
+  {platform: 'qq', icon: 'mdi-qqchat', color: '#12b7f5', bindMode: 'oauth'},
+  {platform: 'google', icon: 'mdi-google', color: '#ea4335', bindMode: 'oauth'},
+  {platform: 'discord', icon: 'mdi-discord', color: '#5865f2', bindMode: 'oauth'},
+  {platform: 'glow-prow-qq-bot', icon: 'mdi-robot-outline', color: '#38545b', bindMode: 'bot'},
+] as const;
 
 onMounted(() => {
   loadBindings();
@@ -39,6 +41,9 @@ const loadBindings = async () => {
   }
 };
 
+/**
+ * 按平台标识取当前用户对应的绑定记录，未绑定时返回 undefined
+ */
 const getBindingFor = (platform: string) => {
   return bindings.value.find((b) => b.platform.toLowerCase() === platform.toLowerCase());
 };
@@ -47,6 +52,12 @@ const getBindingFor = (platform: string) => {
  * 绑定平台
  */
 const onBindPlatform = async (platform: string) => {
+  // QQ 机器人平台无法从网站直接发起授权，改为弹窗引导用户去私聊机器人
+  if (platform === 'glow-prow-qq-bot') {
+    qqBotDialog.value = true;
+    return;
+  }
+
   try {
     actionLoading.value = platform;
     const currentOrigin = typeof window !== 'undefined' ? window.location.origin : '';
@@ -69,7 +80,8 @@ const onBindPlatform = async (platform: string) => {
  * 解绑平台
  */
 const onUnbindPlatform = async (platform: string) => {
-  const confirmMsg = t('account.bindings.unbindConfirm', {platform: platform.toUpperCase()});
+  const platformLabel = t(`account.bindings.platforms.${platform}.name`, platform.toUpperCase());
+  const confirmMsg = t('account.bindings.unbindConfirm', {platform: platformLabel});
   if (!confirm(confirmMsg)) return;
 
   try {
@@ -177,6 +189,31 @@ defineOptions({
       </template>
     </AffixBoxHasTitleView>
     <!-- 第三方主流登录平台卡片 E -->
+
+    <v-dialog :model-value="qqBotDialog" max-width="460" @update:model-value="qqBotDialog = $event">
+      <v-card class="bg-grey-darken-4 pa-2">
+        <v-card-title class="d-flex align-center ga-2">
+          <v-icon icon="mdi-robot-outline" color="amber"></v-icon>
+          {{ t('account.bindings.qqBot.dialogTitle') }}
+        </v-card-title>
+        <v-card-text class="text-body-2">
+          <ol class="pl-4 mb-3">
+            <li class="mb-2">{{ t('account.bindings.qqBot.step1') }}</li>
+            <li class="mb-2">{{ t('account.bindings.qqBot.step2') }}</li>
+            <li>{{ t('account.bindings.qqBot.step3') }}</li>
+          </ol>
+          <v-alert type="info" variant="tonal" density="compact" class="mb-1">
+            {{ t('account.bindings.qqBot.hint') }}
+          </v-alert>
+        </v-card-text>
+        <v-card-actions class="px-4 pb-4">
+          <v-spacer></v-spacer>
+          <v-btn variant="tonal" color="amber" @click="qqBotDialog = false">
+            {{ t('common.close') }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <v-overlay :model-value="loading" contained class="d-flex align-center justify-center">
       <Loading size="50"></Loading>

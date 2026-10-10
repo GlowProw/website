@@ -1,3 +1,8 @@
+/**
+ * 量化材料状态机
+ * 计算耗材数量
+ */
+
 import {defineStore} from 'pinia'
 import {computed, ref} from 'vue'
 import {Items, Material, Materials, Ships} from 'glow-prow-data'

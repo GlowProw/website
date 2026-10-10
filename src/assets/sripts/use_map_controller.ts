@@ -112,6 +112,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
 
     const targetLongitude = ref<number | undefined>();
     const targetLatitude = ref<number | undefined>();
+    const targetZoom = ref<number | undefined>();
     const targetLocationId = ref<string | undefined>();
 
     const searchQuery = ref(null);
@@ -189,7 +190,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
     });
     const editingMarker = ref(false);
 
-    /* =========================== 路径/区域图形 =========================== */
+    // 路径/区域图形
     const userShapes = ref<MapShape[]>([]);
     const showShapeDialog = ref(false);
     const shapeDialogMode = ref<'create' | 'edit'>('create');
@@ -232,7 +233,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         if (dirtyShapeUuids.delete(uuid)) dirtyShapeVersion.value++;
     };
 
-    /* ======================== 分享地图集（链接导入/只读） ======================== */
+    // 分享地图集，链接导入与只读
     const showShareCollectionDialog = ref(false);
     const sharedCollectionInfo = ref<SharedCollectionInfo | null>(null);
     const importingSharedCollection = ref(false);
@@ -246,7 +247,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
     /** 工具栏绘制按钮高亮状态 */
     const drawMode = drawController.activeMode;
 
-    /* =========================== 框选（拖框多选） =========================== */
+    // 框选，拖框多选
     /** 框选模式开关（开启后屏蔽地图平移，按住拖框选中自己的标记/路径/区域） */
     const marqueeMode = ref(false);
     const marqueeSelection = ref<{ points: MapPoint[]; shapes: MapShape[] }>({ points: [], shapes: [] });
@@ -670,7 +671,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
     };
 
     const initializeMap = async (map: Map) => {
-        const { x: queryX, y: queryY, key: queryKey, category: queryCategory } = route.query;
+        const { x: queryX, y: queryY, z: queryZoom, key: queryKey, category: queryCategory } = route.query;
 
         initializeLayerVisibility();
         icons.value = serializationMap(mapImages);
@@ -913,8 +914,10 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         // /account/maps 管理页跳转联动（draw/focus/edit）
         await handleMapActionQuery();
 
-        if (queryKey) {
-            await onHandleUrlParams(queryKey as string, queryX as string, queryY as string, queryCategory as string, vectorSource);
+        // 带 key 的标记链接、或只带 x/y 的裸坐标链接都要处理；
+        // 函数内部会自行校验坐标合法性
+        if (queryKey || queryX !== undefined || queryY !== undefined) {
+            await onHandleUrlParams(queryKey as string, queryX as string, queryY as string, queryCategory as string, vectorSource, queryZoom as string);
         }
     };
 
@@ -1591,13 +1594,18 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
      */
     const copyLocationLink = async (coord: [number, number], feature?: any) => {
         let url = `${window.location.origin}${route.path}`;
+        // 带上当前缩放级别，打开链接时还原到同样的视野大小
+        const currentZoom = mapInstance.value?.getView().getZoom();
+        const zoomPart = typeof currentZoom === 'number' && Number.isFinite(currentZoom)
+            ? `&z=${currentZoom.toFixed(2)}`
+            : '';
         if (feature) {
             const originalData = feature.get('originalData');
             const locId = originalData?.id || feature.get('id');
             const cat = originalData?.category || 'location';
-            url += `?key=${locId}&x=${coord[0].toFixed(6)}&y=${coord[1].toFixed(6)}&category=${cat}`;
+            url += `?key=${locId}&x=${coord[0].toFixed(6)}&y=${coord[1].toFixed(6)}${zoomPart}&category=${cat}`;
         } else {
-            url += `?x=${coord[0].toFixed(6)}&y=${coord[1].toFixed(6)}`;
+            url += `?x=${coord[0].toFixed(6)}&y=${coord[1].toFixed(6)}${zoomPart}`;
         }
         try {
             await navigator.clipboard.writeText(url);
@@ -1792,19 +1800,23 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
      * @param queryY
      * @param queryCategory
      * @param vectorSource
+     * @param queryZoom 链接携带的缩放级别（z 参数），与坐标一起还原分享时的视野
      */
-    const onHandleUrlParams = async (queryKey: string, queryX: string, queryY: string, queryCategory: string, vectorSource: VectorSource): Promise<void> => {
+    const onHandleUrlParams = async (queryKey: string, queryX: string, queryY: string, queryCategory: string, vectorSource: VectorSource, queryZoom?: string): Promise<void> => {
         const lon = Number.parseFloat(queryX as string);
         const lat = Number.parseFloat(queryY as string);
         const hasCoord = Number.isFinite(lon) && Number.isFinite(lat)
             && lon >= -180 && lon <= 180 && lat >= -90 && lat <= 90;
+        const parsedZoom = Number.parseFloat(queryZoom as string);
+        const hasZoom = Number.isFinite(parsedZoom) && parsedZoom >= 0 && parsedZoom <= 28;
         const key = typeof queryKey === 'string' ? queryKey : '';
         const category = typeof queryCategory === 'string' ? queryCategory : '';
 
-        // 无论哪种链接，只要带了合法坐标，打开就先定位过去
+        // 无论哪种链接，只要带了合法坐标，打开就先定位过去；缩放级别也一并还原
         if (hasCoord) {
             targetLongitude.value = lon;
             targetLatitude.value = lat;
+            targetZoom.value = hasZoom ? parsedZoom : undefined;
         }
 
         const existingLocation = key ? locations.value.find(loc => loc.id === key) : undefined;
@@ -1933,7 +1945,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         await loadCurrentPoints(collectionUuid);
     };
 
-    /* ============================== 路径/区域 ============================== */
+    // 路径/区域
 
     /**
      * 加载某集合（或未分组）的全部图形并渲染。
@@ -2291,7 +2303,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         selectedShapeUuid.value = null;
     };
 
-    /* ========================= 个人标记：右键编辑/删除 ========================= */
+    // 个人标记的右键编辑和删除
 
     /** 解析后端返回的 tags JSON 字符串 */
     const parsePointTags = (raw: string | undefined | null): string[] => {
@@ -2456,7 +2468,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         });
     };
 
-    /* ============================= 通用确认弹窗 ============================= */
+    // 通用确认弹窗
 
     const askConfirm = (message: string, action: () => Promise<void> | void, danger = true): void => {
         pendingConfirmAction = action;
@@ -2484,7 +2496,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         confirmState.value.visible = false;
     };
 
-    /* ===================== 右键菜单：删除当前地图线/区域（所有/已提交/未提交） ===================== */
+    // 右键菜单：删除当前地图线或区域，涵盖所有、已提交、未提交
 
     const onClearShapesByType = (
         type: MapShapeType,
@@ -2537,7 +2549,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         );
     };
 
-    /* ================================ 框选逻辑 ================================ */
+    // 框选逻辑
 
     /** 选中标记/图形的高亮虚影样式 */
     const createMarqueePointGhostStyle = (): Style => new Style({
@@ -2856,7 +2868,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         marqueeTranslate?.setActive(marqueeMode.value && count > 0);
     });
 
-    /* ===================== /map query 联动（管理页跳转） ===================== */
+    // /map query 联动，供管理页跳转
 
     /** 清除 /map 上的联动 query 参数 */
     const clearMapActionQuery = (): void => {
@@ -3510,6 +3522,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         hoveedCoordinate,
         targetLongitude,
         targetLatitude,
+        targetZoom,
         targetLocationId,
         searchQuery,
         searchInput,

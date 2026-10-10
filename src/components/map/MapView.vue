@@ -25,6 +25,7 @@ const emit = defineEmits(['map-created']);
 const props = withDefaults(defineProps<{
   longitude?: number;
   latitude?: number;
+  zoom?: number;
   locationId?: string;
   locations?: any[];
   draggable?: boolean;
@@ -33,7 +34,6 @@ const props = withDefaults(defineProps<{
   animated?: boolean;
   /** 地图边界 [minLon, minLat, maxLon, maxLat]，超出此范围将被约束回来 */
   bounds?: [number, number, number, number];
-  /** debug 模式，开启后解除缩放限制 */
   debug?: boolean;
 }>(), {
   locations: () => [],
@@ -57,6 +57,9 @@ const computedExtent = computed(() => {
   return transformExtent([minLon, minLat, maxLon, maxLat], 'EPSG:4326', 'EPSG:3857');
 });
 
+/**
+ * 按 draggable / zoomable 开关切换平移和缩放手势的启用状态
+ */
 const updateInteractions = () => {
   const dragEnabled = props.draggable;
   const zoomEnabled = props.zoomable;
@@ -108,7 +111,7 @@ onMounted(() => {
     updateInteractions();
 
     if (props.longitude !== undefined && props.latitude !== undefined) {
-      panTo(props.longitude, props.latitude);
+      panTo(props.longitude, props.latitude, props.zoom);
     } else if (props.locationId && props.locations?.length) {
       const location = props.locations.find(loc => loc.id === props.locationId || (loc as any).key === props.locationId || loc.category === props.locationId);
       if (location) {
@@ -127,18 +130,23 @@ onUnmounted(() => {
   }
 });
 
-const panTo = (lon: number, lat: number) => {
+/**
+ * 把地图中心移动到指定经纬度，传了 zoom 就连同缩放级别一起还原
+ */
+const panTo = (lon: number, lat: number, zoom?: number) => {
   if (mapInstance.value) {
     mapInstance.value.getView().animate({
       center: fromLonLat([lon, lat]),
+      // 链接指定了缩放级别时与平移一起还原，未指定则只移动中心
+      ...(zoom !== undefined ? { zoom } : {}),
       duration: props.animated ? 500 : 0,
     });
   }
 };
 
-watch(() => [props.longitude, props.latitude], ([lon, lat]) => {
+watch(() => [props.longitude, props.latitude, props.zoom], ([lon, lat, zoom]) => {
   if (lon !== undefined && lat !== undefined) {
-    panTo(lon, lat);
+    panTo(lon, lat, zoom);
   }
 });
 

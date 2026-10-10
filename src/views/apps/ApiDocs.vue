@@ -132,8 +132,7 @@ const authStore = useAuthStore();
 const loading = ref(true);
 const error = ref<string | null>(null);
 const scalarContainerRef = ref<HTMLElement | null>(null);
-let scalarInstance: any = null;
-let abortController: AbortController | null = null;
+
 
 const apiTabs = computed(() => [
   {value: 'backend' as const, label: t('apps.apiDocs.tabs.backend')},
@@ -159,6 +158,9 @@ const specUrl = computed(() => {
 
 const assetsSpecUrl = '/openApi/assets-api.json';
 const langSpecUrl = '/openApi/lang-api.json';
+
+let scalarInstance: any = null;
+let abortController: AbortController | null = null;
 
 /**
  * 基于全局配置计算API发起请求的目标服务器地址
