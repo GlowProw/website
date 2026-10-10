@@ -249,7 +249,6 @@ export function invalidateVertexHandleStyle(): void {
 
 /**
  * 顶点编辑手柄样式：外圈 var(--main-color) 半透明圆环 + 内圈白点，
- * 替换 OL Modify 默认的蓝色手柄（顶点编辑、地图边界角点共用）。
  */
 export function createVertexHandleStyles(): Style[] {
     if (cachedVertexHandleStyles) return cachedVertexHandleStyles;
@@ -373,7 +372,6 @@ export class MapDrawController {
             source: this.editSource,
             hitDetection: this.editLayer,
             pixelTolerance: 22,
-            // 手柄使用主题色 var(--main-color)，替换 OL 默认蓝色（样式函数内懒加载，等 CSS 就绪后首次渲染再取色）
             style: () => createVertexHandleStyles(),
         });
         this.modify.setActive(false);
