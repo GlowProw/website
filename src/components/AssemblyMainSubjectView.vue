@@ -60,7 +60,6 @@ let viewRootRef = ref(null),
     warehouseWorkshopRef: Ref<any> = ref(null),
     masteryWorkshopRef: Ref<any> = ref(null),
     infoWorkshopRef: Ref<any> = ref(null),
-    workshopZoom = ref(1),
     tab = ref(getValidTag(route?.query?.tag) || assemblyViewConfig.onlyRead[0]),
     refs: Ref<any> = ref({
       zoomableAreaRef: null,

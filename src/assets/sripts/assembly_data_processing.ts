@@ -156,13 +156,13 @@ export default class AssemblyDataProcessing {
                     {
                         condition: () => {
                             let length = (data.secondaryWeaponSlots || []).length
-                            return length <= 0 || (data.secondaryWeaponSlots as any[]).filter(i => !i.id).length != length
+                            return length <= 0 || (data.secondaryWeaponSlots as any[]).filter(i => !i?.id).length != length
                         }, required: false, message: 'secondaryWeaponEmpty'
                     },
                     {
                         condition: () => {
                             let length = (data.weaponSlots || []).length
-                            return length <= 0 || (data.weaponSlots as any[]).filter(i => !i.id).length == length
+                            return length <= 0 || (data.weaponSlots as any[]).filter(i => !i?.id).length == length
                         }, required: false, message: 'weaponAllEmpty'
                     },
                     {
@@ -183,7 +183,7 @@ export default class AssemblyDataProcessing {
                     {
                         condition: () => {
                             let length = (data.displaySlots || []).length
-                            return length <= 0 || (data.displaySlots as any[]).filter(i => !i.id).length == length
+                            return length <= 0 || (data.displaySlots as any[]).filter(i => !i?.id).length == length
                         }, required: false, message: 'displayAllEmpty'
                     }
                 ];
@@ -376,7 +376,7 @@ export default class AssemblyDataProcessing {
                         condition: () => {
                             let length = data.secondaryWeaponSlots?.length || 0
                             if (length <= 0) return false;
-                            return (data.secondaryWeaponSlots as any[]).filter((i: { id: any; }) => !i.id).length != length
+                            return (data.secondaryWeaponSlots as any[]).filter((i: { id: any; }) => !i?.id).length != length
                         }, required: false, message: 'secondaryWeaponEmpty'
                     },
                     {
@@ -404,7 +404,7 @@ export default class AssemblyDataProcessing {
                     {
                         condition: () => {
                             let length = data.displaySlots?.length
-                            return length <= 0 || (data.displaySlots as any[]).filter(i => !i.id).length == length
+                            return length <= 0 || (data.displaySlots as any[]).filter(i => !i?.id).length == length
                         }, required: false, message: 'displayAllEmpty'
                     }
                 ];
@@ -456,7 +456,7 @@ export default class AssemblyDataProcessing {
                         condition: () => {
                             let length = data.secondaryWeaponSlots?.length || 0
                             if (length <= 0) return false;
-                            return (data.secondaryWeaponSlots as any[]).filter((i: { id: any; }) => !i.id).length != length
+                            return (data.secondaryWeaponSlots as any[]).filter((i: { id: any; }) => !i?.id).length != length
                         }, required: false, message: 'secondaryWeaponEmpty'
                     },
                     {
@@ -484,7 +484,7 @@ export default class AssemblyDataProcessing {
                     {
                         condition: () => {
                             let length = data.displaySlots?.length
-                            return length <= 0 || (data.displaySlots as any[]).filter(i => !i.id).length == length
+                            return length <= 0 || (data.displaySlots as any[]).filter(i => !i?.id).length == length
                         }, required: false, message: 'displayAllEmpty'
                     }
                 ];

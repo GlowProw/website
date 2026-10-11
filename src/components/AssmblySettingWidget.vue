@@ -2,14 +2,12 @@
 import {computed, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {apis, assemblyViewConfig} from "@/assets/sripts/index";
-import {useHttpToken} from "@/assets/sripts/http_util";
 import {useRoute, useRouter} from "vue-router";
 
 import AssemblyDataProcessing from "@/assets/sripts/assembly_data_processing";
 import WheelDataProcessing from "@/assets/sripts/wheel_data_processing";
 import WarehouseDataProcessing from "@/assets/sripts/warehouse_data_processing";
 import MasteryDataProcessing from "@/assets/sripts/mastery_data_processing";
-import {ApiError} from "@/assets/types/Api";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {handleApiError} from "@/assets/sripts/error_handler";
 
@@ -78,8 +76,6 @@ const delAssembly = async () => {
     const uuid = props.modelValue.uuid;
     delAssemblyLoading.value = true
 
-    console.log(props.modelValue)
-
     const result = await apis.assemblyApi().deleteAssembly(<string>uuid),
         d = result.data;
 
@@ -87,7 +83,7 @@ const delAssembly = async () => {
 
     notice.success(t(`basic.tips.${d.code}`))
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'AssmblySettingWidget' })
+    handleApiError(e, notice, t, {component: 'AssmblySettingWidget'})
   } finally {
     delAssemblyLoading.value = false
     deleteDialog.value = false
@@ -96,7 +92,9 @@ const delAssembly = async () => {
 
 const isDebug = computed(() => (route as any)?.query?.debug)
 
-defineOptions({ name: 'AssmblySettingWidget' })
+defineOptions({
+  name: 'AssmblySettingWidget'
+})
 </script>
 
 <template>

@@ -8,12 +8,14 @@ const props = withDefaults(defineProps<{
   modelValue?: any;
   color?: string;
   locale?: string;
+  size?: string;
 }>(), {
   tag: '',
   data: '',
   modelValue: '',
   color: undefined,
-  locale: undefined
+  locale: undefined,
+  size: undefined,
 });
 
 const {asString} = useI18nUtils(computed(() => props.locale));
@@ -46,7 +48,7 @@ defineOptions({name: 'AssemblyTagChip'});
 </script>
 
 <template>
-  <v-chip v-bind="$attrs" :color="color">
+  <v-chip v-bind="$attrs" :color="color" :size="size">
     <slot>{{ title }}</slot>
   </v-chip>
 </template>

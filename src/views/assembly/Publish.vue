@@ -4,8 +4,6 @@ import {computed, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {apis, storageIntermediateTransfer} from "@/assets/sripts";
 import {StorageIntermediateTransferSaveType} from "@/assets/sripts/storage_assembly";
-import {useI18nUtils} from "@/assets/sripts/i18n_util";
-import {ApiError} from "@/assets/types/Api";
 import {handleApiError} from "@/assets/sripts/error_handler";
 import {useNoticeStore} from "~/stores/noticeStore";
 
@@ -26,7 +24,6 @@ const route = useRoute(),
     router = useRouter(),
     notice = useNoticeStore(),
     appStore = useAppStore(),
-    {asString} = useI18nUtils(),
     {t, locale} = useI18n(),
     goto = useGoTo()
 
@@ -165,7 +162,7 @@ const onLoadData = async () => {
 
     await goto('#info', {duration: 2000, offset: -120})
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'AssemblyPublish' })
+    handleApiError(e, notice, t, {component: 'AssemblyPublish'})
   } finally {
     dataLoading.value = false
   }
@@ -237,7 +234,7 @@ const onEdit = async () => {
 
     notice.success(t(`basic.tips.${d.code}`))
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'AssemblyPublish' })
+    handleApiError(e, notice, t, {component: 'AssemblyPublish'})
   } finally {
     publishLoading.value = false
   }
@@ -269,7 +266,7 @@ const onPublish = async () => {
 
     notice.success(t(`basic.tips.${d.code}`))
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'AssemblyPublish' })
+    handleApiError(e, notice, t, {component: 'AssemblyPublish'})
   } finally {
     publishLoading.value = false
   }

@@ -91,13 +91,13 @@ defineOptions({name: 'AssemblyTagsWidget'})
     </div>
 
     <div class="mt-3 w-100">
-      <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">{{ t('assembly.tags.titles.seasons') }}</p>
+      <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100 mx-n">{{ t('assembly.tags.titles.seasons') }}</p>
       <div class="mt-3 ga-2" :class="[readonly ? 'readonly' : '']">
         <v-chip filter size="small"
                 color="var(--main-color)"
                 v-for="(i, index) in tagsConfig.seasons"
                 :key="index"
-                :value="`season_${i}`">{{ readSeason(i).fullName() }}
+                :value="`season_${i}`">{{ readSeason(i).name() }}
         </v-chip>
       </div>
     </div>

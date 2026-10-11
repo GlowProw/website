@@ -42,11 +42,6 @@ defineOptions({name: 'WeaponModificationOnlyShowWidget'})
        v-show="mod.value && mod.value.id != null"
        :key="modIndex">
     <v-row no-gutters dense align="start">
-      <v-col cols="auto" class="d-flex justify-center align-center pt-2">
-        <RhombusWidget
-            :size="28"
-            :type="mod?.rarity || (mod?.value ? 'normal' : 'none')"></RhombusWidget>
-      </v-col>
       <v-col cols="auto" class="d-flex justify-center align-center">
         <ItemSlotBase size="45px"
                       class="pa-1"

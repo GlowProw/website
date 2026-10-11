@@ -940,8 +940,8 @@ defineOptions({name: 'AssemblyWidget'})
                               </v-card>
                             </ItemSlotBase>
 
-                            <!-- 武器模组插槽 -->
-                            <div class="mb-2 mt-1" v-if="!perfectDisplay && workshopData.data.weaponSlots && workshopData.data.weaponSlots[index] && workshopData.data.weaponSlots[index]?.id != null">
+                            <!-- 武器模组插槽 !perfectDisplay &&  -->
+                            <div class="mb-2 mt-1" v-if="workshopData.data.weaponSlots && workshopData.data.weaponSlots[index] && workshopData.data.weaponSlots[index]?.id != null">
                               <WeaponModificationWidget :readonly="readonly"
                                                         :disabled="workshopData.data.weaponSlots[index]?.id == null"
                                                         :data="i"
@@ -1074,7 +1074,7 @@ defineOptions({name: 'AssemblyWidget'})
                             </ItemSlotBase>
 
                             <!-- 副武器模组插槽 -->
-                            <div class="mb-2 mt-1" v-if="!perfectDisplay">
+                            <div class="mb-2 mt-1">
                               <WeaponModificationWidget :readonly="readonly"
                                                         :disabled="workshopData.data.secondaryWeaponSlots[index]?.id == null"
                                                         :data="i"
@@ -1168,7 +1168,7 @@ defineOptions({name: 'AssemblyWidget'})
 
                 <template v-if="workshopData.data.armorSlot != null">
                   <!-- 船甲模组插槽 -->
-                  <div class="mb-2 mt-1" v-if="!perfectDisplay">
+                  <div class="mb-2 mt-1">
                     <WeaponModificationWidget :readonly="readonly"
                                               :data="workshopData.data.armorSlot"
                                               size="14"

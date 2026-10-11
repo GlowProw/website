@@ -23,6 +23,7 @@ import AssemblyTagsWidget from "@/components/AssemblyTagsWidget.vue";
 import AssemblySettingWidget from "@/components/AssmblySettingWidget.vue";
 import AssemblyTagChip from "@/components/AssemblyTagChip.vue";
 import {handleApiError} from "@/assets/sripts/error_handler";
+import AffixContainerView from "@/components/AffixContainerView.vue";
 
 const {t, locale} = useI18n(),
     route = useRoute(),
@@ -307,8 +308,8 @@ const loadAssemblyData = () => {
   if (refs.mastery && d.mastery) {
     refs.mastery
         ?.setSetting?.({
-          masteryUseVersion: d.mastery?.attr?.masteryUseVersion
-        })
+      masteryUseVersion: d.mastery?.attr?.masteryUseVersion
+    })
         ?.onLoad?.(d.mastery.data || d.mastery);
   }
 
@@ -598,108 +599,107 @@ const onDeleteDraft = (id: string) => {
         </v-breadcrumbs>
       </v-container>
 
-      <v-container class="pa-7">
+      <v-container class="pa-5">
         <v-row no-gutters align="start">
           <v-col>
             <h1 class="text-amber">{{ !isEditModel ? t('basic.button.create') : t('basic.button.edit') }}</h1>
-            <p class="opacity-80 mt-5">
+            <p class="opacity-60 mt-2">
               <template v-if="!isEditModel">{{ t('assembly.workshop.createTitle') }}</template>
               <template v-else>{{ t('assembly.workshop.editTitle') }} <u><b>{{ publishData.name || assemblyDetailData.name || 'none' }}</b></u></template>
             </p>
           </v-col>
           <v-col cols="auto">
-            <v-btn-group density="compact" class="mr-2">
-              <v-btn @click="onQuickArchiving" :loading="draftSaveQuickArchivingLoading" v-if="!isEditModel">
-                <BtnWidget class="pl-2" :size="25" keyboard-shortcut="s" @action-complete="onQuickArchiving">
-                  {{ t('assembly.workshop.quickSaveDraft') }}
-                </BtnWidget>
-              </v-btn>
-              <v-menu location="bottom right">
-                <template v-slot:activator="{ props }">
-                  <v-btn v-bind="props" v-if="!isEditModel">
-                    <v-icon icon="mdi-dots-vertical"/>
-                  </v-btn>
+            <div class="d-flex align-start ga-2">
+              <v-btn-group class="mr-2">
+                <v-btn @click="onQuickArchiving" :loading="draftSaveQuickArchivingLoading" v-if="!isEditModel" size="large">
+                  <BtnWidget class="pl-2" :size="25" keyboard-shortcut="s" @action-complete="onQuickArchiving">
+                    {{ t('assembly.workshop.quickSaveDraft') }}
+                  </BtnWidget>
+                </v-btn>
+                <v-menu location="bottom right">
+                  <template v-slot:activator="{ props }">
+                    <v-btn v-bind="props" v-if="!isEditModel">
+                      <v-icon icon="mdi-dots-vertical"/>
+                    </v-btn>
+                  </template>
+                  <v-list min-width="300">
+                    <v-list-item>
+                      <v-list-item-title @click="draftNewSaveModel = true">
+                        {{ t('assembly.workshop.saveAsDraft') }}
+                      </v-list-item-title>
+                    </v-list-item>
+                    <v-list-item>
+                      <v-list-item-title @click="onPenDraftPanel">
+                        {{ t('assembly.workshop.loadDraft') }}
+                      </v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
+              </v-btn-group>
+
+              <v-tooltip location="left top"
+                         content-class="pa-0"
+                         :offset="[20, 0]"
+                         :disabled="verificationWorkshop.verify.length <= 0">
+                <template v-slot:activator="{props}">
+                  <div v-bind="props" class="d-inline-flex ga-2 align-center">
+                    <v-btn
+                        :color="`var(--main-color)`"
+                        :disabled="!isAssemblyByUser || verificationWorkshop.required > 0"
+                        :loading="submitLoading"
+                        @click="onSubmit"
+                        size="large"
+                        class="bg-amber d-flex align-center"
+                        variant="tonal">
+
+                      <v-icon
+                          v-if="verificationWorkshop.verify.length <= 0 && verificationWorkshop.required <= 0"
+                          class="text-blue mr-1"
+                          icon="mdi-check-circle"
+                          size="22">
+                      </v-icon>
+
+                      {{ isEditModel ? (t('basic.button.save') || t('basic.button.commit')) : t('basic.button.commit') }}
+
+                      <p class="ml-2 text-red"  v-if="verificationWorkshop.required > 0">
+                        <v-icon icon="mdi-alert-circle" size="22"></v-icon>
+                        {{ verificationWorkshop.required }} 项必选未完成
+                      </p>
+                    </v-btn>
+                  </div>
                 </template>
-                <v-list min-width="300">
-                  <v-list-item>
-                    <v-list-item-title @click="draftNewSaveModel = true">
-                      {{ t('assembly.workshop.saveAsDraft') }}
-                    </v-list-item-title>
-                  </v-list-item>
-                  <v-list-item>
-                    <v-list-item-title @click="onPenDraftPanel">
-                      {{ t('assembly.workshop.loadDraft') }}
-                    </v-list-item-title>
-                  </v-list-item>
-                </v-list>
-              </v-menu>
-            </v-btn-group>
-            <v-btn class="mr-2" @click="router.go(-1)" v-if="isEditModel">
-              {{ t('basic.button.cancel') }}
-            </v-btn>
 
-            <v-tooltip location="left top" content-class="pa-0" :offset="[20, 0]" :disabled="verificationWorkshop.verify.length <= 0">
-              <template v-slot:activator="{props}">
-                <span v-bind="props" class="d-inline-flex align-center">
-                  <v-btn
-                      :color="`var(--main-color)`"
-                      :disabled="!isAssemblyByUser || verificationWorkshop.required > 0"
-                      :loading="submitLoading"
-                      @click="onSubmit"
-                      variant="elevated">
-                    {{ isEditModel ? (t('basic.button.save') || t('basic.button.commit')) : t('basic.button.commit') }}
-                  </v-btn>
+                <v-card border min-width="300" class="overflow-hidden elevation-24">
+                  <v-card-text v-if="requiredVerifyList.length > 0" class="bg-red-darken-4 text-white pa-3">
+                    <div class="d-flex align-center mb-2 font-weight-bold">
+                      <v-icon icon="mdi-alert-circle" size="18" class="mr-1"></v-icon>
+                      <span>{{ t('assembly.workshop.missingRequiredFields') }} ({{ requiredVerifyList.length }})</span>
+                    </div>
+                    <ul class="pl-4 mb-0" style="font-size: 13px; line-height: 1.6;">
+                      <li v-for="(v, vIndex) in requiredVerifyList" :key="'req-' + vIndex">
+                        <span class="text-white font-weight-bold" v-html="getVerifyMessage(v)"></span>
+                      </li>
+                    </ul>
+                  </v-card-text>
 
-                  <v-chip
-                      v-if="verificationWorkshop.required > 0"
-                      color="error"
-                      size="small"
-                      variant="tonal"
-                      class="ml-2 font-weight-bold">
-                    <v-icon icon="mdi-alert-circle" start size="16"></v-icon>
-                    {{ verificationWorkshop.required }} 项必选未完成
-                  </v-chip>
-                  <v-icon
-                      v-else-if="verificationWorkshop.verify.length <= 0"
-                      class="ml-2 text-green"
-                      icon="mdi-check-circle"
-                      size="22">
-                  </v-icon>
-                  <v-icon
-                      v-else
-                      class="ml-2 text-amber"
-                      icon="mdi-information"
-                      size="22">
-                  </v-icon>
-                </span>
-              </template>
+                  <v-card-text v-if="optionalVerifyList.length > 0" class="pa-3 bg-grey-darken-4 text-white">
+                    <div class="d-flex align-center mb-2 text-amber font-weight-bold">
+                      <v-icon icon="mdi-information-outline" size="16" class="mr-1"></v-icon>
+                      <span>建议完善项 ({{ optionalVerifyList.length }})</span>
+                    </div>
+                    <ul class="pl-4 mb-0 opacity-80">
+                      <li v-for="(v, vIndex) in optionalVerifyList" :key="'opt-' + vIndex">
+                        <span v-html="getVerifyMessage(v)"></span>
+                      </li>
+                    </ul>
+                  </v-card-text>
+                </v-card>
+              </v-tooltip>
 
-              <v-card width="320" max-width="360" class="elevation-6 rounded-lg overflow-hidden">
-                <v-card-text v-if="requiredVerifyList.length > 0" class="bg-red-darken-4 text-white pa-3">
-                  <div class="d-flex align-center mb-2 font-weight-bold">
-                    <v-icon icon="mdi-alert-circle" size="18" class="mr-1"></v-icon>
-                    <span>{{ t('assembly.workshop.missingRequiredFields') }} ({{ requiredVerifyList.length }})</span>
-                  </div>
-                  <ul class="pl-4 mb-0" style="font-size: 13px; line-height: 1.6;">
-                    <li v-for="(v, vIndex) in requiredVerifyList" :key="'req-' + vIndex">
-                      <span class="text-white font-weight-bold" v-html="getVerifyMessage(v)"></span>
-                    </li>
-                  </ul>
-                </v-card-text>
-
-                <v-card-text v-if="optionalVerifyList.length > 0" class="pa-3 bg-grey-darken-4 text-white">
-                  <div class="d-flex align-center mb-2 text-amber font-weight-bold" style="font-size: 13px;">
-                    <v-icon icon="mdi-information-outline" size="16" class="mr-1"></v-icon>
-                    <span>建议完善项 ({{ optionalVerifyList.length }})</span>
-                  </div>
-                  <ul class="pl-4 mb-0 opacity-80" style="font-size: 12px; line-height: 1.5;">
-                    <li v-for="(v, vIndex) in optionalVerifyList" :key="'opt-' + vIndex">
-                      <span v-html="getVerifyMessage(v)"></span>
-                    </li>
-                  </ul>
-                </v-card-text>
-              </v-card>
-            </v-tooltip>
+              <v-btn size="large" @click="router.go(-1)" v-if="isEditModel">
+                {{ t('basic.button.cancel') }}
+              </v-btn>
+            </div>
           </v-col>
         </v-row>
       </v-container>
@@ -718,89 +718,90 @@ const onDeleteDraft = (id: string) => {
 
   <!-- 配装发布与设置 S -->
   <v-container class="mt-4 mb-10" id="info">
-     <v-form>
-        <v-row>
-          <v-col cols="12" lg="8" sm="12">
-            <v-row>
-              <v-col cols="12">
-                <v-text-field
-                    v-model="publishData.name"
-                    :rules="formRules.name"
-                    :label="t('basic.assembly.publish.name')"
-                    size="l-large"
-                    hide-details="auto"
-                    :placeholder="t('basic.assembly.publish.namePlaceholder')"
-                    variant="underlined">
-                </v-text-field>
-              </v-col>
-              <v-col cols="12">
-                <div class="mt-4 mb-3 font-weight-bold">{{ t('basic.assembly.publish.description') }}</div>
+    <v-form>
+      <v-row>
+        <v-col cols="12" lg="8" sm="12">
+          <v-row>
+            <v-col cols="12">
+              <v-text-field
+                  v-model="publishData.name"
+                  :rules="formRules.name"
+                  :label="t('basic.assembly.publish.name')"
+                  size="l-large"
+                  hide-details="auto"
+                  :placeholder="t('basic.assembly.publish.namePlaceholder')"
+                  variant="underlined">
+              </v-text-field>
+            </v-col>
+            <v-col cols="12">
+              <div class="mt-4 mb-3 font-weight-bold">{{ t('basic.assembly.publish.description') }}</div>
 
-                <v-card :color="`hsl(from var(--main-color) h s calc(l * 0.05))`" border class="pl-3 pr-3">
+              <v-card :color="`hsl(from var(--main-color) h s calc(l * 0.01))`" border class="pl-3 pr-3">
                   <Textarea v-model="publishData.description"
                             :maxlength="10000"
                             class="mt-3 mb-2"
                             :placeholder="t('basic.assembly.publish.descriptionPlaceholder')"></Textarea>
-                  <template v-if="appStore.isDebug">
-                    {{ publishData.description }}
-                  </template>
-                </v-card>
-              </v-col>
-              <v-col cols="12">
-                <v-divider class="my-4">{{ t('basic.assembly.publish.extra') }}</v-divider>
-                <AssemblySettingWidget v-model="publishData" :is-show-delete="false"></AssemblySettingWidget>
-              </v-col>
-            </v-row>
-          </v-col>
-
-          <v-col cols="12" lg="4" sm="12">
-            <div class="mb-5">
-              <v-combobox
-                  v-model="publishData.assembly.tags"
-                  :counter="100"
-                  :hide-no-data="true"
-                  hide-details
-                  hide-selected
-                  :details="false"
-                  chips
-                  clearable
-                  item-title="label"
-                  item-value="value"
-                  :label="t('basic.assembly.publish.tags')"
-                  multiple
-                  :placeholder="t('basic.assembly.publish.tagsPlaceholder')"
-                  variant="underlined">
-                <template v-slot:prepend>
-                  <v-icon>mdi-tag-multiple</v-icon>
+                <template v-if="appStore.isDebug">
+                  {{ publishData.description }}
                 </template>
-                <template v-slot:chip="{item}">
-                  <AssemblyTagChip color="var(--main-color)" :tag="item.raw"/>
-                </template>
-              </v-combobox>
-            </div>
+              </v-card>
+            </v-col>
+            <v-col cols="12">
+              <v-divider class="my-4">{{ t('basic.assembly.publish.extra') }}</v-divider>
+              <AssemblySettingWidget v-model="publishData" :is-show-delete="false"></AssemblySettingWidget>
+            </v-col>
+          </v-row>
+        </v-col>
 
-            <AssemblyTagsWidget
-                v-model="publishData.assembly.tags"></AssemblyTagsWidget>
-          </v-col>
-        </v-row>
-      </v-form>
+        <v-col cols="12" lg="4" sm="12">
+          <div class="mb-5">
+            <v-combobox
+                v-model="publishData.assembly.tags"
+                :counter="100"
+                :hide-no-data="true"
+                hide-details
+                hide-selected
+                :details="false"
+                chips
+                clearable
+                item-title="label"
+                item-value="value"
+                :label="t('basic.assembly.publish.tags')"
+                multiple
+                :placeholder="t('basic.assembly.publish.tagsPlaceholder')"
+                variant="underlined">
+              <template v-slot:prepend v-if="publishData.assembly.tags <= 0">
+                <v-icon>mdi-tag-multiple</v-icon>
+              </template>
+              <template v-slot:chip="{item}">
+                <AssemblyTagChip color="var(--main-color)" :tag="item.raw" size="x-large"/>
+              </template>
+            </v-combobox>
+          </div>
 
+          <AssemblyTagsWidget
+              v-model="publishData.assembly.tags"></AssemblyTagsWidget>
+        </v-col>
+      </v-row>
+    </v-form>
+
+    <AffixContainerView :offset-bottom="0">
       <v-divider class="my-5"></v-divider>
       <v-row align="center" justify="end" no-gutters>
-        <v-btn v-if="isEditModel" class="mr-3" variant="outlined" @click="router.go(-1)">
+        <v-btn v-if="isEditModel" class="mr-3" @click="router.go(-1)">
           {{ t('basic.button.cancel') }}
         </v-btn>
         <v-btn
             :color="`var(--main-color)`"
             :disabled="!isAssemblyByUser || verificationWorkshop.required > 0"
             :loading="submitLoading"
+            class="text-black"
             variant="elevated"
-            size="large"
             @click="onSubmit">
-          <v-icon icon="mdi-check" start></v-icon>
           {{ isEditModel ? (t('basic.button.save') || t('basic.button.commit')) : t('basic.button.commit') }}
         </v-btn>
       </v-row>
+    </AffixContainerView>
   </v-container>
   <!-- 配装发布与设置 E -->
 

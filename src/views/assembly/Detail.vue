@@ -246,8 +246,8 @@ const onPenPassword = () => {
 
               <v-spacer></v-spacer>
 
-              <div class="ga-2 d-flex">
-                <v-btn icon v-if="authStore.isLogin && detailData.isVisibility && detailData.assembly?.attr?.isLike">
+              <div class="ga-2 d-flex mr-1">
+                <div v-if="authStore.isLogin && detailData.isVisibility && detailData.assembly?.attr?.isLike">
                   <LikeWidget targetType="assembly"
                               :targetId="detailData.uuid"
                               :userId="authStore.user.userId">
@@ -258,14 +258,18 @@ const onPenPassword = () => {
                       <v-btn variant="text" icon="mdi-thumb-up-outline"></v-btn>
                     </template>
                   </LikeWidget>
-                </v-btn>
+                </div>
 
                 <v-btn variant="text" v-if="detailData.uuid" :to="`/assembly/browse/${detailData.uuid}/share`" icon="mdi-share-variant-outline"></v-btn>
+
                 <AssemblyCompareDialog v-if="detailData.uuid" :base-assembly="detailData" :base-title="detailData.name">
                   <template #activator="{ props }">
                     <v-btn variant="text" v-bind="props" icon="mdi-scale-balance" :title="t('assembly.compare.title')"></v-btn>
                   </template>
                 </AssemblyCompareDialog>
+
+                <v-divider vertical inset></v-divider>
+
                 <v-btn variant="text" v-if="detailData.uuid" @click="getAssemblyDetail(true)" icon="mdi-refresh"></v-btn>
               </div>
 
