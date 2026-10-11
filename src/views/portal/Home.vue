@@ -136,7 +136,7 @@ onUnmounted(() => {
           <v-col cols="12" md="4" lg="4">
             <AffixContainerView>
               <div class="d-flex flex-column justify-space-between">
-                <h1 class="text-h6 text-amber pb-2">{{ readSeason(currentlySeason?.id || '').fullName() }}</h1>
+                <h1 class="text-h6 text-amber pb-2">{{ readSeason(currentlySeason?.id || '').name() }}</h1>
                 <p class="font-weight-light opacity-60">{{ t(`snb.calendar.${currentlySeason?.id}.description`) }}</p>
               </div>
             </AffixContainerView>
