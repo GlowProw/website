@@ -6,6 +6,7 @@ import {Sets, Set} from "glow-prow-data";
 import {rarity} from "@/assets/sripts/index";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 
+import Banner from "@/components/Banner.vue";
 import LightRays from "../LightRays.vue"
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
@@ -67,7 +68,7 @@ defineOptions({
 
 <template>
   <v-card class="demo-reel bg-black" flat border v-if="i && i?.id">
-    <div class="demo-reel-header pa-10 position-relative" :class="[`set-card-header-rarity-${i?.rarity}`]">
+    <Banner class="demo-reel-header pa-10" :class="[`set-card-header-rarity-${i?.rarity}`]">
       <div class="v-skeleton-loader__bone v-skeleton-loader__image opacity-30 position-absolute left-0 top-0 w-100 h-100"></div>
 
       <h1 class="font-weight-bold">
@@ -95,7 +96,7 @@ defineOptions({
             class="w-100 h-100 pointer-events-none position-absolute top-0 right-0"
         />
       </template>
-    </div>
+    </Banner>
     <div class="demo-reel-content pl-10 pr-10 background-flavor overflow-auto"
          v-if="isShowOpenDetail">
       <BtnWidget @action-complete="router.push(`/codex/set/${i.id}`)"

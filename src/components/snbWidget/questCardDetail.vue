@@ -7,6 +7,7 @@ import {Quests, Questlog} from "glow-prow-data";
 import QuestName from "@/components/snbWidget/questName.vue";
 import QuestDescription from "@/components/snbWidget/questDescription.vue";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
+import Banner from "@/components/Banner.vue";
 
 const props = withDefaults(defineProps<{
   id: string,
@@ -31,7 +32,7 @@ defineOptions({
 
 <template>
   <v-card class="demo-reel bg-black" flat border v-if="quest">
-    <div class="demo-reel-header pa-6 position-relative">
+    <Banner class="demo-reel-header pa-6">
       <h1 class="font-weight-bold">
         <QuestName :id="props.id"></QuestName>
       </h1>
@@ -42,7 +43,7 @@ defineOptions({
           {{ t(`snb.quests.${quest.category}.name`) || quest.category }}
         </v-chip>
       </div>
-    </div>
+    </Banner>
 
     <div class="demo-reel-content background-flavor overflow-auto">
       <template v-if="isShowDescription">

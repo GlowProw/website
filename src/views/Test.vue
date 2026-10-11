@@ -5,6 +5,7 @@ import {Items, Ships} from "glow-prow-data";
 import ModSlotWidget from "@/widgets/modSlot/Index.vue";
 import CombatEffectWidget from "@/widgets/combatEffect/Index.vue";
 import InfamyWidget from "@/widgets/infamy/Index.vue";
+import AbyssalTransferWidget from "@/components/AbyssalTransferWidget.vue";
 
 let result = ref(
     CoreCalc.create()
@@ -29,6 +30,9 @@ let result = ref(
 </script>
 
 <template>
+   <!-- 大师武器卡槽(深渊词条) 转移说明部件 -->
+    <AbyssalTransferWidget class="mb-10"/>
+
   <v-container class="mt-10">
     <!-- 恶名系统与魁首巅峰里程碑 -->
     <InfamyWidget class="mb-10"/>
@@ -37,6 +41,8 @@ let result = ref(
     <CombatEffectWidget class="mb-10"/>
 
     <!-- 装备词条插槽/精通说明部件 -->
-    <ModSlotWidget/>
+    <ModSlotWidget class="mb-10"/>
+
+ 
   </v-container>
 </template>

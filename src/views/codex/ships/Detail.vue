@@ -30,6 +30,7 @@ import ShareWidget from "@/components/ShareWidget.vue";
 import {useCalculatorStore} from "~/stores/calculatorStore";
 import {useNoticeStore} from "~/stores/noticeStore";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
+import Banner from "@/components/Banner.vue";
 
 const shipImages = import.meta.glob('@glow-prow-assets/ships/*.png', {eager: true})
 
@@ -171,7 +172,7 @@ const onAddCalculator = () => {
   <v-divider></v-divider>
 
   <div class="ships-detail" v-if="shipDetailData.id && !shipDetailPageData.loading">
-    <div class="ships-detail-header background-dot-grid">
+    <Banner class="ships-detail-header">
       <v-container class="position-relative">
         <v-row class="mt-5">
           <v-col>
@@ -222,7 +223,7 @@ const onAddCalculator = () => {
                inline
                class="cosmetic-detail-header-img pointer-events-none"></v-img>
       </v-container>
-    </div>
+    </Banner>
     <div class="background-flavor">
       <v-container>
         <v-row>
@@ -412,22 +413,14 @@ const onAddCalculator = () => {
     padding-bottom: 40px;
     min-height: 320px;
 
-    &:before {
-      content: "";
-      position: absolute;
-      z-index: 0;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 0;
-      padding: 10% 0 0;
-      background: url(@/assets/images/portal-banner-background.png) 50% 0 no-repeat;
-      background-size: cover;
-    }
+    background-color: #000;
+    position: relative;
+    padding-bottom: 40px;
+    min-height: 320px;
 
     .cosmetic-detail-header-img {
       position: absolute;
-      z-index: -1;
+      z-index: 1;
       right: 20px;
       bottom: -120px;
       width: 300px;

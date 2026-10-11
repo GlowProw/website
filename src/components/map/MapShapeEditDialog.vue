@@ -223,13 +223,30 @@ const patchStyle = (style: ShapeStyle) => {
 /**
  * 将 GeoJSON 几何提取为投影坐标 feature
  */
-const createFeatureFromGeometry = (geo: ShapeGeometry): Feature => {
+const createFeatureFromGeometry = (geo: ShapeGeometry): Feature | null => {
+  if (!geo || !geo.coordinates) return null;
   let olGeom: SimpleGeometry;
   if (geo.type === 'LineString') {
-    const coords = (geo.coordinates as number[][]).map(c => fromLonLat(c));
+    const rawCoords = geo.coordinates as number[][];
+    if (!Array.isArray(rawCoords) || rawCoords.length < 2) return null;
+    const coords = rawCoords.map(c => fromLonLat(c));
     olGeom = new LineString(coords);
   } else {
-    const coords = ((geo.coordinates as number[][][])[0] || []).map(c => fromLonLat(c));
+    let ring: number[][] = [];
+    if (Array.isArray(geo.coordinates)) {
+      if (Array.isArray(geo.coordinates[0]) && Array.isArray((geo.coordinates[0] as any)[0])) {
+        ring = geo.coordinates[0] as number[][];
+      } else if (Array.isArray(geo.coordinates[0])) {
+        ring = geo.coordinates as number[][];
+      }
+    }
+    if (!Array.isArray(ring) || ring.length < 3) return null;
+    const first = ring[0];
+    const last = ring[ring.length - 1];
+    if (first[0] !== last[0] || first[1] !== last[1]) {
+      ring = [...ring, [first[0], first[1]]];
+    }
+    const coords = ring.map(c => fromLonLat(c));
     olGeom = new Polygon([coords]);
   }
   const feature = new Feature({geometry: olGeom});
@@ -269,8 +286,11 @@ const updateFeatureStyle = () => {
  */
 const onMiniMapCreated = (map: Map) => {
   mapInstance.value = map;
-  if (!vectorLayer) {
+  
+  const existingLayer = map.getLayers().getArray().find(l => l.get('name') === 'shapeLayer');
+  if (!existingLayer) {
     vectorLayer = new VectorLayer({
+      properties: { name: 'shapeLayer' },
       source: vectorSource,
       zIndex: 10,
     });
@@ -278,19 +298,23 @@ const onMiniMapCreated = (map: Map) => {
   }
 
   // 顶点编辑
-  if (!modifyInteraction) {
-    modifyInteraction = new Modify({source: vectorSource});
-    modifyInteraction.on('modifyend', () => {
-      const features = vectorSource.getFeatures();
-      if (features.length > 0) {
-        const geo = extractGeoJson(features[0]);
-        if (geo) patch({geometry: geo});
-      }
-    });
-    map.addInteraction(modifyInteraction);
+  if (modifyInteraction) {
+    try { map.removeInteraction(modifyInteraction); } catch (e) {}
   }
+  modifyInteraction = new Modify({source: vectorSource});
+  modifyInteraction.on('modifyend', () => {
+    const features = vectorSource.getFeatures();
+    if (features.length > 0) {
+      const geo = extractGeoJson(features[0]);
+      if (geo) patch({geometry: geo});
+    }
+  });
+  map.addInteraction(modifyInteraction);
 
-  loadFeatureToMap();
+  setTimeout(() => {
+    map.updateSize();
+    loadFeatureToMap();
+  }, 100);
 };
 
 /**
@@ -300,10 +324,18 @@ const loadFeatureToMap = () => {
   vectorSource.clear();
   if (props.form.geometry) {
     const feature = createFeatureFromGeometry(props.form.geometry);
-    vectorSource.addFeature(feature);
-    const extent = feature.getGeometry()?.getExtent();
-    if (extent && mapInstance.value) {
-      mapInstance.value.getView().fit(extent, {padding: [30, 30, 30, 30], maxZoom: 14});
+    if (feature) {
+      vectorSource.addFeature(feature);
+      if (mapInstance.value) {
+        mapInstance.value.updateSize();
+        const geom = feature.getGeometry();
+        if (geom) {
+          const extent = geom.getExtent();
+          if (extent && !extent.some(isNaN) && extent[0] !== Infinity && extent[0] !== -Infinity) {
+            mapInstance.value.getView().fit(extent, {padding: [30, 30, 30, 30], maxZoom: 14});
+          }
+        }
+      }
     }
   } else if (props.mode === 'create') {
     startDraw();
@@ -351,9 +383,21 @@ watch(() => props.modelValue, (visible) => {
         mapInstance.value.updateSize();
         loadFeatureToMap();
       }
-    }, 200);
+    }, 150);
+    setTimeout(() => {
+      if (mapInstance.value) {
+        mapInstance.value.updateSize();
+        loadFeatureToMap();
+      }
+    }, 350);
   }
 });
+
+watch(() => props.form.geometry, (newGeo) => {
+  if (props.modelValue && !isDrawing.value && newGeo) {
+    loadFeatureToMap();
+  }
+}, { deep: true });
 
 const onSubmit = async () => {
   if (formRef.value) {

@@ -24,6 +24,7 @@ import ByStorylineWidget from "@/components/ByStorylineWidget.vue";
 import QuestPrerequisitesWidget from "@/components/snbWidget/questPrerequisitesWidget.vue";
 import QuestSubsequentWidget from "@/components/snbWidget/questSubsequentWidget.vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
+import Banner from "@/components/Banner.vue";
 
 const {t, messages} = useI18n(),
     router = useRouter(),
@@ -163,7 +164,7 @@ defineOptions({
 
   <div v-if="questDetailData && questDetailData.id" class="item-detail quest-detail">
     <!-- 头部横幅 -->
-    <div class="item-detail-header background-dot-grid">
+    <Banner class="item-detail-header">
       <v-container class="position-relative">
         <v-row class="mt-5">
           <v-col cols="8">
@@ -204,7 +205,7 @@ defineOptions({
           </v-col>
         </v-row>
       </v-container>
-    </div>
+    </Banner>
 
     <!-- 主体内容 -->
     <div class="background-flavor">
@@ -311,19 +312,6 @@ defineOptions({
     position: relative;
     padding-bottom: 40px;
     min-height: 320px;
-
-    &:before {
-      content: "";
-      position: absolute;
-      z-index: 0;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 0;
-      padding: 10% 0 0;
-      background: url(@/assets/images/portal-banner-background.png) 50% 0 no-repeat;
-      background-size: cover;
-    }
   }
 
   .quest-link-card {

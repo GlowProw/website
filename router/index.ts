@@ -14,7 +14,9 @@ const AccountSmugglersReport = () => import('@/views/user/account/SmugglersRepor
 const AccountDataCenterPage = () => import('@/views/user/account/DataCenter.vue');
 const AccountMessagesCenterPage = () => import('@/views/user/account/MessagesCenter.vue');
 const AccountMessagesSettingsPage = () => import('@/views/user/account/AccountMessagesSettings.vue');
-const AccountSpacePage = () => import('@/views/user/Space.vue');
+const SpacePage = () => import('@/views/user/space/Index.vue');
+const SpaceAssemblysPage = () => import('@/views/user/space/Assemblys.vue');
+const SpaceTeamupsPage = () => import('@/views/user/space/Teamups.vue');
 const SigninPage = () => import('@/views/user/Signin.vue');
 const SignupPage = () => import('@/views/user/Signup.vue');
 const ActivatePage = () => import('@/views/user/Activate.vue');
@@ -261,9 +263,44 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
                 ]
             },
             {
+                path: 'space',
+                name: 'SpaceHome',
+                component: SpacePage,
+                redirect: to => ({ name: 'SpaceAssemblys', params: to.params, query: to.query }),
+                children: [
+                    {
+                        path: 'assemblys',
+                        name: 'SpaceAssemblys',
+                        component: SpaceAssemblysPage,
+                        meta: { title: 'space.title' }
+                    },
+                    {
+                        path: 'teamups',
+                        name: 'SpaceTeamups',
+                        component: SpaceTeamupsPage,
+                        meta: { title: 'space.title' }
+                    },
+                ]
+            },
+            {
                 path: 'space/:id',
                 name: 'AccountSpace',
-                component: AccountSpacePage,
+                component: SpacePage,
+                redirect: to => ({ name: 'SpaceUserAssemblys', params: to.params, query: to.query }),
+                children: [
+                    {
+                        path: 'assemblys',
+                        name: 'SpaceUserAssemblys',
+                        component: SpaceAssemblysPage,
+                        meta: { title: 'space.title' }
+                    },
+                    {
+                        path: 'teamups',
+                        name: 'SpaceUserTeamups',
+                        component: SpaceTeamupsPage,
+                        meta: { title: 'space.title' }
+                    },
+                ]
             },
             {
                 path: 'oauth/callback',
@@ -848,14 +885,12 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
             {
                 path: 'publish/:uid',
                 name: 'PublishAssembly',
-                component: AssemblePublishPage,
-                beforeEnter: isLoginBeforeEnter
+                redirect: to => ({ name: 'AssemblyWorkshop' })
             },
             {
                 path: 'edit/:uid',
                 name: 'EditAssembly',
-                component: AssemblePublishPage,
-                beforeEnter: isLoginBeforeEnter
+                redirect: to => ({ name: 'AssemblyEdit', params: { uid: to.params.uid } })
             },
             {
                 path: 'browse',

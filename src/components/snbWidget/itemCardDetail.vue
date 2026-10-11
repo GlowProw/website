@@ -7,7 +7,7 @@ import {Cosmetics} from "glow-prow-data";
 import {number, rarity} from "@/assets/sripts/index";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 
-import Loading from "../Loading.vue";
+import Banner from "@/components/Banner.vue";
 import LightRays from "../LightRays.vue"
 import ItemName from "@/components/snbWidget/itemName.vue";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
@@ -132,7 +132,7 @@ defineOptions({
 
 <template>
   <v-card class="demo-reel bg-black" flat border v-if="i && i.id">
-    <div class="demo-reel-header pa-10 position-relative"
+    <Banner class="demo-reel-header pa-10"
          :style="`background-color: color-mix(in srgb, hsl(from ${rarityColorConfig[ items[i.id]?.rarity || '' ]} h s l) 10%, #000)`">
       <div class="v-skeleton-loader__bone v-skeleton-loader__image opacity-30 position-absolute left-0 top-0 w-100 h-100"></div>
 
@@ -179,8 +179,8 @@ defineOptions({
             class="w-100 h-100 pointer-events-none position-absolute top-0 right-0"
         />
       </template>
-    </div>
-    <div :class="{'demo-reel-content': !isWidget}" class="background-flavor overflow-auto">
+    </Banner>
+    <div :class="{'demo-reel-content': !isWidget}" class="background-flavor overflow-auto pt-6">
       <template v-if="isShowDescription">
         <div class="mb-5">
           <div :class="itemDescription && itemDescription.isHasDescription ? 'px-6 description' : ''">

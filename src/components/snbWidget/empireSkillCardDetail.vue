@@ -9,6 +9,7 @@ import EmpireSkillDescription from "@/components/snbWidget/empireSkillDescriptio
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
+import Banner from "@/components/Banner.vue";
 
 const props = withDefaults(defineProps<{
   id: string,
@@ -33,7 +34,7 @@ defineOptions({
 
 <template>
   <v-card class="demo-reel bg-black" flat border v-if="skill">
-    <div class="demo-reel-header pa-6 position-relative">
+    <Banner class="demo-reel-header pa-6">
       <div class="d-flex align-center mb-2" v-if="skill.type">
         <ItemSlotBase size="22px" :padding="0" class="d-inline-flex mr-2">
           <FactionIconWidget :name="skill.type" size="22px"></FactionIconWidget>
@@ -49,7 +50,7 @@ defineOptions({
       <div class="mt-2 text-caption opacity-70" v-if="skill.stage">
         {{ t('empireSkillSimulation.stage', {num: skill.stage}) }}
       </div>
-    </div>
+    </Banner>
 
     <div class="demo-reel-content background-flavor overflow-auto pa-6">
       <template v-if="isShowDescription">

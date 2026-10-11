@@ -179,6 +179,11 @@ watch([searchQuery, filterType, sortBy], () => {
   updateTimeout = window.setTimeout(updateData, 300)
 })
 
+watch([() => props.tags, () => props.filterFun], () => {
+  clearTimeout(updateTimeout)
+  updateTimeout = window.setTimeout(updateData, 50)
+}, {deep: true})
+
 onMounted(() => {
   sortBy.value = props.sortBy;
   filterType.value = props.filterType;

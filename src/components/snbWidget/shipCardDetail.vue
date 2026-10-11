@@ -4,6 +4,7 @@ import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useRouter} from "vue-router";
 import {Ships} from "glow-prow-data";
 
+import Banner from "@/components/Banner.vue";
 import ShinyText from "@/components/ShinyText.vue";
 import ShipBaseInfoSlotWidget from "@/components/snbWidget/shipBaseInfoSlotWidget.vue";
 import ShipWeaponInfoSlotWidget from "@/components/snbWidget/shipWeaponInfoSlotWidget.vue";
@@ -61,7 +62,7 @@ defineOptions({
 
 <template>
   <v-card class="demo-reel bg-black" flat border v-if="shipData && shipData.id">
-    <div class="demo-reel-header pa-10 position-relative">
+    <Banner class="demo-reel-header pa-10">
       <h1 class="font-weight-bold">
         <ShinyText :text="t(`snb.ships.${props.id}.name`)" :speed="1" class-name="text-amber" class=""></ShinyText>
       </h1>
@@ -81,7 +82,7 @@ defineOptions({
       </div>
 
       <v-img :src="shipCardData.icon" class="prohibit-drag right-show-image position-absolute w-33" v-if="isWidget"></v-img>
-    </div>
+    </Banner>
     <div :class="{'demo-reel-content': !isWidget}" class="background-flavor overflow-auto">
       <template v-if="isShowDescription">
         <div class="mb-5 px-6 description">

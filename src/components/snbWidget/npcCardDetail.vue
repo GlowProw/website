@@ -6,6 +6,7 @@ import {rarity} from "@/assets/sripts/index";
 import {Npc, Npcs} from "glow-prow-data";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 
+import Banner from "@/components/Banner.vue";
 import LightRays from "@/components/LightRays.vue";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import NpcName from "@/components/snbWidget/npcName.vue";
@@ -80,8 +81,8 @@ defineOptions({
 
 <template>
   <v-card border class="demo-reel bg-black" flat v-if="i && i.id">
-    <div :style="`background-color: color-mix(in srgb, hsl(from ${rarityColorConfig[ (npcs as any)[i.id]?.rarity || '' ]} h s l) 10%, #000)`"
-         class="demo-reel-header pa-10 position-relative">
+    <Banner :style="`background-color: color-mix(in srgb, hsl(from ${rarityColorConfig[ (npcs as any)[i.id]?.rarity || '' ]} h s l) 10%, #000)`"
+         class="demo-reel-header pa-10">
       <div class="v-skeleton-loader__bone v-skeleton-loader__image opacity-30 position-absolute left-0 top-0 w-100 h-100"></div>
 
       <h1 class="material-card-name font-weight-bold w-66">
@@ -118,7 +119,7 @@ defineOptions({
             rays-origin="top-right"
         />
       </template>
-    </div>
+    </Banner>
     <v-divider v-if="isShowOpenDetail" class="my-4"></v-divider>
     <div class="demo-reel-content px-10 background-flavor overflow-auto" v-if="isShowOpenDetail">
       <BtnWidget class="mt-1"

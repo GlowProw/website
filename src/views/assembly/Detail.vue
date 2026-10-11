@@ -16,18 +16,16 @@ import AssemblyTagsWidget from "@/components/AssemblyTagsWidget.vue";
 import CommentWidget from "@/components/CommentWidget.vue";
 import AssemblySettingPanel from "@/components/AssemblySettingPanel.vue";
 import TimeView from "@/components/TimeView.vue";
-import Time from "@/components/Time.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
 import AssemblyMainSubjectView from "@/components/AssemblyMainSubjectView.vue";
 import AssemblyTagChip from "@/components/AssemblyTagChip.vue";
 import {apis, getAppUrl} from "@/assets/sripts/index";
-import type {AssemblyListParams, EditAssemblyData, PublishAssemblyData} from '@/assets/types/Assembly';
-import {ApiError} from "@/assets/types/Api";
 import AdsWidget from "@/components/ads/google/index.vue";
 import AccountCardWidget from "@/components/AccountCardWidget.vue";
 import AssemblyCompareDialog from "@/components/AssemblyCompareDialog.vue";
 import {handleApiError} from "@/assets/sripts/error_handler";
 import {useBrowseApi} from "@/assets/sripts/api/browse_service";
+import AffixContainerView from "@/components/AffixContainerView.vue";
 
 const route = useRoute(),
     router = useRouter(),
@@ -39,7 +37,7 @@ const route = useRoute(),
 const browseApi = useBrowseApi()
 
 // 浏览相关状态
-const browseCount = ref<{ total: number; today: number }>({ total: 0, today: 0 })
+const browseCount = ref<{ total: number; today: number }>({total: 0, today: 0})
 
 let detailData: Ref<any> = ref({
       cloningUuid: '',
@@ -151,10 +149,11 @@ const getAssemblyDetail = async (force: boolean = false) => {
 
     // 拉取浏览统计（后端已在 /item 路由自动记录浏览，前端异步拉取数量展示）
     try {
-        browseCount.value = await browseApi.getBrowseCount('assembly', <string>uuid);
-    } catch { /* 静默 */ }
+      browseCount.value = await browseApi.getBrowseCount('assembly', <string>uuid);
+    } catch { /* 静默 */
+    }
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'AssemblyDetail' })
+    handleApiError(e, notice, t, {component: 'AssemblyDetail'})
   } finally {
     assemblyLoading.value = false
   }
@@ -272,23 +271,10 @@ const onPenPassword = () => {
 
               <template v-if="detailData.isVisibility && authStore.isLogin && detailData.isOwner">
                 <v-btn-group class="ml-2">
-                  <v-menu location="bottom end">
-                    <template v-slot:activator="{ props }">
-                      <v-btn variant="flat" v-bind="props">
-                        <v-icon icon="mdi-pencil" class="mr-2"></v-icon>
-                        {{ t('assembly.editAssemblyBtn') }}
-                        <v-icon icon="mdi-menu-down" class="ml-1"></v-icon>
-                      </v-btn>
-                    </template>
-                    <v-list density="compact">
-                      <v-list-item link :to="`/assembly/edit/${detailData.uuid}`">
-                        <v-list-item-title>{{ t('assembly.editInfoBtn') }}</v-list-item-title>
-                      </v-list-item>
-                      <v-list-item link :to="`/assembly/workshop/${detailData.uuid}/edit`">
-                        <v-list-item-title>{{ t('assembly.editWorkshopBtn') }}</v-list-item-title>
-                      </v-list-item>
-                    </v-list>
-                  </v-menu>
+                  <v-btn variant="flat" :to="`/assembly/workshop/${detailData.uuid}/edit`">
+                    <v-icon icon="mdi-pencil" class="mr-2"></v-icon>
+                    {{ t('assembly.editAssemblyBtn') }}
+                  </v-btn>
                   <v-divider vertical></v-divider>
                   <AssemblySettingPanel :id="detailData.uuid"
                                         :data="detailData || {}"

@@ -14,7 +14,7 @@ import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style';
 import { fromLonLat, toLonLat } from 'ol/proj';
 import type { Feature as OLFeature } from 'ol';
 import type { Geometry, SimpleGeometry } from 'ol/geom';
-import type {DrawShapeMode, MapDrawControllerCallbacks, MapShape, MapShapeType, ShapeGeometry, ShapeStyle} from '@/assets/types/Map';
+import type { DrawShapeMode, MapDrawControllerCallbacks, MapShape, MapShapeType, ShapeGeometry, ShapeStyle } from '@/assets/types/Map';
 import {
     parseShapeGeometry,
     parseShapeStyle,
@@ -171,8 +171,12 @@ export function extractRawGeometry(geom: SimpleGeometry): ShapeGeometry | null {
     return null;
 }
 
-// 样式工厂
-
+/**
+ * 样式工厂
+ * @param shapeType 
+ * @param input 
+ * @returns 
+ */
 export function createShapeOlStyle(shapeType: MapShapeType, input?: ShapeStyle | null): Style {
     const s = resolveShapeStyle(input, shapeType);
     const stroke = new Stroke({
@@ -278,15 +282,15 @@ export function createVertexHandleStyles(): Style[] {
         new Style({
             image: new CircleStyle({
                 radius: 7,
-                fill: new Fill({color: mainColorToRgba(0.25)}),
-                stroke: new Stroke({color: mainColorToRgba(1), width: 1.5}),
+                fill: new Fill({ color: mainColorToRgba(0.25) }),
+                stroke: new Stroke({ color: mainColorToRgba(1), width: 1.5 }),
             }),
             zIndex: 12,
         }),
         new Style({
             image: new CircleStyle({
                 radius: 2.5,
-                fill: new Fill({color: '#ffffff'}),
+                fill: new Fill({ color: '#ffffff' }),
             }),
             zIndex: 13,
         }),

@@ -6,14 +6,12 @@ import {useAuthStore} from "~/stores/userAccountStore";
 import {useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useNoticeStore} from "~/stores/noticeStore";
-import {ApiError} from "@/assets/types/Api";
 import {handleApiError} from "@/assets/sripts/error_handler";
 
 import Textarea from "@/components/textarea/index.vue"
 import EmptyView from "@/components/EmptyView.vue";
 import Captcha from "@/components/captcha/index.vue";
 import TimeView from "@/components/TimeView.vue";
-import Time from "@/components/Time.vue";
 import {useIntersectionObserver} from "@/assets/sripts/intersection_observer";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 import type {commentTargetType} from "@/assets/types/Comment";
@@ -100,7 +98,7 @@ const getComment = async () => {
 
     commentListData.value = d.data.data;
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'CommentWidget' })
+    handleApiError(e, notice, t, {component: 'CommentWidget'})
   } finally {
     commentLoading.value = false
   }
@@ -145,7 +143,7 @@ const onPushComment = async () => {
     captchaRef.value?.refreshCaptcha?.()
     notice.success('comment.ok')
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'CommentWidget' })
+    handleApiError(e, notice, t, {component: 'CommentWidget'})
   } finally {
     commentPushLoading.value = false
   }
@@ -171,7 +169,7 @@ const onDeleteComment = async (data: any) => {
 
     notice.success(t(`basic.tips.${d.code}`))
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'CommentWidget' })
+    handleApiError(e, notice, t, {component: 'CommentWidget'})
   } finally {
     data.deleteLoading = false
   }
@@ -195,7 +193,7 @@ const onEditComment = async (data: any) => {
     data.content = data.editContent;
     notice.success(t(`basic.tips.${d.code}`))
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'CommentWidget' })
+    handleApiError(e, notice, t, {component: 'CommentWidget'})
   } finally {
     data.isEdit = !data.isEdit;
     data.loading = false
@@ -310,10 +308,10 @@ defineOptions({
 
     <AffixContainerView :offset-bottom="5">
       <v-card border variant="text" class="pa-2" v-if="authStore.isLogin">
-      <Textarea v-model="content"
-                :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate', 'lang']"
-                :placeholder="props.placeholder"></Textarea>
-        <v-row no-gutters>
+        <Textarea v-model="content"
+                  :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate', 'lang']"
+                  :placeholder="props.placeholder"></Textarea>
+        <v-row no-gutters align="end">
           <v-col>
             <Captcha @getCaptchaData="onCaptchaData" class="captcha" ref="captchaRef"></Captcha>
           </v-col>

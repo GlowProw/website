@@ -6,6 +6,7 @@ import {Commodities, Commodity} from "glow-prow-data";
 import {rarity} from "@/assets/sripts/index";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 
+import Banner from "@/components/Banner.vue";
 import LightRays from "../LightRays.vue"
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
@@ -63,7 +64,7 @@ defineOptions({
 
 <template>
   <v-card class="demo-reel bg-black" flat border v-if="i && i.id">
-    <div class="demo-reel-header pa-10 position-relative"
+    <Banner class="demo-reel-header pa-10"
          :style="`background-color: color-mix(in srgb, hsl(from ${rarityColorConfig[ (commoditiesValue as any)[i.id]?.rarity || '' ]} h s l) 10%, #000)`">
       <div class="v-skeleton-loader__bone v-skeleton-loader__image opacity-30 position-absolute left-0 top-0 w-100 h-100"></div>
 
@@ -108,7 +109,7 @@ defineOptions({
             class="w-100 h-100 pointer-events-none position-absolute top-0 right-0"
         />
       </template>
-    </div>
+    </Banner>
     <div :class="{'demo-reel-content': !isWidget}" class="background-flavor overflow-auto">
       <template v-if="isShowDescription">
         <div :class="commoditieDescription && commoditieDescription.isHasDescription ? 'mb-5 px-6 description' : ''">

@@ -5,6 +5,7 @@ import {useRouter} from "vue-router";
 import {Modifications} from "glow-prow-data";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 
+import Banner from "@/components/Banner.vue";
 import ModName from "@/components/snbWidget/modName.vue";
 import ModDescription from "@/components/snbWidget/modDescription.vue";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
@@ -55,14 +56,14 @@ defineOptions({
 
 <template>
   <v-card class="demo-reel bg-black" flat border v-if="i">
-    <div class="demo-reel-header pa-10 position-relative">
+    <Banner class="demo-reel-header pa-10">
       <h1 class="font-weight-bold">
         <ModName v-if="i?.id" :id="i.id" :grade="i.grade"></ModName>
       </h1>
       <p class="mb-1">{{ props.id }}</p>
 
       <v-img :src="modsData.icon" class="prohibit-drag right-show-image position-absolute w-33"  v-if="isWidget"></v-img>
-    </div>
+    </Banner>
     <div class="demo-reel-content background-flavor overflow-auto">
       <template v-if="isShowDescription">
         <div class="mb-5 px-6">

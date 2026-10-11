@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import Logo from "./Logo.vue";
-import Silk from "./Silk.vue";
 import {usePreloadStore} from "~/stores/preloadStore";
 import {useI18n} from "vue-i18n";
 
@@ -12,55 +10,35 @@ const {t} = useI18n();
   <div
       v-if="preloadStore.appLoading"
       class="global-preload-mask bg-shades-black">
-    <Silk
-        :speed="5"
-        :scale="1.2"
-        :color="'#1c1c1c'"
-        :noise-intensity="1"
-        :rotation="-10"
-        class="portal-banner-backMark w-100 h-100"/>
-
     <div class="portal-up-window h-screen">
-      <div class="global-preload-inner">
-        <v-progress-circular
-            indeterminate
-            size="120"
-            width="4"
-            color="amber">
-          <Logo size="50" class=""></Logo>
-        </v-progress-circular>
+      <div class="global-preload-inner mt-n16">
+        <div class="d-flex flex-column justify-center align-center">
+          <img src="/public/logo-format.gif" class="mx-auto" />
 
-        <div class="mt-4 text-grey">
-          {{ preloadStore.currentPhase || t('basic.preload.default') || '加载中...' }}
-        </div>
+          <div class="mt-n15">
+            {{ preloadStore.currentPhase || t('basic.preload.default') }}
 
-        <template v-if="preloadStore.failedCount() > 0">
-          <div class="mt-6 text-center">
-            <div class="text-caption text-red-darken-2 mb-2">
-              {{ preloadStore.failedCount() }} 个任务失败
-            </div>
-            <v-btn
-                size="small"
-                variant="tonal"
-                color="amber"
-                @click="preloadStore.retry()">
-              {{ t('basic.button.retry') || '重试' }}
-            </v-btn>
+            <template v-if="preloadStore.failedCount() > 0">
+              <div class="mt-6 text-center">
+                <div class="text-red-darken-2 mb-2">
+                  {{ preloadStore.failedCount() }}
+                </div>
+                <v-btn
+                    variant="tonal"
+                    color="amber"
+                    @click="preloadStore.retry()">
+                  {{ t('basic.button.retry') }}
+                </v-btn>
+              </div>
+            </template>
           </div>
-        </template>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.portal-banner-backMark {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 1;
-}
-
 .portal-up-window {
   position: relative;
   z-index: 2;

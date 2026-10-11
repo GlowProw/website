@@ -23,6 +23,7 @@ import {useAppStore} from "~/stores/appStore";
 import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
+import Banner from "@/components/Banner.vue";
 
 const
     {t, messages} = useI18n(),
@@ -241,7 +242,7 @@ const onStarMastery = (data: Mastery) => {
   </v-breadcrumbs>
   <v-divider></v-divider>
   <div v-if="masteryDetailData && masteryDetailData.id" class="item-detail">
-    <div class="item-detail-header background-dot-grid">
+    <Banner class="item-detail-header">
       <v-container class="position-relative">
         <v-row class="mt-5">
           <v-col cols="8">
@@ -294,7 +295,7 @@ const onStarMastery = (data: Mastery) => {
           </v-col>
         </v-row>
       </v-container>
-    </div>
+    </Banner>
     <div class="background-flavor">
       <v-container>
         <v-row>
@@ -555,19 +556,6 @@ const onStarMastery = (data: Mastery) => {
     position: relative;
     padding-bottom: 40px;
     min-height: 320px;
-
-    &:before {
-      content: "";
-      position: absolute;
-      z-index: 0;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 0;
-      padding: 10% 0 0;
-      background: url(@/assets/images/portal-banner-background.png) 50% 0 no-repeat;
-      background-size: cover;
-    }
   }
 }
 </style>

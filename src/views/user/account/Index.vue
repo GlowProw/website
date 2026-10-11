@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, ref, watch} from "vue";
+import {computed} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {useDisplay} from "vuetify/framework";
 import {useI18n} from "vue-i18n";
@@ -16,11 +16,6 @@ const route = useRoute(),
     {t} = useI18n(),
     authStore = useAuthStore(),
     {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow()
-
-// 一级菜单选项（重命名：内容管理→创作中心，创作中心→消息中心）
-const primaryNavMenu = ref<'MeAccount' | 'MeDataCenter' | 'MeMessageCenter' | 'MeSpace'>('MeAccount')
-
-// 账户：个人信息 / 头像 / 绑定（通知开关已移到消息中心 > 设置）
 const accountTabs = [
   {
     name: 'account.information.title',
@@ -92,96 +87,34 @@ const messageCenterTabs = [
   },
 ]
 
-/**
- * 判断路由是否属于创作中心大类
- * @param routeName 路由名称
- */
+// 判断路由是否属于创作中心大类
 const isDataCenterRoute = (routeName: string) => dataCenterTabs.some(i => i.value === routeName)
 
-/**
- * 判断路由是否属于消息中心大类
- * @param routeName 路由名称
- */
+// 判断路由是否属于消息中心大类
 const isMessageCenterRoute = (routeName: string) => messageCenterTabs.some(i => i.value === routeName)
 
-/**
- * 判断路由是否属于账户设置大类
- * @param routeName 路由名称
- */
+// 判断路由是否属于账户设置大类
 const isAccountRoute = (routeName: string) => accountTabs.some(i => i.value === routeName)
+
+// 依据当前路由动态计算激活的一级 Tab
+const primaryNavMenu = computed<'MeAccount' | 'MeDataCenter' | 'MeMessageCenter' | 'MeSpace'>(() => {
+  const routeName = (route.name as string) || ''
+  if (isDataCenterRoute(routeName)) return 'MeDataCenter'
+  if (isMessageCenterRoute(routeName)) return 'MeMessageCenter'
+  if (isAccountRoute(routeName)) return 'MeAccount'
+  return 'MeAccount'
+})
+
+// 依据当前路由动态计算激活的二级 Tab 项
+const tab = computed(() => (route.name as string) || accountTabs[0].value)
 
 // 当前大类下显示的二级 Tab 列表
 const currentSubTabs = computed(() => {
   if (primaryNavMenu.value === 'MeAccount') return accountTabs
   if (primaryNavMenu.value === 'MeDataCenter') return dataCenterTabs
   if (primaryNavMenu.value === 'MeMessageCenter') return messageCenterTabs
-  return []
+  return accountTabs
 })
-
-// 当前激活的二级 Tab 项
-const tab = ref<string>(accountTabs[0].value)
-
-/**
- * 依据路由同步一级 Tab 与二级 Tab
- * @param routeName
- */
-const syncFromRoute = (routeName: string) => {
-  if (isDataCenterRoute(routeName)) {
-    primaryNavMenu.value = 'MeDataCenter'
-    tab.value = routeName
-  } else if (isMessageCenterRoute(routeName)) {
-    primaryNavMenu.value = 'MeMessageCenter'
-    tab.value = routeName
-  } else if (isAccountRoute(routeName)) {
-    primaryNavMenu.value = 'MeAccount'
-    tab.value = routeName
-  }
-}
-
-watch(() => route.name, (newName) => {
-  if (newName) {
-    syncFromRoute(newName as string)
-  }
-}, {immediate: true})
-
-/**
- * 一级 Tab 切换事件
- * @param val
- */
-const onPrimaryTabChange = (val: any) => {
-  if (val === 'MeSpace') {
-    const uid = authStore.user?.userId
-    if (uid) {
-      router.push({path: `/space/${uid}`, query: {...route.query}})
-    }
-    return
-  }
-
-  primaryNavMenu.value = val
-  if (val === 'MeAccount') {
-    if (!isAccountRoute(route.name as string)) {
-      router.push({name: accountTabs[0].value, params: route.params})
-    }
-  } else if (val === 'MeDataCenter') {
-    if (!isDataCenterRoute(route.name as string)) {
-      router.push({name: dataCenterTabs[0].value, params: route.params})
-    }
-  } else if (val === 'MeMessageCenter') {
-    if (!isMessageCenterRoute(route.name as string)) {
-      router.push({name: messageCenterTabs[0].value, params: route.params})
-    }
-  }
-}
-
-/**
- * 二级 Tab 切换事件
- * @param targetRouteName
- */
-const onSubTabChange = (targetRouteName: any) => {
-  if (targetRouteName && targetRouteName !== route.name) {
-    router.push({name: targetRouteName, params: route.params})
-  }
-}
 
 defineOptions({
   name: 'AccountIndex'
@@ -217,23 +150,23 @@ defineOptions({
         <v-row dense>
           <v-col cols="9">
             <v-tabs
-                v-model="primaryNavMenu"
+                :model-value="primaryNavMenu"
                 color="amber"
                 stacked
                 align-tabs="start"
                 density="comfortable"
                 class="primary-tabs">
-              <v-tab value="MeAccount" class="font-weight-bold text-subtitle-1 px-8" @click="onPrimaryTabChange('MeAccount')">
+              <v-tab value="MeAccount" class="font-weight-bold text-subtitle-1 px-8" :to="{ name: accountTabs[0].value }">
                 {{ t('account.title') }}
               </v-tab>
-              <v-tab value="MeDataCenter" class="font-weight-bold text-subtitle-1 px-8" @click="onPrimaryTabChange('MeDataCenter')">
+              <v-tab value="MeDataCenter" class="font-weight-bold text-subtitle-1 px-8" :to="{ name: dataCenterTabs[0].value }">
                 {{ t('account.dataCenter.title') }}
               </v-tab>
-              <v-tab value="MeMessageCenter" class="font-weight-bold text-subtitle-1 px-8" @click="onPrimaryTabChange('MeMessageCenter')">
+              <v-tab value="MeMessageCenter" class="font-weight-bold text-subtitle-1 px-8" :to="{ name: messageCenterTabs[0].value }">
                 {{ t('account.messages.messageCenterTitle') }}
               </v-tab>
-              <!-- MeSpace 是独立页面，不走 v-tabs model，直接跳路由 -->
-              <v-tab value="MeSpace" class="font-weight-bold text-subtitle-1 px-8" @click.stop="onPrimaryTabChange('MeSpace')">
+              <!-- MeSpace 是独立页面，直接跳路由 -->
+              <v-tab value="MeSpace" class="font-weight-bold text-subtitle-1 px-8" :to="{ name: 'SpaceAssemblys' }">
                 {{ t('space.title') }}
               </v-tab>
             </v-tabs>
@@ -261,8 +194,7 @@ defineOptions({
                   stacked
                   border
                   hide-slider
-                  v-model="tab"
-                  @update:model-value="onSubTabChange"
+                  :model-value="tab"
                   class="w-100 h-100"
                   density="default"
                   :fixed="mobile"
@@ -278,6 +210,7 @@ defineOptions({
                       <div :class="{'mb-2': !mobile, 'mr-5': mobile}">
                         <v-tab
                             :value="i.value"
+                            :to="{ name: i.value }"
                             selected-class="bg-amber"
                             class="d-flex align-center justify-center"
                             min-width="80"
@@ -287,7 +220,6 @@ defineOptions({
                             @mousemove="onMouseMove"
                             @mouseenter="onMouseEnter"
                             v-bind="props"
-                            replaceb
                             ripple
                             slim>
                           <div>

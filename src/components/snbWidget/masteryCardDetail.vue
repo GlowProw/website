@@ -5,6 +5,7 @@ import {useRouter} from "vue-router";
 import {Masterys} from "glow-prow-data";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
+import Banner from "@/components/Banner.vue";
 import LightRays from "../LightRays.vue";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import MasteryName from "@/components/snbWidget/masteryName.vue";
@@ -69,7 +70,7 @@ defineOptions({
 
 <template>
   <v-card class="demo-reel bg-black" flat border v-if="nodeData">
-    <div class="demo-reel-header pa-10 position-relative"
+    <Banner class="demo-reel-header pa-10"
          :style="`background-color: color-mix(in srgb, ${categoryColor} 10%, #000)`">
       <div class="v-skeleton-loader__bone v-skeleton-loader__image opacity-30 position-absolute left-0 top-0 w-100 h-100"></div>
 
@@ -110,7 +111,7 @@ defineOptions({
           :distortion="0"
           class="w-100 h-100 pointer-events-none position-absolute top-0 right-0"
       />
-    </div>
+    </Banner>
 
     <div :class="{'demo-reel-content': !isWidget}" class="background-flavor overflow-auto">
       <template v-if="isShowDescription">

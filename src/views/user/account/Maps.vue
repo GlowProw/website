@@ -13,6 +13,7 @@ import {
   type ShapeFormData,
   type ShapeGeometry,
   type TabKey,
+  parseShapeGeometry,
   parseShapeStyle,
   parseShapeTags,
   resolveShapeStyle,
@@ -506,7 +507,7 @@ const openEditPoint = (point: MapPoint) => {
     longitude: point.longitude,
     latitude: point.latitude,
     collectionUuid: point.collectionId || null,
-    category: point.category || 'shareLocation',
+    category: (point as any).category || (point as any).type || 'shareLocation',
     tags: parseTags(point.tags),
     public: point.public === 1,
   }
@@ -535,6 +536,7 @@ const onSavePoint = async () => {
       latitude: Number(f.latitude),
       collectionUuid: f.collectionUuid || null,
       category: f.category || 'shareLocation',
+      type: f.category || 'shareLocation',
       tags: f.tags,
       public: f.public,
     }
@@ -697,6 +699,7 @@ const openEditShape = (shape: MapShape) => {
     public: shape.public === 1,
     // 补全为完整样式，旧数据缺颜色/透明度时编辑窗也能显示真实有效值
     style: resolveShapeStyle(parseShapeStyle(shape), shape.shapeType),
+    geometry: parseShapeGeometry(shape) || defaultShapeGeometry(shape.shapeType),
   }
   shapeDialogVisible.value = true
 }
@@ -723,13 +726,16 @@ const onSaveShape = async () => {
   const type = shapeDialogType.value
   savingShape.value = true
   try {
-    const body = {
+    const body: any = {
       title: f.title,
       description: f.description || undefined,
       collectionUuid: f.collectionUuid || null,
       style: f.style,
       tags: f.tags,
       public: f.public,
+    }
+    if (f.geometry) {
+      body.geometry = f.geometry
     }
     if (shapeDialogMode.value === 'create') {
       const geo = f.geometry || defaultShapeGeometry(type)
@@ -1131,7 +1137,7 @@ defineOptions({
                               @update:model-value="toggleSelection(pointsState, point.uuid)"></v-checkbox-btn>
             </td>
             <td>
-              <v-img :src="getCategoryIcon(point.category)" width="22" height="22" contain></v-img>
+              <v-img :src="getCategoryIcon(point.category || (point as any).type)" width="22" height="22" contain></v-img>
             </td>
             <td class="text-body-2 font-weight-medium u">{{ point.title }}</td>
             <td class="text-caption">{{ Number(point.longitude).toFixed(4) }}, {{ Number(point.latitude).toFixed(4) }}</td>
@@ -1294,31 +1300,46 @@ defineOptions({
     <!-- 路径 / 区域 Tab E -->
 
     <!-- 地图集编辑/新建对话框 S -->
-    <v-dialog v-model="collectionFormModal" max-width="500">
-      <v-card border>
-        <v-card-title class="pa-4 font-weight-bold d-flex align-center border-b">
-          <v-icon color="amber" class="mr-2">{{ editingCollection ? 'mdi-pencil' : 'mdi-plus-box' }}</v-icon>
-          {{ editingCollection ? t('map.editCollection') : t('map.createCollection') }}
+    <v-dialog v-model="collectionFormModal" persistent max-width="600">
+      <v-card border elevation="12">
+        <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 create-collection-card">
+          <v-icon size="64" class="mb-2">mdi-folder-multiple-image</v-icon>
+          <p>
+            {{ editingCollection ? t('map.editCollection') : t('map.createCollection') }}
+          </p>
         </v-card-title>
-        <v-card-text class="pa-4">
+        <template v-slot:append>
+          <v-btn variant="tonal" icon @click="onResetCollectionForm">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </template>
+        <v-card-text>
           <v-form ref="collectionFormRef">
-            <v-text-field v-model="collectionForm.title"
-                          :label="t('map.collectionTitle')" variant="outlined" density="compact"
-                          class="mb-3" :rules="[v => !!v || t('map.titleRequired')]" required></v-text-field>
-            <v-textarea v-model="collectionForm.description"
-                        :label="t('map.collectionDescription')" variant="outlined" density="compact"
-                        rows="3" class="mb-3"></v-textarea>
-            <v-select v-model="collectionForm.public"
-                      item-title="label" item-value="value"
-                      :items="[{value: 1, label: t('map.public')}, {value: 0, label: t('map.private')}]"
-                      :label="t('map.publicCollection')" variant="outlined" density="compact"></v-select>
+            <v-row dense>
+              <v-col cols="12">
+                <v-text-field v-model="collectionForm.title"
+                              :label="t('map.collectionTitle')" variant="outlined" density="compact"
+                              class="mb-1" :rules="[v => !!v || t('map.titleRequired')]" required></v-text-field>
+              </v-col>
+              <v-col cols="12">
+                <v-textarea v-model="collectionForm.description"
+                            :label="t('map.collectionDescription')" variant="outlined" density="compact"
+                            rows="3" class="mb-1"></v-textarea>
+              </v-col>
+              <v-col cols="12">
+                <v-select v-model="collectionForm.public"
+                          item-title="label" item-value="value"
+                          :items="[{value: 1, label: t('map.public')}, {value: 0, label: t('map.private')}]"
+                          :label="t('map.publicCollection')" variant="outlined" density="compact"></v-select>
+              </v-col>
+            </v-row>
           </v-form>
         </v-card-text>
-        <v-card-actions class="pa-4 border-t">
+        <v-card-actions class="px-6 py-4">
           <v-spacer></v-spacer>
           <v-btn variant="text" @click="onResetCollectionForm">{{ t('basic.button.cancel') }}</v-btn>
           <v-btn color="amber" variant="tonal" :loading="savingCollectionLoading" @click="onSaveCollection">
-            {{ t('basic.button.submit') }}
+            {{ editingCollection ? t('basic.button.save') : t('basic.button.create') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -1399,5 +1420,9 @@ defineOptions({
 :deep(th) {
   font-size: 0.8rem;
   white-space: nowrap;
+}
+
+.create-collection-card {
+  margin-top: -80px !important;
 }
 </style>

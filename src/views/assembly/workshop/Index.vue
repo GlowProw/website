@@ -7,23 +7,33 @@ import {v6 as uuidv6} from "uuid";
 import {apis, storageIntermediateTransfer} from "@/assets/sripts";
 import {StorageIntermediateTransferSaveType} from "@/assets/sripts/storage_assembly";
 import {useNoticeStore} from "~/stores/noticeStore";
+import {useAppStore} from "~/stores/appStore";
 
 import EmptyView from "@/components/EmptyView.vue";
 import Silk from "@/components/Silk.vue";
 import Loading from "@/components/Loading.vue";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import AssemblyDataProcessing from "@/assets/sripts/assembly_data_processing";
+import WheelDataProcessing from "@/assets/sripts/wheel_data_processing";
+import WarehouseDataProcessing from "@/assets/sripts/warehouse_data_processing";
+import MasteryDataProcessing from "@/assets/sripts/mastery_data_processing";
 import AssemblyMainSubjectView from "@/components/AssemblyMainSubjectView.vue";
+import Textarea from "@/components/textarea/index.vue";
+import AssemblyTagsWidget from "@/components/AssemblyTagsWidget.vue";
+import AssemblySettingWidget from "@/components/AssmblySettingWidget.vue";
+import AssemblyTagChip from "@/components/AssemblyTagChip.vue";
 import {handleApiError} from "@/assets/sripts/error_handler";
 
-const {t} = useI18n(),
+const {t, locale} = useI18n(),
     route = useRoute(),
     router = useRouter(),
     notice = useNoticeStore(),
-    noticeStore = useNoticeStore()
+    noticeStore = useNoticeStore(),
+    appStore = useAppStore();
 
 let
     assemblyLoading = ref(false),
+    submitLoading = ref(false),
     assemblyDetailData: Ref<any> = ref({}),
     assemblyMainSubjectView: Ref<any> = ref(null),
 
@@ -40,7 +50,45 @@ let
       mastery: {}
     }),
 
-    verificationWorkshop = ref({
+    publishData = ref<any>({
+      uuid: '',
+      name: '',
+      description: '',
+      assembly: {
+        visibility: 'publicly',
+        tags: [],
+        attr: {
+          password: '',
+          assemblyUseVersion: AssemblyDataProcessing.nowVersion,
+          language: locale.value,
+          isComment: true,
+          isLike: true
+        }
+      },
+      wheel: {
+        attr: {
+          wheelUseVersion: WheelDataProcessing.nowVersion
+        }
+      },
+      warehouse: {
+        attr: {
+          warehouseUseVersion: WarehouseDataProcessing.nowVersion
+        }
+      },
+      mastery: {
+        attr: {
+          masteryUseVersion: MasteryDataProcessing.nowVersion
+        }
+      }
+    }),
+
+    formRules = {
+      name: [
+        (v: any) => !!(v && v.trim()) || t('basic.assembly.publish.nameRequired')
+      ]
+    },
+
+    verificationWorkshop = ref<{ required: number; verify: Array<{ required: boolean; message: string; title?: string }> }>({
       required: 0,
       verify: []
     }),
@@ -48,206 +96,346 @@ let
     isEditModel = computed(() => {
       switch (route.name) {
         case 'AssemblyEdit':
-          return true
+        case 'EditAssembly':
+          return true;
         default:
-        case 'AssemblyWorkshop':
-          return false
+          return Boolean(route.params.uid);
       }
     }),
-    isAssemblyByUser = computed(() => isEditModel.value ? shareData.value.isOwner : true),
+    isAssemblyByUser = computed(() => isEditModel.value ? (shareData.value.isOwner !== false) : true),
     currentWorkshopAssembly = computed(() => {
       const live = assemblyMainSubjectView.value?.refs?.assembly?.onExport?.();
       if (live) return live;
       return shareData.value?.assembly?.data || shareData.value?.assembly || null;
-    })
+    }),
 
-
-/**
- * 监听共享数据变化，重新装载工坊视图
- **/
-watch(() => shareData.value, async () => {
-  loadAssemblyData()
-})
+    requiredVerifyList = computed(() => verificationWorkshop.value.verify.filter((v: any) => v.required)),
+    optionalVerifyList = computed(() => verificationWorkshop.value.verify.filter((v: any) => !v.required));
 
 /**
- * 编辑模式下挂载时拉取配装详情
- **/
-onMounted(() => {
-  if (isEditModel.value)
-    getAssemblyDetail()
-})
-
-/**
- * 工作台更新事件
- * 变动检查
+ * 校验工坊全部数据（包含名称与各子组件要求）
  */
-const onWorkshopUpdateEvent = (componentName: string) => {
-  let verification = {
+const runWorkshopVerify = () => {
+  const verification: { required: number; verify: Array<{ required: boolean; message: string; title?: string }> } = {
     required: 0,
     verify: []
   };
 
-  const refs = assemblyMainSubjectView.value?.refs;
-  if (!refs) {
-    return verification;
+  // 1. 验证配置名称（必选项）
+  if (!publishData.value?.name || !publishData.value.name.trim()) {
+    verification.verify.push({
+      required: true,
+      message: 'nameRequired',
+      title: t('basic.assembly.publish.name')
+    });
+    verification.required += 1;
   }
 
-  // 执行验证逻辑
-  const component = refs[componentName];
-  if (component && typeof component.verify === 'function') {
-    const componentVerify = component.verify()
-    if (componentVerify) {
-      verification.verify.push(...componentVerify.verify)
-      verification.required += componentVerify.required;
+  // 2. 验证各个工坊组件 (assembly, wheel, warehouse, mastery)
+  const refs = assemblyMainSubjectView.value?.refs;
+  if (refs) {
+    const checkComponents = ['assembly', 'wheel', 'warehouse', 'mastery'];
+    for (const compName of checkComponents) {
+      const comp = refs[compName];
+      if (comp && typeof comp.verify === 'function') {
+        const compVerify = comp.verify();
+        if (compVerify && compVerify.verify && compVerify.verify.length > 0) {
+          verification.verify.push(...compVerify.verify);
+          verification.required += (compVerify.required || 0);
+        }
+      }
     }
   }
 
-  verificationWorkshop.value.required = verification.required;
-  verificationWorkshop.value.verify = verification.verify as any;
-}
+  verificationWorkshop.value = verification;
+  return verification;
+};
+
+const getVerifyMessage = (v: { required: boolean; message: string; title?: string }) => {
+  if (v.message === 'nameRequired') {
+    return t('basic.assembly.publish.nameRequired');
+  }
+  const tipKey = `assembly.workshop.verifyTips.${v.message}`;
+  const translated = t(tipKey);
+  if (translated && translated !== tipKey) {
+    return translated;
+  }
+  return v.message;
+};
+
+/**
+ * 工作台更新事件
+ */
+const onWorkshopUpdateEvent = () => {
+  runWorkshopVerify();
+};
+
+/**
+ * 监听配装属性变化，同步更新配装视图
+ */
+watch(() => publishData.value.assembly?.attr, () => {
+  const comp = assemblyMainSubjectView.value?.refs?.assembly;
+  if (comp && typeof comp.setSetting === 'function') {
+    comp.setSetting({
+      assemblyUseVersion: publishData.value.assembly.attr?.assemblyUseVersion || AssemblyDataProcessing.nowVersion,
+      isShowItemName: publishData.value.assembly.attr?.isShowItemName ?? true,
+      isShowWeaponIconArray: publishData.value.assembly.attr?.isShowWeaponIconArray ?? false
+    });
+  }
+}, {deep: true});
+
+/**
+ * 监听名称变化，实时更新验证器
+ */
+watch(() => publishData.value.name, () => {
+  runWorkshopVerify();
+});
+
+/**
+ * 监听共享数据变化，重新装载工坊视图
+ */
+watch(() => shareData.value, async () => {
+  loadAssemblyData();
+});
+
+/**
+ * 编辑模式下挂载时拉取配装详情
+ */
+onMounted(async () => {
+  if (isEditModel.value) {
+    await getAssemblyDetail();
+  }
+});
 
 /**
  * 获取配装详情
  */
 const getAssemblyDetail = async () => {
-  if (isEditModel.value) {
-    const {uuid} = assemblyDetailData.value as any;
-    if (uuid) {
-      await router.push({name: 'AssemblyEdit', params: {uuid}})
-      return
-    }
-  }
+  const {uid} = route.params;
+  if (!uid) return;
 
   try {
-    const {uid} = route.params;
     assemblyLoading.value = true;
+    const {password} = route.query;
+    const result = await apis.assemblyApi().getAssemblyItem(<string>uid, {
+      password: <string>password
+    });
+    const d = result.data;
+    if (d && d.data) {
+      assemblyDetailData.value = d.data;
+      shareData.value = d.data;
 
-    const result = await apis.assemblyApi().getAssemblyItem(<string>uid),
-        d = result.data;
+      // 填充发布信息
+      publishData.value.uuid = d.data.uuid;
+      publishData.value.name = d.data.name || '';
+      publishData.value.description = d.data.description || '';
+      publishData.value.assembly.tags = d.data.tags || d.data.assembly?.tags || [];
+      if (d.data.assembly?.visibility) {
+        publishData.value.assembly.visibility = d.data.assembly.visibility;
+      }
+      if (d.data.assembly?.attr) {
+        publishData.value.assembly.attr = {
+          ...publishData.value.assembly.attr,
+          ...d.data.assembly.attr
+        };
+      }
+      if (d.data.wheel?.attr) {
+        publishData.value.wheel.attr = {
+          ...publishData.value.wheel.attr,
+          ...d.data.wheel.attr
+        };
+      }
+      if (d.data.warehouse?.attr) {
+        publishData.value.warehouse.attr = {
+          ...publishData.value.warehouse.attr,
+          ...d.data.warehouse.attr
+        };
+      }
+      if (d.data.mastery?.attr) {
+        publishData.value.mastery.attr = {
+          ...publishData.value.mastery.attr,
+          ...d.data.mastery.attr
+        };
+      }
 
-    assemblyDetailData.value = d.data;
-    shareData.value = d.data;
+      loadAssemblyData();
+    }
   } catch (e) {
-    handleApiError(e, notice, t, {component: 'AssemblyWorkshop'})
+    handleApiError(e, notice, t, {component: 'AssemblyWorkshop'});
   } finally {
     assemblyLoading.value = false;
   }
-}
+};
 
 /**
  * 装载配装、轮盘、船仓、精通数据到工坊各子视图
- **/
+ */
 const loadAssemblyData = () => {
-  const d = shareData.value
+  const d = shareData.value;
+  const refs = assemblyMainSubjectView.value?.refs;
+  if (!refs) return;
 
-  assemblyMainSubjectView.value.refs.assembly
-      .setSetting({
-        isShowItemName: d.assembly?.attr?.isShowItemName || true,
-        assemblyUseVersion: d.assembly?.attr?.assemblyUseVersion,
-        isFullName: d.assembly?.attr?.isFullName,
-        isShowWeaponIconArray: d.assembly?.attr?.isShowWeaponIconArray ?? false
-      })
-      .onLoad(d.assembly.data)
-
-  assemblyMainSubjectView.value.refs.wheel
-      .setSetting({
-        isShowItemName: d.wheel?.attr?.isShowItemName,
-        assemblyUseVersion: d.wheel?.attr?.assemblyUseVersion
-      })
-      .onLoad(d.wheel.data)
-
-  assemblyMainSubjectView.value.refs.warehouse
-      .setSetting({
-        isShowItemName: d.warehouse?.attr?.isShowItemName,
-        assemblyUseVersion: d.warehouse?.attr?.assemblyUseVersion
-      })
-      .onLoad(d.warehouse.data)
-
-  assemblyMainSubjectView.value.refs.mastery
-      ?.setSetting({
-        masteryUseVersion: d.mastery?.attr?.masteryUseVersion
-      })
-      ?.onLoad(d.mastery?.data)
-}
-
-/**
- * 编辑保存
- */
-const onSaveAssemblyEdit = () => {
-  if (!isAssemblyByUser)
-    return;
-
-  const {uuid} = assemblyDetailData.value;
-  const saveResult = onSaveAssembly(StorageIntermediateTransferSaveType.Data, uuid)
-
-  if (saveResult.code == 0 && uuid)
-    router.push(`/assembly/edit/${uuid}`)
-}
-
-/**
- * 已发布数据
- */
-const onSaveAssemblyPublish = () => {
-  if (!isAssemblyByUser)
-    return;
-
-  const saveResult = onSaveAssembly(StorageIntermediateTransferSaveType.Data)
-
-  if (saveResult.code == 0)
-    router.push(`/assembly/publish/${saveResult.uid}`)
-}
-
-/**
- * 写入本地
- */
-const onSaveAssembly = (saveType: StorageIntermediateTransferSaveType, uid?: string) => {
-  // 合并数据
-  shareData.value = {
-    ...shareData.value,
-    assembly: assemblyMainSubjectView.value.refs.assembly.onExport(),
-    wheel: assemblyMainSubjectView.value.refs.wheel.onExport(),
-    warehouse: assemblyMainSubjectView.value.refs.warehouse.onExport(),
-    mastery: assemblyMainSubjectView.value.refs.mastery.onExport()
+  if (refs.assembly && d.assembly) {
+    refs.assembly
+        .setSetting({
+          isShowItemName: d.assembly?.attr?.isShowItemName ?? true,
+          assemblyUseVersion: d.assembly?.attr?.assemblyUseVersion,
+          isFullName: d.assembly?.attr?.isFullName,
+          isShowWeaponIconArray: d.assembly?.attr?.isShowWeaponIconArray ?? false
+        })
+        .onLoad(d.assembly.data || d.assembly);
   }
 
-  return storageIntermediateTransfer.update(shareData.value, {
-    uid,
-    saveType,
-    category: 'assembly'
-  })
-}
+  if (refs.wheel && d.wheel) {
+    refs.wheel
+        .setSetting({
+          isShowItemName: d.wheel?.attr?.isShowItemName,
+          assemblyUseVersion: d.wheel?.attr?.assemblyUseVersion
+        })
+        .onLoad(d.wheel.data || d.wheel);
+  }
+
+  if (refs.warehouse && d.warehouse) {
+    refs.warehouse
+        .setSetting({
+          isShowItemName: d.warehouse?.attr?.isShowItemName,
+          assemblyUseVersion: d.warehouse?.attr?.assemblyUseVersion
+        })
+        .onLoad(d.warehouse.data || d.warehouse);
+  }
+
+  if (refs.mastery && d.mastery) {
+    refs.mastery
+        ?.setSetting?.({
+          masteryUseVersion: d.mastery?.attr?.masteryUseVersion
+        })
+        ?.onLoad?.(d.mastery.data || d.mastery);
+  }
+
+  runWorkshopVerify();
+};
+
+const onSubjectViewReady = async () => {
+  loadAssemblyData();
+};
 
 /**
- * 快速存档
+ * 提交发布或编辑保存
+ */
+const onSubmit = async () => {
+  const verifyResult = runWorkshopVerify();
+  if (verifyResult.required > 0) {
+    noticeStore.warning(t('assembly.workshop.missingRequiredFields') || '请先完善必选项');
+    return;
+  }
+  if (!isAssemblyByUser.value) {
+    noticeStore.error('无权限编辑该配装');
+    return;
+  }
+
+  try {
+    submitLoading.value = true;
+    const exportAssembly = assemblyMainSubjectView.value?.refs?.assembly?.onExport?.() || shareData.value?.assembly?.data || shareData.value?.assembly;
+    const exportWheel = assemblyMainSubjectView.value?.refs?.wheel?.onExport?.() || shareData.value?.wheel?.data || shareData.value?.wheel;
+    const exportWarehouse = assemblyMainSubjectView.value?.refs?.warehouse?.onExport?.() || shareData.value?.warehouse?.data || shareData.value?.warehouse;
+    const exportMastery = assemblyMainSubjectView.value?.refs?.mastery?.onExport?.() || shareData.value?.mastery?.data || shareData.value?.mastery;
+
+    const payload: any = {
+      ...publishData.value,
+      name: publishData.value.name?.trim(),
+      description: publishData.value.description,
+      assembly: {
+        ...publishData.value.assembly,
+        data: exportAssembly
+      },
+      wheel: {
+        ...publishData.value.wheel,
+        data: exportWheel
+      },
+      warehouse: {
+        ...publishData.value.warehouse,
+        data: exportWarehouse
+      },
+      mastery: {
+        ...publishData.value.mastery,
+        data: exportMastery
+      }
+    };
+
+    if (isEditModel.value) {
+      payload.uuid = publishData.value.uuid || route.params.uid || assemblyDetailData.value?.uuid;
+      const result = await apis.assemblyApi().editAssembly(payload);
+      const d = result.data;
+      if (payload.uuid) {
+        storageIntermediateTransfer.delete(payload.uuid, {
+          saveType: StorageIntermediateTransferSaveType.Data,
+          category: 'assembly'
+        });
+      }
+      notice.success(t(`basic.tips.${d.code}`) || '保存成功');
+      await router.push(`/assembly/browse/${payload.uuid}/detail`);
+    } else {
+      const result = await apis.assemblyApi().publishAssembly(payload);
+      const d = result.data;
+      const newUuid = d.data?.['assembly.uuid'] || d.data?.uuid;
+      notice.success(t(`basic.tips.${d.code}`) || '发布成功');
+      if (newUuid) {
+        await router.push(`/assembly/browse/${newUuid}/detail`);
+      } else {
+        await router.push(`/assembly/browse`);
+      }
+    }
+  } catch (e) {
+    handleApiError(e, notice, t, {component: 'AssemblyWorkshop'});
+  } finally {
+    submitLoading.value = false;
+  }
+};
+
+/**
+ * 快速存档（将配装和发布信息一并存入草稿）
  */
 const onQuickArchiving = () => {
   draftSaveQuickArchivingLoading.value = true;
 
-  storageIntermediateTransfer.update({
+  const currentAssembly = assemblyMainSubjectView.value?.refs?.assembly?.onExport?.() || shareData.value?.assembly?.data || shareData.value?.assembly;
+  const currentWheel = assemblyMainSubjectView.value?.refs?.wheel?.onExport?.() || shareData.value?.wheel?.data || shareData.value?.wheel;
+  const currentWarehouse = assemblyMainSubjectView.value?.refs?.warehouse?.onExport?.() || shareData.value?.warehouse?.data || shareData.value?.warehouse;
+  const currentMastery = assemblyMainSubjectView.value?.refs?.mastery?.onExport?.() || shareData.value?.mastery?.data || shareData.value?.mastery;
+
+  const draftPayload = {
     ...shareData.value,
-    assembly: assemblyMainSubjectView.value.refs.assembly.onExport(),
-    wheel: assemblyMainSubjectView.value.refs.wheel.onExport(),
-    warehouse: assemblyMainSubjectView.value.refs.warehouse.onExport(),
-    mastery: assemblyMainSubjectView.value.refs.mastery.onExport()
-  }, {
+    name: publishData.value.name || t('assembly.workshop.quickArchiving'),
+    description: publishData.value.description || '',
+    tags: publishData.value.assembly?.tags || [],
+    visibility: publishData.value.assembly?.visibility || 'publicly',
+    attr: publishData.value.assembly?.attr || {},
+    publishData: JSON.parse(JSON.stringify(publishData.value)),
+    assembly: currentAssembly,
+    wheel: currentWheel,
+    warehouse: currentWarehouse,
+    mastery: currentMastery
+  };
+
+  storageIntermediateTransfer.update(draftPayload, {
     uid: 'quickArchiving',
     saveType: StorageIntermediateTransferSaveType.Draft,
     category: 'assembly'
-  })
+  });
 
   setTimeout(() => {
     draftSaveQuickArchivingLoading.value = false;
-  }, 500)
-}
+    noticeStore.success('快速保存草稿成功');
+  }, 400);
+};
 
 /**
- * 打开草稿面包
+ * 打开草稿面板
  */
 const onPenDraftPanel = () => {
   draftModel.value = true;
-
-  getDraftListData()
-}
+  getDraftListData();
+};
 
 /**
  * 读取草稿数据
@@ -256,65 +444,127 @@ const getDraftListData = () => {
   let d = storageIntermediateTransfer.gets({
     saveType: StorageIntermediateTransferSaveType.Draft,
     category: 'assembly'
-  })
+  });
 
   if (d.code == 0)
     draftList.value = d.data;
-}
+};
 
 /**
- * 保存新命名草稿
+ * 保存新命名草稿（将配装和发布信息一并存入草稿）
  */
 const onSaveDraft = () => {
-  let uid: string = uuidv6(),
-      newDraftData = shareData.value
+  if (!newDraftName.value.trim()) {
+    noticeStore.warning(t('assembly.workshop.inputDraftName'));
+    return;
+  }
 
-  newDraftData.name = newDraftName.value;
+  let uid: string = uuidv6();
+  draftSaveLoading.value = true;
 
-  draftSaveLoading.value = true
+  const currentAssembly = assemblyMainSubjectView.value?.refs?.assembly?.onExport?.() || shareData.value?.assembly?.data || shareData.value?.assembly;
+  const currentWheel = assemblyMainSubjectView.value?.refs?.wheel?.onExport?.() || shareData.value?.wheel?.data || shareData.value?.wheel;
+  const currentWarehouse = assemblyMainSubjectView.value?.refs?.warehouse?.onExport?.() || shareData.value?.warehouse?.data || shareData.value?.warehouse;
+  const currentMastery = assemblyMainSubjectView.value?.refs?.mastery?.onExport?.() || shareData.value?.mastery?.data || shareData.value?.mastery;
 
-  storageIntermediateTransfer.update(newDraftData, {
+  const draftPayload = {
+    ...shareData.value,
+    name: newDraftName.value,
+    description: publishData.value.description || '',
+    tags: publishData.value.assembly?.tags || [],
+    visibility: publishData.value.assembly?.visibility || 'publicly',
+    attr: publishData.value.assembly?.attr || {},
+    publishData: {
+      ...JSON.parse(JSON.stringify(publishData.value)),
+      name: newDraftName.value
+    },
+    assembly: currentAssembly,
+    wheel: currentWheel,
+    warehouse: currentWarehouse,
+    mastery: currentMastery
+  };
+
+  storageIntermediateTransfer.update(draftPayload, {
     uid,
     saveType: StorageIntermediateTransferSaveType.Draft,
     category: 'assembly'
-  })
+  });
 
-  draftSaveLoading.value = false
-  draftNewSaveModel.value = false
+  draftSaveLoading.value = false;
+  draftNewSaveModel.value = false;
+  newDraftName.value = '';
 
-  noticeStore.success('保存草稿成功')
-}
+  noticeStore.success('保存草稿成功');
+};
 
 /**
- * 使用快速草稿
- * @param item
+ * 使用草稿（恢复配装与发布信息）
  */
 const onUseDraft = (item: any) => {
-  const assemblyData = item.assembly
-  if (!assemblyData && Object.keys(assemblyData).length == 0) {
-    return noticeStore.error('draft data null')
+  const assemblyData = item.assembly?.data || item.assembly;
+  if (!assemblyData || Object.keys(assemblyData).length == 0) {
+    return noticeStore.error('草稿数据为空');
   }
 
-  assemblyMainSubjectView.value.refs.assembly
-      .setSetting({
-        assemblyUseVersion: AssemblyDataProcessing.nowVersion,
-        isShowItemName: false,
-      })
-      .onLoad(toRaw(assemblyData))
-  draftModel.value = false
-}
+  // 恢复发布信息
+  if (item.name && item.id !== 'quickArchiving') {
+    publishData.value.name = item.name;
+  } else if (item.publishData?.name) {
+    publishData.value.name = item.publishData.name;
+  }
+  if (item.description !== undefined) {
+    publishData.value.description = item.description;
+  } else if (item.publishData?.description !== undefined) {
+    publishData.value.description = item.publishData.description;
+  }
+  if (item.tags || item.publishData?.assembly?.tags) {
+    publishData.value.assembly.tags = item.tags || item.publishData?.assembly?.tags || [];
+  }
+  if (item.visibility || item.publishData?.assembly?.visibility) {
+    publishData.value.assembly.visibility = item.visibility || item.publishData?.assembly?.visibility || 'publicly';
+  }
+  if (item.attr || item.publishData?.assembly?.attr) {
+    publishData.value.assembly.attr = {
+      ...publishData.value.assembly.attr,
+      ...(item.attr || item.publishData?.assembly?.attr)
+    };
+  }
+
+  // 恢复子视图数据
+  const refs = assemblyMainSubjectView.value?.refs;
+  if (refs?.assembly) {
+    refs.assembly
+        .setSetting({
+          assemblyUseVersion: publishData.value.assembly.attr?.assemblyUseVersion || AssemblyDataProcessing.nowVersion,
+          isShowItemName: publishData.value.assembly.attr?.isShowItemName ?? true,
+        })
+        .onLoad(toRaw(assemblyData));
+  }
+  if (refs?.wheel && (item.wheel || item.wheel?.data)) {
+    refs.wheel.onLoad(toRaw(item.wheel?.data || item.wheel));
+  }
+  if (refs?.warehouse && (item.warehouse || item.warehouse?.data)) {
+    refs.warehouse.onLoad(toRaw(item.warehouse?.data || item.warehouse));
+  }
+  if (refs?.mastery && (item.mastery || item.mastery?.data)) {
+    refs.mastery?.onLoad?.(toRaw(item.mastery?.data || item.mastery));
+  }
+
+  draftModel.value = false;
+  runWorkshopVerify();
+  noticeStore.success('草稿加载成功');
+};
 
 /**
  * 删除草稿
- * @param id
  */
 const onDeleteDraft = (id: string) => {
   storageIntermediateTransfer.delete(id, {
     saveType: StorageIntermediateTransferSaveType.Draft,
     category: 'assembly'
-  })
-  getDraftListData()
-}
+  });
+  getDraftListData();
+};
 </script>
 
 <template>
@@ -354,7 +604,7 @@ const onDeleteDraft = (id: string) => {
             <h1 class="text-amber">{{ !isEditModel ? t('basic.button.create') : t('basic.button.edit') }}</h1>
             <p class="opacity-80 mt-5">
               <template v-if="!isEditModel">{{ t('assembly.workshop.createTitle') }}</template>
-              <template v-else>{{ t('assembly.workshop.editTitle') }} <u><b>{{ assemblyDetailData.name || 'none' }}</b></u></template>
+              <template v-else>{{ t('assembly.workshop.editTitle') }} <u><b>{{ publishData.name || assemblyDetailData.name || 'none' }}</b></u></template>
             </p>
           </v-col>
           <v-col cols="auto">
@@ -387,32 +637,67 @@ const onDeleteDraft = (id: string) => {
             <v-btn class="mr-2" @click="router.go(-1)" v-if="isEditModel">
               {{ t('basic.button.cancel') }}
             </v-btn>
-            <v-tooltip location="left top" content-class="pa-0" :offset="[20, 0]" :disabled="verificationWorkshop && verificationWorkshop.verify.length <= 0">
+
+            <v-tooltip location="left top" content-class="pa-0" :offset="[20, 0]" :disabled="verificationWorkshop.verify.length <= 0">
               <template v-slot:activator="{props}">
-                <span v-bind="props">
-                  <v-btn :color="`var(--main-color)`" :disabled="!isAssemblyByUser || verificationWorkshop && verificationWorkshop.required >  0" @click="onSaveAssemblyPublish" v-if="!isEditModel">
-                    {{ t('basic.button.next') }}
-                  </v-btn>
-                  <v-btn :color="`var(--main-color)`" :disabled="!isAssemblyByUser || verificationWorkshop && verificationWorkshop.required > 0" @click="onSaveAssemblyEdit" v-if="isEditModel">
-                    {{ t('basic.button.next') }}
+                <span v-bind="props" class="d-inline-flex align-center">
+                  <v-btn
+                      :color="`var(--main-color)`"
+                      :disabled="!isAssemblyByUser || verificationWorkshop.required > 0"
+                      :loading="submitLoading"
+                      @click="onSubmit"
+                      variant="elevated">
+                    {{ isEditModel ? (t('basic.button.save') || t('basic.button.commit')) : t('basic.button.commit') }}
                   </v-btn>
 
-                  <v-icon class="ml-2" icon="mdi-alert-circle-outline" color="red" v-if="verificationWorkshop && verificationWorkshop.required > 0"></v-icon>
-                  <v-icon class="ml-2 text-green" icon="mdi-check" v-if="verificationWorkshop && verificationWorkshop.verify.length <= 0"></v-icon>
+                  <v-chip
+                      v-if="verificationWorkshop.required > 0"
+                      color="error"
+                      size="small"
+                      variant="tonal"
+                      class="ml-2 font-weight-bold">
+                    <v-icon icon="mdi-alert-circle" start size="16"></v-icon>
+                    {{ verificationWorkshop.required }} 项必选未完成
+                  </v-chip>
+                  <v-icon
+                      v-else-if="verificationWorkshop.verify.length <= 0"
+                      class="ml-2 text-green"
+                      icon="mdi-check-circle"
+                      size="22">
+                  </v-icon>
+                  <v-icon
+                      v-else
+                      class="ml-2 text-amber"
+                      icon="mdi-information"
+                      size="22">
+                  </v-icon>
                 </span>
               </template>
 
-              <v-card width="100%">
-                <v-alert type="warning">
-                  <template v-if="verificationWorkshop && verificationWorkshop.required > 0">
-                    <p class="mb-3 font-weight-bold">{{ t('assembly.workshop.missingRequiredFields') }}</p>
-                  </template>
-                  <ul v-if="verificationWorkshop">
-                    <li v-for="(v, vIndex) in verificationWorkshop.verify" :key="vIndex">
-                      <span v-html="`- ${t(`assembly.workshop.verifyTips.${v.message}`)}`"></span>
+              <v-card width="320" max-width="360" class="elevation-6 rounded-lg overflow-hidden">
+                <v-card-text v-if="requiredVerifyList.length > 0" class="bg-red-darken-4 text-white pa-3">
+                  <div class="d-flex align-center mb-2 font-weight-bold">
+                    <v-icon icon="mdi-alert-circle" size="18" class="mr-1"></v-icon>
+                    <span>{{ t('assembly.workshop.missingRequiredFields') }} ({{ requiredVerifyList.length }})</span>
+                  </div>
+                  <ul class="pl-4 mb-0" style="font-size: 13px; line-height: 1.6;">
+                    <li v-for="(v, vIndex) in requiredVerifyList" :key="'req-' + vIndex">
+                      <span class="text-white font-weight-bold" v-html="getVerifyMessage(v)"></span>
                     </li>
                   </ul>
-                </v-alert>
+                </v-card-text>
+
+                <v-card-text v-if="optionalVerifyList.length > 0" class="pa-3 bg-grey-darken-4 text-white">
+                  <div class="d-flex align-center mb-2 text-amber font-weight-bold" style="font-size: 13px;">
+                    <v-icon icon="mdi-information-outline" size="16" class="mr-1"></v-icon>
+                    <span>建议完善项 ({{ optionalVerifyList.length }})</span>
+                  </div>
+                  <ul class="pl-4 mb-0 opacity-80" style="font-size: 12px; line-height: 1.5;">
+                    <li v-for="(v, vIndex) in optionalVerifyList" :key="'opt-' + vIndex">
+                      <span v-html="getVerifyMessage(v)"></span>
+                    </li>
+                  </ul>
+                </v-card-text>
               </v-card>
             </v-tooltip>
           </v-col>
@@ -425,12 +710,99 @@ const onDeleteDraft = (id: string) => {
   <AssemblyMainSubjectView
       ref="assemblyMainSubjectView"
       class="mt-n2 ml-n5 mr-n5"
-      @ready="loadAssemblyData"
+      @ready="onSubjectViewReady"
       @update:item-change="onWorkshopUpdateEvent"
       :readonly="false"
-      :isShowFooterTool="true"
   ></AssemblyMainSubjectView>
   <!-- 工坊 E -->
+
+  <!-- 配装发布与设置 S -->
+  <v-container class="mt-4 mb-10" id="info">
+     <v-form>
+        <v-row>
+          <v-col cols="12" lg="8" sm="12">
+            <v-row>
+              <v-col cols="12">
+                <v-text-field
+                    v-model="publishData.name"
+                    :rules="formRules.name"
+                    :label="t('basic.assembly.publish.name')"
+                    size="l-large"
+                    hide-details="auto"
+                    :placeholder="t('basic.assembly.publish.namePlaceholder')"
+                    variant="underlined">
+                </v-text-field>
+              </v-col>
+              <v-col cols="12">
+                <div class="mt-4 mb-3 font-weight-bold">{{ t('basic.assembly.publish.description') }}</div>
+
+                <v-card :color="`hsl(from var(--main-color) h s calc(l * 0.05))`" border class="pl-3 pr-3">
+                  <Textarea v-model="publishData.description"
+                            :maxlength="10000"
+                            class="mt-3 mb-2"
+                            :placeholder="t('basic.assembly.publish.descriptionPlaceholder')"></Textarea>
+                  <template v-if="appStore.isDebug">
+                    {{ publishData.description }}
+                  </template>
+                </v-card>
+              </v-col>
+              <v-col cols="12">
+                <v-divider class="my-4">{{ t('basic.assembly.publish.extra') }}</v-divider>
+                <AssemblySettingWidget v-model="publishData" :is-show-delete="false"></AssemblySettingWidget>
+              </v-col>
+            </v-row>
+          </v-col>
+
+          <v-col cols="12" lg="4" sm="12">
+            <div class="mb-5">
+              <v-combobox
+                  v-model="publishData.assembly.tags"
+                  :counter="100"
+                  :hide-no-data="true"
+                  hide-details
+                  hide-selected
+                  :details="false"
+                  chips
+                  clearable
+                  item-title="label"
+                  item-value="value"
+                  :label="t('basic.assembly.publish.tags')"
+                  multiple
+                  :placeholder="t('basic.assembly.publish.tagsPlaceholder')"
+                  variant="underlined">
+                <template v-slot:prepend>
+                  <v-icon>mdi-tag-multiple</v-icon>
+                </template>
+                <template v-slot:chip="{item}">
+                  <AssemblyTagChip color="var(--main-color)" :tag="item.raw"/>
+                </template>
+              </v-combobox>
+            </div>
+
+            <AssemblyTagsWidget
+                v-model="publishData.assembly.tags"></AssemblyTagsWidget>
+          </v-col>
+        </v-row>
+      </v-form>
+
+      <v-divider class="my-5"></v-divider>
+      <v-row align="center" justify="end" no-gutters>
+        <v-btn v-if="isEditModel" class="mr-3" variant="outlined" @click="router.go(-1)">
+          {{ t('basic.button.cancel') }}
+        </v-btn>
+        <v-btn
+            :color="`var(--main-color)`"
+            :disabled="!isAssemblyByUser || verificationWorkshop.required > 0"
+            :loading="submitLoading"
+            variant="elevated"
+            size="large"
+            @click="onSubmit">
+          <v-icon icon="mdi-check" start></v-icon>
+          {{ isEditModel ? (t('basic.button.save') || t('basic.button.commit')) : t('basic.button.commit') }}
+        </v-btn>
+      </v-row>
+  </v-container>
+  <!-- 配装发布与设置 E -->
 
   <v-container class="pa-0">
     <v-dialog

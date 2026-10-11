@@ -20,6 +20,7 @@ import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 import HtmlLink from "@/components/HtmlLink.vue";
+import Banner from "@/components/Banner.vue";
 
 const {t, messages} = useI18n(),
     i18nReadName = useI18nReadName(),
@@ -128,7 +129,7 @@ const onCodexHistory = (id: string) => {
   <v-divider></v-divider>
 
   <div class="empire-skill-detail" v-if="empireSkillDetailData && !empireSkillDetailPageData.loading">
-    <div class="empire-skill-detail-header background-dot-grid">
+    <Banner class="empire-skill-detail-header">
       <v-container class="position-relative">
         <v-row class="mt-5" align="center">
           <v-col>
@@ -163,7 +164,7 @@ const onCodexHistory = (id: string) => {
           </v-col>
         </v-row>
       </v-container>
-    </div>
+    </Banner>
 
     <div class="background-flavor py-6">
       <v-container>
@@ -298,6 +299,9 @@ const onCodexHistory = (id: string) => {
   min-height: 80vh;
 }
 .empire-skill-detail-header {
-  padding-bottom: 24px;
+  background-color: #000;
+  position: relative;
+  padding-bottom: 40px;
+  min-height: 320px;
 }
 </style>

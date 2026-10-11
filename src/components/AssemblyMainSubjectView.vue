@@ -1,29 +1,26 @@
 <script setup lang="ts">
 import {assemblyViewConfig, storage_account} from "@/assets/sripts/index";
-import WarehouseShowWidget from "@/components/WarehouseShowWidget.vue";
-import WheelWidget from "@/components/WheelShowWidget.vue";
-import AssemblyWidget from "@/components/AssemblyWidget.vue";
-import MasteryWidget from "@/components/MasteryWidget.vue";
-import AssemblyDataInfoResultWidget from "@/components/AssemblyDataInfoResultWidget.vue";
 import {useRoute, useRouter} from "vue-router";
 import {computed, nextTick, onMounted, Ref, ref, toRaw, useAttrs, watch} from "vue";
 import {useDisplay} from "vuetify/framework";
 import {useI18n} from "vue-i18n";
 import {Ships} from "glow-prow-data";
+
+import WarehouseShowWidget from "@/components/WarehouseShowWidget.vue";
+import WheelWidget from "@/components/WheelShowWidget.vue";
+import AssemblyWidget from "@/components/AssemblyWidget.vue";
+import MasteryWidget from "@/components/MasteryWidget.vue";
+import AssemblyDataInfoResultWidget from "@/components/AssemblyDataInfoResultWidget.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 
 const props = withDefaults(defineProps<{
       assemblyBackground?: string,
-      isWorkshopFillScreen?: boolean,
-      isShowFooterTool?: boolean,
       modelValue?: any,
       class?: string,
       readonly?: boolean,
       perfectDisplay?: boolean
     }>(), {
       assemblyBackground: '',
-      isWorkshopFillScreen: false,
-      isShowFooterTool: false,
       modelValue: null,
       class: '',
       readonly: true,
@@ -51,19 +48,18 @@ const updateUrlTag = (targetTag: string) => {
         ...route.query,
         tag: targetTag
       }
-    }).catch(() => {});
+    }).catch(() => {
+    });
   }
 };
 
-let isWorkshopFillScreen = ref(props.isWorkshopFillScreen),
-    viewRootRef = ref(null),
+let viewRootRef = ref(null),
     zoomableAreaRef: Ref<any> = ref(null),
     assemblyWorkshopRef: Ref<any> = ref(null),
     wheelWorkshopRef: Ref<any> = ref(null),
     warehouseWorkshopRef: Ref<any> = ref(null),
     masteryWorkshopRef: Ref<any> = ref(null),
     infoWorkshopRef: Ref<any> = ref(null),
-    workshopHeight = ref<string | number>(600),
     workshopZoom = ref(1),
     tab = ref(getValidTag(route?.query?.tag) || assemblyViewConfig.onlyRead[0]),
     refs: Ref<any> = ref({
@@ -101,14 +97,13 @@ let isWorkshopFillScreen = ref(props.isWorkshopFillScreen),
 
 watch(() => route?.query?.tag, (newTag) => {
   const validTag = getValidTag(newTag) || assemblyViewConfig.onlyRead[0];
+
   if (validTag !== tab.value) {
+
     tab.value = validTag;
     syncAssemblyData();
-    if (props.readonly) {
-      onWorkshopRestorePosition();
-    }
+
     emit('update:tab', tab.value);
-    onWorkshopViewHeightUpdate();
   }
 });
 
@@ -135,8 +130,6 @@ onMounted(() => {
     if (hasItemChangeEvent) {
       emit('update:item-change', 'assembly')
     }
-
-    onWorkshopViewHeightUpdate()
   })
 })
 
@@ -145,6 +138,7 @@ const syncShip = () => {
     const rawShip = assemblyWorkshopRef.value.getShip
         ? assemblyWorkshopRef.value.getShip()
         : (assemblyWorkshopRef.value.workshopData?.value?.data?.shipSlot || assemblyWorkshopRef.value.workshopData?.data?.shipSlot || assemblyWorkshopRef.value.onExport?.()?.shipSlot);
+
     if (rawShip !== undefined) {
       currentShipSlot.value = rawShip;
     }
@@ -153,48 +147,18 @@ const syncShip = () => {
 
 const syncAssemblyData = () => {
   syncShip()
+
   if (assemblyWorkshopRef.value) {
     const raw = assemblyWorkshopRef.value.onExport
         ? assemblyWorkshopRef.value.onExport()
         : (assemblyWorkshopRef.value.workshopData?.value?.data || assemblyWorkshopRef.value.workshopData?.data);
+
     if (raw) {
       liveAssemblyData.value = raw;
     }
   }
 }
 
-/**
- * 重制画布位置
- */
-const onWorkshopRestorePosition = () => {
-  // zoomableAreaRef 为普通容器，未必暴露 centerCanvas，做防御性调用
-  zoomableAreaRef.value?.centerCanvas?.()
-};
-
-const onWorkshopFullScreen = () => {
-  isWorkshopFillScreen.value = !isWorkshopFillScreen.value;
-};
-
-const onWorkshopDelete = () => {
-  if (assemblyWorkshopRef.value) {
-    assemblyWorkshopRef.value.onErasure()
-  }
-};
-
-/**
- * 更新画布高度
- */
-const onWorkshopViewHeightUpdate = () => {
-  if (assemblyViewModel.value == 'full-extension') {
-    setTimeout(() => {
-      workshopHeight.value = `${viewRootRef.value.clientHeight + 100}px`
-    }, 500)
-  }
-}
-
-/**
- * 变动事件
- */
 const onUpdateEvent = (workshopName: string) => {
   syncAssemblyData()
   emit('update:item-change', workshopName)
@@ -208,13 +172,9 @@ const onTabs = (newTab?: any) => {
     tab.value = newTab;
   }
   syncAssemblyData()
-  if (props.readonly)
-    onWorkshopRestorePosition()
 
   emit('update:tab', tab.value)
   updateUrlTag(tab.value)
-
-  onWorkshopViewHeightUpdate()
 }
 
 /**
@@ -239,13 +199,15 @@ defineExpose({
   tab
 })
 
-defineOptions({name: 'AssemblyMainSubjectView'})
+defineOptions({
+  name: 'AssemblyMainSubjectView'
+})
 </script>
 
 <template>
-  <v-card class="card-enlargement-flavor mt-n3 mb-5 ml-n10 mr-n10"
+  <v-card class="card-enlargement-flavor mt-n3 mb-5 ml-n10 mr-n10 overflow-visible position-relative mb-n2"
           min-height="500"
-          :class="[isWorkshopFillScreen ? 'fill-screen bg-black' : 'position-relative mb-n2', props.class]">
+          :class="props.class">
     <AffixContainerView :offsetTop="55">
       <div class="bg-black">
         <v-tabs
@@ -308,46 +270,10 @@ defineOptions({name: 'AssemblyMainSubjectView'})
       </div>
     </div>
   </v-card>
-
-  <div v-if="isShowFooterTool"
-       class="position-fixed left-0 bottom-0 right-0" style="z-index: 11">
-    <v-container class="d-flex justify-center">
-      <v-card border class="d-inline-flex mx-auto py-1 px-3">
-        <v-row justify="center" align="center">
-          <v-col cols="auto" class="d-flex ga-2">
-            <v-btn density="comfortable"
-                   @click="onWorkshopRestorePosition"
-                   icon="mdi-restore"></v-btn>
-            <v-btn @click="parseInt(String(workshopHeight)) <= 1000 ? workshopHeight = (parseInt(String(workshopHeight)) + 100) + 'px' : null"
-                   density="comfortable" icon>
-              <v-icon icon="mdi-arrow-expand-vertical"></v-icon>
-            </v-btn>
-            <v-btn density="comfortable"
-                   class="ml-1 mr-1"
-                   @click="onWorkshopFullScreen"
-                   :icon="`mdi-${!isWorkshopFillScreen ? 'fullscreen' : 'fullscreen-exit'}`"></v-btn>
-            <v-btn @click="parseInt(String(workshopHeight)) >= 400 ? workshopHeight = (parseInt(String(workshopHeight)) - 100) + 'px' : null"
-                   density="comfortable" icon>
-              <v-icon icon="mdi-arrow-collapse-vertical"></v-icon>
-            </v-btn>
-            <v-btn density="comfortable"
-                   @click="onWorkshopDelete"
-                   class="ml-3"
-                   icon="mdi-delete"></v-btn>
-          </v-col>
-        </v-row>
-      </v-card>
-    </v-container>
-  </div>
 </template>
 
 <style scoped lang="less">
-.fill-screen {
-  position: fixed;
-  z-index: 10;
-  top: 0;
-  right: 0;
-  left: 0;
-  bottom: 0;
+.overflow-visible {
+  overflow: visible !important;
 }
 </style>

@@ -2220,7 +2220,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
                 });
                 // 提交成功：只移除对应草稿，其他未提交草稿保留
                 drawController.removeDraft(submittingDraftUuid);
-                notice.success(t('basic.tips.map.createSuccess'));
+                notice.success(t('basic.tips.map.createSuccess'), { mode: 'minimal' });
             } else if (editingShapeUuid) {
                 await api.updateShape(editingShapeUuid, {
                     title: f.title,
@@ -2233,7 +2233,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
                 });
                 drawController.endEditVertices();
                 unmarkShapeDirty(editingShapeUuid);
-                notice.success(t('basic.tips.map.updateSuccess'));
+                notice.success(t('basic.tips.map.updateSuccess'), { mode: 'minimal' });
             }
             draftShapeGeometry = null;
             submittingDraftUuid = null;
@@ -2337,7 +2337,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         try {
             await api.updateShape(uuid, { geometry });
             unmarkShapeDirty(uuid);
-            notice.success(t('basic.tips.map.updateSuccess'));
+            notice.success(t('basic.tips.map.updateSuccess'), { mode: 'minimal' });
             await loadCollectionShapes(selectedCollectionUuid.value || null, shapeEditMode.value);
             selectedShapeUuid.value = uuid;
         } catch (e) {
@@ -2369,7 +2369,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             if (marqueeSelection.value.shapes.some(s => s.uuid === uuid)) {
                 removeFromMarqueeSelection('shape', uuid);
             }
-            notice.success(t('basic.tips.map.deleteSuccess'));
+            notice.success(t('basic.tips.map.deleteSuccess'), { mode: 'minimal' });
         } catch (e) {
             if (e instanceof ApiError) {
                 notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
@@ -2519,7 +2519,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             }
 
             showPointEditDialog.value = false;
-            notice.success(t('basic.tips.map.updateSuccess'));
+            notice.success(t('basic.tips.map.updateSuccess'), { mode: 'minimal' });
         } catch (e) {
             if (e instanceof ApiError) {
                 notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
@@ -2551,7 +2551,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
                 model.value = false;
             }
             removeFromMarqueeSelection('point', raw.uuid);
-            notice.success(t('basic.tips.map.deleteSuccess'));
+            notice.success(t('basic.tips.map.deleteSuccess'), { mode: 'minimal' });
         });
     };
 
@@ -2631,7 +2631,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
                     }
                     clearMarqueeSelection();
                 }
-                notice.success(t('basic.tips.map.deleteSuccess'));
+                notice.success(t('basic.tips.map.deleteSuccess'), { mode: 'minimal' });
             },
         );
     };
@@ -2868,7 +2868,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             }
             console.error('框选平移持久化失败:', e);
         } else if (tasks.length > 0) {
-            notice.success(t('basic.tips.map.updateSuccess'));
+            notice.success(t('basic.tips.map.updateSuccess'), { mode: 'minimal' });
         }
     };
 
@@ -2898,7 +2898,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
                     selectedShapeUuid.value = null;
                 }
                 clearMarqueeSelection();
-                notice.success(t('basic.tips.map.deleteSuccess'));
+                notice.success(t('basic.tips.map.deleteSuccess'), { mode: 'minimal' });
             },
         );
     };
@@ -3171,7 +3171,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             selectedCollectionUuid.value = resp.data.collectionUuid as string;
             await nextTick();
             await currentCollectionLoad;
-            notice.success(t('basic.tips.map.importSuccess'));
+            notice.success(t('basic.tips.map.importSuccess'), { mode: 'minimal' });
         } catch (e) {
             if (e instanceof ApiError) {
                 notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
@@ -3322,7 +3322,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             }
             showCreateMarkerDialog.value = false;
             onResetNewMarkerData();
-            notice.success(t('basic.tips.map.createSuccess'));
+            notice.success(t('basic.tips.map.createSuccess'), { mode: 'minimal' });
         } catch (error) {
             if (error instanceof ApiError) {
                 notice.error(t(`basic.tips.${error.code}`, { context: error.code }));

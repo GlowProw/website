@@ -183,15 +183,14 @@
       <v-card border>
         <v-card-title class="d-flex align-center ga-2 py-4">
           <v-icon :color="confirmState.danger ? 'red' : 'amber'" icon="mdi-alert-outline"></v-icon>
-          {{ t('basic.button.confirm') || '确认' }}
         </v-card-title>
         <v-card-text class="text-body-2">{{ confirmState.message }}</v-card-text>
-        <v-card-actions class="border-t px-4 py-3">
+        <v-card-actions class="px-4 py-3">
           <v-spacer></v-spacer>
           <v-btn variant="text" @click="onCancelConfirmDialog">{{ t('basic.button.cancel') }}</v-btn>
           <v-btn :color="confirmState.danger ? 'red' : 'amber'" variant="tonal"
                  @click="onConfirmDialog">
-            {{ t('basic.button.confirm') || '确认' }}
+            {{ t('basic.button.submit') }}
           </v-btn>
         </v-card-actions>
       </v-card>

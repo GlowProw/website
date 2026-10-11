@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, provide, reactive, Ref, ref, toRaw, useAttrs, useSlots, watch} from "vue";
+import {computed, nextTick, provide, reactive, Ref, ref, toRaw, useAttrs, useSlots, watch} from "vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useRoute} from "vue-router";
 import {AssemblyAttr, AssemblyWidgetProps, AssemblyWorkshopData} from "@/assets/types";
@@ -125,17 +125,40 @@ watch(() => workshopData.value?.data, (value) => {
   deep: true
 })
 
+const updateShipFrigateUpgradeList = (shipId?: string) => {
+  const targetShipId = shipId || workshopData.value?.data?.shipSlot?.id;
+  if (!targetShipId) {
+    workshopData.value.shipFrigateUpgradeList = [];
+    return;
+  }
+  const itemsData = Object.values(items);
+  workshopData.value.shipFrigateUpgradeList = itemsData.filter((i: any) => i.type === 'shipUpgrade' && i.id.indexOf(targetShipId) >= 0);
+};
+
+const currentShipFrigateUpgradeList = computed(() => {
+  const ship = workshopData.value?.data?.shipSlot;
+  if (!ship || !ship.id) return [];
+  const itemsData = Object.values(items);
+  return itemsData.filter((i: any) => i.type === 'shipUpgrade' && i.id.indexOf(ship.id) >= 0);
+});
+
 watch(() => workshopData.value?.frigateUpgradeModel, (value) => {
-  // 更新升级部件可用列表
-  if (frigateUpgradeRef.value)
-    frigateUpgradeRef.value.updateData()
-})
+  if (value) {
+    updateShipFrigateUpgradeList();
+    nextTick(() => {
+      if (frigateUpgradeRef.value)
+        frigateUpgradeRef.value.updateData();
+    });
+  }
+});
 
 watch(() => workshopData.value?.data?.shipUpgradeSlot, () => {
   updateDisplaySlotsCount()
 })
 
 watch(() => workshopData.value?.data?.shipSlot, (value) => {
+  updateShipFrigateUpgradeList(value?.id);
+
   let result: Record<string, any> = {},
       workshop_data = workshopData.value.data
 
@@ -272,7 +295,10 @@ const onSlotRemove = (type: string, index?: number) => {
       break;
     case 'upgrade':
       workshopData.value.data.shipUpgradeSlot = null
+      updateShipFrigateUpgradeList()
       updateDisplaySlotsCount()
+      emit('update:model-value', onExport())
+      emit('update:item-change', 'assembly')
       break;
     case 'armor':
       workshopData.value.data.armorSlot = null
@@ -290,14 +316,14 @@ const onSlotRemove = (type: string, index?: number) => {
  * 可选船只升级
  * 自定义选择器，获取符合的船只的升级部件
  */
-const getShipUpgradeFilterList = (i): boolean => {
-  // <- 这里返回都是升级部件
-  // <id>Upgrade<数字>
-  const prefix = `${workshopData.value.data.shipSlot.id}Upgrade`
+const getShipUpgradeFilterList = (i: any): boolean => {
+  const shipId = workshopData.value?.data?.shipSlot?.id;
+  if (!shipId) return false;
+  const prefix = `${shipId}Upgrade`;
   if (i.id.startsWith(prefix) && /^\d+$/.test(i.id.slice(prefix.length))) {
-    return true
+    return true;
   }
-  return false
+  return false;
 }
 
 /**
@@ -563,6 +589,7 @@ const onLoad = (data) => {
     ...d
   })
 
+  updateShipFrigateUpgradeList()
   updateDisplaySlotsCount()
   emit('update:model-value', onExport())
   emit('update:item-change', 'assembly')
@@ -694,7 +721,7 @@ defineOptions({name: 'AssemblyWidget'})
 
               <ItemSlotBase size="80px" :padding="1"
                             @click="workshopData.frigateUpgradeModel = true"
-                            v-if="!workshopData.data.shipUpgradeSlot && workshopData.shipFrigateUpgradeList.length > 0">
+                            v-if="!workshopData.data.shipUpgradeSlot && (currentShipFrigateUpgradeList.length > 0 || workshopData.shipFrigateUpgradeList?.length > 0)">
                 <v-card class="w-100 d-flex align-center justify-center"
                         :disabled="readonly">
                   <v-icon icon="mdi-plus" size="20"></v-icon>

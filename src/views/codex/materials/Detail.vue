@@ -32,6 +32,7 @@ import {useNoticeStore} from "~/stores/noticeStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
 import {useAppStore} from "~/stores/appStore";
+import Banner from "@/components/Banner.vue";
 
 const {t, messages} = useI18n(),
     route = useRoute(),
@@ -145,7 +146,7 @@ const onAddCalculator = () => {
   </v-breadcrumbs>
   <v-divider></v-divider>
   <div class="cosmetic-detail">
-    <div class="cosmetic-detail-header background-dot-grid">
+    <Banner class="cosmetic-detail-header">
       <v-container class="position-relative">
         <v-row class="mt-5">
           <v-col cols="8">
@@ -199,7 +200,7 @@ const onAddCalculator = () => {
           </v-col>
         </v-row>
       </v-container>
-    </div>
+    </Banner>
     <div class="background-flavor">
       <v-container>
         <v-row>
@@ -342,19 +343,6 @@ const onAddCalculator = () => {
     position: relative;
     padding-bottom: 40px;
     min-height: 320px;
-
-    &:before {
-      content: "";
-      position: absolute;
-      z-index: 0;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 0;
-      padding: 10% 0 0;
-      background: url(@/assets/images/portal-banner-background.png) 50% 0 no-repeat;
-      background-size: cover;
-    }
 
     .cosmetic-detail-header-img {
       position: absolute;
