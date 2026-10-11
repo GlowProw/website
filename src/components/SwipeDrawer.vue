@@ -4,9 +4,10 @@ import type {SwipeDrawerProps} from "@/assets/types/Ui";
 
 const props = withDefaults(defineProps<SwipeDrawerProps>(), {
     side: 'right',
-    width: '80vw',
+    width: '90vw',
     maxWidth: '1024px',
     closeOnOverlay: true,
+    lockScroll: true,
     edgeWidth: 24,
 });
 
@@ -77,7 +78,7 @@ const requestClose = (): void => {
  */
 const lockBody = (lock: boolean): void => {
     if (typeof document === 'undefined') return;
-    if (lock && !locked) {
+    if (lock && props.lockScroll && !locked) {
         document.body.style.overflow = 'hidden';
         locked = true;
     } else if (!lock && locked) {
@@ -89,6 +90,12 @@ const lockBody = (lock: boolean): void => {
 const onKeydown = (e: KeyboardEvent): void => {
     if (e.key === 'Escape') requestClose();
 };
+
+watch(() => props.lockScroll, (shouldLock) => {
+    if (props.modelValue) {
+        lockBody(shouldLock);
+    }
+});
 
 watch(() => props.modelValue, (open) => {
     if (leaveTimer) {
@@ -286,7 +293,9 @@ const onOverlayClick = (): void => {
     if (props.closeOnOverlay) requestClose();
 };
 
-defineOptions({name: 'SwipeDrawer'});
+defineOptions({
+  name: 'SwipeDrawer'
+});
 </script>
 
 <template>
@@ -410,7 +419,7 @@ defineOptions({name: 'SwipeDrawer'});
 }
 
 /* 移动设备占满宽度 */
-@media (max-width: 599.98px) {
+@media (max-width: 1024px) {
   .sd-panel {
     width: 100vw !important;
     max-width: none !important;

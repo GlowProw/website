@@ -259,6 +259,8 @@ export interface SwipeDrawerProps {
   maxWidth?: string
   // 点击遮罩是否关闭
   closeOnOverlay?: boolean
+  // 打开时是否禁用 window 滚动，默认 true
+  lockScroll?: boolean
   // 边缘起手热区宽度（px），鼠标按住或触摸该区域向关闭方向滑动可收起
   edgeWidth?: number
 }

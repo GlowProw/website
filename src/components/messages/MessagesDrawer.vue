@@ -13,7 +13,7 @@ defineOptions({name: 'MessagesDrawer'});
 </script>
 
 <template>
-  <SwipeDrawer v-model="open" side="right" class="">
+  <SwipeDrawer v-model="open" side="right">
     <v-card tile variant="text" class="messages-drawer d-flex flex-column h-100 border-l">
       <!-- 抽屉标题栏 -->
       <div class="d-flex align-center px-4 py-2 border-bottom flex-shrink-0">

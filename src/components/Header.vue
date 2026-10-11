@@ -9,7 +9,7 @@ import {useAppStore} from "~/stores/appStore";
 
 import HeaderAccount from "@/components/HeaderAccount.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
-import GlobalSearchTopWindowWidget from "@/components/GlobalSearchTopWindowWidget.vue";
+import GlobalSearchDrawer from "@/components/GlobalSearchDrawer.vue";
 import MessagesDrawer from "@/components/messages/MessagesDrawer.vue";
 
 const {t} = useI18n(),
@@ -54,9 +54,9 @@ defineOptions({
 
         <v-divider class="ml-3 mr-1" inset vertical></v-divider>
 
-        <GlobalSearchTopWindowWidget>
+        <GlobalSearchDrawer>
           <v-btn icon="mdi-magnify"></v-btn>
-        </GlobalSearchTopWindowWidget>
+        </GlobalSearchDrawer>
 
         <v-btn :to="{ name: 'PortalSettingRoutine', params: $route.params }" icon="mdi-cog"></v-btn>
       </div>

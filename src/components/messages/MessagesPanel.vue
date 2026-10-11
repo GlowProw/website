@@ -7,8 +7,10 @@ import {useMessagesUnreadStore} from "~/stores/messagesUnreadStore";
 import {useMessagesApi} from "@/assets/sripts/api/messages_service";
 import {type Conversation, type MessageItem} from "@/assets/types/Message";
 import {storage} from "@/assets/sripts";
-import AffixContainerView from "@/components/AffixContainerView.vue";
 import {useDisplay} from "vuetify/framework";
+
+import AffixContainerView from "@/components/AffixContainerView.vue";
+import VerticalScrollList from "@/components/VerticalScrollList.vue";
 
 const props = withDefaults(defineProps<{
     // 嵌入固定高度容器（如侧边抽屉）时由内部自行滚动；路由整页时保持原吸顶布局
@@ -491,7 +493,8 @@ defineOptions({
         </v-card-title>
 
         <v-card-text class="flex-grow-1 overflow-y-auto">
-          <div v-if="activeConv || pendingPeerId" class="messages-scroll" ref="scrollEl">
+          <VerticalScrollList :show-controls="false">
+            <div v-if="activeConv || pendingPeerId" class="messages-scroll" ref="scrollEl">
             <!-- 加载以往记录（只有有会话时才显示，pendingPeerId 是新建无历史） -->
             <v-btn
                 v-if="hasMoreMessages && activeConv"
@@ -539,6 +542,7 @@ defineOptions({
 
             <div ref="bottomEl"></div>
           </div>
+          </VerticalScrollList>
         </v-card-text>
 
         <AffixContainerView :affix-bottom="false"

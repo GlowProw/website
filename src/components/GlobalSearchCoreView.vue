@@ -38,7 +38,12 @@ import ShipName from "@/components/snbWidget/shipName.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import {ERROR_CODES, logError} from "@/assets/sripts/error_logger";
 
-const {t, messages, locale} = useI18n(),
+const props = withDefaults(defineProps<{
+      embedded?: boolean
+    }>(), {
+      embedded: false
+    }),
+    {t, messages, locale} = useI18n(),
     os = useOS(),
     slots = useSlots(),
     router = useRouter(),
@@ -377,7 +382,7 @@ defineOptions({
 
 <template>
   <v-card elevation="0" class="bg-transparent">
-    <v-row class="mb-0" no-gutters align="center">
+    <v-row class="mb-0" no-gutters align="center" v-if="!props.embedded">
       <v-col cols="auto" class="font-weight-bold text-h5">
         <v-icon>mdi-magnify</v-icon>
         <span class="ml-3 opacity-80">{{ t('search.title') }}</span>
@@ -398,8 +403,8 @@ defineOptions({
       <!-- 搜索筛选配置 S -->
       <v-col cols="auto" class="ml-10">
         <v-menu open-on-click :close-on-content-click="false" location="bottom end">
-          <template v-slot:activator="{ props }">
-            <div v-bind="props">
+          <template v-slot:activator="{ props: menuProps }">
+            <div v-bind="menuProps" class="cursor-pointer">
               <v-icon>mdi-filter</v-icon>
               <v-icon>mdi-dots-vertical</v-icon>
             </div>
@@ -471,6 +476,81 @@ defineOptions({
 
       <v-col cols="auto" v-if="slots.close">
         <slot name="close"></slot>
+      </v-col>
+    </v-row>
+
+    <!-- embedded 模式下的顶部设置按钮行 -->
+    <v-row class="mb-2" no-gutters align="center" v-else>
+      <v-spacer></v-spacer>
+      <v-col cols="auto">
+        <v-menu open-on-click :close-on-content-click="false" location="bottom end">
+          <template v-slot:activator="{ props: menuProps }">
+            <v-btn variant="tonal" size="small" prepend-icon="mdi-filter" v-bind="menuProps">
+              {{ t('search.configTitle') }}
+            </v-btn>
+          </template>
+
+          <v-card border min-width="300" max-width="600" class="pa-4 overflow-x-hidden">
+            <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 mt-n5">
+              <v-icon size="80">mdi-filter</v-icon>
+            </v-card-title>
+
+            <div class="text-subtitle-1 mb-2">{{ t('search.configTitle') }}</div>
+
+            <div class="text-caption text-grey mb-1">{{ t('search.scope') }}</div>
+            <v-row no-gutters>
+              <v-col cols="6" v-for="type in allTypes" :key="type">
+                <v-checkbox
+                    v-model="searchConfig.enabledTypes"
+                    :label="t(typeToI18nKey[type] || `codex.${type}s.title`)"
+                    :value="type"
+                    density="compact"
+                    hide-details
+                ></v-checkbox>
+              </v-col>
+            </v-row>
+
+            <v-divider class="my-3"></v-divider>
+
+            <div class="text-caption text-grey mb-1">
+              {{ t('search.limitPerType') }}: {{ searchConfig.limit === 0 ? t('search.infinite') : searchConfig.limit }}
+            </div>
+            <v-slider
+                v-model="searchConfig.limit"
+                :min="0"
+                :max="100"
+                :step="5"
+                color="var(--main-color)"
+                thumb-label
+                density="compact"
+                hide-details
+            ></v-slider>
+
+            <v-divider class="my-3"></v-divider>
+
+            <div class="text-caption text-grey mb-1">{{ t('search.openMode') }}</div>
+            <v-select
+                v-model="searchOpenNewWindow"
+                :items="[
+                  { title: t('search.openNewWindow'), value: true },
+                  { title: t('search.openCurrentWindow'), value: false }
+                ]"
+                item-title="title"
+                item-value="value"
+                density="compact"
+                variant="outlined"
+                hide-details
+                class="mb-2"
+            ></v-select>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="var(--main-color)" class="mt-4" @click="saveConfig">
+                {{ t('basic.button.submit') }}
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-menu>
       </v-col>
     </v-row>
 
