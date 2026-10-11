@@ -3,6 +3,7 @@ import {onMounted, onUnmounted, ref} from "vue";
 import {appFuns, getCurrentSeason, time} from "@/assets/sripts";
 import {Season} from "glow-prow-data/src/entity/Seasons";
 import {useI18n} from "vue-i18n";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import BlogWidget from "@/components/BlogWidget.vue";
 import AppVersionWidget from "@/components/AppVersionWidget.vue";
 import NewSeasonShowItem from "@/components/NewSeasonShowItem.vue";
@@ -15,6 +16,7 @@ import QQBotShowcaseWidget from "@/components/QQBotShowcaseWidget.vue";
 import Banner from "@/components/Banner.vue";
 
 const {t} = useI18n()
+const {season: readSeason} = useI18nReadName()
 // 当前赛季
 const currentlySeason = ref<Season | null>(getCurrentSeason() as Season | null)
 const seasonContainerRef = ref<HTMLElement | null>(null)
@@ -73,7 +75,7 @@ onUnmounted(() => {
         <div class="opacity-60">
           <p>{{ t('portal.seasonTimer', {seasonName: (currentlySeason as any).alternativeName.toUpperCase(), day: time.calcRemainingDays(currentlySeason.endDate)}) }}</p>
           <v-divider thickness="3" vertical/>
-          <p>{{ t(`snb.seasons.${currentlySeason?.id}`) }}</p>
+          <p>{{ readSeason(currentlySeason?.id || '').fullName() }}</p>
         </div>
       </div>
     </v-card>
@@ -134,7 +136,7 @@ onUnmounted(() => {
           <v-col cols="12" md="4" lg="4">
             <AffixContainerView>
               <div class="d-flex flex-column justify-space-between">
-                <h1 class="text-h6 text-amber pb-2">{{ t(`snb.seasons.${currentlySeason?.id}`) }}</h1>
+                <h1 class="text-h6 text-amber pb-2">{{ readSeason(currentlySeason?.id || '').fullName() }}</h1>
                 <p class="font-weight-light opacity-60">{{ t(`snb.calendar.${currentlySeason?.id}.description`) }}</p>
               </div>
             </AffixContainerView>

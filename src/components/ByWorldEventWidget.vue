@@ -1,20 +1,13 @@
 <script setup lang="ts">
 import {computed, onMounted, ref, type Ref, watch} from "vue";
-import {Item, Material, Ship, Ultimate} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
-const {t,tm} = useI18n(),
-    props = defineProps<{ data: any }>()
+const {t} = useI18n(),
+    props = defineProps<{ data: any }>(),
+    {worldEvent: readWorldEvent} = useI18nReadName()
 
 let detailData: Ref<any> = ref(null),
-    seasonI18nMap = computed(() => {
-      return (tm('snb.seasons') as any[])
-    }),
-    i18nAdditionalAttr = computed(() => {
-      return {
-        ...(seasonI18nMap.value as any)
-      }
-    }),
     worldEvent = computed(() => {
       if (!detailData.value) return []
 
@@ -47,11 +40,19 @@ onMounted(() => {
 })
 
 /**
- * 获取文本
+ * 获取世界事件名称
  * @param o
  */
 const getChipText = (o: any) => {
-  return t(`snb.worldEvents.${o.worldEventId}`, {...i18nAdditionalAttr.value})
+  return readWorldEvent(o.worldEventId).name()
+}
+
+/**
+ * 获取世界事件描述
+ * @param o
+ */
+const getEventDescription = (o: any) => {
+  return readWorldEvent(o.worldEventId).description()
 }
 
 defineOptions({
@@ -72,12 +73,15 @@ defineOptions({
             :to="`/codex/${o.itemType}s?worldEvent=${o.worldEventId}`">
       <v-tooltip content-class="pa-0">
         <template v-slot:default>
-          <v-card border class="py-3 px-10">
-            <span v-html="getChipText(o)"></span>
+          <v-card border class="py-3 px-6" max-width="400">
+            <div class="font-weight-bold">{{ getChipText(o) }}</div>
+            <div v-if="getEventDescription(o)" class="text-caption opacity-80 mt-1" style="white-space: pre-line;">
+              {{ getEventDescription(o) }}
+            </div>
           </v-card>
         </template>
         <template v-slot:activator="{props}">
-          <div class="singe-line w-100 multiline-chip blueprint-item" v-bind="props" v-html="getChipText(o)"></div>
+          <div class="singe-line w-100 multiline-chip blueprint-item" v-bind="props">{{ getChipText(o) }}</div>
         </template>
       </v-tooltip>
     </v-chip>

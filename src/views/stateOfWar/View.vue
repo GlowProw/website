@@ -21,8 +21,10 @@ import {getCurrentSeasonId, getAppUrl} from "@/assets/sripts";
 import Loading from "@/components/Loading.vue";
 import TimeView from "@/components/TimeView.vue";
 import {useAuthStore} from "~/stores/userAccountStore";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
 const {t} = useI18n(),
+    {season: readSeason} = useI18nReadName(),
     route = useRoute(),
     router = useRouter(),
     notice = useNoticeStore(),
@@ -73,9 +75,8 @@ const selectSeasonsList = computed(() => {
   const list = warStore.availableSeasons;
   if (list && list.length > 0) {
     return list.map((s: any) => {
-      const i18nKey = `snb.seasons.${s.seasonId}`;
-      const translated = t(i18nKey);
-      let label = (translated && translated !== i18nKey) ? translated : (s.nameZh || s.alternativeName || s.seasonId);
+      const translated = readSeason(s.seasonId).fullName();
+      let label = (translated && translated !== s.seasonId) ? translated : (s.nameZh || s.alternativeName || s.seasonId);
       if (s.isEnded || s.status === 'ended') {
         label += ` (${t('stateOfWar.ended')})`;
       }

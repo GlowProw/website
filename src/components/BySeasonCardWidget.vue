@@ -2,11 +2,13 @@
 import {ref} from "vue";
 import {Cosmetic, Item, MapLocation, Material, Ship, TreasureMap, Ultimate} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import {useDisplay} from "vuetify/framework";
 import SeasonViewWidget from "@/components/SeasonViewWidget.vue";
 
 const {t} = useI18n(),
     {mobile} = useDisplay(),
+    {season: readSeason} = useI18nReadName(),
     props = defineProps<{ data: Item | Ship | Material | Cosmetic | Ultimate | MapLocation | TreasureMap | unknown }>()
 
 const getSeasonData = (data: any) => data?.bySeason || data?.firstAppearingSeason
@@ -28,7 +30,7 @@ defineOptions({ name: 'BySeasonCardWidget' })
         </v-col>
         <v-col>
           <v-text-field hide-details variant="solo" elevation="0" density="compact" readonly tile
-                        class="h-100 bg-transparent" :value="t(`snb.seasons.${getSeasonId(data)}`) || 'none'"></v-text-field>
+                        class="h-100 bg-transparent" :value="readSeason(getSeasonId(data)).fullName() || 'none'"></v-text-field>
         </v-col>
         <v-col cols="auto">
           <p class="text-no-wrap">{{ t('codex.item.bySeason.append') }}</p>

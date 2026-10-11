@@ -153,14 +153,14 @@ let data: any = ref([]),
     seasonFilterAvailableOptions = computed(() => [
       ...filterData.value.seasonTags.map(season => ({
         value: season,
-        text: asString([`snb.seasons.${season}`], {backRawKey: false, variable: season})
+        text: asString([`snb.seasons.${season}.fullName`, `snb.seasons.${season}.name`, `snb.seasons.${season}`], {backRawKey: false, variable: season})
       }))
     ]),
     // 世界事件筛选器可选选项
     worldEventFilterAvailableOptions = computed(() => [
       ...filterData.value.worldEventTags.map(event => ({
         value: event,
-        text: asString([`snb.worldEvents.${event}`], {backRawKey: false, variable: event})
+        text: asString([`snb.worldEvents.${event}.name`, `snb.worldEvents.${event}`], {backRawKey: false, variable: event})
       }))
     ]),
     // 地点筛选器可选选项

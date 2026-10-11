@@ -34,6 +34,8 @@ const title = computed(() => {
     `assembly.tags.damageTypes.${parts[1]}`,
     `assembly.tags.difficultyOfAcquisitions.${parts[1]}`,
     `codex.ships.archetypes.${parts[1]}.name`,
+    `snb.seasons.${parts[1]}.fullName`,
+    `snb.seasons.${parts[1]}.name`,
     `snb.seasons.${parts[1]}`,
   ], {
     backRawKey: true

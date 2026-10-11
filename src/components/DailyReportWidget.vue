@@ -8,6 +8,7 @@ import {apis} from "@/assets/sripts";
 import {getCurrentSeason, getCurrentSeasonId} from "@/assets/sripts/season";
 import {useStateOfWarStore} from "~/stores/stateOfWarStore";
 import type {CalendarData, CalendarEvent, DailyCalendarEventItem} from "@/assets/types/Calendar";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
 import {formatCompactNumber} from "@/assets/sripts/number";
 
@@ -72,12 +73,14 @@ const currentSeason = computed<Season | null>(() => {
   return getCurrentSeason(true);
 });
 
+const {season: readSeason} = useI18nReadName();
+
 // 赛季名称国际化
 const seasonName = computed<string>(() => {
   if (!currentSeason.value) return t("dailyReport.season.title");
-  const i18nKey = `snb.seasons.${currentSeason.value.id}`;
-  if (te(i18nKey)) {
-    return t(i18nKey);
+  const translated = readSeason(currentSeason.value.id).fullName();
+  if (translated && translated !== currentSeason.value.id) {
+    return translated;
   }
   return String(currentSeason.value.alternativeName || currentSeason.value.id);
 });

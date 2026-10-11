@@ -82,8 +82,7 @@ const getCollectStatus = computed(() => {
 const seasonTitle = computed(() => {
   const sId = masteryDetailData.value?.bySeason?.id || (masteryDetailData.value?.season as any)?.id || (masteryDetailData.value?.season as any);
   if (!sId) return '';
-  const key = `snb.seasons.${sId}`;
-  return t(key).replace(/^Y\d+S\d+\s*-\s*/, '');
+  return i18nReadName.season(sId).name();
 });
 
 // 前置节点解析（转换为对应节点实体）

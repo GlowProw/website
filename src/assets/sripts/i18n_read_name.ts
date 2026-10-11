@@ -684,6 +684,102 @@ export function useI18nReadName() {
         };
     };
 
+    const worldEvent = (id: string | number) => {
+        const rawId = String(id || '');
+        let keysName = [
+            `snb.worldEvents.${rawId}.name`,
+            `snb.worldEvents.${sanitizeString(rawId).cleaned}.name`,
+            `snb.worldEvents.${rawId}`,
+        ],
+            keysDescription = [
+                `snb.worldEvents.${rawId}.description`,
+                `snb.worldEvents.${sanitizeString(rawId).cleaned}.description`,
+            ];
+
+        return {
+            keysName,
+            keysDescription,
+            name: (lang?: string): string => {
+                const val = tm(`snb.worldEvents.${rawId}`, lang);
+                if (val && typeof val === 'object' && typeof val.name === 'string') {
+                    return val.name;
+                }
+                const translated = asString(keysName, {
+                    backRawKey: true,
+                    lang
+                });
+                return (translated && translated !== keysName[0]) ? translated : rawId;
+            },
+            description: (lang?: string): string => {
+                const val = tm(`snb.worldEvents.${rawId}`, lang);
+                if (val && typeof val === 'object' && typeof val.description === 'string') {
+                    return val.description;
+                }
+                const translated = asString(keysDescription, {
+                    backRawKey: false,
+                    lang
+                });
+                return translated || '';
+            }
+        };
+    };
+
+    const season = (id: string | number) => {
+        const rawId = String(id || '');
+        let keysName = [
+            `snb.seasons.${rawId}.name`,
+            `snb.seasons.${rawId}`,
+        ],
+            keysFullName = [
+                `snb.seasons.${rawId}.fullName`,
+                `snb.seasons.${rawId}.name`,
+                `snb.seasons.${rawId}`,
+            ],
+            keysShortName = [
+                `snb.seasons.${rawId}.shortName`,
+                `snb.seasons.${rawId}`,
+            ];
+
+        return {
+            keysName,
+            keysFullName,
+            keysShortName,
+            name: (lang?: string): string => {
+                const val = tm(`snb.seasons.${rawId}`, lang);
+                if (val && typeof val === 'object' && typeof val.name === 'string') {
+                    return val.name;
+                }
+                const translated = asString(keysName, {
+                    backRawKey: true,
+                    lang
+                });
+                return (translated && translated !== keysName[0]) ? translated : rawId;
+            },
+            fullName: (lang?: string): string => {
+                const val = tm(`snb.seasons.${rawId}`, lang);
+                if (val && typeof val === 'object' && typeof val.fullName === 'string') {
+                    return val.fullName;
+                }
+                const translated = asString(keysFullName, {
+                    backRawKey: true,
+                    lang
+                });
+                return (translated && translated !== keysFullName[0]) ? translated : rawId;
+            },
+            shortName: (lang?: string): string => {
+                const val = tm(`snb.seasons.${rawId}`, lang);
+                if (val && typeof val === 'object' && typeof val.shortName === 'string') {
+                    return val.shortName;
+                }
+                const translated = asString(keysShortName, {
+                    backRawKey: true,
+                    lang
+                });
+                return (translated && translated !== keysShortName[0]) ? translated : rawId;
+            }
+        };
+    };
+
     return {
         ship,
         npc,
@@ -700,6 +796,8 @@ export function useI18nReadName() {
         empireSkill,
         mastery,
         quest,
+        worldEvent,
+        season,
         getValue
     }
 }

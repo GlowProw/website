@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import {computed, onMounted, ref, toRaw, watch} from "vue";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
 import {Seasons} from "glow-prow-data";
 import DamageIconWidget from "@/components/snbWidget/damageIconWidget.vue";
@@ -10,7 +11,8 @@ const poops = withDefaults(defineProps<{ modelValue: any[], readonly?: boolean, 
       readonly: false,
       class: ''
     }),
-    {t} = useI18n()
+    {t} = useI18n(),
+    {season: readSeason} = useI18nReadName()
 
 const tagsConfig = {
   seasons: Object.keys(Seasons),
@@ -95,7 +97,7 @@ defineOptions({name: 'AssemblyTagsWidget'})
                 color="var(--main-color)"
                 v-for="(i, index) in tagsConfig.seasons"
                 :key="index"
-                :value="`season_${i}`">{{ t(`snb.seasons.${i}`) }}
+                :value="`season_${i}`">{{ readSeason(i).fullName() }}
         </v-chip>
       </div>
     </div>

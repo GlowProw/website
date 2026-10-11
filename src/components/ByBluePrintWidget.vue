@@ -17,7 +17,12 @@ let blueprint = computed(() => {
       return filterByBluePrint(data)
     }),
     seasonI18nMap = computed(() => {
-      return (tm as any)('snb.seasons') as any
+      const map = (tm as any)('snb.seasons') || {}
+      const res: Record<string, string> = {}
+      for (const [k, v] of Object.entries(map)) {
+        res[k] = typeof v === 'object' && v !== null ? ((v as any).name || (v as any).fullName || '') : (v as string)
+      }
+      return res
     }),
     i18nAdditionalAttr = computed(() => {
       const map = seasonI18nMap.value as Record<string, string>

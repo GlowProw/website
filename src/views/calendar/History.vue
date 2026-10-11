@@ -5,6 +5,7 @@ import {useRoute, useRouter} from "vue-router";
 import {Seasons} from "glow-prow-data";
 import {apis, getCurrentSeason as _getCurrentSeason, http, storage, time} from "@/assets/sripts";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
 import {Season} from "glow-prow-data/src/entity/Seasons";
 import {CalendarData, FormattedCalendar} from "@/assets/types";
@@ -22,6 +23,7 @@ import AffixContainerView from "@/components/AffixContainerView.vue";
 
 const {t, te} = useI18n()
 const {asString} = useI18nUtils()
+const {season: readSeason} = useI18nReadName()
 const {locale} = useI18n()
 const notice = useNoticeStore()
 const route = useRoute()
@@ -176,8 +178,9 @@ const remainingDays = computed(() => {
 
 const currentSeasonName = computed(() => {
   const sId = selectedSeasonId.value;
-  if (!sId) return t('calendar.common.na')
-  return t(`snb.seasons.${sId}`, t('calendar.common.na'))
+  if (!sId) return t('calendar.common.na');
+  const translated = readSeason(sId).fullName();
+  return (translated && translated !== sId) ? translated : t('calendar.common.na');
 })
 
 const seasonDescription = computed(() => {
@@ -270,8 +273,7 @@ const onInitCalendar = async () => {
 const onInitCalendarList = () => {
   selectSeasonsList.value = Object.values(seasons)
       .map(season => {
-        const i18nKey = `snb.seasons.${season.id}`;
-        const label = te(i18nKey as any) ? t(i18nKey) : 'calendar.common.none';
+        const label = readSeason(season.id).fullName() || 'calendar.common.none';
 
         return {
           id: season.id,

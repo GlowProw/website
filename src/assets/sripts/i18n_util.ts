@@ -143,6 +143,14 @@ export function useI18nUtils(manualLocale?: ComputedRef<string | undefined>) {
                         result = text;
                         break;
                     }
+                } else if (typeof content === 'object' && content !== null) {
+                    if (typeof (content as any).fullName === 'string') {
+                        result = (content as any).fullName;
+                        break;
+                    } else if (typeof (content as any).name === 'string') {
+                        result = (content as any).name;
+                        break;
+                    }
                 }
             } else if (te(i18nKey, options.lang)) {
                 const text = t(i18nKey, options.variable || null, options.lang || null);
