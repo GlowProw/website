@@ -257,7 +257,10 @@ const onInsertLink = (href: string, text: string) => {
 }
 
 const onInsertImg = (src: string) => {
-  editor.value?.commands.insertImg(src)
+  if (editor.value) {
+    editor.value.commands.focus()
+    editor.value.commands.insertImg(src)
+  }
   isOpenImg.value = false
 }
 

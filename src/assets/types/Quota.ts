@@ -5,7 +5,7 @@
 /**
  * 额度资源类型：配装 / 评论（含回复）/ 组队 / 地图（集合、区域、路径）
  */
-export type QuotaResourceKey = 'assembly' | 'comment' | 'teamup' | 'map';
+export type QuotaResourceKey = 'assembly' | 'comment' | 'teamup' | 'map' | 'media';
 
 /**
  * 单个周期桶：已用数量与上限（null 表示不限）
@@ -20,6 +20,8 @@ export interface QuotaStatusItem {
     yearly: QuotaBucket
 }
 
+import type { MediaQuotaDetail } from '@/assets/sripts/api/media_service';
+
 export interface QuotaStatus {
     identity: {
         roles: string[]
@@ -31,6 +33,7 @@ export interface QuotaStatus {
         unlimited: boolean
     }
     resources: Partial<Record<QuotaResourceKey, QuotaStatusItem>>
+    mediaDetails?: MediaQuotaDetail
 }
 
 /**

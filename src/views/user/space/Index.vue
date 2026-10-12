@@ -37,73 +37,73 @@
           </v-container>
 
           <v-container class="pa-0 px-2 mt-auto d-flex align-end">
-            <!-- 当前用户查看自己空间时展示一级 Tab S -->
-            <v-tabs
-                model-value="MeSpace"
-                color="amber"
-                stacked
-                align-tabs="start"
-                density="comfortable"
-                class="primary-tabs"
-                v-if="isSelf">
-              <v-tab value="MeAccount" class="font-weight-bold text-subtitle-1 px-8" :to="{ name: 'AccountInformation' }">
-                {{ t('account.title') }}
-              </v-tab>
-              <v-tab value="MeDataCenter" class="font-weight-bold text-subtitle-1 px-8" :to="{ name: 'AccountDataCenter' }">
-                {{ t('account.dataCenter.title') }}
-              </v-tab>
-              <v-tab value="MeMessageCenter" class="font-weight-bold text-subtitle-1 px-8" :to="{ name: 'AccountMessages' }">
-                {{ t('account.messages.messageCenterTitle') }}
-              </v-tab>
-              <v-tab value="MeSpace" class="font-weight-bold text-subtitle-1 px-8" :to="assemblysRoute">
-                {{ t('space.title') }}
-              </v-tab>
-            </v-tabs>
-            <!-- 当前用户查看自己空间时展示一级 Tab E -->
+            <v-row dense>
+              <v-col cols="9">
+                <v-tabs
+                    model-value="MeSpace"
+                    color="amber"
+                    stacked
+                    align-tabs="start"
+                    density="comfortable"
+                    class="primary-tabs"
+                    v-if="isSelf">
+                  <v-tab value="MeAccount" class="font-weight-bold text-subtitle-1 px-8" :to="{ name: 'AccountInformation' }">
+                    {{ t('account.title') }}
+                  </v-tab>
+                  <v-tab value="MeDataCenter" class="font-weight-bold text-subtitle-1 px-8" :to="{ name: 'AccountDataCenter' }">
+                    {{ t('account.dataCenter.title') }}
+                  </v-tab>
+                  <v-tab value="MeMessageCenter" class="font-weight-bold text-subtitle-1 px-8" :to="{ name: 'AccountMessages' }">
+                    {{ t('account.messages.messageCenterTitle') }}
+                  </v-tab>
+                  <v-tab value="MeSpace" class="font-weight-bold text-subtitle-1 px-8" :to="assemblysRoute">
+                    {{ t('space.title') }}
+                  </v-tab>
+                </v-tabs>
 
-            <template v-if="!isSelf">
-              <div class="mb-5 d-flex ga-2 align-center flex-wrap">
-                <RolesTagWidget :data="userData.role || []"></RolesTagWidget>
-                <v-chip v-if="userData.lastOnlineTime">
-                  {{ t('space.lastOnlineTime') }}：
-                  <Time :time="userData.lastOnlineTime"/>
-                </v-chip>
-                <v-chip v-if="userData.joinTime">
-                  {{ t('space.joinTime') }}：
-                  <Time :time="userData.joinTime"/>
-                </v-chip>
-                <!-- 发私信入口（登录用户且对方未禁用 DM） -->
-                <v-btn
-                    v-if="authStore.isLogin && (userData.attr?.dmEnabled !== false)"
-                    color="amber" variant="tonal" size="small"
-                    :to="`/account/messages?peerId=${targetUserId}`">
-                  <v-icon size="16" class="mr-1">mdi-message-outline</v-icon>
-                  {{ t('space.sendMessage') }}
-                </v-btn>
-              </div>
-            </template>
-
-            <v-spacer></v-spacer>
-            <v-col cols="auto" class="d-flex align-center">
-              <div class="d-flex align-center">
-                <template v-if="isSelf">
-                  <h2 class="text-h4 font-weight-bold d-flex align-center">
-                    Hi, <u class="u">{{ authStore.currentUser || 'Captain' }}</u>
-                  </h2>
+                <template v-if="!isSelf">
+                  <div class="mb-5 d-flex ga-2 align-center flex-wrap">
+                    <RolesTagWidget :data="userData.role || []"></RolesTagWidget>
+                    <v-chip v-if="userData.lastOnlineTime">
+                      {{ t('space.lastOnlineTime') }}：
+                      <Time :time="userData.lastOnlineTime"/>
+                    </v-chip>
+                    <v-chip v-if="userData.joinTime">
+                      {{ t('space.joinTime') }}：
+                      <Time :time="userData.joinTime"/>
+                    </v-chip>
+                    <!-- 发私信入口（登录用户且对方未禁用 DM） -->
+                    <v-btn
+                        v-if="authStore.isLogin && (userData.attr?.dmEnabled !== false)"
+                        color="amber" variant="tonal" size="small"
+                        :to="`/account/messages?peerId=${targetUserId}`">
+                      <v-icon size="16" class="mr-1">mdi-message-outline</v-icon>
+                      {{ t('space.sendMessage') }}
+                    </v-btn>
+                  </div>
                 </template>
-                <template v-else>
-                  <h2 class="text-h4 font-weight-bold d-flex align-center">
-                    <v-card border class="mr-4">
-                      <UserAvatar :src="userData.userAvatar" v-if="userData.userAvatar" size="36"></UserAvatar>
-                      <v-avatar size="44" v-else>
-                        <v-icon icon="mdi-account" size="24"></v-icon>
-                      </v-avatar>
-                    </v-card>
-                    <u class="u">{{ userData.username || 'Captain' }}</u>
-                  </h2>
-                </template>
-              </div>
-            </v-col>
+              </v-col>
+              <v-col cols="3" class="d-flex align-center justify-end">
+                <div class="d-flex align-center">
+                  <template v-if="isSelf">
+                    <h2 class="text-h4 font-weight-bold d-flex align-center">
+                      Hi, <u class="u">{{ authStore.currentUser || 'Captain' }}</u>
+                    </h2>
+                  </template>
+                  <template v-else>
+                    <h2 class="text-h4 font-weight-bold d-flex align-center">
+                      <v-card border class="mr-4">
+                        <UserAvatar :src="userData.userAvatar" v-if="userData.userAvatar" size="36"></UserAvatar>
+                        <v-avatar size="44" v-else>
+                          <v-icon icon="mdi-account" size="24"></v-icon>
+                        </v-avatar>
+                      </v-card>
+                      <u class="u">{{ userData.username || 'Captain' }}</u>
+                    </h2>
+                  </template>
+                </div>
+              </v-col>
+            </v-row>
           </v-container>
         </template>
       </v-card>

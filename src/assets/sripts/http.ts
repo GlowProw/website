@@ -136,9 +136,16 @@ export default class Http extends Api_config {
      * @returns {Promise<*>}
      */
     async request(url = '', options: RequestOptions = {}): Promise<any> {
+        const headers: any = { ...options.headers };
+        // 如果传输 FormData，移除显式静态 Content-Type，交由浏览器/Axios 自动注入包含 boundary 的请求头
+        if (typeof FormData !== 'undefined' && options.data instanceof FormData) {
+            delete headers['Content-Type'];
+            delete headers['content-type'];
+        }
+
         return await this.HTTP({
             url: url,
-            headers: options.headers,
+            headers: headers,
             method: options.method,
             data: options.data,
             params: options.params,

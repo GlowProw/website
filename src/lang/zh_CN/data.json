@@ -989,6 +989,9 @@
     "myComment": "我的评论",
     "myTeamup": "我的组队",
     "myMap": "地图管理",
+    "media": {
+      "title": "媒体库"
+    },
     "mySmugglersReport": "走私犯奖赏家",
     "maps": {
       "createCollection": "创建地图集",
@@ -1025,6 +1028,51 @@
     "profile": "账户档案",
     "security": "安全设置",
     "preference": "偏好设置",
+    "media": {
+      "title": "媒体库",
+      "upload": "上传图片",
+      "searchPlaceholder": "搜索图片文件名…",
+      "totalItems": "共 {total} 张图片",
+      "emptyTitle": "媒体库为空",
+      "emptyDesc": "点击上方「上传图片」按钮，即可添加你的第一张图片",
+      "loadFailed": "加载失败",
+      "coverage": "覆盖: {used}/10",
+      "reuploadLimitTooltip": "重新上传覆盖 (限10次)",
+      "copyUrl": "复制图片链接",
+      "delete": "删除图片",
+      "deleteConfirm": "确定要从媒体库中删除「{filename}」吗？",
+      "uploadSuccess": "图片上传成功！",
+      "reuploadSuccess": "文件覆盖重新上传成功！",
+      "copySuccess": "图片链接已复制到剪贴板",
+      "copyFailed": "复制失败，请手动长按复制",
+      "deleteSuccess": "媒体已删除",
+      "fileTooLarge": "文件过大，单次上传文件最大为 1MB",
+      "unsupportedFormat": "不支持的图片类型，仅支持 webp、png、jpg 格式",
+      "uploadFailed": "图片上传失败，请检查配额或网络",
+      "reuploadMax": "该文件重新上传次数已达到 10 次上限",
+      "reuploadFailed": "重新上传失败",
+      "deleteFailed": "删除失败",
+      "reuploadConfirmTitle": "重新上传覆盖确认",
+      "reuploadConfirmDesc": "重新上传将直接覆盖云端存储中的原有图片，历史引用和链接将保持不变但内容会被更新。",
+      "reuploadUsed": "当前已覆盖次数：{used} 次",
+      "reuploadRemaining": "剩余可用覆盖次数：{remaining} 次（单文件上限 10 次）",
+      "reuploadConfirmBtn": "确认覆盖并选择文件",
+      "selectFromMedia": "从媒体库选择",
+      "filterAll": "全部",
+      "filterWebp": "WebP",
+      "filterPng": "PNG",
+      "filterJpg": "JPG",
+      "selectMediaPrompt": "点击选择图片，双击或点击下方按钮插入",
+      "noMediaFound": "未找到匹配的媒体图片",
+      "insertToEditor": "插入到正文",
+      "preview": {
+        "directUrl": "直链",
+        "fileSize": "尺寸大小",
+        "uploadTime": "上传时间",
+        "reuploadCount": "已覆盖次数",
+        "copyUrl": "复制链接"
+      }
+    },
     "trashRestoreConfirm": "确定要恢复该项目吗？",
     "trashRestoreBatchConfirm": "确定要恢复选中的项目吗？",
     "trashRestoreSuccess": "恢复成功"
@@ -3809,7 +3857,15 @@
       "assembly": "配装",
       "comment": "评论",
       "teamup": "组队",
-      "map": "地图"
+      "map": "地图",
+      "media": "媒体库"
+    },
+    "media": {
+      "files": "文件数量",
+      "storage": "存储容量",
+      "maxFileSize": "单文件 ≤ 1MB",
+      "reupload": "覆盖重传",
+      "maxPerFile": "单文件 ≤ 10次"
     }
   }
 }

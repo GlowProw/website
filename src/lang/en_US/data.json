@@ -1025,6 +1025,51 @@
     "profile": "Account Profile",
     "security": "Security Settings",
     "preference": "Preferences",
+    "media": {
+      "title": "Media Library",
+      "upload": "Upload Image",
+      "searchPlaceholder": "Search filename…",
+      "totalItems": "{total} image(s) in total",
+      "emptyTitle": "Media library is empty",
+      "emptyDesc": "Click the \"Upload Image\" button above to add your first image",
+      "loadFailed": "Failed to load",
+      "coverage": "Overwrites: {used}/10",
+      "reuploadLimitTooltip": "Re-upload and overwrite (up to 10 times)",
+      "copyUrl": "Copy Image Link",
+      "delete": "Delete Image",
+      "deleteConfirm": "Are you sure you want to delete \"{filename}\" from your media library?",
+      "uploadSuccess": "Image uploaded successfully!",
+      "reuploadSuccess": "File overwritten successfully!",
+      "copySuccess": "Image link copied to clipboard",
+      "copyFailed": "Copy failed, please copy manually",
+      "deleteSuccess": "Media deleted",
+      "fileTooLarge": "File is too large, single file maximum is 1MB",
+      "unsupportedFormat": "Unsupported image format, only webp, png, and jpg are supported",
+      "uploadFailed": "Upload failed, please check your quota or network",
+      "reuploadMax": "This file has reached the maximum overwrite limit of 10 times",
+      "reuploadFailed": "Failed to re-upload",
+      "deleteFailed": "Failed to delete",
+      "reuploadConfirmTitle": "Confirm Overwrite & Re-upload",
+      "reuploadConfirmDesc": "Re-uploading will directly overwrite the original image in cloud storage. Existing references and direct links will remain valid with updated content.",
+      "reuploadUsed": "Current overwrite count: {used} times",
+      "reuploadRemaining": "Remaining allowed overwrites: {remaining} times (max 10 per file)",
+      "reuploadConfirmBtn": "Confirm & Select File",
+      "selectFromMedia": "Select from Media Library",
+      "filterAll": "All",
+      "filterWebp": "WebP",
+      "filterPng": "PNG",
+      "filterJpg": "JPG",
+      "selectMediaPrompt": "Click to select image, double click or click below to insert",
+      "noMediaFound": "No matching images found",
+      "insertToEditor": "Insert into Editor",
+      "preview": {
+        "directUrl": "Direct URL",
+        "fileSize": "File Size",
+        "uploadTime": "Upload Time",
+        "reuploadCount": "Overwrites",
+        "copyUrl": "Copy Link"
+      }
+    },
     "trashRestoreConfirm": "Are you sure you want to restore this item?",
     "trashRestoreBatchConfirm": "Are you sure you want to restore the selected item(s)?",
     "trashRestoreSuccess": "Restored successfully"
@@ -3807,7 +3852,15 @@
       "assembly": "Loadouts",
       "comment": "Comments",
       "teamup": "Team-ups",
-      "map": "Maps"
+      "map": "Maps",
+      "media": "Media"
+    },
+    "media": {
+      "files": "Files Count",
+      "storage": "Storage Capacity",
+      "maxFileSize": "Single File ≤ 1MB",
+      "reupload": "Overwrites",
+      "maxPerFile": "Single File ≤ 10 Times"
     }
   }
 }

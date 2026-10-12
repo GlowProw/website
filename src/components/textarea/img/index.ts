@@ -27,27 +27,21 @@ const ImgNode = Node.create({
         }]
     },
     renderHTML({HTMLAttributes}) {
-        const attrs = mergeAttributes(HTMLAttributes)
-        return ['img', {src: attrs.src}, attrs.src || '']
+        return ['img', mergeAttributes(HTMLAttributes)]
     },
     addNodeView() {
         return VueNodeViewRenderer(Component)
     },
     addCommands() {
         return {
-            insertImg: (src) => ({chain}: any) => {
-                return chain()
-                    .insertContent([
-                        {
-                            type: this.name,
-                            updateSelection: true,
-                            attrs: {
-                                src
-                            }
-                        },
-                        {type: 'paragraph'}
-                    ])
-                    .run()
+            insertImg: (src: string | { src: string }) => ({ commands }: any) => {
+                const imgSrc = typeof src === 'string' ? src : (src as any)?.src;
+                return commands.insertContent({
+                    type: 'Img',
+                    attrs: {
+                        src: imgSrc,
+                    },
+                });
             },
         } as Partial<RawCommands>
     },

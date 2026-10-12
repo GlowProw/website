@@ -1012,6 +1012,51 @@
     "profile": "賬戶檔案",
     "security": "安全設定",
     "preference": "偏好設定",
+    "media": {
+      "title": "媒體庫",
+      "upload": "上傳圖片",
+      "searchPlaceholder": "搜尋圖片檔名…",
+      "totalItems": "共 {total} 張圖片",
+      "emptyTitle": "媒體庫為空",
+      "emptyDesc": "點擊上方「上傳圖片」按鈕，即可新增您的第一張圖片",
+      "loadFailed": "載入失敗",
+      "coverage": "覆蓋: {used}/10",
+      "reuploadLimitTooltip": "重新上傳覆蓋 (限10次)",
+      "copyUrl": "複製圖片連結",
+      "delete": "刪除圖片",
+      "deleteConfirm": "確定要從媒體庫中刪除「{filename}」嗎？",
+      "uploadSuccess": "圖片上傳成功！",
+      "reuploadSuccess": "檔案覆蓋重新上傳成功！",
+      "copySuccess": "圖片連結已複製到剪貼簿",
+      "copyFailed": "複製失敗，請手動長按複製",
+      "deleteSuccess": "媒體已刪除",
+      "fileTooLarge": "檔案過大，單次上傳檔案最大为 1MB",
+      "unsupportedFormat": "不支援的圖片格式，僅支援 webp、png、jpg 格式",
+      "uploadFailed": "圖片上傳失敗，請檢查配額或網路",
+      "reuploadMax": "該檔案重新上傳次數已達到 10 次上限",
+      "reuploadFailed": "重新上傳失敗",
+      "deleteFailed": "刪除失敗",
+      "reuploadConfirmTitle": "重新上傳覆蓋確認",
+      "reuploadConfirmDesc": "重新上傳將直接覆蓋雲端儲存中的原有圖片，歷史引用與連結將保持不變但內容會被更新。",
+      "reuploadUsed": "當前已覆蓋次數：{used} 次",
+      "reuploadRemaining": "剩餘可用覆蓋次數：{remaining} 次（單檔案上限 10 次）",
+      "reuploadConfirmBtn": "確認覆蓋並選擇檔案",
+      "selectFromMedia": "從媒體庫選擇",
+      "filterAll": "全部",
+      "filterWebp": "WebP",
+      "filterPng": "PNG",
+      "filterJpg": "JPG",
+      "selectMediaPrompt": "點擊選擇圖片，雙擊或點擊下方按鈕插入",
+      "noMediaFound": "未找到匹配的媒體圖片",
+      "insertToEditor": "插入到正文",
+      "preview": {
+        "directUrl": "直鏈",
+        "fileSize": "尺寸大小",
+        "uploadTime": "上傳時間",
+        "reuploadCount": "已覆蓋次數",
+        "copyUrl": "複製連結"
+      }
+    },
     "trashRestoreConfirm": "確定要恢復該項目嗎？",
     "trashRestoreBatchConfirm": "確定要恢復選中的項目嗎？",
     "trashRestoreSuccess": "恢復成功"
@@ -3874,7 +3919,15 @@
       "assembly": "配裝",
       "comment": "評論",
       "teamup": "組隊",
-      "map": "地圖"
+      "map": "地圖",
+      "media": "媒體庫"
+    },
+    "media": {
+      "files": "檔案數量",
+      "storage": "儲存容量",
+      "maxFileSize": "單檔案 ≤ 1MB",
+      "reupload": "覆蓋重傳",
+      "maxPerFile": "單檔案 ≤ 10次"
     }
   }
 }

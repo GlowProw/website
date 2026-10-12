@@ -14,6 +14,7 @@ import {useSubscriptionApi} from "@/assets/sripts/api/subscription_service";
 import {useDropApi} from "@/assets/sripts/api/drop_service";
 import {useBrowseApi} from "@/assets/sripts/api/browse_service";
 import {useStatsApi} from "@/assets/sripts/api/stats_service";
+import {useMediaApi} from "@/assets/sripts/api/media_service";
 
 export * from './user_service'
 export * from './assembly_service'
@@ -32,6 +33,7 @@ export * from './subscription_service'
 export * from './drop_service'
 export * from './browse_service'
 export * from './stats_service'
+export * from './media_service'
 export * from './api-util'
 
 export class Apis {
@@ -51,4 +53,5 @@ export class Apis {
     static dropApi = useDropApi
     static browseApi = useBrowseApi
     static statsApi = useStatsApi
+    static mediaApi = useMediaApi
 }

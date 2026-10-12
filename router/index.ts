@@ -10,6 +10,7 @@ const AccountAssemblysPage = () => import('@/views/user/account/Assemblys.vue');
 const AccountCommentsPage = () => import('@/views/user/account/Comments.vue');
 const Teamup = () => import('@/views/user/account/Teamup.vue');
 const AccountMapsPage = () => import('@/views/user/account/Maps.vue');
+const AccountMediaPage = () => import('@/views/user/account/Media.vue');
 const AccountSmugglersReport = () => import('@/views/user/account/SmugglersReport.vue');
 const AccountDataCenterPage = () => import('@/views/user/account/DataCenter.vue');
 const AccountMessagesCenterPage = () => import('@/views/user/account/MessagesCenter.vue');
@@ -248,6 +249,12 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
                         path: 'maps',
                         name: 'AccountMaps',
                         component: AccountMapsPage
+                    },
+                    {
+                        path: 'media',
+                        name: 'AccountMedia',
+                        component: AccountMediaPage,
+                        meta: { title: 'account.media.title', auth: true }
                     },
                     {
                         path: 'smugglersReport',

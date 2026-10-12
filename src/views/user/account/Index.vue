@@ -32,6 +32,11 @@ const accountTabs = [
     value: 'AccountBindings',
     icon: 'mdi-link-variant'
   },
+  {
+    name: 'account.media.title',
+    value: 'AccountMedia',
+    icon: 'mdi-image-multiple-outline'
+  },
 ]
 
 // 创作中心：概览 + 配装/评论/组队/地图/举报/回收站
