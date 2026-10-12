@@ -1,10 +1,10 @@
-import {useHttpToken} from "@/assets/sripts/http_util";
-import {PaginationParams} from "@/assets/types";
-import {SigninParams} from "@/assets/types/User.Login";
-import {SignupParams} from "@/assets/types/User.Signup";
-import {ChangePasswordParams, ForgotPasswordParams, ResetPasswordParams} from "@/assets/types/User";
-import {ApiError} from "@/assets/types/Api";
-import {createApiBase} from "@/assets/sripts/api/api-util";
+import { useHttpToken } from "@/assets/sripts/http_util";
+import { PaginationParams } from "@/assets/types";
+import { SigninParams } from "@/assets/types/User.Login";
+import { SignupParams } from "@/assets/types/User.Signup";
+import { ChangePasswordParams, ForgotPasswordParams, ResetPasswordParams } from "@/assets/types/User";
+import { ApiError } from "@/assets/types/Api";
+import { createApiBase } from "@/assets/sripts/api/api-util";
 
 /**
  * 用户接口
@@ -12,14 +12,14 @@ import {createApiBase} from "@/assets/sripts/api/api-util";
 export function useUserApi() {
     const createHttp = () => useHttpToken()
     const http = createHttp()
-    const {handleError, handleResponse} = createApiBase()
+    const { handleError, handleResponse } = createApiBase()
 
     /**
      * 用户登录
      */
     const signin = async (data: SigninParams) => {
         try {
-            const result = await http.post('user/signin', {data})
+            const result = await http.post('user/signin', { data })
             return handleResponse(result)
         } catch (error) {
             if (error instanceof ApiError) {
@@ -34,7 +34,7 @@ export function useUserApi() {
      */
     const signup = async (data: SignupParams) => {
         try {
-            const result = await http.post('user/signup', {data})
+            const result = await http.post('user/signup', { data })
             return handleResponse(result)
         } catch (error) {
             if (error instanceof ApiError) {
@@ -64,7 +64,7 @@ export function useUserApi() {
      */
     const updateMeAttr = async (attr: any) => {
         try {
-            const result = await http.post('user/me', {data: {attr}})
+            const result = await http.post('user/me', { data: { attr } })
             return handleResponse(result)
         } catch (error) {
             if (error instanceof ApiError) {
@@ -81,7 +81,7 @@ export function useUserApi() {
     const getUserInfo = async (userId?: string) => {
         try {
             const result = await http.get('user/info', {
-                params: {id: userId}
+                params: { id: userId }
             })
             return handleResponse(result)
         } catch (error) {
@@ -98,7 +98,7 @@ export function useUserApi() {
     const getSpaceUserInfo = async (userId: string) => {
         try {
             const result = await http.get('user/space/info', {
-                params: {id: userId}
+                params: { id: userId }
             })
             return handleResponse(result)
         } catch (error) {
@@ -115,7 +115,7 @@ export function useUserApi() {
      */
     const changePassword = async (data: ChangePasswordParams) => {
         try {
-            const result = await http.put('user/changePassword', {data})
+            const result = await http.put('user/changePassword', { data })
             return handleResponse(result)
         } catch (error) {
             if (error instanceof ApiError) {
@@ -154,7 +154,7 @@ export function useUserApi() {
         try {
             const url = `user/space/teamups`;
             const result = await http.get(url, {
-                params: {...pagination, id: userId}
+                params: { ...pagination, id: userId }
             })
             return handleResponse(result)
         } catch (error) {
@@ -173,7 +173,7 @@ export function useUserApi() {
         try {
             const url = `user/me/teamups`;
             const result = await http.get(url, {
-                params: {...pagination}
+                params: { ...pagination }
             })
             return handleResponse(result)
         } catch (error) {
@@ -193,7 +193,7 @@ export function useUserApi() {
         try {
             const url = `user/space/assemblys`;
             const result = await http.get(url, {
-                params: {...pagination, id: userId}
+                params: { ...pagination, id: userId }
             })
             return handleResponse(result)
         } catch (error) {
@@ -212,7 +212,7 @@ export function useUserApi() {
         try {
             const url = `user/me/assemblys`;
             const result = await http.get(url, {
-                params: {...pagination}
+                params: { ...pagination }
             })
             return handleResponse(result)
         } catch (error) {
@@ -230,7 +230,7 @@ export function useUserApi() {
     const getUserComments = async (pagination?: PaginationParams) => {
         try {
             const result = await http.get('user/comments', {
-                params: {...pagination}
+                params: { ...pagination }
             })
             return handleResponse(result)
         } catch (error) {
@@ -248,7 +248,7 @@ export function useUserApi() {
         try {
             const url = userId ? `user/space/likes` : 'user/likes';
             const result = await http.get(url, {
-                params: {...pagination, userId}
+                params: { ...pagination, userId }
             })
             return handleResponse(result)
         } catch (error) {
@@ -264,7 +264,7 @@ export function useUserApi() {
      */
     const activate = async (data: { username: string, code: string }) => {
         try {
-            const result = await http.post('user/activate', {data})
+            const result = await http.post('user/activate', { data })
             return handleResponse(result)
         } catch (error) {
             if (error instanceof ApiError) {
@@ -392,7 +392,9 @@ export function useUserApi() {
      */
     const oauthCallback = async (platform: string, data: { code: string; state?: string }) => {
         try {
-            const result = await http.post(`user/oauth/${platform}/callback`, { data })
+            // 第三方回调 设置 20 秒超时
+            const timeout = platform === 'qq' ? 20000 : 20000;
+            const result = await http.post(`user/oauth/${platform}/callback`, { data, timeout })
             return handleResponse(result)
         } catch (error) {
             if (error instanceof ApiError) throw error;

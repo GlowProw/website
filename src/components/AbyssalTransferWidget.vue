@@ -4,7 +4,7 @@ import ItemIconWidget from "./snbWidget/itemIconWidget.vue";
 import ItemSlotBase from "./snbWidget/ItemSlotBase.vue";
 import MaterialIconWidget from "./snbWidget/materialIconWidget.vue";
 
-// 4 阶卡槽品质（列维度 Columns）
+// 阶卡槽品质（列维度 Columns）
 const columns = [
   {
     id: "uncommon",
@@ -66,7 +66,7 @@ const columns = [
   }
 ];
 
-// 5 阶稀有度差异（行维度 Rows）
+//  阶稀有度差异（行维度 Rows）
 const rows = [
   {
     id: "sameItem",
@@ -154,7 +154,7 @@ const rows = [
         深渊词条转移对照矩阵
       </h2>
       <p class="opacity-60 mx-auto">
-        横向为卡槽品质等级（列），纵向为武器稀有度阶差（行），行列交叉单元格即为转移最终所需消耗, <b>白色数值为基础，金色数值专精</b>
+        横向为卡槽品质等级（列），纵向为武器稀有度阶差（行），行列交叉单元格即为转移最终所需消耗
       </p>
     </div>
 
@@ -176,7 +176,7 @@ const rows = [
                 class="col-header-cell"
                 :class="`col-${col.id}`">
               <div class="d-flex flex-column align-center justify-center py-2">
-                <span class="font-weight-bold" :style="{color: col.color}">
+                <span class="font-weight-bold text-h6" :style="{color: col.color}">
                   {{ col.name }}
                 </span>
               </div>
@@ -205,7 +205,7 @@ const rows = [
             <th class="row-header-cell">
               <div class="d-flex align-center justify-space-between ga-2">
                 <div>
-                  <div class="font-weight-bold text-white u">{{ row.title }}</div>
+                  <div class="font-weight-bold text-white text-h5 u">{{ row.title }}</div>
                   <div class="opacity-60 mt-1">示例: {{ row.example }}</div>
                 </div>
               </div>
@@ -217,50 +217,80 @@ const rows = [
                 :key="row.id + '-' + col.id"
                 class="cross-cell"
                 :class="`col-${col.id}`">
-
               <div class="cell-content-all">
-                <div class="cost-line-flux d-flex align-center justify-space-between">
-                  <ItemSlotBase size="40px" class="ml-n1">
-                    <MaterialIconWidget :id="'ascensionFlux'"></MaterialIconWidget>
-                  </ItemSlotBase>
-                  <div class="d-flex align-center ga-1">
-                    <span>{{ row.fluxList[cIdx].base }}</span>
-                    <span class="opacity-30">/</span>
-                    <span class="text-amber-lighten-2">{{ row.fluxList[cIdx].mastery }}</span>
-                  </div>
-                </div>
+                <v-row no-gutters class="cost-line-flux d-flex align-center justify-space-between my-0">
+                  <v-col cols="4"></v-col>
+                  <v-col class="d-flex align-center justify-center ga-1">
+                    <RhombusWidget border border-activate slot-activate :size="20"/>
+                  </v-col>
+                  <v-col class="d-flex align-center justify-center ga-1">
+                    <RhombusWidget border border-activate slot-activate adept-activate :size="20"/>
+                  </v-col>
+                </v-row>
 
-                <div class="cost-line-essence d-flex align-center justify-space-between">
-                  <ItemSlotBase size="40px" class="ml-n1">
-                    <MaterialIconWidget :id="'abyssalEssence'"></MaterialIconWidget>
-                  </ItemSlotBase>
-                  <div class="d-flex ga-1">
-                    <template v-if="row.essence.base === 0">
-                      <span class="text-caption-2">免费</span>
-                    </template>
-                    <template v-else>
+                <v-row no-gutters class="cost-line-flux d-flex align-center justify-space-between">
+                  <v-col cols="4">
+                    <ItemSlotBase size="40px" class="ml-n1">
+                      <MaterialIconWidget :id="'ascensionFlux'"></MaterialIconWidget>
+                    </ItemSlotBase>
+                  </v-col>
+                  <v-col class="d-flex align-center justify-center ga-1">
+                    <span>{{ row.fluxList[cIdx].base }}</span>
+                  </v-col>
+                  <v-col class="d-flex align-center justify-center ga-1">
+                    <span class="text-amber-lighten-2">{{ row.fluxList[cIdx].mastery }}</span>
+                  </v-col>
+                </v-row>
+
+                <v-row no-gutters class="cost-line-flux d-flex align-center justify-space-between">
+                  <v-col cols="4">
+                    <ItemSlotBase size="40px" class="ml-n1">
+                      <MaterialIconWidget :id="'abyssalEssence'"></MaterialIconWidget>
+                    </ItemSlotBase>
+                  </v-col>
+                  <template v-if="row.essence.base === 0">
+                    <v-col cols="8" class="d-flex align-center ga-1">
+                      <span class="text-caption-2 text-center w-100">免费</span>
+                    </v-col>
+                  </template>
+                  <template v-else>
+                    <v-col class="d-flex align-center justify-center ga-1">
                       <span>{{ row.essence.base }}</span>
-                      <span class="opacity-30">/</span>
+                    </v-col>
+                    <v-col class="d-flex align-center justify-center ga-1">
                       <span class="text-amber-lighten-2">{{ row.essence.mastery }}</span>
-                    </template>
-                  </div>
-                </div>
+                    </v-col>
+                  </template>
+                </v-row>
               </div>
             </td>
 
             <!-- 该行深渊精华总消耗 -->
             <td class="essence-col-cell text-center py-3">
-              <div v-if="row.essence.base === 0" class="d-inline-flex align-center ga-1">
-                <span>完全免费</span>
-              </div>
-              <div v-else class="d-inline-flex flex-column align-center">
-                <div class="d-flex align-center ga-1">
-                  <span>{{ row.essence.base }}</span>
-                  <span class="opacity-40">/</span>
-                  <span class="text-amber-lighten-2">{{ row.essence.mastery }}</span>
-                </div>
-                <span class="text-caption-2 opacity-50">基础 / 专精</span>
-              </div>
+              <v-row no-gutters class="cost-line-flux d-flex align-center justify-space-between my-0" v-if="row.essence.base !== 0">
+                <v-col class="d-flex align-center justify-center ga-1">
+                  <RhombusWidget border border-activate slot-activate :size="20"/>
+                </v-col>
+                <v-col class="d-flex align-center justify-center ga-1">
+                  <RhombusWidget border border-activate slot-activate adept-activate :size="20"/>
+                </v-col>
+              </v-row>
+
+              <v-row no-gutters class="cost-line-flux d-flex align-center justify-space-between my-0 mt-2">
+                <template v-if="row.essence.base === 0" class="d-inline-flex align-center ga-1">
+                  <v-col class="d-flex align-center justify-center ga-1">
+                    <span>免费</span>
+                  </v-col>
+                </template>
+                <template v-else>
+                  <v-col class="d-flex align-center justify-center ga-1">
+                    <span>{{ row.essence.base }}</span>
+                  </v-col>
+                  <v-col class="d-flex align-center justify-center ga-1">
+                    <span class="text-amber-lighten-2">{{ row.essence.mastery }}</span>
+                  </v-col>
+                </template>
+              </v-row>
             </td>
           </tr>
           </tbody>
@@ -302,7 +332,7 @@ const rows = [
 
 // 坐标原点
 .axis-corner-cell {
-  width: 120px;
+  width: 150px;
   vertical-align: middle;
 }
 

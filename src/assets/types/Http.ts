@@ -9,6 +9,7 @@ export interface RequestOptions {
     data?: Record<string, any>;
     params?: Record<string, any>;
     headers?: Record<string, string>;
+    timeout?: number;
 }
 
 /**

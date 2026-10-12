@@ -30,8 +30,8 @@ let result = ref(
 </script>
 
 <template>
-   <!-- 大师武器卡槽(深渊词条) 转移说明部件 -->
-    <AbyssalTransferWidget class="mb-10"/>
+  <!-- 深渊词条转移说明部件 -->
+  <AbyssalTransferWidget class="mb-10"/>
 
   <v-container class="mt-10">
     <!-- 恶名系统与魁首巅峰里程碑 -->
@@ -43,6 +43,6 @@ let result = ref(
     <!-- 装备词条插槽/精通说明部件 -->
     <ModSlotWidget class="mb-10"/>
 
- 
+
   </v-container>
 </template>

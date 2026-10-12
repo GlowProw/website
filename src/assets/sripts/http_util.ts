@@ -57,23 +57,23 @@ export function useHttp(options: UseHttpOptions = {}) {
         }
     );
 
-    const request = (url = '', data?: { data?: {}, params?: {}, headers?: {}, isExternal?: boolean }) => {
+    const request = (url = '', data?: { data?: {}, params?: {}, headers?: {}, timeout?: number, isExternal?: boolean }) => {
         return http.request(url, addHeaders(data, url));
     };
 
-    const post = (url = '', data?: { data?: {} }) => {
+    const post = (url = '', data?: { data?: {}, timeout?: number, headers?: {} }) => {
         return http.post(url, addHeaders(data));
     };
 
-    const get = (url = '', data?: { data?: {}, params?: {} }) => {
+    const get = (url = '', data?: { data?: {}, params?: {}, timeout?: number, headers?: {} }) => {
         return http.get(url, addHeaders(data));
     };
 
-    const put = (url = '', data?: { data?: {}, params?: {} }) => {
+    const put = (url = '', data?: { data?: {}, params?: {}, timeout?: number, headers?: {} }) => {
         return http.put(url, addHeaders(data));
     };
 
-    const del = (url = '', data?: { data?: {}, params?: {} }) => {
+    const del = (url = '', data?: { data?: {}, params?: {}, timeout?: number, headers?: {} }) => {
         return http.delete(url, addHeaders(data));
     };
 

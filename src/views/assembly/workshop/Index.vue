@@ -336,10 +336,31 @@ const onSubmit = async () => {
 
   try {
     submitLoading.value = true;
-    const exportAssembly = assemblyMainSubjectView.value?.refs?.assembly?.onExport?.() || shareData.value?.assembly?.data || shareData.value?.assembly;
-    const exportWheel = assemblyMainSubjectView.value?.refs?.wheel?.onExport?.() || shareData.value?.wheel?.data || shareData.value?.wheel;
-    const exportWarehouse = assemblyMainSubjectView.value?.refs?.warehouse?.onExport?.() || shareData.value?.warehouse?.data || shareData.value?.warehouse;
-    const exportMastery = assemblyMainSubjectView.value?.refs?.mastery?.onExport?.() || shareData.value?.mastery?.data || shareData.value?.mastery;
+    const normalizeArrayData = (val: any) => {
+      if (Array.isArray(val)) return val;
+      if (Array.isArray(val?.data)) return val.data;
+      return null;
+    };
+
+    const normalizeObjectData = (val: any) => {
+      if (val && typeof val === 'object' && !Array.isArray(val)) {
+        if (val.data && typeof val.data === 'object' && !Array.isArray(val.data)) {
+          return Object.keys(val.data).length > 0 ? val.data : null;
+        }
+        return Object.keys(val).length > 0 ? val : null;
+      }
+      return null;
+    };
+
+    const rawAssembly = assemblyMainSubjectView.value?.refs?.assembly?.onExport?.() || shareData.value?.assembly?.data || shareData.value?.assembly;
+    const rawWheel = assemblyMainSubjectView.value?.refs?.wheel?.onExport?.() || shareData.value?.wheel?.data || shareData.value?.wheel;
+    const rawWarehouse = assemblyMainSubjectView.value?.refs?.warehouse?.onExport?.() || shareData.value?.warehouse?.data || shareData.value?.warehouse;
+    const rawMastery = assemblyMainSubjectView.value?.refs?.mastery?.onExport?.() || shareData.value?.mastery?.data || shareData.value?.mastery;
+
+    const exportAssembly = rawAssembly && typeof rawAssembly === 'object' ? rawAssembly : {};
+    const exportWheel = normalizeArrayData(rawWheel);
+    const exportWarehouse = normalizeArrayData(rawWarehouse);
+    const exportMastery = normalizeObjectData(rawMastery);
 
     const payload: any = {
       ...publishData.value,

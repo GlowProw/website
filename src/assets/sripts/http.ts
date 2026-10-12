@@ -142,6 +142,7 @@ export default class Http extends Api_config {
             method: options.method,
             data: options.data,
             params: options.params,
+            ...(options.timeout !== undefined ? { timeout: options.timeout } : {}),
             ...((options as any).isExternal !== undefined ? { isExternal: (options as any).isExternal } : {})
         })
     }
@@ -160,6 +161,7 @@ export default class Http extends Api_config {
             headers: options.headers,
             params: options.params,
             data: options.data,
+            timeout: options.timeout,
         })
     }
 
@@ -174,6 +176,7 @@ export default class Http extends Api_config {
             headers: options.headers,
             params: options.params,
             data: options.data,
+            timeout: options.timeout,
         })
     }
 
@@ -191,6 +194,7 @@ export default class Http extends Api_config {
             headers: options.headers,
             params: options.params,
             data: options.data,
+            timeout: options.timeout,
         })
     }
 
@@ -207,6 +211,7 @@ export default class Http extends Api_config {
             headers: options.headers,
             params: options.params,
             data: options.data,
+            timeout: options.timeout,
         })
     }
 }
