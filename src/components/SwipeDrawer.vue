@@ -105,20 +105,24 @@ watch(() => props.modelValue, (open) => {
     if (open) {
         rendered.value = true;
         lockBody(true);
-        window.addEventListener('keydown', onKeydown);
-        // 下一帧切换展开态以触发进场动画；部分被遮挡的 WebView 会推迟 rAF，用定时器兜底
-        let revealed = false;
-        const reveal = () => {
-            if (revealed || !rendered.value) return;
-            revealed = true;
-            shown.value = true;
-        };
-        requestAnimationFrame(reveal);
-        setTimeout(reveal, 32);
+        if (typeof window !== 'undefined') {
+            window.addEventListener('keydown', onKeydown);
+            // 下一帧切换展开态以触发进场动画
+            let revealed = false;
+            const reveal = () => {
+                if (revealed || !rendered.value) return;
+                revealed = true;
+                shown.value = true;
+            };
+            requestAnimationFrame(reveal);
+            setTimeout(reveal, 32);
+        }
     } else {
         shown.value = false;
         lockBody(false);
-        window.removeEventListener('keydown', onKeydown);
+        if (typeof window !== 'undefined') {
+            window.removeEventListener('keydown', onKeydown);
+        }
         leaveTimer = setTimeout(() => {
             rendered.value = false;
         }, ANIMATION_MS);
@@ -127,10 +131,12 @@ watch(() => props.modelValue, (open) => {
 
 onBeforeUnmount(() => {
     if (leaveTimer) clearTimeout(leaveTimer);
-    if (rafId !== null) cancelAnimationFrame(rafId);
+    if (rafId !== null && typeof cancelAnimationFrame !== 'undefined') cancelAnimationFrame(rafId);
     teardownWindowListeners();
     lockBody(false);
-    window.removeEventListener('keydown', onKeydown);
+    if (typeof window !== 'undefined') {
+        window.removeEventListener('keydown', onKeydown);
+    }
 });
 
 /**
@@ -247,15 +253,20 @@ const onWindowPointerCancel = (e: PointerEvent): void => {
 };
 
 /**
- * 拖动全程在 window 上监听，指针离开边缘热区、滑过内部内容都不会中断
+ * 拖动全程在 window 上监听手势，指针离开边缘热区、滑过内部内容都不会中断
  */
 const setupWindowListeners = (): void => {
+    if (typeof window === 'undefined') return;
     window.addEventListener('pointermove', onWindowPointerMove, {passive: false});
     window.addEventListener('pointerup', onWindowPointerUp);
     window.addEventListener('pointercancel', onWindowPointerCancel);
 };
 
+/**
+ * 移除全局指针手势监听
+ */
 const teardownWindowListeners = (): void => {
+    if (typeof window === 'undefined') return;
     window.removeEventListener('pointermove', onWindowPointerMove);
     window.removeEventListener('pointerup', onWindowPointerUp);
     window.removeEventListener('pointercancel', onWindowPointerCancel);
