@@ -421,7 +421,7 @@ defineOptions({
               <v-divider></v-divider>
             </v-col>
             <v-col cols="auto">
-              {{ previewItem.createdTime }}
+              <TimeView :time="previewItem.createdTime" />
             </v-col>
           </v-row>
           <v-row align="center">
