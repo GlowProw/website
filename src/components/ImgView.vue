@@ -136,9 +136,9 @@ const onFileSelected = async (event: Event) => {
 
   target.value = '';
 
-  // 1. 校验大小 (1MB)
-  if (file.size > 1 * 1024 * 1024) {
-    notice.error('文件体积过大，单次上传文件最大为 1MB');
+  // 1. 校验大小 (340KB)
+  if (file.size > 340 * 1024) {
+    notice.error('文件体积过大，单次上传文件最大为 340KB');
     return;
   }
 
@@ -346,7 +346,7 @@ defineOptions({
               <v-icon size="48" color="amber" class="mb-2">mdi-cloud-arrow-up-outline</v-icon>
               <div class="font-weight-medium">点击选择本地图片上传</div>
               <div class="text-caption text-medium-emphasis mt-1">
-                支持 WebP、PNG、JPG 格式 · 单次最大 1MB · 自动上传至云图床
+                支持 WebP、PNG、JPG 格式 · 单次最大 340KB · 自动上传至云图床
               </div>
             </template>
           </div>

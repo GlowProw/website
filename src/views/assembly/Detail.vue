@@ -360,14 +360,22 @@ const onPenPassword = () => {
           </template>
         </v-col>
         <v-col cols="12" sm="12" lg="4" xl="4">
-          <AccountCardWidget :id="detailData.userId">
-            <v-card v-if="detailData.userAvatar" class="mr-1">
-              <UserAvatar size="25" :src="detailData.userAvatar"></UserAvatar>
-            </v-card>
-            {{ detailData.username || t('assembly.anonymous') }}
-          </AccountCardWidget>
+          <v-row align="center">
+            <v-col>
+              <v-icon icon="mdi-account"></v-icon>
+              {{ t('assembly.browse.createdUser') }}
+            </v-col>
+            <v-col cols="auto">
+              <AccountCardWidget :id="detailData.userId">
+                <v-card v-if="detailData.userAvatar" class="mr-1">
+                  <UserAvatar size="25" :src="detailData.userAvatar"></UserAvatar>
+                </v-card>
+                <p class="u text-amber">{{ detailData.username || t('assembly.anonymous') }}</p>
+              </AccountCardWidget>
+            </v-col>
+          </v-row>
 
-          <v-row class="mt-5">
+          <v-row align="center">
             <v-col>
               <v-icon icon="mdi-calendar-range"></v-icon>
               {{ t('assembly.browse.filter.createdTime') }}
@@ -378,7 +386,7 @@ const onPenPassword = () => {
             </v-col>
           </v-row>
 
-          <v-row class="mt-1">
+          <v-row align="center">
             <v-col>
               <v-icon icon="mdi-calendar-range"></v-icon>
               {{ t('assembly.browse.filter.updatedTime') }}

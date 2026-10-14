@@ -64,26 +64,35 @@
                 </v-tabs>
 
                 <template v-if="!isSelf">
-                  <div class="mb-5 d-flex ga-2 align-center flex-wrap">
-                    <RolesTagWidget :data="userData.role || []"></RolesTagWidget>
-                    <v-chip v-if="userData.lastOnlineTime">
-                      {{ t('space.lastOnlineTime') }}：
-                      <Time :time="userData.lastOnlineTime"/>
-                    </v-chip>
-                    <v-chip v-if="userData.joinTime">
-                      {{ t('space.joinTime') }}：
-                      <Time :time="userData.joinTime"/>
-                    </v-chip>
-                    <!-- 发私信入口 S -->
-                    <v-btn
-                        v-if="authStore.isLogin && (userData.attr?.dmEnabled !== false)"
-                        color="amber" variant="tonal" size="small"
-                        :to="`/account/messages?peerId=${targetUserId}`">
-                      <v-icon size="16" class="mr-1">mdi-message-outline</v-icon>
-                      {{ t('space.sendMessage') }}
-                    </v-btn>
-                    <!-- 发私信入口 E -->
-                  </div>
+                  <v-tabs stacked
+                          align-tabs="start"
+                          density="comfortable"
+                          class="primary-tabs">
+                    <div class="d-flex ga-2 align-center flex-wrap">
+                      <RolesTagWidget :data="userData.role || []"></RolesTagWidget>
+                      <v-chip v-if="userData.lastOnlineTime">
+                        {{ t('space.lastOnlineTime') }}：
+                        <Time :time="userData.lastOnlineTime"/>
+                      </v-chip>
+                      <v-chip v-if="userData.joinTime">
+                        {{ t('space.joinTime') }}：
+                        <Time :time="userData.joinTime"/>
+                      </v-chip>
+                      <!-- 发私信入口 S -->
+                      <template v-if="authStore.isLogin && (userData.attr?.dmEnabled !== false)">
+                        <v-divider vertical inset></v-divider>
+                        <v-chip
+                            color="amber"
+                            variant="tonal"
+                            class="rounded-xl"
+                            :to="`/account/messages?peerId=${targetUserId}`">
+                          <v-icon size="16" class="mr-1">mdi-message-outline</v-icon>
+                          {{ t('space.sendMessage') }}
+                        </v-chip>
+                      </template>
+                      <!-- 发私信入口 E -->
+                    </div>
+                  </v-tabs>
                 </template>
               </v-col>
               <v-col cols="3" class="d-flex align-center justify-end">
@@ -95,12 +104,6 @@
                   </template>
                   <template v-else>
                     <h2 class="text-h4 font-weight-bold d-flex align-center">
-                      <v-card border class="mr-4">
-                        <UserAvatar :src="userData.userAvatar" v-if="userData.userAvatar" size="36"></UserAvatar>
-                        <v-avatar size="44" v-else>
-                          <v-icon icon="mdi-account" size="24"></v-icon>
-                        </v-avatar>
-                      </v-card>
                       <u class="u">{{ userData.username || 'Captain' }}</u>
                     </h2>
                   </template>
@@ -198,7 +201,6 @@ import {SpaceUserResult} from '@/assets/types/User';
 import Silk from '@/components/Silk.vue';
 import EmptyView from '@/components/EmptyView.vue';
 import RolesTagWidget from '@/components/RolesTagWidget.vue';
-import UserAvatar from '@/components/UserAvatar.vue';
 import Time from '@/components/Time.vue';
 import AffixContainerView from '@/components/AffixContainerView.vue';
 

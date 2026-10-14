@@ -37,6 +37,7 @@ import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
 import ShipName from "@/components/snbWidget/shipName.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import {ERROR_CODES, logError} from "@/assets/sripts/error_logger";
+import Loading from "@/components/Loading.vue";
 
 const props = withDefaults(defineProps<{
       embedded?: boolean
@@ -580,10 +581,9 @@ defineOptions({
             :model-value="progress * 100"
             color="var(--main-color)"
             height="2"
-            class="mt-n3 mb-2"
-        ></v-progress-linear>
+            class="mt-n3 mb-2"></v-progress-linear>
         <div v-if="isLoading" class="d-flex align-center justify-center ga-2 mb-3 text-caption text-medium-emphasis">
-          <v-icon icon="mdi-database-search-outline" size="16" color="var(--main-color)"/>
+          <Loading size="15"></Loading>
           <span>{{ t('search.indexing') }}</span>
         </div>
       </v-col>

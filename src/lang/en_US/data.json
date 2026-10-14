@@ -935,7 +935,7 @@
         "title": "Avatar Settings",
         "upload": "Upload Custom Avatar",
         "preset": "Preset Avatars",
-        "tips": "Supports PNG / JPG / WebP, file size up to 1MB"
+        "tips": "Supports PNG / JPG / WebP, file size up to 512KB"
       },
       "subtitle": "Manage your personal profile, credentials, and system preferences"
     },
@@ -1119,7 +1119,9 @@
       "copySuccess": "Image link copied to clipboard",
       "copyFailed": "Copy failed, please copy manually",
       "deleteSuccess": "Media deleted",
-      "fileTooLarge": "File is too large, single file maximum is 1MB",
+      "fileTooLarge": "File is too large, single file maximum is 340KB",
+      "storageDisabled": "Storage has reached the safety threshold, uploads are temporarily disabled",
+      "storageDisabledDesc": "Cloud storage usage has reached the 9.8GB safety line. Uploads are temporarily paused to keep the service stable. Please try again later or contact the administrator.",
       "unsupportedFormat": "Unsupported image format, only webp, png, and jpg are supported",
       "uploadFailed": "Upload failed, please check your quota or network",
       "reuploadMax": "This file has reached the maximum overwrite limit of 10 times",
@@ -3935,7 +3937,7 @@
     "media": {
       "files": "Files Count",
       "storage": "Storage Capacity",
-      "maxFileSize": "Single File ≤ 1MB",
+      "maxFileSize": "Single File ≤ 340KB",
       "reupload": "Overwrites",
       "maxPerFile": "Single File ≤ 10 Times"
     }

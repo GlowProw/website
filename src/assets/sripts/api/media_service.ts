@@ -37,6 +37,12 @@ export interface MediaQuotaDetail {
         monthly: { used: number; limit: number | null };
         maxPerFile: number;
     };
+    storagePool?: {
+        uploadDisabled: boolean;
+        totalUsedBytes: number;
+        quotaBytes: number;
+        remainingBytes: number;
+    } | null;
 }
 
 export function useMediaApi() {
@@ -84,7 +90,7 @@ export function useMediaApi() {
     };
 
     /**
-     * 小文件单次上传接口 (POST <= 1MB)
+     * 小文件单次上传接口 (POST ≤ 340KB)
      */
     const uploadMedia = async (file: File): Promise<MediaItem> => {
         try {

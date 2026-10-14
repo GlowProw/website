@@ -8,7 +8,7 @@
           </div>
         </router-link>
         <v-row>
-          <v-col>
+          <v-col cols="auto">
             <AccountCardWidget :id="item.userId">
               <div class="d-flex align-center">
                 <v-card v-if="item.userAvatar" class="mr-1">
@@ -19,10 +19,19 @@
             </AccountCardWidget>
           </v-col>
 
-          <v-col cols="auto" v-if="showLikes">
-            <v-chip density="compact" class="badge-flavor px-3" :disabled="!!item.isLiked">
+          <v-spacer></v-spacer>
+
+          <v-col cols="auto" class="d-flex ga-1">
+            <v-chip density="compact" variant="text" :disabled="!!item.isLiked" v-if="showLikes">
               <v-icon color="red">{{ (item.likes || 0) <= 0 ? 'mdi-heart-outline' : 'mdi-heart' }}</v-icon>
-              <span class="ml-1 text-red-accent-4" v-if="item.likes">{{ item.likes || 0 }}</span>
+              <span class="ml-1 text-red-accent-4">{{ item.likes || 0 }}</span>
+            </v-chip>
+
+            <v-divider vertical inset opacity=".5" thickness="1"></v-divider>
+
+            <v-chip density="compact" variant="text">
+              <v-icon color="blue-grey-lighten-3">{{ (item.browseCount || 0) <= 0 ? 'mdi-eye-outline' : 'mdi-eye' }}</v-icon>
+              <span class="ml-1 text-blue-grey-lighten-3">{{ item.browseCount || 0 }}</span>
             </v-chip>
           </v-col>
         </v-row>

@@ -179,7 +179,6 @@ defineOptions({
                      :to="{ name: messageCenterTabs[0].value }">
                 {{ t('account.messages.messageCenterTitle') }}
               </v-tab>
-              <!-- MeSpace 是独立页面，直接跳路由 -->
               <v-tab value="MeSpace" class="font-weight-bold text-subtitle-1 px-8" :to="{ name: 'SpaceAssemblys' }">
                 {{ t('space.title') }}
               </v-tab>

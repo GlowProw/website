@@ -922,7 +922,7 @@
         "title": "頭像設定",
         "upload": "上傳自訂頭像",
         "preset": "預設頭像",
-        "tips": "支援 PNG / JPG / WebP，檔案大小不超過 1MB"
+        "tips": "支援 PNG / JPG / WebP，檔案大小不超過 512KB"
       },
       "subtitle": "管理您的個人基礎資料、賬戶安全憑據及系統偏好"
     },
@@ -1106,7 +1106,9 @@
       "copySuccess": "圖片連結已複製到剪貼簿",
       "copyFailed": "複製失敗，請手動長按複製",
       "deleteSuccess": "媒體已刪除",
-      "fileTooLarge": "檔案過大，單次上傳檔案最大为 1MB",
+      "fileTooLarge": "檔案過大，單次上傳檔案最大为 340KB",
+      "storageDisabled": "圖床容量已達安全閾值，上傳功能暫時停用",
+      "storageDisabledDesc": "雲端圖床總用量已達到 9.8GB 安全線，為保障服務穩定已暫時關閉上傳，請稍後再試或聯絡管理員。",
       "unsupportedFormat": "不支援的圖片格式，僅支援 webp、png、jpg 格式",
       "uploadFailed": "圖片上傳失敗，請檢查配額或網路",
       "reuploadMax": "該檔案重新上傳次數已達到 10 次上限",
@@ -4002,7 +4004,7 @@
     "media": {
       "files": "檔案數量",
       "storage": "儲存容量",
-      "maxFileSize": "單檔案 ≤ 1MB",
+      "maxFileSize": "單檔案 ≤ 340KB",
       "reupload": "覆蓋重傳",
       "maxPerFile": "單檔案 ≤ 10次"
     }

@@ -87,6 +87,7 @@ onMounted(() => {
       interactive
       class="item-card"
       content-class="pa-0 bg-transparent"
+      :offset="[100,0]"
       :target="[tooltipPos.x, tooltipPos.y]">
     <template v-slot:activator="{ props }">
       <u v-bind="props" class="spelling time-view singe-line time-view-slot"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, ref, watch} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import {apis, sessionUserInfo} from "@/assets/sripts/index";
 import {useI18n} from "vue-i18n";
 import {useNoticeStore} from "~/stores/noticeStore";
@@ -11,32 +11,24 @@ import RolesTagWidget from "@/components/RolesTagWidget.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
 import {AccountCardWidgetProps, SpaceUserResult} from "@/assets/types/User";
 import {useAuthStore} from "~/stores/userAccountStore";
+import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 
 const props = withDefaults(defineProps<AccountCardWidgetProps>(), {id: null}),
     notice = useNoticeStore(),
     authStore = useAuthStore(),
-    {t} = useI18n()
+    {t} = useI18n(),
+    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow()
 
 let loading = ref(false),
     model = ref(false),
     userInfoData = ref<Partial<SpaceUserResult>>({});
-
-watch(() => model.value, (value) => {
-  if (value)
-    getUserInfo()
-})
-
-watch(() => props.id, (value) => {
-  if (value)
-    getUserInfo()
-}, {deep: true})
 
 /**
  * 获取用户数据
  */
 const getUserInfo = async () => {
   try {
-    if (!props.id)
+    if (!props.id || loading.value)
       return;
 
     loading.value = true
@@ -62,6 +54,24 @@ const getUserInfo = async () => {
   }
 }
 
+// 挂载时 id 往往已有值（列表卡片场景），提前拉好，hover 即有数据
+onMounted(() => {
+  if (props.id)
+    getUserInfo()
+})
+
+// 详情页 id 异步到位的场景
+watch(() => props.id, (value) => {
+  if (value && userInfoData.value.id == null)
+    getUserInfo()
+})
+
+// hover 兜底：前两条路径都未拿到时，打开卡片再拉一次
+watch(() => model.value, (value) => {
+  if (value && userInfoData.value.id == null)
+    getUserInfo()
+})
+
 const userInfo = computed(() => userInfoData.value as any)
 
 defineOptions({
@@ -70,13 +80,21 @@ defineOptions({
 </script>
 
 <template>
-  <v-menu content-class="pa-0"
-          v-model="model"
-          class="bg-transparent"
-          :offset="[15, 0]"
-          open-on-click>
+  <v-tooltip v-model="model"
+      scroll-strategy="close"
+             transition="opacity 300ms ease-in"
+             location="right top"
+             min-width="450"
+             max-width="450"
+             interactive
+             class="item-card"
+             content-class="pa-0 bg-transparent"
+             :offset="[50,0]"
+             :target="[tooltipPos.x, tooltipPos.y]">
     <template v-slot:activator="{ props }">
       <div class="bg-transparent d-flex ga-2 align-center"
+           @mousemove="onMouseMove"
+           @mouseenter="onMouseEnter"
            v-bind="props">
         <slot></slot>
       </div>
@@ -93,8 +111,13 @@ defineOptions({
       </v-card>
 
       <v-divider></v-divider>
-      <div class="mx-auto mt-n14 " v-if="userInfo.userAvatar">
-        <UserAvatar size="100" :src="userInfo.userAvatar" class="mx-auto rounded-circle border overflow-hidden"></UserAvatar>
+      <div class="mx-auto mt-n14">
+        <UserAvatar size="100" :src="userInfo.userAvatar" class="mx-auto rounded-circle border overflow-hidden bg-black" v-if="userInfo.userAvatar"></UserAvatar>
+        <v-avatar size="100" class="d-block mx-auto rounded-circle border overflow-hidden bg-black" v-else>
+          <div class="d-flex justify-center align-center h-100">
+            <v-icon size="60">mdi-account</v-icon>
+          </div>
+        </v-avatar>
       </div>
 
       <v-card-text class="px-6">
@@ -102,13 +125,13 @@ defineOptions({
                      class="px-0 h-auto"
                      :to="`/space/${userInfo.userId || id}`">
           <div class="text-amber text-center">
-            <p class="text-h5 u">{{ userInfo.username }}</p>
-            <RolesTagWidget :data="userInfo.role" v-if="userInfo.role" class="mt-2"></RolesTagWidget>
+            <p class="text-h4 u">{{ userInfo.username || t('assembly.anonymous') }}</p>
+            <RolesTagWidget :data="userInfo.role" v-if="userInfo.role" class="mt-6"></RolesTagWidget>
           </div>
 
           <Textarea
               readonly
-              class="text-caption opacity-60 mt-3 w-100"
+              class="text-caption opacity-60 w-100"
               min-height="120"
               :value="userInfo.attr?.introduction || '🚢 🌊🌊🌊'"></Textarea>
         </router-link>
@@ -135,7 +158,7 @@ defineOptions({
         <!-- 发私信入口 E -->
       </v-card-actions>
     </v-card>
-  </v-menu>
+  </v-tooltip>
 </template>
 
 <style scoped lang="less">

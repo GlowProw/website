@@ -1,6 +1,6 @@
 <template>
   <v-card
-      v-show="shape"
+      v-if="shape"
       border
       elevation="12"
       :width="mobile ? 'calc(100% - 60px)' : 450"

@@ -935,7 +935,7 @@
         "title": "头像设置",
         "upload": "上传自定义头像",
         "preset": "预设头像",
-        "tips": "支持 PNG / JPG / WebP，文件大小不超过 1MB"
+        "tips": "支持 PNG / JPG / WebP，文件大小不超过 512KB"
       },
       "subtitle": "管理您的个人基础资料、账户安全凭据及系统偏好"
     },
@@ -1083,7 +1083,9 @@
       "copySuccess": "图片链接已复制到剪贴板",
       "copyFailed": "复制失败，请手动长按复制",
       "deleteSuccess": "媒体已删除",
-      "fileTooLarge": "文件过大，单次上传文件最大为 1MB",
+      "fileTooLarge": "文件过大，单次上传文件最大为 340KB",
+      "storageDisabled": "图床容量已达安全阈值，上传功能暂时停用",
+      "storageDisabledDesc": "云图床总用量已达到 9.8GB 安全线，为保障服务稳定已暂时关闭上传，请稍后再试或联系管理员。",
       "unsupportedFormat": "不支持的图片类型，仅支持 webp、png、jpg 格式",
       "uploadFailed": "图片上传失败，请检查配额或网络",
       "reuploadMax": "该文件重新上传次数已达到 10 次上限",
@@ -2751,6 +2753,7 @@
       "title": "配装分享集",
       "search": "搜索配装创建用户 或 是配装名称",
       "newAssembly": "创建配装",
+      "createdUser": "创建者",
       "filterTitle": "筛选",
       "filter": {
         "createdTime": "创建时间",
@@ -3937,7 +3940,7 @@
     "media": {
       "files": "文件数量",
       "storage": "存储容量",
-      "maxFileSize": "单文件 ≤ 1MB",
+      "maxFileSize": "单文件 ≤ 340KB",
       "reupload": "覆盖重传",
       "maxPerFile": "单文件 ≤ 10次"
     }

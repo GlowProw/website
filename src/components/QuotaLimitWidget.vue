@@ -1,19 +1,8 @@
-/**
- * 额度悬浮组件
- */
-
 <script setup lang="ts">
 import {computed, onMounted, ref} from 'vue'
 import {useI18n} from 'vue-i18n'
-import {
-  useQuotaApi,
-} from '@/assets/sripts/api/quota_service'
-import type {
-  QuotaBucket,
-  QuotaResourceKey,
-  QuotaStatus,
-  QuotaStatusItem,
-} from '@/assets/types/Quota'
+import {useQuotaApi,} from '@/assets/sripts/api/quota_service'
+import type {QuotaBucket, QuotaResourceKey, QuotaStatus, QuotaStatusItem,} from '@/assets/types/Quota'
 import {useAuthStore} from '~/stores/userAccountStore'
 
 const props = withDefaults(defineProps<{
@@ -89,7 +78,7 @@ const formatBytes = (bytes: number): string => {
 }
 
 const progressColor = (percent: number): string =>
-  percent >= 100 ? 'error' : percent >= 80 ? 'warning' : 'success'
+    percent >= 100 ? 'error' : percent >= 80 ? 'warning' : 'success'
 
 const onMenuToggle = (open: boolean): void => {
   // 展开时优先走会话缓存（60 秒 TTL），避免每次悬浮都发请求
@@ -98,8 +87,9 @@ const onMenuToggle = (open: boolean): void => {
 </script>
 
 <template>
-  <v-menu location="bottom center" open-on-hover open-on-click :close-delay="180"
-          @update:model-value="onMenuToggle">
+  <v-menu
+      location="bottom center" open-on-hover open-on-click :close-delay="180"
+      @update:model-value="onMenuToggle">
     <template v-slot:activator="{props: menuProps}">
       <v-btn v-bind="menuProps"
              variant="text"
@@ -144,126 +134,150 @@ const onMenuToggle = (open: boolean): void => {
 
             <!-- 媒体库展示专属完整配额指标：文件数、存储容量、覆盖重传 -->
             <template v-if="resource === 'media' && status.mediaDetails">
-              <!-- 1. 文件数量 -->
+              <!-- 文件数量 S -->
               <div class="text-caption text-medium-emphasis font-weight-bold mb-1">
                 {{ t('quota.media.files') || '文件数量' }}
               </div>
-              <div class="d-flex align-center ga-2 mb-1">
-                <span class="text-caption text-medium-emphasis quota-period-label">{{ t('quota.monthly') }}</span>
-                <v-progress-linear
-                  v-if="status.mediaDetails.files.monthly.limit != null"
-                  :model-value="percentOf(status.mediaDetails.files.monthly)"
-                  :color="progressColor(percentOf(status.mediaDetails.files.monthly))"
-                  height="6" rounded density="compact" hide-details class="flex-grow-1"></v-progress-linear>
-                <span v-else class="flex-grow-1"></span>
-                <span class="text-caption quota-count">
-                  <template v-if="status.mediaDetails.files.monthly.limit != null">
-                    {{ t('quota.used', {
-                      used: status.mediaDetails.files.monthly.used ?? 0,
-                      limit: status.mediaDetails.files.monthly.limit
-                    }) }}
-                  </template>
-                  <template v-else>{{ t('quota.unlimited') }}</template>
-                </span>
-              </div>
-              <div class="d-flex align-center ga-2 mb-2">
-                <span class="text-caption text-medium-emphasis quota-period-label">{{ t('quota.yearly') }}</span>
-                <v-progress-linear
-                  v-if="status.mediaDetails.files.yearly.limit != null"
-                  :model-value="percentOf(status.mediaDetails.files.yearly)"
-                  :color="progressColor(percentOf(status.mediaDetails.files.yearly))"
-                  height="6" rounded density="compact" hide-details class="flex-grow-1"></v-progress-linear>
-                <span v-else class="flex-grow-1"></span>
-                <span class="text-caption quota-count">
-                  <template v-if="status.mediaDetails.files.yearly.limit != null">
-                    {{ t('quota.used', {
-                      used: status.mediaDetails.files.yearly.used ?? 0,
-                      limit: status.mediaDetails.files.yearly.limit
-                    }) }}
-                  </template>
-                  <template v-else>{{ t('quota.unlimited') }}</template>
-                </span>
-              </div>
+              <v-row align="center" dense>
+                <v-col cols="auto" class="text-caption text-medium-emphasis quota-period-label">{{ t('quota.monthly') }}</v-col>
+                <v-col>
+                  <v-progress-linear
+                      v-if="status.mediaDetails.files.monthly.limit != null"
+                      :model-value="percentOf(status.mediaDetails.files.monthly)"
+                      :color="progressColor(percentOf(status.mediaDetails.files.monthly))"
+                      height="6" rounded density="compact" hide-details class="flex-grow-1"></v-progress-linear>
+                </v-col>
+                <v-col cols="auto">
+                  <p class="text-caption quota-count">
+                    <template v-if="status.mediaDetails.files.monthly.limit != null">
+                      {{
+                        t('quota.used', {
+                          used: status.mediaDetails.files.monthly.used ?? 0,
+                          limit: status.mediaDetails.files.monthly.limit
+                        })
+                      }}
+                    </template>
+                    <template v-else>{{ t('quota.unlimited') }}</template>
+                  </p>
+                </v-col>
+              </v-row>
+              <v-row align="center" class="mt-n2 mb-1" dense>
+                <v-col cols="auto" class="text-caption text-medium-emphasis quota-period-label">{{ t('quota.yearly') }}</v-col>
+                <v-col>
+                  <v-progress-linear
+                      v-if="status.mediaDetails.files.yearly.limit != null"
+                      :model-value="percentOf(status.mediaDetails.files.yearly)"
+                      :color="progressColor(percentOf(status.mediaDetails.files.yearly))"
+                      height="6" rounded density="compact" hide-details class="flex-grow-1"></v-progress-linear>
+                </v-col>
+                <v-col cols="auto">
+                  <p class="text-caption quota-count">
+                    <template v-if="status.mediaDetails.files.yearly.limit != null">
+                      {{
+                        t('quota.used', {
+                          used: status.mediaDetails.files.yearly.used ?? 0,
+                          limit: status.mediaDetails.files.yearly.limit
+                        })
+                      }}
+                    </template>
+                    <template v-else>{{ t('quota.unlimited') }}</template>
+                  </p>
+                </v-col>
+              </v-row>
+              <!-- 文件数量 E -->
 
-              <!-- 2. 存储容量 -->
+              <!-- 存储容量 S -->
               <div class="text-caption text-medium-emphasis font-weight-bold mb-1 d-flex align-center justify-space-between">
                 <span>{{ t('quota.media.storage') || '存储容量' }}</span>
                 <span class="text-caption font-weight-regular text-disabled">
-                  {{ t('quota.media.maxFileSize') || '单文件 ≤ 1MB' }}
+                  {{ t('quota.media.maxFileSize') || '单文件 ≤ 340KB' }}
                 </span>
               </div>
-              <div class="d-flex align-center ga-2 mb-1">
-                <span class="text-caption text-medium-emphasis quota-period-label">{{ t('quota.monthly') }}</span>
-                <v-progress-linear
-                  v-if="status.mediaDetails.storage.monthly.limit != null"
-                  :model-value="percentOfBytes(status.mediaDetails.storage.monthly.used, status.mediaDetails.storage.monthly.limit)"
-                  :color="progressColor(percentOfBytes(status.mediaDetails.storage.monthly.used, status.mediaDetails.storage.monthly.limit))"
-                  height="6" rounded density="compact" hide-details class="flex-grow-1"></v-progress-linear>
-                <span v-else class="flex-grow-1"></span>
-                <span class="text-caption quota-count">
-                  <template v-if="status.mediaDetails.storage.monthly.limit != null">
-                    {{ formatBytes(status.mediaDetails.storage.monthly.used) }} / {{ formatBytes(status.mediaDetails.storage.monthly.limit) }}
-                  </template>
-                  <template v-else>{{ t('quota.unlimited') }}</template>
-                </span>
-              </div>
-              <div class="d-flex align-center ga-2 mb-2">
-                <span class="text-caption text-medium-emphasis quota-period-label">{{ t('quota.yearly') }}</span>
-                <v-progress-linear
-                  v-if="status.mediaDetails.storage.yearly.limit != null"
-                  :model-value="percentOfBytes(status.mediaDetails.storage.yearly.used, status.mediaDetails.storage.yearly.limit)"
-                  :color="progressColor(percentOfBytes(status.mediaDetails.storage.yearly.used, status.mediaDetails.storage.yearly.limit))"
-                  height="6" rounded density="compact" hide-details class="flex-grow-1"></v-progress-linear>
-                <span v-else class="flex-grow-1"></span>
-                <span class="text-caption quota-count">
-                  <template v-if="status.mediaDetails.storage.yearly.limit != null">
-                    {{ formatBytes(status.mediaDetails.storage.yearly.used) }} / {{ formatBytes(status.mediaDetails.storage.yearly.limit) }}
-                  </template>
-                  <template v-else>{{ t('quota.unlimited') }}</template>
-                </span>
-              </div>
+              <v-row align="center" dense>
+                <v-col cols="auto" class="text-caption text-medium-emphasis quota-period-label">{{ t('quota.monthly') }}</v-col>
+                <v-col>
+                  <v-progress-linear
+                      v-if="status.mediaDetails.storage.monthly.limit != null"
+                      :model-value="percentOfBytes(status.mediaDetails.storage.monthly.used, status.mediaDetails.storage.monthly.limit)"
+                      :color="progressColor(percentOfBytes(status.mediaDetails.storage.monthly.used, status.mediaDetails.storage.monthly.limit))"
+                      height="6" rounded density="compact" hide-details class="flex-grow-1"></v-progress-linear>
+                </v-col>
+                <v-col cols="auto">
+                  <p class="text-caption quota-count">
+                    <template v-if="status.mediaDetails.storage.monthly.limit != null">
+                      {{ formatBytes(status.mediaDetails.storage.monthly.used) }} / {{ formatBytes(status.mediaDetails.storage.monthly.limit) }}
+                    </template>
+                    <template v-else>{{ t('quota.unlimited') }}</template>
+                  </p>
+                </v-col>
+              </v-row>
+              <v-row align="center" class="mt-n2 mb-1" dense>
+                <v-col cols="auto" class="text-caption text-medium-emphasis quota-period-label">{{ t('quota.yearly') }}</v-col>
+                <v-col>
+                  <v-progress-linear
+                      v-if="status.mediaDetails.storage.yearly.limit != null"
+                      :model-value="percentOfBytes(status.mediaDetails.storage.yearly.used, status.mediaDetails.storage.yearly.limit)"
+                      :color="progressColor(percentOfBytes(status.mediaDetails.storage.yearly.used, status.mediaDetails.storage.yearly.limit))"
+                      height="6" rounded density="compact" hide-details class="flex-grow-1"></v-progress-linear>
+                </v-col>
+                <v-col cols="auto">
+                  <p class="text-caption quota-count">
+                    <template v-if="status.mediaDetails.storage.yearly.limit != null">
+                      {{ formatBytes(status.mediaDetails.storage.yearly.used) }} / {{ formatBytes(status.mediaDetails.storage.yearly.limit) }}
+                    </template>
+                    <template v-else>{{ t('quota.unlimited') }}</template>
+                  </p>
+                </v-col>
+              </v-row>
+              <!-- 存储容量 E -->
 
-              <!-- 3. 覆盖重传 -->
+              <!-- 覆盖重传 S -->
               <div class="text-caption text-medium-emphasis font-weight-bold mb-1 d-flex align-center justify-space-between">
                 <span>{{ t('quota.media.reupload') || '覆盖重传' }}</span>
                 <span class="text-caption font-weight-regular text-disabled">
                   {{ t('quota.media.maxPerFile') || '单文件 ≤ 10次' }}
                 </span>
               </div>
-              <div class="d-flex align-center ga-2">
-                <span class="text-caption text-medium-emphasis quota-period-label">{{ t('quota.monthly') }}</span>
-                <v-progress-linear
-                  v-if="status.mediaDetails.reupload.monthly.limit != null"
-                  :model-value="percentOf(status.mediaDetails.reupload.monthly)"
-                  :color="progressColor(percentOf(status.mediaDetails.reupload.monthly))"
-                  height="6" rounded density="compact" hide-details class="flex-grow-1"></v-progress-linear>
-                <span v-else class="flex-grow-1"></span>
-                <span class="text-caption quota-count">
-                  <template v-if="status.mediaDetails.reupload.monthly.limit != null">
-                    {{ status.mediaDetails.reupload.monthly.used }} / {{ status.mediaDetails.reupload.monthly.limit }} 次
-                  </template>
-                  <template v-else>{{ t('quota.unlimited') }}</template>
-                </span>
-              </div>
+              <v-row align="center" class="mt-n2 mb-1" dense>
+                <v-col cols="auto" class="text-caption text-medium-emphasis quota-period-label">{{ t('quota.yearly') }}</v-col>
+                <v-col>
+                  <v-progress-linear
+                      v-if="status.mediaDetails.reupload.monthly.limit != null"
+                      :model-value="percentOf(status.mediaDetails.reupload.monthly)"
+                      :color="progressColor(percentOf(status.mediaDetails.reupload.monthly))"
+                      height="6" rounded density="compact" hide-details class="flex-grow-1"></v-progress-linear>
+                </v-col>
+                <v-col cols="auto">
+                  <p class="text-caption quota-count">
+                    <template v-if="status.mediaDetails.reupload.monthly.limit != null">
+                      {{ status.mediaDetails.reupload.monthly.used }} / {{ status.mediaDetails.reupload.monthly.limit }} 次
+                    </template>
+                    <template v-else>{{ t('quota.unlimited') }}</template>
+                  </p>
+                </v-col>
+              </v-row>
+              <!-- 覆盖重传 E -->
             </template>
 
-            <!-- 常规资源展示 (assembly, comment, teamup, map) -->
+            <!-- 常规资源展示 -->
             <template v-else>
               <!-- 本月 -->
               <div class="d-flex align-center ga-2 mb-1">
                 <span class="text-caption text-medium-emphasis quota-period-label">{{ t('quota.monthly') }}</span>
                 <v-progress-linear
-                  v-if="itemOf(resource)?.monthly.limit != null"
-                  :model-value="percentOf(itemOf(resource)?.monthly)"
-                  :color="progressColor(percentOf(itemOf(resource)?.monthly))"
-                  height="6" rounded density="compact" hide-details class="flex-grow-1"></v-progress-linear>
+                    v-if="itemOf(resource)?.monthly.limit != null"
+                    :model-value="percentOf(itemOf(resource)?.monthly)"
+                    :color="progressColor(percentOf(itemOf(resource)?.monthly))"
+                    height="6" rounded density="compact" hide-details class="flex-grow-1"></v-progress-linear>
                 <span v-else class="flex-grow-1"></span>
                 <span class="text-caption quota-count">
                   <template v-if="itemOf(resource)?.monthly.limit != null">
-                    {{ t('quota.used', {
-                      used: itemOf(resource)?.monthly.used ?? 0,
-                      limit: itemOf(resource)?.monthly.limit
-                    }) }}
+                    {{
+                      t('quota.used', {
+                        used: itemOf(resource)?.monthly.used ?? 0,
+                        limit: itemOf(resource)?.monthly.limit
+                      })
+                    }}
                   </template>
                   <template v-else>{{ t('quota.unlimited') }}</template>
                 </span>
@@ -273,17 +287,19 @@ const onMenuToggle = (open: boolean): void => {
               <div class="d-flex align-center ga-2">
                 <span class="text-caption text-medium-emphasis quota-period-label">{{ t('quota.yearly') }}</span>
                 <v-progress-linear
-                  v-if="itemOf(resource)?.yearly.limit != null"
-                  :model-value="percentOf(itemOf(resource)?.yearly)"
-                  :color="progressColor(percentOf(itemOf(resource)?.yearly))"
-                  height="6" rounded density="compact" hide-details class="flex-grow-1"></v-progress-linear>
+                    v-if="itemOf(resource)?.yearly.limit != null"
+                    :model-value="percentOf(itemOf(resource)?.yearly)"
+                    :color="progressColor(percentOf(itemOf(resource)?.yearly))"
+                    height="6" rounded density="compact" hide-details class="flex-grow-1"></v-progress-linear>
                 <span v-else class="flex-grow-1"></span>
                 <span class="text-caption quota-count">
                   <template v-if="itemOf(resource)?.yearly.limit != null">
-                    {{ t('quota.used', {
-                      used: itemOf(resource)?.yearly.used ?? 0,
-                      limit: itemOf(resource)?.yearly.limit
-                    }) }}
+                    {{
+                      t('quota.used', {
+                        used: itemOf(resource)?.yearly.used ?? 0,
+                        limit: itemOf(resource)?.yearly.limit
+                      })
+                    }}
                   </template>
                   <template v-else>{{ t('quota.unlimited') }}</template>
                 </span>

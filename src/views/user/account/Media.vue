@@ -36,9 +36,28 @@ const previewItem = ref<MediaItem | null>(null);
 
 const totalPages = computed(() => Math.ceil(totalCount.value / pageSize) || 1);
 
+// 单文件上限 340KB（与后端 media.maxSizeBytes 保持一致）
+const MAX_FILE_SIZE = 340 * 1024;
+// 图床总容量熔断状态：用量达到 9.8GB 安全阈值后停用全部上传
+const storageDisabled = ref(false);
+
 onMounted(() => {
   loadList();
+  loadStoragePoolStatus();
 });
+
+/**
+ * 拉取图床总容量熔断标志（媒体配额接口附带返回）
+ */
+const loadStoragePoolStatus = async () => {
+  try {
+    const quota = await mediaApi.getMediaQuota();
+    storageDisabled.value = !!quota?.storagePool?.uploadDisabled;
+  } catch {
+    // 熔断状态拉取失败不阻断页面，真正上传时后端仍会拦截
+    storageDisabled.value = false;
+  }
+};
 
 const formatBytes = (bytes: number): string => {
   if (!bytes) return '0 B';
@@ -71,6 +90,10 @@ const loadList = async () => {
  * 触发本地文件上传 (只有直传)
  */
 const triggerUpload = () => {
+  if (storageDisabled.value) {
+    notice.error(t('account.media.storageDisabled'));
+    return;
+  }
   fileInputRef.value?.click();
 };
 
@@ -84,7 +107,7 @@ const onFileSelected = async (event: Event) => {
 
   target.value = '';
 
-  if (file.size > 1 * 1024 * 1024) {
+  if (file.size > MAX_FILE_SIZE) {
     notice.error(t('account.media.fileTooLarge'));
     return;
   }
@@ -140,7 +163,7 @@ const onReuploadSelected = async (event: Event) => {
 
   if (!file || !targetId) return;
 
-  if (file.size > 1 * 1024 * 1024) {
+  if (file.size > MAX_FILE_SIZE) {
     notice.error(t('account.media.fileTooLarge'));
     return;
   }
@@ -246,6 +269,7 @@ defineOptions({
                 variant="flat"
                 prepend-icon="mdi-cloud-upload-outline"
                 :loading="uploading"
+                :disabled="storageDisabled"
                 @click="triggerUpload">
               {{ t('account.media.upload') }}
             </v-btn>
@@ -261,6 +285,18 @@ defineOptions({
         </div>
       </v-card>
     </AffixContainerView>
+
+    <!-- 图床容量熔断提示 -->
+    <v-alert
+        v-if="storageDisabled"
+        type="error"
+        variant="tonal"
+        density="compact"
+        class="mb-4"
+        icon="mdi-cloud-off-outline"
+        :title="t('account.media.storageDisabled')"
+        :text="t('account.media.storageDisabledDesc')"
+        closable></v-alert>
 
 
     <!-- 加载状态 -->
