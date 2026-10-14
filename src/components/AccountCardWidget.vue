@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import {onMounted, ref, watch, computed} from "vue";
+import {computed, ref, watch} from "vue";
 import {apis, sessionUserInfo} from "@/assets/sripts/index";
-import {ApiError} from "@/assets/types/Api";
 import {useI18n} from "vue-i18n";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {handleApiError} from "@/assets/sripts/error_handler";
@@ -10,15 +9,17 @@ import Silk from "@/components/Silk.vue";
 import Textarea from "@/components/textarea/index.vue";
 import RolesTagWidget from "@/components/RolesTagWidget.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
-import {AccountCardWidgetProps} from "@/assets/types/User";
+import {AccountCardWidgetProps, SpaceUserResult} from "@/assets/types/User";
+import {useAuthStore} from "~/stores/userAccountStore";
 
 const props = withDefaults(defineProps<AccountCardWidgetProps>(), {id: null}),
     notice = useNoticeStore(),
+    authStore = useAuthStore(),
     {t} = useI18n()
 
 let loading = ref(false),
     model = ref(false),
-    userInfoData = ref({})
+    userInfoData = ref<Partial<SpaceUserResult>>({});
 
 watch(() => model.value, (value) => {
   if (value)
@@ -55,7 +56,7 @@ const getUserInfo = async () => {
 
     sessionUserInfo.updateConfiguration('user', props.id, d.data)
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'AccountCardWidget' })
+    handleApiError(e, notice, t, {component: 'AccountCardWidget'})
   } finally {
     loading.value = false
   }
@@ -80,8 +81,8 @@ defineOptions({
         <slot></slot>
       </div>
     </template>
-    <v-card border class="py-5 overflow-hidden" min-width="400" max-width="600" min-height="200">
-      <v-card height="180px" variant="text" class="mt-n10 mx-n10">
+    <v-card border class="overflow-hidden" min-width="400" max-width="600" min-height="200">
+      <v-card height="180px" variant="text" class="mt-n5 mx-n10">
         <Silk
             :speed="4"
             :scale="1.2"
@@ -90,36 +91,49 @@ defineOptions({
             :rotation="-.6"
             class="bg-black"></Silk>
       </v-card>
+
       <v-divider></v-divider>
-      <v-card-text class="px-10 pt-10">
-        <v-row align="center">
-          <v-btn variant="text"
-                 class="px-0 h-auto"
-                 :to="`/space/${userInfo.userId || id}`">
-            <v-row align="center" no-gutters>
-              <v-col cols="auto" v-if="userInfo.userAvatar">
-                <v-avatar size="80" class="mr-3">
-                  <UserAvatar size="80" :src="userInfo.userAvatar"></UserAvatar>
-                </v-avatar>
-              </v-col>
-              <v-col>
-                <div class="text-h5 text-amber">{{ userInfo.username }}</div>
-                <RolesTagWidget :data="userInfo.role" v-if="userInfo.role" class="mt-2"></RolesTagWidget>
-              </v-col>
-            </v-row>
-          </v-btn>
+      <div class="mx-auto mt-n14 " v-if="userInfo.userAvatar">
+        <UserAvatar size="100" :src="userInfo.userAvatar" class="mx-auto rounded-circle border overflow-hidden"></UserAvatar>
+      </div>
+
+      <v-card-text class="px-6">
+        <router-link variant="text"
+                     class="px-0 h-auto"
+                     :to="`/space/${userInfo.userId || id}`">
+          <div class="text-amber text-center">
+            <p class="text-h5 u">{{ userInfo.username }}</p>
+            <RolesTagWidget :data="userInfo.role" v-if="userInfo.role" class="mt-2"></RolesTagWidget>
+          </div>
 
           <Textarea
               readonly
               class="text-caption opacity-60 mt-3 w-100"
               min-height="120"
-              :value="userInfo.attr?.introduction"></Textarea>
-
-          <v-btn class="mt-6" variant="tonal" :to="`/space/${userInfo.userId || id}`" block>
-            {{ t('space.title') }}
-          </v-btn>
-        </v-row>
+              :value="userInfo.attr?.introduction || '🚢 🌊🌊🌊'"></Textarea>
+        </router-link>
       </v-card-text>
+
+      <v-divider></v-divider>
+
+      <v-card-actions class="px-2">
+        <v-spacer></v-spacer>
+        <v-btn variant="flat"
+               class="px-5"
+               :to="`/space/${userInfo.userId || id}`">
+          {{ t('space.title') }}
+        </v-btn>
+
+        <!-- 发私信入口 S -->
+        <v-btn variant="tonal"
+               class="px-5"
+               :v-tooltip="t('space.sendMessage')"
+               v-if="authStore.isLogin && (userInfoData?.attr?.dmEnabled !== false)"
+               :to="`/account/messages?peerId=${userInfo.userId || id}`">
+          <v-icon>mdi-message-outline</v-icon>
+        </v-btn>
+        <!-- 发私信入口 E -->
+      </v-card-actions>
     </v-card>
   </v-menu>
 </template>

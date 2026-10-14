@@ -74,7 +74,7 @@
                       {{ t('space.joinTime') }}：
                       <Time :time="userData.joinTime"/>
                     </v-chip>
-                    <!-- 发私信入口（登录用户且对方未禁用 DM） -->
+                    <!-- 发私信入口 S -->
                     <v-btn
                         v-if="authStore.isLogin && (userData.attr?.dmEnabled !== false)"
                         color="amber" variant="tonal" size="small"
@@ -82,6 +82,7 @@
                       <v-icon size="16" class="mr-1">mdi-message-outline</v-icon>
                       {{ t('space.sendMessage') }}
                     </v-btn>
+                    <!-- 发私信入口 E -->
                   </div>
                 </template>
               </v-col>
