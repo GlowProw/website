@@ -76,6 +76,30 @@
     },
     "meta": {
       "description": "《碧海黑帆 (Skull and Bones)》全能遊戲助手與全收集互動地圖：資料百科、配裝模擬、材料計算、任務攻略與賽季資訊。"
+    },
+    "aiSkills": {
+      "name": "AI 技能",
+      "description": "面向 AI 助手的技能（技能書）套件，內置配裝查詢與 Codex 物品速查能力，可匯入豆包、ChatGPT、深度求索等平台使用。",
+      "skill": {
+        "name": "配裝查詢技能書",
+        "description": "登入 Glow Prow 社群後查詢公開配裝列表與配裝詳情（配裝名稱、建立人、建立時間、描述、配裝資訊、精通、輪盤、船倉），並可按分類查詢 Codex 全部物品。",
+        "features": {
+          "assembly": "配裝查詢",
+          "codex": "Codex 物品速查",
+          "login": "帳號登入鑑權"
+        },
+        "downloadTitle": "技能書下載",
+        "download": "下載完整技能書",
+        "downloadSelf": "下載自包含單檔案版",
+        "docsTitle": "使用文件",
+        "docs": "檢視使用文件",
+        "importDocs": "如何匯入",
+        "tip": "技能書可直接匯入豆包、ChatGPT、深度求索等支援「自訂指令 / 系統提示」的 AI 助手；完整技能包另含 Codex 物品目錄資料檔。",
+        "featuresTitle": "能力特性",
+        "downloadSubtitle": "含 SKILL.md 與 Codex 物品目錄資料檔，適合匯入豆包技能等場景",
+        "downloadSelfSubtitle": "單檔案 Markdown，適合直接貼到自訂指令 / 系統提示",
+        "downloadAction": "下載"
+      }
     }
   },
   "ad": {
@@ -344,6 +368,14 @@
         }
       },
       "error": "应用程序错误: {content}",
+      "avatar": {
+        "upload": {
+          "ok": "頭像上傳成功"
+        },
+        "preset": {
+          "ok": "頭像設定成功"
+        }
+      },
       "comment": {
         "ok": "发布成功",
         "bad": "发布格式错误，请检查内容是否符合要求",
@@ -886,6 +918,12 @@
           "name": "點贊提醒"
         }
       },
+      "avatar": {
+        "title": "頭像設定",
+        "upload": "上傳自訂頭像",
+        "preset": "預設頭像",
+        "tips": "支援 PNG / JPG / WebP，檔案大小不超過 1MB"
+      },
       "subtitle": "管理您的個人基礎資料、賬戶安全憑據及系統偏好"
     },
     "messages": {
@@ -924,14 +962,52 @@
     },
     "profile-picture": {
       "title": "頭像",
-      "description": "頭像使用的是gravatar提供用戶信息，需要修改頭像信息前往gravatar.com上傳",
-      "associatedEmailNotification": "頭像關聯的是{email}郵箱，請使用它來註冊gravatar",
-      "serviceTitle": "Gravatar 全球頭像服務",
-      "serviceSubtitle": "基於註冊郵箱全球同步",
-      "serviceDesc": "Glow Prow 採用全球通用的 Gravatar 頭像協議。在 Gravatar 平台上傳或修改您的頭像後，本平台及所有相關服務將自動完成同步顯示。",
-      "goToGravatar": "前往 Gravatar 設置頭像",
+      "description": "你可以上傳自訂頭像，也可以選擇預設頭像；未設定時將使用 Gravatar 頭像。",
+      "currentTitle": "目前頭像",
+      "tips": "支援 PNG / JPG / WebP，檔案大小不超過 512KB",
+      "upload": "上傳自訂頭像",
+      "uploadTitle": "頭像設定",
+      "presetTitle": "預設頭像",
+      "presetDesc": "點擊選取，再點擊確定套用：",
+      "applying": "正在套用預設頭像...",
+      "crop": {
+        "title": "裁剪頭像",
+        "confirm": "裁剪並上傳",
+        "invalidType": "請選擇圖片檔案",
+        "tooLarge": "圖片壓縮後仍超過 512KB，請選擇更簡單的圖片",
+        "cooldown": "頭像每 3 個月只能更換一次，請稍後再試",
+        "zoomTip": "滾輪或雙指縮放調整"
+      },
+      "associatedEmailNotification": "頭像關聯的是{email}郵箱，也可使用它來設定 Gravatar",
+      "goToGravatar": "前往 Gravatar",
       "previewDesc": "以下為您在網頁端、排行榜、討論區及組隊大廳中的各種規格展示效果：",
-      "previewTitle": "多規格頭像預覽"
+      "previewTitle": "多規格頭像預覽",
+      "changeBtn": "更換頭像",
+      "quota": {
+        "title": "上傳額度",
+        "badge": "{remaining} / {total} 次",
+        "ruleTip": "自訂頭像每 3 個月可更換 1 次",
+        "cooldownTip": "額度已用完，下次可更換時間：{date}",
+        "empty": "無可用額度"
+      },
+      "presetSelected": "已選擇預設頭像，點擊確定即可套用",
+      "dialog": {
+        "title": "更換頭像",
+        "subtitle": "選擇一種方式設定你的頭像",
+        "option": {
+          "upload": {
+            "title": "上傳自訂頭像",
+            "desc": "從本機選擇圖片，裁剪後上傳（每 3 個月可更換一次）"
+          },
+          "preset": {
+            "title": "使用預設頭像",
+            "desc": "從內置頭像庫中選擇，隨時可切換"
+          },
+          "gravatar": {
+            "desc": "透過郵箱關聯 Gravatar 頭像，作為未設定時的兜底顯示"
+          }
+        }
+      }
     },
     "bindings": {
       "title": "平臺綁定",
@@ -3098,6 +3174,7 @@
     "conditions": "查詢條件",
     "quickFilters": "快速篩選",
     "recentSearches": "最近搜索",
+    "indexing": "正在建立索引，請船長耐心等待",
     "strictMatch": "精確匹配",
     "fuzzyMatch": "模糊匹配",
     "useTip": "高級使用提示",

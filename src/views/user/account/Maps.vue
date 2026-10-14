@@ -137,7 +137,7 @@ onMounted(() => {
  */
 const onApiError = (e: unknown) => {
   if (e instanceof ApiError) {
-    notice.error(t(`basic.tips.${e.code}`, {context: e.code}))
+    notice.error(t(`basic.tips.${e.code}`, {content: e.message || e.code, context: e.message || e.code}))
   }
   console.error(e)
 }

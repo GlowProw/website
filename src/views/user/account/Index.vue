@@ -161,13 +161,22 @@ defineOptions({
                 align-tabs="start"
                 density="comfortable"
                 class="primary-tabs">
-              <v-tab value="MeAccount" class="font-weight-bold text-subtitle-1 px-8" :to="{ name: accountTabs[0].value }">
+              <v-tab value="MeAccount"
+                     class="font-weight-bold text-subtitle-1 px-8"
+                     :class="{'v-tab--route-active': primaryNavMenu === 'MeAccount'}"
+                     :to="{ name: accountTabs[0].value }">
                 {{ t('account.title') }}
               </v-tab>
-              <v-tab value="MeDataCenter" class="font-weight-bold text-subtitle-1 px-8" :to="{ name: dataCenterTabs[0].value }">
+              <v-tab value="MeDataCenter"
+                     class="font-weight-bold text-subtitle-1 px-8"
+                     :class="{'v-tab--route-active': primaryNavMenu === 'MeDataCenter'}"
+                     :to="{ name: dataCenterTabs[0].value }">
                 {{ t('account.dataCenter.title') }}
               </v-tab>
-              <v-tab value="MeMessageCenter" class="font-weight-bold text-subtitle-1 px-8" :to="{ name: messageCenterTabs[0].value }">
+              <v-tab value="MeMessageCenter"
+                     class="font-weight-bold text-subtitle-1 px-8"
+                     :class="{'v-tab--route-active': primaryNavMenu === 'MeMessageCenter'}"
+                     :to="{ name: messageCenterTabs[0].value }">
                 {{ t('account.messages.messageCenterTitle') }}
               </v-tab>
               <!-- MeSpace 是独立页面，直接跳路由 -->
@@ -179,7 +188,7 @@ defineOptions({
           <v-col cols="3" class="d-flex align-center justify-end" v-if="authStore.isLogin">
             <div class="d-flex align-center">
               <h2 class="singe-line text-h4 font-weight-bold d-flex align-center">
-                Hi, <u class="u">{{ authStore.currentUser || 'Captain' }}</u>
+                <u class="u">{{ authStore.currentUser || 'Captain' }}</u>
               </h2>
             </div>
           </v-col>
@@ -195,12 +204,14 @@ defineOptions({
         <div :class="{'d-flex flex-row': !mobile}">
           <div :class="{'mb-10 tabs-box-mobile': mobile, 'tabs-box-desktop': !mobile}">
             <AffixContainerView>
+              <!-- 二级菜单 -->
               <v-tabs
                   stacked
                   border
                   hide-slider
+                  :show-arrows="false"
                   :model-value="tab"
-                  class="w-100 h-100"
+                  class="w-100 h-100 secondary-tabs"
                   density="default"
                   :fixed="mobile"
                   :direction="!mobile ? 'vertical' : 'horizontal'">
@@ -276,6 +287,20 @@ defineOptions({
 
 .primary-tabs {
   border-bottom: none;
+}
+
+// Vuetify 的 show-arrows=false 在桌面端 overflow 时仍会渲染箭头，直接强制隐藏
+.primary-tabs :deep(.v-slide-group__prev),
+.primary-tabs :deep(.v-slide-group__next),
+.secondary-tabs :deep(.v-slide-group__prev),
+.secondary-tabs :deep(.v-slide-group__next) {
+  display: none !important;
+}
+
+// 一级 Tab 激活态以路由为准，避免 v-tabs 内部 selected 与路由激活错位导致文字变白
+// 直接写死琥珀色，不依赖 --v-theme-amber（该变量仅在 v-theme 节点上定义）
+.primary-tabs :deep(.v-tab--route-active) {
+  color: #ffc107 !important;
 }
 
 .tabs-box-mobile {

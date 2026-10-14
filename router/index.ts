@@ -77,6 +77,7 @@ const AppsPage = () => import('@/views/apps/Index.vue');
 const AppsViewPage = () => import('@/views/apps/View.vue');
 const QQBotPage = () => import('@/views/apps/QQBot.vue');
 const ApiDocsPage = () => import('@/views/apps/ApiDocs.vue');
+const AISkillsPage = () => import('@/views/apps/AISkills.vue');
 const TeamPage = () => import('@/views/Team.vue');
 const SearchPage = () => import('@/views/Search.vue');
 const SmugglersReportPage = () => import('@/views/smugglers/Index.vue');
@@ -1001,6 +1002,12 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
                 alias: ['apiDocs'],
                 name: 'ApiDocs',
                 component: ApiDocsPage
+            },
+            {
+                path: 'ai-skills',
+                alias: ['aiSkills', 'ai-skill', 'skills'],
+                name: 'AISkills',
+                component: AISkillsPage
             }
         ]
     },

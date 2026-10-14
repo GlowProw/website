@@ -580,8 +580,12 @@ defineOptions({
             :model-value="progress * 100"
             color="var(--main-color)"
             height="2"
-            class="mt-n3 mb-3"
+            class="mt-n3 mb-2"
         ></v-progress-linear>
+        <div v-if="isLoading" class="d-flex align-center justify-center ga-2 mb-3 text-caption text-medium-emphasis">
+          <v-icon icon="mdi-database-search-outline" size="16" color="var(--main-color)"/>
+          <span>{{ t('search.indexing') }}</span>
+        </div>
       </v-col>
       <!-- 搜索输入框 E -->
 

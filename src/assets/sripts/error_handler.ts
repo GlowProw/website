@@ -1,5 +1,5 @@
-import { ApiError } from "@/assets/types/Api";
-import { logError, ERROR_CODES } from "@/assets/sripts/error_logger";
+import {ApiError} from "@/assets/types/Api";
+import {ERROR_CODES, logError} from "@/assets/sripts/error_logger";
 
 /**
  * 统一 API 错误处理工具函数
@@ -30,7 +30,7 @@ export function handleApiError(
          */
         fallbackKey?: string;
         /**
-         * 额外 context 信息（会合并进日志 context）
+         * 额外 content 信息（会合并进日志 content）
          */
         component?: string;
     } = {}
@@ -45,30 +45,30 @@ export function handleApiError(
         // API 业务错误 - 用 HTTP 4xx 类别记录
         const apiErr = e as ApiError;
         if (apiErr.code === 'request.rateLimited' || apiErr.code === 'rate.limit') {
-            notice.error(t('basic.tips.request.rateLimited'), { stack: apiErr, errorCode: ERROR_CODES.GP_HTTP_4XX });
+            notice.error(t('basic.tips.request.rateLimited'), {stack: apiErr, errorCode: ERROR_CODES.GP_HTTP_4XX});
             logError(
                 ERROR_CODES.GP_HTTP_4XX,
                 `[RateLimit] ${apiErr.message} (code=${apiErr.code})`,
                 apiErr.stack,
                 component,
-                { code: apiErr.code, error: apiErr.error, response: apiErr.response }
+                {code: apiErr.code, error: apiErr.error, response: apiErr.response}
             );
             return;
         }
         const contextStr = typeof apiErr.message === 'string' && apiErr.message && !apiErr.message.includes('[object Object]')
             ? apiErr.message
             : apiErr.code;
-        notice.error(t(`${tPrefix}.${apiErr.code}`, { context: contextStr }), { stack: apiErr, errorCode: ERROR_CODES.GP_HTTP_4XX });
+        notice.error(t(`${tPrefix}.${apiErr.code}`, {content: contextStr, context: contextStr}), {stack: apiErr, errorCode: ERROR_CODES.GP_HTTP_4XX});
         logError(
             ERROR_CODES.GP_HTTP_4XX,
             `[ApiError] ${apiErr.message} (code=${apiErr.code})`,
             apiErr.stack,
             component,
-            { code: apiErr.code, error: apiErr.error, response: apiErr.response }
+            {code: apiErr.code, error: apiErr.error, response: apiErr.response}
         );
     } else if (e instanceof TypeError || e instanceof ReferenceError || e instanceof SyntaxError) {
         // JS 运行时错误
-        notice.error(t(fallbackKey), { stack: e, errorCode: ERROR_CODES.GP_JS_UNCAUGHT });
+        notice.error(t(fallbackKey, {content: getErrorMessage(e), context: getErrorMessage(e)}), {stack: e, errorCode: ERROR_CODES.GP_JS_UNCAUGHT});
         logError(
             ERROR_CODES.GP_JS_UNCAUGHT,
             (e as Error).message,
@@ -78,7 +78,7 @@ export function handleApiError(
         );
     } else if (isNetworkError(e)) {
         // 网络请求失败（fetch/axios network error）
-        notice.error(t(fallbackKey), { stack: e, errorCode: ERROR_CODES.GP_NET_001 });
+        notice.error(t(fallbackKey, {content: getErrorMessage(e), context: getErrorMessage(e)}), {stack: e, errorCode: ERROR_CODES.GP_NET_001});
         logError(
             ERROR_CODES.GP_NET_001,
             getErrorMessage(e),
@@ -88,7 +88,7 @@ export function handleApiError(
         );
     } else {
         // 未知/通用错误
-        notice.error(t(fallbackKey), { stack: e, errorCode: ERROR_CODES.GP_UNKNOWN });
+        notice.error(t(fallbackKey, {content: getErrorMessage(e), context: getErrorMessage(e)}), {stack: e, errorCode: ERROR_CODES.GP_UNKNOWN});
         logError(
             ERROR_CODES.GP_UNKNOWN,
             getErrorMessage(e),
@@ -114,7 +114,11 @@ function isNetworkError(e: unknown): boolean {
 function getErrorMessage(e: unknown): string {
     if (e instanceof Error) return e.message;
     if (typeof e === 'string') return e;
-    try { return JSON.stringify(e); } catch { return String(e); }
+    try {
+        return JSON.stringify(e);
+    } catch {
+        return String(e);
+    }
 }
 
 function getErrorStack(e: unknown): string | undefined {

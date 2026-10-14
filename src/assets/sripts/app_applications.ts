@@ -17,6 +17,11 @@ export default class AppApps {
                 id: 'apiDocs',
                 tags: ['api', 'openapi', 'scalar', 'rest-api'],
                 to: `/${lang}/apps/api-docs`
+            },
+            {
+                id: 'aiSkills',
+                tags: ['ai', 'skill', 'assistant', 'skillbook', 'skill-book'],
+                to: `/${lang}/apps/ai-skills`
             }
         ]
     }

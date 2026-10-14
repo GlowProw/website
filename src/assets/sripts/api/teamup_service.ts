@@ -50,7 +50,7 @@ export function useTeamupApi() {
                 )
             );
 
-            const result = await http.get('teamups', { params: cleanedParams });
+            const result = await http.get('team/teamups', { params: cleanedParams });
             return handleResponse(result);
         } catch (error) {
             if (error instanceof ApiError) {
@@ -65,7 +65,7 @@ export function useTeamupApi() {
      */
     const createTeamup = async (data: CreateTeamupParams) => {
         try {
-            const result = await http.post('teamup', { data });
+            const result = await http.post('team/teamup', { data });
             return handleResponse(result);
         } catch (error) {
             if (error instanceof ApiError) {
@@ -80,7 +80,7 @@ export function useTeamupApi() {
      */
     const deleteTeamup = async (id: string | number) => {
         try {
-            const result = await http.del(`teamup/${id}`);
+            const result = await http.del(`team/teamup/${id}`);
             return handleResponse(result);
         } catch (error) {
             if (error instanceof ApiError) {
@@ -95,7 +95,7 @@ export function useTeamupApi() {
      */
     const getTeamupStatistics = async (options: { isUpdateTime: boolean } = {isUpdateTime: true}) => {
         try {
-            const result = await http.get('teamup/statistics');
+            const result = await http.get('team/teamup/statistics');
             return handleResponse(result);
         } catch (error) {
             if (error instanceof ApiError) {

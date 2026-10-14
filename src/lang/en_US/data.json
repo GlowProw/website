@@ -76,6 +76,30 @@
     },
     "meta": {
       "description": "The all-in-one Skull and Bones companion: fully collected interactive map, data codex, loadout simulator, material calculator, quest guides and season updates."
+    },
+    "aiSkills": {
+      "name": "AI Skills",
+      "description": "Skill book suite for AI assistants with loadout query and Codex item lookup, importable to Doubao, ChatGPT, DeepSeek and more.",
+      "skill": {
+        "name": "Loadout Query Skill Book",
+        "description": "Log in to Glow Prow to query public loadout lists and details (name, creator, created time, description, loadout data, mastery, wheel, warehouse), and browse all Codex items by category.",
+        "features": {
+          "assembly": "Loadout Query",
+          "codex": "Codex Item Lookup",
+          "login": "Account Login Auth"
+        },
+        "downloadTitle": "Skill Book Download",
+        "download": "Download Full Skill Book",
+        "downloadSelf": "Download Self-Contained File",
+        "docsTitle": "Documentation",
+        "docs": "View Documentation",
+        "importDocs": "How to Import",
+        "tip": "Import into Doubao, ChatGPT, DeepSeek and any AI assistant that supports custom instructions / system prompts. The full package also includes a Codex catalog data file.",
+        "featuresTitle": "Capabilities",
+        "downloadSubtitle": "Includes SKILL.md and the Codex catalog data file, ideal for Doubao skill import",
+        "downloadSelfSubtitle": "Single Markdown file, ideal for pasting into custom instructions / system prompt",
+        "downloadAction": "Download"
+      }
     }
   },
   "ad": {
@@ -181,6 +205,14 @@
         }
       },
       "error": "Application Error: {content}",
+      "avatar": {
+        "upload": {
+          "ok": "Avatar uploaded successfully"
+        },
+        "preset": {
+          "ok": "Avatar set successfully"
+        }
+      },
       "admin": {
         "rootRequired": "Root administrator privilege required",
         "bad": "Invalid request parameters",
@@ -899,6 +931,12 @@
           "name": "Like Notifications"
         }
       },
+      "avatar": {
+        "title": "Avatar Settings",
+        "upload": "Upload Custom Avatar",
+        "preset": "Preset Avatars",
+        "tips": "Supports PNG / JPG / WebP, file size up to 1MB"
+      },
       "subtitle": "Manage your personal profile, credentials, and system preferences"
     },
     "messages": {
@@ -937,12 +975,50 @@
     },
     "profile-picture": {
       "title": "Avatar",
-      "description": "Avatar uses information provided by Gravatar. To change avatar information, please go to gravatar.com to upload.",
-      "associatedEmailNotification": "Avatar is associated with {email}. Please use it to register on Gravatar.",
-      "serviceTitle": "Gravatar Global Avatar Service",
-      "serviceSubtitle": "Globally synchronized based on registered email",
-      "serviceDesc": "Glow Prow adopts the globally recognized Gravatar avatar protocol. Once you upload or modify your avatar on Gravatar, it will automatically sync across this platform and related services.",
-      "goToGravatar": "Go to Gravatar to Set Avatar",
+      "description": "You can upload a custom avatar or choose a preset avatar. Gravatar is used when none is set.",
+      "currentTitle": "Current Avatar",
+      "tips": "Supports PNG / JPG / WebP, file size up to 512 KB",
+      "upload": "Upload Custom Avatar",
+      "uploadTitle": "Avatar Settings",
+      "changeBtn": "Change Avatar",
+      "quota": {
+        "title": "Upload Quota",
+        "badge": "{remaining} / {total}",
+        "ruleTip": "Custom avatars can be changed once every 3 months",
+        "cooldownTip": "Quota exhausted. Available on: {date}",
+        "empty": "No quota available"
+      },
+      "presetTitle": "Preset Avatars",
+      "presetDesc": "Click to select, then confirm to apply:",
+      "presetSelected": "Preset avatar selected. Click Confirm to apply.",
+      "applying": "Applying preset avatar...",
+      "dialog": {
+        "title": "Change Avatar",
+        "subtitle": "Choose a way to set your avatar",
+        "option": {
+          "upload": {
+            "title": "Upload Custom Avatar",
+            "desc": "Pick an image from your device, crop and upload (once every 3 months)"
+          },
+          "preset": {
+            "title": "Use Preset Avatar",
+            "desc": "Choose from the built-in avatar library, switch anytime"
+          },
+          "gravatar": {
+            "desc": "Link a Gravatar via your email — used as fallback when no avatar is set"
+          }
+        }
+      },
+      "crop": {
+        "title": "Crop Avatar",
+        "confirm": "Crop & Upload",
+        "invalidType": "Please select an image file",
+        "tooLarge": "The image is still over 512 KB after compression. Please choose a simpler image.",
+        "cooldown": "Avatar can only be changed once every 3 months. Please try again later.",
+        "zoomTip": "Scroll or pinch to zoom"
+      },
+      "associatedEmailNotification": "The avatar is associated with {email}. You can also use it to set Gravatar.",
+      "goToGravatar": "Go to Gravatar",
       "previewDesc": "Here are preview sizes across web pages, leaderboards, discussions, and recruitment:",
       "previewTitle": "Multi-size Avatar Preview"
     },
@@ -3035,6 +3111,7 @@
     "conditions": "Query Conditions",
     "quickFilters": "Quick Filters",
     "recentSearches": "Recent Searches",
+    "indexing": "Building the search index, please wait a moment, Captain",
     "strictMatch": "Strict Match",
     "fuzzyMatch": "Fuzzy Match",
     "useTip": "Advanced Usage Tips",

@@ -543,4 +543,17 @@ defineOptions({
 </template>
 
 <style scoped lang="less">
+.preset-avatar {
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.06);
+  }
+
+  &--active {
+    border-color: rgb(var(--v-theme-amber));
+    box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.25);
+  }
+}
 </style>

@@ -56,7 +56,9 @@
                   <v-tab value="MeMessageCenter" class="font-weight-bold text-subtitle-1 px-8" :to="{ name: 'AccountMessages' }">
                     {{ t('account.messages.messageCenterTitle') }}
                   </v-tab>
-                  <v-tab value="MeSpace" class="font-weight-bold text-subtitle-1 px-8" :to="assemblysRoute">
+                  <v-tab value="MeSpace"
+                         class="font-weight-bold text-subtitle-1 px-8 v-tab--route-active"
+                         :to="assemblysRoute">
                     {{ t('space.title') }}
                   </v-tab>
                 </v-tabs>
@@ -87,7 +89,7 @@
                 <div class="d-flex align-center">
                   <template v-if="isSelf">
                     <h2 class="text-h4 font-weight-bold d-flex align-center">
-                      Hi, <u class="u">{{ authStore.currentUser || 'Captain' }}</u>
+                      <u class="u">{{ authStore.currentUser || 'Captain' }}</u>
                     </h2>
                   </template>
                   <template v-else>
@@ -122,8 +124,9 @@
                       stacked
                       border
                       hide-slider
+                      :show-arrows="false"
                       :model-value="currentSubTab"
-                      class="w-100 h-100"
+                      class="w-100 h-100 secondary-tabs"
                       :fixed="mobile"
                       :direction="!mobile ? 'vertical' : 'horizontal'">
                     <template v-for="(tabItem, index) in spaceSubTabs" :key="index">
@@ -298,6 +301,18 @@ defineOptions({
 <style scoped lang="less">
 .space-page-root {
   min-height: calc(100vh - 64px);
+}
+
+// 与账户页一致：强制隐藏 slide-group 箭头，一级 Tab 激活色不依赖内部 selected
+.primary-tabs :deep(.v-slide-group__prev),
+.primary-tabs :deep(.v-slide-group__next),
+.secondary-tabs :deep(.v-slide-group__prev),
+.secondary-tabs :deep(.v-slide-group__next) {
+  display: none !important;
+}
+
+.primary-tabs :deep(.v-tab--route-active) {
+  color: #ffc107 !important;
 }
 
 .tabs-box-desktop {

@@ -1948,7 +1948,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             }
         } catch (e) {
             if (e instanceof ApiError) {
-                notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
+                notice.error(t(`basic.tips.${e.code}`, { content: e.message || e.code, context: e.message || e.code }));
             }
             console.error(e);
         }
@@ -1973,7 +1973,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         } catch (e) {
             if (seq !== pointsLoadSeq) return;
             if (e instanceof ApiError) {
-                notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
+                notice.error(t(`basic.tips.${e.code}`, { content: e.message || e.code, context: e.message || e.code }));
             }
             console.error(e);
         }
@@ -2043,7 +2043,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         } catch (e) {
             if (seq !== shapesLoadSeq) return;
             if (e instanceof ApiError) {
-                notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
+                notice.error(t(`basic.tips.${e.code}`, { content: e.message || e.code, context: e.message || e.code }));
             }
             console.error(e);
         }
@@ -2244,7 +2244,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             await loadCollectionShapes(selectedCollectionUuid.value || null, shapeEditMode.value);
         } catch (e) {
             if (e instanceof ApiError) {
-                notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
+                notice.error(t(`basic.tips.${e.code}`, { content: e.message || e.code, context: e.message || e.code }));
             }
             console.error('保存图形失败:', e);
         } finally {
@@ -2342,7 +2342,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             selectedShapeUuid.value = uuid;
         } catch (e) {
             if (e instanceof ApiError) {
-                notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
+                notice.error(t(`basic.tips.${e.code}`, { content: e.message || e.code, context: e.message || e.code }));
             }
             console.error(e);
         }
@@ -2372,7 +2372,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             notice.success(t('basic.tips.map.deleteSuccess'), { mode: 'minimal' });
         } catch (e) {
             if (e instanceof ApiError) {
-                notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
+                notice.error(t(`basic.tips.${e.code}`, { content: e.message || e.code, context: e.message || e.code }));
             }
             console.error(e);
         }
@@ -2522,7 +2522,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             notice.success(t('basic.tips.map.updateSuccess'), { mode: 'minimal' });
         } catch (e) {
             if (e instanceof ApiError) {
-                notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
+                notice.error(t(`basic.tips.${e.code}`, { content: e.message || e.code, context: e.message || e.code }));
             }
             console.error('更新标记失败:', e);
         } finally {
@@ -2571,7 +2571,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             await action();
         } catch (e) {
             if (e instanceof ApiError) {
-                notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
+                notice.error(t(`basic.tips.${e.code}`, { content: e.message || e.code, context: e.message || e.code }));
             } else {
                 console.error(e);
             }
@@ -2862,7 +2862,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             const rejected = results.find(r => r.status === 'rejected') as PromiseRejectedResult | undefined;
             const e = rejected?.reason;
             if (e instanceof ApiError) {
-                notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
+                notice.error(t(`basic.tips.${e.code}`, { content: e.message || e.code, context: e.message || e.code }));
             } else {
                 notice.error(t('map.marquee.saveFailed') || '部分对象位置保存失败');
             }
@@ -3044,7 +3044,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             showCoordinateInfo.value = false;
         } catch (e) {
             if (e instanceof ApiError) {
-                notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
+                notice.error(t(`basic.tips.${e.code}`, { content: e.message || e.code, context: e.message || e.code }));
             }
             console.error(e);
         }
@@ -3062,7 +3062,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             return ensureShapeLoaded(shape) ? shape : null;
         } catch (e) {
             if (e instanceof ApiError) {
-                notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
+                notice.error(t(`basic.tips.${e.code}`, { content: e.message || e.code, context: e.message || e.code }));
             }
             console.error(e);
             return null;
@@ -3095,7 +3095,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             showShareCollectionDialog.value = true;
         } catch (e) {
             if (e instanceof ApiError) {
-                notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
+                notice.error(t(`basic.tips.${e.code}`, { content: e.message || e.code, context: e.message || e.code }));
             }
             console.error(e);
         }
@@ -3140,7 +3140,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             }
         } catch (e) {
             if (e instanceof ApiError) {
-                notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
+                notice.error(t(`basic.tips.${e.code}`, { content: e.message || e.code, context: e.message || e.code }));
             }
             console.error(e);
         }
@@ -3174,7 +3174,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             notice.success(t('basic.tips.map.importSuccess'), { mode: 'minimal' });
         } catch (e) {
             if (e instanceof ApiError) {
-                notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
+                notice.error(t(`basic.tips.${e.code}`, { content: e.message || e.code, context: e.message || e.code }));
             }
             console.error(e);
         } finally {
@@ -3325,7 +3325,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             notice.success(t('basic.tips.map.createSuccess'), { mode: 'minimal' });
         } catch (error) {
             if (error instanceof ApiError) {
-                notice.error(t(`basic.tips.${error.code}`, { context: error.code }));
+                notice.error(t(`basic.tips.${error.code}`, { content: error.message || error.code, context: error.message || error.code }));
             }
             console.error('创建标记失败:', error);
         } finally {
@@ -3397,7 +3397,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             selectedLocationNearbyPoints.value = result.data.points;
         } catch (e) {
             if (e instanceof ApiError) {
-                notice.error(t(`basic.tips.${e.code}`, { context: e.code }));
+                notice.error(t(`basic.tips.${e.code}`, { content: e.message || e.code, context: e.message || e.code }));
             }
             console.error(e);
         }

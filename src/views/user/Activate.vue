@@ -58,6 +58,7 @@ const onResendCode = async () => {
   } catch (e) {
     if (e instanceof ApiError) {
       noticeStore.error(t(`basic.tips.${e.code}`, {
+        content: e.message || e.code,
         context: e.code
       }))
     } else {

@@ -6,6 +6,48 @@ import { ChangePasswordParams, ForgotPasswordParams, ResetPasswordParams } from 
 import { ApiError } from "@/assets/types/Api";
 import { createApiBase } from "@/assets/sripts/api/api-util";
 
+export interface AvatarPreset {
+    path: string
+    url: string
+    name: string
+}
+
+export interface AvatarResult {
+    path: string
+    url: string
+}
+
+export interface AvatarQuota {
+    /**
+     * 总额度上限
+     */
+    total: number
+    /**
+     * 已使用次数
+     */
+    used: number
+    /**
+     * 剩余可用次数
+     */
+    remaining: number
+    /**
+     * 冷却周期毫秒数
+     */
+    cooldownMs: number
+    /**
+     * 上次上传时间戳
+     */
+    lastUploadAt: number | null
+    /**
+     * 下次可更换时间
+     */
+    nextAvailableAt: string | null
+    /**
+     * 当前是否还有上传额度
+     */
+    canUpload?: boolean
+}
+
 /**
  * 用户接口
  */
@@ -454,6 +496,65 @@ export function useUserApi() {
         }
     }
 
+    /**
+     * 获取预设头像列表
+     */
+    const getAvatarPresets = async (): Promise<AvatarPreset[]> => {
+        try {
+            const result = await http.get('user/avatar/presets')
+            const res = handleResponse(result)
+
+            return (res as any)?.data?.data?.presets || (res as any)?.data?.presets || []
+        } catch (error) {
+            if (error instanceof ApiError) throw error;
+            return handleError(error)
+        }
+    }
+
+    /**
+     * 选择预设头像
+     */
+    const setPresetAvatar = async (path: string): Promise<AvatarResult> => {
+        try {
+            const result = await http.post('user/avatar/preset', { data: { path } })
+            const res = handleResponse(result)
+            return (res as any)?.data?.data || (res as any)?.data || res
+        } catch (error) {
+            if (error instanceof ApiError) throw error;
+            return handleError(error)
+        }
+    }
+
+    /**
+     * 上传自定义头像
+     */
+    const uploadAvatar = async (file: File): Promise<AvatarResult> => {
+        try {
+            const formData = new FormData()
+            formData.append('file', file)
+            const result = await http.post('user/avatar/upload', { data: formData })
+            const res = handleResponse(result)
+            return (res as any)?.data?.data || (res as any)?.data || res
+        } catch (error) {
+            if (error instanceof ApiError) throw error;
+            return handleError(error)
+        }
+    }
+
+    /**
+     * 获取用户头像上传额度与冷却状态
+     */
+    const getAvatarQuota = async (): Promise<AvatarQuota> => {
+        try {
+            const result = await http.get('user/avatar/quota')
+            const res = handleResponse(result)
+            return (res as any)?.data?.data || (res as any)?.data || res
+        } catch (error) {
+            if (error instanceof ApiError) throw error;
+            return handleError(error)
+        }
+    }
+
     return {
         signin,
         signup,
@@ -482,5 +583,9 @@ export function useUserApi() {
         oauthCompleteBind,
         getUserBindings,
         unbindOAuth,
+        getAvatarPresets,
+        setPresetAvatar,
+        uploadAvatar,
+        getAvatarQuota,
     };
 }

@@ -125,11 +125,17 @@ const getBrowseList = async () => {
     browseData.value = d.data;
   } catch (e) {
     if (e instanceof ApiError) {
+      const errContent = e.message || e.code;
       notice.error(t(`basic.tips.${e.code}`, {
-        context: e.code
+        content: errContent,
+        context: errContent
       }), {stack: e})
     } else {
-      notice.error(t('basic.tips.error'), {stack: e as Error})
+      const errContent = e instanceof Error ? e.message : String(e);
+      notice.error(t('basic.tips.error', {
+        content: errContent,
+        context: errContent
+      }), {stack: e as Error})
     }
   } finally {
     browseLoading.value = false

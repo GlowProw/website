@@ -180,6 +180,7 @@ const onPublish = async () => {
     console.error(e)
     if (e instanceof AxiosError && e.response)
       noticeStore.error(t(`basic.tips.${e.response?.data?.code}`, {
+        content: e.response?.data?.message || e.response?.data?.code,
         context: e.response?.data?.code
       }))
   } finally {
