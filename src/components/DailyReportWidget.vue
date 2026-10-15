@@ -82,7 +82,7 @@ const seasonName = computed<string>(() => {
   if (translated && translated !== currentSeason.value.id) {
     return translated;
   }
-  return String(currentSeason.value.alternativeName || currentSeason.value.id);
+  return String((currentSeason.value as any)?.alternativeName || currentSeason.value.id);
 });
 
 // 格式化日期字符串 YYYY-MM-DD

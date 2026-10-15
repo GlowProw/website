@@ -64,7 +64,7 @@ onUnmounted(() => {
 
         <div class="portal-banner-looping-video w-100 opacity-100">
           <video autoplay playsinline
-                 muted loop type="video/mp4"
+                 muted loop
                  src="@/assets/videos/crimsonWaters.webm"></video>
         </div>
       </template>
@@ -73,7 +73,7 @@ onUnmounted(() => {
 
       <div class="portal-season-left-tip" v-if="currentlySeason && currentlySeason.id">
         <div class="opacity-60">
-          <p>{{ t('portal.seasonTimer', {seasonName: (currentlySeason as any).alternativeName.toUpperCase(), day: time.calcRemainingDays(currentlySeason.endDate)}) }}</p>
+          <p>{{ t('portal.seasonTimer', {seasonName: (readSeason(currentlySeason.id).shortName() || (currentlySeason as any).alternativeName || currentlySeason.id).toUpperCase(), day: time.calcRemainingDays(currentlySeason.endDate)}) }}</p>
           <v-divider thickness="3" vertical/>
           <p>{{ readSeason(currentlySeason?.id || '').fullName() }}</p>
         </div>
