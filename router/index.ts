@@ -142,9 +142,7 @@ const initAccountInfo = async function (to: any, from: any, next: any) {
     const authStore = useAuthStore()
 
     try {
-        const result = await apis.userApi().getMe()
-
-        authStore.updateAccountAttr(result.data)
+        await authStore.fetchAccountProfile()
     } catch (e) {
         console.error(e)
     }
@@ -214,6 +212,12 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
                         name: 'AccountBindings',
                         component: () => import('@/views/user/account/Bindings.vue'),
                         meta: { title: 'account.bindings.title', auth: true }
+                    },
+                    {
+                        path: 'sessions',
+                        name: 'AccountSessions',
+                        component: () => import('@/views/user/account/Sessions.vue'),
+                        meta: { title: 'account.sessions.title', auth: true }
                     },
                     {
                         path: 'data-center',

@@ -78,13 +78,14 @@ onMounted(() => {
 })
 
 /**
- * 获取当前用户的账户详细信息
+ * 获取当前用户的账户详细信息（通过统一状态机管理，避免重复请求）
  */
 const getUserAccount = async () => {
   try {
-    const result = await apis.userApi().getMe(),
-        d = result.data
-    userAccountData.value = d.data;
+    const profile = await authStore.fetchAccountProfile()
+    if (profile) {
+      userAccountData.value = profile;
+    }
   } catch (e) {
     handleApiError(e, notice, t, {component: 'Information'})
   }

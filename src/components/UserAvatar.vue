@@ -16,6 +16,7 @@
 
 <script>
 import Loading from "@/components/Loading.vue";
+import { normalizeAvatarUrl } from "@/assets/sripts/avatar";
 
 export default {
   components: {Loading},
@@ -51,14 +52,14 @@ export default {
   },
   watch: {
     src: {
+      immediate: true,
       handler(value) {
-        if (value)
-          this.newSrc = value;
+        this.newSrc = normalizeAvatarUrl(value);
       }
     }
   },
   created() {
-    this.newSrc = this.src;
+    this.newSrc = normalizeAvatarUrl(this.src);
   },
   methods: {
     loadImageError() {

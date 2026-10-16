@@ -727,7 +727,13 @@
       "dev": "开发组",
       "normal": "用户",
       "root": "系统",
-      "super": "超级管理员"
+      "super": "超级管理员",
+      "contributor5": "贡献者5",
+      "contributor4": "贡献者4",
+      "contributor3": "贡献者3",
+      "contributor2": "贡献者2",
+      "contributor1": "贡献者1",
+      "contributor": "贡献者"
     },
     "rules": {
       "username": {
@@ -981,10 +987,13 @@
       "upload": "上传自定义头像",
       "uploadTitle": "头像设置",
       "changeBtn": "更换头像",
+      "deleteBtn": "删除头像",
+      "deleteConfirm": "确定要删除当前头像并恢复为默认头像吗？",
+      "deleteSuccess": "头像已删除并恢复为默认头像",
       "quota": {
         "title": "上传额度",
         "badge": "{remaining} / {total} 次",
-        "ruleTip": "自定义头像每 3 个月可更换 1 次",
+        "ruleTip": "自定义头像每 3 个月可更换 1 次（贡献者身份额度 +3）",
         "cooldownTip": "额度已用完，下次可更换时间：{date}",
         "empty": "无可用额度"
       },
@@ -1065,6 +1074,9 @@
     "myComment": "我的评论",
     "myTeamup": "我的组队",
     "myMap": "地图管理",
+    "sessions": {
+      "title": "登录设备"
+    },
     "media": {
       "title": "媒体库",
       "upload": "上传图片",
@@ -3669,9 +3681,46 @@
     "customRule": "一次性打赏，¥5 起；满 ¥100 同样授予核心捐助者身份",
     "loginFirst": "请先登录再赞助",
     "checkoutFailed": "下单失败，请稍后再试",
+    "paySuccess": "支付成功，感谢您对网站的赞助支持！",
+    "payCancelled": "您已取消本次支付",
     "choosePlatform": "选择支付平台",
     "noPlatform": "支付渠道尚未配置，请稍后再来",
     "platformAfdian": "爱发电",
+    "portalDisplay": "获得门户展示",
+    "benefitRole": "获得「{role}」特权身份",
+    "benefitAvatar": "头像更换额度 +3 次（支持随时删除恢复默认）",
+    "benefitPortal": "尊享门户与首页核心捐助者展示",
+    "quotaMultipliers": {
+      "100": "额度加成 5.0 倍",
+      "50": "额度加成 3.0 倍",
+      "10": "额度加成 2.0 倍",
+      "5": "基础额度 1.0 倍"
+    },
+    "rules": {
+      "title": "赞助与订阅规则说明",
+      "downgradeTitle": "到期自动降级为贡献者",
+      "downgradeDesc": "月度订阅到期后若未续费，将自动转为永久「贡献者」基础身份。基础贡献者无额外额度加成，但永久保留为您曾为网站赞助过的荣誉印记与专属徽章。",
+      "quotaTitle": "额度加成说明",
+      "quotaDesc": "额度加成指提高全站资源使用上限，包括发布配装数量、上传媒体文件等都会显著提高上限额度，档位越高加成倍率越大。",
+      "refundTitle": "退订与退款规则",
+      "refundDesc": "除了一次性支付外，用户可以在付款平台（Stripe、爱发电等）随时退订订阅。取消后到期不再扣费，已获得的特权与额度保留至当前订阅周期结束。",
+      "onceTitle": "一次性赞助规则",
+      "onceDesc": "支持自定义金额（¥5 起）。单笔或累计达标（如 ¥60 对应贡献者3，¥600 对应贡献者5）将直接享有对应档位特权与加成，有效期 1 年。",
+      "repeatTitle": "身份赋予与升级机制",
+      "repeatDesc": "重复订阅支持阶梯升级。例如订阅 2 次「见习海盗」额度加成升至 1.0 倍；订阅「双子」满 5 次才升至 3.0 倍。订阅列表档位名称后将显示当前有效次数，单个档位最多累计计算 10 次。",
+      "contactTitle": "订阅联系与支持",
+      "contactDescPrefix": "如有问题请向递交邮件 ",
+      "contactDescSuffix": "，我们将尽快为您核对处理。"
+    },
+    "roles": {
+      "contributor5": "贡献者5",
+      "contributor4": "贡献者4",
+      "contributor3": "贡献者3",
+      "contributor2": "贡献者2",
+      "contributor1": "贡献者1",
+      "contributor": "贡献者"
+    },
+    "youAreContributor": "您当前的身份是「{name}」，全海域为你鸣炮致敬！",
     "youAreCore": "您当前的身份是「核心捐助者」，全海域为你鸣炮致敬！",
     "youAreDonor": "您当前的身份是「捐助者」，感谢你的银币！",
     "expireAt": "有效期至",

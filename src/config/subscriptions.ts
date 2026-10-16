@@ -11,7 +11,8 @@ export const subscriptionsConfig: SubscriptionsConfig = {
       monthlyCny: 100,
       yearlyCny: 1000,
       plans: {
-        core: true
+        core: true,
+        role: 'contributor5'
       }
     },
     {
@@ -19,7 +20,8 @@ export const subscriptionsConfig: SubscriptionsConfig = {
       monthlyCny: 50,
       yearlyCny: 500,
       plans: {
-        core: false
+        core: true,
+        role: 'contributor4'
       }
     },
     {
@@ -27,15 +29,17 @@ export const subscriptionsConfig: SubscriptionsConfig = {
       monthlyCny: 10,
       yearlyCny: 100,
       plans: {
-        core: false
+        core: false,
+        role: 'contributor3'
       }
     },
     {
       tier: '5',
       monthlyCny: 5,
-      yearlyCny: 5,
+      yearlyCny: 50,
       plans: {
-        core: false
+        core: false,
+        role: 'contributor1'
       }
     }
   ],

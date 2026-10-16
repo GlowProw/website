@@ -37,6 +37,11 @@ const accountTabs = [
     value: 'AccountMedia',
     icon: 'mdi-image-multiple-outline'
   },
+  {
+    name: 'account.sessions.title',
+    value: 'AccountSessions',
+    icon: 'mdi-devices'
+  },
 ]
 
 // 创作中心：概览 + 配装/评论/组队/地图/举报/回收站
@@ -288,7 +293,7 @@ defineOptions({
   border-bottom: none;
 }
 
-// Vuetify 的 show-arrows=false 在桌面端 overflow 时仍会渲染箭头，直接强制隐藏
+// overflow 时仍会渲染箭头，直接强制隐藏
 .primary-tabs :deep(.v-slide-group__prev),
 .primary-tabs :deep(.v-slide-group__next),
 .secondary-tabs :deep(.v-slide-group__prev),

@@ -91,11 +91,76 @@ export const useAuthStore = defineStore('account', () => {
         return Boolean(isBool);
     }
 
+    const accountProfile = ref<any>(null)
+    const profileLoading = ref<boolean>(false)
+    let pendingProfilePromise: Promise<any> | null = null
+
+    /**
+     * 统一获取用户个人资料
+     * 自动合并并发请求并做状态机缓存，避免路由守卫与视图组件重复发起多次网络请求
+     * @param force 是否强制跳过缓存重新请求
+     */
+    const fetchAccountProfile = async (force = false): Promise<any> => {
+        // 未登录则直接返回 null
+        if (!user.value?.token) {
+            accountProfile.value = null
+            return null
+        }
+
+        // 非强制模式下，若已有缓存直接复用
+        if (!force && accountProfile.value) {
+            return accountProfile.value
+        }
+
+        // 若已有在途请求，直接复用同一个 Promise 避免重复并发
+        if (pendingProfilePromise) {
+            return pendingProfilePromise
+        }
+
+        profileLoading.value = true
+        pendingProfilePromise = (async () => {
+            try {
+                const { apis } = await import('@/assets/sripts')
+                const result = await apis.userApi().getMe()
+                const profile = result?.data?.data || result?.data || null
+                accountProfile.value = profile
+                if (result?.data) {
+                    updateAccountAttr(result.data)
+                }
+                return profile
+            } catch (error) {
+                console.error('Failed to fetch account profile:', error)
+                throw error
+            } finally {
+                profileLoading.value = false
+                pendingProfilePromise = null
+            }
+        })()
+
+        return pendingProfilePromise
+    }
+
+    /**
+     * 手动更新个人资料状态机缓存
+     * @param data 局部更新的数据
+     */
+    const setAccountProfile = (data: any) => {
+        if (!accountProfile.value) {
+            accountProfile.value = data
+        } else {
+            accountProfile.value = { ...accountProfile.value, ...data }
+        }
+    }
+
     // 立即初始化
     initFromStorage()
 
     return {
         user,
+        accountProfile,
+        profileLoading,
+        fetchAccountProfile,
+        setAccountProfile,
         isLogin,
         isAuthenticated,
         currentUser,

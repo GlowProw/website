@@ -728,7 +728,13 @@
       "dev": "Development Team",
       "normal": "User",
       "root": "System",
-      "super": "Super Admin"
+      "super": "Super Admin",
+      "contributor5": "Contributor 5",
+      "contributor4": "Contributor 4",
+      "contributor3": "Contributor 3",
+      "contributor2": "Contributor 2",
+      "contributor1": "Contributor 1",
+      "contributor": "Contributor"
     },
     "rules": {
       "username": {
@@ -981,10 +987,13 @@
       "upload": "Upload Custom Avatar",
       "uploadTitle": "Avatar Settings",
       "changeBtn": "Change Avatar",
+      "deleteBtn": "Delete Avatar",
+      "deleteConfirm": "Are you sure you want to delete your current avatar and restore the default one?",
+      "deleteSuccess": "Avatar deleted and restored to default",
       "quota": {
         "title": "Upload Quota",
         "badge": "{remaining} / {total}",
-        "ruleTip": "Custom avatars can be changed once every 3 months",
+        "ruleTip": "Custom avatars can be changed once every 3 months (contributor bonus +3)",
         "cooldownTip": "Quota exhausted. Available on: {date}",
         "empty": "No quota available"
       },
@@ -1101,6 +1110,9 @@
     "profile": "Account Profile",
     "security": "Security Settings",
     "preference": "Preferences",
+    "sessions": {
+      "title": "Sessions & Devices"
+    },
     "media": {
       "title": "Media Library",
       "upload": "Upload Image",
@@ -3666,9 +3678,46 @@
     "customRule": "One-time gift from ¥5; gifts of ¥100 or more also receive Core Donor status",
     "loginFirst": "Please sign in before donating",
     "checkoutFailed": "Checkout failed, please try again later",
+    "paySuccess": "Payment successful! Thank you for supporting the site!",
+    "payCancelled": "Payment was cancelled",
     "choosePlatform": "Choose payment platform",
     "noPlatform": "No payment channel is configured yet, check back soon",
     "platformAfdian": "Afdian",
+    "portalDisplay": "Portal Display Included",
+    "benefitRole": "Grants \"{role}\" Privilege",
+    "benefitAvatar": "Avatar upload quota +3 (delete & reset supported)",
+    "benefitPortal": "Featured on Portal & Homepage Core Donors showcase",
+    "quotaMultipliers": {
+      "100": "Quota boost 5.0x",
+      "50": "Quota boost 3.0x",
+      "10": "Quota boost 2.0x",
+      "5": "Base quota 1.0x"
+    },
+    "rules": {
+      "title": "Subscription & Donation Rules",
+      "downgradeTitle": "Demotion to Contributor upon Expiry",
+      "downgradeDesc": "When a monthly subscription expires without renewal, your status automatically switches to a permanent \"Contributor\" badge. Base Contributor carries no quota multiplier, but permanently commemorates your support for the site.",
+      "quotaTitle": "Quota Boost Explanation",
+      "quotaDesc": "Quota boosts increase your overall site resource limits, including higher caps on publishing loadouts/builds, uploading media files (images/attachments), and more. Higher tiers grant larger multipliers.",
+      "refundTitle": "Cancellation & Refund Policy",
+      "refundDesc": "Except for one-time payments, users can cancel their subscriptions at any time directly through the payment platform (Stripe, Afdian, etc.). Once cancelled, no further recurring charges will occur, and active privileges remain valid until the end of the billing period.",
+      "onceTitle": "One-Time Donation Rules",
+      "onceDesc": "Custom amounts supported (¥5 minimum). Reaching tiered benchmarks (such as ¥60 for Contributor 3, ¥600 for Contributor 5) unlocks the corresponding tier privileges and benefits for 1 year.",
+      "repeatTitle": "Role Assignment & Upgrades",
+      "repeatDesc": "Repeat subscriptions can level up your tier. For example, subscribing to Apprentice Pirate twice adds 1.0x quota multiplier; subscribing to Gemini 5 times reaches 3.0x. The active count is displayed after tier names in the list (up to 10 times per tier).",
+      "contactTitle": "Subscription Support & Contact",
+      "contactDescPrefix": "If you have any questions or issues, please email ",
+      "contactDescSuffix": ", and we will assist you as soon as possible."
+    },
+    "roles": {
+      "contributor5": "Contributor 5",
+      "contributor4": "Contributor 4",
+      "contributor3": "Contributor 3",
+      "contributor2": "Contributor 2",
+      "contributor1": "Contributor 1",
+      "contributor": "Contributor"
+    },
+    "youAreContributor": "Ye currently hold the title of \"{name}\" — a cannon salute from every sea!",
     "youAreCore": "Ye currently hold the title of \"Core Donor\" — a cannon salute from every sea!",
     "youAreDonor": "Ye currently hold the title of \"Donor\" — thank ye for yer silver!",
     "expireAt": "Expires",

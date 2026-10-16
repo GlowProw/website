@@ -117,6 +117,10 @@ onUnmounted(() => {
       </v-container>
     </div>
 
+    <!-- 捐助者 S -->
+    <DonorsWidget></DonorsWidget>
+    <!-- 捐助者 E -->
+
     <div class="portal-body bg-black mt-10 pl-3 pr-3 pt-10 pb-10">
       <v-container>
         <v-row align="center">
@@ -158,10 +162,6 @@ onUnmounted(() => {
         </v-row>
       </v-container>
     </div>
-
-    <!-- 捐助者 S -->
-    <DonorsWidget v-if="false"></DonorsWidget>
-    <!-- 捐助者 E -->
 
     <div class="portal-body bg-black pt-5 pb-5">
       <v-container>

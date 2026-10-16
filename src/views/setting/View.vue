@@ -8,6 +8,7 @@ import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 
 import Silk from "@/components/Silk.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
+import VerticalScrollList from "@/components/VerticalScrollList.vue";
 
 const route = useRoute(),
     router = useRouter(),
@@ -26,11 +27,11 @@ let tabs: Ref<any[]> = ref([
         value: 'PortalSettingAdvanced',
         icon: 'mdi-application-cog-outline'
       },
-      // {
-      //  name: 'subscription.title',
-      //  value: 'PortalSettingSubscriptions',
-      //  icon: 'mdi-treasure-chest'
-      // },
+      {
+       name: 'subscription.title',
+       value: 'PortalSettingSubscriptions',
+       icon: 'mdi-treasure-chest'
+      },
       {
         name: 'setting.ad.title',
         value: 'PortalSettingAds',
@@ -119,7 +120,10 @@ const onTabChange = (targetRouteName: any) => {
                 stacked
                 border
                 hide-slider
-                v-model="tab"
+                :show-arrows="false"
+                :model-value="tab"
+                class="w-100 h-100 secondary-tabs"
+                density="default"
                 @update:model-value="onTabChange"
                 :class="{'mb-10 tabs-box-mobile': mobile, 'tabs-box-desktop': !mobile}"
                 :fixed="mobile"
@@ -188,5 +192,13 @@ const onTabChange = (targetRouteName: any) => {
   min-width: 0;
   width: 100%;
   min-height: 80vh;
+}
+
+// overflow 时仍会渲染箭头，直接强制隐藏
+.primary-tabs :deep(.v-slide-group__prev),
+.primary-tabs :deep(.v-slide-group__next),
+.secondary-tabs :deep(.v-slide-group__prev),
+.secondary-tabs :deep(.v-slide-group__next) {
+  display: none !important;
 }
 </style>

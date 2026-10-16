@@ -7,6 +7,7 @@ import { ApiError } from "@/assets/types/Api";
 import { createApiBase } from "@/assets/sripts/api/api-util";
 
 export interface AvatarPreset {
+    id?: string
     path: string
     url: string
     name: string
@@ -555,6 +556,22 @@ export function useUserApi() {
         }
     }
 
+    /**
+     * 删除自定义头像（恢复为默认头像或 Gravatar）
+     *
+     * @returns {Promise<AvatarResult>} 删除操作结果
+     */
+    const deleteAvatar = async (): Promise<AvatarResult> => {
+        try {
+            const result = await http.delete('user/avatar')
+            const res = handleResponse(result)
+            return (res as any)?.data?.data || (res as any)?.data || res
+        } catch (error) {
+            if (error instanceof ApiError) throw error;
+            return handleError(error)
+        }
+    }
+
     return {
         signin,
         signup,
@@ -587,5 +604,33 @@ export function useUserApi() {
         setPresetAvatar,
         uploadAvatar,
         getAvatarQuota,
+        deleteAvatar,
+        getUserSessions: async () => {
+            try {
+                const result = await http.get('user/sessions')
+                return handleResponse(result)
+            } catch (error) {
+                if (error instanceof ApiError) throw error;
+                return handleError(error)
+            }
+        },
+        revokeOtherSessions: async () => {
+            try {
+                const result = await http.post('user/sessions/revoke-others', {})
+                return handleResponse(result)
+            } catch (error) {
+                if (error instanceof ApiError) throw error;
+                return handleError(error)
+            }
+        },
+        revokeUserSession: async (sessionId: string) => {
+            try {
+                const result = await http.delete(`user/sessions/${sessionId}`)
+                return handleResponse(result)
+            } catch (error) {
+                if (error instanceof ApiError) throw error;
+                return handleError(error)
+            }
+        },
     };
 }

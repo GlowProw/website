@@ -17,6 +17,36 @@
       "weight": 85
     },
     {
+      "value": "contributor5",
+      "class": "warning",
+      "weight": 95
+    },
+    {
+      "value": "contributor4",
+      "class": "warning",
+      "weight": 90
+    },
+    {
+      "value": "contributor3",
+      "class": "primary",
+      "weight": 70
+    },
+    {
+      "value": "contributor2",
+      "class": "primary",
+      "weight": 60
+    },
+    {
+      "value": "contributor1",
+      "class": "primary",
+      "weight": 50
+    },
+    {
+      "value": "contributor",
+      "class": "teal",
+      "weight": 30
+    },
+    {
       "value": "volunteer",
       "class": "#8BC34A",
       "weight": 5

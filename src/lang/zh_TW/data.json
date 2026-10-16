@@ -709,13 +709,19 @@
       }
     },
     "privilege": {
-      "admin": "社区管理",
-      "blacklisted": "黑名单",
-      "bot": "机器人",
-      "dev": "开发组",
-      "normal": "用户",
-      "root": "系统",
-      "super": "超级管理员"
+      "admin": "社區管理",
+      "blacklisted": "黑名單",
+      "bot": "機器人",
+      "dev": "開發組",
+      "normal": "用戶",
+      "root": "系統",
+      "super": "超級管理員",
+      "contributor5": "貢獻者5",
+      "contributor4": "貢獻者4",
+      "contributor3": "貢獻者3",
+      "contributor2": "貢獻者2",
+      "contributor1": "貢獻者1",
+      "contributor": "貢獻者"
     },
     "rules": {
       "username": {
@@ -983,10 +989,13 @@
       "previewDesc": "以下為您在網頁端、排行榜、討論區及組隊大廳中的各種規格展示效果：",
       "previewTitle": "多規格頭像預覽",
       "changeBtn": "更換頭像",
+      "deleteBtn": "刪除頭像",
+      "deleteConfirm": "確定要刪除當前頭像並恢復為預設頭像嗎？",
+      "deleteSuccess": "頭像已刪除並恢復為預設頭像",
       "quota": {
         "title": "上傳額度",
         "badge": "{remaining} / {total} 次",
-        "ruleTip": "自訂頭像每 3 個月可更換 1 次",
+        "ruleTip": "自訂頭像每 3 個月可更換 1 次（貢獻者身分額度 +3）",
         "cooldownTip": "額度已用完，下次可更換時間：{date}",
         "empty": "無可用額度"
       },
@@ -3733,9 +3742,45 @@
     "customRule": "一次性打賞，¥5 起；滿 ¥100 同樣授予核心捐助者身份",
     "loginFirst": "請先登入再贊助",
     "checkoutFailed": "下單失敗，請稍後再試",
+    "paySuccess": "支付成功，感謝您對網站的贊助支持！",
+    "payCancelled": "您已取消本次支付",
     "choosePlatform": "選擇支付平台",
     "noPlatform": "支付渠道尚未設定，請稍後再來",
-    "platformAfdian": "愛發電",
+    "portalDisplay": "獲得門戶展示",
+    "benefitRole": "獲得「{role}」特權身分",
+    "benefitAvatar": "頭像更換額度 +3 次（支援隨時刪除恢復預設）",
+    "benefitPortal": "尊享門戶與首頁核心捐助者展示",
+    "quotaMultipliers": {
+      "100": "額度加成 5.0 倍",
+      "50": "額度加成 3.0 倍",
+      "10": "額度加成 2.0 倍",
+      "5": "基礎額度 1.0 倍"
+    },
+    "rules": {
+      "title": "贊助與訂閱規則說明",
+      "downgradeTitle": "到期自動降級為貢獻者",
+      "downgradeDesc": "月度訂閱到期後若未續費，將自動轉為永久「貢獻者」基礎身分。基礎貢獻者無額外額度加成，但永久保留為您曾為網站贊助過的榮譽印記與專屬徽章。",
+      "quotaTitle": "額度加成說明",
+      "quotaDesc": "額度加成指提高全站資源使用上限，包括發布配裝數量、上傳媒體文件等都會顯著提高上限額度，檔位越高加成倍率越大。",
+      "refundTitle": "退訂與退款規則",
+      "refundDesc": "除了一次性支付外，用戶可以在付款平台（Stripe、愛發電等）隨時退訂訂閱。取消後到期不再扣費，已獲得的特權與額度保留至當前訂閱週期結束。",
+      "onceTitle": "一次性贊助規則",
+      "onceDesc": "支援自訂金額（¥5 起）。單筆或累計達標（如 ¥60 對應貢獻者3，¥600 對應貢獻者5）將直接享有對應檔位特權與加成，有效期 1 年。",
+      "repeatTitle": "身分賦予與升級機制",
+      "repeatDesc": "重複訂閱支援階梯升級。例如訂閱 2 次「見習海盜」額度加成升至 1.0 倍；訂閱「雙子」滿 5 次才升至 3.0 倍。訂閱列表檔位名稱後將顯示當前有效次數，單個檔位最多累計計算 10 次。",
+      "contactTitle": "訂閱聯絡與支援",
+      "contactDescPrefix": "如有問題請向遞交郵件 ",
+      "contactDescSuffix": "，我們將盡快為您核對處理。"
+    },
+    "roles": {
+      "contributor5": "貢獻者5",
+      "contributor4": "貢獻者4",
+      "contributor3": "貢獻者3",
+      "contributor2": "貢獻者2",
+      "contributor1": "貢獻者1",
+      "contributor": "貢獻者"
+    },
+    "youAreContributor": "您當前的身分是「{name}」，全海域為你鳴炮致敬！",
     "youAreCore": "您當前的身份是「核心捐助者」，全海域為你鳴炮致敬！",
     "youAreDonor": "您當前的身份是「捐助者」，感謝你的銀幣！",
     "expireAt": "有效期至",

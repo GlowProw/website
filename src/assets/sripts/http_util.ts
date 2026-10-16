@@ -77,7 +77,7 @@ export function useHttp(options: UseHttpOptions = {}) {
         return http.delete(url, addHeaders(data));
     };
 
-    return { request, post, get, put, del };
+    return { request, post, get, put, del, delete: del };
 }
 
 /**

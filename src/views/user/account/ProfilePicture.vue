@@ -13,6 +13,7 @@ import "cropperjs/dist/cropper.css";
 
 import UserAvatar from "@/components/UserAvatar.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
+import { normalizeAvatarUrl } from "@/assets/sripts/avatar";
 
 const authStore = useAuthStore(),
     notice = useNoticeStore(),
@@ -25,6 +26,7 @@ const avatarUrl = ref<string>(''),
     presetAvatars = ref<AvatarPreset[]>([]),
     avatarUploading = ref(false),
     avatarSetting = ref(false),
+    avatarDeleting = ref(false),
     avatarFileInput = ref<HTMLInputElement | null>(null)
 
 // 弹窗与步骤状态
@@ -73,11 +75,11 @@ const getUserAccount = async () => {
     const result = await apis.userApi().getMe(),
         d = result.data
     userAccountData.value = d.data
-    avatarUrl.value = d.data?.userAvatar || ''
+    avatarUrl.value = normalizeAvatarUrl(d.data?.userAvatar || '')
   } catch (e) {
     // 兜底：使用本地登录数据
     userAccountData.value = authStore.user || {}
-    avatarUrl.value = authStore.user?.userAvatar || ''
+    avatarUrl.value = normalizeAvatarUrl(authStore.user?.userAvatar || '')
   }
 }
 
@@ -108,7 +110,8 @@ const loadAvatarQuota = async () => {
  * 头像更新成功后的统一处理
  */
 const onAvatarChanged = (url: string) => {
-  avatarUrl.value = url
+  const normalized = normalizeAvatarUrl(url)
+  avatarUrl.value = normalized
   authStore.updateAccountAttr({userAvatar: url})
   // 上传/预设都会让后端额度缓存失效，这里同步刷新本地额度
   loadAvatarQuota()
@@ -271,6 +274,40 @@ const onConfirmPreset = async () => {
   }
 }
 
+/**
+ * 判断当前是否具备自定义头像（用于控制删除按钮状态）
+ */
+const hasCustomAvatar = computed(() => {
+  const customAttr = userAccountData.value?.attr?.avatar || (authStore.user as any)?.attr?.avatar
+  return Boolean(customAttr || (avatarUrl.value && !avatarUrl.value.includes('gravatar.com')))
+})
+
+/**
+ * 删除头像（恢复为系统默认头像或 Gravatar）
+ */
+const handleDeleteAvatar = async () => {
+  if (!window.confirm(t('account.profile-picture.deleteConfirm'))) return
+  avatarDeleting.value = true
+  try {
+    const res = await apis.userApi().deleteAvatar()
+    const nextUrl = res?.url || ''
+    avatarUrl.value = nextUrl
+    if (userAccountData.value?.attr) {
+      userAccountData.value.attr.avatar = ''
+    }
+    if ((authStore.user as any)?.attr) {
+      (authStore.user as any).attr.avatar = ''
+    }
+    authStore.updateAccountAttr({userAvatar: nextUrl})
+    notice.success(t('account.profile-picture.deleteSuccess'))
+    await Promise.all([getUserAccount(), loadAvatarQuota()])
+  } catch (e) {
+    handleApiError(e, notice, t, {component: 'ProfilePicture'})
+  } finally {
+    avatarDeleting.value = false
+  }
+}
+
 defineOptions({
   name: 'AccountProfilePicture'
 })
@@ -283,31 +320,44 @@ defineOptions({
       <v-col cols="12" lg="5">
         <AffixBoxHasTitleView>
           <v-row class="mb-2">
-            <v-col cols="auto">
-              <v-card border class="pa-1 mb-2 d-inline-flex mx-auto">
-                <UserAvatar v-if="avatarUrl" :src="avatarUrl" :size="120"/>
-                <v-avatar v-else :size="120" rounded="lg">
-                  <v-icon icon="mdi-account" size="64" class="opacity-40"/>
-                </v-avatar>
-              </v-card>
+            <v-col cols="auto" style="min-width: 160px;">
+              <div class="d-flex justify-center mb-2">
+                <v-card border class="pa-1 d-inline-flex">
+                  <UserAvatar v-if="avatarUrl" :src="avatarUrl" :size="160"/>
+                  <v-avatar v-else :size="160" rounded="lg">
+                    <v-icon icon="mdi-account" size="64" class="opacity-40"/>
+                  </v-avatar>
+                </v-card>
+              </div>
 
-              <v-tooltip :disabled="canChangeAvatar" location="bottom">
-                <template v-slot:activator="{props}">
-                  <span v-bind="props" class="d-block">
-                    <v-btn
-                        variant="tonal"
-                        block
-                        :disabled="!canChangeAvatar"
-                        @click="openDialog">
-                      {{ t('account.profile-picture.changeBtn') }}
-                    </v-btn>
-                  </span>
-                </template>
-                <span v-if="avatarQuota && nextAvailableDateText">
-                  {{ t('account.profile-picture.quota.cooldownTip', {date: nextAvailableDateText}) }}
-                </span>
-                <span v-else>{{ t('account.profile-picture.quota.empty') }}</span>
-              </v-tooltip>
+              <div class="d-flex ga-2">
+                <v-btn-group density="compact">
+                  <v-tooltip :disabled="canChangeAvatar" location="bottom">
+                    <template v-slot:activator="{props}">
+                      <v-btn
+                          v-bind="props"
+                          variant="tonal"
+                          :disabled="!canChangeAvatar"
+                          @click="openDialog">
+                        {{ t('account.profile-picture.changeBtn') }}
+                      </v-btn>
+                    </template>
+                    <span v-if="avatarQuota && nextAvailableDateText">
+                      {{ t('account.profile-picture.quota.cooldownTip', {date: nextAvailableDateText}) }}
+                    </span>
+                    <span v-else>{{ t('account.profile-picture.quota.empty') }}</span>
+                  </v-tooltip>
+                  <v-btn
+                      variant="tonal"
+                      color="error"
+                      :title="t('account.profile-picture.deleteBtn')"
+                      :disabled="!hasCustomAvatar || avatarDeleting"
+                      :loading="avatarDeleting"
+                      @click="handleDeleteAvatar">
+                    <v-icon>mdi-delete</v-icon>
+                  </v-btn>
+                </v-btn-group>
+              </div>
             </v-col>
 
             <v-col>
@@ -569,14 +619,14 @@ defineOptions({
           <v-row class="preset-grid" dense>
             <v-col
                 v-for="item in presetAvatars"
-                :key="item.path"
+                :key="item.id || item.path"
                 class="preset-item"
-                :class="{'preset-item--active': presetSelected === item.path}"
-                @click="presetSelected = item.path">
-              <v-img :src="item.path" :alt="item.name"/>
+                :class="{'preset-item--active': presetSelected === (item.id || item.path)}"
+                @click="presetSelected = (item.id || item.path)">
+              <v-img :src="normalizeAvatarUrl(item.path)" :alt="item.name"/>
               <div class="d-flex justify-center mt-2">
                 <v-icon
-                    v-if="presetSelected === item.path"
+                    v-if="presetSelected === (item.id || item.path)"
                     icon="mdi-check-circle"
                     color="amber"
                     class="preset-item__check"/>

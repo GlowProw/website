@@ -2,14 +2,18 @@
 
 import {computed, onMounted, onUnmounted, ref, watch} from 'vue'
 import {useI18n} from 'vue-i18n'
+import {useRoute} from 'vue-router'
+import {number} from '@/assets/sripts'
 import {CreateOrderParams, MyOrder, SubscriptionPlans, SubscriptionProgress, useSubscriptionApi} from '@/assets/sripts/api/subscription_service'
 import type {SubscriptionTierItem} from '@/assets/types/Subscription'
 import {subscriptionsConfig} from '@/config/subscriptions'
 import {useAuthStore} from '~/stores/userAccountStore'
 import {useNoticeStore} from '~/stores/noticeStore'
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
+import AffixContainerView from "@/components/AffixContainerView.vue";
 
 const {t, te, locale} = useI18n()
+const route = useRoute()
 const authStore = useAuthStore()
 const notice = useNoticeStore()
 const api = useSubscriptionApi()
@@ -20,7 +24,7 @@ const progress = ref<SubscriptionProgress | null>(null)
 const hall = ref<any[]>([])
 const myStatus = ref<Record<string, any>>({})
 
-const period = ref<'monthly' | 'yearly'>('monthly')
+const period = ref<'monthly'>('monthly')
 const customAmount = ref<number | string>('')
 
 // 支付平台选择弹窗状态
@@ -33,9 +37,10 @@ const isZh = computed(() => String(locale.value).startsWith('zh'))
 // 待支付订单状态（倒计时 / 取消 / 继续支付）
 const pendingOrders = ref<MyOrder[]>([])
 const nowTick = ref(Date.now())
-let tickTimer: ReturnType<typeof setInterval> | null = null
 const cancellingOrderId = ref<number | null>(null)
 const continuingOrderId = ref<number | null>(null)
+
+let tickTimer: ReturnType<typeof setInterval> | null = null
 
 /**
  * 获取档位的本地化展示名称
@@ -48,6 +53,18 @@ const getTierName = (tier: string): string => {
   if (tier === 'custom') return t('subscription.tiers.custom.name')
   const key = `subscription.tiers.${tier}.name`
   return te(key) ? t(key) : `¥${tier}`
+}
+
+/**
+ * 获取当前登录用户在指定档位的有效订阅次数
+ * 单个档位统计上限为 10 次
+ *
+ * @param {string} tier - 档位标识
+ * @returns {number} 活跃订阅次数
+ */
+const getTierActiveCount = (tier: string): string => {
+  const count = Number(myStatus.value?.tierCounts?.[tier]) || 0
+  return number.intToRoman(Math.min(10, Math.max(0, count)))
 }
 
 /**
@@ -71,6 +88,19 @@ const getTierDesc = (tier: string): string => {
  */
 const isCoreTier = (tierDef: any): boolean => {
   return Boolean(tierDef?.plans?.core ?? tierDef?.core)
+}
+
+/**
+ * 获取档位对应的贡献者身份名称
+ *
+ * @param {any} tierDef 档位配置对象
+ * @returns {string} 贡献者身份名称
+ */
+const getTierRoleBadge = (tierDef: any): string => {
+  const role = tierDef?.plans?.role
+  if (role) return getContributorName(role)
+  if (isCoreTier(tierDef)) return getContributorName('contributor5')
+  return ''
 }
 
 /**
@@ -183,27 +213,49 @@ const sortedTiers = computed<SubscriptionTierItem[]>(() => {
 })
 
 /**
- * 根据当前选中的订阅周期（按月/按年）获取档位所对应的计费金额
+ * 获取档位对应的计费金额（按月计费）
  *
  * @param {any} tierDef - 档位配置对象
  * @returns {number} 档位对应的 CNY 金额
  */
-const tierPrice = (tierDef: any): number => period.value === 'yearly' ? tierDef.yearlyCny : tierDef.monthlyCny
+const tierPrice = (tierDef: any): number => tierDef.monthlyCny
+
+const CONTRIBUTOR_ORDER = [
+  'contributor5',
+  'contributor4',
+  'contributor3',
+  'contributor2',
+  'contributor1',
+  'contributor',
+] as const
 
 /**
- * 判断当前登录用户是否处于有效的「核心捐助者」身份
+ * 获取贡献者身份展示名称
+ *
+ * @param {string} role 特权标识键
+ * @returns {string} 国际化角色名称
  */
-const iAmCoreDonor = computed(() => {
-  const s = myStatus.value?.donor_core
-  return !!s && (!s.expiryTime || new Date(s.expiryTime).getTime() > Date.now())
-})
+const getContributorName = (role: string): string => {
+  if (role === 'contributor5') return t('subscription.roles.contributor5')
+  if (role === 'contributor4') return t('subscription.roles.contributor4')
+  if (role === 'contributor3') return t('subscription.roles.contributor3')
+  if (role === 'contributor2') return t('subscription.roles.contributor2')
+  if (role === 'contributor1') return t('subscription.roles.contributor1')
+  return t('subscription.roles.contributor')
+}
 
 /**
- * 判断当前登录用户是否处于有效的「普通捐助者」身份
+ * 判断当前登录用户的最高有效贡献者身份
  */
-const iAmDonor = computed(() => {
-  const s = myStatus.value?.donor
-  return !!s && (!s.expiryTime || new Date(s.expiryTime).getTime() > Date.now())
+const activeContributor = computed(() => {
+  if (!myStatus.value) return null
+  for (const role of CONTRIBUTOR_ORDER) {
+    const s = myStatus.value[role]
+    if (s && (!s.expiryTime || new Date(s.expiryTime).getTime() > Date.now())) {
+      return {role, expiryTime: s.expiryTime}
+    }
+  }
+  return null
 })
 
 /**
@@ -351,8 +403,23 @@ const onCancelStripe = async (): Promise<void> => {
 /**
  * 页面挂载：加载订阅主页数据并启动倒计时定时器
  */
-onMounted(() => {
-  load()
+onMounted(async () => {
+  await load()
+
+  if (route.query.paid === '1') {
+    notice.minimal(t('subscription.paySuccess') || '支付成功，感谢您的赞助支持！', 'success')
+    try {
+      sessionStorage.removeItem('quota.status')
+    } catch {
+    }
+    if (authStore.user?.token) {
+      api.getMyStatus().then(s => myStatus.value = s || {}).catch(() => {
+      })
+      loadMyOrders()
+    }
+  } else if (route.query.paid === '0') {
+    notice.minimal(t('subscription.payCancelled') || '您已取消本次支付', 'warning')
+  }
 
   // 每秒驱动待支付倒计时
   tickTimer = setInterval(() => {
@@ -392,21 +459,13 @@ onUnmounted(() => {
                 :model-value="progress ? Math.min(100, progress.percent) : 0"
                 color="amber"
                 height="14"
-                rounded
-                striped
                 class="mb-2">
-              <strong class="text-black">{{ progress?.percent ?? 0 }}%</strong>
+              <strong class="text-black text-caption"><u class="u">{{ progress?.percent ?? 0 }}</u> %</strong>
             </v-progress-linear>
 
             <v-row class="d-flex ga-4 text-caption text-medium-emphasis">
               <v-col cols="auto">
-                <span>{{ t('subscription.orderCount') }}：{{ progress?.orderCount ?? 0 }}</span>
-                <div v-if="hall.length">
-                  <v-avatar v-for="d in hall.slice(0, 12)" :key="d.id" :size="22" class="ml-1"
-                            v-tooltip="d.username">
-                    <v-img :src="d.avatar || ''"></v-img>
-                  </v-avatar>
-                </div>
+                {{ t('subscription.orderCount') }}：<span class="u">{{ progress?.orderCount ?? 0 }}</span>
               </v-col>
               <v-spacer></v-spacer>
               <v-col cols="auto" v-if="progress">
@@ -414,142 +473,178 @@ onUnmounted(() => {
               </v-col>
             </v-row>
           </div>
+
+          <!-- 订阅身份 S -->
+          <div v-if="activeContributor"
+               class="my-4 text-warning">
+            {{ t('subscription.youAreContributor', {name: getContributorName(activeContributor.role)}) }}
+            <span v-if="activeContributor.expiryTime">
+              （{{ t('subscription.expireAt') }} {{ formatExpiry(activeContributor.expiryTime) }}）
+            </span>
+          </div>
+          <!-- 订阅身份 E -->
+
           <template v-slot:title>
             <div class="d-flex align-center ga-2">
               {{ t('subscription.monthlyGoal') }}
             </div>
           </template>
         </AffixBoxHasTitleView>
-      </v-col>
-      <v-col cols="12" lg="8">
-        <AffixBoxHasTitleView>
-          <!-- 我的身份 -->
-          <v-alert v-if="iAmCoreDonor || iAmDonor"
-                   :type="iAmCoreDonor ? 'warning' : 'info'"
-                   variant="tonal"
-                   class="mb-4"
-                   density="compact">
-            {{ iAmCoreDonor ? t('subscription.youAreCore') : t('subscription.youAreDonor') }}
-            <span v-if="myStatus[iAmCoreDonor ? 'donor_core' : 'donor']?.expiryTime">
-            （{{ t('subscription.expireAt') }} {{ formatExpiry(myStatus[iAmCoreDonor ? 'donor_core' : 'donor'].expiryTime) }}）
-            </span>
-          </v-alert>
 
-          <!-- 取消订阅管理 -->
-          <v-card v-if="iAmCoreDonor || iAmDonor " variant="tonal" class="mb-4 pa-3">
-            <div class="d-flex ga-3 align-center flex-wrap">
-              <v-icon icon="mdi-cog-outline"></v-icon>
-              <div class="flex-grow-1">
-                <div class="text-subtitle-2">{{ t('subscription.manageTitle') }}</div>
+        <div class="my-5"></div>
+
+        <AffixContainerView>
+          <AffixBoxHasTitleView :disabled-title="true" v-if="activeContributor">
+            <template v-slot:title>
+              {{ t('subscription.manageTitle') }}
+            </template>
+
+            <!-- 取消订阅管理 -->
+            <div>
+              <div class="d-flex ga-3 align-center flex-wrap">
                 <div class="text-caption text-medium-emphasis">{{ t('subscription.cancelTip') }}</div>
-              </div>
-              <v-btn variant="outlined"
-                     size="small"
-                     :loading="cancelling"
-                     prepend-icon="mdi-credit-card-off-outline"
-                     @click="onCancelStripe">
-                {{ t('subscription.cancelStripe') }}
-              </v-btn>
-              <v-btn variant="outlined"
-                     size="small"
-                     prepend-icon="mdi-lightning-bolt"
-                     href="https://afdian.com"
-                     target="_blank">
-                {{ t('subscription.cancelAfdian') }}
-              </v-btn>
-            </div>
-          </v-card>
 
-          <!-- 待支付订单：倒计时 + 取消 / 继续支付 -->
-          <v-card v-if="pendingOrders.length" variant="tonal" color="warning" class="mb-4 pa-3">
-            <div class="text-subtitle-2 mb-2 d-flex align-center ga-2">
-              <v-icon icon="mdi-clock-alert-outline"></v-icon>
-              {{ t('subscription.pendingOrders') }}
+                <v-btn variant="outlined"
+                       size="small"
+                       :loading="cancelling"
+                       prepend-icon="mdi-credit-card-off-outline"
+                       @click="onCancelStripe">
+                  {{ t('subscription.cancelStripe') }}
+                </v-btn>
+                <v-btn variant="outlined"
+                       size="small"
+                       prepend-icon="mdi-lightning-bolt"
+                       href="https://afdian.com"
+                       target="_blank">
+                  {{ t('subscription.cancelAfdian') }}
+                </v-btn>
+              </div>
             </div>
-            <v-alert
-                v-for="o in pendingOrders"
-                :key="o.id"
-                type="warning"
-                variant="flat"
-                density="comfortable"
-                class="mb-2 py-2">
-              <div class="d-flex align-center flex-wrap ga-3">
-                <div class="flex-grow-1">
-                  <div class="text-body-2 font-weight-medium">
-                    {{ getTierName(o.tier) }}
-                    <span class="text-medium-emphasis">
+          </AffixBoxHasTitleView>
+
+          <AffixBoxHasTitleView :disabled-title="true" v-if="pendingOrders.length">
+            <template v-slot:title>
+              <v-icon icon="mdi-clock-alert-outline" class="mb-2"></v-icon>
+              {{ t('subscription.pendingOrders') }}
+            </template>
+
+            <!-- 待支付订单：倒计时 + 取消 / 继续支付 -->
+            <v-list variant="tonal" color="warning" class="mb-4">
+              <v-list-item
+                  v-for="o in pendingOrders"
+                  :key="o.id"
+                  type="warning"
+                  variant="flat"
+                  density="comfortable"
+                  class="mb-2 py-2">
+                <div class="d-flex align-center flex-wrap ga-3">
+                  <div class="flex-grow-1">
+                    <div class="text-body-2 font-weight-medium">
+                      {{ getTierName(o.tier) }}
+                      <span class="text-medium-emphasis">
                       · {{ o.platform === 'stripe' ? 'Stripe' : t('subscription.platformAfdian') }}
                       · ¥{{ o.amountCny ?? o.amount }}
                     </span>
+                    </div>
+                    <div class="text-caption text-medium-emphasis mt-1">
+                      {{ t('subscription.payExpireIn', {time: formatCountdown(remainingMs(o))}) }}
+                    </div>
                   </div>
-                  <div class="text-caption text-medium-emphasis mt-1">
-                    {{ t('subscription.payExpireIn', {time: formatCountdown(remainingMs(o))}) }}
-                  </div>
+                  <v-btn
+                      size="small"
+                      variant="outlined"
+                      :loading="cancellingOrderId === o.id"
+                      prepend-icon="mdi-close-circle-outline"
+                      @click="onCancelOrder(o)">
+                    {{ t('subscription.cancelPay') }}
+                  </v-btn>
+                  <v-btn
+                      size="small"
+                      variant="flat"
+                      :loading="continuingOrderId === o.id"
+                      prepend-icon="mdi-credit-card-fast-outline"
+                      @click="onContinuePay(o)">
+                    {{ t('subscription.continuePay') }}
+                  </v-btn>
                 </div>
-                <v-btn
-                    size="small"
-                    variant="outlined"
-                    :loading="cancellingOrderId === o.id"
-                    prepend-icon="mdi-close-circle-outline"
-                    @click="onCancelOrder(o)">
-                  {{ t('subscription.cancelPay') }}
-                </v-btn>
-                <v-btn
-                    size="small"
-                    variant="flat"
-                    :loading="continuingOrderId === o.id"
-                    prepend-icon="mdi-credit-card-fast-outline"
-                    @click="onContinuePay(o)">
-                  {{ t('subscription.continuePay') }}
-                </v-btn>
-              </div>
-            </v-alert>
-          </v-card>
+              </v-list-item>
+            </v-list>
+          </AffixBoxHasTitleView>
+        </AffixContainerView>
+      </v-col>
+      <v-col cols="12" lg="8">
+        <!-- 档位卡片 -->
+        <AffixBoxHasTitleView>
+          <template v-slot:title>
+            <span>❤️</span>
+          </template>
 
-          <!-- 月 / 年切换 -->
-          <div class="d-flex ga-3 mb-4 align-center">
-            <v-btn-toggle mandatory color="amber" variant="outlined" v-model="period" density="compact">
-              <v-btn value="monthly">{{ t('subscription.monthly') }}</v-btn>
-              <v-btn value="yearly">
-                {{ t('subscription.yearly') }}
-              </v-btn>
-            </v-btn-toggle>
-          </div>
-
-          <!-- 档位卡片 -->
-          <v-row>
+          <v-row class="mb-10">
             <v-col v-for="tierDef in sortedTiers" :key="tierDef.tier" cols="12" md="6" lg="6">
               <v-card rounded="lg"
                       border
                       class="h-100">
                 <v-card-title class="py-16 text-center bg-black mb-4 text-amber text-h4 u">
                   {{ getTierName(tierDef.tier) }}
+                  <span v-if="Number(myStatus?.tierCounts?.[tierDef.tier]) > 0">
+                    {{ getTierActiveCount(tierDef.tier) }}
+                  </span>
                 </v-card-title>
                 <v-card-item>
                   <div class="text-h5">
-                    {{ period === 'yearly' ? tierDef.yearlyCny : tierDef.monthlyCny }}
+                    {{ tierDef.monthlyCny }}
                     <span class="text-body-2 text-medium-emphasis">
-                      / {{ period === 'yearly' ? t('subscription.perYear') : t('subscription.perMonth') }}
+                      / {{ t('subscription.perMonth') }}
                     </span>
                   </div>
                 </v-card-item>
-                <v-card-text class="text-body-2 text-caption opacity-60">
-                  <v-row class="mb-4">
-                    <v-col cols="4" v-if="isCoreTier(tierDef)">
-                      <v-chip size="small" color="warning" variant="flat">
-                        {{ t('subscription.coreDonor') }}
-                      </v-chip>
-                    </v-col>
-                  </v-row>
+                <v-card-text class="text-body-2">
+                  <!-- 身份与特权徽章 S -->
+                  <div class="d-flex ga-2 flex-wrap mb-3 align-center" v-if="getTierRoleBadge(tierDef)">
+                    <v-chip size="small" :color="isCoreTier(tierDef) ? 'warning' : 'primary'" variant="flat">
+                      <v-icon start :icon="isCoreTier(tierDef) ? 'mdi-shield-crown' : 'mdi-shield-check'"/>
+                      {{ getTierRoleBadge(tierDef) }}
+                    </v-chip>
 
-                  {{ getTierDesc(tierDef.tier) }}
+                    <!-- 50 和 100 用户都获得门户展示 -->
+                    <v-chip v-if="isCoreTier(tierDef)" size="small" color="amber" variant="outlined">
+                      <v-icon start icon="mdi-web"/>
+                      {{ t('subscription.portalDisplay') }}
+                    </v-chip>
+                  </div>
+                  <!-- 身份与特权徽章 E -->
+
+                  <!-- 特权权益列表 S -->
+                  <div class="d-flex flex-column ga-1 mb-3 text-caption opacity-80">
+                    <div class="d-flex align-center ga-1">
+                      <v-icon icon="mdi-check-circle-outline" size="14" color="success"/>
+                      <span>{{ t('subscription.benefitRole', {role: getTierRoleBadge(tierDef)}) }}</span>
+                    </div>
+                    <div class="d-flex align-center ga-1">
+                      <v-icon icon="mdi-check-circle-outline" size="14" color="success"/>
+                      <span>{{ t(`subscription.quotaMultipliers.${tierDef.tier}`) }}</span>
+                    </div>
+                    <div class="d-flex align-center ga-1">
+                      <v-icon icon="mdi-check-circle-outline" size="14" color="success"/>
+                      <span>{{ t('subscription.benefitAvatar') }}</span>
+                    </div>
+                    <div v-if="isCoreTier(tierDef)" class="d-flex align-center ga-1">
+                      <v-icon icon="mdi-check-circle-outline" size="14" color="success"/>
+                      <span>{{ t('subscription.benefitPortal') }}</span>
+                    </div>
+                  </div>
+                  <!-- 特权权益列表 E -->
+
+                  <div class="text-caption opacity-60">
+                    {{ getTierDesc(tierDef.tier) }}
+                  </div>
                 </v-card-text>
                 <v-divider></v-divider>
                 <v-card-actions>
                   <v-spacer></v-spacer>
                   <v-btn variant="flat"
                          @click="onTierClick(tierDef)">
-                     {{ t('subscription.subscribe') }}
+                    {{ t('subscription.subscribe') }}
                   </v-btn>
                 </v-card-actions>
               </v-card>
@@ -591,6 +686,86 @@ onUnmounted(() => {
             </v-col>
           </v-row>
         </AffixBoxHasTitleView>
+
+        <!-- 订阅与赞助规则说明 S -->
+        <AffixBoxHasTitleView>
+          <template v-slot:title>
+            {{ t('subscription.rules.title') }}
+          </template>
+
+          <v-row>
+            <v-col cols="12" md="6">
+              <div class="d-flex ga-2">
+                <div>
+                  <div class="font-weight-bold mb-1 text-white">
+                    {{ t('subscription.rules.downgradeTitle') }}
+                  </div>
+                  <div class="opacity-70">{{ t('subscription.rules.downgradeDesc') }}</div>
+                </div>
+              </div>
+            </v-col>
+
+            <v-col cols="12" md="6">
+              <div class="d-flex ga-2">
+                <div>
+                  <div class="font-weight-bold mb-1 text-white">
+                    {{ t('subscription.rules.quotaTitle') }}
+                  </div>
+                  <div class="opacity-70">{{ t('subscription.rules.quotaDesc') }}</div>
+                </div>
+              </div>
+            </v-col>
+
+            <v-col cols="12" md="6">
+              <div class="d-flex ga-2">
+                <div>
+                  <div class="font-weight-bold mb-1 text-white">
+                    {{ t('subscription.rules.refundTitle') }}
+                  </div>
+                  <div class="opacity-70">{{ t('subscription.rules.refundDesc') }}</div>
+                </div>
+              </div>
+            </v-col>
+
+            <v-col cols="12" md="6">
+              <div class="d-flex ga-2">
+                <div>
+                  <div class="font-weight-bold mb-1 text-white">
+                    {{ t('subscription.rules.onceTitle') }}
+                  </div>
+                  <div class="opacity-70">{{ t('subscription.rules.onceDesc') }}</div>
+                </div>
+              </div>
+            </v-col>
+
+            <v-col cols="12" md="6">
+              <div class="d-flex ga-2">
+                <div>
+                  <div class="font-weight-bold mb-1 text-white">
+                    {{ t('subscription.rules.repeatTitle') }}
+                  </div>
+                  <div class="opacity-70">{{ t('subscription.rules.repeatDesc') }}</div>
+                </div>
+              </div>
+            </v-col>
+
+            <v-col cols="12" md="6">
+              <div class="d-flex ga-2">
+                <div>
+                  <div class="font-weight-bold mb-1 text-white">
+                    {{ t('subscription.rules.contactTitle') }}
+                  </div>
+                  <div class="opacity-70">
+                    {{ t('subscription.rules.contactDescPrefix') }}
+                    <a href="mailto:glow-prow@cabbagelol.net" class="text-amber text-decoration-none">glow-prow@cabbagelol.net</a>
+                    {{ t('subscription.rules.contactDescSuffix') }}
+                  </div>
+                </div>
+              </div>
+            </v-col>
+          </v-row>
+        </AffixBoxHasTitleView>
+        <!-- 订阅与赞助规则说明 E -->
       </v-col>
     </v-row>
 
@@ -606,9 +781,7 @@ onUnmounted(() => {
             {{ pendingTier?.amount }}
             <span class="text-body-2 text-medium-emphasis">
               · {{
-                pendingTier?.period === 'yearly'
-                    ? t('subscription.perYear')
-                    : pendingTier?.period === 'monthly' ? t('subscription.perMonth') : t('subscription.once')
+                pendingTier?.period === 'monthly' ? t('subscription.perMonth') : t('subscription.once')
               }}
             </span>
           </div>
