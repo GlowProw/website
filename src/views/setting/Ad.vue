@@ -11,20 +11,20 @@ const {t} = useI18n();
   <v-row>
     <v-col cols="12" lg="4">
       <AffixBoxHasTitleView>
-        <p class="text-caption">{{ t('setting.ad.description1') }}</p>
+        <p>{{ t('setting.ad.description1') }}</p>
 
         <ul>
           <li>
-            <p class="text-caption mt-3">{{ t('setting.ad.description2') }}</p>
+            <p class="opacity-60 mt-3">{{ t('setting.ad.description2') }}</p>
           </li>
           <li>
-            <p class="text-caption mt-3">{{ t('setting.ad.description3') }}</p>
+            <p class="opacity-60 mt-3">{{ t('setting.ad.description3') }}</p>
           </li>
         </ul>
 
         <v-row align="center" class="mt-2" no-gutters>
           <v-col>
-            {{ t('setting.ad.mainSwitch') }}
+            <u class="u">{{ t('setting.ad.mainSwitch') }}</u>
           </v-col>
           <v-col cols="auto">
             <AdManageBtn></AdManageBtn>

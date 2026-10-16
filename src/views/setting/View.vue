@@ -1,89 +1,158 @@
 <script setup lang="ts">
-
-import {Ref, ref, watch} from "vue";
-import {useRoute, useRouter} from "vue-router";
-import {useDisplay} from "vuetify/framework";
-import {useI18n} from "vue-i18n";
-import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
+/**
+ * 设置视图主入口
+ * 采用一级分类选项卡与二级垂直选项卡联动的层级布局架构（对齐账户中心设计规范）
+ */
+import { computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { useDisplay } from "vuetify/framework";
+import { useI18n } from "vue-i18n";
+import { useTooltipFollow } from "@/assets/sripts/use_tooltip_follow";
 
 import Silk from "@/components/Silk.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
-import VerticalScrollList from "@/components/VerticalScrollList.vue";
 
 const route = useRoute(),
     router = useRouter(),
-    {mobile} = useDisplay(),
-    {t} = useI18n(),
-    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow()
+    { mobile } = useDisplay(),
+    { t } = useI18n(),
+    { tooltipPos, onMouseMove, onMouseEnter } = useTooltipFollow()
 
-let tabs: Ref<any[]> = ref([
-      {
-        name: 'setting.routine.title',
-        value: 'PortalSettingRoutine',
-        icon: 'mdi-cog'
-      },
-      {
-        name: 'setting.advanced.title',
-        value: 'PortalSettingAdvanced',
-        icon: 'mdi-application-cog-outline'
-      },
-      {
-       name: 'subscription.title',
-       value: 'PortalSettingSubscriptions',
-       icon: 'mdi-treasure-chest'
-      },
-      {
-        name: 'setting.ad.title',
-        value: 'PortalSettingAds',
-        icon: 'mdi-advertisements'
-      },
-      {
-        name: 'setting.storage.title',
-        value: 'PortalSettingStorage',
-        icon: 'mdi-database'
-      },
-      {
-        name: 'setting.wishlist.title',
-        value: 'PortalSettingWishlist',
-        icon: 'mdi-playlist-star'
-      },
-      {
-        name: 'setting.log.title',
-        value: 'PortalSettingLog',
-        icon: 'mdi-text-box-multiple-outline'
-      },
-      {
-        name: 'about.title',
-        value: 'PortalSettingAbout',
-        icon: 'mdi-information'
-      },
-    ])
-
-const getActiveTab = () => {
-  const currentName = route.name as string
-  const match = tabs.value.find(i => i.value === currentName)
-  return match ? match.value : tabs.value[0].value
+interface SubTabItem {
+  name: string
+  value: string
+  icon: string
+  isExternal?: boolean
+  href?: string
 }
 
-const tab = ref(getActiveTab())
+/**
+ * 常规设置大类：常规设置、进阶设置、数据报告（存储）、心愿单、日志记录
+ */
+const generalTabs: SubTabItem[] = [
+  {
+    name: 'setting.routine.title',
+    value: 'PortalSettingRoutine',
+    icon: 'mdi-cog'
+  },
+  {
+    name: 'setting.advanced.title',
+    value: 'PortalSettingAdvanced',
+    icon: 'mdi-application-cog-outline'
+  },
+  {
+    name: 'setting.storage.title',
+    value: 'PortalSettingStorage',
+    icon: 'mdi-database'
+  },
+  {
+    name: 'setting.wishlist.title',
+    value: 'PortalSettingWishlist',
+    icon: 'mdi-playlist-star'
+  },
+  {
+    name: 'setting.log.title',
+    value: 'PortalSettingLog',
+    icon: 'mdi-text-box-multiple-outline'
+  },
+]
 
-// 监听路由变化，同步高亮选中的 Tab
-watch(() => route.name, (newName) => {
-  if (newName && tabs.value.some(i => i.value === newName)) {
-    tab.value = newName as string
-  }
+/**
+ * 赞助与商业大类：赞助订阅、广告推广
+ */
+const subscriptionTabs: SubTabItem[] = [
+  {
+    name: 'subscription.title',
+    value: 'PortalSettingSubscriptions',
+    icon: 'mdi-treasure-chest'
+  },
+  {
+    name: 'setting.ad.title',
+    value: 'PortalSettingAds',
+    icon: 'mdi-advertisements'
+  },
+]
+
+/**
+ * 关于大类：关于闪耀船首、隐私协议、服务协议
+ */
+const aboutTabs: SubTabItem[] = [
+  {
+    name: 'about.title',
+    value: 'PortalSettingAbout',
+    icon: 'mdi-information'
+  },
+  {
+    name: 'footer.col3.privacy',
+    value: 'SettingPrivacyPolicy',
+    icon: 'mdi-shield-lock-outline',
+    isExternal: true,
+    href: 'https://blog.glow-prow.top/privacy'
+  },
+  {
+    name: 'footer.col3.terms',
+    value: 'SettingTermsOfService',
+    icon: 'mdi-file-document-outline',
+    isExternal: true,
+    href: 'https://blog.glow-prow.top/terms'
+  },
+]
+
+// 路由归属判定
+const isGeneralRoute = (name: string) => generalTabs.some(i => i.value === name)
+const isSubscriptionRoute = (name: string) => subscriptionTabs.some(i => i.value === name)
+const isAboutRoute = (name: string) => aboutTabs.some(i => i.value === name)
+
+/**
+ * 依据当前路由动态计算激活的一级 Tab
+ */
+const primaryNavMenu = computed<'SettingGeneral' | 'SettingSubscriptions' | 'SettingAbout'>(() => {
+  const currentName = (route.name as string) || ''
+  if (isSubscriptionRoute(currentName)) return 'SettingSubscriptions'
+  if (isAboutRoute(currentName)) return 'SettingAbout'
+  if (isGeneralRoute(currentName)) return 'SettingGeneral'
+  return 'SettingGeneral'
 })
 
-// 用户点击 Tab 时触发路由切换，显式传递 route.params（保留 lang 参数）
+/**
+ * 依据当前激活的一级分类动态展示二级垂直 Tab 列表
+ */
+const currentSubTabs = computed<SubTabItem[]>(() => {
+  if (primaryNavMenu.value === 'SettingSubscriptions') return subscriptionTabs
+  if (primaryNavMenu.value === 'SettingAbout') return aboutTabs
+  return generalTabs
+})
+
+/**
+ * 当前二级激活 Tab
+ */
+const tab = computed(() => {
+  const currentName = route.name as string
+  const match = currentSubTabs.value.find(i => i.value === currentName && !i.isExternal)
+  return match ? match.value : (currentSubTabs.value.find(i => !i.isExternal)?.value || '')
+})
+
+/**
+ * 用户点击二级 Tab 时触发路由切换或外链打开
+ */
 const onTabChange = (targetRouteName: any) => {
+  const item = currentSubTabs.value.find(i => i.value === targetRouteName)
+  if (item?.isExternal && item?.href) {
+    window.open(item.href, '_blank', 'noopener,noreferrer')
+    return
+  }
   if (targetRouteName && targetRouteName !== route.name) {
     router.push({ name: targetRouteName, params: route.params })
   }
 }
+
+defineOptions({
+  name: 'SettingView'
+})
 </script>
 
 <template>
-  <v-card height="200px">
+  <v-card min-height="200px" class="d-flex flex-column justify-space-between">
     <template v-slot:image>
       <Silk
           :speed="3"
@@ -96,7 +165,7 @@ const onTabChange = (targetRouteName: any) => {
     </template>
     <template v-slot:default>
       <v-container class="pa-2 mt-4 position-relative">
-        <v-breadcrumbs>
+        <v-breadcrumbs class="pa-0 mb-3">
           <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
           <v-breadcrumbs-item>{{ t('setting.title') }}</v-breadcrumbs-item>
@@ -106,99 +175,136 @@ const onTabChange = (targetRouteName: any) => {
           <v-icon icon="mdi-cog" size="200"></v-icon>
         </div>
       </v-container>
+
+      <!-- 一级导航栏 (参考 Index.vue:L159-L200) -->
+      <v-container class="pa-0 px-2 mt-auto d-flex align-end">
+        <v-row dense>
+          <v-col cols="12">
+            <v-tabs
+                :model-value="primaryNavMenu"
+                color="amber"
+                stacked
+                align-tabs="start"
+                density="comfortable"
+                class="primary-tabs setting-tabs-primary">
+              <v-tab value="SettingGeneral"
+                     class="font-weight-bold text-subtitle-1 px-8"
+                     :class="{'v-tab--route-active': primaryNavMenu === 'SettingGeneral'}"
+                     :to="{ name: generalTabs[0].value, params: route.params }">
+                {{ t('setting.title') }}
+              </v-tab>
+              <v-tab value="SettingSubscriptions"
+                     class="font-weight-bold text-subtitle-1 px-8"
+                     :class="{'v-tab--route-active': primaryNavMenu === 'SettingSubscriptions'}"
+                     :to="{ name: subscriptionTabs[0].value, params: route.params }">
+                {{ t('subscription.title') }}
+              </v-tab>
+              <v-tab value="SettingAbout"
+                     class="font-weight-bold text-subtitle-1 px-8"
+                     :class="{'v-tab--route-active': primaryNavMenu === 'SettingAbout'}"
+                     :to="{ name: aboutTabs[0].value, params: route.params }">
+                {{ t('about.title') }}
+              </v-tab>
+            </v-tabs>
+          </v-col>
+        </v-row>
+      </v-container>
     </template>
   </v-card>
 
-  <v-divider></v-divider>
+  <div class="setting-root">
+    <div class="setting-page-root">
+      <v-container>
+        <div :class="{'d-flex flex-row': !mobile}">
+          <div :class="{'mb-10 setting-tabs-box-mobile': mobile, 'setting-tabs-box-desktop': !mobile}">
+            <AffixContainerView>
+              <v-tabs
+                  stacked
+                  border
+                  hide-slider
+                  :show-arrows="false"
+                  :model-value="tab"
+                  class="w-100 h-100 secondary-tabs setting-tabs-secondary"
+                  density="default"
+                  @update:model-value="onTabChange"
+                  :fixed="mobile"
+                  :direction="!mobile ? 'vertical' : 'horizontal'">
+                <template v-for="(i, index) in currentSubTabs" :key="index">
+                  <v-tooltip content-class="pa-0" :target="[tooltipPos.x, tooltipPos.y]">
+                    <template v-slot:default>
+                      <v-card border class="py-3 px-10">
+                        {{ t(i.name) }}
+                      </v-card>
+                    </template>
+                    <template v-slot:activator="{props}">
+                      <div :class="{'mb-2': !mobile, 'mr-5': mobile}">
+                        <v-tab :value="i.value"
+                               selected-class="bg-amber"
+                               class="d-flex align-center justify-center"
+                               min-width="80"
+                               width="80"
+                               height="80"
+                               border
+                               @mousemove="onMouseMove"
+                               @mouseenter="onMouseEnter"
+                               v-bind="props"
+                               replace
+                               ripple
+                               slim>
+                          <div>
+                            <v-icon size="40">{{ i.icon }}</v-icon>
+                          </div>
+                        </v-tab>
+                        <p class="mt-1 mb-3 text-center singe-line w-100 setting-tab-item" :title="t(i.name)">
+                          {{ t(i.name) }}
+                        </p>
+                      </div>
+                    </template>
+                  </v-tooltip>
+                </template>
+              </v-tabs>
+            </AffixContainerView>
+          </div>
 
-  <div class="setting-page-root">
-    <v-container>
-      <div :class="{'d-flex flex-row': !mobile}">
-        <div :class="{'mb-10 tabs-box-mobile': mobile, 'tabs-box-desktop': !mobile}">
-          <AffixContainerView>
-            <v-tabs
-                stacked
-                border
-                hide-slider
-                :show-arrows="false"
-                :model-value="tab"
-                class="w-100 h-100 secondary-tabs"
-                density="default"
-                @update:model-value="onTabChange"
-                :class="{'mb-10 tabs-box-mobile': mobile, 'tabs-box-desktop': !mobile}"
-                :fixed="mobile"
-                :direction="!mobile ? 'vertical' : 'horizontal'">
-              <template v-for="(i, index) in tabs"
-                        :key="index">
-                <v-tooltip content-class="pa-0"
-                           :target="[tooltipPos.x, tooltipPos.y]">
-                  <template v-slot:default>
-                    <v-card border class="py-3 px-10">
-                      {{ t(i.name) }}
-                    </v-card>
-                  </template>
-                  <template v-slot:activator="{props}">
-                    <div :class="{'mb-2': !mobile, 'mr-5': mobile}">
-                      <v-tab :value="i.value"
-                             selected-class="bg-amber"
-                             class="d-flex align-center justify-center"
-                             min-width="80"
-                             width="80"
-                             height="80"
-                             border
-                             @mousemove="onMouseMove"
-                             @mouseenter="onMouseEnter"
-                             v-bind="props"
-                             replaceb
-                             ripple
-                             slim>
-                        <div>
-                          <v-icon size="40">{{ i.icon }}</v-icon>
-                        </div>
-                      </v-tab>
-                      <p class="mt-1 mb-3 text-center singe-line w-100 tab-item" :title="t(i.name)">{{ t(i.name) }}</p>
-                    </div>
-                  </template>
-                </v-tooltip>
-              </template>
-            </v-tabs>
-          </AffixContainerView>
+          <div class="setting-content flex-grow-1 flex-shrink-1 w-100 pl-lg-5">
+            <router-view></router-view>
+          </div>
         </div>
-
-        <div class="setting-content flex-grow-1 flex-shrink-1 w-100 pl-lg-5">
-          <router-view></router-view>
-        </div>
-      </div>
-    </v-container>
+      </v-container>
+    </div>
   </div>
 </template>
 
 <style scoped lang="less">
-.tabs-box-mobile {
-  height: auto;
+@import "@/assets/styles/tabs-nav.less";
 
-  .tab-item {
-    max-width: 80px;
+.tabs-nav-control();
+
+.setting-root {
+  .setting-tabs-primary {
+    border-bottom: none;
   }
-}
 
-.tabs-box-desktop {
-  width: 80px;
-  min-width: 80px;
-  flex-shrink: 0;
-}
+  .setting-page-root {
+    .setting-tabs-box-mobile {
+      height: auto;
 
-.setting-content {
-  min-width: 0;
-  width: 100%;
-  min-height: 80vh;
-}
+      .setting-tab-item {
+        max-width: 80px;
+      }
+    }
 
-// overflow 时仍会渲染箭头，直接强制隐藏
-.primary-tabs :deep(.v-slide-group__prev),
-.primary-tabs :deep(.v-slide-group__next),
-.secondary-tabs :deep(.v-slide-group__prev),
-.secondary-tabs :deep(.v-slide-group__next) {
-  display: none !important;
+    .setting-tabs-box-desktop {
+      width: 80px;
+      min-width: 80px;
+      flex-shrink: 0;
+    }
+
+    .setting-content {
+      min-width: 0;
+      width: 100%;
+      min-height: 80vh;
+    }
+  }
 }
 </style>

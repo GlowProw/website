@@ -47,7 +47,7 @@ const loadSessions = async () => {
     }
 
   } catch (err: any) {
-    notice.error(err?.message || '获取登录会话失败')
+    notice.error(err?.message || t('account.sessions.fetchError'))
   } finally {
     loading.value = false
   }
@@ -57,7 +57,7 @@ const loadSessions = async () => {
  * 一键注销其他平台/设备令牌
  */
 const onRevokeOtherSessions = async () => {
-  if (!confirm('确定要注销其他所有平台与设备的登录令牌吗？其他设备将被即时挤下线。')) {
+  if (!confirm(t('account.sessions.revokeOtherConfirm'))) {
     return
   }
 
@@ -65,11 +65,11 @@ const onRevokeOtherSessions = async () => {
     revokingOther.value = true
 
     await apis.userApi().revokeOtherSessions()
-    notice.success('其他设备已成功下线')
+    notice.success(t('account.sessions.revokeOtherSuccess'))
 
     await loadSessions()
   } catch (err: any) {
-    notice.error(err?.message || '注销其他设备失败')
+    notice.error(err?.message || t('account.sessions.revokeOtherError'))
   } finally {
     revokingOther.value = false
   }
@@ -80,7 +80,8 @@ const onRevokeOtherSessions = async () => {
  * @param session 会话条目对象
  */
 const onRevokeSession = async (session: any) => {
-  if (!confirm(`确定要注销此设备 [${session.browser || session.platform}] 的登录状态吗？`)) {
+  const targetName = session.browser || session.platform || ''
+  if (!confirm(t('account.sessions.revokeConfirm', { name: targetName }))) {
     return
   }
 
@@ -89,11 +90,11 @@ const onRevokeSession = async (session: any) => {
 
     await apis.userApi().revokeUserSession(session.sessionId)
 
-    notice.success('指定设备已成功注销', {mode: 'minimal'})
+    notice.success(t('account.sessions.revokeSuccess'), { mode: 'minimal' })
 
     await loadSessions()
   } catch (err: any) {
-    notice.error(err?.message || '注销失败')
+    notice.error(err?.message || t('account.sessions.revokeError'))
   } finally {
     revokingSessionId.value = null
   }
@@ -124,23 +125,23 @@ const getPlatformIcon = (platform: string) => {
 const getPlatformName = (platform: string) => {
   switch (platform) {
     case 'client':
-      return '桌面客户端 (Client)'
+      return t('account.sessions.platformClient')
     case 'admin':
-      return '管理后台 (Admin)'
+      return t('account.sessions.platformAdmin')
     case 'bot':
-      return '机器人集成 (Bot)'
+      return t('account.sessions.platformBot')
     case 'web':
     default:
-      return '网页端 (Web)'
+      return t('account.sessions.platformWeb')
   }
 }
 </script>
 
 <template>
-  <div class="user-account-sessions">
+  <div class="account-sessions-root">
     <AffixBoxHasTitleView
-        title="登录设备与令牌管理"
-        subtitle="每个平台（网页/客户端/后台/机器人）仅保留单一有效登录窗口，再次登录将安全互踢。在此可查看登录足迹并一键注销其他设备。">
+        :title="t('account.sessions.pageTitle')"
+        :subtitle="t('account.sessions.subtitle')">
       <template v-slot:title>
         {{ t('account.sessions.title') }}
       </template>
@@ -158,7 +159,7 @@ const getPlatformName = (platform: string) => {
                 :loading="revokingOther"
                 @click="onRevokeOtherSessions"
             >
-              注销其他所有设备
+              {{ t('account.sessions.revokeOther') }}
             </v-btn>
           </v-col>
         </v-row>
@@ -169,7 +170,7 @@ const getPlatformName = (platform: string) => {
               v-for="s in sessions"
               :key="s.id"
               variant="flat"
-              :class="['pa-4 border', s.isCurrent ? 'current-session-card' : '']">
+              :class="['pa-4 border account-sessions-card', s.isCurrent ? 'account-sessions-card-current' : '']">
             <div class="d-flex align-center justify-space-between flex-wrap ga-3">
               <div class="d-flex align-center ga-3">
                 <v-avatar size="44" :color="s.isCurrent ? 'primary' : 'grey-lighten-3'" rounded="lg">
@@ -182,20 +183,20 @@ const getPlatformName = (platform: string) => {
                   <div class="d-flex align-center ga-2 flex-wrap">
                     <span class="font-weight-bold text-subtitle-2">{{ getPlatformName(s.platform) }}</span>
                     <v-chip v-if="s.isCurrent" size="x-small" color="success" variant="flat" class="font-weight-medium">
-                      当前设备
+                      {{ t('account.sessions.currentDevice') }}
                     </v-chip>
                     <v-chip v-else-if="s.status === 'active'" size="x-small" color="primary" variant="tonal">
-                      在线
+                      {{ t('account.sessions.online') }}
                     </v-chip>
                     <v-chip v-else size="x-small" color="grey" variant="tonal">
-                      已下线
+                      {{ t('account.sessions.offline') }}
                     </v-chip>
                   </div>
 
                   <div class="text-caption text-medium-emphasis mt-1 d-flex align-center ga-3 flex-wrap">
                     <span>
                       <v-icon size="14" class="mr-1">mdi-devices</v-icon>
-                      {{ s.browser || '未知浏览器' }} · {{ s.os || '未知系统' }} {{ s.device ? `(${s.device})` : '' }}
+                      {{ s.browser || t('account.sessions.unknownBrowser') }} · {{ s.os || t('account.sessions.unknownOS') }} {{ s.device ? `(${s.device})` : '' }}
                     </span>
                     <span>
                       <v-icon size="14" class="mr-1">mdi-map-marker-outline</v-icon>
@@ -207,10 +208,10 @@ const getPlatformName = (platform: string) => {
 
               <div class="d-flex align-center ga-3 align-self-md-center">
                 <div class="text-caption text-medium-emphasis text-right">
-                  <div>登录于:
+                  <div>{{ t('account.sessions.loginAt') }}
                     <TimeView :time="s.loginTime"></TimeView>
                   </div>
-                  <div v-if="s.lastActiveTime">活跃:
+                  <div v-if="s.lastActiveTime">{{ t('account.sessions.activeAt') }}
                     <TimeView :time="s.lastActiveTime"></TimeView>
                   </div>
                 </div>
@@ -222,7 +223,7 @@ const getPlatformName = (platform: string) => {
                     color="error"
                     :loading="revokingSessionId === s.sessionId"
                     @click="onRevokeSession(s)">
-                  下线此设备
+                  {{ t('account.sessions.revokeThis') }}
                 </v-btn>
               </div>
             </div>
@@ -232,7 +233,7 @@ const getPlatformName = (platform: string) => {
         <div v-else class="text-center py-8 text-medium-emphasis text-caption">
           <EmptyView>
             <template v-slot:description>
-              暂无活跃登录会话记录
+              {{ t('account.sessions.empty') }}
             </template>
           </EmptyView>
         </div>
@@ -242,4 +243,14 @@ const getPlatformName = (platform: string) => {
 </template>
 
 <style scoped lang="less">
+.account-sessions-root {
+  .account-sessions-card {
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+
+    &-current {
+      border-color: rgba(var(--v-theme-primary), 0.4) !important;
+      background-color: rgba(var(--v-theme-primary), 0.03);
+    }
+  }
+}
 </style>

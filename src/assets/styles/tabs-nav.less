@@ -1,0 +1,21 @@
+/**
+ * tabs-nav.less
+ * 选项卡导航通用样式控制混入与规范定义
+ * 隐藏 Vuetify v-slide-group 滚动箭头，并统一一级选项卡路由激活态琥珀色高亮
+ */
+
+.tabs-nav-control(@primary-selector: ~".primary-tabs", @secondary-selector: ~".secondary-tabs", @active-color: #ffc107) {
+  @{primary-selector},
+  @{secondary-selector} {
+    :deep(.v-slide-group__prev),
+    :deep(.v-slide-group__next) {
+      display: none !important;
+    }
+  }
+
+  @{primary-selector} {
+    :deep(.v-tab--route-active) {
+      color: @active-color !important;
+    }
+  }
+}

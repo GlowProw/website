@@ -14,7 +14,7 @@ const AccountMediaPage = () => import('@/views/user/account/Media.vue');
 const AccountSmugglersReport = () => import('@/views/user/account/SmugglersReport.vue');
 const AccountDataCenterPage = () => import('@/views/user/account/DataCenter.vue');
 const AccountMessagesCenterPage = () => import('@/views/user/account/MessagesCenter.vue');
-const AccountMessagesSettingsPage = () => import('@/views/user/account/AccountMessagesSettings.vue');
+const AccountMessagesSettingsPage = () => import('@/views/user/account/MessagesSettings.vue');
 const SpacePage = () => import('@/views/user/space/Index.vue');
 const SpaceAssemblysPage = () => import('@/views/user/space/Assemblys.vue');
 const SpaceTeamupsPage = () => import('@/views/user/space/Teamups.vue');
@@ -395,6 +395,7 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
                         path: '',
                         name: 'PortalSettingView',
                         component: SettingViewPage,
+                        redirect: to => ({ name: 'PortalSettingRoutine', params: to.params }),
                         children: [
                             {
                                 path: 'routine',

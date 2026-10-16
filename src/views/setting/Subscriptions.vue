@@ -504,14 +504,14 @@ onUnmounted(() => {
               <div class="d-flex ga-3 align-center flex-wrap">
                 <div class="text-caption text-medium-emphasis">{{ t('subscription.cancelTip') }}</div>
 
-                <v-btn variant="outlined"
+                <v-btn variant="tonal"
                        size="small"
                        :loading="cancelling"
                        prepend-icon="mdi-credit-card-off-outline"
                        @click="onCancelStripe">
                   {{ t('subscription.cancelStripe') }}
                 </v-btn>
-                <v-btn variant="outlined"
+                <v-btn variant="tonal"
                        size="small"
                        prepend-icon="mdi-lightning-bolt"
                        href="https://afdian.com"
@@ -529,22 +529,18 @@ onUnmounted(() => {
             </template>
 
             <!-- 待支付订单：倒计时 + 取消 / 继续支付 -->
-            <v-list variant="tonal" color="warning" class="mb-4">
-              <v-list-item
-                  v-for="o in pendingOrders"
-                  :key="o.id"
-                  type="warning"
-                  variant="flat"
-                  density="comfortable"
-                  class="mb-2 py-2">
+            <div class="mb-4">
+              <div v-for="o in pendingOrders"
+                   :key="o.id"
+                   class="py-3 border-b">
                 <div class="d-flex align-center flex-wrap ga-3">
                   <div class="flex-grow-1">
                     <div class="text-body-2 font-weight-medium">
-                      {{ getTierName(o.tier) }}
+                      <span class="u">{{ getTierName(o.tier) }}</span>
                       <span class="text-medium-emphasis">
-                      · {{ o.platform === 'stripe' ? 'Stripe' : t('subscription.platformAfdian') }}
-                      · ¥{{ o.amountCny ?? o.amount }}
-                    </span>
+                        · {{ o.platform === 'stripe' ? 'Stripe' : t('subscription.platformAfdian') }}
+                        · ¥{{ o.amountCny ?? o.amount }}
+                      </span>
                     </div>
                     <div class="text-caption text-medium-emphasis mt-1">
                       {{ t('subscription.payExpireIn', {time: formatCountdown(remainingMs(o))}) }}
@@ -552,7 +548,8 @@ onUnmounted(() => {
                   </div>
                   <v-btn
                       size="small"
-                      variant="outlined"
+                      variant="tonal"
+                      color="red"
                       :loading="cancellingOrderId === o.id"
                       prepend-icon="mdi-close-circle-outline"
                       @click="onCancelOrder(o)">
@@ -567,8 +564,8 @@ onUnmounted(() => {
                     {{ t('subscription.continuePay') }}
                   </v-btn>
                 </div>
-              </v-list-item>
-            </v-list>
+              </div>
+            </div>
           </AffixBoxHasTitleView>
         </AffixContainerView>
       </v-col>

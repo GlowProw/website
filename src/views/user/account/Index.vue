@@ -285,48 +285,36 @@ defineOptions({
 </template>
 
 <style scoped lang="less">
+@import "@/assets/styles/tabs-nav.less";
+
+.tabs-nav-control();
+
 .account-root {
-  //min-height: calc(100vh - 64px);
-}
-
-.primary-tabs {
-  border-bottom: none;
-}
-
-// overflow 时仍会渲染箭头，直接强制隐藏
-.primary-tabs :deep(.v-slide-group__prev),
-.primary-tabs :deep(.v-slide-group__next),
-.secondary-tabs :deep(.v-slide-group__prev),
-.secondary-tabs :deep(.v-slide-group__next) {
-  display: none !important;
-}
-
-// 一级 Tab 激活态以路由为准，避免 v-tabs 内部 selected 与路由激活错位导致文字变白
-// 直接写死琥珀色，不依赖 --v-theme-amber（该变量仅在 v-theme 节点上定义）
-.primary-tabs :deep(.v-tab--route-active) {
-  color: #ffc107 !important;
-}
-
-.tabs-box-mobile {
-  height: auto;
-
-  .tab-item {
-    max-width: 80px;
+  .primary-tabs {
+    border-bottom: none;
   }
-}
 
-.tabs-box-desktop {
-  width: 80px;
-  min-width: 80px;
-  flex-shrink: 0;
-}
+  .tabs-box-mobile {
+    height: auto;
 
-.setting-content {
-  min-width: 0;
-  width: 100%;
-}
+    .tab-item {
+      max-width: 80px;
+    }
+  }
 
-.border-amber {
-  border: 2px solid rgba(255, 193, 7, 0.5);
+  .tabs-box-desktop {
+    width: 80px;
+    min-width: 80px;
+    flex-shrink: 0;
+  }
+
+  .setting-content {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .border-amber {
+    border: 2px solid rgba(255, 193, 7, 0.5);
+  }
 }
 </style>
