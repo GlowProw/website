@@ -2,6 +2,8 @@ import {defineStore} from "pinia";
 
 let cachedNpcsMap: any = null;
 let cachedRaritysMap: any = null;
+// 地图图标静态资源缓存
+let cachedMapImagesMap: Record<string, string> | null = null;
 
 function serializationMap(assetsRaw: any) {
     const imageMap: any = {};
@@ -30,6 +32,19 @@ function getRaritysMap() {
         cachedRaritysMap = serializationMap(rarityImages);
     }
     return cachedRaritysMap;
+}
+
+/**
+ * 获取地图图标映射字典
+ * 集中加载与全局单例缓存，避免各个组件模块重复执行 glob 扫描
+ */
+function getMapImagesMap(): Record<string, string> {
+    if (!cachedMapImagesMap) {
+        // @ts-ignore
+        const mapImages = import.meta.glob('/src/assets/images/map/*.*', { eager: true });
+        cachedMapImagesMap = serializationMap(mapImages);
+    }
+    return cachedMapImagesMap;
 }
 
 /**
@@ -62,6 +77,13 @@ export const useAssetsStore = defineStore('assets', {
 
         initRarity() {
             this.raritys = getRaritysMap();
+        },
+
+        /**
+         * 获取地图静态图标字典
+         */
+        getMapImages() {
+            return getMapImagesMap();
         },
 
         serializationMap(assetsRaw: any) {

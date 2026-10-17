@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppMessageWidget from '@/components/AppMessageWidget.vue'
-import {defineAsyncComponent, computed, onMounted, onUnmounted, ref, watch} from "vue";
+import {computed, defineAsyncComponent, onMounted, onUnmounted, ref, watch} from "vue";
 import {useI18n} from 'vue-i18n';
 import {useRoute} from "vue-router";
 import {useHead} from "@unhead/vue";
@@ -13,7 +13,6 @@ import {usePreloadStore} from "~/stores/preloadStore";
 import {loadRemoteLangMessages} from "@/assets/sripts/remote_i18n";
 import {setupGlobalHotkeys} from "@/assets/sripts/global_hotkeys";
 
-// 纯客户端预加载遮罩（依赖 ogl 渲染），异步 + 仅客户端渲染，避免被打进 SSR/首屏核心 chunk
 const GlobalPreloadOverlay = defineAsyncComponent(() => import('@/components/GlobalPreloadOverlay.vue'));
 const isClient = ref(false);
 
@@ -24,41 +23,6 @@ const appStore = useAppStore();
 const preloadStore = usePreloadStore();
 
 const route = useRoute();
-
-// 页面被切到后台时暂停活动提醒计时与未读私信轮询，回到前台立即恢复并拉一次未读
-const handleVisibilityChange = () => {
-  if (typeof document === 'undefined') return;
-  if (document.hidden) {
-    reminderStore.pauseWorker();
-    messagesUnreadStore.stop();
-  } else {
-    if (reminderStore.isReminderRoute()) {
-      reminderStore.resumeWorker();
-    }
-    messagesUnreadStore.start();
-  }
-};
-
-watch(
-    () => route.path,
-    (newPath) => {
-      if (!newPath) return;
-      const seg = newPath.split('/').filter(Boolean)[0];
-      if (seg && isSupportedLang(seg)) {
-        // 同步给模块级单例（appFuns/appApps 等）用于拼接 /:lang 链接
-        setCurrentLang(seg);
-        if (seg !== locale.value) {
-          locale.value = seg;
-          if (typeof window !== 'undefined') {
-            storage.local.set('lang', {value: seg});
-          }
-        }
-      } else {
-        setCurrentLang(locale.value);
-      }
-    },
-    {immediate: true}
-);
 
 const head = computed(() => {
   const siteName = t('name');
@@ -106,10 +70,31 @@ const head = computed(() => {
   }
 })
 
-useHead(head)
-
 // 全局快捷键注销回调
 let cleanupHotkeys: (() => void) | null = null;
+
+useHead(head)
+
+watch(
+    () => route.path,
+    (newPath) => {
+      if (!newPath) return;
+      const seg = newPath.split('/').filter(Boolean)[0];
+      if (seg && isSupportedLang(seg)) {
+        // 同步给模块级单例（appFuns/appApps 等）用于拼接 /:lang 链接
+        setCurrentLang(seg);
+        if (seg !== locale.value) {
+          locale.value = seg;
+          if (typeof window !== 'undefined') {
+            storage.local.set('lang', {value: seg});
+          }
+        }
+      } else {
+        setCurrentLang(locale.value);
+      }
+    },
+    {immediate: true}
+);
 
 onMounted(async () => {
   isClient.value = true;
@@ -153,10 +138,26 @@ onUnmounted(() => {
     cleanupHotkeys = null;
   }
 });
+
+/**
+ * 页面被切到后台时暂停活动提醒计时与未读私信轮询，回到前台立即恢复并拉一次未读
+ */
+const handleVisibilityChange = () => {
+  if (typeof document === 'undefined') return;
+  if (document.hidden) {
+    reminderStore.pauseWorker();
+    messagesUnreadStore.stop();
+  } else {
+    if (reminderStore.isReminderRoute()) {
+      reminderStore.resumeWorker();
+    }
+    messagesUnreadStore.start();
+  }
+};
 </script>
 
 <template>
-  <GlobalPreloadOverlay v-if="isClient" />
+  <GlobalPreloadOverlay v-if="isClient"/>
 
   <AppMessageWidget></AppMessageWidget>
   <router-view></router-view>

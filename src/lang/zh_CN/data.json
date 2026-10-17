@@ -1550,7 +1550,7 @@
           "knot": "节"
         },
         "boost": {
-          "title": "速度提升: +{percent}%",
+          "title": "速度提升",
           "waterFlaskRemaining": "(水壶效果剩余 {time})",
           "waterBarrelRemaining": "(水桶效果剩余 {time})",
           "strongBreeze": "强风",
@@ -1558,7 +1558,10 @@
           "cancelEffect": "终止效果",
           "waterFlaskTooltip": "水壶：20秒内速度提升10%",
           "waterBarrelTooltip": "水桶：20秒内速度提升15%",
-          "strongBreezeTooltip": "强风：速度提升50%"
+          "strongBreezeTooltip": "强风：速度提升50%",
+          "tailwind": "顺风",
+          "tailwindEffect": "顺风效果",
+          "tailwindTooltip": "顺风：速度提升10%"
         },
         "simulation": {
           "windy": "有风",
@@ -3181,6 +3184,9 @@
   },
   "setting": {
     "title": "设置",
+    "data": {
+      "title": "数据"
+    },
     "routine": {
       "title": "常规设置",
       "translationHelp": "如果你对翻译感兴趣，可以通过下方链接这里帮助我们内容纠正或翻译，对于翻译成员我们将公示中网站中，并为账户赋予译者身份",

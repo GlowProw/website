@@ -24,8 +24,7 @@ const props = withDefaults(defineProps<{
 
 const {t} = useI18n()
 const router = useRouter()
-const {serializationMap} = useAssetsStore()
-const mapImages = import.meta.glob('/src/assets/images/map/*.*', {eager: true})
+const assetsStore = useAssetsStore()
 
 const rarityColorConfig = rarity.color
 const mapLocationsValue = MapLocations
@@ -45,7 +44,7 @@ const isCodexLocation = computed(() => {
 });
 
 const onReady = async () => {
-  mapIcons.value = serializationMap(mapImages);
+  mapIcons.value = assetsStore.getMapImages();
 
   let loc = (mapLocationsValue as any)[props.id] || null;
   if (!loc && props.id) {

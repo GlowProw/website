@@ -27,7 +27,7 @@ interface SubTabItem {
 }
 
 /**
- * 常规设置大类：常规设置、进阶设置、数据报告（存储）、心愿单、日志记录
+ * 常规设置大类：常规设置、进阶设置、快捷键
  */
 const generalTabs: SubTabItem[] = [
   {
@@ -41,6 +41,22 @@ const generalTabs: SubTabItem[] = [
     icon: 'mdi-application-cog-outline'
   },
   {
+    name: 'setting.hotkeys.title',
+    value: 'PortalSettingHotkeys',
+    icon: 'mdi-keyboard-outline'
+  },
+]
+
+/**
+ * 数据大类：日志、数据报告、愿望清单
+ */
+const dataTabs: SubTabItem[] = [
+  {
+    name: 'setting.log.title',
+    value: 'PortalSettingLog',
+    icon: 'mdi-text-box-multiple-outline'
+  },
+  {
     name: 'setting.storage.title',
     value: 'PortalSettingStorage',
     icon: 'mdi-database'
@@ -49,16 +65,6 @@ const generalTabs: SubTabItem[] = [
     name: 'setting.wishlist.title',
     value: 'PortalSettingWishlist',
     icon: 'mdi-playlist-star'
-  },
-  {
-    name: 'setting.log.title',
-    value: 'PortalSettingLog',
-    icon: 'mdi-text-box-multiple-outline'
-  },
-  {
-    name: 'setting.hotkeys.title',
-    value: 'PortalSettingHotkeys',
-    icon: 'mdi-keyboard-outline'
   },
 ]
 
@@ -105,14 +111,16 @@ const aboutTabs: SubTabItem[] = [
 
 // 路由归属判定
 const isGeneralRoute = (name: string) => generalTabs.some(i => i.value === name)
+const isDataRoute = (name: string) => dataTabs.some(i => i.value === name)
 const isSubscriptionRoute = (name: string) => subscriptionTabs.some(i => i.value === name)
 const isAboutRoute = (name: string) => aboutTabs.some(i => i.value === name)
 
 /**
  * 依据当前路由动态计算激活的一级 Tab
  */
-const primaryNavMenu = computed<'SettingGeneral' | 'SettingSubscriptions' | 'SettingAbout'>(() => {
+const primaryNavMenu = computed<'SettingGeneral' | 'SettingData' | 'SettingSubscriptions' | 'SettingAbout'>(() => {
   const currentName = (route.name as string) || ''
+  if (isDataRoute(currentName)) return 'SettingData'
   if (isSubscriptionRoute(currentName)) return 'SettingSubscriptions'
   if (isAboutRoute(currentName)) return 'SettingAbout'
   if (isGeneralRoute(currentName)) return 'SettingGeneral'
@@ -123,6 +131,7 @@ const primaryNavMenu = computed<'SettingGeneral' | 'SettingSubscriptions' | 'Set
  * 依据当前激活的一级分类动态展示二级垂直 Tab 列表
  */
 const currentSubTabs = computed<SubTabItem[]>(() => {
+  if (primaryNavMenu.value === 'SettingData') return dataTabs
   if (primaryNavMenu.value === 'SettingSubscriptions') return subscriptionTabs
   if (primaryNavMenu.value === 'SettingAbout') return aboutTabs
   return generalTabs
@@ -183,7 +192,7 @@ defineOptions({
 
       <!-- 一级导航栏 (参考 Index.vue:L159-L200) -->
       <v-container class="pa-0 px-2 mt-auto d-flex align-end">
-        <v-row density="compact">
+        <v-row density="compact" align="end">
           <v-col cols="12">
             <v-tabs
                 :model-value="primaryNavMenu"
@@ -197,6 +206,12 @@ defineOptions({
                      :class="{'v-tab--route-active': primaryNavMenu === 'SettingGeneral'}"
                      :to="{ name: generalTabs[0].value, params: route.params }">
                 {{ t('setting.title') }}
+              </v-tab>
+              <v-tab value="SettingData"
+                     class="font-weight-bold text-subtitle-1 px-8"
+                     :class="{'v-tab--route-active': primaryNavMenu === 'SettingData'}"
+                     :to="{ name: dataTabs[0].value, params: route.params }">
+                {{ t('setting.data.title') }}
               </v-tab>
               <v-tab value="SettingSubscriptions"
                      class="font-weight-bold text-subtitle-1 px-8"

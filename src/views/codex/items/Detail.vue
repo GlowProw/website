@@ -34,6 +34,7 @@ import DamageMitigationWidget from "@/components/snbWidget/damageMitigationWidge
 import ItemDescription from "@/components/snbWidget/itemDescription.vue";
 import ShipUpgradedDescription from "@/components/snbWidget/shipUpgradedDescription.vue";
 import ByEventWidget from "@/components/ByEventWidget.vue";
+import ByBluePrintWidget from "@/components/ByBluePrintWidget.vue";
 import ItemAmmunitionType from "@/components/snbWidget/itemAmmunitionType.vue";
 import ShareWidget from "@/components/ShareWidget.vue";
 import {useCalculatorStore} from "~/stores/calculatorStore";
@@ -213,7 +214,7 @@ const onAddCalculator = () => {
         <v-row class="mt-5">
           <v-col cols="8">
             <h1 class="text-amber text-h2 singe-line">
-              <ItemName :data="itemDetailData"></ItemName>
+              <ItemName :id="itemDetailData.id"></ItemName>
             </h1>
             <p class="mt-2 mb-3">
               <v-icon icon="mdi-identifier"/>
@@ -482,7 +483,7 @@ const onAddCalculator = () => {
               <VerticalScrollList :force-draggable="false" :is-indicator="false" height="calc(100vh - 120px)">
 
                 <template v-if="itemDetailData.blueprint">
-                  <ByBluePrint :data="itemDetailData"></ByBluePrint>
+                  <ByBluePrintWidget :data="itemDetailData"></ByBluePrintWidget>
                 </template>
                 <template v-if="itemDetailData.event">
                   <ByEventWidget :data="itemDetailData"></ByEventWidget>

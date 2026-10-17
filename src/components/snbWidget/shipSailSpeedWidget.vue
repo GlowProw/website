@@ -9,14 +9,14 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemName from "@/components/snbWidget/itemName.vue";
 
 const props = withDefaults(defineProps<{
-  data: Ship,
-  isSimulationShipSailSpeed?: boolean,
-  isShowSailSpeedText?: boolean
-}>(), {
-  data: null,
-  isSimulationShipSailSpeed: true,
-  isShowSailSpeedText: true
-}),
+      data: Ship,
+      isSimulationShipSailSpeed?: boolean,
+      isShowSailSpeedText?: boolean
+    }>(), {
+      data: null,
+      isSimulationShipSailSpeed: true,
+      isShowSailSpeedText: true
+    }),
     {t} = useI18n()
 
 let simulationValue = ref(1),
@@ -28,7 +28,8 @@ let simulationValue = ref(1),
     remainingTime = ref(0),     // 剩余时间（秒）
     countdownInterval = ref(null), // 倒计时计时器
     currentBoostType = ref(''), // 当前生效的道具类型
-    strongBreeze = ref(false)  // 强风状态
+    strongBreeze = ref(false),  // 强风状态
+    tailwind = ref(false)       // 顺风状态
 
 
 const
@@ -36,9 +37,13 @@ const
     strongBreezeBoost = computed(() => {
       return strongBreeze.value ? 50 : 0;
     }),
+    // 计算顺风带来的百分比提升
+    tailwindBoost = computed(() => {
+      return tailwind.value ? 10 : 0;
+    }),
     // 总速度提升计算
     totalSpeedBoost = computed(() => {
-      return speedBoost.value + strongBreezeBoost.value;
+      return speedBoost.value + strongBreezeBoost.value + tailwindBoost.value;
     }),
     // 应用提升后的速度数组
     boostedSpeedArray = computed(() => {
@@ -150,117 +155,83 @@ const onWaterBarrelClick = () => {
 
 <template>
   <div v-if="data" class="pt-3">
-    <v-card v-if="isSimulationShipSailSpeed" class="mx-n1 card-enlargement-mask-flavor" variant="text">
-      <!-- 速度提升状态显示 S -->
-      <v-alert v-if="totalSpeedBoost > 0" density="compact" class="ma-3">
-        <div class="d-flex align-center justify-space-between">
-          <div class="d-flex align-center">
-            <v-icon :icon="strongBreeze ? 'mdi-weather-windy' : 'mdi-sail-boat'" class="mr-2"></v-icon>
-            <span>
-              {{ t('codex.ship.sailSpeed.boost.title', {percent: totalSpeedBoost.toFixed(1)}) }}
-              <span v-if="speedBoost > 0">
-                <!-- {{ boostDescription }} -->
-              </span>
-              <span v-if="strongBreeze">
-                ({{ t('codex.ship.sailSpeed.boost.strongBreezeEffect') }})
-              </span>
-            </span>
-          </div>
-          <v-btn
-              v-if="speedBoost > 0"
-              @click="cancelBoostEffect"
-              size="small"
-              variant="text"
-              color="error"
-              icon
-              :title="t('codex.ship.sailSpeed.boost.cancelEffect')">
-            <v-icon>mdi-close-circle</v-icon>
-          </v-btn>
-        </div>
-      </v-alert>
-      <!-- 速度提升状态显示 E -->
-
-      <div class="px-5">
-        <v-row class="mb-2 mt-2" align="center">
-          <v-spacer></v-spacer>
-          <div class="d-flex ml-n4 speed-dot">
-            <div
-                class="mb-1 mt-1"
-                v-for="(i,index) in ticks"
-                :key="index">
-              <RhombusWidget
-                  :activateColor="ticks.length - 1 == index ? '#4CAF50' : 'rgba(242,242,242,0.76)'"
-                  :slot="index <= simulationValue"
-                  :slot-activate="index <= simulationValue"
-                  :border-activate="index <= simulationValue">
-              </RhombusWidget>
-            </div>
-          </div>
-          <v-col cols="auto">
-            <v-progress-circular
-                size="150"
-                :color="{
-                0: '#ff8484',
-                1: '#f2f2f2',
-                2: '#a6ffab'
-              }[simulationValue || 0]"
-                model-value="100">
-              <div class="position-absolute">
-                <WindFlowsWidget
-                    style="transform: rotate(-45deg);width: calc(100% - 5px)"
-                    :pathCount="4"
-                    :speed="1 + totalSpeedBoost / 100"
-                    :opacity="strongBreeze ? 0.6 : 0.3"
-                    :mid-point="3">
-                </WindFlowsWidget>
-              </div>
-              <div class="h-100 text-center">
-                <div class="text-center text-h4 mb-3 "
-                     :class="[
+    <v-card v-if="isSimulationShipSailSpeed" variant="text" class="py-3">
+      <v-row>
+        <v-col cols="12" md="7" lg="7" class="d-sm-flex justify-sm-center align-sm-center">
+          <div>
+            <v-row align="center">
+              <v-col cols="auto" class="d-flex ml-1 gap-1 speed-dot">
+                <template v-for="(i,index) in ticks" :key="index">
+                  <RhombusWidget
+                      :activateColor="ticks.length - 1 == index ? '#4CAF50' : 'rgba(242,242,242,0.76)'"
+                      :slot="index <= simulationValue"
+                      :slot-activate="index <= simulationValue"
+                      :border-activate="index <= simulationValue">
+                  </RhombusWidget>
+                </template>
+              </v-col>
+              <v-col cols="auto">
+                <v-progress-circular
+                    size="150"
+                    :color="{
+                    0: '#ff8484',
+                    1: '#f2f2f2',
+                    2: '#a6ffab'
+                  }[simulationValue || 0]"
+                    model-value="100">
+                  <div class="position-absolute">
+                    <WindFlowsWidget
+                        style="transform: rotate(-45deg);width: calc(100% - 5px)"
+                        :pathCount="4"
+                        :speed="1 + totalSpeedBoost / 100"
+                        :opacity="strongBreeze ? 0.6 : (tailwind ? 0.45 : 0.3)"
+                        :mid-point="3">
+                    </WindFlowsWidget>
+                  </div>
+                  <div class="h-100 text-center">
+                    <div class="text-center text-h4 mb-3 "
+                         :class="[
                       simulationValue  >= simulationArray.length - 1 ? 'text-green' : '',
                       simulationValue  <= 0 ? 'text-red' : ''
                     ]"/>
-                <div class="text-h4" :class="{ 'text-orange': strongBreeze }">
-                  {{ currentDisplaySpeed }}
-                </div>
+                    <div class="text-h4" :class="{ 'text-orange': strongBreeze, 'text-cyan': tailwind && !strongBreeze }">
+                      {{ currentDisplaySpeed }}
+                    </div>
 
-                <p class="opacity-50 text-body-1 ml-2">
-                  <v-icon icon="mdi-arrow-top-right-thick"></v-icon>
-                  {{ t('codex.ship.sailSpeed.unit.knot') }}
-                  <span v-if="totalSpeedBoost > 0" class="text-success text-caption">
-                    (+{{ totalSpeedBoost.toFixed(1) }}%)
-                    <span v-if="strongBreeze" class="text-orange">
-                      ({{ t('codex.ship.sailSpeed.boost.strongBreeze') }})
-                    </span>
-                  </span>
-                </p>
-              </div>
-            </v-progress-circular>
-          </v-col>
-          <v-spacer></v-spacer>
-        </v-row>
+                    <p class="opacity-50 text-body-1">
+                      <v-icon icon="mdi-arrow-top-right-thick"></v-icon>
+                      {{ t('codex.ship.sailSpeed.unit.knot') }}
+                    </p>
+                  </div>
+                </v-progress-circular>
+              </v-col>
+            </v-row>
+          </div>
+        </v-col>
 
-        <v-slider
-            :max="simulationArray.length - 1"
-            :ticks="ticks"
-            v-model="simulationValue"
-            hide-details
-            step="1"
-            tick-size="4">
-          <template v-slot:prepend>
-            <v-icon icon="mdi-weather-windy"></v-icon>
-          </template>
-          <template v-slot:append>
-            <v-icon icon="mdi-weather-dust"></v-icon>
-          </template>
-        </v-slider>
-      </div>
+        <v-col cols="12" md="5" lg="5" class="d-flex align-center justify-center">
+          <v-slider
+              :max="simulationArray.length - 1"
+              :ticks="ticks"
+              v-model="simulationValue"
+              hide-details
+              hide-spin-buttons
+              step="1"
+              tick-size="4">
+            <template v-slot:prepend>
+              <v-icon icon="mdi-weather-windy"></v-icon>
+            </template>
+            <template v-slot:append>
+              <v-icon icon="mdi-weather-dust"></v-icon>
+            </template>
+          </v-slider>
+        </v-col>
+      </v-row>
 
-      <v-divider class="my-5"></v-divider>
-
-      <v-row density="compact" class="pb-3" justify="center">
+      <v-row density="compact" class="py-2" justify="center">
         <v-col cols="auto">
           <v-btn
+              variant="tonal"
               @click="onWaterFlaskClick"
               :disabled="speedBoost > 0"
               :color="currentBoostType === 'waterFlask' ? '' : undefined"
@@ -269,18 +240,11 @@ const onWaterBarrelClick = () => {
               <ItemIconWidget :id="'waterFlask'" :is-show-tooltip="false" :is-open-detail="false"></ItemIconWidget>
             </ItemSlotBase>
             <ItemName id="waterFlask"></ItemName>
-            <v-badge
-                v-if="currentBoostType === 'waterFlask'"
-                color="error"
-                @click="cancelBoostEffect"
-                :content="formattedRemainingTime"
-                inline
-                class="ml-2"
-            ></v-badge>
           </v-btn>
         </v-col>
         <v-col cols="auto">
           <v-btn
+              variant="tonal"
               @click="onWaterBarrelClick"
               :disabled="speedBoost > 0"
               :color="currentBoostType === 'waterBarrel' ? '' : undefined"
@@ -289,28 +253,90 @@ const onWaterBarrelClick = () => {
               <ItemIconWidget :id="'waterBarrel'" :is-show-tooltip="false" :is-open-detail="false"></ItemIconWidget>
             </ItemSlotBase>
             <ItemName id="waterBarrel"></ItemName>
-            <v-badge
-                v-if="currentBoostType === 'waterBarrel'"
-                color="error"
-                @click="cancelBoostEffect"
-                :content="formattedRemainingTime"
-                inline
-                class="ml-2"
-            ></v-badge>
           </v-btn>
         </v-col>
-
-        <v-col cols="12" class="d-flex justify-center">
-          <v-checkbox
-              v-model="strongBreeze"
-              :label="t('codex.ship.sailSpeed.boost.strongBreeze')"
-              density="compact"
-              hide-details
-              color="orange"
-              :title="t('codex.ship.sailSpeed.boost.strongBreezeTooltip')"
-          ></v-checkbox>
+        <v-col cols="auto">
+          <v-btn>
+            <v-checkbox
+                v-model="tailwind"
+                :label="t('codex.ship.sailSpeed.boost.tailwind')"
+                density="compact"
+                hide-details
+                color="cyan"
+                :title="t('codex.ship.sailSpeed.boost.tailwindTooltip')"
+            ></v-checkbox>
+          </v-btn>
+        </v-col>
+        <v-col cols="auto">
+          <v-btn>
+            <v-checkbox
+                v-model="strongBreeze"
+                :label="t('codex.ship.sailSpeed.boost.strongBreeze')"
+                density="compact"
+                hide-details
+                color="orange"
+                :title="t('codex.ship.sailSpeed.boost.strongBreezeTooltip')"
+            ></v-checkbox>
+          </v-btn>
         </v-col>
       </v-row>
+
+      <!-- 速度提升状态显示 S -->
+      <div v-if="totalSpeedBoost > 0" class="mb-3">
+        <div>
+          <v-row class="d-flex align-center ga-2" align="center">
+            <v-col cols="auto">
+              {{ t('codex.ship.sailSpeed.boost.title', {percent: ''}) }}
+            </v-col>
+            <v-col>
+              <v-divider></v-divider>
+            </v-col>
+            <v-col cols="auto" class="u">
+              {{ totalSpeedBoost.toFixed(1) }}%
+            </v-col>
+          </v-row>
+
+          <div class="mt-2 d-flex ga-2">
+            <v-chip density="comfortable" v-if="speedBoost > 0">
+              {{ speedBoost }}%
+
+              <v-badge
+                  v-if="currentBoostType === 'waterFlask'"
+                  color="error"
+                  @click="cancelBoostEffect"
+                  :content="formattedRemainingTime"
+                  inline
+                  class="ml-2"
+              ></v-badge>
+
+              <v-badge
+                  v-if="currentBoostType === 'waterBarrel'"
+                  color="error"
+                  @click="cancelBoostEffect"
+                  :content="formattedRemainingTime"
+                  inline
+                  class="ml-2"
+              ></v-badge>
+            </v-chip>
+            <v-chip density="comfortable" v-if="strongBreeze">
+              {{ t('codex.ship.sailSpeed.boost.strongBreezeEffect') }}
+            </v-chip>
+            <v-chip density="comfortable" v-if="tailwind">
+              {{ t('codex.ship.sailSpeed.boost.tailwindEffect') }}
+            </v-chip>
+            <v-btn
+                v-if="speedBoost > 0"
+                @click="cancelBoostEffect"
+                size="xl-small"
+                variant="text"
+                icon
+                :title="t('codex.ship.sailSpeed.boost.cancelEffect')">
+              <v-icon>mdi-close-circle</v-icon>
+            </v-btn>
+          </div>
+        </div>
+      </div>
+      <!-- 速度提升状态显示 E -->
     </v-card>
 
     <!-- 速度 S -->

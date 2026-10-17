@@ -1547,7 +1547,7 @@
           "knot": "knots"
         },
         "boost": {
-          "title": "Speed Boost: +{percent}%",
+          "title": "Speed Boost",
           "waterFlaskRemaining": "(Water Flask effect remaining {time})",
           "waterBarrelRemaining": "(Water Barrel effect remaining {time})",
           "strongBreeze": "Strong Breeze",
@@ -1555,7 +1555,10 @@
           "cancelEffect": "Cancel Effect",
           "waterFlaskTooltip": "Water Flask: 10% speed boost for 20s",
           "waterBarrelTooltip": "Water Barrel: 15% speed boost for 20s",
-          "strongBreezeTooltip": "Strong Breeze: 50% speed boost"
+          "strongBreezeTooltip": "Strong Breeze: 50% speed boost",
+          "tailwind": "Tailwind",
+          "tailwindEffect": "Tailwind Effect",
+          "tailwindTooltip": "Tailwind: 10% speed boost"
         },
         "simulation": {
           "windy": "Windy",
@@ -3180,6 +3183,9 @@
   },
   "setting": {
     "title": "Setting",
+    "data": {
+      "title": "Data"
+    },
     "routine": {
       "title": "General Settings",
       "translationHelp": "If you are interested in translation, you can help us correct content or translate via the link below. Translators will be acknowledged on the website and granted a 'Translator' status.",

@@ -3,7 +3,7 @@
 import {computed, onMounted, onUnmounted, ref, watch} from 'vue'
 import {useI18n} from 'vue-i18n'
 import {useRoute} from 'vue-router'
-import {number} from '@/assets/sripts'
+import {number, storage} from '@/assets/sripts'
 import {CreateOrderParams, MyOrder, SubscriptionPlans, SubscriptionProgress, useSubscriptionApi} from '@/assets/sripts/api/subscription_service'
 import type {SubscriptionTierItem} from '@/assets/types/Subscription'
 import {subscriptionsConfig} from '@/config/subscriptions'
@@ -377,15 +377,18 @@ onMounted(async () => {
 
   if (route.query.paid === '1') {
     notice.minimal(t('subscription.paySuccess') || '支付成功，感谢您的赞助支持！', 'success')
+    
     try {
-      sessionStorage.removeItem('quota.status')
+      storage.session.rem('quota.status')
     } catch {
     }
+
     if (authStore.user?.token) {
       api.getMyStatus().then(s => myStatus.value = s || {}).catch(() => {
       })
       loadMyOrders()
     }
+
   } else if (route.query.paid === '0') {
     notice.minimal(t('subscription.payCancelled') || '您已取消本次支付', 'warning')
   }

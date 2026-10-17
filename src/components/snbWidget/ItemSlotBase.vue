@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, ref} from 'vue';
+import {computed} from 'vue';
 import {useIconGlobalStyle} from '@/assets/sripts/use_icon_global_style';
 import {useWishlistStore} from '~/stores/wishlistStore';
 
@@ -23,34 +23,23 @@ const props = withDefaults(
 
 const {useIconAdaptiveSize, useIconBoxPadding, useIconBoxMargin} = useIconGlobalStyle();
 const wishlistStore = useWishlistStore();
-const containerRef = ref<HTMLElement | null>(null);
-const actualSize = ref(0);
 
 const computedSize = props.isAutoSize ? useIconAdaptiveSize(() => props.size, 99) : props.size;
 const computedPadding = props.isAutoPadding ? useIconBoxPadding(() => props.padding, 1) : props.padding;
 const computedMargin = props.isAutoMargin ? useIconBoxMargin(() => props.margin, 0) : props.margin;
-
-onMounted(() => {
-  if (containerRef.value) {
-    actualSize.value = containerRef.value.clientWidth;
-  }
-});
 
 const wishlistMatch = computed(() => {
   if (!props.id) return null;
   return wishlistStore.getMatchForItem(props.id);
 });
 
+// 直接基于计算尺寸派生角标图标大小，消除客户端同步 reflow 瓶颈
 const iconSize = computed(() => {
-  if (actualSize.value > 0) {
-    // 容器宽度的 10%
-    return Math.max(15, actualSize.value * 0.10);
-  }
-  // 回退方案
-  const sizeValue: any = typeof computedSize === 'string'
+  const sizeValue = typeof computedSize === 'string'
       ? parseFloat(computedSize)
-      : (computedSize || 1);
-  return 12 * sizeValue;
+      : Number(computedSize || 99);
+  const baseSize = !isNaN(sizeValue) && sizeValue > 0 ? sizeValue : 99;
+  return Math.max(14, Math.round(baseSize * 0.18));
 });
 
 defineOptions({
@@ -59,8 +48,7 @@ defineOptions({
 </script>
 
 <template>
-  <div ref="containerRef"
-       class="card-enlargement-mask-flavor"
+  <div class="card-enlargement-mask-flavor"
        :class="`item-base-slot pa-${computedPadding} ma-${computedMargin}`"
        :style="`height: ${computedSize}; width: ${computedSize};min-height: ${computedSize}; min-width: ${computedSize}`">
     <slot></slot>

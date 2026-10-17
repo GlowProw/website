@@ -1,5 +1,4 @@
 import { useI18nUtils } from "@/assets/sripts/i18n_util";
-import { useI18n } from "vue-i18n";
 
 import { Cosmetics, EmpireSkills, Item, Items, MapLocations, Masterys, Materials, Modifications, Npcs, Sets, Ship, Ships, TreasureMaps, Quests } from "glow-prow-data";
 import { Ultimates } from "glow-prow-data/src/entity/Ultimates";
@@ -21,12 +20,37 @@ const items = Items,
     masterys = Masterys,
     quests = Quests
 
+// 静态实体翻译名称缓存，避免长列表或频繁重渲染时重复解析
+const staticNameCache = new Map<string, string>();
+
+/**
+ * 清空实体翻译名称缓存（远程语言包加载完成或切换语言时调用）
+ */
+export function clearI18nNameCache(): void {
+    staticNameCache.clear();
+}
+
+/**
+ * 缓存的名称解析辅助方法
+ */
+function resolveCachedName(cacheKey: string, resolver: () => string): string {
+    const cached = staticNameCache.get(cacheKey);
+    if (cached !== undefined) {
+        return cached;
+    }
+    const val = resolver();
+    // 仅当获得有效翻译且未回退为 snb 原始键时才写入缓存，避免未完成异步加载时污染
+    if (val && !val.startsWith('snb.')) {
+        staticNameCache.set(cacheKey, val);
+    }
+    return val;
+}
+
 /**
  * i18n 名称与描述数据读取 Hook
  */
 export function useI18nReadName() {
-    const { asString, asArray, sanitizeString, te, tm, t } = useI18nUtils()
-    const { rt } = useI18n();
+    const { asString, asArray, sanitizeString, te, tm, t, locale } = useI18nUtils()
 
     const getValue = (obj: any, path: string) => {
         return path.split('.').reduce((acc, key) => acc?.[key], obj)
@@ -48,15 +72,18 @@ export function useI18nReadName() {
             keysName,
             keysDescription,
             name: (lang?: string): string => {
-                if (items[id]) {
-                    const translatedName = asString(keysName, {
-                        backRawKey: true,
-                        lang
-                    })
-                    const tier = number.intToRoman(idTier || items[id].tier) || '';
-                    return `${translatedName} ${tier}`.trim()
-                }
-                return String(id);
+                const targetLang = lang || locale?.value || '';
+                return resolveCachedName(`item:${targetLang}:${id}`, () => {
+                    if (items[id]) {
+                        const translatedName = asString(keysName, {
+                            backRawKey: true,
+                            lang
+                        })
+                        const tier = number.intToRoman(idTier || items[id].tier) || '';
+                        return `${translatedName} ${tier}`.trim()
+                    }
+                    return String(id);
+                });
             },
             description: (lang?: string): string => {
                 if (items[id]) {
@@ -85,15 +112,18 @@ export function useI18nReadName() {
             keysName,
             keysDescription,
             name: (lang?: string): string => {
-                if (modifications[id]) {
-                    const translatedName = asString(keysName, {
-                        backRawKey: true,
-                        lang
-                    })
-                    const tier = number.intToRoman(modifications[id].tier) || '';
-                    return `${translatedName} ${tier}`.trim()
-                }
-                return String(id);
+                const targetLang = lang || locale?.value || '';
+                return resolveCachedName(`mod:${targetLang}:${id}`, () => {
+                    if (modifications[id]) {
+                        const translatedName = asString(keysName, {
+                            backRawKey: true,
+                            lang
+                        })
+                        const tier = number.intToRoman(modifications[id].tier) || '';
+                        return `${translatedName} ${tier}`.trim()
+                    }
+                    return String(id);
+                });
             },
             /**
              * 取得模组详情，如果传如type则返回特定变种描述，如果没有则返回所有变种描述
@@ -168,15 +198,18 @@ export function useI18nReadName() {
             keysName,
             keysDescription,
             name: (lang?: string): string => {
-                if (data) {
-                    const translatedName = asString(keysName, {
-                        backRawKey: true,
-                        lang
-                    })
-                    const tier = number.intToRoman(data.tier) || '';
-                    return `${translatedName} ${tier}`.trim()
-                }
-                return id;
+                const targetLang = lang || locale?.value || '';
+                return resolveCachedName(`cosmetic:${targetLang}:${id}`, () => {
+                    if (data) {
+                        const translatedName = asString(keysName, {
+                            backRawKey: true,
+                            lang
+                        })
+                        const tier = number.intToRoman(data.tier) || '';
+                        return `${translatedName} ${tier}`.trim()
+                    }
+                    return id;
+                });
             },
             description: (lang?: string): string => {
                 if (data) {
@@ -205,15 +238,18 @@ export function useI18nReadName() {
             keysName,
             keysDescription,
             name: (lang?: string): string => {
-                if (commodities[id]) {
-                    const translatedName = asString(keysName, {
-                        backRawKey: true,
-                        lang
-                    })
-                    const tier = number.intToRoman(commodities[id].tier) || '';
-                    return `${translatedName} ${tier}`.trim()
-                }
-                return String(id);
+                const targetLang = lang || locale?.value || '';
+                return resolveCachedName(`comm:${targetLang}:${id}`, () => {
+                    if (commodities[id]) {
+                        const translatedName = asString(keysName, {
+                            backRawKey: true,
+                            lang
+                        })
+                        const tier = number.intToRoman((commodities[id] as any)?.tier) || '';
+                        return `${translatedName} ${tier}`.trim()
+                    }
+                    return String(id);
+                });
             },
             description: (lang?: string): string => {
                 if (commodities[id]) {
@@ -240,12 +276,15 @@ export function useI18nReadName() {
             keysName,
             keysDescription,
             name: (lang?: string): string => {
-                if (materials[id])
-                    return asString(keysName, {
-                        backRawKey: true,
-                        lang
-                    })
-                return String(id)
+                const targetLang = lang || locale?.value || '';
+                return resolveCachedName(`mat:${targetLang}:${id}`, () => {
+                    if (materials[id])
+                        return asString(keysName, {
+                            backRawKey: true,
+                            lang
+                        })
+                    return String(id)
+                });
             },
             description: (lang?: string): string => {
                 if (materials[id]) {
@@ -272,12 +311,15 @@ export function useI18nReadName() {
             keysName,
             keysDescription,
             name: (lang?: string): string => {
-                if (ships[id])
-                    return asString(keysName, {
-                        backRawKey: true,
-                        lang
-                    })
-                return String(id)
+                const targetLang = lang || locale?.value || '';
+                return resolveCachedName(`ship:${targetLang}:${id}`, () => {
+                    if (ships[id])
+                        return asString(keysName, {
+                            backRawKey: true,
+                            lang
+                        })
+                    return String(id)
+                });
             },
             description: (lang?: string): string => {
                 if (ships[id]) {

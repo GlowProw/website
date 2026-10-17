@@ -231,9 +231,8 @@ let vectorLayer: VectorLayer<VectorSource> | null = null;
 const defaultLon = -0.667206;
 const defaultLat = 0.626653;
 
-const mapImages = import.meta.glob('/src/assets/images/map/*.*', {eager: true});
-const {serializationMap} = useAssetsStore();
-const icons = ref<Record<string, string>>(serializationMap(mapImages));
+const assetsStore = useAssetsStore();
+const icons = ref<Record<string, string>>(assetsStore.getMapImages());
 
 const getCategoryIcon = (category: string) => {
   return icons.value[category] || icons.value['shareLocation'] || icons.value['default'] || '';

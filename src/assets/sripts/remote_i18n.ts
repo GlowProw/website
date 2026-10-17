@@ -3,6 +3,7 @@
  */
 import { storage } from "./index";
 import { getAppI18n } from "@/i18n/index";
+import { clearI18nNameCache } from "./i18n_read_name";
 import { SUPPORTED_LANGS, isSupportedLang, toCDNLang } from "@/config/languages";
 import type { CategoryFetch, CDNLangSource } from "@/assets/types/I18n";
 
@@ -219,6 +220,8 @@ function mergeIntoI18n(i18nGlobal: any, locale: string, remoteMessages: Record<s
         const existing = i18nGlobal.getLocaleMessage(locale) || {};
         const merged = deepMergeSafe(existing, remoteMessages);
         i18nGlobal.setLocaleMessage(locale, merged);
+        // 远程翻译数据注入后，清理名称缓存以强制更新为最新翻译
+        clearI18nNameCache();
     } catch (err) {
         console.warn('[remote_i18n] merge 失败:', err);
     }
@@ -228,4 +231,5 @@ export function clearRemoteLangCache(sourceKey: string) {
     for (const lang of SUPPORTED_LANGS) {
         storage.session.rem(cacheKey(sourceKey, lang));
     }
+    clearI18nNameCache();
 }

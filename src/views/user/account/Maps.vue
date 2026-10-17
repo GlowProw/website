@@ -35,10 +35,9 @@ const {t} = useI18n(),
     api = useMapApi(),
     notice = useNoticeStore(),
     router = useRouter(),
-    {serializationMap} = useAssetsStore()
+    assetsStore = useAssetsStore()
 
-const mapImages = import.meta.glob('/src/assets/images/map/*.*', {eager: true})
-const mapIcons = ref<Record<string, string>>(serializationMap(mapImages))
+const mapIcons = ref<Record<string, string>>(assetsStore.getMapImages())
 
 /**
  * 获取标记对应的分类图标路径

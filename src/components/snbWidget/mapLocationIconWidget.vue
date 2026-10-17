@@ -2,7 +2,7 @@
 import {useIconGlobalStyle} from "@/assets/sripts/use_icon_global_style";
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
-import {computed, onMounted, type Ref, ref, watch} from "vue";
+import {computed, defineAsyncComponent, onMounted, type Ref, ref, watch} from "vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useIntersectionObserver} from "@/assets/sripts/intersection_observer";
 import {rarity} from "@/assets/sripts/index";
@@ -12,19 +12,19 @@ import Loading from "../Loading.vue";
 import {MapLocation, MapLocations} from "glow-prow-data";
 import {useAppStore} from "~/stores/appStore";
 import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
-import MapLocationCardDetail from "@/components/snbWidget/mapLocationCardDetail.vue";
 
-const mapImages = import.meta.glob('/src/assets/images/map/*.*', {eager: true})
+// 悬浮详情卡片采用异步按需加载，避免首屏同步打包大组件
+const MapLocationCardDetail = defineAsyncComponent(() => import("@/components/snbWidget/mapLocationCardDetail.vue"));
 
 const
     {asString, sanitizeString} = useI18nUtils(),
-    {serializationMap} = useAssetsStore(),
+    assetsStore = useAssetsStore(),
     route = useRoute(),
     router = useRouter(),
     appStore = useAppStore(),
     {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
     {t} = useI18n(),
-    {raritys: raritysAssets} = useAssetsStore(),
+    {raritys: raritysAssets} = assetsStore,
     props = withDefaults(defineProps<{
       id: string,
       isShowOpenDetail?: boolean,
@@ -73,7 +73,7 @@ const isCodexLocation = computed(() => {
 });
 
 const onReady = async () => {
-  mapIcons.value = serializationMap(mapImages);
+  mapIcons.value = assetsStore.getMapImages();
 
   let loc = mapLocations[props.id] || null;
   if (!loc && props.id) {

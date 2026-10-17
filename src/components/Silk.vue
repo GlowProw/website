@@ -181,9 +181,30 @@ const initSilk = () => {
   gl.canvas.style.zIndex = '1';
 
   let lastTime = 0;
+  let isVisible = true;
+  let isDocumentVisible = typeof document !== 'undefined' ? !document.hidden : true;
+
+  const startLoop = () => {
+    if (!animateId && isVisible && isDocumentVisible) {
+      lastTime = performance.now();
+      animateId = requestAnimationFrame(update);
+    }
+  };
+
+  const stopLoop = () => {
+    if (animateId) {
+      cancelAnimationFrame(animateId);
+      animateId = 0;
+    }
+  };
+
   const update = (t: number) => {
+    if (!isVisible || !isDocumentVisible) {
+      animateId = 0;
+      return;
+    }
     animateId = requestAnimationFrame(update);
-    const deltaTime = (t - lastTime) / 1000;
+    const deltaTime = lastTime ? (t - lastTime) / 1000 : 0.016;
     lastTime = t;
 
     if (program && mesh && camera) {
@@ -198,11 +219,44 @@ const initSilk = () => {
   };
   animateId = requestAnimationFrame(update);
 
+  const onVisibilityChange = () => {
+    isDocumentVisible = typeof document !== 'undefined' ? !document.hidden : true;
+    if (isDocumentVisible) {
+      startLoop();
+    } else {
+      stopLoop();
+    }
+  };
+  if (typeof document !== 'undefined') {
+    document.addEventListener('visibilitychange', onVisibilityChange);
+  }
+
+  let intersectionObs: IntersectionObserver | null = null;
+  if (typeof IntersectionObserver !== 'undefined' && container) {
+    intersectionObs = new IntersectionObserver((entries) => {
+      const entry = entries[0];
+      isVisible = entry ? entry.isIntersecting : true;
+      if (isVisible) {
+        startLoop();
+      } else {
+        stopLoop();
+      }
+    }, { threshold: 0.01 });
+    intersectionObs.observe(container);
+  }
+
   resize();
 
   return () => {
-    cancelAnimationFrame(animateId);
+    stopLoop();
     window.removeEventListener('resize', resize);
+    if (typeof document !== 'undefined') {
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    }
+    if (intersectionObs) {
+      intersectionObs.disconnect();
+      intersectionObs = null;
+    }
     if (container && gl.canvas.parentNode === container) {
       container.removeChild(gl.canvas);
     }
@@ -213,6 +267,7 @@ const initSilk = () => {
 const cleanup = () => {
   if (animateId) {
     cancelAnimationFrame(animateId);
+    animateId = 0;
   }
   if (renderer) {
     const gl = renderer.gl;

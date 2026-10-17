@@ -56,7 +56,6 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         if (!options.highlightCoords) return undefined;
         return typeof options.highlightCoords === 'object' && 'value' in options.highlightCoords ? (options.highlightCoords as any).value : options.highlightCoords;
     });
-    const mapImages = import.meta.glob('/src/assets/images/map/*.*', { eager: true });
     const { t } = useI18n();
     const route = useRoute();
     const router = useRouter();
@@ -65,7 +64,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
     const api = useMapApi();
     const { asString } = useI18nUtils();
     const { mobile } = useDisplay();
-    const { serializationMap } = useAssetsStore();
+    const assetsStore = useAssetsStore();
     const storageObj = new Storage();
 
     /**
@@ -96,7 +95,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
     const mapCenterLocation: Ref<number[]> = ref([-0.667206, 0.626653]);
     const mapBounds = ref<[number, number, number, number]>(MAP_BOUNDS);
     const locations: Ref<any[]> = ref(Object.values(MapLocations));
-    const icons: Ref<Record<string, string>> = ref(serializationMap(mapImages));
+    const icons: Ref<Record<string, string>> = ref(assetsStore.getMapImages());
     const isFull = ref(false);
     const model = ref<boolean>(false);
     const selectedLocationData: Ref<Record<any, any>> = ref({});
@@ -706,7 +705,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         const { x: queryX, y: queryY, z: queryZoom, key: queryKey, category: queryCategory } = route.query;
 
         initializeLayerVisibility();
-        icons.value = serializationMap(mapImages);
+        icons.value = assetsStore.getMapImages();
 
         // debug 模式下添加边界编辑图层
         if (isDebug.value) {
@@ -3407,7 +3406,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
 
     const getCategoryIcon = (category: string) => {
         if (!icons.value || Object.keys(icons.value).length === 0) {
-            icons.value = serializationMap(mapImages);
+            icons.value = assetsStore.getMapImages();
         }
         return icons.value[category] || icons.value['default'] || icons.value['miscellaneous'] || '';
     };

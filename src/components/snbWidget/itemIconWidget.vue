@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import {useIconGlobalStyle} from "@/assets/sripts/use_icon_global_style";
-import {computed, ComputedRef, onMounted, type Ref, ref, watch} from "vue";
+import {computed, ComputedRef, defineAsyncComponent, onMounted, type Ref, ref, watch} from "vue";
 import {Item, Items} from "glow-prow-data/src/entity/Items";
 import {rarity, number} from "@/assets/sripts/index";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
-import ItemCardDetail from "@/components/snbWidget/itemCardDetail.vue";
 import {useAppStore} from "~/stores/appStore";
 import Loading from "@/components/Loading.vue";
+
+// 悬浮详情卡片改为按需异步加载，减轻海量图标挂载时的首屏开销
+const ItemCardDetail = defineAsyncComponent(() => import("@/components/snbWidget/itemCardDetail.vue"));
 
 const appStore = useAppStore(),
     slots = useAppStore(),

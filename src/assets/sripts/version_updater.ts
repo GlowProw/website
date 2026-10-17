@@ -1,6 +1,7 @@
-/**
- * 网站版本更新
- */
+import Storage from './storage'
+
+// 存储管理实例
+const storage = new Storage()
 
 const VERSION_URL = '/version.json'
 const INITIAL_DELAY = 8 * 1000
@@ -12,6 +13,9 @@ let timer: ReturnType<typeof setInterval> | null = null
 let checking = false
 let started = false
 
+/**
+ * 获取当前应用构建版本
+ */
 function getCurrentVersion(): string {
     try {
         return typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : ''
@@ -46,19 +50,31 @@ async function unregisterServiceWorkers(): Promise<void> {
     }
 }
 
+/**
+ * 记录版本刷新标记并维护历史标记数量
+ */
 function rememberReload(remoteVersion: string): void {
     try {
-        sessionStorage.setItem(RELOAD_FLAG_PREFIX + remoteVersion, '1')
-        const flags = Object.keys(sessionStorage).filter((k) => k.startsWith(RELOAD_FLAG_PREFIX))
-        flags.slice(0, Math.max(0, flags.length - KEEP_FLAG_COUNT)).forEach((k) => sessionStorage.removeItem(k))
+        storage.session.set(RELOAD_FLAG_PREFIX + remoteVersion, '1')
+        const fullPrefix = storage.session.name(RELOAD_FLAG_PREFIX)
+        const flags = storage.session.keys().filter((k) => k.startsWith(fullPrefix))
+        const excess = flags.slice(0, Math.max(0, flags.length - KEEP_FLAG_COUNT))
+        excess.forEach((k) => {
+            const rawKey = k.replace(storage.STORAGENAME, '')
+            storage.session.rem(rawKey)
+        })
     } catch {
-        // 隐私模式等场景忽略
+        // 忽略异常
     }
 }
 
+/**
+ * 检查当前版本是否已在会话中执行过刷新
+ */
 function hasReloadedFor(remoteVersion: string): boolean {
     try {
-        return sessionStorage.getItem(RELOAD_FLAG_PREFIX + remoteVersion) === '1'
+        const item = storage.session.get(RELOAD_FLAG_PREFIX + remoteVersion)
+        return item?.code === 0 && (item?.data?.value === '1' || item?.data === '1')
     } catch {
         return false
     }
@@ -78,11 +94,19 @@ async function checkVersion(): Promise<void> {
         const data = await res.json()
         const remoteVersion: string = data?.version
         const currentVersion = getCurrentVersion()
-        if (!remoteVersion || !currentVersion || remoteVersion === currentVersion) return
+        if (!remoteVersion || !currentVersion) return
+
+        if (remoteVersion === currentVersion) {
+            return
+        }
 
         // 已为该版本刷新过但仍不一致（CDN 尚未收敛），本轮不再刷新
-        if (hasReloadedFor(remoteVersion)) return
+        if (hasReloadedFor(remoteVersion)) {
+            console.warn(`[VersionUpdater] 检测到新版本 ${remoteVersion}（本地版本 ${currentVersion}），该版本已执行过自动刷新，等待缓存收敛`)
+            return
+        }
 
+        console.info(`[VersionUpdater] 检测到网站版本更新: 本地 ${currentVersion} -> 远端 ${remoteVersion}，正在自动清理缓存并刷新页面...`)
         rememberReload(remoteVersion)
         await clearAllCaches()
         await unregisterServiceWorkers()
@@ -95,11 +119,20 @@ async function checkVersion(): Promise<void> {
 }
 
 /**
- * 启动静默版本监听（仅生产环境、浏览器端）
+ * 启动版本监听与缓存控制
  */
 export function startVersionWatcher(): void {
     if (started) return
     if (typeof window === 'undefined') return
+
+    // 开发环境下自动清理历史残留的 Service Worker，避免拦截开发请求与打印警告
+    if (import.meta.env.DEV) {
+        unregisterServiceWorkers().then(() => {
+            // 本地无需启动远端版本轮询
+        })
+        return
+    }
+
     if (!import.meta.env.PROD) return
 
     started = true

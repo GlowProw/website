@@ -392,10 +392,15 @@ export default defineConfig(({mode}) => {
             })()
         ],
         optimizeDeps: {
+            include: [
+                "vuetify",
+            ],
             exclude: [
                 "glow-prow-assets",
                 "glow-prow-data",
-                "vuetify", "fsevents", "file-type", "'@zumer/snapdom'"
+                "fsevents",
+                "file-type",
+                "@zumer/snapdom",
             ],
         },
         // import.meta.env.SSR 由 vite-ssg 自动注入：
