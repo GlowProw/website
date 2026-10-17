@@ -75,15 +75,13 @@ defineOptions({
           <ModDescription :id="props.id" :grade="i.grade" :variants="i.variants"></ModDescription>
         </div>
       </template>
-      <v-divider v-if="isShowOpenDetail"></v-divider>
-      <v-card-actions class="pa-5 pt-0"
-                      v-if="isShowOpenDetail">
-        <BtnWidget @action-complete="router.push(`/codex/modification/${props.id}`)"
-                   class="mt-1 ml-1">
-          {{ t('codex.modifications.lookDetail') }}
-        </BtnWidget>
-      </v-card-actions>
     </div>
+    <v-divider v-if="isShowOpenDetail" opacity=".06"></v-divider>
+    <v-card-actions class="demo-reel-content px-10 py-5 overflow-auto" v-if="isShowOpenDetail">
+      <BtnWidget @action-complete="router.push(`/codex/modification/${props.id}`)">
+        {{ t('codex.modifications.lookDetail') }}
+      </BtnWidget>
+    </v-card-actions>
   </v-card>
 </template>
 

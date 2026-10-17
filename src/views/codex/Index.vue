@@ -67,7 +67,7 @@ let isDetailPage = computed(() => [
             </v-container>
           </template>
         </v-card>
-        <v-divider></v-divider>
+        <v-divider opacity=".06"></v-divider>
       </template>
 
       <v-container class="pa-0" :class="{'ma-0': isDetailPage}" :style="isDetailPage ? 'max-width:100% !important': ''" :min-width="mobile ? '100%' : ''">

@@ -726,6 +726,7 @@ const onDeleteDraft = (id: string) => {
       </v-container>
     </template>
   </v-card>
+  <v-divider opacity=".06"></v-divider>
 
   <!-- 工坊 S -->
   <AssemblyMainSubjectView
@@ -795,7 +796,7 @@ const onDeleteDraft = (id: string) => {
                 <v-icon>mdi-tag-multiple</v-icon>
               </template>
               <template v-slot:chip="{item}">
-                <AssemblyTagChip color="var(--main-color)" :tag="item.raw" size="x-large"/>
+                <AssemblyTagChip color="var(--main-color)" :tag="item.raw ?? item" size="x-large"/>
               </template>
             </v-combobox>
           </div>

@@ -4,11 +4,11 @@ import ShipTopDownPerspectiveSlotWidget from "./shipTopDownPerspectiveSlotWidget
 
 const props = withDefaults(defineProps<{
   size?: string,
-  left?: boolean,
-  right?: boolean,
-  centerTop?: boolean,
-  centerCenter?: boolean,
-  centerDown?: boolean
+  left?: boolean | null,
+  right?: boolean | null,
+  centerTop?: boolean | null,
+  centerCenter?: boolean | null,
+  centerDown?: boolean | null
 }>(), {
   size: 'lg',
   left: false,
@@ -34,15 +34,15 @@ defineOptions({ name: 'ShipTopDownPerspectiveWidget' })
 
     <v-row no-gutters align="center" justify="center" class="slot-box">
       <v-col align="center">
-        <ShipTopDownPerspectiveSlotWidget class="slot slot-left" :activate="props.left"></ShipTopDownPerspectiveSlotWidget>
+        <ShipTopDownPerspectiveSlotWidget class="slot slot-left" :activate="Boolean(props.left)"></ShipTopDownPerspectiveSlotWidget>
       </v-col>
       <v-col align="center">
-        <ShipTopDownPerspectiveSlotWidget class="slot slot-center-top mb-1" :activate="props.centerTop"></ShipTopDownPerspectiveSlotWidget>
-        <ShipTopDownPerspectiveSlotWidget class="slot slot-center-center mb-1" :activate="props.centerCenter"></ShipTopDownPerspectiveSlotWidget>
-        <ShipTopDownPerspectiveSlotWidget class="slot slot-center-down" :activate="props.centerDown"></ShipTopDownPerspectiveSlotWidget>
+        <ShipTopDownPerspectiveSlotWidget class="slot slot-center-top mb-1" :activate="Boolean(props.centerTop)"></ShipTopDownPerspectiveSlotWidget>
+        <ShipTopDownPerspectiveSlotWidget class="slot slot-center-center mb-1" :activate="Boolean(props.centerCenter)"></ShipTopDownPerspectiveSlotWidget>
+        <ShipTopDownPerspectiveSlotWidget class="slot slot-center-down" :activate="Boolean(props.centerDown)"></ShipTopDownPerspectiveSlotWidget>
       </v-col>
       <v-col align="center">
-        <ShipTopDownPerspectiveSlotWidget class="slot slot-right" :activate="props.right"></ShipTopDownPerspectiveSlotWidget>
+        <ShipTopDownPerspectiveSlotWidget class="slot slot-right" :activate="Boolean(props.right)"></ShipTopDownPerspectiveSlotWidget>
       </v-col>
     </v-row>
   </div>

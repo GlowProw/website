@@ -128,7 +128,7 @@ function onFileImport(e: Event) {
               </v-container>
             </template>
           </v-card>
-          <v-divider></v-divider>
+          <v-divider opacity=".06"></v-divider>
 
           <div class="bg-black">
             <v-container class="position-relative">

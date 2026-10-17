@@ -31,7 +31,7 @@
     </template>
   </v-card>
 
-  <v-divider></v-divider>
+  <v-divider opacity=".06"></v-divider>
 
   <v-container class="py-8">
     <v-row>

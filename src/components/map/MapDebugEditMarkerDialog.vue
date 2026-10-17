@@ -61,8 +61,8 @@
                       <v-list-item v-bind="props">
                         <template v-slot:prepend>
                           <v-img
-                              v-if="getCategoryIcon(item.raw.value)"
-                              :src="getCategoryIcon(item.raw.value)"
+                              v-if="getCategoryIcon((item.raw ?? item).value)"
+                              :src="getCategoryIcon((item.raw ?? item).value)"
                               width="20"
                               height="20"
                               class="mr-2"

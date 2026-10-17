@@ -102,7 +102,7 @@ function onRemoveExclude(id: string) {
                 <v-list-item v-bind="props">
                   <template v-slot:prepend>
                     <ItemSlotBase size="25px" class="mr-2">
-                      <MaterialIconWidget :id="item.raw.id" :padding="0" :margin="0"/>
+                      <MaterialIconWidget :id="(item.raw ?? item).id" :padding="0" :margin="0"/>
                     </ItemSlotBase>
                   </template>
                 </v-list-item>

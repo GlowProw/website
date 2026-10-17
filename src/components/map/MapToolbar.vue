@@ -21,14 +21,14 @@
         <v-list-item v-bind="props">
           <template v-slot:prepend>
             <v-img
-                :src="getCategoryIcon(item.raw.category)"
+                :src="getCategoryIcon((item.raw ?? item).category)"
                 width="24"
                 height="24"
                 class="mr-2"
                 cover/>
           </template>
           <template v-slot:title>
-            <MapLocationName :id="item.raw.id" v-if="item.raw.id"></MapLocationName>
+            <MapLocationName :id="(item.raw ?? item).id" v-if="(item.raw ?? item).id"></MapLocationName>
           </template>
         </v-list-item>
       </template>

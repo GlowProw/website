@@ -203,6 +203,7 @@ defineOptions({
       </v-container>
     </template>
   </v-card>
+  <v-divider opacity=".06"></v-divider>
 
   <div class="account-root">
     <div class="setting-page-root" v-if="authStore.isLogin">

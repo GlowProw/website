@@ -144,7 +144,7 @@ const showAssemblyOnly = computed(() => props.type === 'assembly' || (props.type
               <template v-slot:item="{props: itemProps, item}">
                 <v-list-item v-bind="itemProps">
                   <template v-slot:append>
-                    <ItemSlotBase size="30px" :padding="0" :style="`background: ${item.raw}`"></ItemSlotBase>
+                    <ItemSlotBase size="30px" :padding="0" :style="`background: ${item.raw ?? item}`"></ItemSlotBase>
                   </template>
                 </v-list-item>
               </template>
@@ -316,7 +316,7 @@ const showAssemblyOnly = computed(() => props.type === 'assembly' || (props.type
               <template v-slot:item="{props: itemProps, item}">
                 <v-list-item v-bind="itemProps">
                   <template v-slot:append>
-                    <ItemSlotBase size="30px" :padding="0" :style="`background: ${item.raw}`"></ItemSlotBase>
+                    <ItemSlotBase size="30px" :padding="0" :style="`background: ${item.raw ?? item}`"></ItemSlotBase>
                   </template>
                 </v-list-item>
               </template>

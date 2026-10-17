@@ -320,6 +320,7 @@ const onPenPassword = () => {
       </v-container>
     </template>
   </v-card>
+  <v-divider opacity=".06"></v-divider>
 
   <!-- 装配预览 S -->
   <AssemblyMainSubjectView

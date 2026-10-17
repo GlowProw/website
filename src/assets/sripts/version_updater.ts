@@ -137,6 +137,7 @@ function notifyVersionUpdate(currentVersion: string, remoteVersion: string): voi
     noticeStore.primary(text, {
         title,
         timeout: 0,
+        mode: 'minimal'
     })
 }
 
@@ -150,7 +151,7 @@ async function checkVersion(): Promise<void> {
         const res = await fetch(`${VERSION_URL}?t=${Date.now()}`, {
             cache: 'no-store',
             credentials: 'same-origin',
-            headers: {'Cache-Control': 'no-cache'},
+            headers: { 'Cache-Control': 'no-cache' },
         })
         if (!res.ok) return
 
@@ -169,9 +170,12 @@ async function checkVersion(): Promise<void> {
         }
 
         console.info(`[VersionUpdater] 检测到网站版本更新: 本地 ${currentVersion} -> 远端 ${remoteVersion}，已就绪新缓存清理并提示用户刷新`)
+
         rememberNotification(remoteVersion)
+
         await clearAllCaches()
         await unregisterServiceWorkers()
+
         notifyVersionUpdate(currentVersion, remoteVersion)
     } catch {
         // 网络异常等情况静默忽略，等待下一轮轮询
@@ -204,5 +208,6 @@ export function startVersionWatcher(): void {
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') checkVersion()
     })
+
     window.addEventListener('focus', () => checkVersion())
 }

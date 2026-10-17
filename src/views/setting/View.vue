@@ -234,6 +234,7 @@ defineOptions({
       </v-container>
     </template>
   </v-card>
+  <v-divider opacity=".06"></v-divider>
 
   <div class="setting-root">
     <div class="setting-page-root">

@@ -221,7 +221,7 @@ defineOptions({
                  :key="index">{{ t(`assembly.additions.${i}`) }}
           </v-tab>
         </v-tabs>
-        <v-divider></v-divider>
+        <v-divider opacity=".06"></v-divider>
       </div>
     </AffixContainerView>
 

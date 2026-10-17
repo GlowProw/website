@@ -115,6 +115,7 @@ const onSaveAssembly = (saveType: StorageIntermediateTransferSaveType, uid?: str
       </v-container>
     </template>
   </v-card>
+  <v-divider opacity=".06"></v-divider>
 
   <!-- 工坊 开始 -->
   <ZoomableCanvas

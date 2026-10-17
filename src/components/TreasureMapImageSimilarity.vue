@@ -30,14 +30,7 @@
             <v-icon start size="14">mdi-refresh</v-icon>
             全图
           </v-btn>
-          <v-btn variant="tonal" icon @click="cancelCrop">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
         </v-card-title>
-        <div class="text-caption text-grey-lighten-1 px-6 py-2 bg-grey-darken-4 d-flex align-center">
-          <v-icon size="16" color="amber" class="mr-2">mdi-lightbulb-on-outline</v-icon>
-          <span>提示：游戏截图中若包含大海、甲板或UI罗盘/按键，会严重稀释特征。请尽量紧贴【中间羊皮纸】进行裁切，识别最准！</span>
-        </div>
         <div style="height: 65vh" class="bg-black d-flex align-center justify-center overflow-hidden">
           <img ref="cropperImageRef"
                :src="croppingImageUrl"
@@ -95,7 +88,9 @@
                       @update:model-value="onSearchSimilarImages"
                       :label="t('codex.treasureMaps.comparison.selectAlgorithm')"
                       :disabled="searching"
-                      :items="algorithms"
+                      :items="algorithmOptions"
+                      item-title="title"
+                      item-value="value"
                       v-model="selectedAlgorithm">
                     <template v-slot:selection>
                       {{ t(`codex.treasureMaps.comparison.algorithms.${selectedAlgorithm}`) }}
@@ -103,7 +98,7 @@
                     <template v-slot:item="{props, item}">
                       <v-list-item v-bind="props">
                         <template v-slot:title>
-                          {{ t(`codex.treasureMaps.comparison.algorithms.${item.raw.value}`) }}
+                          {{ t(`codex.treasureMaps.comparison.algorithms.${(item.raw ?? item).value}`) }}
                         </template>
                       </v-list-item>
                     </template>
@@ -139,7 +134,7 @@
                             <template v-slot:item="{props, item}">
                               <v-list-item v-bind="props">
                                 <template v-slot:title>
-                                  {{ t(`snb.mapLocations.${item.raw.value}.name`) }}
+                                  {{ t(`snb.mapLocations.${(item.raw ?? item).value}.name`) }}
                                 </template>
                               </v-list-item>
                             </template>
@@ -381,13 +376,9 @@
   </v-dialog>
 
   <!-- 页面模式：直接平铺渲染卡片 -->
-  <div v-else class="w-100">
+  <div v-else class="w-100 rounded-xl">
     <template v-if="showCropper">
-      <v-card-title class="d-flex align-center py-4 px-6 border-bottom flex-wrap ga-2">
-        <div class="text-h6 text-amber d-flex align-center">
-          <v-icon class="mr-2">mdi-crop</v-icon>
-          <span class="text-subtitle-1">裁切藏宝图</span>
-        </div>
+      <v-card-title class="d-flex align-center py-4 px-6 flex-wrap ga-2 bg-black">
         <v-spacer/>
         <v-btn size="small" variant="tonal" color="amber" @click="autoDetectCrop">
           <v-icon start size="14">mdi-auto-fix</v-icon>
@@ -401,20 +392,14 @@
           <v-icon start size="14">mdi-refresh</v-icon>
           全图
         </v-btn>
-        <v-btn variant="tonal" icon @click="cancelCrop">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
       </v-card-title>
-      <div class="text-caption text-grey-lighten-1 px-6 py-2 bg-grey-darken-4 d-flex align-center">
-        <v-icon size="16" color="amber" class="mr-2">mdi-lightbulb-on-outline</v-icon>
-        <span>提示：游戏截图中若包含大海、甲板或UI罗盘/按键，会严重稀释特征。请尽量紧贴【中间羊皮纸】进行裁切，识别最准！</span>
-      </div>
+
       <div style="height: 65vh" class="bg-black d-flex align-center justify-center overflow-hidden">
         <img ref="cropperImageRef"
              :src="croppingImageUrl"
              style="max-width: 100%; max-height: 100%;display: block"/>
       </div>
-      <v-divider></v-divider>
+
       <v-card-actions class="d-flex align-center ga-2 pa-4">
         <v-spacer></v-spacer>
         <v-btn variant="text" @click="cancelCrop">{{ t('basic.button.cancel') }}</v-btn>
@@ -423,7 +408,7 @@
     </template>
 
     <template v-else>
-      <div >
+      <div>
         <!-- 筛选与算法选择 -->
         <v-row class="mb-2" align="center">
           <v-col cols="auto" v-if="queryImageData">
@@ -456,7 +441,9 @@
                 @update:model-value="onSearchSimilarImages"
                 :label="t('codex.treasureMaps.comparison.selectAlgorithm')"
                 :disabled="searching"
-                :items="algorithms"
+                :items="algorithmOptions"
+                item-title="title"
+                item-value="value"
                 v-model="selectedAlgorithm">
               <template v-slot:selection>
                 {{ t(`codex.treasureMaps.comparison.algorithms.${selectedAlgorithm}`) }}
@@ -464,7 +451,7 @@
               <template v-slot:item="{props, item}">
                 <v-list-item v-bind="props">
                   <template v-slot:title>
-                    {{ t(`codex.treasureMaps.comparison.algorithms.${item.raw.value}`) }}
+                    {{ t(`codex.treasureMaps.comparison.algorithms.${(item.raw ?? item).value}`) }}
                   </template>
                 </v-list-item>
               </template>
@@ -498,7 +485,7 @@
                       <template v-slot:item="{props, item}">
                         <v-list-item v-bind="props">
                           <template v-slot:title>
-                            {{ t(`snb.mapLocations.${item.raw.value}.name`) }}
+                            {{ t(`snb.mapLocations.${(item.raw ?? item).value}.name`) }}
                           </template>
                         </v-list-item>
                       </template>
@@ -560,8 +547,8 @@
 
         <!-- CLIP 模型与特征状态提示 -->
         <v-expand-transition>
-          <div v-if="selectedAlgorithm === 'clip'" class="mb-4">
-            <v-card border class="pa-3">
+          <div v-if="selectedAlgorithm === 'clip'" class="my-4">
+            <v-card class="pa-3">
               <div class="d-flex align-center ga-3 flex-wrap">
                 <div class="flex-grow-1">
                   <div class="text-caption text-grey">{{ t('codex.treasureMaps.comparison.clip.hint') }}</div>
@@ -598,8 +585,8 @@
 
         <!-- TF.js 模型状态提示 -->
         <v-expand-transition>
-          <div v-if="selectedAlgorithm === 'tensorflow-mobilenet'" class="mb-4">
-            <v-card border class="pa-3">
+          <div v-if="selectedAlgorithm === 'tensorflow-mobilenet'" class="my-4">
+            <v-card class="pa-3">
               <div class="d-flex align-center ga-3">
                 <div class="flex-grow-1">
                   <div class="text-caption text-grey">{{ t('codex.treasureMaps.comparison.tfjs.hint') }}</div>
@@ -713,7 +700,6 @@
         </v-card>
       </div>
 
-      <v-divider></v-divider>
       <v-card-actions class="d-flex align-center ga-2 pa-4">
         <v-spacer></v-spacer>
         <v-btn v-if="!searching" type="button" variant="text" @click.stop.prevent="onResetSearch"
@@ -807,6 +793,14 @@ const algorithms: Algorithm[] = [
   {value: 'feature-matching'},
   // {value: 'structural-similarity'}
 ];
+
+// 算法下拉选择项列表
+const algorithmOptions = computed<Algorithm[]>(() =>
+  algorithms.map(item => ({
+    value: item.value,
+    title: t(`codex.treasureMaps.comparison.algorithms.${item.value}`)
+  }))
+);
 
 // CLIP 状态
 const clipModelLoading = ref(false);

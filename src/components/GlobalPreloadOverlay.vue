@@ -11,7 +11,7 @@ const {t} = useI18n();
     <div class="portal-up-window h-screen">
       <div class="global-preload-inner mt-n16">
         <div class="d-flex flex-column justify-center align-center">
-          <v-img src="/public/logo-format.gif" class="mx-auto"/>
+          <img src="/public/logo-format.gif" class="mx-auto"/>
 
           <div class="mt-n15">
             {{ preloadStore.currentPhase || t('basic.preload.default') }}

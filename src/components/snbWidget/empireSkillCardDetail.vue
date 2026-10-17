@@ -58,15 +58,15 @@ defineOptions({
           <EmpireSkillDescription :id="props.id" />
         </div>
       </template>
-
-      <v-divider v-if="isShowOpenDetail" class="my-4"></v-divider>
-
-      <v-card-actions class="pa-0" v-if="isShowOpenDetail">
-        <BtnWidget @action-complete="router.push(`/codex/empireSkill/${props.id}`)">
-          {{ t('codex.empireSkills.lookDetail') }}
-        </BtnWidget>
-      </v-card-actions>
     </div>
+
+    <v-divider v-if="isShowOpenDetail" opacity=".06"></v-divider>
+
+    <v-card-actions class="demo-reel-content px-10 py-5 overflow-auto" v-if="isShowOpenDetail">
+      <BtnWidget @action-complete="router.push(`/codex/empireSkill/${props.id}`)">
+        {{ t('codex.empireSkills.lookDetail') }}
+      </BtnWidget>
+    </v-card-actions>
   </v-card>
 </template>
 

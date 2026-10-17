@@ -176,6 +176,7 @@ const getBrowseList = async () => {
       </v-container>
     </template>
   </v-card>
+  <v-divider opacity=".06"></v-divider>
 
   <v-container>
     <v-row align="center">

@@ -508,6 +508,7 @@ const totalPages = computed(() => {
       </v-container>
     </template>
   </v-card>
+  <v-divider opacity=".06"></v-divider>
 
   <AffixContainerView :offsetTop="56">
     <div class="bg-black">

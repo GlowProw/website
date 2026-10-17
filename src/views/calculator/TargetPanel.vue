@@ -186,25 +186,25 @@ function onFileImport(e: Event) {
                     <v-list-item
                         v-bind="props"
                         three-line
-                        :disabled="!item.raw.hasRequired">
+                        :disabled="!(item.raw ?? item).hasRequired">
                       <template v-slot:prepend>
                         <ItemSlotBase size="30px" class="mr-2">
                           <ItemIconWidget
-                              v-if="item.raw.type === 'item'"
-                              :id="item.raw.id"
+                              v-if="(item.raw ?? item).type === 'item'"
+                              :id="(item.raw ?? item).id"
                               :isOpenDetail="false"/>
                           <ShipIconWidget
-                              v-if="item.raw.type === 'ship'"
-                              :id="item.raw.id"
+                              v-if="(item.raw ?? item).type === 'ship'"
+                              :id="(item.raw ?? item).id"
                               :isOpenDetail="false"/>
                           <MaterialIconWidget
-                              v-if="item.raw.type === 'material'"
-                              :id="item.raw.id"
+                              v-if="(item.raw ?? item).type === 'material'"
+                              :id="(item.raw ?? item).id"
                               :isOpenDetail="false"/>
                         </ItemSlotBase>
                       </template>
                       <template v-slot:append>
-                        <v-chip v-if="!item.raw.hasRequired" size="x-small" color="orange" variant="tonal">{{ t('calculator.ui.hasNotRequired') }}</v-chip>
+                        <v-chip v-if="!(item.raw ?? item).hasRequired" size="x-small" color="orange" variant="tonal">{{ t('calculator.ui.hasNotRequired') }}</v-chip>
                       </template>
                     </v-list-item>
                   </template>

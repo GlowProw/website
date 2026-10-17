@@ -24,7 +24,7 @@ defineOptions({
 </script>
 
 <template>
-  <div class="footer" v-if="!appStore?.isPwaInstalled">
+  <footer class="footer" v-if="!appStore?.isPwaInstalled">
     <v-skeleton-loader type="image" height="2px" :color="`var(--main-color)`" class="opacity-10 overflow-hidden"></v-skeleton-loader>
     <v-container class="pt-0">
       <footer class="mt-10 mb-10">
@@ -133,7 +133,7 @@ defineOptions({
         <ServiceProviderWidget></ServiceProviderWidget>
       </HorizontalScrollList>
     </v-container>
-  </div>
+  </footer>
 </template>
 
 <style scoped lang="less">
@@ -146,12 +146,17 @@ defineOptions({
 
   ul {
     margin-top: 15px;
+    padding-left: 0px;
     list-style-type: none;
     font-size: 14px;
 
     li {
       margin-bottom: 5px;
     }
+  }
+
+  hr {
+    opacity: .06;
   }
 }
 </style>

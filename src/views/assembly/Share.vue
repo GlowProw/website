@@ -637,7 +637,7 @@ const onBackDetail = () => {
       </v-container>
     </template>
   </v-card>
-  <v-divider></v-divider>
+  <v-divider opacity=".06"></v-divider>
 
   <v-container class="my-5 position-relative">
     <AdsWidget class="my-5" id="none"></AdsWidget>

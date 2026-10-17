@@ -882,13 +882,13 @@ defineOptions({name: 'AssemblyWidget'})
                                     <v-col cols="auto" class="d-dlex justify-center align-center">
                                       <ShipTopDownPerspectiveWidget
                                           :size="'sm'"
-                                          :left="item.raw[0] == 'leftSideWeapon'"
-                                          :right="item.raw[0] == 'rightSideWeapon'"
-                                          :center-top="item.raw[0] == 'frontWeapon'"
-                                          :center-down="item.raw[0] == 'aftWeapon'"></ShipTopDownPerspectiveWidget>
+                                          :left="(item.raw ?? item)[0] == 'leftSideWeapon'"
+                                          :right="(item.raw ?? item)[0] == 'rightSideWeapon'"
+                                          :center-top="(item.raw ?? item)[0] == 'frontWeapon'"
+                                          :center-down="(item.raw ?? item)[0] == 'aftWeapon'"></ShipTopDownPerspectiveWidget>
                                     </v-col>
                                     <v-col>
-                                      {{ t(`codex.ship.${item.raw[0]}`) }}
+                                      {{ t(`codex.ship.${(item.raw ?? item)[0]}`) }}
                                     </v-col>
                                   </v-row>
                                 </template>

@@ -496,6 +496,7 @@ const onWsReconnect = () => {
         </v-container>
       </template>
     </v-card>
+    <v-divider opacity=".06"></v-divider>
 
     <AffixContainerView :offsetTop="55">
       <div class="bg-black">

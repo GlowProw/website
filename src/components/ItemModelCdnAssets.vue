@@ -23,10 +23,10 @@ const onUpdateAssetsModeServices = (value: any) => {
         <v-col cols="12">
           <v-select :value="selectedModeService" :items="modeServices" @update:modelValue="onUpdateAssetsModeServices">
             <template v-slot:item="{props, item}">
-              <v-list-item v-bind="props" :title="item.raw.name"></v-list-item>
+              <v-list-item v-bind="props" :title="(item.raw ?? item).name"></v-list-item>
             </template>
             <template v-slot:selection="{item}">
-              {{ item.raw.name }}
+              {{ (item.raw ?? item).name }}
             </template>
           </v-select>
         </v-col>

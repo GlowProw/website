@@ -225,7 +225,7 @@ defineOptions({
       </v-container>
     </template>
   </v-card>
-  <v-divider></v-divider>
+  <v-divider opacity=".06"></v-divider>
 
   <!-- 筛选工具栏 S -->
   <v-container class="mt-4">

@@ -1115,7 +1115,7 @@ defineOptions({
                       </template>
                       <template v-slot:append>
                         <ItemSlotBase size="30px" :padding="0">
-                          <SetIconWidget :id="item.raw.value" :is-open-detail="false" :is-show-tooltip="false" :is-show-open-detail="false"></SetIconWidget>
+                          <SetIconWidget :id="(item.raw ?? item).value" :is-open-detail="false" :is-show-tooltip="false" :is-show-open-detail="false"></SetIconWidget>
                         </ItemSlotBase>
                       </template>
                       <template v-slot:title>

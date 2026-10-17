@@ -410,6 +410,7 @@ const getZoneData = (zoneName: string) => {
       </v-container>
     </template>
   </v-card>
+  <v-divider opacity=".06"></v-divider>
 
   <div class="state-of-war-page" :style="{ '--faction-a-color': factionAColor, '--faction-b-color': factionBColor }">
     <!-- 状态条 S -->

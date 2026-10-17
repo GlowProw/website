@@ -58,7 +58,7 @@ defineOptions({
           <v-btn icon="mdi-magnify"></v-btn>
         </GlobalSearchDrawer>
 
-        <v-btn :to="{ name: 'PortalSettingRoutine', params: $route.params }" icon="mdi-cog"></v-btn>
+        <v-btn :to="{ name: 'PortalSettingRoutine', params: { lang: route.params.lang } }" icon="mdi-cog"></v-btn>
       </div>
     </v-app-bar>
 

@@ -45,16 +45,16 @@
             @update:model-value="onActivateFunctions">
           <template v-slot:chip="{ props, item }">
             <v-chip v-bind="props" size="small" color="info">
-              {{ t(item.raw.key) }}
+              {{ t((item.raw ?? item).key) }}
             </v-chip>
           </template>
           <template v-slot:item="{ props, item }">
             <v-list-item v-bind="props">
               <template v-slot:title>
-                {{ t(item.raw.key) }}
+                {{ t((item.raw ?? item).key) }}
               </template>
               <template v-slot:subtitle>
-                <p class="opacity-50 text-caption">{{ t(item.raw.description) }}</p>
+                <p class="opacity-50 text-caption">{{ t((item.raw ?? item).description) }}</p>
               </template>
             </v-list-item>
           </template>

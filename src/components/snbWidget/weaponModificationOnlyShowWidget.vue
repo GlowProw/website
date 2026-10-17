@@ -8,7 +8,13 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import RhombusWidget from "@/components/snbWidget/rhombusWidget.vue";
 
 const modImages = import.meta.glob('@/assets/images/snb/modTypeIcons/*.*', {eager: true})
-const props = defineProps<{ itemData: Item, modData: any[] }>()
+const props = withDefaults(defineProps<{
+  itemData?: Item | null
+  modData?: any[] | null
+}>(), {
+  itemData: null,
+  modData: () => []
+})
 
 let modIconImages = ref({}),
     modStyleConfig: Record<string, string> = {
@@ -38,7 +44,7 @@ defineOptions({name: 'WeaponModificationOnlyShowWidget'})
 </script>
 
 <template>
-  <div v-for="(mod, modIndex) in modData"
+  <div v-for="(mod, modIndex) in (modData || [])"
        v-show="mod.value && mod.value.id != null"
        :key="modIndex">
     <v-row no-gutters density="compact" align="start">
@@ -62,7 +68,7 @@ defineOptions({name: 'WeaponModificationOnlyShowWidget'})
       <v-col v-if="mod.value">
         <div class="w-100 text-caption">
           <ModName :id="mod.value.id" :grade="mod.value.grade"></ModName>
-          <ModDescription class="opacity-50" :id="mod.value.id" :variants="mod.value.variants" :grade="mod.value.grade" :type="itemData.type"></ModDescription>
+          <ModDescription class="opacity-50" :id="mod.value.id" :variants="mod.value.variants" :grade="mod.value.grade" :type="itemData?.type"></ModDescription>
         </div>
       </v-col>
     </v-row>

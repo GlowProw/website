@@ -132,7 +132,7 @@ defineOptions({
   <!-- 属性 横向 -->
   <template v-else-if="direction == 'horizontal'">
     <v-row>
-      <v-col cols="auto" class="pa-2" v-if="armor || isForciblyIcon">
+      <v-col cols="auto" v-if="armor || isForciblyIcon">
         <v-card variant="text">
           <v-card variant="text" width="30" class="bg-transparent" elevation="0">
             <DamageIconWidget id="armor" :iconType="type" :is-border="false"></DamageIconWidget>
@@ -142,15 +142,14 @@ defineOptions({
       </v-col>
 
       <v-divider v-if="(armor || isForciblyIcon) && damageMitigation.length > 0"
-                 vertical inset :thickness="2" opacity=".3" class="my-5"></v-divider>
+                 vertical inset :thickness="2" opacity=".3" class="my-4"></v-divider>
 
       <template
           v-for="([dmKey,dmValue]) in damageMitigation"
           :key="dmKey">
         <v-col
             v-if="shouldShowDamageType(dmKey, dmValue)"
-            cols="auto"
-            class="pa-2">
+            cols="auto">
           <v-card variant="text">
             <v-card variant="text" width="30" class="bg-transparent" elevation="0">
               <DamageIconWidget :id="dmKey" :iconType="type" :is-border="false"></DamageIconWidget>

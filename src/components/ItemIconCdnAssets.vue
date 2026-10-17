@@ -24,10 +24,10 @@ const onUpdateAssetsImageServces = (value: any) => {
         <v-col cols="12">
           <v-select :value="selectedService" :items="services" @update:modelValue="onUpdateAssetsImageServces">
             <template v-slot:item="{props, item}">
-              <v-list-item v-bind="props" :title="item.raw.name"></v-list-item>
+              <v-list-item v-bind="props" :title="(item.raw ?? item).name"></v-list-item>
             </template>
             <template v-slot:selection="{item}">
-              {{ item.raw.name }}
+              {{ (item.raw ?? item).name }}
             </template>
           </v-select>
         </v-col>

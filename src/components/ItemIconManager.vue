@@ -162,7 +162,7 @@ const getIconSize = computed({
   set: (value) => appStore.setIconSize(value)
 })
 
-const getItemRaw = (item: any) => item.raw
+const getItemRaw = (item: any) => item?.raw ?? item
 
 onMounted(() => {
   itemIsOpenNewWindow.value = openNewWindow.value
@@ -177,7 +177,7 @@ onMounted(() => {
           <template v-slot:item="{props, item}">
             <v-list-item v-bind="props">
               <template v-slot:title>
-                <ItemName :id="item.raw"></ItemName>
+                <ItemName :id="getItemRaw(item)"></ItemName>
               </template>
             </v-list-item>
           </template>

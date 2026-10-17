@@ -240,6 +240,7 @@ const onUpdateTags = (data: any) => {
       </v-container>
     </template>
   </v-card>
+  <v-divider opacity=".06"></v-divider>
 
   <!-- 排行榜设计微件预览 开始 -->
   <RankingDesignedMainSubjectView ref="rankingDesignedMainSubjectView" @ready="onLoadData" readonly></RankingDesignedMainSubjectView>
@@ -295,13 +296,13 @@ const onUpdateTags = (data: any) => {
                 <v-chip color="primary" size="x-large">
                   {{
                     asString([
-                      `${item.raw}`,
-                      `assembly.tags.teamFormationMethods.${item.raw.toString().split('_')[1]}`,
-                      `assembly.tags.modes.${item.raw.toString().split('_')[0]}`,
-                      `codex.ships.archetypes.${item.raw.toString().split('_')[1]}.name`,
-                      `snb.seasons.${item.raw.toString().split('_')[1]}.fullName`,
-                      `snb.seasons.${item.raw.toString().split('_')[1]}.name`,
-                      `snb.seasons.${item.raw.toString().split('_')[1]}`,
+                      `${item.raw ?? item}`,
+                      `assembly.tags.teamFormationMethods.${(item.raw ?? item).toString().split('_')[1]}`,
+                      `assembly.tags.modes.${(item.raw ?? item).toString().split('_')[0]}`,
+                      `codex.ships.archetypes.${(item.raw ?? item).toString().split('_')[1]}.name`,
+                      `snb.seasons.${(item.raw ?? item).toString().split('_')[1]}.fullName`,
+                      `snb.seasons.${(item.raw ?? item).toString().split('_')[1]}.name`,
+                      `snb.seasons.${(item.raw ?? item).toString().split('_')[1]}`,
                     ], {
                       backRawKey: true
                     })

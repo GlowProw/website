@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const props = withDefaults(defineProps<{ activate: boolean }>(), {
+const props = withDefaults(defineProps<{ activate?: boolean | null }>(), {
   activate: false
 })
 
@@ -8,7 +8,7 @@ defineOptions({ name: 'ShipTopDownPerspectiveSlotWidget' })
 
 <template>
   <div class="weapon-modification-icon">
-    <div :class="[activate ? 'activate' : '']"></div>
+    <div :class="[Boolean(activate) ? 'activate' : '']"></div>
   </div>
 </template>
 

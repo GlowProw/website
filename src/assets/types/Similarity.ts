@@ -45,7 +45,14 @@ export interface SearchResult {
  * 算法配置接口
  */
 export interface Algorithm {
+  /**
+   * 算法唯一标识
+   */
   value: string;
+  /**
+   * 算法显示文案
+   */
+  title?: string;
 }
 
 /**

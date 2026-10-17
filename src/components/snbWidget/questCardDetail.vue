@@ -51,13 +51,13 @@ defineOptions({
           <QuestDescription :id="props.id" />
         </div>
       </template>
-      <v-divider v-if="isShowOpenDetail" class="my-4"></v-divider>
-      <div class="demo-reel-content px-10 background-flavor overflow-auto" v-if="isShowOpenDetail">
-        <BtnWidget @action-complete="router.push(`/quest/${props.id}`)">
-          {{ t('quest.lookDetail') || t('codex.quest.lookDetail') }}
-        </BtnWidget>
-      </div>
     </div>
+    <v-divider v-if="isShowOpenDetail" opacity=".06"></v-divider>
+    <v-card-actions class="demo-reel-content px-10 py-5 overflow-auto" v-if="isShowOpenDetail">
+      <BtnWidget @action-complete="router.push(`/quest/${props.id}`)">
+        {{ t('quest.lookDetail') || t('codex.quest.lookDetail') }}
+      </BtnWidget>
+    </v-card-actions>
   </v-card>
 </template>
 

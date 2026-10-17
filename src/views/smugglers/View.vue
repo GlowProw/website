@@ -140,7 +140,7 @@ const getSmugglersComment = async (reportId: string) => {
       </v-container>
     </template>
   </v-card>
-  <v-divider></v-divider>
+  <v-divider opacity=".06"></v-divider>
 
   <v-container>
     <v-row>

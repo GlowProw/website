@@ -317,6 +317,7 @@ const onPublish = async () => {
       </v-container>
     </template>
   </v-card>
+  <v-divider opacity=".06"></v-divider>
 
   <!-- 工坊分享预览 开始 -->
   <AssemblyMainSubjectView ref="assemblyMainSubjectView"
@@ -398,7 +399,7 @@ const onPublish = async () => {
                 <v-icon>mdi-tag-multiple</v-icon>
               </template>
               <template v-slot:chip="{item}">
-                <AssemblyTagChip color="var(--main-color)" :tag="item.raw"/>
+                <AssemblyTagChip color="var(--main-color)" :tag="item.raw ?? item"/>
               </template>
             </v-combobox>
           </div>

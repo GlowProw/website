@@ -77,13 +77,13 @@ function filterSearchItem(value: any, queryText: string, item: any): boolean {
         prepend-inner-icon="mdi-magnify"
         @update:model-value="emit('update:searchSelected', $event)">
       <template v-slot:item="{ props: itemProps, item }">
-        <v-list-item v-bind="itemProps" :title="item.raw.title" :subtitle="item.raw.category">
+        <v-list-item v-bind="itemProps" :title="(item.raw ?? item).title" :subtitle="(item.raw ?? item).category">
           <template v-slot:prepend>
             <div class="mr-3">
               <MasteryIconWidget
-                  :id="item.raw.id"
-                  :name="item.raw.id"
-                  :category="item.raw.category"
+                  :id="(item.raw ?? item).id"
+                  :name="(item.raw ?? item).id"
+                  :category="(item.raw ?? item).category"
                   :with-background="true"
                   :size="30"
               ></MasteryIconWidget>
