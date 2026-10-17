@@ -149,8 +149,8 @@ defineOptions({
 </script>
 
 <template>
-  <v-breadcrumbs>
-    <v-container class="pa-0">
+  <v-breadcrumbs density="compact" class="ma-0 pa-0 bg-black">
+    <v-container>
       <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
       <v-breadcrumbs-item to="/codex">{{ t('codex.title') }}</v-breadcrumbs-item>
@@ -160,7 +160,7 @@ defineOptions({
       <v-breadcrumbs-item>{{ t('quest.detailTitle') }}</v-breadcrumbs-item>
     </v-container>
   </v-breadcrumbs>
-  <v-divider></v-divider>
+  <v-divider opacity=".01"></v-divider>
 
   <div v-if="questDetailData && questDetailData.id" class="item-detail quest-detail">
     <!-- 头部横幅 -->

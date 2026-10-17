@@ -156,7 +156,7 @@ const onTabChange = (targetRouteName: any) => {
     return
   }
   if (targetRouteName && targetRouteName !== route.name) {
-    router.push({ name: targetRouteName, params: route.params })
+    router.push({ name: targetRouteName, params: { lang: route.params.lang } })
   }
 }
 
@@ -178,14 +178,17 @@ defineOptions({
       </Silk>
     </template>
     <template v-slot:default>
-      <v-container class="pa-2 position-relative">
-        <v-breadcrumbs class="pa-0 mb-3">
+      <v-breadcrumbs density="compact" class="ma-0 pa-0">
+        <v-container>
           <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
           <v-breadcrumbs-item>{{ t('setting.title') }}</v-breadcrumbs-item>
-        </v-breadcrumbs>
+        </v-container>
+      </v-breadcrumbs>
+      <v-divider opacity=".01"></v-divider>
 
-        <div class="position-absolute top-0 right-0 opacity-10 pt-10 d-flex ga-2">
+      <v-container class="pa-2 position-relative">
+        <div class="position-absolute top-0 right-0 opacity-10 d-flex ga-2">
           <v-icon icon="mdi-cog" size="200"></v-icon>
         </div>
       </v-container>
@@ -204,25 +207,25 @@ defineOptions({
               <v-tab value="SettingGeneral"
                      class="font-weight-bold text-subtitle-1 px-8"
                      :class="{'v-tab--route-active': primaryNavMenu === 'SettingGeneral'}"
-                     :to="{ name: generalTabs[0].value, params: route.params }">
+                     :to="{ name: generalTabs[0].value, params: { lang: route.params.lang } }">
                 {{ t('setting.title') }}
               </v-tab>
               <v-tab value="SettingData"
                      class="font-weight-bold text-subtitle-1 px-8"
                      :class="{'v-tab--route-active': primaryNavMenu === 'SettingData'}"
-                     :to="{ name: dataTabs[0].value, params: route.params }">
+                     :to="{ name: dataTabs[0].value, params: { lang: route.params.lang } }">
                 {{ t('setting.data.title') }}
               </v-tab>
               <v-tab value="SettingSubscriptions"
                      class="font-weight-bold text-subtitle-1 px-8"
                      :class="{'v-tab--route-active': primaryNavMenu === 'SettingSubscriptions'}"
-                     :to="{ name: subscriptionTabs[0].value, params: route.params }">
+                     :to="{ name: subscriptionTabs[0].value, params: { lang: route.params.lang } }">
                 {{ t('subscription.title') }}
               </v-tab>
               <v-tab value="SettingAbout"
                      class="font-weight-bold text-subtitle-1 px-8"
                      :class="{'v-tab--route-active': primaryNavMenu === 'SettingAbout'}"
-                     :to="{ name: aboutTabs[0].value, params: route.params }">
+                     :to="{ name: aboutTabs[0].value, params: { lang: route.params.lang } }">
                 {{ t('about.title') }}
               </v-tab>
             </v-tabs>

@@ -549,7 +549,7 @@ defineOptions({
                             :offset-bottom="0"
                             :disabled="embedded">
           <div class="px-4 py-2">
-            <div v-if="(activeConv && !isSystemConv) || pendingPeerId" class="">
+            <div v-if="(activeConv && !isSystemConv) || pendingPeerId" >
               <v-row class="align-center">
                 <v-col>
                   <v-text-field

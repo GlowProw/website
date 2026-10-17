@@ -500,7 +500,7 @@ const onSave = () => {
 </script>
 
 <template>
-  <v-dialog v-model="visible" max-width="1024" scrollable content-class="">
+  <v-dialog v-model="visible" max-width="1024" scrollable content->
     <v-card class="reminder-edit-card border">
       <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 mt-n5">
         <v-icon size="80">mdi-plus</v-icon>
@@ -840,7 +840,7 @@ const onSave = () => {
 
           <v-list-item link class="px-5 py-3">
             <!-- 提前提醒配置 -->
-            <div class="">
+            <div >
               <div class="d-flex align-center justify-space-between">
                 <div>
                   <div class="font-weight-medium text-body-2">{{ t('reminder.fields.advanceNotice') }}</div>

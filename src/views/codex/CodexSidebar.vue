@@ -5,6 +5,7 @@ import {ref, watch} from "vue";
 import {useDisplay} from "vuetify";
 
 import AppCodexNav from "@/assets/sripts/app_codex_nav";
+import VerticalScrollList from "@/components/VerticalScrollList.vue";
 
 const {t} = useI18n(),
     route = useRoute(),
@@ -26,50 +27,53 @@ defineOptions({
 </script>
 
 <template>
-  <div class="codex-sidebar-container pt-3" :class="{ 'collapsed': isCollapsed }">
-    <v-list nav
-            slim
-            class="bg-transparent py-0 overflow-x-hidden"
-            active-class="bg-amber text-black">
-      <v-row class="mb-2" align="center">
-        <v-col>
-          <v-list-item to="/codex/" prepend-icon="mdi-home" slim :active="route.name == 'codexOverview'">
-            {{ t('codex.title') }}
-          </v-list-item>
-        </v-col>
-        <v-col cols="auto" v-if="mobile">
-          <v-card class="collapse-header bg-amber" @click="toggleCollapse">
-            <v-icon class="collapse-icon">{{ isCollapsed ? 'mdi-chevron-down' : 'mdi-chevron-up' }}</v-icon>
-          </v-card>
-        </v-col>
-      </v-row>
+  <VerticalScrollList :is-indicator="false" class="codex-sidebar-container pt-3">
+    <div :class="{ 'collapsed': isCollapsed }">
+      <v-list nav
+              slim
+              class="bg-transparent py-0 overflow-x-hidden"
+              active-class="bg-amber text-black">
+        <v-row class="mb-2" align="center">
+          <v-col>
+            <v-list-item to="/codex/" prepend-icon="mdi-home" slim :active="route.name == 'codexOverview'">
+              {{ t('codex.title') }}
+            </v-list-item>
+          </v-col>
+          <v-col cols="auto" v-if="mobile">
+            <v-card class="collapse-header bg-amber" @click="toggleCollapse">
+              <v-icon class="collapse-icon">{{ isCollapsed ? 'mdi-chevron-down' : 'mdi-chevron-up' }}</v-icon>
+            </v-card>
+          </v-col>
+        </v-row>
 
-      <v-divider></v-divider>
+        <v-divider></v-divider>
 
-      <template v-if="!isCollapsed">
-        <template v-for="(i, index) in appCodexNav.nav" :key="index">
-          <v-divider v-if="i.type === 'divider'" :class="i.class || 'my-2'"></v-divider>
-          <v-list-item v-else
-                       :to="i.to"
-                       :prepend-icon="i.prependIcon"
-                       :append-icon="i.appendIcon"
-                       :variant="i.variant"
-                       :slim="i.slim"
-                       :class="i.class">
-            {{ i.title ? t(i.title) : '' }}
-            <template v-slot:append v-if="i.badge">
-              <v-btn size="x-small" variant="tonal">{{ i.badge }}</v-btn>
-            </template>
-          </v-list-item>
+        <template v-if="!isCollapsed">
+          <template v-for="(i, index) in appCodexNav.nav" :key="index">
+            <v-divider v-if="i.type === 'divider'" :class="i.class || 'my-2'"></v-divider>
+            <v-list-item v-else
+                         :to="i.to"
+                         :prepend-icon="i.prependIcon"
+                         :append-icon="i.appendIcon"
+                         :variant="i.variant"
+                         :slim="i.slim"
+                         :class="i.class">
+              {{ i.title ? t(i.title) : '' }}
+              <template v-slot:append v-if="i.badge">
+                <v-btn size="x-small" variant="tonal">{{ i.badge }}</v-btn>
+              </template>
+            </v-list-item>
+          </template>
         </template>
-      </template>
-    </v-list>
-  </div>
+      </v-list>
+    </div>
+  </VerticalScrollList>
 </template>
 
 <style scoped lang="less">
 .codex-sidebar-container {
-  overflow-x: hidden;
+  overflow: hidden;
+  height: calc(100vh - 70px);
   padding-bottom: 10px;
 
   .collapse-header {

@@ -139,8 +139,8 @@ const onCodexHistory = () => {
 </script>
 
 <template>
-  <v-breadcrumbs density="compact">
-    <v-container class="pa-0">
+  <v-breadcrumbs density="compact" class="ma-0 pa-0 bg-black">
+    <v-container>
       <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
       <v-breadcrumbs-item to="/codex">{{ t('codex.title') }}</v-breadcrumbs-item>
@@ -150,7 +150,7 @@ const onCodexHistory = () => {
       <v-breadcrumbs-item>{{ t('codex.commoditie.title') }}</v-breadcrumbs-item>
     </v-container>
   </v-breadcrumbs>
-  <v-divider></v-divider>
+  <v-divider opacity=".01"></v-divider>
   <div class="commoditie-detail" v-if="commoditieDetailData && commoditieDetailData.id">
     <Banner class="commoditie-detail-header">
       <v-container class="position-relative">

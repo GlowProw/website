@@ -323,7 +323,7 @@ const copyClientId = () => {
 
             <!-- 堆栈明细 S -->
             <v-expand-transition>
-              <div v-if="isExpanded(log.id) && log.stack" class="">
+              <div v-if="isExpanded(log.id) && log.stack" >
                 <v-divider class="my-2"></v-divider>
                 <div class="text-caption opacity-70 mb-1 font-weight-bold">{{ t('setting.log.stackTraceTitle') }}</div>
                 <pre class="pa-2 bg-grey-darken-4 rounded text-caption font-monospace overflow-x-auto" style="max-height: 250px;">{{ log.stack }}</pre>

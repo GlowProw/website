@@ -174,7 +174,7 @@ const requirementItems = computed<NodeRequirementItem[]>(() => {
     <div class="node-card-actions">
       <!-- 赛季特长单选操作 -->
       <template v-if="node.role === 'seasonalPerk'">
-        <v-row align="center" no-gutters class="">
+        <v-row align="center" no-gutters >
           <v-col class="text-left px-5 py-4 text-body-2">
             <template v-if="regularPointsSpent < node.cost">
               <span class="opacity-60 text-caption">

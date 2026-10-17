@@ -373,8 +373,8 @@ const getZoneData = (zoneName: string) => {
       </Silk>
     </template>
     <template v-slot:default>
-      <v-container class="pa-2 position-relative">
-        <v-breadcrumbs>
+      <v-breadcrumbs density="compact" class="ma-0 pa-0">
+        <v-container>
           <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
           <v-breadcrumbs-item>
@@ -387,21 +387,24 @@ const getZoneData = (zoneName: string) => {
               {{ isSeasonEnded ? t('stateOfWar.ended') : t('stateOfWar.active') }}
             </v-chip>
           </v-breadcrumbs-item>
-        </v-breadcrumbs>
+        </v-container>
+      </v-breadcrumbs>
+      <v-divider opacity=".01"></v-divider>
 
-        <div class="ml-4">
+      <v-container class="position-relative">
+        <div class="ml-1">
           <p class="text-subtitle-1 text-medium-emphasis">
             {{ t('stateOfWar.description') }}
           </p>
 
-          <div v-if="warData?.updateTime" class="d-flex align-center mt-2 ga-2 opacity-60">
+          <div v-if="warData?.updateTime" class="d-flex align-center mt-2 ga-2 text-subtitle-1 text-medium-emphasis">
             <TimeView :time="warData.updateTime">
               {{ t('stateOfWar.lastUpdated') }}:
             </TimeView>
           </div>
         </div>
 
-        <div class="position-absolute top-0 right-0 opacity-10 pt-10 d-flex ga-2">
+        <div class="position-absolute top-0 right-0 opacity-10 d-flex ga-2">
           <v-icon :icon="isSeasonEnded ? 'mdi-flag-checkered' : 'mdi-sword-cross'" size="120"></v-icon>
         </div>
       </v-container>

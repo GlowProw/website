@@ -52,18 +52,20 @@ const onCleaningHistory = () => {
 <template>
   <div class="w-100 mb-10" v-if="codexHistorys.length > 0">
     <v-toolbar class="py-0 px-5 bg-transparent">
-      <div class="font-weight-bold text-amber">
-        <v-icon>mdi-history</v-icon>
-      </div>
-      <v-col class="text-amber">
-        <v-divider opacity=".2" thickness="2">
-          {{ t('codex.cabinetHistoryTitle') }}
-          ({{ codexHistorys.length || 0 }})
-        </v-divider>
-      </v-col>
-      <v-col cols="auto">
-        <v-btn icon="mdi-delete" @click="onCleaningHistory" v-if="codexHistorys.length >= 0"></v-btn>
-      </v-col>
+      <v-row align="center">
+        <v-col cols="auto" class="font-weight-bold text-amber">
+          <v-icon>mdi-history</v-icon>
+        </v-col>
+        <v-col class="text-amber">
+          <v-divider opacity=".2" thickness="2">
+            {{ t('codex.cabinetHistoryTitle') }}
+            ({{ codexHistorys.length || 0 }})
+          </v-divider>
+        </v-col>
+        <v-col cols="auto">
+          <v-btn density="compact" icon="mdi-delete" @click="onCleaningHistory" v-if="codexHistorys.length >= 0"></v-btn>
+        </v-col>
+      </v-row>
     </v-toolbar>
 
     <v-row class="px-5">

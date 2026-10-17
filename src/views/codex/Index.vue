@@ -33,9 +33,9 @@ let isDetailPage = computed(() => [
 </script>
 
 <template>
-  <v-app id="codex" class="">
+  <v-app id="codex">
     <Header></Header>
-    <v-main class="">
+    <v-main>
       <template v-if="!isDetailPage">
         <v-card height="200px">
           <template v-slot:image>
@@ -49,16 +49,19 @@ let isDetailPage = computed(() => [
             </Silk>
           </template>
           <template v-slot:default>
-            <v-container class="position-relative">
-              <v-breadcrumbs density="compact">
+            <v-breadcrumbs density="compact" class="ma-0 pa-0">
+              <v-container>
                 <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
                 <v-breadcrumbs-divider></v-breadcrumbs-divider>
                 <v-breadcrumbs-item to="/codex">
                   <b class="text-amber">{{ t('codex.title') }}</b>
                 </v-breadcrumbs-item>
-              </v-breadcrumbs>
+              </v-container>
+            </v-breadcrumbs>
+            <v-divider opacity=".01"></v-divider>
 
-              <div class="position-absolute top-0 right-0 opacity-10 pt-10 d-flex ga-2">
+            <v-container class="position-relative">
+              <div class="position-absolute top-0 right-0 opacity-10 d-flex ga-2">
                 <v-icon icon="mdi-book-open-blank-variant-outline" size="120"></v-icon>
               </div>
             </v-container>

@@ -1,16 +1,32 @@
 import Storage from './storage'
+import { useNoticeStore } from '~/stores/noticeStore'
+import { getAppI18n } from '@/i18n'
 
 // 存储管理实例
 const storage = new Storage()
 
+// 远端版本清单地址
 const VERSION_URL = '/version.json'
-const INITIAL_DELAY = 8 * 1000
-const POLL_INTERVAL = 5 * 60 * 1000
-const RELOAD_FLAG_PREFIX = 'app.version.reload.'
-const KEEP_FLAG_COUNT = 5 // 最多保留的历史刷新标记数量
 
+// 初始延迟检测时间（毫秒）
+const INITIAL_DELAY = 8 * 1000
+
+// 轮询检测间隔（毫秒）
+const POLL_INTERVAL = 5 * 60 * 1000
+
+// 会话内已提示通知标记前缀
+const NOTIFY_FLAG_PREFIX = 'app.version.notified.'
+
+// 最多保留的历史标记数量
+const KEEP_FLAG_COUNT = 5
+
+// 定时轮询句柄
 let timer: ReturnType<typeof setInterval> | null = null
+
+// 正在执行版本检查标记
 let checking = false
+
+// 版本监听器已启动标记
 let started = false
 
 /**
@@ -33,7 +49,7 @@ async function clearAllCaches(): Promise<void> {
         const keys = await caches.keys()
         await Promise.all(keys.map((k) => caches.delete(k)))
     } catch {
-        // 忽略清理失败，刷新后新 SW 仍会重建缓存
+        // 忽略清理失败，后续刷新时新 Service Worker 仍会尝试重建缓存
     }
 }
 
@@ -46,17 +62,17 @@ async function unregisterServiceWorkers(): Promise<void> {
         const registrations = await navigator.serviceWorker.getRegistrations()
         await Promise.all(registrations.map((r) => r.unregister()))
     } catch {
-        // 忽略
+        // 忽略注销失败异常
     }
 }
 
 /**
- * 记录版本刷新标记并维护历史标记数量
+ * 记录版本通知标记并维护历史标记数量
  */
-function rememberReload(remoteVersion: string): void {
+function rememberNotification(remoteVersion: string): void {
     try {
-        storage.session.set(RELOAD_FLAG_PREFIX + remoteVersion, '1')
-        const fullPrefix = storage.session.name(RELOAD_FLAG_PREFIX)
+        storage.session.set(NOTIFY_FLAG_PREFIX + remoteVersion, '1')
+        const fullPrefix = storage.session.name(NOTIFY_FLAG_PREFIX)
         const flags = storage.session.keys().filter((k) => k.startsWith(fullPrefix))
         const excess = flags.slice(0, Math.max(0, flags.length - KEEP_FLAG_COUNT))
         excess.forEach((k) => {
@@ -64,22 +80,69 @@ function rememberReload(remoteVersion: string): void {
             storage.session.rem(rawKey)
         })
     } catch {
-        // 忽略异常
+        // 忽略存储异常
     }
 }
 
 /**
- * 检查当前版本是否已在会话中执行过刷新
+ * 检查当前版本是否已在会话中提示过更新通知
  */
-function hasReloadedFor(remoteVersion: string): boolean {
+function hasNotifiedFor(remoteVersion: string): boolean {
     try {
-        const item = storage.session.get(RELOAD_FLAG_PREFIX + remoteVersion)
+        const item = storage.session.get(NOTIFY_FLAG_PREFIX + remoteVersion)
         return item?.code === 0 && (item?.data?.value === '1' || item?.data === '1')
     } catch {
         return false
     }
 }
 
+/**
+ * 获取当前操作系统推荐的硬刷新快捷键描述文本
+ */
+function getRefreshShortcutText(): string {
+    const isMac = typeof navigator !== 'undefined' && /mac|iphone|ipad|ipod/i.test(navigator.platform || navigator.userAgent || '')
+    return isMac ? 'Cmd + Shift + R' : 'Ctrl + F5'
+}
+
+/**
+ * 提示用户网站已有新版本并建议使用快捷键刷新
+ */
+function notifyVersionUpdate(currentVersion: string, remoteVersion: string): void {
+    const shortcut = getRefreshShortcutText()
+    const noticeStore = useNoticeStore()
+
+    let title = '发现新版本'
+    let text = `检测到网站有新版本发布（当前版本 ${currentVersion}，最新版本 ${remoteVersion}）。请使用快捷键 ${shortcut} 刷新页面以载入最新内容。`
+
+    try {
+        const i18n = getAppI18n()
+        const t = i18n?.global?.t
+        const te = i18n?.global?.te
+        if (typeof t === 'function') {
+            if (typeof te === 'function' && te('notice.versionUpdateTitle')) {
+                title = t('notice.versionUpdateTitle')
+            }
+            if (typeof te === 'function' && te('notice.versionUpdateText')) {
+                text = t('notice.versionUpdateText', {
+                    current: currentVersion,
+                    remote: remoteVersion,
+                    shortcut,
+                })
+            }
+        }
+    } catch {
+        // 国际化实例尚未就绪时降级使用默认文本
+    }
+
+    noticeStore.primary(text, {
+        title,
+        timeout: 0,
+    })
+}
+
+/**
+ * 检查远端版本并在发现更新时提示用户
+ */
 async function checkVersion(): Promise<void> {
     if (checking || typeof window === 'undefined') return
     checking = true
@@ -100,19 +163,18 @@ async function checkVersion(): Promise<void> {
             return
         }
 
-        // 已为该版本刷新过但仍不一致（CDN 尚未收敛），本轮不再刷新
-        if (hasReloadedFor(remoteVersion)) {
-            console.warn(`[VersionUpdater] 检测到新版本 ${remoteVersion}（本地版本 ${currentVersion}），该版本已执行过自动刷新，等待缓存收敛`)
+        // 已为该版本弹出过提示，会话内不再重复打扰
+        if (hasNotifiedFor(remoteVersion)) {
             return
         }
 
-        console.info(`[VersionUpdater] 检测到网站版本更新: 本地 ${currentVersion} -> 远端 ${remoteVersion}，正在自动清理缓存并刷新页面...`)
-        rememberReload(remoteVersion)
+        console.info(`[VersionUpdater] 检测到网站版本更新: 本地 ${currentVersion} -> 远端 ${remoteVersion}，已就绪新缓存清理并提示用户刷新`)
+        rememberNotification(remoteVersion)
         await clearAllCaches()
         await unregisterServiceWorkers()
-        window.location.reload()
+        notifyVersionUpdate(currentVersion, remoteVersion)
     } catch {
-        // 网络异常等情况静默忽略，等待下一轮
+        // 网络异常等情况静默忽略，等待下一轮轮询
     } finally {
         checking = false
     }
@@ -128,7 +190,7 @@ export function startVersionWatcher(): void {
     // 开发环境下自动清理历史残留的 Service Worker，避免拦截开发请求与打印警告
     if (import.meta.env.DEV) {
         unregisterServiceWorkers().then(() => {
-            // 本地无需启动远端版本轮询
+            // 本地开发无需启动远端版本轮询
         })
         return
     }

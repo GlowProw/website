@@ -13,6 +13,7 @@ import EmptyView from "@/components/EmptyView.vue";
 import Captcha from "@/components/captcha/index.vue";
 import TimeView from "@/components/TimeView.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
+import {useIntersectionObserver} from "@/assets/sripts/intersection_observer";
 import type {commentTargetType} from "@/assets/types/Comment";
 
 const route = useRoute(),
@@ -40,7 +41,14 @@ let content = ref(''),
     // 验证码首次触发标记
     captchaOneUpdateEvent = ref(false),
     // 验证码组件引用
-    captchaRef = ref<any>(null)
+    captchaRef = ref<any>(null),
+    // 标记当前目标评论是否已加载
+    hasLoaded = ref(false)
+
+// 绑定最外层容器元素及视口可见状态
+const {targetElement: commentWidgetWrapperRef, isVisible} = useIntersectionObserver({
+  rootMargin: '100px',
+})
 
 /**
  * 校验评论验证码有效性
@@ -79,12 +87,28 @@ const getComment = async () => {
   }
 }
 
-// 目标 ID 或类型发生变化时立即拉取评论列表
-watch(() => [props.id, props.type], ([newId]) => {
-  if (newId) {
-    getComment()
+/**
+ * 尝试按需加载评论数据
+ */
+const tryLoadComment = () => {
+  if (!props.id || hasLoaded.value || !isVisible.value) return;
+  hasLoaded.value = true;
+  getComment();
+}
+
+// 监听元素可见状态，进入可视区域后触发评论加载
+watch(() => isVisible.value, (visible) => {
+  if (visible) {
+    tryLoadComment();
   }
-}, {immediate: true})
+})
+
+// 监听目标 ID 或类型变化，重置加载状态并按需重新拉取
+watch(() => [props.id, props.type], () => {
+  hasLoaded.value = false;
+  commentListData.value = [];
+  tryLoadComment();
+})
 
 // 输入字数达到阈值时刷新验证码
 watch(() => content.value, (value) => {
@@ -199,6 +223,9 @@ const onCaptchaData = (data: any) => {
   captcha.value = data;
 }
 
+/**
+ * 获取验证码响应凭证
+ */
 const getCaptchaResponse = () => (captcha.value as any).response
 
 defineExpose({
@@ -212,7 +239,7 @@ defineOptions({
 </script>
 
 <template>
-  <div class="comment-widget-wrapper">
+  <div class="comment-widget-wrapper" ref="commentWidgetWrapperRef">
 
     <!-- 评论时间轴 S -->
     <div class="comment-widget">

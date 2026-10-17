@@ -148,7 +148,7 @@ function onRemoveExclude(id: string) {
 
     <template v-slot:title>
       <div class="d-flex align-center ga-2 flex-grow-1">
-        <v-icon icon="mdi-filter-remove" class=""/>
+        <v-icon icon="mdi-filter-remove" />
         <span>{{ t('calculator.exclude.title') }}</span>
         <v-btn
             icon="mdi-plus"

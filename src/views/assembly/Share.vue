@@ -619,16 +619,19 @@ const onBackDetail = () => {
       </Silk>
     </template>
     <template v-slot:default>
-      <v-container class="mt-4 position-relative">
-        <v-breadcrumbs>
+      <v-breadcrumbs density="compact" class="ma-0 pa-0">
+        <v-container>
           <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
           <v-breadcrumbs-item :to="{name:'AssemblyDetail'}">{{ t('assembly.detail.title') }}</v-breadcrumbs-item>
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
           <v-breadcrumbs-item>{{ t('assembly.share.title') }}</v-breadcrumbs-item>
-        </v-breadcrumbs>
+        </v-container>
+      </v-breadcrumbs>
+      <v-divider opacity=".01"></v-divider>
 
-        <div class="position-absolute top-0 right-0 opacity-10 pt-10 d-flex ga-2">
+      <v-container class="position-relative">
+        <div class="position-absolute top-0 right-0 opacity-10 d-flex ga-2">
           <v-icon icon="mdi-presentation" size="120"></v-icon>
         </div>
       </v-container>
@@ -641,7 +644,7 @@ const onBackDetail = () => {
 
     <v-row>
       <!-- 左侧栏 -->
-      <v-col cols="2" class="" v-if="!mobile">
+      <v-col cols="2"  v-if="!mobile">
         <AffixContainerView>
           <VerticalScrollList>
             <div

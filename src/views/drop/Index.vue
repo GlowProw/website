@@ -161,21 +161,24 @@ onMounted(() => {
           </Silk>
         </template>
         <template v-slot:default>
-          <v-container class="pa-2 position-relative">
-            <v-breadcrumbs density="compact">
+          <v-breadcrumbs density="compact" class="ma-0 pa-0">
+            <v-container>
               <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
               <v-breadcrumbs-divider></v-breadcrumbs-divider>
               <v-breadcrumbs-item>
                 <v-icon icon="mdi-twitch" color="#9146FF" size="18"></v-icon>
                 {{ t('drop.heroTitle') }}
               </v-breadcrumbs-item>
-            </v-breadcrumbs>
+            </v-container>
+          </v-breadcrumbs>
+          <v-divider opacity=".01"></v-divider>
 
-            <p class="mx-4 text-body-1 text-medium-emphasis w-50 mb-0">
+          <v-container class="position-relative">
+            <p class="mx-1 text-body-1 text-medium-emphasis w-50 mb-0">
               {{ t('drop.heroSubtitle') }}
             </p>
 
-            <div class="position-absolute top-0 right-0 opacity-10 pt-10 d-flex ga-2">
+            <div class="position-absolute top-0 right-0 opacity-10 d-flex ga-2">
               <v-icon icon="mdi-twitch" size="120"></v-icon>
             </div>
           </v-container>

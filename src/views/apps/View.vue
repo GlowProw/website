@@ -201,22 +201,25 @@ defineOptions({
       </Silk>
     </template>
     <template v-slot:default>
-      <v-container class="position-relative">
-        <v-breadcrumbs density="compact">
+      <v-breadcrumbs density="compact" class="ma-0 pa-0">
+        <v-container>
           <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
-          <v-breadcrumbs-item to="/calendar">
+          <v-breadcrumbs-item to="/apps">
             <b class="text-amber">{{ t('apps.title') }}</b>
           </v-breadcrumbs-item>
-        </v-breadcrumbs>
+        </v-container>
+      </v-breadcrumbs>
+      <v-divider opacity=".01"></v-divider>
 
-        <v-row class="mx-4">
+      <v-container class="position-relative">
+        <v-row class="mx-1">
           <v-col>
             <p class="opacity-60">{{ t('apps.description') }}</p>
           </v-col>
         </v-row>
 
-        <div class="position-absolute top-0 right-0 opacity-10 pt-10 d-flex ga-2">
+        <div class="position-absolute top-0 right-0 opacity-10 d-flex ga-2">
           <v-icon icon="mdi-application-outline" size="120"></v-icon>
         </div>
       </v-container>

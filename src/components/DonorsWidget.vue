@@ -67,7 +67,7 @@ onMounted(() => {
             {{ t('subscription.introLine3') }}
           </p>
 
-          <v-btn block border variant="text" :to="{ name: 'PortalSettingSubscriptions', params: $route.params }">
+          <v-btn block border variant="text" :to="{ name: 'PortalSettingSubscriptions' }">
             {{ t('subscription.subscribe') }}
             <v-icon class="ml-2">mdi-arrow-right</v-icon>
           </v-btn>

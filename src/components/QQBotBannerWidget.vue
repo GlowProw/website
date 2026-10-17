@@ -23,7 +23,7 @@ defineOptions({name: "QQBotBannerWidget"});
 
 <template>
   <div class="qq-bot-banner-card">
-      <div class="">
+      <div >
         <v-row align="center">
           <v-col :cols="12" :md="props.layout === 'vertical' ? 12 : 7" :lg="props.layout === 'vertical' ? 12 : 7">
             <div class="d-flex align-center ga-3 mb-2">

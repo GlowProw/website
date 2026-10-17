@@ -423,7 +423,7 @@
     </template>
 
     <template v-else>
-      <div class="">
+      <div >
         <!-- 筛选与算法选择 -->
         <v-row class="mb-2" align="center">
           <v-col cols="auto" v-if="queryImageData">

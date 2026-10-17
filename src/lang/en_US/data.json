@@ -118,7 +118,9 @@
     "closeTitle": "Close this notice",
     "closeHint": "Click ✕ button or wait for timer",
     "manualCloseHint": "Click ✕ button to close (No auto-timer)",
-    "stackTrace": "Error Details / Stack Trace"
+    "stackTrace": "Error Details / Stack Trace",
+    "versionUpdateTitle": "New Version Available",
+    "versionUpdateText": "A new version of the website is available (current: {current}, latest: {remote}). Please use shortcut {shortcut} to refresh the page and load the latest updates."
   },
   "about": {
     "title": "About",

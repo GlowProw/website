@@ -36,7 +36,7 @@ defineOptions({
       <v-app-bar-nav-icon tile @click="drawer = !drawer"></v-app-bar-nav-icon>
 
       <div class="d-flex mr-5 text-no-wrap">
-        <Logo size="32" class=""></Logo>
+        <Logo size="32" ></Logo>
 
         <template v-if="route.query.isShowSnBIcon">
           <v-divider vertical inset class="mx-3"></v-divider>

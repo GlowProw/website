@@ -187,7 +187,7 @@ defineOptions({name: 'MasteryInfoPanel'});
                         class="mr-2"></v-badge>
                   </div>
                 </v-expansion-panel-title>
-                <v-expansion-panel-text class="">
+                <v-expansion-panel-text >
                   <div v-if="activeSeasonalPerks.length === 0" class="text-center py-4 text-caption opacity-60">
                     {{ t('mastery.seasonalPerksEmpty') }}
                   </div>

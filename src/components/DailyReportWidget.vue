@@ -496,7 +496,7 @@ const refreshAll = async () => {
       <!-- 赛季与日报总览 S -->
       <div class="daily-header position-relative mb-10 px-5 pa-sm-6">
         <div class="position-relative z-1">
-          <v-row class="">
+          <v-row >
             <v-col cols="12" lg="6" class="d-flex ga-3">
               <div>
                 <div class="d-flex align-center ga-2 flex-wrap">

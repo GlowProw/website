@@ -368,16 +368,19 @@ const onBackDetail = () => {
       </Silk>
     </template>
     <template v-slot:default>
-      <v-container class="mt-4 position-relative">
-        <v-breadcrumbs>
+      <v-breadcrumbs density="compact" class="ma-0 pa-0">
+        <v-container>
           <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
           <v-breadcrumbs-item :to="{name:'Mastery'}">{{ t('mastery.title') }}</v-breadcrumbs-item>
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
           <v-breadcrumbs-item>{{ t('mastery.share.title') }}</v-breadcrumbs-item>
-        </v-breadcrumbs>
+        </v-container>
+      </v-breadcrumbs>
+      <v-divider opacity=".01"></v-divider>
 
-        <div class="position-absolute top-0 right-0 opacity-10 pt-10 d-flex ga-2">
+      <v-container class="position-relative">
+        <div class="position-absolute top-0 right-0 opacity-10 d-flex ga-2">
           <v-icon icon="mdi-share-variant-outline" size="120"></v-icon>
         </div>
       </v-container>

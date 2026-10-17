@@ -187,7 +187,7 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
                 path: 'account',
                 name: 'AccountHome',
                 component: AccountPage,
-                redirect: to => ({ name: 'AccountInformation', params: to.params }),
+                redirect: to => ({ name: 'AccountInformation', params: { lang: to.params.lang } }),
                 meta: {
                     title: 'account.title',
                     keywords: 'account.meta.keywords'
@@ -278,7 +278,7 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
                 path: 'space',
                 name: 'SpaceHome',
                 component: SpacePage,
-                redirect: to => ({ name: 'SpaceAssemblys', params: to.params, query: to.query }),
+                redirect: to => ({ name: 'SpaceAssemblys', params: { lang: to.params.lang }, query: to.query }),
                 children: [
                     {
                         path: 'assemblys',
@@ -389,13 +389,13 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
                 name: 'PortalSetting',
                 component: SettingPage,
                 beforeEnter: initCDNAssets,
-                redirect: to => ({ name: 'PortalSettingView', params: to.params }),
+                redirect: to => ({ name: 'PortalSettingView', params: { lang: to.params.lang } }),
                 children: [
                     {
                         path: '',
                         name: 'PortalSettingView',
                         component: SettingViewPage,
-                        redirect: to => ({ name: 'PortalSettingRoutine', params: to.params }),
+                        redirect: to => ({ name: 'PortalSettingRoutine', params: { lang: to.params.lang } }),
                         children: [
                             {
                                 path: 'routine',
@@ -420,7 +420,7 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
                             {
                                 path: 'pwa',
                                 name: 'PortalSettingPwa',
-                                redirect: to => ({ name: 'PortalSettingAdvanced', params: to.params }),
+                                redirect: to => ({ name: 'PortalSettingAdvanced', params: { lang: to.params.lang } }),
                             },
                             {
                                 path: 'wishlist',
@@ -769,11 +769,11 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
             },
             {
                 path: 'quest',
-                redirect: to => ({ name: 'Quests', params: to.params })
+                redirect: to => ({ name: 'Quests', params: { lang: to.params.lang } })
             },
             {
                 path: 'quests',
-                redirect: to => ({ name: 'Quests', params: to.params })
+                redirect: to => ({ name: 'Quests', params: { lang: to.params.lang } })
             },
             {
                 path: 'quest/:id',
@@ -790,7 +790,7 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
         name: 'Quest',
         component: QuestPage,
         beforeEnter: initItemAssets,
-        redirect: to => ({ name: 'Quests', params: to.params }),
+        redirect: to => ({ name: 'Quests', params: { lang: to.params.lang } }),
         children: [
             {
                 path: '',
@@ -814,7 +814,7 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
     },
     {
         path: '/quests',
-        redirect: to => ({ name: 'Quests', params: to.params })
+        redirect: to => ({ name: 'Quests', params: { lang: to.params.lang } })
     },
     {
         path: '/quests/:id',
@@ -829,7 +829,7 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
             keywords: 'rankingDesignedItems.keywords'
         },
         beforeEnter: initItemAssets,
-        redirect: to => ({ name: 'RankingDesignedItemsBrowse', params: to.params }),
+        redirect: to => ({ name: 'RankingDesignedItemsBrowse', params: { lang: to.params.lang } }),
         children: [
             {
                 path: 'browse',
@@ -889,7 +889,7 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
         name: 'Assembly',
         component: AssemblePage,
         beforeEnter: initItemAssets,
-        redirect: to => ({ name: 'AssemblyBrowse', params: to.params }),
+        redirect: to => ({ name: 'AssemblyBrowse', params: { lang: to.params.lang } }),
         children: [
             {
                 path: 'workshop',
@@ -983,7 +983,7 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
     {
         path: '/map',
         name: 'Map',
-        redirect: to => ({ name: 'mapView', params: to.params }),
+        redirect: to => ({ name: 'mapView', params: { lang: to.params.lang } }),
         component: MapsPage,
         beforeEnter: initItemAssets,
         children: [
@@ -997,7 +997,7 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
     {
         path: '/apps',
         name: 'Apps',
-        redirect: to => ({ name: 'AppsView', params: to.params }),
+        redirect: to => ({ name: 'AppsView', params: { lang: to.params.lang } }),
         component: AppsPage,
         children: [
             {
@@ -1026,16 +1026,16 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
     },
     {
         path: '/docs',
-        redirect: to => ({ name: 'ApiDocs', params: to.params })
+        redirect: to => ({ name: 'ApiDocs', params: { lang: to.params.lang } })
     },
     {
         path: '/api-docs',
-        redirect: to => ({ name: 'ApiDocs', params: to.params })
+        redirect: to => ({ name: 'ApiDocs', params: { lang: to.params.lang } })
     },
     {
         path: '/about',
         name: 'About',
-        redirect: to => ({ name: 'PortalSettingAbout', params: to.params })
+        redirect: to => ({ name: 'PortalSettingAbout', params: { lang: to.params.lang } })
     },
     {
         path: '/drop',
@@ -1049,7 +1049,7 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
     {
         path: '/reminder',
         name: 'Reminder',
-        redirect: to => ({ name: 'ReminderView', params: to.params }),
+        redirect: to => ({ name: 'ReminderView', params: { lang: to.params.lang } }),
         component: ReminderIndexPage,
         children: [
             {

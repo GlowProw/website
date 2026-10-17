@@ -117,16 +117,18 @@ const onCodexHistory = (id: string) => {
 </script>
 
 <template>
-  <v-breadcrumbs density="compact">
-  <v-container class="pa-0">
-      <v-breadcrumbs-item to="/codex/">{{ t('codex.title') }}</v-breadcrumbs-item>
+  <v-breadcrumbs density="compact" class="ma-0 pa-0 bg-black">
+    <v-container>
+      <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
+      <v-breadcrumbs-divider></v-breadcrumbs-divider>
+      <v-breadcrumbs-item to="/codex">{{ t('codex.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
       <v-breadcrumbs-item to="/codex/empireSkills">{{ t('codex.empireSkills.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>
       <v-breadcrumbs-item>{{ t('codex.empireSkill.title') }}</v-breadcrumbs-item>
     </v-container>
   </v-breadcrumbs>
-  <v-divider></v-divider>
+  <v-divider opacity=".01"></v-divider>
 
   <div class="empire-skill-detail" v-if="empireSkillDetailData && !empireSkillDetailPageData.loading">
     <Banner class="empire-skill-detail-header">

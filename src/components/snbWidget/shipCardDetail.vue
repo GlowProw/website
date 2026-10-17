@@ -64,7 +64,7 @@ defineOptions({
   <v-card class="demo-reel bg-black" flat border v-if="shipData && shipData.id">
     <Banner class="demo-reel-header pa-10">
       <h1 class="font-weight-bold">
-        <ShinyText :text="t(`snb.ships.${props.id}.name`)" :speed="1" class-name="text-amber" class=""></ShinyText>
+        <ShinyText :text="t(`snb.ships.${props.id}.name`)" :speed="1" class-name="text-amber" ></ShinyText>
       </h1>
       <p class="mb-1">{{ props.id }}</p>
 

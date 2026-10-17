@@ -118,7 +118,9 @@
     "closeTitle": "關閉此通知",
     "closeHint": "點擊右上角 ✕ 按鈕或等待進度條結束",
     "manualCloseHint": "點擊右上角 ✕ 按鈕關閉（此通知無倒計時）",
-    "stackTrace": "錯誤詳情 / 堆疊"
+    "stackTrace": "錯誤詳情 / 堆疊",
+    "versionUpdateTitle": "發現新版本",
+    "versionUpdateText": "檢測到網站有新版本發布（當前版本 {current}，最新版本 {remote}）。請使用快捷鍵 {shortcut} 刷新頁面以載入最新內容。"
   },
   "about": {
     "title": "关于",

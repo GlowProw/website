@@ -377,10 +377,10 @@ defineOptions({
 
 <template>
   <v-card variant="text">
-    <v-row class="mb-2">
+    <v-row class="mb-3">
       <v-col cols="12" lg="auto">
         <div class="d-flex align-center ga-2">
-          <span class="text-caption opacity-60">{{ t('account.dataCenter.trend.range') }}:</span>
+          <span class="opacity-60">{{ t('account.dataCenter.trend.range') }}:</span>
           <v-btn-toggle v-model="trendRange" density="compact" variant="tonal" color="amber"
                         @update:model-value="onRangeChange">
             <v-btn value="7">{{ t('account.dataCenter.trend.range7') }}</v-btn>
@@ -391,7 +391,7 @@ defineOptions({
       </v-col>
       <v-spacer class="hidden-sm hidden-md"></v-spacer>
       <v-col cols="12" lg="auto">
-        <span v-if="trend" class="text-caption opacity-40 ml-auto">
+        <span v-if="trend" class="opacity-60 ml-auto">
           {{ t('account.dataCenter.trend.updated') }}: {{ new Date(trend.updatedAt).toLocaleString() }}
         </span>
       </v-col>
@@ -402,7 +402,8 @@ defineOptions({
       <v-col cols="12" sm="6" md="4" lg="4" v-for="card in metricCards" :key="card.metric">
         <v-card
             rounded="lg"
-            class="d-flex flex-column justify-center cursor-pointer transition-swing h-100"
+            variant="text"
+            class="d-flex flex-column justify-center cursor-pointer transition-swing h-100 bg-black"
             :class="[
               card.clickable && currentMetric === card.metric ? 'border-amber ring-1' : '',
               card.clickable ? 'hover-elevate' : ''
@@ -410,8 +411,8 @@ defineOptions({
             :to="card.href || undefined"
             :style="card.clickable || card.href ? 'cursor:pointer' : ''"
             @click="card.clickable && onSelectMetric(card.metric)">
-          <div style="opacity: .04; font-size: 7rem; position: absolute; left: 0; bottom: 0">
-            <v-icon :icon="card.icon" :color="card.color" class="opacity-60 mr-1"></v-icon>
+          <div style="opacity: .07; font-size: 7rem; position: absolute; left: 0; bottom: 0">
+            <v-icon :icon="card.icon" :color="card.color" class="mr-1"></v-icon>
           </div>
 
           <v-row>
@@ -527,19 +528,20 @@ defineOptions({
         <v-row density="compact">
           <HorizontalScrollList :is-indicator="false">
             <template v-for="(a, i) in topVisitorAssemblies" :key="'tv'+a.uuid">
-              <v-card width="400" class="pa-4 ma-1 d-flex flex-column ga-3">
+              <div class="text-amber text-h6">#{{ i + 1 }}</div>
+
+              <v-card  width="400" class="pa-4 ma-1 d-flex flex-column ga-3">
+                <v-card-title class="d-flex align-center ga-2 mx-n4 mt-n4 py-6 bg-black">
+                  <router-link
+                      :to="assemblyDetailLink(a.uuid)"
+                      target="_blank"
+                      class="u text-truncate flex-1">
+                    {{ a.name }}
+                  </router-link>
+                </v-card-title>
+                
                 <v-row>
                   <v-col>
-                    <div class="d-flex align-center ga-2">
-                      <span class="text-amber font-weight-bold">#{{ i + 1 }}</span>
-                      <router-link
-                          :to="assemblyDetailLink(a.uuid)"
-                          target="_blank"
-                          class="u text-truncate flex-1">
-                        {{ a.name }}
-                      </router-link>
-                    </div>
-
                     <div class="d-flex align-center ga-2 flex-wrap mt-3">
                       <template v-if="a.recentVisitors && a.recentVisitors.length">
                         <v-tooltip v-for="(v, vi) in a.recentVisitors" :key="v.identity + vi" location="top">
@@ -550,11 +552,11 @@ defineOptions({
                             </v-avatar>
                             <v-avatar v-else-if="v.isUser"
                                       v-bind="tipProps" size="28" color="amber-darken-2" class="cursor-pointer">
-                              <v-icon size="20">mdi-account-circle</v-icon>
+                              <v-icon>mdi-account-circle</v-icon>
                             </v-avatar>
                             <v-avatar v-else
                                       v-bind="tipProps" size="28" color="grey-darken-1" class="cursor-pointer">
-                              <v-icon size="20">mdi-incognito</v-icon>
+                              <v-icon>mdi-incognito</v-icon>
                             </v-avatar>
                           </template>
                           <div>
@@ -570,7 +572,7 @@ defineOptions({
 
                 <v-row density="compact" align="center">
                   <v-col cols="auto">
-                    <v-icon start size="14">mdi-eye</v-icon>
+                    <v-icon start >mdi-eye</v-icon>
                   </v-col>
                   <v-col>
                     <v-divider></v-divider>
@@ -582,7 +584,7 @@ defineOptions({
 
                 <v-row density="compact" align="center" class="mt-0">
                   <v-col cols="auto">
-                    <v-icon start size="14" color="red">mdi-heart</v-icon>
+                    <v-icon start  color="red">mdi-heart</v-icon>
                   </v-col>
                   <v-col>
                     <v-divider></v-divider>
@@ -594,7 +596,7 @@ defineOptions({
 
                 <v-row density="compact" align="center" class="mt-0">
                   <v-col cols="auto">
-                    <v-icon start size="14" color="green">mdi-comment-text-outline</v-icon>
+                    <v-icon start  color="green">mdi-comment-text-outline</v-icon>
                   </v-col>
                   <v-col>
                     <v-divider></v-divider>

@@ -320,7 +320,7 @@ function onFileImport(e: Event) {
             <v-divider vertical thickness="1"></v-divider>
 
             <v-btn
-                class=""
+
                 icon="mdi-close"
                 variant="text"
                 tile

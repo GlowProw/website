@@ -162,7 +162,7 @@ defineOptions({
           <v-divider></v-divider>
         </v-col>
         <v-col cols="auto">
-          <span class="">
+          <span >
             {{ regularPointsSpent }} / {{ maxPoints }}
           </span>
         </v-col>
