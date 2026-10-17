@@ -59,6 +59,8 @@ export default {
     src: {
       immediate: true,
       handler(value) {
+        this.imageStatus = 0;
+        this.jxIndex = 0;
         this.newSrc = normalizeAvatarUrl(value);
       }
     }

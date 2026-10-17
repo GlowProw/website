@@ -13,7 +13,7 @@ import "cropperjs/dist/cropper.css";
 
 import UserAvatar from "@/components/UserAvatar.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
-import { normalizeAvatarUrl } from "@/assets/sripts/avatar";
+import {normalizeAvatarUrl} from "@/assets/sripts/avatar";
 
 const authStore = useAuthStore(),
     notice = useNoticeStore(),
@@ -111,8 +111,15 @@ const loadAvatarQuota = async () => {
  */
 const onAvatarChanged = (url: string) => {
   const normalized = normalizeAvatarUrl(url)
+
   avatarUrl.value = normalized
+  if (userAccountData.value) {
+    userAccountData.value.userAvatar = url
+    if (!userAccountData.value.attr) userAccountData.value.attr = {}
+    userAccountData.value.attr.avatar = url
+  }
   authStore.updateAccountAttr({userAvatar: url})
+
   // 上传/预设都会让后端额度缓存失效，这里同步刷新本地额度
   loadAvatarQuota()
 }
@@ -213,7 +220,7 @@ const getCroppedFile = (): Promise<File> => {
 
     if (!canvas) return reject(new Error('crop failed'))
 
-    // 以 webp 0.85 质量输出，通常比 png 小 40%-60%
+    // 以 webp 0.85 质量输出
     canvas.toBlob((blob) => {
       if (!blob) return reject(new Error('crop failed'))
       resolve(new File([blob], 'avatar.webp', {type: 'image/webp'}))
@@ -242,7 +249,7 @@ const onConfirmCrop = async () => {
 
     onAvatarChanged(result.url)
 
-    notice.success(t('basic.tips.avatar.upload.ok'))
+    notice.success(t('basic.tips.avatar.upload.ok'), {mode: 'minimal'})
 
     closeDialog()
   } catch (e) {
@@ -264,7 +271,7 @@ const onConfirmPreset = async () => {
     const result = await apis.userApi().setPresetAvatar(presetSelected.value)
     onAvatarChanged(result.url)
 
-    notice.success(t('basic.tips.avatar.preset.ok'))
+    notice.success(t('basic.tips.avatar.preset.ok'), {mode: 'minimal'})
 
     closeDialog()
   } catch (e) {
@@ -279,7 +286,8 @@ const onConfirmPreset = async () => {
  */
 const hasCustomAvatar = computed(() => {
   const customAttr = userAccountData.value?.attr?.avatar || (authStore.user as any)?.attr?.avatar
-  return Boolean(customAttr || (avatarUrl.value && !avatarUrl.value.includes('gravatar.com')))
+  const current = avatarUrl.value
+  return Boolean(customAttr || (current && !current.includes('gravatar.com') && !current.includes('gravatar.loli.net') && !current.includes('v2ex.com') && !current.includes('sep.cc')))
 })
 
 /**
@@ -291,14 +299,17 @@ const handleDeleteAvatar = async () => {
   try {
     const res = await apis.userApi().deleteAvatar()
     const nextUrl = res?.url || ''
-    avatarUrl.value = nextUrl
-    if (userAccountData.value?.attr) {
-      userAccountData.value.attr.avatar = ''
+    avatarUrl.value = normalizeAvatarUrl(nextUrl)
+    if (userAccountData.value) {
+      userAccountData.value.userAvatar = nextUrl
+      if (userAccountData.value.attr) {
+        userAccountData.value.attr.avatar = ''
+      }
     }
     if ((authStore.user as any)?.attr) {
       (authStore.user as any).attr.avatar = ''
     }
-    authStore.updateAccountAttr({userAvatar: nextUrl})
+    authStore.updateAccountAttr({userAvatar: nextUrl, attr: userAccountData.value?.attr || {}})
     notice.success(t('account.profile-picture.deleteSuccess'))
     await Promise.all([getUserAccount(), loadAvatarQuota()])
   } catch (e) {
@@ -504,12 +515,11 @@ defineOptions({
             <!-- 预设头像 -->
             <v-card
                 variant="tonal"
-                color="secondary"
                 class="select-option pa-4 cursor-pointer"
                 rounded="lg"
                 @click="dialogStep = 'preset'; presetSelected = ''">
               <div class="d-flex align-center ga-4">
-                <v-avatar color="secondary" variant="tonal" size="44" rounded="lg">
+                <v-avatar color="" variant="tonal" size="44" rounded="lg">
                   <v-icon icon="mdi-view-grid-outline" size="22"/>
                 </v-avatar>
                 <div>
@@ -526,9 +536,12 @@ defineOptions({
             </v-card>
 
             <!-- 选项 3：Gravatar -->
-            <v-card variant="tonal" class="pa-4" rounded="lg">
+            <v-card
+                variant="tonal"
+                class="select-option pa-4 cursor-pointer"
+                rounded="lg">
               <div class="d-flex align-center ga-4">
-                <v-avatar color="surface-variant" variant="tonal" size="44" rounded="lg">
+                <v-avatar variant="tonal" size="44" rounded="lg">
                   <v-icon icon="mdi-earth" size="22"/>
                 </v-avatar>
                 <div class="flex-grow-1">

@@ -81,7 +81,7 @@ const onRevokeOtherSessions = async () => {
  */
 const onRevokeSession = async (session: any) => {
   const targetName = session.browser || session.platform || ''
-  if (!confirm(t('account.sessions.revokeConfirm', { name: targetName }))) {
+  if (!confirm(t('account.sessions.revokeConfirm', {name: targetName}))) {
     return
   }
 
@@ -90,7 +90,7 @@ const onRevokeSession = async (session: any) => {
 
     await apis.userApi().revokeUserSession(session.sessionId)
 
-    notice.success(t('account.sessions.revokeSuccess'), { mode: 'minimal' })
+    notice.success(t('account.sessions.revokeSuccess'), {mode: 'minimal'})
 
     await loadSessions()
   } catch (err: any) {
@@ -145,7 +145,7 @@ const getPlatformName = (platform: string) => {
       </template>
 
       <div>
-        <v-row class="mb-1">
+        <v-row class="mb-2">
           <v-spacer></v-spacer>
           <v-col cols="auto">
             <v-btn
@@ -155,8 +155,7 @@ const getPlatformName = (platform: string) => {
                 size="small"
                 prepend-icon="mdi-logout-variant"
                 :loading="revokingOther"
-                @click="onRevokeOtherSessions"
-            >
+                @click="onRevokeOtherSessions">
               {{ t('account.sessions.revokeOther') }}
             </v-btn>
           </v-col>
@@ -167,12 +166,11 @@ const getPlatformName = (platform: string) => {
           <v-card
               v-for="s in sessions"
               :key="s.sessionId || s.id"
-              variant="flat"
               :class="['pa-4 border account-sessions-card', s.isCurrent ? 'account-sessions-card-current' : '']">
-            <div class="d-flex align-center justify-space-between flex-wrap ga-3">
-              <div class="d-flex align-center ga-3">
-                <v-avatar size="44" :color="s.isCurrent ? 'primary' : 'grey-lighten-3'" rounded="lg">
-                  <v-icon :color="s.isCurrent ? 'white' : 'grey-darken-2'" size="24">
+            <v-row class="d-flex align-center justify-space-between flex-wrap ga-3">
+              <v-col class="d-flex align-start ga-3">
+                <v-avatar size="50" :color="s.isCurrent ? 'primary' : 'bg-black'" rounded="lg">
+                  <v-icon :color="s.isCurrent ? 'black' : 'primary'">
                     {{ getPlatformIcon(s.platform) }}
                   </v-icon>
                 </v-avatar>
@@ -180,10 +178,10 @@ const getPlatformName = (platform: string) => {
                 <div>
                   <div class="d-flex align-center ga-2 flex-wrap">
                     <span class="font-weight-bold text-subtitle-2">{{ getPlatformName(s.platform) }}</span>
-                    <v-chip v-if="s.isCurrent" size="x-small" color="success" variant="flat" class="font-weight-medium">
+                    <v-chip v-if="s.isCurrent" size="x-small" color="amber" variant="flat" class="font-weight-medium">
                       {{ t('account.sessions.currentDevice') }}
                     </v-chip>
-                    <v-chip v-else-if="s.status === 'active'" size="x-small" color="primary" variant="tonal">
+                    <v-chip v-else-if="s.status === 'active'" size="x-small" color="amber" variant="tonal">
                       {{ t('account.sessions.online') }}
                     </v-chip>
                     <v-chip v-else size="x-small" color="grey" variant="tonal">
@@ -191,25 +189,27 @@ const getPlatformName = (platform: string) => {
                     </v-chip>
                   </div>
 
-                  <div class="text-caption text-medium-emphasis mt-1 d-flex align-center ga-3 flex-wrap">
-                    <span>
-                      <v-icon size="14" class="mr-1">mdi-devices</v-icon>
+                  <div class="text-medium-emphasis mt-1 d-flex align-center ga-2 flex-wrap">
+                    <v-icon size="18">mdi-devices</v-icon>
+                    <span class="u">
                       {{ s.browser || t('account.sessions.unknownBrowser') }} · {{ s.os || t('account.sessions.unknownOS') }} {{ s.device ? `(${s.device})` : '' }}
                     </span>
-                    <span>
-                      <v-icon size="14" class="mr-1">mdi-map-marker-outline</v-icon>
+                    <v-icon size="18">mdi-map-marker-outline</v-icon>
+                    <span class="u">
                       IP: {{ s.ip || '—' }}
                     </span>
                   </div>
                 </div>
-              </div>
+              </v-col>
 
-              <div class="d-flex align-center ga-3 align-self-md-center">
-                <div class="text-caption text-medium-emphasis text-right">
-                  <div>{{ t('account.sessions.loginAt') }}
+              <v-col cols="12" lg="auto" class="d-flex align-center ga-3 gap-3 align-self-md-center hidden-sm opacity-60">
+                <div class="text-medium-emphasis text-right d-flex flex-column gap-1">
+                  <div>
+                    {{ t('account.sessions.loginAt') }}
                     <TimeView :time="s.loginTime"></TimeView>
                   </div>
-                  <div v-if="s.lastActiveTime">{{ t('account.sessions.activeAt') }}
+                  <div v-if="s.lastActiveTime">
+                    {{ t('account.sessions.activeAt') }}
                     <TimeView :time="s.lastActiveTime"></TimeView>
                   </div>
                 </div>
@@ -223,8 +223,8 @@ const getPlatformName = (platform: string) => {
                     @click="onRevokeSession(s)">
                   {{ t('account.sessions.revokeThis') }}
                 </v-btn>
-              </div>
-            </div>
+              </v-col>
+            </v-row>
           </v-card>
         </div>
 
@@ -241,14 +241,11 @@ const getPlatformName = (platform: string) => {
 </template>
 
 <style scoped lang="less">
+@import "@/assets/styles/root";
+
 .account-sessions-root {
   .account-sessions-card {
     transition: border-color 0.2s ease, background-color 0.2s ease;
-
-    &-current {
-      border-color: rgba(var(--v-theme-primary), 0.4) !important;
-      background-color: rgba(var(--v-theme-primary), 0.03);
-    }
   }
 }
 </style>

@@ -39,6 +39,7 @@ const props = withDefaults(defineProps<HorizontalScrollListProps>(), {
   forceDraggable: true,
   isFollowScreenCenter: false,
   followScreenSafeDistance: 200,
+  isMask: true,
   height: '',
   width: ''
 })

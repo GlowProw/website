@@ -299,6 +299,57 @@ const openCheckout = (tier: string, per: 'monthly' | 'yearly' | 'once', amount?:
   checkoutDialog.value = true
 }
 
+// 上一次页面恢复/切回触发数据刷新的时间戳（用于冷却防抖）
+let lastRefreshTime = 0
+
+/**
+ * 刷新个人订单列表及订阅状态
+ * 用于支付跳转后回退页面或页面从后台切回前台时，自动同步最新的支付与订单结果
+ * 设置 2000ms 冷却时间，防止频繁触发网络请求
+ *
+ * @returns {Promise<void>}
+ */
+const refreshOrdersAndStatus = async (): Promise<void> => {
+  if (!authStore.isLogin) return
+  const now = Date.now()
+  if (now - lastRefreshTime < 2000) return
+  lastRefreshTime = now
+
+  try {
+    await Promise.allSettled([
+      loadMyOrders(),
+      api.getMyStatus().then(s => {
+        myStatus.value = s || {}
+      }),
+      api.getProgress().then(g => {
+        progress.value = g
+      })
+    ])
+  } catch {
+    // 静默容错，不阻断界面
+  }
+}
+
+/**
+ * 监听页面可见性变化
+ * 当标签页切出后再次切回当前页面时，触发订单与订阅状态刷新
+ */
+const onVisibilityChange = (): void => {
+  if (document.visibilityState === 'visible') {
+    refreshOrdersAndStatus()
+  }
+}
+
+/**
+ * 监听页面展示事件（含 BFCache 恢复与普通后退）
+ * 当用户从外部支付收银台点击浏览器后退按钮返回本页时，自动重新查询订单
+ *
+ * @param {PageTransitionEvent} _event - 页面展示事件对象
+ */
+const onPageShow = (_event: PageTransitionEvent): void => {
+  refreshOrdersAndStatus()
+}
+
 /**
  * 点击固定档位卡片的「订阅」按钮
  * 根据当前选择的周期获取单价，打开支付渠道弹窗
@@ -306,6 +357,10 @@ const openCheckout = (tier: string, per: 'monthly' | 'yearly' | 'once', amount?:
  * @param {any} tierDef - 选中的档位数据对象
  */
 const onTierClick = (tierDef: any): void => {
+  if (!authStore.isLogin) {
+    notice.warning(t('subscription.loginFirst'))
+    return
+  }
   openCheckout(tierDef.tier, period.value, tierPrice(tierDef))
 }
 
@@ -314,6 +369,10 @@ const onTierClick = (tierDef: any): void => {
  * 校验金额有效性及最低门槛（>= 5 元），格式化为保留两位小数后打开支付渠道弹窗
  */
 const onCustomClick = (): void => {
+  if (!authStore.isLogin) {
+    notice.warning(t('subscription.loginFirst'))
+    return
+  }
   const amount = Number(customAmount.value)
   if (!Number.isFinite(amount) || amount < 5) {
     notice.warning(t('subscription.customMin'))
@@ -365,19 +424,19 @@ const formatExpiry = (iso: string): string => {
   if (!iso) return ''
   const d = new Date(iso)
   return isZh.value
-      ? `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`
-      : d.toISOString().slice(0, 10)
+  ? `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`
+  : d.toISOString().slice(0, 10)
 }
 
 /**
- * 页面挂载：加载订阅主页数据并启动倒计时定时器
+ * 页面挂载：加载订阅主页数据并启动倒计时定时器，同时注册后退与切页可见性监听
  */
 onMounted(async () => {
   await load()
 
   if (route.query.paid === '1') {
     notice.minimal(t('subscription.paySuccess') || '支付成功，感谢您的赞助支持！', 'success')
-    
+
     try {
       storage.session.rem('quota.status')
     } catch {
@@ -393,6 +452,10 @@ onMounted(async () => {
     notice.minimal(t('subscription.payCancelled') || '您已取消本次支付', 'warning')
   }
 
+  // 监听浏览器后退展示与页面切出切回事件，实现订单状态自动同步
+  window.addEventListener('pageshow', onPageShow)
+  document.addEventListener('visibilitychange', onVisibilityChange)
+
   // 每秒驱动待支付倒计时
   tickTimer = setInterval(() => {
     nowTick.value = Date.now()
@@ -400,9 +463,11 @@ onMounted(async () => {
 })
 
 /**
- * 页面卸载：清理倒计时定时器
+ * 页面卸载：清理倒计时定时器与事件监听
  */
 onUnmounted(() => {
+  window.removeEventListener('pageshow', onPageShow)
+  document.removeEventListener('visibilitychange', onVisibilityChange)
   if (tickTimer) {
     clearInterval(tickTimer)
     tickTimer = null
@@ -584,6 +649,8 @@ onUnmounted(() => {
                 <v-card-actions>
                   <v-spacer></v-spacer>
                   <v-btn variant="flat"
+                         :disabled="!authStore.isLogin"
+                         :title="!authStore.isLogin ? t('subscription.loginFirst') : undefined"
                          @click="onTierClick(tierDef)">
                     {{ t('subscription.subscribe') }}
                   </v-btn>
@@ -606,6 +673,7 @@ onUnmounted(() => {
                                 :min="5"
                                 density="compact"
                                 class="mt-3"
+                                :disabled="!authStore.isLogin"
                                 :label="t('subscription.customAmount')"
                                 hide-details></v-text-field>
 
@@ -619,7 +687,10 @@ onUnmounted(() => {
                 <v-divider></v-divider>
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn variant="text" @click="onCustomClick">
+                  <v-btn variant="text"
+                         :disabled="!authStore.isLogin"
+                         :title="!authStore.isLogin ? t('subscription.loginFirst') : undefined"
+                         @click="onCustomClick">
                     {{ t('subscription.donateOnce') }}
                   </v-btn>
                 </v-card-actions>
@@ -686,6 +757,17 @@ onUnmounted(() => {
                     {{ t('subscription.rules.repeatTitle') }}
                   </div>
                   <div class="opacity-70">{{ t('subscription.rules.repeatDesc') }}</div>
+                </div>
+              </div>
+            </v-col>
+
+            <v-col cols="12" md="6">
+              <div class="d-flex ga-2">
+                <div>
+                  <div class="font-weight-bold mb-1 text-white">
+                    {{ t('subscription.rules.currencyTitle') }}
+                  </div>
+                  <div class="opacity-70">{{ t('subscription.rules.currencyDesc') }}</div>
                 </div>
               </div>
             </v-col>

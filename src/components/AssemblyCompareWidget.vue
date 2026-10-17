@@ -99,8 +99,10 @@ const useBaseAssembly = (idx: number) => {
   <div class="w-100 bg-black pa-4">
     <HorizontalScrollList
         :is-indicator="false"
-        :use-shift-key="false"
-        :is-follow-screen-center="true">
+        :is-mask="false"
+        :wheel-scroll="false"
+        :force-draggable="false"
+        :is-follow-screen-center="false">
       <div
           v-for="(entry, idx) in compareList"
           :key="entry.id"

@@ -291,15 +291,6 @@ defineOptions({
       </template>
       <template #description>
         <p class="mb-4">{{ t('account.media.emptyDesc') }}</p>
-        <div class="mx-auto" style="max-width: 480px">
-          <v-file-upload
-            density="comfortable"
-            scrim="primary"
-            accept=".webp,.png,.jpg,.jpeg"
-            :disabled="storageDisabled || uploading"
-            @update:model-value="onFileSelected"
-          ></v-file-upload>
-        </div>
       </template>
     </EmptyView>
 

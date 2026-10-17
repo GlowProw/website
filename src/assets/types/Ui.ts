@@ -160,6 +160,7 @@ export interface ScrollListProps {
   forceDraggable?: boolean
   isFollowScreenCenter?: boolean
   followScreenSafeDistance?: number
+  isMask?: boolean
   height?: string | number
   maxHeight?: string | number
   width?: string | number

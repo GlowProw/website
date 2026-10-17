@@ -69,12 +69,9 @@ defineExpose({
       scrollable
       transition="dialog-bottom-transition"
       location="bottom">
-    <v-card class="assembly-compare-card"
-            min-height="500px">
-      <v-spacer></v-spacer>
-
+    <v-card class="assembly-compare-card">
       <!-- 弹窗顶部栏 -->
-      <v-toolbar density="comfortable" color="surface" class="px-4">
+      <v-toolbar density="comfortable" color="surface" class="px-4 flex-grow-0 flex-shrink-0">
         <v-toolbar-title class="text-subtitle-1 font-weight-bold text-amber">
           {{ t('assembly.compare.title') }}
         </v-toolbar-title>
@@ -87,7 +84,7 @@ defineExpose({
         ></v-btn>
       </v-toolbar>
 
-      <div class="overflow-y-auto">
+      <div class="assembly-compare-scroll-body flex-grow-1 overflow-y-auto">
         <AssemblyCompareWidget
             :base-assembly="baseAssembly"
             :target-assembly="targetAssembly"
@@ -102,5 +99,17 @@ defineExpose({
 <style scoped lang="less">
 .assembly-compare-card {
   background-color: rgb(var(--v-theme-surface));
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+}
+
+.assembly-compare-scroll-body {
+  height: calc(100vh - 48px);
+  min-height: 0;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 </style>

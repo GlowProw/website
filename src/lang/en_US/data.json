@@ -3764,7 +3764,9 @@
       "repeatDesc": "Repeat subscriptions can level up your tier. For example, subscribing to Apprentice Pirate twice adds 1.0x quota multiplier; subscribing to Gemini 5 times reaches 3.0x. The active count is displayed after tier names in the list (up to 10 times per tier).",
       "contactTitle": "Subscription Support & Contact",
       "contactDescPrefix": "If you have any questions or issues, please email ",
-      "contactDescSuffix": ", and we will assist you as soon as possible."
+      "contactDescSuffix": ", and we will assist you as soon as possible.",
+      "currencyTitle": "Exchange Rates & Settlement Currency",
+      "currencyDesc": "All tiers and donations are priced and settled in Chinese Yuan (CNY). When paying with foreign currencies (e.g. via Stripe), payments are converted based on real-time exchange rates. Actual charges may vary due to currency fluctuations and bank processing fees; please refer to the final amount on the checkout page."
     },
     "roles": {
       "contributor5": "Contributor 5",

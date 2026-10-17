@@ -125,6 +125,7 @@ const props = withDefaults(defineProps<ScrollListProps>(), {
   forceDraggable: true,
   isFollowScreenCenter: false,
   followScreenSafeDistance: 200,
+  isMask: true,
   height: '',
   maxHeight: '',
   width: ''
@@ -190,7 +191,7 @@ const wrapperStyle = computed<CSSProperties>(() => {
     gap: `${props.gap}px`
   }
 
-  if (canScroll.value) {
+  if (props.isMask && canScroll.value) {
     if (isVertical.value) {
       const topStop = canScrollPrev.value ? 'transparent 0%, black 5%' : 'black 0%'
       const bottomStop = canScrollNext.value ? 'black 95%, transparent 100%' : 'black 100%'
@@ -498,10 +499,14 @@ const handleWheel = (e: WheelEvent) => {
     return
   }
 
-  const canScrollVertically = scrollWrapper.value.scrollHeight > scrollWrapper.value.clientHeight
-  if (!canScrollVertically || Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+  // 若主要为垂直滚动且无显著水平位移，则允许事件向外冒泡给外部容器正常滚动，不强行拦截
+  if (Math.abs(e.deltaY) > Math.abs(e.deltaX) && Math.abs(e.deltaX) < 1) {
+    return
+  }
+
+  if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
     e.preventDefault()
-    const delta = (e.deltaX !== 0 ? e.deltaX : e.deltaY) * props.wheelSensitivity
+    const delta = e.deltaX * props.wheelSensitivity
     const newScrollLeft = scrollWrapper.value.scrollLeft + delta
     smoothScrollTo(newScrollLeft)
   }
