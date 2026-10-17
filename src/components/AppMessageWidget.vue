@@ -250,7 +250,7 @@ defineOptions({
               zIndex: 1,
               minHeight: '300px',
               backgroundColor: `color-mix(in srgb, rgba(0, 0, 0, 0.9) 50%, ${colorConfig.bg} 50%)`,
-              borderBottom: `4px solid ${colorConfig.border}`
+              borderBottom: `1px solid color-mix(in srgb, rgba(0, 0, 0, 0.9) 80%, ${colorConfig.border} 20%)`
             }"
             elevation="24">
 
@@ -397,7 +397,6 @@ defineOptions({
             <span>{{ hasTimer ? t('notice.closeHint') : t('notice.manualCloseHint') }}</span>
           </div>
           <!-- 底部底部提示栏 E -->
-
         </v-card>
       </v-dialog>
     </template>

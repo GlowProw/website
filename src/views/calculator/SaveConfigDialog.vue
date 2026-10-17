@@ -45,7 +45,7 @@ defineExpose({dialog})
 
       <v-card-text>
         <!-- 保存新配置 -->
-        <v-row dense align="center">
+        <v-row density="compact" align="center">
           <v-col>
             <v-text-field
                 v-model="configName"

@@ -64,7 +64,7 @@ const onOAuthLogin = async (platform: string) => {
       <v-divider class="flex-grow-1 opacity-20"></v-divider>
     </div>
 
-    <v-row dense justify="center" class="ga-2">
+    <v-row density="compact" justify="center" class="ga-2">
       <v-col cols="auto" v-for="item in providers" :key="item.platform">
         <v-btn
           :variant="item.platform === 'google' ? 'outlined' : 'flat'"

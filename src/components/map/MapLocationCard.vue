@@ -230,7 +230,7 @@
         <v-chip size="x-small" color="amber" variant="flat" class="font-weight-bold">DEBUG</v-chip>
       </div>
       <div class="mx-5 mb-8 mt-3">
-        <v-row dense>
+        <v-row density="compact">
           <v-col cols="6">
             <v-btn
                 block

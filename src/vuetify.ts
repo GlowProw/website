@@ -5,9 +5,9 @@ import { en, zhHans, zhHant } from "vuetify/locale";
 
 // 样式导入 S
 import { aliases, mdi } from "vuetify/iconsets/mdi";
-import '@/assets/styles/index.less'
-import 'vuetify/styles/main.css';
-import '@mdi/font/css/materialdesignicons.css'
+import 'vuetify/styles';
+import '@/assets/styles/index.less';
+import '@mdi/font/css/materialdesignicons.css';
 // 样式导入 E
 
 export const createAppVuetify = (initialLocale = DEFAULT_LANG) => {

@@ -49,8 +49,8 @@ let isDetailPage = computed(() => [
             </Silk>
           </template>
           <template v-slot:default>
-            <v-container class="mt-4 position-relative">
-              <v-breadcrumbs>
+            <v-container class="position-relative">
+              <v-breadcrumbs density="compact">
                 <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
                 <v-breadcrumbs-divider></v-breadcrumbs-divider>
                 <v-breadcrumbs-item to="/codex">
@@ -67,7 +67,7 @@ let isDetailPage = computed(() => [
         <v-divider></v-divider>
       </template>
 
-      <v-container class="py-0 mt-5" :class="{'ma-0': isDetailPage}" :style="isDetailPage ? 'max-width:100% !important': ''" :min-width="mobile ? '100%' : ''">
+      <v-container class="pa-0" :class="{'ma-0': isDetailPage}" :style="isDetailPage ? 'max-width:100% !important': ''" :min-width="mobile ? '100%' : ''">
         <v-row>
           <v-col cols="12" order-sm="1" order-lg="1" lg="3" class="pa-0" v-if="!isDetailPage">
             <AffixContainerView :offsetTop="55">

@@ -166,7 +166,7 @@ function onFileImport(e: Event) {
             </v-select>
 
             <!-- 搜索 + 数量 -->
-            <v-row dense>
+            <v-row density="compact">
               <v-col>
                 <v-autocomplete
                     v-model="selectedTargetObj"

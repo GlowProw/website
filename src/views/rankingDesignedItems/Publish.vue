@@ -210,7 +210,7 @@ const onUpdateTags = (data: any) => {
       </Silk>
     </template>
     <template v-slot:default>
-      <v-container class="pa-2 mt-4 position-relative">
+      <v-container class="pa-2 position-relative">
         <v-breadcrumbs>
           <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
           <v-breadcrumbs-divider></v-breadcrumbs-divider>

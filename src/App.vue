@@ -11,6 +11,7 @@ import {useMessagesUnreadStore} from "~/stores/messagesUnreadStore";
 import {useAppStore} from "~/stores/appStore";
 import {usePreloadStore} from "~/stores/preloadStore";
 import {loadRemoteLangMessages} from "@/assets/sripts/remote_i18n";
+import {setupGlobalHotkeys} from "@/assets/sripts/global_hotkeys";
 
 // 纯客户端预加载遮罩（依赖 ogl 渲染），异步 + 仅客户端渲染，避免被打进 SSR/首屏核心 chunk
 const GlobalPreloadOverlay = defineAsyncComponent(() => import('@/components/GlobalPreloadOverlay.vue'));
@@ -107,8 +108,12 @@ const head = computed(() => {
 
 useHead(head)
 
+// 全局快捷键注销回调
+let cleanupHotkeys: (() => void) | null = null;
+
 onMounted(async () => {
   isClient.value = true;
+  cleanupHotkeys = setupGlobalHotkeys();
   document.addEventListener('visibilitychange', handleVisibilityChange);
   preloadStore.registerTask({
     id: 'remote-i18n',
@@ -143,6 +148,10 @@ onMounted(async () => {
 
 onUnmounted(() => {
   document.removeEventListener('visibilitychange', handleVisibilityChange);
+  if (cleanupHotkeys) {
+    cleanupHotkeys();
+    cleanupHotkeys = null;
+  }
 });
 </script>
 

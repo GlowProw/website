@@ -139,9 +139,7 @@ const getPlatformName = (platform: string) => {
 
 <template>
   <div class="account-sessions-root">
-    <AffixBoxHasTitleView
-        :title="t('account.sessions.pageTitle')"
-        :subtitle="t('account.sessions.subtitle')">
+    <AffixBoxHasTitleView>
       <template v-slot:title>
         {{ t('account.sessions.title') }}
       </template>
@@ -168,7 +166,7 @@ const getPlatformName = (platform: string) => {
         <div v-else-if="sessions.length" class="d-flex flex-column ga-3">
           <v-card
               v-for="s in sessions"
-              :key="s.id"
+              :key="s.sessionId || s.id"
               variant="flat"
               :class="['pa-4 border account-sessions-card', s.isCurrent ? 'account-sessions-card-current' : '']">
             <div class="d-flex align-center justify-space-between flex-wrap ga-3">

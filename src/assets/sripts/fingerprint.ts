@@ -2,14 +2,10 @@ import Storage from './storage';
 
 const _storage = new Storage();
 
-/**
- * 持久客户端唯一标识（跨会话、跨重启）
- */
-const CLIENT_ID_KEY = 'glow_prow_client_id';
-/**
- * 会话唯一标识（关闭标签页后失效）
- */
-const SESSION_ID_KEY = 'glow_prow_session_id';
+// 持久客户端唯一标识
+const CLIENT_ID_KEY = 'client.id';
+// 会话唯一标识
+const SESSION_ID_KEY = 'session.id';
 
 /**
  * 简易 32 位 hash（升级版 FNV-1a 变体，多轮扩散）
@@ -124,8 +120,7 @@ function generateSessionId(): string {
 }
 
 /**
- * 获取或生成持久 Client ID（localStorage）
- * 复用 error_logger.ts 等已有的 glow_prow_client_id 存储
+ * 获取或生成持久 Client ID
  */
 export function getClientId(): string {
   try {

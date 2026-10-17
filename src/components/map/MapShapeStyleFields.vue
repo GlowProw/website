@@ -58,7 +58,7 @@
     </v-col>
 
     <v-col cols="12" md="5">
-      <v-row dense align="center">
+      <v-row density="compact" align="center">
         <v-col class="text-medium-emphasis">
           {{ t('map.dashedLine') }}
         </v-col>
@@ -77,7 +77,7 @@
     <v-divider vertical inset class="mx-10"></v-divider>
 
     <v-col cols="12" md="5">
-      <v-row dense align="center">
+      <v-row density="compact" align="center">
         <v-col class="text-medium-emphasis">
           {{ shapeType === 'path' ? t('map.smoothCurve') : t('map.smoothRegion') }}
         </v-col>

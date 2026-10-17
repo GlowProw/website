@@ -69,6 +69,8 @@ import {createAppI18n} from './i18n'
 import {createAppVuetify} from './vuetify'
 import {routes, scrollBehavior, setupRouterGuards} from '~/router'
 import {initGlobalErrorCapture} from './assets/sripts/error_logger'
+import {vHotkeys} from './directives/v-hotkeys'
+import Loading from '@/components/Loading.vue'
 
 export const createApp = ViteSSG(
     App,
@@ -92,6 +94,11 @@ export const createApp = ViteSSG(
         app.use(pinia)
         app.use(i18n)
         app.use(vuetify)
+
+        // 全局注册通用组件与快捷键指令
+        app.component('Loading', Loading)
+        app.directive('hotkeys', vHotkeys)
+        app.directive('hotkey', vHotkeys)
 
         // 错误捕获仅客户端
         if (!import.meta.env.SSR) {

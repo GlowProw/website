@@ -278,16 +278,17 @@
         <v-row align="center" no-gutters>
           <v-col>{{ t('setting.routine.assemblyViewModel') }}</v-col>
           <v-col cols="auto">
-            <v-select hide-details inset density="compact" :items="['full-extension', 'lock-window']" v-model="assemblyViewModel" @update:modelValue="onAssemblyViewModel">
-              <template v-slot:item="{props, item}">
-                <v-list-item v-bind="props">
-                  <template v-slot:title>
-                    {{ t(`setting.routine.assemblyViewModelOptions.${item.raw}.name`) }}
-                  </template>
-                </v-list-item>
-              </template>
-              <template v-slot:selection="{item}">
-                {{ t(`setting.routine.assemblyViewModelOptions.${item.raw}.name`) }}
+            <v-select
+                hide-details
+                inset
+                density="compact"
+                :items="assemblyViewModelItems"
+                item-title="title"
+                item-value="value"
+                v-model="assemblyViewModel"
+                @update:modelValue="onAssemblyViewModel">
+              <template v-slot:item="{props}">
+                <v-list-item v-bind="props"></v-list-item>
               </template>
             </v-select>
           </v-col>
@@ -335,10 +336,23 @@ let estimateCapacity: Ref<any> = ref({}),
     commentGlobalSwitch = ref(true),
     commentCodexSwitch = ref(true),
     commentAssemblySwitch = ref(true),
-
     posterSwitch = ref(false),
 
     assemblyViewModel = ref('lock-window')
+
+/**
+ * 配装视图模式选项列表
+ */
+const assemblyViewModelItems = computed(() => [
+  {
+    title: t('setting.routine.assemblyViewModelOptions.full-extension.name'),
+    value: 'full-extension',
+  },
+  {
+    title: t('setting.routine.assemblyViewModelOptions.lock-window.name'),
+    value: 'lock-window',
+  },
+])
 
 // 计算属性：已激活的功能列表 (value === true)
 const activeFunctions = computed(() => {

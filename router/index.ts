@@ -444,6 +444,14 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
                                     title: 'setting.advanced.title'
                                 },
                                 component: AdvancedPage,
+                            },
+                            {
+                                path: 'hotkeys',
+                                name: 'PortalSettingHotkeys',
+                                meta: {
+                                    title: 'setting.hotkeys.title'
+                                },
+                                component: () => import('@/views/setting/Hotkeys.vue'),
                             }
                         ]
                     },

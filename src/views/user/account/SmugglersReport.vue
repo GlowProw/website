@@ -106,10 +106,22 @@ const getSmugglersReportList = async () => {
  */
 const onCreateSmugglersReport = async () => {
   try {
-    createSmugglersReportLoading.value = true
+    if (!createSmugglersReportData.value.title?.trim()) {
+      notice.warning(t('smugglersReport.account.titleRequired') || '请输入周报标题')
+      return
+    }
+    if (!createSmugglersReportData.value.startAndEnd) {
+      notice.warning(t('smugglersReport.account.timeRequired') || '请选择起止时间')
+      return
+    }
     const times = createSmugglersReportData.value.startAndEnd.split(',')
+    if (times.length < 2 || !times[0] || !times[1]) {
+      notice.warning(t('smugglersReport.account.timeRequired') || '请选择完整起止时间')
+      return
+    }
+    createSmugglersReportLoading.value = true
     const result = await apis.smugglersApi().createReport({
-      title: createSmugglersReportData.value.title,
+      title: createSmugglersReportData.value.title.trim(),
       startTime: times[0],
       endTime: times[1],
       content: createSmugglersReportData.value.content
@@ -129,10 +141,22 @@ const onCreateSmugglersReport = async () => {
  */
 const onEditSmugglersReport = async () => {
   try {
-    createSmugglersReportLoading.value = true
+    if (!createSmugglersReportData.value.title?.trim()) {
+      notice.warning(t('smugglersReport.account.titleRequired') || '请输入周报标题')
+      return
+    }
+    if (!createSmugglersReportData.value.startAndEnd) {
+      notice.warning(t('smugglersReport.account.timeRequired') || '请选择起止时间')
+      return
+    }
     const times = createSmugglersReportData.value.startAndEnd.split(',')
+    if (times.length < 2 || !times[0] || !times[1]) {
+      notice.warning(t('smugglersReport.account.timeRequired') || '请选择完整起止时间')
+      return
+    }
+    createSmugglersReportLoading.value = true
     const result = await apis.smugglersApi().updateReport(createSmugglersReportData.value.id, {
-      title: createSmugglersReportData.value.title,
+      title: createSmugglersReportData.value.title.trim(),
       startTime: times[0],
       endTime: times[1],
       content: createSmugglersReportData.value.content

@@ -224,7 +224,7 @@ const copyClientId = () => {
     <v-col cols="12" lg="8">
       <AffixBoxHasTitleView>
         <!-- 筛选标签 S -->
-        <v-row dense align="center">
+        <v-row density="compact" align="center">
           <v-col cols="auto">
             <v-icon>mdi-filter</v-icon>
           </v-col>

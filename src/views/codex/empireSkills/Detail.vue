@@ -117,7 +117,7 @@ const onCodexHistory = (id: string) => {
 </script>
 
 <template>
-  <v-breadcrumbs>
+  <v-breadcrumbs density="compact">
   <v-container class="pa-0">
       <v-breadcrumbs-item to="/codex/">{{ t('codex.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>

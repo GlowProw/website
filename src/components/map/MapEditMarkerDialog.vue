@@ -52,7 +52,7 @@
                 {{ t('map.clickMapTip') || '在地图上点击任意位置即可更新经纬度' }}
               </div>
 
-              <v-row dense class="mt-2">
+              <v-row density="compact" class="mt-2">
                 <v-col cols="6">
                   <v-text-field
                       :model-value="form.longitude"
@@ -80,7 +80,7 @@
 
             <!-- 右侧：表单字段 -->
             <v-col cols="12" md="6">
-              <v-row dense>
+              <v-row density="compact">
                 <v-col cols="12" sm="7">
                   <v-text-field
                       :model-value="form.title"

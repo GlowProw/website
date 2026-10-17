@@ -413,7 +413,7 @@ defineExpose({
           </v-chip>
         </div>
 
-        <v-row dense>
+        <v-row density="compact">
           <v-col
               v-for="eff in aggregatedEffects"
               :key="eff.id"

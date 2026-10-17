@@ -33,7 +33,7 @@ export default class AppFuns {
                 title: 'header.functions.assembly.title',
                 icon: 'mdi-palette-outline',
                 description: 'header.functions.assembly.description',
-                to: `/${lang}/assembly/browse?t=${new Date().getTime()}`
+                to: `/${lang}/assembly/browse`
             },
             {
                 title: 'header.functions.maps.title',

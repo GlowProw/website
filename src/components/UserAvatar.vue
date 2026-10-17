@@ -2,6 +2,7 @@
   <div class="user-avatar" :style="`width:${size}px;height:${size}px`">
     <v-avatar :shape="shape"
               icon="ios-person"
+              :rounded="tile ? 0 : ''"
               :size="size"
               v-if="imageStatus !== 1">
     </v-avatar>
@@ -16,7 +17,7 @@
 
 <script>
 import Loading from "@/components/Loading.vue";
-import { normalizeAvatarUrl } from "@/assets/sripts/avatar";
+import {normalizeAvatarUrl} from "@/assets/sripts/avatar";
 
 export default {
   components: {Loading},
@@ -24,6 +25,10 @@ export default {
     size: {
       type: [Number, String],
       default: 150
+    },
+    tile: {
+      type: Boolean,
+      default: false
     },
     shape: {
       type: String,

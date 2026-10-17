@@ -128,15 +128,22 @@ const triggerFileInput = () => {
 
 /**
  * 处理选择文件上传 (直传)
+ * @param eventOrFile 事件或文件对象
  */
-const onFileSelected = async (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  const file = target.files?.[0];
+const onFileSelected = async (eventOrFile: any) => {
+  let file: File | undefined;
+  if (eventOrFile instanceof Event) {
+    const target = eventOrFile.target as HTMLInputElement;
+    file = target?.files?.[0];
+    if (target) target.value = '';
+  } else if (Array.isArray(eventOrFile)) {
+    file = eventOrFile[0];
+  } else if (eventOrFile instanceof File) {
+    file = eventOrFile;
+  }
   if (!file) return;
 
-  target.value = '';
-
-  // 1. 校验大小 (340KB)
+  // 校验大小 (340KB)
   if (file.size > 340 * 1024) {
     notice.error('文件体积过大，单次上传文件最大为 340KB');
     return;
@@ -329,27 +336,14 @@ defineOptions({
 
         <!-- 本地上传面板 -->
         <div v-else-if="activeTab === 'local'">
-          <input
-              ref="fileInputRef"
-              type="file"
+          <v-file-upload
+              density="comfortable"
+              scrim="primary"
               accept=".webp,.png,.jpg,.jpeg"
-              style="display: none"
-              @change="onFileSelected"/>
-
-          <!-- 上传拖拽/点击卡片 -->
-          <div
-              class="upload-dropzone pa-8 text-center rounded border border-dashed cursor-pointer"
-              :class="{ 'opacity-60 pointer-events-none': uploading }"
-              @click="triggerFileInput">
-            <Loading size="40" v-if="uploading" class="my-2"></Loading>
-            <template v-else>
-              <v-icon size="48" color="amber" class="mb-2">mdi-cloud-arrow-up-outline</v-icon>
-              <div class="font-weight-medium">点击选择本地图片上传</div>
-              <div class="text-caption text-medium-emphasis mt-1">
-                支持 WebP、PNG、JPG 格式 · 单次最大 340KB · 自动上传至云图床
-              </div>
-            </template>
-          </div>
+              :disabled="!authStore.isLogin || uploading"
+              :loading="uploading"
+              @update:model-value="onFileSelected"
+          ></v-file-upload>
 
           <div v-if="!authStore.isLogin" class="text-caption text-warning mt-2 text-center">
             * 提示：未登录用户无法使用图床上传，请先登录账号

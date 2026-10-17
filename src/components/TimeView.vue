@@ -54,18 +54,30 @@ const toDateString = (time: string | number | Date) => {
   return date.toDateString();
 };
 
+/**
+ * 解析并加载时间多维度展示结构
+ */
 const loadData = () => {
-  if (props.time) {
-    const cleanedTime = onTime(props.time);
-    timeMap.value = {
-      primitive: cleanedTime,
-      primitiveDateString: toDateString(cleanedTime),
-      conversionDate: new Date(cleanedTime).toLocaleDateString(),
-      conversionLocalDate: toLocaleString(new Date(cleanedTime).getTime()),
-      timeFormatName: getTimeFormatName(),
-      localeDateString: toLocaleDateString(cleanedTime)
-    };
+  if (!props.time) {
+    timeMap.value = null;
+    return;
   }
+  const cleanedTime = onTime(props.time);
+  const numVal = Number(cleanedTime);
+  const parsedVal = !isNaN(numVal) && cleanedTime.trim() !== '' ? numVal : cleanedTime;
+  const date = new Date(parsedVal);
+  if (isNaN(date.getTime())) {
+    timeMap.value = null;
+    return;
+  }
+  timeMap.value = {
+    primitive: cleanedTime,
+    primitiveDateString: date.toDateString(),
+    conversionDate: date.toLocaleDateString(),
+    conversionLocalDate: date.toLocaleString(),
+    timeFormatName: getTimeFormatName(),
+    localeDateString: date.toLocaleDateString(undefined, options)
+  };
 };
 
 watch(() => props.time, () => {

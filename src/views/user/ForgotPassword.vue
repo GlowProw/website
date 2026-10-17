@@ -60,7 +60,7 @@ const onBack = () => {
 <template>
   <div>
     <div class="forgot-window">
-      <v-row dense class="h-screen">
+      <v-row density="compact" class="h-screen" no-gutters>
         <v-col cols="12" lg="6" :class="{'d-none': mobile || sm}" class="position-relative overflow-hidden">
          <HalfScreenBannerText></HalfScreenBannerText>
           <Silk
@@ -73,7 +73,7 @@ const onBack = () => {
           </Silk>
         </v-col>
         <v-col cols="12" lg="6" class="bg-black">
-          <v-card dense variant="text" class="forgot-card mt-16 px-8">
+          <v-card density="compact" variant="text" class="forgot-card mt-16 px-8">
             <v-breadcrumbs class="ml-n3">
               <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
               <v-breadcrumbs-divider></v-breadcrumbs-divider>

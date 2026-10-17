@@ -114,7 +114,7 @@ defineOptions({name: "QQBotBannerWidget"});
                     </v-col>
                   </v-row>
 
-                  <v-row style="margin-top: -60px" class="opacity-10 d-none d-sm-flex" dense>
+                  <v-row style="margin-top: -60px" class="opacity-10 d-none d-sm-flex" density="compact">
                     <v-col cols="4" class="text-center">
                       <h5 class="text-h1 opacity-60">{{ number.intToRoman(1) }}</h5>
                     </v-col>

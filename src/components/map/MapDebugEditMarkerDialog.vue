@@ -33,7 +33,7 @@
         <v-window v-model="activeTab">
           <v-window-item value="form">
             <v-form ref="formRef" @submit.prevent="onSave">
-              <v-row dense>
+              <v-row density="compact">
                 <v-col cols="12" sm="6">
                   <v-text-field
                       v-model="formData.id"

@@ -3,6 +3,7 @@ import {computed, nextTick, onMounted, onUnmounted, ref, watch} from 'vue'
 import {TURNSTILE_KEYS} from '@/assets/types/Captcha'
 import {useI18n} from 'vue-i18n'
 import {useAppStore} from '~/stores/appStore'
+import Loading from '@/components/Loading.vue'
 
 const {t} = useI18n()
 const appStore = useAppStore()

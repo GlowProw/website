@@ -18,4 +18,18 @@
       color: @active-color !important;
     }
   }
+
+  @{secondary-selector} {
+    :deep(.v-tab.bg-amber),
+    :deep(.v-tab.v-tab--selected),
+    :deep(.v-tab--selected) {
+      color: #000000 !important;
+
+      .v-icon,
+      i {
+        color: #000000 !important;
+      }
+    }
+  }
 }
+

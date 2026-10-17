@@ -759,6 +759,7 @@ defineOptions({
             <BtnWidget
                 :disabled="!show"
                 size="25"
+                hotkey-action="quickConfirm"
                 keyboard-shortcut="f"
                 class="ml-1"
                 line-color="rgba(83,83,83,0.68)"

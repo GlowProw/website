@@ -258,7 +258,7 @@ const onWaterBarrelClick = () => {
 
       <v-divider class="my-5"></v-divider>
 
-      <v-row dense class="pb-3" justify="center">
+      <v-row density="compact" class="pb-3" justify="center">
         <v-col cols="auto">
           <v-btn
               @click="onWaterFlaskClick"

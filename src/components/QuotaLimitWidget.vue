@@ -138,7 +138,7 @@ const onMenuToggle = (open: boolean): void => {
               <div class="text-caption text-medium-emphasis font-weight-bold mb-1">
                 {{ t('quota.media.files') || '文件数量' }}
               </div>
-              <v-row align="center" dense>
+              <v-row align="center" density="compact">
                 <v-col cols="auto" class="text-caption text-medium-emphasis quota-period-label">{{ t('quota.monthly') }}</v-col>
                 <v-col>
                   <v-progress-linear
@@ -161,7 +161,7 @@ const onMenuToggle = (open: boolean): void => {
                   </p>
                 </v-col>
               </v-row>
-              <v-row align="center" class="mt-n2 mb-1" dense>
+              <v-row align="center" class="mt-n2 mb-1" density="compact">
                 <v-col cols="auto" class="text-caption text-medium-emphasis quota-period-label">{{ t('quota.yearly') }}</v-col>
                 <v-col>
                   <v-progress-linear
@@ -193,7 +193,7 @@ const onMenuToggle = (open: boolean): void => {
                   {{ t('quota.media.maxFileSize') || '单文件 ≤ 340KB' }}
                 </span>
               </div>
-              <v-row align="center" dense>
+              <v-row align="center" density="compact">
                 <v-col cols="auto" class="text-caption text-medium-emphasis quota-period-label">{{ t('quota.monthly') }}</v-col>
                 <v-col>
                   <v-progress-linear
@@ -211,7 +211,7 @@ const onMenuToggle = (open: boolean): void => {
                   </p>
                 </v-col>
               </v-row>
-              <v-row align="center" class="mt-n2 mb-1" dense>
+              <v-row align="center" class="mt-n2 mb-1" density="compact">
                 <v-col cols="auto" class="text-caption text-medium-emphasis quota-period-label">{{ t('quota.yearly') }}</v-col>
                 <v-col>
                   <v-progress-linear
@@ -238,7 +238,7 @@ const onMenuToggle = (open: boolean): void => {
                   {{ t('quota.media.maxPerFile') || '单文件 ≤ 10次' }}
                 </span>
               </div>
-              <v-row align="center" class="mt-n2 mb-1" dense>
+              <v-row align="center" class="mt-n2 mb-1" density="compact">
                 <v-col cols="auto" class="text-caption text-medium-emphasis quota-period-label">{{ t('quota.yearly') }}</v-col>
                 <v-col>
                   <v-progress-linear

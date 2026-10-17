@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import {computed, nextTick, onMounted, ref, watch} from "vue";
+import {computed, onMounted, ref} from "vue";
 import {useI18n} from "vue-i18n";
-import * as d3 from "d3";
-
 import {Apis} from "@/assets/sripts/api";
 import type {StatsAssemblyTop, StatsOverview, StatsRange, StatsTrend, StatsVisitor} from "@/assets/types/Stats";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import Loading from "@/components/Loading.vue";
 import HorizontalScrollList from "@/components/HorizontalScrollList.vue";
 import TimeView from "@/components/TimeView.vue";
+import {VSparkline} from "vuetify/components/VSparkline";
 
 const {t} = useI18n();
 const statsApi = Apis.statsApi();
@@ -96,29 +95,16 @@ const metricCards = computed(() => [
   }
 ]);
 
-const chartRef = ref<SVGSVGElement | null>(null);
-const chartWidth = 720;
-const chartHeight = 220;
-const margin = {top: 16, right: 16, bottom: 16, left: 16};
-const tooltipRef = ref<HTMLDivElement | null>(null);
+// 各指标趋势数据映射
+const trendMap = ref<Record<string, StatsTrend | null>>({});
 
-const renderedTrend = computed(() => trend.value?.points || []);
-
-// 监听到 trend 变化后渲染
-let renderTimer: any = null;
-
-watch(trend, () => {
-  clearTimeout(renderTimer);
-  renderTimer = setTimeout(async () => {
-    await nextTick();
-    renderChart();
-  }, 30);
-}, {immediate: true, deep: true});
+// 各指标卡片当前悬浮的数据点索引
+const cardHoverIndexMap = ref<Record<string, number | null>>({});
 
 onMounted(async () => {
   loading.value = true;
   try {
-    await Promise.all([loadOverview(), loadTrend(), loadTop()]);
+    await Promise.all([loadOverview(), loadTrends(), loadTop()]);
   } catch (err) {
     console.warn('[DataCenter] load failed:', err);
   } finally {
@@ -134,10 +120,17 @@ const loadOverview = async () => {
 };
 
 /**
- * 加载趋势图表数据
+ * 加载所有指标的走势图表数据
  */
-const loadTrend = async () => {
-  trend.value = await statsApi.getTrend(currentMetric.value, trendRange.value);
+const loadTrends = async () => {
+  const metrics: Array<StatsTrend['metric']> = ['browse', 'space', 'like', 'comment'];
+  const results = await Promise.all(
+    metrics.map(m => statsApi.getTrend(m, trendRange.value))
+  );
+  metrics.forEach((m, idx) => {
+    trendMap.value[m] = results[idx];
+  });
+  trend.value = trendMap.value[currentMetric.value] || null;
 };
 
 /**
@@ -161,137 +154,221 @@ const rangeLabelKey = computed(() => {
  */
 const onRangeChange = async (range: StatsRange) => {
   trendRange.value = range;
-  await Promise.all([loadTrend(), loadOverview()]);
+  await Promise.all([loadTrends(), loadOverview()]);
 };
 
 /**
- * 渲染图表
+ * 点击卡片切换图表指标
+ * @param metric 指标名称
  */
-const renderChart = () => {
-  const svg = chartRef.value;
-  const tip = tooltipRef.value;
-  if (!svg || !tip || renderedTrend.value.length === 0) return;
+const onSelectMetric = async (metric: string) => {
+  if (['browse', 'space', 'like', 'comment'].includes(metric)) {
+    currentMetric.value = metric as StatsTrend['metric'];
+    trend.value = trendMap.value[currentMetric.value] || null;
+  }
+};
 
-  d3.select(svg).selectAll('*').remove();
+/**
+ * 设置指定卡片当前悬浮的数据点索引
+ * @param metric 指标名
+ * @param index 数据点序号
+ */
+const onCardHover = (metric: string, index: number | null | undefined) => {
+  cardHoverIndexMap.value[metric] = index !== undefined ? index : null;
+};
 
-  const g = d3.select(svg)
-      .attr('viewBox', `0 0 ${chartWidth} ${chartHeight}`)
-      .append('g')
-      .attr('transform', `translate(${margin.left}, ${margin.top})`);
+/**
+ * 获取指定卡片的 sparkline 数据点数值数组
+ * @param metric 指标名
+ */
+const getCardSparklineValues = (metric: string): number[] => {
+  const t = trendMap.value[metric];
+  if (t?.points && t.points.length > 0) {
+    return t.points.map(p => Number(p.value) || 0);
+  }
+  return [0, 0, 0, 0, 0, 0, 0];
+};
 
-  const w = chartWidth - margin.left - margin.right;
-  const h = chartHeight - margin.top - margin.bottom;
+/**
+ * 获取指定卡片当前鼠标悬浮对应数值（若未悬浮返回 null）
+ * @param metric 指标名
+ */
+const getCardHoverValue = (metric: string): string | null => {
+  const idx = cardHoverIndexMap.value[metric];
+  if (idx === null || idx === undefined) return null;
+  const t = trendMap.value[metric];
+  if (!t?.points || !t.points[idx]) return null;
+  return Number(t.points[idx].value || 0).toLocaleString();
+};
 
-  const xScale = d3.scalePoint()
-      .domain(renderedTrend.value.map(p => p.date))
-      .range([0, w])
-      .padding(0.5);
+/**
+ * 获取指定卡片当前鼠标悬浮对应日期（若未悬浮返回 null）
+ * @param metric 指标名
+ */
+const getCardHoverDate = (metric: string): string | null => {
+  const idx = cardHoverIndexMap.value[metric];
+  if (idx === null || idx === undefined) return null;
+  const t = trendMap.value[metric];
+  if (!t?.points || !t.points[idx]) return null;
+  return t.points[idx].date;
+};
 
-  const maxVal = Math.max(1, ...renderedTrend.value.map(p => p.value));
-  const yScale = d3.scaleLinear()
-      .domain([0, maxVal])
-      .range([h, 0])
-      .nice();
+/**
+ * 获取指标卡片对应的图表渐变配色
+ * @param color 颜色标识
+ */
+const getCardGradient = (color: string): string[] => {
+  switch (color) {
+    case 'blue':
+      return ['rgba(66, 165, 245, 0.45)', 'rgba(21, 101, 192, 0.05)'];
+    case 'red':
+      return ['rgba(239, 83, 80, 0.45)', 'rgba(198, 40, 40, 0.05)'];
+    case 'green':
+      return ['rgba(102, 187, 106, 0.45)', 'rgba(46, 125, 50, 0.05)'];
+    case 'purple':
+      return ['rgba(171, 71, 188, 0.45)', 'rgba(123, 31, 162, 0.05)'];
+    case 'teal':
+      return ['rgba(38, 166, 154, 0.45)', 'rgba(0, 121, 107, 0.05)'];
+    case 'amber':
+    default:
+      return ['rgba(255, 193, 7, 0.45)', 'rgba(255, 143, 0, 0.05)'];
+  }
+};
 
-  // x 轴
-  const step = Math.max(1, Math.floor(renderedTrend.value.length / 7));
-  const tickDates = d3.range(0, renderedTrend.value.length, step)
-      .map(i => renderedTrend.value[i]?.date)
-      .filter((d): d is string => !!d);
-  const xAxis = g.append('g')
-      .attr('transform', `translate(0, ${h})`)
-      .call(d3.axisBottom(xScale).tickValues(tickDates))
-      .attr('class', 'text-caption grey');
-  xAxis.selectAll('text').attr('fill', '#888').attr('font-size', '10px');
+/**
+ * 提取 sparkline 数值数组
+ */
+const sparklineValues = computed<number[]>(() => {
+  const points = trend.value?.points || [];
+  return points.map(p => Number(p.value) || 0);
+});
 
-  // y 轴
-  g.append('g')
-      .call(d3.axisLeft(yScale).ticks(4))
-      .attr('class', 'text-caption grey')
-      .selectAll('text').attr('fill', '#888').attr('font-size', '10px');
+/**
+ * 提取 sparkline 对应日期标签数组
+ */
+const sparklineLabels = computed<string[]>(() => {
+  const points = trend.value?.points || [];
+  return points.map(p => p.date);
+});
 
-  // 折线
-  const line = d3.line<{ date: string; value: number }>()
-      .x(d => xScale(d.date)!)
-      .y(d => yScale(d.value))
-      .curve(d3.curveMonotoneX);
+/**
+ * 针对当前指标动态适配渐变填充色系
+ */
+const sparklineGradient = computed<string[]>(() => {
+  switch (currentMetric.value) {
+    case 'space':
+      return ['rgba(66, 165, 245, 0.35)', 'rgba(21, 101, 192, 0.05)'];
+    case 'like':
+      return ['rgba(239, 83, 80, 0.35)', 'rgba(198, 40, 40, 0.05)'];
+    case 'comment':
+    case 'reply':
+      return ['rgba(102, 187, 106, 0.35)', 'rgba(46, 125, 50, 0.05)'];
+    case 'browse':
+    default:
+      return ['rgba(255, 193, 7, 0.35)', 'rgba(255, 143, 0, 0.05)'];
+  }
+});
 
-  g.append('path')
-      .datum(renderedTrend.value)
-      .attr('fill', 'none')
-      .attr('stroke', '#ffb300')
-      .attr('stroke-width', 2)
-      .attr('d', line);
+/**
+ * 当前指标最高点数值
+ */
+const maxTrendValue = computed(() => {
+  if (sparklineValues.value.length === 0) return 0;
+  return Math.max(...sparklineValues.value);
+});
 
-  // 圆点
-  g.selectAll('.dot')
-      .data(renderedTrend.value as Array<{ date: string; value: number }>)
-      .enter()
-      .append('circle')
-      .attr('class', 'dot')
-      .attr('cx', d => xScale(d.date)!)
-      .attr('cy', d => yScale(d.value))
-      .attr('r', 3)
-      .attr('fill', '#ffb300');
+/**
+ * 最近一天（最末数据点）的日期
+ */
+const lastDate = computed(() => {
+  const labels = sparklineLabels.value;
+  return labels.length ? labels[labels.length - 1] : '';
+});
 
-  // hover overlay（十字线 + tooltip）
-  const bisect = d3.bisector((p: { date: string }) => p.date).left;
+/**
+ * 最近一天（最末数据点）的数值
+ */
+const lastValue = computed(() => {
+  const values = sparklineValues.value;
+  return values.length ? values[values.length - 1].toLocaleString() : '0';
+});
 
-  // 十字线
-  const crossLine = g.append('line')
-      .attr('class', 'crossline')
-      .attr('stroke', '#999')
-      .attr('stroke-width', 1)
-      .attr('stroke-dasharray', '3,3')
-      .attr('y1', 0).attr('y2', h)
-      .attr('display', 'none');
+/**
+ * 当前指标标题
+ */
+const currentMetricTitle = computed(() => {
+  return t(`account.dataCenter.overview.${currentMetric.value}`);
+});
 
-  const hoverDot = g.append('circle')
-      .attr('r', 5)
-      .attr('fill', '#ffb300')
-      .attr('stroke', '#fff')
-      .attr('stroke-width', 2)
-      .attr('display', 'none');
+/**
+ * 稀疏化展示 sparkline 底部横坐标刻度，避免重叠拥挤
+ * @param index 刻度序号
+ */
+const formatSparklineLabel = (index: number): string => {
+  const total = sparklineLabels.value.length;
+  if (total <= 7) return sparklineLabels.value[index] || '';
+  const step = Math.max(1, Math.floor(total / 6));
+  if (index % step === 0 || index === total - 1) {
+    const raw = sparklineLabels.value[index] || '';
+    // 仅保留 MM-DD
+    return raw.length >= 5 ? raw.substring(raw.length - 5) : raw;
+  }
+  return '';
+};
 
-  // overlay rect 捕获鼠标
-  g.append('rect')
-      .attr('width', w).attr('height', h)
-      .attr('fill', 'transparent')
-      .on('mousemove', (event: MouseEvent) => {
-        const [mx] = d3.pointer(event);
-        const points = renderedTrend.value;
-        let closest = 0;
-        let minDist = Infinity;
-        for (let i = 0; i < points.length; i++) {
-          const dx = Math.abs(xScale(points[i].date)! - mx);
-          if (dx < minDist) {
-            minDist = dx;
-            closest = i;
-          }
-        }
-        const d = points[closest];
-        const cx = xScale(d.date)!;
-        const cy = yScale(d.value);
+/**
+ * 格式化后的底部日期标签
+ */
+const displaySparklineLabels = computed<string[]>(() => {
+  return sparklineLabels.value.map((_, idx) => formatSparklineLabel(idx));
+});
 
-        crossLine.attr('display', null).attr('x1', cx).attr('x2', cx);
-        hoverDot.attr('display', null).attr('cx', cx).attr('cy', cy);
+/**
+ * 当前指标对应卡片配置
+ */
+const activeCard = computed(() => metricCards.value.find(c => c.metric === currentMetric.value));
 
-        // tooltip
-        tip.style.opacity = '1';
-        const svgRect = svg.getBoundingClientRect();
-        const parentRect = (svg.parentElement as HTMLElement).getBoundingClientRect();
-        const left = svgRect.left - parentRect.left + cx + margin.left + 10;
-        const top = svgRect.top - parentRect.top + cy + margin.top - 30;
-        tip.style.left = `${left}px`;
-        tip.style.top = `${top}px`;
-        tip.innerHTML = `<div style="font-size:11px;opacity:.7">${d.date}</div><div style="font-weight:bold;color:#ffb300">${d.value}</div>`;
-      })
-      .on('mouseleave', () => {
-        crossLine.attr('display', 'none');
-        hoverDot.attr('display', 'none');
-        tip.style.opacity = '0';
-      });
-}
+/**
+ * 图表左上角主题色彩
+ */
+const sparklineThemeColor = computed(() => activeCard.value?.color || 'amber');
+
+/**
+ * 图表左上角图标
+ */
+const activeMetricIcon = computed(() => activeCard.value?.icon || 'mdi-chart-line');
+
+// 鼠标在 Sparkline 图表上悬浮的当前数据点索引
+const currentHoverIndex = ref<number | null>(null);
+
+/**
+ * 鼠标悬浮点的详细数据（包含日期与对应数值）
+ */
+const hoverPointInfo = computed(() => {
+  if (currentHoverIndex.value === null || currentHoverIndex.value === undefined) return null;
+  const val = sparklineValues.value[currentHoverIndex.value];
+  const date = sparklineLabels.value[currentHoverIndex.value];
+  if (val === undefined) return null;
+  return {value: val, date};
+});
+
+/**
+ * 鼠标悬浮点的日期
+ */
+const hoveredDate = computed(() => {
+  if (currentHoverIndex.value === null || currentHoverIndex.value === undefined) return null;
+  return sparklineLabels.value[currentHoverIndex.value] ?? null;
+});
+
+/**
+ * 鼠标悬浮点的数值
+ */
+const hoveredValue = computed(() => {
+  if (currentHoverIndex.value === null || currentHoverIndex.value === undefined) return null;
+  const val = sparklineValues.value[currentHoverIndex.value];
+  return val !== undefined ? val.toLocaleString() : null;
+});
+
 
 defineOptions({
   name: 'AccountDataCenter'
@@ -300,27 +377,9 @@ defineOptions({
 
 <template>
   <v-card variant="text">
-    <v-row class="">
+    <v-row class="mb-2">
       <v-col cols="12" lg="auto">
-        <v-btn-toggle mandatory v-model="currentMetric" @update:model-value="loadTrend" density="compact" variant="tonal" color="amber">
-          <v-btn v-for="m in trendMetrics"
-                 :key="m"
-                 :value="m"
-                 class="text-subtitle-2 font-weight-medium">
-            {{ t(`account.dataCenter.overview.${m}`) }}
-          </v-btn>
-        </v-btn-toggle>
-      </v-col>
-      <v-spacer class="hidden-sm hidden-md"></v-spacer>
-      <v-col cols="12" lg="auto">
-        <!-- 时间范围选择 -->
-        <div class="d-flex align-center ga-4">
-          <p v-if="trend" class="text-caption opacity-40 ml-auto">
-            {{ t('account.dataCenter.trend.updated') }}: {{ new Date(trend.updatedAt).toLocaleString() }}
-          </p>
-
-          <v-divider vertical inset></v-divider>
-
+        <div class="d-flex align-center ga-2">
           <span class="text-caption opacity-60">{{ t('account.dataCenter.trend.range') }}:</span>
           <v-btn-toggle v-model="trendRange" density="compact" variant="tonal" color="amber"
                         @update:model-value="onRangeChange">
@@ -330,53 +389,82 @@ defineOptions({
           </v-btn-toggle>
         </div>
       </v-col>
+      <v-spacer class="hidden-sm hidden-md"></v-spacer>
+      <v-col cols="12" lg="auto">
+        <span v-if="trend" class="text-caption opacity-40 ml-auto">
+          {{ t('account.dataCenter.trend.updated') }}: {{ new Date(trend.updatedAt).toLocaleString() }}
+        </span>
+      </v-col>
     </v-row>
 
-    <!-- 概览卡片区 -->
-    <v-row dense class="mt-2 mb-6">
-      <v-col cols="12" lg="6">
-        <!-- 折线图 -->
-        <div v-if="!loadingTrend" class="position-relative">
-          <svg ref="chartRef" class="w-100"></svg>
-          <div
-              ref="tooltipRef"
-              class="d3-tooltip"
-              style="position:absolute;pointer-events:none;opacity:0;transition:opacity .15s;background:rgba(0,0,0,.8);color:#fff;padding:6px 10px;border-radius:6px;font-size:12px;z-index:10;white-space:nowrap;"></div>
-        </div>
-        <div v-else class="text-center opacity-60 py-12">
-          <Loading size="50"></Loading>
-        </div>
-      </v-col>
-      <v-col cols="12" lg="6">
-        <v-row dense>
-          <v-col cols="12" lg="6" v-for="card in metricCards" :key="card.metric">
-            <v-card
-                rounded="lg"
-                class="px-4 py-2 d-flex"
-                :class="card.clickable && currentMetric === card.metric ? 'border-amber' : ''"
-                :to="card.href || undefined"
-                :style="card.href ? 'cursor:pointer' : ''">
-              <v-row>
-                <v-col class="flex-1">
-                  <div class="text-caption opacity-60 mb-1">{{ card.title }}</div>
-                  <div class="text-caption opacity-40 mt-1">
-                    <template v-if="card.sub !== undefined">
-                      {{ t('account.dataCenter.overview.conversations') }}: {{ card.sub }} · {{ t(rangeLabelKey) }}
-                    </template>
-                    <template v-else>
-                      {{ t(rangeLabelKey) }}
-                    </template>
-                  </div>
-                </v-col>
-                <v-col cols="auto" class="text-h4 font-weight-bold" :class="`text-${card.color}`">
-                  {{ card.value.toLocaleString() }}
-                </v-col>
-              </v-row>
-            </v-card>
-          </v-col>
-        </v-row>
+    <!-- 概览卡片区 S -->
+    <v-row density="compact" class="mt-2 mb-4">
+      <v-col cols="12" sm="6" md="4" lg="4" v-for="card in metricCards" :key="card.metric">
+        <v-card
+            rounded="lg"
+            class="d-flex flex-column justify-center cursor-pointer transition-swing h-100"
+            :class="[
+              card.clickable && currentMetric === card.metric ? 'border-amber ring-1' : '',
+              card.clickable ? 'hover-elevate' : ''
+            ]"
+            :to="card.href || undefined"
+            :style="card.clickable || card.href ? 'cursor:pointer' : ''"
+            @click="card.clickable && onSelectMetric(card.metric)">
+          <div style="opacity: .04; font-size: 7rem; position: absolute; left: 0; bottom: 0">
+            <v-icon :icon="card.icon" :color="card.color" class="opacity-60 mr-1"></v-icon>
+          </div>
+
+          <v-row>
+            <v-col cols="5" class="px-6 py-3">
+              <div class="opacity-60 mb-1 u">
+                {{ card.title }}
+              </div>
+
+              <div class="d-flex align-baseline justify-space-between">
+                <div class="text-h5 font-weight-bold" :class="`text-${card.color}`">
+                  <template v-if="getCardHoverValue(card.metric) !== null">
+                    {{ getCardHoverValue(card.metric) }}
+                  </template>
+                  <template v-else>
+                    {{ card.value.toLocaleString() }}
+                  </template>
+                </div>
+              </div>
+              <div class="opacity-40 mt-1">
+                <template v-if="getCardHoverDate(card.metric)">
+                  {{ getCardHoverDate(card.metric) }}
+                </template>
+                <template v-else-if="card.sub !== undefined">
+                  {{ t(rangeLabelKey) }} <br/>
+                  {{ t('account.dataCenter.overview.conversations') }}: {{ card.sub }}
+                </template>
+                <template v-else>
+                  {{ t(rangeLabelKey) }}
+                </template>
+              </div>
+            </v-col>
+
+            <v-col>
+              <v-sparkline
+                  :model-value="getCardSparklineValues(card.metric)"
+                  :color="card.color"
+                  height="160"
+                  line-width="2"
+                  marker-size="10"
+                  min="0"
+                  padding="10"
+                  smooth="0"
+                  interactive
+                  @update:current-index="onCardHover(card.metric, $event)"
+                  @mouseleave="onCardHover(card.metric, null)"
+              ></v-sparkline>
+            </v-col>
+          </v-row>
+
+        </v-card>
       </v-col>
     </v-row>
+    <!-- 概览卡片区 E -->
 
     <div v-if="!loadingTop" class="d-flex flex-column">
       <v-row>
@@ -436,7 +524,7 @@ defineOptions({
     <!-- 配装 + 访客数 + 最近访客 -->
     <div v-if="!loadingTop" class="mt-6">
       <AffixBoxHasTitleView>
-        <v-row dense>
+        <v-row density="compact">
           <HorizontalScrollList :is-indicator="false">
             <template v-for="(a, i) in topVisitorAssemblies" :key="'tv'+a.uuid">
               <v-card width="400" class="pa-4 ma-1 d-flex flex-column ga-3">
@@ -480,7 +568,7 @@ defineOptions({
                   </v-col>
                 </v-row>
 
-                <v-row dense align="center">
+                <v-row density="compact" align="center">
                   <v-col cols="auto">
                     <v-icon start size="14">mdi-eye</v-icon>
                   </v-col>
@@ -492,7 +580,7 @@ defineOptions({
                   </v-col>
                 </v-row>
 
-                <v-row dense align="center" class="mt-0">
+                <v-row density="compact" align="center" class="mt-0">
                   <v-col cols="auto">
                     <v-icon start size="14" color="red">mdi-heart</v-icon>
                   </v-col>
@@ -504,7 +592,7 @@ defineOptions({
                   </v-col>
                 </v-row>
 
-                <v-row dense align="center" class="mt-0">
+                <v-row density="compact" align="center" class="mt-0">
                   <v-col cols="auto">
                     <v-icon start size="14" color="green">mdi-comment-text-outline</v-icon>
                   </v-col>
@@ -529,10 +617,11 @@ defineOptions({
         </template>
       </AffixBoxHasTitleView>
     </div>
-
-    <!-- 更新时间戳 -->
-    <div v-if="overview" class="text-right opacity-40 text-caption mt-4">
-      {{ t('account.dataCenter.updatedAt') }}: <TimeView :time="overview.updatedAt"></TimeView>
-    </div>
   </v-card>
 </template>
+
+<style scoped lang="less">
+.bg-surface-variant-opacity {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+</style>

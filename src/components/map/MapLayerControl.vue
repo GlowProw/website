@@ -18,7 +18,7 @@
           width="100%"
           height="100%">
         <div class="d-flex align-center py-4 px-7">
-          <v-row align="center" dense>
+          <v-row align="center" density="compact">
             <v-col cols="auto">
               <v-icon icon="mdi-layers" class="mr-2 text-amber"></v-icon>
               {{ t('map.layerControl') }}

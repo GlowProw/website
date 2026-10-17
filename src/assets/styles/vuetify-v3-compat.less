@@ -1,0 +1,111 @@
+/**
+ * Vuetify 3 样式兼容层（完全覆盖 Vuetify 4.x 的破坏性视觉变化，恢复 3.0 质感）
+ */
+
+/* ==========================================================================
+   1. 网格系统（Grid）破坏性重置
+   ========================================================================== */
+/* 消除 4.0 强加在相邻 v-row 之间的自动 24px 空隙 */
+.v-row + .v-row {
+  margin-top: 0 !important;
+}
+
+/* ==========================================================================
+   2. 卡片与表面（Cards & Sheets）恢复 3.0
+   ========================================================================== */
+.v-card,
+.v-sheet {
+  /* 消除 MD3 在深色模式下强制叠加的 surface-tint（紫色/有色滤镜） */
+  --v-card-surface-tint: transparent !important;
+  --v-sheet-surface-tint: transparent !important;
+  --v-theme-surface-tint: transparent !important;
+
+  /* 恢复 3.0 的经典 4px 紧凑圆角（除非显式指定 rounded-*） */
+  &:not([class*="rounded-"]) {
+    border-radius: 4px;
+  }
+}
+
+/* ==========================================================================
+   3. 对话框（Dialogs）恢复 3.0
+   ========================================================================== */
+.v-dialog > .v-overlay__content > .v-card {
+  /* 消除 MD3 夸张的 28px 圆角，恢复 3.0 优雅的 8px 圆角 */
+  &:not([class*="rounded-"]) {
+    border-radius: 8px !important;
+  }
+}
+
+/* ==========================================================================
+   4. 列表与导航（List & Navigation）高亮对比度恢复
+   ========================================================================== */
+/* 当列表项处于激活态且为浅色背景（如 amber、primary）时，文字和图标必须是纯黑色 */
+.v-list-item--active,
+.v-list-item.v-list-item--active {
+  &.bg-amber,
+  &.bg-primary,
+  &.bg-white,
+  &.bg-yellow {
+    color: #000000 !important;
+    --v-theme-on-surface: 0, 0, 0;
+
+    .v-icon,
+    .v-list-item-title,
+    .v-list-item-subtitle,
+    .v-list-item__prepend,
+    .v-list-item__append {
+      color: #000000 !important;
+      opacity: 1 !important;
+    }
+  }
+}
+
+/* 恢复 3.0 的适中列表项紧凑度，防止 4.0 膨胀过高 */
+.v-list--density-compact .v-list-item {
+  min-height: 32px !important;
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+}
+
+/* ==========================================================================
+   5. 开关控件（Switch）紧凑化恢复 3.0
+   ========================================================================== */
+/* 抑制 MD3 巨型滑块与过粗轨道，恢复 3.0 适度大小 */
+.v-switch {
+  .v-switch__track {
+    opacity: 0.6;
+  }
+
+  &.v-switch--inset .v-switch__track {
+    border-radius: 14px;
+  }
+}
+
+/* ==========================================================================
+   6. 按钮与标签（Buttons & Chips）细节恢复
+   ========================================================================== */
+.v-btn {
+  /* 保证 3.0 标准字重与字符间距 */
+  letter-spacing: 0.0892857143em;
+
+  /* 消除 4.0 过于沉重的 elevation 突变 */
+  &:not([class*="elevation-"]) {
+    box-shadow: none;
+  }
+
+  /* 4.0 移除了反色计算，带有 bg-amber 的按钮一律强制黑字与黑色图标 */
+  &.bg-amber,
+  &.bg-primary {
+    color: #000000 !important;
+
+    .v-btn__content,
+    .v-icon {
+      color: #000000 !important;
+    }
+  }
+}
+
+.v-chip {
+  /* 恢复 3.0 紧凑边距 */
+  font-weight: 500;
+}

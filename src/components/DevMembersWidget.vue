@@ -18,24 +18,35 @@ onMounted(() => {
 })
 
 /**
+ * 获取存储缓存键名
+ */
+const getStorageKey = () => {
+  if (props.reop === 'glow-prow-assets') {
+    return 'lang.members';
+  }
+  return `dev${props.reop ? `.${props.reop}` : ''}.members`;
+};
+
+/**
  * 获取成员
  */
 const getLanguageMembers = async () => {
-  let membersData = storage.session.get(`dev${props.reop ? `.${props.reop}` : ''}.members`)
+  const cacheKey = getStorageKey();
+  let membersData = storage.session.get(cacheKey);
   if (membersData.code == 0 && membersData.data) {
-    members.value = membersData.data.value
-    return
+    members.value = membersData.data.value;
+    return;
   }
 
   const result = await http.request(`https://api.github.com/repos/GlowProw${props.reop ? `/${props.reop}` : ''}/contributors`, {
     method: 'get' as any,
-  })
+  });
 
   if (result) {
-    members.value = result.data
-    storage.session.set(`dev${props.reop ? `.${props.reop}` : ''}.members`, toRaw(members.value))
+    members.value = result.data;
+    storage.session.set(cacheKey, toRaw(members.value));
   }
-}
+};
 
 defineOptions({
   name: "DevMembersWidget",

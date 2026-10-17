@@ -244,9 +244,7 @@ defineOptions({
                   hide-details
                   readonly>
                 <template v-slot:prepend-inner>
-                  <v-avatar tile size="26" class="mr-2 bg-black">
-                    <UserAvatar size="26" :src="userAccountData.userAvatar"></UserAvatar>
-                  </v-avatar>
+                  <UserAvatar size="26" :src="userAccountData.userAvatar"></UserAvatar>
                 </template>
               </v-text-field>
             </div>
@@ -388,9 +386,9 @@ defineOptions({
                     <v-list-item-title class="text-caption font-weight-bold">
                       {{ t('account.information.form.spaceEnabled.name') }}
                     </v-list-item-title>
-                    <v-list-item-subheader>
+                    <v-list-item-subtitle>
                       <p class="text-caption opacity-50">{{ t('account.information.form.spaceEnabled.description') }}</p>
-                    </v-list-item-subheader>
+                    </v-list-item-subtitle>
                     <template v-slot:append>
                       <v-switch
                           v-model="userAccountData.attr.spaceEnabled"

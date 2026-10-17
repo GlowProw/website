@@ -80,9 +80,12 @@ import Storage from './storage';
 
 const _storage = new Storage();
 
-// 获取或创建持久客户端唯一标识 (Client ID)
+/**
+ * 获取或创建持久客户端唯一标识
+ */
 function getOrCreateClientId(): string {
-  const STORAGE_KEY = 'glow_prow_client_id';
+  // 本地存储键名
+  const STORAGE_KEY = 'client.id';
   let clientId = _storage.local.get(STORAGE_KEY)?.data?.value;
   if (!clientId) {
     clientId = 'gp_cli_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
@@ -95,9 +98,12 @@ function getOrCreateClientId(): string {
   return clientId;
 }
 
-// 会话 ID (Session ID)
+/**
+ * 获取或创建会话标识
+ */
 function getOrCreateSessionId(): string {
-  const STORAGE_KEY = 'glow_prow_session_id';
+  // 会话存储键名
+  const STORAGE_KEY = 'session.id';
   let sessionId = _storage.session.get(STORAGE_KEY)?.data?.value;
   if (!sessionId) {
     sessionId = 'gp_sess_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
@@ -116,6 +122,19 @@ const SESSION_ID = getOrCreateSessionId();
 // 会话日志数组 (仅存当前会话)
 const sessionLogs = ref<LogEntry[]>([]);
 
+let isLogging = false;
+let recentErrorTimestamps: number[] = [];
+
+const checkRateLimit = (): boolean => {
+  const now = Date.now();
+  recentErrorTimestamps = recentErrorTimestamps.filter(t => now - t < 1000);
+  if (recentErrorTimestamps.length >= 10) {
+    return false;
+  }
+  recentErrorTimestamps.push(now);
+  return true;
+};
+
 /**
  * 记录日志
  */
@@ -126,6 +145,21 @@ export function logError(
   componentName?: string,
   context?: any
 ) {
+  if (isLogging) {
+    return;
+  }
+
+  // 避免将无限递归或由自身引发的框架错误再次推入队列
+  if (message && message.includes('Maximum recursive updates exceeded')) {
+    console.error(`[Fatal Recursion]`, message);
+    return;
+  }
+
+  if (!checkRateLimit()) {
+    console.warn('[error_logger] Error storm detected, throttling reactive log push.');
+    return;
+  }
+
   const newEntry: LogEntry = {
     id: 'log_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
     code: errorCode.code,
@@ -140,7 +174,12 @@ export function logError(
     context
   };
 
-  sessionLogs.value.unshift(newEntry);
+  isLogging = true;
+  try {
+    sessionLogs.value.unshift(newEntry);
+  } finally {
+    isLogging = false;
+  }
 
   // 控制台调试输出
   console.error(`[${errorCode.code}]`, message, stack);
@@ -153,6 +192,9 @@ export function initGlobalErrorCapture(app?: any) {
   // window.onerror (全局脚本错误及静态资源加载错误)
   window.addEventListener('error', (event: ErrorEvent | Event) => {
     if (event instanceof ErrorEvent) {
+      if (event.message?.includes('Maximum recursive updates exceeded')) {
+        return;
+      }
       logError(
         ERROR_CODES.GP_JS_UNCAUGHT,
         event.message,
@@ -178,6 +220,9 @@ export function initGlobalErrorCapture(app?: any) {
   window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
     const reason = event.reason;
     const message = reason instanceof Error ? reason.message : String(reason);
+    if (message?.includes('Maximum recursive updates exceeded')) {
+      return;
+    }
     const stack = reason instanceof Error ? reason.stack : undefined;
     logError(
       ERROR_CODES.GP_PROMISE_UNHANDLED,
@@ -192,6 +237,9 @@ export function initGlobalErrorCapture(app?: any) {
   if (app && app.config) {
     app.config.errorHandler = (err: unknown, instance: any, info: string) => {
       const message = err instanceof Error ? err.message : String(err);
+      if (message?.includes('Maximum recursive updates exceeded')) {
+        return;
+      }
       const stack = err instanceof Error ? err.stack : undefined;
       const componentName = instance?.$options?.name || instance?.$options?.__name || 'VueComponent';
       logError(

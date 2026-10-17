@@ -610,7 +610,7 @@ const onDeleteDraft = (id: string) => {
       </Silk>
     </template>
     <template v-slot:default>
-      <v-container class="pa-2 mt-4 position-relative">
+      <v-container class="pa-2 position-relative">
         <v-breadcrumbs>
           <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
@@ -633,7 +633,7 @@ const onDeleteDraft = (id: string) => {
             <div class="d-flex align-start ga-2">
               <v-btn-group class="mr-2">
                 <v-btn @click="onQuickArchiving" :loading="draftSaveQuickArchivingLoading" v-if="!isEditModel" size="large">
-                  <BtnWidget class="pl-2" :size="25" keyboard-shortcut="s" @action-complete="onQuickArchiving">
+                  <BtnWidget class="pl-2" :size="25" hotkey-action="quickArchive" keyboard-shortcut="s" @action-complete="onQuickArchiving">
                     {{ t('assembly.workshop.quickSaveDraft') }}
                   </BtnWidget>
                 </v-btn>

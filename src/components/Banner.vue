@@ -19,7 +19,7 @@
   .banner-bottom-block {
     pointer-events: none;
     position: absolute;
-    z-index: 0;
+    z-index: 10;
     bottom: 0;
     left: 0;
     right: 0;

@@ -188,7 +188,7 @@ onMounted(() => {
           <v-row class="text-center" align="center">
             <v-col>
               <!-- 概览指标卡片 -->
-              <v-row dense>
+              <v-row density="compact">
                 <v-col cols="12" sm="4">
                   <div class="rounded-xl d-flex align-center">
                     <div>

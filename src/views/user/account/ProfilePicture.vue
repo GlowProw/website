@@ -616,7 +616,7 @@ defineOptions({
         </v-card-subtitle>
 
         <v-card-text class="px-4 py-5 pt-2">
-          <v-row class="preset-grid" dense>
+          <v-row class="preset-grid" density="compact">
             <v-col
                 v-for="item in presetAvatars"
                 :key="item.id || item.path"

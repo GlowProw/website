@@ -7,13 +7,18 @@ import {storage_account} from "@/assets/sripts/index";
 
 import GlobalSearchCoreView from "@/components/GlobalSearchCoreView.vue";
 import SwipeDrawer from "@/components/SwipeDrawer.vue";
+import {useAppStore} from "~/stores/appStore";
+import {storeToRefs} from "pinia";
 
 const {t} = useI18n(),
     route = useRoute(),
-    {sanitizeString, asString} = useI18nUtils()
+    {sanitizeString, asString} = useI18nUtils(),
+    appStore = useAppStore()
 
-let model = ref(false),
-    searchSettingConfig: Ref<{ headerSearchSwitch?: boolean }> = ref({
+// 全局共享的搜索抽屉开关状态
+const {globalSearchDrawer: model} = storeToRefs(appStore)
+
+let searchSettingConfig: Ref<{ headerSearchSwitch?: boolean }> = ref({
       headerSearchSwitch: true
     }),
     isSearchPage = computed(() => route.name == 'Search')

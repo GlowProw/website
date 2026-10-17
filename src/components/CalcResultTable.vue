@@ -263,7 +263,7 @@ defineOptions({
                 </tr>
                 <tr>
                   <td colspan="4" class="pa-0">
-                    <v-row dense>
+                    <v-row density="compact">
                       <v-col cols="12" :lg="isColOne ? 12 : 5">
                         <table class="calc-table">
                           <tbody>

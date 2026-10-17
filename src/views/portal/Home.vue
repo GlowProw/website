@@ -86,12 +86,12 @@ onUnmounted(() => {
       <v-container>
         <v-row>
           <v-col cols="12" md="8" lg="8">
-            <v-row justify="start" dense>
+            <v-row justify="start" density="compact">
               <v-col cols="12" sm="6" md="4" lg="4"
                      :class="{'opacity-30': !i.to}"
                      v-for="(i,index) in appFuns.list" :key="index">
                 <router-link :to="i.to">
-                  <v-row dense class="py-2 h-100">
+                  <v-row density="compact" class="py-2 h-100">
                     <v-col cols="auto">
                       <div class="d-flex align-start justify-start mr-2">
                         <v-icon :icon="i.icon" size="40"></v-icon>

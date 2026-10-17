@@ -373,7 +373,7 @@ const getZoneData = (zoneName: string) => {
       </Silk>
     </template>
     <template v-slot:default>
-      <v-container class="pa-2 mt-4 position-relative">
+      <v-container class="pa-2 position-relative">
         <v-breadcrumbs>
           <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
@@ -963,7 +963,7 @@ const getZoneData = (zoneName: string) => {
                 <div class="h-100 overflow-hidden">
                   <div class="py-2">
                     <div class="d-flex align-center justify-space-between flex-wrap ga-2">
-                      <v-row align="center" dense>
+                      <v-row align="center" density="compact">
                         <v-col cols="auto" class="text-subtitle-1 font-weight-bold "
                                :class="{'text-amber-darken-1': cycle.status !== 'ended'}">
                           <v-icon icon="mdi-flag-checkered"></v-icon>
@@ -989,7 +989,7 @@ const getZoneData = (zoneName: string) => {
                   </div>
 
                   <div class="pt-3">
-                    <v-row dense>
+                    <v-row density="compact">
                       <v-col cols="auto"
                              class="text-subtitle-2 font-weight-bold d-flex align-center"
                              :style="{ color: factionAColor }">
@@ -1018,7 +1018,7 @@ const getZoneData = (zoneName: string) => {
                       </v-col>
                     </v-row>
 
-                    <v-row dense>
+                    <v-row density="compact">
                       <!-- 阵营 A 区域 -->
                       <v-col cols="12" md="6" lg="6">
                         <div v-if="(cycle[factionAKey + 'Zones'] || []).length > 0" class="d-flex flex-column ga-2">
@@ -1027,7 +1027,7 @@ const getZoneData = (zoneName: string) => {
                               :key="z"
                               :border="isWidgetMode"
                               class="mb-1 position-relative rounded-lg">
-                            <v-row dense>
+                            <v-row density="compact">
                               <v-col cols="2" class="d-flex align-center justify-center">
                                 <v-icon size="30" icon="mdi-earth" class="opacity-30 ml-1"></v-icon>
                               </v-col>
@@ -1076,7 +1076,7 @@ const getZoneData = (zoneName: string) => {
                               :key="z"
                               :border="isWidgetMode"
                               class="mb-1 position-relative rounded-lg">
-                            <v-row dense>
+                            <v-row density="compact">
                               <v-col cols="2" class="d-flex align-center justify-center">
                                 <v-icon size="30" icon="mdi-earth" class="opacity-30 ml-1"></v-icon>
                               </v-col>

@@ -1,7 +1,7 @@
 <template>
   <v-row
       class="action-button"
-      @mousedown="!keyboardShortcut && startAction($event, 'mouse')"
+      @mousedown="!activeShortcut && startAction($event, 'mouse')"
       @touchstart.passive="startAction($event, 'touch')"
       @mouseup="endAction"
       @mouseleave="endAction"
@@ -18,8 +18,8 @@
           :bg-color="lineColor"
           :color="color">
         <div class="shortcut-display">
-          <v-icon v-if="!keyboardShortcut" :icon="icon" :size="iconSize"></v-icon>
-          <span v-else>{{ keyboardShortcut.toUpperCase() }}</span>
+          <v-icon v-if="!activeShortcut" :icon="icon" :size="iconSize"></v-icon>
+          <span v-else>{{ activeShortcut.toUpperCase() }}</span>
         </div>
       </v-progress-circular>
     </v-col>
@@ -31,7 +31,8 @@
 
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import { useHotkeysStore } from '~/stores/hotkeysStore'
 
 const props = defineProps({
   disabled: {
@@ -45,6 +46,10 @@ const props = defineProps({
   holdDuration: {
     type: Number,
     default: 1000
+  },
+  hotkeyAction: {
+    type: String,
+    default: null
   },
   keyboardShortcut: {
     type: String,
@@ -69,37 +74,69 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['action-complete'])
+const hotkeysStore = useHotkeysStore()
 
 const isHolding = ref(false)
 const progress = ref(0)
 const holdTimer = ref<any>(null)
-const actionButton = ref(null)
+const actionButton = ref<any>(null)
 const startTime = ref(0)
 const keyAlreadyPressed = ref(false)
-const activationSource = ref<string | null>(null) // 'mouse', 'touch' or 'keyboard'
+const activationSource = ref<string | null>(null)
 
 const iconSize = computed(() => Number(props.size) / 2)
 
-onMounted(() => {
-  if (props.keyboardShortcut && !props.disabled) {
+/**
+ * 当前生效的快捷键（优先使用全局自定义绑定的动作键，其次回退到 props 默认键）
+ */
+const activeShortcut = computed<string | null>(() => {
+  if (props.hotkeyAction) {
+    const custom = hotkeysStore.getKey(props.hotkeyAction)
+    if (custom) return custom
+  }
+  return props.keyboardShortcut || null
+})
+
+/**
+ * 启动监听与清理键盘事件
+ */
+const updateKeyboardListeners = (enabled: boolean) => {
+  if (typeof window === 'undefined') return
+  window.removeEventListener('keydown', handleKeyDown)
+  window.removeEventListener('keyup', handleKeyUp)
+  if (enabled && activeShortcut.value && !props.disabled) {
     window.addEventListener('keydown', handleKeyDown)
     window.addEventListener('keyup', handleKeyUp)
   }
+}
+
+watch(
+  [activeShortcut, () => props.disabled],
+  ([shortcut, disabled]) => {
+    updateKeyboardListeners(!disabled && !!shortcut)
+  }
+)
+
+onMounted(() => {
+  updateKeyboardListeners(!props.disabled && !!activeShortcut.value)
 })
 
 onBeforeUnmount(() => {
-  if (props.keyboardShortcut && !props.disabled) {
-    window.removeEventListener('keydown', handleKeyDown)
-    window.removeEventListener('keyup', handleKeyUp)
+  updateKeyboardListeners(false)
+  if (holdTimer.value) {
+    clearInterval(holdTimer.value)
   }
-  clearInterval(holdTimer.value)
 })
 
-const startAction = (event, source) => {
+/**
+ * 开始按钮长按或按键动作
+ * @param event 触发事件
+ * @param source 触发源（mouse / touch / keyboard）
+ */
+const startAction = (event: any, source: string) => {
   if (isHolding.value && props.disabled) return
 
   activationSource.value = source
-
   isHolding.value = true
   progress.value = 0
   startTime.value = Date.now()
@@ -114,6 +151,9 @@ const startAction = (event, source) => {
   }, 16)
 }
 
+/**
+ * 结束长按动作
+ */
 const endAction = () => {
   if (!isHolding.value || activationSource.value === 'keyboard') return
 
@@ -126,6 +166,9 @@ const endAction = () => {
   }
 }
 
+/**
+ * 完成动作并派发事件
+ */
 const completeAction = () => {
   clearInterval(holdTimer.value)
   isHolding.value = false
@@ -137,16 +180,63 @@ const completeAction = () => {
   }, props.completeAnimationDuration)
 }
 
+/**
+ * 重置状态
+ */
 const resetAction = () => {
   isHolding.value = false
   progress.value = 0
   activationSource.value = null
 }
 
-const handleKeyDown = (e) => {
-  if (!props.keyboardShortcut ||
-      e.key.toLowerCase() !== props.keyboardShortcut.toLowerCase() ||
-      keyAlreadyPressed.value) {
+/**
+ * 校验键盘事件是否与目标快捷键或组合键相匹配
+ * @param e 键盘事件
+ * @param shortcut 目标按键字符串（支持单键与组合键，如 's', 'cmd+k', 'ctrl+s'）
+ */
+const matchShortcutEvent = (e: KeyboardEvent, shortcut: string): boolean => {
+  if (!shortcut) return false
+  const target = shortcut.toLowerCase().trim()
+  const parts = target.split('+').map(p => p.trim())
+  const mainKey = parts[parts.length - 1]
+
+  const needCtrl = parts.includes('ctrl')
+  const needMeta = parts.includes('cmd') || parts.includes('meta') || parts.includes('win')
+  const needAlt = parts.includes('alt') || parts.includes('option')
+  const needShift = parts.includes('shift')
+
+  if (needCtrl && !e.ctrlKey) return false
+  if (needMeta && !e.metaKey) return false
+  if (needAlt && !e.altKey) return false
+  if (needShift && !e.shiftKey) return false
+
+  // 若无修饰键要求但按下了 ctrl/meta/alt，避免输入组合键时误触发单键
+  if (!needCtrl && !needMeta && !needAlt && (e.ctrlKey || e.metaKey || e.altKey)) {
+    return false
+  }
+
+  const pressedKey = e.key.toLowerCase()
+  if (mainKey === 'space') return pressedKey === ' '
+  return pressedKey === mainKey
+}
+
+/**
+ * 键盘按下处理
+ * @param e 键盘事件
+ */
+const handleKeyDown = (e: KeyboardEvent) => {
+  if (!activeShortcut.value || keyAlreadyPressed.value) return
+
+  // 避免在文本输入框中打字时误触发按钮
+  const target = e.target as HTMLElement | null
+  if (target) {
+    const tag = target.tagName.toLowerCase()
+    if (tag === 'input' || tag === 'textarea' || target.isContentEditable) {
+      return
+    }
+  }
+
+  if (!matchShortcutEvent(e, activeShortcut.value)) {
     return
   }
 
@@ -154,11 +244,15 @@ const handleKeyDown = (e) => {
   keyAlreadyPressed.value = true
   activationSource.value = 'keyboard'
   startAction(null, 'keyboard')
-  actionButton.value?.$el.focus()
+  actionButton.value?.$el?.focus?.()
 }
 
-const handleKeyUp = (e) => {
-  if (props.keyboardShortcut && e.key.toLowerCase() === props.keyboardShortcut.toLowerCase()) {
+/**
+ * 键盘抬起处理
+ * @param e 键盘事件
+ */
+const handleKeyUp = (e: KeyboardEvent) => {
+  if (activeShortcut.value && matchShortcutEvent(e, activeShortcut.value)) {
     keyAlreadyPressed.value = false
 
     if (activationSource.value === 'keyboard') {

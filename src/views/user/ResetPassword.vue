@@ -61,7 +61,7 @@ const onReset = async () => {
 <template>
   <div>
     <div class="reset-window">
-      <v-row dense class="h-screen">
+      <v-row density="compact" class="h-screen" no-gutters>
         <v-col cols="12" lg="7" :class="{'d-none': mobile || sm}" class="position-relative overflow-hidden">
           <HalfScreenBannerText></HalfScreenBannerText>
           <Silk
@@ -74,7 +74,7 @@ const onReset = async () => {
           </Silk>
         </v-col>
         <v-col cols="12" lg="5" class="bg-black">
-          <v-card dense variant="text" class="reset-card mt-16 px-8">
+          <v-card density="compact" variant="text" class="reset-card mt-16 px-8">
             <v-breadcrumbs class="ml-n3">
               <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
               <v-breadcrumbs-divider></v-breadcrumbs-divider>

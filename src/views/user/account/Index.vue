@@ -144,7 +144,7 @@ defineOptions({
       </Silk>
     </template>
     <template v-slot:default>
-      <v-container class="pa-2 mt-4 position-relative">
+      <v-container class="pa-2 position-relative">
         <v-breadcrumbs class="pa-0 mb-3">
           <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
@@ -157,7 +157,7 @@ defineOptions({
       </v-container>
 
       <v-container class="pa-0 px-2 mt-auto d-flex align-end" v-if="authStore.isLogin">
-        <v-row dense>
+        <v-row density="compact" align="end">
           <v-col cols="9">
             <v-tabs
                 :model-value="primaryNavMenu"
@@ -200,7 +200,6 @@ defineOptions({
       </v-container>
     </template>
   </v-card>
-  <v-divider></v-divider>
 
   <div class="account-root">
     <div class="setting-page-root" v-if="authStore.isLogin">
@@ -292,6 +291,19 @@ defineOptions({
 .account-root {
   .primary-tabs {
     border-bottom: none;
+  }
+
+  .secondary-tabs {
+    :deep(.v-tab.bg-amber),
+    :deep(.v-tab.v-tab--selected),
+    :deep(.v-tab--selected) {
+      color: #000000 !important;
+
+      .v-icon,
+      i {
+        color: #000000 !important;
+      }
+    }
   }
 
   .tabs-box-mobile {

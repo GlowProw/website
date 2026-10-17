@@ -126,7 +126,7 @@ const onUltimateHistory = (id: string) => {
 </script>
 
 <template>
-  <v-breadcrumbs>
+  <v-breadcrumbs density="compact">
     <v-container class="pa-0">
       <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
       <v-breadcrumbs-divider></v-breadcrumbs-divider>

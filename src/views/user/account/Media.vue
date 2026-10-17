@@ -25,12 +25,12 @@ const currentPage = ref(1);
 const pageSize = 12;
 const searchKeyword = ref('');
 
+// 上传弹窗相关
+const uploadDialog = ref(false);
+
 // 重新上传相关
-const reuploadingId = ref<string | null>(null);
 const reuploadDialog = ref(false);
 const reuploadTargetItem = ref<MediaItem | null>(null);
-const fileInputRef = ref<HTMLInputElement | null>(null);
-const reuploadInputRef = ref<HTMLInputElement | null>(null);
 const previewDialog = ref(false);
 const previewItem = ref<MediaItem | null>(null);
 
@@ -87,25 +87,23 @@ const loadList = async () => {
 };
 
 /**
- * 触发本地文件上传 (只有直传)
+ * 触发本地文件上传弹窗
  */
 const triggerUpload = () => {
   if (storageDisabled.value) {
     notice.error(t('account.media.storageDisabled'));
     return;
   }
-  fileInputRef.value?.click();
+  uploadDialog.value = true;
 };
 
 /**
  * 处理选择文件上传 (直传)
+ * @param fileOrFiles 选中的文件或文件数组
  */
-const onFileSelected = async (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  const file = target.files?.[0];
+const onFileSelected = async (fileOrFiles: any) => {
+  const file = Array.isArray(fileOrFiles) ? fileOrFiles[0] : fileOrFiles;
   if (!file) return;
-
-  target.value = '';
 
   if (file.size > MAX_FILE_SIZE) {
     notice.error(t('account.media.fileTooLarge'));
@@ -122,6 +120,7 @@ const onFileSelected = async (event: Event) => {
     uploading.value = true;
     await mediaApi.uploadMedia(file);
     notice.success(t('account.media.uploadSuccess'), {mode: 'minimal'});
+    uploadDialog.value = false;
     await loadList();
   } catch (e: any) {
     notice.error(e?.message || t('account.media.uploadFailed'));
@@ -132,6 +131,7 @@ const onFileSelected = async (event: Event) => {
 
 /**
  * 触发重新上传：弹出确认提示框（展示已覆盖与剩余次数及覆盖警告）
+ * @param item 目标媒体项
  */
 const triggerReupload = (item: MediaItem) => {
   if (item.reuploadCount >= 10) {
@@ -143,24 +143,12 @@ const triggerReupload = (item: MediaItem) => {
 };
 
 /**
- * 用户在弹窗确认覆盖后，触发文件选择
- */
-const confirmReupload = () => {
-  if (!reuploadTargetItem.value) return;
-  reuploadingId.value = reuploadTargetItem.value.id;
-  reuploadDialog.value = false;
-  reuploadInputRef.value?.click();
-};
-
-/**
  * 处理重新上传文件选择
+ * @param fileOrFiles 选中的文件或文件数组
  */
-const onReuploadSelected = async (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  const file = target.files?.[0];
-  const targetId = reuploadingId.value;
-  target.value = '';
-
+const onReuploadSelected = async (fileOrFiles: any) => {
+  const file = Array.isArray(fileOrFiles) ? fileOrFiles[0] : fileOrFiles;
+  const targetId = reuploadTargetItem.value?.id;
   if (!file || !targetId) return;
 
   if (file.size > MAX_FILE_SIZE) {
@@ -168,16 +156,23 @@ const onReuploadSelected = async (event: Event) => {
     return;
   }
 
+  const validTypes = ['image/webp', 'image/png', 'image/jpeg', 'image/jpg'];
+  if (!validTypes.includes(file.type)) {
+    notice.error(t('account.media.unsupportedFormat'));
+    return;
+  }
+
   try {
     uploading.value = true;
     await mediaApi.reuploadMedia(targetId, file);
     notice.success(t('account.media.reuploadSuccess'), {mode: 'minimal'});
+    reuploadDialog.value = false;
+    reuploadTargetItem.value = null;
     await loadList();
   } catch (e: any) {
     notice.error(e?.message || t('account.media.reuploadFailed'));
   } finally {
     uploading.value = false;
-    reuploadingId.value = null;
   }
 };
 
@@ -247,19 +242,6 @@ defineOptions({
           </div>
 
           <div class="d-flex align-center ga-2">
-            <input
-                ref="fileInputRef"
-                type="file"
-                accept=".webp,.png,.jpg,.jpeg"
-                style="display: none"
-                @change="onFileSelected"/>
-            <input
-                ref="reuploadInputRef"
-                type="file"
-                accept=".webp,.png,.jpg,.jpeg"
-                style="display: none"
-                @change="onReuploadSelected"/>
-
             <!-- 配额与容量复用 QuotaLimitWidget -->
             <QuotaLimitWidget resource="media" text></QuotaLimitWidget>
 
@@ -308,12 +290,21 @@ defineOptions({
         <h3>{{ t('account.media.emptyTitle') }}</h3>
       </template>
       <template #description>
-        <p>{{ t('account.media.emptyDesc') }}</p>
+        <p class="mb-4">{{ t('account.media.emptyDesc') }}</p>
+        <div class="mx-auto" style="max-width: 480px">
+          <v-file-upload
+            density="comfortable"
+            scrim="primary"
+            accept=".webp,.png,.jpg,.jpeg"
+            :disabled="storageDisabled || uploading"
+            @update:model-value="onFileSelected"
+          ></v-file-upload>
+        </div>
       </template>
     </EmptyView>
 
     <!-- 媒体网格卡片 -->
-    <v-row v-else dense>
+    <v-row v-else density="compact">
       <v-col
           v-for="item in list"
           :key="item.id"
@@ -482,34 +473,56 @@ defineOptions({
       </v-card>
     </v-dialog>
 
-    <!-- 重新上传覆盖确认弹窗 -->
-    <v-dialog v-model="reuploadDialog" width="800">
-      <v-card v-if="reuploadTargetItem" border rounded="lg" class="bg-grey-darken-4">
-        <v-card-title class="d-flex align-center ga-2 text-subtitle-1 font-weight-bold py-4">
-          <v-icon color="warning">mdi-cloud-sync-outline</v-icon>
-          <span>{{ t('account.media.reuploadConfirmTitle') }}</span>
-        </v-card-title>
-        <div class="py-3 px-4">
-          <div class="text-body-2 text-medium-emphasis mb-3">
-            {{ t('account.media.reuploadConfirmDesc') }}
+    <!-- 媒体上传对话框 -->
+    <v-dialog v-model="uploadDialog" max-width="600">
+      <v-card class="pa-4 bg-grey-darken-4" border rounded="lg">
+        <div class="d-flex align-center justify-space-between mb-3">
+          <div class="text-subtitle-1 font-weight-bold d-flex align-center ga-2">
+            <v-icon icon="mdi-cloud-upload-outline" color="amber"></v-icon>
+            <span>{{ t('account.media.upload') }}</span>
           </div>
-
-          <v-alert density="compact" variant="tonal" color="warning" icon="mdi-alert-circle-outline" class="mb-1 text-caption">
-            <div>{{ t('account.media.reuploadUsed', { used: reuploadTargetItem.reuploadCount }) }}</div>
-            <div class="font-weight-bold mt-1">
-              {{ t('account.media.reuploadRemaining', { remaining: Math.max(0, 10 - reuploadTargetItem.reuploadCount) }) }}
-            </div>
-          </v-alert>
+          <v-btn icon="mdi-close" variant="text" size="small" @click="uploadDialog = false"></v-btn>
         </div>
-        <v-card-actions class="pt-2">
-          <v-spacer></v-spacer>
-          <v-btn variant="text" @click="reuploadDialog = false">
-            {{ t('basic.button.cancel') }}
-          </v-btn>
-          <v-btn color="warning" variant="flat" @click="confirmReupload">
-            {{ t('account.media.reuploadConfirmBtn') }}
-          </v-btn>
-        </v-card-actions>
+
+        <v-file-upload
+            density="comfortable"
+            scrim="primary"
+            accept=".webp,.png,.jpg,.jpeg"
+            :disabled="storageDisabled || uploading"
+            @update:model-value="onFileSelected"
+        ></v-file-upload>
+      </v-card>
+    </v-dialog>
+
+    <!-- 重新上传覆盖确认弹窗 -->
+    <v-dialog v-model="reuploadDialog" width="700">
+      <v-card v-if="reuploadTargetItem" border rounded="lg" class="bg-grey-darken-4 pa-4">
+        <div class="d-flex align-center justify-space-between mb-3">
+          <div class="d-flex align-center ga-2 text-subtitle-1 font-weight-bold">
+            <v-icon color="warning">mdi-cloud-sync-outline</v-icon>
+            <span>{{ t('account.media.reuploadConfirmTitle') }}</span>
+          </div>
+          <v-btn icon="mdi-close" variant="text" size="small" @click="reuploadDialog = false"></v-btn>
+        </div>
+
+        <div class="text-body-2 text-medium-emphasis mb-3">
+          {{ t('account.media.reuploadConfirmDesc') }}
+        </div>
+
+        <v-alert density="compact" variant="tonal" color="warning" icon="mdi-alert-circle-outline" class="mb-4 text-caption">
+          <div>{{ t('account.media.reuploadUsed', { used: reuploadTargetItem.reuploadCount }) }}</div>
+          <div class="font-weight-bold mt-1">
+            {{ t('account.media.reuploadRemaining', { remaining: Math.max(0, 10 - reuploadTargetItem.reuploadCount) }) }}
+          </div>
+        </v-alert>
+
+        <v-file-upload
+            density="comfortable"
+            scrim="primary"
+            accept=".webp,.png,.jpg,.jpeg"
+            :disabled="uploading"
+            @update:model-value="onReuploadSelected"
+        ></v-file-upload>
       </v-card>
     </v-dialog>
   </div>

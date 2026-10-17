@@ -1315,7 +1315,7 @@ defineOptions({
         </template>
         <v-card-text>
           <v-form ref="collectionFormRef">
-            <v-row dense>
+            <v-row density="compact">
               <v-col cols="12">
                 <v-text-field v-model="collectionForm.title"
                               :label="t('map.collectionTitle')" variant="outlined" density="compact"

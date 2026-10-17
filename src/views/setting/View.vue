@@ -55,6 +55,11 @@ const generalTabs: SubTabItem[] = [
     value: 'PortalSettingLog',
     icon: 'mdi-text-box-multiple-outline'
   },
+  {
+    name: 'setting.hotkeys.title',
+    value: 'PortalSettingHotkeys',
+    icon: 'mdi-keyboard-outline'
+  },
 ]
 
 /**
@@ -164,7 +169,7 @@ defineOptions({
       </Silk>
     </template>
     <template v-slot:default>
-      <v-container class="pa-2 mt-4 position-relative">
+      <v-container class="pa-2 position-relative">
         <v-breadcrumbs class="pa-0 mb-3">
           <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
@@ -178,7 +183,7 @@ defineOptions({
 
       <!-- 一级导航栏 (参考 Index.vue:L159-L200) -->
       <v-container class="pa-0 px-2 mt-auto d-flex align-end">
-        <v-row dense>
+        <v-row density="compact">
           <v-col cols="12">
             <v-tabs
                 :model-value="primaryNavMenu"

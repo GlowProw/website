@@ -205,7 +205,7 @@ defineOptions({
         </v-col>
         <v-col cols="12" lg="9">
           <!-- 奖励道具卡片网格 -->
-          <v-row dense>
+          <v-row density="compact">
             <v-col
                 v-for="(drop, dIdx) in dropList"
                 :key="drop.id || dIdx"

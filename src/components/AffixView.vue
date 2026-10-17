@@ -1,20 +1,19 @@
 <template>
   <div class="nail-widget" :class="[directionClass]">
-    <div class="main-content pl-5" ref="mainContentRef">
+    <div class="main-content pl-5">
       <slot></slot>
     </div>
 
-    <div class="nail-area" :class="`nail-${direction} ${props?.affixBgClass || ''}`" ref="nailAreaRef">
+    <div class="nail-area" :class="[`nail-${props.direction}`, props?.affixBgClass || '']">
       <div
           class="nail-container"
-          ref="nailContainerRef"
           :style="nailStyle">
         <div class="nail-content">
           <slot name="nail"></slot>
         </div>
       </div>
 
-      <div class="nail-footer" v-if="$slots['nail-footer']">
+      <div class="nail-footer" v-if="slots['nail-footer']">
         <slot name="nail-footer"></slot>
       </div>
     </div>
@@ -22,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed, ref} from 'vue'
+import {computed, useSlots} from 'vue'
 import type {AffixViewProps} from '@/assets/types/Ui'
 
 const props = withDefaults(defineProps<AffixViewProps>(), {
@@ -33,9 +32,7 @@ const props = withDefaults(defineProps<AffixViewProps>(), {
   disabled: false
 })
 
-const mainContentRef = ref<HTMLElement>()
-const nailAreaRef = ref<HTMLElement>()
-const nailContainerRef = ref<HTMLElement>()
+const slots = useSlots()
 
 const directionClass = computed(() => `direction-${props.direction}`)
 

@@ -518,7 +518,7 @@ const refreshAll = async () => {
                 </template>
                 <v-row>
                   <v-col>
-                    <v-row align="center" justify="space-between" dense>
+                    <v-row align="center" justify="space-between" density="compact">
                       <v-col cols="12" sm="12" class="mt-2 mt-sm-0">
                         <div class="d-inline-flex align-center ga-2 font-weight-bold bg-black-opacity-50 text-h3 text-amber">
                           <span v-html="isSeasonEnded ? t('dailyReport.season.ended') : t('dailyReport.season.remainingDays', {days: `<span class='u'>${seasonDaysRemaining}</span>`})"></span>
@@ -562,7 +562,7 @@ const refreshAll = async () => {
 
               <!-- 阵营几比几 对决战报看板 S -->
               <div class="faction-battle-banner pa-4 rounded-lg mb-4 border position-relative overflow-hidden">
-                <v-row align="center" justify="center" dense>
+                <v-row align="center" justify="center" density="compact">
                   <!-- 阵营 A -->
                   <v-col cols="5" class="text-center pr-2">
                     <div class="d-flex flex-column align-center">

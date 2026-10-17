@@ -30,7 +30,7 @@ defineOptions({
     <v-list nav
             slim
             class="bg-transparent py-0 overflow-x-hidden"
-            active-class="bg-amber">
+            active-class="bg-amber text-black">
       <v-row class="mb-2" align="center">
         <v-col>
           <v-list-item to="/codex/" prepend-icon="mdi-home" slim :active="route.name == 'codexOverview'">
@@ -93,6 +93,20 @@ defineOptions({
   @media (max-width: 1264px) {
     .collapse-header {
       padding: 10px 12px;
+    }
+  }
+
+  :deep(.v-list-item.bg-amber),
+  :deep(.v-list-item--active.bg-amber) {
+    color: #000000 !important;
+
+    .v-icon,
+    .v-list-item-title,
+    .v-list-item-subtitle,
+    .v-list-item__prepend,
+    .v-list-item__append {
+      color: #000000 !important;
+      opacity: 1 !important;
     }
   }
 }

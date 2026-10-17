@@ -11,7 +11,6 @@
     <!-- 空间未公开 E -->
 
     <template v-else>
-      <!-- Banner S -->
       <v-card min-height="200" class="d-flex flex-column justify-space-between mt-13 rounded-0">
         <template v-slot:image>
           <Silk
@@ -24,7 +23,7 @@
           </Silk>
         </template>
         <template v-slot:default>
-          <v-container class="pa-2 mt-4 position-relative">
+          <v-container class="pa-2 position-relative">
             <v-breadcrumbs class="pa-0 mb-3">
               <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
               <v-breadcrumbs-divider></v-breadcrumbs-divider>
@@ -37,7 +36,7 @@
           </v-container>
 
           <v-container class="pa-0 px-2 mt-auto d-flex align-end">
-            <v-row dense>
+            <v-row density="compact">
               <v-col cols="9">
                 <v-tabs
                     model-value="MeSpace"
@@ -113,9 +112,6 @@
           </v-container>
         </template>
       </v-card>
-      <!-- Banner E -->
-
-      <v-divider></v-divider>
 
       <!-- 下方内容区域 S -->
       <div class="account-root">
@@ -302,16 +298,25 @@ defineOptions({
 </script>
 
 <style scoped lang="less">
+@import "@/assets/styles/tabs-nav";
+
+.tabs-nav-control();
+
 .space-page-root {
   min-height: calc(100vh - 64px);
 }
 
-// 与账户页一致：强制隐藏 slide-group 箭头，一级 Tab 激活色不依赖内部 selected
-.primary-tabs :deep(.v-slide-group__prev),
-.primary-tabs :deep(.v-slide-group__next),
-.secondary-tabs :deep(.v-slide-group__prev),
-.secondary-tabs :deep(.v-slide-group__next) {
-  display: none !important;
+.secondary-tabs {
+  :deep(.v-tab.bg-amber),
+  :deep(.v-tab.v-tab--selected),
+  :deep(.v-tab--selected) {
+    color: #000000 !important;
+
+    .v-icon,
+    i {
+      color: #000000 !important;
+    }
+  }
 }
 
 .primary-tabs :deep(.v-tab--route-active) {

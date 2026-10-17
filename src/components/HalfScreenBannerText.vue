@@ -58,5 +58,6 @@ defineOptions({
 <style scoped lang="less">
 .half-screen-banner-text {
   user-select: none;
+  line-height: 1.1;
 }
 </style>

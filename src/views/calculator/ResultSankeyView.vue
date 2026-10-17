@@ -425,7 +425,7 @@ onBeforeUnmount(() => {
 
         <!-- 缩放控制 -->
         <v-divider></v-divider>
-        <v-row dense class="controls py-2" no-gutters>
+        <v-row density="compact" class="controls py-2" no-gutters>
           <v-spacer></v-spacer>
 
           <v-col cols="auto">

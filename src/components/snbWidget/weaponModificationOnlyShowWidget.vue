@@ -41,7 +41,7 @@ defineOptions({name: 'WeaponModificationOnlyShowWidget'})
   <div v-for="(mod, modIndex) in modData"
        v-show="mod.value && mod.value.id != null"
        :key="modIndex">
-    <v-row no-gutters dense align="start">
+    <v-row no-gutters density="compact" align="start">
       <v-col cols="auto" class="d-flex justify-center align-center">
         <ItemSlotBase size="45px"
                       class="pa-1"

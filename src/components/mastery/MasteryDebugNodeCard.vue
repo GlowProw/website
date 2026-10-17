@@ -170,7 +170,7 @@ function onRoleUpdate(value: any) {
     <!-- 基础信息 -->
     <div class="skill-tree-title px-10 mx-n6 py-2 text-amber-lighten-4">{{ t('mastery.debugCard.sectionBasic') }}</div>
     <div class="py-3 px-5 mb-3">
-      <v-row dense>
+      <v-row density="compact">
         <v-col cols="12">
           <v-text-field
           v-model="keyDraft"
@@ -291,7 +291,7 @@ function onRoleUpdate(value: any) {
     <!-- 坐标 -->
     <div class="skill-tree-title px-10 mx-n6 py-2 text-amber-lighten-4">{{ t('mastery.debugCard.sectionPosition') }}</div>
     <div class="py-3 px-5 mb-3">
-      <v-row dense>
+      <v-row density="compact">
         <v-col cols="6">
           <v-text-field
               :model-value="Math.round(node.position?.x ?? 0)"

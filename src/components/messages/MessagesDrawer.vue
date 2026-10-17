@@ -27,7 +27,7 @@ defineOptions({name: 'MessagesDrawer'});
       </div>
 
       <!-- 消息面板 -->
-      <div class="messages-drawer__body flex-grow-1 mt-n3">
+      <div class="messages-drawer__body flex-grow-1 mx-3">
         <MessagesPanel embedded></MessagesPanel>
       </div>
     </v-card>

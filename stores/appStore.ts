@@ -28,6 +28,8 @@ export const useAppStore = defineStore('app', () => {
     const isDebug = ref(false)
 
     const headerDrawer = ref(false)
+    // 全局搜索抽屉状态
+    const globalSearchDrawer = ref(false)
 
     // 人机验证服务类型 ('turnstile' | 'svg')
     const captchaType = ref<'turnstile' | 'svg'>('turnstile')
@@ -372,6 +374,7 @@ export const useAppStore = defineStore('app', () => {
         // 状态 (State)
         isDebug,
         headerDrawer,
+        globalSearchDrawer,
         captchaType,
         cdnLangSource,
         itemOpenNewWindow,

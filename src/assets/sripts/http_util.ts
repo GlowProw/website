@@ -50,7 +50,9 @@ export function useHttp(options: UseHttpOptions = {}) {
     http.HTTP.interceptors.response.use(
         (response) => response,
         (error) => {
-            if (error.response?.data?.code === 'user.tokenExpired') {
+            const status = error.response?.status;
+            const code = error.response?.data?.code;
+            if (status === 401 || code === 'user.tokenExpired') {
                 authStore.logout();
             }
             return Promise.reject(error);
