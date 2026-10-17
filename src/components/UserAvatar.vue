@@ -1,10 +1,11 @@
 <template>
   <div class="user-avatar" :style="`width:${size}px;height:${size}px`">
-    <v-avatar :shape="shape"
-              icon="ios-person"
-              :rounded="tile ? 0 : ''"
-              :size="size"
-              v-if="imageStatus !== 1">
+    <v-avatar
+        icon="ios-person"
+        :shape="shape"
+        :rounded="tile ? 0 : ''"
+        :size="size"
+        v-if="imageStatus !== 1">
     </v-avatar>
     <img :src="newSrc"
          :style="`width:${size}px;height:${size}px`"

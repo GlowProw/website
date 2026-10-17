@@ -19,6 +19,7 @@ import EmptyView from "@/components/EmptyView.vue";
 import {useHead} from "@unhead/vue";
 import {useRoute} from "vue-router";
 import UserAvatar from "@/components/UserAvatar.vue";
+import AccountCardWidget from "@/components/AccountCardWidget.vue";
 
 const {t} = useI18n(),
     route = useRoute(),
@@ -210,10 +211,17 @@ const getSmugglersComment = async (reportId: string) => {
                     height="200px">
               <v-row>
                 <v-col cols="auto">
-                  <UserAvatar :src="i.avatar || i.userAvatar || ''" size="50px" class="bg-black"></UserAvatar>
+                  <AccountCardWidget :id="i.userId">
+                    <ItemSlotBase size="50px">
+                      <UserAvatar :src="i.avatar || i.userAvatar || ''" class="bg-black" size="50px"></UserAvatar>
+                    </ItemSlotBase>
+                  </AccountCardWidget>
                 </v-col>
                 <v-col>
-                  <b class="u">{{ i.username }}</b>
+                  <AccountCardWidget :id="i.userId">
+                    <b class="u">{{ i.username }}</b>
+                  </AccountCardWidget>
+
                   <div class="opacity-60">
                     <TimeView :time="i.createdTime"></TimeView>
                   </div>
