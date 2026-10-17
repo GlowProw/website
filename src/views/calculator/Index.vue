@@ -98,15 +98,6 @@ function onFileImport(e: Event) {
     <v-main>
       <div class="calculator-background">
         <div class="calculator-pattern">
-          <v-breadcrumbs>
-            <v-container class="pa-0">
-              <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
-              <v-breadcrumbs-divider/>
-              <v-breadcrumbs-item>{{ t('calculator.title') }}</v-breadcrumbs-item>
-            </v-container>
-          </v-breadcrumbs>
-          <v-divider/>
-
           <v-card height="200px">
             <template v-slot:image>
               <Silk
@@ -119,8 +110,16 @@ function onFileImport(e: Event) {
               </Silk>
             </template>
             <template v-slot:default>
-              <v-container class="pa-2 mt-4 position-relative">
-                <p class="mt-2 opacity-60">{{ t('calculator.description') }}</p>
+              <v-container class="position-relative">
+                <v-breadcrumbs density="compact">
+                  <v-container class="pa-0">
+                    <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
+                    <v-breadcrumbs-divider/>
+                    <v-breadcrumbs-item>{{ t('calculator.title') }}</v-breadcrumbs-item>
+                  </v-container>
+                </v-breadcrumbs>
+
+                <p class="mx-4 opacity-60">{{ t('calculator.description') }}</p>
 
                 <div class="position-absolute top-0 right-0 opacity-10 pt-10 d-flex ga-2">
                   <v-icon icon="mdi-calculator-variant" size="120"></v-icon>

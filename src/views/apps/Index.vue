@@ -4,7 +4,7 @@ import Header from "@/components/Header.vue";
 </script>
 
 <template>
-  <v-app id="calendar">
+  <v-app id="apps">
     <Header></Header>
     <v-main>
       <router-view></router-view>

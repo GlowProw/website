@@ -17,7 +17,7 @@ import FactionNameWidget from "@/components/snbWidget/factionNameWidget.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import {formatCompactNumber, formatNumber} from "@/assets/sripts/number";
-import {getCurrentSeasonId, getAppUrl} from "@/assets/sripts";
+import {getAppUrl, getCurrentSeasonId} from "@/assets/sripts";
 import Loading from "@/components/Loading.vue";
 import TimeView from "@/components/TimeView.vue";
 import {useAuthStore} from "~/stores/userAccountStore";
@@ -394,7 +394,7 @@ const getZoneData = (zoneName: string) => {
             {{ t('stateOfWar.description') }}
           </p>
 
-          <div v-if="warData?.updateTime" class="d-flex align-center mt-2 ga-2 text-caption opacity-80">
+          <div v-if="warData?.updateTime" class="d-flex align-center mt-2 ga-2 opacity-60">
             <TimeView :time="warData.updateTime">
               {{ t('stateOfWar.lastUpdated') }}:
             </TimeView>
@@ -407,127 +407,122 @@ const getZoneData = (zoneName: string) => {
       </v-container>
     </template>
   </v-card>
-  <v-divider v-if="!isWidgetMode"></v-divider>
 
   <div class="state-of-war-page" :style="{ '--faction-a-color': factionAColor, '--faction-b-color': factionBColor }">
     <!-- 状态条 S -->
-    <div>
-      <v-divider></v-divider>
-      <div class="bg-black">
-        <v-container class="py-5">
-          <v-row align="start">
-            <v-col cols="12" :lg="isWidgetMode ? 12 : 8">
-              <!-- 阵营大概 S -->
-              <v-card :width="isWidgetMode ? '50%' : ''" variant="text" class="mx-auto my-n5 overflow-visible" v-if="!loading">
-                <v-row>
-                  <v-col class="position-relative d-flex align-center">
-                    <div class="mr-10 d-flex align-center ga-1">
-                      <span class="u text-h5 singe-line" :style="{ color: factionAColor }"><FactionNameWidget :id="factionAKey"></FactionNameWidget></span>
+    <div class="bg-black">
+      <v-container class="py-5">
+        <v-row align="start">
+          <v-col cols="12" :lg="isWidgetMode ? 12 : 8">
+            <!-- 阵营大概 S -->
+            <v-card :width="isWidgetMode ? '50%' : ''" variant="text" class="mx-auto my-n5 overflow-visible" v-if="!loading">
+              <v-row>
+                <v-col cols="6" class="position-relative d-flex align-center">
+                  <div class="mr-10 d-flex align-center ga-1">
+                    <span class="u text-h5 singe-line" :style="{ color: factionAColor }"><FactionNameWidget :id="factionAKey"></FactionNameWidget></span>
 
-                      <v-avatar size="30" tile>
-                        <FactionIconWidget :name="factionAKey" size="30"></FactionIconWidget>
-                      </v-avatar>
-                    </div>
+                    <v-avatar size="30" tile>
+                      <FactionIconWidget :name="factionAKey" size="30"></FactionIconWidget>
+                    </v-avatar>
+                  </div>
 
-                    <div>
-                      <span class="text-h3 war-status-faction-number" :style="{ color: factionAColor }">{{ previousCycleFactionAScore }}</span>
-                    </div>
+                  <div>
+                    <span class="text-h3 war-status-faction-number" :style="{ color: factionAColor }">{{ previousCycleFactionAScore }}</span>
+                  </div>
 
-                    <LightRays
-                        rays-origin="top-right"
-                        quality="low"
-                        :rays-color="factionAColor"
-                        :rays-speed=".2"
-                        :light-spread="3"
-                        :ray-length="100"
-                        :follow-mouse="false"
-                        :mouse-influence="0"
-                        :noise-amount="0"
-                        :distortion=".1"
-                        class="w-100 h-100 pointer-events-none position-absolute top-0 right-0 war-light-rays">
-                    </LightRays>
-                  </v-col>
-                  <v-col cols="auto" class="mx-n9 mb-n1 pa-0 position-relative text-center" style="z-index: 100;">
-                    <img src="@/assets/images/icon-stateOfWar-vs.png" height="88"/>
-                  </v-col>
-                  <v-col class="position-relative d-flex align-center justify-end">
-                    <div>
-                      <span class="text-h3 war-status-faction-number" :style="{ color: factionBColor }">{{ previousCycleFactionBScore }}</span>
-                    </div>
+                  <LightRays
+                      rays-origin="top-right"
+                      quality="low"
+                      :rays-color="factionAColor"
+                      :rays-speed=".2"
+                      :light-spread="3"
+                      :ray-length="100"
+                      :follow-mouse="false"
+                      :mouse-influence="0"
+                      :noise-amount="0"
+                      :distortion=".1"
+                      class="w-100 h-100 pointer-events-none position-absolute top-0 right-0 war-light-rays">
+                  </LightRays>
+                </v-col>
+                <v-col cols="auto" class="mx-n15 mx-lg-n15 mb-n1 pa-0 position-relative text-center" style="z-index: 50;">
+                  <img src="@/assets/images/icon-stateOfWar-vs.png" height="88"/>
+                </v-col>
+                <v-col cols="6" class="position-relative d-flex align-center justify-end">
+                  <div>
+                    <span class="text-h3 war-status-faction-number" :style="{ color: factionBColor }">{{ previousCycleFactionBScore }}</span>
+                  </div>
 
-                    <div class="ml-10 d-flex align-center ga-1">
-                      <v-avatar size="30" tile>
-                        <FactionIconWidget :name="factionBKey" size="30"></FactionIconWidget>
-                      </v-avatar>
+                  <div class="ml-10 d-flex align-center ga-1">
+                    <v-avatar size="30" tile>
+                      <FactionIconWidget :name="factionBKey" size="30"></FactionIconWidget>
+                    </v-avatar>
 
-                      <span class="u text-h5 singe-line" :style="{ color: factionBColor }"><FactionNameWidget :id="factionBKey"></FactionNameWidget></span>
-                    </div>
+                    <span class="u text-h5 singe-line" :style="{ color: factionBColor }"><FactionNameWidget :id="factionBKey"></FactionNameWidget></span>
+                  </div>
 
-                    <LightRays
-                        rays-origin="top-left"
-                        quality="low"
-                        :rays-color="factionBColor"
-                        :rays-speed=".2"
-                        :light-spread="3"
-                        :ray-length="100"
-                        :follow-mouse="false"
-                        :mouse-influence="0"
-                        :noise-amount="0"
-                        :distortion=".1"
-                        class="w-100 h-100 pointer-events-none position-absolute top-0 right-0 war-light-rays">
-                    </LightRays>
-                  </v-col>
-                </v-row>
-              </v-card>
-              <!-- 阵营大概 E -->
-            </v-col>
+                  <LightRays
+                      rays-origin="top-left"
+                      quality="low"
+                      :rays-color="factionBColor"
+                      :rays-speed=".2"
+                      :light-spread="3"
+                      :ray-length="100"
+                      :follow-mouse="false"
+                      :mouse-influence="0"
+                      :noise-amount="0"
+                      :distortion=".1"
+                      class="w-100 h-100 pointer-events-none position-absolute top-0 right-0 war-light-rays">
+                  </LightRays>
+                </v-col>
+              </v-row>
+            </v-card>
+            <!-- 阵营大概 E -->
+          </v-col>
 
-            <v-col cols="12" lg="1" class="hidden-sm hidden-md" v-if="!isWidgetMode"></v-col>
+          <v-col cols="12" lg="1" class="hidden-sm hidden-md" v-if="!isWidgetMode"></v-col>
 
-            <v-col cols="12" lg="3" class="d-flex justify-lg-end" v-if="!isWidgetMode">
-              <v-btn-group>
-                <v-select
-                    tile
-                    :label="t('stateOfWar.selectSeason')"
-                    :hide-details="true"
-                    :hide-no-data="true"
-                    :hide-spin-buttons="true"
-                    variant="solo-filled"
-                    density="comfortable"
-                    item-value="id"
-                    item-title="label"
-                    min-width="220px"
-                    @update:modelValue="updateSelectedSeason"
-                    v-model="selectSeasonsValue"
-                    :items="selectSeasonsList">
-                </v-select>
+          <v-col cols="12" lg="3" class="d-flex justify-lg-end" v-if="!isWidgetMode">
+            <v-btn-group>
+              <v-select
+                  tile
+                  :label="t('stateOfWar.selectSeason')"
+                  :hide-details="true"
+                  :hide-no-data="true"
+                  :hide-spin-buttons="true"
+                  variant="solo-filled"
+                  density="comfortable"
+                  item-value="id"
+                  item-title="label"
+                  min-width="220px"
+                  @update:modelValue="updateSelectedSeason"
+                  v-model="selectSeasonsValue"
+                  :items="selectSeasonsList">
+              </v-select>
 
-                <v-divider vertical></v-divider>
+              <v-divider vertical></v-divider>
 
-                <v-menu offset-y>
-                  <template v-slot:activator="{ props: menuProps }">
-                    <v-btn
-                        v-bind="menuProps"
-                        variant="elevated"
-                        density="comfortable">
-                      <v-icon icon="mdi-dots-vertical" size="20"/>
-                    </v-btn>
-                  </template>
-                  <v-list>
-                    <v-list-item :loading="refreshing"
-                                 :disabled="!isLogin"
-                                 prepend-icon="mdi-refresh"
-                                 @click="refreshData()">
-                      {{ t('stateOfWar.refreshBtn') }}
-                    </v-list-item>
-                  </v-list>
-                </v-menu>
-              </v-btn-group>
-            </v-col>
-          </v-row>
-        </v-container>
-        <v-divider></v-divider>
-      </div>
+              <v-menu offset-y>
+                <template v-slot:activator="{ props: menuProps }">
+                  <v-btn
+                      v-bind="menuProps"
+                      variant="elevated"
+                      density="comfortable">
+                    <v-icon icon="mdi-dots-vertical" size="20"/>
+                  </v-btn>
+                </template>
+                <v-list>
+                  <v-list-item :loading="refreshing"
+                               :disabled="!isLogin"
+                               prepend-icon="mdi-refresh"
+                               @click="refreshData()">
+                    {{ t('stateOfWar.refreshBtn') }}
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </v-btn-group>
+          </v-col>
+        </v-row>
+      </v-container>
       <v-divider></v-divider>
     </div>
     <!-- 状态条 E -->
@@ -1028,11 +1023,7 @@ const getZoneData = (zoneName: string) => {
                               :border="isWidgetMode"
                               class="mb-1 position-relative rounded-lg">
                             <v-row density="compact">
-                              <v-col cols="2" class="d-flex align-center justify-center">
-                                <v-icon size="30" icon="mdi-earth" class="opacity-30 ml-1"></v-icon>
-                              </v-col>
-                              <v-divider vertical></v-divider>
-                              <v-col cols="10" class="py-5 px-4">
+                              <v-col cols="12" class="py-5 px-4">
                                 <div class="d-flex justify-space-between align-center font-weight-bold mb-1">
                                   <span class="text-truncate u"><ZoneName :id="z"/></span>
                                   <v-chip size="x-small" :color="factionAColor" variant="tonal">
@@ -1077,11 +1068,7 @@ const getZoneData = (zoneName: string) => {
                               :border="isWidgetMode"
                               class="mb-1 position-relative rounded-lg">
                             <v-row density="compact">
-                              <v-col cols="2" class="d-flex align-center justify-center">
-                                <v-icon size="30" icon="mdi-earth" class="opacity-30 ml-1"></v-icon>
-                              </v-col>
-                              <v-divider vertical></v-divider>
-                              <v-col cols="10" class="py-5 px-4">
+                              <v-col cols="12" class="py-5 px-4">
                                 <div class="d-flex justify-space-between align-center font-weight-bold mb-1">
                                   <span class="text-truncate u"><ZoneName :id="z"/></span>
                                   <v-chip size="x-small" :color="factionBColor" variant="tonal">

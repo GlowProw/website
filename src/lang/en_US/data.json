@@ -3803,11 +3803,6 @@
         "desc": "Toss however many coins ye like into the chest — meet the mark, and earn a title all the same."
       }
     },
-    "manageTitle": "Manage my subscription",
-    "cancelTip": "Once cancelled on the payment platform, your donor status is revoked automatically",
-    "cancelStripe": "Manage on Stripe",
-    "cancelAfdian": "Cancel on Afdian",
-    "cancelAfdianTip": "No active Stripe subscription found. Afdian pledges can be cancelled under \"My sponsorships\" on Afdian; your status is revoked once the cancellation takes effect.",
     "introLine1": "{name} is a community project, but none of this is free or easy to maintain!",
     "introLine2": "{name} has no major source of income and relies on your generous donations. Your support keeps the app running and lets me develop new features.",
     "introLine3": "Please subscribe to any tier to support me.",

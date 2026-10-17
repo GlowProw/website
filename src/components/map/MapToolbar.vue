@@ -34,15 +34,14 @@
       </template>
     </v-combobox>
 
-    <v-divider vertical></v-divider>
     <v-btn tile stacked density="compact" @click="emit('toggle-settings')" :title="t('map.settings')">
       <v-icon :class="isSettingsOpen ? 'text-amber' : ''" :icon="`mdi-cog${!isSettingsOpen ? '-outline' : ''}`"></v-icon>
     </v-btn>
 
-    <v-divider vertical></v-divider>
     <v-btn tile stacked density="compact" @click="emit('toggle-layers')" :title="t('map.layerControl')">
       <v-icon :class="isLayerPanelVisible ? 'text-amber' : ''" :icon="`mdi-layers${!isLayerPanelVisible ? '-outline' : ''}`"></v-icon>
     </v-btn>
+    <v-divider vertical></v-divider>
 
     <FullscreenBtn @update:isFull="emit('update:fullscreen', $event)"></FullscreenBtn>
   </v-card>
@@ -75,8 +74,8 @@ const emit = defineEmits(['search', 'toggle-layers', 'toggle-settings', 'update:
 const { t } = useI18n();
 const { mobile } = useDisplay();
 
-defineOptions({ 
-  name: 'MapToolbar' 
+defineOptions({
+  name: 'MapToolbar'
 });
 </script>
 

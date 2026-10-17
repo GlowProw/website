@@ -201,8 +201,8 @@ defineOptions({
       </Silk>
     </template>
     <template v-slot:default>
-      <v-container class="mt-4 position-relative">
-        <v-breadcrumbs>
+      <v-container class="position-relative">
+        <v-breadcrumbs density="compact">
           <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
           <v-breadcrumbs-item to="/calendar">
@@ -210,7 +210,7 @@ defineOptions({
           </v-breadcrumbs-item>
         </v-breadcrumbs>
 
-        <v-row class="mx-2">
+        <v-row class="mx-4">
           <v-col>
             <p class="opacity-60">{{ t('apps.description') }}</p>
           </v-col>

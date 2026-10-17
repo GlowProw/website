@@ -21,7 +21,10 @@ defineOptions({
       :offsetTop="props.offsetTop"
       :offsetBottom="props.offsetBottom"
       :disabled="props.disabled || props.disabledTitle">
-    <slot></slot>
+    <div class="mb-3">
+      <slot></slot>
+    </div>
+
     <template v-slot:nail>
       <v-card width="30" variant="text">
         <v-divider thickness="3" class="mb-3"></v-divider>

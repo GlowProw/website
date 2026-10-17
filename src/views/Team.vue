@@ -478,8 +478,8 @@ const onWsReconnect = () => {
         </Silk>
       </template>
       <template v-slot:default>
-        <v-container class="pa-2 mt-4 position-relative">
-          <v-breadcrumbs>
+        <v-container class="pa-2 position-relative">
+          <v-breadcrumbs density="compact">
             <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
             <v-breadcrumbs-divider></v-breadcrumbs-divider>
             <v-breadcrumbs-item>{{ t('teamUp.title') }}</v-breadcrumbs-item>
@@ -493,7 +493,7 @@ const onWsReconnect = () => {
         </v-container>
       </template>
     </v-card>
-    <v-divider></v-divider>
+
     <AffixContainerView :offsetTop="55">
       <div class="bg-black">
         <v-container>
@@ -674,7 +674,7 @@ const onWsReconnect = () => {
           </div>
         </template>
         <template v-else-if="teams.length <= 0">
-          <v-card card border class="mt-5 pt-5 pb-5">
+          <v-card variant="text" class="mt-5 pt-5 pb-5">
             <EmptyView>
               <div class="mt-5">
                 <v-btn @click="getTeams(getTeamsType.none)" class=" btn-flavor" variant="elevated">

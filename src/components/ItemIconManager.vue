@@ -158,7 +158,7 @@ const openNewWindow = computed({
 })
 
 const getIconSize = computed({
-  get: () => appStore.iconSize || sizes.value[2],
+  get: () => (appStore.iconSize && appStore.iconSize.size ? appStore.iconSize : sizes.value[2]),
   set: (value) => appStore.setIconSize(value)
 })
 
@@ -191,7 +191,7 @@ onMounted(() => {
         </div>
       </v-col>
       <v-col cols="auto" class="py-3 d-flex justify-center">
-        <ItemSlotBase :size="`${getIconSize.size}px`"
+        <ItemSlotBase :size="`${getIconSize?.size ?? 90}px`"
                       :margin="getIconSize?.box?.margin"
                       :padding="getIconSize?.box?.padding">
           <ItemIconWidget :id="iconId"
@@ -208,19 +208,15 @@ onMounted(() => {
       tile
       hide-details
       v-model="getIconSize"
-      item-value="value"
-      :items="sizes">
+      :items="sizes"
+      return-object>
     <template v-slot:selection="{ item }">
-      <v-list-item>
-        <template v-slot:title>
-          {{ (item as any).raw.size }}
-        </template>
-      </v-list-item>
+      <span>{{ (item as any)?.raw?.size ?? (item as any)?.size ?? '' }}</span>
     </template>
-    <template v-slot:item="{item,props}">
+    <template v-slot:item="{ item, props }">
       <v-list-item v-bind="props">
         <template v-slot:title>
-          {{ (item as any).raw.size }}
+          {{ (item as any)?.raw?.size ?? (item as any)?.size ?? '' }}
         </template>
       </v-list-item>
     </template>

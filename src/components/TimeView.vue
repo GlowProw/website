@@ -129,12 +129,12 @@ onMounted(() => {
               hide-details
               density="compact"
               variant="outlined">
-            <template v-slot:item="{ props, item }">
-              <v-list-item v-bind="props" :subtitle="item.raw.subtitle"></v-list-item>
+            <template v-slot:item="{ props: itemProps, item }">
+              <v-list-item v-bind="itemProps" :subtitle="(item as any)?.raw?.subtitle ?? (item as any)?.subtitle ?? ''"></v-list-item>
             </template>
             <template v-slot:selection="{ item }">
-              <v-text-field :model-value="item.raw.subtitle" readonly hide-details density="compact" variant="plain" class="mt-n1">
-                {{ item.title }}
+              <v-text-field :model-value="(item as any)?.raw?.subtitle ?? (item as any)?.subtitle ?? ''" readonly hide-details density="compact" variant="plain" class="mt-n1">
+                {{ (item as any)?.title ?? '' }}
               </v-text-field>
             </template>
           </v-select>

@@ -578,20 +578,18 @@ watch(activeCalendar, () => {
       </Silk>
     </template>
     <template v-slot:default>
-      <v-container class="mt-4 position-relative">
-        <v-breadcrumbs>
+      <v-container class="position-relative">
+        <v-breadcrumbs density="compact">
           <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
-          <v-breadcrumbs-item to="/calendar">
-            <b class="text-amber">{{ t('calendar.title') }}</b>
-          </v-breadcrumbs-item>
+          <v-breadcrumbs-item to="/calendar">{{ t('calendar.title') }}</v-breadcrumbs-item>
         </v-breadcrumbs>
 
         <div class="position-absolute top-0 right-0 opacity-10 pt-10 d-flex ga-2">
           <v-icon icon="mdi-calendar-range" size="120"></v-icon>
         </div>
 
-        <div class="mt-5">
+        <div class="mx-4">
           <div>
             <span class="text-amber mr-5 text-h4">
               {{ currentSeasonName }}
@@ -607,7 +605,6 @@ watch(activeCalendar, () => {
       </v-container>
     </template>
   </v-card>
-  <v-divider></v-divider>
 
   <!-- 日历 头部 S -->
   <AffixContainerView :offsetTop="55">
@@ -615,7 +612,7 @@ watch(activeCalendar, () => {
       <v-container class="py-5">
         <v-row align="start">
           <v-col cols="12" sm="12" lg="6">
-            <p class="opacity-80 text-caption">
+            <p class="opacity-60">
               {{ seasonDescription }}
             </p>
           </v-col>
@@ -723,8 +720,6 @@ watch(activeCalendar, () => {
     </div>
   </AffixContainerView>
   <!-- 日历 头部 E -->
-
-  <v-divider class="mb-5"></v-divider>
 
   <v-container>
     <AdsWidget class="my-5" id="snb-calendar-up"></AdsWidget>

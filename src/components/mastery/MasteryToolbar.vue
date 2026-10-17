@@ -93,8 +93,6 @@ function filterSearchItem(value: any, queryText: string, item: any): boolean {
       </template>
     </v-autocomplete>
 
-    <v-divider vertical></v-divider>
-
     <!-- 分享方案按钮 -->
     <v-btn
         tile
@@ -104,8 +102,6 @@ function filterSearchItem(value: any, queryText: string, item: any): boolean {
         @click="emit('open-share')">
       <v-icon icon="mdi-share-variant-outline"></v-icon>
     </v-btn>
-
-    <v-divider vertical></v-divider>
 
     <!-- 保存方案按钮 -->
     <v-btn
@@ -117,8 +113,6 @@ function filterSearchItem(value: any, queryText: string, item: any): boolean {
       <v-icon icon="mdi-bookmark-multiple-outline"></v-icon>
     </v-btn>
 
-    <v-divider vertical></v-divider>
-
     <!-- 图层/信息面板开关 -->
     <v-btn
         tile
@@ -128,6 +122,8 @@ function filterSearchItem(value: any, queryText: string, item: any): boolean {
         @click="emit('toggle-panel')">
       <v-icon :class="isLeftPanelOpen ? 'text-amber' : ''" :icon="`mdi-layers${!isLeftPanelOpen ? '-outline' : ''}`"></v-icon>
     </v-btn>
+
+    <v-divider vertical></v-divider>
 
     <!-- 全屏按钮 -->
     <FullscreenBtn :viewRef="viewRef" @update:isFull="emit('update:fullscreen', $event)"></FullscreenBtn>

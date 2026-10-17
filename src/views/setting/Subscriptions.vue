@@ -370,37 +370,6 @@ const formatExpiry = (iso: string): string => {
 }
 
 /**
- * 取消 Stripe 周期订阅中
- */
-const cancelling = ref(false)
-
-/**
- * 发起取消 Stripe 周期订阅
- * 调用后端接口获取 Stripe 客户门户（Billing Portal）链接，并跳转供用户进行退订与付款方式管理
- *
- * @returns {Promise<void>}
- */
-const onCancelStripe = async (): Promise<void> => {
-  if (cancelling.value) return
-  cancelling.value = true
-  try {
-    const result = await api.createCancelPortal()
-    if (result.redirectUrl)
-      window.location.href = result.redirectUrl
-    else
-      throw new Error('no portal url')
-  } catch (e: any) {
-    // 未检测到 Stripe 周期订阅（可能为爱发电平台赞助或一次性打赏）
-    notice.warning(
-        e?.code === 'subscription.noActiveStripeSubscription'
-            ? t('subscription.cancelAfdianTip')
-            : (e?.message || t('subscription.checkoutFailed'))
-    )
-    cancelling.value = false
-  }
-}
-
-/**
  * 页面挂载：加载订阅主页数据并启动倒计时定时器
  */
 onMounted(async () => {
@@ -494,36 +463,6 @@ onUnmounted(() => {
         <div class="my-5"></div>
 
         <AffixContainerView>
-          <AffixBoxHasTitleView :disabled-title="true" v-if="activeContributor">
-            <template v-slot:title>
-              {{ t('subscription.manageTitle') }}
-            </template>
-
-            <!-- 取消订阅管理 -->
-            <div>
-              <div class="d-flex ga-3 align-center flex-wrap">
-                <div class="text-caption text-medium-emphasis">{{ t('subscription.cancelTip') }}</div>
-
-                <v-btn variant="tonal"
-                       size="small"
-                       :loading="cancelling"
-                       prepend-icon="mdi-credit-card-off-outline"
-                       @click="onCancelStripe"
-                       href="javasript:void(0)"
-                       target="_blank">
-                  {{ t('subscription.cancelStripe') }}
-                </v-btn>
-                <v-btn variant="tonal"
-                       size="small"
-                       prepend-icon="mdi-lightning-bolt"
-                       href="https://afdian.com"
-                       target="_blank">
-                  {{ t('subscription.cancelAfdian') }}
-                </v-btn>
-              </div>
-            </div>
-          </AffixBoxHasTitleView>
-
           <AffixBoxHasTitleView :disabled-title="true" v-if="pendingOrders.length">
             <template v-slot:title>
               <v-icon icon="mdi-clock-alert-outline" class="mb-2"></v-icon>

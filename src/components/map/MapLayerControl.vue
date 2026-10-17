@@ -96,8 +96,8 @@
                   <!-- 个人标记 -->
                   <v-col cols="6">
                     <v-card border>
-                      <div class="bg-black w-100 py-4">
-                        <ItemSlotBase size="50px" class="mx-auto">
+                      <div class="bg-black w-100 py-4 d-flex align-center justify-center">
+                        <ItemSlotBase size="50px">
                           <v-img
                               :src="getPersonalMarkerIcon()"
                               width="50"
@@ -126,8 +126,8 @@
                   <!-- 路径 -->
                   <v-col cols="6">
                     <v-card border>
-                      <div class="bg-black w-100 py-4">
-                        <ItemSlotBase size="50px" class="mx-auto">
+                      <div class="bg-black w-100 py-4 d-flex align-center justify-center">
+                        <ItemSlotBase size="50px">
                           <v-icon icon="mdi-vector-polyline" size="50"></v-icon>
                         </ItemSlotBase>
                       </div>
@@ -153,8 +153,8 @@
                   <!-- 区域 -->
                   <v-col cols="6">
                     <v-card border>
-                      <div class="bg-black w-100 py-4">
-                        <ItemSlotBase size="50px" class="mx-auto">
+                      <div class="bg-black w-100 py-4 d-flex align-center justify-center">
+                        <ItemSlotBase size="50px">
                           <v-icon icon="mdi-vector-polygon" size="50"></v-icon>
                         </ItemSlotBase>
                       </div>
@@ -207,8 +207,8 @@
                            v-for="category in categories"
                            :key="category.value">
                       <v-card border>
-                        <div class="bg-black w-100 py-4">
-                          <ItemSlotBase size="50px" class="mx-auto">
+                        <div class="bg-black w-100 py-4 d-flex align-center justify-center">
+                          <ItemSlotBase size="50px">
                             <v-img
                                 :src="getCategoryIcon(category.value)"
                                 cover/>

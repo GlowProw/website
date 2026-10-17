@@ -161,8 +161,8 @@ onMounted(() => {
           </Silk>
         </template>
         <template v-slot:default>
-          <v-container class="pa-2 mt-4 position-relative">
-            <v-breadcrumbs>
+          <v-container class="pa-2 position-relative">
+            <v-breadcrumbs density="compact">
               <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
               <v-breadcrumbs-divider></v-breadcrumbs-divider>
               <v-breadcrumbs-item>
@@ -171,7 +171,7 @@ onMounted(() => {
               </v-breadcrumbs-item>
             </v-breadcrumbs>
 
-            <p class="ml-4 text-body-1 text-medium-emphasis w-50 mb-0">
+            <p class="mx-4 text-body-1 text-medium-emphasis w-50 mb-0">
               {{ t('drop.heroSubtitle') }}
             </p>
 
@@ -188,7 +188,7 @@ onMounted(() => {
           <v-row class="text-center" align="center">
             <v-col>
               <!-- 概览指标卡片 -->
-              <v-row density="compact">
+              <v-row density="compact" no-gutters>
                 <v-col cols="12" sm="4">
                   <div class="rounded-xl d-flex align-center">
                     <div>
@@ -201,7 +201,9 @@ onMounted(() => {
                     </div>
                   </div>
                 </v-col>
-                <v-divider vertical inset></v-divider>
+                <v-col cols="auto">
+                  <v-divider vertical inset></v-divider>
+                </v-col>
                 <v-col cols="12" sm="4">
                   <div class="rounded-xl d-flex align-center">
                     <div>
@@ -214,7 +216,9 @@ onMounted(() => {
                     </div>
                   </div>
                 </v-col>
-                <v-divider vertical inset></v-divider>
+                <v-col cols="auto">
+                  <v-divider vertical inset></v-divider>
+                </v-col>
                 <v-col cols="12" sm="4">
                   <div class="rounded-xl d-flex align-center">
                     <div>

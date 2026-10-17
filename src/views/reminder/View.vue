@@ -505,7 +505,6 @@ const totalPages = computed(() => {
       </v-container>
     </template>
   </v-card>
-  <v-divider></v-divider>
 
   <AffixContainerView :offsetTop="56">
     <div class="bg-black">
@@ -513,7 +512,7 @@ const totalPages = computed(() => {
         <v-row class="text-center" align="center">
           <v-col>
             <!-- 概览指标卡片 -->
-            <v-row class="singe-line">
+            <v-row class="singe-line" no-gutters>
               <v-col cols="12" sm="4">
                 <div class="rounded-xl d-flex align-center">
                   <div>
@@ -526,7 +525,9 @@ const totalPages = computed(() => {
                   </div>
                 </div>
               </v-col>
-              <v-divider vertical inset></v-divider>
+              <v-col cols="auto">
+                <v-divider vertical inset></v-divider>
+              </v-col>
               <v-col cols="12" sm="4">
                 <div class="rounded-xl d-flex align-center">
                   <div>
@@ -539,7 +540,9 @@ const totalPages = computed(() => {
                   </div>
                 </div>
               </v-col>
-              <v-divider vertical inset v-if="true"></v-divider>
+              <v-col cols="auto" v-if="true">
+                <v-divider vertical inset></v-divider>
+              </v-col>
               <v-col cols="12" sm="4" v-if="true">
                 <div class="rounded-xl d-flex align-center">
                   <div>
