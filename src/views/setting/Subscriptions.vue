@@ -508,7 +508,9 @@ onUnmounted(() => {
                        size="small"
                        :loading="cancelling"
                        prepend-icon="mdi-credit-card-off-outline"
-                       @click="onCancelStripe">
+                       @click="onCancelStripe"
+                       href="javasript:void(0)"
+                       target="_blank">
                   {{ t('subscription.cancelStripe') }}
                 </v-btn>
                 <v-btn variant="tonal"

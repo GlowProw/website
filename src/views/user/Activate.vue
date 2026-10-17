@@ -147,7 +147,7 @@ const onActivate = async () => {
             </v-row>
 
             <div class="py-2">
-              <v-btn class="bg-amber" @click="onActivate" size="50" block :loading="activateLoading"
+              <v-btn class="bg-amber text-black" @click="onActivate" size="50" block :loading="activateLoading"
                      :disabled="!activateForm.username || activateForm.code.length !== 6" variant="flat">
                 {{ t('activate.submit') }}
               </v-btn>

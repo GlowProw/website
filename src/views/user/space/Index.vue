@@ -11,7 +11,7 @@
     <!-- 空间未公开 E -->
 
     <template v-else>
-      <v-card min-height="200" class="d-flex flex-column justify-space-between mt-13 rounded-0">
+      <v-card min-height="200px" class="d-flex flex-column justify-space-between mt-13">
         <template v-slot:image>
           <Silk
               :speed="3"
@@ -36,28 +36,38 @@
           </v-container>
 
           <v-container class="pa-0 px-2 mt-auto d-flex align-end">
-            <v-row density="compact">
+            <v-row density="compact" align="end">
               <v-col cols="9">
                 <v-tabs
-                    model-value="MeSpace"
+                    :model-value="primaryNavMenu"
                     color="amber"
                     stacked
                     align-tabs="start"
                     density="comfortable"
                     class="primary-tabs"
                     v-if="isSelf">
-                  <v-tab value="MeAccount" class="font-weight-bold text-subtitle-1 px-8" :to="{ name: 'AccountInformation' }">
+                  <v-tab value="MeAccount"
+                         class="font-weight-bold text-subtitle-1 px-8"
+                         :class="{'v-tab--route-active': primaryNavMenu === 'MeAccount'}"
+                         :to="{ name: 'AccountInformation' }">
                     {{ t('account.title') }}
                   </v-tab>
-                  <v-tab value="MeDataCenter" class="font-weight-bold text-subtitle-1 px-8" :to="{ name: 'AccountDataCenter' }">
+                  <v-tab value="MeDataCenter"
+                         class="font-weight-bold text-subtitle-1 px-8"
+                         :class="{'v-tab--route-active': primaryNavMenu === 'MeDataCenter'}"
+                         :to="{ name: 'AccountDataCenter' }">
                     {{ t('account.dataCenter.title') }}
                   </v-tab>
-                  <v-tab value="MeMessageCenter" class="font-weight-bold text-subtitle-1 px-8" :to="{ name: 'AccountMessages' }">
+                  <v-tab value="MeMessageCenter"
+                         class="font-weight-bold text-subtitle-1 px-8"
+                         :class="{'v-tab--route-active': primaryNavMenu === 'MeMessageCenter'}"
+                         :to="{ name: 'AccountMessages' }">
                     {{ t('account.messages.messageCenterTitle') }}
                   </v-tab>
                   <v-tab value="MeSpace"
-                         class="font-weight-bold text-subtitle-1 px-8 v-tab--route-active"
-                         :to="assemblysRoute">
+                         class="font-weight-bold text-subtitle-1 px-8"
+                         :class="{'v-tab--route-active': primaryNavMenu === 'MeSpace'}"
+                         :to="{ name: 'SpaceAssemblys' }">
                     {{ t('space.title') }}
                   </v-tab>
                 </v-tabs>
@@ -97,12 +107,12 @@
               <v-col cols="3" class="d-flex align-center justify-end">
                 <div class="d-flex align-center">
                   <template v-if="isSelf">
-                    <h2 class="text-h4 font-weight-bold d-flex align-center">
+                    <h2 class="singe-line text-h4 font-weight-bold d-flex align-center">
                       <u class="u">{{ authStore.currentUser || 'Captain' }}</u>
                     </h2>
                   </template>
                   <template v-else>
-                    <h2 class="text-h4 font-weight-bold d-flex align-center">
+                    <h2 class="singe-line text-h4 font-weight-bold d-flex align-center">
                       <u class="u">{{ userData.username || 'Captain' }}</u>
                     </h2>
                   </template>
@@ -224,6 +234,9 @@ const isSelf = computed(() => {
   return !!currentUid && String(currentUid) === String(targetUserId.value);
 });
 
+// 一级导航菜单固定激活为空间
+const primaryNavMenu = computed<'MeSpace'>(() => 'MeSpace');
+
 // 子 Tab 路由基础路径
 const basePath = computed(() => {
   return route.params.id ? `/space/${route.params.id}` : '/space';
@@ -304,6 +317,10 @@ defineOptions({
 
 .space-page-root {
   min-height: calc(100vh - 64px);
+
+  .primary-tabs {
+    border-bottom: none;
+  }
 }
 
 .secondary-tabs {

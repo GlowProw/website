@@ -755,7 +755,7 @@ defineOptions({
           </div>
           <v-spacer/>
           <v-btn @click="show = false">{{ t('basic.button.cancel') }}</v-btn>
-          <v-btn class="bg-amber" @click="onConfirm">
+          <v-btn class="bg-amber text-black" @click="onConfirm">
             <BtnWidget
                 :disabled="!show"
                 size="25"

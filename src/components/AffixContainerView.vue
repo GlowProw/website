@@ -13,7 +13,7 @@ import {computed} from 'vue'
 import type {AffixContainerViewProps} from '@/assets/types/Ui'
 
 const props = withDefaults(defineProps<AffixContainerViewProps>(), {
-  offsetTop: 80,
+  offsetTop: 60,
   offsetBottom: 0,
   disabled: false,
   affixBottom: false

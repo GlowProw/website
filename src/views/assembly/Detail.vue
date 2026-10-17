@@ -397,10 +397,12 @@ const onPenPassword = () => {
             </v-col>
           </v-row>
 
-          <AssemblyTagsWidget
-              v-model="detailData.tags"
-              class="mt-4"
-              :readonly="true"></AssemblyTagsWidget>
+          <AffixContainerView>
+            <AssemblyTagsWidget
+                v-model="detailData.tags"
+                class="mt-4"
+                :readonly="true"></AssemblyTagsWidget>
+          </AffixContainerView>
         </v-col>
       </v-row>
     </div>

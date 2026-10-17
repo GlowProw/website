@@ -123,7 +123,7 @@ const onReset = async () => {
             </v-row>
 
             <div class="py-2">
-              <v-btn class="bg-amber" @click="onReset" size="50" block :loading="loading"
+              <v-btn class="bg-amber text-black" @click="onReset" size="50" block :loading="loading"
                      :disabled="!form.username || form.code.length !== 6 || !form.newPassword" variant="flat">
                 {{ t('resetPassword.form.submit') }}
               </v-btn>

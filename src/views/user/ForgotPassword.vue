@@ -106,7 +106,7 @@ const onBack = () => {
             </v-row>
 
             <div class="py-2">
-              <v-btn class="bg-amber" @click="onSubmit" size="50" block :loading="loading" :disabled="!form.identifier || !form.email" variant="flat">
+              <v-btn class="bg-amber text-black" @click="onSubmit" size="50" block :loading="loading" :disabled="!form.identifier || !form.email" variant="flat">
                 {{ t('forgotPassword.form.submit') }}
               </v-btn>
 

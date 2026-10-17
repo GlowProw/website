@@ -765,13 +765,13 @@ const onBackDetail = () => {
           <v-btn height="50" @click="onBackDetail" class="mr-3">{{ t('basic.button.cancel') }}</v-btn>
 
           <v-btn-group>
-            <v-btn height="50" class="bg-amber" :loading="generatedLoading" :disabled="mobile || generatedLoading || assemblyDetailData.uuid == null" @click="onGeneratedShare">
+            <v-btn height="50" class="bg-amber text-black" :loading="generatedLoading" :disabled="mobile || generatedLoading || assemblyDetailData.uuid == null" @click="onGeneratedShare">
               {{ hasMastery ? t('assembly.share.createPosterMultiple', { total: totalPosterPages }) : t('assembly.share.createPoster') }}
             </v-btn>
             <v-divider vertical></v-divider>
             <v-menu open-on-click :close-on-content-click="false">
               <template v-slot:activator="{ props }">
-                <v-btn height="50" class="bg-amber" icon :disabled="mobile" v-bind="props">
+                <v-btn height="50" class="bg-amber text-black" icon :disabled="mobile" v-bind="props">
                   <v-icon>mdi-cog</v-icon>
                 </v-btn>
               </template>

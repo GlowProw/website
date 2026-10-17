@@ -78,7 +78,7 @@ defineOptions({
           <v-btn @click="onClose">
             {{ t('basic.button.cancel') }}
           </v-btn>
-          <v-btn @click="onFinish(value)" :disabled="!value" class="bg-amber">
+          <v-btn @click="onFinish(value)" :disabled="!value" class="bg-amber text-black">
             {{ t('basic.button.submit') }}
           </v-btn>
         </v-card-actions>

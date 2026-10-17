@@ -118,7 +118,7 @@
 
           <v-row>
             <v-col cols="auto">
-              <v-row class="mb-0">
+              <v-row class="mb-2">
                 <v-col>
                   <v-btn @click="clearStorage" :disabled="estimateCapacity.used == 0">{{ t('setting.routine.clearStorage') }}</v-btn>
                 </v-col>
@@ -128,7 +128,7 @@
             </v-col>
 
             <v-col>
-              <v-row class="mb-0">
+              <v-row class="mb-2">
                 <v-col>
                   <v-btn :to="{ name: 'PortalSettingStorage', params: $route.params }">{{ t('setting.routine.storageReportBtn') }}</v-btn>
                 </v-col>

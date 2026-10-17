@@ -173,7 +173,7 @@ const onCaptchaData = (data: CaptchaParams) => {
             </v-row>
 
             <div class="py-2">
-              <v-btn class="bg-amber" @click="onLogin" size="50" block :loading="signinFormLoading" :disabled="!signinFrom.username || !signinFrom.password || !isCaptchaValid" variant="flat">
+              <v-btn class="bg-amber text-black" @click="onLogin" size="50" block :loading="signinFormLoading" :disabled="!signinFrom.username || !signinFrom.password || !isCaptchaValid" variant="flat">
                 {{ t('signin.title') }}
               </v-btn>
 

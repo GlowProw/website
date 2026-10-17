@@ -172,7 +172,7 @@ defineOptions({ name: 'AssemblySettingPanel' })
         <v-card-actions class="pa-5">
           <v-spacer></v-spacer>
           <v-btn @click="show = !show">{{ t('basic.button.cancel') }}</v-btn>
-          <v-btn :loading="setSettingLoading" @click="setAssemblySetting" class="bg-amber">{{ t('basic.button.submit') }}</v-btn>
+          <v-btn :loading="setSettingLoading" @click="setAssemblySetting" class="bg-amber text-black">{{ t('basic.button.submit') }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-container>

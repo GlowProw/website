@@ -1,11 +1,11 @@
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 
 /**
  * 交叉观察器 Hook (用于检测元素是否进入视口)
  * @param options IntersectionObserver 配置项
  */
 export function useIntersectionObserver(options = {}) {
-    const targetElement = ref(null)
+    const targetElement = ref<HTMLElement | null>(null)
     const isVisible = ref(false)
 
     const observer = new IntersectionObserver(
@@ -20,6 +20,14 @@ export function useIntersectionObserver(options = {}) {
             ...options, // 允许自定义配置
         })
 
+    watch(targetElement, (newEl, oldEl) => {
+        if (oldEl) {
+            observer.unobserve(oldEl)
+        }
+        if (newEl) {
+            observer.observe(newEl)
+        }
+    })
 
     onMounted(() => {
         if (targetElement.value) {

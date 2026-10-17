@@ -44,7 +44,7 @@ const {t} = useI18n()
       </v-col>
       <v-spacer></v-spacer>
       <v-col cols="auto">
-        <v-btn to="/ranking-designed-items/workshop" class="bg-amber">{{ t('rankingDesignedItems.browse.newRanking') }}</v-btn>
+        <v-btn to="/ranking-designed-items/workshop" class="bg-amber text-black">{{ t('rankingDesignedItems.browse.newRanking') }}</v-btn>
 <!--        <v-btn class="ml-2" @click="getBrowseList">-->
 <!--          <v-icon icon="mdi-refresh" :class="[browseLoading ? 'spin-icon-load' : '']"></v-icon>-->
 <!--        </v-btn>-->

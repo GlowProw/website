@@ -611,7 +611,7 @@ const onDeleteDraft = (id: string) => {
     </template>
     <template v-slot:default>
       <v-container class="pa-2 position-relative">
-        <v-breadcrumbs>
+        <v-breadcrumbs density="compact">
           <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
           <v-breadcrumbs-item to="/assembly">{{ t('assembly.title') }}</v-breadcrumbs-item>
@@ -670,7 +670,7 @@ const onDeleteDraft = (id: string) => {
                         :loading="submitLoading"
                         @click="onSubmit"
                         size="large"
-                        class="bg-amber d-flex align-center"
+                        class="bg-amber text-black d-flex align-center"
                         variant="tonal">
 
                       <v-icon

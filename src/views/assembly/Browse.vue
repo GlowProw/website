@@ -189,7 +189,7 @@ const getBrowseList = async () => {
         </v-text-field>
       </v-col>
       <v-col cols="auto">
-        <v-btn to="/assembly/workshop" class="bg-amber">{{ t('assembly.browse.newAssembly') }}</v-btn>
+        <v-btn to="/assembly/workshop" class="bg-amber text-black">{{ t('assembly.browse.newAssembly') }}</v-btn>
         <v-btn class="ml-2" @click="getBrowseList">
           <v-icon icon="mdi-refresh" :class="[browseLoading ? 'spin-icon-load' : '']"></v-icon>
         </v-btn>

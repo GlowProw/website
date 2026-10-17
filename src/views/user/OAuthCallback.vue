@@ -231,7 +231,7 @@ const onBackRoute = () => {
               <v-icon icon="mdi-alert-circle" color="red" size="64" class="mb-4"></v-icon>
               <h3 class="text-h5 font-weight-bold text-red">{{ t('oauth.failedTitle') }}</h3>
               <p class="text-caption opacity-70 mt-2 mb-6">{{ errorMsg }}</p>
-              <v-btn class="bg-amber" to="/account/signin" size="50" block variant="flat">
+              <v-btn class="bg-amber text-black" to="/account/signin" size="50" block variant="flat">
                 {{ t('oauth.backToSignin') }}
               </v-btn>
             </div>
@@ -323,7 +323,7 @@ const onBackRoute = () => {
 
                   <div class="py-2">
                     <v-btn
-                        class="bg-amber"
+                        class="bg-amber text-black"
                         @click="onCompleteSignup"
                         size="50"
                         block
@@ -368,7 +368,7 @@ const onBackRoute = () => {
 
                   <div class="py-2">
                     <v-btn
-                        class="bg-amber"
+                        class="bg-amber text-black"
                         @click="onCompleteBind"
                         size="50"
                         block

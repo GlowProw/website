@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, ref, watch} from "vue";
+import {computed, ref, watch} from "vue";
 import {apis} from "@/assets/sripts/index";
 
 import {useAuthStore} from "~/stores/userAccountStore";
@@ -12,7 +12,6 @@ import Textarea from "@/components/textarea/index.vue"
 import EmptyView from "@/components/EmptyView.vue";
 import Captcha from "@/components/captcha/index.vue";
 import TimeView from "@/components/TimeView.vue";
-import {useIntersectionObserver} from "@/assets/sripts/intersection_observer";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 import type {commentTargetType} from "@/assets/types/Comment";
 
@@ -21,18 +20,27 @@ const route = useRoute(),
     notice = useNoticeStore(),
     {t} = useI18n(),
     props = withDefaults(defineProps<{
-      id: string,
+      id: string | number,
       type: commentTargetType,
-      placeholder: string
-    }>(), {})
+      placeholder?: string
+    }>(), {
+      placeholder: ''
+    })
 
+// 评论输入文本内容
 let content = ref(''),
+    // 提交评论加载中状态
     commentPushLoading = ref(false),
+    // 评论列表加载中状态
     commentLoading = ref(false),
-    commentListData = ref([]),
+    // 评论列表数据集合
+    commentListData = ref<any[]>([]),
+    // 验证码参数对象
     captcha = ref({}),
+    // 验证码首次触发标记
     captchaOneUpdateEvent = ref(false),
-    captchaRef = ref(null)
+    // 验证码组件引用
+    captchaRef = ref<any>(null)
 
 /**
  * 校验评论验证码有效性
@@ -47,46 +55,11 @@ const isCaptchaValid = computed(() => {
   return Boolean(c.response && String(c.response).trim().length > 5);
 })
 
-const isMounted = ref(false)
-onMounted(() => {
-  isMounted.value = true
-})
-
-const {targetElement, isVisible} = useIntersectionObserver({
-  threshold: 0.05,
-  rootMargin: '100px'
-})
-const hasLoaded = ref(false)
-
-watch(isVisible, (visible) => {
-  if (visible && !hasLoaded.value && props.id) {
-    hasLoaded.value = true
-    getComment()
-  }
-})
-
-watch(() => props.id, (newId) => {
-  if (newId) {
-    if (isVisible.value) {
-      hasLoaded.value = true
-      getComment()
-    } else {
-      hasLoaded.value = false
-    }
-  }
-})
-
-watch(() => content.value, (value) => {
-  if (value && value.length >= 5 && !captchaOneUpdateEvent.value) {
-    captchaOneUpdateEvent.value = true
-    captchaRef.value.refreshCaptcha()
-  }
-})
-
 /**
- * 获取评论
+ * 获取评论列表数据
  */
 const getComment = async () => {
+  if (!props.id) return;
   try {
     commentLoading.value = true
 
@@ -96,13 +69,30 @@ const getComment = async () => {
         }),
         d = result.data;
 
-    commentListData.value = d.data.data;
+    commentListData.value = Array.isArray(d?.data?.data)
+        ? d.data.data
+        : (Array.isArray(d?.data) ? d.data : []);
   } catch (e) {
     handleApiError(e, notice, t, {component: 'CommentWidget'})
   } finally {
     commentLoading.value = false
   }
 }
+
+// 目标 ID 或类型发生变化时立即拉取评论列表
+watch(() => [props.id, props.type], ([newId]) => {
+  if (newId) {
+    getComment()
+  }
+}, {immediate: true})
+
+// 输入字数达到阈值时刷新验证码
+watch(() => content.value, (value) => {
+  if (value && value.length >= 5 && !captchaOneUpdateEvent.value) {
+    captchaOneUpdateEvent.value = true
+    captchaRef.value?.refreshCaptcha?.()
+  }
+})
 
 /**
  * 发布评论
@@ -141,7 +131,8 @@ const onPushComment = async () => {
     captcha.value = {}
     captchaOneUpdateEvent.value = false
     captchaRef.value?.refreshCaptcha?.()
-    notice.success('comment.ok')
+
+    notice.success('basic.tips.comment.ok')
   } catch (e) {
     handleApiError(e, notice, t, {component: 'CommentWidget'})
   } finally {
@@ -221,10 +212,11 @@ defineOptions({
 </script>
 
 <template>
-  <div v-if="isMounted" class="comment-widget-wrapper">
+  <div class="comment-widget-wrapper">
 
     <!-- 评论时间轴 S -->
-    <div class="comment-widget" ref="targetElement">
+    <div class="comment-widget">
+      <v-progress-linear v-if="commentLoading" indeterminate color="amber" class="mb-4 rounded"></v-progress-linear>
       <v-timeline
           density="compact"
           side="end"
@@ -244,21 +236,20 @@ defineOptions({
             <div>
               <v-row class="mb-1">
                 <v-col>
-                  <b>{{ i.username }}</b>
+                  <div class="u font-weight-bold">{{ i.username }}</div>
                 </v-col>
                 <v-spacer></v-spacer>
-                <v-col cols="auto">
-                  <template v-if="i.createdTime">
-                    <TimeView :time="i.createdTime">
-                    </TimeView>
-                  </template>
+                <v-col cols="auto" v-if="i.createdTime">
+                  <TimeView :time="i.createdTime"></TimeView>
                 </v-col>
               </v-row>
-              <v-card border class="pl-3 pr-3 pb-2" :class="[i.isEdit ? 'pt-2' : '']">
-                <Textarea :model-value="i.content" :height="'80px'"
+              <v-card variant="text" class="px-0 pb-2" :class="[i.isEdit ? 'mt-5' : '']">
+                <Textarea :model-value="i.content" :min-height="'80px'"
+                          :placeholder="props.placeholder"
                           :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
                           :readonly="true" v-if="!i.isEdit"></Textarea>
-                <Textarea v-model="i.editContent" :height="'80px'"
+                <Textarea v-model="i.editContent" :min-height="'80px'"
+                          :placeholder="props.placeholder"
                           :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
                           :readonly="false" v-else></Textarea>
               </v-card>
@@ -298,7 +289,7 @@ defineOptions({
           </template>
         </v-timeline-item>
       </v-timeline>
-      <template v-else>
+      <template v-else-if="!commentLoading">
         <div class="pt-10 pb-10">
           <EmptyView :title="t('comment.noComments')" :description="t('comment.beFirst')"></EmptyView>
         </div>
@@ -317,7 +308,7 @@ defineOptions({
           </v-col>
           <v-spacer></v-spacer>
           <v-col>
-            <v-btn size="55" class="bg-amber" :max-width="150" block
+            <v-btn size="55" class="bg-amber text-black" :max-width="150" block
                    :loading="commentPushLoading"
                    :disabled="!content || !isCaptchaValid"
                    @click="onPushComment">

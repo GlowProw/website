@@ -20,13 +20,13 @@ onMounted(() => {
   <v-container class="pa-5">
     <CodexViewData :load-data-type="['treasureMap']">
       <template v-slot:action>
-        <div class="d-flex ga-1">
-          <v-btn variant="text" icon to="/map" target="_blank">
+        <div class="d-flex align-center ga-5">
+          <router-link variant="text" icon to="/map" target="_blank">
             <v-icon class="cursor-pointer">mdi-map-outline</v-icon>
-          </v-btn>
-          <v-btn variant="text" icon to="/codex/treasureMaps/comparison">
+          </router-link>
+          <router-link variant="text" icon to="/codex/treasureMaps/comparison">
             <v-icon class="cursor-pointer">mdi-image-search-outline</v-icon>
-          </v-btn>
+          </router-link>
         </div>
       </template>
     </CodexViewData>

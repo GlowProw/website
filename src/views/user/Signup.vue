@@ -210,7 +210,7 @@ const onCaptchaData = (data: CaptchaParams) => {
             </v-row>
 
             <div class="py-2">
-              <v-btn class="bg-amber" @click="onRegister" size="50" block :loading="signupLoading" :disabled="!signupFrom.username || !signupFrom.password || !signupFrom.email || !isCaptchaValid" variant="flat">
+              <v-btn class="bg-amber text-black" @click="onRegister" size="50" block :loading="signupLoading" :disabled="!signupFrom.username || !signupFrom.password || !signupFrom.email || !isCaptchaValid" variant="flat">
                 {{ t('signup.register') }}
               </v-btn>
 
