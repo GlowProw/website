@@ -4,7 +4,6 @@ import Silk from "@/components/Silk.vue";
 import {useI18n} from "vue-i18n";
 import {onMounted, ref, type Ref} from "vue";
 import {apis, getAppUrl} from "@/assets/sripts/index";
-import {ApiError} from "@/assets/types/Api";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {handleApiError} from "@/assets/sripts/error_handler";
 
@@ -12,7 +11,6 @@ import SmugglersReportShowItemWidget from "@/components/SmugglersReportShowItemW
 import Textarea from "@/components/textarea/index.vue";
 import HorizontalScrollList from "@/components/HorizontalScrollList.vue";
 import TimeView from "@/components/TimeView.vue";
-import Time from "@/components/Time.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import NpcIconWidget from "@/components/snbWidget/npcIconWidget.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
@@ -20,6 +18,7 @@ import EmptyView from "@/components/EmptyView.vue";
 
 import {useHead} from "@unhead/vue";
 import {useRoute} from "vue-router";
+import UserAvatar from "@/components/UserAvatar.vue";
 
 const {t} = useI18n(),
     route = useRoute(),
@@ -84,7 +83,7 @@ const getSmugglersData = async () => {
       await getSmugglersComment(smugglersData.value.id);
     }
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'SmugglersView' })
+    handleApiError(e, notice, t, {component: 'SmugglersView'})
   } finally {
     browseLoading.value = false
   }
@@ -104,7 +103,7 @@ const getSmugglersComment = async (reportId: string) => {
 
     commentData.value = d?.data?.data || [];
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'SmugglersView' })
+    handleApiError(e, notice, t, {component: 'SmugglersView'})
   } finally {
     browseLoading.value = false
   }
@@ -164,13 +163,10 @@ const getSmugglersComment = async (reportId: string) => {
               <div class="mt-10 opacity-60">
                 <p><b class="d-block mb-3">{{ smugglersData.title ?? 'N/A' }}</b></p>
                 <p>{{ t('smugglersReport.view.startTime') }}:
-                  <TimeView :time="smugglersData.startTime">
-                  </TimeView>
+                  <TimeView :time="smugglersData.startTime"></TimeView>
                 </p>
                 <p>{{ t('smugglersReport.view.endTime') }}:
-                  <TimeView :time="smugglersData.endTime">
-                    <Time :time="smugglersData.endTime"></Time>
-                  </TimeView>
+                  <TimeView :time="smugglersData.endTime"></TimeView>
                 </p>
               </div>
             </v-col>
@@ -202,31 +198,32 @@ const getSmugglersComment = async (reportId: string) => {
     </v-row>
 
 
-    <HorizontalScrollList v-if="commentData.length > 0">
+    <HorizontalScrollList :is-indicator="false" v-if="commentData.length > 0">
       <v-card
           v-for="(i, index) in commentData" :key="index"
           tile
           variant="text">
         <v-row no-gutters>
-          <!--          <v-col cols="auto" class="mr-2">-->
-          <!--            <v-card class="p-2 d-flex align-center justify-center" border width="30" height="30" tile>-->
-          <!--              推-->
-          <!--            </v-card>-->
-          <!--          </v-col>-->
           <v-col>
-            <v-card border class="py-5 px-10"
+            <v-card variant="text"
                     width="550px"
                     height="200px">
-              <b>{{ i.username }}</b>
-              <div class="text-caption">
-                <TimeView :time="i.createdTime">
-                </TimeView>
-              </div>
+              <v-row>
+                <v-col cols="auto">
+                  <UserAvatar :src="i.avatar || i.userAvatar || ''" size="50px" class="bg-black"></UserAvatar>
+                </v-col>
+                <v-col>
+                  <b class="u">{{ i.username }}</b>
+                  <div class="opacity-60">
+                    <TimeView :time="i.createdTime"></TimeView>
+                  </div>
 
-              <Textarea
-                  readonly
-                  class="opacity-60 mt-2"
-                  :value="i.content" v-if="i.content" min-height="30"></Textarea>
+                  <Textarea
+                      readonly
+                      class="opacity-60 mt-2"
+                      :value="i.content" v-if="i.content" min-height="30"></Textarea>
+                </v-col>
+              </v-row>
             </v-card>
           </v-col>
         </v-row>

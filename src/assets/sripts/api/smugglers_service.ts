@@ -238,11 +238,14 @@ export function useSmugglersApi() {
     };
 
     /**
-     * 删除周报评论
+     * 软删除周报评论
      */
-    const delReportComment = async (reportId: string,) => {
+    const delReportComment = async (reportId: string | number, commentId?: string | number) => {
         try {
-            const result = await http.del(`smugglers/reports/${reportId}`);
+            const url = commentId
+                ? `smugglers/reports/${reportId}/comments/${commentId}/soft-delete`
+                : `smugglers/reports/${reportId}`;
+            const result = await http.put(url);
             return handleResponse(result);
         } catch (error) {
             if (error instanceof ApiError) {
@@ -250,7 +253,22 @@ export function useSmugglersApi() {
             }
             return handleError(error);
         }
-    }
+    };
+
+    /**
+     * 物理永久删除周报评论
+     */
+    const hardDeleteReportComment = async (reportId: string | number, commentId: string | number) => {
+        try {
+            const result = await http.del(`smugglers/reports/${reportId}/comments/${commentId}/hard`);
+            return handleResponse(result);
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            return handleError(error);
+        }
+    };
 
     /**
      * 发布周报
@@ -326,6 +344,7 @@ export function useSmugglersApi() {
         getReportComments,
         addReportComment,
         editReportComment,
-        delReportComment
+        delReportComment,
+        hardDeleteReportComment
     };
 }
