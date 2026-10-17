@@ -62,7 +62,7 @@
     "vue-json-pretty": "^2.5.0",
     "vue-router": "^4.5.1",
     "vue3-google-adsense": "^1.2.2",
-    "vuetify": "^3.8.1"
+    "vuetify": "^4.2.6"
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.0",
