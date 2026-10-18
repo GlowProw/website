@@ -7,12 +7,15 @@
         :size="size"
         v-if="imageStatus !== 1">
     </v-avatar>
-    <img :src="newSrc"
-         :style="`width:${size}px;height:${size}px`"
-         class="ivu-avatar-square"
-         v-show="imageStatus === 1"
-         @load="imageStatus = 1"
-         @error="loadImageError"/>
+
+    <v-avatar :size="size" rounded="0">
+      <img :src="newSrc"
+           :style="`width:${size}px;height:${size}px`"
+           class="ivu-avatar-square"
+           v-show="imageStatus === 1"
+           @load="imageStatus = 1"
+           @error="loadImageError"/>
+    </v-avatar>
   </div>
 </template>
 

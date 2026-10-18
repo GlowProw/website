@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import {onMounted, ref} from "vue";
+import {onMounted, ref, watch} from "vue";
 import Loading from "@/components/Loading.vue";
 
 const props = withDefaults(
@@ -11,7 +11,7 @@ const props = withDefaults(
       isPoptip: true,
       isOpen: true,
       isIcon: true,
-      isIframeShow: true
+      isIframeShow: false
     }
 )
 
@@ -20,18 +20,20 @@ let afterData = ref({
       text: ''
     }),
     linkLoad = ref(true),
-    linkTime = ref(null),
+    linkTime = ref<any>(null),
     show = ref(false),
     iframeError = ref(false)
 
-onMounted(() => {
-  loadData()
-})
-
 const safeDecodeURI = (str: string): string => {
   if (!str) return '';
-  try { return decodeURIComponent(str); } catch {
-    try { return decodeURI(str); } catch { return str; }
+  try {
+    return decodeURIComponent(str);
+  } catch {
+    try {
+      return decodeURI(str);
+    } catch {
+      return str;
+    }
   }
 };
 
@@ -39,20 +41,26 @@ const safeDecodeURI = (str: string): string => {
  * 加载数据
  */
 const loadData = () => {
-  if (props.href)
-    afterData.value.href = safeDecodeURI(props.href)
-  if (props.text)
-    afterData.value.text = safeDecodeURI(props.text)
+  afterData.value.href = props.href ? props.href.trim() : ''
+  afterData.value.text = props.text ? safeDecodeURI(props.text) : ''
 }
+
+onMounted(() => {
+  loadData()
+})
+
+watch(() => [props.href, props.text], () => {
+  loadData()
+})
 
 /**
  * 预览窗口
  */
-const onPoptipShow = () => {
-  let status = show.value
+const onPoptipShow = (val?: boolean) => {
+  const isOpening = typeof val === 'boolean' ? val : show.value
 
   // 展开
-  if (status == true) {
+  if (isOpening) {
     // 重置错误状态
     iframeError.value = false
     // 加载动画
@@ -64,10 +72,9 @@ const onPoptipShow = () => {
         iframeError.value = true;
       }
       linkTime.value = null;
-    }, 5000)
-  }
-  // 收起
-  if (status == false) {
+    }, 8000)
+  } else {
+    // 收起
     if (linkTime.value) {
       clearTimeout(linkTime.value)
       linkTime.value = null;
@@ -81,8 +88,9 @@ const onPoptipShow = () => {
  */
 const getProtocol = () => {
   try {
-    if (!afterData.value && !afterData.value.href) return '';
-    let url = new URL(afterData.value.href)
+    if (!afterData.value || !afterData.value.href) return '';
+    const base = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
+    let url = new URL(afterData.value.href, base);
     return url.protocol;
   } catch (e) {
     return '';
@@ -118,9 +126,10 @@ const onIframeError = () => {
  */
 const getDomain = () => {
   try {
-    if (!afterData.value.href) return ''
-    const url = new URL(afterData.value.href)
-    return url.hostname
+    if (!afterData.value || !afterData.value.href) return ''
+    const base = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
+    const url = new URL(afterData.value.href, base)
+    return url.hostname || url.pathname
   } catch {
     return afterData.value.href
   }
@@ -158,15 +167,8 @@ defineOptions({
 
     <template v-if="isIframeShow && isPoptip">
       <v-card border class="link-iframe bg-black" min-width="360">
-        <!-- 加载状态 -->
-        <template v-if="linkLoad">
-          <div class="link-load">
-            <Loading size="50"></Loading>
-          </div>
-        </template>
-
         <!-- 错误状态 -->
-        <template v-else-if="iframeError">
+        <template v-if="iframeError">
           <div class="link-load">
             <v-icon icon="mdi-alert-circle-outline" size="30" color="warning"/>
             <v-btn variant="tonal" size="small" :href="afterData.href" target="_blank" class="mt-2">
@@ -176,15 +178,19 @@ defineOptions({
           </div>
         </template>
 
-        <!-- iframe 内容 - 使用更好的缩放方案 -->
-        <div v-else class="iframe-container">
+        <!-- iframe 容器：始终保持在 DOM 中渲染以触发 load 事件 -->
+        <div v-show="!iframeError" class="iframe-container">
+          <!-- 加载遮罩层：处于加载中时覆盖在 iframe 之上 -->
+          <div v-if="linkLoad" class="link-load-overlay bg-black">
+            <Loading size="50"></Loading>
+          </div>
+
           <iframe
+              v-if="show && afterData.href"
               :src="afterData.href"
               frameborder="0"
               width="100%"
               height="100%"
-              sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-top-navigation"
-              referrerpolicy="no-referrer"
               @load="onIframeLoad"
               @error="onIframeError">
           </iframe>
@@ -223,6 +229,20 @@ defineOptions({
     overflow: hidden;
     background: white;
 
+    .link-load-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: var(--v-theme-surface);
+      z-index: 2;
+    }
+
     iframe {
       position: absolute;
       top: 0;
@@ -230,6 +250,7 @@ defineOptions({
       width: 100%;
       height: 100%;
       border: none;
+      z-index: 1;
     }
   }
 }

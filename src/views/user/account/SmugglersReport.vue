@@ -724,7 +724,7 @@ defineOptions({
                               icon="mdi-dots-vertical">
                           </v-btn>
                         </template>
-                        <v-list density="compact" min-width="140">
+                        <v-list min-width="260" class="pa-1" border rounded="lg">
                           <v-list-item
                               v-if="canUpdateReport"
                               prepend-icon="mdi-pencil"

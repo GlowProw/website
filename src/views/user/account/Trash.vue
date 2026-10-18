@@ -328,7 +328,7 @@ defineOptions({
                       icon="mdi-dots-vertical">
                   </v-btn>
                 </template>
-                <v-list density="compact" min-width="120">
+                <v-list min-width="260" class="pa-1" border rounded="lg">
                   <v-list-item
                       prepend-icon="mdi-restore"
                       @click="onRestore(i)">

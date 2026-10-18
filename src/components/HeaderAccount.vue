@@ -11,6 +11,7 @@ import {useAppStore} from "~/stores/appStore";
 import {storage} from "@/assets/sripts";
 import languagesConfig, {DEFAULT_LANG, SUPPORTED_LANGS} from "@/config/languages";
 import type {HeaderAccountType} from "@/assets/types/User";
+import UserAvatar from "@/components/UserAvatar.vue";
 
 const authStore = useAuthStore(),
     {t, locale} = useI18n(),
@@ -40,36 +41,38 @@ const currentLang = computed(() => locale.value || DEFAULT_LANG);
 
 // 语言切换逻辑与设置页 i18nWidget 保持一致：落本地、换 locale、替换路由语言前缀
 const onChangeLang = (targetLang: string): void => {
-    if (!targetLang || targetLang === locale.value) return;
+  if (!targetLang || targetLang === locale.value) return;
 
-    storage.local.set('lang', {value: targetLang});
-    locale.value = targetLang;
+  storage.local.set('lang', {value: targetLang});
+  locale.value = targetLang;
 
-    const currentPath = route.path || '/';
-    const langRegex = new RegExp('^/(' + SUPPORTED_LANGS.join('|') + ')');
-    const cleanPath = currentPath.replace(langRegex, '') || '';
-    const newPath = `/${targetLang}${cleanPath.startsWith('/') ? cleanPath : (cleanPath ? '/' + cleanPath : '')}`;
+  const currentPath = route.path || '/';
+  const langRegex = new RegExp('^/(' + SUPPORTED_LANGS.join('|') + ')');
+  const cleanPath = currentPath.replace(langRegex, '') || '';
+  const newPath = `/${targetLang}${cleanPath.startsWith('/') ? cleanPath : (cleanPath ? '/' + cleanPath : '')}`;
 
-    const newQuery = {...route.query};
-    delete newQuery.lang;
+  const newQuery = {...route.query};
+  delete newQuery.lang;
 
-    router.replace({
-        path: newPath,
-        query: newQuery,
-        hash: route.hash,
-    }).catch(() => {});
+  router.replace({
+    path: newPath,
+    query: newQuery,
+    hash: route.hash,
+  }).catch(() => {
+  });
 };
 
 const onLogout = (): void => {
-    authStore.logout();
-    router.push('/').catch(() => {});
+  authStore.logout();
+  router.push('/').catch(() => {
+  });
 };
 </script>
 
 <template>
   <div>
     <template v-if="type == 'header'">
-      <div class="hidden-sm d-flex align-center">
+      <div class="hidden-sm d-flex align-center ga-1">
         <!-- 头像菜单 -->
         <v-menu v-if="authStore.isLogin"
                 open-on-hover
@@ -77,17 +80,18 @@ const onLogout = (): void => {
                 location="bottom end"
                 :close-on-content-click="true">
           <template v-slot:activator="{ props: menuProps }">
-            <v-btn icon
-                   :to="{ name: 'AccountInformation' }"
-                   v-bind="menuProps">
-              <v-avatar color="grey-darken-2" size="32">
-                <v-img :src="authStore.user.userAvatar" v-if="authStore.user.userAvatar"></v-img>
-                <span v-else>{{ authStore.currentUser[0].toUpperCase() || 'U' }}</span>
+            <v-icon-btn
+                class="rounded-circle"
+                :to="{ name: 'AccountInformation' }"
+                v-bind="menuProps">
+              <UserAvatar :src="authStore.user.userAvatar" v-if="authStore.user.userAvatar" :size="40"></UserAvatar>
+              <v-avatar color="grey-darken-2" size="40" v-else>
+                <span>{{ authStore.currentUser[0].toUpperCase() || 'U' }}</span>
               </v-avatar>
-            </v-btn>
+            </v-icon-btn>
           </template>
 
-          <v-list density="compact" min-width="260" class="pa-1" border rounded="lg">
+          <v-list min-width="260" class="pa-1" border rounded="lg">
             <v-list-item :to="{ name: 'AccountInformation' }"
                          prepend-icon="mdi-account-circle-outline" rounded="lg">
               <v-list-item-title>{{ t('header.accountMenu.personalCenter') }}</v-list-item-title>
@@ -136,8 +140,8 @@ const onLogout = (): void => {
             <v-divider class="my-1"></v-divider>
 
             <v-list-item prepend-icon="mdi-logout"
-                        color="error" rounded="lg"
-                        @click="onLogout">
+                         color="error" rounded="lg"
+                         @click="onLogout">
               <v-list-item-title>{{ t('header.accountMenu.logout') }}</v-list-item-title>
             </v-list-item>
           </v-list>
@@ -148,7 +152,7 @@ const onLogout = (): void => {
         </v-btn>
 
         <!-- 私信入口 -->
-        <v-btn icon class="mr-2" v-if="authStore.isLogin"
+        <v-btn icon v-if="authStore.isLogin"
                :aria-label="t('header.accountMenu.messageCenter')"
                @click="openMessagesDrawer">
           <v-badge v-if="unreadCount > 0" :content="unreadCount > 99 ? '99+' : unreadCount" color="red" floating dot>

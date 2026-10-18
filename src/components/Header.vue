@@ -52,7 +52,7 @@ defineOptions({
       <div class="mr-3 d-flex align-center" v-if="!drawer">
         <HeaderAccount type="header"></HeaderAccount>
 
-        <v-divider class="ml-3 mr-1" inset vertical></v-divider>
+        <v-divider class="mx-2" inset vertical></v-divider>
 
         <GlobalSearchDrawer>
           <v-btn icon="mdi-magnify"></v-btn>

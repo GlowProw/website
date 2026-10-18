@@ -636,7 +636,10 @@ defineOptions({
                 class="preset-item"
                 :class="{'preset-item--active': presetSelected === (item.id || item.path)}"
                 @click="presetSelected = (item.id || item.path)">
-              <v-img :src="normalizeAvatarUrl(item.path)" :alt="item.name"/>
+              <v-avatar size="80">
+                <v-img :src="normalizeAvatarUrl(item.path)" :alt="item.name"/>
+              </v-avatar>
+
               <div class="d-flex justify-center mt-2">
                 <v-icon
                     v-if="presetSelected === (item.id || item.path)"
@@ -700,7 +703,6 @@ defineOptions({
 
 .preset-item {
   position: relative;
-  border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
   border: 2px solid transparent;
