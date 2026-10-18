@@ -20,6 +20,24 @@
   }
 
   @{secondary-selector} {
+    height: auto !important;
+    min-height: min-content;
+
+    :deep(.v-slide-group) {
+      height: auto !important;
+      overflow: visible !important;
+    }
+
+    :deep(.v-slide-group__container) {
+      height: auto !important;
+      overflow: visible !important;
+    }
+
+    :deep(.v-slide-group__content) {
+      height: auto !important;
+      overflow: visible !important;
+    }
+
     :deep(.v-tab.bg-amber),
     :deep(.v-tab.v-tab--selected),
     :deep(.v-tab--selected) {

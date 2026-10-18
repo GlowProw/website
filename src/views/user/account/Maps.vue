@@ -2,22 +2,7 @@
 import {computed, onMounted, reactive, ref} from "vue";
 import {useI18n} from "vue-i18n";
 import {useRouter} from "vue-router";
-import {
-  type EntityListState,
-  type MapCollection,
-  type MapCollectionResult,
-  type MapPoint,
-  type MapShape,
-  type MapShapeType,
-  type PointFormData,
-  type ShapeFormData,
-  type ShapeGeometry,
-  type TabKey,
-  parseShapeGeometry,
-  parseShapeStyle,
-  parseShapeTags,
-  resolveShapeStyle,
-} from "@/assets/types/Map";
+import {type EntityListState, type MapCollection, type MapCollectionResult, type MapPoint, type MapShape, type MapShapeType, parseShapeGeometry, parseShapeStyle, parseShapeTags, type PointFormData, resolveShapeStyle, type ShapeFormData, type ShapeGeometry, type TabKey,} from "@/assets/types/Map";
 import {useMapApi} from "@/assets/sripts/api/map_service";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {useAssetsStore} from "~/stores/assetsStore";
@@ -657,8 +642,8 @@ const previewStyle = (shape: MapShape) =>
  */
 const defaultShapeGeometry = (type: MapShapeType): ShapeGeometry => {
   return type === 'path'
-      ? { type: 'LineString', coordinates: [[-0.67, 0.63], [-0.65, 0.62], [-0.63, 0.64]] }
-      : { type: 'Polygon', coordinates: [[[-0.67, 0.63], [-0.65, 0.63], [-0.65, 0.61], [-0.67, 0.61], [-0.67, 0.63]]] }
+      ? {type: 'LineString', coordinates: [[-0.67, 0.63], [-0.65, 0.62], [-0.63, 0.64]]}
+      : {type: 'Polygon', coordinates: [[[-0.67, 0.63], [-0.65, 0.63], [-0.65, 0.61], [-0.67, 0.61], [-0.67, 0.63]]]}
 }
 
 /**
@@ -800,9 +785,9 @@ const goDrawShape = (type: MapShapeType) => {
   router.push({path: '/map', query})
 }
 
-/* ==批量操作 ==*/
 
 /**
+ * 批量操作
  * 打开批量移动到地图集弹窗
  * @param kind 实体类型 ('points' | 'shapes')
  * @param shapeType 图形子类型
@@ -815,6 +800,7 @@ const openBatchMove = (kind: 'points' | 'shapes', shapeType: MapShapeType = 'pat
 }
 
 /**
+ * 批量操作
  * 执行批量移动操作
  */
 const executeBatchMove = async () => {
@@ -840,6 +826,7 @@ const executeBatchMove = async () => {
 }
 
 /**
+ * 批量操作
  * 批量移出所属地图集（转为未分组）
  * @param kind 实体类型
  * @param shapeType 图形子类型
@@ -866,6 +853,7 @@ const batchRemoveFromCollection = async (kind: 'points' | 'shapes', shapeType: M
 }
 
 /**
+ * 批量操作
  * 批量删除选中的标记或图形
  * @param kind 实体类型
  * @param shapeType 图形子类型
@@ -891,9 +879,8 @@ const batchDelete = async (kind: 'points' | 'shapes', shapeType: MapShapeType = 
   showDeleteConfirm.value = true
 }
 
-/* ==Tab 切换 ==*/
-
 /**
+ * 切换
  * 顶部 Tab 切换处理
  * @param tab 目标 Tab Key
  */
@@ -917,6 +904,7 @@ const batchMoveCollectionItems = computed(() => [
 ])
 
 /**
+ * 切换
  * 当前图形 Tab 的类型与状态
  */
 const currentShapeType = computed<MapShapeType>(() => activeTab.value === 'paths' ? 'path' : 'region')
@@ -934,369 +922,414 @@ defineOptions({
       <Loading size="50"></Loading>
     </v-overlay>
 
-    <!-- Toolbar S -->
+    <!-- 操作头 S -->
     <AffixContainerView>
-      <v-card class="mb-4 px-2">
-        <div class="d-flex align-center justify-space-between flex-wrap ga-2">
-          <div>
-            <v-tabs v-model="activeTab" color="amber" @update:model-value="onTabChange">
-              <v-tab value="collections" prepend-icon="mdi-folder-multiple-outline">{{ t('map.tabCollections') }}</v-tab>
-              <v-tab value="points" prepend-icon="mdi-map-marker-multiple-outline">{{ t('map.tabPoints') }}</v-tab>
-              <v-tab value="paths" prepend-icon="mdi-vector-polyline">{{ t('map.tabPaths') }}</v-tab>
-              <v-tab value="regions" prepend-icon="mdi-vector-polygon">{{ t('map.tabRegions') }}</v-tab>
-            </v-tabs>
-          </div>
+      <v-card class="d-flex align-center justify-space-between flex-wrap ga-2 pa-2">
+        <div class="d-flex align-center flex-wrap my-n2 ml-n1">
+          <!-- 全选复选框 -->
+          <v-tabs v-model="activeTab" color="amber" @update:model-value="onTabChange">
+            <v-tab value="collections" prepend-icon="mdi-folder-multiple-outline">{{ t('map.tabCollections') }}</v-tab>
+            <v-tab value="points" prepend-icon="mdi-map-marker-multiple-outline">{{ t('map.tabPoints') }}</v-tab>
+            <v-tab value="paths" prepend-icon="mdi-vector-polyline">{{ t('map.tabPaths') }}</v-tab>
+            <v-tab value="regions" prepend-icon="mdi-vector-polygon">{{ t('map.tabRegions') }}</v-tab>
+          </v-tabs>
+        </div>
 
-          <div class="d-flex align-center ga-2" v-if="activeTab === 'collections'">
-            <QuotaLimitWidget resource="map" text></QuotaLimitWidget>
-            <v-btn color="amber" variant="tonal" @click="onCreatedCollection">
-              {{ t('map.createCollection') }}
-            </v-btn>
-            <v-btn size="small" variant="tonal" icon="mdi-refresh"
-                   @click="getMyCollectionsData" :loading="collectionLoading"></v-btn>
-          </div>
+        <v-spacer></v-spacer>
+
+        <div class="d-flex align-center ga-2">
+          <QuotaLimitWidget resource="map" text></QuotaLimitWidget>
+
+          <v-btn
+              variant="flat"
+              @click="getMyCollectionsData"
+              :loading="collectionLoading">
+            <v-icon>mdi-refresh</v-icon>
+          </v-btn>
         </div>
       </v-card>
     </AffixContainerView>
-    <!-- Toolbar E -->
+    <!-- 操作头 E -->
 
-    <!-- 地图集 Tab S -->
-    <div v-if="activeTab === 'collections'">
-      <!-- 批量操作条 -->
-      <v-card v-if="collectionSelected.length > 0" border color="amber" variant="tonal" class="pa-2 mb-3">
-        <div class="d-flex align-center flex-wrap ga-2">
-          <span class="text-body-2 font-weight-medium">
-            {{ t('map.selectedCount', {count: collectionSelected.length}) }}
-          </span>
-          <v-spacer></v-spacer>
-          <v-btn size="small" variant="tonal" color="error" prepend-icon="mdi-delete"
-                 @click="batchDeleteCollections">{{ t('map.batchDelete') }}</v-btn>
-        </div>
-      </v-card>
-
-      <v-card border>
-        <v-table>
-          <thead>
-          <tr>
-            <th class="text-left" style="width:44px">
+    <div class="mt-0">
+      <!-- 地图集 Tab S -->
+      <div v-if="activeTab === 'collections'">
+        <div class="mt-8">
+          <div class="d-flex align-center flex-wrap ga-2">
+            <div>
               <v-checkbox-btn :model-value="collectionsAllSelected"
-                              @update:model-value="toggleSelectAllCollections"></v-checkbox-btn>
-            </th>
-            <th class="text-left">{{ t('map.collectionTitle') }}</th>
-            <th class="text-left">{{ t('map.collectionDescription') }}</th>
-            <th class="text-left" style="width:100px">{{ t('map.visibility') }}</th>
-            <th class="text-left" style="width:310px">{{ t('basic.button.manage') || '管理' }}</th>
-            <th class="text-right" style="width:170px">{{ t('basic.button.actions') }}</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr v-for="collection in (userCollections?.data || [])" :key="collection.uuid"
-              :class="{'row-selected': collectionSelected.includes(collection.uuid)}">
-            <td>
-              <v-checkbox-btn :model-value="collectionSelected.includes(collection.uuid)"
-                              @update:model-value="toggleCollectionSelection(collection.uuid)"></v-checkbox-btn>
-            </td>
-            <td class="text-body-2 font-weight-medium">
-              <div class="d-flex align-center ga-2">
-                <v-icon size="18" color="amber">mdi-folder</v-icon>
-                <span>{{ collection.title }}</span>
-              </div>
-            </td>
-            <td class="text-caption opacity-70">{{ collection.description || '—' }}</td>
-            <td>
-              <v-chip size="x-small" :color="collection.public ? 'amber' : 'default'" variant="tonal">
-                {{ collection.public ? t('map.public') : t('map.private') }}
-              </v-chip>
-            </td>
-            <td>
-              <div class="d-flex align-center ga-1">
-                <v-btn size="x-small" variant="tonal" color="amber" prepend-icon="mdi-map-marker-multiple" rounded="xl"
-                       @click="openCollectionPoints(collection)">
-                  {{ t('map.managePoints') }}
-                </v-btn>
-                <v-btn size="x-small" variant="tonal" color="amber" prepend-icon="mdi-vector-polyline" rounded="xl"
-                       @click="openCollectionPaths(collection)">
-                  {{ t('map.managePaths') }}
-                </v-btn>
-                <v-btn size="x-small" variant="tonal" color="amber" prepend-icon="mdi-vector-polygon" rounded="xl"
-                       @click="openCollectionRegions(collection)">
-                  {{ t('map.manageRegions') }}
-                </v-btn>
-              </div>
-            </td>
-            <td>
-              <div class="d-flex justify-end ga-1">
-                <v-btn size="small" variant="text" icon="mdi-share-variant-outline"
-                       :title="t('map.share.copyLink')" @click="copyShareLink(collection)"></v-btn>
-                <v-btn size="small" variant="text" icon="mdi-content-copy"
-                       :loading="cloningUuid === collection.uuid"
-                       :title="t('map.share.clone')" @click="onCloneCollection(collection)"></v-btn>
-                <v-btn size="small" variant="text" icon="mdi-pencil"
-                       :title="t('basic.button.edit')" @click="editCollection(collection)"></v-btn>
-                <v-btn size="small" variant="text" color="error" icon="mdi-delete"
-                       :title="t('basic.button.delete')" @click="confirmDeleteCollection(collection)"></v-btn>
-              </div>
-            </td>
-          </tr>
-          </tbody>
-        </v-table>
+                              @update:model-value="toggleSelectAllCollections"
+                              class="ml-4"></v-checkbox-btn>
+            </div>
 
-        <div class="py-8 text-center" v-if="!collectionLoading && (!userCollections?.data || userCollections.data.length === 0)">
-          <EmptyView></EmptyView>
+            <template v-if="collectionSelected.length <= 0">
+              <v-spacer></v-spacer>
+
+              <!-- 新建地图集 -->
+              <v-btn color="amber"
+                     variant="tonal"
+                     @click="onCreatedCollection">
+                {{ t('map.createCollection') }}
+              </v-btn>
+            </template>
+            <template v-else>
+              <v-spacer></v-spacer>
+              <v-btn variant="tonal" color="error" prepend-icon="mdi-delete"
+                     @click="batchDeleteCollections">{{ t('map.batchDelete') }}
+              </v-btn>
+            </template>
+          </div>
         </div>
-        <PaginationBar v-model:page="collectionPagination.page"
-                       :pagination="userCollections.pagination"
-                       class="pa-3"
-                       @change="getMyCollectionsData" />
-      </v-card>
-    </div>
-    <!-- 地图集 Tab E -->
 
-    <!-- 标记 Tab S -->
-    <div v-if="activeTab === 'points'">
-      <v-card variant="text" class="pa-3 mb-3">
-        <div class="d-flex align-center flex-wrap ga-2">
-          <v-select :model-value="pointsState.filterCollection"
-                    @update:model-value="pointsState.filterCollection = $event; onPointsFilterChange()"
-                    :items="filterCollectionItems"
-                    item-title="title" item-value="value"
-                    variant="outlined" density="compact" hide-details
-                    style="min-width: 180px"
-                    :label="t('map.selectCollection')"></v-select>
-          <v-text-field :model-value="pointsState.keyword"
-                        @update:model-value="pointsState.keyword = $event"
-                        @keyup.enter="onSearchPoints"
-                        prepend-inner-icon="mdi-magnify"
-                        variant="outlined" density="compact" hide-details
-                        style="min-width: 220px; flex:1 1 220px"
-                        :label="t('map.keyword')"
-                        @click:append="onSearchPoints"></v-text-field>
-          <v-btn variant="tonal" @click="onSearchPoints">{{ t('basic.button.search') }}</v-btn>
-          <v-spacer></v-spacer>
+        <div>
+          <v-table class="bg-transparent">
+            <thead>
+            <tr>
+              <th class="text-left" style="width:30px">
+                <v-checkbox-btn :model-value="collectionsAllSelected"
+                                @update:model-value="toggleSelectAllCollections"></v-checkbox-btn>
+              </th>
+              <th class="text-left">{{ t('map.collectionTitle') }}</th>
+              <th class="text-left">{{ t('map.collectionDescription') }}</th>
+              <th class="text-left" style="width:100px">{{ t('map.visibility') }}</th>
+              <th class="text-left" style="width:310px"></th>
+              <th class="text-right" style="width:170px">{{ t('basic.button.actions') }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="collection in (userCollections?.data || [])" :key="collection.uuid"
+                :class="{'row-selected': collectionSelected.includes(collection.uuid)}">
+              <td>
+                <v-checkbox-btn :model-value="collectionSelected.includes(collection.uuid)"
+                                @update:model-value="toggleCollectionSelection(collection.uuid)"></v-checkbox-btn>
+              </td>
+              <td class="text-body-2 font-weight-medium">
+                <div class="d-flex align-center ga-2">
+                  <v-icon size="18" color="amber">mdi-folder</v-icon>
+                  <span>{{ collection.title }}</span>
+                </div>
+              </td>
+              <td class="text-caption opacity-70">{{ collection.description || '—' }}</td>
+              <td>
+                <v-chip size="x-small" :color="collection.public ? 'amber' : 'default'" variant="tonal">
+                  {{ collection.public ? t('map.public') : t('map.private') }}
+                </v-chip>
+              </td>
+              <td>
+                <div class="d-flex align-center ga-1">
+                  <v-btn size="x-small" variant="tonal" color="amber" prepend-icon="mdi-map-marker-multiple" rounded="xl"
+                         @click="openCollectionPoints(collection)">
+                    {{ t('map.managePoints') }}
+                  </v-btn>
+                  <v-btn size="x-small" variant="tonal" color="amber" prepend-icon="mdi-vector-polyline" rounded="xl"
+                         @click="openCollectionPaths(collection)">
+                    {{ t('map.managePaths') }}
+                  </v-btn>
+                  <v-btn size="x-small" variant="tonal" color="amber" prepend-icon="mdi-vector-polygon" rounded="xl"
+                         @click="openCollectionRegions(collection)">
+                    {{ t('map.manageRegions') }}
+                  </v-btn>
+                </div>
+              </td>
+              <td>
+                <div class="d-flex justify-end ga-1">
+                  <v-btn size="small" variant="text" icon="mdi-share-variant-outline"
+                         :title="t('map.share.copyLink')" @click="copyShareLink(collection)"></v-btn>
+                  <v-btn size="small" variant="text" icon="mdi-content-copy"
+                         :loading="cloningUuid === collection.uuid"
+                         :title="t('map.share.clone')" @click="onCloneCollection(collection)"></v-btn>
+                  <v-btn size="small" variant="text" icon="mdi-pencil"
+                         :title="t('basic.button.edit')" @click="editCollection(collection)"></v-btn>
+                  <v-btn size="small" variant="text" color="error" icon="mdi-delete"
+                         :title="t('basic.button.delete')" @click="confirmDeleteCollection(collection)"></v-btn>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </v-table>
 
-          <!-- 新建标记下拉按钮组 -->
-          <v-btn-group color="amber" variant="tonal" density="compact" rounded="lg">
-            <v-btn prepend-icon="mdi-map-marker-plus" @click="openCreatePoint">
-              {{ t('map.createMarker') }}
-            </v-btn>
-            <v-menu location="bottom end">
-              <template v-slot:activator="{ props: menuProps }">
-                <v-btn v-bind="menuProps" icon="mdi-menu-down" size="small"></v-btn>
-              </template>
-              <v-list density="compact">
-                <v-list-item prepend-icon="mdi-map-marker-plus" @click="openCreatePoint">
-                  <v-list-item-title>{{ t('map.createMarker') }}</v-list-item-title>
-                </v-list-item>
-                <v-list-item prepend-icon="mdi-map" @click="goDrawMarker">
-                  <v-list-item-title>{{ t('map.drawOnMap') }}</v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
-          </v-btn-group>
+          <div class="py-8 text-center" v-if="!collectionLoading && (!userCollections?.data || userCollections.data.length === 0)">
+            <EmptyView></EmptyView>
+          </div>
+          <PaginationBar v-model:page="collectionPagination.page"
+                         :pagination="userCollections.pagination"
+                         density="compact"
+                         class="pa-3"
+                         @change="getMyCollectionsData"/>
         </div>
-      </v-card>
+      </div>
+      <!-- 地图集 Tab E -->
 
-      <!-- 批量操作条 -->
-      <v-card v-if="pointsState.selected.length > 0" border color="amber" variant="tonal" class="pa-2 mb-3">
-        <div class="d-flex align-center flex-wrap ga-2">
-          <span class="text-body-2 font-weight-medium">
-            {{ t('map.selectedCount', {count: pointsState.selected.length}) }}
-          </span>
-          <v-spacer></v-spacer>
-          <v-btn size="small" variant="tonal" prepend-icon="mdi-folder-move"
-                 @click="openBatchMove('points')">{{ t('map.batchMove') }}</v-btn>
-          <v-btn size="small" variant="tonal" prepend-icon="mdi-folder-remove"
-                 @click="batchRemoveFromCollection('points')">{{ t('map.batchRemove') }}</v-btn>
-          <v-btn size="small" variant="tonal" color="error" prepend-icon="mdi-delete"
-                 @click="batchDelete('points')">{{ t('map.batchDelete') }}</v-btn>
-        </div>
-      </v-card>
-
-      <v-card border>
-        <v-table>
-          <thead>
-          <tr>
-            <th class="text-left" style="width:44px">
+      <!-- 标记 Tab S -->
+      <div v-if="activeTab === 'points'">
+        <div class="mt-8">
+          <div class="d-flex align-center flex-wrap ga-2">
+            <div>
               <v-checkbox-btn :model-value="rowsAllSelected(pointsState)"
-                              @update:model-value="toggleSelectAllRows(pointsState)"></v-checkbox-btn>
-            </th>
-            <th class="text-left" style="width:60px">{{ t('map.style') }}</th>
-            <th class="text-left">{{ t('map.markerName') }}</th>
-            <th class="text-left">{{ t('map.coordinates') }}</th>
-            <th class="text-left">{{ t('map.selectCollection') }}</th>
-            <th class="text-left">{{ t('map.tags') }}</th>
-            <th class="text-right" style="width:170px">{{ t('basic.button.actions') }}</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr v-for="point in pointsState.rows" :key="point.uuid"
-              :class="{'row-selected': pointsState.selected.includes(point.uuid)}">
-            <td>
-              <v-checkbox-btn :model-value="pointsState.selected.includes(point.uuid)"
-                              @update:model-value="toggleSelection(pointsState, point.uuid)"></v-checkbox-btn>
-            </td>
-            <td>
-              <v-img :src="getCategoryIcon(point.category || (point as any).type)" width="22" height="22" contain></v-img>
-            </td>
-            <td class="text-body-2 font-weight-medium u">{{ point.title }}</td>
-            <td class="text-caption">{{ Number(point.longitude).toFixed(4) }}, {{ Number(point.latitude).toFixed(4) }}</td>
-            <td class="text-caption">{{ collectionTitle(point.collectionId) }}</td>
-            <td>
-              <v-chip v-for="tag in parseTags(point.tags)" :key="tag" size="x-small"
-                      variant="tonal" class="mr-1">{{ tag }}</v-chip>
-            </td>
-            <td>
-              <div class="d-flex justify-end ga-1">
-                <v-btn size="small" variant="text" icon="mdi-map-marker"
-                       :title="t('map.viewOnMap')" @click="focusPointOnMap(point)"></v-btn>
-                <v-btn size="small" variant="text" icon="mdi-pencil"
-                       @click="openEditPoint(point)"></v-btn>
-                <v-btn size="small" variant="text" color="error" icon="mdi-delete"
-                       @click="deleteOnePoint(point)"></v-btn>
-              </div>
-            </td>
-          </tr>
-          </tbody>
-        </v-table>
+                              @update:model-value="toggleSelectAllRows(pointsState)"
+                              class="ml-4"></v-checkbox-btn>
+            </div>
 
-        <div class="py-8 text-center" v-if="!pointsState.loading && pointsState.rows.length === 0">
-          <EmptyView></EmptyView>
+            <template v-if="pointsState.selected.length <= 0">
+              <v-select size="x-small" :model-value="pointsState.filterCollection"
+                        @update:model-value="pointsState.filterCollection = $event; onPointsFilterChange()"
+                        :items="filterCollectionItems"
+                        item-title="title" item-value="value"
+                        variant="outlined"
+                        density="compact"
+                        hide-details
+                        style="max-width: 200px;"
+                        :label="t('map.selectCollection')"></v-select>
+              <v-text-field size="x-small" :model-value="pointsState.keyword"
+                            @update:model-value="pointsState.keyword = $event"
+                            @keyup.enter="onSearchPoints"
+                            prepend-inner-icon="mdi-magnify"
+                            variant="outlined"
+                            density="compact"
+                            hide-details
+                            style="max-width: 260px; flex:1 1 100px"
+                            :label="t('map.keyword')"
+                            @click:append="onSearchPoints">
+                <template v-slot:append-inner>
+                  <v-btn size="small" variant="tonal" @click="onSearchPoints">{{ t('basic.button.search') }}</v-btn>
+                </template>
+              </v-text-field>
+
+              <v-spacer></v-spacer>
+
+              <!-- 新建标记下拉按钮组 -->
+              <v-btn-group color="amber" density="compact" variant="tonal">
+                <v-btn @click="openCreatePoint">
+                  {{ t('map.createMarker') }}
+                </v-btn>
+                <v-menu location="bottom end">
+                  <template v-slot:activator="{ props: menuProps }">
+                    <v-divider vertical></v-divider>
+                    <v-btn v-bind="menuProps" icon="mdi-menu-down"></v-btn>
+                  </template>
+                  <v-list density="compact">
+                    <v-list-item prepend-icon="mdi-map-marker-plus" @click="openCreatePoint">
+                      <v-list-item-title>{{ t('map.createMarker') }}</v-list-item-title>
+                    </v-list-item>
+                    <v-list-item prepend-icon="mdi-map" @click="goDrawMarker">
+                      <v-list-item-title>{{ t('map.drawOnMap') }}</v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
+              </v-btn-group>
+            </template>
+            <template v-else>
+              <v-spacer></v-spacer>
+              <v-btn variant="tonal" prepend-icon="mdi-folder-move"
+                     @click="openBatchMove('points')">{{ t('map.batchMove') }}
+              </v-btn>
+              <v-btn variant="tonal" prepend-icon="mdi-folder-remove"
+                     @click="batchRemoveFromCollection('points')">{{ t('map.batchRemove') }}
+              </v-btn>
+              <v-btn variant="tonal" color="error" prepend-icon="mdi-delete"
+                     @click="batchDelete('points')">{{ t('map.batchDelete') }}
+              </v-btn>
+            </template>
+          </div>
         </div>
-        <PaginationBar v-model:page="pointsState.page"
-                       :total="pointsState.total"
-                       :page-size="pointsState.pageSize"
-                       density="compact"
-                       class="pa-3"
-                       @change="onPointPage" />
-      </v-card>
-    </div>
-    <!-- 标记 Tab E -->
 
-    <!-- 路径 / 区域 Tab S -->
-    <div v-if="activeTab === 'paths' || activeTab === 'regions'">
-      <v-card variant="text" class="pa-3 mb-3">
-        <div class="d-flex align-center flex-wrap ga-2">
-          <v-select :model-value="currentShapeState.filterCollection"
-                    @update:model-value="currentShapeState.filterCollection = $event; onShapeFilterChange(currentShapeType)"
-                    :items="filterCollectionItems"
-                    item-title="title" item-value="value"
-                    variant="outlined" density="compact" hide-details
-                    style="min-width: 180px"
-                    :label="t('map.selectCollection')"></v-select>
-          <v-text-field :model-value="currentShapeState.keyword"
-                        @update:model-value="currentShapeState.keyword = $event"
-                        @keyup.enter="onShapeSearch(currentShapeType)"
-                        prepend-inner-icon="mdi-magnify"
-                        variant="outlined" density="compact" hide-details
-                        style="min-width: 220px; flex:1 1 220px"
-                        :label="t('map.keyword')"></v-text-field>
-          <v-btn variant="tonal" @click="onShapeSearch(currentShapeType)">{{ t('basic.button.search') }}</v-btn>
-          <v-spacer></v-spacer>
+        <div>
+          <v-table class="bg-transparent">
+            <thead>
+            <tr>
+              <th class="text-left" style="width:30px">
+                <v-checkbox-btn :model-value="rowsAllSelected(pointsState)"
+                                @update:model-value="toggleSelectAllRows(pointsState)"></v-checkbox-btn>
+              </th>
+              <th class="text-left" style="width:60px">{{ t('map.style') }}</th>
+              <th class="text-left">{{ t('map.markerName') }}</th>
+              <th class="text-left">{{ t('map.coordinates') }}</th>
+              <th class="text-left">{{ t('map.selectCollection') }}</th>
+              <th class="text-left">{{ t('map.tags') }}</th>
+              <th class="text-right" style="width:170px">{{ t('basic.button.actions') }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="point in pointsState.rows" :key="point.uuid"
+                :class="{'row-selected': pointsState.selected.includes(point.uuid)}">
+              <td>
+                <v-checkbox-btn :model-value="pointsState.selected.includes(point.uuid)"
+                                @update:model-value="toggleSelection(pointsState, point.uuid)"></v-checkbox-btn>
+              </td>
+              <td>
+                <v-img :src="getCategoryIcon(point.category || (point as any).type)" width="22" height="22" contain></v-img>
+              </td>
+              <td class="text-body-2 font-weight-medium u">{{ point.title }}</td>
+              <td class="text-caption">{{ Number(point.longitude).toFixed(4) }}, {{ Number(point.latitude).toFixed(4) }}</td>
+              <td class="text-caption">{{ collectionTitle(point.collectionId) }}</td>
+              <td>
+                <v-chip v-for="tag in parseTags(point.tags)" :key="tag" size="x-small"
+                        variant="tonal" class="mr-1">{{ tag }}
+                </v-chip>
+              </td>
+              <td>
+                <div class="d-flex justify-end ga-1">
+                  <v-btn size="small" variant="text" icon="mdi-map-marker"
+                         :title="t('map.viewOnMap')" @click="focusPointOnMap(point)"></v-btn>
+                  <v-btn size="small" variant="text" icon="mdi-pencil"
+                         @click="openEditPoint(point)"></v-btn>
+                  <v-btn size="small" variant="text" color="error" icon="mdi-delete"
+                         @click="deleteOnePoint(point)"></v-btn>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </v-table>
 
-          <!-- 新建路径/区域下拉按钮组 -->
-          <v-btn-group color="amber" variant="tonal" density="compact" rounded="lg">
-            <v-btn :prepend-icon="currentShapeType === 'path' ? 'mdi-vector-polyline' : 'mdi-vector-polygon'"
-                   @click="openCreateShape(currentShapeType)">
-              {{ currentShapeType === 'path' ? t('map.createPath') : t('map.createRegion') }}
-            </v-btn>
-            <v-menu location="bottom end">
-              <template v-slot:activator="{ props: menuProps }">
-                <v-btn v-bind="menuProps" icon="mdi-menu-down" size="small"></v-btn>
-              </template>
-              <v-list density="compact">
-                <v-list-item :prepend-icon="currentShapeType === 'path' ? 'mdi-vector-polyline' : 'mdi-vector-polygon'"
-                             @click="openCreateShape(currentShapeType)">
-                  <v-list-item-title>{{ currentShapeType === 'path' ? t('map.createPath') : t('map.createRegion') }}</v-list-item-title>
-                </v-list-item>
-                <v-list-item prepend-icon="mdi-map" @click="goDrawShape(currentShapeType)">
-                  <v-list-item-title>{{ t('map.drawOnMap') }}</v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
-          </v-btn-group>
+          <div class="py-8 text-center" v-if="!pointsState.loading && pointsState.rows.length === 0">
+            <EmptyView></EmptyView>
+          </div>
+          <PaginationBar v-model:page="pointsState.page"
+                         :total="pointsState.total"
+                         :page-size="pointsState.pageSize"
+                         density="compact"
+                         class="pa-3"
+                         @change="onPointPage"/>
         </div>
-      </v-card>
+      </div>
+      <!-- 标记 Tab E -->
 
-      <!-- 批量操作条 -->
-      <v-card v-if="currentShapeState.selected.length > 0" border color="amber" variant="tonal" class="pa-2 mb-3">
-        <div class="d-flex align-center flex-wrap ga-2">
-          <span class="text-body-2 font-weight-medium">
-            {{ t('map.selectedCount', {count: currentShapeState.selected.length}) }}
-          </span>
-          <v-spacer></v-spacer>
-          <v-btn size="small" variant="tonal" prepend-icon="mdi-folder-move"
-                 @click="openBatchMove('shapes', currentShapeType)">{{ t('map.batchMove') }}</v-btn>
-          <v-btn size="small" variant="tonal" prepend-icon="mdi-folder-remove"
-                 @click="batchRemoveFromCollection('shapes', currentShapeType)">{{ t('map.batchRemove') }}</v-btn>
-          <v-btn size="small" variant="tonal" color="error" prepend-icon="mdi-delete"
-                 @click="batchDelete('shapes', currentShapeType)">{{ t('map.batchDelete') }}</v-btn>
-        </div>
-      </v-card>
-
-      <v-card border>
-        <v-table>
-          <thead>
-          <tr>
-            <th class="text-left" style="width:44px">
+      <!-- 路径 / 区域 Tab S -->
+      <div v-if="activeTab === 'paths' || activeTab === 'regions'">
+        <div class="mt-8">
+          <div class="d-flex align-center flex-wrap ga-2">
+            <div>
               <v-checkbox-btn :model-value="currentRowsAllSelected"
-                              @update:model-value="toggleSelectAllRows(currentShapeState)"></v-checkbox-btn>
-            </th>
-            <th class="text-left" style="width:70px">{{ t('map.style') }}</th>
-            <th class="text-left">{{ t('map.shapeName') }}</th>
-            <th class="text-left">{{ t('map.selectCollection') }}</th>
-            <th class="text-left">{{ t('map.tags') }}</th>
-            <th class="text-right" style="width:210px">{{ t('basic.button.actions') }}</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr v-for="shape in currentShapeState.rows" :key="shape.uuid"
-              :class="{'row-selected': currentShapeState.selected.includes(shape.uuid)}">
-            <td>
-              <v-checkbox-btn :model-value="currentShapeState.selected.includes(shape.uuid)"
-                              @update:model-value="toggleSelection(currentShapeState, shape.uuid)"></v-checkbox-btn>
-            </td>
-            <td>
-              <!-- 样式迷你预览 -->
-              <MapShapeStylePreview :shape-type="shape.shapeType" :shape-style="previewStyle(shape)"/>
-            </td>
-            <td class="text-body-2 font-weight-medium">
-              <div class="d-flex align-center ga-1 u">
-                {{ shape.title }}
-              </div>
-            </td>
-            <td class="text-caption">{{ collectionTitle(shape.collectionId) }}</td>
-            <td>
-              <v-chip v-for="tag in parseShapeTags(shape)" :key="tag" size="x-small"
-                      variant="tonal" class="mr-1">{{ tag }}</v-chip>
-            </td>
-            <td>
-              <div class="d-flex justify-end ga-1">
-                <v-btn size="small" variant="text" icon="mdi-map-search"
-                       :title="t('map.viewOnMap')" @click="focusShapeOnMap(shape)"></v-btn>
-                <v-btn size="small" variant="text" icon="mdi-vector-square-edit"
-                       :title="t('map.editVertices')" @click="editShapeGeometryOnMap(shape)"></v-btn>
-                <v-btn size="small" variant="text" icon="mdi-pencil"
-                       @click="openEditShape(shape)"></v-btn>
-                <v-btn size="small" variant="text" color="error" icon="mdi-delete"
-                       @click="deleteOneShape(shape)"></v-btn>
-              </div>
-            </td>
-          </tr>
-          </tbody>
-        </v-table>
+                              @update:model-value="toggleSelectAllRows(currentShapeState)"
+                              class="ml-4"></v-checkbox-btn>
+            </div>
 
-        <div class="py-8 text-center" v-if="!currentShapeState.loading && currentShapeState.rows.length === 0">
-          <EmptyView></EmptyView>
+            <template v-if="currentShapeState.selected.length <= 0">
+              <v-select size="x-small" :model-value="currentShapeState.filterCollection"
+                        @update:model-value="currentShapeState.filterCollection = $event; onShapeFilterChange(currentShapeType)"
+                        :items="filterCollectionItems"
+                        item-title="title" item-value="value"
+                        variant="outlined"
+                        density="compact"
+                        hide-details
+                        style="max-width: 200px;"
+                        :label="t('map.selectCollection')"></v-select>
+              <v-text-field size="x-small" :model-value="currentShapeState.keyword"
+                            @update:model-value="currentShapeState.keyword = $event"
+                            @keyup.enter="onShapeSearch(currentShapeType)"
+                            prepend-inner-icon="mdi-magnify"
+                            variant="outlined"
+                            density="compact"
+                            hide-details
+                            style="max-width: 260px; flex:1 1 100px"
+                            :label="t('map.keyword')"
+                            @click:append="onShapeSearch(currentShapeType)">
+                <template v-slot:append-inner>
+                  <v-btn size="small" variant="tonal" @click="onShapeSearch(currentShapeType)">{{ t('basic.button.search') }}</v-btn>
+                </template>
+              </v-text-field>
+
+              <v-spacer></v-spacer>
+
+              <!-- 新建路径/区域下拉按钮组 -->
+              <v-btn-group color="amber" density="compact" variant="tonal">
+                <v-btn @click="openCreateShape(currentShapeType)">
+                  {{ currentShapeType === 'path' ? t('map.createPath') : t('map.createRegion') }}
+                </v-btn>
+                <v-menu location="bottom end">
+                  <template v-slot:activator="{ props: menuProps }">
+                    <v-divider vertical></v-divider>
+                    <v-btn v-bind="menuProps" icon="mdi-menu-down"></v-btn>
+                  </template>
+                  <v-list density="compact">
+                    <v-list-item :prepend-icon="currentShapeType === 'path' ? 'mdi-vector-polyline' : 'mdi-vector-polygon'"
+                                 @click="openCreateShape(currentShapeType)">
+                      <v-list-item-title>{{ currentShapeType === 'path' ? t('map.createPath') : t('map.createRegion') }}</v-list-item-title>
+                    </v-list-item>
+                    <v-list-item prepend-icon="mdi-map" @click="goDrawShape(currentShapeType)">
+                      <v-list-item-title>{{ t('map.drawOnMap') }}</v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
+              </v-btn-group>
+            </template>
+            <template v-else>
+              <v-spacer></v-spacer>
+              <v-btn variant="tonal" prepend-icon="mdi-folder-move"
+                     @click="openBatchMove('shapes', currentShapeType)">{{ t('map.batchMove') }}
+              </v-btn>
+              <v-btn variant="tonal" prepend-icon="mdi-folder-remove"
+                     @click="batchRemoveFromCollection('shapes', currentShapeType)">{{ t('map.batchRemove') }}
+              </v-btn>
+              <v-btn variant="tonal" color="error" prepend-icon="mdi-delete"
+                     @click="batchDelete('shapes', currentShapeType)">{{ t('map.batchDelete') }}
+              </v-btn>
+            </template>
+          </div>
         </div>
-        <PaginationBar v-model:page="currentShapeState.page"
-                       :total="currentShapeState.total"
-                       :page-size="currentShapeState.pageSize"
-                       density="compact"
-                       class="pa-3"
-                       @change="(p) => onShapePage(currentShapeType, p)" />
-      </v-card>
+
+        <div>
+          <v-table class="bg-transparent">
+            <thead>
+            <tr>
+              <th class="text-left" style="width:30px">
+                <v-checkbox-btn :model-value="currentRowsAllSelected"
+                                @update:model-value="toggleSelectAllRows(currentShapeState)"></v-checkbox-btn>
+              </th>
+              <th class="text-left" style="width:70px">{{ t('map.style') }}</th>
+              <th class="text-left">{{ t('map.shapeName') }}</th>
+              <th class="text-left">{{ t('map.selectCollection') }}</th>
+              <th class="text-left">{{ t('map.tags') }}</th>
+              <th class="text-right" style="width:210px">{{ t('basic.button.actions') }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="shape in currentShapeState.rows" :key="shape.uuid"
+                :class="{'row-selected': currentShapeState.selected.includes(shape.uuid)}">
+              <td>
+                <v-checkbox-btn :model-value="currentShapeState.selected.includes(shape.uuid)"
+                                @update:model-value="toggleSelection(currentShapeState, shape.uuid)"></v-checkbox-btn>
+              </td>
+              <td>
+                <!-- 样式迷你预览 -->
+                <MapShapeStylePreview :shape-type="shape.shapeType" :shape-style="previewStyle(shape)"/>
+              </td>
+              <td class="text-body-2 font-weight-medium u">{{ shape.title }}</td>
+              <td class="text-caption">{{ collectionTitle(shape.collectionId) }}</td>
+              <td>
+                <v-chip v-for="tag in parseShapeTags(shape)" :key="tag" size="x-small"
+                        variant="tonal" class="mr-1">{{ tag }}
+                </v-chip>
+              </td>
+              <td>
+                <div class="d-flex justify-end ga-1">
+                  <v-btn size="small" variant="text" icon="mdi-map-search"
+                         :title="t('map.viewOnMap')" @click="focusShapeOnMap(shape)"></v-btn>
+                  <v-btn size="small" variant="text" icon="mdi-vector-square-edit"
+                         :title="t('map.editVertices')" @click="editShapeGeometryOnMap(shape)"></v-btn>
+                  <v-btn size="small" variant="text" icon="mdi-pencil"
+                         @click="openEditShape(shape)"></v-btn>
+                  <v-btn size="small" variant="text" color="error" icon="mdi-delete"
+                         @click="deleteOneShape(shape)"></v-btn>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </v-table>
+
+          <div class="py-8 text-center" v-if="!currentShapeState.loading && currentShapeState.rows.length === 0">
+            <EmptyView></EmptyView>
+          </div>
+          <PaginationBar v-model:page="currentShapeState.page"
+                         :total="currentShapeState.total"
+                         :page-size="currentShapeState.pageSize"
+                         density="compact"
+                         class="pa-3"
+                         @change="(p) => onShapePage(currentShapeType, p)"/>
+        </div>
+      </div>
+      <!-- 路径 / 区域 Tab E -->
     </div>
-    <!-- 路径 / 区域 Tab E -->
 
     <!-- 地图集编辑/新建对话框 S -->
     <v-dialog v-model="collectionFormModal" persistent max-width="600">

@@ -705,7 +705,8 @@
       "refresh": "刷新",
       "view": "前往查看",
       "retry": "重试",
-      "actions": "操作"
+      "actions": "操作",
+      "setting": "设置"
     },
     "assembly": {
       "publish": {
@@ -735,7 +736,23 @@
       "contributor3": "贡献者3",
       "contributor2": "贡献者2",
       "contributor1": "贡献者1",
-      "contributor": "贡献者"
+      "contributor": "贡献者",
+      "smuggler_weekly_report_ownership": "周报所有权",
+      "smuggler_weekly_report_create": "创建周报",
+      "smuggler_weekly_report_update": "更新周报",
+      "smuggler_weekly_report_delete": "删除周报",
+      "smuggler_weekly_report_comment_create": "周报创建评论",
+      "smuggler_weekly_report_comment_update": "周报更新评论",
+      "smuggler_weekly_report_comment_delete": "周报删除评论",
+      "admin_smuggler_weekly_report_ownership": "后台周报所有权",
+      "admin_smuggler_weekly_report_create": "后台创建周报",
+      "admin_smuggler_weekly_report_update": "后台更新周报",
+      "admin_smuggler_weekly_report_delete": "后台删除周报",
+      "admin_smuggler_weekly_report_hard_delete": "后台周报物理删除",
+      "admin_smuggler_weekly_report_comment_create": "后台周报创建评论",
+      "admin_smuggler_weekly_report_comment_update": "后台周报更新评论",
+      "admin_smuggler_weekly_report_comment_delete": "后台周报删除评论",
+      "admin_smuggler_weekly_report_comment_hard_delete": "后台周报评论物理删除"
     },
     "rules": {
       "username": {

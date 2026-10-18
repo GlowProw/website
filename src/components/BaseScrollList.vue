@@ -193,17 +193,25 @@ const wrapperStyle = computed<CSSProperties>(() => {
 
   if (props.isMask && canScroll.value) {
     if (isVertical.value) {
-      const topStop = canScrollPrev.value ? 'transparent 0%, black 5%' : 'black 0%'
-      const bottomStop = canScrollNext.value ? 'black 95%, transparent 100%' : 'black 100%'
+      const topStop = canScrollPrev.value ? 'transparent 0px, black 32px' : 'black 0px'
+      const bottomStop = canScrollNext.value ? 'black calc(100% - 32px), transparent 100%' : 'black 100%'
       const maskValue = `linear-gradient(to bottom, ${topStop}, ${bottomStop})`
       style.maskImage = maskValue
       style.WebkitMaskImage = maskValue
+      style.maskRepeat = 'no-repeat'
+      style.WebkitMaskRepeat = 'no-repeat'
+      style.maskSize = '100% 100%'
+      style.WebkitMaskSize = '100% 100%'
     } else {
-      const leftStop = canScrollPrev.value ? 'transparent 0%, black 5%' : 'black 0%'
-      const rightStop = canScrollNext.value ? 'black 95%, transparent 100%' : 'black 100%'
+      const leftStop = canScrollPrev.value ? 'transparent 0px, black 32px' : 'black 0px'
+      const rightStop = canScrollNext.value ? 'black calc(100% - 32px), transparent 100%' : 'black 100%'
       const maskValue = `linear-gradient(to right, ${leftStop}, ${rightStop})`
       style.maskImage = maskValue
       style.WebkitMaskImage = maskValue
+      style.maskRepeat = 'no-repeat'
+      style.WebkitMaskRepeat = 'no-repeat'
+      style.maskSize = '100% 100%'
+      style.WebkitMaskSize = '100% 100%'
     }
   }
 
@@ -233,6 +241,7 @@ const buttonNextStyle = computed<CSSProperties>(() => {
  * 生命周期
  */
 let resizeObserver: ResizeObserver | null = null
+let mutationObserver: MutationObserver | null = null
 
 onMounted(() => {
   nextTick(() => {
@@ -250,6 +259,13 @@ onMounted(() => {
       if (scrollWrapper.value.firstElementChild) {
         resizeObserver.observe(scrollWrapper.value.firstElementChild)
       }
+    }
+
+    if (scrollWrapper.value && typeof MutationObserver !== 'undefined') {
+      mutationObserver = new MutationObserver(() => {
+        checkScrollability()
+      })
+      mutationObserver.observe(scrollWrapper.value, { childList: true, subtree: true, characterData: true })
     }
 
     if (props.isFollowScreenCenter) {
@@ -271,10 +287,21 @@ watch(() => props.isFollowScreenCenter, (val) => {
   }
 })
 
+watch([() => props.height, () => props.maxHeight, () => props.gap], () => {
+  nextTick(() => {
+    checkScrollability()
+  })
+})
+
 onUnmounted(() => {
   if (resizeObserver) {
     resizeObserver.disconnect()
     resizeObserver = null
+  }
+
+  if (mutationObserver) {
+    mutationObserver.disconnect()
+    mutationObserver = null
   }
 
   document.removeEventListener('mousemove', handleMouseMove)
@@ -384,6 +411,9 @@ const smoothScrollTo = (position: number) => {
   }
 }
 
+const DRAG_THRESHOLD = 5
+const isPointerDown = ref(false)
+
 /**
  * 鼠标拖拽功能
  */
@@ -396,20 +426,33 @@ const handleMouseDown = (e: MouseEvent) => {
 
   if (!scrollWrapper.value) return
 
-  isDragging.value = true
+  isPointerDown.value = true
+  isDragging.value = false
   startPos.value = isVertical.value ? e.clientY : e.clientX
   startScrollPos.value = isVertical.value ? scrollWrapper.value.scrollTop : scrollWrapper.value.scrollLeft
-  scrollWrapper.value.style.scrollBehavior = 'auto'
-  scrollWrapper.value.style.cursor = 'grabbing'
 
   document.addEventListener('mousemove', handleMouseMove)
   document.addEventListener('mouseup', handleMouseUp)
-
-  emit('scroll-start', { position: startScrollPos.value })
 }
 
 const handleMouseMove = (e: MouseEvent) => {
-  if (!isDragging.value) return
+  if (!isPointerDown.value) return
+
+  const currentPos = isVertical.value ? e.clientY : e.clientX
+  const delta = currentPos - startPos.value
+
+  // 尚未达到拖拽阈值，视为正常点击/微弱抖动，不拦截默认事件
+  if (!isDragging.value) {
+    if (Math.abs(delta) < DRAG_THRESHOLD) {
+      return
+    }
+    isDragging.value = true
+    if (scrollWrapper.value) {
+      scrollWrapper.value.style.scrollBehavior = 'auto'
+      scrollWrapper.value.style.cursor = 'grabbing'
+    }
+    emit('scroll-start', { position: startScrollPos.value })
+  }
 
   e.preventDefault()
 
@@ -419,8 +462,6 @@ const handleMouseMove = (e: MouseEvent) => {
   }
   lastScrollTime.value = now
 
-  const currentPos = isVertical.value ? e.clientY : e.clientX
-  const delta = currentPos - startPos.value
   const newScrollPos = startScrollPos.value - delta * props.dragSensitivity
 
   let boundedScrollPos = newScrollPos
@@ -435,8 +476,10 @@ const handleMouseMove = (e: MouseEvent) => {
 }
 
 const handleMouseUp = () => {
-  if (!isDragging.value) return
+  if (!isPointerDown.value) return
 
+  isPointerDown.value = false
+  const wasDragging = isDragging.value
   isDragging.value = false
 
   document.removeEventListener('mousemove', handleMouseMove)
@@ -460,9 +503,11 @@ const handleMouseUp = () => {
     }
   }
 
-  emit('scroll-end', {
-    position: scrollWrapper.value ? (isVertical.value ? scrollWrapper.value.scrollTop : scrollWrapper.value.scrollLeft) : 0
-  })
+  if (wasDragging) {
+    emit('scroll-end', {
+      position: scrollWrapper.value ? (isVertical.value ? scrollWrapper.value.scrollTop : scrollWrapper.value.scrollLeft) : 0
+    })
+  }
 }
 
 /**
@@ -647,6 +692,8 @@ defineExpose({
   &--vertical {
     height: 100%;
     max-height: 100%;
+    min-height: 0;
+    flex: 1;
     display: flex;
     flex-direction: column;
   }
@@ -677,6 +724,7 @@ defineExpose({
     overflow-y: auto;
     padding: 0 0px;
     flex: 1;
+    min-height: 0;
   }
 }
 
@@ -710,6 +758,7 @@ defineExpose({
     flex-direction: column;
     flex-wrap: nowrap;
     min-height: min-content;
+    width: 100%;
   }
 }
 

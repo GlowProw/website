@@ -58,6 +58,8 @@ const {
 // 数据加载状态
 const calendarLoading = ref<boolean>(false);
 const rawCalendarData = ref<CalendarData | null>(null);
+// 首次全量数据是否已就绪（用于无头截图判定）
+const hasInitialLoaded = ref<boolean>(false);
 
 // 目标赛季 ID
 const targetSeasonId = computed<string>(() => {
@@ -486,11 +488,12 @@ const refreshAll = async () => {
     fetchCalendarData(),
     fetchDropData(),
   ]);
+  hasInitialLoaded.value = true;
 };
 </script>
 
 <template>
-  <div class="daily-report-wrapper" :class="{ 'is-widget': isWidget }">
+  <div class="daily-report-wrapper" :class="{ 'is-widget': isWidget }" :data-ready="hasInitialLoaded ? 'true' : 'false'">
     <v-card class="daily-report-card overflow-hidden" variant="text" tile>
 
       <!-- 赛季与日报总览 S -->

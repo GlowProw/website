@@ -693,7 +693,8 @@
       "refresh": "重新整理",
       "view": "前往查看",
       "retry": "重試",
-      "actions": "操作"
+      "actions": "操作",
+      "setting": "設定"
     },
     "assembly": {
       "publish": {
@@ -723,7 +724,23 @@
       "contributor3": "貢獻者3",
       "contributor2": "貢獻者2",
       "contributor1": "貢獻者1",
-      "contributor": "貢獻者"
+      "contributor": "貢獻者",
+      "smuggler_weekly_report_ownership": "週報所有權",
+      "smuggler_weekly_report_create": "建立週報",
+      "smuggler_weekly_report_update": "更新週報",
+      "smuggler_weekly_report_delete": "刪除週報",
+      "smuggler_weekly_report_comment_create": "週報建立評論",
+      "smuggler_weekly_report_comment_update": "週報更新評論",
+      "smuggler_weekly_report_comment_delete": "週報刪除評論",
+      "admin_smuggler_weekly_report_ownership": "後台週報所有權",
+      "admin_smuggler_weekly_report_create": "後台建立週報",
+      "admin_smuggler_weekly_report_update": "後台更新週報",
+      "admin_smuggler_weekly_report_delete": "後台刪除週報",
+      "admin_smuggler_weekly_report_hard_delete": "後台週報實體刪除",
+      "admin_smuggler_weekly_report_comment_create": "後台週報建立評論",
+      "admin_smuggler_weekly_report_comment_update": "後台週報更新評論",
+      "admin_smuggler_weekly_report_comment_delete": "後台週報刪除評論",
+      "admin_smuggler_weekly_report_comment_hard_delete": "後台週報評論實體刪除"
     },
     "rules": {
       "username": {

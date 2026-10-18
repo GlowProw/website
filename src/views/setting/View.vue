@@ -11,6 +11,7 @@ import { useTooltipFollow } from "@/assets/sripts/use_tooltip_follow";
 
 import Silk from "@/components/Silk.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
+import VerticalScrollList from "@/components/VerticalScrollList.vue";
 
 const route = useRoute(),
     router = useRouter(),
@@ -241,52 +242,60 @@ defineOptions({
       <v-container>
         <div :class="{'d-flex flex-row': !mobile}">
           <div :class="{'mb-10 setting-tabs-box-mobile': mobile, 'setting-tabs-box-desktop': !mobile}">
-            <AffixContainerView>
-              <v-tabs
-                  stacked
-                  border
-                  hide-slider
-                  :show-arrows="false"
-                  :model-value="tab"
-                  class="w-100 h-100 secondary-tabs setting-tabs-secondary"
-                  density="default"
-                  @update:model-value="onTabChange"
-                  :fixed="mobile"
-                  :direction="!mobile ? 'vertical' : 'horizontal'">
-                <template v-for="(i, index) in currentSubTabs" :key="index">
-                  <v-tooltip content-class="pa-0" :target="[tooltipPos.x, tooltipPos.y]">
-                    <template v-slot:default>
-                      <v-card border class="py-3 px-10">
-                        {{ t(i.name) }}
-                      </v-card>
-                    </template>
-                    <template v-slot:activator="{props}">
-                      <div :class="{'mb-2': !mobile, 'mr-5': mobile}">
-                        <v-tab :value="i.value"
-                               selected-class="bg-amber"
-                               class="d-flex align-center justify-center"
-                               min-width="80"
-                               width="80"
-                               height="80"
-                               border
-                               @mousemove="onMouseMove"
-                               @mouseenter="onMouseEnter"
-                               v-bind="props"
-                               replace
-                               ripple
-                               slim>
-                          <div>
-                            <v-icon size="40">{{ i.icon }}</v-icon>
-                          </div>
-                        </v-tab>
-                        <p class="mt-1 mb-3 text-center singe-line w-100 setting-tab-item" :title="t(i.name)">
+            <AffixContainerView :scrollable="!mobile ? false : true">
+              <VerticalScrollList
+                  :disabled="mobile"
+                  :is-indicator="false"
+                  :show-controls="false"
+                  :force-draggable="false"
+                  :wheel-scroll="true"
+                  height="100%">
+                <v-tabs
+                    stacked
+                    border
+                    hide-slider
+                    :show-arrows="false"
+                    :model-value="tab"
+                    class="w-100 secondary-tabs setting-tabs-secondary"
+                    density="default"
+                    @update:model-value="onTabChange"
+                    :fixed="mobile"
+                    :direction="!mobile ? 'vertical' : 'horizontal'">
+                  <template v-for="(i, index) in currentSubTabs" :key="index">
+                    <v-tooltip content-class="pa-0" :target="[tooltipPos.x, tooltipPos.y]">
+                      <template v-slot:default>
+                        <v-card border class="py-3 px-10">
                           {{ t(i.name) }}
-                        </p>
-                      </div>
-                    </template>
-                  </v-tooltip>
-                </template>
-              </v-tabs>
+                        </v-card>
+                      </template>
+                      <template v-slot:activator="{props}">
+                        <div :class="{'mb-2': !mobile, 'mr-5': mobile}">
+                          <v-tab :value="i.value"
+                                 selected-class="bg-amber"
+                                 class="d-flex align-center justify-center"
+                                 min-width="80"
+                                 width="80"
+                                 height="80"
+                                 border
+                                 @mousemove="onMouseMove"
+                                 @mouseenter="onMouseEnter"
+                                 v-bind="props"
+                                 replace
+                                 ripple
+                                 slim>
+                            <div>
+                              <v-icon size="40">{{ i.icon }}</v-icon>
+                            </div>
+                          </v-tab>
+                          <p class="mt-1 mb-3 text-center singe-line w-100 setting-tab-item" :title="t(i.name)">
+                            {{ t(i.name) }}
+                          </p>
+                        </div>
+                      </template>
+                    </v-tooltip>
+                  </template>
+                </v-tabs>
+              </VerticalScrollList>
             </AffixContainerView>
           </div>
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 
 import {onMounted, ref} from "vue";
+import Loading from "@/components/Loading.vue";
 
 const props = withDefaults(
     defineProps<{ href?: string, text?: string, isPoptip?: boolean, isOpen?: boolean, isIcon?: boolean, isIframeShow?: boolean }>(),
@@ -156,11 +157,11 @@ defineOptions({
     </template>
 
     <template v-if="isIframeShow && isPoptip">
-      <v-card border class="link-iframe">
+      <v-card border class="link-iframe bg-black" min-width="360">
         <!-- 加载状态 -->
         <template v-if="linkLoad">
           <div class="link-load">
-            <v-icon icon="mdi-loading" class="spin-icon-load" size="30"/>
+            <Loading size="50"></Loading>
           </div>
         </template>
 

@@ -706,7 +706,8 @@
       "refresh": "Refresh",
       "view": "View",
       "retry": "Retry",
-      "actions": "Actions"
+      "actions": "Actions",
+      "setting": "Settings"
     },
     "assembly": {
       "publish": {
@@ -736,7 +737,23 @@
       "contributor3": "Contributor 3",
       "contributor2": "Contributor 2",
       "contributor1": "Contributor 1",
-      "contributor": "Contributor"
+      "contributor": "Contributor",
+      "smuggler_weekly_report_ownership": "Weekly Report Ownership",
+      "smuggler_weekly_report_create": "Create Weekly Report",
+      "smuggler_weekly_report_update": "Update Weekly Report",
+      "smuggler_weekly_report_delete": "Delete Weekly Report",
+      "smuggler_weekly_report_comment_create": "Create Report Comment",
+      "smuggler_weekly_report_comment_update": "Update Report Comment",
+      "smuggler_weekly_report_comment_delete": "Delete Report Comment",
+      "admin_smuggler_weekly_report_ownership": "Admin Weekly Report Ownership",
+      "admin_smuggler_weekly_report_create": "Admin Create Weekly Report",
+      "admin_smuggler_weekly_report_update": "Admin Update Weekly Report",
+      "admin_smuggler_weekly_report_delete": "Admin Delete Weekly Report",
+      "admin_smuggler_weekly_report_hard_delete": "Admin Hard Delete Weekly Report",
+      "admin_smuggler_weekly_report_comment_create": "Admin Create Report Comment",
+      "admin_smuggler_weekly_report_comment_update": "Admin Update Report Comment",
+      "admin_smuggler_weekly_report_comment_delete": "Admin Delete Report Comment",
+      "admin_smuggler_weekly_report_comment_hard_delete": "Admin Hard Delete Report Comment"
     },
     "rules": {
       "username": {

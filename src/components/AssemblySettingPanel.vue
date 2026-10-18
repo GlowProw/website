@@ -113,6 +113,27 @@ const setAssemblySetting = async () => {
   }
 }
 
+/**
+ * 打开设置弹窗
+ */
+const open = () => {
+  show.value = true
+  getAssemblySetting()
+}
+
+/**
+ * 关闭设置弹窗
+ */
+const close = () => {
+  show.value = false
+}
+
+defineExpose({
+  open,
+  close,
+  show
+})
+
 defineOptions({ name: 'AssemblySettingPanel' })
 </script>
 

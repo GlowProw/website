@@ -9,9 +9,9 @@ import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 import Silk from "@/components/Silk.vue";
 import EmptyView from "@/components/EmptyView.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
+import VerticalScrollList from "@/components/VerticalScrollList.vue";
 
 const route = useRoute(),
-    router = useRouter(),
     {mobile} = useDisplay(),
     {t} = useI18n(),
     authStore = useAuthStore(),
@@ -207,60 +207,68 @@ defineOptions({
 
   <div class="account-root">
     <div class="setting-page-root" v-if="authStore.isLogin">
-      <v-container>
+      <v-container class="pt-0">
         <div :class="{'d-flex flex-row': !mobile}">
-          <div :class="{'mb-10 tabs-box-mobile': mobile, 'tabs-box-desktop': !mobile}">
-            <AffixContainerView>
-              <!-- 二级菜单 -->
-              <v-tabs
-                  stacked
-                  border
-                  hide-slider
-                  :show-arrows="false"
-                  :model-value="tab"
-                  class="w-100 h-100 secondary-tabs"
-                  density="default"
-                  :fixed="mobile"
-                  :direction="!mobile ? 'vertical' : 'horizontal'">
-                <template v-for="(i, index) in currentSubTabs" :key="index">
-                  <v-tooltip content-class="pa-0" :target="[tooltipPos.x, tooltipPos.y]">
-                    <template v-slot:default>
-                      <v-card border class="py-3 px-10">
-                        {{ t(i.name) }}
-                      </v-card>
-                    </template>
-                    <template v-slot:activator="{props}">
-                      <div :class="{'mb-2': !mobile, 'mr-5': mobile}">
-                        <v-tab
-                            :value="i.value"
-                            :to="{ name: i.value }"
-                            selected-class="bg-amber"
-                            class="d-flex align-center justify-center"
-                            min-width="80"
-                            width="80"
-                            height="80"
-                            border
-                            @mousemove="onMouseMove"
-                            @mouseenter="onMouseEnter"
-                            v-bind="props"
-                            ripple
-                            slim>
-                          <div>
-                            <v-icon size="40">{{ i.icon }}</v-icon>
-                          </div>
-                        </v-tab>
-                        <p class="mt-1 mb-3 text-center singe-line w-100 tab-item" :title="t(i.name)">
+          <div :class="{'mb-10 tabs-box-mobile': mobile, 'tabs-box-desktop pt-5': !mobile}">
+            <AffixContainerView :scrollable="!mobile ? false : true">
+              <VerticalScrollList
+                  :disabled="mobile"
+                  :is-indicator="false"
+                  :show-controls="false"
+                  :force-draggable="false"
+                  :wheel-scroll="true"
+                  height="100%">
+                <!-- 二级菜单 -->
+                <v-tabs
+                    stacked
+                    border
+                    hide-slider
+                    :show-arrows="false"
+                    :model-value="tab"
+                    class="w-100 secondary-tabs"
+                    density="default"
+                    :fixed="mobile"
+                    :direction="!mobile ? 'vertical' : 'horizontal'">
+                  <template v-for="(i, index) in currentSubTabs" :key="index">
+                    <v-tooltip content-class="pa-0" :target="[tooltipPos.x, tooltipPos.y]">
+                      <template v-slot:default>
+                        <v-card border class="py-3 px-10">
                           {{ t(i.name) }}
-                        </p>
-                      </div>
-                    </template>
-                  </v-tooltip>
-                </template>
-              </v-tabs>
+                        </v-card>
+                      </template>
+                      <template v-slot:activator="{props}">
+                        <div :class="{'mb-2': !mobile, 'mr-5': mobile}">
+                          <v-tab
+                              :value="i.value"
+                              :to="{ name: i.value }"
+                              selected-class="bg-amber"
+                              class="d-flex align-center justify-center"
+                              min-width="80"
+                              width="80"
+                              height="80"
+                              border
+                              @mousemove="onMouseMove"
+                              @mouseenter="onMouseEnter"
+                              v-bind="props"
+                              ripple
+                              slim>
+                            <div>
+                              <v-icon size="40">{{ i.icon }}</v-icon>
+                            </div>
+                          </v-tab>
+                          <p class="mt-1 mb-3 text-center singe-line w-100 tab-item" :title="t(i.name)">
+                            {{ t(i.name) }}
+                          </p>
+                        </div>
+                      </template>
+                    </v-tooltip>
+                  </template>
+                </v-tabs>
+              </VerticalScrollList>
             </AffixContainerView>
           </div>
 
-          <div class="setting-content flex-grow-1 flex-shrink-1 w-100 pl-lg-5">
+          <div class="setting-content flex-grow-1 flex-shrink-1 w-100 pl-lg-5 pt-5">
             <router-view></router-view>
           </div>
         </div>
@@ -298,6 +306,24 @@ defineOptions({
   }
 
   .secondary-tabs {
+    height: auto !important;
+    min-height: min-content;
+
+    :deep(.v-slide-group) {
+      height: auto !important;
+      overflow: visible !important;
+    }
+
+    :deep(.v-slide-group__container) {
+      height: auto !important;
+      overflow: visible !important;
+    }
+
+    :deep(.v-slide-group__content) {
+      height: auto !important;
+      overflow: visible !important;
+    }
+
     :deep(.v-tab.bg-amber),
     :deep(.v-tab.v-tab--selected),
     :deep(.v-tab--selected) {

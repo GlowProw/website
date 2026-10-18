@@ -1,5 +1,9 @@
 <template>
+  <div v-if="disabled" class="vertical-scroll-list-disabled w-100">
+    <slot></slot>
+  </div>
   <BaseScrollList
+      v-else
       ref="baseRef"
       direction="vertical"
       v-bind="props"
@@ -31,7 +35,7 @@ const props = withDefaults(defineProps<VerticalScrollListProps>(), {
   bottomButtonAriaLabel: '',
   prevButtonAriaLabel: '',
   nextButtonAriaLabel: '',
-  wheelScroll: false,
+  wheelScroll: true,
   dragSensitivity: 2,
   useRAF: true,
   useShiftKey: false,
@@ -39,9 +43,11 @@ const props = withDefaults(defineProps<VerticalScrollListProps>(), {
   forceDraggable: true,
   isFollowScreenCenter: false,
   followScreenSafeDistance: 200,
+  isMask: true,
   height: '',
   maxHeight: '',
-  width: ''
+  width: '',
+  disabled: false
 })
 
 const emit = defineEmits<{

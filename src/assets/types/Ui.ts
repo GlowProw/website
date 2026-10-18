@@ -187,6 +187,7 @@ export interface HorizontalScrollListProps extends Omit<ScrollListProps, 'direct
 export interface VerticalScrollListProps extends Omit<ScrollListProps, 'direction'> {
   topButtonAriaLabel?: string
   bottomButtonAriaLabel?: string
+  disabled?: boolean
 }
 
 // ShinyText.vue
@@ -237,6 +238,8 @@ export interface AffixContainerViewProps {
   disabled?: boolean
   // 简单的 sticky bottom 吸底模式
   affixBottom?: boolean
+  // 自身是否产生滚动条，嵌套自定义滚动容器时可设为 false
+  scrollable?: boolean
 }
 
 // AffixView.vue

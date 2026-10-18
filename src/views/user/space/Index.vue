@@ -133,51 +133,59 @@
           <v-container>
             <div :class="{'d-flex flex-row': !mobile}">
               <div :class="{'mb-10 tabs-box-mobile': mobile, 'tabs-box-desktop': !mobile}">
-                <AffixContainerView>
-                  <v-tabs
-                      stacked
-                      border
-                      hide-slider
-                      :show-arrows="false"
-                      :model-value="currentSubTab"
-                      class="w-100 h-100 secondary-tabs"
-                      :fixed="mobile"
-                      :direction="!mobile ? 'vertical' : 'horizontal'">
-                    <template v-for="(tabItem, index) in spaceSubTabs" :key="index">
-                      <v-tooltip content-class="pa-0" :target="[tooltipPos.x, tooltipPos.y]">
-                        <template v-slot:default>
-                          <v-card border class="py-3 px-10">
-                            {{ t(tabItem.name) }}
-                          </v-card>
-                        </template>
-                        <template v-slot:activator="{props: tooltipProps}">
-                          <div :class="{'mb-2': !mobile, 'mr-5': mobile}">
-                            <v-tab
-                                :value="tabItem.value"
-                                :to="tabItem.to"
-                                selected-class="bg-amber"
-                                class="d-flex align-center justify-center"
-                                min-width="80"
-                                width="80"
-                                height="80"
-                                border
-                                @mousemove="onMouseMove"
-                                @mouseenter="onMouseEnter"
-                                v-bind="tooltipProps"
-                                ripple
-                                slim>
-                              <div>
-                                <v-icon size="40">{{ tabItem.icon }}</v-icon>
-                              </div>
-                            </v-tab>
-                            <p class="mt-1 mb-3 text-center singe-line w-100 tab-item" :title="t(tabItem.name)">
+                <AffixContainerView :scrollable="!mobile ? false : true">
+                  <VerticalScrollList
+                      :disabled="mobile"
+                      :is-indicator="false"
+                      :show-controls="false"
+                      :force-draggable="false"
+                      :wheel-scroll="true"
+                      height="100%">
+                    <v-tabs
+                        stacked
+                        border
+                        hide-slider
+                        :show-arrows="false"
+                        :model-value="currentSubTab"
+                        class="w-100 h-100 secondary-tabs"
+                        :fixed="mobile"
+                        :direction="!mobile ? 'vertical' : 'horizontal'">
+                      <template v-for="(tabItem, index) in spaceSubTabs" :key="index">
+                        <v-tooltip content-class="pa-0" :target="[tooltipPos.x, tooltipPos.y]">
+                          <template v-slot:default>
+                            <v-card border class="py-3 px-10">
                               {{ t(tabItem.name) }}
-                            </p>
-                          </div>
-                        </template>
-                      </v-tooltip>
-                    </template>
-                  </v-tabs>
+                            </v-card>
+                          </template>
+                          <template v-slot:activator="{props: tooltipProps}">
+                            <div :class="{'mb-2': !mobile, 'mr-5': mobile}">
+                              <v-tab
+                                  :value="tabItem.value"
+                                  :to="tabItem.to"
+                                  selected-class="bg-amber"
+                                  class="d-flex align-center justify-center"
+                                  min-width="80"
+                                  width="80"
+                                  height="80"
+                                  border
+                                  @mousemove="onMouseMove"
+                                  @mouseenter="onMouseEnter"
+                                  v-bind="tooltipProps"
+                                  ripple
+                                  slim>
+                                <div>
+                                  <v-icon size="40">{{ tabItem.icon }}</v-icon>
+                                </div>
+                              </v-tab>
+                              <p class="mt-1 mb-3 text-center singe-line w-100 tab-item" :title="t(tabItem.name)">
+                                {{ t(tabItem.name) }}
+                              </p>
+                            </div>
+                          </template>
+                        </v-tooltip>
+                      </template>
+                    </v-tabs>
+                  </VerticalScrollList>
                 </AffixContainerView>
               </div>
 
@@ -213,6 +221,7 @@ import EmptyView from '@/components/EmptyView.vue';
 import RolesTagWidget from '@/components/RolesTagWidget.vue';
 import Time from '@/components/Time.vue';
 import AffixContainerView from '@/components/AffixContainerView.vue';
+import VerticalScrollList from '@/components/VerticalScrollList.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -239,7 +248,7 @@ const isSelf = computed(() => {
 });
 
 // 一级导航菜单固定激活为空间
-const primaryNavMenu = computed<'MeSpace'>(() => 'MeSpace');
+const primaryNavMenu = computed<string>(() => 'MeSpace');
 
 // 子 Tab 路由基础路径
 const basePath = computed(() => {
@@ -353,7 +362,6 @@ defineOptions({
 }
 
 .tab-item {
-  font-size: 13px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

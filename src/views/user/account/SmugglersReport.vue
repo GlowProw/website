@@ -71,7 +71,7 @@ const userPrivilegeMap = ref<Record<string, boolean>>({
  * 是否具备创建周报权限
  */
 const canCreateReport = computed(() => {
-  return authStore.checkPrivilegeGroup(authStore.user?.role, ['smugglersReportConnoisseur', 'admin', 'root', 'super', 'dev']) ||
+  return authStore.checkPrivilegeGroup(authStore.user?.role, ['root', 'super', 'dev']) ||
       userPrivilegeMap.value.smuggler_weekly_report_ownership ||
       userPrivilegeMap.value.smuggler_weekly_report_create
 })
@@ -80,7 +80,7 @@ const canCreateReport = computed(() => {
  * 是否具备编辑周报权限
  */
 const canUpdateReport = computed(() => {
-  return authStore.checkPrivilegeGroup(authStore.user?.role, ['admin', 'root', 'super', 'dev']) ||
+  return authStore.checkPrivilegeGroup(authStore.user?.role, ['root', 'super', 'dev']) ||
       userPrivilegeMap.value.smuggler_weekly_report_ownership ||
       userPrivilegeMap.value.smuggler_weekly_report_update
 })
@@ -89,7 +89,7 @@ const canUpdateReport = computed(() => {
  * 是否具备删除周报权限
  */
 const canDeleteReport = computed(() => {
-  return authStore.checkPrivilegeGroup(authStore.user?.role, ['admin', 'root', 'super', 'dev']) ||
+  return authStore.checkPrivilegeGroup(authStore.user?.role, ['root', 'super', 'dev']) ||
       userPrivilegeMap.value.smuggler_weekly_report_ownership ||
       userPrivilegeMap.value.smuggler_weekly_report_delete
 })
@@ -98,7 +98,7 @@ const canDeleteReport = computed(() => {
  * 是否具备创建评论权限
  */
 const canCreateComment = computed(() => {
-  return authStore.checkPrivilegeGroup(authStore.user?.role, ['smugglersReportConnoisseur', 'admin', 'root', 'super', 'dev']) ||
+  return authStore.checkPrivilegeGroup(authStore.user?.role, ['root', 'super', 'dev']) ||
       userPrivilegeMap.value.smuggler_weekly_report_ownership ||
       userPrivilegeMap.value.smuggler_weekly_report_comment_create
 })
@@ -107,7 +107,7 @@ const canCreateComment = computed(() => {
  * 是否具备编辑评论权限
  */
 const canUpdateComment = computed(() => {
-  return authStore.checkPrivilegeGroup(authStore.user?.role, ['admin', 'root', 'super', 'dev']) ||
+  return authStore.checkPrivilegeGroup(authStore.user?.role, ['root', 'super', 'dev']) ||
       userPrivilegeMap.value.smuggler_weekly_report_ownership ||
       userPrivilegeMap.value.smuggler_weekly_report_comment_update
 })
@@ -116,7 +116,7 @@ const canUpdateComment = computed(() => {
  * 是否具备删除评论权限
  */
 const canDeleteComment = computed(() => {
-  return authStore.checkPrivilegeGroup(authStore.user?.role, ['admin', 'root', 'super', 'dev']) ||
+  return authStore.checkPrivilegeGroup(authStore.user?.role, ['root', 'super', 'dev']) ||
       userPrivilegeMap.value.smuggler_weekly_report_ownership ||
       userPrivilegeMap.value.smuggler_weekly_report_comment_delete
 })
@@ -193,14 +193,78 @@ const getSmugglersReportList = async () => {
         ...smugglersReportListPagination.value,
         page: Number(pageInfo.page) || smugglersReportListPagination.value.page,
         pageSize: Number(pageInfo.pageSize) || smugglersReportListPagination.value.pageSize,
-        totalCount: Number(pageInfo.totalCount) || 0,
         totalPages: Number(pageInfo.totalPages) || 1,
       }
     }
+    selectedReports.value = []
   } catch (e) {
     handleApiError(e, notice, t, {component: 'MySmugglersReport'})
   } finally {
     smugglersReportListLoading.value = false
+  }
+}
+
+// 已选中的周报列表
+const selectedReports = ref<any[]>([])
+
+/**
+ * 判断当前页是否已全选周报
+ */
+const isAllReportsSelected = computed(() => {
+  return smugglersReportListData.value.length > 0 && selectedReports.value.length === smugglersReportListData.value.length
+})
+
+/**
+ * 切换周报全选状态
+ */
+const toggleSelectAllReports = () => {
+  if (isAllReportsSelected.value) {
+    selectedReports.value = []
+  } else {
+    selectedReports.value = [...smugglersReportListData.value]
+  }
+}
+
+/**
+ * 切换周报单项选中
+ * @param report 周报数据项
+ */
+const toggleReportItem = (report: any) => {
+  const index = selectedReports.value.findIndex(i => i.id === report.id)
+  if (index >= 0) {
+    selectedReports.value.splice(index, 1)
+  } else {
+    selectedReports.value.push(report)
+  }
+}
+
+/**
+ * 判断指定周报是否已选中
+ * @param report 周报数据项
+ */
+const isReportSelected = (report: any) => {
+  return selectedReports.value.some(i => i.id === report.id)
+}
+
+/**
+ * 批量删除选中的周报
+ */
+const onBatchDeleteReports = async () => {
+  if (selectedReports.value.length === 0) return
+
+  try {
+    if (!confirm(t('smugglersReport.account.confirmDeleteReport') || '确定要删除选中的周报吗？')) return
+    createSmugglersReportLoading.value = true
+    for (const item of selectedReports.value) {
+      await apis.smugglersApi().deleteReport(item.id)
+    }
+    notice.success(t('smugglersReport.account.commentDeleteSuccess') || '删除成功')
+    selectedReports.value = []
+    await getSmugglersReportList()
+  } catch (e) {
+    handleApiError(e, notice, t, {component: 'MySmugglersReport'})
+  } finally {
+    createSmugglersReportLoading.value = false
   }
 }
 
@@ -326,13 +390,20 @@ const onDeleteSmugglersReport = async (reportData: any) => {
  * @param reportData 可选，待编辑的周报对象
  */
 const openSmugglersReportModel = (reportData: any = null) => {
-  smugglersReportModel.value = true
   if (reportData && reportData.id) {
+    if (!canUpdateReport.value) {
+      notice.warning(t('basic.permissionDenied') || '无权限编辑周报')
+      return
+    }
     smugglersReportModelIsEdit.value = true
     createSmugglersReportData.value = JSON.parse(JSON.stringify(reportData))
     createSmugglersReportData.value.status = reportData.status || 'published'
     createSmugglersReportData.value.startAndEnd = `${reportData.startTime},${reportData.endTime}`
   } else {
+    if (!canCreateReport.value) {
+      notice.warning(t('basic.permissionDenied') || '无权限创建周报')
+      return
+    }
     smugglersReportModelIsEdit.value = false
     createSmugglersReportData.value = {
       title: '',
@@ -341,6 +412,7 @@ const openSmugglersReportModel = (reportData: any = null) => {
       content: {inSeason: [], weekly: [], common: []}
     }
   }
+  smugglersReportModel.value = true
 }
 
 /**
@@ -348,15 +420,23 @@ const openSmugglersReportModel = (reportData: any = null) => {
  * @param reportData 周报数据项
  */
 const openCommendModel = (reportData: any) => {
-  commentModel.value = true
-  selectedSmugglersReport.value = reportData
   if (reportData.isUserComment) {
+    if (!canUpdateComment.value && !canDeleteComment.value) {
+      notice.warning(t('basic.permissionDenied') || '无权限操作该周报评论')
+      return
+    }
     commentModelIsEdit.value = true
     smugglersReportComment.value.content = reportData.userComment?.content ?? ''
   } else {
+    if (!canCreateComment.value) {
+      notice.warning(t('basic.permissionDenied') || '无权限创建评论')
+      return
+    }
     commentModelIsEdit.value = false
     smugglersReportComment.value.content = ''
   }
+  selectedSmugglersReport.value = reportData
+  commentModel.value = true
 }
 
 /**
@@ -364,6 +444,10 @@ const openCommendModel = (reportData: any) => {
  */
 const onCreateCommend = async () => {
   try {
+    if (!canCreateComment.value) {
+      notice.warning(t('basic.permissionDenied') || '无权限创建评论')
+      return
+    }
     createCommentLoading.value = true
     const reportId = selectedSmugglersReport.value?.id
     if (!reportId) return
@@ -385,6 +469,10 @@ const onCreateCommend = async () => {
  */
 const onEditCommend = async () => {
   try {
+    if (!canUpdateComment.value) {
+      notice.warning(t('basic.permissionDenied') || '无权限更新评论')
+      return
+    }
     createCommentLoading.value = true
     const reportId = selectedSmugglersReport.value?.id
     const commentId = selectedSmugglersReport.value?.userComment?.id
@@ -407,6 +495,10 @@ const onEditCommend = async () => {
  */
 const onSoftDeleteComment = async () => {
   try {
+    if (!canDeleteComment.value) {
+      notice.warning(t('basic.permissionDenied') || '无权限删除评论')
+      return
+    }
     if (!confirm(t('smugglersReport.account.confirmSoftDeleteComment') || '确定要软删除此条评论吗？')) return
     createCommentLoading.value = true
     const reportId = selectedSmugglersReport.value?.id
@@ -444,6 +536,11 @@ const onHardDeleteComment = async () => {
   }
 }
 
+/**
+ * 评论删除方法别名
+ */
+const onDeleteComment = onSoftDeleteComment
+
 defineOptions({
   name: 'AccountSmugglersReport'
 })
@@ -457,15 +554,23 @@ defineOptions({
 
     <v-row>
       <v-col cols="12" lg="3">
-        <!-- 顶部标题区域 S -->
         <p class="opacity-60 mb-4">
           {{ t('smugglersReport.account.connoisseurDesc') }}
         </p>
-        <!-- 顶部标题区域 E -->
+
+        <v-btn
+            block
+            border
+            variant="plain"
+            prepend-icon="mdi-open-in-new"
+            to="/smugglers-report/view"
+            target="_blank">
+          {{ t('smugglersReport.account.viewCurrentReport') }}
+        </v-btn>
       </v-col>
       <v-col>
-        <!-- 未具备鉴赏家权限时的申请展示卡片 S -->
         <AffixBoxHasTitleView>
+          <!-- 未具备鉴赏家权限时的申请展示卡片 S -->
           <v-card border rounded="lg" class="pa-6 position-relative overflow-hidden mb-6" v-if="!isHasSmugglersReportPrivilege && !checkPermissionLoading">
             <div class="position-absolute top-0 right-0 opacity-10 pt-4 pr-4">
               <v-icon size="180">mdi-trophy-award</v-icon>
@@ -496,57 +601,83 @@ defineOptions({
           </v-card>
           <!-- 未具备鉴赏家权限时的申请展示卡片 E -->
 
-          <!-- Header S -->
+          <!-- 周报管理列表 S -->
           <div v-if="isHasSmugglersReportPrivilege">
+            <!-- 操作头 S -->
             <AffixContainerView>
               <v-card class="d-flex align-center justify-space-between flex-wrap ga-2 pa-2">
-                <v-spacer></v-spacer>
+                <div class="d-flex align-center flex-wrap ga-2">
+                  <v-checkbox-btn
+                      v-if="canDeleteReport && smugglersReportListData.length > 0"
+                      :model-value="isAllReportsSelected"
+                      :indeterminate="selectedReports.length > 0 && !isAllReportsSelected"
+                      @click.stop="toggleSelectAllReports"
+                      class="mx-2">
+                    <template v-slot:label>
+                      <p
+                          class="text-body-2 font-weight-medium cursor-pointer user-select-none singe-line"
+                          @click="toggleSelectAllReports">
+                        {{ t('account.selectAll') }}
+                      </p>
+                    </template>
+                  </v-checkbox-btn>
 
-                <div class="d-flex align-center ga-2">
+                  <p v-if="selectedReports.length > 0">
+                    {{ t('account.itemsSelected', {count: selectedReports.length}) }}
+                  </p>
+
                   <v-btn
+                      v-if="canDeleteReport && selectedReports.length > 0"
                       variant="tonal"
-                      prepend-icon="mdi-open-in-new"
-                      to="/smugglers-report/view">
-                    {{ t('smugglersReport.account.viewCurrentReport') }}
+                      color="error"
+                      prepend-icon="mdi-delete"
+                      @click="onBatchDeleteReports">
+                    {{ t('smugglersReport.account.deleteReport') }}
                   </v-btn>
 
                   <v-btn
-                      v-if="authStore.isLogin && authStore.checkPrivilegeGroup(authStore.user?.role, ['smugglersReportConnoisseur', 'admin', 'super', 'dev'])"
+                      v-if="canCreateReport && selectedReports.length <= 0"
                       color="amber"
                       variant="tonal"
                       prepend-icon="mdi-plus"
                       @click="openSmugglersReportModel">
                     {{ t('smugglersReport.account.createWeeklyData') }}
                   </v-btn>
-
-                  <v-btn
-                      size="small"
-                      variant="tonal"
-                      icon="mdi-refresh"
-                      @click="getSmugglersReportList"
-                      :loading="smugglersReportListLoading">
-                  </v-btn>
                 </div>
+
+                <v-spacer></v-spacer>
+
+                <v-btn
+                    variant="flat"
+                    @click="getSmugglersReportList"
+                    :loading="smugglersReportListLoading">
+                  <v-icon>mdi-refresh</v-icon>
+                </v-btn>
               </v-card>
             </AffixContainerView>
-            <!-- Header E -->
+            <!-- 操作头 E -->
 
             <!-- 列表内容展示 -->
-            <div v-if="smugglersReportListData.length > 0" class="d-flex flex-column ga-3 mt-4">
-              <v-card
-                  v-for="(i, index) in smugglersReportListData"
-                  :key="i.id || index"
-                  border
-                  :class="['pa-4 hover-card transition-all', {'active-report-border': isReportActive(i)}]">
-                <div class="d-flex align-center justify-space-between flex-wrap ga-3">
-                  <div class="d-flex align-center flex-grow-1 min-width-0">
-                    <v-avatar size="44" rounded="lg" color="surface-variant" class="mr-3 flex-shrink-0">
-                      <v-icon size="24" :color="isReportActive(i) ? 'amber' : 'medium-emphasis'">mdi-trophy-award</v-icon>
-                    </v-avatar>
-
-                    <div class="min-width-0 flex-grow-1">
-                      <div class="d-flex align-center flex-wrap ga-2 mb-1">
-                        <h3 class="text-body-1 font-weight-bold singe-line mr-1">{{ i.title }}</h3>
+            <div v-if="smugglersReportListData.length > 0">
+              <v-list lines="three" variant="text" class="bg-transparent">
+                <template v-for="(i, index) in smugglersReportListData" :key="i.id || index">
+                  <v-list-item :class="['', {'active-report-border': isReportActive(i)}]">
+                    <template v-slot:prepend>
+                      <div class="d-flex align-center">
+                        <v-checkbox-btn
+                            v-if="canDeleteReport"
+                            :model-value="isReportSelected(i)"
+                            @click.stop="toggleReportItem(i)"
+                            class="mr-2 flex-shrink-0">
+                        </v-checkbox-btn>
+                        <v-avatar size="50" rounded="lg" color="surface-variant" class="mr-3 flex-shrink-0">
+                          <v-icon size="24" :color="isReportActive(i) ? 'amber' : 'medium-emphasis'">mdi-trophy-award</v-icon>
+                        </v-avatar>
+                      </div>
+                    </template>
+                    <template v-slot:title>
+                      <div class="d-flex align-center flex-wrap ga-2">
+                        <p>{{ i.title }}</p>
 
                         <v-chip
                             size="x-small"
@@ -565,11 +696,14 @@ defineOptions({
                           {{ t('smugglersReport.status.currentActive') }}
                         </v-chip>
                       </div>
-                      <div class="d-flex align-center flex-wrap ga-2 text-caption opacity-60">
-                        <o class="d-flex align-center">
+                    </template>
+
+                    <template v-slot:subtitle>
+                      <div class="d-flex align-center flex-wrap ga-2 mt-2">
+                        <p class="d-flex align-center">
                           <v-icon size="14" class="mr-1">mdi-comment-outline</v-icon>
                           {{ i.commentCount || 0 }} 条评论
-                        </o>
+                        </p>
                         <v-divider vertical inset class="mx-1"></v-divider>
                         <p class="d-flex align-center ga-2">
                           <v-icon size="14">mdi-calendar-range</v-icon>
@@ -578,41 +712,49 @@ defineOptions({
                           <TimeView :time="i.endTime"></TimeView>
                         </p>
                       </div>
-                    </div>
-                  </div>
+                    </template>
 
-                  <!-- 右侧操作栏 -->
-                  <div class="d-flex align-center ga-2 flex-shrink-0">
-                    <v-btn
-                        v-if="canUpdateReport"
-                        size="small"
-                        variant="tonal"
-                        prepend-icon="mdi-pencil"
-                        @click="openSmugglersReportModel(i)">
-                      {{ t('smugglersReport.account.editReport') }}
-                    </v-btn>
+                    <template v-slot:append>
+                      <v-menu location="bottom end">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                              v-bind="props"
+                              size="small"
+                              variant="text"
+                              icon="mdi-dots-vertical">
+                          </v-btn>
+                        </template>
+                        <v-list density="compact" min-width="140">
+                          <v-list-item
+                              v-if="canUpdateReport"
+                              prepend-icon="mdi-pencil"
+                              @click="openSmugglersReportModel(i)">
+                            <v-list-item-title>{{ t('smugglersReport.account.editReport') }}</v-list-item-title>
+                          </v-list-item>
 
-                    <v-btn
-                        size="small"
-                        variant="tonal"
-                        color="amber"
-                        :prepend-icon="i.isUserComment ? 'mdi-comment-edit-outline' : 'mdi-comment-plus-outline'"
-                        @click="openCommendModel(i)">
-                      {{ i.isUserComment ? t('smugglersReport.account.viewComment') : t('smugglersReport.account.createComment') }}
-                    </v-btn>
+                          <v-list-item
+                              v-if="i.isUserComment ? (canUpdateComment || canDeleteComment) : canCreateComment"
+                              :prepend-icon="i.isUserComment ? 'mdi-comment-edit-outline' : 'mdi-comment-plus-outline'"
+                              @click="openCommendModel(i)">
+                            <v-list-item-title>{{ i.isUserComment ? t('smugglersReport.account.viewComment') : t('smugglersReport.account.createComment') }}</v-list-item-title>
+                          </v-list-item>
 
-                    <v-btn
-                        v-if="canDeleteReport"
-                        size="small"
-                        variant="tonal"
-                        color="error"
-                        prepend-icon="mdi-delete"
-                        @click="onDeleteSmugglersReport(i)">
-                      {{ t('smugglersReport.account.deleteReport') }}
-                    </v-btn>
-                  </div>
-                </div>
-              </v-card>
+                          <v-divider v-if="canDeleteReport && (canUpdateReport || (i.isUserComment ? (canUpdateComment || canDeleteComment) : canCreateComment))" class="my-1"></v-divider>
+
+                          <v-list-item
+                              v-if="canDeleteReport"
+                              prepend-icon="mdi-delete"
+                              class="text-error"
+                              @click="onDeleteSmugglersReport(i)">
+                            <v-list-item-title>{{ t('smugglersReport.account.deleteReport') }}</v-list-item-title>
+                          </v-list-item>
+                        </v-list>
+                      </v-menu>
+                    </template>
+                  </v-list-item>
+                  <v-divider inset v-if="index < smugglersReportListData.length - 1"></v-divider>
+                </template>
+              </v-list>
 
               <!-- 分页器 S -->
               <div
@@ -634,7 +776,7 @@ defineOptions({
               <EmptyView></EmptyView>
             </div>
           </div>
-          <!-- 具备鉴赏家权限时的周报管理列表 E -->
+          <!-- 周报管理列表 E -->
 
           <template v-slot:title>
             {{ t('account.mySmugglersReport') }}
@@ -693,6 +835,7 @@ defineOptions({
     <v-dialog v-model="smugglersReportModel" absolute
               sticky
               scrim
+              width="auto"
               no-click-animation>
       <v-card border rounded="lg">
         <v-card-title class="pa-4 font-weight-bold d-flex align-center justify-space-between border-b">
@@ -701,49 +844,51 @@ defineOptions({
         </v-card-title>
 
         <v-card-item class="pa-4">
-          <v-row class="mb-2">
-            <v-col cols="12" md="5">
-              <v-text-field
-                  v-model="createSmugglersReportData.title"
-                  :label="t('smugglersReport.account.reportTitle')"
-                  density="comfortable"
-                  variant="outlined"
-                  counter="255"
-                  maxlength="255"
-                  :rules="reportTitleRules">
-              </v-text-field>
+          <v-row>
+            <v-col cols="12" sm="12" md="12" lg="6">
+              <v-card variant="text" width="635" class="mx-auto">
+                <VerticalScrollList :is-indicator="false">
+                  <SmugglersReportShowItemWidget :data="createSmugglersReportData.content"></SmugglersReportShowItemWidget>
+                </VerticalScrollList>
+              </v-card>
             </v-col>
-            <v-col cols="12" md="4">
-              <TimeFrame
-                  density="comfortable"
-                  variant="outlined"
-                  v-model="createSmugglersReportData.startAndEnd"
-                  :placeholder="createSmugglersReportData.startAndEnd"
-                  :rules="reportTimeRules">
-              </TimeFrame>
-            </v-col>
-            <v-col cols="12" md="3">
-              <v-select
-                  v-model="createSmugglersReportData.status"
-                  :items="[
+            <v-col cols="12" sm="12" md="12" lg="6">
+              <!-- 周报信息 -->
+              <v-row class="mt-2 mb-4">
+                <v-col cols="12" md="12">
+                  <v-text-field
+                      v-model="createSmugglersReportData.title"
+                      :label="t('smugglersReport.account.reportTitle')"
+                      density="comfortable"
+                      variant="outlined"
+                      counter="255"
+                      maxlength="255"
+                      :rules="reportTitleRules">
+                  </v-text-field>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <TimeFrame
+                      density="comfortable"
+                      variant="outlined"
+                      v-model="createSmugglersReportData.startAndEnd"
+                      :placeholder="createSmugglersReportData.startAndEnd"
+                      :rules="reportTimeRules">
+                  </TimeFrame>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-select
+                      v-model="createSmugglersReportData.status"
+                      :items="[
                     { title: t('smugglersReport.status.published') || '已发布', value: 'published' },
                     { title: t('smugglersReport.status.draft') || '草稿', value: 'draft' }
                   ]"
-                  :label="t('smugglersReport.status.label')"
-                  density="comfortable"
-                  variant="outlined"
-                  hide-details>
-              </v-select>
-            </v-col>
-          </v-row>
+                      :label="t('smugglersReport.status.label')"
+                      density="comfortable"
+                      variant="outlined">
+                  </v-select>
+                </v-col>
+              </v-row>
 
-          <v-row>
-            <v-col cols="12" md="6">
-              <VerticalScrollList :is-indicator="false">
-                <SmugglersReportShowItemWidget :data="createSmugglersReportData.content"></SmugglersReportShowItemWidget>
-              </VerticalScrollList>
-            </v-col>
-            <v-col cols="12" md="6">
               <SmugglersReportEditor v-model="createSmugglersReportData.content"></SmugglersReportEditor>
             </v-col>
           </v-row>
@@ -777,6 +922,7 @@ defineOptions({
     <v-dialog v-model="commentModel" absolute
               sticky
               scrim
+              width="auto"
               no-click-animation>
       <v-card border rounded="lg">
         <v-card-title class="pa-4 font-weight-bold d-flex align-center justify-space-between border-b">
@@ -784,12 +930,16 @@ defineOptions({
           <v-btn variant="tonal" icon="mdi-close" @click="commentModel = false"></v-btn>
         </v-card-title>
 
-        <v-card-text class="pa-4">
+        <v-card-item class="pa-4">
           <v-row>
-            <v-col cols="12" md="6">
-              <SmugglersReportShowItemWidget :data="selectedSmugglersReport.content"></SmugglersReportShowItemWidget>
+            <v-col cols="12" sm="12" md="12" lg="6">
+              <v-card variant="text" width="635" class="mx-auto">
+                <VerticalScrollList :is-indicator="false">
+                  <SmugglersReportShowItemWidget :data="selectedSmugglersReport.content"></SmugglersReportShowItemWidget>
+                </VerticalScrollList>
+              </v-card>
             </v-col>
-            <v-col cols="12" md="6">
+            <v-col cols="12" sm="12" md="12" lg="6">
               <v-alert type="info" variant="tonal" density="compact" class="mb-3 text-caption">
                 {{ t('smugglersReport.account.warningContent') }}
               </v-alert>
@@ -797,14 +947,14 @@ defineOptions({
                   min-height="250px"
                   :placeholder="t('smugglersReport.account.recommendationPlaceholder')"
                   v-model="smugglersReportComment.content">
-              </Textarea>
+                </Textarea>
             </v-col>
           </v-row>
-        </v-card-text>
+        </v-card-item>
 
         <v-card-actions class="pa-4 border-t">
           <v-btn
-              v-if="commentModelIsEdit"
+              v-if="commentModelIsEdit && canDeleteComment"
               color="error"
               variant="tonal"
               @click="onDeleteComment">
@@ -815,6 +965,7 @@ defineOptions({
             {{ t('basic.button.cancel') }}
           </v-btn>
           <v-btn
+              v-if="commentModelIsEdit ? canUpdateComment : canCreateComment"
               color="amber"
               variant="tonal"
               :loading="createCommentLoading"
