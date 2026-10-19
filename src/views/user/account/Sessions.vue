@@ -181,7 +181,7 @@ const copyText = (text: string) => {
   navigator.clipboard.writeText(text).then(() => {
     notice.success(t('basic.button.copied') || '已复制')
   }).catch(() => {
-    notice.error(t('basic.copyFail') || '复制失败')
+    notice.error(t('basic.tips.copyFailed') || '复制失败')
   })
 }
 

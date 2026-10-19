@@ -716,7 +716,9 @@
       "view": "View",
       "retry": "Retry",
       "actions": "Actions",
-      "setting": "Settings"
+      "setting": "Settings",
+      "copy": "Copy",
+      "copied": "Copied"
     },
     "assembly": {
       "publish": {
@@ -3601,6 +3603,10 @@
       "personalCenter": "Personal Center",
       "creatorCenter": "Creator Center",
       "messageCenter": "Message Center",
+      "userSpace": "User Space",
+      "security": "Security",
+      "orders": "Orders",
+      "subscriptions": "Sponsorship & Subscriptions",
       "switchLanguage": "Language",
       "logout": "Log Out"
     },

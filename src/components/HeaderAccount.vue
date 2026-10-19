@@ -62,11 +62,20 @@ const onChangeLang = (targetLang: string): void => {
   });
 };
 
+/**
+ * 退出登录并返回首页
+ */
 const onLogout = (): void => {
   authStore.logout();
   router.push('/').catch(() => {
   });
 };
+
+// 当前登录用户的专属个人空间地址
+const userSpaceRoute = computed(() => {
+  const uid = authStore.user?.userId;
+  return uid ? `/space/${uid}` : '/space';
+});
 </script>
 
 <template>
@@ -97,6 +106,11 @@ const onLogout = (): void => {
               <v-list-item-title>{{ t('header.accountMenu.personalCenter') }}</v-list-item-title>
             </v-list-item>
 
+            <v-list-item :to="userSpaceRoute"
+                         prepend-icon="mdi-dock-window" rounded="lg">
+              <v-list-item-title>{{ t('header.accountMenu.userSpace') }}</v-list-item-title>
+            </v-list-item>
+
             <v-list-item :to="{ name: 'AccountDataCenter' }"
                          prepend-icon="mdi-creation" rounded="lg">
               <v-list-item-title>{{ t('header.accountMenu.creatorCenter') }}</v-list-item-title>
@@ -108,6 +122,21 @@ const onLogout = (): void => {
               <template v-slot:append v-if="unreadCount > 0">
                 <span class="unread-badge">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
               </template>
+            </v-list-item>
+
+            <v-list-item :to="{ path: '/account/orders' }"
+                         prepend-icon="mdi-receipt-text-outline" rounded="lg">
+              <v-list-item-title>{{ t('header.accountMenu.orders') }}</v-list-item-title>
+            </v-list-item>
+
+            <v-list-item :to="{ path: '/account/security' }"
+                         prepend-icon="mdi-shield-lock-outline" rounded="lg">
+              <v-list-item-title>{{ t('header.accountMenu.security') }}</v-list-item-title>
+            </v-list-item>
+
+            <v-list-item :to="{ path: '/setting/subscriptions' }"
+                         prepend-icon="mdi-crown-outline" rounded="lg">
+              <v-list-item-title>{{ t('header.accountMenu.subscriptions') }}</v-list-item-title>
             </v-list-item>
 
             <v-divider class="my-1"></v-divider>

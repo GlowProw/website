@@ -694,7 +694,9 @@
       "view": "前往查看",
       "retry": "重試",
       "actions": "操作",
-      "setting": "設定"
+      "setting": "設定",
+      "copy": "複製",
+      "copied": "已複製"
     },
     "assembly": {
       "publish": {
@@ -3594,6 +3596,10 @@
       "personalCenter": "個人中心",
       "creatorCenter": "創作中心",
       "messageCenter": "訊息中心",
+      "userSpace": "使用者空間",
+      "security": "安全",
+      "orders": "訂單",
+      "subscriptions": "贊助訂閱",
       "switchLanguage": "切換語言",
       "logout": "註銷帳戶"
     },

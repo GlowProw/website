@@ -715,7 +715,9 @@
       "view": "前往查看",
       "retry": "重试",
       "actions": "操作",
-      "setting": "设置"
+      "setting": "设置",
+      "copy": "复制",
+      "copied": "已复制"
     },
     "assembly": {
       "publish": {
@@ -3603,6 +3605,10 @@
       "personalCenter": "个人中心",
       "creatorCenter": "创作中心",
       "messageCenter": "消息中心",
+      "userSpace": "用户空间",
+      "security": "安全",
+      "orders": "订单",
+      "subscriptions": "赞助订阅",
       "switchLanguage": "切换语言",
       "logout": "注销账户"
     },

@@ -11,7 +11,7 @@ export const useAuthStore = defineStore('account', () => {
     const currentUser = computed(() => user.value?.alternativeName || user.value?.username || 'none')
 
     /**
-     * 判断当前用户是否为有效订阅会员（见习海盗至总督各赞助档位）
+     * 判断当前用户是否为有效订阅会员（见习海盗至海盗各赞助档位）
      */
     const isSubscriber = computed<boolean>(() => {
         if (!user.value?.token) return false
