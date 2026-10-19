@@ -41,9 +41,19 @@ export const subscriptionsConfig: SubscriptionsConfig = {
         core: false,
         role: 'contributor1'
       }
+    },
+    {
+      tier: '0.1',
+      monthlyCny: 0.1,
+      yearlyCny: 1.2,
+      plans: {
+        core: false,
+        role: 'contributor1',
+        isDebug: true
+      }
     }
   ],
-  tierOrder: ['100', '50', '10', '5']
+  tierOrder: ['100', '50', '10', '5', '0.1']
 }
 
 export default subscriptionsConfig

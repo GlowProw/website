@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
-import {computed, onMounted, type Ref, ref, toRaw, watch} from "vue";
+import {computed, onBeforeUnmount, onMounted, type Ref, ref, toRaw, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {v6 as uuidv6} from "uuid";
 
@@ -169,7 +169,15 @@ const getVerifyMessage = (v: { required: boolean; message: string; title?: strin
  */
 const onWorkshopUpdateEvent = () => {
   runWorkshopVerify();
+  triggerAutoSave();
 };
+
+/**
+ * 监听发布信息变化，触发草稿自动保存
+ */
+watch(() => publishData.value, () => {
+  triggerAutoSave();
+}, {deep: true});
 
 /**
  * 监听配装属性变化，同步更新配装视图
@@ -318,7 +326,18 @@ const loadAssemblyData = () => {
 
 const onSubjectViewReady = async () => {
   loadAssemblyData();
+  setTimeout(() => {
+    lastAutoSavedSnapshot = JSON.stringify(getWorkshopDraftPayload());
+    isInitialLoaded.value = true;
+  }, 500);
 };
+
+onBeforeUnmount(() => {
+  if (pendingAutoSaveTimer) {
+    clearTimeout(pendingAutoSaveTimer);
+    pendingAutoSaveTimer = null;
+  }
+});
 
 /**
  * 提交发布或编辑保存
@@ -414,18 +433,25 @@ const onSubmit = async () => {
   }
 };
 
-/**
- * 快速存档（将配装和发布信息一并存入草稿）
- */
-const onQuickArchiving = () => {
-  draftSaveQuickArchivingLoading.value = true;
+// 上次自动保存的时间戳
+let lastAutoSavedTimestamp = 0;
+// 上次自动保存的快照内容串
+let lastAutoSavedSnapshot = '';
+// 自动保存延迟执行定时器
+let pendingAutoSaveTimer: any = null;
+// 页面工坊初次加载完毕标识
+const isInitialLoaded = ref(false);
 
+/**
+ * 提取当前工坊配装与发布信息的完整草稿载荷
+ */
+const getWorkshopDraftPayload = () => {
   const currentAssembly = assemblyMainSubjectView.value?.refs?.assembly?.onExport?.() || shareData.value?.assembly?.data || shareData.value?.assembly;
   const currentWheel = assemblyMainSubjectView.value?.refs?.wheel?.onExport?.() || shareData.value?.wheel?.data || shareData.value?.wheel;
   const currentWarehouse = assemblyMainSubjectView.value?.refs?.warehouse?.onExport?.() || shareData.value?.warehouse?.data || shareData.value?.warehouse;
   const currentMastery = assemblyMainSubjectView.value?.refs?.mastery?.onExport?.() || shareData.value?.mastery?.data || shareData.value?.mastery;
 
-  const draftPayload = {
+  return {
     ...shareData.value,
     name: publishData.value.name || t('assembly.workshop.quickArchiving'),
     description: publishData.value.description || '',
@@ -438,12 +464,74 @@ const onQuickArchiving = () => {
     warehouse: currentWarehouse,
     mastery: currentMastery
   };
+};
 
-  storageIntermediateTransfer.update(draftPayload, {
+/**
+ * 执行草稿写入保存
+ *
+ * @param snapshot 待保存的快照字符串
+ * @param payload 待保存的草稿载荷对象
+ */
+const executeAutoSave = (snapshot: string, payload: any) => {
+  storageIntermediateTransfer.update(payload, {
     uid: 'quickArchiving',
     saveType: StorageIntermediateTransferSaveType.Draft,
     category: 'assembly'
   });
+  lastAutoSavedTimestamp = Date.now();
+  lastAutoSavedSnapshot = snapshot;
+  if (pendingAutoSaveTimer) {
+    clearTimeout(pendingAutoSaveTimer);
+    pendingAutoSaveTimer = null;
+  }
+};
+
+/**
+ * 触发草稿自动保存
+ * 满足要求：
+ * 1. 内容与上一次保存一样则跳过
+ * 2. 内容变动且距离上次自动保存超20秒立即保存
+ * 3. 20秒内变动过则跳过当前立即保存，推迟至超出时间后自动保存最新内容
+ */
+const triggerAutoSave = () => {
+  if (!isInitialLoaded.value) return;
+
+  const payload = getWorkshopDraftPayload();
+  const snapshot = JSON.stringify(payload);
+
+  if (snapshot === lastAutoSavedSnapshot) {
+    return;
+  }
+
+  const now = Date.now();
+  const elapsed = now - lastAutoSavedTimestamp;
+
+  if (elapsed >= 20000) {
+    executeAutoSave(snapshot, payload);
+  } else {
+    if (!pendingAutoSaveTimer) {
+      const remaining = 20000 - elapsed;
+      pendingAutoSaveTimer = setTimeout(() => {
+        pendingAutoSaveTimer = null;
+        const latestPayload = getWorkshopDraftPayload();
+        const latestSnapshot = JSON.stringify(latestPayload);
+        if (latestSnapshot !== lastAutoSavedSnapshot) {
+          executeAutoSave(latestSnapshot, latestPayload);
+        }
+      }, remaining);
+    }
+  }
+};
+
+/**
+ * 快速存档（将配装和发布信息一并存入草稿）
+ */
+const onQuickArchiving = () => {
+  draftSaveQuickArchivingLoading.value = true;
+  const draftPayload = getWorkshopDraftPayload();
+  const snapshot = JSON.stringify(draftPayload);
+
+  executeAutoSave(snapshot, draftPayload);
 
   setTimeout(() => {
     draftSaveQuickArchivingLoading.value = false;

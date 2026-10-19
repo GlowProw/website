@@ -10,6 +10,7 @@ import {useReminderStore} from "~/stores/reminderStore";
 import {useMessagesUnreadStore} from "~/stores/messagesUnreadStore";
 import {useAppStore} from "~/stores/appStore";
 import {usePreloadStore} from "~/stores/preloadStore";
+import {useAuthStore} from "~/stores/userAccountStore";
 import {loadRemoteLangMessages} from "@/assets/sripts/remote_i18n";
 import {setupGlobalHotkeys} from "@/assets/sripts/global_hotkeys";
 
@@ -21,6 +22,7 @@ const reminderStore = useReminderStore();
 const messagesUnreadStore = useMessagesUnreadStore();
 const appStore = useAppStore();
 const preloadStore = usePreloadStore();
+const authStore = useAuthStore();
 
 const route = useRoute();
 
@@ -129,6 +131,22 @@ onMounted(async () => {
 
   document.dispatchEvent(new Event('render-event'));
   reminderStore.init();
+
+  // 赞助者与特权身份全局禁用广告与追踪代码
+  watch(
+    () => authStore.user,
+    (user) => {
+      if (typeof window === 'undefined') return;
+      const all = [...(user?.role || []), ...((user?.privilege || []) as string[])];
+      const isDonor = all.some(r =>
+        ['contributor', 'contributor1', 'contributor2', 'contributor3', 'contributor4', 'contributor5', 'root', 'admin', 'super', 'dev'].includes(r)
+      );
+      if (isDonor) {
+        (window as any)['ga-disable-G-M7GHT4Z92C'] = true;
+      }
+    },
+    { immediate: true }
+  );
 });
 
 onUnmounted(() => {

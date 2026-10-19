@@ -44,6 +44,7 @@ export interface SubscriptionPlans {
   platforms: {
     afdian: boolean
     stripe: boolean
+    paypal?: boolean
   }
 }
 
@@ -65,7 +66,7 @@ export interface SubscriptionProgress {
 export interface CreateOrderParams {
   tier: string
   period: 'monthly' | 'yearly' | 'once'
-  platform: 'afdian' | 'stripe'
+  platform: 'afdian' | 'stripe' | 'paypal'
   amount?: number
 }
 

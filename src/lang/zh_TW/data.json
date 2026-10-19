@@ -3867,9 +3867,11 @@
     "payCancelled": "您已取消本次支付",
     "choosePlatform": "選擇支付平台",
     "noPlatform": "支付渠道尚未設定，請稍後再來",
+    "platformAfdian": "愛發電",
     "portalDisplay": "獲得門戶展示",
     "benefitRole": "獲得「{role}」特權身分",
     "benefitAvatar": "頭像更換額度 +3 次（支援隨時刪除恢復預設）",
+    "benefitNoAds": "移除任何廣告與追蹤",
     "benefitPortal": "尊享門戶與首頁核心捐助者展示",
     "quotaMultipliers": {
       "100": "額度加成 5.0 倍",

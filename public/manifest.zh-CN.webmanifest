@@ -3,7 +3,7 @@
   "short_name": "闪耀船首",
   "description": "《碧海黑帆 (Skull and Bones)》全能游戏百科与交互地图助手：全收集地图、船只配置模拟、全物品图鉴、走私差事与帝国技能树。",
   "lang": "zh-CN",
-  "start_url": "/zh-CN/",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#000000",

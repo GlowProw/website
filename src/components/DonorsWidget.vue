@@ -3,6 +3,7 @@
 import {onMounted, ref} from 'vue'
 import {useI18n} from 'vue-i18n'
 import {useSubscriptionApi} from '@/assets/sripts/api/subscription_service'
+import {storage} from '@/assets/sripts'
 import {useAuthStore} from '~/stores/userAccountStore'
 import UserAvatar from "@/components/UserAvatar.vue";
 import AccountCardWidget from "@/components/AccountCardWidget.vue";
@@ -18,26 +19,46 @@ const donors = ref<any[]>([])
 const isCoreDonor = ref(false)
 const TOTAL = 60
 
+/**
+ * 空占位赞助者槽位对象
+ *
+ * @param i 槽位索引
+ */
 const placeholder = (i: number) => ({
   id: `__empty_${i}`,
   isEmpty: true,
 })
 
+/**
+ * 格式化并填充核心赞助者列表
+ *
+ * @param real 原始赞助者列表数据
+ */
+const renderDonors = (real: any[]) => {
+  const filled = real.slice(0, TOTAL)
+  for (let i = filled.length; i < TOTAL; i++) {
+    filled.push(placeholder(i))
+  }
+  donors.value = filled
+}
 
 onMounted(() => {
+  // 读取会话存储中已有缓存数据优先渲染
+  const cached = storage.session.get('donors_core')
+  if (cached?.code === 0 && Array.isArray(cached?.data?.value)) {
+    renderDonors(cached.data.value)
+  }
+
+  // 异步拉取最新数据并写入会话存储
   api.getCoreDonors().then((list: any) => {
     const real = Array.isArray(list) ? list : (list?.data ?? [])
-    const filled = real.slice(0, TOTAL)
-
-    for (let i = filled.length; i < TOTAL; i++) {
-      filled.push(placeholder(i))
-    }
-
-    donors.value = filled
+    storage.session.set('donors_core', real)
+    renderDonors(real)
   }).catch(() => {
-    donors.value = Array.from({length: TOTAL}, (_, i) => placeholder(i))
+    if (donors.value.length === 0) {
+      donors.value = Array.from({length: TOTAL}, (_, i) => placeholder(i))
+    }
   })
-
 
   if (authStore.user?.token) {
     api.getMyStatus().then(s => {

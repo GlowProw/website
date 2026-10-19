@@ -187,6 +187,7 @@
     }
   },
   "basic": {
+    "untitled": "Untitled",
     "visitor": {
       "recentVisitors": "Recent Visitors",
       "noVisitors": "No browse records yet",
@@ -198,6 +199,14 @@
       "default": "Loading assets..."
     },
     "tips": {
+      "permissionDenied": "Permission denied",
+      "createSuccess": "Created successfully",
+      "updateSuccess": "Saved successfully",
+      "deleteSuccess": "Deleted successfully",
+      "copySuccess": "Copied successfully",
+      "pasteSuccess": "Pasted successfully",
+      "copyFailed": "Failed to copy",
+      "clipboardEmpty": "Clipboard is empty",
       "actionLocked": "Operation is locked, please try again tomorrow.",
       "notConfigured": "System quota exceeded, please contact the administrator.",
       "quota": {
@@ -851,6 +860,7 @@
   },
   "account": {
     "trash": "Recycle Bin",
+    "trashDescription": "The Recycle Bin is a temporary storage area for deleted data. Items you delete are not immediately removed and will be automatically cleaned up periodically according to system policies. If you accidentally delete something, you can restore it here.",
     "logout": "Log Out",
     "dataList": "Content",
     "dataCenter": {
@@ -1118,7 +1128,8 @@
       "viewComment": "View Comment",
       "dialogTitle": "Create Weekly Smuggler Data",
       "deleteReport": "Delete Report",
-      "createReviewTitle": "Create Review",
+      "createReviewTitle": "Create Connoisseur Review",
+      "editReviewTitle": "Edit Connoisseur Review",
       "reviewNotice": "Please do not post content unrelated to smuggler goods.",
       "reviewPlaceholder": "Enter your recommendations and review content",
       "deleteComment": "Delete Comment"
@@ -2727,6 +2738,7 @@
       "draft": "Draft",
       "inputDraftName": "Enter draft name",
       "quickArchiving": "Quick Save Draft",
+      "quickArchive": "Quick Save Draft",
       "useDraft": "Use"
     },
     "calc": {
@@ -2854,6 +2866,15 @@
     "description": "Smuggler's Connoisseur evaluates weekly smuggler refreshed items and provides purchasing recommendations for players.",
     "weekly": "Weekly",
     "weeklyItems": "Weekly Items",
+    "inSeason": "In-Season",
+    "inSeasonItems": "In-Season Items",
+    "common": "Common",
+    "commonItems": "Common Items",
+    "addCategory": "Add Category",
+    "removeCategory": "Remove Category",
+    "removeCategoryConfirm": "Are you sure you want to remove this category and all its items?",
+    "selectCategory": "Select Category to Create",
+    "noMoreCategories": "All categories have been added",
     "itemId": "Item ID",
     "itemIdRequired": "Please enter or select an item ID",
     "currency": "Currency",
@@ -2907,6 +2928,7 @@
       "createWeeklyTitle": "Create Smuggler Weekly Data",
       "deleteReport": "Delete Report",
       "createReviewTitle": "Create Connoisseur Review",
+      "editReviewTitle": "Edit Connoisseur Review",
       "warningContent": "Please do not post content unrelated to smugglers",
       "recommendationPlaceholder": "Enter your recommendation and review content",
       "deleteComment": "Delete Comment",
@@ -2922,7 +2944,31 @@
       "commentSoftDeleteSuccess": "Review soft-deleted successfully",
       "commentHardDeleteSuccess": "Review permanently deleted",
       "commentCount": "{count} comments",
-      "reportTitle": "Report Title"
+      "reportTitle": "Report Title",
+      "titleRequired": "Please enter a report title",
+      "timeRequired": "Please select the complete time range",
+      "titleMinLength": "Title must be at least 1 character",
+      "titleMaxLength": "Title cannot exceed 255 characters",
+      "cloneReport": "Clone This Report",
+      "cloneSuccess": "Report data cloned successfully",
+      "copyReport": "Copy Report Data",
+      "copySuccess": "Report data copied to clipboard",
+      "pasteReport": "Paste & Import Data",
+      "pasteSuccess": "Report data pasted and imported successfully",
+      "pasteInvalid": "Invalid report data format in clipboard",
+      "cloneFromSelect": "Clone from Existing Report",
+      "cloneSelectPlaceholder": "Select a report to clone...",
+      "cloneConfirm": "Are you sure you want to clone data from the selected report? Current item data will be overwritten.",
+      "weeklyReport": "Smuggler's Weekly Report",
+      "reportComment": "Weekly Report Comment",
+      "saveDraft": "Save Draft",
+      "restoreDraft": "Restore Draft",
+      "draftSaved": "Draft saved",
+      "draftRestored": "Draft restored",
+      "jsonPanelTitle": "JSON Panel (Debug)",
+      "jsonPanelDesc": "Bi-directional sync of report data, supports direct editing and formatting",
+      "formatJson": "Format JSON",
+      "jsonSyntaxError": "JSON syntax error, please enter valid JSON format"
     },
     "rules": {
       "title": "Rules & Guidelines",
@@ -3804,12 +3850,14 @@
     "portalDisplay": "Portal Display Included",
     "benefitRole": "Grants \"{role}\" Privilege",
     "benefitAvatar": "Avatar upload quota +3 (delete & reset supported)",
+    "benefitNoAds": "Remove all ads and tracking",
     "benefitPortal": "Featured on Portal & Homepage Core Donors showcase",
     "quotaMultipliers": {
       "100": "Quota boost 5.0x",
       "50": "Quota boost 3.0x",
       "10": "Quota boost 2.0x",
-      "5": "Base quota 1.0x"
+      "5": "Base quota 1.0x",
+      "0.1": "Quota boost 0.1x"
     },
     "rules": {
       "title": "Subscription & Donation Rules",
@@ -3845,6 +3893,10 @@
     "hallTitle": "Core Donors",
     "coreBadge": "Core Donor",
     "tiers": {
+      "0.1": {
+        "name": "Unknown Cube",
+        "desc": "Nobody knows what the black-purple cube does, perhaps the developers know something?"
+      },
       "5": {
         "name": "Apprentice Pirate",
         "desc": "Serving up rum and still learning port from starboard. Not much silver, but every grand voyage begins here."
@@ -3881,6 +3933,10 @@
     "payExpireIn": "Payment expires in {time}. Unpaid orders are closed automatically on timeout.",
     "cancelPay": "Cancel payment",
     "continuePay": "Continue to pay",
+    "syncOrder": "Refresh Status",
+    "syncing": "Syncing...",
+    "orderSyncedPaid": "Payment confirmed, thank you for your support!",
+    "orderStillPending": "Payment record not found from the provider yet. If already paid, please try refreshing in a moment.",
     "orderCancelled": "Order cancelled"
   },
   "reminder": {

@@ -30,6 +30,7 @@ import {GoogleAdProps} from "@/assets/types";
 import {useI18n} from "vue-i18n";
 import Adsense from 'vue3-google-adsense/src/Adsense.vue'
 import {ads, adClient} from "@/config/ad";
+import {useAuthStore} from "~/stores/userAccountStore";
 
 const props = withDefaults(defineProps<GoogleAdProps>(), {
       class: '',
@@ -37,11 +38,25 @@ const props = withDefaults(defineProps<GoogleAdProps>(), {
       tile: false,
     }),
     {t} = useI18n(),
+    authStore = useAuthStore(),
     adName = ref<string | number>(props.id);
+
+// 赞助者特权身份判断（各赞助档位均移除广告与追踪）
+const isDonorOrPrivileged = computed<boolean>(() => {
+  if (!authStore.isLogin) return false;
+  const user = authStore.user;
+  const roles = user?.role || [];
+  const privileges = (user?.privilege || []) as string[];
+  const all = [...roles, ...privileges];
+  return all.some(r =>
+    ['contributor', 'contributor1', 'contributor2', 'contributor3', 'contributor4', 'contributor5', 'root', 'admin', 'super', 'dev'].includes(r)
+  );
+});
 
 // 当前广告开关状态
 const adIdSwitchStatus = ref({type: 'google', value: true}),
     isGlobalAdEnabled = computed<boolean>(() => {
+      if (isDonorOrPrivileged.value) return false;
       return storage_account.getConfigurationItem('ad', 'google.switch', {defaultValue: false}) !== false;
     }),
     adContainerStyle = computed(() => {

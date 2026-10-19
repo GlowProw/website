@@ -3,7 +3,7 @@
   "short_name": "Glow Prow",
   "description": "Skull and Bones comprehensive database and interactive map helper: collection map, ship loadout simulation, item codex, smugglers, and empire skills.",
   "lang": "en-US",
-  "start_url": "/en-US/",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#000000",

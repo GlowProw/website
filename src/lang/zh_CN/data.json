@@ -187,6 +187,7 @@
     }
   },
   "basic": {
+    "untitled": "未命名",
     "visitor": {
       "recentVisitors": "近期访客",
       "noVisitors": "暂无浏览记录",
@@ -198,6 +199,14 @@
       "default": "正在加载资源..."
     },
     "tips": {
+      "permissionDenied": "权限不足",
+      "createSuccess": "创建成功",
+      "updateSuccess": "保存成功",
+      "deleteSuccess": "删除成功",
+      "copySuccess": "复制成功",
+      "pasteSuccess": "粘贴成功",
+      "copyFailed": "复制失败",
+      "clipboardEmpty": "剪贴板为空",
       "actionLocked": "操作已锁定，请次日再试",
       "notConfigured": "系统超额，请联系管理员",
       "quota": {
@@ -850,6 +859,7 @@
   },
   "account": {
     "trash": "回收站",
+    "trashDescription": "垃圾桶是用户删除数据临时存放地方，你所在删除的数据不会立即移除，这由系统定期检查符合条件自动清理。如果不小心删除了数据，可以到这里恢复",
     "logout": "退出登录",
     "dataList": "内容管理",
     "dataCenter": {
@@ -1191,7 +1201,8 @@
       "viewComment": "查看评论",
       "dialogTitle": "创建走私犯每周数据",
       "deleteReport": "删除周报",
-      "createReviewTitle": "创建鉴赏",
+      "createReviewTitle": "创建鉴赏评论",
+      "editReviewTitle": "编辑鉴赏评论",
       "reviewNotice": "请不要发布与走私犯无关内容",
       "reviewPlaceholder": "输入你鉴赏推荐内容",
       "deleteComment": "删除评论"
@@ -2719,6 +2730,7 @@
       "draft": "草稿",
       "inputDraftName": "输入另存为草稿名称",
       "quickArchiving": "快速储存草稿",
+      "quickArchive": "快速保存草稿",
       "useDraft": "使用"
     },
     "calc": {
@@ -2847,6 +2859,15 @@
     "description": "走私犯鉴赏家是对每周走私犯刷新物品评价，给所有玩家推荐选购理由，让玩家们不要错过价值非常高物品",
     "weekly": "每周",
     "weeklyItems": "本周物品 (Weekly)",
+    "inSeason": "赛季",
+    "inSeasonItems": "赛季物品 (In-Season)",
+    "common": "常规",
+    "commonItems": "常规物品 (Common)",
+    "addCategory": "添加分类",
+    "removeCategory": "删除此分类",
+    "removeCategoryConfirm": "确定要移除此分类及其全部物品数据吗？",
+    "selectCategory": "选择要创建的分类",
+    "noMoreCategories": "所有分类均已添加",
     "itemId": "物品ID",
     "itemIdRequired": "请输入或选择物品ID",
     "currency": "货币",
@@ -2899,7 +2920,8 @@
       "createComment": "创建评论",
       "createWeeklyTitle": "创建走私犯每周数据",
       "deleteReport": "删除周报",
-      "createReviewTitle": "创建鉴赏",
+      "createReviewTitle": "创建鉴赏评论",
+      "editReviewTitle": "编辑鉴赏评论",
       "warningContent": "请不要发布与走私犯无关内容",
       "recommendationPlaceholder": "输入你鉴赏推荐内容",
       "deleteComment": "删除评论",
@@ -2915,7 +2937,31 @@
       "commentSoftDeleteSuccess": "评论已软删除",
       "commentHardDeleteSuccess": "评论已物理删除",
       "commentCount": "{count} 条评论",
-      "reportTitle": "周报标题"
+      "reportTitle": "周报标题",
+      "titleRequired": "请输入周报标题",
+      "timeRequired": "请选择完整起止时间",
+      "titleMinLength": "标题最少 1 个字符",
+      "titleMaxLength": "周报标题最多允许 255 个字符",
+      "cloneReport": "克隆此周报",
+      "cloneSuccess": "周报数据克隆成功",
+      "copyReport": "复制周报数据",
+      "copySuccess": "周报数据已复制到剪贴板",
+      "pasteReport": "粘贴导入数据",
+      "pasteSuccess": "周报数据粘贴导入成功",
+      "pasteInvalid": "剪贴板中的周报数据格式无效",
+      "cloneFromSelect": "从已有周报克隆数据",
+      "cloneSelectPlaceholder": "选择要克隆的历史周报...",
+      "cloneConfirm": "确定要从选中的周报克隆数据吗？当前编辑中的物品数据将被覆盖。",
+      "weeklyReport": "走私贩周报",
+      "reportComment": "周报评论",
+      "saveDraft": "保存草稿",
+      "restoreDraft": "恢复草稿",
+      "draftSaved": "草稿已保存",
+      "draftRestored": "草稿已恢复",
+      "jsonPanelTitle": "JSON 面板 (Debug)",
+      "jsonPanelDesc": "双向同步周报数据，支持直接编辑与格式化",
+      "formatJson": "格式化 JSON",
+      "jsonSyntaxError": "JSON 语法错误，请输入合法的 JSON 格式"
     },
     "rules": {
       "title": "规则说明",
@@ -3807,12 +3853,14 @@
     "portalDisplay": "获得门户展示",
     "benefitRole": "获得「{role}」特权身份",
     "benefitAvatar": "头像更换额度 +3 次（支持随时删除恢复默认）",
+    "benefitNoAds": "移除任何广告和追踪",
     "benefitPortal": "尊享门户与首页核心捐助者展示",
     "quotaMultipliers": {
       "100": "额度加成 5.0 倍",
       "50": "额度加成 3.0 倍",
       "10": "额度加成 2.0 倍",
-      "5": "基础额度 1.0 倍"
+      "5": "基础额度 1.0 倍",
+      "0.1": "额度加成 0.1 倍"
     },
     "rules": {
       "title": "赞助与订阅规则说明",
@@ -3821,7 +3869,7 @@
       "quotaTitle": "额度加成说明",
       "quotaDesc": "额度加成指提高全站资源使用上限，包括发布配装数量、上传媒体文件等都会显著提高上限额度，档位越高加成倍率越大。",
       "refundTitle": "退订与退款规则",
-      "refundDesc": "除了一次性支付外，用户可以在付款平台（Stripe、爱发电等）随时退订订阅。取消后到期不再扣费，已获得的特权与额度保留至当前订阅周期结束。",
+      "refundDesc": "除了一次性支付外，用户可以在付款平台（Stripe、PayPal、爱发电等）随时退订订阅。取消后到期不再扣费，已获得的特权与额度保留至当前订阅周期结束。",
       "onceTitle": "一次性赞助规则",
       "onceDesc": "支持自定义金额（¥5 起）。单笔或累计达标（如 ¥60 对应贡献者3，¥600 对应贡献者5）将直接享有对应档位特权与加成，有效期 1 年。",
       "repeatTitle": "身份赋予与升级机制",
@@ -3830,7 +3878,7 @@
       "contactDescPrefix": "如有问题请向递交邮件 ",
       "contactDescSuffix": "，我们将尽快为您核对处理。",
       "currencyTitle": "汇率与货币结算说明",
-      "currencyDesc": "所有档位与打赏均以人民币（CNY）为基准结算。若使用外币支付（如通过 Stripe 结算），将按照国际实时汇率换算扣款，可能存在汇率浮动及银行换汇手续费差额，实际扣款金额请以收银台最终账单为准。"
+      "currencyDesc": "所有档位与打赏均以人民币（CNY）为基准结算。若使用外币支付（如通过 Stripe 或 PayPal 结算），将按照国际实时汇率换算扣款，可能存在汇率浮动及银行换汇手续费差额，实际扣款金额请以收银台最终账单为准。"
     },
     "roles": {
       "contributor5": "贡献者5",
@@ -3848,6 +3896,10 @@
     "hallTitle": "核心捐助者",
     "coreBadge": "核心捐助者",
     "tiers": {
+      "0.1": {
+        "name": "未知立方体",
+        "desc": "黑紫方体没有人知道作用，也许开发者知道一些？"
+      },
       "5": {
         "name": "见习海盗",
         "desc": "刚端上朗姆酒、还分不清左右舷的菜鸟。钱不多，但每条名船都从这一步开始。"
@@ -3884,6 +3936,10 @@
     "payExpireIn": "支付剩余时间 {time}，超时未支付订单将自动关闭",
     "cancelPay": "取消支付",
     "continuePay": "继续支付",
+    "syncOrder": "刷新状态",
+    "syncing": "同步中...",
+    "orderSyncedPaid": "订单支付已确认，感谢您的赞助支持！",
+    "orderStillPending": "尚未查询到第三方支付完成记录，若已付款请稍后再次刷新",
     "orderCancelled": "订单已取消"
   },
   "reminder": {

@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import {computed, onMounted, ref} from "vue";
-import {apis} from "@/assets/sripts/index";
+import {computed, onMounted, ref, watch} from "vue";
+import {apis, storage} from "@/assets/sripts/index";
 import {handleApiError} from "@/assets/sripts/error_handler";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {useI18n} from "vue-i18n";
 import {useAuthStore} from "~/stores/userAccountStore";
+import {useAppStore} from "~/stores/appStore";
 
 import SmugglersReportShowItemWidget from "@/components/SmugglersReportShowItemWidget.vue";
 import SmugglersReportEditor from "@/components/SmugglersReportEditor.vue";
@@ -19,7 +20,8 @@ import VerticalScrollList from "@/components/VerticalScrollList.vue";
 
 const notice = useNoticeStore(),
     {t} = useI18n(),
-    authStore = useAuthStore()
+    authStore = useAuthStore(),
+    appStore = useAppStore()
 
 // 用户具备的基础特权开关
 let isHasSmugglersReportPrivilege = ref(false),
@@ -50,11 +52,185 @@ let isHasSmugglersReportPrivilege = ref(false),
       status: 'published',
       startAndEnd: '',
       content: {
-        inSeason: [],
-        weekly: [],
-        common: []
+        weekly: []
       }
-    })
+    }),
+    // 周报编辑分类联动标签
+    editorActiveTab = ref('weekly'),
+    // 周报编辑已启用的分类列表
+    editorCategories = ref<string[]>(['weekly'])
+
+// 周报本地草稿存储 Key
+const REPORT_DRAFT_KEY = 'smugglers_report_draft'
+
+// 评论本地草稿存储 Key 前缀
+const COMMENT_DRAFT_PREFIX = 'smugglers_comment_draft_'
+
+// 是否存在周报本地草稿
+const hasReportDraft = ref(false)
+
+// 是否存在当前选中周报的评论本地草稿
+const hasCommentDraft = ref(false)
+
+// Debug 模式下编辑周报的原始 JSON 文本
+const rawJsonText = ref('')
+
+// JSON 语法错误提示信息
+const jsonSyntaxError = ref('')
+
+// 标记当前是否正从 JSON 文本同步至周报数据，避免循环更新
+let isUpdatingFromJson = false
+
+/**
+ * 检查是否存在周报草稿
+ */
+const checkReportDraft = () => {
+  const res = storage.local.get(REPORT_DRAFT_KEY)
+  hasReportDraft.value = res.code === 0 && !!res.data?.value
+}
+
+/**
+ * 保存当前周报为草稿
+ */
+const onSaveReportDraft = () => {
+  const draftData = {
+    title: createSmugglersReportData.value.title || '',
+    startAndEnd: createSmugglersReportData.value.startAndEnd || '',
+    status: createSmugglersReportData.value.status || 'published',
+    content: createSmugglersReportData.value.content || {weekly: []},
+    editorCategories: editorCategories.value || ['weekly']
+  }
+  storage.local.set(REPORT_DRAFT_KEY, draftData)
+  hasReportDraft.value = true
+  notice.success(t('smugglersReport.account.draftSaved'))
+}
+
+/**
+ * 恢复周报草稿
+ */
+const onRestoreReportDraft = () => {
+  const res = storage.local.get(REPORT_DRAFT_KEY)
+  if (res.code !== 0 || !res.data?.value) return
+  const draft = res.data.value
+  createSmugglersReportData.value.title = draft.title || ''
+  createSmugglersReportData.value.startAndEnd = draft.startAndEnd || ''
+  createSmugglersReportData.value.status = draft.status || 'published'
+  createSmugglersReportData.value.content = draft.content || {weekly: []}
+  if (draft.editorCategories && Array.isArray(draft.editorCategories)) {
+    editorCategories.value = draft.editorCategories
+  }
+  syncContentToJson(createSmugglersReportData.value.content)
+  notice.success(t('smugglersReport.account.draftRestored'))
+}
+
+/**
+ * 检查当前选中周报是否存在评论草稿
+ * @param reportId 周报ID
+ */
+const checkCommentDraft = (reportId: string) => {
+  if (!reportId) {
+    hasCommentDraft.value = false
+    return
+  }
+  const res = storage.local.get(`${COMMENT_DRAFT_PREFIX}${reportId}`)
+  const saved = res.code === 0 ? res.data?.value : null
+  hasCommentDraft.value = typeof saved === 'string' && saved.trim().length > 0
+}
+
+/**
+ * 保存当前评论草稿
+ */
+const onSaveCommentDraft = () => {
+  const reportId = selectedSmugglersReport.value?.id
+  if (!reportId) return
+  storage.local.set(`${COMMENT_DRAFT_PREFIX}${reportId}`, smugglersReportComment.value.content || '')
+  hasCommentDraft.value = true
+  notice.success(t('smugglersReport.account.draftSaved'))
+}
+
+/**
+ * 恢复当前周报的评论草稿
+ */
+const onRestoreCommentDraft = () => {
+  const reportId = selectedSmugglersReport.value?.id
+  if (!reportId) return
+  const res = storage.local.get(`${COMMENT_DRAFT_PREFIX}${reportId}`)
+  if (res.code === 0 && typeof res.data?.value === 'string') {
+    smugglersReportComment.value.content = res.data.value
+    notice.success(t('smugglersReport.account.draftRestored'))
+  }
+}
+
+/**
+ * 同步周报内容至 JSON 面板文本
+ * @param content 周报内容对象
+ */
+const syncContentToJson = (content: any) => {
+  if (isUpdatingFromJson) return
+  try {
+    rawJsonText.value = JSON.stringify(content || {weekly: []}, null, 2)
+    jsonSyntaxError.value = ''
+  } catch (e: any) {
+    jsonSyntaxError.value = e?.message || t('smugglersReport.account.jsonSyntaxError')
+  }
+}
+
+/**
+ * 处理 JSON 面板文本输入双向同步
+ * @param value 输入的 JSON 文本
+ */
+const onJsonTextChange = (value: string) => {
+  rawJsonText.value = value
+  if (!value || !value.trim()) {
+    jsonSyntaxError.value = ''
+    return
+  }
+  try {
+    const parsed = JSON.parse(value)
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+      jsonSyntaxError.value = t('smugglersReport.account.jsonSyntaxError')
+      return
+    }
+    jsonSyntaxError.value = ''
+    isUpdatingFromJson = true
+    createSmugglersReportData.value.content = parsed
+    const cats = ['weekly']
+    if (parsed.inSeason && Array.isArray(parsed.inSeason) && parsed.inSeason.length > 0) {
+      cats.push('inSeason')
+    }
+    if (parsed.common && Array.isArray(parsed.common) && parsed.common.length > 0) {
+      cats.push('common')
+    }
+    editorCategories.value = cats
+    setTimeout(() => {
+      isUpdatingFromJson = false
+    }, 0)
+  } catch (e: any) {
+    jsonSyntaxError.value = e?.message || t('smugglersReport.account.jsonSyntaxError')
+  }
+}
+
+/**
+ * 格式化当前 JSON 文本
+ */
+const formatJsonText = () => {
+  try {
+    const parsed = JSON.parse(rawJsonText.value)
+    rawJsonText.value = JSON.stringify(parsed, null, 2)
+    jsonSyntaxError.value = ''
+  } catch (e: any) {
+    jsonSyntaxError.value = e?.message || t('smugglersReport.account.jsonSyntaxError')
+  }
+}
+
+// 深度监听周报内容更新，自动同步至 JSON 面板
+watch(
+  () => createSmugglersReportData.value.content,
+  (newContent) => {
+    syncContentToJson(newContent)
+  },
+  {deep: true}
+)
 
 // 用户细分原子特权状态映射
 const userPrivilegeMap = ref<Record<string, boolean>>({
@@ -253,12 +429,12 @@ const onBatchDeleteReports = async () => {
   if (selectedReports.value.length === 0) return
 
   try {
-    if (!confirm(t('smugglersReport.account.confirmDeleteReport') || '确定要删除选中的周报吗？')) return
+    if (!confirm(t('smugglersReport.account.confirmDeleteReport'))) return
     createSmugglersReportLoading.value = true
     for (const item of selectedReports.value) {
       await apis.smugglersApi().deleteReport(item.id)
     }
-    notice.success(t('smugglersReport.account.commentDeleteSuccess') || '删除成功')
+    notice.success(t('basic.tips.deleteSuccess'))
     selectedReports.value = []
     await getSmugglersReportList()
   } catch (e) {
@@ -270,17 +446,17 @@ const onBatchDeleteReports = async () => {
 
 // 周报标题校验规则（最低1字，最多255字）
 const reportTitleRules = [
-  (v: string) => !!(v && v.trim()) || t('smugglersReport.account.titleRequired') || '请输入周报标题',
-  (v: string) => !v || v.trim().length >= 1 || '标题最少 1 个字符',
-  (v: string) => !v || v.trim().length <= 255 || '标题最多 255 个字符'
+  (v: string) => !!(v && v.trim()) || t('smugglersReport.account.titleRequired'),
+  (v: string) => !v || v.trim().length >= 1 || t('smugglersReport.account.titleMinLength'),
+  (v: string) => !v || v.trim().length <= 255 || t('smugglersReport.account.titleMaxLength')
 ]
 
 // 周报起止时间校验规则
 const reportTimeRules = [
   (v: string) => {
-    if (!v) return t('smugglersReport.account.timeRequired') || '请选择完整起止时间'
+    if (!v) return t('smugglersReport.account.timeRequired')
     const times = v.split(',')
-    return (times.length >= 2 && !!times[0] && !!times[1]) || (t('smugglersReport.account.timeRequired') || '请选择完整起止时间')
+    return (times.length >= 2 && !!times[0] && !!times[1]) || t('smugglersReport.account.timeRequired')
   }
 ]
 
@@ -291,20 +467,20 @@ const onCreateSmugglersReport = async () => {
   try {
     const title = createSmugglersReportData.value.title?.trim()
     if (!title || title.length < 1) {
-      notice.warning(t('smugglersReport.account.titleRequired') || '请输入周报标题')
+      notice.warning(t('smugglersReport.account.titleRequired'))
       return
     }
     if (title.length > 255) {
-      notice.warning('周报标题最多允许 255 个字符')
+      notice.warning(t('smugglersReport.account.titleMaxLength'))
       return
     }
     if (!createSmugglersReportData.value.startAndEnd) {
-      notice.warning(t('smugglersReport.account.timeRequired') || '请选择完整起止时间')
+      notice.warning(t('smugglersReport.account.timeRequired'))
       return
     }
     const times = createSmugglersReportData.value.startAndEnd.split(',')
     if (times.length < 2 || !times[0] || !times[1]) {
-      notice.warning(t('smugglersReport.account.timeRequired') || '请选择完整起止时间')
+      notice.warning(t('smugglersReport.account.timeRequired'))
       return
     }
     createSmugglersReportLoading.value = true
@@ -316,6 +492,8 @@ const onCreateSmugglersReport = async () => {
       content: createSmugglersReportData.value.content
     })
     notice.success(t('smugglersReport.account.commentSuccess'))
+    storage.local.rem(REPORT_DRAFT_KEY)
+    hasReportDraft.value = false
     await getSmugglersReportList()
     smugglersReportModel.value = false
   } catch (e) {
@@ -332,20 +510,20 @@ const onEditSmugglersReport = async () => {
   try {
     const title = createSmugglersReportData.value.title?.trim()
     if (!title || title.length < 1) {
-      notice.warning(t('smugglersReport.account.titleRequired') || '请输入周报标题')
+      notice.warning(t('smugglersReport.account.titleRequired'))
       return
     }
     if (title.length > 255) {
-      notice.warning('周报标题最多允许 255 个字符')
+      notice.warning(t('smugglersReport.account.titleMaxLength'))
       return
     }
     if (!createSmugglersReportData.value.startAndEnd) {
-      notice.warning(t('smugglersReport.account.timeRequired') || '请选择完整起止时间')
+      notice.warning(t('smugglersReport.account.timeRequired'))
       return
     }
     const times = createSmugglersReportData.value.startAndEnd.split(',')
     if (times.length < 2 || !times[0] || !times[1]) {
-      notice.warning(t('smugglersReport.account.timeRequired') || '请选择完整起止时间')
+      notice.warning(t('smugglersReport.account.timeRequired'))
       return
     }
     createSmugglersReportLoading.value = true
@@ -375,7 +553,7 @@ const onDeleteSmugglersReport = async (reportData: any) => {
     if (!confirm(t('smugglersReport.account.confirmDeleteReport'))) return
     createSmugglersReportLoading.value = true
     const result = await apis.smugglersApi().deleteReport(reportData.id)
-    notice.success(t('smugglersReport.account.commentDeleteSuccess'))
+    notice.success(t('basic.tips.deleteSuccess'))
     await getSmugglersReportList()
     smugglersReportModel.value = false
   } catch (e) {
@@ -390,29 +568,196 @@ const onDeleteSmugglersReport = async (reportData: any) => {
  * @param reportData 可选，待编辑的周报对象
  */
 const openSmugglersReportModel = (reportData: any = null) => {
+  editorActiveTab.value = 'weekly'
   if (reportData && reportData.id) {
     if (!canUpdateReport.value) {
-      notice.warning(t('basic.permissionDenied') || '无权限编辑周报')
+      notice.warning(t('basic.tips.permissionDenied'))
       return
     }
     smugglersReportModelIsEdit.value = true
-    createSmugglersReportData.value = JSON.parse(JSON.stringify(reportData))
-    createSmugglersReportData.value.status = reportData.status || 'published'
-    createSmugglersReportData.value.startAndEnd = `${reportData.startTime},${reportData.endTime}`
+    const rawContent = reportData.content
+    const parsedContent = typeof rawContent === 'string'
+        ? JSON.parse(rawContent)
+        : JSON.parse(JSON.stringify(rawContent || {weekly: []}))
+
+    const cats = ['weekly']
+    if (parsedContent.inSeason && Array.isArray(parsedContent.inSeason) && parsedContent.inSeason.length > 0) {
+      cats.push('inSeason')
+    }
+    if (parsedContent.common && Array.isArray(parsedContent.common) && parsedContent.common.length > 0) {
+      cats.push('common')
+    }
+    editorCategories.value = cats
+
+    createSmugglersReportData.value = {
+      ...JSON.parse(JSON.stringify(reportData)),
+      content: parsedContent,
+      status: reportData.status || 'published',
+      startAndEnd: `${reportData.startTime},${reportData.endTime}`
+    }
   } else {
     if (!canCreateReport.value) {
-      notice.warning(t('basic.permissionDenied') || '无权限创建周报')
+      notice.warning(t('basic.tips.permissionDenied'))
       return
     }
     smugglersReportModelIsEdit.value = false
+    editorCategories.value = ['weekly']
     createSmugglersReportData.value = {
       title: '',
       status: 'published',
       startAndEnd: '',
-      content: {inSeason: [], weekly: [], common: []}
+      content: {weekly: []}
     }
   }
+  checkReportDraft()
+  syncContentToJson(createSmugglersReportData.value.content)
   smugglersReportModel.value = true
+}
+
+/**
+ * 基于指定周报克隆创建新周报
+ * @param report 目标周报数据项
+ */
+const onCloneReport = (report: any) => {
+  if (!canCreateReport.value) {
+    notice.warning(t('basic.tips.permissionDenied'))
+    return
+  }
+  editorActiveTab.value = 'weekly'
+  smugglersReportModelIsEdit.value = false
+  const rawContent = report.content
+  const parsedContent = typeof rawContent === 'string'
+      ? JSON.parse(rawContent)
+      : JSON.parse(JSON.stringify(rawContent || {weekly: []}))
+
+  const cats = ['weekly']
+  if (parsedContent.inSeason && Array.isArray(parsedContent.inSeason) && parsedContent.inSeason.length > 0) {
+    cats.push('inSeason')
+  }
+  if (parsedContent.common && Array.isArray(parsedContent.common) && parsedContent.common.length > 0) {
+    cats.push('common')
+  }
+  editorCategories.value = cats
+
+  createSmugglersReportData.value = {
+    title: `${report.title || ''} (副本)`.trim(),
+    status: 'published',
+    startAndEnd: report.startTime && report.endTime ? `${report.startTime},${report.endTime}` : '',
+    content: parsedContent
+  }
+  smugglersReportModel.value = true
+  notice.success(t('smugglersReport.account.cloneSuccess'))
+}
+
+/**
+ * 从已有周报克隆数据覆盖当前编辑对象
+ * @param targetReport 选中的源周报
+ */
+const applyCloneFromReport = (targetReport: any) => {
+  if (!targetReport) return
+  if (!confirm(t('smugglersReport.account.cloneConfirm'))) return
+
+  try {
+    const raw = targetReport.content
+    const parsed = typeof raw === 'string'
+        ? JSON.parse(raw)
+        : JSON.parse(JSON.stringify(raw || {weekly: []}))
+
+    const cats = ['weekly']
+    if (parsed.inSeason && Array.isArray(parsed.inSeason) && parsed.inSeason.length > 0) {
+      cats.push('inSeason')
+    }
+    if (parsed.common && Array.isArray(parsed.common) && parsed.common.length > 0) {
+      cats.push('common')
+    }
+    editorCategories.value = cats
+    createSmugglersReportData.value.content = parsed
+    editorActiveTab.value = 'weekly'
+    notice.success(t('smugglersReport.account.cloneSuccess'))
+  } catch (err: any) {
+    notice.error('克隆周报数据解析失败: ' + (err?.message || err))
+  }
+}
+
+/**
+ * 复制指定周报内容到剪贴板与临时存储
+ * @param content 周报内容对象或字符串
+ */
+const copyReportContentToClipboard = async (content: any) => {
+  try {
+    const parsed = typeof content === 'string' ? JSON.parse(content) : content
+    const dataStr = JSON.stringify(parsed || { weekly: [] }, null, 2)
+    sessionStorage.setItem('glow_prow_clipboard_report', dataStr)
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(dataStr)
+    }
+    notice.success(t('basic.tips.copySuccess'))
+  } catch (e: any) {
+    notice.success(t('basic.tips.copySuccess'))
+  }
+}
+
+/**
+ * 复制当前编辑中的周报数据
+ */
+const copyCurrentReportContent = () => {
+  return copyReportContentToClipboard(createSmugglersReportData.value.content)
+}
+
+/**
+ * 从周报列表中复制指定周报数据
+ * @param report 目标周报
+ */
+const copyReportFromList = (report: any) => {
+  return copyReportContentToClipboard(report.content)
+}
+
+/**
+ * 从剪贴板读取并导入周报数据到当前周报中
+ */
+const pasteReportContent = async () => {
+  try {
+    let text = ''
+    if (navigator.clipboard && navigator.clipboard.readText) {
+      try {
+        text = await navigator.clipboard.readText()
+      } catch (err) {
+        text = sessionStorage.getItem('glow_prow_clipboard_report') || ''
+      }
+    } else {
+      text = sessionStorage.getItem('glow_prow_clipboard_report') || ''
+    }
+
+    if (!text || !text.trim()) {
+      text = sessionStorage.getItem('glow_prow_clipboard_report') || ''
+    }
+
+    if (!text || !text.trim()) {
+      notice.warning(t('basic.tips.clipboardEmpty'))
+      return
+    }
+
+    const parsed = JSON.parse(text.trim())
+    if (!parsed || typeof parsed !== 'object' || (!parsed.weekly && !Array.isArray(parsed))) {
+      notice.error(t('smugglersReport.account.pasteInvalid'))
+      return
+    }
+
+    const finalContent: any = Array.isArray(parsed) ? { weekly: parsed } : parsed
+    const cats = ['weekly']
+    if (finalContent.inSeason && Array.isArray(finalContent.inSeason) && finalContent.inSeason.length > 0) {
+      cats.push('inSeason')
+    }
+    if (finalContent.common && Array.isArray(finalContent.common) && finalContent.common.length > 0) {
+      cats.push('common')
+    }
+    editorCategories.value = cats
+    createSmugglersReportData.value.content = finalContent
+    editorActiveTab.value = 'weekly'
+    notice.success(t('basic.tips.pasteSuccess'))
+  } catch (e: any) {
+    notice.error(t('smugglersReport.account.pasteInvalid'))
+  }
 }
 
 /**
@@ -422,20 +767,21 @@ const openSmugglersReportModel = (reportData: any = null) => {
 const openCommendModel = (reportData: any) => {
   if (reportData.isUserComment) {
     if (!canUpdateComment.value && !canDeleteComment.value) {
-      notice.warning(t('basic.permissionDenied') || '无权限操作该周报评论')
+      notice.warning(t('basic.tips.permissionDenied'))
       return
     }
     commentModelIsEdit.value = true
     smugglersReportComment.value.content = reportData.userComment?.content ?? ''
   } else {
     if (!canCreateComment.value) {
-      notice.warning(t('basic.permissionDenied') || '无权限创建评论')
+      notice.warning(t('basic.tips.permissionDenied'))
       return
     }
     commentModelIsEdit.value = false
     smugglersReportComment.value.content = ''
   }
   selectedSmugglersReport.value = reportData
+  checkCommentDraft(reportData.id)
   commentModel.value = true
 }
 
@@ -445,7 +791,7 @@ const openCommendModel = (reportData: any) => {
 const onCreateCommend = async () => {
   try {
     if (!canCreateComment.value) {
-      notice.warning(t('basic.permissionDenied') || '无权限创建评论')
+      notice.warning(t('basic.tips.permissionDenied'))
       return
     }
     createCommentLoading.value = true
@@ -454,7 +800,9 @@ const onCreateCommend = async () => {
     await apis.smugglersApi().addReportComment(reportId, {
       content: smugglersReportComment.value.content as string
     })
-    notice.success(t('basic.button.submit') || '评论成功')
+    notice.success(t('smugglersReport.account.commentSuccess'))
+    storage.local.rem(`${COMMENT_DRAFT_PREFIX}${reportId}`)
+    hasCommentDraft.value = false
     await getSmugglersReportList()
     commentModel.value = false
   } catch (e) {
@@ -470,7 +818,7 @@ const onCreateCommend = async () => {
 const onEditCommend = async () => {
   try {
     if (!canUpdateComment.value) {
-      notice.warning(t('basic.permissionDenied') || '无权限更新评论')
+      notice.warning(t('basic.tips.permissionDenied'))
       return
     }
     createCommentLoading.value = true
@@ -480,7 +828,9 @@ const onEditCommend = async () => {
     await apis.smugglersApi().editReportComment(reportId, commentId, {
       content: smugglersReportComment.value.content as string
     })
-    notice.success(t('basic.button.submit') || '修改成功')
+    notice.success(t('smugglersReport.account.commentEditSuccess'))
+    storage.local.rem(`${COMMENT_DRAFT_PREFIX}${reportId}`)
+    hasCommentDraft.value = false
     await getSmugglersReportList()
     commentModel.value = false
   } catch (e) {
@@ -496,16 +846,16 @@ const onEditCommend = async () => {
 const onSoftDeleteComment = async () => {
   try {
     if (!canDeleteComment.value) {
-      notice.warning(t('basic.permissionDenied') || '无权限删除评论')
+      notice.warning(t('basic.tips.permissionDenied'))
       return
     }
-    if (!confirm(t('smugglersReport.account.confirmSoftDeleteComment') || '确定要软删除此条评论吗？')) return
+    if (!confirm(t('smugglersReport.account.confirmSoftDeleteComment'))) return
     createCommentLoading.value = true
     const reportId = selectedSmugglersReport.value?.id
     const commentId = selectedSmugglersReport.value?.userComment?.id
     if (!reportId || !commentId) return
     await apis.smugglersApi().delReportComment(reportId, commentId)
-    notice.success(t('smugglersReport.account.commentSoftDeleteSuccess') || '评论已软删除')
+    notice.success(t('smugglersReport.account.commentSoftDeleteSuccess'))
     await getSmugglersReportList()
     commentModel.value = false
   } catch (e) {
@@ -520,13 +870,13 @@ const onSoftDeleteComment = async () => {
  */
 const onHardDeleteComment = async () => {
   try {
-    if (!confirm(t('smugglersReport.account.confirmHardDeleteComment') || '警告：物理删除将彻底从数据库永久抹除此评论，无法恢复！确定继续吗？')) return
+    if (!confirm(t('smugglersReport.account.confirmHardDeleteComment'))) return
     createCommentLoading.value = true
     const reportId = selectedSmugglersReport.value?.id
     const commentId = selectedSmugglersReport.value?.userComment?.id
     if (!reportId || !commentId) return
     await apis.smugglersApi().hardDeleteReportComment(reportId, commentId)
-    notice.success(t('smugglersReport.account.commentHardDeleteSuccess') || '评论已物理删除')
+    notice.success(t('smugglersReport.account.commentHardDeleteSuccess'))
     await getSmugglersReportList()
     commentModel.value = false
   } catch (e) {
@@ -547,28 +897,26 @@ defineOptions({
 </script>
 
 <template>
-  <div class="position-relative">
-    <v-overlay :model-value="checkPermissionLoading || smugglersReportListLoading" contained class="d-flex align-center justify-center">
-      <Loading size="50"></Loading>
-    </v-overlay>
-
+  <div>
     <v-row>
       <v-col cols="12" lg="3">
-        <p class="opacity-60 mb-4">
-          {{ t('smugglersReport.account.connoisseurDesc') }}
-        </p>
+        <AffixContainerView>
+          <p class="opacity-60 mb-4">
+            {{ t('smugglersReport.account.connoisseurDesc') }}
+          </p>
 
-        <v-btn
-            block
-            border
-            variant="plain"
-            prepend-icon="mdi-open-in-new"
-            to="/smugglers-report/view"
-            target="_blank">
-          {{ t('smugglersReport.account.viewCurrentReport') }}
-        </v-btn>
+          <v-btn
+              block
+              border
+              variant="plain"
+              prepend-icon="mdi-open-in-new"
+              to="/smugglers-report/view"
+              target="_blank">
+            {{ t('smugglersReport.account.viewCurrentReport') }}
+          </v-btn>
+        </AffixContainerView>
       </v-col>
-      <v-col>
+      <v-col cols="12" lg="9" class="position-relative">
         <AffixBoxHasTitleView>
           <!-- 未具备鉴赏家权限时的申请展示卡片 S -->
           <v-card border rounded="lg" class="pa-6 position-relative overflow-hidden mb-6" v-if="!isHasSmugglersReportPrivilege && !checkPermissionLoading">
@@ -733,6 +1081,19 @@ defineOptions({
                           </v-list-item>
 
                           <v-list-item
+                              v-if="canCreateReport"
+                              prepend-icon="mdi-content-duplicate"
+                              @click="onCloneReport(i)">
+                            <v-list-item-title>{{ t('smugglersReport.account.cloneReport') }}</v-list-item-title>
+                          </v-list-item>
+
+                          <v-list-item
+                              prepend-icon="mdi-content-copy"
+                              @click="copyReportFromList(i)">
+                            <v-list-item-title>{{ t('smugglersReport.account.copyReport') }}</v-list-item-title>
+                          </v-list-item>
+
+                          <v-list-item
                               v-if="i.isUserComment ? (canUpdateComment || canDeleteComment) : canCreateComment"
                               :prepend-icon="i.isUserComment ? 'mdi-comment-edit-outline' : 'mdi-comment-plus-outline'"
                               @click="openCommendModel(i)">
@@ -828,34 +1189,53 @@ defineOptions({
           </v-row>
         </AffixBoxHasTitleView>
         <!-- 周报规则与指南卡片 E -->
+
+        <v-overlay :model-value="checkPermissionLoading || smugglersReportListLoading" contained class="d-flex align-center justify-center">
+          <Loading size="50"></Loading>
+        </v-overlay>
       </v-col>
     </v-row>
 
     <!-- 周报数据编辑/创建对话框 S -->
-    <v-dialog v-model="smugglersReportModel" absolute
-              sticky
-              scrim
-              width="auto"
-              no-click-animation>
-      <v-card border rounded="lg">
-        <v-card-title class="pa-4 font-weight-bold d-flex align-center justify-space-between border-b">
-          <span>{{ t('smugglersReport.account.createWeeklyTitle') }}</span>
-          <v-btn variant="tonal" icon="mdi-close" @click="smugglersReportModel = false"></v-btn>
+    <v-dialog
+        v-model="smugglersReportModel"
+        absolute
+        sticky
+        scrim
+        width="1320"
+        max-width="95vw"
+        no-click-animation>
+      <v-card
+          border
+          rounded="lg"
+          class="dialog-card d-flex flex-column">
+        <!-- 固定头部 -->
+        <v-card-title class="pa-4 font-weight-bold d-flex align-center justify-space-between border-b flex-shrink-0 flex-wrap ga-2">
+          <span>{{ smugglersReportModelIsEdit ? t('smugglersReport.account.editReport') : t('smugglersReport.account.createWeeklyTitle') }}</span>
+
+          <div class="d-flex align-center flex-wrap ga-2">
+            <v-btn variant="tonal" icon="mdi-close" size="small" @click="smugglersReportModel = false"></v-btn>
+          </div>
         </v-card-title>
 
-        <v-card-item class="pa-4">
-          <v-row>
-            <v-col cols="12" sm="12" md="12" lg="6">
-              <v-card variant="text" width="635" class="mx-auto">
-                <VerticalScrollList :is-indicator="false">
-                  <SmugglersReportShowItemWidget :data="createSmugglersReportData.content"></SmugglersReportShowItemWidget>
-                </VerticalScrollList>
-              </v-card>
+        <v-card-text class="pa-4 flex-grow-1 overflow-y-auto">
+          <v-row class="ga-4 ga-lg-6">
+            <v-col cols="12" lg="6" class="min-width-0">
+              <AffixContainerView :offset-top="0">
+                <v-card variant="text" class="mx-auto w-100" style="max-width: 635px;">
+                  <SmugglersReportShowItemWidget
+                      :data="createSmugglersReportData.content"
+                      :categories="editorCategories"
+                      v-model:active-category="editorActiveTab">
+                  </SmugglersReportShowItemWidget>
+                </v-card>
+              </AffixContainerView>
+
             </v-col>
-            <v-col cols="12" sm="12" md="12" lg="6">
+            <v-col cols="12" lg="6" class="min-width-0">
               <!-- 周报信息 -->
               <v-row class="mt-2 mb-4">
-                <v-col cols="12" md="12">
+                <v-col cols="12">
                   <v-text-field
                       v-model="createSmugglersReportData.title"
                       :label="t('smugglersReport.account.reportTitle')"
@@ -879,8 +1259,8 @@ defineOptions({
                   <v-select
                       v-model="createSmugglersReportData.status"
                       :items="[
-                    { title: t('smugglersReport.status.published') || '已发布', value: 'published' },
-                    { title: t('smugglersReport.status.draft') || '草稿', value: 'draft' }
+                    { title: t('smugglersReport.status.published'), value: 'published' },
+                    { title: t('smugglersReport.status.draft'), value: 'draft' }
                   ]"
                       :label="t('smugglersReport.status.label')"
                       density="comfortable"
@@ -889,12 +1269,53 @@ defineOptions({
                 </v-col>
               </v-row>
 
-              <SmugglersReportEditor v-model="createSmugglersReportData.content"></SmugglersReportEditor>
+              <SmugglersReportEditor
+                  v-model="createSmugglersReportData.content"
+                  v-model:categories="editorCategories"
+                  v-model:active-category="editorActiveTab">
+              </SmugglersReportEditor>
             </v-col>
           </v-row>
-        </v-card-item>
 
-        <v-card-actions class="pa-4 border-t">
+          <!-- 当 Debug 开启时，展示双向编辑 JSON 面板 S -->
+          <v-card
+              v-if="appStore.isDebug"
+              variant="outlined"
+              class="mt-6 pa-4 border-dashed rounded-lg bg-surface-variant">
+            <div class="d-flex align-center justify-space-between mb-2">
+              <div class="d-flex align-center ga-2">
+                <v-icon color="warning" size="20">mdi-code-json</v-icon>
+                <span class="text-subtitle-2 font-weight-bold">{{ t('smugglersReport.account.jsonPanelTitle') }}</span>
+                <span class="text-caption text-medium-emphasis">{{ t('smugglersReport.account.jsonPanelDesc') }}</span>
+              </div>
+              <div class="d-flex align-center ga-2">
+                <v-btn
+                    size="small"
+                    variant="tonal"
+                    prepend-icon="mdi-format-align-left"
+                    @click="formatJsonText">
+                  {{ t('smugglersReport.account.formatJson') }}
+                </v-btn>
+              </div>
+            </div>
+            <v-textarea
+                :model-value="rawJsonText"
+                @update:model-value="onJsonTextChange"
+                density="compact"
+                variant="outlined"
+                auto-grow
+                rows="10"
+                max-rows="20"
+                hide-details="auto"
+                :error-messages="jsonSyntaxError"
+                style="font-family: monospace; font-size: 13px;">
+            </v-textarea>
+          </v-card>
+          <!-- 当 Debug 开启时，展示双向编辑 JSON 面板 E -->
+        </v-card-text>
+
+        <!-- 固定底部 -->
+        <v-card-actions class="pa-4 border-t flex-shrink-0">
           <v-btn
               v-if="smugglersReportModelIsEdit"
               color="error"
@@ -902,6 +1323,71 @@ defineOptions({
               @click="onDeleteSmugglersReport(createSmugglersReportData)">
             {{ t('smugglersReport.account.deleteReport') }}
           </v-btn>
+
+          <v-divider vertical inset class="mx-4"></v-divider>
+
+          <!-- 从已有周报克隆下拉菜单 S -->
+          <v-menu location="bottom end" v-if="smugglersReportListData.length > 0">
+            <template v-slot:activator="{ props }">
+              <v-btn
+                  v-bind="props"
+                  variant="tonal"
+                  color="amber"
+                  prepend-icon="mdi-content-duplicate">
+                {{ t('smugglersReport.account.cloneFromSelect') }}
+              </v-btn>
+            </template>
+            <v-list density="compact" max-height="320" min-width="260">
+              <v-list-item
+                  v-for="rep in smugglersReportListData"
+                  :key="rep.id"
+                  :title="rep.title"
+                  :subtitle="rep.startTime ? `${rep.startTime} ~ ${rep.endTime}` : ''"
+                  @click="applyCloneFromReport(rep)">
+                <template v-slot:prepend>
+                  <v-icon size="18" class="mr-2">mdi-file-document-outline</v-icon>
+                </template>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+          <!-- 从已有周报克隆下拉菜单 E -->
+
+          <!-- 复制数据到剪贴板 -->
+          <v-btn
+              variant="tonal"
+              prepend-icon="mdi-content-copy"
+              :title="t('smugglersReport.account.copyReport')"
+              @click="copyCurrentReportContent">
+            {{ t('smugglersReport.account.copyReport') }}
+          </v-btn>
+
+          <!-- 从剪贴板粘贴导入 -->
+          <v-btn
+              variant="tonal"
+              prepend-icon="mdi-content-paste"
+              :title="t('smugglersReport.account.pasteReport')"
+              @click="pasteReportContent">
+            {{ t('smugglersReport.account.pasteReport') }}
+          </v-btn>
+
+          <!-- 保存周报草稿 -->
+          <v-btn
+              variant="tonal"
+              prepend-icon="mdi-content-save-outline"
+              @click="onSaveReportDraft">
+            {{ t('smugglersReport.account.saveDraft') }}
+          </v-btn>
+
+          <!-- 恢复周报草稿 -->
+          <v-btn
+              v-if="hasReportDraft"
+              color="info"
+              variant="tonal"
+              prepend-icon="mdi-history"
+              @click="onRestoreReportDraft">
+            {{ t('smugglersReport.account.restoreDraft') }}
+          </v-btn>
+
           <v-spacer></v-spacer>
           <v-btn variant="text" @click="smugglersReportModel = false">
             {{ t('basic.button.cancel') }}
@@ -911,7 +1397,7 @@ defineOptions({
               variant="tonal"
               :loading="createSmugglersReportLoading"
               @click="smugglersReportModelIsEdit ? onEditSmugglersReport() : onCreateSmugglersReport()">
-            {{ smugglersReportModelIsEdit ? t('basic.button.edit') : t('basic.button.create') }}
+            {{ smugglersReportModelIsEdit ? t('basic.button.save') : t('basic.button.create') }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -919,46 +1405,78 @@ defineOptions({
     <!-- 周报数据编辑/创建对话框 E -->
 
     <!-- 鉴赏家评论对话框 S -->
-    <v-dialog v-model="commentModel" absolute
-              sticky
-              scrim
-              width="auto"
-              no-click-animation>
-      <v-card border rounded="lg">
-        <v-card-title class="pa-4 font-weight-bold d-flex align-center justify-space-between border-b">
-          <span>{{ t('smugglersReport.account.createReviewTitle') }}</span>
+    <v-dialog
+        v-model="commentModel"
+        absolute
+        sticky
+        scrim
+        width="1180"
+        max-width="95vw"
+        no-click-animation>
+      <v-card
+          border
+          rounded="lg"
+          class="dialog-card d-flex flex-column">
+        <!-- 固定头部 -->
+        <v-card-title class="pa-4 font-weight-bold d-flex align-center justify-space-between border-b flex-shrink-0">
+          <span>{{ commentModelIsEdit ? t('smugglersReport.account.editReviewTitle') : t('smugglersReport.account.createReviewTitle') }}</span>
           <v-btn variant="tonal" icon="mdi-close" @click="commentModel = false"></v-btn>
         </v-card-title>
 
-        <v-card-item class="pa-4">
-          <v-row>
-            <v-col cols="12" sm="12" md="12" lg="6">
-              <v-card variant="text" width="635" class="mx-auto">
+        <!-- 仅中间内容滚动 -->
+        <v-card-text class="pa-4 flex-grow-1 overflow-y-auto">
+          <v-row class="ga-4 ga-md-6 align-start">
+            <v-col cols="12" md="6" class="min-width-0">
+              <v-card variant="text" class="mx-auto w-100" style="max-width: 635px;">
                 <VerticalScrollList :is-indicator="false">
                   <SmugglersReportShowItemWidget :data="selectedSmugglersReport.content"></SmugglersReportShowItemWidget>
                 </VerticalScrollList>
               </v-card>
             </v-col>
-            <v-col cols="12" sm="12" md="12" lg="6">
-              <v-alert type="info" variant="tonal" density="compact" class="mb-3 text-caption">
-                {{ t('smugglersReport.account.warningContent') }}
-              </v-alert>
-              <Textarea
-                  min-height="250px"
-                  :placeholder="t('smugglersReport.account.recommendationPlaceholder')"
-                  v-model="smugglersReportComment.content">
+            <v-col cols="12" md="6" class="min-width-0">
+              <AffixContainerView :offset-top="0">
+                <AffixBoxHasTitleView :offset-top="0">
+                  <template v-slot:title>
+                    {{ t('comment.title') }}
+                  </template>
+
+                  <Textarea
+                      min-height="250px"
+                      :placeholder="t('smugglersReport.account.recommendationPlaceholder') + '\n' + t('smugglersReport.account.warningContent')"
+                      v-model="smugglersReportComment.content">
                 </Textarea>
+                </AffixBoxHasTitleView>
+              </AffixContainerView>
             </v-col>
           </v-row>
-        </v-card-item>
+        </v-card-text>
 
-        <v-card-actions class="pa-4 border-t">
+        <!-- 固定底部 -->
+        <v-card-actions class="pa-4 border-t flex-shrink-0">
           <v-btn
               v-if="commentModelIsEdit && canDeleteComment"
               color="error"
               variant="tonal"
               @click="onDeleteComment">
             {{ t('smugglersReport.account.deleteComment') }}
+          </v-btn>
+
+          <!-- 保存评论草稿 -->
+          <v-btn
+              variant="tonal"
+              prepend-icon="mdi-content-save-outline"
+              @click="onSaveCommentDraft">
+            {{ t('smugglersReport.account.saveDraft') }}
+          </v-btn>
+
+          <!-- 恢复评论草稿 -->
+          <v-btn
+              v-if="hasCommentDraft"
+              color="info"
+              variant="tonal"
+              prepend-icon="mdi-history"
+              @click="onRestoreCommentDraft">
+            {{ t('smugglersReport.account.restoreDraft') }}
           </v-btn>
           <v-spacer></v-spacer>
           <v-btn variant="text" @click="commentModel = false">
@@ -980,6 +1498,12 @@ defineOptions({
 </template>
 
 <style scoped lang="less">
+.dialog-card {
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+}
+
 .min-width-0 {
   min-width: 0;
 }

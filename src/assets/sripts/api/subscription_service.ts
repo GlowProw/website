@@ -100,6 +100,22 @@ export function useSubscriptionApi() {
     }
 
     /**
+     * 主动同步待支付订单最新状态
+     *
+     * @param {number} orderId - 订单记录主键 ID
+     * @returns {Promise<{ synced: boolean; status: string; order: any }>}
+     */
+    const syncOrder = async (orderId: number) => {
+        try {
+            const result = await tokenHttp.post(`subscription/orders/${orderId}/sync`, {data: {}})
+            return handleResponse(result).data.data as { synced: boolean; status: string; order: any }
+        } catch (error) {
+            if (error instanceof ApiError) throw error
+            return handleError(error)
+        }
+    }
+
+    /**
      * 取消 Stripe 订阅：返回 Stripe Billing Portal 跳转地址，
      * 用户在平台侧取消生效后，webhook 自动收回捐助身份
      */
@@ -122,6 +138,7 @@ export function useSubscriptionApi() {
         getMyOrders,
 
         cancelOrder,
+        syncOrder,
         createOrder,
         createCancelPortal
     }
