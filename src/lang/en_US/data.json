@@ -1060,6 +1060,9 @@
       "previewDesc": "Here are preview sizes across web pages, leaderboards, discussions, and recruitment:",
       "previewTitle": "Multi-size Avatar Preview"
     },
+    "securityCenter": {
+      "title": "Security"
+    },
     "bindings": {
       "title": "Platform Bindings",
       "subtitle": "Manage your connected third-party accounts",
@@ -1283,6 +1286,22 @@
     }
   },
   "codex": {
+    "itemMenu": {
+      "ship": "Ship",
+      "item": "Item",
+      "material": "Material",
+      "commoditie": "Commodity",
+      "cosmetic": "Cosmetic",
+      "set": "Cosmetic Set",
+      "treasureMap": "Treasure Map",
+      "mapLocation": "Map Location",
+      "ultimate": "Ultimate",
+      "modification": "Modification",
+      "assemblyData": "Assembly Data",
+      "assembly": "Assembly",
+      "wheel": "Wheel",
+      "hold": "Hold"
+    },
     "title": "Codex",
     "description": "Ahoy, Captain, wanna check out my treasures?",
     "cabinetHistoryTitle": "Browsing History",
@@ -3898,7 +3917,7 @@
       "onceTitle": "One-Time Donation Rules",
       "onceDesc": "Custom amounts supported (¥5 minimum). Reaching tiered benchmarks (such as ¥60 for Contributor 3, ¥600 for Contributor 5) unlocks the corresponding tier privileges and benefits for 1 year.",
       "repeatTitle": "Role Assignment & Upgrades",
-      "repeatDesc": "Repeat subscriptions can level up your tier. For example, subscribing to Apprentice Pirate twice adds 1.0x quota multiplier; subscribing to Gemini 5 times reaches 3.0x. The active count is displayed after tier names in the list (up to 10 times per tier).",
+      "repeatDesc": "Repeat subscriptions can level up your tier. For example, subscribing to Apprentice Pirate twice adds 1.0x quota multiplier; subscribing to Helmsman 5 times reaches 3.0x. The active count is displayed after tier names in the list (up to 10 times per tier).",
       "contactTitle": "Subscription Support & Contact",
       "contactDescPrefix": "If you have any questions or issues, please email ",
       "contactDescSuffix": ", and we will assist you as soon as possible.",
@@ -3930,8 +3949,8 @@
         "desc": "Serving up rum and still learning port from starboard. Not much silver, but every grand voyage begins here."
       },
       "10": {
-        "name": "Twins",
-        "desc": "The inseparable pair on the masthead lookout: one watching the wind, the other eyeing yer purse."
+        "name": "Helmsman",
+        "desc": "The steady hand at the helm, holding course through treacherous waters. However fierce the gale, the ship's fate rests on your wheel."
       },
       "50": {
         "name": "Boatswain",

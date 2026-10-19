@@ -452,21 +452,16 @@ defineOptions({
                 :visible-categories="[toolbarAs.indexOf('ship') >= 0 ? 'ship' : null,'item','material','cosmetic','set', toolbarAs.indexOf('ultimate') >= 0 ? 'ultimate' : null, toolbarAs.indexOf('mod') >= 0 ? 'modification' : null]"
                 @clickMenuItem="(e) => onItem(e)">
               <template v-slot="menuProps">
-                <div class="v-btn v-btn--elevated v-btn--icon v-theme--dark v-btn--density-compact elevation-0 v-btn--size-default v-btn--variant-elevated btn mr-2">
-                  <v-btn
-                      icon
-                      class="btn"
-                      density="compact"
-                      elevation="0"
-                      v-bind="menuProps"
-                      :disabled="isOpenItem"
-                      v-if="toolbarAs.indexOf('item') >= 0">
-                    <v-icon icon="mdi-cube-outline"></v-icon>
-                  </v-btn>
-                  <v-icon
-                      v-bind="menuProps"
-                      size="15" class="ml-n1">mdi-dots-vertical</v-icon>
-                </div>
+                <v-btn
+                    icon
+                    class="btn mr-2"
+                    density="compact"
+                    elevation="0"
+                    v-bind="menuProps"
+                    :disabled="isOpenItem"
+                    v-if="toolbarAs.indexOf('item') >= 0">
+                  <v-icon icon="mdi-cube-outline"></v-icon>
+                </v-btn>
               </template>
             </FullItemRightClickMenu>
 

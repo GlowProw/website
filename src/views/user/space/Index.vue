@@ -67,6 +67,12 @@
                          :to="{ name: 'AccountMessages' }">
                     {{ t('account.messages.messageCenterTitle') }}
                   </v-tab>
+                  <v-tab value="MeSecurity"
+                         class="font-weight-bold text-subtitle-1 px-8"
+                         :class="{'v-tab--route-active': primaryNavMenu === 'MeSecurity'}"
+                         :to="{ name: 'AccountSecurity' }">
+                    {{ t('account.securityCenter.title') }}
+                  </v-tab>
                   <v-tab value="MeSpace"
                          class="font-weight-bold text-subtitle-1 px-8"
                          :class="{'v-tab--route-active': primaryNavMenu === 'MeSpace'}"
@@ -109,12 +115,7 @@
               </v-col>
               <v-col cols="3" class="d-flex align-center justify-end">
                 <div class="d-flex align-center">
-                  <template v-if="isSelf">
-                    <h2 class="singe-line text-h4 font-weight-bold d-flex align-center">
-                      <u class="u">{{ authStore.currentUser || 'Captain' }}</u>
-                    </h2>
-                  </template>
-                  <template v-else>
+                  <template v-if="!isSelf">
                     <h2 class="singe-line text-h4 font-weight-bold d-flex align-center">
                       <u class="u">{{ userData.username || 'Captain' }}</u>
                     </h2>

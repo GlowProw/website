@@ -208,16 +208,25 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
                         component: AccountProfilePicturePage
                     },
                     {
-                        path: 'bindings',
-                        name: 'AccountBindings',
-                        component: () => import('@/views/user/account/Bindings.vue'),
-                        meta: { title: 'account.bindings.title', auth: true }
-                    },
-                    {
-                        path: 'sessions',
-                        name: 'AccountSessions',
-                        component: () => import('@/views/user/account/Sessions.vue'),
-                        meta: { title: 'account.sessions.title', auth: true }
+                        path: 'security',
+                        name: 'AccountSecurity',
+                        component: () => import('@/views/user/account/Security.vue'),
+                        redirect: to => ({ name: 'AccountBindings', params: { lang: to.params.lang }, query: to.query }),
+                        meta: { title: 'account.securityCenter.title' },
+                        children: [
+                            {
+                                path: 'bindings',
+                                name: 'AccountBindings',
+                                component: () => import('@/views/user/account/Bindings.vue'),
+                                meta: { title: 'account.bindings.title', auth: true }
+                            },
+                            {
+                                path: 'sessions',
+                                name: 'AccountSessions',
+                                component: () => import('@/views/user/account/Sessions.vue'),
+                                meta: { title: 'account.sessions.title', auth: true }
+                            },
+                        ]
                     },
                     {
                         path: 'orders',

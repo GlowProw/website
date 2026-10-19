@@ -28,24 +28,28 @@ const accountTabs = [
     icon: 'mdi-face-man-profile'
   },
   {
-    name: 'account.bindings.title',
-    value: 'AccountBindings',
-    icon: 'mdi-link-variant'
-  },
-  {
     name: 'account.media.title',
     value: 'AccountMedia',
     icon: 'mdi-image-multiple-outline'
   },
   {
-    name: 'account.sessions.title',
-    value: 'AccountSessions',
-    icon: 'mdi-devices'
-  },
-  {
     name: 'account.orders.title',
     value: 'AccountOrders',
     icon: 'mdi-receipt-text-outline'
+  },
+]
+
+// 安全中心：平台绑定 + 登录设备
+const securityTabs = [
+  {
+    name: 'account.bindings.title',
+    value: 'AccountBindings',
+    icon: 'mdi-link-variant'
+  },
+  {
+    name: 'account.sessions.title',
+    value: 'AccountSessions',
+    icon: 'mdi-devices'
   },
 ]
 
@@ -111,11 +115,15 @@ const isMessageCenterRoute = (routeName: string) => messageCenterTabs.some(i => 
 // 判断路由是否属于账户设置大类
 const isAccountRoute = (routeName: string) => accountTabs.some(i => i.value === routeName)
 
+// 判断路由是否属于安全中心大类
+const isSecurityRoute = (routeName: string) => securityTabs.some(i => i.value === routeName)
+
 // 依据当前路由动态计算激活的一级 Tab
-const primaryNavMenu = computed<'MeAccount' | 'MeDataCenter' | 'MeMessageCenter' | 'MeSpace'>(() => {
+const primaryNavMenu = computed<'MeAccount' | 'MeSecurity' | 'MeDataCenter' | 'MeMessageCenter' | 'MeSpace'>(() => {
   const routeName = (route.name as string) || ''
   if (isDataCenterRoute(routeName)) return 'MeDataCenter'
   if (isMessageCenterRoute(routeName)) return 'MeMessageCenter'
+  if (isSecurityRoute(routeName)) return 'MeSecurity'
   if (isAccountRoute(routeName)) return 'MeAccount'
   return 'MeAccount'
 })
@@ -126,6 +134,7 @@ const tab = computed(() => (route.name as string) || accountTabs[0].value)
 // 当前大类下显示的二级 Tab 列表
 const currentSubTabs = computed(() => {
   if (primaryNavMenu.value === 'MeAccount') return accountTabs
+  if (primaryNavMenu.value === 'MeSecurity') return securityTabs
   if (primaryNavMenu.value === 'MeDataCenter') return dataCenterTabs
   if (primaryNavMenu.value === 'MeMessageCenter') return messageCenterTabs
   return accountTabs
@@ -192,17 +201,16 @@ defineOptions({
                      :to="{ name: messageCenterTabs[0].value }">
                 {{ t('account.messages.messageCenterTitle') }}
               </v-tab>
+              <v-tab value="MeSecurity"
+                     class="font-weight-bold text-subtitle-1 px-8"
+                     :class="{'v-tab--route-active': primaryNavMenu === 'MeSecurity'}"
+                     :to="{ name: securityTabs[0].value }">
+                {{ t('account.securityCenter.title') }}
+              </v-tab>
               <v-tab value="MeSpace" class="font-weight-bold text-subtitle-1 px-8" :to="{ name: 'SpaceAssemblys' }">
                 {{ t('space.title') }}
               </v-tab>
             </v-tabs>
-          </v-col>
-          <v-col cols="3" class="d-flex align-center justify-end" v-if="authStore.isLogin">
-            <div class="d-flex align-center">
-              <h2 class="singe-line text-h4 font-weight-bold d-flex align-center">
-                <u class="u">{{ authStore.currentUser || 'Captain' }}</u>
-              </h2>
-            </div>
           </v-col>
         </v-row>
       </v-container>
@@ -212,9 +220,9 @@ defineOptions({
 
   <div class="account-root">
     <div class="setting-page-root" v-if="authStore.isLogin">
-      <v-container class="pt-0">
+      <v-container class="pt-5 pt-lg-0">
         <div :class="{'d-flex flex-row': !mobile}">
-          <div :class="{'mb-10 tabs-box-mobile': mobile, 'tabs-box-desktop pt-5': !mobile}">
+          <div :class="{'mb-lg-10 tabs-box-mobile': mobile, 'tabs-box-desktop pt-5': !mobile}">
             <AffixContainerView :scrollable="!mobile ? false : true">
               <VerticalScrollList
                   :disabled="mobile"
@@ -235,14 +243,14 @@ defineOptions({
                     :fixed="mobile"
                     :direction="!mobile ? 'vertical' : 'horizontal'">
                   <template v-for="(i, index) in currentSubTabs" :key="index">
-                    <v-tooltip content-class="pa-0" :target="[tooltipPos.x, tooltipPos.y]">
+                    <v-tooltip content-class="pa-0 tooltip-follow-plain" :target="[tooltipPos.x, tooltipPos.y]">
                       <template v-slot:default>
                         <v-card border class="py-3 px-10">
                           {{ t(i.name) }}
                         </v-card>
                       </template>
                       <template v-slot:activator="{props}">
-                        <div :class="{'mb-2': !mobile, 'mr-5': mobile}">
+                        <div :class="{'mb-2': !mobile, 'mr-5': mobile}" v-bind="props">
                           <v-tab
                               :value="i.value"
                               :to="{ name: i.value }"
@@ -254,7 +262,6 @@ defineOptions({
                               border
                               @mousemove="onMouseMove"
                               @mouseenter="onMouseEnter"
-                              v-bind="props"
                               ripple
                               slim>
                             <div>
@@ -363,5 +370,12 @@ defineOptions({
   .border-amber {
     border: 2px solid rgba(255, 193, 7, 0.5);
   }
+}
+</style>
+
+<style lang="less">
+// 跟随鼠标的纯展示提示卡不接收指针事件，避免悬停时卡片挡住下方图标的点击
+.tooltip-follow-plain {
+  pointer-events: none;
 }
 </style>

@@ -6,7 +6,6 @@ import type {StatsAssemblyTop, StatsOverview, StatsRange, StatsTrend, StatsVisit
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import Loading from "@/components/Loading.vue";
 import HorizontalScrollList from "@/components/HorizontalScrollList.vue";
-import TimeView from "@/components/TimeView.vue";
 import {VSparkline} from "vuetify/components/VSparkline";
 
 const {t} = useI18n();
@@ -39,15 +38,13 @@ const assemblyDetailLink = (uuid: string) => `/assembly/browse/${uuid}/detail`;
 const visitorName = (v: StatsVisitor): string =>
     v.isUser ? (v.username || `User #${v.userId}`) : `${t('basic.visitor.anonMasked')} (${v.anonMasked || ''}…)`;
 
-const trendMetrics: Array<StatsTrend['metric']> = ['browse', 'space', 'like', 'comment', 'reply'];
-
 const metricCards = computed(() => [
   {
     metric: 'browse' as const,
     title: t('account.dataCenter.overview.browse'),
     value: overview.value?.browseCount || 0,
     icon: 'mdi-eye',
-    color: 'amber',
+    color: '#ffc107',
     clickable: true,
   },
   {
@@ -125,7 +122,7 @@ const loadOverview = async () => {
 const loadTrends = async () => {
   const metrics: Array<StatsTrend['metric']> = ['browse', 'space', 'like', 'comment'];
   const results = await Promise.all(
-    metrics.map(m => statsApi.getTrend(m, trendRange.value))
+      metrics.map(m => statsApi.getTrend(m, trendRange.value))
   );
   metrics.forEach((m, idx) => {
     trendMap.value[m] = results[idx];
@@ -213,163 +210,6 @@ const getCardHoverDate = (metric: string): string | null => {
   return t.points[idx].date;
 };
 
-/**
- * 获取指标卡片对应的图表渐变配色
- * @param color 颜色标识
- */
-const getCardGradient = (color: string): string[] => {
-  switch (color) {
-    case 'blue':
-      return ['rgba(66, 165, 245, 0.45)', 'rgba(21, 101, 192, 0.05)'];
-    case 'red':
-      return ['rgba(239, 83, 80, 0.45)', 'rgba(198, 40, 40, 0.05)'];
-    case 'green':
-      return ['rgba(102, 187, 106, 0.45)', 'rgba(46, 125, 50, 0.05)'];
-    case 'purple':
-      return ['rgba(171, 71, 188, 0.45)', 'rgba(123, 31, 162, 0.05)'];
-    case 'teal':
-      return ['rgba(38, 166, 154, 0.45)', 'rgba(0, 121, 107, 0.05)'];
-    case 'amber':
-    default:
-      return ['rgba(255, 193, 7, 0.45)', 'rgba(255, 143, 0, 0.05)'];
-  }
-};
-
-/**
- * 提取 sparkline 数值数组
- */
-const sparklineValues = computed<number[]>(() => {
-  const points = trend.value?.points || [];
-  return points.map(p => Number(p.value) || 0);
-});
-
-/**
- * 提取 sparkline 对应日期标签数组
- */
-const sparklineLabels = computed<string[]>(() => {
-  const points = trend.value?.points || [];
-  return points.map(p => p.date);
-});
-
-/**
- * 针对当前指标动态适配渐变填充色系
- */
-const sparklineGradient = computed<string[]>(() => {
-  switch (currentMetric.value) {
-    case 'space':
-      return ['rgba(66, 165, 245, 0.35)', 'rgba(21, 101, 192, 0.05)'];
-    case 'like':
-      return ['rgba(239, 83, 80, 0.35)', 'rgba(198, 40, 40, 0.05)'];
-    case 'comment':
-    case 'reply':
-      return ['rgba(102, 187, 106, 0.35)', 'rgba(46, 125, 50, 0.05)'];
-    case 'browse':
-    default:
-      return ['rgba(255, 193, 7, 0.35)', 'rgba(255, 143, 0, 0.05)'];
-  }
-});
-
-/**
- * 当前指标最高点数值
- */
-const maxTrendValue = computed(() => {
-  if (sparklineValues.value.length === 0) return 0;
-  return Math.max(...sparklineValues.value);
-});
-
-/**
- * 最近一天（最末数据点）的日期
- */
-const lastDate = computed(() => {
-  const labels = sparklineLabels.value;
-  return labels.length ? labels[labels.length - 1] : '';
-});
-
-/**
- * 最近一天（最末数据点）的数值
- */
-const lastValue = computed(() => {
-  const values = sparklineValues.value;
-  return values.length ? values[values.length - 1].toLocaleString() : '0';
-});
-
-/**
- * 当前指标标题
- */
-const currentMetricTitle = computed(() => {
-  return t(`account.dataCenter.overview.${currentMetric.value}`);
-});
-
-/**
- * 稀疏化展示 sparkline 底部横坐标刻度，避免重叠拥挤
- * @param index 刻度序号
- */
-const formatSparklineLabel = (index: number): string => {
-  const total = sparklineLabels.value.length;
-  if (total <= 7) return sparklineLabels.value[index] || '';
-  const step = Math.max(1, Math.floor(total / 6));
-  if (index % step === 0 || index === total - 1) {
-    const raw = sparklineLabels.value[index] || '';
-    // 仅保留 MM-DD
-    return raw.length >= 5 ? raw.substring(raw.length - 5) : raw;
-  }
-  return '';
-};
-
-/**
- * 格式化后的底部日期标签
- */
-const displaySparklineLabels = computed<string[]>(() => {
-  return sparklineLabels.value.map((_, idx) => formatSparklineLabel(idx));
-});
-
-/**
- * 当前指标对应卡片配置
- */
-const activeCard = computed(() => metricCards.value.find(c => c.metric === currentMetric.value));
-
-/**
- * 图表左上角主题色彩
- */
-const sparklineThemeColor = computed(() => activeCard.value?.color || 'amber');
-
-/**
- * 图表左上角图标
- */
-const activeMetricIcon = computed(() => activeCard.value?.icon || 'mdi-chart-line');
-
-// 鼠标在 Sparkline 图表上悬浮的当前数据点索引
-const currentHoverIndex = ref<number | null>(null);
-
-/**
- * 鼠标悬浮点的详细数据（包含日期与对应数值）
- */
-const hoverPointInfo = computed(() => {
-  if (currentHoverIndex.value === null || currentHoverIndex.value === undefined) return null;
-  const val = sparklineValues.value[currentHoverIndex.value];
-  const date = sparklineLabels.value[currentHoverIndex.value];
-  if (val === undefined) return null;
-  return {value: val, date};
-});
-
-/**
- * 鼠标悬浮点的日期
- */
-const hoveredDate = computed(() => {
-  if (currentHoverIndex.value === null || currentHoverIndex.value === undefined) return null;
-  return sparklineLabels.value[currentHoverIndex.value] ?? null;
-});
-
-/**
- * 鼠标悬浮点的数值
- */
-const hoveredValue = computed(() => {
-  if (currentHoverIndex.value === null || currentHoverIndex.value === undefined) return null;
-  const val = sparklineValues.value[currentHoverIndex.value];
-  return val !== undefined ? val.toLocaleString() : null;
-});
-
-
 defineOptions({
   name: 'AccountDataCenter'
 });
@@ -398,20 +238,22 @@ defineOptions({
     </v-row>
 
     <!-- 概览卡片区 S -->
-    <v-row density="compact" class="mt-2 mb-4">
+    <v-row density="compact" class="mt-2 mb-5" :gap="15">
       <v-col cols="12" sm="6" md="4" lg="4" v-for="card in metricCards" :key="card.metric">
         <v-card
+            border
             rounded="lg"
             variant="text"
-            class="d-flex flex-column justify-center cursor-pointer transition-swing h-100 bg-black"
+            min-height="160px"
+            class="d-flex flex-column justify-center cursor-pointer transition-swing h-100"
             :class="[
               card.clickable && currentMetric === card.metric ? 'border-amber ring-1' : '',
               card.clickable ? 'hover-elevate' : ''
             ]"
             :to="card.href || undefined"
-            :style="card.clickable || card.href ? 'cursor:pointer' : ''"
+            :style="(card.clickable || card.href ? 'cursor:pointer' : '') + `;background-color: color-mix(in srgb, ${card.color} 20%, #000 70%)`"
             @click="card.clickable && onSelectMetric(card.metric)">
-          <div style="opacity: .07; font-size: 7rem; position: absolute; left: 0; bottom: 0">
+          <div style="opacity: .05; font-size: 7.2rem; position: absolute; left: 0; bottom: 0">
             <v-icon :icon="card.icon" :color="card.color" class="mr-1"></v-icon>
           </div>
 
@@ -422,7 +264,7 @@ defineOptions({
               </div>
 
               <div class="d-flex align-baseline justify-space-between">
-                <div class="text-h5 font-weight-bold" :class="`text-${card.color}`">
+                <div class="text-h4 font-weight-bold" :class="`text-${card.color}`">
                   <template v-if="getCardHoverValue(card.metric) !== null">
                     {{ getCardHoverValue(card.metric) }}
                   </template>
@@ -449,7 +291,7 @@ defineOptions({
               <v-sparkline
                   :model-value="getCardSparklineValues(card.metric)"
                   :color="card.color"
-                  height="160"
+                  height="200"
                   line-width="2"
                   marker-size="10"
                   min="0"
@@ -528,10 +370,10 @@ defineOptions({
         <v-row density="compact">
           <HorizontalScrollList :is-indicator="false">
             <template v-for="(a, i) in topVisitorAssemblies" :key="'tv'+a.uuid">
-              <div class="text-amber text-h6">#{{ i + 1 }}</div>
+              <v-card width="360" class="pa-4 ma-1 d-flex flex-column ga-3" variant="text">
+                <div class="text-amber" style="position: absolute; left: -10px; top: -50px; opacity: 0.1; font-size: 9rem">#{{ i + 1 }}</div>
 
-              <v-card  width="400" class="pa-4 ma-1 d-flex flex-column ga-3">
-                <v-card-title class="d-flex align-center ga-2 mx-n4 mt-n4 py-6 bg-black">
+                <v-card-title class="d-flex align-center ga-2 mx-n4 py-1">
                   <router-link
                       :to="assemblyDetailLink(a.uuid)"
                       target="_blank"
@@ -539,7 +381,7 @@ defineOptions({
                     {{ a.name }}
                   </router-link>
                 </v-card-title>
-                
+
                 <v-row>
                   <v-col>
                     <div class="d-flex align-center ga-2 flex-wrap mt-3">
@@ -572,7 +414,7 @@ defineOptions({
 
                 <v-row density="compact" align="center">
                   <v-col cols="auto">
-                    <v-icon start >mdi-eye</v-icon>
+                    <v-icon start>mdi-eye</v-icon>
                   </v-col>
                   <v-col>
                     <v-divider></v-divider>
@@ -584,7 +426,7 @@ defineOptions({
 
                 <v-row density="compact" align="center" class="mt-0">
                   <v-col cols="auto">
-                    <v-icon start  color="red">mdi-heart</v-icon>
+                    <v-icon start color="red">mdi-heart</v-icon>
                   </v-col>
                   <v-col>
                     <v-divider></v-divider>
@@ -596,7 +438,7 @@ defineOptions({
 
                 <v-row density="compact" align="center" class="mt-0">
                   <v-col cols="auto">
-                    <v-icon start  color="green">mdi-comment-text-outline</v-icon>
+                    <v-icon start color="green">mdi-comment-text-outline</v-icon>
                   </v-col>
                   <v-col>
                     <v-divider></v-divider>

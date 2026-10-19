@@ -89,7 +89,7 @@ onMounted(async () => {
     // 已登录用户绑定成功
     if (result.code === 'oauth.bind.ok') {
       notice.success(t('basic.tips.signin.oauth.bindSuccess'), {mode: 'minimal'});
-      return router.push('/account/bindings');
+      return router.push('/account/security/bindings');
     }
 
     // 未找到绑定 -> 引导进入补充注册或绑定已有账号

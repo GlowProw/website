@@ -13,12 +13,12 @@ const props = defineProps({
       width: 320,
       menu: [
         {
-          "label": "船",
+          "label": "codex.itemMenu.ship",
           "value": [],
           "category": "ship"
         },
         {
-          "label": "物品",
+          "label": "codex.itemMenu.item",
           "menus": [
             {
               "value": ['culverin', 'demicannon', 'bombard', 'longGun', 'torpedo'],
@@ -51,17 +51,17 @@ const props = defineProps({
           ]
         },
         {
-          "label": "材料",
+          "label": "codex.itemMenu.material",
           "value": [],
           "category": "material"
         },
         {
-          "label": "商品",
+          "label": "codex.itemMenu.commoditie",
           "value": [],
           "category": "commoditie"
         },
         {
-          "label": "装饰品",
+          "label": "codex.itemMenu.cosmetic",
           "menus": [
             {
               "value": ['firework'],
@@ -101,17 +101,17 @@ const props = defineProps({
           ]
         },
         {
-          "label": "装饰品集",
+          "label": "codex.itemMenu.set",
           "value": [],
           "category": "set"
         },
         {
-          "label": "藏宝图",
+          "label": "codex.itemMenu.treasureMap",
           "value": [],
           "category": "treasureMap"
         },
         {
-          "label": "地图地点",
+          "label": "codex.itemMenu.mapLocation",
           "value": [],
           "category": "mapLocation"
         },
@@ -119,12 +119,12 @@ const props = defineProps({
           "divider": true
         },
         {
-          "label": "终极技能",
+          "label": "codex.itemMenu.ultimate",
           "value": [],
           "category": "ultimate"
         },
         {
-          "label": "模组",
+          "label": "codex.itemMenu.modification",
           "value": [],
           "category": "modification"
         },
@@ -132,18 +132,18 @@ const props = defineProps({
           "divider": true
         },
         {
-          "label": "配装数据",
+          "label": "codex.itemMenu.assemblyData",
           "menus": [
             {
-              "label": "配装",
+              "label": "codex.itemMenu.assembly",
               "category": "1"
             },
             {
-              "label": "轮盘",
+              "label": "codex.itemMenu.wheel",
               "category": "wheel"
             },
             {
-              "label": "船仓",
+              "label": "codex.itemMenu.hold",
               "category": "w2"
             },
           ]
@@ -157,6 +157,9 @@ const props = defineProps({
   }
 })
 
+/**
+ * 按可见分类过滤菜单配置，并清理首尾与连续的分隔线
+ */
 const filteredMenuConfig = computed(() => {
   const config = props.menuConfig;
   if (!props.visibleCategories || props.visibleCategories.length === 0) {
@@ -214,7 +217,12 @@ const filteredMenuConfig = computed(() => {
   };
 });
 
-const onClickMenu = (tags = [], category) => {
+/**
+ * 向外抛出菜单项点击事件
+ * @param tags 物品类型标签集合
+ * @param category 菜单项分类标识
+ */
+const onClickMenu = (tags: string[] = [], category?: string) => {
   emit('clickMenuItem', {
     tags,
     category,
@@ -232,13 +240,12 @@ const onClickMenu = (tags = [], category) => {
       <v-list :width="filteredMenuConfig.width" density="compact" class="overflow-x-hidden">
         <template v-for="(root, rootIndex) in filteredMenuConfig.menu" :key="rootIndex">
           <template v-if="!root.divider">
+            <!-- 无子菜单的项整行可点击；有子菜单的项由内嵌 submenu 悬停/点击展开 -->
             <v-list-item
-                @click="root.value ? onClickMenu(
-                                root.value || [],
-                                root.category
-                            ) : null">
+                :link="!root.menus"
+                @click="root.menus ? null : onClickMenu(root.value || [], root.category)">
 
-              {{ root.label }}
+              {{ t(root.label) }}
 
               <!-- 右侧箭头图标 开始 -->
               <template v-slot:append v-if="root.menus">
@@ -247,6 +254,7 @@ const onClickMenu = (tags = [], category) => {
 
               <template v-if="root.menus">
                 <v-menu :open-on-focus="false"
+                        open-on-hover
                         :offset="[-15, 5]"
                         :width="filteredMenuConfig.width"
                         activator="parent"
@@ -254,21 +262,21 @@ const onClickMenu = (tags = [], category) => {
                   <v-card border>
                     <v-list class="overflow-x-hidden">
                       <template v-for="(i, iIndex) in root.menus" :key="iIndex">
-                        <template v-if="!(i as any).divider">
-                          <v-list-item link>
-                            <v-list-item-title
-                                @click="onClickMenu(
-                                (i as any).value,
-                                (i as any).category
-                            )">
-                          <span v-for="(tr, trIndex) in (i as any).value" :key="trIndex">
-                            <template v-if="trIndex != 0">,</template>{{ t(`codex.types.${tr}`) }}
-                          </span>
+                        <template v-if="!i.divider">
+                          <v-list-item link @click="onClickMenu(i.value || [], i.category)">
+                            <v-list-item-title>
+                              <!-- 优先展示多语言标签，否则拼接类型名 -->
+                              <template v-if="i.label">{{ t(i.label) }}</template>
+                              <template v-else>
+                                <span v-for="(tr, trIndex) in (i.value || [])" :key="trIndex">
+                                  <template v-if="trIndex != 0">,</template>{{ t(`codex.types.${tr}`) }}
+                                </span>
+                              </template>
                             </v-list-item-title>
                           </v-list-item>
                         </template>
 
-                        <template v-else-if="(i as any).divider">
+                        <template v-else>
                           <v-divider class="my-2"></v-divider>
                         </template>
                       </template>
@@ -279,7 +287,7 @@ const onClickMenu = (tags = [], category) => {
             </v-list-item>
           </template>
 
-          <template v-else-if="root.divider">
+          <template v-else>
             <v-divider class="my-2"></v-divider>
           </template>
         </template>
