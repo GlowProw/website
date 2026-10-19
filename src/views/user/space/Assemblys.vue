@@ -1,28 +1,34 @@
 <template>
-  <div class="position-relative">
-    <v-row v-if="userAssemblysData.data && userAssemblysData.data.length > 0" class="mr-lg-10">
-      <v-col cols="12" md="6" lg="6" v-for="(i, index) in userAssemblysData.data" :key="i.uuid || index">
-        <AssemblyTempCard :item="i" />
-      </v-col>
-    </v-row>
+  <AffixBoxHasTitleView>
+    <template v-slot:title>
+      {{ t('assembly.title') }}
+    </template>
 
-    <div class="text-center py-10" v-else-if="!loading">
-      <EmptyView></EmptyView>
+    <div class="position-relative">
+      <v-row v-if="userAssemblysData.data && userAssemblysData.data.length > 0" class="mr-lg-10">
+        <v-col cols="12" md="6" lg="6" v-for="(i, index) in userAssemblysData.data" :key="i.uuid || index">
+          <AssemblyTempCard :item="i" />
+        </v-col>
+      </v-row>
+
+      <div class="text-center py-10" v-else-if="!loading">
+        <EmptyView></EmptyView>
+      </div>
+
+      <!-- 分页 S -->
+      <PaginationBar
+          v-if="userAssemblysData.pagination"
+          v-model:page="spacePagination.page"
+          :pagination="userAssemblysData.pagination"
+          class="mt-8"
+          @change="getUserAssemblysData" />
+      <!-- 分页 E -->
+
+      <div v-if="loading" class="d-flex justify-center align-center py-10">
+        <Loading size="50"></Loading>
+      </div>
     </div>
-
-    <!-- 分页 S -->
-    <PaginationBar
-        v-if="userAssemblysData.pagination"
-        v-model:page="spacePagination.page"
-        :pagination="userAssemblysData.pagination"
-        class="mt-8"
-        @change="getUserAssemblysData" />
-    <!-- 分页 E -->
-
-    <v-overlay v-model="loading" contained class="d-flex justify-center align-center">
-      <Loading size="50"></Loading>
-    </v-overlay>
-  </div>
+  </AffixBoxHasTitleView>
 </template>
 
 <script setup lang="ts">
@@ -37,6 +43,7 @@ import AssemblyTempCard from '@/components/AssemblyTempCard.vue';
 import EmptyView from '@/components/EmptyView.vue';
 import Loading from '@/components/Loading.vue';
 import PaginationBar from '@/components/PaginationBar.vue';
+import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 
 const {t} = useI18n();
 const notice = useNoticeStore();
@@ -53,7 +60,7 @@ const userAssemblysData = ref<AssemblyListResult>({
 });
 const spacePagination = ref({
   page: 1,
-  pageSize: 10,
+  pageSize: 4,
 });
 
 const getUserAssemblysData = async () => {

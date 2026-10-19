@@ -267,6 +267,25 @@ export function useUserApi() {
     };
 
     /**
+     * 获取自己订单列表（包含订阅赞助记录）
+     * @param params 分页与筛选参数
+     */
+    const getMyOrders = async (params?: { page?: number; pageSize?: number; status?: string; platform?: string; keyword?: string }) => {
+        try {
+            const url = `user/me/orders`;
+            const result = await http.get(url, {
+                params: { ...params }
+            })
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            return handleError(error)
+        }
+    };
+
+    /**
      * 获取用户评论
      * @param pagination
      */
@@ -585,6 +604,7 @@ export function useUserApi() {
         getMeTeamups,
         getUserAssemblys,
         getMeAssemblys,
+        getMyOrders,
         getUserComments,
         getUserLikes,
         activate,

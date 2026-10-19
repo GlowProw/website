@@ -42,6 +42,11 @@ const accountTabs = [
     value: 'AccountSessions',
     icon: 'mdi-devices'
   },
+  {
+    name: 'account.orders.title',
+    value: 'AccountOrders',
+    icon: 'mdi-receipt-text-outline'
+  },
 ]
 
 // 创作中心：概览 + 配装/评论/组队/地图/举报/回收站

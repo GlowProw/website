@@ -27,7 +27,7 @@ const hall = ref<any[]>([])
 const myStatus = ref<Record<string, any>>({})
 
 const period = ref<'monthly'>('monthly')
-const customAmount = ref<number | string>('')
+const customAmount = ref<number>(5)
 
 // 支付平台选择弹窗状态
 const checkoutDialog = ref(false)
@@ -635,7 +635,6 @@ onUnmounted(() => {
           <v-row class="mb-10">
             <v-col v-for="tierDef in sortedTiers" :key="tierDef.tier" cols="12" md="6" lg="6">
               <v-card rounded="lg"
-                      border
                       class="h-100"
                       :class="tierDef.tier === '0.1' ? 'border-purple-darken-1' : ''">
                 <v-card-title class="py-16 text-center mb-4 text-h4 u"
@@ -646,7 +645,7 @@ onUnmounted(() => {
                   </span>
                 </v-card-title>
                 <v-card-item>
-                  <div class="text-h5">
+                  <div class="text-h4">
                     {{ tierDef.monthlyCny }}
                     <span class="text-body-2 text-medium-emphasis">
                       / {{ t('subscription.perMonth') }}
@@ -656,13 +655,13 @@ onUnmounted(() => {
                 <v-card-text class="text-body-2">
                   <!-- 身份与特权徽章 S -->
                   <div class="d-flex ga-2 flex-wrap mb-3 align-center" v-if="getTierRoleBadge(tierDef)">
-                    <v-chip size="small" :color="isCoreTier(tierDef) ? 'warning' : 'primary'" variant="flat">
+                    <v-chip size="small" color="amber" variant="flat" class="card-flavor">
                       <v-icon start :icon="isCoreTier(tierDef) ? 'mdi-shield-crown' : 'mdi-shield-check'"/>
                       {{ getTierRoleBadge(tierDef) }}
                     </v-chip>
 
-                    <!-- 50 和 100 用户都获得门户展示 -->
-                    <v-chip v-if="isCoreTier(tierDef)" size="small" color="amber" variant="outlined">
+                    <!-- 门户展示 -->
+                    <v-chip v-if="isCoreTier(tierDef)" size="small" color="amber" variant="flat" class="card-flavor">
                       <v-icon start icon="mdi-web"/>
                       {{ t('subscription.portalDisplay') }}
                     </v-chip>
@@ -694,14 +693,14 @@ onUnmounted(() => {
                   </div>
                   <!-- 特权权益列表 E -->
 
-                  <div class="text-caption opacity-60">
+                  <div class="opacity-60">
                     {{ getTierDesc(tierDef.tier) }}
                   </div>
                 </v-card-text>
                 <v-divider></v-divider>
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn variant="flat"
+                  <v-btn variant="text"
                          :disabled="!authStore.isLogin"
                          :title="!authStore.isLogin ? t('subscription.loginFirst') : undefined"
                          @click="onTierClick(tierDef)">
@@ -713,7 +712,7 @@ onUnmounted(() => {
 
             <!-- 一次性自定义 -->
             <v-col cols="12" md="6" lg="6">
-              <v-card rounded="lg" dashed border class="h-100">
+              <v-card rounded="lg" dashed class="h-100">
                 <v-card-title class="py-10 text-center bg-black mb-4 text-amber text-h4 u">
                   <div>
                     <v-icon icon="mdi-gift-outline"></v-icon>
@@ -721,19 +720,18 @@ onUnmounted(() => {
                   {{ t('subscription.tiers.custom.name') }}
                 </v-card-title>
                 <v-card-text>
-                  <v-text-field v-model="customAmount"
-                                type="number"
-                                :min="5"
-                                density="compact"
-                                class="mt-3"
-                                :disabled="!authStore.isLogin"
-                                :label="t('subscription.customAmount')"
-                                hide-details></v-text-field>
+                  <v-number-input v-model="customAmount"
+                                  type="number"
+                                  :min="5"
+                                  class="mt-3"
+                                  :disabled="!authStore.isLogin"
+                                  :label="t('subscription.customAmount')"
+                                  hide-details></v-number-input>
 
                   <div class="mt-5 text-body-2 text-medium-emphasis">
                     {{ t('subscription.customRule') }}
                   </div>
-                  <div class="mt-2 text-body-2 text-medium-emphasis">
+                  <div class="mt-2 text-medium-emphasis">
                     {{ t('subscription.tiers.custom.desc') }}
                   </div>
                 </v-card-text>
@@ -850,10 +848,11 @@ onUnmounted(() => {
     <v-dialog v-model="checkoutDialog" max-width="460">
       <v-card border>
         <v-card-title class="py-16 text-center bg-black mb-4 text-amber text-h4 u">
-          {{ pendingTier ? getTierName(pendingTier.tier) : '' }}
+          <v-icon size="60">mdi-lightning-bolt</v-icon>
+          <p class="mt-2">{{ pendingTier ? getTierName(pendingTier.tier) : '' }}</p>
         </v-card-title>
         <v-card-text>
-          <div class="text-body-1 mb-3">
+          <div class="text-h4 mb-3">
             {{ pendingTier?.amount }}
             <span class="text-body-2 text-medium-emphasis">
               · {{
@@ -868,19 +867,16 @@ onUnmounted(() => {
           <div class="d-flex ga-3 flex-wrap">
             <v-btn :disabled="!plans?.platforms.afdian || submitting"
                    variant="tonal"
-                   prepend-icon="mdi-lightning-bolt"
                    @click="pay('afdian')">
               {{ t('subscription.platformAfdian') }}
             </v-btn>
             <v-btn :disabled="!plans?.platforms.stripe || submitting"
                    variant="tonal"
-                   prepend-icon="mdi-credit-card-outline"
                    @click="pay('stripe')">
               Stripe
             </v-btn>
             <v-btn :disabled="!plans?.platforms.paypal || submitting"
                    variant="tonal"
-                   prepend-icon="mdi-paypal"
                    @click="pay('paypal')">
               PayPal
             </v-btn>

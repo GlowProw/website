@@ -220,6 +220,12 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
                         meta: { title: 'account.sessions.title', auth: true }
                     },
                     {
+                        path: 'orders',
+                        name: 'AccountOrders',
+                        component: () => import('@/views/user/account/Orders.vue'),
+                        meta: { title: 'account.orders.title', auth: true }
+                    },
+                    {
                         path: 'data-center',
                         name: 'AccountDataCenter',
                         component: AccountDataCenterPage

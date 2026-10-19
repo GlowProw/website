@@ -1,9 +1,5 @@
 <template>
   <div class="position-relative">
-    <v-overlay :model-value="loading" contained class="d-flex align-center justify-center">
-      <Loading size="50"></Loading>
-    </v-overlay>
-
     <!-- 操作头 S -->
     <AffixContainerView>
       <v-card class="d-flex align-center justify-space-between flex-wrap ga-2 pa-2">
@@ -106,6 +102,10 @@
       <EmptyView></EmptyView>
     </div>
     <!-- 组队列表 E -->
+
+    <div v-if="loading" class="d-flex justify-center align-center py-10">
+      <Loading size="50"></Loading>
+    </div>
   </div>
 </template>
 
