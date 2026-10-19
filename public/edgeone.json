@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/status-api/:path*",
+      "destination": "https://status.glow-prow.top/api/:path*"
+    },
+    {
       "source": "/*",
       "destination": "/index.html"
     },

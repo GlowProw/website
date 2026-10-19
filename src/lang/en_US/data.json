@@ -3418,6 +3418,43 @@
       "persistentStorage": "Persistent Storage",
       "sessionStorage": "Session Storage"
     },
+    "serviceStatus": {
+      "title": "Service Status",
+      "desc": "Live status of our services and build pipelines, refreshed every minute.",
+      "overviewTitle": "Overview",
+      "monitorsTitle": "Monitors",
+      "lastUpdated": "Updated",
+      "viewStatusPage": "View full status page",
+      "loadFailed": "Unable to load service status right now, please try again later.",
+      "uptime24h": "24h uptime",
+      "overall": {
+        "up": "All systems operational",
+        "partial": "Partial outage",
+        "down": "Major outage",
+        "unknown": "Status unknown"
+      },
+      "monitor": {
+        "up": "Operational",
+        "down": "Down",
+        "pending": "Degraded",
+        "maintenance": "Maintenance",
+        "unknown": "Unknown"
+      },
+      "builds": {
+        "title": "Build Pipelines",
+        "desc": "Latest 10 build runs of the website",
+        "loadFailed": "Unable to load build runs",
+        "retry": "Retry",
+        "state": {
+          "running": "Building",
+          "success": "Succeeded",
+          "failure": "Failed",
+          "cancelled": "Cancelled",
+          "skipped": "Skipped",
+          "unknown": "Unknown"
+        }
+      }
+    },
     "notification": {
       "title": "Notification"
     },
@@ -3710,7 +3747,9 @@
       "title": "Contact",
       "serviceStatus": "Service Status",
       "translated": "📖Help us translate",
-      "github": "Project Open Source Address"
+      "github": "Project Open Source Address",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service"
     },
     "serviceProvider": {
       "openSource": "Open Source Support",

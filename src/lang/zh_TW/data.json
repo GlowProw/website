@@ -3416,6 +3416,43 @@
       "persistentStorage": "持久儲存數據",
       "sessionStorage": "會話儲存數據"
     },
+    "serviceStatus": {
+      "title": "服務狀態",
+      "desc": "即時展示本站各項服務與構建流水線的運行狀態，數據每分鐘自動刷新",
+      "overviewTitle": "狀態總覽",
+      "monitorsTitle": "監控項",
+      "lastUpdated": "更新於",
+      "viewStatusPage": "查看完整狀態頁",
+      "loadFailed": "暫時無法取得服務狀態，請稍後再試",
+      "uptime24h": "24 小時可用率",
+      "overall": {
+        "up": "服務正常",
+        "partial": "部分服務異常",
+        "down": "服務中斷",
+        "unknown": "狀態未知"
+      },
+      "monitor": {
+        "up": "正常",
+        "down": "宕機",
+        "pending": "波動",
+        "maintenance": "維護中",
+        "unknown": "未知"
+      },
+      "builds": {
+        "title": "構建流水線",
+        "desc": "網站最近 10 次構建記錄",
+        "loadFailed": "暫時無法取得構建記錄",
+        "retry": "重試",
+        "state": {
+          "running": "構建中",
+          "success": "構建成功",
+          "failure": "構建失敗",
+          "cancelled": "已取消",
+          "skipped": "已跳過",
+          "unknown": "未知"
+        }
+      }
+    },
     "notification": {
       "title": "通知"
     },
@@ -3699,7 +3736,9 @@
       "title": "联系",
       "serviceStatus": "服务状态",
       "translated": "📖帮助我们翻译",
-      "github": "項目開源地址"
+      "github": "項目開源地址",
+      "privacy": "隱私條款",
+      "terms": "服務協議"
     },
     "serviceProvider": {
       "openSource": "開源支援",

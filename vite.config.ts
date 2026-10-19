@@ -487,6 +487,13 @@ export default defineConfig(({mode}) => {
                     changeOrigin: true,
                     secure: true,
                     rewrite: (path: any) => path.replace(/^\/lang-api/, '/src/data'),
+                },
+                // 服务状态页代理，规避状态服务的跨域限制
+                "/status-api": {
+                    target: 'https://status.glow-prow.top',
+                    changeOrigin: true,
+                    secure: true,
+                    rewrite: (path: any) => path.replace(/^\/status-api/, '/api'),
                 }
             }
         },

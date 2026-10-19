@@ -89,6 +89,7 @@ const SettingViewPage = () => import('@/views/setting/View.vue');
 const SettingAdPage = () => import('@/views/setting/Ad.vue');
 const SettingRoutinePage = () => import('@/views/setting/Routine.vue');
 const SettingStoragePage = () => import('@/views/setting/Storage.vue');
+const SettingServiceStatusPage = () => import('@/views/setting/ServiceStatus.vue');
 const AboutPage = () => import('@/views/setting/About.vue');
 const SettingPwaPage = () => import('@/views/setting/Pwa.vue');
 const SettingWishlistPage = () => import('@/views/setting/Wishlist.vue');
@@ -431,6 +432,14 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
                                 path: 'about',
                                 name: 'PortalSettingAbout',
                                 component: AboutPage,
+                            },
+                            {
+                                path: 'service-status',
+                                name: 'PortalSettingServiceStatus',
+                                component: SettingServiceStatusPage,
+                                meta: {
+                                    title: 'setting.serviceStatus.title'
+                                },
                             },
                             {
                                 path: 'pwa',

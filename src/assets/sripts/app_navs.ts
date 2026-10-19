@@ -24,7 +24,7 @@ export default class AppNavs {
         },
         {
             title: 'footer.col3.serviceStatus',
-            href: 'https://status.glow-prow.top',
+            href: 'https://status.glow-prow.top/status/glow-prow',
         },
         {
             title: 'footer.col3.translated',

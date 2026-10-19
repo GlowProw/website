@@ -3419,6 +3419,43 @@
       "persistentStorage": "持久储存数据",
       "sessionStorage": "会话储存数据"
     },
+    "serviceStatus": {
+      "title": "服务状态",
+      "desc": "实时展示本站各项服务与构建流水线的运行状态，数据每分钟自动刷新",
+      "overviewTitle": "状态总览",
+      "monitorsTitle": "监控项",
+      "lastUpdated": "更新于",
+      "viewStatusPage": "查看完整状态页",
+      "loadFailed": "暂时无法获取服务状态，请稍后再试",
+      "uptime24h": "24 小时可用率",
+      "overall": {
+        "up": "服务正常",
+        "partial": "部分服务异常",
+        "down": "服务中断",
+        "unknown": "状态未知"
+      },
+      "monitor": {
+        "up": "正常",
+        "down": "宕机",
+        "pending": "波动",
+        "maintenance": "维护中",
+        "unknown": "未知"
+      },
+      "builds": {
+        "title": "构建流水线",
+        "desc": "网站最近 10 次构建记录",
+        "loadFailed": "暂时无法获取构建记录",
+        "retry": "重试",
+        "state": {
+          "running": "构建中",
+          "success": "构建成功",
+          "failure": "构建失败",
+          "cancelled": "已取消",
+          "skipped": "已跳过",
+          "unknown": "未知"
+        }
+      }
+    },
     "notification": {
       "title": "通知"
     },

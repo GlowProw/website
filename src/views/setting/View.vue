@@ -103,6 +103,11 @@ const aboutTabs: SubTabItem[] = [
     icon: 'mdi-information'
   },
   {
+    name: 'setting.serviceStatus.title',
+    value: 'PortalSettingServiceStatus',
+    icon: 'mdi-heart-pulse'
+  },
+  {
     name: 'footer.col3.privacy',
     value: 'SettingPrivacyPolicy',
     icon: 'mdi-shield-lock-outline',
