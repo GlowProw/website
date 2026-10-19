@@ -3,7 +3,7 @@
  * 设置视图主入口
  * 采用一级分类选项卡与二级垂直选项卡联动的层级布局架构（对齐账户中心设计规范）
  */
-import { computed } from "vue";
+import { computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useDisplay } from "vuetify/framework";
 import { useI18n } from "vue-i18n";
@@ -13,11 +13,14 @@ import Silk from "@/components/Silk.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
 
+import { useAuthStore } from "~/stores/userAccountStore";
+
 const route = useRoute(),
     router = useRouter(),
     { mobile } = useDisplay(),
     { t } = useI18n(),
-    { tooltipPos, onMouseMove, onMouseEnter } = useTooltipFollow()
+    { tooltipPos, onMouseMove, onMouseEnter } = useTooltipFollow(),
+    authStore = useAuthStore()
 
 interface SubTabItem {
   name: string
@@ -70,20 +73,25 @@ const dataTabs: SubTabItem[] = [
 ]
 
 /**
- * 赞助与商业大类：赞助订阅、广告推广
+ * 赞助与商业大类：赞助订阅、广告推广（订阅及赞助特权用户自动隐藏广告入口）
  */
-const subscriptionTabs: SubTabItem[] = [
-  {
-    name: 'subscription.title',
-    value: 'PortalSettingSubscriptions',
-    icon: 'mdi-treasure-chest'
-  },
-  {
-    name: 'setting.ad.title',
-    value: 'PortalSettingAds',
-    icon: 'mdi-advertisements'
-  },
-]
+const subscriptionTabs = computed<SubTabItem[]>(() => {
+  const tabs: SubTabItem[] = [
+    {
+      name: 'subscription.title',
+      value: 'PortalSettingSubscriptions',
+      icon: 'mdi-treasure-chest'
+    }
+  ]
+  if (!authStore.isSubscriber && !authStore.isDonorOrPrivileged) {
+    tabs.push({
+      name: 'setting.ad.title',
+      value: 'PortalSettingAds',
+      icon: 'mdi-advertisements'
+    })
+  }
+  return tabs
+})
 
 /**
  * 关于大类：关于闪耀船首、隐私协议、服务协议
@@ -113,8 +121,15 @@ const aboutTabs: SubTabItem[] = [
 // 路由归属判定
 const isGeneralRoute = (name: string) => generalTabs.some(i => i.value === name)
 const isDataRoute = (name: string) => dataTabs.some(i => i.value === name)
-const isSubscriptionRoute = (name: string) => subscriptionTabs.some(i => i.value === name)
+const isSubscriptionRoute = (name: string) => subscriptionTabs.value.some(i => i.value === name)
 const isAboutRoute = (name: string) => aboutTabs.some(i => i.value === name)
+
+// 订阅或特权用户访问广告设置时自动重定向至赞助订阅页
+watch([() => route.name, () => authStore.isSubscriber, () => authStore.isDonorOrPrivileged], ([name, sub, donor]) => {
+  if (name === 'PortalSettingAds' && (sub || donor)) {
+    router.replace({ name: 'PortalSettingSubscriptions', params: { lang: route.params.lang } })
+  }
+}, { immediate: true })
 
 /**
  * 依据当前路由动态计算激活的一级 Tab
@@ -133,7 +148,7 @@ const primaryNavMenu = computed<'SettingGeneral' | 'SettingData' | 'SettingSubsc
  */
 const currentSubTabs = computed<SubTabItem[]>(() => {
   if (primaryNavMenu.value === 'SettingData') return dataTabs
-  if (primaryNavMenu.value === 'SettingSubscriptions') return subscriptionTabs
+  if (primaryNavMenu.value === 'SettingSubscriptions') return subscriptionTabs.value
   if (primaryNavMenu.value === 'SettingAbout') return aboutTabs
   return generalTabs
 })
@@ -220,7 +235,7 @@ defineOptions({
               <v-tab value="SettingSubscriptions"
                      class="font-weight-bold text-subtitle-1 px-8"
                      :class="{'v-tab--route-active': primaryNavMenu === 'SettingSubscriptions'}"
-                     :to="{ name: subscriptionTabs[0].value, params: { lang: route.params.lang } }">
+                     :to="{ name: subscriptionTabs[0]?.value, params: { lang: route.params.lang } }">
                 {{ t('subscription.title') }}
               </v-tab>
               <v-tab value="SettingAbout"

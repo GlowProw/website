@@ -1,6 +1,6 @@
 import {defineStore} from 'pinia'
-import {computed, ref, triggerRef} from 'vue'
-import {storage} from "@/assets/sripts"
+import {computed, ref, triggerRef, watch} from 'vue'
+import {storage, storage_account} from "@/assets/sripts"
 import {UserLocalResult} from "@/assets/types/User";
 
 export const useAuthStore = defineStore('account', () => {
@@ -9,6 +9,43 @@ export const useAuthStore = defineStore('account', () => {
     const isAuthenticated = computed(() => !!user.value)
     const isLogin = computed(() => !!user.value?.token)
     const currentUser = computed(() => user.value?.alternativeName || user.value?.username || 'none')
+
+    /**
+     * 判断当前用户是否为有效订阅会员（见习海盗至总督各赞助档位）
+     */
+    const isSubscriber = computed<boolean>(() => {
+        if (!user.value?.token) return false
+        const roles = user.value?.role || []
+        const privileges = (user.value?.privilege || []) as string[]
+        const all = [...roles, ...privileges]
+        return all.some(r =>
+            ['contributor', 'contributor1', 'contributor2', 'contributor3', 'contributor4', 'contributor5'].includes(r)
+        )
+    })
+
+    /**
+     * 判断当前用户是否具备捐助者或管理特权
+     */
+    const isDonorOrPrivileged = computed<boolean>(() => {
+        if (!user.value?.token) return false
+        const roles = user.value?.role || []
+        const privileges = (user.value?.privilege || []) as string[]
+        const all = [...roles, ...privileges]
+        return all.some(r =>
+            ['contributor', 'contributor1', 'contributor2', 'contributor3', 'contributor4', 'contributor5', 'root', 'admin', 'super', 'dev'].includes(r)
+        )
+    })
+
+    // 订阅成功账户自动禁用网站广告
+    watch([isSubscriber, isDonorOrPrivileged], ([sub, donor]) => {
+        if (sub || donor) {
+            try {
+                storage_account.updateConfiguration('ad', 'google.switch', false)
+            } catch {
+                // 静默容错
+            }
+        }
+    }, { immediate: true })
 
     /**
      * 初始化
@@ -163,6 +200,8 @@ export const useAuthStore = defineStore('account', () => {
         setAccountProfile,
         isLogin,
         isAuthenticated,
+        isSubscriber,
+        isDonorOrPrivileged,
         currentUser,
         checkPrivilegeGroup,
         updateAccountAttr,

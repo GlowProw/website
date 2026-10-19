@@ -137,6 +137,18 @@ export interface AssemblyListParams extends PaginationParams {
     tags?: string[];
 }
 
+/**
+ * 用户空间配装列表查询参数
+ */
+export interface UserSpaceAssemblysQuery extends PaginationParams {
+    sortField?: string;
+    sortOrder?: string;
+    createdStart?: string | null;
+    createdEnd?: string | null;
+    updatedStart?: string | null;
+    updatedEnd?: string | null;
+}
+
 export interface EditAssemblyData extends AssemblyItem {
 }
 

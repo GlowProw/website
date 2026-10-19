@@ -3,6 +3,7 @@ import {computed, onMounted, ref} from "vue";
 import {useI18n} from "vue-i18n";
 import {apis} from "@/assets/sripts";
 import {useNoticeStore} from "~/stores/noticeStore";
+import {useAuthStore} from "~/stores/userAccountStore";
 import {useSubscriptionApi} from "@/assets/sripts/api/subscription_service";
 import type {CreateOrderParams} from "@/assets/types/Subscription";
 
@@ -12,6 +13,7 @@ import AffixContainerView from "@/components/AffixContainerView.vue";
 import TimeView from "@/components/TimeView.vue";
 
 const notice = useNoticeStore(),
+    authStore = useAuthStore(),
     {t, te} = useI18n(),
     subApi = useSubscriptionApi()
 
@@ -214,6 +216,7 @@ const onPageChange = (page: number) => {
 
 /**
  * 对未完成支付的订单发起继续支付流程
+ * 于新标签页打开第三方收银台，保留当前管理界面
  *
  * @param {any} order - 订单对象
  * @returns {Promise<void>}
@@ -232,10 +235,11 @@ const onContinuePay = async (order: any): Promise<void> => {
     }
     const result = await subApi.createOrder(payload)
     if (result.redirectUrl) {
-      window.location.href = result.redirectUrl
+      window.open(result.redirectUrl, '_blank')
     }
   } catch (e: any) {
     notice.error(e?.message || t('subscription.checkoutFailed'))
+  } finally {
     continuingOrderId.value = null
   }
 }
@@ -253,6 +257,7 @@ const onSyncOrder = async (order: any): Promise<void> => {
     const res = await subApi.syncOrder(order.id)
     if (res?.synced && res?.status === 'paid') {
       notice.success(t('subscription.orderSyncedPaid'))
+      await authStore.fetchAccountProfile(true).catch(() => null)
     } else {
       notice.info(t('subscription.orderStillPending'))
     }

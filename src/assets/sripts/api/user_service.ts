@@ -1,5 +1,7 @@
 import { useHttpToken } from "@/assets/sripts/http_util";
 import { PaginationParams } from "@/assets/types";
+import { UserSpaceAssemblysQuery } from "@/assets/types/Assembly";
+import { UserSpaceTeamupsQuery } from "@/assets/types/Teamup";
 import { SigninParams } from "@/assets/types/User.Login";
 import { SignupParams } from "@/assets/types/User.Signup";
 import { ChangePasswordParams, ForgotPasswordParams, ResetPasswordParams } from "@/assets/types/User";
@@ -191,13 +193,13 @@ export function useUserApi() {
     /**
      * 获取站内用户组队列表
      * @param userId
-     * @param pagination
+     * @param params 分页与筛选参数
      */
-    const getUserTeamups = async (userId: string, pagination?: PaginationParams) => {
+    const getUserTeamups = async (userId: string, params?: UserSpaceTeamupsQuery) => {
         try {
             const url = `user/space/teamups`;
             const result = await http.get(url, {
-                params: { ...pagination, id: userId }
+                params: { ...params, id: userId }
             })
             return handleResponse(result)
         } catch (error) {
@@ -230,13 +232,13 @@ export function useUserApi() {
     /**
      * 获取站内用户配装列表
      * @param userId
-     * @param pagination
+     * @param params 分页与筛选参数
      */
-    const getUserAssemblys = async (userId: string, pagination?: PaginationParams) => {
+    const getUserAssemblys = async (userId: string, params?: UserSpaceAssemblysQuery) => {
         try {
             const url = `user/space/assemblys`;
             const result = await http.get(url, {
-                params: { ...pagination, id: userId }
+                params: { ...params, id: userId }
             })
             return handleResponse(result)
         } catch (error) {

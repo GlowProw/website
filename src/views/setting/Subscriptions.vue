@@ -179,7 +179,7 @@ const onCancelOrder = async (o: MyOrder): Promise<void> => {
 
 /**
  * 对未完成支付的订单发起继续支付流程
- * 根据原订单中的档位、周期、支付平台及金额重新生成支付请求，并跳转至第三方收银台
+ * 根据原订单中的档位、周期、支付平台及金额重新生成支付请求，并于新窗口打开第三方收银台
  *
  * @param {MyOrder} o - 需要继续支付的目标订单对象
  * @returns {Promise<void>}
@@ -198,10 +198,13 @@ const onContinuePay = async (o: MyOrder): Promise<void> => {
       ...(o.tier === 'custom' ? {amount: Number(o.amountCny || o.amount)} : {})
     }
     const result = await api.createOrder(payload)
-    if (result.redirectUrl)
-      window.location.href = result.redirectUrl
+    if (result.redirectUrl) {
+      window.open(result.redirectUrl, '_blank')
+      await loadMyOrders()
+    }
   } catch (e: any) {
     notice.minimal(e?.message || t('subscription.checkoutFailed'), 'error')
+  } finally {
     continuingOrderId.value = null
   }
 }
@@ -219,6 +222,7 @@ const onSyncOrder = async (o: MyOrder): Promise<void> => {
     const res = await api.syncOrder(o.id)
     if (res?.synced && res?.status === 'paid') {
       notice.minimal(t('subscription.orderSyncedPaid'), 'success')
+      await authStore.fetchAccountProfile(true).catch(() => null)
       await Promise.all([
         loadMyOrders(),
         load()
@@ -357,7 +361,8 @@ const refreshOrdersAndStatus = async (): Promise<void> => {
       }),
       api.getProgress().then(g => {
         progress.value = g
-      })
+      }),
+      authStore.fetchAccountProfile(true)
     ])
   } catch {
     // 静默容错，不阻断界面
@@ -417,7 +422,7 @@ const onCustomClick = (): void => {
 
 /**
  * 确认选择支付平台并正式发起下单流程
- * 验证登录态，提交创建订单请求，并在成功后重定向跳转至三方收银台（爱发电 / Stripe / PayPal）
+ * 验证登录态，提交创建订单请求，并在成功后于新窗口打开三方收银台（爱发电 / Stripe / PayPal）
  *
  * @param {'afdian' | 'stripe' | 'paypal'} platform - 用户选择的支付渠道标识
  * @returns {Promise<void>}
@@ -437,12 +442,16 @@ const pay = async (platform: 'afdian' | 'stripe' | 'paypal'): Promise<void> => {
       ...(pendingTier.value.amount !== undefined ? {amount: pendingTier.value.amount} : {})
     }
     const result = await api.createOrder(payload)
-    if (result.redirectUrl)
-      window.location.href = result.redirectUrl
-    else
+    if (result.redirectUrl) {
+      window.open(result.redirectUrl, '_blank')
+      checkoutDialog.value = false
+      await loadMyOrders()
+    } else {
       throw new Error('no redirect url')
+    }
   } catch (e: any) {
     notice.error(e?.message || t('subscription.checkoutFailed'))
+  } finally {
     submitting.value = false
   }
 }
@@ -477,6 +486,16 @@ onMounted(async () => {
     }
 
     if (authStore.user?.token) {
+      try {
+        const orderRes = await api.getMyOrders()
+        if (orderRes.pending && orderRes.pending.length > 0) {
+          for (const o of orderRes.pending) {
+            await api.syncOrder(o.id).catch(() => null)
+          }
+        }
+      } catch {
+      }
+      await authStore.fetchAccountProfile(true).catch(() => null)
       api.getMyStatus().then(s => myStatus.value = s || {}).catch(() => {
       })
       loadMyOrders()
@@ -546,22 +565,24 @@ onUnmounted(() => {
               </v-row>
             </div>
 
-            <!-- 订阅身份 S -->
-            <div v-if="activeContributor"
-                 class="my-4 text-warning">
-              {{ t('subscription.youAreContributor', {name: getContributorName(activeContributor.role)}) }}
-              <p v-if="activeContributor.expiryTime">
-                （{{ t('subscription.expireAt') }} {{ formatExpiry(activeContributor.expiryTime) }}）
-              </p>
-            </div>
-            <!-- 订阅身份 E -->
-
             <template v-slot:title>
               <div class="d-flex align-center ga-2">
                 {{ t('subscription.monthlyGoal') }}
               </div>
             </template>
           </AffixBoxHasTitleView>
+
+          <!-- 订阅身份 S -->
+          <v-row v-if="activeContributor" class="text-warning my-5">
+            <v-col cols="1" class="mr-3">🎉</v-col>
+            <v-col>
+              {{ t('subscription.youAreContributor', {name: getContributorName(activeContributor.role)}) }}
+              <span v-if="activeContributor.expiryTime">
+                （{{ t('subscription.expireAt') }} {{ formatExpiry(activeContributor.expiryTime) }}）
+              </span>
+            </v-col>
+          </v-row>
+          <!-- 订阅身份 E -->
         </AffixContainerView>
 
         <div class="my-5"></div>
@@ -569,186 +590,179 @@ onUnmounted(() => {
         <AffixContainerView>
           <AffixBoxHasTitleView :disabled-title="true" v-if="pendingOrders.length">
             <template v-slot:title>
-              <v-icon icon="mdi-clock-alert-outline" class="mb-2"></v-icon>
               {{ t('subscription.pendingOrders') }}
             </template>
 
             <!-- 待支付订单：倒计时 + 取消 / 继续支付 -->
             <div class="mb-4">
-              <div v-for="o in pendingOrders"
-                   :key="o.id"
-                   class="py-3 border-b">
-                <div class="d-flex align-center flex-wrap ga-3">
+              <template v-for="o in pendingOrders" :key="o.id">
+                <div class="d-flex align-center flex-wrap ga-3 pb-8">
                   <div class="flex-grow-1">
-                    <div class="text-body-2 font-weight-medium">
+                    <div class="text-h6 font-weight-medium mb-2">
                       <span class="u">{{ getTierName(o.tier) }}</span>
-                      <span class="text-medium-emphasis">
-                        · {{ o.platform === 'paypal' ? 'PayPal' : (o.platform === 'stripe' ? 'Stripe' : t('subscription.platformAfdian')) }}
-                        · ¥{{ o.amountCny ?? o.amount }}
-                      </span>
                     </div>
-                    <div class="text-caption text-medium-emphasis mt-1">
+                    <p class="text-medium-emphasis">
+                      {{ o.platform === 'paypal' ? 'PayPal' : (o.platform === 'stripe' ? 'Stripe' : t('subscription.platformAfdian')) }}
+                      · ¥{{ o.amountCny ?? o.amount }}
+                    </p>
+                    <div class="text-medium-emphasis mt-1">
                       {{ t('subscription.payExpireIn', {time: formatCountdown(remainingMs(o))}) }}
                     </div>
                   </div>
-                  <div class="d-flex align-center flex-wrap ga-3 gap-3">
+                  <div class="d-flex align-center flex-wrap ga-2 gap-1 w-100">
                     <v-btn
-                        size="x-small"
-                        variant="tonal"
-                        color="amber"
-                        :loading="syncingOrderId === o.id"
-                        prepend-icon="mdi-sync"
-                        @click="onSyncOrder(o)">
-                      {{ t('subscription.syncOrder') }}
-                    </v-btn>
-                    <v-btn
-                        size="x-small"
-                        variant="tonal"
-                        color="red"
-                        :loading="cancellingOrderId === o.id"
-                        prepend-icon="mdi-close-circle-outline"
-                        @click="onCancelOrder(o)">
-                      {{ t('subscription.cancelPay') }}
-                    </v-btn>
-                    <v-btn
-                        size="x-small"
+                        size="small"
                         variant="flat"
                         :loading="continuingOrderId === o.id"
                         prepend-icon="mdi-credit-card-fast-outline"
                         @click="onContinuePay(o)">
                       {{ t('subscription.continuePay') }}
                     </v-btn>
+
+                    <v-spacer></v-spacer>
+
+                    <v-icon-btn
+                        variant="text"
+                        color="amber"
+                        icon="mdi-sync"
+                        :loading="syncingOrderId === o.id"
+                        :title="t('subscription.syncOrder')"
+                        @click="onSyncOrder(o)">
+                    </v-icon-btn>
+                    <v-icon-btn
+                        variant="text"
+                        color="red"
+                        :loading="cancellingOrderId === o.id"
+                        :title="t('subscription.cancelPay')"
+                        icon="mdi-close-circle-outline"
+                        @click="onCancelOrder(o)">
+                    </v-icon-btn>
+
                   </div>
                 </div>
-              </div>
+              </template>
             </div>
           </AffixBoxHasTitleView>
         </AffixContainerView>
       </v-col>
       <v-col cols="12" lg="8">
         <!-- 档位卡片 -->
-        <AffixBoxHasTitleView>
-          <template v-slot:title>
-            <span>❤️</span>
-          </template>
-
-          <v-row class="mb-10">
-            <v-col v-for="tierDef in sortedTiers" :key="tierDef.tier" cols="12" md="6" lg="6">
-              <v-card rounded="lg"
-                      class="h-100"
-                      :class="tierDef.tier === '0.1' ? 'border-purple-darken-1' : ''">
-                <v-card-title class="py-16 text-center mb-4 text-h4 u"
-                              :class="tierDef.tier === '0.1' ? 'bg-purple-darken-4 text-purple-lighten-3' : 'bg-black text-amber'">
-                  {{ getTierName(tierDef.tier) }}
-                  <span v-if="Number(myStatus?.tierCounts?.[tierDef.tier]) > 0">
+        <v-row class="mb-10">
+          <v-col v-for="tierDef in sortedTiers" :key="tierDef.tier" cols="12" md="6" lg="6">
+            <v-card rounded="lg"
+                    class="h-100"
+                    :class="tierDef.tier === '0.1' ? 'border-purple-darken-1' : ''">
+              <v-card-title class="py-16 text-center mb-4 text-h4 u"
+                            :class="tierDef.tier === '0.1' ? 'bg-purple-darken-4 text-purple-lighten-3' : 'bg-black text-amber'">
+                {{ getTierName(tierDef.tier) }}
+                <span v-if="Number(myStatus?.tierCounts?.[tierDef.tier]) > 0">
                     {{ getTierActiveCount(tierDef.tier) }}
                   </span>
-                </v-card-title>
-                <v-card-item>
-                  <div class="text-h4">
-                    {{ tierDef.monthlyCny }}
-                    <span class="text-body-2 text-medium-emphasis">
+              </v-card-title>
+              <v-card-item>
+                <div class="text-h4">
+                  {{ tierDef.monthlyCny }}
+                  <span class="text-body-2 text-medium-emphasis">
                       / {{ t('subscription.perMonth') }}
                     </span>
-                  </div>
-                </v-card-item>
-                <v-card-text class="text-body-2">
-                  <!-- 身份与特权徽章 S -->
-                  <div class="d-flex ga-2 flex-wrap mb-3 align-center" v-if="getTierRoleBadge(tierDef)">
-                    <v-chip size="small" color="amber" variant="flat" class="card-flavor">
-                      <v-icon start :icon="isCoreTier(tierDef) ? 'mdi-shield-crown' : 'mdi-shield-check'"/>
-                      {{ getTierRoleBadge(tierDef) }}
-                    </v-chip>
+                </div>
+              </v-card-item>
+              <v-card-text class="text-body-2">
+                <!-- 身份与特权徽章 S -->
+                <div class="d-flex ga-2 flex-wrap mb-3 align-center" v-if="getTierRoleBadge(tierDef)">
+                  <v-chip size="small" color="amber" variant="flat" class="card-flavor">
+                    <v-icon start :icon="isCoreTier(tierDef) ? 'mdi-shield-crown' : 'mdi-shield-check'"/>
+                    {{ getTierRoleBadge(tierDef) }}
+                  </v-chip>
 
-                    <!-- 门户展示 -->
-                    <v-chip v-if="isCoreTier(tierDef)" size="small" color="amber" variant="flat" class="card-flavor">
-                      <v-icon start icon="mdi-web"/>
-                      {{ t('subscription.portalDisplay') }}
-                    </v-chip>
-                  </div>
-                  <!-- 身份与特权徽章 E -->
+                  <!-- 门户展示 -->
+                  <v-chip v-if="isCoreTier(tierDef)" size="small" color="amber" variant="flat" class="card-flavor">
+                    <v-icon start icon="mdi-web"/>
+                    {{ t('subscription.portalDisplay') }}
+                  </v-chip>
+                </div>
+                <!-- 身份与特权徽章 E -->
 
-                  <!-- 特权权益列表 S -->
-                  <div class="d-flex flex-column ga-1 mb-3 text-caption opacity-80">
-                    <div class="d-flex align-center ga-1">
-                      <v-icon icon="mdi-check-circle-outline" size="14" color="success"/>
-                      <span>{{ t('subscription.benefitRole', {role: getTierRoleBadge(tierDef)}) }}</span>
-                    </div>
-                    <div class="d-flex align-center ga-1">
-                      <v-icon icon="mdi-check-circle-outline" size="14" color="success"/>
-                      <span>{{ t(`subscription.quotaMultipliers.${tierDef.tier}`) }}</span>
-                    </div>
-                    <div class="d-flex align-center ga-1">
-                      <v-icon icon="mdi-check-circle-outline" size="14" color="success"/>
-                      <span>{{ t('subscription.benefitAvatar') }}</span>
-                    </div>
-                    <div class="d-flex align-center ga-1">
-                      <v-icon icon="mdi-check-circle-outline" size="14" color="success"/>
-                      <span>{{ t('subscription.benefitNoAds') }}</span>
-                    </div>
-                    <div v-if="isCoreTier(tierDef)" class="d-flex align-center ga-1">
-                      <v-icon icon="mdi-check-circle-outline" size="14" color="success"/>
-                      <span>{{ t('subscription.benefitPortal') }}</span>
-                    </div>
+                <!-- 特权权益列表 S -->
+                <div class="d-flex flex-column ga-1 mb-3 text-caption opacity-80">
+                  <div class="d-flex align-center ga-1">
+                    <v-icon icon="mdi-check-circle-outline" size="14" color="success"/>
+                    <span>{{ t('subscription.benefitRole', {role: getTierRoleBadge(tierDef)}) }}</span>
                   </div>
-                  <!-- 特权权益列表 E -->
+                  <div class="d-flex align-center ga-1">
+                    <v-icon icon="mdi-check-circle-outline" size="14" color="success"/>
+                    <span>{{ t(`subscription.quotaMultipliers.${tierDef.tier}`) }}</span>
+                  </div>
+                  <div class="d-flex align-center ga-1">
+                    <v-icon icon="mdi-check-circle-outline" size="14" color="success"/>
+                    <span>{{ t('subscription.benefitAvatar') }}</span>
+                  </div>
+                  <div class="d-flex align-center ga-1">
+                    <v-icon icon="mdi-check-circle-outline" size="14" color="success"/>
+                    <span>{{ t('subscription.benefitNoAds') }}</span>
+                  </div>
+                  <div v-if="isCoreTier(tierDef)" class="d-flex align-center ga-1">
+                    <v-icon icon="mdi-check-circle-outline" size="14" color="success"/>
+                    <span>{{ t('subscription.benefitPortal') }}</span>
+                  </div>
+                </div>
+                <!-- 特权权益列表 E -->
 
-                  <div class="opacity-60">
-                    {{ getTierDesc(tierDef.tier) }}
-                  </div>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn variant="text"
-                         :disabled="!authStore.isLogin"
-                         :title="!authStore.isLogin ? t('subscription.loginFirst') : undefined"
-                         @click="onTierClick(tierDef)">
-                    {{ t('subscription.subscribe') }}
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-col>
+                <div class="opacity-60">
+                  {{ getTierDesc(tierDef.tier) }}
+                </div>
+              </v-card-text>
+              <v-divider></v-divider>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn variant="text"
+                       :disabled="!authStore.isLogin"
+                       :title="!authStore.isLogin ? t('subscription.loginFirst') : undefined"
+                       @click="onTierClick(tierDef)">
+                  {{ t('subscription.subscribe') }}
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-col>
 
-            <!-- 一次性自定义 -->
-            <v-col cols="12" md="6" lg="6">
-              <v-card rounded="lg" dashed class="h-100">
-                <v-card-title class="py-10 text-center bg-black mb-4 text-amber text-h4 u">
-                  <div>
-                    <v-icon icon="mdi-gift-outline"></v-icon>
-                  </div>
-                  {{ t('subscription.tiers.custom.name') }}
-                </v-card-title>
-                <v-card-text>
-                  <v-number-input v-model="customAmount"
-                                  type="number"
-                                  :min="5"
-                                  class="mt-3"
-                                  :disabled="!authStore.isLogin"
-                                  :label="t('subscription.customAmount')"
-                                  hide-details></v-number-input>
+          <!-- 一次性自定义 -->
+          <v-col cols="12" md="6" lg="6">
+            <v-card rounded="lg" dashed class="h-100">
+              <v-card-title class="py-10 text-center bg-black mb-4 text-amber text-h4 u">
+                <div>
+                  <v-icon icon="mdi-gift-outline"></v-icon>
+                </div>
+                {{ t('subscription.tiers.custom.name') }}
+              </v-card-title>
+              <v-card-text>
+                <v-number-input v-model="customAmount"
+                                type="number"
+                                :min="5"
+                                class="mt-3"
+                                :disabled="!authStore.isLogin"
+                                :label="t('subscription.customAmount')"
+                                hide-details></v-number-input>
 
-                  <div class="mt-5 text-body-2 text-medium-emphasis">
-                    {{ t('subscription.customRule') }}
-                  </div>
-                  <div class="mt-2 text-medium-emphasis">
-                    {{ t('subscription.tiers.custom.desc') }}
-                  </div>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn variant="text"
-                         :disabled="!authStore.isLogin"
-                         :title="!authStore.isLogin ? t('subscription.loginFirst') : undefined"
-                         @click="onCustomClick">
-                    {{ t('subscription.donateOnce') }}
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-col>
-          </v-row>
-        </AffixBoxHasTitleView>
+                <div class="mt-5 text-body-2 text-medium-emphasis">
+                  {{ t('subscription.customRule') }}
+                </div>
+                <div class="mt-2 text-medium-emphasis">
+                  {{ t('subscription.tiers.custom.desc') }}
+                </div>
+              </v-card-text>
+              <v-divider></v-divider>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn variant="text"
+                       :disabled="!authStore.isLogin"
+                       :title="!authStore.isLogin ? t('subscription.loginFirst') : undefined"
+                       @click="onCustomClick">
+                  {{ t('subscription.donateOnce') }}
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-col>
+        </v-row>
 
         <!-- 订阅与赞助规则说明 S -->
         <AffixBoxHasTitleView>
@@ -843,8 +857,7 @@ onUnmounted(() => {
       </v-col>
     </v-row>
 
-
-    <!-- 支付平台选择弹窗 -->
+    <!-- 支付平台选择弹窗 S -->
     <v-dialog v-model="checkoutDialog" max-width="460">
       <v-card border>
         <v-card-title class="py-16 text-center bg-black mb-4 text-amber text-h4 u">
@@ -870,15 +883,15 @@ onUnmounted(() => {
                    @click="pay('afdian')">
               {{ t('subscription.platformAfdian') }}
             </v-btn>
-            <v-btn :disabled="!plans?.platforms.stripe || submitting"
-                   variant="tonal"
-                   @click="pay('stripe')">
-              Stripe
-            </v-btn>
             <v-btn :disabled="!plans?.platforms.paypal || submitting"
                    variant="tonal"
                    @click="pay('paypal')">
               PayPal
+            </v-btn>
+            <v-btn :disabled="!plans?.platforms.stripe || submitting"
+                   variant="tonal"
+                   @click="pay('stripe')">
+              Stripe
             </v-btn>
           </div>
           <v-alert v-if="!plans?.platforms.afdian && !plans?.platforms.stripe && !plans?.platforms.paypal"
@@ -892,5 +905,6 @@ onUnmounted(() => {
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <!-- 支付平台选择弹窗 E -->
   </div>
 </template>

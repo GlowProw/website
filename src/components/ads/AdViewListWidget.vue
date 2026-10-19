@@ -52,20 +52,26 @@ const updateAdStatus = (i) => {
       </v-btn>
     </v-col>
   </v-row>
-  <v-card border>
-    <v-list v-if="ads.length > 0">
-      <v-list-item v-for="(i, index) in ads" :key="index" link>
-        <template v-slot:title>
-          <v-chip variant="tonal" density="compact">AD</v-chip>
-          {{ i[0] }}
-        </template>
-        <template v-slot:append>
-          <v-switch v-model="i[1].value" hide-details inset @update:modelValue="updateAdStatus(i)"></v-switch>
-        </template>
-      </v-list-item>
+  <div>
+    <v-list v-if="ads.length > 0" class="bg-transparent">
+      <template v-for="(i, index) in ads" :key="index">
+        <v-list-item @click="i[1].value = !i[1].value">
+          <template v-slot:prepend>
+            <v-chip variant="tonal" density="compact">AD</v-chip>
+          </template>
+          <template v-slot:title>
+            <div class="ml-4">{{ i[0] }}</div>
+          </template>
+          <template v-slot:append>
+            <v-switch v-model="i[1].value" hide-details inset @update:modelValue="updateAdStatus(i)"></v-switch>
+          </template>
+        </v-list-item>
+        <v-divider inset v-if="index < ads.length - 1"></v-divider>
+      </template>
+
     </v-list>
     <EmptyView v-else></EmptyView>
-  </v-card>
+  </div>
 </template>
 
 <style scoped lang="less">

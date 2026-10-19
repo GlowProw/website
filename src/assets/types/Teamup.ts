@@ -18,6 +18,15 @@ export interface TeamupListParams extends PaginationParams {
     limit?: number;
 }
 
+/**
+ * 用户空间组队列表查询参数
+ */
+export interface UserSpaceTeamupsQuery extends PaginationParams {
+    sortOrder?: string;
+    createdStart?: string | null;
+    createdEnd?: string | null;
+}
+
 export interface CreateTeamupParams {
     player: string;
     description: string;
