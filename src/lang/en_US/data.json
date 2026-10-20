@@ -2922,6 +2922,7 @@
     "addCategory": "Add Category",
     "removeCategory": "Remove Category",
     "removeCategoryConfirm": "Are you sure you want to remove this category and all its items?",
+    "removeCategoryWithDataConfirm": "This category already contains {count} item(s). Removing the category will delete all of them. Continue?",
     "selectCategory": "Select Category to Create",
     "noMoreCategories": "All categories have been added",
     "itemId": "Item ID",
@@ -2943,6 +2944,16 @@
       "itemIdLengthError": "Item ID cannot exceed 100 characters",
       "worthMinError": "Value cannot be negative"
     },
+    "filter": {
+      "byType": "Type",
+      "byRarity": "Rarity",
+      "byCurrency": "Currency",
+      "types": {
+        "item": "Item",
+        "material": "Material",
+        "commodity": "Commodity"
+      }
+    },
     "status": {
       "published": "Published",
       "draft": "Draft",
@@ -2957,7 +2968,7 @@
     "view": {
       "startTime": "Start",
       "endTime": "End",
-      "smuggledItems": "Smuggled Items",
+      "smuggledItems": "Reward Cabinet",
       "connoisseurs": "Connoisseurs",
       "connoisseursDesc": "See recommendations from connoisseurs",
       "becomeConnoisseur": "Become a Connoisseur"
@@ -3017,16 +3028,19 @@
       "jsonPanelTitle": "JSON Panel (Debug)",
       "jsonPanelDesc": "Bi-directional sync of report data, supports direct editing and formatting",
       "formatJson": "Format JSON",
-      "jsonSyntaxError": "JSON syntax error, please enter valid JSON format"
+      "jsonSyntaxError": "JSON syntax error, please enter valid JSON format",
+      "creator": "Creator",
+      "editors": "Edited by",
+      "commenters": "Commented by"
     },
     "rules": {
       "title": "Rules & Guidelines",
       "createReportTitle": "Report Creation",
-      "createReportContent": "Only players with weekly report permissions can create weekly report data.",
+      "createReportContent": "Only one weekly report needs to be created each week by players with report permissions. The report is shared by all connoisseurs rather than created individually by each person. Once created, users with report editing permission can edit and save its content again at any time.",
       "commentReportTitle": "Reviewing Reports",
       "commentReportContent": "Only players with reviewing permissions can write reviews. If there is no suitable report, please contact a Connoisseur Leader to create one, or contact us to apply to become a Connoisseur Leader.",
-      "limitTitle": "One Review Per Report",
-      "limitContent": "Each connoisseur can submit only one review per weekly report. You can edit or delete your posted review at any time.",
+      "limitTitle": "Report Comments",
+      "limitContent": "Each connoisseur can comment only once per weekly report and cannot create a second comment on the same report. Posted comments are not locked — you can return to the report management page at any time to edit or delete your published comment.",
       "contentGuideTitle": "Recommendations & Promotion",
       "contentGuideContent": "Reviews are not limited to weapons and furniture discussions; you can highlight rare items of the week for early purchase, and attach your loadout link for personal promotion."
     }

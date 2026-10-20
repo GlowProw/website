@@ -2966,6 +2966,17 @@
       "itemIdLengthError": "物品ID不能超過 100 字元",
       "worthMinError": "價值不能小於 0"
     },
+    "filter": {
+      "byType": "類型",
+      "byRarity": "稀有度",
+      "byCurrency": "貨幣",
+      "types": {
+        "item": "物品",
+        "material": "材料",
+        "commodity": "雜貨"
+      }
+    },
+    "removeCategoryWithDataConfirm": "該分類下已有 {count} 項物品資料，移除分類將一併刪除這些資料，確定繼續嗎？",
     "status": {
       "published": "已發布",
       "draft": "草稿",
@@ -2980,7 +2991,7 @@
     "view": {
       "startTime": "開始",
       "endTime": "結束",
-      "smuggledItems": "走私物品",
+      "smuggledItems": "獎賞櫥櫃",
       "connoisseurs": "鑑賞家們",
       "connoisseursDesc": "來看下鑑賞家們如何評價",
       "becomeConnoisseur": "成為鑑賞家"
@@ -3015,16 +3026,19 @@
       "commentSoftDeleteSuccess": "評論已軟刪除",
       "commentHardDeleteSuccess": "評論已物理刪除",
       "commentCount": "{count} 條評論",
-      "reportTitle": "週報標題"
+      "reportTitle": "週報標題",
+      "creator": "建立者",
+      "editors": "參與編輯",
+      "commenters": "參與評論"
     },
     "rules": {
       "title": "規則說明",
       "createReportTitle": "建立週報",
-      "createReportContent": "這需要擁有週報權限的玩家才可建立週報資料。",
+      "createReportContent": "每週僅需建立一份週報，由具備週報權限的玩家統一建立，資料為全體鑑賞家共用，並非每個人各自建立自己的週報；建立之後，擁有週報編輯權限的用戶可以隨時再次編輯並保存更新內容。",
       "commentReportTitle": "評論週報",
       "commentReportContent": "擁有參與週報評論權限的玩家才可填寫評論；沒有合適週報時，應聯繫鑑賞家領袖建立週報後才可評論，您也可以聯繫我們申請成為週報領袖。",
-      "limitTitle": "單篇評論與管理",
-      "limitContent": "每份週報只能參與一份評論，您可以對已經發布的評論進行再次編輯或刪除。",
+      "limitTitle": "週報評論",
+      "limitContent": "每份週報僅可參與一次評論，無法為同一份週報建立第二份評論；已發布的評論不會被鎖定，您可以隨時回到週報管理頁面，對自己發布的評論再次編輯內容，或將其刪除。",
       "contentGuideTitle": "內容推薦與配裝宣傳",
       "contentGuideContent": "評論內容不限於評價本週刷新陳設武器討論，您甚至可以在評論中說明本週出現「難得」物品，搶先購買，並附上您的配裝連結，作為宣傳。"
     }

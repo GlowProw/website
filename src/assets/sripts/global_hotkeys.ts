@@ -25,7 +25,7 @@ export function normalizeKeyboardEvent(e: KeyboardEvent): string {
     parts.push('shift');
   }
 
-  const keyLower = e.key.toLowerCase();
+  const keyLower = e.key?.toLowerCase();
   if (!['control', 'meta', 'alt', 'shift'].includes(keyLower)) {
     let mainKey = keyLower;
     if (mainKey === ' ') mainKey = 'space';

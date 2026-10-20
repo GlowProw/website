@@ -15,6 +15,7 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import NpcIconWidget from "@/components/snbWidget/npcIconWidget.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import EmptyView from "@/components/EmptyView.vue";
+import Loading from "@/components/Loading.vue";
 
 import {useHead} from "@unhead/vue";
 import {useRoute} from "vue-router";
@@ -177,7 +178,10 @@ const getSmugglersComment = async (reportId: string) => {
       <v-col cols="12" lg="9">
         <AffixBoxHasTitleView>
           <v-card variant="text" min-height="450">
-            <SmugglersReportShowItemWidget :data="smugglersData.content"></SmugglersReportShowItemWidget>
+            <div v-if="browseLoading" class="d-flex justify-center align-center" style="min-height: 450px;">
+              <Loading size="50"></Loading>
+            </div>
+            <SmugglersReportShowItemWidget v-else :data="smugglersData.content"></SmugglersReportShowItemWidget>
           </v-card>
           <template v-slot:title>{{ t('smugglersReport.view.smuggledItems') }}</template>
         </AffixBoxHasTitleView>
@@ -199,7 +203,11 @@ const getSmugglersComment = async (reportId: string) => {
     </v-row>
 
 
-    <HorizontalScrollList :is-indicator="false" v-if="commentData.length > 0">
+    <div v-if="browseLoading" class="d-flex justify-center align-center py-10">
+      <Loading size="50"></Loading>
+    </div>
+    <template v-else>
+      <HorizontalScrollList :is-indicator="false" v-if="commentData.length > 0">
       <v-card
           v-for="(i, index) in commentData" :key="index"
           tile
@@ -236,8 +244,9 @@ const getSmugglersComment = async (reportId: string) => {
           </v-col>
         </v-row>
       </v-card>
-    </HorizontalScrollList>
-    <EmptyView v-else></EmptyView>
+      </HorizontalScrollList>
+      <EmptyView v-else></EmptyView>
+    </template>
   </v-container>
 </template>
 

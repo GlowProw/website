@@ -14,7 +14,6 @@ import MaterialName from "@/components/snbWidget/materialName.vue";
 import CommoditieIconWidget from "@/components/snbWidget/commoditieIconWidget.vue";
 import CommoditieName from "@/components/snbWidget/commoditieName.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
-import AffixContainerView from "@/components/AffixContainerView.vue";
 
 const {t} = useI18n();
 const notice = useNoticeStore();
@@ -25,7 +24,7 @@ const props = withDefaults(defineProps<{
   activeCategory?: string;
   categories?: string[];
 }>(), {
-  modelValue: () => ({ weekly: [] }),
+  modelValue: () => ({weekly: []}),
   activeCategory: 'weekly',
   categories: () => ['weekly']
 });
@@ -63,6 +62,7 @@ const localData = ref<Record<string, any[]>>({
   weekly: [],
   inSeason: [],
   common: [],
+  abyssal: [],
 });
 
 // 当前输入的物品标识
@@ -86,6 +86,12 @@ const dragIndex = ref<number | null>(null);
 // 拖拽悬停目标条目索引
 const dragOverIndex = ref<number | null>(null);
 
+// 分类标签拖拽源索引
+const catDragIndex = ref<number | null>(null);
+
+// 分类标签拖拽悬停目标索引
+const catDragOverIndex = ref<number | null>(null);
+
 // 监听物品ID选择防呆：如果从下拉中选出了对象，提取出字符串ID
 watch(selectedItem, (val: any) => {
   if (val && typeof val === 'object' && val.id) {
@@ -102,30 +108,27 @@ watch(() => props.modelValue, (newValue) => {
 
   if (!newValue) return;
 
-  localData.value.weekly = Array.isArray(newValue.weekly) ? [...newValue.weekly] : [];
+  const allKnown = ['weekly', 'inSeason', 'abyssal', 'common'];
 
-  const categories = ['weekly'];
-
-  // 深渊和常规不是默认就有，仅当外部含有非空物品数组时才在打开时默认载入
-  if (newValue.inSeason && Array.isArray(newValue.inSeason) && newValue.inSeason.length > 0) {
-    localData.value.inSeason = [...newValue.inSeason];
-    categories.push('inSeason');
-  } else {
-    localData.value.inSeason = [];
+  for (const key of allKnown) {
+    localData.value[key] = Array.isArray(newValue[key]) ? [...newValue[key]] : [];
   }
 
-  if (newValue.common && Array.isArray(newValue.common) && newValue.common.length > 0) {
-    localData.value.common = [...newValue.common];
-    categories.push('common');
+  let finalCategories: string[];
+  if (Array.isArray(newValue.categoryOrder)) {
+    // 分类顺序一旦保存过就以它为准，weekly 也可能被移除
+    finalCategories = newValue.categoryOrder.filter((c: string) => allKnown.includes(c));
   } else {
-    localData.value.common = [];
+    // 无排序记录时按数据内容推断，全部为空则回落到 weekly
+    const present = allKnown.filter(key => localData.value[key].length > 0);
+    finalCategories = present.length > 0 ? present : ['weekly'];
   }
 
-  enabledCategories.value = categories;
-  emit('update:categories', [...categories]);
+  enabledCategories.value = finalCategories;
+  emit('update:categories', [...finalCategories]);
 
-  if (!categories.includes(currentCategory.value)) {
-    currentCategory.value = 'weekly';
+  if (!finalCategories.includes(currentCategory.value)) {
+    currentCategory.value = finalCategories[0] || 'weekly';
   }
 }, {immediate: true});
 
@@ -135,16 +138,17 @@ watch(() => props.modelValue, (newValue) => {
 const emitUpdate = () => {
   isInternalUpdate.value = true;
   const payload: any = {
-    weekly: [...localData.value.weekly]
+    // weekly 键始终保留以满足后端创建校验，未启用时输出空数组
+    weekly: [...(localData.value.weekly || [])]
   };
 
-  if (enabledCategories.value.includes('inSeason')) {
-    payload.inSeason = [...(localData.value.inSeason || [])];
+  for (const cat of enabledCategories.value) {
+    if (cat === 'weekly') continue;
+    payload[cat] = [...(localData.value[cat] || [])];
   }
 
-  if (enabledCategories.value.includes('common')) {
-    payload.common = [...(localData.value.common || [])];
-  }
+  // 持久化分类排序到 content，供展示侧回显
+  payload.categoryOrder = [...enabledCategories.value];
 
   emit('update:modelValue', payload);
   emit('update:categories', [...enabledCategories.value]);
@@ -163,15 +167,20 @@ const currentItemList = computed({
 
 // 可选分类定义元数据
 const allCategoryMeta: Record<string, { key: string; name: string; title: string }> = {
+  inSeason: {
+    key: 'inSeason',
+    name: t('smugglersReport.inSeason'),
+    title: t('smugglersReport.inSeasonItems')
+  },
   weekly: {
     key: 'weekly',
     name: t('smugglersReport.weekly'),
     title: t('smugglersReport.weeklyItems')
   },
-  inSeason: {
-    key: 'inSeason',
-    name: t('smugglersReport.inSeason'),
-    title: t('smugglersReport.inSeasonItems')
+  abyssal: {
+    key: 'abyssal',
+    name: t('smugglersReport.abyssal'),
+    title: t('smugglersReport.abyssalItems')
   },
   common: {
     key: 'common',
@@ -188,8 +197,10 @@ const currentCategoryTitle = computed(() => {
 // 尚未创建的可选分类列表
 const availableOptionalCategories = computed(() => {
   return [
-    { key: 'inSeason', name: t('smugglersReport.inSeason'), title: t('smugglersReport.inSeasonItems') },
-    { key: 'common', name: t('smugglersReport.common'), title: t('smugglersReport.commonItems') }
+    {key: 'weekly', name: t('smugglersReport.weekly'), title: t('smugglersReport.weekly')},
+    {key: 'common', name: t('smugglersReport.common'), title: t('smugglersReport.commonItems')},
+    {key: 'abyssal', name: t('smugglersReport.abyssal'), title: t('smugglersReport.abyssalItems')},
+    {key: 'inSeason', name: t('smugglersReport.inSeason'), title: t('smugglersReport.inSeasonItems')},
   ].filter(c => !enabledCategories.value.includes(c.key));
 });
 
@@ -199,26 +210,37 @@ const availableOptionalCategories = computed(() => {
  */
 const createCategory = (categoryKey: string) => {
   if (!enabledCategories.value.includes(categoryKey)) {
+
     enabledCategories.value.push(categoryKey);
     if (!localData.value[categoryKey]) {
       localData.value[categoryKey] = [];
     }
+
     currentCategory.value = categoryKey;
     emitUpdate();
-    notice.success(t('basic.tips.createSuccess'));
+
+    notice.success(t('basic.tips.createSuccess'), {mode: 'minimal'});
   }
 };
 
 /**
  * 移除已创建的可选分类
+ * 分类下已有物品数据时在确认提示中附带将删除的数量
  * @param categoryKey 分类唯一键
  */
 const removeCategory = (categoryKey: string) => {
-  if (confirm(t('smugglersReport.removeCategoryConfirm'))) {
+  const itemCount = (localData.value[categoryKey] || []).length;
+  const confirmText = itemCount > 0
+      ? t('smugglersReport.removeCategoryWithDataConfirm', {count: itemCount})
+      : t('smugglersReport.removeCategoryConfirm');
+
+  if (confirm(confirmText)) {
     enabledCategories.value = enabledCategories.value.filter(k => k !== categoryKey);
+
     delete localData.value[categoryKey];
+
     if (currentCategory.value === categoryKey) {
-      currentCategory.value = 'weekly';
+      currentCategory.value = enabledCategories.value[0] || 'weekly';
     }
     emitUpdate();
   }
@@ -228,17 +250,17 @@ const removeCategory = (categoryKey: string) => {
 const currencyOptions = computed(() => {
   const materialsList = Object.values(Materials) as any[];
   return materialsList
-    .filter((m: any) => m && m.category === 'currency')
-    .map((m: any) => {
-      const rawName = readMaterialName(m.id).name();
-      const hasValidName = rawName && !rawName.startsWith('snb.');
-      return {
-        id: m.id,
-        title: hasValidName ? `${rawName} (${m.id})` : m.id,
-        name: hasValidName ? rawName : m.id,
-        rarity: m.rarity
-      };
-    });
+      .filter((m: any) => m && m.category === 'currency')
+      .map((m: any) => {
+        const rawName = readMaterialName(m.id).name();
+        const hasValidName = rawName && !rawName.startsWith('snb.');
+        return {
+          id: m.id,
+          title: hasValidName ? `${rawName} (${m.id})` : m.id,
+          name: hasValidName ? rawName : m.id,
+          rarity: m.rarity
+        };
+      });
 });
 
 // 可选实体来源，覆盖物品、材料、杂货三类可插入的标识
@@ -492,6 +514,58 @@ const onDragEnd = () => {
   dragOverIndex.value = null;
 };
 
+/**
+ * 处理分类标签拖拽开始
+ * @param event 原生拖拽事件
+ * @param index 拖拽分类索引
+ */
+const onCategoryDragStart = (event: DragEvent, index: number) => {
+  catDragIndex.value = index;
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', String(index));
+  }
+};
+
+/**
+ * 处理分类标签拖拽悬停
+ * @param event 原生拖拽事件
+ * @param index 悬停目标分类索引
+ */
+const onCategoryDragOver = (event: DragEvent, index: number) => {
+  event.preventDefault();
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = 'move';
+  }
+  catDragOverIndex.value = index;
+};
+
+/**
+ * 处理分类标签拖拽释放，重排分类顺序
+ * @param event 原生拖拽事件
+ * @param targetIndex 目标分类索引
+ */
+const onCategoryDrop = (event: DragEvent, targetIndex: number) => {
+  event.preventDefault();
+  if (catDragIndex.value !== null && catDragIndex.value !== targetIndex) {
+    const nextCats = [...enabledCategories.value];
+    const moved = nextCats.splice(catDragIndex.value, 1)[0];
+    nextCats.splice(targetIndex, 0, moved);
+    enabledCategories.value = nextCats;
+    emitUpdate();
+  }
+  catDragIndex.value = null;
+  catDragOverIndex.value = null;
+};
+
+/**
+ * 处理分类标签拖拽结束
+ */
+const onCategoryDragEnd = () => {
+  catDragIndex.value = null;
+  catDragOverIndex.value = null;
+};
+
 defineOptions({
   name: 'SmugglersReportEditor'
 });
@@ -500,41 +574,57 @@ defineOptions({
 <template>
   <div class="smugglers-report-editor">
     <!-- 分类标签切换与创建下拉栏 S -->
-    <div class="d-flex align-center justify-space-between flex-wrap ga-2 mb-3">
+    <div class="d-flex align-center justify-space-between flex-wrap ga-2">
       <v-tabs
           v-model="currentCategory"
           density="comfortable"
           color="amber"
           class="font-weight-bold flex-grow-1">
         <v-tab
-            v-for="catKey in enabledCategories"
+            v-for="(catKey, idx) in enabledCategories"
             :key="catKey"
-            :value="catKey">
+            :value="catKey"
+            draggable="true"
+            :class="{'drag-over-cat': catDragOverIndex === idx}"
+            @dragstart="onCategoryDragStart($event, idx)"
+            @dragover="onCategoryDragOver($event, idx)"
+            @drop="onCategoryDrop($event, idx)"
+            @dragend="onCategoryDragEnd">
           <span>{{ allCategoryMeta[catKey]?.name || catKey }}</span>
-          <v-btn
-              v-if="catKey !== 'weekly'"
-              icon="mdi-close"
-              variant="text"
-              size="x-small"
-              class="ml-1 opacity-60"
-              @click.stop="removeCategory(catKey)">
-          </v-btn>
+
+          <template v-slot:prepend>
+            <v-icon
+                size="20"
+                icon="mdi-drag-vertical"
+                class="drag-indicator-icon mr-1 opacity-40"
+            ></v-icon>
+          </template>
+
+          <template v-slot:append>
+            <v-btn
+                icon="mdi-close"
+                variant="tonal"
+                density="comfortable"
+                size="x-small"
+                class="ml-1"
+                @click.stop="removeCategory(catKey)">
+            </v-btn>
+          </template>
         </v-tab>
       </v-tabs>
-
       <!-- 添加可选分类下拉菜单 S -->
       <v-menu v-if="availableOptionalCategories.length > 0" location="bottom end">
         <template v-slot:activator="{ props }">
           <v-btn
               v-bind="props"
               size="small"
-              variant="tonal"
-              color="amber"
+              variant="text"
+              border
               prepend-icon="mdi-plus">
             {{ t('smugglersReport.addCategory') }}
           </v-btn>
         </template>
-        <v-list density="compact" min-width="160">
+        <v-list min-width="260" class="pa-1" border rounded="lg">
           <v-list-item
               v-for="cat in availableOptionalCategories"
               :key="cat.key"
@@ -545,12 +635,13 @@ defineOptions({
       </v-menu>
       <!-- 添加可选分类下拉菜单 E -->
     </div>
+    <v-divider class="mb-3"></v-divider>
     <!-- 分类标签切换与创建下拉栏 E -->
 
     <!-- 当前分类编辑面板 S -->
     <AffixBoxHasTitleView :offset-top="0">
       <template v-slot:title>
-        {{ currentCategoryTitle }} {{ t('smugglersReport.editor.totalCount', { count: currentItemList.length }) }}
+        {{ currentCategoryTitle }} {{ t('smugglersReport.editor.totalCount', {count: currentItemList.length}) }}
       </template>
 
       <v-card-text class="pa-3">
@@ -561,7 +652,7 @@ defineOptions({
             variant="tonal"
             density="compact"
             class="mb-3 text-caption d-flex align-center justify-space-between">
-          <span>{{ t('smugglersReport.editor.editingItem', { index: editingIndex + 1 }) }}</span>
+          <span>{{ t('smugglersReport.editor.editingItem', {index: editingIndex + 1}) }}</span>
           <v-btn size="x-small" variant="text" color="primary" @click="resetEditorForm">
             {{ t('basic.button.cancel') }}
           </v-btn>
@@ -753,32 +844,33 @@ defineOptions({
                     <ItemSlotBase size="30px" class="mr-1">
                       <MaterialIconWidget :id="item.currency"></MaterialIconWidget>
                     </ItemSlotBase>
-                    <MaterialName :id="item.currency"></MaterialName> x {{ item.worth || 0 }}
+                    <MaterialName :id="item.currency"></MaterialName>
+                    x {{ item.worth || 0 }}
                   </div>
                 </div>
               </div>
 
               <!-- 右侧快捷操作栏 -->
               <div class="d-flex align-center ga-1 flex-shrink-0">
-<!--                &lt;!&ndash; 上移 &ndash;&gt;-->
-<!--                <v-btn-->
-<!--                    icon="mdi-arrow-up"-->
-<!--                    size="x-small"-->
-<!--                    variant="text"-->
-<!--                    :disabled="index === 0"-->
-<!--                    :title="t('smugglersReport.editor.moveUp')"-->
-<!--                    @click="moveItem(index, -1)">-->
-<!--                </v-btn>-->
+                <!--                &lt;!&ndash; 上移 &ndash;&gt;-->
+                <!--                <v-btn-->
+                <!--                    icon="mdi-arrow-up"-->
+                <!--                    size="x-small"-->
+                <!--                    variant="text"-->
+                <!--                    :disabled="index === 0"-->
+                <!--                    :title="t('smugglersReport.editor.moveUp')"-->
+                <!--                    @click="moveItem(index, -1)">-->
+                <!--                </v-btn>-->
 
-<!--                &lt;!&ndash; 下移 &ndash;&gt;-->
-<!--                <v-btn-->
-<!--                    icon="mdi-arrow-down"-->
-<!--                    size="x-small"-->
-<!--                    variant="text"-->
-<!--                    :disabled="index === currentItemList.length - 1"-->
-<!--                    :title="t('smugglersReport.editor.moveDown')"-->
-<!--                    @click="moveItem(index, 1)">-->
-<!--                </v-btn>-->
+                <!--                &lt;!&ndash; 下移 &ndash;&gt;-->
+                <!--                <v-btn-->
+                <!--                    icon="mdi-arrow-down"-->
+                <!--                    size="x-small"-->
+                <!--                    variant="text"-->
+                <!--                    :disabled="index === currentItemList.length - 1"-->
+                <!--                    :title="t('smugglersReport.editor.moveDown')"-->
+                <!--                    @click="moveItem(index, 1)">-->
+                <!--                </v-btn>-->
 
                 <!-- 在前面插入 -->
                 <v-btn
@@ -844,6 +936,10 @@ defineOptions({
     &:active {
       cursor: grabbing;
     }
+  }
+
+  .drag-over-cat {
+    background-color: rgba(255, 193, 7, 0.12);
   }
 
   .weekly-item-card {

@@ -54,12 +54,6 @@ const getUserInfo = async () => {
   }
 }
 
-// 挂载时 id 往往已有值（列表卡片场景），提前拉好，hover 即有数据
-onMounted(() => {
-  if (props.id)
-    getUserInfo()
-})
-
 // 详情页 id 异步到位的场景
 watch(() => props.id, (value) => {
   if (value && userInfoData.value.id == null)
@@ -110,9 +104,9 @@ defineOptions({
             class="bg-black"></Silk>
       </v-card>
 
-      <v-divider></v-divider>
+      <v-divider opacity=".06"></v-divider>
       <div class="mx-auto mt-n14">
-        <UserAvatar size="100" :src="userInfo.userAvatar" class="mx-auto rounded-circle border overflow-hidden bg-black" v-if="userInfo.userAvatar"></UserAvatar>
+        <UserAvatar size="100" :src="userInfo.userAvatar" class="d-block mx-auto rounded-circle border overflow-hidden bg-black" v-if="userInfo.userAvatar"></UserAvatar>
         <v-avatar size="100" class="d-block mx-auto rounded-circle border overflow-hidden bg-black" v-else>
           <div class="d-flex justify-center align-center h-100">
             <v-icon size="60">mdi-account</v-icon>

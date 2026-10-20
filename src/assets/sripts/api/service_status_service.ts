@@ -1,4 +1,5 @@
 import {storage} from "@/assets/sripts";
+import {useHttp} from "@/assets/sripts/http_util";
 import type {
     BuildRun,
     BuildRunConclusion,
@@ -10,13 +11,9 @@ import type {
 } from "@/assets/types/ServiceStatus";
 
 /**
- * 状态页接口前缀：开发环境由 vite 代理转发，生产环境由边缘节点反代同名路径
+ * 状态数据接口前缀：统一走本站后端代理，由服务端回源状态服务，规避浏览器的跨域限制
  */
-const STATUS_BASE = '/status-api/status-page'
-/**
- * 状态页标识
- */
-const STATUS_SLUG = 'glow-prow'
+const STATUS_BASE = 'status'
 /**
  * 网站构建流水线地址
  */
@@ -71,10 +68,21 @@ const writeCache = (key: string, data: unknown): void => {
 }
 
 /**
- * 带超时控制地请求 JSON 接口
- * @param url 请求地址
+ * 请求后端状态代理接口并取出 JSON 数据
+ * 统一走 useHttp，自动附带 x-auth-gp 浏览器指纹头
+ * @param path 代理路径（page / heartbeat）
  */
-const fetchJson = async (url: string): Promise<any> => {
+const fetchJson = async (path: string): Promise<any> => {
+    const request = useHttp()
+    const res = await request.get(`${STATUS_BASE}/${path}`, {timeout: FETCH_TIMEOUT_MS})
+    return res?.data
+}
+
+/**
+ * 请求外部的绝对地址并取出 JSON 数据
+ * @param url 完整请求地址
+ */
+const fetchAbsoluteJson = async (url: string): Promise<any> => {
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS)
     try {
@@ -178,8 +186,8 @@ export function useServiceStatusApi() {
         }
 
         const [page, heartbeat] = await Promise.all([
-            fetchJson(`${STATUS_BASE}/${STATUS_SLUG}`),
-            fetchJson(`${STATUS_BASE}/heartbeat/${STATUS_SLUG}`),
+            fetchJson('page'),
+            fetchJson('heartbeat'),
         ])
         const data = mergeServiceStatus(page, heartbeat)
         writeCache(STATUS_CACHE_KEY, data)
@@ -196,7 +204,7 @@ export function useServiceStatusApi() {
             if (cached) return cached
         }
 
-        const raw = await fetchJson(GITHUB_RUNS_URL)
+        const raw = await fetchAbsoluteJson(GITHUB_RUNS_URL)
         const runs: BuildRun[] = (raw?.workflow_runs || []).map((run: any) => {
             const normalized = normalizeBuildRun(run.status, run.conclusion)
             return {

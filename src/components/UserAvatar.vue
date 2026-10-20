@@ -1,22 +1,20 @@
 <template>
-  <div class="user-avatar" :style="`width:${size}px;height:${size}px`">
-    <v-avatar
-        icon="ios-person"
-        :shape="shape"
-        :rounded="tile ? 0 : ''"
-        :size="size"
-        v-if="imageStatus !== 1">
-    </v-avatar>
-
-    <v-avatar :size="size" rounded="0">
-      <img :src="newSrc"
-           :style="`width:${size}px;height:${size}px`"
-           class="ivu-avatar-square"
-           v-show="imageStatus === 1"
-           @load="imageStatus = 1"
-           @error="loadImageError"/>
-    </v-avatar>
-  </div>
+  <v-avatar
+      icon="ios-person"
+      class="user-avatar"
+      :shape="shape"
+      :rounded="tile ? 0 : ''"
+      :size="size"
+      :image="newSrc">
+    <img :src="newSrc"
+         width="100%"
+         height="100%"
+         v-show="imageStatus === 1"
+         class="ivu-avatar-square"
+         @load="imageStatus = 1"
+         @error="loadImageError"/>
+    <v-icon class="opacity-60" v-show="imageStatus === 0">mdi-account</v-icon>
+  </v-avatar>
 </template>
 
 <script>
@@ -87,8 +85,4 @@ export default {
 </script>
 
 <style scoped lang="less">
-.user-avatar {
-  position: relative;
-  display: flex;
-}
 </style>

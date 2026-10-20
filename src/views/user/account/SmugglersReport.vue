@@ -17,6 +17,8 @@ import EmptyView from "@/components/EmptyView.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
+import UserAvatar from "@/components/UserAvatar.vue";
+import AccountCardWidget from "@/components/AccountCardWidget.vue";
 
 const notice = useNoticeStore(),
     {t} = useI18n(),
@@ -80,6 +82,27 @@ const jsonSyntaxError = ref('')
 
 // 标记当前是否正从 JSON 文本同步至周报数据，避免循环更新
 let isUpdatingFromJson = false
+
+/**
+ * 从周报内容中解析出已启用分类列表
+ * 优先使用 content.categoryOrder 保存的顺序，否则按非空数据推断，全部为空时回落到 weekly
+ * @param content 周报内容对象
+ * @returns 分类 key 数组
+ */
+const resolveCategoriesFromContent = (content: any): string[] => {
+  const known = ['weekly', 'inSeason', 'abyssal', 'common']
+
+  if (Array.isArray(content?.categoryOrder) && content.categoryOrder.length > 0) {
+    return content.categoryOrder.filter((c: string) => known.includes(c))
+  }
+
+  const present = known.filter(key => {
+    const list = content?.[key]
+    return Array.isArray(list) && list.length > 0
+  })
+
+  return present.length > 0 ? present : ['weekly']
+}
 
 /**
  * 检查是否存在周报草稿
@@ -194,14 +217,7 @@ const onJsonTextChange = (value: string) => {
     jsonSyntaxError.value = ''
     isUpdatingFromJson = true
     createSmugglersReportData.value.content = parsed
-    const cats = ['weekly']
-    if (parsed.inSeason && Array.isArray(parsed.inSeason) && parsed.inSeason.length > 0) {
-      cats.push('inSeason')
-    }
-    if (parsed.common && Array.isArray(parsed.common) && parsed.common.length > 0) {
-      cats.push('common')
-    }
-    editorCategories.value = cats
+    editorCategories.value = resolveCategoriesFromContent(parsed)
     setTimeout(() => {
       isUpdatingFromJson = false
     }, 0)
@@ -225,11 +241,11 @@ const formatJsonText = () => {
 
 // 深度监听周报内容更新，自动同步至 JSON 面板
 watch(
-  () => createSmugglersReportData.value.content,
-  (newContent) => {
-    syncContentToJson(newContent)
-  },
-  {deep: true}
+    () => createSmugglersReportData.value.content,
+    (newContent) => {
+      syncContentToJson(newContent)
+    },
+    {deep: true}
 )
 
 // 用户细分原子特权状态映射
@@ -580,14 +596,8 @@ const openSmugglersReportModel = (reportData: any = null) => {
         ? JSON.parse(rawContent)
         : JSON.parse(JSON.stringify(rawContent || {weekly: []}))
 
-    const cats = ['weekly']
-    if (parsedContent.inSeason && Array.isArray(parsedContent.inSeason) && parsedContent.inSeason.length > 0) {
-      cats.push('inSeason')
-    }
-    if (parsedContent.common && Array.isArray(parsedContent.common) && parsedContent.common.length > 0) {
-      cats.push('common')
-    }
-    editorCategories.value = cats
+    editorCategories.value = resolveCategoriesFromContent(parsedContent)
+    editorActiveTab.value = editorCategories.value[0] || 'weekly'
 
     createSmugglersReportData.value = {
       ...JSON.parse(JSON.stringify(reportData)),
@@ -630,14 +640,8 @@ const onCloneReport = (report: any) => {
       ? JSON.parse(rawContent)
       : JSON.parse(JSON.stringify(rawContent || {weekly: []}))
 
-  const cats = ['weekly']
-  if (parsedContent.inSeason && Array.isArray(parsedContent.inSeason) && parsedContent.inSeason.length > 0) {
-    cats.push('inSeason')
-  }
-  if (parsedContent.common && Array.isArray(parsedContent.common) && parsedContent.common.length > 0) {
-    cats.push('common')
-  }
-  editorCategories.value = cats
+  editorCategories.value = resolveCategoriesFromContent(parsedContent)
+  editorActiveTab.value = editorCategories.value[0] || 'weekly'
 
   createSmugglersReportData.value = {
     title: `${report.title || ''} (副本)`.trim(),
@@ -663,16 +667,9 @@ const applyCloneFromReport = (targetReport: any) => {
         ? JSON.parse(raw)
         : JSON.parse(JSON.stringify(raw || {weekly: []}))
 
-    const cats = ['weekly']
-    if (parsed.inSeason && Array.isArray(parsed.inSeason) && parsed.inSeason.length > 0) {
-      cats.push('inSeason')
-    }
-    if (parsed.common && Array.isArray(parsed.common) && parsed.common.length > 0) {
-      cats.push('common')
-    }
-    editorCategories.value = cats
+    editorCategories.value = resolveCategoriesFromContent(parsed)
     createSmugglersReportData.value.content = parsed
-    editorActiveTab.value = 'weekly'
+    editorActiveTab.value = editorCategories.value[0] || 'weekly'
     notice.success(t('smugglersReport.account.cloneSuccess'))
   } catch (err: any) {
     notice.error('克隆周报数据解析失败: ' + (err?.message || err))
@@ -686,7 +683,7 @@ const applyCloneFromReport = (targetReport: any) => {
 const copyReportContentToClipboard = async (content: any) => {
   try {
     const parsed = typeof content === 'string' ? JSON.parse(content) : content
-    const dataStr = JSON.stringify(parsed || { weekly: [] }, null, 2)
+    const dataStr = JSON.stringify(parsed || {weekly: []}, null, 2)
     sessionStorage.setItem('glow_prow_clipboard_report', dataStr)
     if (navigator.clipboard && navigator.clipboard.writeText) {
       await navigator.clipboard.writeText(dataStr)
@@ -743,17 +740,10 @@ const pasteReportContent = async () => {
       return
     }
 
-    const finalContent: any = Array.isArray(parsed) ? { weekly: parsed } : parsed
-    const cats = ['weekly']
-    if (finalContent.inSeason && Array.isArray(finalContent.inSeason) && finalContent.inSeason.length > 0) {
-      cats.push('inSeason')
-    }
-    if (finalContent.common && Array.isArray(finalContent.common) && finalContent.common.length > 0) {
-      cats.push('common')
-    }
-    editorCategories.value = cats
+    const finalContent: any = Array.isArray(parsed) ? {weekly: parsed} : parsed
+    editorCategories.value = resolveCategoriesFromContent(finalContent)
     createSmugglersReportData.value.content = finalContent
-    editorActiveTab.value = 'weekly'
+    editorActiveTab.value = editorCategories.value[0] || 'weekly'
     notice.success(t('basic.tips.pasteSuccess'))
   } catch (e: any) {
     notice.error(t('smugglersReport.account.pasteInvalid'))
@@ -1011,7 +1001,7 @@ defineOptions({
                 <template v-for="(i, index) in smugglersReportListData" :key="i.id || index">
                   <v-list-item :class="['', {'active-report-border': isReportActive(i)}]">
                     <template v-slot:prepend>
-                      <div class="d-flex align-center">
+                      <div class="d-flex align-center mt-n1">
                         <v-checkbox-btn
                             v-if="canDeleteReport"
                             :model-value="isReportSelected(i)"
@@ -1025,7 +1015,8 @@ defineOptions({
                     </template>
                     <template v-slot:title>
                       <div class="d-flex align-center flex-wrap ga-2">
-                        <p>{{ i.title }}</p>
+                        <p class="u cursor-pointer"
+                           @click="openSmugglersReportModel(i)">{{ i.title }}</p>
 
                         <v-chip
                             size="x-small"
@@ -1048,11 +1039,6 @@ defineOptions({
 
                     <template v-slot:subtitle>
                       <div class="d-flex align-center flex-wrap ga-2 mt-2">
-                        <p class="d-flex align-center">
-                          <v-icon size="14" class="mr-1">mdi-comment-outline</v-icon>
-                          {{ i.commentCount || 0 }} 条评论
-                        </p>
-                        <v-divider vertical inset class="mx-1"></v-divider>
                         <p class="d-flex align-center ga-2">
                           <v-icon size="14">mdi-calendar-range</v-icon>
                           <TimeView :time="i.startTime"></TimeView>
@@ -1060,6 +1046,46 @@ defineOptions({
                           <TimeView :time="i.endTime"></TimeView>
                         </p>
                       </div>
+
+                      <!-- 创建者、参与编辑与参与评论用户 S -->
+                      <div class="d-flex align-center flex-wrap ga-x-4 ga-y-2 mt-2">
+                        <div class="d-flex align-center ga-1" v-if="i.author_name">
+                          <span class="text-caption">
+                            <v-icon size="14" class="mr-1">mdi-account</v-icon>
+                            {{ t('smugglersReport.account.creator') }}
+                          </span>
+                          <AccountCardWidget :id="i.createdBy">
+                            <UserAvatar :src="i.author_avatar || ''" size="20px" class="bg-black"></UserAvatar>
+                          </AccountCardWidget>
+                        </div>
+
+                        <div class="d-flex align-center ga-1" v-if="i.editors && i.editors.length > 0">
+                          <span class="text-caption mr-1">
+                            <v-icon size="14" class="mr-1">mdi-account</v-icon>
+                            {{ t('smugglersReport.account.editors') }}
+                          </span>
+
+                          <AccountCardWidget v-for="u in i.editors" :key="`editor-${u.id}`" :id="u.id">
+                            <UserAvatar :src="u.avatar || ''" size="20px" class="bg-black"></UserAvatar>
+                          </AccountCardWidget>
+                        </div>
+
+                        <div class="d-flex align-center ga-1" v-if="i.commentUsers && i.commentUsers.length > 0">
+                          <span class="text-caption mr-1">
+                            <v-icon size="14" class="mr-1">mdi-comment-outline</v-icon>
+                            {{ t('smugglersReport.account.commenters') }}({{ i.commentCount || 0 }})
+                          </span>
+
+                          <div class="d-flex ga-1">
+                            <template v-for="(u, index) in i.commentUsers" :key="`commenter-${u.id}`" :id="u.id" class="d-flex">
+                              <AccountCardWidget :id="u.id">
+                                <UserAvatar :src="u.avatar || ''" size="20px" class="elevation-24" :class="{'ml-n4': index > 0}"></UserAvatar>
+                              </AccountCardWidget>
+                            </template>
+                          </div>
+                        </div>
+                      </div>
+                      <!-- 创建者、参与编辑与参与评论用户 E -->
                     </template>
 
                     <template v-slot:append>
@@ -1081,6 +1107,15 @@ defineOptions({
                           </v-list-item>
 
                           <v-list-item
+                              v-if="i.isUserComment ? (canUpdateComment || canDeleteComment) : canCreateComment"
+                              :prepend-icon="i.isUserComment ? 'mdi-comment-edit-outline' : 'mdi-comment-plus-outline'"
+                              @click="openCommendModel(i)">
+                            <v-list-item-title>{{ i.isUserComment ? t('smugglersReport.account.viewComment') : t('smugglersReport.account.createComment') }}</v-list-item-title>
+                          </v-list-item>
+
+                          <v-divider class="my-1"></v-divider>
+
+                          <v-list-item
                               v-if="canCreateReport"
                               prepend-icon="mdi-content-duplicate"
                               @click="onCloneReport(i)">
@@ -1091,13 +1126,6 @@ defineOptions({
                               prepend-icon="mdi-content-copy"
                               @click="copyReportFromList(i)">
                             <v-list-item-title>{{ t('smugglersReport.account.copyReport') }}</v-list-item-title>
-                          </v-list-item>
-
-                          <v-list-item
-                              v-if="i.isUserComment ? (canUpdateComment || canDeleteComment) : canCreateComment"
-                              :prepend-icon="i.isUserComment ? 'mdi-comment-edit-outline' : 'mdi-comment-plus-outline'"
-                              @click="openCommendModel(i)">
-                            <v-list-item-title>{{ i.isUserComment ? t('smugglersReport.account.viewComment') : t('smugglersReport.account.createComment') }}</v-list-item-title>
                           </v-list-item>
 
                           <v-divider v-if="canDeleteReport && (canUpdateReport || (i.isUserComment ? (canUpdateComment || canDeleteComment) : canCreateComment))" class="my-1"></v-divider>

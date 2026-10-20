@@ -2907,14 +2907,17 @@
     "title": "走私犯鉴赏家",
     "description": "走私犯鉴赏家是对每周走私犯刷新物品评价，给所有玩家推荐选购理由，让玩家们不要错过价值非常高物品",
     "weekly": "每周",
-    "weeklyItems": "本周物品 (Weekly)",
+    "weeklyItems": "本周物品",
     "inSeason": "赛季",
-    "inSeasonItems": "赛季物品 (In-Season)",
+    "inSeasonItems": "赛季物品",
     "common": "常规",
-    "commonItems": "常规物品 (Common)",
+    "commonItems": "常规物品",
+    "abyssal": "深渊",
+    "abyssalItems": "深渊物品",
     "addCategory": "添加分类",
     "removeCategory": "删除此分类",
     "removeCategoryConfirm": "确定要移除此分类及其全部物品数据吗？",
+    "removeCategoryWithDataConfirm": "该分类下已有 {count} 项物品数据，移除分类将一并删除这些数据，确定继续吗？",
     "selectCategory": "选择要创建的分类",
     "noMoreCategories": "所有分类均已添加",
     "itemId": "物品ID",
@@ -2936,6 +2939,16 @@
       "itemIdLengthError": "物品ID不能超过 100 字符",
       "worthMinError": "价值不能小于 0"
     },
+    "filter": {
+      "byType": "类型",
+      "byRarity": "稀有度",
+      "byCurrency": "货币",
+      "types": {
+        "item": "物品",
+        "material": "材料",
+        "commodity": "杂货"
+      }
+    },
     "status": {
       "published": "已发布",
       "draft": "草稿",
@@ -2950,7 +2963,7 @@
     "view": {
       "startTime": "开始",
       "endTime": "结束",
-      "smuggledItems": "走私物品",
+      "smuggledItems": "奖赏橱柜",
       "connoisseurs": "鉴赏家们",
       "connoisseursDesc": "来看下鉴赏家们如何评价",
       "becomeConnoisseur": "成为鉴赏家"
@@ -3010,16 +3023,19 @@
       "jsonPanelTitle": "JSON 面板 (Debug)",
       "jsonPanelDesc": "双向同步周报数据，支持直接编辑与格式化",
       "formatJson": "格式化 JSON",
-      "jsonSyntaxError": "JSON 语法错误，请输入合法的 JSON 格式"
+      "jsonSyntaxError": "JSON 语法错误，请输入合法的 JSON 格式",
+      "creator": "创建者",
+      "editors": "参与编辑",
+      "commenters": "参与评论"
     },
     "rules": {
       "title": "规则说明",
       "createReportTitle": "创建周报",
-      "createReportContent": "这需要拥有周报权限的玩家才可创建周报数据。",
+      "createReportContent": "每周仅需创建一份周报，由具备周报权限的玩家统一创建，数据为全体鉴赏家共用，并非每个人各自创建自己的周报；创建之后，拥有周报编辑权限的用户可以随时再次编辑并保存更新内容。",
       "commentReportTitle": "评论周报",
       "commentReportContent": "拥有参与周报评论权限的玩家才可填写评论；没有合适周报时，应联系鉴赏家领袖创建周报后才可评论，您也可以联系我们申请成为周报领袖。",
-      "limitTitle": "单篇评论与管理",
-      "limitContent": "每份周报只能参与一份评论，您可以对已经发布的评论进行再次编辑或删除。",
+      "limitTitle": "周报评论",
+      "limitContent": "每份周报仅可参与一次评论，无法为同一份周报创建第二份评论；已发布的评论不会被锁定，您可以随时回到周报管理页面，对自己发布的评论再次编辑内容，或将其删除。",
       "contentGuideTitle": "内容推荐与配装宣传",
       "contentGuideContent": "评论内容不限于评价本周刷新陈设武器讨论，您甚至可以在评论中说明本周出现“难得”物品，抢先购买，并附上您的配装链接，作为宣传。"
     }

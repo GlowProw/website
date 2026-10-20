@@ -759,7 +759,7 @@ const getZoneData = (zoneName: string) => {
           </AffixBoxHasTitleView>
         </v-col>
 
-        <!-- 争夺地区 -->
+        <!-- 战争进程 S -->
         <v-col cols="12" v-if="!isSeasonEnded">
           <AffixBoxHasTitleView>
             <!-- 区域列表：每个大区域下展示其小区域 -->
@@ -822,7 +822,7 @@ const getZoneData = (zoneName: string) => {
                   <v-card variant="text" class="h-100 zone-card ">
                     <v-card-item class="pb-2">
                       <div class="d-flex align-center justify-space-between ga-2">
-                        <div class="text-subtitle-1 font-weight-bold text-truncate">
+                        <div class="text-subtitle-1 font-weight-bold text-truncate singe-line">
                           <ZoneName :id="zone.name"/>
                         </div>
 
@@ -876,7 +876,7 @@ const getZoneData = (zoneName: string) => {
                         <v-col>
                           <v-row>
                             <v-col>
-                              <span :style="{ color: factionAColor }"><FactionNameWidget :id="factionAKey"></FactionNameWidget></span>
+                              <span class="singe-line" :style="{ color: factionAColor }"><FactionNameWidget :id="factionAKey"></FactionNameWidget></span>
                             </v-col>
                             <v-spacer></v-spacer>
                             <v-col cols="auto">
@@ -908,7 +908,7 @@ const getZoneData = (zoneName: string) => {
                         <v-col>
                           <v-row>
                             <v-col>
-                              <span :style="{ color: factionBColor }"><FactionNameWidget :id="factionBKey"></FactionNameWidget></span>
+                              <span class="singe-line" :style="{ color: factionBColor }"><FactionNameWidget :id="factionBKey"></FactionNameWidget></span>
                             </v-col>
                             <v-spacer></v-spacer>
                             <v-col cols="auto">
@@ -944,8 +944,9 @@ const getZoneData = (zoneName: string) => {
             </template>
           </AffixBoxHasTitleView>
         </v-col>
+        <!-- 战争进程 E -->
 
-        <!-- 战争进程板块 -->
+        <!-- 战争进程板块 S -->
         <v-col cols="12">
           <AffixBoxHasTitleView>
             <v-row class="mb-6">
@@ -1121,6 +1122,7 @@ const getZoneData = (zoneName: string) => {
             </template>
           </AffixBoxHasTitleView>
         </v-col>
+        <!-- 战争进程板块 E -->
       </v-row>
 
       <EmptyView v-else></EmptyView>
