@@ -18,17 +18,22 @@ const props = withDefaults(
 let showItemCount = 3,
     droppedCount = computed(() => Object.keys(props.data.droppeds).length || 0)
 
-/**
- * 检查翻译
- * @param key
- */
-const onCheckI18nValue = (key) => {
-  if (te(key)) {
-    return {code: 0, value: t(key)};
-  } else {
-    return {code: -1}
-  }
-};
+// 当前赛季标识
+const seasonId = computed(() => props.currentlySeason?.id || '')
+
+// 事件名称
+const eventName = computed(() => {
+  // 优先取翻译，缺失时回退到接口返回的名称，避免首屏直接显示原始 id
+  const key = `snb.calendar.${seasonId.value}.data.${props.data?.id}.name`;
+  return te(key) ? t(key) : (props.data?.name || props.data?.id || '');
+})
+
+// 事件描述
+const eventDescription = computed(() => {
+  // 同样在翻译缺失时回退到接口文本
+  const key = `snb.calendar.${seasonId.value}.data.${props.data?.id}.description`;
+  return te(key) ? t(key) : (props.data?.description || '');
+})
 
 const getCategory = (i: any) => i?.category
 const isUnknown = (i: any) => i?.isUnknown
@@ -53,13 +58,13 @@ const isUnknown = (i: any) => i?.isUnknown
 
       <div class="bg-black pa-5 background-flavor" v-if="data && data.id">
         <template v-if="props.currentlySeason && props.currentlySeason.id && data && data.id">
-          <p class="text-amber text-h5 pointer-events-none"><b> {{ t(`snb.calendar.${props.currentlySeason.id}.data.${data.id}.name`) }}</b></p>
+          <p class="text-amber text-h5 pointer-events-none"><b> {{ eventName }}</b></p>
           <p class="text text-caption mb-2 opacity-30">{{ data.id }}</p>
         </template>
 
         <p class="text-pre-wrap mt-1 opacity-80 pointer-events-none">
-          <template v-if="props.currentlySeason && props.currentlySeason.id && onCheckI18nValue(`snb.calendar.${props.currentlySeason.id}.data.${data.id}.description`).code == 0">
-            {{ t(`snb.calendar.${props.currentlySeason.id}.data.${data.id}.description`) }}
+          <template v-if="eventDescription">
+            {{ eventDescription }}
           </template>
         </p>
 
