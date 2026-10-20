@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, ref, watch} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import {Editor} from "@tiptap/vue-3";
 import {useI18n} from "vue-i18n";
 import {Apis, type MediaItem} from "@/assets/sripts/api";
@@ -29,6 +29,18 @@ const data = ref({
 const uploading = ref(false);
 const uploadProgress = ref(0);
 const fileInputRef = ref<HTMLInputElement | null>(null);
+
+// 单文件上限（从媒体配额接口动态获取；null 表示不限）
+const maxFileSize = ref<number | null>(null);
+
+onMounted(async () => {
+  try {
+    const quota = await mediaApi.getMediaQuota();
+    maxFileSize.value = quota?.storage?.maxFileSize ?? null;
+  } catch {
+    // 拉取失败时不拦截，真正上传时后端仍会校验
+  }
+});
 
 // 媒体库选择相关
 const selectedMediaId = ref<string | null>(null);
@@ -143,9 +155,9 @@ const onFileSelected = async (eventOrFile: any) => {
   }
   if (!file) return;
 
-  // 校验大小 (340KB)
-  if (file.size > 340 * 1024) {
-    notice.error('文件体积过大，单次上传文件最大为 340KB');
+  // 校验大小（随贡献者等级与重复订阅升级动态变化）
+  if (maxFileSize.value !== null && file.size > maxFileSize.value) {
+    notice.error('文件体积过大，超过当前单文件上传上限');
     return;
   }
 

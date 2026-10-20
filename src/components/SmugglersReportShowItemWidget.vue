@@ -4,6 +4,8 @@ import {useI18n} from "vue-i18n";
 import {Commodities, Items, Materials} from "glow-prow-data";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
+import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
+import CommoditieIconWidget from "@/components/snbWidget/commoditieIconWidget.vue";
 
 const {t} = useI18n();
 
@@ -129,8 +131,9 @@ defineOptions({
           :key="index">
         <ItemSlotBase size="99px" class="d-flex justify-center align-center">
           <template v-if="i && i.data">
-            <ItemIconWidget :id="i.data.id" v-if="i.data._typeStringName == 'Item'"></ItemIconWidget>
-            <ItemIconWidget :id="i.data.id" v-else></ItemIconWidget>
+            <MaterialIconWidget v-if="i.data._typeStringName == 'Material'" :id="i.data.id"></MaterialIconWidget>
+            <CommoditieIconWidget v-else-if="i.data._typeStringName == 'Commodity'" :id="i.data.id"></CommoditieIconWidget>
+            <ItemIconWidget v-else :id="i.data.id"></ItemIconWidget>
           </template>
 
           <template v-else>

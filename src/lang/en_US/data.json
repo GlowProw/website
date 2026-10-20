@@ -1217,7 +1217,7 @@
       "copySuccess": "Image link copied to clipboard",
       "copyFailed": "Copy failed, please copy manually",
       "deleteSuccess": "Media deleted",
-      "fileTooLarge": "File is too large, single file maximum is 340KB",
+      "fileTooLarge": "File is too large, exceeds your current per-file upload limit",
       "storageDisabled": "Storage has reached the safety threshold, uploads are temporarily disabled",
       "storageDisabledDesc": "Cloud storage usage has reached the 9.8GB safety line. Uploads are temporarily paused to keep the service stable. Please try again later or contact the administrator.",
       "unsupportedFormat": "Unsupported image format, only webp, png, and jpg are supported",
@@ -3420,7 +3420,7 @@
     },
     "serviceStatus": {
       "title": "Service Status",
-      "desc": "Live status of our services and build pipelines, refreshed every minute.",
+      "desc": "Live status of our services and build pipelines, refreshed automatically.",
       "overviewTitle": "Overview",
       "monitorsTitle": "Monitors",
       "lastUpdated": "Updated",
@@ -3951,12 +3951,19 @@
       "5": "Base quota 1.0x",
       "0.1": "Quota boost 0.1x"
     },
+    "uploadSize": {
+      "100": "1MB upload per file, +1MB after 2+ repeat subscriptions (max 2MB)",
+      "50": "1MB upload per file, +1MB after 2+ repeat subscriptions (max 2MB)",
+      "10": "0.5MB upload per file, +0.5MB after 2+ repeat subscriptions (max 1MB)",
+      "5": "0.5MB upload per file, +0.5MB after 2+ repeat subscriptions (max 1MB)",
+      "0.1": "0.5MB upload per file"
+    },
     "rules": {
       "title": "Subscription & Donation Rules",
       "downgradeTitle": "Demotion to Contributor upon Expiry",
       "downgradeDesc": "When a monthly subscription expires without renewal, your status automatically switches to a permanent \"Contributor\" badge. Base Contributor carries no quota multiplier, but permanently commemorates your support for the site.",
       "quotaTitle": "Quota Boost Explanation",
-      "quotaDesc": "Quota boosts increase your overall site resource limits, including higher caps on publishing loadouts/builds, uploading media files (images/attachments), and more. Higher tiers grant larger multipliers.",
+      "quotaDesc": "Quota boosts increase your overall site resource limits, including higher caps on publishing loadouts/builds, uploading media files (images/attachments), and more. Higher tiers grant larger multipliers. The per-file upload limit also scales with your status: Contributor 4–5 can upload 1MB, while Contributor 1–3 is limited to 0.5MB. Sponsoring the same tier 2+ times grants one extra upgrade (+1MB for the 100/50 tiers, +0.5MB for the 10/5 tiers).",
       "refundTitle": "Cancellation & Refund Policy",
       "refundDesc": "Except for one-time payments, users can cancel their subscriptions at any time directly through the payment platform (Stripe, Afdian, etc.). Once cancelled, no further recurring charges will occur, and active privileges remain valid until the end of the billing period.",
       "onceTitle": "One-Time Donation Rules",
@@ -4249,7 +4256,7 @@
     "media": {
       "files": "Files Count",
       "storage": "Storage Capacity",
-      "maxFileSize": "Single File ≤ 340KB",
+      "maxFileSize": "Single File ≤ {size}",
       "reupload": "Overwrites",
       "maxPerFile": "Single File ≤ 10 Times"
     }

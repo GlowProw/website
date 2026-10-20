@@ -695,6 +695,10 @@ onUnmounted(() => {
                   </div>
                   <div class="d-flex align-center ga-1">
                     <v-icon icon="mdi-check-circle-outline" size="14" color="success"/>
+                    <span>{{ t(`subscription.uploadSize.${tierDef.tier}`) }}</span>
+                  </div>
+                  <div class="d-flex align-center ga-1">
+                    <v-icon icon="mdi-check-circle-outline" size="14" color="success"/>
                     <span>{{ t('subscription.benefitAvatar') }}</span>
                   </div>
                   <div class="d-flex align-center ga-1">

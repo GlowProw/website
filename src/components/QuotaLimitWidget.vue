@@ -190,7 +190,10 @@ const onMenuToggle = (open: boolean): void => {
               <div class="text-caption text-medium-emphasis font-weight-bold mb-1 d-flex align-center justify-space-between">
                 <span>{{ t('quota.media.storage') || '存储容量' }}</span>
                 <span class="text-caption font-weight-regular text-disabled">
-                  {{ t('quota.media.maxFileSize') || '单文件 ≤ 340KB' }}
+                  <template v-if="status.mediaDetails.storage.maxFileSize != null">
+                    {{ t('quota.media.maxFileSize', {size: formatBytes(status.mediaDetails.storage.maxFileSize)}) }}
+                  </template>
+                  <template v-else>{{ t('quota.unlimited') }}</template>
                 </span>
               </div>
               <v-row align="center" density="compact">

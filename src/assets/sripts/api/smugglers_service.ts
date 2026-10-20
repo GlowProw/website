@@ -141,6 +141,8 @@ export function useSmugglersApi() {
                 data: {
                     title: data.title,
                     content: data.content,
+                    startTime: data.startTime,
+                    endTime: data.endTime,
                     status: data.status
                 }
             });

@@ -36,8 +36,8 @@ const previewItem = ref<MediaItem | null>(null);
 
 const totalPages = computed(() => Math.ceil(totalCount.value / pageSize) || 1);
 
-// 单文件上限 340KB（与后端 media.maxSizeBytes 保持一致）
-const MAX_FILE_SIZE = 340 * 1024;
+// 单文件上限（从媒体配额接口动态获取，随贡献者等级与重复订阅升级变化；null 表示不限）
+const maxFileSize = ref<number | null>(null);
 // 图床总容量熔断状态：用量达到 9.8GB 安全阈值后停用全部上传
 const storageDisabled = ref(false);
 
@@ -47,12 +47,14 @@ onMounted(() => {
 });
 
 /**
- * 拉取图床总容量熔断标志（媒体配额接口附带返回）
+ * 拉取图床总容量熔断标志与单文件上限（媒体配额接口附带返回）
  */
 const loadStoragePoolStatus = async () => {
   try {
     const quota = await mediaApi.getMediaQuota();
     storageDisabled.value = !!quota?.storagePool?.uploadDisabled;
+    // 接口未返回上限（管理/开发身份）时保持 null，表示不做前端拦截
+    maxFileSize.value = quota?.storage?.maxFileSize ?? null;
   } catch {
     // 熔断状态拉取失败不阻断页面，真正上传时后端仍会拦截
     storageDisabled.value = false;
@@ -105,7 +107,7 @@ const onFileSelected = async (fileOrFiles: any) => {
   const file = Array.isArray(fileOrFiles) ? fileOrFiles[0] : fileOrFiles;
   if (!file) return;
 
-  if (file.size > MAX_FILE_SIZE) {
+  if (maxFileSize.value !== null && file.size > maxFileSize.value) {
     notice.error(t('account.media.fileTooLarge'));
     return;
   }
@@ -151,7 +153,7 @@ const onReuploadSelected = async (fileOrFiles: any) => {
   const targetId = reuploadTargetItem.value?.id;
   if (!file || !targetId) return;
 
-  if (file.size > MAX_FILE_SIZE) {
+  if (maxFileSize.value !== null && file.size > maxFileSize.value) {
     notice.error(t('account.media.fileTooLarge'));
     return;
   }

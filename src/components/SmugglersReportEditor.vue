@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {computed, ref, watch} from 'vue';
 import {useI18n} from 'vue-i18n';
-import {Items, Materials} from 'glow-prow-data';
+import {Commodities, Items, Materials} from 'glow-prow-data';
 import {useI18nReadName} from '@/assets/sripts/i18n_read_name';
 import {useNoticeStore} from '~/stores/noticeStore';
 
@@ -11,12 +11,14 @@ import MaterialIconWidget from '@/components/snbWidget/materialIconWidget.vue';
 import ItemSlotBase from '@/components/snbWidget/ItemSlotBase.vue';
 import EmptyView from '@/components/EmptyView.vue';
 import MaterialName from "@/components/snbWidget/materialName.vue";
+import CommoditieIconWidget from "@/components/snbWidget/commoditieIconWidget.vue";
+import CommoditieName from "@/components/snbWidget/commoditieName.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 
 const {t} = useI18n();
 const notice = useNoticeStore();
-const {item: readItemName, material: readMaterialName} = useI18nReadName();
+const {item: readItemName, material: readMaterialName, commoditie: readCommodityName} = useI18nReadName();
 
 const props = withDefaults(defineProps<{
   modelValue?: any;
@@ -239,27 +241,51 @@ const currencyOptions = computed(() => {
     });
 });
 
-// 物品搜索匹配候选列表
+// 可选实体来源，覆盖物品、材料、杂货三类可插入的标识
+const itemSources: { entity: 'item' | 'material' | 'commodity'; dict: Record<string, any>; readName: (id: string) => { name: () => string } }[] = [
+  {entity: 'item', dict: Items, readName: readItemName},
+  {entity: 'material', dict: Materials, readName: readMaterialName},
+  {entity: 'commodity', dict: Commodities, readName: readCommodityName}
+];
+
+/**
+ * 判定标识所属的实体类型，用于渲染对应类型的图标与名称组件
+ * @param id 实体标识
+ * @returns 实体类型标识
+ */
+const resolveEntity = (id: string): 'item' | 'material' | 'commodity' => {
+  if (id && id in Items) return 'item';
+  if (id && id in Materials) return 'material';
+  if (id && id in Commodities) return 'commodity';
+  return 'item';
+};
+
+// 当前选中标识的实体类型
+const selectedEntity = computed(() => resolveEntity(selectedItem.value));
+
+// 物品、材料、杂货统一检索候选列表
 const filteredItemOptions = computed(() => {
   const query = (itemSearchQuery.value || '').trim().toLowerCase();
-  const list: { id: string; name: string; title: string }[] = [];
-  const itemsList = Object.values(Items) as any[];
+  const list: { id: string; name: string; title: string; entity: 'item' | 'material' | 'commodity' }[] = [];
+  const picked = new Set<string>();
 
-  for (const it of itemsList) {
-    if (!it || !it.id) continue;
-    const id = it.id;
-    const name = readItemName(id).name() || '';
-    const nameMatch = name.toLowerCase().includes(query);
-    const idMatch = id.toLowerCase().includes(query);
+  for (const source of itemSources) {
+    for (const it of Object.values(source.dict) as any[]) {
+      if (!it || !it.id || picked.has(it.id)) continue;
 
-    if (!query || nameMatch || idMatch) {
+      const id = it.id;
+      const name = source.readName(id).name() || '';
+      if (query && !name.toLowerCase().includes(query) && !id.toLowerCase().includes(query)) continue;
+
+      picked.add(id);
       list.push({
         id,
         name: name || id,
-        title: name ? `${name} (${id})` : id
+        title: name ? `${name} (${id})` : id,
+        entity: source.entity
       });
-      if (list.length >= 10) {
-        break;
+      if (list.length >= 20) {
+        return list;
       }
     }
   }
@@ -562,7 +588,23 @@ defineOptions({
               <template #selection>
                 <div class="d-flex align-center" v-if="selectedItem">
                   <ItemSlotBase size="22px" class="mr-1">
-                    <ItemIconWidget :id="selectedItem" :is-open-detail="false" :is-show-tooltip="false" size="20px"></ItemIconWidget>
+                    <MaterialIconWidget
+                        v-if="selectedEntity === 'material'"
+                        :id="selectedItem"
+                        :is-open-detail="false"
+                        :is-show-tooltip="false"
+                        size="20px"></MaterialIconWidget>
+                    <CommoditieIconWidget
+                        v-else-if="selectedEntity === 'commodity'"
+                        :id="selectedItem"
+                        :is-open-detail="false"
+                        :is-show-tooltip="false"></CommoditieIconWidget>
+                    <ItemIconWidget
+                        v-else
+                        :id="selectedItem"
+                        :is-open-detail="false"
+                        :is-show-tooltip="false"
+                        size="20px"></ItemIconWidget>
                   </ItemSlotBase>
                   <span class="text-caption text-truncate">{{ selectedItem }}</span>
                 </div>
@@ -571,7 +613,23 @@ defineOptions({
                 <v-list-item v-bind="itemProps" :title="item.name" :subtitle="item.id">
                   <template #prepend>
                     <ItemSlotBase size="28px" class="mr-2">
-                      <ItemIconWidget :id="item.id" :is-open-detail="false" :is-show-tooltip="false" size="26px"></ItemIconWidget>
+                      <MaterialIconWidget
+                          v-if="item.entity === 'material'"
+                          :id="item.id"
+                          :is-open-detail="false"
+                          :is-show-tooltip="false"
+                          size="26px"></MaterialIconWidget>
+                      <CommoditieIconWidget
+                          v-else-if="item.entity === 'commodity'"
+                          :id="item.id"
+                          :is-open-detail="false"
+                          :is-show-tooltip="false"></CommoditieIconWidget>
+                      <ItemIconWidget
+                          v-else
+                          :id="item.id"
+                          :is-open-detail="false"
+                          :is-show-tooltip="false"
+                          size="26px"></ItemIconWidget>
                     </ItemSlotBase>
                   </template>
                 </v-list-item>
@@ -677,12 +735,18 @@ defineOptions({
                 </v-icon>
 
                 <ItemSlotBase size="70px" class="mr-2 flex-shrink-0">
-                  <ItemIconWidget :id="item.id"></ItemIconWidget>
+                  <MaterialIconWidget v-if="resolveEntity(item.id) === 'material'" :id="item.id"></MaterialIconWidget>
+                  <CommoditieIconWidget v-else-if="resolveEntity(item.id) === 'commodity'" :id="item.id"></CommoditieIconWidget>
+                  <ItemIconWidget v-else :id="item.id"></ItemIconWidget>
                 </ItemSlotBase>
 
                 <div class="min-width-0 flex-grow-1">
                   <div class="d-flex align-center ga-2">
-                    <u class="font-weight-bold text-h5 u"><ItemName :id="item.id"></ItemName></u>
+                    <u class="font-weight-bold text-h5 u">
+                      <MaterialName v-if="resolveEntity(item.id) === 'material'" :id="item.id"></MaterialName>
+                      <CommoditieName v-else-if="resolveEntity(item.id) === 'commodity'" :id="item.id"></CommoditieName>
+                      <ItemName v-else :id="item.id"></ItemName>
+                    </u>
                     <v-chip size="x-small" variant="tonal" color="grey">#{{ index + 1 }}</v-chip>
                   </div>
                   <div class="d-flex align-center ga-2 mt-1 ml-n1">
