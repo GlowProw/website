@@ -17,7 +17,7 @@ export const usePreloadStore = defineStore('preload', () => {
     /**
      * 全局 loading：true 时 App.vue 显示全屏遮罩
      */
-    const appLoading: Ref<boolean> = ref(true);
+    const appLoading: Ref<boolean> = ref(false);
 
     /**
      * 当前执行阶段文案 —— i18n key 或直接字符串
