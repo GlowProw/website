@@ -231,11 +231,14 @@ const onContinuePay = async (order: any): Promise<void> => {
           ? order.period as 'monthly' | 'yearly' | 'once'
           : 'once',
       platform: order.platform === 'paypal' ? 'paypal' : (order.platform === 'stripe' ? 'stripe' : 'afdian'),
+      // 复用原待支付订单，避免继续支付时重复建单
+      orderId: order.id,
       ...(order.tier === 'custom' ? {amount: Number(order.amountCny || order.amount)} : {})
     }
     const result = await subApi.createOrder(payload)
     if (result.redirectUrl) {
       window.open(result.redirectUrl, '_blank')
+      await fetchOrders()
     }
   } catch (e: any) {
     notice.error(e?.message || t('subscription.checkoutFailed'))
