@@ -68,6 +68,8 @@ export interface CreateOrderParams {
   period: 'monthly' | 'yearly' | 'once'
   platform: 'afdian' | 'stripe' | 'paypal'
   amount?: number
+  // 继续支付时传入原待支付订单主键，服务端复用该单而非新建
+  orderId?: number
 }
 
 /**
