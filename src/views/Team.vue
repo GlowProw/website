@@ -1,30 +1,24 @@
 <script setup lang="ts">
 import {useAuthStore} from "~/stores/userAccountStore";
-import {onMounted, onUnmounted, type Ref, ref, triggerRef, type UnwrapRef} from "vue";
-import {useRouter} from "vue-router";
+import {computed, onMounted, onUnmounted, type Ref, ref, triggerRef, type UnwrapRef} from "vue";
 import EmptyView from "@/components/EmptyView.vue";
-import {apis, http, storage, ws, getBrowserFingerprint} from "@/assets/sripts";
+import {apis, getBrowserFingerprint, storage} from "@/assets/sripts";
 import TimeView from "@/components/TimeView.vue";
 import {useI18n} from "vue-i18n";
 import type {VForm} from "vuetify/components";
-import Banner from "@/components/Banner.vue";
 import Loading from "@/components/Loading.vue";
 import Textarea from "@/components/textarea/index.vue";
 import {useNoticeStore} from "~/stores/noticeStore";
 import AdsWidget from "@/components/ads/google/index.vue";
-import {ApiError} from "@/assets/types/Api";
 import {handleApiError} from "@/assets/sripts/error_handler";
 import Silk from "@/components/Silk.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
-import type {Teams} from "@/assets/types/views";
 import {getTeamsType} from "@/assets/types/views";
+import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 
 const authStore = useAuthStore(),
     notice = useNoticeStore(),
     {t} = useI18n()
-
-const MAX_WS_DURATION = 20 * 60 * 1000; // 最长 20 分钟 WebSocket 连接
-let wsAutoDisconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
 let teams: Ref<any[]> = ref([]),
     page = ref(1),
@@ -32,22 +26,16 @@ let teams: Ref<any[]> = ref([]),
     total = ref(0),
     totalPages = ref(1),
 
-    // 服务
-    service = ref({
-      status: 0,
-      loading: false,
-    }),
-
     // 发布
     pushForm = ref<VForm | null>(null),
     pushConfig = {
       rules: {
         player: [
-            (v: any) => !!v || t('teamUp.rules.playerRequired'),
+          (v: any) => !!v || t('teamUp.rules.playerRequired'),
         ],
         description: [
-            (v: any) => !!v || t('teamUp.rules.descriptionRequired'),
-            (v: string | any[]) => (v && v.length >= 3 && v.length <= 300) || t('teamUp.rules.descriptionLength'),
+          (v: any) => !!v || t('teamUp.rules.descriptionRequired'),
+          (v: string | any[]) => (v && v.length >= 3 && v.length <= 300) || t('teamUp.rules.descriptionLength'),
         ]
       },
       tags: [
@@ -77,6 +65,16 @@ let teams: Ref<any[]> = ref([]),
     description = ref(''),
     tags: Ref<UnwrapRef<any[]>, UnwrapRef<any[]> | any[]> = ref([]),
     expiresMinutesAt: Ref<UnwrapRef<number>, UnwrapRef<number> | number> = ref(60),
+    descriptionEditor = ref<any>(null),
+    pushTargetPlatform = ref('qq'),
+    pushBotIds: Ref<number[]> = ref([]),
+    pushSyncEnabled = ref(true),
+    pushTargetsLoading = ref(false),
+    pushTargets = ref<any[]>([]),
+    pushAccess = ref({
+      checked: false,
+      allowed: false
+    }),
 
     // 检索
     teamsLoading = ref(false),
@@ -115,59 +113,97 @@ const getRemainingHornTime = (expiresAt: number) => {
 }
 
 /**
- * 清理 WebSocket 自动断开定时器
+ * 定时刷新配置
+ * 支持 10/15/30/60/120 秒预设或自定义秒数
  */
-const clearWsTimer = () => {
-  if (wsAutoDisconnectTimer) {
-    clearTimeout(wsAutoDisconnectTimer);
-    wsAutoDisconnectTimer = null;
+const refreshConfig = ref({
+  enabled: false,
+  interval: 30,
+  customInterval: 30
+})
+
+const refreshIntervalOptions = [10, 15, 30, 60, 120]
+
+let refreshTickHandle: ReturnType<typeof setInterval> | null = null
+
+/**
+ * 读取生效的刷新间隔（秒）
+ */
+const resolvedRefreshInterval = computed(() => {
+  if (refreshConfig.value.interval === 0) {
+    return Math.max(5, Math.min(3600, Number(refreshConfig.value.customInterval) || 30))
   }
-}
-
-/**
- * 开启 20 分钟倒计时自动断开 WebSocket
- */
-const startWsTimer = () => {
-  clearWsTimer();
-  wsAutoDisconnectTimer = setTimeout(() => {
-    if (ws.connected) {
-      ws.close();
-      service.value.status = -1;
-      notice.info(t('teamUp.wsTimeoutTip'));
-    }
-  }, MAX_WS_DURATION);
-}
-
-/**
- * 监听浏览器 Tab 标签离开 / 隐藏时关闭 WebSocket 释放资源
- */
-const onVisibilityChange = () => {
-  if (document.hidden) {
-    clearWsTimer();
-    if (ws.connected) {
-      ws.close();
-      service.value.status = -1;
-    }
-  }
-}
-
-/**
- * 页面挂载：注册可见性监听、初始化 WebSocket、拉取列表、读取储存的玩家信息
- */
-onMounted(async () => {
-  document.addEventListener('visibilitychange', onVisibilityChange);
-  onInitWss();
-  await getTeams(getTeamsType.none);
-  readStoragePlayer();
+  return refreshConfig.value.interval
 })
 
 /**
- * 页面卸载：清理事件监听、定时器并关闭 WebSocket
+ * 清理刷新定时器
+ */
+const clearRefreshTimers = () => {
+  if (refreshTickHandle) clearInterval(refreshTickHandle)
+  refreshTickHandle = null
+}
+
+/**
+ * 开始轮询刷新
+ */
+const beginRefresh = () => {
+  if (refreshTickHandle) return
+  refreshConfig.value.enabled = true
+  getTeams(getTeamsType.none)
+  refreshTickHandle = setInterval(() => {
+    if (document.hidden) return
+    getTeams(getTeamsType.none)
+  }, resolvedRefreshInterval.value * 1000)
+}
+
+/**
+ * 停止轮询刷新
+ */
+const stopRefresh = () => {
+  refreshConfig.value.enabled = false
+  clearRefreshTimers()
+}
+
+/**
+ * 启动或停止定时刷新
+ */
+const onToggleRefresh = () => {
+  if (refreshConfig.value.enabled) {
+    stopRefresh()
+    notice.info(t('teamUp.refresh.stopped'))
+    return
+  }
+  clearRefreshTimers()
+  beginRefresh()
+}
+
+/**
+ * 页面隐藏时跳过轮询，回到前台立即补拉一次
+ */
+const onVisibilityChange = () => {
+  if (!refreshConfig.value.enabled) return
+  if (!document.hidden) {
+    getTeams(getTeamsType.none)
+  }
+}
+
+/**
+ * 页面挂载：加载列表、读取储存的发布与推送目标选项
+ */
+onMounted(async () => {
+  document.addEventListener('visibilitychange', onVisibilityChange)
+  await getTeams(getTeamsType.none)
+  readStoragePlayer()
+  readStoragePushTargets()
+})
+
+/**
+ * 页面卸载：清理监听与定时器
  */
 onUnmounted(() => {
-  document.removeEventListener('visibilitychange', onVisibilityChange);
-  clearWsTimer();
-  ws.close();
+  document.removeEventListener('visibilitychange', onVisibilityChange)
+  clearRefreshTimers()
 })
 
 /**
@@ -179,10 +215,6 @@ const getTeams = async (type: getTeamsType = getTeamsType.none) => {
 
     if (type === getTeamsType.none) {
       page.value = 1;
-      // 刷新列表时，若 WebSocket 未连接且页面可见，主动重连 WebSocket
-      if (!ws.connected && !document.hidden) {
-        onInitWss();
-      }
     }
 
     const result = await apis.teamupApi().getTeamups({
@@ -207,7 +239,7 @@ const getTeams = async (type: getTeamsType = getTeamsType.none) => {
     }
     return teams.value;
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'Team' });
+    handleApiError(e, notice, t, {component: 'Team'});
   } finally {
     teamsLoading.value = false;
     triggerRef(teams);
@@ -228,6 +260,130 @@ const onTeamLoad = async ({done}: any) => {
 }
 
 /**
+ * 打开发布面板并读取可用的推送平台与机器人
+ */
+const onOpenPush = async () => {
+  pushModel.value = true;
+  if (!authStore.isLogin) return;
+
+  pushTargetsLoading.value = true;
+  try {
+    const result = await apis.botApi().getPushTargets();
+    pushTargets.value = result.data?.data || [];
+    pushAccess.value = {checked: true, allowed: true};
+
+    // 优先恢复上次选择的平台，其次选第一个已绑定且有机器人的平台
+    const bound = pushTargets.value.filter((p: any) => p.bound && (p.bots || []).length > 0);
+    const saved = storage.local.get('teamUp.pushTargets');
+    const savedPlatform = saved.code === 0 ? saved.data.value?.platform : '';
+    pushSyncEnabled.value = saved.code === 0 ? saved.data.value?.enabled !== false : true;
+    const target = bound.find((p: any) => p.value === savedPlatform) || bound[0];
+    if (target) {
+      pushTargetPlatform.value = target.value;
+      const validIds = new Set((target.bots || []).map((b: any) => b.id));
+      pushBotIds.value = (saved.code === 0 ? (saved.data.value?.botIds || []) : [])
+          .filter((id: number) => validIds.has(id));
+    }
+  } catch {
+    pushAccess.value = {checked: true, allowed: false};
+  } finally {
+    pushTargetsLoading.value = false;
+  }
+}
+
+/**
+ * 机器人下拉项展示名称
+ * @param item 机器人记录
+ */
+const onPushBotTitle = (item: any) => item.displayId
+    ? `${item.name} (${t('account.bot.display.qq')}: ${item.displayId})`
+    : `${item.name} (${t('account.bot.display.appid')}: ${item.platformBotId})`
+
+/**
+ * 当前平台下可选的机器人
+ */
+const currentPushBots = computed(() => {
+  const platform = pushTargets.value.find((p: any) => p.value === pushTargetPlatform.value);
+  return platform?.bots || [];
+})
+
+/**
+ * 当前平台是否已完成账户绑定
+ */
+const currentPlatformBound = computed(() => {
+  const platform = pushTargets.value.find((p: any) => p.value === pushTargetPlatform.value);
+  return Boolean(platform?.bound);
+})
+
+/**
+ * 切换平台时清空不属于该平台的机器人选择
+ */
+const onPushPlatformChange = () => {
+  const validIds = new Set(currentPushBots.value.map((b: any) => b.id));
+  pushBotIds.value = pushBotIds.value.filter(id => validIds.has(id));
+  onStoragePushTargets();
+}
+
+/**
+ * 记住推送目标选择
+ */
+const onStoragePushTargets = () => {
+  storage.local.set('teamUp.pushTargets', {
+    enabled: pushSyncEnabled.value,
+    platform: pushTargetPlatform.value,
+    botIds: pushBotIds.value
+  });
+}
+
+/**
+ * 读取已记住的推送目标（页面挂载时恢复平台，机器人列表在打开发布面板时校验）
+ */
+const readStoragePushTargets = () => {
+  const saved = storage.local.get('teamUp.pushTargets');
+  if (saved.code === 0 && saved.data.value) {
+    pushSyncEnabled.value = saved.data.value.enabled !== false;
+    pushTargetPlatform.value = saved.data.value.platform || 'qq';
+    pushBotIds.value = Array.isArray(saved.data.value.botIds) ? saved.data.value.botIds : [];
+  }
+}
+
+/**
+ * 外部平台推送状态对应的颜色
+ * @param status 推送状态
+ */
+const getPushColor = (status: string) => {
+  if (status === 'sent') return 'green';
+  if (status === 'failed') return 'red';
+  return 'orange';
+}
+
+/**
+ * 外部平台推送状态提示文案
+ * @param push 推送状态对象
+ */
+const getPushTooltip = (push: any) => {
+  const platform = String(push?.platform || 'qq').toUpperCase();
+  const status = t(`teamUp.push.status.${push?.status || 'pending'}`);
+  const error = push?.error ? ` · ${push.error}` : '';
+  return `${platform}: ${status}${error}`;
+}
+
+/**
+ * 手动重试一次外部平台推送
+ * @param item 组队信息
+ */
+const onRetryPush = async (item: any) => {
+  if (!item?.push?.canRetry) return;
+  try {
+    await apis.teamupApi().retryTeamupPush(item.id, item.push.platform || 'qq');
+    notice.success(t('teamUp.push.retryQueued'));
+    await getTeams(getTeamsType.none);
+  } catch (e) {
+    handleApiError(e, notice, t, {component: 'Team'});
+  }
+}
+
+/**
  * 发布
  */
 const pushTeamInfo = async () => {
@@ -239,36 +395,38 @@ const pushTeamInfo = async () => {
     pushLoading.value = true;
     const selectedTags = tags.value.map((i: any) => typeof i === 'object' ? i.value : i);
     const fingerprint = getBrowserFingerprint();
+    const descriptionText = descriptionEditor.value?.getText?.(true) || description.value;
+    const selectedPushBotIds = pushSyncEnabled.value && pushAccess.value.allowed ? [...pushBotIds.value] : [];
 
-    if (ws.connected) {
-      const message = {
-        type: 'publish_team_up',
-        payload: {
-          player: player.value,
-          description: description.value,
-          tags: selectedTags,
-          expiresMinutesAt: expiresMinutesAt.value,
-          fingerprint
-        }
-      };
-      ws.send(JSON.stringify(message));
+    const result = await apis.teamupApi().createTeamup({
+      player: player.value,
+      description: description.value,
+      descriptionText,
+      pushBotIds: selectedPushBotIds,
+      tags: selectedTags,
+      expiresMinutesAt: expiresMinutesAt.value,
+      fingerprint
+    } as any);
+
+    const push = result?.data?.data?.push;
+    if (push?.results?.length) {
+      const failed = push.results.filter((i: any) => i.status === 'failed');
+      if (failed.length > 0) {
+        notice.warning(t('teamUp.push.queuedWithFailure'));
+      } else {
+        notice.success(t('teamUp.push.queued'));
+      }
     } else {
-      await apis.teamupApi().createTeamup({
-        player: player.value,
-        description: description.value,
-        tags: selectedTags,
-        expiresMinutesAt: expiresMinutesAt.value,
-        fingerprint
-      });
       notice.success(t('basic.tips.teamUp.pushSuccess'));
-      onCleanPushInfo();
-      await getTeams(getTeamsType.none);
-      pushLoading.value = false;
-      pushModel.value = false;
     }
+
+    onCleanPushInfo();
+    await getTeams(getTeamsType.none);
+    pushLoading.value = false;
+    pushModel.value = false;
   } catch (e) {
     pushLoading.value = false;
-    handleApiError(e, notice, t, { component: 'Team' });
+    handleApiError(e, notice, t, {component: 'Team'});
   }
 }
 
@@ -278,20 +436,11 @@ const pushTeamInfo = async () => {
 const onDeleteTeamUp = async (id: string | number) => {
   try {
     if (!id) return;
-
-    if (ws.connected) {
-      const message = {
-        type: 'cancel_team_up',
-        payload: {id}
-      };
-      ws.send(JSON.stringify(message));
-    } else {
-      await apis.teamupApi().deleteTeamup(id);
-      notice.success(t('teamUp.deleteSuccess'));
-      teams.value = teams.value.filter(item => item.id !== id);
-    }
+    await apis.teamupApi().deleteTeamup(id);
+    notice.success(t('teamUp.deleteSuccess'));
+    teams.value = teams.value.filter(item => item.id !== id);
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'Team' });
+    handleApiError(e, notice, t, {component: 'Team'});
   }
 }
 
@@ -358,110 +507,6 @@ const copyToClipboard = async (content: string) => {
   }
 }
 
-/**
- * WebSocket 初始化与事件监听
- */
-const onInitWss = () => {
-  if (document.hidden) return;
-
-  ws.start();
-
-  ws.on('open', () => {
-    if (authStore.isLogin && ws.connected) {
-      ws.send(
-        JSON.stringify({
-          type: 'authenticate', payload: {token: authStore.user?.token}
-        })
-      );
-    }
-    service.value.status = 1;
-    startWsTimer();
-  });
-
-  ws.on('close', () => {
-    service.value.status = -1;
-    clearWsTimer();
-  });
-
-  ws.on('error', (error: any) => {
-    service.value.status = -1;
-    clearWsTimer();
-  });
-
-  ws.on('message', (event: MessageEvent) => {
-    try {
-      const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-      if (!data || !data.type) return;
-
-      switch (data.type) {
-        case 'new_team_up':
-          notice.success(t('basic.tips.teamUp.pushSuccess'));
-          onCleanPushInfo();
-          getTeams(getTeamsType.none);
-          pushLoading.value = false;
-          pushModel.value = false;
-          break;
-
-        case 'cancel_team_up':
-          const idToRemove = data.payload?.id;
-          if (idToRemove) {
-            teams.value = teams.value.filter(item => item.id !== idToRemove);
-          }
-          break;
-
-        case 'team_up_expired':
-          const idToExpire = data.payload?.id;
-          if (idToExpire) {
-            teams.value = teams.value.filter(item => item.id !== idToExpire);
-          } else {
-            getTeams(getTeamsType.none);
-          }
-          break;
-
-        case 'publish_rate_limit':
-          let _remainingTime = 1;
-          if (data.code === 'teamUp.anonymous.rateLimit' || data.code === 'teamUp_anonymous_rateLimit') {
-            _remainingTime = Math.ceil((data.remainingTime || 3600000) / 1000 / 60);
-          } else if (data.code === 'teamUp.account.rateLimit' || data.code === 'teamUp_account_rateLimit') {
-            _remainingTime = Math.ceil((data.remainingTime || 120000) / 1000 / 60);
-          }
-
-          notice.warning(t(`basic.tips.${data.code}`, {remainingTime: _remainingTime}) || `发布频繁，请${_remainingTime}分钟后再试`);
-          pushLoading.value = false;
-          pushModel.value = false;
-          break;
-
-        case 'auth_failed':
-          notice.warning(t(`basic.tips.${data.code}`) || '认证失败');
-          authStore.logout();
-          break;
-
-        case 'error':
-          console.error('WS error message:', data);
-          notice.error(t(`basic.tips.teamUp.error`, {
-            context: data.message || '操作失败'
-          }));
-          pushLoading.value = false;
-          break;
-      }
-    } catch (err) {
-      console.error('解析 WS 消息失败:', err);
-    }
-  });
-}
-
-/**
- * 手动重连 WebSocket
- */
-const onWsReconnect = () => {
-  service.value.loading = true;
-  ws.close();
-  clearWsTimer();
-  onInitWss();
-  setTimeout(() => {
-    service.value.loading = false;
-  }, 1000);
-}
 </script>
 
 <template>
@@ -502,122 +547,131 @@ const onWsReconnect = () => {
       <div class="bg-black">
         <v-container>
           <v-row>
-            <v-col cols="12" sm="12" md="6" lg="3" xl="6">
-              <v-btn @click="pushModel = true" class="h-100 mr-1" variant="elevated">
+            <v-col cols="12" sm="12" md="6" lg xl>
+              <v-btn @click="onOpenPush" class="h-100 mr-1" variant="elevated">
                 <v-icon icon="mdi-plus"></v-icon>
                 {{ t('teamUp.pushBtn') }}
               </v-btn>
 
               <v-btn @click="getTeams(getTeamsType.none)" class="h-100" variant="elevated">
-                <v-icon :class="[
-                teamsLoading ?  'spin-icon-load' : ''
-            ]" icon="mdi-refresh" size="20"/>
+                <v-icon :class="[teamsLoading ?  'spin-icon-load' : '']" icon="mdi-refresh" size="20"/>
               </v-btn>
+            </v-col>
+            <v-col cols="12" sm="12" md="6" lg="auto" xl="auto" class="d-flex justify-md-end align-center ga-2 flex-wrap">
+              <v-select
+                  v-model="refreshConfig.interval"
+                  :items="[
+                    {title: '10s', value: 10},
+                    {title: '15s', value: 15},
+                    {title: '30s', value: 30},
+                    {title: '60s', value: 60},
+                    {title: '120s', value: 120},
+                    {title: t('teamUp.refresh.custom'), value: 0}
+                  ]"
+                  density="compact"
+                  variant="outlined"
+                  hide-details
+                  :disabled="refreshConfig.enabled"
+                  style="max-width: 120px;"></v-select>
 
-            </v-col>
-            <v-col cols="12" sm="12" md="6" lg="3" xl="6" class="d-flex justify-md-end">
-              <v-btn class="d-lg-block w-sm-100 w-lg-auto w-xl-auto h-100" variant="tonal">
-                <template v-if="service.status == 1">
-                  {{ t('teamUp.service.normal') }}
-                </template>
-                <template v-if="service.status == -1">
-                  {{ t('teamUp.service.disconnected') }}
-                  <v-btn class="ml-2" :loading="service.loading" :disabled="service.loading" density="compact" @click="onWsReconnect">
-                    {{ t('teamUp.service.reconnect') }}
-                  </v-btn>
-                </template>
-                <template v-if="service.status == 0">
-                  {{ t('teamUp.service.unsubscribed') }}
-                  <v-btn class="ml-2" :loading="service.loading" :disabled="service.loading" density="compact" @click="onWsReconnect">
-                    {{ t('teamUp.service.connect') }}
-                    <v-icon icon="mdi-rotate-right"></v-icon>
-                  </v-btn>
-                </template>
-                <v-badge dot offset-x="-10" offset-y="-15" :color="service.status == 1 ? '#2ec70d' : 'red'"></v-badge>
-                <v-divider class="mt-n2 mb-n2 ml-5 mr-3" vertical></v-divider>
-                <v-icon icon="mdi-help-circle-outline" v-tooltip="t('teamUp.service.tooltip')"></v-icon>
+              <v-text-field
+                  v-if="refreshConfig.interval === 0"
+                  v-model.number="refreshConfig.customInterval"
+                  type="number"
+                  min="5"
+                  max="3600"
+                  suffix="s"
+                  density="compact"
+                  variant="outlined"
+                  hide-details
+                  :disabled="refreshConfig.enabled"
+                  style="max-width: 110px;"></v-text-field>
+
+              <v-btn
+                  :color="refreshConfig.enabled ? 'error' : 'primary'"
+                  variant="tonal"
+                  @click="onToggleRefresh">
+                <v-icon :icon="refreshConfig.enabled ? 'mdi-stop' : 'mdi-timer-play'" class="mr-1"></v-icon>
+                {{ refreshConfig.enabled ? t('teamUp.refresh.stop') : t('teamUp.refresh.startBtn') }}
               </v-btn>
             </v-col>
-            <v-col cols="12" sm="6" md="12" lg="3" xl="3">
+          </v-row>
+        </v-container>
+      </div>
+    </AffixContainerView>
+
+    <v-container class="team">
+      <AdsWidget id="none"></AdsWidget>
+
+      <v-row>
+        <v-col cols="12" lg="4">
+          <AffixBoxHasTitleView>
+            <template v-slot:title>{{ t('team.filter') }}</template>
+
+            <v-col cols="12">
               <v-select v-model="filtering.sortBy"
                         @update:modelValue="onTeamSortBy"
-                        density="comfortable"
-                        variant="solo-filled"
                         :label="t('teamUp.filter.sortLabel')"
-                        hide-details
                         item-title="label"
                         item-value="value"
                         :items="[{value: 'recent', label: t('teamUp.filter.sortByRecent')},{value: 'expires', label: t('teamUp.filter.sortByExpires')}]">
               </v-select>
             </v-col>
-            <v-col cols="12" sm="6" md="12" lg="3" xl="3">
+            <v-col cols="12">
               <v-text-field :placeholder="t('basic.button.search')"
-                            hide-details
-                            variant="solo-filled"
-                            density="comfortable" v-model="filtering.keyword">
+                            v-model="filtering.keyword">
                 <template v-slot:append-inner>
-                  <v-btn density="compact" :disabled="!filtering.keyword" icon @click="onSearch">
+                  <v-icon-btn :disabled="!filtering.keyword" @click="onSearch">
                     <v-icon icon="mdi-search-web"></v-icon>
-                  </v-btn>
+                  </v-icon-btn>
                 </template>
               </v-text-field>
             </v-col>
-          </v-row>
-        </v-container>
-      </div>
-      <v-divider></v-divider>
-    </AffixContainerView>
+          </AffixBoxHasTitleView>
+        </v-col>
 
-    <v-container class="team">
-      <div class="fill-height">
-        <AdsWidget class="my-5" id="none"></AdsWidget>
+        <v-col cols="12" lg="8" class="fill-height">
+          <template v-if="teams.length > 0">
+            <v-list class="bg-transparent">
+              <v-infinite-scroll :items="teams"
+                                 mode="manual"
+                                 @load="onTeamLoad">
+                <template v-for="(i, index) in teams" :key="index">
+                  <v-list-item class="bg-transparent">
+<!--                    <template v-slot:prepend>-->
+<!--                      <v-card class="team-icon pa-4">-->
+<!--                        <v-icon icon="mdi-access-point" size="30"></v-icon>-->
+<!--                      </v-card>-->
+<!--                    </template>-->
 
-        <template v-if="teams.length > 0">
-          <div class="mt-5">
-            <v-infinite-scroll :items="teams"
-                               mode="manual"
-                               @load="onTeamLoad">
-              <template v-for="(i, index) in teams" :key="index">
-                <v-card card border variant="flat" class="bg-black">
-                  <v-row class="ma-5">
-                    <v-col cols="3" sm="2" md="1" lg="1">
-                      <v-avatar class="mr-2 team-icon" size="70">
-                        <v-icon
-                            icon="mdi-access-point"
-                            size="50"
-                        ></v-icon>
-                      </v-avatar>
-                    </v-col>
-                    <v-col cols="9" sm="9" md="11" lg="11">
-                      <div class="mb-2">
-                        <v-row align="center">
-                          <v-col cols="8">
-                            <div class="description">
-                              <b class="mr-3 text-emphasis">
+                    <template v-slot:title>
+                      <v-row align="start">
+                        <v-col cols="8">
+                          <div class="description font-weight-bold text-amber text-h5">
                                 <Textarea
-                                    :min-height="'40px'"
+                                    :min-height="'auto'"
                                     :value="i.description || t('teamUp.emptyDescription')"
                                     :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
-                                    :readonly="true">
-                                </Textarea>
-                              </b>
-                            </div>
-                          </v-col>
-                          <v-spacer></v-spacer>
-                          <v-col cols="3" align="right" class="mr-2">
-                            <v-badge
-                                class="badge-flavor teamUp-tag-badge mr-1"
-                                color="transparent"
-                                v-for="(tag,tagIndex) in i.tags"
-                                :key="tagIndex"
-                                :content="t(`teamUp.tags.${tag}`)"
-                                inline
-                            ></v-badge>
-                          </v-col>
-                        </v-row>
-                      </div>
-                      <v-row class="pl-2 mb-2 font-weight-light" justify="start" align="center">
-                        <div class="mr-3">
+                                    readonly>
+                                  </Textarea>
+                          </div>
+                        </v-col>
+                        <v-col cols="auto" align="right" class="d-flex ga-1">
+                          <v-badge
+                              class="badge-flavor teamUp-tag-badge"
+                              color="transparent"
+                              v-for="(tag,tagIndex) in i.tags"
+                              :key="tagIndex"
+                              :content="t(`teamUp.tags.${tag}`)"
+                              inline
+                          ></v-badge>
+                        </v-col>
+                      </v-row>
+                    </template>
+
+                    <template v-slot:subtitle>
+                      <v-row class="mt-4 font-weight-light" align="center">
+                        <v-col cols="auto">
                           <v-icon icon="mdi-account" class="mr-1" size="17"></v-icon>
                           <template v-if="i.username">
                             {{ i.username || t('teamUp.emptyUsername') }}
@@ -625,181 +679,245 @@ const onWsReconnect = () => {
                           <template v-else>
                             {{ t('teamUp.emptyUsername') }}
                           </template>
-                        </div>
-                        <div class="mr-3">
+                        </v-col>
+                        <v-col cols="auto">
                           <v-icon icon="mdi-calendar-range" class="mr-1" size="17"></v-icon>
-                          <TimeView :time="formatTimestamp(i.createdAt)">
-                          </TimeView>
-                        </div>
-                        <div v-tooltip="`${t('teamUp.hornValidTimeTooltip')}: ${new Date(formatTimestamp(i.expiresAt)).toLocaleString()}`">
+                          <TimeView :time="formatTimestamp(i.createdAt)"></TimeView>
+                        </v-col>
+                        <v-col cols="auto" v-tooltip="`${t('teamUp.hornValidTimeTooltip')}: ${new Date(formatTimestamp(i.expiresAt)).toLocaleString()}`">
                           <v-icon icon="mdi-update" class="mr-1" size="17"></v-icon>
                           {{ t('teamUp.expiresLabel') }}：{{ getRemainingHornTime(i.expiresAt) }}
-                        </div>
+                        </v-col>
                       </v-row>
-                    </v-col>
-                  </v-row>
-                  <v-divider opacity=".08" class="mt-0 mb-0"></v-divider>
-                  <v-row class="pl-10 pr-5" align="center">
-                    <v-col>
-                      <v-text-field langth="10"
-                                    width="300"
-                                    :label="t('teamUp.copyPlayerHint', { player: i.player })"
-                                    variant="underlined"
-                                    :placeholder="t('teamUp.form.player')"
-                                    :value="i.player || t('teamUp.emptyPlayer')">
-                        <template v-slot:append-inner>
-                          <v-btn density="compact" @click="copyToClipboard(i.player)">{{ t('teamUp.copyPlayerBtn') }}</v-btn>
-                        </template>
-                      </v-text-field>
-                    </v-col>
-                    <v-spacer></v-spacer>
-                    <v-col align="right">
-                      <v-btn class="btn-flavor" @click="onDeleteTeamUp(i.id)" v-if="authStore.isLogin && authStore.user.userId == i.userId">
-                        {{ t('teamUp.deleteBtn') }}
-                      </v-btn>
-                    </v-col>
-                  </v-row>
-                </v-card>
-              </template>
-              <template v-slot:loading>
-                <v-btn density="comfortable" icon>
-                  <Loading :size="42"></Loading>
-                </v-btn>
-              </template>
-              <template v-slot:load-more="{ props }">
-                <v-btn
-                    icon="mdi-refresh"
-                    size="small"
-                    variant="text"
-                    v-bind="props"
-                ></v-btn>
-              </template>
-            </v-infinite-scroll>
-          </div>
-        </template>
-        <template v-else-if="teams.length <= 0">
-          <v-card variant="text" class="mt-5 pt-5 pb-5">
-            <EmptyView>
-              <div class="mt-5">
-                <v-btn @click="getTeams(getTeamsType.none)" class=" btn-flavor" variant="elevated">
-                  <v-icon :class="[
+                    </template>
+
+                    <v-row align="start" class="mt-4">
+                      <v-col>
+                        <div class="d-flex align-center ga-2">
+                          {{ t('teamUp.form.player') }}
+                          <v-code class="py-0">
+                            {{ i.player || t('teamUp.emptyPlayer') }}
+                          </v-code>
+                        </div>
+                        <p class="text-caption opacity-60">{{ t('teamUp.copyPlayerHint', {player: i.player}) }}</p>
+                      </v-col>
+                      <v-col cols="auto" class="d-flex ga-2">
+                        <v-btn variant="tonal" @click="copyToClipboard(i.player)">{{ t('teamUp.copyPlayerBtn') }}</v-btn>
+
+                        <v-icon-btn
+                            v-if="authStore.isLogin && authStore.user.userId == i.userId && i.push"
+                            :color="getPushColor(i.push.status)"
+                            :disabled="!i.push.canRetry"
+                            v-tooltip="getPushTooltip(i.push)"
+                            @click="onRetryPush(i)">
+                          <v-icon icon="mdi-qqchat" size="20"></v-icon>
+                        </v-icon-btn>
+
+                        <v-btn
+                            variant="tonal"
+                            color="red"
+                            @click="onDeleteTeamUp(i.id)"
+                            v-if="authStore.isLogin && authStore.user.userId == i.userId">
+                          {{ t('teamUp.deleteBtn') }}
+                        </v-btn>
+                      </v-col>
+                    </v-row>
+                  </v-list-item>
+                </template>
+                <template v-slot:loading>
+                  <v-btn density="comfortable" icon>
+                    <Loading :size="42"></Loading>
+                  </v-btn>
+                </template>
+                <template v-slot:load-more="{ props }">
+                  <v-btn
+                      icon="mdi-refresh"
+                      size="small"
+                      variant="text"
+                      v-bind="props"
+                  ></v-btn>
+                </template>
+              </v-infinite-scroll>
+            </v-list>
+          </template>
+          <template v-else-if="teams.length <= 0">
+            <v-card variant="text" class="mt-5 pt-5 pb-5">
+              <EmptyView>
+                <div class="mt-5">
+                  <v-btn @click="getTeams(getTeamsType.none)" class=" btn-flavor" variant="elevated">
+                    <v-icon :class="[
                 teamsLoading ?  'spin-icon-load' : ''
             ]" icon="mdi-refresh" size="20"/>
-                </v-btn>
-              </div>
-            </EmptyView>
-          </v-card>
-        </template>
-
-        <!-- 会话重连 S -->
-        <v-dialog max-width="500">
-          <template v-slot:default="{ isActive }">
-            <v-card title="Dialog">
-              <v-card-text>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-              </v-card-text>
-
-              <v-card-actions>
-                <v-spacer></v-spacer>
-
-                <v-btn
-                    block
-                    text="Close Dialog"
-                    @click="isActive.value = false"
-                ></v-btn>
-              </v-card-actions>
+                  </v-btn>
+                </div>
+              </EmptyView>
             </v-card>
           </template>
-        </v-dialog>
 
-        <v-fab
-            :app="true"
-            :color="`var(--main-color)`"
-            location="right bottom"
-            size="large"
-            @click="pushModel = true"
-            icon>
-          <v-icon>mdi-plus</v-icon>
+          <!-- 会话重连 S -->
+          <v-dialog max-width="500">
+            <template v-slot:default="{ isActive }">
+              <v-card title="Dialog">
+                <v-card-text>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </v-card-text>
 
-          <v-dialog
-              location="bottom"
-              v-model="pushModel"
-              width="100%">
-            <v-container>
-              <v-card border class="team pa-5 mt-10">
-                <v-form ref="pushForm">
-                  <v-row class="bg-black mx-n5 my-n5 px-5 py-4">
-                    <v-col>
-                      <div v-if="authStore.isLogin">
-                        <p v-html="t('teamUp.pushLoginInfo', {
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+
+                  <v-btn
+                      block
+                      text="Close Dialog"
+                      @click="isActive.value = false"
+                  ></v-btn>
+                </v-card-actions>
+              </v-card>
+            </template>
+          </v-dialog>
+
+          <v-fab
+              :app="true"
+              :color="`var(--main-color)`"
+              location="right bottom"
+              size="large"
+              @click="onOpenPush"
+              icon>
+            <v-icon>mdi-plus</v-icon>
+
+            <v-dialog
+                location="bottom"
+                v-model="pushModel"
+                width="100%">
+              <v-container>
+                <v-card border class="team pa-5 mt-10">
+                  <v-form ref="pushForm">
+                    <v-row class="bg-black mx-n5 my-n5 px-5 py-4">
+                      <v-col>
+                        <div v-if="authStore.isLogin">
+                          <p v-html="t('teamUp.pushLoginInfo', {
                       username: `<u class='text-emphasis'>${authStore.currentUser}</u>`
                       })"></p>
-                      </div>
-                      <div v-else>
-                        <p v-html='t("teamUp.pushLoginInfo", {
+                        </div>
+                        <div v-else>
+                          <p v-html='t("teamUp.pushLoginInfo", {
                       username: `<u class="text-emphasis">${t("teamUp.emptyUsername")}</u>`
                       })'></p>
-                      </div>
-                    </v-col>
-                  </v-row>
+                        </div>
+                      </v-col>
+                    </v-row>
 
-                  <v-row class="mt-8">
-                    <v-col cols="12" lg="3">
-                      <v-text-field v-model="player"
-                                    variant="filled"
-                                    density="comfortable"
-                                    @update:model-value="onStoragePlayer()"
-                                    :rules="pushConfig.rules.player"
-                                    :placeholder="t('teamUp.form.player')"></v-text-field>
-                    </v-col>
-                    <v-col cols="12" lg="3">
-                      <v-select density="comfortable"
-                                v-model="expiresMinutesAt"
-                                :label="t('teamUp.form.time')"
-                                item-title="label"
-                                item-value="value"
-                                :items="pushConfig.time">
-                      </v-select>
-                    </v-col>
-                    <v-col cols="12" lg="6">
-                      <v-combobox
-                          :label="t('teamUp.form.tagsLabel')"
-                          chips
-                          multiple
-                          density="comfortable"
-                          v-model="tags"
-                          clearable
-                          @update:modelValue="onStoragePlayer"
-                          item-title="label"
-                          item-value="value"
-                          :hide-no-data="true"
-                          :items="pushConfig.tags"></v-combobox>
-                    </v-col>
-                    <v-spacer></v-spacer>
-                  </v-row>
-                  <Textarea
-                      v-model="description"
-                      :placeholder="t('teamUp.form.descriptionPlaceholder')"
-                      :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
-                      :height="'300px'"
-                      @focused="onStoragePlayer"
-                      @blur="onStoragePlayer"></Textarea>
+                    <v-row class="mt-8">
+                      <v-col cols="12" lg="3">
+                        <v-text-field v-model="player"
+                                      variant="filled"
+                                      density="comfortable"
+                                      @update:model-value="onStoragePlayer()"
+                                      :rules="pushConfig.rules.player"
+                                      :placeholder="t('teamUp.form.player')"></v-text-field>
+                      </v-col>
+                      <v-col cols="12" lg="3">
+                        <v-select density="comfortable"
+                                  v-model="expiresMinutesAt"
+                                  :label="t('teamUp.form.time')"
+                                  item-title="label"
+                                  item-value="value"
+                                  :items="pushConfig.time">
+                        </v-select>
+                      </v-col>
+                      <v-col cols="12" lg="6">
+                        <v-combobox
+                            :label="t('teamUp.form.tagsLabel')"
+                            chips
+                            multiple
+                            density="comfortable"
+                            v-model="tags"
+                            clearable
+                            @update:modelValue="onStoragePlayer"
+                            item-title="label"
+                            item-value="value"
+                            :hide-no-data="true"
+                            :items="pushConfig.tags"></v-combobox>
+                      </v-col>
+                      <v-col cols="12" lg="12" v-if="authStore.isLogin">
+                        <div class="d-flex flex-wrap ga-3 align-center">
+                          <v-checkbox
+                              v-model="pushSyncEnabled"
+                              :label="t('teamUp.form.pushSync')"
+                              color="amber"
+                              density="comfortable"
+                              hide-details
+                              class="flex-grow-0"
+                              @update:model-value="onStoragePushTargets"></v-checkbox>
 
-                  <v-row class="mt-4 pa-2">
-                    <v-spacer></v-spacer>
-                    <v-btn-group border>
-                      <v-btn variant="text" width="80" @click="pushModel = false">{{ t('basic.button.cancel') }}</v-btn>
-                      <v-btn @click="pushTeamInfo" color="#000" width="200" :loading="pushLoading">{{ t('teamUp.form.publishBtn') }}</v-btn>
-                    </v-btn-group>
-                  </v-row>
-                </v-form>
-              </v-card>
-            </v-container>
-          </v-dialog>
-        </v-fab>
+                          <v-select
+                              v-model="pushTargetPlatform"
+                              :items="pushTargets.filter((p) => p.bound)"
+                              item-title="label"
+                              item-value="value"
+                              :label="t('teamUp.form.pushPlatform')"
+                              density="comfortable"
+                              variant="filled"
+                              hide-details
+                              :loading="pushTargetsLoading"
+                              :disabled="!pushSyncEnabled || !pushAccess.allowed"
+                              style="max-width: 180px;"
+                              @update:model-value="onPushPlatformChange"></v-select>
 
-        <AdsWidget class="my-5" id="none"></AdsWidget>
-      </div>
+                          <v-select
+                              v-model="pushBotIds"
+                              :items="currentPushBots"
+                              :item-title="onPushBotTitle"
+                              item-value="id"
+                              :label="t('teamUp.form.pushRobots')"
+                              multiple
+                              chips
+                              closable-chips
+                              density="comfortable"
+                              variant="filled"
+                              hide-details
+                              :disabled="!pushSyncEnabled || !pushAccess.allowed || !currentPlatformBound"
+                              style="min-width: 280px; flex: 1;"
+                              @update:model-value="onStoragePushTargets"></v-select>
+                        </div>
+                        <template v-if="pushSyncEnabled">
+                          <p class="text-caption opacity-60 mt-1" v-if="pushAccess.checked && !pushAccess.allowed">
+                            {{ t('teamUp.form.syncToQqSubscriptionRequired') }}
+                          </p>
+                          <p class="text-caption opacity-60 mt-1" v-else-if="!pushTargets.some((p) => p.bound)">
+                            {{ t('teamUp.form.syncToQqBindingRequired') }}
+                          </p>
+                          <p class="text-caption opacity-60 mt-1" v-else>
+                            {{ t('teamUp.form.syncToQqHint') }}
+                          </p>
+                        </template>
+                      </v-col>
+                      <v-spacer></v-spacer>
+                    </v-row>
+                    <Textarea
+                        ref="descriptionEditor"
+                        v-model="description"
+                        :placeholder="t('teamUp.form.descriptionPlaceholder')"
+                        :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
+                        :height="'300px'"
+                        @focused="onStoragePlayer"
+                        @blur="onStoragePlayer"></Textarea>
+
+                    <v-row class="mt-4 pa-2">
+                      <v-spacer></v-spacer>
+                      <v-btn-group border>
+                        <v-btn variant="text" width="80" @click="pushModel = false">{{ t('basic.button.cancel') }}</v-btn>
+                        <v-btn @click="pushTeamInfo" color="#000" width="200" :loading="pushLoading">{{ t('teamUp.form.publishBtn') }}</v-btn>
+                      </v-btn-group>
+                    </v-row>
+                  </v-form>
+                </v-card>
+              </v-container>
+            </v-dialog>
+          </v-fab>
+
+          <AdsWidget class="my-5" id="none"></AdsWidget>
+        </v-col>
+      </v-row>
     </v-container>
   </v-main>
 </template>

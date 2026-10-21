@@ -640,6 +640,40 @@
       "operateSuccess": "操作成功",
       "ranking": {
         "error": "操作失败：{context}"
+      },
+      "bot": {
+        "account": {
+          "pushNow": {
+            "failed": "推送失败，请检查机器人服务是否在线、群是否允许主动推送",
+            "cooldown": "主动推送冷却中，请稍后再试"
+          },
+          "command": {
+            "failed": "指令执行失败，请检查机器人服务是否在线"
+          },
+          "group": {
+            "refreshFailed": "刷新群信息失败",
+            "updateFailed": "保存群配置失败"
+          },
+          "bindCode": {
+            "failed": "生成绑定验证码失败"
+          }
+        },
+        "pushNow": {
+          "failed": "推送失败，请检查机器人服务或群推送权限",
+          "dailyEmpty": "日报生成失败",
+          "dropEmpty": "暂无可推送的掉宝活动",
+          "badType": "不支持的推送类型"
+        },
+        "group": {
+          "refreshFailed": "刷新群信息失败",
+          "bindFailed": "群绑定失败"
+        },
+        "subscriptionRequired": "需要有效的赞助订阅档位",
+        "quotaExceeded": "今日主动推送额度已用完",
+        "groupNotFound": "群记录不存在",
+        "notFound": "站点未登记当前机器人",
+        "serviceUnavailable": "机器人服务不可用",
+        "signatureInvalid": "签名校验失败，请检查共享密钥"
       }
     },
     "errorCodes": {
@@ -1248,7 +1282,163 @@
     "preference": "偏好设置",
     "trashRestoreConfirm": "确定要恢复该项目吗？",
     "trashRestoreBatchConfirm": "确定要恢复选中的项目吗？",
-    "trashRestoreSuccess": "恢复成功"
+    "trashRestoreSuccess": "恢复成功",
+    "bot": {
+      "title": "机器人",
+      "guide": {
+        "title": "机器人引导",
+        "subtitle": "把闪耀船首机器人接入你的群组",
+        "intro": "「闪耀船首」机器人可以为你的群提供航海日报、组队、掉宝与签到等服务。绑定群后，可在本页面统一管理推送开关与群配置。",
+        "openBotDoc": "查看机器人功能文档",
+        "step1Title": "邀请机器人入群",
+        "step1Desc": "在群组中添加「闪耀船首」机器人，并允许机器人接收主动消息。",
+        "step2Title": "生成绑定验证码",
+        "step2Desc": "填写群号与管理口令，生成一次性的群绑定验证码。",
+        "step3Title": "群内完成绑定",
+        "step3Desc": "由群主或群管理员在群内发送 /群组绑定 <验证码>，完成后即可在此管理。",
+        "bindTitle": "绑定群组",
+        "bindDesc": "群号用于标识目标群，管理口令仅用于后续管理验证，服务端只保存散列值。",
+        "platform": "选择平台",
+        "bot": "选择机器人",
+        "groupNumber": "群组号码",
+        "password": "管理口令",
+        "passwordHint": "至少 6 位，请妥善保管",
+        "managePasswordTitle": "管理口令说明",
+        "managePasswordDesc": "这里设置的管理口令用于群内管理指令的身份校验，站点不会保存明文；遗忘口令时重新生成一次绑定验证码即可覆盖。",
+        "generateCode": "生成绑定验证码",
+        "codeDialogTitle": "群组绑定验证码",
+        "botJoined": "已检测到机器人加入该群组。",
+        "botNotJoined": "未检测到该机器人已加入此群组，请先在群组中邀请机器人；若已加入可忽略此提示。",
+        "usageTitle": "使用说明",
+        "formInvalid": "请完整填写机器人、群号与至少 6 位管理口令",
+        "codeCreated": "验证码已生成",
+        "codeHint": "验证码 {minutes} 分钟内有效，请尽快在群内使用。",
+        "copyCommand": "复制指令",
+        "codeUsage": "请让群主或群管理员在目标群发送上面的指令；机器人会读取群 OpenID 完成绑定。",
+        "checkBound": "我已完成绑定",
+        "bound": "绑定成功，正在进入管理",
+        "notYet": "尚未检测到绑定，请确认群内指令已发送成功。"
+      },
+      "overview": {
+        "title": "概览",
+        "groups": "已绑定群组",
+        "groupsUnit": "个",
+        "subscribedGroups": "已订阅组队推送",
+        "sent": "推送成功",
+        "failed": "推送失败",
+        "timesUnit": "次",
+        "quotaTitle": "今日主动推送额度",
+        "quotaDesc": "已使用 {used} / {limit} 次",
+        "tier": "当前档位：{tier}",
+        "tierNone": "未订阅",
+        "toManage": "进入群管理",
+        "toGuide": "添加群组",
+        "toTeamup": "前往组队大厅",
+        "guideBtn": "机器人引导"
+      },
+      "manage": {
+        "title": "群管理",
+        "subtitle": "管理机器人所在群的推送与基础信息",
+        "addGroup": "添加群组",
+        "empty": "还没有绑定的群组，先按引导完成绑定吧。",
+        "groupNumber": "群号",
+        "pushOn": "推送正常",
+        "pushOff": "推送关闭",
+        "settings": "设置",
+        "remove": "解绑",
+        "deleteConfirm": "确定解除群「{name}」的绑定吗？解除后机器人将不再接收该群配置。",
+        "panelTitle": "群设置 · {name}",
+        "columns": {
+          "group": "群组",
+          "platform": "平台",
+          "bot": "机器人",
+          "push": "推送",
+          "actions": "操作"
+        },
+        "tabs": {
+          "base": "基础信息",
+          "push": "推送设置",
+          "commands": "命令",
+          "quota": "额度",
+          "signin": "签到"
+        },
+        "info": {
+          "name": "群名称",
+          "groupNumber": "群号",
+          "members": "群成员",
+          "description": "群简介",
+          "openid": "群 OpenID",
+          "unavailable": "暂时无法从 QQ 获取群信息，机器人服务可能离线。",
+          "class": "群分类",
+          "owner": "群主",
+          "addedBy": "添加者 OpenID",
+          "botRole": "机器人角色",
+          "msgRange": "机器人可获取消息范围",
+          "joinedAt": "机器人入群时间",
+          "syncTime": "最近同步",
+          "tags": "群标签",
+          "noAvatar": "QQ 开放平台不提供群头像"
+        },
+        "pushReadonlyHint": "「主动推送」是否可用由 QQ 群设置决定，需要群主在 QQ 群内允许机器人推送消息，本页面只读展示。",
+        "activePush": "主动推送",
+        "activePushDesc": "由 QQ 群设置与机器人事件同步，无法在网站直接开启",
+        "dailyReport": "日报推送",
+        "dailyReportDesc": "按设定时间向本群推送航海日报",
+        "dailyTimes": "推送时间",
+        "dailyTimesHint": "24 小时制，可添加多个时间，例如 09:00",
+        "teamupPush": "组队推送",
+        "teamupPushDesc": "接收网页端选择同步 QQ 的组队信息",
+        "dropPush": "掉宝推送",
+        "dropPushDesc": "官方上线新 Twitch 掉宝时提醒本群",
+        "welcome": "群员入群欢迎语",
+        "welcomeDesc": "新成员入群时由机器人发送欢迎消息",
+        "welcomeContent": "欢迎语内容",
+        "quota": {
+          "user": "账号今日额度",
+          "group": "本群今日接收额度",
+          "rateLimit": "频控规则：机器人 {botQpm} 条/分钟，单关系 {relationQpm} 条/分钟，单群每天最多 1000 条。"
+        },
+        "signin": {
+          "user": "用户",
+          "days": "本月签到",
+          "last": "最近签到",
+          "monthHint": "仅统计本自然月内的签到记录。",
+          "empty": "本群本月暂无签到记录。"
+        },
+        "commands": {
+          "title": "机器人命令",
+          "hint": "命令由机器人实时上报。发送「/指令 帮助」后，机器人会把帮助内容直接发到群里。",
+          "input": "命令",
+          "placeholder": "例如 /管理 帮助",
+          "send": "发送",
+          "use": "填入",
+          "sent": "已发送到群聊",
+          "sendFailed": "命令已执行，但消息未能发送到群聊",
+          "notFound": "没有匹配到该命令，请检查指令前缀。",
+          "helpOnly": "面板目前只支持执行帮助类命令，请在群内发送完整指令。",
+          "empty": "暂未获取到机器人命令。"
+        },
+        "refresh": "主动刷新",
+        "refreshed": "群信息已刷新",
+        "pushNow": "立即推送",
+        "pushTeamupList": "推送组队列表",
+        "pushNowSuccess": "已触发推送",
+        "pushCooldownHint": "主动推送冷却中，剩余 {time}",
+        "pushUnknown": "无法获取推送状态",
+        "msgRange": {
+          "all": "全部群消息",
+          "only_mention": "仅 @ 机器人",
+          "mention_and_context": "@ 机器人及上下文"
+        },
+        "groupFallback": "群"
+      },
+      "noAccess": "机器人模块仅对有效赞助订阅用户开放（5 / 10 / 50 / 100 档位）。订阅到期后将暂停管理，已保存的群配置与推送设置会保留，续费后自动恢复。",
+      "display": {
+        "qq": "QQ号",
+        "appid": "AppID"
+      },
+      "subscribeNow": "前往订阅"
+    }
   },
   "activate": {
     "title": "账户激活",
@@ -2517,20 +2707,11 @@
     "emptyUsername": "匿名船长",
     "emptyDescription": "这个人很懒，什么都没写",
     "pushLoginInfo": "👋 {username}, 组建舰队吧，起航！",
-    "wsTimeoutTip": "WebSocket 订阅已达到 20 分钟上限，已自动断开以节省资源。刷新列表或点击重连可重新订阅。",
     "reconnectFailed": "重连依旧失败",
     "rules": {
       "playerRequired": "请输入玩家 ID",
       "descriptionRequired": "请输入内容描述",
       "descriptionLength": "内容长度需在 3 至 300 个字符之间"
-    },
-    "service": {
-      "normal": "服务正常",
-      "disconnected": "服务断开",
-      "unsubscribed": "服务未订阅",
-      "reconnect": "重连",
-      "connect": "连接",
-      "tooltip": "此服务向服务器订阅事件，当收到信息则自动更新列表"
     },
     "filter": {
       "sortLabel": "排序",
@@ -2542,7 +2723,13 @@
       "time": "愿意等待时间",
       "tagsLabel": "标签",
       "publishBtn": "发布",
-      "descriptionPlaceholder": "组队描述，也可以放置你的语音频道"
+      "descriptionPlaceholder": "组队描述，也可以放置你的语音频道",
+      "syncToQqHint": "仅推送到已通过 /组队 订阅的群，按周期合并发送",
+      "syncToQqSubscriptionRequired": "需要有效的赞助订阅档位才能使用机器人推送",
+      "syncToQqBindingRequired": "请先在机器人私聊中发送 /绑定账户 绑定 QQ 身份",
+      "pushPlatform": "推送平台",
+      "pushRobots": "推送机器人（可多选）",
+      "pushSync": "同步推送到机器人"
     },
     "time": {
       "minutes": "{count}分钟",
@@ -2560,7 +2747,24 @@
       "other": "其他"
     },
     "searchPlaceholder": "搜索招募描述或玩家名...",
-    "create": "发布招募"
+    "create": "发布招募",
+    "push": {
+      "queued": "已加入 QQ 推送队列，将按周期推送",
+      "queuedWithFailure": "组队已发布，但部分平台未能进入推送队列，请稍后在列表重试",
+      "retryQueued": "已重新加入推送队列",
+      "status": {
+        "pending": "等待推送",
+        "sending": "推送中",
+        "sent": "推送成功",
+        "failed": "推送失败"
+      }
+    },
+    "refresh": {
+      "custom": "自定义",
+      "startBtn": "开始定时刷新",
+      "stop": "停止刷新",
+      "stopped": "已停止定时刷新"
+    }
   },
   "assembly": {
     "title": "配装厂",

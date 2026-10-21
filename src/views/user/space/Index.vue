@@ -49,35 +49,13 @@
                     density="comfortable"
                     class="primary-tabs"
                     v-if="isSelf">
-                  <v-tab value="MeAccount"
+                  <v-tab v-for="item in primaryNavItems"
+                         :key="item.value"
+                         :value="item.value"
                          class="font-weight-bold text-subtitle-1 px-8"
-                         :class="{'v-tab--route-active': primaryNavMenu === 'MeAccount'}"
-                         :to="{ name: 'AccountInformation' }">
-                    {{ t('account.title') }}
-                  </v-tab>
-                  <v-tab value="MeDataCenter"
-                         class="font-weight-bold text-subtitle-1 px-8"
-                         :class="{'v-tab--route-active': primaryNavMenu === 'MeDataCenter'}"
-                         :to="{ name: 'AccountDataCenter' }">
-                    {{ t('account.dataCenter.title') }}
-                  </v-tab>
-                  <v-tab value="MeMessageCenter"
-                         class="font-weight-bold text-subtitle-1 px-8"
-                         :class="{'v-tab--route-active': primaryNavMenu === 'MeMessageCenter'}"
-                         :to="{ name: 'AccountMessages' }">
-                    {{ t('account.messages.messageCenterTitle') }}
-                  </v-tab>
-                  <v-tab value="MeSecurity"
-                         class="font-weight-bold text-subtitle-1 px-8"
-                         :class="{'v-tab--route-active': primaryNavMenu === 'MeSecurity'}"
-                         :to="{ name: 'AccountSecurity' }">
-                    {{ t('account.securityCenter.title') }}
-                  </v-tab>
-                  <v-tab value="MeSpace"
-                         class="font-weight-bold text-subtitle-1 px-8"
-                         :class="{'v-tab--route-active': primaryNavMenu === 'MeSpace'}"
-                         :to="{ name: 'SpaceAssemblys' }">
-                    {{ t('space.title') }}
+                         :class="{'v-tab--route-active': primaryNavMenu === item.value}"
+                         :to="{ name: item.route }">
+                    {{ t(item.name) }}
                   </v-tab>
                 </v-tabs>
 
@@ -215,6 +193,7 @@ import {useNoticeStore} from '~/stores/noticeStore';
 import {useAuthStore} from '~/stores/userAccountStore';
 import {handleApiError} from '@/assets/sripts/error_handler';
 import {useTooltipFollow} from '@/assets/sripts/use_tooltip_follow';
+import {primaryNavItems} from '@/assets/sripts/nav_menu';
 import {SpaceUserResult} from '@/assets/types/User';
 
 import Silk from '@/components/Silk.vue';

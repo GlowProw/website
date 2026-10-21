@@ -641,6 +641,40 @@
       "operateSuccess": "Operation succeeded",
       "ranking": {
         "error": "Operation failed: {context}"
+      },
+      "bot": {
+        "account": {
+          "pushNow": {
+            "failed": "Push failed. Check whether the bot service is online and proactive push is allowed in the group",
+            "cooldown": "Proactive push is cooling down. Please try again later"
+          },
+          "command": {
+            "failed": "Failed to run the command. Check whether the bot service is online"
+          },
+          "group": {
+            "refreshFailed": "Failed to refresh group info",
+            "updateFailed": "Failed to save group settings"
+          },
+          "bindCode": {
+            "failed": "Failed to create bind code"
+          }
+        },
+        "pushNow": {
+          "failed": "Push failed. Check the bot service or group push permission",
+          "dailyEmpty": "Failed to generate the daily report",
+          "dropEmpty": "No drops available to push",
+          "badType": "Unsupported push type"
+        },
+        "group": {
+          "refreshFailed": "Failed to refresh group info",
+          "bindFailed": "Group binding failed"
+        },
+        "subscriptionRequired": "An active sponsorship tier is required",
+        "quotaExceeded": "Today's proactive push quota is used up",
+        "groupNotFound": "Group record not found",
+        "notFound": "The bot is not registered on the site",
+        "serviceUnavailable": "Bot service is unavailable",
+        "signatureInvalid": "Signature verification failed. Check the shared secret"
       }
     },
     "errorCodes": {
@@ -1248,7 +1282,163 @@
     },
     "trashRestoreConfirm": "Are you sure you want to restore this item?",
     "trashRestoreBatchConfirm": "Are you sure you want to restore the selected item(s)?",
-    "trashRestoreSuccess": "Restored successfully"
+    "trashRestoreSuccess": "Restored successfully",
+    "bot": {
+      "title": "Bot",
+      "guide": {
+        "title": "Bot Guide",
+        "subtitle": "Connect the Glow Prow bot to your groups",
+        "intro": "The Glow Prow bot brings daily reports, team-up, Twitch drops and sign-in features to your QQ group. Bind a group to manage push switches and settings here.",
+        "openBotDoc": "View bot documentation",
+        "step1Title": "Invite the bot",
+        "step1Desc": "Add the Glow Prow bot to your group and allow it to send proactive messages.",
+        "step2Title": "Generate a bind code",
+        "step2Desc": "Fill in the group number and management password to generate a one-time bind code.",
+        "step3Title": "Bind inside the group",
+        "step3Desc": "A group owner or admin sends /群组绑定 <code> in the group, then the group appears here.",
+        "bindTitle": "Bind a group",
+        "bindDesc": "The group number identifies the target group. The management password is stored only as a salted hash.",
+        "platform": "Platform",
+        "bot": "Bot",
+        "groupNumber": "Group number",
+        "password": "Management password",
+        "passwordHint": "At least 6 characters",
+        "managePasswordTitle": "About the management password",
+        "managePasswordDesc": "This password authenticates in-group management commands. The site never stores it in plain text; if you forget it, generate a new bind code to overwrite it.",
+        "generateCode": "Generate bind code",
+        "codeDialogTitle": "Group bind code",
+        "botJoined": "The bot has been detected in this group.",
+        "botNotJoined": "The bot has not been detected in this group. Invite it first; ignore this hint if it is already there.",
+        "usageTitle": "Usage notes",
+        "formInvalid": "Please provide the bot, group number and a password of at least 6 characters",
+        "codeCreated": "Bind code generated",
+        "codeHint": "The code is valid for {minutes} minutes.",
+        "copyCommand": "Copy command",
+        "codeUsage": "Ask a group owner or admin to send the command above in the target group. The bot resolves the group OpenID to complete binding.",
+        "checkBound": "I have bound it",
+        "bound": "Bound successfully, opening management",
+        "notYet": "No binding detected yet. Please confirm the command was sent in the group."
+      },
+      "overview": {
+        "title": "Overview",
+        "groups": "Bound groups",
+        "groupsUnit": "",
+        "subscribedGroups": "Subscribed to team-up push",
+        "sent": "Push succeeded",
+        "failed": "Push failed",
+        "timesUnit": "",
+        "quotaTitle": "Daily push quota",
+        "quotaDesc": "Used {used} / {limit}",
+        "tier": "Current tier: {tier}",
+        "tierNone": "Not subscribed",
+        "toManage": "Manage groups",
+        "toGuide": "Add a group",
+        "toTeamup": "Open team-up board",
+        "guideBtn": "Bot guide"
+      },
+      "manage": {
+        "title": "Group Management",
+        "subtitle": "Manage push settings and basic info for groups with the bot",
+        "addGroup": "Add group",
+        "empty": "No bound groups yet. Follow the guide to bind one.",
+        "groupNumber": "Group number",
+        "pushOn": "Push enabled",
+        "pushOff": "Push disabled",
+        "settings": "Settings",
+        "remove": "Unbind",
+        "deleteConfirm": "Unbind group \"{name}\"? The bot will stop receiving its settings.",
+        "panelTitle": "Group settings · {name}",
+        "columns": {
+          "group": "Group",
+          "platform": "Platform",
+          "bot": "Bot",
+          "push": "Push",
+          "actions": "Actions"
+        },
+        "tabs": {
+          "base": "Basic",
+          "push": "Push",
+          "commands": "Commands",
+          "quota": "Quota",
+          "signin": "Sign-in"
+        },
+        "info": {
+          "name": "Group name",
+          "groupNumber": "Group number",
+          "members": "Members",
+          "description": "Description",
+          "openid": "Group OpenID",
+          "unavailable": "Group info is unavailable. The bot service may be offline.",
+          "class": "Group category",
+          "owner": "Group owner",
+          "addedBy": "Added by OpenID",
+          "botRole": "Bot role",
+          "msgRange": "Message scope",
+          "joinedAt": "Bot joined at",
+          "syncTime": "Last synced",
+          "tags": "Group tags",
+          "noAvatar": "QQ Open Platform does not provide group avatars"
+        },
+        "pushReadonlyHint": "Whether proactive push is available is controlled by QQ group settings. A group owner must allow bot messages inside QQ; this page is read-only.",
+        "activePush": "Proactive push",
+        "activePushDesc": "Synced from QQ group settings and bot events, cannot be enabled here",
+        "dailyReport": "Daily report push",
+        "dailyReportDesc": "Send the sailing daily report at the configured times",
+        "dailyTimes": "Push times",
+        "dailyTimesHint": "24-hour format, multiple values allowed, e.g. 09:00",
+        "teamupPush": "Team-up push",
+        "teamupPushDesc": "Receive team-ups published on the website with QQ sync enabled",
+        "dropPush": "Twitch drops push",
+        "dropPushDesc": "Notify this group about new Twitch drops",
+        "welcome": "Welcome message",
+        "welcomeDesc": "Send a welcome message when a member joins",
+        "welcomeContent": "Welcome content",
+        "quota": {
+          "user": "Account quota today",
+          "group": "Group receive quota today",
+          "rateLimit": "Rate limits: bot {botQpm}/min, per-relation {relationQpm}/min, up to 1000 messages per group per day."
+        },
+        "signin": {
+          "user": "User",
+          "days": "Sign-ins this month",
+          "last": "Last sign-in",
+          "monthHint": "Only sign-in records in the current calendar month are counted.",
+          "empty": "No sign-in records this month yet."
+        },
+        "commands": {
+          "title": "Bot commands",
+          "hint": "Commands are reported live by the bot. Sending \"/command help\" makes the bot post the help content to the group.",
+          "input": "Command",
+          "placeholder": "e.g. /admin help",
+          "send": "Send",
+          "use": "Use",
+          "sent": "Sent to the group",
+          "sendFailed": "Command ran but the message could not be sent to the group",
+          "notFound": "No matching command found. Check the command prefix.",
+          "helpOnly": "The panel only runs help commands. Send the full command inside the group.",
+          "empty": "No bot commands available."
+        },
+        "refresh": "Refresh",
+        "refreshed": "Group info refreshed",
+        "pushNow": "Push now",
+        "pushTeamupList": "Push team-up list",
+        "pushNowSuccess": "Push triggered",
+        "pushCooldownHint": "Proactive push cooling down, {time} left",
+        "pushUnknown": "Push status unavailable",
+        "msgRange": {
+          "all": "All group messages",
+          "only_mention": "Only @-mentions",
+          "mention_and_context": "@-mentions and context"
+        },
+        "groupFallback": "Group"
+      },
+      "noAccess": "The bot module is available to active sponsors only (tiers 5 / 10 / 50 / 100). Management pauses when the subscription expires, but saved group and push settings are kept and restored after renewal.",
+      "display": {
+        "qq": "QQ",
+        "appid": "AppID"
+      },
+      "subscribeNow": "Subscribe"
+    }
   },
   "activate": {
     "title": "Account Activation",
@@ -2521,20 +2711,11 @@
     "emptyUsername": "Anonymous Captain",
     "emptyDescription": "This person is lazy and hasn't written anything",
     "pushLoginInfo": "👋 {username}, form a fleet, and set sail!",
-    "wsTimeoutTip": "WebSocket subscription reached 20 min limit and disconnected automatically. Refresh or click reconnect to subscribe again.",
     "reconnectFailed": "Reconnection failed",
     "rules": {
       "playerRequired": "Player ID is required",
       "descriptionRequired": "Description is required",
       "descriptionLength": "Content length must be between 3 and 300 characters"
-    },
-    "service": {
-      "normal": "Service Normal",
-      "disconnected": "Service Disconnected",
-      "unsubscribed": "Service Unsubscribed",
-      "reconnect": "Reconnect",
-      "connect": "Connect",
-      "tooltip": "This service subscribes to server events and updates the list automatically upon receiving messages"
     },
     "filter": {
       "sortLabel": "Sort By",
@@ -2546,7 +2727,13 @@
       "time": "Willing Wait Time",
       "tagsLabel": "Tags",
       "publishBtn": "Post",
-      "descriptionPlaceholder": "Team up description, you can also include your voice channel"
+      "descriptionPlaceholder": "Team up description, you can also include your voice channel",
+      "syncToQqHint": "Sent only to groups subscribed via /组队 订阅, batched by cycle",
+      "syncToQqSubscriptionRequired": "An active sponsorship tier is required to use bot push",
+      "syncToQqBindingRequired": "Send /绑定账户 to the bot in private chat to bind your QQ identity",
+      "pushPlatform": "Push platform",
+      "pushRobots": "Push bots (multiple)",
+      "pushSync": "Sync to bots"
     },
     "time": {
       "minutes": "{count} minutes",
@@ -2564,7 +2751,24 @@
       "other": "Other"
     },
     "searchPlaceholder": "Search recruitment description or player name...",
-    "create": "Post Recruitment"
+    "create": "Post Recruitment",
+    "push": {
+      "queued": "Added to the QQ push queue, will be sent on the next cycle",
+      "queuedWithFailure": "Team-up published, but some platforms failed to queue. Retry from the list later",
+      "retryQueued": "Re-queued for push",
+      "status": {
+        "pending": "Pending",
+        "sending": "Sending",
+        "sent": "Sent",
+        "failed": "Failed"
+      }
+    },
+    "refresh": {
+      "custom": "Custom",
+      "startBtn": "Start auto refresh",
+      "stop": "Stop refresh",
+      "stopped": "Auto refresh stopped"
+    }
   },
   "assembly": {
     "title": "Assembly Workshop",

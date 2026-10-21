@@ -105,10 +105,26 @@ export function useTeamupApi() {
         }
     };
 
+    /**
+     * 手动重试一次外部平台推送
+     */
+    const retryTeamupPush = async (id: string | number, platform: string = 'qq') => {
+        try {
+            const result = await http.post(`team/teamup/${id}/push/retry`, { data: { platform } });
+            return handleResponse(result);
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            return handleError(error);
+        }
+    };
+
     return {
         getTeamups,
         createTeamup,
         deleteTeamup,
-        getTeamupStatistics
+        getTeamupStatistics,
+        retryTeamupPush
     };
 }

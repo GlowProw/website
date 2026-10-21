@@ -395,6 +395,130 @@ const onInitEdit = () => {
   tiptap.value.options.keyboardShortcuts = {}
 }
 
+/**
+ * 读取当前编辑器内容
+ * 编辑器尚未初始化时回落到传入的 modelValue / value
+ */
+const getHtml = (): string => {
+  return String(tiptap.value?.getHTML?.() ?? props.modelValue ?? props.value ?? '')
+}
+
+/**
+ * 序列化单个节点为纯文本或 Markdown
+ * @param node 待序列化节点
+ * @param options media 为真时把链接、图片、视频转成带地址的文本，md 为真时输出 Markdown
+ */
+const serializeNode = (node: any, options: { media: boolean; md: boolean }): string => {
+  if (!node) return ''
+  // 文本节点
+  if (node.nodeType === 3) {
+    return String(node.textContent || '').replace(/\u00a0/g, ' ')
+  }
+  if (node.nodeType !== 1) return ''
+
+  const el = node as HTMLElement
+  const tag = (el.tagName || '').toLowerCase()
+  const children = (): string => Array.from(el.childNodes || [])
+      .map((child: any) => serializeNode(child, options))
+      .join('')
+
+  if (tag === 'br') return '\n'
+  if (tag === 'p') return `${children()}\n\n`
+  if (tag === 'div') return `${children()}\n`
+  if (tag === 'strong' || tag === 'b') return options.md ? `**${children()}**` : children()
+  if (tag === 'em' || tag === 'i') return options.md ? `*${children()}*` : children()
+  if (tag === 'code') return options.md ? `\`${children()}\`` : children()
+  if (tag === 's' || tag === 'del') return options.md ? `~~${children()}~~` : children()
+  if (tag === 'blockquote') {
+    const inner = children().trim()
+    return inner.split('\n').map(line => `> ${line}`).join('\n') + '\n'
+  }
+  if (tag === 'ul' || tag === 'ol') {
+    const items = Array.from(el.children || [])
+    const rendered = items.map((item: any, index: number) => {
+      const text = serializeNode(item, options).trim().replace(/\n+/g, ' ')
+      return tag === 'ol' ? `${index + 1}. ${text}` : `- ${text}`
+    })
+    return rendered.join('\n') + '\n'
+  }
+  if (tag === 'li') return children()
+  if (tag === 'a') {
+    const href = el.getAttribute('href') || ''
+    const text = children().trim() || href
+    if (options.md) return href ? `[${text}](${href})` : text
+    if (options.media && href && href !== text) return `${text}(${href})`
+    return text
+  }
+  if (tag === 'img') {
+    if (!options.media) return ''
+    const src = el.getAttribute('src') || ''
+    return options.md ? `![图片](${src})` : `[图片](${src})`
+  }
+  if (tag === 'video') {
+    if (!options.media) return ''
+    const src = el.getAttribute('src') || ''
+    return `[视频](${src})`
+  }
+  return children()
+}
+
+/**
+ * 把 HTML 解析为文档对象，非浏览器环境下返回空
+ * @param html HTML 字符串
+ */
+const parseHtmlDocument = (html: string): any => {
+  if (typeof window === 'undefined' || typeof (window as any).DOMParser === 'undefined') return null
+  try {
+    return new (window as any).DOMParser().parseFromString(html, 'text/html')
+  } catch {
+    return null
+  }
+}
+
+/**
+ * 整理序列化结果的空白与空行
+ * @param text 原始文本
+ */
+const normalizeText = (text: string): string => {
+  return String(text || '')
+      .replace(/[ \t]+\n/g, '\n')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim()
+}
+
+/**
+ * 读取纯文本内容
+ * @param isMediaConversionText 是否把插入的链接、图片、视频转换为带地址的文本
+ */
+const getText = (isMediaConversionText: boolean = false): string => {
+  const html = getHtml()
+  if (!html) return ''
+  const doc = parseHtmlDocument(html)
+  if (!doc) {
+    return normalizeText(html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' '))
+  }
+  return normalizeText(serializeNode(doc.body, {media: Boolean(isMediaConversionText), md: false}))
+}
+
+/**
+ * 读取 Markdown 内容
+ */
+const getMd = (): string => {
+  const html = getHtml()
+  if (!html) return ''
+  const doc = parseHtmlDocument(html)
+  if (!doc) {
+    return normalizeText(html.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, ''))
+  }
+  return normalizeText(serializeNode(doc.body, {media: true, md: true}))
+}
+
+defineExpose({
+  getHtml,
+  getText,
+  getMd
+})
+
 defineOptions({
   name: 'Textarea'
 })

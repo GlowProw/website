@@ -313,3 +313,14 @@ export interface ImageMagnifyingGlassProps {
   position?: 'top-right' | 'bottom-right' | 'top-left' | 'bottom-left'
   zoomViewBorder?: boolean
 }
+
+// 账户与空间共用的一级导航项
+
+export interface PrimaryNavItem {
+  // 导航唯一标识，也用于高亮判断
+  value: string
+  // i18n 文案键
+  name: string
+  // 点击后跳转的路由名
+  route: string
+}

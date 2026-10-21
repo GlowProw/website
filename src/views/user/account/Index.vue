@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import {computed} from "vue";
+import {computed, ref, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {useDisplay} from "vuetify/framework";
 import {useI18n} from "vue-i18n";
 import {useAuthStore} from "~/stores/userAccountStore";
 import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
+import {apis} from "@/assets/sripts";
+import {primaryNavItems} from "@/assets/sripts/nav_menu";
 
 import Silk from "@/components/Silk.vue";
 import EmptyView from "@/components/EmptyView.vue";
@@ -12,6 +14,7 @@ import AffixContainerView from "@/components/AffixContainerView.vue";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
 
 const route = useRoute(),
+    router = useRouter(),
     {mobile} = useDisplay(),
     {t} = useI18n(),
     authStore = useAuthStore(),
@@ -106,6 +109,25 @@ const messageCenterTabs = [
   },
 ]
 
+// 机器人：概览 + 群管理（首次使用只显示引导）
+const botTabs = [
+  {
+    name: 'account.bot.guide.title',
+    value: 'AccountBotGuide',
+    icon: 'mdi-compass-outline'
+  },
+  {
+    name: 'account.bot.overview.title',
+    value: 'AccountBotOverview',
+    icon: 'mdi-chart-donut'
+  },
+  {
+    name: 'account.bot.manage.title',
+    value: 'AccountBotManage',
+    icon: 'mdi-robot-outline'
+  },
+]
+
 // 判断路由是否属于创作中心大类
 const isDataCenterRoute = (routeName: string) => dataCenterTabs.some(i => i.value === routeName)
 
@@ -118,12 +140,38 @@ const isAccountRoute = (routeName: string) => accountTabs.some(i => i.value === 
 // 判断路由是否属于安全中心大类
 const isSecurityRoute = (routeName: string) => securityTabs.some(i => i.value === routeName)
 
+// 判断路由是否属于机器人模块
+const isBotRoute = (routeName: string) => botTabs.some(i => i.value === routeName)
+
+// 机器人模块是否尚未绑定任何群
+const botFirstUse = ref(true)
+const botChecked = ref(false)
+const botStatusLoading = ref(false)
+
+/**
+ * 读取机器人模块准入与绑定状态，决定二级菜单是否只保留引导
+ */
+const loadBotStatus = async () => {
+  if (!authStore.isLogin || botStatusLoading.value) return
+  botStatusLoading.value = true
+  try {
+    const result = await apis.botApi().getStatus()
+    botFirstUse.value = Boolean(result.data?.data?.firstUse)
+  } catch {
+    botFirstUse.value = true
+  } finally {
+    botChecked.value = true
+    botStatusLoading.value = false
+  }
+}
+
 // 依据当前路由动态计算激活的一级 Tab
-const primaryNavMenu = computed<'MeAccount' | 'MeSecurity' | 'MeDataCenter' | 'MeMessageCenter' | 'MeSpace'>(() => {
+const primaryNavMenu = computed<'MeAccount' | 'MeSecurity' | 'MeDataCenter' | 'MeMessageCenter' | 'MeBot' | 'MeSpace'>(() => {
   const routeName = (route.name as string) || ''
   if (isDataCenterRoute(routeName)) return 'MeDataCenter'
   if (isMessageCenterRoute(routeName)) return 'MeMessageCenter'
   if (isSecurityRoute(routeName)) return 'MeSecurity'
+  if (isBotRoute(routeName)) return 'MeBot'
   if (isAccountRoute(routeName)) return 'MeAccount'
   return 'MeAccount'
 })
@@ -137,7 +185,26 @@ const currentSubTabs = computed(() => {
   if (primaryNavMenu.value === 'MeSecurity') return securityTabs
   if (primaryNavMenu.value === 'MeDataCenter') return dataCenterTabs
   if (primaryNavMenu.value === 'MeMessageCenter') return messageCenterTabs
+  if (primaryNavMenu.value === 'MeBot') {
+    // 已绑定群后引导从二级菜单移除，仍可通过「概览」右上角按钮进入
+    return botFirstUse.value ? [botTabs[0]] : botTabs.filter(t => t.value !== 'AccountBotGuide')
+  }
   return accountTabs
+})
+
+// 进入机器人模块时读取最新状态（绑定完成后无需手动刷新页面）
+watch(() => route.name, (name) => {
+  if (!isBotRoute(String(name || ''))) return
+  loadBotStatus()
+}, {immediate: true})
+
+// 首次使用且状态已确认时，其余机器人页面统一回落到引导
+watch([botChecked, botFirstUse, botStatusLoading, () => route.name], () => {
+  if (!botChecked.value || botStatusLoading.value || !botFirstUse.value) return
+  if (!isBotRoute(String(route.name || ''))) return
+  if (route.name !== 'AccountBotGuide') {
+    router.replace({name: 'AccountBotGuide'})
+  }
 })
 
 defineOptions({
@@ -183,32 +250,13 @@ defineOptions({
                 align-tabs="start"
                 density="comfortable"
                 class="primary-tabs">
-              <v-tab value="MeAccount"
+              <v-tab v-for="item in primaryNavItems"
+                     :key="item.value"
+                     :value="item.value"
                      class="font-weight-bold text-subtitle-1 px-8"
-                     :class="{'v-tab--route-active': primaryNavMenu === 'MeAccount'}"
-                     :to="{ name: accountTabs[0].value }">
-                {{ t('account.title') }}
-              </v-tab>
-              <v-tab value="MeDataCenter"
-                     class="font-weight-bold text-subtitle-1 px-8"
-                     :class="{'v-tab--route-active': primaryNavMenu === 'MeDataCenter'}"
-                     :to="{ name: dataCenterTabs[0].value }">
-                {{ t('account.dataCenter.title') }}
-              </v-tab>
-              <v-tab value="MeMessageCenter"
-                     class="font-weight-bold text-subtitle-1 px-8"
-                     :class="{'v-tab--route-active': primaryNavMenu === 'MeMessageCenter'}"
-                     :to="{ name: messageCenterTabs[0].value }">
-                {{ t('account.messages.messageCenterTitle') }}
-              </v-tab>
-              <v-tab value="MeSecurity"
-                     class="font-weight-bold text-subtitle-1 px-8"
-                     :class="{'v-tab--route-active': primaryNavMenu === 'MeSecurity'}"
-                     :to="{ name: securityTabs[0].value }">
-                {{ t('account.securityCenter.title') }}
-              </v-tab>
-              <v-tab value="MeSpace" class="font-weight-bold text-subtitle-1 px-8" :to="{ name: 'SpaceAssemblys' }">
-                {{ t('space.title') }}
+                     :class="{'v-tab--route-active': primaryNavMenu === item.value}"
+                     :to="{ name: item.route }">
+                {{ t(item.name) }}
               </v-tab>
             </v-tabs>
           </v-col>

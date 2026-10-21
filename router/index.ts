@@ -12,6 +12,9 @@ const Teamup = () => import('@/views/user/account/Teamup.vue');
 const AccountMapsPage = () => import('@/views/user/account/Maps.vue');
 const AccountMediaPage = () => import('@/views/user/account/Media.vue');
 const AccountSmugglersReport = () => import('@/views/user/account/SmugglersReport.vue');
+const AccountBotGuide = () => import('@/views/user/account/bot/Guide.vue');
+const AccountBotOverview = () => import('@/views/user/account/bot/Overview.vue');
+const AccountBotManage = () => import('@/views/user/account/bot/Manage.vue');
 const AccountDataCenterPage = () => import('@/views/user/account/DataCenter.vue');
 const AccountMessagesCenterPage = () => import('@/views/user/account/MessagesCenter.vue');
 const AccountMessagesSettingsPage = () => import('@/views/user/account/MessagesSettings.vue');
@@ -281,6 +284,31 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
                         path: 'smugglersReport',
                         name: 'AccountSmugglersReport',
                         component: AccountSmugglersReport
+                    },
+                    {
+                        path: 'bot',
+                        name: 'AccountBotHome',
+                        redirect: to => ({name: 'AccountBotGuide', params: {lang: to.params.lang}, query: to.query}),
+                        children: [
+                            {
+                                path: 'guide',
+                                name: 'AccountBotGuide',
+                                component: AccountBotGuide,
+                                meta: {title: 'account.bot.guide.title', auth: true}
+                            },
+                            {
+                                path: 'overview',
+                                name: 'AccountBotOverview',
+                                component: AccountBotOverview,
+                                meta: {title: 'account.bot.overview.title', auth: true}
+                            },
+                            {
+                                path: 'manage',
+                                name: 'AccountBotManage',
+                                component: AccountBotManage,
+                                meta: {title: 'account.bot.manage.title', auth: true}
+                            },
+                        ]
                     },
                     {
                         path: 'trash',
